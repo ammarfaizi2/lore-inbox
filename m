@@ -1,52 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262272AbVCVGU3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262518AbVCVGUZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262272AbVCVGU3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 01:20:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262286AbVCVGQs
+	id S262518AbVCVGUZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 01:20:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262511AbVCVGQQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 01:16:48 -0500
-Received: from bay10-f5.bay10.hotmail.com ([64.4.37.5]:35156 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id S262272AbVCVGLB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 01:11:01 -0500
-Message-ID: <BAY10-F50065A16FC9296049E7D4D94E0@phx.gbl>
-X-Originating-IP: [68.62.238.188]
-X-Originating-Email: [getarunsri@hotmail.com]
-From: "Arun Srinivas" <getarunsri@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: scheduler(kernel 2.6) + hyperthreaded related questions?
-Date: Tue, 22 Mar 2005 11:40:48 +0530
+	Tue, 22 Mar 2005 01:16:16 -0500
+Received: from pirx.hexapodia.org ([199.199.212.25]:12868 "EHLO
+	pirx.hexapodia.org") by vger.kernel.org with ESMTP id S262275AbVCVGNh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 01:13:37 -0500
+Date: Mon, 21 Mar 2005 22:13:36 -0800
+From: Andy Isaacson <adi@hexapodia.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz
+Subject: Re: 2.6.11-rc4: Alps touchpad too slow
+Message-ID: <20050322061336.GA2809@hexapodia.org>
+References: <20050304221523.GA32685@hexapodia.org> <20050321144412.5e6d9398.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 22 Mar 2005 06:10:49.0209 (UTC) FILETIME=[E4BE5E90:01C52EA5]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050321144412.5e6d9398.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
+X-PGP-Fingerprint: 48 01 21 E2 D4 E4 68 D1  B8 DF 39 B2 AF A3 16 B9
+X-PGP-Key-URL: http://web.hexapodia.org/~adi/pgp.txt
+X-Domestic-Surveillance: money launder bomb tax evasion
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I went through the sched.c for kernel 2.6 and saw that it supports 
-hyperthreading.I would be glad if someone could answer this question....(if 
-am not wrong a HT processor has 2 architectural states and one execution 
-unit...i.e., two pipeline streams)
+On Mon, Mar 21, 2005 at 02:44:12PM -0800, Andrew Morton wrote:
+> Andy Isaacson <adi@hexapodia.org> wrote:
+> > My Vaio r505te comes up with an unusably slow touchpad if I allow the
+> > ALPS driver to drive it.  It says
+> > 
+> > > ALPS Touchpad (Glidepoint) detected
+> > >   Disabling hardware tapping
+> > > input: AlpsPS/2 ALPS TouchPad on isa0060/serio1
+> > 
+> > and then the trackpad operates at about 1/8 the speed I've gotten used
+> > to. ...  2.6.11-rc4 ...
+> 
+> Andy, could you please test 2.6.12-rc1 and let us know which problems
+> remain?
 
-1)when there are 2 processes a parent and child(created by fork()) do they 
-get scheduled @ the same time...ie., when the parent process is put into one 
-pipeline, do the child also gets scheduled the same time?
+With cvsbk rev 423b66b6oJOGN68OhmSrBFxxLOtIEA (rsynced Monday, it claims
+to be "2.6.12-rc1"), the situation is much improved.  The AlpsPS/2
+driver recognizes the trackpad, tracking speed is back to normal, and
+tapping is turned on by default.  (Drat, now I need to figure out how to
+turn that off again.)
 
-2) what abt in the case of threads(I read tht as opposed to kernel2.4,where 
-threads are treated as processes) ..kernel 2.6 treats threads as threads. 
-So, when two paired threads get into execution are they always scheduled at 
-the same time?
+The kernel output is a bit odd, though:
 
-Also, it would be helpful if someone could suggest which part of sched.c 
-shud i look into to find out how threads are scheduled for a normal 
-processor and for a hyperthreaded processor
+[ 1200.254707] Adding 987988k swap on /dev/hda3.  Priority:-1 extents:1
+[ 1200.330453] EXT3 FS on hda2, internal journal
+[ 1203.504154] SCSI subsystem initialized
+[ 1204.039053]   Enabling hardware tapping
+[ 1204.099034] ieee1394: Initialized config rom entry `ip1394'
+[ 1204.266077] input: PS/2 Mouse on isa0060/serio1
+[ 1204.400583] input: AlpsPS/2 ALPS GlidePoint on isa0060/serio1
+[ 1204.779799] sbp2: $Rev: 1219 $ Ben Collins <bcollins@debian.org>
+[ 1206.183165] kjournald starting.  Commit interval 5 seconds
 
-Pls. CC your replies to this email address getarunsri@hotmail.com
+Note how the "Enabling hardware tapping" message is several lines
+earlier than it seems it should be... I don't think I'm supposed to be
+tapping on my SCSI hardware.
 
-Thanks
-Arun
+... ah, I think I'm missing the "ALPS GlidePoint detected" message which
+I used to get.  Without it, the "Enabling hardware tapping" message is a
+bit opaque.
 
-_________________________________________________________________
-The MSN Survey! 
-http://www.cross-tab.com/surveys/run/test.asp?sid=2026&respid=1 Help us help 
-you better!
+Other than that, I have no complaints about the trackpad.
 
+Thanks for the ping.
+
+-andy

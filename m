@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265517AbSLQXpg>; Tue, 17 Dec 2002 18:45:36 -0500
+	id <S265196AbSLQXoH>; Tue, 17 Dec 2002 18:44:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267027AbSLQXpg>; Tue, 17 Dec 2002 18:45:36 -0500
-Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:3187
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S265517AbSLQXpf>; Tue, 17 Dec 2002 18:45:35 -0500
-Date: Tue, 17 Dec 2002 18:55:54 -0500 (EST)
-From: Zwane Mwaikambo <zwane@holomorphy.com>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: lk maintainers
-In-Reply-To: <200212170628.gBH6Scs15943@Port.imtp.ilyichevsk.odessa.ua>
-Message-ID: <Pine.LNX.4.50.0212171118520.8420-100000@montezuma.mastecende.com>
-References: <200212170628.gBH6Scs15943@Port.imtp.ilyichevsk.odessa.ua>
+	id <S265276AbSLQXoH>; Tue, 17 Dec 2002 18:44:07 -0500
+Received: from mailproxy1.netcologne.de ([194.8.194.222]:34029 "EHLO
+	mailproxy1.netcologne.de") by vger.kernel.org with ESMTP
+	id <S265196AbSLQXoH> convert rfc822-to-8bit; Tue, 17 Dec 2002 18:44:07 -0500
+Content-Type: text/plain;
+  charset="iso-8859-15"
+From: =?iso-8859-15?q?J=F6rg=20Prante?= <joergprante@netcologne.de>
+Reply-To: joergprante@netcologne.de
+To: linux-kernel@vger.kernel.org
+Subject: [2.4.21-pre1] scx200.c in arch/i386/kernel
+Date: Wed, 18 Dec 2002 00:51:07 +0100
+User-Agent: KMail/1.4.3
+Cc: wingel@nano-system.com
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200212180051.07749.joergprante@netcologne.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 17 Dec 2002, Denis Vlasenko wrote:
+Hi,
 
-> Martin Dalecki <martin@dalecki.de> [11 mar 2002]
-> 	IDE subsystem maintainer for 2.5
-> 	(mail Vojtech Pavlik <vojtech@suse.cz> too)
+I just compiled 2.4.21-pre1 for a consistency check with all configure options 
+set to 'y' and found a file arch/i386/kernel/scx200.c which does not compile 
+because of missing support in the Makefile. It is introduced by the 
+2.4.21-pre1 patch by Marcelo. 
 
-Should this entry still be there?
+Is there a reason why it's in the kernel directory of the i386 architecture? 
+This is a very unusual place.
 
-> Eric S. Raymond <esr@thyrsus.com> [5 feb 2002]
-> 	Send kernel configuration bug reports and suggestions to me.
-> 	Also I'll be more than happy to accept help enties for kernel config
-> 	options (Configure.help).
+I moved it to drivers/char/scx200.c and it compiles like a charme, after 
+correcting the Makefiles. Is there any chance of moving it to from the arch 
+directory to a more appropriate place? Or did I misunderstand?
 
-Can't say i've seen this fellow in a while either.
+I don't know the scx200 Nat Sem chips, I don't have one and I don't even care, 
+it's just because I'm doing some thorough build checks on my new -jp kernel 
+patch set.
 
-	Zwane
--- 
-function.linuxpower.ca
+Best regards,
+
+Jörg
+

@@ -1,42 +1,26 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263033AbTCWLnS>; Sun, 23 Mar 2003 06:43:18 -0500
+	id <S263032AbTCWLm5>; Sun, 23 Mar 2003 06:42:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263035AbTCWLnS>; Sun, 23 Mar 2003 06:43:18 -0500
-Received: from amsfep14-int.chello.nl ([213.46.243.22]:37664 "EHLO
-	amsfep14-int.chello.nl") by vger.kernel.org with ESMTP
-	id <S263033AbTCWLnM>; Sun, 23 Mar 2003 06:43:12 -0500
-From: Jos Hulzink <josh@stack.nl>
-To: Dave Jones <davej@codemonkey.org.uk>
-Subject: Re: 2.5.65: 3C905 driver doesn't work.
-Date: Sun, 23 Mar 2003 12:54:12 +0100
-User-Agent: KMail/1.5
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200303211618.36485.josh@stack.nl> <20030321182933.E11076-100000@snail.stack.nl> <20030321175356.GC15652@suse.de>
-In-Reply-To: <20030321175356.GC15652@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200303231254.12767.josh@stack.nl>
+	id <S263033AbTCWLm5>; Sun, 23 Mar 2003 06:42:57 -0500
+Received: from mailout05.sul.t-online.com ([194.25.134.82]:47032 "EHLO
+	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S263032AbTCWLm4>; Sun, 23 Mar 2003 06:42:56 -0500
+Message-Id: <4.3.2.7.2.20030323124058.00b6bbd0@pop.t-online.de>
+X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
+Date: Sun, 23 Mar 2003 12:55:16 +0100
+To: linux-kernel@vger.kernel.org
+From: margitsw@t-online.de (Margit Schubert-While)
+Subject: L1_CACHE_SHIFT again
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 21 March 2003 18:53, Dave Jones wrote:
-> On Fri, Mar 21, 2003 at 06:31:24PM +0100, Jos Hulzink wrote:
->  > > "acpi=off noapic"
->  > > For me, the third one gets it working again on two boxes.
->  > > Without that, packets are sent, but nothing is ever recieved.
->  >
->  > For me, the third option results in a kernel panic very early during
->  > boot
->  >
->  > :( I'm trying to get more info out of it.
->
-> Interesting, can you post that panic ?
+	According to the Intel docs, the cacheline for a P4 is
+	64 bytes. The P4 does, on read, 2 sectors of 64 bytes.
+	But, on write, 64 bytes.
+	So, is the cache line size wrong ? (7 in 2.4 and 2.5)
+	
+	Margit 
 
-Located, caused by a magically jumped back Processor setting (P4 code doesn't 
-work on P2)
-
-Jos

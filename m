@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129267AbQLOBJj>; Thu, 14 Dec 2000 20:09:39 -0500
+	id <S129325AbQLOBMk>; Thu, 14 Dec 2000 20:12:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129325AbQLOBJ3>; Thu, 14 Dec 2000 20:09:29 -0500
-Received: from enterprise.cistron.net ([195.64.68.33]:25352 "EHLO
+	id <S135413AbQLOBMb>; Thu, 14 Dec 2000 20:12:31 -0500
+Received: from enterprise.cistron.net ([195.64.68.33]:27400 "EHLO
 	enterprise.cistron.net") by vger.kernel.org with ESMTP
-	id <S129267AbQLOBJW>; Thu, 14 Dec 2000 20:09:22 -0500
+	id <S129325AbQLOBMS>; Thu, 14 Dec 2000 20:12:18 -0500
 From: miquels@traveler.cistron-office.nl (Miquel van Smoorenburg)
-Subject: Re: Linus's include file strategy redux
-Date: 15 Dec 2000 00:39:05 GMT
+Subject: Re: Signal 11
+Date: 15 Dec 2000 00:42:02 GMT
 Organization: Cistron Internet Services B.V.
-Message-ID: <91bp79$1iv$1@enterprise.cistron.net>
-In-Reply-To: <91bnoc$vij$2@enterprise.cistron.net> <Pine.GSO.4.21.0012141916270.10441-100000@weyl.math.psu.edu>
-X-Trace: enterprise.cistron.net 976840745 1631 195.64.65.67 (15 Dec 2000 00:39:05 GMT)
+Message-ID: <91bpcq$1iv$2@enterprise.cistron.net>
+In-Reply-To: <91bnhg$vij$1@enterprise.cistron.net> <E146inG-0000O0-00@the-village.bc.nu>
+X-Trace: enterprise.cistron.net 976840922 1631 195.64.65.67 (15 Dec 2000 00:42:02 GMT)
 X-Complaints-To: abuse@cistron.nl
 X-Newsreader: trn 4.0-test74 (May 26, 2000)
 Originator: miquels@traveler.cistron-office.nl (Miquel van Smoorenburg)
@@ -20,25 +20,17 @@ To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.GSO.4.21.0012141916270.10441-100000@weyl.math.psu.edu>,
-Alexander Viro  <viro@math.psu.edu> wrote:
->On 15 Dec 2000, Miquel van Smoorenburg wrote:
+In article <E146inG-0000O0-00@the-village.bc.nu>,
+Alan Cox  <alan@lxorguk.ukuu.org.uk> wrote:
+>> Yes, but 2.96 is also binary incompatible with all non-redhat distro's.
+>> And since redhat is _the_ distro that commercial entities use to
+>> release software for, this was very arguably a bad move.
 >
->> In article <NBBBJGOOMDFADJDGDCPHIENJCJAA.law@sgi.com>,
->> LA Walsh <law@sgi.com> wrote:
->> >Which works because in a normal compile environment they have /usr/include
->> >in their include path and /usr/include/linux points to the directory
->> >under /usr/src/linux/include.
->> 
->> No, that a redhat-ism.
->
->Not even all versions of redhat do that.
+>Except you conveniently ignore a few facts
 
-If that has been fixed recently, that is a very Good Thing (tm).
-
-Now if in 2.5 <kernel>/include/net would be moved to <kernel>/linux/net
-so that user-level code that uses <net/whatever.h> can be compiled
-with -I/usr/src/some/kernel/42.42/include/ I'd be even happier
+Doesn't everyone. I should have included a smiley with as comment
+that I was only half-joking. Anyway this is the kernel list, and
+as such this is becoming off-topic.
 
 Mike.
 -

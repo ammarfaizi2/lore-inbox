@@ -1,48 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267478AbUJBS1g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267483AbUJBS3M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267478AbUJBS1g (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Oct 2004 14:27:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267487AbUJBS1g
+	id S267483AbUJBS3M (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Oct 2004 14:29:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267487AbUJBS3M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Oct 2004 14:27:36 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:56221 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S267478AbUJBS1e (ORCPT
+	Sat, 2 Oct 2004 14:29:12 -0400
+Received: from gprs214-140.eurotel.cz ([160.218.214.140]:1152 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S267483AbUJBS3B (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Oct 2004 14:27:34 -0400
-Date: Sat, 2 Oct 2004 11:04:45 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Hubertus Franke <frankeh@watson.ibm.com>
-Cc: dipankar@in.ibm.com, akpm@osdl.org, ckrm-tech@lists.sourceforge.net,
-       efocht@hpce.nec.com, mbligh@aracnet.com, lse-tech@lists.sourceforge.net,
-       hch@infradead.org, steiner@sgi.com, jbarnes@sgi.com,
-       sylvain.jeaugey@bull.net, djh@sgi.com, linux-kernel@vger.kernel.org,
-       colpatch@us.ibm.com, Simon.Derr@bull.net, ak@suse.de, sivanich@sgi.com
-Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
-Message-Id: <20041002110445.26b7bafb.pj@sgi.com>
-In-Reply-To: <415ED3E3.6050008@watson.ibm.com>
-References: <20040805100901.3740.99823.84118@sam.engr.sgi.com>
-	<20040805190500.3c8fb361.pj@sgi.com>
-	<247790000.1091762644@[10.10.2.4]>
-	<200408061730.06175.efocht@hpce.nec.com>
-	<20040806231013.2b6c44df.pj@sgi.com>
-	<411685D6.5040405@watson.ibm.com>
-	<20041001164118.45b75e17.akpm@osdl.org>
-	<20041001230644.39b551af.pj@sgi.com>
-	<20041002145521.GA8868@in.ibm.com>
-	<415ED3E3.6050008@watson.ibm.com>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sat, 2 Oct 2004 14:29:01 -0400
+Date: Sat, 2 Oct 2004 20:09:24 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Tony Howat <tony@i-r-genius.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Reading ati_remote keypresses in userland
+Message-ID: <20041002180923.GA4290@elf.ucw.cz>
+References: <20041002135118.M79981@i-r-genius.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041002135118.M79981@i-r-genius.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I see cpumem sets to be orthogonal to CKRM cpu share allocations.
+Hi!
 
-I agree.  Thank-you for stating that, Hubertus.
+> I have an ati_ remote, and the ati_remote module loaded, the 2.2.0 version 
+> with kernel version 2.6.5-1. It works in that I can see data 
+> on /dev/input/mice when I use the mouse type controls on the remote. However 
+> I need to use the keyboardish buttons to control my application. 
+> 
+> Having read round it seemed the /dev/input/event devices would be the key. I 
+> put together some code to find the right event device and dump the output 
+> from a linux journal article : 
+> 
+> The device on /dev/input/event0 says its name is PS/2 Generic Mouse 
+> The device on /dev/input/event1 says its name is AT Translated Set 2 
+> keyboard 
+> The device on /dev/input/event2 says its name is X10 Wireless Technology Inc 
+> USB Receiver 
+> evdev driver version is 1.0.0 
+> 
+> ...but there's no output turning up when I read from the file descriptor. 
+> However, running the module in debug mode does give meaningful output to 
+> /var/log/messages : 
 
+You need to read in slightly special way, see for example evtest.
+
+									Pavel
 -- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

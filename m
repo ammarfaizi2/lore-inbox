@@ -1,40 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263777AbTKXQuJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Nov 2003 11:50:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263793AbTKXQuJ
+	id S263766AbTKXQuE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Nov 2003 11:50:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263777AbTKXQuE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Nov 2003 11:50:09 -0500
-Received: from hirsch.in-berlin.de ([192.109.42.6]:25321 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S263777AbTKXQuF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Nov 2003 11:50:05 -0500
-X-Envelope-From: kraxel@bytesex.org
-Date: Mon, 24 Nov 2003 17:30:13 +0100
-From: Gerd Knorr <kraxel@bytesex.org>
-To: Michael Buesch <mbuesch@freenet.de>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6.0-test10] standby freezes bttv
-Message-ID: <20031124163013.GA32212@bytesex.org>
-References: <200311241420.08216.mbuesch@freenet.de> <20031124134212.GE30618@bytesex.org> <200311241645.05926.mbuesch@freenet.de>
+	Mon, 24 Nov 2003 11:50:04 -0500
+Received: from fmr04.intel.com ([143.183.121.6]:5863 "EHLO
+	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
+	id S263766AbTKXQuB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Nov 2003 11:50:01 -0500
+Subject: Re: not fixed in 2.4.23-rc3 (was: Re: 2.4.22 SMP kernel build for
+	hyper threading P4)
+From: Len Brown <len.brown@intel.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Eduard Bloch <edi@gmx.de>, linux-kernel@vger.kernel.org, davej@redhat.com
+In-Reply-To: <20031124070016.GX22764@holomorphy.com>
+References: <BF1FE1855350A0479097B3A0D2A80EE0CC886F@hdsmsx402.hd.intel.com>
+	 <20031123204532.GA6093@zombie.inka.de> <1069654747.2812.689.camel@dhcppc4>
+	 <20031124070016.GX22764@holomorphy.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1069692557.3035.17.camel@dhcppc4>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200311241645.05926.mbuesch@freenet.de>
-User-Agent: Mutt/1.5.3i
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 24 Nov 2003 11:49:18 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> In file included from drivers/media/video/bttv-driver.c:39:
-> drivers/media/video/bttvp.h:44:29: media/ir-common.h: No such file or directory
+On Mon, 2003-11-24 at 02:00, William Lee Irwin III wrote:
 
-That is in the 25_ir_input-2.6.0-test8.diff.gz patch ...
+> A similar (but more elaborate) fix is in 2.6.
 
-> As I'm using test-10, do you have updated patches?
+Why is the additional variable "kicked" in 2.6 necessary?
+Appears that kicked == (cpucount + 1), and the loop already
+compares that to NR_CPUS via max_cpus:
 
-just uploaded.
+                if (max_cpus <= cpucount+1)
+                        continue;
 
-  Gerd
+Though I think it would read more clearly this way:
 
--- 
-You have a new virus in /var/mail/kraxel
+                if (cpucount + 1 >= max_cpus)
+                        break;
+
+Speaking of max_cpus, it would probably be a good thing if maxcpus() did
+not allow the administrator to set max_cpus > NR_CPUS at boot time.
+
+cheers,
+-Len
+
+
+

@@ -1,48 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266305AbUAHWHI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jan 2004 17:07:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266323AbUAHWHG
+	id S266180AbUAHWJ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jan 2004 17:09:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266334AbUAHWHo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jan 2004 17:07:06 -0500
-Received: from mail5.bluewin.ch ([195.186.1.207]:30346 "EHLO mail5.bluewin.ch")
-	by vger.kernel.org with ESMTP id S266305AbUAHWFn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jan 2004 17:05:43 -0500
-Message-ID: <3FFDD435.3080808@bluewin.ch>
-Date: Thu, 08 Jan 2004 23:05:41 +0100
-From: Mario Vanoni <vanonim@bluewin.ch>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en, it, fr-fr, de-de
-MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: 2.6.1-rc2-mm1: 4xOK, 1xUNUSABLE
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 8 Jan 2004 17:07:44 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:41352 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S266330AbUAHWH0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jan 2004 17:07:26 -0500
+Date: Thu, 8 Jan 2004 14:11:18 -0800
+From: Mike Anderson <andmike@us.ibm.com>
+To: Christoph Hellwig <hch@infradead.org>,
+       Andrew Vasquez <andrew.vasquez@qlogic.com>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linux-SCSI <linux-scsi@vger.kernel.org>
+Subject: Re: [ANNOUNCE] QLogic qla2xxx driver update available (v8.00.00b7).
+Message-ID: <20040108221118.GA10860@beaverton.ibm.com>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andrew Vasquez <andrew.vasquez@qlogic.com>,
+	James Bottomley <James.Bottomley@SteelEye.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	Linux-SCSI <linux-scsi@vger.kernel.org>
+References: <B179AE41C1147041AA1121F44614F0B060EDD4@AVEXCH02.qlogic.org> <20040108165414.A12233@infradead.org> <20040108193336.GB10243@beaverton.ibm.com> <20040108193427.A14545@infradead.org> <20040108195732.GB10391@beaverton.ibm.com> <20040108200643.A15176@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040108200643.A15176@infradead.org>
+X-Operating-System: Linux 2.0.32 on an i486
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OK: UP's Celeron-1G & P3-550, dual SMP's P3-550 & P3-1266
+Christoph Hellwig [hch@infradead.org] wrote:
+> On Thu, Jan 08, 2004 at 11:57:32AM -0800, Mike Anderson wrote:
+> > > With sends are you referring to function that support certain scsi
+> > > commands like report luns and report capacity?  We have a perfectly
+> > > fine interface for that and it's SG_IO.. 
+> > 
+> > I was thinking about the fabric management functions section of the
+> > spec.
+> 
+> Hmm, I don't remember those in the copy I have.  It appears there's
+> a V2 of the spec on the SNIA server now and I'll take a look at
+> what they are supposed to do.
 
-UNUSABLE: P4-3066HT with 1GB mem
+Yes, I guess I should have mentioned that I was looking at v2.18 from
+T11 (02-149v0.pdf).
 
-Compiling the kernel under 2.6.1-rc1-mm1, gcc-3.3.2,
-
-arch/i386/boot/setup.S: Assembler messages:
-arch/i386/boot/setup.S:165: Warning: value 0x37ffffff truncated to 0x37ffffff
-
-each values 6 (six) f (truncated, what ???)
-
-but compiles.
-
-Rebooting with this kernel the first time OK,
-then trying to recompile the kernel,
-the machine freezed, no messages.
-
-Rebooting with the same kernel, fsck, same problem.
-
-Rebooting with 2.6.1-rc1-mm1 _no_ _problems_!
-Kernel recompiles with the same error messages.
-
-Mario, _not_ in lkml (cc if needed).
+-andmike
+--
+Michael Anderson
+andmike@us.ibm.com
 

@@ -1,42 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129625AbQKUGYR>; Tue, 21 Nov 2000 01:24:17 -0500
+	id <S129091AbQKUHCq>; Tue, 21 Nov 2000 02:02:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129663AbQKUGYH>; Tue, 21 Nov 2000 01:24:07 -0500
-Received: from saturn.cs.uml.edu ([129.63.8.2]:54532 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S129625AbQKUGX7>;
-	Tue, 21 Nov 2000 01:23:59 -0500
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200011210553.eAL5rv0311508@saturn.cs.uml.edu>
-Subject: Re: Defective Red Hat Distribution poorly represents Linux
-To: maillist@chello.nl (Igmar Palsenberg)
-Date: Tue, 21 Nov 2000 00:53:57 -0500 (EST)
-Cc: cturner@quark.analogic.com (Charles Turner Ph.D.),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0011202113220.10587-100000@server.serve.me.nl> from "Igmar Palsenberg" at Nov 20, 2000 09:15:47 PM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
+	id <S129208AbQKUHCh>; Tue, 21 Nov 2000 02:02:37 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:18952 "EHLO
+	wire.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S129091AbQKUHCa>; Tue, 21 Nov 2000 02:02:30 -0500
+Date: Tue, 21 Nov 2000 00:32:09 -0600
+To: Chip Salzenberg <chip@valinux.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.2.18pre21: DRM update
+Message-ID: <20001121003209.D2918@wire.cadcamlab.org>
+In-Reply-To: <20001117201603.A3439@valinux.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20001117201603.A3439@valinux.com>; from chip@valinux.com on Fri, Nov 17, 2000 at 08:16:03PM -0800
+From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> These are hardware problems, not software. Programs like gcc and ld
-> segfaulting like this is NOT a software problem. 
-> 
-> Please don't turn up with some 'hey, it worked with my disk', that's no
-> clue that the distrib is bad. The same arguments as 'it works with
-> Windows'. 
 
-This could be a Linux kernel problem. (though likely not)
+[Chip Salzenberg]
+> --- drivers/char/Makefile.prev
+> +++ drivers/char/Makefile	Fri Nov 17 13:30:04 2000
+> @@ -12,5 +12,5 @@
+>  SUB_DIRS     := 
+>  MOD_SUB_DIRS := $(SUB_DIRS)
+> -ALL_SUB_DIRS := $(SUB_DIRS) rio ftape joystick drm agp
+> +ALL_SUB_DIRS := $(SUB_DIRS) rio ftape joystick
+>  
+>  #
+> @@ -395,4 +395,16 @@
+>  endif
+>  
+> +ifeq ($(CONFIG_DRM),y)
+> +O_OBJS += drm/drm.o
+> +ALL_SUB_DIRS += drm
+> +MOD_SUB_DIRS += drm
 
-If one disk works and another one not, one might suspect
-that the wrong DMA mode is being used in the crashing case.
-The easy fix: replace the drive with a different model, and
-make sure you have the most modern cables.
+The bits about ALL_SUB_DIRS are trivially wrong.  You should define it
+unconditionally -- that way the user doesn't have to 'make dep' after
+every 'make *config'.
+
+Not a very important point, granted.
 
 
+>  #ifndef __HAVE_ARCH_CMPXCHG
+>  				/* Include this here so that driver can be
+>                                     used with older kernels. */
+> +#if defined(__alpha__)
 
+This section ought to be in include/asm-{alpha,i386}/system.h like in
+2.4 (and like sparc64 in 2.2).  Then again, perhaps in 2.2 it is best
+to let sleeping dogs lie.
+
+Peter
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,64 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310408AbSCKRWb>; Mon, 11 Mar 2002 12:22:31 -0500
+	id <S310447AbSCKR0B>; Mon, 11 Mar 2002 12:26:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310447AbSCKRWX>; Mon, 11 Mar 2002 12:22:23 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:11268 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S310408AbSCKRWR>; Mon, 11 Mar 2002 12:22:17 -0500
-From: Nikita Danilov <Nikita@Namesys.COM>
-MIME-Version: 1.0
+	id <S310452AbSCKRZv>; Mon, 11 Mar 2002 12:25:51 -0500
+Received: from bitmover.com ([192.132.92.2]:21677 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S310301AbSCKRZj>;
+	Mon, 11 Mar 2002 12:25:39 -0500
+Date: Mon, 11 Mar 2002 09:25:38 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: Larry McVoy <lm@bitmover.com>, Rik van Riel <riel@conectiva.com.br>,
+        "Jonathan A. George" <JGeorge@greshamstorage.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Kernel SCM: When does CVS fall down where it REALLY matters?
+Message-ID: <20020311092538.U26447@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	"Randy.Dunlap" <rddunlap@osdl.org>, Larry McVoy <lm@bitmover.com>,
+	Rik van Riel <riel@conectiva.com.br>,
+	"Jonathan A. George" <JGeorge@greshamstorage.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020311090512.N26447@work.bitmover.com> <Pine.LNX.4.33L2.0203110911530.3326-100000@dragon.pdx.osdl.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15500.59003.108896.552456@laputa.namesys.com>
-Date: Mon, 11 Mar 2002 20:16:43 +0300
-X-Fnord: +++ath
-X-WebTV-Stationery: Standard; BGColor=black; TextColor=black
-X-Message-Flag: Message text blocked: ADULT LANGUAGE/SITUATIONS
-X-BeenThere: crackmonkey@crackmonkey.org
-To: Hans Reiser <reiser@Namesys.COM>
-Cc: elenstev@mesatop.com, linux-kernel@vger.kernel.org
-Subject: Re: linux-2.5.4-pre1 - bitkeeper testing
-In-Reply-To: <3C8CE48B.1020105@namesys.com>
-In-Reply-To: <Pine.LNX.4.33.0203110508080.17717-100000@mhw.ULib.IUPUI.Edu>
-	<200203111444.HAA11416@tstac.esa.lanl.gov>
-	<3C8CD687.5000608@namesys.com>
-	<200203111540.IAA11492@tstac.esa.lanl.gov>
-	<3C8CE48B.1020105@namesys.com>
-X-Mailer: VM 7.00 under 21.4 (patch 3) "Academic Rigor" XEmacs Lucid
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.33L2.0203110911530.3326-100000@dragon.pdx.osdl.net>; from rddunlap@osdl.org on Mon, Mar 11, 2002 at 09:12:31AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans Reiser writes:
- > Steven Cole wrote:
- > 
- > >On Monday 11 March 2002 09:08 am, Hans Reiser wrote:
- > >
- > >
- > >
- > >Perhaps others whose VMS experience is more recent than mine can answer this question.
- > >More generally, if the infrastructure for keeping file versions around is going
- > >to be generated for other reasons, having the option to have file versions could
- > >be useful for some people.  I certainly remember people who loved that feature,
- > >but I wasn't one of them.
- > >
- > >Steven
- > >
- > >
- > 
- > I don't use CVS for most papers, proposals, etc,, that I write.  If the 
- > version control was turned on with something like a chattr, I would use 
- > it, and emacs could get rid of that damned ~ file that clutters my ls 
+On Mon, Mar 11, 2002 at 09:12:31AM -0800, Randy.Dunlap wrote:
+> On Mon, 11 Mar 2002, Larry McVoy wrote:
+> 
+> | On Thu, Mar 07, 2002 at 08:59:47PM -0300, Rik van Riel wrote:
+> | > 3) graphical 2-way merging tool like bitkeeper has
+> | >    (this might not seem essential to people who have
+> | >    never used it, but it has saved me many many hours)
+> |
+> | I haven't verified this, but I suspect what Rik is using is the 3-way
+> | file merge.  If it looks like
+> |
+> | 	http://www.bitkeeper.com/newmerge.gif
+> |
+> | that's a 3 way file merge, the 2 big side by side windows are showing
+> | you 3 diffs, the diff from the ancestor to the local version in the left
+> | window, the diff from the ancestor to the remote version in the right
+> | window, and then side by side diffs in that they are lined up.
+> |
+> | If Rik is using the 2 way file merge and likes that, he's in for a quantum
+> | leap in productivity, commercial customers have reported as much as an
+> | 18:1 productivity increase from the 3 way file merge.
+> 
+> Just curious, how is this productivity increase measured?
 
-ls -B
+They redid the same really nasty merge with the old tools, with Sun's
+file merge, and the new filemerge.  It was a bit more than 18x faster
+with the new file merge.
 
- > commands of what should be a listing of only my current version of my 
- > home directory without old versions of files being listed (the disk 
- > space I don't care about, it is the clutter that annoys.)
- > 
- > Hans
- > 
-
-Nikita.
-
- > -
+This same customer site, which hacks the kernel by the way, claims that 
+well over 90% of their BK usage is spent merging, so the productivity 
+gains in merging are translated almost 1:1 into wall clock gains.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

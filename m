@@ -1,58 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286495AbSABBLb>; Tue, 1 Jan 2002 20:11:31 -0500
+	id <S286508AbSABBKu>; Tue, 1 Jan 2002 20:10:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286468AbSABBLW>; Tue, 1 Jan 2002 20:11:22 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:24070 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S286491AbSABBLJ>; Tue, 1 Jan 2002 20:11:09 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: a great C++ book?
-Date: 1 Jan 2002 17:10:53 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <a0tmmt$ear$1@cesium.transmeta.com>
-In-Reply-To: <20020101041111.29695.qmail@web14310.mail.yahoo.com> <Pine.LNX.4.43.0201011214560.7188-100000@waste.org> <20020101104331.F4802@work.bitmover.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+	id <S286468AbSABBKk>; Tue, 1 Jan 2002 20:10:40 -0500
+Received: from hog.ctrl-c.liu.se ([130.236.252.129]:11020 "HELO
+	hog.ctrl-c.liu.se") by vger.kernel.org with SMTP id <S286491AbSABBK0>;
+	Tue, 1 Jan 2002 20:10:26 -0500
+From: Christer Weinigel <wingel@hog.ctrl-c.liu.se>
+To: hpa@zytor.com
+Cc: robert@schwebel.de, linux-kernel@vger.kernel.org, jason@mugwump.taiga.com,
+        anders@alarsen.net, rkaiser@sysgo.de, tytso@mit.edu
+In-Reply-To: <3C3258DF.5000908@zytor.com> (hpa@zytor.com)
+Subject: Re: [PATCH][RFC] AMD Elan patch
+Reply-To: wingel@t1.ctrl-c.liu.se
+In-Reply-To: <Pine.LNX.4.33.0112311900380.3056-100000@callisto.local> <3C322EEE.5040402@zytor.com> <20020102000609.6B6C136F9F@hog.ctrl-c.liu.se> <3C3258DF.5000908@zytor.com>
+Message-Id: <20020102011024.AFDCE36F9F@hog.ctrl-c.liu.se>
+Date: Wed,  2 Jan 2002 02:10:24 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20020101104331.F4802@work.bitmover.com>
-By author:    Larry McVoy <lm@bitmover.com>
-In newsgroup: linux.dev.kernel
-> 
-> Makes you wonder what would happen if someone tried to design a
-> minimalistic C++, call it the "M programming language", have be close
-> to C with the minimal useful parts of C++ included.
-> 
+H. Peter Anvin wrote:
 
-Personally I have found that it's quite clean and easy to program in 
-"C+" by simply using a C++ compiler and just not going wild with all
-the features that you *could* use.  You don't *have* to use all of it,
-you know.  In that way, your "M" language really becomes a particular
-*style* of C++ rather than a full-blown programming language in its
-own right.  This is actually a Good Thing[TM], since it means you can
-leverage existing compilers and so forth.
+> The reason to use the BIOS first is to give the platform vendor a
+> hook to deal with platform-specific issues, and God knows there are
+> plenty of those when it comes to A20. 
 
-Way back in the 0.99.x days we actually tried doing the Linux kernel
-using the g++ compiler, the main motivation for that was to get
-type-safe linkage.  At that time, as everyone knows, g++ wasn't up to
-snuff; that has probably changed now.  The LKML FAQ claims that "there
-would be no point" unless we started using C++ features left and
-right; personally I think type-safe linkage is plenty of reason
-enough.
+Well, the Elan SC4x0 doesn't have a lot of issues, everything having
+to do with A20 is on the chip itself, so it would take a really brain
+damaged design to mess this up. :-)
 
-I think it might be worth another attempt once gcc 3.x stabilizes
-enough that it's the accepted standard compiler.  It will be more
-invasive this time around, because of the module system, but the
-benefit might be greater.
+  /Christer
 
-	-hpa
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+"Just how much can I get away with and still go to heaven?"

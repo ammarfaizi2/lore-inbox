@@ -1,97 +1,138 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266297AbUBDE0i (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Feb 2004 23:26:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266302AbUBDE0i
+	id S266295AbUBDEY5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Feb 2004 23:24:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266297AbUBDEY4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Feb 2004 23:26:38 -0500
-Received: from fmr06.intel.com ([134.134.136.7]:1234 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S266297AbUBDE0d convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Feb 2004 23:26:33 -0500
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: [Infiniband-general] Getting an Infiniband access layer in the linux kernel
-Date: Tue, 3 Feb 2004 08:45:32 -0800
-Message-ID: <F595A0622682C44DBBE0BBA91E56A5ED1C3664@orsmsx410.jf.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [Infiniband-general] Getting an Infiniband access layer in the linux kernel
-Thread-Index: AcPp9oYxPA64kD7QSZ2b7GUy1dhocwAfP5Ag
-From: "Woodruff, Robert J" <woody@co.intel.com>
-To: "Masanori ITOH" <marc@labs.fujitsu.com>, <woody@jf.intel.com>
-Cc: <hozer@hozed.org>, <infiniband-general@lists.sourceforge.net>,
-       <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 03 Feb 2004 16:45:32.0626 (UTC) FILETIME=[239FE320:01C3EA75]
+	Tue, 3 Feb 2004 23:24:56 -0500
+Received: from wblv-254-118.telkomadsl.co.za ([165.165.254.118]:50568 "EHLO
+	gateway.lan") by vger.kernel.org with ESMTP id S266295AbUBDEYv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Feb 2004 23:24:51 -0500
+Subject: Re: [ANNOUNCE] udev 016 release
+From: Martin Schlemmer <azarah@nosferatu.za.org>
+Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
+To: Greg KH <greg@kroah.com>
+Cc: linux-hotplug-devel@lists.sourceforge.net,
+       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040203231341.GA22058@kroah.com>
+References: <20040203201359.GB19476@kroah.com>
+	 <1075843712.7473.60.camel@nosferatu.lan>
+	 <1075849413.11322.6.camel@nosferatu.lan> <20040203231341.GA22058@kroah.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ylo1u8P61ovCRKgA9XZE"
+Message-Id: <1075868708.11322.23.camel@nosferatu.lan>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 04 Feb 2004 06:25:08 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Masonori, 
 
-I think that Sean has already pushed the code changes for 2.6 for 
-complib, IBAL, and SDP.  As I stated before, we have yet to test it on
-2.6,
-but it should now compile. Let us know if you have any issues.
+--=-ylo1u8P61ovCRKgA9XZE
+Content-Type: multipart/mixed; boundary="=-8Y/K8lPxQwEN92vou4KR"
 
 
------Original Message-----
-From: Masanori ITOH [mailto:marc@labs.fujitsu.com] 
-Sent: Monday, February 02, 2004 5:39 PM
-To: woody@jf.intel.com
-Cc: hozer@hozed.org; infiniband-general@lists.sourceforge.net;
-linux-kernel@vger.kernel.org
-Subject: Re: [Infiniband-general] Getting an Infiniband access layer in
-the linux kernel
+--=-8Y/K8lPxQwEN92vou4KR
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+On Wed, 2004-02-04 at 01:13, Greg KH wrote:
+> On Wed, Feb 04, 2004 at 01:03:33AM +0200, Martin Schlemmer wrote:
+> > On Tue, 2004-02-03 at 23:28, Martin Schlemmer wrote:
+> > > On Tue, 2004-02-03 at 22:13, Greg KH wrote:
+> > >=20
+> > > Except if I miss something major, udevsend and udevd still do not
+> > > work:
+> > >=20
+> >=20
+> > Skip that, it does work if SEQNUM is set :P
+> >=20
+> > Anyhow, is it _really_ needed for SEQNUM to be set?  What about
+> > the attached patch?
+>=20
+> Yes it is necessary, as that is what the kernel spits out.  It's also
+> the whole reason we need udevd :)
+>=20
+> If you don't want to give a SEQNUM, just call udev directly.
+>=20
+
+Ok, was just thinking it could lead to confusion with debug usually not
+compiled in.  Maybe a more visible error (as we then know it was outside
+the kernel)?
+
+> > Then, order I have not really checked yet, but there are two things
+> > that bother me:
+> >=20
+> > 1) latency is even higher than before (btw Greg, is there going to be
+> > more sysfs/whatever fixes to get udev even faster, or is this the
+> > limit?)
+>=20
+> Care to measure the latency somehow?  The first event is a bit slow, but
+> everything after that is as fast as I ever remember it being.
+>=20
+
+Hmm, Ok, it seems it is much better on batch jobs (or if udevd is
+running) then from clean start, sorry.
+
+> > 2) events gets missing.  If you for example use udevsend in the
+> > initscript that populate /dev (/udev), the amount of nodes/links
+> > created is off with about 10-50 (once about 250) entries.
+>=20
+> Hm, that's not good.  I'll go test that and see what's happening.
+>=20
+
+Script is attached.  If I was being silly here, let me know.  Some
+quick testing again, it seems like the missing events is more with
+the echo not commented, but could be just some fluke (there was
+still however more than 5 usually missing).
 
 
-Hello Folks,
+Thanks,
 
-Message-ID:
-<F595A0622682C44DBBE0BBA91E56A5ED1C3662@orsmsx410.jf.intel.com>
-> 
-> We were waiting until we had some version of the InfiniBand code 
-> ported to 2.6 before asking for it to be included in the 2.6 kernel 
-> tree. Jerrie made the changes
-> to the IB access layer to allow it to compile on 2.6, but it cannot
-yet
-> be tested 
-> till we get a 2.6 driver from Mellanox. 
+--=20
+Martin Schlemmer
 
-Now, I'm testing a VPD for Fujitsu InfiniBand HCA card.
-The VPD requires no special SDK such as VAPI of Mellanox.
+--=-8Y/K8lPxQwEN92vou4KR
+Content-Disposition: attachment; filename=foo.sh
+Content-Type: text/x-sh; name=foo.sh; charset=UTF-8
+Content-Transfer-Encoding: base64
 
-In order to do that, I made some changes locally on IBAL and COMPLIB
-layers based on the change set 1.207. I still have some problems, but
-opensm and ipoib are working on linux-2.6.1 environment.
+IyEvYmluL2Jhc2gNCg0KU0VRTlVNPTANCg0KY2FsbF91ZGV2KCkgew0KCWV4cG9ydCBTRVFOVU09
+JCgoU0VRTlVNICsgMSkpDQoJI2VjaG8gIkRFVlBBVEg9JERFVlBBVEgsIENMQVNTPSQxLCBTRVFO
+VU09JFNFUU5VTSINCgkvc2Jpbi91ZGV2c2VuZCAkMQ0KfQ0KDQpwb3B1bGF0ZV91ZGV2KCkgew0K
+ICAgIGxvY2FsIHg9DQogICAgbG9jYWwgeT0NCiAgICBsb2NhbCBDTEFTUz0NCg0KICAgICMgUHJv
+cG9nYXRlIC9kZXYgZnJvbSAvc3lzIC0gd2Ugb25seSBuZWVkIHRoaXMgd2hpbGUgd2UgZG8gbm90
+DQogICAgIyBoYXZlIGluaXRyYW1mcyBhbmQgYW4gZWFybHkgdXNlci1zcGFjZSB3aXRoIHdoaWNo
+IHRvIGRvIGVhcmx5DQogICAgIyBkZXZpY2UgYnJpbmcgdXANCiAgICBleHBvcnQgQUNUSU9OPWFk
+ZA0KDQogICAgIyBBZGQgYmxvY2sgZGV2aWNlcyBhbmQgdGhlaXIgcGFydGl0aW9ucw0KICAgIGZv
+ciB4IGluIC9zeXMvYmxvY2svKg0KICAgIGRvDQogICAgICAgICMgQWRkIGVhY2ggZHJpdmUNCiAg
+ICAgICAgZXhwb3J0IERFVlBBVEg9IiR7eCMvc3lzfSINCiAgICAgICAgY2FsbF91ZGV2IGJsb2Nr
+DQoNCiAgICAgICAgIyBBZGQgZWFjaCBwYXJ0aXRpb24sIG9uIGVhY2ggZGV2aWNlDQogICAgICAg
+IGZvciB5IGluICR7eH0vKg0KICAgICAgICBkbw0KICAgICAgICAgICAgaWYgWyAtZiAiJHt5fS9k
+ZXYiIF0NCiAgICAgICAgICAgIHRoZW4NCiAgICAgICAgICAgICAgICBleHBvcnQgREVWUEFUSD0i
+JHt5Iy9zeXN9Ig0KICAgICAgICAgICAgICAgIGNhbGxfdWRldiBibG9jaw0KICAgICAgICAgICAg
+ZmkNCiAgICAgICAgZG9uZQ0KICAgIGRvbmUNCg0KICAgICMgQWxsIG90aGVyIGRldmljZSBjbGFz
+c2VzDQogICAgZm9yIHggaW4gL3N5cy9jbGFzcy8qDQogICAgZG8NCiAgICAgICAgZm9yIHkgaW4g
+JHt4fS8qDQogICAgICAgIGRvDQogICAgICAgICAgICBpZiBbIC1mICIke3l9L2RldiIgXQ0KICAg
+ICAgICAgICAgdGhlbg0KICAgICAgICAgICAgICAgIENMQVNTPSIkKGVjaG8gIiR7eCMvc3lzfSIg
+fCBjdXQgLS1kZWxpbWl0ZXI9Jy8nIC0tZmllbGRzPTMtKSINCiAgICAgICAgICAgICAgICBleHBv
+cnQgREVWUEFUSD0iJHt5Iy9zeXN9Ig0KICAgICAgICAgICAgICAgIGNhbGxfdWRldiAke0NMQVNT
+fQ0KICAgICAgICAgICAgZmkNCiAgICAgICAgZG9uZQ0KICAgIGRvbmUNCg0KICAgIHVuc2V0IEFD
+VElPTiBERVZQQVRIDQoNCiAgICByZXR1cm4gMA0KfQ0KDQpwb3B1bGF0ZV91ZGV2DQoNCg==
 
-Robert, if you could make Jarrie's modification public at bkbits.net, I
-can test the modification for 2.6 kernel using Fujitsu HCA.
+--=-8Y/K8lPxQwEN92vou4KR--
 
-Meanwhile, Mellanox is not the only supplier of InfiniBand HCA. Fujitsu,
-Japan, also has InfiniBand HCA card with an original LSI 
-different from Tavor chip.
+--=-ylo1u8P61ovCRKgA9XZE
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-Thanks in advance,
-Masanori
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-> I'd also like to hear from the linux-kernel folks on what we would 
-> need to do to get a basic InfiniBand access layer included in the 2.6 
-> base.
-> 
-> We'd also like to hear from Mellanox if they have any plans to provide
+iD8DBQBAIHQkqburzKaJYLYRAo8YAKCIoEWs7le6SXLOO7ma48yaxjPbOgCghwHe
+Vw4TdTBdEl3e3Q14LgJTFuE=
+=5Ndo
+-----END PGP SIGNATURE-----
 
-> an open source VPD driver anytime soon.
-> 
-> woody
+--=-ylo1u8P61ovCRKgA9XZE--
 
----
-Masanori ITOH  Grid Computing & Bioinformatics Lab., Fujitsu Labs. LTD.
-               e-mail: marc@labs.fujitsu.com
-               phone: +81-44-754-2628 (extension: 7112-6227)
-               FingerPrint: 55AF C562 E415 FB1A 8A3A  35D1 AB40 8A9D
-B8B1 99F8

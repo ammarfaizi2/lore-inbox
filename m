@@ -1,79 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261198AbULAASU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261236AbULAASU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261198AbULAASU (ORCPT <rfc822;willy@w.ods.org>);
+	id S261236AbULAASU (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 30 Nov 2004 19:18:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261277AbULAAQ6
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261198AbULAAQq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 19:16:58 -0500
-Received: from mail.kroah.org ([69.55.234.183]:39652 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261203AbULAAOT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 19:14:19 -0500
-Date: Tue, 30 Nov 2004 16:12:45 -0800
-From: Greg KH <greg@kroah.com>
-To: torvalds@osdl.org, akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com
-Subject: [BK PATCH] I2C fixes for 2.6.10-rc2
-Message-ID: <20041201001245.GA27535@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	Tue, 30 Nov 2004 19:16:46 -0500
+Received: from mail.kroah.org ([69.55.234.183]:38116 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261202AbULAAOR convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Nov 2004 19:14:17 -0500
+X-Fake: the user-agent is fake
+Subject: Re: [PATCH] More PCI fixes for 2.6.10-rc2
 User-Agent: Mutt/1.5.6i
+In-Reply-To: <11018598042987@kroah.com>
+Date: Tue, 30 Nov 2004 16:10:04 -0800
+Message-Id: <11018598042649@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+ChangeSet 1.2223.2.4, 2004/11/29 11:13:49-08:00, ak@suse.de
 
-Here are some i2c driver fixes and the addition of a new chip driver for
-2.6.10-rc2 (it is self-contained) for 2.6.10-rc2
+[PATCH] PCI: Disable mmconfig on AMD CPUs.
 
-Please pull from:  bk://kernel.bkbits.net/gregkh/linux/i2c-2.6
+Disable mmconfig on AMD CPUs.
 
-Individual patches will follow, sent to the sensors and linux-kernel
-lists.
+This patch fixes various problems on PCI Express boards, like the
+Nforce4. They have a MCFG table in ACPI, but not all devices can be
+accessed using MMCONFIG.  e.g. the CPU builtin PCI devices in the A64
+Northbridge can't.  Linux happily uses mmconfig for all PCI devices and
+that cause failures and memory corruption.
 
-thanks,
+Right solution apparently is to get more information from MCFG which is
+supposed to tell for which busses mmconfig is legal and for which ones
+not. But that would be a much more complicated patch and I don't have
+a specification of this enhanced table.
 
-greg k-h
+This patch just disable MMCONFIG on all AMD CPUs. This is a kludge,
+but works around the problem for now.
 
- drivers/i2c/busses/i2c-elektor.c     |   28 
- drivers/i2c/busses/i2c-ite.c         |   31 
- drivers/i2c/busses/i2c-nforce2.c     |    9 
- drivers/i2c/chips/Kconfig            |    9 
- drivers/i2c/chips/Makefile           |    1 
- drivers/i2c/chips/adm1026.c          | 1781 ++++++++++++++++++++++++++++++++++-
- drivers/i2c/chips/w83l785ts.c        |    9 
- drivers/macintosh/therm_adt746x.c    |   11 
- drivers/macintosh/therm_pm72.c       |    3 
- drivers/macintosh/therm_windtunnel.c |    8 
- drivers/w1/Kconfig                   |    2 
- drivers/w1/dscore.c                  |   40 
- drivers/w1/dscore.h                  |   34 
- drivers/w1/w1_int.c                  |   11 
- drivers/w1/w1_netlink.c              |    3 
- include/linux/pci_ids.h              |    1 
- 16 files changed, 1902 insertions(+), 79 deletions(-)
------
+Patch for both i386 and x86-64
 
-<jthiessen:penguincomputing.com>:
-  o I2C: add adm1026 chip driver
+Signed-off-by: Andi Kleen <ak@suse.de>
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
-Aristeu Sergio Rozanski Filho:
-  o i2c-ite: get rid of cli()/sti()
-  o [2/2] i2c-elektor: adding missing casts
-  o i2c-elektor: get rid of cli/sti
 
-Evgeniy Polyakov:
-  o W1: check nls in return path
-  o drivers/w1/dscore: fix the inline mess
-  o w1: make W1_DS9490_BRIDGE available
-  o w1: do not stop and oops if netlink socket was not allocated
+ arch/i386/pci/mmconfig.c   |    7 +++++++
+ arch/x86_64/pci/mmconfig.c |    7 +++++++
+ 2 files changed, 14 insertions(+)
 
-Greg Kroah-Hartman:
-  o I2C: make fixup_fan_min static in adm1026 driver
 
-Jean Delvare:
-  o I2C: macintoch/therm_* drivers cleanups
-  o I2C: Add support for the nForce2 Ultra 400 to i2c-nforce2
-  o I2C: More verbose w83l785ts driver
+diff -Nru a/arch/i386/pci/mmconfig.c b/arch/i386/pci/mmconfig.c
+--- a/arch/i386/pci/mmconfig.c	2004-11-30 15:47:12 -08:00
++++ b/arch/i386/pci/mmconfig.c	2004-11-30 15:47:12 -08:00
+@@ -102,6 +102,13 @@
+ 	if (!pci_mmcfg_base_addr)
+ 		goto out;
+ 
++	/* Kludge for now. Don't use mmconfig on AMD systems because
++	   those have some busses where mmconfig doesn't work,
++	   and we don't parse ACPI MCFG well enough to handle that. 
++	   Remove when proper handling is added. */
++	if (boot_cpu_data.x86_vendor == X86_VENDOR_AMD)
++		goto out; 
++
+ 	printk(KERN_INFO "PCI: Using MMCONFIG\n");
+ 	raw_pci_ops = &pci_mmcfg;
+ 	pci_probe = (pci_probe & ~PCI_PROBE_MASK) | PCI_PROBE_MMCONF;
+diff -Nru a/arch/x86_64/pci/mmconfig.c b/arch/x86_64/pci/mmconfig.c
+--- a/arch/x86_64/pci/mmconfig.c	2004-11-30 15:47:12 -08:00
++++ b/arch/x86_64/pci/mmconfig.c	2004-11-30 15:47:12 -08:00
+@@ -78,6 +78,13 @@
+ 	if (!pci_mmcfg_base_addr)
+ 		return 0;
+ 
++	/* Kludge for now. Don't use mmconfig on AMD systems because
++	   those have some busses where mmconfig doesn't work,
++	   and we don't parse ACPI MCFG well enough to handle that. 
++	   Remove when proper handling is added. */
++	if (boot_cpu_data.x86_vendor == X86_VENDOR_AMD)
++		return 0; 
++
+ 	/* RED-PEN i386 doesn't do _nocache right now */
+ 	pci_mmcfg_virt = ioremap_nocache(pci_mmcfg_base_addr, MMCONFIG_APER_SIZE);
+ 	if (!pci_mmcfg_virt) { 
 

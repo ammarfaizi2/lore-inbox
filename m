@@ -1,49 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270800AbUJUSwn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270817AbUJUTGZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270800AbUJUSwn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 14:52:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270821AbUJUSt6
+	id S270817AbUJUTGZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 15:06:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270812AbUJUTCf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 14:49:58 -0400
-Received: from rproxy.gmail.com ([64.233.170.196]:47084 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S270814AbUJUSnu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 14:43:50 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
-        b=L0n5S/v/1QNcu0H9ac/xgE89uVLXfGOp0bvU5u5y3nCSHNl91742bNZeJo7hAX5rukHX3tt+Gxf3TrJHKqQJt7GdQ2YPCGW1YjkxMDwaqSfuS0ijlyV19vb1Zl4BRP3XivHAtJtNcnNwoOgKsWugndPQprSkC4TleiOxSydLvyE=
-Message-ID: <7798951e041021114322d34e82@mail.gmail.com>
-Date: Thu, 21 Oct 2004 13:43:46 -0500
-From: Troy McFerrron <hotdogday@gmail.com>
-Reply-To: Troy McFerrron <hotdogday@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.9 + SMT + MPEG transcoding = Hardlock?
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 21 Oct 2004 15:02:35 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:60946 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S270817AbUJUS5v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 14:57:51 -0400
+Message-ID: <4178096F.9000300@techsource.com>
+Date: Thu, 21 Oct 2004 15:09:35 -0400
+From: Timothy Miller <miller@techsource.com>
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Adrian Bunk <bunk@stusta.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
+References: <4176E08B.2050706@techsource.com>	 <20041021122051.GA10801@stusta.de>  <4177E351.3080604@techsource.com> <1098380549.17052.164.camel@localhost.localdomain>
+In-Reply-To: <1098380549.17052.164.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When 2.6.9-rc1 came around, I tried it and had hardlocks with the SMT
-scheduler enabled. 2.6.9-rc2 had the same issue.
 
-2.6.9 rc-3 fixed the issue.
 
-2.6.9 "stable" brought it back.
+Alan Cox wrote:
+> On Iau, 2004-10-21 at 17:26, Timothy Miller wrote:
+> 
+>>>no
+>>
+>>In other words, Richard Stallman is too idealistic.  :)
+> 
+> 
+> I don't think even rms believes that hardware should be free in that
+> sense. 
 
-It mainly manifests itself when using transcode to encode vobs to
-MPEG. It doesn't happen with 2.6.8.1, 2.6.9-rc3, but does happen with
-everything between and after. (Though I didn't try RC-4. I was happy
-with RC3.)
 
-When I say hardlock, I mean hardlock. No reponse from the system at
-all. If audio is playing, it loops.
+That's because hardware is tangible.  But what I meant was that in order 
+to have open source drivers, there has to be a lot of disclosure of the 
+inner workings of the hardware.  That disclosure comes with certain risks.
 
-Are there specific changes I could roll back in 2.6.9 to make it
-viable and stable on ym system? I'm not willing to give up SMT, but
-want to keep my kernel current. Can anyone reproduce these lockups?
-
--- 
-Troy McFerron
-Kernel Ricer and Linux Hobbyist.

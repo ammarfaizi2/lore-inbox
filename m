@@ -1,96 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262307AbUK3VAF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262319AbUK3U7E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262307AbUK3VAF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 16:00:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262325AbUK3U7i
+	id S262319AbUK3U7E (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 15:59:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262311AbUK3U5G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 15:59:38 -0500
-Received: from ida.rowland.org ([192.131.102.52]:33796 "HELO ida.rowland.org")
-	by vger.kernel.org with SMTP id S262323AbUK3U6S (ORCPT
+	Tue, 30 Nov 2004 15:57:06 -0500
+Received: from fw.osdl.org ([65.172.181.6]:30368 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262315AbUK3U4r (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 15:58:18 -0500
-Date: Tue, 30 Nov 2004 15:58:17 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@ida.rowland.org
-To: Fabio Coatti <cova@ferrara.linux.it>
-cc: James Bottomley <James.Bottomley@steeleye.com>,
-       Andrew Morton <akpm@osdl.org>, Pete Zaitcev <zaitcev@redhat.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       <linux-usb-devel@lists.sourceforge.net>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: [linux-usb-devel] Re: 2.6.10-rc2-mm2 usb storage still oopses
-In-Reply-To: <200411302027.56951.cova@ferrara.linux.it>
-Message-ID: <Pine.LNX.4.44L0.0411301555260.1423-100000@ida.rowland.org>
+	Tue, 30 Nov 2004 15:56:47 -0500
+Date: Tue, 30 Nov 2004 12:56:33 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Alexandre Oliva <aoliva@redhat.com>
+cc: David Howells <dhowells@redhat.com>, Paul Mackerras <paulus@samba.org>,
+       Greg KH <greg@kroah.com>, David Woodhouse <dwmw2@infradead.org>,
+       Matthew Wilcox <matthew@wil.cx>, hch@infradead.org,
+       linux-kernel@vger.kernel.org, libc-hacker@sources.redhat.com
+Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
+In-Reply-To: <ormzwzrrmy.fsf@livre.redhat.lsd.ic.unicamp.br>
+Message-ID: <Pine.LNX.4.58.0411301249590.22796@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0411290926160.22796@ppc970.osdl.org>
+ <19865.1101395592@redhat.com> <20041125165433.GA2849@parcelfarce.linux.theplanet.co.uk>
+ <1101406661.8191.9390.camel@hades.cambridge.redhat.com> <20041127032403.GB10536@kroah.com>
+ <16810.24893.747522.656073@cargo.ozlabs.ibm.com>
+ <Pine.LNX.4.58.0411281710490.22796@ppc970.osdl.org>
+ <ord5xwvay2.fsf@livre.redhat.lsd.ic.unicamp.br> <8219.1101828816@redhat.com>
+ <Pine.LNX.4.58.0411300744120.22796@ppc970.osdl.org>
+ <ormzwzrrmy.fsf@livre.redhat.lsd.ic.unicamp.br>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 Nov 2004, Fabio Coatti wrote:
 
-> The only small issue is that if i leave plugged the usb flash key and 
-> power-cycle my box, at boot the device is not detected and it fails in the 
-> same way it happens when usbcore old_scheme_first is not set (it's present in 
-> modprobe.conf)
+
+On Tue, 30 Nov 2004, Alexandre Oliva wrote:
 > 
-> If I unplug/plug the device, all works just fine.
+> - move anything that is not protected by #ifdef __KERNEL__ to the
+> ukabi header tree, adding an include in the beginning of the original
+> header that includes the ukabi header.
 
-> Now, rebooting the box leaving the device inserted, with old_scheme_first=1 in 
-> modprobe.conf
-> 
-> Nov 30 20:03:40 kefk kernel: usb 4-0:1.0: hotplug
-> Nov 30 20:03:40 kefk kernel: hub 4-0:1.0: usb_probe_interface
-> Nov 30 20:03:40 kefk kernel: hub 4-0:1.0: usb_probe_interface - got id
-> Nov 30 20:03:40 kefk kernel: hub 4-0:1.0: USB hub found
-> Nov 30 20:03:40 kefk kernel: hub 4-0:1.0: 2 ports detected
-> Nov 30 20:03:40 kefk kernel: hub 4-0:1.0: standalone hub
-> Nov 30 20:03:40 kefk kernel: hub 4-0:1.0: no power switching (usb 1.0)
-> Nov 30 20:03:40 kefk kernel: hub 4-0:1.0: individual port over-current 
-> protection
-> Nov 30 20:03:40 kefk kernel: hub 4-0:1.0: power on to power good time: 2ms
-> Nov 30 20:03:40 kefk kernel: hub 4-0:1.0: local power source is good
-> Nov 30 20:03:40 kefk kernel: hub 2-0:1.0: debounce: port 1: total 100ms stable 
-> 100ms status 0x101
-> Nov 30 20:03:40 kefk kernel: usb 2-1: new full speed USB device using uhci_hcd 
-> and address 2
-> Nov 30 20:03:40 kefk kernel: uhci_hcd 0000:00:1d.1: uhci_result_control: 
-> failed with status 440000
-> Nov 30 20:03:40 kefk kernel: [f7ab5240] link (37ab51b2) element (37ab4040)
-> Nov 30 20:03:40 kefk kernel:   0: [f7ab4040] link (37ab4080) e0 Stalled 
-> CRC/Timeo Length=7 MaxLen=7 DT0 EndPt=0 Dev=0, PID=2d(SETUP) (buf=37998f20)
-> Nov 30 20:03:40 kefk kernel:   1: [f7ab4080] link (00000001) e3 IOC Active 
-> Length=0 MaxLen=7ff DT1 EndPt=0 Dev=0, PID=69(IN) (buf=00000000)
-> Nov 30 20:03:40 kefk kernel:
-> Nov 30 20:03:40 kefk kernel: uhci_hcd 0000:00:1d.1: uhci_result_control: 
-> failed with status 440000
-> Nov 30 20:03:40 kefk kernel: [f7ab5240] link (37ab51b2) element (37ab4040)
-> Nov 30 20:03:40 kefk kernel:   0: [f7ab4040] link (37ab4080) e0 Stalled 
-> CRC/Timeo Length=7 MaxLen=7 DT0 EndPt=0 Dev=0, PID=2d(SETUP) (buf=378ef180)
-> Nov 30 20:03:40 kefk kernel:   1: [f7ab4080] link (00000001) e3 IOC Active 
-> Length=0 MaxLen=7ff DT1 EndPt=0 Dev=0, PID=69(IN) (buf=00000000)
-> Nov 30 20:03:40 kefk kernel:
-> Nov 30 20:03:40 kefk kernel: usb 2-1: device not accepting address 2, error 
-> -71
-> Nov 30 20:03:40 kefk kernel: usb 2-1: new full speed USB device using uhci_hcd 
-> and address 3
-> Nov 30 20:03:40 kefk kernel: uhci_hcd 0000:00:1d.1: uhci_result_control: 
-> failed with status 440000
-> Nov 30 20:03:40 kefk kernel: [f7ab5240] link (37ab51b2) element (37ab4040)
-> Nov 30 20:03:40 kefk kernel:   0: [f7ab4040] link (37ab4080) e0 Stalled 
-> CRC/Timeo Length=7 MaxLen=7 DT0 EndPt=0 Dev=0, PID=2d(SETUP) (buf=378ef180)
-> Nov 30 20:03:40 kefk kernel:   1: [f7ab4080] link (00000001) e3 IOC Active 
-> Length=0 MaxLen=7ff DT1 EndPt=0 Dev=0, PID=69(IN) (buf=00000000)
-> 
-> After this, if I remove and plug again the device, all works just fine.
+No. I want stuff that goes into the ABI tree to be clearly _defined_ to be 
+user-visible. Not a "let's move it all there and then prune it". 
 
-This log shows that the device was operating at full speed, not at high 
-speed.  Probably your boot-up sequence involves loading the uhci-hcd 
-driver before ehci-hcd.
+Leave anything questionable in the current location. And never EVER move 
+anything that is kernel-internal to a new "clean" tree, because that would 
+be totally pointless. At that point, people would have to edit the "clean" 
+tree even for kernel internal stuff. No go.
 
-It may be that the device wants old_scheme_first to be set when it's 
-operating at high speed and not set when operating at full speed!  You can 
-test this guess by unloading one driver or the other and then plugging in 
-the device.
+Also, "ukabi" just isn't going to fly as a name. It's also not as simple 
+as you seem to think, since a lot of these ABI things are architecture- 
+dependent, which apparently all you guys have totally ignored. 
 
-Alan Stern
+I've suggested "include/user/" and "include/asm-xxx/user", which handles 
+architecture-specific parts too. I'm ok with doing it the other way 
+around, ie "include/user/" and "include/user/arch-xxxx".
 
+And "user" might be "user-abi" or something like that, but it sure isn't 
+going to be some unreadable contraction.
+
+And I _still_ want to see these patches only for things where somebody can 
+validly argue that 
+ (a) it can't break anything (ie the old location still includes the new 
+     one, exactly the same way)
+ (b) there are people who will actually take _advantage_ of that 
+     particular file (ie "just because I think so" doesn't fly).
+
+Moving files around is just too disruptive to be done without damn good 
+reason.
+
+		Linus

@@ -1,49 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263805AbUAYIoS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jan 2004 03:44:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263806AbUAYIoS
+	id S263787AbUAYJDI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jan 2004 04:03:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263800AbUAYJDI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jan 2004 03:44:18 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:11648 "EHLO midnight.ucw.cz")
-	by vger.kernel.org with ESMTP id S263805AbUAYIoR (ORCPT
+	Sun, 25 Jan 2004 04:03:08 -0500
+Received: from odpn1.odpn.net ([212.40.96.53]:64229 "EHLO odpn1.odpn.net")
+	by vger.kernel.org with ESMTP id S263787AbUAYJDG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jan 2004 03:44:17 -0500
-Date: Sun, 25 Jan 2004 09:44:25 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: rvalles <rvalles@es.gnu.org>
+	Sun, 25 Jan 2004 04:03:06 -0500
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: joydev: kernel panic accessing /dev/js0 with 2.6.2-rc1-bk1
-Message-ID: <20040125084425.GA610@ucw.cz>
-References: <20040125060731.GA5797@217-126-33-148.uc.nombres.ttd.es>
-Mime-Version: 1.0
+Subject: Re: Linux 2.4.25-pre7 - no DRQ after issuing WRITE
+References: <Pine.LNX.4.58L.0401231652020.19820@logos.cnet>
+From: "Gabor Z. Papp" <gzp@papp.hu>
+Date: Sun, 25 Jan 2004 10:03:03 +0100
+Message-ID: <x6ptd8l7so@gzp>
+User-Agent: Gnus/5.1004 (Gnus v5.10.4)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040125060731.GA5797@217-126-33-148.uc.nombres.ttd.es>
-User-Agent: Mutt/1.4.1i
+X-Authenticated: gzp1 odpn1.odpn.net a3085bdc7b32ae4d7418f70f85f7cf5f
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 25, 2004 at 07:07:31AM +0100, rvalles wrote:
-> > If you also could get the function where EIP is, that'd be great.
-> Oops! Did I really post all the stack trace and forgot about the current
-> function? Well, I wonder what was I thinking. Here it is:
-> 
-> EIP is at hidinput_hid_event+0x8f/0x2a0
-> 
-> Also, had to boot from a Knoppix 3.3 for some stuff, and verified, with jstest,
-> that the pad seems to be working well with its kernel (2.4.22-xfs).
-> 
-> I also forgot to tell you that I've got CONFIG_HID_FF and CONFIG_LOGITECH_FF
-> enabled on my 2.6.2-rc1-bk1.
-> 
-> cc me on reply. I'm not suscribed into linux-kernel.
+* Marcelo Tosatti <marcelo.tosatti@cyclades.com>:
 
-Ok, now I see how and where it happens. But I need the device HID
-desriptor dump. Please enable DEBUG and DEBUG_DATA in hid-core.c,
-and send me the output it produces into 'dmesg'. If you want to avoid
-the crash, simply disable hid-input in kernel config for the experiment.
+| Please help testing! :)
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Here we go: http://gzp.odpn.net/tmp/linux-2.4.25-pre7/
+
+The "no DRQ after issuing WRITE" problem with 2 120GB Seagate
+harddisk. I don't think its hw problem, because these disks are fine
+in other environment. More "load" related, without running them in sw
+raid mode, the problem doesn't hit me so quickly.
+

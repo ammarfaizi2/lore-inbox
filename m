@@ -1,63 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129733AbQLHS0X>; Fri, 8 Dec 2000 13:26:23 -0500
+	id <S131314AbQLHScn>; Fri, 8 Dec 2000 13:32:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129786AbQLHS0N>; Fri, 8 Dec 2000 13:26:13 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:40711 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S130146AbQLHS0D>; Fri, 8 Dec 2000 13:26:03 -0500
-Date: Fri, 8 Dec 2000 11:50:59 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "Jeff V. Merkey" <jmerkey@timpanogas.org>,
-        Peter Samuelson <peter@cadcamlab.org>, linux-kernel@vger.kernel.org
-Subject: Re: [Fwd: NTFS repair tools]
-Message-ID: <20001208115059.A4817@vger.timpanogas.org>
-In-Reply-To: <3A3066EC.3B657570@timpanogas.org> <E144O4d-0003vd-00@the-village.bc.nu> <20001208113340.B4730@vger.timpanogas.org> <3A311D95.A39E0241@mandrakesoft.com>
+	id <S130013AbQLHScZ>; Fri, 8 Dec 2000 13:32:25 -0500
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:5859 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S129909AbQLHScO>; Fri, 8 Dec 2000 13:32:14 -0500
+Date: Fri, 8 Dec 2000 13:01:48 -0500
+From: Matthew Galgoci <mgalgoci@redhat.com>
+To: linux-kernel@vger.kernel.org
+Subject: cardbus pirq conflict
+Message-ID: <20001208130148.B19712@redhat.com>
+Reply-To: mgalgoci@redhat.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <3A311D95.A39E0241@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Fri, Dec 08, 2000 at 12:42:45PM -0500
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 08, 2000 at 12:42:45PM -0500, Jeff Garzik wrote:
-> "Jeff V. Merkey" wrote:
-> 
-> We don't need any messages.  If (DANGEROUS) is not sufficient, then
-> disable the feature unconditionally.  Someone hacking on the code will
-> be smart enough to enable the stuff while they are debugging.
-> 
-> 	Jeff
-> 
+Hi Folks,
 
-You guys make the call.  I will be here to catch the 100+ messages that would
-normally be posting to the kernel list with "Linux destroyed my data", and
-I have been handling them.  I am just alerting you guys that the numbers
-of people needing this are increasing, which is an indication more and more
-people are using Linux to migrate NT to Linux, and vice-versa, and getting 
-themselves into trouble.  We need to brainstorm a more long term solution
-for this problem.  I suspect if I post these tools on our FTP server 
-for free download, MS will promptly show up with attorneys.  Normally, this
-is what I would do, but these tools were developed via access to MS IP,
-and so long as I am helping MS customers recover data in a "consulting"
-capacity, I do not believe they will interfere, particularly since 
-everytime this happens, Linux gets a great big black eye with the 
-affected customer.   But very soon (like after 2.4 ships) the numbers
-of folks needing this may increase to a capacity I cannot support 
-properly without dumping these tools into general distribution -- then
-the shit will hit the fan with MS if I do this.  
+I am running the 2.4.0test12pre7 kernel on my laptop computer, and
+I'm having some rather interesting problems.
 
-:-)
+For the longest time, usb never worked on this machine. As of the 
+happy patch that enabled bus mastering for usb controllers, it 
+magically started working. I am really happy that it does work
+now.
 
-Jeff
+The usb controller and the pcmcia bridge both share the same 
+irq, irq 10.
 
-    
-> -- 
-> Jeff Garzik         |
-> Building 1024       | These are not the J's you're lookin' for.
-> MandrakeSoft        | It's an old Jedi mind trick.
+Now, my cardbus cards have stopped working. When I insert a cardbus
+nic, I get the following message: "IRQ routing conflict in pirq 
+table! Try 'pci=autoirq'"
+
+The card fails to initialize, and upon issuing the halt command, the 
+system generates a kernel Oops. I tend to think that the Oops is a
+symptom of having a half initialized device. If anyone is interested, 
+I'll catch the Oops, run it though ksymoops, and send it to them.
+
+If I try as the kernel suggests, and give the kernel options
+pci=autoirq, there seems to be no noticable change.
+
+If I switch to a isa^H^H^H I mean 16 bit version of the same ethernet 
+card, the card works find, and the usb controller works. As a matter
+of fact, I've had the 16 bit nic and a usb nic both active at the 
+same time.
+
+So, beyond reporting this and waiting for the next prepatch from Linus,
+I really don't know where to go next. If I can provide anyone with more
+information about the hardware or this problem, please ask.
+
+Cheers!
+
+--Matt Galgoci
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

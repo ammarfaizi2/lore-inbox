@@ -1,48 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261961AbUCDXXl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Mar 2004 18:23:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261964AbUCDXXl
+	id S261967AbUCDXck (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Mar 2004 18:32:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261971AbUCDXck
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Mar 2004 18:23:41 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:41736
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S261961AbUCDXXj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Mar 2004 18:23:39 -0500
-Date: Fri, 5 Mar 2004 00:24:18 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Rik van Riel <riel@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>, Peter Zaitsev <peter@mysql.com>,
-       mbligh@aracnet.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.23aa2 (bugfixes and important VM improvements for the high end)
-Message-ID: <20040304232418.GW4922@dualathlon.random>
-References: <20040304175821.GO4922@dualathlon.random> <Pine.LNX.4.44.0403041711500.20043-100000@chimarrao.boston.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0403041711500.20043-100000@chimarrao.boston.redhat.com>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+	Thu, 4 Mar 2004 18:32:40 -0500
+Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:50675 "EHLO
+	zcars0m9.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S261967AbUCDXch (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Mar 2004 18:32:37 -0500
+Message-ID: <4047BC70.5050109@nortelnetworks.com>
+Date: Thu, 04 Mar 2004 18:32:00 -0500
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Mariusz Mazur <mmazur@kernel.pl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] linux-libc-headers 2.6.3.0
+References: <200402291942.45392.mmazur@kernel.pl> <200403042149.36604.mmazur@kernel.pl> <40479F3C.1010703@nortelnetworks.com> <200403042352.28592.mmazur@kernel.pl>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 04, 2004 at 05:14:30PM -0500, Rik van Riel wrote:
-> > or maybe you mean the page_table_lock hold during copy-user that Andrew
-> > mentioned? (copy-user doesn't mean "all VM operations" not sure if you
-> > meant this or the usual locking of every 2.4/2.6 kernel out there)
+Mariusz Mazur wrote:
+> On Thursday 04 of March 2004 22:27, Chris Friesen wrote:
 > 
-> True, there are some other operations.  However, when
-
-could you name one that is serialized in 4:4 and not in 3:1 with an mm
-lock? just curious. there are tons of VM operations serialized by the
-page_table_lock that hurts with threads in 3:1 too. I understood only
-copy-user needs the additional locking.
-
-> you consider the fact that copy-user operations are
-> needed for so many things they are the big bottleneck.
+>>And how do you propose to handle a kernel developer that wants to add a
+>>new feature (a scheduling class, for instance) and make it available to
+>>userspace apps?
+>>
 > 
-> Making it possible to copy things to and from userspace
-> in a lockless way will help performance quite a bit...
+> Dunno. That's something one should ask the glibc people.
 
-I don't expect an huge speedup but certainly it would be measurable.
+That's exactly my point.  I don't *want* to have to ask the glibc people.
+
+I want to have the kernel ABI headers ship with the kernel, and only 
+with the kernel.
+
+I want to be able to change one header file, recompile my kernel, 
+recompile my app, reboot, and pick up the change.  glibc should not even 
+be a factor.
+
+Chris
+
+
+
+
+-- 
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+

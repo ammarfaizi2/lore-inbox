@@ -1,45 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261223AbVBGWSx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261241AbVBGWYn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261223AbVBGWSx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 17:18:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261254AbVBGWSq
+	id S261241AbVBGWYn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 17:24:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261254AbVBGWYn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 17:18:46 -0500
-Received: from mail.kroah.org ([69.55.234.183]:27852 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261223AbVBGWSb (ORCPT
+	Mon, 7 Feb 2005 17:24:43 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:33691 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261241AbVBGWYl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 17:18:31 -0500
-Date: Mon, 7 Feb 2005 14:18:20 -0800
-From: Greg KH <greg@kroah.com>
-To: brking@us.ibm.com
-Cc: linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/1] PCI: Dynids - passing driver data
-Message-ID: <20050207221820.GA27543@kroah.com>
-References: <200502072200.j17M0S0N008552@d01av02.pok.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200502072200.j17M0S0N008552@d01av02.pok.ibm.com>
-User-Agent: Mutt/1.5.6i
+	Mon, 7 Feb 2005 17:24:41 -0500
+Subject: [ANNOUNCE] February release of LTP
+To: linux-kernel@vger.kernel.org, ltp-list@lists.sf.net,
+       ltp-announce@lists.sf.net
+X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
+Message-ID: <OFCF5A51B1.4D3C878A-ON85256FA1.007AF2C1-86256FA1.007B1707@us.ibm.com>
+From: Marty Ridgeway <mridge@us.ibm.com>
+Date: Mon, 7 Feb 2005 16:24:39 -0600
+X-MIMETrack: Serialize by Router on D01ML072/01/M/IBM(Release 6.53IBM1 HF6|December 9, 2004) at
+ 02/07/2005 17:24:40
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 07, 2005 at 04:00:27PM -0600, brking@us.ibm.com wrote:
-> 
-> Currently, code exists in the pci layer to allow userspace to specify
-> driver data when adding a pci dynamic id from sysfs. However, this data
-> is never used and there exists no way in the existing code to use it.
 
-Which is a good thing, right?  "driver_data" is usually a pointer to
-somewhere.  Having userspace specify it would not be a good thing.
 
-> This patch allows device drivers to indicate that they want driver data
-> passed to them on dynamic id adds by initializing use_driver_data in their
-> pci_driver->pci_dynids struct. The documentation has also been updated
-> to reflect this.
 
-What driver wants to use this?
 
-thanks,
+The February release of LTP is now available.
 
-greg k-h
+LTP-20050207
+- runltp now exports $TMPDIR as a copy of $TMP, certain exceptions caused
+these to be different.
+- extra functions for LTP libs are to make these tests fail with a more
+  informative message when attempts to create swap on tmpfs are made.
+- IPV6 testcase updates from David Stevens
+- Applied patch from Jacky Malcles that fixes an inconsistency regarding
+synchronization.
+- Make proc01 skip kcore
+- Fix gives an hint to the probable solution if capset01 test fails
+- Fix for race conditions in synchronization between children and parent on
+fcntl15.
+- Applied patch from Jacky Malcles to allow test to run on ia64.
+- The test llseek sets RLIMIT_FSIZE to a small number, this fix to
+  restore it to its original value.
+- Fix IPV6 Makefile install path problem
+
+
+Linux Test Project
+Linux Technology Center
+IBM Corporation
+
+
+Internet E-Mail : mridge@us.ibm.com
+IBM, 11501 Burnet Rd, Austin, TX  78758
+Phone (512) 838-1356 - T/L 678-1356 - Bldg. 908/1C005
+Austin, TX.
+

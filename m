@@ -1,89 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280807AbRKHA7O>; Wed, 7 Nov 2001 19:59:14 -0500
+	id <S280907AbRKHBAe>; Wed, 7 Nov 2001 20:00:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280907AbRKHA7E>; Wed, 7 Nov 2001 19:59:04 -0500
-Received: from gans.physik3.uni-rostock.de ([139.30.44.2]:38920 "EHLO
-	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id <S280807AbRKHA64>; Wed, 7 Nov 2001 19:58:56 -0500
-Date: Thu, 8 Nov 2001 01:58:45 +0100 (CET)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: "David S. Miller" <davem@redhat.com>
-cc: <adilger@turbolabs.com>, <jgarzik@mandrakesoft.com>, <andrewm@uow.edu.au>,
-        <linux-kernel@vger.kernel.org>, <torvalds@transmeta.com>,
-        <netdev@oss.sgi.com>, <ak@muc.de>, <kuznet@ms2.inr.ac.ru>
-Subject: Re: [PATCH] net/ipv4/*, net/core/neighbour.c jiffies cleanup
-In-Reply-To: <20011107.164426.35502643.davem@redhat.com>
-Message-ID: <Pine.LNX.4.30.0111080157180.29908-100000@gans.physik3.uni-rostock.de>
+	id <S280918AbRKHBAS>; Wed, 7 Nov 2001 20:00:18 -0500
+Received: from sis.com.tw ([203.67.208.2]:38455 "EHLO maillog.sis.com.tw")
+	by vger.kernel.org with ESMTP id <S280907AbRKHBAB>;
+	Wed, 7 Nov 2001 20:00:01 -0500
+Message-ID: <000f01c167f0$d9835780$80d113ac@sis2234>
+From: "Fanny" <hfhsu@sis.com.tw>
+To: "Nils Rennebarth" <nils@ipe.uni-stuttgart.de>,
+        "Linux Kernel List" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20011107184545.H14389@ipe.uni-stuttgart.de>
+Subject: Re: Network driver for SiS 735 available?
+Date: Thu, 8 Nov 2001 09:00:46 +0800
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2919.6700
+x-mimeole: Produced By Microsoft MimeOLE V5.00.2919.6700
+X-MIMETrack: Itemize by SMTP Server on twhqm01/HQ/SiS(Release 5.0.5 |September 22, 2000) at
+ 11/08/2001 08:59:32 AM,
+	Serialize by Router on twhqm01/HQ/SiS(Release 5.0.5 |September 22, 2000) at
+ 11/08/2001 08:59:37 AM,
+	Serialize complete at 11/08/2001 08:59:37 AM
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Why do they these cases that are actually in the code need to cast to
-> a signed value to get a correct answer?  They are not like your
-> example.
->
-> Almost all of these cases are:
->
-> 	(jiffies - SOME_VALUE_KNOWN_TO_BE_IN_THE_PAST) > 5 * HZ
->
-> So you say if we don't cast to signed, this won't get it right on
-> wrap-around?  I disagree, let's say "long" is 32-bits and jiffies
-> wrapped around to "0x2" and SOME_VALUE... is 0xfffffff8.  The
-> subtraction above yields 10, and that is what we want.
->
-> Please show me a bad case where casting to signed is necessary.
->
-> I actually ran through the tree the other night myself starting to
-> convert these things, then I noticed that I couldn't even convince
-> myself that the code was incorrect.
->
+
+Yes, it's available.
+The latest driver v1.08.01 is contained in kernel after 2.4.11.
+You can just update new kernel and got the driver.
+But I think that kernel after 2.4.6 is also suitable for you.
+
+Hui-Fen
+
+----- Original Message ----- 
+From: "Nils Rennebarth" <nils@ipe.uni-stuttgart.de>
+To: "Linux Kernel List" <linux-kernel@vger.kernel.org>
+Cc: <hfhsu@sis.com.tw>
+Sent: Thursday, November 08, 2001 1:45 AM
+Subject: Network driver for SiS 735 available?
 
 
-Please consider to change the appended ones.
-
-Tim
-
-
---- linux-2.4.14/net/ipv4/route.c	Wed Oct 31 00:08:12 2001
-+++ linux-2.4.14-jiffies64/net/ipv4/route.c	Wed Nov  7 22:51:23 2001
-@@ -395,7 +395,7 @@
- 		write_unlock(&rt_hash_table[i].lock);
-
- 		/* Fallback loop breaker. */
--		if ((jiffies - now) > 0)
-+		if ((long)(jiffies - now) > 0)
- 			break;
- 	}
- 	rover = i;
---- linux-2.4.14/net/ipv4/ipconfig.c	Wed Oct 31 00:08:12 2001
-+++ linux-2.4.14-jiffies64/net/ipv4/ipconfig.c	Wed Nov  7 23:28:47 2001
-@@ -1000,7 +1000,7 @@
- #endif
-
- 		jiff = jiffies + (d->next ? CONF_INTER_TIMEOUT : timeout);
--		while (jiffies < jiff && !ic_got_reply)
-+		while ((long)(jiffies - jiff) < 0 && !ic_got_reply)
- 			barrier();
- #ifdef IPCONFIG_DHCP
- 		/* DHCP isn't done until we get a DHCPACK. */
-@@ -1113,7 +1113,7 @@
-  try_try_again:
- 	/* Give hardware a chance to settle */
- 	jiff = jiffies + CONF_PRE_OPEN;
--	while (jiffies < jiff)
-+	while ((long)(jiffies - jiff) < 0)
- 		;
-
- 	/* Setup all network devices */
-@@ -1122,7 +1122,7 @@
-
- 	/* Give drivers a chance to settle */
- 	jiff = jiffies + CONF_POST_OPEN;
--	while (jiffies < jiff)
-+	while ((long)(jiffies - jiff) < 0)
- 			;
-
- 	/*
 

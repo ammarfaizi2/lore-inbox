@@ -1,41 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263714AbUGHX0G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263784AbUGHXbW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263714AbUGHX0G (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jul 2004 19:26:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263770AbUGHXZA
+	id S263784AbUGHXbW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jul 2004 19:31:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263818AbUGHXbV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jul 2004 19:25:00 -0400
-Received: from delerium.kernelslacker.org ([81.187.208.145]:33930 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S263093AbUGHXYt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jul 2004 19:24:49 -0400
-Date: Fri, 9 Jul 2004 00:23:47 +0100
-From: Dave Jones <davej@redhat.com>
-To: Christoph Hellwig <hch@infradead.org>, Pavel Machek <pavel@ucw.cz>,
-       Erik Rigtorp <erik@rigtorp.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] swsusp bootsplash support
-Message-ID: <20040708232347.GA13618@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Christoph Hellwig <hch@infradead.org>, Pavel Machek <pavel@ucw.cz>,
-	Erik Rigtorp <erik@rigtorp.com>, linux-kernel@vger.kernel.org
-References: <20040708110549.GB9919@linux.nu> <20040708133934.GA10997@infradead.org> <20040708204840.GB607@openzaurus.ucw.cz> <20040708210403.GA18049@infradead.org> <20040708225216.GA27815@elf.ucw.cz> <20040708225501.GA20143@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040708225501.GA20143@infradead.org>
-User-Agent: Mutt/1.4.1i
+	Thu, 8 Jul 2004 19:31:21 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:64683 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263784AbUGHXbN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jul 2004 19:31:13 -0400
+Message-ID: <40EDD92F.50001@pobox.com>
+Date: Thu, 08 Jul 2004 19:30:55 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Francois Romieu <romieu@fr.zoreil.com>
+CC: David Gibson <hermes@gibson.dropbear.id.au>, jt@hpl.hp.com,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Dan Williams <dcbw@redhat.com>, Pavel Roskin <proski@gnu.org>
+Subject: Re: [PATCH] Update in-kernel orinoco drivers to upstream current
+ CVS
+References: <20040702222655.GA10333@bougret.hpl.hp.com> <20040703010709.A22334@electric-eye.fr.zoreil.com> <20040704021304.GD25992@zax> <20040704191732.A20676@electric-eye.fr.zoreil.com> <20040706011401.A390@electric-eye.fr.zoreil.com> <40E9E6BC.8020608@pobox.com> <20040707005402.A15251@electric-eye.fr.zoreil.com> <20040709011750.A12605@electric-eye.fr.zoreil.com>
+In-Reply-To: <20040709011750.A12605@electric-eye.fr.zoreil.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 08, 2004 at 11:55:01PM +0100, Christoph Hellwig wrote:
- > On Fri, Jul 09, 2004 at 12:52:16AM +0200, Pavel Machek wrote:
- > > I have not seen SuSE version of bootsplash... I do not want to
- > > see. But this way, SuSE has its own crappy bootsplash, RedHat probably
- > > too, Mandrake probably too, etc.
- > 
- > Red Hat gets it right and uses a program that's using fbdev.
+Francois Romieu wrote:
+> Dumb question: how should the patches be published once they start to be
+> ready for wider review ?
 
-That program is called X 8-)
 
-		Dave
+Individual emails or foo.tar.bz2, I would think...
+
+	Jeff
+
 

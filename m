@@ -1,68 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264141AbTKZK6X (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Nov 2003 05:58:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264142AbTKZK6W
+	id S264142AbTKZK6q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Nov 2003 05:58:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264147AbTKZK6q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Nov 2003 05:58:22 -0500
-Received: from zone3.gcu-squad.org ([217.19.50.74]:62214 "EHLO
-	zone3.gcu-squad.org") by vger.kernel.org with ESMTP id S264141AbTKZK6U
+	Wed, 26 Nov 2003 05:58:46 -0500
+Received: from dns.toxicfilms.tv ([150.254.37.24]:10122 "EHLO
+	dns.toxicfilms.tv") by vger.kernel.org with ESMTP id S264142AbTKZK6n
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Nov 2003 05:58:20 -0500
-Message-ID: <1069844249.3fc487195c258@imp.gcu.info>
-Date: Wed, 26 Nov 2003 11:57:29 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: yuval yeret <yuval_yeret@hotmail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.20-18 size-4096 memory leaks
+	Wed, 26 Nov 2003 05:58:43 -0500
+Message-ID: <001c01c3b40c$3e7666a0$0e25fe0a@pysiak>
+From: =?iso-8859-2?Q?Maciej_So=B3tysiak?= <solt@dns.toxicfilms.tv>
+To: <linux-kernel@vger.kernel.org>
+Subject: Networking gets extremely laggy after a random amount of time.
+Date: Wed, 26 Nov 2003 11:58:36 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.2 / FreeBSD-4.6.2
-X-Originating-IP: 62.23.237.137
+Content-Type: text/plain;
+	charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Yuval, hi list,
+Hi,
 
-> I'm seeing a constant leak in size-4096 on a machine running
-> 2.4.20-18 SMP BIGMEM, which might / might not be related to the
-> machine finally going out of memory and going into a hang.
+I have been writing about this problem several times, always without
+receiving any pointers on how to approach this.
 
-I just wanted to let you know that I have been experiencing similar
-leaks. So far, I wasn't enable to find where the leak was, but your
-theory matches my observations:
+Networking gets extremely laggy after a random amount of time.
+Sometimes it is 5 minutes, sometimes 30hours, sometimes 5 days.
 
-1* On two systems running 2.4.20-2.4.22 kernels, I observed that the
-free memory as reported by top was going down regularly, by blocks of 4
-or 8kB at an average rate of 90kB/min. Sometimes the value would
-stabilize, but I couldn't understand why. What was lost as "free"
-memory
-increased "buffers" from the same amount. Still that value doesn't
-exceed a few dozen MB and sometimes goes does by large blocks, so I was
-wondering if there was a real leak or if it was just some kind of
-regular prebuffering.
+By laggy, I mean that each connection that is established from or to
+the linux box (even on the same LAN) is very slow and jitters.
+SSH and telnet sessions jitter. When I press a key for a few seconds
+it writes in batches, like:
+eeee e ee ee eeeeeee e ee
 
-2* On two other, seemingly similar systems, the memory leak wouldn't
-occur. It happens that these two systems do *not* use ext3, while the
-fisrt two *do* use ext3.
+Other streams like http, smtp are very slow.
 
-3* The leak isn't distribution specific. I experienced it on both a
-Mandrake-shipped kernel and a self-compiled one on a Slackware system.
+The only thing that fixes this is to do a /etc/init.d/networking restart
 
-Your theory that it comes from the ext3 driver makes full sense. I'll
-confirm that later today, by using ext2 only on one of the leaking
-systems (without changing kernels of course).
+It has been happening on Debian woody and sarge with kernels
+from 2.4.16 (the earliest tested) to 2.4.23-rc4 and even on each
+2.6 kernel I tried on that box.
 
-The other leaking system is used as a development server. It used to
-become very slow after several days. We are now restarting it every
-monday and have no significant slowdown anymore. Having other things to
-do, I stopped my experiments there, but could do some more now if it
-can help.
+The machine is not loaded, and connections I make that are
+on localhost device are ok, when these conditions are on.
 
--- 
-Jean Delvare
-http://www.ensicaen.ismra.fr/~delvare/
+It propably is NIC related, but I do not know how to investigate
+this. I have two 3com 3c905c-tx NICs. One of them is connected
+to the LAN, and the other is connected to a hub and is sometimes
+used to listen in promiscous mode to investigate traffic.
 
-----------------------------------------------------------------
-This message was sent using IMP, the Internet Messaging Program.
+I would appreciate any pointers on where to look for problems.
+
+Best regards,
+Maciej
+

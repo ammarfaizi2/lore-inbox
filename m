@@ -1,59 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262485AbUCLTw2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 14:52:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262461AbUCLTvS
+	id S262461AbUCLUAw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 15:00:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262433AbUCLTwk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 14:51:18 -0500
-Received: from mail.shareable.org ([81.29.64.88]:3467 "EHLO mail.shareable.org")
-	by vger.kernel.org with ESMTP id S262433AbUCLTqP (ORCPT
+	Fri, 12 Mar 2004 14:52:40 -0500
+Received: from ns.suse.de ([195.135.220.2]:20366 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262465AbUCLTtf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 14:46:15 -0500
-Date: Fri, 12 Mar 2004 19:46:01 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: Mark_H_Johnson@Raytheon.com, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org, mfedyk@matchmail.com,
-       m.c.p@wolk-project.de, owner-linux-mm@kvack.org, plate@gmx.tm
-Subject: Re: [PATCH] 2.6.4-rc2-mm1: vm-split-active-lists
-Message-ID: <20040312194601.GE18799@mail.shareable.org>
-References: <OF9DC8F5B1.0044A21E-ON86256E55.004DF368@raytheon.com> <4051C8BF.1050001@cyberone.com.au>
+	Fri, 12 Mar 2004 14:49:35 -0500
+Subject: Re: [PATCH] per-backing dev unplugging #2
+From: Chris Mason <mason@suse.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       kenneth.w.chen@intel.com
+In-Reply-To: <20040311083619.GH6955@suse.de>
+References: <20040311083619.GH6955@suse.de>
+Content-Type: text/plain
+Message-Id: <1079121113.4181.189.camel@watt.suse.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4051C8BF.1050001@cyberone.com.au>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 12 Mar 2004 14:51:53 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
-> One thing you could do is re read swapped pages when you have
-> plenty of free memory and the disks are idle.
+On Thu, 2004-03-11 at 03:36, Jens Axboe wrote:
+> Hi,
+> 
+> Final version, unless something stupid pops up. Changes:
 
-Better: re-read swapped pages _and_ file-backed pages that are likely
-to be used in future, when you have plenty of free memory and the
-disks are idle.
+During a mixed load test including fsx-linux and a bunch of procs
+running cp/read/rm loops, I got a null pointer deref with the call
+trace:
 
-updatedb would push plenty of memory out overnight.  But after the
-cron jobs and before people wake up in the morning, the kernel would
-gradually re-read the pages corresponding to mapped regions in
-processes.  Possibly with emphasis on some processes more than others.
-Possibly remembering some of that likelihood information even when a
-particular executable isn't currently running.
+__lock_page->sync_page->block_sync_page
 
-During the day, after a big compile the kernel would gradually re-read
-pages for processes which are running on your desktop but which you're
-not actively using.  The editor you were using during the compile will
-still be responsive because it wasn't swapped out.  The Nautilus or
-Mozilla that you weren't using will appear responsive when you switch
-to it, because the kernel was re-reading their mapped pages after the
-compile, while you didn't notice because you were still using the
-editor.
+I don't see how we can trust page->mapping in this path, can't it
+disappear?  If so, it would be a bug without Jens' patch too, just
+harder to hit.
 
-The intention is to avoid those long stalls where you switch to a
-Mozilla window and it takes 30 seconds to page in all those libraries
-randomly.  It's not necessary to keep Mozilla in memory all the time,
-even when the memory is specifically useful for a compile, to provide
-that illusion of snappy response most of the time.
+-chris
 
--- Jamie
+

@@ -1,57 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261253AbUBWALN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Feb 2004 19:11:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261274AbUBWALN
+	id S261285AbUBWAQk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Feb 2004 19:16:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261274AbUBWAQk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Feb 2004 19:11:13 -0500
-Received: from turing-police.cirt.vt.edu ([128.173.54.129]:9476 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S261253AbUBWALJ (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Feb 2004 19:11:09 -0500
-Message-Id: <200402202214.i1KME5cd003438@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Andreas Schwab <schwab@suse.de>
-Cc: Matthew Wilcox <willy@debian.org>, davidm@hpl.hp.com, torvalds@osdl.org,
-       Michel D?nzer <michel@daenzer.net>, Anton Blanchard <anton@samba.org>,
-       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: Re: radeon warning on 64-bit platforms 
-In-Reply-To: Your message of "Fri, 20 Feb 2004 16:51:00 +0100."
-             <jehdxl697f.fsf@sykes.suse.de> 
-From: Valdis.Kletnieks@vt.edu
-References: <1077054385.2714.72.camel@thor.asgaard.local> <16434.36137.623311.751484@napali.hpl.hp.com> <1077055209.2712.80.camel@thor.asgaard.local> <16434.37025.840577.826949@napali.hpl.hp.com> <1077058106.2713.88.camel@thor.asgaard.local> <16434.41884.249541.156083@napali.hpl.hp.com> <20040217234848.GB22534@krispykreme> <16434.46860.429861.157242@napali.hpl.hp.com> <20040218015423.GH11824@parcelfarce.linux.theplanet.co.uk> <16434.50928.682219.187846@napali.hpl.hp.com> <20040218022831.GI11824@parcelfarce.linux.theplanet.co.uk> <200402192230.i1JMUifj004565@turing-police.cc.vt.edu>
-            <jehdxl697f.fsf@sykes.suse.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-2119665302P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Sun, 22 Feb 2004 19:16:40 -0500
+Received: from mail-03.iinet.net.au ([203.59.3.35]:24199 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S261285AbUBWAQi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Feb 2004 19:16:38 -0500
+Message-ID: <40394662.5060104@cyberone.com.au>
+Date: Mon, 23 Feb 2004 11:16:34 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Chris Wedgwood <cw@f00f.org>, mfedyk@matchmail.com, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Large slab cache in 2.6.1
+References: <20040222033111.GA14197@dingdong.cryptoapps.com>	<4038299E.9030907@cyberone.com.au>	<40382BAA.1000802@cyberone.com.au>	<4038307B.2090405@cyberone.com.au>	<40383300.5010203@matchmail.com>	<4038402A.4030708@cyberone.com.au>	<40384325.1010802@matchmail.com>	<403845CB.8040805@cyberone.com.au>	<20040221221721.42e734d6.akpm@osdl.org>	<40384D9D.6040604@cyberone.com.au>	<20040222083637.GA15589@dingdong.cryptoapps.com> <20040222011350.58f756e8.akpm@osdl.org>
+In-Reply-To: <20040222011350.58f756e8.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Fri, 20 Feb 2004 17:14:05 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-2119665302P
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-On Fri, 20 Feb 2004 16:51:00 +0100, Andreas Schwab said:
-
-> Use expand.
-
-Learn something new every day.  Usually, the task at hand is the inverse =
-task -
-fixing a file that has leading blanks to have leading tabs instead. ;)
 
 
---==_Exmh_-2119665302P
-Content-Type: application/pgp-signature
+Andrew Morton wrote:
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+>Chris Wedgwood <cw@f00f.org> wrote:
+>
+>>On Sun, Feb 22, 2004 at 05:35:09PM +1100, Nick Piggin wrote:
+>>
+>>
+>>>Can you maybe use this patch then, please?
+>>>
+>>I probably need to do more testing, but the quick patch I was using
+>>against mainline (bk head) works better than this against 2.5.3-mm2.
+>>
+>
+>The patch which went in six months or so back which said "only reclaim slab
+>if we're scanning lowmem pagecache" was wrong.  I must have been asleep at
+>the time.
+>
+>We do need to scan slab in response to highmem page reclaim as well. 
+>Because all the math is based around the total amount of memory in the
+>machine, and we know that if we're performing highmem page reclaim then the
+>lower zones have no free memory.
+>
+>
 
-iD8DBQFANoatcC3lWbTT17ARAohUAKC++NDNM2tgRO2yXNUcIY3SVlHdLgCgnFN9
-KN8491HqB9bRqIcOtTj5Ks0=
-=gUuB
------END PGP SIGNATURE-----
+I don't understand this. Presumably if the lower zones have no free
+memory then we'll be doing lowmem page reclaim too, and that will
+be shrinking the slab.
 
---==_Exmh_-2119665302P--
+The patch I sent you should (modulo the ->seeks stuff) make it
+behave as if the slab pages are on lowmem LRUs and get scanned
+accordingly.
+
+

@@ -1,44 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268503AbRHFN25>; Mon, 6 Aug 2001 09:28:57 -0400
+	id <S268516AbRHFNaR>; Mon, 6 Aug 2001 09:30:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268546AbRHFN2r>; Mon, 6 Aug 2001 09:28:47 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:2922 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S268503AbRHFN2k>; Mon, 6 Aug 2001 09:28:40 -0400
-Date: Mon, 6 Aug 2001 15:29:19 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: "David S. Miller" <davem@redhat.com>
-Cc: Chris Wedgwood <cw@f00f.org>, David Luyer <david_luyer@pacific.net.au>,
-        linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: /proc/<n>/maps growing...
-Message-ID: <20010806152919.H20837@athlon.random>
-In-Reply-To: <997080081.3938.28.camel@typhaon> <20010806105904.A28792@athlon.random> <15214.24938.681121.837470@pizda.ninka.net> <20010806125705.I15925@athlon.random> <20010807002650.B23937@weta.f00f.org> <20010806143603.C20837@athlon.random> <20010807004510.A23992@weta.f00f.org> <20010806145052.F20837@athlon.random> <15214.38470.749251.251809@pizda.ninka.net>
-Mime-Version: 1.0
+	id <S268551AbRHFN36>; Mon, 6 Aug 2001 09:29:58 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:48513 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S268516AbRHFN3h>;
+	Mon, 6 Aug 2001 09:29:37 -0400
+From: "David S. Miller" <davem@redhat.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <15214.38470.749251.251809@pizda.ninka.net>; from davem@redhat.com on Mon, Aug 06, 2001 at 06:06:14AM -0700
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
+Message-ID: <15214.39864.63824.771341@pizda.ninka.net>
+Date: Mon, 6 Aug 2001 06:29:28 -0700 (PDT)
+To: Luigi Genoni <kernel@Expansa.sns.it>
+Cc: <jlnance@intrex.net>, Rik van Riel <riel@conectiva.com.br>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Ongoing 2.4 VM suckage
+In-Reply-To: <Pine.LNX.4.33.0108061521280.4694-100000@Expansa.sns.it>
+In-Reply-To: <20010803090703.B1248@bessie.localdomain>
+	<Pine.LNX.4.33.0108061521280.4694-100000@Expansa.sns.it>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 06, 2001 at 06:06:14AM -0700, David S. Miller wrote:
-> I wouldn't classify it as a horrible hack... but.
 
-The part I find worse is that we just walk the tree two times.
+Luigi Genoni writes:
+ > with 2.4.5 i had similar problems with 4 GB RAM on a 4-processor
+ > sparc64.
+ > 2.4.6 solved my problems.
 
-I believe the best way is to allocate always the new vma, and to hide
-the merging into the lowlevel of a new insert_vm_struct (with a special
-function ala merge_segments that we can share with mprotect like in 2.2).
+It is different issue, most of slowdowns people are seeing are
+due to highmem.  Sparc64 does not have highmem.
 
-For example we could limit such special function to merge only the
-anonymous mappings if we don't want to solve the locking issues (the
-abortion), so it could remain simple but generic and optimized to avoid
-walking the tree, allocating and freeing a slab cache is O(1) operation
-when there's no memory pressore, much better than browsing a tree two
-times at every malloc with a two liner that avoids hitting the
-max_limit while we recall malloc. (of course for mremap we'll keep
-browsing the tree twice but we cannot avoid that)
-
-Andrea
+Later,
+David S. Miller
+davem@redhat.com

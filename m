@@ -1,53 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277293AbRJNUGH>; Sun, 14 Oct 2001 16:06:07 -0400
+	id <S277294AbRJNUEh>; Sun, 14 Oct 2001 16:04:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277295AbRJNUF6>; Sun, 14 Oct 2001 16:05:58 -0400
-Received: from cs181088.pp.htv.fi ([213.243.181.88]:36736 "EHLO
-	cs181088.pp.htv.fi") by vger.kernel.org with ESMTP
-	id <S277293AbRJNUFn>; Sun, 14 Oct 2001 16:05:43 -0400
-Message-ID: <3BC9F029.3897ABE5@welho.com>
-Date: Sun, 14 Oct 2001 23:06:01 +0300
-From: Mika Liljeberg <Mika.Liljeberg@welho.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10-ac10 i686)
-X-Accept-Language: en
+	id <S277295AbRJNUE2>; Sun, 14 Oct 2001 16:04:28 -0400
+Received: from thebsh.namesys.com ([212.16.0.238]:36868 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S277293AbRJNUEN>; Sun, 14 Oct 2001 16:04:13 -0400
+Message-ID: <3BC9EFD7.D014C9C7@namesys.com>
+Date: Mon, 15 Oct 2001 00:04:39 +0400
+From: Hans Reiser <reiser@namesys.com>
+Organization: Namesys
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.4 i686)
+X-Accept-Language: en, ru
 MIME-Version: 1.0
-To: kuznet@ms2.inr.ac.ru
-CC: ak@muc.de, davem@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: TCP acking too fast
-In-Reply-To: <200110141940.XAA07004@ms2.inr.ac.ru>
-Content-Type: text/plain; charset=us-ascii
+To: Jens Benecke <jens@jensbenecke.de>
+CC: linux-kernel@vger.kernel.org,
+        Reiserfs mail-list <Reiserfs-List@namesys.com>
+Subject: Re: [reiserfs-list] Re: ReiserFS data corruption in very simple 
+ configuration
+In-Reply-To: <200109221000.GAA11263@out-of-band.media.mit.edu> <15276.34915.301069.643178@beta.reiserfs.com> <20010924112510.F15955@jensbenecke.de> <2143070000.1003071174@tiny> <20011014201907.H20001@jensbenecke.de>
+Content-Type: text/plain; charset=koi8-r
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kuznet@ms2.inr.ac.ru wrote:
-> > And why (1) is a problem is precisely what I don't understand. Nagle is
-> > *supposed* to prevent you from sending multiple remnants.
+Jens Benecke wrote:
+> What I meant is this: AFAIK, if you exclude broken hardware, in ext2 there
+> is no chance of a file that was never written to since mounting being
+> corrupted on a crash, even if the fs was mounted read-write.
 > 
-> It is not supposed to delay between sends for delack timeout.
-> Nagle did not know about brain damages which his great idea
-> will cause when used together with delaying acks. :-)
+> Is this the same thing with ReiserFS?
 
-Well, I think this "problem" is way overstated. With a low latency path
-the delay ack estimator should already take care of this. With a high
-latency path you're out of luck in any case.
-
-Besides, as I said, you can always disable Nagle in an interactive
-application. I suppose it would be nice to have a socket option to
-disable delayack as well, just for completeness.
-
-> > is acked. This can be solved using an idea from Greg Minshall, which I
-> > thought was quite cool.
-> 
-> It is approach used in 2.4. :-)
-
-Cool. :)
-
-> It does help when sender is also linux-2.4. :-)
-> 
-> Alexey
-
-Regards,
-
-	MikaL
+Yes.

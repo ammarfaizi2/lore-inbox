@@ -1,47 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268899AbUH3UCG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268919AbUH3UEO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268899AbUH3UCG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 16:02:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268886AbUH3TxZ
+	id S268919AbUH3UEO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 16:04:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268886AbUH3UCS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 15:53:25 -0400
-Received: from ppp-62-11-78-150.dialup.tiscali.it ([62.11.78.150]:7810 "EHLO
-	zion.localdomain") by vger.kernel.org with ESMTP id S268925AbUH3Twm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 15:52:42 -0400
-Subject: [patch 2/3] kbuild - remove old LDFLAGS_BLOB from Makefiles - docco update
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, blaisorblade_spam@yahoo.it
-From: blaisorblade_spam@yahoo.it
-Date: Mon, 30 Aug 2004 21:44:32 +0200
-Message-Id: <20040830194432.85FC1529B@zion.localdomain>
+	Mon, 30 Aug 2004 16:02:18 -0400
+Received: from fw.osdl.org ([65.172.181.6]:34776 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268954AbUH3T7m (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Aug 2004 15:59:42 -0400
+Date: Mon, 30 Aug 2004 12:57:42 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Krzysztof "Sierota (o2.pl/tlen.pl)" <Krzysztof.Sierota@firma.o2.pl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc1-mm1 kjournald: page allocation failure. order:1,
+ mode:0x20
+Message-Id: <20040830125742.18c38277.akpm@osdl.org>
+In-Reply-To: <1093873432.1786.16.camel@rakieeta>
+References: <1093794970.1751.10.camel@rakieeta>
+	<20040829160257.3b881fef.akpm@osdl.org>
+	<1093873432.1786.16.camel@rakieeta>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Krzysztof "Sierota (o2.pl/tlen.pl)" <Krzysztof.Sierota@firma.o2.pl> wrote:
+>
+> > There should have been a stack trace as well.  Please send it.
+>  > 
+> 
+>  this time there is an attachement.
 
-The LDFLAGS_BLOB var (which used to be defined in arch Makefiles) is now unused,
-as specified inside usr/initramfs_data.S. So this patch updates the docs to mark
-it as unused. You may prefer to drop the entire section about it, however I
-wanted to make clear that this is a change from previous doc versions.
+OK.  It's netfilter.  Trying to allocate two physically contiguous
+pages with GFP_ATOMIC.  This is expected to fail, and networking will
+recover OK.
 
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade_spam@yahoo.it>
----
-
- vanilla-linux-2.6.8.1-paolo/Documentation/kbuild/makefiles.txt |    4 ++++
- 1 files changed, 4 insertions(+)
-
-diff -puN Documentation/kbuild/makefiles.txt~doc-kbuild-LDFLAGS_BLOB-unused Documentation/kbuild/makefiles.txt
---- vanilla-linux-2.6.8.1/Documentation/kbuild/makefiles.txt~doc-kbuild-LDFLAGS_BLOB-unused	2004-08-30 16:02:33.080247296 +0200
-+++ vanilla-linux-2.6.8.1-paolo/Documentation/kbuild/makefiles.txt	2004-08-30 16:02:33.082246992 +0200
-@@ -647,6 +647,10 @@ When kbuild executes the following steps
- 		#arch/i386/Makefile
- 		LDFLAGS_BLOB := --format binary --oformat elf32-i386
- 
-+	Note that this flag has now (at least since 2.6.4) been REMOVED, since
-+	a different mechanism is used (see comments at the beginning of
-+	usr/initramfs_data.S).
-+
-     OBJCOPYFLAGS	objcopy flags
- 
- 	When $(call if_changed,objcopy) is used to translate a .o file,
-_
+The networking guys are cooking up a fix for this, I believe.

@@ -1,44 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270035AbRHGCPQ>; Mon, 6 Aug 2001 22:15:16 -0400
+	id <S270037AbRHGCYk>; Mon, 6 Aug 2001 22:24:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270038AbRHGCPG>; Mon, 6 Aug 2001 22:15:06 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:31997 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S270035AbRHGCOy>;
-	Mon, 6 Aug 2001 22:14:54 -0400
-Date: Mon, 6 Aug 2001 22:15:03 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] one of $BIGNUM devfs races
-In-Reply-To: <200108070200.f77202G27928@vindaloo.ras.ucalgary.ca>
-Message-ID: <Pine.GSO.4.21.0108062203170.16817-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S270038AbRHGCY3>; Mon, 6 Aug 2001 22:24:29 -0400
+Received: from sunny-legacy.pacific.net.au ([210.23.129.40]:30658 "EHLO
+	sunny.pacific.net.au") by vger.kernel.org with ESMTP
+	id <S270037AbRHGCYQ>; Mon, 6 Aug 2001 22:24:16 -0400
+Subject: Re: /proc/<n>/maps growing...
+From: David Luyer <david_luyer@pacific.net.au>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Andrea Arcangeli <andrea@suse.de>, Chris Wedgwood <cw@f00f.org>,
+        "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0108061019280.8972-100000@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.33.0108061019280.8972-100000@penguin.transmeta.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.12.99 (Preview Release)
+Date: 07 Aug 2001 12:24:05 +1000
+Message-Id: <997151045.10551.11.camel@typhaon>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 06 Aug 2001 10:20:15 -0700, Linus Torvalds wrote:
+> 2.4.x _does_ merge. Look for yourself. It doesn't merge mprotects, no. And
+> why should glibc do mprotect() for a malloc() call? Electric Fence, yes.
+> glibc, no.
 
+What glibc does (when it decided to allocate in this way) is:
 
-On Mon, 6 Aug 2001, Richard Gooch wrote:
+mmap(NULL,2*sz,PROT_NONE,MAP_PRIVATE|MAP_ANONYMOUS|MAP_NORESERVE,-1,0)
 
-> Again, historical reasons. When I wrote devfs, the pipe data trampled
-> the inode->u.generic_ip pointer. So that's no good. I see that the
-> pipe data has been moved away. Good. Hm. But there's still the
-> inode->u.socket_i structure. I'd need to check where that gets
-> trampled.
+free up 1*sz of space which isn't sz-aligned (presumably to prevent
+fragmentation of its pools, now I think about it)
 
-It isn't. socket_i is used only in inodes allocated by sock_alloc().
-It is not used in the inodes that live on any fs other than sockfs.
-For local-domain socket you get _two_ kinds of inodes, both with
-S_IFSOCK in ->i_mode: one on the filesystem (acting like an meeting
-place) and another - bearing the actual socket and used for all IO.
+allocate out bits of the block mprotecting them as PROT_READ|PROT_WRITE
+as it goes
 
-In other words, the only kind you can get from mknod(2) never uses
-->i_socket. It's used only by bind() and connect() - and only as
-a place in namespace. The only thing we ever look at is ownership
-and permissions - they determine who can bind()/connect() here.
-
-So ->u.generic_ip is safe.
-
+Typically it's releasing multiples of 4kb at a time just like it brk()s
+multiples of 4kb at a time.  glibc doesn't catch accesses right down to
+the byte but does catch accesses which are 'way off'.  But really, yes,
+you're right - if it's not catching everything it shouldn't catch
+anything, since it's not its job.  Unless the MAP_NORESERVE with
+PROT_NONE is saving the system from even thinking about the unused parts
+of the large slab glibc has just grabbed, in which case there is some
+reason glibc should do things the way it does.
+-- 
+David Luyer                                     Phone:   +61 3 9674 7525
+Engineering Projects Manager   P A C I F I C    Fax:     +61 3 9699 8693
+Pacific Internet (Australia)  I N T E R N E T   Mobile:  +61 4 1111 2983
+http://www.pacific.net.au/                      NASDAQ:  PCNTF

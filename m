@@ -1,79 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261821AbUC2VQp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 16:16:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262538AbUC2VQp
+	id S262538AbUC2VWb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 16:22:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262953AbUC2VWb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 16:16:45 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:35458 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261821AbUC2VQn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 16:16:43 -0500
-Date: Mon, 29 Mar 2004 16:17:32 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Lev Lvovsky <lists1@sonous.com>
-cc: linux-kernel@vger.kernel.org
+	Mon, 29 Mar 2004 16:22:31 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:32724 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262538AbUC2VW3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Mar 2004 16:22:29 -0500
 Subject: Re: older kernels + new glibc?
-In-Reply-To: <5516F046-81C1-11D8-A0A8-000A959DCC8C@sonous.com>
-Message-ID: <Pine.LNX.4.53.0403291602340.2893@chaos>
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Lev Lvovsky <lists1@sonous.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <50DC82B4-81C5-11D8-A0A8-000A959DCC8C@sonous.com>
 References: <5516F046-81C1-11D8-A0A8-000A959DCC8C@sonous.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	 <1080594005.3570.12.camel@laptop.fenrus.com>
+	 <50DC82B4-81C5-11D8-A0A8-000A959DCC8C@sonous.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-a+jGT7/UN1HymctbgSXd"
+Organization: Red Hat, Inc.
+Message-Id: <1080595343.3570.15.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Mon, 29 Mar 2004 23:22:24 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 29 Mar 2004, Lev Lvovsky wrote:
 
-> Hello,
->
-> I'm not sure what, if any interrelations there are between the various
-> versions of glibc, and the kernel.
->
-> Specifically, a piece of telecom hardware that we use out in the field
-> requires a 2.2.x kernel to compile the drivers, however, after choosing
-> an arbitrary "new" release of a linux distro, and downgrading the
-> kernel, we are able to compile and install the drivers, and
-> subsequently use the hardware.
->
-> Are there any URLs/Docs that I could look at to understand what, if any
-> relationships glibc, and the kernel have?
->
-> thank you!
-> -lev
+--=-a+jGT7/UN1HymctbgSXd
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-For glibc compatibility you need to get rid of the sym-link(s)
-/usr/include/asm and /usr/include/linux in older distributions.
-You need to replace those with headers copied from the kernel
-in use when the C runtime library was compiled. If you can't find
-those, you can either upgrade your C runtime library, or copy
-headers from some older kernel that was known to work.
+On Mon, 2004-03-29 at 23:09, Lev Lvovsky wrote:
+> We have the source of the drivers, but they are specific to the 2.2.x=20
+> kernels.  I am not a kernel hacker, and this would be way beyond my=20
+> area of expertise.
+>=20
+> And sadly, this doesn't answer the initial question.
 
-In any event, you need to remove the sym-link that ends up
-pointing to your 'latest and greatest' kernel.
+then to answer your question; at compile time you tell glibc what
+minimum kernel version it can assume, and based on that glibc will
+enable/disable certain features. So it depends on what your distro
+supplied there if it'll work or not. if you tell glibc that at minimum
+you do 2.4.1 for example, then no a 2.2 kernel won't work. I think most
+distros do this (or an even later version) since a few years now.
 
-If you do this, you should find no incompatibilities between
-user-mode code and any (within reason, 0.99 might not work)
-kernel version.
+--=-a+jGT7/UN1HymctbgSXd
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-Drivers are a different problem. There is no possibility
-of just compiling old drivers and having them work. Drivers
-need to be modified for each kernel version major version
-number and, sometimes, even minor version numbers.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
-Sometimes you are lucky, usually not. Modules written for
-2.4.x will not compile on 2.6.x and there is no compatibility
-layer to accommodate. You need to look at how new modules are
-written for a new version and modify your module code
-accordingly. One can usually just compile and then 'fix' the
-resulting errors. However, this might not produce a working
-driver because some functions you count on might not exist
-anymore. It compiles fine, but won't install.
+iD8DBQBAaJOPxULwo51rQBIRAnqaAKCd9B343/FBEdHpPsvXE7Vy3zkJLgCfRUPE
+xkjsv8+pgtJUgsdGJlTLyNk=
+=x4U2
+-----END PGP SIGNATURE-----
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
+--=-a+jGT7/UN1HymctbgSXd--
 

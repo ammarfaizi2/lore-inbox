@@ -1,414 +1,119 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266363AbSKUGjk>; Thu, 21 Nov 2002 01:39:40 -0500
+	id <S266367AbSKUGrm>; Thu, 21 Nov 2002 01:47:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266367AbSKUGjk>; Thu, 21 Nov 2002 01:39:40 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:41990
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S266363AbSKUGjf>; Thu, 21 Nov 2002 01:39:35 -0500
-Date: Wed, 20 Nov 2002 22:33:05 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Manish Lachwani <manish@Zambeel.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.17 SMP hangs ..
-In-Reply-To: <233C89823A37714D95B1A891DE3BCE5202AB1975@xch-a.win.zambeel.com>
-Message-ID: <Pine.LNX.4.10.10211202231210.3892-100000@master.linux-ide.org>
+	id <S266368AbSKUGrm>; Thu, 21 Nov 2002 01:47:42 -0500
+Received: from packet.digeo.com ([12.110.80.53]:65456 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S266367AbSKUGrk>;
+	Thu, 21 Nov 2002 01:47:40 -0500
+Message-ID: <3DDC8330.FE066815@digeo.com>
+Date: Wed, 20 Nov 2002 22:54:40 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: William Lee Irwin III <wli@holomorphy.com>
+CC: Bill Davidsen <davidsen@tmr.com>, Aaron Lehmann <aaronl@vitelus.com>,
+       Con Kolivas <conman@kolivas.net>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [BENCHMARK] 2.5.47{-mm1} with contest
+References: <3DD0E037.1FC50147@digeo.com> <Pine.LNX.3.96.1021112150713.25274B-100000@gatekeeper.tmr.com> <3DDC1480.402A0E5B@digeo.com> <20021121000811.GQ23425@holomorphy.com>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 21 Nov 2002 06:54:40.0544 (UTC) FILETIME=[DD313A00:01C2912A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-The problem may be associated w/ the interrupt mapping over the bridge
-riser.  I have seen this before and can reproduce it regardless of the
-system.
-
-Cheers,
-
-Andre Hedrick
-LAD Storage Consulting Group
-
-On Wed, 20 Nov 2002, Manish Lachwani wrote:
-
-> I am seeing system hangs with 2.4.17 SMP kernel when doing mke2fs accros 12
-> drives in parallel. However, the hangs only occur when the I/O rate from
-> vmstat is high:
+William Lee Irwin III wrote:
 > 
+> ...
+> On Wed, Nov 20, 2002 at 03:02:24PM -0800, Andrew Morton wrote:
+> > signal_test 30000 122 122000.00 Signal Traps/second
+> > signal_test 10000 91.7 91700.00 Signal Traps/second
+> >     Signal delivery is a lot slower in 2.5.  I do not know why,
 > 
-> bash# vmstat 1
->    procs                      memory    swap          io     system
-> cpu
->  r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy
-> id
->  1  0  0      0 815800   3656 102612   0   0   163  1086  129   961   6  29
-> 65
->  0  0  0      0 813096   3656 102992   0   0   363     0  265   928  44  26
-> 31
->  0  0  0      0 813172   3656 102996   0   0     4     0  180    99   0   1
-> 99
->  5  2  1      0 809476   3656 103044   0   0    44     0  206   274  18  11
-> 71
->  0 12  0      0 802040   3656 103072   0   0    18     2  296   745  47  33
-> 21
->  0  8  0      0 800696   3660 103152   0   0    34   244  349   501  10   5
-> 85
->  0  8  0      0 800696   3660 103152   0   0     0     0  187   106   1   0
-> 99
->  2  5  1      0 795864   3660 103200   0   0    13    45  278   717  14  29
-> 57
->  1  0  0      0 795592   3660 103248   0   0   107    46  502   663   7   7
-> 86
->  1  0  0      0 795592   3660 103248   0   0     0     0  184    95   0   1
-> 99
->  1  0  0      0 795596   3660 103244   0   0     4     1  191   139   0   1
-> 99
->  6  5  3      0 756932   3660 140192   0   0   194 36721  464   232   7  87
-> 6
-> 11  0  1      0 723276   3660 173784   0   0     0 33718  681  1560   0  39
-> 61
-> 
-> At that point the system hangs. The system consists of a 4-port and a 8-port
-> 3ware controllers on an Intel 21154 bridge with 12 maxtor drives. When the
-> IO rate is lower:
-> 
->    procs                      memory    swap          io     system
-> cpu
->  r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy
-> id
->  0  0  0      0 811888   3828 103476   0   0     0     0  172    91   0   1
-> 99
->  0  0  0      0 811888   3828 103476   0   0     0     0  184    93   0   1
-> 99
->  0  0  0      0 811888   3828 103476   0   0     0     0  171   153   0   1
-> 99
->  0  0  0      0 811852   3828 103512   0   0     0   170  171    85   0   1
-> 99
->  0  0  0      0 811852   3828 103512   0   0     0     0  174    95   1   0
-> 99
->  0  0  0      0 811852   3828 103512   0   0     0     0  173   147   0   1
-> 99
->  0  0  0      0 811852   3828 103512   0   0     0     0  176    98   0   1
-> 99
->  0  0  0      0 811852   3828 103512   0   0     0     1  175    96   0   1
-> 99
->  1  0  0      0 811852   3828 103512   0   0     0     0  173   110   1   3
-> 96
->  1  0  0      0 811704   3828 103516   0   0     0     0  179   145   0   1
-> 99
->  0  0  0      0 811688   3828 103516   0   0     0     0  194   121   1   1
-> 98
->  0  0  0      0 811688   3828 103516   0   0     0    19  186   119   1   1
-> 98
->  0  0  0      0 811688   3828 103516   0   0     0     0  174   149   0   1
-> 99
->  0  0  0      0 811688   3828 103516   0   0     0     0  172    86   0   1
-> 99
->  0  0  0      0 811688   3828 103516   0   0     0     0  175    96   1   0
-> 99
->  0  0  0      0 811688   3828 103516   0   0     0     1  171   149   1   0
-> 99
->  0  0  0      0 811688   3828 103516   0   0     0     0  173    91   0   1
-> 99
->  0  0  1      0 811688   3828 103516   0   0     0     0  173    86   1   0
-> 99
->  0  0  0      0 811688   3828 103516   0   0     0     0  179   154   0   1
-> 99
->  0  0  0      0 811688   3828 103516   0   0     0     1  174    91   0   1
-> 99
->  0  0  0      0 811688   3828 103516   0   0     0     0  179    98   1   0
-> 99
->    procs                      memory    swap          io     system
-> cpu
->  r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy
-> id
->  1  0  0      0 811688   3828 103516   0   0     0     0  174   100   0   1
-> 99
->  0  0  0      0 811688   3828 103516   0   0     0     0  184   137   0   1
-> 99
->  0  0  0      0 811688   3828 103516   0   0     0     1  171    89   1   0
-> 99
->  0  0  0      0 811688   3828 103516   0   0     0     0  173    95   1   0
-> 99
->  0  0  0      0 811688   3828 103516   0   0     0     0  176   150   0   1
-> 99
->  0  0  0      0 811688   3828 103516   0   0     0     0  175   121   3   0
-> 97
->  0  0  0      0 811688   3828 103516   0   0     0    15  171   116   3   0
-> 97
->  0  0  0      0 811688   3828 103516   0   0     0     0  179   149   0   1
-> 99
->  0  0  0      0 811688   3828 103516   0   0     0     0  173    88   1   0
-> 99
->  0  0  0      0 811688   3828 103516   0   0     0     0  171    88   0   1
-> 99
->  0  0  0      0 811688   3828 103516   0   0     0    15  172   149   1   0
-> 99
->  0  0  0      0 811688   3828 103516   0   0     0     0  171    88   1   0
-> 99
->  0  0  0      0 811688   3828 103516   0   0     0     0  174    98   0   1
-> 99
->  1  0  0      0 811688   3828 103516   0   0     0     0  178   127   0   1
-> 99
->  0  0  0      0 811688   3828 103516   0   0     0     1  179   153   1   0
-> 99
->  0  0  0      0 811688   3828 103516   0   0     0     0  171    88   1   0
-> 99
->  0  0  0      0 811688   3828 103516   0   0     0     0  173    88   0   1
-> 99
->  0  0  0      0 811688   3828 103516   0   0     0     0  175   158   1   0
-> 99
->  0  0  0      0 811688   3828 103516   0   0     0     1  175    96   1   0
-> 99
->  0  0  0      0 811688   3828 103516   0   0     0     0  171    90   0   1
-> 99
->  0  0  0      0 811924   3828 103516   0   0     0     0  173   204   1   5
-> 94
->    procs                      memory    swap          io     system
-> cpu
->  r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy
-> id
->  1  0  0      0 811924   3828 103516   0   0     0     0  174    90   1   0
-> 99
->  0  0  0      0 811924   3828 103516   0   0     0    24  182    93   1   0
-> 99
->  1  0  0      0 811924   3828 103516   0   0     0     0  173   142   0   1
-> 99
->  0  0  0      0 811924   3828 103516   0   0     0     0  171    93   1   0
-> 99
->  0  0  0      0 811924   3828 103516   0   0     0     0  175    94   0   1
-> 99
->  1  0  0      0 811924   3828 103516   0   0     0     2  173    92   1   0
-> 99
->  0  0  0      0 811924   3828 103516   0   0     0     0  175   151   1   0
-> 99
->  0  0  0      0 811924   3828 103516   0   0     0     0  173    87   1   0
-> 99
->  0  0  1      0 811924   3828 103516   0   0     0     0  173    89   1   0
-> 99
->  0  0  0      0 811924   3828 103516   0   0     0     1  171   142   0   1
-> 99
-> 
-> bash# vmstat 1
->    procs                      memory    swap          io     system
-> cpu
->  r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy
-> id
->  5  0  1      0 815896   3656 102228   0   0   156  1076  129   917   6  34
-> 60
->  2  0  1      0 812860   3656 102992   0   0   737     0  252  1015  36  40
-> 25
->  0  0  0      0 813104   3656 102992   0   0     0     0  187   129   2   1
-> 97
->  0  0  0      0 813180   3656 102996   0   0     4     0  168    93   0   1
-> 99
->  6  8  1      0 802392   3656 103220   0   0   222     0  251   757  62  37
-> 1
->  0 10  0      0 804588   3684 103252   0   0   133    40  214   871  50  43
-> 8
->  2  8  1      0 804324   3712 103272   0   0   162    40  222   817  43  40
-> 18
->  9  4  0      0 805400   3712 103288   0   0     4     0  196   276  13   8
-> 79
->  9  0  1      0 804724   3812 103348   0   0   644    96  297  1255  41  59
-> 0
-> 14  0  1      0 804144   3816 103344   0   0     0     0  167   888  56  44
-> 0
-> 10  0  1      0 804448   3820 103340   0   0     0     0  171   873  57  43
-> 0
->  0  1  0      0 812288   3828 103436   0   0    97     0  222  1051  53  42
-> 5
->  0  0  0      0 811868   3828 103476   0   0    84     0  395   429   0   3
-> 97
->  1  0  0      0 811868   3828 103476   0   0     0     0  167    91   0   1
-> 99
->  1  0  0      0 811868   3828 103476   0   0     0     0  167   141   1   0
-> 99
->  0  0  0      0 811868   3828 103476   0   0     0     0  177   100   1   0
-> 99
->  0  0  0      0 811868   3828 103476   0   0     0     0  171    96   0   1
-> 99
->  1  0  0      0 811868   3828 103476   0   0     0     0  171   132   1   0
-> 99
->  0  0  0      0 811868   3828 103476   0   0     0     0  170   100   1   0
-> 99
->  0  0  0      0 811868   3828 103476   0   0     0     0  167    90   1   0
-> 99
->  0  0  0      0 811868   3828 103476   0   0     0     0  171    93   1   0
-> 99
->    procs                      memory    swap          io     system
-> cpu
->  r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy
-> id
->  0  0  0      0 811868   3828 103476   0   0     0     0  170   148   1   0
-> 99
->  0  0  0      0 811868   3828 103476   0   0     0     0  176    83   0   1
-> 99
->  0  0  0      0 811868   3828 103476   0   0     0     0  167    86   0   1
-> 99
->  0  0  0      0 811868   3828 103476   0   0     0     0  169   146   0   1
-> 99
->  0  0  0      0 811832   3828 103512   0   0     0   173  168    84   1   0
-> 99
->  0  0  0      0 811832   3828 103512   0   0     0     0  178   104   1   0
-> 99
->  0  0  0      0 811832   3828 103512   0   0     0     0  167   141   0   1
-> 99
->  0  0  0      0 811832   3828 103512   0   0     0     0  173    92   1   2
-> 97
->  0  0  0      0 811832   3828 103512   0   0     0     1  169    89   0   2
-> 98
->  1  0  0      0 811832   3828 103512   0   0     0     0  173   138   2   3
-> 95
->  1  0  0      0 811684   3828 103516   0   0     0     0  183   132   0   1
-> 99
->  0  0  0      0 811668   3828 103516   0   0     0     0  178   103   0   1
-> 99
->  0  0  0      0 811668   3828 103516   0   0     0    19  180   108   1   0
-> 99
->  0  0  0      0 811668   3828 103516   0   0     0     0  169   148   1   0
-> 99
->  0  0  0      0 811668   3828 103516   0   0     0     0  169    88   0   1
-> 99
->  0  0  0      0 811668   3828 103516   0   0     0     0  171    94   1   0
-> 99
->  0  0  0      0 811668   3828 103516   0   0     0     1  170   147   1   0
-> 99
->  0  0  0      0 811668   3828 103516   0   0     0     0  168    94   0   1
-> 99
->  0  0  0      0 811668   3828 103516   0   0     0     0  171    95   1   0
-> 99
->  0  0  0      0 811668   3828 103516   0   0     0     0  173   175   3   0
-> 97
->  0  0  0      0 811668   3828 103516   0   0     0    15  169    89   1   0
-> 99
->    procs                      memory    swap          io     system
-> cpu
->  r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy
-> id
->  0  0  0      0 811668   3828 103516   0   0     0     0  168    87   1   0
-> 99
->  1  0  0      0 811668   3828 103516   0   0     0     0  178   156   2   1
-> 97
->  0  0  0      0 811668   3828 103516   0   0     0     0  175   122   0   1
-> 99
->  0  0  0      0 811668   3828 103516   0   0     0    15  167    86   1   0
-> 99
->  0  0  0      0 811668   3828 103516   0   0     0     0  171    92   0   1
-> 99
->  0  0  0      0 811668   3828 103516   0   0     0     0  177   151   0   1
-> 99
->  0  0  0      0 811668   3828 103516   0   0     0     0  169    93   0   1
-> 99
->  0  0  0      0 811668   3828 103516   0   0     0     1  169    86   0   1
-> 99
->  0  0  0      0 811668   3828 103516   0   0     0     0  167   146   0   1
-> 99
->  0  0  0      0 811668   3828 103516   0   0     0     0  172    95   0   1
-> 99
->  0  0  0      0 811668   3828 103516   0   0     0     0  167    84   1   0
-> 99
->  0  0  0      0 811668   3828 103516   0   0     0     1  178   189   1   0
-> 99
->  0  0  0      0 811668   3828 103516   0   0     0     0  171    89   1   0
-> 99
->  0  0  0      0 811668   3828 103516   0   0     0     0  171    89   0   1
-> 99
->  1  0  0      0 811668   3828 103516   0   0     0     0  171   124   1   0
-> 99
->  0  0  0      0 811668   3828 103516   0   0     0     1  183   127   0   1
-> 99
-> 
-> bash# df
-> Filesystem           1k-blocks      Used Available Use% Mounted on
-> /dev/ram1               125011     85304     33154  73% /
-> coreserver:/var/cores
->                       74858752    475144  70580928   1%
-> /var/.automount/cores
-> /dev/sdj1              7827172        24   7429540   1% /disks/disk10.1
-> /dev/sdi1              7827172        24   7429540   1% /disks/disk9.1
-> /dev/sdl1              7827172        24   7429540   1% /disks/disk12.1
-> /dev/sdk1              7827172        24   7429540   1% /disks/disk11.1
-> /dev/sdh1              7827172        24   7429540   1% /disks/disk8.1
-> /dev/sdf1              7827172        24   7429540   1% /disks/disk6.1
-> /dev/sde1              7827172        24   7429540   1% /disks/disk5.1
-> /dev/sdb1              7827172        24   7429540   1% /disks/disk2.1
-> /dev/sdg1              7827172        24   7429540   1% /disks/disk7.1
-> /dev/sda1              7827172        24   7429540   1% /disks/disk1.1
-> /dev/sdd1              7827172        24   7429540   1% /disks/disk4.1
-> /dev/sdc1              7827172        24   7429540   1% /disks/disk3.1
-> bash#
-> 
-> 
-> bash# vmstat 1
->    procs                      memory    swap          io     system
-> cpu
->  r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy
-> id
->  0  0  0      0 755440   3924 105192   0   0    83  8108  353   655   5  25
-> 69
->  0  0  1      0 755440   3924 105192   0   0     0     0  167    70   0   0
-> 100
->  0  0  0      0 755440   3924 105192   0   0     0    24  159    82   0   1
-> 99
->  0  0  0      0 755052   3924 105192   0   0     0     0  162   133   0   0
-> 100
->  0  0  0      0 755052   3924 105192   0   0     0     0  156    68   0   1
-> 99
->  0  0  0      0 755052   3924 105192   0   0     0     0  155    59   0   0
-> 100
->  0  0  0      0 755052   3924 105192   0   0     0     1  157   124   0   0
-> 100
->  0  0  0      0 755052   3924 105192   0   0     0     0  174    82   0   1
-> 99
->  0  0  0      0 755052   3924 105192   0   0     0     0  161    73   0   0
-> 100
->  1  0  0      0 755052   3924 105192   0   0     0     0  159   101   0   0
-> 100
->  0  0  0      0 755052   3924 105192   0   0     0     1  155    92   0   0
-> 100
->  0  0  0      0 755052   3924 105192   0   0     0     0  155    57   0   0
-> 100
->  0  0  0      0 755052   3924 105192   0   0     0     0  155    67   1   0
-> 99
->  0  0  0      0 755052   3924 105192   0   0     0     0  155   112   0   0
-> 100
->  0  0  0      0 754440   3924 105192   0   0     0     6  157    67   0   0
-> 100
->  0  0  0      0 754440   3924 105192   0   0     0     0  155    62   0   0
-> 100
->  0  0  0      0 754440   3924 105192   0   0     0     0  157   128   0   0
-> 100
->  0  0  0      0 754440   3924 105192   0   0     0     0  160    66   0   1
-> 99
->  0  0  0      0 754440   3924 105192   0   0     0     1  157    72   0   0
-> 100
->  0  0  0      0 754440   3924 105192   0   0     0     0  155   117   0   0
-> 100
->  0  0  0      0 754440   3924 105192   0   0     0     0  155    71   0   0
-> 100
->    procs                      memory    swap          io     system
-> cpu
->  r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy
-> id
->  0  0  0      0 754440   3924 105192   0   0     0     0  157    66   0   0
-> 100
->  1  0  0      0 754440   3924 105192   0   0     0     1  166   114   0   1
-> 99
->  0  0  0      0 754440   3924 105192   0   0     0     0  158    93   0   0
-> 100
-> 
-> there are no hangs. On startup, I am doing parallel mje2fs accross all the
-> drives. 3ware 4-port controller shows that LEDs are ON. I have tried
-> replacing the controllers but that also does not help ...
-> 
-> Thanks
-> Manish
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Similar things have been reported with 2.4.x vs. 2.2.x and IIRC there
+> was some speculation they were due to low-level arch code interactions.
+> I think this merits some investigation. I, for one, am a big user of
+> SIGIO in userspace C programs...
 > 
 
+OK, got it back to 119000.  Each signal was calling copy_*_user 24 times.
+This gets it down to six.
+
+
+--- 25/arch/i386/kernel/i387.c~signal-speedup	Wed Nov 20 20:44:56 2002
++++ 25-akpm/arch/i386/kernel/i387.c	Wed Nov 20 21:06:04 2002
+@@ -232,7 +232,7 @@ void set_fpu_mxcsr( struct task_struct *
+  * FXSR floating point environment conversions.
+  */
+ 
+-static inline int convert_fxsr_to_user( struct _fpstate *buf,
++static int convert_fxsr_to_user( struct _fpstate *buf,
+ 					struct i387_fxsave_struct *fxsave )
+ {
+ 	unsigned long env[7];
+@@ -254,13 +254,18 @@ static inline int convert_fxsr_to_user( 
+ 	to = &buf->_st[0];
+ 	from = (struct _fpxreg *) &fxsave->st_space[0];
+ 	for ( i = 0 ; i < 8 ; i++, to++, from++ ) {
+-		if ( __copy_to_user( to, from, sizeof(*to) ) )
++		unsigned long *t = (unsigned long *)to;
++		unsigned long *f = (unsigned long *)from;
++
++		if (__put_user(*f, t) ||
++				__put_user(*(f + 1), t + 1) ||
++				__put_user(from->exponent, &to->exponent))
+ 			return 1;
+ 	}
+ 	return 0;
+ }
+ 
+-static inline int convert_fxsr_from_user( struct i387_fxsave_struct *fxsave,
++static int convert_fxsr_from_user( struct i387_fxsave_struct *fxsave,
+ 					  struct _fpstate *buf )
+ {
+ 	unsigned long env[7];
+@@ -283,7 +288,12 @@ static inline int convert_fxsr_from_user
+ 	to = (struct _fpxreg *) &fxsave->st_space[0];
+ 	from = &buf->_st[0];
+ 	for ( i = 0 ; i < 8 ; i++, to++, from++ ) {
+-		if ( __copy_from_user( to, from, sizeof(*from) ) )
++		unsigned long *t = (unsigned long *)to;
++		unsigned long *f = (unsigned long *)from;
++
++		if (__get_user(*f, t) ||
++				__get_user(*(f + 1), t + 1) ||
++				__get_user(from->exponent, &to->exponent))
+ 			return 1;
+ 	}
+ 	return 0;
+@@ -305,7 +315,7 @@ static inline int save_i387_fsave( struc
+ 	return 1;
+ }
+ 
+-static inline int save_i387_fxsave( struct _fpstate *buf )
++static int save_i387_fxsave( struct _fpstate *buf )
+ {
+ 	struct task_struct *tsk = current;
+ 	int err = 0;
+@@ -355,7 +365,7 @@ static inline int restore_i387_fsave( st
+ 				 sizeof(struct i387_fsave_struct) );
+ }
+ 
+-static inline int restore_i387_fxsave( struct _fpstate *buf )
++static int restore_i387_fxsave( struct _fpstate *buf )
+ {
+ 	int err;
+ 	struct task_struct *tsk = current;
+@@ -373,7 +383,7 @@ int restore_i387( struct _fpstate *buf )
+ 
+ 	if ( HAVE_HWFP ) {
+ 		if ( cpu_has_fxsr ) {
+-			err =  restore_i387_fxsave( buf );
++			err = restore_i387_fxsave( buf );
+ 		} else {
+ 			err = restore_i387_fsave( buf );
+ 		}
+
+_

@@ -1,120 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261982AbUC0Whg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Mar 2004 17:37:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261976AbUC0Whf
+	id S261989AbUC0Wmi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Mar 2004 17:42:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261990AbUC0Wmh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Mar 2004 17:37:35 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:18354 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261966AbUC0Wh2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Mar 2004 17:37:28 -0500
-Message-ID: <4066021A.20308@pobox.com>
-Date: Sat, 27 Mar 2004 17:37:14 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-ide@vger.kernel.org
-CC: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] speed up SATA
-Content-Type: multipart/mixed;
- boundary="------------010307080906010908080803"
+	Sat, 27 Mar 2004 17:42:37 -0500
+Received: from multivac.one-eyed-alien.net ([64.169.228.101]:34199 "EHLO
+	multivac.one-eyed-alien.net") by vger.kernel.org with ESMTP
+	id S261989AbUC0Wmf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Mar 2004 17:42:35 -0500
+Date: Sat, 27 Mar 2004 14:42:22 -0800
+From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+To: Wakko Warner <wakko@animx.eu.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Can't eject jaz disk on 2.6
+Message-ID: <20040327224222.GA5203@one-eyed-alien.net>
+Mail-Followup-To: Wakko Warner <wakko@animx.eu.org>,
+	linux-kernel@vger.kernel.org
+References: <20040327075918.A2232@animx.eu.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Dxnq1zWXvFF0Q93v"
+Content-Disposition: inline
+In-Reply-To: <20040327075918.A2232@animx.eu.org>
+User-Agent: Mutt/1.4.1i
+Organization: One Eyed Alien Networks
+X-Copyright: (C) 2004 Matthew Dharm, all rights reserved.
+X-Message-Flag: Get a real e-mail client.  http://www.mutt.org/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010307080906010908080803
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 
+--Dxnq1zWXvFF0Q93v
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-The "lba48" feature in ATA allows for addressing of sectors > 137GB, and 
-also allows for transfers of up to 64K sector, instead of the 
-traditional 256 sectors in older ATA.
+On Sat, Mar 27, 2004 at 07:59:18AM -0500, Wakko Warner wrote:
+> I've used 2.6.0 to 2.6.4 on a computer with a jaz drive.
+> Using eject 2.0.13, I'm unable to eject the disk.  I have tested on 2.4.24
+> and it does eject.
 
-libata simply limited all transfers to a 200 sectors (just under the 256 
-sector limit).  This was mainly being careful, and making sure I had a 
-solution that worked everywhere.  I also wanted to see how the iommu S/G 
-stuff would shake out.
+Over on the usb-storage list, we've just become aware of a similar problem.
 
-Things seem to be looking pretty good, so it's now time to turn on 
-lba48-sized transfers.  Most SATA disks will be lba48 anyway, even the 
-ones smaller than 137GB, for this and other reasons.
+Are you using SCSI or IDE?
 
-With this simple patch, the max request size goes from 128K to 32MB... 
-so you can imagine this will definitely help performance.  Throughput 
-goes up.  Interrupts go down.  Fun for the whole family.
+We've actually recorded the SCSI layer sending us a PREVENT_MEDIUM_REMOVAL,
+then a START_STOP (to actually eject), and then an ALLOW_MEDIUM_REMOVAL.
+So, nothing gets ejected.  This is under 2.6.
 
-The attached patch is for 2.6.x kernels only.  It should apply to 
-2.6.5-rc2 or later, including my latest 2.6-libata patch on kernel.org. 
-This patch should be pretty harmless, but you never know what could 
-happen when you throw the throttle wide open.  Testing in -mm would be a 
-good thing, for example :)
+Matt
 
-Volunteers are welcome to post a 2.4 backport of this patch to 
-linux-ide@vger.kernel.org, and I'll merge it into my 2.4 libata queue.
+--=20
+Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
+net=20
+Maintainer, Linux USB Mass Storage Driver
 
-Here's what dmesg looks like on my workstation.  Look for the "max 
-request 32MB" message just after SCSI prints out the disk information.
+S:  Another stupid question?
+G:  There's no such thing as a stupid question, only stupid people.
+					-- Stef and Greg
+User Friendly, 7/15/1998
 
-libata version 1.02 loaded.
-ata_piix version 1.02
-PCI: Setting latency timer of device 0000:00:1f.2 to 64
-ata1: SATA max UDMA/133 cmd 0x24F0 ctl 0x280A bmdma 0x24D0 irq 169
-ata2: SATA max UDMA/133 cmd 0x24F8 ctl 0x280E bmdma 0x24D8 irq 169
-ata1: dev 0 cfg 49:2f00 82:7c6b 83:7f09 84:4003 85:7c69 86:3e01 87:4003 
-88:207f
-ata1: dev 0 ATA, max UDMA/133, 488281250 sectors (lba48)
-ata1: dev 0 configured for UDMA/133
-scsi0 : ata_piix
-ata2: SATA port has no device.
-ata2: thread exiting
-scsi1 : ata_piix
-   Vendor: ATA       Model: Maxtor 6Y250M0    Rev: 1.02
-   Type:   Direct-Access                      ANSI SCSI revision: 05
-ata1: dev 0 max request 32MB (lba48)
-SCSI device sda: 488281250 512-byte hdwr sectors (250000 MB)
-SCSI device sda: drive cache: write through
-  sda: sda1
-Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
-Attached scsi generic sg0 at scsi0, channel 0, id 0, lun 0,  type 0
+--Dxnq1zWXvFF0Q93v
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
---------------010307080906010908080803
-Content-Type: text/plain;
- name="patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch"
+iD8DBQFAZgNOIjReC7bSPZARAiekAJsFc7NfsKqI1/6tCweB1SjYDSBZZwCfbIBp
+howHvlcfuhH/G9WWL6sILZw=
+=UJR6
+-----END PGP SIGNATURE-----
 
-===== drivers/scsi/libata-scsi.c 1.18 vs edited =====
---- 1.18/drivers/scsi/libata-scsi.c	Sat Mar 27 00:21:29 2004
-+++ edited/drivers/scsi/libata-scsi.c	Sat Mar 27 16:04:39 2004
-@@ -168,6 +168,23 @@
- 	sdev->use_10_for_ms = 1;
- 	blk_queue_max_phys_segments(sdev->request_queue, LIBATA_MAX_PRD);
- 
-+	if (sdev->id < ATA_MAX_DEVICES) {
-+		struct ata_port *ap;
-+		struct ata_device *dev;
-+
-+		ap = (struct ata_port *) &sdev->host->hostdata[0];
-+		dev = &ap->device[sdev->id];
-+
-+		if (dev->flags & ATA_DFLAG_LBA48) {
-+			sdev->host->max_sectors = 65534;
-+			blk_queue_max_sectors(sdev->request_queue, 65534);
-+			printk(KERN_INFO "ata%u: dev %u max request 32MB (lba48)\n",
-+			       ap->id, sdev->id);
-+		} else
-+			printk(KERN_INFO "ata%u: dev %u max request 128K\n",
-+			       ap->id, sdev->id);
-+	}
-+
- 	return 0;	/* scsi layer doesn't check return value, sigh */
- }
- 
-
---------------010307080906010908080803--
-
+--Dxnq1zWXvFF0Q93v--

@@ -1,47 +1,98 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267014AbRGYPl5>; Wed, 25 Jul 2001 11:41:57 -0400
+	id <S268578AbRGYPq5>; Wed, 25 Jul 2001 11:46:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267003AbRGYPlr>; Wed, 25 Jul 2001 11:41:47 -0400
-Received: from fungus.teststation.com ([212.32.186.211]:62735 "EHLO
-	fungus.teststation.com") by vger.kernel.org with ESMTP
-	id <S266999AbRGYPl3>; Wed, 25 Jul 2001 11:41:29 -0400
-Date: Wed, 25 Jul 2001 17:41:24 +0200 (CEST)
-From: Urban Widmark <urban@teststation.com>
-To: Edouard Soriano <e_soriano@dapsys.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Forum for Databases and DB2
-In-Reply-To: <20010725.6201100@dap21.dapsys.ch>
-Message-ID: <Pine.LNX.4.30.0107251732490.10690-100000@cola.teststation.com>
+	id <S267003AbRGYPqh>; Wed, 25 Jul 2001 11:46:37 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:2176 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S268577AbRGYPq0>; Wed, 25 Jul 2001 11:46:26 -0400
+Date: Wed, 25 Jul 2001 11:45:19 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: "M. Tavasti" <tawz@nic.fi>
+cc: Ben Greear <greearb@candelatech.com>, linux-kernel@vger.kernel.org
+Subject: Re: Select with device and stdin not working
+In-Reply-To: <m2g0blkp0t.fsf@akvavitix.vuovasti.com>
+Message-ID: <Pine.LNX.3.95.1010725114322.520A-100000@chaos.analogic.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Wed, 25 Jul 2001, Edouard Soriano wrote:
+On 25 Jul 2001, M. Tavasti wrote:
 
-> I am configuring DB2 7.1 on a Linux system RedHat 7.1
-> and I am having a real pain about.
+> "Richard B. Johnson" <root@chaos.analogic.com> writes:
 > 
-> I applied recommendations described in
-> www.liuxdoc.org/HOWTO/DB2-HOWTO/jdkinstall.html
+> > Change: 
+> >                  } else if(FD_ISSET(fileno(stdin),&rfds) ) {
+> > To:
+> >                  } if(FD_ISSET(fileno(stdin),&rfds) ) {
+> > 
+> > Both of these bits can be (probably are) set.
 > 
-> but when starting the Control Center (db2cc) Java 
-> bumps.
+> You are third person to suggest that. Yes, it's good point, but
+> doesn't make any difference. Or it makes when both device and stdin
+> have something, stdin is read on second round. 
+> 
+> But now there is nothing coming from device, and typing + pressing
+> enter won't make select() return like it should. 
 
-The Control Center is not a vital part, you can live just fine without it.
-Unless you have a strong urge to click on things ... :)
+It works here...........
 
 
-> Is there another linux forum covering DB2 on Linux I
-> can address to share experiences ?
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/poll.h>
+#include <errno.h>
+#include <string.h>
 
-Search on www.google.com, if you haven't already.
+static const char dev[]="/dev/random";
 
-IBM has a few newsgroups, related to db2 as well as other IBM stuff. If
-you don't have local news access, they should be available at
-news.software.ibm.com.
+int main(int args, char *argv[])
+{
+    int fd, retval;
+    fd_set rfds;
 
-/Urban
+    if((fd = open(dev, O_RDONLY)) < 0)
+    {
+        fprintf(stderr, "Can't open device, %s\n", dev);
+        exit(EXIT_FAILURE);
+    }
+    for(;;)
+    {
+        FD_ZERO(&rfds);
+        FD_SET(fd, &rfds);
+        FD_SET(STDIN_FILENO, &rfds);
+        retval = select(fd+1, &rfds, NULL, NULL, NULL); 
+        if(retval < 0)
+            fprintf(stderr, "Error was %s\n", strerror(errno));
+        printf("Return = %d\n", retval);
+        if(FD_ISSET(fd, &rfds))
+            printf("Input is available from %s\n", dev);
+        if(FD_ISSET(STDIN_FILENO, &rfds))
+            printf("Input is available from %s\n", "terminal");
+    }
+    if(close(fd) < 0)
+    {
+        fprintf(stderr, "Can't close device, %s\n", dev);
+        exit(EXIT_FAILURE);
+    }
+    return 0;
+}
+
+
+
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
 

@@ -1,49 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317566AbSGEUnG>; Fri, 5 Jul 2002 16:43:06 -0400
+	id <S317564AbSGEUmY>; Fri, 5 Jul 2002 16:42:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317567AbSGEUnF>; Fri, 5 Jul 2002 16:43:05 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:28426
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S317566AbSGEUnD> convert rfc822-to-8bit; Fri, 5 Jul 2002 16:43:03 -0400
-Date: Fri, 5 Jul 2002 13:43:53 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Martin Wilck <Martin.Wilck@Fujitsu-Siemens.com>
-cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Init Skript / RPM =?ISO-8859-1?Q?f=FCr?= SuSE & RedHat
-In-Reply-To: <1025873207.30422.29.camel@biker.pdb.fsc.net>
-Message-ID: <Pine.LNX.4.10.10207051342420.23359-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S317566AbSGEUmX>; Fri, 5 Jul 2002 16:42:23 -0400
+Received: from mnh-1-16.mv.com ([207.22.10.48]:25861 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S317564AbSGEUmW>;
+	Fri, 5 Jul 2002 16:42:22 -0400
+Message-Id: <200207052148.QAA03113@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: Ville Herva <vherva@niksula.hut.fi>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: prevent breaking a chroot() jail? 
+In-Reply-To: Your message of "Fri, 05 Jul 2002 21:45:03 +0300."
+             <20020705184503.GQ1548@niksula.cs.hut.fi> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 05 Jul 2002 16:48:43 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+vherva@niksula.hut.fi said:
+> ISTR UML had some security problems (guest processes being able to
+> disrupt host processes or just guest processes being able to disrupt
+> other guest processes). Have those been resolved yet?  
 
-Martin,
+Can you be more specific?  That's not ringing any bells with me.
 
-Thankyou but nobody really wants a Promise FastTrax loading script in open
-source.  Given the product is closed source.
+As far as I know, there's nothing that needs to be resolved.
 
-Cheers,
-
-On 5 Jul 2002, Martin Wilck wrote:
-
-> Das hier ist sicherlich keine endgültige Lösung, aber es zeigt
-> im Prinzip, wie man die Distributions-Unterschiede im init.d Skript bzw.
-> SPEC-file abfangen kann.
-> 
-> -- 
-> Martin Wilck                Phone: +49 5251 8 15113
-> Fujitsu Siemens Computers   Fax:   +49 5251 8 20409
-> Heinz-Nixdorf-Ring 1	    mailto:Martin.Wilck@Fujitsu-Siemens.com
-> D-33106 Paderborn           http://www.fujitsu-siemens.com/primergy
-> 
-> 
-> 
-> 
-> 
-
-Andre Hedrick
-LAD Storage Consulting Group
+				Jeff
 

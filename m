@@ -1,47 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314034AbSDKMkU>; Thu, 11 Apr 2002 08:40:20 -0400
+	id <S314035AbSDKMma>; Thu, 11 Apr 2002 08:42:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314035AbSDKMkU>; Thu, 11 Apr 2002 08:40:20 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:32012 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S314034AbSDKMkT>; Thu, 11 Apr 2002 08:40:19 -0400
-Message-Id: <200204111236.g3BCaMX10247@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Jens Axboe <axboe@suse.de>, Martin Dalecki <martin@dalecki.de>,
-        Vojtech Pavlik <vojtech@suse.cz>
-Subject: New IDE code and DMA failures
-Date: Thu, 11 Apr 2002 15:39:33 -0200
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-X-Chameleon-Return-To: vda@port.imtp.ilyichevsk.odessa.ua
+	id <S314038AbSDKMm3>; Thu, 11 Apr 2002 08:42:29 -0400
+Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:56586 "EHLO
+	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S314035AbSDKMm3>; Thu, 11 Apr 2002 08:42:29 -0400
+Date: Thu, 11 Apr 2002 14:42:18 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+To: Keith Owens <kaos@ocs.com.au>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] 2.4.19-pre6 standardize {aic7xxx,aicasm}/Makefile 
+In-Reply-To: <10197.1018483487@ocs3.intra.ocs.com.au>
+Message-ID: <Pine.LNX.4.21.0204111439550.25032-100000@serv>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jens, Martin, Vojtech,
+Hi,
 
-I have a flaky IDE subsystem in one box. Reads work fine,
-writes sometimes don't work and hang either IDE/block device
-sybsystem or entire box. For example, I dumped ~40 MB file to
-the disk and now I have additional power led (i.e. hdd activity
-led is constantly on) and a bunch of "D" state processes
-(kupdated, mount, umount).
+On Thu, 11 Apr 2002, Keith Owens wrote:
 
-This is happening since I decided to try 2.5.7.
-2.4.18 reported DMA failures and reverted to PIO.
+> There can be multiple destination files, e.g. running yacc produces a
+> .c and a .h file.
 
-I did send a detailed report of similar event with
-ksymoopsed stack traces of hung prosesses to lkml.
+The checksum only needs to be stored in one of them.
 
-Since you are working on IDE subsystem, I will be glad to
-*retain* my flaky IDE setup and test future kernels
-for correct operation in this failure mode.
+> The generated file is not necessarily .[ch], wrapping the md5sum in
+> /* */ may break some generated files.  AFAIK all currently generated
+> files are .[ch] but I do not want to restrict future builds.
 
-Please inform me whenever you want me to test your patches.
---
-vda
+The wrapping could be changed with an argument and if everything fails,
+the checksum can still be put into a separate file.
+
+> The output can change without the inputs changing.  For example, the
+> distributor might find a bug in the tool that generates the file,
+> install a new version of the tool and regenerate.  The inputs have not
+> changed but the output has.  To detect this, the md5sum is across all
+> files, including the outputs, which makes it impossible to store the
+> sum in one of the output files.
+
+What exactly are you detecting? Simply regenerate the files and distribute
+the changes, the checksum won't change, but I don't understand how that
+should matter.
+What other problem are you trying to solve? My simple script solves the
+problem of unreliable time stamps, when applying patches. Unless the user
+changes the inputs, the output files won't be regenerated.
+
+bye, Roman
+

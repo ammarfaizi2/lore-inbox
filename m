@@ -1,51 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261594AbVCCRvF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262103AbVCCRvF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261594AbVCCRvF (ORCPT <rfc822;willy@w.ods.org>);
+	id S262103AbVCCRvF (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 3 Mar 2005 12:51:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262536AbVCCRul
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262532AbVCCRuS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 12:50:41 -0500
-Received: from fire.osdl.org ([65.172.181.4]:704 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262103AbVCCRtL (ORCPT
+	Thu, 3 Mar 2005 12:50:18 -0500
+Received: from wproxy.gmail.com ([64.233.184.206]:19690 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262531AbVCCRtd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 12:49:11 -0500
-Date: Thu, 3 Mar 2005 09:50:29 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Chris Friesen <cfriesen@nortel.com>
-cc: Jeff Garzik <jgarzik@pobox.com>, Greg KH <greg@kroah.com>,
-       "David S. Miller" <davem@davemloft.net>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: RFD: Kernel release numbering
-In-Reply-To: <42274171.3030702@nortel.com>
-Message-ID: <Pine.LNX.4.58.0503030949040.25732@ppc970.osdl.org>
-References: <42265A6F.8030609@pobox.com> <20050302165830.0a74b85c.davem@davemloft.net>
- <422674A4.9080209@pobox.com> <Pine.LNX.4.58.0503021932530.25732@ppc970.osdl.org>
- <42268749.4010504@pobox.com> <20050302200214.3e4f0015.davem@davemloft.net>
- <42268F93.6060504@pobox.com> <4226969E.5020101@pobox.com>
- <20050302205826.523b9144.davem@davemloft.net> <4226C235.1070609@pobox.com>
- <20050303080459.GA29235@kroah.com> <4226CA7E.4090905@pobox.com>
- <Pine.LNX.4.58.0503030750420.25732@ppc970.osdl.org> <42274171.3030702@nortel.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 3 Mar 2005 12:49:33 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=WIlqTwRxXyxtNCjAIscg3x58cLNWcfmrQAahxuSApYI2Ml+McG304PyhFM6ulGRt3ToE40LZSnKysGESLmRAKXw7KGcvYh5MVsTWgNdRcGaP12ENbrHPpbivt3EHIp7RygUkeuzq/Ryz1lBzhvVZZnRV8cXXvPG+zk5sitbgYIA=
+Message-ID: <3aa654a405030309493236ec34@mail.gmail.com>
+Date: Thu, 3 Mar 2005 09:49:29 -0800
+From: Avuton Olrich <avuton@gmail.com>
+Reply-To: Avuton Olrich <avuton@gmail.com>
+To: Pavel Machek <pavel@suse.cz>
+Subject: Re: Call for help: list of machines with working S3
+Cc: ACPI mailing list <acpi-devel@lists.sourceforge.net>,
+       kernel list <linux-kernel@vger.kernel.org>, seife@suse.de, rjw@sisk.pl
+In-Reply-To: <20050214211105.GA12808@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20050214211105.GA12808@elf.ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 3 Mar 2005, Chris Friesen wrote:
->
-> Linus Torvalds wrote:
+On Mon, 14 Feb 2005 22:11:05 +0100, Pavel Machek <pavel@suse.cz> wrote:
+> Table of known working systems:
 > 
-> > I'll tell you what the problem is: I don't think you'll find anybody to do
-> > the parallell "only trivial patches" tree.
+> Model                           hack (or "how to do it")
+> ------------------------------------------------------------------------------
+> IBM TP R32 / Type 2658-MMG      none (1)
+> Athlon HP Omnibook XE3          none (1)
+> Compaq Armada E500 - P3-700     none (1) (S1 also works OK)
+> IBM t41p                        none (1)
+> Athlon64 desktop prototype      s3_bios (2)
+> HP NC6000                       s3_bios (2)
+> Toshiba Satellite 4080XCDT      s3_mode (3)
+> Toshiba Satellite 4030CDT       s3_mode (3)
+> Dell D600, ATI RV250            vga=normal (**)
+> Asus L2400D                     s3_mode (3)(***) (S1 also works OK)
+> Toshiba Satellite P10-554       s3_bios,s3_mode (4)(****)
+> Acer TM 800                     vga=normal, X patches, see webpage (5)
+> Athlon64 Arima W730a            vbestate needed (6)
+> eMachines athlon64 machines     vbestate needed (6) (someone please get me model #s)
 > 
-> Isn't this what -ac and -as effectively already are?
+> (**) Text console is "strange" after resume. Backlight is switched on again
+>      by the X server. X server is:
+>      | X Window System Version 6.8.1.904 (6.8.2 RC 4)
+>      | Release Date: 2 February 2005
+>      | X Protocol Version 11, Revision 0, Release 6.8.1.904
+>      | Build Operating System: SuSE Linux [ELF] SuSE
+>      as present in SUSE 9.3preview3.
+> 
+> (***) To be tested with a newer kernel.
+> 
+> (****) Not with SMP kernel, UP only.
 
-No. They both end up doing a lot of much fancier stuff. There are patches 
-in there that I may not be comfortable with, because they end up doing 
-things like totally re-doing the locking for some subsystem. 
+Toshiba Libretto L5 works completely with S3, not with S1 when the
+ali5451 ALSA module is unloaded.
 
-Yes, they end up re-doing _broken_ locking, but the point is that they are 
-not obvious. They are just "more careful" versions of the -mm tree.
-
-		Linus
+-- 
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

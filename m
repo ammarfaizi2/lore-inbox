@@ -1,54 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275804AbTHOIv4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 04:51:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275805AbTHOIv4
+	id S275808AbTHOI6P (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 04:58:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275810AbTHOI6P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 04:51:56 -0400
-Received: from AMarseille-201-1-4-67.w217-128.abo.wanadoo.fr ([217.128.74.67]:17191
-	"EHLO gaston") by vger.kernel.org with ESMTP id S275804AbTHOIvy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 04:51:54 -0400
-Subject: Re: [PATCH] call drv->shutdown at rmmod
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Patrick Mochel <mochel@osdl.org>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Greg KH <greg@kroah.com>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0308140929180.916-100000@localhost.localdomain>
-References: <Pine.LNX.4.33.0308140929180.916-100000@localhost.localdomain>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1060937467.13316.39.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 15 Aug 2003 10:51:08 +0200
+	Fri, 15 Aug 2003 04:58:15 -0400
+Received: from os.inf.tu-dresden.de ([141.76.48.99]:5578 "EHLO
+	os.inf.tu-dresden.de") by vger.kernel.org with ESMTP
+	id S275808AbTHOI6N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Aug 2003 04:58:13 -0400
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.22-rc2, modular ide, missing dependencies in drivers/ide/Config.in? 
+Organisation: Dresden University of Technology
+From: Jean Wolter <jw5@os.inf.tu-dresden.de>
+Content-Type: text/plain; charset=US-ASCII
+Date: 15 Aug 2003 10:58:12 +0200
+Message-ID: <86znib47rv.fsf@os.inf.tu-dresden.de>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Civil Service)
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-> You're assuming that a driver can always bring a device out a shutdown
-> state. That's one of the things we talked about at OLS, and the other half
-> of the justification behind such a feature, not just making sure the
-> device is queisced. Your argument against my suggestion are some of the
-> same arguments for a feature like you're introducing. 
+I've tried to build a kernel with modular IDE drivers (CONFIG_IDE=m)
+and got unresolved symbols during make modules_install. The reason was
+CONFIG_BLK_DEV_CMD640=y which has to be set to 'm' when you try to
+build IDE drivers as modules.
 
-There is a problem of semantics here. Is shutdown() supposed to shutdown
-the hardware device (ie. low power) or just the driver ? If yes, then
-it's duplicate of the PM callbacks. My understanding of the shutdown()
-callback is that it was more than "stop driver activity, put device into
-idle state" to prepare for a shutdown/reboot (though we do also sleep
-IDE drives in this case, but this is because of that nasty cache flush
-issue).
+I think the IDE chipset bugfix/support should depend on
+CONFIG_BLK_DEV_IDE to force building them as modules if the IDE driver
+is build as a module:
 
-The problem with kexec is just that. What it needs isn't low power devices,
-it needs device back in "idle" state, but if possible powered up (or at
-least in whatever state the driver found them on boot). The most important
-thing is to actually stop pending bus mastering activities.
+--- linux-2.4.22-rc2-orig/drivers/ide/Config.in Wed Aug 13 11:28:08 2003
++++ linux-2.4.22-rc2/drivers/ide/Config.in      Wed Aug 13 22:12:37 2003
+@@ -27,7 +27,7 @@
+ 
+    comment 'IDE chipset support/bugfixes'
+    if [ "$CONFIG_BLK_DEV_IDE" != "n" ]; then
+-      dep_bool '  CMD640 chipset bugfix/support' CONFIG_BLK_DEV_CMD640 $CONFIG_X86
++      dep_tristate '  CMD640 chipset bugfix/support' CONFIG_BLK_DEV_CMD640 $CONFIG_X86 $CONFIG_BLK_DEV_IDE
 
-On PPC, we have a name for that which comes from Open Firmware (since we
-need to ask the firmware to stop bus mastering & idle devices the same way
-when we take over it and before we get control of the system memory) and
-it's called "quiesce".
+The same holds for nearly all other drivers in the ide
+subdirectories. Unfortunately I'm not familiar enough with the sources
+and dependencies to provide a complete diff.
 
-Ben.
-
+regards,
+Jean

@@ -1,65 +1,214 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263517AbTDMOaU (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 10:30:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263523AbTDMOaU (for <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Apr 2003 10:30:20 -0400
-Received: from tom.hrz.tu-chemnitz.de ([134.109.132.38]:58088 "EHLO
-	tom.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id S263517AbTDMOaT (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 13 Apr 2003 10:30:19 -0400
-Date: Sun, 13 Apr 2003 15:12:32 +0200
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.67-mm2
-Message-ID: <20030413151232.D672@nightmaster.csn.tu-chemnitz.de>
-References: <20030412180852.77b6c5e8.akpm@digeo.com>
-Mime-Version: 1.0
+	id S263529AbTDMOiZ (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 10:38:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263530AbTDMOiZ (for <rfc822;linux-kernel-outgoing>);
+	Sun, 13 Apr 2003 10:38:25 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:12002 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S263529AbTDMOiR (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Apr 2003 10:38:17 -0400
+Date: Sun, 13 Apr 2003 07:49:59 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+Reply-To: LKML <linux-kernel@vger.kernel.org>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [Bug 579] New: isdn.ko needs unknown symbol group_send_sig_info
+Message-ID: <244270000.1050245399@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <20030412180852.77b6c5e8.akpm@digeo.com>; from akpm@digeo.com on Sat, Apr 12, 2003 at 06:08:52PM -0700
-X-Spam-Score: -29.3 (-----------------------------)
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *194igH-0001b4-00*OBpRn66DKU.*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
-hi lists readers,
+http://bugme.osdl.org/show_bug.cgi?id=579
 
-On Sat, Apr 12, 2003 at 06:08:52PM -0700, Andrew Morton wrote:
-> +gfp_repeat.patch
-> 
->  Implement __GFP_REPEAT: so we can consolidate lots of alloc-with-retry code.
+           Summary: isdn.ko needs unknown symbol group_send_sig_info
+    Kernel Version: 2.5.67-bk5
+            Status: NEW
+          Severity: normal
+             Owner: jgarzik@pobox.com
+         Submitter: rmrmg@wp.pl
 
-What about reworking the semantics of kmalloc()?
 
-Many users of kmalloc get the flags and size reversed (major
-source of hard to find bugs), so wouldn't it be simpler to have:
+Distribution: slackware 9.0
+Hardware Environment: ISDN card: AVM FRITZ PCI; mainboard: aopen ax59pro; CPU:
+AMD k6-2 500MHz 
+Software Environment:gcc-3.2.2, glibc-2.3.1
+Problem Description:
 
-__kmalloc() /* The old kmalloc()*/
+[root@slack:/usr/src/linux-2.5.67#] depmod -ae -F System.map  2.5.67-bk5
+WARNING: /lib/modules/2.5.67-bk5/kernel/drivers/isdn/i4l/isdn.ko needs unknown
+symbol group_send_sig_info
 
-kmalloc()               /* kmalloc(, GFP_KERNEL) */
-kmalloc_user()          /* kmalloc(, GFP_USER) */
-kmalloc_dma()           /* kmalloc(, GFP_KERNEL | GFP_DMA) */
-kmalloc_dma_repeat()    /* kmalloc(, GFP_KERNEL | GFP_DMA | __GFP_REPEAT) */
-kmalloc_repeat()        /* kmalloc(, GFP_KERNEL | __GFP_REPEAT) */
-kmalloc_atomic()        /* kmalloc(, GFP_ATOMIC) */
-kmalloc_atomic_dma()    /* kmalloc(, GFP_ATOMIC | GFP_DMA) */
+Steps to reproduce:
 
-an so on? These functions will of course just be static inline
-wrappers for __kmalloc().
+[root@slack:/usr/src/linux-2.5.67#]  less ./.config | grep -v "is not set" |
+grep ^[0-9A-Za-z]
 
-These functions above would just take a size and not confuse
-programmers anymore (as prototypes with compatible arguments
-usally do).
+CONFIG_X86=y
+CONFIG_MMU=y
+CONFIG_UID16=y
+CONFIG_GENERIC_ISA_DMA=y
+CONFIG_SWAP=y
+CONFIG_SYSVIPC=y
+CONFIG_BSD_PROCESS_ACCT=y
+CONFIG_SYSCTL=y
+CONFIG_LOG_BUF_SHIFT=14
+CONFIG_MODULES=y
+CONFIG_MODULE_UNLOAD=y
+CONFIG_OBSOLETE_MODPARM=y
+CONFIG_KMOD=y
+CONFIG_X86_PC=y
+CONFIG_MPENTIUM4=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_L1_CACHE_SHIFT=7
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_INTEL_USERCOPY=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_X86_PREFETCH=y
+CONFIG_X86_SSE2=y
+CONFIG_PREEMPT=y
+CONFIG_X86_TSC=y
+CONFIG_X86_MCE=y
+CONFIG_NOHIGHMEM=y
+CONFIG_MTRR=y
+CONFIG_HAVE_DEC_LOCK=y
+CONFIG_PM=y
+CONFIG_APM=m
+CONFIG_APM_REAL_MODE_POWER_OFF=y
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_KCORE_ELF=y
+CONFIG_BINFMT_AOUT=y
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_MISC=y
+CONFIG_PNP=y
+CONFIG_BLK_DEV_FD=m
+CONFIG_BLK_DEV_LOOP=m
+CONFIG_BLK_DEV_NBD=m
+CONFIG_BLK_DEV_RAM=m
+CONFIG_BLK_DEV_RAM_SIZE=4096
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_IDEDISK_MULTI_MODE=y
+CONFIG_BLK_DEV_IDECD=y
+CONFIG_BLK_DEV_IDESCSI=m
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_BLK_DEV_GENERIC=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_BLK_DEV_ADMA=y
+CONFIG_BLK_DEV_VIA82CXXX=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_BLK_DEV_IDE_MODES=y
+CONFIG_SCSI=m
+CONFIG_BLK_DEV_SR=m
+CONFIG_CHR_DEV_SG=m
+CONFIG_NET=y
+CONFIG_PACKET=y
+CONFIG_NETFILTER=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+CONFIG_IP_NF_IPTABLES=m
+CONFIG_IP_NF_FILTER=m
+CONFIG_IP_NF_TARGET_REJECT=m
+CONFIG_NETDEVICES=y
+CONFIG_DUMMY=m
+CONFIG_ISDN_BOOL=y
+CONFIG_ISDN=m
+CONFIG_ISDN_NET_SIMPLE=y
+CONFIG_ISDN_PPP=y
+CONFIG_ISDN_PPP_VJ=y
+CONFIG_ISDN_MPP=y
+CONFIG_ISDN_PPP_BSDCOMP=m
+CONFIG_ISDN_DRV_HISAX=m
+CONFIG_HISAX_EURO=y
+CONFIG_HISAX_MAX_CARDS=8
+CONFIG_HISAX_FRITZPCI=y
+CONFIG_INPUT=y
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+CONFIG_SOUND_GAMEPORT=y
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=y
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX98_PTY_COUNT=256
+CONFIG_NVRAM=m
+CONFIG_RTC=m
+CONFIG_GEN_RTC=m
+CONFIG_EXT2_FS=y
+CONFIG_EXT2_FS_XATTR=y
+CONFIG_EXT3_FS=y
+CONFIG_EXT3_FS_XATTR=y
+CONFIG_EXT3_FS_POSIX_ACL=y
+CONFIG_JBD=y
+CONFIG_FS_MBCACHE=y
+CONFIG_FS_POSIX_ACL=y
+CONFIG_XFS_FS=y
+CONFIG_AUTOFS4_FS=y
+CONFIG_ISO9660_FS=m
+CONFIG_JOLIET=y
+CONFIG_ZISOFS=y
+CONFIG_ZISOFS_FS=m
+CONFIG_UDF_FS=m
+CONFIG_FAT_FS=m
+CONFIG_MSDOS_FS=m
+CONFIG_VFAT_FS=m
+CONFIG_PROC_FS=y
+CONFIG_DEVPTS_FS=y
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+CONFIG_MSDOS_PARTITION=y
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="iso8859-2"
+CONFIG_NLS_ISO8859_2=m
+CONFIG_NLS_UTF8=m
+CONFIG_FB=y
+CONFIG_FB_VGA16=y
+CONFIG_FB_VESA=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_VGA_CONSOLE=y
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_FRAMEBUFFER_CONSOLE=m
+CONFIG_PCI_CONSOLE=y
+CONFIG_FONTS=y
+CONFIG_FONT_8x8=y
+CONFIG_FONT_8x16=y
+CONFIG_LOGO=y
+CONFIG_LOGO_LINUX_MONO=y
+CONFIG_LOGO_LINUX_VGA16=y
+CONFIG_LOGO_LINUX_CLUT224=y
+CONFIG_SOUND=y
+CONFIG_SND=y
+CONFIG_SND_SEQUENCER=y
+CONFIG_SND_OSSEMUL=y
+CONFIG_SND_MIXER_OSS=y
+CONFIG_SND_PCM_OSS=y
+CONFIG_SND_SEQUENCER_OSS=y
+CONFIG_SND_EMU10K1=m
+CONFIG_DEBUG_KERNEL=y
+CONFIG_MAGIC_SYSRQ=y
+CONFIG_ZLIB_INFLATE=m
+CONFIG_X86_BIOS_REBOOT=y
 
-If it's just a matter of "nobody had the time do do it, yet",
-than this is doable, if only slowly.
-
-If this is considered nonsense, then I will shut-up.
-
-What do you think?
-
-Regards
-
-Ingo Oeser

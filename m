@@ -1,41 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284948AbRLUSQZ>; Fri, 21 Dec 2001 13:16:25 -0500
+	id <S284945AbRLUSLf>; Fri, 21 Dec 2001 13:11:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284950AbRLUSQF>; Fri, 21 Dec 2001 13:16:05 -0500
-Received: from f104.law4.hotmail.com ([216.33.149.104]:8456 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S284948AbRLUSP7>;
-	Fri, 21 Dec 2001 13:15:59 -0500
-X-Originating-IP: [205.231.90.227]
-From: "victor1 torres" <camel_3@hotmail.com>
-To: camel_3@hotmail.com
+	id <S284948AbRLUSL0>; Fri, 21 Dec 2001 13:11:26 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:44039 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S284945AbRLUSLJ>; Fri, 21 Dec 2001 13:11:09 -0500
+Date: Fri, 21 Dec 2001 14:56:34 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: "marc. h." <heckmann@hbe.ca>
 Cc: linux-kernel@vger.kernel.org
-Subject: Concerning a driver rewrite (NOT THE KERNEL)
-Date: Fri, 21 Dec 2001 18:15:53 +0000
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F104E3w7oWRcmQ6hTr500001d21@hotmail.com>
-X-OriginalArrivalTime: 21 Dec 2001 18:15:53.0853 (UTC) FILETIME=[8732FAD0:01C18A4B]
+Subject: Re: cerberus on 2.4.17-rc2 UP
+In-Reply-To: <20011220135904.B32516@hbe.ca>
+Message-ID: <Pine.LNX.4.21.0112211454140.7313-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-No this isn´t a driver rewrite for the kernel I need help on rewriting some 
-code that I have to be only working with 2.4x kernel´s do you think you 
-could help. I would appericate it.
 
-INFO:
-I´m working on a Modem driver that run´s with kernel 2.4x I have got the 
-code running on a 2.2x system with no trouble. The driver is for a Ac´97 
-Modem (WINMODEM). The driver can find the modem and print out output but I 
-can´t seem to include DevFs, I would also like to implement Interrupt 
-Handling.
-Here is the driver location:
-DRIVER LOCATION IS
-http://www.geocities.com/camel_10.geo/linux/ac97_modem20011221.tar.gz
-Please
-Thank you in advance
+Can you please run Cerberus again and give me more information ?
 
-_________________________________________________________________
-MSN Photos is the easiest way to share and print your photos: 
-http://photos.msn.com/support/worldwide.aspx
+I want Alt+SysRQ+T, Alt+SysRQ+M and Alt+SysRQ+P output.
+
+If those keys simply print the sysrq header, please try Alt+SysRQ+8 then
+the above again.
+
+Thanks
+
+On Thu, 20 Dec 2001, marc. h. wrote:
+
+> I tried out the latest cerberus from
+> http://people.redhat.com/bmatthews/cerberus/ on a UP redhat-7.2 box. I ran the
+> standard non-destructive RedHat tests.
+> 
+> It ran for about 14 hours and then became unresponsive..  machine still ping'ed
+> , I could switch VC's scroll up on console, but that's it. Could not log in,
+> etc.. Another point is that the hard drive light remained on but it was not
+> seeking, it seemed dead silent.
+
 

@@ -1,45 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273303AbRJIGwG>; Tue, 9 Oct 2001 02:52:06 -0400
+	id <S273141AbRJIG4G>; Tue, 9 Oct 2001 02:56:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273305AbRJIGvr>; Tue, 9 Oct 2001 02:51:47 -0400
-Received: from are.twiddle.net ([64.81.246.98]:42660 "EHLO are.twiddle.net")
-	by vger.kernel.org with ESMTP id <S273303AbRJIGvl>;
-	Tue, 9 Oct 2001 02:51:41 -0400
-Date: Mon, 8 Oct 2001 23:52:08 -0700
-From: Richard Henderson <rth@twiddle.net>
-To: "Paul E. McKenney" <pmckenne@us.ibm.com>
-Cc: lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: RFC: patch to allow lock-free traversal of lists with insertion
-Message-ID: <20011008235208.A26109@twiddle.net>
-Mail-Followup-To: "Paul E. McKenney" <pmckenne@us.ibm.com>,
-	lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
-In-Reply-To: <200110090155.f991tPt22329@eng4.beaverton.ibm.com>
+	id <S273333AbRJIGz4>; Tue, 9 Oct 2001 02:55:56 -0400
+Received: from [195.66.192.167] ([195.66.192.167]:6413 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S273305AbRJIGzl>; Tue, 9 Oct 2001 02:55:41 -0400
+Date: Tue, 9 Oct 2001 09:54:18 +0200
+From: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
+X-Mailer: The Bat! (v1.44)
+Reply-To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
+Organization: IMTP
+X-Priority: 3 (Normal)
+Message-ID: <6389746438.20011009095418@port.imtp.ilyichevsk.odessa.ua>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Have problems with big kernel? Here is a loadlin replacement
+In-Reply-To: <96651944.20011008104923@port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <96651944.20011008104923@port.imtp.ilyichevsk.odessa.ua>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200110090155.f991tPt22329@eng4.beaverton.ibm.com>; from pmckenne@us.ibm.com on Mon, Oct 08, 2001 at 06:55:24PM -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 08, 2001 at 06:55:24PM -0700, Paul E. McKenney wrote:
-> This is a proposal to provide a wmb()-like primitive that enables
-> lock-free traversal of lists while elements are concurrently being
-> inserted into these lists.
+Hi folks,
 
-I've discussed this with you before and you continue to have
-completely missed the point.
+Replying to myself is strange, but...
 
-Alpha requires that you issue read-after-read memory barriers on
-the reader side if you require ordering between reads.  That is
-the extent of the weakness of the memory ordering.
+V> Some time ago I have been bitten by loadlin refusing
+V> to load bzImages bigger than 1023623 bytes (well,
+V> that's the size of biggest one which it can load for me).
 
-Sparc64 is the same way.
+V> Tried to fix it. Decided that fiddling with that much
+V> asm is not productive. Wrote a replacement. See attached tar.
+V> It works for me. It is as much alpha as it can probably
+V> be, but it works. I have lots of ideas how to improve it.
 
-This crap will never be applied.  Your algorithms are simply broken
-if you do not ensure proper read ordering via the rmb() macro.
+Improved it. It has commandline params now :-)
+This means included .exe is almost usable
+(if you are fine with hardcoded vga=0x303 or ready to
+patch it with binary editor)
+
+TODO: initrd, vga=xxx
+-- 
+Best regards, VDA
+mailto:VDA@port.imtp.ilyichevsk.odessa.ua
 
 
-
-r~

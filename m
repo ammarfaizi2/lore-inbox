@@ -1,47 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264614AbSLLNWc>; Thu, 12 Dec 2002 08:22:32 -0500
+	id <S264646AbSLLNb3>; Thu, 12 Dec 2002 08:31:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264617AbSLLNWc>; Thu, 12 Dec 2002 08:22:32 -0500
-Received: from mail.hometree.net ([212.34.181.120]:57565 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S264614AbSLLNWb>; Thu, 12 Dec 2002 08:22:31 -0500
-To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: Re: Is this going to be true ?
-Date: Thu, 12 Dec 2002 13:30:18 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <ata31a$fhc$1@forge.intermeta.de>
-References: <001801c2a0a9$02613f40$2e863841@joe> <1039699186.4304.8.camel@rhino>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1039699818 9375 212.34.181.4 (12 Dec 2002 13:30:18 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Thu, 12 Dec 2002 13:30:18 +0000 (UTC)
-X-Copyright: (C) 1996-2002 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+	id <S264631AbSLLNb3>; Thu, 12 Dec 2002 08:31:29 -0500
+Received: from mta11n.bluewin.ch ([195.186.1.211]:58191 "EHLO
+	mta11n.bluewin.ch") by vger.kernel.org with ESMTP
+	id <S264646AbSLLNb2>; Thu, 12 Dec 2002 08:31:28 -0500
+Date: Thu, 12 Dec 2002 14:39:03 +0100
+From: Roger Luethi <rl@hellgate.ch>
+To: Alan Cox <alan@ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: i8253 count too high! resetting..
+Message-ID: <20021212133903.GB3224@k3.hellgate.ch>
+Mail-Followup-To: Alan Cox <alan@ukuu.org.uk>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
+X-Operating-System: Linux 2.4.21-pre1 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Billy Harvey <Billy.Harvey@thrillseeker.net> writes:
+I'm getting my sys log filled with "i8253 count too high! resetting.." in
+2.4.21-pre1.
 
->Way back when Linus was studying interrupts and got 1 0 1 0 1 0 ..., he
->thought, "I bet I could get a movement started to generate an entirely
->new unix-like OS so popular it will eventually take over the world".
+The same happened in 2.2.19 with the kernel suggesting the culprit was a
+VIA686a -- which it wasn't, the chipset's ALi. The trigger differs only
+so slightly: 2.2.19 tests for
+count > LATCH-1
+whereas 2.4.21-pre1 checks
+count > LATCH
 
-No, as you can read in about every book about the Linux history. I'd
-advise "Rebel Code" or "Just for Fun: The Story of an Accidental
-Revolutionary" (where the title already says all :-) ).
+The rate is high enough to be quite annoying -- here's a syslog snippet:
 
-	Regards
-		Henning
+Dec 12 14:02:33 k3 kernel: i8253 count too high! resetting..
+Dec 12 14:05:23 k3 kernel: i8253 count too high! resetting..
+Dec 12 14:05:51 k3 kernel: i8253 count too high! resetting..
+Dec 12 14:06:29 k3 kernel: i8253 count too high! resetting..
+Dec 12 14:07:30 k3 kernel: i8253 count too high! resetting..
 
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
+FWIW the board (an Asus A7A266) has worked reasonably well for over a year
+and I hadn't gotten the impression so far that the timer needs fixing
+desperately.
 
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   
+Roger

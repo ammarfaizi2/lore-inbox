@@ -1,72 +1,158 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280623AbRKJM2i>; Sat, 10 Nov 2001 07:28:38 -0500
+	id <S280620AbRKJMV6>; Sat, 10 Nov 2001 07:21:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280625AbRKJM22>; Sat, 10 Nov 2001 07:28:28 -0500
-Received: from smtp016.mail.yahoo.com ([216.136.174.113]:2312 "HELO
-	smtp016.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S280623AbRKJM2T>; Sat, 10 Nov 2001 07:28:19 -0500
-X-Apparently-From: <quintaq@yahoo.co.uk>
-Date: Sat, 10 Nov 2001 12:28:21 +0000
-From: quintaq@yahoo.co.uk
-To: linux-kernel@vger.kernel.org
-Subject: Problems creating filsystems and with dd
-Reply-To: quintaq@yahoo.co.uk
-X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
+	id <S280624AbRKJMVt>; Sat, 10 Nov 2001 07:21:49 -0500
+Received: from mmohlmann.demon.nl ([212.238.27.16]:12548 "HELO
+	brand.mmohlmann.demon.nl") by vger.kernel.org with SMTP
+	id <S280623AbRKJMVp>; Sat, 10 Nov 2001 07:21:45 -0500
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Message-Id: <20011110122822Z280623-17408+13011@vger.kernel.org>
+From: Mathijs Mohlmann <mathijs@knoware.nl>
+To: andrea@suse.de, jgarzik@mandrakesoft.com
+Subject: [PATCH] fix loop with disabled tasklets
+Date: Sat, 10 Nov 2001 13:21:56 +0100
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011110122141.B2C68231A4@brand.mmohlmann.demon.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-On 8th October I posted the following :
+	I have a questions about the current softirq implementation.
 
-> I have just installed a Maxtor 30GB drive as /dev/hdc in my SuSE 7.0
-> system which has a vanilla 2.4.10 kernel.  I found that I could write the
-> partition table and create a small ext2 partition for /boot plus 768MB of
-> swap.  Creation of the main ext2 filesystem on /hdc7 failed (before the
-> inode tables even began to be written), with "file size limit exceeded".
-> The same problem recurred every time I tried - and I did try various
-> combinations of partition size.  I see the same error message when trying
-> to change partition table flags.  The problem is identical using fdisk,
-> cfdisk and parted.  I have no file limits set in ulimit and I do notthink
-> that this is the problem. 
-> 
-> I eventually put the same drive as /dev/hdc in another box running a
-stock
-> SuSE 2.2.16 kernel and creation of the filesystems completed without any
-> problem.  I have also verified this by booting this box using SuSE's
-2.2.16 rescue kernel.
-> 
-> Any ideas?
+Looking at kernel/softirq.c:418 and futher. When the tasklet is disabled it 
+is rescheduled. This is fine, but __cpu_raise_softirq is also called. This 
+means that ksoftirqd will loop until the tasklet is enabled. 
+Normaly this is no biggy, because user processes still come through.
+But during boot -when the tasklet_enable is yet to be called by "the idle 
+thread"- the system will lockup. This happens during the boot of my sun4m 
+with the keyboard tasklet.
 
-Alan Cox responded :
+To demonstrate, i wrote a module. Inserting this will result in 0% idle time. 
+Inserting this with the below patch, the system simply goes on.
 
->Obvious one to check would be to see if when 2.4.10 acquired the page
->cache changes someone backed out the device picks up underlying file size
-limit >bug fix that the -ac tree has and went to Linus.
+If this really is an issue, this patch fixes it. It does change the current
+behavior a bit though. Currently when a tasklet is run while it is already
+running on a different cpu, the task is rescheduled. This results in the 
+tasklet being executed two times. With this patch applied, it will not. (this 
+is still good according to kernel/include/interrups.h:83 and futher).
 
->It really sounds like that happened.
+	i'm not sure about the enable_tasklet bit. I think it will prevent
+people from calling tasklet_enable from within an interrupt handler. But then
+again, why do you want to do that? Thanx, velco and
+	
+	Any comments?
 
-I have seen the same problem with subsequent kernels down to 2.4.14, which
-I just installed.  I have also found the file size limit exceeded
-error when trying to back up with dd if=/dev/hda1 of=/dev/hdc1 bs=16k,
-where both partitions are 7.5 GB. Here again, I do not see the problem if I
-revert to 2.2.16.
+	me
 
-I was wondering (a) if the problems are related, and (b) whether a fix is
-likely soon.
+#define MODULE
+#include <linux/module.h>
+#include <linux/sched.h>
+#include <linux/interrupt.h>
 
-I am not subscribed, so a cc to me from any responder would be kind.
+MODULE_LICENSE("GPL");
 
-Thanks,
+void
+dummy_lockit(unsigned long nill)
+{
+	printk("doing the lockit\n");
+	return;
+}
 
-Geoff
+DECLARE_TASKLET_DISABLED(lockit, dummy_lockit, 0);
+int
+init_module(void)
+{
+	printk("going to lock\n");
+	tasklet_schedule(&lockit);
+	return(0);
+}
 
-_________________________________________________________
-Do You Yahoo!?
-Get your free @yahoo.com address at http://mail.yahoo.com
+void
+cleanup_module(void)
+{
+	tasklet_enable(&lockit);
+	set_current_state(TASK_INTERRUPTIBLE);
+	schedule_timeout(HZ); /* some time to do dummy_lockit */
 
+	printk("bye\n");
+}
+
+
+diff -ruN linux-2.4.14/include/linux/interrupt.h 
+linux/include/linux/interrupt.h
+--- linux-2.4.14/include/linux/interrupt.h	Sat Nov  3 11:20:41 2001
++++ linux/include/linux/interrupt.h	Sat Nov 10 12:28:14 2001
+@@ -185,13 +185,15 @@
+ static inline void tasklet_enable(struct tasklet_struct *t)
+ {
+ 	smp_mb__before_atomic_dec();
+-	atomic_dec(&t->count);
++	if (atomic_dec_and_test(&t->count))
++		__cpu_raise_softirq(smp_processor_id(), TASKLET_SOFTIRQ);
+ }
+ 
+ static inline void tasklet_hi_enable(struct tasklet_struct *t)
+ {
+ 	smp_mb__before_atomic_dec();
+-	atomic_dec(&t->count);
++	if (atomic_dec_and_test(&t->count))
++		__cpu_raise_softirq(smp_processor_id(), HI_SOFTIRQ);
+ }
+ 
+ extern void tasklet_kill(struct tasklet_struct *t);
+diff -ruN linux-2.4.14/kernel/softirq.c linux/kernel/softirq.c
+--- linux-2.4.14/kernel/softirq.c	Thu Nov  8 15:58:24 2001
++++ linux/kernel/softirq.c	Sat Nov 10 12:27:24 2001
+@@ -188,21 +188,19 @@
+ 
+ 		list = list->next;
+ 
+-		if (tasklet_trylock(t)) {
+-			if (!atomic_read(&t->count)) {
++		if (!atomic_read(&t->count)) {
++			if (tasklet_trylock(t)) {
+ 				if (!test_and_clear_bit(TASKLET_STATE_SCHED, &t->state))
+ 					BUG();
+ 				t->func(t->data);
+ 				tasklet_unlock(t);
+-				continue;
+ 			}
+-			tasklet_unlock(t);
++			continue;
+ 		}
+ 
+ 		local_irq_disable();
+ 		t->next = tasklet_vec[cpu].list;
+ 		tasklet_vec[cpu].list = t;
+-		__cpu_raise_softirq(cpu, TASKLET_SOFTIRQ);
+ 		local_irq_enable();
+ 	}
+ }
+@@ -222,21 +220,19 @@
+ 
+ 		list = list->next;
+ 
+-		if (tasklet_trylock(t)) {
+-			if (!atomic_read(&t->count)) {
++		if (!atomic_read(&t->count)) {
++			if (tasklet_trylock(t)) {
+ 				if (!test_and_clear_bit(TASKLET_STATE_SCHED, &t->state))
+ 					BUG();
+ 				t->func(t->data);
+ 				tasklet_unlock(t);
+-				continue;
+ 			}
+-			tasklet_unlock(t);
++			continue;
+ 		}
+ 
+ 		local_irq_disable();
+ 		t->next = tasklet_hi_vec[cpu].list;
+ 		tasklet_hi_vec[cpu].list = t;
+-		__cpu_raise_softirq(cpu, HI_SOFTIRQ);
+ 		local_irq_enable();
+ 	}
+ }

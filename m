@@ -1,59 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261638AbUCKSSx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 13:18:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261640AbUCKSSx
+	id S261631AbUCKSV2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 13:21:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261650AbUCKSV1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 13:18:53 -0500
-Received: from 69-90-55-107.fastdsl.ca ([69.90.55.107]:28802 "EHLO
-	TMA-1.brad-x.com") by vger.kernel.org with ESMTP id S261638AbUCKSSp
+	Thu, 11 Mar 2004 13:21:27 -0500
+Received: from host199.200-117-131.telecom.net.ar ([200.117.131.199]:265 "EHLO
+	smtp.bensa.ar") by vger.kernel.org with ESMTP id S261631AbUCKSUN
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 13:18:45 -0500
-Message-ID: <4050AEC2.8070000@brad-x.com>
-Date: Thu, 11 Mar 2004 13:24:02 -0500
-From: Brad Laue <brad@brad-x.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040222
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Thu, 11 Mar 2004 13:20:13 -0500
+From: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ksoftirqd using mysteriously high amounts of CPU time
-References: <404F85A6.6070505@brad-x.com>	<20040310155712.7472e31c.akpm@osdl.org>	<4050271C.3070103@brad-x.com>	<40503120.9000008@brad-x.com> <20040311020832.1aa25177.akpm@osdl.org>
-In-Reply-To: <20040311020832.1aa25177.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Subject: Re: 2.6.4-mm1
+Date: Thu, 11 Mar 2004 15:22:26 -0300
+User-Agent: KMail/1.6.2
+Cc: lkml@metanurb.dk, linux-kernel@vger.kernel.org
+References: <20040310233140.3ce99610.akpm@osdl.org> <200403111453.20866.norberto+linux-kernel@bensa.ath.cx> <20040311100957.00dd6e7f.akpm@osdl.org>
+In-Reply-To: <20040311100957.00dd6e7f.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200403111522.26331.norberto+linux-kernel@bensa.ath.cx>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Andrew Morton wrote:
-> Brad Laue <brad@brad-x.com> wrote:
-> 
->> Brad Laue wrote:
->> > Hopefully the attached shows some irregularity. If not, I'll have to 
->> > reply back in a few weeks when the problem recurs over the course of time.
->>
->> And without further ado, the attachment. It's been a long day. :)
-> 
-> 
-> It beats me.  Something must be waking up ksoftirqd all the time.
-> 
-> If you have time, could you please apply the below, then wait for ksoftirqd
-> to go bad again and then run:
-> 
-> 
-> 	dmesg -c
-> 	echo 1 > /proc/sys/debug/0 ; sleep 1; echo 0 > /proc/sys/debug/0
-> 	dmesg -s 1000000 > /tmp/foo
-> 
-> and then send foo?
+> Norberto Bensa <norberto+linux-kernel@bensa.ath.cx> wrote:
+> > Redeeman wrote:
+> >  > hey andrew, i have a problem with this kernel, when it boots, it lists
+> >  > vp_ide and stuff, and then suddenly after that my screen gets flodded
+> >
+> >  Same here. bad: scheduling while atomic. .config attached (no dmesg as I
+> > have no experience with serial consoles yet.)
+>
+> Did you remove the spin_unlock_irq() from the end of mpage_writepages()?
 
-Will do. I think the profile output I generated was a bit premature. 
-I'll wait a few days until the problem resurfaces in earnest and attach 
-some more output then.
+Done now.
 
-For now, it looks like the 'pppoe' process itself is waking up ksoftirqd 
-the most according to the output of dmesg, but that may change with time.
+$ uname -a
+Linux venkman 2.6.4-mm1 #2 Thu Mar 11 15:18:21 ART 2004 i686 Pentium III 
+(Coppermine) GenuineIntel GNU/Linux
 
-Will keep you posted.
 
-Brad
+Thanks Andrew!
+
+Norberto

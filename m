@@ -1,73 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262888AbTLJBUd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Dec 2003 20:20:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263015AbTLJBUd
+	id S262033AbTLJBKQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 20:10:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262888AbTLJBKQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 20:20:33 -0500
-Received: from c-130372d5.012-136-6c756e2.cust.bredbandsbolaget.se ([213.114.3.19]:54452
-	"EHLO pomac.netswarm.net") by vger.kernel.org with ESMTP
-	id S262888AbTLJBUb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 20:20:31 -0500
-Subject: NForce2 and AMD, disconnect.
-From: Ian Kumlien <pomac@vapor.com>
-To: linux-kernel@vger.kernel.org
-Cc: ross@datscreative.com.au
-In-Reply-To: <1071007478.5293.11.camel@athlonxp.bradney.info>
-References: <1070827127.1991.16.camel@big.pomac.com>
-	 <200312081207.45297.ross@datscreative.com.au>
-	 <1070993538.1674.10.camel@big.pomac.com>
-	 <1071007478.5293.11.camel@athlonxp.bradney.info>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-aREIXKuf50j4q72En51J"
-Message-Id: <1071019231.1670.35.camel@big.pomac.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 10 Dec 2003 02:20:31 +0100
+	Tue, 9 Dec 2003 20:10:16 -0500
+Received: from vcgwp1.bit-drive.ne.jp ([211.9.32.211]:63911 "HELO
+	vcgwp1.bit-drive.ne.jp") by vger.kernel.org with SMTP
+	id S262033AbTLJBKC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Dec 2003 20:10:02 -0500
+From: Akinobu Mita <mita@miraclelinux.com>
+To: trond.myklebust@fys.uio.no
+Subject: Re: [BUG 2.4] NFS unlocking operation accesses invalid file struct
+Date: Wed, 10 Dec 2003 10:06:46 +0900
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org
+References: <200311252000.32094.mita@miraclelinux.com> <200311272054.22316.mita@miraclelinux.com> <16326.9448.320003.775274@charged.uio.no>
+In-Reply-To: <16326.9448.320003.775274@charged.uio.no>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200312101006.46157.mita@miraclelinux.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello Trond,
 
---=-aREIXKuf50j4q72En51J
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+I apologize for the delay in responding.
 
-Hi, again.
+On Friday 28 November 2003 01:23, Trond Myklebust wrote:
+> So then the correct thing to do is indeed to wrap the call to
+> locks_unlock_delete() with an fget()/fput() pair, and then to remove
+> the test for fl_pid in locks_same_owner().
+>
+> We then need to fix lockd so that it generates correct fl_owners for
+> its locks...
+>
+> Let me see if I can get that right.
+>
 
-I did some reading on amd's site, and if the disconnect + apic fixed the
-same problem as the ~500ns delay, then it could be as i suspect...
+I looked at your patch carefully
+(http://www.fys.uio.no/~trondmy/src/Linux-2.4.x/2.4.23-rc1/linux-2.4.23-01-posix_race.dif)
+and I think it would fix the problem completely.
 
-I suspect that something goes wrong with apic ack when the cpu is
-disconnected and according to the amd docs we could check the
-Northbridge's CLKFWDRST or isn't that avail on the outside?
-(It would be interesting to see if that fixes the problem as well.)
+Thanks,
 
-http://www.amd.com/us-en/assets/content_type/white_papers_and_tech_docs/262=
-37.PDF
-
-I don't really have the knowledge but it would sure be nicer to fix this
-by checking this than to just disable it. I dunno if there is something
-we could do from within the kernel aswell with the sending of HLT but i
-doubt it.
-
-Anyways, we need a generalized patch that does better checking on the
-NMI bit (like Ross' patch).=20
-
-PS. Anyone that can point me to northbridge tech docks? and CC
-
---=20
-Ian Kumlien <pomac () vapor ! com> -- http://pomac.netswarm.net
-
---=-aREIXKuf50j4q72En51J
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/1nTf7F3Euyc51N8RAqpFAKC4G2zeDQyXGf+6r+Hli9w74jDcCwCfXCPV
-pg67pPEtReaU2ydtW26IICw=
-=grm1
------END PGP SIGNATURE-----
-
---=-aREIXKuf50j4q72En51J--
+--
+Akinobu Mita
 

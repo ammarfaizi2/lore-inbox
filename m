@@ -1,65 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131625AbRC0Vbh>; Tue, 27 Mar 2001 16:31:37 -0500
+	id <S131630AbRC0VfH>; Tue, 27 Mar 2001 16:35:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131626AbRC0Vb1>; Tue, 27 Mar 2001 16:31:27 -0500
-Received: from lacrosse.corp.redhat.com ([207.175.42.154]:39159 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S131625AbRC0VbW>; Tue, 27 Mar 2001 16:31:22 -0500
-Date: Tue, 27 Mar 2001 22:30:35 +0100
-From: Tim Waugh <twaugh@redhat.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: [patch] 2.4.3-pre8: another parport fix
-Message-ID: <20010327223035.O21068@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S131631AbRC0Ve5>; Tue, 27 Mar 2001 16:34:57 -0500
+Received: from vp175062.reshsg.uci.edu ([128.195.175.62]:2308 "EHLO
+	moisil.dev.hydraweb.com") by vger.kernel.org with ESMTP
+	id <S131630AbRC0Vet>; Tue, 27 Mar 2001 16:34:49 -0500
+Date: Tue, 27 Mar 2001 13:34:06 -0800
+Message-Id: <200103272134.f2RLY6801637@moisil.dev.hydraweb.com>
+From: Ion Badulescu <ionut@moisil.cs.columbia.edu>
+To: Jun Sun <jsun@mvista.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: eepro100 question: why SCBCmd byte is 0x80?
+In-Reply-To: <3ABB892C.A47D6BA9@mvista.com>
+User-Agent: tin/1.5.7-20001104 ("Paradise Regained") (UNIX) (Linux/2.2.19 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This fixes a printing bug that only seems to show up with some
-chipsets.  Please apply.
+On Fri, 23 Mar 2001 09:34:36 -0800, Jun Sun <jsun@mvista.com> wrote:
 
-Thanks,
-Tim.
-*/
+> BTW, does the eepro100 patch for 2.2.19pre apply to 2.4.2?  Or it is already
+> in it?
 
-2001-03-27  Tim Waugh  <twaugh@redhat.com>
+It was backported from 2.4.1, so yes, it's already in.
 
-	* parport_pc: Fix save/restore_state to take account of the soft
-	control port.
-	* ChangeLog: Updated.
+Ion
 
---- linux/drivers/parport/parport_pc.c.restorestate	Tue Mar 27 15:03:05 2001
-+++ linux/drivers/parport/parport_pc.c	Tue Mar 27 15:05:41 2001
-@@ -347,7 +347,7 @@
- void parport_pc_save_state(struct parport *p, struct parport_state *s)
- {
- 	const struct parport_pc_private *priv = p->physport->private_data;
--	s->u.pc.ctr = inb (CONTROL (p));
-+	s->u.pc.ctr = priv->ctr;
- 	if (priv->ecr)
- 		s->u.pc.ecr = inb (ECONTROL (p));
- }
-@@ -356,6 +356,7 @@
- {
- 	const struct parport_pc_private *priv = p->physport->private_data;
- 	outb (s->u.pc.ctr, CONTROL (p));
-+	priv->ctr = s->u.pc.ctr;
- 	if (priv->ecr)
- 		outb (s->u.pc.ecr, ECONTROL (p));
- }
-*** linux/drivers/parport/ChangeLog.restorestate	Tue Mar 27 15:03:04 2001
---- linux/drivers/parport/ChangeLog	Tue Mar 27 15:04:51 2001
-***************
-*** 0 ****
---- 1,7 ----
-+ 2001-03-27  Tim Waugh  <twaugh@redhat.com>
-+ 
-+       * parport_pc.c (parport_pc_save_state): Read from the soft copy of
-+       the control port.
-+       (parport_pc_restore_state): Update the soft copy of the control
-+       port.
-+ 
+-- 
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.

@@ -1,64 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261412AbULTEXI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261410AbULTEdw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261412AbULTEXI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Dec 2004 23:23:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261413AbULTEXI
+	id S261410AbULTEdw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Dec 2004 23:33:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261413AbULTEdw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Dec 2004 23:23:08 -0500
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:36560 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S261412AbULTEXC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Dec 2004 23:23:02 -0500
-Subject: Re: 2.6.10-rc3-mm1-V0.7.33-03 and NVidia wierdness, with
-	workaround...
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Joe <joecool1029@gmail.com>
-Cc: Valdis.Kletnieks@vt.edu, Ingo Molnar <mingo@elte.hu>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <d4757e60041219184662648df@mail.gmail.com>
-References: <200412161626.iBGGQ5CI020770@turing-police.cc.vt.edu>
-	 <1103300362.12664.53.camel@localhost.localdomain>
-	 <1103303011.12664.58.camel@localhost.localdomain>
-	 <200412171810.iBHIAQP3026387@turing-police.cc.vt.edu>
-	 <1103313861.12664.71.camel@localhost.localdomain>
-	 <1103320354.3538.11.camel@localhost.localdomain>
-	 <200412172242.iBHMgVav003005@turing-police.cc.vt.edu>
-	 <1103473203.4143.9.camel@localhost.localdomain>
-	 <d4757e60041219184662648df@mail.gmail.com>
+	Sun, 19 Dec 2004 23:33:52 -0500
+Received: from smtp109.mail.sc5.yahoo.com ([66.163.170.7]:53165 "HELO
+	smtp109.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261410AbULTEdu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Dec 2004 23:33:50 -0500
+Subject: Re: 2.6.10-rc3: kswapd eats CPU on start of memory-eating task
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+To: Rik van Riel <riel@redhat.com>
+Cc: Con Kolivas <kernel@kolivas.org>, Mikhail Ramendik <mr@ramendik.ru>,
+       Andrew Morton <akpm@digeo.com>, lista4@comhem.se,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0412192220450.4315@chimarrao.boston.redhat.com>
+References: <14514245.1103496059334.JavaMail.tomcat@pne-ps4-sn2>
+	 <41C6073B.6030204@yahoo.com.au> <20041219155722.01b1bec0.akpm@digeo.com>
+	 <200412200303.35807.mr@ramendik.ru> <41C640DE.7050002@kolivas.org>
+	 <Pine.LNX.4.61.0412192220450.4315@chimarrao.boston.redhat.com>
 Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Sun, 19 Dec 2004 23:22:50 -0500
-Message-Id: <1103516570.4143.18.camel@localhost.localdomain>
+Date: Mon, 20 Dec 2004 15:33:45 +1100
+Message-Id: <1103517225.5093.12.camel@npiggin-nld.site>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+X-Mailer: Evolution 2.0.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-12-19 at 21:46 -0500, Joe wrote:
-> Nope, I've experianced the same problem without SMP.  It also appears
-> to be a bug where if make menuconfig is not run after using an old
-> kernel, for some odd reason CONFIG_SPINLOCK_BKL is set to be on. 
-> Anyways, I just wanted to reassure you, this is NOT an SMP bug.
+On Sun, 2004-12-19 at 22:21 -0500, Rik van Riel wrote:
+> On Mon, 20 Dec 2004, Con Kolivas wrote:
+> 
+> > I still suspect the thrash token patch even with the swap token timeout 
+> > at 0. Is it completely disabled at 0 or does it still do something?
+> 
+> It makes it harder to page out pages from the task holding the
+> token.  I wonder if kswapd should try to steal the token away
+> from the task holding it, so in effect nobody holds the token
+> when the system isn't under a heavy swapping load.
+> 
 
-I'm not sure Valdis' problem is the same as mine, so I can't say that
-mine is not an SMP problem. There may be two problems here, and mine was
-indeed SMP (since turning it off allowed me to get X up and running with
-the NVidia module). The problem Valdis has mentioned, may be a separate
-issue that has nothing to do with SMP. Now, w.r.t. the problem you saw,
-was that only when CONFIG_SPINLOCK_BKL was set?
+In that case, the first thing we need to do is disable thrash token
+completely, and retest that. We still don't know for sure that it is
+the problem.
 
-Now, I'm trying the NVidia again (well tomorrow, since I need to
-recompile my entire kernel again to get back to SMP), and I've changed
-the nvidia driver to us raw_spinlocks instead of normal ones to see if
-this fixes things.  Ah, I've only changed the GPL part of the nvidia
-driver (obviously).
+I don't have the code in front of me at the moment, but I'll be able
+to send a patch to do that in a couple of hours, if nobody beats me
+to it.
 
-This isn't really necessary for my real work, since I'm not required to
-get this working with NVidia, but since three of my machines have an
-NVidia card, this is more a personally fix I would like to have.
-Otherwise, I just keep the old nv driver.
-
--- Steve
+Nick
 
 

@@ -1,54 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265397AbTLHNSK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Dec 2003 08:18:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265398AbTLHNSK
+	id S265394AbTLHN0d (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Dec 2003 08:26:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265395AbTLHN0d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Dec 2003 08:18:10 -0500
-Received: from hastur.physics.ox.ac.uk ([163.1.243.65]:22694 "EHLO
-	janus.physics.ox.ac.uk") by vger.kernel.org with ESMTP
-	id S265397AbTLHNSH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Dec 2003 08:18:07 -0500
-From: Tim Stadelmann <stadelmann@physics.ox.ac.uk>
-Organization: University of Oxford
-To: linux-kernel@vger.kernel.org
-Date: Mon, 8 Dec 2003 13:12:58 +0000
-User-Agent: KMail/1.5.4
+	Mon, 8 Dec 2003 08:26:33 -0500
+Received: from relay.inway.cz ([212.24.128.3]:6619 "EHLO relay.inway.cz")
+	by vger.kernel.org with ESMTP id S265394AbTLHN0a (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Dec 2003 08:26:30 -0500
+Message-ID: <3FD47BFC.9020008@scssoft.com>
+Date: Mon, 08 Dec 2003 14:26:20 +0100
+From: Petr Sebor <petr@scssoft.com>
+Organization: SCS Software
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6b) Gecko/20031125
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200312081312.58472.stadelmann@physics.ox.ac.uk>
-Subject: Dell Laptop APM problems/noise
-Content-Type: text/plain;
-  charset="us-ascii"
+To: linux-kernel@vger.kernel.org
+Subject: incorrect inode count on reiserfs
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
 Content-Transfer-Encoding: 7bit
-X-SA-Exim-Mail-From: stadelmann@physics.ox.ac.uk
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I observe the same power supply (?) noise as Jean-Marc on my Dell Latitude 
-C600 with 2.6.0-test10 and -test11, if APM is enabled and the kernel is 
-allowed to tell the BIOS that the CPU is idle.
+I have noticed this behavior when moving the inn2 news server to 
+2.6.0-test11 kernel
+from 2.4.23
+(inn2 refuses to start because if free inode shortage)
 
-Some remarks, which I hope may be helpful:
+2.6.0-test11:
+df -i:
 
-- in 2.6, APM idle calls produce the noise, but do not conserve power.  This 
-could be either because the call fails to have the desired effect, or because 
-whatever causes the oscillation uses so much power that the effect is offset.  
-Disabling idle calls avoids the oscillation, but reduces the battery life 
-dramaticall if compared with 2.4 kernels or 2.6 using ACPI.
+Filesystem            Inodes   IUsed   IFree IUse% Mounted on
+/dev/sda1                  0       0       0    -  /
+/dev/sdb1                  0       0       0    -  /mnt/sdb1
 
-- unlike Jean-Marc, I do not see the problem when using ACPI. Battery life is 
-comparable to 2.4 with APM enabled. (of course, suspend does not work, but 
-that's a different story...)
+while df shows:
+Filesystem           1K-blocks      Used Available Use% Mounted on
+/dev/sda1            243208608  11069612 232138996   5% /
+/dev/sdb1             36150172     32840  36117332   1% /mnt/sdb1
 
-- with 2.4 kernels, APM *does* work as expected. No oscillation happens, and 
-the battery life is prolonged significantly when allowing idle calls. 
-Something relevant must have changed.
+different reiserfs based machine with 2.4.23; this is where the inn2
+used to work before, but the inode test was not failing because of the
+'always-nonzero' inode count:
 
+df -i
+Filesystem            Inodes   IUsed   IFree IUse% Mounted on
+/dev/hde1            4294967295       0 4294967295    0% /
+/dev/hdg1            4294967295       0 4294967295    0% /mnt/d2
 
-					Regards,
+df
+Filesystem           1K-blocks      Used Available Use% Mounted on
+/dev/hde1             77634256  77092844    541412 100% /
+/dev/hdg1             38586912  19156508  19430404  50% /mnt/d2
 
-					Tim Stadelmann
+another 2.6.0-test11 machine with ext2 reports inode counts correctly. 
+my assumption is
+that the problem is somehow reiserfs related, but my knowledge ends here.
+all reiser fs's are of version 3.6
 
-PS: please CC questions and remarks to my personal address
+any ideas?
+
+Petr
 

@@ -1,49 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262783AbUKRRFG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262787AbUKRRIA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262783AbUKRRFG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 12:05:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262782AbUKRRDb
+	id S262787AbUKRRIA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 12:08:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262768AbUKRRFl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 12:03:31 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:38665 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262767AbUKRRCo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 12:02:44 -0500
-Date: Thu, 18 Nov 2004 17:02:38 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Nicolas Pitre <nico@cam.org>
-Cc: David Woodhouse <dwmw2@infradead.org>, Adrian Bunk <bunk@stusta.de>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mtd@lists.infradead.org
-Subject: Re: [patch] 2.6.10-rc2-mm2: MTD_XIP dependencies
-Message-ID: <20041118170238.B11866@flint.arm.linux.org.uk>
-Mail-Followup-To: Nicolas Pitre <nico@cam.org>,
-	David Woodhouse <dwmw2@infradead.org>, Adrian Bunk <bunk@stusta.de>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	linux-mtd@lists.infradead.org
-References: <20041118021538.5764d58c.akpm@osdl.org> <20041118154110.GE4943@stusta.de> <1100793112.8191.7315.camel@hades.cambridge.redhat.com> <Pine.LNX.4.61.0411181132440.12260@xanadu.home>
+	Thu, 18 Nov 2004 12:05:41 -0500
+Received: from news.suse.de ([195.135.220.2]:55712 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262781AbUKRRDW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Nov 2004 12:03:22 -0500
+Date: Thu, 18 Nov 2004 14:22:33 +0100
+From: Andi Kleen <ak@suse.de>
+To: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: Xen 2.0 VMM patches
+Message-ID: <20041118132233.GG17532@wotan.suse.de>
+References: <p73k6sj221d.fsf@brahms.suse.de> <E1CUjSB-0005II-00@mta1.cl.cam.ac.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.61.0411181132440.12260@xanadu.home>; from nico@cam.org on Thu, Nov 18, 2004 at 11:34:56AM -0500
+In-Reply-To: <E1CUjSB-0005II-00@mta1.cl.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 18, 2004 at 11:34:56AM -0500, Nicolas Pitre wrote:
-> On Thu, 18 Nov 2004, David Woodhouse wrote:
-> 
-> > On Thu, 2004-11-18 at 16:41 +0100, Adrian Bunk wrote:
-> > > Let's put the dependencies from the #error into the Kconfig file:
-> > 
-> > Looks sane to me. Nico?
-> 
-> And why is the current arrangement actually a problem?
+On Thu, Nov 18, 2004 at 10:23:50AM +0000, Ian Pratt wrote:
+> The fact that arch xen is self contained actually makes it easier
+> for us to maintain in some respects. We've been tracking 2.6
+> releases for some time without too much difficulty.
 
-because it prevents building with, eg, make allyesconfig
+2.6 has been relatively easy for now (because it was supposed
+to be a "stable kernel"), but I suspect it'll get worse again over time.
+e.g. in 2.5 it was really bad for long times.
+Essentially you will need to commit significant man power to this. 
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+Also it's quite hard to always catch all the changes that
+get done to i386.
+
+Overall I think it's a bad idea to have four different
+x86 like architectures in the tree. Especially since there
+will be likely more hypervisors over time.  i386 and x86-64 make
+some sense because 64bit is a natural boundary, but extending
+it elsewhere doesn't scale very well.
+
+-Andi
+

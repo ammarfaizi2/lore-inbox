@@ -1,76 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263836AbTLUS7p (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Dec 2003 13:59:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263846AbTLUS7p
+	id S263923AbTLUTT1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Dec 2003 14:19:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263942AbTLUTT1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Dec 2003 13:59:45 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:45064 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263836AbTLUS7n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Dec 2003 13:59:43 -0500
-Date: Sun, 21 Dec 2003 18:59:40 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       "H. Peter Anvin" <hpa@zytor.com>
-Subject: [BUG] gunzip/inflate non-terminal on errors
-Message-ID: <20031221185940.B12500@flint.arm.linux.org.uk>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-	"H. Peter Anvin" <hpa@zytor.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	Sun, 21 Dec 2003 14:19:27 -0500
+Received: from opersys.com ([64.40.108.71]:28427 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S263923AbTLUTTY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Dec 2003 14:19:24 -0500
+Message-ID: <3FE5F2E6.8030002@opersys.com>
+Date: Sun, 21 Dec 2003 14:22:14 -0500
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+MIME-Version: 1.0
+To: yodaiken@fsmlabs.com
+CC: Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Nick Piggin <piggin@cyberone.com.au>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Updating real-time and nanokernel maintainersy
+References: <3FE234E4.8020500@opersys.com> <Pine.LNX.4.58.0312181821270.19491@montezuma.fsmlabs.com> <3FE23966.7060001@opersys.com> <Pine.LNX.4.58.0312181836360.19491@montezuma.fsmlabs.com> <3FE23CD1.4080802@opersys.com> <3FE23E3F.2000801@cyberone.com.au> <3FE2424B.70901@opersys.com> <20031219094122.GA23469@wohnheim.fh-wedel.de> <20031221082736.GA11795@hq.fsmlabs.com>
+In-Reply-To: <20031221082736.GA11795@hq.fsmlabs.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-The gunzip/inflate algorithm in 2.6.0 (and previous kernels) found in
-lib/inflate.c has some cases which cause it to be non-terminal on error.
+yodaiken@fsmlabs.com wrote:
+> I haven't looked recently, but I did have code in the kernel, thanks
+> all the same.
 
-The situation I'm presently facing is that the firmware on some NetWinders
-scan memory looking for the gzip magic numbers after loading a kernel
-image.  If the kernel image is a "zImage", the firmware finds the
-compressed piggy image inside zImage, and sets up the initrd to point
-there.
+Are you saying that there's code in the kernel that is subject to your
+patent?
 
-The firmware then calls the kernel decompressor, which dutifully
-decompresses the image, and calls the kernel.  This image ends up
-getting corrupted at some point.
+If there is, then it should definitely be taken out. First, as Linus
+has stated recently (and as has been the policy for a while), the
+kernel should avoid having any patented code
+(http://www.ussg.iu.edu/hypermail/linux/kernel/0312.2/0624.html).
+Second, "RTLinux Free" is being ported over to Adeos
+(http://www2.fsmlabs.com/pipermail/rtl/2003-December/013178.html).
 
-During kernel initialisation, we notice that an initrd was passed to
-the kernel, and call gunzip() on it.  During gunzip, we notice that
-we run out of bytes, so get_byte() returns -1.
+Best regards,
 
-Unfortunately, returning '-1' does not guarantee that gunzip() will
-ever terminate; in fact, in my case it does not terminate.
-
-With DEBG() and DEBG1() defined so that they printk, this is what I
-see:
-
-h6e h6f huft7 dyn5c huft1 huft2 huft3 huft4 huft5 h6 h6a h6b h6b1
-1 2 3 4 5 6 h6c h6d h6e h6f h6b h6b1 h6c h6d h6e h6b1 h6c h6d h6e h6b1
-h6c h6d h6e h6b1 h6c h6d h6e h6b1 h6c h6d h6e h6b1 h6c h6d h6e h6b1
-h6c h6d h6e h6f h6b h6b1 h6c h6d h6e h6b1 h6c h6d h6e h6b1 h6c h6d h6e h6b1
-h6c h6d h6e h6b1 h6c h6d h6e h6b1 h6c h6d h6e h6b1 h6c h6d h6e h6b1
-h6c h6d h6e h6b1 h6c h6d h6e h6b1 h6c h6d h6e h6b1 h6c h6d h6e h6b1
-h6c h6d h6e h6f h6b h6b1 h6c h6d h6e h6b1 h6c h6d h6e h6b1
-h6c h6d h6e h6f h6b h6b1 1 2 3 4 5 6 h6c h6d h6e h6f h6b h6b1
-h6c h6d h6e h6f h6b h6b1 h6c h6d h6e h6f h6b h6b1 h6c h6d h6e h6b1
-h6c h6d h6e h6f huft7 dyn6 <runs out of bytes>
-
-Userspace gunzip handles this error condition by calling exit() from
-the depths of the decompressor.  This is nice and simple, assuming
-you can just exit.  Unfortunately, in the kernel we can't, and so
-the inflate appears to request more and more data indefinitely.
-
-"dyn6" indicates that we entered inflate_codes(), but we never seem
-to leave.  Additionally, we appear to be calling flush_window() fairly
-often.
-
+Karim
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+Author, Speaker, Developer, Consultant
+Pushing Embedded and Real-Time Linux Systems Beyond the Limits
+http://www.opersys.com || karim@opersys.com || 514-812-4145
+

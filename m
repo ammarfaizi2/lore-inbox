@@ -1,174 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268101AbUI1Xzq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268086AbUI2AZK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268101AbUI1Xzq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Sep 2004 19:55:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268104AbUI1Xzq
+	id S268086AbUI2AZK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Sep 2004 20:25:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268107AbUI2AZK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Sep 2004 19:55:46 -0400
-Received: from MAIL.13thfloor.at ([212.16.62.51]:14744 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S268101AbUI1Xzj (ORCPT
+	Tue, 28 Sep 2004 20:25:10 -0400
+Received: from hostmaster.org ([212.186.110.32]:898 "HELO hostmaster.org")
+	by vger.kernel.org with SMTP id S268086AbUI2AZA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Sep 2004 19:55:39 -0400
-Date: Wed, 29 Sep 2004 01:55:38 +0200
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: jonathan@jonmasters.org, Lars Marowsky-Bree <lmb@suse.de>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Thomas Habets <thomas@habets.pp.se>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] oom_pardon, aka don't kill my xlock
-Message-ID: <20040928235537.GC29719@MAIL.13thfloor.at>
-Mail-Followup-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-	jonathan@jonmasters.org, Lars Marowsky-Bree <lmb@suse.de>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Thomas Habets <thomas@habets.pp.se>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200409242158.40054.thomas@habets.pp.se> <1096060549.10797.10.camel@localhost.localdomain> <20040927104120.GA30364@logos.cnet> <20040927125441.GG3934@marowsky-bree.de> <35fb2e590409270612524c5fb9@mail.gmail.com> <20040927133554.GD30956@logos.cnet> <20040927171253.GA9728@MAIL.13thfloor.at> <20040927164219.GA31645@logos.cnet> <20040928133352.GA24621@MAIL.13thfloor.at> <20040928123256.GC11779@logos.cnet>
+	Tue, 28 Sep 2004 20:25:00 -0400
+Subject: PATCH: usb-storage help
+From: Thomas Zehetbauer <thomasz@hostmaster.org>
+To: zippel@linux-m68k.org
+Cc: kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-yMb+lBm4RC6Ohf0t69kK"
+Date: Wed, 29 Sep 2004 02:24:58 +0200
+Message-Id: <1096417498.3648.2.camel@hostmaster.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040928123256.GC11779@logos.cnet>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.0.0 (2.0.0-2) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 28, 2004 at 09:32:56AM -0300, Marcelo Tosatti wrote:
-> On Tue, Sep 28, 2004 at 03:33:52PM +0200, Herbert Poetzl wrote:
-> > On Mon, Sep 27, 2004 at 01:42:19PM -0300, Marcelo Tosatti wrote:
-> > > On Mon, Sep 27, 2004 at 07:12:53PM +0200, Herbert Poetzl wrote:
-> > > > On Mon, Sep 27, 2004 at 10:35:54AM -0300, Marcelo Tosatti wrote:
-> > > > > On Mon, Sep 27, 2004 at 02:12:26PM +0100, Jon Masters wrote:
-> > > > > > Hi all,
-> > > > > > 
-> > > > > > Just out of interest then...suppose we've got a loopback swap device
-> > > > > > and that we can extend this by creating a new file or extending
-> > > > > > somehow the existing one.
-> > > > > > 
-> > > > > > What would be wrong with having the page reclaim algorithms use one of
-> > > > > > the low memory watermarks as a trigger to call in to userspace to
-> > > > > > extend the swap available if possible? This is probably what Microsoft
-> > > > > > et al do with their "Windows is extending your virtual memory, yada
-> > > > > > yada blah blah". Comments? Already done?
-> > > > > 
-> > > > > You dont to change kernel code for that - make a script to monitor 
-> > > > > swap usage, as soon as it gets below a given watermark, you swapon 
-> > > > > whatever swapfile you want.
-> > > > 
-> > > > hmm, sounds good, but what if next 'burst' of
-> > > > swapped out data is larger than the watermark?
-> > > 
-> > > Give the watermark a large enough value.
-> > 
-> > right, probably setting it to the currently 
-> > available swapspace solves that issue ;)
-> > 
-> > anyway as I said, I'm fine with 'does not
-> > work' but not very happy with half-assed
-> > userspace solutions ...
-> 
-> Herbert,
-> 
-> Honestly, I dont see much difference makes if the swapon procedure
-> is called from within the kernel instead from userspace.
 
-there is a small but (for me) important difference ...
-
-userspace checks for
-available swap space
-(all fine, still N left)
-				kernel decides to
-				swap out N+1 right now
-				because it's urgent ..
-userspace has _no_ chance
-to react, and something
-gets killed ...
-
-			   .vs.
-
-				kernel decides to
-				swap out N+1 right now
-
-				after N-M swaps, kernel
-				realizes that swap space
-				is low and calls
-userspace, which adds
-more swap space so that ...
-				the kernel can continue
-				to swap out stuff ...
+--=-yMb+lBm4RC6Ohf0t69kK
+Content-Type: multipart/mixed; boundary="=-E8cqGHIkycKK5a7GzGON"
 
 
-> Have you actually tried such a "on demand swapon" entirely
-> from userspace to call it "half-assed" solution ? :)
+--=-E8cqGHIkycKK5a7GzGON
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-no I haven't tried it, and I'm perfectly fine with
-OOM kills and/or swappiness behaviour, seriously!
+This should prevent a common pitfall when using usb-storage.
 
-but to suggest an userspace solution which IMHO can
-not be successful without kernel side support seems
-to me like a "half-assed" solution ... maybe I'm
-wrong and it is quite fine to assume that:
+Tom
 
- a) userspace will detect that swap is becoming
-    low just at the right moment
- b) userspace will have the additional swap available
-    just right on time for the kernel to use it
- c) all delays will be just so that everything works
-    out fine ... as with the OOM selection ;)
+--=20
+  T h o m a s   Z e h e t b a u e r   ( TZ251 )
+  PGP encrypted mail preferred - KeyID 96FFCB89
+      finger thomasz@hostmaster.org for key
 
-> The act of killing tasks is controversial and always generates
-> debates here. I bet we will continue seeing them over
-> the years.
-> 
-> If one dont want the OOM killing to happen, he should correctly 
-> setup the swap size for his workload 
+Chaos is the only form of life, order was caused by the Nazis and millions =
+died!
+                                                 - Peter Wenzl
 
-totally agreed!
 
-> (or have a "on demand swapon" solution which can be implemented 
-> in userspace), 
 
-objection! see above ...
 
-> or unset overcommit mode. 
+--=-E8cqGHIkycKK5a7GzGON
+Content-Disposition: attachment; filename=usb-storage.patch
+Content-Transfer-Encoding: base64
+Content-Type: text/x-patch; name=usb-storage.patch; charset=UTF-8
 
-agreed!
+LS0tIGRyaXZlcnMvdXNiL3N0b3JhZ2UvS2NvbmZpZy5vbGQJMjAwNC0wOS0yOSAwMTo1Njo0Ny40
+ODM0OTkxMDggKzAyMDANCisrKyBkcml2ZXJzL3VzYi9zdG9yYWdlL0tjb25maWcJMjAwNC0wOS0y
+OSAwMjoxMTowMC44ODk5MDM1MDkgKzAyMDANCkBAIC0xMyw2ICsxMywxMCBAQA0KIAkgIHNpbWls
+YXIgZGV2aWNlcy4gVGhpcyBkcml2ZXIgbWF5IGFsc28gYmUgdXNlZCBmb3Igc29tZSBjYW1lcmFz
+IGFuZA0KIAkgIGNhcmQgcmVhZGVycy4NCiANCisJICBZb3Ugd2lsbCBtb3N0IGxpa2VseSBuZWVk
+IHRvIGNvbXBpbGUgaW4gc3VwcG9ydCBmb3IgdGhlIGNvcnJlc3BvbmRpbmcNCisJICBTQ1NJIGRl
+dmljZXMuIEZvciBtdWx0aS1jYXJkIHJlYWRlcnMgeW91IGFsc28gbmVlZCB0byAiUHJvYmUgYWxs
+IExVTnMNCisJICBvbiBlYWNoIFNDU0kgZGV2aWNlIg0KKw0KIAkgIFRvIGNvbXBpbGUgdGhpcyBk
+cml2ZXIgYXMgYSBtb2R1bGUsIGNob29zZSBNIGhlcmU6IHRoZQ0KIAkgIG1vZHVsZSB3aWxsIGJl
+IGNhbGxlZCB1c2Itc3RvcmFnZS4NCiANCg==
 
-> There's not much to argue about that.
-> 
-> One controversial issue is the OOM killer policy, which is
-> hardcoded into the kernel - through the last years there have
-> been several attempts to make it selectable (which this 
-> "oom_pardon" patch is about). 
 
-IMHO this is papering over misunderstood behaviour
-by trying to _not_ ejecting 'important' people ;)
+--=-E8cqGHIkycKK5a7GzGON--
 
-> None of these attempts have made into the mainline kernel, 
-> because there hasn't been an agreement on what is the best 
-> implementation of such feature - each implementation is 
-> specific to one user group need (for example "dont kill 
-> tasks named bla" or "dont kill tasks from UID bla" or, or).
+--=-yMb+lBm4RC6Ohf0t69kK
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-which IMHO is completely wrong, as the real solution
-would be to make strict no overcommit the default and
-let people who have broken^Wfunny apps enable it to
-make them run ...
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
 
-> But other than the OOM killer policy selection or tuning 
-> there's not much to be argued really.
+iQEVAwUAQVoA2mD1OYqW/8uJAQIALAf/eq0slZDeS6ewNTMvFlCdTurq10Vq77XT
+5y9P3sdC07rRIxzXy5yrwVrCddi6wS050R00WDwQwL/M8x9WfELpYhyAQpRWq4FM
+5W8v1IyM6EQud8DEpHIOXfSKBilgYH2q/GQRFG2deUHf7tfkpFkw9QFP8miQTRZH
+SFopMKNU5UDTBm8w4SByVM0VtfX/zu54LBM0uyx93ZTeJB/XGm0RgDK9uBueDypN
+RWn9GYIYrGJPQdi0VX4ffGIwh4F2t/1btuCED8UNcpDtnhWn+E8GUPCEXle5Z/Dx
+H/InwHAveMODx97a6biVI53+cXuw8jxIFfJBVjNshJz488YpxnX1AA==
+=cB/O
+-----END PGP SIGNATURE-----
 
-except that it should not be done, but as I said, that's
-just my not so important opinion ...
+--=-yMb+lBm4RC6Ohf0t69kK--
 
-putting that aside, thanks for your great work on linux
-kernel and the time you spend on this stuff, I really
-appreciate it!
-
-best,
-Herbert
-
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/

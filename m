@@ -1,84 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263804AbTEFPUQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 11:20:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263809AbTEFPUQ
+	id S263809AbTEFPUn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 11:20:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263810AbTEFPUm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 11:20:16 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:35201 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S263804AbTEFPUM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 11:20:12 -0400
-Date: Tue, 6 May 2003 11:34:53 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Sumit Narayan <sumit_uconn@lycos.com>
-cc: Matti Aarnio <matti.aarnio@zmailer.org>, linux-kernel@vger.kernel.org
-Subject: Re: Write file in EXT2
-In-Reply-To: <DCFLDJPJGNMBCDAA@mailcity.com>
-Message-ID: <Pine.LNX.4.53.0305061115160.6637@chaos>
-References: <DCFLDJPJGNMBCDAA@mailcity.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 6 May 2003 11:20:42 -0400
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:35981 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S263809AbTEFPUW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 11:20:22 -0400
+Date: Tue, 6 May 2003 17:32:52 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Marcus Meissner <meissner@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Only use MSDOS-Partitions by default on X86
+Message-ID: <20030506153252.GA13830@wohnheim.fh-wedel.de>
+References: <20030505210811.GC7049@wohnheim.fh-wedel.de.suse.lists.linux.kernel> <1052218090.28792.15.camel@dhcp22.swansea.linux.org.uk.suse.lists.linux.kernel> <20030506120939.GB15261@wohnheim.fh-wedel.de.suse.lists.linux.kernel> <20030506122844.95332D872@Hermes.suse.de> <20030506124212.GE15261@wohnheim.fh-wedel.de> <20030506150318.C21775@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030506150318.C21775@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 May 2003, Sumit Narayan wrote:
+On Tue, 6 May 2003 15:03:18 +0100, Russell King wrote:
+> On Tue, May 06, 2003 at 02:42:12PM +0200, Jörn Engel wrote:
+> > On Tue, 6 May 2003 14:28:44 +0200, Marcus Meissner wrote:
+> > > 
+> > > Every platform that supports USB will be able to read USB Storage
+> > > Devices which almost everytime have FAT filesystems with MSDOS partitions.
+> > > 
+> > > So short of S/390 you get like every platform.
+> > 
+> > And short of most embedded systems.
+> 
+> CF cards - these have MSDOS partition tables on.  CF cards get used on
+> embedded systems.
+> 
+> Therefore, it follows that if you have an embedded system with a CF socket,
+> you'll probably want the MSDOS partitioning enabled.
 
-> Thanks for the details,
->
-> But I would like to know when each FS is being accessed, and by
-> which application. Isnt there a single path, say something in the
-> driver code, from where all write/read commands pass? So that we
-> can have a function call from that place, and create a log?
->
+Maybe I was just thinking the wrong way. Given that my systems don't
+use IDE, SCSI, a floppy or anything emulating one of them, like USB
+storage or CF. I don't want MSDOS partitioning, but in fact, I don't
+want any of the disk-centric code at all, fs/partitions is just a part
+of that.
 
-The proper place for this is between the 'C' runtime library
-and the kernel. You can use ld.so.preload to attach your hooks
-into some code that communicates with a user-mode daemon and
-writes a log of the file-system activity.
+Then the real fix would be to have (no disk stuff) => (some magic) =>
+(no MSDOS partitions,...).
 
-This will not catch statically-linked programs or programs
-written in assembly that don't use the 'C' shared library,
-but these are not normal programs.
+My proposition for (some magic) would be to add an option for having
+disks (or floppies, emulating stuff, yadda, yadda...) and have some
+things like partitioning depend on that option. I better sharpen my
+claymore to cut through all that code then.
 
-> And also, how do I create a logfile on my own. With my own function
-> within the kernel. I dont wish to go to Userland and do the write
-> process.
->
+Jörn
 
-Please fix your mail program, UNIX/Linux text has a control
-character after, roughly 79 characters, to continue the string
-on the left-hand side of the screen. This is unlike Windows
-that assumes you are peering into some RAM in a garbage dump.
-
-> Thanks in advance.
->
-> Sumit
->
-
-You use a kernel thread. The kernel is designed to perform tasks
-on behalf of a caller. Therefore, it doesn't have a context.
-Therefore, a particular file-number doesn't mean anything without
-its association with some process ID. You can either steal the
-context of some unweary user and screw up its file-system access,
-or you can make your own process, called a kernel thread. A
-kernel thread has its own context so file system access works.
-However, you cannot call the kernel from within the kernel, so
-you can't use 'C' runtime libraries, etc. Instead, you call things
-like sys_open() to open a file, sys_close() to close it, etc.
-
-Also, don't assume that /var/log actually exists. The kernel may
-be alive and well without a mounted file-system, and without
-anything writable in the file-system.
-
-It is definitely not a good idea to perform file-system access
-from within your 'driver'. When you do this, you are not making
-a driver, but a kludge.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
-
+-- 
+Fancy algorithms are buggier than simple ones, and they're much harder
+to implement. Use simple algorithms as well as simple data structures.
+-- Rob Pike

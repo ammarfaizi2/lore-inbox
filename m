@@ -1,62 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263204AbSJ1Iwb>; Mon, 28 Oct 2002 03:52:31 -0500
+	id <S263207AbSJ1IxD>; Mon, 28 Oct 2002 03:53:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263207AbSJ1Iwb>; Mon, 28 Oct 2002 03:52:31 -0500
-Received: from out002pub.verizon.net ([206.46.170.141]:56783 "EHLO
-	out002.verizon.net") by vger.kernel.org with ESMTP
-	id <S263204AbSJ1Iwa>; Mon, 28 Oct 2002 03:52:30 -0500
-Message-Id: <200210280955.g9S9tqi3002027@pool-141-150-241-241.delv.east.verizon.net>
-Date: Mon, 28 Oct 2002 04:55:45 -0500
-From: Skip Ford <skip.ford@verizon.net>
-To: "Vamsi Krishna S ." <vamsi@in.ibm.com>
-Cc: Rob Landley <landley@trommello.org>, linux-kernel@vger.kernel.org,
-       boissiere@adiglobal.com
-Subject: Re: Abbott and Costello meet Crunch Time -- Penultimate 2.5 merge candidate list.
-References: <200210272017.56147.landley@trommello.org> <20021028135504.A7384@in.ibm.com>
+	id <S263208AbSJ1Iw7>; Mon, 28 Oct 2002 03:52:59 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:23986 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S263207AbSJ1Iw5>;
+	Mon, 28 Oct 2002 03:52:57 -0500
+Date: Mon, 28 Oct 2002 14:32:20 +0530
+From: Ravikiran G Thirumalai <kiran@in.ibm.com>
+To: Dipankar Sarma <dipankar@in.ibm.com>
+Cc: Con Kolivas <conman@kolivas.net>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@digeo.com>
+Subject: Re: 2.5.44-mm5
+Message-ID: <20021028143220.B4067@in.ibm.com>
+References: <1035547268.3db9328488960@kolivas.net> <20021025180921.B14451@in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021028135504.A7384@in.ibm.com>; from vamsi@in.ibm.com on Mon, Oct 28, 2002 at 01:55:04PM +0530
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at out002.verizon.net from [141.150.241.241] at Mon, 28 Oct 2002 02:58:45 -0600
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20021025180921.B14451@in.ibm.com>; from dipankar@in.ibm.com on Fri, Oct 25, 2002 at 12:36:45PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vamsi Krishna S . wrote:
->
-> The kprobes home page:
-> http://www-124.ibm.com/linux/projects/kprobes
+On Fri, Oct 25, 2002 at 12:36:45PM +0000, Dipankar Sarma wrote:
+> ...
+> The patch below should fix your problem, hopefully. Although I 
+> don't understand why kstat initialization isn't in common code.
 
-The kprobes homepage says:
+My mistake...it should be in common code.  I missed the #endif after 
+kernel_flag definition....and was dumb enough to think sched_init
+was defined only for CONFIG_SMP || CONFIG_PREEMPT....sheesh..
+Here's the fix...moves init_kstat to common code; applies on mm6
 
- Extensions to kprobes
+Thanks,
+Kiran
 
-   kprobes has been developed from the full Dynamic Probes patch. It
-   includes the essential mechanism to allow probes to exist in kernel
-   space. The RPN Language Interpreter, Watchpoints and User-space probes
-   extensions, which are part of the Dynamic Probes Package, will be
-   available as add-on patches from the website.
-   
-   At the moment, we are proposing for kprobes inclusion into the kernel
-   which includes the following four patches:
-     * kprobes base:
-       Provides the interface described above
-     * debug register management:
-        [snip]
-     * kwatch points:
-        [snip]
-     * user space probes:
-
-The first paragraph seems to say that only the base patch is being
-submitted and the watchpoint and user-space extensions can be
-retrieved from the site.
-
-But then it goes on to say that you are proposing those for inclusion
-also.  I'm confused and I've been using your patches.  Also, that first
-paragraph mentions "add-on" patches while all along I thought your
-intention was to have enough of dprobes in the kernel so that patching
-wasn't necessary.
-
--- 
-Skip
+ 
+--- mm6.orig/kernel/sched.c	Mon Oct 28 11:36:57 2002
++++ mm6.fix/kernel/sched.c	Mon Oct 28 11:47:39 2002
+@@ -2117,6 +2117,18 @@
+ #endif
+ 
+ #if CONFIG_SMP || CONFIG_PREEMPT
++/*
++ * The 'big kernel lock'
++ *
++ * This spinlock is taken and released recursively by lock_kernel()
++ * and unlock_kernel().  It is transparently dropped and reaquired
++ * over schedule().  It is used to protect legacy code that hasn't
++ * been migrated to a proper locking design yet.
++ *
++ * Don't use in new code.
++ */
++spinlock_t kernel_flag __cacheline_aligned_in_smp = SPIN_LOCK_UNLOCKED;
++#endif
+ 
+ static void kstat_init_cpu(int cpu)
+ {
+@@ -2149,21 +2161,6 @@
+ 	register_cpu_notifier(&kstat_nb);  
+ }
+ 
+-/*
+- * The 'big kernel lock'
+- *
+- * This spinlock is taken and released recursively by lock_kernel()
+- * and unlock_kernel().  It is transparently dropped and reaquired
+- * over schedule().  It is used to protect legacy code that hasn't
+- * been migrated to a proper locking design yet.
+- *
+- * Don't use in new code.
+- */
+-spinlock_t kernel_flag __cacheline_aligned_in_smp = SPIN_LOCK_UNLOCKED;
+-#else
+-static inline void init_kstat(void) { }
+-#endif
+-
+ void __init sched_init(void)
+ {
+ 	runqueue_t *rq;

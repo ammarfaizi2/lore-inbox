@@ -1,59 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267036AbUBMOoR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 09:44:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267037AbUBMOoR
+	id S266530AbUBMOlI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 09:41:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266679AbUBMOlI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 09:44:17 -0500
-Received: from mail.gmx.de ([213.165.64.20]:57304 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S267036AbUBMOoP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 09:44:15 -0500
-Date: Fri, 13 Feb 2004 15:44:13 +0100 (MET)
-From: "Daniel Blueman" <daniel.blueman@gmx.net>
-To: linux-kernel@vger.kernel.org
+	Fri, 13 Feb 2004 09:41:08 -0500
+Received: from gizmo05bw.bigpond.com ([144.140.70.15]:48608 "HELO
+	gizmo05bw.bigpond.com") by vger.kernel.org with SMTP
+	id S266530AbUBMOlC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Feb 2004 09:41:02 -0500
+From: Ross Dickson <ross@datscreative.com.au>
+Reply-To: ross@datscreative.com.au
+Organization: Dat's Creative Pty Ltd
+To: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
+Subject: Re: [PATCH] 2.6, 2.4, Nforce2, Experimental idle halt workaround instead of apic ack delay.
+Date: Sat, 14 Feb 2004 00:41:17 +1000
+User-Agent: KMail/1.5.1
+Cc: linux-kernel@vger.kernel.org, Jamie Lokier <jamie@shareable.org>,
+       Ian Kumlien <pomac@vapor.com>, Jesse Allen <the3dfxdude@hotmail.com>,
+       Craig Bradney <cbradney@zip.com.au>, Daniel Drake <dan@reactivated.net>
+References: <200402120122.06362.ross@datscreative.com.au> <402CB24E.3070105@gmx.de>
+In-Reply-To: <402CB24E.3070105@gmx.de>
 MIME-Version: 1.0
-References: <20040213142719.GA28100@mail.shareable.org>
-Subject: Re: File system performance, hardware performance, ext3, 3ware RAID1, etc.
-X-Priority: 3 (Normal)
-X-Authenticated: #8973862
-Message-ID: <17899.1076683453@www11.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200402140041.17584.ross@datscreative.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It is a small loss that the TCQ-support implementation hasn't been stable on
-linux so far. I guess mostly due to the great I/O scheduling Linux has (ie
-anticipatory scheduler).
-
-Yes, a growing number of IDE disk manufacturers are using native S-ATA
-controllers in their disks, and TCQ is one of the core features (ie unique selling
-point), as well as being implemented on the more lavish P-ATA controllers.
-
-It's just a shame that there are still issues saturating a bunch of IDE
-disks with software RAID in the 2.6 series, but I guess that'll be ironed out in
-time...
-
-> Daniel Blueman wrote:
-> > many modern IDE disks and
-> > controllers also have tagged command queuing, so it is even more of a
-> corner case.
+On Friday 13 February 2004 21:17, Prakash K. Cheemplavam wrote:
+> Hi,
 > 
-> Linux doesn't use tagged command queueing, though - the code has been
-> disabled for some time.  I thought the TCQ stuff was disabled because
-> only very few disks supported it and the code wasn't reliable.
+> I am just testing this patch with latest 2.6.3-rc2-mm1. It works in that 
+> sense, that my machine doesn't lock up of APIC issue. (If it locks up - 
+> hasn't done yet - then because of something else, I am currently 
+> discssing it in another thread...)
 > 
-> Yet you say many modern disks support it?
-> 
-> -- Jamie
+> But it doesn't work in the sense of cooling my machine down. Though 
+> athcool reports disconnect is activated it behaves like it is not, ie, 
+> turning disconnect off makes no difference in temperatures. Your old 
+> tack patch in conjunction with 2.6.2-rc1 (linus) works like a charm, ie 
+> no lock-ups and less temp.
 > 
 
--- 
-Daniel J Blueman
+Thanks Prakash for testing it and spotting thermal problem.
 
-GMX ProMail (250 MB Mailbox, 50 FreeSMS, Virenschutz, 2,99 EUR/Monat...)
-jetzt 3 Monate GRATIS + 3x DER SPIEGEL +++ http://www.gmx.net/derspiegel +++
+Here are some temperatures from my machine read from the bios on reboot.
+I gave it minimal activity for the minutes prior to reboot.
+
+Win98, 47C
+XPHome, 42C
+Patched Linux 2.4.24 (1000Hz), 40C
+Patched Linux 2.6.3-rc1-mm1, 53C  OUCH!
+
+Sorry, I will have to go through my latest patch and see why the temp differs
+so much between 2.4 and 2.6. I currently use patched 2.4.24 with Suse 8.2 for
+convenience. When it stopped the lockups on 2.6 I thought the 2.6 was
+working the same way. 
+
+Daniel - I think you patched your 2.6 too. I assume it is also hot?
+
+
+> Any idea? I haven't taken out the apic_tack line, but I have added the 
+> idle=... line. Should that be a problem? I mean the apic_tack should 
+> safely be ignored, isn't it? Since I swap kernels quite often, I am too 
+> lazy to edit the boot line every time...
+
+Correct, apic_tack will be ignored if the apic.c is not patched with my apic
+ack delay patch.
+
+Ross.
+
+> 
+> Prakash
+> 
+> 
+> 
 

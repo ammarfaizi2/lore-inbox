@@ -1,55 +1,113 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262642AbTDVLNC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 07:13:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263077AbTDVLNC
+	id S263087AbTDVLP2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 07:15:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263096AbTDVLP2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 07:13:02 -0400
-Received: from hirsch.in-berlin.de ([192.109.42.6]:29576 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S262642AbTDVLNB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 07:13:01 -0400
-X-Envelope-From: news@bytesex.org
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Gerd Knorr <kraxel@bytesex.org>
-Newsgroups: lists.linux.kernel
-Subject: Re: BK->CVS, kernel.bkbits.net
-Date: 22 Apr 2003 13:09:49 +0200
-Organization: SuSE Labs, Berlin
-Message-ID: <87adeikcua.fsf@bytesex.org>
-References: <20030417162723.GA29380@work.bitmover.com> <20030420013440.GG2528@phunnypharm.org> <3EA24CF8.5080609@shemesh.biz> <20030420130123.GK2528@phunnypharm.org> <3EA2A285.2070307@shemesh.biz>
-NNTP-Posting-Host: localhost
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Trace: bytesex.org 1051009789 3170 127.0.0.1 (22 Apr 2003 11:09:49 GMT)
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	Tue, 22 Apr 2003 07:15:28 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:27598 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S263087AbTDVLPZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Apr 2003 07:15:25 -0400
+Date: Tue, 22 Apr 2003 07:27:29 -0400 (EDT)
+From: Ingo Molnar <mingo@redhat.com>
+X-X-Sender: mingo@devserv.devel.redhat.com
+To: Rick Lindsley <ricklind@us.ibm.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] HT scheduler, sched-2.5.68-A9 
+In-Reply-To: <200304221110.h3MBAE712394@owlet.beaverton.ibm.com>
+Message-ID: <Pine.LNX.4.44.0304220712580.28721-100000@devserv.devel.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shachar Shemesh <lkml@shemesh.biz> writes:
 
-> development environment to build it. Add to that the fact that most
-> distros don't carry it as a package (a while back I tried,
-> unsuccessfully, to locate an RPM for it, anywhere), and you get
-> something that should be deployed with care.
+On Tue, 22 Apr 2003, Rick Lindsley wrote:
 
-There are rpms for suse 8.1 on ftp.suse.com (i386 only for obvious
-reasons).
+>     yes. This 'un-sharing' of contexts happens unconditionally, whenever
+>     we notice the situation. (ie. whenever a CPU goes completely idle
+>     and notices an overloaded physical CPU.) On the HT system i have i
+>     have measure this to be a beneficial move even for the most trivial
+>     things like infinite loop-counting.
+> 
+> I have access to a 4-proc HT so I can try it there too. Did you test
+> with micro-benchmarks like the loop-counting or did you use something
+> bigger?
 
-BTW: With glibc 2.3 the modula-3 compiler bootstrap broke (due to
-thread code changes as far I can see, I'm no m3 guru ...), so with
-very recent linux distributions you likely have problems to build the
-thing even on i386 (unless someone has fixed that in the meantime).
-Old cvsup binaries continue to work through.
+it is very obviously the case that two tasks running on different physical
+CPUs outperform two tasks running on the same physical CPU. I have
+attempted to find the best-case sharing - and even that one underperforms.  
+I measured cache-heavy gcc compilation as well, there there was almost no
+speedup due to HT.
 
-> On the other hand, both Wine (where I got to know it) and KDE seem to
-> offer cvsup for getting the repository, so it can't be THAT
-> difficult.
+but it's not really a problem - the logical CPUs are probably quite cheap
+on the physical side, so any improvement in overload situations is a help.  
+But once the overload situation stops, we should avoid the false sharing
+and balance over those tasks to one physical CPU each.
 
-xfree86 + freebsd use it too.
+in any case, please feel free to do measurements in this direction
+nevertheless, more numbers never hurt.
 
-  Gerd
+>     the more per-logical-CPU cache a given SMT implementation has,
+>     the less beneficial this move becomes - in that case the system
+>     should rather be set up as a NUMA topology and scheduled via the
+>     NUMA scheduler.
+> 
+> 	whew. So why are we perverting the migration thread to push
+> 	rather than pull? If active_load_balance() finds a imbalance,
+> 	why must we use such indirection?  Why decrement nr_running?
+> 	Couldn't we put together a migration_req_t for the target queue's
+> 	migration thread?
+> 
+>     i'm not sure what you mean by perverting the migration thread to
+>     push rather to pull, as migration threads always push - it's not
+>     different in this case either.
+> 
+> My bad -- I read the comments around migration_thread(), and they could
+> probably be improved. [...]
 
--- 
-Michael Moore for president!
+i'll fix the comments up. And the migration concept originally was a pull
+thing, but now it has arrived to a clean push model.
+
+> [...] When I looked at the code, yes, it's more of a push.  The
+> migration thread process occupies the processor so that you can be sure
+> the process-of-interest is not running and can be more easily
+> manipulated.
+
+yes, that's the core idea.
+
+>     Also, active balancing is non-queued by nature. Is there a big
+>     difference?
+> 
+> I'm not sure active balancing really is independent of cpus_allowed.
+
+of course we never balance to a CPU not allowed, but what i meant is that
+the forced migration triggered by a ->cpus_allowed change [ie. the removal
+of the current CPU from the process' allowed CPU mask] is conceptually
+different from the forced migration of a task between two allowed CPUs.
+
+> Yes, all the searches are done without that restriction in place, but
+> then we ultimately call load_balance(), which *will* care.
+> load_balance() may end up not moving what we wanted (or anything at
+> all.)
+
+load_balance() will most definitly balance the task in question, in the
+active-balance case. The only reason why it didnt succeed earlier is
+because load_balance() is a passive "pull" concept, so it is not able to
+break up the false sharing between those two tasks that are both actively
+running. [it correctly sees a 2:0 imbalance between the runqueues and
+tries to balance them, but both tasks are running.] This is why the "push"  
+concept of active-balancing has to kick in.
+
+in fact in the active-balance case the imbalance is 3:0, because the
+migration thread is running too, so we decrease nr_running artifically,
+before calling load_balance(). Otherwise a 3:1 setup could cause a false
+migration. [the real load situation is 2:1 in that case.]
+
+we dont keep the runqueues locked while these migration requests are
+pending, so there's a small window for the balancing to get behind - but
+that risk is present with any statistical approach anyway.
+
+	Ingo
+

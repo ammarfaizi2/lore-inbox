@@ -1,83 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270417AbTGSPqu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jul 2003 11:46:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270057AbTGSPla
+	id S270402AbTGSP6g (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jul 2003 11:58:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270403AbTGSP6g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jul 2003 11:41:30 -0400
-Received: from mail.kroah.org ([65.200.24.183]:20384 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S270150AbTGSPkD convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jul 2003 11:40:03 -0400
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <10586300923537@kroah.com>
-Subject: Re: [PATCH] i2c driver changes 2.6.0-test1
-In-Reply-To: <105863009030@kroah.com>
-From: Greg KH <greg@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Sat, 19 Jul 2003 08:54:52 -0700
-Content-Transfer-Encoding: 7BIT
-To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
-Mime-Version: 1.0
+	Sat, 19 Jul 2003 11:58:36 -0400
+Received: from 12-229-144-126.client.attbi.com ([12.229.144.126]:29314 "EHLO
+	waltsathlon.localhost.net") by vger.kernel.org with ESMTP
+	id S270402AbTGSP6b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jul 2003 11:58:31 -0400
+Message-ID: <3F196E29.20606@comcast.net>
+Date: Sat, 19 Jul 2003 09:13:29 -0700
+From: Walt H <waltabbyh@comcast.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5a) Gecko/20030704
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ocran@gmx.net
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Promise fasttrack raid, changed disk, unable to boot.
+X-Enigmail-Version: 0.76.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1358.10.2, 2003/07/03 12:22:45-07:00, j.dittmer@portrix.net
+Paul,
 
-[PATCH] I2C: convert via686a temp_* to milli degree celsius
+I recently ran across something similar after having received a warranty
+replacement drive. Mine turned out to be some real funky geometry being
+reported by the ide-disk layer. I came up with a fix, that worked for
+me, not sure how universal it is. See the thread at:
 
-Forgot to send this.
+http://marc.theaimsgroup.com/?l=linux-kernel&m=105840994419059&w=2
 
-This converts the i2c chip driver via686a to handle milli degree celsius
-instead of centi degree celsius. Applies for temp_input, temp_min, temp_max.
+My patch that is attached in the first message of the thread is not
+recommended, but the final simple fix worked also in my case. Does Linux
+perhaps see the other drive with strange geometry? You can check with
+
+cat /proc/ide/hd?/geometry
+
+In my case, the head count reported by Linux was 255, which was bogus
+and caused the problem. Hope this helps,
+
+-Walt
 
 
- drivers/i2c/chips/via686a.c |   10 +++++-----
- 1 files changed, 5 insertions(+), 5 deletions(-)
-
-
-diff -Nru a/drivers/i2c/chips/via686a.c b/drivers/i2c/chips/via686a.c
---- a/drivers/i2c/chips/via686a.c	Sat Jul 19 08:48:34 2003
-+++ b/drivers/i2c/chips/via686a.c	Sat Jul 19 08:48:34 2003
-@@ -494,27 +494,27 @@
- 	struct i2c_client *client = to_i2c_client(dev);
- 	struct via686a_data *data = i2c_get_clientdata(client);
- 	via686a_update_client(client);
--	return sprintf(buf, "%ld\n", TEMP_FROM_REG10(data->temp[nr])*10 );
-+	return sprintf(buf, "%ld\n", TEMP_FROM_REG10(data->temp[nr])*100 );
- }
- /* more like overshoot temperature */
- static ssize_t show_temp_max(struct device *dev, char *buf, int nr) {
- 	struct i2c_client *client = to_i2c_client(dev);
- 	struct via686a_data *data = i2c_get_clientdata(client);
- 	via686a_update_client(client);
--	return sprintf(buf, "%ld\n", TEMP_FROM_REG(data->temp_over[nr])*10);
-+	return sprintf(buf, "%ld\n", TEMP_FROM_REG(data->temp_over[nr])*100);
- }
- /* more like hysteresis temperature */
- static ssize_t show_temp_min(struct device *dev, char *buf, int nr) {
- 	struct i2c_client *client = to_i2c_client(dev);
- 	struct via686a_data *data = i2c_get_clientdata(client);
- 	via686a_update_client(client);
--	return sprintf(buf, "%ld\n", TEMP_FROM_REG(data->temp_hyst[nr])*10);
-+	return sprintf(buf, "%ld\n", TEMP_FROM_REG(data->temp_hyst[nr])*100);
- }
- static ssize_t set_temp_max(struct device *dev, const char *buf, 
- 		size_t count, int nr) {
- 	struct i2c_client *client = to_i2c_client(dev);
- 	struct via686a_data *data = i2c_get_clientdata(client);
--	int val = simple_strtol(buf, NULL, 10)/10;
-+	int val = simple_strtol(buf, NULL, 10)/100;
- 	data->temp_over[nr] = TEMP_TO_REG(val);
- 	via686a_write_value(client, VIA686A_REG_TEMP_OVER(nr), data->temp_over[nr]);
- 	return count;
-@@ -523,7 +523,7 @@
- 		size_t count, int nr) {
- 	struct i2c_client *client = to_i2c_client(dev);
- 	struct via686a_data *data = i2c_get_clientdata(client);
--	int val = simple_strtol(buf, NULL, 10)/10;
-+	int val = simple_strtol(buf, NULL, 10)/100;
- 	data->temp_hyst[nr] = TEMP_TO_REG(val);
- 	via686a_write_value(client, VIA686A_REG_TEMP_HYST(nr), data->temp_hyst[nr]);
- 	return count;
 

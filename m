@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129066AbQKBUiI>; Thu, 2 Nov 2000 15:38:08 -0500
+	id <S129134AbQKBUxO>; Thu, 2 Nov 2000 15:53:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129519AbQKBUh6>; Thu, 2 Nov 2000 15:37:58 -0500
-Received: from TSX-PRIME.MIT.EDU ([18.86.0.76]:31119 "HELO tsx-prime.MIT.EDU")
-	by vger.kernel.org with SMTP id <S129066AbQKBUhs>;
-	Thu, 2 Nov 2000 15:37:48 -0500
-Date: Thu, 2 Nov 2000 15:37:36 -0500
-Message-Id: <200011022037.PAA21436@tsx-prime.MIT.EDU>
-From: "Theodore Y. Ts'o" <tytso@MIT.EDU>
-To: Tim Riker <Tim@Rikers.org>
-CC: Ben Ford <bford@talontech.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: Tim Riker's message of Thu, 02 Nov 2000 12:31:51 -0700,
-	<3A01C127.F335E92A@Rikers.org>
+	id <S129179AbQKBUwy>; Thu, 2 Nov 2000 15:52:54 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:33097 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129134AbQKBUwt>; Thu, 2 Nov 2000 15:52:49 -0500
 Subject: Re: non-gcc linux? (was Re: Where did kgcc go in 2.4.0-test10?)
-Phone: (781) 391-3464
+To: Tim@Rikers.org (Tim Riker)
+Date: Thu, 2 Nov 2000 20:53:32 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
+In-Reply-To: <3A01BB7D.B084B66@Rikers.org> from "Tim Riker" at Nov 02, 2000 12:07:41 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E13rRMc-0001sX-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   Date: 	Thu, 02 Nov 2000 12:31:51 -0700
-   From: Tim Riker <Tim@Rikers.org>
+> > That need to run Linux - name one ? Why try to solve a problem when it hasn't
+> > happened yet. Let whoever needs to solve it do it.
+> 
+> We have proposals here all under NDA. So I won't mention one of them.
+> Perhaps there are some of these folk on the list that would like to
+> comment?
 
-   Me or Alan? I did not mean this as a dig. I feel strongly that one
-   should have the choice here. I do not choose to enforce my beliefs on
-   anyone else. I am suggesting only that others should provide the same
-   courtesy. I truly meant "Thank you for you opinion". I feel the
-   community benefits from the differing opinions contained within it.
+Then I think it will be up to you to achieve the non gcc build or to teach
+your compiler gcc extensions (which may or may not be easier). The kernel also
+tends to know a few things about how gcc optimises code which shouldn't matter
+if your compiler is good enough to optimise nicely anyway.
 
-Yes, but that argument doesn't hold once you start asking the everyone
-to work on making that choice available.  The question that some part of
-the community may ask is --- why should we help you make it possible to
-use a propietary C compiler?  
+AFAIK the only non gcc port of Linux isnt exactly a port but was ELKS done using
+bcc86 (Bruce Evans compiler)
 
-Choice also implies a choice not to work on things which help some
-particular person's pet cause, whether that is C++ kernel code, or
-propietary C compilers.  If it makes the code harder to maintain or more
-complex, it impacts everyone, and it's fair to ask the question whether
-or not the feeling "one should have the choice here" is worth the cost
-which you're asking everyone to bear.
+Alan
 
-					- Ted
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

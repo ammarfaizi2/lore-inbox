@@ -1,52 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263349AbTDLSGw (for <rfc822;willy@w.ods.org>); Sat, 12 Apr 2003 14:06:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263350AbTDLSGw (for <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Apr 2003 14:06:52 -0400
-Received: from f11.pav1.hotmail.com ([64.4.31.11]:1033 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id S263349AbTDLSGv (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Apr 2003 14:06:51 -0400
-X-Originating-IP: [66.32.101.73]
-X-Originating-Email: [jim_jim33@hotmail.com]
-From: "jim beam" <jim_jim33@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: USB Mass Storage Device
-Date: Sat, 12 Apr 2003 18:18:31 +0000
+	id S263350AbTDLSLy (for <rfc822;willy@w.ods.org>); Sat, 12 Apr 2003 14:11:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263354AbTDLSLy (for <rfc822;linux-kernel-outgoing>);
+	Sat, 12 Apr 2003 14:11:54 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:7694
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id S263350AbTDLSLy 
+	(for <rfc822;linux-kernel@vger.kernel.org>); Sat, 12 Apr 2003 14:11:54 -0400
+Subject: Re: Processor sets (pset) for linux kernel 2.5/2.6?
+From: Robert Love <rml@tech9.net>
+To: Antonio Vargas <wind@cocodriloo.com>
+Cc: "Shaheed R. Haque" <srhaque@iee.org>, linux-kernel@vger.kernel.org,
+       thockin@isunix.it.ilstu.edu
+In-Reply-To: <20030412122422.GB9125@wind.cocodriloo.com>
+References: <1050146434.3e97f68300fff@netmail.pipex.net>
+	 <20030412122422.GB9125@wind.cocodriloo.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1050171807.2291.455.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F11gAPf1MieZutGvO8n00005049@hotmail.com>
-X-OriginalArrivalTime: 12 Apr 2003 18:18:32.0275 (UTC) FILETIME=[ECAB0230:01C3011F]
+X-Mailer: Ximian Evolution 1.2.4 (1.2.4-2) 
+Date: 12 Apr 2003 14:23:27 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 2003-04-12 at 08:24, Antonio Vargas wrote:
 
-Hello group,
+> I think it's carried over by fork(), but have been unable to find
+> it on the sources.
 
-The following USB Mass Storage device is found during bootup:
+Yep, its inherited over fork().
 
-scsi0 : SCSI emulation for USB
-Mass Storage devices
-  Vendor: SOYO      Model: USB Storage-SMC   Rev: 0214
-  Type:   Direct-Access                      ANSI SCSI revision: 02
-Attached scsi removable disk sda at scsi0, channel 0, id 0, lun 0
-
-Is it a CompactFlash reader that plugs directly into a USB1 header on my 
-motherboard.
-
-/sys/bus/scsi/devices/0:0:0:0/* contains information regarding the device, 
-however there is nothing /dev/scsi/host0/bus0/target0/lun0 for me to mount, 
-regardless of whether there is a card in the drive or not.  I have hotplug 
-enables, and inserting a card in the drive does not generate any new 
-messages under dmesg (although verbosity stuff is not enabled).  Is this 
-device not yet supported, or am I missing something that I need to enable?
-
-Thanks,
-Jim
-
-
-
-
-_________________________________________________________________
-Add photos to your messages with MSN 8. Get 2 months FREE*.  
-http://join.msn.com/?page=features/featuredemail
+	Robert Love
 

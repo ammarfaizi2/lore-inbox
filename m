@@ -1,137 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271207AbRHTNse>; Mon, 20 Aug 2001 09:48:34 -0400
+	id <S271212AbRHTNwD>; Mon, 20 Aug 2001 09:52:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271203AbRHTNsY>; Mon, 20 Aug 2001 09:48:24 -0400
-Received: from freya.yggdrasil.com ([209.249.10.20]:15848 "EHLO
-	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S271180AbRHTNsL>; Mon, 20 Aug 2001 09:48:11 -0400
-Date: Mon, 20 Aug 2001 06:48:23 -0700
-From: "Adam J. Richter" <adam@yggdrasil.com>
-To: arrays@compaq.com, alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: PATCH: linux-2.4.9/drivers/block/cpqarray.c to new module_{init,exit} interface
-Message-ID: <20010820064823.A30153@baldur.yggdrasil.com>
+	id <S271206AbRHTNvx>; Mon, 20 Aug 2001 09:51:53 -0400
+Received: from customers.imt.ru ([212.16.0.33]:18461 "HELO smtp.direct.ru")
+	by vger.kernel.org with SMTP id <S271203AbRHTNvr>;
+	Mon, 20 Aug 2001 09:51:47 -0400
+Message-ID: <20010820064814.A704@saw.sw.com.sg>
+Date: Mon, 20 Aug 2001 06:48:14 -0700
+From: Andrey Savochkin <saw@saw.sw.com.sg>
+To: Szabolcs Szakacsits <szaka@f-secure.com>
+Cc: Ivan Kalvatchev <iive@yahoo.com>, kernelbug <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: DoS tmpfs,ramfs, malloc, saga continues
+In-Reply-To: <E15Wl1I-0001ua-00@the-village.bc.nu> <Pine.LNX.4.30.0108151544520.2660-100000@fs131-224.f-secure.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="bg08WKrSYDhXBjb5"
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93.2i
+In-Reply-To: <Pine.LNX.4.30.0108151544520.2660-100000@fs131-224.f-secure.com>; from "Szabolcs Szakacsits" on Wed, Aug 15, 2001 at 05:20:09PM
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Aug 15, 2001 at 05:20:09PM +0300, Szabolcs Szakacsits wrote:
+> 
+> > usage of a system well but not your case. The more complex answer is to
+> > provide the option for very precise group based resource accounting (aka
+> > the beancounter patch). That is for those who want to pay the probable 2%
+> > or so system penalty for being able to precisely manage a system resource
+> > set. With the beancounter infrastructure you can then get to the point where
+> 
+> It's not ready for use. It was touched last time about one year ago for
+> 2.4.0-test7.
 
---bg08WKrSYDhXBjb5
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I just can't spare time now to maintain the patch properly and make a port
+for each kernel release.
+When 2.5 is started, I've promised myself to put other things aside and work
+on the patch to have it in the mainstream.
 
-	The following patch moves linux-2.4.9/drivers/block/cpqarray.c
-to the new module_{init,exit} interface and adds a pci_device_id table.
-The advantages are as follows:
-
-	1. The pci_device_id table facilitates automatic module loading
-	   with the pcimodules program (or something similar).
-
-	2. The user of module_{init,exit} removes the cpqarray reference
-	   from drivers/block/genhd.c, a step toward eliminating the
-	   genhd.c file.
-
-	3. #1 and #2 are simplify upgrading cpqarray to the new PCI
-	   driver format.
-
-	arrays@compaq.com: Please examine these changes.  If they
-meet with your approval, please forward them to Linus.
-
-	Alan: please feel free to incorporate this patch into the
--ac kernels.  I have eliminated drivers/block/genhd.c by changing the
-few remaining drivers to use module_{init,exit}.  If you would
-like me send you all of the changes that implement that as a group
-to you please let me know.
-
--- 
-Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
-adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
-+1 408 261-6630         | g g d r a s i l   United States of America
-fax +1 408 261-6631      "Free Software For The Rest Of Us."
-
---bg08WKrSYDhXBjb5
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="cpqarray.diffs"
-
---- linux-2.4.9/drivers/block/cpqarray.c	Wed Jul 25 14:12:01 2001
-+++ linux/drivers/block/cpqarray.c	Sun Aug 19 06:22:08 2001
-@@ -49,6 +49,16 @@
- MODULE_AUTHOR("Compaq Computer Corporation");
- MODULE_DESCRIPTION("Driver for Compaq Smart2 Array Controllers");
- 
-+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,0) && defined(MODULE)
-+static struct pci_device_id cpqarray_pci_tbl[] __initdata = {
-+  { PCI_VENDOR_ID_DEC,    PCI_DEVICE_ID_COMPAQ_42XX,   PCI_ANY_ID, PCI_ANY_ID},
-+  { PCI_VENDOR_ID_NCR,    PCI_DEVICE_ID_NCR_53C1510,   PCI_ANY_ID, PCI_ANY_ID},
-+  { PCI_VENDOR_ID_COMPAQ, PCI_DEVICE_ID_COMPAQ_SMART2P,PCI_ANY_ID, PCI_ANY_ID},
-+  { }			/* Terminating entry */
-+};
-+MODULE_DEVICE_TABLE(pci, cpqarray_pci_tbl);
-+#endif
-+
- #define MAJOR_NR COMPAQ_SMART2_MAJOR
- #include <linux/blk.h>
- #include <linux/blkdev.h>
-@@ -295,20 +305,18 @@
- }
- #endif /* CONFIG_PROC_FS */
- 
--#ifdef MODULE
--
- MODULE_PARM(eisa, "1-8i");
- EXPORT_NO_SYMBOLS;
- 
- /* This is a bit of a hack... */
--int __init init_module(void)
-+static int __init cpqarray_do_init(void)
- {
- 	if (cpqarray_init() == 0) /* all the block dev numbers already used */
- 		return -EIO;	  /* or no controllers were found */
- 	return 0;
- }
- 
--void cleanup_module(void)
-+static void __exit cpqarray_exit(void)
- {
- 	int i;
- 	struct gendisk *g;
-@@ -352,7 +360,6 @@
- 	kfree(ida_hardsizes);
- 	kfree(ida_blocksizes);
- }
--#endif /* MODULE */
- 
- static inline int cpq_new_segment(request_queue_t *q, struct request *rq,
- 				  int max_segments)
-@@ -1918,3 +1925,6 @@
- 	return;
- 
- }
-+
-+module_init(cpqarray_do_init);
-+module_exit(cpqarray_exit);
---- linux-2.4.9/drivers/block/genhd.c	Thu Jul 19 17:48:15 2001
-+++ linux/drivers/block/genhd.c	Mon Aug 20 06:38:37 2001
-@@ -29,7 +29,6 @@
- extern int soc_probe(void);
- extern int atmdev_init(void);
- extern int i2o_init(void);
--extern int cpqarray_init(void);
- 
- int __init device_init(void)
- {
-@@ -47,9 +46,6 @@
- #ifdef CONFIG_FC4_SOC
- 	/* This has to be done before scsi_dev_init */
- 	soc_probe();
--#endif
--#ifdef CONFIG_BLK_CPQ_DA
--	cpqarray_init();
- #endif
- #ifdef CONFIG_NET
- 	net_dev_init();
-
---bg08WKrSYDhXBjb5--
+	Andrey

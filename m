@@ -1,57 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261900AbVCEQAO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262956AbVCEQMl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261900AbVCEQAO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Mar 2005 11:00:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263128AbVCEP4u
+	id S262956AbVCEQMl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Mar 2005 11:12:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262658AbVCEQIF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Mar 2005 10:56:50 -0500
-Received: from static-162-83-93-166.fred.east.verizon.net ([162.83.93.166]:12730
-	"EHLO ccs.covici.com") by vger.kernel.org with ESMTP
-	id S261900AbVCEPxm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Mar 2005 10:53:42 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16937.54786.986183.491118@ccs.covici.com>
-Date: Sat, 5 Mar 2005 10:53:38 -0500
-From: John covici <covici@ccs.covici.com>
-To: linux-kernel@vger.kernel.org
-Subject: X not working with Radeon 9200 under 2.6.11
-X-Mailer: VM 7.17 under Emacs 21.3.50.2
-Reply-To: covici@ccs.covici.com
+	Sat, 5 Mar 2005 11:08:05 -0500
+Received: from mail-relay-2.tiscali.it ([213.205.33.42]:39399 "EHLO
+	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
+	id S261973AbVCEQFQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Mar 2005 11:05:16 -0500
+Subject: [patch 1/1] x86-64: kconfig typo (trivial)
+To: torvalds@osdl.org
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, blaisorblade@yahoo.it
+From: blaisorblade@yahoo.it
+Date: Fri, 04 Mar 2005 17:36:00 +0100
+Message-Id: <20050304163600.213774B47@zion>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.  I Have a Radeon 9200c and ever since some time in the 2.6.9
-series, I cannot get X to start using this card.  It dies in such a
-way that there is no way to get the vga console out of that console
-and chvt from another terminal just hangs and xinit cannot be
-cancelled.
 
-This is the lspci for the agp card.
-0000:01:00.0 VGA compatible controller: ATI Technologies Inc RV280
-[Radeon 9200 SE] (rev 01) (prog-if 00 [VGA])
-     Subsystem: PC Partner Limited: Unknown device 7c26
-     Flags: bus master, 66MHz, medium devsel, latency 64, IRQ 16
-     Memory at e8000000 (32-bit, prefetchable) [size=128M]
-     I/O ports at e000 [size=256]
-     Memory at fbe00000 (32-bit, non-prefetchable) [size=64K]
-     Expansion ROM at fbd00000 [disabled] [size=128K]
-     Capabilities: [58] AGP version 3.0
-     Capabilities: [50] Power Management version 2
+Trivial typo:
+	default off
+instead of 
+	default n
+in kbuild.
 
-0000:01:00.1 Display controller: ATI Technologies Inc RV280 [Radeon
-9200 SE] (Secondary) (rev 01)
-     Subsystem: PC Partner Limited: Unknown device 7c27
-     Flags: bus master, 66MHz, medium devsel, latency 64
-     Memory at f0000000 (32-bit, prefetchable) [size=128M]
-     Memory at fbf00000 (32-bit, non-prefetchable) [size=64K]
-     Capabilities: [50] Power Management version 2
+No, I haven't made sure that it actually does not work, but
+correcting it is right.
 
-Any assistance would be appreciated.
+And "grep off scripts/kconfig/*" does not find anything relevant.
 
--- 
-Your life is like a penny -- how are you going to spend it?
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+---
 
-         John Covici
-         covici@ccs.covici.com
+ linux-2.6.11-paolo/arch/x86_64/Kconfig |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+diff -puN arch/x86_64/Kconfig~x86-64-kconfig-typo arch/x86_64/Kconfig
+--- linux-2.6.11/arch/x86_64/Kconfig~x86-64-kconfig-typo	2005-03-04 17:30:04.566990048 +0100
++++ linux-2.6.11-paolo/arch/x86_64/Kconfig	2005-03-04 17:30:20.502567472 +0100
+@@ -254,7 +254,7 @@ config PREEMPT_BKL
+ config SCHED_SMT
+ 	bool "SMT (Hyperthreading) scheduler support"
+ 	depends on SMP
+-	default off
++	default n
+ 	help
+ 	  SMT scheduler support improves the CPU scheduler's decision making
+ 	  when dealing with Intel Pentium 4 chips with HyperThreading at a
+_

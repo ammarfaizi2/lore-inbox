@@ -1,49 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262889AbTCKJyc>; Tue, 11 Mar 2003 04:54:32 -0500
+	id <S262881AbTCKJvz>; Tue, 11 Mar 2003 04:51:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262888AbTCKJyc>; Tue, 11 Mar 2003 04:54:32 -0500
-Received: from hermine.idb.hist.no ([158.38.50.15]:48900 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S262889AbTCKJya>; Tue, 11 Mar 2003 04:54:30 -0500
-Message-ID: <3E6DB547.4060300@aitel.hist.no>
-Date: Tue, 11 Mar 2003 11:07:03 +0100
-From: Helge Hafting <helgehaf@aitel.hist.no>
-Organization: AITeL, HiST
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
-X-Accept-Language: no, en
-MIME-Version: 1.0
-To: Patrick E Kane <kane@urbana.css.mot.com>, linux-kernel@vger.kernel.org
-Subject: Re: Stack growing and buffer overflows
-References: <20030310230012.26391.qmail@linuxmail.org> <20030310172935.A1324@scapula.urbana.css.mot.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S262882AbTCKJvz>; Tue, 11 Mar 2003 04:51:55 -0500
+Received: from unthought.net ([212.97.129.24]:44962 "EHLO mail.unthought.net")
+	by vger.kernel.org with ESMTP id <S262881AbTCKJvy>;
+	Tue, 11 Mar 2003 04:51:54 -0500
+Date: Tue, 11 Mar 2003 11:02:35 +0100
+From: Jakob Oestergaard <jakob@unthought.net>
+To: "chandrasekhar.nagaraj" <chandrasekhar.nagaraj@patni.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Load Balancing Performance
+Message-ID: <20030311100235.GF14814@unthought.net>
+Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
+	"chandrasekhar.nagaraj" <chandrasekhar.nagaraj@patni.com>,
+	linux-kernel@vger.kernel.org
+References: <000001c2e7b4$bc52fcc0$e9bba5cc@patni.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <000001c2e7b4$bc52fcc0$e9bba5cc@patni.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick E Kane wrote:
+On Tue, Mar 11, 2003 at 03:28:14PM +0530, chandrasekhar.nagaraj wrote:
+> Hi,
+> 
+...
+> But instead of path switching for every buffer head (on call of make
+> request), if we switch after  50 buffer heads(ie. after 50 times make
+> request is called) then it results in a better  performance.
+> Is there any way to find out the optimum value so that the performance is
+> optimum.
+> The performance is not good only when load balancing is ON. Hence we need
+> performance improvement  in the case of load balancing.
+> Or is there any other solution to this problem.
 
-> I like the idea of turning off execute permission on the stack pages.
+Make the request site tunable via. procfs.
 
-It has been shown before that this has these disadvantages:
-1. More work settting up those access bits   (bloat & perf. degradation)
-2. Some programs actually need an exec stack (loss of features)
-3. It don't buy you _any_ security at all!   (didn't help anyway)
+Then create a (user space) utility which experiments with various
+request sizes and finds the optimum.  Run the tuning program once every
+time you set up a new system or change hardware.
 
-About (3): Of course it stops some of the current exploits, but there is
-a trivial way to "enhance" stack-smashing exploits to work around the
-non-exec stack:
-
-You can still overwrite the function's return address, on that non-exec 
-stack.  The cracker can no longer upload code and make the function 
-return to that, but crackers don't need to!  All they need is to return 
-to a place containing exec("/bin/sh") *and such places exist*, 
-paritcularly in every program using libc.  So writing the the exploit
-becomes a little harder, using it is as trivial as ever.
-
-Spend the time fixing broken apps, or get them right from the start.  It 
-is not as if writing safe C is _hard_.
-
-Helge Hafting
-
-
+-- 
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:

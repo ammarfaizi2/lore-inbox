@@ -1,47 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129051AbRBUR7O>; Wed, 21 Feb 2001 12:59:14 -0500
+	id <S129051AbRBUSIG>; Wed, 21 Feb 2001 13:08:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129144AbRBUR7E>; Wed, 21 Feb 2001 12:59:04 -0500
-Received: from host217-32-138-113.hg.mdip.bt.net ([217.32.138.113]:4872 "EHLO
-	penguin.homenet") by vger.kernel.org with ESMTP id <S129051AbRBUR6r>;
-	Wed, 21 Feb 2001 12:58:47 -0500
-Date: Wed, 21 Feb 2001 18:01:46 +0000 (GMT)
-From: Tigran Aivazian <tigran@veritas.com>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: Burton Windle <burton@fint.org>, linux-kernel@vger.kernel.org
-Subject: Re: Detecting SMP
-In-Reply-To: <Pine.LNX.3.96.1010221115214.13788T-100000@mandrakesoft.mandrakesoft.com>
-Message-ID: <Pine.LNX.4.21.0102211758290.2050-100000@penguin.homenet>
+	id <S129134AbRBUSH5>; Wed, 21 Feb 2001 13:07:57 -0500
+Received: from minus.inr.ac.ru ([193.233.7.97]:33805 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S129051AbRBUSHp>;
+	Wed, 21 Feb 2001 13:07:45 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200102211807.VAA16020@ms2.inr.ac.ru>
+Subject: Re: 2.4.1 under heavy network load - more info
+To: magnus.walldal@b-linc.com (Magnus Walldal)
+Date: Wed, 21 Feb 2001 21:07:28 +0300 (MSK)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <HFEDLHHPHHEOBHLNPJOKAEIBCAAA.magnus.walldal@b-linc.com> from "Magnus Walldal" at Feb 21, 1 12:16:16 pm
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 21 Feb 2001, Jeff Garzik wrote:
+Hello!
 
-> On Wed, 21 Feb 2001, Tigran Aivazian wrote:
-> > yes, just run the famous mptable program. If the machine is SMP then it
-> > will have a valid Intel MP 1.4 configuration tables so the program will
-> > show meaningful output.
+> OK! I actually expected 2.4 to be somewhat selftuning.
+
+Defaults for these numbers (X,Y,Z) are very conservative.
+
+
+> Interesting you say that, I looked at the logs and I see over 5000 sockets
+> used, does'nt look peaceful to me. But you are absolutely right about the
+> orphans. The error about "too many orphans" must be wrong and is triggered
+> by some other condition. Look at the output from the debug printk I've
+> added:
 > 
-> Does that allow you to detect multiple processors... or just an SMP board?
-> 
+> Feb 18 15:43:50 mcquack kernel: TCP: too many of orphaned sockets
 
-the answer is in section 4.1 of the Intel MP 1.4 spec:
+Well, message is not accurate. It refuses to hold this particular
+orphan, because it feels that too much of memory is consumed.
+Change number Z and the message will disappear.
 
-   "An MP-compliant system must implement the MP floating pointer
-    structure, ..."
+Poor orphans are the first victims, because they have nobody
+to take care of, but kernel. And kernel is harsh parent. 8)
 
-So, one would normally expect this to mean an SMP board rather than
-multiple processors, _HOWEVER_, I can imagine a very clever MP-aware BIOS
-implementation which detects that there are many processors and prepares
-MP floating config table and does _not_ prepare it otherwise. So, it all
-depends on the BIOS implementation.
 
-Actually, I never tried unplugging all-1 processors from my SMP machines
-and seeing what sort of MP table is left...
+> I raised the numbers a little bit more. Now with 128MB RAM in the box we can
+> handle a maximum of 7000 connections. No more because we start to swap too
+> much.
 
-Regards,
-Tigran
+Really? Well, it is unlikely to have something with net.
+Your dumps show that at 6000 connections networking eated less
+than 10MB of memory. Probably, swapping is mistuned.
 
+
+> Feb 21 10:43:41 mcquack kernel: KERNEL: assertion (tp->lost_out == 0) failed
+> at tcp_input.c(1202):tcp_remove_reno_sacks
+
+This is also debugging. Harmless.
+
+
+> 2) The error about "too many orphans" is bogus?
+
+Yes. It is sort of desinformation. It means really that
+accounting detected excess of limits, which are set.
+
+
+> 3) I will get a lot of debug crap i syslog
+
+It will disappear as soon as debugging is disabled. I.e. when
+kernel will enter distributions, I guess.
+
+If I was responsible for this, I would not kill them.
+The more messages is the better. Otherwise you would have
+nothing to report and even did not notice that something is wrong. 8)
+
+
+> This happened once under very heavy load (8000+ connections) and I have been
+> unable to reproduce.
+
+Probably this has nothing to do with tcp, but explained by some
+vm failure, sort of oom killer.
+
+Alexey

@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267609AbTAQQdR>; Fri, 17 Jan 2003 11:33:17 -0500
+	id <S267571AbTAQQjK>; Fri, 17 Jan 2003 11:39:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267610AbTAQQdR>; Fri, 17 Jan 2003 11:33:17 -0500
-Received: from cynosure.colorado-research.com ([65.171.192.72]:42115 "EHLO
-	cynosure.colorado-research.com") by vger.kernel.org with ESMTP
-	id <S267609AbTAQQdQ>; Fri, 17 Jan 2003 11:33:16 -0500
-Message-ID: <3E283265.4070401@cora.nwra.com>
-Date: Fri, 17 Jan 2003 09:42:13 -0700
-From: Orion Poplawski <orion@cora.nwra.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
+	id <S267588AbTAQQjK>; Fri, 17 Jan 2003 11:39:10 -0500
+Received: from itg-gw.cr008.cwt.esat.net ([193.120.242.226]:63499 "EHLO
+	dunlop.admin.ie.alphyra.com") by vger.kernel.org with ESMTP
+	id <S267571AbTAQQjJ>; Fri, 17 Jan 2003 11:39:09 -0500
+Date: Fri, 17 Jan 2003 16:47:37 +0000 (GMT)
+From: Paul Jakma <paulj@alphyra.ie>
+X-X-Sender: paulj@dunlop.admin.ie.alphyra.com
+To: Jason Radford <jradford@iconimaging.net>
+cc: szepe@pinerecords.com, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.19, don't "hdparm -I /dev/hde" if hde is on a Asus A7V133
+ Promise ctrlr, or...
+In-Reply-To: <20021221172247.179b1478.jradford@iconimaging.net>
+Message-ID: <Pine.LNX.4.44.0301171645540.1415-100000@dunlop.admin.ie.alphyra.com>
 MIME-Version: 1.0
-To: "''Linux Kernel Mailing List ' '" <linux-kernel@vger.kernel.org>
-Subject: kswapd in D uninterruptible sleep on 2.4.21-pre3-ac2
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've got an SMP system running 2.4.21-pre3-ac2 with some odd behavior. 
- It's basically completely idle, but with a load average of 1.00, which 
-I believe is due to "kswapd" being stuck in uninterruptible sleep:
+On Sat, 21 Dec 2002, Jason Radford wrote:
 
-040 D     0     7     1  0  75   0    -     0 down   ?        00:00:00 
-kswapd
+> If IDE raid unix linux is needed here, there's no question that a
+> linux supported (thanks adam) 3ware card is dropped in, no questions
+> asked.  For my 3 years of working with them under linux THEY JUST
+> WORK.  Native monitoring tools included too..
 
-Can someone explain this behavior?
+or get an outboard RAID box that uses IDE disks and SCSI for its
+connection to the host. plenty of them around if you google. (eg
+fibrenetix.co.uk - we have one, and works nicely. reasonably fast
+too.)
 
-# free
-             total       used       free     shared    buffers     cached
-Mem:       2069940     300504    1769436          0     100804      48020
--/+ buffers/cache:     151680    1918260
-Swap:      2096472       1204    2095268
+> -Jason
 
-Thank you,
-
-   Orion Poplawski
+regards,
+-- 
+Paul Jakma	Sys Admin	Alphyra
+	paulj@alphyra.ie
+Warning: /never/ send email to spam@dishone.st or trap@dishone.st
 

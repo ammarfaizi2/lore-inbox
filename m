@@ -1,84 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265577AbTFWXBI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jun 2003 19:01:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265558AbTFWW7S
+	id S265613AbTFWXLl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jun 2003 19:11:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265592AbTFWXJ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jun 2003 18:59:18 -0400
-Received: from palrel12.hp.com ([156.153.255.237]:22997 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id S265546AbTFWW55 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jun 2003 18:57:57 -0400
-Date: Mon, 23 Jun 2003 16:12:00 -0700
-To: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.4 IrDA]  Static init fixes
-Message-ID: <20030623231200.GJ12593@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
+	Mon, 23 Jun 2003 19:09:28 -0400
+Received: from cmsrelay01.mx.net ([165.212.11.110]:8187 "HELO
+	cmsrelay01.mx.net") by vger.kernel.org with SMTP id S265573AbTFWXIN convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jun 2003 19:08:13 -0400
+X-USANET-Auth: 165.212.8.8     AUTO bradtilley@usa.net uwdvg008.cms.usa.net
+Date: Mon, 23 Jun 2003 19:22:16 -0400
+From: Brad Tilley <bradtilley@usa.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: [OS Fails to Load]
+X-Mailer: USANET web-mailer (CM.0402.5.6)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+Message-ID: <868HFwXwq9072S08.1056410536@uwdvg008.cms.usa.net>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hi Marcelo,
+Please disregard these messages. I think this is a RH specific startup script
+issue and not a kernel issue. Sorry for the inconvenience.
 
-	This make the static initialisation of some IrDA driver a bit
-less broken.
-	Please apply ;-)
+Brad Tilley <bradtilley@usa.net> wrote:
+> Hello,
+> 
+> 50% of the time when I boot RH Linux 9 (2.4.20-18.9) the OS fails to load.
+The
+> failure usually occurs during a period of intense disk activity such as
+> 'finding module dependencies' or 'mounting local filesystems'. I can
+reproduce
+> this error with the most recent RH kernel and the kernel that the distro
+> originally shipped with and 2.4.21 from Kernel.org built using RH's config
+> files. Usually after 4-5 power cycles, the OS loads OK and the machine runs
+> fine once it gets going.
+> 
+> It's a HP xw4100 with these specs:
+> 
+> P4 Processor 3.00GHz/800 FSB
+> 1.5GB DDR/400 ECC (2x512, 2x256)
+> NVIDIA Quadro4 200NVS 64MB AGP
+> Ultra320 SCSI Controller
+> 18GB Ultra 320 SCSI 15,000rpm Hard Drive (sda)
+> 146GB Ultra 320 SCSI 10,000rpm Hard Drive (sdb)
+> 48X DVD/CDRW Combo Drive
+> 48X CD-RW Drive
+> Broadcom Gbit 10/100/1000
+> 
+> Can someone help me troubleshoot this? I'm at the end of my rope. I have
+the
+> most recent BIOS from HP.
+> 
+> 
+> Thanks,
+> Brad
+> 
+> 
+> 
 
-	Jean
 
-
-ir241_static_init.diff :
-----------------------
-	o [CORRECT] fix some obvious static init bugs.
-
-
-diff -u -p linux/net/irda/irda_device.d0.c linux/net/irda/irda_device.c
---- linux/net/irda/irda_device.d0.c	Mon Jun 16 16:57:31 2003
-+++ linux/net/irda/irda_device.c	Mon Jun 16 17:06:46 2003
-@@ -68,6 +68,7 @@ extern int actisys_init(void);
- extern int girbil_init(void);
- extern int sa1100_irda_init(void);
- extern int ep7211_ir_init(void);
-+extern int mcp2120_init(void);
- 
- static void __irda_task_delete(struct irda_task *task);
- 
-@@ -122,6 +123,9 @@ int __init irda_device_init( void)
- 	/* 
- 	 * Call the init function of the device drivers that has not been
- 	 * compiled as a module 
-+	 * Note : non-modular IrDA is not supported in 2.4.X, so don't
-+	 * waste too much time fixing this code. If you require it, please
-+	 * upgrade to the IrDA stack in 2.5.X. Jean II
- 	 */
- #ifdef CONFIG_IRTTY_SIR
- 	irtty_init();
-@@ -135,7 +139,7 @@ int __init irda_device_init( void)
- #ifdef CONFIG_NSC_FIR
- 	nsc_ircc_init();
- #endif
--#ifdef CONFIG_TOSHIBA_FIR
-+#ifdef CONFIG_TOSHIBA_OLD
- 	toshoboe_init();
- #endif
- #ifdef CONFIG_SMC_IRCC_FIR
-@@ -161,6 +165,9 @@ int __init irda_device_init( void)
- #endif
- #ifdef CONFIG_EP7211_IR
-  	ep7211_ir_init();
-+#endif
-+#ifdef CONFIG_MCP2120_DONGLE
-+	mcp2120_init();
- #endif
- 	return 0;
- }
 

@@ -1,111 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266681AbUGQB5p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266683AbUGQCJu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266681AbUGQB5p (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jul 2004 21:57:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266707AbUGQB5o
+	id S266683AbUGQCJu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jul 2004 22:09:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266684AbUGQCJt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jul 2004 21:57:44 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:51163 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S266681AbUGQB5b (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jul 2004 21:57:31 -0400
-Date: Sat, 17 Jul 2004 03:57:25 +0200 (MEST)
-Message-Id: <200407170157.i6H1vPYl015048@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: akpm@osdl.org
-Subject: [PATCH][2.6.8-rc1-mm1] perfctr inheritance 3/3: documentation updates
-Cc: linux-kernel@vger.kernel.org
+	Fri, 16 Jul 2004 22:09:49 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:53164 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S266683AbUGQCJq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jul 2004 22:09:46 -0400
+Message-ID: <40F88A69.4080003@acm.org>
+Date: Fri, 16 Jul 2004 21:09:45 -0500
+From: Corey Minyard <minyard@acm.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030428
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Khalid Aziz <khalid_aziz@hp.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] ipmi_msghandler module load failure
+References: <1089995643.5015.47.camel@lyra.fc.hp.com>
+In-Reply-To: <1089995643.5015.47.camel@lyra.fc.hp.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-- Documentation changes for new task event callbacks, updated
-  locking rules, API update, and TODO list update
+So they've added enforcement so that non-init code cannot call init 
+code.  The call as it was is actually safe, there is a variable that 
+will  only cause it to be called if it has not been called yet (there 
+are possible reasons to do this when the driver is compiled into the 
+kernel) and it always gets called at init time. The the enforcement is 
+probably a good thing, though.  The patch looks ok.
 
-Signed-off-by: Mikael Pettersson <mikpe@csd.uu.se>
+-Corey
 
- Documentation/perfctr/virtual.txt |   37 ++++++++++++++++++++++---------------
- 1 files changed, 22 insertions(+), 15 deletions(-)
+Khalid Aziz wrote:
 
-diff -ruN linux-2.6.8-rc1-mm1/Documentation/perfctr/virtual.txt linux-2.6.8-rc1-mm1.perfctr-inheritance/Documentation/perfctr/virtual.txt
---- linux-2.6.8-rc1-mm1/Documentation/perfctr/virtual.txt	2004-07-14 12:59:21.000000000 +0200
-+++ linux-2.6.8-rc1-mm1.perfctr-inheritance/Documentation/perfctr/virtual.txt	2004-07-17 00:28:21.832314000 +0200
-@@ -67,12 +67,17 @@
- Virtual perfctrs hooks into several thread management events:
- 
- - exit_thread(): Calls perfctr_exit_thread() to stop the counters
--  and detach the thread's vperfctr object.
-+  and mark the vperfctr object as dead.
- 
- - copy_thread(): Calls perfctr_copy_thread() to initialise
--  the child's vperfctr pointer. Currently the settings are
--  not inherited from parent to child, so the pointer is set
--  to NULL in the child's thread_struct.
-+  the child's vperfctr pointer. The child gets a new vperfctr
-+  object containing the same control data as its parent.
-+  Kernel-generated threads do not inherit any vperfctr state.
-+
-+- release_task(): Calls perfctr_release_task() to detach the
-+  vperfctr object from the thread. If the child and its parent
-+  still have the same perfctr control settings, then the child's
-+  final counts are propagated back into its parent.
- 
- - switch_to():
-   * Calls perfctr_suspend_thread() on the previous thread, to
-@@ -109,7 +114,7 @@
- 
- Synchronisation Rules
- ---------------------
--There are four types of accesses to a thread's perfctr state:
-+There are five types of accesses to a thread's perfctr state:
- 
- 1. Thread management events (see above) done by the thread itself.
-    Suspend, resume, and sample are lock-less.
-@@ -134,10 +139,14 @@
-    (creat, unlink, exit) perform a task_lock() on the owner thread
-    before accessing the perfctr pointer.
- 
--   When concurrent set_cpus_allowed() isn't a problem (because the
--   architecture doesn't have a notion of forbidden CPUs), atomicity
--   of updates to the thread's perfctr pointer is ensured by disabling
--   preemption.
-+5. release_task().
-+   While reaping a child, the kernel only takes the tasklist_lock to
-+   prevent the parent from changing or disappearing. This does not
-+   prevent the parent's perfctr state pointer from changing. Concurrent
-+   accesses to the parent's "children counts" state are also possible.
-+
-+   To avoid these issues, perfctr_release_task() performs a task_lock()
-+   on the parent.
- 
- The Pseudo File System
- ----------------------
-@@ -253,14 +262,16 @@
- Reading the State
- -----------------
- int err = sys_vperfctr_read(int fd, struct perfctr_sum_ctrs *sum,
--			    struct vperfctr_control *control);
-+			    struct vperfctr_control *control,
-+			    struct perfctr_sum_ctrs *children);
- 
- 'fd' must be the return value from a call to sys_vperfctr_open().
- 
- This operation copies data from the perfctr state object to
- user-space. If 'sum' is non-NULL, then the counter sums are
- written to it. If 'control' is non-NULL, then the control data
--is written to it.
-+is written to it. If 'children' is non-NULL, then the sums of
-+exited childrens' counters are written to it.
- 
- If the perfctr state object is attached to the current thread,
- then the counters are sampled and updated first.
-@@ -346,10 +357,5 @@
- 
- Limitations / TODO List
- =======================
--- Perfctr settings are not inherited from parent to child at fork().
--  The issue is not fork() but propagating final counts from children
--  to parents, and allowing user-space to distinguish "self" counts
--  from "children" counts.
--  An implementation of this feature is being planned.
- - Buffering of overflow samples is not implemented. So far, not a
-   single user has requested it.
+>Corey,
+>
+>On a 2.6.7 kernel, when I try to modprobe ipmi_msghandler, it fails to
+>load with following message:
+>
+>FATAL: Error inserting ipmi_msghandler (/lib/modules/2.6.7/kernel/drivers/char/ipmi/ipmi_msghandler.ko): Invalid module format
+>
+>And there is an error message in dmesg:
+>
+>ipmi_msghandler: init symbol 0xa000000200058080 used in module code at a000000200031b32
+>
+>What I have been able to determine is that ipmi_msghandler.c defines
+>ipmi_init_msghandler() as the module_init() routine and then it also
+>calls ipmi_init_msghandler() diretcly from couple of other places. This
+>does not seem to be okay in 2.6.7 kernel. I was able to fix this by
+>defining a new module_init routine which in turn calls
+>ipmi_init_msghandler(). I also removed __init from
+>ipmi_init_msghandler() since it gets called from ipmi_open() on an open
+>of the ipmi device file. So I would think we want to keep
+>ipmi_init_msghandler() around even after initialization. Here is the
+>patch. Please apply if it looks good:
+>
+>--- linux-2.6.7/drivers/char/ipmi/ipmi_msghandler.c	2004-06-15 23:19:36.000000000 -0600
+>+++ linux-2.6.7.new/drivers/char/ipmi/ipmi_msghandler.c	2004-07-16 10:28:52.000000000 -0600
+>@@ -3072,7 +3072,7 @@
+> 	200   /* priority: INT_MAX >= x >= 0 */
+> };
+> 
+>-static __init int ipmi_init_msghandler(void)
+>+static int ipmi_init_msghandler(void)
+> {
+> 	int i;
+> 
+>@@ -3107,6 +3107,11 @@
+> 	return 0;
+> }
+> 
+>+static __init int ipmi_init_msghandler_mod(void)
+>+{
+>+	ipmi_init_msghandler();
+>+}
+>+
+> static __exit void cleanup_ipmi(void)
+> {
+> 	int count;
+>@@ -3143,7 +3148,7 @@
+> }
+> module_exit(cleanup_ipmi);
+> 
+>-module_init(ipmi_init_msghandler);
+>+module_init(ipmi_init_msghandler_mod);
+> MODULE_LICENSE("GPL");
+> 
+> EXPORT_SYMBOL(ipmi_alloc_recv_msg);
+>
+>  
+>
+
+

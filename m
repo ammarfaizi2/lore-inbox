@@ -1,49 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272836AbRIGUav>; Fri, 7 Sep 2001 16:30:51 -0400
+	id <S272837AbRIGUgl>; Fri, 7 Sep 2001 16:36:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272837AbRIGUal>; Fri, 7 Sep 2001 16:30:41 -0400
-Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:6097 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S272836AbRIGUa2>;
-	Fri, 7 Sep 2001 16:30:28 -0400
-Message-ID: <3B992F7D.4E07D59B@candelatech.com>
-Date: Fri, 07 Sep 2001 13:35:09 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies Inc
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7 i586)
-X-Accept-Language: en
+	id <S272839AbRIGUgV>; Fri, 7 Sep 2001 16:36:21 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:11023 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S272837AbRIGUgK>; Fri, 7 Sep 2001 16:36:10 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Martin =?iso-8859-1?q?MOKREJ=3F=20?= <mmokrejs@natur.cuni.cz>
+Subject: Re: __alloc_pages: 0-order allocation failed.
+Date: Fri, 7 Sep 2001 22:43:24 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.OSF.4.21.0109071502390.170-100000@prfdec.natur.cuni.cz>
+In-Reply-To: <Pine.OSF.4.21.0109071502390.170-100000@prfdec.natur.cuni.cz>
 MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Blocking v/s Non-blocking NFS (and iSCSI) file reads/writes.
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010907203628Z16318-26183+197@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On September 7, 2001 03:06 pm, Martin MOKREJ? wrote:
+> On Tue, 4 Sep 2001, Daniel Phillips wrote:
+> 
+> > On September 4, 2001 03:11 pm, Martin MOKREJ? wrote:
+> > > Hi,
+> > >   I'm getting the above error on 2.4.9 kernel with kernel HIGHMEM option
+> > > enabled to 2GB, 2x Intel PentiumIII. The machine has 1GB RAM
+> > > physically. Althougj I've found many report to linux-kernel list during
+> > > past months, not a real solution. Maybe only:
+> > > http://www.alsa-project.org/archive/alsa-devel/msg08629.html
+> > 
+> > Try 2.4.10-pre4.
+> 
+> 
+> Wow, I've just now realized that I get two types of error message:
+> __alloc_pages: 0-order allocatiocation failed (gfp=0x70/1).
+> __alloc_pages: 0-order allocation failed (gfp=0x70/1).
+> 
+> We are using LVM and ReiserFS, HIGMEM kernel.
+> 
+> Maybe it helps to track it down. Any ideas?
 
-I'm working on writing a program that will be used to stress test
-NFS and iSCSI based file systems.  I am currently using a non-threaded,
-and non-forking architecture based on non-blocking IO and select() to
-do my network traffic generation.  I would like to be able to fit the
-file-testing code in the same framework.  However, I'm not sure I can
-make this model work with network based file systems....
+printk has a limited amount of space for buffering messages, a ring buffer 
+(sort of) and will start dropping text when the buffer fills up, so as not
+to slow the kernel down and/or interfere with interrupts.  So that is why
+two lines of output got combined above, they are all the same message.
 
-So, does select() work for NFS reads?  (IE: I open a file-descriptor
-on an NFS mounted file system, and start reading.  The network goes
-down.  Will select() start not marking that file as read/write-able?)
+The gfp=0x70/1 identifies the failure as GFP_NOIO, PF_MEMALLOC, which by
+process of eliminate, comes from alloc_bounce_page.  Marcelo's patch for
+bounce buffer allocation is *not* in 2.4.10-pre4, so we haven't proved
+anything yet.
 
-If I set the file descriptor to be O_NONBLOCK, will it return immediately
-if the network is down (regardless of what select told me)?
+You can get the patch from Marcelo's post on lkml on Aug 22 under the
+subject "Re: With Daniel Phillips Patch (was: aic7xxx with 2.4.9 on
+7899P)".  Note the correction posted in his next message in the thread.
+It applies to 2.4.9.  Please try it and see if these failures go away.
 
-I have the same questions about an iSCSI based file system...
+This patch *should* be in the main tree soon.  Some testing by you would
+help a lot.
 
-Does anyone have any suggestions for reading material on this topic,
-other than kernel source and patches?
-
-Thanks,
-Ben
-
--- 
-Ben Greear <greearb@candelatech.com>          <Ben_Greear@excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+--
+Daniel

@@ -1,60 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262134AbUJZGGW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262143AbUJZGI4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262134AbUJZGGW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 02:06:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262114AbUJZGGP
+	id S262143AbUJZGI4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 02:08:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262102AbUJZGIz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 02:06:15 -0400
-Received: from smtp813.mail.sc5.yahoo.com ([66.163.170.83]:50343 "HELO
-	smtp813.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262170AbUJZGC6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 02:02:58 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Stelian Pop <stelian@popies.net>
-Subject: Re: [PATCH 0/5] Sonypi driver model & PM changes
-Date: Tue, 26 Oct 2004 01:02:54 -0500
-User-Agent: KMail/1.6.2
-Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
-References: <200410210154.58301.dtor_core@ameritech.net> <20041025220921.GA5207@elf.ucw.cz> <20041026055530.GA2885@deep-space-9.dsnet>
-In-Reply-To: <20041026055530.GA2885@deep-space-9.dsnet>
+	Tue, 26 Oct 2004 02:08:55 -0400
+Received: from siaag1ae.compuserve.com ([149.174.40.7]:51900 "EHLO
+	siaag1ae.compuserve.com") by vger.kernel.org with ESMTP
+	id S261918AbUJZGFN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 02:05:13 -0400
+Date: Tue, 26 Oct 2004 02:03:03 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: The naming wars continue...
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Bill Davidsen <davidsen@tmr.com>
+Message-ID: <200410260204_MC3-1-8D25-E041@compuserve.com>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200410260102.55097.dtor_core@ameritech.net>
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 26 October 2004 12:55 am, Stelian Pop wrote:
-> On Tue, Oct 26, 2004 at 12:09:21AM +0200, Pavel Machek wrote:
-> 
-> > > Ok. Suspending never really worked on my laptop so I'll have to assume
-> > > you're correct. :)
-> > > 
-> > > [ Just tried once again to do a suspend to ram, seems that there were
-> > > some enhancements in this area lately. 
-> > > 
-> > >   No luck. Machine suspends ok, but upon waking up, the power led goes
-> > >   greek ok, the disk led lights up, but the keyboard is dead, the
-> > >   network card is dead, the screen doesn't turn on...
-> > > 
-> > >   Since this laptop has no serial port I don't see what else I can do,
-> > >   except wait another 6 months and try again... :(
-> > 
-> > Debug using pc speaker... Or paralel port, or something like that.
-> 
-> This is a laptop which has no serial or parallel port.
-> 
-> All the interfaces it has are all too high level to be used for
-> debugging (USB, firewire, pcmcia etc).
-> 
-> I think the speaker would probably work. I'll give it a try and
-> see if it helps next time...
-> 
+Linus Torvalds wrote:
 
-I'd try to get suspend-to-disk working first.. ACPI S3 seems to be much
-trickier.
+>       Ok,
+>        trying to make ready for the real 2.6.9 in a week or so, so please give
+>       this a beating, and if you have pending patches, please hold on to them
+>       for a bit longer, until after the 2.6.9 release. It would be good to have
+>       a 2.6.9 that doesn't need a dot-release immediately ;)
+>
+> which is a hell of a lot more descriptive, in my opinion.
 
--- 
-Dmitry
+  Yes, but -rc is (was?) (should have been?) shorthand for exactly that.
+
+  Nobody but the fanatics read the actual messages.  The rest rely on abstractions.
+
+
+--Chuck Ebbert  26-Oct-04  02:03:05

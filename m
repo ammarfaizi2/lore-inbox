@@ -1,47 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289309AbSA1SWv>; Mon, 28 Jan 2002 13:22:51 -0500
+	id <S289310AbSA1SYK>; Mon, 28 Jan 2002 13:24:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289311AbSA1SWm>; Mon, 28 Jan 2002 13:22:42 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:11788 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S289309AbSA1SW1>; Mon, 28 Jan 2002 13:22:27 -0500
-Date: Mon, 28 Jan 2002 10:21:57 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Josh MacDonald <jmacd@CS.Berkeley.EDU>, <linux-kernel@vger.kernel.org>,
-        <reiserfs-list@namesys.com>, <reiserfs-dev@namesys.com>
-Subject: Re: Note describing poor dcache utilization under high memory pressure
-In-Reply-To: <Pine.LNX.4.33L.0201281558100.32617-100000@imladris.surriel.com>
-Message-ID: <Pine.LNX.4.33.0201281005480.1609-100000@penguin.transmeta.com>
+	id <S289312AbSA1SYA>; Mon, 28 Jan 2002 13:24:00 -0500
+Received: from mail.myrio.com ([63.109.146.2]:48633 "HELO smtp1.myrio.com")
+	by vger.kernel.org with SMTP id <S289310AbSA1SXt> convert rfc822-to-8bit;
+	Mon, 28 Jan 2002 13:23:49 -0500
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: 2.2.20: pci-scan+natsemi & Device or resource busy
+X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
+Date: Mon, 28 Jan 2002 10:22:22 -0800
+Message-ID: <D52B19A7284D32459CF20D579C4B0C0211CB45@mail0.myrio.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 2.2.20: pci-scan+natsemi & Device or resource busy
+Thread-Index: AcGmw0glyjcB+HrIRp6SBoXhLVL7lgBY0hxw
+From: "Torrey Hoffman" <Torrey.Hoffman@myrio.com>
+To: "Stevie O" <stevie@qrpff.net>, <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+You have probably learned this by now, but I haven't seen anyone
+say it on the list, so I'll summarize...
 
-On Mon, 28 Jan 2002, Rik van Riel wrote:
->
-> I'd be interested to know exactly how much overhead -rmap is
-> causing for both page faults and fork   (but I'm sure one of
-> the regular benchmarkers can figure that one out while I fix
-> the RSS limit stuff ;))
+The 2.2.x kernels did not come with drivers for the natsemi.  The 
+Donald Becker / Scyld add-on drivers were much better than nothing, 
+and we were grateful to have them, but they don't work reliably for 
+our hardware.  We are using motherboards with a soldered-on natsemi
+chip, not the Netgear FA-311.  We did hack up a version of the 
+driver that worked for us under 2.2.19, and you can get it from 
+www.myrio.com/opensource if you are interested.
 
-I doubt it is noticeable on page faults (the cost of maintaining the list
-at COW should be basically zero compared to all the other costs), but I've
-seen several people reporting fork() overheads of ~300% or so.
+However, the 2.4.x kernels come with much improved natsemi drivers. 
+These are Donald Becker's drivers, still copyright by him, but have 
+been updated a lot for 2.4 with new PCI code and lots of bugfixes.
 
-Which is not that surprising, considering that most of the fork overhead
-by _far_ is the work to copy the page tables, and rmap makes them three
-times larger or so.
+For our hardware, the 2.4.x drivers work quite well as delivered in
+the tarball.  
 
-And I agree that COW'ing the page tables may not actually help. But it
-might be worth it even _without_ rmap, so it's worth a look.
+I'm actively working to track down intermittent and hard-to-reproduce 
+problem with multicast receive, but normal one-to-one ethernet seems 
+to work perfectly.
 
-(Also, I'd like to understand why some people report so much better times
-on dbench, and some people reports so much _worse_ times with dbench.
-Admittedly dbench is a horrible benchmark, but still.. Is it just the
-elevator breakage, or is it rmap itself?)
+Torrey Hoffman
+thoffman@arnor.net
+torrey.hoffman@myrio.com
 
-			Linus
 
+> -----Original Message-----
+> From: Stevie O [mailto:stevie@qrpff.net]
+> Sent: Saturday, January 26, 2002 3:37 PM
+> To: linux-kernel@vger.kernel.org
+> Subject: 2.2.20: pci-scan+natsemi & Device or resource busy
+> 
+> 
+> My friend is trying Linux for the first time. I'm having him use the 
+> pci-scan and natsemi modules for his Netgear FA-311 card. 
+> With the initial 
+> download and compile and insmod, he got that wonderful message:
+> 
+> natsemi.o: init_module: Device or resource busy
+> 
+> He was using 2.2.13, so I got him to upgrade to 2.2.20 to see 
+> if that might 
+> have fixed some problem. However, the problem still hasn't 
+> gone away :(
+> No amount of googling has revealed a solution to the problem, 
+> since which 
+> I've discovered that "Device or resource busy" is an 
+> extremely vague error 
+> message.
+> 
+> Please help!

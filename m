@@ -1,82 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262418AbUFQUWq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262453AbUFQUXm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262418AbUFQUWq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 16:22:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262422AbUFQUWq
+	id S262453AbUFQUXm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 16:23:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262438AbUFQUXj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 16:22:46 -0400
-Received: from sanosuke.troilus.org ([66.92.173.88]:5264 "EHLO
-	sanosuke.troilus.org") by vger.kernel.org with ESMTP
-	id S262418AbUFQUWo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 16:22:44 -0400
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Cc: hch@lst.de, linux-kernel@vger.kernel.org, greg@kroah.com
+	Thu, 17 Jun 2004 16:23:39 -0400
+Received: from mail.kroah.org ([65.200.24.183]:1975 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262425AbUFQUXa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jun 2004 16:23:30 -0400
+Date: Thu, 17 Jun 2004 13:22:08 -0700
+From: Greg KH <greg@kroah.com>
+To: Christoph Hellwig <hch@lst.de>, "Adam J. Richter" <adam@yggdrasil.com>,
+       linux-kernel@vger.kernel.org
 Subject: Re: more files with licenses that aren't GPL-compatible
-From: mdpoole@troilus.org
-References: <200406180629.i5I6Ttn04674@freya.yggdrasil.com>
-	<87n032xk82.fsf@sanosuke.troilus.org> <20040617100930.A9108@adam>
-Date: Thu, 17 Jun 2004 16:22:42 -0400
-In-Reply-To: <20040617100930.A9108@adam> (Adam J. Richter's message of "Thu,
- 17 Jun 2004 10:09:30 -0700")
-Message-ID: <87isdqx7cd.fsf@sanosuke.troilus.org>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-MIME-Version: 1.0
+Message-ID: <20040617202207.GB23533@kroah.com>
+References: <200406180629.i5I6Ttn04674@freya.yggdrasil.com> <20040617180507.GA18134@kroah.com> <20040617195458.GA31338@lst.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040617195458.GA31338@lst.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adam J. Richter writes:
+On Thu, Jun 17, 2004 at 09:54:58PM +0200, Christoph Hellwig wrote:
+> On Thu, Jun 17, 2004 at 11:05:08AM -0700, Greg KH wrote:
+> > On Thu, Jun 17, 2004 at 11:29:55PM -0700, Adam J. Richter wrote:
+> > > 	I believe that Greg Kroah-Hartmann said that the changes
+> > > should go into 2.5.  I'm still waiting, although I don't know if
+> > > I even have a copy of the user level helper code anymore.
+> > 
+> > No one ever sent me patches to do this during the 2.5 development
+> > series.  That's why nothing changed.
+> 
+> WAKE UP!
+> 
+> We have files in the kernel we can't distribute.
 
-> On Thu, Jun 17, 2004 at 11:44:29AM -0400, Michael Poole wrote:
->> The first "official" version of Linux that included USB serial code
->> that mentioned you (Adam Richter and/or Yggdrasil) was 2.4.  That same
->> version included the same binary firmware you complained about in
->> 2001, and the changelog in usbserial.c makes it clear that *at least*
->> the WhiteHEAT firmware was already present when you contributed your
->> code.
->> 
->> Would you explain why your claim of copyright infringement is not
->> estopped by the pre-existing condition of firmware being present?
->
-> 	Why would it be, and what kind of stopping ("estoppel")
-> are you referring to?
-[snip]
+I do not agree with that statement.  Those files were placed in the
+kernel tree in good faith that they could be redistributed.  I have the
+email trails to prove it.  If the wording is somehow not correct to
+convey this intent, I will be quite willing to fix it.
 
->From what I can see, the USB serial drivers included firmware images
-before you contributed to that code.  If you contributed changes with
-reckless disregard to their presence (i.e. should have known they were
-there and you did not say "I contribute this on the condition that the
-maintainers work to remove binary firmware"), I believe that you
-accepted their presence.
+> We have a copyright holder in that particular area who told you to
+> stop it.
 
-http://www.ipwatchdog.com/equitable_estoppel.html discusses equitable
-estoppel vis-a-vis patent rights (which are treated similarly to
-copyrights by many courts).  When you contributed your changes to the
-USB maintainers, they -- and later redistributors -- inferred that you
-would not allege copyright infringement by applying your changes to
-the kernel that existed then.
+I do not agree that this copyright holder has anything to do with the
+code in that area at all.  I only see two named copyright holders on the
+drivers/usb/serial/keyspan.c file:
+    (C) Copyright (C) 2000-2001   Hugh Blemings <hugh@blemings.org>
+    (C) Copyright (C) 2002        Greg Kroah-Hartman <greg@kroah.com>
 
-The first binary firmware I found in the kernel was included in linux
-2.0, released in June 1996.  There might be an earlier case.  You
-might argue plausible ignorance of that particular driver, but you as
-an individual have a harder claim to demonstrate.  See below.
+Adam did submit a small patch to the file back in 11/01/2000, but as to
+if that constitutes a multiple copyright of that file, I'll leave to the
+IP lawyers to decide.
 
-> 	I know I have been complaining about the infringing drivers
-> and asking that people stop infringing approximately since I became
-> aware of the infringement.
+> I told you it's not okay and I'm a major kernel copyright holder to.
 
-You managed to contribute some significant creative (copyrightable)
-change to the USB serial code without noticing that *a quarter* of the
-files in that directory were headers that defined firmware?  I do not
-know if a court would take such a claim seriously, but as a software
-developer, I do not.
+For the emi26 firmware image, yes, I agree the wording is not very
+clear, but I have documentation that the original owner of the file gave
+permission to have these files included in the kernel tree.  I will add
+the proper wording from the keyspan firmware image to that file in my
+tree and send it to Linus in the next series of USB patches.
 
-> 	Again, I'm not a lawyer, so please do not use my layman's
-> opinions as legal advice.
+As for the wording of the keyspan firmware images, I do not agree that
+this is not allowed.  We have been over this many times in the past, and
+I've had IP lawyers look at the current wording and implementation of
+these files and they have given me their blessing that it is ok to do
+so.
 
-I am aware of several reasons your writings are not legal advice.  As
-another non-lawyer, though, I wanted to give you a chance to defend
-your claims before I decide they are entirely meritless.
+> Do Adam & me need to ask the vendors and mirrors to take the kernel
+> tarball down first before you react?
 
-Michael
+Again, I am reacting to the emi26 image.  The keyspan dispute I do not
+agree with.  We are free to disagree with each other here, but until I
+receive a contrary legal opinion, I will insist that these files remain.
+
+thanks,
+
+greg k-h

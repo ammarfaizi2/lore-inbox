@@ -1,36 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312834AbSDJLwS>; Wed, 10 Apr 2002 07:52:18 -0400
+	id <S312895AbSDJMBE>; Wed, 10 Apr 2002 08:01:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312883AbSDJLwR>; Wed, 10 Apr 2002 07:52:17 -0400
-Received: from dialin-145-254-151-012.arcor-ip.net ([145.254.151.12]:15620
-	"EHLO picklock.adams.family") by vger.kernel.org with ESMTP
-	id <S312834AbSDJLwQ>; Wed, 10 Apr 2002 07:52:16 -0400
-Message-ID: <3CB42696.85F2847@loewe-komp.de>
-Date: Wed, 10 Apr 2002 13:48:38 +0200
-From: Peter =?iso-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
-Organization: B16
-X-Mailer: Mozilla 4.76 [de] (X11; U; Linux 2.4.18-ul i686)
-X-Accept-Language: de, en
+	id <S312888AbSDJMBD>; Wed, 10 Apr 2002 08:01:03 -0400
+Received: from mailhost.mipsys.com ([62.161.177.33]:12500 "EHLO
+	mailhost.mipsys.com") by vger.kernel.org with ESMTP
+	id <S312895AbSDJMBC>; Wed, 10 Apr 2002 08:01:02 -0400
+From: <benh@kernel.crashing.org>
+To: Geert Uytterhoeven <geert@linux-m68k.org>,
+        Peter Horton <pdh@berserk.demon.co.uk>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Radeon frame buffer driver
+Date: Wed, 10 Apr 2002 14:01:05 +0100
+Message-Id: <20020410130106.1191@mailhost.mipsys.com>
+In-Reply-To: <Pine.GSO.4.21.0204101305210.24941-100000@trillium.sonytel.be>
+X-Mailer: CTM PowerMail 3.1.2 F <http://www.ctmdev.com>
 MIME-Version: 1.0
-To: Andreas Dilger <adilger@clusterfs.com>
-CC: "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-        "Alexis S. L. Carvalho" <alexis@cecm.usp.br>,
-        linux-kernel@vger.kernel.org
-Subject: Re: implementing soft-updates
-In-Reply-To: <20020409184605.A13621@cecm.usp.br> <200204100041.g3A0fSj00928@saturn.cs.uml.edu> <20020410025504.GD424@turbolinux.com>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Dilger wrote:
-> 
-> On Apr 09, 2002  20:41 -0400, Albert D. Cahalan wrote:
-> > In case you are still thinking about what to do, here are a
-> > few filesystem ideas that you might like:
-> >
-> > ext2 compression (e2compr)
-> - project needs polishing, integration
+>> The colour map is only used by the kernel and the kernel only uses 16
+>> entries so there isn't any reason to waste memory by making it any
+>> larger. I checked a few other drivers and they do the same (aty128fb for
+>> one).
+>
+>However, this change will make the driver not save/restore all color map
+>entries on VC switch in graphics mode.
 
-Do we want to setup a project on sourceforge for this?
+Geert, didn't you tell me the fbdev apps were responsible for restoring
+their cmap on console switch ?
+
+Ben.
+
+
+

@@ -1,42 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275085AbTHLGx5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 02:53:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275084AbTHLGx5
+	id S275066AbTHLGwE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 02:52:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275070AbTHLGwE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 02:53:57 -0400
-Received: from pub234.cambridge.redhat.com ([213.86.99.234]:1287 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S275083AbTHLGxy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 02:53:54 -0400
-Date: Tue, 12 Aug 2003 07:53:53 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: linux-scsi@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] oops in sd_shutdown
-Message-ID: <20030812075353.A18547@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andries Brouwer <aebr@win.tue.nl>, linux-scsi@vger.kernel.org,
-	linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.53.0308111426570.16008@thevillage.soulcatcher> <20030812002844.B1353@pclin040.win.tue.nl>
+	Tue, 12 Aug 2003 02:52:04 -0400
+Received: from [210.96.190.177] ([210.96.190.177]:781 "HELO powernet")
+	by vger.kernel.org with SMTP id S275066AbTHLGwC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Aug 2003 02:52:02 -0400
+From: gssjznwarnaj@msn.com
+To: linux-kernel@vger.kernel.org
+Subject: Settle your debt without taking out another loan!            pppoasd
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030812002844.B1353@pclin040.win.tue.nl>; from aebr@win.tue.nl on Tue, Aug 12, 2003 at 12:28:44AM +0200
+Content-Type: text/plain; charset="iso-8859-1"
+Date: Tue, 12 Aug 2003 15:53:11 +0900
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4)
+Message-Id: <S275066AbTHLGwC/20030812065202Z+13671@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 12, 2003 at 12:28:44AM +0200, Andries Brouwer wrote:
-> I see an Oops in the SCSI code, caused by the fact that sdkp is NULL
-> in sd_shutdown. "How can that be?", you will ask - dev->driver_data was set
-> in sd_probe. But in my case sd_probe never finished. An insmod usb-storage
-> hangs forever, or at least for more than six hours, giving ample opportunity
-> to observe this race between sd_probe and sd_shutdown.
-> (Of course sd_probe hangs in sd_revalidate disk.)
+Check this out, this is helpful..
 
-Well, this same problem could show upb in any other driver.  Could
-you instead send a patch to Pat that the driver model never calls
-the shutdown method for a driver that hasn't finished ->probe?
+Have loans your struggling to pay?     .
+We tear up your debt and give you and your family a fresh start ..
 
+- Save you a lot of money by eliminating late fees
+- Settle your accounts for a substantially reduced amount
+- Stop creditors calling you on the phone
+- Avoid bankruptcy
+
+... and more!
+
+Why keep dealing with the stress, and headaches?
+
+Combine your debt into a low interest repayment and
+get on with your life today!!
+
+Come here and take a look at how we can help.
+
+http://srd.yahoo.com/drst/432890/*http://www.slashmonthlypayments.com/index.php?N=g
+
+
+
+
+
+
+
+
+
+
+dont want me to write any more?
+http://srd.yahoo.com/drst/11/*http://www.slashmonthlypayments.com/r.php

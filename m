@@ -1,40 +1,162 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293732AbSCAUbk>; Fri, 1 Mar 2002 15:31:40 -0500
+	id <S293738AbSCAUcU>; Fri, 1 Mar 2002 15:32:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293731AbSCAUba>; Fri, 1 Mar 2002 15:31:30 -0500
-Received: from AMontpellier-201-1-1-61.abo.wanadoo.fr ([193.252.31.61]:21511
-	"EHLO awak") by vger.kernel.org with ESMTP id <S293723AbSCAUbM> convert rfc822-to-8bit;
-	Fri, 1 Mar 2002 15:31:12 -0500
-Subject: Re: SSSCA: We're in trouble now
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Shawn Starr <spstarr@sh0n.net>
-Cc: "Paul G. Allen" <pgallen@randomlogic.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1015014449.16520.9.camel@unaropia>
-In-Reply-To: <3C7FDAB1.6F687440@randomlogic.com> 
-	<1015014449.16520.9.camel@unaropia>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 01 Mar 2002 21:30:36 +0100
-Message-Id: <1015014637.811.0.camel@bip>
-Mime-Version: 1.0
+	id <S293735AbSCAUcN>; Fri, 1 Mar 2002 15:32:13 -0500
+Received: from penguin.linuxhardware.org ([63.173.68.170]:15028 "EHLO
+	penguin.linuxhardware.org") by vger.kernel.org with ESMTP
+	id <S293723AbSCAUbx>; Fri, 1 Mar 2002 15:31:53 -0500
+Date: Fri, 1 Mar 2002 15:22:39 -0500 (EST)
+From: Kristopher Kersey <augustus@linuxhardware.org>
+To: Andre Hedrick <andre@linuxdiskcert.org>
+cc: Martin Dalecki <dalecki@evision-ventures.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel Panics on IDE Initialization
+In-Reply-To: <Pine.LNX.4.10.10203010336080.514-100000@master.linux-ide.org>
+Message-ID: <Pine.LNX.4.33.0203011521450.23902-100000@penguin.linuxhardware.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-le ven 01-03-2002 à 21:27, Shawn Starr a écrit :
-> Trouble or not. We will defeat this garbage. I will not allow any or my
-> (Canada) country to tell me how to control my own systems let alone my
-> own hardware! 
-> 
-> Let them pass it, they won't be able to enforce it. I won't let my Linux
-> kernel become 'tainted' by closed binary drivers and I will really
-> actively get involved in defeating such measures in Linux kernel
-> modules.
+I have word that it's the HighPoint controller's fault.  I will verify
+this myself and let you know.
 
-You already use much BIOS with linux today, and tomorrow ACPI will be
-mandatory to use your box. Both are untrusted binary "drivers".
+Kris
 
-	Xav
+On Fri, 1 Mar 2002, Andre Hedrick wrote:
+
+> On Fri, 1 Mar 2002, Martin Dalecki wrote:
+>
+> > Kristopher Kersey wrote:
+> > > Still panics at initialization.  I have attached the /proc/pci and lspci
+> > > output.  This is for the SOYO board.  I will see about getting the ABIT
+> > > board information.
+> > >
+> > > Kris
+> > >
+> > > On Fri, 1 Mar 2002, Alan Cox wrote:
+> > >
+> > >
+> > >>>On two seperate motherboards that I have been testing, the ABIT
+> > >>>KR7A-RAID and the SOYO FIRE DRAGON, 2.4 kernels panic on boot up during
+> > >>>IDE initialization.  I don't really know how to track down the problem but
+> > >>>now that I've seen it on two boards I'm a bit worried.  This does not
+> > >>>happen with 2.2 kernels so it is 2.4 specific.  I have tested with 2.4.17
+> > >>>and 2.4.18 pre releases.  I will try to field any questions to solve the
+> > >>>
+> > >>Try 2.4.18 proper and 2.4.18-ac2 - we fixed at least one oops caused by
+> > >>controllers and mishandling of new revisions not in our tables. If it
+> > >>still fails send me the pci data for them
+> > >>
+> > >>
+> > >>
+> > >>------------------------------------------------------------------------
+> > >>
+> > >>PCI devices found:
+> > >>  Bus  0, device   0, function  0:
+> > >>    Host bridge: Intel Unknown device (rev 4).
+> > >>      Vendor id=8086. Device id=1a30.
+> > >>      Fast devsel.  Fast back-to-back capable.  Master Capable.  No bursts.
+> > >>      Prefetchable 32 bit memory at 0xe0000000 [0xe0000008].
+> > >>  Bus  0, device   1, function  0:
+> > >>    PCI bridge: Intel Unknown device (rev 4).
+> > >>      Vendor id=8086. Device id=1a31.
+> > >>      Fast devsel.  Fast back-to-back capable.  Master Capable.  Latency=64.  Min Gnt=14.
+> > >>  Bus  0, device  30, function  0:
+> > >>    PCI bridge: Intel Unknown device (rev 5).
+> > >>      Vendor id=8086. Device id=244e.
+> > >>      Fast devsel.  Fast back-to-back capable.  Master Capable.  No bursts.  Min Gnt=6.
+> > >>  Bus  0, device  31, function  0:
+> > >>    ISA bridge: Intel Unknown device (rev 5).
+> > >>      Vendor id=8086. Device id=2440.
+> > >>      Medium devsel.  Fast back-to-back capable.  Master Capable.  No bursts.
+> > >>  Bus  0, device  31, function  1:
+> > >>    IDE interface: Intel Unknown device (rev 5).
+> > >>      Vendor id=8086. Device id=244b.
+> > >>      Medium devsel.  Fast back-to-back capable.  Master Capable.  No bursts.
+> > >>      I/O at 0xf000 [0xf001].
+> > >>  Bus  0, device  31, function  2:
+> > >>    USB Controller: Intel Unknown device (rev 5).
+> > >>      Vendor id=8086. Device id=2442.
+> > >>      Medium devsel.  Fast back-to-back capable.  IRQ 11.  Master Capable.  No bursts.
+> > >>      I/O at 0xb000 [0xb001].
+> > >>  Bus  0, device  31, function  3:
+> > >>    SM Bus: Intel Unknown device (rev 5).
+> > >>      Vendor id=8086. Device id=2443.
+> > >>      Medium devsel.  Fast back-to-back capable.  IRQ 10.
+> > >>      I/O at 0x5000 [0x5001].
+> > >>  Bus  0, device  31, function  4:
+> > >>    USB Controller: Intel Unknown device (rev 5).
+> > >>      Vendor id=8086. Device id=2444.
+> > >>      Medium devsel.  Fast back-to-back capable.  IRQ 9.  Master Capable.  No bursts.
+> > >>      I/O at 0xb800 [0xb801].
+> > >>  Bus  1, device   0, function  0:
+> > >>    VGA compatible controller: NVidia Unknown device (rev 163).
+> > >>      Vendor id=10de. Device id=201.
+> > >>      Medium devsel.  Fast back-to-back capable.  IRQ 12.  Master Capable.  Latency=32.  Min Gnt=5.Max Lat=1.
+> > >>      Non-prefetchable 32 bit memory at 0xec000000 [0xec000000].
+> > >>      Prefetchable 32 bit memory at 0xe4000000 [0xe4000008].
+> > >>      Prefetchable 32 bit memory at 0xe8000000 [0xe8000008].
+> > >>  Bus  2, device   6, function  0:
+> > >>    RAID storage controller: Triones Technologies, Inc. Unknown device (rev 5).
+> > >>      Vendor id=1103. Device id=4.
+> > >>      Medium devsel.  IRQ 11.  Master Capable.  Latency=64.  Min Gnt=8.Max Lat=8.
+> > >>      I/O at 0x9000 [0x9001].
+> > >>      I/O at 0x9400 [0x9401].
+> > >>      I/O at 0x9800 [0x9801].
+> > >>      I/O at 0x9c00 [0x9c01].
+> > >>      I/O at 0xa000 [0xa001].
+> > >>  Bus  2, device   7, function  0:
+> > >>    Multimedia audio controller: Unknown vendor Unknown device (rev 16).
+> > >>      Vendor id=13f6. Device id=111.
+> > >>      Medium devsel.  IRQ 5.  Master Capable.  Latency=32.  Min Gnt=2.Max Lat=24.
+> > >>      I/O at 0xa400 [0xa401].
+> > >>  Bus  2, device   8, function  0:
+> > >>    Ethernet controller: Intel Unknown device (rev 3).
+> > >>      Vendor id=8086. Device id=2449.
+> > >>      Medium devsel.  Fast back-to-back capable.  IRQ 10.  Master Capable.  Latency=32.  Min Gnt=8.Max Lat=56.
+> > >>      Non-prefetchable 32 bit memory at 0xef005000 [0xef005000].
+> > >>      I/O at 0xa800 [0xa801].
+> > >>  Bus  2, device   9, function  0:
+> > >>    FireWire (IEEE 1394): Texas Instruments Unknown device (rev 0).
+> > >>      Vendor id=104c. Device id=8023.
+> > >>      Medium devsel.  IRQ 9.  Master Capable.  Latency=32.  Min Gnt=2.Max Lat=4.
+> > >>      Non-prefetchable 32 bit memory at 0xef004000 [0xef004000].
+> > >>      Non-prefetchable 32 bit memory at 0xef000000 [0xef000000].
+> > >>
+> > >>
+> > >>
+> > >>00:00.0 Host bridge: Intel Corporation: Unknown device 1a30 (rev 04)
+> > >>00:01.0 PCI bridge: Intel Corporation: Unknown device 1a31 (rev 04)
+> > >>00:1e.0 PCI bridge: Intel Corporation: Unknown device 244e (rev 05)
+> > >>00:1f.0 ISA bridge: Intel Corporation: Unknown device 2440 (rev 05)
+> > >>00:1f.1 IDE interface: Intel Corporation: Unknown device 244b (rev 05)
+> >
+> > Please add this device ID to the abnormally long list in ide-pci.c and
+> > your chances may increase.
+>
+> No, that only allows it to be reported.
+> It does not nothing until is is indexed in the Host core.
+> But you know that, it is obvious.
+>
+> > >>00:1f.2 USB Controller: Intel Corporation: Unknown device 2442 (rev 05)
+> > >>00:1f.3 SMBus: Intel Corporation: Unknown device 2443 (rev 05)
+> > >>00:1f.4 USB Controller: Intel Corporation: Unknown device 2444 (rev 05)
+> > >>01:00.0 VGA compatible controller: nVidia Corporation: Unknown device 0201 (rev a3)
+> > >>02:06.0 RAID bus controller: Triones Technologies, Inc. HPT366 (rev 05)
+>
+> Oh and you forgot this one here, too
+>
+> > >>02:07.0 Multimedia audio controller: C-Media Electronics Inc CM8738 (rev 10)
+> > >>02:08.0 Ethernet controller: Intel Corporation: Unknown device 2449 (rev 03)
+> > >>02:09.0 FireWire (IEEE 1394): Texas Instruments: Unknown device 8023
+> > >>
+> >
+>
+> Cheers,
+>
+> Andre Hedrick
+> Linux Disk Certification Project                Linux ATA Development
+>
 

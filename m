@@ -1,82 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129656AbQKHUuH>; Wed, 8 Nov 2000 15:50:07 -0500
+	id <S129839AbQKHUxs>; Wed, 8 Nov 2000 15:53:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129689AbQKHUt5>; Wed, 8 Nov 2000 15:49:57 -0500
-Received: from tellus.thn.htu.se ([193.10.192.40]:63247 "EHLO thn.htu.se")
-	by vger.kernel.org with ESMTP id <S129656AbQKHUtq>;
-	Wed, 8 Nov 2000 15:49:46 -0500
-Date: Wed, 8 Nov 2000 21:49:34 +0100 (CET)
-From: Richard Torkar <ds98rito@thn.htu.se>
-To: Jim Bonnet <jimbo@sco.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: sb.o support in 2.4-broken?
-In-Reply-To: <3A09BD3E.9F2FAF04@sco.com>
-Message-ID: <Pine.LNX.4.21.0011082145490.2326-100000@toor.thn.htu.se>
+	id <S129863AbQKHUxj>; Wed, 8 Nov 2000 15:53:39 -0500
+Received: from inet-smtp4.oracle.com ([209.246.15.58]:33722 "EHLO
+	inet-smtp4.us.oracle.com") by vger.kernel.org with ESMTP
+	id <S129689AbQKHUx1>; Wed, 8 Nov 2000 15:53:27 -0500
+Message-ID: <3A09BD2E.46E07FFA@oracle.com>
+Date: Wed, 08 Nov 2000 15:53:02 -0500
+From: "Carey M. Drake" <carey.drake@oracle.com>
+Organization: Oracle Corporation
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18pre18 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Byron Stanoszek <gandalf@winds.org>
+CC: "J.D. Hollis" <jdhollis@cc.gatech.edu>, linux-kernel@vger.kernel.org
+Subject: Re: major problem with linux-2.4.0test10
+In-Reply-To: <Pine.LNX.4.21.0011081533320.13062-100000@winds.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Why not just remove the sa lines from /etc/crontab?
 
-Jim Bonnet wrote:
+C.
 
-> I am using the 2.4.0-test10 kernel. I have a sound blaster 16 which
-> works fine under 2.2.17.
+Byron Stanoszek wrote:
 > 
-> I see that a while back someone posted on this problem previously but
-> there were no answers I can find..
+> On Wed, 8 Nov 2000, J.D. Hollis wrote:
 > 
-> Is support for soundblaster16 ISA broken in the 2.4 kernel? Compiled in
-> or used as a module I can not get it to work. I have passed sb=220,5,1,5
-> during boot when compiled in and also sent those during insmod.
+> > I've been having a problem with memory since 2.4.0test9...for some reason,
+> > shortly after my system boots, my hard drive begins to seek rapidly for no
+> > apparent reason, and suddenly about 150MB of my 256MB RAM is filled up with
+> > something gtop labels 'Other.'  whatever's filling my memory isn't attached
+> > to any process.   the one time I managed to get gtop open while the hard
+> > drive was seeking, I noticed that kflushd was using about 98% of my
+> > processor (an Athlon 900MHz).  I'm running Redhat 7.0 (although I have no
+> > idea whether that makes a difference).
 > 
-> When I boot to 2.2.17 these are the correct values and sound is happy :)
+> It's probably a program called 'sa' that anacron starts up right after boot
+> (on RH 7.0). It's a system accounting program that starts up and scans the
+> entire drive looking for stuff, which fills up cache in RAM.
 > 
-> I am subbed to this group so you may answer here so this is on record.
+> I generally disable all anacron stuff and remove /etc/cron.??* and the
+> daily/weekly/monthly entries in /etc/crontab, then I run
+> '/etc/rc.d/init.d/crond restart'. That oughta fix it, but you might want to
+> look into the cron scripts individually and selectively remove the lines you
+> don't want. :-)
 > 
-> Thanks much...
+> --
+> Byron Stanoszek                         Ph: (330) 644-3059
+> Systems Programmer                      Fax: (330) 644-8110
+> Commercial Timesharing Inc.             Email: bstanoszek@comtime.com
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 
+-- 
+C.
 
-What does 2.4.* say Jim?
-You have the right modutils installed?
-Any error msg?
+------------------------------------------------------------------------------  
 
-I have an old SB16 ISA and it works without a problem on 2.4.0-test10.
-And it hasn't caused me any problems for a very long time :)
+When in doubt, poke it with a stick
 
-I have sound compiled as modules.
-My lilo.conf (sound part) looks like this.
-
-path[sound]=/lib/modules/`uname -r`/kernel/drivers/sound
-alias sound-service-0-0 opl3
-alias sound-slot-0 sb
-options sound dmabuf=1
-alias midi opl3
-options opl3 io=0x388
-options sb io=0x220 irq=7 dma=1 dma16=5 mpu_io=0x330
-
-I have no idea if the  sound-service-0-0 and sound-slot-0 part is right
-but it works and dosn't give any errors. I haven't had time to check what
-service and slot really affects...
-
-Do you get any errors while inserting the modules?
-
-
-
-/Richard
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE6CbxjUSLExYo23RsRAtceAKCfB+8rU1vpBp8GaF2rL7LzUjVB7wCg6yGE
-6p0NWko/dIB7/X36nILXGFc=
-=gal1
------END PGP SIGNATURE-----
-
-
+Disclaimer: the above is the author's personal opinion and is not the
+opinion
+or policy of his employer or of the little green men that have been
+following
+him all day.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

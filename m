@@ -1,61 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266296AbTAOMnp>; Wed, 15 Jan 2003 07:43:45 -0500
+	id <S266298AbTAOMwz>; Wed, 15 Jan 2003 07:52:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266298AbTAOMnp>; Wed, 15 Jan 2003 07:43:45 -0500
-Received: from in02-fes1.whowhere.com ([209.202.220.218]:18662 "HELO
-	whowhere.com") by vger.kernel.org with SMTP id <S266296AbTAOMno>;
-	Wed, 15 Jan 2003 07:43:44 -0500
-To: linux-kernel@vger.kernel.org, abramo.bagnara@libero.it
-Date: Wed, 15 Jan 2003 12:52:31  0000
-From: "Dean McEwan" <dean.mcewan@eudoramail.com>
-Message-ID: <BLLOOFIJADCJKAAA@whowhere.com>
-Mime-Version: 1.0
-Cc: "I made it, I made it!" <rms@gnu.org>,
-       "If its GPL I hate it, but marmite, ah, my one weakness..." 
-	<andre@linux-ide.org>
-X-Sent-Mail: off
-Reply-To: dean.mcewan@eudoramail.com
-X-Expiredinmiddle: true
-X-Mailer: MailCity Service
-X-Priority: 3
-Subject: Re: [OFFTOPIC] RMS and reactions to him (YAWN)
-X-Sender-Ip: 62.7.155.160
-Organization: Lycos Mail  (http://www.mail.eudoramail.com)
-Content-Type: text/plain; charset=us-ascii
-Content-Language: en
-Content-Transfer-Encoding: 7bit
+	id <S266347AbTAOMwz>; Wed, 15 Jan 2003 07:52:55 -0500
+Received: from mta03-svc.ntlworld.com ([62.253.162.43]:9207 "EHLO
+	mta03-svc.ntlworld.com") by vger.kernel.org with ESMTP
+	id <S266298AbTAOMwy> convert rfc822-to-8bit; Wed, 15 Jan 2003 07:52:54 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: SA <bullet.train@ntlworld.com>
+To: linux-kernel@vger.kernel.org
+Subject: silly kernel taint question
+Date: Wed, 15 Jan 2003 13:04:20 +0000
+User-Agent: KMail/1.4.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200301151304.20502.bullet.train@ntlworld.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Believe me, it's childish. Nobody on lkml need/want to be defended.
-AMEN. Andre doesn't defend anyone, just offends :)
 
-Well ok he thinks "a guy called Tyketto" is correct in saying the kernel has been translated to ADA.
+Dear Kernel list,
 
-But people need to have free speech, y'know I believe LKML doesn't 
-want that, 
-otherwise my other address wouldnt have been blocked ;-)
+sorry for the stupid question but:
 
-And anyway as I've already said, lifes a bitch. (thats right a female
-dog)
+My kernel module contains the line,
 
->RMS using a PRINTER hits LM with a pounding blown to the rear.
-Not until he's made the high tech ink squirter work in Hurd :)
+MODULE_LICENSE("GPL");
 
-P.S 
-Q. If I calmly, rationally, and clearly state things which are not true,
-are self serving, and are not relevant to a forum, what should I expect
-in response?
+and when I insmod it I get
+Installing device driver
+Warning: loading pi_stage.o will taint the kernel: forced load
 
-A. Andre's praise.
+kernel 2.4.18-3
 
----
-Cheers, Dean.
+   ( if I miss out the MODULE_LICENSE("GPL"); I get a different error
+     Installing device driver
+    Warning: loading pi_stage.o will taint the kernel: no license
+    Warning: loading pi_stage.o will taint the kernel: forced load)
 
-Now selling rights to MY GPL'd V.90/92/34 stack for £9,999.99 :)
+Any suggestions?
 
-
-Need a new email address that people can remember
-Check out the new EudoraMail at
-http://www.eudoramail.com
+Thanks SA

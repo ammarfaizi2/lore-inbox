@@ -1,68 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261539AbTLCMU2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Dec 2003 07:20:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264504AbTLCMU2
+	id S264551AbTLCMnP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Dec 2003 07:43:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264556AbTLCMnO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Dec 2003 07:20:28 -0500
-Received: from chico.rediris.es ([130.206.1.3]:60159 "EHLO chico.rediris.es")
-	by vger.kernel.org with ESMTP id S261539AbTLCMU0 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Dec 2003 07:20:26 -0500
-From: David =?iso-8859-15?q?Mart=EDnez=20Moreno?= <ender@debian.org>
-Organization: Debian
-To: Oleg Drokin <green@linuxhacker.ru>, linux-kernel@vger.kernel.org
-Subject: Re: Current 2.4.23-rc* kernels has broken ACPI (at least for me).
-Date: Wed, 3 Dec 2003 13:20:18 +0100
-User-Agent: KMail/1.5.4
-References: <200311281615.00715.ender@debian.org> <200311281940.hASJeVSD008668@car.linuxhacker.ru>
-In-Reply-To: <200311281940.hASJeVSD008668@car.linuxhacker.ru>
+	Wed, 3 Dec 2003 07:43:14 -0500
+Received: from [192.35.37.50] ([192.35.37.50]:31185 "EHLO
+	enterprise.atl.lmco.com") by vger.kernel.org with ESMTP
+	id S264505AbTLCMnM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Dec 2003 07:43:12 -0500
+Message-ID: <3FCDDA55.8000608@atl.lmco.com>
+Date: Wed, 03 Dec 2003 07:43:01 -0500
+From: Aron Rubin <arubin@atl.lmco.com>
+Organization: Lockheed Martin ATL
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031021
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 8BIT
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200312031320.18882.ender@debian.org>
+To: Aron Rubin <aron.rubin@lmco.com>
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
+       "Justin M. Forbes" <64bit_fedora@comcast.net>,
+       Andre Hedrick <andre@linux-ide.org>
+Subject: Re: SII 3512+Seagate on Athlon64 system
+References: <3FCD07C4.7090205@atl.lmco.com>
+In-Reply-To: <3FCD07C4.7090205@atl.lmco.com>
+X-Enigmail-Version: 0.76.7.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Ryan Earl's patch did not fix this particular problem, so I am back to 
+needing help. Does slow but correct comms with an occational "hda: lost 
+interrupt" (about four total while talking to the drive) indicate that I 
+should be looking into something specific?
 
-El Viernes, 28 de Noviembre de 2003 20:40, Oleg Drokin escribió:
-> Hello!
->
-> David Mart?nez Moreno <ender@debian.org> wrote:
-> DMnM> PCI: PCI BIOS revision 2.10 entry at 0xfd9ce, last bus=1
-> DMnM> PCI: Using configuration type 1
-> DMnM> Unable to handle kernel NULL pointer dereference at virtual address
-> 000000ae
->
-> This very same oops was cured for me by
-> cp .config .. ; make distclean ; mv ../.config . ; make oldconfig ;
-> make bzImage modules
+Aron
 
-	Although I would swore that I tried that...it worked.
-
-	Sorry for making you lose time. :-( Thank you very much.
+Aron Rubin wrote:
+> SATA controller SII 3512 not recognized by driver. It looks like SII 
+> 3512 is almost identical to 3112 interface. I copy/paste/alterred all 
+> code in ide/pci/siimage.[ch] with "3112" in it to "3512". It seems about 
+> 95% functional. Need help with remaining 5%, related to very, very, slow 
+> controller comms during init with occational "Interrupt Lost" messages. 
+> Seems like comms are out of sync and then resync over and over. Other 
+> than that all drive info comes over. Ryan Earl's patch may fix, I would 
+> be suprised if it was that simple though. I will try later today.
+> 
+> Aron
+> 
 
 
-		Ender.
-- -- 
-Non. Je suis la belette de personne.
-		-- Amélie (Le fabuleux destin d'Amélie Poulain)
-- --
-Servicios de red - Network services
-Centro de Comunicaciones CSIC/RedIRIS
-Spanish Academic Network for Research and Development
-Madrid (Spain)
-Tlf (+34) 91.585.49.05
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+-- 
 
-iD8DBQE/zdUCWs/EhA1iABsRAlb7AKDkmtUIdS/JHWzpv9by4ZBH3ujZxQCgt10y
-2zrIhe4sdTqRS8ydlFCbPvk=
-=TDG5
------END PGP SIGNATURE-----
+ssh aron@rubinium.org cat /dev/brain | grep ^work:
+
+Aron Rubin                       Member, Engineering Staff
+Lockheed Martin                  E-Mail: arubin@atl.lmco.com
+Advanced Technology Laboratories Phone:  856.792.9865
+3 Executive Campus               Fax:    856.792.9930
+Cherry Hill, NJ USA 08002        Web:    http://www.atl.lmco.com
 

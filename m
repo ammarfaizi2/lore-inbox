@@ -1,61 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264919AbUG2RGc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265275AbUG2RK2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264919AbUG2RGc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 13:06:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265247AbUG2RD6
+	id S265275AbUG2RK2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 13:10:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264299AbUG2RIR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 13:03:58 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:45748 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S264919AbUG2RD1
+	Thu, 29 Jul 2004 13:08:17 -0400
+Received: from email-out2.iomega.com ([147.178.1.83]:20214 "EHLO
+	email.iomega.com") by vger.kernel.org with ESMTP id S264791AbUG2RGe
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 13:03:27 -0400
-Subject: Re: [ACPI][2.6.8-rc2-bk #] - ACPI shutdown problems on IBM
-	Thinkpads (T42)
-From: Vernon Mauery <vernux@us.ibm.com>
-To: David Weinehall <tao@debian.org>
-Cc: Shawn Starr <shawn.starr@rogers.com>, "'Brown, Len'" <len.brown@intel.com>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040729064338.GF22472@khan.acc.umu.se>
-References: <29AC424F54821A4FB5D7CBE081922E400131B410@hdsmsx403.hd.intel.com>
-	 <000301c47518$d6784e50$0200080a@panic>
-	 <20040729064338.GF22472@khan.acc.umu.se>
-Content-Type: text/plain
-Message-Id: <1091120589.14718.4.camel@bluerat>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 29 Jul 2004 10:03:10 -0700
+	Thu, 29 Jul 2004 13:06:34 -0400
+In-Reply-To: <B1ECE240295BB146BAF3A94E00F2DBFF090205@piramida.hermes.si>
+References: <B1ECE240295BB146BAF3A94E00F2DBFF090205@piramida.hermes.si>
+Mime-Version: 1.0 (Apple Message framework v618)
+Content-Type: text/plain;
+	charset=US-ASCII;
+	format=flowed
+Message-Id: <AC3C5901-E181-11D8-8AD5-00039398BB5E@ieee.org>
 Content-Transfer-Encoding: 7bit
+Cc: "'David Burg'" <dburg@nero.com>, linux_udf@hpesjro.fc.hp.com,
+       linux-kernel@vger.kernel.org
+From: Pat LaVarre <p.lavarre@ieee.org>
+Subject: Re: Can not read UDF CD
+Date: Thu, 29 Jul 2004 11:06:46 -0600
+To: David Balazic <david.balazic@hermes.si>
+X-Mailer: Apple Mail (2.618)
+X-OriginalArrivalTime: 29 Jul 2004 17:06:28.0230 (UTC) FILETIME=[63239A60:01
+	C4758E]
+X-imss-version: 2.0
+X-imss-result: Passed
+X-imss-scores: Clean:12.44589 C:9 M:1 S:5 R:5
+X-imss-settings: Baseline:1 C:1 M:1 S:1 R:1 (0.0000 0.0000)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The latest (acpi-20040715) ACPI patch against 2.6.7/2.6.8-rc2 works on
-my T40 to bring back ACPI  interrupts after suspend/resume.  I don't
-know if these will apply to the bk tree or not.  It also makes it so
-other buttons besides the power button can wake up the machine (like the
-Fn button).
+// David Balazic:
 
---Vernon
+> I will try to see if the problem is reproducable with burning
+> more UDF CDs...
 
-On Wed, 2004-07-28 at 23:43, David Weinehall wrote:
-> On Wed, Jul 28, 2004 at 11:05:00PM -0400, Shawn Starr wrote:
-> > 
-> > I'll keep looking for patches as you get time.
-> > 
-> > I appreciate your help.
-> 
-> Disable APIC support and shutdown will work.
-> 
-> Meanwhile, has anyone solved the problem with the Thinkpad-keys after
-> a suspend/resume?  Volume keys still work, as does the brightness keys,
-> but Fn+F4 for suspend doesn't (manual suspend still works), and tpb
-> doesn't see any of the Thinkpad specific keypresses any longer
-> ("Access IBM", Fn+Fx, etc), not even if I restart tpb, and
-> /proc/interrupts:acpi indicates that interrups are not working for ACPI
-> any longer.  All other interrupts seem to function properly, and I have
-> both patches from [1] applied.
-> 
-> [1] http://bugme.osdl.org/show_bug.cgi?id=2643
-> 
-> 
-> Regards: David Weinehall
+Yes please thank you.
+
+>> I attach the "udf_test -scsi 1:0" output.
+
+Attach did Not arrive here, sorry, please retry attach, at least to me, 
+else publish on web.
+
+Also please say if you can easily share a .iso image of the disc.  (Of 
+course I imagine linux_udf and linux-kernel don't want that attached.)
+
+>> -	   Main: length,location: 32768, 30654 expected:  32768, 32
+>> -	Reserve: length,location: 32768, 30670 expected:  32768, 48
+
+I likewise find these interesting.  Don't know yet what they mean - 
+again I say "Ben wrote udf.ko, not I".
+
+I'll try to hunt for relevant claims in the 
+udfct/src/udf_tester/udf_test (aka phgfsck) output when I receive it.
+
+// David Burg:
+
+>> Let me know if you ... think ... Nero has a mistake
+
+Wow.  Will do with pleasure thank you for your interest.
+
+Pat LaVarre
 

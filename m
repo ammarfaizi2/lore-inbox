@@ -1,69 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S137043AbREKEm1>; Fri, 11 May 2001 00:42:27 -0400
+	id <S137044AbREKEx6>; Fri, 11 May 2001 00:53:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S137044AbREKEmQ>; Fri, 11 May 2001 00:42:16 -0400
-Received: from mail.uni-kl.de ([131.246.137.52]:29661 "EHLO mail.uni-kl.de")
-	by vger.kernel.org with ESMTP id <S137043AbREKEmD>;
-	Fri, 11 May 2001 00:42:03 -0400
-Message-ID: <XFMail.20010511064201.backes@rhrk.uni-kl.de>
-X-Mailer: XFMail 1.4.4 on Linux
-X-Priority: 3 (Normal)
+	id <S137045AbREKExs>; Fri, 11 May 2001 00:53:48 -0400
+Received: from pneumatic-tube.sgi.com ([204.94.214.22]:58722 "EHLO
+	pneumatic-tube.sgi.com") by vger.kernel.org with ESMTP
+	id <S137044AbREKExm>; Fri, 11 May 2001 00:53:42 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Moses McKnight <m_mcknight@surfbest.net>
+cc: linux-kernel <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: 2.4.4-ac6 compile error in plip.c 
+In-Reply-To: Your message of "Thu, 10 May 2001 08:46:43 EST."
+             <3AFA9BC3.1060207@surfbest.net> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
-MIME-Version: 1.0
-Date: Fri, 11 May 2001 06:42:01 +0200 (CEST)
-X-Face: B^`ajbarE`qo`-u#R^.)e]6sO?X)FpoEm\>*T:H~b&S;U/h$2>my}Otw5$+BDxh}t0TGU?>
- O8Bg0/jQW@P"eyp}2UMkA!lMX2QmrZYW\F,OpP{/s{lA5aG'0LRc*>n"HM@#M~r8Ub9yV"0$^i~hKq
- P-d7Vz;y7FPh{XfvuQA]k&X+CDlg"*Y~{x`}U7Q:;l?U8C,K\-GR~>||pI/R+HBWyaCz1Tx]5
-Reply-To: Joachim Backes <backes@rhrk.uni-kl.de>
-Organization: University of Kaiserslautern,
- Computer Center [Supercomputing division]
-From: Joachim Backes <backes@rhrk.uni-kl.de>
-To: LINUX Kernel <linux-kernel@vger.kernel.org>
-Subject: Kernel 2.4.4, Adaptec 7880 on board controller
+Date: Fri, 11 May 2001 14:53:09 +1000
+Message-ID: <2514.989556789@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, 10 May 2001 08:46:43 -0500, 
+Moses McKnight <m_mcknight@surfbest.net> wrote:
+>Hi, I get the following error trying to compile 2.4.4-ac6 using gcc 
+>2.95.4 (debian package).
+>
+>plip.c:1412: __setup_str_plip_setup causes a section type conflict
 
-when booting on a machine having an Adaptec 7880 on board
-controller (Kernel 2.4.4), then i get the following msg:
+The first __initdata is marked as const, the second is not, a section
+cannot contain both const and non-const data.  Against 2.4.4-ac6.
 
-...
-...
-
-SCSI subsystem driver Revision: 1.00
-request_module[scsi_hostadapter]: Root fs not mounted
-request_module[scsi_hostadapter]: Root fs not mounted
-request_module[scsi_hostadapter]: Root fs not mounted
-
-...
-...
-
-The aic7xxx scsi driver is not configured as module,
-but linked to the kernel.
-
-1. Despite of this messages, my kernel is running without
-   any problem.
-
-2. No such msg when using 2.2.x kernels
-
-3. No such msg with kernel 2.4.4, when using an Adaptec 29xxx
-   controler.
-
-Any idea?
-
-Regards
-
-
-Joachim Backes
-
---
-
-Joachim Backes <backes@rhrk.uni-kl.de>       | Univ. of Kaiserslautern
-Computer Center, High Performance Computing  | Phone: +49-631-205-2438 
-D-67653 Kaiserslautern, PO Box 3049, Germany | Fax:   +49-631-205-3056 
----------------------------------------------+------------------------
-WWW: http://hlrwm.rhrk.uni-kl.de/home/staff/backes.html  
+Index: 4.16/drivers/net/plip.c
+--- 4.16/drivers/net/plip.c Thu, 26 Apr 2001 12:38:49 +1000 kaos (linux-2.4/l/c/23_plip.c 1.2.1.3 644)
++++ 4.16(w)/drivers/net/plip.c Fri, 11 May 2001 14:50:39 +1000 kaos (linux-2.4/l/c/23_plip.c 1.2.1.3 644)
+@@ -120,7 +120,7 @@
+ 
+ #include <linux/parport.h>
+ 
+-static const char version[] __initdata =
++static char version[] __initdata =
+ 	KERN_INFO "NET3 PLIP version 2.4-parport gniibe@mri.co.jp\n";
+ 
+ /* Maximum number of devices to support. */
 

@@ -1,199 +1,69 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316631AbSE0OXI>; Mon, 27 May 2002 10:23:08 -0400
+	id <S316635AbSE0O0V>; Mon, 27 May 2002 10:26:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316630AbSE0OXH>; Mon, 27 May 2002 10:23:07 -0400
-Received: from mailrelay1.inwind.it ([212.141.54.101]:65516 "EHLO
-	mailrelay1.inwind.it") by vger.kernel.org with ESMTP
-	id <S316627AbSE0OXG>; Mon, 27 May 2002 10:23:06 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: d_vangreg <d.vangreg@inwind.it>
+	id <S316637AbSE0O0V>; Mon, 27 May 2002 10:26:21 -0400
+Received: from nick.dcs.qmul.ac.uk ([138.37.88.61]:34782 "EHLO
+	nick.dcs.qmul.ac.uk") by vger.kernel.org with ESMTP
+	id <S316635AbSE0O0T>; Mon, 27 May 2002 10:26:19 -0400
+Date: Mon, 27 May 2002 15:26:18 +0100 (BST)
+From: Matt Bernstein <matt@theBachChoir.org.uk>
 To: linux-kernel@vger.kernel.org
-Subject: COMPILATION-BUGS_KERNEL-2.5.18
-Date: Mon, 27 May 2002 16:32:42 +0200
-X-Mailer: KMail [version 1.3.2]
+Subject: VM oops in RH7.3 2.4.18-3
+Message-ID: <Pine.LNX.4.44.0205271518270.5065-100000@nick.dcs.qmul.ac.uk>
+X-URL: http://www.theBachChoir.org.uk/
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020527142306Z316627-22651+61956@vger.kernel.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-uvscan-result: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-BEGIN-COMPILATION-BUG-REPORT for kernel version 2.5.18
+This is a dual Athlon, 1 gig registered ECC DDR RAM, will try 2.4.18-4 but
+it doesn't look ext3-related (the only big local filesystem is reiserfs
+over s/w raid0).
 
-ver_linux:
+I do suspect the hardware on this machine. If someone could tell me "that
+looks like a bad x", I'd be very grateful. More details on request :-/
 
-Linux c7 2.5.18 #1 Sun May 26 10:32:28 CEST 2002 i686 unknown
- 
-Gnu C                  3.0.4
-Gnu make               3.79.1
-binutils               2.11.90.0.19
-util-linux             2.11f
-mount                  2.11b
-modutils               2.4.6
-e2fsprogs              1.22
-PPP                    2.4.1
-Linux C Library        2.2.5
-Dynamic linker (ldd)   2.2.5
-Procps                 2.0.7
-Net-tools              1.60
-Kbd                    1.06
-Sh-utils               2.0
-Modules Loaded         soundcore ppp_deflate zlib_inflate zlib_deflate 
-ppp_async ppp_generic slip slhc lp rtc
+Unable to handle kernel paging request at virtual address 0200f82b
+ printing eip:
+c0137dc0
+*pde = 00000000
+Oops: 0000
+nls_iso8859-1 nls_cp437 vfat fat soundcore nfs tuner tvaudio bttv videodev i2c
+CPU:    0
+EIP:    0010:[<c0137dc0>]    Not tainted
+EFLAGS: 00010206
 
-#################
-
-COMPILATION-BUG-1, encountered while executing:  'make bzImage'
-
-/opt/gcc304a/bin/gcc -D__KERNEL__ -I/usr/src/linux-2.5.14/include -Wall 
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer 
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 
--march=athlon    -DKBUILD_BASENAME=dev  -c -o dev.o dev.c
-dev.c: In function `netif_receive_skb':
-dev.c:1465: void value not ignored as it ought to be
-dev.c:1465:    ret = handle_diverter(skb); 
-
-REASON-WHY-1:
-in file 'net/core/dev.c' lines 1418 and 1465 are in contradiction with each 
-other: 
-.......................
-1417:	#ifdef CONFIG_NET_DIVERT
-1418:	static inline void handle_diverter(struct sk_buff *skb)
-........................
-1463:   #ifdef CONFIG_NET_DIVERT
-1464:		if (skb->dev->divert && skb->dev->divert->divert)
-1465:			ret = handle_diverter(skb);
-........................
+EIP is at page_remove_rmap [kernel] 0x50 (2.4.18-3)
+eax: 0200f827   ebx: c1df9c38   ecx: c1000030   edx: c3a19168
+esi: c3a19168   edi: c33bc618   ebp: 3fe37025   esp: c6b87eb0
+ds: 0018   es: 0018   ss: 0018
+Process crond (pid: 7463, stackpage=c6b87000)
+Stack: 00100000 c3a19168 0005a000 c0126ab1 00000020 00000000 42100000 c6b85420
+       42000000 00000000 42100000 c6b85420 c011c6e6 00000000 c6b86000 00000000
+       00000000 00000000 c6b86000 c6b860b4 00100000 0012c000 42000000 00000001
+Call Trace: [<c0126ab1>] do_zap_page_range [kernel] 0x181
+[<c011c6e6>] sys_wait4 [kernel] 0x396
+[<c0127010>] zap_page_range [kernel] 0x50
+[<c01297da>] exit_mmap [kernel] 0xca
+[<c0117e36>] mmput [kernel] 0x26
+[<c011c183>] do_exit [kernel] 0xb3
+[<c011c6e6>] sys_wait4 [kernel] 0x396
+[<c0108913>] system_call [kernel] 0x33
 
 
-PROPOSED-SOLUTION-1: changing line 1465 to:
-......................
-1465			{ handle_diverter(skb); ret=0; }
-......................
+Code: 39 70 04 75 0d 53 57 50 e8 a3 02 00 00 83 c4 0c eb 08 89 c7
 
-#################
+$ mount
+/dev/sda3 on / type ext3 (rw)
+none on /proc type proc (rw)
+usbdevfs on /proc/bus/usb type usbdevfs (rw)
+/dev/sda2 on /boot type ext3 (rw)
+none on /dev/pts type devpts (rw,gid=5,mode=620)
+/dev/md0 on /export type reiserfs (rw,noatime,notail)
+none on /dev/shm type tmpfs (rw)
+none on /tmp type tmpfs (rw)
 
-COMPILATION-BUG-2, encountered while executing:  'make modules'
-..................
-make[2]: Entering directory `/usr/src/linux-2.5.18/drivers/ide'
-/opt/gcc304a/bin/gcc -D__KERNEL__ -I/usr/src/linux-2.5.18/include -Wall 
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer 
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 
--march=athlon  -DMODULE -DMODVERSIONS -include 
-/usr/src/linux-2.5.18/include/linux/modversions.h   
--DKBUILD_BASENAME=ide_tape  -c -o ide-tape.o ide-tape.c
-ide-tape.c: In function `__idetape_kmalloc_stage':
-ide-tape.c:2810: `BH_Lock' undeclared (first use in this function)
-ide-tape.c:2810: (Each undeclared identifier is reported only once
-ide-tape.c:2810: for each function it appears in.)
-ide-tape.c: In function `idetape_chrdev_read':
-ide-tape.c:4562: warning: comparison of distinct pointer types lacks a cast
-ide-tape.c:4581: warning: comparison of distinct pointer types lacks a cast
-ide-tape.c: In function `idetape_chrdev_write':
-ide-tape.c:4856: warning: comparison of distinct pointer types lacks a cast
-ide-tape.c: In function `idetape_setup':
-ide-tape.c:6008: warning: duplicate `const'
-make[2]: *** [ide-tape.o] Error 1
-make[2]: Leaving directory `/usr/src/linux-2.5.18/drivers/ide'
-make[1]: *** [_modsubdir_ide] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.5.18/drivers'
-make: *** [_mod_drivers] Error 2
-
-PROPOSED-SOLUTION-2:
-edit file:  linux/drivers/ide/ide_tape.c
-after line 419, insert new line: #include <linux/buffer_head.h>
-
-#################
-
-COMPILATION-BUG-3 encountered while executing:  'make modules'
-........................
-/opt/gcc304a/bin/gcc -D__KERNEL__ -I/usr/src/linux-2.5.18/include -Wall 
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer 
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 
--march=athlon  -DMODULE -DMODVERSIONS -include 
-/usr/src/linux-2.5.18/include/linux/modversions.h   
--DKBUILD_BASENAME=usbvideo -DEXPORT_SYMTAB -c -o usbvideo.o usbvideo.c
-usbvideo.c: In function `usbvideo_StartDataPump':
-usbvideo.c:1906: structure has no member named `next'
-usbvideo.c:1908: structure has no member named `next'
-make[3]: *** [usbvideo.o] Error 1
-make[3]: Leaving directory `/usr/src/linux-2.5.18/drivers/usb/media'
-make[2]: *** [_modsubdir_media] Error 2
-make[2]: Leaving directory `/usr/src/linux-2.5.18/drivers/usb'
-make[1]: *** [_modsubdir_usb] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.5.18/drivers'
-make: *** [_mod_drivers] Error 2
-
-
-PROPOSED-SOLUTION-3:
-replacing string  '->next'  with string  '->urb_list.next' 
-in file:  linux/drivers/usb/media/usbvideo.c    lines: 1906, 1908
-
-REMAINING-BUG-3
-usbvideo.c:1906: warning: assignment from incompatible pointer type
-usbvideo.c:1908: warning: assignment from incompatible pointer type
-
-#################
-
-COMPILATION-BUG-4 encountered while executing:  'make modules'
-.........................
-/opt/gcc304a/bin/gcc -D__KERNEL__ -I/usr/src/linux-2.5.18/include -Wall 
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer 
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 
--march=athlon  -DMODULE -DMODVERSIONS -include 
-/usr/src/linux-2.5.18/include/linux/modversions.h   -DKBUILD_BASENAME=ov511 
--DEXPORT_SYMTAB -c -o ov511.o ov511.c
-ov511.c: In function `ov51x_init_isoc':
-ov511.c:3978: structure has no member named `next'
-ov511.c:3980: structure has no member named `next'
-make[3]: *** [ov511.o] Error 1
-make[3]: Leaving directory `/usr/src/linux-2.5.18/drivers/usb/media'
-make[2]: *** [_modsubdir_media] Error 2
-make[2]: Leaving directory `/usr/src/linux-2.5.18/drivers/usb'
-make[1]: *** [_modsubdir_usb] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.5.18/drivers'
-make: *** [_mod_drivers] Error 2
-
-PROPOSED-SOLUTION-4:
-replacing string '->next' with string '->urb_list.next' 
-in file: linux/drivers/usb/media/ov511.c    lines: 3879, 3980
-
-REMAINING-BUG-4
-ov511.c:3978: warning: assignment from incompatible pointer type
-ov511.c:3980: warning: assignment from incompatible pointer type
-
-#################
-
-COMPILATION-BUG-5 encountered while executing:  'make modules'
-............................
-/opt/gcc304a/bin/gcc -D__KERNEL__ -I/usr/src/linux-2.5.18/include -Wall 
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer 
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 
--march=athlon  -DMODULE -DMODVERSIONS -include 
-/usr/src/linux-2.5.18/include/linux/modversions.h   -DKBUILD_BASENAME=pwc_if  
--c -o pwc-if.o pwc-if.c
-pwc-if.c: In function `pwc_isoc_init':
-pwc-if.c:818: structure has no member named `next'
-pwc-if.c: In function `pwc_isoc_cleanup':
-pwc-if.c:861: structure has no member named `next'
-make[3]: *** [pwc-if.o] Error 1
-make[3]: Leaving directory `/usr/src/linux-2.5.18/drivers/usb/media'
-make[2]: *** [_modsubdir_media] Error 2
-make[2]: Leaving directory `/usr/src/linux-2.5.18/drivers/usb'
-make[1]: *** [_modsubdir_usb] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.5.18/drivers'
-make: *** [_mod_drivers] Error 2
-
-PROPOSED-SOLUTION-5:
-replacing string '->next' with string '->urb_list.next' 
-in file: linux/drivers/usb/media/pwc-if.c    lines: 818, 861
-
-REMAINING-BUG-5
-pwc-if.c:818: warning: assignment from incompatible pointer type
-
-#################
-
-END-COMPILATION-BUG-REPORT_Kernel-2.5.18
-
-sender:   d.vangreg@inwind.it
+[ + plus some autofs / nfs stuff ]
 

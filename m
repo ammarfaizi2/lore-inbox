@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280532AbRKBCzg>; Thu, 1 Nov 2001 21:55:36 -0500
+	id <S280524AbRKBDCF>; Thu, 1 Nov 2001 22:02:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280529AbRKBCzZ>; Thu, 1 Nov 2001 21:55:25 -0500
-Received: from ns.ithnet.com ([217.64.64.10]:41732 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S280531AbRKBCzO>;
-	Thu, 1 Nov 2001 21:55:14 -0500
-Message-Id: <200111020255.DAA30651@webserver.ithnet.com>
-Date: Fri, 02 Nov 2001 03:55:05 +0100
+	id <S280529AbRKBDBz>; Thu, 1 Nov 2001 22:01:55 -0500
+Received: from ns.ithnet.com ([217.64.64.10]:55044 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S280524AbRKBDBm>;
+	Thu, 1 Nov 2001 22:01:42 -0500
+Message-Id: <200111020301.EAA30696@webserver.ithnet.com>
+Date: Fri, 02 Nov 2001 04:01:27 +0100
 From: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: Lorenzo Allegrucci <lenstra@tiscalinet.it>, <linux-kernel@vger.kernel.org>,
-        Andrea Arcangeli <andrea@suse.de>
+Cc: linux-kernel@vger.kernel.org
 Content-Transfer-Encoding: 7BIT
 Subject: Re: new OOM heuristic failure  (was: Re: VM: qsbench)
-To: Stephan von Krawczynski <skraw@ithnet.com>
-In-Reply-To: <200111020230.DAA30535@webserver.ithnet.com>
+To: Ed Tomlinson <tomlins@cam.org>
+In-Reply-To: <20011102023711.EC03D93E4D@oscar.casa.dyndns.org>
 MIME-Version: 1.0
 User-Agent: IMHO/0.97.1 (Webmail for Roxen)
 Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Ok. I re-checked the code and found out this approach cannot stand. 
+> Hi,                                                                 
+>                                                                     
+> shrink_caches can end up lying.  shrink_dcache_memory and friends do
+not tell                                                              
+> shrink_caches how many pages they free so nr_pages can be bogus...  
+Is it worth                                                           
+> fixing?  The simpliest, harmlessly racey and not too pretty, code   
+follows.  It                                                          
+> would also not be hard to change the shrink_ calls to return the    
+number of pages                                                       
+> shrunk, but this would hit more code...                             
+>                                                                     
+> Comments?                                                           
                                                                       
-> the list scan _is_ already exited early when priority is low:       
-                                                                      
-                                                                      
-Sorry for followup on my own mail, but there is another thing that    
-comes to my mind:                                                     
-                                                                      
-swap_out is currently in no way priority-dependant. But it could be   
-(the parameter is there). How about swapping more pages in tighter    
-memory situation? The basic idea is that if there is a rising need for
-mem it cannot be wrong to do a bit more than under normal             
-circumstances. One could achieve this simply by:                      
-                                                                      
-        int counter, nr_pages = SWAP_CLUSTER_MAX;                     
-                                                                      
-to                                                                    
-                                                                      
-        int counter, nr_pages = SWAP_CLUSTER_MAX * DEF_PRIORITY /     
-priority;                                                             
-                                                                      
-in swap_out.                                                          
-The idea behind is to reduce the overhead in finding out if swapping  
-is needed by simply swapping more everytime we already gone "the long 
-way to knowing".                                                      
+I believe the idea of having a more precise nr_pages value can make a 
+difference. We are trying to estimate if swapping is needed, which is 
+pretty expensive. If we can avoid it by more accurately knowing what  
+is really going on (without _too_ much costs) we can only win.        
                                                                       
 Regards,                                                              
 Stephan                                                               

@@ -1,81 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262131AbSJNSP4>; Mon, 14 Oct 2002 14:15:56 -0400
+	id <S262104AbSJNS0P>; Mon, 14 Oct 2002 14:26:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262135AbSJNSP4>; Mon, 14 Oct 2002 14:15:56 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:14033 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S262131AbSJNSPx>;
-	Mon, 14 Oct 2002 14:15:53 -0400
-Date: Mon, 14 Oct 2002 14:16:26 -0400 (EDT)
-From: Derrick J Brashear <shadow@dementia.org>
-X-X-Sender: shadow@trafford.andrew.cmu.edu
-To: Christoph Hellwig <hch@infradead.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: PATCH: AFS system call registration function (was Re: Two fixes
- for 2.4.19-pre5-ac3)
-In-Reply-To: <20021014190444.A24577@infradead.org>
-Message-ID: <Pine.LNX.4.44L-027.0210141405590.18909-100000@trafford.andrew.cmu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262134AbSJNS0P>; Mon, 14 Oct 2002 14:26:15 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:46797 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id <S262104AbSJNS0O>;
+	Mon, 14 Oct 2002 14:26:14 -0400
+Date: Mon, 14 Oct 2002 20:32:04 +0200
+From: bert hubert <ahu@ds9a.nl>
+To: "David S. Miller" <davem@redhat.com>
+Cc: bart.de.schuymer@pandora.be, linux-kernel@vger.kernel.org, buytenh@gnu.org
+Subject: Re: [RFC] bridge-nf -- map IPv4 hooks onto bridge hooks, vs 2.5.42
+Message-ID: <20021014183204.GA29350@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	"David S. Miller" <davem@redhat.com>, bart.de.schuymer@pandora.be,
+	linux-kernel@vger.kernel.org, buytenh@gnu.org
+References: <20020911.153132.63843642.davem@redhat.com> <200209120836.52062.bart.de.schuymer@pandora.be> <200210142005.06292.bart.de.schuymer@pandora.be> <20021014.110159.15420052.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021014.110159.15420052.davem@redhat.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 Oct 2002, Christoph Hellwig wrote:
+On Mon, Oct 14, 2002 at 11:01:59AM -0700, David S. Miller wrote:
 
-> > > On Mon, Oct 14, 2002 at 10:31:41AM -0400, Derrick J Brashear wrote:
-> > > > Well, given the previous commentary I would have expected the hook to have
-> > > > already existed, and if it had we would have changed to conform to it
-> > > > months ago.
-> > >
-> > > Which hook?
-> >
-> > For this system call. The message from Alan I quoted which was from April.
->
-> Call me stupid, but where did you quote it?  Would you mind
-> including it again?
+> 3) The bridging layer changes need to be approved by Lennert.
+>    But I'd suggest working out #1 and #2 first.
 
-The first message I posted, with the first iteration of the patch.
-There was some discussion around then (which I wasn't reading for, but
-only came back to later) which essentially suggested that an nfsservctl
-style hook for the AFS system call would be a reasonable way to deal.
+Lennert appears to have dropped off the net. 
 
-As far as that goes, I think the best thing from where I'm sitting would
-be actually 2 versions of this, one which takes a set of longs and can be
-used as now for 2.4 kernels, and one with a new interface for 2.5 kernels.
-That's not really a hard and fast position, perhaps it is in the best
-interests of everyone for there to be only one version of this function
-for the "new interface".
-
-Incidentally, nothing in the kernel source tree provides an example
-"explanation of the usage of nfsservctl"; I'll be happy to work out the
-new interface and provide appropriate information, but is there some place
-in particular such things end up being documented? I'm not averse to
-submitting information to go in /Documentation but it doesn't appear
-there's precedent for that.
-
-Without further ado, previous quoted text:
-
-7 Apr 2002, Alan said in message ID E16uGg1-0006Ln-00_at_the-village.bc.nu:
-> And, unless this is reversed the OpenAFS kernel module won't load (it
-> needs sys_call_table.):
-
-Correct. There was agreement a very long time ago that code should not
-patch
-the syscall table (for one its not safe). AFS probably needs fixing so the
-AFS syscall hook is exported portably and nicely in the syscall code.
-
-This wants fixing in 2.5 too - basically
-
-static int (*afs_syscall)(...);
-sys_afs_syscall(...)
-{
-        if(afs_syscall)
-                return afs_syscall(....)
-        return -ENOSYS;
-}
-
-EXPORT_SYMBOL(afs_syscall)
-
-
-
-
+-- 
+http://www.PowerDNS.com          Versatile DNS Software & Services
+http://www.tk                              the dot in .tk
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

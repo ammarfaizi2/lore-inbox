@@ -1,45 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263167AbSITR73>; Fri, 20 Sep 2002 13:59:29 -0400
+	id <S263212AbSITSE2>; Fri, 20 Sep 2002 14:04:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263170AbSITR73>; Fri, 20 Sep 2002 13:59:29 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:45710 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S263167AbSITR73>; Fri, 20 Sep 2002 13:59:29 -0400
-Date: Fri, 20 Sep 2002 11:05:32 -0700
-From: Mike Anderson <andmike@us.ibm.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: Dave Hansen <haveblue@us.ibm.com>, "Bond, Andrew" <Andrew.Bond@hp.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: TPC-C benchmark used standard RH kernel
-Message-ID: <20020920180532.GC1944@beaverton.ibm.com>
-References: <45B36A38D959B44CB032DA427A6E106402D09E43@cceexc18.americas.cpqcorp.net> <3D8A3654.50201@us.ibm.com> <20020920172041.GB1944@beaverton.ibm.com> <20020920173103.GK936@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020920173103.GK936@suse.de>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.0.32 on an i486
+	id <S263218AbSITSE2>; Fri, 20 Sep 2002 14:04:28 -0400
+Received: from transport.cksoft.de ([62.111.66.27]:14860 "EHLO
+	transport.cksoft.de") by vger.kernel.org with ESMTP
+	id <S263212AbSITSE2>; Fri, 20 Sep 2002 14:04:28 -0400
+Date: Fri, 20 Sep 2002 20:10:14 +0200 (CEST)
+From: "Bjoern A. Zeeb" <bzeeb-lists@lists.zabbadoz.net>
+X-X-Sender: bz@e0-0.zab2.int.zabbadoz.net
+To: jt@hpl.hp.com
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, <thunder@lightweight.ods.org>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: FW: 2.5.34: IR __FUNCTION__ breakage
+In-Reply-To: <20020920171901.GG8260@bougret.hpl.hp.com>
+Message-ID: <Pine.BSF.4.44.0209202006040.13460-100000@e0-0.zab2.int.zabbadoz.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe [axboe@suse.de] wrote:
-> On Fri, Sep 20 2002, Mike Anderson wrote:
-> 
-> They benched RHAS iirc, and that has the block-highmem patch. They also
-> had more than 4GB of memory, alas, there is bouncing. That doesn't work
-> on all hardware, and all drivers.
+On Fri, 20 Sep 2002, Jean Tourrilhes wrote:
 
-Yes I have seen that. Normally a lot of these greater that 4GB
-interfaces are activated on BITS_PER_LONG. We have passed a few changes
-on to adapter driver maintainers to activate these interfaces also on
-the CONFIG_HIGHMEM64G. This has helped on these 32 bit greater than 4GB
-systems.
+Hi,
 
-What driver does the FCA 2214 use?
+> > Also, specifically relating to varargs macros as described above, you
+> > can certainly have a varargs macro with zero args, just look at C99
+> > varargs macros...
+>
+> 	I remember that it didn't work. Ok, I'll try again.
 
--andmike
+if I remember corretly with C99 if you do s.th. like this (simple
+sample):
+
+#define LOG(level, format, ...)					\
+                log(level, format, ##__VA_ARGS__);
+
+you _need_ to give an argument:
+
+	LOG(debug, "blah", 0);
+
+w/o the ", 0" this is an error.
+
+There have been gcc extentions that allow(ed) zero arguments.
+
+*searching*
+
+See: http://gcc.gnu.org/onlinedocs/cpp/Variadic-Macros.html
+
 -- 
-Michael Anderson
-andmike@us.ibm.com
+Bjoern A. Zeeb				bzeeb at Zabbadoz dot NeT
+56 69 73 69 74				http://www.zabbadoz.net/
 

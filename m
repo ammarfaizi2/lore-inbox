@@ -1,61 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262446AbTLLW2x (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Dec 2003 17:28:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262522AbTLLW2x
+	id S262427AbTLLW33 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Dec 2003 17:29:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262522AbTLLW3B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Dec 2003 17:28:53 -0500
-Received: from fw.osdl.org ([65.172.181.6]:60096 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262446AbTLLW2k (ORCPT
+	Fri, 12 Dec 2003 17:29:01 -0500
+Received: from imap.gmx.net ([213.165.64.20]:42117 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262427AbTLLW1u (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Dec 2003 17:28:40 -0500
-Message-Id: <200312122228.hBCMSOZ28974@mail.osdl.org>
-Date: Fri, 12 Dec 2003 14:28:21 -0800 (PST)
-From: markw@osdl.org
-Subject: more dbt-2 results hyperthreading on linux-2.6.0-test11
-To: piggin@cyberone.com.au
-cc: mingo@redhat.com, linux-kernel@vger.kernel.org,
-       pgsql-hackers@postgresql.org
+	Fri, 12 Dec 2003 17:27:50 -0500
+Date: Fri, 12 Dec 2003 23:27:48 +0100 (MET)
+From: "Svetoslav Slavtchev" <svetljo@gmx.de>
+To: opengeometry@yahoo.ca
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/plain; charset=us-ascii
+Subject: Re: Multiple keyboard/monitor vs linux-2.6?
+X-Priority: 3 (Normal)
+X-Authenticated: #20183004
+Message-ID: <5847.1071268068@www59.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Nick,
+Hi,
 
-Here are the results of the comparisons I said I would do.
+it does work, and you even can have multiple 
+virtual consoles, and even on a single dual headed
+Matrox G4xx/G550 although there are still some 
+small/big :-)  issues 
 
-no-hyperthreading:
-	http://developer.osdl.org/markw/dbt2-pgsql/282/
-	- metric 2288.43
-	- baseline
+may i ask what do you mean by that :
 
-hyperthreading:
-	http://developer.osdl.org/markw/dbt2-pgsql/278/
-	- metric 1944.42
-	- 15% throughput decrease
-	
-hyperthreading w/ Ingo's C1 patch:
-	http://developer.osdl.org/markw/dbt2-pgsql/277/
-	- metric 1978.39
-	- 13.5% throughput decrease
+----
+ Even though the HOWTO is more for Backstreet Ruby, 
+ I couldn't make head or tail of it.
+ ^^^^^^^^^^^^^^^^^^^^^^^^
+----
 
-hyperthreading w/ Nick's w26 patch:
-	http://developer.osdl.org/markw/dbt2-pgsql/274/
-	- metric 1955.91
-	- 14.5% throughput decrease
+asking cause i wrote the howto,
+and i hardly get feedback
 
-It looks like there is some marginal benefit to your or Ingo's patches
-with a workload like DBT-2.  I probably don't understand enough about
-hyperthreading, but I wonder if there's something PostgreSQL can do to
-take advantage of hyperthreading
+the one thing i know is, that it's simply too big ,
+but i tried to cover everything and there is no other way :(
 
-Anyway, each link has pointers to readprofile and annotated oprofile
-assembly output (if you find that useful.)  I haven't done enough tests
-to have an idea of the error margin, but I wouldn't be surprised if it's
-at least 1%.
+best,
 
-Let me know if there's anything else you'd like me to try.
+svetljo
 
-Thanks,
-Mark
+
+PS.
+
+please CC me as i'm not subscribed to lkml
+
+-- 
++++ GMX - die erste Adresse für Mail, Message, More +++
+Neu: Preissenkung für MMS und FreeMMS! http://www.gmx.net
+
+

@@ -1,52 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263633AbUDOPYq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 11:24:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264328AbUDOPYq
+	id S264333AbUDOP24 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 11:28:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264335AbUDOP24
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 11:24:46 -0400
-Received: from mail.cyclades.com ([64.186.161.6]:46786 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S263633AbUDOPYo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 11:24:44 -0400
-Date: Wed, 14 Apr 2004 09:49:53 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: linux-kernel@vger.kernel.org
-Subject: Linux 2.4.26-rc4
-Message-ID: <20040414124953.GB1406@logos.cnet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1i
-X-Cyclades-MailScanner-Information: Please contact the ISP for more information
-X-Cyclades-MailScanner: Found to be clean
+	Thu, 15 Apr 2004 11:28:56 -0400
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:36548 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S264333AbUDOP2x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Apr 2004 11:28:53 -0400
+Date: Thu, 15 Apr 2004 11:29:14 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: James Bottomley <James.Bottomley@steeleye.com>
+Cc: Arjan van de Ven <arjanv@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] fix 4k irqstacks on x86 (and add voyager support)
+In-Reply-To: <1082042268.2166.2.camel@mulgrave>
+Message-ID: <Pine.LNX.4.58.0404151126090.10471@montezuma.fsmlabs.com>
+References: <1082042268.2166.2.camel@mulgrave>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 15 Apr 2004, James Bottomley wrote:
 
-Hi, 
+> There's a bug in the x86 code in that it sets the boot CPU to zero.
+> This isn't correct since some subarch's use physically indexed CPUs.
+> However, subarchs have either set the boot cpu before irq_INIT() (or
+> just inherited the default zero from INIT_THREAD_INFO()), so it's safe
+> to believe current_thread_info()->cpu about the boot cpu.
 
-This is the v2.4.26 release candidate.
-
-It contains a few important fixes, one fixing a memory leak in the fork() 
-path and another fixing a exploitable ISO9660 symlink buffer overflow.
-
-For those who use mainline kernels, upgrade is recommended.
-
-v2.4.26 will be released shortly as -rc4.
-
-
-Summary of changes from v2.4.26-rc3 to v2.4.26-rc4
-============================================
-
-<john.l.byrne:hp.com>:
-  o do_fork() error path memory leak
-
-Ernie Petrides:
-  o fix potential iso9660 symlink overflow
-
-Marcelo Tosatti:
-  o Nathan Scott: Export the PPC vmalloc_start and ioremap_bot symbols for modules using VMALLOC_START and VMALLOC_END (XFS uses these, for example)
-  o Changed EXTRAVERSION to -rc4
-
-
+There is also smp_boot_cpus() which sets it to zero yet again later on =)

@@ -1,69 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261872AbUANPsv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jan 2004 10:48:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261881AbUANPsu
+	id S261774AbUANPrJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jan 2004 10:47:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261779AbUANPrJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jan 2004 10:48:50 -0500
-Received: from smtp.uniroma2.it ([160.80.6.16]:37124 "EHLO mail-gw.uniroma2.it")
-	by vger.kernel.org with ESMTP id S261872AbUANPss (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jan 2004 10:48:48 -0500
-Message-ID: <400564AD.6050407@tiscali.it>
-Date: Wed, 14 Jan 2004 16:47:57 +0100
-From: Mauro Andreolini <m.andreolini@tiscali.it>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031118
-X-Accept-Language: en-us, en
+	Wed, 14 Jan 2004 10:47:09 -0500
+Received: from mail-06.iinet.net.au ([203.59.3.38]:10401 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S261774AbUANPrG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jan 2004 10:47:06 -0500
+Date: Wed, 14 Jan 2004 23:47:12 +0800 (WST)
+From: raven@themaw.net
+To: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Autofs question (try 2)
+In-Reply-To: <200401132141.45772.robin.rosenberg.lists@dewire.com>
+Message-ID: <Pine.LNX.4.58.0401142342440.1783@raven.themaw.net>
+References: <200401132141.45772.robin.rosenberg.lists@dewire.com>
 MIME-Version: 1.0
-To: Daniele Venzano <webvenza@libero.it>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: problems with suspend-to-disk (ACPI), 2.6.1-rc2
-References: <3FE5F1110001ED59@mail-4.tiscali.it> <20040113131806.GA343@elf.ucw.cz> <20040113212811.GA12144@gateway.milesteg.arr>
-In-Reply-To: <20040113212811.GA12144@gateway.milesteg.arr>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiVirus: scanned for viruses!
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniele Venzano wrote:
 
- >
- >I added support for sis900 and the bash was being killed even before the
- >driver had any support for suspend/resume.
- >I reported that same problem (shell being killed) some time ago, there 
-was
- >some follow up, but if I remember right no solution was found at the
- >time.
- >
- >>>bad: scheduling while atomic!
- >>>Call Trace:
- >>> [<c0119d16>] schedule+0x586/0x590
- >>> [<c0124f5c>] __mod_timer+0xfc/0x170
- >>> [<c0125ab3>] schedule_timeout+0x63/0xc0
- >>> [<c0125a40>] process_timeout+0x0/0x10
- >>> [<c01da44b>] pci_set_power_state+0xeb/0x190
- >>> [<ec947823>] sis900_resume+0x63/0x130 [sis900]
- >>> [<c01dc9a6>] pci_device_resume+0x26/0x30
- >
- >
- >I'll check this, the card keeps working after resume or not ?
- >
- >Thanks, bye.
- >
-Hi Daniele,
+The place for this is on the autofs list.
 
-the card does _not_ work after resume, both on 2.6.1-rc2 vanilla and 
-with Pavel's patch.
-I have to manually
+http://linux.kernel.org/mailman/listinfo/autofs
 
-rmmod sis900
-modprobe sis900
-ifconfig <ip> eth0 up
+Short answer to your question is I don't think so. At least at the moment. 
+I would have to check it out.
 
-After that, it starts working again.
+What version of autofs are you using?
 
-Bye
-Mauro Andreolini
+On Tue, 13 Jan 2004, Robin Rosenberg wrote:
 
+> Hi,
+> 
+> The first message was cut short, sorry
+> 
+> I grabbed the auto.smb script for mounting samba/windows shares. One of the flaws is that I'd
+> like to get around is that it must be configured as root and most importantly that I don't see who 
+> is requesting the mount. I was thinking along the line of mounting shares in /cifs/$USER/servers/share
+> or simply mounting the share for the first user using the mount point (essentially single user machines
+> anyway).
+> 
+> the auto.smb script is running as root and I printed some info in root.c at the revalidate
+> 
+> Jan 12 18:49:06 h6n2fls33o811 kernel: autofs4_root_revalidate, uid=505 name=10.1.1.4
+> Jan 12 18:49:06 h6n2fls33o811 automount[22233]: attempting to mount entry /cifs/10.1.1.4
+> Jan 12 18:49:06 h6n2fls33o811 kernel: autofs4_root_revalidate, uid=0 name=10.1.1.4
+> Jan 12 18:49:06 h6n2fls33o811 logger: uid=0(root) gid=0(root) grupper=0(root)
+> Jan 12 18:49:07 h6n2fls33o811 kernel: autofs4_root_revalidate, uid=0 name=10.1.1.4
+> Jan 12 18:49:08 h6n2fls33o811 last message repeated 10 times
+> and lots more from mounting with uid=0
+> 
+> Is there any simple way of passing the first uid to the automounter?
+> 
+> -- robin
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

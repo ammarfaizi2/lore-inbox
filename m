@@ -1,38 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129870AbQKTXsz>; Mon, 20 Nov 2000 18:48:55 -0500
+	id <S129309AbQKUANR>; Mon, 20 Nov 2000 19:13:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129874AbQKTXsp>; Mon, 20 Nov 2000 18:48:45 -0500
-Received: from enterprise.cistron.net ([195.64.68.33]:8976 "EHLO
-	enterprise.cistron.net") by vger.kernel.org with ESMTP
-	id <S129870AbQKTXsd>; Mon, 20 Nov 2000 18:48:33 -0500
-From: wichert@cistron.nl (Wichert Akkerman)
-Subject: Re: Bug in large files ext2 in 2.4.0-test11 ?
-Date: 20 Nov 2000 23:59:39 +0100
-Organization: Cistron Internet Services
-Message-ID: <8vcacr$196$1@picard.cistron.nl>
-In-Reply-To: <D69EF5976ED@vcnet.vc.cvut.cz> <20001120141641.Y619@visi.net>
-To: linux-kernel@vger.kernel.org
+	id <S129525AbQKUANH>; Mon, 20 Nov 2000 19:13:07 -0500
+Received: from mail01.onetelnet.fr ([213.78.0.138]:21608 "EHLO
+	mail01.onetelnet.fr") by vger.kernel.org with ESMTP
+	id <S129309AbQKUAM7>; Mon, 20 Nov 2000 19:12:59 -0500
+Message-ID: <3A19C4C1.A721355@onetelnet.fr>
+Date: Tue, 21 Nov 2000 01:41:38 +0100
+From: Fort David <epopo@onetelnet.fr>
+Reply-To: epopo@onetelnet.fr
+Organization: DLR network
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test11 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Ben Ford <ben@kalifornia.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Defective Red Hat Distribution poorly represents Linux
+In-Reply-To: <Pine.SGI.4.21L.01.0011201318480.2040834-100000@irix2.gl.umbc.edu> <3A199496.2AA8CAFE@kalifornia.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20001120141641.Y619@visi.net>,
-Ben Collins  <bcollins@debian.org> wrote:
->work in our transition mechanisms. IOW, we don't have to just worry about
->1 architecture and 1 distribution, we have to make sure upgrades work,
->make sure things don't break, and ensure backward compatibility is retained
->for 5 architectures that have released already (new archs don't need a
->transisition obviously).
+Ben Ford wrote:
 
-Euhm, we released 6 architectures (arm, alpha, i386, m68k, powerpc and sparc)
+> Ya, I also had a system that ran many OS's great, including Linux, Win98,
+> Win2k, etc.  However when I went to install NT on it, the CPU overheated
+> every time.  Ya, I know, doesn't make sense, but that's how it was.
+>
+> -b
+>
+>
 
-Wichert.
+It makes sense for me as win2000 is always 5°c hotter than linux, and on
 
--- 
-   ________________________________________________________________
- / Generally uninteresting signature - ignore at your convenience  \
-| wichert@cistron.nl                  http://www.liacs.nl/~wichert/ |
-| 1024D/2FA3BC2D 576E 100B 518D 2F16 36B0  2805 3CB8 9250 2FA3 BC2D |
+both CPU.....
+
+--
+%-------------------------------------------------------------------------%
+% FORT David,                                                             %
+% 7 avenue de la morvandière                                   0240726275 %
+% 44470 Thouare, France                                epopo@onetelnet.fr %
+% ICU:78064991   AIM: enlighted popo             fort@irin.univ-nantes.fr %
+%--LINUX-HTTPD-PIOGENE----------------------------------------------------%
+%  -datamining <-/                        |   .~.                         %
+%  -networking/flashed PHP3 coming soon   |   /V\        L  I  N  U  X    %
+%  -opensource                            |  // \\     >Fear the Penguin< %
+%  -GNOME/enlightenment/GIMP              | /(   )\                       %
+%           feel enlighted....            |  ^^-^^                        %
+%                           http://ibonneace.dnsalias.org/ when connected %
+%-------------------------------------------------------------------------%
+
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

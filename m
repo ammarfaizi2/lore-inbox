@@ -1,144 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271336AbRINWKC>; Fri, 14 Sep 2001 18:10:02 -0400
+	id <S271108AbRINWVW>; Fri, 14 Sep 2001 18:21:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271108AbRINWJx>; Fri, 14 Sep 2001 18:09:53 -0400
-Received: from forge.redmondlinux.org ([209.81.49.42]:22996 "EHLO
-	forge.redmondlinux.org") by vger.kernel.org with ESMTP
-	id <S271336AbRINWJc>; Fri, 14 Sep 2001 18:09:32 -0400
-Message-ID: <3BA27FAD.60007@cheek.com>
-Date: Fri, 14 Sep 2001 15:07:41 -0700
-From: Joseph Cheek <joseph@cheek.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010802
-X-Accept-Language: en-us
+	id <S271344AbRINWVN>; Fri, 14 Sep 2001 18:21:13 -0400
+Received: from 65-45-81-178.customer.algx.net ([65.45.81.178]:36340 "EHLO
+	postbox.aslab.com") by vger.kernel.org with ESMTP
+	id <S271108AbRINWVE> convert rfc822-to-8bit; Fri, 14 Sep 2001 18:21:04 -0400
+Date: Fri, 14 Sep 2001 15:06:55 -0700 (PDT)
+From: "John D. Kim" <johnkim@aslab.com>
+To: hugang <linuxbest@soul.com.cn>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: A patch for dhcp and nfsroot.
+In-Reply-To: <20010914085103.493e30b1.linuxbest@soul.com.cn>
+Message-ID: <Pine.LNX.4.31.0109141503020.32576-100000@postbox.aslab.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2 IDE cd-roms + ide-scsi = 4 scsi cdroms ???
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+Hmmm...  I've tried the patch with 2.4.8, 2.4.8-ac12, and 2.4.9-ac8.  All
+three says "couldn't find the kernel version the module was compiled for"
+when insmod tries to load the ipconfig module.  I've also tried different
+versions of insmod(2.4.0, 2.4.2, and 2.4.8).  I have not yet tried your
+kernel yet since I'm working with pcmcia devices, but I'll give it a try
+as well, just to see if ipconfig would load or not.
 
-i added a second ide cdrom to this system and now notice that i have 
-four scsi cdroms show up.  really weird.  this was on 2.4.7-ac10 and 
-repros on 2.4.9-ac10.
+Anyone else here have a clue?
 
-when i had one cdrom (/dev/hdc) i had just one scsi cdrom after loading 
-ide-scsi (/dev/sr0).
+On Fri, 14 Sep 2001, hugang wrote:
 
-relevant /var/log/messages portion:
-
-Sep 14 08:58:07 sanfrancisco kernel: SCSI subsystem driver Revision: 1.00
-Sep 14 08:58:07 sanfrancisco kernel: scsi0 : SCSI host adapter emulation 
-for IDE ATAPI | LST System Analysis            Friddevices
-Sep 14 08:58:07 sanfrancisco kernel:   Vendor: LITE-ON   Model: LTR-12101B
-  Rev: LS3G
-Sep 14 08:58:07 sanfrancisco kernel:   Type:   CD-ROM
-  ANSI SCSI revision: 02
-Sep 14 08:58:07 sanfrancisco kernel:   Vendor: LITE-ON   Model: LTR-12101B
-  Rev: LS3G
-Sep 14 08:58:07 sanfrancisco kernel:   Type:   CD-ROM
-  ANSI SCSI revision: 02
-Sep 14 08:58:07 sanfrancisco kernel:   Vendor: COMPAQ    Model: CRD-8322B
-  Rev: 1.06
-Sep 14 08:58:07 sanfrancisco kernel:   Type:   CD-ROM
-  ANSI SCSI revision: 02
-Sep 14 08:58:07 sanfrancisco kernel:   Vendor: COMPAQ    Model: CRD-8322B
-  Rev: 1.06
-Sep 14 08:58:07 sanfrancisco kernel:   Type:   CD-ROM
-  ANSI SCSI revision: 02
-Sep 14 08:58:07 sanfrancisco kernel: Attached scsi CD-ROM sr0 at scsi0, 
-channel 0, id 0, lun 0
-Sep 14 08:58:07 sanfrancisco kernel: Attached scsi CD-ROM sr1 at scsi0, 
-channel 0, id 0, lun 1
-Sep 14 08:58:07 sanfrancisco kernel: Attached scsi CD-ROM sr2 at scsi0, 
-channel 0, id 1, lun 0
-Sep 14 08:58:07 sanfrancisco kernel: Attached scsi CD-ROM sr3 at scsi0, 
-channel 0, id 1, lun 1
-Sep 14 08:58:07 sanfrancisco kernel: sr0: scsi3-mmc drive: 20x/20x 
-writer cd/rw xa/form2 cdda tray
-Sep 14 08:58:07 sanfrancisco kernel: Uniform CD-ROM driver Revision: 3.12
-Sep 14 08:58:07 sanfrancisco kernel: sr1: scsi3-mmc drive: 20x/20x 
-writer cd/rw xa/form2 cdda tray
-Sep 14 08:58:07 sanfrancisco kernel: sr2: scsi3-mmc drive: 32x/32x cd/rw 
-xa/form2 cdda tray
-Sep 14 08:58:07 sanfrancisco kernel: sr3: scsi3-mmc drive: 32x/32x cd/rw 
-xa/form2 cdda tray
-
-
-# cat /proc/sys/dev/cdrom/info
-CD-ROM information, Id: cdrom.c 3.12 2000/10/18
-
-drive name:             sr3     sr2     sr1     sr0
-drive speed:            32      32      20      20
-drive # of slots:       1       1       1       1
-Can close tray:         1       1       1       1
-Can open tray:          1       1       1       1
-Can lock tray:          1       1       1       1
-Can change speed:       1       1       1       1
-Can select disk:        0       0       0       0
-Can read multisession:  1       1       1       1
-Can read MCN:           1       1       1       1
-Reports media changed:  1       1       1       1
-Can play audio:         1       1       1       1
-Can write CD-R:         0       0       1       1
-Can write CD-RW:        0       0       1       1
-Can read DVD:           0       0       0       0
-Can write DVD-R:        0       0       0       0
-Can write DVD-RAM:      0       0       0       0
-
-
-# cat /proc/scsi/scsi
-Attached devices:
-Host: scsi0 Channel: 00 Id: 00 Lun: 00
-  Vendor: LITE-ON  Model: LTR-12101B       Rev: LS3G
-  Type:   CD-ROM                           ANSI SCSI revision: 02
-Host: scsi0 Channel: 00 Id: 00 Lun: 01
-  Vendor: LITE-ON  Model: LTR-12101B       Rev: LS3G
-  Type:   CD-ROM                           ANSI SCSI revision: 02
-Host: scsi0 Channel: 00 Id: 01 Lun: 00
-  Vendor: COMPAQ   Model: CRD-8322B        Rev: 1.06
-  Type:   CD-ROM                           ANSI SCSI revision: 02
-Host: scsi0 Channel: 00 Id: 01 Lun: 01
-  Vendor: COMPAQ   Model: CRD-8322B        Rev: 1.06
-  Type:   CD-ROM                           ANSI SCSI revision: 02
-
-
-
-# lsmod
-Module                  Size  Used by
-nfs                    73120   1  (autoclean)
-lockd                  48352   1  (autoclean) [nfs]
-sunrpc                 64416   1  (autoclean) [nfs lockd]
-ospm_system             2192   0  (unused)
-ospm_busmgr            11392   0  [ospm_system]
-af_packet               9200   1  (autoclean)
-nls_iso8859-1           2832   1  (autoclean)
-nls_cp437               4352   1  (autoclean)
-vfat                    9264   1  (autoclean)
-fat                    29760   0  (autoclean) [vfat]
-mga                    97952   0  (unused)
-agpgart                25920   1
-parport_pc             23504   0
-parport                24512   0  [parport_pc]
-es1371                 29952   0
-gameport                1520   0  [es1371]
-ac97_codec              9072   0  [es1371]
-3c59x                  25184   1
-usb-uhci               21376   0  (unused)
-usbcore                49440   1  [usb-uhci]
-sound                  54912   0  (unused)
-soundcore               3856   6  [es1371 sound]
-ide-scsi                7376   0
-sr_mod                 12416   0
-scsi_mod               50208   2  [ide-scsi sr_mod]
-cdrom                  27392   0  [sr_mod]
-ide-floppy             10992   0
-
-
-thanks!
-
-joe
+> On Thu, 13 Sep 2001 10:47:18 -0700 (PDT)
+> "John D. Kim" <johnkim@aslab.com> wrote:
+> >Hi hugang.  This came just in time to fix a problem I'm having.  But when
+> >I try to load it using insmod, it complains that it cannot find the kernel
+> >it was built for.  Have you got this working successfully?  Which kernel
+> >are you running?  I'm running 2.4.9-ac8.
+> >
+> >I'm also using this in an initrd setting.  I'm trying to load the kernel
+> >and the initrd image, have the ipconfig modules get stuff through dhcp and
+> >then nfsroot.  Can you think of what might be causing this problem?  I'm
+> >no kernel hacker, but I'll do what I can.
+> >
+> >
+> >
+> Thanks for test it.
+>
+> Yes,it work in my labs with kernel 2.4.8 (not ac)! I use it for an linux disaster recovery solution.
+>
+> It your still can use it , I put my use kernel in http://www.soul.com.cn/2.4.9/2.4.9-disaster.tar.bz2
+>
+> /boot/vmlinu.gz  	kernel
+> /boot/initrd.img.gz	initrd.img
+> /lib/module		kernel modules.
+>
+> Beacuse my netcard can not remote boot, I use grub .
+> In grub command:
+>
+> bootp
+> root (nd)
+> kernel vmlinuz.gz root=/dev/nfs
+> initrd initrd.img.gz
+>
+> I test it with eepro100 netcard.I thinks it can work with another net card.
+>
+>
+> --
+> Best Regard!
+> 礼！
+> ----------------------------------------------------
+> hugang : 胡刚 	GNU/Linux User
+> email  : gang_hu@soul.com.cn linuxbest@soul.com.cn
+> Tel    : +861068425741/2/3/4
+> Web    : http://www.soul.com.cn
+>
+> 	Beijing Soul technology Co.Ltd.
+> 	   北京众志和达科技有限公司
+> ----------------------------------------------------
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

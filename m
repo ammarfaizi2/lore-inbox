@@ -1,55 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264095AbTDJQW1 (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 12:22:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264093AbTDJQWW (for <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Apr 2003 12:22:22 -0400
-Received: from verdi.et.tudelft.nl ([130.161.38.158]:3715 "EHLO
-	verdi.et.tudelft.nl") by vger.kernel.org with ESMTP id S264092AbTDJQWU (for <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Apr 2003 12:22:20 -0400
-Message-Id: <200304101633.h3AGXs314320@verdi.et.tudelft.nl>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-X-Exmh-Isig-CompType: repl
-X-Exmh-Isig-Folder: inbox
-To: Joel Becker <Joel.Becker@oracle.com>
-cc: Rob van Nieuwkerk <robn@verdi.et.tudelft.nl>,
-       Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
-Subject: Re: O_DIRECT alignment requirements ? 
-In-Reply-To: Message from Joel Becker <Joel.Becker@oracle.com> 
-   of "Wed, 09 Apr 2003 16:27:15 PDT." <20030409232715.GE31739@ca-server1.us.oracle.com> 
+	id S264093AbTDJQ0y (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 12:26:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264098AbTDJQ0x (for <rfc822;linux-kernel-outgoing>);
+	Thu, 10 Apr 2003 12:26:53 -0400
+Received: from serenity.mcc.ac.uk ([130.88.200.93]:34319 "EHLO
+	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP id S264097AbTDJQ0w (for <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Apr 2003 12:26:52 -0400
+Date: Thu, 10 Apr 2003 17:38:28 +0100
+From: John Levon <levon@movementarian.org>
+To: Andries.Brouwer@cwi.nl
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: Re: [PATCH] kill two scsi ioctls
+Message-ID: <20030410163828.GC93213@compsoc.man.ac.uk>
+References: <UTC200304101633.h3AGXQ125592.aeb@smtp.cwi.nl>
 Mime-Version: 1.0
-Content-Type: text/plain
-Date: Thu, 10 Apr 2003 18:33:54 +0200
-From: Rob van Nieuwkerk <robn@verdi.et.tudelft.nl>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <UTC200304101633.h3AGXQ125592.aeb@smtp.cwi.nl>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Mr. Scruff - Trouser Jazz
+X-Spam-Score: -30.9 (------------------------------)
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *193f4G-000Ppg-Pd*0BiOk7z6oMk*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Wed, Apr 09, 2003 at 11:09:23PM +0200, Rob van Nieuwkerk wrote:
-> > But a friend of mine uses O_DIRECT with 2.4 kernels to read *individual*
-> > single harddisk sectors of 512 bytes !  He claims that my original
-> > theory is the right one and that you can read 512 byte chunks on 512
-> > byte bounderies (he uses the complete device eg. /dev/hda).
-> 
-> 	Well, how does your friend access /dev/hda?  Is he using raw
-> devices?
+On Thu, Apr 10, 2003 at 06:33:26PM +0200, Andries.Brouwer@cwi.nl wrote:
 
-Hi all,
+> The definition for SCSI_IOCTL_BENCHMARK_COMMAND was added in 1.1.2.
+> The definition for SCSI_IOCTL_SYNC was added in 1.1.38.
+> Neither of them has ever been used.
 
-OK, I checked again with him.  It turns out there was some confusion.
-He does read in *1024* byte chunks after all (accessing /dev/hdX
-directly) ..
+Can't you at least add a comment about what was there ? It's quite
+annoying to come across :
 
-But I still need to do 512 byte chunks myself (*).
-I understand that this can be done with the the raw device construction ?
+#define FOO 1
+#define BAR 2
+#define BAZ 5
 
-Would it also be possible to change the device blocksize with a BLKBSZSET
-ioctl() to 512 and do 512 byte transfers after that ?
+and have no idea why
 
-	greetings,
-	Rob van Nieuwkerk
-
-
-*: you might wonder why I'm so obsessed with 512 transfers ..
-   The reason is that I'm working with a USB device (driver) that
-   dies when there is too much CompactFlash IDE access (because
-   of data-records logged to the CF).  I want to have the absolute
-   minimum amount of disk-access.
+regards
+john

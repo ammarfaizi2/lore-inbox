@@ -1,77 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266129AbUGJFHN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266142AbUGJF2Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266129AbUGJFHN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jul 2004 01:07:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266141AbUGJFHN
+	id S266142AbUGJF2Y (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jul 2004 01:28:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266143AbUGJF2X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jul 2004 01:07:13 -0400
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:48547 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S266129AbUGJFHL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jul 2004 01:07:11 -0400
-Message-ID: <40EF797E.6060601@namesys.com>
-Date: Fri, 09 Jul 2004 22:07:10 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: jmerkey@comcast.net
-CC: Pete Harlan <harlan@artselect.com>, linux-kernel@vger.kernel.org
-Subject: Re: Ext3 File System "Too many files" with snort
-References: <070920041920.2370.40EEEFFD000B341B000009422200763704970A059D0A0306@comcast.net>
-In-Reply-To: <070920041920.2370.40EEEFFD000B341B000009422200763704970A059D0A0306@comcast.net>
-X-Enigmail-Version: 0.83.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 10 Jul 2004 01:28:23 -0400
+Received: from palrel10.hp.com ([156.153.255.245]:16593 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S266142AbUGJF2T (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jul 2004 01:28:19 -0400
+Date: Fri, 9 Jul 2004 22:28:15 -0700
+From: David Mosberger <davidm@napali.hpl.hp.com>
+Message-Id: <200407100528.i6A5SF8h020094@napali.hpl.hp.com>
+To: mingo@redhat.com, suresh.b.siddha@intel.com, jun.nakajima@intel.com,
+       akpm@osdl.org, torvalds@osdl.org
+Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: serious performance regression due to NX patch
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Reply-To: davidm@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jmerkey@comcast.net wrote:
+The "No eXecute patch for x86" causes a serious exec() performance
+degradation on ia64 since it ends up incorrectly turning on the
+execute protection on all segments (since most ia64 binaries don't
+have a gnu_stack program-header).
 
->>Reiser3 lets a directory have more than 32000 subdirectories already.
->>I ran into this problem two weeks ago on an ext3 filesystem and found
->>Reiser didn't have the problem.  My reiser3 directory had 1million+
->>subdirs before I killed my test program.
->>
->>I believe it still has a similar limit on the number of hard links,
->>but it doesn't implement ".." as a hard link.
->>
->>--Pete
->>
->>
->>    
->>
->
->NetWare has always supported more than this, so this whole idea of fixed inode tables 
->is somewhat strange to me to start with.  I am still looking through Hans code, but if 
->this is accurate I'll just take a system out Monday and see if it works.  My only concern 
->with Reiser has to do with the bug reports I've seen on it over the years, but Suse is 
->shipping it as default, and we have been running it here for about a year on a production 
->server.  I'll post if it crashes, corrupts data, or has problems.  
->
->Jeff
->
->
->
->
->
->  
->
-Don't use it on redhat systems, those bug reports tend to be for redhat 
-kernels, redhat refuses to apply our bugfixes that we send in to the 
-official kernel because they want us to look bad.  I sound so paranoid 
-when I say that, but they really do refuse to apply our bugfixes.
+The patch below fixes the problem by turning on VM_EXEC and VM_MAYEXEC
+only if VM_DATA_DEFAULT_FLAGS mentions them.  Note that on ia64, the
+value of VM_DATA_DEFAULT_FLAGS depends on the personality (to support
+x86 binaries) and hence I had to move the setting of "def_flags" down
+a bit to a point after SET_PERSONALITY() has been done.
 
-ReiserFS V3 has been very stable for quite some time in 2.4.x.  There 
-were some instabilities recently in some versions of 2.6.x due to code 
-changes not by our team. sigh....
+Please apply.
 
-We at Namesys are much more conservative in code changes for V3 than 
-ext*.  I can't control some of the changes by SuSE though that have 
-added some bugs that could have been caught by more serious QA.  (SuSE 
-adheres to the usual linux lack of QA approach, it is not that they are 
-bad, but that they conform to the social norm for linux.)  Hopefully I 
-will have more control over that in V4.
+	--david
 
-Hans
+===== fs/binfmt_elf.c 1.78 vs edited =====
+--- 1.78/fs/binfmt_elf.c	2004-06-29 07:43:10 -07:00
++++ edited/fs/binfmt_elf.c	2004-07-09 21:53:05 -07:00
+@@ -493,8 +493,8 @@
+ 	char passed_fileno[6];
+ 	struct files_struct *files;
+ 	int executable_stack = EXSTACK_DEFAULT;
+-	unsigned long def_flags = 0;
+-	
++	unsigned long no_gnu_stack, def_flags = 0;
++
+ 	/* Get the exec-header */
+ 	elf_ex = *((struct elfhdr *) bprm->buf);
+ 
+@@ -627,8 +627,7 @@
+ 				executable_stack = EXSTACK_DISABLE_X;
+ 			break;
+ 		}
+-	if (i == elf_ex.e_phnum)
+-		def_flags |= VM_EXEC | VM_MAYEXEC;
++	no_gnu_stack = (i == elf_ex.e_phnum);
+ 
+ 	/* Some simple consistency checks for the interpreter */
+ 	if (elf_interpreter) {
+@@ -662,6 +661,10 @@
+ 		/* Executables without an interpreter also need a personality  */
+ 		SET_PERSONALITY(elf_ex, ibcs2_interpreter);
+ 	}
++
++	/* Now that personality is set, we can use VM_DATA_DEFAULT_FLAGS.  */
++	if (no_gnu_stack)
++		def_flags |= VM_DATA_DEFAULT_FLAGS & (VM_EXEC | VM_MAYEXEC);
+ 
+ 	/* OK, we are done with that, now set up the arg stuff,
+ 	   and then start this sucker up */

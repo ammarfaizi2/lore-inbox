@@ -1,241 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262215AbUCABYR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Feb 2004 20:24:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262216AbUCABYR
+	id S262076AbUCABkW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Feb 2004 20:40:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262080AbUCABkV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Feb 2004 20:24:17 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:24990 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262215AbUCABXw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Feb 2004 20:23:52 -0500
-Date: Sun, 29 Feb 2004 20:24:15 -0500 (EST)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@thoron.boston.redhat.com
-To: Andrew Morton <akpm@osdl.org>
-cc: Christoph Hellwig <hch@infradead.org>,
-       Stephen Smalley <sds@epoch.ncsc.mil>, <linux-kernel@vger.kernel.org>,
-       Chris Wright <chrisw@osdl.org>
-Subject: Re: [SELINUX] Handle fuse binary mount data.
-In-Reply-To: <20040229150213.3ebd7ef9.akpm@osdl.org>
-Message-ID: <Xine.LNX.4.44.0402291938140.22392-100000@thoron.boston.redhat.com>
+	Sun, 29 Feb 2004 20:40:21 -0500
+Received: from lindsey.linux-systeme.com ([62.241.33.80]:11781 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S262076AbUCABkQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Feb 2004 20:40:16 -0500
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.4-rc1-mm1
+Date: Mon, 1 Mar 2004 02:39:11 +0100
+User-Agent: KMail/1.6.1
+Cc: Andrew Morton <akpm@osdl.org>
+References: <20040229140617.64645e80.akpm@osdl.org>
+In-Reply-To: <20040229140617.64645e80.akpm@osdl.org>
+X-Operating-System: Linux 2.4.20-wolk4.10s i686 GNU/Linux
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_/QpQACMSBYuzS37"
+Message-Id: <200403010239.11725@WOLK>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 29 Feb 2004, Andrew Morton wrote:
 
-> Christoph Hellwig <hch@infradead.org> wrote:
->
-> > Umm, binary mount data is bad enough, but hardcoding filesystem-depend code
-> > in selinux is just bogus..
-> 
-> Yes, it's rather awkward.
-> 
-> Could we do something such as passing a new mount flag in from userspace? 
-> Add a new flag alongside MS_SYNCHRONOUS, MS_REMOUNT and friends?
+--Boundary-00=_/QpQACMSBYuzS37
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-It seems more like a property of the filesystem type: perhaps add 
-FS_BINARY_MOUNTDATA to fs_flags for such filesystems, per the patch below.
+On Sunday 29 February 2004 23:06, Andrew Morton wrote:
 
-We also need to change one of the LSM hook arguments.
+Hi Andrew,
 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.4-rc1/2.6
+>.4-rc1-mm1/
+> +modular-mce-handler.patch
+>  permit the x86 MCE handler to be used as a module.
 
-diff -urN -X dontdiff linux-2.6.3-mm4.o/fs/afs/super.c linux-2.6.3-mm4.w/fs/afs/super.c
---- linux-2.6.3-mm4.o/fs/afs/super.c	2004-02-04 08:39:05.000000000 -0500
-+++ linux-2.6.3-mm4.w/fs/afs/super.c	2004-02-29 19:50:28.797502696 -0500
-@@ -53,6 +53,7 @@
- 	.name		= "afs",
- 	.get_sb		= afs_get_sb,
- 	.kill_sb	= kill_anon_super,
-+	.fs_flags	= FS_BINARY_MOUNTDATA,
- };
- 
- static struct super_operations afs_super_ops = {
-diff -urN -X dontdiff linux-2.6.3-mm4.o/fs/coda/inode.c linux-2.6.3-mm4.w/fs/coda/inode.c
---- linux-2.6.3-mm4.o/fs/coda/inode.c	2003-09-27 20:50:20.000000000 -0400
-+++ linux-2.6.3-mm4.w/fs/coda/inode.c	2004-02-29 19:49:14.272832168 -0500
-@@ -306,5 +306,6 @@
- 	.name		= "coda",
- 	.get_sb		= coda_get_sb,
- 	.kill_sb	= kill_anon_super,
-+	.fs_flags	= FS_BINARY_MOUNTDATA,
- };
- 
-diff -urN -X dontdiff linux-2.6.3-mm4.o/fs/nfs/inode.c linux-2.6.3-mm4.w/fs/nfs/inode.c
---- linux-2.6.3-mm4.o/fs/nfs/inode.c	2004-02-25 22:42:12.000000000 -0500
-+++ linux-2.6.3-mm4.w/fs/nfs/inode.c	2004-02-29 19:48:24.350421528 -0500
-@@ -1406,7 +1406,7 @@
- 	.name		= "nfs",
- 	.get_sb		= nfs_get_sb,
- 	.kill_sb	= nfs_kill_super,
--	.fs_flags	= FS_ODD_RENAME|FS_REVAL_DOT,
-+	.fs_flags	= FS_ODD_RENAME|FS_REVAL_DOT|FS_BINARY_MOUNTDATA,
- };
- 
- #ifdef CONFIG_NFS_V4
-@@ -1720,7 +1720,7 @@
- 	.name		= "nfs4",
- 	.get_sb		= nfs4_get_sb,
- 	.kill_sb	= nfs_kill_super,
--	.fs_flags	= FS_ODD_RENAME|FS_REVAL_DOT,
-+	.fs_flags	= FS_ODD_RENAME|FS_REVAL_DOT|FS_BINARY_MOUNTDATA,
- };
- 
- #define nfs4_zero_state(nfsi) \
-diff -urN -X dontdiff linux-2.6.3-mm4.o/fs/smbfs/inode.c linux-2.6.3-mm4.w/fs/smbfs/inode.c
---- linux-2.6.3-mm4.o/fs/smbfs/inode.c	2003-10-15 08:53:19.000000000 -0400
-+++ linux-2.6.3-mm4.w/fs/smbfs/inode.c	2004-02-29 19:50:58.172037088 -0500
-@@ -778,6 +778,7 @@
- 	.name		= "smbfs",
- 	.get_sb		= smb_get_sb,
- 	.kill_sb	= kill_anon_super,
-+	.fs_flags	= FS_BINARY_MOUNTDATA,
- };
- 
- static int __init init_smb_fs(void)
-diff -urN -X dontdiff linux-2.6.3-mm4.o/fs/super.c linux-2.6.3-mm4.w/fs/super.c
---- linux-2.6.3-mm4.o/fs/super.c	2004-02-25 22:42:12.000000000 -0500
-+++ linux-2.6.3-mm4.w/fs/super.c	2004-02-29 19:56:03.687591664 -0500
-@@ -746,7 +746,7 @@
- 			goto out_mnt;
- 		}
- 
--		error = security_sb_copy_data(fstype, data, secdata);
-+		error = security_sb_copy_data(type, data, secdata);
- 		if (error) {
- 			sb = ERR_PTR(error);
- 			goto out_free_secdata;
-diff -urN -X dontdiff linux-2.6.3-mm4.o/include/linux/fs.h linux-2.6.3-mm4.w/include/linux/fs.h
---- linux-2.6.3-mm4.o/include/linux/fs.h	2004-02-25 22:42:14.000000000 -0500
-+++ linux-2.6.3-mm4.w/include/linux/fs.h	2004-02-29 19:43:33.922573272 -0500
-@@ -89,6 +89,7 @@
- 
- /* public flags for file_system_type */
- #define FS_REQUIRES_DEV 1 
-+#define FS_BINARY_MOUNTDATA 2
- #define FS_REVAL_DOT	16384	/* Check the paths ".", ".." for staleness */
- #define FS_ODD_RENAME	32768	/* Temporary stuff; will go away as soon
- 				  * as nfs_rename() will be cleaned up
-diff -urN -X dontdiff linux-2.6.3-mm4.o/include/linux/security.h linux-2.6.3-mm4.w/include/linux/security.h
---- linux-2.6.3-mm4.o/include/linux/security.h	2004-02-25 22:42:14.000000000 -0500
-+++ linux-2.6.3-mm4.w/include/linux/security.h	2004-02-29 19:57:58.125194504 -0500
-@@ -177,7 +177,7 @@
-  *	options cleanly (a filesystem may modify the data e.g. with strsep()).
-  *	This also allows the original mount data to be stripped of security-
-  *	specific options to avoid having to make filesystems aware of them.
-- *	@fstype the type of filesystem being mounted.
-+ *	@type the type of filesystem being mounted.
-  *	@orig the original mount data copied from userspace.
-  *	@copy copied data which will be passed to the security module.
-  *	Returns 0 if the copy was successful.
-@@ -1033,7 +1033,8 @@
- 
- 	int (*sb_alloc_security) (struct super_block * sb);
- 	void (*sb_free_security) (struct super_block * sb);
--	int (*sb_copy_data)(const char *fstype, void *orig, void *copy);
-+	int (*sb_copy_data)(struct file_system_type *type,
-+			    void *orig, void *copy);
- 	int (*sb_kern_mount) (struct super_block *sb, void *data);
- 	int (*sb_statfs) (struct super_block * sb);
- 	int (*sb_mount) (char *dev_name, struct nameidata * nd,
-@@ -1318,9 +1319,10 @@
- 	security_ops->sb_free_security (sb);
- }
- 
--static inline int security_sb_copy_data (const char *fstype, void *orig, void *copy)
-+static inline int security_sb_copy_data (struct file_system_type *type,
-+					 void *orig, void *copy)
- {
--	return security_ops->sb_copy_data (fstype, orig, copy);
-+	return security_ops->sb_copy_data (type, orig, copy);
- }
- 
- static inline int security_sb_kern_mount (struct super_block *sb, void *data)
-@@ -1988,7 +1990,8 @@
- static inline void security_sb_free (struct super_block *sb)
- { }
- 
--static inline int security_sb_copy_data (const char *fstype, void *orig, void *copy)
-+static inline int security_sb_copy_data (struct file_system_type *type,
-+					 void *orig, void *copy)
- {
- 	return 0;
- }
-diff -urN -X dontdiff linux-2.6.3-mm4.o/security/dummy.c linux-2.6.3-mm4.w/security/dummy.c
---- linux-2.6.3-mm4.o/security/dummy.c	2004-02-25 22:42:16.000000000 -0500
-+++ linux-2.6.3-mm4.w/security/dummy.c	2004-02-29 19:58:29.999348896 -0500
-@@ -194,7 +194,8 @@
- 	return;
- }
- 
--static int dummy_sb_copy_data (const char *fstype, void *orig, void *copy)
-+static int dummy_sb_copy_data (struct file_system_type *type,
-+			       void *orig, void *copy)
- {
- 	return 0;
- }
-diff -urN -X dontdiff linux-2.6.3-mm4.o/security/selinux/hooks.c linux-2.6.3-mm4.w/security/selinux/hooks.c
---- linux-2.6.3-mm4.o/security/selinux/hooks.c	2004-02-25 22:42:16.000000000 -0500
-+++ linux-2.6.3-mm4.w/security/selinux/hooks.c	2004-02-29 20:15:19.841829504 -0500
-@@ -331,25 +331,24 @@
- 
- 	name = sb->s_type->name;
- 
--	/* Ignore these fileystems with binary mount option data. */
--	if (!strcmp(name, "coda") ||
--	    !strcmp(name, "afs") || !strcmp(name, "smbfs"))
--		goto out;
--
--	/* NFS we understand. */
--	if (!strcmp(name, "nfs")) {
--		struct nfs_mount_data *d = data;
-+	if (sb->s_type->fs_flags & FS_BINARY_MOUNTDATA) {
- 
--		if (d->version <  NFS_MOUNT_VERSION)
-+		/* NFS we understand. */
-+		if (!strcmp(name, "nfs")) {
-+			struct nfs_mount_data *d = data;
-+			
-+			if (d->version <  NFS_MOUNT_VERSION)
-+				goto out;
-+				
-+			if (d->context[0]) {
-+				context = d->context;
-+				seen |= Opt_context;
-+			}
-+		} else
- 			goto out;
- 
--		if (d->context[0]) {
--			context = d->context;
--			seen |= Opt_context;
--		}
--
--	/* Standard string-based options. */
- 	} else {
-+		/* Standard string-based options. */
- 		char *p, *options = data;
- 
- 		while ((p = strsep(&options, ",")) != NULL) {
-@@ -1886,7 +1885,7 @@
- 	*to += len;
- }
- 
--static int selinux_sb_copy_data(const char *fstype, void *orig, void *copy)
-+static int selinux_sb_copy_data(struct file_system_type *type, void *orig, void *copy)
- {
- 	int fnosec, fsec, rc = 0;
- 	char *in_save, *in_curr, *in_end;
-@@ -1896,8 +1895,7 @@
- 	sec_curr = copy;
- 
- 	/* Binary mount data: just copy */
--	if (!strcmp(fstype, "nfs") || !strcmp(fstype, "coda") ||
--	    !strcmp(fstype, "smbfs") || !strcmp(fstype, "afs")) {
-+	if (type->fs_flags & FS_BINARY_MOUNTDATA) {
- 		copy_page(sec_curr, in_curr);
- 		goto out;
- 	}
+This needs following patch for module, otherwise there's an unresolved symbol.
 
+ciao, Marc
+
+--Boundary-00=_/QpQACMSBYuzS37
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="2.6.4-rc1-mm1-fixups.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="2.6.4-rc1-mm1-fixups.patch"
+
+--- old/arch/i386/kernel/i386_ksyms.c	2004-03-01 02:34:02.000000000 +0100
++++ new/arch/i386/kernel/i386_ksyms.c	2004-03-01 02:36:05.000000000 +0100
+@@ -206,3 +206,8 @@ EXPORT_SYMBOL(ist_info);
+ #endif
+ 
+ EXPORT_SYMBOL(csum_partial);
++
++#ifdef CONFIG_X86_MCE_NONFATAL_MODULE
++extern int (nr_mce_banks);
++EXPORT_SYMBOL(nr_mce_banks);
++#endif
+
+--Boundary-00=_/QpQACMSBYuzS37--

@@ -1,36 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284696AbRLEUtQ>; Wed, 5 Dec 2001 15:49:16 -0500
+	id <S284705AbRLEUt4>; Wed, 5 Dec 2001 15:49:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284698AbRLEUs4>; Wed, 5 Dec 2001 15:48:56 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:13959 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S284696AbRLEUsv>;
-	Wed, 5 Dec 2001 15:48:51 -0500
-Date: Wed, 05 Dec 2001 12:48:45 -0800 (PST)
-Message-Id: <20011205.124845.98557414.davem@redhat.com>
-To: rddunlap@osdl.org
-Cc: caulfield@sistina.com, linux-kernel@vger.kernel.org
-Subject: Re: ioctl32 patch for LVM
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.33L2.0112051235250.22241-100000@dragon.pdx.osdl.net>
-In-Reply-To: <20011205.010548.08321570.davem@redhat.com>
-	<Pine.LNX.4.33L2.0112051235250.22241-100000@dragon.pdx.osdl.net>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S284704AbRLEUtr>; Wed, 5 Dec 2001 15:49:47 -0500
+Received: from mail.xmailserver.org ([208.129.208.52]:64267 "EHLO
+	mail.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S284703AbRLEUtd>; Wed, 5 Dec 2001 15:49:33 -0500
+Date: Wed, 5 Dec 2001 13:00:31 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Manfred Spraul <manfred@colorfullife.com>
+cc: Shuji YAMAMURA <yamamura@flab.fujitsu.co.jp>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] task_struct + kernel stack colouring ...
+In-Reply-To: <3C0E84B4.1070808@colorfullife.com>
+Message-ID: <Pine.LNX.4.40.0112051257230.1644-100000@blue1.dev.mcafeelabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: rddunlap@osdl.org
-   Date: Wed, 5 Dec 2001 12:36:09 -0800 (PST)
+On Wed, 5 Dec 2001, Manfred Spraul wrote:
 
-   On Wed, 5 Dec 2001, David S. Miller wrote:
-   
-   |    http://vger.kernel.org/
-   
-   How does one do this, Dave?
-   
-   That web page doesn't list anything about CVS...
+> Davide Libenzi wrote
+>
+> >
+> >
+> >By adding three bits of colouring you're going to cut the collision of
+> >about 1/8.
+> >
+> No, Shuji is right:
+> You have just shifted the problem, without reducing collisions.
+> 256 kB, 4 way cache with 32 byte linesize.
+>
+> cacheline == bits 15..5
+> offset within cacheline: bits 4..0
+>
+> The colouring must depend on more than just bits 13 to 15 - if these
+> bits are different, then the access goes into a different line even
+> without colouring, there won't be a collision.
 
-Sorry, I meant "http://vger.samba.org" :-)
+Yep, damn true, using 13..15 I'll get "vertical" shift that is already
+implicit.
+In that case we need a more deep knowledge of the cache architecture like
+size and associativity.
+
+
+
+
+- Davide
+
+

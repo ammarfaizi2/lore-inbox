@@ -1,57 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315200AbSGUXBc>; Sun, 21 Jul 2002 19:01:32 -0400
+	id <S315456AbSGVBJQ>; Sun, 21 Jul 2002 21:09:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315210AbSGUXBc>; Sun, 21 Jul 2002 19:01:32 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:38596 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
-	id <S315200AbSGUXBb>; Sun, 21 Jul 2002 19:01:31 -0400
-Date: Mon, 22 Jul 2002 01:04:25 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Mike Galbraith <efault@gmx.de>
-cc: Tomas Szepe <szepe@pinerecords.com>,
-       Thunder from the hill <thunder@ngforever.de>,
-       Andre Hedrick <andre@linux-ide.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: Give Bartlomiej a break!  (Re: Impressions of IDE 98?)
-Message-ID: <Pine.SOL.4.30.0207220032410.15795-100000@mion.elka.pw.edu.pl>
+	id <S315442AbSGVBJQ>; Sun, 21 Jul 2002 21:09:16 -0400
+Received: from moutvdom01.kundenserver.de ([195.20.224.200]:18540 "EHLO
+	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S315454AbSGVBJP>; Sun, 21 Jul 2002 21:09:15 -0400
+Date: Sun, 21 Jul 2002 19:12:20 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Szakacsits Szabolcs <szaka@sienet.hu>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Adrian Bunk <bunk@fs.tum.de>,
+       Robert Love <rml@tech9.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] strict VM overcommit
+In-Reply-To: <Pine.LNX.4.30.0207211705220.701-100000@divine.city.tvnet.hu>
+Message-ID: <Pine.LNX.4.44.0207211908320.3309-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf; Germany
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-On Sun, 21 Jul 2002, Mike Galbraith wrote:
+On Sun, 21 Jul 2002, Szakacsits Szabolcs wrote:
+> What about the many hundred counter-examples
 
->> Well you don't necessarily have to be an IDE guru to realize something's
->> wrong when you see a bloke constantly breaking the subsystem, practically
->> never fixing it up himself, disappearing for a month w/o saying a word
->> after having fried 2.5.25 completely and not really caring about what
->> others have to say about the code.
+These cases are different.
 
-> No, you don't have to be a guru to notice that the rewrite is proving
-> difficult.
+> (e.g. umount gives EBUSY,
 
-You also don't have to be a guru to notice that recently most of the
-content of the rewrite is moving code here and there, unfolding functions,
-renaming them and changing intendation. Check yourself.
-Also imagine how hard is now to track changes from 2.4 to 2.5
-now and fix bugs.
+Simply because you _will_ lose data if you umount a device that's being 
+scribbled on.
 
-Yup, please give me a break from having to track this changes. :-)
+> kill can't kill processes in uninterruptible sleep
 
-If you go through all the ide-clean patches you will see that much
-of the cruft has been removed, some things fixed but there is still
-plenty of work to do.
+Because the uninterruptible sleep means the process is waiting for data. 
+If you destroy the process and kill an interrupt handler, you _will_ 
+crash.
 
-Next problem is that Martin seems to not care that his style of
-development (pushing stuff immediately to Linus instead of lkml -> some
-reasonable delay -> Linus) _constantly_ interferes other people doing
-kernel hacking.
+> , etc, etc)? Why the system knows better then admin in these cases? Why
+> just don't destroy the data, crash the system as you suggest in your
+> case?
 
-I don't want next flamewar or personal bashing here,
-please only _think_ for a while about issues raised.
+This case is different. If you swapoff /dev/scsi/path/to/dead/disk, your 
+system will likely live on. Possibly you'll have some tasks killed, but 
+we're well up.
 
-Regards
---
-Bartlomiej
+Alan was referring to cases where it's unlikely that we die of it, you're 
+referring to cases where it's clear that the system won't get through.
+
+							Regards,
+							Thunder
+-- 
+(Use http://www.ebb.org/ungeek if you can't decode)
+------BEGIN GEEK CODE BLOCK------
+Version: 3.12
+GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+e++++ h* r--- y- 
+------END GEEK CODE BLOCK------
 

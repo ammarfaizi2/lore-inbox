@@ -1,54 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264428AbTL3GmP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Dec 2003 01:42:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264445AbTL3GmP
+	id S264445AbTL3GzJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Dec 2003 01:55:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264450AbTL3GzJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Dec 2003 01:42:15 -0500
-Received: from fw.osdl.org ([65.172.181.6]:60040 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264428AbTL3GmO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Dec 2003 01:42:14 -0500
-Date: Mon, 29 Dec 2003 22:42:06 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: "Murray J. Root" <murrayr@brain.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0 kernel panic
-In-Reply-To: <20031230033036.GA2158@Master.Wizards>
-Message-ID: <Pine.LNX.4.58.0312292238390.4176@home.osdl.org>
-References: <20031228020759.GA2158@Master.Wizards> <20031230033036.GA2158@Master.Wizards>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 30 Dec 2003 01:55:09 -0500
+Received: from louise.pinerecords.com ([213.168.176.16]:32234 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id S264445AbTL3GzH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Dec 2003 01:55:07 -0500
+Date: Tue, 30 Dec 2003 07:54:39 +0100
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Wakko Warner <wakko@animx.eu.org>
+Cc: Samuel Flory <sflory@rackable.com>, linux-kernel@vger.kernel.org
+Subject: Re: Best Low-cost IDE RAID Solution For 2.6.x? (OT?)
+Message-ID: <20031230065439.GA1517@louise.pinerecords.com>
+References: <20031228180424.GA16622@mail-infomine.ucr.edu> <3FEF8CFD.7060502@rackable.com> <20031229134150.GB30794@louise.pinerecords.com> <20031229185908.GB31215@mail-infomine.ucr.edu> <3FF07AD8.2040601@rackable.com> <20031229190327.B5729@animx.eu.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031229190327.B5729@animx.eu.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Dec-29 2003, Mon, 19:03 -0500
+Wakko Warner <wakko@animx.eu.org> wrote:
 
-
-On Mon, 29 Dec 2003, Murray J. Root wrote:
-> On Sat, Dec 27, 2003 at 09:07:59PM -0500, Murray J. Root wrote:
-> > P4 2GHz
-> > ASUS P4S533 mainboard
-> > 1G PC2700 RAM
-> > GF2 GTS video using nv driver
-> > 2.6.0 compiled with gcc 3.3.2
-> > 
-> > At boot kernel gets:
-> >    INIT: cannot execute "/etc/rc.d/rc.sysinit"
-> > then panic.
-> > 
-> > Same configuration for 2.6.0-test11 and earlier works fine.
-> > 
+> > nice about bad sectors as most hardware raid controllers.  On the other 
+> > hand the md driver kicks the ass of nearly every raid controller I've tried.
 > 
-> To answer myself, I did a diff between 2.6.0-test11 and 2.6.0. Found this:
+> Faster than the mylex extreme raid 2000?  or one of the higher end adaptecs?
 
-Sounds like one of the partitions that has the executable script loader is
-mounted with "noexec". 
+Even faster than HP/Compaq cciss hwraid setups, yes.
 
-On most systems, /etc/rc.d/rc.sysinit is a bash script, and explicitly
-points to /bin/bash. Check "ldd /bin/bash", and verify that all the
-libraries (and /bin itself, of course) are mounted on executable
-filesystems.
-
-That would be a bug that 2.6.0 uncovers. 
-
-		Linus
+-- 
+Tomas Szepe <szepe@pinerecords.com>

@@ -1,76 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261650AbUKWXlm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261635AbUKWXnw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261650AbUKWXlm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 18:41:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261654AbUKWXiw
+	id S261635AbUKWXnw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 18:43:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261662AbUKWXmM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 18:38:52 -0500
-Received: from pop.gmx.net ([213.165.64.20]:54667 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261631AbUKWXgO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 18:36:14 -0500
-X-Authenticated: #20450766
-Date: Wed, 24 Nov 2004 00:35:25 +0100 (CET)
-From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-To: Len Brown <len.brown@intel.com>
-cc: linux-kernel@vger.kernel.org,
-       ACPI Developers <acpi-devel@lists.sourceforge.net>
-Subject: Re: system slow since ~ 2.6.7
-In-Reply-To: <1101186291.20008.247.camel@d845pe>
-Message-ID: <Pine.LNX.4.60.0411240026360.6361@poirot.grange>
-References: <Pine.LNX.4.60.0411180115490.941@poirot.grange>
- <1101186291.20008.247.camel@d845pe>
+	Tue, 23 Nov 2004 18:42:12 -0500
+Received: from smtp09.auna.com ([62.81.186.19]:5555 "EHLO smtp09.retemail.es")
+	by vger.kernel.org with ESMTP id S261631AbUKWXjA convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Nov 2004 18:39:00 -0500
+Date: Tue, 23 Nov 2004 22:31:43 +0000
+From: "J.A. Magallon" <jamagallon@able.es>
+Subject: Re: Network slowdown from 2.6.7 to 2.6.9
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+References: <419A9151.2000508@atmos.washington.edu>
+	<20041116163257.0e63031d@zqx3.pdx.osdl.net>
+	<cone.1100651833.776334.15267.502@pc.kolivas.org>
+	<419BA5C4.4020503@atmos.washington.edu>
+	<1100722571.20185.9.camel@tux.rsn.bth.se>
+	<419BBF57.3040808@atmos.washington.edu>
+	<1100727847.20185.31.camel@tux.rsn.bth.se>
+	<41A27868.80703@atmos.washington.edu>
+	<20041123100450.3cbb82e6@zqx3.pdx.osdl.net>
+In-Reply-To: <20041123100450.3cbb82e6@zqx3.pdx.osdl.net> (from
+	shemminger@osdl.org on Tue Nov 23 19:04:50 2004)
+X-Mailer: Balsa 2.2.6
+Message-Id: <1101249103l.10296l.0l@werewolf.able.es>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for the reply
 
-On Tue, 23 Nov 2004, Len Brown wrote:
-
-> On Wed, 2004-11-17 at 19:25, Guennadi Liakhovetski wrote:
-> > "Slow" means just running top alone in a vt it takes 1.6% CPU. Under
-> > 2.6.3 it takes 0.2% (Duron 900MHz). Another peculiarity with 2.6.7 and
-> > 2.6.9 is that the power LED is blinking with about 1Hz frequency. It's
-> > an ASUS A7VI-VM motherboard. In the manual there's nothing about
-> > error-codes. I played with various APIC settings - no change. Related
-> > or not - if running with LAPIC enabled (2.6.7), I get quite a few ERR
-> > in /proc/interrupts.
+On 2004.11.23, Stephen Hemminger wrote:
+> On Mon, 22 Nov 2004 15:38:16 -0800
+> Harry Edmon <harry@atmos.washington.edu> wrote:
 > 
-> PCI: Disabling Via external APIC routing
+> > Tried them all - none of them helped.  Use "ntop" I can see that my 
+> > throughput on the Intel gigabit ethernet interface on the system maxes 
+> > out at 15.2 Mbps with 2.6.9.  With 2.6.7 it made it to 35 Mbps.
+> > 
+> > Does anyone have any other suggestions as to what to look for to 
+> > diagnose this problem?
 > 
-> Curiously, this line appears in 2.6.3, but not in 2.6.7 or 2.6.9 dmesg
-> -- even though all the configs build in IOAPIC support.
-
-Well, I think, there's just a local APIC on the system, and that is 
-disabled in BIOS (there's no way to enable it). 2.6.3 disables VIA 
-external APIC routing, as you noticed, whereas 2.6.7 sais 
-
-Local APIC disabled by BIOS -- reenabling.
-Found and enabled local APIC!
-
-2.6.9 respects BIOS decision (I think, there was a thread on LKML on 
-this?):
-
-No local APIC present or hardware disabled
-
-> Can you forward the /proc/interrupts from 2.6.3, and from 2.6.9 with and
-> without acpi=off?  do you see a significant change in /proc/interrupts
-> before and after the sensor-provoked slowness starts?
+> Well, before the TSO changes, if TSO was enabled then TCP would not obey slow
+> start or do congestion control properly.  Did you increase the TCP send/receive
+> buffers (sysctl's net.ipv4.tcp_rmem and net.ipv4.tcp_wmem)? You may just
+> be window limited.  Also, 2.6.9 has TCP bugs with TSO that can cause panic's.
+> These have been fixed in 2.6.10-rc2.
 > 
-> if you build 2.6.9 w/o the CONFIG_ACPI_PROCESSOR and boot w/o cmdline
-> params, do you still see slowness?
-> 
-> if you boot 2.6.9 with these parameters, do you see any additional dmesg
-> lines?
-> 
-> acpi_dbg_level=0xF acpi_dbg_layer=0xFFFF3FFF
 
-I'll try to do all this tomorrow and report results.
+With two 2.6.9 boxes (really, 2.6.9-mm1 and 2.6.9-bproc), I get this:
 
-Thanks
-Guennadi
----
-Guennadi Liakhovetski
+nada:~> iperf -s
+------------------------------------------------------------
+Server listening on TCP port 5001
+TCP window size: 85.3 KByte (default)
+------------------------------------------------------------
+[  4] local 155.210.155.215 port 5001 connected with 155.210.155.212 port 41695
+[ ID] Interval       Transfer     Bandwidth
+[  4]  0.0-10.0 sec   112 MBytes  94.0 Mbits/sec
+annwn:/proc/sys/net> iperf -c nada
+------------------------------------------------------------
+Client connecting to nada, TCP port 5001
+TCP window size: 16.0 KByte (default)
+------------------------------------------------------------
+[  3] local 155.210.155.212 port 41695 connected with 155.210.155.215 port 5001
+[ ID] Interval       Transfer     Bandwidth
+[  3]  0.0-10.0 sec   112 MBytes  94.0 Mbits/sec
+
+So 94 Mbits/sec, through 100Mb ether. So parhaps the netsork layer
+is not the culprit, just the driver.
+
+BTW:
+
+I'm getting an oops with 2.6.9 that ends on a call to skb_clone,
+using e1000. Is this what you refer to ?
+
+If the answer is yes, do you have any pointer to a patch to fix just
+this ? I would prefer an individual patch instead of full -bk, because
+I use 2.6.9+bproc, and probably bproc wont patch against -bk.
+
+TIA.
+
+--
+J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
+werewolf!able!es                         \         It's better when it's free
+Mandrakelinux release 10.2 (Cooker) for i586
+Linux 2.6.10-rc2-jam3 (gcc 3.4.1 (Mandrakelinux 10.1 3.4.1-4mdk)) #1
+
 

@@ -1,63 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261640AbSKHP3Y>; Fri, 8 Nov 2002 10:29:24 -0500
+	id <S262130AbSKHPev>; Fri, 8 Nov 2002 10:34:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262158AbSKHP3X>; Fri, 8 Nov 2002 10:29:23 -0500
-Received: from mailgw.cvut.cz ([147.32.3.235]:52910 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id <S261640AbSKHP3X>;
-	Fri, 8 Nov 2002 10:29:23 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Rusty Trivial Russell <rusty@rustcorp.com.au>
-Date: Fri, 8 Nov 2002 16:35:26 +0200
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: [TRIVIAL] Re: UP went into unexpected trashing
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-X-mailer: Pegasus Mail v3.50
-Message-ID: <6EF6764388E@vcnet.vc.cvut.cz>
+	id <S262184AbSKHPev>; Fri, 8 Nov 2002 10:34:51 -0500
+Received: from 24-216-100-96.charter.com ([24.216.100.96]:10883 "EHLO
+	wally.rdlg.net") by vger.kernel.org with ESMTP id <S262130AbSKHPeu>;
+	Fri, 8 Nov 2002 10:34:50 -0500
+Date: Fri, 8 Nov 2002 10:41:32 -0500
+From: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: installing modules to ($PREFIX)/lib/modules/2.....
+Message-ID: <20021108154132.GC1319@rdlg.net>
+Mail-Followup-To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>,
+	Linux-Kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On  8 Nov 02 at 19:33, Rusty Trivial Russell wrote:
-> --- trivial-2.5-bk/include/asm-i386/bitops.h.orig   2002-11-08 18:47:20.000000000 +1100
-> +++ trivial-2.5-bk/include/asm-i386/bitops.h    2002-11-08 18:47:20.000000000 +1100
-> @@ -311,12 +311,13 @@
->         "repe; scasl\n\t"
->         "jz 1f\n\t"
->         "leal -4(%%edi),%%edi\n\t"
-> -       "bsfl (%%edi),%%eax\n"
-> -       "1:\tsubl %%ebx,%%edi\n\t"
-> +       "bsfl (%%edi),%%edx\n"
-> +       "subl %%ebx,%%edi\n\t"
->         "shll $3,%%edi\n\t"
-> -       "addl %%edi,%%eax"
-> +       "addl %%edi,%%edx\n\t"
-> +       "1:\tmovl %%edx,%%eax\n\t"
->         :"=a" (res), "=&c" (d0), "=&D" (d1)
-> -       :"1" ((size + 31) >> 5), "2" (addr), "b" (addr));
-> +       :"1" ((size + 31) >> 5), "2" (addr), "b" (addr), "d" (size));
->     return res;
 
-EDX is modified, should not you list "=d" as output, with new variable (d2)?
 
-Or better, drop last line of assembly code, and say that (res) is in
-"d", and list "a" as clobbered or dummy output register.
+  I need to move the modules from a new kernel compile from my compile
+machine to a production test.  Previously this has been done with some
+rsync and diff magic.  The problem is the potential to kill the compile
+server if a module is overwritten that is needed.
 
-And BTW, if you'll do 
+  I've compiled my kernel and modules but want to install the modules to
+/tmp/lib/modules/2.4.18 so I can tar that up and move it to the server
+in question.  Is there a system for doing this built into the kernel
+compile structure I haven't found yet?
 
-unsigned long b = 0x8000;
-find_first_bit(&b, 1);
+Robert
 
-return value will be 15 even with patched function. So either more
-fixing is needed, or code which calls find_first_bit() with value which
-is not multiple of 32 should take special care that last dword does
-not contain set bits after last interesting bit.
 
-So maybe callers should just treat any return value >= size as "not found",
-leaving older smaller code in place.
-                                            Best regards,
-                                                Petr Vandrovec
-                                                vandrove@vc.cvut.cz
-                                                
+
+:wq!
+---------------------------------------------------------------------------
+Robert L. Harris                     | PGP Key ID: FC96D405
+                               
+DISCLAIMER:
+      These are MY OPINIONS ALONE.  I speak for no-one else.
+FYI:
+ perl -e 'print $i=pack(c5,(41*2),sqrt(7056),(unpack(c,H)-2),oct(115),10);'
+

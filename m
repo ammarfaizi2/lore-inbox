@@ -1,105 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289093AbSAUIC3>; Mon, 21 Jan 2002 03:02:29 -0500
+	id <S288956AbSAUI3g>; Mon, 21 Jan 2002 03:29:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289094AbSAUICT>; Mon, 21 Jan 2002 03:02:19 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:54025 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S289093AbSAUICH>;
-	Mon, 21 Jan 2002 03:02:07 -0500
-Date: Mon, 21 Jan 2002 09:01:56 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Andre Hedrick <andre@linuxdiskcert.org>
-Cc: Davide Libenzi <davidel@xmailserver.org>,
-        Anton Altaparmakov <aia21@cam.ac.uk>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.3-pre1-aia1
-Message-ID: <20020121090156.O27835@suse.de>
-In-Reply-To: <20020121083653.N27835@suse.de> <Pine.LNX.4.10.10201202338470.13650-100000@master.linux-ide.org>
+	id <S288999AbSAUI30>; Mon, 21 Jan 2002 03:29:26 -0500
+Received: from dpt-info.u-strasbg.fr ([130.79.44.193]:12037 "EHLO
+	dpt-info.u-strasbg.fr") by vger.kernel.org with ESMTP
+	id <S288956AbSAUI3P>; Mon, 21 Jan 2002 03:29:15 -0500
+Date: Mon, 21 Jan 2002 09:28:51 +0100
+From: Sven <luther@dpt-info.u-strasbg.fr>
+To: James Simmons <jsimmons@transvirtual.com>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
+        Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Linux-fbdev-devel] [PATCH] fbdev fbgen cleanup
+Message-ID: <20020121092851.A11531@dpt-info.u-strasbg.fr>
+In-Reply-To: <20020119182107.A32417@dpt-info.u-strasbg.fr> <Pine.LNX.4.10.10201191443271.22692-100000@www.transvirtual.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.10.10201202338470.13650-100000@master.linux-ide.org>
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <Pine.LNX.4.10.10201191443271.22692-100000@www.transvirtual.com>; from jsimmons@transvirtual.com on Sat, Jan 19, 2002 at 02:50:09PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 20 2002, Andre Hedrick wrote:
-> > No it's not. By your standards, that would mean that if the device is
-> > setup for 16 sector multi mode, then I could never ever issue requests
-> > less than that (without doing some crap 'toss away extra data' stuff).
-> > How else would you handle, eg, 2 sector requests with multi mode set?
+On Sat, Jan 19, 2002 at 02:50:09PM -0800, James Simmons wrote:
 > 
-> Change the opcode in the command block to single sector, if
-> rq->current_nr_sectors != drive->multcount.
-
-That crossed my mind too, however that's not what we've been doing in
-the past and multi mode has worked fine.
-
-> > > The effective operations your changes have created without addressing all
-> > > the variables is to terminate the command in process.  Therefore, the
-> > > decision made by you was to restrict the transfers to be process to the
-> > > count in rq->current_nr_sectors.  There is no bounds checking based on the
-> > > command executed.
+> > Mmm, ...
 > > 
-> > I'm not stopping a request in progress. I told the drive that the
-> > request is current_nr_sectors big, so once it finishes transferring
-> > current_nr_sectors sectors it truly thinks it's really done with that
-> > request. And it is. However, I'm leaving the request on the queue (or,
-> > really, ide_end_request is not taking it off because
-> > end_that_request_first is not indicating it's complete). So I'm simply
-> > starting from scratch with the remaining data. See?
+> > So what is the best place to look at if one wants to do some driver work. Not
+> > that i really have that much time, but i may look into porting the pm3fb
+> > driver to the new scheme, but ruby + 2.5.1 hangs hopelessly for me, and if it
+> > is not the latest stuff around, it would not be the best place to work from.
 > 
-> I know what you are doing, and I am trying to mate the requirement to use
+> The best tree to work with is the Dave Jones tree for 2.5.X. DJ tree
+> provides a better testing ground. Eventually when stuff goes from DJ to
+> Linus tree ruby and 2.5.X will look alot more alike :-) 
 
-Yes
+Mmm, any timeline for the DJ->linus move ?
 
-> the hardware to what you are sending down.  The question you need to
-> answer is issuing a request for multi-sector transfers less than what the
-> device is expecting, sane and correct.  If you tell me it is correct,
-> please show me where I read something wrong in the specification.
+And if i understood you right, ruby is now obsolet, and we should all work
+with the -dj tree ? Does it even make sense to do some work on the older (well
+2.4 and current 2.5) drivers, or is it not adviseable ?
 
-You are saying that even when I do:
+BTW, romain, i have built pm3fb with 2.5.2, there were some modifications
+needed, the major of them was the testing for 2.2 or 2.4 kernels that needed
+changing, and the new info.node, which needed to be changed to
+info.node.values.
 
-	/* this is our request */
-	rq->nr_sectors = 48;
-	rq->current_nr_sectors = 8;
+Also, i tried Petr's suggestions for the corruption while changing from vgacon
+to pm3fb, but it didn't work, i will have to look more in detail about it, i
+remember X had some similar problems with textmode, where the switching to X
+and back corrupted the fonts, which were supposed to be saved. 
 
-	/* drive->mult_count has been programmed to 16 */
+I think this is because in the pm3 board i use, the vga reading/writing is
+corrupt, at least in one of the two (pio or mmio) modes, i think it is mmio
+ones, but i don't remember right. I think in the X driver we solved this by
+hand copying the whole 64k or such of vga stuff, but i don't remember right,
+and i didn't write the code anyway, since i have no knowledge whatsoever of
+the vga stuff.
 
-	/* bla bla command setup */
-	OUT_BYTE(rq->current_nr_sectors, IDE_NSECTOR_REG);
-	ide_set_hander(...);
-	OUT_BYTE(WIN_MULTREAD, IDE_COMMAND_REG);
-
-The drive will be wanting to transfer _16_ sectors, even though I told
-it that I want _8_. This sounds very strange to me, and it means that
-2.2/2.4 etc should have never worked in multi mode. I'll go find the
-spec now... I am just talking out of my ass.
-
-> > > *****************************
-> > > The questions to ask "How would the host terminate a command in progress, 
-> > > since BSY=1 (or DRQ=1) at this point?   Is that done via a DEVICE_RESET or
-> > > SRST write?"
-> > 
-> > [snip]
-> > 
-> > Moot, there's no premature termination going on.
+> > Also, i suppose there is no documentation whatsoever yet, apart from the
+> > source and the mailing list archive here ?
 > 
-> >From the OS/HOST side you are 100% correct.
+> That is my fault :-( I have been so busy coding I haven't written any
+> docs. 
 
-Yep
+... I imagined such. What is the best why to understand how all this works in
+order to port the pm3fb driver to the new setup (well there is already
+something in there, but it does not work, and romain has only a ppc box, on
+which ruby did not work anyway, i guess once pm3fb + new fbdev works on i386,
+it would be easier for him to look at the ppc particularities.
 
-> >From the device side, do you know that for a fact?
+Friendly,
 
-No
-
-> Please read the difference in the two state-machine diagrams, the have the
-> same name phasing, but each describes which end of the cable you are on
-> and the expected behavors.
-
-I will do so now, I think I've stated my speculation above and in
-earlier mails :-)
-
--- 
-Jens Axboe
-
+Sven Luther

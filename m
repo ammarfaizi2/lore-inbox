@@ -1,75 +1,101 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272282AbRHXSPr>; Fri, 24 Aug 2001 14:15:47 -0400
+	id <S272288AbRHXSRH>; Fri, 24 Aug 2001 14:17:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272288AbRHXSPh>; Fri, 24 Aug 2001 14:15:37 -0400
-Received: from modemcable084.137-200-24.mtl.mc.videotron.ca ([24.200.137.84]:42230
-	"EHLO xanadu.home") by vger.kernel.org with ESMTP
-	id <S272282AbRHXSPW>; Fri, 24 Aug 2001 14:15:22 -0400
-Date: Fri, 24 Aug 2001 14:14:30 -0400 (EDT)
-From: Nicolas Pitre <nico@cam.org>
-X-X-Sender: <nico@xanadu.home>
-To: Daniel Phillips <phillips@bonn-fries.net>
-cc: Anwar P <anwarp@mail.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: What version of the kernel fixes these VM issues?
-In-Reply-To: <20010824131220Z16405-32383+1155@humbolt.nl.linux.org>
-Message-ID: <Pine.LNX.4.33.0108241354520.25240-100000@xanadu.home>
+	id <S272290AbRHXSQ6>; Fri, 24 Aug 2001 14:16:58 -0400
+Received: from tomts6.bellnexxia.net ([209.226.175.26]:35058 "EHLO
+	tomts6-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S272288AbRHXSQr>; Fri, 24 Aug 2001 14:16:47 -0400
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
+        Tim Walberg <twalberg@mindspring.com>,
+        "J. Imlay" <jimlay@u.washington.edu>, linux-kernel@vger.kernel.org
+Subject: Re: macro conflict
+In-Reply-To: <2606707256.998677533@[10.132.112.53]> <14764.998658214@redhat.com> <6242.998674456@redhat.com>
+From: Bill Pringlemeir <bpringle@sympatico.ca>
+Date: 24 Aug 2001 14:12:35 -0400
+In-Reply-To: David Woodhouse's message of "Fri, 24 Aug 2001 18:34:16 +0100"
+Message-ID: <m24rqxfht8.fsf@sympatico.ca>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.4
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> "David" == David Woodhouse <dwmw2@infradead.org> writes:
 
+> printf ("%d %d\n", min(foo, 10), min (bar, 20)); }
 
-On Fri, 24 Aug 2001, Daniel Phillips wrote:
+ David> Well, ideally both of them would BUG() and the user would have
+ David> to explicitly cast one (or both) of the arguments so the types
+ David> match. But as Keith pointed out, it won't work.
 
-> On August 24, 2001 10:47 am, Anwar P wrote:
-> > We have big system (8 processors, 8GB ram), running Oracle and this other
-> > ETL tool.  Oracle is up and running all the time, and the ETL tool runs
-> > once a day.  But everytime the ETL tool runs (along with Oracle), the
-> > system seems to run out of memory, and the server comes to a crawl, often
-> > with keyborad response in 10 to 15 minute intervals.  We are currently
-> > using the 2.4.3-6 kernel that comes with Redhat 7.1.
-> >
-> > We know that Oracle comsumes no more than 2GB of memory at peak usage, and
-> > the ETL tool itself consumes less than 1GB.  But the ETL tool does process
-> > a whole bunch of text files (total about 6GB worth of), and it runs for
-> > about 2 hours.  What happens is that while they are both running, the
-> > filesystem cache size increases progressively, and some time later, it
-> > begins swapping.  We do have 16GB (2x RAM) of swap.  And when it starts to
-> > swap, the server responds to keystrokes/commands randomly and appears dead
-> > for 10s of minutes. We know that together our applications do not need more
-> > than 4GB of RAM on this 8GB box, so it is the VM that is causing this
-> > unnecessary swapping by trying to use too much memory for filesystem cache.
->
-> There is no way your system should be going into swap under these conditions
-> - it's a bug.  We have probably fixed this already.
->
-> Please try 2.4.9 and 2.4.8-ac10.  If the system slows down, look in your logs
-> and see if there are any "allocation failed" messages.  Use top or do watch
-> cat /proc/meminfo to be sure your system isn't going into swap, and please
-> let us know what happens.
+Why would both BUG? 20 is a signed integer and bar _could be_ a signed
+char.  This is fine.  As a matter of fact, both constants are positive
+and fit in the range so I don't really think this is a bug in either
+case.  I guess the constants should be written as 10U and 20U.  There
+are other problems as the code without a specifically type char will
+have bugs on the ARM (and others with different sign default).  I
+don't think that the casting handles this well either.
 
-I have a totally different setup but I can reproduce the same behavior on
-the system I have here:
+I did a little more beautification.  Gcc does warn if you compare a
+pointer to an integral type.  Do you need more?  The bug_paste macro
+would pollute the name-space, but it is nice to see where things go
+wrong.
 
-ARM board with 32 MB RAM, no flash, NFS root.
-The kernel is based on 2.4.8-ac9 plus some small VM fixes from -ac10.
+fwiw,
+Bill Pringlemeir.
 
-My test consist in compiling gcc 3.0 while some MP3s are continously playing
-in the background.  The gcc build goes pretty far along until both the mp3
-player and the gcc build completely jam.  Oh maybe not completely as I get
-about 100ms of audio playing every 10 secs.  bash starts echoing what I type
-one char per approx 5 sec.  The only thing that still works fine is the
-magic sysrq that clearly shows that the CPU is spinning in the VM code. NFS
-trafic is also going on full bandwidth but no progress ever happens in user
-space.
+[test.c]
+#define bug_paste_chain(a,b) a##b
+#define bug_paste(a) bug_paste_chain(BUG_AT_LINE_,a)
+#define min(x,y)                                       \
+                                                       \
+  ({extern void bug_paste(__LINE__) (void);            \
+    typeof(x) _x = 0; typeof(y) _y = 0;                \
+    if ((_x-1>0 && _y-1<0) || (_x-1<0 && _y-1>0))      \
+            bug_paste(__LINE__)();                     \
+        _x = (x), _y = (y); (_x>_y)?_y:_x;             \
+   }) 
 
-My console is on a serial port so if someone can send me a patch with
-whatever printks to trace what's happening in real time I'll be glad to
-provide the trace file.  Reaching the jam state takes about 5 minutes so
-it's not hard to reproduce.
+#include <stdio.h>
+int main(int argc, char *argv[])
+{
+      signed char  cx = 1, cy = 2;
+      signed short sx = 1, sy = 2;
+      signed int   ix = 1, iy = 2;
+      signed long  lx = 1, ly = 2;
+    unsigned char  Cx = 1, Cy = 2;
+    unsigned short Sx = 1, Sy = 2;
+    unsigned int   Ix = 1, Iy = 2;
+    unsigned long  Lx = 1, Ly = 2;
 
+    cx = min(cx,cy);    Cx = min(Cy,Cx);    sx = min(sx,sy);
+    Sx = min(Sx,Sy);    ix = min(iy,ix);    Ix = min(Iy,Ix);
+    lx = min(ly,ly);    Lx = min(Lx,Ly);
 
-Nicolas
+    /* No warning. */
+/*  Lx = (typeof(Lx))min(Lx,&Ly); */
+
+    printf("%d %d %hd %hd %d %d %ld %ld\n", cx, Cx,
+           sx,Sx,ix,Ix,lx,Lx);
+
+    cx = -1;    Cx = 0;
+    cx = min(cx,cy);    sx = min(cx,sy);
+    ix = min(cx,ix);    lx = min(cx,ly);
+    Cx = min(Cx,Cx);    Sx = min(Cx,Sy);
+    Ix = min(Ly,Ix);    Lx = min(Ix,Ly);
+
+    /* correctly gives warning! Promotion to int before compare. */
+/*  Ix = min(Cy,Ix);    Lx = min(Cx,Ly); */
+
+    printf("%d %d %hd %hd %d %d %ld %ld\n", cx, Cx,
+           sx,Sx,ix,Ix,lx,Lx);
+    
+/* BUG? printf ("%d\n", min(Iy, 10)); */
+    printf ("%d\n", min(cx, 20));
+
+    return 0;
+}
+
 

@@ -1,54 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261804AbTH3N7f (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Aug 2003 09:59:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261825AbTH3N7f
+	id S261764AbTH3OQe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Aug 2003 10:16:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261785AbTH3OQe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Aug 2003 09:59:35 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:140 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261804AbTH3N7e
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Aug 2003 09:59:34 -0400
-Date: Sat, 30 Aug 2003 14:59:33 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Matthew Wilcox <willy@debian.org>,
-       Ruediger Scholz <rscholz@hrzpub.tu-darmstadt.de>,
-       parisc-linux@lists.parisc-linux.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [parisc-linux] Security Hole in binfmt_som.c ?
-Message-ID: <20030830135933.GJ13467@parcelfarce.linux.theplanet.co.uk>
-References: <3F509BBD.2040007@hrzpub.tu-darmstadt.de> <20030830131541.GI13467@parcelfarce.linux.theplanet.co.uk> <1062251389.31150.4.camel@dhcp23.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1062251389.31150.4.camel@dhcp23.swansea.linux.org.uk>
-User-Agent: Mutt/1.4.1i
+	Sat, 30 Aug 2003 10:16:34 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:28648 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S261764AbTH3OQd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Aug 2003 10:16:33 -0400
+Date: Sat, 30 Aug 2003 10:13:59 -0400
+From: Chris Heath <chris@heathens.co.nz>
+To: Ralf.Hildebrandt@charite.de
+Subject: Re:Re: Linux 2.6.0-test4
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: 20030830090411.GD27477@charite.de
+Message-Id: <20030830095858.0895.CHRIS@heathens.co.nz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.06.02
+X-Antirelay: Good relay from local net1 127.0.0.1/32
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 30, 2003 at 02:49:50PM +0100, Alan Cox wrote:
-> On Sad, 2003-08-30 at 14:15, Matthew Wilcox wrote:
-> > On Sat, Aug 30, 2003 at 02:42:37PM +0200, Ruediger Scholz wrote:
-> > > binfmt_som.c:216:2: #error "Fix security hole before enabling me"
-> > > What's this message about?
-> > 
-> > I don't know.  I wish someone would tell me.  You'd think they'd have the
-> > decency to contact the person listed as the author at the top of the file.
-> 
-> Actually explanations were posted in the previous discussion on this on
-> parisc-list.
+> I still have issues with the keyboard -- sometimes when typing in the
+> frambuffer console I get an "unknown scancode" and after that the CTRL
+> key is stuck forever, which forces me to reboot.
 
-Um, I can't find it, and neither can Google:
-http://www.google.com/search?q=binfmt_som+security&as_q=%5Bparisc-linux&btnG=Google+Search&as_sitesearch=lists.parisc-linux.org
+Please post the full error message.  Does the error message always
+contain the same scancode?
 
-> Someone has to do the equivalent of the 2.4.22 binfmt_elf changes if
-> neccessary so that another thread can't change the file handles or 
-> steal the exec fd being passed to the loader.
+My guess is you can get out of that without a reboot.  Next time it
+happens, try this:
+   1. Press and release each Ctrl key. (This makes sure the key_down
+      array is correct.)
+   2. Switch to another console and back again. (This executes the
+      compute_shiftstate function, which recalculates the shift
+      state from the key_down array.)
 
-Hm, ok, I'll take a look later this weekend if no-one gets to it first.
+Chris
 
--- 
-"It's not Hollywood.  War is real, war is primarily not about defeat or
-victory, it is about death.  I've seen thousands and thousands of dead bodies.
-Do you think I want to have an academic debate on this subject?" -- Robert Fisk

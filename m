@@ -1,53 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262909AbTI2I6Z (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 04:58:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262910AbTI2I6Z
+	id S262913AbTI2I7f (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 04:59:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262914AbTI2I7e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 04:58:25 -0400
-Received: from aneto.able.es ([212.97.163.22]:33496 "EHLO aneto.able.es")
-	by vger.kernel.org with ESMTP id S262909AbTI2I6Y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 04:58:24 -0400
-Date: Mon, 29 Sep 2003 10:58:07 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Frank Cusack <fcusack@fcusack.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2nd proc not seen
-Message-ID: <20030929085807.GA22884@werewolf.able.es>
-References: <20030904021113.A1810@google.com> <20030904091437.A25107@google.com> <20030928205045.B21288@google.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 29 Sep 2003 04:59:34 -0400
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:28032
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S262913AbTI2I7c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 04:59:32 -0400
+From: Rob Landley <rob@landley.net>
+Reply-To: rob@landley.net
+To: Larry McVoy <lm@bitmover.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: log-buf-len dynamic
+Date: Mon, 29 Sep 2003 03:56:27 -0500
+User-Agent: KMail/1.5
+References: <m1n0csiybu.fsf@ebiederm.dsl.xmission.com> <20030925122838.A16288@discworld.dyndns.org> <20030925182921.GA18749@work.bitmover.com>
+In-Reply-To: <20030925182921.GA18749@work.bitmover.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20030928205045.B21288@google.com> (from fcusack@fcusack.com on Mon, Sep 29, 2003 at 05:50:46 +0200)
-X-Mailer: Balsa 2.0.15
+Message-Id: <200309290356.27600.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday 25 September 2003 13:29, Larry McVoy wrote:
+> On Thu, Sep 25, 2003 at 12:28:38PM -0600, Charles Cazabon wrote:
+> > Perhaps BitMover could release a client that can't do anything but keep a
+> > local (unmodified) tree in sync with a public repository tree, so that
+> > the "politically objectionable" (to some) parts of the BK license don't
+> > matter.
+> >
+> > In an idea world, this read-only client could be released in source form,
+> > but I'm under no illusions there :).
+>
+> People ask us for this all the time and it just highlights the point that
+> people don't understand how BK works.  It isn't client server, it's peer
+> to peer, every so-called client has to have all the smarts built in that
+> the so-called server has.
+>
+> There isn't any way to release a stripped down version that makes sense.
+> If there was, we would.
 
-On 09.29, Frank Cusack wrote:
-> On Thu, Sep 04, 2003 at 09:14:37AM -0700, Frank Cusack wrote:
-> > On Thu, Sep 04, 2003 at 02:11:13AM -0700, Frank Cusack wrote:
-> > > I think I've seen some recent talk about this problem.  I have an HPAQ
-> > > xw6000 w/ 2xP4 CPUs.  A RH kernel finds both CPUs (4 if I enable HT).  A
-> > > kernel.org kernel only finds 1 (2 if I enable HT).
-> 
-> This turned out to be a CPU numbering issue.  The HPAQ machine numbers
-> the cpus #0 and #6.  I had NR_CPUS set to 2.  That only works if the CPUs
-> are physically numbered 0 and 1.
-> 
-> So NR_CPUS is a little misleading.  I could suggest a Config.help change
-> if you like.
-> 
+I'm under the impression that the real smarts of bitkeeper is keeping a huge 
+database of independent changes and only making a tree out of them when you 
+ask to see the thing.  I.E. bitkeeper is a huge pile of merge logic that can 
+take into account not just what the tree looks like now, but everything the 
+tree has _ever_ looked like.
 
-This is a little weird. This forces you to have all the SMP structures sized
-8 just to use 2 members.
+So a read-only client still needs all this merge logic.  Export is the easy 
+part.  VIEW is the hard part.  The protocols to marshall the patches from 
+point A to point B are almost irrelevant, it's sorting and integrating them 
+into something useful that requires work.
 
-Was not there a physical-logical map ? Or that was in -aa kernel and 2.6 ?
+And the reason Andrea hasn't found bitkeeper to be nicer than CVS is he isn't 
+trying to integrate the work of 300 other developers into his personal tree 
+simultaneously.  BK is really just a merging tool that fixes rejects 
+automatically, everything else is details...
 
--- 
-J.A. Magallon <jamagallon()able!es>     \                 Software is like sex:
-werewolf!able!es                         \           It's better when it's free
-Mandrake Linux release 9.2 (Cooker) for i586
-Linux 2.4.23-pre5-jam1 (gcc 3.3.1 (Mandrake Linux 9.2 3.3.1-2mdk))
+Am I wrong?
+
+Rob

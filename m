@@ -1,378 +1,428 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263455AbSJGXGD>; Mon, 7 Oct 2002 19:06:03 -0400
+	id <S263506AbSJGXIv>; Mon, 7 Oct 2002 19:08:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263492AbSJGXGD>; Mon, 7 Oct 2002 19:06:03 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:7685 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S263455AbSJGXEJ>;
-	Mon, 7 Oct 2002 19:04:09 -0400
-Date: Tue, 8 Oct 2002 00:09:48 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Second round of ioctl cleanups
-Message-ID: <20021008000948.O18545@parcelfarce.linux.theplanet.co.uk>
+	id <S263734AbSJGXIv>; Mon, 7 Oct 2002 19:08:51 -0400
+Received: from mx2.airmail.net ([209.196.77.99]:57359 "EHLO mx2.airmail.net")
+	by vger.kernel.org with ESMTP id <S263506AbSJGXHt>;
+	Mon, 7 Oct 2002 19:07:49 -0400
+Date: Mon, 7 Oct 2002 18:02:02 -0500
+From: Art Haas <ahaas@neosoft.com>
+To: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Linus Torvalds <torvalds@transmeta.com>
+Subject: [PATCH] C99 designated initializers for drivers/ide
+Message-ID: <20021007230202.GQ9856@debian>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi.
 
- - decnet: we should always call the device for unknown ioctls.
- - move dlci, bridging, vlan and divert ioctls from af_inet.c to net/socket.c.
- - remove duplicate code from af_packet.c and af_wanpipe.c.
- - remove kmod from af_inet.c; no longer needed.
- - no longer export divert_ioctl; it's not used from a module.
- - don't depend on CONFIG_*_MODULE so we can just add these later as modules
-   without forcing a kernel recompile.  total cost: 3 * sizeof(void *) in bss.
- - remove the WIRELESS_EXT conditional; always compiling this in costs
-   almost nothing.
+Here's a set of patches that switch drivers/ide to use C99 designated
+initializers. The patches are all against 2.5.41.
 
-diff -urpNX dontdiff linux-2.5.41/net/decnet/af_decnet.c linux-2.5.41-willy/net/decnet/af_decnet.c
---- linux-2.5.41/net/decnet/af_decnet.c	2002-10-01 03:07:01.000000000 -0400
-+++ linux-2.5.41-willy/net/decnet/af_decnet.c	2002-10-07 18:10:19.000000000 -0400
-@@ -1227,10 +1227,6 @@ static int dn_ioctl(struct socket *sock,
- 	case OSIOCGNETADDR:
- 		err = put_user(decnet_address, (unsigned short *)arg);
- 		break;
--        case SIOCGIFCONF:
--        case SIOCGIFFLAGS:
--        case SIOCGIFBRDADDR:
--                return dev_ioctl(cmd,(void *)arg);
+Art Haas
+
+
+--- linux-2.5.41/drivers/ide/ide-cd.c.old	2002-10-07 15:45:27.000000000 -0500
++++ linux-2.5.41/drivers/ide/ide-cd.c	2002-10-07 15:52:36.000000000 -0500
+@@ -2563,26 +2563,26 @@
+  * Device initialization.
+  */
+ static struct cdrom_device_ops ide_cdrom_dops = {
+-	open:			ide_cdrom_open_real,
+-	release:		ide_cdrom_release_real,
+-	drive_status:		ide_cdrom_drive_status,
+-	media_changed:		ide_cdrom_check_media_change_real,
+-	tray_move:		ide_cdrom_tray_move,
+-	lock_door:		ide_cdrom_lock_door,
+-	select_speed:		ide_cdrom_select_speed,
+-	get_last_session:	ide_cdrom_get_last_session,
+-	get_mcn:		ide_cdrom_get_mcn,
+-	reset:			ide_cdrom_reset,
+-	audio_ioctl:		ide_cdrom_audio_ioctl,
+-	dev_ioctl:		ide_cdrom_dev_ioctl,
+-	capability:		CDC_CLOSE_TRAY | CDC_OPEN_TRAY | CDC_LOCK |
++	.open			= ide_cdrom_open_real,
++	.release		= ide_cdrom_release_real,
++	.drive_status		= ide_cdrom_drive_status,
++	.media_changed		= ide_cdrom_check_media_change_real,
++	.tray_move		= ide_cdrom_tray_move,
++	.lock_door		= ide_cdrom_lock_door,
++	.select_speed		= ide_cdrom_select_speed,
++	.get_last_session	= ide_cdrom_get_last_session,
++	.get_mcn		= ide_cdrom_get_mcn,
++	.reset			= ide_cdrom_reset,
++	.audio_ioctl		= ide_cdrom_audio_ioctl,
++	.dev_ioctl		= ide_cdrom_dev_ioctl,
++	.capability		= CDC_CLOSE_TRAY | CDC_OPEN_TRAY | CDC_LOCK |
+ 				CDC_SELECT_SPEED | CDC_SELECT_DISC |
+ 				CDC_MULTI_SESSION | CDC_MCN |
+ 				CDC_MEDIA_CHANGED | CDC_PLAY_AUDIO | CDC_RESET |
+ 				CDC_IOCTLS | CDC_DRIVE_STATUS | CDC_CD_R |
+ 				CDC_CD_RW | CDC_DVD | CDC_DVD_R| CDC_DVD_RAM |
+ 				CDC_GENERIC_PACKET,
+-	generic_packet:		ide_cdrom_packet,
++	.generic_packet		= ide_cdrom_packet,
+ };
  
- 	case TIOCOUTQ:
- 		amount = sk->sndbuf - atomic_read(&sk->wmem_alloc);
-@@ -1255,6 +1251,10 @@ static int dn_ioctl(struct socket *sock,
- 		release_sock(sk);
- 		err = put_user(amount, (int *)arg);
- 		break;
-+
-+	default:
-+		err = dev_ioctl(cmd,(void *)arg);
-+		break;
- 	}
+ static int ide_cdrom_register (ide_drive_t *drive, int nslots)
+@@ -3048,39 +3048,39 @@
+ static int ide_cdrom_attach (ide_drive_t *drive);
  
- 	return err;
-diff -urpNX dontdiff linux-2.5.41/net/ipv4/af_inet.c linux-2.5.41-willy/net/ipv4/af_inet.c
---- linux-2.5.41/net/ipv4/af_inet.c	2002-10-07 17:00:40.000000000 -0400
-+++ linux-2.5.41-willy/net/ipv4/af_inet.c	2002-10-07 17:00:55.000000000 -0400
-@@ -54,11 +54,9 @@
-  *		Alan Cox	:	Only sendmsg/recvmsg now supported.
-  *		Alan Cox	:	Locked down bind (see security list).
-  *		Alan Cox	:	Loosened bind a little.
-- *		Mike McLagan	:	ADD/DEL DLCI Ioctls
-  *	Willy Konynenberg	:	Transparent proxying support.
-  *		David S. Miller	:	New socket lookup architecture.
-  *					Some other random speedups.
-- *		Cyrus Durgin	:	Cleaned up file for kmod hacks.
-  *		Andi Kleen	:	Fix inet_stream_connect TCP race.
-  *
-  *		This program is free software; you can redistribute it and/or
-@@ -110,13 +108,6 @@
- #ifdef CONFIG_IP_MROUTE
- #include <linux/mroute.h>
+ static ide_driver_t ide_cdrom_driver = {
+-	owner:			THIS_MODULE,
+-	name:			"ide-cdrom",
+-	version:		IDECD_VERSION,
+-	media:			ide_cdrom,
+-	busy:			0,
++	.owner			= THIS_MODULE,
++	.name			= "ide-cdrom",
++	.version		= IDECD_VERSION,
++	.media			= ide_cdrom,
++	.busy			= 0,
+ #ifdef CONFIG_IDEDMA_ONLYDISK
+-	supports_dma:		0,
++	.supports_dma		= 0,
+ #else
+-	supports_dma:		1,
++	.supports_dma		= 1,
  #endif
--#include <linux/if_bridge.h>
--#ifdef CONFIG_KMOD
--#include <linux/kmod.h>
--#endif
--#ifdef CONFIG_NET_DIVERT
--#include <linux/divert.h>
--#endif /* CONFIG_NET_DIVERT */
+-	supports_dsc_overlap:	1,
+-	cleanup:		ide_cdrom_cleanup,
+-	standby:		NULL,
+-	suspend:		NULL,
+-	resume:			NULL,
+-	flushcache:		NULL,
+-	do_request:		ide_do_rw_cdrom,
+-	end_request:		NULL,
+-	sense:			ide_cdrom_dump_status,
+-	error:			ide_cdrom_error,
+-	ioctl:			ide_cdrom_ioctl,
+-	open:			ide_cdrom_open,
+-	release:		ide_cdrom_release,
+-	media_change:		ide_cdrom_check_media_change,
+-	revalidate:		ide_cdrom_revalidate,
+-	pre_reset:		NULL,
+-	capacity:		ide_cdrom_capacity,
+-	special:		NULL,
+-	proc:			NULL,
+-	attach:			ide_cdrom_attach,
+-	ata_prebuilder:		NULL,
+-	atapi_prebuilder:	NULL,
+-	drives:			LIST_HEAD_INIT(ide_cdrom_driver.drives),
++	.supports_dsc_overlap	= 1,
++	.cleanup		= ide_cdrom_cleanup,
++	.standby		= NULL,
++	.suspend		= NULL,
++	.resume			= NULL,
++	.flushcache		= NULL,
++	.do_request		= ide_do_rw_cdrom,
++	.end_request		= NULL,
++	.sense			= ide_cdrom_dump_status,
++	.error			= ide_cdrom_error,
++	.ioctl			= ide_cdrom_ioctl,
++	.open			= ide_cdrom_open,
++	.release		= ide_cdrom_release,
++	.media_change		= ide_cdrom_check_media_change,
++	.revalidate		= ide_cdrom_revalidate,
++	.pre_reset		= NULL,
++	.capacity		= ide_cdrom_capacity,
++	.special		= NULL,
++	.proc			= NULL,
++	.attach			= ide_cdrom_attach,
++	.ata_prebuilder		= NULL,
++	.atapi_prebuilder	= NULL,
++	.drives			= LIST_HEAD_INIT(ide_cdrom_driver.drives),
+ };
  
- struct linux_mib net_statistics[NR_CPUS * 2];
+ /* options */
+--- linux-2.5.41/drivers/ide/ide-disk.c.old	2002-10-07 15:45:27.000000000 -0500
++++ linux-2.5.41/drivers/ide/ide-disk.c	2002-10-07 15:52:36.000000000 -0500
+@@ -1709,35 +1709,35 @@
+  *      IDE subdriver functions, registered with ide.c
+  */
+ static ide_driver_t idedisk_driver = {
+-	owner:			THIS_MODULE,
+-	name:			"ide-disk",
+-	version:		IDEDISK_VERSION,
+-	media:			ide_disk,
+-	busy:			0,
+-	supports_dma:		1,
+-	supports_dsc_overlap:	0,
+-	cleanup:		idedisk_cleanup,
+-	standby:		do_idedisk_standby,
+-	suspend:		do_idedisk_suspend,
+-	resume:			do_idedisk_resume,
+-	flushcache:		do_idedisk_flushcache,
+-	do_request:		do_rw_disk,
+-	end_request:		NULL,
+-	sense:			idedisk_dump_status,
+-	error:			idedisk_error,
+-	ioctl:			idedisk_ioctl,
+-	open:			idedisk_open,
+-	release:		idedisk_release,
+-	media_change:		idedisk_media_change,
+-	revalidate:		idedisk_revalidate,
+-	pre_reset:		idedisk_pre_reset,
+-	capacity:		idedisk_capacity,
+-	special:		idedisk_special,
+-	proc:			idedisk_proc,
+-	attach:			idedisk_attach,
+-	ata_prebuilder:		NULL,
+-	atapi_prebuilder:	NULL,
+-	drives:			LIST_HEAD_INIT(idedisk_driver.drives),
++	.owner			= THIS_MODULE,
++	.name			= "ide-disk",
++	.version		= IDEDISK_VERSION,
++	.media			= ide_disk,
++	.busy			= 0,
++	.supports_dma		= 1,
++	.supports_dsc_overlap	= 0,
++	.cleanup		= idedisk_cleanup,
++	.standby		= do_idedisk_standby,
++	.suspend		= do_idedisk_suspend,
++	.resume			= do_idedisk_resume,
++	.flushcache		= do_idedisk_flushcache,
++	.do_request		= do_rw_disk,
++	.end_request		= NULL,
++	.sense			= idedisk_dump_status,
++	.error			= idedisk_error,
++	.ioctl			= idedisk_ioctl,
++	.open			= idedisk_open,
++	.release		= idedisk_release,
++	.media_change		= idedisk_media_change,
++	.revalidate		= idedisk_revalidate,
++	.pre_reset		= idedisk_pre_reset,
++	.capacity		= idedisk_capacity,
++	.special		= idedisk_special,
++	.proc			= idedisk_proc,
++	.attach			= idedisk_attach,
++	.ata_prebuilder		= NULL,
++	.atapi_prebuilder	= NULL,
++	.drives			= LIST_HEAD_INIT(idedisk_driver.drives),
+ };
  
-@@ -132,22 +123,6 @@ extern int tcp_get_info(char *, char **,
- extern int udp_get_info(char *, char **, off_t, int);
- extern void ip_mc_drop_socket(struct sock *sk);
- 
--#ifdef CONFIG_DLCI
--extern int dlci_ioctl(unsigned int, void *);
--#endif
--
--#ifdef CONFIG_DLCI_MODULE
--int (*dlci_ioctl_hook)(unsigned int, void *);
--#endif
--
--#if defined(CONFIG_BRIDGE) || defined(CONFIG_BRIDGE_MODULE)
--int (*br_ioctl_hook)(unsigned long);
--#endif
--
--#if defined(CONFIG_VLAN_8021Q) || defined(CONFIG_VLAN_8021Q_MODULE)
--int (*vlan_ioctl_hook)(unsigned long arg);
--#endif
--
- /* Per protocol sock slabcache */
- kmem_cache_t *tcp_sk_cachep;
- static kmem_cache_t *udp_sk_cachep;
-@@ -879,60 +854,6 @@ int inet_ioctl(struct socket *sock, unsi
- 		case SIOCSIFFLAGS:
- 			err = devinet_ioctl(cmd, (void *)arg);
- 			break;
--		case SIOCGIFBR:
--		case SIOCSIFBR:
--#if defined(CONFIG_BRIDGE) || defined(CONFIG_BRIDGE_MODULE)
--#ifdef CONFIG_KMOD
--			if (!br_ioctl_hook)
--				request_module("bridge");
--#endif
--			if (br_ioctl_hook)
--				err = br_ioctl_hook(arg);
--			else
--#endif
--			err = -ENOPKG;
--			break;
--		case SIOCGIFVLAN:
--		case SIOCSIFVLAN:
--#if defined(CONFIG_VLAN_8021Q) || defined(CONFIG_VLAN_8021Q_MODULE)
--#ifdef CONFIG_KMOD
--			if (!vlan_ioctl_hook)
--				request_module("8021q");
--#endif
--			if (vlan_ioctl_hook)
--				err = vlan_ioctl_hook(arg);
--			else
--#endif
--			err = -ENOPKG;
--			break;
--		case SIOCGIFDIVERT:
--		case SIOCSIFDIVERT:
--#ifdef CONFIG_NET_DIVERT
--			err = divert_ioctl(cmd, (struct divert_cf *)arg);
--#else
--			err = -ENOPKG;
--#endif	/* CONFIG_NET_DIVERT */
--			break;
--		case SIOCADDDLCI:
--		case SIOCDELDLCI:
--#ifdef CONFIG_DLCI
--			lock_kernel();
--			err = dlci_ioctl(cmd, (void *)arg);
--			unlock_kernel();
--			break;
--#elif CONFIG_DLCI_MODULE
--#ifdef CONFIG_KMOD
--			if (!dlci_ioctl_hook)
--				request_module("dlci");
--#endif
--			if (dlci_ioctl_hook) {
--				lock_kernel();
--				err = (*dlci_ioctl_hook)(cmd, (void *)arg);
--				unlock_kernel();
--			} else
--#endif
--			err = -ENOPKG;
--			break;
- 		default:
- 			if (!sk->prot->ioctl ||
- 			    (err = sk->prot->ioctl(sk, cmd, arg)) ==
-diff -urpNX dontdiff linux-2.5.41/net/netsyms.c linux-2.5.41-willy/net/netsyms.c
---- linux-2.5.41/net/netsyms.c	2002-10-07 17:00:40.000000000 -0400
-+++ linux-2.5.41-willy/net/netsyms.c	2002-10-07 17:44:41.000000000 -0400
-@@ -220,8 +220,8 @@ EXPORT_SYMBOL(destroy_EII_client);
- /* for 801q VLAN support */
- #if defined(CONFIG_VLAN_8021Q) || defined(CONFIG_VLAN_8021Q_MODULE)
- EXPORT_SYMBOL(dev_change_flags);
--EXPORT_SYMBOL(vlan_ioctl_hook);
+ MODULE_DESCRIPTION("ATA DISK Driver");
+--- linux-2.5.41/drivers/ide/ide-floppy.c.old	2002-09-22 11:22:20.000000000 -0500
++++ linux-2.5.41/drivers/ide/ide-floppy.c	2002-10-07 15:52:37.000000000 -0500
+@@ -2042,39 +2042,39 @@
+  *	IDE subdriver functions, registered with ide.c
+  */
+ static ide_driver_t idefloppy_driver = {
+-	owner:			THIS_MODULE,
+-	name:			"ide-floppy",
+-	version:		IDEFLOPPY_VERSION,
+-	media:			ide_floppy,
+-	busy:			0,
++	.owner			= THIS_MODULE,
++	.name			= "ide-floppy",
++	.version		= IDEFLOPPY_VERSION,
++	.media			= ide_floppy,
++	.busy			= 0,
+ #ifdef CONFIG_IDEDMA_ONLYDISK
+-	supports_dma:		0,
++	.supports_dma		= 0,
+ #else
+-	supports_dma:		1,
++	.supports_dma		= 1,
  #endif
-+EXPORT_SYMBOL(vlan_ioctl_hook);
+-	supports_dsc_overlap:	0,
+-	cleanup:		idefloppy_cleanup,
+-	standby:		NULL,
+-	suspend:		NULL,
+-	resume:			NULL,
+-	flushcache:		NULL,
+-	do_request:		idefloppy_do_request,
+-	end_request:		idefloppy_do_end_request,
+-	sense:			NULL,
+-	error:			NULL,
+-	ioctl:			idefloppy_ioctl,
+-	open:			idefloppy_open,
+-	release:		idefloppy_release,
+-	media_change:		idefloppy_media_change,
+-	revalidate:		idefloppy_revalidate,
+-	pre_reset:		NULL,
+-	capacity:		idefloppy_capacity,
+-	special:		NULL,
+-	proc:			idefloppy_proc,
+-	attach:			idefloppy_attach,
+-	ata_prebuilder:		NULL,
+-	atapi_prebuilder:	NULL,
+-	drives:			LIST_HEAD_INIT(idefloppy_driver.drives),
++	.supports_dsc_overlap	= 0,
++	.cleanup		= idefloppy_cleanup,
++	.standby		= NULL,
++	.suspend		= NULL,
++	.resume			= NULL,
++	.flushcache		= NULL,
++	.do_request		= idefloppy_do_request,
++	.end_request		= idefloppy_do_end_request,
++	.sense			= NULL,
++	.error			= NULL,
++	.ioctl			= idefloppy_ioctl,
++	.open			= idefloppy_open,
++	.release		= idefloppy_release,
++	.media_change		= idefloppy_media_change,
++	.revalidate		= idefloppy_revalidate,
++	.pre_reset		= NULL,
++	.capacity		= idefloppy_capacity,
++	.special		= NULL,
++	.proc			= idefloppy_proc,
++	.attach			= idefloppy_attach,
++	.ata_prebuilder		= NULL,
++	.atapi_prebuilder	= NULL,
++	.drives			= LIST_HEAD_INIT(idefloppy_driver.drives),
+ };
  
- EXPORT_SYMBOL(sklist_destroy_socket);
- EXPORT_SYMBOL(sklist_insert_socket);
-@@ -230,15 +230,12 @@ EXPORT_SYMBOL(scm_detach_fds);
- 
- #if defined(CONFIG_BRIDGE) || defined(CONFIG_BRIDGE_MODULE)
- EXPORT_SYMBOL(br_handle_frame_hook);
--#ifdef CONFIG_INET
--EXPORT_SYMBOL(br_ioctl_hook);
--#endif
- #endif
-+EXPORT_SYMBOL(br_ioctl_hook);
- 
- #ifdef CONFIG_NET_DIVERT
- EXPORT_SYMBOL(alloc_divert_blk);
- EXPORT_SYMBOL(free_divert_blk);
--EXPORT_SYMBOL(divert_ioctl);
- #endif /* CONFIG_NET_DIVERT */
- 
- #ifdef CONFIG_INET
-diff -urpNX dontdiff linux-2.5.41/net/packet/af_packet.c linux-2.5.41-willy/net/packet/af_packet.c
---- linux-2.5.41/net/packet/af_packet.c	2002-10-07 17:00:40.000000000 -0400
-+++ linux-2.5.41-willy/net/packet/af_packet.c	2002-10-07 18:43:19.000000000 -0400
-@@ -67,20 +67,11 @@
- #include <linux/poll.h>
- #include <linux/module.h>
- #include <linux/init.h>
--#include <linux/if_bridge.h>
--
--#ifdef CONFIG_NET_DIVERT
--#include <linux/divert.h>
--#endif /* CONFIG_NET_DIVERT */
- 
- #ifdef CONFIG_INET
- #include <net/inet_common.h>
- #endif
- 
--#ifdef CONFIG_DLCI
--extern int dlci_ioctl(unsigned int, void*);
--#endif
--
- #define CONFIG_SOCK_PACKET	1
- 
- /*
-@@ -1489,28 +1480,6 @@ static int packet_ioctl(struct socket *s
- 		case SIOCSIFHWBROADCAST:
- 			return(dev_ioctl(cmd,(void *) arg));
- 
--		case SIOCGIFBR:
--		case SIOCSIFBR:
--#if defined(CONFIG_BRIDGE) || defined(CONFIG_BRIDGE_MODULE)
--#ifdef CONFIG_INET
--#ifdef CONFIG_KMOD
--			if (br_ioctl_hook == NULL)
--				request_module("bridge");
--#endif
--			if (br_ioctl_hook != NULL)
--				return br_ioctl_hook(arg);
--#endif
--#endif				
--			return -ENOPKG;
--
--		case SIOCGIFDIVERT:
--		case SIOCSIFDIVERT:
--#ifdef CONFIG_NET_DIVERT
--			return divert_ioctl(cmd, (struct divert_cf *) arg);
--#else
--			return -ENOPKG;
--#endif /* CONFIG_NET_DIVERT */
--			
- #ifdef CONFIG_INET
- 		case SIOCADDRT:
- 		case SIOCDELRT:
-@@ -1526,8 +1495,6 @@ static int packet_ioctl(struct socket *s
- 		case SIOCGIFDSTADDR:
- 		case SIOCSIFDSTADDR:
- 		case SIOCSIFFLAGS:
--		case SIOCADDDLCI:
--		case SIOCDELDLCI:
- 			return inet_dgram_ops.ioctl(sock, cmd, arg);
- #endif
- 
-diff -urpNX dontdiff linux-2.5.41/net/socket.c linux-2.5.41-willy/net/socket.c
---- linux-2.5.41/net/socket.c	2002-10-07 17:00:40.000000000 -0400
-+++ linux-2.5.41-willy/net/socket.c	2002-10-07 17:00:56.000000000 -0400
-@@ -74,6 +74,8 @@
- #include <linux/cache.h>
- #include <linux/module.h>
- #include <linux/highmem.h>
-+#include <linux/wireless.h>
-+#include <linux/divert.h>
- 
- #if defined(CONFIG_KMOD) && defined(CONFIG_NET)
- #include <linux/kmod.h>
-@@ -678,6 +680,15 @@ static ssize_t sock_writev(struct file *
- 				 file, vector, count, tot_len);
+ static int idefloppy_attach (ide_drive_t *drive)
+--- linux-2.5.41/drivers/ide/ide-proc.c.old	2002-09-20 12:36:42.000000000 -0500
++++ linux-2.5.41/drivers/ide/ide-proc.c	2002-10-07 15:52:37.000000000 -0500
+@@ -851,10 +851,10 @@
+ 	return seq_open(file, &ide_drivers_op);
  }
+ static struct file_operations ide_drivers_operations = {
+-	open:		ide_drivers_open,
+-	read:		seq_read,
+-	llseek:		seq_lseek,
+-	release:	seq_release,
++	.open		= ide_drivers_open,
++	.read		= seq_read,
++	.llseek		= seq_lseek,
++	.release	= seq_release,
+ };
  
-+int (*br_ioctl_hook)(unsigned long arg);
-+int (*vlan_ioctl_hook)(unsigned long arg);
-+
-+#ifdef CONFIG_DLCI
-+extern int dlci_ioctl(unsigned int, void *);
-+#else
-+int (*dlci_ioctl_hook)(unsigned int, void *);
-+#endif
-+
- /*
-  *	With an ioctl, arg may well be a user mode pointer, but we don't know
-  *	what to do with it - that's up to the protocol still.
-@@ -693,13 +704,9 @@ int sock_ioctl(struct inode *inode, stru
- 	sock = SOCKET_I(inode);
- 	if (cmd >= SIOCDEVPRIVATE && cmd <= (SIOCDEVPRIVATE + 15)) {
- 		err = dev_ioctl(cmd, (void *)arg);
--	} else
--#ifdef WIRELESS_EXT
--	if (cmd >= SIOCIWFIRST && cmd <= SIOCIWLAST) {
-+	} else if (cmd >= SIOCIWFIRST && cmd <= SIOCIWLAST) {
- 		err = dev_ioctl(cmd, (void *)arg);
--	} else
--#endif	/* WIRELESS_EXT */
--	switch (cmd) {
-+	} else switch (cmd) {
- 		case FIOSETOWN:
- 		case SIOCSPGRP:
- 			err = -EFAULT;
-@@ -711,6 +718,56 @@ int sock_ioctl(struct inode *inode, stru
- 		case SIOCGPGRP:
- 			err = put_user(sock->file->f_owner.pid, (int *)arg);
- 			break;
-+		case SIOCGIFBR:
-+		case SIOCSIFBR:
-+			err = -ENOPKG;
-+#ifdef CONFIG_KMOD
-+			if (!br_ioctl_hook)
-+				request_module("bridge");
-+#endif
-+			if (br_ioctl_hook)
-+				err = br_ioctl_hook(arg);
-+			break;
-+		case SIOCGIFVLAN:
-+		case SIOCSIFVLAN:
-+			err = -ENOPKG;
-+#ifdef CONFIG_KMOD
-+			if (!vlan_ioctl_hook)
-+				request_module("8021q");
-+#endif
-+			if (vlan_ioctl_hook)
-+				err = vlan_ioctl_hook(arg);
-+			break;
-+		case SIOCGIFDIVERT:
-+		case SIOCSIFDIVERT:
-+		/* Convert this to call through a hook */
-+#ifdef CONFIG_NET_DIVERT
-+			err = divert_ioctl(cmd, (struct divert_cf *)arg);
-+#else
-+			err = -ENOPKG;
-+#endif	/* CONFIG_NET_DIVERT */
-+			break;
-+		case SIOCADDDLCI:
-+		case SIOCDELDLCI:
-+		/* Convert this to always call through a hook */
-+#ifdef CONFIG_DLCI
-+			lock_kernel();
-+			err = dlci_ioctl(cmd, (void *)arg);
-+			unlock_kernel();
-+			break;
-+#else
-+			err = -ENOPKG;
-+#ifdef CONFIG_KMOD
-+			if (!dlci_ioctl_hook)
-+				request_module("dlci");
-+#endif
-+			if (dlci_ioctl_hook) {
-+				lock_kernel();
-+				err = dlci_ioctl_hook(cmd, (void *)arg);
-+				unlock_kernel();
-+			}
-+#endif
-+			break;
- 		default:
- 			err = sock->ops->ioctl(sock, cmd, arg);
- 			break;
-diff -urpNX dontdiff linux-2.5.41/net/wanrouter/af_wanpipe.c linux-2.5.41-willy/net/wanrouter/af_wanpipe.c
---- linux-2.5.41/net/wanrouter/af_wanpipe.c	2002-10-07 17:00:40.000000000 -0400
-+++ linux-2.5.41-willy/net/wanrouter/af_wanpipe.c	2002-10-07 18:42:47.000000000 -0400
-@@ -1963,8 +1963,6 @@ static int wanpipe_ioctl(struct socket *
- 		case SIOCGIFDSTADDR:
- 		case SIOCSIFDSTADDR:
- 		case SIOCSIFFLAGS:
--		case SIOCADDDLCI:
--		case SIOCDELDLCI:
- 			return inet_dgram_ops.ioctl(sock, cmd, arg);
+ void proc_ide_create(void)
+--- linux-2.5.41/drivers/ide/ide-tape.c.old	2002-09-16 09:33:58.000000000 -0500
++++ linux-2.5.41/drivers/ide/ide-tape.c	2002-10-07 15:52:36.000000000 -0500
+@@ -6184,51 +6184,51 @@
+  *	IDE subdriver functions, registered with ide.c
+  */
+ static ide_driver_t idetape_driver = {
+-	owner:			THIS_MODULE,
+-	name:			"ide-tape",
+-	version:		IDETAPE_VERSION,
+-	media:			ide_tape,
+-	busy:			1,
++	.owner			= THIS_MODULE,
++	.name			= "ide-tape",
++	.version		= IDETAPE_VERSION,
++	.media			= ide_tape,
++	.busy			= 1,
+ #ifdef CONFIG_IDEDMA_ONLYDISK
+-	supports_dma:		0,
++	.supports_dma		= 0,
+ #else
+-	supports_dma:		1,
++	.supports_dma		= 1,
  #endif
+-	supports_dsc_overlap: 	1,
+-	cleanup:		idetape_cleanup,
+-	standby:		NULL,
+-	suspend:		NULL,
+-	resume:			NULL,
+-	flushcache:		NULL,
+-	do_request:		idetape_do_request,
+-	end_request:		idetape_end_request,
+-	sense:			NULL,
+-	error:			NULL,
+-	ioctl:			idetape_blkdev_ioctl,
+-	open:			idetape_blkdev_open,
+-	release:		idetape_blkdev_release,
+-	media_change:		NULL,
+-	revalidate:		NULL,
+-	pre_reset:		idetape_pre_reset,
+-	capacity:		NULL,
+-	special:		NULL,
+-	proc:			idetape_proc,
+-	attach:			idetape_attach,
+-	ata_prebuilder:		NULL,
+-	atapi_prebuilder:	NULL,
+-	drives:			LIST_HEAD_INIT(idetape_driver.drives),
++	.supports_dsc_overlap 	= 1,
++	.cleanup		= idetape_cleanup,
++	.standby		= NULL,
++	.suspend		= NULL,
++	.resume			= NULL,
++	.flushcache		= NULL,
++	.do_request		= idetape_do_request,
++	.end_request		= idetape_end_request,
++	.sense			= NULL,
++	.error			= NULL,
++	.ioctl			= idetape_blkdev_ioctl,
++	.open			= idetape_blkdev_open,
++	.release		= idetape_blkdev_release,
++	.media_change		= NULL,
++	.revalidate		= NULL,
++	.pre_reset		= idetape_pre_reset,
++	.capacity		= NULL,
++	.special		= NULL,
++	.proc			= idetape_proc,
++	.attach			= idetape_attach,
++	.ata_prebuilder		= NULL,
++	.atapi_prebuilder	= NULL,
++	.drives			= LIST_HEAD_INIT(idetape_driver.drives),
+ };
  
-
+ /*
+  *	Our character device supporting functions, passed to register_chrdev.
+  */
+ static struct file_operations idetape_fops = {
+-	owner:		THIS_MODULE,
+-	read:		idetape_chrdev_read,
+-	write:		idetape_chrdev_write,
+-	ioctl:		idetape_chrdev_ioctl,
+-	open:		idetape_chrdev_open,
+-	release:	idetape_chrdev_release,
++	.owner		= THIS_MODULE,
++	.read		= idetape_chrdev_read,
++	.write		= idetape_chrdev_write,
++	.ioctl		= idetape_chrdev_ioctl,
++	.open		= idetape_chrdev_open,
++	.release	= idetape_chrdev_release,
+ };
+ 
+ static int idetape_attach (ide_drive_t *drive)
+--- linux-2.5.41/drivers/ide/ide.c.old	2002-10-07 15:45:28.000000000 -0500
++++ linux-2.5.41/drivers/ide/ide.c	2002-10-07 15:52:36.000000000 -0500
+@@ -1689,10 +1689,10 @@
+ 	return 0;
+ }
+ struct seq_operations ide_drivers_op = {
+-	start:	m_start,
+-	next:	m_next,
+-	stop:	m_stop,
+-	show:	show_driver
++	.start	= m_start,
++	.next	= m_next,
++	.stop	= m_stop,
++	.show	= show_driver
+ };
+ 
+ #ifdef CONFIG_PROC_FS
+@@ -3446,12 +3446,12 @@
+ EXPORT_SYMBOL(ide_unregister_driver);
+ 
+ struct block_device_operations ide_fops[] = {{
+-	owner:			THIS_MODULE,
+-	open:			ide_open,
+-	release:		ide_release,
+-	ioctl:			ide_ioctl,
+-	check_media_change:	ide_check_media_change,
+-	revalidate:		ide_revalidate_disk
++	.owner			= THIS_MODULE,
++	.open			= ide_open,
++	.release		= ide_release,
++	.ioctl			= ide_ioctl,
++	.check_media_change	= ide_check_media_change,
++	.revalidate		= ide_revalidate_disk
+ }};
+ 
+ EXPORT_SYMBOL(ide_fops);
 -- 
-Revolutions do not require corporate support.
+They that can give up essential liberty to obtain a little temporary safety
+deserve neither liberty nor safety.
+ -- Benjamin Franklin, Historical Review of Pennsylvania, 1759

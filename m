@@ -1,79 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266591AbUF3Inj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265032AbUF3JEv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266591AbUF3Inj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jun 2004 04:43:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266593AbUF3Inj
+	id S265032AbUF3JEv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jun 2004 05:04:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266593AbUF3JEv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jun 2004 04:43:39 -0400
-Received: from styx.suse.cz ([82.119.242.94]:58497 "EHLO shadow.ucw.cz")
-	by vger.kernel.org with ESMTP id S266591AbUF3Ing (ORCPT
+	Wed, 30 Jun 2004 05:04:51 -0400
+Received: from cantor.suse.de ([195.135.220.2]:41653 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S265032AbUF3JEs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jun 2004 04:43:36 -0400
-Date: Wed, 30 Jun 2004 10:45:09 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: Marc Waeckerlin <Marc.Waeckerlin@siemens.com>, laflipas@telefonica.net,
-       linux-kernel@vger.kernel.org, t.hirsch@web.de
-Subject: Re: Continue: psmouse.c - synaptics touchpad driver sync problem
-Message-ID: <20040630084509.GA12112@ucw.cz>
-References: <20040629143232.52963.qmail@web81303.mail.yahoo.com> <200406291808.08186.Marc.Waeckerlin@siemens.com> <200406291253.10542.dtor_core@ameritech.net> <200406300102.16083.dtor_core@ameritech.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200406300102.16083.dtor_core@ameritech.net>
-User-Agent: Mutt/1.4.1i
+	Wed, 30 Jun 2004 05:04:48 -0400
+To: Roland McGrath <roland@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
+       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: zombie with CLONE_THREAD
+References: <200406300714.i5U7E48O027579@magilla.sf.frob.com>
+From: Andreas Schwab <schwab@suse.de>
+X-Yow: I hope the ``Eurythmics'' practice birth control...
+Date: Wed, 30 Jun 2004 11:04:46 +0200
+In-Reply-To: <200406300714.i5U7E48O027579@magilla.sf.frob.com> (Roland
+ McGrath's message of "Wed, 30 Jun 2004 00:14:04 -0700")
+Message-ID: <je8ye5ct75.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="=-=-="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 30, 2004 at 01:02:16AM -0500, Dmitry Torokhov wrote:
+--=-=-=
 
-> Vojtech, what is your opinion?
-> 
-> > Jun 28 16:01:29 qingwa kernel: drivers/input/serio/i8042.c: a0 <- i8042 (interrupt, aux1, 12) [191319]
-> > Jun 28 16:01:29 qingwa kernel: i8042.c: MUX reports error condition b3 (35)
-> > Jun 28 16:01:29 qingwa kernel: drivers/input/serio/i8042.c: b3 <- i8042 (interrupt, aux0, 12) [191325]
-> > Jun 28 16:01:29 qingwa kernel: drivers/input/serio/i8042.c: 52 <- i8042 (interrupt, aux1, 12) [191327]
-> > Jun 28 16:01:29 qingwa kernel: drivers/input/serio/i8042.c: d0 <- i8042 (interrupt, aux1, 12) [191328]
-> > Jun 28 16:01:29 qingwa kernel: drivers/input/serio/i8042.c: 2e <- i8042 (interrupt, aux1, 12) [191330]
-> > Jun 28 16:01:29 qingwa kernel: psmouse.c: TouchPad at isa0060/serio2/input0 lost sync at byte 4
-> > Jun 28 16:01:29 qingwa kernel: drivers/input/serio/i8042.c: 30 <- i8042 (interrupt, aux1, 12) [191331]
-> > Jun 28 16:01:29 qingwa kernel: psmouse.c: TouchPad at isa0060/serio2/input0 lost sync at byte 1
-> > Jun 28 16:01:29 qingwa kernel: drivers/input/serio/i8042.c: a0 <- i8042 (interrupt, aux1, 12) [191333]
-> > Jun 28 16:01:29 qingwa kernel: drivers/input/serio/i8042.c: b3 <- i8042 (interrupt, aux1, 12) [191335]
-> > Jun 28 16:01:29 qingwa kernel: drivers/input/serio/i8042.c: 50 <- i8042 (interrupt, aux1, 12) [191336]
-> > Jun 28 16:01:29 qingwa kernel: drivers/input/serio/i8042.c: d0 <- i8042 (interrupt, aux1, 12) [191338]
-> > Jun 28 16:01:29 qingwa kernel: drivers/input/serio/i8042.c: 29 <- i8042 (interrupt, aux1, 12) [191339]
-> > Jun 28 16:01:29 qingwa kernel: drivers/input/serio/i8042.c: 30 <- i8042 (interrupt, aux1, 12) [191342]
-> > Jun 28 16:01:29 qingwa kernel: psmouse.c: TouchPad at isa0060/serio2/input0 - driver resynched.
-> > Jun 28 16:01:29 qingwa kernel: drivers/input/serio/i8042.c: a0 <- i8042 (interrupt, aux1, 12) [191343]
-> 
-> Again MUX got confused momentarily, the patch should fix that.
-> 
-> > Jun 28 16:01:31 qingwa kernel: drivers/input/serio/i8042.c: b8 <- i8042 (interrupt, kbd, 1) [193334]
-> > Jun 28 16:01:31 qingwa kernel: drivers/input/serio/i8042.c: 9d <- i8042 (interrupt, kbd, 1) [193359]
-> > Jun 28 16:01:33 qingwa kernel: i8042.c: MUX reports error condition fd (f5)
-> > Jun 28 16:01:33 qingwa kernel: drivers/input/serio/i8042.c: fd <- i8042 (interrupt, aux3, 12, timeout) [195950]
-> > Jun 28 16:01:33 qingwa kernel: psmouse.c: bad data from KBC - timeout
-> > Jun 28 16:01:36 qingwa kernel: drivers/input/serio/i8042.c: 13 <- i8042 (interrupt, kbd, 1) [198170]
-> > Jun 28 16:01:36 qingwa kernel: drivers/input/serio/i8042.c: 93 <- i8042 (interrupt, kbd, 1) [198243]
-> 
-> This one seems to be legit and handled OK although I am not sure what caused
-> AUX3 to report timeout - it wasn't transmitting for quite some time.
-> 
-> > Jun 28 16:01:44 qingwa kernel: drivers/input/serio/i8042.c: 00 <- i8042 (interrupt, aux1, 12) [206317]
-> > Jun 28 16:01:44 qingwa kernel: drivers/input/serio/i8042.c: c0 <- i8042 (interrupt, aux1, 12) [206320]
-> > Jun 28 16:01:44 qingwa kernel: i8042.c: MUX reports error condition 00 (35)
-> > Jun 28 16:01:44 qingwa kernel: drivers/input/serio/i8042.c: 00 <- i8042 (interrupt, aux0, 12) [206326]
-> > Jun 28 16:01:44 qingwa kernel: drivers/input/serio/i8042.c: 00 <- i8042 (interrupt, aux1, 12) [206327]
-> 
-> Confused again...
-> 
-> Anyway, please try the patch and the change to the timeout in
-> psmouse_interrupt. I am anxiously awaiting result of your testing.
- 
-We may also want to disable the timer polling the chip - that might be
-confusing it as well.
+Roland McGrath <roland@redhat.com> writes:
+
+> Are you saying that if the ptracer dies, it can leave some threads in limbo?
+> I think that case is supposed to work because forget_original_parent will
+> move all the threads ptrace'd by the dying tracer process to be ptrace'd by
+> init, which will then clean up their zombies as previously described.
+
+Here is the test case, run it with "strace -f ./clone".  When the bug
+happens then strace is stuck waiting for it's traced child that just died,
+but you may have to try a few times before it happens.
+
+
+--=-=-=
+Content-Disposition: inline; filename=clone.c
+
+#include <stdio.h>
+#include <signal.h>
+#include <sched.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/mman.h>
+
+extern int __clone (int (*__fn) (void *__arg), void *__child_stack,
+		    int __flags, void *__arg, ...);
+extern int __clone2 (int (*__fn) (void *__arg), void *__child_stack_base,
+		     size_t __child_stack_size, int __flags, void *__arg, ...);
+
+static int thread (void *arg)
+{
+  write (2, "thread\n", sizeof ("thread\n"));
+  *(volatile int *) 0;
+  return 0;
+}
+
+#define STACK_SIZE 1024 * 1024
+#define CLONE_FLAGS CLONE_VM|CLONE_FS|CLONE_FILES|CLONE_SIGHAND|CLONE_THREAD|CLONE_SYSVSEM
+
+int
+main (void)
+{
+  void *stack = mmap (0, STACK_SIZE, PROT_READ|PROT_WRITE,
+		      MAP_ANON|MAP_PRIVATE, -1, 0);
+  pid_t pid;
+
+#ifdef __ia64__
+  pid = __clone2 (thread, stack, STACK_SIZE - 64, CLONE_FLAGS, 0);
+#else
+  pid = __clone (thread, stack + STACK_SIZE - 64, CLONE_FLAGS, 0);
+#endif
+  printf ("pid = %d\n", pid);
+  sleep (1);
+  return 0;
+}
+
+	    
+
+--=-=-=
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+
+
+Andreas.
 
 -- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux AG, Maxfeldstraße 5, 90409 Nürnberg, Germany
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."
+
+--=-=-=--

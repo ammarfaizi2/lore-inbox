@@ -1,74 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280429AbRJaTNr>; Wed, 31 Oct 2001 14:13:47 -0500
+	id <S280431AbRJaTPh>; Wed, 31 Oct 2001 14:15:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280430AbRJaTNi>; Wed, 31 Oct 2001 14:13:38 -0500
-Received: from apollo.wizard.ca ([204.244.205.22]:18449 "HELO apollo.wizard.ca")
-	by vger.kernel.org with SMTP id <S280429AbRJaTNZ>;
-	Wed, 31 Oct 2001 14:13:25 -0500
-Subject: Re: What is standing in the way of opening the 2.5 tree?
-From: Michael Peddemors <michael@wizard.ca>
-To: Sujal Shah <sshah@progress.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1004479166.31041.13.camel@pcsshah>
-In-Reply-To: <Pine.LNX.4.30.0110301335230.9312-100000@methlab.23.org> 
-	<1004479166.31041.13.camel@pcsshah>
-Content-Type: text/plain
+	id <S280434AbRJaTP2>; Wed, 31 Oct 2001 14:15:28 -0500
+Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:15492 "EHLO
+	mirai.cx") by vger.kernel.org with ESMTP id <S280431AbRJaTPQ>;
+	Wed, 31 Oct 2001 14:15:16 -0500
+Message-ID: <3BE04DE8.F012C592@pobox.com>
+Date: Wed, 31 Oct 2001 11:15:52 -0800
+From: J Sloan <jjs@pobox.com>
+Organization: J S Concepts
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14-pre6-2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: safemode <safemode@speakeasy.net>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.14-pre6 + preempt dri lockup
+In-Reply-To: <20011031152822Z280263-17408+8294@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.13 (Preview Release)
-Date: 31 Oct 2001 11:18:47 -0800
-Message-Id: <1004555927.11209.45.camel@mistress>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Full moon must be getting to me, I have to open my mouth, and howl my
-opinion..
+safemode wrote:
 
-As a consultant, it seems a shame to open up a 2.5 UNTIL 2.4 is dead
-stable.. When it comes to servers, I still have to recommend that my
-clients stick to a 2.2 series..  Of course, I am subject to some deep
-flames as well, but we defienlty aren't getting enough testing in the
--pre series each time..
-So far, every 2.4.x release has followed with a series of OOPS, OOM
-problems, last minite updates to the pre cycle that caused bugs..  The
-2.4 series has changed So many fundamentals since 2.4.0 that it seems
-more like it is still 2.3. under development.
+> Using 2.4.14-pre6 and Love's preempt patch, i recompiled my X's matrox drm
+> driver and loaded it.  All seemed well and good and i started X and it locked
+> up.  I had to reboot.  Upon rebooting I started X without loading the drm
+> module and disabling DRI and it loaded fine.  Tis not good.   The drm module
+> worked in every kernel prior to this one with and without the preempt patch.
+> I couldn't get an error message or anything but i did hear my monitor resync,
+> it just never displayed any kind of image.  The entire system was
+> unresponsive.
 
-Although a few vendors are supplying 2.4 kernels with relative success,
-I cannot with good conscious say that my clients servers will be
-bulletproof like the 2.2 series was..
+Just a data point -
 
-(I say this as I just finished a work order for a new Oracle Server,
-still on 2.2)
+Running 2.4.14-pre6 + preempt + a.m.  low latency
+Hardware = PIII-933 on intel mobo, 512 MB
+Video = voodoo3 agp
 
-I am surely looking for the next in the 2.4 series, as it seems like we
-are finally solidifying, but when I look at all of the reccomendations
-for 'which 2.4' kernel to use, it is amazing at how many people are
-recommending kernels or a -pre nature, or -ac - even -aa as the most
-solid.. When I would expect to see everyone recommending a single
-production Linus Kernel version.
+I gave DRI a workout with several hours of
+wolfenstein network demo, then ran 40 min or
+so of dbench and then let normal services run
+through the night. The system remains smooth
+and responsive, no incidents in syslog.
 
-Can we get a single 2.4 series kernel that has fully been tested before
-moving on to even more fundamental changes?
-> 
-> To be honest, I think that any x.y.z kernel is "unstable."  As we move
-> into a situation with an even larger installed base, I think you're
-> going to see a third tier become more evident: a) unstable, b) stable,
-> c) vendor supported.  Quite frankly, if I'm making recommendations to
-> customers and clients for a linux installation, I typically recommend
-> for them to go with a vendor supplied kernel and manage it through the
-> vendor.
-> 
-> > Please read the FAQ at  http://www.tux.org/lkml/
--- 
-"Catch the Magic of Linux..."
---------------------------------------------------------
-Michael Peddemors - Senior Consultant
-LinuxAdministration - Internet Services
-NetworkServices - Programming - Security
-Wizard IT Services http://www.wizard.ca
-Linux Support Specialist - http://www.linuxmagic.com
---------------------------------------------------------
-(604)589-0037 Beautiful British Columbia, Canada
+So there may be specific driver bugs which
+are being invoked in your situation.
+
+cu
+
+jjs
+
 

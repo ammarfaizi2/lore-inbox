@@ -1,138 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268685AbUIGWEn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268700AbUIGWKG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268685AbUIGWEn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 18:04:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268688AbUIGWEn
+	id S268700AbUIGWKG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 18:10:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268702AbUIGWKG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 18:04:43 -0400
-Received: from fire.osdl.org ([65.172.181.4]:17889 "EHLO fire-1.osdl.org")
-	by vger.kernel.org with ESMTP id S268685AbUIGWEO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 18:04:14 -0400
-Subject: Re: 2.6.9-rc1-mm4 (compile stats)
-From: John Cherry <cherry@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <1094593625.28147.30.camel@cherrybomb.pdx.osdl.net>
-References: <20040907020831.62390588.akpm@osdl.org>
-	 <1094593625.28147.30.camel@cherrybomb.pdx.osdl.net>
-Content-Type: text/plain
-Message-Id: <1094594331.28052.35.camel@cherrybomb.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Tue, 07 Sep 2004 14:58:51 -0700
+	Tue, 7 Sep 2004 18:10:06 -0400
+Received: from 212-28-208-94.customer.telia.com ([212.28.208.94]:18960 "EHLO
+	www.dewire.com") by vger.kernel.org with ESMTP id S268700AbUIGWJ4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Sep 2004 18:09:56 -0400
+From: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
+To: William Stearns <wstearns@pobox.com>
+Subject: Re: silent semantic changes in reiser4 (brief attempt to document the idea of what reiser4 wants to do with metafiles and why
+Date: Wed, 8 Sep 2004 00:09:52 +0200
+User-Agent: KMail/1.6.1
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+References: <41323AD8.7040103@namesys.com> <413E170F.9000204@namesys.com> <Pine.LNX.4.58.0409071658120.2985@sparrow>
+In-Reply-To: <Pine.LNX.4.58.0409071658120.2985@sparrow>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200409080009.52683.robin.rosenberg.lists@dewire.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The new warning is Makefile related...
+On Tuesday 07 September 2004 23.05, William Stearns wrote:
+> somone wrote
+> > "..." is pretty good, but I think it has been used by others, but I
+> > really forget who.  I could live with "...", but I think "metas" and
 
-make[1]: warning: jobserver unavailable: using -j1.  Add `+' to parent
-make rule.
+In MS-DOS  you can do "cd ..." as a shortcut for ..\.. but only in the cd 
+command. VMS used it with fileneme pattern matching to indicate a 
+recursive search.
 
-...and I was using -j3.  I know others have seen this as well.
+> 	Some trojans and rootkits have used it to store files;
+> /usr/lib/... , /usr/doc/... , /usr/sbin/... , /usr/local/bin/... ,
+> /dev/... , and /usr/include/... are used by bobkit.
+> 	This might trigger false positives for rootkit detection tools
+> like chkrootkit and rootkit-hunter.
+> 	Cheers,
+> 	- Bill
 
-John
+Rootkit detection tools need to be updated and improved regularly anyway. If 
+you use old rootkit detection tools, it might be a bonus if you are reminded 
+of that fact. That's a feature, not a bug.
 
-On Tue, 2004-09-07 at 14:47, John Cherry wrote:
-> Linux 2.6 (mm tree) Compile Statistics (gcc 3.2.2)
-> 
-> Kernel            bzImage   bzImage  bzImage  modules  bzImage  modules
->                 (defconfig) (allno) (allyes) (allyes) (allmod) (allmod)
-> --------------- ---------- -------- -------- -------- -------- --------
-> 2.6.9-rc1-mm4     0w/0e     1w/0e    55w/0e    3w/0e   2w/0e     48w/0e
-> 2.6.9-rc1-mm3     0w/0e     0w/0e    55w/13e   3w/0e   1w/0e     49w/1e
-> 2.6.9-rc1-mm2     0w/0e     0w/0e    53w/11e   3w/0e   1w/0e     47w/0e
-> 2.6.9-rc1-mm1     0w/0e     0w/0e    80w/0e    4w/0e   1w/0e     74w/0e
-> 2.6.8.1-mm4       0w/0e     0w/0e    78w/0e    4w/0e   1w/0e     73w/0e
-> 2.6.8.1-mm3       0w/96e    0w/0e    78w/97e   4w/0e   1w/0e     74w/89e
-> 2.6.8.1-mm2       0w/96e    0w/0e    78w/97e   4w/0e   1w/0e     74w/89e
-> 2.6.8.1-mm1       0w/0e     0w/0e    78w/0e    4w/0e   1w/0e     74w/0e
-> 2.6.8-rc4-mm1     0w/0e     0w/5e    81w/0e    4w/0e   1w/0e     75w/0e
-> 2.6.8-rc3-mm2     1w/7e     0w/5e    82w/8e    4w/0e   2w/8e     75w/0e
-> 2.6.8-rc3-mm1     0w/0e     1w/5e    81w/9e    4w/0e   1w/0e     75w/0e
-> 2.6.8-rc2-mm2     0w/0e     4w/5e    87w/9e    4w/0e   1w/0e     80w/0e
-> 2.6.8-rc2-mm1     0w/0e     0w/0e    83w/9e    3w/0e   1w/0e     81w/0e
-> 2.6.8-rc1-mm1     0w/0e     0w/0e    88w/9e    5w/0e   1w/0e     87w/0e
-> 2.6.7-mm7         0w/0e     0w/0e    89w/9e    5w/0e   1w/0e     84w/0e
-> 2.6.7-mm6         0w/0e     0w/0e    85w/9e    5w/0e   1w/0e     80w/0e
-> 2.6.7-mm5         0w/0e     0w/0e    92w/0e    5w/0e   1w/0e     87w/0e
-> 2.6.7-mm4         0w/0e     0w/0e    94w/0e    5w/0e   1w/0e     89w/0e
-> 2.6.7-mm3         0w/0e     0w/0e    90w/6e    5w/0e   1w/0e     86w/0e
-> 2.6.7-mm2         0w/0e     0w/0e   109w/0e    7w/0e   1w/0e    106w/0e
-> 2.6.7-mm1         0w/0e     5w/0e   108w/0e    5w/0e   1w/0e    104w/0e
-> 2.6.7-rc3-mm2     0w/0e     5w/0e   105w/10e   5w/0e   2w/0e    100w/2e
-> 2.6.7-rc3-mm1     0w/0e     5w/0e   104w/10e   5w/0e   2w/0e    100w/2e
-> 2.6.7-rc2-mm2     0w/0e     5w/0e   109w/10e   5w/0e   2w/0e    105w/2e
-> 2.6.7-rc2-mm1     0w/0e    12w/0e   158w/13e   5w/0e   3w/0e    153w/4e
-> 2.6.7-rc1-mm1     0w/0e     6w/0e   108w/0e    5w/0e   2w/0e    104w/0e
-> 2.6.6-mm5         0w/0e     0w/0e   109w/5e    5w/0e   2w/0e    110w/0e
-> 2.6.6-mm4         0w/0e     0w/0e   112w/9e    5w/0e   2w/5e    106w/1e
-> 2.6.6-mm3         3w/9e     0w/0e   120w/26e   5w/0e   2w/0e    114w/10e
-> 2.6.6-mm2         4w/11e    0w/0e   120w/24e   6w/0e   2w/0e    118w/9e
-> 2.6.6-mm1         1w/0e     0w/0e   118w/25e   6w/0e   2w/0e    114w/10e
-> 2.6.6-rc3-mm2     0w/0e     0w/0e   117w/ 0e   8w/0e   2w/0e    116w/0e
-> 2.6.6-rc3-mm1     0w/0e     0w/0e   120w/10e   8w/0e   2w/0e    152w/2e
-> 2.6.6-rc2-mm2     0w/0e     1w/5e   118w/ 0e   8w/0e   3w/0e    118w/0e
-> 2.6.6-rc2-mm1     0w/0e     0w/0e   115w/ 0e   7w/0e   3w/0e    116w/0e
-> 2.6.6-rc1-mm1     0w/0e     0w/7e   122w/ 0e   7w/0e   4w/0e    122w/0e
-> 2.6.5-mm6         0w/0e     0w/0e   123w/ 0e   7w/0e   4w/0e    124w/0e
-> 2.6.5-mm5         0w/0e     0w/0e   119w/ 0e   7w/0e   4w/0e    120w/0e
-> 2.6.5-mm4         0w/0e     0w/0e   120w/ 0e   7w/0e   4w/0e    121w/0e
-> 2.6.5-mm3         0w/0e     1w/0e   121w/12e   7w/0e   3w/0e    123w/0e
-> 2.6.5-mm2         0w/0e     0w/0e   128w/12e   7w/0e   3w/0e    134w/0e
-> 2.6.5-mm1         0w/0e     5w/0e   122w/ 0e   7w/0e   3w/0e    124w/0e
-> 2.6.5-rc3-mm4     0w/0e     0w/0e   124w/ 0e   8w/0e   4w/0e    126w/0e
-> 2.6.5-rc3-mm3     0w/0e     5w/0e   129w/14e   8w/0e   4w/0e    129w/6e
-> 2.6.5-rc3-mm2     0w/0e     5w/0e   130w/14e   8w/0e   4w/0e    129w/6e
-> 2.6.5-rc3-mm1     0w/0e     5w/0e   129w/ 0e   8w/0e   4w/0e    129w/0e
-> 2.6.5-rc2-mm5     0w/0e     5w/0e   130w/ 0e   8w/0e   4w/0e    129w/0e
-> 2.6.5-rc2-mm4     0w/0e     5w/0e   134w/ 0e   8w/0e   3w/0e    133w/0e
-> 2.6.5-rc2-mm3     0w/0e     5w/0e   134w/ 0e   8w/0e   3w/0e    133w/0e
-> 2.6.5-rc2-mm2     0w/0e     5w/0e   137w/ 0e   8w/0e   3w/0e    134w/0e
-> 2.6.5-rc2-mm1     0w/0e     5w/0e   136w/ 0e   8w/0e   3w/0e    134w/0e
-> 2.6.5-rc1-mm2     0w/0e     5w/0e   135w/ 5e   8w/0e   3w/0e    133w/0e
-> 2.6.5-rc1-mm1     0w/0e     5w/0e   135w/ 5e   8w/0e   3w/0e    133w/0e
-> 2.6.4-mm2         1w/2e     5w/2e   144w/10e   8w/0e   3w/2e    144w/0e
-> 2.6.4-mm1         1w/0e     5w/0e   146w/ 5e   8w/0e   3w/0e    144w/0e
-> 2.6.4-rc2-mm1     1w/0e     5w/0e   146w/12e  11w/0e   3w/0e    147w/2e
-> 2.6.4-rc1-mm2     1w/0e     5w/0e   144w/ 0e  11w/0e   3w/0e    145w/0e
-> 2.6.4-rc1-mm1     1w/0e     5w/0e   147w/ 5e  11w/0e   3w/0e    147w/0e
-> 2.6.3-mm4         1w/0e     5w/0e   146w/ 0e   7w/0e   3w/0e    142w/0e
-> 2.6.3-mm3         1w/2e     5w/2e   146w/15e   7w/0e   3w/2e    144w/5e
-> 2.6.3-mm2         1w/8e     5w/0e   140w/ 0e   7w/0e   3w/0e    138w/0e
-> 2.6.3-mm1         1w/0e     5w/0e   143w/ 5e   7w/0e   3w/0e    141w/0e
-> 2.6.3-rc3-mm1     1w/0e     0w/0e   144w/13e   7w/0e   3w/0e    142w/3e
-> 2.6.3-rc2-mm1     1w/0e     0w/265e 144w/ 5e   7w/0e   3w/0e    145w/0e
-> 2.6.3-rc1-mm1     1w/0e     0w/265e 141w/ 5e   7w/0e   3w/0e    143w/0e
-> 2.6.2-mm1         2w/0e     0w/264e 147w/ 5e   7w/0e   3w/0e    173w/0e
-> 2.6.2-rc3-mm1     2w/0e     0w/265e 146w/ 5e   7w/0e   3w/0e    172w/0e
-> 2.6.2-rc2-mm2     0w/0e     0w/264e 145w/ 5e   7w/0e   3w/0e    171w/0e
-> 2.6.2-rc2-mm1     0w/0e     0w/264e 146w/ 5e   7w/0e   3w/0e    172w/0e
-> 2.6.2-rc1-mm3     0w/0e     0w/265e 144w/ 8e   7w/0e   3w/0e    169w/0e
-> 2.6.2-rc1-mm2     0w/0e     0w/264e 144w/ 5e  10w/0e   3w/0e    171w/0e
-> 2.6.2-rc1-mm1     0w/0e     0w/264e 144w/ 5e  10w/0e   3w/0e    171w/0e
-> 2.6.1-mm5         2w/5e     0w/264e 153w/11e  10w/0e   3w/0e    180w/0e
-> 2.6.1-mm4         0w/821e   0w/264e 154w/ 5e   8w/1e   5w/0e    179w/0e
-> 2.6.1-mm3         0w/0e     0w/0e   151w/ 5e  10w/0e   3w/0e    177w/0e
-> 2.6.1-mm2         0w/0e     0w/0e   143w/ 5e  12w/0e   3w/0e    171w/0e
-> 2.6.1-mm1         0w/0e     0w/0e   146w/ 9e  12w/0e   6w/0e    171w/0e
-> 2.6.1-rc2-mm1     0w/0e     0w/0e   149w/ 0e  12w/0e   6w/0e    171w/4e
-> 2.6.1-rc1-mm2     0w/0e     0w/0e   157w/15e  12w/0e   3w/0e    185w/4e
-> 2.6.1-rc1-mm1     0w/0e     0w/0e   156w/10e  12w/0e   3w/0e    184w/2e
-> 2.6.0-mm2         0w/0e     0w/0e   161w/ 0e  12w/0e   3w/0e    189w/0e
-> 2.6.0-mm1         0w/0e     0w/0e   173w/ 0e  12w/0e   3w/0e    212w/0e
-> 
-> Web page with links to complete details:
->    http://developer.osdl.org/cherry/compile/
-> 
-> John
-> 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Maybe file/./attribute then. /. on a file is currently meaningless. That does 
+not avoid the unpleasant fact that has been brought up by others (only to be 
+ignored), that the directory syntax does not allow metadata on directories.
 
+I'm not convinced that totally transparent access to meta-data actually 
+benefits anyone. If metadata is that useful (which I believe) it may well be
+worth fixing those apps that need, and can use them. The rest should just
+ignore it, even loose it. 
+
+There are too many apps that will not work properly with the metadata as file 
+semantics anyway. Implementing something that only works sometimes is not a 
+good idea. A new API would work where you expect it to work, i.e. in new and 
+fixed apps, just like ACL's and EA's. (Ok, the ACL's are effective 
+everywhere, but they aren't copied to new files or even preserved when 
+editing, so emacs and others needs some fixing  anyway).
+
+-- robin

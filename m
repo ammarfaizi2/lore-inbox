@@ -1,96 +1,114 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264334AbTIITPM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 15:15:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264346AbTIITPM
+	id S264252AbTIITSm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 15:18:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264315AbTIITSg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 15:15:12 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:54542 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S264334AbTIITPA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 15:15:00 -0400
-Date: Tue, 9 Sep 2003 20:14:55 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Fedor Karpelevitch <fedor@karpelevitch.net>,
-       Linus Torvalds <torvalds@osdl.org>, David Jones <davej@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.0-test5]oops inserting PCMCIA card
-Message-ID: <20030909201455.K4216@flint.arm.linux.org.uk>
-Mail-Followup-To: Fedor Karpelevitch <fedor@karpelevitch.net>,
-	Linus Torvalds <torvalds@osdl.org>, David Jones <davej@suse.de>,
-	linux-kernel@vger.kernel.org
-References: <200309081630.19263.fedor@karpelevitch.net> <20030909173014.E4216@flint.arm.linux.org.uk> <200309091202.03759.fedor@karpelevitch.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200309091202.03759.fedor@karpelevitch.net>; from fedor@karpelevitch.net on Tue, Sep 09, 2003 at 12:02:03PM -0700
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+	Tue, 9 Sep 2003 15:18:36 -0400
+Received: from modemcable137.219-201-24.mtl.mc.videotron.ca ([24.201.219.137]:61824
+	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
+	id S264252AbTIITS0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 15:18:26 -0400
+Date: Tue, 9 Sep 2003 15:18:20 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Greg KH <greg@kroah.com>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       John Levon <levon@movementarian.org>
+Subject: Re: [PATCH][2.6][CFT] rmmod floppy kills box fixes + default_device_remove
+In-Reply-To: <20030909171354.GC5928@kroah.com>
+Message-ID: <Pine.LNX.4.53.0309091359450.14426@montezuma.fsmlabs.com>
+References: <Pine.LNX.4.53.0309072228470.14426@montezuma.fsmlabs.com>
+ <20030908155048.GA10879@kroah.com> <Pine.LNX.4.53.0309081722270.14426@montezuma.fsmlabs.com>
+ <20030908230852.GA3320@kroah.com> <Pine.LNX.4.53.0309090739270.14426@montezuma.fsmlabs.com>
+ <Pine.LNX.4.53.0309091142550.14426@montezuma.fsmlabs.com>
+ <20030909171354.GC5928@kroah.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 09, 2003 at 12:02:03PM -0700, Fedor Karpelevitch wrote:
-> see attachments. I included couple other items in case they may be 
-> relevant.
+On Tue, 9 Sep 2003, Greg KH wrote:
 
-Well, first driver I looked at - ati-agp.  This should fix all the AGP
-drivers.
+> Ugh.  Sure, point out the theoretical :)
+> 
+> Any thoughts on how to solve this?
 
-Linus please apply.  pci_device_id tables can not and must not be marked
-discardable.
+How about something like the following, the kobj_type.done is passed from 
+the driver so the driver's presence can maintain it's persistence and 
+we're guaranteed that the ->release() function is not running on a 
+processor at completion time.
 
-diff -ur orig/drivers/char/agp/ati-agp.c linux/drivers/char/agp/ati-agp.c
---- orig/drivers/char/agp/ati-agp.c	Mon Sep  8 23:36:52 2003
-+++ linux/drivers/char/agp/ati-agp.c	Tue Sep  9 20:11:19 2003
-@@ -491,7 +491,7 @@
- 	agp_put_bridge(bridge);
+Index: linux-2.6.0-test5/drivers/base/core.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.6.0-test5/drivers/base/core.c,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 core.c
+--- linux-2.6.0-test5/drivers/base/core.c	8 Sep 2003 22:07:57 -0000	1.1.1.1
++++ linux-2.6.0-test5/drivers/base/core.c	9 Sep 2003 18:38:45 -0000
+@@ -334,6 +334,14 @@ void device_del(struct device * dev)
+ 
  }
  
--static struct pci_device_id agp_ati_pci_table[] __initdata = {
-+static struct pci_device_id agp_ati_pci_table[] = {
- 	{
- 	.class		= (PCI_CLASS_BRIDGE_HOST << 8),
- 	.class_mask	= ~0,
-diff -ur orig/drivers/char/agp/sis-agp.c linux/drivers/char/agp/sis-agp.c
---- orig/drivers/char/agp/sis-agp.c	Mon Sep  8 23:36:53 2003
-+++ linux/drivers/char/agp/sis-agp.c	Tue Sep  9 20:12:38 2003
-@@ -215,7 +215,7 @@
- 	agp_put_bridge(bridge);
++void device_release_notify(struct device *dev, struct completion *done)
++{
++	struct kobj_type *ktype = get_ktype(&dev->kobj);
++
++	init_completion(done);
++	ktype->done = done;
++}
++
+ /**
+  *	device_unregister - unregister device from system.
+  *	@dev:	device going away.
+Index: linux-2.6.0-test5/lib/kobject.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.6.0-test5/lib/kobject.c,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 kobject.c
+--- linux-2.6.0-test5/lib/kobject.c	8 Sep 2003 22:08:55 -0000	1.1.1.1
++++ linux-2.6.0-test5/lib/kobject.c	9 Sep 2003 18:10:50 -0000
+@@ -448,8 +448,12 @@ void kobject_cleanup(struct kobject * ko
+ 	if (kobj->k_name != kobj->name)
+ 		kfree(kobj->k_name);
+ 	kobj->k_name = NULL;
+-	if (t && t->release)
++	if (t && t->release) {
+ 		t->release(kobj);
++		if (t->done)
++			complete(t->done);
++	}
++
+ 	if (s)
+ 		kset_put(s);
  }
+Index: linux-2.6.0-test5/include/linux/kobject.h
+===================================================================
+RCS file: /build/cvsroot/linux-2.6.0-test5/include/linux/kobject.h,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 kobject.h
+--- linux-2.6.0-test5/include/linux/kobject.h	8 Sep 2003 22:08:50 -0000	1.1.1.1
++++ linux-2.6.0-test5/include/linux/kobject.h	9 Sep 2003 17:47:19 -0000
+@@ -59,6 +59,7 @@ extern void kobject_put(struct kobject *
  
--static struct pci_device_id agp_sis_pci_table[] __initdata = {
-+static struct pci_device_id agp_sis_pci_table[] = {
- 	{
- 	.class		= (PCI_CLASS_BRIDGE_HOST << 8),
- 	.class_mask	= ~0,
-diff -ur orig/drivers/char/agp/uninorth-agp.c linux/drivers/char/agp/uninorth-agp.c
---- orig/drivers/char/agp/uninorth-agp.c	Thu Sep  4 16:36:58 2003
-+++ linux/drivers/char/agp/uninorth-agp.c	Tue Sep  9 20:12:38 2003
-@@ -350,7 +350,7 @@
- 	agp_put_bridge(bridge);
- }
- 
--static struct pci_device_id agp_uninorth_pci_table[] __initdata = {
-+static struct pci_device_id agp_uninorth_pci_table[] = {
- 	{
- 	.class		= (PCI_CLASS_BRIDGE_HOST << 8),
- 	.class_mask	= ~0,
-diff -ur orig/drivers/char/agp/via-agp.c linux/drivers/char/agp/via-agp.c
---- orig/drivers/char/agp/via-agp.c	Mon Sep  8 23:36:53 2003
-+++ linux/drivers/char/agp/via-agp.c	Tue Sep  9 20:12:38 2003
-@@ -432,7 +432,7 @@
- 	agp_put_bridge(bridge);
- }
- 
--static struct pci_device_id agp_via_pci_table[] __initdata = {
-+static struct pci_device_id agp_via_pci_table[] = {
- 	{
- 	.class		= (PCI_CLASS_BRIDGE_HOST << 8),
- 	.class_mask	= ~0,
+ struct kobj_type {
+ 	void (*release)(struct kobject *);
++	struct completion	* done;
+ 	struct sysfs_ops	* sysfs_ops;
+ 	struct attribute	** default_attrs;
+ };
 
--- 
-Russell King (rmk@arm.linux.org.uk)	http://www.arm.linux.org.uk/personal/
-Linux kernel maintainer of:
-  2.6 ARM Linux   - http://www.arm.linux.org.uk/
-  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-  2.6 Serial core
+
+Then in the driver module_exit;
+
+void cleanup_module(void)
+{
+	...
+	struct completion done;
+	struct device *dev = ...
+
+	device_release_notify(dev, &done);
+
+	...
+
+	wait_for_completion(&done);
+}

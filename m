@@ -1,73 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261664AbTIZWMM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Sep 2003 18:12:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261676AbTIZWMM
+	id S261676AbTIZWRa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Sep 2003 18:17:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261677AbTIZWRa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Sep 2003 18:12:12 -0400
-Received: from [212.95.164.66] ([212.95.164.66]:34564 "HELO ns.unixsol.org")
-	by vger.kernel.org with SMTP id S261664AbTIZWMK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Sep 2003 18:12:10 -0400
-Message-ID: <3F74B9B7.2010807@unixsol.org>
-Date: Sat, 27 Sep 2003 01:12:07 +0300
-From: Georgi Chorbadzhiyski <gf@unixsol.org>
-Organization: Unix Solutions Ltd. (http://unixsol.org)
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030915
-X-Accept-Language: en, en-us, bg
+	Fri, 26 Sep 2003 18:17:30 -0400
+Received: from inova102.correio.tnext.com.br ([200.222.67.102]:56266 "HELO
+	leia-auth.correio.tnext.com.br") by vger.kernel.org with SMTP
+	id S261676AbTIZWR3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Sep 2003 18:17:29 -0400
+X-Analyze: Velop Mail Shield v0.0.3
+Date: Fri, 26 Sep 2003 19:17:24 -0300 (BRT)
+From: =?ISO-8859-1?Q?Fr=E9d=E9ric_L=2E_W=2E_Meunier?= <0@pervalidus.tk>
+X-X-Sender: fredlwm@pervalidus.dyndns.org
+To: linux-kernel@vger.kernel.org
+Subject: Deadlocks using PS/2 and USB keyboards at the same time ?
+Message-ID: <Pine.LNX.4.58.0309261906010.236@pervalidus.dyndns.org>
+X-Archive: encrypt
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [2.6.0-test5-mm1] Debug: sleeping function called from invalid context
- at include/asm/uaccess.h:512
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I get this messages all the time when dosemu is running. I'm using
-Linux version 2.6.0-test5-mm1 (root@gf) (gcc version 3.2.3) #2 Tue Sep 9 17:47:25 EEST 2003
-on slackware-current. If more information is needed I'll be happy to provide
-it.
+I just bought 2 keyboards, 1 PS/2 and 1 USB, and plugged both.
+On Windows XP both are recognized and work fine. I can hotswap
+the USB without any problems. I'm just not sure if Caps Lock
+and the other keys light on both is expected. I thought they
+were "independent".
 
-Sep 26 23:36:47 gf kernel: Debug: sleeping function called from invalid context at include/asm/uaccess.h:512
-Sep 26 23:36:47 gf kernel: in_atomic():0, irqs_disabled():1
-Sep 26 23:36:47 gf kernel: Call Trace:
-Sep 26 23:36:47 gf kernel:  [<c010ce55>] do_general_protection+0x0/0x9e
-Sep 26 23:36:47 gf kernel:  [<c011f5da>] __might_sleep+0x9c/0xb6
-Sep 26 23:36:47 gf kernel:  [<c010f3f2>] save_v86_state+0x66/0x207
-Sep 26 23:36:47 gf kernel:  [<c010ce55>] do_general_protection+0x0/0x9e
-Sep 26 23:36:47 gf kernel:  [<c0375442>] work_notifysig_v86+0x6/0x14
-Sep 26 23:36:47 gf kernel:  [<c03753ef>] syscall_call+0x7/0xb
-Sep 26 23:36:47 gf kernel:
-Sep 26 23:36:48 gf kernel: Debug: sleeping function called from invalid context at include/asm/uaccess.h:512
-Sep 26 23:36:48 gf kernel: in_atomic():0, irqs_disabled():1
-Sep 26 23:36:48 gf kernel: Call Trace:
-Sep 26 23:36:48 gf kernel:  [<c011f5da>] __might_sleep+0x9c/0xb6
-Sep 26 23:36:48 gf kernel:  [<c010f3f2>] save_v86_state+0x66/0x207
-Sep 26 23:36:48 gf kernel:  [<c0375442>] work_notifysig_v86+0x6/0x14
-Sep 26 23:36:48 gf kernel:  [<c03753ef>] syscall_call+0x7/0xb
-Sep 26 23:36:48 gf kernel:
-Sep 26 23:36:49 gf kernel: Debug: sleeping function called from invalid context at include/asm/uaccess.h:512
-Sep 26 23:36:49 gf kernel: in_atomic():0, irqs_disabled():1
-Sep 26 23:36:49 gf kernel: Call Trace:
-Sep 26 23:36:49 gf kernel:  [<c010ce55>] do_general_protection+0x0/0x9e
-Sep 26 23:36:49 gf kernel:  [<c011f5da>] __might_sleep+0x9c/0xb6
-Sep 26 23:36:49 gf kernel:  [<c010f3f2>] save_v86_state+0x66/0x207
-Sep 26 23:36:49 gf kernel:  [<c010ce55>] do_general_protection+0x0/0x9e
-Sep 26 23:36:49 gf kernel:  [<c0375442>] work_notifysig_v86+0x6/0x14
-Sep 26 23:36:49 gf kernel:  [<c03753ef>] syscall_call+0x7/0xb
-Sep 26 23:36:49 gf kernel:
-Sep 26 23:36:50 gf kernel: Debug: sleeping function called from invalid context at include/asm/uaccess.h:512
-Sep 26 23:36:50 gf kernel: in_atomic():0, irqs_disabled():1
-Sep 26 23:36:50 gf kernel: Call Trace:
-Sep 26 23:36:50 gf kernel:  [<c010ce55>] do_general_protection+0x0/0x9e
-Sep 26 23:36:50 gf kernel:  [<c011f5da>] __might_sleep+0x9c/0xb6
-Sep 26 23:36:50 gf kernel:  [<c010f3f2>] save_v86_state+0x66/0x207
-Sep 26 23:36:50 gf kernel:  [<c010ce55>] do_general_protection+0x0/0x9e
-Sep 26 23:36:50 gf kernel:  [<c0375442>] work_notifysig_v86+0x6/0x14
-Sep 26 23:36:50 gf kernel:  [<c03753ef>] syscall_call+0x7/0xb
+But on Linux, with 2.4.22 the USB keyboard just locks when I
+load the USB modules, and with 2.6.0-test4 I get deadlocks. I
+already got 1 doing a modprobe, and the other ps reported from
+khubd.
 
 -- 
-Georgi Chorbadzhiyski
-http://georgi.unixsol.org/
-
+How to contact me - http://www.pervalidus.net/contact.html

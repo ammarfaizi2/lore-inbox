@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261269AbVCEWlf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261290AbVCEWls@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261269AbVCEWlf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Mar 2005 17:41:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261299AbVCEWle
+	id S261290AbVCEWls (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Mar 2005 17:41:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261299AbVCEWls
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Mar 2005 17:41:34 -0500
-Received: from coderock.org ([193.77.147.115]:25509 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S261269AbVCEWlY (ORCPT
+	Sat, 5 Mar 2005 17:41:48 -0500
+Received: from coderock.org ([193.77.147.115]:27045 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S261290AbVCEWla (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Mar 2005 17:41:24 -0500
-Subject: [patch 1/4] delete unused file include_asm_arm_arch_epxa10db_mode_ctrl00.h
+	Sat, 5 Mar 2005 17:41:30 -0500
+Subject: [patch 2/4] delete unused file include_asm_arm_arch_epxa10db_pld_conf00.h
 To: rmk@arm.linux.org.uk
 Cc: linux-kernel@vger.kernel.org, domen@coderock.org
 From: domen@coderock.org
-Date: Sat, 05 Mar 2005 23:41:14 +0100
-Message-Id: <20050305224115.A6D211EE1E@trashy.coderock.org>
+Date: Sat, 05 Mar 2005 23:41:18 +0100
+Message-Id: <20050305224118.9F4F31F07A@trashy.coderock.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -25,21 +25,25 @@ Signed-off-by: Domen Puncer <domen@coderock.org>
 ---
 
 
- kj/include/asm-arm/arch-epxa10db/mode_ctrl00.h |   80 -------------------------
- 1 files changed, 80 deletions(-)
+ kj/include/asm-arm/arch-epxa10db/pld_conf00.h |   73 --------------------------
+ 1 files changed, 73 deletions(-)
 
-diff -L include/asm-arm/arch-epxa10db/mode_ctrl00.h -puN include/asm-arm/arch-epxa10db/mode_ctrl00.h~remove_file-include_asm_arm_arch_epxa10db_mode_ctrl00.h /dev/null
---- kj/include/asm-arm/arch-epxa10db/mode_ctrl00.h
+diff -L include/asm-arm/arch-epxa10db/pld_conf00.h -puN include/asm-arm/arch-epxa10db/pld_conf00.h~remove_file-include_asm_arm_arch_epxa10db_pld_conf00.h /dev/null
+--- kj/include/asm-arm/arch-epxa10db/pld_conf00.h
 +++ /dev/null	2005-03-02 11:34:59.000000000 +0100
-@@ -1,80 +0,0 @@
--#ifndef __MODE_CTRL00_H
--#define __MODE_CTRL00_H
+@@ -1,73 +0,0 @@
+-#ifndef __PLD_CONF00_H
+-#define __PLD_CONF00_H
 -
 -/*
-- * Register definitions for the reset and mode control
+- * Register definitions for the PLD Configuration Logic
 - */
 -
 -/*
+- *  
+- *  This file contains the register definitions for the Excalibur
+- *  Interrupt controller INT_CTRL00.
+- *
 - *  Copyright (C) 2001 Altera Corporation
 - *
 - * This program is free software; you can redistribute it and/or modify
@@ -56,60 +60,49 @@ diff -L include/asm-arm/arch-epxa10db/mode_ctrl00.h -puN include/asm-arm/arch-ep
 - * along with this program; if not, write to the Free Software
 - * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 - */
+- 
+-#define CONFIG_CONTROL(BASE_ADDR) (PLD_CONF00_TYPE (BASE_ADDR))  
+-#define CONFIG_CONTROL_LK_MSK (0x1)
+-#define CONFIG_CONTROL_LK_OFST (0)
+-#define CONFIG_CONTROL_CO_MSK (0x2)
+-#define CONFIG_CONTROL_CO_OFST (1)
+-#define CONFIG_CONTROL_B_MSK  (0x4)
+-#define CONFIG_CONTROL_B_OFST (2)
+-#define CONFIG_CONTROL_PC_MSK (0x8)
+-#define CONFIG_CONTROL_PC_OFST (3)
+-#define CONFIG_CONTROL_E_MSK (0x10)
+-#define CONFIG_CONTROL_E_OFST (4)
+-#define CONFIG_CONTROL_ES_MSK (0xE0)
+-#define CONFIG_CONTROL_ES_OFST (5)
+-#define CONFIG_CONTROL_ES_0_MSK (0x20)
+-#define CONFIG_CONTROL_ES_1_MSK (0x40)
+-#define CONFIG_CONTROL_ES_2_MSK (0x80)
+-
+-#define CONFIG_CONTROL_CLOCK(BASE_ADDR) (PLD_CONF00_TYPE (BASE_ADDR  + 0x4 ))
+-#define CONFIG_CONTROL_CLOCK_RATIO_MSK (0xFFFF)
+-#define CONFIG_CONTROL_CLOCK_RATIO_OFST (0)
+-
+-#define CONFIG_CONTROL_DATA(BASE_ADDR) (PLD_CONF00_TYPE (BASE_ADDR  + 0x8 ))
+-#define CONFIG_CONTROL_DATA_MSK (0xFFFFFFFF)
+-#define CONFIG_CONTROL_DATA_OFST (0)
+-
+-#define CONFIG_UNLOCK(BASE_ADDR) (PLD_CONF00_TYPE (BASE_ADDR  + 0xC )) 
+-#define CONFIG_UNLOCK_MSK (0xFFFFFFFF)
+-#define CONFIG_UNLOCK_OFST (0)
+-
+-#define CONFIG_UNLOCK_MAGIC (0x554E4C4B)
+-
+-#endif /* __PLD_CONF00_H */
 -
 -
 -
--#define BOOT_CR(BASE_ADDR) (MODE_CTRL00_TYPE (BASE_ADDR  ))
--#define BOOT_CR_BF_MSK (0x1)
--#define BOOT_CR_BF_OFST (0)
--#define BOOT_CR_HM_MSK (0x2)
--#define BOOT_CR_HM_OFST (1)
--#define BOOT_CR_RE_MSK (0x4)
--#define BOOT_CR_RE_OFST (2)
 -
--#define RESET_SR(BASE_ADDR) (MODE_CTRL00_TYPE (BASE_ADDR  + 0x4 ))
--#define RESET_SR_WR_MSK (0x1)
--#define RESET_SR_WR_OFST (0)
--#define RESET_SR_CR_MSK (0x2)
--#define RESET_SR_CR_OFST (1)
--#define RESET_SR_JT_MSK (0x4)
--#define RESET_SR_JT_OFST (2)
--#define RESET_SR_ER_MSK (0x8)
--#define RESET_SR_ER_OFST (3)
 -
--#define ID_CODE(BASE_ADDR) (MODE_CTRL00_TYPE (BASE_ADDR  + 0x08 ))
 -
--#define SRAM0_SR(BASE_ADDR) (MODE_CTRL00_TYPE (BASE_ADDR  + 0x20 ))
--#define SRAM0_SR_SIZE_MSK (0xFFFFF000)
--#define SRAM0_SR_SIZE_OFST (12)
 -
--#define SRAM1_SR(BASE_ADDR) (MODE_CTRL00_TYPE (BASE_ADDR  + 0x24 ))
--#define SRAM1_SR_SIZE_MSK (0xFFFFF000)
--#define SRAM1_SR_SIZE_OFST (12)
 -
--#define DPSRAM0_SR(BASE_ADDR) (MODE_CTRL00_TYPE (BASE_ADDR  + 0x30 ))
 -
--#define DPSRAM0_SR_MODE_MSK (0xF)
--#define DPSRAM0_SR_MODE_OFST (0)
--#define DPSRAM0_SR_GLBL_MSK (0x30)
--#define DPSRAM0_SR_SIZE_MSK (0xFFFFF000)
--#define DPSRAM0_SR_SIZE_OFST (12)
 -
--#define DPSRAM0_LCR(BASE_ADDR) (MODE_CTRL00_TYPE (BASE_ADDR  + 0x34 ))
--#define DPSRAM0_LCR_LCKADDR_MSK (0x1FFE0)
--#define DPSRAM0_LCR_LCKADDR_OFST (4)
 -
--#define DPSRAM1_SR(BASE_ADDR) (MODE_CTRL00_TYPE (BASE_ADDR  + 0x38 ))
--#define DPSRAM1_SR_MODE_MSK (0xF)
--#define DPSRAM1_SR_MODE_OFST (0)
--#define DPSRAM1_SR_GLBL_MSK (0x30)
--#define DPSRAM1_SR_GLBL_OFST (4)
--#define DPSRAM1_SR_SIZE_MSK (0xFFFFF000)
--#define DPSRAM1_SR_SIZE_OFST (12)
 -
--#define DPSRAM1_LCR(BASE_ADDR) (MODE_CTRL00_TYPE (BASE_ADDR  + 0x3C ))
--#define DPSRAM1_LCR_LCKADDR_MSK (0x1FFE0)
--#define DPSRAM1_LCR_LCKADDR_OFST (4)
--
--#endif /* __MODE_CTRL00_H */
 _

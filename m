@@ -1,47 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261565AbVAIIJF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262068AbVAIIx4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261565AbVAIIJF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jan 2005 03:09:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262266AbVAIIJF
+	id S262068AbVAIIx4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jan 2005 03:53:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262074AbVAIIx4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jan 2005 03:09:05 -0500
-Received: from wproxy.gmail.com ([64.233.184.207]:53597 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261565AbVAIIJB (ORCPT
+	Sun, 9 Jan 2005 03:53:56 -0500
+Received: from mx1.mail.ru ([194.67.23.121]:52550 "EHLO mx1.mail.ru")
+	by vger.kernel.org with ESMTP id S262068AbVAIIxx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jan 2005 03:09:01 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
-        b=hlivuZ1sk9Kp9v85BnWk5Uc+IJE8BO9E9bF/ZpvVf3Te955Bs++vS8NWZ/JOpntwkbiTrucu1RnHwFdoYcRQnY3xeB5nd8waM9LVGbC6kGGpgl9YSgsyVUf5GwjE6p/1Qp5Aw98h9B1Dz/hXS9O3iM5N919zQdBnG5tmFe2hCaY=
-Message-ID: <1ab49290050109000913bb0b2@mail.gmail.com>
-Date: Sun, 9 Jan 2005 00:09:01 -0800
-From: Matthew Trent <t3rmin@gmail.com>
-Reply-To: Matthew Trent <t3rmin@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: CPUFreq chokes on Sempron
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 9 Jan 2005 03:53:53 -0500
+From: Alexey Dobriyan <adobriyan@mail.ru>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Subject: [PATCH] futex: s/0/NULL/ in pointer context
+Date: Sun, 9 Jan 2005 11:23:31 +0200
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200501091123.31402.adobriyan@mail.ru>
+X-Spam: Not detected
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When loading the powernow-k8 module on any recent kernel (I've tried
-2.6.8 through 2.6.10) on my Sempron laptop, I see:
-powernow-k8: Found 1 AMD Athlon 64 / Opteron processors (version 1.00.09e)
-powernow-k8:    0 : fid 0x8 (1600 MHz), vid 0x6 (1400 mV)
-powernow-k8:    1 : fid 0x0 (800 MHz), vid 0x18 (950 mV)
-cpu_init done, current fid 0x8, vid 0x4
-powernow-k8: vid trans failed, vid 0x3, curr 0x4
-powernow-k8: transition frequency failed
-powernow-k8: vid trans failed, vid 0x3, curr 0x4
-powernow-k8: transition frequency failed
+Signed-off-by: Alexey Dobriyan <adobriyan@mail.ru>
 
-... and many more of those 'vid trans failed' errors (one every time
-there's an attempted freq change).
-
-There is a small patch available at...
-http://ubuntuforums.org/archive/index.php/t-3585.html
-...which seems to fix the problem. Should this be included into the
-kernel officially?
--- 
-Matthew Trent
+Index: linux-2.6.10-bk11-warnings/kernel/futex.c
+===================================================================
+--- linux-2.6.10-bk11-warnings/kernel/futex.c	(revision 4)
++++ linux-2.6.10-bk11-warnings/kernel/futex.c	(revision 5)
+@@ -236,7 +236,7 @@
+  */
+ static inline void get_key_refs(union futex_key *key)
+ {
+-	if (key->both.ptr != 0) {
++	if (key->both.ptr != NULL) {
+ 		if (key->both.offset & 1)
+ 			atomic_inc(&key->shared.inode->i_count);
+ 		else
+@@ -250,7 +250,7 @@
+  */
+ static void drop_key_refs(union futex_key *key)
+ {
+-	if (key->both.ptr != 0) {
++	if (key->both.ptr != NULL) {
+ 		if (key->both.offset & 1)
+ 			iput(key->shared.inode);
+ 		else
+@@ -445,7 +445,7 @@
+ 	/* In the common case we don't take the spinlock, which is nice. */
+  retry:
+ 	lock_ptr = q->lock_ptr;
+-	if (lock_ptr != 0) {
++	if (lock_ptr != NULL) {
+ 		spin_lock(lock_ptr);
+ 		/*
+ 		 * q->lock_ptr can change between reading it and

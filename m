@@ -1,73 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262118AbTEHUeZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 May 2003 16:34:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262127AbTEHUeZ
+	id S262126AbTEHUdF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 May 2003 16:33:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262127AbTEHUdF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 May 2003 16:34:25 -0400
-Received: from fmr04.intel.com ([143.183.121.6]:27895 "EHLO
-	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
-	id S262118AbTEHUeV convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 May 2003 16:34:21 -0400
-Message-ID: <A46BBDB345A7D5118EC90002A5072C780CCAFD78@orsmsx116.jf.intel.com>
-From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-To: "'Ming Lei'" <lei.ming@attbi.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: can linux RT thread corrupt  global variable?
-Date: Thu, 8 May 2003 13:46:27 -0700 
+	Thu, 8 May 2003 16:33:05 -0400
+Received: from maild.telia.com ([194.22.190.101]:27614 "EHLO maild.telia.com")
+	by vger.kernel.org with ESMTP id S262118AbTEHUck convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 May 2003 16:32:40 -0400
+X-Original-Recipient: <linux-kernel@vger.kernel.org>
+From: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: linux rt priority  thread corrupt  global variable?
+Date: Thu, 8 May 2003 22:45:39 +0200
+User-Agent: KMail/1.5.9
+References: <029601c31540$b57f1280$0305a8c0@arch.sel.sony.com>
+In-Reply-To: <029601c31540$b57f1280$0305a8c0@arch.sel.sony.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Disposition: inline
 Content-Type: text/plain;
-	charset="ISO-8859-1"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 8BIT
+Message-Id: <200305082245.39336.roger.larsson@skelleftea.mail.telia.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> From: Ming Lei [mailto:lei.ming@attbi.com]
->
-> ...
->
-> There is a global variable I define as 'int cpl'. All the threads and main
-> process may alter cpl at any time. cpl may have one of these values {0,
-> 0xf000006e, 0xf0000068, 0xe0000000, 0xe0000060}.
+On torsdag 08 maj 2003 11:03, Ming Lei wrote:
 > 
-> <Problem=> at some point of execution which cpl should be a value say
-> e0000060, but the actual value retained at cpl is another say e0000000;
-that
-> is, the value is changed without the program actually done anything on it.
-> The retained value I observed is kind of historic value(one of these value
-> in the above set), not the arbituary value. The problem had occured just
-> after context switch, also occured during a thread execution.
-
-Probably GCC is keeping the value of the variable around in
-some register. Did you declare the global variable as 'volatile'?
-[as in "it can be modified by entities external to the flow of 
-the code"]. Try that.
-
-On the other hand - being an integer, access should be atomic,
-most of the time, but I would not really trust that, at least
-portability wise. Protecting access to it with a mutex would
-be a good idea ...
-
 > Is linux kernel 2.4.10 considered strictly preemptive such as VxWorks or
-> other RTOS? 
-
-Nope
-
-> I guess 2.4.10 may simulate preemptive with running scheduler on
+> other RTOS? I guess 2.4.10 may simulate preemptive with running scheduler on
 > every syscall or interrupt returns. Am I right?
+>
 
-You need the preemption patches or 2.5
+Yes, but what else is there?
+- A timer interrupt that ends a sleep for a RT process.
+- A device interrupt that notifies a RT process about new data.
+- A process that wakes up another process.
+The problem with 2.4.10 is that while the current process is
+executing IN kernel, the wakened RT process will need to wait
+until the current leaves kernel or goes to sleep.
 
-I hope you are not trying to do serious real-time w/ Linux ... are you?
+This is not a huge problem since there are patches for 2.4.10 that adds
+explicit checks in found kernel spots (loops over long lists).
 
-> Is printf() real-time priority thread safe?
+Later kernels got some of these improvements. There are patches for
+these as well.
 
-Dunno - you'd have to check the internal implementation in
-glibc. Last time I heard anything about it, it had some
-mutex dangling around, but I could be wrong.
+In the 2.5 series you can specify preemptive kernel.
+With that a preemption can happen in the kernel but not
+when being inside a spin lock. There are patches for this case
+as well.
 
-Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own
-(and my fault)
+/RogerL
+
+-- 
+Roger Larsson
+Skellefteå
+Sweden
+

@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282778AbRLTJLg>; Thu, 20 Dec 2001 04:11:36 -0500
+	id <S282769AbRLTJJW>; Thu, 20 Dec 2001 04:09:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282799AbRLTJLX>; Thu, 20 Dec 2001 04:11:23 -0500
-Received: from mail.chs.ru ([194.154.71.136]:4106 "EHLO mail.unix.ru")
-	by vger.kernel.org with ESMTP id <S282757AbRLTJLH>;
-	Thu, 20 Dec 2001 04:11:07 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: "Sergey S. Kostyliov" <rathamahata@php4.ru>
-To: Jean-Francois Levesque <jfl@jfworld.net>, linux-kernel@vger.kernel.org
-Subject: Re: UDMA problem with Maxtor 7200rpm disk
-Date: Thu, 20 Dec 2001 12:10:51 +0300
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <20011219151636.50e930ac.jfl@jfworld.net>
-In-Reply-To: <20011219151636.50e930ac.jfl@jfworld.net>
+	id <S282778AbRLTJJC>; Thu, 20 Dec 2001 04:09:02 -0500
+Received: from mailout10.sul.t-online.com ([194.25.134.21]:28058 "EHLO
+	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S282769AbRLTJIx>; Thu, 20 Dec 2001 04:08:53 -0500
+Date: 20 Dec 2001 08:49:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: linux-kernel@vger.kernel.org
+Message-ID: <8FFPeDtXw-B@khms.westfalen.de>
+In-Reply-To: <876674fszw.fsf@fadata.bg>
+Subject: Re: The direction linux is taking
+X-Mailer: CrossPoint v3.12d.kh8 R/C435
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16GzE4-0002dJ-00@mail.unix.ru>
+Content-Type: text/plain; charset=us-ascii
+Organization: Organisation? Me?! Are you kidding?
+In-Reply-To: <20011218161844.P5235@khan.acc.umu.se> <F25YXU6KJQcxQv8rcyN00007eb5@hotmail.com> <Pine.LNX.4.33.0112180622320.28881-100000@shell1.aracnet.com> <20011218161844.P5235@khan.acc.umu.se> <876674fszw.fsf@fadata.bg>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hi!
+velco@fadata.bg (Momchil Velikov)  wrote on 18.12.01 in <876674fszw.fsf@fadata.bg>:
+
+> >>>>> "David" == David Weinehall <tao@acc.umu.se> writes:
 >
-> I have a problem regarding my new Asus A7V266 board with VIA KT266 chipset.
->  Byron Stanoszek told me to ask my problem to this list so here it is :
+> David> We'd also kill off all the advantages that the bazaar-style
+> development
 >
-> My hard drive is a Maxtor 5T030H3 ATA DISK drive (30 gig).  The problem is
-> that I'm not able to read more than 7 MB/sec :
+> Bazaaar-style development ? What bazaar-style development ? Last I
+> heard most discussions are held in private and many key people don't
+> read lkml.
 
-Hi,
+So? That's never been an essential ingredient of bazaar-style development  
+(though it can, of course, be rather useful).
 
-I have exactly the same problem with 2.4.2 (RH Linux 7.1 - IIRC)
-and IBM DTLA - 307040
-I think the problem is in VIA82CXX support in 2.4.2
-At least for vt8233
-With current 2.4.16 (and 2.4.17-rc2) my disk works realy nice (37-38 Mb/s)
+And it's been long known that forums for successful projects, like l-k,  
+tend to grow until key developers look for another forum because they just  
+don't have the time to follow. It's unfortunate, but not everyone is Alan  
+Cox.
 
-So I think you must get new kernel
-and recompile it with
-VIA82CXX support:
-CONFIG_BLK_DEV_VIA82CXXX=y
-> [root@xyz jfl]# /sbin/hdparm -d1 -X66 /dev/hda
-btw please use 
-/sbin/hdparm -d1 -X69 /dev/hda
-instead (if you need UATA100)
+But, once a project *has* grown like that, there is usually another venue  
+(or several) available for those key developers. And remember, this being  
+open source, everyone who has the necessary basic expertise and enough  
+time can *become* one of them.
 
-			Best regards,
-			Sergey S. Kostyliov <rathamahata@php4.ru>
+MfG Kai

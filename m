@@ -1,50 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262297AbVAUH1w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262201AbVAUHi0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262297AbVAUH1w (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 02:27:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262298AbVAUH1w
+	id S262201AbVAUHi0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 02:38:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262298AbVAUHi0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 02:27:52 -0500
-Received: from gizmo07bw.bigpond.com ([144.140.70.42]:48030 "HELO
-	gizmo07bw.bigpond.com") by vger.kernel.org with SMTP
-	id S262297AbVAUH1u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 02:27:50 -0500
-Message-ID: <41F0AEEF.8060707@bigpond.net.au>
-Date: Fri, 21 Jan 2005 18:27:43 +1100
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
-X-Accept-Language: en-us, en
+	Fri, 21 Jan 2005 02:38:26 -0500
+Received: from sherkan.tuxfamily.net ([212.85.158.2]:42647 "EHLO
+	mx1.tuxfamily.net") by vger.kernel.org with ESMTP id S262201AbVAUHiW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jan 2005 02:38:22 -0500
+Message-ID: <1218.213.228.36.71.1106293102.squirrel@webmail.tuxfamily.org>
+Date: Fri, 21 Jan 2005 08:38:22 +0100 (CET)
+Subject: Bug report : drivers/net/hamradio/Kconfig
+From: <2df@tuxfamily.org>
+To: <linux-kernel@vger.kernel.org>
+X-Priority: 3
+Importance: Normal
+X-Mailer: SquirrelMail (version 1.2.12[cvs])
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: karim@opersys.com, linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>,
-       Roman Zippel <zippel@linux-m68k.org>, Tom Zanussi <zanussi@us.ibm.com>,
-       Robert Wisniewski <bob@watson.ibm.com>, Tim Bird <tim.bird@AM.SONY.COM>
-Subject: Re: [PATCH] relayfs redux for 2.6.10: lean and mean
-References: <41EF4E74.2000304@opersys.com> <20050120145046.GF13036@kroah.com> <41F05D11.5020109@opersys.com> <41F065C0.7070603@bigpond.net.au> <20050121063956.GB19288@kroah.com>
-In-Reply-To: <20050121063956.GB19288@kroah.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Fri, Jan 21, 2005 at 01:15:28PM +1100, Peter Williams wrote:
-> 
->>Perhaps the logical solution is to implement debugfs in terms of relayfs?
-> 
-> 
-> What do you mean by this statement?
+Hello, i'm translating some Kconfig files to french for the kernelFR
+project (http://kernelfr.traduc.org), and while i was reading
+drivers/net/hamradio/Kconfig
+The kernel is 2.6.10
 
-I mean that if, as you say, debugfs is very similar to relayfs only more 
-restricted (i.e. a debugging option) then it should be implementable as 
-an instance or specialization of the more general relayfs and that this 
-should be a better solution than two independent implementations of 
-similar functionality.
+In section : "Baycom ser12 halfduplex driver for AX.25" 9th section, in
+the 3rdline, there is :
+"The driver supports the ser12 design in full-duplex mode." instead of
+"half-duplex mode."
 
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
+Please Follow all your answers to : 2df@tuxfamily.org
+I'm not a member of the mailing list
++
+Simon
 
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+

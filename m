@@ -1,59 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131382AbRDYSwT>; Wed, 25 Apr 2001 14:52:19 -0400
+	id <S131157AbRDYSr3>; Wed, 25 Apr 2001 14:47:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131323AbRDYSwK>; Wed, 25 Apr 2001 14:52:10 -0400
-Received: from pop.gmx.net ([194.221.183.20]:54996 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S131219AbRDYSvy>;
-	Wed, 25 Apr 2001 14:51:54 -0400
-Message-ID: <016a01c0cdb8$cae42600$f60b07d5@andreas>
-From: "Andreas Eibach" <a.eibach@gmx.net>
-To: "Dale Amon" <amon@vnl.com>, "J Sloan" <jjs@toyota.com>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <20010417190405.PTFU6564.tomts8-srv.bellnexxia.net@mail.vger.kernel.org> <3ADC9ACC.A9FB19A@lexus.com> <20010423201244.G26083@vnl.com>
-Subject: Re: [OT] Re: Your response is requested
-Date: Wed, 25 Apr 2001 20:51:11 +0200
+	id <S131244AbRDYSrJ>; Wed, 25 Apr 2001 14:47:09 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:6874 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S131157AbRDYSrH>;
+	Wed, 25 Apr 2001 14:47:07 -0400
+Date: Wed, 25 Apr 2001 14:47:01 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Andreas Dilger <adilger@turbolinux.com>
+cc: Ed Tomlinson <tomlins@cam.org>, linux-kernel@vger.kernel.org
+Subject: Re: hundreds of mount --bind mountpoints?
+In-Reply-To: <200104251839.MAA30241@lynx.turbolabs.com>
+Message-ID: <Pine.GSO.4.21.0104251445380.10935-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
------ Original Message -----
-From: "Dale Amon" <amon@vnl.com>
-To: "J Sloan" <jjs@toyota.com>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Monday, April 23, 2001 9:12 PM
-Subject: Re: [OT] Re: Your response is requested
 
+On Wed, 25 Apr 2001, Andreas Dilger wrote:
 
-> On Tue, Apr 17, 2001 at 12:34:36PM -0700, J Sloan wrote:
-> > J.I.@toyota.com wrote:
-> >
-> > > Dear Friend:
-> > >
-> > > YOU CAN make over a half million dollars every 4 to 5 months from
-> > > your home for a one time investment of only twenty five U.S.
-> > > Dollars.
-> >
-> > This did not originate from toyota.com - The spammer simply
-> > used that domain as the "from" hostname. We are careful
-> > about mail server security here, there is no open relay.
-> >
->
-> Yeah, I saw it to with *MY* domain on it and near had a fit!
+> Al writes:
+> > It's not a fscking rocket science - encapsulate accesses to ->u.foofs_i
+> > into inlined function, find ->read_inode, find places that do get_empty_inode
+> 
+> OK, I was doing this for the ext3 port I'm working on for 2.4, and ran into
+> a snag.  In the ext3_inode_info, there is a list_head.  However, if this is
+> moved into a separate slab struct, it is now impossible to locate the inode
+> from the offset in the slab struct.  When I was checking the size of each
+> inode_info struct, I noticed several others that had list_heads in them.
+> One solution is that we store list_heads in the inode proper, after generic_ip.
 
-Well it's kinda easy to protect yourself against this crap...
-Just look through your mailer for 'dollar' || 'dollars' in the *body* of the
-message, or more than two exclamation marks in the subject - and you shall
-find the bastards ;-)
-
-0.02 e
-andreas
+If you need to go from ext3_inode_info to inode - put the pointer into the
+thing and be done with that. No need to bump ->i_count - fs-private
+part dies before inode itself.
 

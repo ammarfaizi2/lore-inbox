@@ -1,36 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310740AbSDAIYi>; Mon, 1 Apr 2002 03:24:38 -0500
+	id <S310749AbSDAI3k>; Mon, 1 Apr 2002 03:29:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310749AbSDAIY1>; Mon, 1 Apr 2002 03:24:27 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:55565 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S310740AbSDAIYN>; Mon, 1 Apr 2002 03:24:13 -0500
-Subject: Re: ECC memory and SMP lockups on Gateway 6400 server
-To: Jason-Czerak@Jasnik.net (Jason Czerak)
-Date: Mon, 1 Apr 2002 09:41:13 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1017641806.17921.35.camel@neworder> from "Jason Czerak" at Apr 01, 2002 01:16:46 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S310769AbSDAI3a>; Mon, 1 Apr 2002 03:29:30 -0500
+Received: from saturn.cs.uml.edu ([129.63.8.2]:44811 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S310749AbSDAI3Y>;
+	Mon, 1 Apr 2002 03:29:24 -0500
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200204010828.g318SUH430119@saturn.cs.uml.edu>
+Subject: Re: Unknown HZ value! (1908) Assume 1024.
+To: tim@physik3.uni-rostock.de (Tim Schmielau)
+Date: Mon, 1 Apr 2002 03:28:30 -0500 (EST)
+Cc: tomh@po.crl.go.jp (Tom Holroyd), schwab@suse.de (Andreas Schwab),
+        linux-kernel@vger.kernel.org (kernel mailing list)
+In-Reply-To: <Pine.LNX.4.33.0202201055010.708-100000@gans.physik3.uni-rostock.de> from "Tim Schmielau" at Feb 20, 2002 10:58:48 AM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16rxNJ-0007wZ-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> slowed to a crawl. After an hour of messing around. I started to pull
-> memory and CPU's out. Turns out the 512meg DIMM ECC ram was the cause of
-> the slowness problem.  No error messages no nothing. looks like the ECC
-> was doing it's thing. But created a CPU useage of 100% all the time...
-> Is there a kernel switch I can flip to make it place nice with broken
-> ECC ram? or is this ram just worthless?
+Tim Schmielau writes:
+> On Wed, 20 Feb 2002, Tom Holroyd wrote:
 
-Unless you loaded the extra ECC modules Linux really has no awareness of the
-ECC at all. More likely and the one I would check first is that the mtrr
-ranges are right and the BIOS set up the memory correctly. It could be
-continuous ecc faults (eg if the kernel puts something critical in an iffy
-spot in the DIMM and NT didnt) but that sounds dubious.
+>>>>  jif * smp_num_cpus - (user + nice + system)
+>>>
+>>> Changing the line to this:
+>>>
+>>>   jif * smp_num_cpus - user - nice - system
+>>>
+>>> should avoid the overflow.
+>>
+>> True.  It still might be a good idea to make them longs, though,
+>> because they are really totals of all the CPUs, as in:
+>>                 user += kstat.per_cpu_user[cpu];
+>>
+>> Now ultimately, kstat.per_cpu_user[cpu] will overflow, and I don't
+>> know what to do about that, but making user, nice, and system unsigned
+>> long will at least allow SMP systems to last a little while longer.
+>> (Actually I don't know why Procps needs these values at all -- the
+>> claim in the code is that all of this is just to compute the HZ value,
+>> which is presumably needed to be able to interpret jiffies.  It'd be a
+>> lot simpler just to have /proc/stat export the HZ value directly.)
 
-Alan
+Yeah, it would be a lot simpler. Try telling that to Linus. :-(
+
+> I'd still prefer to export only 32 bit of user, nice, and system. This
+> way they overflow in a clearly defined way - the 32 bits we export are
+> exact, only the higher bits are missing.
+
+The higher bits are absolutely required.
+
+There are ways to push the work of doing a 64-bit counter out into the
+proc filesystem and a timer that goes off every 31 bits worth of time.
+I've posted an explanation before; you may search for it if you like.
+

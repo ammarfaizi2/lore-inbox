@@ -1,70 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263499AbUJ2T5x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263531AbUJ2UM6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263499AbUJ2T5x (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 15:57:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263477AbUJ2TzT
+	id S263531AbUJ2UM6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 16:12:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263485AbUJ2UI4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 15:55:19 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:12550 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263500AbUJ2TvV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 15:51:21 -0400
-Date: Fri, 29 Oct 2004 20:51:06 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       linux-arch@vger.kernel.org
-Subject: Re: kbuild/all archs: Sanitize creating offsets.h
-Message-ID: <20041029205106.H31627@flint.arm.linux.org.uk>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Andrew Morton <akpm@osdl.org>, linux-arch@vger.kernel.org
-References: <20041028185917.GA9004@mars.ravnborg.org> <20041028204430.C11436@flint.arm.linux.org.uk> <20041028215959.GA17314@mars.ravnborg.org> <20041028220024.D11436@flint.arm.linux.org.uk> <20041028234549.GB17314@mars.ravnborg.org> <20041029212852.GA16634@mars.ravnborg.org>
+	Fri, 29 Oct 2004 16:08:56 -0400
+Received: from mail.autoweb.net ([198.172.237.26]:56331 "EHLO mail.autoweb.net")
+	by vger.kernel.org with ESMTP id S263523AbUJ2UHc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 16:07:32 -0400
+Date: Fri, 29 Oct 2004 16:00:52 -0400
+From: Ryan Anderson <ryan@michonline.com>
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+Cc: davids@webmaster.com, Manu Abraham <manu@kromtek.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: BK kernel workflow
+Message-ID: <20041029200052.GN10638@michonline.com>
+Mail-Followup-To: Chris Friesen <cfriesen@nortelnetworks.com>,
+	davids@webmaster.com, Manu Abraham <manu@kromtek.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <MDEHLPKNGKAHNMBLJOLKAEGFPGAA.davids@webmaster.com> <418293F3.5050108@nortelnetworks.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20041029212852.GA16634@mars.ravnborg.org>; from sam@ravnborg.org on Fri, Oct 29, 2004 at 11:28:52PM +0200
+In-Reply-To: <418293F3.5050108@nortelnetworks.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 29, 2004 at 11:28:52PM +0200, Sam Ravnborg wrote:
-> On Fri, Oct 29, 2004 at 01:45:49AM +0200, Sam Ravnborg wrote:
-> > On Thu, Oct 28, 2004 at 10:00:24PM +0100, Russell King wrote:
-> > > > Did you apply the patch that enabled kbuild files to be named Kbuild?
-> > > > It looks like this patch is missing.
-> > > 
-> > > I applied three patches.  The first was "kbuild: Prefer Kbuild as name of
-> > > the kbuild files"
-> > > 
-> > > > If you did apply the patch could you please check if the asm->asm-arm
-> > > > symlink exists when the error happens and that a file named Kbuild is
-> > > > located in the directory: include/asm-arm/
-> > 
-> > OK - I see it now.
-> > It's in i386 also - I will have a fix ready tomorrow. Thanks for testing!
+On Fri, Oct 29, 2004 at 01:03:15PM -0600, Chris Friesen wrote:
+> David Schwartz wrote:
 > 
-> Fix attached - next time I better check O= support myself.
-> Russell - I would be glad if you could test this version. There is 
-> some symlink handling for arm I like to see tested.
+> >	This position is conditioned on two facts, either:
+> >
+> >	1) Linus does not distribute his BK tree, or
+> >
+> >	2) Linus' BK tree is not a derivative work of the Linux kernel
+> >
+> >	If both of these are false, then the tree must be covered by the 
+> >	GPL. I
+> >think 2 is clearly false.
+> 
+> The linux tree is certainly a derivative work of itself.  The more 
+> important (and much more difficult) question is whether the metadata about 
+> the tree is a derivative work under the rules of the GPL, or whether it is 
+> mere aggregation.
+> 
+> I think you could make a compelling argument that the linux kernel history 
+> metadata is *not* covered under the GPL, and hence can be restricted by 
+> licensing.
 
-Getting better, but still not right:
-
-make -f /home/rmk/bk/linux-2.6-rmk/scripts/Makefile.build obj=include/asm-arm
-  SYMLINK include/asm-arm/arch -> include/asm-arm/arch-rpc
-mkdir -p include/asm-arm
-ln -fsn /home/rmk/bk/linux-2.6-rmk/include/asm-arm/arch-rpc include/asm-arm/arch
-  arm-linux-gcc -Wp,-MD,include/asm-arm/.offsets.s.d -nostdinc -iwithprefix include -D__KERNEL__ -Iinclude -Iinclude2 -I/home/rmk/bk/linux-2.6-rmk/include -I/home/rmk/bk/linux-2.6-rmk/include/asm-arm -Iinclude/asm-arm -Wall -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -Os -fno-omit-frame-pointer -fno-omit-frame-pointer -mapcs -mno-sched-prolog -mlittle-endian -mapcs-32 -D__LINUX_ARM_ARCH__=3 -march=armv3 -mtune=strongarm110 -malignment-traps -msoft-float -Uarm -Wdeclaration-after-statement -I/home/rmk/bk/linux-2.6-rmk/ -I arch/arm/kernel  -DKBUILD_BASENAME=offsets -DKBUILD_MODNAME=offsets -S -o include/asm-arm/offsets.s /home/rmk/bk/linux-2.6-rmk/include/asm-arm/offsets.c
-set -e; echo '  CHK     include/asm-arm/constants.h'; mkdir -p include/asm-arm/;        (set -e; echo "#ifndef __ASM_OFFSETS_H__"; echo "#define __ASM_OFFSETS_H__"; echo "/*"; echo " * DO NOT MODIFY."; echo " *"; echo " * This file was generated by arch/arm/Makefile"; echo " *"; echo " */"; echo ""; sed -ne "/^->/{s:^->\([^ ]*\) [\$#]*\([^ ]*\) \(.*\):#define \1 \2 /* \3 */:; s:->::; p;}"; echo ""; echo "#endif" )  < include/asm-arm/offsets.s > include/asm-arm/constants.h.tmp; if [ -r include/asm-arm/constants.h ] && cmp -s include/asm-arm/constants.h include/asm-arm/constants.h.tmp; then rm -f include/asm-arm/constants.h.tmp; else echo '  UPD     include/asm-arm/constants.h'; mv -f include/asm-arm/constants.h.tmp include/asm-arm/constants.h; fi
-  CHK     include/asm-arm/constants.h
-  UPD     include/asm-arm/constants.h
-make[2]: *** No rule to make target `include/asm-arm/include/asm-arm/.arch', needed by `__build'.  Stop.
-make[1]: *** [prepare0] Error 2
-make: *** [_all] Error 2
-
-Removing "include/asm-arm/" from the always := line in asm-arm/Kbuild
-appears to fix this.
+On the other hand, there is that whole "preferred form" part of the GPL
+that could seriously muddy this issue.
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+
+Ryan Anderson
+  sometimes Pug Majere

@@ -1,37 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318881AbSICSvi>; Tue, 3 Sep 2002 14:51:38 -0400
+	id <S318883AbSICTF2>; Tue, 3 Sep 2002 15:05:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318883AbSICSvi>; Tue, 3 Sep 2002 14:51:38 -0400
-Received: from vasquez.zip.com.au ([203.12.97.41]:54537 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S318881AbSICSvh>; Tue, 3 Sep 2002 14:51:37 -0400
-Message-ID: <3D750548.9D130AB3@zip.com.au>
-Date: Tue, 03 Sep 2002 11:54:00 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc3 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Terence Ripperda <tripperda@nvidia.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: lockup on Athlon systems, kernel race condition?
-References: <20020830204022.GC736@hygelac> <3D6FE062.A48B6F03@zip.com.au> <20020903183524.GC2343@hygelac>
+	id <S318886AbSICTF2>; Tue, 3 Sep 2002 15:05:28 -0400
+Received: from host194.steeleye.com ([216.33.1.194]:65038 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S318883AbSICTF0>; Tue, 3 Sep 2002 15:05:26 -0400
+Message-Id: <200209031909.g83J9iG07312@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: James Bottomley <James.Bottomley@SteelEye.com>,
+       "Justin T. Gibbs" <gibbs@scsiguy.com>, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: Re: aic7xxx sets CDR offline, how to reset? 
+In-Reply-To: Message from Doug Ledford <dledford@redhat.com> 
+   of "Tue, 03 Sep 2002 14:23:53 EDT." <20020903142353.A12157@redhat.com> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Tue, 03 Sep 2002 14:09:44 -0500
+From: James Bottomley <James.Bottomley@steeleye.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Terence Ripperda wrote:
-> 
-> ..
-> > Possibly the IPI has got lost - seems that this is a popular failure mode
-> > for flakey chipsets/motherboards.
-> 
-> this sounds like the most likely candidate. I'm working on tracking down 
-> documentation for further study. Is there an easy way to determine this
-> as the cause?
+dledford@redhat.com said:
+> Leave abort active.  It does actually work in certain scenarios.  The
+> CD  burner scenario that started this thread is an example of
+> somewhere that  an abort should actually do the job. 
 
-Some systems will drop nasty messages in the logs when APIC checksum
-errors are detected.  And such systems will also be prone to lockups
-due to failed delivery.  But whether IPIs can be lost without any such
-warning signs: don't know, sorry.
+Unfortunately, it would destroy the REQ_BARRIER approach in the block layer.  
+At best, abort probably causes a command to overtake a barrier it shouldn't, 
+at worst we abort the ordered tag that is the barrier and transactional 
+integrity is lost.
+
+When error correction is needed, we have to return all the commands for that 
+device to the block layer so that ordering and barrier issues can be taken 
+care of in the reissue.  This makes LUN RESET (for those that support it) the 
+minimum level of error correction we can apply.
+
+James
+
+

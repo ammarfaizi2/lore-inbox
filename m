@@ -1,42 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264186AbTHDX5a (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 19:57:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272312AbTHDX5a
+	id S272295AbTHEAGK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 20:06:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272300AbTHEAGK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 19:57:30 -0400
-Received: from mta7.srv.hcvlny.cv.net ([167.206.5.22]:45787 "EHLO
-	mta7.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id S264186AbTHDX53 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 19:57:29 -0400
-Date: Mon, 04 Aug 2003 19:57:24 -0400
-From: "Josef 'Jeff' Sipek" <jeffpc@optonline.net>
-Subject: [PATCH][TRIVIAL][2.6] Bugzilla bug # 939 - wrong documentation
-To: Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-id: <200308041957.24169.jeffpc@optonline.net>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-User-Agent: KMail/1.5.2
+	Mon, 4 Aug 2003 20:06:10 -0400
+Received: from mail3.ithnet.com ([217.64.64.7]:49366 "HELO
+	heather-ng.ithnet.com") by vger.kernel.org with SMTP
+	id S272295AbTHEAGH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Aug 2003 20:06:07 -0400
+X-Sender-Authentification: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
+Date: Tue, 5 Aug 2003 02:06:04 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Jesse Pollard <jesse@cats-chateau.net>
+Cc: herbert@13thfloor.at, beepy@netapp.com, aebr@win.tue.nl,
+       linux-kernel@vger.kernel.org
+Subject: Re: FS: hardlinks on directories
+Message-Id: <20030805020604.62be10e6.skraw@ithnet.com>
+In-Reply-To: <03080416381704.04444@tabby>
+References: <20030804134415.GA4454@win.tue.nl>
+	<20030804161657.GA6292@www.13thfloor.at>
+	<20030804183545.01b7a126.skraw@ithnet.com>
+	<03080416381704.04444@tabby>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, this is a simple docs patch. I diffed it against -test1, but the file didn't change
-since then.
+On Mon, 4 Aug 2003 16:38:17 -0500
+Jesse Pollard <jesse@cats-chateau.net> wrote:
 
-Josef "Jeff" Sipek
+> On Monday 04 August 2003 11:35, Stephan von Krawczynski wrote:
+> > On Mon, 4 Aug 2003 18:16:57 +0200
+> [...]
+> Don't do that. It is too insecure.
+> 
+> 1. the structure you describe is FRAGILE. Just adding one more entry 
+> could/would break the entire structure.
+> 
+> 2. If you mix security structures like this you WILL get a problem.
+> 
+> What you do is copy the declassified data to a nonsecure area (also known
+> as released data). This way the user can modify internal cata without
+> causing the web server potentially catastrophic releases.
+> 
+> Same with the SQL. Do not attmept to mix sensitive and nonsensitive data
+> this way.
 
---- linux-2.6.0-test1-vanilla/arch/h8300/README	2003-07-13 23:36:33.000000000 -0400
-+++ linux-2.6.0-test1-eva/arch/h8300/README	2003-07-17 02:03:21.000000000 -0400
-@@ -16,7 +16,7 @@
- 
- 3.H8MAX 
-   Under development
--  see http://www.strawbelly-linux.com (Japanese Only)
-+  see http://www.strawberry-linux.com (Japanese Only)
- 
- * Toolchain Version
- gcc-3.1 or higher and patch
+Your just kidding, don't you?
+Definition of "problem" here is: service got corrupted. It is really of 
+_no_ interest if the data that was corrupted is "sensitive" or "nonsensitive",
+because the only cure in both versions is rewriting from scratch (and dumping
+the server of course).
+So your possible downtime is just as big in both ways. And nothing else counts.
 
+> If you web server got hacked, how do you prevent the hack from ADDING
+> more links? Or adding SQL injections to other applications...
+
+I don't, because it is simply impossible. If you are root on a webserver
+everything is lost, no matter if your data is local or nfs-mounted you can
+delete, relink or whatever you like at will.
+The only thing you _can't_ do is access data that is not exported to your
+hacked system. And that's exactly what I am trying to do: don't give any more
+data away than absolutely necessary.
+
+Regards,
+Stephan

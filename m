@@ -1,55 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268097AbTCFN7R>; Thu, 6 Mar 2003 08:59:17 -0500
+	id <S268090AbTCFOAE>; Thu, 6 Mar 2003 09:00:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268090AbTCFN7R>; Thu, 6 Mar 2003 08:59:17 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:65037 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S268097AbTCFN7P>; Thu, 6 Mar 2003 08:59:15 -0500
-Date: Thu, 6 Mar 2003 14:09:45 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: CaT <cat@zip.com.au>
-Cc: dahinds@users.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.64 - xircom realport no workie well
-Message-ID: <20030306140945.B838@flint.arm.linux.org.uk>
-Mail-Followup-To: CaT <cat@zip.com.au>, dahinds@users.sourceforge.net,
-	linux-kernel@vger.kernel.org
-References: <20030306130340.GA453@zip.com.au> <20030306132904.A838@flint.arm.linux.org.uk> <20030306134746.GE464@zip.com.au>
+	id <S268105AbTCFOAE>; Thu, 6 Mar 2003 09:00:04 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:37030
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S268090AbTCFOAB>; Thu, 6 Mar 2003 09:00:01 -0500
+Subject: Re: ide-problem still with 2.4.21-pre5-ac1
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Harald.Schaefer@gls-germany.com
+Cc: Thomas.Mieslinger@gls-germany.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <OFA9D69D12.A2BE6A15-ONC1256CE1.00344A6F-C1256CE1.0039609A@LocalDomain>
+References: <OFA9D69D12.A2BE6A15-ONC1256CE1.00344A6F-C1256CE1.0039609A@LocalDomain>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1046963731.17718.35.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030306134746.GE464@zip.com.au>; from cat@zip.com.au on Fri, Mar 07, 2003 at 12:47:46AM +1100
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 06 Mar 2003 15:15:32 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 07, 2003 at 12:47:46AM +1100, CaT wrote:
-> On Thu, Mar 06, 2003 at 01:29:04PM +0000, Russell King wrote:
-> > Can you check whether the attached patch fixes this for you?  It's more
-> 
-> Started compiling it and it just bombed out:
-> 
-> drivers/serial/8250_pci.c:1920: `PCI_DEVICE_ID_XIRCOM_RBM56G' undeclared
-> here (not in a function)
-> drivers/serial/8250_pci.c:1920: initializer element is not constant
-> drivers/serial/8250_pci.c:1920: (near initialization for
-> `serial_pci_tbl[86].device')
+On Thu, 2003-03-06 at 10:26, Harald.Schaefer@gls-germany.com wrote:
+> sorry for sending you directly again instead to the kernel-ML. I do so
+> because the problems are only caused by ide-disk.c. This mail is CCed to
+> the ML.
 
-Bah.  You need this as well then:
+I disagree there
 
---- orig/include/linux/pci_ids.h	Wed Mar  5 19:51:58 2003
-+++ linux/include/linux/pci_ids.h	Wed Mar  5 09:58:27 2003
-@@ -1235,6 +1235,7 @@
- 
- #define PCI_VENDOR_ID_XIRCOM		0x115d
- #define PCI_DEVICE_ID_XIRCOM_X3201_ETH	0x0003
-+#define PCI_DEVICE_ID_XIRCOM_RBM56G	0x0101
- #define PCI_DEVICE_ID_XIRCOM_X3201_MDM	0x0103
- 
- #define PCI_VENDOR_ID_RENDITION		0x1163
+> I was able to work around the problem for our little environment (about
+> 2000 Computers of 9 different types) with the following dirty hack,
+> changing from kernel-2.4.21-pre5-ac1:
+
+We set the mapping to 255, 63, .. whe the drive supports reporting its
+LBA geometry addressing. Otherwise we use the lba capacity based on 
+the bios mapping. The 48bit LBA factor would explain the reason you
+saw some drives work and some fail.
+
+> In your mail you wrote that the kernel honors the mapping of existing
+> partitions on the disk. Unfortunately the kernel 2.4.21-pre5-ac1 does not
+> so! I created a primary dos-partition on a Fujitsu-disk attached to a
+> Compaq Notebook Evo N610c using MS-DOS 6.22 fdisk, which bios uses a
+> 240-head mapping, but linux used a 255-head maping at the next boot. This
+> may destroy data on the disk.
+
+Linux maps the disk in a logical block order at all times. The partition
+code looks for any existing mappings and then translates based on the
+data it discovers (fs/partition/msdos.c calling ide_xlate_1024()
+
+> I think that the priority of LBA from BIOS has to be raised to 2 and the
+> priority of LBA from drive should be lowered to 3.
+> The mapping-problem only appreared with very new drives in some
+> brand-computers using a 240-head mapping from the bios.
+
+I don't think thats viable when doing 48bit LBA.
+
+> We don't know which problems our workaround causes, but we're happy with it
+> and would like to see it in an upcoming release. Why was a 255 head mapping
+> hard coded in the kernel?
+
+You'd have to ask Andre to be sure but I believe it is what the spec
+says about those mappings. The more interesting question if thats what
+you are seeing is why the ide_xlate_1024 handling isn't picking up 
+on the situation. That seems to be the actual problem case.
+
+Alan
 
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
 

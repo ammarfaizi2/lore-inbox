@@ -1,65 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263223AbUB1BI1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 20:08:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263235AbUB1BI1
+	id S263232AbUB1BNZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 20:13:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263239AbUB1BNZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 20:08:27 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:25582 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S263223AbUB1BIY
+	Fri, 27 Feb 2004 20:13:25 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:28643 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263232AbUB1BNW
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 20:08:24 -0500
-Message-ID: <403FEA02.6040506@mvista.com>
-Date: Fri, 27 Feb 2004 17:08:18 -0800
-From: George Anzinger <george@mvista.com>
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
+	Fri, 27 Feb 2004 20:13:22 -0500
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: andersen@codepoet.org
+Subject: Re: Errors on 2th ide channel of promise ultra100 tx2
+Date: Sat, 28 Feb 2004 02:20:22 +0100
+User-Agent: KMail/1.5.3
+References: <403F2178.70806@vanE.nl> <200402272114.23108.bzolnier@elka.pw.edu.pl> <20040227224431.GB984@codepoet.org>
+In-Reply-To: <20040227224431.GB984@codepoet.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       John Bradford <john@grabjohn.com>, Erik van Engelen <Info@vanE.nl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-To: Pavel Machek <pavel@suse.cz>
-CC: Tom Rini <trini@kernel.crashing.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>, amit@av.mvista.com,
-       kgdb-bugreport@lists.sourceforge.net
-Subject: Re: [Kgdb-bugreport] [KGDB PATCH][1/7] Add / use kernel/Kconfig.kgdb
-References: <20040227212301.GC1052@smtp.west.cox.net> <403FC521.7040508@mvista.com> <20040227235059.GG425@elf.ucw.cz>
-In-Reply-To: <20040227235059.GG425@elf.ucw.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200402280220.22324.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> Hi!
-> 
-> 
-> 
->>>+config KGDB_THREAD
->>>+	bool "KGDB: Thread analysis"
->>>+	depends on KGDB
->>>+	help
->>>+	  With thread analysis enabled, gdb can talk to kgdb stub to list
->>>+	  threads and to get stack trace for a thread. This option also 
->>>enables
->>>+	  some code which helps gdb get exact status of thread. Thread 
->>>analysis
->>>+	  adds some overhead to schedule and down functions. You can disable
->>>+	  this option if you do not want to compromise on speed.
->>
->>Lets remove the overhead and eliminate the need for this option in favor of 
->>always having threads.  Works in the mm kgdb...
-> 
-> 
-> No. Thread analysis is unsuitable for the mainline (manipulates
-> sched.c in ugly way). It may be okay for -mm, but in such case it
-> should better be separated.
+On Friday 27 of February 2004 23:44, you wrote:
+> On Fri Feb 27, 2004 at 09:14:23PM +0100, Bartlomiej Zolnierkiewicz wrote:
+> > ide-disk.c sends WIN_READ_NATIVE_MAX_{EXT} without checking
+> > if HPA feature set is supported, this is fixed in 2.6.x for a long time.
+> >
+> > We need 2.4<->2.6 IDE sync monkey... a really smart one...
+>
+> Dunno if I qualify as sufficiently 'really smart' enough but the
+> last time I put in the considerable effort needed to re-sync the
+> 2.4 and 2.6 IDE layers, and merge in the useful -ac bits that
+> never made it into mainstream, nothing whatsoever came of my
+> efforts...
 
-Not in the -mm version.  I agree that sched.c should NEVER be treated this way 
-and it is not in the -mm version.  I also think that, most of the time, it is 
-useful to have the thread stuff, but that may be just my usage...
+Did you actually split and send out your patches? :)
 
+> My 2.4.x patches are in daily use by a large group of people
+> and they work fine, for what it is worth.  My IDE merging
+> patches are the following:
+>
+>     http://codepoet.org/kernel/
+>
+>     020_ide_layer_2.4.22-ac4.bz2
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+Needs splitting and most of this stuff needs new re-sync with 2.6. :-(
+
+>     021_ide_geom_hpa_capacity64.bz2
+
+Now I remember why this wasn't applied.
+It breaks braindamaged HDIO_GETGEO_BIG_RAW ioctl
+(because changes way drive->cyls is calculated).
+We workaround-ed it in 2.6 by removing this ioctl. :)
+I think we really should do the same for 2.4.
+
+>     022-extra-ide-drives.bz2
+
+This hack to allow > 10 interfaces
+is useless without additional major numbers.
+
+>     025-cenatek.patch.bz2
+
+IDE controller for solid state disks?  Cool.
+
+Bartlomiej
 

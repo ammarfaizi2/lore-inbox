@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129197AbRCKWXh>; Sun, 11 Mar 2001 17:23:37 -0500
+	id <S129242AbRCKWrW>; Sun, 11 Mar 2001 17:47:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129242AbRCKWX1>; Sun, 11 Mar 2001 17:23:27 -0500
-Received: from ppp-97-248-an04u-dada6.iunet.it ([151.35.97.248]:14596 "HELO
-	home.bogus") by vger.kernel.org with SMTP id <S129197AbRCKWXO>;
-	Sun, 11 Mar 2001 17:23:14 -0500
-Message-ID: <XFMail.20010312004622.davidel@xmailserver.org>
+	id <S129249AbRCKWrL>; Sun, 11 Mar 2001 17:47:11 -0500
+Received: from ppp-97-248-an04u-dada6.iunet.it ([151.35.97.248]:27652 "HELO
+	home.bogus") by vger.kernel.org with SMTP id <S129242AbRCKWrI>;
+	Sun, 11 Mar 2001 17:47:08 -0500
+Message-ID: <XFMail.20010312011030.davidel@xmailserver.org>
 X-Mailer: XFMail 1.4.4 on Linux
 X-Priority: 3 (Normal)
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 8bit
 MIME-Version: 1.0
 In-Reply-To: <20010312005448.A5439@linuxcare.com>
-Date: Mon, 12 Mar 2001 00:46:22 +0100 (CET)
+Date: Mon, 12 Mar 2001 01:10:30 +0100 (CET)
 From: Davide Libenzi <davidel@xmailserver.org>
 To: Anton Blanchard <anton@linuxcare.com.au>
 Subject: Re: sys_sched_yield fast path
@@ -85,7 +85,20 @@ On 11-Mar-2001 Anton Blanchard wrote:
 > Perhaps we need something like sched_yield that takes off some of 
 > tsk->counter so the task with the spinlock will run earlier.
 
-Which kernel are You running ?
+2.4.x has changed the scheduler behaviour so that the task that call
+sched_yield() is not rescheduled by the incoming schedule().
+A flag is set ( under certain conditions in SMP ) and the goodness()
+calculation assign the lower value to the exiting task ( this flag is cleared
+in schedule_tail() ).
+This could give the task owning the lock the opportunity to complete the locked
+code.
+But yes, if the locked code is rescheduled for some reason ( timeslice or I/O )
+the yielding task will run again.
+But this is a software design problem, not a sched_yield() one coz, if the time
+path between lock ans unlock can be high the use of sched_yield() is not the
+best way to wait.
+Wait queue or user space equivalences are a better choice to do this.
+
 
 
 

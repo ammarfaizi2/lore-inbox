@@ -1,65 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272387AbTHFWb1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 18:31:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274958AbTHFWbZ
+	id S274984AbTHFWi5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 18:38:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274979AbTHFWhy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 18:31:25 -0400
-Received: from mta9.srv.hcvlny.cv.net ([167.206.5.42]:34266 "EHLO
-	mta9.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id S274964AbTHFWaO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 18:30:14 -0400
-Date: Wed, 06 Aug 2003 18:30:05 -0400
-From: "Josef 'Jeff' Sipek" <jeffpc@optonline.net>
-Subject: [PATCH][TRIVIAL] Bugzilla bug # 322 - double logical operator
- drivers/char/sx.c
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-id: <200308061830.05586.jeffpc@optonline.net>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-User-Agent: KMail/1.5.2
+	Wed, 6 Aug 2003 18:37:54 -0400
+Received: from fw.osdl.org ([65.172.181.6]:64176 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S274967AbTHFWgo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Aug 2003 18:36:44 -0400
+Date: Wed, 6 Aug 2003 15:38:29 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Cardbus suspend/resume of 3ccfe575bt card fails
+Message-Id: <20030806153829.7c4c4528.akpm@osdl.org>
+In-Reply-To: <20030806232735.I16116@flint.arm.linux.org.uk>
+References: <20030806232735.I16116@flint.arm.linux.org.uk>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just a simple fix to make the statements more readable. (instead of
-"i < TIMEOUT > 0" the statement is divided into two, joined by &&.)
+Russell King <rmk@arm.linux.org.uk> wrote:
+>
+> It looks like 3c59x only saves the PCI config space and restores it if
+>  you have WOL enabled - this is obviously wrong if you're suspending/
+>  resuming a CardBus device.
 
-Josef 'Jeff' Sipek
+yup.  I always meant to turn on the 3c59x PM code as soon as 2.5 started,
+but forgot.  It happened only last week.
 
---- linux-2.5/drivers/char/sx.c.orig	2003-08-06 18:23:32.000000000 -0400
-+++ linux-2.5/drivers/char/sx.c	2003-08-06 18:20:03.000000000 -0400
-@@ -511,13 +511,13 @@
- 
- 	func_enter ();
- 
--	for (i=0; i < TIMEOUT_1 > 0;i++) 
-+	for (i=0; (i < TIMEOUT_1) && (TIMEOUT_1 > 0);i++) 
- 		if ((read_sx_byte (board, offset) & mask) == correctval) {
- 			func_exit ();
- 			return 1;
- 		}
- 
--	for (i=0; i < TIMEOUT_2 > 0;i++) {
-+	for (i=0; (i < TIMEOUT_2) && (TIMEOUT_2 > 0);i++) {
- 		if ((read_sx_byte (board, offset) & mask) == correctval) {
- 			func_exit ();
- 			return 1;
-@@ -537,13 +537,13 @@
- 
- 	func_enter ();
- 
--	for (i=0; i < TIMEOUT_1 > 0;i++) 
-+	for (i=0; (i < TIMEOUT_1) && (TIMEOUT_1 > 0);i++) 
- 		if ((read_sx_byte (board, offset) & mask) != badval) {
- 			func_exit ();
- 			return 1;
- 		}
- 
--	for (i=0; i < TIMEOUT_2 > 0;i++) {
-+	for (i=0; (i < TIMEOUT_2) && (TIMEOUT_2 > 0);i++) {
- 		if ((read_sx_byte (board, offset) & mask) != badval) {
- 			func_exit ();
- 			return 1;
+Current -linus should get it right.  I have a card round here somewhere and
+will check it over.
 

@@ -1,107 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263159AbUFJWdQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263169AbUFJWfs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263159AbUFJWdQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jun 2004 18:33:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263167AbUFJWdP
+	id S263169AbUFJWfs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jun 2004 18:35:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262438AbUFJWfs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jun 2004 18:33:15 -0400
-Received: from legolas.restena.lu ([158.64.1.34]:10120 "EHLO smtp.restena.lu")
-	by vger.kernel.org with ESMTP id S263159AbUFJWcy (ORCPT
+	Thu, 10 Jun 2004 18:35:48 -0400
+Received: from mail.fh-wedel.de ([213.39.232.194]:32648 "EHLO mail.fh-wedel.de")
+	by vger.kernel.org with ESMTP id S263169AbUFJWfk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jun 2004 18:32:54 -0400
-Subject: Re: 2.6.7-rc3: nforce2, no C1 disconnect fixup applied
-From: Craig Bradney <cbradney@zip.com.au>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Lars <terraformers@gmx.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <200406110026.34006.bzolnier@elka.pw.edu.pl>
-References: <ca9jj9$dr$1@sea.gmane.org>
-	 <200406102356.07920.bzolnier@elka.pw.edu.pl>
-	 <1086904803.8139.3.camel@amilo.bradney.info>
-	 <200406110026.34006.bzolnier@elka.pw.edu.pl>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-RVCcCKR4s505xcdM/5uP"
-Message-Id: <1086906770.10033.6.camel@amilo.bradney.info>
+	Thu, 10 Jun 2004 18:35:40 -0400
+Date: Fri, 11 Jun 2004 00:35:32 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Hans Reiser <reiser@namesys.com>
+Cc: Dave Jones <davej@redhat.com>, Chris Mason <mason@suse.com>,
+       reiserfs-dev@namesys.com, linux-kernel@vger.kernel.org
+Subject: Re: [STACK] >3k call path in reiserfs
+Message-ID: <20040610223532.GB3340@wohnheim.fh-wedel.de>
+References: <20040609122226.GE21168@wohnheim.fh-wedel.de> <1086784264.10973.236.camel@watt.suse.com> <1086800028.10973.258.camel@watt.suse.com> <40C74388.20301@namesys.com> <1086801345.10973.263.camel@watt.suse.com> <40C75141.7070408@namesys.com> <20040609182037.GA12771@redhat.com> <40C79FE2.4040802@namesys.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 11 Jun 2004 00:32:50 +0200
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <40C79FE2.4040802@namesys.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---=-RVCcCKR4s505xcdM/5uP
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-On Fri, 2004-06-11 at 00:26, Bartlomiej Zolnierkiewicz wrote:
-> On Friday 11 of June 2004 00:00, Craig Bradney wrote:
-> > On Thu, 2004-06-10 at 23:56, Bartlomiej Zolnierkiewicz wrote:
-> > > On Thursday 10 of June 2004 23:36, Lars wrote:
-> > > > thanks
-> > > >
-> > > > after some reading, im using now in rc.local:
-> > > >
-> > > > ### C1 Halt Disconnect Fix for Chip rev. C17
-> > > > setpci -H1 -s 0:0.0 6F=3D1F
-> > > > setpci -H1 -s 0:0.0 6E=3D01
-> > > > echo "Applying C1 Halt Disconnect Fix"
-> > > >
-> > > > this is for an older nforce2 board (a7n8x 1.04) with rev. C17 chip
-> > > > and worked fine so far.
-> > > >
-> > > > for the newer chip revision it should read
-> > > >
-> > > > ### C1 Halt Disconnect Fix for Chip rev. C18D
-> > > > setpci -H1 -s 0:0.0 6F=3D9F
-> > > > setpci -H1 -s 0:0.0 6E=3D01
-> > > > echo "Applying C1 Halt Disconnect Fix"
-> > > >
-> > > > first setpci is for the c1 halt bit and the second one enables the
-> > > > 80ns stability value.
-> > >
-> > > Order should be reversed.
-> > >
-> > > > i understand that its not good to enable c1 for all boards, but it
-> > > > would be nice to have the option to force the fixup on boards which
-> > > > work ok but have no bios option to enable c1. (like the a7n8x)
-> > > > an bootoption like "forceC1halt" or something would be nice here.
-> > >
-> > > It can be perfectly handled in user-space as you've just showed. :-)
-> > > There is no need to add complexity to the kernel.
+On Wed, 9 June 2004 16:40:18 -0700, Hans Reiser wrote:
 > >
-> > Except if people have the trouble when installing Linux.... ok, yes,
->=20
-> What trouble are you talking about?
->=20
-> Fix is in the kernel and is applied when C1 Halt Disconnect is enabled.
-> If  C1 H.D. is disabled you need to enable it somehow from user-space,
-> thus you can apply fixup from user-space at the same time.
->=20
-> > they can still be done somehow, but thats just ugly for the "put cd in
-> > and install" users. Surely the kernel should be detecting this stuff an=
-d
-> > using various options as required.
->=20
-> If you think that kernel should have options for all PCI tweaks
-> available than sorry but you are wrong (grab powertweak instead).
+> Forcing kernel developers to distort their coding to keep stack sizes 
+> small is not a good idea, as it makes the whole kernel harder to code 
+> for a not very compelling (for 99% of users, please argue with me if you 
+> think it is otherwise) benefit.
+> 
+> I do not think I favor disturbing V3's stability for the sake of the 4k 
+> stack option, but my mind is still open.
 
+Apart from the fact that v3 appears to be safe on this front, your
+perspective of kernel development doesn't seem to match that of most
+developers.
 
-Well.. no.. I dont suggest that the kernel apply fixes for all the buggy
-motherboards and other h/w out there.. but I guess the distro builders
-need to make sure these post boot options are being set based on
-hardware detected, or something. :)
+o The kernel proper has no stable interface, it changes all of the
+time.  Breaking peripheral kernel code (i.e. filesystems and device
+drivers) with any change is not considered a problem.  If someone
+cares about the peripheral code, it will get fixed.
 
-Craig
+o Noone has special rights to any code in the kernel.  You've accepted
+the GPL and thereby given anyone the right to make changes to reiser3
+and to distribute the changed code.  Active maintainership is usually
+valued, but without that, noone is special.
 
---=-RVCcCKR4s505xcdM/5uP
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+It appears to me that most developers agree to the two point above,
+but you have some problems with them, at least lately.  Am i wrong?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+Jörn
 
-iD8DBQBAyOGSi+pIEYrr7mQRAv8NAJ0d6cq3jHwCWfBUjrknu6XvD7oHNwCeLLeg
-GwoSWEjXGnrx+LT1hGzs/gc=
-=sLtg
------END PGP SIGNATURE-----
-
---=-RVCcCKR4s505xcdM/5uP--
-
+-- 
+When you close your hand, you own nothing. When you open it up, you
+own the whole world.
+-- Li Mu Bai in Tiger & Dragon

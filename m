@@ -1,52 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261507AbTIGTc1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Sep 2003 15:32:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261499AbTIGTcQ
+	id S261375AbTIGT2d (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Sep 2003 15:28:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261380AbTIGT2c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Sep 2003 15:32:16 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:911 "EHLO mail.jlokier.co.uk")
-	by vger.kernel.org with ESMTP id S261493AbTIGTcJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Sep 2003 15:32:09 -0400
-Date: Sun, 7 Sep 2003 20:30:30 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: insecure@mail.od.ua, Michael Frank <mhf@linuxmail.org>,
-       Yann Droneaud <yann.droneaud@mbda.fr>,
-       fruhwirth clemens <clemens-dated-1063536166.2852@endorphin.org>,
-       linux-kernel@vger.kernel.org,
-       =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Subject: Re: nasm over gas?
-Message-ID: <20030907193030.GA21936@mail.jlokier.co.uk>
-References: <20030904104245.GA1823@leto2.endorphin.org> <200309050128.47002.insecure@mail.od.ua> <200309052058.11982.mhf@linuxmail.org> <200309052028.37367.insecure@mail.od.ua> <m18yp0o2mq.fsf@ebiederm.dsl.xmission.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 7 Sep 2003 15:28:32 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:32179 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261375AbTIGT22
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Sep 2003 15:28:28 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Arkadiusz Miskiewicz <arekm@pld-linux.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.0test4 bk1 and
+Date: Sun, 7 Sep 2003 21:29:18 +0200
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org
+References: <200309051559.18910.arekm@pld-linux.org> <20030905085419.6ea00d78.akpm@osdl.org> <200309072111.21900.arekm@pld-linux.org>
+In-Reply-To: <200309072111.21900.arekm@pld-linux.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <m18yp0o2mq.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200309072129.18157.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
-> Actually it is no as simple as that.  With the instruction that uses
-> %edi following immediately after the instruction that populates it you cannot
-> execute those two instructions in parallel.  So the code may be slower.  The
-> exact rules depend on the architecture of the cpu.
 
-I remember inserting a "nop" into a loop and it went significantly
-faster on a Pentium Pro :)
+IDE chipset drivers don't work (safely) as modules.  Just don't do it.
 
-> If you concentrate on those handful of places where you need to
-> optimize that is reasonable.  Beyond that there simply are not the
-> developer resources to do good assembly.  And things like algorithmic
-> transformations in assembly are an absolute nightmare.  Where they are
-> quite simple in C.
+On Sunday 07 of September 2003 21:11, Arkadiusz Miskiewicz wrote:
 
-If we had enough developer resources to write the whole thing in good
-assembly, then for _sure_ we'd have enough to write a perfect compiler!
+> - ide thing
+> VP_IDE: IDE controller at PCI slot 0000:00:11.1
+> VP_IDE: chipset revision 6
+> VP_IDE: not 100% native mode: will probe irqs later
+> ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+> VP_IDE: VIA vt8231 (rev 10) IDE UDMA100 controller on pci0000:00:11.1
+>     ide0: BM-DMA at 0xfc00-0xfc07, BIOS settings: hda:DMA, hdb:pio
+>     ide1: BM-DMA at 0xfc08-0xfc0f, BIOS settings: hdc:DMA, hdd:pio
+> ide0: I/O resource 0x3F6-0x3F6 not free.
+> hda: ERROR, PORTS ALREADY IN USE
+> register_blkdev: cannot get major 3 for ide0
+> ide1: I/O resource 0x376-0x376 not free.
+> hdc: ERROR, PORTS ALREADY IN USE
+> register_blkdev: cannot get major 22 for ide1
+> Module via82cxxx cannot be unloaded due to unsafe usage in
+> include/linux/module.h:483
 
-I would argue that the most powerful algorithmic transformations are a
-nightmare in C, too.  Less so, though.
-
--- Jamie

@@ -1,71 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262792AbVAJXSX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262530AbVAJX23@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262792AbVAJXSX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 18:18:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262757AbVAJXRt
+	id S262530AbVAJX23 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 18:28:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262758AbVAJXXK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 18:17:49 -0500
-Received: from wproxy.gmail.com ([64.233.184.198]:60270 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262779AbVAJXRK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 18:17:10 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=OJZWDyeYs8XEgXH4L7gLZvhVcgxWom53cna+7KSb5piGu9xQgFJqn0LnViUoSwwM7O8C98IwpW5GOpWms3lAAtHPZytyWjG4OnUDtF/uCYmKW0QBxYE1hPc0B1QaRzN9GSN819TR9Hnl6p0gQSmQGUi1Fqn6Oj60LtSbkk2JX10=
-Message-ID: <4d6522b90501101517420fced6@mail.gmail.com>
-Date: Tue, 11 Jan 2005 01:17:01 +0200
-From: Edjard Souza Mota <edjard@gmail.com>
-Reply-To: Edjard Souza Mota <edjard@gmail.com>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Subject: Re: User space out of memory approach
-Cc: Mauricio Lin <mauriciolin@gmail.com>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-In-Reply-To: <20050110200514.GA18796@logos.cnet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 10 Jan 2005 18:23:10 -0500
+Received: from mail08.syd.optusnet.com.au ([211.29.132.189]:31707 "EHLO
+	mail08.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S262608AbVAJXTl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jan 2005 18:19:41 -0500
+Message-ID: <41E30D4E.1070007@kolivas.org>
+Date: Tue, 11 Jan 2005 10:18:38 +1100
+From: Con Kolivas <lkml@kolivas.org>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Pavel Machek <pavel@suse.cz>
+Cc: Rajsekar <rajsekar@cse.iitm.ernet.in>, linux-kernel@vger.kernel.org
+Subject: Re: SCHED_BATCH not stopped (swsusp fails)
+References: <m3oeg1uk1y.fsf@rajsekar.pc> <20050110223213.GC1343@elf.ucw.cz>
+In-Reply-To: <20050110223213.GC1343@elf.ucw.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-References: <3f250c71050110134337c08ef0@mail.gmail.com>
-	 <20050110192012.GA18531@logos.cnet>
-	 <4d6522b9050110144017d0c075@mail.gmail.com>
-	 <20050110200514.GA18796@logos.cnet>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Pavel Machek wrote:
+> Hi!
+> 
+> 
+>>SCHED_BATCH processes dont seem to heed the `stop' request (order?) by
+>>swsusp.  I run httpd and mysqld (for my wiki page) with SCHED_BATCH (so
+>>that I can work on my computer even if the load is very high) but when I
+>>try to suspend the system, it tries to stop the tasks and simply returns.
+>>Here is the dmesg output (paritial)
+> 
+> 
+> Aha, so if it mysqld is not running SCHED_BATCH priority, stopping
+> mysqld will work ok?
 
-> 
-> Sorry, I misunderstood. Should have read the code before shouting.
+That makes sense.
 
-Better shouting then shooting :)!
+Sorry, SCHED_BATCH is unique to my tree at the moment so this is my 
+mistake for not considering it. I'll have to transiently schedule 
+SCHED_BATCH tasks as SCHED_NORMAL if we are going into swsusp. It's 
+something I'll have to work on. In the interim, a workaround would be to 
+convert all httpd threads to SCHED_NORMAL before shutting down in your 
+scripts somewhere and convert them back after resuming.
 
-br
+Cheers,
+Con
 
-Edjard
-
-
-> 
-> The feature is interesting - several similar patches have been around with similar
-> functionality (people who need usually write their own, I've seen a few), but none
-> has ever been merged, even though it is an important requirement for many users.
-> 
-> This is simple, an ordered list of candidate PIDs. IMO something similar to this
-> should be merged. Andrew ?
-> 
-> Few comments about the code:
-> 
->  retry:
-> -       p = select_bad_process();
-> +       printk(KERN_DEBUG "A good walker leaves no tracks.\n");
-> +       p = select_process();
-> 
-> You want to fallback to select_bad_process() if no candidate has been selected at
-> select_process().
-> 
-> You also want to move "oom" to /proc/sys/vm/.
-> 
-> 
-
-
--- 
-"In a world without fences ... who needs Gates?"
+P.S. Raj the --cutme-- thing in your email is very annoying for those of 
+us who reply to up to 300 emails a day (and yes I do know why you do it, 
+but if you keep doing it people will stop replying directly to you).

@@ -1,35 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314500AbSEYMP3>; Sat, 25 May 2002 08:15:29 -0400
+	id <S314504AbSEYM3Y>; Sat, 25 May 2002 08:29:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314502AbSEYMP2>; Sat, 25 May 2002 08:15:28 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:55281 "EHLO
+	id <S314546AbSEYM3X>; Sat, 25 May 2002 08:29:23 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:2802 "EHLO
 	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S314500AbSEYMP2>; Sat, 25 May 2002 08:15:28 -0400
-Subject: Re: Nforce chipset and 2.2 kernels
+	id <S314504AbSEYM3X>; Sat, 25 May 2002 08:29:23 -0400
+Subject: Re: RTAI/RtLinux
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Hayden James <hjames@stevens-tech.edu>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.SGI.4.30.0205250203400.5168315-100000@attila.stevens-tech.edu>
+To: Erwin Rol <erwin@muffin.org>
+Cc: linux-kernel@vger.kernel.org, RTAI users <rtai@rtai.org>
+In-Reply-To: <1022317532.15111.155.camel@rawpower>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 25 May 2002 14:16:37 +0100
-Message-Id: <1022332597.11811.3.camel@irongate.swansea.linux.org.uk>
+Date: 25 May 2002 14:30:53 +0100
+Message-Id: <1022333453.11811.10.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-05-25 at 07:13, Hayden James wrote:
-> You are shit out of luck, upgrade to 2.4 and deal with the lack of
-> free complete drivers for the onboard audio, network, and video or return
-> the boards. I am not even sure if 2.4 will work seeing as how I was
-> told(by Alan and Vojtech) that 2.5 is the only kernel that supports the IDE
-> chipset on the board.
+On Sat, 2002-05-25 at 10:05, Erwin Rol wrote:
+> I just hope the linux developers are smart enough to not accept the
+> RTLinux into the main kernel, cause someday someone might come up with
+> the idea to write something that allows to have userspace programs to be
+> hard-realtime, and than you have to stop allowing non GPL userspace
+> programs, like for example GLIB( which is LGPL). 
 
-Fixing the IDE to work in the stable tree appears to be just adding some
-PCI idents so that bit shouldn't be too problematic. The rest is not
-good though
+LGPL can be used as GPL. If you haven't even read the license do that
+before the flamewar please.
 
-Alan
+The RtLinux patent seems to boil down to "If you are free software we
+are free software, if you are proprietary we play in your space too,
+please pay up". Its not something I'm totally happy with but I don't
+really see how else Victor can phrase it.
 

@@ -1,100 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261635AbSJYWjJ>; Fri, 25 Oct 2002 18:39:09 -0400
+	id <S261626AbSJYWg4>; Fri, 25 Oct 2002 18:36:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261643AbSJYWjJ>; Fri, 25 Oct 2002 18:39:09 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:56848 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261635AbSJYWjH>;
-	Fri, 25 Oct 2002 18:39:07 -0400
-Message-ID: <3DB9C970.3010305@pobox.com>
-Date: Fri, 25 Oct 2002 18:45:04 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
+	id <S261643AbSJYWg4>; Fri, 25 Oct 2002 18:36:56 -0400
+Received: from fmr05.intel.com ([134.134.136.6]:37089 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP
+	id <S261626AbSJYWgy>; Fri, 25 Oct 2002 18:36:54 -0400
+Message-ID: <F2DBA543B89AD51184B600508B68D4000ECE7086@fmsmsx103.fm.intel.com>
+From: "Nakajima, Jun" <jun.nakajima@intel.com>
+To: Jeff Garzik <jgarzik@pobox.com>, Robert Love <rml@tech9.net>
+Cc: Daniel Phillips <phillips@arcor.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>,
+       "'Dave Jones'" <davej@codemonkey.org.uk>,
+       "'akpm@digeo.com'" <akpm@digeo.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'chrisl@vmware.com'" <chrisl@vmware.com>,
+       "'Martin J. Bligh'" <mbligh@aracnet.com>
+Subject: RE: [PATCH] hyper-threading information in /proc/cpuinfo
+Date: Fri, 25 Oct 2002 15:42:53 -0700
 MIME-Version: 1.0
-To: Adam Kropelin <akropel1@rochester.rr.com>
-CC: VDA@port.imtp.ilyichevsk.odessa.ua, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5: ewrk3 cli/sti removal by VDA
-References: <20021019021340.GA8388@www.kroptech.com> <3DB49D81.6000607@pobox.com> <20021022020932.GA13818@www.kroptech.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adam Kropelin wrote:
+The notion of "SMT (Simultaneous Multi-Threaded)" architecture has been
+there for a while (at least 8 years, as far as I know). You would get tons
+of info if you search it in Internet. 
 
->On Mon, Oct 21, 2002 at 08:36:17PM -0400, Jeff Garzik wrote:
+Jun
+
+-----Original Message-----
+From: Jeff Garzik [mailto:jgarzik@pobox.com]
+Sent: Friday, October 25, 2002 3:26 PM
+To: Robert Love
+Cc: Daniel Phillips; Alan Cox; Nakajima, Jun; 'Dave Jones';
+'akpm@digeo.com'; 'linux-kernel@vger.kernel.org'; 'chrisl@vmware.com';
+'Martin J. Bligh'
+Subject: Re: [PATCH] hyper-threading information in /proc/cpuinfo
+
+
+Robert Love wrote:
+
+>On Fri, 2002-10-25 at 18:06, Daniel Phillips wrote:
+>
 >  
 >
->>Adam Kropelin wrote:
+>>On Saturday 26 October 2002 00:14, Alan Cox wrote:
+>>
 >>    
 >>
->>>Below is a patch from Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> 
->>>which
->>>removes cli/sti in the ewrk3 driver. It tests out fine here with SMP & 
->>>preempt.
+>>>Im just wondering what we would then use to describe a true multiple cpu
+>>>on a die x86. Im curious what the powerpc people think since they have
+>>>this kind of stuff - is there a generic terminology they prefer ?
 >>>      
 >>>
->>Applied and then cleaned up...  ETHTOOL_PHYS_ID needs to use 
->>schedule_timeout(), and using typeof should be avoided.
+>>MIPS also has it, for N=2.
 >>    
 >>
 >
->The patch below (against yours) should fix ETHTOOL_PHYS_ID again. Let me
->know if I got it wrong. Was my prior use of
->wait_event_interruptible_tiumeout actually broken or rather
->just a lot more complicated than it needed to be?
+>Yep, neat chip :)
 >
->I didn't find any use of typeof. If you point me to it I'll fix that up,
->too.
+>POWER4 calls the technology "Chip-Multiprocessing (CMP)" but I have
+>never seen terminology for referring to the on-core processors
+>individually.
 >
->Thanks for bearing with me. I'm climbing the clue-ladder as fast as I
->can... ;)
->
->--Adam
->
->--- linux-2.5.44/drivers/net/ewrk3.c	Mon Oct 21 22:01:01 2002
->+++ linux-2.5.44/drivers/net/ewrk3.c.new	Mon Oct 21 21:58:13 2002
->@@ -1759,23 +1759,18 @@
-> 		return 0;
-> 	}
-> 
->-#ifdef BROKEN
-> 	/* Blink LED for identification */
-> 	case ETHTOOL_PHYS_ID: {
-> 		struct ethtool_value edata;
-> 		u_long flags;
->-		long delay, ret;
->+		long ret=0;
-> 		u_char cr;
-> 		int count;
->-		wait_queue_head_t wait;
->-
->-		init_waitqueue_head(&wait);
-> 
-> 		if (copy_from_user(&edata, useraddr, sizeof(edata)))
-> 			return -EFAULT;
-> 
-> 		/* Toggle LED 4x per second */
->-		delay = HZ >> 2;
-> 		count = edata.data << 2;
-> 
-> 		spin_lock_irqsave(&lp->hw_lock, flags);
->@@ -1796,24 +1791,21 @@
-> 
-> 			/* Wait a little while */
-> 			spin_unlock_irqrestore(&lp->hw_lock, flags);
->-			ret = delay;
->-			__wait_event_interruptible_timeout(wait, 0, ret);
->+			set_current_state(TASK_INTERRUPTIBLE);
->+			ret = schedule_timeout(HZ>>2);
+>They do call the SMT units "threads" obviously, however, so if Alan is
+>OK with it maybe we should go with Jun's opinion and name the field
+>"thread" ?
 >  
 >
 
+"thread" already has another use.  Let's not let the idiocy [most 
+likely] perpetrated by marketing folks to filter down to the useful 
+technical level.  :)
 
-close -- if schedule_timeout() returns greater than zero, that number is 
-the remaining jiffies that schedule_timeout _should_ have slept, but did 
-not.  Ideally you need to call it in a loop, that decrements a variable 
-based on schedule_timeout return code.
+Sorta like Intel and their re-re-use of "IPF."  It's only going to 
+increase confusion.
+
+    Jeff
+
+
 
 

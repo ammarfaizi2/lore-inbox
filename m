@@ -1,64 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265928AbUGZUm7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266034AbUGZUo0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265928AbUGZUm7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jul 2004 16:42:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265947AbUGZUm5
+	id S266034AbUGZUo0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jul 2004 16:44:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266016AbUGZUnW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jul 2004 16:42:57 -0400
-Received: from eml01.usace.army.mil ([137.161.233.22]:2025 "EHLO
-	eml01.usace.army.mil") by vger.kernel.org with ESMTP
-	id S265928AbUGZURG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jul 2004 16:17:06 -0400
-Message-Id: <iss.800907a2.65d8.410566bb.b3c1f.1@eml01.usace.army.mil>
-Date: Mon, 26 Jul 2004 20:16:59 +0000
-From: Postmaster@eml01.usace.army.mil
-To: linux-kernel@vger.kernel.org
-cc: Postmaster@eml01.usace.army.mil
-Subject: Undeliverable mail
-MIME-Version: 1.0
-Content-Type: multipart/report; report-type=delivery-status;
-              boundary="=_mh.ndn.65d8.410566bb_="
+	Mon, 26 Jul 2004 16:43:22 -0400
+Received: from fw.osdl.org ([65.172.181.6]:39627 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265789AbUGZUTf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jul 2004 16:19:35 -0400
+Date: Mon, 26 Jul 2004 13:18:07 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Hannes Reinecke <hare@suse.de>
+Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Limit number of concurrent hotplug processes
+Message-Id: <20040726131807.47816576.akpm@osdl.org>
+In-Reply-To: <4104E421.8080700@suse.de>
+References: <40FD23A8.6090409@suse.de>
+	<20040725182006.6c6a36df.akpm@osdl.org>
+	<4104E421.8080700@suse.de>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=_mh.ndn.65d8.410566bb_=
-Content-Type: text/plain; charset=us-ascii
+Hannes Reinecke <hare@suse.de> wrote:
+>
+> > 
+>  >> Any comments/suggestions welcome; otherwise please apply.
+>  > 
+>  > 
+>  > I suggest you just use a semaphore, initialised to a suitable value:
+>  > 
+>  > 
+>  > static struct semaphore foo = __SEMAPHORE_INITIALIZER(foo, 50);
+>  > 
+>  > 
+>  > {
+>  > 	...
+>  > 	down(&foo);
+>  > 	...
+>  > 	up(&foo);
+>  > 	...
+>  > }
+>  > 
+>  Hmm; looks good, but: It's not possible to reliably change the maximum 
+>  number of processes on the fly.
+> 
+>  The trivial way of course it when the waitqueue is empty and no 
+>  processes are holding the semaphore. But it's quite non-obvious how this 
+>  should work if processes are already holding the semaphore.
+>  We would need to wait for those processes to finish, setting the length 
+>  of the queue to 0 (to disallow any other process from grabbing the 
+>  semaphore), and atomically set the queue length to the new value.
+>  Apart from the fact that we would need a worker thread for that 
+>  (otherwise the calling process might block indefinitely), there is no 
+>  guarantee that the queue ever will become empty, as hotplug processes 
+>  might be generated at any time.
+> 
+>  Or is there an easier way?
 
-Your message was not delivered to the following recipients:
+Well if you want to increase the maximum number by ten you do:
 
-          b3conn27@fastclick.net: 553 5.3.0 <b3conn27@fastclick.net>... No such user
+	for (i = 0; i < 10; i++)
+		up(&foo);
 
---=_mh.ndn.65d8.410566bb_=
-Content-Type: message/delivery-status
-Content-Transfer-Encoding: 7bit
+and similarly for decreasing the limit.  That will involve doing down()s,
+which will automatically wait for the current number of threads to fall to
+the desired level.
 
-Reporting-MTA: dns;eml01.usace.army.mil
+But I don't really see a need to tune this on the fly - probably the worse
+problem occurs during bootup when the operator cannot perform tuning.
 
-Original-Recipient: rfc822;b3conn27@fastclick.net
-Final-Recipient: rfc822;b3conn27@fastclick.net
-Action: failed
-Status: 5.1.1
-Remote-MTA: dns;mail.fastclick.net
-Diagnostic-Code: smtp;553 5.3.0 <b3conn27@fastclick.net>... No such user
-
---=_mh.ndn.65d8.410566bb_=
-Content-Type: text/rfc822-headers
-Content-Transfer-Encoding: 7bit
-
-Return-Path: <linux-kernel@vger.kernel.org>
-Received: from vger.kernel.org ([155.76.65.133] [155.76.65.133]) by eml01.usace.army.mil with ESMTP for b3conn27@fastclick.net; Mon, 26 Jul 2004 20:16:19 Z
-From: linux-kernel@vger.kernel.org
-To: b3conn27@fastclick.net
-Subject: Report
-Date: Mon, 26 Jul 2004 15:16:08 -0500
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_NextPart_000_0003_F51311AF.73121156"
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Message-Id: <iss.800907a2.fb.41056693.bdd44.27@eml01.usace.army.mil>
-
-
---=_mh.ndn.65d8.410566bb_=--
+So a __setup parameter seems to be the best way of providing tunability. 
+Initialise the semaphore in usermodehelper_init().

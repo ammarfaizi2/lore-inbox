@@ -1,45 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266189AbUGOMup@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266192AbUGONI0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266189AbUGOMup (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jul 2004 08:50:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266191AbUGOMup
+	id S266192AbUGONI0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jul 2004 09:08:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266193AbUGONI0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jul 2004 08:50:45 -0400
-Received: from hibernia.jakma.org ([212.17.55.49]:35716 "EHLO
-	hibernia.jakma.org") by vger.kernel.org with ESMTP id S266189AbUGOMuo
+	Thu, 15 Jul 2004 09:08:26 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:23686 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266192AbUGONIY
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jul 2004 08:50:44 -0400
-Date: Thu, 15 Jul 2004 13:50:33 +0100 (IST)
-From: Paul Jakma <paul@clubi.ie>
-X-X-Sender: paul@fogarty.jakma.org
-To: Arjan van de Ven <arjanv@redhat.com>
-cc: christophe.varoqui@free.fr, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: namespaces (was Re: [Q] don't allow tmpfs to page out)
-In-Reply-To: <20040715123148.GA23112@devserv.devel.redhat.com>
-Message-ID: <Pine.LNX.4.60.0407151346370.2622@fogarty.jakma.org>
-References: <1089878317.40f6392d7e365@imp5-q.free.fr>
- <20040715080017.GB20889@devserv.devel.redhat.com>
- <Pine.LNX.4.60.0407151329100.2622@fogarty.jakma.org>
- <20040715123148.GA23112@devserv.devel.redhat.com>
-X-NSA: arafat al aqsar jihad musharef jet-A1 avgas ammonium qran inshallah allah al-akbar martyr iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas british airways washington
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Thu, 15 Jul 2004 09:08:24 -0400
+Date: Thu, 15 Jul 2004 09:03:47 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Pavel Machek <pavel@suse.cz>, Andrew Morton <akpm@osdl.org>, lmb@suse.de,
+       arjanv@redhat.com, phillips@istop.com, sdake@mvista.com,
+       teigland@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Minneapolis Cluster Summit, July 29-30
+Message-ID: <20040715120347.GA17412@logos.cnet>
+References: <20040712101107.GA31013@devserv.devel.redhat.com> <20040712102124.GH3933@marowsky-bree.de> <20040712102818.GB31013@devserv.devel.redhat.com> <20040712115003.GV3933@marowsky-bree.de> <20040712120127.GB16604@devserv.devel.redhat.com> <20040712131312.GY3933@marowsky-bree.de> <40F294D2.3010203@yahoo.com.au> <20040712135432.57d0133c.akpm@osdl.org> <20040714121920.GA2350@elf.ucw.cz> <40F5E9A0.3050402@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40F5E9A0.3050402@yahoo.com.au>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 15 Jul 2004, Arjan van de Ven wrote:
+On Thu, Jul 15, 2004 at 12:19:12PM +1000, Nick Piggin wrote:
+> Pavel Machek wrote:
+> >Hi!
+> >
+> >
+> >>>I don't see why it would be a problem to implement a "this task
+> >>>facilitates page reclaim" flag for userspace tasks that would take
+> >>>care of this as well as the kernel does.
+> >>
+> >>Yes, that has been done before, and it works - userspace "block drivers"
+> >>which permanently mark themselves as PF_MEMALLOC to avoid the obvious
+> >>deadlocks.
 
-> it's a clone() flag....
+Andrew, as curiosity, what userspace "block driver" sets PF_MEMALLOC for
+normal operation?
 
-Ah, very cute.
+> >>Note that you can achieve a similar thing in current 2.6 by acquiring
+> >>realtime scheduling policy, but that's an artifact of some brainwave which
+> >>a VM hacker happened to have and isn't a thing which should be relied 
+> >>upon.
+> >>
+> >>A privileged syscall which allows a task to mark itself as one which
+> >>cleans memory would make sense.
+> >
+> >
+> >Does it work?
+> >
+> >I mean, in kernel, we have some memory cleaners (say 5), and they
+> >need, say, 1MB total reserved memory.
+> >
+> >Now, if you add another task with PF_MEMALLOC. But now you'd need
+> >1.2MB reserved memory, and you only have 1MB. Things are obviously
+> >going to break at some point.
+> >								Pavel
+> 
+> Well you'd have to be more careful than that. In particular
+> you wouldn't just be starting these things up, let alone
+> have them allocate 1MB in to free some memory.
+> 
+> This situation would still blow up whether you did it in
+> kernel or not.
 
-Are there any tools yet to make use of it?
-
-regards,
--- 
-Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
- 	warning: do not ever send email to spam@dishone.st
-Fortune:
-Boucher's Observation:
- 	He who blows his own horn always plays the music
- 	several octaves higher than originally written.
+Indeed, such PF_MEMALLOC app can probably kill the system if it bugs
+allocating lots of memory from the lower reservations. It needs
+some limitation. 

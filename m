@@ -1,29 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264669AbRG0XqR>; Fri, 27 Jul 2001 19:46:17 -0400
+	id <S265475AbRG1AE2>; Fri, 27 Jul 2001 20:04:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265024AbRG0XqH>; Fri, 27 Jul 2001 19:46:07 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:31503 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S264932AbRG0Xp7>; Fri, 27 Jul 2001 19:45:59 -0400
-Subject: Re: Linx Kernel Source tree and metrics
-To: pgallen@randomlogic.com (Paul G. Allen)
-Date: Sat, 28 Jul 2001 00:46:40 +0100 (BST)
-Cc: kplug-list@kernel-panic.org (kplug-list@kernel-panic.org),
-        linux-kernel@vger.kernel.org (Linux kernel developer's mailing list),
-        kplug-lpsg@kernel-panic.org (kplug-lpsg@kernel-panic.org)
-In-Reply-To: <no.id> from "Paul G. Allen" at Jul 27, 2001 04:32:49 PM
-X-Mailer: ELM [version 2.5 PL5]
+	id <S265636AbRG1AES>; Fri, 27 Jul 2001 20:04:18 -0400
+Received: from web13901.mail.yahoo.com ([216.136.175.27]:9231 "HELO
+	web13901.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S265475AbRG1AEK>; Fri, 27 Jul 2001 20:04:10 -0400
+Message-ID: <20010728000417.33999.qmail@web13901.mail.yahoo.com>
+Date: Fri, 27 Jul 2001 17:04:17 -0700 (PDT)
+From: Barry Wu <wqb123@yahoo.com>
+Subject: serial console startup problem
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15QHJY-0006pR-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-> If this happens, I'll update it to the latest source (whatever happens to be available at that time). If it doesn't, I'll update it anyway and just bite the
-> bullet and upload the data to a server with more bandwidth.
+Hi,all,
 
-bzip2 -9 is your friend for repetetive data 8)
+When linux 2.4.3 startup, our serial console can not
+work. I use another serial port to print some debug
+messages, it likes following:
+
+hda: 16841664 sectorsp: (8623 MB)p: w/512KiB Cachep:,
+CHS=16708/16/63p:
+Partition check:
+hda:[PTBL] [1048/255/63] hda1 hda4
+Serial driver version 5.05 (2000-12-13) with
+MANY_PORTS SHARE_IRQ SERIAL_PCI e
+nabled
+ttyS00 at 0xb8000000 (irq = 2) is a 16550A
+ttyS01 at 0xb8100000 (irq = 3) is a 16550A
+VFS: Mounted root (ext2 filesystem) readonly.
+Freeing prom memory: 1020kb freed
+Freeing unused kernel memory: 52k freed
+
+kernel BUG at page_alloc.c:191!
+kernel BUG at page_alloc.c:191!
+kernel BUG at page_alloc.c:191!
+
+Do someone know what's problem it is?
+If you know, please help me.
+
+Thanks!
+
+Barry
+
+__________________________________________________
+Do You Yahoo!?
+Make international calls for as low as $.04/minute with Yahoo! Messenger
+http://phonecard.yahoo.com/

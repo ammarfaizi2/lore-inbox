@@ -1,54 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261852AbSJASNr>; Tue, 1 Oct 2002 14:13:47 -0400
+	id <S262146AbSJASst>; Tue, 1 Oct 2002 14:48:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262854AbSJASNr>; Tue, 1 Oct 2002 14:13:47 -0400
-Received: from node-d-1ef6.a2000.nl ([62.195.30.246]:29678 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S261852AbSJASNq>; Tue, 1 Oct 2002 14:13:46 -0400
-Subject: Re: compiling errors
-From: Arjan van de Ven <arjanv@fenrus.demon.nl>
-To: immortal1015 <immortal1015@hotpop.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021001180459.E4AD92F8147@smtp-1.hotpop.com>
-References: <20021001180459.E4AD92F8147@smtp-1.hotpop.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-64vENYkFMJ1CD/sXLycd"
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 01 Oct 2002 20:22:04 +0200
-Message-Id: <1033496525.2575.3.camel@localhost.localdomain>
-Mime-Version: 1.0
+	id <S262213AbSJASr6>; Tue, 1 Oct 2002 14:47:58 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:17809 "EHLO cherise.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S262209AbSJASrR>;
+	Tue, 1 Oct 2002 14:47:17 -0400
+Date: Tue, 1 Oct 2002 11:54:43 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: mochel@cherise.pdx.osdl.net
+To: Matthew Dobson <colpatch@us.ibm.com>
+cc: Greg KH <greg@kroah.com>, linux-kernel <linux-kernel@vger.kernel.org>,
+       Martin Bligh <mjbligh@us.ibm.com>
+Subject: Re: [rfc][patch] driverfs multi-node(board) patch [2/2]
+In-Reply-To: <3D99ED03.8040600@us.ibm.com>
+Message-ID: <Pine.LNX.4.44.0210011153240.27710-100000@cherise.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-64vENYkFMJ1CD/sXLycd
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> > I have some comments about the structure of the code, but those will come 
+> > in another email..
+> Cool...  Any/all comments are definitely welcome...
 
-On Tue, 2002-10-01 at 20:07, immortal1015 wrote:
-> I tried to compile the very simple kernel module code as following.
-> I compile this code using gcc -c hello.c, but gcc tell me:
->  /usr/include/linux	/module.h:60 parse error before 'atomic_t'
+You'll have to wait prolly 1 more day, though. Sorry..
 
-you are using glibc headers to compile kernel code....
+> > Shouldn't nodes (or, erm, boards) be added as children of the root? 
+> Um, yes!  I don't quite know how, though...  I call sys_register_root() 
+> for each of the nodes...  That call seems to parent them under the 
+> root/sys directory...  How can I change that?
 
-add -I/lib/modules/`uname -r`/build/include
-to the gcc flags
+Woops. That sounds like my booboo. I'll look into that.
 
+> > Aren't all types of devices present on the various boards (PCI, etc)?
+> Yes...  I have some patches that I'm working that will put PCI busses 
+> and devices into the topology infrastructure (both in-kernel & via 
+> driverfs).  Again, this is just a first pass of what I'd like to see... ;)
 
+Sweet, that should be cool.
 
---=-64vENYkFMJ1CD/sXLycd
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQA9mefMxULwo51rQBIRAnhEAKCQa4P2uFvF03Y1asOvqAhih68f9gCgnvvh
-OVHxSL+WQ7BzhNcXp9Rn+xY=
-=cav0
------END PGP SIGNATURE-----
-
---=-64vENYkFMJ1CD/sXLycd--
+	-pat
 

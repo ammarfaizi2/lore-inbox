@@ -1,72 +1,117 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317888AbSG2WK1>; Mon, 29 Jul 2002 18:10:27 -0400
+	id <S317994AbSG2WJ3>; Mon, 29 Jul 2002 18:09:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318100AbSG2WKZ>; Mon, 29 Jul 2002 18:10:25 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:17222 "EHLO
-	mtvmime03.VERITAS.COM") by vger.kernel.org with ESMTP
-	id <S317888AbSG2WJy>; Mon, 29 Jul 2002 18:09:54 -0400
-Date: Mon, 29 Jul 2002 23:13:21 +0100 (BST)
+	id <S318084AbSG2WJ0>; Mon, 29 Jul 2002 18:09:26 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:54330 "EHLO
+	mtvmime01.veritas.com") by vger.kernel.org with ESMTP
+	id <S317994AbSG2WIv>; Mon, 29 Jul 2002 18:08:51 -0400
+Date: Mon, 29 Jul 2002 23:12:18 +0100 (BST)
 From: Hugh Dickins <hugh@veritas.com>
 To: Linus Torvalds <torvalds@transmeta.com>
 cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Robert Love <rml@tech9.net>,
        Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org
-Subject: [PATCH] vmacct7/9 update overcommit doc and comment
+Subject: [PATCH] vmacct6/9 fix shared and private accounting
 In-Reply-To: <Pine.LNX.4.21.0207292257001.1184-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.21.0207292312260.1184-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.21.0207292310320.1184-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Update Doc and remove FIXME comment from fork.c now accounting right.
+do_mmap_pgoff's (file == NULL) check was incorrect: it caused shared
+MAP_ANONYMOUS objects to be counted twice (again in shmem_file_setup),
+and again on fork(); whereas the equivalent shared /dev/zero objects
+were correctly counted.  Conversely, a private readonly file mapping
+was (correctly) not counted, but still not counted when mprotected to
+writable: mprotect_fixup had pointless "charged = 0" changes, now it
+does vm_enough_memory checking when private is first made writable
+(but later we may want to refine behaviour on a noreserve mapping).
 
---- vmacct6/Documentation/vm/overcommit-accounting	Mon Jul 29 11:48:01 2002
-+++ vmacct7/Documentation/vm/overcommit-accounting	Mon Jul 29 19:23:46 2002
-@@ -37,13 +37,13 @@
- The overcommit is based on the following rules
+Also changed correct (flags & MAP_SHARED) test in do_mmap_pgoff to
+equivalent (vm_flags & VM_SHARED) test: because do_mmap_pgoff is
+dealing with vm_flags rather than the input flags by that stage.
+
+--- vmacct5/mm/mmap.c	Mon Jul 29 19:23:46 2002
++++ vmacct6/mm/mmap.c	Mon Jul 29 19:23:46 2002
+@@ -527,16 +527,14 @@
+ 	    > current->rlim[RLIMIT_AS].rlim_cur)
+ 		return -ENOMEM;
  
- For a file backed map
--	SHARED or READ only	-	0 cost (the file is the map not swap)
-+	SHARED or READ-only	-	0 cost (the file is the map not swap)
-+	PRIVATE WRITABLE	-	size of mapping per instance
+-	if (sysctl_overcommit_memory > 1)
+-		flags &= ~MAP_NORESERVE;
+-
+-	/* Private writable mapping? Check memory availability.. */
+-	if ((((vm_flags & (VM_SHARED | VM_WRITE)) == VM_WRITE) ||
+-			(file == NULL)) && !(flags & MAP_NORESERVE)) {
+-		charged = len >> PAGE_SHIFT;
+-		if (!vm_enough_memory(charged))
+-			return -ENOMEM;
+-		vm_flags |= VM_ACCOUNT;
++	if (!(flags & MAP_NORESERVE) || sysctl_overcommit_memory > 1) {
++		if ((vm_flags & (VM_SHARED|VM_WRITE)) == VM_WRITE) {
++			/* Private writable mapping: check memory availability */
++			charged = len >> PAGE_SHIFT;
++			if (!vm_enough_memory(charged))
++				return -ENOMEM;
++			vm_flags |= VM_ACCOUNT;
++		}
+ 	}
  
--	WRITABLE SHARED		-	size of mapping per instance
+ 	/* Can we just expand an old anonymous mapping? */
+@@ -579,7 +577,7 @@
+ 		error = file->f_op->mmap(file, vma);
+ 		if (error)
+ 			goto unmap_and_free_vma;
+-	} else if (flags & MAP_SHARED) {
++	} else if (vm_flags & VM_SHARED) {
+ 		error = shmem_zero_setup(vma);
+ 		if (error)
+ 			goto free_vma;
+--- vmacct5/mm/mprotect.c	Mon Jul 29 11:48:04 2002
++++ vmacct6/mm/mprotect.c	Mon Jul 29 19:23:46 2002
+@@ -257,6 +257,22 @@
+ 		*pprev = vma;
+ 		return 0;
+ 	}
++
++	/*
++	 * If we make a private mapping writable we increase our commit;
++	 * but (without finer accounting) cannot reduce our commit if we
++	 * make it unwritable again.
++	 *
++	 * FIXME? We haven't defined a VM_NORESERVE flag, so mprotecting
++	 * a MAP_NORESERVE private mapping to writable will now reserve.
++	 */
++	if ((newflags & VM_WRITE) &&
++	    !(vma->vm_flags & (VM_ACCOUNT|VM_WRITE|VM_SHARED))) {
++		charged = (end - start) >> PAGE_SHIFT;
++		if (!vm_enough_memory(charged))
++			return -ENOMEM;
++		newflags |= VM_ACCOUNT;
++	}
+ 	newprot = protection_map[newflags & 0xf];
+ 	if (start == vma->vm_start) {
+ 		if (end == vma->vm_end)
+@@ -267,19 +283,10 @@
+ 		error = mprotect_fixup_end(vma, pprev, start, newflags, newprot);
+ 	else
+ 		error = mprotect_fixup_middle(vma, pprev, start, end, newflags, newprot);
 -
--For a direct map
--	SHARED or READ only	-	size of mapping
--	PRIVATE WRITEABLE	-	size of mapping per instance
-+For an anonymous or /dev/zero map
-+	SHARED			-	size of mapping
-+	PRIVATE READ-only	-	0 cost (but of little use)
-+	PRIVATE WRITABLE	-	size of mapping per instance
- 
- Additional accounting
- 	Pages made writable copies by mmap
-@@ -66,5 +66,3 @@
- To Do
- -----
- o	Account ptrace pages (this is hard)
--o	Account for shared anonymous mappings properly
--	- right now we account them per instance
---- vmacct6/kernel/fork.c	Mon Jul 29 11:48:04 2002
-+++ vmacct7/kernel/fork.c	Mon Jul 29 19:23:46 2002
-@@ -210,17 +210,12 @@
- 		retval = -ENOMEM;
- 		if(mpnt->vm_flags & VM_DONTCOPY)
- 			continue;
+ 	if (error) {
+-		if (newflags & PROT_WRITE)
+-			vm_unacct_memory(charged);
++		vm_unacct_memory(charged);
+ 		return error;
+ 	}
 -
--		/*
--		 * FIXME: shared writable map accounting should be one off
--		 */
- 		if (mpnt->vm_flags & VM_ACCOUNT) {
- 			unsigned int len = (mpnt->vm_end - mpnt->vm_start) >> PAGE_SHIFT;
- 			if (!vm_enough_memory(len))
- 				goto fail_nomem;
- 			charge += len;
- 		}
--
- 		tmp = kmem_cache_alloc(vm_area_cachep, SLAB_KERNEL);
- 		if (!tmp)
- 			goto fail_nomem;
+-	/*
+-	 * Delayed accounting for reduction of memory use - done last to
+-	 * avoid allocation races
+-	 */
+-	if (charged && !(newflags & PROT_WRITE))
+-		vm_unacct_memory(charged);
+ 	change_protection(vma, start, end, newprot);
+ 	return 0;
+ }
 

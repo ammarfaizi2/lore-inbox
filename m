@@ -1,74 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266721AbSK1TxI>; Thu, 28 Nov 2002 14:53:08 -0500
+	id <S266728AbSK1UrW>; Thu, 28 Nov 2002 15:47:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266728AbSK1TxI>; Thu, 28 Nov 2002 14:53:08 -0500
-Received: from adsl-206-170-148-147.dsl.snfc21.pacbell.net ([206.170.148.147]:57094
-	"EHLO gw.goop.org") by vger.kernel.org with ESMTP
-	id <S266721AbSK1TxH>; Thu, 28 Nov 2002 14:53:07 -0500
-Subject: Re: [Ext2-devel] Re: [NFS] htree+NFS (NFS client bug?)
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Ext2 devel <ext2-devel@lists.sourceforge.net>,
-       NFS maillist <nfs@lists.sourceforge.net>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021128171324.G2362@redhat.com>
-References: <1038354285.1302.144.camel@sherkaner.pao.digeo.com>
-	 <shsptsrd761.fsf@charged.uio.no>
-	 <1038387522.31021.188.camel@ixodes.goop.org>
-	 <20021127150053.A2948@redhat.com>
-	 <15845.10815.450247.316196@charged.uio.no>
-	 <20021127205554.J2948@redhat.com> <20021128164439.E2362@redhat.com>
-	 <20021128171324.G2362@redhat.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1038513627.1464.44.camel@ixodes.goop.org>
+	id <S266730AbSK1UrW>; Thu, 28 Nov 2002 15:47:22 -0500
+Received: from se1.cogenit.fr ([195.68.53.173]:47593 "EHLO cogenit.fr")
+	by vger.kernel.org with ESMTP id <S266728AbSK1UrU>;
+	Thu, 28 Nov 2002 15:47:20 -0500
+Date: Thu, 28 Nov 2002 21:52:33 +0100
+From: Francois Romieu <romieu@cogenit.fr>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.20-rc4-ac1
+Message-ID: <20021128215233.B17357@fafner.intra.cogenit.fr>
+References: <200211261901.gAQJ13T11036@devserv.devel.redhat.com> <20021128134332.GD6981@fs.tum.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 28 Nov 2002 12:00:27 -0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20021128134332.GD6981@fs.tum.de>; from bunk@fs.tum.de on Thu, Nov 28, 2002 at 02:43:32PM +0100
+X-Organisation: Marie's fan club - III
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-11-28 at 09:13, Stephen C. Tweedie wrote:
-> In fact, it's not clear what we _can_ return as f_pos after the last
-> dirent.
-> 
-> We're only using 31-bit hashes right now.  Trond, how will other NFS
-> clients react if we return an NFS cookie 32-bits wide?  We could
-> easily use something like 0x80000000 as an f_pos to represent EOF in
-> the Linux side of things, but will that cookie work if passed over the
-> wire on NFSv2?
-> 
-> The alternative is to hack in a special case so that (for example) we
-> consider a major htree hash of 0x7fffffff to map to an f_pos of
-> 0x7ffffffe and just consider that a possible collision, so that
-> 0x7fffffff is a unique EOF for the htree tree walker.
+Adrian Bunk <bunk@fs.tum.de> :
+[non-modular iphase build broken]
 
-Even if you fix this, there's another problem. 
+drivers/atm/atmdev_init.c
+[...]
+/*
+ * For historical reasons, atmdev_init returns the number of devices found.
+ * Note that some detections may not go via atmdev_init (e.g. eni.c), so this
+ * number is meaningless.
+ */
 
-It seems that htree basically can't work with NFS in its current state -
-it only works at all on small directories, which aren't hashed and
-therefore use the non-htree cookie scheme.  This can be fixed creating a
-distinct EOF cookie.
+pci_dev style init does the job. Trivial patch + dmesg output follows.
 
-However, in the transformation from a non-hashed to hashed directory the
-cookie scheme completely changes, and in effect invalidates all cookies
-currently known by clients.  The obvious problem is that sometimes
-adding a single entry to a directory will kill all concurrent readdirs.
+Linux version 2.4.20-rc4-ac1 (romieu@aglae) (gcc version 2.96 20000731 (Red Hat Linux 7.3 2.96-112)) #3 SMP Thu Nov 28 21:36:30 CET 2002
+BIOS-provided physical RAM map:
+ BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
+[...]
+NET4: Frame Diverter 0.46
+RAMDISK driver initialized: 16 RAM disks of 4096K size 1024 blocksize
+Cronyx Ltd, Synchronous PPP and CISCO HDLC (c) 1994
+Linux port (c) 1998 Building Number Three Ltd & Jan "Yenya" Kasprzak.
+IA: 00-00-77-97-C0-29
+IA: SUNI carrier detected
 
-I know that changing a directory while scanning it has at least some
-undefined effects (allowed to miss entries, but not allowed to
-duplicate, if I remember correctly), but if you add a single entry to a
-directory, is it allowed to completely break any pending readdir
-operation?
-
-One solution I can think of is to always use name hashes as directory
-cookies, even for non-hashed directories.  This means that scans of a
-small directory will require linear searching to find the entry
-corresponding to a particular cookie, but since the directory is small
-by definition it shouldn't be a bad performance hit.
-
-	J
-
+--- linux-2.4.20-rc4-ac1.orig/drivers/atm/atmdev_init.c	Thu Nov 28 20:29:23 2002
++++ linux-2.4.20-rc4-ac1/drivers/atm/atmdev_init.c	Thu Nov 28 20:31:37 2002
+@@ -19,9 +19,6 @@ extern int amb_detect(void);
+ #ifdef CONFIG_ATM_HORIZON
+ extern int hrz_detect(void);
+ #endif
+-#ifdef CONFIG_ATM_IA
+-extern int ia_detect(void);
+-#endif
+ #ifdef CONFIG_ATM_FORE200E
+ extern int fore200e_detect(void);
+ #endif
+@@ -53,9 +50,6 @@ int __init atmdev_init(void)
+ #ifdef CONFIG_ATM_HORIZON
+ 	devs += hrz_detect();
+ #endif
+-#ifdef CONFIG_ATM_IA
+-	devs += ia_detect();
+-#endif
+ #ifdef CONFIG_ATM_FORE200E
+ 	devs += fore200e_detect();
+ #endif

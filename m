@@ -1,36 +1,34 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315412AbSEUSW0>; Tue, 21 May 2002 14:22:26 -0400
+	id <S315415AbSEUS3a>; Tue, 21 May 2002 14:29:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315413AbSEUSWZ>; Tue, 21 May 2002 14:22:25 -0400
-Received: from ns.suse.de ([213.95.15.193]:14608 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S315412AbSEUSWY>;
-	Tue, 21 May 2002 14:22:24 -0400
-To: C Hanish Menon <hanishkvc@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Seems like a race or unhandled situation with ksoftirqd scheduling/management
-In-Reply-To: <3CEA8742.2040308@yahoo.com.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 21 May 2002 20:22:24 +0200
-Message-ID: <p73hel1xswv.fsf@oldwotan.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.6
+	id <S315416AbSEUS33>; Tue, 21 May 2002 14:29:29 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:56326 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S315415AbSEUS30>; Tue, 21 May 2002 14:29:26 -0400
+Subject: Re: [PATCH] 2.5.17 IDE 65
+To: torvalds@transmeta.com (Linus Torvalds)
+Date: Tue, 21 May 2002 19:49:30 +0100 (BST)
+Cc: dalecki@evision-ventures.com (Martin Dalecki),
+        linux-kernel@vger.kernel.org (Kernel Mailing List)
+In-Reply-To: <Pine.LNX.4.44.0205211041460.2634-100000@home.transmeta.com> from "Linus Torvalds" at May 21, 2002 10:56:14 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E17AEhO-0008Nr-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-C Hanish Menon <hanishkvc@yahoo.com> writes:
+> Absolutely not. Even if Maxtor were to do a 2kB-sector disk, that only
+> means that the md layer would have to make a 2kB-sector md device.
+> 
+> We have the support for all of this already, as many (most?) SCSI CD-ROM's
+> are 2kB-only.
 
->    According to the comment in cpu_raise_softirq it doesn't 
-> wakeup_softirqd in irq context because on returning from a irq
-> softirqd will be run,  but it doesn't seem to be valid in any
-> architectures (have varified x86, mips). Because on returning
-> from irq context, just the scheduler gets called, but as
-> the ksoftirqd is not in the run queue, it won't get scheduled.
+We also support M/O disks. Ext2 fs with a block size >= the block size of
+the media works well. 512byte FATfs needs loop. I've been using 2K media
+on and off for a long time. Our design limit is page size.
 
-At least i386 runs the softirqs at the end of do_IRQ.
-
-ksoftirqd is just supposed to be a fallback mechanism for the case
-of soft irqs eating excessive runtime or one softirq triggering another
-(common case is networking and serial softirq for BH). It is not
-the primary way to run softirqs.
-
--Andi
+It all works fine in 2.2 and 2.4

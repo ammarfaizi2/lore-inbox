@@ -1,53 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136462AbREIOCf>; Wed, 9 May 2001 10:02:35 -0400
+	id <S136766AbREIRWX>; Wed, 9 May 2001 13:22:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136464AbREIOC0>; Wed, 9 May 2001 10:02:26 -0400
-Received: from bugs.unl.edu.ar ([168.96.132.208]:45735 "HELO bugs.unl.edu.ar")
-	by vger.kernel.org with SMTP id <S136462AbREIOCJ>;
-	Wed, 9 May 2001 10:02:09 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: =?iso-8859-1?q?Mart=EDn=20Marqu=E9s?= <martin@bugs.unl.edu.ar>
+	id <S136769AbREIRWN>; Wed, 9 May 2001 13:22:13 -0400
+Received: from news.lucky.net ([193.193.193.102]:13840 "EHLO news.lucky.net")
+	by vger.kernel.org with ESMTP id <S136766AbREIRV6>;
+	Wed, 9 May 2001 13:21:58 -0400
+From: "Mike Gorchak" <mike@malva.com.ua>
 To: linux-kernel@vger.kernel.org
-Subject: reiserfs, xfs, ext2, ext3
-Date: Wed, 9 May 2001 10:38:14 +0300
-X-Mailer: KMail [version 1.2]
-MIME-Version: 1.0
-Message-Id: <01050910381407.26653@bugs>
-Content-Transfer-Encoding: 7BIT
+Subject: Routing Problem in 2.4.1 kernel
+Date: Mon, 7 May 2001 12:29:37 +0300
+Organization: Unknown
+Message-ID: <9d5q06$s0i$1@news.lucky.net>
+X-Trace: news.lucky.net 989227858 28690 193.193.194.126 (7 May 2001 09:30:58 GMT)
+X-Complaints-To: usenet@news.lucky.net
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Newsreader: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-We are waiting for a server with dual PIII, RAID 1,0 and 5 18Gb scsi disks to 
-come so we can change our proxy server, that will run on Linux with Squid. 
-One disk will go inside (I think?) and the other 4 on a tower conected to the 
-RAID, which will be have the cache of the squid server.
+                           -------------------------      PPP
+                          |                         |   --------     POS 1
+                          |                         |  /
+10.10.28.10/30
+                          |                         | /
+                          |                         |/    PPP
+                          |           10.10.28.9/30 |  ---------     POS 2
+                          |                         | /
+10.10.28.14/30
+                          |                         |/
+                          |           10.10.28.13/30|     PPP
+                          |                         | ----------     POS 3
+                          |                         |/
+10.10.28.18/30
+                          |           10.10.28.17/30|
+                          |                         |
+                          |                         |     PPP
+                          |           10.10.28.21/30|----------      POS 4
+                          |                         |
+10.10.28.22/30
+                          |                         |
+ --------------           |              . . .      |  . . .
+|    Server    | Ethernet |    Router               |
+| 10.10.0.1/24 |----------| 10.10.0.2/24 . . .      |  . . .
+|              |          |                         |
+ --------------           |              . . .      |  . . .
+                          |                         |
+                          |                         |
+                          |                         |    PPP
+                          |           10.10.28.57/30|---------     POS NN -
+1
+                          |                         |
+10.10.28.58/30
+                          |                         |
+                          |                         |
+                          |           10.10.28.61/30|    PPP
+                          |                         |\__________     POS NN
+                          |                         |
+10.10.28.62/30
+                          | def. gateway 10.10.0.1  |
+                           -------------------------
 
-One of my partners thinks that we should use reiserfs on all the server (the 
-partitions of the Linux distro, and the cache partitions), and I found out 
-that reiserfs has had lots of bugs, and is marked as experimental in kernel 
-2.4.4. Not to mention that the people of RH discourage there users from using 
-it.
+Legend:
 
-There has also been lots of talks about reiserfs being the cause of some data 
-lose and performance lose (not sure about this last one).
+PPP    - leased line connected by two modems (async, 19200 bps)
+Router - Access server with default gateway to Server (10.10.0.1).
+         Based on unmodified linux kernel 2.4.1.
+Server - Application server based on Windows NT 4.0.
+POS    - Remote terminal based on unmodified linux kernel 2.2.16.
 
-So what I want is to know which is the status of this 3 journaling FS. Which 
-is the one we should look for?
 
-I think that the data lose is not significant in a proxy cache, if the FS is 
-really fast, as is said reiserfs is.
+   Sometimes one of the POS (random) couldn't ping 10.10.0.1,
+but 10.10.0.2 (router) can ping both sides 10.10.0.1 (Server)
+and that crazy POS. But in 15-30 minutes this trouble gone, and
+POS work fine.
+   We have this trouble 1-5 times every day. What that ?
 
-Saludos... :-)
 
--- 
-El mejor sistema operativo es aquel que te da de comer.
-Cuida tu dieta.
------------------------------------------------------------------
-Martin Marques                  |        mmarques@unl.edu.ar
-Programador, Administrador      |       Centro de Telematica
-                       Universidad Nacional
-                            del Litoral
------------------------------------------------------------------
+
+--
+----------------------------
+Mike Gorchak
+CJSC Malva
+System Programmer
+
+

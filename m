@@ -1,77 +1,162 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262682AbTHZSkQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 14:40:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262708AbTHZSkQ
+	id S261947AbTHZSb0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 14:31:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261713AbTHZSb0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 14:40:16 -0400
-Received: from ns1.beeonline.ru ([195.58.40.10]:40456 "EHLO
-	bolsmtpdns1.beeonline.internal") by vger.kernel.org with ESMTP
-	id S262682AbTHZSkH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 14:40:07 -0400
-Date: Tue, 26 Aug 2003 22:26:09 +0400
-From: Alex Zarochentsev <zam@namesys.com>
-To: Steven Cole <elenstev@mesatop.com>
-Cc: Oleg Drokin <green@namesys.com>, reiserfs-dev@namesys.com,
-       reiserfs-list@namesys.com, linux-kernel@vger.kernel.org
-Subject: Re: reiser4 snapshot for August 26th.
-Message-ID: <20030826182609.GO5448@backtop.namesys.com>
-References: <20030826102233.GA14647@namesys.com> <1061922037.1670.3.camel@spc9.esa.lanl.gov>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1061922037.1670.3.camel@spc9.esa.lanl.gov>
-User-Agent: Mutt/1.4i
+	Tue, 26 Aug 2003 14:31:26 -0400
+Received: from fmr09.intel.com ([192.52.57.35]:29386 "EHLO hermes.hd.intel.com")
+	by vger.kernel.org with ESMTP id S262150AbTHZSbW convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Aug 2003 14:31:22 -0400
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+Subject: RE: [PATCH][2.6][2/5]Support for HPET based timer
+Date: Tue, 26 Aug 2003 11:31:16 -0700
+Message-ID: <C8C38546F90ABF408A5961FC01FDBF1902C7D1F8@fmsmsx405.fm.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH][2.6][2/5]Support for HPET based timer
+Thread-Index: AcNnCHCu9ngPWo70Q2ORc/h2Z0t5xgAMjVFQAHEKhPA=
+From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+To: "Vojtech Pavlik" <vojtech@suse.cz>, "Andi Kleen" <ak@suse.de>,
+       <haveblue@us.ibm.com>, "Andrew Morton" <akpm@osdl.org>,
+       <mikpe@csd.uu.se>
+Cc: "Nakajima, Jun" <jun.nakajima@intel.com>,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 26 Aug 2003 18:31:16.0697 (UTC) FILETIME=[3C7A8C90:01C36C00]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 26, 2003 at 12:20:38PM -0600, Steven Cole wrote:
-> On Tue, 2003-08-26 at 04:22, Oleg Drokin wrote:
-> > Hello!
-> > 
-> >    I have just released another reiser4 snapshot that I hope all interested
-> >    parties will try. It is released against 2.6.0-test4.
-> >    You can find it at http://namesys.com/snapshots/2003.08.26
-> >    I include release notes below.
-> > 
-> > Reiser4 snapshot for 2003.08.26
-> > 
-> 
-> I got this error while attempting to compile with reiser4.
-> Snippet from .config follows.
 
-Disable "reiser4 system call" (CONFIG_REISER4_FS_SYSCALL) support, it is 
-not ready.
+Hi,
 
-> 
-> Steven
-> 
->   CC      fs/reiser4/plugin/file/tail_conversion.o
->   CC      fs/reiser4/sys_reiser4.o
-> fs/reiser4/sys_reiser4.c:54:32: parser/parser.code.c: No such file or directory
-> fs/reiser4/sys_reiser4.c: In function `sys_reiser4':
-> fs/reiser4/sys_reiser4.c:75: warning: implicit declaration of function `reiser4_pars_init'
-> fs/reiser4/sys_reiser4.c:75: warning: assignment makes pointer from integer without a cast
-> fs/reiser4/sys_reiser4.c:80: error: dereferencing pointer to incomplete type
-> fs/reiser4/sys_reiser4.c:82: warning: implicit declaration of function `yyparse'
-> fs/reiser4/sys_reiser4.c:83: warning: implicit declaration of function `reiser4_pars_free'
-> fs/reiser4/sys_reiser4.c:66: warning: unused variable `Gencode'
-> fs/reiser4/sys_reiser4.c: At top level:
-> fs/reiser4/parser/parser.h:333: warning: `Fistmsg' defined but not used
-> fs/reiser4/parser/parser.h:342: warning: `typesOfCommand' defined but not used
-> fs/reiser4/parser/parser.h:354: warning: `Code' defined but not used
-> make[2]: *** [fs/reiser4/sys_reiser4.o] Error 1
-> make[1]: *** [fs/reiser4] Error 2
-> make: *** [fs] Error 2
-> [steven@spc1 linux-2.6.0-test4-r4]$ grep REISER4 .config
-> CONFIG_REISER4_FS=y
-> CONFIG_REISER4_FS_SYSCALL=y
-> CONFIG_REISER4_LARGE_KEY=y
-> # CONFIG_REISER4_CHECK is not set
-> CONFIG_REISER4_USE_EFLUSH=y
-> # CONFIG_REISER4_BADBLOCKS is not set
-> 
-> 
+  This is an update on the option of using some sort of early_ioremap in
+place of fixmap for 
+HPET timers.
 
--- 
-Alex.
+Problem Description:
+  The requirement from HPET side is, we need to map HPET physical
+address during timer_init() 
+routine and also during any read/write HPET addresses. We need to have
+this mapping kind of
+permanently, as  we will do HPET reads/writes during every timer
+interrupt and also during 
+every gettimeofday (if we don't use tsc timer).
+  And the timer_init() happens before mem_init() (but after paging
+init()), so we cannot 
+directly use ioremap(). Current implementation is using a separate
+fixmap region for HPET.
+ 
+Possible alternatives:
+1) boot_ioremap - This looks like a temporary and very short time use
+mapping. We may not be 
+able to use it forever, for HPET purposes, as someone else can do the
+mapping and overwrite 
+HPET mapping anytime. Will need significant changes to supports multiple
+users doing 
+mapping/unmapping.
+2) bt_ioremap - Even this seems to be aiming at temporary mapping.
+Currently, this supports 
+only one user at any time. This can be changed to support multiple users
+and map and unmap 
+depending on the address. But, bt_ioremap uses fixmap in its
+implementation, and the fixmap 
+is boot time only. So, we need to transparently switch to ioremap, at
+some place before 
+all inits are done.
+
+Even after changing either boot_ioremap() or bt_ioremap(), we have to
+add some more 
+hooks to move from early ioremap to regular io_remap() after mem_init()
+is done. And HPET 
+addresses can get accessed from both process and interrupt context, may
+make things slightly
+more difficult. Still it is doable as we can move to regular ioremap
+before smp_init(), without 
+much of a race condition. So, possible changes in this scenario will be:
+- Add support for multiple callers using different pages in
+bt_ioremap(or  boot_ioremap).
+- Add HPET specific hook, somewhere in between mem_init() and
+smp_init(), to transparently
+move from bt_ioremap to ioremap().
+
+The question I have is,
+- Is it really worth to move from the current fixmap implementation to
+bt_ioremap/ioremap 
+combination, given all the changes that is required?
+- Isn't current implementation (using own fixmap) a cleaner way to do
+it? Only drawback 
+I see is it consumes one page in virtual memory when HPET is configured,
+irrespective of 
+HPET is used at run time or not.
+
+Let me know your thoughts on this, and correct me if I am missing
+anything here.
+
+Thanks,
+-Venkatesh
+
+
+> -----Original Message-----
+> From: Pallipadi, Venkatesh 
+> Sent: Wednesday, August 20, 2003 10:02 AM
+> To: Mikael Pettersson; Andi Kleen
+> Cc: Vojtech Pavlik; linux-kernel@vger.kernel.org
+> Subject: RE: [PATCH][2.6][2/5]Support for HPET based timer
+> 
+> 
+> 
+> Yes. I hadn't thought about early_ioremap option. There seems to be
+> multiple ways of doing early ioremap: bt_ioremap() and 
+> boot_ioremap(). I
+> will look at them closer and work on changing HPET code to use one of
+> these in place of fixmap.
+> 
+> Thanks,
+> -Venkatesh  
+> 
+> > -----Original Message-----
+> > From: Mikael Pettersson [mailto:mikpe@csd.uu.se] 
+> > Sent: Wednesday, August 20, 2003 3:47 AM
+> > To: Andi Kleen
+> > Cc: Vojtech Pavlik; linux-kernel@vger.kernel.org; 
+> Pallipadi, Venkatesh
+> > Subject: Re: [PATCH][2.6][2/5]Support for HPET based timer
+> > 
+> > 
+> > Andi Kleen writes:
+> >  > Vojtech Pavlik <vojtech@suse.cz> writes:
+> >  > 
+> >  > > On Tue, Aug 19, 2003 at 05:18:50PM -0700, Pallipadi, 
+> > Venkatesh wrote:
+> >  > > 
+> >  > > > Fixmap is for HPET memory map address access. As the timer
+> >  > > > initialization happen 
+> >  > > > early in the boot sequence (before vm initialization), 
+> > we need to have
+> >  > > > fixmap() 
+> >  > > > and fix_to_virt() to access HPET memory map address.
+> >  > > 
+> >  > > Ahh, yes, you're right. You can't use ioremap at that 
+> > time. Actually I
+> >  > > did the same on x86_64 not only because of vsyscalls.
+> >  > 
+> >  > iirc i386 has an ioremap_early or somesuch.
+> > 
+> > bt_ioremap(). I wrote it to support early DMI scan so DMI data
+> > could be used to blacklist BIOSen that break local APICs.
+> > This was done pretty much just to handle Dell laptops.
+> > 
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

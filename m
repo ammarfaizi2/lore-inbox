@@ -1,58 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289556AbSBYOmB>; Mon, 25 Feb 2002 09:42:01 -0500
+	id <S287817AbSBYO4C>; Mon, 25 Feb 2002 09:56:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289826AbSBYOlv>; Mon, 25 Feb 2002 09:41:51 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:46855 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S289556AbSBYOlk>; Mon, 25 Feb 2002 09:41:40 -0500
-Message-ID: <3C7A4D1F.9080600@transmeta.com>
-Date: Mon, 25 Feb 2002 06:41:35 -0800
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us, en, sv
-MIME-Version: 1.0
-To: Andrea Arcangeli <andrea@suse.de>
-CC: Diego Calleja <DiegoCG@teleline.es>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.18rc4aa1
-In-Reply-To: <20020224165531.A14179@dualathlon.random> <20020224222531.04f44502.DiegoCG@teleline.es> <20020225135052.F3137@inspiron.suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S289817AbSBYOzx>; Mon, 25 Feb 2002 09:55:53 -0500
+Received: from natwar.webmailer.de ([192.67.198.70]:2094 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S287817AbSBYOzl>; Mon, 25 Feb 2002 09:55:41 -0500
+Date: Mon, 25 Feb 2002 15:54:59 +0100
+From: Kristian <kristian.peters@korseby.net>
+To: Jan Kasprzak <kas@informatics.muni.cz>
+Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+Subject: Re: Equal cost multipath crash
+Message-Id: <20020225155459.38cc7fb9.kristian.peters@korseby.net>
+In-Reply-To: <20020225083911.GA18777@informatics.muni.cz>
+In-Reply-To: <20020225083911.GA18777@informatics.muni.cz>
+X-Mailer: Sylpheed version 0.7.2claws2 (GTK+ 1.2.10; i386-debian-linux-gnu)
+X-Operating-System: Debian GNU/Linux 2.4.17
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli wrote:
-
-> On Sun, Feb 24, 2002 at 10:25:31PM +0100, Diego Calleja wrote:
+Jan Kasprzak <kas@informatics.muni.cz> wrote:
 > 
->>On Sun, 24 Feb 2002 16:55:31 +0100
->>Andrea Arcangeli <andrea@suse.de> wrote:
->>
->>
->>>URL:
->>>
->>>	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.18rc4aa1.gz
->>>	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.18rc4aa1/
->>>
->>
->>Andrea, I think there's an error on compressed files.
->>-2 times downloaded .gz file(1'3 MB?)= unexpected end of file 
->>-1 time downloaded .bz2 file: Compressed file ends unexpectedly
->>
+> 	I had a strange failure of my Linux router yesterday. It is quite
+> uncommon setup, but I wonder what could have caused this. The router
+> started to dump the following messages into the syslog, and it stopped
+> routing so our network was not reachable from the outside world:
 > 
-> I guess one mirror gone wild, CC'ed to Peter just in case he knows. (I
-> upload to the staging area, and then an atomic move will make the inode
-> visible in /pub, so it shouldn't a problem triggered during the upload
-> stage and a wget on the above url worked for me infact)
-> 
-> (ah, an of course remeber to use binary ftp download :)
-> 
+> Feb 24 21:26:49 router kernel: impossible 888
+> Feb 24 21:39:20 router kernel: ible 888
+> Feb 24 21:39:20 router kernel: impossible 888
+> Feb 24 21:39:20 router last message repeated 42 times
+> Feb 24 21:39:20 router kernel: impossible 888
+> Feb 24 21:39:21 router kernel: NET: 344 messages suppressed.
+> Feb 24 21:39:21 router kernel: dst cache overflow
+> Feb 24 21:39:21 router kernel: impossible 888
+> Feb 24 21:39:21 router last message repeated 275 times
+> [... and so on ...]
 
+Have you applied those grsecurity patches ? I'm getting the same messages with it from time to time when hosts forget to log off. But most of them are harmless and only useful for debugging your firewall-rules.
 
-Without the IP number of the offending mirror, there is little or no 
-hope to track down the problem, if there is one.
+*Kristian
 
-	-hpa
-
-
+  :... [snd.science] ...:
+ ::
+ :: http://www.korseby.net
+ :: http://gsmp.sf.net
+  :..........................:

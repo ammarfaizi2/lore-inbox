@@ -1,76 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262812AbSJWLEt>; Wed, 23 Oct 2002 07:04:49 -0400
+	id <S261158AbSJWLak>; Wed, 23 Oct 2002 07:30:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263293AbSJWLEt>; Wed, 23 Oct 2002 07:04:49 -0400
-Received: from gateway.cinet.co.jp ([210.166.75.129]:52290 "EHLO
-	precia.cinet.co.jp") by vger.kernel.org with ESMTP
-	id <S262812AbSJWLEr>; Wed, 23 Oct 2002 07:04:47 -0400
-Message-ID: <3DB5706A.9D3915F0@cinet.co.jp>
-Date: Wed, 23 Oct 2002 00:36:10 +0900
-From: Osamu Tomita <tomita@cinet.co.jp>
-X-Mailer: Mozilla 4.8C-ja  [ja/Vine] (X11; U; Linux 2.5.44-pc98smp i686)
-X-Accept-Language: ja, en
-MIME-Version: 1.0
-To: Andrey Panin <pazke@orbita1.ru>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCHSET] PC-9800 architecture (CORE only)
-References: <20021022065028.GA304@pazke.ipt>
-Content-Type: text/plain; charset=iso-2022-jp
-Content-Transfer-Encoding: 7bit
+	id <S261223AbSJWLak>; Wed, 23 Oct 2002 07:30:40 -0400
+Received: from wilma1.suth.com ([207.127.128.4]:29448 "EHLO wilma1.suth.com")
+	by vger.kernel.org with ESMTP id <S261158AbSJWLai>;
+	Wed, 23 Oct 2002 07:30:38 -0400
+Subject: Re: Linux 2.5.44-ac1
+From: Jason Williams <jason_williams@suth.com>
+To: Alan Cox <alan@redhat.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200210221727.g9MHR6128999@devserv.devel.redhat.com>
+References: <200210221727.g9MHR6128999@devserv.devel.redhat.com>
+Content-Type: multipart/mixed; boundary="=-81KYlk5lfS/Na32gcQVt"
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 23 Oct 2002 07:39:35 -0400
+Message-Id: <1035373185.24550.21.camel@cermanius.suth.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for comment.
 
-Andrey Panin wrote:
-> 
-> On Mon, Oct 21, 2002 at 10:49:19PM +0900, Osamu Tomita wrote:
-> > This is a part of big patchset for support PC-9800 architecture, one
-> of i386
-> > sub architectures.
-> > Core part cleanup has done. (But device drivers are still working.)
-> > Many "#if" are killed by using "mach-xxx" framework.
-> > If someone pick up this, we are very happy.
-> > Comments are always welcome. Please tell me.
-> 
-> Ok, you asked for it :))
-> 
-> >       if (boot_cpu_data.hard_math && !cpu_has_fpu)
-> > -             setup_irq(13, &irq13);
-> > +#ifndef CONFIG_PC9800
-> > +             setup_irq(13, &fpu_irq);
-> > +#else
-> > +             setup_irq(8, &fpu_irq);
-> > +#endif
-> >  }
-> 
-> May be this should be done this way (with FPU_IRQ_NUMBER hidden in the
-> arch specific header):
-> 
-> -               setup_irq(13, &irq13);
-> +               setup_irq(FPU_IRQ_NUMBER, &fpu_irq);
-Thanks. I'll rewrite this way.
- 
-> > diff -urN linux/arch/i386/kernel/pc9800_debug.c
-> linux98/arch/i386/kernel/pc9800_debug.c
-> 
-> Why this file is not in mach-pc9800 directory ?
-This module provides new feature.
-We can write debugging messages to PC-9800's NVRAM.
-I don't know PC's CMOS can be used for this purpose, or not.
-But, if other subarchtecture has usable space in NVRAM,
-I assume scenario as follows.
-rewrite some codes in pc9800_debug.c and put them mach-xxx directory,
-then split out codes for PC-9800 and move them into mach-pc9800 direcory.
+--=-81KYlk5lfS/Na32gcQVt
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-> And what is IORESOURCE98_SPARSE flag in mach-pc9800/mach_resources.h
-> file ?
-IORESOURCE98_SPARSE flag means odd or even only addressing.
-We modify check_region(), request_region() and release_region().
-If length parameter has negative value, addressing is sparse.
-For example,
- request_region(0x100, -5, "xxx"); gets 0x100, 0x102 and 0x104.
+On Tue, 2002-10-22 at 13:27, Alan Cox wrote:
+> ** I strongly recommend saying N to IDE TCQ options otherwise this
+>    should hopefully build and run happily.
 
-Regards
-Osamu Tomita  tomita@cinet.co.jp
+I don't have the IDE TCQ options on and am still having an issue with a
+kernel oops in the default kernel code.  I did some digging after  I
+noticed it in 2.5.43 and found a possibility for a null pointer in the
+code within the ide_iomio_dma function in ide-dma.c The problem shows
+itself if you only enable the secondary channel of your IDE controller. 
+I understand this is a strange set up, but it could happen in a machine
+that boots off of SCSI and uses IDE disks for DATA or a CD Burner. I
+came up with a fix, some extra sanity checks before this line in the
+code:
+
+hwif->dma_master = (hwif->channel) ? hwif->mate->dma_base : base;
+
+Because it is the hwif->mate variable that is null when it gets here and
+if hwif->channel is not 0 I am taking it from the logic on this line
+that hwif->mate should not be a null variable.  So I applied the sainity
+checks in the attached patch and this seems to work.  I did this against
+the 2.5.43 and 2.5.44 kernels, and have posted patches for each of them
+but no one seems interested.  If I am completely off base here, just let
+me know and I'll go back to the code and look for a different way to
+conquer this little bug.
+
+Jason
+
+
+
+
+
+--=-81KYlk5lfS/Na32gcQVt
+Content-Description: 
+Content-Disposition: inline; filename=ide-sec-channel-fix.patch
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/x-patch; charset=ISO-8859-1
+
+diff -u -r linux-2.5.44-vanilla/drivers/ide/ide-dma.c linux-2.5.44/drivers/=
+ide/ide-dma.c
+--- linux-2.5.44-vanilla/drivers/ide/ide-dma.c	2002-10-21 08:02:49.00000000=
+0 -0500
++++ linux-2.5.44/drivers/ide/ide-dma.c	2002-10-21 08:56:49.000000000 -0500
+@@ -905,7 +905,12 @@
+ 		request_region(base+16, hwif->cds->extra, hwif->cds->name);
+ 		hwif->dma_extra =3D hwif->cds->extra;
+ 	}
+-	hwif->dma_master =3D (hwif->channel) ? hwif->mate->dma_base : base;
++	if(!hwif->mate && hwif->channel){
++		hwif->dma_master=3Dbase;
++	}
++	else{
++		hwif->dma_master =3D (hwif->channel) ? hwif->mate->dma_base : base;
++	}
+ 	if (hwif->dma_base2) {
+ 		if (!check_mem_region(hwif->dma_base2, ports))
+ 			request_mem_region(hwif->dma_base2, ports, hwif->name);
+@@ -925,8 +930,13 @@
+ 	if ((hwif->cds->extra) && (hwif->channel =3D=3D 0)) {
+ 		request_region(base+16, hwif->cds->extra, hwif->cds->name);
+ 		hwif->dma_extra =3D hwif->cds->extra;
++	}=09
++	if(!hwif->mate && hwif->channel){
++		hwif->dma_master=3Dbase;
++	}
++	else{
++		hwif->dma_master =3D (hwif->channel) ? hwif->mate->dma_base : base;
+ 	}
+-	hwif->dma_master =3D (hwif->channel) ? hwif->mate->dma_base : base;
+ 	if (hwif->dma_base2) {
+ 		if (!request_region(hwif->dma_base2, ports, hwif->name))
+ 		{
+
+
+--=-81KYlk5lfS/Na32gcQVt--
+

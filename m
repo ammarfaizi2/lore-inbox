@@ -1,41 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264937AbTFYUbR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jun 2003 16:31:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264979AbTFYUbR
+	id S264979AbTFYUdp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jun 2003 16:33:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265038AbTFYUdo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jun 2003 16:31:17 -0400
-Received: from www3.mail.lycos.com ([209.202.220.160]:37985 "HELO lycos.com")
-	by vger.kernel.org with SMTP id S264937AbTFYUbQ (ORCPT
+	Wed, 25 Jun 2003 16:33:44 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:3305 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264979AbTFYUdn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jun 2003 16:31:16 -0400
-To: linux-kernel@vger.kernel.org
-Date: Wed, 25 Jun 2003 16:45:11 -0400
-From: "Sumit Narayan" <sumit_uconn@lycos.com>
-Message-ID: <NOCKJMOAJLACOFAA@mailcity.com>
+	Wed, 25 Jun 2003 16:33:43 -0400
+Date: Wed, 25 Jun 2003 13:44:24 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: kj <kernel-janitor-discuss@lists.sourceforge.net>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: [announce] 2.5.73-kj1
+Message-Id: <20030625134424.611c6f96.rddunlap@osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-X-Sent-Mail: off
-Reply-To: sumit_uconn@lycos.com
-X-Mailer: MailCity Service
-X-Priority: 3
-Subject: IDE Disk Driver
-X-Sender-Ip: 137.99.1.12
-Organization: Lycos Mail  (http://www.mail.lycos.com:80)
-Content-Type: text/plain; charset=us-ascii
-Content-Language: en
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-Could I know if I could load a driver for a disk drive without rebooting the system? I have written a ide-disk driver, but I dont wish to restart the system. Can I simply load that module in some way, and then later return to the actual driver?
+patch is at:  http://www.osdl.org/rddunlap/kj-patches/2.5.73/patch-2.5.73-kj1
 
-Thanks in advance,
-Sumit
+changes since patch-2.5.70-bk13-kj:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+drop/	je_cpqarray_fix_stack_usage.patch
+	Jorn Engel and Randy Dunlap
+	merged by akpm on 2003-06-10 (in 2.5.71)
 
+keep/	je_wanrouter_fix_stack_usage.patch
+	Jorn Engel and Randy Dunlap
 
-____________________________________________________________
-Get advanced SPAM filtering on Webmail or POP Mail ... Get Lycos Mail!
-http://login.mail.lycos.com/r/referral?aid=27005
+add/	unchecked_copytouser.patch
+	Daniele Belluci
+
+add/	busmouse_retcode_memleak.patch
+	Flavio B. Leitner
+
+###
+
+--
+~Randy
++ http://developer.osdl.org/rddunlap/ + http://www.xenotime.net/linux/ +

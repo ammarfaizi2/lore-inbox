@@ -1,51 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129961AbQK2TAW>; Wed, 29 Nov 2000 14:00:22 -0500
+        id <S130216AbQK2TDx>; Wed, 29 Nov 2000 14:03:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130216AbQK2TAO>; Wed, 29 Nov 2000 14:00:14 -0500
-Received: from pop.gmx.net ([194.221.183.20]:38600 "HELO mail.gmx.net")
-        by vger.kernel.org with SMTP id <S129961AbQK2S75>;
-        Wed, 29 Nov 2000 13:59:57 -0500
-Message-ID: <03e501c05811$0ea8b680$a00b07d5@default>
-From: "Andreas Eibach" <a.eibach@gmx.net>
-To: <barryn@pobox.com>, <linux-kernel@vger.kernel.org>
-Cc: <hahn@coffee.psychology.mcmaster.ca>
-In-Reply-To: <200011151958.LAA09896@cx518206-b.irvn1.occa.home.com>
-Subject: Re: [BUG?] AMD 5x86 and 2.4 (was Re: [BUG?] AMD K5 and 2.4)
-Date: Mon, 27 Nov 2000 02:25:14 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-        charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+        id <S131231AbQK2TDm>; Wed, 29 Nov 2000 14:03:42 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:46857 "EHLO
+        vger.timpanogas.org") by vger.kernel.org with ESMTP
+        id <S130216AbQK2TD1>; Wed, 29 Nov 2000 14:03:27 -0500
+Date: Wed, 29 Nov 2000 12:28:32 -0700
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: "Joseph K. Malek" <malekjo@aphrodite.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Broken NTFS
+Message-ID: <20001129122832.A8639@vger.timpanogas.org>
+In-Reply-To: <Pine.LNX.3.95.1001129091726.14820A-100000@chaos.analogic.com> <Pine.LNX.4.21.0011290628350.2047-100000@fluffy.aphrodite.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <Pine.LNX.4.21.0011290628350.2047-100000@fluffy.aphrodite.com>; from malekjo@aphrodite.com on Wed, Nov 29, 2000 at 06:33:36AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Nov 29, 2000 at 06:33:36AM -0800, Joseph K. Malek wrote:
+> Hi all,
+> 
+> I have a broken NTFS, due to my own mistake of mounting the
+> partition RW and moving a file instead of copying it....I've been poking
+> around for an NTFS editing tool; only to find that this is easier said
+> than done.  Does anyone have an NTFS repair tool for winnt 4 (I already
+> have the ddk), or any idea where I can find one?
+> 
+
+I have a tool that will repair the damage caused to an NTFS volume by 
+Linux.  Questions:
+
+1.  Did you boot NT on the drive and did it become RAW?
+2.  Have you run checkdisk against the drive, and if so, what happened?
+
+If you answer yes to #1, you have probably already experienced permanent
+data loss on the device.  Older NTFS versions on Linux would make changes
+to the MFT without clearing the old journal file, then leave the drive
+marked as "clean" to NT.  What can happen in this case is that NTFS 
+on W2K will see the logfile, then attempt to roll out the changes.  In NT
+the MFT is updated real time and the logfile is transacted after the fact.
+This can (but not always) cause massive data loss on NTFS drives.  Anton
+has fixed a lot of these issues on the newer code, but Linux NTFS
+is still a very dangerous piece of software to use R/W (R/O works 
+OK).
+
+Do you need this tool?
 
 
-> It looks like I was mistaken in my original message. I have an AMD 5x86,
-not
-> a K5.
+Jeff
 
-Careful.
-
-AFAIK, '5x86' (without anything added) is a description for Cyrix/IBM
-processors ONLY.
-5x86/6x86/6x86MX are _also_ Cyrix names for CPUs.
-'MMX' is a registered (!) trademark by Intel Corp., so Cyrix were obliged to
-choose another name for the MMX technology (sorta) that they used in their
-CPUs. They named it 'MX' and appended this to the name.
-
-Nevertheless, you are right. You do NOT have a K5.
-
-The *correct* name for your processor is 'Am5x86', though, which is a
-trademark of AMD, by the way.
-
-Andreas
-
+> thanks in advance!
+> 
+> -- 
+> 
+> .oO0Oo.|.oO0Oo.|.oO0Oo.|.oO0Oo.|.oO0Oo.|.oO0Oo.
+> This message was made from 100% post-consumer
+> recycled magnetic domains. No binary trees were
+> destroyed to make it.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

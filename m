@@ -1,82 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264916AbTF0Wva (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 18:51:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264904AbTF0Wv3
+	id S264904AbTF0Wx2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 18:53:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264900AbTF0Wx1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 18:51:29 -0400
-Received: from cpt-dial-196-30-178-116.mweb.co.za ([196.30.178.116]:23168 "EHLO
-	nosferatu.lan") by vger.kernel.org with ESMTP id S264887AbTF0WvW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 18:51:22 -0400
-Subject: Re: [PATCH] O1int for 2.5.73
-From: Martin Schlemmer <azarah@gentoo.org>
-Reply-To: azarah@gentoo.org
-To: Con Kolivas <kernel@kolivas.org>
-Cc: Mike Galbraith <efault@gmx.de>,
-       Marc-Christian Petersen <m.c.p@wolk-project.de>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-In-Reply-To: <1056717535.5499.36.camel@workshop.saharacpt.lan>
-References: <1056717535.5499.36.camel@workshop.saharacpt.lan>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-uBcQ0O2INYniRp8MmZvs"
+	Fri, 27 Jun 2003 18:53:27 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:22665
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S264899AbTF0WxY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jun 2003 18:53:24 -0400
+Subject: Re: networking bugs and bugme.osdl.org
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "David S. Miller" <davem@redhat.com>
+Cc: greearb@candelatech.com, mbligh@aracnet.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-net@vger.kernel.org, netdev@oss.sgi.com
+In-Reply-To: <20030627.144426.71096593.davem@redhat.com>
+References: <18330000.1056692768@[10.10.2.4]>
+	 <20030626.224739.88478624.davem@redhat.com>
+	 <3EFC9203.3090508@candelatech.com>
+	 <20030627.144426.71096593.davem@redhat.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Organization: 
-Message-Id: <1056755206.8020.16.camel@nosferatu.lan>
+Message-Id: <1056755070.5463.12.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4- 
-Date: 28 Jun 2003 01:06:48 +0200
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 28 Jun 2003 00:04:30 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Gwe, 2003-06-27 at 22:44, David S. Miller wrote:
+> This work for kernel patches, and has so for over 5 years.
+> So what makes anyone thing it doesn't work for bug reporting?
 
---=-uBcQ0O2INYniRp8MmZvs
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+It works badly for kernel patches, stuff does get lost forever, missed
+etc. Having it all archived somewhere is really valuable because it
+means you can spot patterns, trends and also when someone who isnt a
+hacker hits the bug *they* can find the patch you missed and send it on
+or remind you
 
-> Here is an updated version of the O1int patch designed to improve=20
-> interactivity.
->=20
-> This change addresses the difficulty of new tasks in heavy load being=20
-> recognised as interactive by decreasing the amount of time considered in =
-the=20
-> interactivity equation, but dropping that decrease exponentially till it =
-gets=20
-> to the MAX_SLEEP_AVG.
->=20
-> This should improve the startup time of new apps in heavy load and lessen=
-=20
-> audio stalls when loads are high _and_ then the audio app is started.
->=20
-> Please test and comment.
->=20
-
-Don't try this on a P4 with Hyper Threading enabled 8)
-
-When doing a make -j6 even, mouse/keyboard/window switching/whatever
-takes ages to respond.  Worked fine without (even with a make -j20),
-just tried this for fun.
-
-
-Regards,
-
---=20
-
-Martin Schlemmer
-
-
-
-
---=-uBcQ0O2INYniRp8MmZvs
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA+/M4GqburzKaJYLYRAvydAJ4zD+a0JQo0kAXln+F3YUfUlWc7oQCfZ2TD
-4/3I5Slj2NBm48vvjWuFwQQ=
-=zqMd
------END PGP SIGNATURE-----
-
---=-uBcQ0O2INYniRp8MmZvs--
+You are assuming there is a relationship in bug severity/commonness and
+number of *developers* who hit it. That isnt true, developer and end
+user hardware patterns are radically different in some areas
 

@@ -1,74 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261569AbSJURhN>; Mon, 21 Oct 2002 13:37:13 -0400
+	id <S261556AbSJURg4>; Mon, 21 Oct 2002 13:36:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261570AbSJURhD>; Mon, 21 Oct 2002 13:37:03 -0400
-Received: from guttormur.frisk-software.com ([213.220.100.9]:64199 "EHLO
-	guttormur.frisk-software.com") by vger.kernel.org with ESMTP
-	id <S261478AbSJURfy>; Mon, 21 Oct 2002 13:35:54 -0400
-Subject: System call wrapping
-From: =?ISO-8859-1?Q?Henr=FD_=DE=F3r?= Baldursson <henry@f-prot.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-s9K8jnV2bFdf7tzxghTm"
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 21 Oct 2002 17:42:01 +0000
-Message-Id: <1035222121.1063.20.camel@pc177>
+	id <S261569AbSJURgz>; Mon, 21 Oct 2002 13:36:55 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:35334 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S261556AbSJURgV>;
+	Mon, 21 Oct 2002 13:36:21 -0400
+Date: Mon, 21 Oct 2002 19:42:21 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Khalid Aziz <khalid@fc.hp.com>
+Cc: linux-kernel@vger.kernel.org, khalid@hp.com
+Subject: Re: [PATCH] Retrieve configuration information from kernel
+Message-ID: <20021021194221.A1817@mars.ravnborg.org>
+Mail-Followup-To: Khalid Aziz <khalid@fc.hp.com>,
+	linux-kernel@vger.kernel.org, khalid@hp.com
+References: <E183g5n-0004dC-00@lyra.fc.hp.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <E183g5n-0004dC-00@lyra.fc.hp.com>; from khalid@fc.hp.com on Mon, Oct 21, 2002 at 11:11:51AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Oct 21, 2002 at 11:11:51AM -0600, Khalid Aziz wrote:
 
---=-s9K8jnV2bFdf7tzxghTm
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+I like the concept.
 
+Few comments:
 
-Dear sirs,=20
-I work for FRISK Software International. We are an Antivirus company.
-Our product is the F-Prot Antivirus scanner.=20
+Touching all defconfigs is not good. Try to limit the impact of the patch.
+People just have to press return two more times when running oldconfig.
 
-We have started to port our application to the Linux platform in an
-effort to provide system administrators with means to scan the content
-they supply their workstations with via Linux servers.=20
-In our Windows product we have something called "Realtime protector"
-which monitors file access on Windows running machines and scans them
-before allowing access.=20
+> diff -urN --exclude-from=/linux/diff_exclude_file linux-2.5.44/kernel/Makefile linux-2.5.44-ikconfig/kernel/Makefile
+>  include $(TOPDIR)/Rules.make
+> +
+> +$(obj)/ikconfig.h: $(TOPDIR)/scripts/mkconfigs $(TOPDIR)/.config $(TOPDIR)/Makefile
+> +	chmod 755 $(TOPDIR)/scripts/mkconfigs
+> +	$(TOPDIR)/scripts/mkconfigs $(TOPDIR)/.config $(TOPDIR)/Makefile > $(obj)/ikconfig.h
+> +
+> +$(obj)/configs.o: $(obj)/ikconfig.h $(obj)/configs.c \
+> +		$(TOPDIR)/include/linux/version.h \
+> +		$(TOPDIR)/include/linux/compile.h
+Please avoid using $(TOPDIR)
+The build is running from root of the kernel tree anyway, so it is nor required.
+Use $(CONFIG_SHELL) when executing scripts, to avoid the necessity to have the executable
+bit set.
 
-We now want, due to customer demand, to supply our Linux users with
-similar functionality, and we've created a 2.4.x kernel module which
-wrapped the open system call by means of overwriting
-sys_call_table[__NR_open]. We did realize that this is a bad idea if a
-user loads another module doing the same, and then unloads in the wrong
-order. And also that this is not a very pretty method. But it worked.=20
-
-Apparently, this is something you kernel hackers don't approve of, since
-you've recently removed EXPORT_SYMBOL(sys_call_table) from
-kernel/ksyms.c - so my question is whether there is some other preferred
-method for accomplishing this without forcing the user to patch and=20
-compile a new kernel.  Is there some API for wrapping system calls which
-I am unaware of, or are there plans to provide one?=20
-
-Best regards,=20
-
-Henr=FD =DE=F3r Baldursson, Linux Developer=20
-FRISK Software International=20
-http://www.f-prot.com
-http://aves.f-prot.com
-
-
-
---=-s9K8jnV2bFdf7tzxghTm
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQA9tDxpmKhgit64+foRArjHAJwLPoamq8OVUuy3cN3kC3UCkMgWBwCgnrJ8
-L1iBhQiyW+ec0PDkk7wdv5M=
-=ROEL
------END PGP SIGNATURE-----
-
---=-s9K8jnV2bFdf7tzxghTm--
-
+	Sam

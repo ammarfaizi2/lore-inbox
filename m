@@ -1,44 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264961AbTIJOqQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 10:46:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264972AbTIJOqQ
+	id S264928AbTIJPBK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 11:01:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264943AbTIJPBK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 10:46:16 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:6106 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S264961AbTIJOqN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 10:46:13 -0400
-Date: Wed, 10 Sep 2003 16:17:15 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Eyal Lebedinsky <eyal@eyal.emu.id.au>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] 2.6.0-test5: serio config broken?
-Message-ID: <20030910141714.GF27368@fs.tum.de>
-References: <Pine.LNX.4.44.0309081319380.1666-100000@home.osdl.org> <3F5DBC1F.8DF1F07A@eyal.emu.id.au> <20030910110225.GC27368@fs.tum.de> <20030910150156.A30046@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030910150156.A30046@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.4.1i
+	Wed, 10 Sep 2003 11:01:10 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:20352 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S264928AbTIJPBI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Sep 2003 11:01:08 -0400
+Date: Wed, 10 Sep 2003 16:14:27 +0100
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200309101514.h8AFER1f000656@81-2-122-30.bradfords.org.uk>
+To: davidsen@tmr.com, john@grabjohn.com
+Subject: Re: Scaling noise
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 10, 2003 at 03:01:56PM +0100, Russell King wrote:
-> On Wed, Sep 10, 2003 at 01:02:25PM +0200, Adrian Bunk wrote:
-> > The patch below should fix it.
-> 
-> I'm confused why you're copying me and not Vojtech.
+[snip most of discussion]
 
-The "serio" confused me...
+You have changed the topic completely.
 
-cu
-Adrian
+> > The hardware is fault tollerant by design.  Only extreme events like a
+> > fire or flood at the datacentre are likely to cause downtime of the
+> > whole machine.  I don't consider that any less secure than a rack of
+> > small servers.
+>
+> And power failure, loss of ISP connectivity, loss of phone service...
+> As said originally, reliability is *hard* and *expensive* to do right.
 
--- 
+Not sure how any of the above is related to the mainframe vs rack of
+micros discussion.  Redundant ISP connectivity can be provided to
+both.
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+You seem to be suggesting that I'm saying that it's a good idea to
+replace geographically distributed, separate microcomputer servers
+with a _single_ mainframe.  I am not.  I am only concerned with the
+per-site situation.  As long as the geographically separate machine
+stays geographically separate it is no longer part of the equation.
 
+The only thing I am suggesting is that a single rack of machines in a
+datacentre  somewhere could be replaced by a single machine with
+virtualisation technology, and the same or better hardware
+reliability as the rack of discrete machines, and there would be no
+loss of availability.
+
+Infact, increased availability may result, due to the ease of
+administrating virtual machines as opposed to physical machines, and
+the reduction in network hardware.
+
+> This would be a good topic for comp.arch, it's getting a bit OT here.
+
+Agreed, except that I brought it up to re-inforce Larry's point that
+scaling above ~4 CPUs and hurting <=4 CPUs performance was a bad
+thing.
+
+John.

@@ -1,60 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267311AbSLRSSA>; Wed, 18 Dec 2002 13:18:00 -0500
+	id <S267319AbSLRSS7>; Wed, 18 Dec 2002 13:18:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267312AbSLRSSA>; Wed, 18 Dec 2002 13:18:00 -0500
-Received: from otter.mbay.net ([206.55.237.2]:23557 "EHLO otter.mbay.net")
-	by vger.kernel.org with ESMTP id <S267311AbSLRSR7> convert rfc822-to-8bit;
-	Wed, 18 Dec 2002 13:17:59 -0500
-From: John Alvord <jalvo@mbay.net>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Dave Jones <davej@codemonkey.org.uk>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@redhat.com>, Andrew Morton <akpm@digeo.com>
-Subject: Re: Freezing.. (was Re: Intel P6 vs P7 system call performance)
-Date: Wed, 18 Dec 2002 10:25:39 -0800
-Message-ID: <m8f10v0mecjj714q67jrup4u8vsp3l3t0t@4ax.com>
-References: <20021218164119.GC27695@suse.de> <Pine.LNX.4.44.0212180844550.29852-100000@home.transmeta.com>
-In-Reply-To: <Pine.LNX.4.44.0212180844550.29852-100000@home.transmeta.com>
-X-Mailer: Forte Agent 1.92/32.570
-MIME-Version: 1.0
+	id <S267320AbSLRSS7>; Wed, 18 Dec 2002 13:18:59 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:56475 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S267319AbSLRSS6>;
+	Wed, 18 Dec 2002 13:18:58 -0500
+Date: Wed, 18 Dec 2002 18:26:18 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Nathan Neulinger <nneul@umr.edu>
+Cc: linux-kernel@vger.kernel.org, uetrecht@umr.edu
+Subject: Re: 3ware driver in 2.4.x and 2.5.x not compatible with 6x00 series cards
+Message-ID: <20021218182618.GA30832@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Nathan Neulinger <nneul@umr.edu>, linux-kernel@vger.kernel.org,
+	uetrecht@umr.edu
+References: <20021218181052.GA26465@umr.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+In-Reply-To: <20021218181052.GA26465@umr.edu>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 18 Dec 2002 08:49:37 -0800 (PST), Linus Torvalds
-<torvalds@transmeta.com> wrote:
+On Wed, Dec 18, 2002 at 12:10:54PM -0600, Nathan Neulinger wrote:
+ > According to 3Ware, the driver in the 2.4.x and (I assume) 2.5.x is no
+ > longer compatible with the 6xxx series cards. 
+ > I don't know what we'll do with this situation when we move to 2.6, cause
+ > right now, it looks like we are completely screwed. The old driver 
+ > obviously will not compile on 2.6 since the API's have changed. 
 
->
->
->On Wed, 18 Dec 2002, Dave Jones wrote:
->> On Wed, Dec 18, 2002 at 10:40:24AM -0300, Horst von Brand wrote:
->>  > [Extremely interesting new syscall mechanism tread elided]
->>  >
->>  > What happened to "feature freeze"?
->>
->> *bites lip* it's fairly low impact *duck*.
->
->However, it's a fair question.
->
->I've been wondering how to formalize patch acceptance at code freeze, but
->it might be a good idea to start talking about some way to maybe put
->brakes on patches earlier, ie some kind of "required approval process".
->
->I think the system call thing is very localized and thus not a big issue,
->but in general we do need to have something in place.
->
->I just don't know what that "something" should be. Any ideas? I thought
->about the code freeze require buy-in from three of four people (me, Alan,
->Dave and Andrew come to mind) for a patch to go in, but that's probably
->too draconian for now. Or is it (maybe start with "needs approval by two"
->and switch it to three when going into code freeze)?
->
->			Linus
+Any idea at which point the 2.5 driver stopped working ?
+It may not be that much work to bring that version up to date as
+a 3ware-old.c driver in a worse-case scenario.
 
-I think there should be a distinction between changes which make an
-API change/new function/user interface change, versus bug fixes,
-adapting to new APIs, documentation, etc.
+This would be huge code duplication however, and would be much
+better fixed by having the driver detect which card its running
+on, and 'do the right thing' wrt which firmware it needs.
 
-john alvord
+		Dave
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

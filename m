@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317073AbSFQWQw>; Mon, 17 Jun 2002 18:16:52 -0400
+	id <S317078AbSFQWT5>; Mon, 17 Jun 2002 18:19:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317078AbSFQWQv>; Mon, 17 Jun 2002 18:16:51 -0400
-Received: from marstons.services.quay.plus.net ([212.159.14.223]:14001 "HELO
-	marstons.services.quay.plus.net") by vger.kernel.org with SMTP
-	id <S317073AbSFQWQu>; Mon, 17 Jun 2002 18:16:50 -0400
-Message-ID: <000701c2164c$65630930$0501a8c0@Stev.org>
-From: "James Stevenson" <mistral@stev.org>
-To: "Linux Kernel" <linux-kernel@vger.kernel.org>
-Subject: invalidate: busy buffer
-Date: Mon, 17 Jun 2002 23:14:48 +0100
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S317081AbSFQWT4>; Mon, 17 Jun 2002 18:19:56 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:62727 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S317078AbSFQWTz>; Mon, 17 Jun 2002 18:19:55 -0400
+Date: Mon, 17 Jun 2002 15:20:08 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Benjamin LaHaise <bcrl@redhat.com>
+cc: Dave Jones <davej@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] v2.5.22 - add wait queue function callback support
+In-Reply-To: <20020617180913.I1457@redhat.com>
+Message-ID: <Pine.LNX.4.44.0206171517530.6257-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
-
-does anyone know what these mean ?
-
-under
-
-2.4.19-pre8
-
-invalidate: busy buffer
-
-in the dmesg output
-got a bunch of these about 15 all together all of a sudden
 
 
-thanks
-    James
+On Mon, 17 Jun 2002, Benjamin LaHaise wrote:
+>
+> How's the patch below?  The main reason for passing in the pointer to
+> the wait queue structure is that the aio functions need to remove
+> themselves from the wait list if the event they were waiting for occurs.
+> It seems to boot for me, how about others?
 
---------------------------
-Mobile: +44 07779080838
-http://www.stev.org
- 11:00pm  up 6 days, 10:21,  7 users,  load average: 0.04, 0.15, 0.12
+Looks ok at first glance, although I haven't booted yet.
 
+One thing strikes me: we could move the "flags & WQ_FLAGS_EXCLUSIVE" test
+also into the wakeup function - making the "exclusivity" depend on which
+wakeup function you use. Does that make any sense? I'm not 100% convinced,
+but it would mean that the normal non-exclusive stuff would never even
+have to test the thing at run-time.
 
+		Linus
 

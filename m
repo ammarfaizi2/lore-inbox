@@ -1,61 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317496AbSFRRCB>; Tue, 18 Jun 2002 13:02:01 -0400
+	id <S317500AbSFRRKW>; Tue, 18 Jun 2002 13:10:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317497AbSFRRCA>; Tue, 18 Jun 2002 13:02:00 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:26863 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S317496AbSFRRB7>;
-	Tue, 18 Jun 2002 13:01:59 -0400
-Message-ID: <3D0F675F.54B87C38@mvista.com>
-Date: Tue, 18 Jun 2002 10:01:19 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: willy@debian.org, rml@mvista.com, torvalds@transmeta.com,
+	id <S317501AbSFRRKV>; Tue, 18 Jun 2002 13:10:21 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:3201 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S317500AbSFRRKU>; Tue, 18 Jun 2002 13:10:20 -0400
+Date: Tue, 18 Jun 2002 13:12:44 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+cc: David Schwartz <davids@webmaster.com>, rml@tech9.net, mgix@mgix.com,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Replace timer_bh with tasklet
-References: <3D0EACCA.3290139@mvista.com> <20020617.211548.63484157.davem@redhat.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Subject: Re: Question about sched_yield()
+In-Reply-To: <3D0F669C.89596EC0@nortelnetworks.com>
+Message-ID: <Pine.LNX.3.95.1020618130733.7442A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" wrote:
-> 
->    From: george anzinger <george@mvista.com>
->    Date: Mon, 17 Jun 2002 20:45:14 -0700
-> 
->    This patch replaces the timer_bh with a tasklet.
-> 
-> This is going to break a lot of stuff.
-> 
-> For one thing, the net/core/dev.c:deliver_to_old_ones() code to
-> disable timers no longer will work.
+On Tue, 18 Jun 2002, Chris Friesen wrote:
 
-Could you elaborate on the reason for the above bit of
-code?  Is it to cover some thing from the past or is this an
-on going issue?  I.e. will this disappear soon?  Is its
-usage dependent on a particular driver?
-
-Mostly I am interested in this because it may be at the
-bottom of a VERY elusive bug (4 systems, heavy network load,
-crash at 22 hours into the test).  Please help.
-
--g
+> David Schwartz wrote:
+> > 
+> > >And you seem to have a misconception about sched_yield, too.  If a
+> > >machine has n tasks, half of which are doing CPU-intense work and the
+> > >other half of which are just yielding... why on Earth would the yielding
+> > >tasks get any noticeable amount of CPU use?
+> > 
+> >         Because they are not blocking. They are in an endless CPU burning loop. They
+> > should get CPU use for the same reason they should get CPU use if they're the
+> > only threads running. They are always ready-to-run.
+> > 
+> > >Quite frankly, even if the supposed standard says nothing of this... I
+> > >do not care: calling sched_yield in a loop should not show up as a CPU
+> > >hog.
+> > 
+> >         It has to. What if the only task running is:
+> > 
+> >         while(1) sched_yield();
+> > 
+> >         What would you expect?
 > 
-> If you had deleted TIMER_BH you would have noticed this breakage.
+> If there is only the one task, then sure it's going to be 100% cpu on that task.
 > 
-> Also, aren't there some dependencies on HI_SOFTIRQ being first in
-> that enumeration?  This needs to be answered before going further
-> with this patch.
+> However, if there is anything else other than the idle task that wants to run,
+> then it should run until it exhausts its timeslice.
+> 
+> One process looping on sched_yield() and another one doing calculations should
+> result in almost the entire system being devoted to calculations.
+> 
+> Chris
+> 
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers: 
-http://sourceforge.net/projects/high-res-timers/
-Real time sched:  http://sourceforge.net/projects/rtsched/
-Preemption patch:
-http://www.kernel.org/pub/linux/kernel/people/rml
+It's all in the accounting. Use usleep(0) if you want it to "look good".
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+
+                 Windows-2000/Professional isn't.
+

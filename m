@@ -1,78 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263475AbUA3SUv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jan 2004 13:20:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263510AbUA3SUu
+	id S263166AbUA3SWh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jan 2004 13:22:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263435AbUA3SWh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jan 2004 13:20:50 -0500
-Received: from fed1mtao04.cox.net ([68.6.19.241]:29906 "EHLO
-	fed1mtao04.cox.net") by vger.kernel.org with ESMTP id S263228AbUA3SSQ
+	Fri, 30 Jan 2004 13:22:37 -0500
+Received: from out007pub.verizon.net ([206.46.170.107]:62864 "EHLO
+	out007.verizon.net") by vger.kernel.org with ESMTP id S263166AbUA3SW3
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jan 2004 13:18:16 -0500
-Date: Fri, 30 Jan 2004 11:18:11 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: BitKeeper repo for KGDB
-Message-ID: <20040130181811.GU6577@stop.crashing.org>
-References: <20040127184029.GI32525@stop.crashing.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 30 Jan 2004 13:22:29 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: lspci & idebus=xx confusion
+Date: Fri, 30 Jan 2004 13:22:28 -0500
+User-Agent: KMail/1.6
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040127184029.GI32525@stop.crashing.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200401301322.28228.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out007.verizon.net from [151.205.53.166] at Fri, 30 Jan 2004 12:22:28 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 27, 2004 at 11:40:29AM -0700, Tom Rini wrote:
+Greetings;
 
-> Hello everybody.  Since I've been talking with George off-list about
-> trying to merge the various versions of KGDB around, and I just read the
-> thread between Andy and Jim about conflicting on KGDB work, I've put up
-> a BitKeeper repository[1] to try and coordinate things.
+In an lspci -vv, all devices have a Cap and 66 in the report,
+but some show it s a + and some show it as a -, like this:
+---
+[root@coyote root]# lspci -vv|grep 66Mhz
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR+
+        Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
+        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+---
+So I set the option "idebus=66" on the grub command line and rebooted.
+But eventually it reports in dmesg:
+---
+VP_IDE: User given PCI clock speed impossible (66000), using 33 MHz instead.
+VP_IDE: Use ide0=ata66 if you want to assume 80-wire cable.
+VP_IDE: VIA vt8233 (rev 00) IDE UDMA100 controller on pci0000:00:11.1
+    ide0: BM-DMA at 0xd800-0xd807, BIOS settings: hda:DMA, hdb:DMA
+    ide1: BM-DMA at 0xd808-0xd80f, BIOS settings: hdc:DMA, hdd:DMA
+--
+that its resetting the speed back to 33mhz.  The boot process seemed
+to be faster till then.  I'm going to try the ide0=ata66 and ide1=ata66
+next.
 
-Since then, here's the highlights of what I've done so far:
-ChangeSet@1.1510, 2004-01-30 11:14:44-07:00, trini@kernel.crashing.org
-  Lots of changes to the serial stub driver.
-  In sum, it's got many of the features (but not all) of George
-  Anzginer's version (+ fix or two), and fully flushed out and tested
-  support for SERIAL_IOMEM.
+I've read the lspci manpage, and the kernel-parameters.txt without
+getting any real insight re this.
 
-ChangeSet@1.1509, 2004-01-30 11:10:03-07:00, trini@kernel.crashing.org
-  Change *kgdb_serial into kgdb_serial_driver.  We will now have
-  only one serial driver.
-
-ChangeSet@1.1508, 2004-01-30 10:44:55-07:00, trini@kernel.crashing.org
-  Convert the kgdb ethernet driver over to netpoll.
-  Patch from Pavel Machek <pavel@suse.cz>, who warns this probably
-  doesn't work.
-
-ChangeSet@1.1505, 2004-01-29 14:30:47-07:00, trini@kernel.crashing.org
-  Move all KGDB questions into kernel/Kconfig.kgdb.
-
-ChangeSet@1.1504, 2004-01-27 16:59:06-07:00, trini@kernel.crashing.org
-  - PPC32: Add KGDB support for PRePs (part of MULTIPLATFORM).
-  - PPC32: Add a choice of baud rate for the gen550 backend.
-
-ChangeSet@1.1503, 2004-01-27 14:44:54-07:00, trini@kernel.crashing.org
-  Remove the function pointers from kgdb_ops.
-  Most have become kgdb_foo, instead of foo.  The exceptions
-  are the gdb/kgdb register fiddling functions.
-  kgdb_gdb_regs_to_regs makes my head hurt.
-
-ChangeSet@1.1502, 2004-01-27 11:46:13-07:00, trini@kernel.crashing.org
-  Merge by hand to current 2.6 bk.
-  --- UNTESTED, x86_64 might be broken ---
-
-ChangeSet@1.1474.149.3, 2004-01-27 11:32:54-07:00, trini@kernel.crashing.org
-  - Send a 'T' packet initially, not an 'S' followed by 'p'
-  - On PPC32, try to pass in the correct signal back.
-
-I'm mostly happy with the serial changes (and I'll set aside the user
-console bits from George's version for now), but comments and criticisms
-would be welcome.  And as a reminder the BitKeeper version is
-bk://ppc.bkbits.net/linux-2.6-kgdb and there's snapshots (thanks Dave!)
-at http://www.codemonkey.org.uk/projects/bitkeeper/kgdb
+Can someone explain what the + an - signs in the lspci output are
+really telling me?
 
 -- 
-Tom Rini
-http://gate.crashing.org/~trini/
+Cheers, Gene
+"There are four boxes to be used in defense of liberty: soap,
+ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.22% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attornies please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

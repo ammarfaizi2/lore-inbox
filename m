@@ -1,69 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265168AbUGHWlm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261875AbUGHWxk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265168AbUGHWlm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jul 2004 18:41:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265163AbUGHWlg
+	id S261875AbUGHWxk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jul 2004 18:53:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264054AbUGHWxk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jul 2004 18:41:36 -0400
-Received: from zlynx.org ([199.45.143.209]:5382 "EHLO 199.45.143.209")
-	by vger.kernel.org with ESMTP id S265170AbUGHWlY (ORCPT
+	Thu, 8 Jul 2004 18:53:40 -0400
+Received: from gprs214-146.eurotel.cz ([160.218.214.146]:5249 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261875AbUGHWxi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jul 2004 18:41:24 -0400
-Subject: Re: GCC 3.4 and broken inlining.
-From: Zan Lynx <zlynx@acm.org>
-To: ncunningham@linuxmail.org
-Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       Jakub Jelinek <jakub@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1089324043.3098.3.camel@nigel-laptop.wpcb.org.au>
-References: <1089287198.3988.18.camel@nigel-laptop.wpcb.org.au>
-	 <20040708120719.GS21264@devserv.devel.redhat.com>
-	 <1089288664.2687.23.camel@nigel-laptop.wpcb.org.au>
-	 <200407090036.39323.vda@port.imtp.ilyichevsk.odessa.ua>
-	 <1089324043.3098.3.camel@nigel-laptop.wpcb.org.au>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-mEHhHb22II3g6S9TUgvy"
-Message-Id: <1089326491.22042.68.camel@localhost.localdomain>
+	Thu, 8 Jul 2004 18:53:38 -0400
+Date: Fri, 9 Jul 2004 00:52:16 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Christoph Hellwig <hch@infradead.org>, Erik Rigtorp <erik@rigtorp.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] swsusp bootsplash support
+Message-ID: <20040708225216.GA27815@elf.ucw.cz>
+References: <20040708110549.GB9919@linux.nu> <20040708133934.GA10997@infradead.org> <20040708204840.GB607@openzaurus.ucw.cz> <20040708210403.GA18049@infradead.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 08 Jul 2004 16:41:31 -0600
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040708210403.GA18049@infradead.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
---=-mEHhHb22II3g6S9TUgvy
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> > Perhaps CONFIG_BOOTSPLASH should be in mainline after all?
+> > I really don't want to see 2 different incompatible sets
+> > of hooks into swsusp....
+> 
+> No.  This stuff has no business in the kernel, paint your fancy graphics
+> ontop of fbdev.  And the SuSE bootsplash patch is utter crap, I mean what
+> do you have to smoke to put a jpeg decoder into the kernel?
 
-On Thu, 2004-07-08 at 16:00, Nigel Cunningham wrote:
-> On Fri, 2004-07-09 at 07:36, Denis Vlasenko wrote:
-> > It was decided to #define inline so that it means always_inline for lk.
-> > Dunno why include/linux/compiler-gcc3.h stopped doing that
-> > specifically for gcc 3.4...
->=20
-> I tried getting it to use the always_inline definition for gcc 3.4. It
-> resulted in the compilation failing in a number of places. The fixes
-> were generally trivial, involving rearranging the contents of files so
-> that inline function bodies appear before routines calling them, or
-> removing the inline where this isn't possible. IMHO, this is what should
-> be done. I didn't complete the changes, however: I thought I'd try for a
-> simpler solution, just in case I'm wrong.
+No idea; smoking is prohibited in SuSE offices, so someone external
+had to do that ;-).
 
-I believe that just adding -funit-at-a-time as a compile option solves
-the problems with inline function body ordering.
---=20
-Zan Lynx <zlynx@acm.org>
+I have not seen SuSE version of bootsplash... I do not want to
+see. But this way, SuSE has its own crappy bootsplash, RedHat probably
+too, Mandrake probably too, etc.
 
---=-mEHhHb22II3g6S9TUgvy
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+And now, SUSE will want splash over swsusp, RedHat probably too,
+Madrake probably too, etc. I do not want to deal with 3 different sets
+of hooks into swsusp.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+Now.. Perhaps cleaned-up bootsplash could find its way into
+kernel. That would at least turn down ammount of crap in
+distributions. At least there would be unified way to turn that thing
+off...
 
-iD8DBQBA7c2bG8fHaOLTWwgRAkUtAJ9uu6FMH9kHwLANp17Jz9lRJb/JGwCfZkBk
-1CKwOtY749adNqsCI/hrKpY=
-=ZrtX
------END PGP SIGNATURE-----
-
---=-mEHhHb22II3g6S9TUgvy--
-
+Or at least standartized hooks for various splashes, so that I do not
+have to deal with 3 different sets?
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

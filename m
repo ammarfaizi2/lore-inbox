@@ -1,76 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263519AbUC3IyS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 03:54:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263523AbUC3IyS
+	id S263529AbUC3I5e (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 03:57:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263531AbUC3I5e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 03:54:18 -0500
-Received: from smtp100.mail.sc5.yahoo.com ([216.136.174.138]:58242 "HELO
-	smtp100.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S263519AbUC3IyP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 03:54:15 -0500
-Message-ID: <406935A6.4030203@yahoo.com.au>
-Date: Tue, 30 Mar 2004 18:53:58 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: "Martin J. Bligh" <mbligh@aracnet.com>, Andi Kleen <ak@suse.de>,
-       jun.nakajima@intel.com, ricklind@us.ibm.com,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, kernel@kolivas.org,
-       rusty@rustcorp.com.au, anton@samba.org, lse-tech@lists.sourceforge.net
-Subject: Re: [Lse-tech] [patch] sched-domain cleanups, sched-2.6.5-rc2-mm2-A3
-References: <20040329080150.4b8fd8ef.ak@suse.de> <20040329114635.GA30093@elte.hu> <20040329221434.4602e062.ak@suse.de> <4068B692.9020307@yahoo.com.au> <20040330083450.368eafc6.ak@suse.de> <40691BCE.2010302@yahoo.com.au> <205870000.1080630837@[10.10.2.4]> <4069223E.9060609@yahoo.com.au> <20040330080530.GA22195@elte.hu> <40692D95.8030605@yahoo.com.au> <20040330084501.GA23069@elte.hu>
-In-Reply-To: <20040330084501.GA23069@elte.hu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 30 Mar 2004 03:57:34 -0500
+Received: from mtvcafw.SGI.COM ([192.48.171.6]:62041 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S263529AbUC3I53 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Mar 2004 03:57:29 -0500
+Date: Tue, 30 Mar 2004 00:00:29 -0800
+From: Paul Jackson <pj@sgi.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: colpatch@us.ibm.com, linux-kernel@vger.kernel.org, mbligh@aracnet.com,
+       akpm@osdl.org
+Subject: Re: [PATCH] mask ADT: bitmap and bitop tweaks [1/22]
+Message-Id: <20040330000029.6cd84d7f.pj@sgi.com>
+In-Reply-To: <20040330020637.GA791@holomorphy.com>
+References: <20040329041249.65d365a1.pj@sgi.com>
+	<1080601576.6742.43.camel@arrakis>
+	<20040329235233.GV791@holomorphy.com>
+	<20040329154330.445e10e2.pj@sgi.com>
+	<20040330020637.GA791@holomorphy.com>
+Organization: SGI
+X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * Nick Piggin <nickpiggin@yahoo.com.au> wrote:
-> 
-> 
->>You're probably mostly right, but I really don't know if I'd start
->>with the assumption that threads don't share anything. I think they're
->>very likely to share memory and cache.
-> 
-> 
-> it all depends on the workload i guess, but generally if the application
-> scales well then the threads only share data in a read-mostly manner -
-> hence we can balance at creation time.
-> 
-> if the application does not scale well then balancing too early cannot
-> make the app perform much worse.
-> 
-> things like JVMs tend to want good balancing - they really are userspace
-> simulations of separate contexts with little sharing and good overall
-> scalability of the architecture.
-> 
+> No, the existing standard is to treat the unused bits as "don't cares".
+> The difference codewise between the two choices is rather small anyway,
 
-Well, it will be interesting to see how it goes. Unfortunately
-I don't have a single realistic benchmark. In fact the only
-threaded one I have is volanomark.
+As you have documented in your requested patch to Andrew, the actual
+code in 2.6.4 deviated from your intended bitmap model by the details
+of cpus_equal(), cpus_empty() and cpus_weight() routines in
+cpumask_arith.h.
 
-> 
->>Also, these additional system wide balance points don't come for free
->>if you attach them to common operations (as opposed to the slow
->>periodic balancing).
-> 
-> 
-> yes, definitely.
-> 
-> the implementation in sched2.patch does not take this into account yet. 
-> There are a number of things we can do about the 500 CPUs case. Eg. only
-> do the balance search towards the next N nodes/cpus (tunable via a
-> domain parameter).
+And 2.6.4 deviates from my bitmap model by a couple of *_complement
+implementations and the multi-word CPU_MASK_ALL initializor.
 
-Yeah I think we shouldn't worry too much about the 500 CPUs
-case, because they will obviously end up using their own
-domains. But it is possible this would hurt smaller CPU
-counts too. Again, it means testing.
+By my model, the CPU_MASK_ALL code for large (multi word mask) systems
+is missing the zero'ing of unused bits, in the (rare) case that the
+number of valid bits in the mask was not an exact word multiple. And the
+*_complement implementations routinely returned masks with the unused
+bits set, given input with them not set.
 
-I think we should probably aim to have a usable and decent
-default domain for 32, maybe 64 CPUs, and not worry about
-larger numbers too much if it would hurt lower end performance.
+Looking ahead to your next post - I suspect that my model is not the
+zeroed tail invariant you describe.  My bitmap model makes no promise to
+zero out all input tails.
+
+Rather my bitmap model adds the further implementation condition:
+
+  If input tails are zero, then output tails will be zero.
+
+By your model, the CPU_MASK_ALL code for small (one word mask) systems
+has some redundant code, to zero the unused bits.  This CPU_MASK_ALL
+could simply be "~0UL", not the more elaborate "(~((cpumask_t)0) >>
+(8*sizeof(cpumask_t) - NR_CPUS))".
+
+On further examination, I believe that your model better describes
+what has been the design intent for bitmaps.
+
+However my model conforms to yours.  Any correct bitmap implementation
+of my model is a correct implementation of yours.  My model simply
+adds the above condition on the implementation.
+
+My change to zero out unused bits in the *_complement operators does not
+violate your model.   Nor does my change to zero out the unused bits in
+the multi-word CPU_MASK_ALL initializor violate your model.  You have
+repeatedly emphasized that you don't care about the setting of these
+bits.  Surely you don't care if they are zero, just as you don't care
+that the one word CPU_MASK_ALL initialization zeros the unused bits.
+
+==> Note of course that the above model(s) are efforts to describe
+    the bitmap/bitop code.  The model I provide for my new mask ADT is
+    different - it makes use of the implementation condition above on
+    bitmaps "Zero tails in yield zero tails out", along with an added
+    precondition "Don't pass in masks with nonzero tails" to avoid
+    needing much filtering code.
+
+So - would you consent to my bundling the following changes as a single
+patch - that adds to bitmaps the property that "output tails will be
+zero if input tails are zero"?
+
+  1) Zero unused bits in the *_complement operators.
+  2) Zero unused bits in CPU_MASK_ALL (multiword).
+
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

@@ -1,51 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262018AbTIZIrm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Sep 2003 04:47:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262028AbTIZIrl
+	id S262013AbTIZIqo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Sep 2003 04:46:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262018AbTIZIqo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Sep 2003 04:47:41 -0400
-Received: from [61.78.75.145] ([61.78.75.145]:24467 "EHLO unfix.net")
-	by vger.kernel.org with ESMTP id S262018AbTIZIrg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Sep 2003 04:47:36 -0400
-Message-ID: <3F73FEC9.7090109@mytears.org>
-Date: Fri, 26 Sep 2003 17:54:33 +0900
-From: =?EUC-KR?B?waTFwr+1?= <master@mytears.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030922 Thunderbird/0.2
-X-Accept-Language: en-us, en
+	Fri, 26 Sep 2003 04:46:44 -0400
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:641 "EHLO
+	grelber.thyrsus.com") by vger.kernel.org with ESMTP id S262013AbTIZIqn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Sep 2003 04:46:43 -0400
+From: Rob Landley <rob@landley.net>
+Reply-To: rob@landley.net
+To: Andries Brouwer <aebr@win.tue.nl>
+Subject: Re: Keyboard oddness.
+Date: Fri, 26 Sep 2003 03:43:33 -0500
+User-Agent: KMail/1.5
+Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
+References: <200309201633.22414.rob@landley.net> <200309252027.57512.rob@landley.net> <20030926081542.GA21857@win.tue.nl>
+In-Reply-To: <20030926081542.GA21857@win.tue.nl>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: In 2.6 kernel, there are 2 problems with Korean keyboard.
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200309260343.34434.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Friday 26 September 2003 03:15, Andries Brouwer wrote:
 
-In Korean 106-key keyboard, there are two keys aren't working.
+> > You're talking about missed keypresses, but the end-user symptom I'm
+> > seeing is definitely a missed key release
+>
+> Yes - here a release was garbled.
+>
+> Many people have reported missing key releases, and, as a consequence of
+> that, stuck keys. Your reports feel a bit different: the e0 is sometimes
+> lost from a key press, sometimes from a key release.
 
-Those are, Korean/English Key, and Korean/Chinese Key.
-These have scancode of 0xf2, and 0xf1 accordingly, also in xev, it were
-recognised as 122 and 121.
+I don't know what to tell you.  When I compiled 2.4 (no detectable problems), 
+I wasn't using the input (and in fact had it disabled).  Not necessarily a 
+useful piece of information.  The symptom that I notice is software 
+autorepeat going bananas when the hardware at least knows the key has been 
+released and would not be sending hardware autorepeat events...
 
-In 2.4.xx kernel, these keys send the event correctly, however in
-2.6.0_test5, it seems it has problem with sending key events.
-
-It leaves following lines in the kernel log;
-
-Sep 24 03:33:59 [kernel] atkbd.c: Unknown key (set 2, scancode 0xf1, on isa0060/serio0) pressed.
-Sep 24 03:33:59 [kernel] atkbd.c: Unknown key (set 2, scancode 0xf2, on isa0060/serio0) pressed.
-
-
-So I have tried to hack atkbd.c and assigned values to 0xf2 and 0xf1, now the kernel log seems fine but still, xev doesn't receive anything.
-
-Also, while I was searching internet, I have found a patch for an old keyboard driver.
-http://www.geocrawler.com/archives/3/2142/2002/2/0/7967619/
-
-How would i be able to use these keys correctly in Kernel 2.6?
-
-Regards
-
-
+Rob

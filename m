@@ -1,46 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264091AbTIINYf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 09:24:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264099AbTIINYf
+	id S264146AbTIINeB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 09:34:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264148AbTIINeB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 09:24:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264091AbTIINYd
-	for
-	<"|/opt/Majordomo/wrapper resend -l linux-kernel -f x-linux-kernel -h vger.kernel.org linux-kernel-outgoing">;
-	Tue, 9 Sep 2003 09:24:33 -0400
-To: linux-kernel@vger.kernel.org
-From: Majordomo@vger.kernel.org
-Subject: Majordomo results
-Reply-To: Majordomo@vger.kernel.org
-Message-Id: <S264091AbTIINYd/20030909132434Z+3723@vger.kernel.org>
-Date: Tue, 9 Sep 2003 09:24:33 -0400
+	Tue, 9 Sep 2003 09:34:01 -0400
+Received: from lidskialf.net ([62.3.233.115]:17878 "EHLO beyond.lidskialf.net")
+	by vger.kernel.org with ESMTP id S264146AbTIINd7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 09:33:59 -0400
+From: Andrew de Quincey <adq_dvb@lidskialf.net>
+To: Arkadiusz Miskiewicz <arekm@pld-linux.org>
+Subject: Re: acpi-irq-fixes from test5-mm1 broken with acpi=off
+Date: Tue, 9 Sep 2003 14:32:27 +0100
+User-Agent: KMail/1.5.3
+Cc: linux-kernel@vger.kernel.org
+References: <200309091518.07368.arekm@pld-linux.org>
+In-Reply-To: <200309091518.07368.arekm@pld-linux.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200309091432.27245.adq_dvb@lidskialf.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---
 
->>>> auth ffd69ec2 subscribe linux-kernel linux-kernel@mailinglist.gnuher.de
-Your request to Majordomo@vger.kernel.org:
+> Now the problem is that with vanilla test5 acpi=off works well - see dmesg
+> http://lkml.org/lkml/2003/9/9/31 but after applying acpi-irq-fixes I get:
 
-	subscribe linux-kernel linux-kernel@mailinglist.gnuher.de
+>  [<c035b3cc>] acpi_pci_irq_init+0xb/0x47
+>  [<c0368aa3>] pci_acpi_init+0x23/0x60
+>  [<c034c7bc>] do_initcalls+0x2c/0xa0
+>  [<c0130432>] init_workqueues+0x12/0x60
+>  [<c01050a1>] init+0x31/0x1d0
+>  [<c0105070>] init+0x0/0x1d0
+>  [<c0109259>] kernel_thread_helper+0x5/0xc
 
-has been forwarded to the owner of the "linux-kernel" list for approval. 
-This could be for any of several reasons:
+Cool thanks, looks like acpi=off isn't as off as it should be. Will fix.
 
-    You might have asked to subscribe to a "closed" list, where all new
-	additions must be approved by the list owner. 
-
-    You might have asked to subscribe or unsubscribe an address other than
-	the one that appears in the headers of your mail message.
-
-When the list owner approves your request, you will be notified.
-
-If you have any questions about the policy of the list owner, please
-contact "linux-kernel-approval@vger.kernel.org".
-
-
-Thanks!
-
-Majordomo@vger.kernel.org
->>>> 

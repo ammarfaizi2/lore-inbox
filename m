@@ -1,56 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261605AbTLWPit (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 10:38:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261606AbTLWPis
+	id S261681AbTLWPqT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 10:46:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261606AbTLWPqT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 10:38:48 -0500
-Received: from node-d-1fcf.a2000.nl ([62.195.31.207]:57473 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP id S261605AbTLWPir
+	Tue, 23 Dec 2003 10:46:19 -0500
+Received: from imo-d01.mx.aol.com ([205.188.157.33]:30615 "EHLO
+	imo-d01.mx.aol.com") by vger.kernel.org with ESMTP id S261298AbTLWPqM
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 10:38:47 -0500
-Subject: Re: Question on LFS in Redhat
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Dale Amon <amon@vnl.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20031223151042.GE9089@vnl.com>
-References: <20031223151042.GE9089@vnl.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-yT6xnuAg4DKgnaZ7EKh/"
-Organization: Red Hat, Inc.
-Message-Id: <1072193917.5262.1.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Tue, 23 Dec 2003 16:38:38 +0100
+	Tue, 23 Dec 2003 10:46:12 -0500
+Date: Tue, 23 Dec 2003 10:46:08 -0500
+From: jpo234@netscape.net
+To: linux-kernel@vger.kernel.org
+Subject: Re: SCO's infringing files list
+MIME-Version: 1.0
+Message-ID: <14EC928E.21156460.00065BAA@netscape.net>
+X-Mailer: Atlas Mailer 2.0
+X-AOL-IP: 62.96.207.14
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus Torvalds:
+ > The errno change was apparently done on or around July 25, 1992. That's
+ > the date on the "errno.h" file in the linux-0.97 archive, and it is
+ > consistent with the above release dates.
+ > 
+ > If anybody has newgroup/mailing list archives from around that time, it
+ > would be very nice to see what that finds..
 
---=-yT6xnuAg4DKgnaZ7EKh/
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+How about:
+http://groups.google.com/groups?&selm=1992Jul19.154248.9076%40serval.net.wsu.edu
 
-On Tue, 2003-12-23 at 16:10, Dale Amon wrote:
-> If there are any Redhat folk around... could you tell
-> me if you've included the LFS patches in your:
->=20
-> 	2.4.16-9smp
+To quote H.J.Lu:
+4. lots of stuffs added to errno.h and string/errlist.c.
 
-Red Hat never released a 2.4.16 kernel for production use.
+Regards
+  Joerg
 
-However we also never released a 2.4 kernel with the large BLOCK patch.
-All 2.4 kernels we shipped can do files > 2 Gb of course.
+I'm starting to feal nostalgic. This was in the days when libc
+came with compiler version numbers in the name...
+Ahh, so long ago.
 
---=-yT6xnuAg4DKgnaZ7EKh/
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+__________________________________________________________________
+New! Unlimited Access from the Netscape Internet Service.
+Beta test the new Netscape Internet Service for only $1.00 per month until 3/1/04.
+Sign up today at http://isp.netscape.com/register
+Act now to get a personalized email address!
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQA/6GF9xULwo51rQBIRAkwsAJ48Z/z2dhuf7pbPynZPIumiKiTucQCfTGIM
-W7CK35MJRuSkqaPc9tR565s=
-=sdjz
------END PGP SIGNATURE-----
-
---=-yT6xnuAg4DKgnaZ7EKh/--
+Netscape. Just the Net You Need.

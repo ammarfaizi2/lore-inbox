@@ -1,80 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264396AbUHNSWW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264503AbUHNSYj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264396AbUHNSWW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Aug 2004 14:22:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264444AbUHNSWW
+	id S264503AbUHNSYj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Aug 2004 14:24:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264500AbUHNSYj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Aug 2004 14:22:22 -0400
-Received: from fw.osdl.org ([65.172.181.6]:8145 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264396AbUHNSWT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Aug 2004 14:22:19 -0400
-Date: Sat, 14 Aug 2004 11:12:07 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: zippel@linux-m68k.org, sam@ravnborg.org, bunk@fs.tum.de,
+	Sat, 14 Aug 2004 14:24:39 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:50091 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S264444AbUHNSYg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Aug 2004 14:24:36 -0400
+Date: Sat, 14 Aug 2004 20:20:27 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: James Morris <jmorris@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, Stephen Smalley <sds@epoch.ncsc.mil>,
+       neilb@cse.unsw.edu.au, viro@parcelfarce.linux.theplanet.co.uk,
        linux-kernel@vger.kernel.org
-Subject: Re: menuconfig displays dependencies [Was: select FW_LOADER ->
- depends HOTPLUG]
-Message-Id: <20040814111207.08c96a53.rddunlap@osdl.org>
-In-Reply-To: <20040814074953.GA20123@mars.ravnborg.org>
-References: <20040809195656.GX26174@fs.tum.de>
-	<20040809203840.GB19748@mars.ravnborg.org>
-	<Pine.LNX.4.58.0408100130470.20634@scrub.home>
-	<20040810084411.GI26174@fs.tum.de>
-	<20040810211656.GA7221@mars.ravnborg.org>
-	<Pine.LNX.4.58.0408120027330.20634@scrub.home>
-	<20040814074953.GA20123@mars.ravnborg.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
+Subject: Re: [PATCH][LIBFS] Move transaction file ops into libfs + cleanup (update)
+Message-ID: <20040814182027.GA23293@electric-eye.fr.zoreil.com>
+References: <Xine.LNX.4.44.0408131157350.23262-100000@dhcp83-76.boston.redhat.com> <Xine.LNX.4.44.0408141231300.27007-100000@dhcp83-76.boston.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Xine.LNX.4.44.0408141231300.27007-100000@dhcp83-76.boston.redhat.com>
+User-Agent: Mutt/1.4.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 14 Aug 2004 09:49:53 +0200 Sam Ravnborg wrote:
+James Morris <jmorris@redhat.com> :
+[...]
+> diff -urN -X dontdiff linux-2.6.8.1.o/include/linux/fs.h linux-2.6.8.1.w/include/linux/fs.h
+> --- linux-2.6.8.1.o/include/linux/fs.h	2004-08-14 10:25:44.000000000 -0400
+> +++ linux-2.6.8.1.w/include/linux/fs.h	2004-08-14 12:57:56.175796496 -0400
+> @@ -1550,6 +1550,32 @@
+[...]
+> +static inline void simple_transaction_set(struct file *file, size_t n)
+> +{
+> +	struct simple_transaction_argresp *ar = file->private_data;
+> +	
+> +	BUG_ON(n > SIMPLE_TRANSACTION_LIMIT);
+> +	mb();
+> +	ar->size = n;
+> +}
 
-| On Thu, Aug 12, 2004 at 01:05:47AM +0200, Roman Zippel wrote:
-|  
-| > > It would be nice in menuconfig to see what config symbol
-| > > that has dependencies and/or side effects. 
-| > 
-| > xconfig has something like this, if you enable 'Debug Info', although it 
-| > rather dumps the internal representation.
-| > Adding something like this to menuconfig, would mean hacking lxdialog, 
-| > which is rather at the bottom of the list of things I want to do. :)
-| 
-| Did a quick hack on this.
-| When choosing help on "HCI BlueFRITZ! USB driver" menuconfig now displays:
-| 
-| -------------------------------------------------
-| Depends on (select to enable this option):
-| BT & USB
-| Selects (will be enabled by this option): 
-| FW_LOADER
-| 
-| CONFIG_BT_HCIBFUSB
-| 
-| Bluetooth HCI BlueFRITZ! USB driver.
-| ....
-| -------------------------------------------------
-| 
-| To simplify things I just malloc'ed 'enough' memory for the help screen.
-| Just a quick hack, but something to play with - and no lxdialog hacking :-)
-
-Hi Sam,
-I started on this yesterday also, but you are ahead of me.
-
-Looking pretty good, but for menu items in the EMBEDDED menu,
-it misses entries like this one:
-
-config FUTEX
-	bool "Enable futex support" if EMBEDDED
-
-It doesn't list any Depends data, but it actually depends on EMBEDDED.
-
-I'll look at it more later.  Got other stuff to do now.
+Could you add the justification for the 'mb' (or the expected effect on the
+api) as a comment ?
 
 --
-~Randy
+Ueimor

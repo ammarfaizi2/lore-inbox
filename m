@@ -1,43 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262321AbTEIHWs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 03:22:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262324AbTEIHWs
+	id S262329AbTEIH1e (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 03:27:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262334AbTEIH1e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 03:22:48 -0400
-Received: from lindsey.linux-systeme.com ([80.190.48.67]:7947 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S262321AbTEIHWr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 03:22:47 -0400
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: Gregoire Favre <greg@ulima.unil.ch>
-Subject: Re: Linux 2.4.21-rc2
-Date: Fri, 9 May 2003 09:35:06 +0200
-User-Agent: KMail/1.5.1
-Cc: linux-kernel@vger.kernel.org
-References: <fa.m0c9ksl.1ijqph1@ifi.uio.no> <200305090907.50284.m.c.p@wolk-project.de> <20030509073133.GB21140@ulima.unil.ch>
-In-Reply-To: <20030509073133.GB21140@ulima.unil.ch>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 9 May 2003 03:27:34 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:8675 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262329AbTEIH1d (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 03:27:33 -0400
+Date: Fri, 9 May 2003 09:40:09 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5 ide 48-bit usage
+Message-ID: <20030509074008.GE20941@suse.de>
+References: <20030508163441.GG20941@suse.de> <Pine.SOL.4.30.0305081839190.24013-100000@mion.elka.pw.edu.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200305090935.06151.m.c.p@wolk-project.de>
+In-Reply-To: <Pine.SOL.4.30.0305081839190.24013-100000@mion.elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 09 May 2003 09:31, Gregoire Favre wrote:
+On Thu, May 08 2003, Bartlomiej Zolnierkiewicz wrote:
+> btw. Jens, do you have any benchmarks of using 1MiB requests
+>      and/or removing 48-bit overhead?
 
-Hi Gregoire,
+I'll try to do some timings on the 48-bit overhead today, should be able
+to make the analyzer work now...
 
-> > or: http://www.kernel.org -> 2.4.21-rc2 -> Changelog
-> Yes, I agree, but... why no directly write it in the annonce?
-> And as I would like to have XFS included...
-I am quite sure he just forgot to include it into the mail.
-
-for XFS, use 2.5.
-
-ciao, Marc
-
+-- 
+Jens Axboe
 

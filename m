@@ -1,41 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263567AbTIHTrN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 15:47:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263569AbTIHTrM
+	id S263564AbTIHTk4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 15:40:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263565AbTIHTk4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 15:47:12 -0400
-Received: from mailgate.uni-paderborn.de ([131.234.22.32]:5284 "EHLO
-	mailgate.uni-paderborn.de") by vger.kernel.org with ESMTP
-	id S263567AbTIHTrK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 15:47:10 -0400
-Message-ID: <3F5CDBBC.7020608@upb.de>
-Date: Mon, 08 Sep 2003 21:42:52 +0200
-From: =?ISO-8859-1?Q?Sven_K=F6hler?= <skoehler@upb.de>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5b) Gecko/20030827
-X-Accept-Language: de, en
+	Mon, 8 Sep 2003 15:40:56 -0400
+Received: from meryl.it.uu.se ([130.238.12.42]:25249 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id S263564AbTIHTkx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 15:40:53 -0400
 MIME-Version: 1.0
-To: Pavel Machek <pavel@suse.cz>
-CC: Paul.Clements@steeleye.com, linux-kernel@vger.kernel.org
-Subject: Re: [NBD] patch and documentation
-References: <3F5CB554.5040507@upb.de> <20030908193838.GA435@elf.ucw.cz>
-In-Reply-To: <20030908193838.GA435@elf.ucw.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-MailScanner-Information: Please see http://imap.upb.de for details
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-15.7, required 4,
-	IN_REP_TO -3.30, REFERENCES -6.60, USER_AGENT_MOZILLA_UA -5.80)
+Message-ID: <16220.56128.102839.316486@gargle.gargle.HOWL>
+Date: Mon, 8 Sep 2003 21:40:48 +0200
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: Andi Kleen <ak@muc.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: send_sig_info() in __switch_to() Ok or not?
+In-Reply-To: <m3d6euk9ce.fsf@averell.firstfloor.org>
+References: <o9Yo.6Zf.7@gated-at.bofh.it>
+	<m3d6euk9ce.fsf@averell.firstfloor.org>
+X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Paul, do you think this docs could be added to the end of
-> Documentation/nbd.txt?
+Andi Kleen writes:
+ > Mikael Pettersson <mikpe@csd.uu.se> writes:
+ > 
+ > > I have a kernel extension (the x86 perfctr driver) that needs,
+ > > in a specific but unlikely case(*), to send a SIGILL to current
+ > > (next) in __switch_to(). Is this permitted or not?
+ > >
+ > > I suspect it might not be because send_sig_info() eventually does
+ > > wake_up_process_kick(), and there's this warning in __switch_to()
+ > > not to call printk() since it calls wake_up()...
+ > 
+ > > If I can't call send_sig_info() in __switch_to(), is there
+ > > another way to post a SIGILL to current from __switch_to()?
+ > 
+ > You can just do it manually. Fill in the signal in the signal
+ > mask of the process. The next time the process checks for signals it will 
+ > kill itself. As it is already running or going to run it doesn't need
+ > a wake up.
 
-Well, i noticed that i used tabs in some places. sorry for that. the 
-tabs should be replaced by 4 spaces.
+Sorry about the delay in responding to this.
+Anyway, I started doing it manually, but gave up since it would
+mean copying/duplicating quite a bit of code from signal.c.
+Instead I now do:
 
-> The patch also looks harmless enough for applying ;-).
+	BUG_ON(current->state != TASK_RUNNING);
+	send_sig(SIG_ILL, current, 1);
 
-I take it as a compliment.
+I've checked sched.c and done runtime testing, and this does seem to
+be true and work Ok. (Fingers crossed, knock on wood, etc.)
 
+/Mikael

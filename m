@@ -1,70 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264531AbUJAQzq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264991AbUJARCT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264531AbUJAQzq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 12:55:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264726AbUJAQzq
+	id S264991AbUJARCT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 13:02:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265044AbUJARCT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 12:55:46 -0400
-Received: from mail.kroah.org ([69.55.234.183]:33436 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264531AbUJAQzo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 12:55:44 -0400
-Date: Fri, 1 Oct 2004 09:47:50 -0700
-From: Greg KH <greg@kroah.com>
-To: Timo Ter??s <ext-timo.teras@nokia.com>
-Cc: Robert Love <rml@novell.com>, linux-kernel@vger.kernel.org
-Subject: Re: kobject events questions
-Message-ID: <20041001164750.GA11646@kroah.com>
-References: <415ABA96.6010908@nokia.com> <1096486749.4666.31.camel@betsy.boston.ximian.com> <415D28B7.5070306@nokia.com>
+	Fri, 1 Oct 2004 13:02:19 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:37522 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S264991AbUJARCS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Oct 2004 13:02:18 -0400
+Subject: Re: Possible GPL Violation of Linux in Amstrad's E3 Videophone.
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: jonathan@jonmasters.org
+Cc: Ralph Corderoy <ralph@inputplus.co.uk>,
+       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <35fb2e5904100109246f43ee7b@mail.gmail.com>
+References: <alan@lxorguk.ukuu.org.uk>
+	 <1096640407.21940.33.camel@localhost.localdomain>
+	 <200410011559.i91FxfH13266@blake.inputplus.co.uk>
+	 <35fb2e5904100109246f43ee7b@mail.gmail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1096646380.21962.64.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <415D28B7.5070306@nokia.com>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Fri, 01 Oct 2004 16:59:44 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 01, 2004 at 12:51:51PM +0300, Timo Ter??s wrote:
-> Robert Love wrote:
-> >On Wed, 2004-09-29 at 16:37 +0300, Timo Ter??s wrote:
-> >>1) Send the events so that they are always associated with the network 
-> >>devices class_device kobject. I guess this would be quite clean way to 
-> >>do it, but it'd require adding a new signal type and would limit the 
-> >>iptables target to be associated always with a interface.
-> >>
-> >>2) Create a device class that has virtual timer devices that trigger 
-> >>events (ie. /sys/class/utimer). Each timer could have some attributes 
-> >>(like expired, expire_time, etc.) and would emit "change" signals 
-> >>whenever timer expires.
-> >
-> >Well, #1 is the intention and spirit of the kevent system.
-> >
-> >And adding a new signal type is fine.
-> >
-> >So the only downside is that the table to interface association thing.
-> >I have no idea how big an issue that is for you.
-> 
-> I'm just a bit dubious about adding new signals since they are hardcoded 
-> in the kernel. It's a time consuming process to add new signals (either 
-> for development build or for official kernels). This is one of the 
-> reasons I liked more about the original kevent patch. Wouldn't simple 
-> #defines have been enough for signal names?
+On Gwe, 2004-10-01 at 17:24, Jon Masters wrote:
+> I'm planning to do a review of the E3 so I'll be sure to look in to
+> these issues then.
 
-What's the difference between a #define and a enum?  We want these to be
-well known, and correct.  A enum gives us that.
+Everything I've seen from Amstrad on the subject has ben friendly,
+helpful and clear. I've dealt with a few cases of vendors clearly
+trying to break the rules, but Amstrad is not one of them. They answer
+email, they give clear and honest answers, and the code is out there.
 
-> >You could of course create a new kobject, ala #2, but that does not seem
-> >optimal if the object is otherwise worthless.  I don't think that you
-> >should create a new class.  Better to put something under /sys/net
-> >related to what you are doing.
-> 
-> I thought quite a bit about to where add my kobjects. I couldn't find a 
-> /sys/net on my current system (am I missing some config option?). If you 
-> mean /sys/class/net aren't all kobject in there supposed to be of same 
-> type (namely class_device associated with net_device).
+If anyone has a copy of the emailer source btw (or gets one for review
+so has a download option ;)) then it would be nice to stick it up for
+ftp for all.
 
-Yes, that is what /sys/class/net contains.
+Alan
 
-Good luck,
-
-greg k-h

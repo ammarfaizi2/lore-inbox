@@ -1,99 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263003AbUENWNQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263045AbUENWUl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263003AbUENWNQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 May 2004 18:13:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263019AbUENWNQ
+	id S263045AbUENWUl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 May 2004 18:20:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263020AbUENWUk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 May 2004 18:13:16 -0400
-Received: from fw.osdl.org ([65.172.181.6]:36494 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263003AbUENWNN convert rfc822-to-8bit
+	Fri, 14 May 2004 18:20:40 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:12753 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263019AbUENWUe
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 May 2004 18:13:13 -0400
-Date: Fri, 14 May 2004 15:15:20 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: =?ISO-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: arjanv@redhat.com, benh@kernel.crashing.org, kronos@kronoz.cjb.net,
+	Fri, 14 May 2004 18:20:34 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Marc Singer <elf@buici.com>
+Subject: Re: arm-lh7a40x IDE support in 2.6.6
+Date: Sat, 15 May 2004 00:19:46 +0200
+User-Agent: KMail/1.5.3
+Cc: rmk@arm.linux.org.uk, linux-ide@vger.kernel.org,
        linux-kernel@vger.kernel.org
-Subject: Re: [4KSTACK][2.6.6] Stack overflow in radeonfb
-Message-Id: <20040514151520.65b31f62.akpm@osdl.org>
-In-Reply-To: <20040514114746.GB23863@wohnheim.fh-wedel.de>
-References: <20040513145640.GA3430@dreamland.darkstar.lan>
-	<1084488901.3021.116.camel@gaston>
-	<20040513182153.1feb488b.akpm@osdl.org>
-	<20040514094923.GB29106@devserv.devel.redhat.com>
-	<20040514114746.GB23863@wohnheim.fh-wedel.de>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+References: <200405141840.04401.bzolnier@elka.pw.edu.pl> <200405142323.19115.bzolnier@elka.pw.edu.pl> <20040514213332.GA12414@buici.com>
+In-Reply-To: <20040514213332.GA12414@buici.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200405150019.46504.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jörn Engel <joern@wohnheim.fh-wedel.de> wrote:
+On Friday 14 of May 2004 23:33, Marc Singer wrote:
+
+> > > Listen.  It is not my intention to be clever.  All I want to do is get
+> > > things working and to not break other people's code.  I'm certain that
+> > > most people are working with the same assumptions.  Aside from some
+> > > naive snippets I've see promulgated, the bulk of the kernel work I've
+> > > see is sane given limited information.  Certainly, once one
+> > > understands a sybsystem completely then the quality rises.  I hope
+> > > you'll admit that the IDE code is overly intricate.
+> >
+> > With changes like this nobody will ever be able to understand
+> > IDE subsystem completely. ;-)
 >
-> On Fri, 14 May 2004 11:49:23 +0200, Arjan van de Ven wrote:
-> > On Fri, May 14, 2004 at 11:47:39AM +0200, Andrew Morton wrote:
-> > > There's a `make buildcheck' target in -mm (from Arjan) into which we could
-> > > integrate such a tool.  Although probably it should be a different make
-> > > target.
-> > 
-> > I added it to buildcheck for now, based on Keith Owens' check-stack.sh
-> > script. I added a tiny bit of perl (shudder) to it to 
-> > 1) Make it print in decimal not hex
-> > 2) Filter the stack users to users of 400 bytes and higher
-> > 
-> > I arbitrarily used 400; that surely is debatable.
-> 
-> Keith' script has the major disadvantage of not working on anything
-> but i386.  Here is my old script that works on a few more.
+> I get the feeling that you're blaming me and others for making the IDE
+> code a mess.  Might I suggest that this isn't a very productive tack?
 
-That's nice and simple.  All due respect to Keith, this is something
-which humans have a chance of understanding too ;)
+Yep, sorry.
 
-I removed the `vmlinux FORCE' targets from the makefile - that was forcing
-a full rebuild after I'd just done one.  Just let it check ./vmlinux and if
-it's not there, it errors out...
+> The most helpful thing to do is to a) provide best-practice examples,
+> and b) to include some documentation.  I'm not talking about anything
+> extensive, but statements like
+>
+>   "All references to linux/ide.h must reside in the ide tree."
+>
+> Are pretty darn helpful.
 
-It doesn't do modules, and hence requires a prior allyesconfig.  I think it
-would be better to do:
+OK, will do (this can take a while).  Can I ask you to review it later?
+I think your comments will be very valuable.
 
-find . -name '*.o' | xargs objdump -d | perl scripts/checkstack.pl i386
+> > > > - you are setting IDE_NO_IRQ in ide_init_hwif_ports() which is used
+> > > >   in many places in generic IDE code - anybody wanting to understand
+> > > >   interactions with your code + generic code will have serious
+> > > >   problems (especially if knows _nothing_ about lpd7a40x)
+> > >
+> > > I don't know what you mean.  I grep for that constant and found it
+> > > nowhere except for ide-io.c and in my code.  It doesn't take much to
+> > > find the references.
+> >
+> > I'm talking about ide_init_hwif_ports() function.
+>
+> Most of the ARM arch's use it.  Perhaps all of them need a good once
+> over.
 
-but that produces slightly screwy output and, for some reason, duplicated
-output:
+Since some time I have a patch killing <asm/arch-*/ide.h>. :)
 
+> > > > > The OUTB breaks my interface because I don't really have byte-level
+> > > > > access to the resgisters.  So, is selectproc a pre-select procedure
+> > > > > or should it be a substitute?
+> > > >
+> > > > pre-select but you can change it to be substitute if you need
+> > > > (just remember to update all users if you decide to do this)
+> > >
+> > > I'll have to search the kernel to see what uses it.  Maybe the better
+> > > way would be to define a new select proc that *is* a substitute.
+> >
+> > Nope.
+>
+> So then we break anyone who is using the selectproc as a pre-select
+> proc?  I don't understand what you mean here.  There are several
+> drivers that use this function.  How do you propose that we provide
+> both types of behavior with one entry point?
 
-0x    387c zconf_fopen:					 sub    $0x101c,%esp
-0x     3c0 huft_build:					 sub    $0x5ac,%esp
-0x       0 huft_build:					 sub    $0x5ac,%esp
-0x       0 huft_build:					 sub    $0x59c,%esp
-0x     d30 inflate_dynamic:				 sub    $0x528,%esp
-0x    10f0 inflate_dynamic:				 sub    $0x528,%esp
-0x     c10 inflate_dynamic:				 sub    $0x524,%esp
-0x      23 zconfparse:					 sub    $0x50c,%esp
-   3:	81 ec fc 04 00 00    	sub    $0x4fc,%esp yyparse:	 sub    $0x4fc,%esp
-0x     f9c inflate_fixed:				 sub    $0x490,%esp
-0x     bdc inflate_fixed:				 sub    $0x490,%esp
-0x     abc inflate_fixed:				 sub    $0x490,%esp
-0x    3d54 conf_read:					 sub    $0x41c,%esp
-0x    fca0 snd_pcm_hw_params_old_user:			 sub    $0x358,%esp
-0x    fc28 snd_pcm_hw_refine_old_user:			 sub    $0x358,%esp
-0x    6c58 snd_pcm_hw_refine_old_user:			 sub    $0x358,%esp
-0x   10448 snd_pcm_hw_refine_old_user:			 sub    $0x358,%esp
-0x   104c0 snd_pcm_hw_params_old_user:			 sub    $0x358,%esp
-0x    54e0 snd_pcm_hw_params_old_user:			 sub    $0x358,%esp
-0x    5468 snd_pcm_hw_refine_old_user:			 sub    $0x358,%esp
-0x    6cd0 snd_pcm_hw_params_old_user:			 sub    $0x358,%esp
-0x    42db conf_write:					 sub    $0x30c,%esp
-0x      c8 nlmclnt_proc:				 sub    $0x280,%esp
-0x    1b54 snd_pcm_oss_get_formats:			 sub    $0x280,%esp
-0x   1d074 snd_pcm_oss_get_formats:			 sub    $0x280,%esp
-0x   761c8 nlmclnt_proc:				 sub    $0x280,%esp
-0x   1c854 snd_pcm_oss_get_formats:			 sub    $0x280,%esp
-0x     4b8 nlmclnt_proc:				 sub    $0x280,%esp
-0x    1b54 snd_pcm_oss_get_formats:			 sub    $0x280,%esp
+You can add last line of SELECT_DRIVE() to all ->selectproc()
+implementations and add 'else' to SELECT_DRIVE().
 
+> > > of the core code is fine.  It is that core code that is necessary to
+> > > make the test possible.
+> >
+> > Stuff in arch-lh7a40x/ide.h is really a driver code but
+> > abuses subsystem code instead - that's my complain.
+>
+> Right.  We agree.  I am talking about the core code.  Not the ide
+> code.  The core is what supports the CPU.
 
-You wanna take a look at that please?
+Good.
 
+Cheers,
+Bartlomiej
 

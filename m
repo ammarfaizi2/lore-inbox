@@ -1,76 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266721AbUJBPbg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266703AbUJBPl6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266721AbUJBPbg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Oct 2004 11:31:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266854AbUJBPbg
+	id S266703AbUJBPl6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Oct 2004 11:41:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266835AbUJBPl6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Oct 2004 11:31:36 -0400
-Received: from cantor.suse.de ([195.135.220.2]:24016 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S266721AbUJBPbX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Oct 2004 11:31:23 -0400
-Date: Sat, 2 Oct 2004 17:30:53 +0200
-From: Olaf Hering <olh@suse.de>
-To: Andi Kleen <ak@suse.de>
-Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]  allow CONFIG_NET=n on ppc64
-Message-ID: <20041002153053.GA2643@suse.de>
-References: <20040929200158.GA16366@suse.de> <20040929201524.GA14615@wotan.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040929201524.GA14615@wotan.suse.de>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+	Sat, 2 Oct 2004 11:41:58 -0400
+Received: from locomotive.csh.rit.edu ([129.21.60.149]:17157 "EHLO
+	locomotive.unixthugs.org") by vger.kernel.org with ESMTP
+	id S266703AbUJBPly (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Oct 2004 11:41:54 -0400
+Message-ID: <415ECD25.8000901@novell.com>
+Date: Sat, 02 Oct 2004 11:45:41 -0400
+From: Jeff Mahoney <jeffm@novell.com>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040803)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [BUG] Race with iput and umount
+References: <415E5EE6.3010800@novell.com> <20041002095254.GH23987@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <20041002095254.GH23987@parcelfarce.linux.theplanet.co.uk>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Bogosity: No, tests=bogofilter, spamicity=0.000000, version=0.92.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Wed, Sep 29, Andi Kleen wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> On Wed, Sep 29, 2004 at 10:01:58PM +0200, Olaf Hering wrote:
-> > 
-> > The attached minimal config does not compile on ppc64.
-> > I was able to boot the resulting binary with this patch.
+viro@parcelfarce.linux.theplanet.co.uk wrote:
+| On Sat, Oct 02, 2004 at 03:55:18AM -0400, Jeff Mahoney wrote:
+|
+|>generic_shutdown_super() will happily call the ->put_super fs method,
+|>destroying data structures still in use by the iput (->delete_inode) in
+|>progress.  That's where Oopsen come into play.
+|>
+|>The unlink path will call the ->unlink fs method, release the path (thus
+|>dropping the reference to the vfsmount, and then call iput. Since the
+|>vfsmount reference is dropped back to 1, a umount will succeed, causing
+|>the superblock to be cleaned up.
+|
+|
+| Arrgh...
+|
+| Bug is in the ->i_count hacks in sys_unlink().  1001st proof that VFS has
+| no fscking business playing with inode refcount directly...
+|
+| OK, quick and dirty fix follows.  Note: all places that go to exit1:
+or exit:
+| will have NULL inode, so we are not leaking anything here and it is OK
+do that
+| iput() early; indeed, the goal of that kludge was to postpone the final
+| iput() past the unlocking the parent for the sake of contention if a wunch
+| of bankers is doing parallel unlink() on files in the same directory and
+| normally it would happen on dput() after vfs_unlink())
+|
+| --- linux/fs/namei.c	Mon Sep 13 01:32:00 2004
+| +++ linux/fs/namei.c.fix	Sat Oct  2 05:48:21 2004
+| @@ -1825,13 +1825,12 @@
+|  		dput(dentry);
+|  	}
+|  	up(&nd.dentry->d_inode->i_sem);
+| +	if (inode)
+| +		iput(inode);	/* truncate the inode here */
+|  exit1:
+|  	path_release(&nd);
+|  exit:
+|  	putname(name);
+| -
+| -	if (inode)
+| -		iput(inode);	/* truncate the inode here */
+|  	return error;
+|
+|  slashes:
 
-> Right fix is to declare compat_sys_socketcall as as cond_syscall() 
-> in sys.c
 
-ok.
+Works as expected. Thanks!
 
-Signed-off-by: Olaf Hering <olh@suse.de>
+- -Jeff
 
-diff -purNX /suse/olh/kernel/kernel_exclude.txt linux-2.6.9-rc3-bk2/include/net/sock.h linux-2.6.9-rc3-bk2.nonet/include/net/sock.h
---- linux-2.6.9-rc3-bk2/include/net/sock.h	2004-09-30 05:05:21.000000000 +0200
-+++ linux-2.6.9-rc3-bk2.nonet/include/net/sock.h	2004-10-02 17:24:23.666152810 +0200
-@@ -1336,6 +1336,13 @@ static inline void sock_valbool_flag(str
- extern __u32 sysctl_wmem_max;
- extern __u32 sysctl_rmem_max;
- 
-+#ifdef CONFIG_NET
- int siocdevprivate_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg);
-+#else
-+static inline int siocdevprivate_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg)
-+{
-+	return -ENODEV;
-+}
-+#endif
- 
- #endif	/* _SOCK_H */
-diff -purNX /suse/olh/kernel/kernel_exclude.txt linux-2.6.9-rc3-bk2/kernel/sys.c linux-2.6.9-rc3-bk2.nonet/kernel/sys.c
---- linux-2.6.9-rc3-bk2/kernel/sys.c	2004-09-30 05:03:55.000000000 +0200
-+++ linux-2.6.9-rc3-bk2.nonet/kernel/sys.c	2004-10-02 17:05:49.589116448 +0200
-@@ -282,6 +282,7 @@ cond_syscall(compat_set_mempolicy)
- cond_syscall(sys_pciconfig_read)
- cond_syscall(sys_pciconfig_write)
- cond_syscall(sys_pciconfig_iobase)
-+cond_syscall(compat_sys_socketcall)
- 
- static int set_one_prio(struct task_struct *p, int niceval, int error)
- {
+- --
+Jeff Mahoney
+SuSE Labs
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
--- 
-USB is for mice, FireWire is for men!
-
-sUse lINUX ag, nÜRNBERG
+iD8DBQFBXs0lLPWxlyuTD7IRAivHAJ4l3GsDxWgQTrTHrMeR7C0CqpomiACgljzB
+njBzAn2tP+P5pya1egf9TmU=
+=JmTS
+-----END PGP SIGNATURE-----

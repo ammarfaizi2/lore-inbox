@@ -1,31 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131475AbQKRKw4>; Sat, 18 Nov 2000 05:52:56 -0500
+	id <S131633AbQKRKzG>; Sat, 18 Nov 2000 05:55:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131647AbQKRKwr>; Sat, 18 Nov 2000 05:52:47 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:8718 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S131475AbQKRKwj>;
-	Sat, 18 Nov 2000 05:52:39 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Anil Kumar Prasad <anil_411@yahoo.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: passing arguments to module 
-In-Reply-To: Your message of "Sat, 18 Nov 2000 02:10:40 -0800."
-             <20001118101040.24881.qmail@web1302.mail.yahoo.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sat, 18 Nov 2000 21:22:34 +1100
-Message-ID: <22278.974542954@ocs3.ocs-net>
+	id <S131647AbQKRKy4>; Sat, 18 Nov 2000 05:54:56 -0500
+Received: from 13dyn189.delft.casema.net ([212.64.76.189]:25863 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S131633AbQKRKyp>; Sat, 18 Nov 2000 05:54:45 -0500
+Message-Id: <200011181024.LAA12946@cave.bitwizard.nl>
+Subject: Re: RFC: "SubmittingPatches" text
+In-Reply-To: <20001117163716.A29847@veritas.com> from Andries Brouwer at "Nov
+ 17, 2000 04:37:16 pm"
+To: Andries Brouwer <aeb@veritas.com>
+Date: Sat, 18 Nov 2000 11:24:39 +0100 (MET)
+CC: Kai Germaschewski <kai@thphy.uni-duesseldorf.de>,
+        linux-kernel@vger.kernel.org
+From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 18 Nov 2000 02:10:40 -0800 (PST), 
-Anil Kumar Prasad <anil_411@yahoo.com> wrote:
->can anybody tell how to pass argument to modules?
+Andries Brouwer wrote:
+> On Fri, Nov 17, 2000 at 09:30:13AM +0100, Kai Germaschewski wrote:
+> 
+> > One question comes to my mind: Are patches supposed to be applied with
+> > patch -p0 or patch -p1? 
+> 
+> Suppose the kernel tree is in /kernpath, starting with /kernpath/linux.
+> Linus' patches can be applied by (cd /kernpath; patch -p0 -s < patch)
+                   ^^^^ ALSO
+> while Alan's patches only work if you do
+> (cd /kernpath/linux; patch -p1 -s < ../patch)
 
-RTFM.  man modprobe.  man insmod.  man modules.conf.
+For uniformity, I would recommend that everyone generates patches that 
+are "Linus-style", but that when applying, you treat them as "Alan-style". 
 
+Less chances for surprises.
+
+				Roger. 
+
+
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+*       Common sense is the collection of                                *
+******  prejudices acquired by age eighteen.   -- Albert Einstein ********
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

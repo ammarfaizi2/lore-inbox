@@ -1,32 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269955AbRHENTH>; Sun, 5 Aug 2001 09:19:07 -0400
+	id <S269953AbRHENSg>; Sun, 5 Aug 2001 09:18:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269956AbRHENS5>; Sun, 5 Aug 2001 09:18:57 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:31755 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S269955AbRHENSq>; Sun, 5 Aug 2001 09:18:46 -0400
-Subject: Re: 3c509: broken(verified)
-To: nicos@pcsystems.de (Nico Schottelius)
-Date: Sun, 5 Aug 2001 14:20:19 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
-In-Reply-To: <no.id> from "Nico Schottelius" at Aug 05, 2001 01:10:45 PM
-X-Mailer: ELM [version 2.5 PL5]
-MIME-Version: 1.0
+	id <S269955AbRHENSQ>; Sun, 5 Aug 2001 09:18:16 -0400
+Received: from weta.f00f.org ([203.167.249.89]:41104 "EHLO weta.f00f.org")
+	by vger.kernel.org with ESMTP id <S269953AbRHENSG>;
+	Sun, 5 Aug 2001 09:18:06 -0400
+Date: Mon, 6 Aug 2001 01:18:59 +1200
+From: Chris Wedgwood <cw@f00f.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Rik van Riel <riel@conectiva.com.br>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: /proc/<n>/maps getting _VERY_ long
+Message-ID: <20010806011859.A21830@weta.f00f.org>
+In-Reply-To: <20010805171202.A20716@weta.f00f.org> <E15TNbk-0007pu-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15TNpL-0007rV-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <E15TNbk-0007pu-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.20i
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The driver for the 3c509 of 2.4.7 is broken:
-> It is impossible to set the transmitter type.
-> modprobe 3c509 xcvr=X, where X is
-> 0,1,2,3,4 doesn't make a difference.
+On Sun, Aug 05, 2001 at 02:06:16PM +0100, Alan Cox wrote:
 
-Looking at the code it should set the type fine. The only bug I can see is
-that it will report the default type set in the eeprom not the type you
-asked.
+    Linus took itout because it was quite complex and nobody seemed to
+    have cases that triggered it or made it useful
 
-If thats the case (please check) then its trivial to fix
+Hmm... well it seems the are cases which trigger this, mozilla and
+vmware being quite common.
+
+Is a less heavy-handed approach than the original code possible?
+Something like when inserting into a processes vma, if there are more
+than <n> entries, we lock/scan/coalesce/unlock --- or would this
+locking be too gross?
+
+
+
+  --cw

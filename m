@@ -1,69 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278442AbRJOV6w>; Mon, 15 Oct 2001 17:58:52 -0400
+	id <S278454AbRJOWAC>; Mon, 15 Oct 2001 18:00:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278454AbRJOV6l>; Mon, 15 Oct 2001 17:58:41 -0400
-Received: from darkwing.uoregon.edu ([128.223.142.13]:19115 "EHLO
-	darkwing.uoregon.edu") by vger.kernel.org with ESMTP
-	id <S278442AbRJOV62>; Mon, 15 Oct 2001 17:58:28 -0400
-Date: Mon, 15 Oct 2001 14:57:20 -0700 (PDT)
-From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
-X-X-Sender: <joelja@twin.uoregon.edu>
+	id <S278452AbRJOV7x>; Mon, 15 Oct 2001 17:59:53 -0400
+Received: from anime.net ([63.172.78.150]:49415 "EHLO anime.net")
+	by vger.kernel.org with ESMTP id <S278454AbRJOV7p>;
+	Mon, 15 Oct 2001 17:59:45 -0400
+Date: Mon, 15 Oct 2001 14:58:59 -0700 (PDT)
+From: Dan Hollis <goemon@anime.net>
 To: Bill Davidsen <davidsen@tmr.com>
-cc: "Jeffrey W. Baker" <jwbaker@acm.org>, <linux-kernel@vger.kernel.org>
+cc: <nick@snowman.net>, <linux-kernel@vger.kernel.org>
 Subject: Re: Dual Athlon XP 1800+ on Tyan Thunder K7 or Tiger MP anyone?
-In-Reply-To: <Pine.LNX.3.96.1011015173113.21274F-100000@gatekeeper.tmr.com>
-Message-ID: <Pine.LNX.4.33.0110151449310.32726-100000@twin.uoregon.edu>
+In-Reply-To: <Pine.LNX.3.96.1011015172850.21274C-100000@gatekeeper.tmr.com>
+Message-ID: <Pine.LNX.4.30.0110151457410.23736-100000@anime.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 On Mon, 15 Oct 2001, Bill Davidsen wrote:
+> On Thu, 11 Oct 2001 nick@snowman.net wrote:
+> > Erm, ???  Try www.crucial.com.  It's not quite as cheap as pc133, but it's
+> > real close.  Where are you buying?
+> TC computers. They have the cheap memory, but the motherboard specs ask
+> for "registered." I'll take a look at crucial with that in mind.
 
-> On Thu, 11 Oct 2001, Jeffrey W. Baker wrote:
->
-> > Registered ECC PC2100 DIMMs are $40 for 256MB at crucial.com.  The local
-> > computer shop has $129 for random taiwanese 512MB DIMM and $193 for
-> > Corsair brand of same.
-> >
-> > I dunno where your $900/GB figure comes from.
->
-> 512MB registered at $450ea. The 256MB are about the cost you mention, but
-> allow only a single GB with no room for expansion. I tried all weekend to
-> get into crutial.com and kept getting "too busy to accept you" messages,
-> so it may be great but not currently useful. Yes I tried from several
-> site, and at 2:10am Morning when I was fixing a server...
+http://www.crucial.com/store/listparts.asp?model=S2460+Tiger+MP&x=16&y=16
 
-go to www.insight.com... search on 512MB registered ecc ddr
+Registered ECC PC2100, got 2 sticks of this in my Tiger MP and works
+perfectly. Dead cheap too
 
-http://www.insight.com/web/apps/productpresentation/index.php?product_id=VAR512RECD
-
-or go to www.kingston.com
-
-select search by part number
-
-search on:
-
-
-KVR266X72RC25/512
-
-http://www.ec.kingston.com/ecom/kepler/PartsInfo_Bod.asp?ktcpartno=KVR266X72RC25/512
-
-you can also get the 1GB part for $434
-
-KVR266X72RC25/1024
-
-joelja
-
+-Dan
 -- 
---------------------------------------------------------------------------
-Joel Jaeggli				       joelja@darkwing.uoregon.edu
-Academic User Services			     consult@gladstone.uoregon.edu
-     PGP Key Fingerprint: 1DE9 8FCA 51FB 4195 B42A 9C32 A30D 121E
---------------------------------------------------------------------------
-It is clear that the arm of criticism cannot replace the criticism of
-arms.  Karl Marx -- Introduction to the critique of Hegel's Philosophy of
-the right, 1843.
-
+[-] Omae no subete no kichi wa ore no mono da. [-]
 

@@ -1,87 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261401AbUCHXLH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Mar 2004 18:11:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261396AbUCHXLH
+	id S261156AbUCHXJd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Mar 2004 18:09:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261401AbUCHXJc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Mar 2004 18:11:07 -0500
-Received: from fw.osdl.org ([65.172.181.6]:48285 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261401AbUCHXKg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Mar 2004 18:10:36 -0500
-Date: Mon, 8 Mar 2004 15:09:07 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Kliment Yanev <Kliment.Yanev@helsinki.fi>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Nokia c110 driver
-Message-Id: <20040308150907.4db68831.rddunlap@osdl.org>
-In-Reply-To: <404CF77A.2050301@helsinki.fi>
-References: <40408852.8040608@helsinki.fi>
-	<20040228104105.5a699d32.rddunlap@osdl.org>
-	<40419A1C.5070103@helsinki.fi>
-	<20040301101706.3a606d35.rddunlap@osdl.org>
-	<404C8A35.3020308@helsinki.fi>
-	<20040308090640.2d557f9e.rddunlap@osdl.org>
-	<404CF77A.2050301@helsinki.fi>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Mon, 8 Mar 2004 18:09:32 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:63497
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S261156AbUCHXIH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Mar 2004 18:08:07 -0500
+Date: Tue, 9 Mar 2004 00:08:45 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: objrmap-core-1 (rmap removal for file mappings to avoid 4:4 in <=16G machines)
+Message-ID: <20040308230845.GD12612@dualathlon.random>
+References: <20040308202433.GA12612@dualathlon.random> <1078781318.4678.9.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1078781318.4678.9.camel@laptop.fenrus.com>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 09 Mar 2004 00:45:14 +0200 Kliment Yanev wrote:
+On Mon, Mar 08, 2004 at 10:28:38PM +0100, Arjan van de Ven wrote:
+> > . Basically without
+> > this fix it's like 2.6 is running w/o pte-highmem. 700 tasks with 2.7G
+> > of shm mapped each would run the box out of zone-normal even with 4:4.
+> > With 3:1 100 tasks would be enough. Math is easy:
+> > 
+> > 	2.7*1024*1024*1024/4096*8*100/1024/1024/1024
+> > 	2.7*1024*1024*1024/4096*8*700/1024/1024/1024
+> 
+> 
+> not saying your patch is not useful or anything,but there is a less
+> invasive shortcut possible. Oracle wants to mlock() its shared area, and
+> for mlock()'d pages we don't need a pte chain *at all*. So we could get
+> rid of a lot of this overhead that way.
 
-| -----BEGIN PGP SIGNED MESSAGE-----
-| Hash: SHA1
-| 
-| 
-| 
-| Randy.Dunlap wrote:
-| 
-| | |
-| | | I compared the orinoco_cs drivers in 2.4 and 2.6 and I updated the nokia
-| | | driver source. However now I get "-1 unknown symbol in module" when I
-| | | try to insmod the module... where should I start troubleshooting?
-| |
-| | Set the console loglevel to 9 so that you can see all of the
-| | kernel messages and then try to reload the module.  Some explanatory
-| | error message should appear to indicate the problem area.
-| |
-| 
-| dmesg handled that. dmesg output below (there was also an
-| "unknown symbol CardServices" but I fixed that bu replacing all
-| references to CardServices with the pcmcia_functionname functions.
-| What are the replacements for these then? (The license string I can
-| correct myself)
-| 
-| nokia_c110: module license 'unspecified' taints kernel.
-| nokia_c110: Unknown symbol dcfg_new
-| nokia_c110: Unknown symbol dllc_register
-| nokia_c110: Unknown symbol dllc_delete
-| nokia_c110: Unknown symbol dfree
-| nokia_c110: Unknown symbol ddev_register
-| nokia_c110: Unknown symbol dmgr_pcmcia_action
-| nokia_c110: Unknown symbol dcfg_delete
-| nokia_c110: Unknown symbol dmgr_new
-| nokia_c110: Unknown symbol dllc_new
-| nokia_c110: Unknown symbol dprintk
-| nokia_c110: Unknown symbol dllc_set_my_mac_addr
-| nokia_c110: Unknown symbol dmgr_delete
-| nokia_c110: Unknown symbol ddev_unregister
-| nokia_c110: Unknown symbol dhw_get_my_mac
-| nokia_c110: Unknown symbol dhw_delete
-| nokia_c110: Unknown symbol dhw_new
-| nokia_c110: Unknown symbol dhw_ISR
+I agree that works fine for Oracle, that's becase Oracle is an extreme
+special case since most of this shared memory is an I/O cache, this is
+not the case of other apps, and those other apps really depends on the
+kernel vm paging algorithms for things more than istantiating a pte (or
+a pmd if it's a largepage). Other apps can't use mlock. Some of these
+apps works closely with oracle too.
 
-I have no idea where these symbols live or come from.
-
-You know, it's possible that you could purchase a card that already
-works on Linux 2.6.... that might be a better solution than trying
-to use an unknown binary module.
-
---
-~Randy
+dropping pte_chains through mlock was suggested around april 2003
+originally by Wli and I didn't like that idea since we really want to
+allow swapping if we run short of ram. And it doesn't solve the
+scalability slowdown on the 32-way for kernel compiles either.

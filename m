@@ -1,36 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293048AbSCRVxG>; Mon, 18 Mar 2002 16:53:06 -0500
+	id <S293060AbSCRVwq>; Mon, 18 Mar 2002 16:52:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293075AbSCRVw5>; Mon, 18 Mar 2002 16:52:57 -0500
-Received: from sbcs.cs.sunysb.edu ([130.245.1.15]:423 "EHLO sbcs.cs.sunysb.edu")
-	by vger.kernel.org with ESMTP id <S293048AbSCRVwm>;
-	Mon, 18 Mar 2002 16:52:42 -0500
-Date: Mon, 18 Mar 2002 16:49:13 -0500 (EST)
-From: <prade@cs.sunysb.edu>
-X-X-Sender: <prade@compserv3>
-To: Hari Gadi <HGadi@ecutel.com>
-cc: Chris Friesen <cfriesen@nortelnetworks.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: RE: Trapping all Incoming Network Packets
-In-Reply-To: <AF2378CBE7016247BC0FD5261F1EEB210B6A8F@EXCHANGE01.domain.ecutel.com>
-Message-ID: <Pine.GSO.4.33.0203181646170.5841-100000@compserv3>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S293058AbSCRVwg>; Mon, 18 Mar 2002 16:52:36 -0500
+Received: from ulima.unil.ch ([130.223.144.143]:8679 "HELO ulima.unil.ch")
+	by vger.kernel.org with SMTP id <S293048AbSCRVw0>;
+	Mon, 18 Mar 2002 16:52:26 -0500
+Date: Mon, 18 Mar 2002 22:52:21 +0100
+From: Gregoire Favre <greg@ulima.unil.ch>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.7 hfs modules compil error
+Message-ID: <20020318215221.GA942@ulima.unil.ch>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Mar 2002, Hari Gadi wrote:
+Hello,
 
-> Hi,
-> Is it possible to change the packet (add an extra ip header)
-> and send it back to network bypassing the routing functionality.
-> I want to do my own routing.( I add the hardware address of the destination machine)
+gcc -D__KERNEL__ -I/usr/src/linux-2.5/include -Wall -Wstrict-prototypes
+-Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common
+-pipe -mpreferred-stack-boundary=2 -march=i686 -DMODULE
+-DKBUILD_BASENAME=super  -c -o super.o super.c
+super.c: In function `hfs_fill_super':
+super.c:536: `sb' undeclared (first use in this function)
+super.c:536: (Each undeclared identifier is reported only once
+super.c:536: for each function it appears in.)
+make[2]: *** [super.o] Error 1
+make[2]: Leaving directory `/usr/src/linux-2.5/fs/hfs'
+make[1]: *** [_modsubdir_hfs] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.5/fs'
+make: *** [_mod_fs] Error 2
+178.340u 10.190s 3:15.77 96.3%  0+0k 0+0io 189688pf+0w
+Exit 2
 
-In IP-IP encapsualtion, after adding the outer IP header, the ip_send
-function is invoked. Instead for your purpose you can have your own
-function and write your routing table lookup. You can check the
-net/ipv4/ipip.c code
+Thanks you very much,
 
---pradipta
-
+	Grégoire
+________________________________________________________________
+http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch

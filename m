@@ -1,46 +1,52 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317165AbSFBKwb>; Sun, 2 Jun 2002 06:52:31 -0400
+	id <S317168AbSFBLVM>; Sun, 2 Jun 2002 07:21:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317166AbSFBKwa>; Sun, 2 Jun 2002 06:52:30 -0400
-Received: from mons.uio.no ([129.240.130.14]:30082 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S317165AbSFBKwa>;
-	Sun, 2 Jun 2002 06:52:30 -0400
+	id <S317169AbSFBLVL>; Sun, 2 Jun 2002 07:21:11 -0400
+Received: from mailf.telia.com ([194.22.194.25]:39659 "EHLO mailf.telia.com")
+	by vger.kernel.org with ESMTP id <S317168AbSFBLVK>;
+	Sun, 2 Jun 2002 07:21:10 -0400
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: linux-kernel@vger.kernel.org, Keith Owens <kaos@ocs.com.au>
+Subject: Re: KBuild 2.5 Impressions
+In-Reply-To: <E17DMUd-0007dJ-00@starship>
+From: Peter Osterlund <petero2@telia.com>
+Date: 02 Jun 2002 13:21:01 +0200
+Message-ID: <m2hekmgc4i.fsf@ppro.localdomain>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15609.63721.842434.183988@charged.uio.no>
-Date: Sun, 2 Jun 2002 12:52:25 +0200
-To: Kenneth Johansson <ken@canit.se>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: nfs problem 2.4.19-pre9
-In-Reply-To: <1022962240.1186.62.camel@tiger>
-X-Mailer: VM 7.00 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Kenneth Johansson <ken@canit.se> writes:
+Daniel Phillips <phillips@bonn-fries.net> writes:
 
-    >> Fair enough. Have you tried a tcpdump?
+> I wanted to know how well kbuild 2.5 really works, so I got the patches
+> from kbuild.sourceforge.net and gave them a test drive, comparing to
+> old kbuild.
 
-     > I can send you a trace if you want. I guess you only need a
-     > trace from the first stat to read fails but it has to wait an
-     > hour or two it's not a good time to crash just now.
+I currently have three problems with kbuild 2.5:
 
-Problem is very apparent from the tcpdump: your client is only
-receiving 2 or 3 out of the 6 UDP fragments in the NFS read
-reply from the server. The rest is getting lost en route.
+1. make TAGS doesn't work.
 
-Check out the NFS FAQ on nfs.sourceforge.net. The relevant section is
-the bit that asks questions of the form:
+2. NO_MAKEFILE_GEN is unsupported and therefore likely to stop working
+   in future kernels. The documentation says:
 
-   1) Are both server and client running on the same speed network
-      (i.e. are both switched 100Mbit/100Mbit or 10Mbit/10Mbit)?
-   2) If you are using a switch, are you also using autonegotiation,
-      or have you forced one or both of the cards (forcing is *bad*
-      if your switch/hub is autonegotiating)
+        Bug reports against kbuild when you used NO_MAKEFILE_GEN will
+        be ignored.
 
-Cheers,
-  Trond
+   NO_MAKEFILE_GEN is about 8.4 times faster when you want to create a
+   single .o file on my 2.2GHz P4 system. It doesn't matter that much
+   on a fast machine, but my old PPro 200MHz machine required
+   something like 40s just to process the makefiles.
+
+3. You have to remember the "-f Makefile-2.5" arguments to make,
+   otherwise it will use the old makefile system. This seems to mess
+   things up so that subsequent make commands fail.
+   I tried to "mv Makefile-2.5 Makefile" to overcome this problem, but
+   it doesn't work because the original Makefile appears to be needed
+   for extracting kernel version information.
+
+-- 
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

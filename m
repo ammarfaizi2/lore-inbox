@@ -1,39 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265844AbRF1Nto>; Thu, 28 Jun 2001 09:49:44 -0400
+	id <S265918AbRF1Nwy>; Thu, 28 Jun 2001 09:52:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265845AbRF1Nte>; Thu, 28 Jun 2001 09:49:34 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:52664 "EHLO
-	e34.bld.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S265844AbRF1NtS>; Thu, 28 Jun 2001 09:49:18 -0400
-Subject: [ANNOUNCE] New version of the Linux Test Project released
-From: Paul Larson <plars@austin.ibm.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
+	id <S265902AbRF1Nwo>; Thu, 28 Jun 2001 09:52:44 -0400
+Received: from picard.csihq.com ([204.17.222.1]:45953 "EHLO picard.csihq.com")
+	by vger.kernel.org with ESMTP id <S265905AbRF1Nwd>;
+	Thu, 28 Jun 2001 09:52:33 -0400
+Message-ID: <032f01c0ffd9$8bfc2e80$e1de11cc@csihq.com>
+From: "Mike Black" <mblack@csihq.com>
+To: "linux-kernel@vger.kernel.or" <linux-kernel@vger.kernel.org>,
+        "raid" <linux-raid@vger.kernel.org>
+In-Reply-To: <02bd01c0ffcf$6a85f150$e1de11cc@csihq.com> <3B3B291A.3DFDA2A4@uow.edu.au>
+Subject: 2.2.6-pre6 ext3 Part II
+Date: Thu, 28 Jun 2001 09:52:18 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.10.99 (Preview Release)
-Date: 28 Jun 2001 08:50:34 -0500
-Message-Id: <993736239.4341.2.camel@localhost.localdomain>
-Mime-Version: 1.0
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Trying to recover from ext3 journal failure....swtiched drive back to ext2
 
-The Linux Test Project is an open source project originated by SGI and
-recently joined by IBM and OSDL to provide a collection of tools for
-testing the Linux kernel, and Linux in general.  The project consists of
-well over 100 individual testcases and a test driver to automate
-execution of the tests.  This release includes many new tests and
-updates.
+Now my fiber channel driver is complaining:
+qlogicfc0: no handle slots, this should not happen.
+hostdata->queue  is 2a, inptr: 74
+And a bunch more (77,79,7b,7d,7e) after which it locks up completely.
 
--Over 20 reliability network tests for remote procedure calls, network
-file systems, multicast, and various network commands.
--An assortment of robustness tests that cover pthreads, memory,
-filesystems, and disk I/O
--Several tests for commands commonly used in an application development
-environment.
+This is while the raid5 is resyncing and it's trying to do an e2fsck at the
+same time.
 
-You can download the Linux Test Project on SourceForge at
-http://sourceforge.net/projects/ltp.  For more information about the
-Linux Test Project, visit our web site at http://ltp.sf.net.
+I'm now going to try letting the resync complete before doing the e2fsck.
+
+Looks like I'm just running into cascading problems here...sigh...
+
+________________________________________
+Michael D. Black   Principal Engineer
+mblack@csihq.com  321-676-2923,x203
+http://www.csihq.com  Computer Science Innovations
+http://www.csihq.com/~mike  My home page
+FAX 321-676-2355
 

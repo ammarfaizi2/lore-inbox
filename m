@@ -1,27 +1,29 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261665AbVBTGv0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261628AbVBTHGu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261665AbVBTGv0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Feb 2005 01:51:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261628AbVBTGv0
+	id S261628AbVBTHGu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Feb 2005 02:06:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261668AbVBTHGt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Feb 2005 01:51:26 -0500
-Received: from fire.osdl.org ([65.172.181.4]:27358 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261665AbVBTGvM (ORCPT
+	Sun, 20 Feb 2005 02:06:49 -0500
+Received: from fire.osdl.org ([65.172.181.4]:8672 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261628AbVBTHGn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Feb 2005 01:51:12 -0500
-Date: Sat, 19 Feb 2005 22:51:26 -0800 (PST)
+	Sun, 20 Feb 2005 02:06:43 -0500
+Date: Sat, 19 Feb 2005 23:06:58 -0800 (PST)
 From: Linus Torvalds <torvalds@osdl.org>
 To: Steven Rostedt <rostedt@goodmis.org>
-cc: LKML <linux-kernel@vger.kernel.org>, Greg KH <gregkh@suse.de>
+cc: LKML <linux-kernel@vger.kernel.org>, Greg KH <gregkh@suse.de>,
+       Andrew Morton <akpm@osdl.org>
 Subject: Re: IBM Thinkpad G41 PCMCIA problems [Was: Yenta TI: ... no PCI
  interrupts. Fish. Please report.]
-In-Reply-To: <1108870731.8413.163.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.58.0502192201380.14927@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0502192201380.14927@ppc970.osdl.org>
+Message-ID: <Pine.LNX.4.58.0502192255160.14927@ppc970.osdl.org>
 References: <1108858971.8413.147.camel@localhost.localdomain> 
  <Pine.LNX.4.58.0502191648110.14176@ppc970.osdl.org> 
  <1108863372.8413.158.camel@localhost.localdomain> 
  <Pine.LNX.4.58.0502191757170.14706@ppc970.osdl.org>
  <1108870731.8413.163.camel@localhost.localdomain>
+ <Pine.LNX.4.58.0502192201380.14927@ppc970.osdl.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -29,48 +31,30 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Sat, 19 Feb 2005, Steven Rostedt wrote:
->
-> +	    /* the 2448 bridge is not transparent */
-> +	    dev->device != 0x2448)
+On Sat, 19 Feb 2005, Linus Torvalds wrote:
+> 
+> Does a patch like this (instead of your version) work for you? It removes
+> the Intel quirk entirely, and replaces it with the "if there's no
+> resource, use the parent resource as the default fallback" code.
 
-Btw, I've got a laptop with the exact same bridge chip PCI ID (well, mine
-is "rev 83", while yours claims to be "rev 81"), and mine definitely _is_ 
-transparent.
+Here's a very very slightly changed patch. The only addition is to make 
+the extra line of
 
-On my machine, "lspci -vvn -s 0:1e.0" gives:
+	b->resource[2] = &iomem_resource;
 
-        I/O behind bridge: 0000f000-00000fff
-        Memory behind bridge: 90000000-901fffff
-        Prefetchable memory behind bridge: fff00000-000fffff
+which makes the root PCI device have "iomem_resource" for both it's 
+prefetchable and non-prefetchable resource. That's damn subtle, but it 
+means that it the non-prefetchable one is overridden by a half-transparent 
+setup like I have, then in order to see a prefetchable area at all, you 
+want that root iomem_resource to "shine through" the transparent 
+prefetchable region.
 
-ie the IO and prefetchable memory ranges have actually been _disabled_
-(that is, if we actually care about the PCI specs), yet it definitely
-forwards them.
+Andrew, I think this should be tested in -mm. I think it will fix Stevens 
+laptop, and the more I think about it, the more convinced I am that is it 
+the RightThing to do.. But it could easily break something subtle.
 
-It looks to me like the Intel bridges have this magic behaviour where if 
-you disable a range, it turns into a subtractive decode.
+		Linus
 
-Now, that's not hard to handle, and in fact, making the PCI bridge 
-handling in Linux match that kind of behaviour actually simplifies some 
-code.
-
-Does a patch like this (instead of your version) work for you? It removes
-the Intel quirk entirely, and replaces it with the "if there's no
-resource, use the parent resource as the default fallback" code.
-
-This seems to work on my laptop, which has the "transparent" case
-(actually, it's "interesting" on my laptop, since it's only
-half-transparent after this change: the non-prefetchable range is now put
-in the 0x90000000 area).
-
-Does it work for the non-transparent case too? It should, but..
-
-Damn. I think this might be the right thing to do, but I also suspect it's 
-not worth doing for 2.6.11, if only because it needs more testing. In 
-particular, the partial transparency case is a bit unnerving.
-
-			Linus
 ----
 ===== arch/i386/pci/fixup.c 1.24 vs edited =====
 --- 1.24/arch/i386/pci/fixup.c	2005-01-11 16:42:41 -08:00
@@ -101,7 +85,7 @@ particular, the partial transparency case is a bit unnerving.
   * From information provided by "Allen Martin" <AMartin@nvidia.com>:
 ===== drivers/pci/probe.c 1.78 vs edited =====
 --- 1.78/drivers/pci/probe.c	2005-02-02 22:42:24 -08:00
-+++ edited/drivers/pci/probe.c	2005-02-19 22:16:33 -08:00
++++ edited/drivers/pci/probe.c	2005-02-19 22:44:24 -08:00
 @@ -241,17 +241,20 @@
  	if (!dev)		/* It's a host bus, nothing to read */
  		return;
@@ -162,4 +146,12 @@ particular, the partial transparency case is a bit unnerving.
 +		child->resource[2] = res;
  	}
  }
+ 
+@@ -912,6 +920,7 @@
+ 	b->number = b->secondary = bus;
+ 	b->resource[0] = &ioport_resource;
+ 	b->resource[1] = &iomem_resource;
++	b->resource[2] = &iomem_resource;
+ 
+ 	b->subordinate = pci_scan_child_bus(b);
  

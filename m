@@ -1,73 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261473AbTKBGNa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Nov 2003 01:13:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261476AbTKBGNa
+	id S261463AbTKBGGP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Nov 2003 01:06:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261473AbTKBGGO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Nov 2003 01:13:30 -0500
-Received: from CPE-144-132-198-235.nsw.bigpond.net.au ([144.132.198.235]:45449
-	"EHLO anakin.wychk.org") by vger.kernel.org with ESMTP
-	id S261473AbTKBGN2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Nov 2003 01:13:28 -0500
-Date: Sun, 2 Nov 2003 13:57:48 +0800
-From: Geoffrey Lee <glee@gnupilgrims.org>
-To: linux-kernel@vger.kernel.org, davej@redhat.com
-Subject: [patch] reproducible athlon mce fix
-Message-ID: <20031102055748.GA1218@anakin.wychk.org>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="bg08WKrSYDhXBjb5"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+	Sun, 2 Nov 2003 01:06:14 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:39173
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id S261463AbTKBGGM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Nov 2003 01:06:12 -0500
+Date: Sat, 1 Nov 2003 22:05:31 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Ville Herva <vherva@niksula.hut.fi>
+cc: Willy Tarreau <willy@w.ods.org>, linux-kernel@vger.kernel.org
+Subject: Re: ide write cache issue? [Re: Something corrupts raid5 disks
+ slightly during reboot]
+In-Reply-To: <20031101210223.GM4640@niksula.cs.hut.fi>
+Message-ID: <Pine.LNX.4.10.10311012201421.23682-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---bg08WKrSYDhXBjb5
-Content-Type: text/plain; charset=big5
-Content-Disposition: inline
+I added the flush code to flush a drive in several places but it got
+pulled and munged.
 
-Hi all,
+The original model was to flush each time a device was closed, when any
+partition mount point was released, and called by notifier.
 
+In a minimal partition count of 1, you had at least two flush before
+shutdown or reboot.
 
-After switching from 2.4.22 to 2.6.0-test9, I have received reproducible
-MCE non-fatal error check messages in my kernel log.  (For example, one
-shows up right after my first scsi card init).
+So it was not the code because I fixed it, but then again I am retiring
+from formal maintainership.
 
->From Dave Jones' patch here:
+Cheers,
 
-http://lists.insecure.org/lists/linux-kernel/2003/Sep/7362.html
+Andre Hedrick
+LAD Storage Consulting Group
 
-and another message here:
+On Sat, 1 Nov 2003, Ville Herva wrote:
 
-http://lkml.org/lkml/2003/10/7/214
+> On Sat, Nov 01, 2003 at 08:01:14PM +0100, you [Willy Tarreau] wrote:
+> > On Sat, Nov 01, 2003 at 08:25:18PM +0200, Ville Herva wrote:
+> >  
+> > > Is there anything special in booting to DOS instead of different linux
+> > > kernel, other than that it would rule out some strange kernel bug that is
+> > > present in 2.2 and 2.4?
+> > 
+> > No, it was just to quicky confirm or deny the fact that it's the kernel
+> > which causes the problem. It could have been a long standing bug in the IDE
+> > or partition code, and which is present in several kernels. 
+> 
+> I vaguely recall some ide write cache flushing code was fixed some time ago,
+> but I can't find it in the archives. Maybe I dreamed that up. But I still
+> wonder why an otherwise idle drive would hold the data in write cache for so
+> long (several minutes.)
+> 
+> > But as you say that it affects two different controllers, there's little
+> > chance that it's caused by anything except linux itself. 
+> 
+> Unless the drive is buggy wrt. flushing its write cache. But I think it's
+> a quite distant possibility.
+> 
+> > Then, the reboot on DOS will only tell you if the drives were corrupted at
+> > startup or at shutdown.
+> 
+> Yep. I'll try to find the moment to boot the beast into something else than
+> the current kernel / distro (it could in theory be something in userspace,
+> though I cannot think what). 
+> 
+> > > BTW: the corruption happens on warm reboots (running reboot command), not
+> > > just on power off / on.
+> > 
+> > OK, but the BIOS scans your disks even during warm reboots. 
+> 
+> True, I mainly made this note because I hadn't mentioned it before in the
+> thread, and I thought it might have some relevance wrt. possible ide write
+> caching problems. I didn't mean it as a response to the BIOS theory.
+> 
+> 
+> -- v --
+> 
+> v@iki.fi
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-would seem to imply that Athlons don't like having their Bank 0 poked at,
-though that's what non-fatal.c does.  Would it be correct to make sure
-that that non-fatal.c starts at bank 1, if it is an Athlon?
-
-Dave, is the following patch correct?  Booted and tested, no ill effects
-so far ...
-
-
-	- g.
-
---bg08WKrSYDhXBjb5
-Content-Type: text/plain; charset=big5
-Content-Disposition: attachment; filename="mce-fix.patch"
-
---- linux-2.6.0-test9/arch/i386/kernel/cpu/mcheck/non-fatal.c.orig	2003-11-02 13:31:43.000000000 +0800
-+++ linux-2.6.0-test9/arch/i386/kernel/cpu/mcheck/non-fatal.c	2003-11-02 13:34:37.000000000 +0800
-@@ -30,7 +30,11 @@
- 	int i;
- 
- 	preempt_disable(); 
-+#if CONFIG_MK7
-+	for (i=1; i<nr_mce_banks; i++) {
-+#else
- 	for (i=0; i<nr_mce_banks; i++) {
-+#endif
- 		rdmsr (MSR_IA32_MC0_STATUS+i*4, low, high);
- 
- 		if (high & (1<<31)) {
-
---bg08WKrSYDhXBjb5--

@@ -1,40 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268922AbUHMB1B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268925AbUHMBaO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268922AbUHMB1B (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 21:27:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268930AbUHMB1B
+	id S268925AbUHMBaO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 21:30:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268928AbUHMBaO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 21:27:01 -0400
-Received: from holomorphy.com ([207.189.100.168]:50575 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S268922AbUHMB0v (ORCPT
+	Thu, 12 Aug 2004 21:30:14 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:60076 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S268925AbUHMBaJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 21:26:51 -0400
-Date: Thu, 12 Aug 2004 18:26:38 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
+	Thu, 12 Aug 2004 21:30:09 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
 To: Andi Kleen <ak@muc.de>
-Cc: Jesse Barnes <jbarnes@engr.sgi.com>, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] allocate page caches pages in round robin fasion
-Message-ID: <20040813012638.GU11200@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andi Kleen <ak@muc.de>, Jesse Barnes <jbarnes@engr.sgi.com>,
-	linux-kernel@vger.kernel.org
+Date: Thu, 12 Aug 2004 18:29:54 -0700
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org
 References: <2sxuC-429-3@gated-at.bofh.it> <m3657nu9dl.fsf@averell.firstfloor.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 In-Reply-To: <m3657nu9dl.fsf@averell.firstfloor.org>
-User-Agent: Mutt/1.5.6+20040722i
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408121829.54830.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesse Barnes <jbarnes@engr.sgi.com> writes:
->> The patch works by adding an alloc_page_round_robin routine that
->> simply allocates on successive nodes each time its called, based on
->> the value of a per-cpu variable modulo the number of nodes.  The
->> variable is per-cpu to avoid cacheline contention when many cpus try
->> to do page cache allocations at 
-
-On Fri, Aug 13, 2004 at 03:14:46AM +0200, Andi Kleen wrote:
+On Thursday, August 12, 2004 6:14 pm, Andi Kleen wrote:
+> Jesse Barnes <jbarnes@engr.sgi.com> writes:
+> > On a NUMA machine, page cache pages should be spread out across the
+> > system since they're generally global in nature and can eat up whole
+> > nodes worth of memory otherwise.  This can end up hurting performance
+> > since jobs will have to make off node references for much or all of their
+> > non-file data.
+> >
+> > The patch works by adding an alloc_page_round_robin routine that simply
+> > allocates on successive nodes each time its called, based on the value of
+> > a per-cpu variable modulo the number of nodes.  The variable is per-cpu
+> > to avoid cacheline contention when many cpus try to do page cache
+> > allocations at
+>
 > I don't like this approach using a dynamic counter. I think it would
 > be better to add a new function that takes the vma and uses the offset
 > into the inode for static interleaving (anonymous memory would still
@@ -42,11 +47,8 @@ On Fri, Aug 13, 2004 at 03:14:46AM +0200, Andi Kleen wrote:
 > interleaving stays interleaved even when the system swaps pages in and
 > out and you're less likely to get anomalies in the page distribution.
 
-If we're going to go that far, why not use a better coloring algorithm?
-IIRC linear_page_index(vma, vaddr) % MAX_NR_NODES has issues with
-various semiregular access patterns where others do not (most are
-relatively simple hash functions). This reminds me that getting the vma
-and vaddr accessible to the allocator helps with normal page coloring.
+Well, that's one reason I didn't add an alloc_pages routine, but just a single 
+page distributor.  However, a multipage round robin routine would be useful 
+in other cases, like for the slab allocator.
 
-
--- wli
+Jesse

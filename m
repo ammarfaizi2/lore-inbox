@@ -1,71 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318202AbSHMQLr>; Tue, 13 Aug 2002 12:11:47 -0400
+	id <S318220AbSHMQKo>; Tue, 13 Aug 2002 12:10:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318212AbSHMQLr>; Tue, 13 Aug 2002 12:11:47 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:16064 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S318202AbSHMQLj>;
-	Tue, 13 Aug 2002 12:11:39 -0400
-Date: Tue, 13 Aug 2002 09:12:22 -0700
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] NUMA-Q relocate early ioremap
-Message-ID: <1992130000.1029255142@flay>
-In-Reply-To: <348510000.1028591286@flay>
-References: <348510000.1028591286@flay>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
+	id <S318222AbSHMQKo>; Tue, 13 Aug 2002 12:10:44 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:17292 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S318220AbSHMQKn>;
+	Tue, 13 Aug 2002 12:10:43 -0400
+Date: Tue, 13 Aug 2002 18:14:06 +0200
+From: Jens Axboe <axboe@suse.de>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: James Bottomley <James.Bottomley@SteelEye.com>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       linux-kernel@vger.kernel.org, Erik Andersen <andersen@codepoet.org>
+Subject: Re: [PATCH] cdrom sane fallback vs 2.4.20-pre1
+Message-ID: <20020813161406.GC32470@suse.de>
+References: <200208131413.g7DEDd502174@localhost.localdomain> <Pine.LNX.4.33L2.0208130847380.5175-100000@dragon.pdx.osdl.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33L2.0208130847380.5175-100000@dragon.pdx.osdl.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This moves the early ioremap call to after cpu_online_map is initialized.
-Note everything is wrapped in clustered_apic_mode, so should be safe.
-Tested on NUMA-Q and std 2-way SMP through LTP. Says it's against
-2.5.25, but applies to and works on 2.5.31.
+On Tue, Aug 13 2002, Randy.Dunlap wrote:
+> On Tue, 13 Aug 2002, James Bottomley wrote:
+> 
+> | > > -             if (ret) {
+> | > > +             if (ret && sense.sense_key==0x05 && sense.asc==0x20 && sense.ascq==0x00) {
+> | >
+> | > Do you really need to hardcode this values ?
+> |
+> | We have no #defines for the asc and ascq codes (they are interpreted in
+> | constants.c but the values are hardcoded in there too).  There is a #define
+> | for sense_key 0x05 as ILLEGAL_REQUEST in scsi/scsi.h, but these #defines have
+> | annoyed a lot of people by being rather namespace polluting.
+> 
+> and that's precisely the wrong attitude IMO.
+> 
+> I was glad to see that Marcelo asked about the hardcoded values.
+> They hurt.
 
-Please apply,
+I usually find it a hell of a lot easier remembering that 5/20/00 is
+illegal opcode, 5/24/00 is illegal field, etc. There are just too many
+of these to be named sanely. sense_key can be done, agreed, but asc and
+ascq just gets silly imo, and it makes it harder to read for those that
+know the codes. Encouraging others to look up the values (it's not hard,
+you can see it's asc and ascq and it relates to sense info) does
+definitely not hurt, they might pick up something else along the way.
 
-Martin.
-
-diff -Nur linux-2.5.25-vanilla/arch/i386/kernel/smpboot.c linux-2.5.25-patched/arch/i386/kernel/smpboot.c
---- virgin-2.5.25/arch/i386/kernel/smpboot.c	Fri Jul  5 16:42:23 2002
-+++ linux-2.5.25-ioremap/arch/i386/kernel/smpboot.c	Fri Jul 12 15:55:20 2002
-@@ -968,16 +968,6 @@
- {
- 	int apicid, cpu, bit;
- 
--        if (clustered_apic_mode && (numnodes > 1)) {
--                printk("Remapping cross-quad port I/O for %d quads\n",
--			numnodes);
--                printk("xquad_portio vaddr 0x%08lx, len %08lx\n",
--                        (u_long) xquad_portio, 
--			(u_long) numnodes * XQUAD_PORTIO_LEN);
--                xquad_portio = ioremap (XQUAD_PORTIO_BASE, 
--			numnodes * XQUAD_PORTIO_LEN);
--        }
--
- #ifdef CONFIG_MTRR
- 	/*  Must be done before other processors booted  */
- 	mtrr_init_boot_cpu ();
-@@ -1075,6 +1065,16 @@
- 
- 	if (GET_APIC_ID(apic_read(APIC_ID)) != boot_cpu_physical_apicid)
- 		BUG();
-+
-+        if (clustered_apic_mode && (numnodes > 1)) {
-+                printk("Remapping cross-quad port I/O for %d quads\n",
-+			numnodes);
-+                printk("xquad_portio vaddr 0x%08lx, len %08lx\n",
-+                        (u_long) xquad_portio, 
-+			(u_long) numnodes * XQUAD_PORTIO_LEN);
-+                xquad_portio = ioremap (XQUAD_PORTIO_BASE, 
-+			numnodes * XQUAD_PORTIO_LEN);
-+        }
- 
- 	/*
- 	 * Scan the CPU present map and fire up the other CPUs via do_boot_cpu
+-- 
+Jens Axboe
 

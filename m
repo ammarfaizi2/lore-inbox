@@ -1,51 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261506AbSIWV7L>; Mon, 23 Sep 2002 17:59:11 -0400
+	id <S261492AbSIWVsZ>; Mon, 23 Sep 2002 17:48:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261508AbSIWV7L>; Mon, 23 Sep 2002 17:59:11 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:21189 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S261506AbSIWV7J>;
-	Mon, 23 Sep 2002 17:59:09 -0400
-Date: Mon, 23 Sep 2002 15:04:17 -0700
-To: Philipp Matthias Hahn <pmhahn@titan.lahn.de>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Jean Tourrilhes <jt@hpl.hp.com>
-Subject: Re: Linux 2.5.38 [PATCH] IrDA
-Message-ID: <20020923220417.GD12816@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-References: <Pine.LNX.4.33.0209212130360.2433-100000@penguin.transmeta.com> <20020923152827.GB22333@titan.lahn.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020923152827.GB22333@titan.lahn.de>
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+	id <S261493AbSIWVsY>; Mon, 23 Sep 2002 17:48:24 -0400
+Received: from dsl-213-023-022-250.arcor-ip.net ([213.23.22.250]:10935 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S261492AbSIWVsW>;
+	Mon, 23 Sep 2002 17:48:22 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Dave Olien <dmo@osdl.org>
+Subject: Re: DAC960 in 2.5.38, with new changes
+Date: Mon, 23 Sep 2002 23:53:47 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: axboe@suse.de, _deepfire@mail.ru, linux-kernel@vger.kernel.org
+References: <20020923120400.A15452@acpi.pdx.osdl.net> <E17tZyv-0003be-00@starship> <20020923144144.A15852@acpi.pdx.osdl.net>
+In-Reply-To: <20020923144144.A15852@acpi.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17tb9H-0003d7-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 23, 2002 at 05:28:27PM +0200, Philipp Matthias Hahn wrote:
-> Moin LKML, Jean!
+On Monday 23 September 2002 23:41, Dave Olien wrote:
+> On Mon, Sep 23, 2002 at 10:39:00PM +0200, Daniel Phillips wrote:
+> > Minor whitespace suggestion: don't worry too much about breaking up
+> > lines to fit in 80 columns.  It's nice where it works, but where it
+> > just makes more lines, don't bother.  We are going to go do spelling
+> > patches to shorten a lot of those names anyway.
 > 
-> On Sat, Sep 21, 2002 at 09:34:18PM -0700, Linus Torvalds wrote:
-> > Jean Tourrilhes <jt@hpl.hp.com>:
-> >   o More __FUNCTION__ cleanups for IrDA
-> 
-> More to find at http://pint.pmhahn.de/pmhahn/misc/irda-2.5.38.diff
-> since it is too large (228099 Bytes) for LKML.
-> 
-> BYtE
-> Philipp
-> 
-> PS: The magic "vim" like was
-> %s!__FUNCTION__\s*\(\n\s*\)\?"\([^"]*"\(\s*\n\s*"[^"]*"\)\?\)\(\s*[,)]\)!\1"%s\2, __FUNCTION__ \4!
+> thanks.
+> I'd been wondering whether there was a guidline for this.
+> I'll relax my 80 column constraints.
 
-	Thanks a lot !
-	I've merged your patch with other __FUNCTION__ stuff I already
-had, split into manageable chunks and sent the result to Jeff Garzik
-for inclusion. I'll follow up until it gets into the kernel...
-	Regards,
+It's a lot more important for core kernel, and ever there, a few lines
+tend to break loose here and there.
+ 
+Thanks for the test code.  Using your recipe, I confirmed I have the
+same controller as you.  Running on a dual PIII in my case.
 
-	Jean
+Apparently Jens has a DAC as well.  Jens, is it the same?
+
+-- 
+Daniel

@@ -1,86 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262106AbUFAPik@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262339AbUFAPji@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262106AbUFAPik (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jun 2004 11:38:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262337AbUFAPik
+	id S262339AbUFAPji (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jun 2004 11:39:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265082AbUFAPiu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jun 2004 11:38:40 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:28334 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262106AbUFAPiP (ORCPT
+	Tue, 1 Jun 2004 11:38:50 -0400
+Received: from cantor.suse.de ([195.135.220.2]:63108 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S265088AbUFAPih (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jun 2004 11:38:15 -0400
-Date: Tue, 1 Jun 2004 17:38:00 +0200
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Takashi Iwai <tiwai@suse.de>
-Cc: Pavel Machek <pavel@ucw.cz>, greg@kroah.com, linux-kernel@vger.kernel.org
-Subject: Re: Resume enhancement: restore pci config space
-Message-ID: <20040601153800.GA22986@devserv.devel.redhat.com>
-References: <20040526203524.GF2057@devserv.devel.redhat.com> <20040530184031.GF997@openzaurus.ucw.cz> <20040531133834.GA5834@devserv.devel.redhat.com> <s5hllj7qt7g.wl@alsa2.suse.de> <1086102397.7500.2.camel@laptop.fenrus.com> <s5hbrk3qoxw.wl@alsa2.suse.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="0OAP2g/MAC+5xKAE"
-Content-Disposition: inline
-In-Reply-To: <s5hbrk3qoxw.wl@alsa2.suse.de>
-User-Agent: Mutt/1.4.1i
+	Tue, 1 Jun 2004 11:38:37 -0400
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Mikael Pettersson <mikpe@csd.uu.se>, "H. Peter Anvin" <hpa@zytor.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][2.6.6-rc3] gcc-3.4.0 fixes
+References: <200404292146.i3TLkfI0019612@harpo.it.uu.se>
+	<c892nk$5pf$1@terminus.zytor.com>
+	<16572.38987.239160.819836@alkaid.it.uu.se>
+	<20040601150913.GU2093@holomorphy.com>
+From: Andreas Schwab <schwab@suse.de>
+X-Yow: With this weapon I can expose fictional characters and bring about
+ sweeping reforms!!
+Date: Tue, 01 Jun 2004 17:38:33 +0200
+In-Reply-To: <20040601150913.GU2093@holomorphy.com> (William Lee Irwin,
+ III's message of "Tue, 1 Jun 2004 08:09:13 -0700")
+Message-ID: <jeaczn8f0m.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+William Lee Irwin III <wli@holomorphy.com> writes:
 
---0OAP2g/MAC+5xKAE
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> On Tue, Jun 01, 2004 at 04:52:59PM +0200, Mikael Pettersson wrote:
+>> You're assuming pointers have uniform representation.
+>> C makes no such guarantees, and machines _have_ had
+>> different types of representations in the past.
+>> Some not-so-obsolete 64-bit machines in effect use fat
+>> representations for pointers to functions (descriptors),
+>> but they usually cheat and use pointers to the descriptors
+>> instead. However, a C implementation could legally
+>> represent a function pointer as a 128-bit value, while
+>> data pointers remain 64 bits.
+>
+> IIRC for all types foo, sizeof(foo *) <= sizeof(void *), no?
 
-On Tue, Jun 01, 2004 at 05:26:51PM +0200, Takashi Iwai wrote:
-> At Tue, 01 Jun 2004 17:06:38 +0200,
-> Arjan van de Ven wrote:
-> > 
-> > [1  <text/plain (quoted-printable)>]
-> > 
-> > > int xxx_resume(struct pci_dev *dev)
-> > > {
-> > > 	int err;
-> > > 	if ((err = pci_default_resume(dev)) < 0)
-> > > 		return err;
-> > > 	// ... do h/w specific
-> > > }
-> > 
-> > well define "h/w specific", just give me an example of a real (alsa?)
-> > driver that would use it (or point me to one) so that I can see if this
-> > is the best API, what the return value should be etc etc 
-> 
-> I'm afraid the ALSA drivers aren't be the best examples :)
-> It doesn't handle the error in suspend/resume at all.
+No.  There is no implied relation between data pointers and function
+pointers.  The only requirement is that all _function_ pointers smell
+alike, because you can convert any function pointer to any other function
+pointer and back without losing information.  There is no dedicated
+generic function pointer type, any one can function as one.
 
-hm it looks like all this would gain is that instead of 2 or 3 function calls
-you need to do one which then calls those 3. The *driver* already knows if
-it needs busmaster or not etc, so when I wrote this code I felt that the
-driver could do a better job really. But well if you think it's worth it to
-save those 3 lines into 1 ?
+Andreas.
 
-
-> Hmm, looking at them right now, and i found most of them don't have
-> pci_suspend_state() because it worked without saving/restoring the pci
-> state _casually_, and missing pci_set_power_state(), etc...
-
-I made the PCI layer save PCI config space always, and the generic resume callback
-conditional, so saving PCI config state is not something that explicitly
-needs to be done in the suspend hook. I don't know what else a suspend
-standard function needs to do.
-
-
-Gretings,
-   Arjan van de Ven
-
---0OAP2g/MAC+5xKAE
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQFAvKLXxULwo51rQBIRAvRAAJ9Jz7Yw1lq1mQDihDPJm9C7LUv4lwCfVel8
-Y61MuHGAqyaV8QTr/Qzm9+I=
-=rzJ5
------END PGP SIGNATURE-----
-
---0OAP2g/MAC+5xKAE--
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux AG, Maxfeldstraße 5, 90409 Nürnberg, Germany
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

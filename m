@@ -1,76 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311965AbSCXVHe>; Sun, 24 Mar 2002 16:07:34 -0500
+	id <S310468AbSCXVXf>; Sun, 24 Mar 2002 16:23:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312027AbSCXVHY>; Sun, 24 Mar 2002 16:07:24 -0500
-Received: from se1.cogenit.fr ([195.68.53.173]:17612 "EHLO cogenit.fr")
-	by vger.kernel.org with ESMTP id <S311965AbSCXVHP>;
-	Sun, 24 Mar 2002 16:07:15 -0500
-Date: Sun, 24 Mar 2002 22:06:22 +0100
-From: Francois Romieu <romieu@cogenit.fr>
-To: Maksim Krasnyanskiy <maxk@qualcomm.com>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-        marcelo Tosatti <marcelo@conectiva.com.br>, Alan@lxorguk.ukuu.org.uk,
-        cell@sch.bme.hu, linux-atm-general@lists.sourceforge.net
-Subject: Re: [PATCH] Updated ATM patch for 2.4.19-pre4
-Message-ID: <20020324220622.A1054@fafner.intra.cogenit.fr>
-In-Reply-To: <5.1.0.14.2.20020322170653.0337b970@mail1.qualcomm.com> <20020323221058.B15111@fafner.intra.cogenit.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-Organisation: Marie's fan club - II
+	id <S312059AbSCXVXZ>; Sun, 24 Mar 2002 16:23:25 -0500
+Received: from moutvdom01.kundenserver.de ([195.20.224.200]:61525 "EHLO
+	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S312045AbSCXVXR>; Sun, 24 Mar 2002 16:23:17 -0500
+Message-ID: <3C9E43A7.1020604@ngforever.de>
+Date: Sun, 24 Mar 2002 14:22:47 -0700
+From: Thunder from the hill <thunder@ngforever.de>
+Organization: The LuckyNet Administration
+User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:0.9.9) Gecko/20020313
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+CC: riel@conectiva.com.br, linux-kernel@vger.kernel.org,
+        linux-kernel-owner@vger.kernel.org
+Subject: Re: Automatic Reply from Trash (fwd)
+In-Reply-To: <Pine.LNX.4.44L.0203201832200.2181-100000@imladris.surriel.com> <20020320.140002.116838734.davem@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[thread starts at:
-http://www.cs.Helsinki.FI/linux/linux-kernel/2002-11/1311.html]
+David S. Miller wrote:
+>    From: Rik van Riel <riel@conectiva.com.br>
+>    Date: Wed, 20 Mar 2002 18:33:04 -0300 (BRT)
+> 
+>    could the list owner please remove the luser sending this message ?
+> 
+> I can't, there is no trash@* or *@thux.net subscribed to any
+> list.
+> 
+> If this idiot would put a full received: header trace to his
+> bounces we could actually do something.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+There's always the post-notice, contents don't change. We can ban him.
 
-The following patch applies on top of Maksim's one. It:
-- adds a missing include (hunk #1);
-- turns a cast fiesta into the equivalent list_entry (hunk #2);
-- unregisters net_device once it isn't needed for bridging (hunk #3);
-- compiles and stands a kill-br2684ctl-before-ifconfig-down test: nas0 
-  disappeared as it should.
-
-Without the patch an oops happens, see:
-<URL:http://www.cogenit.fr/linux/atm/oopses/text-6>
-
-Comments welcome.
-
---- net/atm/br2684.c.orig	Sat Mar 23 21:21:41 2002
-+++ net/atm/br2684.c	Sun Mar 24 21:42:30 2002
-@@ -15,6 +15,7 @@ Author: Marcell GAL, 2000, XDSL Ltd, Hun
- #include <linux/etherdevice.h>
- #include <net/arp.h>
- #include <linux/rtnetlink.h>
-+#include <linux/ip.h>
- #include <linux/atmbr2684.h>
- 
- #include "ipcommon.h"
-@@ -97,8 +98,7 @@ static LIST_HEAD(br2684_devs);
- 
- static inline struct br2684_dev *BRPRIV(const struct net_device *net_dev)
- {
--	return (struct br2684_dev *) ((char *) (net_dev) -
--	    (unsigned long) (&((struct br2684_dev *) 0)->net_dev));
-+	return list_entry(net_dev, struct br2684_dev, net_dev);
- }
- 
- static inline struct br2684_dev *list_entry_brdev(const struct list_head *le)
-@@ -410,6 +410,13 @@ static void br2684_push(struct atm_vcc *
- 
- 	if (skb == NULL) {	/* skb==NULL means VCC is being destroyed */
- 		br2684_close_vcc(brvcc);
-+		if (list_empty(&brdev->brvccs)) {
-+			read_lock(&devs_lock);
-+			list_del(&brdev->br2684_devs);
-+			read_unlock(&devs_lock);
-+			unregister_netdev(&brdev->net_dev);
-+			kfree(brdev);
-+		}
- 		return;
- 	}
- 
+Thunder
 -- 
-Ueimor
+begin-base64 755 -
+IyEgL3Vzci9iaW4vcGVybApteSAgICAgJHNheWluZyA9CSMgVGhlIHNjcmlw
+dCBvbiB0aGUgbGVmdCBpcyB0aGUgcHJvb2YKIk5lbmEgaXN0IGVpbiIgLgkj
+IHRoYXQgaXQgaXNuJ3QgYWxsIHRoZSB3YXkgaXQgc2VlbXMKIiB2ZXJhbHRl
+dGVyICIgLgkjIHRvIGJlIChlc3BlY2lhbGx5IG5vdCB3aXRoIG1lKQoiTkRX
+LVN0YXIuXG4iICA7CiRzYXlpbmcgPX4Kcy9ORFctU3Rhci9rYW5uXAogdW5z
+IHJldHRlbi9nICA7CiRzYXlpbmcgICAgICAgPX4Kcy92ZXJhbHRldGVyL2Rp
+XAplIExpZWJlL2c7CiRzYXlpbmcgPX5zL2Vpbi8KbnVyL2c7JHNheWluZyA9
+fgpzL2lzdC9zYWd0LC9nICA7CiRzYXlpbmc9fnMvXG4vL2cKO3ByaW50Zigk
+c2F5aW5nKQo7cHJpbnRmKCJcbiIpOwo=
+====
+Extract this and see what will happen if you execute my
+signature. Just save it to file and do a
+ > uudecode $file | perl
+

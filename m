@@ -1,88 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317850AbSGPOFu>; Tue, 16 Jul 2002 10:05:50 -0400
+	id <S317842AbSGPOFj>; Tue, 16 Jul 2002 10:05:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317852AbSGPOFt>; Tue, 16 Jul 2002 10:05:49 -0400
-Received: from dsl092-148-080.wdc1.dsl.speakeasy.net ([66.92.148.80]:22450
-	"EHLO tyan.doghouse.com") by vger.kernel.org with ESMTP
-	id <S317850AbSGPOFq>; Tue, 16 Jul 2002 10:05:46 -0400
-Date: Tue, 16 Jul 2002 10:08:31 -0400 (EDT)
-From: Maxwell Spangler <maxwax@speakeasy.net>
-X-X-Sender: <maxwell@tyan.doghouse.com>
-To: SCoTT SMeDLeY <ss@aaoepp.aao.gov.au>
-cc: <linux-kernel@vger.kernel.org>, <ss@aao.gov.au>
-Subject: Re: Tyan s2466 stability
-In-Reply-To: <20020716212336.A393@aaopcss.aao.gov.au>
-Message-ID: <Pine.LNX.4.33.0207161000100.2603-100000@tyan.doghouse.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317850AbSGPOFi>; Tue, 16 Jul 2002 10:05:38 -0400
+Received: from mailhub.fokus.gmd.de ([193.174.154.14]:57569 "EHLO
+	mailhub.fokus.gmd.de") by vger.kernel.org with ESMTP
+	id <S317842AbSGPOFg>; Tue, 16 Jul 2002 10:05:36 -0400
+Date: Tue, 16 Jul 2002 16:06:55 +0200 (CEST)
+From: Joerg Schilling <schilling@fokus.gmd.de>
+Message-Id: <200207161406.g6GE6tYh021918@burner.fokus.gmd.de>
+To: James.Bottomley@steeleye.com, lmb@suse.de, schilling@fokus.gmd.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: IDE/ATAPI in 2.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 Jul 2002, SCoTT SMeDLeY wrote:
 
-> Hi all,
-> 
-> I'm considering investing in a dual-AMD system using Tyan's s2466
-> motherboard. I'm interested in hearing how others have found the
-> stability of this board using recent 2.4.x kernels.
-> 
-> I've scanned the archives & there doesn't appear to be any reports
-> on problems with this board, so I guess I'm hoping to hear some
-> positive reports ...
-> 
-> I'm also interested in hearing reports about how the board performs
-> with with non-ECC (non-registered) RAM as the board has been
-> documented to work with such an arrangement. I'm happy to fork
-> out for ECC RAM, but is it worth it?
-> 
-> Please reply to: ss@aao.gov.au
+>From lars@marowsky-bree.de Tue Jul 16 13:45:59 2002
 
-I have a one of these as my primary desktop system.  Configuration is:
+>> Why should the character interface be connected to the block layer?
+>> This would contradict UNIX rules.
 
-Antec Performance Plus 880 (MT + 430W high quality power supply)
-Tyan S2466N motherborad
-Two AMD Athlon MP 1800+ chips
-Corsair PC2100 ECC Registered DIMMs 512M each x 2
-Matrox G450 AGP
-Adaptec 2940AU SCSI PCI + HP cdr
-Ensonic ES1731 PCI audio
-onboard 3com networking
-Opti PCI USB card
-IBM 120GXP
-Acer 40X ATAPI cdrom
+>How would it? At some layer, the two are merged anyway (for example, at least
+>on disk you'll have blocks again). Doing it up high means more unified code
+>below.
 
-1) The CPU fans, boxed AMD retail fans, are really loud.
+Just a hint: the block layer is for caching blocks from disk type deveices.
 
-2) The system produces a lot of heat.  It's 100F in the very top of my case 
-right now.
+-	Block device access is always going directly into the block cache.
+	So the I/O is always kernel I/O. In addition, it is async I/O - the 
+	block layer fires it up and may wait for it later after sending out other
+	requests.
 
-3) Performance is very, very good, but... for basic Netscape, xterm, pine, 
-etc, this system doesn't feel much different from my dual P2-400 system.
+-	Character device access is synchronous access and may be either kernel
+	or user space DMA access. In most cases, it is user space DMA access.
 
-4) mp3 encoding is _really_ fast :)
+How try to ask your question again...
 
-5) This system has been completely stable for me, no crashes or surprise 
-lockups.
 
-6) I have only one issue yet to be resolved: SCSI "loss of streaming" errors 
-when trying to burn cd-rs.  I haven't taken the time to figure out what the 
-problem is there but the fact that others aren't reporting it suggests 
-configuration or something else specific to my system and not indicative of 
-the MPX chipset or dual Athlon setup, etc.
+>> AFAIK, tagged command queuing is a SCSI specific property, why should this
+>> be part of a generif block layer?
 
-7) I like the fact that Alan is using the same chipset as me for his 
-development :)
+>That is not true. Late IDE also has this, and systems like drbd - which
+>currently uses a quite clever heuristic to deduce barriers - could also
+>utilize this input.
 
-8) My RAM, PC2100 ECC registered was $215 or so from crucial.com, and is now 
-about $150.  It's worth it to buy quality RAM and not have to worry about 
-whether your system problems are being caused buy RAM.. Completely worth it.
+How is it implemented?
 
-I'm very happy with dual Athlon and would recommend them to others.
+Jörg
 
--- ----------------------------------------------------------------------------
-Maxwell Spangler                                                
-Program Writer                                              
-Greenbelt, Maryland, U.S.A.                         
-Washington D.C. Metropolitan Area 
-
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
+       schilling@fokus.gmd.de		(work) chars I am J"org Schilling
+ URL:  http://www.fokus.gmd.de/usr/schilling   ftp://ftp.fokus.gmd.de/pub/unix

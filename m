@@ -1,227 +1,175 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265516AbSKTLJH>; Wed, 20 Nov 2002 06:09:07 -0500
+	id <S265854AbSKTLTS>; Wed, 20 Nov 2002 06:19:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265736AbSKTLJH>; Wed, 20 Nov 2002 06:09:07 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:13461 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S265516AbSKTLJE>;
-	Wed, 20 Nov 2002 06:09:04 -0500
-Date: Wed, 20 Nov 2002 16:52:33 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] RCU statistics 2.5.48
-Message-ID: <20021120165233.C22476@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S265857AbSKTLTS>; Wed, 20 Nov 2002 06:19:18 -0500
+Received: from chico.rediris.es ([130.206.1.3]:10739 "EHLO chico.rediris.es")
+	by vger.kernel.org with ESMTP id <S265854AbSKTLTQ>;
+	Wed, 20 Nov 2002 06:19:16 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: David =?iso-8859-1?q?Mart=EDnez=20Moreno?= <ender@debian.org>
+To: linux-kernel@vger.kernel.org
+Subject: PROBLEM: kernel oopsing in ftp.es.debian.org.
+Date: Wed, 20 Nov 2002 12:26:18 +0100
+User-Agent: KMail/1.4.3
+Cc: ender@debian.org
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <200211201226.18015.ender@debian.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
+	Hello, dear kernel developers.
 
-This patch makes some basic statistics for RCU available in /proc/rcu.
-The statistics made available by this patch are very generic in
-nature - # of RCU requests and # of actual RCU updates for each
-CPU. This will allow us to monitor the health of the RCU
-subsystem and such things have been extremely useful for me to
-investigate problems. For example, if a CPU looping in kernel
-stops RCU grace period from completing, we would be easily able
-to detect it by looking at these counters. With IPC and module
-unloading in 2.5 kernel using RCU, we *need* this ASAP.
+	I'm just desperated. ftp.es.debian.org is oopsing again and again with a lot
+of errors and I don't know what's happening.
 
-This is a rediff of an earlier version published in lkml and 
-included in -mm.  Please apply.
+	It seems that Apache is the process that's causing most of the oopsen, but it'll
+probably be due to the lot of HTTP requests the machine is serving. After that, all the
+processes you try begin to segfault or oops. Only the reset button works. :-(
 
-[dipankar@llm04 dipankar]$ cat /proc/rcu
-CPU : 0
-RCU requests : 0
-RCU updates : 0
+	I've followed Doc/oops-tracing.txt and Reporting Linux Kernel bugs webpage for
+reporting to you a couple of oops.
 
-CPU : 1
-RCU requests : 0
-RCU updates : 0
+	Following is a lot of info:
 
-CPU : 2
-RCU requests : 0
-RCU updates : 0
+=======
+root@ulises:~# ksymoops -m /boot/System.map-2.4.20-rc2
+ksymoops 2.4.6 on i686 2.4.20-rc2.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.20-rc2/ (default)
+     -m /boot/System.map-2.4.20-rc2 (default)
 
-CPU : 3
-RCU requests : 0
-RCU updates : 0
+No modules in ksyms, skipping objects
+Warning (read_lsmod): no symbols in lsmod, is /proc/modules a valid lsmod file?
+Reading Oops report from the terminal
+Nov 19 11:38:32 ulises kernel:  <1>Unable to handle kernel paging request at virtual address 9567b14c
+Nov 19 11:38:32 ulises kernel:  printing eip:
+Nov 19 11:38:32 ulises kernel: c012d183
+Nov 19 11:38:32 ulises kernel: Oops: 0000
+Nov 19 11:38:32 ulises kernel: CPU:    0
+Nov 19 11:38:32 ulises kernel: EIP:    0010:[__free_pages_ok+499/656]    Not tainted
+Nov 19 11:38:32 ulises kernel: EFLAGS: 00010002
+Nov 19 11:38:32 ulises kernel: eax: 2e75ec4d   ebx: 7b56368c   ecx: db900000   edx: d4282660
+Nov 19 11:38:32 ulises kernel: esi: dffea0c0   edi: 00000246   ebp: 000001f0   esp: db97fe7c
+Nov 19 11:38:32 ulises kernel: ds: 0018   es: 0018   ss: 0018
+Nov 19 11:38:32 ulises kernel: Process apache (pid: 1071, stackpage=db97f000)
+Nov 19 11:38:32 ulises kernel: Stack: d4282660 dbb9b4c0 db97fed0 dffe4240 c01456bb dffea0c0 000001f0 d4282660
+Nov 19 11:38:32 ulises kernel:        dbb9b4c0 db97fed0 00000007 c01f45c0 c01f45fb dffe4240 db97fee8 d4282660
+Nov 19 11:38:32 ulises kernel:        dcd65960 db97ff14 bffffc2c 3137315b 005d3537 c01f4464 bffffc2c db97ff14
+Nov 19 11:38:32 ulises kernel: Call Trace:    [clean_inode+187/192] [sys_shutdown+0/64] [sys_shutdown+59/64] [sys_recvfrom+212/272] [sock_getsockopt+453/800]
+Nov 19 11:38:32 ulises kernel:   [sys_swapon+1563/1760] [sys_swapon+1594/1760] [notify_change+198/240] [getrusage+24/576] [sock_no_sendpage+3/176] [setup_irq+159/160]
+Nov 19 11:38:32 ulises kernel:
+Nov 19 11:38:32 ulises kernel: Code: 8b 44 81 18 89 41 14 83 f8 ff 75 23 8b 41 04 8b 11 89 42 04
 
-Thanks
+Nov 19 11:38:32 ulises kernel:  <1>Unable to handle kernel paging request at virtual address 9567b14c
+Nov 19 11:38:32 ulises kernel: c012d183
+Nov 19 11:38:32 ulises kernel: Oops: 0000
+Nov 19 11:38:32 ulises kernel: CPU:    0
+Nov 19 11:38:32 ulises kernel: EIP:    0010:[__free_pages_ok+499/656]    Not tainted
+Nov 19 11:38:32 ulises kernel: EFLAGS: 00010002
+Nov 19 11:38:32 ulises kernel: eax: 2e75ec4d   ebx: 7b56368c   ecx: db900000   edx: d4282660
+Nov 19 11:38:32 ulises kernel: esi: dffea0c0   edi: 00000246   ebp: 000001f0   esp: db97fe7c
+Nov 19 11:38:32 ulises kernel: ds: 0018   es: 0018   ss: 0018
+Nov 19 11:38:32 ulises kernel: Process apache (pid: 1071, stackpage=db97f000)
+Nov 19 11:38:32 ulises kernel: Stack: d4282660 dbb9b4c0 db97fed0 dffe4240 c01456bb dffea0c0 000001f0 d4282660
+Nov 19 11:38:32 ulises kernel:        dbb9b4c0 db97fed0 00000007 c01f45c0 c01f45fb dffe4240 db97fee8 d4282660
+Nov 19 11:38:32 ulises kernel:        dcd65960 db97ff14 bffffc2c 3137315b 005d3537 c01f4464 bffffc2c db97ff14
+Nov 19 11:38:32 ulises kernel: Call Trace:    [clean_inode+187/192] [sys_shutdown+0/64] [sys_shutdown+59/64] [sys_recvfrom+212/272] [sock_getsockopt+453/800]
+Nov 19 11:38:32 ulises kernel: Code: 8b 44 81 18 89 41 14 83 f8 ff 75 23 8b 41 04 8b 11 89 42 04
+Using defaults from ksymoops -t elf32-i386 -a i386
+
+
+Code;  00000000 Before first symbol
+00000000 <_EIP>:
+Code;  00000000 Before first symbol
+   0:   8b 44 81 18               mov    0x18(%ecx,%eax,4),%eax
+Code;  00000004 Before first symbol
+   4:   89 41 14                  mov    %eax,0x14(%ecx)
+Code;  00000007 Before first symbol
+   7:   83 f8 ff                  cmp    $0xffffffff,%eax
+Code;  0000000a Before first symbol
+   a:   75 23                     jne    2f <_EIP+0x2f> 0000002f Before first symbol
+Code;  0000000c Before first symbol
+   c:   8b 41 04                  mov    0x4(%ecx),%eax
+Code;  0000000f Before first symbol
+   f:   8b 11                     mov    (%ecx),%edx
+Code;  00000011 Before first symbol
+  11:   89 42 04                  mov    %eax,0x4(%edx)
+
+=======
+	Information from ver_linux:
+
+Linux ulises 2.4.20-rc2 #16 mar nov 19 10:34:01 CET 2002 i686 AMD Athlon(tm) Processor AuthenticAMD GNU/Linux
+
+Gnu C                  2.95.4
+Gnu make               3.79.1
+util-linux             2.11n
+mount                  2.11n
+modutils               2.4.19
+e2fsprogs              1.30-WIP
+fsck.jfs: not found
+reiserfsprogs          3.6.3
+cardmgr: not found
+pppd: not found
+isdnctrl: not found
+Linux C Library        2.2.5
+Dynamic linker (ldd)   2.2.5
+Procps                 2.0.7
+Net-tools              1.60
+Console-tools          0.2.3
+Sh-utils               4.5.2
+Modules Loaded
+=======
+	The machine is Debian sarge (testing), the kernel has no modules loaded, has
+1 CPU Athlon 1 GHz, 3 IDE disks (two 80 GB disks in a RAID 0 and a 13 GB one for system),
+chipset VIA KT133, and a vanilla 2.4.20-rc2 kernel.
+
+	It was also segfaulting previously with 2.4.20-pre8.
+
+	Output of lspci:
+
+root@ulises:~# lspci
+00:00.0 Host bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133] (rev 03)
+00:01.0 PCI bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133 AGP]
+00:04.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South] (rev 22)
+00:04.1 IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 10)
+00:04.2 USB Controller: VIA Technologies, Inc. USB (rev 10)
+00:04.3 USB Controller: VIA Technologies, Inc. USB (rev 10)
+00:04.4 Host bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 30)
+00:0a.0 Ethernet controller: 3Com Corporation 3c905C-TX/TX-M [Tornado] (rev 78)
+00:0c.0 Multimedia audio controller: Ensoniq 5880 AudioPCI (rev 02)
+00:11.0 Unknown mass storage controller: Promise Technology, Inc. 20265 (rev 02)
+01:00.0 VGA compatible controller: S3 Inc. 86c368 [Trio 3D/2X] (rev 02)
+
+	The machine has the following partitions:
+root@ulises:~# mount
+/dev/hda2 on / type ext3 (rw,errors=remount-ro)
+proc on /proc type proc (rw)
+devpts on /dev/pts type devpts (rw,gid=5,mode=620)
+/dev/hda1 on /boot type ext3 (rw)
+/dev/hda3 on /var type ext3 (rw)
+/dev/hda6 on /home type ext3 (rw)
+/dev/md0 on /mirror type reiserfs (rw)
+
+	The machine will hang in a few hours from now. It's very possible that
+if I harass it with web queries the box will be down in a few minutes.
+
+	Please don't hesitate to ask for further information.
+
+	Thank you very much in advance,
+
+
+		David.
 -- 
-Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
-Linux Technology Center, IBM Software Lab, Bangalore, India.
+ Why is a cow? Mu. (Ommmmmmmmmm)
+--
+Servicios de red - Network services
+Centro de Comunicaciones CSIC/RedIRIS
+Spanish Academic Network for Research and Development
+Madrid (Spain)
+Tlf (+34) 91.585.49.05
 
- Documentation/filesystems/proc.txt |    4 +++
- fs/proc/proc_misc.c                |   13 ++++++++++
- include/linux/rcupdate.h           |    4 +++
- kernel/rcupdate.c                  |   48 +++++++++++++++++++++++++++++++++++-- 4 files changed, 67 insertions(+), 2 deletions(-)
-
-
-diff -urN linux-2.5.48-base/Documentation/filesystems/proc.txt linux-2.5.48-rcu_stats/Documentation/filesystems/proc.txt
---- linux-2.5.48-base/Documentation/filesystems/proc.txt	Mon Nov 18 09:59:29 2002
-+++ linux-2.5.48-rcu_stats/Documentation/filesystems/proc.txt	Tue Nov 19 16:03:46 2002
-@@ -222,6 +222,7 @@
-  partitions  Table of partitions known to the system           
-  pci	     Depreciated info of PCI bus (new way -> /proc/bus/pci/, 
-              decoupled by lspci					(2.4)
-+ rcu	     Read-Copy Update information			(2.5)
-  rtc         Real time clock                                   
-  scsi        SCSI info (see text)                              
-  slabinfo    Slab pool info                                    
-@@ -346,6 +347,9 @@
- ZONE_DMA, 4 chunks of 2^1*PAGE_SIZE in ZONE_DMA, 101 chunks of 2^4*PAGE_SIZE 
- availble in ZONE_NORMAL, etc... 
- 
-+The rcu file gives information about Read-Copy Update synchronization
-+primitive. It indicates the number for RCU requests and actual
-+updates for every CPU.
- 
- 1.3 IDE devices in /proc/ide
- ----------------------------
-diff -urN linux-2.5.48-base/fs/proc/proc_misc.c linux-2.5.48-rcu_stats/fs/proc/proc_misc.c
---- linux-2.5.48-base/fs/proc/proc_misc.c	Mon Nov 18 09:59:24 2002
-+++ linux-2.5.48-rcu_stats/fs/proc/proc_misc.c	Tue Nov 19 16:03:46 2002
-@@ -242,6 +242,18 @@
- 	.release	= seq_release,
- };
- 
-+extern struct seq_operations rcu_op;
-+static int rcu_open(struct inode *inode, struct file *file)
-+{
-+	return seq_open(file, &rcu_op);
-+}
-+static struct file_operations proc_rcu_operations = {
-+	.open		= rcu_open,
-+	.read		= seq_read,
-+	.llseek		= seq_lseek,
-+	.release	= seq_release,
-+};
-+
- extern struct seq_operations vmstat_op;
- static int vmstat_open(struct inode *inode, struct file *file)
- {
-@@ -584,6 +596,7 @@
- 	if (entry)
- 		entry->proc_fops = &proc_kmsg_operations;
- 	create_seq_entry("cpuinfo", 0, &proc_cpuinfo_operations);
-+	create_seq_entry("rcu", 0, &proc_rcu_operations);
- 	create_seq_entry("partitions", 0, &proc_partitions_operations);
- #if !defined(CONFIG_ARCH_S390)
- 	create_seq_entry("interrupts", 0, &proc_interrupts_operations);
-diff -urN linux-2.5.48-base/include/linux/rcupdate.h linux-2.5.48-rcu_stats/include/linux/rcupdate.h
---- linux-2.5.48-base/include/linux/rcupdate.h	Mon Nov 18 09:59:29 2002
-+++ linux-2.5.48-rcu_stats/include/linux/rcupdate.h	Tue Nov 19 16:03:46 2002
-@@ -95,6 +95,8 @@
-         long  	       	batch;           /* Batch # for current RCU batch */
-         struct list_head  nxtlist;
-         struct list_head  curlist;
-+ 	long		nr_rcureqs;
-+ 	long		nr_rcupdates;
- };
- 
- DECLARE_PER_CPU(struct rcu_data, rcu_data);
-@@ -105,6 +107,8 @@
- #define RCU_batch(cpu) 		(per_cpu(rcu_data, (cpu)).batch)
- #define RCU_nxtlist(cpu) 	(per_cpu(rcu_data, (cpu)).nxtlist)
- #define RCU_curlist(cpu) 	(per_cpu(rcu_data, (cpu)).curlist)
-+#define RCU_nr_rcureqs(cpu) 	(per_cpu(rcu_data, (cpu)).nr_rcureqs)
-+#define RCU_nr_rcupdates(cpu) 	(per_cpu(rcu_data, (cpu)).nr_rcupdates)
- 
- #define RCU_QSCTR_INVALID	0
- 
-diff -urN linux-2.5.48-base/kernel/rcupdate.c linux-2.5.48-rcu_stats/kernel/rcupdate.c
---- linux-2.5.48-base/kernel/rcupdate.c	Mon Nov 18 09:59:20 2002
-+++ linux-2.5.48-rcu_stats/kernel/rcupdate.c	Tue Nov 19 16:03:46 2002
-@@ -41,6 +41,7 @@
- #include <linux/module.h>
- #include <linux/completion.h>
- #include <linux/percpu.h>
-+#include <linux/seq_file.h>
- #include <linux/notifier.h>
- #include <linux/rcupdate.h>
- 
-@@ -75,6 +76,7 @@
- 	local_irq_save(flags);
- 	cpu = smp_processor_id();
- 	list_add_tail(&head->list, &RCU_nxtlist(cpu));
-+	RCU_nr_rcureqs(cpu)++;
- 	local_irq_restore(flags);
- }
- 
-@@ -82,7 +84,7 @@
-  * Invoke the completed RCU callbacks. They are expected to be in
-  * a per-cpu list.
-  */
--static void rcu_do_batch(struct list_head *list)
-+static void rcu_do_batch(int cpu, struct list_head *list)
- {
- 	struct list_head *entry;
- 	struct rcu_head *head;
-@@ -92,6 +94,7 @@
- 		list_del(entry);
- 		head = list_entry(entry, struct rcu_head, list);
- 		head->func(head->arg);
-+		RCU_nr_rcupdates(cpu)++;
- 	}
- }
- 
-@@ -187,7 +190,7 @@
- 	}
- 	rcu_check_quiescent_state();
- 	if (!list_empty(&list))
--		rcu_do_batch(&list);
-+		rcu_do_batch(cpu, &list);
- }
- 
- void rcu_check_callbacks(int cpu, int user)
-@@ -266,3 +269,44 @@
- 
- EXPORT_SYMBOL(call_rcu);
- EXPORT_SYMBOL(synchronize_kernel);
-+
-+#ifdef	CONFIG_PROC_FS
-+
-+static void *rcu_start(struct seq_file *m, loff_t *pos)
-+{
-+	static int cpu;
-+	cpu = *pos;
-+	return *pos < NR_CPUS ? &cpu : NULL;
-+}
-+		
-+static void *rcu_next(struct seq_file *m, void *v, loff_t *pos) 
-+{
-+	++*pos;
-+	return rcu_start(m, pos);
-+}
-+
-+static void rcu_stop(struct seq_file *m, void *v)
-+{
-+}
-+
-+static int show_rcu(struct seq_file *m, void *v)
-+{
-+	int cpu = *(int *)v;
-+
-+	if (!cpu_online(cpu))
-+		return 0;
-+	seq_printf(m, "CPU : %d\n", cpu);
-+	seq_printf(m, "RCU requests : %ld\n", RCU_nr_rcureqs(cpu));
-+	seq_printf(m, "RCU updates : %ld\n\n", RCU_nr_rcupdates(cpu));
-+	return 0;
-+}
-+
-+struct seq_operations rcu_op = {
-+	.start	= rcu_start,
-+	.next	= rcu_next,
-+	.stop	= rcu_stop,
-+	.show	= show_rcu,
-+};
-+
-+#endif
-+

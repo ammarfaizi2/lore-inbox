@@ -1,101 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319066AbSHFLOQ>; Tue, 6 Aug 2002 07:14:16 -0400
+	id <S319067AbSHFLQD>; Tue, 6 Aug 2002 07:16:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319067AbSHFLOQ>; Tue, 6 Aug 2002 07:14:16 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:55243 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S319066AbSHFLOO>;
-	Tue, 6 Aug 2002 07:14:14 -0400
-Date: Tue, 6 Aug 2002 13:17:49 +0200
-From: Jens Axboe <axboe@suse.de>
-To: martin@dalecki.de
-Cc: Petr Vandrovec <VANDROVE@vc.cvut.cz>, linux-kernel@vger.kernel.org,
-       torvalds@transmeta.com
-Subject: Re: [PATCH] 2.5.30 IDE 113
-Message-ID: <20020806111749.GH1323@suse.de>
-References: <13A77E76028@vcnet.vc.cvut.cz> <3D4FA2F8.2050305@evision.ag> <20020806104238.GB1132@suse.de> <3D4FA845.90702@evision.ag> <20020806105450.GD1323@suse.de> <3D4FAA87.8040303@evision.ag> <20020806110548.GF1323@suse.de> <3D4FAE5C.9050205@evision.ag>
+	id <S319068AbSHFLQD>; Tue, 6 Aug 2002 07:16:03 -0400
+Received: from smtp.actcom.co.il ([192.114.47.13]:32746 "EHLO
+	lmail.actcom.co.il") by vger.kernel.org with ESMTP
+	id <S319067AbSHFLQB>; Tue, 6 Aug 2002 07:16:01 -0400
+Date: Tue, 6 Aug 2002 14:15:49 +0300
+From: Muli Ben-Yehuda <mulix@actcom.co.il>
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: weird padding in linux/timex.h, struct timex
+Message-ID: <20020806111549.GL29139@alhambra.actcom.co.il>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="dfmC41YZQlborXoK"
 Content-Disposition: inline
-In-Reply-To: <3D4FAE5C.9050205@evision.ag>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 06 2002, Marcin Dalecki wrote:
-> Uz.ytkownik Jens Axboe napisa?:
-> >On Tue, Aug 06 2002, Marcin Dalecki wrote:
-> >
-> >>Uz.ytkownik Jens Axboe napisa?:
-> >>
-> >>>On Tue, Aug 06 2002, Marcin Dalecki wrote:
-> >>>
-> >>>
-> >>>>Uz.ytkownik Jens Axboe napisa?:
-> >>>>
-> >>>>
-> >>>>>On Tue, Aug 06 2002, Marcin Dalecki wrote:
-> >>>>>
-> >>>>>
-> >>>>>
-> >>>>>>device not per channel! If q->request_fn would properly return the
-> >>>>>>error count instead of void, we could even get rid ot the
-> >>>>>>checking for rq->errors after finishment... But well that's
-> >>>>>>entierly different story.
-> >>>>>
-> >>>>>
-> >>>>>That's nonsense! What exactly would you return from a request_fn after
-> >>>>>having queued, eg, 20 commands? Error count is per request, anything
-> >>>>>else would be stupid.
-> >>>>
-> >>>>Returning the error count in the case q->request_fn is called for
-> >>>>a self submitted request like for example REQ_SPECIAL would be handy 
-> >>>>and well defined. For the cumulative case it would of course make sense 
-> >>>>to return the cumulative error count. Tough not very meaningfull, it 
-> >>>>would
-> >>>>indicate the occurrence of the error very fine.
-> >>>
-> >>>
-> >>>It's much nicer to maintain a sane API that doesn't depend on stuff like
-> >>>the above. Cumulative error count, come on, you can't possibly be
-> >>>serious?!
-> >>
-> >>Hey don't get me wrong - I *do not* suggest adding it becouse I don't 
-> >>think we are going to change the "eat as many as possible requests" 
-> >>instead of "eat one request" semantics of the q->reuqest_fn().
-> >>OK?
-> >
-> >
-> >You look from the IDE perspective, I look from the interface
-> >perspective. There's is no "eat one request" semantic of request_fn(),
-> >in fact there's just the opposite. If you quit after having just
-> >consumed one request, you must make sure to invoke request_fn _yourself_
-> >later on -- or use the recent blk_start/stop_queue helpers.
-> 
-> Yes of course I know that there is not "eat one request" semantic of
-> request_fn(). However looking at the interface perspective (out of my
-> small corner) I think the above is precisely what leads to ugly things
-> (and I think you will agree that this is ugly) like calling 
-> do_ide_request() back out from ata_irq_handler() - shrug.
 
-Ho hum, well I think it's only ugly in the way it had to be done
-previously. Right now I think the usage is pretty nice, actually
+--dfmC41YZQlborXoK
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-request_fn(q)
+Hi,=20
+
+struct timex in include/linux/timex.h is defined as=20
+
+struct timex=20
 {
-	rq = elv_next_request();
-	start_request(rq);
-	blk_stop_queue(q);
-}
+	...
+	int  :32; int  :32; int  :32; int  :32;
+	int  :32; int  :32; int  :32; int  :32;
+	int  :32; int  :32; int  :32; int  :32;
+};=20
 
-isr()
-{
-	handle_completion();
-	blk_start_queue(queue);
-}
+I assume that this is used as padding. Is there any reason for using
+bitfields as padding? If there is, a comment to that effect would be
+nice. If there isn't, the following patch makes the padding explicit.=20
 
-The API works nicely regardless of queue depth and how many requests
-request_fn consumes.
+--- 2.4.19-vanilla/include/linux/timex.h	Sun Aug  4 19:16:59 2002
++++ 2.4.19-mx/include/linux/timex.h	Tue Aug  6 13:49:32 2002
+@@ -182,9 +182,7 @@
+ 	long errcnt;            /* calibration errors (ro) */
+ 	long stbcnt;            /* stability limit exceeded (ro) */
+=20
+-	int  :32; int  :32; int  :32; int  :32;
+-	int  :32; int  :32; int  :32; int  :32;
+-	int  :32; int  :32; int  :32; int  :32;
++	char __pad[12 * 4];     /* padding */=20
+ };
+=20
+ /*
 
--- 
-Jens Axboe
 
+--=20
+I am PINK, hear me ROAR
+
+http://vipe.technion.ac.il/~mulix/
+http://syscalltrack.sf.net/
+
+--dfmC41YZQlborXoK
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE9T6/lKRs727/VN8sRAsU0AJ4sn6YEcEhMk37bhlc75uHyKHwweQCfWXXI
+rGHPI3UA565u3xFVvQ9u5Rk=
+=u0Ui
+-----END PGP SIGNATURE-----
+
+--dfmC41YZQlborXoK--

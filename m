@@ -1,37 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266575AbUBMO2n (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 09:28:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266679AbUBMO2m
+	id S266831AbUBMO1Y (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 09:27:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267002AbUBMO1Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 09:28:42 -0500
-Received: from stat1.steeleye.com ([65.114.3.130]:13456 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S266575AbUBMO2A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 09:28:00 -0500
-Subject: Re: [Patch] dma_sync_to_device
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: Martin Diehl <lists@mdiehl.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 13 Feb 2004 09:27:54 -0500
-Message-Id: <1076682474.2159.17.camel@mulgrave>
+	Fri, 13 Feb 2004 09:27:24 -0500
+Received: from mail.shareable.org ([81.29.64.88]:44418 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S266831AbUBMO1X
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Feb 2004 09:27:23 -0500
+Date: Fri, 13 Feb 2004 14:27:19 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: Daniel Blueman <daniel.blueman@gmx.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: File system performance, hardware performance, ext3, 3ware RAID1, etc.
+Message-ID: <20040213142719.GA28100@mail.shareable.org>
+References: <9792.1076675029@www11.gmx.net>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9792.1076675029@www11.gmx.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just to be sure we eliminate all confusion (and it amazes me how
-frequently this comes up), could you add some words DMA-mapping.txt to
-make clear that this new API does not address PCI posting (which is a
-problem with onward write cache flushing in the PCI bridge)---otherwise
-I can see device driver writers thinking that
-pci_dma_sync_to_device_single(... DMA_TO_DEVICE) will flush posted
-writes.
+Daniel Blueman wrote:
+> many modern IDE disks and
+> controllers also have tagged command queuing, so it is even more of a corner case.
 
-Thanks,
+Linux doesn't use tagged command queueing, though - the code has been
+disabled for some time.  I thought the TCQ stuff was disabled because
+only very few disks supported it and the code wasn't reliable.
 
-James
+Yet you say many modern disks support it?
 
-
+-- Jamie

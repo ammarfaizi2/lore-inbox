@@ -1,59 +1,138 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261976AbUBWRwO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 12:52:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261977AbUBWRwN
+	id S261978AbUBWRwe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 12:52:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261979AbUBWRwe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 12:52:13 -0500
-Received: from anchor-post-32.mail.demon.net ([194.217.242.90]:44046 "EHLO
-	anchor-post-32.mail.demon.net") by vger.kernel.org with ESMTP
-	id S261976AbUBWRwM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 12:52:12 -0500
-Message-ID: <NkcvILAg5jOAFwZp@n-cantrell.demon.co.uk>
-Date: Mon, 23 Feb 2004 17:54:40 +0000
-To: linux-kernel@vger.kernel.org
-From: robert of northworthige <bobh@n-cantrell.demon.co.uk>
-Subject: Re: Is LOADLIN still viable for 2.6?
-References: <20040223145740.M2949@www.igotu.com>
- <20040223081138.50f03334.rddunlap@osdl.org>
-In-Reply-To: <20040223081138.50f03334.rddunlap@osdl.org>
+	Mon, 23 Feb 2004 12:52:34 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:58304 "EHLO
+	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S261978AbUBWRwZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Feb 2004 12:52:25 -0500
+Date: Mon, 23 Feb 2004 09:52:23 -0800 (PST)
+From: Tigran Aivazian <tigran@veritas.com>
+To: "Giacomo A. Catenazzi" <cate@debian.org>
+cc: Ryan Underwood <nemesis@icequake.net>, <224355@bugs.debian.org>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: [patch-2.4.25] microcode.c fix (wasRe: microcode, devfs: Wrong
+    interface change in 2.4.25
+In-Reply-To: <Pine.GSO.4.44.0402230725590.8603-100000@south.veritas.com>
+Message-ID: <Pine.GSO.4.44.0402230948190.6162-100000@south.veritas.com>
 MIME-Version: 1.0
-X-Mailer: Turnpike Integrated Version 5.01 S <sUd$$IGoML1uLgd5isJZTxuCeM>
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20040223081138.50f03334.rddunlap@osdl.org>, Randy.Dunlap
-<rddunlap@osdl.org> writes
->On Mon, 23 Feb 2004 10:05:58 -0500 "Martin Bogomolni" <martinb@www.igotu.com> 
->wrote:
->
->| 
-> 
->| Since it doesn't seem that Hans Lermen has been updating or maintaining
->| loadlin since the release of 2.4 is there anyone who is continuing to 
->maintain
->| LOADLIN, or has it fallen by the wayside?   Due to the nature of the system,
->| and a requirement for backwards compatibility and user interaction during
->| startup, I cannot use Peter Anvin's SYSLINUX linux loader which occurs too
->| early on in the process.
->| 
->| Are there any other options to startup a linux environment from DOS?
->
->I don't know anything about it, but you might look at gujin:
->  http://sourceforge.net/projects/gujin/
->
->--
->~Randy
->-
+Hi Giacomo,
 
-Hans produced loadlin1.6c for Pat Volkerding, about slack 8.1 time
-(kernel 2.4.18). I'm sure he'd rise to the challenge to update for 2.6
-if needed. 
-And...
-I've just tried loadlin1.6c on a 2.6.2 kernel and it's come up fine
+Yes, you are right. I have now looked at the driver in 2.4.25 and see that
+the latest change did break the compatibility inadvertently (because of
+wrongly backporting the changes from 2.6 --- can't remember who did it
+now, but it doesn't matter).
 
-Bob Hall
+Please test the attached patch. I have tested it on 2.4.25 but only
+without devfs compiled into the kernel.
 
-There's also linld (??) from a russian guy IIRC.
+Kind regards
+Tigran
 
+PS.Notice that I also added your earlier suggestion to do compile-time
+merging of strings instead of runtime.
+
+--- linux-2.4.25-orig/arch/i386/kernel/microcode.c	2004-02-18 13:36:30.000000000 +0000
++++ linux-2.4.25/arch/i386/kernel/microcode.c	2004-02-23 18:07:41.000000000 +0000
+@@ -1,7 +1,7 @@
+ /*
+  *	Intel CPU Microcode Update driver for Linux
+  *
+- *	Copyright (C) 2000 Tigran Aivazian
++ *	Copyright (C) 2000-2004 Tigran Aivazian
+  *
+  *	This driver allows to upgrade microcode on Intel processors
+  *	belonging to IA-32 family - PentiumPro, Pentium II,
+@@ -64,6 +64,10 @@
+  *		Removed ->read() method and obsoleted MICROCODE_IOCFREE ioctl
+  *		because we no longer hold a copy of applied microcode
+  *		in kernel memory.
++ *	1.14	23 Feb 2004 Tigran Aivazian <tigran@veritas.com>
++ *		Restored devfs regular file entry point which was
++ *		accidentally removed when back-porting changes from the 2.6
++ *		version of the driver.
+  */
+
+
+@@ -73,6 +77,7 @@
+ #include <linux/slab.h>
+ #include <linux/vmalloc.h>
+ #include <linux/miscdevice.h>
++#include <linux/devfs_fs_kernel.h>
+ #include <linux/spinlock.h>
+ #include <linux/mm.h>
+
+@@ -84,8 +89,8 @@
+ MODULE_AUTHOR("Tigran Aivazian <tigran@veritas.com>");
+ MODULE_LICENSE("GPL");
+
+-#define MICROCODE_VERSION 	"1.13"
+-#define MICRO_DEBUG 		1
++#define MICROCODE_VERSION 	"1.14"
++#define MICRO_DEBUG 		0
+ #if MICRO_DEBUG
+ #define dprintk(x...) printk(KERN_INFO x)
+ #else
+@@ -470,6 +475,7 @@
+ 	return -EINVAL;
+ }
+
++/* shared between misc device and devfs regular file */
+ static struct file_operations microcode_fops = {
+ 	.owner		= THIS_MODULE,
+ 	.write		= microcode_write,
+@@ -483,29 +489,38 @@
+ 	.fops		= &microcode_fops,
+ };
+
++static devfs_handle_t devfs_handle;
++
+ static int __init microcode_init (void)
+ {
+ 	int error;
+
+ 	error = misc_register(&microcode_dev);
+-	if (error) {
++	if (error)
+ 		printk(KERN_ERR
+ 			"microcode: can't misc_register on minor=%d\n",
+ 			MICROCODE_MINOR);
+-		return error;
++	devfs_handle = devfs_register(NULL, "cpu/microcode",
++			DEVFS_FL_DEFAULT, 0, 0, S_IFREG | S_IRUSR | S_IWUSR,
++			&microcode_fops, NULL);
++	if (devfs_handle == NULL && error) {
++		printk(KERN_ERR "microcode: failed to devfs_register()\n");
++		goto out;
+ 	}
+-
++	error = 0;
+ 	printk(KERN_INFO
+-		"IA-32 Microcode Update Driver: v%s <tigran@veritas.com>\n",
+-		MICROCODE_VERSION);
+-	return 0;
++		"IA-32 Microcode Update Driver: v"
++		MICROCODE_VERSION " <tigran@veritas.com>\n");
++out:
++	return error;
+ }
+
+ static void __exit microcode_exit (void)
+ {
+ 	misc_deregister(&microcode_dev);
+-	printk(KERN_INFO "IA-32 Microcode Update Driver v%s unregistered\n",
+-			MICROCODE_VERSION);
++	devfs_unregister(devfs_handle);
++	printk(KERN_INFO "IA-32 Microcode Update Driver v"
++		MICROCODE_VERSION " unregistered\n");
+ }
+
+ module_init(microcode_init)
 

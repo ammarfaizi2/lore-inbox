@@ -1,26 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272197AbRJKQfb>; Thu, 11 Oct 2001 12:35:31 -0400
+	id <S276452AbRJKQhA>; Thu, 11 Oct 2001 12:37:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276535AbRJKQfU>; Thu, 11 Oct 2001 12:35:20 -0400
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:31149
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S276215AbRJKQfK>; Thu, 11 Oct 2001 12:35:10 -0400
-Date: Thu, 11 Oct 2001 09:35:32 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Export objs from an external Makefile?
-Message-ID: <20011011093532.K12016@cpe-24-221-152-185.az.sprintbbd.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22i
+	id <S276535AbRJKQgv>; Thu, 11 Oct 2001 12:36:51 -0400
+Received: from willow.commerce.uk.net ([213.219.35.202]:5914 "EHLO
+	willow.commerce.uk.net") by vger.kernel.org with ESMTP
+	id <S276452AbRJKQgp>; Thu, 11 Oct 2001 12:36:45 -0400
+Date: Thu, 11 Oct 2001 17:37:10 +0100 (BST)
+From: Corin Hartland-Swann <cdhs@commerce.uk.net>
+To: linux-kernel@vger.kernel.org
+cc: "J . A . Magallon" <jamagallon@able.es>
+Subject: problems with lo and AF_NETLINK
+Message-ID: <Pine.LNX.4.21.0110111730250.25144-100000@willow.commerce.uk.net>
+Organization: Commerce Internet Ltd
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey all.  How do you do the 'export-objs' bits in a kernel module that's
-outside of the kernel?  Thanks..
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+Hi there,
+	
+I'm having problems with getting kernel 2.4.12 (and yesterday 2.4.11, but
+that has bitten the dust now) to work on my laptop (Dell Inspiron 8000,
+PIII-850, 512MB RAM).
+
+I searched the lkml archive, and found the following post which describes
+my problem exactly:
+
+  http://marc.theaimsgroup.com/?l=linux-kernel&m=99475318111175&w=2
+
+Unfortunately nobody responded to it. I assume that something to do with
+AF_NETLINK has been merged in from the -ac series since 2.4.8, as the
+distributor supplied kernel (2.4.8-26mdk) works fine.
+
+As the previous poster suggested, I have tried re-compiling with
+CONFIG_NETLINK_DEV, but that didn't help, and I am still getting:
+
+  Cannot send dump request: Connection refused
+
+Does anyone have any suggestions?
+
+Thanks,
+
+Corin
+
+/------------------------+-------------------------------------\
+| Corin Hartland-Swann   |    Tel: +44 (0) 20 7491 2000        |
+| Commerce Internet Ltd  |    Fax: +44 (0) 20 7491 2010        |
+| 22 Cavendish Buildings | Mobile: +44 (0) 79 5854 0027        | 
+| Gilbert Street         |                                     |
+| Mayfair                |    Web: http://www.commerce.uk.net/ |
+| London W1K 5HJ         | E-Mail: cdhs@commerce.uk.net        |
+\------------------------+-------------------------------------/
+

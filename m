@@ -1,82 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261882AbULKASa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261888AbULKATk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261882AbULKASa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Dec 2004 19:18:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261883AbULKASa
+	id S261888AbULKATk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Dec 2004 19:19:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261890AbULKATk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Dec 2004 19:18:30 -0500
-Received: from 66.238.42.11.ptr.us.xo.net ([66.238.42.11]:37030 "EHLO
-	mail.petta-tech.com") by vger.kernel.org with ESMTP id S261882AbULKASY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Dec 2004 19:18:24 -0500
-Date: Fri, 10 Dec 2004 16:18:23 -0800
-From: Eric Wong <eric@petta-tech.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Julien Langer <jlanger@zigweb.de>, linux-kernel@vger.kernel.org
-Subject: Re: Sil3112 and Seagate ST3160023AS
-Message-ID: <20041211001823.GA14951@r40.bogomips.org>
-References: <1102691231.3921.13.camel@moeff> <41B9E224.9030705@pobox.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="xHFwDpU9dbj6ez1V"
-Content-Disposition: inline
-In-Reply-To: <41B9E224.9030705@pobox.com>
-User-Agent: Mutt/1.5.6+20040523i
+	Fri, 10 Dec 2004 19:19:40 -0500
+Received: from brown.brainfood.com ([146.82.138.61]:28071 "EHLO
+	gradall.private.brainfood.com") by vger.kernel.org with ESMTP
+	id S261888AbULKATe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Dec 2004 19:19:34 -0500
+Date: Fri, 10 Dec 2004 18:19:16 -0600 (CST)
+From: Adam Heath <doogie@debian.org>
+X-X-Sender: adam@gradall.private.brainfood.com
+To: "Theodore Ts'o" <tytso@mit.edu>
+cc: Matt Mackall <mpm@selenic.com>, Bernard Normier <bernard@zeroc.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Concurrent access to /dev/urandom
+In-Reply-To: <20041210212815.GB25409@thunk.org>
+Message-ID: <Pine.LNX.4.58.0412101818310.2173@gradall.private.brainfood.com>
+References: <06a501c4dcb6$3cb80cf0$6401a8c0@centrino> <20041208012802.GA6293@thunk.org>
+ <079001c4dcc9$1bec3a60$6401a8c0@centrino> <20041208192126.GA5769@thunk.org>
+ <20041208215614.GA12189@waste.org> <20041209015705.GB6978@thunk.org>
+ <20041209212936.GO8876@waste.org> <20041210044759.GQ8876@waste.org>
+ <20041210163558.GB10639@thunk.org> <20041210182804.GT8876@waste.org>
+ <20041210212815.GB25409@thunk.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---xHFwDpU9dbj6ez1V
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Jeff Garzik <jgarzik@pobox.com> wrote:
-> Julien Langer wrote:
-> >Is there a way to disable this fix, which slows down my drive, since it
-> >worked fine for a long time without this fix on older kernel versions?
-> >I'm using the deprecated ide driver for the sil controller, not libata.
->=20
-> Unfortunately it's just a matter of time until you hit a problem,=20
-> without the errata fix that causes the performance loss.
-=20
-It's been 11 months with my ST3160023AS 3.05 and SiI 3112 (rev 02) under
-fairly heavy use and I haven't noticed anything wrong.
-
-I think I've read somewhere that rev 2 of the SiI 3112 is safe, and that
-might be why I'm alright.  Unfortunately, the sata_sil blacklist
-implementation I wrote at the time doesn't seem to account for the
-revision of either the drive nor the controller.
-
-My experiences: (purely anecdotal evidence, ymmv)
-
-Stability has been nothing but solid, the box they're on is on 24/7 as
-an NFS server housing mainly FLAC audio and multiple Arch archives and
-a build daemon (which means revision libraries and working trees exist
-too)
-
-Neither Arch archives/working trees/revision libraries nor my FLAC audio
-collection has shown any inconsistency (but then again MD5 used by both
-Arch and FLAC has been proven broken lately).  I'll fix up an Arch
-script to check the SHA1 and the MD5 checksums sometime this weekend
-(the newer commits are double checksummed).  Arch revision library
-consistency is checked by tla via inode signatures, and those haven't
-burped on me, either.
-
---=20
-Eric Wong
-
---xHFwDpU9dbj6ez1V
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFBujzPcodMowuNYfcRAiyoAJ0Ul0WvWYx1t9SdQSlfsoh/JrSFlQCdFtAz
-FSclsseixRF27xz72MNFF9Q=
-=uryk
------END PGP SIGNATURE-----
-
---xHFwDpU9dbj6ez1V--
+Is this problem a security issue?  On SMP, couldn't an attacker read from
+/dev/urandom, then know what other programs have read, and use that to do some
+kind of subversion?

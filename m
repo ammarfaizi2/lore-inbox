@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278139AbRJLVID>; Fri, 12 Oct 2001 17:08:03 -0400
+	id <S278142AbRJLVQe>; Fri, 12 Oct 2001 17:16:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278140AbRJLVHx>; Fri, 12 Oct 2001 17:07:53 -0400
-Received: from [204.177.156.37] ([204.177.156.37]:50843 "EHLO
-	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
-	id <S278139AbRJLVHk>; Fri, 12 Oct 2001 17:07:40 -0400
-Date: Fri, 12 Oct 2001 22:09:37 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-To: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-cc: linux-kernel@vger.kernel.org, Alan Cox <laughing@shared-source.org>
-Subject: Re: Linux 2.4.10-ac11: swapoff frees memory + swap?
-In-Reply-To: <20011011045909.A13276@emma1.emma.line.org>
-Message-ID: <Pine.LNX.4.21.0110122115480.975-100000@localhost.localdomain>
+	id <S278143AbRJLVQZ>; Fri, 12 Oct 2001 17:16:25 -0400
+Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:8252 "EHLO
+	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
+	id <S278142AbRJLVQJ>; Fri, 12 Oct 2001 17:16:09 -0400
+Date: Fri, 12 Oct 2001 16:15:54 -0500 (CDT)
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+To: Greg KH <greg@kroah.com>
+cc: Stelian Pop <stelian.pop@fr.alcove.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: PCI device search.
+In-Reply-To: <20011012135556.A21296@kroah.com>
+Message-ID: <Pine.LNX.3.96.1011012161504.13514A-100000@mandrakesoft.mandrakesoft.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 Oct 2001, Matthias Andree wrote:
-> 
-> It swaps blazingly fast, but one strange observation. After the efenced
-> application had died at approx 300 MB in RAM and 180 MB of swap, I had
-> somewhat around 130 MB in swap and like 250 MB "USED+SHAR" as per
-> xosview. That looked too high a number, so I did swapoff -av, and after
-> that, I had 90 MB used. The swapoff was rather fast, compared with older
-> 2.4.x vanilla kernels.
-> 
-> It may well be a cosmetic issue, but it's irritating that switching the
-> swap off looks like freeing main memory as well, one might expect pages
-> are swapped back into RAM, so USED increases.
+On Fri, 12 Oct 2001, Greg KH wrote:
+> On Fri, Oct 12, 2001 at 05:04:11PM +0200, Stelian Pop wrote:
+> > 	1. Create a PCI driver (pci_device_id, struct pci_driver etc)
+> > 	and in init_module call pci_module_init. If it fails,
+> > 	assume the driver deals with newer hardware and 
+> > 	call 'by hand' the 'probe' routine from pci_driver struct.
 
-That's because when your application exits, zap_pte_range frees page and
-swap for the present ptes, but only swap_free for the non-present ptes:
-sometimes that brings the swap count down to 1 (still used), but that 1
-corresponds to page remaining in the swap cache which could now be freed.
+> > What is considered to be the best way to do it ?
+> > (this is _not_ a hotplug device if it matters).
 
-There's no lookup in that case, intentionally.  A patch was posted a few
-months ago to do so, but Linus preferred not to add such unmap overhead.
-Indeed, for a while we didn't even free swap for the present ptes, but a
-number of problems arose from that (maybe now fixed in other ways, but I
-don't think we dare to reopen that wormcan).
+> I'd say 1.  If a device is hotpluggable or not does not matter.  For
+> 2.5, the boot process will be able to load modules for all PCI
+> devices seen in the system.  In order for that to happen, they need to
+> use the MODULE_DEVICE structure and the 2.4 pci driver subsystem.
 
-In due course, when memory pressure demands, reclaim_page (Alan+Rik)
-or shrink_cache (Linus+Andrea) will discover those pages and make them
-available.  Or, as you found, swapoff will free them: one of the reasons
-swapoff is now faster is that it no longers searches mms in that case.
+I'd say 1.5.  :)  For the "newer hardware" consider using the PCI host
+bridge or ISA bridge for your "container" PCI device.
 
-Hugh
+	Jeff
+
+
 

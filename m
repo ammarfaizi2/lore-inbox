@@ -1,102 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266527AbUGMVyW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266655AbUGMVz6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266527AbUGMVyW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 17:54:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266898AbUGMVyW
+	id S266655AbUGMVz6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 17:55:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266866AbUGMVz6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 17:54:22 -0400
-Received: from mail020.syd.optusnet.com.au ([211.29.132.131]:16013 "EHLO
-	mail020.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S266527AbUGMVxK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 17:53:10 -0400
-Message-ID: <40F459AF.1040501@kolivas.org>
-Date: Wed, 14 Jul 2004 07:52:47 +1000
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
-X-Accept-Language: en-us, en
+	Tue, 13 Jul 2004 17:55:58 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:30469 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S266655AbUGMVzT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jul 2004 17:55:19 -0400
+Message-ID: <40F45FF9.8030702@techsource.com>
+Date: Tue, 13 Jul 2004 18:19:37 -0400
+From: Timothy Miller <miller@techsource.com>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: ck@vds.kolivas.org, linux-kernel@vger.kernel.org, wli@holomorphy.com
-Subject: Re: Preempt Threshold Measurements
-References: <200407121943.25196.devenyga@mcmaster.ca>	<20040713024051.GQ21066@holomorphy.com>	<200407122248.50377.devenyga@mcmaster.ca>	<cone.1089687290.911943.12958.502@pc.kolivas.org>	<20040712210107.1945ac34.akpm@osdl.org>	<cone.1089697919.186986.12958.502@pc.kolivas.org> <20040712231406.427caa2a.akpm@osdl.org>
-In-Reply-To: <20040712231406.427caa2a.akpm@osdl.org>
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig61F45D7A991DB24C4B604764"
+To: William Lee Irwin III <wli@holomorphy.com>
+CC: Adrian Bunk <bunk@fs.tum.de>, Arjan van de Ven <arjanv@redhat.com>,
+       Nigel Cunningham <ncunningham@linuxmail.org>,
+       Jakub Jelinek <jakub@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: GCC 3.4 and broken inlining.
+References: <1089287198.3988.18.camel@nigel-laptop.wpcb.org.au> <20040708120719.GS21264@devserv.devel.redhat.com> <20040708205225.GI28324@fs.tum.de> <20040708210925.GA13908@devserv.devel.redhat.com> <1089324501.3098.9.camel@nigel-laptop.wpcb.org.au> <20040709062403.GA15585@devserv.devel.redhat.com> <20040710012117.GA28324@fs.tum.de> <20040710023045.GD21066@holomorphy.com>
+In-Reply-To: <20040710023045.GD21066@holomorphy.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig61F45D7A991DB24C4B604764
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Andrew Morton wrote:
-> This can run under one of two depths of lock_kernel.  filemap_fdatawrite()
-> and filemap_fdatawait() both do cond_resched(), so this is odd.
+
+William Lee Irwin III wrote:
+> On Fri, Jul 09, 2004 at 08:24:03AM +0200, Arjan van de Ven wrote:
 > 
-> Try this:
+>>>one thing to note is that you also need to monitor stack usage then :)
+>>>inlining somewhat blows up stack usage so do monitor it...
 > 
-> --- 25/mm/truncate.c~truncate_inode_pages-latency-fix	2004-07-12 23:12:53.871816320 -0700
-> +++ 25-akpm/mm/truncate.c	2004-07-12 23:13:00.993733624 -0700
-> @@ -155,6 +155,7 @@ void truncate_inode_pages(struct address
->  
->  	next = start;
->  	for ( ; ; ) {
-> +		cond_resched();
->  		if (!pagevec_lookup(&pvec, mapping, next, PAGEVEC_SIZE)) {
->  			if (next == start)
->  				break;
-> _
+> 
+> On Sat, Jul 10, 2004 at 03:21:17AM +0200, Adrian Bunk wrote:
+> 
+>>How could inlining increase stack usage?
+> 
+> 
+> As more variables go into scope, gcc's stack slot allocation bug bites
+> progressively harder and stackspace requirements grow without bound.
 
-I had a few of these with this patch. Is it cond_resched'ing twice?
 
-Con
+Blah... you should see what Sun's compiler does with volatiles.
 
-2ms non-preemptible critical section violated 1 ms preempt threshold 
-starting at flush_commit_list+0x11d/0x3ee and ending at schedule+0x216/0x841
-  [<c011d769>] dec_preempt_count+0x14f/0x151
-  [<c031d716>] schedule+0x216/0x841
-  [<c031d716>] schedule+0x216/0x841
-  [<c01085c7>] do_IRQ+0x176/0x1eb
-  [<c01040b3>] cpu_idle+0x3a/0x3c
-  [<c040094c>] start_kernel+0x19c/0x1e8
-  [<c0400402>] unknown_bootoption+0x0/0x15e
+Imagine you have some pointers like this:
 
-2ms non-preemptible critical section violated 1 ms preempt threshold 
-starting at do_journal_end+0x539/0xae8 and ending at schedule+0x216/0x841
-  [<c011d769>] dec_preempt_count+0x14f/0x151
-  [<c031d716>] schedule+0x216/0x841
-  [<c031d716>] schedule+0x216/0x841
-  [<c0116284>] smp_apic_timer_interrupt+0x97/0x166
-  [<c01040b3>] cpu_idle+0x3a/0x3c
-  [<c0120659>] call_console_drivers+0xcd/0xea
-  [<c01209da>] release_console_sem+0xa3/0x101
-  [<c012088a>] printk+0x13d/0x19c
+volatile int *a, *b, *c, *d, *e;
 
-2ms non-preemptible critical section violated 1 ms preempt threshold 
-starting at flush_async_commits+0x1b/0xf7 and ending at schedule+0x216/0x841
-  [<c011d769>] dec_preempt_count+0x14f/0x151
-  [<c031d716>] schedule+0x216/0x841
-  [<c031d716>] schedule+0x216/0x841
-  [<c011b88c>] load_balance+0x147/0x1ff
-  [<c0116284>] smp_apic_timer_interrupt+0x97/0x166
-  [<c010604e>] work_resched+0x5/0x16
+And they are all valid pointers.
 
---------------enig61F45D7A991DB24C4B604764
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+And then you have an expression like this:
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+x = ((((*a + *b) + *c) + *d) + *e);
 
-iD8DBQFA9FmyZUg7+tp6mRURAiQyAKCUuMIdq4Ezp4d/rTQaSiP1g4OOfACggujA
-vkb90s7mPett568Gqa+/3Vc=
-=dlP+
------END PGP SIGNATURE-----
+Since *a and *b are volatile, the Sun compiler thinks that the sum of 
+the two is also volatile, allocates stack space for it.  It computes (*a 
++ *b), stores it on the stack, and then loads it back from the stack, 
+and then computes that plus *c, stores that result on the stack, then 
+reloads it, etc.
 
---------------enig61F45D7A991DB24C4B604764--
+I had a case where pointers had to be volatile, because I needed the 
+memory space (over PCI) read at the right point in the code, and I 
+needed to do some math on what was read.  I had 32 lines of code each of 
+which got allocated 5 temporary variables on the stack, for absolutely 
+no good reason.  The solution was to cast away the volatile a la ((int)*a).
+
+Now, we all know that it makes no sense for the sum of two volatiles to 
+also be volatile.  Once *a and *b are dereferenced and their sum 
+computed, the sum isn't going to change, and it isn't even an lvalue, so 
+nothing can modify it!
+
+So, you want to talk about bugs.... give GCC a little slack.  :)
+

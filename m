@@ -1,41 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261817AbVAMXrD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261820AbVAMXnG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261817AbVAMXrD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 18:47:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261810AbVAMXoB
+	id S261820AbVAMXnG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 18:43:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261828AbVAMXjE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 18:44:01 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:63973 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261817AbVAMXmW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 18:42:22 -0500
-Subject: Re: [BUG] ATA over Ethernet __init calling __exit
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andi Kleen <ak@muc.de>
-Cc: Ed L Cashin <ecashin@coraid.com>, Jens Axboe <axboe@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       jgarzik@pobox.com
-In-Reply-To: <20050113215346.GB1504@muc.de>
-References: <20050113000949.A7449@flint.arm.linux.org.uk>
-	 <20050113085035.GC2815@suse.de> <m1wtuh2kah.fsf@muc.de>
-	 <87is616oi2.fsf@coraid.com>  <20050113215346.GB1504@muc.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1105654178.4624.152.camel@localhost.localdomain>
+	Thu, 13 Jan 2005 18:39:04 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:42936 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261824AbVAMXev
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 18:34:51 -0500
+Date: Thu, 13 Jan 2005 15:34:46 -0800
+From: Greg KH <greg@kroah.com>
+To: Luca Falavigna <dktrkranz@gmail.com>
+Cc: vamsi_krishna@in.ibm.com, prasanna@in.ibm.com,
+       Nathan Lynch <nathanl@austin.ibm.com>, suparna@in.ibm.com,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Kprobes /proc entry
+Message-ID: <20050113233446.GA2710@kroah.com>
+References: <41E2AC82.8020909@gmail.com> <20050110181445.GA31209@kroah.com> <1105479077.17592.8.camel@pants.austin.ibm.com> <20050111213400.GB18422@kroah.com> <41E70234.50900@gmail.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 13 Jan 2005 22:09:42 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41E70234.50900@gmail.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2005-01-13 at 21:53, Andi Kleen wrote:
-> > If it ever did become desirable, we could use a couple more bits for
+On Fri, Jan 14, 2005 at 12:20:20AM +0100, Luca Falavigna wrote:
 > 
-> It likely will if someone ever adds significant write cache to such
-> devices.
+> +#ifdef CONFIG_DEBUG_FS
 
-ATA doesn't support tagged queueing. Therefore write cache is
-irrelevant.
+This ifdef should not be needed.
 
-Alan
+> +int kprobes_open(struct inode *inode, struct file *file)
 
+Shouldn't these calls be static?
+
+> +{
+> +	try_module_get(THIS_MODULE);
+
+Check the return value of this call?
+
+>  static int __init init_kprobes(void)
+>  {
+>  	int i, err = 0;
+> @@ -140,6 +233,16 @@
+>  	for (i = 0; i < KPROBE_TABLE_SIZE; i++)
+>  		INIT_HLIST_HEAD(&kprobe_table[i]);
+> 
+> +#ifdef CONFIG_DEBUG_FS
+
+ifdef not needed.
+
+> +	if(!(kprobes_dir = debugfs_create_dir("kprobes", NULL)))
+> +		return -ENODEV;
+> +	if(!(kprobes_list = debugfs_create_file("list", S_IRUGO, kprobes_dir,
+> +					  	NULL, &kprobes_fops))) {
+> +		debugfs_remove(kprobes_dir);
+> +		return -ENODEV;
+> +	}
+
+You never delete this file or directory on module unload, do you?
+
+thanks,
+
+greg k-h

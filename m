@@ -1,51 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318028AbSGLWME>; Fri, 12 Jul 2002 18:12:04 -0400
+	id <S318032AbSGLWOF>; Fri, 12 Jul 2002 18:14:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318029AbSGLWMD>; Fri, 12 Jul 2002 18:12:03 -0400
-Received: from pD952ACB5.dip.t-dialin.net ([217.82.172.181]:23687 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S318028AbSGLWMA>; Fri, 12 Jul 2002 18:12:00 -0400
-Date: Fri, 12 Jul 2002 16:14:23 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: "David S. Miller" <davem@redhat.com>
-cc: thunder@ngforever.de, <linux-kernel@vger.kernel.org>,
-       <zippel@linux-m68k.org>, <ultralinux@vger.kernel.org>
-Subject: Re: L1_CACHE_SHIFT on sparc64
-In-Reply-To: <20020712.145524.91314408.davem@redhat.com>
-Message-ID: <Pine.LNX.4.44.0207121613220.3421-100000@hawkeye.luckynet.adm>
-X-Location: Potsdam; Germany
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318033AbSGLWOE>; Fri, 12 Jul 2002 18:14:04 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:36524 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S318031AbSGLWMZ>;
+	Fri, 12 Jul 2002 18:12:25 -0400
+Date: Fri, 12 Jul 2002 15:06:07 -0700 (PDT)
+Message-Id: <20020712.150607.35506145.davem@redhat.com>
+To: alan@lxorguk.ukuu.org.uk
+Cc: matts@ksu.edu, shemminger@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: 64 bit netdev stats counter
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <1026516053.9958.33.camel@irongate.swansea.linux.org.uk>
+References: <Pine.GSO.4.33L.0207121628100.19313-100000@unix2.cc.ksu.edu>
+	<20020712.145835.91443486.davem@redhat.com>
+	<1026516053.9958.33.camel@irongate.swansea.linux.org.uk>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+   From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+   Date: 13 Jul 2002 00:20:53 +0100
 
-On Fri, 12 Jul 2002, David S. Miller wrote:
-> Right.  But who needs L1_CACHE_SHIFT?
+   gcc will output
+   
+   		increment low 32bit
+   		if zero
+   			increment high
+   
+   Which means we can rapidly get 2^32 out of sync
+   
+True and this equals the "fix" suggested C code involving
+two 32-bit counters that the original author posted :-)
 
-fs/dquot.c uses it.
-
-> Nothing generic should reference it.  Did something get added to 2.5.x
-> that needs it now?
-
-Must have been 2.5, but not since 2.5.24.
-
-> I wouldn't have noticed yet as I've been away for nearly half a month
-> on vaction until a day or two ago.
-
-Welcome back!
-
-							Regards,
-							Thunder
--- 
-(Use http://www.ebb.org/ungeek if you can't decode)
-------BEGIN GEEK CODE BLOCK------
-Version: 3.12
-GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
-N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
-e++++ h* r--- y- 
-------END GEEK CODE BLOCK------
-
+So this makes both cases equally wrong.

@@ -1,41 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129029AbQKAOr3>; Wed, 1 Nov 2000 09:47:29 -0500
+	id <S129063AbQKAO6d>; Wed, 1 Nov 2000 09:58:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129265AbQKAOrU>; Wed, 1 Nov 2000 09:47:20 -0500
-Received: from TRAMPOLINE.THUNK.ORG ([216.175.175.172]:29958 "EHLO
-	trampoline.thunk.org") by vger.kernel.org with ESMTP
-	id <S129029AbQKAOrG>; Wed, 1 Nov 2000 09:47:06 -0500
-Date: Wed, 1 Nov 2000 09:46:19 -0500
-From: tytso@mit.edu
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: Jakub Jelinek <jakub@redhat.com>,
-        Horst von Brand <vonbrand@sleipnir.valparaiso.cl>,
+	id <S129118AbQKAO6X>; Wed, 1 Nov 2000 09:58:23 -0500
+Received: from chac.inf.utfsm.cl ([200.1.19.54]:49167 "EHLO chac.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id <S129063AbQKAO6M>;
+	Wed, 1 Nov 2000 09:58:12 -0500
+Message-Id: <200011011326.eA1DQsv01572@sleipnir.valparaiso.cl>
+To: pollard@cats-chateau.net
+cc: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>,
         linux-kernel@vger.kernel.org
-Subject: Re: 2.4.0-test10-pre6: Use of abs()
-Message-ID: <20001101094619.A15283@trampoline.thunk.org>
-In-Reply-To: <200010281629.e9SGTah07672@sleipnir.valparaiso.cl> <39FD7F2C.9A3F3976@evision-ventures.com> <20001030081938.K6207@devserv.devel.redhat.com> <39FD9E6A.AD10E699@evision-ventures.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <39FD9E6A.AD10E699@evision-ventures.com>; from dalecki@evision-ventures.com on Mon, Oct 30, 2000 at 05:14:34PM +0100
+Subject: Re: 2.2.18Pre Lan Performance Rocks! 
+In-Reply-To: Message from Jesse Pollard <pollard@cats-chateau.net> 
+   of "Tue, 31 Oct 2000 21:42:13 MDT." <00103121504302.20791@tabby> 
+Date: Wed, 01 Nov 2000 10:26:54 -0300
+From: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 30, 2000 at 05:14:34PM +0100, Martin Dalecki wrote:
-> Of corse right! BTW. There are tons of places where log2 is calculated
-> explicitly in kernel which should be replaced with the corresponding
-> built 
-> in functions as well (/dev/random code does it). And then If I remember
-> correctly
-> there is an attribute which is telling about internal functions
-> in declarations explicitly as well?
+Jesse Pollard <pollard@cats-chateau.net> said:
+> On Tue, 31 Oct 2000, Horst von Brand wrote:
+> >Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil> said:
+> >
+> >[...]
+> >
+> >> Also pay attention to the security aspects of a true "zero copy" TCP stack.
+> >> It means that SOMETIMES a user buffer will recieve data that is destined
+> >> for a different process.
 
-What versions of gcc produce the built-in functions?  And does it do
-so for *all* platforms?  (i.e., PPC, Alpha, IA64, etc., etc., etc.)
+> >Why? AFAIKS, given proper handling of the issues involved, this can't
+> >happen (sure can get tricky, but can be done in principle. Or am I
+> >off-base?)
 
-						- Ted
+> As I understand the current implementation, this can't. One of the
+> optimization s I had read about (for a linux test) used zero copy to/from
+> user buffer as well as zero copy in the kernel. I believe the DMA went
+> directly to the users memory.
+
+Right. This means you have to ensure (somehow blocking the process(es) with
+access to the buffer(s) involved) that nobody can see half-filled buffers.
+Tricky, but not impossible, at least not in principle. Or play VM games and
+switch the areas underneath atomically. The VM games we have been told are
+costlier than the average copy on "typical" machines (PCs, presumably ;-),
+plus you'd have to either ensure aligned buffers (how?) or keep two copies
+of whatever surrounds them (where is the advantage then?).
+-- 
+Horst von Brand                             vonbrand@sleipnir.valparaiso.cl
+Casilla 9G, Vin~a del Mar, Chile                               +56 32 672616
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,52 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271744AbTHDN4I (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 09:56:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271746AbTHDN4I
+	id S271748AbTHDNs0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 09:48:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271753AbTHDNs0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 09:56:08 -0400
-Received: from mail3.ithnet.com ([217.64.64.7]:2746 "HELO
-	heather-ng.ithnet.com") by vger.kernel.org with SMTP
-	id S271744AbTHDN4G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 09:56:06 -0400
-X-Sender-Authentification: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
-Date: Mon, 4 Aug 2003 15:56:04 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: FS: hardlinks on directories
-Message-Id: <20030804155604.2cdb96e7.skraw@ithnet.com>
-In-Reply-To: <20030804134415.GA4454@win.tue.nl>
-References: <20030804141548.5060b9db.skraw@ithnet.com>
-	<20030804134415.GA4454@win.tue.nl>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 4 Aug 2003 09:48:26 -0400
+Received: from angband.namesys.com ([212.16.7.85]:32408 "EHLO
+	angband.namesys.com") by vger.kernel.org with ESMTP id S271748AbTHDNsY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Aug 2003 09:48:24 -0400
+Date: Mon, 4 Aug 2003 17:48:22 +0400
+From: Oleg Drokin <green@namesys.com>
+To: Martin Pitt <martin@piware.de>
+Cc: linux-kernel@vger.kernel.org, vitaly@namesys.com
+Subject: Re: PROBLEM: 2.6.0-test1/2 reiserfsck journal replaying hangs
+Message-ID: <20030804134822.GF3911@namesys.com>
+References: <20030803102321.GA428@donald.balu5> <20030804075420.GB4396@namesys.com> <20030804084306.GB15110@donald.balu5> <20030804091703.GC3911@namesys.com> <20030804101310.GA1187@donald.balu5> <20030804101628.GD3911@namesys.com> <20030804132207.GA29529@donald.balu5>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030804132207.GA29529@donald.balu5>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 4 Aug 2003 15:44:15 +0200
-Andries Brouwer <aebr@win.tue.nl> wrote:
+Hello!
 
-> On Mon, Aug 04, 2003 at 02:15:48PM +0200, Stephan von Krawczynski wrote:
-> 
-> > although it is very likely I am entering (again :-) an ancient discussion I
-> > would like to ask why hardlinks on directories are not allowed/no supported
-> > fs action these days.
-> 
-> Quite a lot of software thinks that the file hierarchy is a tree,
-> if you wish a forest.
-> 
-> Things would break badly if the hierarchy became an arbitrary graph.
+On Mon, Aug 04, 2003 at 03:22:11PM +0200, Martin Pitt wrote:
+> > Yeah, sure.
+> I did that. I will send you the screenshot per private mail for not
+> cluttering up the mailing list.
 
-Care to name one? What exactly is the rule you see broken? Sure you can build
-loops, but you cannot prevent people from doing braindamaged things to their
-data anyway. You would not ban dd either for being able to flatten your
-harddisk only because of one mistyping char...
-Every feature can be misused and then damaging, but that is no real reason not
-to have it - IMHO.
+Ok, got it.
+reiserfsck hanged for unknown reason.
+This is not on your root partition, but rather on /dev/hda6
 
-Regards,
-Stephan
+> > > > can you press sysrq-T at the time of a hang and then send us the traces?
+> > > That's even more difficult, it produces several screenfulls of text
+> > > scrolling away very fast. I'd need a serial console for this purpose
+> > > but it will last a while to set this up since I don't have the
+> > > necessary hardware here. I could do it tomorrow.
+> > Well, as I understand, you first press sysrq-T, then ^C, then thing boots and you can
+> > colled sysrq-t output from dmesg or boot logs.
+> It does not work that way. Both with 2.4.x and 2.6.0-test2, after
+> pressing sysrq-something you can only choose actions from the menu (i.
+> e. eventually reboot). Every key press is interpreted as magic key
+> menu selection, I do not even have to hold down alt+sysrq to choose
+> 's'ync, 'b'oot and so on. There is no such thing as "e'x'it from this
+> menu". This may be regarded as another bug.
+
+Hm, I heard of such cases and usually this is because some key(un)press events got lost.
+How about pressing Ctrl key and Alt key separately which should let you out of this mode
+hopefully.
+
+Also What if you'd unmount /dev/hda6 after you booted and try to run
+/sbin/reiserfsck -a /dev/hda6, will it hang in this case?
+If so, you might be able to get stacktrace (with sysrq-t) from that point too.
+Also look if reiserfsck eats cpu or behaves strangely in some other manner when hanging,
+and if so, we may need a metadata snapshot of your /dev/hda6 device
+( you can obtain one with debugreiserfs -p /dev/hda6 | bzip2 -9c >metadata.bz2)
+
+Bye,
+    Oleg

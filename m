@@ -1,102 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262986AbTKYT6N (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Nov 2003 14:58:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262991AbTKYT6N
+	id S263135AbTKYUJc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Nov 2003 15:09:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263064AbTKYUJc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Nov 2003 14:58:13 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:53495 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S262986AbTKYT6I
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Nov 2003 14:58:08 -0500
-Message-ID: <3FC3B443.2060804@mvista.com>
-Date: Tue, 25 Nov 2003 11:57:55 -0800
-From: George Anzinger <george@mvista.com>
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Joe Korty <joe.korty@ccur.com>
-CC: Peter Chubb <peter@chubb.wattle.id.au>, root@chaos.analogic.com,
-       Stephen Hemminger <shemminger@osdl.org>,
-       Gabriel Paubert <paubert@iram.es>, john stultz <johnstul@us.ibm.com>,
-       Linus Torvalds <torvalds@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [RFC] possible erronous use of tick_usec in do_gettimeofday
-References: <1067300966.1118.378.camel@cog.beaverton.ibm.com> <20031027171738.1f962565.shemminger@osdl.org> <20031028115558.GA20482@iram.es> <20031028102120.01987aa4.shemminger@osdl.org> <20031029100745.GA6674@iram.es> <20031029113850.047282c4.shemminger@osdl.org> <16288.17470.778408.883304@wombat.chubb.wattle.id.au> <3FA1838C.3060909@mvista.com> <Pine.LNX.4.53.0310301645170.16005@chaos> <16289.39801.239846.9369@wombat.chubb.wattle.id.au> <20031125164237.GA15498@rudolph.ccur.com>
-In-Reply-To: <20031125164237.GA15498@rudolph.ccur.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 25 Nov 2003 15:09:32 -0500
+Received: from main.gmane.org ([80.91.224.249]:51592 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S263135AbTKYUJa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Nov 2003 15:09:30 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: 2.6.0-preX causes memory corruption
+Date: Tue, 25 Nov 2003 21:09:28 +0100
+Message-ID: <yw1x7k1ojjlz.fsf@kth.se>
+References: <1069789556.2115.16.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:2pGyQluCL8z2ZzZGRalv+Kzoif4=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joe Korty wrote:
-> test10's version of do_gettimeofday is using tick_usec which is
-> defined in terms of USER_HZ not HZ.
-> 
-> Against 2.6.0-test10-bk1.  Compiled, not tested, for comment only.
+Ali Akcaagac <aliakc@web.de> writes:
 
-We still have the problem that we are doing this calculation in usecs while the 
-wall clock uses nsecs.  This would be fine if there were an even number of usecs 
-in tick_nsec, but in fact it is somewhat less than (USEC_PER_SEC / HZ).  This 
-means that this correction (if we are behind by 7 or more ticks) will push the 
-clock past current time.  Here are the numbers:
+> After installing 2.6.0-pre9 the System seemed to work normally, all the
 
-tick_nsec =999849 or 1ms less 151 ns.  So if we are behind 7 or more ticks we 
-will report the time out 1 us too high.  (7 * 151 = 1057 or 1.057 usec).
+You mean 2.6.0-test9, don't you?
 
-Question is, do we care?  Will we ever be 7ms late in updating the wall clock? 
-As I recall, the wall clock is updated in the interrupt handler for the tick so, 
-to be this late, we would need to suffer a long interrupt hold off AND the tick 
-recovery code would need to have done its thing.  But this whole time is covered 
-by a write_seqlock on xtime_lock, so how can this even happen?  Seems like it is 
-only possible when we are locked and we then throw the whole thing away.
+> stuff I did before worked normally but when doing large fileoperation
+> including crunching stuff using bzip2 (e.g. checking out modules from
+> CVS and tar'ing them up) the archives get corrupt. I was first assuming
+> that this was a onetime mistake and thus I deleted the corrupt file and
+> re-run my normal operations. But after a while I noticed that this
+> problem occoured more and more and I was starting to worry. Archives are
+> showing to be corrupted but after an reset these archives can be
+> unpacked normally again.
 
-A test I would like to see is to put this in the code AFTER the read unlock:
-
-if (lost )
-	printk("Lost is %d\n", lost);
-
-(need to pull "	unsigned long lost;" out of the do{}while loop to do this)
-
-In short, I think we are beating a dead issue.
-
--g
-> 
-> Joe
-> 
-> --- base/arch/i386/kernel/time.c	2003-11-23 20:31:55.000000000 -0500
-> +++ new/arch/i386/kernel/time.c	2003-11-25 11:22:38.000000000 -0500
-> @@ -94,7 +94,7 @@
->  {
->  	unsigned long seq;
->  	unsigned long usec, sec;
-> -	unsigned long max_ntp_tick = tick_usec - tickadj;
-> +	unsigned long max_ntp_tick;
->  
->  	do {
->  		unsigned long lost;
-> @@ -110,13 +110,14 @@
->  		 * Better to lose some accuracy than have time go backwards..
->  		 */
->  		if (unlikely(time_adjust < 0)) {
-> +			max_ntp_tick = (USEC_PER_SEC / HZ) - tickadj;
->  			usec = min(usec, max_ntp_tick);
->  
->  			if (lost)
->  				usec += lost * max_ntp_tick;
->  		}
->  		else if (unlikely(lost))
-> -			usec += lost * tick_usec;
-> +			usec += lost * (USEC_PER_SEC / HZ);
->  
->  		sec = xtime.tv_sec;
->  		usec += (xtime.tv_nsec / 1000);
-> 
-> 
+Do you have preemptive kernel enabled (CONFIG_PREEMPT=y)?  There's
+been some discussion about it possibly causing strange things in some
+configurations.  If it helps to disable it, please post your .config,
+so we can compare with others.
 
 -- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+Måns Rullgård
+mru@kth.se
 

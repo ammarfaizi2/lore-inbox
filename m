@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130950AbRCFFqH>; Tue, 6 Mar 2001 00:46:07 -0500
+	id <S130953AbRCFFyA>; Tue, 6 Mar 2001 00:54:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130952AbRCFFp6>; Tue, 6 Mar 2001 00:45:58 -0500
-Received: from [199.183.24.200] ([199.183.24.200]:28489 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S130950AbRCFFpy>; Tue, 6 Mar 2001 00:45:54 -0500
-Date: Tue, 6 Mar 2001 00:44:54 -0500
-From: Peter Zaitcev <zaitcev@redhat.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: Russell King <rmk@arm.linux.org.uk>, David Brownell <david-b@pacbell.net>,
-        Manfred Spraul <manfred@colorfullife.com>, zaitcev@redhat.com,
-        linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: SLAB vs. pci_alloc_xxx in usb-uhci patch
-Message-ID: <20010306004454.A12846@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S130954AbRCFFxv>; Tue, 6 Mar 2001 00:53:51 -0500
+Received: from www.wen-online.de ([212.223.88.39]:65294 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S130953AbRCFFxq>;
+	Tue, 6 Mar 2001 00:53:46 -0500
+Date: Tue, 6 Mar 2001 06:53:45 +0100 (CET)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Loop stuck in -D state
+In-Reply-To: <Pine.LNX.3.95.1010305133108.884B-100000@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.33.0103060647240.1815-100000@mikeg.weiden.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: "David S. Miller" <davem@redhat.com>
-> Date: Mon, 5 Mar 2001 20:53:21 -0800 (PST)
+On Mon, 5 Mar 2001, Richard B. Johnson wrote:
 
->[...]
-> Gerard Roudier wrote for the sym53c8xx driver the exact thing
-> UHCI/OHCI need for this.
+> On Mon, 5 Mar 2001, Mike Galbraith wrote:
+>
+> > Are you saying that the initrd is broken again as well?  (having
+> > trouble understanding the problem.. don't see why you need the
+> > loop device or rather how its being busted is connected to your
+> > [interpolation] difficulty in creating a new initrd)
+> >
+> > 	-EAGAIN ;-)
+> >
+>
+> The initial RAM disk image is created using the loop device. You
+> can create a RAM disk image for initrd by using the ram device.
+> However, that doesn't work once the system has been booted off
+> it (try it, be ready for a complete hang).
 
-Thanks for the hint.
+That's news to me.  My test images were created without using the
+loop device, and my box boots just fine.
 
-***
+	-Mike
 
-Anyways, is this the end of the discussion regarding my patch?
-If it goes in, then fine. If not, fine too... Just
-let me know so that I can close the bug properly.
-Manfred said plainly "usb-uhci is broken", Alan kinda
-manuevered around my small problem, Dave Brownell looks
-unconvinced. So?
-
--- Pete

@@ -1,54 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264959AbRGSQ0e>; Thu, 19 Jul 2001 12:26:34 -0400
+	id <S264624AbRGSQ3o>; Thu, 19 Jul 2001 12:29:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264624AbRGSQ0Y>; Thu, 19 Jul 2001 12:26:24 -0400
-Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:56327
-	"EHLO ani.animx.eu.org") by vger.kernel.org with ESMTP
-	id <S264998AbRGSQ0I>; Thu, 19 Jul 2001 12:26:08 -0400
-Date: Thu, 19 Jul 2001 12:35:59 -0400
-From: Wakko Warner <wakko@animx.eu.org>
-To: Joshua Schmidlkofer <menion@srci.iwpsd.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.6 and netboot
-Message-ID: <20010719123559.C556@animx.eu.org>
-In-Reply-To: <20010719082650.A26980@animx.eu.org> <01071910105102.01826@widmers.oce.srci.oce.int>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.3i
-In-Reply-To: <01071910105102.01826@widmers.oce.srci.oce.int>; from Joshua Schmidlkofer on Thu, Jul 19, 2001 at 10:10:51AM -0600
+	id <S264998AbRGSQ3e>; Thu, 19 Jul 2001 12:29:34 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:24328 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S264624AbRGSQ3X>; Thu, 19 Jul 2001 12:29:23 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: Inclusion of zoned inactive/free shortage patch
+Date: Thu, 19 Jul 2001 18:33:26 +0200
+X-Mailer: KMail [version 1.2]
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        lkml <linux-kernel@vger.kernel.org>,
+        Rik van Riel <riel@conectiva.com.br>
+In-Reply-To: <Pine.LNX.4.33.0107181555181.1237-100000@penguin.transmeta.com> <0107190142450I.12129@starship>
+In-Reply-To: <0107190142450I.12129@starship>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <01071918332601.00317@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-> On Thursday 19 July 2001 06:26 am, Wakko Warner wrote:
-> > I'm using a kernel that is dd'd to a floppy to net boot linux on random
-> > machines.  I noticed that 2.4.6 won't get it's IP from the server (it won't
-> > even attempt it).  2.4.4 works
-> >
-> > If any more info is needed, just ask.
-> 
-> Sine 2.4.4 I have been unable to make ipconfig automagically go, and I think 
-> that this configuration is not supported.   At least, with my limited 
-> knowledge of how ipconfig works  you must to pass: 'ipconfig=dhcp', or 
-> ipconfig='bootp' to the kernel at boot time.  I built a LILO disk, but
-> I think that syslinux would work.  Also, I did eventually successfully get an 
-> Xterminal running.
+On Thursday 19 July 2001 01:42, Daniel Phillips wrote:
+> Yes.  The inactive shortage needs to be a function of the length of
+> the inactive_dirty queue rather than just the amount that free pages
+> is less than some fixed minimum.
 
-> After 2.4.4 ipconfig was changed to the ipconfig= style of behaviour.  I 
-> don't know why, but someone does.  I think it has to do with implementation 
-> cahnges to allow for modularized NIC's to use ipautoconfig.   This seems 
-> insane that functionality was cut in order to do this.
+Oops, it already is, good :-]
 
-Hmm, maybe I'll check the diff on 2.4.5 to see what was done.
+> The target length of the
+> inactive_dirty queue in turn can be a function of the global free
+> shortage (which is where the minimum free numbers get used)
 
-> Also, I have been unable to make bootp work for nfsboot, but I suspect my 
-> bootp server - not the kernel.
-> 
-> BACK to the point.  Since 2.4.5 I have had to use lilo, and add a line that 
-> says 'nfs=[all that stuff] ipconfig=dhcp'
+ditto, it's already that way...
 
-=(
+> and the transfer rate of the disk(s).
 
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+This we don't do, and afaics, this is the only way to get stability
+across a really wide range of loads, and on system configurations we 
+can't possibly pre-tune for.
+
+> Again, experimental - without careful
+> work a feedback mechanism like this could oscillate wildly.  It's
+> most probably the way forward in the long run though.
+>
+> --
+> Daniel

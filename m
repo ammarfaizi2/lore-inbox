@@ -1,51 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265445AbUAPPxd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 10:53:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265548AbUAPPxc
+	id S265550AbUAPP42 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 10:56:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265546AbUAPPxq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 10:53:32 -0500
-Received: from dns.toxicfilms.tv ([150.254.37.24]:62678 "EHLO
-	dns.toxicfilms.tv") by vger.kernel.org with ESMTP id S265445AbUAPPwq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 10:52:46 -0500
-Message-ID: <001701c3dc48$d05763d0$0e25fe96@southpark.ae.poznan.pl>
-From: "Maciej Soltysiak" <solt@dns.toxicfilms.tv>
-To: "Kernel Mailinglist" <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58L.0401161207000.28357@logos.cnet> <000b01c3dc46$44cc3180$0e25fe96@southpark.ae.poznan.pl>
-Subject: [PATCH 2.6] Re: Linux 2.4.25-pre6
-Date: Fri, 16 Jan 2004 16:52:49 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.3790.0
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.0
-X-Spam-Rating: 0 1.6.2 0/1000/N
+	Fri, 16 Jan 2004 10:53:46 -0500
+Received: from [217.73.129.129] ([217.73.129.129]:39810 "EHLO linuxhacker.ru")
+	by vger.kernel.org with ESMTP id S265493AbUAPPxH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jan 2004 10:53:07 -0500
+Date: Fri, 16 Jan 2004 17:52:33 +0200
+Message-Id: <200401161552.i0GFqXWU012657@car.linuxhacker.ru>
+From: Oleg Drokin <green@linuxhacker.ru>
+Subject: Re: [2.4.18]: Reiserfs: vs-2120: add_save_link: insert_item	returned -28
+To: reiser@namesys.com, linux-kernel@vger.kernel.org
+References: <200401091622.41352.lkml@kcore.org> <1074241063.2251.41.camel@tribesman.namesys.com> <4007A54A.3030005@namesys.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->   o [IPV4]: Print correct source addr in invalid ICMP msgs, from Dennis
-Jorgensen
-Oh, and the same patch should be applied to 2.6 too.
+Hello!
 
-Regards,
-Maciej
+Hans Reiser <reiser@namesys.com> wrote:
+>>>vs-2120: add_save_link: insert_item returned -28
+>>This is just a warning. You should be able to free some disk space by
+>>removing some files.
+HR> why do we generate this warning?  It should be fixed, yes?
 
-dns:/usr/src/linux/net/ipv4# diff -u icmp.c~ icmp.c
---- icmp.c~     2003-12-18 03:59:40.000000000 +0100
-+++ icmp.c      2004-01-16 16:47:28.000000000 +0100
-@@ -670,7 +670,7 @@
-                        printk(KERN_WARNING "%u.%u.%u.%u sent an invalid
-ICMP "
-                                            "type %u, code %u "
-                                            "error to a broadcast:
-%u.%u.%u.%u on %s\n",
--                              NIPQUAD(skb->nh.iph->saddr),
-+                              NIPQUAD(iph->saddr),
-                               icmph->type, icmph->code,
-                               NIPQUAD(iph->daddr),
-                               skb->dev->name);
+Yes, it is fixed in newer kernels.
 
+Bye,
+    Oleg

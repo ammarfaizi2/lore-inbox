@@ -1,48 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130227AbRBUW1S>; Wed, 21 Feb 2001 17:27:18 -0500
+	id <S130226AbRBUW1I>; Wed, 21 Feb 2001 17:27:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130254AbRBUW1I>; Wed, 21 Feb 2001 17:27:08 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:22796 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S130225AbRBUW0u>; Wed, 21 Feb 2001 17:26:50 -0500
-Date: Wed, 21 Feb 2001 23:26:35 +0100
-From: Martin Mares <mj@suse.cz>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: Daniel Phillips <phillips@innominate.de>, ext2-devel@lists.sourceforge.net,
-        hch@ns.caldera.de, Andreas Dilger <adilger@turbolinux.com>,
-        tytso@valinux.com, Linux-kernel@vger.kernel.org
-Subject: Re: [rfc] Near-constant time directory index for Ext2
-Message-ID: <20010221232635.A25272@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20010221223238.A17903@atrey.karlin.mff.cuni.cz> <XFMail.20010221135903.davidel@xmailserver.org>
-Mime-Version: 1.0
+	id <S130227AbRBUW07>; Wed, 21 Feb 2001 17:26:59 -0500
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:52238 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S129842AbRBUW0n>; Wed, 21 Feb 2001 17:26:43 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: rayn <Wilfried.Weissmann@gmx.at>
+Date: Thu, 22 Feb 2001 09:26:16 +1100 (EST)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <XFMail.20010221135903.davidel@xmailserver.org>; from davidel@xmailserver.org on Wed, Feb 21, 2001 at 01:59:03PM -0800
+Content-Transfer-Encoding: 7bit
+Message-ID: <14996.16520.832011.18@notabene.cse.unsw.edu.au>
+cc: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
+Subject: Re: partitions for RAID volumes?
+In-Reply-To: message from rayn on Wednesday February 21
+In-Reply-To: <3A942AEC.4004DA3F@gmx.at>
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Wednesday February 21, Wilfried.Weissmann@gmx.at wrote:
+> Hi,
+> 
+> Is there any chance that RAID volumes would support partitions like the
+> hard-disk driver in the future? 
 
-> My personal preference goes to skiplist coz it doesn't have fixed ( or growing
-> ) tables to handle. You've simply a stub of data togheter with FS data in each
-> direntry.
+Yep.
+See: http://www.cse.unsw.edu.au/~neilb/patches/linux/2.4.2-pre4/
 
-Another problem with skip lists is that they require variable sized nodes,
-so you either need to keep free chunk lists and lose some space in deleted
-nodes kept in these lists, or you choose to shift remaining nodes which is
-slow and complicated as you need to keep the inter-node links right. With
-hashing, you can separate the control part of the structure and the actual
-data and shift data while leaving most of the control part intact.
+You would need patches H,I,N,O,P,Q,R,  and you should consider this a
+very early release, but it works for me.
+It uses a second major device number for partitioned md arrays. You
+can only partition the first 16 arrays (md0 - md15) and only have 15
+partitions per array.  It wont work well for raid5, but for raid1
+(which is what I particularly want) or raid0 it should be fine.
 
-> And performance ( O(log2(n)) ) are the same for whatever number of entries.
+Using this, I can RAID1 hda and hdc together as md0 == mda and then
+partition it up as mda1 (root) mda2 (swap) mda3 (other).  And if I
+have too, I can boot off either drive individually with any raid
+happening.
 
-I don't understand this complexity estimate -- it cannot be the same for
-whatever number of entries as the complexity function depends on the number
-of entries.
+Lilo needs to be hacked a bit to do the right thing, and I have got a
+major number officially allocated from lanana, but as I said, this is
+a very early release.
 
-				Have a nice fortnight
--- 
-Martin `MJ' Mares <mj@ucw.cz> <mj@suse.cz> http://atrey.karlin.mff.cuni.cz/~mj/
-P.C.M.C.I.A. stands for `People Can't Memorize Computer Industry Acronyms'
+NeilBrown

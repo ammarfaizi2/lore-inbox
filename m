@@ -1,49 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283477AbRK3Ct3>; Thu, 29 Nov 2001 21:49:29 -0500
+	id <S283479AbRK3Cr6>; Thu, 29 Nov 2001 21:47:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283481AbRK3CtT>; Thu, 29 Nov 2001 21:49:19 -0500
-Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:8718 "EHLO
-	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id <S283477AbRK3CtK>; Thu, 29 Nov 2001 21:49:10 -0500
-Message-ID: <3C06F3A5.D407607A@delusion.de>
-Date: Fri, 30 Nov 2001 03:49:09 +0100
-From: "Udo A. Steinberg" <reality@delusion.de>
-Organization: Disorganized
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.1-pre1 i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Stuff that needs fixing in 2.5.1-pre4
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S283478AbRK3Crj>; Thu, 29 Nov 2001 21:47:39 -0500
+Received: from mta11.srv.hcvlny.cv.net ([167.206.5.46]:19599 "EHLO
+	mta11.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id <S283477AbRK3Crb>; Thu, 29 Nov 2001 21:47:31 -0500
+Date: Thu, 29 Nov 2001 21:47:04 -0500
+From: Alex Valys <avalys@optonline.net>
+Subject: PATCH:  Fixes occurences of bio_size in ide_floppy.c
+To: linux-kernel@vger.kernel.org
+Message-id: <0GNL003AFEF7RO@mta2.srv.hcvlny.cv.net>
+MIME-version: 1.0
+X-Mailer: KMail [version 1.3.2]
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Haven't noticed this posted yet...
 
-Hi all,
+--- drivers/ide/ide-floppy.c.orig       Thu Nov 29 21:05:56 2001
++++ drivers/ide/ide-floppy.c    Thu Nov 29 21:11:44 2001
+@@ -711,7 +711,7 @@
+        int count;
 
-Below a few things that should probably be fixed in the current 2.5. tree.
-
-Regards,
-Udo.
-
-
-drivers/ide/
-pdc202xx.c: In function `config_chipset_for_dma':
-pdc202xx.c:530: warning: `drive_pci' might be used uninitialized in this function
-
-fs/fat/
-inode.c: In function `fat_writepage':
-inode.c:859: warning: passing arg 2 of `block_write_full_page' from incompatible pointer type
-inode.c: In function `fat_readpage':
-inode.c:863: warning: passing arg 2 of `block_read_full_page' from incompatible pointer type
-inode.c: In function `fat_prepare_write':
-inode.c:868: warning: passing arg 4 of `cont_prepare_write' from incompatible pointer type
-inode.c: In function `_fat_bmap':
-inode.c:872: warning: passing arg 3 of `generic_block_bmap' from incompatible pointer type
-
-/fs/minix/
-In file included from itree_v1.c:47:
-itree_common.c: In function `truncate':
-itree_common.c:305: warning: passing arg 3 of `block_truncate_page' from incompatible pointer type
+        while (bcount) {
+-               if (pc->b_count == bio_size(bio)) {
++               if (pc->b_count == bio->bi_size) {
+                        rq->sector += rq->current_nr_sectors;
+                        rq->nr_sectors -= rq->current_nr_sectors;
+                        idefloppy_end_request (1, HWGROUP(drive));
+@@ -723,7 +723,8 @@
+                        idefloppy_discard_data (drive, bcount);
+                        return;
+                }
+-               count = IDEFLOPPY_MIN (bio_size(bio) - pc->b_count, bcount);
++               count = IDEFLOPPY_MIN (bio->bi_size - pc->b_count,
++bcount);
+                atapi_input_bytes (drive, bio_data(bio) + pc->b_count, count);
+                bcount -= count; pc->b_count += count;
+        }
+@@ -742,7 +743,7 @@
+                        idefloppy_end_request (1, HWGROUP(drive));
+                        if ((bio = rq->bio) != NULL) {
+                                pc->b_data = bio_data(bio);
+-                               pc->b_count = bio_size(bio);
++                               pc->b_count = bio->bi_size;
+                        }
+                }
+                if (bio == NULL) {
+@@ -1210,7 +1211,7 @@
+        pc->callback = &idefloppy_rw_callback;
+        pc->rq = rq;
+        pc->b_data = rq->buffer;
+-       pc->b_count = rq->cmd == READ ? 0 : bio_size(rq->bio);
++       pc->b_count = rq->cmd == READ ? 0 : rq->bio->bi_size;
+        if (rq->cmd == WRITE)
+                set_bit (PC_WRITING, &pc->flags);
+        pc->buffer = NULL;

@@ -1,42 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265037AbSKERXs>; Tue, 5 Nov 2002 12:23:48 -0500
+	id <S264943AbSKERFd>; Tue, 5 Nov 2002 12:05:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264992AbSKERXh>; Tue, 5 Nov 2002 12:23:37 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:25773 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S265014AbSKERVe>;
-	Tue, 5 Nov 2002 12:21:34 -0500
-Date: Tue, 5 Nov 2002 09:23:42 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Jens Axboe <axboe@suse.de>
-cc: Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5 vi .config ; make oldconfig not working
-In-Reply-To: <20021105171409.GA1137@suse.de>
-Message-ID: <Pine.LNX.4.33L2.0211050922390.21048-100000@dragon.pdx.osdl.net>
+	id <S264945AbSKERFc>; Tue, 5 Nov 2002 12:05:32 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:62728 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S264943AbSKERFI>; Tue, 5 Nov 2002 12:05:08 -0500
+Date: Tue, 5 Nov 2002 12:09:17 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: yodaiken@fsmlabs.com
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Chris Friesen <cfriesen@nortelnetworks.com>,
+       "Matt D. Robinson" <yakker@aparity.com>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       lkcd-general@lists.sourceforge.net, lkcd-devel@lists.sourceforge.net
+Subject: Re: What's left over.
+In-Reply-To: <20021103072657.C30041@hq.fsmlabs.com>
+Message-ID: <Pine.LNX.3.96.1021105115830.17410D-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 5 Nov 2002, Jens Axboe wrote:
+On Sun, 3 Nov 2002 yodaiken@fsmlabs.com wrote:
 
-| > make oldconfig" kernel configurator :)
-|
-| Hmmm:
-|
-| axboe@burns:[.]linux-2.5-deadline-rbtree $ grep CONFIG_NFSD_V4 < .config
-| 641:CONFIG_NFSD_V4=y
-| axboe@burns:[.]linux-2.5-deadline-rbtree $ vi .config
-| axboe@burns:[.]linux-2.5-deadline-rbtree $ grep CONFIG_NFSD_V4 < .config
-| 641:CONFIG_NFSD_V4=n
-| axboe@burns:[.]linux-2.5-deadline-rbtree $ make oldconfig
-| axboe@burns:[.]linux-2.5-deadline-rbtree $ grep CONFIG_NFSD_V4 < .config
-| 641:CONFIG_NFSD_V4=y
+> On Sun, Nov 03, 2002 at 08:48:30AM -0500, Bill Davidsen wrote:
+> > Quite clearly SCO, Sun, and IBM have been doing this for years without
+> > offering dozens of options. I don't need it to sing and dance, I just need
+> > a way to put the dump where I can find it. I'm not going to put another
+> > box in at the end of a serial or parallel port, I don't have NVram, I do
+> > have lopts of disk, and so does almost everyone else. I have remote
+> > systems in wiring closets all over the country (all four time zones). They
+> > are at the end of open net connections, unreliable and untrusted. I don't
+> > want to bet that I have a working VPN, or that I can safely send all that
+> > data without it being read by someone other than me.
+> > 
+> > The AIX support has a group just to beat on dumps customers send. What
+> > more evidence is needed that people can and do use the capability.
 
-Yes, I saw this behavior last night also (on different options).
+> You paid someone for this for AIX. So the solution is obvious for Linux.
+
+No, it's included in AIX, SCO and Solaris. And analysis is included in
+support contracts. With all the stuff added to Linux to keep up with both
+M$ and commercial UNIX, I can't imagine why anyone would be against this.
+At least anyone who wanted Linux to compete in the commercial server
+market.
 
 -- 
-~Randy
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

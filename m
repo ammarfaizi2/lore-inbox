@@ -1,45 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129057AbQKFMF1>; Mon, 6 Nov 2000 07:05:27 -0500
+	id <S129071AbQKFMIS>; Mon, 6 Nov 2000 07:08:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129071AbQKFMFS>; Mon, 6 Nov 2000 07:05:18 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:4688 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129057AbQKFMFF>; Mon, 6 Nov 2000 07:05:05 -0500
-Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO page]
-To: jgarzik@mandrakesoft.com (Jeff Garzik)
-Date: Mon, 6 Nov 2000 12:03:52 +0000 (GMT)
-Cc: dwmw2@infradead.org (David Woodhouse), goemon@anime.net (Dan Hollis),
-        alan@lxorguk.ukuu.org.uk (Alan Cox),
-        oxymoron@waste.org (Oliver Xymoron), kaos@ocs.com.au (Keith Owens),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <3A069CA8.5BB5FF20@mandrakesoft.com> from "Jeff Garzik" at Nov 06, 2000 06:57:28 AM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E13sl0D-0006B2-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S129346AbQKFMH6>; Mon, 6 Nov 2000 07:07:58 -0500
+Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:41990 "EHLO
+	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
+	id <S129071AbQKFMHz>; Mon, 6 Nov 2000 07:07:55 -0500
+Message-Id: <200011061206.eA6C6Lw05318@pincoya.inf.utfsm.cl>
+To: Michael Meissner <meissner@spectacle-pond.org>
+cc: Russ Allbery <rra@stanford.edu>, Tim Riker <Tim@Rikers.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: non-gcc linux? (was Re: Where did kgcc go in 2.4.0-test10?) 
+In-Reply-To: Message from Michael Meissner <meissner@spectacle-pond.org> 
+   of "Sat, 04 Nov 2000 03:40:02 CDT." <20001104034002.A26612@munchkin.spectacle-pond.org> 
+Date: Mon, 06 Nov 2000 09:06:21 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I don't think that is reasonable.
+Michael Meissner <meissner@spectacle-pond.org> said:
 
-I think its totally reasonable.
+[...]
 
-> The first thing most drivers do is reset the hardware.   That inevitably
+> Now people seem to be advocating moving the kernel to use features from C99
+> that haven't even been coded yet (which mean when coded using the latest
+> codegen as well).  Note, I seriously doubt Linus will want a flag day (ie,
+> after a given kernel release, you must use revision n of the compiler, but
+> before that release, you must use revision n-1 of the compiler), so you still
+> have to maintain support for the old GCC way of doing things, in addition to
+> the C99 way of doing things probably for a year or so.
 
-Because there is no persistent storage to remember the fact the hardware is
-running.
+The recommended compiler is changing, it is now up to egcs-1.1.2. There is
+a long lag, to be sure.
 
-> You are depending on the hardware to keep its state -between- driver
-> unload and driver reload.  That seems inherently unstable to me.  It
-> amazes me that such is supported.
+In any case, C99 _will_ come, so it is worthwhile to rewrite gcc-isms that
+C99 does differently and egcs-1.1.2 supports *if* it doesn't impose a
+penalty of some other sort. The point is that many gcc extensions are
+poorly documented and moreover their semantics have changed over time (The
+kernel is one of the main users of gcc extensions, other software has to
+cater for being compiled with other compilers, and is thus more restricted
+here. I'd guess glibc is second here. Little used extensions tend to be
+broken or wobbly.). C99 is well documented, but the implementation of its
+features might not be solid yet...
 
-Well if you want to rewrite the entire module handling and locking so that
-mixer levels determine the load/unload behaviour according to AC97 register
-combinations and then train users to mute all their inputs before using
-rmmod go ahead 8)
+Named structure initializers and varargs macros come to mind. The code
+should also be checked for possible use of restrict parameters.
+-- 
+Dr. Horst H. von Brand                       mailto:vonbrand@inf.utfsm.cl
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+
+
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

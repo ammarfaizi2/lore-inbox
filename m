@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264700AbTFQMHC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jun 2003 08:07:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264701AbTFQMHC
+	id S264687AbTFQMZy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jun 2003 08:25:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264689AbTFQMZy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jun 2003 08:07:02 -0400
-Received: from as4-1-7.has.s.bonet.se ([217.215.31.238]:63380 "EHLO
-	K-7.stesmi.com") by vger.kernel.org with ESMTP id S264700AbTFQMG7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jun 2003 08:06:59 -0400
-Message-ID: <3EEF07B0.4070509@stesmi.com>
-Date: Tue, 17 Jun 2003 14:21:04 +0200
-From: Stefan Smietanowski <stesmi@stesmi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
+	Tue, 17 Jun 2003 08:25:54 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:9675 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S264687AbTFQMZw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jun 2003 08:25:52 -0400
+Date: Tue, 17 Jun 2003 14:39:00 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       linux-net@vger.kernel.org
+Subject: Re: o net: use hlist for struct sock hash lists
+In-Reply-To: <200306162214.h5GMEG3k016075@hera.kernel.org>
+Message-ID: <Pine.GSO.4.21.0306171437430.17930-100000@vervain.sonytel.be>
 MIME-Version: 1.0
-To: Collen <collen@hermanjordan.nl>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: trying to use a 2.4.18 module in 2.5.71
-References: <5.2.0.9.0.20030617140233.00b8bd70@pop.kennisnet.nl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-RAVMilter-Version: 8.4.2(snapshot 20021217) (K-7.stesmi.com)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Collen wrote:
-> g'day just wandering if some one can help me out here...
-> 
-> i'm trying to use a module from a 2.4.18 kernel
-> it's for my promise fasttrack s150 tx4 sata cart..
-> 
-> now i updated to kernel 2.5.71 and installed the module init tools
-> copyed the ft3xx.o from 2.4.18 to 2.5.71, made a new initrd
-> 
-> but it keeps bugging around, i get a "invalid module format"
-> 
-> i built-in all the loadable module support options (incl. module version 
-> support)
-> 
-> but i can't get the module loaded..
-> annyone anny idea ??
+On Mon, 16 Jun 2003, Linux Kernel Mailing List wrote:
 
-Usually the fact that it's for 2.4.18 should ring a bell.
+> ChangeSet 1.1320, 2003/06/16 12:11:44-03:00, acme@conectiva.com.br
+> 
+> 	o net: use hlist for struct sock hash lists
 
-You can't use modules across versions and definately not across minors.
+Causes the following warning:
 
-// Stefan
+| net/ipx/af_ipx.c:276: warning: declaration of `node' shadows a parameter
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

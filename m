@@ -1,83 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310816AbSCHLyj>; Fri, 8 Mar 2002 06:54:39 -0500
+	id <S310821AbSCHMC7>; Fri, 8 Mar 2002 07:02:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310818AbSCHLyb>; Fri, 8 Mar 2002 06:54:31 -0500
-Received: from gra-lx1.iram.es ([150.214.224.41]:55563 "EHLO gra-lx1.iram.es")
-	by vger.kernel.org with ESMTP id <S310816AbSCHLyT> convert rfc822-to-8bit;
-	Fri, 8 Mar 2002 06:54:19 -0500
-Date: Fri, 8 Mar 2002 12:54:02 +0100 (CET)
-From: Gabriel Paubert <paubert@iram.es>
-To: Eric Ries <eries@there.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: RE: FPU precision & signal handlers (bug?)
-In-Reply-To: <KPEDLFEJBNHDLFEEOIIMOEOBCEAA.eries@there.com>
-Message-ID: <Pine.LNX.4.33.0203081250440.22832-100000@gra-lx1.iram.es>
+	id <S310823AbSCHMCt>; Fri, 8 Mar 2002 07:02:49 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:13572 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S310821AbSCHMCk>; Fri, 8 Mar 2002 07:02:40 -0500
+Message-ID: <3C88A825.40000@evision-ventures.com>
+Date: Fri, 08 Mar 2002 13:01:41 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+To: Marko Kohtala <Marko.Kohtala@nokia.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Removable IDE devices problem
+In-Reply-To: <3C8895A9.9090705@nokia.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Marko Kohtala wrote:
+>  > Your analysis of the problem is entierly right, since the current
+>  > kernel behaviour for removable media is supposed to work for
+>  > floppies (never get this thing out of your computer
+>  > as long as long the diode blinks) or read only media where it doesn't
+>  > really matter. However I still don't see a good way to
+>  > resolve this issue. (Maybe just adding buffer cache flush before
+>  > going into the check_media_change business of "grocking" partitions
+>  > would be sufficient...
+> 
+> But there is ide-floppy and ide-cd with their own media_check functions.
+> 
+> I'm thinking about ignoring the removable bit, at least when the device 
+> does not have door lock. What would be hurt by it?
 
+I have currently already just compared the ways invalidate_device() is
+used in different linux block device drivers. And guess what... The way
+it get's  currently used in ide code are bogous. This will changed soon
+and should help your problems. (Soon means - if the weather doesn't
+remain good over this weekend ;-). However please feel free to have a
+look after this yourself.
 
-On 7 Mar 2002, Eric Ries wrote:
-
-> Yes, this is a quite tricky problem. Fortunately, in our situation we are
-> extremely picky about just which calculations must be bit-for-bit consistent
-> across machines, and try to keep those operations very simple. We have been
-> doing this for some time on Intel hardware, and - apart from this signal
-> handler issue - have never had any problems.
-
-Intel but not IA-64 I presume ?
-
->
-> > Right.
-> > [Snipped the clear explanation showing that you've done your homework]
->
-> Thanks :) I know how annoying it can be to put up with clueless posts on
-> mailing lists.
-
-Indeed :)
-
-> > Actually, fxsave does not reset the FPU state IIRC (so it could be faster
-> > for signal delivery to use fxsave followed by fnsave instead of the format
-> > conversion routine if the FPU happens to hold the state of the current
-> > process).
->
-> That's an interesting thought. I didn't have a decent reference on MMX
-> instructions while I was tracking this bug down, so I just assumed they were
-> basically equivalent to their 387 counterparts.
-
-I confirm.
-
-> I don't see how this is a problem, because (as far as I can tell) there is
-> no need to use the "default" control word at all. In the solution I propose,
-> the FPU state is still saved before a signal handler call, and restored
-> afterwards. It's just that during the signal handler execution, the control
-> word is set to the process-global value. Keep in mind that, in the case that
-> your signal handler has no floating-point instructions, the control word
-> never has to be set, because no FINIT trap will be generated. So there's
-> only a performance cost to those of us who use floating point in our signal
-> handlers.
-
-And where would you take the global value from ?
-
->
-> > Therefore you certainly don't want to inherit the control word of the
-> > executing thread. Now adding a prctl or something similar to say "I'd like
-> > to get this control word(s) value as initial value(s) in signal handlers"
-> > might make sense, even on other architectures or for SSE/SSE2 to control
-> > such things as handle denormal as zeros or change the set of exceptions
-> > enabled by default...
->
-> I'm afraid I don't quite follow what you're suggesting here. Don't you
-> always want “your” control word in any function that executes as part of
-> your process?
-
-But your control word is changed on the fly by the compiler for things as
-trivial as float/double to int conversion. It is not as global and static
-as you seem to believe.
-
-	Gabriel.
 

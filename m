@@ -1,45 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267123AbTAPRpn>; Thu, 16 Jan 2003 12:45:43 -0500
+	id <S267128AbTAPR6e>; Thu, 16 Jan 2003 12:58:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267124AbTAPRpn>; Thu, 16 Jan 2003 12:45:43 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:40174 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S267123AbTAPRpm>;
-	Thu, 16 Jan 2003 12:45:42 -0500
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S267129AbTAPR6e>; Thu, 16 Jan 2003 12:58:34 -0500
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:33803
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S267128AbTAPR6d>; Thu, 16 Jan 2003 12:58:33 -0500
+Subject: Re: [PATCH 2.5.58] new NUMA scheduler: fix
+From: Robert Love <rml@tech9.net>
+To: Erich Focht <efocht@ess.nec.de>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
+       Michael Hohnbaum <hohnbaum@us.ibm.com>,
+       Andrew Theurer <habanero@us.ibm.com>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       lse-tech <lse-tech@lists.sourceforge.net>,
+       Christoph Hellwig <hch@infradead.org>
+In-Reply-To: <200301161747.14863.efocht@ess.nec.de>
+References: <52570000.1042156448@flay>
+	 <200301151610.43204.efocht@ess.nec.de> <23340000.1042697129@titus>
+	 <200301161747.14863.efocht@ess.nec.de>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1042740441.826.55.camel@phantasy>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 16 Jan 2003 13:07:22 -0500
 Content-Transfer-Encoding: 7bit
-Message-ID: <15910.61917.904202.235234@napali.hpl.hp.com>
-Date: Thu, 16 Jan 2003 09:54:37 -0800
-To: jim.houston@attbi.com
-Cc: linux-kernel@vger.kernel.org,
-       high-res-timers-discourse@lists.sourceforge.net, jim.houston@ccur.com
-Subject: Re: [PATCH] improved boot time TSC synchronization
-In-Reply-To: <200301161644.h0GGitX02052@linux.local>
-References: <200301161644.h0GGitX02052@linux.local>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Thu, 16 Jan 2003 11:44:55 -0500, Jim Houston <jim.houston@attbi.com> said:
+On Thu, 2003-01-16 at 11:47, Erich Focht wrote:
 
-  Jim> The current TSC synchronization may have an error on the order
-  Jim> of 1 microsecond on a quad processor system.  Not a big deal
-  Jim> but annoying if you are trying to figure out what order things
-  Jim> happen based on TSC time stamps.
+> Fine. This form is also nearer to the codingstyle rule: "functions
+> should do only one thing" (I'm reading those more carefully now ;-)
 
-  Jim> Since the IA64 folk already solved this problem, I did a quick
-  Jim> hack based on the itc sync code.
+Good ;)
 
-Cool.  I'm glad to see the code is proving useful on other architectures.
-I was hoping that would be the case.
+This is looking good.  Thanks hch for going over it with your fine tooth
+comb.
 
-BTW: The algorithm is documented in Section 8.5.2 of my book (see
-http://www.lia64.org/book/).  If there is enough interested, I'd be
-willing to try to talk the publisher into releasing that section as a
-PDF (or perhaps HTML).
+Erich and Martin, what more needs to be done prior to inclusion?  Do you
+still want an exec balancer in place?
 
-	--david
+	Robert Love
+

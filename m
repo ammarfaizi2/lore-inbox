@@ -1,68 +1,124 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266660AbSLJGZ1>; Tue, 10 Dec 2002 01:25:27 -0500
+	id <S266652AbSLJGaj>; Tue, 10 Dec 2002 01:30:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266665AbSLJGZ1>; Tue, 10 Dec 2002 01:25:27 -0500
-Received: from ilanz.monex.li ([164.128.93.104]:37547 "EHLO ilanz.monex.li")
-	by vger.kernel.org with ESMTP id <S266660AbSLJGZ0>;
-	Tue, 10 Dec 2002 01:25:26 -0500
-Subject: Problems using /proc/scsi/gdth/ with 2.4.20aa1
-From: Oliver Jehle <oliver.jehle@monex.li>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: 
-Message-Id: <1039502939.1054.12.camel@vorab.monex.li>
+	id <S266654AbSLJGaj>; Tue, 10 Dec 2002 01:30:39 -0500
+Received: from supreme.pcug.org.au ([203.10.76.34]:15828 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id <S266652AbSLJGah>;
+	Tue, 10 Dec 2002 01:30:37 -0500
+Date: Tue, 10 Dec 2002 17:38:17 +1100
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: anton@samba.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH][COMPAT] consolidate sys32_times - ppc64
+Message-Id: <20021210173817.6bb1c536.sfr@canb.auug.org.au>
+In-Reply-To: <20021210173530.6ec651d2.sfr@canb.auug.org.au>
+References: <20021210173530.6ec651d2.sfr@canb.auug.org.au>
+X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 10 Dec 2002 07:49:00 +0100
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Running linux 2.4.20-aa1 and the gdth driver works ,but accessing
-/proc/scsi/gdth/0 for example with cat or the supplied icpcon utility
-don't work...
+Hi Anton,
 
-these messages are in system log when accessing /proc/scsi/gdth/0 with
-cat for example (works with 2.4.18)
-...
+This is the ppc specific patch ...
 
-Dec 10 06:37:47 arena1 kernel: Unable to handle kernel NULL pointer
-dereference at virtual address 00000000
-Dec 10 06:37:47 arena1 kernel:  printing eip:
-Dec 10 06:37:47 arena1 kernel: c024c879
-Dec 10 06:37:47 arena1 kernel: *pde = 00000000
-Dec 10 06:37:47 arena1 kernel: Oops: 0002 2.4.20aa1 #2 SMP Mon Dec 9
-16:55:18 CET 2002
-Dec 10 06:37:47 arena1 kernel: CPU:    0
-Dec 10 06:37:47 arena1 kernel: EIP:   
-0010:[scsi_release_commandblocks+17/92]    Not tainted
-Dec 10 06:37:47 arena1 kernel: EFLAGS: 00010046
-Dec 10 06:37:47 arena1 kernel: eax: 00000000   ebx: c283c000   ecx:
-00000000   edx: 000000bd
-Dec 10 06:37:47 arena1 kernel: esi: c283c000   edi: c283c018   ebp:
-00000246   esp: c96a1b24
-Dec 10 06:37:47 arena1 kernel: ds: 0018   es: 0018   ss: 0018
-Dec 10 06:37:47 arena1 kernel: Process cat (pid: 2573,
-stackpage=c96a1000)
-Dec 10 06:37:47 arena1 kernel: Stack: c283c000 c92ce600 c283c000
-c039f000 c024da34 c283c000 c283c018 00000c44
-Dec 10 06:37:47 arena1 kernel:        c0258cd8 c283c000 c92ce600
-00000c00 00000000 c96af000 00000c00 00000001
-Dec 10 06:37:47 arena1 kernel:        c96a1db4 00000a10 c044a0c4
-00000060 00000296 c96a1be8 c96a1bd8 c96a1db4
-Dec 10 06:37:47 arena1 kernel: Call Trace:    [scsi_free_host_dev+44/56]
-[gdth_get_info+4972/5048] [do_no_page+470/844] [handle_mm_fault+125/344]
-[do_page_fault+0/1445]
-Dec 10 06:37:47 arena1 kernel:   [rb_insert_color+81/196]
-[__vma_link+98/176] [error_code+52/60] [__vma_link+98/176]
-[error_code+52/60] [clear_user+46/60]
-Dec 10 06:37:47 arena1 kernel:   [padzero+28/32]
-[load_elf_binary+2381/2760] [load_elf_binary+0/2760]
-[__alloc_pages+122/708] [getblk+56/108] [getblk+99/108]
-Dec 10 06:37:47 arena1 kernel:   [gdth_proc_info+144/152]
-[proc_scsi_read+68/96] [proc_file_read+262/440] [sys_read+143/256]
-[system_call+51/56]
-Dec 10 06:37:47 arena1 kernel: Code: f0 fe 08 0f 88 68 14 00 00 8b 86 a8
-00 00 00 85 c0 74 1c 8d
+-- 
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
 
+diff -ruN 2.5.51-32bit.base/arch/ppc64/kernel/misc.S 2.5.51-32bit.1/arch/ppc64/kernel/misc.S
+--- 2.5.51-32bit.base/arch/ppc64/kernel/misc.S	2002-12-10 15:10:16.000000000 +1100
++++ 2.5.51-32bit.1/arch/ppc64/kernel/misc.S	2002-12-10 17:06:50.000000000 +1100
+@@ -551,7 +551,7 @@
+ 	.llong .sys_rmdir		/* 40 */
+ 	.llong .sys_dup
+ 	.llong .sys_pipe
+-	.llong .sys32_times
++	.llong .compat_sys_times
+ 	.llong .sys_ni_syscall		/* old prof syscall */
+ 	.llong .sys_brk			/* 45 */
+ 	.llong .sys_setgid
+diff -ruN 2.5.51-32bit.base/arch/ppc64/kernel/sys_ppc32.c 2.5.51-32bit.1/arch/ppc64/kernel/sys_ppc32.c
+--- 2.5.51-32bit.base/arch/ppc64/kernel/sys_ppc32.c	2002-12-10 15:10:16.000000000 +1100
++++ 2.5.51-32bit.1/arch/ppc64/kernel/sys_ppc32.c	2002-12-10 17:07:08.000000000 +1100
+@@ -2076,37 +2076,6 @@
+ }
+ 
+ 
+-struct tms32 {
+-	__kernel_clock_t32 tms_utime;
+-	__kernel_clock_t32 tms_stime;
+-	__kernel_clock_t32 tms_cutime;
+-	__kernel_clock_t32 tms_cstime;
+-};
+-                                
+-extern asmlinkage long sys_times(struct tms * tbuf);
+-
+-asmlinkage long sys32_times(struct tms32 *tbuf)
+-{
+-	struct tms t;
+-	long ret;
+-	mm_segment_t old_fs = get_fs ();
+-	int err;
+-	
+-	set_fs (KERNEL_DS);
+-	ret = sys_times(tbuf ? &t : NULL);
+-	set_fs (old_fs);
+-	if (tbuf) {
+-		err = put_user (t.tms_utime, &tbuf->tms_utime);
+-		err |= __put_user (t.tms_stime, &tbuf->tms_stime);
+-		err |= __put_user (t.tms_cutime, &tbuf->tms_cutime);
+-		err |= __put_user (t.tms_cstime, &tbuf->tms_cstime);
+-		if (err)
+-			ret = -EFAULT;
+-	}
+-	
+-	return ret;
+-}
+-
+ struct msgbuf32 { s32 mtype; char mtext[1]; };
+ 
+ struct semid_ds32 {
+diff -ruN 2.5.51-32bit.base/include/asm-ppc64/compat.h 2.5.51-32bit.1/include/asm-ppc64/compat.h
+--- 2.5.51-32bit.base/include/asm-ppc64/compat.h	2002-12-10 15:10:39.000000000 +1100
++++ 2.5.51-32bit.1/include/asm-ppc64/compat.h	2002-12-10 16:38:13.000000000 +1100
+@@ -5,9 +5,12 @@
+  */
+ #include <linux/types.h>
+ 
++#define COMPAT_USER_HZ	100
++
+ typedef u32		compat_size_t;
+ typedef s32		compat_ssize_t;
+ typedef s32		compat_time_t;
++typedef s32		compat_clock_t;
+ 
+ struct compat_timespec {
+ 	compat_time_t	tv_sec;
+diff -ruN 2.5.51-32bit.base/include/asm-ppc64/ppc32.h 2.5.51-32bit.1/include/asm-ppc64/ppc32.h
+--- 2.5.51-32bit.base/include/asm-ppc64/ppc32.h	2002-12-10 15:10:39.000000000 +1100
++++ 2.5.51-32bit.1/include/asm-ppc64/ppc32.h	2002-12-10 15:44:11.000000000 +1100
+@@ -44,8 +44,6 @@
+ })
+ 
+ /* These are here to support 32-bit syscalls on a 64-bit kernel. */
+-typedef int		__kernel_ptrdiff_t32;
+-typedef int		__kernel_clock_t32;
+ typedef int		__kernel_pid_t32;
+ typedef unsigned short	__kernel_ipc_pid_t32;
+ typedef unsigned int	__kernel_uid_t32;
+@@ -110,8 +108,8 @@
+ 			__kernel_pid_t32 _pid;		/* which child */
+ 			__kernel_uid_t32 _uid;		/* sender's uid */
+ 			int _status;			/* exit code */
+-			__kernel_clock_t32 _utime;
+-			__kernel_clock_t32 _stime;
++			compat_clock_t _utime;
++			compat_clock_t _stime;
+ 		} _sigchld;
+ 
+ 		/* SIGILL, SIGFPE, SIGSEGV, SIGBUS, SIGEMT */

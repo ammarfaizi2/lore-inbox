@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135934AbRARWmS>; Thu, 18 Jan 2001 17:42:18 -0500
+	id <S135930AbRARWtm>; Thu, 18 Jan 2001 17:49:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135947AbRARWmI>; Thu, 18 Jan 2001 17:42:08 -0500
-Received: from jump-isi.interactivesi.com ([207.8.4.2]:55290 "HELO
-	dinero.interactivesi.com") by vger.kernel.org with SMTP
-	id <S135934AbRARWl4>; Thu, 18 Jan 2001 17:41:56 -0500
-Date: Thu, 18 Jan 2001 16:41:55 -0600
-From: Timur Tabi <ttabi@interactivesi.com>
+	id <S136137AbRARWtc>; Thu, 18 Jan 2001 17:49:32 -0500
+Received: from palrel1.hp.com ([156.153.255.242]:46609 "HELO palrel1.hp.com")
+	by vger.kernel.org with SMTP id <S135930AbRARWtP>;
+	Thu, 18 Jan 2001 17:49:15 -0500
+Message-ID: <3A6772E1.56263536@cup.hp.com>
+Date: Thu, 18 Jan 2001 14:49:05 -0800
+From: Rick Jones <raj@cup.hp.com>
+Organization: the Unofficial HP
+X-Mailer: Mozilla 4.75 [en] (X11; U; HP-UX B.11.00 9000/785)
+X-Accept-Language: en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-In-Reply-To: <005801c0819e$6c5c0640$067039c3@cintasverdes>
-In-Reply-To: <001c01c08199$387205f0$067039c3@cintasverdes> <20010118161000.A3487@mediaone.net>
-Subject: Re: ERR in /proc/interrupts
-X-Mailer: The Polarbar Mailer; version=1.19a; build=73
-Message-Id: <20010118224205Z135934-403+1634@vger.kernel.org>
+Subject: Re: [Fwd: [Fwd: Is sendfile all that sexy? (fwd)]]
+In-Reply-To: <200101182030.XAA08626@ms2.inr.ac.ru>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-** Reply to message from "Jorge Boncompte \(DTI2\)" <jorge@dti2.net> on Thu, 18
-Jan 2001 23:31:38 +0100
+kuznet@ms2.inr.ac.ru wrote:
+> 
+> Hello!
+> 
+> > So if I understand  all this correctly...
+> >
+> > The difference in ACK generation
+> 
+> CORK does not affect receive direction and, hence, ACK geneartion.
 
+I was asking how the semantics of cork interacted with piggybacking
+ACK's on data flowing the other way. Was I wrong in assuming that the
+Linux TCP piggybacks ACKs?
 
-> Are IPI related to SMP machines? This is not an SMP machine nor kernel.
-
-Yes, Inter-Process Interrupts are an SMP thing.  I know you need to have an SMP
-kernel for IPI's to be issued, but I don't know if you actually need to have
-more than one processor.
-
-Obviously, someone here is confused.  I just hope it's not me!
-
-
+rick
 -- 
-Timur Tabi - ttabi@interactivesi.com
-Interactive Silicon - http://www.interactivesi.com
-
-When replying to a mailing-list message, please direct the reply to the mailing list only.  Don't send another copy to me.
+ftp://ftp.cup.hp.com/dist/networking/misc/rachel/
+these opinions are mine, all mine; HP might not want them anyway... :)
+feel free to email, OR post, but please do NOT do BOTH...
+my email address is raj in the cup.hp.com domain...
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

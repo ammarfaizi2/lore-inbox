@@ -1,192 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291321AbSAaVex>; Thu, 31 Jan 2002 16:34:53 -0500
+	id <S291331AbSAaVgn>; Thu, 31 Jan 2002 16:36:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291322AbSAaVep>; Thu, 31 Jan 2002 16:34:45 -0500
-Received: from ns4.ameuro.de ([62.208.90.8]:19412 "EHLO mail2.ameuro.de")
-	by vger.kernel.org with ESMTP id <S291321AbSAaVec>;
-	Thu, 31 Jan 2002 16:34:32 -0500
-Date: Thu, 31 Jan 2002 22:22:21 +0100
-From: Anders Larsen <anders@alarsen.net>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] qnx4fs - kernel 2.4.18pre7
-Message-ID: <20020131222221.B1530@errol.alarsen.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	id <S291329AbSAaVgd>; Thu, 31 Jan 2002 16:36:33 -0500
+Received: from Expansa.sns.it ([192.167.206.189]:34567 "EHLO Expansa.sns.it")
+	by vger.kernel.org with ESMTP id <S291330AbSAaVgZ>;
+	Thu, 31 Jan 2002 16:36:25 -0500
+Date: Thu, 31 Jan 2002 22:36:25 +0100 (CET)
+From: Luigi Genoni <kernel@Expansa.sns.it>
+To: Patrick Mochel <mochel@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.3 does not compile on sparc64
+In-Reply-To: <Pine.LNX.4.33.0201310930130.800-100000@segfault.osdlab.org>
+Message-ID: <Pine.LNX.4.44.0201312236171.22693-100000@Expansa.sns.it>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thu, Jan 31, 2002 at 22:16:07 +0100
-X-Mailer: Balsa 1.2.4
-
-Hi Marcelo,
-
-in the latest release QNX 6.1.0 the boot-sector signature we used to
-check for a valid QNX4 partition was removed; it seems they have
-extended their partition boot loader and needed the few extra bytes
-occupied by the signature.
-Other than that, the file-system is unchanged.
-
-The patch below replaces the check for the boot-sector signature by
-a check for another signature in the superblock - that one is sure
-to stay (until they really change the structure).
-
-The TODO and BUGS files are rather obsolete and can be removed.
-
-I've also updated Configure.help to reflect the fact that QNX6 uses
-the same file-system as QNX4 and have removed the EXPERIMENTAL tag
-from the read-only part (apart from a complete system hang in 2.4.8/9
-there have been no severe bugs reported since 2.4.0, so I think that
-move is appropriate now).
-
-Cheers
-  Anders (maintainer)
+Will try tomorrow
 
 
-diff -u --recursive linux-2.4.18-pre7/Documentation/Configure.help linux/Documentation/Configure.help
---- linux-2.4.18-pre7/Documentation/Configure.help	Wed Jan 30 21:10:47 2002
-+++ linux/Documentation/Configure.help	Wed Jan 30 21:23:58 2002
-@@ -14652,10 +14652,12 @@
- 
- QNX4 file system support (read only)
- CONFIG_QNX4FS_FS
--  This is the file system used by the operating system QNX 4. Say Y if
--  you intend to mount QNX hard disks or floppies. Unless you say Y to
--  "QNX4FS read-write support" below, you will only be able to read
--  these file systems.
-+  This is the file system used by the real-time operating systems
-+  QNX 4 and QNX 6 (the latter is also called QNX RTP).
-+  Further information is available at <http://www.qnx.com/>.
-+  Say Y if you intend to mount QNX hard disks or floppies.
-+  Unless you say Y to "QNX4FS read-write support" below, you will
-+  only be able to read these file systems.
- 
-   This file system support is also available as a module ( = code
-   which can be inserted in and removed from the running kernel
-@@ -14669,6 +14671,9 @@
- QNX4FS write support (DANGEROUS)
- CONFIG_QNX4FS_RW
-   Say Y if you want to test write support for QNX4 file systems.
-+
-+  It's currently broken, so for now:
-+  answer N.
- 
- Kernel automounter support
- CONFIG_AUTOFS_FS
-diff -u --recursive linux-2.4.18-pre7/fs/Config.in linux/fs/Config.in
---- linux-2.4.18-pre7/fs/Config.in	Wed Jan 30 21:10:50 2002
-+++ linux/fs/Config.in	Wed Jan 30 21:03:50 2002
-@@ -71,7 +71,7 @@
- # breaks.
- dep_bool '/dev/pts file system for Unix98 PTYs' CONFIG_DEVPTS_FS $CONFIG_UNIX98_PTYS
- 
--dep_tristate 'QNX4 file system support (read only) (EXPERIMENTAL)' CONFIG_QNX4FS_FS $CONFIG_EXPERIMENTAL
-+tristate 'QNX4 file system support (read only)' CONFIG_QNX4FS_FS
- dep_mbool '  QNX4FS write support (DANGEROUS)' CONFIG_QNX4FS_RW $CONFIG_QNX4FS_FS $CONFIG_EXPERIMENTAL
- 
- tristate 'ROM file system support' CONFIG_ROMFS_FS
-diff -u --recursive linux-2.4.18-pre7/fs/qnx4/BUGS linux/fs/qnx4/BUGS
---- linux-2.4.18-pre7/fs/qnx4/BUGS	Thu Dec 23 02:38:27 1999
-+++ linux/fs/qnx4/BUGS	Wed Jan 30 20:55:57 2002
-@@ -1,30 +0,0 @@
--Last update: 1999-12-23
--
--- Fragmented files and directories were incorrectly handled.
--  Fixed 1999-12-23, Anders.
--
--- readdir sometimes returned the same dir entry more than once.
--  Fixed 1999-12-13, Anders.
--
--- File names with a length of exactly 16 chars were handled incorrectly.
--  Fixed 1999-12-11, Anders.
--
--- Files in a subdir can't be accessed, I think that the inode information
--  is not correctly copied at some point. Solved 06-06-1998, Richard.
--  
--- At some point the mounted device can't be unmounted. I think that somewhere
--  in the code a buffer is not given free.
--
--- Make the '..' entry work, I give it a great chance that the above bug
--  (not given free) has something to do with this one, after a 'ls -l'
--  the mounted device can't be unmounted and that's where the '..' entry
--  is accessed.
--  Seems to be solved 21-06-1998, Frank.
--
--- File read function not correct, after the first block it goes beserk.
--  Solved 21-06-1998, Frank.
--
--- This fs will not work if not built as a module.
--  Solved 25-06-1998, Frank.
--
--- Write/truncate/delete functions don't update the bitmap.
-diff -u --recursive linux-2.4.18-pre7/fs/qnx4/TODO linux/fs/qnx4/TODO
---- linux-2.4.18-pre7/fs/qnx4/TODO	Thu Dec 23 02:38:27 1999
-+++ linux/fs/qnx4/TODO	Wed Jan 30 20:57:49 2002
-@@ -1,30 +0,0 @@
--Name       : QNX4 TODO list
--Last update: 1999-12-23
--
--    - Writing is still unsupported (it may compile, but it certainly won't
--      bring you any joy).
--
--    - qnx4_checkroot (inode.c), currently there's a look for the '/' in
--      the root direntry, if so then the current mounted device is a qnx4
--      partition. This has to be rewritten with a look for 'QNX4' in the
--      bootblock, it seems to me the savest way to ensure that the mounted
--      device is in fact a QNX4 partition.
--      Done 20-06-1998, Frank. But some disks (like QNX install floppies)
--      don't have 'QNX4' in their bootblock.
--      
--    - Bitmap functions. To find out the free space, largest free block, etc.
--      Partly done (RO), Richard, 05/06/1998. Optimized 20-06-1998, Frank.
--    
--    - Complete write, unlink and truncate functions : the bitmap should be
--updated.
--
--    - Porting to linux 2.1.99+ with dcache support. 20-06-1998, Frank.
--    
--    - Don't rewrite the file_read function : use the generic_file_read hook,
--      and write readpage instead. Done on 21-06-1998, Frank.
--
--    - Write dinit and dcheck.
--
--    - Solving the bugs.
--    
--    - Use le32_to_cpu and vice-versa for portability.
-diff -u --recursive linux-2.4.18-pre7/fs/qnx4/inode.c linux/fs/qnx4/inode.c
---- linux-2.4.18-pre7/fs/qnx4/inode.c	Wed Jan 30 21:10:50 2002
-+++ linux/fs/qnx4/inode.c	Wed Jan 30 21:01:18 2002
-@@ -351,25 +351,18 @@
- 	s->s_blocksize = QNX4_BLOCK_SIZE;
- 	s->s_blocksize_bits = QNX4_BLOCK_SIZE_BITS;
- 
--	/* Check the boot signature. Since the qnx4 code is
-+	/* Check the superblock signature. Since the qnx4 code is
- 	   dangerous, we should leave as quickly as possible
- 	   if we don't belong here... */
--	bh = sb_bread(s, 0);
-+	bh = sb_bread(s, 1);
- 	if (!bh) {
--		printk("qnx4: unable to read the boot sector\n");
-+		printk("qnx4: unable to read the superblock\n");
- 		goto outnobh;
- 	}
--	if ( memcmp( (char*)bh->b_data + 4, "QNX4FS", 6 ) ) {
-+	if ( le32_to_cpu( *(__u32*)bh->b_data ) != QNX4_SUPER_MAGIC ) {
- 		if (!silent)
--			printk("qnx4: wrong fsid in boot sector.\n");
-+			printk("qnx4: wrong fsid in superblock sector.\n");
- 		goto out;
--	}
--	brelse(bh);
--
--	bh = sb_bread(s, 1);
--	if (!bh) {
--		printk("qnx4: unable to read the superblock\n");
--		goto outnobh;
- 	}
- 	s->s_op = &qnx4_sops;
- 	s->s_magic = QNX4_SUPER_MAGIC;
+On Thu, 31 Jan 2002, Patrick Mochel wrote:
+
+>
+>
+> On Thu, 31 Jan 2002, Luigi Genoni wrote:
+>
+> > Yes, but the error do persist also with this patch,
+> > probably my english was unclear.
+> > I changes the include, because otherway I was getting
+> > a no such file message, after the change I got this error
+> > message.
+> > I should add that gcc for sparc64 to compile a 64 bit kernel is just egcs
+> > 1.1.2, because gcc 2.95 and following have problems to compile at 64 bit
+> > of sparc.
+>
+> Ah, I see.
+>
+> So, you're getting this error:
+>
+> core.c:179: parse error before `device_init_root'
+> core.c:180: warning: return-type defaults to `int'
+> core.c:185: parse error before `device_driver_init'
+> core.c:186: warning: return-type defaults to `int'
+>
+> If you add
+>
+> #include <linux/init.h>
+>
+> does it compile?
+>
+> 	-pat
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

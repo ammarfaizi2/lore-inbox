@@ -1,50 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262345AbRERPnN>; Fri, 18 May 2001 11:43:13 -0400
+	id <S262349AbRERPnn>; Fri, 18 May 2001 11:43:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262349AbRERPnD>; Fri, 18 May 2001 11:43:03 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:17677 "EHLO
+	id <S262350AbRERPnd>; Fri, 18 May 2001 11:43:33 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:19725 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S262345AbRERPmu>; Fri, 18 May 2001 11:42:50 -0400
+	id <S262349AbRERPnW>; Fri, 18 May 2001 11:43:22 -0400
 Subject: Re: CML2 design philosophy heads-up
-To: esr@thyrsus.com
-Date: Fri, 18 May 2001 16:38:08 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), trini@kernel.crashing.org (Tom Rini),
-        meissner@spectacle-pond.org (Michael Meissner),
-        kaos@ocs.com.au (Keith Owens), linux-kernel@vger.kernel.org (CML2),
-        kbuild-devel@lists.sourceforge.net
-In-Reply-To: <20010518105353.A13684@thyrsus.com> from "Eric S. Raymond" at May 18, 2001 10:53:53 AM
+To: kaos@ocs.com.au (Keith Owens)
+Date: Fri, 18 May 2001 16:39:57 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org (CML2), kbuild-devel@lists.sourceforge.net
+In-Reply-To: <1694.990198581@ocs3.ocs-net> from "Keith Owens" at May 19, 2001 01:09:41 AM
 X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E150mKO-0007FF-00@the-village.bc.nu>
+Message-Id: <E150mM9-0007Fg-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 1. When we have a platform symbol for a reference design like MVME147, do 
->    we stick to its spec sheet or consider it representative of all derivatives
->    (which may have other facilities)?
+> >   (c) Decide not to support this case and document the fact in the
+> >       rulesfile.  If you're going put gunge on the VME bus that replaces
+> >       the SBC's on-board facilities, you can hand-hack your own configs.
+> 
+> In general this is the best option, if you create a non-standard
+> configuration for machine foo then it is your problem, not everybody
+> else's.
 
-At most it bounds the busses directly available. I've yet to see VME cardbus
-adapters but its quite possible.
-
-> I don't want to do (a); it conflicts with my design objective of
-> simplifying configuration enough that Aunt Tillie can do it.  I won't 
-> do that unless I see a strong consensus that it's the only Right Thing.
-
-Its a good way of getting the defaults right. It may also be an appropriate
-way of guiding presentation (eg putting the stuff the ruleset says you wont
-have under a subcategory so you would see
-
-
-		CPU type
-		Devices
-		blah
-		blah
-		Other Options
-			IDE disk
-			Cardbus
-
-
+Which makes CML2 inferior to CML1 again. Now if it could parse CML1 rulesets
+this whole discussion wouldn't be needed. 

@@ -1,47 +1,98 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265249AbRH0T26>; Mon, 27 Aug 2001 15:28:58 -0400
+	id <S266448AbRH0T2h>; Mon, 27 Aug 2001 15:28:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266263AbRH0T2h>; Mon, 27 Aug 2001 15:28:37 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:58888 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S265249AbRH0T2c>; Mon, 27 Aug 2001 15:28:32 -0400
-Subject: Re: Oops with 2.4.9
-To: bole@falcon.etf.bg.ac.yu (Bosko Radivojevic)
-Date: Mon, 27 Aug 2001 20:31:54 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0108272056250.11401-200000@falcon.etf.bg.ac.yu> from "Bosko Radivojevic" at Aug 27, 2001 08:59:19 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S266263AbRH0T22>; Mon, 27 Aug 2001 15:28:28 -0400
+Received: from archive.osdlab.org ([65.201.151.11]:62944 "EHLO fire.osdlab.org")
+	by vger.kernel.org with ESMTP id <S265249AbRH0T2U>;
+	Mon, 27 Aug 2001 15:28:20 -0400
+Message-ID: <3B8A9DF5.B7FC5E8D@osdlab.org>
+Date: Mon, 27 Aug 2001 12:22:29 -0700
+From: "Randy.Dunlap" <rddunlap@osdlab.org>
+Organization: OSDL
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-20mdk i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Bart Vandewoestyne <Bart.Vandewoestyne@pandora.be>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: time question
+In-Reply-To: <3B89F5D6.5813BF4D@pandora.be>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15bS70-0004WY-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I have a problem with 2.4.9 (vanilla) and HP NetServer 5/100 LC
-> (Pentium 133MHz) with Adaptec AIC 7770 EISA SCSI host adapter.
+Bart Vandewoestyne wrote:
 > 
-> The system also has one PCI card - Digital DS21140 Tulip rev 18 NIC.
+> I'm trying to port the DOS driver for a data aquisition card to linux
+> (http::/mc303.ulyssis.org).  It is my first linux driver writing
+> attempt. Somewhere in the code i have the following lines of DOS-code
+> that do some busy waiting:
 > 
-> Here is the oops output from bootup (in attachment is .config):
+> _bios_timeofday(_TIME_GETCLOCK,&tb); l = tb;
+>   while(l-tb < 2) _bios_timeofday(_TIME_GETCLOCK,&l);
+> 
+> What is the best linux equivalent for this?
 
-Does this help
+I don't have a DOS system + development tools handy.
+Can you tell me what _bios_timeofday(_TIME_GETCLOCK, ptr) compiles/
+assembles to?  I.e., what software interrupt, and what the AH
+register is set to on entry?
 
---- drivers/scsi/aic7xxx/aic7xxx_linux.c~	Sat Aug 11 23:50:55 2001
-+++ drivers/scsi/aic7xxx/aic7xxx_linux.c	Mon Aug 27 20:34:30 2001
-@@ -788,10 +788,11 @@
- 	 * address).  For this reason, we have to reset
- 	 * our dma mask when doing allocations.
- 	 */
-+	if(ahc->dev_softc)
- #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,3)
--	pci_set_dma_mask(ahc->dev_softc, 0xFFFFFFFF);
-+		pci_set_dma_mask(ahc->dev_softc, 0xFFFFFFFF);
- #else
--	ahc->dev_softc->dma_mask = 0xFFFFFFFF;
-+		ahc->dev_softc->dma_mask = 0xFFFFFFFF;
- #endif
- 	*vaddr = pci_alloc_consistent(ahc->dev_softc,
- 				      dmat->maxsize, &map->bus_addr);
+I'm guessing that this code is just doing a 2-tick delay
+(18.2 ticks per second), using int. 0x1a, AH=00
+(http://www.ctyme.com/intr/rb-2271.htm).
+This means that each tick is approximately 55 ms,
+so the code is delaying for about 110 ms.
+
+
+Take a look at the new Linux Device Drivers book (second edition),
+in the "Flow of Time" chapeter:
+http://www.xml.com/ldd/chapter/book/ch06.html
+You may get some answers there.
+
+To begin with, you could try using
+  mdelay(110);
+
+Is this busy-waiting loop used seldom or often?
+If seldom, then using mdelay() might be OK.
+If often, then a sleep queue seems to be preferred.
+Read the LDD Time chapter.
+
+You might also try kernelnewbies.org for introductory kernel
+questions.  See the FAQ and the /documents/ directory.
+
+>From your list of questions:
+
+1. What kind of device do I need? Right now I am trying a
+character device, but is this indeed what we need???
+
+A: Yes.  If it's not a block device and not a network device,
+it's usually a character device.
+
+2. If I need a character device, what linux-existing driver is good
+to look at and learn from it? 
+
+A: I'm not aware of other data acq drivers in the kernel, but that's
+just not my area.  Are there any (anyone)?
+
+3. How should I translate the assembler code of the DOS driver?
+Can I use linux native system calls?
+To what linux sytem calls can I map the inplI and outplI functions?
+
+A:  Sure, you can use native Linux system calls, if you know which
+ones to use.  However, some calls may actually be (g)lib calls instead
+of system calls.
+
+inplI():  same as inpl() on your web page (since bswap is
+commented).  Maps to:
+  value = inl(port);
+
+outplI():  Only difference here is the 16-bit word-order of the
+32-bit value to write to the I/O port.  I'd suggest just getting
+the data order correct in the calling function and using
+  outl(value, port);
+in Linux drivers.
+
+
+~Randy

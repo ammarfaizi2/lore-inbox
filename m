@@ -1,37 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271303AbTGQBSL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 21:18:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271312AbTGQBSL
+	id S271310AbTGQB1t (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 21:27:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271313AbTGQB1t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 21:18:11 -0400
-Received: from [219.150.172.3] ([219.150.172.3]:16186 "EHLO mail.ndsc.com.cn")
-	by vger.kernel.org with ESMTP id S271303AbTGQBSJ convert rfc822-to-8bit
+	Wed, 16 Jul 2003 21:27:49 -0400
+Received: from fed1mtao07.cox.net ([68.6.19.124]:43229 "EHLO
+	fed1mtao07.cox.net") by vger.kernel.org with ESMTP id S271310AbTGQB1r
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 21:18:09 -0400
+	Wed, 16 Jul 2003 21:27:47 -0400
+To: Pedro Ribeiro <deadheart@netcabo.pt>
+cc: backblue <backblue@netcabo.pt>, linux-kernel@vger.kernel.org
+Subject: Re: Not showing ac2
+References: <fa.c2sgv20.1d0ea98@ifi.uio.no> <fa.hi0vnsa.8i2u8s@ifi.uio.no>
+From: junkio@cox.net
+Date: Wed, 16 Jul 2003 18:42:34 -0700
+In-Reply-To: <fa.hi0vnsa.8i2u8s@ifi.uio.no> (backblue@netcabo.pt's message
+ of "Thu, 17 Jul 2003 01:16:09 GMT")
+Message-ID: <7voezund2t.fsf@assigned-by-dhcp.cox.net>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="gb2312"
-Content-Transfer-Encoding: 8BIT
-Subject: pmc network card problem
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
-Date: Thu, 17 Jul 2003 09:35:28 +0800
-content-class: urn:content-classes:message
-Message-ID: <7A7A7A38134E244784EDAC428C538AE92A5746@mail.ndsc.com.cn>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: pmc network card problem
-Thread-Index: AcNMA/EavWvAaK+USECGr3ILLRGx9A==
-From: =?gb2312?B?09rmug==?= <yujing@ndsc.com.cn>
-To: <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
- I'm porting linux on my motorola lopec mpc7410 board with a zynx zx212 dual-port ethernet card on it.The problem is that the kernel can't start up with the ethernet card on,while without it everything is perfect.Since zx212 is compatible with 21143,I build the kernel with the "tulip" option on.It should be no problem,but it happened. It halts after "now booting the kernel". Can you help me ?
+>>>>> "bb" == backblue  <backblue@netcabo.pt> writes:
 
+bb> Just check if the source was really patched, maybe the
+bb> source does not patch de Makefile and did not changed the
+bb> EXTRAVERSION var that is where it should be changed, maybe
+bb> the -ac2 patch it's for 2.6.0-test1 original, and nor for
+bb> 2.6.0-test1-ac1, that's it, just edit the Makefile, and
+bb> change the EXTRAVERSION to -ac2 and recompile everything
+bb> and, your are done, you have uname -a, like you want.
 
+All of the above are sound suggestions in general, but in this
+particular case of 2.6.0-test-ac2, Alan just forgot to bump the
+EXTRAVERSION to -ac2 when he created the patch.
 
-Best Regard
-Yu 
+Just update EXTRAVERSION in the toplevel Makefile by hand and
+rebuild, to get "uname -a" output fixed.
 

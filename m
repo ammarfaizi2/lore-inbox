@@ -1,37 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317251AbSFGI6B>; Fri, 7 Jun 2002 04:58:01 -0400
+	id <S316803AbSFGJnr>; Fri, 7 Jun 2002 05:43:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317253AbSFGI6A>; Fri, 7 Jun 2002 04:58:00 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:10907 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S317251AbSFGI6A>;
-	Fri, 7 Jun 2002 04:58:00 -0400
-Date: Fri, 07 Jun 2002 01:54:18 -0700 (PDT)
-Message-Id: <20020607.015418.127179640.davem@redhat.com>
-To: alan@lxorguk.ukuu.org.uk
-Cc: rusty@rustcorp.com.au, linux-kernel@vger.kernel.org,
-        kernel-janitor-discuss@lists.sourceforge.net
-Subject: Re: AUDIT of 2.5.15 copy_to/from_user
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <E179PZF-0003gC-00@the-village.bc.nu>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S317253AbSFGJnq>; Fri, 7 Jun 2002 05:43:46 -0400
+Received: from [62.70.58.70] ([62.70.58.70]:9150 "EHLO mail.pronto.tv")
+	by vger.kernel.org with ESMTP id <S316803AbSFGJnp> convert rfc822-to-8bit;
+	Fri, 7 Jun 2002 05:43:45 -0400
+Message-Id: <200206070943.g579hhN23163@mail.pronto.tv>
+Content-Type: text/plain; charset=US-ASCII
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Organization: Pronto TV AS
+To: linux-kernel@vger.kernel.org
+Subject: CMD-649 support? (in a hurry - please help)
+Date: Fri, 7 Jun 2002 11:43:43 +0200
+X-Mailer: KMail [version 1.3.1]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-   Date: Sun, 19 May 2002 13:13:41 +0100 (BST)
+hi
 
-   > arch/sparc/kernel/sys_sunos.c:481:	ret = copy_to_user(&name->sname[0], &system_utsname.sysname[0], sizeof(name->sname) - 1);
-   
-   Very broken.
-   
-   > arch/sparc64/kernel/sys_sparc32.c:3675:	return copy_to_user(res32, kres, sizeof(*res32));
-   
-   Looks very borked in several other spots
+I just got a call from my vendor, telling me my ordered configuration with 
+three promise controllers were impossible, as the promise BIOS couldn't 
+handle more than eight drives, no matter how many controllers you had. So.
 
-I've taken care of these bits in my tree and double checked each file
-in it's entirety.
+He suggested using a card using the CMD-649 chipset (see link below). Is this 
+supported in Linux? Is the CMD-648 driver able to support CMD-649?
 
+http://www.cmd.com/SupportInfo.cfm?ProdID=168
+
+thanks
+
+roy
+-- 
+Roy Sigurd Karlsbakk, Datavaktmester
+
+Computers are like air conditioners.
+They stop working when you open Windows.

@@ -1,51 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262742AbTCVL5f>; Sat, 22 Mar 2003 06:57:35 -0500
+	id <S262402AbTCVMCP>; Sat, 22 Mar 2003 07:02:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262744AbTCVL5f>; Sat, 22 Mar 2003 06:57:35 -0500
-Received: from hermes.domdv.de ([193.102.202.1]:50183 "EHLO zeus.domdv.de")
-	by vger.kernel.org with ESMTP id <S262742AbTCVL5d>;
-	Sat, 22 Mar 2003 06:57:33 -0500
-Message-ID: <3E7C5241.1030206@domdv.de>
-Date: Sat, 22 Mar 2003 13:08:33 +0100
-From: Andreas Steinmetz <ast@domdv.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021203
-X-Accept-Language: en-us, en, de-de, de
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: 2.4.20: highmem and ldt allocation failure
-X-Enigmail-Version: 0.71.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S262409AbTCVMCO>; Sat, 22 Mar 2003 07:02:14 -0500
+Received: from packet.digeo.com ([12.110.80.53]:48356 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S262402AbTCVMCN>;
+	Sat, 22 Mar 2003 07:02:13 -0500
+Date: Sat, 22 Mar 2003 04:12:51 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Dawson Engler <engler@csl.stanford.edu>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [CHECKER] races in 2.5.65/mm/swapfile.c?
+Message-Id: <20030322041251.7720e42f.akpm@digeo.com>
+In-Reply-To: <200303221145.h2MBjAW09391@csl.stanford.edu>
+References: <200303221145.h2MBjAW09391@csl.stanford.edu>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 22 Mar 2003 12:12:47.0302 (UTC) FILETIME=[59C51E60:01C2F06C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There seems to be something fishy with highmem in 2.4.20:
+Dawson Engler <engler@csl.stanford.edu> wrote:
+>
+> Hi All,
+> 
+> mm/swapfile.c seems to have three potential races.
+> 
+> The first two are in 
+>         linux-2.5.62/mm/swap_state.c:87:add_to_swap_cache
+> 
+> which seems reachable without a lock from the callchain:
+> 
+>         mm/swapfile.c:sys_swapoff:998->
+>               sys_swapoff:1026->
+>                 try_to_unuse:591->
+>                         mm/swap_state.c:read_swap_cache_async:377->
+>                             add_to_swap_cache
+> 
+> add_to_swap_cache increments two global variables without a lock:
+>         INC_CACHE_INFO(add_total);
+> and
+>         INC_CACHE_INFO(exist_race);
 
-Using XFree86 4.3.0 (Matrox G550) and KDE 3.1.1 works with the following
-kernel configuration options:
+These are just instrumentation.  If they're a bit inaccurate nobody cares,
+and they're not worth locking.
 
-CONFIG_NOHIGHMEM=y
-# CONFIG_HIGHMEM4G is not set
-# CONFIG_HIGHMEM is not set
+So yes, that is a positive.
 
-However I do get "ldt allocation failed" messages, heavy swapping and an
-unuseable GUI (needs to be killed from a console) just by activating the
-KDE blank screen screensaver with the following kernel configuration
-options:
+> The final one is in
+>         linux-2.5.62/mm/swapfile.c:213:swap_entry_free
+> which seems to increment
+>         nr_swap_pages++;
+> without a lock.
 
-# CONFIG_NOHIGHMEM is not set
-CONFIG_HIGHMEM4G=y
-CONFIG_HIGHMEM=y
-CONFIG_HIGHIO=y
-
-Other processes (command line) do fail too in this case (e.g. ls) with 
-the same ldt kernel message. The system is not loaded (about 110 to 120 
-processes) and mostly idle when this problem occurs.
-
-The system consists of: AMD XP2400+/Asus A7V8X/1GB DDR (PC266).
--- 
-Andreas Steinmetz
-
+swap_entry_free() is called after swap_info_get(), which locks the swap
+device list and the particular swap device.
 

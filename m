@@ -1,51 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261428AbUKWTIL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261420AbUKWTLT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261428AbUKWTIL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 14:08:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261432AbUKWTIJ
+	id S261420AbUKWTLT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 14:11:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261403AbUKWTKW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 14:08:09 -0500
-Received: from hera.kernel.org ([63.209.29.2]:47564 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S261428AbUKWSBf (ORCPT
+	Tue, 23 Nov 2004 14:10:22 -0500
+Received: from mail.suse.de ([195.135.220.2]:27047 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261416AbUKWTGh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 13:01:35 -0500
-To: linux-kernel@vger.kernel.org
-From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: Network slowdown from 2.6.7 to 2.6.9
-Date: Tue, 23 Nov 2004 10:04:50 -0800
-Organization: Open Source Development Lab
-Message-ID: <20041123100450.3cbb82e6@zqx3.pdx.osdl.net>
-References: <419A9151.2000508@atmos.washington.edu>
-	<20041116163257.0e63031d@zqx3.pdx.osdl.net>
-	<cone.1100651833.776334.15267.502@pc.kolivas.org>
-	<419BA5C4.4020503@atmos.washington.edu>
-	<1100722571.20185.9.camel@tux.rsn.bth.se>
-	<419BBF57.3040808@atmos.washington.edu>
-	<1100727847.20185.31.camel@tux.rsn.bth.se>
-	<41A27868.80703@atmos.washington.edu>
+	Tue, 23 Nov 2004 14:06:37 -0500
+Date: Tue, 23 Nov 2004 20:06:37 +0100
+From: Andi Kleen <ak@suse.de>
+To: Jack Steiner <steiner@sgi.com>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: Externalize SLIT table
+Message-ID: <20041123190637.GC20608@wotan.suse.de>
+References: <20041103205655.GA5084@sgi.com.suse.lists.linux.kernel> <20041104.105908.18574694.t-kochi@bq.jp.nec.com.suse.lists.linux.kernel> <20041104040713.GC21211@wotan.suse.de.suse.lists.linux.kernel> <20041104.135721.08317994.t-kochi@bq.jp.nec.com.suse.lists.linux.kernel> <20041105160808.GA26719@sgi.com.suse.lists.linux.kernel> <p73k6sz7am2.fsf@verdi.suse.de> <20041123173208.GA13177@sgi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Trace: build.pdx.osdl.net 1101232886 14984 172.20.1.73 (23 Nov 2004 18:01:26 GMT)
-X-Complaints-To: abuse@osdl.org
-NNTP-Posting-Date: Tue, 23 Nov 2004 18:01:26 +0000 (UTC)
-X-Newsreader: Sylpheed version 0.9.10claws (GTK+ 1.2.10; i686-suse-linux)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041123173208.GA13177@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 22 Nov 2004 15:38:16 -0800
-Harry Edmon <harry@atmos.washington.edu> wrote:
+On Tue, Nov 23, 2004 at 11:32:09AM -0600, Jack Steiner wrote:
+> (Sorry for the delay in posting this. Our mail server was
+> dropping mail ....)
 
-> Tried them all - none of them helped.  Use "ntop" I can see that my 
-> throughput on the Intel gigabit ethernet interface on the system maxes 
-> out at 15.2 Mbps with 2.6.9.  With 2.6.7 it made it to 35 Mbps.
-> 
-> Does anyone have any other suggestions as to what to look for to 
-> diagnose this problem?
+Looks good. Thanks. I actually came up with my own patch now
+(which ended up quite similar), but yours looks slightly better.
 
-Well, before the TSO changes, if TSO was enabled then TCP would not obey slow
-start or do congestion control properly.  Did you increase the TCP send/receive
-buffers (sysctl's net.ipv4.tcp_rmem and net.ipv4.tcp_wmem)? You may just
-be window limited.  Also, 2.6.9 has TCP bugs with TSO that can cause panic's.
-These have been fixed in 2.6.10-rc2.
-
+-Andi

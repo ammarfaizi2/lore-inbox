@@ -1,22 +1,22 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274438AbSITAys>; Thu, 19 Sep 2002 20:54:48 -0400
+	id <S274557AbSITAz4>; Thu, 19 Sep 2002 20:55:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274209AbSITAxa>; Thu, 19 Sep 2002 20:53:30 -0400
-Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:44810 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S274305AbSITAxP>;
-	Thu, 19 Sep 2002 20:53:15 -0400
-Date: Thu, 19 Sep 2002 17:58:06 -0700
+	id <S274209AbSITAyw>; Thu, 19 Sep 2002 20:54:52 -0400
+Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:50186 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S274493AbSITAyj>;
+	Thu, 19 Sep 2002 20:54:39 -0400
+Date: Thu, 19 Sep 2002 17:59:30 -0700
 From: Greg KH <greg@kroah.com>
 To: marcelo@conectiva.com.br
 Cc: linux-kernel@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net
 Subject: Re: [BK PATCH] More PCI Hotplug changes for 2.4.20-pre7
-Message-ID: <20020920005806.GJ18583@kroah.com>
-References: <20020920005749.GI18583@kroah.com>
+Message-ID: <20020920005929.GO18583@kroah.com>
+References: <20020920005749.GI18583@kroah.com> <20020920005806.GJ18583@kroah.com> <20020920005823.GK18583@kroah.com> <20020920005840.GL18583@kroah.com> <20020920005857.GM18583@kroah.com> <20020920005913.GN18583@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020920005749.GI18583@kroah.com>
+In-Reply-To: <20020920005913.GN18583@kroah.com>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
@@ -25,68 +25,42 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 # Project Name: Linux kernel tree
 # This patch format is intended for GNU patch command version 2.5 or higher.
 # This patch includes the following deltas:
-#	           ChangeSet	1.683   -> 1.684  
-#	drivers/hotplug/pci_hotplug_core.c	1.5     -> 1.6    
+#	           ChangeSet	1.688   -> 1.689  
+#	drivers/hotplug/pci_hotplug_core.c	1.7     -> 1.8    
 #
 # The following is the BitKeeper ChangeSet Log
 # --------------------------------------------
-# 02/09/18	scottm@somanetworks.com	1.684
-# [PATCH] Small pcihpfs dnotify fix
-# 
-# I've been working on a userspace daemon to go with my CompactPCI driver,
-# and yesterday I discovered an oversight in pci_hp_change_slot_info - it
-# doesn't call dnotify_parent, so dnotify based clients basically don't
-# work against pcihpfs.  The following patch (against 2.5 BK) reworks
-# things to just update the mtime (since we're modifying the file after
-# all), and then call dnotify_parent.
+# 02/09/19	greg@kroah.com	1.689
+# PCI Hotplug Core: Add allocation sanity checks.  Patch from Silvio Cesare
 # --------------------------------------------
 #
 diff -Nru a/drivers/hotplug/pci_hotplug_core.c b/drivers/hotplug/pci_hotplug_core.c
---- a/drivers/hotplug/pci_hotplug_core.c	Thu Sep 19 17:19:10 2002
-+++ b/drivers/hotplug/pci_hotplug_core.c	Thu Sep 19 17:19:10 2002
-@@ -37,6 +37,7 @@
- #include <linux/smp_lock.h>
- #include <linux/init.h>
- #include <linux/pci.h>
-+#include <linux/dnotify.h>
- #include <asm/uaccess.h>
- #include "pci_hotplug.h"
+--- a/drivers/hotplug/pci_hotplug_core.c	Thu Sep 19 17:18:55 2002
++++ b/drivers/hotplug/pci_hotplug_core.c	Thu Sep 19 17:18:55 2002
+@@ -615,7 +615,7 @@
  
-@@ -1006,10 +1007,13 @@
- 	return 0;
- }
+ 	if (*offset < 0)
+ 		return -EINVAL;
+-	if (count <= 0)
++	if (count == 0 || count > 16384)
+ 		return 0;
+ 	if (*offset != 0)
+ 		return 0;
+@@ -726,7 +726,7 @@
  
--static inline void update_inode_time (struct inode *inode)
-+static inline void update_dentry_inode_time (struct dentry *dentry)
- {
--	if (inode)
--		inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
-+	struct inode *inode = dentry->d_inode;
-+	if (inode) {
-+		inode->i_mtime = CURRENT_TIME;
-+		dnotify_parent(dentry, DN_MODIFY);
-+	}
- }
+ 	if (*offset < 0)
+ 		return -EINVAL;
+-	if (count <= 0)
++	if (count == 0 || count > 16384)
+ 		return 0;
+ 	if (*offset != 0)
+ 		return 0;
+@@ -964,7 +964,7 @@
  
- /**
-@@ -1044,16 +1048,16 @@
- 	core = temp->core_priv;
- 	if ((core->power_dentry) &&
- 	    (temp->info->power_status != info->power_status))
--		update_inode_time (core->power_dentry->d_inode);
-+		update_dentry_inode_time (core->power_dentry);
- 	if ((core->attention_dentry) &&
- 	    (temp->info->attention_status != info->attention_status))
--		update_inode_time (core->attention_dentry->d_inode);
-+		update_dentry_inode_time (core->attention_dentry);
- 	if ((core->latch_dentry) &&
- 	    (temp->info->latch_status != info->latch_status))
--		update_inode_time (core->latch_dentry->d_inode);
-+		update_dentry_inode_time (core->latch_dentry);
- 	if ((core->adapter_dentry) &&
- 	    (temp->info->adapter_status != info->adapter_status))
--		update_inode_time (core->adapter_dentry->d_inode);
-+		update_dentry_inode_time (core->adapter_dentry);
- 
- 	memcpy (temp->info, info, sizeof (struct hotplug_slot_info));
- 	spin_unlock (&list_lock);
+ 	if (*offset < 0)
+ 		return -EINVAL;
+-	if (count <= 0)
++	if (count == 0 || count > 16384)
+ 		return 0;
+ 	if (*offset != 0)
+ 		return 0;

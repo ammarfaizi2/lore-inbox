@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269796AbRHTXJG>; Mon, 20 Aug 2001 19:09:06 -0400
+	id <S269817AbRHTXW5>; Mon, 20 Aug 2001 19:22:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269804AbRHTXI4>; Mon, 20 Aug 2001 19:08:56 -0400
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:57473
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S269796AbRHTXIo>; Mon, 20 Aug 2001 19:08:44 -0400
-Date: Mon, 20 Aug 2001 16:08:31 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Mike Castle <dalgoda@ix.netcom.com>, linux-kernel@vger.kernel.org,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Subject: Re: [PATCH] let Net Devices feed Entropy, updated (1/2)
-Message-ID: <20010820160831.B2562@cpe-24-221-152-185.az.sprintbbd.net>
-In-Reply-To: <482526995.998263790@[169.254.45.213]> <20010819192634.H30309@thune.mrc-home.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010819192634.H30309@thune.mrc-home.com>
-User-Agent: Mutt/1.3.20i
+	id <S269822AbRHTXWr>; Mon, 20 Aug 2001 19:22:47 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:23045 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S269817AbRHTXWf>; Mon, 20 Aug 2001 19:22:35 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: 2.4.8/2.4.9 VM problems
+Date: Tue, 21 Aug 2001 01:29:11 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: Mike Galbraith <mikeg@wen-online.de>,
+        Frank Dekervel <Frank.dekervel@student.kuleuven.ac.Be>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0108201839580.538-100000@freak.distro.conectiva>
+In-Reply-To: <Pine.LNX.4.21.0108201839580.538-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010820232242Z16361-32385+84@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 19, 2001 at 07:26:34PM -0700, Mike Castle wrote:
-> On Sun, Aug 19, 2001 at 11:29:51PM +0100, Alex Bligh - linux-kernel wrote:
-> > The machine was bought and tested in one config. A hardware
-> > random number generator is something else to go wrong, and
-> > additional expense.
+On August 20, 2001 11:50 pm, Marcelo Tosatti wrote:
+> On Tue, 21 Aug 2001, Daniel Phillips wrote:
+
+> > If you've seen streaming IO pages getting evicted before being used,
+> > I'd like to know about it because something is broken in that case.
 > 
-> And making a change to the kernel is not a different config?
+> I've seen the first page read by "swapin_readahead()" (which is the actual
+> page we want to swapin) be evicted _before_ we could actually use it (so
+> the read_swap_cache_async() call had to read the same page _again_ from
+> disk).
 
-In the very strict QA'ing sense, yes.  Any sort of change whatsoever is a
-different config and throws out all of the other testing results.  Which
-still leaves the cost argument in this case.  But, there are degrees of
-how dangerous a change can be.  From my quick skimming of this code, it
-looks like the only changes are to mark network irq bits as possible entropy.
-Nothing more.  I could be totally wrong of course. :)
-Therefore, it's quite probable anyhow that this config won't have any more
-problems that the other config had.  Of course the only way to prove this
-is much QA'ing.
+It's not streaming IO, but whoops, is that even with yesterday's 
+SetPageReferenced patch to do_swap_page?
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+--
+Daniel

@@ -1,74 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130398AbQKHBRa>; Tue, 7 Nov 2000 20:17:30 -0500
+	id <S129544AbQKHB3x>; Tue, 7 Nov 2000 20:29:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130417AbQKHBRV>; Tue, 7 Nov 2000 20:17:21 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:46528 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S130398AbQKHBRR>;
-	Tue, 7 Nov 2000 20:17:17 -0500
-Date: Tue, 7 Nov 2000 17:14:01 -0800
-From: Jean Tourrilhes <jt@spica.hpl.hp.com>
-To: Linus Torvalds <torvalds@transmeta.com>,
-        Linux kernel mailing list <linux-kernel@vger.rutgers.edu>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, Dag Brattli <dagb@fast.no>
-Subject: [RANT] Linux-IrDA status
-Message-ID: <20001107171401.A24041@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
+	id <S129245AbQKHB3o>; Tue, 7 Nov 2000 20:29:44 -0500
+Received: from lacrosse.corp.redhat.com ([207.175.42.154]:25411 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S130027AbQKHB3d>; Tue, 7 Nov 2000 20:29:33 -0500
+Date: Tue, 7 Nov 2000 23:58:00 +0000
+From: Tim Waugh <twaugh@redhat.com>
+To: Igmar Palsenberg <maillist@chello.nl>
+Cc: RAJESH BALAN <atmproj@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: malloc(1/0) ??
+Message-ID: <20001107235800.R17245@redhat.com>
+In-Reply-To: <20001107035905.18154.qmail@web3707.mail.yahoo.com> <Pine.LNX.4.21.0011080140300.32613-100000@server.serve.me.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-User-Agent: Mutt/1.0.1i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="f4HxWLVbzokH9yio"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.21.0011080140300.32613-100000@server.serve.me.nl>; from maillist@chello.nl on Wed, Nov 08, 2000 at 01:41:40AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hi,
 
-	(I'm not on the Linux kernel mailing list)
+--f4HxWLVbzokH9yio
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-	The IrDA stack in Linux is non functional and has some major
-critical bugs :
-                        http://linux24.sourceforge.net/
-	Not only it doesn't work, but it can crash your kernel fast.
+On Wed, Nov 08, 2000 at 01:41:40AM +0100, Igmar Palsenberg wrote:
 
-	Most might wonder why the IrDA stack is in such state of
-disrepair. Is there no maintainers and nobody who cares ?
-	The truth is that every 2 month, Dag Brattli, the official
-maintainer of the IrDA stack (see MAINTAINERS), collect all our
-patches and send the latest official Linux-IrDA patch to Linus.
-	And every time the patch never materialise in the Linux
-kernel. Of course, Dag never receive any answer, so doesn't know why
-his patches are going directly to /dev/null.
-	As we fix more bugs, the official IrDA patch get growing and
-growing. The patch that Dag sent last week to Linus was 320k. It has
-slowly accumulated over one year :-(
+> malloc(0) is bogus in this case. malloc(0) == free();
 
-	On the other hand, what never cease to amaze me is that some
-patches to the IrDA code gets into the kernel. Some of those patches
-make things better, some make things worse. Those patches certainly
-don't come from Dag or any of the most active Linux-IrDA hacker, and
-none of us see those patches in advance so that we get a chance to
-comment on them and test them.
-	I guess that some people have trouble reading the MAINTAINERS
-file :-( Or maybe there is another maintainer for the IrDA stack and
-none of us knows about it.
+No, you're thinking of realloc.
 
+Tim.
+*/
 
-	I think for us the only solution is to ignose what's happening
-in the 2.4.X kernel and have Dag maintaining Linux-IrDA separate from
-the kernel. I don't see why Dag should take the effort to send regular
-patch to Linus if they get ignored.
-	In other words, the chances to have IrDA working in kernel 2.4
-are *very* slim at this point.
-	So, if people are interested in IrDA and want to use it, they
-should suscribe to the Linux-IrDA mailing list and can ask me the
-latest patch (Dag is now too discouraged). We will put it in the usual
-place on Sourceforge...
+--f4HxWLVbzokH9yio
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-	I hope it clarify a few things...
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-	Jean
+iD8DBQE6CJcHONXnILZ4yVIRAvfTAJ9GPpX0RMpOeTUhF3r49or515PC/QCdFg3N
+G5LTt2i5TIcSaRf/RK2rWLs=
+=e2wv
+-----END PGP SIGNATURE-----
+
+--f4HxWLVbzokH9yio--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

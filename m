@@ -1,37 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314080AbSGILS1>; Tue, 9 Jul 2002 07:18:27 -0400
+	id <S314284AbSGILSt>; Tue, 9 Jul 2002 07:18:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314459AbSGILS0>; Tue, 9 Jul 2002 07:18:26 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:6852 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S314080AbSGILSZ>;
-	Tue, 9 Jul 2002 07:18:25 -0400
-Date: Tue, 9 Jul 2002 13:20:54 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org
-Subject: Re: [PATCH] 2.4 IDE core for 2.5
-Message-ID: <20020709112054.GB9551@suse.de>
-References: <20020709102249.GA20870@suse.de> <200207091313.07199.roy@karlsbakk.net>
-Mime-Version: 1.0
+	id <S314396AbSGILSt>; Tue, 9 Jul 2002 07:18:49 -0400
+Received: from 62-190-200-33.pdu.pipex.net ([62.190.200.33]:13830 "EHLO
+	darkstar.example.net") by vger.kernel.org with ESMTP
+	id <S314284AbSGILSs>; Tue, 9 Jul 2002 07:18:48 -0400
+From: jbradford@dial.pipex.com
+Message-Id: <200207091126.MAA01269@darkstar.example.net>
+Subject: Re: ATAPI + cdwriter problem
+To: B.Zolnierkiewicz@elka.pw.edu.pl (Bartlomiej Zolnierkiewicz)
+Date: Tue, 9 Jul 2002 12:26:23 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.SOL.4.30.0207091218350.6859-100000@mion.elka.pw.edu.pl> from "Bartlomiej Zolnierkiewicz" at Jul 09, 2002 12:22:59 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200207091313.07199.roy@karlsbakk.net>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 09 2002, Roy Sigurd Karlsbakk wrote:
-> hi
-> 
-> Should I add IDE9[4567] as well, or does these ones include previous IDE 
-> pathes?
+Hi,
 
-Well, the whole point of this patch set is _not_ to use the 2.5 ide core
-for now. When configuring your kernel, you get the choice of using
-2.4-ide or 2.5-ide. If you choose 2.5-ide, then yes you should add those
-patches (I guess). If you choose 2.4-ide (which most users of the patch
-set would do, why else apply it?!), then it doesn't matter.
+> Dont punish performance and do not connect drives on the same channel
+> if you can, the same goes for cd and cdrw (if cd -> cdrw of course)...
 
--- 
-Jens Axboe
+I don't think he's got much choice with all those devices :-)
 
+> Also there was some problem recently with running 2 ATAPI devices on the
+> same channel.
+
+I generally prefer to use EIDE for hard disks, and SCSI for other peripherals, (and disks which are for, e.g. databases, but certainly not for boot disks, or general usage disks).
+
+I tend to find 'silly' problems occuring with ATAPI devices, such as a motherboard/ATAPI CD-ROM drive combination that would never boot from the CD, because the BIOS reset the bus just before booting, and the CD-ROM would respond 'not ready'.  Generally SCSI peripherals tend to have a bit more thought put in to their design.
+
+John.

@@ -1,49 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317488AbSHHMAe>; Thu, 8 Aug 2002 08:00:34 -0400
+	id <S317498AbSHHMDp>; Thu, 8 Aug 2002 08:03:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317489AbSHHMAe>; Thu, 8 Aug 2002 08:00:34 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:58606 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S317488AbSHHMAd>; Thu, 8 Aug 2002 08:00:33 -0400
-Subject: Re: [bug, 2.5.29, IDE] partition table corruption?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: martin@dalecki.de
-Cc: Ingo Molnar <mingo@elte.hu>, "Adam J. Richter" <adam@yggdrasil.com>,
-       Andries.Brouwer@cwi.nl, johninsd@san.rr.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <3D525489.3050209@evision.ag>
-References: <Pine.LNX.4.44.0208081129420.3210-100000@localhost.localdomain>	
-	<3D523B25.5080105@evision.ag>
-	<1028809830.28883.13.camel@irongate.swansea.linux.org.uk> 
-	<3D525489.3050209@evision.ag>
-Content-Type: text/plain
+	id <S317499AbSHHMDo>; Thu, 8 Aug 2002 08:03:44 -0400
+Received: from [212.18.235.100] ([212.18.235.100]:37007 "EHLO
+	tench.street-vision.com") by vger.kernel.org with ESMTP
+	id <S317498AbSHHMDm>; Thu, 8 Aug 2002 08:03:42 -0400
+From: kernel@street-vision.com
+Message-Id: <200208081206.g78C6j402355@tench.street-vision.com>
+Subject: Re: [PATCH] [2.4.20-pre1] Watchdog Stuff (1/4)
+To: Joel.Becker@oracle.com (Joel Becker)
+Date: Thu, 8 Aug 2002 12:06:44 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020808001238.GB1038@nic1-pc.us.oracle.com> from "Joel Becker" at Aug 07, 2002 05:12:38 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 08 Aug 2002 14:23:53 +0100
-Message-Id: <1028813033.28882.37.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-08-08 at 12:22, Marcin Dalecki wrote:
-> 1. Requiring the kernel to read the partition table information is a
-> BUG.
+You might cc the driver author...
 
-We read it anyway to read the partitions for the block layer. 
+> 
+>         Here are four patches for the watchdog drivers.  These patches
+> are an update to 2.4.20-pre1 of the original set against 2.4.19-pre9.
+> The first patch (this one) adds WDIOC_SETTIMEOUT support to
+> wafer5823wdt.c.  The second patch adds Matt Domsch's 'nowayout' module
+> option to the drivers that currently don't have it.  The third patch
+> fixes a bug where most of the "magic close character" capable drivers
+> don't use get_user().  The fourth patch adds "magic close character"
+> support to almost all of the remaining drivers.  It also adds
+> WDIOF_MAGICCLOSE to the driver info flags.                                 
+> 
+> Joel
 
-> 2. Falling back on the values which are used by the application 
-> afterwards is a BUG. (BIOS IRQ after all)
+> +
+> +	case WDIOC_SETTIMEOUT:
+> +		if (get_user(new_margin, (int *)arg))
+> +			return -EFAULT;
+> +		if ((new_margin < 1) || (new_margin > 255))
+> +			return -EINVAL;
+> +		wd_margin = new_margin;
+> +		wafwdt_stop();
+> +		wafwdt_start();
+> +		/* Fall */
+> +	case WDIOC_GETTIMEOUT:
+> +		return put_user(wd_margin, (int *)arg);
 
-Breaking code is not a bug
+I really wouldnt do wafwdt_stop(); wafwdt_start(); here. The new timeout
+will be set on the next watchdog ping anyway, and you need to spin_lock
+and unlock round this too. Much cleaner just to drop it.
 
-> 3. Not detecting LBA disk access is required by checking Cylinder value
-> to emulate BIOS behaviour is a BUG.
-
-So why did you take it out ?
-
-
-Thank you for reminding me why I've given up on the 2.5 kernel ever
-working. Fortunately free software is self correcting so the tree can be
-forked into something workable
-
+Justin

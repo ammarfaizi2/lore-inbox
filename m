@@ -1,66 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262331AbSJKDqG>; Thu, 10 Oct 2002 23:46:06 -0400
+	id <S262328AbSJKDpF>; Thu, 10 Oct 2002 23:45:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262334AbSJKDqF>; Thu, 10 Oct 2002 23:46:05 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:42937 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S262331AbSJKDqE>; Thu, 10 Oct 2002 23:46:04 -0400
-Importance: Normal
-Sensitivity: 
-Subject: Re: MD4 and MD5 library routines (was CIFS filesystem for Linux 2.5_
-To: Andi Kleen <ak@suse.de>
-Cc: David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
-Message-ID: <OF7527F406.BAF41604-ON87256C4F.00141231@boulder.ibm.com>
-From: "Steven French" <sfrench@us.ibm.com>
-Date: Thu, 10 Oct 2002 22:51:41 -0500
-X-MIMETrack: Serialize by Router on D03NM123/03/M/IBM(Release 5.0.10 |March 22, 2002) at
- 10/10/2002 09:51:43 PM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S262331AbSJKDpF>; Thu, 10 Oct 2002 23:45:05 -0400
+Received: from host145.south.iit.edu ([216.47.130.145]:17083 "EHLO
+	lostlogicx.com") by vger.kernel.org with ESMTP id <S262328AbSJKDpE>;
+	Thu, 10 Oct 2002 23:45:04 -0400
+Date: Thu, 10 Oct 2002 22:50:42 -0500
+From: Brandon Low <lostlogic@gentoo.org>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: procps-list@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] procps 2.0.10
+Message-ID: <20021010225042.A30948@lostlogicx.com>
+References: <Pine.LNX.4.44L.0210081034360.1909-100000@duckman.distro.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.44L.0210081034360.1909-100000@duckman.distro.conectiva>; from riel@conectiva.com.br on Tue, Oct 08, 2002 at 10:35:40AM -0300
+X-Operating-System: Linux found 2.4.19-gentoo-r9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hey, I just saw the recent announcement of procps-3.0.1 on the mailing 
+list by the procps.sourceforge.net team, what is the status of these two 
+projects, there are features in each that are very nice, the versioning is 
+confusing, and inconsistant, and the package names are the same...
 
->> sfrench@us.ibm.com said:
->> >  fs/cifs/md4.c                      |  209 +++
->> >  fs/cifs/md5.c                      |  363 +++++
->> >  fs/cifs/md5.h                      |   38
->>
->> Unless these are somehow CIFS-specific, they should live in linux/lib/
->
->This would have the disadvantage that they would need to be always
-compiled into the
->kernel, even though it may not need it. And we already have code bloat
-problems,
->no need to make it worse.
->
->Making them modular also isn't good. Each module takes a 4k page at least,
-so you
->would waste a lot of memory because they're smaller than 4k.
->
->As long as they are not used by anything else it's probably best to keep
-it
->where they are.
->
->-Andi
+Kinda hoping to learn which tree a distribution developer should follow, 
+etc.
 
-The routines are small enough, less than 500 loc total, that it would not
-make a whole lot of difference either way.   Although I noticed a few
-different places where MD5 is implemented in other parts of the kernel, the
-HMAC-MD5 support (in md5.c) needed for signing smb frames is probably not
-needed by anyone else (except PPP?).   I did not see any places (other than
-cifs) that depend on md4 so that seems like it would not make sense to move
-even though the code is pretty generic.    The ASN decoding routines on the
-other hand (used e.g. by snmp and also will be needed in the future by the
-cifs vfs for simple SPNEGO-like parsing of the session establishment frame)
-might end up being useful to move into a common library in the long run.
+TIA,
 
-Steve French
-Senior Software Engineer
-Linux Technology Center - IBM Austin
-phone: 512-838-2294
-email: sfrench@us.ibm.com
+Brandon Low
+Gentoo Linux Kernel Release Manager
 
+p.s. please CC
 
+On Tue, 10/08/02 at 10:35:40 -0300, Rik van Riel wrote:
+> 		Procps 2.0.10
+> 		8 Oct 2002
+> 
+> 
+> Procps is the package containing various system monitoring tools, like
+> ps, top, vmstat, free, kill, sysctl, uptime and more.  After a long
+> period of inactivity procps maintenance is active again and suggestions,
+> bugreports and patches are always welcome on the procps list.
+> 
+> The plan is to release a procps 2.1.0 around the time the 2.6.0 kernel
+> comes out, with regular releases until then. Code cleanups and all kinds
+> of enhancements are welcome.
+> 
+> 
+> You can download procps 2.0.10 from:
+> 
+> 	http://surriel.com/procps/procps-2.0.10.tar.bz2
+> 
+> If you have feedback (or patches) for the procps team, feel free to
+> mail us at:
+> 
+> 	procps-list@redhat.com
+> 
+> 
+> NEWS for version 2.0.10 of procps
+> 
+> * fix memory size overflow in ps (Anton Blanchard)
+> * add iowait statistics to top (Rik van Riel)
+> * update top help text (Denis Vlasenko)
+> * fix jumpy percentage formatting in top (Denis Vlasenko)
+> * fix some newer gcc compiler warnings (Denis Vlasenko)
+> * by default, do not show threads in ps or top - you can use the
+>   `-m' flag in ps or the `H' key in top to show them (Robert Love)
+> 
+> 
+> 
+> Rik
+> -- 
+> A: No.
+> Q: Should I include quotations after my reply?
+> 
+> http://www.surriel.com/		http://distro.conectiva.com/
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,49 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289358AbSAJJjS>; Thu, 10 Jan 2002 04:39:18 -0500
+	id <S289360AbSAJJsI>; Thu, 10 Jan 2002 04:48:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289360AbSAJJjJ>; Thu, 10 Jan 2002 04:39:09 -0500
-Received: from CPE00E02915899A.cpe.net.cable.rogers.com ([24.112.88.234]:45195
-	"EHLO mokona.furryterror.org") by vger.kernel.org with ESMTP
-	id <S289358AbSAJJi5>; Thu, 10 Jan 2002 04:38:57 -0500
-From: uixjjji1@umail.furryterror.org (Zygo Blaxell)
-Subject: Re: Moving zlib so that others may use it
-Date: 10 Jan 2002 04:37:00 -0500
-Organization: A poorly-maintained Debian GNU/Linux InterNetNews site
-Message-ID: <a1jnbs$r0s$1@shippou.furryterror.org>
-In-Reply-To: <24080.1010637887@kao2.melbourne.sgi.com> <3C3D22F8.1080201@acm.org>
-NNTP-Posting-Host: 10.215.3.77
-X-Header-Mangling: Original "From:" was <zblaxell@shippou.furryterror.org>
-To: <linux-kernel@vger.kernel.org>
+	id <S289361AbSAJJr6>; Thu, 10 Jan 2002 04:47:58 -0500
+Received: from pD9E12911.dip.t-dialin.net ([217.225.41.17]:35024 "EHLO
+	twinspark.cobolt.net") by vger.kernel.org with ESMTP
+	id <S289360AbSAJJru>; Thu, 10 Jan 2002 04:47:50 -0500
+Date: Thu, 10 Jan 2002 10:52:10 +0100
+From: Dennis Schoen <dennis@cobolt.net>
+To: Mark Hahn <hahn@physics.mcmaster.ca>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BUG]: RT8139 Too much work at interrupt, IntrStatus=....
+Message-ID: <20020110095210.GA354@cobolt.net>
+Reply-To: Dennis Schoen <dennis@cobolt.net>
+Mail-Followup-To: Mark Hahn <hahn@physics.mcmaster.ca>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020109090855.GA338@cobolt.net> <Pine.LNX.4.33.0201091759120.22941-100000@coffee.psychology.mcmaster.ca>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0201091759120.22941-100000@coffee.psychology.mcmaster.ca>
+User-Agent: Mutt/1.3.25i
+Mail-Copies-To: never
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3C3D22F8.1080201@acm.org>, Corey Minyard  <minyard@acm.org> wrote:
->Keith Owens wrote:
->
->>On Wed, 09 Jan 2002 22:23:31 -0600, 
->>Corey Minyard <minyard@acm.org> wrote:
->>>Keith Owens wrote:
-[...]
->Building zlib as a
->>module guarantees that you cannot use it in a boot loader, forcing you
->>to maintain multiple versions of zlib.c.  If you are going to use one
->>version of zlib then you should try to handle bootloaders as well.
-[...]
->I don't know about the bootloaders.  I'm not sure you can make the 
->requirement
->to have them compiled the same as the kernel, since they may have different
->compilation requirements in the boot loader.
+any reason why you posted that to me and not to the list?
 
-Ummm, you can't use an in-kernel anything in a bootloader.  How do you
-uncompress an in-kernel zlib.o without an out-of-kernel zlib.o lying
-around somewhere?
+On Wed, Jan 09, 2002 at 06:02:10PM -0500, Mark Hahn wrote:
+> > yesterday I upgraded a firewall/router of a *busy* customer site
+> ...
+> > Jan  8 17:07:45 liquice kernel: 8139too: rx stop wait too long
+> 
+> surely a "*busy*" can pay an extra $20 and get a real network card...
+sure, but as I said: with kernel v2.4.7 it works! So I guess it must
+be a bug in something later than version 2.4.7.
 
-The closest thing to a zlib.o shared between bootloader and kernel would
-be to build one zlib.o and then perhaps copy the compiled binary from the
-kernel to the bootloader (thus having only one zlib.c but two zlib.o) or
-link it from the bootloader to the kernel once the kernel is uncompressed.
+> > Jan  8 17:07:46 liquice kernel: eth1: Too much work at interrupt, IntrStatus=0x0050.
+> 
+> did you happen to enable the use of local apic (in the new kernel's config)?
+nope. I'll try that.
 
--- 
-Zygo Blaxell (Laptop) <zblaxell@feedme.hungrycats.org>
-GPG = D13D 6651 F446 9787 600B AD1E CCF3 6F93 2823 44AD
+Dennis

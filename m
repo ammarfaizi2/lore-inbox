@@ -1,45 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272094AbRIEK4p>; Wed, 5 Sep 2001 06:56:45 -0400
+	id <S272108AbRIEKz0>; Wed, 5 Sep 2001 06:55:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272099AbRIEK4f>; Wed, 5 Sep 2001 06:56:35 -0400
-Received: from mercury.rus.uni-stuttgart.de ([129.69.1.226]:65033 "EHLO
-	mercury.rus.uni-stuttgart.de") by vger.kernel.org with ESMTP
-	id <S272094AbRIEK41>; Wed, 5 Sep 2001 06:56:27 -0400
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: getpeereid() for Linux
-In-Reply-To: <tgsne23sou.fsf@mercury.rus.uni-stuttgart.de.suse.lists.linux.kernel>
-	<oupae0ax8vq.fsf@pigdrop.muc.suse.de>
-	<tgu1yi2br5.fsf@mercury.rus.uni-stuttgart.de>
-	<20010905124807.A17035@gruyere.muc.suse.de>
-From: Florian Weimer <Florian.Weimer@RUS.Uni-Stuttgart.DE>
-Date: 05 Sep 2001 12:56:10 +0200
-In-Reply-To: <20010905124807.A17035@gruyere.muc.suse.de> (Andi Kleen's message of "Wed, 5 Sep 2001 12:48:07 +0200")
-Message-ID: <tgn14929f9.fsf@mercury.rus.uni-stuttgart.de>
-User-Agent: Gnus/5.090001 (Oort Gnus v0.01) Emacs/20.7
+	id <S272099AbRIEKzP>; Wed, 5 Sep 2001 06:55:15 -0400
+Received: from relay02.cablecom.net ([62.2.33.102]:4362 "EHLO
+	relay02.cablecom.net") by vger.kernel.org with ESMTP
+	id <S272094AbRIEKzC>; Wed, 5 Sep 2001 06:55:02 -0400
+Message-Id: <200109051055.f85AtGe15458@mail.swissonline.ch>
+Content-Type: text/plain; charset=US-ASCII
+From: Christian Widmer <cwidmer@iiic.ethz.ch>
+Reply-To: cwidmer@iiic.ethz.ch
+To: linux-kernel@vger.kernel.org
+Subject: reliable debug output
+Date: Wed, 5 Sep 2001 12:55:15 +0200
+X-Mailer: KMail [version 1.3]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@suse.de> writes:
-
-> SO_PEERCRED doesn't need any cooperation from the other end (at least 
-> not for SOCK_STREAM) 
-
-Thanks.  Over here, SO_PEERCRED is documented in socket(7). ;-)
-
-> There is netfilter owner match, but it is a bad hack.
-
-I certainly don't want to give a user process the right to add
-netfilter rules dynamically. :-/
-
-> I think you're better off with identd. 
-
-Or some /proc parsing (which is probably what identd does, too).
-
--- 
-Florian Weimer 	                  Florian.Weimer@RUS.Uni-Stuttgart.DE
-University of Stuttgart           http://cert.uni-stuttgart.de/
-RUS-CERT                          +49-711-685-5973/fax +49-711-685-5898
+when debugging drivers using printk i've the problem that most often 
+the msg passed to printk don't show up on the console since the machine 
+crashed before. i also what to use my own ASSERT macros which halt the 
+machine immediatly on an error. i could write some functions that write 
+the debug string to the serial port but this is impractical since if've 
+a cluster of pc and i can't connect them all to some serial lines for 
+debugging. are there some functions which write directly into the graphic 
+cards ram assuming that thy operate in console mode, no x-server running?
+or is ther any other way to for reliable debug prints.

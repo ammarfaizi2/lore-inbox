@@ -1,46 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269988AbRHJTbc>; Fri, 10 Aug 2001 15:31:32 -0400
+	id <S269991AbRHJTml>; Fri, 10 Aug 2001 15:42:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269987AbRHJTbP>; Fri, 10 Aug 2001 15:31:15 -0400
-Received: from ns1.baby-dragons.com ([199.33.245.254]:50188 "EHLO
-	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
-	id <S269984AbRHJTaJ>; Fri, 10 Aug 2001 15:30:09 -0400
-Date: Fri, 10 Aug 2001 15:30:15 -0400 (EDT)
-From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-To: robert w hall <bobh@n-cantrell.demon.co.uk>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: question on best "Linux" Internals book - Bovet & Cesati
-In-Reply-To: <aTlBpFApnBd7EwPW@n-cantrell.demon.co.uk>
-Message-ID: <Pine.LNX.4.33.0108101528410.8865-100000@filesrv1.baby-dragons.com>
+	id <S269989AbRHJTmb>; Fri, 10 Aug 2001 15:42:31 -0400
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:39012 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S269984AbRHJTmX>; Fri, 10 Aug 2001 15:42:23 -0400
+Date: Fri, 10 Aug 2001 15:42:16 -0400 (EDT)
+From: Ben LaHaise <bcrl@redhat.com>
+X-X-Sender: <bcrl@touchme.toronto.redhat.com>
+To: =?iso-8859-1?Q?Ragnar_Kj=F8rstad?= <kernel@ragnark.vestdata.no>
+cc: <linux-fsdevel@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <mike@bigstorage.com>, <kevin@bigstorage.com>
+Subject: Re: [PATCH] 64 bit scsi read/write
+In-Reply-To: <20010726041821.C19238@vestdata.no>
+Message-ID: <Pine.LNX.4.33.0108101541230.5531-100000@touchme.toronto.redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 26 Jul 2001, Ragnar Kjørstad wrote:
 
-	Hello Robert , Hmmm, Very interesting .  O'Reilly has it as
-	Oct. 2000 & first edition .  Should be one in the same tho .
-		Tnx ,  JimL
+> Did you forget something in your patch, or was it not supposed to work
+> on ia32?
+>
+> This is kind of urgent, because I will temporarely be without testing
+> equipment pretty soon. Tips are appreciated!
 
-On Fri, 10 Aug 2001, robert w hall wrote:
-> In article <14806.010810@2ka.mipt.ru>, s0mbre <johnpol@2ka.mipt.ru>
-> writes
-> >Hello.
-> >MJWL>         Hello Robert ,  Is the one you are speaking about published
-> >MJWL>         Oct-2000 ?  Or is yours a newer edition ?  Tia ,  JimL
-> >This book was lished about 1-2 month ago.
+Please try it without a modular kernel.
 
-> The fly-leaf says
-> January 2001 First Edition
-> ISBN 0-596-00002-2
-> I think it may have been hanging around in script for a bit -
-> the  2nd edition of Tanenbaum's 'Modern Operating Systems' (also 2001)
-> has it referenced  as '2000'
-> Bob
-       +------------------------------------------------------------------+
-       | James   W.   Laferriere | System    Techniques | Give me VMS     |
-       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
-       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
-       +------------------------------------------------------------------+
+		-ben
 

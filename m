@@ -1,69 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267389AbUHDTXx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267391AbUHDTZp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267389AbUHDTXx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 15:23:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267388AbUHDTXw
+	id S267391AbUHDTZp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 15:25:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267397AbUHDTZp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 15:23:52 -0400
-Received: from lindsey.linux-systeme.com ([62.241.33.80]:5897 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S267389AbUHDTXs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 15:23:48 -0400
-From: Marc-Christian Petersen <m.c.p@kernel.linux-systeme.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: HIGHMEM4G config for 1GB RAM on desktop?
-Date: Wed, 4 Aug 2004 21:21:24 +0200
-User-Agent: <Not available>
-Cc: Jens Axboe <axboe@suse.de>, eric@cisu.net, kernel@kolivas.org,
-       barryn@pobox.com, swsnyder@insightbb.com, linux-kernel@vger.kernel.org
-References: <200408021602.34320.swsnyder@insightbb.com> <20040804130707.GN10340@suse.de> <20040804120633.4dca57b3.akpm@osdl.org>
-In-Reply-To: <20040804120633.4dca57b3.akpm@osdl.org>
-X-Operating-System: Linux 2.6.5-wolk3.0 i686 GNU/Linux
-MIME-Version: 1.0
-Content-Disposition: inline
-Organization: Linux-Systeme GmbH
-Message-Id: <200408042121.24276@WOLK>
-Content-Type: text/plain;
-  charset="iso-8859-15"
+	Wed, 4 Aug 2004 15:25:45 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:2261 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267391AbUHDTZe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Aug 2004 15:25:34 -0400
+Date: Wed, 4 Aug 2004 12:22:54 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: ak@muc.de, axboe@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: block layer sg, bsg
+Message-Id: <20040804122254.3d52c2d4.davem@redhat.com>
+In-Reply-To: <20040804191850.GA19224@havoc.gtf.org>
+References: <2ppN4-1wi-11@gated-at.bofh.it>
+	<2pvps-5xO-33@gated-at.bofh.it>
+	<2pvz2-5Lf-19@gated-at.bofh.it>
+	<2pwbQ-68b-43@gated-at.bofh.it>
+	<m33c32ke3f.fsf@averell.firstfloor.org>
+	<20040804191850.GA19224@havoc.gtf.org>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 04 August 2004 21:06, Andrew Morton wrote:
+On Wed, 4 Aug 2004 15:18:50 -0400
+Jeff Garzik <jgarzik@pobox.com> wrote:
 
-Hi Andrew,
+> On Wed, Aug 04, 2004 at 07:28:04PM +0200, Andi Kleen wrote:
+> > So please never pass any structures with read/write/netlink.
+> 
+> Sorry...  This is pretty much a given IMO.
 
-> The 896M/128M split has a bit of a problem now each zone has its own LRU:
-> the size of the highmem zone is less than the amount of memory which is
-> described by the default /proc/sys/vm/dirty_ratio.  So it is easy to
-> completely fill highmem with dirty pages.  This causes a fairly large
-> amount of writeback via vmscan.c's writepage().  This causes poor I/O
-> submission patterns.  This causes a simple large, linear `dd' write to run
-> at only 50-70% of disk bandwidth.  (This was 6-12 months ago - it might be
-> a bit better now)
-> But I seem to be the only person who has noticed this yet ;) A workaround
-> is to decrease dirty_ratio and dirty_background_ratio.
-
-hmm, never tested to change the split with 2.6.x, but on 2.4 I didn't notice 
-any disk i/o regressions. Maybe due to a different VM ;)
-
-
-> Decreasing PAGE_OFFSET as above is attractive, but I believe 0xc0000000 is
-> part of the ABI, and although we know (from the 4g/4g and other such
-> patches) that everything will work OK, I wonder if it's really worth doing,
-> especially as it's a compile-time thing.
-
-> But hey, if someone can identify specific benefits from it then perhaps
-> sneaking in a config option, or maintaining an external patch would be
-> worthwhile.
-
-Maybe we can introduce something like 3.5GB patch like 2.4-aa and 2.4-wolk 
-has? For reference: 
-
-http://www.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.23aa3/00_3.5G-address-space-5
-
-Let me know and I'll cook up a 2.6 version.
-
-Grmpf, that reminds me of my Documentation cleanup patches ;(
-
-ciao, Marc
+Yes, netlink would be a nop if we gave in to Andi's reccomendation
+:-)

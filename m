@@ -1,61 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272906AbTG3OO2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 10:14:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272904AbTG3OOG
+	id S272887AbTG3OLD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 10:11:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272888AbTG3OLC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 10:14:06 -0400
-Received: from [12.40.51.195] ([12.40.51.195]:55329 "EHLO
-	mailserver.virtusa.com") by vger.kernel.org with ESMTP
-	id S272906AbTG3ONt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 10:13:49 -0400
-Message-ID: <1059574407.1759.26.camel@anuradha>
-From: Anuradha Ratnaweera <anuradha@ratnaweera.net>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Contributing to the kernel while being employed
-Date: Wed, 30 Jul 2003 10:13:27 -0400
+	Wed, 30 Jul 2003 10:11:02 -0400
+Received: from lindsey.linux-systeme.com ([80.190.48.67]:54543 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S272887AbTG3OJz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 10:09:55 -0400
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Margit Schubert-While <margitsw@t-online.de>
+Subject: Re: Linux 2.4.22-pre9
+Date: Wed, 30 Jul 2003 16:08:29 +0200
+User-Agent: KMail/1.5.2
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       viro@math.psu.edu
+References: <5.1.0.14.2.20030730080726.00a797e0@pop.t-online.de> <1059573029.8051.4.camel@dhcp22.swansea.linux.org.uk>
+In-Reply-To: <1059573029.8051.4.camel@dhcp22.swansea.linux.org.uk>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
 Content-Type: text/plain;
-	charset="iso-8859-1"
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200307301608.29561.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday 30 July 2003 15:58, Alan Cox wrote:
 
-Slightly off-topic, but not completely ...
+Hi Alan,
 
-(And this has got nothing to do with SCO issue.  I don't like to waste
-time on nonexistent issues. ;-))
+> On Mer, 2003-07-30 at 07:08, Margit Schubert-While wrote:
+> > if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.4.22-pre9;
+> > fi depmod: *** Unresolved symbols in
+> > /lib/modules/2.4.22-pre9/kernel/drivers/net/wan/comx.o
+> > depmod:         proc_get_inode
+> >
+> > Still not fixed :-)
+> You still haven't sent a patch to fix it 8)
+well, I sent a "fix" which isn't a fix. We all agree, hch, viro etc.
 
-Shorter version: If I work for a commercial organization, how can I
-write a kernel module copyrighted and GPLed by myself?
+Al: You said you have a fix which rips out the offending totally wrong code?
 
-Now the longer version ...
-
-Before working for a commercial organization, one usually has to sign a
-contract which makes all the work done during the period of employment
-(including innovations, "hobby" coding done during "after hours")
-copyrighted by the employer.  This introduces various problems when one
-wishes to do open source development, especially as a hobby.
-
-I am not talking about companies that do open source contributions as
-institutions (e.g., JFS, XFS, and numerous device drivers).  But if one
-wants to do something as a hobby and host it somewhere (say
-sourceforge), or if one wants to send a substantial patch, then it is a
-different story.
-
-For example, if I do some changes and send a patch, and hopefully if it
-is accepted into the kernel, that code becomes GPL.  But this doesn't
-prevent the employer from later questioning my right to do so, because
-the patch was never under my copyright according to the contract, and my
-applying of GPL (or whatever the lisence I used) is void.
-
-Obviously, there are many folks who work for commercial organizations,
-but still actively get involved in the kernel development.  I am keen to
-know how they get around with copyright issues and contracts.
-
-Please don't use Linus as an example. ;-)
-
-	Anuradha
-
+ciao, Marc
 

@@ -1,52 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264465AbTFIPWV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 11:22:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264471AbTFIPWV
+	id S264472AbTFIPWz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 11:22:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264476AbTFIPWz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 11:22:21 -0400
-Received: from mail2.sonytel.be ([195.0.45.172]:29654 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S264465AbTFIPWQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 11:22:16 -0400
-Date: Mon, 9 Jun 2003 17:35:35 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Greg Kroah-Hartman <greg@kroah.com>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Root Plug depends on USB
-Message-ID: <Pine.GSO.4.21.0306091734180.1347-100000@vervain.sonytel.be>
+	Mon, 9 Jun 2003 11:22:55 -0400
+Received: from 205-158-62-67.outblaze.com ([205.158.62.67]:10118 "EHLO
+	spf13.us4.outblaze.com") by vger.kernel.org with ESMTP
+	id S264472AbTFIPWj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jun 2003 11:22:39 -0400
+Message-ID: <20030609153712.316.qmail@linuxmail.org>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Lars Unin" <lars_unin@linuxmail.org>
+To: vonbrand@inf.utfsm.cl, james@stev.org
+Cc: lars_unin@linuxmail.org, linux-kernel@vger.kernel.org
+Date: Mon, 09 Jun 2003 23:37:11 +0800
+Subject: Re: What are .s files in arch/i386/boot
+X-Originating-Ip: 213.1.33.210
+X-Originating-Server: ws5-8.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Is this OK?
+>You'd better get a book on ia32 (caution, the intel sytax almost all are
+>written for is truly bletcherous, and does things just different enough
+>from the AT&T sytax gcc/the kernel uses to make your head spin when trying
+>to map back and forth). There was an HOWTO on assembly language programming
+>under Linux, haven't looked at it in a long time. 
 
----
+Whats sytax? ;-)
+Do ya not mean syntax?
+-- 
+______________________________________________
+http://www.linuxmail.org/
+Now with e-mail forwarding for only US$5.95/yr
 
-Root Plug sample LSM module depends on USB
-
---- linux-2.5.x/security/Kconfig	Mon Feb 10 21:59:35 2003
-+++ linux-m68k-2.5.x/security/Kconfig	Sun Jun  8 11:52:52 2003
-@@ -33,7 +33,7 @@
- 
- config SECURITY_ROOTPLUG
- 	tristate "Root Plug Support"
--	depends on SECURITY!=n
-+	depends on SECURITY!=n && USB
- 	help
- 	  This is a sample LSM module that should only be used as such.
- 	  It prevents any programs running with egid == 0 if a specific
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
+Powered by Outblaze

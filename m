@@ -1,45 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285829AbSAMDmD>; Sat, 12 Jan 2002 22:42:03 -0500
+	id <S286615AbSAMDmn>; Sat, 12 Jan 2002 22:42:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286615AbSAMDlx>; Sat, 12 Jan 2002 22:41:53 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:15122 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S285829AbSAMDlo>; Sat, 12 Jan 2002 22:41:44 -0500
-Message-ID: <3C4100A4.2EDA7410@zip.com.au>
-Date: Sat, 12 Jan 2002 19:36:04 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18pre1 i686)
-X-Accept-Language: en
+	id <S287337AbSAMDmd>; Sat, 12 Jan 2002 22:42:33 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:54992 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S286615AbSAMDmX>;
+	Sat, 12 Jan 2002 22:42:23 -0500
+Date: Sat, 12 Jan 2002 22:42:18 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Andreas Schuldei <andreas@schuldei.org>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: oops in the filesystem code (ext3) during find (cron)
+In-Reply-To: <20020110220928.GA975@sigrid.schuldei.com>
+Message-ID: <Pine.GSO.4.21.0201122238270.24774-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-To: "Michael C. Toren" <mct@toren.net>
-CC: linux-kernel@vger.kernel.org, Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: acquire_console_sem exported, but not release_console_sem?
-In-Reply-To: <20020112215402.A3254@quint.netisland.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Michael C. Toren" wrote:
-> 
-> Hi,
-> 
-> In kernel/printk.c, it looks like acquire_console_sem() is exported, but
-> not release_console_sem()?  Is this intentional, or just an oversight?
 
-Oversight.  It's possible that some modular video drivers will need
-to acquire this lock, so it should be exported.  At this time, it's
-only fbcon.c and that code doesn't support modular linkage, so
-nobody has noticed.
 
---- linux-2.4.18-pre3/kernel/printk.c	Thu Jan 10 13:39:50 2002
-+++ linux-akpm/kernel/printk.c	Sat Jan 12 19:32:50 2002
-@@ -529,6 +529,7 @@ void release_console_sem(void)
- 	if (must_wake_klogd && !oops_in_progress)
- 		wake_up_interruptible(&log_wait);
- }
-+EXPORT_SYMBOL(release_console_sem);
- 
- /** console_conditional_schedule - yield the CPU if required
-  *
+On Thu, 10 Jan 2002, Andreas Schuldei wrote:
+
+> I regularly get this oops during daily cron jobs.
+> 
+> uname -a
+> Linux johannes 2.4.17-pre6 #4 Sat Dec 15 21:54:55 CET 2001 i686
+> ext3 fs
+> 
+> i think i can reproduce this at will for debugging.
+
+[snip]
+
+ksymoops output for the first trace looks bogus.  Could you post/mail
+the raw oops data?
+

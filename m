@@ -1,106 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287436AbSA3ACP>; Tue, 29 Jan 2002 19:02:15 -0500
+	id <S287307AbSA3ADe>; Tue, 29 Jan 2002 19:03:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287359AbSA3ABC>; Tue, 29 Jan 2002 19:01:02 -0500
-Received: from www.transvirtual.com ([206.14.214.140]:10255 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S287145AbSA2X7j>; Tue, 29 Jan 2002 18:59:39 -0500
-Date: Tue, 29 Jan 2002 15:59:26 -0800 (PST)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-cc: Dave Jones <davej@suse.de>,
-        Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] fbdev accel wrapper. II
-In-Reply-To: <Pine.GSO.4.21.0201291034460.3801-100000@vervain.sonytel.be>
-Message-ID: <Pine.LNX.4.10.10201291507020.29648-100000@www.transvirtual.com>
+	id <S287359AbSA3ACT>; Tue, 29 Jan 2002 19:02:19 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:43525 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S287145AbSA3ABD>; Tue, 29 Jan 2002 19:01:03 -0500
+Date: Tue, 29 Jan 2002 15:59:57 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Nathan Scott <nathans@sgi.com>
+cc: Andi Kleen <ak@suse.de>, <linux-kernel@vger.kernel.org>,
+        Andreas Gruenbacher <ag@bestbits.at>
+Subject: Re: A modest proposal -- We need a patch penguin
+In-Reply-To: <20020130104004.C81308@wobbly.melbourne.sgi.com>
+Message-ID: <Pine.LNX.4.33.0201291552170.1747-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> > +void fbcon_accel_clear(struct vc_data *vc, struct display *p, int sy, int sx,
-> > +		       int height, int width)
-> > +{
-> > +	struct fb_info *info = p->fb_info;
-> > +	struct fb_fillrect region;
-> > +
-> > +	if (info->fix.visual == FB_VISUAL_PSEUDOCOLOR)
-> > +		region.color = attr_bgcol_ec(p,vc);
-> > +	else {
-> > +		if (info->var.bits_per_pixel > 16)
-> > +			region.color = ((u32*)info->pseudo_palette)[attr_bgcol_ec(p,vc)];
-> > +		else
-> > +			region.color = ((u16*)info->pseudo_palette)[attr_bgcol_ec(p,vc)];
-> > +	}
-> 
-> What about non-pseudocolor modes with bpp <= 8? We still use the 16-bit wide
-> pseudo-palette in that case?
-> 
-> Alternatively we can always use the 32-bit wide pseudo-palette, so the test
-> for info->var.bits_per_pixel can go away (assumed there are no pixel sizes
-> where more than 32 bits are needed for the color information). Then a pixel
-> value is just an opaque 32-bit value (cfr. fbtest).
+On Wed, 30 Jan 2002, Nathan Scott wrote:
+>
+> Al had several (additional) issues with the original patch, but I
+> think we progressively worked through them - Al stopped suggesting
+> changes at one point anyway, and the level of abuse died away ;),
+> so I guess he became more satisfied with them.
 
-   I have been giving it some thought plus with the conversation with
-Petr. The whole point of pseudo_palette was to be a generic data storage
-area to pass around in the upper layers without the upper layers touching
-it. Even having those simple test in fbcon-accel.c defeats this purpose.
-  
-  I now feel it is best if we set psuedo_palette to u32 size. The way to
-look at pseudo_palette[regno] is not as a place where a pixel value is
-stored but a place where device specific data is held. That device
-specific data could be anything. We just know that data is related to
-a specific color from the palette for the console system. The value in 
-pseudo_palette[x] might not match the framebuffer lay out. The value could
-be something that optimizes the graphics accelerator when dealing with
-colors. For example as Petr pointed out we can fill psuedo_palette[indx] 
-with "(value << 16) | value" in 16bpp case. This will make several accelerators 
-(such as MGA...) much happier. If we use (value * 0x01010101) for 8bpp the
-MGA bitblt/clear functions can be exactly identical for all color depths.
-   This is one of the goals. To provide one function for all color depths.
-We now have the above as  
+I think you can safely assume that if Al doesn't curse you to hell, he can
+be considered happy.
 
-void fbcon_accel_clear(struct vc_data *vc, struct display *p, int sy, 
-                       int sx, int height, int width)
-{
-    struct fb_info *info = p->fb_info;
-    struct fb_fillrect region;
+> Not much point apportioning blame - its as much my fault - I
+> hadn't heard back from you at all since day 1, so figured you
+> were just not interested in this stuff, so I stopped sending.
 
-    if (info->fix.visual == FB_VISUAL_PSEUDOCOLOR)
-        region.color = attr_bgcol_ec(p,vc);
-    else 
-        region.color = info->pseudo_palette)[attr_bgcol_ec(p,vc)];
-      
-    height++;
-    region.dx = sx * fontwidth(p);
-    region.dy = sy * fontheight(p);
-    region.width = width * fontwidth(p);
-    region.height = height * fontheight(p);
-    region.rop = ROP_COPY;
+Basically, you should always consider email to me to be a unreliable
+medium, with no explicit congestion control. So think of an email like a
+TCP packet, with exponential backoff - except the times are different (in
+TCP, the initial timeout is three seconds, and the max timeout is 2
+minutes. In "Linus-lossy-network" it makes sense to use different
+default and maximum values ;)
 
-    info->fbops->fb_fillrect(info, &region);
-}
-  
-As you can see the upper layer function doesn't care what data is in
-pseudo_palette[x]. It just grabs that data and pushes it to xxxfb_fillrect
-which does care about the format. How will the driver put the proper data
-into pseudo_palette. With xxxfb_setcolreg which handles the hardware
-specific stuff. Again this is hidden from the upper layers. Both
-xxxfb_setcolreg and xxxfb_fillrect can then work at any color depth.
-What do you think?
-
-   . ---
-   |o_o |
-   |:_/ |   Give Micro$oft the Bird!!!!
-  //   \ \  Use Linux!!!!
- (|     | )
- /'_   _/`\
- ___)=(___/
-
-
-
+		Linus
 

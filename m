@@ -1,65 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261387AbVBKXn0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262254AbVBKXxJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261387AbVBKXn0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Feb 2005 18:43:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262254AbVBKXnZ
+	id S262254AbVBKXxJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Feb 2005 18:53:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262262AbVBKXxI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Feb 2005 18:43:25 -0500
-Received: from ipx10786.ipxserver.de ([80.190.251.108]:1449 "EHLO
-	allen.werkleitz.de") by vger.kernel.org with ESMTP id S261387AbVBKXnV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Feb 2005 18:43:21 -0500
-Date: Sat, 12 Feb 2005 00:44:28 +0100
-From: Johannes Stezenbach <js@linuxtv.org>
-To: Holger Waechtler <holger@qanu.de>
-Cc: Adrian Bunk <bunk@stusta.de>, linux-dvb-maintainer@linuxtv.org,
-       linux-kernel@vger.kernel.org
-Message-ID: <20050211234428.GB21667@linuxtv.org>
-Mail-Followup-To: Johannes Stezenbach <js@linuxtv.org>,
-	Holger Waechtler <holger@qanu.de>, Adrian Bunk <bunk@stusta.de>,
-	linux-dvb-maintainer@linuxtv.org, linux-kernel@vger.kernel.org
-References: <20050211163436.GB2958@stusta.de> <420D05DE.6020706@qanu.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <420D05DE.6020706@qanu.de>
-User-Agent: Mutt/1.5.6+20040907i
-X-SA-Exim-Connect-IP: 217.86.177.95
-Subject: Re: [linux-dvb-maintainer] Re: [RFC: 2.6 patch] DVB: possible cleanups
-X-SA-Exim-Version: 4.2 (built Tue, 25 Jan 2005 19:36:50 +0100)
-X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
+	Fri, 11 Feb 2005 18:53:08 -0500
+Received: from mail.tc-exe.ru ([83.102.151.157]:35069 "EHLO mail.nkosino.ru")
+	by vger.kernel.org with ESMTP id S262254AbVBKXxD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Feb 2005 18:53:03 -0500
+Message-ID: <420D455D.7050505@kernelpanic.ru>
+Date: Sat, 12 Feb 2005 02:53:01 +0300
+From: "Boris B. Zhmurov" <bb@kernelpanic.ru>
+Reply-To: bb@kernelpanic.ru
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050202 Rulez Forever/1.7.5-5.bbel
+X-Accept-Language: en, ru
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: Barbara Post <b.post@laposte.net>
+Subject: Re: ohci_hcd, usb scanner and kernel 2.6.8.1 or 2.6.10 troubles
+References: <420D3EEF.20406@laposte.net>
+In-Reply-To: <420D3EEF.20406@laposte.net>
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Holger Waechtler wrote:
-> Adrian Bunk wrote:
-> 
-> >Before I'm getting flamed to death:
-> >This patch contains possible cleanups. If parts of this patch conflict 
-> >with pending changes these parts of my patch have to be dropped.
-> >
-> >This patch contains the following possible cleanups:
-> >- make needlessly global code static
-> >- remove the following EXPORT_SYMBOL'ed but unused function:
-> > - bt8xx/bt878.c: bt878_find_by_i2c_adap
-> >- remove the following unused global functions:
-> > - dvb-core/dvb_demux.c: dmx_get_demuxes
-> > - dvb-core/dvb_demux.c: dvb_set_crc32
-> >- remove the following unneeded EXPORT_SYMBOL's:
-> > - dvb-core/dvb_demux.c: dvb_dmx_swfilter_packet
-> 
-> dvb_dmx_swfilter_packet() should remain exported to the public, 
-> accessing this directly makes sense for some architectures.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Hm, I don't know any out-of-tree driver which is using it. Do you?
-Besides, it is roughly equivalent to dvb_dmx_swfilter_packets(demux, buf, 1)
-(the difference is in locking and the test for the MPEG-2 TS sync byte).
-IMHO the EXPORT_SYMBOL for dvb_dmx_swfilter_packet() can be removed.
+Hello, Barbara Post.
 
-To me the patches look good and I'm going to apply them to linuxtv.org CVS.
+On 12.02.2005 02:25 you said the following:
 
-Thanks,
-Johannes
+| Hi,
+| I am unable to use my USB Agfa Snapscan 1212_U scanner, with kernel
+| 2.6.8.1 or 2.6.10 (both compiled by myself from www.kernel.org sources)
+| and xsane 0.96-1 (Debian).
+|
+| It worked with kernel 2.6.7.
+|
+| When I use VMware, I'm able to use it though (in Windows), whatever
+| linux kernel I use.
+|
+| When I start xsane, I get "error opening device
+| 'snapscan:libusb:001:004': I/O error on device" or simply "no device
+| found" if I restart xsane after the first error message (or sometimes at
+| first start).
+|
+| Sometimes it gets further and when I try to acquire preview, I get "I/O
+| error" and the following in /var/log/syslog :
+|
+| Feb 11 23:19:00 babs1 kernel: ohci_hcd 0000:00:02.2: urb c15e13e0 path
+| 1.3 ep1in 82160000 cc 8 --> status -75
 
-PS: The linuxtv.org server will be down for maintenance over the
-weekend which includes the linux-dvb-maintainer list. No need to worry.
+
+I have the same problem with my Epson 1260 on RHEL4 beta2 (linux-2.6.9).
+I don't know about 2.6.7, but with 2.4.21 (RHEL3) it works fine.
+
+
+- --
+Boris B. Zhmurov
+mailto: bb@kernelpanic.ru
+"wget http://kernelpanic.ru/bb_public_key.pgp -O - | gpg --import"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQFCDUVdmEQixi5w37YRApP+AJ9I5M7hf/0HPCATTnemFaNbLhvsbgCfZdTz
++hQ/jvcu7+xDpaXYTiOFZj4=
+=6WVB
+-----END PGP SIGNATURE-----

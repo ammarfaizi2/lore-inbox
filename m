@@ -1,48 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264263AbUFCUXi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264269AbUFCU2v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264263AbUFCUXi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 16:23:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264262AbUFCUXi
+	id S264269AbUFCU2v (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 16:28:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264271AbUFCU2v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 16:23:38 -0400
-Received: from eik.ii.uib.no ([129.177.16.3]:57298 "EHLO eik.ii.uib.no")
-	by vger.kernel.org with ESMTP id S264255AbUFCUXe (ORCPT
+	Thu, 3 Jun 2004 16:28:51 -0400
+Received: from mail.ccur.com ([208.248.32.212]:63238 "EHLO exchange.ccur.com")
+	by vger.kernel.org with ESMTP id S264269AbUFCU2s (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 16:23:34 -0400
-Date: Thu, 3 Jun 2004 22:23:28 +0200
-From: Jan-Frode Myklebust <janfrode@parallab.uib.no>
-To: =?iso-8859-1?Q?H=E5vard?= Lygre <hklygre@online.no>
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: qla2300 at only 1 GBit on kernel 2.6.5
-Message-ID: <20040603202328.GA1148@ii.uib.no>
-Mail-Followup-To: =?iso-8859-1?Q?H=E5vard?= Lygre <hklygre@online.no>,
-	linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-References: <B179AE41C1147041AA1121F44614F0B0DD0114@AVEXCH02.qlogic.org> <20040505174649.GA21863@ii.uib.no> <87vfiptewv.fsf@frode.valhall.no>
+	Thu, 3 Jun 2004 16:28:48 -0400
+Date: Thu, 3 Jun 2004 16:28:46 -0400
+From: Joe Korty <joe.korty@ccur.com>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: linux-kernel@vger.kernel.org
+Subject: [BUG] NFS no longer updates file modification times appropriately
+Message-ID: <20040603202846.GA28479@tsunami.ccur.com>
+Reply-To: joe.korty@ccur.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <87vfiptewv.fsf@frode.valhall.no>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 22, 2004 at 03:43:28AM +0200, Håvard Lygre wrote:
-> 
-> Just as a datapoint: Vanilla Linux 2.6.6 gives me 2 Gbps with both
-> sides set to auto.  This is with a QLogic 2312 (as sold by IBM). I
-> haven't tried an earlier 2.6-series kernel on this computer.
+Trond,
+ Paraphrased from one of my inhouse customers: "The timestamp of an
+NFS-mounted file does not change when written to, when the below test is
+run on a 2.6.6-rc1 to 2.6.7-rc2 kernel.  The timestamp is appropriately
+updated when the test is run on a 2.6.5 kernel.  This is with NFSv3.
+The type of system serving up the files does not seem to be a factor."
 
-Andrew Vasquez <andrew.vasquez@qlogic.com> found the problem. The 2.4
-driver was forcing the data rate to auto negotiate, while the 2.6 (or
-8.x series) driver was honouring the NVRAM setting which was at the
-default 1 Gbps. Changing to auto negotiate in the qlogic BIOS fixed the
-problem.
+I was not able to narrow the problem/featureset change down to a cset.
 
-> 
-> On a side note: Your driver reports 33 MHz PCI - if this is in a
-> 32-bit slot, isn't 2Gbps more than the bus can handle?
+Attached is the test program my customer used.
 
-It's a 64 bit slot..
+Regards,
+Joe
 
+#include <stdio.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <errno.h>
 
-   -jf
+#define PATH "./my_file"
+
+int
+main()
+{
+	int status;
+	int count = 0;
+	int fd;
+	struct stat wuz;
+	struct stat iz;
+
+	(void) unlink(PATH);
+
+	fd = open (PATH, O_RDWR+O_CREAT+O_SYNC, 0666);
+	if (fd < 0) {
+		fprintf (stderr, "open(%s) fails, errno = %d\n", PATH, errno);
+		return 1;
+	}
+
+	status = fstat (fd, &wuz);
+	if (status) {
+		fprintf (stderr, "fstat(%s) fails, errno = %d\n", PATH, errno);
+		return 1;
+	}
+
+	for (;;) {
+		status = write (fd, &status, sizeof(status));
+		if (status != sizeof(status)) {
+			fprintf (stderr, "write(%s) fails, errno = %d\n", PATH, errno);
+			return 1;
+		}
+		status = fstat (fd, &iz);
+		if (status) {
+			fprintf (stderr, "fstat(%s) fails, errno = %d\n", PATH, errno);
+			return 1;
+		}
+		if (iz.st_mtime != wuz.st_mtime) break;
+		count++;
+		if (count % 1000 == 0) {
+			printf ("count = %d\n", count);
+		}
+	}
+
+	printf ("File modification time changed after %d iterations\n", count);
+}

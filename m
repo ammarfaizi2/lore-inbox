@@ -1,41 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261837AbSJ2MHN>; Tue, 29 Oct 2002 07:07:13 -0500
+	id <S261842AbSJ2MWK>; Tue, 29 Oct 2002 07:22:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261842AbSJ2MHN>; Tue, 29 Oct 2002 07:07:13 -0500
-Received: from phoenix.infradead.org ([195.224.96.167]:17420 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S261837AbSJ2MHM>; Tue, 29 Oct 2002 07:07:12 -0500
-Date: Tue, 29 Oct 2002 12:13:19 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
+	id <S261844AbSJ2MWK>; Tue, 29 Oct 2002 07:22:10 -0500
+Received: from louise.pinerecords.com ([212.71.160.16]:25096 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S261842AbSJ2MWK>; Tue, 29 Oct 2002 07:22:10 -0500
+Date: Tue, 29 Oct 2002 13:28:24 +0100
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Nikita Danilov <Nikita@Namesys.COM>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] use seq_file for /proc/swaps
-Message-ID: <20021029121319.A19590@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	"Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.33L2.0210282132000.13581-100000@dragon.pdx.osdl.net>
+Subject: Re: 2.5 merge candidate list, final version.  (End of "crunch time" series.)
+Message-ID: <20021029122824.GJ22687@louise.pinerecords.com>
+References: <200210280534.16821.landley@trommello.org> <15805.27643.403378.829985@laputa.namesys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.33L2.0210282132000.13581-100000@dragon.pdx.osdl.net>; from rddunlap@osdl.org on Mon, Oct 28, 2002 at 09:36:44PM -0800
+In-Reply-To: <15805.27643.403378.829985@laputa.namesys.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 28, 2002 at 09:36:44PM -0800, Randy.Dunlap wrote:
+> Snapshot is available at http://www.namesys.com/snapshots/:
 > 
-> Hi,
-> 
-> This patch to 2.5.44 converts /proc/swaps to use seq_file.
-> 
-> It's basically the same patch that I posted a few days ago
-> with locking added [using swap_list_lock() and
-> swap_list_unlock(), as directed by Al].
-> 
-> Any comments on this version?
+> http://www.namesys.com/snapshots/reiser4-2002.10.24.tar.gz
+> http://www.namesys.com/snapshots/reiser4-core-2002.10.24.diff
 
-Looks fine.  Any chance you could move proc_swaps_operations and
-the entry creating to swapfile.c so when uclinux makes this file
-conditional on CONFIG_SWAP we don't need ifdefs in proc_misc.c?
+2.5.44:
+Producing a module I get a couple unresolved symbols,
+and trying to build directly into the kernel results in
 
+...
+ld -m elf_i386 -e stext -T arch/i386/vmlinux.lds.s arch/i386/kernel/head.o arch/i386/kernel/init_task.o  init/built-in.o --start-group  arch/i386/kernel/built-in.o  arch/i386/mm/built-in.o  arch/i386/mach-generic/built-in.o  kernel/built-in.o  mm/built-in.o  fs/built-in.o  ipc/built-in.o  security/built-in.o  lib/lib.a  arch/i386/lib/lib.a  drivers/built-in.o  sound/built-in.o  arch/i386/pci/built-in.o  net/built-in.o --end-group  -o vmlinux
+fs/built-in.o(.init.text+0x1381): In function `init_reiser4':
+: undefined reference to `local symbols in discarded section .exit.text'
+make[1]: *** [vmlinux] Error 1
+make: *** [vmlinux] Error 2
+
+> http://www.namesys.com/snapshots/reiser4progs-2002.10.24.tar.gz
+
+... is missing the "configure" script.
+Generating one with autoconf 2.53 doesn't seem to work, either.
+
+T.

@@ -1,62 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280104AbRKNEtR>; Tue, 13 Nov 2001 23:49:17 -0500
+	id <S280114AbRKNE47>; Tue, 13 Nov 2001 23:56:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280118AbRKNEtI>; Tue, 13 Nov 2001 23:49:08 -0500
-Received: from mnh-1-04.mv.com ([207.22.10.36]:38156 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S280114AbRKNEsy> convert rfc822-to-8bit;
-	Tue, 13 Nov 2001 23:48:54 -0500
-Message-Id: <200111140607.BAA06138@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: user-mode-linux-user@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: user-mode port 0.51-2.4.14
+	id <S280118AbRKNE4t>; Tue, 13 Nov 2001 23:56:49 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:47314 "EHLO
+	e31.bld.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S280114AbRKNE4g>; Tue, 13 Nov 2001 23:56:36 -0500
+Date: Tue, 13 Nov 2001 20:56:13 -0800
+From: Mike Kravetz <kravetz@us.ibm.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [patch] scheduler cache affinity improvement for 2.4 kernels
+Message-ID: <20011113205613.A1070@w-mikek2.sequent.com>
+In-Reply-To: <Pine.LNX.4.33.0111081341400.8863-200000@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-Date: Wed, 14 Nov 2001 01:07:59 -0500
-From: Jeff Dike <jdike@karaya.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0111081341400.8863-200000@localhost.localdomain>; from mingo@elte.hu on Thu, Nov 08, 2001 at 03:30:11PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The user-mode port of 2.4.14 is available.
+On Thu, Nov 08, 2001 at 03:30:11PM +0100, Ingo Molnar wrote:
+> 
+> i've attached a patch that fixes a long-time performance problem in the
+> Linux scheduler.
 
-The SIGIO now uses poll instead of select.  This is in preparation for
-fixing the console driver's flow control problems.
+Just got back from holiday and saw this patch.  I like the idea
+slowing down task dynamic priority modifications (the counter
+field).  My only thought/concern would be in the case where a
+task with maximum dynamic priority (counter value) decides to
+use 'all' of its timeslice.  In such a case, the task can not
+be preempted by another task (with the same static priority)
+until its entire timeslice is expired.  In the current scheduler,
+I believe the task can be preempted after 1 timer tick.  In
+practice, this shouldn't be an issue.  However, it is something
+we may want to think about.  One simple solution would be to
+update a tasks dynamic priority (counter value) more frequently
+it it is above its NICE_TO_TICKS value.
 
-Redid the task switching code so that the tracing thread is no longer 
-involved.  This is in preparation for eliminating the tracing thread - it
-doesn't actually speed anything up yet.  However, it does allow UML to be
-^Z-ed and backgrounded.
+> (it would be nice if those people who suspect scalability problems in
+> their workloads, could further test/verify the effects this patch.)
 
-UML now works on 3G/1G hosts when CONFIG_HOST_2G_2G is on. 
+I'll try to run it on my 'CPU intensive' version of the TPC-H
+behcnmark.
 
-Every thread now has a private page of data which contains errno.  This is 
-handy for people poking around the UML arch code with gdb.  Everything gdb
-does is intercepted by the tracing thread, which makes (mostly successful)
-system calls which set errno to 0.  This is at least an annoyance when stepping
-through the code, and it could be bad if it causes the code flow to change.
-With thread-private errnos, this is no longer a problem.
+In addition, I have noted that this patch applies with minor
+modification to our MultiQueue scheduler, and should be a win
+in this environment also.
 
-Some context switching optimizations from Jörgen Cederlöf and me have been
-made.  These noticably help the performance of workloads that switch 
-frequently.
-
-Fixed the process segfaults caused by Xnest and kernel builds.  The same
-fix also makes gdb work better.  
-
-Fixed a typo in arch/um/kernel/Makefile which caused modules not to load
-into a profiled kernel.  
-
-Restructured the uml_net sources to make them more modular. 
-
-uml_net should now do proxy arp correctly. 
-
-uml_mconsole can now take a command on its command line. 
-
-The project's home page is http://user-mode-linux.sourceforge.net
-
-Downloads are available at 
-	http://user-mode-linux.sourceforge.net/dl-sf.html
-
-				Jeff
-
+-- 
+Mike

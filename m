@@ -1,51 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267822AbTBKO7q>; Tue, 11 Feb 2003 09:59:46 -0500
+	id <S261908AbTBKPK0>; Tue, 11 Feb 2003 10:10:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267851AbTBKO7q>; Tue, 11 Feb 2003 09:59:46 -0500
-Received: from [64.65.46.176] ([64.65.46.176]:38087 "EHLO ns.nealtech.net")
-	by vger.kernel.org with ESMTP id <S267822AbTBKO7p>;
-	Tue, 11 Feb 2003 09:59:45 -0500
-Message-Id: <200302111509.KAA03238@ns.nealtech.net>
-Content-Type: text/plain; charset=US-ASCII
-From: anton wilson <anton.wilson@camotion.com>
-To: Andries Brouwer <aebr@win.tue.nl>, Dan Parks <Dan.Parks@camotion.com>
-Subject: Re: Keystrokes, USB, and Latency
-Date: Tue, 11 Feb 2003 10:28:35 -0500
-X-Mailer: KMail [version 1.3.1]
-Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
-References: <1044907523.1438.475.camel@localhost> <20030210221655.GA3875@win.tue.nl>
-In-Reply-To: <20030210221655.GA3875@win.tue.nl>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S261996AbTBKPK0>; Tue, 11 Feb 2003 10:10:26 -0500
+Received: from mail5.bluewin.ch ([195.186.1.207]:47103 "EHLO mail5.bluewin.ch")
+	by vger.kernel.org with ESMTP id <S261908AbTBKPKZ>;
+	Tue, 11 Feb 2003 10:10:25 -0500
+Date: Tue, 11 Feb 2003 16:04:51 +0100
+From: Roger Luethi <rl@hellgate.ch>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [2.5.60] swsuspend -> BUG at drivers/ide/ide-disk.c:1557
+Message-ID: <20030211150451.GA1338@k3.hellgate.ch>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20030211131151.GA1262@k3.hellgate.ch> <20030211132132.GA20750@atrey.karlin.mff.cuni.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030211132132.GA20750@atrey.karlin.mff.cuni.cz>
+User-Agent: Mutt/1.3.27i
+X-Operating-System: Linux 2.5.60 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 10 February 2003 05:16 pm, Andries Brouwer wrote:
-> On Mon, Feb 10, 2003 at 03:05:22PM -0500, Dan Parks wrote:
-> > ...  However, if the user presses caps
-> > lock, num lock, or scroll lock (everything else is ok), it ALWAYS misses
-> > 7-8 milliseconds.
->
-> You didnt mention a kernel version, and details very much depend on it.
-> But you may look into LED setting, and e.g. whether interrupts are
-> disabled during LED setting.
+On Tue, 11 Feb 2003 14:21:32 +0100, Pavel Machek wrote:
+> > Is software suspend in Vanilla 2.5.60 supposed to work? A modified shutdown
+> > (using the reboot(2) magic) triggers the BUG_ON in idedisk_suspend. A quick
+> > check with older 2.5.x indicates this problem has been around for a
+> > while.
+> 
+> It works for me in 2.5.59. I'm now downloading 2.5.60.
 
+I just saw it happen on 2.5.59 as well. FWIW the machine has 1 GB of RAM,
+but HIGHMEM is off for this particular kernel. I won't post jpeg to lkml,
+but screen shots are available upon request.
 
-linux 2.4.19 - preempt - low latency O(1)
-
-Yes, interrupts are disabled, and the code is sprinkled with loops and mdelay 
-calls while interrupts are disabled. I'm roughly and probably inaccurately 
-estimating that in the worst case the pc_keyb driver could call mdelay about 
-25000 times before giving up with interrupts disabled. What's the best way to 
-avoid the slow behaviour of the led lights if we don't care about numlock, 
-capslock, or scroll lock?
-
-Anton
-
-
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Roger

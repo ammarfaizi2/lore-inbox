@@ -1,35 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267359AbTALLAr>; Sun, 12 Jan 2003 06:00:47 -0500
+	id <S267365AbTALLKN>; Sun, 12 Jan 2003 06:10:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267365AbTALLAr>; Sun, 12 Jan 2003 06:00:47 -0500
-Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:2959 "EHLO
-	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S267359AbTALLAq>; Sun, 12 Jan 2003 06:00:46 -0500
-Message-Id: <200301112010.h0BKAToA001332@eeyore.valparaiso.cl>
-To: Shawn Starr <shawn.starr@datawire.net>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: any chance of 2.6.0-test*? 
-In-Reply-To: Message from Shawn Starr <shawn.starr@datawire.net> 
-   of "Fri, 10 Jan 2003 11:39:57 EST." <200301101139.57342.shawn.starr@datawire.net> 
-Date: Sat, 11 Jan 2003 21:10:29 +0100
-From: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
+	id <S267423AbTALLKN>; Sun, 12 Jan 2003 06:10:13 -0500
+Received: from tag.witbe.net ([81.88.96.48]:33042 "EHLO tag.witbe.net")
+	by vger.kernel.org with ESMTP id <S267365AbTALLKM>;
+	Sun, 12 Jan 2003 06:10:12 -0500
+From: "Paul Rolland" <rol@witbe.net>
+To: <davem@redhat.com>, <kuznet@ms2.inr.ac.ru>, <linux-kernel@vger.kernel.org>
+Cc: <rol@as2917.net>
+Subject: [PATCH 2.5.56] net/ipv4/route.c doesn't compile without /proc support
+Date: Sun, 12 Jan 2003 12:18:26 +0100
+Organization: Witbe.net
+Message-ID: <008c01c2ba2c$5452e000$2101a8c0@witbe>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.3416
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shawn Starr <shawn.starr@datawire.net> said:
-> There will be a new kernel tree that will fit this purpose soon called
-> -xlk (eXtendable or Extended Linux Kernel). The hope to make it an
-> 'official' like -ac, -mm tree for stuffing experimental stuff into a post
-> 2.6 (or just before 2.6 goes live) kernel. I will need help in getting
-> this to become a reality in the coming months to 2.6.
+Hello,
 
-Thanks, but please don't. The idea of the feature/code freezes, and then
-the stable version running alone for a while, is precisely to focus the
-hacker comunity on fixing the bugs and cleaning up, and then stabilizing
-the whole. Please don't distract them.
---
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Here is a quick patch to allow correct compile of net/ipv4/route.c
+when not using /proc support.
+
+Without it, some attempts to create entries in /proc are resulting
+in invoking functions that are protected by #ifdef CONFIG_PROC_FS...
+
+Regards,
+Paul Rolland, rol@as2917.net
+
+--- linux-2.5.56/net/ipv4/route.c       2003-01-10 21:12:25.000000000
++0100
++++ linux-2.5.56-work/net/ipv4/route.c  2003-01-12 12:11:30.000000000
++0100
+@@ -2672,12 +2672,14 @@
+                                        ip_rt_gc_interval;
+        add_timer(&rt_periodic_timer);
+ 
++#ifdef CONFIG_PROC_FS
+        if (rt_cache_proc_init())
+                goto out_enomem;
+        proc_net_create ("rt_cache_stat", 0, rt_cache_stat_get_info);
+ #ifdef CONFIG_NET_CLS_ROUTE
+        create_proc_read_entry("net/rt_acct", 0, 0, ip_rt_acct_read,
+NULL);
+ #endif
++#endif
+        xfrm_init();
+ out:
+        return rc;
+

@@ -1,69 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261575AbVCNQd3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261565AbVCNQiL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261575AbVCNQd3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 11:33:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261578AbVCNQd3
+	id S261565AbVCNQiL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 11:38:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261577AbVCNQiL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 11:33:29 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:7876 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S261575AbVCNQdY (ORCPT
+	Mon, 14 Mar 2005 11:38:11 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:19161 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261565AbVCNQiI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 11:33:24 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=cs2c1s2jTddOH72ENyMkwK6jBX2X07BkvaLzSxxmEPciYv4YYdqnta2/DJBYGB2uYZWmLKOskn5Uk7Mni8NvcSBy22Dn7sf7j1Ma1TJrurCr0t6o2sP9qmKlslRqSBcK7VpcysmvDib7q79IUUmXjRMYcXTWotJtuz8CVY5siAs=
-Message-ID: <d120d5000503140830e7daa72@mail.gmail.com>
-Date: Mon, 14 Mar 2005 11:30:01 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Michael Tokarev <mjt@tls.msk.ru>
-Subject: Re: mouse&keyboard with 2.6.10+
-Cc: Vojtech Pavlik <vojtech@suse.cz>,
-       Linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <4235B367.3000506@tls.msk.ru>
+	Mon, 14 Mar 2005 11:38:08 -0500
+Date: Mon, 14 Mar 2005 17:37:52 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Rene Scharfe <rene.scharfe@lsrfire.ath.cx>
+Cc: Albert Cahalan <albert@users.sf.net>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, viro@parcelfarce.linux.theplanet.co.uk, pj@engr.sgi.com,
+       7eggert@gmx.de
+Subject: Re: [PATCH][RFC] Make /proc/<pid> chmod'able
+Message-ID: <20050314163749.GA5186@elf.ucw.cz>
+References: <1110771251.1967.84.camel@cube> <42355C78.1020307@lsrfire.ath.cx>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <4235683E.1020403@tls.msk.ru> <42357AE0.4050805@tls.msk.ru>
-	 <20050314142847.GA4001@ucw.cz> <4235B367.3000506@tls.msk.ru>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42355C78.1020307@lsrfire.ath.cx>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 Mar 2005 18:53:11 +0300, Michael Tokarev <mjt@tls.msk.ru> wrote:
-> Vojtech Pavlik wrote:
-> > On Mon, Mar 14, 2005 at 02:52:00PM +0300, Michael Tokarev wrote:
-> >
-> >
-> >>After plugging in USB keyboard and loading uhci-hcd and
-> >>usbhid, the keyboard un-freeze, but mouse still didn't
-> >>work.  So I tried re-loading psmouse module, and
-> >>surprizingly, mouse started working again, but now dmesg
-> >>says:
-> >>
-> >> input: PS2++ Logitech Wheel Mouse on isa0060/serio1
-> >>
-> >>(normally it's
-> >> input: ImPS/2 Generic Wheel Mouse on isa0060/serio1
-> >>)
-> >>
-> >>and the mouse is moving very fast now.  Previously
-> >>I either didn't able to make it work at all after such
-> >>freeze, or it worked automatically after loading usbhid.
-> >>
-> >>BTW, it's 2.6.10, I can't made it work with 2.6.11 at all.
-> >
-> >
-> > Can you try 'usb-handoff' on the kernel command line?
-> 
-> The problem has nothing to do with USB per se, as far as
-> I can see.  PS2 keyboard and mouse does not work when
-> the USB subsystem (incl. usbcore) is not loaded.  And the
-> problem is with PS2 keyboard/mouse, not with USB one which
-> works just fine.
-> 
+Hi!
 
-Nonetheless please try the option. If makes USB not interfere with PS/2 ports.
+> >This is a bad idea. Users should not be allowed to
+> >make this decision. This is rightly a decision for
+> >the admin to make.
+> 
+> Why do you think users should not be allowed to chmod their processes' 
+> /proc directories?  Isn't it similar to being able to chmod their home 
+> directories?  They own both objects, after all (both conceptually and as 
+> attributed in the filesystem).
 
+As a co-admin of university server...
+
+Yes, I want users to see what each other user is doing. That way, if
+someone hacks one account, some other user can notice and tell me.
+
+In some environments it may make sense not to allow users to chmod
+their $HOMEs (so that they can't hide mp3's etc), but we are not
+*that* stupid/paranoid ;-).
+								Pavel
 -- 
-Dmitry
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

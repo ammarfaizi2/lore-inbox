@@ -1,72 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129115AbRCBNHu>; Fri, 2 Mar 2001 08:07:50 -0500
+	id <S129116AbRCBNPX>; Fri, 2 Mar 2001 08:15:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129116AbRCBNHk>; Fri, 2 Mar 2001 08:07:40 -0500
-Received: from nautilus.shore.net ([207.244.124.104]:63478 "EHLO
-	nautilus.shore.net") by vger.kernel.org with ESMTP
-	id <S129115AbRCBNH3>; Fri, 2 Mar 2001 08:07:29 -0500
-To: linux-kernel@vger.kernel.org
-Subject: PATCH for Multicast bug in RAW IP sockets 2.4.0
-Message-Id: <E14YpHM-0002Kw-00@nautilus.shore.net>
-From: Mark Clayton <clayton@shore.net>
-Date: Fri, 02 Mar 2001 08:07:28 -0500
+	id <S129126AbRCBNPM>; Fri, 2 Mar 2001 08:15:12 -0500
+Received: from smtp8.xs4all.nl ([194.109.127.134]:51176 "EHLO smtp8.xs4all.nl")
+	by vger.kernel.org with ESMTP id <S129116AbRCBNPC>;
+	Fri, 2 Mar 2001 08:15:02 -0500
+Date: Fri, 2 Mar 2001 13:14:45 +0000
+From: "Roeland Th. Jansen" <roel@grobbebol.xs4all.nl>
+To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: apic patches (with MIS counter)
+Message-ID: <20010302131445.A2159@grobbebol.xs4all.nl>
+In-Reply-To: <20010226111328.A24978@grobbebol.xs4all.nl> <Pine.GSO.3.96.1010226122619.9420C-100000@delta.ds2.pg.gda.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <Pine.GSO.3.96.1010226122619.9420C-100000@delta.ds2.pg.gda.pl>; from macro@ds2.pg.gda.pl on Mon, Feb 26, 2001 at 01:14:11PM +0100
+X-OS: Linux grobbebol 2.4.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-In ipv4 a call to the setsockopt() function with the optname set to 
-IP_ADD_MEMBERSHIP and a raw ip socket adds the socket to the multicast 
-group specified by the user. As a result the tcpip stack code does the 
-following:
-...
-ip_setsockopt(_,_,IP_ADD_MEMBERSHIP,_,_) calls ip_mc_join_group(sock,_) 
-function, which adds a multicast entry to the sock->protinfo.af_inet.mc_list 
-and then adds a multicast entry to the bound device (if any) with a call 
-to the ip_mc_inc_group() function.
-
-When remote multicast packets that belong to the multicast group we just 
-joined are received, the routing code recognizes the packets as multicast 
-packet going to a local receiver, but the __raw_v4_lookup() function only 
-examines the main sock address (sock->rcv_saddr) and totally forgets that 
-this raw sock can a member of multiple multicast groups.
-
-The following patch fixes the problem:
-
----[ PATCH STARTS ]--------------------------------------------------------
-
---- linux-2.4.2/net/ipv4/raw.c	Fri Feb  9 14:29:44 2001
-+++ linux/net/ipv4/raw.c	Wed Feb 28 17:43:59 2001
-@@ -54,6 +54,7 @@
- #include <linux/inet.h>
- #include <linux/netdevice.h>
- #include <linux/mroute.h>
-+#include <linux/igmp.h>
- #include <net/ip.h>
- #include <net/protocol.h>
- #include <linux/skbuff.h>
-@@ -107,6 +108,18 @@
- 		   !(s->rcv_saddr && s->rcv_saddr != laddr)	&&
- 		   !(s->bound_dev_if && s->bound_dev_if != dif))
- 			break; /* gotcha */
-+		if (LOCAL_MCAST(laddr)) {
-+
-+		    struct ip_mc_socklist *iml;
-+		    struct ip_mreqn *imr;
-+
-+		    for (iml=sk->protinfo.af_inet.mc_list; iml; iml=iml->next) {
-+		      imr = &(iml->multi);
-+		      if ((imr->imr_multiaddr.s_addr == laddr) && !(imr->imr_ifindex && imr->imr_ifindex != dif))
-+			        return s;
-+		    }
-+
-+		}
- 	}
- 	return s;
- }
-
----[ PATCH ENDS ]-----------------------------------------------------------
-
-Note: the same problem exists for UDP sockets also.
+On Mon, Feb 26, 2001 at 01:14:11PM +0100, Maciej W. Rozycki wrote:
+> On Mon, 26 Feb 2001, Roeland Th. Jansen wrote:
+> > if you like, I can start banging the machine on it's head now.
+> 
+>  Please do.  I believe the code is safe to be included in 2.4.3, but if
+> any problem is going to pop up, it'd better do it before than after
+> applying to the mainstream. 
 
 
+banged the box quite a bit. so far no weird things like lockups. 
+still 2.4.1. with the MIS counter (etc) patch.
+
+-- 
+Grobbebol's Home                   |  Don't give in to spammers.   -o)
+http://www.xs4all.nl/~bengel       | Use your real e-mail address   /\
+Linux 2.2.16 SMP 2x466MHz / 256 MB |        on Usenet.             _\_v  

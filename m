@@ -1,76 +1,155 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264265AbUD0SMs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264251AbUD0SUn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264265AbUD0SMs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 14:12:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264254AbUD0SKs
+	id S264251AbUD0SUn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 14:20:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264261AbUD0SKJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 14:10:48 -0400
-Received: from 1-1-4-20a.ras.sth.bostream.se ([82.182.72.90]:20927 "EHLO
-	garbo.kenjo.org") by vger.kernel.org with ESMTP id S264247AbUD0SDU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 14:03:20 -0400
-Subject: [BUG] DVD writing in 2.6.6-rc2
-From: Kenneth Johansson <ken@kenjo.org>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1083088772.2679.11.camel@tiger>
+	Tue, 27 Apr 2004 14:10:09 -0400
+Received: from ns.suse.de ([195.135.220.2]:49133 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S264251AbUD0SHi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Apr 2004 14:07:38 -0400
+Subject: Re: [PATCH] Return more useful error number when acls are too large
+From: Andreas Gruenbacher <agruen@suse.de>
+To: Nathan Scott <nathans@sgi.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040427112440.B604510@wobbly.melbourne.sgi.com>
+References: <1082973939.3295.16.camel@winden.suse.de>
+	 <20040427112440.B604510@wobbly.melbourne.sgi.com>
+Content-Type: multipart/mixed; boundary="=-DVLoEMfP8PouRNVgpMx1"
+Organization: SUSE Labs, SUSE LINUX AG
+Message-Id: <1083089256.19655.284.camel@winden.suse.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 27 Apr 2004 19:59:33 +0200
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Tue, 27 Apr 2004 20:07:36 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a problem when using growisofs version 5.19.
 
-The problem is that in the very end when gowisofs tries to flush the
-cache. When stracing the process I can see it sits in a call to poll
-that never returns. 
+--=-DVLoEMfP8PouRNVgpMx1
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-I noticed that if I start growisofs and later attach to it with "strace
--p" I can make it continue with killing the strace process. just to see
-it hang in the next poll. But re attaching then killing the strace again
-a few times and growisofs finally dose a normal exit.
+On Tue, 2004-04-27 at 03:24, Nathan Scott wrote:
+> hi Andreas,
+> 
+> On Mon, Apr 26, 2004 at 12:27:58PM +0200, Andreas Gruenbacher wrote:
+> > Hello,
+> > 
+> > could you please add this to mainline? Getting EINVAL when an acl
+> > becomes too large is quite confusing.
+> > 
+> >   	if (acl) {
+> >  		if (acl->a_count > EXT2_ACL_MAX_ENTRIES)
+> > -			return -EINVAL;
+> > +			return -ENOSPC;
+> 
+> That seems an odd error code to change it to, since its not
+> related to the device running out of free space right?  Maybe
+> use -E2BIG instead?
 
-This happens every time. 
+I don't see a problem with giving ENOSPC this particular meaning here.
+The error number used must be among those defined for NFSv3, so E2BIG
+won't do.
 
-The only unusual thing with my setup is that I only have the DVD burner
-on the IDE controller no disks so I guess it's some type of missed
-interrupt. 
+> XFS has a similar check (different limit as you know), so is
+> also affected by this; could you update XFS at the same time
+> with whatever value gets chosen, if its not EINVAL?  Or just
+> let me know what gets chosen & I'll fix it up later.
 
-I looked at the drivers/ide/pci/via82cxxx.c but that one did not do much
-apart from setting a few configurations so I guess it's some generic
-code that dose the real work. 
-
-----------VIA BusMastering IDE Configuration----------------
-Driver Version:                     3.38
-South Bridge:                       VIA vt8233a
-Revision:                           ISA 0x0 IDE 0x6
-Highest DMA rate:                   UDMA133
-BM-DMA base:                        0x9800
-PCI clock:                          33.3MHz
-Master Read  Cycle IRDY:            0ws
-Master Write Cycle IRDY:            0ws
-BM IDE Status Register Read Retry:  yes
-Max DRDY Pulse Width:               No limit
------------------------Primary IDE-------Secondary IDE------
-Read DMA FIFO flush:          yes                 yes
-End Sector FIFO flush:         no                  no
-Prefetch Buffer:               no                  no
-Post Write Buffer:             no                  no
-Enabled:                      yes                 yes
-Simplex only:                  no                  no
-Cable Type:                   80w                 80w
--------------------drive0----drive1----drive2----drive3-----
-Transfer Mode:        PIO       PIO      UDMA      UDMA
-Address Setup:      120ns     120ns     120ns     120ns
-Cmd Active:         360ns     360ns      90ns      90ns
-Cmd Recovery:       210ns     210ns      30ns      30ns
-Data Active:        330ns     330ns      90ns      90ns
-Data Recovery:      270ns     270ns      30ns      30ns
-Cycle Time:         600ns     600ns      60ns      60ns
-Transfer Rate:    3.3MB/s   3.3MB/s  33.3MB/s  33.3MB/s
+I think this patch is correct for xfs. Nathan, would you mind to
+double-check? Thanks.
 
 
+Index: linux-2.6.6-rc2/fs/xfs/xfs_acl.c
+===================================================================
+--- linux-2.6.6-rc2.orig/fs/xfs/xfs_acl.c
++++ linux-2.6.6-rc2/fs/xfs/xfs_acl.c
+@@ -148,10 +148,7 @@ posix_acl_xattr_to_xfs(
+ 			return EINVAL;
+ 		}
+ 	}
+-	if (xfs_acl_invalid(dest))
+-		return EINVAL;
+-
+-	return 0;
++	return xfs_acl_invalid(dest);
+ }
+ 
+ /*
+@@ -249,10 +246,9 @@ xfs_acl_vget(
+ 	if (!size) {
+ 		error = -posix_acl_xattr_size(XFS_ACL_MAX_ENTRIES);
+ 	} else {
+-		if (xfs_acl_invalid(xfs_acl)) {
+-			error = EINVAL;
++		error = xfs_acl_invalid(xfs_acl);
++		if (error)
+ 			goto out;
+-		}
+ 		if (kind == _ACL_TYPE_ACCESS) {
+ 			vattr_t	va;
+ 
+@@ -590,7 +586,7 @@ xfs_acl_invalid(
+ 		goto acl_invalid;
+ 
+ 	if (aclp->acl_cnt > XFS_ACL_MAX_ENTRIES)
+-		goto acl_invalid;
++		return ENOSPC;
+ 
+ 	for (i = 0; i < aclp->acl_cnt; i++) {
+ 		entry = &aclp->acl_entry[i];
 
+
+Thanks,
+-- 
+Andreas Gruenbacher <agruen@suse.de>
+SUSE Labs, SUSE LINUX AG
+
+--=-DVLoEMfP8PouRNVgpMx1
+Content-Disposition: attachment; filename=acl-too-large-2
+Content-Type: text/x-patch; name=acl-too-large-2; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+Index: linux-2.6.6-rc2/fs/xfs/xfs_acl.c
+===================================================================
+--- linux-2.6.6-rc2.orig/fs/xfs/xfs_acl.c
++++ linux-2.6.6-rc2/fs/xfs/xfs_acl.c
+@@ -148,10 +148,7 @@ posix_acl_xattr_to_xfs(
+ 			return EINVAL;
+ 		}
+ 	}
+-	if (xfs_acl_invalid(dest))
+-		return EINVAL;
+-
+-	return 0;
++	return xfs_acl_invalid(dest);
+ }
+ 
+ /*
+@@ -249,10 +246,9 @@ xfs_acl_vget(
+ 	if (!size) {
+ 		error = -posix_acl_xattr_size(XFS_ACL_MAX_ENTRIES);
+ 	} else {
+-		if (xfs_acl_invalid(xfs_acl)) {
+-			error = EINVAL;
++		error = xfs_acl_invalid(xfs_acl);
++		if (error)
+ 			goto out;
+-		}
+ 		if (kind == _ACL_TYPE_ACCESS) {
+ 			vattr_t	va;
+ 
+@@ -590,7 +586,7 @@ xfs_acl_invalid(
+ 		goto acl_invalid;
+ 
+ 	if (aclp->acl_cnt > XFS_ACL_MAX_ENTRIES)
+-		goto acl_invalid;
++		return ENOSPC;
+ 
+ 	for (i = 0; i < aclp->acl_cnt; i++) {
+ 		entry = &aclp->acl_entry[i];
+
+--=-DVLoEMfP8PouRNVgpMx1--
 

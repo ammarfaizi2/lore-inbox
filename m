@@ -1,39 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262358AbSJDQT7>; Fri, 4 Oct 2002 12:19:59 -0400
+	id <S262148AbSJDPza>; Fri, 4 Oct 2002 11:55:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262376AbSJDQT7>; Fri, 4 Oct 2002 12:19:59 -0400
-Received: from phoenix.infradead.org ([195.224.96.167]:24595 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S262358AbSJDQT5>; Fri, 4 Oct 2002 12:19:57 -0400
-Date: Fri, 4 Oct 2002 17:25:30 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: export of sys_call_table
-Message-ID: <20021004172530.B3390@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	linux-kernel@vger.kernel.org
-References: <20021003153943.E22418@openss7.org> <20021004145845.A30064@infradead.org> <20021004091517.H18191@openss7.org> <20021004162818.A2670@infradead.org> <20021004101959.N18191@openss7.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021004101959.N18191@openss7.org>; from bidulock@openss7.org on Fri, Oct 04, 2002 at 10:19:59AM -0600
+	id <S262155AbSJDPz0>; Fri, 4 Oct 2002 11:55:26 -0400
+Received: from mailout09.sul.t-online.com ([194.25.134.84]:31405 "EHLO
+	mailout09.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S262148AbSJDPzZ> convert rfc822-to-8bit; Fri, 4 Oct 2002 11:55:25 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Hasch@t-online.de (Juergen Hasch)
+To: Christian Reis <kiko@async.com.br>
+Subject: Re: [NFS] 2.4.19+trond and diskless locking problems
+Date: Fri, 4 Oct 2002 18:00:51 +0200
+X-Mailer: KMail [version 1.4]
+Cc: NFS@lists.sourceforge.net, linux-kernel@vger.kernel.org
+References: <20021003184418.K3869@blackjesus.async.com.br> <200210040907.47257.hasch@t-online.de> <20021004101712.A333@blackjesus.async.com.br>
+In-Reply-To: <20021004101712.A333@blackjesus.async.com.br>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200210041800.51540.hasch@t-online.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 04, 2002 at 10:19:59AM -0600, Brian F. G. Bidulock wrote:
-> Christoph,
-> 
-> On Fri, 04 Oct 2002, Christoph Hellwig wrote:
-> > > 
-> > > iBCS is right there in arch/sparc64/solaris/socksys.c, timod.c, systbl.S
-> > 
-> > No that's not iBCS.  Even if some code is derivaed it's ceratainly something
-> > different.
-> 
-> If you consider 99% some...
+Am Freitag, 4. Oktober 2002 15:17 schrieb Christian Reis:
+> On Fri, Oct 04, 2002 at 09:07:47AM +0200, Juergen Hasch wrote:
+> > I got the same messages when mounting an AIX client to a Linux server
+> > after upgrading to 2.4.19 Kernel.
+> > After installing the latest NFS utils, the problem went away.
+>
+> Does this mean nfs-utils-1.0.1 vs 1.0, or were you using a much older
+> version?
 
-Please try to actually read the code instead of spreading fud.
+Versions 0.3.3 and 1.0.1 are working fine for me, so it looks like
+your problem is different.
 
-*plonk*
+...Juergen
+

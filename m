@@ -1,76 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267275AbTAVMb0>; Wed, 22 Jan 2003 07:31:26 -0500
+	id <S267466AbTAVMhh>; Wed, 22 Jan 2003 07:37:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267449AbTAVMb0>; Wed, 22 Jan 2003 07:31:26 -0500
-Received: from elin.scali.no ([62.70.89.10]:27399 "EHLO elin.scali.no")
-	by vger.kernel.org with ESMTP id <S267275AbTAVMbZ>;
-	Wed, 22 Jan 2003 07:31:25 -0500
-Subject: Re: sleep in asm
-From: Terje Eggestad <terje.eggestad@scali.com>
-To: Electroniks New <elektr_new@yahoo.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030122113050.65639.qmail@web14707.mail.yahoo.com>
-References: <20030122113050.65639.qmail@web14707.mail.yahoo.com>
-Content-Type: text/plain
-Organization: Scali AS
-Message-Id: <1043239231.2048.9.camel@pc-16.office.scali.no>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 22 Jan 2003 13:40:31 +0100
-Content-Transfer-Encoding: 7bit
+	id <S267469AbTAVMhg>; Wed, 22 Jan 2003 07:37:36 -0500
+Received: from services.cam.org ([198.73.180.252]:906 "EHLO mail.cam.org")
+	by vger.kernel.org with ESMTP id <S267466AbTAVMhg>;
+	Wed, 22 Jan 2003 07:37:36 -0500
+From: Ed Tomlinson <tomlins@cam.org>
+Subject: Re: {sys_,/dev/}epoll waiting timeout
+To: Jamie Lokier <jamie@shareable.org>, linux-kernel@vger.kernel.org
+Reply-To: tomlins@cam.org
+Date: Wed, 22 Jan 2003 07:46:24 -0500
+References: <20030122065502.GA23790@math.leidenuniv.nl> <20030122080322.GB3466@bjl1.asuk.net>
+Organization: me
+User-Agent: KNode/0.7.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+Message-Id: <20030122124625.8CBFD2661@oscar.casa.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jamie Lokier wrote:
 
-a) a little but of math helps, on a 1GHz pentium 16000 nops is only
-about 5-6 usecs. This is superscalar machines that do three inst per
-clock.
+>         jtimeout = 0;
+>         if (timeout) {
+>                 /* Careful about overflow in the intermediate values */
+>                 if ((unsigned long) timeout < MAX_SCHEDULE_TIMEOUT / HZ)
+>                         jtimeout = (unsigned long)(timeout*HZ+999)/1000+1;
+>                 else /* Negative or overflow */
+>                         jtimeout = MAX_SCHEDULE_TIMEOUT;
+>         }
 
-b) are you in user space or kernel space?
+Why assume HZ=1000?  Would not:
 
-c) if the answer in b) is that your doing some embedded stuff, you Q on
-if it matter if you're in real or protected mode indicate that, then
-you're on the wrong mailing list. pls stop posting .
+timeout = (unsigned long)(timeout*HZ+(HZ-1))/HZ+1;
 
-d) 1 sec cpu time, or wall time?
-
-e) do you want to sleep, or burn CPU cycles?
-
-f) why assembly?
-
- 
-
-On ons, 2003-01-22 at 12:30, Electroniks New wrote:
-> Hi,
->   What is the equivalent of sleep in assembly.
->   I tried jmps and nops i even kept loops.for jumps
-> and nops but all in vain .
->   Does it make any difference if i am doing this real
-> mode instead of pmode ? doesnt the functions nop and
-> jmps   do what they are supposed to do . 16000 nops
-> doesn't sleep for 1 sec.
-> 
-> Any help would be appreciated. 
-> 
-> __________________________________________________
-> Do you Yahoo!?
-> Yahoo! Mail Plus - Powerful. Affordable. Sign up now.
-> http://mailplus.yahoo.com
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
--- 
-_________________________________________________________________________
-
-Terje Eggestad                  mailto:terje.eggestad@scali.no
-Scali Scalable Linux Systems    http://www.scali.com
-
-Olaf Helsets Vei 6              tel:    +47 22 62 89 61 (OFFICE)
-P.O.Box 150, Oppsal                     +47 975 31 574  (MOBILE)
-N-0619 Oslo                     fax:    +47 22 62 89 51
-NORWAY            
-_________________________________________________________________________
+make more sense?
 

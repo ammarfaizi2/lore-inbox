@@ -1,48 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267180AbUJFEcj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267195AbUJFEfK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267180AbUJFEcj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 00:32:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267184AbUJFEcj
+	id S267195AbUJFEfK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 00:35:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267189AbUJFEfK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 00:32:39 -0400
-Received: from smtp813.mail.sc5.yahoo.com ([66.163.170.83]:58015 "HELO
-	smtp813.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S267180AbUJFEch (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 00:32:37 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: PS2 mouse/kbd problems
-Date: Tue, 5 Oct 2004 23:32:34 -0500
-User-Agent: KMail/1.6.2
-Cc: "J.A. Magallon" <jamagallon@able.es>, Andrew Morton <akpm@osdl.org>
-References: <1096998302l.5347l.0l@werewolf.able.es>
-In-Reply-To: <1096998302l.5347l.0l@werewolf.able.es>
-MIME-Version: 1.0
+	Wed, 6 Oct 2004 00:35:10 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:50193 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S267184AbUJFEfC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 00:35:02 -0400
+Date: Wed, 6 Oct 2004 06:34:58 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Console: fall back to /dev/null when no console is availlable
+Message-ID: <20041006043458.GB19761@alpha.home.local>
+References: <20041005185214.GA3691@wohnheim.fh-wedel.de> <200410060058.57244.vda@port.imtp.ilyichevsk.odessa.ua>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200410052332.34837.dtor_core@ameritech.net>
+In-Reply-To: <200410060058.57244.vda@port.imtp.ilyichevsk.odessa.ua>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 05 October 2004 12:45 pm, J.A. Magallon wrote:
-> Hi all...
+On Wed, Oct 06, 2004 at 12:58:57AM +0300, Denis Vlasenko wrote:
+> > +		if (open("/dev/null", O_RDWR, 0) == 0)
+> > +			printk("         Falling back to /dev/null.\n");
+> > +	}
 > 
-> I got time to track my ps2 problems. I run 2.6.9-rc2-mm[123] (that was
-> enough).
-> 
-> Results:
-> - mm1: mouse and kbd work ok, both in console and X
-> - mm2: mouse works, no kbd. I had to unplug/plug the keyboard to get it
->   responding.
-> - mm3: kbd ok, but ps2 mouse is sluggish.
-> 
-> In latest -rc3-mm2, behavior is like mm3 and above.
-> 
+> What will happen if /dev is totally empty?
 
-What about vanilla -rc3 and vanilla -rc3 with bk-input patch applied (if you
-have some time of course). Do they exibit the same symptoms as -mm tree?
+... Which is the most probable reason causing this trouble.
+I've long wondered why the kernel could not open the /dev/console fds itself
+since they are character devices, so handled by the kernel internally. It
+should be possible to bypass the file-system access and get the fds anyway.
+Or we might need some tricks such as populate rootfs with 'console' before
+mounting root, open it, remove the entry while keeping the fd for use after
+the real root is mounted. This way, it would not be the real /dev/console
+which would be passed to init, so it would never even have to exist.
 
--- 
-Dmitry
+Comments ?
+
+Willy
+

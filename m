@@ -1,68 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264233AbUBLK1u (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 05:27:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264300AbUBLK1u
+	id S266326AbUBLKfJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 05:35:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266327AbUBLKfJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 05:27:50 -0500
-Received: from mail-08.iinet.net.au ([203.59.3.40]:54458 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S264233AbUBLK1t
+	Thu, 12 Feb 2004 05:35:09 -0500
+Received: from hirsch.in-berlin.de ([192.109.42.6]:62692 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S266326AbUBLKfG
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 05:27:49 -0500
-Message-ID: <402B5502.2010207@cyberone.com.au>
-Date: Thu, 12 Feb 2004 21:27:14 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Giuliano Pochini <pochini@shiny.it>
-CC: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: ext2/3 performance regression in 2.6 vs 2.4 for small interl
-References: <XFMail.20040212104215.pochini@shiny.it>
-In-Reply-To: <XFMail.20040212104215.pochini@shiny.it>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 12 Feb 2004 05:35:06 -0500
+X-Envelope-From: news@bytesex.org
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Gerd Knorr <kraxel@bytesex.org>
+Newsgroups: lists.linux.kernel
+Subject: Re: dmapool (was: Re: Linux 2.6.3-rc2)
+Date: 12 Feb 2004 11:25:09 +0100
+Organization: SuSE Labs, Berlin
+Message-ID: <87smhglhmi.fsf@bytesex.org>
+References: <Pine.LNX.4.58.0402091914040.2128@home.osdl.org> <Pine.GSO.4.58.0402101424250.2261@waterleaf.sonytel.be> <Pine.GSO.4.58.0402101531240.2261@waterleaf.sonytel.be> <20040210145558.A4684@infradead.org> <20040210162259.GA26620@kroah.com> <Pine.GSO.4.58.0402101727130.2261@waterleaf.sonytel.be> <20040210101437.1507af3b.davem@redhat.com> <Pine.GSO.4.58.0402121048550.7297@waterleaf.sonytel.be>
+NNTP-Posting-Host: localhost
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Trace: bytesex.org 1076581509 5955 127.0.0.1 (12 Feb 2004 10:25:09 GMT)
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Geert Uytterhoeven <geert@linux-m68k.org> writes:
 
+> Feel free to move the stubs to asm-generic/no-dma-mapping.h, if there are
+> enough users to warrant that.
 
-Giuliano Pochini wrote:
+Yes, please.  user-mode-linux needs this too.
 
->On 12-Feb-2004 Andrea Arcangeli wrote:
->
->
->>the main difference is that 2.4 isn't in function of time, it's in
->>function of requests, no matter how long it takes to write a request,
->>so it's potentially optimizing slow devices when you don't care about
->>latency (deadline can be tuned for each dev via
->>/sys/block/*/queue/iosched/).
->>
->
->IMHO it's the opposite. Transfer speed * seek time of some
->slow devices is lower than fast devices. For example:
->
->Hard disk  raw speed= 40MB/s   seek time =  8ms
->MO/ZIP     raw speed=  3MB/s   seek time = 25ms
->
->
+  Gerd
 
-I like accounting by time better because its accurate
-and fair for all types of devices, however I admit an
-auto tuning feature would be nice.
-
-Say you allow 16 128K requests before seeking:
-The HD will run the requests for 50ms then seek (8ms).
-So this gives you about 86% efficiency.
-On your zip drive it takes 666ms, giving you 96%.
-
-Now with AS, allowing 50ms of requests before a seek
-gives you the same for an HD, but only 66% for the MO
-drive. A CD-ROM will be much worse.
-
-Auto tuning wouldn't be too hard. Just measure the time
-it takes for your seeking requests to complete and you
-can use the simple formula to allow users to specify a
-efficiency vs latency %age.
-
-
+-- 
+"... und auch das ganze Wochenende oll" -- Wetterbericht auf RadioEins

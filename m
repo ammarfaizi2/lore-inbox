@@ -1,55 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136112AbRAMBUG>; Fri, 12 Jan 2001 20:20:06 -0500
+	id <S136072AbRAMBZT>; Fri, 12 Jan 2001 20:25:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136121AbRAMBT4>; Fri, 12 Jan 2001 20:19:56 -0500
-Received: from ppp017-pool1a.bham.zebra.net ([209.12.6.80]:128 "HELO
-	bliss.penguinpowered.com") by vger.kernel.org with SMTP
-	id <S136112AbRAMBTw>; Fri, 12 Jan 2001 20:19:52 -0500
-Date: Fri, 12 Jan 2001 19:11:32 -0600
-From: "Forever shall I be." <zinx@magenet.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] 2.4.0-ac8 PS/2 mouse woes
-Message-ID: <20010112191132.A548@bliss.zebra.net>
-In-Reply-To: <20010112173811.A618@bliss.zebra.net> <E14HE9V-0005ID-00@the-village.bc.nu>
-Mime-Version: 1.0
+	id <S136089AbRAMBZJ>; Fri, 12 Jan 2001 20:25:09 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:54026
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S136072AbRAMBYw>; Fri, 12 Jan 2001 20:24:52 -0500
+Date: Fri, 12 Jan 2001 17:24:11 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: John Heil <kerndev@sc-software.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
+Subject: Re: ide.2.4.1-p3.01112001.patch
+In-Reply-To: <Pine.LNX.4.10.10101121717150.851-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.10.10101121719480.2411-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E14HE9V-0005ID-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sat, Jan 13, 2001 at 12:02:35AM +0000
-X-GPG-Fingerprint: 1A27 513C 33D0 4DB6 BBDD  E891 4E64 FCAA 7455 8D71
-X-GPG-Public-Key: http://pgp5.ai.mit.edu:11371/pks/lookup?op=get&search=0x74558D71
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 13, 2001 at 12:02:35AM +0000, Alan Cox wrote:
-> > pc_keyb.c..   I also have the cuecat patch applied, and use it over
-> > the PS/2 mouse port, but I don't think it's interfering..  I doubt
-> > this will be noticable to people not using the "Resolution" option to
-> > speed up the mouse, and mine's rather insane:
-> 
-> Can you tell me if the problem can be duplicated without the cuecat patch
-> applied. It is quite possible the ps/2 mouse patch is buggy
-
-Yes, and I tried out 2.4.0-ac7 too, just for kicks, and it doesn't break
-with ac7..
+On Fri, 12 Jan 2001, Linus Torvalds wrote:
 
 > 
-> > Anyway, just letting you know, and very sorry for the lack of
-> > information..
 > 
-> Its most of the info I need. Since I churn through patches fast we can normally
-> get a good guess at the culprit.
+> On Fri, 12 Jan 2001, Andre Hedrick wrote:
+> > 
+> > I told you that I have the new code that is scheduled for 2.5 certified on
+> > analizers to be technically correct as it relates to the "state diagrams"
+> > in the standard.
 > 
-> Alan
+> "Technically correct" and "state diagrams as in the standard" mean less
+> that nothing to me.
 > 
+> They have very little to do with the concept of "working", which is all I
+> really personally care about.
 
-Also, the Oops I got is apparently due to my own code, so I'll be trying
-to fumble my way through fixing it :)
+Translation:
 
--- 
-Zinx Verituse                           (See headers for gpg key info)
+You can do a bit level tracking of data and verify that what went down you
+get it back across the entire disk.  This can be done in a random-pattern
+that does not over-write (obvious) or from head->tail or tail->head.
+
+It works perfectly and exactly as it is defined to work by the rules.
+Getting the rules correct == 'the concept of "working"'.
+
+However that model of IO is not complete yet. :-((
+
+Cheers,
+
+Andre Hedrick
+Linux ATA Development
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

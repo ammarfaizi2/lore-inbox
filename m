@@ -1,61 +1,103 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133043AbRDLCuO>; Wed, 11 Apr 2001 22:50:14 -0400
+	id <S133044AbRDLCyO>; Wed, 11 Apr 2001 22:54:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133044AbRDLCuE>; Wed, 11 Apr 2001 22:50:04 -0400
-Received: from nat-hdqt.valinux.com ([198.186.202.17]:20011 "EHLO
-	golux.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S133043AbRDLCtw>; Wed, 11 Apr 2001 22:49:52 -0400
-Date: Wed, 11 Apr 2001 22:50:55 -0400
-From: esr@thyrsus.com
-To: jeff millar <jeff@wa1hco.mv.com>
-Cc: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net,
-        "Eric S. Raymond" <esr@snark.thyrsus.com>
-Subject: Re: CML2 1.0.0 doesn't remember configuration changes
-Message-ID: <20010411225055.A11009@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: esr@thyrsus.com, jeff millar <jeff@wa1hco.mv.com>,
-	linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net,
-	"Eric S. Raymond" <esr@snark.thyrsus.com>
-In-Reply-To: <20010411191940.A9081@thyrsus.com> <E14nU6n-0007po-00@the-village.bc.nu> <20010411204523.C9081@thyrsus.com> <002701c0c2f1$fc672960$0201a8c0@home>
+	id <S133045AbRDLCyE>; Wed, 11 Apr 2001 22:54:04 -0400
+Received: from cc265407-a.hwrd1.md.home.com ([24.3.45.174]:4736 "EHLO
+	athens.nanticoke.ellicott-city.md.us") by vger.kernel.org with ESMTP
+	id <S133044AbRDLCx5>; Wed, 11 Apr 2001 22:53:57 -0400
+Date: Wed, 11 Apr 2001 22:53:57 -0400
+From: Tim Meushaw <meushaw@pobox.com>
+To: linux-kernel@vger.kernel.org
+Subject: Problem with 2.4.1/2.4.3 and CD-RW ide-scsi drive
+Message-ID: <20010411225356.A574@pobox.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="VbJkn9YxBvnuCH5J"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <002701c0c2f1$fc672960$0201a8c0@home>; from jeff@wa1hco.mv.com on Wed, Apr 11, 2001 at 09:43:08PM -0400
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+User-Agent: Mutt/1.3.15i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jeff millar <jeff@wa1hco.mv.com>:
-> I'm confused.  Downloaded cml2-1.0.0 installed ran it....appear to work but
-> it doesn't remember my changes.  Just now, I updated to 1.0.3 and it
-> reported cleaning up existing files.  Ran "make config" and it popped up
-> menu under X.  Then I changed the "config policy options" to "expert,
-> wizard, tuning" and exited with "save and exit".
-> 
-> Then re-opened with make config and nothing changed...expert, wizard and
-> tuning not set.  Maybe the program _knows_ I'm not a wizard but it should at
-> least let me _tune_.  (joke)
-> 
-> By the way "make editconfig" shows the changes made under "make config" and
-> allows me to make more changes..
-> 
-> The READ.ME says that "make config" will run configtrans to generate
-> .config.  But that doesn't explain why "make config"  doesn't remember
-> changes made to config.out.
-> 
-> ideas?
-> 
-> jeff
 
-I think it's because I misunderstood how the standard productions are supposed
-to work.  If you'll tell me what files you expect them to read on startup,
-and in what order, I can emulate that behavior.
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+--VbJkn9YxBvnuCH5J
+Content-Type: text/plain; charset=unknown-8bit
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-The possession of arms by the people is the ultimate warrant
-that government governs only with the consent of the governed.
-        -- Jeff Snyder
+Hi there.  I just got a new CD-RW drive and am trying to get it working
+under Linux.  I've got the ide-scsi modules all loaded, but have weird
+errors when trying to mount a disk.
+
+Here are the messages from "dmesg" that I get when the ide-cd and
+ide-scsi modules are loaded.  My DVD-ROM is /dev/hdc, and the CD-RW is
+/dev/hdd (or /dev/sr0):
+
+-----------------------------------------------------
+hdc: ATAPI DVD-ROM drive, 512kB Cache, UDMA(33)
+Uniform CD-ROM driver Revision: 3.12
+ide-cd: ignoring drive hdd
+scsi0 : SCSI host adapter emulation for IDE ATAPI devices
+  Vendor: SONY      Model: CD-RW  CRX160E    Rev: 1.0e
+  Type:   CD-ROM                             ANSI SCSI revision: 02
+Detected scsi CD-ROM sr0 at scsi0, channel 0, id 0, lun 0
+sr0: scsi3-mmc drive: 32x/32x writer cd/rw xa/form2 cdda tray
+-----------------------------------------------------
+
+So, it looks like the drive is attached to /dev/sr0 properly.  Then, I
+run "cdrecord -scanbus" to make sure:
+
+-----------------------------------------------------
+Cdrecord 1.9 (i686-pc-linux-gnu) Copyright (C) 1995-2000 J=F6rg Schilling
+Linux sg driver version: 3.1.17
+Using libscg version 'schily-0.1'
+scsibus0:
+        0,0,0     0) 'SONY    ' 'CD-RW  CRX160E  ' '1.0e' Removable CD-ROM
+-----------------------------------------------------
+
+So, it REALLY looks like it's working.  However, here's what I get when
+I try to mount an ordinary data CD:
+
+-----------------------------------------------------
+athens:~# mount -t iso9660 /dev/sr0 /cdrw
+mount: block device /dev/sr0 is write-protected, mounting read-only
+SCSI cdrom error : host 0 channel 0 id 0 lun 0 return code =3D 28000000
+[valid=3D0] Info fld=3D0x0, Current sd0b:00: sense key Hardware Error
+Additional sense indicates Logical unit communication CRC error (Ultra-DMA/=
+32)
+ I/O error: dev 0b:00, sector 64
+isofs_read_super: bread failed, dev=3D0b:00, iso_blknum=3D16, block=3D32
+mount: wrong fs type, bad option, bad superblock on /dev/sr0,
+       or too many mounted file systems
+-----------------------------------------------------
+
+I've tried this with both kernel 2.4.1 and 2.4.3 and have the exact same
+error.  I've also tried multiple data CDs and have the same messages.
+The CD-RW is a Sony CRX-160E, plugged in to an Asus A7V motherboard (the
+PCI bus is described by "lspci" as "VIA Technologies, Inc. VT8363/8365
+[KT133/KM133 AGP]").  I'm not sure what other information I can provide,
+but I'll be happy to give anything else that might be needed to help fix
+this problem.
+
+Thanks a lot!
+Tim
+
+--=20
+Timothy A. Meushaw
+meushaw@pobox.com
+http://www.pobox.com/~meushaw/
+
+--VbJkn9YxBvnuCH5J
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE61RjEMVO+gCLjJFkRAunTAJ48iSq5itBzlcP68XWja+Bpe2j7iQCdFMOj
+hYfYW8eXvAdJ7sMxyv7Ts9U=
+=8Yk8
+-----END PGP SIGNATURE-----
+
+--VbJkn9YxBvnuCH5J--

@@ -1,106 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264818AbTAWBya>; Wed, 22 Jan 2003 20:54:30 -0500
+	id <S264815AbTAWByB>; Wed, 22 Jan 2003 20:54:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264822AbTAWBy3>; Wed, 22 Jan 2003 20:54:29 -0500
-Received: from TYO202.gate.nec.co.jp ([202.32.8.202]:60629 "EHLO
-	TYO202.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id <S264818AbTAWBy0>; Wed, 22 Jan 2003 20:54:26 -0500
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Cc: Greg Ungerer <gerg@snapgear.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: common RODATA in vmlinux.lds.h (2.5.59)
-References: <Pine.LNX.4.44.0301221014250.9969-100000@chaos.physics.uiowa.edu>
-Reply-To: Miles Bader <miles@gnu.org>
-System-Type: i686-pc-linux-gnu
-Blat: Foop
-From: Miles Bader <miles@lsi.nec.co.jp>
-Date: 23 Jan 2003 11:03:10 +0900
-In-Reply-To: <Pine.LNX.4.44.0301221014250.9969-100000@chaos.physics.uiowa.edu>
-Message-ID: <buoznpspqqp.fsf@mcspd15.ucom.lsi.nec.co.jp>
+	id <S264818AbTAWByB>; Wed, 22 Jan 2003 20:54:01 -0500
+Received: from ns0.usq.edu.au ([139.86.2.5]:19800 "EHLO ns0.usq.edu.au")
+	by vger.kernel.org with ESMTP id <S264815AbTAWBx7> convert rfc822-to-8bit;
+	Wed, 22 Jan 2003 20:53:59 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: 2650 - tg3 on 2.4.18-19.7.xsmp rh7.3 ... OOPS YET AGAIN
+Date: Thu, 23 Jan 2003 12:02:52 +1000
+Message-ID: <08D7835AE15D6F4BABB5C46427F018DF3F0797@babbage.usq.edu.au>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 2650 - tg3 on 2.4.18-19.7.xsmp rh7.3 ... OOPS YET AGAIN
+Thread-Index: AcLCdRNL6DL/V7zJTHG1CgxrxTfSsgADlUTw
+From: "Jacek Radajewski" <jacek@usq.edu.au>
+To: "Pete Zaitcev" <zaitcev@redhat.com>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 23 Jan 2003 02:02:53.0206 (UTC) FILETIME=[8A07B360:01C2C283]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de> writes:
-> > Actually as far as I can see, my suggested alternative is _less_ complex
-> > than the current RODATA.
-> 
-> I don't see that. Your suggestion has two macros, RODATA_CONTENTS and 
-> RODATA_SECTION, and arch/*/vmlinux.lds.S would use one or the other. 
+The original oops log was :
 
-Well, actually I was also suggesting that there really shouldn't be
-RODATA_SECTION at all, and every linker script should just use
-RODATA_CONTENTS embedded in an existing section of their choice or in a
-trivial .rodata section, e.g:
 
-   .rodata { RODATA_CONTENTS }
+[root@cray root]# ide-floppy driver 0.99.newide
+hda: ATAPI 24X CD-ROM drive, 128kB Cache
+Unable to handle kernel NULL pointer dereference at virtual address 00000007
+ printing eip:
+f897f51d
+*pde = 00000000
+Oops: 0002
+soundcore nls_iso8859-1 ide-cd cdrom binfmt_misc autofs tg3 usb-ohci usbcore ext3 jbd aacraid sd_mod scsi_mod  
+CPU:    0
+EIP:    0010:[<f897f51d>]    Not tainted
+EFLAGS: 00010246
 
-> Surely you agree that all arch/*/vmlinux.lds.S using the same one would be 
-> simpler?
+EIP is at cdrom_do_packet_command [ide-cd] 0x2d (2.4.18-19.7.xsmp)
+eax: f6a2dc00   ebx: 00000000   ecx: ffffffff   edx: c03fdc04
+esi: c03fdc04   edi: 00000000   ebp: dd70b89c   esp: c0349ee4
+ds: 0018   es: 0018   ss: 0018
+Process swapper (pid: 0, stackpage=c0349000)
+Stack: c01ac741 c03fdc04 dd70b89c 00000000 00000000 c03fdbc0 00000000 c03fdc04 
+       c03fdbc0 dd70b89c c03fdc04 0000000e c01acacc c03fdc04 dd70b89c c3684e80 
+       c03fdc04 00000296 c03fdbc0 c01acf99 c3684e80 0000000e f897f2f0 c36b0d60 
+Call Trace: [<c01ac741>] start_request [kernel] 0x1a1 (0xc0349ee4))
+[<c01acacc>] ide_do_request [kernel] 0x29c (0xc0349f14))
+[<c01acf99>] ide_intr [kernel] 0x129 (0xc0349f30))
+[<f897f2f0>] cdrom_pc_intr [ide-cd] 0x0 (0xc0349f3c))
+[<c010a61e>] handle_IRQ_event [kernel] 0x5e (0xc0349f50))
+[<c010a852>] do_IRQ [kernel] 0xc2 (0xc0349f70))
+[<c0106e60>] default_idle [kernel] 0x0 (0xc0349f88))
+[<c0105000>] stext [kernel] 0x0 (0xc0349f8c))
+[<c010d058>] call_do_IRQ [kernel] 0x5 (0xc0349f94))
+[<c0106e60>] default_idle [kernel] 0x0 (0xc0349fa4))
+[<c0105000>] stext [kernel] 0x0 (0xc0349fa8))
+[<c0106e8c>] default_idle [kernel] 0x2c (0xc0349fc0))
+[<c0106ef4>] cpu_idle [kernel] 0x24 (0xc0349fcc))
 
-No, in fact I don't think it would -- your suggestion is that there
-should be a single macro affected by all sorts of `magic defines' that
-somehow change its behavior (e.g. LOAD_OFFSET, and the
-output-memory-area defines you mentioned to solve my output memory
-region problem).  This sort of structure seems very confusing to me,
-even if it's superficially simpler (by having only a `single macro').
 
-Not having the macro(s) create output sections makes the result a _lot_
-easier to understand, since there's not all this behind-the-scenes
-tweaking going on by the macro, it's all pretty straight-forward.
+Code: c7 41 08 00 00 00 00 68 b0 f4 97 f8 8b 41 04 50 52 e8 8d f2 
+ <0>Kernel panic: Aiee, killing interrupt handler!
+In interrupt handler - not syncing
+ 
 
-> I suppose the major reasons for multiple output sections is consistency 
-> with the default ld script
 
-Why is this important?
 
-> and alignment in particular.
+-----Original Message-----
+From: Pete Zaitcev [mailto:zaitcev@redhat.com]
+Sent: Thursday, 23 January 2003 10:19 AM
+To: Jacek Radajewski
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2650 - tg3 on 2.4.18-19.7.xsmp rh7.3 ... OOPS YET AGAIN
 
-This is more important problem with my scheme:
 
-> the only way to ensure that in your solution is . = ALIGN(x) beforehand,
-> where it's however necessary to know the requirements of __ksymtab. This 
-> means magic numbers which are not even constant for different archs and of 
-> course it's also fragile, if someone changes the struct which is put into 
-> __ksymtab, they most likely don't remember to change all the magic numbers 
-> in arch/*/vmlinux.lds.S.
+> ksymoops 2.4.4 on i686 2.4.18-19.7.xsmp.  Options used
 
-I see your point, but is this really a problem in practice?  I suspect
-that about 99% of the time you can get away with simply being a bit
-conservative, e.g., aligning to an 8- or 16-byte boundary (I would be
-very surprised if there's an arch that aligns structs more than that,
-for obvious reasons).
+2.4.18-19.7.x should not need ksymoops, because it ships with
+kksymoops. In fact, it's harmful, because ksymoops ate the EIP
+decoding:
 
-> You want to use sections as an abstraction for different parts of the 
-> image, like text/rodata vs data.
+> EIP:    0010:[<f897f51d>]    Not tainted
+> Using defaults from ksymoops -t elf32-i386 -a i386
+> EFLAGS: 00010246
 
-Um, no I don't.  I just want to control where the output sections go,
-e.g., into RAM or ROM, and how the load-time and run-time addresses are
-related.  Most of the time I don't care what the output sections are,
-as long as I can control their disposition.
+Also, the oops does not seem to be related to the BCM card.
+Probably your IDE cabling is flakey :)
 
-> However, let me claim the sections are not the right tool for the job,
-> instead that's why ELF segments exist.  Just declaring two MEMORY
-> regions, e.g. rom/ram and putting text/rodata sections into rom, the
-> rest into ram will give you a vmlinux with two segments, exactly what
-> you need. (There's two ways to do that, using MEMORY or PHDRS -
-> whatever works better for you)
-
-I'm not sure what you mean by `segments' (the GNU ld linker script
-documentation is dreadful), but I'll try to look them up and see if they
-can help me solve my problem.
-
-> All of this can, AFAICS, be nicely handled by additional
-> "{TEXT,RODATA,DATA}_MEM" macros which allow the arch to specify
-> regions as necessary.
-
-That sounds clumsy to me, because it adds lots of `parameters' to the
-common macros -- I'd prefer a solution where the macros can be as much
-of a black-box as possible -- but it will probably work.
-
-Thanks,
-
--Miles
--- 
-Fast, small, soon; pick any 2.
+-- Pete

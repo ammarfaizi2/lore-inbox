@@ -1,39 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261492AbVCWK0U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261503AbVCWK00@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261492AbVCWK0U (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 05:26:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261505AbVCWK0T
+	id S261503AbVCWK00 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 05:26:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261505AbVCWK00
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 05:26:19 -0500
-Received: from hera.kernel.org ([209.128.68.125]:50124 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S261492AbVCWK0R (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 05:26:17 -0500
+	Wed, 23 Mar 2005 05:26:26 -0500
+Received: from grunt1.ihug.co.nz ([203.109.254.41]:14573 "EHLO
+	grunt1.ihug.co.nz") by vger.kernel.org with ESMTP id S261503AbVCWK0S
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 05:26:18 -0500
+Date: Wed, 23 Mar 2005 22:26:14 +1200 (NZST)
+From: steve@perfectpc.co.nz
+X-X-Sender: sk@steve.kieu
+Reply-To: steve@perfectpc.co.nz
 To: linux-kernel@vger.kernel.org
-From: hpa@zytor.com (H. Peter Anvin)
-Subject: Re: lseek on /proc/kmsg
-Date: Wed, 23 Mar 2005 10:25:50 +0000 (UTC)
-Organization: Mostly alphabetical, except Q, which We do not fancy
-Message-ID: <d1rg7e$4h5$1@terminus.zytor.com>
-References: <Pine.LNX.4.61.0503221320090.5551@chaos.analogic.com> <Pine.LNX.4.61.0503222215310.19826@yvahk01.tjqt.qr> <Pine.LNX.4.61.0503221633230.7421@chaos.analogic.com> <Pine.LNX.4.61.0503230811020.21578@yvahk01.tjqt.qr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: terminus.zytor.com 1111573550 4646 127.0.0.1 (23 Mar 2005 10:25:50 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Wed, 23 Mar 2005 10:25:50 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Subject: Problem report. USB MP3 Player no longer work with kernel > 2.6.8
+Message-ID: <Pine.LNX.4.62.0503232217440.4187@steve.kieu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <Pine.LNX.4.61.0503230811020.21578@yvahk01.tjqt.qr>
-By author:    Jan Engelhardt <jengelh@linux01.gwdg.de>
-In newsgroup: linux.dev.kernel
-> 
-> Well, what does lseek(fd, >0, SEEK_END) do on normal files?
-> 
 
-Sets the file pointer beyond the end of the file (a write() there will
-extend the file.)
+Hi,
 
-	-hpa
+I have a mp3 player Digital MP3/WMA PLAYER using USB1. With kernel 2.6.9 
+when plug the device ; the kernel recognize the device
+dmesg show:
+
+usb 1-1: new full speed USB device using address 3
+
+But loading usb-storage ; it did not see the device
+dmesg shows:
+
+SCSI subsystem initialized
+Initializing USB Mass Storage driver...
+usbcore: registered new driver usb-storage
+USB Mass Storage support registered.
+
+of course nothing happend if I mount /dev/sda1 or /dev/sda etc..;
+
+With kernel 2.6.8 or 2.4.XX it works properly. Last time I tried with 
+2.6.10 and even 2.6.11, it did not work, but the error message is different.
+
+I am willing to help to debug the problem if asked.
+
+Kind regards,
+
+
+Steve Kieu
+PerfectPC Ltd. Technical Division.
+Web: http://www.perfectpc.co.nz/
+Ph: 04 461 7489
+Mob: 021 137 0260

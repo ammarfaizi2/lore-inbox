@@ -1,69 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261347AbVCBXaD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261507AbVCBXiq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261347AbVCBXaD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 18:30:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261339AbVCBX1q
+	id S261507AbVCBXiq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 18:38:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261358AbVCBXgo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 18:27:46 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:47019 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261308AbVCBXXB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 18:23:01 -0500
-Date: Wed, 2 Mar 2005 18:22:54 -0500
-From: Dave Jones <davej@redhat.com>
-To: Linus Torvalds <torvalds@osdl.org>,
+	Wed, 2 Mar 2005 18:36:44 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:6418 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S261346AbVCBXfO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 18:35:14 -0500
+Date: Thu, 3 Mar 2005 00:34:59 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Greg KH <greg@kroah.com>
+Cc: Linus Torvalds <torvalds@osdl.org>,
        Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: RFD: Kernel release numbering
-Message-ID: <20050302232253.GC10124@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org> <20050302230634.A29815@flint.arm.linux.org.uk>
+Message-ID: <20050302233459.GB30106@alpha.home.local>
+References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org> <20050302230400.GA9394@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050302230634.A29815@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20050302230400.GA9394@kroah.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 02, 2005 at 11:06:34PM +0000, Russell King wrote:
- > On Wed, Mar 02, 2005 at 02:21:38PM -0800, Linus Torvalds wrote:
- > > In other words, we'd have an increasing level of instability with an odd 
- > > release number, depending on how long-term the instability is.
- > > 
- > >  - 2.6.<even>: even at all levels, aim for having had minimally intrusive 
- > >    patches leading up to it (timeframe: a week or two)
- > > 
- > > with the odd numbers going like:
- > > 
- > >  - 2.6.<odd>: still a stable kernel, but accept bigger changes leading up 
- > >    to it (timeframe: a month or two).
- > >  - 2.<odd>.x: aim for big changes that may destabilize the kernel for 
- > >    several releases (timeframe: a year or two)
- > >  - <odd>.x.x: Linus went crazy, broke absolutely _everything_, and rewrote
- > >    the kernel to be a microkernel using a special message-passing version 
- > >    of Visual Basic. (timeframe: "we expect that he will be released from 
- > >    the mental institution in a decade or two").
- > 
- > This sounds good, until you realise that some of us have been sitting
- > on about 30 patches for at least the last month, because we where
- > following your guidelines about the -rc's.  Things like adding support
- > for new ARM machines and other devices, dynamic tick support for ARM,
- > etc.
- > 
- > If I'm going to have to sit on this stuff for another month, it'll bit
- > rot rather badly, and I might as well throw away all these patches now
- > and ask people not to send stuff other than pure bug fixes.
+Hi Greg,
 
-The fact that this new approach serialises the stable/devel lineation
-whereas traditionally it was parallel (2.x.y/2.x+1.y) is going to be
-a real pain for a lot of maintainers.
+On Wed, Mar 02, 2005 at 03:04:01PM -0800, Greg KH wrote:
+> /me kills my patchbomb script for now
+> 
+> On Wed, Mar 02, 2005 at 02:21:38PM -0800, Linus Torvalds wrote:
+> > 
+> >  - 2.6.<even>: even at all levels, aim for having had minimally intrusive 
+> >    patches leading up to it (timeframe: a week or two)
+> > 
+> > with the odd numbers going like:
+> > 
+> >  - 2.6.<odd>: still a stable kernel, but accept bigger changes leading up 
+> >    to it (timeframe: a month or two).
+> 
+> Ok, that's acceptable to me, but realize that this puts a bigger burden
+> on the maintainers to queue up patches for you.  It's not that big of a
+> deal, just something to be aware of.
 
-In short, instead of a single 'merge with linus tree', I'm now going to
-need a 'merge with linus' and 'merge with linus next time' tree for every
-tree I maintain.. It's not impossible to maintain, but its extra burden.
-Burden which a lot of folks may consider not worth it.
+Not necessaruly, because the rules could be more relaxed during -rc stage
+in an odd release, and stable releases could be shorter, so at the end, the
+"patch fridge" would be needed only between the very end of the odd version
+and the start of the even one.
 
-		Dave
+Another possibility is for developpers to start to submit/merge patches for
+the next odd release while the even one is still in -rc.
+
+> Speaking of which, does this mean I shouldn't hit you with all of my
+> pending stuff?  I know some of the other subsystem maintainers have a
+> lot of stuff queued up too.  Should we start this new numbering scheme
+> as of today?  Or wait until 2.6.13?
+
+if there is so much pending stuff, why not sacrifice 2.6.12, use 2.6.13
+to fix a bit and merge even more, then 2.6.14 would be the real first
+stable release ?
+
+Regards,
+Willy
 

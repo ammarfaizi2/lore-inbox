@@ -1,81 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262933AbVCWUzS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262914AbVCWUlw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262933AbVCWUzS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 15:55:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262924AbVCWUwp
+	id S262914AbVCWUlw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 15:41:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261269AbVCWUlN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 15:52:45 -0500
-Received: from smtp-out.tiscali.no ([213.142.64.144]:28944 "EHLO
-	smtp-out.tiscali.no") by vger.kernel.org with ESMTP id S262927AbVCWUsn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 15:48:43 -0500
-Subject: Re: forkbombing Linux distributions
-From: Natanael Copa <mlists@tanael.org>
-To: aq <aquynh@gmail.com>
-Cc: "Hikaru1@verizon.net" <Hikaru1@verizon.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <9cde8bff05032309056c9643a7@mail.gmail.com>
-References: <e0716e9f05032019064c7b1cec@mail.gmail.com>
-	 <20050322112628.GA18256@roll>
-	 <Pine.LNX.4.61.0503221247450.5858@yvahk01.tjqt.qr>
-	 <20050322124812.GB18256@roll> <20050322125025.GA9038@roll>
-	 <9cde8bff050323025663637241@mail.gmail.com> <1111581459.27969.36.camel@nc>
-	 <9cde8bff05032305044f55acf3@mail.gmail.com> <1111586058.27969.72.camel@nc>
-	 <9cde8bff05032309056c9643a7@mail.gmail.com>
-Content-Type: text/plain
-Date: Wed, 23 Mar 2005 21:48:42 +0100
-Message-Id: <1111610922.20101.41.camel@nc>
+	Wed, 23 Mar 2005 15:41:13 -0500
+Received: from rproxy.gmail.com ([64.233.170.207]:45643 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262920AbVCWUkr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 15:40:47 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=RmtSy6UQ4uPgRhfh0PdterrxnS+N9H9vYtm0RcfnrK5s7Xtrmxbf0K+xvrRmoMv/l44DQmaGCNk3nWnYF8EISxD39MrOqDGkq8PwoV9ZBsGHx1QfS3q6zPonXC2c3/FhoESw47XxbZBQCJmuVpgAZtpM3RVebV37fYc/DJNCapk=
+Message-ID: <21d7e99705032312406fb8ac9a@mail.gmail.com>
+Date: Thu, 24 Mar 2005 07:40:43 +1100
+From: Dave Airlie <airlied@gmail.com>
+Reply-To: Dave Airlie <airlied@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: X not working with Radeon 9200 under 2.6.11
+Cc: covici@ccs.covici.com, linux-kernel@vger.kernel.org,
+       benh@kernel.crashing.org, airlied@linux.ie
+In-Reply-To: <20050323123641.65ab0c91.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
+References: <16937.54786.986183.491118@ccs.covici.com>
+	 <20050321145301.3511c097.akpm@osdl.org>
+	 <16959.25374.535872.507486@ccs.covici.com>
+	 <20050321162214.71483708.akpm@osdl.org>
+	 <21d7e9970503231150263cfc5e@mail.gmail.com>
+	 <20050323123641.65ab0c91.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-03-24 at 02:05 +0900, aq wrote:
+> >  > Do we know what changed to cause this?  Was it deliberate?
+> >
+> >  If I was a guessing man and I am due to lack of time.. I'd say the
+> >  address space layout changes ..
+> 
+> Ow.  I never saw any such reports.
 
-> I agree that make kernel more restrictive by default is a good approach.
+as I said only a guess .. when someone mentions 2.6.9 to me I always
+think address space changes :-)
 
-Thank you! For a moment I thought I was the only human on this planet
-who thought that.
+I've hopefully got a full day barring jetlag to try and get the 2.6
+drm straightened out.. of course on my machine it all works
+wonderfully... so I need to get more machines :-)
 
-Next question is where and how and what is an appropiate limit? I have
-not heard any better suggestions than this:
-
---- kernel/fork.c.orig  2005-03-02 08:37:48.000000000 +0100
-+++ kernel/fork.c       2005-03-21 15:22:50.000000000 +0100
-@@ -119,7 +119,7 @@
-         * value: the thread structures can take up at most half
-         * of memory.
-         */
--       max_threads = mempages / (8 * THREAD_SIZE / PAGE_SIZE);
-+       max_threads = mempages / (16 * THREAD_SIZE / PAGE_SIZE);
-
-        /*
-         * we need to allow at least 20 threads to boot a system
-
-
-(FYI: A few lines below the default RLIMIT_NPROC is calculated from
-max_threads/2)
-
-This would give default maximum number of processes from the amount of
-low memory:
-
-RAM     RLIMIT_NPROC
-64MiB   256
-128MiB  512
-256MiB  1024
-512MiB  2048
-1GiB    4096
-
-That would be sufficent for the users to play their games, compile ther
-stuff etc while it would protect everyone from that classic shell fork
-bomb by default.
-
-Actually, Alan Cox tried this in the 2.4.7-ac1 kernel
-http://marc.theaimsgroup.com/?l=linux-kernel&m=99617009115570&w=2
-
-but I have no idea why it was raised to the double afterwards.
-
---
-Natanael Copa
-
-
+Dave.

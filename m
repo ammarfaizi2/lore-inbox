@@ -1,56 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272292AbRHXSX5>; Fri, 24 Aug 2001 14:23:57 -0400
+	id <S272295AbRHXS15>; Fri, 24 Aug 2001 14:27:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272290AbRHXSXs>; Fri, 24 Aug 2001 14:23:48 -0400
-Received: from abraham.CS.Berkeley.EDU ([128.32.37.121]:40718 "EHLO paip.net")
-	by vger.kernel.org with ESMTP id <S272291AbRHXSXh>;
-	Fri, 24 Aug 2001 14:23:37 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: daw@mozart.cs.berkeley.edu (David Wagner)
-Newsgroups: isaac.lists.linux-kernel
-Subject: Re: macro conflict
-Date: 24 Aug 2001 18:20:19 GMT
-Organization: University of California, Berkeley
-Distribution: isaac
-Message-ID: <9m65t3$410$1@abraham.cs.berkeley.edu>
-In-Reply-To: <14764.998658214@redhat.com> <Pine.LNX.3.95.1010824091538.32666A-100000@chaos.analogic.com>
-NNTP-Posting-Host: mozart.cs.berkeley.edu
-X-Trace: abraham.cs.berkeley.edu 998677219 4128 128.32.45.153 (24 Aug 2001 18:20:19 GMT)
-X-Complaints-To: news@abraham.cs.berkeley.edu
-NNTP-Posting-Date: 24 Aug 2001 18:20:19 GMT
-X-Newsreader: trn 4.0-test74 (May 26, 2000)
-Originator: daw@mozart.cs.berkeley.edu (David Wagner)
+	id <S272294AbRHXS1r>; Fri, 24 Aug 2001 14:27:47 -0400
+Received: from modemcable084.137-200-24.mtl.mc.videotron.ca ([24.200.137.84]:45558
+	"EHLO xanadu.home") by vger.kernel.org with ESMTP
+	id <S272290AbRHXS1l>; Fri, 24 Aug 2001 14:27:41 -0400
+Date: Fri, 24 Aug 2001 14:25:55 -0400 (EDT)
+From: Nicolas Pitre <nico@cam.org>
+X-X-Sender: <nico@xanadu.home>
+To: Daniel Phillips <phillips@bonn-fries.net>
+cc: Anwar P <anwarp@mail.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: What version of the kernel fixes these VM issues?
+In-Reply-To: <Pine.LNX.4.33.0108241354520.25240-100000@xanadu.home>
+Message-ID: <Pine.LNX.4.33.0108241425190.25240-100000@xanadu.home>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard B. Johnson wrote:
->Looking through the code, min() is most always used to find some value
->that will not overflow some buffer, i.e.,
->
->    len = min(user_request_len, sizeof(buffer));
->
->The problem is that sizeof() returns an unsigned int (size_t), and the
->user request length may be an integer. Everything works fine until
->you get to lengths with the high bit set. Then, you are in trouble.
->
->In this case, you could have a 'min()' that does:
->
->#define min(a,b) (unsigned long)(a) < (unsigned long)(b) ? (a) : (b)
->
->... where the comparison (only) is made unsigned, and you keep the
->original values. This should work, perhaps in all the current uses.
 
-Just a small warning:  If anyone writes something like
-    int len = min(user_request_len, sizeof(buffer));
-    if (user_request_len > len)
-        goto fail;
-    memcpy(dst, user_src, len);
-they can get into trouble even with your min() macro.
-Ok, maybe this is crazy code that noone in their right
-mind would ever write.
 
-This is not intended as a criticism -- your approach may be
-sufficient for existing code -- but it is something to watch
-out for.
+On Fri, 24 Aug 2001, Nicolas Pitre wrote:
+
+> I have a totally different setup but I can reproduce the same behavior on
+> the system I have here:
+>
+> ARM board with 32 MB RAM, no flash, NFS root.
+
+Sorry I meant no swap.
+
+
+Nicolas
+

@@ -1,62 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271765AbTGRPGm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 11:06:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271778AbTGRPFQ
+	id S271772AbTGRPGn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 11:06:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271822AbTGRPFX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 11:05:16 -0400
-Received: from fw.osdl.org ([65.172.181.6]:64395 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S271836AbTGROph (ORCPT
+	Fri, 18 Jul 2003 11:05:23 -0400
+Received: from kweetal.tue.nl ([131.155.3.6]:25094 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S271761AbTGROtG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 10:45:37 -0400
-Date: Fri, 18 Jul 2003 07:57:09 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: James Courtier-Dutton <James@superbug.demon.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: I have an oops report for a usb problem. Is this the correct
- list to post it to?
-Message-Id: <20030718075709.49e1ab34.rddunlap@osdl.org>
-In-Reply-To: <3F17F1CC.1000903@superbug.demon.co.uk>
-References: <3F17F1CC.1000903@superbug.demon.co.uk>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Fri, 18 Jul 2003 10:49:06 -0400
+Date: Fri, 18 Jul 2003 17:04:00 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: Andries Brouwer <aebr@win.tue.nl>, alan@lxorguk.ukuu.org.uk,
+       geert@linux-m68k.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] PATCH: typo bits
+Message-ID: <20030718170400.A3094@pclin040.win.tue.nl>
+References: <Pine.GSO.4.21.0307181221390.22944-100000@vervain.sonytel.be> <1058528165.19558.3.camel@dhcp22.swansea.linux.org.uk> <20030718152947.B3019@pclin040.win.tue.nl> <20030718073319.37d7863f.rddunlap@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030718073319.37d7863f.rddunlap@osdl.org>; from rddunlap@osdl.org on Fri, Jul 18, 2003 at 07:33:19AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 Jul 2003 14:10:36 +0100 James Courtier-Dutton <James@superbug.demon.co.uk> wrote:
+On Fri, Jul 18, 2003 at 07:33:19AM -0700, Randy.Dunlap wrote:
 
-| Hi,
-| 
-| I have an oops report for a usb problem. Is this the correct list to 
-| post it to.
-| I want to post the ksymoops decoded opps, together with a copy of the 
-| module's source code in which the oops happened, together with the 
-| module.o file, thinking that with all that, it should help the developer 
-| of that module cure the problem.
-| The source file where the oops happens is 
-| ./linux-2.4.21/drivers/usb/host/uhci.c
-| 
-| I cannot see any kernel mailing list dedicated to usb, so that is why I 
-| am asking before posting what might be a largish post of linux-kernel.
+> | Isosynchronous is (was?) not an English word.
+> | 
+> | Oh, but we aren't speaking English - this is about USB devices.
+> | Read the USB standard and see that it has an isosynchronous mode.
+> 
+> It does?  I can't find it in the main USB 2.0 spec.
+> It discusses isochronous, which is what I would prefer to see,
+> regardless of the USB spec.
 
->From linux/MAINTAINERS file:
+Ah, yes, you are right. I did a grep on the USB docs directory
+and it is full of isosynchronous, but those are all fragments
+from the net. The actual standards correctly use isochronous.
+Sorry.
 
-USB SUBSYSTEM
-P:	Greg Kroah-Hartman
-M:	greg@kroah.com
-L:	linux-usb-users@lists.sourceforge.net
-L:	linux-usb-devel@lists.sourceforge.net
-W:	http://www.linux-usb.org
-S:	Supported
+Andries
 
---
-~Randy
-For Linux-2.6:
-http://www.codemonkey.org.uk/post-halloween-2.5.txt
-  or http://lwn.net/Articles/39901/
-http://www.kernel.org/pub/linux/kernel/people/rusty/modules/

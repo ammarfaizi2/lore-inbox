@@ -1,37 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265247AbSJRQNV>; Fri, 18 Oct 2002 12:13:21 -0400
+	id <S265211AbSJRQOX>; Fri, 18 Oct 2002 12:14:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265248AbSJRQNV>; Fri, 18 Oct 2002 12:13:21 -0400
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:9199 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S265247AbSJRQNU>; Fri, 18 Oct 2002 12:13:20 -0400
-X-Mailer: exmh version 2.5 13/07/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <29929.1034955828@ocs3.intra.ocs.com.au> 
-References: <29929.1034955828@ocs3.intra.ocs.com.au> 
-To: Keith Owens <kaos@ocs.com.au>
-Cc: Christoph Hellwig <hch@sgi.com>, John Hesterberg <jh@sgi.com>,
-       linux-kernel@vger.kernel.org, Robin Holt <holt@sgi.com>
-Subject: Re: [PATCH] 2.5.43 CSA, Job, and PAGG 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 18 Oct 2002 17:19:10 +0100
-Message-ID: <23005.1034957950@passion.cambridge.redhat.com>
+	id <S265200AbSJRQOX>; Fri, 18 Oct 2002 12:14:23 -0400
+Received: from mx.alles.or.jp ([210.231.151.65]:42667 "EHLO mx.alles.or.jp")
+	by vger.kernel.org with ESMTP id <S265248AbSJRQOU>;
+	Fri, 18 Oct 2002 12:14:20 -0400
+Message-ID: <3DB034E6.D0132440@alles.or.jp>
+Date: Sat, 19 Oct 2002 01:20:54 +0900
+From: Takeharu Kato <tk1219@alles.or.jp>
+X-Mailer: Mozilla 4.05 [ja] (Win95; I)
+MIME-Version: 1.0
+To: karim@opersys.com
+CC: linux-kernel <linux-kernel@vger.kernel.org>, LTT-Dev <ltt-dev@shafik.org>
+Subject: Re: [ltt-dev] [ANNOUNCE] LTT 0.9.6pre2: Per-CPU buffers, TSC timestamps, 
+	 etc.
+References: <3DAF850D.D104A6D@opersys.com> <3DB03026.63AF250F@alles.or.jp> <3DB034A7.D7E9BA78@opersys.com>
+Content-Type: text/plain; charset=iso-2022-jp
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dear Yaghmour:
 
-kaos@ocs.com.au said:
->  There is even source code that needs to know if CONFIG_FOO was set to
-> y or m, that code needs the existing separation between CONFIG_FOO and
-> CONFIG_FOO_MODULE. 
+Thank you for your quick response.
 
-No. That code needs to be fixed so it doesn't ever look at 
-CONFIG_FOO_MODULE.
+> 0.9.6pre2 is a development version, it's expected to have rough
+> spots. If you need a stable version use 0.9.5a. That said, yes
+> LibUserTrace hasn't been modified yet for the syscall interface,
+> but this is really a minor issue which will be fixed.
+> 
+I see.
+I tried to compile the tarcedaemon 
+with UserTrace.c which you sent before, and 
+it work properly.
 
---
-dwmw2
 
-
+-- 
+---------------------------
+Takeharu KATO
+E-mail: tk1219@alles.or.jp

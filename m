@@ -1,37 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291775AbSBNQkn>; Thu, 14 Feb 2002 11:40:43 -0500
+	id <S291776AbSBNQkX>; Thu, 14 Feb 2002 11:40:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291781AbSBNQkY>; Thu, 14 Feb 2002 11:40:24 -0500
-Received: from hirsch.in-berlin.de ([192.109.42.6]:32528 "EHLO
+	id <S291780AbSBNQkO>; Thu, 14 Feb 2002 11:40:14 -0500
+Received: from hirsch.in-berlin.de ([192.109.42.6]:27920 "EHLO
 	hirsch.in-berlin.de") by vger.kernel.org with ESMTP
-	id <S291778AbSBNQkO>; Thu, 14 Feb 2002 11:40:14 -0500
-X-Envelope-From: kraxel@goldbach.in-berlin.de
-Date: Thu, 14 Feb 2002 17:37:05 +0100
-From: Gerd Knorr <kraxel@strusel007.de>
-To: Steven Cole <elenstev@mesatop.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.5-pre1 fix build error in drivers/video/vesafb.c
-Message-ID: <20020214163705.GA2185@goldbach.in-berlin.de>
-In-Reply-To: <200202141501.IAA04461@tstac.esa.lanl.gov>
+	id <S291752AbSBNQkI>; Thu, 14 Feb 2002 11:40:08 -0500
+X-Envelope-From: kraxel@bytesex.org
+Date: Thu, 14 Feb 2002 16:19:31 +0100
+From: Gerd Knorr <kraxel@bytesex.org>
+To: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel List <linux-kernel@vger.kernel.org>
+Subject: [patch] matroxfb fix
+Message-ID: <20020214161931.B8112@bytesex.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200202141501.IAA04461@tstac.esa.lanl.gov>
-User-Agent: Mutt/1.3.25i
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> -               pmi_base  = (unsigned short*)bus_to_virt(((unsigned long)screen_info.vesapm_seg << 4) + screen_info.vesapm_off);
-> +               pmi_base  = (unsigned short*)phys_to_virt(((unsigned long)screen_info.vesapm_seg << 4) + screen_info.vesapm_off);
+  Hi,
 
-Looks fine to me.  While s/bus/phys/ isn't the approximate fix for many
-drivers, at this place it is correct.  The address is a segment:offset
-pointer to a physical memory address somewhere in the VESA BIOS.
+Trivial build fix for matroxfb (broken due to kdev_t changes).
 
   Gerd
 
--- 
-Man muß die Software wacker hüten
-weil in der Welt die Hacker wüten
+---------------------------- cut here -------------------------
+--- linux-2.5.5-pre1/drivers/video/matrox/matroxfb_base.c	Wed Nov 14 23:52:20 2001
++++ linux/drivers/video/matrox/matroxfb_base.c	Thu Feb 14 15:20:44 2002
+@@ -1789,7 +1789,7 @@
+ 
+ 	strcpy(ACCESS_FBINFO(fbcon.modename), "MATROX VGA");
+ 	ACCESS_FBINFO(fbcon.changevar) = NULL;
+-	ACCESS_FBINFO(fbcon.node) = -1;
++	ACCESS_FBINFO(fbcon.node) = NODEV;
+ 	ACCESS_FBINFO(fbcon.fbops) = &matroxfb_ops;
+ 	ACCESS_FBINFO(fbcon.disp) = d;
+ 	ACCESS_FBINFO(fbcon.switch_con) = &matroxfb_switch;

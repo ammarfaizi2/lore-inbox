@@ -1,69 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271002AbTG1CZO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jul 2003 22:25:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271001AbTG1AAn
+	id S270998AbTG1CZP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jul 2003 22:25:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270987AbTG1AAb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jul 2003 20:00:43 -0400
+	Sun, 27 Jul 2003 20:00:31 -0400
 Received: from zeus.kernel.org ([204.152.189.113]:14071 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S272952AbTG0XCV (ORCPT
+	by vger.kernel.org with ESMTP id S272954AbTG0XCX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jul 2003 19:02:21 -0400
-Date: Sun, 27 Jul 2003 21:13:53 +0200
-From: Martin Loschwitz <madkiss@madkiss.org>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Problems with Linux 2.6.0-test1-bk3 regarding ACPI
-Message-ID: <20030727191353.GA2845@minerva.local.lan>
-References: <20030727174108.GA2208@minerva.local.lan>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="pWyiEgJYm5f9v55/"
-Content-Disposition: inline
-In-Reply-To: <20030727174108.GA2208@minerva.local.lan>
-User-Agent: Mutt/1.5.4i
+	Sun, 27 Jul 2003 19:02:23 -0400
+From: Andrey Borzenkov <arvidjaar@mail.ru>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH][2.6.0-test2] remove MOD_{INC,DEC}_USE_COUNT from ircomm_tty.c
+Date: Sun, 27 Jul 2003 23:57:40 +0400
+User-Agent: KMail/1.5
+Cc: irda-users@lists.sourceforge.net
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_06CJ/fRCaqBdi7e"
+Message-Id: <200307272357.40144.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---pWyiEgJYm5f9v55/
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Sun, Jul 27, 2003 at 07:41:08PM +0200, Martin Loschwitz wrote:
-> Hello folks,
->=20
-> I am experiencing an unexpected problem with Linux 2.6.0-test1-bk3 on
-> my Acer TravelMate 800LCi Centrino Notebook (Intel 855PM, Pentim M at
-> 1.3GHz). It appears ACPI loads fine at boot time but after I logged in,=
-=20
-> there is no /proc/acpi/sleep which is necessary to send the notebook=20
-> into sleep state and the like. Is this maybe a known problem is a fix=20
-> for it available somewhere? If you need other information like the=20
-> dmesg output or something else, let me know please.
->=20
-Uh, it appears I ran into the problem that ACPI sleep states need software=
-=20
-suspend to be enabled. After enabling swsusp, I was able to enable the
-"Sleep states". Since I can't see how these two things are related to each
-other, I guess they should be changed to be independent.
-
---=20
-  .''`.   Martin Loschwitz           Debian GNU/Linux developer
- : :'  :  madkiss@madkiss.org        madkiss@debian.org
- `. `'`   http://www.madkiss.org/    people.debian.org/~madkiss/
-   `-     Use Debian GNU/Linux 3.0!  See http://www.debian.org/
-
---pWyiEgJYm5f9v55/
-Content-Type: application/pgp-signature
+--Boundary-00=_06CJ/fRCaqBdi7e
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
+This compiles and loads but I am not sure how to test it, I do not actually 
+have any ircomm device currently.
 
-iD8DBQE/JCRxHPo+jNcUXjARAg5ZAJ9A2YCbSclki2BNAtVIPJzpk7C39QCfRySL
-Gxu1gAcrUWxO2R1KSe58dzc=
-=bf7M
------END PGP SIGNATURE-----
+-andrey
+--Boundary-00=_06CJ/fRCaqBdi7e
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="2.6.0-test2-ircomm_tty-USE_COUNT.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="2.6.0-test2-ircomm_tty-USE_COUNT.patch"
 
---pWyiEgJYm5f9v55/--
+--- linux-2.6.0-test2-smp/net/irda/ircomm/ircomm_tty.c.MOD	2003-07-14 20:21:31.000000000 +0400
++++ linux-2.6.0-test2-smp/net/irda/ircomm/ircomm_tty.c	2003-07-27 23:22:20.000000000 +0400
+@@ -117,6 +117,7 @@ int __init ircomm_tty_init(void)
+ 		return -ENOMEM;
+ 	}
+ 
++	driver->owner		= THIS_MODULE,
+ 	driver->driver_name     = "ircomm";
+ 	driver->name            = "ircomm";
+ 	driver->devfs_name      = "ircomm";
+@@ -363,10 +364,8 @@ static int ircomm_tty_open(struct tty_st
+ 
+ 	IRDA_DEBUG(2, "%s()\n", __FUNCTION__ );
+ 
+-	MOD_INC_USE_COUNT;
+ 	line = tty->index;
+ 	if ((line < 0) || (line >= IRCOMM_TTY_PORTS)) {
+-		MOD_DEC_USE_COUNT;
+ 		return -ENODEV;
+ 	}
+ 
+@@ -377,7 +376,6 @@ static int ircomm_tty_open(struct tty_st
+ 		self = kmalloc(sizeof(struct ircomm_tty_cb), GFP_KERNEL);
+ 		if (self == NULL) {
+ 			ERROR("%s(), kmalloc failed!\n", __FUNCTION__);
+-			MOD_DEC_USE_COUNT;
+ 			return -ENOMEM;
+ 		}
+ 		memset(self, 0, sizeof(struct ircomm_tty_cb));
+@@ -503,7 +501,6 @@ static void ircomm_tty_close(struct tty_
+ 	spin_lock_irqsave(&self->spinlock, flags);
+ 
+ 	if (tty_hung_up_p(filp)) {
+-		MOD_DEC_USE_COUNT;
+ 		spin_unlock_irqrestore(&self->spinlock, flags);
+ 
+ 		IRDA_DEBUG(0, "%s(), returning 1\n", __FUNCTION__ );
+@@ -530,7 +527,6 @@ static void ircomm_tty_close(struct tty_
+ 		self->open_count = 0;
+ 	}
+ 	if (self->open_count) {
+-		MOD_DEC_USE_COUNT;
+ 		spin_unlock_irqrestore(&self->spinlock, flags);
+ 
+ 		IRDA_DEBUG(0, "%s(), open count > 0\n", __FUNCTION__ );
+@@ -572,8 +568,6 @@ static void ircomm_tty_close(struct tty_
+ 
+ 	self->flags &= ~(ASYNC_NORMAL_ACTIVE|ASYNC_CLOSING);
+ 	wake_up_interruptible(&self->close_wait);
+-
+-	MOD_DEC_USE_COUNT;
+ }
+ 
+ /*
+
+--Boundary-00=_06CJ/fRCaqBdi7e--
+

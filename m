@@ -1,51 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261763AbVASQEA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261765AbVASQFg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261763AbVASQEA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 11:04:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261766AbVASQEA
+	id S261765AbVASQFg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 11:05:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261766AbVASQEF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 11:04:00 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:20871 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261763AbVASQDy (ORCPT
+	Wed, 19 Jan 2005 11:04:05 -0500
+Received: from asplinux.ru ([195.133.213.194]:15372 "EHLO relay.asplinux.ru")
+	by vger.kernel.org with ESMTP id S261765AbVASQD7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 11:03:54 -0500
-Date: Wed, 19 Jan 2005 11:03:28 -0500 (EST)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@thoron.boston.redhat.com
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org, Stephen Smalley <sds@epoch.ncsc.mil>,
-       jamal <hadi@cyberus.ca>
-Subject: [PATCH][SELINUX] Add Netlink message types for the TC action code.
-Message-ID: <Xine.LNX.4.44.0501191056520.29331-100000@thoron.boston.redhat.com>
+	Wed, 19 Jan 2005 11:03:59 -0500
+Message-ID: <41EE85CC.3020009@sw.ru>
+Date: Wed, 19 Jan 2005 19:07:40 +0300
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
+X-Accept-Language: ru-ru, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org
+Subject: possible CPU bug and request for Intel contacts
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds Netlink message types related to the TC action code, 
-allowing finer grained SELinux control of this.
+Hello Linus,
 
-Please apply.
+Linus, Ingo, I've got one strange CPU bug leading to oopses, reboots and 
+so on. This bug can be reproduced with a little bit modified 4gb split 
+and is probably related to CPU speculative execution. I'll post more 
+information about this bug later, but I would like to ask you for Intel 
+guys contacts who maybe interested in this information, so I could CC 
+them as well.
 
-Author: jamal <hadi@cyberus.ca>
-Signed-off-by: James Morris <jmorris@redhat.com>
-Signed-off-by: Stephen Smalley <sds@epoch.ncsc.mil>
-
----
-
- security/selinux/nlmsgtab.c |    3 +++
- 1 files changed, 3 insertions(+)
-
---- 2610-bk1/security/selinux/nlmsgtab.c	2004/12/28 04:01:14	1.1
-+++ 2610-bk1/security/selinux/nlmsgtab.c	2004/12/28 04:05:39
-@@ -56,6 +56,9 @@
- 	{ RTM_NEWTFILTER,	NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
- 	{ RTM_DELTFILTER,	NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
- 	{ RTM_GETTFILTER,	NETLINK_ROUTE_SOCKET__NLMSG_READ  },
-+	{ RTM_NEWACTION,	NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
-+	{ RTM_DELACTION,	NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
-+	{ RTM_GETACTION,	NETLINK_ROUTE_SOCKET__NLMSG_READ  },
- 	{ RTM_NEWPREFIX,	NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
- 	{ RTM_GETPREFIX,	NETLINK_ROUTE_SOCKET__NLMSG_READ  },
- 	{ RTM_GETMULTICAST,	NETLINK_ROUTE_SOCKET__NLMSG_READ  },
+Thank you,
+Kirill
 

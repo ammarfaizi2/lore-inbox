@@ -1,47 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265145AbTFRLG4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jun 2003 07:06:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265151AbTFRLG4
+	id S265152AbTFRLIy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jun 2003 07:08:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265153AbTFRLIy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jun 2003 07:06:56 -0400
-Received: from falcon.ericsson.se ([193.180.251.52]:18835 "EHLO
-	falcon.al.sw.ericsson.se") by vger.kernel.org with ESMTP
-	id S265145AbTFRLGz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jun 2003 07:06:55 -0400
-Message-ID: <5E5172B4DE05D311B3AB0008C75DA941123CEF53@edeacnt100.eed.ericsson.se>
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: "Sourabh Ladha (EED)" <Sourabh.Ladha@eed.ericsson.se>
+	Wed, 18 Jun 2003 07:08:54 -0400
+Received: from host81-134-138-64.in-addr.btopenworld.com ([81.134.138.64]:30083
+	"HELO factotum.office.bytemark.co.uk") by vger.kernel.org with SMTP
+	id S265152AbTFRLIv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jun 2003 07:08:51 -0400
+From: Pete Taphouse <pete@bytemark.co.uk>
 To: linux-kernel@vger.kernel.org
-Subject: Kernel Panic while upgrading from 2.4.20 to 2.5.70
-Date: Wed, 18 Jun 2003 13:19:30 +0200
+Subject: ptrace/kmod exploit still works in 2.4.21?
+Date: Wed, 18 Jun 2003 12:22:04 +0100
+User-Agent: KMail/1.5.2
+Organization: Bytemark Computer Consulting Ltd
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: multipart/signed;
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1;
+  boundary="Boundary-02=_jtE8+1f2PlSaype";
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200306181222.11691.pete@bytemark.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+
+--Boundary-02=_jtE8+1f2PlSaype
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Description: signed data
+Content-Disposition: inline
+
 Hi,
 
-[I know this has been discussed before but I tried the previous fixes proposed without luck..so]
+I've been doing some experiments with the 2.4.21 kernel, and the ptrace=20
+exploit: the result of which is that I've compiled a kernel with the=20
+processor set to i386.  I then ran this kernel on 2 computers, one is a Dur=
+on=20
+machine with SIS chipset, the other is a Pentium 4 machine with the Intel 8=
+45=20
+chipset. The exploit still gave me a root shell on the Pentium 4 machine, b=
+ut=20
+didn't on the Duron one.
 
-I was trying to upgrade my kernel from 2.4.20 to 2.5.70. (I am running RedHat 9). After getting the sources I did:
+I've read the previous post about this, and in both cases I only logged in =
+as=20
+an unprivileged user.  I didn't login as root and then su to an unprivilege=
+d=20
+use first. I checked to see that I was root by opening /etc/shadow.
 
-make clean; make mrproper; make distclean; make menuconfig; make bzImage; make modules; make modules_install; make install   (got past all of these)
+The exploit used was:
+http://packetstormsecurity.nl/0304-exploits/ptrace-kmod.c
 
-The make install updated my grub.conf as well. When I reboot the system tries to boot up but I get a kernel panic with the error:
+The config file for the kernel I compiled is at:
+http://www.bytemark-hosting.co.uk/config.txt
 
-mount: error 19 mounting ext3
-pivotroot: pivot_root(/sysroot,/sysroot/initrd) failed: 2
-umount /initrd/proc failed: 2
-Freeing unused kernel memory: 224k freed
-Kernel panic: No init found. Try passing init= option to kernel
+Any ideas?
 
-Some random, no-clue attempts of fixing included: removing the ext3 support and then rebuilding the kernel, making my old config file's (2.4.20) filesystem options same as the new one and then rebuilding..but no luck.
+=2D-=20
+Peter Taphouse
 
-Could anyone please let me know what can I do to get 2.5.70 working ?
+Bytemark Hosting
+http://www.bytemark-hosting.co.uk
+tel. +44 (0) 8707 455 026
 
+--Boundary-02=_jtE8+1f2PlSaype
+Content-Type: application/pgp-signature
+Content-Description: signature
 
-Thanks,
-Sourabh
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA+8EtjIAZ7OKeBB58RAoLWAJ0UaxABVxCF8hr+zHZEtdgWPIRLGQCfVchC
+vjgguI5GCGo6iIUqxY1HGfU=
+=hcxZ
+-----END PGP SIGNATURE-----
+
+--Boundary-02=_jtE8+1f2PlSaype--
+

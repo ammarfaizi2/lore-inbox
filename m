@@ -1,63 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262647AbUJ0Xmp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262660AbUJ0Xmo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262647AbUJ0Xmp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 19:42:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262678AbUJ0Xin
+	id S262660AbUJ0Xmo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 19:42:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262661AbUJ0XiY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 19:38:43 -0400
-Received: from smtp3.netcabo.pt ([212.113.174.30]:41386 "EHLO
-	exch01smtp11.hdi.tvcabo") by vger.kernel.org with ESMTP
-	id S262647AbUJ0Xfa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 19:35:30 -0400
-Message-ID: <33083.192.168.1.5.1098919913.squirrel@192.168.1.5>
-In-Reply-To: <20041027211957.GA28571@elte.hu>
-References: <20041021132717.GA29153@elte.hu> <20041022133551.GA6954@elte.hu>
-    <20041022155048.GA16240@elte.hu> <20041022175633.GA1864@elte.hu>
-    <20041025104023.GA1960@elte.hu> <20041027001542.GA29295@elte.hu>
-    <5225.195.245.190.94.1098880980.squirrel@195.245.190.94>
-    <20041027135309.GA8090@elte.hu>
-    <12917.195.245.190.94.1098890763.squirrel@195.245.190.94>
-    <20041027205126.GA25091@elte.hu> <20041027211957.GA28571@elte.hu>
-Date: Thu, 28 Oct 2004 00:31:53 +0100 (WEST)
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4
-From: "Rui Nuno Capela" <rncbc@rncbc.org>
-To: "Ingo Molnar" <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, "Lee Revell" <rlrevell@joe-job.com>,
-       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       "Bill Huey" <bhuey@lnxw.com>, "Adam Heath" <doogie@debian.org>,
-       "Florian Schmidt" <mista.tapas@gmx.net>,
-       "Thomas Gleixner" <tglx@linutronix.de>,
-       "Michal Schmidt" <xschmi00@stud.feec.vutbr.cz>,
-       "Fernando Pablo Lopez-Lezcano" <nando@ccrma.stanford.edu>,
-       "Karsten Wiese" <annabellesgarden@yahoo.de>
-User-Agent: SquirrelMail/1.4.3a
-X-Mailer: SquirrelMail/1.4.3a
-MIME-Version: 1.0
+	Wed, 27 Oct 2004 19:38:24 -0400
+Received: from fw.osdl.org ([65.172.181.6]:64976 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262683AbUJ0ULb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 16:11:31 -0400
+Date: Wed, 27 Oct 2004 13:09:19 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: rlrevell@joe-job.com, kr@cybsft.com, linux-kernel@vger.kernel.org,
+       rncbc@rncbc.org, Mark_H_Johnson@Raytheon.com, bhuey@lnxw.com,
+       doogie@debian.org, mista.tapas@gmx.net, tglx@linutronix.de,
+       xschmi00@stud.feec.vutbr.cz, nando@ccrma.Stanford.EDU
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0
+Message-Id: <20041027130919.1a1175f5.akpm@osdl.org>
+In-Reply-To: <20041027151701.GA11736@elte.hu>
+References: <20041025104023.GA1960@elte.hu>
+	<417D4B5E.4010509@cybsft.com>
+	<20041025203807.GB27865@elte.hu>
+	<417E2CB7.4090608@cybsft.com>
+	<20041027002455.GC31852@elte.hu>
+	<417F16BB.3030300@cybsft.com>
+	<20041027132926.GA7171@elte.hu>
+	<417FB7F0.4070300@cybsft.com>
+	<20041027150548.GA11233@elte.hu>
+	<1098889994.1448.14.camel@krustophenia.net>
+	<20041027151701.GA11736@elte.hu>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
-X-OriginalArrivalTime: 27 Oct 2004 23:35:21.0350 (UTC) FILETIME=[9FF0AA60:01C4BC7D]
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
+Ingo Molnar <mingo@elte.hu> wrote:
 >
->> ok, i've uploaded RT-V0.4.2 which has more of the same: it fixes other
->> missed preemption checks. Does it make any difference to the xruns on
->> your UP box?
->
-> uploaded RT-V0.4.3 - there was a thinko in the latency tracer that
-> caused early boot failures.
->
+> > Here is a more up to date version of the rtc-debug patch:
+>  > 
+>  > http://lkml.org/lkml/2004/9/9/307
+>  > 
+>  > There is still a bit of 2.4 cruft in there but it works well.  Maybe
+>  > this could be included in future patches.
+> 
+>  the most natural point of inclusion would be Andrew's -mm tree i think
+>  :-)
 
-Yes, the xrun rate has decreased, slightly. RT-V0.4.3 is now ranking under
-10 per 5 min (~2/min), with jackd -R -r44100 -p128 -n2, fluidsynth x 6.
-
-Better still, but not to par as RT-U3, under the very same conditions.
-
-Cya.
--- 
-rncbc aka Rui Nuno Capela
-rncbc@rncbc.org
-
+It's 'orrid.  And iirc it breaks normal use of the RTC.

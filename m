@@ -1,50 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273619AbRIYWUh>; Tue, 25 Sep 2001 18:20:37 -0400
+	id <S274014AbRIYWXH>; Tue, 25 Sep 2001 18:23:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273609AbRIYWUU>; Tue, 25 Sep 2001 18:20:20 -0400
-Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:18955 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S273596AbRIYWT5>;
-	Tue, 25 Sep 2001 18:19:57 -0400
-Date: Tue, 25 Sep 2001 15:15:51 -0700
-From: Greg KH <greg@kroah.com>
-To: Roberto Nibali <ratz@drugphish.ch>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Binary only module overview
-Message-ID: <20010925151551.D15314@kroah.com>
-In-Reply-To: <20010924124044.B17377@devserv.devel.redhat.com> <20010925084439.B6396@us.ibm.com> <20010925200947.B7174@itsolve.co.uk> <20010925134232.A14715@kroah.com> <3BB0F297.D4A9E986@drugphish.ch> <20010925141623.A14962@kroah.com> <3BB101AE.C7CA4997@drugphish.ch>
+	id <S273630AbRIYWW5>; Tue, 25 Sep 2001 18:22:57 -0400
+Received: from hermes.csd.unb.ca ([131.202.3.20]:4597 "EHLO hermes.csd.unb.ca")
+	by vger.kernel.org with ESMTP id <S274014AbRIYWWx>;
+	Tue, 25 Sep 2001 18:22:53 -0400
+X-WebMail-UserID: newton
+Date: Tue, 25 Sep 2001 19:32:41 -0300
+From: Chris Newton <newton@unb.ca>
+To: Benjamin LaHaise <bcrl@redhat.com>
+Cc: Andrew Morton <akpm@zip.com.au>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+X-EXP32-SerialNo: 00003025, 00003442
+Subject: RE: excessive interrupts on network cards
+Message-ID: <3BB12DBC@webmail1>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3BB101AE.C7CA4997@drugphish.ch>
-User-Agent: Mutt/1.3.21i
-X-Operating-System: Linux 2.2.19 (i586)
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: WebMail (Hydra) SMTP v3.61.08
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 26, 2001 at 12:14:06AM +0200, Roberto Nibali wrote:
-> 
-> I don't know about GPL and kernel related rights but I can hardly 
-> imagine a company that has a B1 certified product not to care well
-> about their other products to be on the right side of the law. I 
-> can talk to them on thursday about this at the comdex/orbit showcase.
-> The outcome of your legality statement might be crucial for their 
-> future business.
+Even once I get this current problem worked out, I'd be interested in testing 
+something along these lines.  I'm working to build a nice, fast network 
+monitor, and so, the performance of the box under high traffic load is very 
+important.
 
-Yes, the LSM licensing issue seems to be critical to a lot of people :)
-Presently I am waiting for a response from WireX as to what their stance
-is.
+  Are these changes totally related to the card you are using, or can they be 
+applied more generally to other cards?
 
-> BTW, I recall the HP Linux which IMO also violates the GPL then, doesn't
-> it? http://www.hp.com/security/products/linux/opensource/
-> Or does this differ in them providing the source code even for the LKMs
-> as opposite to argus which has binary only LKMs?
+Chris
 
-Exactly.  It looks like HP provides the source code for everything
-(someone tell me if I'm wrong here) while Argus looks like they only
-provide the kernel patches and a compiled loadable module binary, under
-a unknown license (at this time.)
+>===== Original Message From Benjamin LaHaise <bcrl@redhat.com> =====
+>On Tue, Sep 25, 2001 at 06:38:31PM -0300, Chris Newton wrote:
+>> Yea, it is a single port card... I had meant to mention that in the email I
+>> sent out...  ie: that it wasn't reporting correctly... but, I didnt really
+>> think it was related, since the eepro was doing the same thing.
+>>
+>>   As for comparing with ifconfig, I ran 'watch 1 ifconfig -a', and sure
+>> enough, I have about ~7000-7500 packets coming in right now.  And, the
+>> 'procinfo -D', reports ~21000-22000 interrupts per second.
+>
+>This is heavily dependant on the interrupt mitigation features that a card
+>has.  At least for the ns83820 driver, I'm testing a technique where the
+>driver essentially switches to polled mode once the interrupt load goes
+>above a certain threshold, thereby limiting the load to ~2500 irq/sec.
+>Combined with carefully placed data prefetching, I'm seeing a huge increase
+>in performance.  Of course, this comes at the expense of latency.
+>
+>		-ben
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
 
-thanks,
-
-greg k-h

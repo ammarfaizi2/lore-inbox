@@ -1,43 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293703AbSCFRFy>; Wed, 6 Mar 2002 12:05:54 -0500
+	id <S293696AbSCFRKE>; Wed, 6 Mar 2002 12:10:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293689AbSCFREJ>; Wed, 6 Mar 2002 12:04:09 -0500
-Received: from agamemnon.cnchost.com ([207.155.252.31]:34723 "EHLO
-	agamemnon.cnchost.com") by vger.kernel.org with ESMTP
-	id <S293693AbSCFRDr>; Wed, 6 Mar 2002 12:03:47 -0500
-Message-ID: <200203061703.MAA17490@agamemnon.cnchost.com>
-Content-Type: text/plain; charset=US-ASCII
-From: Elias Dagher <edagher@ditrans.com>
-Organization: Ditrans Corp.
-To: linux-kernel@vger.kernel.org
-Subject: make bzImage fails on ram disk code in 2.5.5
-Date: Wed, 6 Mar 2002 09:00:25 -0800
-X-Mailer: KMail [version 1.3.1]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S293681AbSCFRJy>; Wed, 6 Mar 2002 12:09:54 -0500
+Received: from deimos.hpl.hp.com ([192.6.19.190]:45532 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S293696AbSCFRJY>;
+	Wed, 6 Mar 2002 12:09:24 -0500
+Date: Wed, 6 Mar 2002 09:09:22 -0800
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.4.19-pre2]
+Message-ID: <20020306090922.A2159@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+In-Reply-To: <20020305163840.B1525@bougret.hpl.hp.com> <3C85A1BA.512E0324@mandrakesoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C85A1BA.512E0324@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Tue, Mar 05, 2002 at 11:57:30PM -0500
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am getting the following error when I do a make bzImage:
+On Tue, Mar 05, 2002 at 11:57:30PM -0500, Jeff Garzik wrote:
+> We don't need the silly spinlock wrappers in 2.4 either.....
 
-gcc -D__KERNEL__ -I/tmp/linux-2.5.5/include -Wall -Wstrict-prototypes 
--Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common 
--pipe -mpreferred-stack-boundary=2 -march=athlon    -DKBUILD_BASENAME=rd  -c 
--o rd.o rd.c
-rd.c: In function `rd_make_request':
-rd.c:271: too many arguments to function
-make[3]: *** [rd.o] Error 1
-make[3]: Leaving directory `/tmp/linux-2.5.5/drivers/block'
-make[2]: *** [first_rule] Error 2
-make[2]: Leaving directory `/tmp/linux-2.5.5/drivers/block'
-make[1]: *** [_subdir_block] Error 2
-make[1]: Leaving directory `/tmp/linux-2.5.5/drivers'
-make: *** [_dir_drivers] Error 2
+	I don't have the patch to un-wrap the spinlock. I think you
+have that in your archives. Just send that to Marcelo on top of my
+patch.
+	As usual, I don't really care about cosmetics ;-)
 
-
-Can some one please tell me what the problem is so that I can correct it?  I 
-want to use this kernel because of its new scheduler.
-
-
-ED
+	Jean

@@ -1,67 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261297AbUL2MtY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261307AbUL2My3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261297AbUL2MtY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Dec 2004 07:49:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261307AbUL2MtY
+	id S261307AbUL2My3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Dec 2004 07:54:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261308AbUL2My3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Dec 2004 07:49:24 -0500
-Received: from [195.23.16.24] ([195.23.16.24]:57548 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S261297AbUL2MtT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Dec 2004 07:49:19 -0500
-Message-ID: <41D2A7BE.2030806@grupopie.com>
-Date: Wed, 29 Dec 2004 12:49:02 +0000
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: Grupo PIE
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
+	Wed, 29 Dec 2004 07:54:29 -0500
+Received: from [143.247.20.203] ([143.247.20.203]:10112 "EHLO
+	cgx-mail.capitalgenomix.com") by vger.kernel.org with ESMTP
+	id S261307AbUL2MyW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Dec 2004 07:54:22 -0500
+Message-ID: <41D2A8FC.7080604@capitalgenomix.com>
+Date: Wed, 29 Dec 2004 07:54:20 -0500
+From: "Fao, Sean" <sean.fao@capitalgenomix.com>
+User-Agent: Mozilla Thunderbird 1.0RC1 (Windows/20041201)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: William Park <opengeometry@yahoo.ca>
-Cc: Jesper Juhl <juhl-lkml@dif.dk>, linux-kernel@vger.kernel.org,
-       Andreas Unterkircher <unki@netshadow.at>
-Subject: Re: waiting 10s before mounting root filesystem?
-References: <20041227195645.GA2282@node1.opengeometry.net> <20041227201015.GB18911@sweep.bur.st> <41D07D56.7020702@netshadow.at> <20041229005922.GA2520@node1.opengeometry.net> <Pine.LNX.4.61.0412290231580.3528@dragon.hygekrogen.localhost> <20041229015622.GA2817@node1.opengeometry.net>
-In-Reply-To: <20041229015622.GA2817@node1.opengeometry.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Vladimir Saveliev <vs@namesys.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Filesystem/kernel bug?
+References: <41D02F54.8070107@capitalgenomix.com>	 <41D16500.9070903@capitalgenomix.com> <1104251242.3568.30.camel@tribesman.namesys.com>
+In-Reply-To: <1104251242.3568.30.camel@tribesman.namesys.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.29.0.5; VDF: 6.29.0.39; host: bipbip)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Park wrote:
->[...]
-> 
-> Ideally, motherboard should support booting from USB key drive directly.
-> I'm told that most modern motherboards do support usbboot, but my
-> machine doesn't.  So, I trying to load the kernel from floppy (harddisk
-> for testing purpose).  This is part of my attempt to build Linux
-> thin-client out of mini-ITX type of computer (Via CLE266 chipset, Via C3
-> cpu).
-> 
-> Now, I need to find a machine that actually can do usbboot...
+Vladimir Saveliev wrote:
 
-You will have the same problem even if the BIOS supports booting from 
-USB. The BIOS will load the bootloader and map the USB drive as if it 
-were a regular disk, so that the INTxx calls (can't say the number from 
-memory) that LILO (or another bootloader) uses to load the kernel and 
-initrd into memory will work.
+>Hello
+>
+>On Tue, 2004-12-28 at 16:52, Fao, Sean wrote:
+>  
+>
+>>Update:
+>>
+>>I found these events --and many similar-- in my log file.
+>>
+>>Dec 26 17:55:43 cgx-mail ReiserFS: warning: is_tree_node: node level 0 
+>>does not match to the expected one 1
+>>Dec 26 17:55:43 cgx-mail ReiserFS: sda3: warning: vs-5150: 
+>>search_by_key: invalid format found in block 13706028. Fsck?
+>>Dec 26 17:55:43 cgx-mail ReiserFS: sda3: warning: vs-13070: 
+>>reiserfs_read_locked_inode: i/o failure occurred trying to find stat 
+>>data of [30749 74887 0x0 SD]
+>>Dec 26 17:55:43 cgx-mail ReiserFS: warning: is_tree_node: node level 0 
+>>does not match to the expected one 1
+>>Dec 26 17:55:43 cgx-mail ReiserFS: sda3: warning: vs-5150: 
+>>search_by_key: invalid format found in block 13706028. Fsck?
+>>Dec 26 17:55:43 cgx-mail ReiserFS: sda3: warning: vs-13070: 
+>>reiserfs_read_locked_inode: i/o failure occurred trying to find stat 
+>>data of [30749 74888 0x0 SD]
+>>Dec 26 17:55:43 cgx-mail ReiserFS: warning: is_tree_node: node level 0 
+>>does not match to the expected one 1
+>>Dec 26 17:55:43 cgx-mail ReiserFS: sda3: warning: vs-5150: 
+>>search_by_key: invalid format found in block 13706028. Fsck?
+>>Dec 26 17:55:43 cgx-mail ReiserFS: sda3: warning: vs-13070: 
+>>reiserfs_read_locked_inode: i/o failure occurred trying to find stat 
+>>data of [30749 74888 0x0 SD]
+>>
+>>Does this shed any new light?  Does it look like I might have a 
+>>corrupted file system?
+>>
+>>    
+>>
+>
+>Yes. Please try to reiserfsck your filesystem. Latest reiserfsck can be
+>obtained from
+>ftp://ftp.namesys.com/pub/reiserfsprogs/reiserfsprogs-3.6.19.tar.gz.
+>  
+>
 
-After that, the kernel boots the same way as if it were loaded from a 
-floppy. It still needs to discover the USB drive to mount the root 
-filesystem, and that will still take the 5 seconds you were complaining 
-about.
+Vladimir,
 
-As Trent Lloyd already mentioned, you could solve this using a small 
-initrd and a "nash" script, instead of patching the kernel, although I'm 
-in favor of a patch of this sort getting into mainline.
+Thank you much for your response.  This is a production email server so 
+I had to wait for an appropriate time to shut the system down.
 
-After all, what is the use of kernel saying "Panic, can not mount the 
-root filesystem" instead of saying "humm... no root file system there. 
-Let me try again in a second or so and see if anything as come up..."?
+Just a quick summary of what happened.  After rebooting the sever and 
+booting from a CD, I ran reiserfsck, which found no corruption in the 
+file system.  I then manually checked the directory structure and 
+everything looked fine.  I'm not what was wrong, but a reboot apparently 
+corrected whatever it was.
+
+I've noticed a couple of patches for reiserfs in the past month or so on 
+the LKML.  I'll check after I send this message to see if I can find the 
+answer for myself, but, are there any major reiserfs bug fixes related 
+to the Linux kernel, which have been corrected since 2.6.9 that I should 
+know about?  Also, I'm using a 3ware 8000 series SATA controller, if 
+that's at all relevant.
+
+Thanks again for your help,
 
 -- 
-Paulo Marques - www.grupopie.com
-
-"A journey of a thousand miles begins with a single step."
-Lao-tzu, The Way of Lao-tzu
-
+Sean

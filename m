@@ -1,68 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261467AbUKCH3H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261437AbUKCHoU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261467AbUKCH3H (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 02:29:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261494AbUKCH3H
+	id S261437AbUKCHoU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 02:44:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261452AbUKCHoU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 02:29:07 -0500
-Received: from fmr12.intel.com ([134.134.136.15]:32207 "EHLO
-	orsfmr001.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261467AbUKCH3A convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 02:29:00 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: ipw2100 and 2.6.10-rc1-bk12
-Date: Wed, 3 Nov 2004 15:28:43 +0800
-Message-ID: <3ACA40606221794F80A5670F0AF15F8403BD5806@pdsmsx403>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: ipw2100 and 2.6.10-rc1-bk12
-Thread-Index: AcTBbCVXE9VoOQcoTyuioyYAxiCvlAACeT2Q
-From: "Zhu, Yi" <yi.zhu@intel.com>
-To: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 03 Nov 2004 07:28:44.0872 (UTC) FILETIME=[C03CAC80:01C4C176]
+	Wed, 3 Nov 2004 02:44:20 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:57604 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261437AbUKCHoR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 02:44:17 -0500
+Date: Wed, 3 Nov 2004 07:43:59 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Cc: David Woodhouse <dwmw2@infradead.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] Way for platforms to alter built-in serial ports
+Message-ID: <20041103074359.A1542@flint.arm.linux.org.uk>
+Mail-Followup-To: Bjorn Helgaas <bjorn.helgaas@hp.com>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	linux-kernel@vger.kernel.org
+References: <200409301014.00725.bjorn.helgaas@hp.com> <20041006082919.B18379@flint.arm.linux.org.uk> <1099329348.13633.2192.camel@hades.cambridge.redhat.com> <200411020939.25851.bjorn.helgaas@hp.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200411020939.25851.bjorn.helgaas@hp.com>; from bjorn.helgaas@hp.com on Tue, Nov 02, 2004 at 09:39:25AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcos D. Marado Torres wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
+On Tue, Nov 02, 2004 at 09:39:25AM -0700, Bjorn Helgaas wrote:
+> On Monday 01 November 2004 10:15 am, David Woodhouse wrote:
+> > The problem is that 'console=ttySx' doesn't actually do anything unless
+> > port numer 'x' is already registered and working. We should fix that --
+> > we ought to be able to use 'console=ttySx' on the command line and have
+> > the console get registered with the core printk code later, when some
+> > 8250 sub-driver (8250_platform, 8250_pci, etc.) actually registers the
+> > port which becomes number 'x'. 
 > 
-> Greetings,
-> 
-> I was trying to compile Linux Kernel 2.6.10-rc1-bk12 and
-> ipw2100-0.58, but got this compiling errors:
-> 
-> drivers/net/wireless/ipw2100/ipw2100.c: In function
-> `ipw2100_pci_init_one': drivers/net/wireless/ipw2100/ipw2100.c:6610:
-> error: too many arguments to function `pci_restore_state'
-> drivers/net/wireless/ipw2100/ipw2100.c: In function `ipw2100_suspend':
-> drivers/net/wireless/ipw2100/ipw2100.c:6800: error: too many
-> arguments to function `pci_save_state'
-> drivers/net/wireless/ipw2100/ipw2100.c: In function `ipw2100_resume':
-> drivers/net/wireless/ipw2100/ipw2100.c:6820: error: too many
-> arguments to function `pci_restore_state'
-> make[4]: *** [drivers/net/wireless/ipw2100/ipw2100.o] Error 1
-> make[3]: *** [drivers/net/wireless/ipw2100] Error 2
-> make[2]: *** [drivers/net/wireless] Error 2
-> make[1]: *** [drivers/net] Error 2
-> make: *** [drivers] Error 2
-> 
-> I'm trying to compile this with gcc (GCC) 3.4.2 (Debian 3.4.2-3).
-> 
-> Any ideas? I can give any extra info you need...
+> See serial8250_late_console_init(); does this do what you want?
 
-Here is the fix patch for ipw2100-0.56.
-http://cache.gmane.org//gmane/linux/drivers/ipw2100/devel/2984-001.bin
+This call can now be removed - for any serial device, we keep registering
+the console each time a new port is added until it successfully registers.
 
-Please do not cross post next time, ipw2100-devel@lists.sourceforge.net
-should be right list for such problems.
-
-Thanks,
--yi
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

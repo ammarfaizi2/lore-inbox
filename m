@@ -1,53 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265123AbSJWSX3>; Wed, 23 Oct 2002 14:23:29 -0400
+	id <S265116AbSJWSVp>; Wed, 23 Oct 2002 14:21:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265124AbSJWSX3>; Wed, 23 Oct 2002 14:23:29 -0400
-Received: from fencepost.gnu.org ([199.232.76.164]:39144 "EHLO
-	fencepost.gnu.org") by vger.kernel.org with ESMTP
-	id <S265123AbSJWSX2>; Wed, 23 Oct 2002 14:23:28 -0400
-Date: Wed, 23 Oct 2002 14:29:35 -0400 (EDT)
-From: Pavel Roskin <proski@gnu.org>
-X-X-Sender: proski@marabou.research.att.com
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-cc: Torrey Hoffman <thoffman@arnor.net>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: "Hearty AOL" for kexec
-In-Reply-To: <Pine.LNX.3.95.1021023132644.14975A-100000@chaos.analogic.com>
-Message-ID: <Pine.LNX.4.44.0210231411050.12218-100000@marabou.research.att.com>
+	id <S265123AbSJWSVp>; Wed, 23 Oct 2002 14:21:45 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:43398 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S265116AbSJWSVo>; Wed, 23 Oct 2002 14:21:44 -0400
+Date: Wed, 23 Oct 2002 14:30:22 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Nivedita Singhvi <niv@us.ibm.com>
+cc: bert hubert <ahu@ds9a.nl>, Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
+       "David S. Miller" <davem@rth.ninka.net>, netdev@oss.sgi.com,
+       Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [RESEND] tuning linux for high network performance?
+In-Reply-To: <3DB6E56D.8D930A1D@us.ibm.com>
+Message-ID: <Pine.LNX.3.95.1021023141949.15292A-100000@chaos.analogic.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Anything that reduces dependencies on the BIOS is good.  I'd use this
-> > feature if it was available.
+On Wed, 23 Oct 2002, Nivedita Singhvi wrote:
+
+> "Richard B. Johnson" wrote:
 > 
-> But 'downloading' (actually uploading) software and writing it to flash
-> for a re-boot is a trivial user-mode task. The actual boot from such a
-> virtual disk takes 4 seconds on a real system (AMD SC520) processor in
-> an embedded system. You don't need any special kernel hooks.
+> > No. It's done over each word (short int) and the actual summation
+> > takes place during the address calculation of the next word. This
+> > gets you a checksum that is practically free.
+> 
+> Yep, sorry, word, not byte. My bad. The cost is in the fact 
+> that this whole process involves loading each word of the data
+> stream into a register. Which is why I also used to consider
+> the checksum cost as negligible. 
+> 
+> > A 400 MHz ix86 CPU will checksum/copy at 685 megabytes per second.
+> > It will copy at 1,549 megabytes per second. Those are megaBYTES!
+> 
+> But then why the difference in the checksum/copy and copy?
+> Are you saying the checksum is not costing you 864 megabytes
+> a second??
 
-The flashing can be trivial, but downloading and verification of the
-software is not.  One of the systems I was working on required synchronous
-PPP protocol and HDLC drivers to load the kernel.  The network was
-untrusted, so checking the signature of the kernel was a very good idea.  
-None of that functionality was required for normal operation.  In fact, it
-was preferred to disable any network protocols on the working nodes.
+Costing you 864 megabytes per second?
+Lets say the checksum was free. You are then able to INF bytes/per/sec.
+So it's costing you INF bytes/per/sec?  No, it's costing you nothing.
+If we were not dealing with INF, then 'Cost' is approximately 1/N, not
+N. Cost is work_done_without_checksum - work_done_with_checksum. Because
+of the low-pass filter pole, these numbers are practically the same.
+But, you can get a measurable difference between any two large numbers.
+This makes the 'cost' seem high. You need to make it relative to make
+any sense, so a 'goodness' can be expressed as a ratio of the cost and
+the work having been done.
 
-By the way, kexec makes it possible to avoid any write operations.  The
-bootstrap kernel can be in the true ROM (not PROM), the secondary kernel
-can be loaded into the RAM.
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+   Bush : The Fourth Reich of America
 
-Finally, I'm subscribed to the GNU GRUB mailing list, and it's quite
-common to see people trying to boot their systems over 802.11 or something
-like that, not to mention problems with large hard drives and USB
-keyboards.  kexec makes it possible to implement a bootloader with full
-BIOS-independent support for USB keyboards and drives, IDE, SCSI and
-everything else, even fancy animated logos on the framebuffer.
-
--- 
-Regards,
-Pavel Roskin
 

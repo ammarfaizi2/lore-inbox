@@ -1,35 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312515AbSDEM3v>; Fri, 5 Apr 2002 07:29:51 -0500
+	id <S312513AbSDEMbL>; Fri, 5 Apr 2002 07:31:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312513AbSDEM3b>; Fri, 5 Apr 2002 07:29:31 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:9222 "EHLO
+	id <S312524AbSDEMbB>; Fri, 5 Apr 2002 07:31:01 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:10502 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S312515AbSDEM3T>; Fri, 5 Apr 2002 07:29:19 -0500
-Subject: Re: faster boots?
-To: ebiederm@xmission.com (Eric W. Biederman)
-Date: Fri, 5 Apr 2002 13:45:34 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), bcrl@redhat.com (Benjamin LaHaise),
-        akpm@zip.com.au (Andrew Morton),
-        rgooch@ras.ucalgary.ca (Richard Gooch), joeja@mindspring.com,
+	id <S312513AbSDEMa6>; Fri, 5 Apr 2002 07:30:58 -0500
+Subject: Re: [PATCH 2.5.5] do export vmalloc_to_page to modules...
+To: davids@webmaster.com (David Schwartz)
+Date: Fri, 5 Apr 2002 13:48:08 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk, tigran@aivazian.fsnet.co.uk (Tigran Aivazian),
         linux-kernel@vger.kernel.org
-In-Reply-To: <m1sn6apt8r.fsf@frodo.biederman.org> from "Eric W. Biederman" at Apr 04, 2002 11:14:12 PM
+In-Reply-To: <20020405060629.AAA7397@shell.webmaster.com@whenever> from "David Schwartz" at Apr 04, 2002 10:06:28 PM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16tT5y-0008EO-00@the-village.bc.nu>
+Message-Id: <E16tT8S-0008Ej-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> My impression is that the time during kernel initialization is either
-> spent spinning up disks or in a million device probes and things going
-> on behind the scenes.  I haven't had a chance to look farther though.
+> Do you really want to argue that someone can add a digital rights management 
+> system into a GPL'd product, distribute it, and nobody else can modify that 
+> digital rights management system?
 
-IDE is less of a problem normally. In the LinuxBIOS case it may become
-measurable, and the initial drive spinup has to occur before the firmware
-responds. (If I understand it rightly most of the drive firmware is on
-the disk). For the spin up/down the IDE folks put it in the drives which 
-makes life much simpler
+Thats not what I said.
 
+The GPL protects your right to do certain things to a work. A digital rights
+mechanism that does not prevent anything the GPL permits doesn't clash with
+the GPL. In other words it can enforce the GPL, it cannot enforce anything
+further. 
+
+> =09You're out of your mind on this one. The GPL gives you the right=
+>  to modify 
+
+No you just aren't thinking about the larger picture

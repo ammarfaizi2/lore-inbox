@@ -1,63 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267078AbSLQTlX>; Tue, 17 Dec 2002 14:41:23 -0500
+	id <S266953AbSLQTgU>; Tue, 17 Dec 2002 14:36:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267079AbSLQTlX>; Tue, 17 Dec 2002 14:41:23 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:62602 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S267078AbSLQTlU>; Tue, 17 Dec 2002 14:41:20 -0500
-Date: Tue, 17 Dec 2002 14:52:08 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Ulrich Drepper <drepper@redhat.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Dave Jones <davej@codemonkey.org.uk>, Ingo Molnar <mingo@elte.hu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       hpa@transmeta.com
-Subject: Re: Intel P6 vs P7 system call performance
-In-Reply-To: <1040154273.20804.13.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.3.95.1021217144308.26554A-100000@chaos.analogic.com>
+	id <S266969AbSLQTgT>; Tue, 17 Dec 2002 14:36:19 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:42247 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S266953AbSLQTgR>; Tue, 17 Dec 2002 14:36:17 -0500
+Message-ID: <3DFF7E7D.1080900@transmeta.com>
+Date: Tue, 17 Dec 2002 11:43:57 -0800
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Organization: Transmeta Corporation
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021119
+X-Accept-Language: en, sv
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Ulrich Drepper <drepper@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Matti Aarnio <matti.aarnio@zmailer.org>,
+       Hugh Dickins <hugh@veritas.com>, Dave Jones <davej@codemonkey.org.uk>,
+       Ingo Molnar <mingo@elte.hu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Intel P6 vs P7 system call performance
+References: <Pine.LNX.4.44.0212171132530.1095-100000@home.transmeta.com>
+In-Reply-To: <Pine.LNX.4.44.0212171132530.1095-100000@home.transmeta.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 17 Dec 2002, Alan Cox wrote:
-
-> On Tue, 2002-12-17 at 18:48, Ulrich Drepper wrote:
-> > Alan Cox wrote:
-> > 
-> > > Is there any reason you can't just keep the linker out of the entire
-> > > mess by generating
-> > > 
-> > > 	.byte whatever
-> > > 	.dword 0xFFFF0000
-> > > 
-> > > instead of call ?
-> > 
-> > There is no such instruction.  Unless you know about some secret
-> > undocumented opcode...
+Linus Torvalds wrote:
 > 
-> No I'd forgotten how broken x86 was
+> The thing is, gettimeofday() isn't _that_ special. It's just not worth a
+> vsyscall of it's own, I feel. Where do you stop? Do we do getpid() too?
+> Just because we can?
+>
+
+getpid() could be implemented in userspace, but not via vsyscalls
+(instead it could be passed in the ELF data area at process start.)
+
+"Because we can and it's relatively easy" is a pretty good argument in
+my opinion.
+
+> This is especially true since the people who _really_ might care about
+> gettimeofday() are exactly the people who wouldn't be able to use the fast
+> user-space-only version.
+> 
+> How much do you think gettimeofday() really matters on a desktop? Sure, X
+> apps do gettimeofday() calls, but they do a whole lot more of _other_
+> calls, and gettimeofday() is really far far down in the noise for them.
+> The people who really call for gettimeofday() as a performance thing seem
+> to be database people who want it as a timestamp. But those are the same
+> people who also want NUMA machines which don't necessarily have
+> synchronized clocks.
 > 
 
-You can call intersegment with a full pointer. I don't know how
-expensive that is. Since USER_CS is a fixed value in Linux, it
-can be hard-coded
+I think this is really an overstatement.  Timestamping etc. (and heck,
+even databases) are actually perfectly usable even on smaller machines
+these days.  Sure, DB vendors like to boast of their 128-way NUMA
+machines, but I suspect the bulk of them run on single- and
+dual-processor machines (by count, not necessarily by data volume.)
 
-		.byte 0x9a
-		.dword 0xfffff000
-		.word USER_CS
-
-No. I didn't try this, I'm just looking at the manual. I don't know
-what the USER_CS is (didn't look in the kernel) The book says the
-pointer is 16:32 which means that it's a dword, followed by a word.
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
+	-hpa
 
 

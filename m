@@ -1,47 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261264AbVDBUnc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261273AbVDBUp5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261264AbVDBUnc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Apr 2005 15:43:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261267AbVDBUnc
+	id S261273AbVDBUp5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Apr 2005 15:45:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261275AbVDBUp5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Apr 2005 15:43:32 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:39837 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261264AbVDBUnb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Apr 2005 15:43:31 -0500
-Date: Sat, 2 Apr 2005 22:34:58 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>,
-       Gene Heskett <gene.heskett@verizon.net>,
-       LKML <linux-kernel@vger.kernel.org>, "K.R. Foley" <kr@cybsft.com>,
-       Rui Nuno Capela <rncbc@rncbc.org>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.43-00
-Message-ID: <20050402203458.GA16230@elte.hu>
-References: <20050325145908.GA7146@elte.hu> <200504011419.20964.gene.heskett@verizon.net> <424D9F6A.8080407@cybsft.com> <200504011834.22600.gene.heskett@verizon.net> <20050402051254.GA23786@elte.hu> <1112470675.27149.14.camel@localhost.localdomain> <1112472372.27149.23.camel@localhost.localdomain> <1112473038.28826.25.camel@mindpipe>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1112473038.28826.25.camel@mindpipe>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Sat, 2 Apr 2005 15:45:57 -0500
+Received: from pin.if.uz.zgora.pl ([212.109.128.251]:62690 "EHLO
+	pin.if.uz.zgora.pl") by vger.kernel.org with ESMTP id S261273AbVDBUpl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Apr 2005 15:45:41 -0500
+Message-ID: <424F04C1.7050902@pin.if.uz.zgora.pl>
+Date: Sat, 02 Apr 2005 22:46:57 +0200
+From: Jacek Luczak <difrost@pin.if.uz.zgora.pl>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: pl, en-us, en
+MIME-Version: 1.0
+To: chaosite@gmail.com
+Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@redhat.com>
+Subject: Re: Something wrong with 2.6.12-rc1-RT-V0.7.43-05
+References: <424EEF39.50805@pin.if.uz.zgora.pl> <424EF1D3.1070604@gmail.com> <424EF485.7050004@pin.if.uz.zgora.pl>
+In-Reply-To: <424EF485.7050004@pin.if.uz.zgora.pl>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jacek Luczak napisał(a):
+> Matan Peled napisał(a):
+> 
+>> Jacek Luczak wrote:
+>>
+>>> Hi
+>>>
+>>> Early morning i made a 2.6.12-rc1 with RT-V0.7.43-05 and this is what I
+>>> sow in dmesg after 6 hours of computers work:
+>>>
+>>> <SNIP!>
+>>
+>>
+>>
+>> Hmm... A lot of that seems to involve ndiswrapper. Is there any way 
+>> you could
+>> reproduce this without ndiswrapper loaded?
+> 
+> 
+> I will try and send it back.
+> 
+It seems that everything is involve by ndiswrapper. Those errors 
+reappear after module load. Without ndiswrapper kernel works OK.
 
-* Lee Revell <rlrevell@joe-job.com> wrote:
-
-> It wasn't clear from your last mail whether you were using NFS.  If so 
-> I would be suspicious given the NFS changes in the new RT patches.  
-> I'll try to reproduce the problem on a local fs.
-
-also, try to undo the fs/nfs/*.c and include/linux/*nfs*.h changes, 
-those are latency breakers, so not strictly necessary.
-
-	Ingo
+	Jacek

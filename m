@@ -1,87 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267575AbUBSVfq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 16:35:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267317AbUBSVfq
+	id S267315AbUBSVhU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 16:37:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267573AbUBSVf6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 16:35:46 -0500
-Received: from mid-1.inet.it ([213.92.5.18]:45214 "EHLO mid-1.inet.it")
-	by vger.kernel.org with ESMTP id S267573AbUBSVe4 (ORCPT
+	Thu, 19 Feb 2004 16:35:58 -0500
+Received: from fw.osdl.org ([65.172.181.6]:484 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267386AbUBSVeD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 16:34:56 -0500
-From: Fabio Coatti <cova@ferrara.linux.it>
-Organization: FerraraLUG
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.6.3-mm1 and aic7xxx
-Date: Thu, 19 Feb 2004 22:34:53 +0100
-User-Agent: KMail/1.6
+	Thu, 19 Feb 2004 16:34:03 -0500
+Date: Thu, 19 Feb 2004 13:38:45 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: viro@parcelfarce.linux.theplanet.co.uk
+cc: Tridge <tridge@samba.org>, Jamie Lokier <jamie@shareable.org>,
+       "H. Peter Anvin" <hpa@zytor.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Eureka! (was Re: UTF-8 and case-insensitivity)
+In-Reply-To: <Pine.LNX.4.58.0402191255540.1439@ppc970.osdl.org>
+Message-ID: <Pine.LNX.4.58.0402191334410.1439@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0402181511420.18038@home.osdl.org>
+ <20040219081027.GB4113@mail.shareable.org> <Pine.LNX.4.58.0402190759550.1222@ppc970.osdl.org>
+ <20040219163838.GC2308@mail.shareable.org> <Pine.LNX.4.58.0402190853500.1222@ppc970.osdl.org>
+ <20040219182948.GA3414@mail.shareable.org> <Pine.LNX.4.58.0402191124080.1270@ppc970.osdl.org>
+ <20040219200554.GE31035@parcelfarce.linux.theplanet.co.uk>
+ <Pine.LNX.4.58.0402191217050.1439@ppc970.osdl.org>
+ <Pine.LNX.4.58.0402191226240.1439@ppc970.osdl.org>
+ <20040219204515.GG31035@parcelfarce.linux.theplanet.co.uk>
+ <Pine.LNX.4.58.0402191255540.1439@ppc970.osdl.org>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200402192234.53855.cova@ferrara.linux.it>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm experiencing some problems with 2.6.3-mm1 release: on boot the system 
-hangs trying to detect scsi devices, and the light on scsi cdrom flashes 
-every few seconds. With 2.6.3-rc3-mm1 all works just fine, and I get this 
-syslog entry:
 
-Feb 19 22:23:15 kefk kernel: ahc_pci:3:6:0: Host Adapter Bios disabled.  Using 
-default SCSI device parameters
-Feb 19 22:23:15 kefk kernel: scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA 
-DRIVER, Rev 6.2.36
-Feb 19 22:23:15 kefk kernel:         <Adaptec 2902/04/10/15/20C/30C SCSI 
-adapter>
-Feb 19 22:23:15 kefk kernel:         aic7850: Single Channel A, SCSI Id=7, 
-3/253 SCBs
 
-<<<<<<<<<<<<<<<2.6.3-mm1 hangs here
+On Thu, 19 Feb 2004, Linus Torvalds wrote:
+> 
+> No no. Look at how this works:
+>  - only one dentry actually exists.
 
-Feb 19 22:23:15 kefk kernel:
-Feb 19 22:23:15 kefk kernel:   Vendor: Nikon     Model: COOLSCANIII       Rev: 
-1.31
-Feb 19 22:23:15 kefk kernel:   Type:   Scanner                            ANSI 
-SCSI revision: 02
-Feb 19 22:23:15 kefk kernel: (scsi0:A:3): 10.000MB/s transfers (10.000MHz, 
-offset 15)
-Feb 19 22:23:15 kefk kernel:   Vendor: PLEXTOR   Model: CD-ROM PX-40TS    Rev: 
-1.01
-Feb 19 22:23:15 kefk kernel:   Type:   CD-ROM                             ANSI 
-SCSI revision: 02
-Feb 19 22:23:15 kefk kernel: (scsi0:A:5): 10.000MB/s transfers (10.000MHz, 
-offset 15)
-Feb 19 22:23:15 kefk kernel:   Vendor: YAMAHA    Model: CRW6416S          Rev: 
-1.0c
-Feb 19 22:23:15 kefk kernel:   Type:   CD-ROM                             ANSI 
-SCSI revision: 02
+That was really badly phrased. There can be _millions_ of these things,
+but they are all "unique" - they have zero impact on each other, and have
+no linkages. They never shadow any existing dentries (ie when we create
+these, we'd obviously never create a tentative dentry with the same name
+as an existing _valid_ dentry), and they are never visible to the 
+filesystem. 
 
-I've also noticed (only with 2.6.3-mm1) a "PCI BIOS passed non existent PCI 
-BUS 0!" message when it probes ICH5, i.e.
+So it's not that "only one dentry" exists, but that that this tentative
+dentry only exists as a unique marker of "a dentry of this name _may_
+exist".
 
-Feb 19 22:23:15 kefk kernel: ICH5: IDE controller at PCI slot 0000:00:1f.1
-
-<<<<<<<<<<<<HERE
-
-Feb 19 22:23:15 kefk kernel: ICH5: chipset revision 2
-Feb 19 22:23:15 kefk kernel: ICH5: not 100%% native mode: will probe irqs 
-later
-Feb 19 22:23:15 kefk kernel:     ide0: BM-DMA at 0xf000-0xf007, BIOS settings: 
-hda:DMA, hdb:pio
-Feb 19 22:23:15 kefk kernel:     ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: 
-hdc:pio, hdd:pio
-
-system: PIV 2.HT/i875p (abit ic7-g), SMP kernel (SMT), 
-gcc (GCC) 3.3.1 (Mandrake Linux 9.2 3.3.1-2mdk)
-
-I can provide more details if needed, and any help will be appreciated.
-
-Thanks.
-
--- 
-Fabio Coatti       http://www.ferrara.linux.it/members/cova     
-Ferrara Linux Users Group           http://ferrara.linux.it
-GnuPG fp:9765 A5B6 6843 17BC A646  BE8C FA56 373A 5374 C703
-Old SysOps never die... they simply forget their password.
+		Linus

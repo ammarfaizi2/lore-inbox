@@ -1,30 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282994AbRK1ALh>; Tue, 27 Nov 2001 19:11:37 -0500
+	id <S281820AbRK1AUr>; Tue, 27 Nov 2001 19:20:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282997AbRK1ALR>; Tue, 27 Nov 2001 19:11:17 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:16000 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S282989AbRK1ALI>; Tue, 27 Nov 2001 19:11:08 -0500
-Date: Tue, 27 Nov 2001 17:14:52 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: linux-kernel@vger.kernel.org
-Cc: jmerkey@timpanogas.org
-Subject: kdb v1.9 patch fails in main.c 1 of 3 hunks no applied
-Message-ID: <20011127171452.A1196@vger.timpanogas.org>
+	id <S281821AbRK1AUh>; Tue, 27 Nov 2001 19:20:37 -0500
+Received: from f35.law4.hotmail.com ([216.33.149.35]:36875 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S281820AbRK1AU2>;
+	Tue, 27 Nov 2001 19:20:28 -0500
+X-Originating-IP: [205.231.90.227]
+From: "victor1 torres" <camel_3@hotmail.com>
+To: jmerkey@vger.timpanogas.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kdb v1.9 patch fails in main.c 1 of 3 hunks no applied
+Date: Wed, 28 Nov 2001 00:20:22 +0000
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Type: text/plain; format=flowed
+Message-ID: <F35MjkatwD43oFLaqSO00007bfd@hotmail.com>
+X-OriginalArrivalTime: 28 Nov 2001 00:20:22.0411 (UTC) FILETIME=[77F61DB0:01C177A2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi-
+The Kdb-v1.9-2.4.15-pre5 is for the 2.4.15 kernel not the 2.5.1-pre2 kernel 
+for this point on anything that has a 2.4x is only based on  the 2.4x Linux 
+Kernel Series.
+Victor
 
-
-
-kdb-v1.9-2.4.15-pre5 from oss.sgi.com is failing to apply to 
-patch-2.5.1-pre2 in /usr/src/linux/main.c.  1 of 3 hunks failed 
+-----ORIGINAL TEXT------------
+kdb-v1.9-2.4.15-pre5 from oss.sgi.com is failing to apply to
+patch-2.5.1-pre2 in /usr/src/linux/main.c.  1 of 3 hunks failed
 message.
 
 Jeff
- 
+
+
+
+_________________________________________________________________
+Get your FREE download of MSN Explorer at http://explorer.msn.com/intl.asp
+

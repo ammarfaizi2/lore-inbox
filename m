@@ -1,149 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268310AbUJJOyj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268315AbUJJP3C@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268310AbUJJOyj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Oct 2004 10:54:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268316AbUJJOyj
+	id S268315AbUJJP3C (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Oct 2004 11:29:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268316AbUJJP3C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Oct 2004 10:54:39 -0400
-Received: from prosun.first.fraunhofer.de ([194.95.168.2]:39679 "EHLO
-	prosun.first.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S268310AbUJJOy3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Oct 2004 10:54:29 -0400
-Subject: Re: [PATCH]: pbook apm_emu.c fix remaining time when charging
-From: Soeren Sonnenburg <kernel@nn7.de>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1097366985.5591.16.camel@gaston>
-References: <1097352701.3483.12.camel@localhost>
-	 <1097366985.5591.16.camel@gaston>
-Content-Type: multipart/mixed; boundary="=-KXFbPjKH2Rp8iAiGFXsA"
-Date: Sun, 10 Oct 2004 09:16:01 +0200
-Message-Id: <1097392561.3419.7.camel@localhost>
-Mime-Version: 1.0
+	Sun, 10 Oct 2004 11:29:02 -0400
+Received: from mail.tv-sign.ru ([213.234.233.51]:3727 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S268315AbUJJP23 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Oct 2004 11:28:29 -0400
+Message-ID: <4169551D.A884778D@tv-sign.ru>
+Date: Sun, 10 Oct 2004 19:28:29 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Cc: Matt Mackall <mpm@selenic.com>
+Subject: [RFC] __initdata strings
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello.
 
---=-KXFbPjKH2Rp8iAiGFXsA
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+This patch is not intended for inclusion, just for illustration.
 
-On Sun, 2004-10-10 at 10:09 +1000, Benjamin Herrenschmidt wrote: 
-> On Sun, 2004-10-10 at 06:11, Soeren Sonnenburg wrote:
-[...] 
->                 if (amperage < 0) {
-> +                       /* when less than 100mA are used the machine must be on AC and as it is 
-> +                          not charging the battery is only slightly self decharging and thus full be definition */
-> +                       if (amperage < 100) {
-> 
-> There must be something wrong in the above...
+__init functions leaves strings (mainly printk's arguments) in
+.data section. It make sense to move them in .init.data.
 
-Yes you are right, I check for amperage < 0 first and then for 
-amperage < 100. It should of course be amperage < -100 and is meant for
-the case where one is on AC, battery was fully charged and which is now
-slightly decharging by less than 100mA/min leading to a remaining time
-being displayed of more than 700 hours left.
+Is there anyone else who would consider this useful?
 
-/proc/apm output with that patch (but wrong check amperage < 100):
-0.5 1.1 0x00 0x01 0x00 0x01 99% 92276 min
+Oleg.
 
-/proc/apm output with new patch:
-0.5 1.1 0x00 0x01 0x00 0x01 99% 0 min
+Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
 
-This is the /proc/pmu/battery_0 equivalent.
-
-flags      : 00000011
-charge     : 3130
-max_charge : 3148
-current    : -2
-voltage    : 16629
-time rem.  : 5634000
-
-Well it is a special case to be dealt with... one could aswell change
-the flags from 'high battery' status to 'charging' or return -1 as the
-remaining time... However the battery is fully charged but as the system
-is on AC it is simply idling messing up the remaining time.
-
-> +                                       time_units = (charge * 59) / (amperage * -1);
-> +                               else
-> +                                       time_units = (charge * 16440) / (amperage * -60);
-> 
-> Can you make sure also that amperage is never 0 ?
-
-actually that is dealt with already as there is a check for both
-amperage < 0 and for amperage > 0.
-
-Soeren.
--- 
-Sometimes, there's a moment as you're waking, when you become aware of
-the real world around you, but you're still dreaming.
-
---=-KXFbPjKH2Rp8iAiGFXsA
-Content-Disposition: attachment; filename=apm_emu_fix.diff
-Content-Type: text/x-patch; name=apm_emu_fix.diff; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 7bit
-
---- t/linux-2.6.9-rc3/drivers/macintosh/apm_emu.c	2004-09-30 05:05:41.000000000 +0200
-+++ linux-2.6.9-rc3-sonne/drivers/macintosh/apm_emu.c	2004-10-10 08:46:33.000000000 +0200
-@@ -440,6 +440,7 @@
- 	char *		p = buf;
- 	char		charging       = 0;
- 	long		charge	       = -1;
-+	long		max_charge	   = -1;
- 	long		amperage       = 0;
- 	unsigned long	btype          = 0;
+diff -rup 2.6.9-rc3-clean/include/linux/init.h 2.6.9-rc3-i_str/include/linux/init.h
+--- 2.6.9-rc3-clean/include/linux/init.h	Sun Oct 10 11:48:46 2004
++++ 2.6.9-rc3-i_str/include/linux/init.h	Sun Oct 10 11:55:07 2004
+@@ -61,6 +61,31 @@
+ /*
+  * Used for initialization calls..
+  */
++
++#define I_STRING(str)	\
++({						\
++	static char data[] __initdata = (str);	\
++	data;					\
++})
++
++#if	defined(__GNUC__) && (__GNUC__ >= 3)
++#define CK_FMTSTR(expr)	do if (0) { expr; } while (0)
++#else
++#define CK_FMTSTR(expr)	do ; while (0)
++#endif
++
++#define i_printk(fmt, args...)	\
++({						\
++	CK_FMTSTR(printk(fmt , ##args));	\
++	printk(I_STRING(fmt) , ##args);		\
++})
++
++#define i_panic(fmt, args...)	\
++({						\
++	CK_FMTSTR(panic(fmt , ##args));		\
++	panic(I_STRING(fmt) , ##args);		\
++})
++
+ typedef int (*initcall_t)(void);
+ typedef void (*exitcall_t)(void);
  
-@@ -450,9 +451,12 @@
- 				percentage = 0;
- 			if (charge < 0)
- 				charge = 0;
-+			if (max_charge < 0)
-+				max_charge = 0;
- 			percentage += (pmu_batteries[i].charge * 100) /
- 				pmu_batteries[i].max_charge;
- 			charge += pmu_batteries[i].charge;
-+			max_charge += pmu_batteries[i].max_charge;
- 			amperage += pmu_batteries[i].amperage;
- 			if (btype == 0)
- 				btype = (pmu_batteries[i].flags & PMU_BATT_TYPE_MASK);
-@@ -461,13 +465,27 @@
- 				charging++;
- 		}
+diff -rup 2.6.9-rc3-clean/init/do_mounts.c 2.6.9-rc3-i_str/init/do_mounts.c
+--- 2.6.9-rc3-clean/init/do_mounts.c	Sun Oct 10 11:48:57 2004
++++ 2.6.9-rc3-i_str/init/do_mounts.c	Sat Oct  9 18:18:30 2004
+@@ -265,10 +265,10 @@ static int __init do_mount_root(char *na
+ 
+ 	sys_chdir("/root");
+ 	ROOT_DEV = current->fs->pwdmnt->mnt_sb->s_dev;
+-	printk("VFS: Mounted root (%s filesystem)%s.\n",
++	i_printk("VFS: Mounted root (%s filesystem)%s.\n",
+ 	       current->fs->pwdmnt->mnt_sb->s_type->name,
+ 	       current->fs->pwdmnt->mnt_sb->s_flags & MS_RDONLY ? 
+-	       " readonly" : "");
++	       I_STRING(" readonly") : "");
+ 	return 0;
+ }
+ 
+@@ -296,13 +296,13 @@ retry:
+ 		 * and bad superblock on root device.
+ 		 */
+ 		__bdevname(ROOT_DEV, b);
+-		printk("VFS: Cannot open root device \"%s\" or %s\n",
++		i_printk("VFS: Cannot open root device \"%s\" or %s\n",
+ 				root_device_name, b);
+-		printk("Please append a correct \"root=\" boot option\n");
++		i_printk("Please append a correct \"root=\" boot option\n");
+ 
+-		panic("VFS: Unable to mount root fs on %s", b);
++		i_panic("VFS: Unable to mount root fs on %s", b);
  	}
-+
- 	if (real_count) {
- 		if (amperage < 0) {
-+			/* when less than 100mA are used the machine must be on AC and as it is 
-+			   not charging the battery is only slightly self decharging and thus full be definition */
-+			if (amperage < -100) {
-+				if (btype == PMU_BATT_TYPE_SMART)
-+					time_units = (charge * 59) / (amperage * -1);
-+				else
-+					time_units = (charge * 16440) / (amperage * -60);
-+			}
-+			else
-+				time_units = 0;
-+		}
-+		else if (amperage > 0 && max_charge >= charge) {
- 			if (btype == PMU_BATT_TYPE_SMART)
--				time_units = (charge * 59) / (amperage * -1);
-+				time_units = ( (max_charge - charge) * 59) / amperage;
- 			else
--				time_units = (charge * 16440) / (amperage * -60);
-+				time_units = ( (max_charge - charge) * 16440) / amperage;
- 		}
-+
- 		percentage /= real_count;
- 		if (charging > 0) {
- 			battery_status = 0x03;
-@@ -483,6 +501,7 @@
- 			battery_flag = 0x01;
- 		}
+-	panic("VFS: Unable to mount root fs on %s", __bdevname(ROOT_DEV, b));
++	i_panic("VFS: Unable to mount root fs on %s", __bdevname(ROOT_DEV, b));
+ out:
+ 	putname(fs_names);
+ }
+@@ -336,7 +336,7 @@ void __init change_floppy(char *fmt, ...
+ 		sys_ioctl(fd, FDEJECT, 0);
+ 		sys_close(fd);
  	}
-+
- 	p += sprintf(p, "%s %d.%d 0x%02x 0x%02x 0x%02x 0x%02x %d%% %d %s\n",
- 		     driver_version,
- 		     (FAKE_APM_BIOS_VERSION >> 8) & 0xff,
-
---=-KXFbPjKH2Rp8iAiGFXsA--
-
+-	printk(KERN_NOTICE "VFS: Insert %s and press ENTER\n", buf);
++	i_printk(KERN_NOTICE "VFS: Insert %s and press ENTER\n", buf);
+ 	fd = sys_open("/dev/console", O_RDWR, 0);
+ 	if (fd >= 0) {
+ 		sys_ioctl(fd, TCGETS, (long)&termios);
+@@ -357,7 +357,7 @@ void __init mount_root(void)
+ 		if (mount_nfs_root())
+ 			return;
+ 
+-		printk(KERN_ERR "VFS: Unable to mount root fs via NFS, trying floppy.\n");
++		i_printk(KERN_ERR "VFS: Unable to mount root fs via NFS, trying floppy.\n");
+ 		ROOT_DEV = Root_FD0;
+ 	}
+ #endif

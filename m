@@ -1,61 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262641AbTDEUCF (for <rfc822;willy@w.ods.org>); Sat, 5 Apr 2003 15:02:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262642AbTDEUCF (for <rfc822;linux-kernel-outgoing>); Sat, 5 Apr 2003 15:02:05 -0500
-Received: from [12.47.58.55] ([12.47.58.55]:26761 "EHLO pao-ex01.pao.digeo.com")
-	by vger.kernel.org with ESMTP id S262641AbTDEUCE (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Apr 2003 15:02:04 -0500
-Date: Sat, 5 Apr 2003 12:14:32 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: mbligh@aracnet.com, mingo@elte.hu, hugh@veritas.com, dmccr@us.ibm.com,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: objrmap and vmtruncate
-Message-Id: <20030405121432.20659d8c.akpm@digeo.com>
-In-Reply-To: <20030405190153.GF1326@dualathlon.random>
-References: <20030404163154.77f19d9e.akpm@digeo.com>
-	<12880000.1049508832@flay>
-	<20030405024414.GP16293@dualathlon.random>
-	<20030404192401.03292293.akpm@digeo.com>
-	<20030405040614.66511e1e.akpm@digeo.com>
-	<20030405163003.GD1326@dualathlon.random>
-	<20030405190153.GF1326@dualathlon.random>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 05 Apr 2003 20:13:27.0103 (UTC) FILETIME=[D16A04F0:01C2FBAF]
+	id S262649AbTDEUHb (for <rfc822;willy@w.ods.org>); Sat, 5 Apr 2003 15:07:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262652AbTDEUHb (for <rfc822;linux-kernel-outgoing>); Sat, 5 Apr 2003 15:07:31 -0500
+Received: from mcomail02.maxtor.com ([134.6.76.16]:63246 "EHLO
+	mcomail02.maxtor.com") by vger.kernel.org with ESMTP
+	id S262649AbTDEUHa (for <rfc822;linux-kernel@vger.kernel.org>); Sat, 5 Apr 2003 15:07:30 -0500
+Message-ID: <785F348679A4D5119A0C009027DE33C102E0D069@mcoexc04.mlm.maxtor.com>
+From: "Mudama, Eric" <eric_mudama@maxtor.com>
+To: "'Andre Hedrick'" <andre@linux-ide.org>,
+       "Mudama, Eric" <eric_mudama@Maxtor.com>
+Cc: "'Chuck Ebbert '" <76306.1226@compuserve.com>,
+       "'linux-kernel '" <linux-kernel@vger.kernel.org>
+Subject: RE: PATCH: Fixes for ide-disk.c
+Date: Sat, 5 Apr 2003 13:17:38 -0700 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli <andrea@suse.de> wrote:
+
+
+> -----Original Message-----
+> From: Andre Hedrick [mailto:andre@linux-ide.org]
+> Sent: Saturday, April 05, 2003 12:52 PM
+> To: Mudama, Eric
+> Subject: RE: PATCH: Fixes for ide-disk.c
 >
-> On Sat, Apr 05, 2003 at 06:30:03PM +0200, Andrea Arcangeli wrote:
-> > On Sat, Apr 05, 2003 at 04:06:14AM -0800, Andrew Morton wrote:
-> > > The -aa VM failed in this test.
-> > > 
-> > > 	__alloc_pages: 0-order allocation failed (gfp=0x1d2/0)
-> > > 	VM: killing process rmap-test
-> > 
-> > I'll work on it. Many thanks. I wonder if it could be related to the
-> > mixture of the access bit with the overcomplexity of the algorithm that
-> > makes the passes over so many vmas useless. Certainly this workload
-> > isn't common. I guess what I will try to do first is to simply ignore
-> > the accessed bitflag after half of the passes failed. What do you think?
+> 6-10 seconds is a nice idea, the reality as we both know it is up to 30
+> seconds to return because of OOB seeks to write on reallocations.
 
-Yes, I agree.  If we're getting close to OOM, who cares about accuracy of
-page replacement decisions?
+Of course, 6-10 is the non-error case.  Depending on how hard one has been
+pounding the drive with writes, there is no reason that error recovery can't
+creep up into the multiple-minute domain in some cases if you happen to have
+excessively high temperature, vibrations, and be working on an old drive
+with ratty servo bursts in a certain location or something.
 
-> unfortunately I can't reproduce. Booted with mem=256m on a 4-way xeon 2.5ghz:
+> FLUSH CACHE/FLUSH CACHE EXT ...
+>
+> If you have a drive that is not larger than 28-bit in geometry 
+> regardless if it supports the 48-bit feature set, if it fails
+> to comply with 28-bit flush cache it is a "BAD DEVICE", period.
 
-I only saw it the once.  I'd hit ^C on the test and noticed the message on
-the console some 5-10 seconds later.  It may have been from before the ^C
-though.  So it _might_ be related to the exit path tearing down pagetables
-and setting tons of dirty bits.
+Agreed.  They're different opcodes, E7 and EA.
 
-> Or maybe it's ext3 related
+In either case, according to the spec, when a FLUSH CACHE (normal or EXT,
+doesn't matter) completes with "good" status (0x50) all the write cache has
+been successfully flushed to the disk.
 
-Conceivably.  It wouldn't be the first one.  But all the pages were mapped to
-disk, so the writepage path is really the same as ext2 in that case.
+A 48-bit sized drive should still commit dirty data when issued the 28-bit
+FLUSH CACHE command, it will simply have problems reporting potential error
+locations if it gets a fatal error on the write.  
+
+> You will not be allowed to push off the 48-bit feature set rules.
+> Regardless if the new smart data is set the the GPL and not Smart
+> Logs.
+
+I don't understand what you mean.  I am looking at the ATA7 r1a spec now,
+and don't see the 48-bit specific feature set rules that you're referring to
+being "pushed off".
+
+>If you are suggesting a pole for completion on the FLUSH, say so.
+>Otherwise, standard non-data INTQ completion is default.
+
+Clearing of the busy bit with a status of 0x50 is what to look for.  Polled
+or INTQ doesn't matter.
+
+If the drive reports 0x50 without a completely clean write cache, it is
+broken.
 
 

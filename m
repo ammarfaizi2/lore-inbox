@@ -1,70 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262110AbVCZO3L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262107AbVCZOfE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262110AbVCZO3L (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Mar 2005 09:29:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262113AbVCZO3L
+	id S262107AbVCZOfE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Mar 2005 09:35:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262116AbVCZOfE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Mar 2005 09:29:11 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:16297 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262110AbVCZO3E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Mar 2005 09:29:04 -0500
-Subject: Re: 2.6.12-rc1 breaks dosemu
-From: Arjan van de Ven <arjan@infradead.org>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Bart Oldeman <bartoldeman@users.sourceforge.net>,
-       Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
-       linux-msdos@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <200503261449.46219.arnd@arndb.de>
-References: <20050320021141.GA4449@stusta.de>
-	 <1111824629.6293.19.camel@laptopd505.fenrus.org>
-	 <Pine.LNX.4.58.0503262009040.3040@enm-bo-lt.localnet>
-	 <200503261449.46219.arnd@arndb.de>
-Content-Type: text/plain; charset=UTF-8
-Date: Sat, 26 Mar 2005 15:28:56 +0100
-Message-Id: <1111847336.8042.26.camel@laptopd505.fenrus.org>
+	Sat, 26 Mar 2005 09:35:04 -0500
+Received: from mail-relay-4.tiscali.it ([213.205.33.44]:34520 "EHLO
+	mail-relay-4.tiscali.it") by vger.kernel.org with ESMTP
+	id S262107AbVCZOe7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Mar 2005 09:34:59 -0500
+Date: Sat, 26 Mar 2005 15:35:00 +0100
+From: Luca <kronos@kronoz.cjb.net>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: linux-kernel@vger.kernel.org, Linux Serial <linux-serial@vger.kernel.org>
+Subject: Re: Garbage on serial console after serial driver loads
+Message-ID: <20050326143500.GA5225@dreamland.darkstar.lan>
+References: <20050325202414.GA9929@dreamland.darkstar.lan> <20050325203853.C12715@flint.arm.linux.org.uk> <20050325210132.GA11201@dreamland.darkstar.lan> <Pine.LNX.4.61.0503261115480.28431@yvahk01.tjqt.qr>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-2) 
-Content-Transfer-Encoding: 8bit
-X-Spam-Score: 3.7 (+++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (3.7 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0503261115480.28431@yvahk01.tjqt.qr>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-03-26 at 14:49 +0100, Arnd Bergmann wrote:
-> On Sünnavend 26 März 2005 09:18, Bart Oldeman wrote:
-> > On Sat, 26 Mar 2005, Arjan van de Ven wrote:
-> > 
-> > > > eip: 0x000069ee  esp: 0xbfdbffcc  eflags: 0x00010246
-> > >
-> > > hmm interesting. Can you check if at the time of the crash, the esp is
-> > > actually inside the stack vma? If it's not, I wonder what dosemu does to
-> > > get its stack pointer outside the vma... (and on which side of the vma
-> > > it is)
+Il Sat, Mar 26, 2005 at 11:16:09AM +0100, Jan Engelhardt ha scritto: 
+> >Well, serial_core seems to think so:
+> >
+> >Serial: 8250/16550 driver $Revision: 1.90 $ 8 ports, IRQ sharing disabled
+> >ttyS0 at I/O 0x3f8 (irq = 4) is a NS16550A
+> >ttyS1 at I/O 0x2f8 (irq = 3) is a NS16550A
+> >ttyS0 at I/O 0x3f8 (irq = 4) is a NS16550A
 > 
-> The esp value is always slightly below the stack vma and above ld.so.
-> Running it a few times gives 
-> 
-> stack VMA         crash esp
-> bfc8f000-bfca4000 bfc5ffcc  
+> Does it work if you set the baud rate manually, as a bootloader option?
 
-the esp is 0x2F034/192564 bytes below the stack vma. That is a lot! I
-vaguely remember linux having a limit to how much below the stack vma it
-will allow accesses to auto-grow the stack, but I forgot what that limit
-actually was. I wonder if dosemu is somehow getting away with assuming a
-certain alignment by accident and then being inside the kernel grow
-limit, while with randomisation the alignment is only 4Kb and somehow a
-bigger-than-expected auto-grow is needed.
+I'm using console=ttyS0,38400n8. But it also happens with 9600, 57600
+and 115200.
 
-
+Luca
+-- 
+Home: http://kronoz.cjb.net
+Mi piace avere amici rispettabili;
+Mi piace essere il peggiore della compagnia.

@@ -1,45 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317191AbSHYKwJ>; Sun, 25 Aug 2002 06:52:09 -0400
+	id <S317189AbSHYK5O>; Sun, 25 Aug 2002 06:57:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317189AbSHYKwJ>; Sun, 25 Aug 2002 06:52:09 -0400
-Received: from swazi.realnet.co.sz ([196.28.7.2]:47544 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S317182AbSHYKwH>; Sun, 25 Aug 2002 06:52:07 -0400
-Date: Sun, 25 Aug 2002 13:13:00 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@linux-box.realnet.co.sz
-To: Gerald Teschl <gerald@esi.ac.at>
-Cc: linux-kernel@vger.kernel.org, <linux-sound@vger.kernel.org>
-Subject: Re: [PATCH] ad1848 infinite loop fix
-In-Reply-To: <Pine.LNX.4.44.0208242324450.29094-100000@keen.esi.ac.at>
-Message-ID: <Pine.LNX.4.44.0208251255230.28574-100000@linux-box.realnet.co.sz>
+	id <S317194AbSHYK5O>; Sun, 25 Aug 2002 06:57:14 -0400
+Received: from pD9E236A6.dip.t-dialin.net ([217.226.54.166]:46504 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S317189AbSHYK5N>; Sun, 25 Aug 2002 06:57:13 -0400
+Date: Sun, 25 Aug 2002 05:01:19 -0600 (MDT)
+From: Thunder from the hill <thunder@lightweight.ods.org>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Volker Kuhlmann <list0570@paradise.net.nz>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: kernel losing time
+In-Reply-To: <20020825105500.GE11740@paradise.net.nz>
+Message-ID: <Pine.LNX.4.44.0208250459500.3234-100000@hawkeye.luckynet.adm>
+X-Location: Potsdam-Babelsberg; Germany
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-> --- linux-2.4.19/drivers/sound/ad1848.c.orig    Sat Aug 24 23:19:54 2002
-> +++ linux-2.4.19/drivers/sound/ad1848.c Sat Aug 24 23:20:58 2002
-> @@ -3058,7 +3058,7 @@
->         else
->                 printk(KERN_INFO "ad1848: Failed to initialize %s\n", 
-> devname);
-> 
-> -       return 0;
-> +       return -ENODEV;
->  }
-> 
->  static int __init ad1848_isapnp_probe(struct address_info *hw_config)
+On Sun, 25 Aug 2002, Volker Kuhlmann wrote:
+> I am stuck with a kernel problem someone can hopefully shed some light
+> on. It's also a bug report.
 
-This will break the isapnp probe in ad1848, the problem could possibly be 
-elsewhere. You have to be a bit careful when changing the return values of 
-functions in some of the older OSS code.
+And it's already known. It's VIA chipset which obviously can't read the 
+clock ;-) Chipset kicking wrong interrupts, timer can't help it.
 
-	Zwane
-
+			Thunder
 -- 
-function.linuxpower.ca
-
+--./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
+--/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
+.- -/---/--/---/.-./.-./---/.--/.-.-.-
+--./.-/-.../.-./.././.-../.-.-.-
 

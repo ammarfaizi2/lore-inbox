@@ -1,74 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261184AbUK0HCB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261238AbUK0HGO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261184AbUK0HCB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Nov 2004 02:02:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261177AbUK0HAQ
+	id S261238AbUK0HGO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Nov 2004 02:06:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261219AbUK0HFC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Nov 2004 02:00:16 -0500
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:41881 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S261184AbUKZTCo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 14:02:44 -0500
-Subject: Re: Suspend 2 merge: 21/51: Refrigerator upgrade.
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Andrew Morton <akpm@digeo.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041126000502.GK2711@elf.ucw.cz>
-References: <1101292194.5805.180.camel@desktop.cunninghams>
-	 <1101296026.5805.275.camel@desktop.cunninghams>
-	 <20041125183332.GJ1417@openzaurus.ucw.cz>
-	 <1101420616.27250.65.camel@desktop.cunninghams>
-	 <20041125223610.GC2711@elf.ucw.cz>
-	 <1101422986.27250.106.camel@desktop.cunninghams>
-	 <20041125232519.GI2711@elf.ucw.cz>
-	 <1101426572.27250.151.camel@desktop.cunninghams>
-	 <20041126000502.GK2711@elf.ucw.cz>
-Content-Type: text/plain
-Message-Id: <1101427927.27250.182.camel@desktop.cunninghams>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Fri, 26 Nov 2004 11:12:08 +1100
-Content-Transfer-Encoding: 7bit
+	Sat, 27 Nov 2004 02:05:02 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:32190 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S261272AbUKZTIO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Nov 2004 14:08:14 -0500
+Message-ID: <48406.194.39.131.40.1101374546.squirrel@noto.dyndns.org>
+In-Reply-To: <20041125080451.GE10233@suse.de>
+References: <33356.192.168.0.2.1101334593.squirrel@192.168.0.10>
+    <20041125080451.GE10233@suse.de>
+Date: Thu, 25 Nov 2004 10:22:26 +0100 (CET)
+Subject: Re: Re: Is controlling DVD speeds via SET_STREAMING supported?
+From: "Thomas Fritzsche" <tf@noto.de>
+To: "Jens Axboe" <axboe@suse.de>
+Cc: "Thomas Fritzsche" <tf@noto.de>, linux-kernel@vger.kernel.org,
+       david@2gen.com
+User-Agent: SquirrelMail/1.4.3a
+X-Mailer: SquirrelMail/1.4.3a
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Hi Jens,
 
-On Fri, 2004-11-26 at 11:05, Pavel Machek wrote:
-> Hi!
-> 
-> > > > > Silently doing nothing when user asked for sync is not nice,
-> > > > > either. BUG() is better solution than that.
-> > > > 
-> > > > I don't think we should BUG because the user presses Sys-Rq S while
-> > > > suspending. I'll make it BUG_ON() and make the Sys_Rq printk & ignore
-> > > > when suspending. Sound reasonable?
-> > > 
-> > > Yes, that's better. ... only that it means just another hook somewhere
-> > > :-(.
-> > 
-> > :<. But we're only talking two or three lines. Let's keep it in
-> > perspective.
-> 
-> I think even three lines are bad. It means that swsusp is no longer
-> self-contained subsystem, but that it has its hooks all over the
-> place. And those hooks need to be maintained, too.
+absolute correct! I just tested it with speed = 1 yesterday night
+(quick&duty). This is just a code snap to show that it's possible to set
+the speed of a DVD drive this way.
 
-Yes, but suspending can't practically be a self contained system. We can
-try to convince ourselves that we're making it self contained by hiding
-behind the driver model, but in reality, the driver model is just a nice
-name for our sticky little fingers in all the other drivers, ensuring
-they do the right thing when we want to go to sleep. Hooks in other code
-is just the equivalent, but without the nice name. Perhaps I should
-invent one. How about the "quiescing subsystem"? :>
--- 
-Nigel Cunningham
-Pastoral Worker
-Christian Reformed Church of Tuggeranong
-PO Box 1004, Tuggeranong, ACT 2901
+You also wrote about the "End LBA" field in your other mail.
+I set this to 0xffffffff but you think that this could be a problem if the
+device don't have this LBA. The spec only writes this:
+"The End LBA field is the last logical block for which the performance
+request is being made." So it should be standard conform if we set here a
+higher block number. Do you have experience with other (than NEC ND-3500)
+drive that don't support this?
 
-You see, at just the right time, when we were still powerless, Christ
-died for the ungodly.		-- Romans 5:6
+Using this high last block number would make sence, because it looks like
+this setting is still valid if the media is changed (other end block!?).
+
+Spec:
+"The performance setting is persistent and remains until a new descriptor
+is sent. The setting only applies to the extent
+identified by the Start and End LBA field. Only zero or one performance
+extents shall be valid at any time."
+
+What do you think?
+
+I also found out, that the Realtime-Streaming Feature is mandatory
+for all kinds of DVD-+R+-RW-RAM drives. So it might be sufficient to
+simply use SET STREAMING for DVD drives and SET SPEED for CD-R's. Isn't
+it?
+
+I will also enhance this tool by setting the RDD flag if the user selects
+speed = 0.
+
+Thanks and kind regards,
+ Thomas Fritzsche
+
+> I should have read this more closely... You need to fill the speed
+> fields correctly:
+>
+> 	unsigned long read_size = 177 * speed;
+>
+> 	buffer[12] = (read_size >> 24) & 0xff;
+> 	buffer[13] = (read_size >> 16) & 0xff;
+> 	buffer[14] = (read_size >>  8) & 0xff;
+> 	buffer[15] = read_size & 0xff;
+>
+> Ditto for write size.
+>
+> --
+> Jens Axboe
+>
+>
+
 

@@ -1,43 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264287AbRFHRwT>; Fri, 8 Jun 2001 13:52:19 -0400
+	id <S264292AbRFHR6T>; Fri, 8 Jun 2001 13:58:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264299AbRFHRwJ>; Fri, 8 Jun 2001 13:52:09 -0400
-Received: from jurassic.park.msu.ru ([195.208.223.243]:30213 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id <S264287AbRFHRv4>; Fri, 8 Jun 2001 13:51:56 -0400
-Date: Fri, 8 Jun 2001 21:23:26 +0400
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-Cc: Tom Vier <tmv5@home.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [patch] Re: Linux 2.4.5-ac6
-Message-ID: <20010608212326.A9664@jurassic.park.msu.ru>
-In-Reply-To: <20010608181612.A561@jurassic.park.msu.ru> <Pine.GSO.3.96.1010608172843.18837A-100000@delta.ds2.pg.gda.pl>
+	id <S264294AbRFHR57>; Fri, 8 Jun 2001 13:57:59 -0400
+Received: from xorn.math.fu-berlin.de ([160.45.45.167]:3968 "EHLO fefe.de")
+	by vger.kernel.org with ESMTP id <S264292AbRFHR5u>;
+	Fri, 8 Jun 2001 13:57:50 -0400
+Date: Fri, 8 Jun 2001 19:57:19 +0200
+From: Felix von Leitner <leitner@fefe.de>
+To: linux-kernel@vger.kernel.org
+Subject: Linux kernel headers violate RFC2553
+Message-ID: <20010608195719.A4862@fefe.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.GSO.3.96.1010608172843.18837A-100000@delta.ds2.pg.gda.pl>; from macro@ds2.pg.gda.pl on Fri, Jun 08, 2001 at 06:08:46PM +0200
+User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 08, 2001 at 06:08:46PM +0200, Maciej W. Rozycki wrote:
->  Oh well, so they cheat -- they claim in their docs the kernel may choose
-> whatever address it considers appropriate and then rely on particular
-> behaviour.  What for, I wonder...  I guess they weren't able to resolve
-> signedness issues...
+glibc works around this, but the diet libc uses the kernel headers and
+thus exports the wrong API to user land.
 
-*Sigh*. Do not trust docs... even DEC docs :-(
- 
->  Still it has two loops...  I'm not sure how to eliminate one of them at
-> the moment, though.
+Here is what RFC2553 mandates:
 
-Me either; I'll think about that.
+   struct ipv6_mreq {
+       struct in6_addr ipv6mr_multiaddr; /* IPv6 multicast addr */
+       unsigned int    ipv6mr_interface; /* interface index */
+   };
 
->  I think we might also consider moving the
-> compatibility crap into arch/alpha/kernel. 
+...and here is what include/linux/in6.h declares:
 
-This also would be acceptable, IMO.
+  struct ipv6_mreq {
+	  /* IPv6 multicast address of group */
+	  struct in6_addr ipv6mr_multiaddr;
 
-Ivan.
+	  /* local IPv6 address of interface */
+	  int             ipv6mr_ifindex;
+  };
+
+Note the ipv6mr_ifindex instead of the correct ipv6mr_interface.
+
+This wrong name is only used twice in net/ipv6/ipv6_sockglue.c, so it should be
+trivial to fix.
+
+Felix

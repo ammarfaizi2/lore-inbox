@@ -1,64 +1,572 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264717AbUG1V0H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264585AbUG1Var@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264717AbUG1V0H (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 17:26:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264585AbUG1VYP
+	id S264585AbUG1Var (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 17:30:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264097AbUG1Var
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 17:24:15 -0400
-Received: from smtp.Lynuxworks.com ([207.21.185.24]:26131 "EHLO
-	smtp.lynuxworks.com") by vger.kernel.org with ESMTP id S264097AbUG1VXX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 17:23:23 -0400
-Date: Wed, 28 Jul 2004 14:23:14 -0700
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Scott Wood <scott@timesys.com>, linux-kernel@vger.kernel.org,
-       "La Monte H.P. Yarroll" <piggy@timesys.com>,
-       Manas Saksena <manas.saksena@timesys.com>, Bill Huey <bhuey@lnxw.com>
-Subject: Re: [patch] IRQ threads
-Message-ID: <20040728212314.GB7167@nietzsche.lynx.com>
-References: <20040727225040.GA4370@yoda.timesys> <20040728062722.GA15283@elte.hu>
+	Wed, 28 Jul 2004 17:30:47 -0400
+Received: from 62-43-35-190.user.ono.com ([62.43.35.190]:40332 "EHLO
+	bacterio.pirispons.net") by vger.kernel.org with ESMTP
+	id S264585AbUG1V21 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 17:28:27 -0400
+Date: Wed, 28 Jul 2004 23:28:23 +0200
+From: Kiko Piris <kernel@pirispons.net>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: ipsec and/or netfilter problem
+Message-ID: <20040728212823.GA19345@mortadelo.pirispons.net>
+Mail-Followup-To: linux-kernel <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="tKW2IUtsqtDRztdT"
 Content-Disposition: inline
-In-Reply-To: <20040728062722.GA15283@elte.hu>
-User-Agent: Mutt/1.5.6+20040722i
-From: Bill Huey (hui) <bhuey@lnxw.com>
+User-Agent: Mutt
+X-No-CC: Please respect my Mail-Followup-To header
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 28, 2004 at 08:27:22AM +0200, Ingo Molnar wrote:
-> this is an incorrect change, just grep for in_interrupt() in
-> linux/drivers/ ...
-> 
-> I agree with the concept of using multiple threads for interrupts - i'll
-> add that to the voluntary-preempt patch too. This is an essential
-> feature to prioritize interrupts.
 
-That way I picture the problem permits those threads to migration across
-CPUs and therefore kill interrupt performance from cache thrashing. Do
-you have a solution for that ? I like the way you're doing it now with
-irqd() in that it's CPU-local, but as you know it's not priority sensitive.
- 
-> what do you think about making the i8259A's interrupt priorities
-> configurable? (a'la rtirq patch) Does it make any sense, given how early
-> we mask the source irq and ack the interrupt controller [hence giving
-> all other interrupts a fair chance to arrive ASAP]?
-> 
-> Bernhard Kuhn's rtirq patch is for IO-APIC/APICs, but i think the
-> latency issues could be equally well fixed by not keeping the local APIC
-> un-ACK-ed during level triggered irqs, but doing the mask & ack thing.
-> This will be slightly slower but should make them both redirectable and
-> more symmetric and fair.
+--tKW2IUtsqtDRztdT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-I think it's pretty complementary to what's going on, but it's also driven
-by application demand, how it could possibly hook into the scheduler or
-something else like that. There isn't a clear precedence for how to use
-something like this potentially. LynxOS doesn't have priorities above
-interrupt priorities, that mask interrupts somehow, but are folks that need
-that kind of stuff and could certainly be added in a relatively trivial
-manner.
+Hi,
 
-My answer would be something like yes it's needed, but not now.
+I've set up ipsec in my home LAN, it works like a charm except for a
+little problem.
 
-bill
+First, let me explain my network topology. It's a LAN [10.12.0.0/18]
+with one server [10.12.0.1] and 2 workstations (one desktop [10.12.1.1]
+and a laptop [10.12.1.2 and 10.12.2.2]).
 
+The server has 3 NIC's: eth0 which is connected to the internet with my
+cable ISP and br0 (a bridge of eth1 and wlan0) that's connected to the
+LAN.
+
+The server does SNAT (MASQUERADE) on eth0 to allow the workstations to
+connect to the Internet.
+
+My goal with ipsec is to secure all the LAN traffic (both ethernet and
+wireless) so that all traffic is encrypted and authenticated.
+
+The only problem I have is securing the traffic that the workstations
+send to Internet. I define the following security policy:
+
+At the server:
+| spdadd 0.0.0.0/0 10.12.1.1 any -P out ipsec esp/tunnel/10.12.0.1-10.12.1.2/require;
+| spdadd 10.12.1.1 0.0.0.0/0 any -P in  ipsec esp/tunnel/10.12.1.2-10.12.0.1/require;
+
+At the workstation:
+| spdadd 10.12.1.1 0.0.0.0/0 any -P out ipsec esp/tunnel/10.12.1.1-10.12.0.1/require;
+| spdadd 0.0.0.0/0 10.12.1.1 any -P in  ipsec esp/tunnel/10.12.0.1-10.12.1.1/require;
+
+It's doing the expected thing: tunnel all traffic from workstations to
+Internet through ipsec up to the server.
+
+The problem is that the server sends the data to Internet without doing
+SNAT (checked with tcpdump) (the packets do not traverse the POSTROUTING
+chain in nat table, checked watching the pkts counters).
+
+These are the rules I've got at the nat table:
+
+| root@server # iptables -vnL -t nat
+| Chain PREROUTING (policy ACCEPT 132K packets, 7676K bytes)
+|  pkts bytes target     prot opt in     out     source               destination
+|     0     0 DNAT       udp  --  eth0   *       0.0.0.0/0            0.0.0.0/0           udp spts:1024:65535 dpt:27960 to:10.12.1.1
+|     0     0 DNAT       udp  --  ppp0   *       0.0.0.0/0            0.0.0.0/0           udp spts:1024:65535 dpt:27960 to:10.12.1.1
+| 
+| Chain POSTROUTING (policy ACCEPT 12968 packets, 1278K bytes)
+|  pkts bytes target     prot opt in     out     source               destination
+|  2433  147K MASQUERADE  all  --  *      eth0    10.12.0.0/16         0.0.0.0/0
+|     0     0 MASQUERADE  all  --  *      ppp0    10.12.0.0/16         0.0.0.0/0
+|     0     0 MASQUERADE  all  --  *      br0     10.12.0.0/16         192.168.1.0/24
+| 
+| Chain OUTPUT (policy ACCEPT 12736 packets, 1142K bytes)
+|  pkts bytes target     prot opt in     out     source               destination
+
+
+I've tried to use NAT_LOCAL but when I issue the iptables command I get
+an error:
+
+| root@server # iptables -t nat -A OUTPUT -s 10.12.0.0/16 -o eth0 -j MASQUERADE
+| iptables: Invalid argument
+
+| root@server # iptables -V
+| iptables v1.2.9
+
+| root@server # uname -a
+| Linux bacterio 2.6.8-rc2 #1 Mon Jul 26 17:54:31 CEST 2004 i686 GNU/Linux
+
+Kernel config @server is attached.
+
+Anyone has any hint?
+
+If this is not the right list to post this kind of things, where should
+I ask?
+
+Many thanks in advance
+
+-- 
+Kiko
+
+--tKW2IUtsqtDRztdT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="config.server"
+
+CONFIG_X86=y
+CONFIG_MMU=y
+CONFIG_UID16=y
+CONFIG_GENERIC_ISA_DMA=y
+CONFIG_EXPERIMENTAL=y
+CONFIG_CLEAN_COMPILE=y
+CONFIG_STANDALONE=y
+CONFIG_BROKEN_ON_SMP=y
+CONFIG_SWAP=y
+CONFIG_SYSVIPC=y
+CONFIG_POSIX_MQUEUE=y
+CONFIG_BSD_PROCESS_ACCT=y
+CONFIG_SYSCTL=y
+CONFIG_LOG_BUF_SHIFT=14
+CONFIG_HOTPLUG=y
+CONFIG_IKCONFIG=y
+CONFIG_IKCONFIG_PROC=y
+CONFIG_EMBEDDED=y
+CONFIG_KALLSYMS=y
+CONFIG_FUTEX=y
+CONFIG_EPOLL=y
+CONFIG_IOSCHED_NOOP=y
+CONFIG_IOSCHED_AS=y
+CONFIG_IOSCHED_DEADLINE=y
+CONFIG_IOSCHED_CFQ=y
+CONFIG_MODULES=y
+CONFIG_MODULE_UNLOAD=y
+CONFIG_OBSOLETE_MODPARM=y
+CONFIG_MODVERSIONS=y
+CONFIG_KMOD=y
+CONFIG_X86_PC=y
+CONFIG_MPENTIUM4=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_L1_CACHE_SHIFT=7
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_INTEL_USERCOPY=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_HPET_TIMER=y
+CONFIG_HPET_EMULATE_RTC=y
+CONFIG_X86_UP_APIC=y
+CONFIG_X86_UP_IOAPIC=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_X86_IO_APIC=y
+CONFIG_X86_TSC=y
+CONFIG_X86_MCE=y
+CONFIG_NOHIGHMEM=y
+CONFIG_MTRR=y
+CONFIG_PM=y
+CONFIG_ACPI=y
+CONFIG_ACPI_BOOT=y
+CONFIG_ACPI_INTERPRETER=y
+CONFIG_ACPI_BUS=y
+CONFIG_ACPI_EC=y
+CONFIG_ACPI_POWER=y
+CONFIG_ACPI_PCI=y
+CONFIG_ACPI_SYSTEM=y
+CONFIG_APM=y
+CONFIG_APM_RTC_IS_GMT=y
+CONFIG_APM_REAL_MODE_POWER_OFF=y
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_MMCONFIG=y
+CONFIG_PCI_NAMES=y
+CONFIG_ISA=y
+CONFIG_PCMCIA=m
+CONFIG_YENTA=m
+CONFIG_CARDBUS=y
+CONFIG_PCMCIA_PROBE=y
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_AOUT=y
+CONFIG_BINFMT_MISC=y
+CONFIG_PREVENT_FIRMWARE_BUILD=y
+CONFIG_FW_LOADER=m
+CONFIG_PARPORT=m
+CONFIG_PARPORT_PC=m
+CONFIG_PARPORT_PC_CML1=m
+CONFIG_PARPORT_PC_FIFO=y
+CONFIG_PNP=y
+CONFIG_BLK_DEV_LOOP=m
+CONFIG_BLK_DEV_CRYPTOLOOP=m
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_IDEDISK_MULTI_MODE=y
+CONFIG_BLK_DEV_IDECD=y
+CONFIG_IDE_TASKFILE_IO=y
+CONFIG_IDE_GENERIC=y
+CONFIG_BLK_DEV_CMD640=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_RZ1000=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_ADMA=y
+CONFIG_BLK_DEV_SIS5513=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_IDEDMA_IVB=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_SCSI=m
+CONFIG_SCSI_PROC_FS=y
+CONFIG_BLK_DEV_SD=m
+CONFIG_CHR_DEV_SG=m
+CONFIG_SCSI_CONSTANTS=y
+CONFIG_SCSI_QLA2XXX=m
+CONFIG_MD=y
+CONFIG_BLK_DEV_DM=m
+CONFIG_DM_CRYPT=m
+CONFIG_DM_SNAPSHOT=m
+CONFIG_DM_MIRROR=m
+CONFIG_DM_ZERO=m
+CONFIG_IEEE1394=m
+CONFIG_IEEE1394_OHCI1394=m
+CONFIG_IEEE1394_VIDEO1394=m
+CONFIG_IEEE1394_SBP2=m
+CONFIG_IEEE1394_DV1394=m
+CONFIG_IEEE1394_RAWIO=m
+CONFIG_NET=y
+CONFIG_PACKET=y
+CONFIG_UNIX=y
+CONFIG_NET_KEY=y
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+CONFIG_IP_ADVANCED_ROUTER=y
+CONFIG_SYN_COOKIES=y
+CONFIG_INET_AH=y
+CONFIG_INET_ESP=y
+CONFIG_INET_IPCOMP=y
+CONFIG_IPV6=m
+CONFIG_IPV6_PRIVACY=y
+CONFIG_INET6_AH=m
+CONFIG_INET6_ESP=m
+CONFIG_INET6_IPCOMP=m
+CONFIG_IPV6_TUNNEL=m
+CONFIG_NETFILTER=y
+CONFIG_BRIDGE_NETFILTER=y
+CONFIG_IP_NF_CONNTRACK=y
+CONFIG_IP_NF_FTP=y
+CONFIG_IP_NF_IRC=y
+CONFIG_IP_NF_TFTP=y
+CONFIG_IP_NF_AMANDA=y
+CONFIG_IP_NF_QUEUE=y
+CONFIG_IP_NF_IPTABLES=y
+CONFIG_IP_NF_MATCH_LIMIT=y
+CONFIG_IP_NF_MATCH_IPRANGE=y
+CONFIG_IP_NF_MATCH_MAC=y
+CONFIG_IP_NF_MATCH_PKTTYPE=y
+CONFIG_IP_NF_MATCH_MARK=y
+CONFIG_IP_NF_MATCH_MULTIPORT=y
+CONFIG_IP_NF_MATCH_TOS=y
+CONFIG_IP_NF_MATCH_RECENT=y
+CONFIG_IP_NF_MATCH_ECN=y
+CONFIG_IP_NF_MATCH_DSCP=y
+CONFIG_IP_NF_MATCH_AH_ESP=y
+CONFIG_IP_NF_MATCH_LENGTH=y
+CONFIG_IP_NF_MATCH_TTL=y
+CONFIG_IP_NF_MATCH_TCPMSS=y
+CONFIG_IP_NF_MATCH_HELPER=y
+CONFIG_IP_NF_MATCH_STATE=y
+CONFIG_IP_NF_MATCH_CONNTRACK=y
+CONFIG_IP_NF_MATCH_OWNER=y
+CONFIG_IP_NF_MATCH_PHYSDEV=y
+CONFIG_IP_NF_FILTER=y
+CONFIG_IP_NF_TARGET_REJECT=y
+CONFIG_IP_NF_NAT=y
+CONFIG_IP_NF_NAT_NEEDED=y
+CONFIG_IP_NF_TARGET_MASQUERADE=y
+CONFIG_IP_NF_TARGET_REDIRECT=y
+CONFIG_IP_NF_TARGET_NETMAP=y
+CONFIG_IP_NF_TARGET_SAME=y
+CONFIG_IP_NF_NAT_LOCAL=y
+CONFIG_IP_NF_NAT_SNMP_BASIC=y
+CONFIG_IP_NF_NAT_IRC=y
+CONFIG_IP_NF_NAT_FTP=y
+CONFIG_IP_NF_NAT_TFTP=y
+CONFIG_IP_NF_NAT_AMANDA=y
+CONFIG_IP_NF_MANGLE=y
+CONFIG_IP_NF_TARGET_TOS=y
+CONFIG_IP_NF_TARGET_ECN=y
+CONFIG_IP_NF_TARGET_DSCP=y
+CONFIG_IP_NF_TARGET_MARK=y
+CONFIG_IP_NF_TARGET_CLASSIFY=y
+CONFIG_IP_NF_TARGET_LOG=y
+CONFIG_IP_NF_TARGET_ULOG=y
+CONFIG_IP_NF_TARGET_TCPMSS=y
+CONFIG_IP_NF_ARPTABLES=y
+CONFIG_IP_NF_ARPFILTER=y
+CONFIG_IP_NF_ARP_MANGLE=y
+CONFIG_IP_NF_TARGET_NOTRACK=y
+CONFIG_IP_NF_RAW=y
+CONFIG_IP_NF_MATCH_ADDRTYPE=y
+CONFIG_IP_NF_MATCH_REALM=y
+CONFIG_IP6_NF_QUEUE=m
+CONFIG_IP6_NF_IPTABLES=m
+CONFIG_IP6_NF_MATCH_LIMIT=m
+CONFIG_IP6_NF_MATCH_MAC=m
+CONFIG_IP6_NF_MATCH_RT=m
+CONFIG_IP6_NF_MATCH_OPTS=m
+CONFIG_IP6_NF_MATCH_FRAG=m
+CONFIG_IP6_NF_MATCH_HL=m
+CONFIG_IP6_NF_MATCH_MULTIPORT=m
+CONFIG_IP6_NF_MATCH_OWNER=m
+CONFIG_IP6_NF_MATCH_MARK=m
+CONFIG_IP6_NF_MATCH_IPV6HEADER=m
+CONFIG_IP6_NF_MATCH_AHESP=m
+CONFIG_IP6_NF_MATCH_LENGTH=m
+CONFIG_IP6_NF_MATCH_EUI64=m
+CONFIG_IP6_NF_FILTER=m
+CONFIG_IP6_NF_TARGET_LOG=m
+CONFIG_IP6_NF_MANGLE=m
+CONFIG_IP6_NF_TARGET_MARK=m
+CONFIG_IP6_NF_RAW=m
+CONFIG_BRIDGE_NF_EBTABLES=y
+CONFIG_BRIDGE_EBT_BROUTE=y
+CONFIG_BRIDGE_EBT_T_FILTER=y
+CONFIG_BRIDGE_EBT_T_NAT=y
+CONFIG_BRIDGE_EBT_802_3=y
+CONFIG_BRIDGE_EBT_AMONG=y
+CONFIG_BRIDGE_EBT_ARP=y
+CONFIG_BRIDGE_EBT_IP=y
+CONFIG_BRIDGE_EBT_LIMIT=y
+CONFIG_BRIDGE_EBT_MARK=y
+CONFIG_BRIDGE_EBT_PKTTYPE=y
+CONFIG_BRIDGE_EBT_STP=y
+CONFIG_BRIDGE_EBT_VLAN=y
+CONFIG_BRIDGE_EBT_ARPREPLY=y
+CONFIG_BRIDGE_EBT_DNAT=y
+CONFIG_BRIDGE_EBT_MARK_T=y
+CONFIG_BRIDGE_EBT_REDIRECT=y
+CONFIG_BRIDGE_EBT_SNAT=y
+CONFIG_BRIDGE_EBT_LOG=y
+CONFIG_XFRM=y
+CONFIG_XFRM_USER=y
+CONFIG_BRIDGE=y
+CONFIG_NET_SCHED=y
+CONFIG_NET_SCH_CBQ=y
+CONFIG_NET_SCH_HTB=y
+CONFIG_NET_SCH_HFSC=y
+CONFIG_NET_SCH_PRIO=y
+CONFIG_NET_SCH_RED=y
+CONFIG_NET_SCH_SFQ=y
+CONFIG_NET_SCH_TEQL=y
+CONFIG_NET_SCH_TBF=y
+CONFIG_NET_SCH_GRED=y
+CONFIG_NET_SCH_DSMARK=y
+CONFIG_NET_SCH_NETEM=y
+CONFIG_NET_SCH_INGRESS=y
+CONFIG_NET_QOS=y
+CONFIG_NET_ESTIMATOR=y
+CONFIG_NET_CLS=y
+CONFIG_NET_CLS_TCINDEX=y
+CONFIG_NET_CLS_ROUTE4=y
+CONFIG_NET_CLS_ROUTE=y
+CONFIG_NET_CLS_FW=y
+CONFIG_NET_CLS_U32=y
+CONFIG_CLS_U32_PERF=y
+CONFIG_NET_CLS_IND=y
+CONFIG_NET_CLS_RSVP=y
+CONFIG_NET_CLS_RSVP6=y
+CONFIG_NET_CLS_ACT=y
+CONFIG_NET_ACT_POLICE=y
+CONFIG_NETPOLL=y
+CONFIG_NET_POLL_CONTROLLER=y
+CONFIG_NETDEVICES=y
+CONFIG_DUMMY=y
+CONFIG_TUN=m
+CONFIG_NET_ETHERNET=y
+CONFIG_MII=m
+CONFIG_NET_VENDOR_3COM=y
+CONFIG_VORTEX=m
+CONFIG_NET_PCI=y
+CONFIG_B44=m
+CONFIG_8139TOO=m
+CONFIG_NET_RADIO=y
+CONFIG_HERMES=m
+CONFIG_ATMEL=m
+CONFIG_PCMCIA_HERMES=m
+CONFIG_PCMCIA_ATMEL=m
+CONFIG_PRISM54=m
+CONFIG_NET_WIRELESS=y
+CONFIG_PPP=m
+CONFIG_PPP_MULTILINK=y
+CONFIG_PPP_FILTER=y
+CONFIG_PPP_ASYNC=m
+CONFIG_PPP_SYNC_TTY=m
+CONFIG_PPP_DEFLATE=m
+CONFIG_PPP_BSDCOMP=m
+CONFIG_PPPOE=m
+CONFIG_SLIP=m
+CONFIG_SLIP_COMPRESSED=y
+CONFIG_SLIP_SMART=y
+CONFIG_SLIP_MODE_SLIP6=y
+CONFIG_SHAPER=m
+CONFIG_NETCONSOLE=m
+CONFIG_INPUT=y
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+CONFIG_SOUND_GAMEPORT=y
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+CONFIG_SERIO_SERPORT=m
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=y
+CONFIG_INPUT_MISC=y
+CONFIG_INPUT_PCSPKR=y
+CONFIG_INPUT_UINPUT=m
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+CONFIG_SERIAL_8250=y
+CONFIG_SERIAL_8250_NR_UARTS=4
+CONFIG_SERIAL_CORE=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_WATCHDOG=y
+CONFIG_RTC=y
+CONFIG_AGP=m
+CONFIG_AGP_SIS=m
+CONFIG_HANGCHECK_TIMER=m
+CONFIG_I2C=m
+CONFIG_I2C_ALGOBIT=m
+CONFIG_I2C_SIS5595=m
+CONFIG_I2C_SIS630=m
+CONFIG_I2C_SIS96X=m
+CONFIG_I2C_SENSOR=m
+CONFIG_SENSORS_ASB100=m
+CONFIG_SENSORS_LM75=m
+CONFIG_SENSORS_LM77=m
+CONFIG_SENSORS_LM78=m
+CONFIG_SENSORS_LM80=m
+CONFIG_SENSORS_LM83=m
+CONFIG_SENSORS_LM85=m
+CONFIG_SENSORS_LM90=m
+CONFIG_SENSORS_EEPROM=m
+CONFIG_FB=y
+CONFIG_FB_VESA=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_VGA_CONSOLE=y
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_FRAMEBUFFER_CONSOLE=y
+CONFIG_FONT_8x8=y
+CONFIG_FONT_8x16=y
+CONFIG_SOUND=m
+CONFIG_SND=m
+CONFIG_SND_TIMER=m
+CONFIG_SND_PCM=m
+CONFIG_SND_RAWMIDI=m
+CONFIG_SND_SEQUENCER=m
+CONFIG_SND_SEQ_DUMMY=m
+CONFIG_SND_OSSEMUL=y
+CONFIG_SND_MIXER_OSS=m
+CONFIG_SND_PCM_OSS=m
+CONFIG_SND_RTCTIMER=m
+CONFIG_SND_MPU401_UART=m
+CONFIG_SND_AC97_CODEC=m
+CONFIG_SND_INTEL8X0=m
+CONFIG_USB=m
+CONFIG_USB_DEVICEFS=y
+CONFIG_USB_EHCI_HCD=m
+CONFIG_USB_EHCI_ROOT_HUB_TT=y
+CONFIG_USB_OHCI_HCD=m
+CONFIG_USB_PRINTER=m
+CONFIG_USB_STORAGE=m
+CONFIG_USB_STORAGE_RW_DETECT=y
+CONFIG_USB_HID=m
+CONFIG_USB_HIDINPUT=y
+CONFIG_USB_HIDDEV=y
+CONFIG_USB_SERIAL=m
+CONFIG_USB_SERIAL_GENERIC=y
+CONFIG_USB_SERIAL_FTDI_SIO=m
+CONFIG_USB_SERIAL_VISOR=m
+CONFIG_EXT2_FS=y
+CONFIG_EXT3_FS=y
+CONFIG_EXT3_FS_XATTR=y
+CONFIG_JBD=y
+CONFIG_FS_MBCACHE=y
+CONFIG_REISERFS_FS=y
+CONFIG_REISERFS_PROC_INFO=y
+CONFIG_XFS_FS=y
+CONFIG_ISO9660_FS=m
+CONFIG_JOLIET=y
+CONFIG_ZISOFS=y
+CONFIG_ZISOFS_FS=m
+CONFIG_FAT_FS=m
+CONFIG_MSDOS_FS=m
+CONFIG_VFAT_FS=m
+CONFIG_FAT_DEFAULT_CODEPAGE=437
+CONFIG_FAT_DEFAULT_IOCHARSET="iso8859-1"
+CONFIG_NTFS_FS=m
+CONFIG_PROC_FS=y
+CONFIG_PROC_KCORE=y
+CONFIG_SYSFS=y
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+CONFIG_NFS_FS=m
+CONFIG_NFS_V3=y
+CONFIG_NFS_V4=y
+CONFIG_NFSD=m
+CONFIG_NFSD_V3=y
+CONFIG_NFSD_V4=y
+CONFIG_NFSD_TCP=y
+CONFIG_LOCKD=m
+CONFIG_LOCKD_V4=y
+CONFIG_EXPORTFS=m
+CONFIG_SUNRPC=m
+CONFIG_SUNRPC_GSS=m
+CONFIG_RPCSEC_GSS_KRB5=m
+CONFIG_SMB_FS=m
+CONFIG_CODA_FS=m
+CONFIG_MSDOS_PARTITION=y
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="iso8859-1"
+CONFIG_NLS_CODEPAGE_437=y
+CONFIG_NLS_CODEPAGE_850=y
+CONFIG_NLS_ASCII=y
+CONFIG_NLS_ISO8859_1=y
+CONFIG_NLS_ISO8859_15=y
+CONFIG_NLS_UTF8=y
+CONFIG_X86_FIND_SMP_CONFIG=y
+CONFIG_X86_MPPARSE=y
+CONFIG_CRYPTO=y
+CONFIG_CRYPTO_HMAC=y
+CONFIG_CRYPTO_NULL=m
+CONFIG_CRYPTO_MD4=m
+CONFIG_CRYPTO_MD5=y
+CONFIG_CRYPTO_SHA1=y
+CONFIG_CRYPTO_SHA256=m
+CONFIG_CRYPTO_SHA512=m
+CONFIG_CRYPTO_DES=y
+CONFIG_CRYPTO_BLOWFISH=m
+CONFIG_CRYPTO_TWOFISH=m
+CONFIG_CRYPTO_SERPENT=m
+CONFIG_CRYPTO_AES=m
+CONFIG_CRYPTO_CAST5=m
+CONFIG_CRYPTO_CAST6=m
+CONFIG_CRYPTO_TEA=m
+CONFIG_CRYPTO_ARC4=m
+CONFIG_CRYPTO_DEFLATE=y
+CONFIG_CRYPTO_MICHAEL_MIC=m
+CONFIG_CRYPTO_CRC32C=m
+CONFIG_CRYPTO_TEST=m
+CONFIG_CRC_CCITT=m
+CONFIG_CRC32=m
+CONFIG_LIBCRC32C=m
+CONFIG_ZLIB_INFLATE=y
+CONFIG_ZLIB_DEFLATE=y
+CONFIG_X86_BIOS_REBOOT=y
+
+--tKW2IUtsqtDRztdT--

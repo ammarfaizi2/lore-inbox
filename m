@@ -1,66 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263059AbTCSPT1>; Wed, 19 Mar 2003 10:19:27 -0500
+	id <S263046AbTCSPTF>; Wed, 19 Mar 2003 10:19:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263060AbTCSPT1>; Wed, 19 Mar 2003 10:19:27 -0500
-Received: from mta5.snfc21.pbi.net ([206.13.28.241]:54422 "EHLO
-	mta5.snfc21.pbi.net") by vger.kernel.org with ESMTP
-	id <S263059AbTCSPTY>; Wed, 19 Mar 2003 10:19:24 -0500
-Date: Wed, 19 Mar 2003 07:21:42 -0800
-From: David Brownell <david-b@pacbell.net>
-Subject: [patch 2.5.65] ehci-hcd, don't use PCI MWI
-To: Greg KH <greg@kroah.com>
-Cc: usb-devel <linux-usb-devel@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org,
-       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-       Jeff Garzik <jgarzik@pobox.com>
-Message-id: <3E788B06.4090302@pacbell.net>
-MIME-version: 1.0
-Content-type: multipart/mixed; boundary="Boundary_(ID_xSfr8ASzlbX4W0pHMUNDBA)"
-X-Accept-Language: en-us, en, fr
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
+	id <S263050AbTCSPTF>; Wed, 19 Mar 2003 10:19:05 -0500
+Received: from dhcpvisitor217225.slac.stanford.edu ([198.129.217.225]:59280
+	"EHLO localhost.sgowdy.org") by vger.kernel.org with ESMTP
+	id <S263046AbTCSPTE>; Wed, 19 Mar 2003 10:19:04 -0500
+Date: Wed, 19 Mar 2003 07:28:47 -0800 (PST)
+From: "Stephen J. Gowdy" <gowdy@slac.stanford.edu>
+X-X-Sender: gowdy@localhost.localdomain
+Reply-To: gowdy@slac.stanford.edu
+To: Andrey Panin <pazke@orbita1.ru>
+cc: linux-kernel@vger.kernel.org, <linux-usb-users@lists.sourceforge.net>
+Subject: Re: [Linux-usb-users] USB harddrive not working (2.4, 2.5)
+In-Reply-To: <20030319102117.GA689@pazke>
+Message-ID: <Pine.LNX.4.44.0303190727360.2052-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-ID: <Pine.LNX.4.44.0303190727362.2052@localhost.localdomain>
+Content-Disposition: INLINE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+The error "USB device not accepting new address" can sometimes be a 
+symptom of an interrupt problem. Do you see interrupts increasing for this 
+device in /proc/interrupts? There is some more info on this in the FAQ at 
+http://www.linux-usb.org .
 
---Boundary_(ID_xSfr8ASzlbX4W0pHMUNDBA)
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7BIT
+On Wed, 19 Mar 2003, Andrey Panin wrote:
 
-Hi,
+> Hi,
+> 
+> ISD200 based hard drive bay doesn't work with 2.4 & 2.5, 
+> can someone assist me with it?
+> 
+> Kernel message log appended.
+> 
+> Best regards.
+> 
+> 
 
-Some users have been sending init logs for Athlon kernels that
-include PCI warning messages about the PCI cache line size
-getting set incorrectly ... where the kernel thinks that the
-right value is 16 bytes.  Since 64 bytes is the right number,
-it's dangerous to enable MWI on such systems.
+-- 
+ /------------------------------------+-------------------------\
+|Stephen J. Gowdy                     | SLAC, MailStop 34,       |
+|http://www.slac.stanford.edu/~gowdy/ | 2575 Sand Hill Road,     |
+|http://calendar.yahoo.com/gowdy      | Menlo Park CA 94025, USA |
+|EMail: gowdy@slac.stanford.edu       | Tel: +1 650 926 3144     |
+ \------------------------------------+-------------------------/
 
-This patch stops trying to use MWI; it's a workaround for the
-misbehavior of that PCI cacheline-setting code.  Please apply
-to 2.5 and 2.4 trees.
-
-- Dave
-
---Boundary_(ID_xSfr8ASzlbX4W0pHMUNDBA)
-Content-type: text/plain; name=ehci-0319a.patch
-Content-transfer-encoding: 7BIT
-Content-disposition: inline; filename=ehci-0319a.patch
-
---- 1.45/drivers/usb/host/ehci-hcd.c	Mon Feb 24 03:30:38 2003
-+++ edited/drivers/usb/host/ehci-hcd.c	Wed Mar 19 07:05:33 2003
-@@ -432,7 +432,11 @@
- 	}
- 
- 	/* help hc dma work well with cachelines */
--	pci_set_mwi (ehci->hcd.pdev);
-+	/* NOTE:  disabled until it works reliably ... some x86/Athlon
-+	 * kernels are thinking 16 byte cachelines, not 64 byte ones,
-+	 * so clearly the MWI prep logic is wrong.
-+	 */
-+	// pci_set_mwi (ehci->hcd.pdev);
- 
- 	/* clear interrupt enables, set irq latency */
- 	temp = readl (&ehci->regs->command) & 0xff;
-
---Boundary_(ID_xSfr8ASzlbX4W0pHMUNDBA)--

@@ -1,60 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266473AbTAaN7G>; Fri, 31 Jan 2003 08:59:06 -0500
+	id <S267189AbTAaOFz>; Fri, 31 Jan 2003 09:05:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267158AbTAaN7G>; Fri, 31 Jan 2003 08:59:06 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:34183 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S266473AbTAaN7F>; Fri, 31 Jan 2003 08:59:05 -0500
-Date: Fri, 31 Jan 2003 09:09:04 -0500 (EST)
-From: "Mike A. Harris" <mharris@redhat.com>
-X-X-Sender: mharris@devel.capslock.lan
-To: Con Kolivas <conman@kolivas.net>
-cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+	id <S266907AbTAaOFz>; Fri, 31 Jan 2003 09:05:55 -0500
+Received: from mail021.syd.optusnet.com.au ([210.49.20.161]:44001 "EHLO
+	mail021.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id <S267189AbTAaOFt> convert rfc822-to-8bit; Fri, 31 Jan 2003 09:05:49 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Con Kolivas <conman@kolivas.net>
+To: Hans Reiser <reiser@namesys.com>
 Subject: Re: [BENCHMARK] ext3, reiser, jfs, xfs effect on contest
-In-Reply-To: <200302010020.34119.conman@kolivas.net>
-Message-ID: <Pine.LNX.4.44.0301310907250.893-100000@devel.capslock.lan>
-Organization: Red Hat Inc.
-X-Unexpected-Header: The Spanish Inquisition
+Date: Sat, 1 Feb 2003 01:15:06 +1100
+User-Agent: KMail/1.4.3
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <200302010020.34119.conman@kolivas.net> <200302010040.49141.conman@kolivas.net> <3E3A8077.9050409@namesys.com>
+In-Reply-To: <3E3A8077.9050409@namesys.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200302010115.06955.conman@kolivas.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 1 Feb 2003, Con Kolivas wrote:
+On Saturday 01 Feb 2003 12:56 am, Hans Reiser wrote:
+> Try running with the -E option for gcc, it might be less CPU intensive,
+> and thus a better FS benchmark.
+>
+> What do you think?
 
->Using the osdl hardware (http://www.osdl.org) with contest 
->(http://contest.kolivas.net) I've conducted a set of benchmarks with 
->different filesystems. Note that contest does not claim to be a throughput 
->benchmark.
->
->All of these use kernel 2.5.59
->
->First a set of contest benchmarks with the io load on a different hard disk 
->containing each of the four filesystems:
->
->io_other:
->Kernel [runs]   Time    CPU%    Loads   LCPU%   Ratio
->2559ext3    3   89      84.3    2       5.5     1.13
->2559reiser  3   87      86.2    2       5.7     1.10
->2559jfs     3   87      86.2    3       5.7     1.10
->2559xfs     3   87      86.2    2       4.5     1.10
->
->I found it interesting that there is virtually no difference in kernel 
->compilation time with all fs. However jfs consistently wrote more during the 
->io load than the other fs.
->
->
->This is a set of benchmarks with the kernel compilation and load all performed 
->on each of the fs:
-
-Compilation is inherently CPU bound, not disk I/O bound, so 
-compiling the kernel (or anything for that matter) isn't going to 
-show any difference really because the CPU Mhz and L1/L2 cache 
-are the bottleneck.
-
-
--- 
-Mike A. Harris     ftp://people.redhat.com/mharris
-OS Systems Engineer - XFree86 maintainer - Red Hat
-
+To be honest I have no idea. I'm not trying to find the filesystem with the 
+greatest throughput, but which utilises the least resources while maintaining 
+throughput. Perhaps we're looking for different things, but I'm open to any 
+suggestions; but they'll have to wait for my waking hours, and for others' 
+comments. These benchmarks are run manually for every stage as they are way 
+out of the scope of the design of contest and therefore time consuming.

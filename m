@@ -1,69 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266133AbUGJEuc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266139AbUGJEvm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266133AbUGJEuc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jul 2004 00:50:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266136AbUGJEuc
+	id S266139AbUGJEvm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jul 2004 00:51:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266137AbUGJEvd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jul 2004 00:50:32 -0400
-Received: from colin2.muc.de ([193.149.48.15]:11793 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S266133AbUGJEua (ORCPT
+	Sat, 10 Jul 2004 00:51:33 -0400
+Received: from dci.doncaster.on.ca ([66.11.168.194]:13705 "EHLO smtp.istop.com")
+	by vger.kernel.org with ESMTP id S266136AbUGJEvM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jul 2004 00:50:30 -0400
-Date: 10 Jul 2004 06:50:28 +0200
-Date: Sat, 10 Jul 2004 06:50:28 +0200
-From: Andi Kleen <ak@muc.de>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: ncunningham@linuxmail.org, linux-kernel@vger.kernel.org
-Subject: Re: GCC 3.4 and broken inlining.
-Message-ID: <20040710045028.GA55490@muc.de>
-References: <2fFzK-3Zz-23@gated-at.bofh.it> <2fG2F-4qK-3@gated-at.bofh.it> <2fG2G-4qK-9@gated-at.bofh.it> <2fPfF-2Dv-21@gated-at.bofh.it> <2fPfF-2Dv-19@gated-at.bofh.it> <m34qohrdel.fsf@averell.firstfloor.org> <20040709184050.GR28324@fs.tum.de> <20040709215415.GA56272@muc.de> <20040709221755.GU28324@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 10 Jul 2004 00:51:12 -0400
+From: Daniel Phillips <phillips@arcor.de>
+To: sdake@mvista.com
+Subject: Re: [ANNOUNCE] Minneapolis Cluster Summit, July 29-30
+Date: Sat, 10 Jul 2004 00:58:28 -0400
+User-Agent: KMail/1.6.2
+Cc: Daniel Phillips <phillips@redhat.com>,
+       David Teigland <teigland@redhat.com>, linux-kernel@vger.kernel.org,
+       Lars Marowsky-Bree <lmb@suse.de>
+References: <200407050209.29268.phillips@redhat.com> <200407081422.19566.phillips@redhat.com> <1089315680.3371.26.camel@persist.az.mvista.com>
+In-Reply-To: <1089315680.3371.26.camel@persist.az.mvista.com>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040709221755.GU28324@fs.tum.de>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200407100058.28599.phillips@arcor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 10, 2004 at 12:17:55AM +0200, Adrian Bunk wrote:
-> On Fri, Jul 09, 2004 at 11:54:15PM +0200, Andi Kleen wrote:
-> > > Runtime errors caused with gcc 3.4 are IMHO much worse than such a small 
-> > > improvement or three dozen compile errors with gcc 3.4 .
-> > 
-> > What runtime errors? 
-> > 
-> > Actually requiring inlining is extremly rare and such functions should
-> > get that an explicit always inline just for documentation purposes.
-> > (another issue is not optimized away checks, but that shows at link time) 
-> 
-> First of all, your proposed patch seems to be broken WRT gcc < 3.1 .
+Hi Steven,
 
-The latest version does fallback #define __always_inline inline
-That was indeed broken in the original patch.
+On Thursday 08 July 2004 15:41, Steven Dake wrote:
+> On Thu, 2004-07-08 at 11:22, Daniel Phillips wrote:
+> > While we're in here, could you please explain why CMAN needs to be
+> > kernel-based?  (Just thought I'd broach the question before Christoph
+> > does.)
+>
+> Daniel,
+>
+> I have that same question as well.  I can think of several
+> disadvantages:
+>
+> 1) security faults in the protocol can crash the kernel or violate
+>     system security
+> 2) secure group communication is difficult to implement in kernel
+>     - secure group key protocols can be implemented fairly easily in
+>        userspace using packages like openssl.  Implementing these
+>        protocols in kernel will prove to be very complex.
+> 3) live upgrades are much more difficult with kernel components
+> 4) a standard interface (the SA Forum AIS) is not being used,
+>     disallowing replaceability of components.  This is a big deal for
+>     people interested in clustering that dont want to be locked into
+>     a partciular implementation.
+> 5) dlm, fencing, cluster messaging (including membership) can be done
+>     in userspace, so why not do it there.
+> 6) cluster services for the kernel and cluster services for applications
+>     will fork, because SA Forum AIS will be chosen for application
+>    level services.
+> 7) faults in the protocols can bring down all of Linux, instead of one
+>     cluster service on one node.
+> 8) kernel changes require much longer to get into the field and are
+>    much more difficult to distribute.  userspace applications are much
+>    simpler to unit test, qualify, and release.
+>
+> The advantages are:
+> interrupt driven timers
+> some possible reduction in latency related to the cost of executing a
+> system call when sending messages (including lock messages)
 
-> 
-> > In the x86-64 case it was vsyscalls, in Nigel's case it was swsusp.
-> > Both are quite exceptional in what they do.
-> > 
-> > > Wouldn't it be a better solution if you would audit the existing inlines 
-> > > in the kernel for abuse of inline and fix those instead?
-> > 
-> > I don't see any point in going through ~1.2MLOC of code by hand
-> > when a compiler can do it for me.
-> 
-> How can a compiler decide whether an "inline" was for a possible small  
-> speed benefit or whether it's required for correct working?
+I'm not saying you're wrong, but I can think of an advantage you didn't 
+mention: a service living in kernel will inherit the PF_MEMALLOC state of the 
+process that called it, that is, a VM cache flushing task.  A userspace 
+service will not.  A cluster block device in kernel may need to invoke some 
+service in userspace at an inconvenient time.
 
-It can't, but the 0.001% of needed for inlines that are required 
-for correctness should be always marked __always_inline
-just for documentation alone.
-You probably don't realize how special a case this is. 
+For example, suppose somebody spills coffee into a network node while another 
+network node is in PF_MEMALLOC state, busily trying to write out dirty file 
+data to it.  The kernel block device now needs to yell to the user space 
+service to go get it a new network connection.  But the userspace service may 
+need to allocate some memory to do that, and, whoops, the kernel won't give 
+it any because it is in PF_MEMALLOC state.  Now what?
 
-> And I'm not that happy with the fact that gcc 3.3 and gcc 3.4 will 
-> produce significantly different code for the same file. Besides from the  
-> 3 dozen compile errors I'm currently sorting out, gcc 3.3 and 3.4 should 
-> behave similar with __attribute__((always_inline)).
+> One of these projects, the openais project which I maintain, implements
+> 3 of these services (and the rest will be done in the timeframes we are
+> talking about) in user space without any kernel changes required.  It
+> would be possible with kernel to userland communication for the cluster
+> applications (GFS, distributed block device, etc) to use this standard
+> interface and implementation.  Then we could avoid all of the
+> unnecessary kernel maintenance and potential problems that come along
+> with it.
+>
+> Are you interested in such an approach?
 
-They are different compiler versiopns, they generate different code.
+We'd be remiss not to be aware of it, and its advantages.  It seems your 
+project is still in early stages.  How about we take pains to ensure that 
+your cluster membership service is plugable into the CMAN infrastructure, as 
+a starting point.
 
--Andi
+Though I admit I haven't read through the whole code tree, there doesn't seem 
+to be a distributed lock manager there.  Maybe that is because it's so 
+tightly coded I missed it?
+
+Regards,
+
+Daniel

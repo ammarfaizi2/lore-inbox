@@ -1,64 +1,111 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288736AbSATPa4>; Sun, 20 Jan 2002 10:30:56 -0500
+	id <S288744AbSATPkT>; Sun, 20 Jan 2002 10:40:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288742AbSATPar>; Sun, 20 Jan 2002 10:30:47 -0500
-Received: from chiark.greenend.org.uk ([212.22.195.2]:62213 "EHLO
-	chiark.greenend.org.uk") by vger.kernel.org with ESMTP
-	id <S288736AbSATPal>; Sun, 20 Jan 2002 10:30:41 -0500
-X-Face: h[Hh-7npe<<b4/eW[]sat,I3O`t8A`(ej.H!F4\8|;ih)`7{@:A~/j1}gTt4e7-n*F?.Rl^
-     F<\{jehn7.KrO{!7=:(@J~]<.[{>v9!1<qZY,{EJxg6?Er4Y7Ng2\Ft>Z&W?r\c.!4DXH5PWpga"ha
-     +r0NzP?vnz:e/knOY)PI-
-X-Boydie: NO
-From: Richard Kettlewell <rjk@terraraq.org.uk>
-X-Mailer: Norman
-To: linux-kernel@vger.kernel.org
-Subject: Re: rm-ing files with open file descriptors
-In-Reply-To: <a2bk6e$t2u$1@ncc1701.cistron.net>
-	<Pine.GSO.4.21.0201190627310.3523-100000@weyl.math.psu.edu>
-	<Pine.GSO.4.21.0201190627310.3523-100000@weyl.math.psu.edu>
-	<8HBE1o7mw-B@khms.westfalen.de>
-Date: Sun, 20 Jan 2002 15:30:39 +0000
-In-Reply-To: <8HBE1o7mw-B@khms.westfalen.de> (kaih@khms.westfalen.de's
- message of "Sat, 19 Jan 2002 19:32:01 GMT")
-Message-ID: <843d119h0g.fsf@rjk.greenend.org.uk>
-User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.1 (Capitol Reef,
- i386-debian-linux)
+	id <S288756AbSATPkK>; Sun, 20 Jan 2002 10:40:10 -0500
+Received: from cervnet.com ([216.58.141.4]:19464 "EHLO CervNet.COM")
+	by vger.kernel.org with ESMTP id <S288744AbSATPkE>;
+	Sun, 20 Jan 2002 10:40:04 -0500
+From: "jeev" <naptime@cervnet.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: memory.c:98: bad pmd 00800000.
+Date: Sun, 20 Jan 2002 07:40:03 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Message-ID: <000b01c1a1c8$bb9c2c30$0200a8c0@mainframe>
+Content-Type: multipart/signed;
+	protocol="application/x-pkcs7-signature";
+	boundary="----=_NextPart_000_0006_01C1A185.AC474A00";
+	micalg=SHA1
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.3416
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kaih@khms.westfalen.de (Kai Henningsen) writes:
-> viro@math.psu.edu (Alexander Viro) wrote:
->> On Sat, 19 Jan 2002, Miquel van Smoorenburg wrote:
+This is a multi-part message in MIME format.
 
->>> I now have a flink-test2.txt file. That is pretty cool ;)
->> 
->> It's also a security hole.
-> 
-> It may well be one when going via /proc. But is it one when going
-> via a (hypothetical) proper flink(2)? If so, why?
-> 
-> Note that every process who has a filehandle open for reading can
-> already get at the file contents and write them to a completely new
-> file, and every process who has it open for writing can already
-> change its contents to everything it likes. So I can see read|write
-> checks on the file handle.  Also all the usual link(2) checks. What
-> else could be a hole?
+------=_NextPart_000_0006_01C1A185.AC474A00
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 
-If the file descriptor you have was opened O_RDONLY, but you have
-write permission on the file itself, then creating a new name for it
-would allow you to open it O_RDWR.
+Left the box idling overnight and I got this output.
+Running linux 2.4.17
 
-I'm not 100% convinced by this argument.  If you really want a
-particular user not to be able to write to a file, the certain answer
-is to set its permissions appropriately, rather than rely on it having
-no name.
+memory.c:98: bad pmd 00800000.
+memory.c:98: bad pmd 00800000.
+memory.c:98: bad pmd 00800000.
 
-One could make the hypothetical flink(2) only work on O_RDWR file
-descriptors, or only on files owned by the euid of the calling
-process.
+That's the output of dmesg, could this be a bug?
 
--- 
-http://www.greenend.org.uk/rjk/
+j
+
+------=_NextPart_000_0006_01C1A185.AC474A00
+Content-Type: application/x-pkcs7-signature;
+	name="smime.p7s"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="smime.p7s"
+
+MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIII8TCCAoAw
+ggHpoAMCAQICAwZBjzANBgkqhkiG9w0BAQIFADCBkjELMAkGA1UEBhMCWkExFTATBgNVBAgTDFdl
+c3Rlcm4gQ2FwZTESMBAGA1UEBxMJQ2FwZSBUb3duMQ8wDQYDVQQKEwZUaGF3dGUxHTAbBgNVBAsT
+FENlcnRpZmljYXRlIFNlcnZpY2VzMSgwJgYDVQQDEx9QZXJzb25hbCBGcmVlbWFpbCBSU0EgMjAw
+MC44LjMwMB4XDTAxMTIwNjA2MDYzM1oXDTAyMTIwNjA2MDYzM1owRTEfMB0GA1UEAxMWVGhhd3Rl
+IEZyZWVtYWlsIE1lbWJlcjEiMCAGCSqGSIb3DQEJARYTbmFwdGltZUBjZXJ2bmV0LmNvbTCBnzAN
+BgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAz0mQ8rzcTgacUdJdwyW6PzGeYHxOaslWWCUrFmvuaO8q
+2NcC8hTieOkuOknDzNz7uUR0ab8n+pXOFYThs1muaMK11VRp4BIkiRJe/41diCSjFWb8X1XhqGpU
+pB5DtTHGTT+G6XOa0cCUobIehi8zuP9wRKgkaycNQb8owCQVc8UCAwEAAaMwMC4wHgYDVR0RBBcw
+FYETbmFwdGltZUBjZXJ2bmV0LmNvbTAMBgNVHRMBAf8EAjAAMA0GCSqGSIb3DQEBAgUAA4GBAFW+
+KAHeKTLKrga03WUsMHpsk9NW77W1nzafKDqyHYnBXp1yJkXYHXfSpBXt1teCJAptPDJ9NKmq54X2
+tOCrrkt2tv45La8yPuY17EEeKawK/g2d9hNvuPMh9qfSNoz8XUbviDMpWmrPVuINlFLN1g55kCWq
+H13QE06B+sk4AUFzMIIDLTCCApagAwIBAgIBADANBgkqhkiG9w0BAQQFADCB0TELMAkGA1UEBhMC
+WkExFTATBgNVBAgTDFdlc3Rlcm4gQ2FwZTESMBAGA1UEBxMJQ2FwZSBUb3duMRowGAYDVQQKExFU
+aGF3dGUgQ29uc3VsdGluZzEoMCYGA1UECxMfQ2VydGlmaWNhdGlvbiBTZXJ2aWNlcyBEaXZpc2lv
+bjEkMCIGA1UEAxMbVGhhd3RlIFBlcnNvbmFsIEZyZWVtYWlsIENBMSswKQYJKoZIhvcNAQkBFhxw
+ZXJzb25hbC1mcmVlbWFpbEB0aGF3dGUuY29tMB4XDTk2MDEwMTAwMDAwMFoXDTIwMTIzMTIzNTk1
+OVowgdExCzAJBgNVBAYTAlpBMRUwEwYDVQQIEwxXZXN0ZXJuIENhcGUxEjAQBgNVBAcTCUNhcGUg
+VG93bjEaMBgGA1UEChMRVGhhd3RlIENvbnN1bHRpbmcxKDAmBgNVBAsTH0NlcnRpZmljYXRpb24g
+U2VydmljZXMgRGl2aXNpb24xJDAiBgNVBAMTG1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBDQTEr
+MCkGCSqGSIb3DQEJARYccGVyc29uYWwtZnJlZW1haWxAdGhhd3RlLmNvbTCBnzANBgkqhkiG9w0B
+AQEFAAOBjQAwgYkCgYEA1GnX1LCUZFtx6UfYDFG26nKRsIRefS0Nj3sS34UldSh0OkIsYyeflXtL
+734Zhx2G6qPduc6WZBrCFG5ErHzmj+hND3EfQDimAKOHePb5lIZererAXnbr2RSjXW56fAylS1V/
+Bhkpf56aJtVquzgkCGqYx7Hao5iR/Xnb5VrEHLkCAwEAAaMTMBEwDwYDVR0TAQH/BAUwAwEB/zAN
+BgkqhkiG9w0BAQQFAAOBgQDH7JJ+Tvj1lqVnYiqk8E0RYNBvjWBYYawmu1I1XAjPMPuoSpaKH2JC
+I4wXD/S6ZJwXrEcp352YXtJsYHFcoqzceePnbgBHH7UNKOgCneSa/RP0ptl8sfjcXyMmCZGAc9AU
+G95DqYMl8uacLxXK/qarigd1iwzdUYRr5PjRzneigTCCAzgwggKhoAMCAQICEGZFcrfMdPXPY3ZF
+hNAukQEwDQYJKoZIhvcNAQEEBQAwgdExCzAJBgNVBAYTAlpBMRUwEwYDVQQIEwxXZXN0ZXJuIENh
+cGUxEjAQBgNVBAcTCUNhcGUgVG93bjEaMBgGA1UEChMRVGhhd3RlIENvbnN1bHRpbmcxKDAmBgNV
+BAsTH0NlcnRpZmljYXRpb24gU2VydmljZXMgRGl2aXNpb24xJDAiBgNVBAMTG1RoYXd0ZSBQZXJz
+b25hbCBGcmVlbWFpbCBDQTErMCkGCSqGSIb3DQEJARYccGVyc29uYWwtZnJlZW1haWxAdGhhd3Rl
+LmNvbTAeFw0wMDA4MzAwMDAwMDBaFw0wNDA4MjcyMzU5NTlaMIGSMQswCQYDVQQGEwJaQTEVMBMG
+A1UECBMMV2VzdGVybiBDYXBlMRIwEAYDVQQHEwlDYXBlIFRvd24xDzANBgNVBAoTBlRoYXd0ZTEd
+MBsGA1UECxMUQ2VydGlmaWNhdGUgU2VydmljZXMxKDAmBgNVBAMTH1BlcnNvbmFsIEZyZWVtYWls
+IFJTQSAyMDAwLjguMzAwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAN4zMqZjxwklRT7Sbngn
+Z4HF2ogZgpcO40QpimM1Km1wPPrcrvfudG8wvDOQf/k0caCjbZjxw0+iZdsN+kvx1t1hpfmFzVWa
+NRqdknWoJ67Ycvm6AvbXsJHeHOmr4BgDqHxDQlBRh4M88Dm0m1SKE4f/s5udSWYALQmJ7JRr6aFp
+AgMBAAGjTjBMMCkGA1UdEQQiMCCkHjAcMRowGAYDVQQDExFQcml2YXRlTGFiZWwxLTI5NzASBgNV
+HRMBAf8ECDAGAQH/AgEAMAsGA1UdDwQEAwIBBjANBgkqhkiG9w0BAQQFAAOBgQAxsUtHXfkBceX1
+U2xdedY9mMAmE2KBIqcS+CKV6BtJtyd7BDm6/ObyJOuR+r3sDSo491BVqGz3Da1MG7wD9LXrokef
+bKIMWI0xQgkRbLAaadErErJAXWr5edDqLiXdiuT82w0fnQLzWtvKPPZE6iZph39Ins6ln+eE2Mli
+Yq0FxjGCA2kwggNlAgEBMIGaMIGSMQswCQYDVQQGEwJaQTEVMBMGA1UECBMMV2VzdGVybiBDYXBl
+MRIwEAYDVQQHEwlDYXBlIFRvd24xDzANBgNVBAoTBlRoYXd0ZTEdMBsGA1UECxMUQ2VydGlmaWNh
+dGUgU2VydmljZXMxKDAmBgNVBAMTH1BlcnNvbmFsIEZyZWVtYWlsIFJTQSAyMDAwLjguMzACAwZB
+jzAJBgUrDgMCGgUAoIICJDAYBgkqhkiG9w0BCQMxCwYJKoZIhvcNAQcBMBwGCSqGSIb3DQEJBTEP
+Fw0wMjAxMjAxNTQwMDNaMCMGCSqGSIb3DQEJBDEWBBRWhErWYaK9QEtzj5p94gLQ+Wt55zBnBgkq
+hkiG9w0BCQ8xWjBYMAoGCCqGSIb3DQMHMA4GCCqGSIb3DQMCAgIAgDANBggqhkiG9w0DAgIBQDAH
+BgUrDgMCBzANBggqhkiG9w0DAgIBKDAHBgUrDgMCGjAKBggqhkiG9w0CBTCBqwYJKwYBBAGCNxAE
+MYGdMIGaMIGSMQswCQYDVQQGEwJaQTEVMBMGA1UECBMMV2VzdGVybiBDYXBlMRIwEAYDVQQHEwlD
+YXBlIFRvd24xDzANBgNVBAoTBlRoYXd0ZTEdMBsGA1UECxMUQ2VydGlmaWNhdGUgU2VydmljZXMx
+KDAmBgNVBAMTH1BlcnNvbmFsIEZyZWVtYWlsIFJTQSAyMDAwLjguMzACAwZBjzCBrQYLKoZIhvcN
+AQkQAgsxgZ2ggZowgZIxCzAJBgNVBAYTAlpBMRUwEwYDVQQIEwxXZXN0ZXJuIENhcGUxEjAQBgNV
+BAcTCUNhcGUgVG93bjEPMA0GA1UEChMGVGhhd3RlMR0wGwYDVQQLExRDZXJ0aWZpY2F0ZSBTZXJ2
+aWNlczEoMCYGA1UEAxMfUGVyc29uYWwgRnJlZW1haWwgUlNBIDIwMDAuOC4zMAIDBkGPMA0GCSqG
+SIb3DQEBAQUABIGAzGckFCpFGVLa0JS5DDCOw7/sHQs07r/4iijfQSB0akQs0aSff6p8+Zrnv3jy
+Gn3WAAyuNF4nHcafZ8fSSzLhGd08CIT3uMQLg4PxVAagF3zsPTLBIVnNk/OAyYwR692OCCH7791Z
+rfnfjv0iC+DbHOm5wJwB8kK8GR5Ps6uZrwwAAAAAAAA=
+
+------=_NextPart_000_0006_01C1A185.AC474A00--
+

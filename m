@@ -1,32 +1,62 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317456AbSFMFWh>; Thu, 13 Jun 2002 01:22:37 -0400
+	id <S317461AbSFMFi3>; Thu, 13 Jun 2002 01:38:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317457AbSFMFWg>; Thu, 13 Jun 2002 01:22:36 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:5391 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S317456AbSFMFWe>; Thu, 13 Jun 2002 01:22:34 -0400
-Subject: Re: Very large font size crashing X Font Server and Grounding Server to
-To: jijo@free.net.ph (Federico Sevilla III)
-Date: Thu, 13 Jun 2002 06:39:35 +0100 (BST)
-Cc: bugtraq@securityfocus.com (BugTraq Mailing List),
-        linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
-In-Reply-To: <Pine.LNX.4.44.0206130908550.985-100000@kalabaw> from "Federico Sevilla III" at Jun 13, 2002 09:44:33 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S317462AbSFMFi2>; Thu, 13 Jun 2002 01:38:28 -0400
+Received: from eagle.he.net ([216.218.174.2]:7440 "EHLO eagle.he.net")
+	by vger.kernel.org with ESMTP id <S317461AbSFMFi2>;
+	Thu, 13 Jun 2002 01:38:28 -0400
+Date: Wed, 12 Jun 2002 22:38:37 -0700
+Message-Id: <200206130538.WAA18419@eagle.he.net>
+From: "Anjali Kulkarni" <anjali@indranetworks.com>
+To: Richard Zidlicky 
+	<Richard.Zidlicky@stud.informatik.uni-erlangen.de>,
+        Anjali Kulkarni <anjali@indranetworks.com>, mingo@elte.hu,
+        linux-kernel@vger.kernel.org
+Subject: Re: scheduler problems
+X-Mailer: WebMail 1.25
+X-IPAddress: 61.11.16.239
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E17INKZ-0000gV-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: text/plain; charset=iso-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> check to prevent such large sizes from crashing X and/or the X Font
-> Server, I'm alarmed by (1) the way the X font server allows itself to be
-> crashed like this, and (2) the way the entire Linux kernel seems to have
-> been unable to handle the situation. While having a central company or
 
-So turn on the features to conrol it. Set rlimits on the xfs server and 
-enable non overcommit (-ac kernel)
 
-Alan
+> > > > [...] It is due to the fact that the schedule() function does 
+not 
+> > find
+> > > > the 'current' process in the runqueue. [...]
+> > > 
+> > > a crash in line 384 means that the runqueue got corrupted by 
+> > something,
+> > > most likely caused by buggy kernel code outside of the scheduler.
+> > 
+> > Right, I thought of that, but how is it that it gets corrupt at 
+exactly 
+> > the same offset in task_struct of that process and every time with 
+> > different processes? (I have run it atleast 20-30 times). And it 
+just 
+> > doesnt come if I kill the process in question? 
+> 
+> I've had similar problems when some code invalidated CPU cache 
+> and an interrupt came in at the wrong time.
+> 
+
+Hi!
+
+I have not very clear on what u mean. Can u explain in more detail?
+
+Thanks,
+Anjali
+
+> Richard
+> 
+> 
+
+
+Anjali Kulkarni
+Software Engineer
+Indra Networks
+
+~Living Well is the best Revenge~

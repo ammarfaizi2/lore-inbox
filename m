@@ -1,58 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265249AbUGVThU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267180AbUGVTlE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265249AbUGVThU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jul 2004 15:37:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267164AbUGVThR
+	id S267180AbUGVTlE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jul 2004 15:41:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267182AbUGVTlE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jul 2004 15:37:17 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:39637 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S265249AbUGVThC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jul 2004 15:37:02 -0400
-Date: Thu, 22 Jul 2004 21:36:55 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Michael Heyse <mhk@designassembly.de>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: CONFIG_NET_RADIO vs CONFIG_NET_WIRELESS
-Message-ID: <20040722193655.GF19329@fs.tum.de>
-References: <40FFC13A.9020201@designassembly.de>
+	Thu, 22 Jul 2004 15:41:04 -0400
+Received: from cfcafwp.sgi.com ([192.48.179.6]:46205 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S267164AbUGVTlA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jul 2004 15:41:00 -0400
+Date: Thu, 22 Jul 2004 14:40:50 -0500
+From: Robin Holt <holt@sgi.com>
+To: Robin Holt <holt@sgi.com>
+Cc: Jesse Barnes <jbarnes@engr.sgi.com>, Pat Gefre <pfg@sgi.com>,
+       linux-ia64@vger.kernel.org, hch@infradead.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Altix I/O code re-org
+Message-ID: <20040722194050.GA797@lnx-holt.americas.sgi.com>
+References: <200407221514.i6MFEVag084696@fsgi900.americas.sgi.com> <200407221357.53404.jbarnes@engr.sgi.com> <20040722192003.GA617@lnx-holt.americas.sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <40FFC13A.9020201@designassembly.de>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20040722192003.GA617@lnx-holt.americas.sgi.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 22, 2004 at 03:29:30PM +0200, Michael Heyse wrote:
-> I am confused. CONFIG_NET_RADIO is set when you select "Wireless LAN 
-> drivers". But building of drivers/net/wireless depends on 
-> CONFIG_NET_WIRELESS, but not a single Kconfig defines this value (it is 
-> defined in some defconfigs though). So the wireless LAN drivers are 
-> never built.
-> 
-> What am I missing???
+Pat,
 
-The following from drivers/net/wireless/Kconfig:
+I have a set of patches that cleanly applies against the
+http://linux.bkbits.net/linux-2.5 bitkeeper tree using quilt.  They are
+not available for the rest of the world yet.  Could you move them from
+~holt/ioif to the project's ftp directory on oss.sgi.com?
 
-<--  snip  -->
+Thanks,
+Robin
 
-config NET_WIRELESS
-        bool
-        depends on NET_RADIO && (ISA || PCI || PPC_PMAC || PCMCIA)
-        default y
-
-<--  snip  -->
-
-> Michael
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+PS:  I found a few small problems with the bte code and will soon have
+another patch that fixes that up.  Specifically, there were changes
+made to bte_error.c and pda.h that are undone by your patch.

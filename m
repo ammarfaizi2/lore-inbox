@@ -1,66 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129289AbQLSJaR>; Tue, 19 Dec 2000 04:30:17 -0500
+	id <S129880AbQLSJeJ>; Tue, 19 Dec 2000 04:34:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129573AbQLSJaA>; Tue, 19 Dec 2000 04:30:00 -0500
-Received: from se1.cogenit.fr ([195.68.53.173]:18963 "EHLO se1.cogenit.fr")
-	by vger.kernel.org with ESMTP id <S129289AbQLSJ3s>;
-	Tue, 19 Dec 2000 04:29:48 -0500
-Date: Tue, 19 Dec 2000 09:59:06 +0100
-From: Francois Romieu <romieu@cogenit.fr>
-To: Rasmus Andersen <rasmus@jaquet.dk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][RFC] Converting drivers/net/rcpci45.c to new PCI API
-Message-ID: <20001219095906.A5764@se1.cogenit.fr>
-In-Reply-To: <20001219004604.B761@jaquet.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Mailer: Mutt 1.0pre3us
-In-Reply-To: <20001219004604.B761@jaquet.dk>
-X-Organisation: Marie's fan club
+	id <S129878AbQLSJd6>; Tue, 19 Dec 2000 04:33:58 -0500
+Received: from hermes.mixx.net ([212.84.196.2]:20751 "HELO hermes.mixx.net")
+	by vger.kernel.org with SMTP id <S129588AbQLSJdm>;
+	Tue, 19 Dec 2000 04:33:42 -0500
+Message-ID: <3A3F23D8.406F5444@innominate.de>
+Date: Tue, 19 Dec 2000 10:01:13 +0100
+From: Daniel Phillips <phillips@innominate.de>
+Organization: innominate
+X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0-test10 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Semaphores used for daemon wakeup
+In-Reply-To: <0012171922570J.00623@gimli>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rasmus Andersen <rasmus@jaquet.dk> écrit :
-[...]
-> There are some other cleanups I want to do, and I need to make my indentation
-> match the drivers, but that will be after the basic conversion is done.
-> 
-> 
-> --- linux-240-t13-pre1-clean/drivers/net/rcpci45.c	Sat Nov  4 23:27:08 2000
-> +++ linux/drivers/net/rcpci45.c	Thu Dec 14 21:41:17 2000
-[...]
-> @@ -155,71 +153,29 @@
->  static int RC_allocate_and_post_buffers(struct net_device *, int);
->  
->  
-> -/* A list of all installed RC devices, for removing the driver module. */
-> -static struct net_device *root_RCdev;
-> +static struct pci_device_id rcpci45_pci_table[] __devinitdata = {
-> +	{ RC_PCI45_VENDOR_ID, RC_PCI45_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID, },
-> +	{ }
-> +};
-> +MODULE_DEVICE_TABLE(pci, rcpci_pci_table);
->  
-> -static int __init rcpci_init_module (void)
-> +static void rcpci45_remove_one(struct pci_dev *pdev)
-              ^->  __exit
-[...]
-> -	if (pci_enable_device(pdev))
-> -		break;
-> -	pci_set_master(pdev);
-> +	unregister_netdev(dev);
-> +	iounmap((void *)dev->base_addr);
-> +        free_irq(dev->irq, dev);
+Daniel Phillips wrote:
+> The idea of using semaphores to regulate the cycling of a daemon was
+> suggested to me by Arjan Vos.
 
-I'd rather inhibit irq first then release the ressources.
-+       free_irq(dev->irq, dev);
-+	iounmap((void *)dev->base_addr);
-+	unregister_netdev(dev);
+Actually, his name is Arjan van de Ven - sorry Arjan :-o
 
--- 
-Ueimor
+Thanks also to Phillip Rumpf for auditing this patch for cross-platform
+correctness.
+
+--
+Daniel
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

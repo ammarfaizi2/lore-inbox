@@ -1,37 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131535AbQKZOoR>; Sun, 26 Nov 2000 09:44:17 -0500
+        id <S131537AbQKZOzk>; Sun, 26 Nov 2000 09:55:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131537AbQKZOoI>; Sun, 26 Nov 2000 09:44:08 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:34826 "EHLO
-        www.linux.org.uk") by vger.kernel.org with ESMTP id <S131535AbQKZOn7>;
-        Sun, 26 Nov 2000 09:43:59 -0500
-Date: Sun, 26 Nov 2000 14:13:44 +0000
-From: Philipp Rumpf <prumpf@parcelfarce.linux.theplanet.co.uk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: georgn@home.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] removal of "static foo = 0"
-Message-ID: <20001126141344.T2272@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <14880.29022.261932.284497@somanetworks.com> <E13ztNR-0001ew-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <E13ztNR-0001ew-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sun, Nov 26, 2000 at 04:25:05AM +0000
+        id <S131560AbQKZOza>; Sun, 26 Nov 2000 09:55:30 -0500
+Received: from einhorn.colt.in-berlin.de ([213.61.118.8]:27918 "EHLO
+        einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+        id <S131537AbQKZOzQ>; Sun, 26 Nov 2000 09:55:16 -0500
+To: linux-kernel@vger.kernel.org
+Path: kraxel
+From: Gerd Knorr <kraxel@bytesex.org>
+Newsgroups: lists.linux.kernel
+Subject: [patch] Re: bttv crashes kernel 2.4.0testX on a Vodoo3 2000
+Date: 26 Nov 2000 13:50:18 GMT
+Organization: Strusel 007
+Message-ID: <slrn92258o.g5a.kraxel@bogomips.masq.in-berlin.de>
+In-Reply-To: <20001124112338.A523@BOFH.president.eu.org> <3A1E3206.114A8A9@suntiger.ee.up.ac.za>
+NNTP-Posting-Host: bogomips.masq.in-berlin.de
+X-Trace: goldbach.masq.in-berlin.de 975246618 25397 192.168.69.77 (26 Nov 2000 13:50:18 GMT)
+X-Complaints-To: news@goldbach.in-berlin.de
+NNTP-Posting-Date: 26 Nov 2000 13:50:18 GMT
+User-Agent: slrn/0.9.6.3 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 26, 2000 at 04:25:05AM +0000, Alan Cox wrote:
-> 	static int a=0;
+Justin Schoeman wrote:
+> With the VIA chipset you should use the "triton1=1" module option.
+> (Well, at least it worked for me!)
 > 
-> says 'I thought about this. I want it to start at zero. I've written it this
-> way to remind of the fact'
+> -justin
 > 
-> Sure it generates the same code
+> > [1.] One line summary of the problem:
+> >         bttv crashes kernel 2.4.0testX on a Vodoo3 2000
+[ ... ]
+> > PCI devices found:
+> >   Bus  0, device   0, function  0:
+> >     Host bridge: VIA Technologies, Inc. VT82C597 [Apollo VP3] (rev 4).
 
-I agree it would be best if gcc would generate the same code;  unfortunately
-this doesn't seem to be the case, which sounds like something to take up with
-the gcc developers.
+http://www.strusel007.de/linux/bttv/bttv-0.7.49-2.4.0-test11.diff.gz
+
+<changelog>
+
+bttv-0.7.49
+-----------
+
+ * changed more structs to name-based initialization (from test11 patch)
+ * Added kernel args for the most important bttv insmod options, based
+   on Werner Almesberger's patch.
+ * Added insmod option to set the tuner type to bttv (yes, that's a bit
+   redundant with the tuner module's option, but this way it works with
+   two cards having different tuners too).
+ * more fixes for card descriptions.
+ * updated the triton1 compatibility code:  moved into bttv-cards.c,
+   created a new function for it, reworked and commented the code.
+   Added a list for chipsets, seems the triton1 isn't the only chipset
+   which needs this.  Added the via apollo to the list.
+
+</changelog>
+
+If someone else has a board which needs the triton1=1 insmod option to
+work stable with bttv just drop me a note (don't forget to include the
+PCI ID for the Host bridge), I'll add it to the new blacklist then.
+ 
+  Gerd
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

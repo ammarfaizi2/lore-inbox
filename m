@@ -1,50 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264110AbTLAW2e (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Dec 2003 17:28:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264112AbTLAW2e
+	id S264229AbTLAW7J (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Dec 2003 17:59:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264235AbTLAW7J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Dec 2003 17:28:34 -0500
-Received: from web41301.mail.yahoo.com ([66.218.93.186]:38777 "HELO
-	web41301.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S264110AbTLAW2d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Dec 2003 17:28:33 -0500
-Message-ID: <20031201222832.9385.qmail@web41301.mail.yahoo.com>
-Date: Mon, 1 Dec 2003 14:28:32 -0800 (PST)
-From: Jing Xu <xujing_cn2001@yahoo.com>
-Subject: how to reserve irqs at boot time
-To: linux-kernel@vger.kernel.org
+	Mon, 1 Dec 2003 17:59:09 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:2496 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264229AbTLAW7G (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Dec 2003 17:59:06 -0500
+Date: Mon, 01 Dec 2003 14:57:52 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Anton Blanchard <anton@samba.org>, Andrew Morton <akpm@osdl.org>
+cc: Jack Steiner <steiner@sgi.com>, jes@trained-monkey.org, viro@math.psu.edu,
+       wli@holomorphy.com, linux-kernel@vger.kernel.org, jbarnes@sgi.com
+Subject: Re: hash table sizes
+Message-ID: <113980000.1070319472@flay>
+In-Reply-To: <20031201210601.GC22620@krispykreme>
+References: <16323.23221.835676.999857@gargle.gargle.HOWL> <20031125204814.GA19397@sgi.com> <20031125130741.108bf57c.akpm@osdl.org> <20031201210601.GC22620@krispykreme>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, 
+>> It would be very nice to have some confirmation that the size of these
+>> tables is being appropriately chosen, too.  Maybe we should shrink 'em 32x
+>> and see who complains...
+> 
+> Why dont we just do node round robin allocations during boot? This
+> should mean the static boot time hashes would at least end up on
+> different nodes.
+
+We could probably implement a generic striped allocate, which would
+do a vmalloc or similar on 64 bit, and either the magic boottime
+node-alloc hack, or just a straight node 0 alloc on 32 bit (ie use
+vmalloc where needed, without crippling other platforms).
+
+Someone had a patch to do round-robin already (Manfred?) - IMHO doing
+it from the node with the most free mem each time would be better, if
+we're not going to stripe. 
  
-I'm running linux 2.4.20 and rtai 24.1.11. My linux
-kernel module needs to use IRQ 9 10 11 for AGP graphic
-card, sound card and PCI-Dio24 IO card. These irqs are
-also shared by USB controllers. My module hangs when
-it tries to request the above irqs used by USB
-devices. I figured it would be a good idea to remove
-this apparent conflict. I have scoured the web and
-found that I can reserve these IRQs by specifying
-pci=irqmask= on the kernel boot line.
+> 0 248652
+> 1 7374
 
-I have tried to set "pci=irqmask=0xf1e8" to reserve
-Irq 9 10 11 4 from my driver, and it hasn't had any
-effect - those irqs are still used by usb controllers
-on initialization. 
- 
-How do I reserve these IRQ's?  Is there some other
-configuration file I haven't found? 
+...
 
-Thanks in advance,
+but yes, that does look utterly screwed ;-)
 
-jing 
+M.
 
-
-__________________________________
-Do you Yahoo!?
-Free Pop-Up Blocker - Get it now
-http://companion.yahoo.com/

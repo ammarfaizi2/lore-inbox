@@ -1,93 +1,119 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132198AbQKKTra>; Sat, 11 Nov 2000 14:47:30 -0500
+	id <S132284AbQKKTtl>; Sat, 11 Nov 2000 14:49:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132284AbQKKTrU>; Sat, 11 Nov 2000 14:47:20 -0500
-Received: from dial-206-102-3-214.easystreet.com ([206.102.3.214]:35076 "EHLO
-	enzo.localdomain") by vger.kernel.org with ESMTP id <S132198AbQKKTrP>;
-	Sat, 11 Nov 2000 14:47:15 -0500
-Date: Sat, 11 Nov 2000 11:47:10 -0800
-From: BJerrick@easystreet.com
-Message-Id: <200011111947.eABJlAG02240@enzo.localdomain>
-To: linux-kernel@vger.kernel.org
-Subject: IDE DMA/lost interrupt problem with RAID0
+	id <S132336AbQKKTtb>; Sat, 11 Nov 2000 14:49:31 -0500
+Received: from relay03.valueweb.net ([216.219.253.237]:27408 "EHLO
+	relay03.valueweb.net") by vger.kernel.org with ESMTP
+	id <S132335AbQKKTtV>; Sat, 11 Nov 2000 14:49:21 -0500
+Message-ID: <3A0DA3CC.520BEAB2@opersys.com>
+From: Karim Yaghmour <karym@opersys.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.14 i686)
+X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
+MIME-Version: 1.0
+To: Michael Vines <mjvines@undergrad.math.uwaterloo.ca>
+CC: "Magnus Naeslund(b)" <mag@bahnhof.se>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Tracing files that opens.
+In-Reply-To: <Pine.LNX.4.10.10011111257010.1996-100000@barkingdogstudios.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Date: Sat, 11 Nov 2000 14:49:06 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Can anyone shed some light on this?
 
-I get "lost interrupt" or "timeout waiting for DMA" (and a subsequent
-reset) when reading software RAID0 (striped) partitions using IDE drives,
-iff I enable any of the following:
+It seems that no one on that thread thought about using the Linux Trace
+Toolkit which would allow you to do exactly what is asked for. Plus,
+there's a basic hooking mechanism than enables you to hook onto any
+file-system events and then do what you want with that.
 
-    % hdparm -c1  /dev/hda /dev/hdc	(enable 32-bit I/O)
-    % hdparm -m16 /dev/hda /dev/hdc	(enable multiple sector I/O)
-    % hdparm -d1  /dev/hda /dev/hdc	(enable DMA)
+In the case of trapping open() or stat() you'd only need to:
+1) Patch the kernel with the LTT patch
+2) Write a kernel module that uses the hooking interface to hook
+onto system call entries and filter those out as needed. Moreover,
+you could also hook onto file-system events which would give you
+greater detail about the file-system related system calls occurring.
 
-(If it's not evident, the lost interrupts happen when using PIO, the
-"timeout waiting ..." with DMA.)
+Eventually, I'd like to see item #1 disappear and the tracing patches
+admitted part of the kernel tree. Other OSes have had such a capability
+for a very long time. This, by itself, doesn't justify including it,
+but it certainly does go to show usefulness. Moreover, Alan has suggested
+that this might be a good way to implement C2 security into the kernel
+since all system entries are monitored.
 
-The RAID0 partitions use two identical hd partitions each, on hda and hdc,
-with 8k chunks.
+That said, here's an example module that could be a basis for trapping
+open() and stat(). Although, it could be used to monitor other events:
 
-Doing "hdparm -t /dev/md0" (or md{1,2,3}) will invoke a reset, but
-"hdparm -t /dev/hda" (or /dev/hdc) does not.
+#define MODULE
 
-If I don't enable DMA, and don't use hdparm -c1 or -m16, I don't get
-the resets.
+#include <linux/module.h>
+#include <linux/trace.h>
 
-A typical reset sequence (in /var/log/messages) is this for the DMA case:
+int my_callback(uint8_t pmEventID,
+		void*   pmStruct)
+{
+  trace_syscall_entry* syscall_event = (trace_syscall_entry*) pmStruct;
 
-    hda: timeout waiting for DMA
-    hda: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
-    hda: status timeout: status=0xd0 { Busy }
-    hda: DMA disabled
-    hda: drive not ready for command
-    ide0: reset: success
+  printk("System call %d occured at address 0x%08X \n",
+         syscall_event->syscall_id,
+         syscall_event->address);
+}
 
-and this for PIO:
+int init_module(void)
+{
+  printk("callback initialized \n");
+ 
+  trace_register_callback(&my_callback,
+			  TRACE_EV_SYSCALL_ENTRY);
+ 
+  return 0;
+}
 
-    hda: lost interrupt
-    hda: status error: status=0x58 { DriveReady SeekComplete DataRequest }
-    hda: drive not ready for command
-    hda: status timeout: status=0xd0 { Busy }
-    hda: drive not ready for command
-    ide0: unexpected interrupt, status=0x80, count=6
-    ide0: reset: success
+void cleanup_module(void)
+{
+  trace_unregister_callback(&my_callback,
+			    TRACE_EV_SYSCALL_ENTRY);
+}
 
-This behavior started with kernel 2.2.16; it didn't happen under 2.2.14 .
+The only "problem" here being that you can't specify "open" or "stat" as
+strings, but as their respective system call ID as seen in arch/i386/entry.S
+for the i386. Note the patches available now include support for the PowerPC.
 
-Some hardware/software particulars:
+If anyone is interested in adding support for other architectures, feel
+free to dig in.
 
-    Disks (hda, hdc): Maxtor 52049U4 (20 GB, 7200 rpm, UDMA66)
-    Motherboard/chipset: Tyan S1682D (Intel 440FX)
-    IDE interface: Intel 82371SB PIIX3 (onboard)
-    CPUs: dual Pentium II 266 MHz.
-    Kernel: Built from Red Hat 7.0 kernel-source-2.2.16-22; SMP configured;
-	built-in IDE and RAID (i.e., not modular)
+You can find LTT and all relevant patches at: http://www.opersys.com/LTT
 
-I don't seem to have this problem on another machine:
+Best regards
 
-    Disks (hda, hdc): Maxtor 91366U4 (13.6 GB, 7200 rpm, UDMA66)
-    Motherboard/chipset: Supermicro PIIISCA (Intel 820)
-    IDE interface: Intel 82801AA (onboard)
-    CPU: single Pentium III 666 MHz.
-    Kernel: same binaries
+Karim
 
-I get about 24% performance improvement (reading) from striping,
-1.8x improvement with -c1 -m16, and 2.6x improvement with DMA (5.6x on
-the second machine!), so if anything has to be sacrificed, it will be
-striping.  But does anyone have some insights on why RAID doesn't work
-with DMA or the hdparm tweaks?
+Michael Vines wrote:
+> 
+> On Sat, 11 Nov 2000, Magnus Naeslund(b) wrote:
+> 
+> > Is there a nice way to trap on file open() and stat() ?
+> > That way i could have nice file statistics.
+> 
+> There was a thread about this a couple days ago.
+> 
+> http://x52.deja.com/threadmsg_ct.xp?AN=690272012.1&mhitnum=0&CONTEXT=973965178.1986985995
+> 
+>         Michael
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 
-Please Cc any replies to me, since I'm not a list subscriber.
-
-Thanks --
-
-Bruce Jerrick
-Portland, Oregon, USA
-email:   bjerrick@easystreet.com
-
+-- 
+===================================================
+                 Karim Yaghmour
+               karym@opersys.com
+          Operating System Consultant
+ (Linux kernel, real-time and distributed systems)
+===================================================
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

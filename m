@@ -1,35 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135186AbRD3K6h>; Mon, 30 Apr 2001 06:58:37 -0400
+	id <S135210AbRD3LOt>; Mon, 30 Apr 2001 07:14:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135181AbRD3K62>; Mon, 30 Apr 2001 06:58:28 -0400
-Received: from mailgate1.zdv.Uni-Mainz.DE ([134.93.8.56]:29328 "EHLO
-	mailgate1.zdv.Uni-Mainz.DE") by vger.kernel.org with ESMTP
-	id <S135198AbRD3K6O>; Mon, 30 Apr 2001 06:58:14 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Olaf Stetzer <ostetzer@mail.uni-mainz.de>
-To: linux-kernel@vger.kernel.org
-Subject: make bzlilo seems to ignore non-standard kernel path in lilo.conf (/boot)
-Date: Mon, 30 Apr 2001 12:16:24 +0200
-X-Mailer: KMail [version 1.2]
+	id <S135198AbRD3LOi>; Mon, 30 Apr 2001 07:14:38 -0400
+Received: from www.topmail.de ([212.255.16.226]:8648 "HELO www.topmail.de")
+	by vger.kernel.org with SMTP id <S135211AbRD3LOV>;
+	Mon, 30 Apr 2001 07:14:21 -0400
+Message-ID: <000701c0d166$b3285c50$de00a8c0@homeip.net>
+From: "mirabilos" <eccesys@topmail.de>
+To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: Q: Optimisation
+Date: Mon, 30 Apr 2001 11:12:19 -0000
+Organization: eccesys.net Linux development
 MIME-Version: 1.0
-Message-Id: <01043012162401.00851@Seaborg>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+	charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2462.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hello,
+if I want to compile a complete linux system
+with the new-style CFLAGS and kernel opts so
+that it RUNS on 486DX and is OPTIMISED for
+Pentium, which options do I have to choose in
 
-when I tried to get rid of the problem I wrote about two days ago in 
-this list I compiled the kernel several times but unfortunately it was
-not installed correctly by the make target bzlilo.
-Is it possible to add a parse of /etc/lilo.conf to this target to look
-for the path the compiled kernels are located (in my case it was
-/boot but make bzlilo put the new kernel in / so it was not installed
-by running lilo afterwards)?
-This happened to the last 2.2.x kernels I did not try the 2.4.x
-series yet.
+ - kernel config  (in 2.0.33 I used 586 for this, but since
+                    2.2 I can't be sure that it runs on 486 then)
 
-Greetings,
+ - kernel CFLAGS
+ - user CFLAGS
 
-Olaf
+I think of CFLAGS=-march=i586 -mcpu=i486 -Os -fomit-frame-pointer -Wall
+
+Do programmes compiled so really run on a 486 w/ FPU, and can I use
+these CFLAGS (-Os e.g. instead of -O2) for the kernel?
+
+I really want _small_ code (e.g. for floppy systems) and it doesn't
+need to be the super-fastest, but it simply has to work.
+
+TIA
+-mirabilos
+

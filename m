@@ -1,43 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261722AbTCKX2W>; Tue, 11 Mar 2003 18:28:22 -0500
+	id <S261685AbTCKXZw>; Tue, 11 Mar 2003 18:25:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261723AbTCKX2W>; Tue, 11 Mar 2003 18:28:22 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:38814 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S261722AbTCKX2U>; Tue, 11 Mar 2003 18:28:20 -0500
-Date: Tue, 11 Mar 2003 20:39:05 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: Ben Collins <bcollins@debian.org>
-Cc: ajoshi@kernel.crashing.org, Adrian Bunk <bunk@fs.tum.de>,
-       lkml <linux-kernel@vger.kernel.org>, trond.myklebust@fys.uio.no
-Subject: Re: Linux 2.4.21-pre5
-In-Reply-To: <20030227193537.GK21100@phunnypharm.org>
-Message-ID: <Pine.LNX.4.53L.0303112038390.4591@freak.distro.conectiva>
-References: <20030227124002.GA21100@phunnypharm.org>
- <Pine.LNX.4.10.10302271321001.2477-100000@gate.crashing.org>
- <20030227193537.GK21100@phunnypharm.org>
+	id <S261695AbTCKXZv>; Tue, 11 Mar 2003 18:25:51 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:5105 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S261685AbTCKXZs>;
+	Tue, 11 Mar 2003 18:25:48 -0500
+Message-ID: <3E6E72DC.7070507@mvista.com>
+Date: Tue, 11 Mar 2003 15:35:56 -0800
+From: george anzinger <george@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Andrew Morton <akpm@digeo.com>, felipe_alfaro@linuxmail.org,
+       cobra@compuserve.com, linux-kernel@vger.kernel.org
+Subject: Re: Runaway cron task on 2.5.63/4 bk?
+References: <Pine.LNX.4.44.0303111458390.1709-100000@home.transmeta.com>
+In-Reply-To: <Pine.LNX.4.44.0303111458390.1709-100000@home.transmeta.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus Torvalds wrote:
+> 
+> On Tue, 11 Mar 2003, Andrew Morton wrote:
+> 
+>>gcc will generate 64bit * 64bit multiplies without resorting to
+>>any library code
+> 
+> 
+> However, gcc is unable to do-the-right-thing and generate 32x32->64 
+> multiplies, or 32x64->64 multiplies, even though those are both a _lot_ 
+> faster than the full 64x64->64 case.
+> 
+> And in quite a _lot_ of cases, that's actually what you want. It might 
+> actually make sense to add a "do_mul()" thing to allow architectures to do 
+> these cases right, since gcc doesn't.
+> 
+> 
+>>and you can probably do the division with do_div().
+> 
+> 
+> Yes. This is the same issue - gcc will always promote a 64-bit divide to
+> be _fully_ 64-bit, even if the mixed-size 64/32 -> [64,32] case is much
+> faster and simpler. Which is why do_div() exists in the first place.
 
+Often the 64/32 -> [32,32] is all that is needed and that is even 
+faster if we could get to it.
+> 
+> 		Linus
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-On Thu, 27 Feb 2003, Ben Collins wrote:
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
 
-> On Thu, Feb 27, 2003 at 01:22:25PM -0600, ajoshi@kernel.crashing.org wrote:
-> >
-> >
-> > Just for the record, the patch I sent to Marcelo did _NOT_ include any
-> > 1394 hunks in it.  Marcelo must have accidently mixed mine up with some
-> > old 1394 tree.
->
-> That's sort of what I figured.
->
-> Marcelo, do you want me to send you a complete patch against -pre5
-> reverting all this junk, or do you want to revert it and then accept a
-> new patch?
-
--BK is fixed now by your latest patches. Thanks.

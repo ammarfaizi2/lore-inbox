@@ -1,49 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262301AbUKWHO4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262295AbUKWHRQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262301AbUKWHO4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 02:14:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262281AbUKWHOB
+	id S262295AbUKWHRQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 02:17:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262284AbUKWHRQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 02:14:01 -0500
-Received: from 82-43-72-5.cable.ubr06.croy.blueyonder.co.uk ([82.43.72.5]:29169
-	"EHLO home.chandlerfamily.org.uk") by vger.kernel.org with ESMTP
-	id S262284AbUKWHNd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 02:13:33 -0500
-From: Alan Chandler <alan@chandlerfamily.org.uk>
-To: Jens Axboe <axboe@suse.de>
-Subject: Re: ide-cd problem
-Date: Tue, 23 Nov 2004 07:13:31 +0000
-User-Agent: KMail/1.7.1
-Cc: linux-kernel@vger.kernel.org
-References: <200411201842.15091.alan@chandlerfamily.org.uk> <200411221919.32174.alan@chandlerfamily.org.uk> <200411222348.42149.alan@chandlerfamily.org.uk>
-In-Reply-To: <200411222348.42149.alan@chandlerfamily.org.uk>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200411230713.32013.alan@chandlerfamily.org.uk>
+	Tue, 23 Nov 2004 02:17:16 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:24464 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262244AbUKWHRD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Nov 2004 02:17:03 -0500
+Date: Mon, 22 Nov 2004 23:16:50 -0800
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>, zaitcev@redhat.com,
+       linux-kernel@vger.kernel.org
+Subject: USB: fix ohci_complete_add
+Message-ID: <20041122231650.5e259f8c@lembas.zaitcev.lan>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed-Claws 0.9.12cvs126.2 (GTK+ 2.4.13; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 22 November 2004 23:48, Alan Chandler wrote:
-...
-> If I make the delay 600ns it works - I guess my hardware is a little off
-> spec.
->
+This is a fix for a ludicrously stupid bug in my code in usb-ohci, which
+only affects 2.4, fortunately. The problem should be obvious from the code:
+when adding an element to the queue, an URB is lost if the queue contains
+two or more elements already. The fix is to implement the queue correctly:
+add to the tail and do not corrupt the list.
 
-I did a binary chop on the value to find the cut off point between what works 
-and what doesn't.  Its approx 535ns (534 failed, 537 worked).
+Fortunately for us, this situation is rare and its impact is limited.
+More than two URBs have to complete in the same interrupt for this to
+happen, and this typically takes several devices operating simultaneously.
+When it happens, there is no memory leak and no oops, just a "lost callback"
+sort of situation. I got to know about this when a customer reported that
+a when three USB-serial adapters are connected to a system, they start to
+lose interrupts when traffic gets heavy.
 
-All this was with 2.6.9, 
-
-2.6.10-rc2 is still failing during the cd initialisation on boot.  Here I 
-tried with bot 600ns and 700ns delays in drive_is_ready, but both values fail 
-with what looks like missed interrupts.  I'll try instrumenting this a bit 
-more to find out what is happening.
-
--- 
-Alan Chandler
-alan@chandlerfamily.org.uk
-First they ignore you, then they laugh at you,
- then they fight you, then you win. --Gandhi
+--- linux-2.4.28-bk3-ohci/drivers/usb/host/usb-ohci.c	2004-04-14 17:33:16.000000000 -0700
++++ linux-2.4.28-rc1-usb/drivers/usb/host/usb-ohci.c	2004-11-16 15:15:44.000000000 -0800
+@@ -143,7 +143,7 @@ static void ohci_complete_add(struct ohc
+ 		ohci->complete_head = urb;
+ 		ohci->complete_tail = urb;
+ 	} else {
+-		ohci->complete_head->hcpriv = urb;
++		ohci->complete_tail->hcpriv = urb;
+ 		ohci->complete_tail = urb;
+ 	}
+ }

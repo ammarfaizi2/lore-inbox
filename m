@@ -1,37 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282904AbRLBRdL>; Sun, 2 Dec 2001 12:33:11 -0500
+	id <S284264AbRLBRmv>; Sun, 2 Dec 2001 12:42:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281599AbRLBRdC>; Sun, 2 Dec 2001 12:33:02 -0500
-Received: from [199.29.68.123] ([199.29.68.123]:4616 "EHLO MailAndNews.com")
-	by vger.kernel.org with ESMTP id <S282904AbRLBRcq>;
-	Sun, 2 Dec 2001 12:32:46 -0500
-X-WM-Posted-At: MailAndNews.com; Sun, 2 Dec 01 12:32:35 -0500
-Message-ID: <022601c17b57$548ef230$0500a8c0@myroom>
-From: "Matt Schulkind" <mschulkind@mailandnews.com>
-To: "lkml" <linux-kernel@vger.kernel.org>
-Subject: AMD Viper IDE chipset
-Date: Sun, 2 Dec 2001 12:32:35 -0500
+	id <S284262AbRLBRme>; Sun, 2 Dec 2001 12:42:34 -0500
+Received: from mail128.mail.bellsouth.net ([205.152.58.88]:9114 "EHLO
+	imf28bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S284259AbRLBRm1>; Sun, 2 Dec 2001 12:42:27 -0500
+Message-ID: <3C0A67FD.D2D59E84@mandrakesoft.com>
+Date: Sun, 02 Dec 2001 12:42:21 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.16 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: dalecki@evision.ag
+CC: Linux-Kernel list <linux-kernel@vger.kernel.org>,
+        Christer Weinigel <wingel@hog.ctrl-c.liu.se>
+Subject: Re: PATCH 2.4.17.2: make ext2 smaller
+In-Reply-To: <3C0A1105.18B76D64@mandrakesoft.com> <3C0A5A61.62A0F885@evision-ventures.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm currently using the Tyan Tiger mobo with the AMD Viper chipset. On past
-kernels 2.4.14 and before definatly, hdparm -t gave me 3.8MB/s on my ATA100
-drive. Using some IDE patch taht I'd found on the web, I was able to get to
-28MB/s and 38MB/s with some tweaking. Now with the 2.4.16 kernel, I get
-28MB/s which is a good improvement, but my drive is only being detected as
-UDMA33, I have not tried forcing it to UDMA66 or UDMA100 like I had with the
-IDE patch I found which had the same detecting problem. It seems that the
-mode detection is broken, but the actual interface code is functioning.
-Anyone else having similar problems? I'm using the IBM 60GB 75GXP drive.
+Martin Dalecki wrote:
+> 
+> Jeff Garzik wrote:
+> >
+> > I do not plan to submit this patch to Linus/Marcelo.
+> >
+> > This patch applies an obvious technique to the kernel:  increase the
+> > amount of code compiled in a single compilation unit, to increase the
+> > overall knowledge the compiler has of the code, to allow for better
+> > optimization and dead code removal.  KDE does this, with definite
+> > success, though they definitely are not the first to do this.
+> >
+> > Simply, all ext2 files are #include'd into a single file, ext2_all.c,
+> > and all functions and data structures are declared static.
+> >
+> > This technique can be used in the kernel, userspace applications, and
+> > userspace libraries to decrease icache footprint and overall size of
+> > your applications.
+> >
+> > Results from 2.4.17-pre2 plus the attached patch:  1135 bytes saved in
+> > vmlinux, simply from making all the functions static.
+> > (*.orig is prior to my patch.  kernel is P2 SMP-based)
+> > > [jgarzik@rum linux-e2all]$ ls -l vmlinux* arch/i386/boot/bzImage*
+> > > -rw-r--r--    1 jgarzik  jgarzik   1030259 Dec  2 06:18 arch/i386/boot/bzImage
+> > > -rw-r--r--    1 jgarzik  jgarzik   1030263 Dec  2 06:04 arch/i386/boot/bzImage.orig
+> > > -rwxr-xr-x    1 jgarzik  jgarzik   2814631 Dec  2 06:18 vmlinux*
+> > > -rwxr-xr-x    1 jgarzik  jgarzik   2815766 Dec  2 06:04 vmlinux.orig*
+> r
+> 
+> size vmlinux
+> and
+> size vmlinux.orig
+> 
+> would be a bit more telling whatever the reaons of the impact is.
 
--Matt Schulkind
+easily done, on the latest CONFIG_FINAL patch posted to lkml:
+
+[jgarzik@rum linux.test]$ size vmlinux.vanilla 
+   text    data     bss     dec     hex filename
+1908047  274672  353340 2536059  26b27b vmlinux.vanilla
+
+[jgarzik@rum linux.test]$ size vmlinux
+   text    data     bss     dec     hex filename
+1905136  273808  352860 2531804  26a1dc vmlinux
+
+-- 
+Jeff Garzik      | Only so many songs can be sung
+Building 1024    | with two lips, two lungs, and one tongue.
+MandrakeSoft     |         - nomeansno
 

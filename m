@@ -1,50 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266669AbUH1UhR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268082AbUH1UhN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266669AbUH1UhR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 16:37:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267976AbUH1Ugg
+	id S268082AbUH1UhN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 16:37:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266677AbUH1Ug0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 16:36:36 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:3761 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S267973AbUH1URN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 16:17:13 -0400
-Subject: Re: [patch] 2.6.9-rc1-mm1: megaraid_mbox.c compile error with gcc
-	3.4
-From: Lee Revell <rlrevell@joe-job.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Mukker, Atul" <Atulm@lsil.com>, bunk@fs.tum.de, sreenib@lsil.com,
-       Manojj@lsil.com, linux-kernel <linux-kernel@vger.kernel.org>,
-       James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org
-In-Reply-To: <20040828130419.57a56cdd.akpm@osdl.org>
-References: <0E3FA95632D6D047BA649F95DAB60E57033BC9BB@exa-atlanta>
-	 <20040828130419.57a56cdd.akpm@osdl.org>
+	Sat, 28 Aug 2004 16:36:26 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:5504 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S267992AbUH1URh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Aug 2004 16:17:37 -0400
+Subject: Re: Need help in mounting two-LUN atapi flash card reader
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Karthi Jothi <karthi@onspecinc.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <006d01c4897d$ab8bce00$1000a8c0@websys>
+References: <006d01c4897d$ab8bce00$1000a8c0@websys>
 Content-Type: text/plain
-Message-Id: <1093724235.8611.67.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sat, 28 Aug 2004 16:17:16 -0400
 Content-Transfer-Encoding: 7bit
+Message-Id: <1093353480.2810.16.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sat, 28 Aug 2004 20:15:33 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-08-28 at 16:04, Andrew Morton wrote:
-> "Mukker, Atul" <Atulm@lsil.com> wrote:
-> >
-> > The driver and the patches with the re-ordered functions is available at
-> >  ftp://ftp.lsil.com/pub/linux-megaraid/drivers/version-2.20.3.1/
-> 
-> I dunno about James, but I *really* dislike receiving patches by going and
-> getting them from internet servers.  It breaks our commonly-used tools.  It
-> loses authorship info.  It loses Signed-off-by: info.  There is no
-> changelog.  All this means that your patch is more likely to be ignored by
-> busy people.  Please, just email the diffs.
-> 
+On Maw, 2004-08-24 at 02:57, Karthi Jothi wrote
+> Need help in mouting two-LUN atapi flash card reader. 
+> 1.  The device used for mounting is a Atap flash card reader and it is not
+> an USB device.  It uses 40-PIN ide connector and cable. It is connected as
+> secondary master to the linux system.
 
-The FAQ should be updated, as it recommends posting a link to large
-patches, rather than splitting them up and posting that way.
+The ide-scsi driver handles multiple luns but in 2.4 the default
+behaviour most vendors shipped was "do not probe extra luns". There is a
+scsi black/whitelist table that is used to vary the behaviour or the
+max_scsi_luns option to the scsi layer should also work.
 
-Of course, there is a lot in the FAQ that needs updating...
+2.6 is meant to be a bit more intelligent about this and my Nakamichi CD
+changer seems to do the right thing.
 
-Lee
+Alan
 

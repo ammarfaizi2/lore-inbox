@@ -1,61 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264895AbSJVTI5>; Tue, 22 Oct 2002 15:08:57 -0400
+	id <S264803AbSJVTRm>; Tue, 22 Oct 2002 15:17:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264893AbSJVTH7>; Tue, 22 Oct 2002 15:07:59 -0400
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:57783
-	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
-	id <S264892AbSJVTHv>; Tue, 22 Oct 2002 15:07:51 -0400
-Message-ID: <3DB5A2E6.6000305@redhat.com>
-Date: Tue, 22 Oct 2002 12:11:34 -0700
-From: Ulrich Drepper <drepper@redhat.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021014
-X-Accept-Language: en-us, en
+	id <S264795AbSJVTRm>; Tue, 22 Oct 2002 15:17:42 -0400
+Received: from packet.digeo.com ([12.110.80.53]:26561 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S264803AbSJVTRk>;
+	Tue, 22 Oct 2002 15:17:40 -0400
+Message-ID: <3DB5A5BD.D3E00B4A@digeo.com>
+Date: Tue, 22 Oct 2002 12:23:41 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Dave McCracken <dmccr@us.ibm.com>
-CC: Rik van Riel <riel@conectiva.com.br>, Andrew Morton <akpm@digeo.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       Bill Davidsen <davidsen@tmr.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linux Memory Management <linux-mm@kvack.org>
-Subject: Re: [PATCH 2.5.43-mm2] New shared page table patch
-References: <Pine.LNX.4.44L.0210221514430.1648-100000@duckman.distro.conecti va> <145460000.1035311809@baldur.austin.ibm.com>
-In-Reply-To: <Pine.LNX.4.44L.0210221514430.1648-100000@duckman.distro.conecti va>
-X-Enigmail-Version: 0.65.4.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+To: Christoph Hellwig <hch@infradead.org>
+CC: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: [patch] generic nonlinear mappings, 2.5.44-mm2-D0
+References: <Pine.LNX.4.44.0210221936010.18790-100000@localhost.localdomain> <20021022184938.A2395@infradead.org>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 22 Oct 2002 19:23:41.0889 (UTC) FILETIME=[87EDC310:01C27A00]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Christoph Hellwig wrote:
+> 
+> On Tue, Oct 22, 2002 at 07:57:00PM +0200, Ingo Molnar wrote:
+> > the attached patch (ontop of 2.5.44-mm2) implements generic (swappable!)
+> > nonlinear mappings and sys_remap_file_pages() support. Ie. no more
+> > MAP_LOCKED restrictions and strange pagefault semantics.
+> >
+> > to implement this i added a new pte concept: "file pte's". This means that
+> > upon swapout, shared-named mappings do not get cleared but get converted
+> > into file pte's, which can then be decoded by the pagefault path and can
+> > be looked up in the pagecache.
+> >
+> > the normal linear pagefault path from now on does not assume linearity and
+> > decodes the offset in the pte. This also tests pte encoding/decoding in
+> > the pagecache case, and the ->populate functions.
+> 
+> Ingo,
+> 
+> what is the reason for that interface?  It looks like a gross performance
+> hack for misdesigned applications to me, kindof windowsish..
+> 
 
-Dave McCracken wrote:
-
->   3) The current large page implementation is only for applications
->      that want anonymous *non-pageable* shared memory.  Shared page
->      tables reduce resource usage for any shared area that's mapped
->      at a common address and is large enough to span entire pte pages.
+So that evicted pages in non-linear mappings can be reestablished
+at fault time by the kernel, rather than by delegation to userspace
+via SIGBUS.
 
 
-Does this happen automatically (i.e., without modifying th emmap call)?
+We seem to have lost a pte_page_unlock() from fremap.c:zap_pte()?
+I fixed up the ifdef tangle in there within the shpte-ng patch
+and then put the pte_page_unlock() back.
 
-In any case, a system using prelinking will likely have all users of a
-DSO mapping the DSO at the same address.  Will a system benefit in this
-case?  If not directly, perhaps with some help from ld.so since we do
-know when we expect the same is used everywhere.
+I also added a page_cache_release() to the error path in filemap_populate(),
+if install_page() failed.
 
-- -- 
-- --------------.                        ,-.            444 Castro Street
-Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
-Red Hat         `--' drepper at redhat.com `---------------------------
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE9taLn2ijCOnn/RHQRAgJ6AJ9AzHCX3NrpZPpGUF9XIQYPdX2NPQCgw7BP
-6fIfDzEvsxbGvVtoUX76aAw=
-=LKpP
------END PGP SIGNATURE-----
-
+The 2TB file size limit for mmap on non-PAE is a little worrisome.
+I wonder if we can only instantiate the pte_file() bit if the
+mapping is using MAP_POPULATE?  Seems hard to do.

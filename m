@@ -1,122 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313577AbSDJTLL>; Wed, 10 Apr 2002 15:11:11 -0400
+	id <S313570AbSDJTUy>; Wed, 10 Apr 2002 15:20:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313570AbSDJTLJ>; Wed, 10 Apr 2002 15:11:09 -0400
-Received: from rtlab.med.cornell.edu ([140.251.145.175]:27310 "HELO
-	openlab.rtlab.org") by vger.kernel.org with SMTP id <S313553AbSDJTKw>;
-	Wed, 10 Apr 2002 15:10:52 -0400
-Date: Wed, 10 Apr 2002 15:10:52 -0400 (EDT)
-From: "Calin A. Culianu" <calin@ajvar.org>
-X-X-Sender: <calin@rtlab.med.cornell.edu>
-To: <linux-kernel@vger.kernel.org>
-Subject: Cannot compile mandrake 8.2 Kernel
-Message-ID: <Pine.LNX.4.33L2.0204101505220.5649-100000@rtlab.med.cornell.edu>
+	id <S313572AbSDJTUx>; Wed, 10 Apr 2002 15:20:53 -0400
+Received: from smtp-out-3.wanadoo.fr ([193.252.19.233]:3976 "EHLO
+	mel-rto3.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S313570AbSDJTUx>; Wed, 10 Apr 2002 15:20:53 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Duncan Sands <duncan.sands@math.u-psud.fr>
+To: Skip Ford <skip.ford@verizon.net>
+Subject: Re: 2.5.8-pre2: preempt: exits with preempt_count 1
+Date: Wed, 10 Apr 2002 21:20:33 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Kernel List <linux-kernel@vger.kernel.org>, rml@tech9.net
+In-Reply-To: <E16vHbV-0000M5-00@baldrick> <20020410183923.RMC1346.out012.verizon.net@pool-141-150-235-204.delv.east.verizon.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16vNdy-0000Jn-00@baldrick>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday 10 April 2002 8:40 pm, Skip Ford wrote:
+> Duncan Sands wrote:
+> > My system (x86 K6 UP running 2.5.8-pre2 with preemption) on powering down
+> > gave:
+> > ...
+> > Power down.
+> > error: halt[411] exited with preempt_count 1
+> >
+> > This was after about 24 hours of up time.  What can I do to help
+> > track down this locking problem?
+>
+> If you fixed the oopsing 2.5.8-pre1 kernel by putting 'lock_kernel()'
+> in exit.c, then you have to remove that line.
+>
+> The correct fix was applied later, and if you leave in the call
+> to 'lock_kernel()' you get the exact message you're reporting.
+>
+> If line 505 of kernel/exit.c is lock_kernel() in your tree then delete
+> it, and try again.
 
-The stupid mandrake 8.2 kernel (2.4.18-mdk6) won't compile.  I know,
-mandrake is kind of a newbie distro, but I needed to mess with that kernel
-for some reason (don't ask).
+No, it wasn't that, but thanks for thinking about it.
 
-Anyway it gets errors like the following then you do make modules.  I
-notices someone else also had the exact same problem.. also below is
-preprocessor output from that compile... I think the problem is due to
-some of the exported kernel symbols containing parens...:
-
-
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.18-6mdk-rtl/include  -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fno-common -fomit-frame-pointer
--pipe -mpreferred-stack-boundary=2 -march=i686 -DMODULE -DMODVERSIONS
--include /usr/src/linux-2.4.18-6mdk-rtl/include/linux/modversions.h
--DKBUILD_BASENAME=loop  -DEXPORT_SYMTAB -c loop.c
-In file included from
-/usr/src/linux-2.4.18-6mdk-rtl/include/linux/prefetch.h:13,
-                 from
-/usr/src/linux-2.4.18-6mdk-rtl/include/linux/list.h:6,
-                 from
-/usr/src/linux-2.4.18-6mdk-rtl/include/linux/module.h:12,
-from loop.c:64:
-/usr/src/linux-2.4.18-6mdk-rtl/include/asm/processor.h:51: warning:
-parameter names (without types) in function declaration
-/usr/src/linux-2.4.18-6mdk-rtl/include/asm/processor.h:51: field
-`loops_per_jiffy_R_ver_str' declared as a function
-In file included from loop.c:64:
-/usr/src/linux-2.4.18-6mdk-rtl/include/linux/module.h:183: nondigits in
-number and not hexadecimal
-/usr/src/linux-2.4.18-6mdk-rtl/include/linux/module.h:183: nondigits in
-number and not hexadecimal
-/usr/src/linux-2.4.18-6mdk-rtl/include/linux/module.h:183: nondigits in
-number and not hexadecimal
-/usr/src/linux-2.4.18-6mdk-rtl/include/linux/module.h:183: nondigits in
-number and not hexadecimal
-/usr/src/linux-2.4.18-6mdk-rtl/include/linux/module.h:183: parse error
-before `62dada05'
-/usr/src/linux-2.4.18-6mdk-rtl/include/linux/module.h:183:
-`inter_module_register_R_ver_str' declared as function returning a
-function
-/usr/src/linux-2.4.18-6mdk-rtl/include/linux/module.h:183: warning:
-function declaration isn't a prototype
-/usr/src/linux-2.4.18-6mdk-rtl/include/linux/module.h:184: nondigits in
-number and not hexadecimal
-/usr/src/linux-2.4.18-6mdk-rtl/include/linux/module.h:184: missing white
-space after number `7a9e845'
-/usr/src/linux-2.4.18-6mdk-rtl/include/linux/module.h:184: parse error
-before `7a9e845'
-/usr/src/linux-2.4.18-6mdk-rtl/include/linux/module.h:184:
-`inter_module_unregister_R_ver_str' declared as function returning a
-function
-/usr/src/linux-2.4.18-6mdk-rtl/include/linux/module.h:184: warning:
-function declaration isn't a prototype
-/usr/src/linux-2.4.18-6mdk-rtl/include/linux/module.h:185:
-`inter_module_get_R_ver_str' declared as function returning a function
-
-
-Here is the cpp output.. this is an except of the first thing the above
-barfed on:
-
-
-# 33 "/usr/src/linux-2.4.18-6mdk-rtl/include/asm/processor.h"
-struct cpuinfo_x86 {
-        __u8 x86;
-        __u8 x86_vendor;
-        __u8 x86_model;
-        __u8 x86_mask;
-        char wp_works_ok;
-        char hlt_works_ok;
-        char hard_math;
-        char rfu;
-    int cpuid_level;
-        __u32 x86_capability[4];
-        char x86_vendor_id[16];
-        char x86_model_id[64];
-        int x86_cache_size;
-
-        int fdiv_bug;
-        int f00f_bug;
-        int coma_bug;
-        unsigned long loops_per_jiffy_R_ver_str(ba497f13);
-        unsigned long *pgd_quick;
-        unsigned long *pmd_quick;
-        unsigned long *pte_quick;
-        unsigned long pgtable_cache_sz;
-} __attribute__((__aligned__((1 << ((5))))));
-
-I think the problem is that unsigned long
-loops_per_jiffy_R_ver_str(ba497f13); struct member .. I dunno why
-loops_per_jiffy got renamed to that mangled kernel symbol name.. but I
-suspect it has to do with buggy header files. (I noticed loops_per_jiffy
-was #defined to something else).
-
-
-At any rate.. has anyone else encountered this problem with that mandrake
-kernel?  If so how did you fix this?
-
-
--Calin
-
-
-
+Ciao, Duncan.

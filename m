@@ -1,111 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264031AbTH1PUN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Aug 2003 11:20:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264032AbTH1PUN
+	id S264033AbTH1PN7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Aug 2003 11:13:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264037AbTH1PN6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Aug 2003 11:20:13 -0400
-Received: from tytan.lm.pl ([212.244.46.40]:11483 "EHLO tytan.lm.pl")
-	by vger.kernel.org with ESMTP id S264031AbTH1PUE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Aug 2003 11:20:04 -0400
-From: Krzysztof Sierota <krzysiek@mediaone.pl>
-Organization: MediaOne sp z o.o.
-To: linux-kernel@vger.kernel.org, linux-atm@vger.rutgers.edu
-Subject: 2.4.22 oops in ATM 2.4.21 works fine
-Date: Thu, 28 Aug 2003 15:59:01 +0000
-User-Agent: KMail/1.4.1
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_D27CJVJR7IIKVQ8ZADS1"
-Message-Id: <200308281559.01395.krzysiek@mediaone.pl>
+	Thu, 28 Aug 2003 11:13:58 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:37030 "EHLO
+	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S264033AbTH1PNz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Aug 2003 11:13:55 -0400
+Subject: Re: [RFC] /proc/ide/hdx/settings with ide-default pseudo-driver is
+	a 2.6/2.7 show-stopper
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andre Hedrick <andre@linux-ide.org>
+In-Reply-To: <200308281646.16203.bzolnier@elka.pw.edu.pl>
+References: <200308281646.16203.bzolnier@elka.pw.edu.pl>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1062083581.24982.21.camel@dhcp23.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.3 (1.4.3-3) 
+Date: 28 Aug 2003 16:13:02 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Iau, 2003-08-28 at 15:46, Bartlomiej Zolnierkiewicz wrote:
+> Some background first: we need ide-default driver (set as a device driver
+> for all driver-less ide devices) mainly because we allow changing devices
+> settings through /proc/ide/hdX/settings and some of them (current_speed,
+> pio_mode) are processed via request queue (we are currently preallocating
+> gendisk and queue structs for all possible ide devices).  The next problem
+> is that ide-default doesn't register itself with ide and driverfs.
+> If it does it will "steal" devices meaned to be used by other drivers.
 
---------------Boundary-00=_D27CJVJR7IIKVQ8ZADS1
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Its also used to avoid special cases elsewhere.
 
-Hi,
+> If we want dynamic hwifs/devices, moving gendisks/queues allocation
+> to device drivers and ide integration with driverfs we need to:
+> 
+> (a) kill /proc/ide/hdX/settings for driver-less devices and kill ide-default
 
-the 2.4.22 kernel is oopsing at start scripts, machine stays alive, but A=
-TM=20
-does not work. 2.4.21 works just fine.
+ide_default avoids a ton of driver specific special case code outside
+of /proc/ide/foo/settings too. It isnt that simple, and I added it
+originally to fix hundreds of weird little bugs and races. You also need
+it for handling hotplug of devices.
 
-oops attached.
+I don't however think it needs to be any brighter than it is now. Driver
+ordering isnt important, Linus was pretty emphatic that he a) didn't
+care and b) wouldnt take patches to do any kind of rigid ordering when I
+asked him (and for hotplug its pretty obvious why)
 
-Hope that someone can find the reason.
-Cheers.
+As far as I can see you either
 
+1. Set up the queues and /proc when you create a hwif
 
---=20
-Krzysztof Sierota
-MediaOne sp z o.o.
-http://mediaone.pl/
+or
 
---------------Boundary-00=_D27CJVJR7IIKVQ8ZADS1
-Content-Type: text/plain;
-  charset="us-ascii";
-  name="2422.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="2422.txt"
+2. Provide a generic function for each driver to call that does this
+and/or undoes it. Since each driver needs the same code (default
+included).
 
-ksymoops 2.4.4 on i686 2.4.21.  Options used
-     -v ./vmlinux (specified)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.21/ (default)
-     -m ./System.map (specified)
-
-Error (regular_file): read_ksyms stat /proc/ksyms failed
-No modules in ksyms, skipping objects
-No ksyms, skipping lsmod
-Aug 28 02:04:01 minder kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000010
-Aug 28 02:04:01 minder kernel: c023f913
-Aug 28 02:04:01 minder kernel: *pde = 00000000
-Aug 28 02:04:01 minder kernel: Oops: 0002
-Aug 28 02:04:01 minder kernel: CPU:    1
-Aug 28 02:04:01 minder kernel: EIP:    0010:[<c023f913>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-Aug 28 02:04:01 minder kernel: EFLAGS: 00010246
-Aug 28 02:04:01 minder kernel: eax: 00000000   ebx: f7550c00   ecx: c028c4a4   edx: 00000000
-Aug 28 02:04:01 minder kernel: esi: f743a1b4   edi: 00000000   ebp: f7550c00   esp: f6f57ef8
-Aug 28 02:04:01 minder kernel: ds: 0018   es: 0018   ss: 0018
-Aug 28 02:04:01 minder kernel: Process atmarpd (pid: 694, stackpage=f6f57000)
-Aug 28 02:04:01 minder kernel: Stack: c281e268 000001f0 090a80c4 ffffffff f6f57f28 c02448b4 c283b280 f7841d00
-Aug 28 02:04:01 minder kernel:        f6f3eb80 f6f3eb80 c01cd28f 00000003 f7841d00 f7550cb0 000001f0 f743a1b4
-Aug 28 02:04:01 minder kernel:        00000000 3230315b c0005d35 f743a1b4 00000000 00000014 f743a1b4 c01cddb3
-Aug 28 02:04:01 minder kernel: Call Trace:    [<c02448b4>] [<c01cd28f>] [<c01cddb3>] [<c023e0e5>] [<c01cd8b9>]
-Aug 28 02:04:01 minder kernel:   [<c0143f67>] [<c01070c3>]
-Aug 28 02:04:01 minder kernel: Code: f0 ff 48 10 a1 4c ac 35 c0 8b 40 18 83 48 14 08 85 d2 75 06
-
->>EIP; c023f913 <atm_ioctl+493/cb0>   <=====
-Trace; c02448b4 <sprintf+14/20>
-Trace; c01cd28f <sock_map_fd+16f/180>
-Trace; c01cddb3 <sock_create+c3/f0>
-Trace; c023e0e5 <__lock_svc_proto_ioctl+35/60>
-Trace; c01cd8b9 <sock_ioctl+49/70>
-Trace; c0143f67 <sys_ioctl+257/291>
-Trace; c01070c3 <system_call+33/38>
-Code;  c023f913 <atm_ioctl+493/cb0>
-00000000 <_EIP>:
-Code;  c023f913 <atm_ioctl+493/cb0>   <=====
-   0:   f0 ff 48 10               lock decl 0x10(%eax)   <=====
-Code;  c023f917 <atm_ioctl+497/cb0>
-   4:   a1 4c ac 35 c0            mov    0xc035ac4c,%eax
-Code;  c023f91c <atm_ioctl+49c/cb0>
-   9:   8b 40 18                  mov    0x18(%eax),%eax
-Code;  c023f91f <atm_ioctl+49f/cb0>
-   c:   83 48 14 08               orl    $0x8,0x14(%eax)
-Code;  c023f923 <atm_ioctl+4a3/cb0>
-  10:   85 d2                     test   %edx,%edx
-Code;  c023f925 <atm_ioctl+4a5/cb0>
-  12:   75 06                     jne    1a <_EIP+0x1a> c023f92d <atm_ioctl+4ad/cb0>
-
-
-1 error issued.  Results may not be reliable.
-
---------------Boundary-00=_D27CJVJR7IIKVQ8ZADS1--
 

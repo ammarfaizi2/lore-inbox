@@ -1,75 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261852AbVCOT7W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261853AbVCOUD3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261852AbVCOT7W (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 14:59:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261850AbVCOTzh
+	id S261853AbVCOUD3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 15:03:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261860AbVCOUAX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 14:55:37 -0500
-Received: from wproxy.gmail.com ([64.233.184.196]:33820 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261828AbVCOTv1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 14:51:27 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:organization:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:x-enigmail-supports:content-type;
-        b=MRiqBebZfDFMkAPjAs+wcGW2r5MWZd/jxT/zl+p0JXvEzBMztpyUET3ZZ0fbvXdSIqnWFvCEqQIq6AmbEx11uFxs3OieBUaLZNStmTUPKgbRZVuUs6PInn+wzEoQhn+y9y7jjxchp1YRuw5gvpxAwYDoWmKQ5iSAxmlDcaL2PCI=
-Message-ID: <42373CAC.6080500@gmail.com>
-Date: Tue, 15 Mar 2005 21:51:08 +0200
-From: Matan Peled <chaosite@gmail.com>
-Reply-To: chaosite@gmail.com
-Organization: Chaosite Destruction, inc.
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041207)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Bill Davidsen <davidsen@tmr.com>
-CC: Chris Friesen <cfriesen@nortel.com>,
-       "Justin M. Forbes" <jmforbes@linuxtx.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.Stable and EXTRAVERSION
-References: <Pine.LNX.3.96.1050311154019.20262B-100000@gatekeeper.tmr.com>
-In-Reply-To: <Pine.LNX.3.96.1050311154019.20262B-100000@gatekeeper.tmr.com>
-X-Enigmail-Version: 0.89.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigDF952C933CE168F630B3FB32"
+	Tue, 15 Mar 2005 15:00:23 -0500
+Received: from pop-a065d14.pas.sa.earthlink.net ([207.217.121.252]:34227 "EHLO
+	pop-a065d14.pas.sa.earthlink.net") by vger.kernel.org with ESMTP
+	id S261851AbVCOT4a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Mar 2005 14:56:30 -0500
+Subject: [PATCH] Export dev_get_flags in net/core/dev.c to fix missing
+	symbols
+From: Alex Tribble <prat@rice.edu>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: Rice University
+Message-Id: <1110916582.27963.1.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 15 Mar 2005 13:56:22 -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigDF952C933CE168F630B3FB32
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+You can import this changeset into BK by piping this whole message to:
+'| bk receive [path to repository]' or apply the patch as usual.
 
-Bill Davidsen wrote:
-> I have to see what that generates. The problem is LOCALVERSION and current
-> use of both 3 and 4 field kernel versions. You need a smarter script to
-> handle that.
-> 
-
-... To which the knee jerk solution would be ...
-
-Name Linus's kernel releases 2.6.z.0 ... ?
+===================================================================
 
 
--- 
-[Name      ]   ::  [Matan I. Peled    ]
-[Location  ]   ::  [Israel            ]
-[Public Key]   ::  [0xD6F42CA5        ]
-[Keyserver ]   ::  [keyserver.kjsl.com]
-encrypted/signed  plain text  preferred
+ChangeSet@1.2186, 2005-03-15 13:46:12-06:00, prat@prat.homelinux.net
+  Export dev_get_flags to fix missing symbols in ipv6.ko
 
 
---------------enigDF952C933CE168F630B3FB32
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+ dev.c |    1 +
+ 1 files changed, 1 insertion(+)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
 
-iD8DBQFCNzywA7Qvptb0LKURAnTOAJ0fI//vr12LXeBCe/TN368cV8/HKwCfdeK6
-mm3glkS2zZIwCb6Tti9c3HY=
-=fKSK
------END PGP SIGNATURE-----
+diff -Nru a/net/core/dev.c b/net/core/dev.c
+--- a/net/core/dev.c	2005-03-15 13:54:23 -06:00
++++ b/net/core/dev.c	2005-03-15 13:54:23 -06:00
+@@ -3325,6 +3325,7 @@
+ EXPORT_SYMBOL(dev_remove_pack);
+ EXPORT_SYMBOL(dev_set_allmulti);
+ EXPORT_SYMBOL(dev_set_promiscuity);
++EXPORT_SYMBOL(dev_get_flags);
+ EXPORT_SYMBOL(dev_change_flags);
+ EXPORT_SYMBOL(dev_set_mtu);
+ EXPORT_SYMBOL(dev_set_mac_address);
 
---------------enigDF952C933CE168F630B3FB32--
+===================================================================
+
+
+This BitKeeper patch contains the following changesets:
+1.2186
+## Wrapped with gzip_uu ##
+
+
+M'XL( &\]-T(  \V46VO;,!3'GZ-/(>C+QHBLBZ\I&5F[L(YU)*0K;(P1%%N^
+M++%E)#F7X0\_Q27-TG64E3U,THMU_AR?_SD_= 9OM5"#7JVX 6?P2FIS]X%R
+M68I5435;5(E]:":E#3F-5LX^Y.Q%CA:UTXGZ%'G JJ;<Q#E<"Z4'/8+8_8W9
+MU6+0FXW?W5Z_F0$P',++G%>9N!$&#H? 2+7FJT2/N,E7LD)&\4J7PG 4R[*]
+ME[848VJW1P*&/;\E/G:#-B8)(=PE(L'4#7WWF*VNXRC 2.IDA:3*3A-YF!$/
+M!Q2SL"4LQ#YX"PFB)/0A]AS,'.)!P@:N/R"TC_T!QG#O>?1[=^ K OL87,!_
+M:^,2Q'"\K:4R,!'K>2;,/%WQ3-O?P+38PK+0NJ@RJ'?E0JXT+"I8U&L?+27X
+M8"OW@Q!,CVT&_;]< &".P>LG3%G[3BR5<&R)*/[56>39OM* N&W(O"!*PSAQ
+M_63!HC^U\9%<W8Q(1.UN/>I&;H?.J>YI?IY1(TB;!5>C1J-B4>Z3?/V><?6C
+M6'Y[M$I*""6>BZ/6C2*7=20]!(E&]OQ?(*52=<@X/$E4+*L4Q>=0FERH3:$%
+MW,D&6O$!-)OE@-HF%U47-FJWQ[&H["MB#O@AR]_=M":PKS;=L3Q-'PSN&42^
+M9XP&D(#QY^ED]FE^\^7CQ>3ZQ8FIE^?'=RC.1;S433E<<,:\Q,?@)^7<Y(WP
+#!   
+ 
+
+

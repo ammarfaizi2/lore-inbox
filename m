@@ -1,67 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273749AbRIQXU0>; Mon, 17 Sep 2001 19:20:26 -0400
+	id <S273751AbRIQX2g>; Mon, 17 Sep 2001 19:28:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273751AbRIQXUQ>; Mon, 17 Sep 2001 19:20:16 -0400
-Received: from iere.net.avaya.com ([198.152.12.101]:50395 "EHLO
-	iere.net.avaya.com") by vger.kernel.org with ESMTP
-	id <S273749AbRIQXUB>; Mon, 17 Sep 2001 19:20:01 -0400
-Message-ID: <3BA6852E.ED734E9E@avaya.com>
-Date: Mon, 17 Sep 2001 17:20:14 -0600
-From: "Bhavesh P. Davda" <bhavesh@avaya.com>
-Organization: Avaya, Inc.
-X-Mailer: Mozilla 4.76 [en] (WinNT; U)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S273753AbRIQX2Q>; Mon, 17 Sep 2001 19:28:16 -0400
+Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:4615 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S273751AbRIQX2L>;
+	Mon, 17 Sep 2001 19:28:11 -0400
+Date: Mon, 17 Sep 2001 16:25:38 -0700
+From: Greg KH <greg@kroah.com>
 To: linux-kernel@vger.kernel.org
-Subject: TCPv4 State Transition questions
+Subject: [PATCH] Hotplug PCI driver for 2.4.10-pre10
+Message-ID: <20010917162538.A1090@kroah.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.21i
+X-Operating-System: Linux 2.2.19 (i586)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here's what's going on...
+Hi,
 
-client & server on two separate hosts, running 2.2.17 kernel.
+Another release of the Compaq Hotplug PCI driver is available against
+2.4.10-pre10 is at:
+	http://www.kroah.com/linux/hotplug/pci-hotplug-2001_09_17-2.4.10-pre10.patch.gz
+With a full changelog at:
+	http://www.kroah.com/linux/hotplug/pci-hotplug-Changelog
 
-1. client <-> server connection in ESTABLISHED state
-2. kill -TERM server; respawn server
-3. client does select(), gets read event, reads 0 bytes
-4. client closes socket
-5. client creates new socket, tries non-blocking connect()
-6. client gets EINPROGRESS, puts socket on write set, does select
-7. select says write event
-8. client does getsockopt(SOL_SOCKET, SO_ERROR), gets 0
-9. client puts socket on read set, does select
-10.client gets read event, reads 0 bytes
-11.client repeats sequence of steps from step 4.
+Changes since the last release:
+ 	- forward ported to 2.4.10-pre10
+	- removed lots of dead code in the Compaq driver that was not
+	  being used.
+	- created pci_read_config_*_nodev and pci_write_config_*_nodev
+	  that corresponds with the pci_read_config_* and
+	  pci_write_config_* functions.  These functions can be used
+	  when there is not a valid struct pci_dev available for the
+	  device.  The functions will fallback to using the
+	  pci_write_config_* and pci_read_config_* functions if a struct
+	  pci_dev is found for the specified device.
+	- enabled the hotplug_pci core to be compiled into the kernel.
+	- added documentation to the hotplug_pci interface.
 
-Running tcpdump on the server end, this is what I see:
-a. server -> client: FIN,ACK
-b. client -> server: ACK (of FIN)
-c. client -> server: FIN, ACK (of FIN again)
-d. server -> client: ACK (of client FIN)
-e. client -> server: SYN (new src port)
-f. server -> client: RST, ACK
-e. & f. repeat forever...
+Again, the old Compaq tool will not work with this version of the
+driver.  An updated version must be downloaded from the cvs tree at
+sf.net at:
+	http://sourceforge.net/cvs/?group_id=32538
 
+I'm awaiting some comments from some people at IBM for what pieces of
+the resource management code would be useful to have split out from the
+Compaq driver.  Any comments from other groups who are working on
+hotplug pci drivers is very welcome.
 
-Questions:
-1. Why did I get a writable event on select, and the getsockopt telling
-me that connect() succeeded, when the SYN, SYN-ACK, ACK handshake has
-not completed?
+Next up is removing the horrid /proc interface the driver uses :)
 
-2. Why right after that did I get a readable event on the "connected"
-socket, telling me that there was EOF to read?
+thanks,
 
-3. Why is the server sending RSTs back to the client, when the client is
-trying to connect to the server from different TCP ports every time? The
-new server's socket is in LISTEN state, yet I see this happening.
-
-- Bhavesh
--- 
-Bhavesh P. Davda
-Avaya Inc
-Room B3-B16                     E-mail : bhavesh@avaya.com
-1300 West 120th Avenue          Phone  : (303) 538-4438
-Westminster, CO 80234           Fax    : (303) 538-3155
+greg k-h

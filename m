@@ -1,37 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261404AbRE2SqE>; Tue, 29 May 2001 14:46:04 -0400
+	id <S261413AbRE2S6O>; Tue, 29 May 2001 14:58:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261400AbRE2Spp>; Tue, 29 May 2001 14:45:45 -0400
-Received: from ncc1701.cistron.net ([195.64.68.38]:35078 "EHLO
-	ncc1701.cistron.net") by vger.kernel.org with ESMTP
-	id <S261379AbRE2Spl>; Tue, 29 May 2001 14:45:41 -0400
-From: miquels@cistron-office.nl (Miquel van Smoorenburg)
-Subject: Re: serial console problems under 2.4.4/5
-Date: Tue, 29 May 2001 18:45:39 +0000 (UTC)
-Organization: Cistron Internet Services B.V.
-Message-ID: <9f0qoj$ttr$1@ncc1701.cistron.net>
-In-Reply-To: <yrxofscdnpj.fsf@terra.mcs.anl.gov>
-X-Trace: ncc1701.cistron.net 991161939 30651 195.64.65.67 (29 May 2001 18:45:39 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test75 (Feb 13, 2001)
-Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+	id <S261490AbRE2S6F>; Tue, 29 May 2001 14:58:05 -0400
+Received: from aslan.scsiguy.com ([63.229.232.106]:5390 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP
+	id <S261413AbRE2S55>; Tue, 29 May 2001 14:57:57 -0400
+Message-Id: <200105291855.f4TIteU27159@aslan.scsiguy.com>
+To: Marc Schiffbauer <marc.schiffbauer@links2linux.de>
+cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: new aic7xxx oopses with AHA2940 
+In-Reply-To: Your message of "Sun, 27 May 2001 04:21:30 +0200."
+             <20010527042129.A12765@lisa.links2linux.home> 
+Date: Tue, 29 May 2001 12:55:40 -0600
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <yrxofscdnpj.fsf@terra.mcs.anl.gov>,
-Narayan Desai <desai@mcs.anl.gov> wrote:
->Hi. I have started having serial console problems in the last bunch of
->kernel releases. I have tried various 2.4.4 and 2.4.5 ac kernels (up
->to and including 2.4.5-ac4) and the problem has persisted. The problem
->is basically that serial console doesn't recieve.
+>OK. Now I cut out the Oops out of my /var/log/messages, then did
 
-The serial driver now pays attention to the CREAD bit. Sysvinit
-clears it, so that's where it goes wrong.
+Can you provide the full dmesg from a working kernel for you system?
+I need to know the type of controller in use as well as some other
+system attributes.
 
-I don't think this change should have gone into a 'stable' kernel
-version. 2.5.0 would have been fine, not 2.4.4
-
-Mike.
-
+--
+Justin

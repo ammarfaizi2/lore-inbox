@@ -1,175 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264827AbUFPVFT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264791AbUFPVKq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264827AbUFPVFT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 17:05:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264836AbUFPVFT
+	id S264791AbUFPVKq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 17:10:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264777AbUFPVKj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 17:05:19 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:44454 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S264827AbUFPVB3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 17:01:29 -0400
-Date: Wed, 16 Jun 2004 17:01:12 -0400
-From: Alan Cox <alan@redhat.com>
-To: linux-kernel@vger.kernel.org
-Subject: PATCH: make the 3c59x/3c90x driver somewhat more reliable
-Message-ID: <20040616210112.GA11858@devserv.devel.redhat.com>
+	Wed, 16 Jun 2004 17:10:39 -0400
+Received: from [213.146.154.40] ([213.146.154.40]:64415 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S264791AbUFPVIY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jun 2004 17:08:24 -0400
+Date: Wed, 16 Jun 2004 22:08:23 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: Dirk Jagdmann <doj@cubic.org>, linux-kernel@vger.kernel.org
+Subject: Re: IDE Auto-Geometry Resizing support missing in 2.6.7?
+Message-ID: <20040616210823.GA20015@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andries Brouwer <aebr@win.tue.nl>, Dirk Jagdmann <doj@cubic.org>,
+	linux-kernel@vger.kernel.org
+References: <40D0AA07.7010806@cubic.org> <20040616202023.GA19123@infradead.org> <20040616210708.GA3951@pclin040.win.tue.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20040616210708.GA3951@pclin040.win.tue.nl>
 User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The existing driver violates basic PCI rules in several places making it
-unusable for basic things like DHCP in Fedora Core. This patch removes
-all the situations I can find where it writes to the device while in D3
-state and breaks stuff
+On Wed, Jun 16, 2004 at 11:07:08PM +0200, Andries Brouwer wrote:
+> On Wed, Jun 16, 2004 at 09:20:23PM +0100, Christoph Hellwig wrote:
+> 
+> > You need to boot with hdX=stroke now.  I had a patch first that allowed both
+> > run- an compiletime selection but Bart wanted the option to be removed.
+> 
+> Bart is right. Compilation options should select inclusion of subsystems,
+> modules, drivers, but not twiddle behaviour.
 
-
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.6.7/drivers/net/3c59x.c 2.6.7-ac/drivers/net/3c59x.c
---- linux-2.6.7/drivers/net/3c59x.c	2004-06-16 21:11:36.032434312 +0100
-+++ 2.6.7-ac/drivers/net/3c59x.c	2004-06-16 21:22:13.580512272 +0100
-@@ -884,7 +884,7 @@
- static int vortex_probe1(struct device *gendev, long ioaddr, int irq,
- 				   int chip_idx, int card_idx);
- static void vortex_up(struct net_device *dev);
--static void vortex_down(struct net_device *dev);
-+static void vortex_down(struct net_device *dev, int final);
- static int vortex_open(struct net_device *dev);
- static void mdio_sync(long ioaddr, int bits);
- static int mdio_read(struct net_device *dev, int phy_id, int location);
-@@ -948,7 +948,7 @@
- 	if (dev && dev->priv) {
- 		if (netif_running(dev)) {
- 			netif_device_detach(dev);
--			vortex_down(dev);
-+			vortex_down(dev, 1);
- 		}
- 	}
- 	return 0;
-@@ -2059,7 +2059,8 @@
- 				printk(KERN_ERR "%s: PCI bus error, bus status %8.8x\n", dev->name, bus_status);
- 
- 			/* In this case, blow the card away */
--			vortex_down(dev);
-+			/* Must not enter D3 or we can't legally issue the reset! */
-+			vortex_down(dev, 0);
- 			issue_and_wait(dev, TotalReset | 0xff);
- 			vortex_up(dev);		/* AKPM: bug.  vortex_up() assumes that the rx ring is full. It may not be. */
- 		} else if (fifo_diag & 0x0400)
-@@ -2656,7 +2657,7 @@
- }
- 
- static void
--vortex_down(struct net_device *dev)
-+vortex_down(struct net_device *dev, int final_down)
- {
- 	struct vortex_private *vp = netdev_priv(dev);
- 	long ioaddr = dev->base_addr;
-@@ -2685,7 +2686,7 @@
- 	if (vp->full_bus_master_tx)
- 		outl(0, ioaddr + DownListPtr);
- 
--	if (VORTEX_PCI(vp) && vp->enable_wol) {
-+	if (final_down && VORTEX_PCI(vp) && vp->enable_wol) {
- 		pci_save_state(VORTEX_PCI(vp), vp->power_state);
- 		acpi_set_WOL(dev);
- 	}
-@@ -2699,7 +2700,7 @@
- 	int i;
- 
- 	if (netif_device_present(dev))
--		vortex_down(dev);
-+		vortex_down(dev, 1);
- 
- 	if (vortex_debug > 1) {
- 		printk(KERN_DEBUG"%s: vortex_close() status %4.4x, Tx status %2.2x.\n",
-@@ -2869,7 +2870,7 @@
- 	.get_drvinfo =		vortex_get_drvinfo,
- };
- 
--static int vortex_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
-+static int vortex_do_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
- {
- 	struct vortex_private *vp = netdev_priv(dev);
- 	long ioaddr = dev->base_addr;
-@@ -2904,6 +2905,30 @@
- 	return retval;
- }
- 
-+/*
-+ *	Must power the device up to do MDIO operations
-+ */
-+static int vortex_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
-+{
-+	int err;
-+	struct vortex_private *vp = netdev_priv(dev);
-+	int state = 0;
-+	
-+	if(VORTEX_PCI(vp))
-+		state = VORTEX_PCI(vp)->current_state;
-+
-+	/* The kernel core really should have pci_get_power_state() */
-+
-+	if(state != 0)
-+		pci_set_power_state(VORTEX_PCI(vp), 0);	
-+	err = vortex_do_ioctl(dev, rq, cmd);
-+	if(state != 0)
-+		pci_set_power_state(VORTEX_PCI(vp), state);	
-+	
-+	return err;
-+}
-+
-+
- /* Pre-Cyclone chips have no documented multicast filter, so the only
-    multicast setting is to receive all multicast frames.  At least
-    the chip has a very clean way to set the mode, unlike many others. */
-@@ -3059,14 +3084,14 @@
- 	 * here
- 	 */
- 	unregister_netdev(dev);
--	/* Should really use issue_and_wait() here */
--	outw(TotalReset|0x14, dev->base_addr + EL3_CMD);
- 
- 	if (VORTEX_PCI(vp) && vp->enable_wol) {
- 		pci_set_power_state(VORTEX_PCI(vp), 0);	/* Go active */
- 		if (vp->pm_state_valid)
- 			pci_restore_state(VORTEX_PCI(vp), vp->power_state);
- 	}
-+	/* Should really use issue_and_wait() here */
-+	outw(TotalReset|0x14, dev->base_addr + EL3_CMD);
- 
- 	pci_free_consistent(pdev,
- 						sizeof(struct boom_rx_desc) * RX_RING_SIZE
-
-
-
- 
-        Developer's Certificate of Origin 1.0
- 
-        By making a contribution to this project, I certify that:
- 
-        (a) The contribution was created in whole or in part by me and I
-            have the right to submit it under the open source license
-            indicated in the file; or
- 
-        (b) The contribution is based upon previous work that, to the best
-            of my knowledge, is covered under an appropriate open source
-            license and I have the right under that license to submit that
-            work with modifications, whether created in whole or in part
-            by me, under the same open source license (unless I am
-            by me, under the same open source license (unless I am
-            permitted to submit under a different license), as indicated
-            in the file; or
- 
-        (c) The contribution was provided directly to me by some other
-            person who certified (a), (b) or (c) and I have not modified
-            it.
- 
- 
-        Signed-off-by: Alan Cox <alan@redhat.com>
-
-	"Me" in this case being Red Hat
-
+Oh, as I wrote in my initial submission I totally agree.  I just think removing the
+option in 2.7 is better than in the middle of a stable series.
 

@@ -1,71 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268294AbUIHFlH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268846AbUIHFsc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268294AbUIHFlH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 01:41:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268824AbUIHFlH
+	id S268846AbUIHFsc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 01:48:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268839AbUIHFsc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 01:41:07 -0400
-Received: from washoe.rutgers.edu ([165.230.95.67]:45033 "EHLO
-	washoe.rutgers.edu") by vger.kernel.org with ESMTP id S268294AbUIHFlC
+	Wed, 8 Sep 2004 01:48:32 -0400
+Received: from as8-6-1.ens.s.bonet.se ([217.215.92.25]:12254 "EHLO
+	zoo.weinigel.se") by vger.kernel.org with ESMTP id S268824AbUIHFs2
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 01:41:02 -0400
-Date: Wed, 8 Sep 2004 01:41:01 -0400
-From: Yaroslav Halchenko <yoh@psychology.rutgers.edu>
-To: linux-kernel@vger.kernel.org
-Subject: proc stalls
-Message-ID: <20040908054101.GR2966@washoe.rutgers.edu>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
+	Wed, 8 Sep 2004 01:48:28 -0400
+To: Gunnar Ritter <Gunnar.Ritter@pluto.uni-freiburg.de>
+Cc: Christer Weinigel <christer@weinigel.se>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>,
+       <viro@parcelfarce.linux.theplanet.co.uk>,
+       Linus Torvalds <torvalds@osdl.org>, Tonnerre <tonnerre@thundrix.ch>,
+       Spam <spam@tnonline.net>, ReiserFS List <reiserfs-list@namesys.com>,
+       Hans Reiser <reiser@namesys.com>, Pavel Machek <pavel@ucw.cz>,
+       David Masover <ninja@slaphack.com>, <linux-kernel@vger.kernel.org>,
+       <linux-fsdevel@vger.kernel.org>, Jamie Lokier <jamie@shareable.org>,
+       Christoph Hellwig <hch@lst.de>,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       Chris Wedgwood <cw@f00f.org>
+Subject: Re: silent semantic changes with reiser4
+References: <200409070206.i8726vrG006493@localhost.localdomain>
+	<413D4C18.6090501@slaphack.com> <m3d60yjnt7.fsf@zoo.weinigel.se>
+	<1183150024.20040907143346@tnonline.net>
+	<413DD5B4.nailC801GI4E2@pluto.uni-freiburg.de>
+	<m34qm9kbcl.fsf@zoo.weinigel.se>
+	<413E3280.nailEK92X8CU7@pluto.uni-freiburg.de>
+	<m3n001its8.fsf@zoo.weinigel.se>
+	<413E4836.nailFFM11WGWE@pluto.uni-freiburg.de>
+From: Christer Weinigel <christer@weinigel.se>
+Organization: Weinigel Ingenjorsbyra AB
+Date: 08 Sep 2004 07:48:27 +0200
+In-Reply-To: <413E4836.nailFFM11WGWE@pluto.uni-freiburg.de>
+Message-ID: <m3ekldia50.fsf@zoo.weinigel.se>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Image-Url: http://www.onerussian.com/img/yoh.png
-User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear All,
+Gunnar Ritter <Gunnar.Ritter@pluto.uni-freiburg.de> writes:
 
-Please give me some hints on where to look and what possibly to do to
-bring system back to usable without rebooting, or at least to catch what
-can be a problem.
+> Besides, copying xattrs is usually permitted (POSIX.1-2004, XCU cp):
+> 
+> # If the implementation provides additional or alternate access control
+> # mechanisms (see the Base Definitions volume of IEEE Std 1003.1-2001,
+> # Section 4.4, File Access Permissions), their effect on copies of files
+> # is implementation-defined.
 
-I've discroverd that mozilla-firefox didn't want to start - just hanged
-during start... well - I've found that 'fuser -m /dev/dsp' causes it to
-stall... well - I've fount that any fuser process stalls... well... I've
-found using strace that they stall around next point:
-getdents64(4, /* 0 entries */, 1024)    = 0
-close(4)                                = 0
-chdir("/proc/26336")                    = 0
-stat64("root", {st_mode=S_IFDIR|0755, st_size=720, ...}) = 0
-lstat64("root", {st_mode=S_IFLNK|0777, st_size=0, ...}) = 0
-stat64("cwd", 
+In <413DD5B4.nailC801GI4E2@pluto.uni-freiburg.de> you wrote:
 
-well.. I've tried to cd to /proc/26336 and my bash got frozen as well...
+>A POSIX.1-conforming cp implementation would not be allowed to copy
+>additional streams, unless either additional options are given or the
+>type of the file being copied is other than S_IFREG.
 
+I read this as that POSIX mandates that cp can absolutely not copy
+anything else but the file contents.  That is what I called broken.
 
-now my sytem load is around 20 probably due to all the unkillable fuser
-processes I've ran so far... They look like:
-yoh      29083  0.0  0.0  1532  560 ?        D    00:48   0:00 fuser -m
-/dev/dsp
+If we implement named streams as xattrs and that can be accessed with
+openat(..., O_XATTR) this means that cp is allowed to copy the xattrs
+(well, named streans don't neccesarily have to be "alternate access
+control mechanisms", but they can use the same xattr namespace).  
 
-no abnormal logs are reported in syslog... 
+That's quite ok in that case.
 
-
-What can I do to find the cause or to resolve the situation somehow
-without reboot? Which else hints can I provide? I'm reporting main
-system params and linux kernel config on
-
-http://www.onerussian.com/Linux/bugs/bug.proc/
-
-(Many other tools like df stall as well)
-
-Thank you in advance
+  /Christer
 
 -- 
-                                                  Yaroslav Halchenko
-                  Research Assistant, Psychology Department, Rutgers
-          Office  (973) 353-5440 x263
-   Ph.D. Student  CS Dept. NJIT
-             Key  http://www.onerussian.com/gpg-yoh.asc
- GPG fingerprint  3BB6 E124 0643 A615 6F00  6854 8D11 4563 75C0 24C8
+"Just how much can I get away with and still go to heaven?"
 
+Freelance consultant specializing in device driver programming for Linux 
+Christer Weinigel <christer@weinigel.se>  http://www.weinigel.se

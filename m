@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262441AbTI0NEy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Sep 2003 09:04:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262439AbTI0NEx
+	id S262439AbTI0NNi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Sep 2003 09:13:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262440AbTI0NNi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Sep 2003 09:04:53 -0400
-Received: from path.emicnetworks.com ([194.137.152.194]:55441 "EHLO mail.emic")
-	by vger.kernel.org with ESMTP id S262438AbTI0NEw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Sep 2003 09:04:52 -0400
-Date: Sat, 27 Sep 2003 16:04:45 +0300
-From: "Alexey V. Yurchenko" <ayurchen@mail.emicnetworks.com>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: how to set multicast MAC ligitemately?
-Message-Id: <20030927160445.6ff09796.ayurchen@mail.emicnetworks.com>
-In-Reply-To: <20030926120345.6668d96f.shemminger@osdl.org>
-References: <20030926215326.23f7de24.ayurchen@mail.emicnetworks.com>
-	<20030926120345.6668d96f.shemminger@osdl.org>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sat, 27 Sep 2003 09:13:38 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:39942 "EHLO
+	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S262439AbTI0NNh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Sep 2003 09:13:37 -0400
+Subject: Re: Ejecting a CardBus device
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030927112010.G3440@flint.arm.linux.org.uk>
+References: <1064628015.1393.5.camel@teapot.felipe-alfaro.com>
+	 <20030927082806.A681@flint.arm.linux.org.uk>
+	 <1064657889.1381.1.camel@teapot.felipe-alfaro.com>
+	 <20030927112010.G3440@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Message-Id: <1064668405.3509.0.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sat, 27 Sep 2003 15:13:26 +0200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 26 Sep 2003 12:03:45 -0700
-Stephen Hemminger <shemminger@osdl.org> wrote:
-
+On Sat, 2003-09-27 at 12:20, Russell King wrote:
+> > 
+> > I doesn't seem to work: "cardctl eject" complains that no pcmcia driver
+> > appears in /proc/devices. Any ideas?
 > 
-> Not interface should have a multicast MAC address. A multicast address
-> should only exist as a destination address, never a source.
+> That'll be because ds got unloaded.  Although ds isn't required for
+> cardbus cards, it does provide the interface to cardctl.
 
-Well, that's in theory. In practice I need several computers connected to a switch to share a single interface and look to the rest of LAN as a single node. All those computers must receive all packets desitned to that interface. Using non-multicast MAC confuses many switches.
+Bingo! Now APM suspend is working flawlessly for the very first time in
+my life... Thanks.
 
-Any suggestions? (Except not using a switch ;))
-
-Regards,
-Alex
-
-PS isn't this approach (forbidding certain addresses) a tad Microsoftish? Like saving users from themselves? If

@@ -1,54 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270460AbRHUBVg>; Mon, 20 Aug 2001 21:21:36 -0400
+	id <S270451AbRHUBVQ>; Mon, 20 Aug 2001 21:21:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270478AbRHUBV1>; Mon, 20 Aug 2001 21:21:27 -0400
-Received: from SNAP.THUNK.ORG ([216.175.175.173]:32269 "EHLO snap.thunk.org")
-	by vger.kernel.org with ESMTP id <S270460AbRHUBVT>;
-	Mon, 20 Aug 2001 21:21:19 -0400
-Date: Mon, 20 Aug 2001 21:20:53 -0400
-From: Theodore Tso <tytso@mit.edu>
-To: David Wagner <daw@mozart.cs.berkeley.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: /dev/random in 2.4.6
-Message-ID: <20010820212053.B20957@thunk.org>
-Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
-	David Wagner <daw@mozart.cs.berkeley.edu>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0108200903580.4612-100000@waste.org> <2251207905.998322034@[10.132.112.53]> <9lrc6u$6pv$1@abraham.cs.berkeley.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <9lrc6u$6pv$1@abraham.cs.berkeley.edu>; from daw@mozart.cs.berkeley.edu on Mon, Aug 20, 2001 at 04:00:30PM +0000
+	id <S270460AbRHUBVH>; Mon, 20 Aug 2001 21:21:07 -0400
+Received: from Overkill.EnterZone.Net ([66.35.65.2]:21572 "EHLO
+	Overkill.EnterZone.Net") by vger.kernel.org with ESMTP
+	id <S270451AbRHUBU6>; Mon, 20 Aug 2001 21:20:58 -0400
+Date: Mon, 20 Aug 2001 21:21:02 -0400 (EDT)
+From: John Fraizer <atm@EnterZone.Net>
+To: "Adam J. Richter" <adam@yggdrasil.com>
+cc: linux-atm-general@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [Linux-ATM-General] PATCH: linux-2.4.9/drivers/atm to new
+ module_{init,exit} + some pci_device_id tables
+In-Reply-To: <20010820075826.A368@baldur.yggdrasil.com>
+Message-ID: <Pine.LNX.4.21.0108202119020.29741-100000@Overkill.EnterZone.Net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 20, 2001 at 04:00:30PM +0000, David Wagner wrote:
+
+Just a quick question.  Please be gentl.  I'm not a kernel hack.  I just
+want to make sure that it will still be possible to build a monolythic
+kernel with ATM support.  If not, that is a BAD thing.  
+
+
+
+On Mon, 20 Aug 2001, Adam J. Richter wrote:
+
+> 	The following patch moves linux-2.4.9/drivers/atm
+> to the relatively new module_{init,exit} interface, simplifying
+> the code and removing the reference to the ATM drivers from
+> linux/drivers/genhd.c (this is partly motivated by my effort to get
+> rid of genhd.c).  The changes also include some pci_device_id tables,
+> which enable automatic loading of the modules via pcimodules (or
+> a similar program).  These changes are also all steps toward porting
+> the atm drivers to the new PCI interface.  In the case zatm.c, I
+> have actually ported it to the new PCI interface, although it
+> shares the stock zatm driver's deficiency of not supporting
+> module removal.
 > 
-> I don't see why not.  Apply this change, and use /dev/urandom.
-> You'll never block, and the outputs should be thoroughly unpredictable.
-> What's missing?
+> 	Note that this change deletes linux-2.4.9/drivers/atmdev_init.c,
+> since the conversion to module_{init,exit} completely obseletes that file.
+> 
+> 	If these changes look OK, I would like to get them
+> into the stock kernel.  If there is a maintainer on linux-atm-general
+> who shepherds these patches to Alan and Linus, and if these changes
+> are good, please let me know if you are going to "officially" send them
+> to Alan and Linus or if you want me to do so or if there is some other
+> procedure that I should follow.
+> 
+> -- 
+> Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+> adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
+> +1 408 261-6630         | g g d r a s i l   United States of America
+> fax +1 408 261-6631      "Free Software For The Rest Of Us."
+> 
+> _______________________________________________
+> Linux-atm-general mailing list
+> Linux-atm-general@lists.sourceforge.net
+> http://lists.sourceforge.net/lists/listinfo/linux-atm-general
+> 
 
-Absolutely.  And if /dev/urandom is not unpredictable, that means
-someone has broken SHA-1 in a pretty complete way, in which case it's
-very likely that most of the users of the randomness are completely
-screwed, since they probably depend on SHA-1 (or some other MAC which
-is probably in pretty major danger if someone has indeed managed to
-crack SHA-1).
-
-> (I don't see why so many people use /dev/random rather than /dev/urandom.
-> I harbor suspicions that this is a misunderstanding about the properties
-> of pseudorandom number generation.)
-
-Probably.  /dev/random is probably appropriate when you're trying to
-get randomness for a long-term RSA/DSA key, but for session key
-generation which is what most server boxes will be doing, /dev/urandom
-will be just fine.
-
-Of course, then you have the crazies who are doing Monte Carlo
-simulations, and then send me mail asking why using /dev/urandom is so
-slow, and how can they the reseed /dev/urandom so they can get
-repeatable, measureable results on their Monte Carlo sinulations....
-
-					- Ted

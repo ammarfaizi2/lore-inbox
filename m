@@ -1,51 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262789AbTKVWkY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Nov 2003 17:40:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262794AbTKVWkY
+	id S262817AbTKVXHF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Nov 2003 18:07:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262838AbTKVXHF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Nov 2003 17:40:24 -0500
-Received: from fw.osdl.org ([65.172.181.6]:38886 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262789AbTKVWkX (ORCPT
+	Sat, 22 Nov 2003 18:07:05 -0500
+Received: from ns.suse.de ([195.135.220.2]:5797 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262817AbTKVXHD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Nov 2003 17:40:23 -0500
-Date: Sat, 22 Nov 2003 14:40:20 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Paul Mackerras <paulus@samba.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: x86: SIGTRAP handling differences from 2.4 to 2.6
-In-Reply-To: <16319.57610.204577.206796@cargo.ozlabs.ibm.com>
-Message-ID: <Pine.LNX.4.44.0311221435090.2379-100000@home.osdl.org>
+	Sat, 22 Nov 2003 18:07:03 -0500
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Pavel Machek <pavel@ucw.cz>, Timothy Miller <miller@techsource.com>,
+       Andreas Dilger <adilger@clusterfs.com>,
+       Justin Cormack <justin@street-vision.com>,
+       Jesse Pollard <jesse@cats-chateau.net>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: OT: why no file copy() libc/syscall ??
+References: <1068512710.722.161.camel@cube> <03111209360001.11900@tabby>
+	<20031120172143.GA7390@deneb.enyo.de> <03112013081700.27566@tabby>
+	<1069357453.26642.93.camel@lotte.street-vision.com>
+	<3FBD27A0.50803@techsource.com>
+	<20031120140739.I20568@schatzie.adilger.int>
+	<3FBD328C.1070607@techsource.com> <20031122145031.GA189@elf.ucw.cz>
+	<20031122195052.GA17077@mail.shareable.org>
+From: Andreas Schwab <schwab@suse.de>
+X-Yow: How many retired bricklayers from FLORIDA are out purchasing
+ PENCIL SHARPENERS right NOW??
+Date: Sun, 23 Nov 2003 00:07:00 +0100
+In-Reply-To: <20031122195052.GA17077@mail.shareable.org> (Jamie Lokier's
+ message of "Sat, 22 Nov 2003 19:50:52 +0000")
+Message-ID: <jeoev4ngtn.fsf@sykes.suse.de>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3.50 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jamie Lokier <jamie@shareable.org> writes:
 
-On Sun, 23 Nov 2003, Paul Mackerras wrote:
+> Pavel Machek wrote:
+>> > It is, though.  If you run out of space copying a file, you know it when 
+>> > you're copying.  Applications don't usually expect to get out-of-space 
+>> > errors while overwriting something in the middle of a file.
+>> 
+>> Same can happen on compressed filesystem...
 >
-> In this case the signal would not actually be set to be blocked or
-> ignored but would end up being ignored because of the rule that "init
-> gets no signals it doesn't want".  I would prefer to see
-> thread-synchronous signals kill init if they are not handled, so that
-> at least we get a panic with a message that says what went wrong
-> rather than the system just spinning its wheels uselessly.
+> Or a filesystem with snapshots, e.g. using LVM.
 
-Hmm.. Right now the init special case is in the signal _delivery_ path, 
-which makes it hard to do something like that, since by then we no longer 
-know/care who sent the signal.
+Or writing to a sparse file.
 
-We could move the special case into the send path instead (and then only
-do it for "external signals" and not special case init at all for internal
-signals).
+Andreas.
 
-Hmm.. Looking at the signal sending code, we actually do special-case 
-"init" there already - but only for the "kill -1" case. If the test for 
-"pid > 1" was moved into "group_send_sig_info()" instead, that would 
-pretty much do it, I think.
-
-Feel free to try something like that out. I'm not going to apply it right 
-now, though ;)
-
-		Linus
-
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux AG, Deutschherrnstr. 15-19, D-90429 Nürnberg
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

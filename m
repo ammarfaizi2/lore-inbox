@@ -1,58 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269358AbUICO2S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268860AbUICOam@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269358AbUICO2S (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 10:28:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269038AbUICO2S
+	id S268860AbUICOam (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 10:30:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269018AbUICOam
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 10:28:18 -0400
-Received: from gsstark.mtl.istop.com ([66.11.160.162]:9091 "EHLO
-	stark.xeocode.com") by vger.kernel.org with ESMTP id S269358AbUICO1y
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 10:27:54 -0400
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Greg Stark <gsstark@mit.edu>, Brad Campbell <brad@wasp.net.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: Crashed Drive, libata wedges when trying to recover data
-References: <87oekpvzot.fsf@stark.xeocode.com> <4136E277.6000408@wasp.net.au>
-	<87u0ugt0ml.fsf@stark.xeocode.com>
-	<1094209696.7533.24.camel@localhost.localdomain>
-In-Reply-To: <1094209696.7533.24.camel@localhost.localdomain>
-From: Greg Stark <gsstark@mit.edu>
-Organization: The Emacs Conspiracy; member since 1992
-Date: 03 Sep 2004 10:27:19 -0400
-Message-ID: <87d613tol4.fsf@stark.xeocode.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Fri, 3 Sep 2004 10:30:42 -0400
+Received: from smtp.dei.uc.pt ([193.137.203.228]:1449 "EHLO smtp.dei.uc.pt")
+	by vger.kernel.org with ESMTP id S268860AbUICOaZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 10:30:25 -0400
+Date: Fri, 3 Sep 2004 15:29:09 +0100 (WEST)
+From: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
+To: Valdis.Kletnieks@vt.edu
+cc: "Wise, Jeremey" <jeremey.wise@agilysys.com>,
+       Oliver Hunt <oliverhunt@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: Kernel or Grub bug.
+In-Reply-To: <200409022133.i82LXc38022679@turing-police.cc.vt.edu>
+Message-ID: <Pine.LNX.4.61.0409031528420.19868@student.dei.uc.pt>
+References: <1094008341.4704.32.camel@wizej.agilysys.com>
+ <200408312358.08153.dsteven3@maine.rr.com> <1094041227.4635.7.camel@wizej.agilysys.com>
+ <200409011135.36537.dsteven3@maine.rr.com> <1094055985.4635.44.camel@wizej.agilysys.com>
+ <4699bb7b04090109415f64fea1@mail.gmail.com>           
+ <1094067612.15795.19.camel@wizej.agilysys.com> <200409022133.i82LXc38022679@turing-police.cc.vt.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+X-UC-FCTUC-DEI-MailScanner-Information: Please contact helpdesk@dei.uc.pt for more information
+X-UC-FCTUC-DEI-MailScanner: Found to be clean
+X-MailScanner-From: marado@student.dei.uc.pt
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+On Thu, 2 Sep 2004 Valdis.Kletnieks@vt.edu wrote:
 
-> On Gwe, 2004-09-03 at 05:52, Greg Stark wrote:
-> > I get the same message and the same basic symptom -- any process touching the
-> > bad disk goes into disk-wait for a long time. But whereas before as far as I
-> > know they never came out, now they seem to come out of disk-wait after a good
-> > long time. But then maybe I just never waited long enough with 2.6.6.
-> 
-> This looks hopeful. You are now seeing the IDE layer error dump. Right
-> now it doesn't decode the LBA block number although that data is
-> available in the taskfile so I can knock up a test patch for you to try
-> if you want.
+> A somewhat subtle gotcha that I got bit by once - very bad things
+> happen if you try to load reiserfs off an ext2-formatted initrd image,
+> and your kernel doesn't have ext2 built in.  (Feel free to substitute
+> any 2 filesystem formats - I actually got nailed by ext2/ext3)...
 
-Well I still have a problem. It seems once this occurs that *every* further
-access generates the error. Even directories that I had previously been able
-to list fail.
+Well, in my case that's not the problem...
 
-So while my machine isn't crippled once this happens, I still can't proceed
-with the recovery.
+Marcos Marado
 
-And they seem to take 12 minutes to fail. I guess that indicates they were
-either trying to do 24 blocks of readahead, or some combination of readahead
-and retries from a higher layer.
+- -- 
+/* *************************************************************** */
+    Marcos Daniel Marado Torres	     AKA	Mind Booster Noori
+    http://student.dei.uc.pt/~marado   -	  marado@student.dei.uc.pt
+    () Join the ASCII ribbon campaign against html email, Microsoft
+    /\ attachments and Software patents.   They endanger the World.
+    Sign a petition against patents:  http://petition.eurolinux.org
+/* *************************************************************** */
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Made with pgp4pine 1.76
 
--- 
-greg
+iD8DBQFBOH+3mNlq8m+oD34RAkhUAKC4+wdzMHzHqoRCecFGOXvAzF9NqwCg8DSh
+EcL7JMsoNNgL3D534efCWsA=
+=3soR
+-----END PGP SIGNATURE-----
 

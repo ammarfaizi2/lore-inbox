@@ -1,56 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130480AbRCDSNj>; Sun, 4 Mar 2001 13:13:39 -0500
+	id <S130475AbRCDSMt>; Sun, 4 Mar 2001 13:12:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130485AbRCDSNb>; Sun, 4 Mar 2001 13:13:31 -0500
-Received: from moutvdom01.kundenserver.de ([195.20.224.200]:12918 "EHLO
-	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S130480AbRCDSNX>; Sun, 4 Mar 2001 13:13:23 -0500
-Message-ID: <002101c0a4d6$afa5a900$3201a8c0@laptop>
-From: "Christian Hilgers" <webmaster@server-side.de>
-To: "Linux kernel" <linux-kernel@vger.kernel.org>
-Cc: <davidge@jazzfree.com>
-In-Reply-To: <Pine.LNX.4.21.0103041745210.1038-100000@roku.redroom.com>
-Subject: Re: DVD Problem
-Date: Sun, 4 Mar 2001 19:12:32 +0100
+	id <S130480AbRCDSMk>; Sun, 4 Mar 2001 13:12:40 -0500
+Received: from hermes.cs.kuleuven.ac.be ([134.58.40.3]:37550 "EHLO
+	hermes.cs.kuleuven.ac.be") by vger.kernel.org with ESMTP
+	id <S130475AbRCDSMV>; Sun, 4 Mar 2001 13:12:21 -0500
+Date: Sat, 3 Mar 2001 16:07:13 +0100 (CET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: Grant Grundler <grundler@cup.hp.com>, linux-kernel@vger.kernel.org,
+        linuxppc-dev@lists.linuxppc.org, "David S. Miller" <davem@redhat.com>
+Subject: Re: IO issues vs. multiple busses 
+In-Reply-To: <19350125201706.1788@mailhost.mipsys.com>
+Message-ID: <Pine.LNX.4.10.10103031601260.455-100000@cassiopeia.home>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2014.211
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2014.211
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 3 Mar 2001, Benjamin Herrenschmidt wrote:
+> With those two simple functions, we could at least
+> 
+>  - Have vgacon disable itself when there's no ISA memory (that can be
+                                                ^^^^^^^^^^
+> handled by
+>    reserving the region and thus preventing request_region from working
+                                              ^^^^^^^^^^^^^^
+Do you mean request_mem_region()?
 
-Von: <davidge@jazzfree.com>
->
+> too, well,
+>    but that scheme would also simplify the various more/less hacked
+> macros used
+>    on all non-x86 archs to access the VGA memory).
 
->On Sun, 4 Mar 2001, Christian Hilgers wrote:
->
->So you need to compile the kernel with UDF support , which is the
->filesystem used in DVDs. As you said, iso9660 works, but only for the
->first 650 mb. And after it take a look at www.linuxvideo.org and
->www.videolan.org.
+request_mem_region() for ISA memory is another problem point. The few drivers
+that use it seem to assume that the ISA memory base is 0. This won't work on
+non-PC machines, since ISA memory may be somewhere else in the address space,
+and more important, there already may be something different at address 0,
+which breaks request_mem_region(). On a PC the first 16 MB of RAM (with some
+holes at e.g. 0xa0000) overlap with ISA memory space, but not on other
+architectures.
 
-UDF was the first I tried, but it didn't work.
+For ioremap() we have a hack on PPC (PReP/CHRP) that adds isa_mem_base if the
+bus address to map falls in the first 16 MB area, but this cannot work for
+request_mem_region(). I do have my full memory map (RAM) marked in /proc/iomem.
 
-Christian
+So once again I vote for the introduction of
+isa_{request,release}_mem_region(), just like we already have isa_readb() and
+friends.
 
->> Hi,
->>
->> I'm trying to use the 2.4.1 Kernel but I have some troubles with my
->> ATAPI Matsushita UJDA510 DVD (Intel 82371AB/EP PCI Bus Master IDE
->> Controler).
->> It works perfekt with CD-Rom but when I try to read a ISO 9660 DVD I
-got
->> an error.
->>
->> I can mount the DVD and I can list the complet content but I guess I
->> can't access any File behind 650 MB.
+Gr{oetje,eeting}s,
 
+						Geert
 
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

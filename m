@@ -1,58 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316217AbSGVEx0>; Mon, 22 Jul 2002 00:53:26 -0400
+	id <S315257AbSGUXdG>; Sun, 21 Jul 2002 19:33:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316223AbSGVEx0>; Mon, 22 Jul 2002 00:53:26 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:4105 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316217AbSGVExZ>;
-	Mon, 22 Jul 2002 00:53:25 -0400
-Message-ID: <3D3B925D.624986EE@zip.com.au>
-Date: Sun, 21 Jul 2002 22:04:29 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre9 i686)
-X-Accept-Language: en
+	id <S315265AbSGUXdG>; Sun, 21 Jul 2002 19:33:06 -0400
+Received: from flrtn-5-m1-95.vnnyca.adelphia.net ([24.55.70.95]:8598 "EHLO
+	jyro.mirai.cx") by vger.kernel.org with ESMTP id <S315257AbSGUXdF>;
+	Sun, 21 Jul 2002 19:33:05 -0400
+Message-ID: <3D3B4568.9090307@tmsusa.com>
+Date: Sun, 21 Jul 2002 16:36:08 -0700
+From: J Sloan <joe@tmsusa.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020720
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, Ed Tomlinson <tomlins@cam.org>
-Subject: Re: [PATCH][1/2] return values shrink_dcache_memory etc
-References: <Pine.LNX.4.44L.0207201740580.12241-100000@imladris.surriel.com> <Pine.LNX.4.44.0207201351160.1552-100000@home.transmeta.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+To: Stephan Maciej <stephan@maciej.muc.de>
+CC: linux-kernel@vger.kernel.org
+Subject: [OT] Re: 'ne nette Idee zum programmieren...
+References: <200207211723.02135.stephan@maciej.muc.de>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> On Sat, 20 Jul 2002, Rik van Riel wrote:
-> >
-> > OK, I'll try to forward-port Ed's code to do that from 2.4 to 2.5
-> > this weekend...
-> 
-> Side note: while I absolutely think that is the right thing to do, that's
-> also the much more "interesting" change. As a result, I'd be happier if it
-> went through channels (ie probably Andrew) and had some wider testing
-> first at least in the form of a CFT on linux-kernel.
-> 
+Auf jeden Fall für sie!
 
-I'd suggest that we avoid putting any additional changes into
-the VM until we have solutions available for:
+MfG,
 
-2: Make it work with pte-highmem  (Bill Irwin is signed up for this)
+Joe
 
-4: Move the pte_chains into highmem too (Bill, I guess)
+Stephan Maciej wrote:
 
-6: maybe GC the pte_chain backing pages. (Seems unavoidable.  Rik?)
+>Servus,
+>
+>wie wäre es mit einer aufgepeppten Version von xfig, geschrieben in C++ für 
+>KDE (bzw. zumindest man mit Qt). Xfig sieht einfach zu alt aus und diverse 
+>nette Features fehlen (Winkel zwischen zwei Schenkeln und so...)
+>
+>Stephan
+>
+>  
+>
 
-
-Especially pte_chains in highmem.  Failure to fix this well
-is a showstopper for rmap on large ia32 machines, which makes
-it a showstopper full stop.
-
-If we can get something in place which works acceptably on Martin
-Bligh's machines, and we can see that the gains of rmap (whatever
-they are ;)) are worth the as-yet uncoded pains then let's move on.
-But until then, adding new stuff to the VM just makes a `patch -R'
-harder to do.
-
--

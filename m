@@ -1,62 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267701AbUHZGjS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265195AbUHZGzo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267701AbUHZGjS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 02:39:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267702AbUHZGjS
+	id S265195AbUHZGzo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 02:55:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267683AbUHZGzo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 02:39:18 -0400
-Received: from acheron.informatik.uni-muenchen.de ([129.187.214.135]:33412
-	"EHLO acheron.informatik.uni-muenchen.de") by vger.kernel.org
-	with ESMTP id S267701AbUHZGjM (ORCPT
+	Thu, 26 Aug 2004 02:55:44 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:56463 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S265195AbUHZGzl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 02:39:12 -0400
-Message-ID: <412D858E.10404@bio.ifi.lmu.de>
-Date: Thu, 26 Aug 2004 08:39:10 +0200
-From: Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040503)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Mark Broadbent <markb@wetlettuce.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.8.1: ip auto-config accepts wrong packages
-References: <412C5E80.8050603@bio.ifi.lmu.de>	 <1093439062.25506.12.camel@mbpc.signal.qinetiq.com>	 <412CA518.7090109@bio.ifi.lmu.de> <1093448839.25506.57.camel@mbpc.signal.qinetiq.com>
-In-Reply-To: <1093448839.25506.57.camel@mbpc.signal.qinetiq.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 26 Aug 2004 02:55:41 -0400
+Date: Wed, 25 Aug 2004 23:53:58 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Nicholas Miell <nmiell@gmail.com>
+Cc: mpm@selenic.com, wichert@wiggy.net, jra@samba.org, akpm@osdl.org,
+       spam@tnonline.net, torvalds@osdl.org, reiser@namesys.com, hch@lst.de,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       flx@namesys.com, reiserfs-list@namesys.com
+Subject: Re: silent semantic changes with reiser4
+Message-Id: <20040825235358.36626f06.pj@sgi.com>
+In-Reply-To: <1093496948.2748.69.camel@entropy>
+References: <20040824202521.GA26705@lst.de>
+	<412CEE38.1080707@namesys.com>
+	<20040825152805.45a1ce64.akpm@osdl.org>
+	<112698263.20040826005146@tnonline.net>
+	<Pine.LNX.4.58.0408251555070.17766@ppc970.osdl.org>
+	<1453698131.20040826011935@tnonline.net>
+	<20040825163225.4441cfdd.akpm@osdl.org>
+	<20040825233739.GP10907@legion.cup.hp.com>
+	<20040825234629.GF2612@wiggy.net>
+	<1093480940.2748.35.camel@entropy>
+	<20040826044425.GL5414@waste.org>
+	<1093496948.2748.69.camel@entropy>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Mark,
+> "OMG! It breaks tar and email!!!" argument doesn't fly. Things break all
+> the time and are fixed. It's called progress.
 
-Mark Broadbent wrote:
+Yes - we break things all the time.  But we take notice, when we are
+breaking things, of how long standing and deeply embedded they are.
 
-> Stupid question but the MAC addresses on the cards are different aren't
-> they?  Could you also double check that the xid values differ on both
-> machines, this is shown on the line:
-> 
-> IP-Config: eth0 UP (able=1, xid=07196018)
->                                 ^^^^^^^^
-> 
-> Both MAC and xid should be different.
+The deeper the roots, the more respect we show it, and the harder
+it will be to change.
 
-obiously, the problem is here. The xid is the same on 5 different hosts
-I tested with the debugging-enabled kernel. Looking it ipconfig.c I now
-understand that with several hosts using the same xid it must go wrong.
-I'm currently compiling a new kernel with debugging enabled in rancom.c
-to see what's going wrong here. Looks like random_bytes is returning
-the same value on all hosts :-(
-
-Can anyone else maybe do a quick check with "ip=dhcp" on two hosts
-just to see if the problem with the identical xids just show up here?
-
-I will send the result of the debugging output from random.c.
-
-cu,
-Frank
+Heaping scorn on someone who is reluctant to change something as
+deeply embedded as "a file is a byte stream" does not further the
+discussion.
 
 -- 
-Dipl.-Inform. Frank Steiner   Web:  http://www.bio.ifi.lmu.de/~steiner/
-Lehrstuhl f. Bioinformatik    Mail: http://www.bio.ifi.lmu.de/~steiner/m/
-LMU, Amalienstr. 17           Phone: +49 89 2180-4049
-80333 Muenchen, Germany       Fax:   +49 89 2180-99-4049
-
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

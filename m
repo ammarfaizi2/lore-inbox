@@ -1,86 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288158AbSATKtW>; Sun, 20 Jan 2002 05:49:22 -0500
+	id <S288159AbSATLQy>; Sun, 20 Jan 2002 06:16:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288159AbSATKtM>; Sun, 20 Jan 2002 05:49:12 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:30475 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S288158AbSATKtI>;
-	Sun, 20 Jan 2002 05:49:08 -0500
-Date: Sun, 20 Jan 2002 11:48:50 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Andre Hedrick <andre@linuxdiskcert.org>
-Cc: Davide Libenzi <davidel@xmailserver.org>,
-        Anton Altaparmakov <aia21@cam.ac.uk>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.3-pre1-aia1
-Message-ID: <20020120114850.J27835@suse.de>
-In-Reply-To: <20020119164503.H27835@suse.de> <Pine.LNX.4.10.10201191220060.7770-100000@master.linux-ide.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.10.10201191220060.7770-100000@master.linux-ide.org>
+	id <S288205AbSATLQp>; Sun, 20 Jan 2002 06:16:45 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:22448 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S288159AbSATLQa>;
+	Sun, 20 Jan 2002 06:16:30 -0500
+Date: Sun, 20 Jan 2002 14:13:53 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: [sched] [patch] comment-fixes-2.5.3-pre2-A0
+Message-ID: <Pine.LNX.4.33.0201201411230.7818-200000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-1303595027-1011532433=:7818"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 19 2002, Andre Hedrick wrote:
-> > On Sat, Jan 19 2002, Andre Hedrick wrote:
-> > > On Sat, 19 Jan 2002, Jens Axboe wrote:
-> > > 
-> > > > On Fri, Jan 18 2002, Davide Libenzi wrote:
-> > > > > Guys, instead of requiring an -m8 to every user that is observing this
-> > > > > problem, isn't it better that you limit it inside the driver until things
-> > > > > gets fixed ?
-> > > > 
-> > > > There is no -m8 limit, 2.5.3-pre1 + ata253p1-2 patch handles any set
-> > > > multi mode value.
-> > > > 
-> > > > -- 
-> > > > Jens Axboe
-> > > > 
-> > > 
-> > > And that will generate the [lost interrupt], and I have it fixed at all
-> > > levels too now.
-> > 
-> > How so? I don't see the problem.
-> 
-> Unlike ATAPI which will generally send you more data than requested on
-> itw own, ATA devices do not like enjoy or play the game.  Additionally the
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-Unrelated ATAPI fodder :-)
+--8323328-1303595027-1011532433=:7818
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-> current code asks for 16 sectors, but we do not do the request copy
-> anymore, and this mean for every 4k of paging we are soliciting for 8k.
 
-The (now) missing copy is unrelated.
+the attached patch from Rusty Russell fixes three comments in
+kernel/sched.c. (I've updated it to apply cleanly against 2.5.3-pre2.)
 
-> We only read out 4k thus the device has the the next 4k we may be wanting
-> ready.  Look at it as a dirty prefetch, but eventally the drive is going
-> to want to go south, thus [lost interrupt]
+	Ingo
 
-Even if the drive is programmed for 16 sectors in multi mode, it still
-must honor lower transfer sizes. The fix I did was not to limit this,
-but rather to only setup transfers for the amount of sectors in the
-first chunk. This is indeed necessary now that we do not have a copy of
-the request to fool around with.
+--8323328-1303595027-1011532433=:7818
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="comment-fixes-2.5.3-pre2-A0"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.33.0201201413530.7818@localhost.localdomain>
+Content-Description: 
+Content-Disposition: attachment; filename="comment-fixes-2.5.3-pre2-A0"
 
-> Basically as the Block maintainer, you pointed out I am restricted to 4k
-> chunking in PIO.  You decided, in the interest of the block glue layer
-> into the driver, to force early end request per Linus's requirements to
-> return back every 4k completed to block regardless of the size of the
-> total data requested.
-
-Correct. The solution I did (which was one of the two I suggested) is
-still the cleanest, IMHO.
-
-> For the above two condition to be properly satisfied, I have to adjust
-> and apply one driver policy make the driver behave and give the desired
-> results.  We should note this will conform with future IDEMA proposals
-> being submitted to the T committees.
-
-I still don't see a description of why this would cause a lost
-interrupt. What is the flaw in my theory and/or code?
-
--- 
-Jens Axboe
-
+LS0tIGxpbnV4L2tlcm5lbC9zY2hlZC5jLm9yaWcJU3VuIEphbiAyMCAxMDo0
+MTozOSAyMDAyDQorKysgbGludXgva2VybmVsL3NjaGVkLmMJU3VuIEphbiAy
+MCAxMDo1NzoxNyAyMDAyDQpAQCAtMzcsMTEgKzM3LDcgQEANCiAgKg0KICAq
+IExvY2tpbmcgcnVsZTogdGhvc2UgcGxhY2VzIHRoYXQgd2FudCB0byBsb2Nr
+IG11bHRpcGxlIHJ1bnF1ZXVlcw0KICAqIChzdWNoIGFzIHRoZSBsb2FkIGJh
+bGFuY2luZyBvciB0aGUgcHJvY2VzcyBtaWdyYXRpb24gY29kZSksIGxvY2sN
+Ci0gKiBhY3F1aXJlIG9wZXJhdGlvbnMgbXVzdCBiZSBvcmRlcmVkIGJ5IHRo
+ZSBydW5xdWV1ZSdzIGNwdSBpZC4NCi0gKg0KLSAqIFRoZSBSVCBldmVudCBp
+ZCBpcyB1c2VkIHRvIGF2b2lkIGNhbGxpbmcgaW50byB0aGUgdGhlIFJUIHNj
+aGVkdWxlcg0KLSAqIGlmIHRoZXJlIGlzIGEgUlQgdGFzayBhY3RpdmUgaW4g
+YW4gU01QIHN5c3RlbSBidXQgdGhlcmUgaXMgbm8NCi0gKiBSVCBzY2hlZHVs
+aW5nIGFjdGl2aXR5IG90aGVyd2lzZS4NCisgKiBhY3F1aXJlIG9wZXJhdGlv
+bnMgbXVzdCBiZSBvcmRlcmVkIGJ5IGFzY2VuZGluZyAmcnVucXVldWUuDQog
+ICovDQogc3RydWN0IHJ1bnF1ZXVlIHsNCiAJc3BpbmxvY2tfdCBsb2NrOw0K
+QEAgLTUzOCw3ICs1NTMsNyBAQA0KIAkgKiBkbyBub3QgdXBkYXRlIGEgcHJv
+Y2VzcydzIHByaW9yaXR5IHVudGlsIGl0IGVpdGhlcg0KIAkgKiBnb2VzIHRv
+IHNsZWVwIG9yIHVzZXMgdXAgaXRzIHRpbWVzbGljZS4gVGhpcyBtYWtlcw0K
+IAkgKiBpdCBwb3NzaWJsZSBmb3IgaW50ZXJhY3RpdmUgdGFza3MgdG8gdXNl
+IHVwIHRoZWlyDQotCSAqIHRpbWVzbGljZXMgYXQgdGhlaXIgaGlnaCBwcmlv
+cml0eSBsZXZlbHMuDQorCSAqIHRpbWVzbGljZXMgYXQgdGhlaXIgaGlnaGVz
+dCBwcmlvcml0eSBsZXZlbHMuDQogCSAqLw0KIAlpZiAocC0+c2xlZXBfYXZn
+KQ0KIAkJcC0+c2xlZXBfYXZnLS07DQpAQCAtODUzLDcgKzgzOCw3IEBADQog
+CWlmIChhcnJheSkgew0KIAkJZW5xdWV1ZV90YXNrKHAsIGFycmF5KTsNCiAJ
+CS8qDQotCQkgKiBJZiB0aGUgdGFzayBpcyBydW5uYWJsZSBhbmQgbG93ZXJl
+ZCBpdHMgcHJpb3JpdHksDQorCQkgKiBJZiB0aGUgdGFzayBpcyBydW5uaW5n
+IGFuZCBsb3dlcmVkIGl0cyBwcmlvcml0eSwNCiAJCSAqIG9yIGluY3JlYXNl
+ZCBpdHMgcHJpb3JpdHkgdGhlbiByZXNjaGVkdWxlIGl0cyBDUFU6DQogCQkg
+Ki8NCiAJCWlmICgobmljZSA8IHAtPl9fbmljZSkgfHwNCg==
+--8323328-1303595027-1011532433=:7818--

@@ -1,57 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280822AbRK0Pmv>; Tue, 27 Nov 2001 10:42:51 -0500
+	id <S281239AbRK0Prt>; Tue, 27 Nov 2001 10:47:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280971AbRK0Pmi>; Tue, 27 Nov 2001 10:42:38 -0500
-Received: from otter.mbay.net ([206.40.79.2]:4624 "EHLO otter.mbay.net")
-	by vger.kernel.org with ESMTP id <S280822AbRK0PmZ> convert rfc822-to-8bit;
-	Tue, 27 Nov 2001 10:42:25 -0500
-From: John Alvord <jalvo@mbay.net>
-To: Sven Vermeulen <sven.vermeulen@rug.ac.be>
+	id <S281009AbRK0Prk>; Tue, 27 Nov 2001 10:47:40 -0500
+Received: from [195.66.192.167] ([195.66.192.167]:37132 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S280817AbRK0Prf>; Tue, 27 Nov 2001 10:47:35 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: vda <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: [PATCH] printk loglevel cleanup (again)
+Date: Tue, 27 Nov 2001 17:43:30 -0200
+X-Mailer: KMail [version 1.2]
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Release Policy [was: Linux 2.4.16  ]
-Date: Tue, 27 Nov 2001 07:42:13 -0800
-Message-ID: <10d70uc78emevo2h95o6ldhrdr2tgo656v@4ax.com>
-In-Reply-To: <Pine.LNX.4.40.0111261216500.88-100000@rc.priv.hereintown.net> <Pine.LNX.4.21.0111261351160.13786-100000@freak.distro.conectiva> <9tu0n2$sav$1@cesium.transmeta.com> <20011126192902.M5770@khan.acc.umu.se> <3C028A8D.8040503@zytor.com> <20011126161802.A8398@xi.linuxpower.cx> <20011127154323.B513@Zenith.starcenter>
-In-Reply-To: <20011127154323.B513@Zenith.starcenter>
-X-Mailer: Forte Agent 1.8/32.553
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+Message-Id: <01112717433007.00872@manta>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Nov 2001 15:43:23 +0100, Sven Vermeulen
-<sven.vermeulen@rug.ac.be> wrote:
+Since we are past 2.5.0 point, I hope this patch have better chances,
+at least for 2.5.x :-)
 
->On Mon, Nov 26, 2001 at 04:18:02PM -0500, Gregory Maxwell wrote:
->> Why not just disguard this sillyness of alphabetic characters in version
->> numbers... Just carry through the same structure used by major/minor:
->> I.e.
->> 
->> 2.0.39 < released 2.0.39
->> 2.0.39.1.1 < first development snapshot of the kernel which will eventually
->> 	     be 2.0.40
->> 2.0.39.1.2 < second
->> 2.0.39.1.n < Nth
->> 2.0.39.2.1 < first RC
->> 2.0.39.2.2 < second RC
->> 2.0.39.3.1 < opps! Development went too long and we had to break feature
->> 	     freeze to add important features.
->> 2.0.39.4.1 < Trying to stablize again
->> 2.0.39.4.2 < a few more bugs fixxed
->> 2.0.40	   < Looks like 2.0.39.4.2 got it right!
->
->Some people may find this more "logical", but imho most will find it
->confusing... It's already difficult to inform someone about the
->(number).(even|odd).(release)-(patch|pre-final) scheme. I'm more into 
->	-pre: added some features, bugfixes etc...
->	-fc : feature-freeze, only bugfixes
->and having some time (f.i. 48h) between the last -fc and the "real" release
->(without having a single addendum to the ChangeLog).
+Primary purpose of this patch is to make KERN_WARNING and
+KERN_INFO log levels closer to their original meaning.
+Today they are quite far from what was intended.
+Just look what kernel writes at the WARNING level
+each time you boot your box!
 
-The bug-fixes only would have to be tightly defined. All of
-2.4.0-2.4.15 were bug-fixes in some sense... 
+When I was making this patch I couldn't resist and fixed
+messed up tabs around affected printks, wrapped some
+lines longer than 80 columns, fixed some typos.
+My formatting preferences:
+* log entries are started with capital letters except for
+function/modules names in lowercase or acronyms (IDE etc)
+* Dot before \n is a waste of space
+* colon style: "Foo: blah blan" (not "Foo : blah" or "Foo: Blah")
+But I'm not a religious fanatic: it ok to disagree with me :-)
+You can see in the patch that I wasn't overly distracted
+by this decorative work.
 
-john
+I'm doing my best trying not to break working code.
+However, if you feel paranoid today you may remove
+any hunk of this patch you may deem suspicious
+and apply the rest - all these changes are independent
+of each other, you may even just ignore rejects
+if you are patching newer/older kernel!
 
+If you like this patch but have more interesting things to play with,
+you may do the following:
+* clear your logs
+* reconfigure syslogd to spew warnings to /var/log/syslog.warnings
+* reboot
+* mail boot time "warnings" which you think are not warnings but
+info only ("104-key keyboard detected"-type msgs) to me -
+I'll add fixes for those to this patch
+
+Go to: http://port.imtp.ilyichevsk.odessa.ua/linux/vda/
+--
+vda

@@ -1,69 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264141AbUDGSuf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Apr 2004 14:50:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264147AbUDGSuf
+	id S264116AbUDGS6i (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Apr 2004 14:58:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264151AbUDGS6i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Apr 2004 14:50:35 -0400
-Received: from fw.osdl.org ([65.172.181.6]:723 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264141AbUDGSud (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Apr 2004 14:50:33 -0400
-Date: Wed, 7 Apr 2004 11:52:47 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.5-mc2
-Message-Id: <20040407115247.701ae24a.akpm@osdl.org>
-In-Reply-To: <20040407183416.GC30117@holomorphy.com>
-References: <20040406221744.2bd7c7e4.akpm@osdl.org>
-	<20040407180430.GA30117@holomorphy.com>
-	<20040407180919.GB30117@holomorphy.com>
-	<20040407112738.23d07088.akpm@osdl.org>
-	<20040407183416.GC30117@holomorphy.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Wed, 7 Apr 2004 14:58:38 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:22403 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S264116AbUDGS6g (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Apr 2004 14:58:36 -0400
+Message-Id: <200404071858.i37IwDpr012972@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: root@chaos.analogic.com
+Cc: Sean Neakums <sneakums@zork.net>, Mohamed Aslan <mkernel@linuxmail.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Rewrite Kernel 
+In-Reply-To: Your message of "Wed, 07 Apr 2004 09:58:49 EDT."
+             <Pine.LNX.4.53.0404070957490.10718@chaos> 
+From: Valdis.Kletnieks@vt.edu
+References: <20040407125406.209FC39834A@ws5-1.us4.outblaze.com> <6un05oszfx.fsf@zork.zork.net>
+            <Pine.LNX.4.53.0404070957490.10718@chaos>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: multipart/signed; boundary="==_Exmh_-276879822P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Wed, 07 Apr 2004 14:58:13 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III <wli@holomorphy.com> wrote:
->
-> On Wed, Apr 07, 2004 at 11:27:38AM -0700, Andrew Morton wrote:
-> > I did it this way, relying on magical promotions:
-> > --- 25/fs/open.c~nfs-32bit-statfs-fix-warning-fix	2004-04-06 23:16:25.221685072 -0700
-> > +++ 25-akpm/fs/open.c	2004-04-06 23:16:25.225684464 -0700
-> > @@ -64,10 +64,10 @@ static int vfs_statfs_native(struct supe
-> >  			 * f_files and f_ffree may be -1; it's okay to stuff
-> >  			 * that into 32 bits
-> >  			 */
-> > -			if (st.f_files != 0xffffffffffffffffULL &&
-> > +			if (st.f_files != -1 &&
-> >  			    (st.f_files & 0xffffffff00000000ULL))
-> >  				return -EOVERFLOW;
-> > -			if (st.f_ffree != 0xffffffffffffffffULL &&
-> > +			if (st.f_ffree != -1 &&
-> >  			    (st.f_ffree & 0xffffffff00000000ULL))
-> 
-> Are you sure this works? IIRC -1 is promoted only afterward, yielding
-> on 64-bit (1UL << 32) - 1 instead of ~0UL, which was the issue with
-> init_task.cpus_allowed being initialized to -1 on 2.4.x. Maybe it's
-> better behaved in this instance (language lawyer territory).
+--==_Exmh_-276879822P
+Content-Type: text/plain; charset=us-ascii
 
+On Wed, 07 Apr 2004 09:58:49 EDT, "Richard B. Johnson" said:
 
-This says yes:
+> It's called a compiler and we already have several versions, none
+> optimum.
 
-main()
-{
-	unsigned long long ll = 0xffffffffffffffff;
+However, I do believe that all the currently supported compilers are able
+to beat out any programmers over the long run - we can use asm tricks
+to hand-tune very small sections of hot-spot code, but nobody can sustain
+that level of hand-optimization for 10K or 20K lines of code.
 
-	if (ll == -1)
-		printf("yes\n");
-}
+Anybody thinking of this is almost surely better off spending their time
+coming up with new and better algorithms.
 
-The compiler has ((int)-1) and then has to promote it to ULL.  If it does
-the conversion to unsigned before the conversion to long long, we lose. 
-But it doesn't, and I couldn't immediately find a spec which justfies this
-behaviour.
+--==_Exmh_-276879822P
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFAdE9FcC3lWbTT17ARAuUsAJ9GKYhgA0mPXn5Oe5J4sG+VSSkokwCeNXwm
+RfGmwhEkEdxHq5IfZLpiwbg=
+=E1/7
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-276879822P--

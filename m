@@ -1,51 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262623AbTCTVxB>; Thu, 20 Mar 2003 16:53:01 -0500
+	id <S262633AbTCTV42>; Thu, 20 Mar 2003 16:56:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262642AbTCTVxB>; Thu, 20 Mar 2003 16:53:01 -0500
-Received: from inet-mail3.oracle.com ([148.87.2.203]:43949 "EHLO
-	inet-mail3.oracle.com") by vger.kernel.org with ESMTP
-	id <S262623AbTCTVxA>; Thu, 20 Mar 2003 16:53:00 -0500
-Date: Thu, 20 Mar 2003 14:03:13 -0800
-From: Joel Becker <Joel.Becker@oracle.com>
-To: Joel Becker <Joel.Becker@oracle.com>
-Cc: Roman Zippel <zippel@linux-m68k.org>, Andries.Brouwer@cwi.nl,
-       akpm@digeo.com, andrey@eccentric.mae.cornell.edu,
-       linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: major/minor split
-Message-ID: <20030320220313.GQ2835@ca-server1.us.oracle.com>
-References: <UTC200303192140.h2JLeF924104.aeb@smtp.cwi.nl> <Pine.LNX.4.44.0303202146100.12110-100000@serv> <20030320214740.GP2835@ca-server1.us.oracle.com>
+	id <S262637AbTCTV42>; Thu, 20 Mar 2003 16:56:28 -0500
+Received: from packet.digeo.com ([12.110.80.53]:65197 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S262633AbTCTV4Y>;
+	Thu, 20 Mar 2003 16:56:24 -0500
+Date: Thu, 20 Mar 2003 16:12:30 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: ext3-users@redhat.com, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [Patch] ext3_journal_stop inode access
+Message-Id: <20030320161230.3c4e0f47.akpm@digeo.com>
+In-Reply-To: <1048196202.2491.603.camel@sisko.scot.redhat.com>
+References: <1048185825.2491.386.camel@sisko.scot.redhat.com>
+	<20030320131523.6c56d10f.akpm@digeo.com>
+	<1048196202.2491.603.camel@sisko.scot.redhat.com>
+X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030320214740.GP2835@ca-server1.us.oracle.com>
-X-Burt-Line: Trees are cool.
-User-Agent: Mutt/1.5.3i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 20 Mar 2003 22:07:13.0539 (UTC) FILETIME=[0FAD7D30:01C2EF2D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 20, 2003 at 01:47:41PM -0800, Joel Becker wrote:
-> 	Actually, no.  mknod(8), ls(1), and friends still assume struct
-> stat with u16.
+"Stephen C. Tweedie" <sct@redhat.com> wrote:
+>
+> Well, there's still the
+> 
+> 	if (err)
+> 		__ext3_std_error(inode->i_sb, where, err);
+> 
+> case in ext3_journal_stop() to worry about
 
-	It's been pointed out to me that this isn't clear.  What I mean
-is that mknod(8), ls(1), and other programs assume dev_t mappings that
-are usually based upon the MAJOR() macro and friends.  This means that
-any modification of the dev_t arrangement may require source fixes and
-may not, depending on how smart MAJOR() is, but will absolutely require
-a new compile of the software to pick up the new MAJOR() macro.
-	Peter is right, we only want to do this once.
+We already have that.
 
-Joel
+int __ext3_journal_stop(const char *where, handle_t *handle)
+{
+	struct super_block *sb;
+	int err;
+	int rc;
 
--- 
+	sb = handle->h_transaction->t_journal->j_private;
+	err = handle->h_err;
+	rc = journal_stop(handle);
 
-"There are some experiences in life which should not be demanded
- twice from any man, and one of them is listening to the Brahms Requiem."
-        - George Bernard Shaw
+	sb->s_dirt = 1;
+	if (!err)
+		err = rc;
+	if (err)
+		__ext3_std_error(sb, where, err);
+	return err;
+}
 
-Joel Becker
-Senior Member of Technical Staff
-Oracle Corporation
-E-mail: joel.becker@oracle.com
-Phone: (650) 506-8127
+> , so we still need it; and I'd
+> much rather not hack this via j_private, when what we're doing at this
+> point is most definitely a fs-specific, not journal-related, operation.
+
+I don't think it's a hack at all.  ext3 owns the journal and there is plenty
+of precedent for putting owner-private things into owned objects.
+
+But I'm not particularly fussed either way - it will only be 100-200 bytes of
+code saved.
+
+> I was wondering why we've never seen this on 2.4, even with slab
+> poisoning enabled.  But I think the vulnerability exists on 2.4 too, so
+> yes, we ought to keep the two in sync.
+
+It could be due to differences in inode reclaim.  If 2.4 sees an inode with
+attached pages it will skip it.  2.5 will instead detach the pages and free
+the inode.
+
+And writepage() doesn't get used much in 2.4.
+
+Plus this bug was hit on a preemptible kernel where the timing windows are
+much wider.
+
+> Well, the intent of the s_dirt was to force a call to ext3_write_super
+> when the fs was dirty, back before the days when we had a sync_fs()
+> method at all.  Now that we have the latter, it sounds like we should
+> actually just drop the line which sets s_dirt in ext3_journal_stop
+> entirely, because sync will always call the new sync_fs which will do
+> the commit that we need.
+
+OK.
+
+> We still have the error handling path in ext3_journal_stop so we can't
+> avoid having to find the sb, so _some_ rejigging is still needed.
+
+That is available from the handle.  (And via
+ext3_journal_current_handle()->j_private, even).
+
+The journal and the superblock have a definite one-to-one relationship - I think the
+backpointer makes sense.  But whatever - I'll let you flip that coin.
+

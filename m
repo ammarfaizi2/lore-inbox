@@ -1,53 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270803AbTHAOw1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Aug 2003 10:52:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275227AbTHAOw1
+	id S270797AbTHAOtr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Aug 2003 10:49:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270803AbTHAOtr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Aug 2003 10:52:27 -0400
-Received: from mailhost.tue.nl ([131.155.2.7]:14599 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id S270803AbTHAOw0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Aug 2003 10:52:26 -0400
-Date: Fri, 1 Aug 2003 16:52:23 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Jurgen Kramer <gtm.kramer@inter.nl.net>
+	Fri, 1 Aug 2003 10:49:47 -0400
+Received: from wing.tritech.co.jp ([202.33.12.153]:17072 "HELO
+	wing.tritech.co.jp") by vger.kernel.org with SMTP id S270797AbTHAOtq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Aug 2003 10:49:46 -0400
+Date: Fri, 01 Aug 2003 23:49:44 +0900 (JST)
+Message-Id: <20030801.234944.27784642.ooyama@tritech.co.jp>
+To: axboe@suse.de
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test1/2: keyboard funnies in textmode
-Message-ID: <20030801145223.GA3308@win.tue.nl>
-References: <1059747945.2809.2.camel@paragon.slim>
+Subject: Re: RAW or BLK in 2.4.21
+From: ooyama eiichi <ooyama@tritech.co.jp>
+In-Reply-To: <20030801102733.GO7920@suse.de>
+References: <20030801.192419.68158364.ooyama@tritech.co.jp>
+	<20030801102733.GO7920@suse.de>
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1059747945.2809.2.camel@paragon.slim>
-User-Agent: Mutt/1.3.25i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 01, 2003 at 04:25:45PM +0200, Jurgen Kramer wrote:
+Thanks Axboe.
+hmm, it is that i have to look at the design again.
 
-> With both 2.6.0-test1 and test2 I am unable to use
-> de pipe (|) key in textmode (??). When in X it works again.
-> I have tested this on 2 machines. One machine is a laptop with Japanese
-> keyboard the other a regular PC with wireless Logitech USB keyboard.
+eiichi
+
+> On Fri, Aug 01 2003, ooyama eiichi wrote:
+> > Hi.
+> > I am developping a block device kernel module in 2.4 series.
+> > And i want to make a distinction between raw I/O and block I/O,
+> > in the request function i wrote for my module.
+> > But i could not find the way.
+> > 
+> > my_request_fn(request_queue_t *q, int rw, struct buffer_head * bh)
+> > 
+> > Is it possible ?
+> > I would be happy if someone give me a hint about this.
 > 
-> All the other keys seem to work properly...anyone else with this strange
-> problem?
-
-Can you give some details?
-
-- When did it last work?
-- What does it mean: "am unable to use"?
-(Is the key ignored? Does the system crash? Do you get different keycodes?)
-- What are the boot messages about the keyboard?
-
-The pipe key is the same as the backslash key (say, on a US keyboard).
-And there is some interesting confusion between Yen and Backslash
-(since ASCII and JIS-Roman coincide, except in the yen and overbar
-positions, where ASCII has backslash and tilde).
-So, I am not surprised by weird things on a Japanese keyboard.
-
-Do you use scancode Set 3?
-
-Andries
-
+> No, it is not possible to tell the difference inside your request_fn.
+> 
+> -- 
+> Jens Axboe
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

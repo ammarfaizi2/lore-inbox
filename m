@@ -1,54 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317115AbSF1LZh>; Fri, 28 Jun 2002 07:25:37 -0400
+	id <S317140AbSF1Leq>; Fri, 28 Jun 2002 07:34:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317140AbSF1LZg>; Fri, 28 Jun 2002 07:25:36 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:48681 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S317115AbSF1LZg>; Fri, 28 Jun 2002 07:25:36 -0400
-Date: Fri, 28 Jun 2002 07:27:57 -0400
-From: Doug Ledford <dledford@redhat.com>
-To: Uwe Ziegler <aquahasi@compuserve.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Problem: SCSI (initio 9100u) and kernel 2.5.24
-Message-ID: <20020628072757.B23266@redhat.com>
-Mail-Followup-To: Uwe Ziegler <aquahasi@compuserve.de>,
-	linux-kernel@vger.kernel.org
-References: <001501c21e96$2096b2f0$1601a8c0@surfstation>
+	id <S317142AbSF1Lep>; Fri, 28 Jun 2002 07:34:45 -0400
+Received: from elin.scali.no ([62.70.89.10]:30220 "EHLO elin.scali.no")
+	by vger.kernel.org with ESMTP id <S317140AbSF1Leo>;
+	Fri, 28 Jun 2002 07:34:44 -0400
+Subject: Re: Maximum core file size in Linux
+From: Terje Eggestad <terje.eggestad@scali.com>
+To: Amrith Kumar <akumar@netezza.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <GMEPJBOPOAKOBODMIKMGMEMHCAAA.akumar@netezza.com>
+References: <GMEPJBOPOAKOBODMIKMGMEMHCAAA.akumar@netezza.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 28 Jun 2002 13:36:55 +0200
+Message-Id: <1025264218.19968.156.camel@pc-16.office.scali.no>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <001501c21e96$2096b2f0$1601a8c0@surfstation>; from aquahasi@compuserve.de on Fri, Jun 28, 2002 at 01:22:44PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 28, 2002 at 01:22:44PM +0200, Uwe Ziegler wrote:
-> hello,
-> i tried to compile the new 2.5.24 kernel with modular scsi-support for
-> initio 9100u on my suse 7.3 system
+This is likely a gdb issue. Unless you're carefull to use 64 bit
+functions of *seek*() and ftell(), your only able to access the first
+2GB of a file. gdb may have issues here.
+
+I don't recall the elf header but you may want to check the 32 bit elf
+format and see if is even capable to be used with core file that exceed
+2GB. Said in anothre way there *could* be elf-header offsets that is 32
+bit and try pointing beyond 2GB.  
+
+Terje
+
+On tor, 2002-06-27 at 14:30, Amrith Kumar wrote:
+> Appears that there's an implicit 2Gb limit on the size of core files because
+> it's being created without O_LARGEFILE.
 > 
-> ......
-> # ini9100u.c : 111 : # error Please convert me to
-> Documentation/DMA-mapping.txt
-> .......
+> A small change in fs/exec.c (do_coredump) gets me past the limit and I can
+> now generate a core file in excess of 2Gb but then gdb complains that the
+> core dump is too large ...
 > 
-> This problem is too difficult for me, but i´m intrested in the solution,
-> when this message becomes a tread.
-
-I'm trying to finalise my changes to the initio a100 driver.  This one is 
-next on my list.  I'll probably have a first cut of a patch for this 
-within a few days, maybe sometime early next week.
-
-I haven't spent a lot of time looking at it yet, but if it's as close to 
-the a100 driver as I think it is, I may end up just merging both of the 
-drivers into one "drives all initio cards" driver.  At first glance, these 
-two drivers appear to damn near be duplicates of each other...
-
+> Looks like there's a broader underlying issue here that would involve
+> changes to other places than I had thought would be required.
+> 
+> Anyone else out there run into a similar problem ? And if so, could you let
+> me know what other things I may run into ... Also, is this something that
+> has been fixed in a forthcoming release ?
+> 
+> Thanks,
+> 
+> /a
+> 
+> --
+> Amrith Kumar
+> akumar@netezza.com
+> 508-665-6835
+> 
+> #include <std_disclaimer.h>
+> This e-mail message is for the sole use of the intended recipient(s) and may
+> contain Netezza Corporation confidential and privileged information.  Any
+> unauthorized review, use, disclosure, or distribution is prohibited.  If you
+> are not the intended recipient, please contact the sender by reply e-mail
+> and destroy all copies of the original message.
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 -- 
-  Doug Ledford <dledford@redhat.com>     919-754-3700 x44233
-         Red Hat, Inc. 
-         1801 Varsity Dr.
-         Raleigh, NC 27606
-  
+_________________________________________________________________________
+
+Terje Eggestad                  mailto:terje.eggestad@scali.no
+Scali Scalable Linux Systems    http://www.scali.com
+
+Olaf Helsets Vei 6              tel:    +47 22 62 89 61 (OFFICE)
+P.O.Box 150, Oppsal                     +47 975 31 574  (MOBILE)
+N-0619 Oslo                     fax:    +47 22 62 89 51
+NORWAY            
+_________________________________________________________________________
+

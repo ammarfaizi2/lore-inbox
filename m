@@ -1,36 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132570AbRDHQdn>; Sun, 8 Apr 2001 12:33:43 -0400
+	id <S132572AbRDHRBB>; Sun, 8 Apr 2001 13:01:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132571AbRDHQdd>; Sun, 8 Apr 2001 12:33:33 -0400
-Received: from usw-sf-sshgate.sourceforge.net ([216.136.171.253]:11252 "EHLO
-	usw-sf-netmisc.sourceforge.net") by vger.kernel.org with ESMTP
-	id <S132570AbRDHQdZ>; Sun, 8 Apr 2001 12:33:25 -0400
-To: linux-kernel@vger.kernel.org
-Subject: kgdb for 2.4.3 kernels
-Message-Id: <E14mI7w-0007T7-00@usw-pr-shell1.sourceforge.net>
-From: "Amit S. Kale" <akale@users.sourceforge.net>
-Date: Sun, 08 Apr 2001 09:33:24 -0700
+	id <S132575AbRDHRAv>; Sun, 8 Apr 2001 13:00:51 -0400
+Received: from minus.inr.ac.ru ([193.233.7.97]:16146 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S132572AbRDHRAm>;
+	Sun, 8 Apr 2001 13:00:42 -0400
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200104081700.VAA15209@ms2.inr.ac.ru>
+Subject: Re: new queuing discipline
+To: kernel@sanitas.cz (Oldrich Kepka)
+Date: Sun, 8 Apr 2001 21:00:25 +0400 (MSK DST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <001c01c0c00f$7ce070a0$0200a8c0@kulich.cz> from "Oldrich Kepka" at Apr 8, 1 01:45:00 pm
+X-Mailer: ELM [version 2.4 PL24]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hello!
 
-OOPS! I sent a wrong mail earlier under the same subject.
+> packet in the queue. No other conditions i found. But i need repeatedly test
+> the top packet in the queue.
+> 
+> How to accomplish it?
 
-Linux kernel source level debugger, kgdb for linux kernel 2.4.3
-is available from http://kgdb.sourceforge.net/
+Look into sch_tbf.c for example. Hint: timer.
 
-This version has following improvements over kgdb for 2.4.2 kernels:
-1. Changed #ifdef __SMP__ statements to #ifdef CONFIG_SMP. 
-2. Removed EXTRAVERSION=-kgdb line from the Makefile. This had
-caused change in the name of the kernel. It was inconvenient in some
-setups. If name of the kernel was already changed, the patch would fail
-at this line.
-
-Regards.
---
-Amit S. Kale
-<akale@users.sourceforge.net>
-Linux kernel source level debugger    http://kgdb.sourceforge.net/
-Translation filesystem                http://trfs.sourceforge.net/
+Alexey

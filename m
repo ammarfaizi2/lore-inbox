@@ -1,57 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267491AbUHaIpw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267528AbUHaIr5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267491AbUHaIpw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 04:45:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267487AbUHaIpw
+	id S267528AbUHaIr5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 04:47:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267527AbUHaIr4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 04:45:52 -0400
-Received: from holomorphy.com ([207.189.100.168]:20155 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S267491AbUHaIpu (ORCPT
+	Tue, 31 Aug 2004 04:47:56 -0400
+Received: from mail.gmx.de ([213.165.64.20]:11928 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S267518AbUHaIrk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 04:45:50 -0400
-Date: Tue, 31 Aug 2004 01:44:58 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Eric Valette <eric.valette@free.fr>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: wait_on_bit_lock() must test_and_set_bit(), not test_bit()
-Message-ID: <20040831084458.GM5492@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Eric Valette <eric.valette@free.fr>, Andrew Morton <akpm@osdl.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <41343136.6080208@free.fr> <20040831080916.GK5492@holomorphy.com> <20040831081456.GL5492@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040831081456.GL5492@holomorphy.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+	Tue, 31 Aug 2004 04:47:40 -0400
+X-Authenticated: #4512188
+Message-ID: <41343B2A.80909@gmx.de>
+Date: Tue, 31 Aug 2004 10:47:38 +0200
+From: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040815)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+CC: "John W. Linville" <linville@tuxdriver.com>, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org, jgarzik@pobox.com
+Subject: Re: [patch] libata: add ioctls to support SMART
+References: <200408301531.i7UFVBg29089@ra.tuxdriver.com> <41336824.1040206@gmx.de>
+In-Reply-To: <41336824.1040206@gmx.de>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 31, 2004 at 01:09:16AM -0700, William Lee Irwin III wrote:
->> I very distinctly recall compiling and booting these...
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-On Tue, Aug 31, 2004 at 01:14:56AM -0700, William Lee Irwin III wrote:
-> Index: mm2-2.6.9-rc1/kernel/wait.c
+Prakash K. Cheemplavam wrote:
+| John W. Linville wrote:
+| | Support for HDIO_DRIVE_CMD and HDIO_DRIVE_TASK in libata.  Useful for
+| | supporting SMART w/ unmodified smartctl and smartd userland binaries.
+~ > I just tried to give it a go with libata from 2.6.9-rc1. I had to fix
+| one rejects but the patching seemed to go fine beside that. Nevertheless
+| after a boot with patched libata I get:
+|
+| smartctl -a /dev/sda
+[snip]
 
-Incremental atop the fastcall fix:
+| Device does not support SMART
 
-wait_on_bit_lock() needs to test_and_set_bit() in the fastpath, not
-test_bit().
+Just wanted
 
+Just wanted to say that smartctl -a -d ata /dev/sda works, as John
+Linville and now Bruce aLlen suggested to try.
 
--- wli
+Cheers,
 
-Index: mm2-2.6.9-rc1/include/linux/wait.h
-===================================================================
---- mm2-2.6.9-rc1.orig/include/linux/wait.h	2004-08-31 01:37:55.507900064 -0700
-+++ mm2-2.6.9-rc1/include/linux/wait.h	2004-08-31 01:38:34.670946376 -0700
-@@ -388,7 +388,7 @@
- 	DEFINE_WAIT_BIT(q, word, bit);
- 	wait_queue_head_t *wqh;
- 
--	if (!test_bit(bit, word))
-+	if (!test_and_set_bit(bit, word))
- 		return 0;
- 
- 	wqh = bit_waitqueue(word, bit);
+Prakash
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFBNDsqxU2n/+9+t5gRAinMAJ0W6sfKD4LV7uv6X9XUxWeng2dWjQCfVolo
+CXg7ylDp8eb6SI+C4GZz/Bk=
+=N/WZ
+-----END PGP SIGNATURE-----

@@ -1,54 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267863AbUH1AWI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267852AbUH1AW3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267863AbUH1AWI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 20:22:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267852AbUH1AWH
+	id S267852AbUH1AW3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 20:22:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267872AbUH1AW2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 20:22:07 -0400
-Received: from anchor-post-32.mail.demon.net ([194.217.242.90]:14342 "EHLO
-	anchor-post-32.mail.demon.net") by vger.kernel.org with ESMTP
-	id S267863AbUH1ATH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 20:19:07 -0400
-Message-ID: <412FCF75.7070903@superbug.demon.co.uk>
-Date: Sat, 28 Aug 2004 01:19:01 +0100
-From: James Courtier-Dutton <James@superbug.demon.co.uk>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040812)
-X-Accept-Language: en-us, en
+	Fri, 27 Aug 2004 20:22:28 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:9115 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S267867AbUH1ATY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Aug 2004 20:19:24 -0400
+Date: Fri, 27 Aug 2004 17:19:11 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: Andi Kleen <ak@suse.de>
+cc: akpm@osdl.org, William Lee Irwin III <wli@holomorphy.com>,
+       "David S. Miller" <davem@redhat.com>, raybry@sgi.com, ak@muc.de,
+       benh@kernel.crashing.org, manfred@colorfullife.com,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
+       vrajesh@umich.edu, hugh@veritas.com
+Subject: Re: page fault scalability patch final : i386 tested, x86_64 support
+ added
+In-Reply-To: <20040827233602.GB1024@wotan.suse.de>
+Message-ID: <Pine.LNX.4.58.0408271717400.15597@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.58.0408151552280.3370@schroedinger.engr.sgi.com>
+ <20040815165827.0c0c8844.davem@redhat.com> <Pine.LNX.4.58.0408151703580.3751@schroedinger.engr.sgi.com>
+ <20040815185644.24ecb247.davem@redhat.com> <Pine.LNX.4.58.0408151924250.4480@schroedinger.engr.sgi.com>
+ <20040816143903.GY11200@holomorphy.com>
+ <B6E8046E1E28D34EB815A11AC8CA3129027B679F@mtv-atc-605e--n.corp.sgi.com>
+ <B6E8046E1E28D34EB815A11AC8CA3129027B67A9@mtv-atc-605e--n.corp.sgi.com>
+ <B6E8046E1E28D34EB815A11AC8CA3129027B67B4@mtv-atc-605e--n.corp.sgi.com>
+ <Pine.LNX.4.58.0408271616001.14712@schroedinger.engr.sgi.com>
+ <20040827233602.GB1024@wotan.suse.de>
 MIME-Version: 1.0
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-CC: Rob van Nieuwkerk <robn@berrymount.nl>,
-       Wouter Van Hemel <wouter-kernel@fort-knox.rave.org>, prakashkc@gmx.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: kernel 2.6.8 pwc patches and counterpatches
-References: <33193.151.37.215.244.1093530681.squirrel@webmail.azzurra.org> <Pine.LNX.4.61.0408271536340.578@senta.theria.org> <20040828011818.2d5f282c.robn@berrymount.nl> <200408280303.43166.vda@port.imtp.ilyichevsk.odessa.ua>
-In-Reply-To: <200408280303.43166.vda@port.imtp.ilyichevsk.odessa.ua>
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Denis Vlasenko wrote:
->>
->>	-----------------------------------------------------------
->>	The author of the pwc driver has publicly stated that this
->>	NDA has expired more than 1 year ago !!!
->>	-----------------------------------------------------------
-> 
-> 
-> "NDA expired" == "information is not a secret anymore" ?
-> I'm not sure, IANAL...
-> --
-> vda
-> 
+That is still 2^(32+12) = 2^44 = 16TB.
 
-That all depends on the terms of the NDA.
-To me, if an NDA expires, it can mean 2 things:
-1) All information covered by the NDA has to be returned, and any 
-information that cannot be returned, (I.E. Remembered in someone's 
-brain.) must be kept secret forever, or until the information is made 
-public by someone else.
-2) The information covered in the NDA is no longer secret, and can be 
-discosed to the public.
+On Sat, 28 Aug 2004, Andi Kleen wrote:
 
+> > Index: linux-2.6.9-rc1/include/linux/sched.h
+> > ===================================================================
+> > --- linux-2.6.9-rc1.orig/include/linux/sched.h	2004-08-25 10:50:12.534021000 -0700
+> > +++ linux-2.6.9-rc1/include/linux/sched.h	2004-08-27 12:14:09.564008624 -0700
+> > @@ -197,9 +197,10 @@
+> >  	pgd_t * pgd;
+> >  	atomic_t mm_users;			/* How many users with user space? */
+> >  	atomic_t mm_count;			/* How many references to "struct mm_struct" (users count as 1) */
+> > +	atomic_t mm_rss;			/* Number of pages used by this mm struct */
+>
+> atomic_t is normally 32bit, even on a 64bit arch.  This will limit the max
+> memory size per process to 2^(32+PAGE_SHIFT). I don't think that's a good idea.
+>
+> On some architectures it used to be 24bit only even, but I think that
+> has been fixed.
+>
+> I think you need atomic64_t
+>
+> -Andi
+>

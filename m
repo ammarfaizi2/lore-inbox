@@ -1,30 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261354AbSIZPC1>; Thu, 26 Sep 2002 11:02:27 -0400
+	id <S261356AbSIZPCq>; Thu, 26 Sep 2002 11:02:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261356AbSIZPC1>; Thu, 26 Sep 2002 11:02:27 -0400
-Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:19193
+	id <S261357AbSIZPCq>; Thu, 26 Sep 2002 11:02:46 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:19961
 	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261354AbSIZPC0>; Thu, 26 Sep 2002 11:02:26 -0400
-Subject: Re: [BUG] apm resume hangs on IBM T22 with 2.4.19 (harddrive sleeps
-	forever)
+	id <S261356AbSIZPCo>; Thu, 26 Sep 2002 11:02:44 -0400
+Subject: Re: [PATCH] fix ide-iops for big endian archs
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Karel Gardas <kgardas@objectsecurity.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.43.0209251253050.652-200000@thinkpad.objectsecurity.cz>
-References: <Pine.LNX.4.43.0209251253050.652-200000@thinkpad.objectsecurity.cz>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Andre Hedrick <andre@linux-ide.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Jens Axboe <axboe@suse.de>
+In-Reply-To: <20020925224428.5676@192.168.4.1>
+References: <Pine.LNX.4.33.0209251120590.1817-100000@penguin.transmeta.com>
+	 <20020925224428.5676@192.168.4.1>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 26 Sep 2002 16:12:43 +0100
-Message-Id: <1033053163.11848.35.camel@irongate.swansea.linux.org.uk>
+Date: 26 Sep 2002 16:11:51 +0100
+Message-Id: <1033053111.1269.33.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I have problem with resume from suspend on IBM T22 with kernel 2.4.19
-> patched with rmap-14a and usagi-20020916. Actually the problem is that OS
-> resume well from suspend (it prints some messages to console for example
+On Wed, 2002-09-25 at 23:44, Benjamin Herrenschmidt wrote:
+> properly on BE, further cleanup of the iops is pending, I'm waiting
+> for Alan own experiments before I push again my own that remove
+> all "p" iops and all of the {IN,OUT}{BYTE,WORD,LONG} macros.
 
-Make sure your bios and other firmware are reasonably modern
+Thats true in current -ac. I killed the _p crap. Nobody uses it, the
+switching for handling it is bogus anyway. If anyone has such broken
+code they can implement ide-iops-speak-slowly-after-the-tone.c
+
 

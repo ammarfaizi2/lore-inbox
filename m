@@ -1,51 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293010AbSB1BsR>; Wed, 27 Feb 2002 20:48:17 -0500
+	id <S293029AbSB1Bnz>; Wed, 27 Feb 2002 20:43:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293123AbSB1Brf>; Wed, 27 Feb 2002 20:47:35 -0500
-Received: from chicken.mail.pas.earthlink.net ([207.217.120.114]:19963 "EHLO
-	chicken.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S293122AbSB1BrR>; Wed, 27 Feb 2002 20:47:17 -0500
-From: "Karl" <ktatgenhorst@earthlink.net>
-To: "Erik Mouw" <J.A.K.Mouw@its.tudelft.nl>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Kernel module ethics.
-Date: Wed, 27 Feb 2002 20:03:31 -0500
-Message-ID: <NDBBJHDEALBBOIDJGBNNCEOFCFAA.ktatgenhorst@earthlink.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-In-Reply-To: <20020228005152.GB8858@arthur.ubicom.tudelft.nl>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-Importance: Normal
+	id <S293122AbSB1BnO>; Wed, 27 Feb 2002 20:43:14 -0500
+Received: from [202.145.157.10] ([202.145.157.10]:26120 "EHLO
+	Thunder.fastfame.com.tw") by vger.kernel.org with ESMTP
+	id <S293121AbSB1Bml>; Wed, 27 Feb 2002 20:42:41 -0500
+From: <rs@rn.com>
+To: linux-kernel@vger.kernel.org
+Subject: Waste Review
+Date: Wed, 27 Feb 2002 19:31:36
+Message-Id: <673.587866.856462@rn.com>
+Reply-To: rs@rn.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>A couple of months ago Larry McVoy gave this excellent advice:
 
- >> If you really want to know where you stand, it'll cost you around
- >> $15K and that, in my opinion, is fine. If it isn't worth $15K to
- >> protect your code then it is worth so little to you that there really
- >> is no good reason not to just GPL it from the start.
+Start Saving On Waste Disposal NOW!!!
+
+Any business can save regardless of size
+
+Pay a onetime fee to save $100's to $1,000 monthly
+
+Can now to see how.  (913) 725-9281
+
+Who Saves:
+
+Car washes - Dry Cleaners - Retail Hardware Stores - Motels - Healthcare Clinics - Restaurants - Service Stations - Manufacturing - Distribution Centers - Grocery Stores
+
+These retail stores save evety month. You can to.
+
+Ace Hardware Store:
+Prior cost	$333.52	
+New cost	$182.00 (same amount of service)
+
+Savings	        $151.52  45%
+Onetime fee -     39.95
+
+Net savings     $111.57  return on fee paid in 2 weeks
 
 
->>Erik
+Grocery Store in small market:
+Prior cost	$680.00	
+New cost	$235.00 (increase in service)
 
-  Hello Erik,
+Savings	        $445.00  65%
 
-    I hope this is not to ignorant a question: From your post I do not
-understand what costs around $15k (yes generally I understand protecting
-source) but specifically, is this for patent, copyright or some strange
-relicensing fee. Not that I am interested in that line of action, but just
-the ambiguity piqued my interest. I would appreciate any level of
-elaboration.
+Onetime fee -     39.95
 
+Net savings     $405.05  return on fee paid in 3 days
 
-Thanks much,
+One time fee of $39.95 no contract required
 
-Karl Tatgenhorst
+Anywhere in the United States 
+
+Program objectives:
+1.	Work with your current waste vendor
+2.	Reduce heavy truck traffic on your property
+3.	Reduce unsightly dumpster overflow  
+ 
+Program includes:
+1.	Review current practice
+2.	Survey equipment
+3.	Site specific program recommendations 
+
+Call Now To See How
+
+Waste Cost Reduction Systems
+      (913) 725-9281
+
 

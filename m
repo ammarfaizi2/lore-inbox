@@ -1,51 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266725AbUIVTPq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266756AbUIVTRh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266725AbUIVTPq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Sep 2004 15:15:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266749AbUIVTPq
+	id S266756AbUIVTRh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Sep 2004 15:17:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266749AbUIVTRh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Sep 2004 15:15:46 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:54023 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S266725AbUIVTPo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Sep 2004 15:15:44 -0400
-Date: Wed, 22 Sep 2004 20:15:41 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/3] MMC compatibility fix - GO_IDLE
-Message-ID: <20040922201541.G2347@flint.arm.linux.org.uk>
-Mail-Followup-To: Pierre Ossman <drzeus-list@drzeus.cx>,
-	linux-kernel@vger.kernel.org
-References: <414C065A.7000602@drzeus.cx> <20040922151735.D2347@flint.arm.linux.org.uk> <4151BA3F.8040406@drzeus.cx>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <4151BA3F.8040406@drzeus.cx>; from drzeus-list@drzeus.cx on Wed, Sep 22, 2004 at 07:45:35PM +0200
+	Wed, 22 Sep 2004 15:17:37 -0400
+Received: from dsl254-100-205.nyc1.dsl.speakeasy.net ([216.254.100.205]:62136
+	"EHLO memeplex.com") by vger.kernel.org with ESMTP id S266756AbUIVTRZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Sep 2004 15:17:25 -0400
+From: "Andrew A." <aathan-linux-kernel-1542@cloakmail.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Consisten kernel hang during heavy TCP connection handling load
+Date: Wed, 22 Sep 2004 15:17:15 -0400
+Message-ID: <NFBBICMEBHKIKEFBPLMCOEPOIHAA.aathan-linux-kernel-1542@cloakmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 22, 2004 at 07:45:35PM +0200, Pierre Ossman wrote:
-> Russell King wrote:
-> >How about this patch?
->
-> Looks ok. You sure we don't need to put all cards into an idle state 
-> before issuing a new SEND_OP_COND?
 
-We aren't sending that to the existing cards - they are still in
-whatever state they were when they were previously detected.  In
-addition, we aren't actually changing or detecting the operational
-conditions, we're merely informing the new cards about the existing
-setup.
 
-> Can a rescan be done while a card is in a selected state?
+I have written a pair of applications the server side of which consistently causes my Linux Fedora Core 2 system to become
+completely unresponsive; all consoles hang, and it no longer services network connections.
 
-Yes - any cards not already in idle state will ignore the command
-as intended.
+The applications engage in the rapid opening and closing of TCP connections.  The server side is multithreaded (# threads approx 5).
+It services the connections by dumping data into them from a file.  The client side reads no data.  The server then receives EAGAIN
+from send(...,MSG_NOWAIT) calls, and issues 5ms sleep before resending on any particular TCP connection.  It loops up to 20 times
+waiting for the the connection to become unblocked.  The applications are running within GDB, and threads *are* created/destroyed
+during the process.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+I will change the application to use select() rather than sleeping on a blocked pipe.  However, I don't think it's a "good thing"
+that the machine hangs so completely.
+
+I looked for tools to help catch the kernel before it goes la-la (assuming it's the kernel going la-la), but got
+frustrated/ran-out-of-time.  E.g., lkcd seems defunct.
+
+If pointed in the right direction, I would be happy to perform further forensics after re-creating the hang.  I am also in the
+process of upgrading the kernel to see if that resolves the problem.
+
+Andrew Athan
+
+
+
+
+uname -a:
+
+Linux bbox.memeplex.com 2.6.6-1.435 #1 Mon Jun 14 09:09:07 EDT 2004 i686 i686 i386 GNU/Linux
+
+lsmod:
+
+Module                  Size  Used by
+snd_mixer_oss          13824  2
+snd_via82xx            20644  3
+snd_ac97_codec         54788  1 snd_via82xx
+snd_pcm                69256  1 snd_via82xx
+snd_timer              17284  1 snd_pcm
+snd_page_alloc          8072  2 snd_via82xx,snd_pcm
+gameport                3328  1 snd_via82xx
+snd_mpu401_uart         4864  1 snd_via82xx
+snd_rawmidi            17444  1 snd_mpu401_uart
+snd_seq_device          6152  1 snd_rawmidi
+snd                    39396  10
+snd_mixer_oss,snd_via82xx,snd_ac97_codec,snd_pcm,snd_timer,snd_mpu401_uart,snd_rawmidi,snd_seq_device
+soundcore               6112  3 snd
+ipt_mark                1408  2
+ipt_MARK                1664  14
+cls_u32                 5508  2
+cls_fw                  3200  2
+sch_sfq                 4352  9
+sch_htb                18048  1
+iptable_mangle          2176  1
+ip_tables              13568  3 ipt_mark,ipt_MARK,iptable_mangle
+nfsd                  159488  9
+exportfs                4224  1 nfsd
+lockd                  47816  2 nfsd
+parport_pc             19392  1
+lp                      8236  0
+parport                29640  2 parport_pc,lp
+autofs4                12932  0
+sunrpc                109924  19 nfsd,lockd
+via_rhine              15752  0
+mii                     3584  1 via_rhine
+floppy                 47440  0
+sg                     27680  0
+scsi_mod               91984  1 sg
+microcode               4768  0
+dm_mod                 32800  0
+ehci_hcd               22916  0
+uhci_hcd               24472  0
+button                  4632  0
+battery                 6924  0
+asus_acpi               8984  0
+ac                      3340  0
+r128                   85796  2
+ipv6                  184672  18
+ext3                  103656  2
+jbd                    40728  1 ext3
+
+

@@ -1,54 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262213AbTIWSZA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Sep 2003 14:25:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262217AbTIWSZA
+	id S263411AbTIWShw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Sep 2003 14:37:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263423AbTIWShv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Sep 2003 14:25:00 -0400
-Received: from kiuru.kpnet.fi ([193.184.122.21]:36546 "EHLO kiuru.kpnet.fi")
-	by vger.kernel.org with ESMTP id S262213AbTIWSY5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Sep 2003 14:24:57 -0400
-Subject: Re: Spam/LKML
-From: Markus =?ISO-8859-1?Q?H=E4stbacka?= <midian@ihme.org>
-To: Justin Piszcz <jpiszcz@lucidpixels.com>
-Cc: Kernel Mailinglist <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0309231318450.11291@p500>
-References: <Pine.LNX.4.58.0309231318450.11291@p500>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-q3Hh5IJF7VZ0VXlLdbQR"
-Message-Id: <1064341489.12580.4.camel@midux>
+	Tue, 23 Sep 2003 14:37:51 -0400
+Received: from 217-124-19-167.dialup.nuria.telefonica-data.net ([217.124.19.167]:14734
+	"EHLO dardhal.mired.net") by vger.kernel.org with ESMTP
+	id S263411AbTIWShp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Sep 2003 14:37:45 -0400
+Date: Tue, 23 Sep 2003 20:37:41 +0200
+From: Jose Luis Domingo Lopez <linux-kernel@24x7linux.com>
+To: Linux Kernel Maillist <linux-kernel@vger.kernel.org>
+Cc: Rafael Osuna <rosuna@wol.es>
+Subject: Re: Ok, booting the kernel
+Message-ID: <20030923183741.GA7119@localhost>
+Mail-Followup-To: Linux Kernel Maillist <linux-kernel@vger.kernel.org>,
+	Rafael Osuna <rosuna@wol.es>
+References: <200309231859.51228.rosuna@wol.es>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Tue, 23 Sep 2003 21:24:49 +0300
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200309231859.51228.rosuna@wol.es>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tuesday, 23 September 2003, at 18:59:50 +0200,
+Rafael Osuna wrote:
 
---=-q3Hh5IJF7VZ0VXlLdbQR
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: quoted-printable
+> I have my kernel compiled and working fine but I have had to chose the 386 
+> option for the processor type. I have a Pentium 4 but when I compile the 
+> kernel changing the processor type to "Pentium 4" (I don't change any other 
+> parameter) and boot the computer with that kernel it hangs at the "Ok, 
+> booting the kernel" step.
+> 
+> Has someone seen something like this?. Could you help me?
+> 
+Yes, if your are talking about kernel 2.6.0-testX there are already some 
+million reports from people who forgot to include support for virtual
+terminal and/or vga text console on their kernels.
 
-I've noticed this too. I get around 100 mails/day of the new "security
-update". And then I get 50 more which tell's me that some message could
-not be delivered, which is of course a lie. None of the mail's contain
-"To: ...snip..." and I think this happens because my mail adress is in
-LKML.
+If your problem is different, your kernel version another one, and have
+more details about your problem just ask, but before do your homework
+and search the list archives and Google.
 
-Regards,
-----
-Markus H=E4stbacka <midian@ihme.org>
+Hope this helps.
 
---=-q3Hh5IJF7VZ0VXlLdbQR
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQA/cI/x3+NhIWS1JHARAp8/AKCmZYuKIUc2LpvYpX+segwsv0Q+mwCdGvWJ
-MCXuQfEp+auIv70R0qpt7a0=
-=+qon
------END PGP SIGNATURE-----
-
---=-q3Hh5IJF7VZ0VXlLdbQR--
-
+-- 
+Jose Luis Domingo Lopez
+Linux Registered User #189436     Debian Linux Sid (Linux 2.6.0-test5-mm3)

@@ -1,36 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283204AbSAIOTI>; Wed, 9 Jan 2002 09:19:08 -0500
+	id <S282967AbSAIOVS>; Wed, 9 Jan 2002 09:21:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286758AbSAIOS7>; Wed, 9 Jan 2002 09:18:59 -0500
-Received: from [203.162.56.202] ([203.162.56.202]:30472 "HELO
-	mail.vnsecurity.net") by vger.kernel.org with SMTP
-	id <S282843AbSAIOSq>; Wed, 9 Jan 2002 09:18:46 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: MrChuoi <MrChuoi@yahoo.com>
-Reply-To: MrChuoi@yahoo.com
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Subject: Re: [BUG] Error reading multiple large files
-Date: Wed, 9 Jan 2002 21:25:24 +0700
-X-Mailer: KMail [version 1.3.2]
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.30.0201091454060.6953-100000@mustard.heime.net>
-In-Reply-To: <Pine.LNX.4.30.0201091454060.6953-100000@mustard.heime.net>
+	id <S285828AbSAIOVI>; Wed, 9 Jan 2002 09:21:08 -0500
+Received: from mustard.heime.net ([194.234.65.222]:47820 "EHLO
+	mustard.heime.net") by vger.kernel.org with ESMTP
+	id <S282967AbSAIOU7>; Wed, 9 Jan 2002 09:20:59 -0500
+Date: Wed, 9 Jan 2002 15:20:29 +0100 (CET)
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+To: Anton Tinchev <atl@top.bg>
+cc: <uwe.teichmann@oracle.com>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Q: I/O Problems with Linux 2.4.10 SMP on Tyan Tiger S2460 ?
+In-Reply-To: <3C3CDC2B.1B8B5C35@top.bg>
+Message-ID: <Pine.LNX.4.30.0201091519230.7021-100000@mustard.heime.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020109141833.749934E4FD@mail.vnsecurity.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 09 January 2002 08:56 pm, Roy Sigurd Karlsbakk wrote:
-> > you really should try akpm's "[patch, CFT] improved disk read latency"
-> > patch.  it sounds almost perfect for your application.
->
-> hi
->
-> It seemed like it helped first, but after a while, some 99 processes went
-> Defunct, and locked. After this, the total 'bi' as reported from vmstat
-> went down to ~ 900kB per sec
->
-> What should I do? Run Windoze?
-Windoze can do it better ? :-\
+> It may be poor md (soft raid) performance under AMD processors
+
+Is this only true for checksumming? (RAID 4/5) If not - what can make AMD
+RAID slower?
+
+--
+Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
+
+Computers are like air conditioners.
+They stop working when you open Windows.
+

@@ -1,68 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262512AbTCIOIx>; Sun, 9 Mar 2003 09:08:53 -0500
+	id <S262508AbTCINv4>; Sun, 9 Mar 2003 08:51:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262513AbTCIOIx>; Sun, 9 Mar 2003 09:08:53 -0500
-Received: from diale022.ppp.lrz-muenchen.de ([129.187.28.22]:37042 "EHLO
-	nicole.de.interearth.com") by vger.kernel.org with ESMTP
-	id <S262512AbTCIOIv>; Sun, 9 Mar 2003 09:08:51 -0500
-Subject: Re: [BK PATCH] klibc for 2.5.64 - try 2
-From: Daniel Egger <degger@fhm.edu>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-In-Reply-To: <m1adg4kbjn.fsf@frodo.biederman.org>
-References: <Pine.LNX.4.44.0303072121180.5042-100000@serv>
-	 <Pine.LNX.4.44.0303071459260.1309-100000@home.transmeta.com>
-	 <20030307233916.Q17492@flint.arm.linux.org.uk>
-	 <m1d6l2lih9.fsf@frodo.biederman.org>
-	 <20030308100359.A27153@flint.arm.linux.org.uk>
-	 <m18yvpluw7.fsf@frodo.biederman.org>
-	 <20030308161309.B1896@flint.arm.linux.org.uk>
-	 <m1vfytkbsk.fsf@frodo.biederman.org> <1047209545.4102.3.camel@sonja>
-	 <m1adg4kbjn.fsf@frodo.biederman.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-gSVoDYotkMf+24yQWFOP"
-Organization: 
-Message-Id: <1047219550.4102.6.camel@sonja>
+	id <S262509AbTCINv4>; Sun, 9 Mar 2003 08:51:56 -0500
+Received: from mail2.mail.iol.ie ([194.125.2.193]:42469 "EHLO
+	mail2.mail.iol.ie") by vger.kernel.org with ESMTP
+	id <S262508AbTCINvz>; Sun, 9 Mar 2003 08:51:55 -0500
+Date: Sun, 9 Mar 2003 14:02:17 +0000
+From: Kenn Humborg <kenn@linux.ie>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linus Torvalds <torvalds@transmeta.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH, resend] fs/proc/base.c: Expose file descriptors' f_pos
+Message-ID: <20030309140217.A13734@excalibur.research.wombat.ie>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 09 Mar 2003 15:19:10 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-gSVoDYotkMf+24yQWFOP
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+The attached patch sets the "size" for the /proc/PID/fd/N entries
+to the current file position (file->f_pos).
 
-Am Son, 2003-03-09 um 12.46 schrieb Eric W. Biederman:
+In proc_lookupfd(), I fill inode->i_size with file->f_pos.  Then
+in pid_fd_revalidate(), I refresh it again.
 
-> I use etherboot.  It is small and has not problems acting as network
-> bootstrap program if you are stuck with EFI.
+I would find this useful to be able to tell, for example, how far
+a large outgoing SMTP transfer has got (so I can avoid rebooting
+if it's almost finished), or how far a customer download from our
+FTP server has got to.
 
-Sorry for being unclear here; I'm neither using IA64 nor EFI. This is
-plain etherboot resp. PXE/etherboot on ia32.
+Was there any particular reason for fixing the "size" of these
+files at 64?  Are there any tools that depend on this?
 
-> Etherboot can load to any address < 4GB and can jump to a 32bit entry
-> point.  It's not rocket science or magic just good open source code.
+Patch is against 2.5.63, but should also apply to 2.5.64.
 
-Maybe etherboot isn't the culprit here, but mknbi won't let me
-create bigger tagged boot kernels.
+Later,
+Kenn
 
---=20
-Servus,
-       Daniel
 
---=-gSVoDYotkMf+24yQWFOP
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA+a01dchlzsq9KoIYRAv5oAKDgx2BEnCWtHSSwpPv77bqY6svhCgCgtnTT
-mGFktcpgugUPqwbZma+92H8=
-=LfgO
------END PGP SIGNATURE-----
-
---=-gSVoDYotkMf+24yQWFOP--
-
+--- src/fs/proc/base.c	Tue Feb 18 00:25:22 2003
++++ base.c	Mon Mar  3 19:55:15 2003
+@@ -819,8 +819,11 @@
+ 		atomic_inc(&files->count);
+ 	task_unlock(task);
+ 	if (files) {
++		struct file *f;
+ 		read_lock(&files->file_lock);
+-		if (fcheck_files(files, fd)) {
++		f = fcheck_files(files, fd);
++		if (f) {
++			dentry->d_inode->i_size = f->f_pos;
+ 			read_unlock(&files->file_lock);
+ 			put_files_struct(files);
+ 			return 1;
+@@ -926,7 +929,7 @@
+ 	read_unlock(&files->file_lock);
+ 	put_files_struct(files);
+ 	inode->i_op = &proc_pid_link_inode_operations;
+-	inode->i_size = 64;
++	inode->i_size = file->f_pos;
+ 	ei->op.proc_get_link = proc_fd_link;
+ 	dentry->d_op = &pid_fd_dentry_operations;
+ 	d_add(dentry, inode);

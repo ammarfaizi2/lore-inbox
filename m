@@ -1,107 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129546AbQKEBbz>; Sat, 4 Nov 2000 20:31:55 -0500
+	id <S129030AbQKEBh5>; Sat, 4 Nov 2000 20:37:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129247AbQKEBbp>; Sat, 4 Nov 2000 20:31:45 -0500
-Received: from horus.its.uow.edu.au ([130.130.68.25]:45749 "EHLO
-	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S129034AbQKEBbd>; Sat, 4 Nov 2000 20:31:33 -0500
-Message-ID: <3A04B7D7.6B47B503@uow.edu.au>
-Date: Sun, 05 Nov 2000 12:28:55 +1100
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test8 i586)
-X-Accept-Language: en
+	id <S129247AbQKEBhr>; Sat, 4 Nov 2000 20:37:47 -0500
+Received: from thalia.fm.intel.com ([132.233.247.11]:63760 "EHLO
+	thalia.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S129030AbQKEBhi>; Sat, 4 Nov 2000 20:37:38 -0500
+Message-ID: <D5E932F578EBD111AC3F00A0C96B1E6F07DBDC2C@orsmsx31.jf.intel.com>
+From: "Dunlap, Randy" <randy.dunlap@intel.com>
+To: "'Jeff Garzik'" <jgarzik@mandrakesoft.com>,
+        Russell King <rmk@arm.linux.org.uk>
+Cc: "'David Woodhouse'" <dwmw2@infradead.org>, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org
+Subject: RE: USB init order dependencies.
+Date: Sat, 4 Nov 2000 17:36:51 -0800 
 MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        "Hen, Shmulik" <shmulik.hen@intel.com>,
-        "'LKML'" <linux-kernel@vger.kernel.org>,
-        "'LNML'" <linux-net@vger.kernel.org>
-Subject: Re: Locking Between User Context and Soft IRQs in 2.4.0
-In-Reply-To: <07E6E3B8C072D211AC4100A0C9C5758302B27077@hasmsx52.iil.intel.com> <3A03DABD.AF4B9AD5@mandrakesoft.com> <20001104111909.A11500@gruyere.muc.suse.de> <3A042D04.5B3A7946@mandrakesoft.com> <20001104175659.A15475@gruyere.muc.suse.de> <3A044256.D8CD063C@mandrakesoft.com>,
-		<3A044256.D8CD063C@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Sat, Nov 04, 2000 at 12:07:34PM -0500 <20001105013809.B21900@gruyere.muc.suse.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
+While Jeff and I basically agree on the short-term
+solution (if one is still needed, altho I'm not aware of
+any init order problems in USB in 2.4.0-test10), my
+recollection of Linus's preference (without
+looking it up) is to remove the calls from init/main.c
+and to use __initcalls.
+
+~Randy
+
+> -----Original Message-----
+> From: Jeff Garzik [mailto:jgarzik@mandrakesoft.com]
+> Sent: Saturday, November 04, 2000 12:25 AM
+> To: Russell King
+> Cc: Dunlap, Randy; 'David Woodhouse'; torvalds@transmeta.com;
+> linux-kernel@vger.kernel.org
+> Subject: Re: USB init order dependencies.
 > 
-> On Sat, Nov 04, 2000 at 12:07:34PM -0500, Jeff Garzik wrote:
-> > Andi Kleen wrote:
-> > > All the MOD_INC/DEC_USE_COUNT are done inside the modules themselves. There
-> > > is nothing that would a driver prevent from being unloaded on a different
-> > > CPU while it is already executing in ->open but has not yet executed the add
-> > > yet or after it has executed the _DEC but it is still running in module code
-> > > Normally the windows are pretty small, but very long running interrupt
-> > > on one CPU hitting exactly in the wrong moment can change that.
-> >
-> > Module unload calls unregister_netdev, which grabs rtnl_lock.
-> > dev->open runs under rtnl_lock.
-> >
-> > Given this, how can the driver be unloaded if dev->open is running?
 > 
-> It does not help, because when the semaphore synchronizes it is already
-> too late -- free_module already did the zero module count check and
-> nothing is going to stop it from unloading.
+> Russell King wrote:
+> > 
+> > Dunlap, Randy writes:
+> > > David is entitled to his opinion (IMO).
+> > > And I dislike this patch, as he and I have already discussed.
+> > >
+> > > Short of fixing the link order, I like Jeff's suggestion
+> > > better (if it actually works, that is):  go back to the
+> > > way it was a few months ago by calling usb_init()
+> > > from init/main.c and making the module_init(usb_init);
+> > > in usb.c conditional (#ifdef MODULE).
+> > 
+> > However, that breaks the OHCI driver on ARM.  Unless we're 
+> going to start
+> > putting init calls back into init/main.c so that we can 
+> guarantee the order
+> > of init calls which Linus will not like, you will end up 
+> with a lot of ARM
+> > guys complaining.
+> > 
+> > Linus, your opinion would be helpful at this point.
+> 
+> Back when some of the initial USB initcall stuff started appearing,
+> there were similar discussions, similar problems, and similar
+> solutions.  I was also wondering how fbdev (which needs to give you a
+> console ASAP) would work with initcalls, etc.  At the time (~6 months
+> ago?), Linus' opinion was basically "if the link order 
+> hacking starts to
+> get ugly, just put it in init/main.c"  So, Randy really should be
+> calling the quoted text above "Linus' suggestion" ;-)
+> 
+> Putting a call into init/main.c isn't a long term solution, but it
+> should get us there for 2.4.x...  init/main.c is also the 
+> best solution
+> for ugly cross-directory link order dependencies.  I would 
+> say the link
+> order of foo.o's in linux/Makefile is the most delicate/fragile of all
+> the Makefiles...  touching linux/Makefile link order this 
+> close to 2.4.0
+> is asking for trouble.  Compared to that, adding a few lines to
+> init/main.c isn't so bad.
+> 
+> IMHO,
+> 
+> 	Jeff
 
-aaarrrggh!!!
-
-          CPU0                              CPU1
-
-        rtnl_lock()
-         dev_ifsioc()
-          dev_change_flags()
-           dev_open();
-            dev->open();
-            vortex_open()
-                                        sys_delete_module()
-                                        if (!__MOD_IN_USE)
-                                         free_module()
-                                          mod->cleanup()
-                                          vortex_cleanup()
-                                           pci_unregister_driver()
-            [ time passes ]                 drv->remove();
-                                            vortex_remove_one()
-                                             unregister_netdev()
-                                              unregister_netdevice()
-                                              rtnl_lock()        /* blocks */
-            ...
-            MOD_INC_USE_COUNT;
-            ...
-        rtnl_unlock()
-                                              ...
-                                         module_unmap();        /* Not good */
-
-
-We can't even fix this with a lock_kernel wrapped around
-the dev->owner stuff in dev_open(), because the netdevice's
-open() can sleep.
-
-<subliminalmessage>prumpf's patch</sumliminalmessage>
-
-Perhaps the best thing to do here is to create a system-wide
-semaphore for module unloading. So we do a down()/up()
-in sys_delete_module() and do this in dev_open:
-
-        /*
-         *      Call device private open method
-         */
-
-        down(&mod_unload_sem);                  /* sync with sys_delete_module() */
-        if (dev->owner == 0) {
-                if (dev->open)
-                        ret = dev->open(dev);
-        } else {
-                if (try_inc_mod_count(dev->owner)) {
-                        if (dev->open) {
-                                if ((ret = dev->open(dev)) != 0)
-                                        __MOD_DEC_USE_COUNT(dev->owner);
-                        }
-                } else
-                        ret = -ENODEV;
-        }
-        up(&mod_unload_sem);
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

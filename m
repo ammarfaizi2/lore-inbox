@@ -1,73 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289032AbSANU3e>; Mon, 14 Jan 2002 15:29:34 -0500
+	id <S289024AbSANUbF>; Mon, 14 Jan 2002 15:31:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289024AbSANU2U>; Mon, 14 Jan 2002 15:28:20 -0500
-Received: from h24-71-103-168.ss.shawcable.net ([24.71.103.168]:63752 "HELO
-	discworld.dyndns.org") by vger.kernel.org with SMTP
-	id <S289022AbSANU01>; Mon, 14 Jan 2002 15:26:27 -0500
-Date: Mon, 14 Jan 2002 14:26:05 -0600
-From: Charles Cazabon <linux@discworld.dyndns.org>
-To: linux-kernel@vger.kernel.org
-Cc: "Eric S. Raymond" <esr@thyrsus.com>, arjan@fenrus.demon.nl
-Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery -- the elegant solution)
-Message-ID: <20020114142605.A4702@twoflower.internal.do>
-In-Reply-To: <20020114132618.G14747@thyrsus.com> <m16QCNJ-000OVeC@amadeus.home.nl> <20020114145035.E17522@thyrsus.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020114145035.E17522@thyrsus.com>; from esr@thyrsus.com on Mon, Jan 14, 2002 at 02:50:35PM -0500
+	id <S288992AbSANU3l>; Mon, 14 Jan 2002 15:29:41 -0500
+Received: from ns1.system-techniques.com ([199.33.245.254]:56707 "EHLO
+	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
+	id <S289018AbSANU3L>; Mon, 14 Jan 2002 15:29:11 -0500
+Date: Mon, 14 Jan 2002 15:28:59 -0500 (EST)
+From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Hardwired drivers are going away?
+In-Reply-To: <E16QCvI-0002f8-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.44.0201141526080.3238-100000@filesrv1.baby-dragons.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric S. Raymond <esr@thyrsus.com> wrote:
-> arjan@fenrus.demon.nl <arjan@fenrus.demon.nl>:
-> > Of course there are other settings that do have impact (CPU type mostly,
-> > maybe memory layout) but other than that... distros already ship several
-> > binary versions (last I counted Red Hat ships 11 or so with RHL72) to
-> > account for CPU type and amount etc.
-> 
-> OK.  Scenario #2:
 
-Hmm.  This scenario seems totally bogus.
+	Hello Alan ,
 
-[...]
-> Some time back he set up a Linux box for Joe Foonly over at Joe's
-> Garage.  Joe calls him back and says "Hey, kid, I gotta problem here.
-> Lot of hits on that website and the machine's getting sluggish when
-> I'm doing my books with GnuCash on it at the same time.
-[...]
-> the box is
-> an older machine, a 586-based PCI/ISA hybrid from around 1995, and
-> only has 32MiB of memory in it.
-[...]
+On Mon, 14 Jan 2002, Alan Cox wrote:
+> > 	No,  But it is -mine- !  If I can not have complete control over
+> > 	my system due to the way the Fathers of this operating system
+> > 	are taking it I will have no choice but to use another or be stuck
+> > 	at a non-maintained version .  Now mind you I LIKE LINUX !
+> Right but you aren't going to go and use autoconfig except maybe to get
+> an initial Configuration to frob with ?
+	Ok , Now I am confused .  I guess it's not hard to do .
+	Is the Kernel headed toward Soft drivers or not ?
 
-Hmmm, 32MiB of RAM on a 586-class machine, and its doing useful work as both a
-webserver and running GnuCash?  Care to construct something more real-world?
+	I get my initial Config (say from autoconf.) how will that keep
+	the Drivers in the Kernel ?  Tia ,  JimL
 
-Even at that:
+       +------------------------------------------------------------------+
+       | James   W.   Laferriere | System    Techniques | Give me VMS     |
+       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
+       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
+       +------------------------------------------------------------------+
 
-> Melvin thinks this is no problem, he'll start by building a new kernel
-> with some stuff trimmed out to leave more RAM for userspace.  But...
-> uh oh!  He nuked that source tree because free disk was getting kind
-> of tight, and the .config went with it.  Looks like Melvin's going to
-> have to reconstruct his configuration by hand.
-> 
-> "Crap." Melvin thinks.  "I don't remember what kind of network card I
-> compiled in.  Am I going to have to open this puppy up just to eyeball
-> the hardware?"
-
-Uh, no.  Try `lsmod`.
-
-> Autoconfigure saves the day.
-
-Autoconfigure not necessary; read the output of lsmod, or read modules.conf.
-Problem solved.
-
-Charles
--- 
------------------------------------------------------------------------
-Charles Cazabon                            <linux@discworld.dyndns.org>
-GPL'ed software available at:  http://www.qcc.sk.ca/~charlesc/software/
------------------------------------------------------------------------

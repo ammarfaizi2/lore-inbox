@@ -1,53 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130013AbRB1AWk>; Tue, 27 Feb 2001 19:22:40 -0500
+	id <S130008AbRB1A1L>; Tue, 27 Feb 2001 19:27:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130008AbRB1AWb>; Tue, 27 Feb 2001 19:22:31 -0500
-Received: from [199.239.160.155] ([199.239.160.155]:56078 "EHLO
-	tenchi.datarithm.net") by vger.kernel.org with ESMTP
-	id <S130004AbRB1AWY>; Tue, 27 Feb 2001 19:22:24 -0500
-Date: Tue, 27 Feb 2001 16:22:22 -0800
-From: Robert Read <rread@datarithm.net>
-To: linux-kernel@vger.kernel.org
-Subject: [patch] set kiobuf io_count once, instead of increment
-Message-ID: <20010227162222.A6389@tenchi.datarithm.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
+	id <S130016AbRB1A1C>; Tue, 27 Feb 2001 19:27:02 -0500
+Received: from raven.toyota.com ([63.87.74.200]:38667 "EHLO raven.toyota.com")
+	by vger.kernel.org with ESMTP id <S130008AbRB1A0l>;
+	Tue, 27 Feb 2001 19:26:41 -0500
+Message-ID: <3A9C45BE.B17DEEA6@toyota.com>
+Date: Tue, 27 Feb 2001 16:26:38 -0800
+From: J Sloan <jjs@toyota.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Manfred H. Winter" <mahowi@gmx.net>
+CC: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [2.4.2-ac5] X (4.0.1) crashes
+In-Reply-To: <20010227150830.A739@marvin.mahowi.de>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Currently in brw_kiovec, iobuf->io_count is being incremented as each
-bh is submitted, and decremented in the bh->b_end_io().  This means
-io_count can go to zero before all the bhs have been submitted,
-especially during a large request. This causes the end_kio_request()
-to be called before all of the io is complete.  
+"Manfred H. Winter" wrote:
 
-This suggested patch against 2.4.2 sets io_count to the total amount
-before the bhs are submitted, although there is probably a better way
-to determine the io_count than this.
+> I'm going back to vanilla 2.4.2 for now. Is there another way to get
+> loop to work?
 
-robert
+Working fine here:
 
-diff -ru linux/fs/buffer.c linux-rm/fs/buffer.c
---- linux/fs/buffer.c	Mon Jan 15 12:42:32 2001
-+++ linux-rm/fs/buffer.c	Tue Jan 30 11:41:57 2001
-@@ -2085,6 +2085,7 @@
- 		offset = iobuf->offset;
- 		length = iobuf->length;
- 		iobuf->errno = 0;
-+		atomic_set(&iobuf->io_count, length/size);
- 		
- 		for (pageind = 0; pageind < iobuf->nr_pages; pageind++) {
- 			map  = iobuf->maplist[pageind];
-@@ -2119,8 +2120,6 @@
- 				bh[bhind++] = tmp;
- 				length -= size;
- 				offset += size;
--
--				atomic_inc(&iobuf->io_count);
- 
- 				submit_bh(rw, tmp);
- 				/* 
+2.4.2 + Axboe's loop patch + Morton's low latency patch
+
+jjs
+

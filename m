@@ -1,48 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264211AbUFCB1K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265429AbUFCBm4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264211AbUFCB1K (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 21:27:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264238AbUFCB1K
+	id S265429AbUFCBm4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 21:42:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265431AbUFCBm4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 21:27:10 -0400
-Received: from cantor.suse.de ([195.135.220.2]:31406 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S264211AbUFCB1I (ORCPT
+	Wed, 2 Jun 2004 21:42:56 -0400
+Received: from dsl017-049-110.sfo4.dsl.speakeasy.net ([69.17.49.110]:2688 "EHLO
+	jm.kir.nu") by vger.kernel.org with ESMTP id S265429AbUFCBmy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 21:27:08 -0400
-Date: Thu, 3 Jun 2004 03:27:04 +0200
-From: Andi Kleen <ak@suse.de>
-To: Joel Becker <Joel.Becker@oracle.com>
-Cc: arjanv@redhat.com, torvalds@osdl.org, mingo@elte.hu,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, suresh.b.siddha@intel.com,
-       jun.nakajima@intel.com
-Subject: Re: [announce] [patch] NX (No eXecute) support for x86,
- 2.6.7-rc2-bk2
-Message-Id: <20040603032704.166b2197.ak@suse.de>
-In-Reply-To: <20040603011253.GD5953@ca-server1.us.oracle.com>
-References: <20040602205025.GA21555@elte.hu>
-	<Pine.LNX.4.58.0406021411030.3403@ppc970.osdl.org>
-	<20040602211714.GB29687@devserv.devel.redhat.com>
-	<20040603011253.GD5953@ca-server1.us.oracle.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 2 Jun 2004 21:42:54 -0400
+Date: Wed, 2 Jun 2004 18:40:00 -0700
+From: Jouni Malinen <jkmaline@cc.hut.fi>
+To: Netdev <netdev@oss.sgi.com>, hostap@shmoo.com, prism54-devel@prism54.org,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Jean Tourrilhes <jt@bougret.hpl.hp.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Prism54 WPA Support - wpa_supplicant - Linux general wpa support
+Message-ID: <20040603014000.GA7548@jm.kir.nu>
+Mail-Followup-To: Netdev <netdev@oss.sgi.com>, hostap@shmoo.com,
+	prism54-devel@prism54.org, Jeff Garzik <jgarzik@pobox.com>,
+	Jean Tourrilhes <jt@bougret.hpl.hp.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20040602071449.GJ10723@ruslug.rutgers.edu> <20040602132313.GB7341@jm.kir.nu> <20040602155542.GC24822@ruslug.rutgers.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040602155542.GC24822@ruslug.rutgers.edu>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 Jun 2004 18:12:53 -0700
-Joel Becker <Joel.Becker@oracle.com> wrote:
+On Wed, Jun 02, 2004 at 11:55:42AM -0400, Luis R. Rodriguez wrote:
 
-> On Wed, Jun 02, 2004 at 11:17:14PM +0200, Arjan van de Ven wrote:
-> > On Wed, Jun 02, 2004 at 02:13:13PM -0700, Linus Torvalds wrote:
-> > > Just out of interest - how many legacy apps are broken by this? I assume 
-> > > it's a non-zero number, but wouldn't mind to be happily surprised.
-> > 
-> > based on execshield in FC1.. about zero.
-> 
-> 	Doesn't Sun's JDK break here?
+> If you find the patches that'd be great :). I'll see what I can do about
+> fixing up extended MLME. I'll keep you posted. 
 
-Nope, since it doesn't have the ELF header bit set that says it can support
-that.
+I now know where the wpa_supplicant part is and once I find the matching
+patch for Prism54 driver, I'll send them both to you.
 
--Andi
+> I have yet to review most of the wpa_supplicant code so I cannot say for
+> sure yet what I think should go into the kernel. I e-mailed most lists
+> mainly to get comments from others who have poked at wpa_supplicant
+> and/or are looking into adding WPA client support into their drivers.
+> I just wanted to make sure we were heading in the right direction since
+> I only see 2 drivers that are currently using wpa_supplicant.
+
+You may have seen only two drivers, but actually I'm already aware of at
+least seven drivers that work with wpa_supplicant.. All of these are not
+yet available publicly, though.
+
+I believe that the current design for wpa_supplicant is quite alright
+for most cases. I would like to give some more thought for the roaming
+part (i.e., consider giving more control for the driver), but this
+should be doable in a backward compatible way without breaking support
+with existing code.
+
+-- 
+Jouni Malinen                                            PGP id EFC895FA

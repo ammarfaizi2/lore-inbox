@@ -1,48 +1,138 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273946AbRIRV2l>; Tue, 18 Sep 2001 17:28:41 -0400
+	id <S273940AbRIRVaB>; Tue, 18 Sep 2001 17:30:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273944AbRIRV2c>; Tue, 18 Sep 2001 17:28:32 -0400
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:43178 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S273939AbRIRV2Z>; Tue, 18 Sep 2001 17:28:25 -0400
-Date: Tue, 18 Sep 2001 14:22:44 -0700
-From: Brian Beattie <bbeattie@sequent.com>
-To: Ingo Molnar <mingo@elte.hu>, linux-raid@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [patch] multipath RAID personality, 2.4.10-pre9
-Message-ID: <20010918142241.A2866@dyn9-47-16-223.des.beaverton.ibm.com>
-In-Reply-To: <20010916150806.E1541@turbolinux.com> <Pine.LNX.4.33.0109170113010.3960-100000@localhost.localdomain> <20010918203946.A12814@wyvern>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010918203946.A12814@wyvern>; from adrian.bridgett@iname.com on Tue, Sep 18, 2001 at 08:39:46PM +0100
+	id <S273942AbRIRV3w>; Tue, 18 Sep 2001 17:29:52 -0400
+Received: from saga18.Stanford.EDU ([171.64.15.148]:13484 "EHLO
+	saga18.Stanford.EDU") by vger.kernel.org with ESMTP
+	id <S273940AbRIRV3n>; Tue, 18 Sep 2001 17:29:43 -0400
+Date: Tue, 18 Sep 2001 14:29:57 -0700 (PDT)
+From: Ken Ashcraft <kash@stanford.edu>
+To: <linux-kernel@vger.kernel.org>
+cc: <mc@cs.Stanford.EDU>
+Subject: [CHECKER] two probable security holes
+Message-ID: <Pine.GSO.4.31.0109181355560.15933-100000@saga18.Stanford.EDU>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 18, 2001 at 08:39:46PM +0100, Adrian Bridgett wrote:
-> On Mon, Sep 17, 2001 at 01:16:56 +0200 (+0000), Ingo Molnar wrote:
-> [snip]
-> > > [...] Also, it is my understanding that with some multipath hardware,
-> > > if you read from the "backup" path it will kill access to the primary
-> > > path (this can be used when more than one system access shared disk
-> > > for failover).  As a result, we should always read from the "primary"
-> > > path for each disk unless there is an error.
-> > 
-> > yes, and this is being done currently, only the primary path is used.
-> 
-> Do you have plans to change this?  I know that the SDD software for AIX load
-> balances between paths (and I think EMC's Powerpaths do for AIX too), DMP
-> (from Veritas) for Solaris doesn't.
-> 
+Hi all,
 
-I have been working with the version of this code included in RH 7.1.
-I have code that does round robin routing.  I'm working on cleaning it
-up and plan to post shortly.
+I'm starting work on a new checker that looks at user pointers and makes
+sure that they're treated safely.  It should catch things such as format
+string holes, derefrencing a user pointer, and passing a user pointer to a
+trusting function (i.e. the destination of copy_from_user).  Here are a
+couple of the reports so far.  I just want to verify that these are holes
+and that I'm on the right track.  Also, if you have any ideas please send
+them my way.
 
--- 
-Brian Beattie
-IBM Linux Technology Center - MPIO/SAN
-bbeattie@sequent.com
-503.578.5899  Des2-3C-5
+Thanks,
+Ken Ashcraft
+
+Watch ifr.ifr_name.
+
+2.4.9-ac10/drivers/net/tun.c:
+static int tun_chr_ioctl(struct inode *inode, struct file *file,
+                         unsigned int cmd, unsigned long arg)
+{
+        struct tun_struct *tun = (struct tun_struct *)file->private_data;
+
+        if (cmd == TUNSETIFF && !tun) {
+                struct ifreq ifr;
+                int err;
+Start--->
+                if (copy_from_user(&ifr, (void *)arg, sizeof(ifr)))
+                        return -EFAULT;
+                ifr.ifr_name[IFNAMSIZ-1] = '\0';
+
+                rtnl_lock();
+                err = tun_set_iff(file, &ifr);
+                rtnl_unlock();
+
+        ...
+}
+
+static int tun_set_iff(struct file *file, struct ifreq *ifr)
+{
+        ...
+
+                if (*ifr->ifr_name)
+                        name = ifr->ifr_name;
+
+                if ((err = dev_alloc_name(&tun->dev, name)) < 0)
+                        goto failed;
+        ...
+}
+
+2.4.9-ac10/net/core/dev.c:
+int dev_alloc_name(struct net_device *dev, const char *name)
+{
+        int i;
+        char buf[32];
+
+        /*
+         *      If you need over 100 please also fix the algorithm...
+         */
+        for (i = 0; i < 100; i++) {
+Error--->
+	       sprintf(buf,name,i);
+                if (__dev_get_by_name(buf) == NULL) {
+                        strcpy(dev->name, buf);
+                        return i;
+                }
+        }
+        return -ENFILE; /* Over 100 of the things .. bail out! */
+}
+
+
+and report #2:
+
+/2.4.9-ac10/drivers/ieee1394/video1394.c:
+static int video1394_ioctl(struct inode *inode, struct file *file,
+			   unsigned int cmd, unsigned long arg)
+{
+	...
+	case VIDEO1394_TALK_QUEUE_BUFFER:
+	{
+		struct video1394_wait v;
+		struct video1394_queue_variable qv;
+		struct dma_iso_ctx *d;
+		int i;
+
+		...
+		if (d->flags & VIDEO1394_VARIABLE_PACKET_SIZE) {
+Start--->
+			if (copy_from_user(&qv, (void *)arg, sizeof(qv)))
+				return -EFAULT;
+		...
+		if (d->flags & VIDEO1394_VARIABLE_PACKET_SIZE) {
+			initialize_dma_it_prg_var_packet_queue(
+				d, v.buffer, qv.packet_sizes,
+				ohci);
+		}
+	...
+}
+
+static void initialize_dma_it_prg_var_packet_queue(
+	struct dma_iso_ctx *d, int n, unsigned int * packet_sizes,
+	struct ti_ohci *ohci)
+{
+	struct it_dma_prg *it_prg = d->it_prg[n];
+	int i;
+
+	d->last_used_cmd[n] = d->nb_cmd - 1;
+
+	for (i = 0; i < d->nb_cmd; i++) {
+		unsigned int size;
+Error--->
+		if (packet_sizes[i] > d->packet_size) {
+			size = d->packet_size;
+		} else {
+			size = packet_sizes[i];
+		}
+	...
+}
+
+
+

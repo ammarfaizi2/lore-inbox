@@ -1,56 +1,188 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262322AbSKRNhA>; Mon, 18 Nov 2002 08:37:00 -0500
+	id <S262371AbSKRNjB>; Mon, 18 Nov 2002 08:39:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262371AbSKRNhA>; Mon, 18 Nov 2002 08:37:00 -0500
-Received: from mail.medav.de ([213.95.12.190]:32010 "HELO mail.medav.de")
-	by vger.kernel.org with SMTP id <S262322AbSKRNg7> convert rfc822-to-8bit;
-	Mon, 18 Nov 2002 08:36:59 -0500
-From: "Daniela Engert" <dani@ngrt.de>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>, "L P" <plm@iname.com>
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Date: Mon, 18 Nov 2002 14:44:11 +0100 (CET)
-Reply-To: "Daniela Engert" <dani@ngrt.de>
-X-Mailer: PMMail 2.00.1500 for OS/2 Warp 4.05
-In-Reply-To: <1037626779.7503.12.camel@irongate.swansea.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Subject: Re: Problems Hot-Swapping IDE ATA drives
-Message-Id: <20021118143956.26A6169A2@mail.medav.de>
+	id <S262472AbSKRNjB>; Mon, 18 Nov 2002 08:39:01 -0500
+Received: from news.cistron.nl ([62.216.30.38]:31507 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id <S262371AbSKRNi6>;
+	Mon, 18 Nov 2002 08:38:58 -0500
+From: Rene Blokland <reneb@orac.aais.org>
+Subject: Re: 2.5.48 Compilation Failure skbuff.c
+Date: Mon, 18 Nov 2002 14:31:58 +0100
+Organization: Cistron
+Message-ID: <slrnathque.hqa.reneb@orac.aais.org>
+References: <slrnathnn0.aas.reneb@orac.aais.org> <20021118125450.GA14855@outpost.ds9a.nl>
+Reply-To: reneb@cistron.nl
+X-Trace: ncc1701.cistron.net 1037627158 30604 195.64.94.30 (18 Nov 2002 13:45:58 GMT)
+X-Complaints-To: abuse@cistron.nl
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 18 Nov 2002 13:39:39 +0000, Alan Cox wrote:
+In article <20021118125450.GA14855@outpost.ds9a.nl>, bert hubert wrote:
+> On Mon, Nov 18, 2002 at 01:36:48PM +0100, Rene Blokland wrote:
+>> Hello, 2.5.48 Doesn't compile for me on a AMD k6-3 with gcc-3.2 and glibc-2.3.1
+> 
+> I bet this just made ipsec mandatory :-) I suggest compiling it in to fix
+> this problem.
+> 
+Not that i'm aware of
+CONFIG_X86=y
+CONFIG_MMU=y
+CONFIG_SWAP=y
+CONFIG_UID16=y
+CONFIG_GENERIC_ISA_DMA=y
+CONFIG_EXPERIMENTAL=y
+CONFIG_NET=y
+CONFIG_SYSVIPC=y
+CONFIG_SYSCTL=y
+CONFIG_MK6=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_X86_ALIGNMENT_16=y
+CONFIG_X86_TSC=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_NOHIGHMEM=y
+CONFIG_MTRR=y
+CONFIG_PM=y
+CONFIG_PCI=y
+CONFIG_PCI_GODIRECT=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_NAMES=y
+CONFIG_ISA=y
+CONFIG_HOTPLUG=y
+CONFIG_KCORE_ELF=y
+CONFIG_BINFMT_AOUT=y
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_MISC=y
+CONFIG_PARPORT=y
+CONFIG_PARPORT_PC=y
+CONFIG_PARPORT_PC_CML1=y
+CONFIG_BLK_DEV_FD=y
+CONFIG_BLK_DEV_LOOP=y
+CONFIG_LBD=y
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_IDEDISK_MULTI_MODE=y
+CONFIG_BLK_DEV_IDECD=y
+CONFIG_BLK_DEV_IDESCSI=y
+CONFIG_IDE_TASK_IOCTL=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_IDEDMA_ONLYDISK=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_IDEDMA_PCI_WIP=y
+CONFIG_BLK_DEV_ADMA=y
+CONFIG_BLK_DEV_ALI15X3=y
+CONFIG_BLK_DEV_RZ1000=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_BLK_DEV_IDE_MODES=y
+CONFIG_SCSI=y
+CONFIG_CHR_DEV_SG=y
+CONFIG_PACKET=y
+CONFIG_PACKET_MMAP=y
+CONFIG_NETFILTER=y
+CONFIG_FILTER=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_IP_NF_CONNTRACK=y
+CONFIG_IP_NF_FTP=y
+CONFIG_IP_NF_IRC=y
+CONFIG_IP_NF_IPTABLES=y
+CONFIG_IP_NF_MATCH_STATE=y
+CONFIG_IP_NF_FILTER=y
+CONFIG_IP_NF_TARGET_REJECT=y
+CONFIG_IP_NF_NAT=y
+CONFIG_IP_NF_NAT_NEEDED=y
+CONFIG_IP_NF_TARGET_MASQUERADE=y
+CONFIG_IP_NF_TARGET_REDIRECT=y
+CONFIG_IP_NF_NAT_IRC=y
+CONFIG_IP_NF_NAT_FTP=y
+CONFIG_IP_NF_MANGLE=y
+CONFIG_IP_NF_TARGET_LOG=y
+CONFIG_IPV6_SCTP__=y
+CONFIG_NETDEVICES=y
+CONFIG_DUMMY=y
+CONFIG_NET_ETHERNET=y
+CONFIG_NET_PCI=y
+CONFIG_8139TOO=y
+CONFIG_PPP=y
+CONFIG_PPP_ASYNC=y
+CONFIG_PPP_DEFLATE=y
+CONFIG_PPP_BSDCOMP=y
+CONFIG_INPUT=y
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_SOUND_GAMEPORT=y
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+CONFIG_SERIO_SERPORT=y
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=y
+CONFIG_INPUT_MISC=y
+CONFIG_INPUT_PCSPKR=y
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+CONFIG_SERIAL_8250=y
+CONFIG_SERIAL_CORE=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_PRINTER=y
+CONFIG_I2C=y
+CONFIG_RTC=y
+CONFIG_AGP=y
+CONFIG_AGP_ALI=y
+CONFIG_DRM=y
+CONFIG_DRM_MGA=y
+CONFIG_FAT_FS=y
+CONFIG_VFAT_FS=y
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+CONFIG_ISO9660_FS=y
+CONFIG_PROC_FS=y
+CONFIG_DEVPTS_FS=y
+CONFIG_EXT2_FS=y
+CONFIG_NFS_FS=y
+CONFIG_NFS_V3=y
+CONFIG_NFSD=y
+CONFIG_NFSD_V3=y
+CONFIG_NFSD_TCP=y
+CONFIG_SUNRPC=y
+CONFIG_LOCKD=y
+CONFIG_LOCKD_V4=y
+CONFIG_EXPORTFS=y
+CONFIG_MSDOS_PARTITION=y
+CONFIG_NLS=y
+CONFIG_NLS_CODEPAGE_437=y
+CONFIG_NLS_CODEPAGE_850=y
+CONFIG_NLS_ISO8859_1=y
+CONFIG_NLS_ISO8859_15=y
+CONFIG_VGA_CONSOLE=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_SOUND=y
+CONFIG_SOUND_PRIME=y
+CONFIG_SOUND_TRIDENT=y
+CONFIG_USB=y
+CONFIG_USB_DEVICEFS=y
+CONFIG_USB_OHCI_HCD=y
+CONFIG_USB_STORAGE=y
+CONFIG_USB_HID=y
+CONFIG_SECURITY_CAPABILITIES=y
+CONFIG_ZLIB_INFLATE=y
+CONFIG_ZLIB_DEFLATE=y
+CONFIG_X86_BIOS_REBOOT=y
 
->>Please, help me with the following: I have the PCMCIA adapter which
->>converts the ATA compatible PCMCIA cassettes into "True IDE hard disk".
->>My RedHat 7.3 linux works fine, when it was booted with the cassette
->>inserted. I can mount/read/write/unmount the device without any error.
->>Next, I unmount the device and extract the cassette - usually (not
->>always)I receive the "spurious interrupt" message. Then, when I insert 
->>the cassette and try to mount it back, I receive the following errors:
 
->PCMCIA IDE works for all the devices I have. Really I'd need to see the
->dmesg for the setup from boot through the mounts and fails
-
-There is a problem with PCMCIA<->ATA adapters and "True IDE mode":
-
-A CompactFlash unit enters "True IDE mode" when the /OE pin is held low
-at device power on. This is fine when your system is powered on with
-the CF card inserted. But if you insert a CF card into an already
-powered on system, the /OE pin is not connected to the socket and thus
-held high by an device-internal pull up at device power on. This is
-because the power pins are longer than the other pins and connected
-before the others! So the CF card enters "memory mapped mode" instead
-of "True ATA mode" and is no longer accessible from the ATA host.
-
-Ciao,
-  Dani
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Daniela Engert, systems engineer at MEDAV GmbH
-Gräfenberger Str. 32-34, 91080 Uttenreuth, Germany
-Phone ++49-9131-583-348, Fax ++49-9131-583-11
-
+-- 
+Groeten / Regards, Rene J. Blokland
 

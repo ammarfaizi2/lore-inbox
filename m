@@ -1,103 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264659AbSKIGry>; Sat, 9 Nov 2002 01:47:54 -0500
+	id <S264666AbSKIHwH>; Sat, 9 Nov 2002 02:52:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264666AbSKIGrx>; Sat, 9 Nov 2002 01:47:53 -0500
-Received: from modemcable191.130-200-24.mtl.mc.videotron.ca ([24.200.130.191]:17423
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S264659AbSKIGrw>; Sat, 9 Nov 2002 01:47:52 -0500
-Date: Sat, 9 Nov 2002 01:53:29 -0500 (EST)
-From: Zwane Mwaikambo <zwane@holomorphy.com>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Robert Love <rml@tech9.net>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][2.5] do_nmi needs irq_enter/irq_exit lovin...
-In-Reply-To: <Pine.LNX.4.44.0211082147380.1622-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0211090123520.10475-100000@montezuma.mastecende.com>
+	id <S264668AbSKIHwH>; Sat, 9 Nov 2002 02:52:07 -0500
+Received: from lopsy-lu.misterjones.org ([62.4.18.26]:16568 "EHLO
+	crisis.wild-wind.fr.eu.org") by vger.kernel.org with ESMTP
+	id <S264666AbSKIHwG>; Sat, 9 Nov 2002 02:52:06 -0500
+To: Matthew Wilcox <willy@debian.org>
+Cc: "Adam J. Richter" <adam@yggdrasil.com>, andmike@us.ibm.com, hch@lst.de,
+       James.Bottomley@steeleye.com, linux-kernel@vger.kernel.org,
+       mochel@osdl.org, parisc-linux@lists.parisc-linux.org
+Subject: Re: [parisc-linux] Untested port of parisc_device to generic device interface
+References: <200211090451.UAA26160@baldur.yggdrasil.com>
+	<20021109052150.T12011@parcelfarce.linux.theplanet.co.uk>
+Organization: Metropolis -- Nowhere
+X-Attribution: maz
+X-Baby-1: =?iso-8859-1?q?Lo=EBn?= 12 juin 1996 13:10
+X-Baby-2: None
+X-Love-1: Gone
+X-Love-2: Crazy-Cat
+Reply-to: mzyngier@freesurf.fr
+From: Marc Zyngier <mzyngier@freesurf.fr>
+Date: 09 Nov 2002 08:58:01 +0100
+Message-ID: <wrp4rari392.fsf@hina.wild-wind.fr.eu.org>
+In-Reply-To: <20021109052150.T12011@parcelfarce.linux.theplanet.co.uk>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 8 Nov 2002, Linus Torvalds wrote:
+>>>>> "Matthew" == Matthew Wilcox <willy@debian.org> writes:
 
-> I think it would be cleaner to have the smp_processor_id() within the 
-> irq_enter/exit() pair, even if the thing should be safe the way you do it 
-> thanks to local interrupts being disabled..
+Matthew> (i'm gagging to write an EISA subsystem ;-).
 
-Ok done, but i still think we're not safe, preempt seems to only take into 
-account normal interrupts and isn't NMI aware.
+Humm, please don't... :-)
 
-e.g.
+maz@midlife-crisis:~$ ls -R /sys/bus/eisa/ 
+/sys/bus/eisa/:
+devices  drivers
 
-#define irq_exit()							\
-do {									\
-		preempt_count() -= IRQ_EXIT_OFFSET;			\
-		if (!in_interrupt() && softirq_pending(smp_processor_id())) \
-			do_softirq();					\
-		preempt_enable_no_resched();				\
-} while (0)
+/sys/bus/eisa/devices:
+00:00  00:01  00:02
 
-That in_interrupt flag wouldn't catch NMI would it? Especially after we 
-drop the preempt count. How about an nmi_enter, nmi_exit instead? Plus i 
-wouldn't want to start processing softirqs on nmi exit.
+/sys/bus/eisa/drivers:
+3c509
 
-Index: linux-2.5.46-bochs/arch/i386/kernel/traps.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.5.46/arch/i386/kernel/traps.c,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 traps.c
---- linux-2.5.46-bochs/arch/i386/kernel/traps.c	5 Nov 2002 01:47:29 -0000	1.1.1.1
-+++ linux-2.5.46-bochs/arch/i386/kernel/traps.c	9 Nov 2002 06:31:21 -0000
-@@ -526,12 +526,17 @@
-  
- asmlinkage void do_nmi(struct pt_regs * regs, long error_code)
- {
--	int cpu = smp_processor_id();
-+	int cpu;
- 
-+	nmi_enter();
-+
-+	cpu = smp_processor_id();
- 	++nmi_count(cpu);
- 
- 	if (!nmi_callback(regs, cpu))
- 		default_do_nmi(regs);
-+
-+	nmi_exit();
- }
- 
- void set_nmi_callback(nmi_callback_t callback)
-Index: linux-2.5.46-bochs/include/asm-i386/hardirq.h
-===================================================================
-RCS file: /build/cvsroot/linux-2.5.46/include/asm-i386/hardirq.h,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 hardirq.h
---- linux-2.5.46-bochs/include/asm-i386/hardirq.h	5 Nov 2002 01:47:19 -0000	1.1.1.1
-+++ linux-2.5.46-bochs/include/asm-i386/hardirq.h	9 Nov 2002 06:31:03 -0000
-@@ -76,6 +76,7 @@
- #define hardirq_endlock()	do { } while (0)
- 
- #define irq_enter()		(preempt_count() += HARDIRQ_OFFSET)
-+#define nmi_enter()		(irq_enter())
- 
- #if CONFIG_PREEMPT
- # define in_atomic()	((preempt_count() & ~PREEMPT_ACTIVE) != kernel_locked())
-@@ -90,6 +91,12 @@
- 		if (!in_interrupt() && softirq_pending(smp_processor_id())) \
- 			do_softirq();					\
- 		preempt_enable_no_resched();				\
-+} while (0)
-+
-+#define nmi_exit()				\
-+do {						\
-+	preempt_count() -= IRQ_EXIT_OFFSET;	\
-+	preempt_enable_no_resched();		\
- } while (0)
- 
- #ifndef CONFIG_SMP
+/sys/bus/eisa/drivers/3c509:
+00:02
+maz@midlife-crisis:~$ 
 
+I have it working on x86 and Alpha, will test parisc and mips over the
+week-end.
+
+        M.
 -- 
-function.linuxpower.ca
-
-
+Places change, faces change. Life is so very strange.

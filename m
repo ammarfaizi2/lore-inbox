@@ -1,62 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261228AbULAAsd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261153AbULAA4c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261228AbULAAsd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 19:48:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261170AbULAAeD
+	id S261153AbULAA4c (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 19:56:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261166AbULAAz4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 19:34:03 -0500
-Received: from fw.osdl.org ([65.172.181.6]:65504 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261207AbULAATe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 19:19:34 -0500
-Date: Tue, 30 Nov 2004 16:18:35 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: David Woodhouse <dwmw2@infradead.org>
-cc: Alexandre Oliva <aoliva@redhat.com>, dhowells <dhowells@redhat.com>,
-       Paul Mackerras <paulus@samba.org>, Greg KH <greg@kroah.com>,
-       Matthew Wilcox <matthew@wil.cx>, hch@infradead.org,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
-In-Reply-To: <Pine.LNX.4.58.0411301605500.22796@ppc970.osdl.org>
-Message-ID: <Pine.LNX.4.58.0411301612370.22796@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0411290926160.22796@ppc970.osdl.org> 
- <19865.1101395592@redhat.com>  <20041125165433.GA2849@parcelfarce.linux.theplanet.co.uk>
-  <1101406661.8191.9390.camel@hades.cambridge.redhat.com> 
- <20041127032403.GB10536@kroah.com>  <16810.24893.747522.656073@cargo.ozlabs.ibm.com>
-  <Pine.LNX.4.58.0411281710490.22796@ppc970.osdl.org> 
- <ord5xwvay2.fsf@livre.redhat.lsd.ic.unicamp.br>  <8219.1101828816@redhat.com>
-  <Pine.LNX.4.58.0411300744120.22796@ppc970.osdl.org> 
- <ormzwzrrmy.fsf@livre.redhat.lsd.ic.unicamp.br> 
- <Pine.LNX.4.58.0411301249590.22796@ppc970.osdl.org> 
- <orekibrpmn.fsf@livre.redhat.lsd.ic.unicamp.br> 
- <Pine.LNX.4.58.0411301423030.22796@ppc970.osdl.org> 
- <1101854061.4574.4.camel@localhost.localdomain> 
- <Pine.LNX.4.58.0411301447570.22796@ppc970.osdl.org>
- <1101858657.4574.33.camel@localhost.localdomain>
- <Pine.LNX.4.58.0411301605500.22796@ppc970.osdl.org>
+	Tue, 30 Nov 2004 19:55:56 -0500
+Received: from newton.linux4geeks.de ([193.30.1.1]:40835 "EHLO
+	newton.linux4geeks.de") by vger.kernel.org with ESMTP
+	id S261154AbULAAqO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Nov 2004 19:46:14 -0500
+From: Sven Ladegast <sven@linux4geeks.de>
+Organization: Linux4Geeks
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6] via-rhine: WOL band-aid (patch against 2.6.9)
+Date: Wed, 1 Dec 2004 01:46:13 +0100
+User-Agent: KMail/1.6.2
+References: <20041130224014.GD29947@k3.hellgate.ch>
+In-Reply-To: <20041130224014.GD29947@k3.hellgate.ch>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_VRRrBTg+AcnJBVe"
+Message-Id: <200412010146.13552.sven@linux4geeks.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--Boundary-00=_VRRrBTg+AcnJBVe
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-On Tue, 30 Nov 2004, Linus Torvalds wrote:
-> 
-> Even atomic.h. I could well imagine that somebody includes atomic.h just 
-> to get the thread-safe updates for some architectures. For example, 
-> asm-alpha/atomic.h does it right, and I would not be at all surprised if 
-> somebody had noticed.
+On Tuesday 30 November 2004 23:40, Roger Luethi wrote:
 
-In fact, this is not entirely theoretical. I know people _have_ noticed, 
-because I've gotten queries from some projects that wanted to copy the 
-definitions for their alpha port. I only got those queries because my name 
-is on the file, and those people wanted to actually copy them, not just 
-include the header file. I don't know _how_ many people decided to just 
-do the #include.
+> This version applies against -mm. I suggest to put it there for testing
+> and into 2.6.11 if feedback is good.
 
-There are probably more people familiar with the kernel source tree than 
-with GLIB which is probably the preferred way to do those things these 
-days. And a few years ago that choice wasn't even there. 
+And here is the "backport" to 2.6.9 for current users waiting for this patc=
+h.=20
+It is working for me on an ECS Elitegroup KT-600A mainboard with VT8237 and=
+ a=20
+Rhine-II network controller.
 
-		Linus
+Sven
+=2D-=20
+Sven Ladegast, Friedrich-Fr=F6bel-Stra=DFe 11, 93310 Arnstadt / Germany
+Phone: +49-175-5334308, PGP-key: 0x5856A5ED
+
+
+--Boundary-00=_VRRrBTg+AcnJBVe
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="via-rhine-corrected-2.6.9.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="via-rhine-corrected-2.6.9.diff"
+
+--- via-rhine.c	2004-10-18 23:55:28.000000000 +0200
++++ via-rhine-patched.c	2004-12-01 01:02:18.000000000 +0100
+@@ -664,7 +664,7 @@ static void __devinit rhine_reload_eepro
+ 
+ 	/* Turn off EEPROM-controlled wake-up (magic packet) */
+ 	if (rp->quirks & rqWOL)
+-		writeb(readb(ioaddr + ConfigA) & 0xFE, ioaddr + ConfigA);
++		writeb(readb(ioaddr + ConfigA) & 0xFC, ioaddr + ConfigA);
+ 
+ }
+ 
+@@ -1917,8 +1917,14 @@ static void rhine_shutdown (struct devic
+ 	if (rp->quirks & rq6patterns)
+ 		writeb(0x04, ioaddr + 0xA7);
+ 
+-	if (rp->wolopts & WAKE_MAGIC)
++	if (rp->wolopts & WAKE_MAGIC) {
+ 		writeb(WOLmagic, ioaddr + WOLcrSet);
++		/*
++		 * Turn EEPROM-controlled wake-up back on -- some hardware may
++		 * not cooperate otherwise.
++		 */
++		writeb(readb(ioaddr + ConfigA) | 0x03, ioaddr + ConfigA);
++	}
+ 
+ 	if (rp->wolopts & (WAKE_BCAST|WAKE_MCAST))
+ 		writeb(WOLbmcast, ioaddr + WOLcgSet);
+@@ -1929,9 +1935,11 @@ static void rhine_shutdown (struct devic
+ 	if (rp->wolopts & WAKE_UCAST)
+ 		writeb(WOLucast, ioaddr + WOLcrSet);
+ 
+-	/* Enable legacy WOL (for old motherboards) */
+-	writeb(0x01, ioaddr + PwcfgSet);
+-	writeb(readb(ioaddr + StickyHW) | 0x04, ioaddr + StickyHW);
++	if (rp->wolopts) {
++		/* Enable legacy WOL (for old motherboards) */
++		writeb(0x01, ioaddr + PwcfgSet);
++		writeb(readb(ioaddr + StickyHW) | 0x04, ioaddr + StickyHW);
++	}
+ 
+ 	/* Hit power state D3 (sleep) */
+ 	writeb(readb(ioaddr + StickyHW) | 0x03, ioaddr + StickyHW);
+
+--Boundary-00=_VRRrBTg+AcnJBVe--

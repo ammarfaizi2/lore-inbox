@@ -1,83 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264499AbTKNCSI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Nov 2003 21:18:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264500AbTKNCSI
+	id S264497AbTKNC1i (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Nov 2003 21:27:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264498AbTKNC1i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Nov 2003 21:18:08 -0500
-Received: from mail-09.iinet.net.au ([203.59.3.41]:38849 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S264499AbTKNCSD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Nov 2003 21:18:03 -0500
-Message-ID: <3FB43A13.80705@cyberone.com.au>
-Date: Fri, 14 Nov 2003 13:12:35 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
+	Thu, 13 Nov 2003 21:27:38 -0500
+Received: from razorbill.mail.pas.earthlink.net ([207.217.121.248]:64927 "EHLO
+	razorbill.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id S264497AbTKNC1h convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Nov 2003 21:27:37 -0500
+From: Guy <fsos_guy@earthlink.net>
+Organization: C
+To: Nick Piggin <piggin@cyberone.com.au>
+Subject: Re: 2.6 scheduler and "fast user switching"
+Date: Thu, 13 Nov 2003 19:58:36 -0500
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org
+References: <200311130430.06882.fsos_guy@earthlink.net> <3FB366DB.80508@cyberone.com.au> <200311131611.51951.fsos_guy@earthlink.net>
+In-Reply-To: <200311131611.51951.fsos_guy@earthlink.net>
 MIME-Version: 1.0
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Nick's scheduler v18
-References: <3FAFC8C6.8010709@cyberone.com.au> <38770000.1068759009@flay>
-In-Reply-To: <38770000.1068759009@flay>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200311131958.40404.fsos_guy@earthlink.net>
+X-ELNK-Trace: d501ffacebf681585e89bb4777695beb702e37df12b9c9ef27617fd7ccf92de439d518124c83bcb0350badd9bab72f9c350badd9bab72f9c350badd9bab72f9c
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday 13 November 2003 16:11, Guy wrote:
+> On Thursday 13 November 2003 06:11, Nick Piggin wrote:
+> > Guy wrote:
+> > >A} My default security is that only 'root' can perform nice
+> > > with negative values. I am reluctant to play with security
+> > > for such a crticial command.
+> >
+> > Debian does this for you. I guess X runs as suid root anyway
+> > so its not a big security problem.
+>
+> See comment above. PBSAK
 
+>From http://members.optusnet.com.au/ckolivas/kernel
 
-Martin J. Bligh wrote:
+Renicing X? Many distributions (eg Mandrake) start X by default at 
+a nice of -10 to make it more responsive. This is a workaround 
+for the old scheduler limitations and the new scheduler makes 
+this unecessary, and may actually promote audio skipping with 
+this kernel. Each distribution may do this at different places 
+but commonly in the file /usr/lib/X11/xdm/Xservers there will be 
+a line that looks like this: 
 
->>Average of 5 kernel compiles (make -j) on a 16-way 512KB cache NUMAQ gives
->>         bk14  bk14-v18
->>real    83.5s     81.7s
->>user   987.6s    992.5s
->>sys    158.0s    142.3s
->>
->>Volanomark looks much better than mainline.
->>
->>More testing welcome.
->>
->
->-noint is just backing out the interactivity patch (part of your patch)
->Not sure that's helping you much really, but maybe it conflicts with
->your other stuff.
->
->Kernbench: (make -j N vmlinux, where N = 2 x num_cpus)
->                              Elapsed      System        User         CPU
->              2.6.0-test9       45.28      100.19      568.01     1474.75
->        2.6.0-test9-noint       48.20       99.05      567.26     1389.00
->       2.6.0-test9-nick18       45.06       91.56      568.77     1467.50
->
->Kernbench: (make -j N vmlinux, where N = 16 x num_cpus)
->                              Elapsed      System        User         CPU
->              2.6.0-test9       46.17      122.20      571.58     1501.00
->        2.6.0-test9-noint       46.43      117.96      577.60     1498.00
->       2.6.0-test9-nick18       46.90      109.05      589.77     1488.75
->
->Kernbench: (make -j vmlinux, maximal tasks)
->                              Elapsed      System        User         CPU
->              2.6.0-test9       45.84      120.14      570.93     1507.00
->        2.6.0-test9-noint       47.42      123.52      582.91     1488.75
->       2.6.0-test9-nick18       46.83      110.70      588.91     1494.00
->
->It seems that you're decreasing system time significantly, but increasing
->user time if you have lots of tasks ... context switch thrash, maybe?
->
+:0 local /bin/nice -n -10 /usr/X11R6/bin/X -deferglyphs 16
 
-OK, thanks for testing. Still not great.
+ change it to: 
 
-My patchset does a _lot_ less SMP and NUMA balancing, although I think
-that sometimes causes too much idle time. It might be doing more context
-switching though.
+:0 local /usr/X11R6/bin/X -deferglyphs 16
 
->
->Would be interesting if you know which of the many patches in there make
->the performance difference ... the whole thing is a bit too big to pick
->up and maintain easily ;-)
->
+ Gustavo Franco gave me this on how to do it on Debian: 
 
-Its not well broken out though unfortunately. I really need to document and
-comment it better.
+# dpkg-reconfigure xserver-common
+
+Manage X server wrapper configuration file with debconf? yes
+Select what type of user has permission to start the X server. 2
+Enter the desired nice value for the X server to use. 0
+To check "cat /etc/X11/Xwrapper.config".
+ 
+-- 
+Recyle computers. Install Gentoo GNU/Linux.
 

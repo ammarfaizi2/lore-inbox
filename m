@@ -1,54 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265266AbSKNVjl>; Thu, 14 Nov 2002 16:39:41 -0500
+	id <S265276AbSKNVpQ>; Thu, 14 Nov 2002 16:45:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265275AbSKNVjl>; Thu, 14 Nov 2002 16:39:41 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:17364 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S265266AbSKNVjk>; Thu, 14 Nov 2002 16:39:40 -0500
-Subject: Re: Bugzilla bug tracking database for 2.5 now available.
-From: Paul Larson <plars@linuxtestproject.org>
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <225710000.1037241209@flay>
-References: <225710000.1037241209@flay>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-W212qg9d93PVXTi4xdtD"
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 14 Nov 2002 15:42:38 -0600
-Message-Id: <1037310164.10627.121.camel@plars>
+	id <S265277AbSKNVpQ>; Thu, 14 Nov 2002 16:45:16 -0500
+Received: from tapu.f00f.org ([66.60.186.129]:18114 "EHLO tapu.f00f.org")
+	by vger.kernel.org with ESMTP id <S265276AbSKNVpP>;
+	Thu, 14 Nov 2002 16:45:15 -0500
+Date: Thu, 14 Nov 2002 13:52:09 -0800
+From: Chris Wedgwood <cw@f00f.org>
+To: Paul Larson <plars@linuxtestproject.org>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: LTP - gettimeofday02 FAIL
+Message-ID: <20021114215209.GA25778@tapu.f00f.org>
+References: <1037139074.10626.37.camel@plars>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1037139074.10626.37.camel@plars>
+User-Agent: Mutt/1.4i
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Nov 12, 2002 at 04:11:14PM -0600, Paul Larson wrote:
 
---=-W212qg9d93PVXTi4xdtD
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+    I have not been able to reproduce this on a single processor machine
+    though.
 
-Would it be useful/desirable/possible to have a button in the defect to
-allow you to forward the important info about it to an email address?=20
-For instance, if I wanted to bring it to the attention of linux-mm?
+    Basically, all the test does is:
+    gettimeofday(&tv1, NULL);
+    while(!done) {
+    	gettimeofday(&tv2, NULL);
+    	FAIL if tv2 < tv1
+    	tv1 = tv2;
+    }
 
-That being said, I guess this should have been the first question:
-Should bugs reported to bugme still be posted here (or elsewhere when
-appropriate)?  I would assume so, at least for a while.
-
--Paul Larson
+    Any ideas on what could be causing this?
 
 
---=-W212qg9d93PVXTi4xdtD
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+The TSC's aren't synchronized between CPUs.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+This is becoming more and more of a problem and in-escapable on some
+hardware so I'm starting to wonder if assuming the TSCs are even
+roughly synchronized *anywhere* is a good idea.
 
-iEYEABECAAYFAj3UGM4ACgkQbkpggQiFDqc91ACfdfynCfioxyUaHJbfeXV3YLDZ
-qbsAmwcbCO9PuUxJr8yBKk3Ev2y1rgzA
-=il2Q
------END PGP SIGNATURE-----
 
---=-W212qg9d93PVXTi4xdtD--
-
+   --cw

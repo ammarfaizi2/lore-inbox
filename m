@@ -1,41 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267163AbSLQVbM>; Tue, 17 Dec 2002 16:31:12 -0500
+	id <S267139AbSLQV3D>; Tue, 17 Dec 2002 16:29:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267164AbSLQVbM>; Tue, 17 Dec 2002 16:31:12 -0500
-Received: from fmr01.intel.com ([192.55.52.18]:20429 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id <S267163AbSLQVbK>;
-	Tue, 17 Dec 2002 16:31:10 -0500
-Message-ID: <EDC461A30AC4D511ADE10002A5072CAD04C7A5B1@orsmsx119.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "'Ducrot Bruno'" <poup@poupinou.org>, linux-kernel@vger.kernel.org
-Cc: Pavel Machek <pavel@suse.cz>, acpi-devel@lists.sourceforge.net
-Subject: RE: [PATCH] S4bios for 2.5.52.
-Date: Tue, 17 Dec 2002 13:39:02 -0800
+	id <S267148AbSLQV3C>; Tue, 17 Dec 2002 16:29:02 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:1552 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S267139AbSLQV3B>; Tue, 17 Dec 2002 16:29:01 -0500
+Message-ID: <3DFF98F5.60706@transmeta.com>
+Date: Tue, 17 Dec 2002 13:36:53 -0800
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Organization: Transmeta Corporation
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021119
+X-Accept-Language: en, sv
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+To: Benjamin LaHaise <bcrl@redhat.com>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Ulrich Drepper <drepper@redhat.com>,
+       Dave Jones <davej@codemonkey.org.uk>, Ingo Molnar <mingo@elte.hu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Intel P6 vs P7 system call performance
+References: <1040153030.20804.8.camel@irongate.swansea.linux.org.uk> <Pine.LNX.4.44.0212171046550.1095-100000@home.transmeta.com> <20021217163458.B10781@redhat.com>
+In-Reply-To: <20021217163458.B10781@redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Ducrot Bruno [mailto:poup@poupinou.org] 
-> This patch add s4bios support for 2.5.52.
+Benjamin LaHaise wrote:
+>
+> The stubs I used for the vsyscall bits just did an absolute jump to 
+> the vsyscall page, which would then do a ret to the original calling 
+> userspace code (since that provided library symbols for the user to 
+> bind against).
 > 
-> S4bios is an alternative for the ACPI S4 system suspend 
-> state, but is a bit
-> more easy to implement.  It suppose though that the BIOS 
-> support this feature.
-> For some BIOS, creating a so-called suspend partition with the help
-> of lphdisk is OK.
-> 
-> Plus, it permit for Pavel to have a nice graphic display at 
-> suspend/resume. 
-> 
-> echo 4 > /proc/acpi/sleep is for swsusp;
-> echo 4b > /proc/acpi/sleep is for s4bios.
 
-I still am not clear on why we would want s4bios in 2.5.x, since we have S4.
-Like you said, S4bios is easier to implement, but since Pavel has done much
-of the heavy lifting required for S4 proper, I don't see the need.
+What kind of "absolute jumps" were this?
 
-Regards -- Andy
+	-hpa
+
+

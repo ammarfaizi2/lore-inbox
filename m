@@ -1,50 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318140AbSGMKfJ>; Sat, 13 Jul 2002 06:35:09 -0400
+	id <S318142AbSGMKpy>; Sat, 13 Jul 2002 06:45:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318141AbSGMKfI>; Sat, 13 Jul 2002 06:35:08 -0400
-Received: from t4o53p48.telia.com ([62.20.229.168]:13184 "EHLO
-	best.localdomain") by vger.kernel.org with ESMTP id <S318140AbSGMKfH>;
-	Sat, 13 Jul 2002 06:35:07 -0400
-To: Alan Cox <alan@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.19-rc1-ac3
-References: <200207121914.g6CJEcN32497@devserv.devel.redhat.com>
-	<m2znwwikcj.fsf@best.localdomain>
-From: Peter Osterlund <petero2@telia.com>
-Date: 13 Jul 2002 12:25:28 +0200
-In-Reply-To: <m2znwwikcj.fsf@best.localdomain>
-Message-ID: <m2ele7vs9z.fsf@best.localdomain>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
+	id <S318143AbSGMKpx>; Sat, 13 Jul 2002 06:45:53 -0400
+Received: from velli.mail.jippii.net ([195.197.172.114]:33988 "HELO
+	velli.mail.jippii.net") by vger.kernel.org with SMTP
+	id <S318142AbSGMKpx>; Sat, 13 Jul 2002 06:45:53 -0400
+Date: Sat, 13 Jul 2002 13:52:17 +0300
+From: Anssi Saari <as@sci.fi>
+To: linux-kernel@vger.kernel.org
+Subject: Re: IDE/ATAPI in 2.5
+Message-ID: <20020713105217.GB11996@sci.fi>
+Mail-Followup-To: Anssi Saari <as@sci.fi>,
+	linux-kernel@vger.kernel.org
+References: <200207121955.g6CJtQur018433@burner.fokus.gmd.de> <20020713054058.GA19292@codepoet.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020713054058.GA19292@codepoet.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Osterlund <petero2@telia.com> writes:
+On Fri, Jul 12, 2002 at 11:40:58PM -0600, Erik Andersen wrote:
+> Yes, I have read the cdrecord source.  As you may recall from the
+> bug reports I would send periodically, I maintained the Debian
+> cdrecord/cdrtools package from 1998 till late last year...
 
-> Alan Cox <alan@redhat.com> writes:
-> 
-> > o	Update cpufreq, add PIV throttling		(Robert Schwebel,
-> > 			Padraig Brady, Zwane Mwaikambo, Arjan van de Ven,
-> > 			Tora Engstad)
-> 
-> It doesn't work because of a bug in cpufreq_p4_validatedc. Here is a
-> patch to fix it:
+> Ever look at the CDROM_SEND_PACKET ioctl?
 
-I forgot to mention that this patch is also needed:
-
---- linux/kernel/Makefile.orig	Sat Jul 13 12:10:29 2002
-+++ linux/kernel/Makefile	Sat Jul 13 12:10:46 2002
-@@ -19,6 +19,7 @@
- obj-$(CONFIG_UID16) += uid16.o
- obj-$(CONFIG_MODULES) += ksyms.o
- obj-$(CONFIG_PM) += pm.o
-+obj-$(CONFIG_CPU_FREQ) += cpufreq.o
- 
- ifneq ($(CONFIG_IA64),y)
- # According to Alan Modra <alan@linuxcare.com.au>, the -fno-omit-frame-pointer is
-
--- 
-Peter Osterlund - petero2@telia.com
-http://w1.894.telia.com/~u89404340
+Support for that appeared in cdrecord some time ago. From what little I've
+used it, it seems to work fine even though Joerg calls it pre-alpha code.

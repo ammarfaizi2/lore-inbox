@@ -1,102 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270825AbRIFOBs>; Thu, 6 Sep 2001 10:01:48 -0400
+	id <S270847AbRIFOEs>; Thu, 6 Sep 2001 10:04:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270847AbRIFOBi>; Thu, 6 Sep 2001 10:01:38 -0400
-Received: from shed.alex.org.uk ([195.224.53.219]:58288 "HELO shed.alex.org.uk")
-	by vger.kernel.org with SMTP id <S270825AbRIFOBb>;
-	Thu, 6 Sep 2001 10:01:31 -0400
-Date: Thu, 06 Sep 2001 15:01:49 +0100
-From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-To: Stephan von Krawczynski <skraw@ithnet.com>,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Cc: phillips@bonn-fries.net, riel@conectiva.com.br, jaharkes@cs.cmu.edu,
-        marcelo@conectiva.com.br, linux-kernel@vger.kernel.org,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Subject: Re: page_launder() on 2.4.9/10 issue
-Message-ID: <594419049.999788509@[10.132.112.53]>
-In-Reply-To: <20010906154212.442bdf7b.skraw@ithnet.com>
-In-Reply-To: <20010906154212.442bdf7b.skraw@ithnet.com>
-X-Mailer: Mulberry/2.1.0 (Win32)
+	id <S270848AbRIFOE2>; Thu, 6 Sep 2001 10:04:28 -0400
+Received: from spike.porcupine.org ([168.100.189.2]:23049 "EHLO
+	spike.porcupine.org") by vger.kernel.org with ESMTP
+	id <S270847AbRIFOEY>; Thu, 6 Sep 2001 10:04:24 -0400
+Subject: Re: ioctl SIOCGIFNETMASK: ip alias bug 2.4.9 and 2.2.19
+In-Reply-To: <20010906173534.A21874@castle.nmd.msu.ru> "from Andrey Savochkin
+ at Sep 6, 2001 05:35:34 pm"
+To: Andrey Savochkin <saw@saw.sw.com.sg>
+Date: Thu, 6 Sep 2001 10:04:44 -0400 (EDT)
+Cc: Andi Kleen <ak@suse.de>,
+        Matthias Andree <matthias.andree@stud.uni-dortmund.de>,
+        linux-kernel@vger.kernel.org, Wietse Venema <wietse@porcupine.org>
+X-Time-Zone: USA EST, 6 hours behind central European time
+X-Mailer: ELM [version 2.4ME+ PL82 (25)]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <20010906140444.75DC1BC06C@spike.porcupine.org>
+From: wietse@porcupine.org (Wietse Venema)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> If there's no memory pressure, data stays in InactiveDirty, caches,
->> etc., forever. What makes you think more memory would have helped
->> the NFS performance? It's possible these all were served out of caches
->> too.
->
-> Negative. Switching off export-option "no_subtree_check" (which basically
-> leads to more small allocs during nfs action) shows immediately mem
-> failures and truncated files on the server and stale nfs handles on the
-> client. So the system _is_ under pressure. This exactly made me start (my
-> branch of) the discussion.
-> Besides I would really like to know what useable _data_ is in these
-> pages, as I cannot see which application should hold it (the CD stuff was
-> quit "long ago"). FS should have sync'ed several times, too.
+Andrey Savochkin:
+> > Even if it checked the address it would not be unique because you can have multiple
+> > interfaces with the same addresses but different netmasks.
 
-Yes, but this is because VM system's targets & pressure calcs do not
-take into account fragmentation of the underlying physical memory.
-IE, in theory you could have half your memory free, but
-not be able to allocate a single 8k block. Nothing would cause
-cache, or InactiveDirty stuff to be written.
+The same IP address with different netmasks on the same hardware
+interface? The mind boggles. How does one handle broadcasts?
 
-You yourself proved this, by switching rsize,wsize to 1k and said
-it all worked fine! (unless I misread your email).
+> The only one good reason for an SMTP server to bother about IP addresses at
+> all is a quick check for mail loops, i.e. a check at the moment of opening
+> TCP connection to send a message whether your peer is yourself.
+> Bothering about network masks just doesn't have any valid grounds.
 
-The other potential problem is that if the memory requirement
-is all extremely bursty and without __GFP_WAIT (i.e. allocated
-GFP_ATOMIC) then it is conceivable you need a whole pile of
-memory allocated before the system has time to retrieve it
-from things which require locks, I/O, etc. However, I suspect
-this isn't the problem.
+The issue is not MTA loop detection.
 
-Put my instrumentation patch on, and if I'm right you'll see something
-like the following, but worse. Look at 32kB allocations (order 3,
-which is what I think you said was failing), and look at the %fragmentation.
-This is the % of free memory which cannot be allocated as (in this
-case) contiguous 32kB chunks (as it's all in smaller blocks). As
-this approaches 100, the VM system is going to think 'no memory
-pressure' and not free up pages, but you are going to be unable
-to allocate.
+Postfix uses the local netmask info to distinguish between local
+and remote networks. At the discretion of the sysadmin, systems on
+local subnets can be granted different rights than random systems
+on the Internet.
 
-The second of these examples was after a single bonnie run,
-a sync, and 5 minutes of idle activity. Note that in this
-example, and few order 4 allocations which required DMA would
-fail, though the VM system would see plenty of memory. And they
-will continue failing.
+If Linux insists on breaking SIOCGIFCONF then so be it, even though
+it works perfectly well on any non-Linux system that I could lay
+my hands on.
 
-I think what you want isn't more memory, its less
-fragmented memory. Or an underlying system which can
-cope with fragmentation.
-
---
-Alex Bligh
-
-
-Before
-$ cat /proc/memareas
-   Zone     4kB     8kB    16kB    32kB    64kB   128kB   256kB   512kB  1024kB  2048kB Tot Pages/kb
-    DMA       2       2       4       3       3       3       1       1       0       6 =     3454
-  @frag      0%      0%      0%      1%      1%      3%      6%      7%     11%     11%      13816kB
- Normal       0       0       6      29      18       8       4       0       1      23 =    13088
-  @frag      0%      0%      0%      0%      2%      4%      6%      8%      8%     10%      52352kB
-HighMem = 0kB - zero size zone
-
-After
-$ cat /proc/memareas
-   Zone     4kB     8kB    16kB    32kB    64kB   128kB   256kB   512kB 1024kB  2048kB Tot Pages/kb
-    DMA     522     382     210      53       8       2       1       0       0       0 =     2806
-  @frag      0%     19%     46%     76%     91%     95%     98%    100%    100%    100%      11224kB
- Normal       0    1155    1656     756     163      29       0       1       0       0 =    18646
-  @frag      0%      0%     12%     48%     80%     94%     99%     99%    100%    100%      74584kB
-                                    ^^^
-					Order 3
-HighMem = 0kB - zero size zone
-
-
+	Wietse

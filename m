@@ -1,45 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267434AbSLRUS2>; Wed, 18 Dec 2002 15:18:28 -0500
+	id <S267385AbSLRU10>; Wed, 18 Dec 2002 15:27:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267435AbSLRUS0>; Wed, 18 Dec 2002 15:18:26 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:54286 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267434AbSLRUSW>; Wed, 18 Dec 2002 15:18:22 -0500
-Message-ID: <3E00D9EC.2050004@transmeta.com>
-Date: Wed, 18 Dec 2002 12:26:20 -0800
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021119
-X-Accept-Language: en, sv
+	id <S267468AbSLRU10>; Wed, 18 Dec 2002 15:27:26 -0500
+Received: from packet.digeo.com ([12.110.80.53]:27583 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S267385AbSLRU1Z>;
+	Wed, 18 Dec 2002 15:27:25 -0500
+Message-ID: <3E00DC07.7729E6A2@digeo.com>
+Date: Wed, 18 Dec 2002 12:35:19 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.51 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: root@chaos.analogic.com
-CC: Terje Eggestad <terje.eggestad@scali.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Ulrich Drepper <drepper@redhat.com>,
-       Matti Aarnio <matti.aarnio@zmailer.org>,
-       Hugh Dickins <hugh@veritas.com>, Dave Jones <davej@codemonkey.org.uk>,
-       Ingo Molnar <mingo@elte.hu>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Intel P6 vs P7 system call performance
-References: <Pine.LNX.3.95.1021218152425.806A-101000@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.3.95.1021218152425.806A-101000@chaos.analogic.com>
+To: Robert Macaulay <robert_macaulay@dell.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [BUG] 2.5.47 - Assertion failed in fs/jbd/journal.c:415
+References: <Pine.LNX.4.44.0212181301480.15962-100000@ping.us.dell.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 18 Dec 2002 20:35:19.0247 (UTC) FILETIME=[FAE64DF0:01C2A6D4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard B. Johnson wrote:
-> The number of CPU clocks necessary to make the 'far' or
-> full-pointer call by pushing the segment register, the offset,
-> then issuing a 'lret' is 33 clocks on a Pentium II.
->
-> longcall clocks = 46
-> call clocks = 13
-> actual full-pointer call clocks = 33
+Robert Macaulay wrote:
+> 
+> We were performing an IO performance test on 2.5.47. The storage we were
+> writing to was a Fibre Channel array(dell 650f) via qlogic 2200 cards
+> using the qlogicfc driver in the Linux kernel. There were 8 separate LUNS
+> on the FC array, each of which has an ext3 filesystem on them. There are
+> no partition tables on the disks(one of the disks would not accept one,
+> separate issue). The ext3 filesystem was created directly on the block
+> devices, /dev/sdf /dev/sdg etc. The server is a Dell Poweredge 6650, 4
+> procs, 8Gig RAM. More detailed system information is appended at the
+> bottom.
+> 
+> For now, the test was 100% writing to all 8 filesystems in parallel. The
+> following BUG was reported halfway through the 4th run of this test. I'm
+> not sure how reproducible this is.
+> 
+> The machine is still running. IO in progress at the time of the BUG has
+> stopped in D state, New IO is stil possible though to the disks. I will
+> leave the system up and running if there is any more info needed for a few
+> days.
+> 
+> I will be trying a more recent version in a few days. 2.5.47 was the
+> latest kernel I could compile at the time. I've looked through the
+> archives, but could not find any mention of this particular bug, so I do
+> not know if it has been addressed or not. Thanks
+> 
+> Assertion failure in journal_write_metadata_buffer() at fs/jbd/journal.c:415: "buffer_jdirty(jh2bh(jh_in))"
 
-That's not a call, that's a jump.  Comparing it to a call instruction is
-meaningless.
+I can't immediately see what would cause this.  There is code in
+__journal_file_buffer which could have triggered this, but we should
+have exclusion from that via both lock_kernel() and lock_journal().
 
-	-hpa
-
+I'll see if Stephen can spot it.   I shall assume you were using
+the data-ordered journalling mode.

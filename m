@@ -1,28 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130337AbRA2OOi>; Mon, 29 Jan 2001 09:14:38 -0500
+	id <S130391AbRA2OdI>; Mon, 29 Jan 2001 09:33:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130461AbRA2OO3>; Mon, 29 Jan 2001 09:14:29 -0500
-Received: from coffee.psychology.McMaster.CA ([130.113.218.59]:35644 "EHLO
-	coffee.psychology.mcmaster.ca") by vger.kernel.org with ESMTP
-	id <S130337AbRA2OOR>; Mon, 29 Jan 2001 09:14:17 -0500
-Date: Mon, 29 Jan 2001 09:14:16 -0500 (EST)
-From: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
+	id <S130461AbRA2Ocs>; Mon, 29 Jan 2001 09:32:48 -0500
+Received: from orange.csi.cam.ac.uk ([131.111.8.77]:18424 "EHLO
+	orange.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S130391AbRA2Ocm>; Mon, 29 Jan 2001 09:32:42 -0500
+Message-Id: <5.0.2.1.2.20010128172032.00a92030@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
+Date: Mon, 29 Jan 2001 14:33:39 +0000
 To: linux-kernel@vger.kernel.org
-Subject: Re: More on the VIA KT133 chipset misbehaving in Linux
-In-Reply-To: <200101290920.BAA28321@mail15.bigmailbox.com>
-Message-ID: <Pine.LNX.4.10.10101290912420.26212-100000@coffee.psychology.mcmaster.ca>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Is HP Colorado 8Gb supported by Linux?
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I am not a guru, but AOpen AK73PRO which uses VIA KT133 does not
-> show any of these symptoms that you describe (I cannot be sure
-> about #3 since I run ntp).  You may want to make your hardware
+Can anyone tell me whether there is support for the HP Colorado 8Gb (IDE 
+version) tape drive in the Linux kernel and/or user space?
 
-my ga-7zm shows none of them either (I also run ntp, and the board 
-has a perfectly normal drift history.)
+If there is kernel support which of the kernel options do I have to enable 
+/ where do I get user space utilities from? Any pointers?
+
+Thanks a lot for the help in advance.
+
+Best regards,
+
+         Anton
+
+
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://sourceforge.net/projects/linux-ntfs/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

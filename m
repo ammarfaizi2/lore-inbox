@@ -1,35 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310782AbSCMQhn>; Wed, 13 Mar 2002 11:37:43 -0500
+	id <S310769AbSCMQin>; Wed, 13 Mar 2002 11:38:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310783AbSCMQhf>; Wed, 13 Mar 2002 11:37:35 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:27411 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S310782AbSCMQhQ>; Wed, 13 Mar 2002 11:37:16 -0500
-Subject: Re: linux-2.5.6 scsi DMA mapping and compilation fixes (not yet working)
-To: rmk@arm.linux.org.uk (Russell King)
-Date: Wed, 13 Mar 2002 16:51:49 +0000 (GMT)
-Cc: adam@yggdrasil.com (Adam J. Richter), linux-kernel@vger.kernel.org
-In-Reply-To: <20020312234256.B13558@flint.arm.linux.org.uk> from "Russell King" at Mar 12, 2002 11:42:56 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S310787AbSCMQie>; Wed, 13 Mar 2002 11:38:34 -0500
+Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:5380 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S310783AbSCMQiU>;
+	Wed, 13 Mar 2002 11:38:20 -0500
+Date: Wed, 13 Mar 2002 08:38:28 -0800
+From: Greg KH <greg@kroah.com>
+To: David Chow <davidchow@shaolinmicro.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: USB-to-serial 2303
+Message-ID: <20020313163828.GA1951@kroah.com>
+In-Reply-To: <1016020663.31918.10.camel@star8.planet.rcn.com.hk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16lByf-0006ph-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <1016020663.31918.10.camel@star8.planet.rcn.com.hk>
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Wed, 13 Feb 2002 14:33:24 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I believe changes to NCR53c80 were recently reverted back because
-> these "fixes" lead to massive data corruption.  It is preferable
-> that the driver remains unbuildable, and therefore doesn't cause
-> data corruption than to be buildable and case data corruption.
+On Wed, Mar 13, 2002 at 07:57:42PM +0800, David Chow wrote:
+> Hi, I've got a pl2303 adapter running 2.4.17 . I cannot write any
+> commands to my modem but I still read "RING" with some corrupted output
+> from my /dev/ttyUSB0 port. Is this driver still in beta or not working?
+> I would like to get some hints thanks.
 
-Someone "fixed" the 2.5 one by just frobbing randomly with the
-io_request_lock without noticing its not always used per queue in the driver
-(study the host list code - and dont think you can just clean that up by
- using SHIRQ - that wont help on some non x86 stuff). I fed Dave Jones
-the 2.4 stuff where the locking is fixed (tho using io_request_lock) and
-actually works SMP.
+I do not know of any outstanding problems with this driver, no.
+Can you load it with "debug=1" on the modprobe line and see if there is
+any odd messages in the kernel debug log?
 
-Dave then I suspect fed it to Linus
+thanks,
+
+greg k-h

@@ -1,80 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264733AbSK0UR3>; Wed, 27 Nov 2002 15:17:29 -0500
+	id <S264749AbSK0UYj>; Wed, 27 Nov 2002 15:24:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264743AbSK0UR3>; Wed, 27 Nov 2002 15:17:29 -0500
-Received: from port326.ds1-brh.adsl.cybercity.dk ([217.157.160.207]:60243 "EHLO
-	mail.jaquet.dk") by vger.kernel.org with ESMTP id <S264733AbSK0UR2>;
-	Wed, 27 Nov 2002 15:17:28 -0500
-Date: Wed, 27 Nov 2002 21:24:42 +0100
-From: Rasmus Andersen <rasmus@jaquet.dk>
-To: Andrew Morton <akpm@digeo.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
-Subject: Re: 2.5.49-mm2
-Message-ID: <20021127212442.B8411@jaquet.dk>
-References: <3DE48C4A.98979F0C@digeo.com> <20021127210153.A8411@jaquet.dk> <3DE526FC.3D78DB54@digeo.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="MW5yreqqjyrRcusr"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3DE526FC.3D78DB54@digeo.com>; from akpm@digeo.com on Wed, Nov 27, 2002 at 12:11:40PM -0800
-X-PGP-Key: http://www.jaquet.dk/rasmus/pubkey.asc
-X-PGP-Fingerprint: 925A 8E4B 6D63 1C22 BFB9  29CF 9592 4049 9E9E 26CE
+	id <S264756AbSK0UYj>; Wed, 27 Nov 2002 15:24:39 -0500
+Received: from pat.uio.no ([129.240.130.16]:56464 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S264749AbSK0UYi>;
+	Wed, 27 Nov 2002 15:24:38 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15845.11182.384531.599421@charged.uio.no>
+Date: Wed, 27 Nov 2002 21:31:42 +0100
+To: Christian Reis <kiko@async.com.br>
+Cc: NFS@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19+trond and diskless locking problems
+In-Reply-To: <20021127150828.A12120@blackjesus.async.com.br>
+References: <20021003184418.K3869@blackjesus.async.com.br>
+	<shsy99f16np.fsf@charged.uio.no>
+	<20021003202602.M3869@blackjesus.async.com.br>
+	<15772.60202.510717.850059@charged.uio.no>
+	<20021120120223.A15034@blackjesus.async.com.br>
+	<15835.49194.109931.227732@charged.uio.no>
+	<20021126224123.A9660@blackjesus.async.com.br>
+	<15844.7306.735524.133781@charged.uio.no>
+	<20021127150828.A12120@blackjesus.async.com.br>
+X-Mailer: VM 7.00 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> " " == Christian Reis <kiko@async.com.br> writes:
 
---MW5yreqqjyrRcusr
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+     > What can I do to help further debug the issue? Try another
+     > kernel version on clients? Server? This is giving me a
+     > headache.. :-/
 
-On Wed, Nov 27, 2002 at 12:11:40PM -0800, Andrew Morton wrote:
-> > Debug: Sleeping function called from illegal context at include/
-> > linux/rwsem.h:66
-> > Call Trace: __might_sleep+0x54/0x58
-> >            sys_mprotect+0x97/0x22b
-> >            syscall_call+0x7/0xb
->=20
-> Oh that's cute.  Looks like we've accidentally disabled preemption
-> somewhere...
->=20
-> > Unable to handle kernel paging request at virtual address 4001360c
->=20
-> And once you do that, the pagefault handler won't handle pagefaults.
-> =20
-> > (I did not copy the rest but can reproduce at will.)
->=20
-> Please do.  And tell how you're making it happen.
+Try to give us a dump of the server lock manager activity when this
+problem occurs. Try to do
 
-I'm booting my debian testing system, going into kdm.
-Various versions as per my last mail.
+echo "217" >/proc/sys/sunrpc/nlm_debug
 
-Does your 'Please do' mean that you would like the rest of
-oops?
+on the server just before the client issues a lock.
 
-> Is that .config still current?
-
-The .config used for -mm2 is at www.jaquet.dk/kernel/config-2.5.49-mm2
-
-> Does it go away if you turn off preemption?
-
-I'll test that right away.
-
-Regards,=20
-  Rasmus
-
---MW5yreqqjyrRcusr
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
-
-iD8DBQE95SoKlZJASZ6eJs4RAptAAJ41wNpu8Tw73QRdJ6hMN6CAACfh2gCfZ7Io
-M8i2lZl2zmRMUBYKVQGjsfE=
-=k7Bt
------END PGP SIGNATURE-----
-
---MW5yreqqjyrRcusr--
+Cheers,
+  Trond

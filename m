@@ -1,46 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265315AbSJXFgq>; Thu, 24 Oct 2002 01:36:46 -0400
+	id <S265318AbSJXFoT>; Thu, 24 Oct 2002 01:44:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265317AbSJXFgq>; Thu, 24 Oct 2002 01:36:46 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:50696 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S265315AbSJXFgp>;
-	Thu, 24 Oct 2002 01:36:45 -0400
-Date: Thu, 24 Oct 2002 01:42:54 -0400 (EDT)
-Message-Id: <200210240542.g9O5gsh357557@saturn.cs.uml.edu>
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-To: linux-kernel@vger.kernel.org
-Cc: acahalan@cs.uml.edu
-Subject: vmstat
+	id <S265320AbSJXFoT>; Thu, 24 Oct 2002 01:44:19 -0400
+Received: from netcore.fi ([193.94.160.1]:30217 "EHLO netcore.fi")
+	by vger.kernel.org with ESMTP id <S265318AbSJXFoT>;
+	Thu, 24 Oct 2002 01:44:19 -0400
+Date: Thu, 24 Oct 2002 08:50:25 +0300 (EEST)
+From: Pekka Savola <pekkas@netcore.fi>
+To: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+cc: linux-kernel@vger.kernel.org, <netdev@oss.sgi.com>, <usagi@linux-ipv6.org>
+Subject: Re: [PATCH] IPv6: Sysctl for ICMPv6 Rate Limitation
+In-Reply-To: <20021024.135055.10632889.yoshfuji@linux-ipv6.org>
+Message-ID: <Pine.LNX.4.44.0210240847280.8872-100000@netcore.fi>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 24 Oct 2002, YOSHIFUJI Hideaki / [iso-2022-jp] 吉藤英明 wrote:
+> This patch add sysctl for icmp6 rate limit.
+> This patch is against 2.4.20-pre11 (see below).
 
-While going over the vmstat man page, I spotted this:
+...
 
-       All linux blocks  are  currently  1k,  except  for  CD-ROM
-       blocks which are 2k.
+> +icmp/*:
+> +ratelimit - INTEGER
+> +	Limit the maximal rates for sending ICMPv6 packets.
+> +	0 to disable any limiting, otherwise the maximal rate in jiffies(1)
+> +	Default: 100
+> +
 
-This doesn't seem to be true. I need help determining when
-things changed so that I can update the documentation.
-I've been checking kernels with commands like this:
+Does this rate-limit all ICMPv6 packets or just ICMPv6 error messages (as 
+specified in ICMPv6 specifications).
 
-dd bs=1024k count=1 if=/dev/cdrom of=/dev/null
+If all, I believe the default of rate-limiting everything is unacceptable.
 
-Linux 2.4.16 and 2.5.42 both seem to use units of 1024 bytes.
-Linux 2.2.18 does something weird, but NOT what is described in
-the vmstat man page. With 2.2.18, non-CD blocks are 4096 (!!!)
-bytes and CD blocks are indeed 2048 bytes.
+Note that in the patch does not seem to add the rate-limit sysctl to any 
+functions -- was that to happen in some other patch?
 
-I suppose there was an even older kernel, perhaps 2.0.xx,
-that did the non-CD blocks in units of 1024 bytes. I can
-no longer compile 2.0.xx, so I need some help testing that.
+-- 
+Pekka Savola                 "Tell me of difficulties surmounted,
+Netcore Oy                   not those you stumble over and fall"
+Systems. Networks. Security.  -- Robert Jordan: A Crown of Swords
 
-Also, am I right about 2.2.xx kernels? Are any of these
-kernels affected by block size of a mounted filesystem?
-Does it matter if I use a /dev/raw* device? Does any
-kernel use different units for file bodies and metadata?
 
---
-http://procps.sf.net/
-http://procps.sf.net/procps-3.0.5.tar.gz

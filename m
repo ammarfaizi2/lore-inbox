@@ -1,53 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129584AbRBYTCw>; Sun, 25 Feb 2001 14:02:52 -0500
+	id <S129589AbRBYTEm>; Sun, 25 Feb 2001 14:04:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129589AbRBYTCm>; Sun, 25 Feb 2001 14:02:42 -0500
-Received: from storm.ca ([209.87.239.69]:5831 "EHLO mail.storm.ca")
-	by vger.kernel.org with ESMTP id <S129587AbRBYTC3>;
-	Sun, 25 Feb 2001 14:02:29 -0500
-Message-ID: <3A99569F.98C64B29@storm.ca>
-Date: Sun, 25 Feb 2001 14:01:51 -0500
-From: Sandy Harris <sandy@storm.ca>
-X-Mailer: Mozilla 4.76 [en] (Win98; U)
-X-Accept-Language: en,fr
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][CFT] per-process namespaces for Linux
-In-Reply-To: <Pine.GSO.4.21.0102251048280.25245-100000@weyl.math.psu.edu>
+	id <S129591AbRBYTEd>; Sun, 25 Feb 2001 14:04:33 -0500
+Received: from [194.213.32.137] ([194.213.32.137]:22276 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S129589AbRBYTEM>;
+	Sun, 25 Feb 2001 14:04:12 -0500
+Message-ID: <20010225200040.A3186@bug.ucw.cz>
+Date: Sun, 25 Feb 2001 20:00:40 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Steve Whitehouse <Steve@ChyGwyn.com>, andrea@suse.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: NBD Hangs
+In-Reply-To: <200102251217.MAA19785@gw.chygwyn.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 0.93i
+In-Reply-To: <200102251217.MAA19785@gw.chygwyn.com>; from Steve Whitehouse on Sun, Feb 25, 2001 at 12:17:25PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro wrote:
+Hi!
 
-> > Have you thought about supporting .tar.gz into ramfs? Creating custom
-> > boot images would be simpler.
-> 
-> *uh*. It's definitely easier to do than it used to be, but I'm seriously
-> sceptical about adding more cruft into the thing. ...
-> 
-> (I presume that you mean "unpacking tar.gz into initrd/floppy-loaded ramdisk"
-> and not "adding into ramfs a loader of tarballs" - the latter is out of
-> question, as far as I'm concerned;
+> I've been having some NBD hangs with the 2.4.2 kernel. It appears that
+> block devices which don't use plugging will not have their request
+> functions called when the request is queued. I propose the following
+> patch to ll_rw_blk.c which seems to do the trick for me. Also I have
+> done a small amount of tidying in nbd.c.
 
-Yes, indeed.
+Thanx for nbd cleanups. All but two changes look good. Please submit
+them to Linus and tell him I approved.
 
-> such code belongs to do_mounts.c if it belongs anywhere at all)
-> 
-> IOW, look into init/do_mounts.c - that's the right place to do that
-> stuff.
+								Pavel
 
-Methinks there are at least two possibilities that could do everything we
-might need here without unnecessary complications.
+> Btw, do you know what the deadlock problem is when plugging is enabled
+> on nbd ? I had a good look through the code and did some tests and there
+> certainly are problems with deadlocks with plugging enabled but I couldn't
+> quite pin down the source. I guessed it might have something to do with 
+> blocking in the request function.
 
-One is just mount a ramdisk and extract a tarball into its root. Yes, this has
-some problems -- how do you load tar when you haven't set up your root? -- but
-I suspect they can be solved. At worst, this would involve some strictly limited
-kluge to do that.
+Sorry, no clues.
 
-A better approach might be to find or invent a generic compressed file system.
-Given that, you just build a compressed root, copy an image of it into ramdisk
-and let the compressed FS driver handle it from there. I suspect such a driver
-might be useful elsewhere as well. Does one exist?
+
+> diff -u -r linux-2.4.2-zc1/drivers/block/nbd.c linux/drivers/block/nbd.c
+> --- linux-2.4.2-zc1/drivers/block/nbd.c	Mon Oct 30 22:30:33 2000
+> +++ linux/drivers/block/nbd.c	Sun Feb 25 11:23:45 2001
+> @@ -174,8 +175,11 @@
+>  }
+>  
+>  #define HARDFAIL( s ) { printk( KERN_ERR "NBD: " s "(result %d)\n", result ); lo->harderror = result; return NULL; }
+> +
+> +/* 
+> + * NULL returned = something went wrong, inform userspace
+> + */ 
+>  struct request *nbd_read_stat(struct nbd_device *lo)
+> -		/* NULL returned = something went wrong, inform userspace       */ 
+>  {
+>  	int result;
+>  	struct nbd_reply reply;
+
+I do not like this one. Comment before function should describe what
+it does.
+
+> @@ -493,9 +493,7 @@
+>  		       MAJOR_NR);
+>  		return -EIO;
+>  	}
+> -#ifdef MODULE
+>  	printk("nbd: registered device at major %d\n", MAJOR_NR);
+> -#endif
+>  	blksize_size[MAJOR_NR] = nbd_blksizes;
+>  	blk_size[MAJOR_NR] = nbd_sizes;
+>  	blk_init_queue(BLK_DEFAULT_QUEUE(MAJOR_NR), do_nbd_request);
+
+Keep this ifdef module. I want module to say something, but not to
+pollute kernel messages.
+
+-- 
+I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
+Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org

@@ -1,51 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265119AbTLFL7h (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Dec 2003 06:59:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265124AbTLFL7h
+	id S265114AbTLFL5U (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Dec 2003 06:57:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265124AbTLFL5U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Dec 2003 06:59:37 -0500
-Received: from main.gmane.org ([80.91.224.249]:6091 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S265119AbTLFL7g (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Dec 2003 06:59:36 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: cdrecord hangs my computer
-Date: Sat, 06 Dec 2003 12:59:33 +0100
-Message-ID: <yw1xu14e88d6.fsf@kth.se>
-References: <Law9-F31u8ohMschTC00001183f@hotmail.com> <Pine.LNX.4.58.0312060011130.2092@home.osdl.org>
- <3FD1994C.10607@stinkfoot.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:iYyC5K5z9oAPW37ZPeMxzjgLpEI=
+	Sat, 6 Dec 2003 06:57:20 -0500
+Received: from port-212-202-157-212.reverse.qsc.de ([212.202.157.212]:52689
+	"EHLO bender.portrix.net") by vger.kernel.org with ESMTP
+	id S265114AbTLFL5T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Dec 2003 06:57:19 -0500
+Message-ID: <3FD1C3E2.1050207@portrix.net>
+Date: Sat, 06 Dec 2003 12:56:18 +0100
+From: Jan Dittmer <j.dittmer@portrix.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031022 Debian/1.5-1.he-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jens Benecke <jens-usenet@spamfreemail.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Which optimization for different CPUs?
+References: <bqs8iq$2c3$1@sea.gmane.org>
+In-Reply-To: <bqs8iq$2c3$1@sea.gmane.org>
+X-Enigmail-Version: 0.76.7.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ethan Weinstein <lists@stinkfoot.org> writes:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
->>>My system hangs everytime I try to  burn my .wav files to cd with cdrecord.
->>>Usually few tracks go succesfully but then everything stops. Even the mouse
->>>won't move and powerbutton does not affect.
->> Is this with ide-scsi? If so, does the appended patch help?
->> If not, we really need a whole lot more information (hw config,
->> messages
->> etc).
->
-> I've noted this at boot several times with 2.6.0-test11
->
-> Dec  4 23:59:21 e-d0uble kernel: ide-scsi is deprecated for cd
-> burning! Use ide-cd and give dev=/dev/hdX as device
+Jens Benecke wrote:
+| Hi,
+|
+| I have several servers and workstations. What optimization level in the
+| kernel configuration is the maximum possible if I want to use the same
+| kernel
+|
 
-And cdrecord keeps saying "Warning: Open by 'devname' is unintentional
-and not supported.".  Maybe it's about time someone got rid of that
-message.
+Try CONFIG_M686.
 
--- 
-Måns Rullgård
-mru@kth.se
+Jan
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+Comment: Using GnuPG with Debian - http://enigmail.mozdev.org
+
+iD8DBQE/0cPiLqMJRclVKIYRAh9eAJ9UeGuMoFWXdOwFrqHhSYTiMIdAPQCfX+g8
+N1fPw1+QETTM6Jau8VkBfcw=
+=HbIJ
+-----END PGP SIGNATURE-----
 

@@ -1,42 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261473AbUKIKiC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261468AbUKIKh1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261473AbUKIKiC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 05:38:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261476AbUKIKhn
+	id S261468AbUKIKh1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 05:37:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261472AbUKIKh0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 05:37:43 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:38092 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261473AbUKIKhR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 05:37:17 -0500
-Subject: Re: IT8212 in 2.6.9-ac6 no raid 0 or raid 1
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Robert Toole <robert.toole@kuehne-nagel.com>
-Cc: alan@lxorq.ukuu.org.uk,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <418FE1B3.8020203@kuehne-nagel.com>
-References: <418FE1B3.8020203@kuehne-nagel.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1099956451.14146.4.camel@localhost.localdomain>
+	Tue, 9 Nov 2004 05:37:26 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:41668 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261468AbUKIKhJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Nov 2004 05:37:09 -0500
+Date: Tue, 9 Nov 2004 05:15:45 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Nick Piggin <piggin@cyberone.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Remove OOM killer from try_to_free_pages / all_unreclaimable braindamage
+Message-ID: <20041109071545.GA5473@logos.cnet>
+References: <20041105200118.GA20321@logos.cnet> <20041108162731.GE2336@logos.cnet> <20041108185546.GA3468@logos.cnet> <419029D9.90506@cyberone.com.au> <20041108183552.7caccad1.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 09 Nov 2004 09:34:18 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041108183552.7caccad1.akpm@osdl.org>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2004-11-08 at 21:14, Robert Toole wrote:
-> Alan, thanks for your work on the ITE8212 controllers.
+On Mon, Nov 08, 2004 at 06:35:52PM -0800, Andrew Morton wrote:
+> Nick Piggin <piggin@cyberone.com.au> wrote:
+> >
+> > I'm not sure... it could also be just be a fluke
+> >  due to chaotic effects in the mm, I suppose :|
 > 
-> Just tried your ac-6 patch for 2.6.9 on my embedded Raid controller. 
-> with the controller set up in normal (No raid mode) everything is good.
+> 2.6 scans less than 2.4 before declaring oom.  I looked at the 2.4
+> implementation and thought "whoa, that's crazy - let's reduce it and see
+> who complains".  My three-year-old memory tells me it was reduced by 2x to
+> 3x.
 > 
-> When I try raid 0 or 1, I get the INVALID GEOMETRY: 0 PHYSICAL HEADS? 
-> error, and the raid device is not accessible after boot.
+> We need to find testcases (dammit) and do the analysis.  It could be that
+> we're simply not scanning far enough.
 
-RAID needs -ac7 which I'll post tomorrow. Bartlomiej found a bug in the
--ac7 draft code when I submitted it for 2.6.10rc merging so it slipped a
-day.
+Andrew,
 
-Alan
+When reading the code I was really suspicious of the all_unreclaimable code. 
+It basically stops scanning when reaching OOM conditions - that might be it.
+
+I tried to disable it (ignore it if priority==0) - result: very slow progress 
+on extreme load. 
 

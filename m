@@ -1,25 +1,25 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267070AbSKSSRz>; Tue, 19 Nov 2002 13:17:55 -0500
+	id <S267044AbSKSSOp>; Tue, 19 Nov 2002 13:14:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267071AbSKSSRz>; Tue, 19 Nov 2002 13:17:55 -0500
-Received: from pop017pub.verizon.net ([206.46.170.210]:63382 "EHLO
-	pop017.verizon.net") by vger.kernel.org with ESMTP
-	id <S267070AbSKSSR3>; Tue, 19 Nov 2002 13:17:29 -0500
-Date: Tue, 19 Nov 2002 13:23:40 -0500
-From: Akira Tsukamoto <at541@columbia.edu>
+	id <S267048AbSKSSOp>; Tue, 19 Nov 2002 13:14:45 -0500
+Received: from pop018pub.verizon.net ([206.46.170.212]:43996 "EHLO
+	pop018.verizon.net") by vger.kernel.org with ESMTP
+	id <S267044AbSKSSOn>; Tue, 19 Nov 2002 13:14:43 -0500
+Date: Tue, 19 Nov 2002 13:20:54 -0500
+From: Akira Tsukamoto <akira-t@suna-asobi.com>
 To: szonyi calin <caszonyi@yahoo.com>
 Subject: Re: Performance improvement with Akira Tsukamoto's Athlon copy_user patch
 Cc: linux-kernel@vger.kernel.org, Hirokazu Takahashi <taka@valinux.co.jp>,
        Andi Kleen <ak@suse.de>
 In-Reply-To: <20021119173416.16110.qmail@web40604.mail.yahoo.com>
 References: <20021119173416.16110.qmail@web40604.mail.yahoo.com>
-Message-Id: <20021119132332.545D.AT541@columbia.edu>
+Message-Id: <20021119130035.5459.AKIRA-T@suna-asobi.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="ISO-2022-JP"
 Content-Transfer-Encoding: 7bit
 X-Mailer: Becky! ver. 2.05.06
-X-Authentication-Info: Submitted using SMTP AUTH LOGIN at pop017.verizon.net from [138.89.33.207] at Tue, 19 Nov 2002 12:24:26 -0600
+X-Authentication-Info: Submitted using SMTP AUTH LOGIN at pop018.verizon.net from [138.89.33.207] at Tue, 19 Nov 2002 12:21:38 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 

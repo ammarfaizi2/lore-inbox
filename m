@@ -1,54 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129137AbRBWNey>; Fri, 23 Feb 2001 08:34:54 -0500
+	id <S129051AbRBWNhZ>; Fri, 23 Feb 2001 08:37:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129142AbRBWNeo>; Fri, 23 Feb 2001 08:34:44 -0500
-Received: from khan.acc.umu.se ([130.239.18.139]:8588 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id <S129137AbRBWNeb>;
-	Fri, 23 Feb 2001 08:34:31 -0500
-Date: Fri, 23 Feb 2001 14:34:14 +0100
-From: David Weinehall <tao@acc.umu.se>
-To: "Mike A. Harris" <mharris@opensourceadvocate.org>
-Cc: root <lkthomas@hkicable.com>, linux-kernel@vger.kernel.org
-Subject: Re: need to suggest a good FS:
-Message-ID: <20010223143414.F5465@khan.acc.umu.se>
-In-Reply-To: <3A95A94E.E3C84BE4@hkicable.com> <Pine.LNX.4.33.0102222114340.2548-100000@asdf.capslock.lan>
-Mime-Version: 1.0
+	id <S129111AbRBWNhQ>; Fri, 23 Feb 2001 08:37:16 -0500
+Received: from viper.haque.net ([64.0.249.226]:47238 "EHLO viper.haque.net")
+	by vger.kernel.org with ESMTP id <S129065AbRBWNhH>;
+	Fri, 23 Feb 2001 08:37:07 -0500
+Message-ID: <3A966781.34BA3218@haque.net>
+Date: Fri, 23 Feb 2001 08:37:05 -0500
+From: "Mohammad A. Haque" <mhaque@haque.net>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: A plea for help, forwarded message from postmaster@morotsmedia.se
+In-Reply-To: <14998.12427.269684.11302@pizda.ninka.net>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <Pine.LNX.4.33.0102222114340.2548-100000@asdf.capslock.lan>; from mharris@opensourceadvocate.org on Thu, Feb 22, 2001 at 09:15:45PM -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 22, 2001 at 09:15:45PM -0500, Mike A. Harris wrote:
-> On Fri, 23 Feb 2001, root wrote:
+I hope I'm not pointing fingers at the wrong person but this is the
+closest match I get.
+
+>From autoreplay headers...
+	Message-Id: <20010223093445.72B7D14228@pigeon.morotsmedia.se>
+	From: postmaster@morotsmedia.se
+	Sender: jborg@pigeon.morotsmedia.se	
+
+Other posts from jborg...
+	From: Jakob Borg <jakob@borg.pp.se>
+	......
+	-- 
+	Jakob Borg            mailto:jakob@borg.pp.se       (personal)
+	UNIX/network admin    mailto:jakob@debian.org    (development)
+	systems programmer    mailto:jakob@morotsmedia.se       (work)
+	                      http://jakob.borg.pp.se/
+
+"David S. Miller" wrote:
 > 
-> >Date: Fri, 23 Feb 2001 08:05:34 +0800
-> >From: root <lkthomas@hkicable.com>
-> >To: linux-kernel@vger.kernel.org
-> >Content-Type: text/plain; charset=us-ascii
-> >Subject: need to suggest a good FS:
-> >
-> >hey all, trouble again
-> >
-> >anyone can suggest some good FS that can install linux?
-> >exclude reiserfs, ext2, ext3, DOS FAT..etc
-> >just need non-normal or non-popular FS, any suggestion?
+> Unless someone can tell me who is the recipient on the linux-kernel
+> list generating these bogus virus bounces back to me, I am going
+> to have no choice but to unsubscribe the entire *.se domain to
+> try and get rid of this guy.
 > 
-> cbmfs?  Might be a bit tight on disk space though.  It would
-> definitely be non-{normal,popular}.
+> Thanks.
+> 
+>   ------------------------------------------------------------------------
+> 
+> Subject: Re: 2.4.2 OOPS on parport loading [pci_register_driver] // parport slow
+> Date: Fri, 23 Feb 2001 10:34:45 +0100 (CET)
+> From: postmaster@morotsmedia.se
+> To: linux-kernel-owner@vger.kernel.org
+> References: <3A96154F.8A791FF6@debian.org> <20010223093358.C1147@redhat.com>
+> 
+> Your mail was recieved, but looked like it might contain a virus and was
+> not delivered.
+> 
+> Please do not respond to this mail, it is only an autoreply.
 
-Hmmm. With additional support for CMD's HD-format for CBMFS, this might
-just work. I've got a CMD HD somewhere; maybe I should throw a 1 GB
-SCSI-disk into it and get hacking... Would be cool to be able to have
-the root file-system on a CBMFS-partition.
+-- 
 
-Ehrmmmm.
+=====================================================================
+Mohammad A. Haque                              http://www.haque.net/ 
+                                               mhaque@haque.net
 
-
-/David
-  _                                                                 _
- // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
-//  Project MCA Linux hacker        //  Dance across the winter sky //
-\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
+  "Alcohol and calculus don't mix.             Project Lead
+   Don't drink and derive." --Unknown          http://wm.themes.org/
+                                               batmanppc@themes.org
+=====================================================================

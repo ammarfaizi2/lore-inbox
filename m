@@ -1,43 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281083AbRKKVWr>; Sun, 11 Nov 2001 16:22:47 -0500
+	id <S281081AbRKKVW1>; Sun, 11 Nov 2001 16:22:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281082AbRKKVWi>; Sun, 11 Nov 2001 16:22:38 -0500
-Received: from blount.mail.mindspring.net ([207.69.200.226]:21023 "EHLO
-	blount.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S281072AbRKKVWX>; Sun, 11 Nov 2001 16:22:23 -0500
-Message-ID: <3BEEED3E.58867BFE@mindspring.com>
-Date: Sun, 11 Nov 2001 13:27:26 -0800
-From: Joe <joeja@mindspring.com>
-Reply-To: joeja@mindspring.com
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.14 i686)
+	id <S281080AbRKKVWS>; Sun, 11 Nov 2001 16:22:18 -0500
+Received: from femail38.sdc1.sfba.home.com ([24.254.60.32]:46261 "EHLO
+	femail38.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S281072AbRKKVWK>; Sun, 11 Nov 2001 16:22:10 -0500
+Message-ID: <3BEEEC4C.89C1CE02@didntduck.org>
+Date: Sun, 11 Nov 2001 16:23:24 -0500
+From: Brian Gerst <bgerst@didntduck.org>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-7 i586)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: loop back broken in 2.2.14
+To: List Account <lists@olivier.pk.wau.nl>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: FPU emulator: unknown prefix byte 0x00
+In-Reply-To: <20011111221818.A21246@olivier>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-compile 2.2.14.
+List Account wrote:
+> Does anybody have a clue why this laptop is not working?
 
-Then
+Upgrade your kernel.  This was fixed in 2.4.8.
 
-# modprobe -a loop
-/lib/modules/2.4.14/kernel/drivers/block/loop.o: unresolved symbol
-deactivate_page
-/lib/modules/2.4.14/kernel/drivers/block/loop.o: insmod
-/lib/modules/2.4.14/kernel/drivers/block/loop.o failed
-/lib/modules/2.4.14/kernel/drivers/block/loop.o: insmod loop failed
-
-do recursive grep through kernel tree:
-
-# rgrep -rl  deactivate_page *
-drivers/block/loop.c
-drivers/block/loop.o
-
-Is there a fix for this?
-
-Joe
-
+--
+					Brian Gerst

@@ -1,60 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264490AbUDSPxE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Apr 2004 11:53:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264498AbUDSPxE
+	id S264495AbUDSP5Z (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Apr 2004 11:57:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264494AbUDSP5Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Apr 2004 11:53:04 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:51335 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264490AbUDSPw7
+	Mon, 19 Apr 2004 11:57:25 -0400
+Received: from mtagate5.de.ibm.com ([195.212.29.154]:34773 "EHLO
+	mtagate5.de.ibm.com") by vger.kernel.org with ESMTP id S264495AbUDSP4n convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Apr 2004 11:52:59 -0400
-Message-ID: <4083F5CE.5080008@pobox.com>
-Date: Mon, 19 Apr 2004 11:52:46 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
+	Mon, 19 Apr 2004 11:56:43 -0400
+Subject: Re: [PATCH] Clean up asm/pgalloc.h include (s390)
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: linux-390@vm.marist.edu, Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Russell King <rmk@arm.linux.org.uk>
+X-Mailer: Lotus Notes Release 5.0.11   July 24, 2002
+Message-ID: <OF97AEF891.DC06EC8E-ONC1256E7B.00576CE3-C1256E7B.00578DF9@de.ibm.com>
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Date: Mon, 19 Apr 2004 17:56:19 +0200
+X-MIMETrack: Serialize by Router on D12ML062/12/M/IBM(Release 6.0.2CF2|July 23, 2003) at
+ 19/04/2004 17:56:21
 MIME-Version: 1.0
-To: Andreas Jochens <aj@andaco.de>
-CC: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] tg3 driver - make use of binary-only firmware optional
-References: <20040418135534.GA6142@andaco.de> <20040418180811.0b2e2567.davem@redhat.com> <20040419080439.GB11586@andaco.de>
-In-Reply-To: <20040419080439.GB11586@andaco.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-type: text/plain; charset=ISO-8859-1
+Content-transfer-encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Jochens wrote:
-> On 04-Apr-18 18:08, David S. Miller wrote:
-> 
->>However, that in no way means that Jeff and myself have to split
->>the firmware out of the driver either.  In fact, I do not want to
->>as I like keeping all of the network drivers I write in single
->>foo.c and foo.h files.
-> 
-> 
-> Would the patch be acceptable if the firmware parts were kept in tg3.c
-> as they are now but #ifdef'd out when CONFIG_TIGON3_FIRMWARE is not set?
-> 
-> At least this would make it clear that the driver is usable even without 
-> the firmware. Or is there perhaps any technical problem which might 
-> occur when firmware loading is optionally disabled as indicated below?
-> 
-> Thank you for your attention.
 
 
-It's still a patch for more political purposes than technical ones.
 
-See my other message -- when the Just Works(tm) value is high enough, we 
-can use the kernel firmware loader, and the firmware will be outside the 
-driver source code.
 
-But since using the firmware loader _right now_ would kill 
-loader-unaware situations like the installer or "kickstart", it's not 
-feasible.
+> This patch cleans up needless includes of asm/pgalloc.h from the
+> arch/s390/ subtree.  This has not been compile tested, so
+> needs the architecture maintainers (or willing volunteers) to
+> test.
 
-	Jeff
+Doesn't compile. s390_ksyms needs pgalloc.h for the definition of diag10.
+The other includes of pgalloc.h can be removed without a problem.
 
+blue skies,
+   Martin
+
+Linux/390 Design & Development, IBM Deutschland Entwicklung GmbH
+Schönaicherstr. 220, D-71032 Böblingen, Telefon: 49 - (0)7031 - 16-2247
+E-Mail: schwidefsky@de.ibm.com
 
 

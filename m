@@ -1,110 +1,168 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263854AbUDNA6j (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Apr 2004 20:58:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263855AbUDNA6j
+	id S263419AbUDNBC4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Apr 2004 21:02:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263725AbUDNBC4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Apr 2004 20:58:39 -0400
-Received: from colin2.muc.de ([193.149.48.15]:1540 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S263854AbUDNA6f (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Apr 2004 20:58:35 -0400
-Date: 14 Apr 2004 02:58:34 +0200
-Date: Wed, 14 Apr 2004 02:58:34 +0200
-From: Andi Kleen <ak@muc.de>
-To: Terence Ripperda <tripperda@nvidia.com>
-Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org, eich@suse.de
-Subject: Re: PAT support
-Message-ID: <20040414005834.GA46220@colin2.muc.de>
-References: <m3n05gu4o2.fsf@averell.firstfloor.org> <20040413162108.GA453@hygelac>
+	Tue, 13 Apr 2004 21:02:56 -0400
+Received: from fmr10.intel.com ([192.55.52.30]:36236 "EHLO
+	fmsfmr003.fm.intel.com") by vger.kernel.org with ESMTP
+	id S263419AbUDNBCv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Apr 2004 21:02:51 -0400
+Subject: Re: IO-APIC on nforce2 [PATCH]
+From: Len Brown <len.brown@intel.com>
+To: ross@datscreative.com.au
+Cc: christian.kroener@tu-harburg.de, linux-kernel@vger.kernel.org,
+       "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+In-Reply-To: <200404131703.09572.ross@datscreative.com.au>
+References: <200404131117.31306.ross@datscreative.com.au>
+	 <1081832914.2253.623.camel@dhcppc4>
+	 <200404131703.09572.ross@datscreative.com.au>
+Content-Type: multipart/mixed; boundary="=-rMgQvLyM53Yf3YzgihY4"
+Organization: 
+Message-Id: <1081893978.2251.653.camel@dhcppc4>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040413162108.GA453@hygelac>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 13 Apr 2004 21:02:30 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[I put Egbert Eich in cc who may be interested in the X server
-side of this]
 
-On Tue, Apr 13, 2004 at 11:21:08AM -0500, Terence Ripperda wrote:
-> 
-> 
-> On Mon, Apr 12, 2004 at 05:01:33PM -0700, ak@muc.de wrote:
-> > Looks good for starting. The patch could use some minor cleanup still,
-> > but it should be good enough for testing.
-> 
-> sure. I don't know all of the kernel style guidelines well enough, so I wouldn't be surprised if some of that was off. Also, I'm not sure if I did the architectural breakdown correctly.
-> 
-> 
-> > As for an interface - i still think it would be cleaner to just
-> > call it from change_page_attr(). Then other users only need to
-> > call a single function. But that's easily changed.
-> 
-> sure, I'm fine with that. I have a couple of related questions that might be dumb:
-> 
-> we discussed before how change_page_attr takes a struct page *. there are many cases where pci i/o memory is backed by struct pages, but in the majority of x86 desktops, this isn't the case. I'm unclear how these cases would be handled? would change_page_attr be changed to take address/size rather than struct page? would drivers be responsible for recognizing this case and calling a different api in that case (cmap directly)? should x86 be changed such that all memory is covered by struct pages (doubtful)?
+--=-rMgQvLyM53Yf3YzgihY4
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-Covering everything with struct page * would be a waste of memory
-(the mappings tend to be at the end of 4GB and just covering 4GB 
-with struct page costs considerable memory) 
+Re: IRQ0 XT-PIC timer issue
 
-I would just change change_page_attr() back to use physical addresses.
-In fact the original version did that, but someone complained that
-it may get used for highmem too - but that was never handled 
-(it BUGs right now) and doesn't make sense because highmem is not
-in the direct mapping.
+Since the hardware is connected to APIC pin0, it is a BIOS bug
+that an ACPI interrupt source override from pin2 to IRQ0 exists.
+
+With this simple 2.6.5 patch you can specify "acpi_skip_timer_override"
+to ignore that bogus BIOS directive.  The result is with your
+ACPI-enabled APIC-enabled kernel, you'll get IRQ0 IO-APIC-edge timer.
+
+Probably there is a more clever way to trigger this workaround
+automatcially instead of via boot parameter.
+
+cheers,
+-Len
+
+===== Documentation/kernel-parameters.txt 1.44 vs edited =====
+--- 1.44/Documentation/kernel-parameters.txt	Mon Mar 22 16:03:22 2004
++++ edited/Documentation/kernel-parameters.txt	Tue Apr 13 17:47:11 2004
+@@ -122,6 +122,10 @@
+ 
+ 	acpi_serialize	[HW,ACPI] force serialization of AML methods
+ 
++	acpi_skip_timer_override [HW,ACPI]]
++			Recognize IRQ0/pin2 Interrupt Source Override
++			and ignore it -- for broken nForce2 BIOS.
++
+ 	ad1816=		[HW,OSS]
+ 			Format: <io>,<irq>,<dma>,<dma2>
+ 			See also Documentation/sound/oss/AD1816.
+===== arch/i386/kernel/setup.c 1.115 vs edited =====
+--- 1.115/arch/i386/kernel/setup.c	Fri Apr  2 07:21:43 2004
++++ edited/arch/i386/kernel/setup.c	Tue Apr 13 17:41:31 2004
+@@ -614,6 +614,12 @@
+ 		else if (!memcmp(from, "acpi_sci=low", 12))
+ 			acpi_sci_flags.polarity = 3;
+ 
++		else if (!memcmp(from, "acpi_skip_timer_override", 24)) {
++			extern int acpi_skip_timer_override;
++
++			acpi_skip_timer_override = 1;
++		}
++
+ #ifdef CONFIG_X86_LOCAL_APIC
+ 		/* disable IO-APIC */
+ 		else if (!memcmp(from, "noapic", 6))
+===== arch/i386/kernel/acpi/boot.c 1.57 vs edited =====
+--- 1.57/arch/i386/kernel/acpi/boot.c	Tue Mar 30 17:05:19 2004
++++ edited/arch/i386/kernel/acpi/boot.c	Tue Apr 13 17:50:14 2004
+@@ -62,6 +62,7 @@
+ 
+ acpi_interrupt_flags acpi_sci_flags __initdata;
+ int acpi_sci_override_gsi __initdata;
++int acpi_skip_timer_override __initdata;
+ 
+ #ifdef CONFIG_X86_LOCAL_APIC
+ static u64 acpi_lapic_addr __initdata = APIC_DEFAULT_PHYS_BASE;
+@@ -327,6 +328,12 @@
+ 		acpi_sci_ioapic_setup(intsrc->global_irq,
+ 			intsrc->flags.polarity, intsrc->flags.trigger);
+ 		return 0;
++	}
++
++	if (acpi_skip_timer_override &&
++		intsrc->bus_irq == 0 && intsrc->global_irq == 2) {
++			printk(PREFIX "BIOS IRQ0 pin2 override ignored.\n");
++			return 0;
+ 	}
+ 
+ 	mp_override_legacy_irq (
 
 
-> a lot of mmaps currently use remap_page_range w/o change_page_attr currently. I had thought that by putting the cmap_request inside of remap_page_range, we would make sure we caught all remappings and didn't miss any potential conflicts. is the preference to have all drivers updated and be responsible for calling change_page_attr before remap_page_range? or perhaps I'm missing the obvious: ioremap calls change_page_attr in the correct cases, so perhaps remap_page_range should call change_page_attr, which would in turn call cmap_request.
 
-Normally it's not needed on i386 because the mappings remapped by
- remap_page_range are not in the direct mapping (which only maps the first 
-~900MB) on i386.  On x86-64 it is buggy when you have enough memory,
-because the PCI IO regions below 4GB will be in the direct mapping then.
-Then it should call change_page_attr when it uses a non caching 
-attribute, agreed.
+--=-rMgQvLyM53Yf3YzgihY4
+Content-Disposition: attachment; filename=wip.patch
+Content-Type: text/plain; name=wip.patch; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-It could be a problem on x86 too if someone remaps a mapping in the
- 640k-1MB hole, but that's probably unlikely.
+===== Documentation/kernel-parameters.txt 1.44 vs edited =====
+--- 1.44/Documentation/kernel-parameters.txt	Mon Mar 22 16:03:22 2004
++++ edited/Documentation/kernel-parameters.txt	Tue Apr 13 17:47:11 2004
+@@ -122,6 +122,10 @@
+ 
+ 	acpi_serialize	[HW,ACPI] force serialization of AML methods
+ 
++	acpi_skip_timer_override [HW,ACPI]]
++			Recognize IRQ0/pin2 Interrupt Source Override
++			and ignore it -- for broken nForce2 BIOS.
++
+ 	ad1816=		[HW,OSS]
+ 			Format: <io>,<irq>,<dma>,<dma2>
+ 			See also Documentation/sound/oss/AD1816.
+===== arch/i386/kernel/setup.c 1.115 vs edited =====
+--- 1.115/arch/i386/kernel/setup.c	Fri Apr  2 07:21:43 2004
++++ edited/arch/i386/kernel/setup.c	Tue Apr 13 17:41:31 2004
+@@ -614,6 +614,12 @@
+ 		else if (!memcmp(from, "acpi_sci=low", 12))
+ 			acpi_sci_flags.polarity = 3;
+ 
++		else if (!memcmp(from, "acpi_skip_timer_override", 24)) {
++			extern int acpi_skip_timer_override;
++
++			acpi_skip_timer_override = 1;
++		}
++
+ #ifdef CONFIG_X86_LOCAL_APIC
+ 		/* disable IO-APIC */
+ 		else if (!memcmp(from, "noapic", 6))
+===== arch/i386/kernel/acpi/boot.c 1.57 vs edited =====
+--- 1.57/arch/i386/kernel/acpi/boot.c	Tue Mar 30 17:05:19 2004
++++ edited/arch/i386/kernel/acpi/boot.c	Tue Apr 13 17:50:14 2004
+@@ -62,6 +62,7 @@
+ 
+ acpi_interrupt_flags acpi_sci_flags __initdata;
+ int acpi_sci_override_gsi __initdata;
++int acpi_skip_timer_override __initdata;
+ 
+ #ifdef CONFIG_X86_LOCAL_APIC
+ static u64 acpi_lapic_addr __initdata = APIC_DEFAULT_PHYS_BASE;
+@@ -327,6 +328,12 @@
+ 		acpi_sci_ioapic_setup(intsrc->global_irq,
+ 			intsrc->flags.polarity, intsrc->flags.trigger);
+ 		return 0;
++	}
++
++	if (acpi_skip_timer_override &&
++		intsrc->bus_irq == 0 && intsrc->global_irq == 2) {
++			printk(PREFIX "BIOS IRQ0 pin2 override ignored.\n");
++			return 0;
+ 	}
+ 
+ 	mp_override_legacy_irq (
 
+--=-rMgQvLyM53Yf3YzgihY4--
 
-> 
-> the main reason I hadn't added the cmap_request call to change_page_attr was due to us focusing on i/o regions first, then tackling system memory later. I can go ahead and add the call, since cmap_request will currently recognize system memory and skip over it, returning success. I would then still need to figure out how to work change_page_attr and i/o regions, at least on x86.
-
-For x86 it's not needed, only for x86-64, but it would be nice to use
-common behaviour between the two. 
-
-> 
-> 
-> > To make it really useful I think we need ioremap_wrcomb() and support
-> > in the bus/pci mmap function (the PCI layer already has ioctls for this,
-> > they are just ignored on i386 right). Then the X server could
-> > start using it. 
-> 
-> is this pci_mmap_page_range? I hadn't seen that before (it looks like it was added to i386 in the 2.6 series). it does look like it's plugged into proc_bus_pci_mmap for i386 on 2.6, but perhaps I'm missing something when skimming the code. that should be easy to add (or would be picked up by a change to remap_page_range).
-> 
-> I've added ioremap_wrcomb in my tree, but need to test it still.
-
-Yes.  I thought it was already in 2.4? 
-
-The pci mmap also has an ioctl - see drivers/pci/proc.c:proc_bus_pci_ioctl -
-to set write combining. It would be nice if that was just hooked up.
-
-
-
-> > Without any users the testing coverage would be probably not too good,
-> > but it needs some testing in the real world before it could 
-> > be merged first. Maybe it could be simply hooked into the AGP
-> > driver and into some DRM driver. Then people would start testing
-> > it at least.
-> 
-> sure. I did a quick scan of the code, I see an mmap function in the agpgart code. it looks like some of the drm drivers (ffb/i810/i830) have mmap, but not all of them. I would assume they relied on the agpgart mmap. the agpgart mmap could be updated, based on the decision above (driver vs. change_page_attr/remap_page_range), would that be enough?
-
-Yes.
-
-And possible the X server to use /proc/bus/pci/* instead of /dev/mem
-and then use the wrcombining ioctl instead of /proc/mtrr. 
-
--Andi

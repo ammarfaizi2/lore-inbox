@@ -1,39 +1,78 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313419AbSEYE2q>; Sat, 25 May 2002 00:28:46 -0400
+	id <S313421AbSEYEbo>; Sat, 25 May 2002 00:31:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313421AbSEYE2q>; Sat, 25 May 2002 00:28:46 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:55057 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S313419AbSEYE2p>; Sat, 25 May 2002 00:28:45 -0400
-Date: Fri, 24 May 2002 21:27:08 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Karim Yaghmour <karim@opersys.com>
-cc: Andrea Arcangeli <andrea@e-mind.com>, Dan Kegel <dank@kegel.com>,
-        Andrew Morton <akpm@zip.com.au>, Hugh Dickins <hugh@veritas.com>,
-        Christoph Rohland <cr@sap.com>, Jens Axboe <axboe@suse.de>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: patent on O_ATOMICLOOKUP [Re: [PATCH] loopable tmpfs (2.4.17)]
-In-Reply-To: <Pine.LNX.4.44.0205242059410.4177-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0205242124260.5385-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S313492AbSEYEbo>; Sat, 25 May 2002 00:31:44 -0400
+Received: from jwhite-home.codeweavers.com ([209.240.253.22]:23664 "EHLO
+	jwhiteh.whitesen.org") by vger.kernel.org with ESMTP
+	id <S313421AbSEYEbm>; Sat, 25 May 2002 00:31:42 -0400
+Subject: isofs unhide option:  troubles with Wine
+From: Jeremy White <jwhite@codeweavers.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 24 May 2002 23:30:29 -0500
+Message-Id: <1022301029.2443.28.camel@jwhiteh>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Greetings,
 
+When installing Microsoft Office with Wine, we find that some
+MS CDs have certain files marked as hidden on the CD.
 
-On Fri, 24 May 2002, Linus Torvalds wrote:
->
-> You know what? I don't care. If the RTAI people are trying to make it easy
-> for non-GPL module people, I have absolutely zero interest.
+With the default isofs mount options, these files are
+completely inaccessible.  (Relevant code is in 
+fs/isofs/namei.c, and dir.c; search for unhide).
 
-[ Clarification: here "module" is not just "the thing you insert with
-  insmod". In RTAI it's a mlock'ed user-level thing that has higher
-  priority than the kernel, and can thus trivially crash the system.
-  Whether it runs in CPL0 or CPL3 is immaterial at that point - a crash is
-  a crash, and I'm not interested in systems where I cannot debug the
-  thing that caused it ]
+You're forced to remount the CD with the -unhide option
+to make these files visible.
 
-		Linus
+Now, forgive me if I've overlooked TFM, but I did not
+find any discussion of the unhide option in the archives
+I could search.
+
+Further, imho, the unhide code is incorrectly implemented
+in Linux.
+
+The use of the 'hide' bit in Windows has no good parallel in
+Linux.  The current implementation treats a hidden file
+as if it didn't exist at all, there is no possible way 
+a user space program can see that file.  In Windows, the
+file just is hidden from 'normal' programs, you can still
+get to the file if you work hard enough.
+
+Further, I hypothesize (perhaps wrongly) that the only use
+of this hidden bit is on Windows CDs, and largely on MS
+Office CDs, and so I think it is reasonable for me to
+call for a change.  (Understand, I'm trying to help
+very basic users to use MS Office; for them to have to
+su to root, umount, and then mount -o unhide, is a pretty tough thing
+to ask.  See the following article to see why I'm so upset about this:
+    http://biz.yahoo.com/fo/020523/linux_gets_friendlier_1.html)
+
+Unfortunately, I don't have a strong feeling for what the
+'right' solution is.  I see several options:
+
+    1.  Invert the logic of the option, make it 'hide' instead
+        of unhide, and so unhide is the default.
+
+    2.  Make it possible to set this mount option from user
+        space (I don't like this, but it would get me around
+        the problem).
+
+    3.  Make it so that isofs/dir.c still strips out hidden
+        files, but enable isofs/namei.c to return a hidden file that
+        is opened directly by name.
+
+I am willing to submit a patch to implement the appropriate solution.
+
+Comments and opinions are greatly appreciated; please copy me directly
+though, as I am not subscribed.
+
+Thanks,
+
+Jeremy
 

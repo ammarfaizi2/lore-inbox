@@ -1,49 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136919AbREJU2a>; Thu, 10 May 2001 16:28:30 -0400
+	id <S136920AbREJUsf>; Thu, 10 May 2001 16:48:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136918AbREJU2L>; Thu, 10 May 2001 16:28:11 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:27913 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S136888AbREJU2G>; Thu, 10 May 2001 16:28:06 -0400
-Date: Thu, 10 May 2001 15:49:05 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: Mark Hemment <markhe@veritas.com>, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org
-Subject: Re: [PATCH] allocation looping + kswapd CPU cycles
-In-Reply-To: <20010510211913.R16590@redhat.com>
-Message-ID: <Pine.LNX.4.21.0105101545140.19732-100000@freak.distro.conectiva>
+	id <S136921AbREJUs0>; Thu, 10 May 2001 16:48:26 -0400
+Received: from tomts6.bellnexxia.net ([209.226.175.26]:41671 "EHLO
+	tomts6-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S136920AbREJUsP>; Thu, 10 May 2001 16:48:15 -0400
+From: Ed Tomlinson <tomlins@cam.org>
+Subject: Re: ATAPI Tape Driver Failure in Kernel 2.4.4, More
+To: linux-kernel@vger.kernel.org
+Date: Thu, 10 May 2001 16:48:13 -0400
+In-Reply-To: <3AF9558F.9C76953C@tpr.com> <3AF9B411.2A0F3F43@tpr.com> <3AF9B876.FDB1B6DD@bigfoot.com> <3AFA8A1D.A9BBB4DF@tpr.com> <3AFAD0DC.90510557@windsormachine.com>
+Organization: me
+User-Agent: KNode/0.4
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+Message-Id: <20010510204813.856F56A69@oscar.casa.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Mike Dresser wrote:
 
-
-On Thu, 10 May 2001, Stephen C. Tweedie wrote:
-
-> Hi,
+> Mark Bratcher wrote:
 > 
-> On Thu, May 10, 2001 at 03:22:57PM -0300, Marcelo Tosatti wrote:
+>>
+>> This all works OK in kernel 2.2.17. But it fails in 2.4.4.
+>> > hdd: HP COLORADO 20GB, ATAPI TAPE drive
 > 
-> > Initially I thought about __GFP_FAIL to be used by writeout routines which
-> > want to cluster pages until they can allocate memory without causing any
-> > pressure to the system. Something like this: 
-> > 
-> > while ((page = alloc_page(GFP_FAIL))
-> > 	add_page_to_cluster(page);
-> > write_cluster(); 
-> 
-> Isn't that an orthogonal decision?  You can use __GFP_FAIL with or
-> without __GFP_WAIT or __GFP_IO, whichever is appropriate.
+> I did my own playing with 2.4.x on the 14gb model of this tape drive, all i've managed
+> to do is be able to write to the tape, but not read from it.  Even in 2.2.x, putting the
+> IDE patches in, breaks it.  Apparently the HP's aren't completely ATAPI compatible
 
-Correct. 
+I can write my HP 20GB drive with ide-tape.  For restores I use ide-scsi.  Its a bit of a 
+hack but does work around the problem.
 
-Back to the main discussion --- I guess we could make __GFP_FAIL (with
-__GFP_WAIT set :)) allocations actually fail if "try_to_free_pages()" does
-not make any progress (ie returns zero). But maybe thats a bit too
-extreme.
-
-What do you think? 
+Ed Tomlinson <tomlins@cam.org>
 

@@ -1,44 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264465AbTDPRcF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Apr 2003 13:32:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264486AbTDPRcF
+	id S264447AbTDPR34 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Apr 2003 13:29:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264465AbTDPR34
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 13:32:05 -0400
-Received: from palrel12.hp.com ([156.153.255.237]:42215 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id S264465AbTDPRcD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 13:32:03 -0400
-Date: Wed, 16 Apr 2003 10:43:52 -0700
-From: David Mosberger <davidm@napali.hpl.hp.com>
-Message-Id: <200304161743.h3GHhqoi017842@napali.hpl.hp.com>
-To: torvalds@transmeta.com, akpm@digeo.com
+	Wed, 16 Apr 2003 13:29:56 -0400
+Received: from coral.ocn.ne.jp ([211.6.83.180]:64709 "HELO
+	smtp.coral.ocn.ne.jp") by vger.kernel.org with SMTP id S264447AbTDPR3z
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Apr 2003 13:29:55 -0400
+Date: Thu, 17 Apr 2003 02:41:47 +0900
+From: Bruce Harada <bharada@coral.ocn.ne.jp>
+To: root@chaos.analogic.com
 Cc: linux-kernel@vger.kernel.org
-Subject: fix fs->lock deadlock
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
-Reply-To: davidm@hpl.hp.com
+Subject: Re: System Call parameters
+Message-Id: <20030417024147.33a76987.bharada@coral.ocn.ne.jp>
+In-Reply-To: <Pine.LNX.4.53.0304161256130.11667@chaos>
+References: <Pine.LNX.4.53.0304161256130.11667@chaos>
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below is needed to avoid a deadlock on fs->lock.  Without
-the patch, if __emul_lookup_dentry() returns 0, we fail to reacquire
-current->fs->lock and then go ahead to read_unlock() it anyhow.  Bad
-for your health.
+On Wed, 16 Apr 2003 12:58:15 -0400 (EDT)
+"Richard B. Johnson" <root@chaos.analogic.com> wrote:
 
-I believe the bug was introduced by this change set (about 9 weeks ago):
+> 
+> How does the kernel get more than five parameters?
+> 
+> Currently...
+> 	eax	= function code
+> 	ebx	= first parameter
+> 	ecx	= second parameter
+> 	edx	= third parameter
+> 	esi	= fourth parameter
+> 	edi	= fifth parameter
+> 
+> Some functions like mmap() take 6 parameters!
+> Does anybody know how these parameters get passed?
+> I have an "ultra-light" 'C' runtime library I have
+> been working on and, so-far, I've got everything up
+> to mmap()  (in syscall.h) (89 functions) working.
+> I thought, maybe ebp was being used, but it doesn't
+> seem to be the case.
+> 
+> Maybe after 5 functions, there is a parameter list
+> passed by pointer???? I don't have a clue and I
+> can figure out the code, it's really obscure...
 
-  http://linux.bkbits.net:8080/linux-2.5/diffs/fs/namei.c@1.63.1.2
+>From http://www.google.co.jp/search?q=cache:7GJP4whNQEkC:webster.cs.ucr.edu/Page_Linux/LinuxSysCalls.pdf+Linux+mmap+parameters+ebp&hl=ja&ie=UTF-8 :
 
-	--david
+ Certain Linux 2.4 calls pass a sixth parameter in EBP. Calls compatible with earlier versions of the kernel pass six or
+ more parameters in a parameter block and pass the address of the parameter block in EBX (this change was probably
+ made in kernel 2.4 because someone noticed that an extra copy between kernel and user space was slowing down
+ those functions with exactly six parameters; who knows the real reason, though).
 
-===== fs/namei.c 1.69 vs edited =====
---- 1.69/fs/namei.c	Wed Apr  2 22:51:31 2003
-+++ edited/fs/namei.c	Wed Apr 16 10:18:40 2003
-@@ -847,6 +847,7 @@
- 			read_unlock(&current->fs->lock);
- 			if (__emul_lookup_dentry(name,nd))
- 				return 0;
-+			read_lock(&current->fs->lock);
- 		}
- 		nd->mnt = mntget(current->fs->rootmnt);
- 		nd->dentry = dget(current->fs->root);
+Relevant? No idea.
+

@@ -1,44 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269553AbUIZOmE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269566AbUIZPjk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269553AbUIZOmE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Sep 2004 10:42:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269557AbUIZOmE
+	id S269566AbUIZPjk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Sep 2004 11:39:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269567AbUIZPjk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Sep 2004 10:42:04 -0400
-Received: from jade.aracnet.com ([216.99.193.136]:63700 "EHLO
-	jade.spiritone.com") by vger.kernel.org with ESMTP id S269553AbUIZOmC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Sep 2004 10:42:02 -0400
-Date: Sun, 26 Sep 2004 07:41:52 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Andrea Arcangeli <andrea@novell.com>
-cc: Andrew Morton <akpm@osdl.org>,
+	Sun, 26 Sep 2004 11:39:40 -0400
+Received: from mail-relay-3.tiscali.it ([213.205.33.43]:38877 "EHLO
+	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
+	id S269566AbUIZPji (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Sep 2004 11:39:38 -0400
+Date: Sun, 26 Sep 2004 17:39:28 +0200
+From: Andrea Arcangeli <andrea@novell.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@osdl.org>,
        Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: ptep_establish/establish_pte needs set_pte_atomic and all	set_pte must be written in asm
-Message-ID: <228130000.1096209711@[10.10.2.4]>
-In-Reply-To: <1096159487.18234.64.camel@gaston>
-References: <20040925155404.GL3309@dualathlon.random> <1096155207.475.40.camel@gaston>  <20040926002037.GP3309@dualathlon.random> <1096159487.18234.64.camel@gaston>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+Subject: Re: ptep_establish/establish_pte needs set_pte_atomic and all set_pte must be written in asm
+Message-ID: <20040926153928.GV3309@dualathlon.random>
+References: <20040925155404.GL3309@dualathlon.random> <1096155207.475.40.camel@gaston> <20040926002037.GP3309@dualathlon.random> <1096159487.18234.64.camel@gaston> <20040926013200.GT3309@dualathlon.random> <1096176535.18235.293.camel@gaston>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <1096176535.18235.293.camel@gaston>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> anyways on x86 the bug is real in practice, regardless of the C
->> compiler, heck we even put a smp_wmb() in between the two writes. The
->> fact all other archs are buggy in theory too is just a corollary. I
->> thought it worth to fix the theoretical bug in all other archs too,
->> instead of keeping playing russian roulette.
+On Sun, Sep 26, 2004 at 03:29:48PM +1000, Benjamin Herrenschmidt wrote:
+> On Sun, 2004-09-26 at 11:32, Andrea Arcangeli wrote:
 > 
-> How so ? A bunch of archs have the pte beeing a simple long, on these
-> set_pte is perfectly atomic as it is... I'd say in this regard that
-> x86 is the exception ;)
+> > maybe I'm biased because I'm reading x86-64 code, but where? the
+> > software mkdirty and mkyoung seem to all be inside the page_table_lock.
+> 
+> ppc and ppc64 who treat their hash table as a kind of big tlb cache, and
+> embedded ppc's with software loaded TLBs all have the TLB or hash refill
+> mecanism "mimmic" a HW TLB load, that is it is assembly code that will
+> set the DIRTY or ACCESSED bits without taking the page table lock
 
-Wouldn't it make sense to call set_pte_atomic, and just have that resolve
-to set_pte on 90% of arches? (I'm ignoring the wierdo compiler issue here,
-this is just for arches with pte > long). 
+ok, I thought you were talking about common code setting the dirty and
+accessed bit. The x86 architecture in hardware as well sets dirty and
+accessed bit, without the page table lock.
 
-M.
+> Oh, I side-tracked a bit on the need to make the PTE update & hash flush
+> atomic on ppc64 using the per-PTE lock _PAGE_BUSY bit we have there if
+> we ever implement that lockless do_page_fault(), but that was a side
+
+agreed.
+
+> discussion, sorry for confusion.
+
+No problem.
+
+> Right, in your hypotetical scenario, I'd just have to make sure an std
+> instruction is generated on ppc64 
+
+exactly.

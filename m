@@ -1,74 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263482AbTJLQSl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Oct 2003 12:18:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263484AbTJLQSl
+	id S263479AbTJLQok (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Oct 2003 12:44:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263480AbTJLQok
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Oct 2003 12:18:41 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:36812 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S263482AbTJLQSk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Oct 2003 12:18:40 -0400
-Date: Sun, 12 Oct 2003 09:18:28 -0700
-To: linux-kernel@vger.kernel.org
-Cc: mochel@osdl.org
-Subject: [PATCH] Make pmdisk suspend more reliable
-Message-ID: <20031012161828.GA1728@atomide.com>
+	Sun, 12 Oct 2003 12:44:40 -0400
+Received: from h80ad2602.async.vt.edu ([128.173.38.2]:39808 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S263479AbTJLQoj (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Oct 2003 12:44:39 -0400
+Message-Id: <200310121644.h9CGiUeb011798@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: retu <retu834@yahoo.com>
+Cc: Jamie Lokier <jamie@shareable.org>, Kenn Humborg <kenn@linux.ie>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.7 thoughts: common well-architected object model 
+In-Reply-To: Your message of "Sun, 12 Oct 2003 09:04:19 PDT."
+             <20031012160419.30891.qmail@web13007.mail.yahoo.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <20031012160419.30891.qmail@web13007.mail.yahoo.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="tKW2IUtsqtDRztdT"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Mailer: Mutt http://www.mutt.org/
-X-URL: http://www.muru.com/ http://www.atomide.com
-X-Accept-Language: fi en
-X-Location: USA, California, San Francisco
-From: Tony Lindgren <tony@atomide.com>
+Content-Type: multipart/signed; boundary="==_Exmh_374724705P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Sun, 12 Oct 2003 12:44:29 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---tKW2IUtsqtDRztdT
+--==_Exmh_374724705P
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 
-Hi Patrick & all,
+On Sun, 12 Oct 2003 09:04:19 PDT, retu said:
 
-Here's a little patch to make pmdisk suspend to disk work on my old
-laptop. Basically at least the PMDISK_SIG never got to the disk, and
-finding the suspend image would fail without this patch. The patch is
-against linux-2.6.0-test7.
+> What's the solution out of this - a clean, open object
+> model designed by the core folks, extensible and free
+> of licensing issues - and that in the next months.  
 
-Pls cc me on any replies, I'm not on the list right now.
+The point that seems to be continually missed is that although
+it may be a *fine* concept for userspace, it doesn't belong in the
+kernel.  There's a syscall barrier for multiple reasons, some technical
+and some political/legal.
 
-Regards,
+If anything, we collectively DON'T want to go there because a clever lawyer
+could argue that doing a "all the way from kernel to userspace" object-oriented
+scheme would make essentially all userspace code a derived work, since it would
+be so tightly entwined with the kernel implementation (basically, you'd be
+subjecting all of userspace to the same "derived work" limbo that closed-source
+kernel modules currently live in).  This could render totally irrelevant this
+text from /usr/src/linux/COPYING:
 
-Tony
+   NOTE! This copyright does *not* cover user programs that use kernel
+ services by normal system calls - this is merely considered normal use
+ of the kernel, and does *not* fall under the heading of "derived work".
+ Also note that the GPL below is copyrighted by the Free Software
+ Foundation, but the instance of code that it refers to (the Linux
+ kernel) is copyrighted by me and others who actually wrote it.
 
+Yes, this would mean that userspace would be GPL'ed as well, and
+you'll never see Oracle on a Linux box again for a VERY long time....
 
+--==_Exmh_374724705P
+Content-Type: application/pgp-signature
 
---tKW2IUtsqtDRztdT
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="pmdisk-bdflush.patch"
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
---- linux-2.6.0-test7/kernel/power/pmdisk.c-orig	2003-10-12 18:35:58.000000000 +0300
-+++ linux-2.6.0-test7/kernel/power/pmdisk.c	2003-10-12 19:00:32.000000000 +0300
-@@ -35,6 +35,7 @@
- 
- 
- extern int pmdisk_arch_suspend(int resume);
-+extern int wakeup_bdflush(long nr_pages);
- 
- #define __ADDRESS(x)  ((unsigned long) phys_to_virt(x))
- #define ADDRESS(x) __ADDRESS((x) << PAGE_SHIFT)
-@@ -372,6 +373,9 @@
- 		goto FreePagedir;
- 
- 	error = mark_swapfiles(prev);
-+
-+	/* Make sure the data gets to disk */
-+	wakeup_bdflush(0);
-  Done:
- 	return error;
-  FreePagedir:
+iD8DBQE/iYTtcC3lWbTT17ARAnopAJ9tzFQ78Zn53poZ9Aq1eIzCm+DevwCghAgZ
+N9+MkDZvVRv5qeVS0MISdjY=
+=nLfO
+-----END PGP SIGNATURE-----
 
---tKW2IUtsqtDRztdT--
+--==_Exmh_374724705P--

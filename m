@@ -1,57 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262291AbVC2Ke3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262338AbVC2Kha@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262291AbVC2Ke3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 05:34:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262338AbVC2KdU
+	id S262338AbVC2Kha (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 05:37:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262335AbVC2Ker
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 05:33:20 -0500
-Received: from arnor.apana.org.au ([203.14.152.115]:50189 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S262307AbVC2Kbv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 05:31:51 -0500
-Date: Tue, 29 Mar 2005 20:30:49 +1000
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Evgeniy Polyakov <johnpol@2ka.mipt.ru>, Jeff Garzik <jgarzik@pobox.com>,
-       David McCullough <davidm@snapgear.com>, cryptoapi@lists.logix.cz,
-       linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>
-Subject: Re: [PATCH] API for true Random Number Generators to add entropy (2.6.11)
-Message-ID: <20050329103049.GB19541@gondor.apana.org.au>
-References: <20050324132342.GD7115@beast> <1111671993.23532.115.camel@uganda> <42432972.5020906@pobox.com> <1111725282.23532.130.camel@uganda> <42439839.7060702@pobox.com> <1111728804.23532.137.camel@uganda> <4243A86D.6000408@pobox.com> <1111731361.20797.5.camel@uganda> <20050325061311.GA22959@gondor.apana.org.au> <20050329102104.GB6496@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 29 Mar 2005 05:34:47 -0500
+Received: from grendel.digitalservice.pl ([217.67.200.140]:3994 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S262307AbVC2Kdh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 05:33:37 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Li Shaohua <shaohua.li@intel.com>
+Subject: Re: 2.6.12-rc1-mm3: box hangs solid on resume from disk while resuming device drivers
+Date: Tue, 29 Mar 2005 12:33:39 +0200
+User-Agent: KMail/1.7.1
+Cc: Andrew Morton <akpm@osdl.org>, Len Brown <len.brown@intel.com>,
+       lkml <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@suse.cz>
+References: <16A54BF5D6E14E4D916CE26C9AD30575017EDC38@pdsmsx402.ccr.corp.intel.com> <200503261923.52020.rjw@sisk.pl> <1111972933.28620.7.camel@sli10-desk.sh.intel.com>
+In-Reply-To: <1111972933.28620.7.camel@sli10-desk.sh.intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20050329102104.GB6496@elf.ucw.cz>
-User-Agent: Mutt/1.5.6+20040907i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+Message-Id: <200503291233.40193.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 29, 2005 at 12:21:04PM +0200, Pavel Machek wrote:
-> 
-> What catastrophic consequences? Noone is likely to even *notice*, and
-> it does not help practical attack at all. Unless hardware RNGs are
-> *very* flakey (like, more flakey than harddrives), this is not a problem.
+Hi,
 
-The reason some people use hardware RNGs in the first place is because
-they don't trust the software RNGs.  When the hardware RNG fails but
-continues to send data to /dev/random, /dev/random essentially degenerates
-into a software RNG.  Now granted /dev/random is a pretty good software
-RNG, however, for some purposes it just isn't good enough.
+On Monday, 28 of March 2005 03:22, Li Shaohua wrote:
+> On Sun, 2005-03-27 at 02:23, Rafael J. Wysocki wrote:
+]--snip--[ 
+> Could you please file a bug in bugzilla? I don't want to lose the
+> context of thread. And please attach your acpidmp output in the bug.
 
-Otherwise we can just do away with it and always use /dev/urandom.
+The bug report is at:
 
-Someone else raised the example of Casinos using hardware RNGs.  Some
-of them are doing this to comply with government regulation.  In that
-case, using data from the software RNG when the hardware has failed
-would be violating the law.
+http://bugzilla.kernel.org/show_bug.cgi?id=4416
 
-> I can assure you that failing hdd will have more catastrophic
-> consequences.
+I've put there all the information related to it that I've already collected.
 
-That's we have things like RAID and backups.
+Greets,
+Rafael
+
+
 -- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

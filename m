@@ -1,45 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263315AbTDSAIR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Apr 2003 20:08:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263317AbTDSAIR
+	id S263319AbTDSA3F (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Apr 2003 20:29:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263320AbTDSA3F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Apr 2003 20:08:17 -0400
-Received: from janus.zeusinc.com ([205.242.242.161]:20526 "EHLO
-	zso-proxy.zeusinc.com") by vger.kernel.org with ESMTP
-	id S263315AbTDSAIQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Apr 2003 20:08:16 -0400
-Subject: Re: 2.5.67-mm4: select-speedup.patch breaks Evolution
-From: Tom Sightler <ttsig@tuxyturvy.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030418123327.0d048282.akpm@digeo.com>
-References: <1050687280.595.3.camel@teapot.felipe-alfaro.com>
-	 <20030418123327.0d048282.akpm@digeo.com>
-Content-Type: text/plain
-Message-Id: <1050711279.1655.1.camel@iso-8590-lx.zeusinc.com>
+	Fri, 18 Apr 2003 20:29:05 -0400
+Received: from inet-mail2.oracle.com ([148.87.2.202]:40445 "EHLO
+	inet-mail2.oracle.com") by vger.kernel.org with ESMTP
+	id S263319AbTDSA3E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Apr 2003 20:29:04 -0400
+Date: Fri, 18 Apr 2003 17:40:20 -0700
+From: Joel Becker <Joel.Becker@oracle.com>
+To: linux-kernel@vger.kernel.org
+Subject: WimMark I report for 2.5.67-mm4
+Message-ID: <20030419004019.GX7570@ca-server1.us.oracle.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Date: 18 Apr 2003 20:16:00 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Burt-Line: Trees are cool.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-04-18 at 15:33, Andrew Morton wrote:
-> Felipe Alfaro Solana <felipe_alfaro@linuxmail.org> wrote:
-> >
-> > 2.5.67-mm4 breaks Evolution 1.2.3: when clicking on "Sending/Receiving"
-> > toolbar button, Evolution displays the progress dialog box but it hangs
-> > forever, that is, no mail is sent or received. All my accounts are POP3.
-> > 
-> > Reverting "select-speedup.patch" fixes the problem.
-> 
-> Ah.  Thanks for the detective work.  I'll take a closer look.
 
-As another data point, this seems to be the cause of my Mozilla hanging
-when I go to a page that uses flash.  Works fine without the patch.
+WimMark I report for 2.5.67-mm4
 
-Later,
-Tom
+Runs (deadline):  1432.42 1074.96 1069.53
+Runs (antic):  417.42 393.34 437.96
+
+	WimMark I is a rough benchmark we have been running
+here at Oracle against various kernels.  Each run tests an OLTP
+workload on the Oracle database with somewhat restrictive memory
+conditions.  This reduces in-memory buffering of data, allowing for
+more I/O.  The I/O is read and sync write, random and seek-laden.  The
+runs all do ramp-up work to populate caches and the like.
+	The benchmark is called "WimMark I" because it has no
+official standing and is only a relative benchmark useful for comparing
+kernel changes.  The benchmark is normalized an arbitrary kernel, which
+scores 1000.0.  All other numbers are relative to this.  A bigger number
+is a better number.  All things being equal, a delta <50 is close to
+unimportant, and a delta < 20 is very identical.
+	This benchmark is sensitive to random system events.  I run
+three runs because of this.  If two runs are nearly identical and the
+remaining run is way off, that run should probably be ignored (it is
+often a low number, signifying that something on the system impacted
+the benchmark).
+	The machine in question is a 4 way 700 MHz Xeon machine with 2GB
+of RAM.  CONFIG_HIGHMEM4GB is selected.  The disk accessed for data is a
+10K RPM U2W SCSI of similar vintage.  The data files are living on an
+ext3 filesystem.  Unless mentioned, all runs are
+on this machine (variation in hardware would indeed change the
+benchmark).
 
 
+-- 
+
+Life's Little Instruction Book #314
+
+	"Never underestimate the power of forgiveness."
+
+Joel Becker
+Senior Member of Technical Staff
+Oracle Corporation
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

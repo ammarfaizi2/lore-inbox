@@ -1,74 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132516AbRDDW6Z>; Wed, 4 Apr 2001 18:58:25 -0400
+	id <S132517AbRDDXBP>; Wed, 4 Apr 2001 19:01:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132517AbRDDW6Q>; Wed, 4 Apr 2001 18:58:16 -0400
-Received: from cy57850-a.rdondo1.ca.home.com ([24.5.132.106]:19725 "HELO
-	firewall.philstone.com") by vger.kernel.org with SMTP
-	id <S132516AbRDDW6A>; Wed, 4 Apr 2001 18:58:00 -0400
-Date: Wed, 04 Apr 2001 15:54:54 -0700
-From: Christopher Smith <x@xman.org>
-To: timw@splhi.com, Ingo Molnar <mingo@elte.hu>
-Cc: Hubertus Franke <frankeh@us.ibm.com>, Mike Kravetz <mkravetz@sequent.com>,
-        Fabio Riccardi <fabio@chromium.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: a quest for a better scheduler
-Message-ID: <18230000.986424894@hellman>
-In-Reply-To: <20010404151632.A2144@kochanski>
-X-Mailer: Mulberry/2.0.8 (Linux/x86 Demo)
+	id <S132518AbRDDXBF>; Wed, 4 Apr 2001 19:01:05 -0400
+Received: from fungus.teststation.com ([212.32.186.211]:52400 "EHLO
+	fungus.svenskatest.se") by vger.kernel.org with ESMTP
+	id <S132517AbRDDXA6>; Wed, 4 Apr 2001 19:00:58 -0400
+Date: Thu, 5 Apr 2001 01:00:15 +0200 (CEST)
+From: Urban Widmark <urban@teststation.com>
+To: Xuan Baldauf <xuan--lkml@baldauf.org>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG] smbfs: caching problems
+In-Reply-To: <3AC68228.E9D8161B@baldauf.org>
+Message-ID: <Pine.LNX.4.30.0104050032430.16277-200000@cola.teststation.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: MULTIPART/MIXED; BOUNDARY="-1463780587-1583793787-986424796=:16277"
+Content-ID: <Pine.LNX.4.30.0104050053290.16277@cola.teststation.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---On Wednesday, April 04, 2001 15:16:32 -0700 Tim Wright <timw@splhi.com> 
-wrote:
-> On Wed, Apr 04, 2001 at 03:23:34PM +0200, Ingo Molnar wrote:
->> nope. The goal is to satisfy runnable processes in the range of NR_CPUS.
->> You are playing word games by suggesting that the current behavior
->> prefers 'low end'. 'thousands of runnable processes' is not 'high end'
->> at all, it's 'broken end'. Thousands of runnable processes are the sign
->> of a broken application design, and 'fixing' the scheduler to perform
->> better in that case is just fixing the symptom. [changing the scheduler
->> to perform better in such situations is possible too, but all solutions
->> proposed so far had strings attached.]
->
-> Ingo, you continue to assert this without giving much evidence to back it
-> up. All the world is not a web server. If I'm running a large OLTP
-> database with thousands of clients, it's not at all unreasonable to
-> expect periods where several hundred (forget the thousands) want to be
-> serviced by the database engine. That sounds like hundreds of schedulable
-> entities be they processes or threads or whatever. This sort of load is
-> regularly run on machine with 16-64 CPUs.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-Actually, it's not just OLTP, anytime you are doing time sharing between 
-hundreds of users (something POSIX systems are supposed to be good at) this 
-will happen.
+---1463780587-1583793787-986424796=:16277
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-ID: <Pine.LNX.4.30.0104050053291.16277@cola.teststation.com>
 
-> Now I will admit that it is conceivable that you can design an
-> application that finds out how many CPUs are available, creates threads
-> to match that number and tries to divvy up the work between them using
-> some combination of polling and asynchronous I/O etc. There are, however
-> a number of problems with this approach:
+On Sun, 1 Apr 2001, Xuan Baldauf wrote:
 
-Actually, one way to semi-support this approach is to implement 
-many-to-many threads as per the Solaris approach. This also requires 
-significant hacking of both the kernel and the runtime, and certainly is 
-significantly more error prone than trying to write a flexible scheduler.
+> there is something wrong with smbfs caching which makes my
+> applications fail. The behaviour happens with
+> linux-2.4.3-pre4 and linux-2.4.3-final.
+> 
+> Consider following shell script: (where /mnt/n is a
+> smbmounted smb share from a Win98SE box)
 
-One problem you didn't highlight that even the above case does not happily 
-identify is that for security reasons you may very well need each user's 
-requests to take place in a different process. If you don't, then you have 
-to implement a very well tested and secure user-level security mechanism to 
-ensure things like privacy (above and beyond the time-sharing).
+Try the attached patch, as a workaround.
 
-The world is filled with a wide variety of types of applications, and 
-unless you know two programming approaches are functionaly equivalent (and 
-event driven/polling I/O vs. tons of running processes are NOT), you 
-shouldn't say one approach is "broken". You could say it's a "broken" 
-approach to building web servers. Unfortunately, things like kernels and 
-standard libraries should work well in the general case.
+Not really sure what is happening, but it seems like win98se isn't
+updating the filesize immediately (?).
 
---Chris
+After truncating the file to 0 bytes the server still returns the old size
+(516) when asked (smb_proc_getattr). Somewhere that causes something to
+keep the pages for the file (smb_revalidate?) or simply be confused on the
+length of the file (508).
+
+I don't understand how as vmtruncate should have thrown out the old stuff
+already ... maybe the same page is reused and the last bytes (that
+shouldn't be in the file) remain from the last write.
+
+It works with NT4 and Samba, they both return the expected 0 bytes after
+truncating to 0. refresh = 0 will not ask and instead run with the 0 byte
+length that vmtruncate has set.
+
+/Urban
+
+---1463780587-1583793787-986424796=:16277
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="smbfs-2.4.3-notify.patch"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.30.0104050053160.16277@cola.teststation.com>
+Content-Description: 
+Content-Disposition: ATTACHMENT; FILENAME="smbfs-2.4.3-notify.patch"
+
+ZGlmZiAtdXJOIC1YIGV4Y2x1ZGUgbGludXgtMi40LjMtb3JpZy9mcy9zbWJm
+cy9pbm9kZS5jIGxpbnV4LTIuNC4zLXNtYmZzL2ZzL3NtYmZzL2lub2RlLmMN
+Ci0tLSBsaW51eC0yLjQuMy1vcmlnL2ZzL3NtYmZzL2lub2RlLmMJU2F0IE1h
+ciAzMSAxOToxMTo1MyAyMDAxDQorKysgbGludXgtMi40LjMtc21iZnMvZnMv
+c21iZnMvaW5vZGUuYwlUaHUgQXByICA1IDAwOjMyOjA3IDIwMDENCkBAIC0y
+MzQsOSArMjM0LDEwIEBADQogCWxhc3Rfc3ogICA9IGlub2RlLT5pX3NpemU7
+DQogCWVycm9yID0gc21iX3JlZnJlc2hfaW5vZGUoZGVudHJ5KTsNCiAJaWYg
+KGVycm9yIHx8IGlub2RlLT5pX210aW1lICE9IGxhc3RfdGltZSB8fCBpbm9k
+ZS0+aV9zaXplICE9IGxhc3Rfc3opIHsNCi0JCVZFUkJPU0UoIiVzLyVzIGNo
+YW5nZWQsIG9sZD0lbGQsIG5ldz0lbGRcbiIsDQorCQlWRVJCT1NFKCIlcy8l
+cyBjaGFuZ2VkLCBvbGQ9JWxkLCBuZXc9JWxkLCBvc3o9JWxkLCBzej0lbGRc
+biIsDQogCQkJREVOVFJZX1BBVEgoZGVudHJ5KSwNCi0JCQkobG9uZykgbGFz
+dF90aW1lLCAobG9uZykgaW5vZGUtPmlfbXRpbWUpOw0KKwkJCShsb25nKSBs
+YXN0X3RpbWUsIChsb25nKSBpbm9kZS0+aV9tdGltZSwNCisJCQkobG9uZykg
+bGFzdF9zeiwgKGxvbmcpIGlub2RlLT5pX3NpemUpOw0KIA0KIAkJaWYgKCFT
+X0lTRElSKGlub2RlLT5pX21vZGUpKQ0KIAkJCWludmFsaWRhdGVfaW5vZGVf
+cGFnZXMoaW5vZGUpOw0KQEAgLTU1MCw3ICs1NTEsNyBAQA0KIAkJaWYgKGVy
+cm9yKQ0KIAkJCWdvdG8gb3V0Ow0KIAkJdm10cnVuY2F0ZShpbm9kZSwgYXR0
+ci0+aWFfc2l6ZSk7DQotCQlyZWZyZXNoID0gMTsNCisJCXJlZnJlc2ggPSAw
+Ow0KIAl9DQogDQogCS8qDQo=
+---1463780587-1583793787-986424796=:16277--

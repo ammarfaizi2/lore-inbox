@@ -1,38 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275614AbTHOAWj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Aug 2003 20:22:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275615AbTHOAWj
+	id S275617AbTHOAYK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Aug 2003 20:24:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275619AbTHOAYK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Aug 2003 20:22:39 -0400
-Received: from mail.kroah.org ([65.200.24.183]:31965 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S275614AbTHOAWh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Aug 2003 20:22:37 -0400
-Date: Thu, 14 Aug 2003 17:15:52 -0700
-From: Greg KH <greg@kroah.com>
-To: Arkadiusz Miskiewicz <arekm@pld-linux.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: finding which pci device works as ide controller for root fs
-Message-ID: <20030815001552.GA4776@kroah.com>
-References: <200308141826.30735.arekm@pld-linux.org>
+	Thu, 14 Aug 2003 20:24:10 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:55282 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP id S275617AbTHOAXA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Aug 2003 20:23:00 -0400
+Subject: Re: Network Card Entropy? was: Re: [RFC][PATCH] Make cryptoapi
+	non-optional?
+From: Robert Love <rml@tech9.net>
+To: Mike Fedyk <mfedyk@matchmail.com>
+Cc: Jamie Lokier <jamie@shareable.org>, "Theodore Ts'o" <tytso@mit.edu>,
+       Matt Mackall <mpm@selenic.com>, James Morris <jmorris@intercode.com.au>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, davem@redhat.com
+In-Reply-To: <20030815001632.GI1027@matchmail.com>
+References: <20030809173329.GU31810@waste.org>
+	 <Mutt.LNX.4.44.0308102317470.7218-100000@excalibur.intercode.com.au>
+	 <20030810174528.GZ31810@waste.org>
+	 <20030811020919.GD10446@mail.jlokier.co.uk> <20030813035257.GB1244@think>
+	 <20030813183628.GC4405@mail.jlokier.co.uk>
+	 <20030815001632.GI1027@matchmail.com>
+Content-Type: text/plain
+Message-Id: <1060906961.4016.83.camel@lettuce>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200308141826.30735.arekm@pld-linux.org>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-3) 
+Date: Thu, 14 Aug 2003 17:22:41 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 14, 2003 at 06:26:30PM +0200, Arkadiusz Miskiewicz wrote:
+On Thu, 2003-08-14 at 17:16, Mike Fedyk wrote:
+
+> Assuming that all network drivers are contributing entropy...
 > 
-> [arekm@mobarm arekm]$ ls -l /sys/block/hda/device
-> lrwxrwxrwx    1 root     root           46 2003-08-14 00:49 
-> /sys/block/hda/device -> ../../devices/pci0000:00/0000:00:11.1/ide0/0.0
-> 
-> Is it possible to get PCI ID from sysfs for specified device?
+> Was Robert Love's patch for this ever merged?
 
-It's right there in the path to the ide device "0000:00:11.1"
+Nope.
+
+	Robert Love
 
 
-greg k-h

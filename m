@@ -1,27 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279040AbRKFJfo>; Tue, 6 Nov 2001 04:35:44 -0500
+	id <S279005AbRKFJlE>; Tue, 6 Nov 2001 04:41:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278967AbRKFJfe>; Tue, 6 Nov 2001 04:35:34 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:49671 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S278722AbRKFJfZ>; Tue, 6 Nov 2001 04:35:25 -0500
-Subject: Re: ext3-0.9.15 against linux-2.4.14
-To: akpm@zip.com.au (Andrew Morton)
-Date: Tue, 6 Nov 2001 09:42:04 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org (lkml),
-        ext3-users@redhat.com (ext3-users@redhat.com)
-In-Reply-To: <3BE7AB6C.97749631@zip.com.au> from "Andrew Morton" at Nov 06, 2001 01:20:44 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S278911AbRKFJkz>; Tue, 6 Nov 2001 04:40:55 -0500
+Received: from ns1.crl.go.jp ([133.243.3.1]:52379 "EHLO ns1.crl.go.jp")
+	by vger.kernel.org with ESMTP id <S278985AbRKFJkh>;
+	Tue, 6 Nov 2001 04:40:37 -0500
+Date: Tue, 6 Nov 2001 18:40:33 +0900 (JST)
+From: Tom Holroyd <tomh@po.crl.go.jp>
+To: kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: 2.4.14: invalidate: busy buffer and BUG
+Message-ID: <Pine.LNX.4.30.0111061832510.1178-100000@holly.crl.go.jp>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E1612k8-0008Id-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->   There are no plans to remove this semaphore from -ac kernels,
->   unless Alan wants it that way.
+Alpha DP264, gcc 3.0.1 compiled.
 
-That should just come out by magic as the VM and other stuff converge
+After some testing and some work, got:
+
+kernel: invalidate: busy buffer
+
+Right after dismounting an ext2 diskette.
+
+Attempting to remount the diskette resulted in:
+
+kernel: kernel BUG at ll_rw_blk.c:660!
+kernel: mount(1238): Kernel Bug 1
+kernel: pc = [__make_request+2352/2368]  ra = [__make_request+2340/2368]  ps = 0000    Not tainted
+
+Note that I got this once under 2.4.12 also.
+
+I don't have time to run ksymoops right now.
+
+The one from 2.4.12 was:
+
+kernel: kernel BUG at buffer.c:664!
+kernel: mdir(27124): Kernel Bug 1
+kernel: pc = [invalidate_bdev+448/464]  ra = [invalidate_bdev+436/464]  ps = 0000    Not tainted
+
+

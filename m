@@ -1,66 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262473AbVBXVEH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262483AbVBXVGT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262473AbVBXVEH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 16:04:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262479AbVBXVEH
+	id S262483AbVBXVGT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 16:06:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262484AbVBXVGS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 16:04:07 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:954 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S262473AbVBXVEC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 16:04:02 -0500
-Message-ID: <421E4132.4010006@pobox.com>
-Date: Thu, 24 Feb 2005 16:03:46 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Terence Ripperda <tripperda@nvidia.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 64-bit pci bar on a 32-bit kernel
-References: <20050224202218.GK4801@hygelac>
-In-Reply-To: <20050224202218.GK4801@hygelac>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 24 Feb 2005 16:06:18 -0500
+Received: from MAIL.13thfloor.at ([212.16.62.51]:62685 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S262483AbVBXVFa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 16:05:30 -0500
+Date: Thu, 24 Feb 2005 22:05:29 +0100
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: [Patch 1/6] Bind Mount Extensions 0.06
+Message-ID: <20050224210529.GC4981@mail.13thfloor.at>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andrew Morton <akpm@osdl.org>,
+	Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+	Linux Kernel ML <linux-kernel@vger.kernel.org>
+References: <20050222121049.GB3682@mail.13thfloor.at> <20050223230027.GC21383@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050223230027.GC21383@infradead.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Terence Ripperda wrote:
-> Hello,
+On Wed, Feb 23, 2005 at 11:00:27PM +0000, Christoph Hellwig wrote:
+> On Tue, Feb 22, 2005 at 01:10:49PM +0100, Herbert Poetzl wrote:
+> > 
+> > 
+> > ;
+> > ; Bind Mount Extensions
+> > ;
+> > ; This part adds support for the RDONLY, NOATIME and NODIRATIME
+> > ; vfsmount flags, propagates those options into loopback (bind)
+> > ; mounts and displays them properly in show_vfsmnt()/proc
 > 
-> we've gotten a customer report of a problem whereby our framebuffer is
-> not visible through the kernel. the kernel data structures in struct
-> pci_dev have bar1 (our framebuffer) set to 0, and the bar does not
-> appear in /proc/pci.
+> wrong way around.  Actually adding these flags must happen last after all
+> infrastructure is in place.
+
+feel free to reorder the patches ...
+
+best,
+Herbert
+
 > 
-> after a little investigation, it appears that the bios allocated a
-> 64-bit bar in pci config space. our gpu claims 64-bit support in pci
-> config space and the cpu is an em64t. but the customer is running a
-> 32-bit kernel on the em64t, which is a reasonable thing to do. it
-> turns out the pci driver does not like 64-bit bars on a 32-bit kernel
-> and prints out the following messages during boot:
-> 
-> PCI: PCI BIOS revision 2.10 entry at 0xf0031, last bus=5
-> PCI: Using configuration type 1
-> PCI: Probing PCI hardware
-> PCI: Probing PCI hardware (bus 00)
-> PCI: Ignoring BAR0-3 of IDE controller 00:1f.1
-> PCI: Unable to handle 64-bit address space for
-> PCI: Unable to handle 64-bit address space for
-> PCI: Unable to handle 64-bit address for device 03:00.0
-> PCI: Unable to handle 64-bit address space for
-> 
-> Is this an expected problem? Is there any reason why the 32-bit kernel
-> couldn't handle 64-bit bars?
-
-hmmm, that's a good question.
-
-I wonder if ioremap() even supports 64-bit addresses on 32-bit platforms?
-
-64-bit MMIO is a bit different from 64-bit DMA; though its still only 
-page tables...
-
-	Jeff
-
-
-
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

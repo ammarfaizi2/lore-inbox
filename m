@@ -1,50 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315200AbSFDQoE>; Tue, 4 Jun 2002 12:44:04 -0400
+	id <S315119AbSFDQnZ>; Tue, 4 Jun 2002 12:43:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315202AbSFDQoE>; Tue, 4 Jun 2002 12:44:04 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:31500 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S315200AbSFDQoC>; Tue, 4 Jun 2002 12:44:02 -0400
-Message-ID: <3CFCE09B.6090007@evision-ventures.com>
-Date: Tue, 04 Jun 2002 17:45:31 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc3) Gecko/20020523
-X-Accept-Language: en-us, pl
+	id <S315192AbSFDQnY>; Tue, 4 Jun 2002 12:43:24 -0400
+Received: from swazi.realnet.co.sz ([196.28.7.2]:49384 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S315119AbSFDQnX>; Tue, 4 Jun 2002 12:43:23 -0400
+Date: Tue, 4 Jun 2002 18:14:48 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: zwane@netfinity.realnet.co.sz
+To: Alessandro Urpi <urpi@di.unipi.it>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: HD Fujitsu MHR2020AT
+In-Reply-To: <Pine.LNX.4.33.0206041822100.15753-100000@paperino.di.unipi.it>
+Message-ID: <Pine.LNX.4.44.0206041814011.26634-100000@netfinity.realnet.co.sz>
 MIME-Version: 1.0
-To: Patrick Mochel <mochel@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: device model documentation 1/3
-In-Reply-To: <Pine.LNX.4.33.0206040904430.654-100000@geena.pdx.osdl.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick Mochel wrote:
+On Tue, 4 Jun 2002, Alessandro Urpi wrote:
 
-> Bus Types 
-> 
-> struct bus_type {
+>  I bought a fujitsu MHR2020AT hard disk for my notebook (ACER TravelMate
+> 521TE), but when linux starts, after correctly recognizing the model and
+> the size (20 gigabytes), it gets stuck when trying to determine partitions
+> (there is just one ext2 partition at the moment!)
+> The controller is an ALI M1535.
 
-...
+You might also want to mention which kernel version it is ;)
 
+Regards,
+	Zwane Mwaikambo
 
-> 	int	(*bind)		(struct device * dev, struct device_driver * drv);
-> };
-> 
-
-Please - Why do you call it bind? Does it have something with
-netowrking to do? Please just name it attach. This way the old UNIX
-guys among us won't have to drag a too big
-"UNIX to Linux translation dictionary" around with them.
-As an "added bonus" you will stay consistent with -
-
-PCMCIA code base in kernel
-USB code base in kernel
-IDE code base (well recently)
-
-just to name a few.
-
-Thanks.
+-- 
+http://function.linuxpower.ca
+		
 

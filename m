@@ -1,72 +1,135 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261766AbUCBUY1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Mar 2004 15:24:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261767AbUCBUY1
+	id S261712AbUCBUpY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Mar 2004 15:45:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261759AbUCBUpY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Mar 2004 15:24:27 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:17792 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261766AbUCBUYM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Mar 2004 15:24:12 -0500
-Date: Tue, 2 Mar 2004 15:24:40 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Roland Dreier <roland@topspin.com>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: poll() in 2.6 and beyond
-In-Reply-To: <527jy3qalg.fsf@topspin.com>
-Message-ID: <Pine.LNX.4.53.0403021510270.1856@chaos>
-References: <Pine.LNX.4.53.0403021318580.796@chaos> <527jy3qalg.fsf@topspin.com>
+	Tue, 2 Mar 2004 15:45:24 -0500
+Received: from imap.gmx.net ([213.165.64.20]:39602 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261712AbUCBUpU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Mar 2004 15:45:20 -0500
+X-Authenticated: #4512188
+Message-ID: <4044F25E.3010802@gmx.de>
+Date: Tue, 02 Mar 2004 21:45:18 +0100
+From: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040216)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.4-rc1-mm1, as scheduler causes higher idle temp?
+References: <20040229140617.64645e80.akpm@osdl.org> <404367C2.3050109@gmx.de> <40448E60.5020403@gmx.de>
+In-Reply-To: <40448E60.5020403@gmx.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2 Mar 2004, Roland Dreier wrote:
+Prakash K. Cheemplavam wrote:
+> Prakash K. Cheemplavam wrote:
+> 
+>> has anything changed with C1 halt? I mean it seems that CPU Disconnect 
+>> doesn't get called (Though I enabled it), as with 2.6.3-mm4 (yesterday 
+>> and today going back) my idle temps are about 46-47°C. Now with 
+>> 2.6.4-mm1 they went up to 50-52°C.
+> 
+> 
+> Hmm, today I went back to 2.6.4-rc1-mm1 and everything seems to be 
+> normal again. Strange... So forget about it. :-)
 
->     Richard> Poll in 2.6.0; when a driver routine calls poll_wait() it
->     Richard> returns <<immediately>> to somewhere in the kernel, then
->     Richard> waits for my wake_up_interuptible(), before returning
->     Richard> control to a user sleeping in poll(). This means that the
->     Richard> user gets the wrong poll return value! It doesn't get the
->     Richard> value it was given as a result of the interrupt, but the
->     Richard> value that existed (0) before the interrupt occurred.
->
-> Nothing has changed in 2.6 that I know of.  poll_wait() always
-> returned immediately to the driver.  The driver's poll method is
-> supposed to call poll_wait() on the wait queues that indicate a change
-> in poll status, and then return with the current status.
->
-> Read the description of "poll and select" in LDD:
->     <http://www.xml.com/ldd/chapter/book/ch05.html#t3>
->
->  - Roland
+Ok, its me again. So now I was running 2.6.4-rc1-mm1 today and the 
+rratic behaviour came again, ie, idle temps went high. Strange enough 
+this only happens after some time.
 
-I'm talking about the driver! When a open fd called poll() or select(),
-in user-mode code, the driver's poll() was called, and the driver's poll()
-would call poll_wait().  Poll_wait() used to NOT return until the driver
-executed wake_up_interruptible() on that wait-queue. When poll_wait()
-returned, the driver would return to the caller with the new poll-
-status.
+Comparing dmesg from both, I see this as major differnece: With latest 
+mm-source the as scheduler gets used, though I set elevator=cfq in the 
+kernel line. So either you removed cfq or it doesn't get selcted and 
+maybe anticipatory causes the temp rise?
 
-Now, when the driver calls poll_wait(), it returns immediately to
-the driver. The driver then returns with the wrong poll status because
-nothing changed yet. This return, doesn't go back to the user-mode
-caller, but remains within the kernel until a wake_up_interruptible()
-has been received. Then it returns to the original caller, with the
-(wrong) status that existed before the wake_up_interruptible().
+Well, I will test as scheduler with 2.6.3-mm4 tomorrow and report back
 
-When the cycle repeats, the status from the previous event gets
-returned, so if the events are all the same (POLLIN), only the
-first one is wrong and nobody is the wiser. However, when there
-are multiple events, they appear to the user out-of-sequence
-and muck up user-mode code.
+Prakash
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
+PS: here the diff between the dmesgs:
 
+--- dmesg2.6.3-mm4.txt  2004-03-02 21:40:07.359583984 +0100
++++ dmesg2.6.4-rc1-mm1.txt      2004-03-02 09:59:49.000000000 +0100
+@@ -1,4 +1,4 @@
+-Linux version 2.6.3-mm4 (root@tachyon) (gcc-Version 3.3.3 20040217 
+(Gentoo Linux 3.3.3, propolice-3.3-7)) #12 Tue Mar 2 09:39:12 CET 2004
++Linux version 2.6.4-rc1 (root@tachyon) (gcc-Version 3.3.3 20040217 
+(Gentoo Linux 3.3.3, propolice-3.3-7)) #3 Tue Mar 2 09:58:07 CET 2004
+  BIOS-provided physical RAM map:
+   BIOS-e820: 0000000000000000 - 000000000009f800 (usable)
+   BIOS-e820: 000000000009f800 - 00000000000a0000 (reserved)
+@@ -11,7 +11,6 @@
+   BIOS-e820: 00000000ffff0000 - 0000000100000000 (reserved)
+  127MB HIGHMEM available.
+  896MB LOWMEM available.
+-zapping low mappings.
+  On node 0 totalpages: 262128
+    DMA zone: 4096 pages, LIFO batch:1
+    Normal zone: 225280 pages, LIFO batch:16
+@@ -24,14 +23,15 @@
+  ACPI: DSDT (v001 NVIDIA AWRDACPI 0x00001000 MSFT 0x0100000d) @ 0x00000000
+  ACPI: PM-Timer IO Port: 0x4008
+  Built 1 zonelists
+-Initializing CPU#0
+  Kernel command line: root=/dev/hde7 quiet apic_tack=2 elevator=cfq 
+doataraid noraid hdg=none
+  ide_setup: hdg=none
++Initializing CPU#0
+  PID hash table entries: 4096 (order 12: 32768 bytes)
+-Detected 2205.190 MHz processor.
++Detected 2204.949 MHz processor.
+  Using pmtmr for high-res timesource
+  Console: colour VGA+ 80x25
+-Memory: 1033100k/1048512k available (2555k kernel code, 14492k 
+reserved, 862k data, 136k init, 131008k highmem)
++Memory: 1033144k/1048512k available (2527k kernel code, 14448k 
+reserved, 861k data, 136k init, 131008k highmem)
++Checking if this processor honours the WP bit even in supervisor 
+mode... Ok.
+  Calibrating delay loop... 4358.14 BogoMIPS
+  Dentry cache hash table entries: 131072 (order: 7, 524288 bytes)
+  Inode-cache hash table entries: 65536 (order: 6, 262144 bytes)
+@@ -117,13 +117,13 @@
+  ACPI: Power Button (FF) [PWRF]
+  ACPI: Fan [FAN] (on)
+  ACPI: Processor [CPU0] (supports C1)
+-ACPI: Thermal Zone [THRM] (48 C)
++ACPI: Thermal Zone [THRM] (46 C)
+  Real Time Clock Driver v1.12
+  Non-volatile memory driver v1.2
+  Serial: 8250/16550 driver $Revision: 1.90 $ 8 ports, IRQ sharing disabled
+  ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
+  ttyS1 at I/O 0x2f8 (irq = 3) is a 16550A
+-Using cfq io scheduler
++Using anticipatory io scheduler
+  Floppy drive(s): fd0 is 1.44M
+  FDC 0 is a post-1991 82077
+  loop: loaded (max 8 devices)
+@@ -179,8 +179,8 @@
+  i2c_adapter i2c-2: nForce2 SMBus adapter at 0x5100
+  Advanced Linux Sound Architecture Driver Version 1.0.2c (Thu Feb 05 
+15:41:49 2004 UTC).
+  PCI: Setting latency timer of device 0000:00:06.0 to 64
+-intel8x0_measure_ac97_clock: measured 49398 usecs
+-intel8x0: clocking to 47423
++intel8x0_measure_ac97_clock: measured 49397 usecs
++intel8x0: clocking to 47422
+  ALSA device list:
+    #0: NVidia nForce2 at 0xdc081000, irq 10
+  NET: Registered protocol family 2
+@@ -226,6 +226,7 @@
+  ohci1394: fw-host0: OHCI-1394 1.1 (PCI): IRQ=[11] 
+MMIO=[dc084000-dc0847ff]  Max Packet=[2048]
+  ohci1394: fw-host0: SelfID received outside of bus reset sequence
+  ieee1394: Host added: ID:BUS[0-00:1023]  GUID[000000508df0fbe3]
++svc: unknown version (3)
+  nvidia: no version magic, tainting kernel.
+  nvidia: module license 'NVIDIA' taints kernel.
+  0: nvidia: loading NVIDIA Linux x86 NVIDIA Kernel Module  1.0-5336 
+Wed Jan 14 18:29:26 PST 2004
 

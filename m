@@ -1,40 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318018AbSFSVcq>; Wed, 19 Jun 2002 17:32:46 -0400
+	id <S318017AbSFSVb5>; Wed, 19 Jun 2002 17:31:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318019AbSFSVcp>; Wed, 19 Jun 2002 17:32:45 -0400
-Received: from neutrino.phy.uct.ac.za ([137.158.36.17]:23301 "EHLO
-	neutrino.phy.uct.ac.za") by vger.kernel.org with ESMTP
-	id <S318018AbSFSVck>; Wed, 19 Jun 2002 17:32:40 -0400
-Date: Wed, 19 Jun 2002 23:32:45 +0200
-From: Sam Halliday <sam@neutrino.phy.uct.ac.za>
-To: linux-kernel@vger.kernel.org
-Subject: introduction
-Message-Id: <20020619233245.0095e4ec.sam@neutrino.phy.uct.ac.za>
-Organization: University of Cape Town
-X-Mailer: Sylpheed version 0.7.8claws (GTK+ 1.2.10; )
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S318018AbSFSVb4>; Wed, 19 Jun 2002 17:31:56 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:38100 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S318017AbSFSVb4>; Wed, 19 Jun 2002 17:31:56 -0400
+Date: Wed, 19 Jun 2002 23:31:50 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Linus Torvalds <torvalds@transmeta.com>, <greg@kroah.com>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [2.5 patch] drivers/hotplug/cpqphp.h must include tqueue.h
+Message-ID: <Pine.NEB.4.44.0206192327530.10290-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hello there,
+Hi,
 
-i am keen to do a little bit of kernel programming, but i don't really
-know where to start... i have programmed in c for a few years now in
-mostly numerical stuff, and i think i could write a device driver if i
-really needed to, what would some people reccomend reading before
-starting?... i'd be keen to have a pet project of maybe totally
-replacing an essential component (just as practice not to make it better
-or anything!)
+another tqueue.h compile problem: It's needed in drivers/hotplug/cpqphp.h,
+otherwise compilation fails:
 
-also, my kernel always says "Unknown Bridge Resource 2: Assuming
-Transparent" on bootup, why would it be doing this? I have accounted for
-everything on my system in the compile
+<--  snip  -->
 
-thanks in advance!
-Sam
+...
+  gcc -Wp,-MD,./.cpqphp_core.o.d -D__KERNEL__
+-I/home/bunk/linux/kernel-2.5/linux-2.5.23/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2
+-fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
+-march=k6 -nostdinc -iwithprefix include    -DKBUILD_BASENAME=cpqphp_core   -c -o
+cpqphp_core.o cpqphp_core.c
+In file included from cpqphp_core.c:39:
+cpqphp.h:322: field `int_task_event' has incomplete type
+make[2]: *** [cpqphp_core.o] Error 1
+make[2]: Leaving directory
+`/home/bunk/linux/kernel-2.5/linux-2.5.23/drivers/hotplug'
+
+<--  snip  -->
+
+
+
+--- drivers/hotplug/cpqphp.h.old	Wed Jun 19 23:19:02 2002
++++ drivers/hotplug/cpqphp.h	Wed Jun 19 23:20:15 2002
+@@ -29,6 +29,7 @@
+ #define _CPQPHP_H
+
+ #include "pci_hotplug.h"
++#include <linux/tqueue.h>
+ #include <asm/io.h>		/* for read? and write? functions */
+
+
+cu
+Adrian
+
 -- 
-A penny saved is a penny to squander.
--- Ambrose Bierce
+
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
+

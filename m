@@ -1,62 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264644AbTBET4D>; Wed, 5 Feb 2003 14:56:03 -0500
+	id <S264654AbTBET5N>; Wed, 5 Feb 2003 14:57:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264628AbTBET4D>; Wed, 5 Feb 2003 14:56:03 -0500
-Received: from poup.poupinou.org ([195.101.94.96]:8244 "EHLO poup.poupinou.org")
-	by vger.kernel.org with ESMTP id <S264644AbTBET4B>;
-	Wed, 5 Feb 2003 14:56:01 -0500
-Date: Wed, 5 Feb 2003 21:05:21 +0100
-To: Pavel Machek <pavel@ucw.cz>
-Cc: "Grover, Andrew" <andrew.grover@intel.com>, ducrot@poupinou.org,
-       linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
-Subject: Re: [ACPI] Re: [PATCH] s4bios for 2.5.59 + apci-20030123
-Message-ID: <20030205200521.GN1205@poup.poupinou.org>
-References: <F760B14C9561B941B89469F59BA3A847137FFE@orsmsx401.jf.intel.com> <20030204221003.GA250@elf.ucw.cz>
+	id <S264657AbTBET5N>; Wed, 5 Feb 2003 14:57:13 -0500
+Received: from [195.223.140.107] ([195.223.140.107]:22144 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S264654AbTBET5L>;
+	Wed, 5 Feb 2003 14:57:11 -0500
+Date: Wed, 5 Feb 2003 21:06:31 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Dave Jones <davej@codemonkey.org.uk>, Andrew Morton <akpm@digeo.com>,
+       lm@bitmover.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.5 changeset 1.952.4.2 corrupt in fs/jfs/inode.c
+Message-ID: <20030205200631.GK19678@dualathlon.random>
+References: <20030205174021.GE19678@dualathlon.random> <20030205102308.68899bc3.akpm@digeo.com> <20030205184535.GG19678@dualathlon.random> <20030205194257.GA17922@codemonkey.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030204221003.GA250@elf.ucw.cz>
+In-Reply-To: <20030205194257.GA17922@codemonkey.org.uk>
 User-Agent: Mutt/1.4i
-From: Ducrot Bruno <ducrot@poupinou.org>
+X-GPG-Key: 1024D/68B9CB43
+X-PGP-Key: 1024R/CB4660B9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 04, 2003 at 11:10:04PM +0100, Pavel Machek wrote:
-> Hi!
+On Wed, Feb 05, 2003 at 07:42:57PM +0000, Dave Jones wrote:
+> On Wed, Feb 05, 2003 at 07:45:35PM +0100, Andrea Arcangeli wrote:
 > 
-> > > This patch is for s4bios support in 2.5.59 with acpi-20030123.
-> > > 
-> > > This is the 'minimal' requirement.  Some devices (especially the
-> > > IDE part) are not well resumed.  Handle with care..
-> > > 
-> > > Note also that the resuming part (I mean IDE) was more stable
-> > > with an equivalent patch when I tested with 2.5.54 (grumble 
-> > > grumble)...
-> > > 
-> > > I think also that it is a 'good' checker for devices power management
-> > > in general...
-> > 
-> > I'd really rather just have S4OS (aka swsusp) in 2.5 patches -- if the
-> > OS can do S4 on its own, that is really preferable to S4bios.
+>  > I can't yet fetch a full tree out of bitkepper yet (you know the network
+>  > protocol must be reverse engeneered first), I can only fetch
+>  > incrementals with metadata and raw patch so far because this is the
+>  > thing I care about most, after I've all the changesets in live form in
+>  > my db I don't mind too much about the ability to checkout a the whole
+>  > tree too, since I can do the same starting from my open db rather than
+>  > using the proprietary one.
 > 
-> Well, we already have S4OS, and having S4OS does not mean we can't
-> have S4bios.
-> 
-> Some people apparently want slower suspend/resume but have all caches
-> intact when resumed. Thats not easy for swsusp but they can have that
-> with S4bios. And S4bios is usefull for testing device support; it
-> seems to behave slightly differently to S3 meaning better testing.
-> 
+> Why not save effort, and just grab from http://ftp.kernel.org/pub/linux/kernel/v2.5/testing/cset/
 
-Yep, correct.  The problem is that now I have more trouble with s4bios
-in general with 2.5.  That worked more reliability with 'older' 2.5 series.
-Really don't know why.
+I used them so far, but they're as useless as the patches mailing list
+for my purposes, first they're not useful to checkout a tree, the order of
+the changesets I mean, and they don't tell when a certain kernel revision
+matches a changeset, I'm checking out Linus's tree with it, they don't
+provide live metadata easy to browse in software, to monitor in
+background automatically, I need to see all the evolution of a certain
+file or subsystem with all the metadata and raw patches with a few lines
+of python, and last but not the least I like it to run in real time w/o
+delays.
 
-Cheers,
+In short I'm extracting the whole database and I'm storing it in an open
+form so I can manipulate it as I need. I don't watch branches, I only
+fetch the main branch.
 
--- 
-Ducrot Bruno
+This makes very trivial also to checkin the whole thing into another
+version control system and to keep it uptodate in background even if
+this isn't my purpose.
 
---  Which is worse:  ignorance or apathy?
---  Don't know.  Don't care.
+I don't think it's worthwhile to do more than that on the bk side, I
+mean, it's not an openbitkepper thing, I would rather write something
+from scratch rather than reverse engeneering the whole thing just to
+provide compatibility, once you've all the info in open form, you can
+use it as a transient format that allows you to fill it into any other
+project.
+
+What matters to me is only the info and the easiest way to manipulate it
+in software, it's much more powerful than what bitkeeper can do this way
+because I program it, downside is that I need some more disk space ;).
+
+Andrea

@@ -1,67 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261273AbVARNPJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261278AbVARNP7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261273AbVARNPJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 08:15:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261291AbVARNPJ
+	id S261278AbVARNP7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 08:15:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261291AbVARNP7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 08:15:09 -0500
-Received: from wproxy.gmail.com ([64.233.184.202]:25716 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261273AbVARNPC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 08:15:02 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=WfFfxMW8ZNFh9t86Mbw5CUoD90oAjUdB0VrObjFzUZOygE9f1BA+bJThHTdn27wOaHhHYM4W/GFTVv7PpSjw/3jJ66NP+RBbOj7GfxfePrcu6wvf2pnD9EyINq8GDaeh49uASFm9jR2tuxTDewC8+xfIyYh8kMw9X2TbJHD0Oag=
-Message-ID: <4d6522b905011805154bf27b52@mail.gmail.com>
-Date: Tue, 18 Jan 2005 15:15:01 +0200
-From: Edjard Souza Mota <edjard@gmail.com>
-Reply-To: Edjard Souza Mota <edjard@gmail.com>
-To: 7eggert@gmx.de
-Subject: Re: User space out of memory approach
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Ilias Biris <xyz.biris@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <E1CqDGM-0000wi-00@be1.7eggert.dyndns.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <fa.lcmt90h.1j1scpn@ifi.uio.no> <fa.ht4gei4.1g5odia@ifi.uio.no>
-	 <E1CqDGM-0000wi-00@be1.7eggert.dyndns.org>
+	Tue, 18 Jan 2005 08:15:59 -0500
+Received: from galaxy.systems.pipex.net ([62.241.162.31]:17301 "EHLO
+	galaxy.systems.pipex.net") by vger.kernel.org with ESMTP
+	id S261278AbVARNPv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jan 2005 08:15:51 -0500
+Date: Tue, 18 Jan 2005 13:16:46 +0000 (GMT)
+From: Tigran Aivazian <tigran@veritas.com>
+X-X-Sender: tigran@ezer.homenet
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Andi Kleen <ak@muc.de>, Arjan van de Ven <arjan@infradead.org>,
+       Jan Hubicka <jh@suse.cz>, Jack F Vogel <jfv@bluesong.net>,
+       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [discuss] booting a kernel compiled with -mregparm=0
+In-Reply-To: <Pine.LNX.4.61.0501181303400.2911@ezer.homenet>
+Message-ID: <Pine.LNX.4.61.0501181315170.2911@ezer.homenet>
+References: <Pine.LNX.4.61.0501141623530.3526@ezer.homenet>
+ <20050114205651.GE17263@kam.mff.cuni.cz> <Pine.LNX.4.61.0501141613500.6747@chaos.analogic.com>
+ <cs9v6f$3tj$1@terminus.zytor.com> <Pine.LNX.4.61.0501170909040.4593@ezer.homenet>
+ <1105955608.6304.60.camel@laptopd505.fenrus.org> <Pine.LNX.4.61.0501171002190.4644@ezer.homenet>
+ <41EBFF87.6080105@zytor.com> <m1wtubvm8y.fsf@muc.de> <41EC224D.5080204@zytor.com>
+ <Pine.LNX.4.61.0501181112120.2911@ezer.homenet> <Pine.LNX.4.61.0501181303400.2911@ezer.homenet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
- 
-> If my system needs the OOM killer, it's usurally unresponsive to most
-> userspace applications. A normal daemon would be swapped out before the
-> runaway dhcpd grows larger than the web cache. It would have to be a mlocked
-> RT task started from early userspace. It would be difficult to set up (unless
-> you upgrade your distro), and almost nobody will feel like tweaking it to
-> take the benefit (OOM == -ECANNOTHAPPEN).
+Sorry, it was a "red herring", namely my module's Makefile still had 
+"-mregparm=0" in CFLAGS, so that is why kdb showed it's arguments 
+correctly (and then paniced on the way out).
 
-Please correct me if I got it wrong: as deamon in this case is not a normal one,
-since it never gets rate for its own safety, then it needs an RT lock whenever
-system boots. 
+So we still have to deal with DWARF2 data then... Ok, will look into it.
 
-> What about creating a linked list of (stackable) algorhithms which can be
-> extended by loading modules and resorted using {proc,sys}fs? It will avoid
-> the extra process, the extra CPU time (and task switches) to frequently
-> update the list and I think it will decrease the typical amount of used
-> memory, too.
+Kind regards
+Tigran
 
-Wouldn't this bring the (set of ) ranking algorithm(s) back to the kernel? This
-is exactly what we're trying to avoid. The way we see the potential for doing 
-this is that kernel shouldn't  worry about users decision on which process to 
-kill but rather take her/his option into account. The computation of such a
-decision could be at user space (protected as you suggested above).
+On Tue, 18 Jan 2005, Tigran Aivazian wrote:
 
-We'll think about it, although I'm not sure if there would be such a decrease 
-in memory concumption.
-
-br
-
-Edjard
-
-
--- 
-"In a world without fences ... who needs Gates?"
+> On Tue, 18 Jan 2005, Tigran Aivazian wrote:
+>> I already solved this paricular problem. And the solution is (but don't 
+>> tell me you knew it, for then why didn't you tell anyone) simply --- 
+>> compile the kernel with -g and that includes enough debug information to be 
+>> able to decode the stack content correctly. And yes, kdb does show the 
+>> correct argument values now. No changes to kdb are necessary and no need to 
+>> do the work with dwarf2 implementation etc etc.
+>
+> actually I am very surprized that it worked (because looking at the code I 
+> concluded that it should NOT). So I need to retest in all cases to make sure 
+> this is not a coincidence but a solid fact...
+>
+> Kind regards
+> Tigran
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

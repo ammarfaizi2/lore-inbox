@@ -1,53 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264767AbTAJK07>; Fri, 10 Jan 2003 05:26:59 -0500
+	id <S264842AbTAJK2y>; Fri, 10 Jan 2003 05:28:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264815AbTAJK07>; Fri, 10 Jan 2003 05:26:59 -0500
-Received: from mail.hometree.net ([212.34.181.120]:50652 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S264767AbTAJK06>; Fri, 10 Jan 2003 05:26:58 -0500
-To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: Re: "Mother" == "computer-illiterate"
-Date: Fri, 10 Jan 2003 10:35:42 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <avm7lu$k6n$1@forge.intermeta.de>
-References: <20030109194019.GH26010@boardwalk> <1042153890.28469.21.camel@irongate.swansea.linux.org.uk>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1042194942 939 212.34.181.4 (10 Jan 2003 10:35:42 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Fri, 10 Jan 2003 10:35:42 +0000 (UTC)
-X-Copyright: (C) 1996-2002 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+	id <S264853AbTAJK2y>; Fri, 10 Jan 2003 05:28:54 -0500
+Received: from willow.compass.com.ph ([202.70.96.38]:56843 "EHLO
+	willow.compass.com.ph") by vger.kernel.org with ESMTP
+	id <S264842AbTAJK2w>; Fri, 10 Jan 2003 05:28:52 -0500
+Subject: Re: [Linux-fbdev-devel] rotation.
+From: Antonino Daplas <adaplas@pol.net>
+To: James Simmons <jsimmons@infradead.org>
+Cc: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Geert Uytterhoeven <geert@linux-m68k.org>
+In-Reply-To: <Pine.LNX.4.44.0301091949560.5660-100000@phoenix.infradead.org>
+References: <Pine.LNX.4.44.0301091949560.5660-100000@phoenix.infradead.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1042171520.933.126.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 10 Jan 2003 18:26:51 +0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+On Fri, 2003-01-10 at 03:54, James Simmons wrote:
+> 
+> > However, as Geert mentioned, if you want to support rotation
+> > generically, then you have to do it in the fbcon level.  The driver need
+> > not know if the display is rotated or not.  All it needs to do is fill a
+> > region with color, color expand a bitmap and move blocks of data, and
+> > optionally 'pan' the window.  Fbcon will pass the correct (ie, oriented)
+> > information for the driver.
+> 
+> Yes. Hardware rotation shouldn't also not effect the way accel 
+> operatations are done.
+ 
+The main difference is if the hardware supports rotation, fbcon will
+present it with "normal" data.  With the generic implementation, fbcon
+will present the driver with rotated data.
 
->On Thu, 2003-01-09 at 19:40, Val Henson wrote:
->> P.S. For extra credit (but no ThinkGeek certificate) you can look up
->> the following women in computer science, some of whom are mothers:
->> Mary Baker, Margo Seltzer, Monica Lam, Ellen Spertus, Carla Ellis, and
->> Barbara Simons.
+So we need a driver capabilities field either in fb_info or
+fb_fix_screeninfo.
 
->and of course Sally Floyd, and even Hedy Lamarr (bonus points for those
->who know what her networking related patent is on)
+> 
+> > This will not be too processor intensive as long as some data is
+> > prepared beforehand, like a rotated fontdata.
+> 
+> Yeap!! The only thing is we could end up with 4 times the amount of data.
+>  
 
-Come on, she actually has a homepage: http://www.hedylamarr.at/
+Not really.  We can dynamically rotate the fontdata using the default
+display->fontdata into another buffer.  I believe I have functions that
+do that in the patch I submitted.  (Sorry, I lost it when one of my
+drives crashed :-(.
 
--> frequency hopping
+Tony
 
-        Regards
-                Henning
-
-
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
-
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   

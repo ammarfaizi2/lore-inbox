@@ -1,60 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266121AbTLaFOq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Dec 2003 00:14:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266125AbTLaFOq
+	id S266123AbTLaFVz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Dec 2003 00:21:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266124AbTLaFVz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Dec 2003 00:14:46 -0500
-Received: from brain.sedal.usyd.edu.au ([129.78.24.68]:49832 "EHLO
-	brain.sedal.usyd.edu.au") by vger.kernel.org with ESMTP
-	id S266121AbTLaFOo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Dec 2003 00:14:44 -0500
-Message-Id: <5.1.1.5.2.20031231155606.03376908@brain.sedal.usyd.edu.au>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1.1
-Date: Wed, 31 Dec 2003 16:13:05 +1100
-To: rusty@rustcorp.com.au
-From: auntvini <auntvini@sedal.usyd.edu.au>
-Subject: task_struct and uid of a task
-Cc: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	Wed, 31 Dec 2003 00:21:55 -0500
+Received: from mail2.megatrends.com ([155.229.80.16]:22792 "EHLO
+	atl-ms1.megatrends.com") by vger.kernel.org with ESMTP
+	id S266123AbTLaFVk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Dec 2003 00:21:40 -0500
+Message-ID: <8CCBDD5583C50E4196F012E79439B45C0568D7F6@atl-ms1.megatrends.com>
+From: Srikumar Subramanian <SrikumarS@ami.com>
+To: "'Andrew Morton'" <akpm@osdl.org>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Cc: Boopathi Veerappan <BoopathiV@ami.com>,
+       Srikumar Subramanian <SrikumarS@ami.com>
+Subject: RE: memory leak in call_usermodehelper()
+Date: Wed, 31 Dec 2003 00:22:50 -0500
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2657.72)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Rusty,
 
-I hope I am not disturbing you.
+This is my sample syscall implementation
 
-I am building the linux kernel to calculate the Load Average of the tasks 
-in a different manner.
+---
+asmlinkage int sys_mysyscall (int arg1, char * arg2)
+{
+	char * argv[2], * envp[3];
+	
+	argv[0] = "/usr/test";  //this program does nothing, simply returns
+0
+	argv[1] = 0;
+	
+	envp[0] = "HOME=/";
+	envp[1] = "PATH=/bin:/sbin/:/usr/bin:/usr/sbin";
+	envp[2] = 0;
 
-That would be to separate the tasks under respective login user and then 
-calculate Load Averages. I was successful partly but there is a problem.
+	call_usermodehelper (argv[0], argv, envp);  //calling this way leads
+to memory leak in kernel.
 
-ps command gives a good idea  about my effort.
+	return 1;
+}
+---
 
-Though I was able to introduce new code, now I find that as far as a child 
-processors are concerned uid is not the original user id (say 500, 501 etc) 
-of that child processor. This is because the child inherits the user id of 
-the Parent.
+Is there any alternative to call_usermodehelper in kernel 2.4.20?
 
-As a result of that my separation of tasks under differant users is not 
-accurate.
+Any suggestion of patch will be greatly appreciated.
 
-Previously I thought that the uid in the struct task_struct
-is going to be original user id. Now I find it is not the case always as 
-child inherits parent uid
+Thanks & regards,
+Srikumar
 
-Then I used p->uid. which is not true.
+-----Original Message-----
+From: Srikumar Subramanian 
+Sent: Tuesday, December 30, 2003 12:14 PM
+To: 'Andrew Morton'
+Cc: linux-kernel@vger.kernel.org; Srikumar Subramanian; Boopathi Veerappan
+Subject: RE: memory leak in call_usermodehelper()
 
+Hi,
+I am using 2.4.20-8 Redhat 9 kernel.
 
-Do you know any global structure that keeps the original user id (say 500, 
-501 etc)?
+-----Original Message-----
+From: Andrew Morton [mailto:akpm@osdl.org]
+Sent: Tuesday, December 30, 2003 6:20 AM
+To: Srikumar Subramanian
+Cc: linux-kernel@vger.kernel.org; SrikumarS@ami.com; BoopathiV@ami.com
+Subject: Re: memory leak in call_usermodehelper()
 
-Or I may have to introduce another variable in this regard.
+Srikumar Subramanian <SrikumarS@ami.com> wrote:
+>
+> Hi All,
+>
+> >From my customized system call, I merely call call_usermodehelper() to
+spawn
+> a process. When I call my_system_call around 1000 times in order to spawn
+> 'hello world' program, I noticed in 'top' program that system has lost 200
+> KB of free memory.
+> I just increased the iteration to 700000, I lost the entire 128 MB free
+> memory from my system and eventually the system is freezed.
+>
 
-Thanks
-Sena Seneviratene
-Computer Engineering Lab
-Sydney University
-
+What version of the kernel were you using?

@@ -1,155 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263732AbTDXO0t (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 10:26:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263723AbTDXO0t
+	id S263681AbTDXOZT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 10:25:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263715AbTDXOZT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 10:26:49 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:47359 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S263732AbTDXO0n convert rfc822-to-8bit
+	Thu, 24 Apr 2003 10:25:19 -0400
+Received: from watch.techsource.com ([209.208.48.130]:47038 "EHLO
+	techsource.com") by vger.kernel.org with ESMTP id S263681AbTDXOZQ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 10:26:43 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Andrew Theurer <habanero@us.ibm.com>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: [patch] HT scheduler, sched-2.5.68-B2
-Date: Thu, 24 Apr 2003 09:23:15 -0500
-User-Agent: KMail/1.4.3
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org,
-       Rick Lindsley <ricklind@us.ibm.com>
-References: <200304240843.h3O8h4902765@owlet.beaverton.ibm.com>
-In-Reply-To: <200304240843.h3O8h4902765@owlet.beaverton.ibm.com>
+	Thu, 24 Apr 2003 10:25:16 -0400
+Message-ID: <3EA7F8AE.8050402@techsource.com>
+Date: Thu, 24 Apr 2003 10:46:06 -0400
+From: Timothy Miller <miller@techsource.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200304240923.18754.habanero@us.ibm.com>
+To: Steven Cole <elenstev@mesatop.com>
+CC: Johannes Ruscheinski <ruschein@mail-infomine.ucr.edu>,
+       Chuck Ebbert <76306.1226@compuserve.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: How did the Spelling Police miss this one?
+References: <200304230936_MC3-1-35AA-864B@compuserve.com>	 <1051109635.29423.20.camel@spc9.esa.lanl.gov>	 <20030424033913.GA32423@mail-infomine.ucr.edu> <1051158383.22271.123.camel@spc>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-BTW, I am getting an oops on boot with the A9 version in wake_up_cpu:
-
-Unable to handle kernel NULL pointer dereference at virtual address 00000004
-c011910f
-*pde = 00104001
-Oops: 0000 [#1]
-CPU:    0
-EIP:    0060:[<c011910f>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010046
-eax: 00000000   ebx: f23f4d40   ecx: 00000000   edx: 424614f0
-esi: c03f8f80   edi: c03f9938   ebp: f2d87f2c   esp: f2d87f0c
-ds: 007b   es: 007b   ss: 0068
-Stack: 00000000 00000000 00000000 00000001 00000000 f23f4d40 c03f8f80 c03f9938
-       f2d87f78 c01195e1 c03f8f80 c03f9938 f23f5330 f2d87f58 f2d8d628 00000000
-       c03f8f80 00000002 00000000 00000086 00000020 f23f5330 f2d8d330 c0396fc0
-Call Trace: [<c01195e1>]  [<c011af50>]  [<c011b025>]  [<c011c5aa>]  
-[<c010a9ba>]
-  [<c011c300>]  [<c0108b25>]
-code: 8b 41 04 ba 03 00 00 00 8b 58 08 c1 eb 10 83 e3 01 f0 0f ab
-
->>EIP; c011910f <wake_up_cpu+3f/310>   <=====
-Trace; c01195e1 <try_to_wake_up+201/310>
-Trace; c011af50 <__wake_up_common+40/60>
-Trace; c011b025 <complete+25/40>
-Trace; c011c5aa <migration_task+2aa/2b0>
-Trace; c010a9ba <work_resched+5/16>
-Trace; c011c300 <migration_task+0/2b0>
-Trace; c0108b25 <kernel_thread_helper+5/10>
-Code;  c011910f <wake_up_cpu+3f/310>
-00000000 <_EIP>:
-Code;  c011910f <wake_up_cpu+3f/310>   <=====
-   0:   8b 41 04                  mov    0x4(%ecx),%eax   <=====
-Code;  c0119112 <wake_up_cpu+42/310>
-   3:   ba 03 00 00 00            mov    $0x3,%edx
-Code;  c0119117 <wake_up_cpu+47/310>
-   8:   8b 58 08                  mov    0x8(%eax),%ebx
-Code;  c011911a <wake_up_cpu+4a/310>
-   b:   c1 eb 10                  shr    $0x10,%ebx
-Code;  c011911d <wake_up_cpu+4d/310>
-   e:   83 e3 01                  and    $0x1,%ebx
-Code;  c0119120 <wake_up_cpu+50/310>
-  11:   f0 0f ab 00               lock bts %eax,(%eax)
 
 
-One thing to note, I am using a patch to skip cpus on boot by specifying their 
-apicid.  I have used this patch without any problems for quite a while, but 
-for some reason with the HT patch I get the oops.  I am using this patch so I 
-can boot only the processors in the first node on an x440:
+Steven Cole wrote:
 
-boot param used: skip_apicids=32,33,34,35,48,49,50,51
-(all of the apicids in the 2nd node)
+>  
+>
+>Strictly speaking, you are probably right.  According to this:
+>http://www.m-w.com/cgi-bin/dictionary?book=Dictionary&va=canonize
+>sense #2 would qualify "canonize".  I took the position that the only
+>person who could "canonize" anything is an elderly Polish fellow living
+>in Rome. But I've been wrong before.
+>
+>The tortured variant "canonicalize" has seen enough usage to warrant
+>this related entry here:
+>http://whatis.techtarget.com/definition/0%2c%2csid9_gci841392%2c00.html
+>
+>As far as "no such words" go, a descriptive grammar is generally more
+>useful for human languages than a prescriptive grammar.  Healthy human
+>languages allow for growth.  See Tao Te Ching 76. (late night rambling)
+>
+>Steven "verbalizing in his native language, where nouns and adjectives can be verbed" Cole
+>  
+>
 
-patch:
-diff -Naur linux-2.5.65/arch/i386/kernel/smpboot.c 
-linux-2.5.65-skip-apic/arch/i386/kernel/smpboot.c
---- linux-2.5.65/arch/i386/kernel/smpboot.c	Mon Mar 17 13:44:05 2003
-+++ linux-2.5.65-skip-apic/arch/i386/kernel/smpboot.c	Fri Mar 21 09:04:03 2003
-@@ -82,6 +82,10 @@
- extern unsigned char trampoline_end  [];
- static unsigned char *trampoline_base;
- 
-+/* used to selectively not boot certain CPUs with apicids */
-+extern int skip_apic_ids[NR_CPUS];
-+
-+
- /*
-  * Currently trivial. Write the real->protected mode
-  * bootstrap into the page concerned. The caller
-@@ -939,6 +943,16 @@
- 
- int cpu_sibling_map[NR_CPUS] __cacheline_aligned;
- 
-+static int skip_this_apicid(int apicid)
-+{
-+	int i;
-+
-+	for (i = 1; i < (skip_apic_ids[0] + 1); i++) 
-+		if (apicid == skip_apic_ids[i]) 
-+			return 1;
-+	return 0;
-+}
-+
- static void __init smp_boot_cpus(unsigned int max_cpus)
- {
- 	int apicid, cpu, bit;
-@@ -1036,6 +1050,8 @@
- 			continue;
- 		if (max_cpus <= cpucount+1)
- 			continue;
-+		if (skip_this_apicid(apicid))
-+			continue;
- 
- 		if (do_boot_cpu(apicid))
- 			printk("CPU #%d not responding - cannot use it.\n",
-diff -Naur linux-2.5.65/init/main.c linux-2.5.65-skip-apic/init/main.c
---- linux-2.5.65/init/main.c	Mon Mar 17 13:43:44 2003
-+++ linux-2.5.65-skip-apic/init/main.c	Fri Mar 21 09:04:18 2003
-@@ -113,6 +113,8 @@
- 
- /* Setup configured maximum number of CPUs to activate */
- static unsigned int max_cpus = NR_CPUS;
-+/* Don't boot apicids in this list */
-+int skip_apic_ids[NR_CPUS];
- 
- /*
-  * Setup routine for controlling SMP activation
-@@ -140,6 +142,18 @@
- 
- __setup("maxcpus=", maxcpus);
- 
-+static int __init skip_apicids(char *str)
-+{
-+	int i;
-+
-+	get_options(str, NR_CPUS, skip_apic_ids);
-+	for (i = 1; i < (skip_apic_ids[0]+1); i++)
-+		printk( "CPU with apicid %i will not be booted\n", skip_apic_ids[i]);
-+	return 1;
-+}
-+
-+__setup("skip_apicids=", skip_apicids);
-+
- static char * argv_init[MAX_INIT_ARGS+2] = { "init", NULL, };
- char * envp_init[MAX_INIT_ENVS+2] = { "HOME=/", "TERM=linux", NULL, };
- 
+There is a subtle issue that we need to consider regarding "canonize" 
+and its meaning of "to make canonical".
+
+Are we saying:
+
+(a) To add something to the canon
+
+or
+
+(b) To change something so that it conforms to the canon
+
+
+"Canonize" is ambiguous.  Its first definition, to make into a saint, in 
+fact conforms to (a) above, which, I believe, is NOT the definition we 
+want!  In fact, all of the m-w.com definitions conform to (a).
+
+Unless I misunderstand, we are not adding anything to the canon here. 
+ So even if (b) is (somewhere) an acceptable meaning of "canonize" the 
+ambiguity obscures what we're intending to say.
+
+On the other hand, "canonicalize", while strange and new, unambiguously 
+means (b).
+
+Is there an already-existing word which means (b)?
+
 

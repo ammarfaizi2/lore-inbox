@@ -1,35 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288259AbSA0RfF>; Sun, 27 Jan 2002 12:35:05 -0500
+	id <S288780AbSA0WEz>; Sun, 27 Jan 2002 17:04:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288255AbSA0Res>; Sun, 27 Jan 2002 12:34:48 -0500
-Received: from mailhost.teleline.es ([195.235.113.141]:43544 "EHLO
-	tsmtp6.mail.isp") by vger.kernel.org with ESMTP id <S288259AbSA0Re2>;
-	Sun, 27 Jan 2002 12:34:28 -0500
+	id <S288782AbSA0WEq>; Sun, 27 Jan 2002 17:04:46 -0500
+Received: from mailhost.teleline.es ([195.235.113.141]:47651 "EHLO
+	tsmtp3.ldap.isp") by vger.kernel.org with ESMTP id <S288780AbSA0WEf>;
+	Sun, 27 Jan 2002 17:04:35 -0500
 From: "Diego Calleja" <grundig@teleline.es>
-To: "Daniel J Blueman" <daniel.blueman@btinternet.com>,
-        "lkml" <linux-kernel@vger.kernel.org>
-Subject: RE: fonts corruption with 3dfx drm module
-Date: dom, 27 ene 2002 17:34:54 +0000
-In-Reply-To: <000301c1a732$a989fa80$132f23d9@stratus>
+To: "lkml" <linux-kernel@vger.kernel.org>
+Subject: Re: PROBLEM: 2.4.17 crashes (VM bug?) after heavy system load
+Date: dom, 27 ene 2002 22:05:03 +0000
+In-Reply-To: <000001c1a77c$78abe8c0$6501a8c0@intranet.invantive.com>
 X-Mailer: Pyne 0.6.7 (Debian/GNU/Linux)
 Content-Type: text/plain
 MIME-Version: 1.0
-Message-Id: <20020127173436Z288259-13997+10821@vger.kernel.org>
+Cc: <guido.leenders@invantive.com>
+Message-Id: <20020127220437Z288780-13996+13092@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 27 ene 2002, 13:00:57, Daniel J Blueman wrote:
+On 27 ene 2002, 22:49:17, Guido Leenders wrote:
 > 
-> Do you have a graphical console or text? I believe there are fixes in
-> 2.4.18-preX to decrease the 3dfx banshee/v3 pixel clock or something to
-> alleviate this issue. That'll be in the 3dfx framebuffer driver.
+> [1.] One line summary of the problem:    
 > 
-> Or, of course, it could be something entirely different....
-I use 2.4.18-pre7 now
-
-
-
-
-> ____________________
-> Daniel J Blueman 
+> Especially during times of heavy I/O, swapping and CPU processing, the
+> OS crashes with an Oops.
+I think andrea's patches should be applied into stable mainline NOW. 

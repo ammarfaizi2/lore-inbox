@@ -1,51 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131590AbRAUB3q>; Sat, 20 Jan 2001 20:29:46 -0500
+	id <S133025AbRAUBny>; Sat, 20 Jan 2001 20:43:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132569AbRAUB3g>; Sat, 20 Jan 2001 20:29:36 -0500
-Received: from oldftp.webmaster.com ([209.10.218.74]:49810 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S131590AbRAUB3a>; Sat, 20 Jan 2001 20:29:30 -0500
-From: "David Schwartz" <davids@webmaster.com>
-To: "Linus Torvalds" <torvalds@transmeta.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Is sendfile all that sexy?
-Date: Sat, 20 Jan 2001 17:29:29 -0800
-Message-ID: <NCBBLIEPOCNJOAEKBEAKMELMNCAA.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <Pine.LNX.4.10.10101201629110.10849-100000@penguin.transmeta.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-Importance: Normal
+	id <S133026AbRAUBnn>; Sat, 20 Jan 2001 20:43:43 -0500
+Received: from seyn.maisel.int-evry.fr ([157.159.41.100]:55936 "HELO
+	seyn.minet.net") by vger.kernel.org with SMTP id <S133025AbRAUBnk>;
+	Sat, 20 Jan 2001 20:43:40 -0500
+Date: Sun, 21 Jan 2001 02:45:16 +0100
+To: linux-kernel@vger.kernel.org
+Subject: PROBLEM: 2.4.1-pre9 does not compile on r128.c
+Message-ID: <20010121024516.A6492@minet.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+From: pierre@minet.net (Pierre CORCINOS)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+result of the compilation :
 
-> I'm _not_ seeing the point for a high-performance link to have a generic
-> packet buffer.
->
-> 		Linus
+gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -O2
+-fomit-frame-pointer -fno-strict-aliasing -pipe -mpreferred-stack-boundary=2
+-march=i686 -DMODULE -DMODVERSIONS -include
+/usr/src/linux/include/linux/modversions.h   -DEXPORT_SYMTAB -c r128_drv.c
+r128_drv.c:124: `DRM_IOCTL_R128_PACKET' undeclared here (not in a function)
+r128_drv.c:124: nonconstant array index in initializer
+r128_drv.c:124: (near initialization for `r128_ioctls')
+{standard input}: Assembler messages:
+{standard input}:8: Warning: Ignoring changed section attributes for .modinfo
+make[3]: *** [r128_drv.o] Erreur 1
 
-	Well suppose your RAID controller can take over control of disks
-distributed throughout your I/O subsystem. If you assume the bandwidth of
-the I/O subsystem is not the limiting factor, there's no need to hang the
-disks directly off the RAID controller.
+ver_linux :
 
-	This makes even more sense if your computer can upload code to your
-peripherals which they can then run autonomously. Imagine if your filesystem
-code is mobile and can reside (perhaps to a variable extent) in your drives
-if you want it to.
+Linux seyn 2.4.1-pre8 #3 dim jan 21 01:12:23 CET 2001 i686 unknown
+Kernel modules         2.4.1
+Gnu C                  2.95.2
+Gnu Make               3.79.1
+Binutils               2.10.1.0.2
+Linux C Library        > libc.2.2
+Dynamic linker         ldd (GNU libc) 2.2
+Procps                 2.0.6
+Mount                  2.10q
+Net-tools              2.05
+Console-tools          0.2.3
+Sh-utils               2.0.11
+Modules Loaded         ntfs nls_iso8859-15 nls_cp437 vfat fat emu10k1 soundcore
 
-	Of course none of this really relates to the case of the OS trying to get
-peripherals to talk to each other directly.
+Congratulation for your job
 
-	DS
-
+-- 
+Pierre CORCINOS					<pierre@minet.net>
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

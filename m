@@ -1,103 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316538AbSFVFzh>; Sat, 22 Jun 2002 01:55:37 -0400
+	id <S316755AbSFVCmJ>; Fri, 21 Jun 2002 22:42:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316840AbSFVFzg>; Sat, 22 Jun 2002 01:55:36 -0400
-Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:9713 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S316538AbSFVFzg>; Sat, 22 Jun 2002 01:55:36 -0400
-From: Andreas Dilger <adilger@clusterfs.com>
-Date: Fri, 21 Jun 2002 23:53:18 -0600
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: "Stephen C. Tweedie" <sct@redhat.com>, Andrew Morton <akpm@zip.com.au>,
-       Christopher Li <chrisl@gnuchina.org>,
-       Linux-kernel <linux-kernel@vger.kernel.org>,
-       ext2-devel@lists.sourceforge.net
-Subject: Re: [Ext2-devel] Re: Shrinking ext3 directories
-Message-ID: <20020622055318.GA22411@clusterfs.com>
-Mail-Followup-To: Daniel Phillips <phillips@bonn-fries.net>,
-	"Stephen C. Tweedie" <sct@redhat.com>,
-	Andrew Morton <akpm@zip.com.au>,
-	Christopher Li <chrisl@gnuchina.org>,
-	Linux-kernel <linux-kernel@vger.kernel.org>,
-	ext2-devel@lists.sourceforge.net
-References: <20020619113734.D2658@redhat.com> <20020619234340.A24016@redhat.com> <20020620005452.M5119@redhat.com> <E17LF65-0001K4-00@starship>
+	id <S316789AbSFVCmI>; Fri, 21 Jun 2002 22:42:08 -0400
+Received: from holomorphy.com ([66.224.33.161]:56004 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S316755AbSFVCmH>;
+	Fri, 21 Jun 2002 22:42:07 -0400
+Date: Fri, 21 Jun 2002 19:41:40 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: linux-kernel@vger.kernel.org
+Subject: smp_call_function() deadlock during boot
+Message-ID: <20020622024140.GD25360@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
 Content-Disposition: inline
-In-Reply-To: <E17LF65-0001K4-00@starship>
-User-Agent: Mutt/1.3.28i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jun 21, 2002  05:28 +0200, Daniel Phillips wrote:
-> I ran a bakeoff between your new half-md4 and dx_hack_hash on Ext2.  As 
-> predicted, half-md4 does produce very even bucket distributions.  For 200,000 
-> creates:
-> 
->    half-md4:        2872 avg bytes filled per 4k block (70%)
->    dx_hack_hash:    2853 avg bytes filled per 4k block (69%)
-> 
-> but guess which was faster overall?
-> 
->    half-md4:        user 0.43 system 6.88 real 0:07.33 CPU 99%
->    dx_hack_hash:    user 0.43 system 6.40 real 0:06.82 CPU 100%
-> 
-> This is quite reproducible: dx_hack_hash is always faster by about 6%.  This 
-> must be due entirely to the difference in hashing cost, since half-md4 
-> produces measurably better distributions.  Now what do we do?
+smp_call_function() gets called before cpu_online_map is initialized.
+In order to tolerate this behavior the following appears to be necessary.
+This method of resolving the issue has a precedent in smp_IPI_allbutself().
 
-While I normally advocate the "cheapest" way of implementing a given
-solution (and dx_hack_hash is definitely the lowest-cost hash function
-we could reasonably have), I would still be inclined to go with half-MD4
-for this.  A few reasons for that:
-1) CPUs are getting faster all the time
-2) it is a well-understood algorithm that has very good behaviour
-3) it is much harder to spoof MD4 than dx_hack_hash
-4) it is probably better to have the most uniform hash function we can
-   find than to do lots more block split/coalesce operations, so the
-   extra cost of half-MD4 may be a benefit overall
+Cheers,
+Bill
 
-It would be interesting to re-run this test to create a few million
-entries, but with periodic deletes.
 
-Hmm, now that I think about it, split/coalesce operations are only
-important on create and delete, while the hash cost is paid for each
-lookup as well.  It would be interesting to see the comparison with
-a test something like this (sorry, don't have a system which has both
-hash functions working right now):
-
-#!/bin/sh
-DEV=/dev/hda7
-TESTDIR=/mnt/tmp
-date
-for d in `seq -f "directory_name_%05g" 1 10000` ; do
-	mkdir $TESTDIR/$d
-	for f in `seq -f "file_name_%05g" 1 10000` ; do
-		touch $TESTDIR/$d/$d_$f
-	done
-done
-date
-umount $TESTDIR
-mount -o noatime $DEV $TESTDIR
-date
-for d in `seq -f "directory_name_%05g" 10000 -1 1` ; do
-	for f in `seq -f "file_name_%05g" 10000 -1 1` ; do
-		stat $TESTDIR/$d/$d_$f > /dev/null
-	done
-done
-date
-
-Having the longer filenames will put more load on the hash function,
-so we will see if we are really paying a big price for the overhead,
-and the stat test will remove all of the creation time and disk dirtying
-and just leave us with the pure lookup costs hopefully.
-
-Cheers, Andreas
---
-Andreas Dilger
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-http://sourceforge.net/projects/ext2resize/
-
+===== arch/i386/kernel/smp.c 1.17 vs edited =====
+--- 1.17/arch/i386/kernel/smp.c	Mon May 20 10:51:17 2002
++++ edited/arch/i386/kernel/smp.c	Fri Jun 21 19:37:11 2002
+@@ -567,9 +567,9 @@
+  */
+ {
+ 	struct call_data_struct data;
+-	int cpus = num_online_cpus()-1;
++	int cpus = num_online_cpus();
+ 
+-	if (!cpus)
++	if (cpus <= 1)
+ 		return 0;
+ 
+ 	data.func = func;
+@@ -586,11 +586,11 @@
+ 	send_IPI_allbutself(CALL_FUNCTION_VECTOR);
+ 
+ 	/* Wait for response */
+-	while (atomic_read(&data.started) != cpus)
++	while (atomic_read(&data.started) != cpus - 1)
+ 		barrier();
+ 
+ 	if (wait)
+-		while (atomic_read(&data.finished) != cpus)
++		while (atomic_read(&data.finished) != cpus - 1)
+ 			barrier();
+ 	spin_unlock(&call_lock);
+ 

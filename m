@@ -1,58 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264364AbTLVJaJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Dec 2003 04:30:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264367AbTLVJaJ
+	id S264372AbTLVJiH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Dec 2003 04:38:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264373AbTLVJiH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Dec 2003 04:30:09 -0500
-Received: from mail.kroah.org ([65.200.24.183]:10410 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264364AbTLVJaF (ORCPT
+	Mon, 22 Dec 2003 04:38:07 -0500
+Received: from mail.kroah.org ([65.200.24.183]:26028 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S264372AbTLVJiC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Dec 2003 04:30:05 -0500
-Date: Mon, 22 Dec 2003 01:23:29 -0800
+	Mon, 22 Dec 2003 04:38:02 -0500
+Date: Mon, 22 Dec 2003 01:37:59 -0800
 From: Greg KH <greg@kroah.com>
-To: Scott James Remnant <scott@netsplit.com>
-Cc: linux-kernel@vger.kernel.org, linux-hotplug-devel@lists.sourceforge.net
-Subject: Re: udev LABEL not working: sysfs_path_is_file: stat() failed
-Message-ID: <20031222092329.GA30235@kroah.com>
-References: <1072054829.1225.11.camel@descent.netsplit.com>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: linux-kernel@vger.kernel.org, Manuel Estrada Sainz <ranty@debian.org>,
+       Patrick Mochel <mochel@osdl.org>
+Subject: Re: [2.6 PATCH/RFC] Firmware loader - fix races and resource dealloocation problems
+Message-ID: <20031222093759.GB30235@kroah.com>
+References: <200312210137.41343.dtor_core@ameritech.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1072054829.1225.11.camel@descent.netsplit.com>
+In-Reply-To: <200312210137.41343.dtor_core@ameritech.net>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 22, 2003 at 01:00:29AM +0000, Scott James Remnant wrote:
-> [I am not subscribed to linux-kernel, please Cc: me on replies.]
-
-The linux-hotplug-devel mailing list is best place for questions about
-udev, not lkml...
-
-> I'm having a problem getting udev to honour my LABEL lines in
-> /etc/udev/udev.rules.  At the top of this I've got:
+On Sun, Dec 21, 2003 at 01:37:39AM -0500, Dmitry Torokhov wrote:
+> Hi,
 > 
-> LABEL, BUS="usb", SYSFS_vendor="Fujifilm", SYSFS_model="FinePix 1400Zoom", NAME="camera"
+> It seems that implementation of the firmware loader is racy as it relies
+> on kobject hotplug handler. Unfortunately that handler runs too early,
+> before firmware class attributes controlling the loading process, are
+> created. This causes firmware loading fail at least half of the times on
+> my laptop.
 
-Try changing BUS="usb" to BUS="scsi".  Also make sure that the model
-file doesn't contain any trailing spaces.  That's a very common thing on
-usb devices.
+Um, why not have your script wait until the files are present?  That
+will remove any race conditions you will have.
 
-And you are trying to match up 2 files, right now udev only supports 1,
-so the last one (model) is used.  The vendor rule there is ignored.
+> Another problem that I see is that the present implementation tries to free
+> some of the allocated resources manually instead of relying on driver model.
+> Particularly damaging is freeing fw_priv in request_firmware. Although the
+> code calls fw_remove_class_device (which in turns calls 
+> class_device_unregister) the freeing of class device and all its attributes
+> can be delayed as the attribute files may still be held open by the
+> userspace handler or any other program. Subsequent access to these files
+> could cause trouble.
 
-There is also a problem with udev beating the kernel.  It can easily get
-the hotplug event before the kernel has created the sysfs file.  I'm
-currently working on fixing this in udev, should have it done by the
-next release.  You can tell if you are seeing this race by just running
-the test.block script in the test directory in udev.  If your device
-node is created properly with that script, but not when you plug the
-device in, you have that problem.
+Cleanups should happen in the release function.  If the firmware code
+doesn't do this, it's wrong.
 
-And people tried to tell us that the hotplug interface was slow without
-ever testing it out...
-
-Hope this helps,
+thanks,
 
 greg k-h

@@ -1,46 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269306AbUH0DDa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266048AbUH0IFO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269306AbUH0DDa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 23:03:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269377AbUHZSxG
+	id S266048AbUH0IFO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 04:05:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266324AbUH0IFN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 14:53:06 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:64211 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S269364AbUHZSnk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 14:43:40 -0400
-Date: Thu, 26 Aug 2004 14:41:34 -0400 (EDT)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Diego Calleja <diegocg@teleline.es>, <jamie@shareable.org>,
-       <christophe@saout.de>, <vda@port.imtp.ilyichevsk.odessa.ua>,
-       <christer@weinigel.se>, <spam@tnonline.net>, <akpm@osdl.org>,
-       <wichert@wiggy.net>, <jra@samba.org>, <reiser@namesys.com>,
-       <hch@lst.de>, <linux-fsdevel@vger.kernel.org>,
-       <linux-kernel@vger.kernel.org>, <flx@namesys.com>,
-       <reiserfs-list@namesys.com>
-Subject: Re: silent semantic changes with reiser4
-In-Reply-To: <Pine.LNX.4.58.0408261101110.2304@ppc970.osdl.org>
-Message-ID: <Pine.LNX.4.44.0408261440550.27909-100000@chimarrao.boston.redhat.com>
+	Fri, 27 Aug 2004 04:05:13 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:9116 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S265091AbUH0IFF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Aug 2004 04:05:05 -0400
+Message-ID: <412EEB2E.1020100@namesys.com>
+Date: Fri, 27 Aug 2004 01:05:02 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Bernd Petrovitsch <bernd@firmix.at>
+CC: Spam <spam@tnonline.net>, Wichert Akkerman <wichert@wiggy.net>,
+       Christer Weinigel <christer@weinigel.se>, Andrew Morton <akpm@osdl.org>,
+       jra@samba.org, torvalds@osdl.org, hch@lst.de,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       flx@namesys.com, reiserfs-list@namesys.com
+Subject: Re: silent semantic changes with reiser4
+References: <Pine.LNX.4.58.0408251555070.17766@ppc970.osdl.org>	 <1453698131.20040826011935@tnonline.net>	 <20040825163225.4441cfdd.akpm@osdl.org>	 <20040825233739.GP10907@legion.cup.hp.com>	 <20040825234629.GF2612@wiggy.net> <1939276887.20040826114028@tnonline.net>	 <20040826024956.08b66b46.akpm@osdl.org>	 <839984491.20040826122025@tnonline.net> <m3llg2m9o0.fsf@zoo.weinigel.se>	 <1906433242.20040826133511@tnonline.net> <20040826113332.GL2612@wiggy.net>	 <1211039639.20040826134354@tnonline.net> <1093592467.18603.6.camel@tara.firmix.at>
+In-Reply-To: <1093592467.18603.6.camel@tara.firmix.at>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 26 Aug 2004, Linus Torvalds wrote:
+Bernd Petrovitsch wrote:
 
-> For example, you _could_ probably (but hey, maybe "tar" tries to strip
-> slashes off the end of filenames, so this might not work due to silly
-> reasons like that) back up a compound file with
-> 
-> 	tar cvf file.tar file file/
-
-So you'd have both a file and a directory that just happen
-to have the same name ?  How would this work in the dcache?
-
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
-
+>On Thu, 2004-08-26 at 13:43 +0200, Spam wrote:
+>  
+>
+>>>Previously Spam wrote:
+>>>      
+>>>
+>>>>  How  so?  The whole idea is that the underlaying OS that handles the
+>>>>  copying  should  also  know  to  copy  everything, otherwise you can
+>>>>  implement  everything  into  applications  and  just  skip the whole
+>>>>  filesystem part.
+>>>>        
+>>>>
+>>>UNIX doesn't have a copy systemcall, applications copy the data
+>>>manually.
+>>>      
+>>>
+>>  Oh, this is very unfortunate and should be a bigger issue to fix.
+>>    
+>>
+>
+>Then you have to rewrite POSIX und SuSv3.
+>
+>	Bernd
+>  
+>
+Spam is right.  Posix is a standard, not a vision, and the future is 
+always a vision not a standard.

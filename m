@@ -1,59 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133083AbRDZDky>; Wed, 25 Apr 2001 23:40:54 -0400
+	id <S133084AbRDZDwi>; Wed, 25 Apr 2001 23:52:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133084AbRDZDkp>; Wed, 25 Apr 2001 23:40:45 -0400
-Received: from draal.physics.wisc.edu ([128.104.137.82]:9610 "EHLO
-	draal.physics.wisc.edu") by vger.kernel.org with ESMTP
-	id <S133083AbRDZDka>; Wed, 25 Apr 2001 23:40:30 -0400
-Date: Wed, 25 Apr 2001 22:39:39 -0500
-From: Bob McElrath <rsmcelrath@students.wisc.edu>
-To: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
-Subject: aa's rwsem-generic-6 bug?  Process stuck in 'R' state.
-Message-ID: <20010425223939.A26763@draal.physics.wisc.edu>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="huq684BweRXVnRxX"
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
+	id <S133086AbRDZDw2>; Wed, 25 Apr 2001 23:52:28 -0400
+Received: from www.wen-online.de ([212.223.88.39]:15884 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S133084AbRDZDwS>;
+	Wed, 25 Apr 2001 23:52:18 -0400
+Date: Thu, 26 Apr 2001 05:51:39 +0200 (CEST)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: Dan Maas <dmaas@dcine.com>
+cc: Michael Rothwell <rothwell@holly-springs.nc.us>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: #define HZ 1024 -- negative effects?
+In-Reply-To: <004f01c0cdf4$f17f4ce0$0701a8c0@morph>
+Message-ID: <Pine.LNX.4.33.0104260508001.566-100000@mikeg.weiden.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 25 Apr 2001, Dan Maas wrote:
 
---huq684BweRXVnRxX
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> The only other possibility I can think of is a scheduler anomaly. A thread
+> arose on this list recently about strange scheduling behavior of processes
+> using local IPC - even though one process had readable data pending, the
+> kernel would still go idle until the next timer interrupt. If this is the
+> case, then HZ=1024 would kick the system back into action more quickly...
 
-Running 2.4.4pre4 with Andrea's rwsem-generic-6 patch, I have just
-gotten a process stuck in the 'R' state.  According to the ps man page
-this is: "runnable (on run queue)".  The 'ps aux' output is:
-USER       PID %CPU %MEM   VSZ  RSS TTY      STAT START   TIME COMMAND
-root      7921  0.8 26.9 91720 68608 ?       R<   00:33  11:20 /usr/X11R6/b=
-in/X
+Hmm.  I've caught tasks looping here (experimental tree but..) with
+interrupts enabled, but schedule never being called despite having
+many runnable tasks.
 
-X is niced at -10 and doesn't respond to kill or kill -9.
+	-Mike
 
-alpha 21164 (ev56) architecture.  kernel compiled with:
-gcc version 2.96 20000731 (Red Hat Linux 7.0)
-
-Cheers,
--- Bob
-
-Bob McElrath (rsmcelrath@students.wisc.edu)=20
-Univ. of Wisconsin at Madison, Department of Physics
-
---huq684BweRXVnRxX
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.1 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iEYEARECAAYFAjrnmHsACgkQjwioWRGe9K3YFgCgrSDvyHMD/nOcCyr7PfceVgxf
-298AoPnqOrnDPNk/PQjaR9I87gmUGkPy
-=/3+3
------END PGP SIGNATURE-----
-
---huq684BweRXVnRxX--

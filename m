@@ -1,80 +1,132 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264774AbUFSW4n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264750AbUFSXAz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264774AbUFSW4n (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jun 2004 18:56:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264762AbUFSW4e
+	id S264750AbUFSXAz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jun 2004 19:00:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264762AbUFSXAz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jun 2004 18:56:34 -0400
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:42373 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id S264750AbUFSW4b (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jun 2004 18:56:31 -0400
-Date: Sun, 20 Jun 2004 00:56:30 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Stop printk printing non-printable chars
-Message-ID: <20040619225630.GE20632@lug-owl.de>
-Mail-Followup-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-References: <1087675920.9831.941.camel@cube>
+	Sat, 19 Jun 2004 19:00:55 -0400
+Received: from stress.telefonica.net ([213.4.129.135]:36746 "EHLO
+	tnetsmtp1.mail.isp") by vger.kernel.org with ESMTP id S264750AbUFSXAv convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jun 2004 19:00:51 -0400
+Subject: Re: pdc202xx_old serious bug with DMA on 2.6.x series
+From: Adolfo =?ISO-8859-1?Q?Gonz=E1lez_Bl=E1zquez?= 
+	<agblazquez_mailing@telefonica.net>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <200406191846.32983.bzolnier@elka.pw.edu.pl>
+References: <1087253451.4817.4.camel@localhost>
+	 <20040615111552.GA12458@logos.cnet> <1087299182.3251.2.camel@localhost>
+	 <200406191846.32983.bzolnier@elka.pw.edu.pl>
+Content-Type: text/plain; charset=ISO-8859-15
+Message-Id: <1087686048.647.9.camel@localhost>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="9OqnULxbSMQfV0WE"
-Content-Disposition: inline
-In-Reply-To: <1087675920.9831.941.camel@cube>
-X-Operating-System: Linux mail 2.4.18 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sun, 20 Jun 2004 01:00:48 +0200
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---9OqnULxbSMQfV0WE
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Sorry for the delay... I tried 2.5.50 and 2.5.75, and, at least for my
+machine, everything seems to be perfect. Then i tried every 2.6 kernel.
+All of them have the same buggy behaviour.
 
-On Sat, 2004-06-19 16:12:00 -0400, Albert Cahalan <albert@users.sf.net>
-wrote in message <1087675920.9831.941.camel@cube>:
-> David Woodhouse writes:
-> > Please don't do that -- it makes printing UTF-8 impossible.
-> > While I'd not argue that now is the time to start outputting
-> > UTF-8 all over the place, I wouldn't accept that it's a good
-> > time to _prevent_ it either, as your patch would do.
+These are the differences between 2.5.75 and 2.6.0 pdc202xx_old.c (sorry
+if this is not the correct format, im new here :)
+
+Hope this will help.
+
+Adolfo González
+
+###################################################################
+
+--- linux-2.5.75/drivers/ide/pci/pdc202xx_old.c	2003-07-10
+22:15:03.000000000 +0200
++++ linux-2.6.0/drivers/ide/pci/pdc202xx_old.c	2003-12-18
+03:59:53.000000000 +0100
+@@ -46,7 +46,6 @@
+ #include <asm/io.h>
+ #include <asm/irq.h>
+ 
+-#include "ide_modes.h"
+ #include "pdc202xx_old.h"
+ 
+ #define PDC202_DEBUG_CABLE	0
+@@ -519,13 +518,15 @@
+ 		} else {
+ 			goto fast_ata_pio;
+ 		}
++		return hwif->ide_dma_on(drive);
+ 	} else if ((id->capability & 8) || (id->field_valid & 2)) {
+ fast_ata_pio:
+ no_dma_set:
+ 		hwif->tuneproc(drive, 5);
+ 		return hwif->ide_dma_off_quietly(drive);
+ 	}
+-	return hwif->ide_dma_on(drive);
++	/* IORDY not supported */
++	return 0;
+ }
+ 
+ static int pdc202xx_quirkproc (ide_drive_t *drive)
+@@ -749,9 +750,6 @@
+ 	hwif->tuneproc  = &config_chipset_for_pio;
+ 	hwif->quirkproc = &pdc202xx_quirkproc;
+ 
+-	if (hwif->pci_dev->device == PCI_DEVICE_ID_PROMISE_20265)
+-		hwif->addressing = (hwif->channel) ? 0 : 1;
+-
+ 	if (hwif->pci_dev->device != PCI_DEVICE_ID_PROMISE_20246) {
+ 		hwif->busproc   = &pdc202xx_tristate;
+ 		hwif->resetproc = &pdc202xx_reset;
+@@ -928,7 +926,7 @@
+ 	return 0;
+ }
+ 
+-static struct pci_device_id pdc202xx_pci_tbl[] __devinitdata = {
++static struct pci_device_id pdc202xx_pci_tbl[] = {
+ 	{ PCI_VENDOR_ID_PROMISE, PCI_DEVICE_ID_PROMISE_20246, PCI_ANY_ID,
+PCI_ANY_ID, 0, 0, 0},
+ 	{ PCI_VENDOR_ID_PROMISE, PCI_DEVICE_ID_PROMISE_20262, PCI_ANY_ID,
+PCI_ANY_ID, 0, 0, 1},
+ 	{ PCI_VENDOR_ID_PROMISE, PCI_DEVICE_ID_PROMISE_20263, PCI_ANY_ID,
+PCI_ANY_ID, 0, 0, 2},
+
+###################################################################
+
+
+
+El sáb, 19-06-2004 a las 18:46, Bartlomiej Zolnierkiewicz escribió:
+> Hi,
+> 
+> Any news about this issue?
+> 
+> On Tuesday 15 of June 2004 13:33, you wrote:
+> > El mar, 15-06-2004 a las 13:15, Marcelo Tosatti escribió:
+> > > On Tue, Jun 15, 2004 at 01:20:03AM +0200, Adolfo González Blázquez wrote:
+> > > > El mar, 15-06-2004 a las 01:18, Bartlomiej Zolnierkiewicz escribió:
+> > > > > On Tuesday 15 of June 2004 00:50, Adolfo González Blázquez wrote:
+> > > > > > Hi!
+> > > > >
+> > > > > Hi,
+> > > > >
+> > > > > > Lot of users are reporting seriour problems with pdc202xx_old ide
+> > > > > > pci driver. Enabling DMA on any device related with this driver
+> > > > > > makes the system unusable.
+> > > > > >
+> > > > > > This seems to happen in all the 2.6.x kernel series.
+> > > > >
+> > > > > Doing binary search on 2.4->2.6 kernels would help greatly
+> > > > > (narrowing problem to a specific kernel versions).
+> > > >
+> > > > If it helps, I tried 2.6.2, 2.6.4, 2.6.5, and 2.6.7-rc3, and all have
+> > > > the bug.
+> > >
+> > > And which kernels does not exhibit the problem?
 > >
-> > If you want to post-process printk output, don't do it in the kernel.=
-=20
->=20
-> It is dangerous to let the 0x9b character go out
-> to a serial console. It means the same as ESC [ does
-> when you have a normal 8-bit terminal.
+> > The 2.4 series it's ok, I'm gonna try with different 2.5.x kernels to
+> > see if i can discover when the bug was introduced
+> 
 
-Get real: either you *want* to get those codes interpreted (think about
-full-blown ncurses apps being run over serial link), or you *don't* (think
-about simply recording serial console's output). You just have to choose
-the correct application for your task.
-
-MfG, JBG
-
---=20
-   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
-   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
-    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
-k!
-   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
-PA));
-
---9OqnULxbSMQfV0WE
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFA1MSeHb1edYOZ4bsRAnSTAJ43s9Q2uMyT/m9ExtgjXrHtOHQCeQCfX8c9
-5xCesIVdCcdC8gYalwOoki0=
-=J5NN
------END PGP SIGNATURE-----
-
---9OqnULxbSMQfV0WE--

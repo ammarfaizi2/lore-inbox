@@ -1,49 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287204AbSCGJNd>; Thu, 7 Mar 2002 04:13:33 -0500
+	id <S293317AbSCGJQX>; Thu, 7 Mar 2002 04:16:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287386AbSCGJNX>; Thu, 7 Mar 2002 04:13:23 -0500
-Received: from web10507.mail.yahoo.com ([216.136.130.157]:16393 "HELO
-	web10507.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S287204AbSCGJNL>; Thu, 7 Mar 2002 04:13:11 -0500
-Message-ID: <20020307091311.16356.qmail@web10507.mail.yahoo.com>
-Date: Thu, 7 Mar 2002 01:13:11 -0800 (PST)
-From: Andy Tai <lichengtai@yahoo.com>
-Reply-To: atai@atai.org
-Subject: "layered" block devices and deadlock problems
-To: linux-kernel@vger.kernel.org
-Cc: atai@atai.org
+	id <S287386AbSCGJQN>; Thu, 7 Mar 2002 04:16:13 -0500
+Received: from 213-97-45-174.uc.nombres.ttd.es ([213.97.45.174]:43781 "EHLO
+	pau.intranet.ct") by vger.kernel.org with ESMTP id <S293555AbSCGJQD>;
+	Thu, 7 Mar 2002 04:16:03 -0500
+Date: Thu, 7 Mar 2002 10:15:56 +0100 (CET)
+From: Pau Aliagas <linuxnow@wanadoo.es>
+X-X-Sender: pau@pau.intranet.ct
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Petition Against Official Endorsement of BitKeeper by Linux
+ Maintainers
+In-Reply-To: <Pine.LNX.4.44L.0203061253040.2181-100000@imladris.surriel.com>
+Message-ID: <Pine.LNX.4.44.0203071014200.2580-100000@pau.intranet.ct>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, I have been trying to write a kernel driver for a
-"layered" block device, that is, a virtual device
-which sits on top of actual physical devices and
-redirects read/write requests to them.  To avoid
-problems in the interrupt context I save the requests
-in a queue in the request function and have a kernel
-thread pulling the requests out of the queue and then
-in turn calling read() or write() functions of the
-physical block device.
+On Wed, 6 Mar 2002, Rik van Riel wrote:
 
-However, I keep running into deadlocks.  Sometimes the
-kernel thread will hang on waiting for free request
-structures.  Other times it will hang in
-wait_for_buffer() in buffer.c.  In both cases  the
-system won't respond to any new shell commands I typed
-in.  (But existing processes like xosview and top
-continue to run) Since I am not familiar with the
-internal workings of the buffer cache, can anyone give
-me hints on how to avoid deadlocks in layered drivers?
- Or pointers to useful documentation for this kind of
-tasks are also appreciated.  
+> Until then, the choice between a not-quite-free tool and no
+> useful tool at all is easy.
 
-Thanks.
+Give arch a try. It's in www.regexps.com.
+It does a pretty decent job.
+If you need an rpm spec just tell me.
 
+Pau
 
-__________________________________________________
-Do You Yahoo!?
-Try FREE Yahoo! Mail - the world's greatest free email!
-http://mail.yahoo.com/

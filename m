@@ -1,70 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266539AbUG0SU2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266544AbUG0SWZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266539AbUG0SU2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 14:20:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266541AbUG0SU2
+	id S266544AbUG0SWZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 14:22:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266545AbUG0SWM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 14:20:28 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:13539 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S266539AbUG0SUU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 14:20:20 -0400
-Subject: Re: [RFC][PATCH] Change pcibus_to_cpumask() to pcibus_to_node()
-From: Matthew Dobson <colpatch@us.ibm.com>
-Reply-To: colpatch@us.ibm.com
-To: Andi Kleen <ak@suse.de>
-Cc: Jesse Barnes <jbarnes@engr.sgi.com>, Jesse Barnes <jbarnes@sgi.com>,
-       LKML <linux-kernel@vger.kernel.org>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       LSE Tech <lse-tech@lists.sourceforge.net>
-In-Reply-To: <20040727175713.10a95ad6.ak@suse.de>
-References: <1090887007.16676.18.camel@arrakis>
-	 <20040727161628.56a03aec.ak@suse.de>
-	 <200407270815.39165.jbarnes@engr.sgi.com>
-	 <20040727175713.10a95ad6.ak@suse.de>
-Content-Type: text/plain
-Organization: IBM LTC
-Message-Id: <1090952283.18747.3.camel@arrakis>
+	Tue, 27 Jul 2004 14:22:12 -0400
+Received: from fep19.inet.fi ([194.251.242.244]:2988 "EHLO fep19.inet.fi")
+	by vger.kernel.org with ESMTP id S266544AbUG0SVt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jul 2004 14:21:49 -0400
+Date: Tue, 27 Jul 2004 21:21:55 +0300
+From: pp <inventor@mbnet.fi>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Remotely triggered kernel panic on IPv6 enabled linux boxes (no
+ more PPPoE)
+Message-Id: <20040727212155.06bb48b9@lpr2-160.cable.inet.fi>
+In-Reply-To: <Pine.GSO.4.58.0407271720390.4851@kekkonen.cs.hut.fi>
+References: <Pine.GSO.4.58.0407271720390.4851@kekkonen.cs.hut.fi>
+X-Mailer: Sylpheed version 0.9.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Tue, 27 Jul 2004 11:18:04 -0700
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-07-27 at 08:57, Andi Kleen wrote:
-> On Tue, 27 Jul 2004 08:15:39 -0700
-> Jesse Barnes <jbarnes@engr.sgi.com> wrote:
-> 
-> > On Tuesday, July 27, 2004 7:16 am, Andi Kleen wrote:
-> > > On Mon, 26 Jul 2004 17:10:08 -0700
-> > >
-> > > Matthew Dobson <colpatch@us.ibm.com> wrote:
-> > > > So in discussions with Jesse at OLS, we decided that pcibus_to_node() is
-> > > > a more generally useful function than pcibus_to_cpumask().  If anyone
-> > > > disagrees with that, now would be a good time to let us know.
-> > >
-> > > Not sure that is a good idea. Sometimes this information is not available.
-> > > With pcibus_to_cpumask() the fallback is obvious, but it isn't with
-> > > pcibus_to_node(). Returning a random node is wrong.
-> > 
-> > Hmm... so there's no way for you to get a node or nodemask at all?
-> 
-> When the BIOS has _PXM methods there will be probably.
-> Just I cannot guarantee it has that, so there should be some clean fallback path.
-> 
-> If cpumask is too complicated for you a pcibus_to_nodemask would be fine
-> for me too, just please no single node number.
-> 
-> 
-> -Andi
+On Tue, 27 Jul 2004 17:38:23 +0300 (EEST)
+Pasi Valminen wrote:
 
-I guess I'm OK with a nodemask instead of a node.  That will make this
-patch dependent on my nodemask_t patch, which I'll also be sending out
-again later today, though...  A nodemask instead of a node also allows
-us to return a mask of nearby memory-only nodes as well as CPU-only
-nodes, if the arch supports that, for allocating buffers/doing DMA
-from...
+> > I can trigger a kernel panic from a remote host using tracepath6.
+> > First I connect to the internet using pppoe.
+> PPPoE is not needed to crash the kernel. Plain vanilla 2.6.7 will
+> crash just fine without it, seems like bringing up an ipv6 tunnel is
+> enough. Then just
+> 
+> $ tracepath6 <your tunnel ipv6 endpoint>
+> 
+> from a remote host and the kernel panics without any entry in the
+> syslog. But there is a quick and easy workaround. If you modprobe
+> ip6table_filter, the kernel won't panic!
 
--Matt
+I can confirm the whole thing.
 
+I have:
+cable modem & NIC, using DHCP, no PPPoE or anything like that
+heartbeat tunnel from Sixxs.net
+Gentoo Linux
+Kernel 2.6.7 vanilla, gcc 3.3.3
+
+I have worked with Pasi a couple of days now and he has crashed my
+machine many times. With the help of a serial terminal I have gathered
+some information about the crashes, including kernel oops/panic messages
+and tcpdump output.
+The information is here:
+http://www.hack.fi/~pq/
+
+My machine crashes immediately when someone runs a tracepath6 on me,
+unless I have ip6table_filter module loaded.
+To get to the vulnerable state all I have to do is to boot (to single
+user mode), bring inet interface up and establish the tunnel.
+We have not yet tested if it works with 6to4 connection also.
+
+The data at the URL is somewhat censored, but I can provide the original
+data and any other information if needed.
+I am also willing to assist in solving the problem, try out patches etc.
+
+
+I am not a subscriber to LKML.
+-- 
+Pekka "PQ" Paalanen

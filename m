@@ -1,119 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129066AbRCHOp2>; Thu, 8 Mar 2001 09:45:28 -0500
+	id <S129051AbRCHOnG>; Thu, 8 Mar 2001 09:43:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129078AbRCHOpS>; Thu, 8 Mar 2001 09:45:18 -0500
-Received: from mx-03.carambole.com ([213.180.68.11]:22799 "HELO
-	mx-03.carambole.com") by vger.kernel.org with SMTP
-	id <S129066AbRCHOpC>; Thu, 8 Mar 2001 09:45:02 -0500
-Message-ID: <3AA79A1D.49E5ADC@opensource.se>
-Date: Thu, 08 Mar 2001 15:41:33 +0100
-From: Magnus Damm <damm@opensource.se>
+	id <S129066AbRCHOm4>; Thu, 8 Mar 2001 09:42:56 -0500
+Received: from [213.203.46.68] ([213.203.46.68]:45833 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S129051AbRCHOmn>; Thu, 8 Mar 2001 09:42:43 -0500
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.2 kernel mount crash
+In-Reply-To: <E14b1Nh-000321-00@the-village.bc.nu>
+From: remco@solbors.no (Remco B. Brink)
+Organization: Norge-iNvest <http://www.norge-invest.no>
+Date: 08 Mar 2001 15:41:12 +0100
+Message-ID: <m366hkuxvb.fsf@localhost.localdomain>
+User-Agent: Gnus/5.090001 (Oort Gnus v0.01) Emacs/20.7
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.2.18 corruption: IDE + PCMCIA ?
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-I've experienced some disk corruption on my laptop.
+> > I used kgcc to compile the kernel, did not get any of the RH7 gcc warning messages
+> > and still am left with a not-so-stable mount.
+> 
+> Its certainly worth building with kgcc as well to make sure, and in this case
+> it looks like the problem is really in the kernel proper
 
-Scenario:
-I'm cross-compiling tons of sources and I felt the need
-to insert a CompactFlash card (via PCMCIA) in my laptop.
-So I did, no problem: 
-mounted, touched a file, umounted, cardctl-ejected.
+Actually the mount process behaves in exactly the same way as my emacs process
+as mentioned in an earlier post (topic: "process with connection in CLOSE_WAIT won't 
+die in 2.4.2").
 
-Pretty soon my compilation stops:
-bash: /usr/bin/sort: cannot execute binary file
+It'll stay in the proceslist regardless of what kill signal is sent to it
+and appears to be (and very much _stay_) in un-interuptable sleep.
 
-Okey. The date on /usr/bin/sort is unchanged. Must be root to write.
-I am NOT compiling as root. 
-"File" on /usr/bin/sort says "data". No elf.
-The only thing that the logs say:
+The same can be said for the various mount processes, both when mounting
+loopback and scsi devices.
 
-modprobe: Can't locate module binfmt-464c
+Another thing that struck me as weird was that after all the problems
+with the mount and emacs process, trying to unmount a NFS share was not
+possible even though the NFS server had no problems whatsoever mounting
+new shares.
 
-The filesystem on /usr is ext2.
+regards,
+Remco
 
-I downloaded a new textutils.deb and installed it.
-(But I made a backup of the corrupted file for some reason)
-Searched the net and found some previous problem with
-2.2.10 and DMA + CompactFlash.
-Started to write a mail like this. 
-Tried to do a ls -> Segmentation fault.
-Then the entire machine crashed.
-I rebooted the machine and fsck.ext2 complained about
-my largest partition, did a manual check and now I'm back.
+-- 
+Remco B. Brink                                  Norge-iNvest AS
+Kung foo                            http://www.norge-invest.com
+        PGP/GnuPG key at http://remco.xgov.net/rbb.pgp
 
-I wonder how many corrupted files there are left...
-
-The machine is usually very stable, but I haven't done
-much PCMCIA activity with it.
-
-Maybe this is not even related to PCMCIA...
-
-Anyway, this is what I do to my disk/controller:
-
-/sbin/hdparm -c1 -d1 -m16 -a0 -S4 -u1 /dev/hda
-
-I don't know if that has anything to do with it.
-
-I've used this computer about three months now
-and another Portege (3440CT) six months.
-Never experienced anything like that...
-
-So, all Portege users out there - be careful!
-
-Cheers /
-
-Magnus
-
-
-Software:
-
-linux-2.2.18
-pcmcia-cs-3.1.23
-
-Hardware:
-
-Toshiba Portege 3480CT:
-
-CPU and memory:
-
-600MHz Speedstep PII 
-192MByte ram.
-
-Harddisk and controller:
-
-PCI_IDE: unknown IDE controller on PCI bus 00 device 39, VID=8086,
-DID=7199
-PCI_IDE: not 100% native mode: will probe irqs later
-    ide0: BM-DMA at 0xbff0-0xbff7, BIOS settings: hda:DMA, hdb:pio
-    ide1: BM-DMA at 0xbff8-0xbfff, BIOS settings: hdc:pio, hdd:pio
-hda: TOSHIBA MK1214GAP, ATA DISK drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-hda: TOSHIBA MK1214GAP, 11513MB w/0kB Cache, CHS=1467/255/63, UDMA
-
-Pcmcia/pccard:
-
-Linux PCMCIA Card Services 3.1.23
-  kernel build: 2.2.18 #2 Mon Jan 15 23:56:28 CET 2001
-  options:  [pci] [cardbus] [apm]
-PCI routing table version 1.0 at 0xf0190
-  00:0b.0 -> irq 11
-  00:0b.1 -> irq 11
-Intel PCIC probe: 
-  Toshiba ToPIC100 rev 20 PCI-to-CardBus at slot 00:0b, mem 0x68000000
-    host opts [0]: [slot 0xf0] [ccr 0x16] [cdr 0x86] [rcr 0xc000000]
-[pci irq 11] [lat 64/176] [bus 20/20]
-    host opts [1]: [slot 0xf0] [ccr 0x26] [cdr 0x86] [rcr 0xc000000]
-[pci irq 11] [lat 64/176] [bus 21/21]
-
-Compact Flash:
-
-hdc: Hitachi CV 7.2.2, ATA DISK drive
-hdc: Hitachi CV 7.2.2, 30MB w/1kB Cache, CHS=492/4/32
+In most countries selling harmful things like drugs is punishable.
+Then howcome people can sell Microsoft software and go unpunished?
+(By hasku@rost.abo.fi, Hasse Skrifvars)

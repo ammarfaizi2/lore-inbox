@@ -1,208 +1,218 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312916AbSDBTeH>; Tue, 2 Apr 2002 14:34:07 -0500
+	id <S312901AbSDBTeR>; Tue, 2 Apr 2002 14:34:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312901AbSDBTds>; Tue, 2 Apr 2002 14:33:48 -0500
-Received: from host225242.arnet.net.ar ([200.45.225.242]:62145 "HELO
-	abyss.thymbra.com") by vger.kernel.org with SMTP id <S312899AbSDBTda>;
-	Tue, 2 Apr 2002 14:33:30 -0500
-Message-ID: <32954.200.45.226.162.1017776187.squirrel@thymbra.com>
-Date: Tue, 2 Apr 2002 16:36:27 -0300 (ART)
-Subject: Re: IRQ routing conflicts / Assigning IRQ 0 to ethernet
-From: "Luis Falcon" <lfalcon@thymbra.com>
-To: <bryanr@bryanr.org>
-X-Priority: 3
-Importance: Normal
-X-MSMail-Priority: Normal
-Cc: <linux-kernel@vger.kernel.org>
-X-Mailer: SquirrelMail (version 1.2.5)
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="----=_20020402163627_31571"
+	id <S312899AbSDBTeJ>; Tue, 2 Apr 2002 14:34:09 -0500
+Received: from 198.216-123-194-0.interbaun.com ([216.123.194.198]:49414 "EHLO
+	mail.harddata.com") by vger.kernel.org with ESMTP
+	id <S312904AbSDBTd4>; Tue, 2 Apr 2002 14:33:56 -0500
+Date: Tue, 2 Apr 2002 12:33:48 -0700
+From: Michal Jaegermann <michal@harddata.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.19-pre5 - kernel BUG at page_alloc.c
+Message-ID: <20020402123348.A20799@mail.harddata.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_20020402163627_31571
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+This is from Alpha UP1500 (Nautilus) with a kernel based on 2.4.19-pre5
+and somewhat modified in Nautilus specific parts to be bootable on that
+machine at all.  I have seen similar incidents before and they seem to
+be too repeateable just to chalk them to "not really stable yet" status
+of the machine in question although what is in a register a4, i.e. a
+string "ghijklmn", surely looks unusual.
 
-Bryan,
+Anyway, the box went catatonic but before doing that left in log
+files a series of oopses which decoded look like that:
 
-Thanks a lot for your response.
-In fact the IRQ routing conflict has been solved !
+ksymoops 2.4.1 on alpha 2.4.19-pre5.ink.agp.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.19-pre5.ink.agp/ (default)
+     -m /boot/System.map-2.4.19-pre5.ink.agp (specified)
 
-What is still pending is the assignment of a valid IRQ to the Ethernet card
-( device 00:05.0 ) and Sound Card ( 00:07.5 ). So, at this point, the
-ethernet card doesn't work.
- does not work.
+Warning (compare_maps): ksyms_base symbol GPLONLY_vmalloc_to_page not found in System.map.  Ignoring ksyms_base entry
+kernel BUG at page_alloc.c:241!
+run-parts(3421): Kernel Bug 1
+pc = [rmqueue+888/1024]  ra = [rmqueue+876/1024]  ps = 0000    Not tainted
+pc = [<fffffc0000845448>]  ra = [<fffffc000084543c>]  ps = 0000    Not tainted
+Using defaults from ksymoops -t elf64-alpha -a alpha
+v0 = 0000000000000020  t0 = 0000000000000001  t1 = fffffc00de0a3ec8
+t2 = 000000000000002a  t3 = 0000000000000001  t4 = fffffc0000af40c8
+t5 = fffffc00d9184bc0  t6 = 0000000000000065  t7 = fffffc00bf4f8000
+a0 = 0000000000000000  a1 = 0000000000000001  a2 = 0000000000000001
+a3 = 0000000000000000  a4 = 6e6d6c6b6a696867  a5 = 0000000000000002
+t8 = fffffc0000af4d20  t9 = 0000000000004000  t10= fffffc0000af4d28
+t11= fffffc0000af4d38  pv = fffffc0000820d30  at = 0000000000003fff
+gp = fffffc0000ae8ce8  sp = fffffc00bf4fbd60
+Trace:fffffc000084590c fffffc00008454fc fffffc0000836538 fffffc0000836604 fffffc0000837238 fffffc000081fec8 fffffc0000812e3c 
+Code: 225f00f1  a77da708  6b5b7d5d  27ba002a  23bd38ac  00000081 <a04a0000> 44501001 
 
-Here's the latest dmesg.
+>>PC;  fffffc0000845448 <rmqueue+378/400>   <=====
+Trace; fffffc000084590c <__alloc_pages+7c/260>
+Trace; fffffc00008454fc <_alloc_pages+2c/40>
+Trace; fffffc0000836538 <do_wp_page+a8/3e0>
+Trace; fffffc0000836604 <do_wp_page+174/3e0>
+Trace; fffffc0000837238 <handle_mm_fault+118/1c0>
+Trace; fffffc000081fec8 <do_page_fault+208/4c0>
+Trace; fffffc0000812e3c <entMM+9c/c0>
+Code;  fffffc0000845430 <rmqueue+360/400>
+0000000000000000 <_PC>:
+Code;  fffffc0000845430 <rmqueue+360/400>
+   0:   f1 00 5f 22       lda  a2,241(zero)
+Code;  fffffc0000845434 <rmqueue+364/400>
+   4:   08 a7 7d a7       ldq  t12,-22776(gp)
+Code;  fffffc0000845438 <rmqueue+368/400>
+   8:   5d 7d 5b 6b       jsr  ra,(t12),fffffffffffff580 <_PC+0xfffffffffffff580> fffffc00008449b0 <rw_swap_page_base+1b0/1e0>
+Code;  fffffc000084543c <rmqueue+36c/400>
+   c:   2a 00 ba 27       ldah gp,42(ra)
+Code;  fffffc0000845440 <rmqueue+370/400>
+  10:   ac 38 bd 23       lda  gp,14508(gp)
+Code;  fffffc0000845444 <rmqueue+374/400>
+  14:   81 00 00 00       call_pal     0x81
+Code;  fffffc0000845448 <rmqueue+378/400>   <=====
+  18:   00 00 4a a0       ldl  t1,0(s1)   <=====
+Code;  fffffc000084544c <rmqueue+37c/400>
+  1c:   01 10 50 44       and  t1,0x80,t0
 
-Regards,
-Luis
+kernel BUG at page_alloc.c:241!
+diskcheck(3422): Kernel Bug 1
+pc = [rmqueue+888/1024]  ra = [rmqueue+876/1024]  ps = 0000    Not tainted
+pc = [<fffffc0000845448>]  ra = [<fffffc000084543c>]  ps = 0000    Not tainted
+v0 = 0000000000000020  t0 = 0000000000000001  t1 = fffffc00de0a3ec8
+t2 = 0000000000000028  t3 = 0000000000000001  t4 = fffffc0000af40c8
+t5 = fffffc00d91843c0  t6 = 0000000000000065  t7 = fffffc00bf938000
+a0 = 0000000000000000  a1 = 0000000000000001  a2 = 0000000000000001
+a3 = 0000000000000000  a4 = 6e6d6c6b6a696867  a5 = 0000000000000002
+t8 = fffffc0000af4d20  t9 = 0000000000004000  t10= fffffc0000af4d28
+t11= fffffc0000af4d38  pv = fffffc0000820d30  at = 0000000000003fff
+gp = fffffc0000ae8ce8  sp = fffffc00bf93bd60
+Trace:fffffc000084590c fffffc00008454fc fffffc0000836538 fffffc0000836604 fffffc0000837238 fffffc000081fec8 fffffc0000812e3c fffffc0000818c94 
+Code: 225f00f1  a77da708  6b5b7d5d  27ba002a  23bd38ac  00000081 <a04a0000> 44501001 
+
+>>PC;  fffffc0000845448 <rmqueue+378/400>   <=====
+Trace; fffffc000084590c <__alloc_pages+7c/260>
+Trace; fffffc00008454fc <_alloc_pages+2c/40>
+Trace; fffffc0000836538 <do_wp_page+a8/3e0>
+Trace; fffffc0000836604 <do_wp_page+174/3e0>
+Trace; fffffc0000837238 <handle_mm_fault+118/1c0>
+Trace; fffffc000081fec8 <do_page_fault+208/4c0>
+Trace; fffffc0000812e3c <entMM+9c/c0>
+Trace; fffffc0000818c94 <do_entInt+84/170>
+Code;  fffffc0000845430 <rmqueue+360/400>
+0000000000000000 <_PC>:
+Code;  fffffc0000845430 <rmqueue+360/400>
+   0:   f1 00 5f 22       lda  a2,241(zero)
+Code;  fffffc0000845434 <rmqueue+364/400>
+   4:   08 a7 7d a7       ldq  t12,-22776(gp)
+Code;  fffffc0000845438 <rmqueue+368/400>
+   8:   5d 7d 5b 6b       jsr  ra,(t12),fffffffffffff580 <_PC+0xfffffffffffff580> fffffc00008449b0 <rw_swap_page_base+1b0/1e0>
+Code;  fffffc000084543c <rmqueue+36c/400>
+   c:   2a 00 ba 27       ldah gp,42(ra)
+Code;  fffffc0000845440 <rmqueue+370/400>
+  10:   ac 38 bd 23       lda  gp,14508(gp)
+Code;  fffffc0000845444 <rmqueue+374/400>
+  14:   81 00 00 00       call_pal     0x81
+Code;  fffffc0000845448 <rmqueue+378/400>   <=====
+  18:   00 00 4a a0       ldl  t1,0(s1)   <=====
+Code;  fffffc000084544c <rmqueue+37c/400>
+  1c:   01 10 50 44       and  t1,0x80,t0
+
+kernel BUG at page_alloc.c:241!
+X(1207): Kernel Bug 1
+pc = [rmqueue+888/1024]  ra = [rmqueue+876/1024]  ps = 0000    Not tainted
+pc = [<fffffc0000845448>]  ra = [<fffffc000084543c>]  ps = 0000    Not tainted
+v0 = 0000000000000020  t0 = 0000000000000001  t1 = fffffc00de0a3ec8
+t2 = 0000000000000058  t3 = 0000000000000001  t4 = fffffc0000af40c8
+t5 = fffffc0003d456c0  t6 = 0000000000000065  t7 = fffffc00dc12c000
+a0 = 0000000000000000  a1 = 0000000000000001  a2 = 0000000000000001
+a3 = 0000000000000000  a4 = 6e6d6c6b6a696867  a5 = 0000000000000002
+t8 = fffffc0000af4d20  t9 = 0000000000004000  t10= fffffc0000af4d28
+t11= fffffc0000af4d38  pv = fffffc0000820d30  at = 0000000000003fff
+gp = fffffc0000ae8ce8  sp = fffffc00dc12fd40
+Trace:fffffc000084590c fffffc000099ef0c fffffc00008454fc fffffc0000836e68 fffffc0000836d98 fffffc0000836f0c fffffc00008371e8 fffffc000081fec8 fffffc0000812e3c 
+Code: 225f00f1  a77da708  6b5b7d5d  27ba002a  23bd38ac  00000081 <a04a0000> 44501001 
+
+>>PC;  fffffc0000845448 <rmqueue+378/400>   <=====
+Trace; fffffc000084590c <__alloc_pages+7c/260>
+Trace; fffffc000099ef0c <kfree_skbmem+1c/a0>
+Trace; fffffc00008454fc <_alloc_pages+2c/40>
+Trace; fffffc0000836e68 <do_anonymous_page+128/170>
+Trace; fffffc0000836d98 <do_anonymous_page+58/170>
+Trace; fffffc0000836f0c <do_no_page+5c/270>
+Trace; fffffc00008371e8 <handle_mm_fault+c8/1c0>
+Trace; fffffc000081fec8 <do_page_fault+208/4c0>
+Trace; fffffc0000812e3c <entMM+9c/c0>
+Code;  fffffc0000845430 <rmqueue+360/400>
+0000000000000000 <_PC>:
+Code;  fffffc0000845430 <rmqueue+360/400>
+   0:   f1 00 5f 22       lda  a2,241(zero)
+Code;  fffffc0000845434 <rmqueue+364/400>
+   4:   08 a7 7d a7       ldq  t12,-22776(gp)
+Code;  fffffc0000845438 <rmqueue+368/400>
+   8:   5d 7d 5b 6b       jsr  ra,(t12),fffffffffffff580 <_PC+0xfffffffffffff580> fffffc00008449b0 <rw_swap_page_base+1b0/1e0>
+Code;  fffffc000084543c <rmqueue+36c/400>
+   c:   2a 00 ba 27       ldah gp,42(ra)
+Code;  fffffc0000845440 <rmqueue+370/400>
+  10:   ac 38 bd 23       lda  gp,14508(gp)
+Code;  fffffc0000845444 <rmqueue+374/400>
+  14:   81 00 00 00       call_pal     0x81
+Code;  fffffc0000845448 <rmqueue+378/400>   <=====
+  18:   00 00 4a a0       ldl  t1,0(s1)   <=====
+Code;  fffffc000084544c <rmqueue+37c/400>
+  1c:   01 10 50 44       and  t1,0x80,t0
+
+kernel BUG at page_alloc.c:241!
+X(3433): Kernel Bug 1
+pc = [rmqueue+888/1024]  ra = [rmqueue+876/1024]  ps = 0000    Not tainted
+pc = [<fffffc0000845448>]  ra = [<fffffc000084543c>]  ps = 0000    Not tainted
+v0 = 0000000000000020  t0 = 0000000000000001  t1 = fffffc00de0a3ec8
+t2 = 000000000000002c  t3 = 0000000000000001  t4 = fffffc0000af40c8
+t5 = fffffc0003d45dc0  t6 = 0000000000000065  t7 = fffffc00d98e0000
+a0 = 0000000000000000  a1 = 0000000000000001  a2 = 0000000000000001
+a3 = 0000000000000000  a4 = 6e6d6c6b6a696867  a5 = 0000000000000002
+t8 = fffffc0000af4d20  t9 = 0000000000004000  t10= fffffc0000af4d28
+t11= fffffc0000af4d38  pv = fffffc0000820d30  at = 0000000000003fff
+gp = fffffc0000ae8ce8  sp = fffffc00d98e3d40
+Trace:fffffc000084590c fffffc0000882630 fffffc00008454fc fffffc0000836e68 fffffc0000836d98 fffffc0000836f0c fffffc00008371e8 fffffc000081fec8 fffffc0000812e3c 
+Code: 225f00f1  a77da708  6b5b7d5d  27ba002a  23bd38ac  00000081 <a04a0000> 44501001 
+
+>>PC;  fffffc0000845448 <rmqueue+378/400>   <=====
+Trace; fffffc000084590c <__alloc_pages+7c/260>
+Trace; fffffc0000882630 <ext3_commit_write+1b0/220>
+Trace; fffffc00008454fc <_alloc_pages+2c/40>
+Trace; fffffc0000836e68 <do_anonymous_page+128/170>
+Trace; fffffc0000836d98 <do_anonymous_page+58/170>
+Trace; fffffc0000836f0c <do_no_page+5c/270>
+Trace; fffffc00008371e8 <handle_mm_fault+c8/1c0>
+Trace; fffffc000081fec8 <do_page_fault+208/4c0>
+Trace; fffffc0000812e3c <entMM+9c/c0>
+Code;  fffffc0000845430 <rmqueue+360/400>
+0000000000000000 <_PC>:
+Code;  fffffc0000845430 <rmqueue+360/400>
+   0:   f1 00 5f 22       lda  a2,241(zero)
+Code;  fffffc0000845434 <rmqueue+364/400>
+   4:   08 a7 7d a7       ldq  t12,-22776(gp)
+Code;  fffffc0000845438 <rmqueue+368/400>
+   8:   5d 7d 5b 6b       jsr  ra,(t12),fffffffffffff580 <_PC+0xfffffffffffff580> fffffc00008449b0 <rw_swap_page_base+1b0/1e0>
+Code;  fffffc000084543c <rmqueue+36c/400>
+   c:   2a 00 ba 27       ldah gp,42(ra)
+Code;  fffffc0000845440 <rmqueue+370/400>
+  10:   ac 38 bd 23       lda  gp,14508(gp)
+Code;  fffffc0000845444 <rmqueue+374/400>
+  14:   81 00 00 00       call_pal     0x81
+Code;  fffffc0000845448 <rmqueue+378/400>   <=====
+  18:   00 00 4a a0       ldl  t1,0(s1)   <=====
+Code;  fffffc000084544c <rmqueue+37c/400>
+  1c:   01 10 50 44       and  t1,0x80,t0
 
 
+1 warning issued.  Results may not be reliable.
 
-I'm attaching the latest dmesg.
+Not that I can repeat that performance on demand. :-)
 
-> try the latest acpi patch from http://sf.net/projects/acpi/
->
-> -Bryan
->
-> Luis Falcon wrote:
->> The main problem is that it can't assign an interrupt for the
->> controller, plus I get irq routing conflicts on other devices...
-
-
-
-------=_20020402163627_31571
-Content-Type: application/octet-stream; name="latest.dmesg"
-Content-Disposition: attachment; filename="latest.dmesg"
-Content-Transfer-Encoding: base64
-
-TGludXggdmVyc2lvbiAyLjQuMTggKHJvb3RAaW5mZXJubykgKGdjYyB2ZXJzaW9uIDIuOTYgMjAw
-MDA3MzEgKFJlZCBIYXQgTGludXggNy4xIDIuOTYtOTgpKSAjNCBUdWUgQXByIDIgMTQ6MzI6NDEg
-QVJUIDIwMDIKQklPUy1wcm92aWRlZCBwaHlzaWNhbCBSQU0gbWFwOgogQklPUy1lODIwOiAwMDAw
-MDAwMDAwMDAwMDAwIC0gMDAwMDAwMDAwMDA5ZjgwMCAodXNhYmxlKQogQklPUy1lODIwOiAwMDAw
-MDAwMDAwMDlmODAwIC0gMDAwMDAwMDAwMDBhMDAwMCAocmVzZXJ2ZWQpCiBCSU9TLWU4MjA6IDAw
-MDAwMDAwMDAwZWIwMDAgLSAwMDAwMDAwMDAwMTAwMDAwIChyZXNlcnZlZCkKIEJJT1MtZTgyMDog
-MDAwMDAwMDAwMDEwMDAwMCAtIDAwMDAwMDAwMWVmZjAwMDAgKHVzYWJsZSkKIEJJT1MtZTgyMDog
-MDAwMDAwMDAxZWZmMDAwMCAtIDAwMDAwMDAwMWVmZmZjMDAgKEFDUEkgZGF0YSkKIEJJT1MtZTgy
-MDogMDAwMDAwMDAxZWZmZmMwMCAtIDAwMDAwMDAwMWYwMDAwMDAgKEFDUEkgTlZTKQogQklPUy1l
-ODIwOiAwMDAwMDAwMGZmZmUwMDAwIC0gMDAwMDAwMDEwMDAwMDAwMCAocmVzZXJ2ZWQpCkFDUEk6
-IGhhdmUgd2FrZXVwIGFkZHJlc3MgMHhjMDAwMTAwMApPbiBub2RlIDAgdG90YWxwYWdlczogMTI2
-OTYwCnpvbmUoMCk6IDQwOTYgcGFnZXMuCnpvbmUoMSk6IDEyMjg2NCBwYWdlcy4Kem9uZSgyKTog
-MCBwYWdlcy4KQUNQSTogUlNEUCAodjAwMCBQVExURCAgICAgICAgICAgICAgICAgICAgICApIEAg
-MHgwMDBmNzAzMApBQ1BJOiBSU0RUICh2MDAxIFBUTFREICAgIFJTRFQgICAwMTU0MC4wMDAwMCkg
-QCAweDFlZmZiYTYyCkFDUEk6IEZBRFQgKHYwMDEgVlQ4NjAzIFRXSVNURVIgIDAxNTQwLjAwMDAw
-KSBAIDB4MWVmZmZiNjQKQUNQSTogQk9PVCAodjAwMSBQVExURCAgJFNCRlRCTCQgMDE1NDAuMDAw
-MDApIEAgMHgxZWZmZmJkOApLZXJuZWwgY29tbWFuZCBsaW5lOiBhdXRvIEJPT1RfSU1BR0U9bGlu
-dXggcm8gcm9vdD0zMDIgQk9PVF9GSUxFPS9ib290L2J6SW1hZ2UKSW5pdGlhbGl6aW5nIENQVSMw
-CkRldGVjdGVkIDk5OS44NDEgTUh6IHByb2Nlc3Nvci4KQ29uc29sZTogY29sb3VyIFZHQSsgODB4
-MjUKQ2FsaWJyYXRpbmcgZGVsYXkgbG9vcC4uLiAxOTkyLjI5IEJvZ29NSVBTCk1lbW9yeTogNDk3
-NTY4ay81MDc4NDBrIGF2YWlsYWJsZSAoMTE3OGsga2VybmVsIGNvZGUsIDk4ODRrIHJlc2VydmVk
-LCAzNDFrIGRhdGEsIDE5MmsgaW5pdCwgMGsgaGlnaG1lbSkKRGVudHJ5LWNhY2hlIGhhc2ggdGFi
-bGUgZW50cmllczogNjU1MzYgKG9yZGVyOiA3LCA1MjQyODggYnl0ZXMpCklub2RlLWNhY2hlIGhh
-c2ggdGFibGUgZW50cmllczogMzI3NjggKG9yZGVyOiA2LCAyNjIxNDQgYnl0ZXMpCk1vdW50LWNh
-Y2hlIGhhc2ggdGFibGUgZW50cmllczogODE5MiAob3JkZXI6IDQsIDY1NTM2IGJ5dGVzKQpCdWZm
-ZXItY2FjaGUgaGFzaCB0YWJsZSBlbnRyaWVzOiAzMjc2OCAob3JkZXI6IDUsIDEzMTA3MiBieXRl
-cykKUGFnZS1jYWNoZSBoYXNoIHRhYmxlIGVudHJpZXM6IDEzMTA3MiAob3JkZXI6IDcsIDUyNDI4
-OCBieXRlcykKQ1BVOiBCZWZvcmUgdmVuZG9yIGluaXQsIGNhcHM6IDAzODdmOWZmIDAwMDAwMDAw
-IDAwMDAwMDAwLCB2ZW5kb3IgPSAwCkNQVTogTDEgSSBjYWNoZTogMTZLLCBMMSBEIGNhY2hlOiAx
-NksKQ1BVOiBMMiBjYWNoZTogMjU2SwpDUFU6IEFmdGVyIHZlbmRvciBpbml0LCBjYXBzOiAwMzg3
-ZjlmZiAwMDAwMDAwMCAwMDAwMDAwMCAwMDAwMDAwMApDUFUgc2VyaWFsIG51bWJlciBkaXNhYmxl
-ZC4KSW50ZWwgbWFjaGluZSBjaGVjayBhcmNoaXRlY3R1cmUgc3VwcG9ydGVkLgpJbnRlbCBtYWNo
-aW5lIGNoZWNrIHJlcG9ydGluZyBlbmFibGVkIG9uIENQVSMwLgpDUFU6ICAgICBBZnRlciBnZW5l
-cmljLCBjYXBzOiAwMzgzZjlmZiAwMDAwMDAwMCAwMDAwMDAwMCAwMDAwMDAwMApDUFU6ICAgICAg
-ICAgICAgIENvbW1vbiBjYXBzOiAwMzgzZjlmZiAwMDAwMDAwMCAwMDAwMDAwMCAwMDAwMDAwMApD
-UFU6IEludGVsIFBlbnRpdW0gSUlJIChDb3BwZXJtaW5lKSBzdGVwcGluZyAwYQpFbmFibGluZyBm
-YXN0IEZQVSBzYXZlIGFuZCByZXN0b3JlLi4uIGRvbmUuCkVuYWJsaW5nIHVubWFza2VkIFNJTUQg
-RlBVIGV4Y2VwdGlvbiBzdXBwb3J0Li4uIGRvbmUuCkNoZWNraW5nICdobHQnIGluc3RydWN0aW9u
-Li4uIE9LLgpQT1NJWCBjb25mb3JtYW5jZSB0ZXN0aW5nIGJ5IFVOSUZJWApBQ1BJOiBCdXMgRHJp
-dmVyIHJldmlzaW9uIDIwMDIwMzI5CkFDUEk6IENvcmUgU3Vic3lzdGVtIHJldmlzaW9uIDIwMDIw
-MzI5ClBDSTogUENJIEJJT1MgcmV2aXNpb24gMi4xMCBlbnRyeSBhdCAweGZkODFlLCBsYXN0IGJ1
-cz0xClBDSTogVXNpbmcgY29uZmlndXJhdGlvbiB0eXBlIDEKIHRieGZhY2UtMDEwMSBbMDNdIEFj
-cGlfbG9hZF90YWJsZXMgICAgICA6IEFDUEkgVGFibGVzIHN1Y2Nlc3NmdWxseSBsb2FkZWQKUGFy
-c2luZyBNZXRob2RzOi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4u
-Li4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4u
-Li4uLi4uLi4uLi4uLi4KMTE1IENvbnRyb2wgTWV0aG9kcyBmb3VuZCBhbmQgcGFyc2VkICg0MTEg
-bm9kZXMgdG90YWwpCkFDUEkgTmFtZXNwYWNlIHN1Y2Nlc3NmdWxseSBsb2FkZWQgYXQgcm9vdCBj
-MDJiZWY3OApldnhmZXZudC0wMDgwIFswNF0gQWNwaV9lbmFibGUgICAgICAgICAgIDogVHJhbnNp
-dGlvbiB0byBBQ1BJIG1vZGUgc3VjY2Vzc2Z1bApFeGVjdXRpbmcgYWxsIERldmljZSBfU1RBIGFu
-ZF9JTkkgbWV0aG9kczouLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLgo0
-MSBEZXZpY2VzIGZvdW5kIGNvbnRhaW5pbmc6IDQxIF9TVEEsIDMgX0lOSSBtZXRob2RzCkNvbXBs
-ZXRpbmcgUmVnaW9uL0ZpZWxkL0J1ZmZlci9QYWNrYWdlIGluaXRpYWxpemF0aW9uOi4uLi4uLi4u
-Li4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4u
-LgpfaW5pdGlhbGl6ZWQgOC8xNSBSZWdpb25zIDEwLzExIEZpZWxkcyAyNi8yNyBCdWZmZXJzIDIy
-LzIyIFBhY2thZ2VzICg0MTEgbm9kZXMpCkFDUEk6IEludGVycHJldGVyIGVuYWJsZWQKQUNQSTog
-VXNpbmcgUElDIGZvciBpbnRlcnJ1cHQgcm91dGluZwpBQ1BJOiBTeXN0ZW0gW3Jvb3RdIChzdXBw
-b3J0cyBTMCBTMSBTNCBTNSkKQUNQSTogUENJIFJvb3QgQnJpZGdlIFtQQ0kwXSAoMDA6MDA6MDAu
-MDApClVua25vd24gYnJpZGdlIHJlc291cmNlIDA6IGFzc3VtaW5nIHRyYW5zcGFyZW50CkFDUEk6
-IFBDSSBJbnRlcnJ1cHQgUm91dGluZyBUYWJsZSBbXF9TQl8uUENJMC5fUFJUXQogICAgICAwMDow
-MDowMVtBXSAtPiBcX1NCXy5QQ0kwLlBJQl8uTE5LQ1swXQogICAgICAwMDowMDowN1tBXSAtPiBc
-X1NCXy5QQ0kwLlBJQl8uTE5LQVswXQogICAgICAwMDowMDowN1tCXSAtPiBcX1NCXy5QQ0kwLlBJ
-Ql8uTE5LQlswXQogICAgICAwMDowMDowN1tDXSAtPiBcX1NCXy5QQ0kwLlBJQl8uTE5LQ1swXQog
-ICAgICAwMDowMDowN1tEXSAtPiBcX1NCXy5QQ0kwLlBJQl8uTE5LRFswXQogICAgICAwMDowMDow
-NVtBXSAtPiBcX1NCXy5QQ0kwLlBJQl8uTE5LQVswXQogICAgICAwMDowMDowNltBXSAtPiBcX1NC
-Xy5QQ0kwLlBJQl8uTE5LQVswXQogICAgICAwMDowMDowQ1tBXSAtPiBcX1NCXy5QQ0kwLlBJQl8u
-TE5LQVswXQogICAgICAwMDowMDowQ1tCXSAtPiBcX1NCXy5QQ0kwLlBJQl8uTE5LQlswXQogICAg
-ICAwMDowMDowRFtBXSAtPiBcX1NCXy5QQ0kwLlBJQl8uTE5LQVswXQpBQ1BJOiBQQ0kgSW50ZXJy
-dXB0IExpbmsgW0xOS0FdIChJUlFzICoxMCkKQUNQSTogUENJIEludGVycnVwdCBMaW5rIFtMTktC
-XSAoSVJRcyAqMTApCkFDUEk6IFBDSSBJbnRlcnJ1cHQgTGluayBbTE5LQ10gKElSUXMgKjUpCkFD
-UEk6IFBDSSBJbnRlcnJ1cHQgTGluayBbTE5LRF0gKElSUXMgKjUpCkFDUEk6IFBDSSBJbnRlcnJ1
-cHQgUm91dGluZyBUYWJsZSBbXF9TQl8uUENJMC5QUEJfLl9QUlRdCiAgICAgIDAwOjAxOjAwW0Fd
-IC0+IFxfU0JfLlBDSTAuUElCXy5MTktBWzBdCiAgICAgIDAwOjAxOjAwW0JdIC0+IFxfU0JfLlBD
-STAuUElCXy5MTktCWzBdCiAgICAgIDAwOjAxOjAwW0NdIC0+IFxfU0JfLlBDSTAuUElCXy5MTktD
-WzBdCiAgICAgIDAwOjAxOjAwW0RdIC0+IFxfU0JfLlBDSTAuUElCXy5MTktEWzBdCkFDUEk6IFBv
-d2VyIFJlc291cmNlIFtQRkFOXSAob24pClBDSTogUHJvYmluZyBQQ0kgaGFyZHdhcmUKUENJOiBV
-c2luZyBBQ1BJIGZvciBJUlEgcm91dGluZwpQQ0k6IFZpYSBJUlEgZml4dXAgZm9yIDAwOjA3LjUs
-IGZyb20gMjU1IHRvIDAKTGludXggTkVUNC4wIGZvciBMaW51eCAyLjQKQmFzZWQgdXBvbiBTd2Fu
-c2VhIFVuaXZlcnNpdHkgQ29tcHV0ZXIgU29jaWV0eSBORVQzLjAzOQpJbml0aWFsaXppbmcgUlQg
-bmV0bGluayBzb2NrZXQKU3RhcnRpbmcga3N3YXBkCkpvdXJuYWxsZWQgQmxvY2sgRGV2aWNlIGRy
-aXZlciBsb2FkZWQKcHR5OiAyNTYgVW5peDk4IHB0eXMgY29uZmlndXJlZApTZXJpYWwgZHJpdmVy
-IHZlcnNpb24gNS4wNWMgKDIwMDEtMDctMDgpIHdpdGggTUFOWV9QT1JUUyBTSEFSRV9JUlEgU0VS
-SUFMX1BDSSBlbmFibGVkCnR0eVMwMCBhdCAweDAzZjggKGlycSA9IDQpIGlzIGEgMTY1NTBBCnR0
-eVMwMSBhdCAweDAyZjggKGlycSA9IDMpIGlzIGEgMTY1NTBBClJlYWwgVGltZSBDbG9jayBEcml2
-ZXIgdjEuMTBlCmJsb2NrOiAxMjggc2xvdHMgcGVyIHF1ZXVlLCBiYXRjaD0zMgpVbmlmb3JtIE11
-bHRpLVBsYXRmb3JtIEUtSURFIGRyaXZlciBSZXZpc2lvbjogNi4zMQppZGU6IEFzc3VtaW5nIDMz
-TUh6IHN5c3RlbSBidXMgc3BlZWQgZm9yIFBJTyBtb2Rlczsgb3ZlcnJpZGUgd2l0aCBpZGVidXM9
-eHgKVlBfSURFOiBJREUgY29udHJvbGxlciBvbiBQQ0kgYnVzIDAwIGRldiAzOQpWUF9JREU6IGNo
-aXBzZXQgcmV2aXNpb24gNgpWUF9JREU6IG5vdCAxMDAlIG5hdGl2ZSBtb2RlOiB3aWxsIHByb2Jl
-IGlycXMgbGF0ZXIKaWRlOiBBc3N1bWluZyAzM01IeiBzeXN0ZW0gYnVzIHNwZWVkIGZvciBQSU8g
-bW9kZXM7IG92ZXJyaWRlIHdpdGggaWRlYnVzPXh4ClZQX0lERTogVklBIHZ0ODJjNjg2YiAocmV2
-IDQwKSBJREUgVURNQTEwMCBjb250cm9sbGVyIG9uIHBjaTAwOjA3LjEKICAgIGlkZTA6IEJNLURN
-QSBhdCAweDEwMjAtMHgxMDI3LCBCSU9TIHNldHRpbmdzOiBoZGE6RE1BLCBoZGI6cGlvCiAgICBp
-ZGUxOiBCTS1ETUEgYXQgMHgxMDI4LTB4MTAyZiwgQklPUyBzZXR0aW5nczogaGRjOkRNQSwgaGRk
-OnBpbwpoZGE6IEZVSklUU1UgTUhOMjIwMEFULCBBVEEgRElTSyBkcml2ZQpoZGM6IFFTSSBEVkQt
-Uk9NIFNEUi0wODEsIEFUQVBJIENEL0RWRC1ST00gZHJpdmUKaWRlMCBhdCAweDFmMC0weDFmNyww
-eDNmNiBvbiBpcnEgMTQKaWRlMSBhdCAweDE3MC0weDE3NywweDM3NiBvbiBpcnEgMTUKaGRhOiAz
-OTA3MDA4MCBzZWN0b3JzICgyMDAwNCBNQikgdy8yMDQ4S2lCIENhY2hlLCBDSFM9MjQzMi8yNTUv
-NjMsIFVETUEoMTAwKQpoZGM6IEFUQVBJIDI0WCBEVkQtUk9NIGRyaXZlLCA1MTJrQiBDYWNoZSwg
-RE1BClVuaWZvcm0gQ0QtUk9NIGRyaXZlciBSZXZpc2lvbjogMy4xMgpQYXJ0aXRpb24gY2hlY2s6
-CiBoZGE6IGhkYTEgaGRhMiBoZGEzCkZsb3BweSBkcml2ZShzKTogZmQwIGlzIDEuNDRNCkZEQyAw
-IGlzIGEgcG9zdC0xOTkxIDgyMDc3CkxpbnV4IGFncGdhcnQgaW50ZXJmYWNlIHYwLjk5IChjKSBK
-ZWZmIEhhcnRtYW5uCmFncGdhcnQ6IE1heGltdW0gbWFpbiBtZW1vcnkgdG8gdXNlIGZvciBhZ3Ag
-bWVtb3J5OiA0MjRNCmFncGdhcnQ6IFVuc3VwcG9ydGVkIFZpYSBjaGlwc2V0IChkZXZpY2UgaWQ6
-IDA2MDUpLCB5b3UgbWlnaHQgd2FudCB0byB0cnkgYWdwX3RyeV91bnN1cHBvcnRlZD0xLgphZ3Bn
-YXJ0OiBubyBzdXBwb3J0ZWQgZGV2aWNlcyBmb3VuZC4KTGludXggS2VybmVsIENhcmQgU2Vydmlj
-ZXMgMy4xLjIyCiAgb3B0aW9uczogIFtwY2ldIFtjYXJkYnVzXQp1c2IuYzogcmVnaXN0ZXJlZCBu
-ZXcgZHJpdmVyIGh1YgpzcHVyaW91cyA4MjU5QSBpbnRlcnJ1cHQ6IElSUTcuClllbnRhIElSUSBs
-aXN0IDA4ODAsIFBDSSBpcnExMApTb2NrZXQgc3RhdHVzOiAzMDAwMDAwNgpZZW50YSBJUlEgbGlz
-dCAwODgwLCBQQ0kgaXJxMTAKU29ja2V0IHN0YXR1czogMzAwMDA0MTAKdWhjaS5jOiBVU0IgVW5p
-dmVyc2FsIEhvc3QgQ29udHJvbGxlciBJbnRlcmZhY2UgZHJpdmVyIHYxLjEKdWhjaS5jOiBVU0Ig
-VUhDSSBhdCBJL08gMHgxMDAwLCBJUlEgNQp1c2IuYzogbmV3IFVTQiBidXMgcmVnaXN0ZXJlZCwg
-YXNzaWduZWQgYnVzIG51bWJlciAxCmh1Yi5jOiBVU0IgaHViIGZvdW5kCmh1Yi5jOiAyIHBvcnRz
-IGRldGVjdGVkCk5FVDQ6IExpbnV4IFRDUC9JUCAxLjAgZm9yIE5FVDQuMApJUCBQcm90b2NvbHM6
-IElDTVAsIFVEUCwgVENQLCBJR01QCklQOiByb3V0aW5nIGNhY2hlIGhhc2ggdGFibGUgb2YgNDA5
-NiBidWNrZXRzLCAzMktieXRlcwpUQ1A6IEhhc2ggdGFibGVzIGNvbmZpZ3VyZWQgKGVzdGFibGlz
-aGVkIDMyNzY4IGJpbmQgMzI3NjgpCk5FVDQ6IFVuaXggZG9tYWluIHNvY2tldHMgMS4wL1NNUCBm
-b3IgTGludXggTkVUNC4wLgpram91cm5hbGQgc3RhcnRpbmcuICBDb21taXQgaW50ZXJ2YWwgNSBz
-ZWNvbmRzCkVYVDMtZnM6IG1vdW50ZWQgZmlsZXN5c3RlbSB3aXRoIG9yZGVyZWQgZGF0YSBtb2Rl
-LgpWRlM6IE1vdW50ZWQgcm9vdCAoZXh0MyBmaWxlc3lzdGVtKSByZWFkb25seS4KRnJlZWluZyB1
-bnVzZWQga2VybmVsIG1lbW9yeTogMTkyayBmcmVlZApBZGRpbmcgU3dhcDogMTAxMjA4NGsgc3dh
-cC1zcGFjZSAocHJpb3JpdHkgLTEpCkVYVDMgRlMgMi40LTAuOS4xNywgMTAgSmFuIDIwMDIgb24g
-aWRlMCgzLDIpLCBpbnRlcm5hbCBqb3VybmFsCmtqb3VybmFsZCBzdGFydGluZy4gIENvbW1pdCBp
-bnRlcnZhbCA1IHNlY29uZHMKRVhUMyBGUyAyLjQtMC45LjE3LCAxMCBKYW4gMjAwMiBvbiBpZGUw
-KDMsMSksIGludGVybmFsIGpvdXJuYWwKRVhUMy1mczogbW91bnRlZCBmaWxlc3lzdGVtIHdpdGgg
-b3JkZXJlZCBkYXRhIG1vZGUuCmNzOiBJTyBwb3J0IHByb2JlIDB4MGMwMC0weDBjZmY6IGNsZWFu
-LgpjczogSU8gcG9ydCBwcm9iZSAweDAxMDAtMHgwNGZmOiBleGNsdWRpbmcgMHgzNzgtMHgzN2Yg
-MHg0ZDAtMHg0ZDcKY3M6IElPIHBvcnQgcHJvYmUgMHgwYTAwLTB4MGFmZjogY2xlYW4uCmNzOiBt
-ZW1vcnkgcHJvYmUgMHhhMDAwMDAwMC0weGEwZmZmZmZmOiBjbGVhbi4KeGlyYzJwc19jcy5jIDEu
-MzEgMTk5OC8xMi8wOSAxOTozMjo1NSAoZGQ5am4ra3ZoKQpldGgwOiBNSUkgbGluayBwYXJ0bmVy
-OiBmZmZmCmV0aDA6IE1JSSBzZWxlY3RlZApldGgwOiBtZWRpYSAxMDBCYXNlVCwgc2lsaWNvbiBy
-ZXZpc2lvbiA1CmV0aDA6IFhpcmNvbTogcG9ydCAweDMwMCwgaXJxIDExLCBod2FkZHIgMDA6MTA6
-QTQ6QjY6MDM6MUUKdHR5UzAzIGF0IHBvcnQgMHgwMmU4IChpcnEgPSAxMSkgaXMgYSAxNjU1MEEK
-ZXRoMDogTUlJIGxpbmsgcGFydG5lcjogMDVlMQpldGgwOiBNSUkgc2VsZWN0ZWQKZXRoMDogbWVk
-aWEgMTAwQmFzZVQsIHNpbGljb24gcmV2aXNpb24gMApDU0xJUDogY29kZSBjb3B5cmlnaHQgMTk4
-OSBSZWdlbnRzIG9mIHRoZSBVbml2ZXJzaXR5IG9mIENhbGlmb3JuaWEKUFBQIGdlbmVyaWMgZHJp
-dmVyIHZlcnNpb24gMi40LjEKZXRoMDogTUlJIGxpbmsgcGFydG5lcjogMDVlMQpldGgwOiBNSUkg
-c2VsZWN0ZWQKZXRoMDogbWVkaWEgMTAwQmFzZVQsIHNpbGljb24gcmV2aXNpb24gNQoKQXByICAy
-IDE2OjA1OjIyIGluZmVybm8ga2VybmVsOiBQQ0k6IEVuYWJsaW5nIGRldmljZSAwMDowNS4wICgw
-MDAwIC0+IDAwMDMpCkFwciAgMiAxNjowNToyMiBpbmZlcm5vIGtlcm5lbDogUENJOiBObyBJUlEg
-a25vd24gZm9yIGludGVycnVwdCBwaW4gQSBvZiBkZXZpY2UKMDA6MDUuMC4gUGxlYXNlIHRyeSB1
-c2luZyBwY2k9Ymlvc2lycS4KQXByICAyIDE2OjA1OjIyIGluZmVybm8ga2VybmVsOiBQQ0k6IFNl
-dHRpbmcgbGF0ZW5jeSB0aW1lciBvZiBkZXZpY2UgMDA6MDUuMCB0bwo2NApBcHIgIDIgMTY6MDU6
-MjIgaW5mZXJubyBrZXJuZWw6IGV0aDE6IEFETXRlayBDb21ldCByZXYgMTcgYXQgMHgxYzAwLCAw
-MDo5MDo5NjoxRDpEOTowRiwgSVJRIDAuCg==
-
-------=_20020402163627_31571--
-
+  Michal

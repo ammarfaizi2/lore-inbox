@@ -1,78 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315199AbSEKWBS>; Sat, 11 May 2002 18:01:18 -0400
+	id <S315201AbSEKWGS>; Sat, 11 May 2002 18:06:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315201AbSEKWBR>; Sat, 11 May 2002 18:01:17 -0400
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:52370 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S315199AbSEKWBR>; Sat, 11 May 2002 18:01:17 -0400
-To: Jens Axboe <axboe@suse.de>
-cc: Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
-        Linus Torvalds <torvalds@transmeta.com>, Lincoln Dale <ltd@cisco.com>,
-        Andrew Morton <akpm@zip.com.au>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Martin Dalecki <dalecki@evision-ventures.com>,
-        Padraig Brady <padraig@antefacto.com>,
-        Anton Altaparmakov <aia21@cantab.net>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Jonathan Lahr <lahr@us.ibm.com>
-Reply-To: Gerrit Huizenga <gh@us.ibm.com>
-From: Gerrit Huizenga <gh@us.ibm.com>
-Subject: Re: O_DIRECT performance impact on 2.4.18 (was: Re: [PATCH] 2.5.14 IDE 56) 
-In-Reply-To: Your message of Sat, 11 May 2002 22:17:42 +0200.
-             <20020511201742.GA1106@suse.de> 
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <1284.1021156065.1@us.ibm.com>
-Date: Sat, 11 May 2002 15:27:45 -0700
-Message-Id: <E176fL7-0000Km-00@w-gerrit2>
+	id <S315203AbSEKWGR>; Sat, 11 May 2002 18:06:17 -0400
+Received: from host194.steeleye.com ([216.33.1.194]:18439 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S315201AbSEKWGR>; Sat, 11 May 2002 18:06:17 -0400
+Message-Id: <200205112206.g4BM6Dp13365@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: mochel@osdl.org, davej@suse.de
+cc: James.Bottomley@HansenPartnership.com, linux-kernel@vger.kernel.org
+Subject: [PATCH] i386 arch subdivision into machine types for 2.5.15
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sat, 11 May 2002 18:06:13 -0400
+From: James Bottomley <James.Bottomley@HansenPartnership.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20020511201742.GA1106@suse.de>, > : Jens Axboe writes:
-> On Sat, May 11 2002, Gerrit Huizenga wrote:
-> > In message <20020511142434.GA1224@suse.de>, > : Jens Axboe writes:
-> > > On Sat, May 11 2002, Roy Sigurd Karlsbakk wrote:
-> > > > On Friday 10 May 2002 17:55, Linus Torvalds wrote:
-> > > > > On Fri, 10 May 2002, Lincoln Dale wrote:
-> > > > > > so O_DIRECT in 2.4.18 still shows up as a 55% performance hit versus no
-> > > > > > O_DIRECT. anyone have any clues?
-> > > > >
-> > > > > Yes.
-> > > > >
-> > > > > O_DIRECT isn't doing any read-ahead.
-> > > > >
-> > > > > For O_DIRECT to be a win, you need to make it asynchronous.
-> > > > 
-> > > > Will the use of O_DIRECT affect disk elevatoring?
-> > > 
-> > > No, the I/O scheduler can't even tell whether it's being handed
-> > > O_DIRECT buffers or not.
-> > 
-> > We tried disabling the elevator while doing Raw IO with DB2
-> > a couple of weeks ago.  The database performance degraded much
-> 
-> I'm curious how you did this -- did you disable sorting and merging, or
-> just sorting? Merging is pretty essential to getting decent I/O speeds
-> in current kernels.
- 
-I believe sorting AND merging were turned off.  BTW, this was 2.4 only,
-our primary focus is getting product into people's hands this year.  We
-are hoping to play with the 2.5 IO scheduler, possibly in a few months.
+This split is essentially the same as the one I did for 2.5.8 except that I've 
+cleaned up setup_arch.h slightly (the other was, as I was told, "icky").  I 
+didn't do any other alterations to setup.c because the projects list implies 
+that Dave Jones and Patrick Mochel are going to be doing this, so I'll slide 
+my changes in around this.
 
-> > more than expected.  Disks were FC connected Tritons or SCSI
-> > connected ServerRaid (or both?).  Oracle often asks for a patch
-> > to disable the elevator since they believe they can schedule IO
-> > better.  We didn't try with Oracle in this case, but DB2 and RAW
-> > IO without and elevator was not a good choice.
-> 
-> Due to excessive queue scan times, lock contention, or just slight waste
-> of cycles?
- 
-A lot more interrupts on the RAID device, indicating a lot more
-IOs, probably a direct result of disabling merging.  Overall IO throughput
-dropped pretty dramatically, reducing database throughput.
+I've pulled visws.c out of i386/pci and put it in i386/visws.c, since it's 
+really specific to visws and doing this also allows me to simplify the 
+i386/pci/Makefile.
 
-A good indication to gen a patch with just sorting turned off and
-see where that gets us...
+The other thing I haven't done (yet) is to document all the hooks and how they 
+work; I'll try to do that shortly.
 
-gerrit
+The 147k diff file (large because it has a lot of file moves) is at
+
+http://www.hansenpartnership.com/voyager/files/arch-split-2.5.15.diff
+
+There's also a bitkeeper repository with all this in at
+
+http://linux-voyager.bkbits.net/arch-split-2.5
+
+James Bottomley
+
+

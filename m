@@ -1,82 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262076AbSKCPzA>; Sun, 3 Nov 2002 10:55:00 -0500
+	id <S262107AbSKCQGr>; Sun, 3 Nov 2002 11:06:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262080AbSKCPzA>; Sun, 3 Nov 2002 10:55:00 -0500
-Received: from mailout07.sul.t-online.com ([194.25.134.83]:13200 "EHLO
-	mailout07.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S262076AbSKCPy7>; Sun, 3 Nov 2002 10:54:59 -0500
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Oliver Xymoron <oxymoron@waste.org>, "Theodore Ts'o" <tytso@mit.edu>,
-       Dax Kelson <dax@gurulabs.com>, Rusty Russell <rusty@rustcorp.com.au>,
-       linux-kernel@vger.kernel.org, davej@suse.de
-References: <Pine.GSO.4.21.0211030904340.25010-100000@steklov.math.psu.edu>
-From: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
-To: Alexander Viro <viro@math.psu.edu>
-Subject: Re: Filesystem Capabilities in 2.6?
-Date: Sun, 03 Nov 2002 17:01:10 +0100
-Message-ID: <87u1iymym1.fsf@goat.bogus.local>
-User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Honest Recruiter,
- i386-debian-linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S262100AbSKCQGr>; Sun, 3 Nov 2002 11:06:47 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:23437 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262107AbSKCQGq>; Sun, 3 Nov 2002 11:06:46 -0500
+Subject: Re: [lkcd-general] Re: What's left over.
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: "Matt D. Robinson" <yakker@aparity.com>, Steven King <sxking@qwest.net>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Joel Becker <Joel.Becker@oracle.com>,
+       Chris Friesen <cfriesen@nortelnetworks.com>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       lkcd-general@lists.sourceforge.net, lkcd-devel@lists.sourceforge.net
+In-Reply-To: <Pine.LNX.3.96.1021103092330.5197D-100000@gatekeeper.tmr.com>
+References: <Pine.LNX.3.96.1021103092330.5197D-100000@gatekeeper.tmr.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 03 Nov 2002 16:32:55 +0000
+Message-Id: <1036341175.29646.49.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro <viro@math.psu.edu> writes:
+On Sun, 2002-11-03 at 14:33, Bill Davidsen wrote:
+> If you define "unmaintainably bad" as "having features you don't need"
+> then I agree. But since dump to disk is in almost every other commercial
+> UNIX, maybe someone would question why it's good for others but not for
+> Linux.
 
-> On Sun, 3 Nov 2002, Olaf Dietsche wrote:
->
->> > And as Al points out, new security features don't mean that you can just
->> > stop being careful. 
->> 
->> Stating the obvious. Capabilities are not an end in itself, nor is suid
->> root. It's just another line of defense to help with these binaries,
->> which are _not_ capability aware.
->
-> Bullshit.  To _be_ careful you need to understand the implications of
-> what you are doing.
+It isnt about features, its about clean maintainable code. netdump to me
+doesnt mean no dump to disk option. In fact I'd rather like to be able
+to insmod dump-foo.o. The correctness issues are hard but if the
+dump-foo is standalone, resets the hardware and has an SHA integrity
+check then it can be done (think of it as a post crash variant of the
+trusted computing TCB verification problem)
 
-Where did I, or anyone else, state the opposite?
+> uses the crash dump in AIX, the person who wants to send a compressed dump
+> and money to IBM and get back a fix. Netdump assumes external resources
 
-> To do so in a more complicated model is harder,
-> not easier.
+Lots of interesting legal issues but yes you can do it sometimes (DMCA,
+privacy, financial duties sometimes make it horribly complex). Even in
+the case where you only dump the oops its still valuable.
 
-Because it's harder for you to do a proper job, doesn't mean it is for
-everybody else.
+> and a functional secure network (is the dump encrypted and I missed it?)
+> which home users surely don't have, and remote servers oftem lack as well.
 
-> More features != better security.  Quite often it's exact opposite.
-> Human do make errors, otherwise suid-root stuff wouldn't be a problem
-> to start with.  And when security mechanism increases probability
-> of error it becomes a menace.
+Encrypting the dump with the new crypto lib in the kernel would be easy,
+right now it doesnt. 
 
-Capabilities are not about adding features, they are about reducing.
-Face it, you just don't get it.
+My disk dump concerns are purely those of correctness. That means
 
-> Odds of getting screwed are 0 if programs contain no bugs.  We are dealing
-> with real world and there are non-zero odds of exploitable holes being there
-> and getting found.  What we want is to decrease the odds of compromise,
-> right?  So how are ACLs/capabilities/etc. settings different from program
-> internals?  Either can contain bugs.  Neither is guaranteed to be done
-> correctly.  Odds of compromise depend on odds of bugs in both.  Yet you
-> seem to imply that metadata *will* be set correctly.  By the same vendors
-> that had shipped vulnerable binary in the first place.  Even though the
-> complexity of metadata had grown.
+1.	After loading the module getting the block list for the dump target
 
-Agreed in _every_ _single_ _point_. But because there might be stupid
-vendors out there, doesn't mean I have to bow down to their level.
-And that is, what this is all about. I want to have this choice and
-fortunately, I have it.
+2.	Resetting and scratch initializing the dump device
 
-> Please, get real.  "Completely understood" is much more important than
-> "versatile" when it comes to security models.  And as for additional lines
+3.	Not relying on any code outside of the dump TCB that may have
+been corrupted
 
-So, what's your point? Like with suid root, capability settings need
-to be debugged, bug reports filed and people educated.
+4.	At dump time turning off all bus masters, doing the dump TCB
+verification and then dumping
 
-> of defense...  How did it go?  "For extra privacy that message had been
-> twice encrypted with ROT13"...
+Most of the pieces already exist.
 
-Well, _that_ is bullshit.
 
-Regards, Olaf.

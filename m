@@ -1,53 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271134AbRHOLDs>; Wed, 15 Aug 2001 07:03:48 -0400
+	id <S271138AbRHOLJ6>; Wed, 15 Aug 2001 07:09:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271135AbRHOLDj>; Wed, 15 Aug 2001 07:03:39 -0400
-Received: from customers.imt.ru ([212.16.0.33]:28164 "HELO smtp.direct.ru")
-	by vger.kernel.org with SMTP id <S271134AbRHOLDY>;
-	Wed, 15 Aug 2001 07:03:24 -0400
-Message-ID: <20010815035800.A24565@saw.sw.com.sg>
-Date: Wed, 15 Aug 2001 03:58:00 -0700
-From: Andrey Savochkin <saw@saw.sw.com.sg>
-To: Ime Smits <ime@isisweb.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Camino 2 (82815/82820) v2.4.x eth/sound related lockups
-In-Reply-To: <E15WcZ9-0000zr-00@the-village.bc.nu> <Pine.LNX.4.33.0108141351320.3880-100000@fatbird.isisweb.nl>
+	id <S271139AbRHOLJs>; Wed, 15 Aug 2001 07:09:48 -0400
+Received: from biancha.hardboiledegg.com ([66.38.186.202]:25362 "HELO
+	biancha.hardboiledegg.com") by vger.kernel.org with SMTP
+	id <S271138AbRHOLJg>; Wed, 15 Aug 2001 07:09:36 -0400
+Date: Wed, 15 Aug 2001 07:09:34 -0400
+From: Marc Heckmann <heckmann@hbesoftware.com>
+To: linux-kernel@vger.kernel.org
+Subject: oops in procfs: 2.4.8-pre7
+Message-ID: <20010815070934.B27813@hbe.ca>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93.2i
-In-Reply-To: <Pine.LNX.4.33.0108141351320.3880-100000@fatbird.isisweb.nl>; from "Ime Smits" on Tue, Aug 14, 2001 at 02:01:31PM
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1-pre3 (http://amavis.org/)
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1-pre3 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-All these wait_for_cmd_done timeout issues look very much like new (or
-previously unknown) timing constraints in new onboard chips.
-It isn't completely power management-related.
+this happened under high vm load while using vmstat:
 
-Donald fixed one of such issues several months ago, which I primarily
-observed on i82559ER.
-Apparently, it's another one.  The chip gets stuck and stops to process
-commands.
 
-For a lot of people inserting `udelay(1);' inside wait_for_cmd_done loop
-helped, not because it's right to make the delay, but because it changes
-timing and introduces minimal 1usec delay even if the chip is ready almost
-instantly :-(
+Oops: kernel access of bad area, sig: 11                                        
+NIP: C005DEDC XER: 00000000 LR: C005B78C SP: C1251E10 REGS: c1251d60 TRAP: 
+0300 Using defaults from ksymoops -t elf32-powerpc -a powerpc:common          
+MSR: 00009032 EE: 1 PR: 0 FP: 0 ME: 1 IR/DR: 11                                 
+TASK = c1250000[1386] 'vmstat' Last syscall: 3                                  
+last math c4568000 last altivec 00000000                                        
+GPR00: 00002000 C1251E10 C1250000 C8CC8000 C7262000 C01536F0 C5549880 
+00000000  GPR08: 00007262 7FFFE000 00000000 00000000 84004883 10019BEC 
+7FFFF678 7FFFF680  GPR16: 00000000 00000000 C7262000 00000052 00000625 
+00000440 00000000 C8CC8232  GPR24: C0003CE0 7FFFF634 0020D000 C1251EA8 
+C1251EA0 C681A67C C681A660 C8CC8000  Call backtrace:                    
+C58631A0 C005B78C C003A980 C0003D3C 1000141C 10000E18 0FEB5308                  
+00000000                                                                        
+Warning (Oops_read): Code line not seen, dumping what data is available  
+>NIP; c005dedc <proc_pid_stat+104/300>   <=====                                
+Trace; c58631a0 <_end+567567c/d64853c>                                          
+Trace; c005b78c <proc_info_read+74/19c>                                         
+Trace; c003a980 <sys_read+c8/114>                                               
+Trace; c0003d3c <ret_from_syscall_1+0/b4>                                       
+Trace; 1000141c Before first symbol                                             
+Trace; 10000e18 Before first symbol                                             
+Trace; 0feb5308 Before first symbol                                             
+Trace; 00000000 Before first symbol                
 
-Best regards
-		Andrey
+	-marc                          
 
-On Tue, Aug 14, 2001 at 02:01:31PM +0200, Ime Smits wrote:
-> 
-> INDIVIDVVS VOCATVR Alan Cox DIE 14/8/2001 12:40 VERE SCRIPSIT:
-> 
-> | Those are not so good. I was having similar problems on an i810 box with
-> | onboard eepro100 until I disabled the pm stuff in 2.4.8ac2, but you
-> | seem to be running that one
-> 
-> Already figured that out. Oh, and I forget to mention that the same lockups
-> happen with all 2.4  versions I was able to find on my boxen, including
-> 2.4.0, -ac7, 2.4.2, 2.4.5, 2.4.5-ac3, -ac5, 2.4.6,  2.4.7, 2.4.8 and -ac2,
-> so this is not something introduced in recent kernels. With
-> 2.4.8-ac2 I  played with enabling/disabling ACPI & PM stuff and also APIC
-> irq stuff as mentioned in the eepro100 thread. No go.

@@ -1,38 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276411AbRJPRWT>; Tue, 16 Oct 2001 13:22:19 -0400
+	id <S276424AbRJPR3j>; Tue, 16 Oct 2001 13:29:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276451AbRJPRWJ>; Tue, 16 Oct 2001 13:22:09 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:45505 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S276411AbRJPRWA>;
-	Tue, 16 Oct 2001 13:22:00 -0400
-Date: Tue, 16 Oct 2001 13:22:31 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: John Levon <moz@compsoc.man.ac.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: GPLONLY kernel symbols???
-In-Reply-To: <20011016180757.A78456@compsoc.man.ac.uk>
-Message-ID: <Pine.GSO.4.21.0110161312110.14170-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S276448AbRJPR33>; Tue, 16 Oct 2001 13:29:29 -0400
+Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:34064 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S276424AbRJPR3Q>;
+	Tue, 16 Oct 2001 13:29:16 -0400
+Date: Tue, 16 Oct 2001 10:20:58 -0700
+From: Greg KH <greg@kroah.com>
+To: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Which USB hsot controller to use?
+Message-ID: <20011016102058.H11500@kroah.com>
+In-Reply-To: <20011003090455.C22631@kroah.com> <Pine.LNX.4.33.0110151806230.7302-100000@sol.compendium-tech.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0110151806230.7302-100000@sol.compendium-tech.com>
+User-Agent: Mutt/1.3.21i
+X-Operating-System: Linux 2.2.19 (i586)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Oct 15, 2001 at 06:08:09PM -0700, Dr. Kelsey Hudson wrote:
+> I noticed in the kernel configuration that there are two UHCI drivers for
+> UHCI-based motherboards/add-in option boards. Which one is better?
 
+Depends on the drivers/devices you are using.  Currently the uhci.o
+driver doesn't work properly for some devices that use bulk queuing
+(visor, empeg, bluetooth, etc.) while the usb-uhci driver does.
+On the other hand, the usb-uhci driver doesn't work for some people with
+other kinds of hardware.
 
-On Tue, 16 Oct 2001, John Levon wrote:
+Try both out, and see which one works for you :)
 
-> On Tue, Oct 16, 2001 at 09:27:55AM -0700, Christoph Lameter wrote:
-> 
-> > /lib/modules/2.4.11/kernel/drivers/block/loop.o: Note: modules without a
-> > GPL compatible license cannot use GPLONLY_ symbols
-> > 
-> > What is THAT?
-> 
-> A symbol that may only be referenced by GPL code.
-> 
-> The solution here is to add MODULE_LICENSE("GPL") into loop.c (probably)
-> or upgrade (assuming it's fixed later).
+(hopefully this problem goes away soon...)
 
-invalidate_bdev() is _not_ GPL-only.  Never had been, never will.
+thanks,
 
+greg k-h

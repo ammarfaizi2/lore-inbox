@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264490AbTGGVTg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jul 2003 17:19:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264493AbTGGVTg
+	id S264842AbTGGVVX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jul 2003 17:21:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264844AbTGGVVX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jul 2003 17:19:36 -0400
-Received: from mpls-qmqp-03.inet.qwest.net ([63.231.195.114]:15374 "HELO
-	mpls-qmqp-03.inet.qwest.net") by vger.kernel.org with SMTP
-	id S264490AbTGGVTb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jul 2003 17:19:31 -0400
-Date: Mon, 7 Jul 2003 16:30:47 -0700
-Message-ID: <001401c344df$ccbc63c0$6801a8c0@oemcomputer>
-From: "Paul Albrecht" <palbrecht@qwest.net>
-To: "Nivedita Singhvi" <niv@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, "netdev" <netdev@oss.sgi.com>
-References: <3F08858E.8000907@us.ibm.com> <001a01c3441c$6fe111a0$6801a8c0@oemcomputer> <3F08B7E2.7040208@us.ibm.com> <000d01c3444f$e6439600$6801a8c0@oemcomputer> <3F090A4F.10004@us.ibm.com>
-Subject: Re: question about linux tcp request queue handling
+	Mon, 7 Jul 2003 17:21:23 -0400
+Received: from portraits.wsisiz.edu.pl ([213.135.44.34]:28677 "EHLO
+	portraits.wsisiz.edu.pl") by vger.kernel.org with ESMTP
+	id S264842AbTGGVVP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jul 2003 17:21:15 -0400
+Date: Mon, 7 Jul 2003 23:35:04 +0200 (CEST)
+From: Lukasz Trabinski <lukasz@lt.wsisiz.edu.pl>
+To: Chris Mason <mason@suse.com>
+cc: linux-kernel@vger.kernel.org, Bartlomiej Solarz <solarz@wsisiz.edu.pl>
+Subject: Re: Linux 2.4.22-pre3
+In-Reply-To: <1057608615.20903.1361.camel@tiny.suse.com>
+Message-ID: <Pine.LNX.4.53.0307072332380.4192@lt.wsisiz.edu.pl>
+References: <200307071934.h67JYxdk003733@lt.wsisiz.edu.pl>
+ <1057608615.20903.1361.camel@tiny.suse.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2615.200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2615.200
+Content-Type: TEXT/PLAIN; charset=ISO-8859-2
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nivedita Singhvi writes:
+On Mon, 7 Jul 2003, Chris Mason wrote:
 
->
-> Again, youre limiting the number of connnection requests
-> that are allowed to wait in the *accept* queue, where
-> we move to once we're ESTABLISHED.  You arent limiting
-> a request sitting in the SYN queue.
->
+> The changes in -pre3 won't cut down on the load reported by top/ps.  The
+> goal is to cut down on latencies on the box as a whole.  So the load
+> will still be as high, but you'll still be able to do an ls without
+> waiting indefinitely for the results.
 
-This statement is inconsistent with the description of this scenario in
-Steven's TCP/IP Illustrated.  Specifically, continuing the handshake in the
-TCP layer, i.e., sending a syn/ack and moving to the syn_recd state, is
-incorrect if the limit of the server's socket backlog would be exceeded.
-How do you account for this discrepancy between linux and other
-berkeley-derived implementations?
+How long can i wait 1-5 minutes?
 
+> So, if you are still seeing bad response times, I can send you a patch
+> to try in private mail (it has been posted here a few times already).
 
+Please send, Thank You!
+
+-- 
+*[ £ukasz Tr±biñski ]*
+SysAdmin @wsisiz.edu.pl

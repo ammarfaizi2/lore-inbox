@@ -1,32 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272115AbRIEMES>; Wed, 5 Sep 2001 08:04:18 -0400
+	id <S272121AbRIEMK7>; Wed, 5 Sep 2001 08:10:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272118AbRIEMEJ>; Wed, 5 Sep 2001 08:04:09 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:29188 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S272115AbRIEMDz>; Wed, 5 Sep 2001 08:03:55 -0400
-Subject: Re: Linux 2.4.9-ac6
-To: davids@webmaster.com (David Schwartz)
-Date: Wed, 5 Sep 2001 13:07:21 +0100 (BST)
-Cc: kaos@ocs.com.au (Keith Owens), andrea@suse.de (Andrea Arcangeli),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <NOEJJDACGOHCKNCOGFOMAEAPDLAA.davids@webmaster.com> from "David Schwartz" at Sep 04, 2001 08:30:42 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S272124AbRIEMKt>; Wed, 5 Sep 2001 08:10:49 -0400
+Received: from mustard.heime.net ([194.234.65.222]:24448 "EHLO
+	mustard.heime.net") by vger.kernel.org with ESMTP
+	id <S272121AbRIEMKi> convert rfc822-to-8bit; Wed, 5 Sep 2001 08:10:38 -0400
+Date: Wed, 5 Sep 2001 14:10:48 +0200 (CEST)
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+To: Flavio Bruno Leitner <flavio@conectiva.com.br>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: error compiling 2.4.9 with ess solo1 support
+In-Reply-To: <20010905090821.G871@conectiva.com.br>
+Message-ID: <Pine.LNX.4.30.0109051410020.1280-100000@mustard.heime.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15ebSj-0005ig-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> based upon whether you have the source or not. What should logically taint
-> the kernel are modules that weren't compiled for that exact kernel version
-> or are otherwise mismatched.
+found it.
+doesn't help compiling with joystick support. I actually need gameport
+support, and that's only available from the -ac patches.
 
-Setting a flag for the insmod -f required case as well is an extremely good
-idea. This is entirely about making information available nothing else and
-your suggestion there is a good one.
+On Wed, 5 Sep 2001, Flavio Bruno Leitner wrote:
 
-Alan
+> On Sun, Sep 02, 2001 at 02:01:40PM +0200, Roy Sigurd Karlsbakk wrote:
+> > hi all
+> >
+> > I get the following error message when compiling (or rather linking) 2.4.9
+> > with ESS Solo1 support. Anyone have a clue?
+>
+> Compile with joystick support too.
+>
+>
+> --
+> Flávio Bruno Leitner <flavio@conectiva.com>
+> Pesquisa e Desenvolvimento http://fly.to/fbl
+> Conectiva Linux http://www.conectiva.com.br/
+>
+
+

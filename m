@@ -1,95 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262115AbTKQXqz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Nov 2003 18:46:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261947AbTKQXqz
+	id S262123AbTKQXyU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Nov 2003 18:54:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262130AbTKQXyU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Nov 2003 18:46:55 -0500
-Received: from smtp05.web.de ([217.72.192.209]:2587 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id S262115AbTKQXqx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Nov 2003 18:46:53 -0500
-From: Thomas Schlichter <thomas.schlichter@web.de>
-To: john stultz <johnstul@us.ibm.com>,
-       "Prakash K. Cheemplavam" <prakashpublic@gmx.de>
-Subject: Re: Terrible interactivity with 2.6.0-t9-mm3
-Date: Tue, 18 Nov 2003 00:46:07 +0100
-User-Agent: KMail/1.5.9
-Cc: "Ronny V. Vindenes" <s864@ii.uib.no>, Andrew Morton <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>, cat@zip.com.au,
-       gawain@freda.homelinux.org, gene.heskett@verizon.net,
-       papadako@csd.uoc.gr
-References: <1069071092.3238.5.camel@localhost.localdomain> <1069109719.11424.1994.camel@cog.beaverton.ibm.com> <1069110272.11438.2000.camel@cog.beaverton.ibm.com>
-In-Reply-To: <1069110272.11438.2000.camel@cog.beaverton.ibm.com>
+	Mon, 17 Nov 2003 18:54:20 -0500
+Received: from 64-52-142-65.client.cypresscom.net ([64.52.142.65]:51343 "EHLO
+	scsoftware.sc-software.com") by vger.kernel.org with ESMTP
+	id S262123AbTKQXyS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Nov 2003 18:54:18 -0500
+Date: Mon, 17 Nov 2003 15:53:19 -0800 (PST)
+From: John Heil <kerndev@sc-software.com>
+To: <linux-kernel@vger.kernel.org>, <torvalds@osdl.org>
+cc: John Heil <johnhscs@scsoftware.sc-software.com>
+Subject: [PATCH] [USB2] 2.6.0-test9-mm2 HiSpd Isoc 1024KB submits: -EMSGSIZE
+Message-ID: <Pine.LNX.4.33.0311171529030.5878-100000@scsoftware.sc-software.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-02=_G3Vu/8rqBGruXy7";
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200311180046.14787.thomas.schlichter@web.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---Boundary-02=_G3Vu/8rqBGruXy7
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+High speed isochronous URB submits fail w -EMSGSIZE when packet
+size is 1024KB (which is permitted by the USB 2.0 Std).
 
-On Tuesday 18 November 2003 00:04, john stultz wrote:
-> On Mon, 2003-11-17 at 14:55, john stultz wrote:
-> > On Mon, 2003-11-17 at 14:51, Prakash K. Cheemplavam wrote:
-> > > john stultz wrote:
-> > > > You're correct, I forgot to initialize cpu_khz in the ACPI PM
-> > > > timesource init code. This patch fixes that.
-> > >
-> > > Well I applied your patch without the ones from Thomas Schlichter. Was
-> > > is intended like that or should it be on top of Thomas patches?
-> >
-> > It was to go along side of Thomas' patch. Thomas caught the real issue
-> > (sched_clock() needs to be switched on use_tsc), but cpu_khz is also
-> > used in the scheduler, so I just wanted to make sure it was properly set
-> > as well.
->
-> After sending out multiple patches I should have been more clear. Just
-> to avoid confusion:
->
-> * the init_cpu_khz patch goes along side Thomas' patch.
->
-> * the more experimental sched_clock() -> monotonic_clock() patch I just
-> sent out for testing replaces Thomas' patch.
->
-> thanks
-> -john
+Max Packet Size is conveyed to the host controller via the iTD's
+Buffer Pointer Page 1 field, @ offset +0x28[10:0].
 
-OK, now I was testing both your patches instead of mine.
-The init_cpu_khz patch works as expected... THX!
+drivers/usb/core/urb.c: usb_submit_urb incorrectly scales this
+value w an AND mask of 0x03ff while determining the count of
+packets. usb/host/ehci-sched.c repeats the error.
 
-Well, but the sched_clock() -> monotonic_clock() patch seems to have a=20
-problem...
-=46irst, everything works smoothly if the PIT or the TSC clock are selected=
-=2E (It=20
-seems I cannot test the HPET timer due to missing hardware support)
+This fix corrects the AND mask allowing 1024K packets to flow.
 
-But when booting with the PMTMR clock selected, my Interactivity test fails=
-=20
-again. :-( Maybe there is a problem in the PMTMR's monotonic clock part...?!
 
-  Thomas
+[root@localhost src]# less usb2-isoc-1024.patch
+diff -Nru 2.6.0-t9-mm2.orig/drivers/usb/core/urb.c
+2.6.0-t9-mm2/drivers/usb/core/urb.c
+--- 2.6.0-t9-mm2.orig/drivers/usb/core/urb.c    2003-10-25
+14:43:54.000000000 -0400
++++ 2.6.0-t9-mm2/drivers/usb/core/urb.c 2003-11-17 13:25:32.000000000
+-0500
+@@ -268,7 +268,7 @@
+                /* "high bandwidth" mode, 1-3 packets/uframe? */
+                if (dev->speed == USB_SPEED_HIGH) {
+                        int     mult = 1 + ((max >> 11) & 0x03);
+-                       max &= 0x03ff;
++                       max &= 0x07ff;
+                        max *= mult;
+                }
 
---Boundary-02=_G3Vu/8rqBGruXy7
-Content-Type: application/pgp-signature
-Content-Description: signature
+diff -Nru 2.6.0-t9-mm2.orig/drivers/usb/host/ehci-sched.c
+2.6.0-t9-mm2/drivers/usb/host/ehci-sched.c
+--- 2.6.0-t9-mm2.orig/drivers/usb/host/ehci-sched.c     2003-10-25
+14:43:19.000000000 -0400
++++ 2.6.0-t9-mm2/drivers/usb/host/ehci-sched.c  2003-11-17
+13:27:08.000000000 -0500
+@@ -580,10 +580,10 @@
+                maxp = urb->dev->epmaxpacketout [epnum];
+                buf1 = 0;
+        }
+-       buf1 |= (maxp & 0x03ff);
++       buf1 |= (maxp & 0x07ff);
+        multi = 1;
+        multi += (maxp >> 11) & 0x03;
+-       maxp &= 0x03ff;
++       maxp &= 0x07ff;
+        maxp *= multi;
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+        /* transfer can't fit in any uframe? */
 
-iD8DBQA/uV3GYAiN+WRIZzQRAhC6AJ9NAUI7e5fh36lZ4WpZ1AFDH7poGwCfe0OM
-0LCeH3KRFC1LkObqs+wHqRk=
-=0E2m
------END PGP SIGNATURE-----
 
---Boundary-02=_G3Vu/8rqBGruXy7--
+
+-
+-----------------------------------------------------------------
+John Heil
+South Coast Software
+Custom systems software for UNIX and IBM MVS mainframes
+1-714-774-6952
+johnhscs@sc-software.com
+http://www.sc-software.com
+-----------------------------------------------------------------
+
+

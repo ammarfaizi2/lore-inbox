@@ -1,54 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317465AbSGEMpq>; Fri, 5 Jul 2002 08:45:46 -0400
+	id <S317435AbSGEMyj>; Fri, 5 Jul 2002 08:54:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317466AbSGEMpp>; Fri, 5 Jul 2002 08:45:45 -0400
-Received: from B5642.pppool.de ([213.7.86.66]:31756 "EHLO
-	nicole.de.interearth.com") by vger.kernel.org with ESMTP
-	id <S317465AbSGEMpo>; Fri, 5 Jul 2002 08:45:44 -0400
-Subject: Re: IBM Desktar disk problem?
-From: Daniel Egger <degger@fhm.edu>
-To: venom@sns.it
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.43.0207051217160.8506-100000@cibs9.sns.it>
-References: <Pine.LNX.4.43.0207051217160.8506-100000@cibs9.sns.it>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.7 
-Date: 05 Jul 2002 14:50:20 +0200
-Message-Id: <1025873421.16768.20.camel@sonja.de.interearth.com>
-Mime-Version: 1.0
+	id <S317437AbSGEMyi>; Fri, 5 Jul 2002 08:54:38 -0400
+Received: from [62.70.58.70] ([62.70.58.70]:25218 "EHLO mail.pronto.tv")
+	by vger.kernel.org with ESMTP id <S317435AbSGEMyh> convert rfc822-to-8bit;
+	Fri, 5 Jul 2002 08:54:37 -0400
+Content-Type: text/plain;
+  charset="iso-8859-15"
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Organization: ProntoTV AS
+To: Martin Wilck <Martin.Wilck@Fujitsu-Siemens.com>,
+       Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Init Skript / RPM =?iso-8859-15?q?f=FCr=20SuSE=20&?= RedHat
+Date: Fri, 5 Jul 2002 14:57:12 +0200
+User-Agent: KMail/1.4.1
+References: <1025873207.30422.29.camel@biker.pdb.fsc.net>
+In-Reply-To: <1025873207.30422.29.camel@biker.pdb.fsc.net>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200207051457.12094.roy@karlsbakk.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Fre, 2002-07-05 um 12.27 schrieb venom@sns.it:
+Det hadde vært fint om vi kunne holde lista på engelsk, da de fleste ikke 
+snakker tysk.
 
-> Has anyone had a similar experience with this kind of disks?
+or in English
 
-I suspect it's the usual IBM crap phenomenon; three discs died in the
-last two weeks (1 DTLA and 2 IC35) here, that's a whooping 33% of the
-IBM drives I use. No TCQ involved and on one not even Linux and the
-other two had two different stable 2.4 kernels.
+It'd be nice to keep this list in English, as most members don't speak German
 
-<problemdescription>
-The drives started developping bad sectors, one of the drives to a 
-degree over 10% of the total amount sectors; according to IBM it's
-a "software failure" of the device driver and can be fixed by what
-they call "Erase Disc" i.e. a lowlevel format. Needless to say I
-tried this on one drive and the problems started again one week 
-later. The drives are between 3 and 12 months old and are now on
-their way to IBM.
-</problemdescription>
+roy
 
-<advise>
-Buy decent drives, then get DriveFitnessTest (DFT) from their website
-and check the harddrives, note the TRC number, request an RMA on their
-website and ship the drives as soon as possible to IBM. Wait for the
-replacement drives and sell them ASAP on Ebay to some freaks who don't
-give a dime about data security.
-</advise>
+On Friday 05 July 2002 14:46, Martin Wilck wrote:
+> Das hier ist sicherlich keine endgültige Lösung, aber es zeigt
+> im Prinzip, wie man die Distributions-Unterschiede im init.d Skript bzw.
+> SPEC-file abfangen kann.
 
 -- 
-Servus,
-       Daniel
+Roy Sigurd Karlsbakk, Datavaktmester
+
+Computers are like air conditioners.
+They stop working when you open Windows.
 

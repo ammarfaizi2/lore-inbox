@@ -1,47 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266591AbUGKNiu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266592AbUGKNs5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266591AbUGKNiu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jul 2004 09:38:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266592AbUGKNiu
+	id S266592AbUGKNs5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jul 2004 09:48:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266596AbUGKNs5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jul 2004 09:38:50 -0400
-Received: from zero.aec.at ([193.170.194.10]:3082 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S266591AbUGKNit (ORCPT
+	Sun, 11 Jul 2004 09:48:57 -0400
+Received: from ozlabs.org ([203.10.76.45]:5030 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S266592AbUGKNs4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jul 2004 09:38:49 -0400
-To: Matthew Wilcox <willy@debian.org>
-cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: serious performance regression due to NX patch
-References: <2giKE-67F-1@gated-at.bofh.it> <2gIc8-6pd-29@gated-at.bofh.it>
-	<2gJ8a-72b-11@gated-at.bofh.it> <2gJhY-776-21@gated-at.bofh.it>
-	<2gJrv-7kp-5@gated-at.bofh.it> <2gLD2-qn-3@gated-at.bofh.it>
-From: Andi Kleen <ak@muc.de>
-Date: Sun, 11 Jul 2004 15:38:44 +0200
-In-Reply-To: <2gLD2-qn-3@gated-at.bofh.it> (Matthew Wilcox's message of
- "Sun, 11 Jul 2004 14:30:09 +0200")
-Message-ID: <m3wu1a8xzv.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
-MIME-Version: 1.0
+	Sun, 11 Jul 2004 09:48:56 -0400
+Date: Sun, 11 Jul 2004 21:09:20 +1000
+From: Anton Blanchard <anton@samba.org>
+To: Peter Chubb <peterc@gelato.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org, Andrey Panin <pazke@donpac.ru>
+Subject: Re: Moving per-arch IRQ handling code into common directories
+Message-ID: <20040711110919.GI5232@krispykreme>
+References: <16602.9814.700745.300562@wombat.chubb.wattle.id.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <16602.9814.700745.300562@wombat.chubb.wattle.id.au>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Wilcox <willy@debian.org> writes:
 
-> On Sun, Jul 11, 2004 at 03:02:25AM -0700, Andrew Morton wrote:
->> Apropos of nothing much, CONFIG_X86 would be preferreed here, but x86_64
->> defines that too.
->
-> IMO, x86-64 should stop defining CONFIG_X86.  It's far more common
-> to say "X86 && !X86_64" than it is to say X86.  How about defining
-> CONFIG_X86_COMMON and migrating usage of X86 to X86_COMMON?
+Hi,
 
-Definitely not in 2.6 because it has far too much potential to 
-add subtle bugs, and that is not appropiate for a stable release. 
-In 2.7 maybe.
+>   Inside each arch-specific kernel/irq.c, there's a comment something like, 
+>   /* (mostly architecture independent, will move to kernel/irq.c in 2.5.) */
+> 
+> This obviously hasn't happened, even though there was a patch by
+> Andrey Panin floating about around a year ago.  Is there some
+> fundamental objection to consolidating the IRQ handling as far as
+> possible, or was it just that the patch didn't get high enough profile?
 
-Buy I would prefer to just add an truly i386 specific define 
-like Andrew proposed.
+I think it died because we were in a freeze at the time. Id like to see
+it happen again, perhaps we can get something together to go into -mm.
 
--Andi
-
+Anton

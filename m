@@ -1,48 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265366AbUATCcR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jan 2004 21:32:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264540AbUATC2z
+	id S265346AbUATC2f (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jan 2004 21:28:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264510AbUATAHw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jan 2004 21:28:55 -0500
-Received: from mtvcafw.sgi.com ([192.48.171.6]:36560 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id S265338AbUATCZ3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jan 2004 21:25:29 -0500
-Date: Mon, 19 Jan 2004 18:24:52 -0800
-To: Jack Steiner <steiner@sgi.com>
-Cc: mbligh@aracnet.com, jes@trained-monkey.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch] increse MAX_NR_MEMBLKS to same as MAX_NUMNODES on NUMA
-Message-ID: <20040120022452.GA27294@sgi.com>
-Mail-Followup-To: Jack Steiner <steiner@sgi.com>, mbligh@aracnet.com,
-	jes@trained-monkey.org, linux-kernel@vger.kernel.org
-References: <E1AiZ5h-00043I-00@jaguar.mkp.net> <4990000.1074542883@[10.10.2.4]> <20040119224535.GA12728@sgi.com>
+	Mon, 19 Jan 2004 19:07:52 -0500
+Received: from mail.kroah.org ([65.200.24.183]:8620 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S264405AbUASX7r convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jan 2004 18:59:47 -0500
+Subject: Re: [PATCH] i2c driver fixes for 2.6.1
+In-Reply-To: <10745567602050@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Mon, 19 Jan 2004 15:59:20 -0800
+Message-Id: <10745567603666@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040119224535.GA12728@sgi.com>
-User-Agent: Mutt/1.5.4i
-From: jbarnes@sgi.com (Jesse Barnes)
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 19, 2004 at 04:45:35PM -0600, Jack Steiner wrote:
-> On Mon, Jan 19, 2004 at 12:08:04PM -0800, Martin J. Bligh wrote:
-> > > Since we now support # of CPUs > BITS_PER_LONG with cpumask_t it would
-> > > be nice to be able to support more than BITS_PER_LONG memory blocks.
-> > 
-> > Nothing uses them. We're probably better off just removing them altogether.
-> 
-> I dont understand.
-> node_memblk[] is used on IA64 in arch/ia64/mm/discontig.c (& other places too).
+ChangeSet 1.1474.98.7, 2004/01/14 11:19:14-08:00, khali@linux-fr.org
 
-I think Martin is referring to the memblk_*line() functions and the fact
-that memblks are exported via sysfs to userspace.  That API hasn't
-proven very useful so far since it's really waiting for memory hot
-add/remove.  Of course, we'll still need structures to support that for
-the low level arch specific discontig code, so any patch that killed
-memblks in sysfs and elsewhere would have to take that into account...
-(In particular, node_memblk[] is filled out by the ACPI SRAT parsing
-code and use for discontig init and physical->node id conversion.)
+[PATCH] I2C: Typo in i2c/busses/Kconfig
 
-Jesse
+Another simple patch for your collection. BTW I don't think that i2c-rpx
+can be used in 2.6 since it relies on an algorithm that hasn't been
+ported yet.
+
+
+ drivers/i2c/busses/Kconfig |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+
+diff -Nru a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+--- a/drivers/i2c/busses/Kconfig	Mon Jan 19 15:32:11 2004
++++ b/drivers/i2c/busses/Kconfig	Mon Jan 19 15:32:11 2004
+@@ -187,7 +187,7 @@
+ 	  will be called i2c-prosavage.
+ 
+ config I2C_RPXLITE
+-	tristate "Embedded Planet RPX Lite/Classic suppoort"
++	tristate "Embedded Planet RPX Lite/Classic support"
+ 	depends on (RPXLITE || RPXCLASSIC) && I2C_ALGO8XX
+ 
+ config I2C_SAVAGE4
+

@@ -1,87 +1,199 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261250AbULSN4u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261292AbULSN7P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261250AbULSN4u (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Dec 2004 08:56:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261291AbULSN4t
+	id S261292AbULSN7P (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Dec 2004 08:59:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261291AbULSN7P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Dec 2004 08:56:49 -0500
-Received: from out009pub.verizon.net ([206.46.170.131]:42632 "EHLO
-	out009.verizon.net") by vger.kernel.org with ESMTP id S261250AbULSN4q
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Dec 2004 08:56:46 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.10-rc3-mm1-V0.33-1
-Date: Sun, 19 Dec 2004 08:56:45 -0500
-User-Agent: KMail/1.7
-References: <200412180708.17671.gene.heskett@verizon.net> <200412180748.37296.gene.heskett@verizon.net>
-In-Reply-To: <200412180748.37296.gene.heskett@verizon.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Sun, 19 Dec 2004 08:59:15 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:51721 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261292AbULSN6m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Dec 2004 08:58:42 -0500
+Date: Sun, 19 Dec 2004 14:58:37 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: samba@samba.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] remove outdated smbfs ChangeLog
+Message-ID: <20041219135837.GR21288@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Message-Id: <200412190856.45497.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out009.verizon.net from [151.205.47.244] at Sun, 19 Dec 2004 07:56:45 -0600
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 18 December 2004 07:48, Gene Heskett wrote:
->On Saturday 18 December 2004 07:08, Gene Heskett wrote:
->>Greetings;
->>
->>I must report a couple of anomalies while running
->>2.6.10-rc3-mm1-V0.33-1
->
->CORRECTION!  2.6.10-rc3-mm1-V0.33-0, not 1!
->
-And I am now officially confused.  These messages *are* coming back
-from the server, but I am also getting delayed by a day, bounce
-messages from the server?  Anybody have any idea whats fubared?
+The patch below removes an outdated samba ChangeLog file.
 
-Also, in the FWIW dept, I'm back on 2.6.10-rc3,
-realtime-preempt-2.6.10-rc3-mm1-V0.33-04 also went away in the middle
-of an amanda run yesterday moring after an uptime of about 45
-minutes, leaving no trail whatsoever in the messages log, and the
-only possible clue was that the last runtapes session amanda ran,
-with should have taken in the vacinity of 400 seconds, took only .389
-seconds, but no error was logged in the amanda-dbg directory.  So I
-have no clue.  The only consistent clue is that an lsof locks itself
-till ctrl-c'd, and an amcheck run cannot wake the client on the
-server, but connects with the client on the firewall box just fine.
-And it works after a reboot.
 
->>Twice now, odd goings on, such as lsof just locks itself till you
->>give it a ctrl-c,  Only a reboot fixes this.
->>
->>And I assume its related, but NDI where, amanda's amandad gets
->> stuck and this machine was not backed up this morning.  The
->>/tmp/amanda-dbug/* files do not seem to offer any clues as to why,
->>other than an occasional timeout.  The other client machine on this
->>network, my firewall, was backed up normally, but nothing here made
->>it to tape.  This occured once before on a previous version, 32-19
->> I think but won't swear to, and I believe if I reboot right now,
->> and restart amdump, that it will work, so something would appear
->> to be uptime sensitive.
->>
->>kmail has repeatedly lost its connection to outgoing.verizon.net,
->> but a restart of kmail seems to restore that (if its not verizons
->> fault, they *were* playing with it earlier today).  But this has
->> been an ongoing problem.
->>
->>I'll go get the latest and install it for effects.
+diffstat output:
+ fs/smbfs/ChangeLog |  160 ---------------------------------------------
+ 1 files changed, 160 deletions(-)
 
-See above, 33-04 was also a no-show.
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.30% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.10-rc3-mm1-full/fs/smbfs/ChangeLog	2004-10-18 23:54:55.000000000 +0200
++++ /dev/null	2004-11-25 03:16:25.000000000 +0100
+@@ -1,160 +0,0 @@
+-ChangeLog for smbfs.
+-
+-2002-04-19 John Newbigin <jn@it.swin.edu.au>
+-
+-	* Implementation of CIFS Extensions for UNIX systems, including soft
+-	  and hard links.
+-
+-2001-08-03 Urban Widmark <urban@teststation.com>
+-
+-	* *.c: Unicode support
+-
+-2001-08-23 Jochen Dolze <dolze@epcnet.de>
+-
+-	* proc.c: Correct rsize/wsize computation for readX/writeX
+-
+-2001-0?-?? Urban Widmark <urban@teststation.com>
+-
+-	* *.c: Add LFS
+-	* *.c: Move to a "driver" style handling of different servertypes.
+-	       (Not all operations are done this way. yet.)
+-2001-12-31 René Scharfe <l.s.r@web.de>
+-
+-	* inode.c: added smb_show_options to show mount options in /proc/mounts
+-	* inode.c, getopt.c, getopt.h: merged flag and has_arg in struct option
+-	* inode.c: use S_IRWXUGO where appropriate
+-
+-2001-12-22 Urban Widmark <urban@teststation.com>
+-
+-	* file.c, proc.c: Fix problems triggered by the "fsx test"
+-
+-2001-09-17 Urban Widmark <urban@teststation.com>
+-
+-	* proc.c: Use 4096 (was 512) as the blocksize for better write
+-	  performance (patch originally by Jan Kratochvil)
+-	* proc.c: Skip disconnect smb, allows umount on unreachable servers.
+-	* proc.c: Go back to the interruptible sleep as reconnects seem to
+-	  handle it now.
+-	* *.c: use autogenerated and private proto.h
+-
+-2000-11-22 Igor Zhbanov <bsg@uniyar.ac.ru>
+-
+-	* proc.c: fixed date_unix2dos for dates earlier than 01/01/1980
+-	  and date_dos2unix for date==0 (from 2.2)
+-
+-2001-07-13 Rob Radez <rob@osinvestor.com>
+-
+-	* proc.c: make smb_errno return negative error values
+-
+-2001-07-09 Jochen Dolze <dolze@epcnet.de>
+-
+-	* inode.c: smb_statfs always returned success.
+-	* proc.c, ioctl.c: Allow smbmount to signal failure to reconnect with
+-	  a NULL argument to SMB_IOC_NEWCONN (speeds up error detection).
+-	* proc.c: Add some of the missing error codes to smb_errno
+-
+-2001-06-12 Urban Widmark <urban@teststation.com>
+-
+-	* proc.c: replace the win95-flush fix with smb_seek, when needed.
+-	* proc.c: readdir 'lastname' bug (NetApp dir listing fix)
+-
+-2001-05-08 Urban Widmark <urban@teststation.com>
+-
+-	* inode.c: Fix for changes on the server side not being detected
+-	  properly. Must always drop cached pages when updating an inode with
+-	  new size.
+-
+-2001-05-05 Urban Widmark <urban@teststation.com>
+-
+-	* file.c, proc.c: Drop SMB_F_LOCALWRITE to detect changes made on
+-	  both server and client, using flush with to force win9x to remember
+-	  the right filesize.
+-
+-2001-04-25 René Scharfe <l.s.r@web.de>
+-
+-	* inode.c: Don't clear s_flags and allow ro mounts
+-
+-2001-04-21 Urban Widmark <urban@teststation.com>
+-
+-	* dir.c, proc.c: replace tests on conn_pid with tests on state to
+-	  fix smbmount reconnect on smb_retry timeout and up the timeout to 30s.
+-	* proc.c: smb_newconn must have the server locked while updating it.
+-	* inode.c, proc.c: need flush after truncate on some servers (win9x)
+-	* file.c: add call to send SMBflush on fsync
+-	  (as suggested by Jochen Dolze <dolze@epcnet.de>)
+-
+-2001-03-06 Urban Widmark <urban@teststation.com>
+-
+-	* cache.c: d_add on hashed dentries corrupts d_hash list and
+-	  causes loops in d_lookup. Inherited bug. :)
+-	* inode.c: tail -f fix for non-readonly opened files
+-	  (related to the smb_proc_open change).
+-	* inode.c: tail -f fix for fast size changes with the same mtime.
+-
+-2001-03-02 Michael Kockelkorn <m.kockelkorn@biodata.com>
+-
+-	* proc.c: fix smb_proc_open to allow open being called more than once
+-	  with different modes (O_RDONLY -> O_WRONLY) without closing.
+-
+-2001-02-10 Urban Widmark <urban@teststation.com>
+-
+-	* dir.c, cache.c: replace non-bigmem safe cache with cache code
+-	  from ncpfs and fix some other bigmem bugs in smbfs.
+-	* inode.c: root dentry not properly initialized
+-	* proc.c, sock.c: adjust max parameters & max data to follow max_xmit
+-	  lots of servers were having find_next trouble with this.
+-	* proc.c: use documented write method of truncating (NetApp fix)
+-
+-2000-08-14 Urban Widmark <urban@svenskatest.se>
+-
+-	* dir.c: support case sensitive shares
+-	* inode.c: ascii mount options
+-	* proc.c: check length of paths to avoid buffer overflow
+-	* proc.c: don't do interruptable_sleep in smb_retry to avoid signal
+-	  problem/race.
+-	* proc.c: O_RDONLY & smb_revalidate_inode fix (tail -f)
+-	* proc.c: add nls support
+-	* sock.c: attempt to fix smb_data_callback (avoid infinite loop)
+-
+-2000-07-25 Urban Widmark <urban@svenskatest.se>
+-
+-	* proc.c: fix 3 places where bad server responses could cause an Oops.
+-
+-2000-07-15 Urban Widmark <urban@svenskatest.se>
+-
+-	* *.c: more debug (%.*s) & indent fixes
+-
+-2000-06-24: Matt Maynard <matthewm@corel.com>
+-
+-	* dir.c: dentry->d_inode->i_mtime isn't updated for all servers
+-	  (NT?) and all operations (mv oldfile.txt newfile.txt) Removed for
+-	  less efficient but better working directory cache.
+-	* proc.c: included aDIR smbclient fix for renaming directories on
+-	  OS/2 servers (win95/98?) (orig by John Janosik)
+-
+-2000-07-01 Urban Widmark <urban@svenskatest.se>
+-
+-	* *.c: replace ugly #ifdef's with less ugly debug macros.
+-
+-2000-01-03 Christian Groessler <cpg@aladdin.de>
+-
+-	* proc.c: added posix semantics for unlink
+-
+-1999-11-16 Andrew Tridgell
+-
+-	* proc.c: use level 260 for most conns, or level 1 for <NT1
+-	* proc.c: don't sleep every time with win95 on a FINDNEXT
+-	* proc.c: fixed loop_count bug
+-	* proc.c: got rid of resume_key
+-
+-[there are a few missing here :) ]
+-
+-1997-09-28 Riccardo Facchetti
+-
+-	* proc.c: Fixed smb_d_path [now smb_build_path()] to be non-recursive
+-
+-1996-06-28 Yuri Per
+-
+-	* proc.c: Fixed long file name support (smb_proc_readdir_long)
+-
+-You are in the wrong end for adding new entries. New entries at the top.
 

@@ -1,78 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261782AbUKANIh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261483AbUKANOG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261782AbUKANIh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Nov 2004 08:08:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261483AbUKANIh
+	id S261483AbUKANOG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Nov 2004 08:14:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261769AbUKANOG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Nov 2004 08:08:37 -0500
-Received: from pfepa.post.tele.dk ([195.41.46.235]:20530 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S261782AbUKANIc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 08:08:32 -0500
-Subject: Re: [PATCH][plugsched 0/28] Pluggable cpu scheduler framework
-From: Kasper Sandberg <lkml@metanurb.dk>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Pavel Machek <pavel@ucw.cz>, Con Kolivas <kernel@kolivas.org>,
-       LKML Mailinglist <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Peter Williams <pwil3058@bigpond.net.au>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Alexander Nyberg <alexn@dsv.su.se>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <20041101114124.GA31458@elte.hu>
-References: <4183A602.7090403@kolivas.org>
-	 <20041031233313.GB6909@elf.ucw.cz>  <20041101114124.GA31458@elte.hu>
-Content-Type: text/plain
-Date: Mon, 01 Nov 2004 14:08:22 +0100
-Message-Id: <1099314502.14135.9.camel@localhost>
+	Mon, 1 Nov 2004 08:14:06 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:44514 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261483AbUKANOE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Nov 2004 08:14:04 -0500
+Date: Mon, 1 Nov 2004 14:15:11 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Florian Schmidt <mista.tapas@gmx.net>, Lee Revell <rlrevell@joe-job.com>,
+       Paul Davis <paul@linuxaudiosystems.com>,
+       LKML <linux-kernel@vger.kernel.org>, mark_h_johnson@raytheon.com,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       jackit-devel <jackit-devel@lists.sourceforge.net>,
+       Rui Nuno Capela <rncbc@rncbc.org>, "K.R. Foley" <kr@cybsft.com>
+Subject: Re: [Fwd: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4]
+Message-ID: <20041101131511.GA16832@elte.hu>
+References: <20041031124828.GA22008@elte.hu> <1099227269.1459.45.camel@krustophenia.net> <20041031131318.GA23437@elte.hu> <20041031134016.GA24645@elte.hu> <20041031162059.1a3dd9eb@mango.fruits.de> <20041031165913.2d0ad21e@mango.fruits.de> <20041101115546.GA2620@elte.hu> <20041101123701.GA4443@elte.hu> <1099312527.3337.5.camel@thomas> <20041101125127.GA13442@elte.hu>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041101125127.GA13442@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-11-01 at 12:41 +0100, Ingo Molnar wrote:
-<snip>
-> I believe that by compartmenting in the wrong way [*] we kill the
-> natural integration effects. We'd end up with 5 (or 20) bad generic
-> schedulers that happen to work in one precise workload only, but there
-> would not be enough push to build one good generic scheduler, because
-> the people who are now forced to care about the Linux scheduler would be
-> content about their specialized schedulers. Yes, it would be easier to
-> make a specialized scheduler work well in that precise workload (because
-> the developer can make the 'this is only for this parcticular workload'
-> excuse), and this approach may satisfy the embedded and high-end needs
-> in a quicker way. So i consider scheduler plugins as the STREAMS
-> equivalent of scheduling and i am not very positive about it. Just like
-> STREAMS, i consider 'scheduler plugins' as the easy but deceptive and
-> wrong way out of current problems, which will create much worse problems
-> than the ones it tries to solve.
 
-i see your point, and i agree its not very nice to have specialized
-schedulers for particular workloads only. however, as i see it,
-plugsched doesent have any direct overhead, and plugsched doesent remove
-the ability to develop on one allround scheduler, which tries to handle
-all workloads good. however plugsched does give the opportunity to
-create specialized schedulers, and as i see it not, staircase does a
-better job in handling allround workloads(atleast for me). and it
-certainly do make stuff easier.
+* Ingo Molnar <mingo@elte.hu> wrote:
 
-> 
-> 	Ingo
-> 
-> ( [*] how is this different from say the IO scheduler plugin
-> architecture?  Just compare the two, it's two very different things.
-> Firstly, the timescale is very different - the process scheduler cares
-> about microseconds, the IO scheduler's domain is milliseconds. Also, IO
-> scheduling is fundamentally per-device and often there is good
-> per-device workload isolation so picking an IO scheduler per queue makes
-> much more sense than say picking a scheduler per CPU ... There are other
-> differences too, such as complexity and isolation from the rest of the
-> system. )
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> [...] I am too seeing rtc_wakeup weirdnesses that were not present in
+> earlier -V0.6 kernels.
 
+this turned out to be a user error - used the wrong script to renice
+IRQ8. Perhaps rtc_wakeup could check for the presence of IRQ 8 and chrt
+it to 99 if it's present? :-|
+
+	Ingo

@@ -1,42 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286330AbRLTSm7>; Thu, 20 Dec 2001 13:42:59 -0500
+	id <S286326AbRLTSik>; Thu, 20 Dec 2001 13:38:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286337AbRLTSmu>; Thu, 20 Dec 2001 13:42:50 -0500
-Received: from [206.124.139.154] ([206.124.139.154]:56327 "EHLO
-	grieg.holmsjoen.com") by vger.kernel.org with ESMTP
-	id <S286330AbRLTSmj>; Thu, 20 Dec 2001 13:42:39 -0500
-Date: Thu, 20 Dec 2001 10:42:26 -0800
-From: Randolph Bentson <bentson@grieg.holmsjoen.com>
-To: Matt Bernstein <matt@theBachChoir.org.uk>
-Cc: Steven Cole <scole@lanl.gov>, esr@thyrsus.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in Configure.help.
-Message-ID: <20011220104226.A5716@grieg.holmsjoen.com>
-In-Reply-To: <200112201721.KAA05522@tstac.esa.lanl.gov> <Pine.LNX.4.43.0112201810340.16545-100000@nick.dcs.qmul.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.43.0112201810340.16545-100000@nick.dcs.qmul.ac.uk>; from matt@theBachChoir.org.uk on Thu, Dec 20, 2001 at 06:16:24PM +0000
+	id <S286322AbRLTSh5>; Thu, 20 Dec 2001 13:37:57 -0500
+Received: from [198.17.35.35] ([198.17.35.35]:39073 "HELO mx1.peregrine.com")
+	by vger.kernel.org with SMTP id <S286324AbRLTSgp>;
+	Thu, 20 Dec 2001 13:36:45 -0500
+Message-ID: <B51F07F0080AD511AC4A0002A52CAB445B2A20@ottonexc1.ottawa.loran.com>
+From: Dana Lacoste <dana.lacoste@peregrine.com>
+To: "'Matt Bernstein'" <matt@theBachChoir.org.uk>,
+        Steven Cole <scole@lanl.gov>
+Cc: esr@thyrsus.com, linux-kernel@vger.kernel.org
+Subject: RE: Changing KB, MB, and GB to KiB, MiB, and GiB in Configure.hel
+	p.
+Date: Thu, 20 Dec 2001 10:36:48 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 20, 2001 at 06:16:24PM +0000, Matt Bernstein wrote:
-> I believe that the main purpose of documentation, help etc is to get the
+> I believe that the main purpose of documentation, help etc is 
+> to get the
 > information across in a way that is most easily understood, ie that
-> minimises the number of support questions.. ..and everyone surely knows
-> what GB, MB and KB stand for. So let's leave it at that. Where's the "i"
+> minimises the number of support questions.. ..and everyone 
+> surely knows
+> what GB, MB and KB stand for. So let's leave it at that. 
+> Where's the "i"
 > in "megabyte" ? Or is 1MiB 1000000 bytes, rather than 1048576?
-> 
-> It's confusing enough with the 10 "Mb" networking / 1.44 "MB" floppy
-> distinction already..
 
-I'm afraid I have to disagree with you.  Not enough people
-know that KB stands for 1000B.  I know through experience that
-KB is often used for 1024B.  The introduction of KiB makes it
-clear that 1024B is intended.
+1 MB isn't 1048576.
 
--- 
-Randolph Bentson
-bentson@holmsjoen.com
+it's 1000000
+
+mega isn't 2^10, it's 10^6
+
+so where are YOU coming from?
+
+(no, i'm not arguin, i don't particularly care.  but i'm
+pointing out that some people have completely firmly set
+definitions and some other people also have firm definitions
+and neither will agree the other's right.  MiB is the international
+standard for a 2^10 B(yte) specification.  so if you mean
+2^10 bytes, you mean MiB, not MB, even if you don't like it :)
+
+So these are very very good changes :)
+
+Dana Lacoste
+Ottawa, Canada (a metric country :)

@@ -1,42 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262290AbVAZND6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262287AbVAZNMw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262290AbVAZND6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jan 2005 08:03:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262289AbVAZND5
+	id S262287AbVAZNMw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jan 2005 08:12:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262288AbVAZNMw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jan 2005 08:03:57 -0500
-Received: from colino.net ([213.41.131.56]:3312 "EHLO paperstreet.colino.net")
-	by vger.kernel.org with ESMTP id S262287AbVAZNDu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jan 2005 08:03:50 -0500
-Date: Wed, 26 Jan 2005 14:03:19 +0100
-From: Colin Leroy <colin@colino.net>
-To: linux-kernel@vger.kernel.org
-Cc: Jorge Bernal <koke@amedias.org>
-Subject: Re: [PATCH] therm_adt746x: smooth fan
-Message-ID: <20050126140319.05d7264b@pirandello>
-X-Mailer: Sylpheed-Claws 1.0.0cvs13.1 (GTK+ 2.4.0; i686-redhat-linux-gnu)
-X-Face: Fy:*XpRna1/tz}cJ@O'0^:qYs:8b[Rg`*8,+o^[fI?<%5LeB,Xz8ZJK[r7V0hBs8G)*&C+XA0qHoR=LoTohe@7X5K$A-@cN6n~~J/]+{[)E4h'lK$13WQf$.R+Pi;E09tk&{t|;~dakRD%CLHrk6m!?gA,5|Sb=fJ=>[9#n1Bu8?VngkVM4{'^'V_qgdA.8yn3)
-References: <200501260912.27216.koke@amedias.org>
+	Wed, 26 Jan 2005 08:12:52 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:24083 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262287AbVAZNMt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jan 2005 08:12:49 -0500
+Date: Wed, 26 Jan 2005 13:12:34 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Christoph Hellwig <hch@infradead.org>,
+       Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
+       Jean Delvare <khali@linux-fr.org>, Greg KH <greg@kroah.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.11-rc2-mm1: SuperIO scx200 breakage
+Message-ID: <20050126131234.A30805@flint.arm.linux.org.uk>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
+	Jean Delvare <khali@linux-fr.org>, Greg KH <greg@kroah.com>,
+	LKML <linux-kernel@vger.kernel.org>
+References: <20050124021516.5d1ee686.akpm@osdl.org> <20050124175449.GK3515@stusta.de> <20050124213442.GC18933@kroah.com> <20050124214751.GA6396@infradead.org> <20050125060256.GB2061@kroah.com> <20050125195918.460f2b10.khali@linux-fr.org> <20050126003927.189640d4@zanzibar.2ka.mipt.ru> <20050125224051.190b5ff9.khali@linux-fr.org> <20050126013556.247b74bc@zanzibar.2ka.mipt.ru> <20050126101434.GA7897@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050126101434.GA7897@infradead.org>; from hch@infradead.org on Wed, Jan 26, 2005 at 10:14:34AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This patchs allows a smoother fan speed switching with therm_adt746x.
-> Instead of setting 0 or 128, it scales speed according to temperature.
+On Wed, Jan 26, 2005 at 10:14:34AM +0000, Christoph Hellwig wrote:
+> That's simply not true.  The amount of patches submitted is extremly
+> huge and the reviewers don't have time to look at everythning.
+> 
+> If no one replies it simply means no one has looked at it in enough
+> detail to comment yet.
 
-Thanks, but you'd have saved some of your time if you had checked
-2.6.10: I implemented such a system, it's in since 2.6.10 :)
+How do people get to know this?  Grape vines and crystal balls are
+inherently unreliable.
 
-> It would be even better if I'd have more precise temp data, but I'm
-> not sure if it's even supported by the chip.
+I think that if someone overlooks the patches when they're on the mailing
+lists and then complains when they're merged into the kernel, they have
+very little justification when trying to make it the patch submitters
+problem.  It's clearly an overall failing of the community to have enough
+resources to review the patches before inclusion.
 
-It's not possible, iirc.
+Frequently I end up with the situation where *NO* *ONE* seems interested
+in my patches and I throw them at Linus anyway after months have gone by.
+Maybe I'm just lucky that no one bothers to read my patches or everyone
+is implicitly exstatic with them.  Nevertheless, I'm forced by the lack
+of response from LKML to follow precisely the same rule - no response
+implies people are happy.  In reality, not doing so would mean I'd never
+get any patches merged which is unacceptable.
 
-Also, it's better to Cc: the maintainer of a module when submitting
-patches. I'm not subscribed to lkml currently, and would have missed
-your mail if I didn't get it from a friend.
+So, if the community has a problem with enough time to review patches,
+the community must get more (good) patch reviewers.  We can't go around
+blaming the patch submitters for a community failing.
+
 -- 
-Colin
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

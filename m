@@ -1,63 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265233AbSJRRsZ>; Fri, 18 Oct 2002 13:48:25 -0400
+	id <S265537AbSJRSPR>; Fri, 18 Oct 2002 14:15:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265341AbSJRR1K>; Fri, 18 Oct 2002 13:27:10 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:2523 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S265278AbSJRQyt>; Fri, 18 Oct 2002 12:54:49 -0400
-Date: Fri, 18 Oct 2002 19:00:44 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Linus Torvalds <torvalds@transmeta.com>, Ben Collins <bcollins@debian.org>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.5.43
-In-Reply-To: <Pine.LNX.4.44.0210152040540.1708-100000@penguin.transmeta.com>
-Message-ID: <Pine.NEB.4.44.0210181856330.28761-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S265538AbSJRSPR>; Fri, 18 Oct 2002 14:15:17 -0400
+Received: from dbl.q-ag.de ([80.146.160.66]:49293 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id <S265537AbSJRSPQ>;
+	Fri, 18 Oct 2002 14:15:16 -0400
+Message-ID: <3DB05122.9010401@colorfullife.com>
+Date: Fri, 18 Oct 2002 20:21:22 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows NT 4.0)
+X-Accept-Language: en, de
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrea Arcangeli <andrea@suse.de>, Jakub Jelinek <jakub@redhat.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] linux-2.5.34_vsyscall_A0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 15 Oct 2002, Linus Torvalds wrote:
+On Fri, 2002-10-18 at 04:14, Andrea Arcangeli wrote:
+> the main reason it wasn't backported to i386 is that if glibc start
+> using the vgettimeofday instead of sys_gettimeofday, you won't be able
+> to downgrade kernel anymore to say 2.4 (oh yeah, I would then backport
+> it to my tree or Marcelo could apply the patches too to 2.4 but then 2.2
+> would be left uncovered, new glibc would segfault on the old kernels).
 
->...
-> Summary of changes from v2.5.42 to v2.5.43
-> ============================================
->...
-> Ben Collins <bcollins@debian.org>:
->   o Linux IEEE-1394 Updates
->...
+Does that problem actually exist?
 
-This patch added an argument "flags" to the prototypes of
-sbp2_handle_physdma_write and sbp2_handle_physdma_read in
-drivers/ieee1394/sbp2.h but doesn't include the corresponding changes to
-drivers/ieee1394/sbp2.c resulting in the following compile error:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=103253890431473&w=2
 
-<--  snip  -->
+Jakub Jelinek <jakub@redhat.com> wrote on 2002-09-20 16:15:25
 
-...
-  gcc -Wp,-MD,drivers/ieee1394/.sbp2.o.d -D__KERNEL__ -Iinclude -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing
--fno-common -pipe -mpreferred-stack-boundary=2 -march=k6 -Iarch/i386/mach-generic
--nostdinc -iwithprefix include    -DKBUILD_BASENAME=sbp2   -c -o
-drivers/ieee1394/sbp2.o drivers/ieee1394/sbp2.c
-drivers/ieee1394/sbp2.c:1516: conflicting types for `sbp2_handle_physdma_write'
-drivers/ieee1394/sbp2.h:513: previous declaration of `sbp2_handle_physdma_write'
-drivers/ieee1394/sbp2.c:1532: conflicting types for `sbp2_handle_physdma_read'
-drivers/ieee1394/sbp2.h:515: previous declaration of `sbp2_handle_physdma_read'
-make[2]: *** [drivers/ieee1394/sbp2.o] Error 1
+> glibc supports .note.ABI-tag notes for libraries, so there is no problem
+> with having NPTL libpthread.so.0 --enable-kernel=2.5.36 in say
+> /lib/i686/libpthread.so.0 and linuxthreads --enable-kernel=2.2.1 in
+> /lib/libpthread.so.0. The dynamic linker will then choose based
+> on currently running kernel.
+> (well, ATM because of libc tsd DL_ERROR --without-tls ld.so cannot be used
+> with --with-tls libs and vice versa, but that is beeing worked on).
+> 
 
-<--  snip  -->
+It should be possible to have one library that supports both syscall 
+interfaces for gettimeofday().
 
-cu
-Adrian
-
--- 
-
-"Is there not promise of rain?" Ling Tan asked suddenly out
-of the darkness. There had been need of rain for many days.
-"Only a promise," Lao Er said.
-                                Pearl S. Buck - Dragon Seed
-
+--
+	Manfred
 

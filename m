@@ -1,75 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261754AbTKHNDQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Nov 2003 08:03:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261757AbTKHNDQ
+	id S261776AbTKHNZj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Nov 2003 08:25:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261777AbTKHNZj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Nov 2003 08:03:16 -0500
-Received: from smtprelay02.ispgateway.de ([62.67.200.157]:56989 "EHLO
-	smtprelay02.ispgateway.de") by vger.kernel.org with ESMTP
-	id S261754AbTKHNDO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Nov 2003 08:03:14 -0500
-From: Ingo Oeser <ioe-lkml@rameria.de>
-To: Frank Cusack <fcusack@fcusack.com>
-Subject: Re: preemption when running in the kernel
-Date: Sat, 8 Nov 2003 14:01:59 +0100
-User-Agent: KMail/1.5.4
-References: <20031107040427.A32421@google.com>
-In-Reply-To: <20031107040427.A32421@google.com>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Description: clearsigned data
+	Sat, 8 Nov 2003 08:25:39 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:11245 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261776AbTKHNZh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Nov 2003 08:25:37 -0500
+Date: Sat, 8 Nov 2003 14:25:39 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] cfq + io priorities
+Message-ID: <20031108132539.GU14728@suse.de>
+References: <20031108124758.GQ14728@suse.de>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="K8nIJk4ghYZn606h"
 Content-Disposition: inline
-Message-Id: <200311081402.07345.ioe-lkml@rameria.de>
+In-Reply-To: <20031108124758.GQ14728@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Hi Frank,
+--K8nIJk4ghYZn606h
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-[CC'ed lkml to avoid duplicate answers]
+On Sat, Nov 08 2003, Jens Axboe wrote:
+> I'm attaching the simple ionice tool. It's used as follows:
 
-On Friday 07 November 2003 13:04, Frank Cusack wrote:
-> (2.4 kernel)
->
-> When a process is running in the kernel, can it be pre-empted at
-> any time?  (Unless you explicity disable preemption.)  I think not,
-> because wouldn't it be unsafe to grab a spinlock?  Or does grabbing a
-> spinlock disable preemption.  I mean spin_lock(), not spin_lock_irqsave().
+Here's one that works, sorry about that. To compile:
 
-While having preemption disabled or while actually holding a spinlock,
-preemption is disabled.
+# gcc -Wall -D__X86 -o ionice ionice.c
 
-Disabling preemption is modifying a count, which must reach 0 again to
-have preemption enabled and trigger an reschedule, if needed.
+or other define for PPC or X86_64.
 
-Think of it roughly as a "counter of reasons to not preempt". If there
-are no reasons anymore, then we preempt.
-
-> Secondly, can multiple processes be in the kernel at the same time?  I
-> think so, that's the reason for the fine grained locks instead of the BKL.
-> Or do fine grained locks only serve to allow preemption.
-
-Multiple threads can be in the kernel at the same time and even on
-different CPUs. But one thread can be only on one CPU at any time.
-
-Threads are parts of processes, so the same applies for processes, too.
+-- 
+Jens Axboe
 
 
-Regards
+--K8nIJk4ghYZn606h
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="ionice.c"
 
-Ingo Oeser
+#include <stdio.h>
+#include <stdlib.h>
+#include <errno.h>
+#include <getopt.h>
+#include <unistd.h>
+#include <sys/ptrace.h>
+#include <asm/unistd.h>
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
+extern int sys_ioprio_set(int);
+extern int sys_ioprio_get(void);
 
-iD8DBQE/rOlHU56oYWuOrkARAqz9AJ9bi71xchjKUJs8kysa6ePKpk13nwCeL1NB
-2ti5dqrV6sQjDNbc/RqOItM=
-=rb5C
------END PGP SIGNATURE-----
+#ifdef __X86
+#define __NR_ioprio_set		274
+#define __NR_ioprio_get		275
+#endif
 
+#ifdef __X86_64
+#define __NR_ioprio_set		237
+#define __NR_ioprio_get		238
+#endif
+
+#ifdef __PPC
+#define __NR_ioprio_set		255
+#define __NR_ioprio_get		256
+#endif
+
+#ifndef __NR_ioprio_set
+#error set arch
+#endif
+
+_syscall1(int, ioprio_set, int, ioprio);
+_syscall0(int, ioprio_get);
+
+int main(int argc, char *argv[])
+{
+	int ioprio = 2, set = 0;
+	int c;
+
+	while ((c = getopt(argc, argv, "+n:")) != EOF) {
+		switch (c) {
+		case 'n':
+			ioprio = strtol(optarg, NULL, 10);
+			set = 1;
+			break;
+		}
+	}
+
+	if (!set)
+		printf("%d\n", ioprio_get());
+	else if (argv[optind]) {
+		if (ioprio_set(ioprio) == -1) {
+			perror("ioprio_set");
+			return 1;
+		}
+
+		execvp(argv[optind], &argv[optind]);
+	}
+	return 0;
+}
+
+--K8nIJk4ghYZn606h--

@@ -1,38 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262647AbUCRNvY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 08:51:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262651AbUCRNvY
+	id S262644AbUCROCR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 09:02:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262645AbUCROCR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 08:51:24 -0500
-Received: from main.gmane.org ([80.91.224.249]:58003 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S262647AbUCRNvX (ORCPT
+	Thu, 18 Mar 2004 09:02:17 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:28165 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S262644AbUCROCP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 08:51:23 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Martin Wilke <werwolf@unixfreunde.de>
-Subject: term problem kernel 2.6.4
-Date: Thu, 18 Mar 2004 14:49:27 +0100
-Organization: unixfreunde.de
-Message-ID: <pan.2004.03.18.13.49.27.465911@unixfreunde.de>
-Reply-To: werwolf@unixfreunde.de
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 217.93.48.201
-User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity.)
+	Thu, 18 Mar 2004 09:02:15 -0500
+Message-ID: <000701c40cf3$014e4730$0801a8c0@ostehaps>
+From: "David Dindorp" <david@dindorp.dk>
+To: <mfedyk@matchmail.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Status HPT374 (HighPoint 1540) Sata in 2.6
+Date: Thu, 18 Mar 2004 15:12:10 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-just wanna know if somebody has the same problem as me.
+A bit of personal experience using HPT374-based controllers.
+May or may not apply, as mine are all PATA RocketRaid 404's!
 
-i' m running an amd xp 3000+ on an epox board with nforce2-chipset. everything 
-was alright til i changeed from kernbel 2.6.3 to 2.6.4 3 days ago. since then 
-my cpu-temperature rised to 60-65 degrees, sometimes 73 degrees (while 
-compiling) and pc powered himself down then.
-i took my old config-files and did not change anything.
-last night i upgraded to 2.6.5-rc1 and everything is running normal as 
-before..
+Bartlomiej Zolnierkiewicz / Mike Fedyk wrote:
+
+bz>> I think that it may work with drivers/ide/hpt366.c
+
+It (HPT374) does.
+
+mf> Does that limit you to 133MB/s speeds?
+mf> And does that mean no hot-swap?
+
+The controller itself limits you to 133MB/s speeds, except for one channel
+per controller, which mysteriously always runs at 100MB/s. Benchmarks found
+on the net however suggest that this particular controller is in fact very
+fast...
+
+RAID1 arrays seem to work fine. RAID0 arrays created with an old BIOS version
+works fine, but don't create the array with a new BIOS version. HighPoint has
+apparently moved the RAID signature, and the ataraid module doesn't know where
+to. Only applies if you want to use the HPT raid function with ataraid.
+
+If you want hot swap, you will need to use the HighPoint supplied driver. The
+newest version I found last time checking was compiled against 2.4.20-8. It
+comes with a BIOS flash image, which you should use - it will leave you with
+a smaller amount of bizarre, unexplained errors. Although the error messages
+that you DO in fact get from the proprietary driver will be in an arcane and
+cryptic language, which will not contain any reference to where or why the
+error occured, only that the driver did a bus reset plus one seemingly random
+integer.
+
+There's a BIOS limitation of 2 HPT374 controllers per system. Last time I
+spoke with HighPoint, that was because any more than two controllers would
+consume an excessive amount of memory for Option ROM's. (Also, you would most
+probably run into the PCI bandwidth barrier.) The proprietary driver will
+save you a lot of trouble if you go for 2 controllers and a 2.4 kernel,
+because 2.4 has a limitation of 10 IDE channels (2x HPT374 = 8).
+
+I'm not sure exactly why the HighPoint driver supports hot swap, and
+linux-ide does not. I've tried patching linux-ide to do hot swap, to some
+extent of success, but gave up as I have no clue *exactly* what is required
+to make the magic work. I'm interested, if anyone knows.
+
+Regarding technical support on the card. Support from HighPoint through
+email won't get you anywhere. Based on personal experience and postings
+on usenet, they do not reply to support emails. Calling them on the phone
+will in most cases give you someone quite competent to speak with. 
+I suspect it might be the engineers who create these cards that you get
+to bother, which gives the added advantage that they actually know what
+they're talking about.
 

@@ -1,45 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266977AbTBQKtd>; Mon, 17 Feb 2003 05:49:33 -0500
+	id <S266981AbTBQLKE>; Mon, 17 Feb 2003 06:10:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266981AbTBQKtd>; Mon, 17 Feb 2003 05:49:33 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:8964 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S266977AbTBQKtc>;
-	Mon, 17 Feb 2003 05:49:32 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200302171100.h1HB0iax000309@darkstar.example.net>
-Subject: Re: ADSL vs Leased line (was: Re: openbkweb-0.0)
-To: andrew@walrond.org (Andrew Walrond)
-Date: Mon, 17 Feb 2003 11:00:44 +0000 (GMT)
-Cc: hps@intermeta.de, linux-kernel@vger.kernel.org
-In-Reply-To: <3E50B5D1.9010808@walrond.org> from "Andrew Walrond" at Feb 17, 2003 10:13:37 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S266983AbTBQLKE>; Mon, 17 Feb 2003 06:10:04 -0500
+Received: from cc78409-a.hnglo1.ov.home.nl ([212.120.97.185]:54508 "EHLO
+	dexter.hensema.net") by vger.kernel.org with ESMTP
+	id <S266981AbTBQLKD>; Mon, 17 Feb 2003 06:10:03 -0500
+From: Erik Hensema <usenet@hensema.net>
+Subject: Re: Linux v2.5.61
+Date: Mon, 17 Feb 2003 11:20:00 +0000 (UTC)
+Message-ID: <slrnb51hav.6i0.usenet@bender.home.hensema.net>
+References: <Pine.LNX.4.44.0302141709410.1376-100000@penguin.transmeta.com> <20030215135345.GA16783@merlin.emma.line.org> <87ptptx9z1.wl@ipinfusion.com> <1045389793.2068.39.camel@imladris.demon.co.uk>
+Reply-To: erik@hensema.net
+User-Agent: slrn/0.9.7.4 (Linux)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > In the U.K., you can get 2 Mbit/256 Kbit ADSL with no bandwidth
-> > limitations to you, for about 300 pounds/month.  However, that that is
+David Woodhouse (dwmw2@infradead.org) wrote:
+> On Sun, 2003-02-16 at 01:58, Kunihiro Ishiguro wrote:
+>> >Well, the kernel doesn't link for me when IPV6 is compiled as a module (config
+>> >below) -- linking IPv6 in is fine.
+>> 
+>> Here is a fix for xfrm6_get_type() link problem when IPv6 is
+>> configured as a module.
 > 
-> Even that is not entirely true. Just try using the bandwidth 
-> continuously for a few days and see how unpopular you become ;)
+>> +#if defined(CONFIG_IPV6) || defined(CONFIG_IPV6_MODULE)
+> 
+> No. Do not ever use #ifdef CONFIG_xxx_MODULE. You should be able to
+> build modules later by adding them to your config.
 
-Wrong.
+IPv6 has been an exception to this rule for a long time. For at least the
+entire 2.4.x series, you have to recompile the entire kernel when you
+enable the IPv6 module.
 
-http://aa.nu/office2000high.html
+And no, I'm not saying I like it ;-)
 
-310 U.K. pounds plus V.A.T.
-
-This is, quoting directly from the webpage:
-
-an "all you can eat" service, allowing you as much bandwidth as you
-can get 24 hours a day. 
-
-Please note - my only connection with Andrews & Arnold is as a happy
-customer, and I do not subscribe to that particular service, because I
-do not require such a high bandwidth allowance, since grabjohn.com is
-served from a 10 Mbps connection in London's Docklands.
-
-John.
+-- 
+Erik Hensema <erik@hensema.net>

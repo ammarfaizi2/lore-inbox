@@ -1,140 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266648AbUHVLRj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266508AbUHVLdO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266648AbUHVLRj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Aug 2004 07:17:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266650AbUHVLRj
+	id S266508AbUHVLdO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Aug 2004 07:33:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266650AbUHVLdO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Aug 2004 07:17:39 -0400
-Received: from mail006.syd.optusnet.com.au ([211.29.132.63]:51852 "EHLO
-	mail006.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S266648AbUHVLRd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Aug 2004 07:17:33 -0400
-Message-ID: <412880BF.6050503@kolivas.org>
-Date: Sun, 22 Aug 2004 21:17:19 +1000
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
-X-Accept-Language: en-us, en
+	Sun, 22 Aug 2004 07:33:14 -0400
+Received: from grendel.digitalservice.pl ([217.67.200.140]:42171 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S266508AbUHVLdL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Aug 2004 07:33:11 -0400
+From: "R. J. Wysocki" <rjw@sisk.pl>
+Organization: SiSK
+To: gene.heskett@verizon.net
+Subject: Re: Possible dcache BUG
+Date: Sun, 22 Aug 2004 13:42:54 +0200
+User-Agent: KMail/1.5
+References: <Pine.LNX.4.44.0408020911300.10100-100000@franklin.wrl.org> <200408201617.09245.gene.heskett@verizon.net> <200408220105.25734.gene.heskett@verizon.net>
+In-Reply-To: <200408220105.25734.gene.heskett@verizon.net>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: ck kernel mailing list <ck@vds.kolivas.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: 2.6.8.1-ck4
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig96DAAEFFF0C74516F8223FA3"
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200408221342.54563.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig96DAAEFFF0C74516F8223FA3
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Sunday 22 of August 2004 07:05, Gene Heskett wrote:
+> On Friday 20 August 2004 16:17, Gene Heskett wrote:
+> >On Friday 20 August 2004 16:11, R. J. Wysocki wrote:[...]
+> >
+> >>There's a simple test you can do unless your DIMMs must go in pairs
+> >> (I don't remember if it's required by nforce2): remove one of them
+> >> and see what happens.
+> >
+> >To get dual channel DDR, they have to be in a pair.  Since this
+> > post, they've been swapped one for the other, and I'll be curious
+> > to see if the address goes to an even address when it errors, which
+> > it hasn't yet.
+>
+> It has, one time in 35 hours now.  The problem is considerably
+> reduced.
+>
+> Whereas the error was always at an odd address, and in the 2nd LSbyte,
+> now its still an odd address but the error has moved to the MSB of a
+> 32 bit fetch:
+>
+> [root@coyote memburn]# ./memburn 512
+> Starting test with size 512 megs..
+> Passed round 2308, elapsed 41225.98.
+> FAILED at round 2309/40220063: got ff000000, expected 00000000!!!
+> REREAD: ff000000, ff000000, ff000000!!!
+> [root@coyote memburn]# ./memburn 512
+> Starting test with size 512 megs..
+> Passed round 2636, elapsed 60944.15.
+>
+> As can be seen, I restarted it, and its ran quite even more loops now
+> without error.  There has been no more Oops, but with memburn eating
+> 512 megs, half my ram, and kde-3.3 under construction by konstruct,
+> I've peaked at nearly a gig of swap, and 754 megs in swap right now.
+> Sure, its a bit laggy, but not unusable.
+>
+> So now the question is since the error address is always odd, which
+> stick is it?
 
-Patchset update. These are patches designed to improve system 
-responsiveness with specific emphasis on the desktop, but configurable 
-to any workload.
+Hard to tell.  I think the memory controller is interleaving them for 
+efficiency but the question remains which one is regarded as the first.
 
-The short time between ck3 and ck4 is for two reasons. First Ingo 
-discovered a nasty bug affecting X performance and I believe I made a 
-reasonable breakthrough on the never ending desktop vm swappiness saga.
+BTW, as it indicates that DRAM is to blame, you can try to fiddle a bit with 
+its timings (provided the board setup allows you to do this).  For example, 
+you can set them to 3-3-3 or equivalent (generally, push them up) and check 
+if this affects the memburn results and how.  Just an idea, you know. ;-)
 
-Web site with faq:
-http://kernel.kolivas.org
-Patches (with split-out also):
-http://ck.kolivas.org/patches/2.6/2.6.8.1/2.6.8.1-ck4/
-
-
-Added since 2.6.8.1-ck3:
-+mapped_watermark.diff
-
-This readjusts the way memory is evicted by lightly removing cached ram 
-once the ram is more than 2/3 full, if less than the "mapped watermark" 
-percent of ram is mapped ram (ie applications). The normal system is to 
-aggresively start scanning ram once it is completely full. The benefits 
-of this are:
-1. Allocating memory while ram is being lightly scanned is faster and 
-cheaper than when it is being heavily scanned.
-2. There is usually some free ram which tends to speed up application 
-startup times.
-3. Swapping is an unusual event instead of a common one if you have 
-enough ram for your workload.
-4. It is rare for your applications to be swapped out by file cache 
-pressure.
-Disadvantage: Less file cache - but can be offset with the tunable
-
-The mapped watermark is configurable so a server for example might be 
-happy to have a lower mapped percentage. The default is 66 and a server 
-might like 33 (0 is also fine)
-
-echo 33 > /proc/sys/vm/mapped
-
-This patch removes the swappiness knob entirely and deprecates all my 
-previous vm hacks (autoregulated swappiness, hard swappiness, kiflush).
-
-+ioport-latency-fix-2.6.8.1.patch
-A nasty bug Ingo tracked down that caused high latencies and cache 
-trashing with X.
-
-
-Changed:
-~Staircase8.0
-Backed out a tweak designed to improve behaviour under filesystem load - 
-I am avoiding all "tweaks" in the design, and it's effectiveness was 
-questionable.
-Added a tiny check to recalc_task_prio which should make it safe when 
-the Hz value is set below 500.
-
-~1g_lowmem_i386
-Made the 1Gb of lowmem configurable if highmem is disabled.
-
-
-Removed:
--hard_swappiness1.diff
--kiflush3.diff
-Deprected in favour of mapped_watermark
-
-
-Full patchlist:
-from_2.6.8.1_to_staircase8.0.bz2
-schedrange.diff
-schedbatch2.4.diff
-schediso2.5.diff
-sched-adjust-p4gain
-mapped_watermark.diff
-defaultcfq.diff
-config_hz.diff
-1g_lowmem_i386.diff
-akpm-latency-fix.patch
-9000-SuSE-117-writeback-lat.patch
-cddvd-cmdfilter-drop.patch
-cool-spinlocks-i386.diff
-bio_uncopy_user-mem-leak.patch
-bio_uncopy_user2.diff
-ioport-latency-fix-2.6.8.1.patch
-supermount-ng204.diff.bz2
-fbsplash-0.9-r5-2.6.8-rc3.patch.bz2
-make-tree_lock-an-rwlock.patch.bz2
-invalidate_inodes-speedup.patch
-2.6.8.1-mm2-reiser4.diff.bz2
-2.6.8.1-ck4-version.diff
-
-
-Cheers,
-Con
-
---------------enig96DAAEFFF0C74516F8223FA3
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBKIDCZUg7+tp6mRURAnt7AJ0f/O3ur9EugLqSL62wak6NOt1SjwCfWVio
-uKdTcw4bLY6FK+qAcGwB9gc=
-=xNar
------END PGP SIGNATURE-----
-
---------------enig96DAAEFFF0C74516F8223FA3--
+Greetings,
+-- 
+Rafael J. Wysocki
+----------------------------
+For a successful technology, reality must take precedence over public 
+relations, for nature cannot be fooled.
+					-- Richard P. Feynman

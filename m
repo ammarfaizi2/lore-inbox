@@ -1,93 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129502AbRBVN5W>; Thu, 22 Feb 2001 08:57:22 -0500
+	id <S129548AbRBVOJG>; Thu, 22 Feb 2001 09:09:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129608AbRBVN5N>; Thu, 22 Feb 2001 08:57:13 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:18445 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S129502AbRBVN44>;
-	Thu, 22 Feb 2001 08:56:56 -0500
-Date: Thu, 22 Feb 2001 14:56:42 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: ll_rw_block/submit_bh and request limits
-Message-ID: <20010222145642.D17276@suse.de>
-In-Reply-To: <Pine.LNX.4.21.0102220707380.1694-100000@freak.distro.conectiva>
-Mime-Version: 1.0
+	id <S129589AbRBVOI4>; Thu, 22 Feb 2001 09:08:56 -0500
+Received: from sunrise.pg.gda.pl ([153.19.40.230]:64413 "EHLO
+	sunrise.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S129548AbRBVOIl>; Thu, 22 Feb 2001 09:08:41 -0500
+From: Andrzej Krzysztofowicz <ankry@pg.gda.pl>
+Message-Id: <200102221407.PAA08636@sunrise.pg.gda.pl>
+Subject: Re: Linux-2.4.2
+To: azz@gnu.org (Adam Sampson)
+Date: Thu, 22 Feb 2001 15:07:39 +0100 (MET)
+Cc: torvalds@transmeta.com (Linus Torvalds),
+        linux-kernel@vger.kernel.org (Kernel Mailing List)
+In-Reply-To: <87ae7eonla.fsf@cartman.azz.net> from "Adam Sampson" at Feb 22, 2001 01:26:41 PM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.21.0102220707380.1694-100000@freak.distro.conectiva>; from marcelo@conectiva.com.br on Thu, Feb 22, 2001 at 07:41:52AM -0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 22 2001, Marcelo Tosatti wrote:
-> The following piece of code in ll_rw_block() aims to limit the number of
-> locked buffers by making processes throttle on IO if the number of on
-> flight requests is bigger than a high watermaker. IO will only start
-> again if we're under a low watermark.
+"Adam Sampson wrote:"
+> I get this while compiling 2.4.2:
 > 
->                 if (atomic_read(&queued_sectors) >= high_queued_sectors) {
->                         run_task_queue(&tq_disk);
->                         wait_event(blk_buffers_wait,
->                         	atomic_read(&queued_sectors) < low_queued_sectors);
->                 }
+> msdos.c:403: `MINIX_PARTITION' undeclared (first use in this function)
+> msdos.c:403: (Each undeclared identifier is reported only once
+> msdos.c:403: for each function it appears in.)
+> msdos.c:406: `MINIX_NR_SUBPARTITIONS' undeclared (first use in this function)
+> msdos.c: In function `msdos_partition':
+> msdos.c:571: `MINIX_PARTITION' undeclared (first use in this function)
+> make[3]: *** [msdos.o] Error 1
 > 
+> My config:
 > 
-> However, if submit_bh() is used to queue IO (which is used by ->readpage()
-> for ext2, for example), no throttling happens.
-> 
-> It looks like ll_rw_block() users (writes, metadata reads) can be starved
-> by submit_bh() (data reads). 
-> 
-> If I'm not missing something, the watermark check should be moved to
-> submit_bh(). 
+[...]
+> CONFIG_MINIX_SUBPARTITION=y
 
-We might as well put it there, the idea was to not lock this one
-buffer either but I doubt this would make any different in reality :-)
+It seems that Linus didn't fully merge some stuff from Alan patches.
+Try the following patch:
 
-Linus, could you apply?
-
---- /opt/kernel/linux-2.4.2/drivers/block/ll_rw_blk.c	Thu Feb 22 14:55:22 2001
-+++ drivers/block/ll_rw_blk.c	Thu Feb 22 14:53:07 2001
-@@ -957,6 +959,20 @@
- 	if (!test_bit(BH_Lock, &bh->b_state))
- 		BUG();
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla/include/linux/genhd.h linux.ac/include/linux/genhd.h
+--- linux-2.4.2/include/linux/genhd.h	Thu Jan  4 22:50:47 2001
++++ linux/include/linux/genhd.h	Tue Feb 20 20:46:28 2001
+@@ -222,6 +222,11 @@
+ };  /* 408 */
  
-+	/*
-+	 * don't lock any more buffers if we are above the high
-+	 * water mark. instead start I/O on the queued stuff.
-+	 */
-+	if (atomic_read(&queued_sectors) >= high_queued_sectors) {
-+		run_task_queue(&tq_disk);
-+		if (rw == READA) {
-+			bh->b_end_io(bh, test_bit(BH_Uptodate, &bh->b_state));
-+			return;
-+		}
-+		wait_event(blk_buffers_wait,
-+			atomic_read(&queued_sectors) < low_queued_sectors);
-+	}
+ #endif /* CONFIG_UNIXWARE_DISKLABEL */
 +
- 	set_bit(BH_Req, &bh->b_state);
++#ifdef CONFIG_MINIX_SUBPARTITION
++#   define MINIX_PARTITION         0x81  /* Minix Partition ID */
++#   define MINIX_NR_SUBPARTITIONS  4
++#endif /* CONFIG_MINIX_SUBPARTITION */
  
- 	/*
-@@ -1057,16 +1073,6 @@
- 
- 	for (i = 0; i < nr; i++) {
- 		struct buffer_head *bh = bhs[i];
--
--		/*
--		 * don't lock any more buffers if we are above the high
--		 * water mark. instead start I/O on the queued stuff.
--		 */
--		if (atomic_read(&queued_sectors) >= high_queued_sectors) {
--			run_task_queue(&tq_disk);
--			wait_event(blk_buffers_wait,
--			 atomic_read(&queued_sectors) < low_queued_sectors);
--		}
- 
- 		/* Only one thread can actually submit the I/O. */
- 		if (test_and_set_bit(BH_Lock, &bh->b_state))
+ #ifdef __KERNEL__
+ extern struct gendisk *gendisk_head;	/* linked list of disks */
 
--- 
-Jens Axboe
-
+--
+=======================================================================
+  Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
+  phone (48)(58) 347 14 61
+Faculty of Applied Phys. & Math.,   Technical University of Gdansk

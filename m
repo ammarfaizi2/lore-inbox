@@ -1,69 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261570AbVDEGOq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261572AbVDEGTS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261570AbVDEGOq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 02:14:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261573AbVDEGOq
+	id S261572AbVDEGTS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 02:19:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261574AbVDEGTS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 02:14:46 -0400
-Received: from terminus.zytor.com ([209.128.68.124]:4780 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S261570AbVDEGO1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 02:14:27 -0400
-Message-ID: <42522CB8.1010007@zytor.com>
-Date: Mon, 04 Apr 2005 23:14:16 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla Thunderbird 1.0.2-1.3.2 (X11/20050324)
+	Tue, 5 Apr 2005 02:19:18 -0400
+Received: from wproxy.gmail.com ([64.233.184.206]:32012 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261572AbVDEGTL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 02:19:11 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=HmkITO7aupr39H0uimsu0j5uf6KWgp+MEn7tRDyk3MiISN212yNcbOkrDKMM1C3dvAOoil562mh7PlDhurAJCgZIJxMKQjpau5IF6C83/vE4E7q2nPz057qBx7hLDJKmDzEq9YdGDuxguMpxLcGjznDIMTgiEWzqwyjn6Befy9s=
+Message-ID: <42522DD9.7020601@gmail.com>
+Date: Tue, 05 Apr 2005 15:19:05 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050402)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] biarch compiler support for i386
-Content-Type: multipart/mixed;
- boundary="------------040705080309000807070702"
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: Jens Axboe <axboe@suse.de>, SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH scsi-misc-2.6 08/13] scsi: move request preps in other
+ places into prep_fn()
+References: <20050331090647.FEDC3964@htj.dyndns.org>	 <20050331090647.94FFEC1E@htj.dyndns.org>	 <1112292464.5619.30.camel@mulgrave> <20050401052542.GG11318@htj.dyndns.org> <1112639944.5813.66.camel@mulgrave>
+In-Reply-To: <1112639944.5813.66.camel@mulgrave>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040705080309000807070702
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+  Hello, James.
 
-This allows the i386 architecture to be built on a system with a biarch 
-compiler that defaults to x86-64, merely by specifying ARCH=i386.
+James Bottomley wrote:
+> On Fri, 2005-04-01 at 14:25 +0900, Tejun Heo wrote:
+> 
+>> Ah.. with later requeue path consolidation patches, all requests get
+>>their sense buffer cleared during requeueing, which, IMHO, is more
+>>logical.  Moving scsi_init_cmd_errh() should come after the patch.
+>>Sorry. :-)
+>>
+>> I'll make another take of this patchset (maybe subset) after issues
+>>are resolved.  I'll split and reorder relocation of scsi_init_cmd_errh
+>>then.
+> 
+> 
+> Thanks.  It would help me enormously if you explained what bugs you were
+> fixing at the top of each patch,
 
-As previously discussed, this uses the equivalent logic to the ppc port.
+  Well, I'll try harder.
 
-	-hpa
+ > and also only do patchsets that are
+> dependent on each other (I already have your serial_numer_at_timeout and
+> internal_timeout removal patches in the scsi-misc-2.6 tree).
 
-Signed-Off-By: H. Peter Anvin <hpa@zytor.com>
+  No problem.  Do you want me to do that now?  Or is it okay to do the 
+next take after you review the request_fn rewrite patch?
 
---------------040705080309000807070702
-Content-Type: text/x-patch;
- name="i386-biarch.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="i386-biarch.patch"
+  Thanks.
 
-Index: linux-2.5/arch/i386/Makefile
-===================================================================
-RCS file: /home/hpa/kernel/bkcvs/linux-2.5/arch/i386/Makefile,v
-retrieving revision 1.75
-diff -u -r1.75 Makefile
---- linux-2.5/arch/i386/Makefile	12 Mar 2005 22:03:27 -0000	1.75
-+++ linux-2.5/arch/i386/Makefile	5 Apr 2005 05:29:20 -0000
-@@ -17,6 +17,13 @@
- #           Kianusch Sayah Karadji <kianusch@sk-tech.net>
- #           Added support for GEODE CPU
- 
-+HAS_BIARCH      := $(call cc-option-yn, -m32)
-+ifeq ($(HAS_BIARCH),y)
-+AS              := $(AS) --32
-+LD              := $(LD) -m elf_i386
-+CC              := $(CC) -m32
-+endif
-+
- LDFLAGS		:= -m elf_i386
- OBJCOPYFLAGS	:= -O binary -R .note -R .comment -S
- LDFLAGS_vmlinux :=
+-- 
+tejun
 
---------------040705080309000807070702--

@@ -1,67 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267174AbTAPQZ1>; Thu, 16 Jan 2003 11:25:27 -0500
+	id <S267180AbTAPQcQ>; Thu, 16 Jan 2003 11:32:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267175AbTAPQZ1>; Thu, 16 Jan 2003 11:25:27 -0500
-Received: from hellcat.admin.navo.hpc.mil ([204.222.179.34]:36582 "EHLO
-	hellcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S267174AbTAPQZZ> convert rfc822-to-8bit; Thu, 16 Jan 2003 11:25:25 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Jesse Pollard <pollard@admin.navo.hpc.mil>
-To: Maciej Soltysiak <solt@dns.toxicfilms.tv>,
-       "Richard B. Johnson" <root@chaos.analogic.com>
-Subject: Re: Tar'ing /proc ???
-Date: Thu, 16 Jan 2003 10:30:45 -0600
-User-Agent: KMail/1.4.1
-Cc: Linux Geek <bourne@ToughGuy.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.3.95.1030116090109.4226A-100000@chaos.analogic.com> <Pine.LNX.4.51.0301161505570.20335@dns.toxicfilms.tv>
-In-Reply-To: <Pine.LNX.4.51.0301161505570.20335@dns.toxicfilms.tv>
+	id <S267182AbTAPQcQ>; Thu, 16 Jan 2003 11:32:16 -0500
+Received: from cibs9.sns.it ([192.167.206.29]:9744 "EHLO cibs9.sns.it")
+	by vger.kernel.org with ESMTP id <S267180AbTAPQcP>;
+	Thu, 16 Jan 2003 11:32:15 -0500
+Date: Thu, 16 Jan 2003 17:41:02 +0100 (CET)
+From: venom@sns.it
+To: "Mark H. Wood" <mwood@IUPUI.Edu>
+cc: Linux kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: The GPL, the kernel, and everything else.
+In-Reply-To: <Pine.LNX.4.33.0301161105400.11996-100000@mhw.ULib.IUPUI.Edu>
+Message-ID: <Pine.LNX.4.43.0301161737040.28214-100000@cibs9.sns.it>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200301161030.45349.pollard@admin.navo.hpc.mil>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 16 January 2003 08:06 am, Maciej Soltysiak wrote:
-> > Normally, you do `tar -clf`
-> >
-> >                         |________ stay on the same file-system.
-> >
-> > Otherwise toy need to use --exclude /proc.  Proc is a virtual
-> > file-system that contains things like kcore. You can get into
+On Thu, 16 Jan 2003, Mark H. Wood wrote:
+
+> Date: Thu, 16 Jan 2003 11:28:42 -0500 (EST)
+> From: Mark H. Wood <mwood@IUPUI.Edu>
+> To: Linux kernel list <linux-kernel@vger.kernel.org>
+> Subject: Re: The GPL, the kernel, and everything else.
 >
-> Well i think that besides kcore (and maybe kmem) you should be able
-> to archive it.
+>
+> So, you need to look at the *really* big picture.  There are people who
+> think the way you do, and people who don't, and it would be a worthy
+> challenge to find a way to somewhat satisfy both groups.
+>
 
-Ummm not really - consider what some of the data files disappear while
-tar is running (process directory tree). You may be in the process of
-copying the process memory space when the process exits.
+please look at this new run queue thing in process context for kernel modules,
+and the fact that non GPL modules cannot create an own queue, but have to use
+the default one (all queue are managed by a kernel thread).
+As you see, for linux 2.6 the big picture will acquire a new element.
+(Personally I do like it a lot, as mutch as I like all the run queue approach)
 
-Kablooie
+This as quite interesting implications, since it is a penalty for binary only
+modules.
 
-Your current directory just disappeared, along with the other files
-you were going to backup.
+Luigi
 
-You end up with a corrupted tar file.
 
-I used to consider this as being possible to make a system
-"snapshot" for later examination... but no.
 
-Consider that a process will change contents out from under
-tar as well. Since the process memory changed, you cannot
-get a consistant process dump.
-
-And think about what happens when the tar starts copying
-itself... You can/will get another deadlock.
-
-In fact - you may get a deadlock whenever you read process
-memory - that stuff can extend/contract as the system pages
-things in and out of memory.
-
--- 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
-
-Any opinions expressed are solely my own.

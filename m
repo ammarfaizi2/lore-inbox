@@ -1,75 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279674AbRKAUHr>; Thu, 1 Nov 2001 15:07:47 -0500
+	id <S279684AbRKAUIh>; Thu, 1 Nov 2001 15:08:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279684AbRKAUHh>; Thu, 1 Nov 2001 15:07:37 -0500
-Received: from schroeder.cs.wisc.edu ([128.105.6.11]:20490 "EHLO
-	schroeder.cs.wisc.edu") by vger.kernel.org with ESMTP
-	id <S279674AbRKAUHU>; Thu, 1 Nov 2001 15:07:20 -0500
-Message-Id: <200111012007.fA1K7AG10327@schroeder.cs.wisc.edu>
-Content-Type: text/plain; charset=US-ASCII
-From: Nick LeRoy <nleroy@cs.wisc.edu>
-Organization: UW Condor
-To: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
-Subject: Re: on exit xterm  totally wrecks linux 2.4.11 to 2.4.14-pre6 (unkillable processes)
-Date: Thu, 1 Nov 2001 14:06:54 -0600
-X-Mailer: KMail [version 1.3.1]
-Cc: Ricardo Martins <thecrown@softhome.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <3BE1777F.30705@softhome.net> <200111011945.fA1Jj0G09069@schroeder.cs.wisc.edu> <3BE1A9D5.3000508@wanadoo.fr>
-In-Reply-To: <3BE1A9D5.3000508@wanadoo.fr>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S279688AbRKAUIc>; Thu, 1 Nov 2001 15:08:32 -0500
+Received: from [63.231.122.81] ([63.231.122.81]:59948 "EHLO lynx.adilger.int")
+	by vger.kernel.org with ESMTP id <S279684AbRKAUIT>;
+	Thu, 1 Nov 2001 15:08:19 -0500
+Date: Thu, 1 Nov 2001 13:07:21 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Cc: reiser@namesys.com, linux-kernel@vger.kernel.org
+Subject: Re: writing a plugin for reiserfs compression
+Message-ID: <20011101130721.D16554@lynx.no>
+Mail-Followup-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
+	reiser@namesys.com, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.30.0111011754580.2106-100000@mustard.heime.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <Pine.LNX.4.30.0111011754580.2106-100000@mustard.heime.net>; from roy@karlsbakk.net on Thu, Nov 01, 2001 at 06:14:11PM +0100
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 01 November 2001 14:00, Pierre Rousselet wrote:
-> Nick LeRoy wrote:
-> > On Thursday 01 November 2001 13:31, Pierre Rousselet wrote:
-> >>Ricardo Martins wrote:
-> >>> >> Procedure
-> >>> >> In X windows (version 4.1.0 compiled from the sources) when writing
-> >>> >> "exit" in xterm to close the terminal emulator, the window freezes,
-> >>> >> and from that moment on, every process becomes "unkillable",
-> >>> >> including
-> >>>
-> >>>xterm
-> >>>
-> >>> >> and X (ps also freezes), and there's no way to shutdown GNU/Linux in
-> >>> >> a sane way (must hit reset or poweroff).
-> >>> >
-> >>> >I can see the problem here with 2.4.13. I don't know if it's kernel
-> >>> >related, I'm used using rxvt, never xterm.
-> >>> >
-> >>> >It looks like xterm takes the terminal where you started X from.
-> >>> >
-> >>> >Are you using devfs ?
-> >>> >
-> >>> >
-> >>> >Pierre
-> >>>
-> >>>Pierre, yes, i'm using devfs that seems to be the problem, do you know
-> >>>how to fix it ?
-> >>
-> >>Is it devfs or xterm which needs to be fixed ? I would
-> >>
-> >>suggest to switch to rxvt which works fine with/without devfs.
-> >
-> > With all due respect, I'd have to differ.....  Do you have any idea how
-> > many people are running how many copies of xterm as we speak?  Even if we
-> > pair that down to all those running devfs, it's certainly a substantial
-> > number. The kernel should, above all else, run old applications without
-> > breaking them.
-> >
-> > -Nick
->
-> devfs is still marked EXPERIMENTAL in the kernel building. If you select it
-> you
->
-> must be prepared to tolerate some misbehaviour. rxvt is not newer than
-> xterm, it is lighter.
+On Nov 01, 2001  18:14 +0100, Roy Sigurd Karlsbakk wrote:
+> Novell NetWare has a feature I really like. It's a file compression
+> feature they've been having since version 4.0 (or 4.10) of the OS.
 
-Marked experiment, for now.  What about when it's no longer "experimental"?  
-Configuring a kernel to enable such a feature should *not* break 
-applications, especially something as prolific as xterm.
+Yes, there is a patch for ext2 that does this as well.
 
--Nick
+> New attributes must be added somehow. 'ls' and 'find' and perhaps other
+> files must be modified to take advantage of this. The compression job can
+> be a simple script with something like
+> 
+> 	find . -type f ! --compressed ! --dont-compress / -exec fcomp {} \;
+> 
+> (and check can't compress and force compression).
+
+There already exists a patch for reiserfs which uses the same interface
+to file attributes that ext2 and ext3 use.
+
+Also, ext2 already has a "compressed", "do not compress", and "dirty"
+attributes.  They are currently not all user modifyable for ext2
+filesystems via chattr/lsattr, but that doesn't mean they cannot be
+on reiserfs.
+
+> There must be a way to access the compressed files directly to make
+> backups more efficient - backing up already compressed files's a good
+> thing.
+
+Yes, there is also such an attribute for "raw" access I think.
+
+Making the user-space interface and tools as compatible as possible is
+a good thing, IMHO, just like "ls", "cp", etc all work regardless of
+the underlying filesystem.
+
+As a note to whoever at namesys created the reiserfs patch to add the
+"notail" flag (overloading the "nodump" flag).  I would much rather
+that a new "notail" flag be allocated for this.  I will contact Ted
+Ted Ts'o to get a flag assigned.  This will avoid any problems in the
+future, and may also be useful at some time for ext2.
+
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+

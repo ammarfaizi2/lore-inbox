@@ -1,64 +1,113 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264073AbUDQXpe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Apr 2004 19:45:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264076AbUDQXpe
+	id S264075AbUDQXtR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Apr 2004 19:49:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264079AbUDQXtR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Apr 2004 19:45:34 -0400
-Received: from ozlabs.org ([203.10.76.45]:34766 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S264073AbUDQXpc (ORCPT
+	Sat, 17 Apr 2004 19:49:17 -0400
+Received: from guru.webcon.ca ([216.194.67.26]:6538 "EHLO guru.webcon.ca")
+	by vger.kernel.org with ESMTP id S264075AbUDQXtN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Apr 2004 19:45:32 -0400
-Subject: Re: [RFC] fix sysfs symlinks
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: Greg KH <greg@kroah.com>, Maneesh Soni <maneesh@in.ibm.com>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040417193942.GA17014@parcelfarce.linux.theplanet.co.uk>
-References: <20040413133615.GZ31500@parcelfarce.linux.theplanet.co.uk>
-	 <20040414064015.GA4505@in.ibm.com>
-	 <20040414070227.GA31500@parcelfarce.linux.theplanet.co.uk>
-	 <20040415091752.A24815@flint.arm.linux.org.uk>
-	 <20040415103849.GA24997@parcelfarce.linux.theplanet.co.uk>
-	 <20040415161942.A7909@flint.arm.linux.org.uk>
-	 <20040415161011.GB2965@kroah.com>
-	 <20040415161332.GC24997@parcelfarce.linux.theplanet.co.uk>
-	 <20040415191447.GE24997@parcelfarce.linux.theplanet.co.uk>
-	 <1082179555.1390.102.camel@bach>
-	 <20040417193942.GA17014@parcelfarce.linux.theplanet.co.uk>
-Content-Type: text/plain
-Message-Id: <1082245527.14093.23.camel@bach>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sun, 18 Apr 2004 09:45:27 +1000
-Content-Transfer-Encoding: 7bit
+	Sat, 17 Apr 2004 19:49:13 -0400
+Date: Sat, 17 Apr 2004 19:49:01 -0400 (EDT)
+From: Ian Morgan <imorgan@webcon.ca>
+To: Jean Delvare <khali@linux-fr.org>
+cc: Ben Castricum <helpdeskie@bencastricum.nl>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.5 Sensors & USB problems
+In-Reply-To: <Pine.LNX.4.58.0404171756400.11374@dark.webcon.ca>
+Message-ID: <Pine.LNX.4.58.0404171944160.11425@dark.webcon.ca>
+References: <1081349796.407416a4c3739@imp.gcu.info>
+ <Pine.LNX.4.58.0404171756400.11374@dark.webcon.ca>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-04-18 at 05:39, viro@parcelfarce.linux.theplanet.co.uk
-wrote:
-> On Sat, Apr 17, 2004 at 04:15:34PM +1000, Rusty Russell wrote:
-> > > to these objects are gone, we get the section freed.  That can happen
-> > > way after the completion of rmmod - as the matter of fact we could have
-> > > the same module loaded again by that time.
-> > 
-> > Or you could skip the extra section, and keep all the module memory
-> > until later.  Instead of a section marker, you then set the release of
-> > those static things to "static_release" which does the put on the module
-> > memory kref:
-> 
-> That will keep too much allocated after rmmod - it's OK to have one or
-> two fixed-sized structures pinned down for a while, but entire .data can
-> be too large to treat it that way.
+Yeah, bad form to reply to one's self, but someone may appreciate this info:
 
-I disagree.  Removal is rare, modules are usually small, it usually
-won't be pinned down for long, and the implementation is simple.
+Seems that the w83781d driver no longer detects whatever the sensor chip on
+the P4PE is, but I see there is now a new driver called asb100 which does
+work. An old conflicting lm_sensors install was breaking the sensors-detect
+script, but once resolved it nicely detected the asb100.
 
-But that's an implementation detail.  You didn't answer my question, on
-how you initialize the reference count on this memory.
+Can anyone explain, however, why my i2c bus showed up as number 0 under
+linux <= 2.6.4, and now always as number 1 under linux 2.6.5? The is no
+number 0 any more.
 
-Cheers,
-Rusty.
+Regards,
+Ian Morgan
+
 -- 
-Anyone who quotes me in their signature is an idiot -- Rusty Russell
+-------------------------------------------------------------------
+ Ian E. Morgan          Vice President & C.O.O.       Webcon, Inc.
+ imorgan at webcon dot ca        PGP: #2DA40D07      www.webcon.ca
+    *  Customized Linux network solutions for your business  *
+-------------------------------------------------------------------
 
+
+On Sat, 17 Apr 2004, Ian Morgan wrote:
+
+> On Wed, 7 Apr 2004, Jean Delvare wrote:
+> 
+> > Hi Ben,
+> > 
+> > > 2.6.5-rc1 -> sensors broke (ERROR: Can't get <sensor> data!)
+> > 
+> > Your sensors problem will be resolved as soon as you switch to the just
+> > released lm_sensors 2.8.6.
+> 
+> I use the same w83781d and i2c_i801 drivers on my Asus P4PE box, and they
+> too went belly up with 2.6.5. However, I HAVE tried lm_sensors 2.8.6 and
+> that made no difference. They're just user-space tools that don't touch the
+> kernel any more in 2.6.x (right?).
+> 
+> The problem I am seeing now in 2.6.5 is that after loading the w83781d
+> module, nothing shows up in /sys or /proc, as though the module had not
+> loaded but lsmod says it is loaded.
+> 
+> In 2.6.4, my sensors showed up hare:
+> /sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/* (w83781d)
+> /sys/devices/pci0000:00/0000:00:1f.3/i2c-0/1-0050/* (eeprom)
+> 
+> Now in 2.6.5, with both eeprom and w83781d modules loaded, I only get the
+> eeprom, and the w83781d is nowhere to be found:
+> /sys/devices/pci0000:00/0000:00:1f.3/i2c-1/1-0050/* (eeprom)
+> 
+> # find /sys/bus/i2c/drivers/
+> /sys/bus/i2c/drivers/
+> /sys/bus/i2c/drivers/w83781d
+> /sys/bus/i2c/drivers/eeprom
+> /sys/bus/i2c/drivers/eeprom/1-0050
+> /sys/bus/i2c/drivers/dev_driver
+> /sys/bus/i2c/drivers/i2c_adapter
+> 
+> This certainly shows that the driver is loaded, but has not found/registered
+> any devices?
+> 
+> Regards,
+> Ian Morgan
+> 
+> -- 
+> -------------------------------------------------------------------
+>  Ian E. Morgan          Vice President & C.O.O.       Webcon, Inc.
+>  imorgan at webcon dot ca        PGP: #2DA40D07      www.webcon.ca
+>     *  Customized Linux network solutions for your business  *
+> -------------------------------------------------------------------
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
+
+
+Regards,
+Ian Morgan
+
+-- 
+-------------------------------------------------------------------
+ Ian E. Morgan          Vice President & C.O.O.       Webcon, Inc.
+ imorgan at webcon dot ca        PGP: #2DA40D07      www.webcon.ca
+    *  Customized Linux network solutions for your business  *
+-------------------------------------------------------------------

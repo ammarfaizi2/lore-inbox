@@ -1,67 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265487AbUGDJkX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265489AbUGDKFJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265487AbUGDJkX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jul 2004 05:40:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265490AbUGDJkX
+	id S265489AbUGDKFJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jul 2004 06:05:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265490AbUGDKFJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jul 2004 05:40:23 -0400
-Received: from web51903.mail.yahoo.com ([206.190.39.46]:29285 "HELO
-	web51903.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S265487AbUGDJkT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jul 2004 05:40:19 -0400
-Message-ID: <20040704094019.32056.qmail@web51903.mail.yahoo.com>
-Date: Sun, 4 Jul 2004 11:40:19 +0200 (CEST)
-From: =?iso-8859-1?q?Wiesner=20Thomas?= <w15mail@yahoo.de>
-Subject: Announcement of HTML-Index of linux-2.6.4/Documentation
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Sun, 4 Jul 2004 06:05:09 -0400
+Received: from ozlabs.org ([203.10.76.45]:59018 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S265489AbUGDKFC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jul 2004 06:05:02 -0400
+Date: Sun, 4 Jul 2004 20:04:07 +1000
+From: Anton Blanchard <anton@samba.org>
+To: akpm@osdl.org
+Cc: paulus@samba.org, linas@austin.ibm.com, linux-kernel@vger.kernel.org
+Subject: [PATCH] fix power3 boot
+Message-ID: <20040704100407.GE4923@krispykreme>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-I had some spare time and decided to make a bash script which generates
-(with the help of some description files) a nice HTML Index for
-linux-2.6.4/Documentation to give it a better look. (I think it would be
-interesting for kernel-hq.)
+Hi,
 
-I did it for 2.6.4, because I had the tarball of it on my hdd. I have a 56k
-modem which doesn´t make downloading kernel source fun. (I know that there are
-patches, but I´m too lazy.). But it should work with nearly any source version
-(should work even "stand alone") but then you have broken links.
+We were calling init_pci_config_tokens too late in eeh_init. POWER3
+(which doesnt have EEH) would fall out of eeh_init before calling it.
 
-The package is not a patch, but a tarball, because I only needed to add files
-and not to change any existing.
+Signed-off-by: Anton Blanchard <anton@samba.org>
 
-You can get the tarball at:
-  http://members.aon.at/gwiesner/misc/2_6-html-doc-index.tar.gz
+diff -puN arch/ppc64/kernel/eeh.c~fix_power3 arch/ppc64/kernel/eeh.c
+--- foobar2/arch/ppc64/kernel/eeh.c~fix_power3	2004-07-04 19:40:57.528231647 +1000
++++ foobar2-anton/arch/ppc64/kernel/eeh.c	2004-07-04 19:42:26.439823930 +1000
+@@ -574,6 +574,8 @@ void __init eeh_init(void)
+ 	struct eeh_early_enable_info info;
+ 	char *eeh_force_off = strstr(saved_command_line, "eeh-force-off");
+ 
++	init_pci_config_tokens();
++
+ 	ibm_set_eeh_option = rtas_token("ibm,set-eeh-option");
+ 	ibm_set_slot_reset = rtas_token("ibm,set-slot-reset");
+ 	ibm_read_slot_reset_state = rtas_token("ibm,read-slot-reset-state");
+@@ -588,7 +590,6 @@ void __init eeh_init(void)
+ 	}
+ 
+ 	/* Enable EEH for all adapters.  Note that eeh requires buid's */
+-	init_pci_config_tokens();
+ 	for (phb = of_find_node_by_name(NULL, "pci"); phb;
+ 	     phb = of_find_node_by_name(phb, "pci")) {
+ 		unsigned long buid;
 
-Install it by typing:
-  cd /usr/src/linux-2.6.4   # or whatever dir
-  cd Documentation
-  tar -xzf 2_6-html-doc-index.tar.gz
-
-To generate the HTML files run:
-  ./mkhtmlindex.sh
-
-The script will generate a index.html in Documentation
-and a index.html in every subdirectory of it. (not recursive, only 1 level)
-
-The descriptions of the files are in the files.desc and dirs.desc files.
-
-I would be glad to hear some feedback.
-
-BTW: This is my first contribution and please CC me, as I´m not in the list.
-
-
-     Wiesner Thomas
-
-
-	
-
-	
-		
-___________________________________________________________
-Gesendet von Yahoo! Mail - Jetzt mit 100MB Speicher kostenlos - Hier anmelden: http://mail.yahoo.de
+_

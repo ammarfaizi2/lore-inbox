@@ -1,40 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271109AbRHTLmi>; Mon, 20 Aug 2001 07:42:38 -0400
+	id <S271205AbRHTLut>; Mon, 20 Aug 2001 07:50:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271173AbRHTLm2>; Mon, 20 Aug 2001 07:42:28 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:5037 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S271109AbRHTLmL>;
-	Mon, 20 Aug 2001 07:42:11 -0400
-Date: Mon, 20 Aug 2001 07:42:24 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Andreas Hartmann <andihartmann@freenet.de>,
-        Kernel-Mailingliste <linux-kernel@vger.kernel.org>
-Subject: Re: [2.4.8-ac5 and earlier] fatal mount-problem
-In-Reply-To: <E15YnGB-0005sr-00@the-village.bc.nu>
-Message-ID: <Pine.GSO.4.21.0108200732190.1313-100000@weyl.math.psu.edu>
+	id <S271204AbRHTLuj>; Mon, 20 Aug 2001 07:50:39 -0400
+Received: from mauve.demon.co.uk ([158.152.209.66]:53904 "EHLO
+	mauve.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S271205AbRHTLuY>; Mon, 20 Aug 2001 07:50:24 -0400
+From: Ian Stirling <root@mauve.demon.co.uk>
+Message-Id: <200108201150.MAA08736@mauve.demon.co.uk>
+Subject: Re: Encrypted Swap
+To: linux-kernel@vger.kernel.org (l)
+Date: Mon, 20 Aug 2001 12:50:11 +0100 (BST)
+In-Reply-To: <Pine.LNX.3.95.1010819211427.28054B-100000@chaos.analogic.com> from "Richard B. Johnson" at Aug 19, 2001 09:27:28 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+<snip>
+> Your idea of removing the RAM from the board and reading it
+> from a RAM-reader may actually show some valid data. However,
+> it is well thown that physical access to a machine or its
+> components while the power is applied and the machine is
+> running eliminates any possibility of security anyway.
+> You just keep the machine on its UPS and carry it away.
 
-
-On Mon, 20 Aug 2001, Alan Cox wrote:
-
-> > > (as modules) and you do the same mount again on the same (not unmounted)
-> > > device, the mount-programm hangs up and never comes back. It doesn't
-> > > recognize, that the device is allready mounted.
-> > 
-> > strace, please. -ac5 and 2.4.9 have the same code in fs/super.c, so
-
-Aha. They actually don't (sorry - I was thinking of 2.4.7-ac5), but...
-> > I really wonder what the hell is happening...
-> 
-> Duplicated here with 2.4.8-ac6
-> Booted with ide-scsi as the cd driver
-
-I can't reproduce it with /dev/hda and /dev/hdd (ide-disk and ide-cd resp.)
-here. I'll build kernel with ide-scsi and see what's going on with that.
-
+Are there any current CPUs that can treat RAM as very fast swap, 
+and be set up so that before writing a page of RAM from cache, it
+gets encrypted (obviously not designed for this)
+Essentially, the only data on the system that's in clear is initial boot
+code, and on-chip cache.
+Obviously, performance would suffer, going from Gb/s to Mb/s.

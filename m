@@ -1,57 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136103AbRDVNJi>; Sun, 22 Apr 2001 09:09:38 -0400
+	id <S136106AbRDVNPk>; Sun, 22 Apr 2001 09:15:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136102AbRDVNJ2>; Sun, 22 Apr 2001 09:09:28 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:54543 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S136101AbRDVNJJ>; Sun, 22 Apr 2001 09:09:09 -0400
-Subject: Re: Linux 2.4.3-ac12
-To: philb@gnu.org (Philip Blundell)
-Date: Sun, 22 Apr 2001 14:10:41 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), junio@siamese.dhis.twinsun.com,
-        manuel@mclure.org (Manuel McLure), linux-kernel@vger.kernel.org
-In-Reply-To: <E14rJTP-0005jL-00@kings-cross.london.uk.eu.org> from "Philip Blundell" at Apr 22, 2001 02:00:19 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S136104AbRDVNPa>; Sun, 22 Apr 2001 09:15:30 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:52726 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S136102AbRDVNPP>;
+	Sun, 22 Apr 2001 09:15:15 -0400
+Date: Sun, 22 Apr 2001 09:15:11 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Roman Zippel <zippel@linux-m68k.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Races in affs_unlink(), affs_rmdir() and affs_rename()
+In-Reply-To: <3AE2D53C.827DB3CE@linux-m68k.org>
+Message-ID: <Pine.GSO.4.21.0104220907100.28681-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14rJdU-0005p0-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Are you being deliberately obtuse?  2.97+ snapshots do all support 
-> builtin_expect, which is what we were discussing.
 
-I think we are having different conversations here.
 
-The only valid inputs to the question are
+On Sun, 22 Apr 2001, Roman Zippel wrote:
 
-	Recommended
-	-----------
-	egcs-1.1.2		(miscompiles strstr  <2.4.4pre)
-	gcc 2.95.*		(miscompiles strstr  <2.4.4pre)
+> instead they can be taken when needed. Also unlink/rename of files/dirs
+> are no specially cases anymore (at least locking wise).
+> VFS would just operate on dentries and the fs works with the inodes.
+> With affs I tried to show how it could look on the fs side.
 
-	Recommended (for -ac at least)
-	------------------------------
-	rh-gcc 2.96-69+		(DAC960 fails due to gcc ABI change)
-	rh-gcc 2.96-78+
+I will believe it when I see it. So far the code is racy and I don't
+see a way to fix the rmdir()/unlink() one without holding two locks at
+once.
 
-	For the Brave
-	-------------
-	gcc 3.0 snapshots
+> > By the way, how would you detect the attempts to detach a subtree by
+> > rmdir()/rename() with the multiple links on directories? Again, forget about
+> > the VFS side of that business, the question is how to check that
+> > required change doesn't make on-disk data structures inconsistent.
+> 
+> Do you have an example? At the affs side there is no big difference
+> between link to files or dirs.
 
-There are no gcc 2.97 snapshots that compile the kernel correctly because
-they have the broken bitfield packing ABI change. 
+Loop creation:
 
-So if your belief is that we should insist on gcc 3.0 for __builtin_expect
-then we should simply remove use of it completely. For 2.5.x it will be worth
-making heavy use of once gcc 3.0 is out.
+/A/B and /C/D are links to the same directory. mv /A /C/D/A creates a loop.
 
-My belief however is that several million people have gcc 2.96-69+, about 50
-are likely to have random cvs snapshots and none of them are going to build
-kernels with them anyway, as they wont work __builtin_expect or otherwise.
-
-Alan
+Once you have a loop you either have it forever (all directories invloved
+are non-empty) _or_ you have to check whether rmdir() is going to make
+graph disconnected and I'd like to see how you do it.
 

@@ -1,53 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268183AbUIWR5m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266352AbUIWR5n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268183AbUIWR5m (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 13:57:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268159AbUIWR4p
+	id S266352AbUIWR5n (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 13:57:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268235AbUIWR4f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 13:56:45 -0400
-Received: from server133-han.de-nserver.de ([81.3.17.173]:25542 "EHLO
-	server133-han.de-nserver.de") by vger.kernel.org with ESMTP
-	id S268216AbUIWR4E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 13:56:04 -0400
-Date: Thu, 23 Sep 2004 19:58:30 +0200
-From: markus reichelt <ml@bitfalle.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: The Big Patch War
-Message-ID: <20040923175830.GA21188@dantooine>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <bbe6a1c93510aa0975d7ef461fa566cf@localhost.localdomain> <001301c4a184$dea1d7c0$0300a8c0@r000000>
+	Thu, 23 Sep 2004 13:56:35 -0400
+Received: from users.linvision.com ([62.58.92.114]:48606 "HELO bitwizard.nl")
+	by vger.kernel.org with SMTP id S266352AbUIWRzN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Sep 2004 13:55:13 -0400
+Date: Thu, 23 Sep 2004 19:55:12 +0200
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: Tigran Aivazian <tigran@veritas.com>
+Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org
+Subject: Re: 2.6.8.1 doesn't boot on x86_64
+Message-ID: <20040923175512.GE8101@harddisk-recovery.com>
+References: <Pine.LNX.4.44.0409231814500.2275-100000@einstein.homenet>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; x-action=pgp-signed
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <001301c4a184$dea1d7c0$0300a8c0@r000000>
-Organization: still stuck in reorganization mode
-X-Request-PGP: http://bitfalle.org/keys/pubkey.mr.lists.asc
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <Pine.LNX.4.44.0409231814500.2275-100000@einstein.homenet>
+User-Agent: Mutt/1.3.28i
+Organization: Harddisk-recovery.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Thu, Sep 23, 2004 at 06:21:30PM +0100, Tigran Aivazian wrote:
+> I haven't heard about it on x86_64 discuss list so I thought it is worth 
+> asking if someone else has encountered this. When I boot 2.6.8.1 kernel 
+> (patched with kdb) the last thing I see is:
+> 
+> Freeing unused kernel memory: 160k f
+> 
+> I don't get the whole word "freed", only the first letter "f". This is SMP 
+> kernel. I will try recompiling without kdb and also booting as "nosmp" to 
+> see if it makes any difference.
+> 
+> Fedora Core 2 smp kernel boots fine, btw.
 
-"Mike R." <turbanator1@verizon.net> wrote:
-> This looks like it could wind up starting a big flame war.....
+FWIW, a non-kdb patched 2.6.8.1 kernel runs fine on a dual CPU box
+(Tyan Thunder K8W with 2x Opteron 242):
 
-Oh yes, a big flame war... But please with lots of "patch this!" and
-"patch that!", slowly at first of course, but steadily gathering
-momentum...
+Linux zebigbos 2.6.8.1 #1 SMP Fri Sep 10 18:57:48 CEST 2004 x86_64 unknown
 
-And just when it's ... let's just say most interesting to watch it
-unfold even further, a deep dark voice booms "kids, back to bed... now!"
-- -Al Patchino
 
-scnr
-- -- 
-Bastard Administrator in $hell
+Erik
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFBUw7GLMyTO8Kj/uQRAhgkAJ43QdM7QCAk74+6kaSdCbX6yy7i6wCfUGS/
-h6wx0oXobz3YpJC9Q28Y7sA=
-=mmX1
------END PGP SIGNATURE-----
+-- 
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

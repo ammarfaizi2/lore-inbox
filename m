@@ -1,42 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271197AbTHHDBZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 23:01:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271200AbTHHDBZ
+	id S271185AbTHHC6H (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 22:58:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271187AbTHHC6G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 23:01:25 -0400
-Received: from mayhem.byteworld.com ([63.127.169.21]:57244 "EHLO
-	chaos.byteworld.com") by vger.kernel.org with ESMTP id S271197AbTHHDBY
+	Thu, 7 Aug 2003 22:58:06 -0400
+Received: from core.kaist.ac.kr ([143.248.147.118]:59333 "EHLO
+	core.kaist.ac.kr") by vger.kernel.org with ESMTP id S271185AbTHHC56
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 23:01:24 -0400
-Date: Thu, 7 Aug 2003 23:01:33 -0400
-From: William Enck <wenck@wapu.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>
-Subject: Re: [bk patches] 2.6.x net driver updates
-Message-ID: <20030808030133.GA20401@chaos.byteworld.com>
-References: <20030808000508.GA4464@gtf.org> <20030808013649.GA20003@chaos.byteworld.com> <3F32FFAD.1050203@pobox.com> <20030808020416.GA20116@chaos.byteworld.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030808020416.GA20116@chaos.byteworld.com>
-User-Agent: Mutt/1.3.28i
-X-Sent-From: chaos.byteworld.com
+	Thu, 7 Aug 2003 22:57:58 -0400
+Message-ID: <009401c35d58$47ac8660$a5a5f88f@core8fyzomwjks>
+From: "Cho, joon-woo" <jwc@core.kaist.ac.kr>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: [Q] How can I transfer data from hard disk to PCI device'smemory
+Date: Fri, 8 Aug 2003 11:53:43 +0900
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 07, 2003 at 10:04:16PM -0400, William Enck wrote:
-> The first set i was from -test2-bk7 and the second was from your patch.
-> Your patch didn't cause the problem. I replied to your email because you
-> had updates to orinoco_cs.c and I thought there was a chance your patch
-> was supposed to fix it. I guess a reply was not the best thing to do,
-> shall I start a new thread?
+Not to PCI device's register, but to PCI device's SDRAM memory.
 
-This looks like it is a totaly separate problem. I tested -mm5 and it
-didn't work in there either. I'm going to start a new thread for this.
+In detail after I modify kernel, I want to transfer data
 
-Will
+from HDD controller's data register (IDE controller case)
 
--- 
-William Enck
-wenck@wapu.org
+to another PCI's SDRAM memory with the help of kernel
+
+( I think Direct I/O(using O_DIRECT flag) )
+
+Is this impossible?
+
+
+----- Original Message -----
+From: "wa moua" <wmatlus@yahoo.com>
+To: "Cho, joon-woo" <jwc@core.kaist.ac.kr>
+Sent: Friday, August 08, 2003 1:19 AM
+Subject: Re: [Q] How can I transfer data from hard disk to PCI
+device'smemory
+
+
+> Are you trying to transfer data from one PCI register
+> to another PCI register? Could you please rephrase
+> your problem. PCI is a bus not a system storage.
+>
+> --- "Cho, joon-woo" <jwc@core.kaist.ac.kr> wrote:
+> > Thank you for your reply, and I am very pleasant to
+> > talk with you. ^^
+> >
+> > But english is not mother tongue, so I am little
+> > confused about your
+> > sentence.
+> >
+> > > The O_DIRECT I/O handling
+> > > needs to know about stuff like page reference
+> > counts that PCI space
+> > > doesn't have lots of older (and some current)
+> > hardware has real problems
+> > > with PCI PCI transfers.
+> >
+> > At above sentence, you mean that
+> >
+> > 'To handle O_DIRECT I/O, stuff like page reference
+> > is needed.
+> >
+> > But some HW(expecially old HW) doesn't have PCI
+> > space,
+> >
+> > so that it needs much additional work to add a
+> > PCI-PCI transferring.'
+> >
+> > Do I understand right?
+> >
+> >
+> > Please reply, thanks.
+> >
+> >
+> >
+> > > So its a non trivial project, although doable
+
+
+
+
+

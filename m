@@ -1,90 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262113AbRE0UBZ>; Sun, 27 May 2001 16:01:25 -0400
+	id <S262120AbRE0UGP>; Sun, 27 May 2001 16:06:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262112AbRE0UBQ>; Sun, 27 May 2001 16:01:16 -0400
-Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:47937
-	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
-	id <S262099AbRE0UBD>; Sun, 27 May 2001 16:01:03 -0400
-Date: Sun, 27 May 2001 22:00:56 +0200
-From: Rasmus Andersen <rasmus@jaquet.dk>
-To: dag@brattli.net
-Cc: linux-kernel@vger.kernel.org, linux-irda@pasta.cs.uit.no
-Subject: [PATCH] Fix interrupt flag bug(s) in irtty.c (244-ac18)
-Message-ID: <20010527220056.N857@jaquet.dk>
+	id <S262119AbRE0UGF>; Sun, 27 May 2001 16:06:05 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:31280 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S262114AbRE0UFq>; Sun, 27 May 2001 16:05:46 -0400
+Date: Sun, 27 May 2001 22:05:36 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "David S. Miller" <davem@redhat.com>,
+        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, arjanv@redhat.com
+Subject: Re: [patch] softirq-2.4.5-A1
+Message-ID: <20010527220536.B731@athlon.random>
+In-Reply-To: <20010527191249.I676@athlon.random> <Pine.LNX.4.33.0105272106340.5852-100000@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0105272106340.5852-100000@localhost.localdomain>; from mingo@elte.hu on Sun, May 27, 2001 at 09:08:51PM +0200
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Sun, May 27, 2001 at 09:08:51PM +0200, Ingo Molnar wrote:
+> i took at look at your ksoftirq stuff yesterday, and i think it's
+> completely unnecessery and adds serious overhead to softirq handling. The
+> whole point of softirqs is to have maximum scalability and no
+> serialization. Why did you add ksoftirqd, would you mind explaining it?
 
-The following patch fixes an interrupt flag bug in irtty.c
-as per the stanford team's report way back. Applies against
-224-ac18.
+The only case ksoftirqd runs is when the stock kernel does the wrong
+thing and potentially delays the softirq of 1/HZ. Nothing else.
 
+When current kernel does the right thing ksoftirq cannot generate any
+scalability problem and furthmore ksoftirqd is a per-cpu thing so if you
+face a scalability problem with it that simply means you need to fix the
+scheduler because then it means you would face a scalability issue as
+well every time a tux thread calls schedule().
 
---- linux-244-ac18-clean/drivers/net/irda/irtty.c	Sat May 19 20:59:17 2001
-+++ linux-244-ac18/drivers/net/irda/irtty.c	Sun May 27 21:56:14 2001
-@@ -971,13 +971,17 @@
- 	switch (cmd) {
- 	case SIOCSBANDWIDTH: /* Set bandwidth */
- 		if (!capable(CAP_NET_ADMIN))
--			return -EPERM;
--		irda_task_execute(self, irtty_change_speed, NULL, NULL, 
--				  (void *) irq->ifr_baudrate);
-+			ret = -EPERM;
-+		else
-+			irda_task_execute(self, irtty_change_speed, NULL, NULL, 
-+					  (void *) irq->ifr_baudrate);
- 		break;
- 	case SIOCSDONGLE: /* Set dongle */
--		if (!capable(CAP_NET_ADMIN))
--			return -EPERM;
-+		if (!capable(CAP_NET_ADMIN)) {
-+			ret = -EPERM;
-+			break;
-+		}
-+
- 		/* Initialize dongle */
- 		dongle = irda_device_dongle_init(dev, irq->ifr_dongle);
- 		if (!dongle)
-@@ -999,21 +1003,24 @@
- 		break;
- 	case SIOCSMEDIABUSY: /* Set media busy */
- 		if (!capable(CAP_NET_ADMIN))
--			return -EPERM;
--		irda_device_set_media_busy(self->netdev, TRUE);
-+			ret = -EPERM;
-+		else
-+			irda_device_set_media_busy(self->netdev, TRUE);
- 		break;
- 	case SIOCGRECEIVING: /* Check if we are receiving right now */
- 		irq->ifr_receiving = irtty_is_receiving(self);
- 		break;
- 	case SIOCSDTRRTS:
- 		if (!capable(CAP_NET_ADMIN))
--			return -EPERM;
--		irtty_set_dtr_rts(dev, irq->ifr_dtr, irq->ifr_rts);
-+			ret = -EPERM;
-+		else
-+			irtty_set_dtr_rts(dev, irq->ifr_dtr, irq->ifr_rts);
- 		break;
- 	case SIOCSMODE:
- 		if (!capable(CAP_NET_ADMIN))
--			return -EPERM;
--		irtty_set_mode(dev, irq->ifr_mode);
-+			ret = -EPERM;
-+		else
-+			irtty_set_mode(dev, irq->ifr_mode);
- 		break;
- 	default:
- 		ret = -EOPNOTSUPP;
--- 
-Regards,
-        Rasmus(rasmus@jaquet.dk)
+90% of the time ksoftirqd will never run, when it runs it means you want
+to pay for a scheduler run to get it running. The price of the scheduler
+is just the price for the logic that balance the softirq load in a fair
+manner and without buggy latencies.
 
-Things are more like they are now than they ever were before.
--Former U.S. President Dwight D. Eisenhower
+Andrea

@@ -1,79 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262503AbVBXVtJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262510AbVBXVw2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262503AbVBXVtJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 16:49:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262508AbVBXVtI
+	id S262510AbVBXVw2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 16:52:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262513AbVBXVw1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 16:49:08 -0500
-Received: from mail.stdbev.com ([63.161.72.3]:997 "EHLO
-	mail.standardbeverage.com") by vger.kernel.org with ESMTP
-	id S262503AbVBXVsq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 16:48:46 -0500
-Message-ID: <0c34ba38852752faa146731da6825252@stdbev.com>
-Date: Thu, 24 Feb 2005 15:48:49 -0600
-From: "Jason Munro" <jason@stdbev.com>
-Subject: Re: USB 2.0 Mass storage device
-To: Lukas Hejtmanek <xhejtman@mail.muni.cz>
-Cc: <matthias.christian@tiscali.de>, <linux-kernel@vger.kernel.org>,
-       <greg@kroah.com>
-Reply-to: <jason@stdbev.com>
-In-Reply-To: <20050224213853.GA8646@mail.muni.cz>
-References: <20050224175918.GA7627@mail.muni.cz>
-            <20050224181347.GA10847@kroah.com>
-            <20050224182300.GA7778@mail.muni.cz>
-            <20050224184928.GA11490@kroah.com>
-            <20050224190548.GA7978@mail.muni.cz>
-            <20050224191243.GD11806@kroah.com>
-            <20050224191809.GB7978@mail.muni.cz>
-            <20050224192207.GB12018@kroah.com>
-            <421E34B1.9050803@tiscali.de>
-            <20050224211512.GC24969@kroah.com>
-            <20050224213853.GA8646@mail.muni.cz>
-X-Mailer: Hastymail 1.3-CVS
-x-priority: 3
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	Thu, 24 Feb 2005 16:52:27 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:52742 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262510AbVBXVvi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 16:51:38 -0500
+Date: Thu, 24 Feb 2005 22:51:36 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@cpushare.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [-mm patch] seccomp: don't say it was more or less mandatory
+Message-ID: <20050224215136.GK8651@stusta.de>
+References: <20050223014233.6710fd73.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050223014233.6710fd73.akpm@osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3:38:53 pm 02/24/05 Lukas Hejtmanek <xhejtman@mail.muni.cz> wrote:
-> This is another device (Card reader) supporting USB 2.0.
->
-> In this case I used only uhci_hcd driver and it reports speed 12.
->
-> T:  Bus=04 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  3 Spd=12  MxCh= 0
-> D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
-> P:  Vendor=05dc ProdID=b018 Rev= 1.28
-> S:  Manufacturer=Lexar Media
-> S:  Product=Multi-Card Reader
-> S:  SerialNumber=0000246504
-> C:* #Ifs= 1 Cfg#= 1 Atr=80 MxPwr=500mA
-> I:  If#= 0 Alt= 0 #EPs= 2 Cls=08(stor.) Sub=06 Prot=50
-> Driver=usb-storage E:  Ad=81(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-> E:  Ad=02(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
->
-> In this case I used both ehci_hcd and uhci_hcd drivers (ehci detected
-> device) and it reports speed 480.
->
-> T:  Bus=01 Lev=01 Prnt=01 Port=04 Cnt=01 Dev#=  2 Spd=480 MxCh= 0
-> D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
-> P:  Vendor=05dc ProdID=b018 Rev= 1.28
-> S:  Manufacturer=Lexar Media
-> S:  Product=Multi-Card Reader
-> S:  SerialNumber=0000246504
-> C:* #Ifs= 1 Cfg#= 1 Atr=80 MxPwr=500mA
-> I:  If#= 0 Alt= 0 #EPs= 2 Cls=08(stor.) Sub=06 Prot=50
-> Driver=usb-storage E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-> E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
->
-> So for me it looks like it reports speed according to USB driver or
-> negotiated speed.
+seccomp might be a nice feature under some circumstances.
+But the suggestion in the help text is IMHO too strong and therefore 
+removed by this patch.
 
-Same here with a new Seagate external USB 2.0 drive. If plugged into my
-laptop which does not have USB 2.0 it shows 12 in /dev/bus/usb/devices,
-however on a machine with USB 2.0 support it changes to 480.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-\__  Jason Munro
- \__ jason@stdbev.com
-  \__ http://hastymail.sourceforge.net/
-
+--- linux-2.6.11-rc4-mm1-full/arch/i386/Kconfig.old	2005-02-24 22:47:32.000000000 +0100
++++ linux-2.6.11-rc4-mm1-full/arch/i386/Kconfig	2005-02-24 22:48:11.000000000 +0100
+@@ -903,8 +903,6 @@
+ 	  and the task is only allowed to execute a few safe syscalls
+ 	  defined by each seccomp mode.
+ 
+-	  If unsure, say Y. Only embedded should say N here.
+-
+ source "drivers/perfctr/Kconfig"
+ 
+ config PHYSICAL_START

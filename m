@@ -1,62 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270112AbSKED4h>; Mon, 4 Nov 2002 22:56:37 -0500
+	id <S277735AbSKED5a>; Mon, 4 Nov 2002 22:57:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277681AbSKED4h>; Mon, 4 Nov 2002 22:56:37 -0500
-Received: from ausadmmsrr502.aus.amer.dell.com ([143.166.83.89]:11022 "HELO
-	AUSADMMSRR502.aus.amer.dell.com") by vger.kernel.org with SMTP
-	id <S270112AbSKED4e>; Mon, 4 Nov 2002 22:56:34 -0500
-X-Server-Uuid: 586817ae-3c88-41be-85af-53e6e1fe1fc5
-Message-ID: <20BF5713E14D5B48AA289F72BD372D68C1EAFE@AUSXMPC122.aus.amer.dell.com>
-From: Matt_Domsch@Dell.com
-To: mochel@osdl.org
-cc: linux-kernel@vger.kernel.org
-Subject: RE: convert edd to use kobjects and sysfs.
-Date: Mon, 4 Nov 2002 22:03:01 -0600
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-X-WSS-ID: 11D99D732180182-01-01
-Content-Type: text/plain; 
- charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S277741AbSKED5a>; Mon, 4 Nov 2002 22:57:30 -0500
+Received: from pop018pub.verizon.net ([206.46.170.212]:20103 "EHLO
+	pop018.verizon.net") by vger.kernel.org with ESMTP
+	id <S277735AbSKED51>; Mon, 4 Nov 2002 22:57:27 -0500
+Message-Id: <200211050401.gA541YPi006905@pool-141-150-241-241.delv.east.verizon.net>
+Date: Mon, 4 Nov 2002 23:01:30 -0500
+From: Skip Ford <skip.ford@verizon.net>
+To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+Cc: george anzinger <george@mvista.com>,
+       Davide Libenzi <davidel@xmailserver.org>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.5.46
+References: <3DC71BBF.5BBDCECF@mvista.com> <Pine.LNX.4.44.0211042035330.20254-100000@chaos.physics.uiowa.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0211042035330.20254-100000@chaos.physics.uiowa.edu>; from kai@tp1.ruhr-uni-bochum.de on Mon, Nov 04, 2002 at 08:37:31PM -0600
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at pop018.verizon.net from [141.150.241.241] at Mon, 4 Nov 2002 22:03:57 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> ChangeSet 1.855.4.11, 2002/10/31 12:37:07-08:00, mochel@osdl.org
-> 	convert edd to use kobjects and sysfs.
+Kai Germaschewski wrote:
+> On Mon, 4 Nov 2002, george anzinger wrote:
+> 
+> > I think we need a newer objcopy :(
+> 
+> Alternatively, use this patch. (It's not really needed to force people to 
+> upgrade binutils when ld can do the job, as it e.g. does in 
+> arch/i386/boot/compressed/Makefile already).
+>
+> -	( cd $(obj) ; ./gen_init_cpio | gzip -9c > initramfs_data.cpio.gz )
+> +	( cd $(obj) ; ./$< | gzip -9c > $@ )
 
-Pat, thanks for converting the EDD code to sysfs.  Is struct attribute going
-to grow some form of existance test, something like I had done before?
+I get errors with your patch.  I had to remove the 'cd $(obj)' above
+from usr/Makefile.
 
-> -static int
-> -edd_populate_dir(struct edd_device *edev)
-> -{
-> -	struct edd_attribute *attr;
-> -	int i;
-> -	int error = 0;
-> -
-> -	for (i = 0; (attr=def_attrs[i]); i++) {
-> -		if (!attr->test || (attr->test && !attr->test(edev))) {
-> -			if ((error = edd_create_file(edev, attr))) {
-> -				break;
-> -			}
-> -		}
-> -	}
-
-This allows attributes to be on def_attrs[] but depending on presence of
-existance test (no test means true) and test result, not all attributes for
-all similar objects get files created.  This cleanly handles cases where not
-all attributes are implemented or valid for all objects of a given type, and
-keeps the object's directory free of extraneous invalid files.
-
-Thanks,
-Matt
-
-
---
-Matt Domsch
-Sr. Software Engineer, Lead Engineer, Architect
-Dell Linux Solutions www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
-
-
+-- 
+Skip

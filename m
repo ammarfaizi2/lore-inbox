@@ -1,86 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265177AbTBBK4z>; Sun, 2 Feb 2003 05:56:55 -0500
+	id <S265197AbTBBLH2>; Sun, 2 Feb 2003 06:07:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265196AbTBBK4z>; Sun, 2 Feb 2003 05:56:55 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:49884 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S265177AbTBBK4y>; Sun, 2 Feb 2003 05:56:54 -0500
-Date: Sun, 2 Feb 2003 12:06:17 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.21-pre4
-Message-ID: <20030202110617.GJ6915@fs.tum.de>
-References: <Pine.LNX.4.53L.0301290143350.27119@freak.distro.conectiva>
+	id <S265198AbTBBLH2>; Sun, 2 Feb 2003 06:07:28 -0500
+Received: from ulima.unil.ch ([130.223.144.143]:37775 "EHLO ulima.unil.ch")
+	by vger.kernel.org with ESMTP id <S265197AbTBBLH2>;
+	Sun, 2 Feb 2003 06:07:28 -0500
+Date: Sun, 2 Feb 2003 12:16:57 +0100
+From: Gregoire Favre <greg@ulima.unil.ch>
+To: linux-kernel@vger.kernel.org
+Subject: is usb working under 2.5.59?
+Message-ID: <20030202111657.GA31683@ulima.unil.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53L.0301290143350.27119@freak.distro.conectiva>
+Content-Transfer-Encoding: 8bit
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 29, 2003 at 01:44:49AM -0200, Marcelo Tosatti wrote:
+Hello,
 
->...
-> Summary of changes from v2.4.21-pre3 to v2.4.21-pre4
-> ============================================
->...
-> Alan Cox <alan@lxorguk.ukuu.org.uk>:
->...
->   o fix packet padding on the 3c523
->...
+I used to use usb under 2.4 with my Digital Ixus V with s10sh.
+It worked just perfectly, now under 2.5.59, I don't even see the output
+of a recongnize in the syslogd.
 
-This causes the following compile error:
+I have also tried gphoto2, which doesn't find any camera...
 
-<--  snip  -->
+I have a MSI Max2-BLR motherboard with USB 2.0 on it:
 
-...
-gcc -D__KERNEL__ -I/home/bunk/linux/kernel-2.4/linux-2.4.20-full/include 
--Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing 
--fno-common -pipe -mpreferred-stack-boundary=2 -march=k6   -nostdinc 
--iwithprefix include -DKBUILD_BASENAME=3c523  -c -o 3c523.o 3c523.c
-3c523.c:1128: macro `memset' used with just one arg
-3c523.c: In function `elmc_send_packet':
-3c523.c:1128: parse error before `)'
-3c523.c:1128: structure has no member named `xmit'
-3c523.c:1128: parse error before `)'
-3c523.c:1128: parse error before `)'
-3c523.c:1128: parse error before `)'
-3c523.c:1128: warning: left-hand operand of comma expression has no effect
-3c523.c:1128: warning: left-hand operand of comma expression has no effect
-3c523.c:1128: parse error before `:'
-make[3]: *** [3c523.o] Error 1
-make[3]: Leaving directory `/home/bunk/linux/kernel-2.4/linux-2.4.20-full/drivers/net'
+lspci -v, the kernel config I use, /proc/bus/usb/devices, lsmod and dmesg
+could be found under http://ulima.unil.ch/greg/linux/MAX2/
 
-<--  snip  -->
+Should I provide some other info?
 
+I could attach them if you prefer :-)
 
-The simple fix (stolen from -ac) is:
+Should I change anything in my config?
 
---- linux.21pre4/drivers/net/3c523.c	2003-01-29 17:07:45.000000000 +0000
-+++ linux.21pre4-ac1/drivers/net/3c523.c	2003-01-09 00:47:04.000000000 +0000
-@@ -1125,7 +1125,7 @@
- 	len = (ETH_ZLEN < skb->len) ? skb->len : ETH_ZLEN;
- 	
- 	if(len != skb->len)
--		memset((char *) p->xmit_cbuffs[p->xmit)count], 0, ETH_ZLEN);
-+		memset((char *) p->xmit_cbuffs[p->xmit_count], 0, ETH_ZLEN);
- 	memcpy((char *) p->xmit_cbuffs[p->xmit_count], (char *) (skb->data), skb->len);
- 
- #if (NUM_XMIT_BUFFS == 1)
+Thank you very much,
 
-
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+	Grégoire
+________________________________________________________________
+http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch

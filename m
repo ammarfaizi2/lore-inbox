@@ -1,59 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291894AbSBASB5>; Fri, 1 Feb 2002 13:01:57 -0500
+	id <S291900AbSBASQr>; Fri, 1 Feb 2002 13:16:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291895AbSBASBj>; Fri, 1 Feb 2002 13:01:39 -0500
-Received: from splat.lanl.gov ([128.165.17.254]:20652 "EHLO
-	balance.radtt.lanl.gov") by vger.kernel.org with ESMTP
-	id <S291891AbSBASBU>; Fri, 1 Feb 2002 13:01:20 -0500
-Date: Fri, 1 Feb 2002 11:01:20 -0700
-From: Eric Weigle <ehw@lanl.gov>
-To: "Linux kernel mailing list (lkml)" <linux-kernel@vger.kernel.org>
-Cc: Mark Gardner <mkg@lanl.gov>
-Subject: [question] peculiar scheduler execution pattern
-Message-ID: <20020201180120.GF24524@lanl.gov>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-X-Eric-Unconspiracy: There ought to be a conspiracy
-X-Editor: Vim, http://www.vim.org
+	id <S291901AbSBASQh>; Fri, 1 Feb 2002 13:16:37 -0500
+Received: from ns.snowman.net ([63.80.4.34]:19212 "EHLO ns.snowman.net")
+	by vger.kernel.org with ESMTP id <S291900AbSBASQX>;
+	Fri, 1 Feb 2002 13:16:23 -0500
+Date: Fri, 1 Feb 2002 13:16:15 -0500 (EST)
+From: <nick@snowman.net>
+To: "Edward S. Marshall" <esm@logic.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: PCI Problems [was Re: NIC lockup in 2.4.17 (SMP/APIC/Intel
+ 82557)]
+In-Reply-To: <1012585929.1843.45.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.21.0202011315040.12736-100000@ns>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Good morning-
+Odd, I've got an HP LPr with an     Ethernet controller: Intel Corporation
+82557 [Ethernet Pro 100] (rev 8). on the riser.  Works fine for me under
+the debian SMP kernel Linux version 2.4.5-686-smp (herbert@gondolin) (gcc
+version 2.95.4 20010319 (Debian prerelease)) #1 SMP Sun May 27 18:32:54
+EST 2001.  If you'd like me to test a workload or similar let me know, the
+system is relativly low memory though.
+	Nick
 
-Summary: I am measuring how long the kernel spends in schedule(). On a
-dual CPU machine, the time for one CPU is lower than the other. Regularly
-(about every second) the results switch. Why is the time spent in schedule()
-longer on one CPU than the other and why do the results switch periodically?
-I vaguely remember seeing something about this on the list recently (with
-all the O(1) discussion), but searched the archives to no avail.
+On 1 Feb 2002, Edward S. Marshall wrote:
 
-Details: The machine is a dual 400 MHz Pentium II running Debian testing with a
-2.4.17 SMP kernel. I am using an instrumentation package we are developing [1]
-to save a timestamp at the beginning and end of kernel/sched.c:schedule(). The
-time source is get_cycles(). Other than an empty infinite loop program,
-the usual daemons and my ssh shell, nothing is running on the machine. (When
-not running the CPU bound process, uptime reports a load of 0.00.)
+> On Thu, 2002-01-31 at 11:54, Ben Greear wrote:
+> > The only lockup problems I have run into are connecting some eepro nics to
+> > a 10bt hub, and using (cheap arsed, it appears) PCI riser cards.  I have
+> > heard of some SMP related issues, but nothing concrete, and I don't
+> > have any SMP systems personally.  You could try the e100, but I have
+> > no idea if it will be better or worse for your particular problem.
+> 
+> I was running into the same problems here; SMP system w/PCI riser card
+> (HP NetServer LPr), connected to a 10/100 switch. I'd get
+> "wait_for_command_timeout" errors all the time under moderate network
+> load. Switching to the e100 driver didn't help in the slightest.
+> Eventually, I'd experience a complete system lockup.
+> 
+> Replacing the card with a 3c59x-based card put the machine back in
+> service (I've completely written eepro100s off as a viable cards now),
+> although I still saw occasional PCI-related issues. Specifically:
+> 
+> Jan 23 10:11:37 x kernel: Uhhuh. NMI received. Dazed and confused, but
+> trying to continue
+> Jan 23 10:11:37 x kernel: eth0: Host error, FIFO diagnostic register
+> 0000.
+> Jan 23 10:11:37 x kernel: eth0: PCI bus error, bus status 80000020
+> Jan 23 10:11:37 x kernel: You probably have a hardware problem with your
+> RAM chips
+> Jan 23 10:11:37 x kernel: eth0: Host error, FIFO diagnostic register
+> 0000.
+> Jan 23 10:11:37 x kernel: eth0: PCI bus error, bus status 80000020
+> 
+> The last two messages will repeat indefinitely, usually with a hit to
+> the dist for each pair of log entries (resulting in a very distinctive
+> drive grinding). Memory problems don't seem to be the issue; with a
+> fairly extensive run of memtest86, everything came back clean.
+> 
+> Taking a few minutes to try and rectify the situation, I started
+> shutting down services and manually unloading modules to see what was
+> causing the problem. Unloading usbcore did the trick:
+> 
+> Jan 26 18:41:24 x kernel: eth0: Host error, FIFO diagnostic register
+> 0000.
+> Jan 26 18:41:24 x kernel: eth0: PCI bus error, bus status 80000020
+> Jan 26 18:41:24 x kernel: eth0: Too much work in interrupt, status e003.
+> Jan 26 18:41:24 x kernel: usb.c: USB disconnect on device 1
+> Jan 26 18:41:24 x kernel: USB bus 1 deregistered
+> 
+> I've rebooted the machine since then, but have always unloaded usb-uhci
+> and usbcore after booting. The issue hasn't cropped up again, although
+> it happened every couple of days previously.
+> 
+> The kernel in question is Red Hat's kernel-smp-2.4.9-21 build.
+> 
+> -- 
+> Edward S. Marshall <esm@logic.net>                       
+> http://esm.logic.net/
+> -------------------------------------------------------------------------------
+> [                  Felix qui potuit rerum cognoscere causas.            
+> ]
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-A graph [2] of the time spent in schedule as a function of time shows one
-CPU spends less time in schedule than the other one (approximately 2 usec
-and 6 usec respectively). After about a minute they switch places.
-
-Why is the time spent in schedule() longer on one CPU than the other and
-why do the results switch periodically?
-
-Any information, links, etc. would be appreciated (and I'm on the list,
-so a CC is not required).
--Eric
-
-[1] http://www.lanl.gov/radiant/website/research/measurement/magnet.html
-[2] http://public.lanl.gov/mkg/cpubound_normal_ctx_time.png
-
--- 
---------------------------------------------
- Eric H. Weigle   CCS-1, RADIANT team
- ehw@lanl.gov     Los Alamos National Lab
- (505) 665-4937   http://home.lanl.gov/ehw/
---------------------------------------------

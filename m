@@ -1,48 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261894AbSJQSsN>; Thu, 17 Oct 2002 14:48:13 -0400
+	id <S261945AbSJQSwY>; Thu, 17 Oct 2002 14:52:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261900AbSJQSsN>; Thu, 17 Oct 2002 14:48:13 -0400
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:22798 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261894AbSJQSsM>;
-	Thu, 17 Oct 2002 14:48:12 -0400
-Date: Thu, 17 Oct 2002 11:53:52 -0700
-From: Greg KH <greg@kroah.com>
-To: Christoph Hellwig <hch@infradead.org>, torvalds@transmeta.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] remove sys_security
-Message-ID: <20021017185352.GA32537@kroah.com>
-References: <20021017195015.A4747@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021017195015.A4747@infradead.org>
-User-Agent: Mutt/1.4i
+	id <S261973AbSJQSwY>; Thu, 17 Oct 2002 14:52:24 -0400
+Received: from smtp01.web.de ([194.45.170.210]:41760 "EHLO smtp.web.de")
+	by vger.kernel.org with ESMTP id <S261945AbSJQSwX> convert rfc822-to-8bit;
+	Thu, 17 Oct 2002 14:52:23 -0400
+Content-Type: text/plain;
+  charset="iso-8859-15"
+From: =?iso-8859-15?q?Ren=E9=20Scharfe?= <l.s.r@web.de>
+To: linux-kernel@vger.kernel.org
+Subject: Remove unused variables from fs/partitions/check.c
+Date: Thu, 17 Oct 2002 20:58:40 +0200
+User-Agent: KMail/1.4.2
+Cc: trivial@rustcorp.com.au
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200210172058.40939.l.s.r@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 17, 2002 at 07:50:16PM +0100, Christoph Hellwig wrote:
-> I've been auditing the LSM stuff a bit more..
-> 
-> They have registered an implemented a syscall, sys_security
-> that does nothing but switch into the individual modules
-> based on the first argument, i.e. it's ioctl() switching
-> on the security module instead of device node.  Yuck.
-> 
-> Patch below removes it (no intree users), maybe selinux/etc
-> folks should send their actual syscall for review instead..
+Hi,
 
-No, don't remove this!
-Yes, it's a big switch, but what do you propose otherwise?  SELinux
-would need a _lot_ of different security calls, which would be fine, but
-we don't want to force every security module to try to go through the
-process of getting their own syscalls.
+there's a surprising number of unused variables in fs/partitions/check.c
+of kernel 2.5.43. This patch removes them.
 
-And other subsystems in the kernel do the same thing with their syscall,
-like networking, so there is a past history of this usage.
+René
 
-Linus, please do not apply.
 
-thanks,
 
-greg k-h
+--- linux-2.5.43/fs/partitions/check.c~	Wed Oct 16 18:51:31 2002
++++ linux-2.5.43/fs/partitions/check.c	Thu Oct 17 20:46:00 2002
+@@ -189,8 +189,6 @@ static void devfs_create_partitions(stru
+ 	unsigned int devfs_flags = DEVFS_FL_DEFAULT;
+ 	char dirname[64], symlink[16];
+ 	static devfs_handle_t devfs_handle;
+-	int part, max_p = dev->minors;
+-	struct hd_struct *p = dev->part;
+ 
+ 	if (dev->flags & GENHD_FL_REMOVABLE)
+ 		devfs_flags |= DEVFS_FL_REMOVABLE;
+@@ -226,10 +224,6 @@ static void devfs_create_partitions(stru
+ static void devfs_create_cdrom(struct gendisk *dev)
+ {
+ #ifdef CONFIG_DEVFS_FS
+-	int pos = 0;
+-	devfs_handle_t dir, slave;
+-	unsigned int devfs_flags = DEVFS_FL_DEFAULT;
+-	char dirname[64], symlink[16];
+ 	char vname[23];
+ 
+ 	if (!cdroms)
+

@@ -1,70 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272941AbTHPOTm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Aug 2003 10:19:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272942AbTHPOTl
+	id S273019AbTHPObK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Aug 2003 10:31:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273021AbTHPObK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Aug 2003 10:19:41 -0400
-Received: from gate.in-addr.de ([212.8.193.158]:58000 "EHLO mx.in-addr.de")
-	by vger.kernel.org with ESMTP id S272941AbTHPOTj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Aug 2003 10:19:39 -0400
-Date: Sat, 16 Aug 2003 16:18:15 +0200
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: Neil Brown <neilb@cse.unsw.edu.au>, Mike Fedyk <mfedyk@matchmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, Tupshin Harper <tupshin@tupshin.com>,
-       linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>
-Subject: Re: data corruption using raid0+lvm2+jfs with 2.6.0-test3
-Message-ID: <20030816141815.GB25049@marowsky-bree.de>
-References: <3F3951F1.9040605@tupshin.com> <20030812142846.46eacc48.akpm@osdl.org> <16185.29398.80225.875488@gargle.gargle.HOWL> <20030815212707.GR1027@matchmail.com> <16189.58517.211393.526998@gargle.gargle.HOWL>
+	Sat, 16 Aug 2003 10:31:10 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:41602 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S273019AbTHPOa6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Aug 2003 10:30:58 -0400
+Date: Sat, 16 Aug 2003 15:29:33 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Rob Landley <rob@landley.net>
+Cc: George Anzinger <george@mvista.com>, LKML <linux-kernel@vger.kernel.org>,
+       Stephen Rothwell <sfr@canb.auug.org.au>, linux-laptop@vger.kernel.org
+Subject: APM and 2.5.75 not resuming properly
+Message-ID: <20030816142933.GE23646@mail.jlokier.co.uk>
+References: <1059211833.576.13.camel@teapot.felipe-alfaro.com> <200308132024.36967.rob@landley.net> <3F3B41C7.1000906@mvista.com> <200308160510.44627.rob@landley.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="xgyAXRrhYN0wYx8y"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <16189.58517.211393.526998@gargle.gargle.HOWL>
-User-Agent: Mutt/1.4i
-X-Ctuhulu: HASTUR
+In-Reply-To: <200308160510.44627.rob@landley.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Rob Landley wrote:
+> (APM suspends, and then never comes back until you yank the #*%(&#
+> battery.  Great.  Trying it with the real mode bios calls next
+> reboot...)
 
---xgyAXRrhYN0wYx8y
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Similar here.  Using 2.5.75.  APM with no local APIC (kernel is unable
+to enable it anyway).
 
-On 2003-08-16T18:00:21,
-   Neil Brown <neilb@cse.unsw.edu.au> said:
+It suspends.  On resume, the screen is blank and the keyboard doesn't
+respond (no Caps Lock or SysRq).  Occasionally when it resumes the
+keyboard does respond, but the screen stays blank.  At least it is
+possible to do SysRq-S SysRq-B in this state.  Sometimes, if I'm
+lucky, I can make it reboot by holding down the power key for 5 seconds.
 
-> I think that for now you should assume tat lvm over raid0 (or raid0
-> over lvm) simply isn't supported.  As lvm (aka dm) supports striping,
-> it shouldn't be needed.
+2.4 APM works great.  ACPI doesn't do anything useful except give me
+more control over the screen brightness.
 
-Can raid0 detect that it is being accessed via DM and 'fail-fast' and
-refuse to ever come up?
-
-This probably also suggests that the lvm2 and evms2 folks should refuse
-to set this up in their tools...
-
-
-Sincerely,
-    Lars Marowsky-Br=E9e <lmb@suse.de>
-
---=20
-SuSE Labs - Research & Development, SuSE Linux AG
-=20
-High Availabilty, n.: Patching up complex systems with even more complexity.
-
---xgyAXRrhYN0wYx8y
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE/Pj0mudf3XQV4S2cRApT+AJ4yYuS5k7/FjLIJ2mY1fXJsj7tk4QCfV6Fa
-o/F9TGiHGYi5Z0Rt+5kY4Tk=
-=D7F3
------END PGP SIGNATURE-----
-
---xgyAXRrhYN0wYx8y--
+--- Jamie

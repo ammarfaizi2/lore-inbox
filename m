@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263611AbUCUFJH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Mar 2004 00:09:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263609AbUCUFJG
+	id S263607AbUCUFH7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Mar 2004 00:07:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263609AbUCUFH7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Mar 2004 00:09:06 -0500
+	Sun, 21 Mar 2004 00:07:59 -0500
 Received: from [202.57.183.95] ([202.57.183.95]:40832 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S263608AbUCUFIW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Mar 2004 00:08:22 -0500
-Message-ID: <40583F40.5040402@opentle.org>
-Date: Wed, 17 Mar 2004 19:06:24 +0700
+	id S263607AbUCUFHi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Mar 2004 00:07:38 -0500
+Message-ID: <40596E1F.3010808@opentle.org>
+Date: Thu, 18 Mar 2004 16:38:39 +0700
 From: Supphachoke Suntiwichaya <mrchoke@opentle.org>
 Organization: NECTEC
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031224
@@ -20,19 +20,20 @@ To: linux-kernel@vger.kernel.org
 CC: B.Zolnierkiewicz@elka.pw.edu.pl
 Subject: [PATCH] ATI IXP IDE support 2.6.5-rc1 (modify)
 Content-Type: multipart/mixed;
- boundary="------------090200000200080504010901"
+ boundary="------------020804030504040503000508"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------090200000200080504010901
+--------------020804030504040503000508
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 
 Hi,
 
 I modified patch from 
-http://www.kernel.org/pub/linux/kernel/people/bart/atiixp_ide/atiixp_ide-2.6.3-2.patch
+http://www.kernel.org/pub/linux/kernel/people/bart/atiixp_ide/atiixp_ide-2.6.3-2.patch 
+
 for kernel 2.6.5-rc1. It work well for my box ASUS P4R800-VM.
 
 MrChoke
@@ -43,10 +44,10 @@ Name : Supphachoke Suntiwichaya
 Email : MrChoke at opentle.org
 Distribution : LinuxTLE 5.5 (Samila)
 OS : Linux 2.4.22-6_1.2174.nptl_01tle #1 Mon Mar 1 21:40:48 ICT 2004 i686 GNU/Linux
-Uptime :  19:00:01  up 2 days,  9:23,  1 user,  load average: 2.26, 1.62, 1.28
+Uptime :  16:35:01  up 3 days,  6:58,  1 user,  load average: 0.00, 0.05, 0.09
 
 
---------------090200000200080504010901
+--------------020804030504040503000508
 Content-Type: text/plain;
  name="atiixp_ide-2.6.5rc1.patch"
 Content-Transfer-Encoding: 7bit
@@ -613,5 +614,5 @@ diff -aurN linux-2.6.4.orig/include/linux/pci_ids.h linux-2.6.4/include/linux/pc
  #define PCI_VENDOR_ID_VLSI		0x1004
  #define PCI_DEVICE_ID_VLSI_82C592	0x0005
 
---------------090200000200080504010901--
+--------------020804030504040503000508--
 

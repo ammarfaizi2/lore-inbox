@@ -1,73 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316437AbSG2NAT>; Mon, 29 Jul 2002 09:00:19 -0400
+	id <S316916AbSG2NI7>; Mon, 29 Jul 2002 09:08:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316884AbSG2NAT>; Mon, 29 Jul 2002 09:00:19 -0400
-Received: from maile.telia.com ([194.22.190.16]:22734 "EHLO maile.telia.com")
-	by vger.kernel.org with ESMTP id <S316437AbSG2NAS>;
-	Mon, 29 Jul 2002 09:00:18 -0400
-X-Original-Recipient: linux-kernel@vger.kernel.org
-From: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
-To: David Ford <david+cert@blue-labs.org>, linux-kernel@vger.kernel.org,
-       linux-usb-users@lists.sourceforge.net
-Subject: Re: Linux booting from USB HD / USB interface devices
-Date: Mon, 29 Jul 2002 15:02:30 +0200
-User-Agent: KMail/1.4.5
-References: <3D42E333.4010602@blue-labs.org>
-In-Reply-To: <3D42E333.4010602@blue-labs.org>
+	id <S316935AbSG2NI7>; Mon, 29 Jul 2002 09:08:59 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:34575 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S316916AbSG2NIz>; Mon, 29 Jul 2002 09:08:55 -0400
+Message-ID: <3D453F1F.3010701@namesys.com>
+Date: Mon, 29 Jul 2002 17:11:59 +0400
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
-Message-Id: <200207291502.30926.roger.larsson@skelleftea.mail.telia.com>
+To: Federico Ferreres <fferreres@ojf.com>
+CC: Alexander Viro <viro@math.psu.edu>, Daniel Mose <imcol@unicyclist.com>,
+       Larry McVoy <lm@work.bitmover.com>,
+       Rik van Riel <riel@conectiva.com.br>, Larry McVoy <lm@bitmover.com>,
+       linux-kernel@vger.kernel.org, openpatentfunds@home.se
+Subject: Re: Funding GPL projects or funding the GPL?
+References: <Pine.GSO.4.21.0207280601260.27010-100000@weyl.math.psu.edu> 	<3D44F136.8060202@namesys.com> <1027933632.4472.88.camel@fede>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 27 July 2002 20.15, David Ford wrote:
-> Linux booting from USB HD
+Federico Ferreres wrote:
+
+>  
+>
+>>My approach has the advantage that the fee scales with hardware costs, 
+>>and that it is set by users.
+>>    
+>>
+>
+>That's really an improvement over my idea (in the corporate area mostly.
+>In the home user area it doesn't matter, as he will probably use 1
+>computer at a time).
+>
+>I can clearly see that a combination of both schemes would be needed,
+>because they are opposite sides of the same coin (your idea could be
+>though as an x% tax on hardware to fund developement, mine as a direct
+>payment from the users).
+>
+Mine is a direct fee payment from users with allocation of fee 
+instructions accompanying the fee.  The fee is less for buyers of cheap 
+computers since the hardware cost is low, so folks in Brazil on average 
+pay less than folks in Silicon Valley.  The more you spend in hardware 
+the more you can afford to pay/contribute for software.
+
+>
+>Everything else remains the same (as Hans and I have said, the users
+>will have a limited ability to chose what they need. I say limited
+>because for an Office application to work the core must remain funded
+>even though the user may not notice it).
+>
+Limited?  What limit?  If you  pay the X% of hardware cost fee you can 
+use all the software in the pool.
+
 > 
-> I've been doing some research in this area.  There are a few 
-> motherboards that I've come across that are capable of booting from a 
-> USB hard drive and I'm interested in collecting a lot of opinions and 
-> "yeah, i've done that" comments.  The end application for this is to 
-> mount a motherboard in a 4x4 truck to process dash data and sensory 
-> input (i.e. GPS, atmospheric, fire department data, etc), provide 
-> digitized maps (GIS), network connectivity via wireless, and be the 
-> radio/mp3/cd player etc.
-
-Maybe you are asking for the wrong thing here...
-What you want is probably an "flash based persistent storage that can be 
-booted from" not specifically USB - correct?
-
-If that is the case - you do not want to use USB memory but rather
-CompactFlash - since they are both compatible with PCMCIA _and_ IDE.
-You only need a ribbon cable and a small adapter (the adapter is really 
-simple)!
-
-A quick search on google for "CompactFlash IDE" or "Compact flash IDE" will 
-give you several hits.
-
-Since they are compatible with IDE you can use any MB including
-most PC/104 variant - many of those can also be booted from DiskOnChip...
-
-> 
-> The most promising vendor I've found so far is Gigabyte, one of the 
-> better motherboards appears to be the GA-8IGX model.
-> 
-> _Please note_, I'm specifically trying to use a USB harddrive, not a 
-> floppy.  I want the smallest number of devices required to run the 
-> system and floppy media is just too unreliable.  I'm also intending on 
-> putting the harddrive several feet away from the motherboard -- the 
-> system's physical profile has to be flexible.
-
-An compact flash IDE is VERY small... If you can not fit it in the case you
-have other problems...
- 
-/RogerL
+>  
+>
+>>However, you should understand that an idea is not enough, you must have 
+>>sufficient sociological mass to pull it off.  Neither you nor I are in 
+>>that position at this time.   Most people will be hostile to you if you 
+>>propose an idea that you lack the sociological position to effectuate.....
+>>    
+>>
+>
+>Makes sense. But if the idea is good, the ones that can make a
+>difference will support it, assuming they analized what is being
+>proposed. 
+>
+You are assuming they think.  They don't.  They sense herd movement. 
+ This is wise of them, because unless a large portion of the herd moves 
+to it, it has no value.  Thus it has no value.  Thus the herd does not move.
 
 -- 
-Roger Larsson
-Skellefteå
-Sweden
+Hans
+
+
 

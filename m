@@ -1,52 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262061AbTJJLi4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 07:38:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262063AbTJJLi4
+	id S261411AbTJJLpc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 07:45:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261239AbTJJLpc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 07:38:56 -0400
-Received: from mx1.kth.se ([130.237.32.140]:21418 "EHLO mx1.kth.se")
-	by vger.kernel.org with ESMTP id S262061AbTJJLiz convert rfc822-to-8bit
+	Fri, 10 Oct 2003 07:45:32 -0400
+Received: from CPE-203-51-31-61.nsw.bigpond.net.au ([203.51.31.61]:58616 "EHLO
+	e4.eyal.emu.id.au") by vger.kernel.org with ESMTP id S261411AbTJJLpa
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 07:38:55 -0400
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: USB and DMA on Alpha with 2.6.0-test7
-References: <yw1xu16hbg75.fsf@users.sourceforge.net>
-	<20031010144710.A1396@jurassic.park.msu.ru>
-From: e99_mru@e.kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Date: 10 Oct 2003 13:38:42 +0200
-In-Reply-To: Ivan Kokshaysky's message of "Fri, 10 Oct 2003 14:47:10 +0400"
-Message-ID: <yw1xwubd2ugt.fsf@quetzalcoatlite.e.kth.se>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Channel Islands)
+	Fri, 10 Oct 2003 07:45:30 -0400
+Message-ID: <3F869BD4.ADB4D648@eyal.emu.id.au>
+Date: Fri, 10 Oct 2003 21:45:24 +1000
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.4.23-pre5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+To: "list, linux-kernel" <linux-kernel@vger.kernel.org>,
+       "Tosatti, Marcelo" <marcelo@conectiva.com.br>
+Subject: 2.4.23-pre7 build problems
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ivan Kokshaysky <ink@jurassic.park.msu.ru> writes:
+I dropped off the list for a few days so am not sure what was already
+reported, neither did I find anything in the archives about -pre7.
 
-> > Yesterday, I compiled 2.6.0-test7 for one of my Alpha boxes.  I have
-> > an AX8817X based USB ethernet adaptor connected to it (it's short on
-> > PCI slots), so I compiled the usbnet module.  When I loaded usbnet, I
-> > got a BUG at include/asm-generic/dma-mapping.h:19.  Apparently, DMA
-> > setup only works with PCI here.  How should this be fixed?  It worked
-> > with -test4, albeit slowly, for other reasons.
-> 
-> Well, the usage of dma_supported() in usbnet.c is wrong even for i386.
-> USB device doesn't do DMA, it's USB controller what does. The driver should
+already reported:
 
-That's what I thought.
+gcc -D__KERNEL__ -I/data2/usr/local/src/linux-2.4-pre/include -Wall
+-Wstrict-pro
+totypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
+-fomit-frame-pointer
+ -pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4
+-DMODULE -DM
+ODVERSIONS -include
+/data2/usr/local/src/linux-2.4-pre/include/linux/modversions
+.h  -nostdinc -iwithprefix include -DKBUILD_BASENAME=megaraid2  -c -o
+megaraid2.
+o megaraid2.c
+megaraid2.c: In function `mega_find_card':
+megaraid2.c:403: structure has no member named `lock'
+make[2]: *** [megaraid2.o] Error 1
+make[2]: Leaving directory
+`/data2/usr/local/src/linux-2.4-pre/drivers/scsi'
 
-> check dma_mask of the parent device instead, something like this:
-> 
-> 	// possible with some EHCI controllers
-> 	if (*udev->dev->parent->dma_mask == 0xffffffffffffffffULL)
-> 		net->features |= NETIF_F_HIGHDMA;
+no report found:
 
-Is that all there is to it?
+gcc -D__KERNEL__ -I/data2/usr/local/src/linux-2.4-pre/include -Wall
+-Wstrict-pro
+totypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
+-fomit-frame-pointer
+ -pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4
+-DMODULE -DM
+ODVERSIONS -include
+/data2/usr/local/src/linux-2.4-pre/include/linux/modversions
+.h  -nostdinc -iwithprefix include -DKBUILD_BASENAME=nsp32  -c -o
+nsp32.o nsp32.
+c
+In file included from nsp32.c:56:
+nsp32.h:645: redefinition of `irqreturn_t'
+/data2/usr/local/src/linux-2.4-pre/include/linux/interrupt.h:16:
+`irqreturn_t' previously declared here
+make[2]: *** [nsp32.o] Error 1
+make[2]: Leaving directory
+`/data2/usr/local/src/linux-2.4-pre/drivers/scsi'
 
--- 
-Måns Rullgård
-mru@users.sf.net
+--
+Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>

@@ -1,102 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262264AbVCIGdG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262381AbVCIGmn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262264AbVCIGdG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 01:33:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262333AbVCIGcr
+	id S262381AbVCIGmn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 01:42:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262382AbVCIGmn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 01:32:47 -0500
-Received: from waste.org ([216.27.176.166]:41659 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261631AbVCIGcK (ORCPT
+	Wed, 9 Mar 2005 01:42:43 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:488 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262381AbVCIGme (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 01:32:10 -0500
-Date: Tue, 8 Mar 2005 22:32:09 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: Alex Aizman <itn780@yahoo.com>
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE 2/6] Open-iSCSI High-Performance Initiator for Linux
-Message-ID: <20050309063209.GV3163@waste.org>
-References: <422BFEC6.70305@yahoo.com>
+	Wed, 9 Mar 2005 01:42:34 -0500
+Subject: Re: Query: Kdump: Core Image ELF Format
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: fastboot <fastboot@lists.osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       Dave Anderson <anderson@redhat.com>, haren myneni <hbabu@us.ibm.com>,
+       Maneesh Soni <maneesh@in.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       gdb <gdb@sources.redhat.com>
+In-Reply-To: <m1br9um313.fsf@ebiederm.dsl.xmission.com>
+References: <1110286210.4195.27.camel@wks126478wss.in.ibm.com>
+	 <m1br9um313.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain
+Date: Wed, 09 Mar 2005 12:13:49 +0530
+Message-Id: <1110350629.31878.7.camel@wks126478wss.in.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <422BFEC6.70305@yahoo.com>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 06, 2005 at 11:12:06PM -0800, Alex Aizman wrote:
+On Tue, 2005-03-08 at 11:00 -0700, Eric W. Biederman wrote: 
+> vivek goyal <vgoyal@in.ibm.com> writes:
+> 
+> > Hi,
+> > 
+> > Kdump (A kexec based crash dumping mechanism) is going to export the
+> > kernel core image in ELF format. ELF was chosen as a format, keeping in
+> > mind that gdb can be used for limited debugging and "Crash" can be used
+> > for advanced debugging.
+> 
+> When I suggested ELF for this purpose it was not so much that it was
+> directly usable.  But rather it was an existing file format that could
+> do the job, was well understood, and had enough extensibility
+> through the PT_NOTES segment to handle the weird cases.
+> 
+> > Core image ELF headers are prepared before crash and stored at a safe
+> > place in memory. These headers are retrieved over a kexec boot and final
+> > elf core image is prepared for analysis. 
+> > 
+> > Given the fact physical memory can be dis-contiguous, One program header
+> > of type PT_LOAD is created for every contiguous memory chunk present in
+> > the system. Other information like register states etc. is captured in
+> > notes section.
+> > 
+> > Now the issue is, on i386, whether to prepare core headers in ELF32 or
+> > ELF64 format. gdb can not analyze ELF64 core image for i386 system. I
+> > don't know about "crash". Can "crash" support ELF64 core image file for
+> > i386 system?
+> > 
+> > Given the limitation of analysis tools, if core headers are prepared in
+> > ELF32 format then how to handle PAE systems? 
+> > 
+> > Any thoughts or suggestions on this?
+> 
+> Generate it ELF64.  We also have the problem that the kernels virtual
+> addresses are not used in the core dump either.   Which a post-processing
+> tool will also have to address as well. 
 
-> +#define iscsi_ptr(_handle) ((void*)(unsigned long)_handle)
-> +#define iscsi_handle(_ptr) ((uint64_t)(unsigned long)_ptr)
+That sounds good. But we loose the advantage of doing limited debugging
+with gdb. Crash (or other analysis tools) will still take considerable
+amount of time before before they are fully ready and tested.
 
-This is a bit wonky. Why is there a distinction?
+How about giving user the flexibility to choose. What I mean is
+introducing a command line option in kexec-tools to choose between ELF32
+and ELF64 headers. For the users who are not using PAE systems, they can
+very well go with ELF32 headers and do the debugging using gdb.
 
+This also requires, setting the kernel virtual addresses while preparing
+the headers. KVA for linearly mapped region is known in advance and can
+be filled at header creation time and gdb can directly operate upon this
+region.
 
-> +#ifndef ISCSI_PROTO_H
-> +#define ISCSI_PROTO_H
-> +
-> +#define ISCSI_VERSION_STR	"0.1.0"
-> +#define ISCSI_DATE_STR		"17-Jan-2005"
-> +#define ISCSI_DRAFT20_VERSION	0x00
-> +
-> +/* default iSCSI listen port for incoming connections */
-> +#define ISCSI_LISTEN_PORT	3260
-> +
-> +/* Padding word length */
-> +#define PAD_WORD_LEN		4
+> 
+> What I aim on at was a simple picture of memory decorated with the
+> register state.  We should be able to derive everything beyond that.
+> And the fact that it is all in user space should make it straight
+> forward to change if needed.
+> 
+> Eric
+>  
 
-Namespace.
-
-> +
-> +/*
-> + * useful common(control and data pathes) macro
-> + */
-> +#define ntoh24(p) (((p)[0] << 16) | ((p)[1] << 8) | ((p)[2]))
-> +#define hton24(p, v) { \
-> +        p[0] = (((v) >> 16) & 0xFF); \
-> +        p[1] = (((v) >> 8) & 0xFF); \
-> +        p[2] = ((v) & 0xFF); \
-> +}
-> +#define zero_data(p) {p[0]=0;p[1]=0;p[2]=0;}
-
-These are specific to dlength, yes? Can we instead roll dlength and
-hlength together, and do this with masking?
-
-#define iscsi_hlen(hdr) (ntohl(hdr->hdlen)>>24)
-#define iscsi_dlen(hdr) (ntohl(hdr->hdlen) & 0xffffff)
-#define iscsi_set_hlen(hdr, len) (hdr->hdlen=htonl(iscsi_dlen(hdr)|(len<<24)))
-#define iscsi_set_hlen(hdr, len) (hdr->hdlen=htonl(len|(iscsi_hlen(hdr)<<24)))
-
-The last two obviously have multiple evaluation, but you get the idea.
-
-> +/* SNACK Header */
-
-Mmm, snacks.
-
-> +/* Reason for Reject */
-> +#define CMD_BEFORE_LOGIN	1
-> +#define DATA_DIGEST_ERROR	2
-> +#define DATA_SNACK_REJECT	3
-> +#define ISCSI_PROTOCOL_ERROR	4
-> +#define CMD_NOT_SUPPORTED	5
-> +#define IMM_CMD_REJECT		6
-> +#define TASK_IN_PROGRESS	7
-> +#define INVALID_SNACK		8
-> +#define BOOKMARK_REJECTED	9
-> +#define BOOKMARK_NO_RESOURCES	10
-> +#define NEGOTIATION_RESET	11
-> +
-> +/* Max. number of Key=Value pairs in a text message */
-> +#define MAX_KEY_VALUE_PAIRS	8192
-> +
-> +/* maximum length for text keys/values */
-> +#define KEY_MAXLEN		64
-> +#define VALUE_MAXLEN		255
-> +#define TARGET_NAME_MAXLEN	VALUE_MAXLEN
-> +
-> +#define DEFAULT_MAX_RECV_DATA_SEGMENT_LENGTH	8192
-
-Namespace.
-
--- 
-Mathematics is the supreme nostalgia of our time.

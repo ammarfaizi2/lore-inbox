@@ -1,40 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261559AbSJRWAb>; Fri, 18 Oct 2002 18:00:31 -0400
+	id <S265409AbSJRWLb>; Fri, 18 Oct 2002 18:11:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265340AbSJRWAb>; Fri, 18 Oct 2002 18:00:31 -0400
-Received: from almesberger.net ([63.105.73.239]:1286 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id <S261559AbSJRWAa>; Fri, 18 Oct 2002 18:00:30 -0400
-Date: Fri, 18 Oct 2002 17:03:46 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: suparna@in.ibm.com, fastboot@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: kexec for 2.5.42
-Message-ID: <20021018170346.D14894@almesberger.net>
-References: <20021016230311.A3447@in.ibm.com> <m1k7ki2qed.fsf@frodo.biederman.org> <20021017150542.A1978@in.ibm.com> <m1elap30nq.fsf_-_@frodo.biederman.org>
+	id <S265412AbSJRWLb>; Fri, 18 Oct 2002 18:11:31 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:65250 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S265409AbSJRWLa>;
+	Fri, 18 Oct 2002 18:11:30 -0400
+Date: Fri, 18 Oct 2002 15:17:24 -0700
+From: Dave Olien <dmo@osdl.org>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.43 disk repartitioning problems
+Message-ID: <20021018151724.A6207@acpi.pdx.osdl.net>
+References: <20021017105205.C3841@acpi.pdx.osdl.net> <Pine.LNX.3.96.1021018154148.23760D-100000@gatekeeper.tmr.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <m1elap30nq.fsf_-_@frodo.biederman.org>; from ebiederm@xmission.com on Thu, Oct 17, 2002 at 02:55:05AM -0600
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.3.96.1021018154148.23760D-100000@gatekeeper.tmr.com>; from davidsen@tmr.com on Fri, Oct 18, 2002 at 03:45:50PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
-> O.k. My first pass at getting up to date with the current kernel is
-> available at:
 
-Yipee! I was already having nightmares that we'd have to live
-without it for another major kernel release cycle.
+Bill,
 
-I had a quick glance at it, and it looks quite lovely. You
-want to get rid of the load_elf_kernel prototype in
-include/linux/kexec.h, though :-)
+Hmm.  
 
-Thanks,
-- Werner
+The disks I'm working with aren't mounted and are not being used for
+swap.  There are no applications holding any partitions open.
+At the time I'm modifying a disk's partition tables, there are no users
+of any partitions on that disk.
 
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+I experimented removing and adding partitions in 2.4.18, and repeating
+those experiemnts in 2.5.43.  The two versions of OS definately
+behave differently.  
+
+Dave
+
+On Fri, Oct 18, 2002 at 03:45:50PM -0400, Bill Davidsen wrote:
+> On Thu, 17 Oct 2002, Dave Olien wrote:
+> 
+> > I'm working on the Mylex DAC960 device driver, bring in up to date
+> > with the new block and dma interfaces.  I've been posting patches on
+> > occasion.  I've also noticed you updating the driver when you make changes
+> > to the gendisk kernel interfaces.   Those updates are very helpful.
+> > 
+> > I've noticed in 2.4.3 at least, that some changes to disk partitions
+> > aren't noticed until you reboot.  The same problem is seen with aacraid.
+> > I don't THINK this is a driver issue.  But, I might have missed something.  
+> 
+> Linux has always read the partition table at first use AFAIK. So if you
+> have never used a drive you can repartition it and then use it, but once
+> you use any one partition the table is not reread.
+> 
+> I *think* if you unmount all partitions (including swapoff swaps) you can
+> see changes, but that's from memory, I haven't tried it in a long time.
+> 
+> Don't believe it's a bug, it's a design decision.
+> 
+> -- 
+> bill davidsen <davidsen@tmr.com>
+>   CTO, TMR Associates, Inc
+> Doing interesting things with little computers since 1979.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

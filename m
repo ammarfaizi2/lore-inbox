@@ -1,60 +1,201 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262429AbUCRGjR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 01:39:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262428AbUCRGjR
+	id S262425AbUCRGdy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 01:33:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262427AbUCRGdO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 01:39:17 -0500
-Received: from 1-2-2-1a.has.sth.bostream.se ([82.182.130.86]:43172 "EHLO
-	K-7.stesmi.com") by vger.kernel.org with ESMTP id S262424AbUCRGif
+	Thu, 18 Mar 2004 01:33:14 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:63637 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S262425AbUCRGbv
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 01:38:35 -0500
-Message-ID: <405943DA.9030202@stesmi.com>
-Date: Thu, 18 Mar 2004 07:38:18 +0100
-From: Stefan Smietanowski <stesmi@stesmi.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7a) Gecko/20040219
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Scott Long <scott_long@adaptec.com>
-CC: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Jeff Garzik <jgarzik@pobox.com>, "Justin T. Gibbs" <gibbs@scsiguy.com>,
-       linux-raid@vger.kernel.org, "Gibbs, Justin" <justin_gibbs@adaptec.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: "Enhanced" MD code avaible for review
-References: <459805408.1079547261@aslan.scsiguy.com> <4058A481.3020505@pobox.com> <4058C089.9060603@adaptec.com> <200403172245.31842.bzolnier@elka.pw.edu.pl> <4058EBEC.8070309@adaptec.com>
-In-Reply-To: <4058EBEC.8070309@adaptec.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 18 Mar 2004 01:31:51 -0500
+Date: Thu, 18 Mar 2004 12:06:29 +0530
+From: Maneesh Soni <maneesh@in.ibm.com>
+To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Cc: LKML <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>,
+       Dipankar Sarma <dipankar@in.ibm.com>, Carsten Otte <COTTE@de.ibm.com>,
+       Christian Borntraeger <CBORNTRA@de.ibm.com>,
+       "Martin J. Bligh" <mjbligh@us.ibm.com>, Matt Mackall <mpm@selenic.com>
+Subject: [RFC 6/6] sysfs backing store v0.3
+Message-ID: <20040318063629.GG27107@in.ibm.com>
+Reply-To: maneesh@in.ibm.com
+References: <20040318063306.GA27107@in.ibm.com> <20040318063352.GB27107@in.ibm.com> <20040318063424.GC27107@in.ibm.com> <20040318063455.GD27107@in.ibm.com> <20040318063524.GE27107@in.ibm.com> <20040318063548.GF27107@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040318063548.GF27107@in.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
 
-<snip beginning of discsussion about DDF, etc>
 
-> With DM, what happens when your initrd gets accidentally corrupted?
-> What happens when the kernel and userland pieces get out of sync?
-> Maybe you are booting off of a single drive and only using DM arrays
-> for secondary storage, but maybe you're not.  If something goes wrong
-> with DM, how do you boot?
+=> changes in version 0.3
+ o Corrected dentry ref counting for sysfs_create_group() and
+   sysfs_remove_group().
 
-Tell me something... Do you guys release a driver for WinXP as an
-example? You don't have to answer that really as it's obvious that
-you do. Do you in the installation program recompile the windows
-kernel so that your driver is monolithic? The answer is most presumably
-no - that's not how it's done there.
+=> changes in Version 0.2
+  o  Provided error checking after sysfs_get_dentry() call in 
+     sysfs_remove_group().
+  o  kfree the symlink name while freeing the corresponding sysfs_dirent in
+     sysfs_put().
 
-Ok. Your example states "what if initrd gets corrupted" and my example
-is "what if you driver file(s) get corrupted?" and my example
-is equally important to a module in linux as it is a driver in windows.
+================
+o This patch has the changes required for attribute groups and misc. routines.
 
-Now, since you do supply a windows driver and that driver is NOT
-statically linked to the windows kernel why is it that you believe
-a meta driver (which MD really is in a sense) needs special treatment
-(static linking into the kernel) when for instance a driver for a piece
-of hardware doesn't? If you have disk corruption so far that your
-initrd is corrupted I would seriously suggest NOT booting that OS
-that's on that drive regardless of anything else and sticking it
-in another box OR booting from rescue media of some sort.
 
-// Stefan
+ fs/sysfs/group.c |   21 +++++++++------
+ fs/sysfs/sysfs.h |   77 ++++++++++++++++++++++++++++++++++++++++++++++++++++++-
+ 2 files changed, 89 insertions(+), 9 deletions(-)
+
+diff -puN fs/sysfs/group.c~sysfs-leaves-misc fs/sysfs/group.c
+--- linux-2.6.5-rc1/fs/sysfs/group.c~sysfs-leaves-misc	2004-03-18 11:39:08.000000000 +0530
++++ linux-2.6.5-rc1-maneesh/fs/sysfs/group.c	2004-03-18 11:39:08.000000000 +0530
+@@ -31,7 +31,7 @@ static int create_files(struct dentry * 
+ 	int error = 0;
+ 
+ 	for (attr = grp->attrs; *attr && !error; attr++) {
+-		error = sysfs_add_file(dir,*attr);
++		error = sysfs_add_file(dir, *attr, SYSFS_KOBJ_ATTR);
+ 	}
+ 	if (error)
+ 		remove_files(dir,grp);
+@@ -55,8 +55,9 @@ int sysfs_create_group(struct kobject * 
+ 	if ((error = create_files(dir,grp))) {
+ 		if (grp->name)
+ 			sysfs_remove_subdir(dir);
+-		dput(dir);
+ 	}
++	dput(dir);
++
+ 	return error;
+ }
+ 
+@@ -65,15 +66,19 @@ void sysfs_remove_group(struct kobject *
+ {
+ 	struct dentry * dir;
+ 
+-	if (grp->name)
++	if (grp->name) 
+ 		dir = sysfs_get_dentry(kobj->dentry,grp->name);
+ 	else
+-		dir = kobj->dentry;
++		dir = dget(kobj->dentry);
+ 
+-	remove_files(dir,grp);
+-	dput(dir);
+-	if (grp->name)
+-		sysfs_remove_subdir(dir);
++	if (!IS_ERR(dir) && dir->d_inode) {
++		remove_files(dir,grp);
++		if (grp->name)
++			sysfs_remove_subdir(dir);
++
++		/* release the ref. taken in this routine */
++		dput(dir);
++	}
+ }
+ 
+ 
+diff -puN fs/sysfs/sysfs.h~sysfs-leaves-misc fs/sysfs/sysfs.h
+--- linux-2.6.5-rc1/fs/sysfs/sysfs.h~sysfs-leaves-misc	2004-03-18 11:39:08.000000000 +0530
++++ linux-2.6.5-rc1-maneesh/fs/sysfs/sysfs.h	2004-03-18 11:39:08.000000000 +0530
+@@ -1,4 +1,5 @@
+ 
++#include <linux/fs.h>
+ extern struct vfsmount * sysfs_mount;
+ 
+ extern struct inode * sysfs_new_inode(mode_t mode);
+@@ -6,8 +7,82 @@ extern int sysfs_create(struct dentry *,
+ 
+ extern struct dentry * sysfs_get_dentry(struct dentry *, const char *);
+ 
+-extern int sysfs_add_file(struct dentry * dir, const struct attribute * attr);
++extern int sysfs_add_file(struct dentry *, const struct attribute *, int);
+ extern void sysfs_hash_and_remove(struct dentry * dir, const char * name);
+ 
+ extern int sysfs_create_subdir(struct kobject *, const char *, struct dentry **);
+ extern void sysfs_remove_subdir(struct dentry *);
++
++extern loff_t sysfs_dir_lseek(struct file *, loff_t, int);
++extern int sysfs_readdir(struct file *, void *, filldir_t);
++extern void sysfs_umount_begin(struct super_block *);
++extern char * sysfs_get_name(struct sysfs_dirent *);
++extern struct dentry * sysfs_lookup(struct inode *, struct dentry *, struct nameidata *);
++extern int sysfs_symlink(struct inode * dir, struct dentry *dentry, const char * symname);
++
++extern struct file_operations sysfs_file_operations;
++extern struct file_operations bin_fops;
++extern struct inode_operations sysfs_dir_inode_operations;
++extern struct file_operations sysfs_dir_operations;
++
++
++static inline 
++struct sysfs_dirent * sysfs_new_dirent(struct sysfs_dirent * p, void * e, int t)
++{
++	struct sysfs_dirent * sd;
++
++	sd = kmalloc(sizeof(*sd), GFP_KERNEL);
++	if (!sd)
++		return NULL;
++	memset(sd, 0, sizeof(*sd));
++	atomic_set(&sd->s_count, 1);
++	sd->s_element = e;
++	sd->s_type = t;
++	sd->s_dentry = NULL;
++	INIT_LIST_HEAD(&sd->s_children);
++	list_add(&sd->s_sibling, &p->s_children);
++
++	return sd;
++}
++
++static inline struct sysfs_dirent * sysfs_get(struct sysfs_dirent * sd)
++{
++	if (sd) {
++		WARN_ON(!atomic_read(&sd->s_count)); 
++		atomic_inc(&sd->s_count);
++	}
++	return sd;
++}
++
++static inline void sysfs_put(struct sysfs_dirent * sd)
++{
++	if (atomic_dec_and_test(&sd->s_count)) {
++		if (sd->s_type & SYSFS_KOBJ_LINK) {
++			char ** link_names = sd->s_element;
++			kfree(link_names[0]);
++			kfree(link_names[1]);
++			kfree(sd->s_element);
++		}
++		kfree(sd);
++	}
++}
++
++static inline 
++void sysfs_remove_dirent(struct sysfs_dirent * parent_sd, const char * name)
++{
++	struct list_head * tmp;
++
++	tmp = parent_sd->s_children.next;
++	while (tmp != & parent_sd->s_children) {
++		struct sysfs_dirent * sd;
++		sd = list_entry(tmp, struct sysfs_dirent, s_sibling);
++		tmp = tmp->next;
++		if (sd->s_type & SYSFS_NOT_PINNED) {
++			if (!strcmp(sysfs_get_name(sd), name)) {
++				list_del_init(&sd->s_sibling);
++				sysfs_put(sd);
++			}
++		}
++	}
++}
++
+
+_
+-- 
+Maneesh Soni
+Linux Technology Center, 
+IBM Software Lab, Bangalore, India
+email: maneesh@in.ibm.com
+Phone: 91-80-25044999 Fax: 91-80-25268553
+T/L : 9243696

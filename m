@@ -1,55 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261451AbUK1M3J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261453AbUK1MgX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261451AbUK1M3J (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Nov 2004 07:29:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261452AbUK1M3I
+	id S261453AbUK1MgX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Nov 2004 07:36:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261456AbUK1MgW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Nov 2004 07:29:08 -0500
-Received: from levante.wiggy.net ([195.85.225.139]:18101 "EHLO mx1.wiggy.net")
-	by vger.kernel.org with ESMTP id S261451AbUK1M3G (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Nov 2004 07:29:06 -0500
-Date: Sun, 28 Nov 2004 13:28:55 +0100
-From: Wichert Akkerman <wichert@wiggy.net>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       David Woodhouse <dwmw2@infradead.org>,
-       "Randy.Dunlap" <rddunlap@osdl.org>, Matthew Wilcox <matthew@wil.cx>,
-       Tonnerre <tonnerre@thundrix.ch>, David Howells <dhowells@redhat.com>,
-       torvalds@osdl.org, hch@infradead.org, aoliva@redhat.com,
-       linux-kernel@vger.kernel.org, libc-hacker@sources.redhat.com
-Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
-Message-ID: <20041128122855.GD17423@wiggy.net>
-Mail-Followup-To: Arnd Bergmann <arnd@arndb.de>,
-	Arjan van de Ven <arjan@infradead.org>,
-	David Woodhouse <dwmw2@infradead.org>,
-	"Randy.Dunlap" <rddunlap@osdl.org>, Matthew Wilcox <matthew@wil.cx>,
-	Tonnerre <tonnerre@thundrix.ch>,
-	David Howells <dhowells@redhat.com>, torvalds@osdl.org,
-	hch@infradead.org, aoliva@redhat.com, linux-kernel@vger.kernel.org,
-	libc-hacker@sources.redhat.com
-References: <19865.1101395592@redhat.com> <200411272353.54056.arnd@arndb.de> <1101626019.2638.2.camel@laptop.fenrus.org> <200411281303.46609.arnd@arndb.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200411281303.46609.arnd@arndb.de>
-User-Agent: Mutt/1.5.6+20040722i
-X-SA-Exim-Connect-IP: <locally generated>
+	Sun, 28 Nov 2004 07:36:22 -0500
+Received: from rev.193.226.233.139.euroweb.hu ([193.226.233.139]:36834 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S261453AbUK1MgV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Nov 2004 07:36:21 -0500
+To: viro@parcelfarce.linux.theplanet.co.uk
+CC: ecki-news2004-05@lina.inka.de, linux-kernel@vger.kernel.org
+In-reply-to: <20041128121800.GZ26051@parcelfarce.linux.theplanet.co.uk>
+	(message from Al Viro on Sun, 28 Nov 2004 12:18:00 +0000)
+Subject: Re: Problem with ioctl command TCGETS
+References: <E1CYMI9-0005PL-00@calista.eckenfels.6bone.ka-ip.net> <E1CYN7z-0001bZ-00@dorka.pomaz.szeredi.hu> <20041128121800.GZ26051@parcelfarce.linux.theplanet.co.uk>
+Message-Id: <E1CYODw-0001jf-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Sun, 28 Nov 2004 13:32:17 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Previously Arnd Bergmann wrote:
-> Ok, I've looked for places where someone actually tried using
-> the kernel headers by googling for /usr/include/asm/foo.h.
-> The good news is that marking these files broken in 
-> glibc-kernheaders has already pointed most authors to the
-> source of the problem.
+> Think read(2)/write(2).  We already have several barfbags too many,
+> and that includes both ioctl() and setsockopt().  We are stuck with
+> them for compatibility reasons, but why the hell would we need yet
+> another one?
 
-If you want a challenge try if you can get strace to compile with
-glibc-kernheaders. 
+You can't replace either ioctl() or setsockopt() with read/write can
+you?  Both of them set out-of-band information on file descriptors.
 
-Wichert.
+Proc maybe ('/proc/PID/fdparam/FD/param')?  I'm sure some people would
+have objections to that too. 
 
--- 
-Wichert Akkerman <wichert@wiggy.net>    It is simple to make things.
-http://www.wiggy.net/                   It is hard to make things simple.
+Miklos

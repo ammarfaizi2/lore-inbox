@@ -1,47 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275066AbTHGFOo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 01:14:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275070AbTHGFOo
+	id S275059AbTHGFCj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 01:02:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275062AbTHGFCi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 01:14:44 -0400
-Received: from [66.212.224.118] ([66.212.224.118]:22031 "EHLO
-	hemi.commfireservices.com") by vger.kernel.org with ESMTP
-	id S275066AbTHGFOn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 01:14:43 -0400
-Date: Thu, 7 Aug 2003 01:02:56 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Ro0tSiEgE LKML <lkml@ro0tsiege.org>
+	Thu, 7 Aug 2003 01:02:38 -0400
+Received: from h68-147-142-75.cg.shawcable.net ([68.147.142.75]:40957 "EHLO
+	schatzie.adilger.int") by vger.kernel.org with ESMTP
+	id S275059AbTHGFCh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 01:02:37 -0400
+Date: Wed, 6 Aug 2003 23:02:20 -0600
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Vladimir Lazarenko <vlad@lazarenko.net>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Soekris not exec'ing INIT
-In-Reply-To: <003701c35c56$4e4dcbd0$0500000a@bp>
-Message-ID: <Pine.LNX.4.53.0308070100080.9517@montezuma.mastecende.com>
-References: <003701c35c56$4e4dcbd0$0500000a@bp>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: reiserfs4
+Message-ID: <20030806230220.I7752@schatzie.adilger.int>
+Mail-Followup-To: Vladimir Lazarenko <vlad@lazarenko.net>,
+	linux-kernel@vger.kernel.org
+References: <200308070305.51868.vlad@lazarenko.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200308070305.51868.vlad@lazarenko.net>; from vlad@lazarenko.net on Thu, Aug 07, 2003 at 03:05:51AM +0200
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Aug 2003, Ro0tSiEgE LKML wrote:
-
+On Aug 07, 2003  03:05 +0200, Vladimir Lazarenko wrote:
+> Is there going to be some kind of a converter for new reiserfs version?
+> I'm running 2.4.22-rc1 now, with its current reiserfs implementation, and I 
+> heard many good things about reiserfs v4, would it be possible to convert 
+> filesystems without data loss? 
 > 
-> I'm not sure that this is a specific kernel issue or not, but here goes...
-> 
-> I have a distro (hand compiled) running off of a CF card that's booting from
-> a Soekris (Elan SC520) net4501(and net4521) with the console kernel cmdline
-> set to ttyS0,19200n81, and the kernel messages show up fine and everything
-> over my serial terminal, but when the kernel goes to execute /sbin/init or
-> whatever I set init equal to (after the "Freeing unused kernel memory" bit),
-> nothing happens, init doesn't get executed (or I cannot see it). This same
-> CF card boots and runs fine from a normal PC, but from any Elan I have, init
-> never gets executed. What is wrong here?
+> It's going to be a major pain if I'll have to back things up and reinitialize 
+> partitions...
 
-Userspace compiled for incorrect processor? One common problem is i686 
-compiled binaries, you could try the following quick test (but not 100% 
-conclusive)
+Why do people ever want a "converter"?
 
-objdump -d binary_file | grep cmov
+If you are converting your current filesystem to an _experimental_
+filesystem, wouldn't you want to have a backup in case the new filesystem
+had a bug in it?
 
--- 
-function.linuxpower.ca
+Considering that such a conversion tool would be used only very rarely,
+wouldn't you want to make a backup in case the conversion tool was broken?
+
+The safest conversion is to make a backup with tar or similar, and then
+restore it after a formatting the new filesystem.
+
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+

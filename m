@@ -1,59 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265214AbUGHMH3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265224AbUGHMHz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265214AbUGHMH3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jul 2004 08:07:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265224AbUGHMH3
+	id S265224AbUGHMHz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jul 2004 08:07:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265534AbUGHMHz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jul 2004 08:07:29 -0400
-Received: from mout1.freenet.de ([194.97.50.132]:41661 "EHLO mout1.freenet.de")
-	by vger.kernel.org with ESMTP id S265214AbUGHMH1 (ORCPT
+	Thu, 8 Jul 2004 08:07:55 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:11473 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S265224AbUGHMHw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jul 2004 08:07:27 -0400
-From: Michael Buesch <mbuesch@freenet.de>
-To: Martin Zwickel <martin.zwickel@technotrend.de>
-Subject: Re: [PATCH] Use NULL instead of integer 0 in security/selinux/
-Date: Thu, 8 Jul 2004 14:06:22 +0200
-User-Agent: KMail/1.6.2
-References: <E1BiPKz-0008Q7-00@gondolin.me.apana.org.au> <200407081328.40545.mbuesch@freenet.de> <20040708134459.6970a20b@phoebee>
-In-Reply-To: <20040708134459.6970a20b@phoebee>
-Cc: root@chaos.analogic.com, Herbert Xu <herbert@gondor.apana.org.au>,
-       Chris Wright <chrisw@osdl.org>, akpm@osdl.org, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, sds@epoch.ncsc.mil, jmorris@redhat.com,
-       mika@osdl.org
-MIME-Version: 1.0
+	Thu, 8 Jul 2004 08:07:52 -0400
+Date: Thu, 8 Jul 2004 08:07:19 -0400
+From: Jakub Jelinek <jakub@redhat.com>
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: GCC 3.4 and broken inlining.
+Message-ID: <20040708120719.GS21264@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
+References: <1089287198.3988.18.camel@nigel-laptop.wpcb.org.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200407081406.23831.mbuesch@freenet.de>
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <1089287198.3988.18.camel@nigel-laptop.wpcb.org.au>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Thu, Jul 08, 2004 at 09:46:39PM +1000, Nigel Cunningham wrote:
+> In response to a user report that suspend2 was broken when compiled with
+> gcc 3.4, I upgraded my compiler to 3.4.1-0.1mdk. I've found that the
+> restore_processor_context, defined as follows:
+> 
+> static inline void restore_processor_context(void)
+> 
+> doesn't get inlined. GCC doesn't complain when compiling the file, and
+> so far as I can see, there's no reason for it not to inline the routine.
 
-Quoting Martin Zwickel <martin.zwickel@technotrend.de>:
-> include/linux/stddef.h:
->
-> #undef NULL
-> #if defined(__cplusplus)
-> #define NULL 0
-> #else
-> #define NULL ((void *)0)
-> #endif
+Try passing -Winline, it will tell you when a function marked inline is not
+actually inlined.
+Presence of inline keyword is not a guarantee the function will not be
+inlined, it is a hint to the compiler.
+GCC 3.4 is much bettern than earlier 3.x GCCs in actually inlining functions
+marked as inline, but there are still cases when it decides not to inline
+for various reasons.  E.g. in C++ world, lots of things are inline, yet
+honoring that everywhere would mean very inefficient huge programs.
+If a function relies for correctness on being inlined, then it should use
+inline __attribute__((always_inline)).
 
-Yes, I never understood the reason for this ugly
-#if defined(__cplusplus) here.
-It works, but is IMHO unneccessary.
-
-- --
-Regards Michael Buesch  [ http://www.tuxsoft.de.vu ]
-
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFA7Ti+FGK1OIvVOP4RAgM/AJ9zsaNf0kKrQTq/a5R89pdjB8+/fgCfbS1p
-1m6bM+MX3Dyg3lKcUK9qgRE=
-=GxfG
------END PGP SIGNATURE-----
+	Jakub

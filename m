@@ -1,50 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129563AbQLUM4p>; Thu, 21 Dec 2000 07:56:45 -0500
+	id <S131057AbQLUNCG>; Thu, 21 Dec 2000 08:02:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131115AbQLUM4g>; Thu, 21 Dec 2000 07:56:36 -0500
-Received: from elektra.higherplane.net ([203.37.52.137]:43922 "EHLO
-	elektra.higherplane.net") by vger.kernel.org with ESMTP
-	id <S129563AbQLUM4b>; Thu, 21 Dec 2000 07:56:31 -0500
-Date: Thu, 21 Dec 2000 23:31:19 +1100
-From: john slee <indigoid@higherplane.net>
-To: albertogli@telpin.com.ar
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Weird vmstat reports in 2.2.18
-Message-ID: <20001221233119.C22707@higherplane.net>
-In-Reply-To: <977324137.3a40c869a394e@webmail.telpin.com.ar>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <977324137.3a40c869a394e@webmail.telpin.com.ar>; from albertogli@telpin.com.ar on Wed, Dec 20, 2000 at 11:55:37AM -0300
+	id <S131042AbQLUNB4>; Thu, 21 Dec 2000 08:01:56 -0500
+Received: from whiterose.net ([199.245.105.145]:8800 "EHLO whiterose.net")
+	by vger.kernel.org with ESMTP id <S131039AbQLUNBn>;
+	Thu, 21 Dec 2000 08:01:43 -0500
+Date: Thu, 21 Dec 2000 07:31:18 -0500 (EST)
+From: M Sweger <mikesw@whiterose.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: linux 2.2.19pre1 oops on cpuid (fwd)
+Message-ID: <Pine.LNX.4.21.0012210731030.27401-100000@whiterose.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 20, 2000 at 11:55:37AM -0300, albertogli@telpin.com.ar wrote:
-> I'm getting some strange reports with vmstat on a dual iPPro running 2.2.18,
-> it doesnt happen very frequently, but i see it a lot when compiling something
-> (kernel and mysql specially, not when compiling small stuff), though it doesnt
-> look like a high-load issue. When the machine is idle (ie. most of the time at
-> the moment) it doesnt show up.
 
-i can consistently produce this on dual p3 600/2.2.17pre20.  in my case
-it's the `ab' benchmark tool supplied with apache that helps reproduce
-it.  incidentally i only noticed this in the last day or two, good to
-know i'm not the only one. :-)
 
-our setup is apache/php/postgresql.  fairly intensive pages.  i start
-seeing vmstat oddities after about 15 concurrent requests.
+---------- Forwarded message ----------
+Date: Wed, 20 Dec 2000 15:56:38 -0500 (EST)
+From: Alan Cox <alan@redhat.com>
+To: M Sweger <mikesw@whiterose.net>
+Cc: alan@redhat.com
+Subject: Re: linux 2.2.19pre1 oops on cpuid (fwd)
 
-> I wasnt able to trigger it in a predictable way, it just pops up...
-> BUT if i open two vmstats in different consoles.. the number doesnt show up in
-> both, just in one of them... so i'm not sure at all if this is a kernel bug, or
-> just another (vmstat?) feature =)
+> How would I activate the usb-serial in such a way as to activate the
+> /dev/usb/tts/{0,1} instead of /dev/ttyUSB0. The /dev/ttyUSB) shows
+> up correctly now in /proc, but I'd like to test and see the other one.
 
-the vmstat processes probably aren't reading /proc/* at exactly the same
-time, so the numbers they see will likely be different... 
+Thats for 2.4 and devfs. Probably works on 2.2 + devfs patch
 
-j.
+>    I have linux 2.2.19pre1 and have compiled the cpuid as a module. The
+> kernel will oops if the cpuid module isn't loaded and one does
+> /cat/dev/cpu/0/cpuid or /cat/dev/cpu/1/cpuid.
+
+Yeah. That one should get squashed for pre4
+
+>      Question: When the cpuid module is loaded and I do a
+> cat/dev/cpu/0/cpuid it gives me a code "C" forover. What does this code
+> mean. I'm stil new to what it will be used for. Moreover, is there
+> a  list of all the possible code values it may take on for intel
+> processors vs. other processor types?
+
+Its a binary not ascii file for the cpuid() instruction results off each 
+CPU. See the intel cpu docs on the cpuid instruction and go from there
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

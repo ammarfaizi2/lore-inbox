@@ -1,61 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261774AbUCKWMe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 17:12:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261786AbUCKWMe
+	id S261766AbUCKWPU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 17:15:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261793AbUCKWPU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 17:12:34 -0500
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:60607 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S261774AbUCKWMc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 17:12:32 -0500
-Message-ID: <4050E402.30505@nortelnetworks.com>
-Date: Thu, 11 Mar 2004 17:11:14 -0500
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+	Thu, 11 Mar 2004 17:15:20 -0500
+Received: from fmr05.intel.com ([134.134.136.6]:43433 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S261766AbUCKWPN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Mar 2004 17:15:13 -0500
+Message-ID: <4050E4D5.3@linux.co.intel.com>
+Date: Thu, 11 Mar 2004 16:14:45 -0600
+From: James Ketrenos <jketreno@linux.co.intel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Joel Becker <Joel.Becker@oracle.com>
-Cc: Joe Thornber <thornber@redhat.com>, Andi Kleen <ak@muc.de>,
-       Mickael Marchand <marchand@kde.org>, linux-kernel@vger.kernel.org,
-       dm@uk.sistina.com
-Subject: Re: 2.6.4-mm1
-References: <1ysXv-wm-11@gated-at.bofh.it> <1yxuq-6y6-13@gated-at.bofh.it> <m3hdwnawfi.fsf@averell.firstfloor.org> <200403111445.35075.marchand@kde.org> <20040311144829.GA22284@colin2.muc.de> <20040311214354.GM18345@reti> <20040311215955.GC18020@ca-server1.us.oracle.com>
-In-Reply-To: <20040311215955.GC18020@ca-server1.us.oracle.com>
+To: Stephen Hemminger <shemminger@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [Announce] Intel PRO/Wireless 2100 802.11b driver
+References: <404E27E6.40200@linux.co.intel.com> <20040311103754.540d9ca5@dell_ss3.pdx.osdl.net>
+In-Reply-To: <20040311103754.540d9ca5@dell_ss3.pdx.osdl.net>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joel Becker wrote:
-> On Thu, Mar 11, 2004 at 09:43:54PM +0000, Joe Thornber wrote:
-> 
->>struct dm_ioctl {			0
->>        uint32_t version[3];		
->>        uint32_t data_size;  		4
->>
->>        uint32_t data_start;
->>
->>        uint32_t target_count;
->>        int32_t open_count;
->>        uint32_t flags;		8
->>        uint32_t event_nr;
->>        uint32_t padding;		10 ***
-> 
-> 
-> 	Here's probably the problem.  Many 64bit arches align 64bit
-> numbers on a 64bit boundary.  So it is adding 2 more words of padding to
-> start the u64 at offset 12.
+Stephen Hemminger wrote:
+> The whole /proc/ipw2100/xxx interface is ugly and a mess.  It doesn't expose anything
+> really useful that can't be found other ways and it is buggy.  It doesn't handle
+> more than one device;  I know you don't make hardware with multiple chipsets now but
+> will that always be true?  
 
-But wouldn't this be applied across the board and therefore still work? 
-  Or is it defined as "packed" somewhere?
+We're very interested in correcting any bugs you've found in the proc code.  If 
+you have any more specifics it would be greatly appreciated (steps to reproduce 
+the problem, what you're seeing that is problematic, etc.)
 
-Chris
+Multiple interfaces should be supported with the current code; each one's 
+entries would show up in its own /proc/ipw2100/<if_name> directory.  The single 
+debug_level entry in /proc/ipw2100 sets a global level for the entire driver 
+module; we felt it more useful to apply the debug level globally to all 
+potential ipw2100 devices than on a per device basis.  In the event that someone 
+does have multiple ipw2100's in their machine and they want to be able to set 
+the debug_level explicitly on a per device basis, we can accomodate that rather 
+quickly in the code.  I'm interested in hearing other's opinions on this and am 
+very willing to change the code if appropriate.
 
+ > Also, it forgets to do properly set module owner.
 
--- 
-Chris Friesen                    | MailStop: 043/33/F10
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+Good catch; I'll fix it in the next snapshot.
+
+> If you really have to keep the interface could you consider putting it in sysfs.
+> Something like /sys/class/net/eth0/ipw2100/xxx with one value per file.
+> The way to do that is with attribute groups.
+
+Transitioning to sysfs is one of the goals as the project develops.
+
+That said, we have a development mailing list set up for the project if you're 
+interested in helping us improve the driver.  You can subscribe to that list 
+here <http://lists.sourceforge.net/mailman/listinfo/ipw2100-devel>
+
+Thanks for the feedback.
+
+James

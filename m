@@ -1,80 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262023AbVCASp3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261585AbVCASvR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262023AbVCASp3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 13:45:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262024AbVCASp3
+	id S261585AbVCASvR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 13:51:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261556AbVCASvR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 13:45:29 -0500
-Received: from colin2.muc.de ([193.149.48.15]:12040 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S262023AbVCASpU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 13:45:20 -0500
-Date: 1 Mar 2005 19:45:18 +0100
-Date: Tue, 1 Mar 2005 19:45:18 +0100
-From: Andi Kleen <ak@muc.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linas Vepstas <linas@austin.ibm.com>,
-       "Luck, Tony" <tony.luck@intel.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH/RFC] I/O-check interface for driver's error handling
-Message-ID: <20050301184518.GA18207@muc.de>
-References: <422428EC.3090905@jp.fujitsu.com> <m1hdjvi8r3.fsf@muc.de> <Pine.LNX.4.58.0503011001320.25732@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0503011001320.25732@ppc970.osdl.org>
-User-Agent: Mutt/1.4.1i
+	Tue, 1 Mar 2005 13:51:17 -0500
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:56467 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S261585AbVCASvJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Mar 2005 13:51:09 -0500
+Message-Id: <200502282007.j1SK7L505841@www.watkins-home.com>
+From: "Guy" <bugzilla@watkins-home.com>
+To: "'Andrew Walrond'" <andrew@walrond.org>, <linux-kernel@vger.kernel.org>
+Cc: "'Mike Hardy'" <mhardy@h3c.com>, "'Jesper Juhl'" <juhl-lkml@dif.dk>,
+       <linux-raid@vger.kernel.org>, <alan@lxorguk.ukuu.org.uk>
+Subject: RE: No swap can be dangerous (was Re: swap on RAID (was Re: swp - Re: ext3 journal on software raid))
+Date: Mon, 28 Feb 2005 15:07:15 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2527
+In-Reply-To: <200501070928.13307.andrew@walrond.org>
+Thread-Index: AcUdxC5ytE0t1RVCQl6KhT3yELAwcAACS4/g
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 01, 2005 at 10:08:48AM -0800, Linus Torvalds wrote:
-> The thing is, IO errors just will be very architecture-dependent. Some 
-> might have exceptions happening, without the exception handler really 
-> having much of an idea of who caused it, unless that driver had prepared 
-> it some way, and gotten the proper locks.
+I was just kidding about the RAM disk!
 
-A lot of architectures will move towards PCI Express over the next years,
-and it has nice standardized error handling. It won't work
-on a lot of older chipsets, but having such a feature only
-on new hardware is ok.
+I think swapping to a RAM disk can't work.
+Let's assume a page is swapped out.  Now the first page of swap space is
+used, and memory is now allocated for it.  Now assume the process frees the
+memory, the page in swap can now be freed, but the RAM disk still has the
+memory allocated, just not used.  Now if the Kernel were to swap the first
+page of that RAM disk, it may be swapped to the first page of swap, which
+would change the data in the RAM disk which is being swapped out.  So, I
+guess it can't be swapped, or must be re-swapped, or new memory is
+allocated.  In any event, that 1 block will never be un-swapped, since it
+will never be needed.  Each time the Kernel attempts to swap some of the RAM
+disk the RAM disk's memory usage will increase.  This will continue until
+all of the RAM disk is used and there is no available swap space left.  Swap
+will be full of swap.  :)
 
-> A non-converted driver just doesn't _do_ any of that. It doesn't guarantee 
-> that it's the only one accessing that bus, since it doesn't do the 
-> "iocheck_clear()/iocheck_read()" things that imply all the locking etc.
+I hope that is clear!  It makes my head hurt!
 
-It just reads 0xffffffff all the time and moves on. That will
-not be nice, but work for a short time until a higher level
-error handler can take over.
+I don't know about lomem or DMAable memory.  But if special memory does
+exists....
+It seems like if the Kernel can move memory to disk, it would be easier to
+move memory to memory.  So, if special memory is needed, the Kernel should
+be able to relocate as needed.  Maybe no code exists to do that, but I think
+it would be easier to do than to swap to disk (assuming you have enough free
+memory).
 
-> 
-> So the default handling for iochecks pretty much _has_ to be "report them 
-> to the user", and then letting the user decide what to do if the hardware 
-> is going bad.
+Guy
 
-Not with PCI Express. There is a standard way now to figure out which
-device went bad and you can get interrupts for it.
+-----Original Message-----
+From: Andrew Walrond [mailto:andrew@walrond.org] 
+Sent: Friday, January 07, 2005 4:28 AM
+To: linux-kernel@vger.kernel.org
+Cc: Guy; 'Mike Hardy'; 'Jesper Juhl'; linux-raid@vger.kernel.org;
+alan@lxorguk.ukuu.org.uk
+Subject: Re: No swap can be dangerous (was Re: swap on RAID (was Re: swp -
+Re: ext3 journal on software raid))
 
+On Thursday 06 January 2005 23:15, Guy wrote:
+> If I MUST/SHOULD have swap space....
+> Maybe I will create a RAM disk and use it for swap!  :)  :)  :)
 
-> 
-> Shutting down the hardware by default might be a horribly bad thing to do
-> even _if_ you could pinpoint the driver that caused the problem in the
-> first place (and that's a big if, and probably depends on the details of
-> what the actual hw architecture support ends up being). So don't even try. 
-> The sysadmin may have different preferences than some driver default.
+Well, indeed, I had the same thought. As long as you could guarantee that
+the 
+ram was of the highmem/non-dmaable type...
 
-There are already architectures that do it (e.g. IBM ppc64 or HP zx*).
-It doesn't work too badly for them.
+But we're getting ahead of ourselves. I think we need an authoritive answer
+to 
+the original premise. Perhaps Alan (cc-ed) might spare us a moment?
 
+Did I dream this up, or is it correct?
 
-> 
-> In fact, I'd argue that even a driver that _uses_ the interface should not
-> necessarily shut itself down on error. Obviously, it should always log the
-> error, but outside of that it might be good if the operator can decide and
-> set a flag whether it should try to re-try (which may not always be
-> possible, of course), shut down, or just continue.
+"I think the gist was this: the kernel can sometimes needs to move bits of 
+memory in order to free up dma-able ram, or lowmem. If I recall correctly, 
+the kernel can only do this move via swap, even if there is stacks of free 
+(non-dmaable or highmem) memory."
 
-Ok, maybe an /sbin/hotplug like interface may make sense for it.
-However shutdown as default is not too bad.
+Andrew
 
--Andi

@@ -1,65 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131953AbQLHDXt>; Thu, 7 Dec 2000 22:23:49 -0500
+	id <S131187AbQLHDaU>; Thu, 7 Dec 2000 22:30:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131187AbQLHDXj>; Thu, 7 Dec 2000 22:23:39 -0500
-Received: from smtp03.mrf.mail.rcn.net ([207.172.4.62]:12994 "EHLO
-	smtp03.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
-	id <S131954AbQLHDXX>; Thu, 7 Dec 2000 22:23:23 -0500
-Message-ID: <3A304D07.8A0826CC@haque.net>
-Date: Thu, 07 Dec 2000 21:52:55 -0500
-From: "Mohammad A. Haque" <mhaque@haque.net>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test12 i686)
-X-Accept-Language: en
+	id <S131850AbQLHDaL>; Thu, 7 Dec 2000 22:30:11 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:1757 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S131187AbQLHD3u>;
+	Thu, 7 Dec 2000 22:29:50 -0500
+Date: Thu, 7 Dec 2000 21:59:18 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Andries.Brouwer@cwi.nl
+cc: aeb@veritas.com, linux-kernel@vger.kernel.org
+Subject: Re: [patch] Re: [patch-2.4.0-test12-pre6] truncate(2) permissions
+In-Reply-To: <UTC200012080235.DAA157231.aeb@aak.cwi.nl>
+Message-ID: <Pine.GSO.4.21.0012072156420.22281-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: kernel BUG at buffer.c:827! and scsi modules no load at boot w/ 
- initrd - test12pre7
-In-Reply-To: <3A2FF076.946076FC@haque.net> <90p2ds$2hs$1@penguin.transmeta.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
 
-I booted without an initrd defined (still have support compiled in
-though) and I didn't get an Oops when I booted. So I guess it's related
-to initrd. Here's some more that I noticed..
 
---snip--
-VFS: Mounted root (ext2 filesystem).
-kernel BUG at buffer.c:827!
-.....Oops.....
-Code: 0f 0b 83 c4 0c 8d 73 28 8d 43 2c 39 43 2c 74 15 b9 01 00 00 
-hub.c: port 1 connection change
-hub.c: port 1, portstatus 101, change 1, 12 Mb/s
-VFS: Mounted root (ext2 filesystem) readonly.
-change_root: old root has d_count=4
-Trying to unmount old root ... <3>error -16
-Change root to /initrd: error -2
---snip--
+On Fri, 8 Dec 2000 Andries.Brouwer@cwi.nl wrote:
 
-I noticed that there have been changes made to the initrd documention so
-I'll look there to see if maybe the mkinitrd script on my system isn't
-following something correctly. Unless of course you know of hand of
-something else to look at.
+> > BTW, if you still have 1.7, 1.10, 1.13 and 1.14...
+> 
+> See ftp://ftp.cwi.nl/pub/aeb/manpages/ (will soon disappear again).
 
-Linus Torvalds wrote:
-> Do you have something special that triggers this? Can you test if it
-> only happens with initrd, for example?
+Got them, thanks.
 
--- 
+> > BTW, could we finally lose mpx(2)?
+> 
+> Maybe we lost it - I find sys_mpx only in a comment in arch/arm/kernel/calls.S
 
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/ 
-                                               mhaque@haque.net
+Sure, but man2/mpx.2 is alive and well...
 
-  "Alcohol and calculus don't mix.             Project Lead
-   Don't drink and derive." --Unknown          http://wm.themes.org/
-                                               batmanppc@themes.org
-=====================================================================
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

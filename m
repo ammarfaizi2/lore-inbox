@@ -1,61 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261825AbUCKXKu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 18:10:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261809AbUCKXKu
+	id S261826AbUCKXOJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 18:14:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261816AbUCKXOJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 18:10:50 -0500
-Received: from mail.shareable.org ([81.29.64.88]:36490 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S261825AbUCKXKl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 18:10:41 -0500
-Date: Thu, 11 Mar 2004 23:10:13 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Kevin Buhr <buhr@telus.net>
-Cc: Jesse Pollard <jesse@cats-chateau.net>, linux-kernel@vger.kernel.org,
-       =?iso-8859-1?Q?S=F8renHansen?= <sh@warma.dk>
-Subject: Re: UID/GID mapping system
-Message-ID: <20040311231013.GA14310@mail.shareable.org>
-References: <04031108083100.05054@tabby> <1078775149.23059.25.camel@luke> <04031015412900.03270@tabby> <20040310234640.GO1144@schnapps.adilger.int> <873c8f18au.fsf@saurus.asaurus.invalid>
+	Thu, 11 Mar 2004 18:14:09 -0500
+Received: from fw.osdl.org ([65.172.181.6]:55520 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261830AbUCKXOD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Mar 2004 18:14:03 -0500
+Date: Thu, 11 Mar 2004 15:15:59 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Ron Peterson <rpeterso@mtholyoke.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: network/performance problem
+Message-Id: <20040311151559.72706624.akpm@osdl.org>
+In-Reply-To: <20040311152728.GA11472@mtholyoke.edu>
+References: <20040311152728.GA11472@mtholyoke.edu>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <873c8f18au.fsf@saurus.asaurus.invalid>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kevin Buhr wrote:
-> Now, I can mount this filesystem on my machine.  Trouble is, I can't
-> read or write any of my files.
+Ron Peterson <rpeterso@mtholyoke.edu> wrote:
+>
+> I didn't reboot sam like I said I would.  I decided I'd let it spiral
+> down.  I'm still collecting profile data every fifteen minutes.  I
+> haven't posted any more graphs.  They look the same as all the others: a
+> monotonically increasing ping latency (w/ a corresponding slow increase
+> in system load averages - which I'm logging, if anyone wants more data).
 > 
-> Now, I could edit my local "passwd" and "group" files, change the
-> ownership of the files in my local home directory, and everything
-> would work smashingly.
+> http://depot.mtholyoke.edu:8080/tmp/sam-profile/
+> 
+> I've been perusing fa.linux.kernel, and saw Brad Laue's thread.  FWIW,
+> it smells similar.  When my machines finally go down, ksoftirqd is
+> always at the top of the process list.
+> 
+> Any ideas at all about what might be happening?
 
-Been there, done that.  Changed entire home network each time job
-changed, so that laptop could play well with work and home machines
+The profiles tell a story:
 
-It doesn't work as soon as you connect your laptop to different
-locations that have different uid mappings - either at different
-times, or simultaneously.
+c0217fb0 wait_for_packet                               2   0.0063
+c0256660 arpt_do_table                                 2   0.0019
+c0265ca0 __generic_copy_to_user                        2   0.0278
+c0106bd0 system_call                                   3   0.0536
+c0107e8c handle_IRQ_event                              3   0.0326
+c014bf10 statm_pgd_range                               3   0.0077
+c0120ed4 do_wp_page                                    5   0.0101
+c024c0d4 ip_conntrack_expect_related                  47   0.0368
+c0105250 default_idle                               2817  70.4250
+c024bae0 init_conntrack                             3053   3.7232
+00000000 total                                      5962   0.0041
 
-I've had desktop machines that had to be simultaneously connected to
-servers in different administrative domains to do their daily work.
-Naturally group had their own set of users and ids - I just happened
-to have an account on each.  It was a pain.
+It appears that netfilter has gone berzerk and is taking your machine out.
 
-> Bottom line: Søren's patch would be very useful in a number of
-> real-world situations.
+Are you really sure that nothing is sitting there injecting new rules all
+the time?
 
-I agree.  If there's a universal way to hook the mapping to an LDAP or
-NIS, so that each mounted server could be accessed using the uid/gid
-mappings based on the LDAP/NIS service for that server's
-administrative domain, that'd be nice.
-
-Using the NFSv4 upcalls seems like a good way to go about it, and give
-uniform results over all the different filesystems including NFS.  Not
-that I've looked at any of that code.
-
--- JAmie

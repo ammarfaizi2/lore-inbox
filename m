@@ -1,85 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261737AbTIRQC0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Sep 2003 12:02:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261756AbTIRQC0
+	id S261641AbTIRQV7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Sep 2003 12:21:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261649AbTIRQV7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Sep 2003 12:02:26 -0400
-Received: from fmr04.intel.com ([143.183.121.6]:41663 "EHLO
-	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
-	id S261737AbTIRQCV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Sep 2003 12:02:21 -0400
-Subject: Re: fix off-by-one error in ioremap()
-From: Len Brown <len.brown@intel.com>
-To: arjanv@redhat.com
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1063872336.5026.1.camel@laptop.fenrus.com>
-References: <200309172107.h8HL7UBf011628@hera.kernel.org>
-	 <1063872336.5026.1.camel@laptop.fenrus.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1063900980.2674.72.camel@linux.local>
+	Thu, 18 Sep 2003 12:21:59 -0400
+Received: from fw.osdl.org ([65.172.181.6]:63157 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261641AbTIRQV5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Sep 2003 12:21:57 -0400
+Date: Thu, 18 Sep 2003 09:15:11 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: rob@landley.net
+Cc: linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
+Subject: Re: Make modules_install doesn't create /lib/modules/$version
+Message-Id: <20030918091511.276309a6.rddunlap@osdl.org>
+In-Reply-To: <200309180321.40307.rob@landley.net>
+References: <200309180321.40307.rob@landley.net>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 18 Sep 2003 12:03:00 -0400
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-09-18 at 04:05, Arjan van de Ven wrote:
-> On Fri, 2003-09-12 at 10:15, Linux Kernel Mailing List wrote:
-> > ChangeSet 1.1063.43.5, 2003/09/12 04:15:36-04:00, len.brown@intel.com
-> > 
-> > 	fix off-by-one error in ioremap()
-> > 	fixes kernel crash in acpi mode: http://bugzilla.kernel.org/show_bug.cgi?id=1085
-> 
-> > diff -Nru a/arch/i386/mm/ioremap.c b/arch/i386/mm/ioremap.c
-> > --- a/arch/i386/mm/ioremap.c	Wed Sep 17 14:07:31 2003
-> > +++ b/arch/i386/mm/ioremap.c	Wed Sep 17 14:07:31 2003
-> > @@ -140,7 +140,7 @@
-> >  	 */
-> >  	offset = phys_addr & ~PAGE_MASK;
-> >  	phys_addr &= PAGE_MASK;
-> > -	size = PAGE_ALIGN(last_addr) - phys_addr;
-> > +	size = PAGE_ALIGN(last_addr+1) - phys_addr;
-> >  
-> 
-> 
-> A bit higher in that function is:
->                                                                                                         
->         /* Don't allow wraparound or zero size */
->         last_addr = phys_addr + size - 1;
->         if (!size || last_addr < phys_addr)
->                 return NULL;
->                                                                                                         
-> 
-> so why do you undo the deliberate -1 there ?
+On Thu, 18 Sep 2003 03:21:40 -0400 Rob Landley <rob@landley.net> wrote:
 
-Because:
+| I've installed -test3, -test4, and now -test5, and each time make 
+| modules_install died with the following error:
+| 
+| Kernel: arch/i386/boot/bzImage is ready
+| sh arch/i386/boot/install.sh 2.6.0-test5 arch/i386/boot/bzImage System.map ""
+| /lib/modules/2.6.0-test5 is not a directory.
+| mkinitrd failed
+| make[1]: *** [install] Error 1
+| make: *** [install] Error 2
+| 
+| I had to create the directory in question by hand, and then run it again, at 
+| which point it worked.
+| 
+| Am I the only person this is happening for?  (Bog standard Red Hat 9 system 
+| otherwise.  With Rusty's modutils...)
 
-last_addr = phys_addr + size - 1
-means that
-size = last_addr - phys_addr + 1
-not
-size = last_addr - phys_addr
+Yes, I see that also.
+Just running 'depmod -e -F System.map-260t5 -v 2.6.0-test5' prints:
+FATAL: Could not open /lib/modules/2.6.0-test5/modules.dep.temp for writing:
+ No such file or directory
 
-If you leave out this change, then a request for a page-aligned 4096+1
-bytes will give you a single 4096 byte page, and the kernel will crash
-when you access byte 4096+1.
-
-As this bug has been in the kernel for years, it apparently isn't common
-to access 4097-byte item starting on page boundaries;-)
-
-However, ACPI maps tables that are left on arbitrary byte boundaries by
-the BIOS.  In this case we got a table that started near the end of a
-page and overflowed 1 byte into the next page -- which has the same
-effect as the simpler case above.
-
-cheers,
--Len
-
-ps. this fix has been in 2.6 for several months -- sort of a bummer it
-had to be debugged and fixed twice.
-
-
-
+--
+~Randy

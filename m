@@ -1,41 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129822AbQJ3XnO>; Mon, 30 Oct 2000 18:43:14 -0500
+	id <S129029AbQJ3XqE>; Mon, 30 Oct 2000 18:46:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129913AbQJ3XnE>; Mon, 30 Oct 2000 18:43:04 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:31828 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129822AbQJ3Xmx>; Mon, 30 Oct 2000 18:42:53 -0500
-Subject: Re: Update: SMP 2.2.15 #2 kernel, lock ups...
-To: babina@pex.net (John Babina III)
-Date: Mon, 30 Oct 2000 23:44:09 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org (Linux kernel mailing list)
-In-Reply-To: <Pine.LNX.4.20.0010301813430.14540-100000@pioneer.local.net> from "John Babina III" at Oct 30, 2000 06:29:54 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S129041AbQJ3Xpy>; Mon, 30 Oct 2000 18:45:54 -0500
+Received: from ns.caldera.de ([212.34.180.1]:4871 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S129029AbQJ3Xpk>;
+	Mon, 30 Oct 2000 18:45:40 -0500
+Date: Tue, 31 Oct 2000 00:45:00 +0100
+From: Christoph Hellwig <hch@ns.caldera.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org,
+        Keith Owens <kaos@ocs.com.au>
+Subject: Re: test10-pre7
+Message-ID: <20001031004500.A16524@caldera.de>
+Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
+	Jeff Garzik <jgarzik@mandrakesoft.com>,
+	linux-kernel@vger.kernel.org, Keith Owens <kaos@ocs.com.au>
+In-Reply-To: <200010302332.AAA15959@ns.caldera.de> <Pine.LNX.4.10.10010301536340.3595-100000@penguin.transmeta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E13qOb5-0007Pw-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Mutt 1.0i
+In-Reply-To: <Pine.LNX.4.10.10010301536340.3595-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Mon, Oct 30, 2000 at 03:40:24PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Ugh, I had nothing but disaster....  First, the kernel would not
-> auto-recognize I had 1 gig of memory... it would only boot saying I had 64
+On Mon, Oct 30, 2000 at 03:40:24PM -0800, Linus Torvalds wrote:
+> 
+> 
+> On Tue, 31 Oct 2000, Christoph Hellwig wrote:
+> > 
+> > It is simple - but a change in _every_ makefile is required.
+> > And it is not really needed for old-style makefiles.
+> 
+> Actually, you don't have to change every makefile, because you CAN do this
+> all with a simple backwards-compatibility layer, something like:
+> 
+> 	OXONLY = $(filter-out $(O_OBJS), $(OX_OBJS))
+> 	ALL_O = $(OXONLY) $(O_OBJS)
+> 
+> which is a no-op for a "proper" makefile that follows the new rules
+> (OXONLY will be empty, because all OX_OBJS files will be part of O_OBJS),
+> but it will make old-style stuff act the same..
 
-BIOS error. Ask the vendor to fix E801 sizing. Could be your old kernels had
-the hack to try E820 (windows uses this so the BIOS writing morons have to
-get it right) [sorry the quality of BIOS QA is on my rant list, it appears to
-be 'boot windows and ship']
+Ok, that should do the job - but it is horribly ugly ...
 
-> meg.  So I added the MEM=1024M line to the lilo config (I believe that is
-> the correct line, don't have it in front of me).  Whenever I booted the
+> I'd actually prefer to just change every Makefile, but hey, I think
+> something like the above (untested) would make them work unmodified too.
 
-Chances are its not 1024 that is available. It'll only use about 900Mb with
-a 1Gig sized kernel anyway. Try 900Mb just for now
+But when we are changing makefiles everywhere - why not do the proper think
+and let the new-style makefiles share their code?
 
-Alan
+(I have a patch ready - it just needs some forward-porting and testing)
 
+	Christoph
+
+-- 
+Always remember that you are unique.  Just like everyone else.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

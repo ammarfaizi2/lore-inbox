@@ -1,63 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278928AbRJ2BBq>; Sun, 28 Oct 2001 20:01:46 -0500
+	id <S278933AbRJ2BOA>; Sun, 28 Oct 2001 20:14:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278930AbRJ2BB0>; Sun, 28 Oct 2001 20:01:26 -0500
-Received: from t10-09.ra.uc.edu ([129.137.228.225]:30080 "EHLO cartman")
-	by vger.kernel.org with ESMTP id <S278928AbRJ2BBS>;
-	Sun, 28 Oct 2001 20:01:18 -0500
-Date: Sun, 28 Oct 2001 20:01:53 -0500
-To: jgarzik@mandrakesoft.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] 8139too reparent_to_init() race
-Message-ID: <20011028200153.A331@cartman>
+	id <S278932AbRJ2BNu>; Sun, 28 Oct 2001 20:13:50 -0500
+Received: from due.stud.ntnu.no ([129.241.56.71]:32260 "HELO due.stud.ntnu.no")
+	by vger.kernel.org with SMTP id <S278931AbRJ2BNi>;
+	Sun, 28 Oct 2001 20:13:38 -0500
+Date: Mon, 29 Oct 2001 02:13:39 +0100
+From: =?iso-8859-1?Q?Thomas_Lang=E5s?= <tlan@stud.ntnu.no>
+To: linux-kernel@vger.kernel.org
+Subject: Intel EEPro 100 with kernel drivers
+Message-ID: <20011029021339.B23985@stud.ntnu.no>
+Reply-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.23i
-From: Robert Kuebel <kuebelr@email.uc.edu>
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hello all,
+Hi!
 
-lately i noticed this message during boot-up (when the network
-interfaces were being configured) ...
+We've got a lot of machines with the eepro 100 from intel onboard, and when
+we try to stress-test the network (running bonnie++ on a nfs-shared
+directory on a machine), the network-card says "eth0: Card reports no
+resources" to dmesg, and then the "line" appear dead for some time (one
+minutte or more). What can be done to remove this error? NFS timesout with
+this error (obviously)...
 
-"task `ifconfig' exit_signal 17 in reparent_to_init"
-
-this happens only about 1/2 of the time.
-
-after some digging this is what i found...
-sometimes ifconfig's parent exits before ifconfig reaches
-rtl8139_thread().  when this happens, ifconfig's exit_signal is set to
-SIGCHLD (in forget_original_parent), because its new parent is init.
-then rlt8139_thread() is reached it calls reparent_to_init(), which
-complains that exit_signal is already non-zero.
-
-basically this patch stops rtl8139_thread() from calling
-reparent_to_init() when its parent is already init.
-
-is this the right way to fix the problem?
-should reparent_to_init() check that the parent is not already init?
-
-as a budding kernel hacker i would appreciate any comment on this
-change.
-
-please, cc me on replies.  i can only handle the digest form of this
-list.
-
-thanks.
-rob.
-
---- linux-2.4.13/drivers/net/8139too.orig.c	Sun Oct 28 18:16:48 2001
-+++ linux-2.4.13/drivers/net/8139too.c	Sun Oct 28 18:18:47 2001
-@@ -1654,7 +1654,8 @@
- 	unsigned long timeout;
- 
- 	daemonize ();
--	reparent_to_init();
-+	if (current->p_opptr != child_reaper)
-+		reparent_to_init();
- 	spin_lock_irq(&current->sigmask_lock);
- 	sigemptyset(&current->blocked);
- 	recalc_sigpending(current);
+-- 
+Thomas

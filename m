@@ -1,68 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262124AbSJIVxG>; Wed, 9 Oct 2002 17:53:06 -0400
+	id <S262108AbSJIWGF>; Wed, 9 Oct 2002 18:06:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262126AbSJIVxF>; Wed, 9 Oct 2002 17:53:05 -0400
-Received: from smtp4.us.dell.com ([143.166.148.135]:456 "EHLO
-	smtp4.us.dell.com") by vger.kernel.org with ESMTP
-	id <S262157AbSJIVxD>; Wed, 9 Oct 2002 17:53:03 -0400
-Date: Wed, 9 Oct 2002 16:58:46 -0500 (CDT)
-From: Matt Domsch <Matt_Domsch@Dell.com>
-X-X-Sender: mdomsch@tux.us.dell.com
-Reply-To: Matt Domsch <Matt_Domsch@Dell.com>
-To: linux-scsi@vger.kernel.org
-cc: linux-kernel@vger.kernel.org
-Subject: [RFC][PATCH] megaraid 2.00rc5 as 'megaraid2' for kernel 2.5.x
-In-Reply-To: <20BF5713E14D5B48AA289F72BD372D68BC0257@AUSXMPC122.aus.amer.dell.com>
-Message-ID: <Pine.LNX.4.44.0210091649180.8828-100000@tux.us.dell.com>
-X-GPG-Fingerprint: 17A4 17D0 81F5 4B5F DB1C  AEF8 21AB EEF7 92F0 FC09
-X-GPG-Key: http://domsch.com/mdomsch_pub.asc
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262109AbSJIWGF>; Wed, 9 Oct 2002 18:06:05 -0400
+Received: from holomorphy.com ([66.224.33.161]:28902 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S262108AbSJIWGE>;
+	Wed, 9 Oct 2002 18:06:04 -0400
+Date: Wed, 9 Oct 2002 15:08:34 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Guillaume Boissiere <boissiere@adiglobal.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [STATUS 2.5]  October 9, 2002
+Message-ID: <20021009220834.GJ12432@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Guillaume Boissiere <boissiere@adiglobal.com>,
+	linux-kernel@vger.kernel.org
+References: <3DA41B88.14599.2336B580@localhost> <3DA46D3F.24793.2475E9B6@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3DA46D3F.24793.2475E9B6@localhost>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(resend without patch attached - it's 170K and didn't seem to make it through)
+On Wed, Oct 09, 2002 at 05:54:07PM -0400, Guillaume Boissiere wrote:
+> Did I???  Ooops... not intended, sorry about that.
+> I had put them on hold to find out from you which 
+> version they had been merged at (couldn't find it in the
+> log) and then forgot about it.
+> If you can give me the info, I'll put them back.
+> Thanks,
 
-Posted to
-  http://domsch.com/linux/megaraid/linux-2.5-megaraid-2.00rc5.patch
-  http://domsch.com/linux/megaraid/linux-2.5-megaraid-2.00rc5.patch.asc
+Remove (iteration over) global tasklist (Ingo, me):
+	merged 2.5.37
 
-is a patch to create 'megaraid2', the megaraid 2.00rc5 driver which
-includes fixups such that it works on kernel 2.5.41.   The v2.00 
-has significant code path cleanups (easier to read and maintain),
-support for SCSI reservations (needed for shared storage clustering),
-and will soon have an improved higher performance interface to card
-firmware.  This driver is being developed by LSI, with assistance from
-Red Hat and Dell.
+Parallelizing page replacement (velco, akpm, dhansen, me):
+	last steps of the per-zone LRU lists, locks, and per-node
+	kswapd's merged as of 2.5.40, per-inode pagecache locking
+	merged centuries ago (with the ratcache).
 
-By providing this as a megaraid2 driver, it allows development to
-continue on it separate from the stable megaraid (based on 1.18)
-driver already present in the 2.5.41 kernel.  This driver works at
-least somewhat for me, with slighly increased performance over the
-1.18-based driver.  It still likely has bugs related to being 
-ported to 2.5.x.  Mike Anderson has already caught one such bug - (use
-page_address(page)+offset) - fixed internally.
 
- MAINTAINERS              |    8 
- arch/i386/defconfig      |    1 
- drivers/scsi/Config.help |   11 
- drivers/scsi/Config.in   |    3 
- drivers/scsi/Makefile    |    3 
- drivers/scsi/megaraid2.c | 5611 +++++++++++++++++++++++++++++++++++++++++++++++
- drivers/scsi/megaraid2.h | 1175 +++++++++
- 7 files changed, 6809 insertions, 3 deletions
-
-If there are no objections, I'll submit this to Linus and Dave Jones 
-later this week for inclusion.  This has been posted to 
-linux-megaraid-devel@dell.com as well.
-
-Thanks,
-Matt
-
---
-Matt Domsch
-Sr. Software Engineer, Lead Engineer, Architect
-Dell Linux Solutions www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
-
+Bill

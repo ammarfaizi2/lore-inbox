@@ -1,33 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316434AbSGTLmG>; Sat, 20 Jul 2002 07:42:06 -0400
+	id <S316499AbSGTLwo>; Sat, 20 Jul 2002 07:52:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316499AbSGTLmG>; Sat, 20 Jul 2002 07:42:06 -0400
-Received: from gw.lowendale.com.au ([203.26.242.120]:4641 "EHLO
-	marina.lowendale.com.au") by vger.kernel.org with ESMTP
-	id <S316434AbSGTLmG>; Sat, 20 Jul 2002 07:42:06 -0400
-Date: Sat, 20 Jul 2002 21:49:01 +1000 (EST)
-From: Neale Banks <neale@lowendale.com.au>
-To: Ville Herva <vherva@niksula.hut.fi>
-cc: Andrew Rodland <arodland@noln.com>, linux-kernel@vger.kernel.org
+	id <S316608AbSGTLwo>; Sat, 20 Jul 2002 07:52:44 -0400
+Received: from moutvdom00.kundenserver.de ([195.20.224.149]:13412 "EHLO
+	moutvdom00.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S316499AbSGTLwn>; Sat, 20 Jul 2002 07:52:43 -0400
+Date: Sat, 20 Jul 2002 05:55:43 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Neale Banks <neale@lowendale.com.au>
+cc: Ville Herva <vherva@niksula.hut.fi>, Andrew Rodland <arodland@noln.com>,
+       <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH -ac] Panicking in morse code
-In-Reply-To: <20020720070536.GE1548@niksula.cs.hut.fi>
-Message-ID: <Pine.LNX.4.05.10207202142310.9273-100000@marina.lowendale.com.au>
+In-Reply-To: <Pine.LNX.4.05.10207202142310.9273-100000@marina.lowendale.com.au>
+Message-ID: <Pine.LNX.4.44.0207200555180.3378-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf; Germany
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 20 Jul 2002, Ville Herva wrote:
-[...]
-> I'm just waiting for Andrew to come up with a proper morse code network
-> layer, so that the machines in the room can communicate (provided they have
-> a mic each)... Now combine that with Ingo's network console and...
+Hi,
 
-You mean like an implementation of RFC 1926: "An Experimental
-Encapsulation of IP Datagrams on Top of ATM[1]"? ;-)
+On Sat, 20 Jul 2002, Neale Banks wrote:
+> You mean like an implementation of RFC 1926: "An Experimental
+> Encapsulation of IP Datagrams on Top of ATM[1]"? ;-)
 
-Neale.
+   The author assumes that the users take whatever precautions that are
+   necessary before attempting to use this protocol in any crowded area.
 
-[1] ATM: in this case it's "Acoustical Transmission Media"
+Same thing to add here...
+
+							Regards,
+							Thunder
+-- 
+(Use http://www.ebb.org/ungeek if you can't decode)
+------BEGIN GEEK CODE BLOCK------
+Version: 3.12
+GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+e++++ h* r--- y- 
+------END GEEK CODE BLOCK------
 

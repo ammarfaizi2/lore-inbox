@@ -1,47 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291659AbSBNN7M>; Thu, 14 Feb 2002 08:59:12 -0500
+	id <S291660AbSBNOAM>; Thu, 14 Feb 2002 09:00:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291660AbSBNN7C>; Thu, 14 Feb 2002 08:59:02 -0500
-Received: from tomts20-srv.bellnexxia.net ([209.226.175.74]:27870 "EHLO
-	tomts20-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S291659AbSBNN6v>; Thu, 14 Feb 2002 08:58:51 -0500
-From: Ed Tomlinson <tomlins@cam.org>
-Subject: Re: Linux 2.4.18-pre9-mjc2
-To: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
-Reply-To: tomlins@cam.org
-Date: Thu, 14 Feb 2002 08:58:55 -0500
-In-Reply-To: <1013662709.6671.16.camel@ohdarn.net> <20020213211943.A25918@work.bitmover.com>
-Organization: me
-User-Agent: KNode/0.6.1
+	id <S291666AbSBNN75>; Thu, 14 Feb 2002 08:59:57 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:51466 "EHLO
+	svldns02.veritas.com") by vger.kernel.org with ESMTP
+	id <S291660AbSBNN7t>; Thu, 14 Feb 2002 08:59:49 -0500
+Date: Thu, 14 Feb 2002 14:01:36 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Gerd Knorr <kraxel@bytesex.org>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Andrew Morton <akpm@zip.com.au>, Rik van Riel <riel@conectiva.com.br>,
+        "David S. Miller" <davem@redhat.com>,
+        Benjamin LaHaise <bcrl@redhat.com>, Dave Jones <davej@suse.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] __free_pages_ok oops
+In-Reply-To: <20020214141028.M7940@athlon.random>
+Message-ID: <Pine.LNX.4.21.0202141335430.1033-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-Message-Id: <20020214135855.A6E234698@oscar.casa.dyndns.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy wrote:
-
-> On Wed, Feb 13, 2002 at 11:58:28PM -0500, Michael Cohen wrote:
->> [ I am now using bitkeeper, and my bk tree is available at
->> bk://ohdarn.net/linux-mjc.  it is cloned from linus's 2.4 tree so
->> please, please, please clone from him and pull from me. ]
+On Thu, 14 Feb 2002, Andrea Arcangeli wrote:
+> On Thu, Feb 14, 2002 at 12:10:37PM +0100, Gerd Knorr wrote:
+> > 
+> > I've recently changed the code to make it *not* call unmap_kiobuf/vfree
+> > from irq context.  Instead bttv 0.8.x doesn't allow you to close the
+> > device with DMA xfers in flight.  If you try this the release() fops
+> > handler will block until the transfer is done, then unmap_kiobuf from
+> > process context, then return.
 > 
-> Just in case people need a reminder, you would do this:
-> 
-> bk clone bk://linux.bkbits.net/linux-2.4
-> cd linux-2.4
-> bk pull bk://ohdarn.net/linux-mjc
+> perfect, that's the right fix for 2.4 (waiting DMA to complete at
+> ->release looks also much saner). unmap_kiobuf wasn't supposed to be run
+> from irq handlers. Everything dealing with userspace mappings cannot run
+> from irq handlers, tlb flushes, VM, swapping etc...  everything must run
+> from normal kernel context. If you obey this rule, my previous email to
+> this thread will still apply. I wasn't aware of bttv running
+> unmap_kiobuf from irq.
 
-oscar% bk clone -q linux-2.4 linux-mjc-edt
-oscar% cd linux-mjc-edt
-oscar% bk pull bk://ohdarn.net/linux-mjc
-Nothing to pull from bk://ohdarn.net/linux-mjc
-oscar%
+It's good that Gerd has made his change, but we don't know who else
+might have been doing similar.  unmap_kiobuf does not involve unmapping
+virtual address space: it used to be safe run from irq handlers, now not.
 
-Where linux-2.4 is a local clone of linux-2.4.  Why
-does it find nothing to pull ?
+We don't have to make a change for 2.4.18, but we really should add some
+kind of safety check there in 2.4.soon: either of the "it's a BUG()"
+kind I first suggested (which may embarrass us by firing too often),
+or of the "we can handle that" kind which I last suggested.
 
-TIA
-Ed Tomlinson
+I don't disagree with Andrew's and your count-LRU approach,
+but it does have slight drawbacks, as you noted.
+
+> As said this should be a matter only for 2.5, now that Gerd recalls
+> unmap_kiobuf from normal kernel context.
+
+That's just a hope: you may be right, we simply don't know.
+
+Hugh
+

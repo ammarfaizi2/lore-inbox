@@ -1,52 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261645AbRFFKsm>; Wed, 6 Jun 2001 06:48:42 -0400
+	id <S261594AbRFFKrC>; Wed, 6 Jun 2001 06:47:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261617AbRFFKsc>; Wed, 6 Jun 2001 06:48:32 -0400
-Received: from d12lmsgate-2.de.ibm.com ([195.212.91.200]:23956 "EHLO
-	d12lmsgate-2.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S261616AbRFFKsY> convert rfc822-to-8bit; Wed, 6 Jun 2001 06:48:24 -0400
-From: COTTE@de.ibm.com
-X-Lotus-FromDomain: IBMDE
-To: linux-kernel@vger.kernel.org
-Message-ID: <C1256A63.003B564D.00@d12mta11.de.ibm.com>
-Date: Wed, 6 Jun 2001 12:45:41 +0200
-Subject: [question] why does grok_partitions clear blk_size[major]?
+	id <S261616AbRFFKqv>; Wed, 6 Jun 2001 06:46:51 -0400
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:22170 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S261594AbRFFKqj>; Wed, 6 Jun 2001 06:46:39 -0400
+Date: Wed, 6 Jun 2001 11:46:33 +0100
+From: Tim Waugh <twaugh@redhat.com>
+To: linux-kernel@vger.kernel.org, Axel Boldt <axel@uni-paderborn.de>,
+        Phil Blundell <Philip.Blundell@pobox.com>
+Subject: Re: [PATCH] Configure.help:
+Message-ID: <20010606114633.H26782@redhat.com>
+In-Reply-To: <20010606122434.B859@localhost.localdomain>
 Mime-Version: 1.0
-Content-type: text/plain; charset=iso-8859-1
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="Ls2Gy6y7jbHLe9Od"
 Content-Disposition: inline
-Content-transfer-encoding: 8BIT
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010606122434.B859@localhost.localdomain>; from remi@a2zis.com on Wed, Jun 06, 2001 at 12:24:34PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--Ls2Gy6y7jbHLe9Od
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Hi kernel-list-readers!
+On Wed, Jun 06, 2001 at 12:24:34PM +0200, Remi Turk wrote:
 
-We just had a problem when running some formatting-utils on
-a large amount of disks synchronously: We got a NULL-pointer
-violation when accessig blk_size[major] for our major number.
-Further research showed, that grok_partitions was running at
-that time, which has been called by register_disk, which our
-device driver issues after a disk has been formatted.
-Grok_partitions first initializes blk_size[major] with a NULL
-pointer, detects the partitions and then assigns the original
-value to blk_size[major] again.
-Can anyone explain to me, why grok_partitions has to clear
-this pointer? Why is this all done without any lock which causes
-race conditions all over the block-device layer (for example
-generic_make_request() in ll_rw_blk.c first checks if the pointer
-is set and afterwards accesses the array behind the pointer)?
+> Attached is a patch for 2.4.6-pre1 which fixes the help text.
 
-mit freundlichem Gruß / with kind regards
-Carsten Otte
+Thanks.
 
-IBM Deutschland Entwicklung GmbH
-Linux for 390/zSeries Development - Device Driver Team
-Phone: +49/07031/16-4076
-IBM internal phone: *120-4076
---
-We are Linux.
-Resistance indicates that you're missing the point!
+> Also, shouldn't CONFIG_LP_CONSOLE depend on CONFIG_PRINTER=y?  (it
+> doesn't work when CONFIG_PRINTER=m, at least for me)
 
+It works for me with CONFIG_PRINTER=m.  You need to have booted the
+kernel with the appropriate console= arguments, though.  Also, you
+can't unload the module afterwards (the code should be changed to
+allow that).
 
+Tim.
+*/
+
+--Ls2Gy6y7jbHLe9Od
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.5 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE7HgoIONXnILZ4yVIRAgwHAJ0VKiFhWapgK510P89CWLf+CNuiPgCdEnE/
+FwG4hrsxA1mNN7jRtpgq0ds=
+=HSGQ
+-----END PGP SIGNATURE-----
+
+--Ls2Gy6y7jbHLe9Od--

@@ -1,49 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262193AbSIZFqV>; Thu, 26 Sep 2002 01:46:21 -0400
+	id <S262196AbSIZFxN>; Thu, 26 Sep 2002 01:53:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262194AbSIZFqV>; Thu, 26 Sep 2002 01:46:21 -0400
-Received: from twinlark.arctic.org ([208.44.199.239]:129 "EHLO
-	twinlark.arctic.org") by vger.kernel.org with ESMTP
-	id <S262193AbSIZFqU>; Thu, 26 Sep 2002 01:46:20 -0400
-Date: Wed, 25 Sep 2002 22:51:37 -0700 (PDT)
-From: dean gaudet <dean-list-linux-kernel@arctic.org>
-To: linux-kernel@vger.kernel.org
-Subject: SMART *causing* disk lossage?
-Message-ID: <Pine.LNX.4.44.0209252246390.26506-100000@twinlark.arctic.org>
-X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262197AbSIZFxN>; Thu, 26 Sep 2002 01:53:13 -0400
+Received: from thunk.org ([140.239.227.29]:45215 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id <S262196AbSIZFxL>;
+	Thu, 26 Sep 2002 01:53:11 -0400
+Date: Thu, 26 Sep 2002 01:57:55 -0400
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Ryan Cumming <ryan@completely.kicks-ass.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCH] Add ext3 indexed directory (htree) support
+Message-ID: <20020926055755.GA5612@think.thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Ryan Cumming <ryan@completely.kicks-ass.org>,
+	linux-kernel@vger.kernel.org
+References: <E17uINs-0003bG-00@think.thunk.org> <200209251645.40575.ryan@completely.kicks-ass.org> <20020926032756.GA4072@think.thunk.org> <200209252223.13758.ryan@completely.kicks-ass.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200209252223.13758.ryan@completely.kicks-ass.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i suspect this is a controller problem, but i thought i'd mention it
-anyhow.
+On Wed, Sep 25, 2002 at 10:23:11PM -0700, Ryan Cumming wrote:
+>
+> It seems to be running stable now. Linux 2.4.19, UP Athlon, GCC 3.2.
 
-i've had 5 disk problems on one of my promise 100tx2 cards -- one of them
-was on /dev/hdk, the other 4 on /dev/hdi... one of the 4 actually could
-have been a dead disk (the drive didn't respond elsewhere either).  but
-the rest seemed to clear up on power off/on.
+Just to humor me, can you try it with gcc 2.95.4?  I just want to
+eliminate one variable....
 
-in 4 of the instances, smartd was the first to log anything about a dead
-disk -- it didn't log any change in the smart parameters, just that it
-couldn't reach the drive.  following smartd's complaint were kernel
-messages about resetting the bus, and so forth.
+> 3) While starting man(1), EXT3 began spewing messages in the form:
+> "EXT3-fs error (device (ide0(3,2)): ext3_readdir: directory #4243459 contains 
+> a hole at offset xxxxxx"
 
-the 5th time, this evening, i was running hddtemp by hand -- and the
-failure appeared to occur at exactly that moment.
+what directory was 4243459?  You can use the debugfs's ncheck command
+to get back a pathname from an inode number?
 
-the drives are maxtor D740X 80GB (6L080J4 or 6L080L4).
+Are you sure the filesystem was consistent before you started this
+whole procedure?  
 
-is it at all possible that using SMART is causing some sort of screwup in
-the kernel on the drives?  (i mean anything is possible, i'm just grasping
-at straws here.)
+It sounds like you hadn't started modifying directories at this point
+in the procedure.  Yet this error ("directory #XXXX contains a hole")
+is printed by the non-indexed-directory version of readdir.  So that
+would imply that the directory with the initial error reported on it
+was not an indexed directory.....  very strange!
 
-i ended up replacing the controller tonight, 'cause it's just too
-coincidental that all this is happenning on /dev/hdi (i've replaced the
-hdi disk and cable already).
+> The directory number stayed constant, but the offset was variable. fsck -fD 
+> had -not- been run at this point.
+> 4) On reboot, fsck reported:
+> "Directory inode has unallocated block #xx"
+> multiple times. fsck seemed to fully recover the filesystem. I rebooted again 
+> for good measure.
 
-anyhow, kernel rev is 2.4.19-pre7-ac4.
+What were the directory inode numbers, and what pathname did they map
+to?
 
--dean
+> 7) While KDE was trying to start, EXT3 dumped the following to the console:
+> "EXT3-fs error (device ide(3,2)) in start_transaction: Journal has aborted"
 
+This message will appear if previously some other part of ext2
+reported a filesystem inconsistency.  So it's a symptom, and not the
+root cause of the problem.
+
+> 8) I rebooted, and fsck said:
+> "Directory inode 131073,block3,offset 528: Directory corrupted"
+> I wasn't so lucky this time, and a good portion of my home directory got 
+> eaten.
+
+
+Against, what was the pathnmae to the inode #131073?
+
+This is strange, since I'm not seeing any of the problems that you're
+seeing.  I'm going to need a lot more information if I'm going to have
+a prayer of a chance of digging into it.
+
+						- Ted

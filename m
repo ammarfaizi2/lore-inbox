@@ -1,60 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312991AbSDCBBD>; Tue, 2 Apr 2002 20:01:03 -0500
+	id <S312853AbSDCBPE>; Tue, 2 Apr 2002 20:15:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312995AbSDCBAx>; Tue, 2 Apr 2002 20:00:53 -0500
-Received: from rasmus.uib.no ([129.177.12.30]:17373 "EHLO rasmus.uib.no")
-	by vger.kernel.org with ESMTP id <S312991AbSDCBAs>;
-	Tue, 2 Apr 2002 20:00:48 -0500
+	id <S312871AbSDCBOy>; Tue, 2 Apr 2002 20:14:54 -0500
+Received: from smtprelay6.dc2.adelphia.net ([64.8.50.38]:40630 "EHLO
+	smtprelay6.dc2.adelphia.net") by vger.kernel.org with ESMTP
+	id <S312853AbSDCBOl>; Tue, 2 Apr 2002 20:14:41 -0500
+Message-ID: <001f01c1daad$be80e440$1fe03218@clvhoh.adelphia.net>
+From: "Jeffrey Folkman" <jmfolkman@adelphia.net>
 To: <linux-kernel@vger.kernel.org>
-Subject: Re: Linux needs new leadership.
-In-Reply-To: <NDBBLFLJADKDMBPPNBALCEOFHPAA.kkrieser@lcisp.com>
-From: hklygre@online.no (=?iso-8859-1?q?H=E5vard?= Lygre)
-Date: 03 Apr 2002 02:59:50 +0200
-Message-ID: <871ydxppfd.fsf@frode.valhall.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+Subject: Procomp BVK1A mainboard 
+Date: Tue, 2 Apr 2002 20:20:29 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-checked-clean: by exiscan on rasmus
-X-Scanner: bc033b1c1f58199ead5e3844a206aa08 http://tjinfo.uib.no/virus.html
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Kevin Krieser" <kkrieser@lcisp.com> writes:
+What follows is the text of an e-mail that you wrote in 2001.  I have the
+same problem. Did anyone offer you any solutions or have you discovered a
+solution?  All help would be much appreciated.
 
-> You forgot that your required Passport membership is free, though you will
-> require Passport to login.
-> 
-> -----Original Message-----
-> From: linux-kernel-owner@vger.kernel.org
-> [mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Hristo Doichev
-> Sent: Monday, April 01, 2002 3:32 AM
-> To: linux-kernel@vger.kernel.org
-> Cc: Linus Torvalds
-> Subject: Re: Linux needs new leadership.
-> 
-> Bill Gates.
-> 	If we only had him as a leader money will be flowing like a river
-> towards OSS and GNU. For starters this entire list will be subscription
-> based with required certification (about $10K per person and $3K if you
-> only want to read it)
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Thank you,
+
+Jeffrey Folkman
+jmfolkman@adelphia.net
 
 
-Not to mention the fact that he would immediately release patches to
-every MUA so that they automatically insert the text you type on top
-of the message you reply to, don't put proper quote-marks on the
-beginning of each line, and don't strip signatures.
+Hello,
 
+My system has a Procomp BVK1A mainboard sporting one of those dreaded =
+VIA KX133 chipsets. I have been a virtual lurker, monitoring the =
+archives, and have heard plenty of horror stories about this chipset, =
+but let me make clear that this board was rock-solid for the better part =
+of a year. It would go for weeks without a power-off or reboot. People =
+would look at me funny, and ask, "Doesn't your computer *crash*?" (Of =
+course not; it runs Linux!)
 
+Then, a couple of months ago, I installed 2.4.4. And that, as Stevie B. =
+once said, was where the heartache began.
 
--- 
-Håvard Lygre, hklygre@online.no
-BLUG: http://blug.linux.no/   RFC1149: http://blug.linux.no/rfc1149/
-Sysadmin/ENO, Core Convergence AS
+Every time I use X, given sufficient time (between 15 minutes and 24 =
+hours), the system would freeze. Solid. I haven't tried the Magic SysRq =
+key, but heck, my CapsLock won't even go on and off. Usually it takes a =
+while but the problem seems to be exacerbated by heavy-load, =
+graphics-intensive applications (GIMP and Mozilla come to mind). Console =
+mode seems to run okay, but in the Real World sometimes a GUI is =
+necessary.
+
+That's not the half of it. Sometimes, Windows freezes in identical =
+fashion. I've even experienced it occasionally under NetBSD, but that =
+usually takes quite a long while. I've tried 2.4.4, 2.4.5, several AC =
+patches to 2.4.5, then I went back and tried 2.4.1. I've compiled it for =
+an Athlon, a PII, a Pentium, and a 486. I suspected the AGPGART and DRI =
+drivers and so I unloaded those as well. I'm typing this message to you =
+under kernel 2.2.19. I am still experiencing freezes. Remember, this box =
+was incredibly stable before 2.4.4 and I really don't want to give up =
+this mainboard and CPU; it's got some nice things (like 2 serial ports!) =
+that are hard to find anymore.
+
+The CPU is not overclocked and I have ruled out cooling problems (the =
+fans hum nicely at top speed). I was wondering if anyone knew what's =
+going on, and if there's some patch I need to apply. Did I tickle some =
+sort of schroedinbug in the chipset that was kind of hiding there, =
+waiting to make things fail? If anyone has any answers, please CC me =
+personally. Thanks for all your time and patience.
+--=20
+

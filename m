@@ -1,380 +1,372 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262562AbTE2T3c (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 May 2003 15:29:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262543AbTE2T3b
+	id S262543AbTE2TbR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 May 2003 15:31:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262548AbTE2TbR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 May 2003 15:29:31 -0400
-Received: from waste.org ([209.173.204.2]:31953 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S262562AbTE2T3W (ORCPT
+	Thu, 29 May 2003 15:31:17 -0400
+Received: from waste.org ([209.173.204.2]:45009 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S262543AbTE2TbC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 May 2003 15:29:22 -0400
-Date: Thu, 29 May 2003 14:42:32 -0500
+	Thu, 29 May 2003 15:31:02 -0400
+Date: Thu, 29 May 2003 14:44:10 -0500
 From: Matt Mackall <mpm@selenic.com>
 To: Andrew Morton <akpm@digeo.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] write errors [1/3] async-write-errors
-Message-ID: <20030529194232.GY23715@waste.org>
-References: <20030514032712.0c7fa0d1.akpm@digeo.com> <20030514171000.GB23380@waste.org> <20030514104455.374b5df6.akpm@digeo.com>
+Subject: [PATCH] write errors [2/3] flags
+Message-ID: <20030529194410.GZ23715@waste.org>
+References: <20030514032712.0c7fa0d1.akpm@digeo.com> <20030514171000.GB23380@waste.org> <20030514104455.374b5df6.akpm@digeo.com> <20030529194232.GY23715@waste.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030514104455.374b5df6.akpm@digeo.com>
+In-Reply-To: <20030529194232.GY23715@waste.org>
 User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 14, 2003 at 10:44:55AM -0700, Andrew Morton wrote:
-> Matt Mackall <mpm@selenic.com> wrote:
-> >
-> > On Wed, May 14, 2003 at 03:27:12AM -0700, Andrew Morton wrote:
-> > > 
-> > > Quite a lot of changes here.  Mostly additions, but some things have been
-> > > crossed off.
-> > 
-> > Has handling of async write errors fallen off your radar? Should I
-> > start pushing that again?
-> > 
-> 
-> No, I haven't forgotten.  If you want to rediff the patches sometime that'd
-> be appreciated, thanks.
+Combine mapping->error and ->gfp_mask into ->flags
 
-Ok, rediffed and tested against 2.5.70-mm2. 1 of 3.
-
-
-Record async write errors and report at subsequent fsync/fdatasync.
-
-diff -urN -x '*.ver' -x '.patch*' -x '*.orig' orig/fs/buffer.c patched/fs/buffer.c
---- orig/fs/buffer.c	2003-05-21 11:03:25.000000000 -0500
-+++ patched/fs/buffer.c	2003-05-21 12:44:43.000000000 -0500
-@@ -180,15 +180,29 @@
-  * Default synchronous end-of-IO handler..  Just mark it up-to-date and
-  * unlock the buffer. This is what ll_rw_block uses too.
-  */
--void end_buffer_io_sync(struct buffer_head *bh, int uptodate)
-+void end_buffer_read_sync(struct buffer_head *bh, int uptodate)
- {
- 	if (uptodate) {
- 		set_buffer_uptodate(bh);
- 	} else {
--		/*
--		 * This happens, due to failed READA attempts.
--		 * buffer_io_error(bh);
--		 */
-+		/* This happens, due to failed READA attempts. */
-+		clear_buffer_uptodate(bh);
-+	}
-+	unlock_buffer(bh);
-+	put_bh(bh);
-+}
-+
-+void end_buffer_write_sync(struct buffer_head *bh, int uptodate)
-+{
-+	char b[BDEVNAME_SIZE];
-+
-+	if (uptodate) {
-+		set_buffer_uptodate(bh);
-+	} else {
-+		buffer_io_error(bh);
-+		printk(KERN_WARNING "lost page write due to I/O error on %s\n",
-+		       bdevname(bh->b_bdev, b));
-+		set_buffer_write_io_error(bh);
- 		clear_buffer_uptodate(bh);
+diff -urN -x genksyms -x '*.ver' -x '.patch*' -x '*.orig' orig/drivers/block/loop.c patched/drivers/block/loop.c
+--- orig/drivers/block/loop.c	2003-05-29 12:49:24.000000000 -0500
++++ patched/drivers/block/loop.c	2003-05-29 12:52:28.000000000 -0500
+@@ -714,8 +714,8 @@
+ 		fput(file);
+ 		goto out_putf;
  	}
- 	unlock_buffer(bh);
-@@ -556,6 +570,7 @@
-  */
- void end_buffer_async_write(struct buffer_head *bh, int uptodate)
- {
-+	char b[BDEVNAME_SIZE];
- 	static spinlock_t page_uptodate_lock = SPIN_LOCK_UNLOCKED;
- 	unsigned long flags;
- 	struct buffer_head *tmp;
-@@ -568,6 +583,9 @@
- 		set_buffer_uptodate(bh);
- 	} else {
+-	lo->old_gfp_mask = inode->i_mapping->gfp_mask;
+-	inode->i_mapping->gfp_mask = GFP_NOIO;
++	lo->old_gfp_mask = mapping_gfp_mask(inode->i_mapping);
++	mapping_set_gfp_mask(inode->i_mapping, GFP_NOIO);
+ 
+ 	set_blocksize(bdev, lo_blocksize);
+ 
+@@ -823,7 +823,7 @@
+ 	memset(lo->lo_name, 0, LO_NAME_SIZE);
+ 	invalidate_bdev(bdev, 0);
+ 	set_capacity(disks[lo->lo_number], 0);
+-	filp->f_dentry->d_inode->i_mapping->gfp_mask = gfp;
++	mapping_set_gfp_mask(filp->f_dentry->d_inode->i_mapping, gfp);
+ 	lo->lo_state = Lo_unbound;
+ 	fput(filp);
+ 	/* This is safe: open() is still holding a reference. */
+diff -urN -x genksyms -x '*.ver' -x '.patch*' -x '*.orig' orig/fs/block_dev.c patched/fs/block_dev.c
+--- orig/fs/block_dev.c	2003-05-29 12:49:42.000000000 -0500
++++ patched/fs/block_dev.c	2003-05-29 12:52:28.000000000 -0500
+@@ -318,7 +318,7 @@
+ 			inode->i_rdev = kdev;
+ 			inode->i_bdev = new_bdev;
+ 			inode->i_data.a_ops = &def_blk_aops;
+-			inode->i_data.gfp_mask = GFP_USER;
++			mapping_set_gfp_mask(&inode->i_data, GFP_USER);
+ 			inode->i_data.backing_dev_info = &default_backing_dev_info;
+ 			spin_lock(&bdev_lock);
+ 			bdev = bdfind(dev, head);
+diff -urN -x genksyms -x '*.ver' -x '.patch*' -x '*.orig' orig/fs/buffer.c patched/fs/buffer.c
+--- orig/fs/buffer.c	2003-05-29 12:52:33.000000000 -0500
++++ patched/fs/buffer.c	2003-05-29 12:52:28.000000000 -0500
+@@ -600,7 +600,7 @@
  		buffer_io_error(bh);
-+		printk(KERN_WARNING "lost page write due to I/O error on %s\n",
-+		       bdevname(bh->b_bdev, b));
-+		page->mapping->error = -EIO;
+ 		printk(KERN_WARNING "lost page write due to I/O error on %s\n",
+ 		       bdevname(bh->b_bdev, b));
+-		page->mapping->error = -EIO;
++		set_bit(AS_EIO, &page->mapping->flags);
  		clear_buffer_uptodate(bh);
  		SetPageError(page);
  	}
-@@ -1300,7 +1318,7 @@
- 		if (buffer_dirty(bh))
- 			buffer_error();
- 		get_bh(bh);
--		bh->b_end_io = end_buffer_io_sync;
-+		bh->b_end_io = end_buffer_read_sync;
- 		submit_bh(READ, bh);
- 		if (-EIOCBRETRY == wait_on_buffer_wq(bh, wait))
- 			return ERR_PTR(-EIOCBRETRY);
-@@ -2661,8 +2679,10 @@
- 		buffer_error();
- 	if (rw == READ && buffer_dirty(bh))
- 		buffer_error();
--				
--	set_buffer_req(bh);
-+
-+	/* Only clear out a write error when rewriting */
-+	if (test_set_buffer_req(bh) && rw == WRITE)
-+		clear_buffer_write_io_error(bh);
- 
- 	/*
- 	 * from here on down, it's all bio -- do the initial mapping,
-@@ -2722,13 +2742,14 @@
- 			continue;
- 
- 		get_bh(bh);
--		bh->b_end_io = end_buffer_io_sync;
- 		if (rw == WRITE) {
-+			bh->b_end_io = end_buffer_write_sync;
- 			if (test_clear_buffer_dirty(bh)) {
- 				submit_bh(WRITE, bh);
- 				continue;
- 			}
- 		} else {
-+			bh->b_end_io = end_buffer_read_sync;
- 			if (!buffer_uptodate(bh)) {
- 				submit_bh(rw, bh);
- 				continue;
-@@ -2749,7 +2770,7 @@
- 	lock_buffer(bh);
- 	if (test_clear_buffer_dirty(bh)) {
- 		get_bh(bh);
--		bh->b_end_io = end_buffer_io_sync;
-+		bh->b_end_io = end_buffer_write_sync;
- 		submit_bh(WRITE, bh);
- 		wait_on_buffer(bh);
- 	} else {
-@@ -2808,6 +2829,8 @@
- 	bh = head;
+@@ -2846,7 +2846,7 @@
  	do {
  		check_ttfb_buffer(page, bh);
-+		if (buffer_write_io_error(bh))
-+			page->mapping->error = -EIO;
+ 		if (buffer_write_io_error(bh))
+-			page->mapping->error = -EIO;
++			set_bit(AS_EIO, &page->mapping->flags);
  		if (buffer_busy(bh))
  			goto failed;
  		if (!buffer_uptodate(bh) && !buffer_req(bh))
-diff -urN -x '*.ver' -x '.patch*' -x '*.orig' orig/fs/inode.c patched/fs/inode.c
---- orig/fs/inode.c	2003-05-21 11:03:26.000000000 -0500
-+++ patched/fs/inode.c	2003-05-21 12:37:26.000000000 -0500
-@@ -144,6 +144,7 @@
+diff -urN -x genksyms -x '*.ver' -x '.patch*' -x '*.orig' orig/fs/inode.c patched/fs/inode.c
+--- orig/fs/inode.c	2003-05-29 12:52:33.000000000 -0500
++++ patched/fs/inode.c	2003-05-29 12:53:07.000000000 -0500
+@@ -18,6 +18,7 @@
+ #include <linux/hash.h>
+ #include <linux/swap.h>
+ #include <linux/security.h>
++#include <linux/pagemap.h>
+ #include <linux/cdev.h>
+ 
+ /*
+@@ -142,11 +143,11 @@
+ 
+ 		mapping->a_ops = &empty_aops;
+  		mapping->host = inode;
+-		mapping->gfp_mask = GFP_HIGHUSER;
++		mapping->flags = 0;
++		mapping_set_gfp_mask(mapping, GFP_HIGHUSER);
  		mapping->dirtied_when = 0;
  		mapping->assoc_mapping = NULL;
  		mapping->backing_dev_info = &default_backing_dev_info;
-+		mapping->error = 0;
+-		mapping->error = 0;
  		if (sb->s_bdev)
  			mapping->backing_dev_info = sb->s_bdev->bd_inode->i_mapping->backing_dev_info;
  		memset(&inode->u, 0, sizeof(inode->u));
-diff -urN -x '*.ver' -x '.patch*' -x '*.orig' orig/fs/mpage.c patched/fs/mpage.c
---- orig/fs/mpage.c	2003-04-19 21:48:55.000000000 -0500
-+++ patched/fs/mpage.c	2003-05-21 12:37:26.000000000 -0500
-@@ -388,6 +388,7 @@
- mpage_writepage(struct bio *bio, struct page *page, get_block_t get_block,
- 	sector_t *last_block_in_bio, int *ret, struct writeback_control *wbc)
- {
-+	struct address_space *mapping = page->mapping;
- 	struct inode *inode = page->mapping->host;
- 	const unsigned blkbits = inode->i_blkbits;
- 	unsigned long end_index;
-@@ -562,6 +563,17 @@
- 	if (bio)
- 		bio = mpage_bio_submit(WRITE, bio);
- 	*ret = page->mapping->a_ops->writepage(page, wbc);
-+	if (*ret < 0) {
-+		/*
-+		 * lock the page to keep truncate away
-+		 * then check that it is still on the
-+		 * mapping.
-+		 */
-+		lock_page(page);
-+		if (page->mapping == mapping)
-+			mapping->error = *ret;
-+		unlock_page(page);
-+	}
- out:
- 	return bio;
- }
-@@ -665,6 +677,17 @@
- 					test_clear_page_dirty(page)) {
- 			if (writepage) {
- 				ret = (*writepage)(page, wbc);
-+				if (ret < 0) {
-+					/*
-+					 * lock the page to keep truncate away
-+					 * then check that it is still on the
-+					 * mapping.
-+					 */
-+					lock_page(page);
-+					if (page->mapping == mapping)
-+						mapping->error = ret;
-+					unlock_page(page);
-+				}
- 			} else {
- 				bio = mpage_writepage(bio, page, get_block,
- 					&last_block_in_bio, &ret, wbc);
-diff -urN -x '*.ver' -x '.patch*' -x '*.orig' orig/fs/ntfs/compress.c patched/fs/ntfs/compress.c
---- orig/fs/ntfs/compress.c	2003-05-12 14:34:30.000000000 -0500
-+++ patched/fs/ntfs/compress.c	2003-05-21 12:37:26.000000000 -0500
-@@ -643,7 +643,7 @@
- 			continue;
- 		}
- 		atomic_inc(&tbh->b_count);
--		tbh->b_end_io = end_buffer_io_sync;
-+		tbh->b_end_io = end_buffer_read_sync;
- 		submit_bh(READ, tbh);
+diff -urN -x genksyms -x '*.ver' -x '.patch*' -x '*.orig' orig/fs/jfs/inode.c patched/fs/jfs/inode.c
+--- orig/fs/jfs/inode.c	2003-04-19 21:48:46.000000000 -0500
++++ patched/fs/jfs/inode.c	2003-05-29 12:52:28.000000000 -0500
+@@ -20,6 +20,7 @@
+ #include <linux/fs.h>
+ #include <linux/mpage.h>
+ #include <linux/buffer_head.h>
++#include <linux/pagemap.h>
+ #include "jfs_incore.h"
+ #include "jfs_filsys.h"
+ #include "jfs_imap.h"
+@@ -57,7 +58,7 @@
+ 		inode->i_op = &jfs_dir_inode_operations;
+ 		inode->i_fop = &jfs_dir_operations;
+ 		inode->i_mapping->a_ops = &jfs_aops;
+-		inode->i_mapping->gfp_mask = GFP_NOFS;
++		mapping_set_gfp_mask(inode->i_mapping, GFP_NOFS);
+ 	} else if (S_ISLNK(inode->i_mode)) {
+ 		if (inode->i_size >= IDATASIZE) {
+ 			inode->i_op = &page_symlink_inode_operations;
+diff -urN -x genksyms -x '*.ver' -x '.patch*' -x '*.orig' orig/fs/jfs/jfs_imap.c patched/fs/jfs/jfs_imap.c
+--- orig/fs/jfs/jfs_imap.c	2003-04-19 21:48:53.000000000 -0500
++++ patched/fs/jfs/jfs_imap.c	2003-05-29 12:52:28.000000000 -0500
+@@ -43,6 +43,7 @@
+ 
+ #include <linux/fs.h>
+ #include <linux/buffer_head.h>
++#include <linux/pagemap.h>
+ 
+ #include "jfs_incore.h"
+ #include "jfs_filsys.h"
+@@ -504,7 +505,7 @@
  	}
  
-diff -urN -x '*.ver' -x '.patch*' -x '*.orig' orig/fs/open.c patched/fs/open.c
---- orig/fs/open.c	2003-05-21 11:03:26.000000000 -0500
-+++ patched/fs/open.c	2003-05-21 12:37:26.000000000 -0500
-@@ -842,21 +842,38 @@
-  */
- int filp_close(struct file *filp, fl_owner_t id)
- {
--	int retval;
-+	struct address_space *mapping = filp->f_dentry->d_inode->i_mapping;
-+	int retval = 0, err;
-+
-+	/* Report and clear outstanding errors */
-+	err = filp->f_error;
-+	if (err) {
-+		filp->f_error = 0;
-+		retval = err;
-+	}
-+
-+	err = mapping->error;
-+	if (err && !retval) {
-+		mapping->error = 0;
-+		retval = err;
-+	}
+ 	ip->i_mapping->a_ops = &jfs_aops;
+-	ip->i_mapping->gfp_mask = GFP_NOFS;
++	mapping_set_gfp_mask(ip->i_mapping, GFP_NOFS);
+ 
+ 	if ((inum == FILESYSTEM_I) && (JFS_IP(ip)->ipimap == sbi->ipaimap)) {
+ 		sbi->gengen = le32_to_cpu(dp->di_gengen);
+diff -urN -x genksyms -x '*.ver' -x '.patch*' -x '*.orig' orig/fs/jfs/namei.c patched/fs/jfs/namei.c
+--- orig/fs/jfs/namei.c	2003-04-19 21:50:35.000000000 -0500
++++ patched/fs/jfs/namei.c	2003-05-29 12:52:28.000000000 -0500
+@@ -257,7 +257,7 @@
+ 	ip->i_op = &jfs_dir_inode_operations;
+ 	ip->i_fop = &jfs_dir_operations;
+ 	ip->i_mapping->a_ops = &jfs_aops;
+-	ip->i_mapping->gfp_mask = GFP_NOFS;
++	mapping_set_gfp_mask(ip->i_mapping, GFP_NOFS);
+ 
+ 	insert_inode_hash(ip);
+ 	mark_inode_dirty(ip);
+diff -urN -x genksyms -x '*.ver' -x '.patch*' -x '*.orig' orig/fs/mpage.c patched/fs/mpage.c
+--- orig/fs/mpage.c	2003-05-29 12:52:33.000000000 -0500
++++ patched/fs/mpage.c	2003-05-29 12:52:28.000000000 -0500
+@@ -570,8 +570,12 @@
+ 		 * mapping.
+ 		 */
+ 		lock_page(page);
+-		if (page->mapping == mapping)
+-			mapping->error = *ret;
++		if (page->mapping == mapping) {
++			if (*ret == -EIO)
++				set_bit(AS_EIO, &mapping->flags);
++			else if (*ret == -ENOSPC)
++				set_bit(AS_ENOSPC, &mapping->flags);
++		}
+ 		unlock_page(page);
+ 	}
+ out:
+@@ -684,8 +688,12 @@
+ 					 * mapping.
+ 					 */
+ 					lock_page(page);
+-					if (page->mapping == mapping)
+-						mapping->error = ret;
++					if (page->mapping == mapping) {
++						if (ret == -EIO)
++							set_bit(AS_EIO, &mapping->flags);
++						else if (ret == -ENOSPC)
++							set_bit(AS_ENOSPC, &mapping->flags);
++					}
+ 					unlock_page(page);
+ 				}
+ 			} else {
+diff -urN -x genksyms -x '*.ver' -x '.patch*' -x '*.orig' orig/fs/open.c patched/fs/open.c
+--- orig/fs/open.c	2003-05-29 12:52:33.000000000 -0500
++++ patched/fs/open.c	2003-05-29 12:52:28.000000000 -0500
+@@ -20,6 +20,7 @@
+ #include <linux/mount.h>
+ #include <linux/vfs.h>
+ #include <asm/uaccess.h>
++#include <linux/pagemap.h>
+ 
+ #define special_file(m) (S_ISCHR(m)||S_ISBLK(m)||S_ISFIFO(m)||S_ISSOCK(m))
+ 
+@@ -852,11 +853,10 @@
+ 		retval = err;
+ 	}
+ 
+-	err = mapping->error;
+-	if (err && !retval) {
+-		mapping->error = 0;
+-		retval = err;
+-	}
++	if (test_and_clear_bit(AS_ENOSPC, &mapping->flags))
++		retval = -ENOSPC;
++	if (test_and_clear_bit(AS_EIO, &mapping->flags))
++		retval = -EIO;
  
  	if (!file_count(filp)) {
  		printk(KERN_ERR "VFS: Close: file count is 0\n");
--		return 0;
-+		return retval;
- 	}
--	retval = 0;
-+
- 	if (filp->f_op && filp->f_op->flush) {
- 		lock_kernel();
--		retval = filp->f_op->flush(filp);
-+		err = filp->f_op->flush(filp);
- 		unlock_kernel();
-+		if (err && !retval)
-+			retval = err;
- 	}
- 	dnotify_flush(filp, id);
- 	locks_remove_posix(filp, id);
- 	fput(filp);
-+
- 	return retval;
- }
- 
-diff -urN -x '*.ver' -x '.patch*' -x '*.orig' orig/include/linux/buffer_head.h patched/include/linux/buffer_head.h
---- orig/include/linux/buffer_head.h	2003-05-21 11:03:28.000000000 -0500
-+++ patched/include/linux/buffer_head.h	2003-05-21 12:42:06.000000000 -0500
-@@ -24,8 +24,9 @@
- 	BH_Async_Read,	/* Is under end_buffer_async_read I/O */
- 	BH_Async_Write,	/* Is under end_buffer_async_write I/O */
- 	BH_Delay,	/* Buffer is not yet allocated on disk */
--
- 	BH_Boundary,	/* Block is followed by a discontiguity */
-+	BH_Write_EIO,	/* I/O error on write */
-+
- 	BH_PrivateStart,/* not a state bit, but the first bit available
- 			 * for private allocation by other entities
- 			 */
-@@ -109,12 +110,14 @@
- BUFFER_FNS(Lock, locked)
- TAS_BUFFER_FNS(Lock, locked)
- BUFFER_FNS(Req, req)
-+TAS_BUFFER_FNS(Req, req)
- BUFFER_FNS(Mapped, mapped)
- BUFFER_FNS(New, new)
- BUFFER_FNS(Async_Read, async_read)
- BUFFER_FNS(Async_Write, async_write)
--BUFFER_FNS(Delay, delay);
-+BUFFER_FNS(Delay, delay)
- BUFFER_FNS(Boundary, boundary)
-+BUFFER_FNS(Write_EIO,write_io_error)
- 
- #define bh_offset(bh)		((unsigned long)(bh)->b_data & ~PAGE_MASK)
- #define touch_buffer(bh)	mark_page_accessed(bh->b_page)
-@@ -139,7 +142,8 @@
- int try_to_free_buffers(struct page *);
- void create_empty_buffers(struct page *, unsigned long,
- 			unsigned long b_state);
--void end_buffer_io_sync(struct buffer_head *bh, int uptodate);
-+void end_buffer_read_sync(struct buffer_head *bh, int uptodate);
-+void end_buffer_write_sync(struct buffer_head *bh, int uptodate);
- void end_buffer_async_write(struct buffer_head *bh, int uptodate);
- 
- /* Things to do with buffers at mapping->private_list */
-diff -urN -x '*.ver' -x '.patch*' -x '*.orig' orig/include/linux/fs.h patched/include/linux/fs.h
---- orig/include/linux/fs.h	2003-05-21 11:03:29.000000000 -0500
-+++ patched/include/linux/fs.h	2003-05-21 12:37:27.000000000 -0500
-@@ -329,6 +329,7 @@
+diff -urN -x genksyms -x '*.ver' -x '.patch*' -x '*.orig' orig/include/linux/fs.h patched/include/linux/fs.h
+--- orig/include/linux/fs.h	2003-05-29 12:52:33.000000000 -0500
++++ patched/include/linux/fs.h	2003-05-29 12:52:28.000000000 -0500
+@@ -324,12 +324,11 @@
+ 	struct list_head	i_mmap_shared;	/* list of shared mappings */
+ 	struct semaphore	i_shared_sem;	/* protect both above lists */
+ 	unsigned long		dirtied_when;	/* jiffies of first page dirtying */
+-	int			gfp_mask;	/* how to allocate the pages */
++	unsigned long		flags;		/* error bits/gfp mask */
+ 	struct backing_dev_info *backing_dev_info; /* device readahead, etc */
  	spinlock_t		private_lock;	/* for use by the address_space */
  	struct list_head	private_list;	/* ditto */
  	struct address_space	*assoc_mapping;	/* ditto */
-+	int			error;		/* write error for fsync */
+-	int			error;		/* write error for fsync */
  };
  
  struct block_device {
-diff -urN -x '*.ver' -x '.patch*' -x '*.orig' orig/kernel/ksyms.c patched/kernel/ksyms.c
---- orig/kernel/ksyms.c	2003-05-21 11:03:33.000000000 -0500
-+++ patched/kernel/ksyms.c	2003-05-21 12:42:26.000000000 -0500
-@@ -175,7 +175,8 @@
- EXPORT_SYMBOL(d_lookup);
- EXPORT_SYMBOL(d_path);
- EXPORT_SYMBOL(mark_buffer_dirty);
--EXPORT_SYMBOL(end_buffer_io_sync);
-+EXPORT_SYMBOL(end_buffer_read_sync);
-+EXPORT_SYMBOL(end_buffer_write_sync);
- EXPORT_SYMBOL(end_buffer_async_write);
- EXPORT_SYMBOL(__mark_inode_dirty);
- EXPORT_SYMBOL(get_empty_filp);
-diff -urN -x '*.ver' -x '.patch*' -x '*.orig' orig/mm/filemap.c patched/mm/filemap.c
---- orig/mm/filemap.c	2003-05-21 11:03:33.000000000 -0500
-+++ patched/mm/filemap.c	2003-05-21 12:41:34.000000000 -0500
-@@ -199,6 +199,14 @@
- 		spin_lock(&mapping->page_lock);
- 	}
- 	spin_unlock(&mapping->page_lock);
+diff -urN -x genksyms -x '*.ver' -x '.patch*' -x '*.orig' orig/include/linux/gfp.h patched/include/linux/gfp.h
+--- orig/include/linux/gfp.h	2003-05-12 14:34:35.000000000 -0500
++++ patched/include/linux/gfp.h	2003-05-29 12:52:28.000000000 -0500
+@@ -33,6 +33,9 @@
+ #define __GFP_NORETRY	0x1000	/* Do not retry.  Might fail */
+ #define __GFP_NO_GROW	0x2000	/* Slab internal usage */
+ 
++#define __GFP_BITS_SHIFT 16	/* Room for 16 __GFP_FOO bits */
++#define __GFP_BITS_MASK ((1 << __GFP_BITS_SHIFT) - 1)
 +
-+	/* Check for outstanding write errors */
-+	if (mapping->error)
-+	{
-+		ret = mapping->error;
-+		mapping->error = 0;
-+	}
+ #define GFP_ATOMIC	(__GFP_HIGH)
+ #define GFP_NOIO	(__GFP_WAIT)
+ #define GFP_NOFS	(__GFP_WAIT | __GFP_IO)
+diff -urN -x genksyms -x '*.ver' -x '.patch*' -x '*.orig' orig/include/linux/pagemap.h patched/include/linux/pagemap.h
+--- orig/include/linux/pagemap.h	2003-05-29 12:52:33.000000000 -0500
++++ patched/include/linux/pagemap.h	2003-05-29 12:52:28.000000000 -0500
+@@ -8,7 +8,30 @@
+ #include <linux/fs.h>
+ #include <linux/list.h>
+ #include <linux/highmem.h>
++#include <linux/pagemap.h>
+ #include <asm/uaccess.h>
++#include <linux/gfp.h>
 +
- 	return ret;
++/*
++ * Bits in mapping->flags.  The lower __GFP_BITS_SHIFT bits are the page
++ * allocation mode flags.
++ */
++#define	AS_EIO		(__GFP_BITS_SHIFT + 0)	/* IO error on async write */
++#define AS_ENOSPC	(__GFP_BITS_SHIFT + 1)	/* ENOSPC on async write */
++
++static inline int mapping_gfp_mask(struct address_space * mapping)
++{
++	return mapping->flags & __GFP_BITS_MASK;
++}
++
++/*
++ * This is non-atomic.  Only to be used before the mapping is activated.
++ * Probably needs a barrier...
++ */
++static inline void mapping_set_gfp_mask(struct address_space *m, int mask)
++{
++	m->flags = (m->flags & ~__GFP_BITS_MASK) | mask;
++}
+ 
+ /*
+  * The page cache can done in larger chunks than
+@@ -29,12 +52,12 @@
+ 
+ static inline struct page *page_cache_alloc(struct address_space *x)
+ {
+-	return alloc_pages(x->gfp_mask, 0);
++	return alloc_pages(mapping_gfp_mask(x), 0);
  }
  
-diff -urN -x '*.ver' -x '.patch*' -x '*.orig' orig/mm/vmscan.c patched/mm/vmscan.c
---- orig/mm/vmscan.c	2003-05-21 11:03:33.000000000 -0500
-+++ patched/mm/vmscan.c	2003-05-21 12:37:27.000000000 -0500
-@@ -340,6 +340,20 @@
- 				SetPageReclaim(page);
- 				res = mapping->a_ops->writepage(page, &wbc);
+ static inline struct page *page_cache_alloc_cold(struct address_space *x)
+ {
+-	return alloc_pages(x->gfp_mask|__GFP_COLD, 0);
++	return alloc_pages(mapping_gfp_mask(x)|__GFP_COLD, 0);
+ }
  
-+				if (res < 0) {
-+					/*
-+					 * lock the page to keep truncate away
-+					 * then check that it is still on the
-+					 * mapping.
-+					 */
-+					lock_page(page);
-+					if (page->mapping == mapping)
-+						mapping->error = res;
-+					unlock_page(page);
-+				}
-+				if (res < 0) {
-+					mapping->error = res;
-+				}
+ typedef int filler_t(void *, struct page *);
+@@ -56,7 +79,7 @@
+  */
+ static inline struct page *grab_cache_page(struct address_space *mapping, unsigned long index)
+ {
+-	return find_or_create_page(mapping, index, mapping->gfp_mask);
++	return find_or_create_page(mapping, index, mapping_gfp_mask(mapping));
+ }
+ 
+ extern struct page * grab_cache_page_nowait(struct address_space *mapping,
+diff -urN -x genksyms -x '*.ver' -x '.patch*' -x '*.orig' orig/mm/filemap.c patched/mm/filemap.c
+--- orig/mm/filemap.c	2003-05-29 12:52:33.000000000 -0500
++++ patched/mm/filemap.c	2003-05-29 12:52:28.000000000 -0500
+@@ -201,11 +201,10 @@
+ 	spin_unlock(&mapping->page_lock);
+ 
+ 	/* Check for outstanding write errors */
+-	if (mapping->error)
+-	{
+-		ret = mapping->error;
+-		mapping->error = 0;
+-	}
++	if (test_and_clear_bit(AS_ENOSPC, &mapping->flags))
++		ret = -ENOSPC;
++	if (test_and_clear_bit(AS_EIO, &mapping->flags))
++		ret = -EIO;
+ 
+ 	return ret;
+ }
+@@ -591,7 +590,7 @@
+ 		page_cache_release(page);
+ 		return NULL;
+ 	}
+-	gfp_mask = mapping->gfp_mask & ~__GFP_FS;
++	gfp_mask = mapping_gfp_mask(mapping) & ~__GFP_FS;
+ 	page = alloc_pages(gfp_mask, 0);
+ 	if (page && add_to_page_cache_lru(page, mapping, index, gfp_mask)) {
+ 		page_cache_release(page);
+diff -urN -x genksyms -x '*.ver' -x '.patch*' -x '*.orig' orig/mm/shmem.c patched/mm/shmem.c
+--- orig/mm/shmem.c	2003-05-29 12:49:55.000000000 -0500
++++ patched/mm/shmem.c	2003-05-29 12:52:28.000000000 -0500
+@@ -318,7 +318,7 @@
+ 		spin_unlock(&sbinfo->stat_lock);
+ 
+ 		spin_unlock(&info->lock);
+-		page = shmem_dir_alloc(inode->i_mapping->gfp_mask);
++		page = shmem_dir_alloc(mapping_gfp_mask(inode->i_mapping));
+ 		if (page) {
+ 			clear_highpage(page);
+ 			page->nr_swapped = 0;
+diff -urN -x genksyms -x '*.ver' -x '.patch*' -x '*.orig' orig/mm/vmscan.c patched/mm/vmscan.c
+--- orig/mm/vmscan.c	2003-05-29 12:52:34.000000000 -0500
++++ patched/mm/vmscan.c	2003-05-29 12:52:28.000000000 -0500
+@@ -347,13 +347,14 @@
+ 					 * mapping.
+ 					 */
+ 					lock_page(page);
+-					if (page->mapping == mapping)
+-						mapping->error = res;
++					if (page->mapping == mapping) {
++						if (res == -EIO)
++							set_bit(AS_EIO, &mapping->flags);
++						else if (res == -ENOSPC)
++							set_bit(AS_ENOSPC, &mapping->flags);
++					}
+ 					unlock_page(page);
+ 				}
+-				if (res < 0) {
+-					mapping->error = res;
+-				}
  				if (res == WRITEPAGE_ACTIVATE) {
  					ClearPageReclaim(page);
  					goto activate_locked;

@@ -1,61 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274164AbRI1ALU>; Thu, 27 Sep 2001 20:11:20 -0400
+	id <S274522AbRI1ANK>; Thu, 27 Sep 2001 20:13:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274900AbRI1ALK>; Thu, 27 Sep 2001 20:11:10 -0400
-Received: from [195.223.140.107] ([195.223.140.107]:32252 "EHLO athlon.random")
-	by vger.kernel.org with ESMTP id <S274164AbRI1AK7>;
-	Thu, 27 Sep 2001 20:10:59 -0400
-Date: Fri, 28 Sep 2001 02:11:15 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Robert Macaulay <robert_macaulay@dell.com>,
-        Rik van Riel <riel@conectiva.com.br>,
-        Craig Kulesa <ckulesa@as.arizona.edu>, linux-kernel@vger.kernel.org,
-        Bob Matthews <bmatthews@redhat.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: highmem deadlock fix [was Re: VM in 2.4.10(+tweaks) vs. 2.4.9-ac14/15(+stuff)]
-Message-ID: <20010928021115.D14277@athlon.random>
-In-Reply-To: <20010928014720.Z14277@athlon.random> <Pine.LNX.4.33.0109271700001.32086-100000@penguin.transmeta.com>
-Mime-Version: 1.0
+	id <S274909AbRI1ANA>; Thu, 27 Sep 2001 20:13:00 -0400
+Received: from air-1.osdlab.org ([65.201.151.5]:23563 "EHLO
+	osdlab.pdx.osdl.net") by vger.kernel.org with ESMTP
+	id <S274522AbRI1AMm>; Thu, 27 Sep 2001 20:12:42 -0400
+Message-ID: <3BB3BFF3.F553DA2F@osdlab.org>
+Date: Thu, 27 Sep 2001 17:10:27 -0700
+From: "Randy.Dunlap" <rddunlap@osdlab.org>
+Organization: OSDL
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-20mdk i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alex Cruise <acruise@infowave.com>
+CC: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: apm suspend broken in 2.4.10
+In-Reply-To: <6B90F0170040D41192B100508BD68CA1015A81B0@earth.infowave.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0109271700001.32086-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Thu, Sep 27, 2001 at 05:03:49PM -0700
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 27, 2001 at 05:03:49PM -0700, Linus Torvalds wrote:
+Alex Cruise wrote:
 > 
-> On Fri, 28 Sep 2001, Andrea Arcangeli wrote:
-> >
-> > Moving clear_bit just above submit_bh will fix it (please Robert make
-> > this change before testing it), because if we block in submit_bh in the
-> > bounce, then we won't deadlock on ourself because of the pagehighmem
-> > check
+> From: Randy.Dunlap [mailto:rddunlap@osdlab.org]
 > 
-> We won't block on _ourselves_, but we can block on _two_ people doing it,
-
-If other people waits for us it's ok (if they waits it means they're not
-using GFP_NOIO and they're also not using GFP_NOHIGHIO).
-
-We cannot wait on other two people doing it since they would be highmem
-pages and the pagehighmem check forbids that.
-
-> and blocking on each others requests that are blocked waiting on a bounce
-> buffer. Both will have one locked buffer, both will be waiting for the
-> other person unlocking that buffer, and neither will ever make progress.
+> > Sounds like our 2.4.10's are different then.  :)
 > 
-> You could clear that bit _after_ the bounce buffer allocation, I suspect.
+> It's possible... I got mine from kernel.org, applied the preemptible-kernel
+> and ext3fs patches, and  compiled with RH's "kgcc"
+> 
+> > Without this patch, mine didn't create /proc/apm, register as a
+> > misc device, or create the kapmd-idle kernel thread.
+> > Must be a distro thingy.
+> 
+> Did you have apm=on set before, or nothing at all?  Here's what I've seen so
+> far:
 
-I don't think it's necessary.
+I have "apm=on apm=debug".
 
-> But I also suspect that it doesn't matter much, and as I can imagine
-> similar problems with GFP_NOIO and loopback etc (do you see any reason why
-> loopback couldn't deadlock on waiting for itself?), I think the GFP_XXX
-> thing is the proper fix.
+> In all cases, I've got apm compiled into the kernel, not a module.
 
-GFP_NOIO is a no brainer, it cannot go wrong see the other email.
+Same here.
 
-Andrea
+> - With 2.4.10, Before your patch, with no apm= option in the kernel command
+> line, APM in general works, but suspend doesn't.  When I append apm=on or
+> apm=off to my kernel command line, APM is disabled.
+> - With 2.4.10, After applying your patch, apm=on no longer disables APM, but
+> suspend still doesn't work.
+> 
+> > Return of EAGAIN from the SUSPEND ioctl means that
+> > send_event() failed, which means that some device driver
+> > didn't want suspend to happen...which means that some
+> > device driver got changed. :(
+> 
+> Just for fun, I tried removing all of my loaded 2.4.10 modules one by one,
+> and attempting 'apm --suspend' in between, and still had the same problem
+> when I got down to the bare minimum (ext3 and jbd)
+> 
+> > What was the last working kernel AFAUK (for this APM stuff)?
+> 
+> I just checked, and the RH-compiled 2.4.9-0.5 doesn't suspend either.  It
+> appears to suffer from the same "apm=on" command-line bug too.  I'm gonna go
+> try the 2.4.7 from RH's "Roswell" beta now.
+
+OK, thanks for testing that.
+
+I suspect that it's something like a single driver change (not apm,
+but PM-support in a driver).  How many I/O-device drivers do you
+use?  Would it be difficult to try to isolate which one may be
+faulty?
+
+~Randy

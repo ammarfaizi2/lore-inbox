@@ -1,54 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292870AbSDAC6A>; Sun, 31 Mar 2002 21:58:00 -0500
+	id <S293131AbSDAD3A>; Sun, 31 Mar 2002 22:29:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293089AbSDAC5u>; Sun, 31 Mar 2002 21:57:50 -0500
-Received: from th09.opsion.fr ([195.219.20.19]:28938 "HELO th09.opsion.fr")
-	by vger.kernel.org with SMTP id <S292870AbSDAC5i>;
-	Sun, 31 Mar 2002 21:57:38 -0500
-Content-Type: text/plain;
-  charset="iso-8859-15"
-From: apolon <apolon_lovlilis@ifrance.com>
-To: linux-kernel@vger.kernel.org
-Subject: bug with floppy drive
-Date: Mon, 1 Apr 2002 05:00:19 +0200
-X-Mailer: KMail [version 1.3.1]
+	id <S293135AbSDAD2u>; Sun, 31 Mar 2002 22:28:50 -0500
+Received: from dravite.mint.net ([216.227.128.32]:28681 "EHLO dravite.mint.net")
+	by vger.kernel.org with ESMTP id <S293131AbSDAD2j>;
+	Sun, 31 Mar 2002 22:28:39 -0500
+Message-ID: <3CA7D119.4B84F7DD@goingware.com>
+Date: Sun, 31 Mar 2002 22:16:41 -0500
+From: "Michael D. Crawford" <crawford@goingware.com>
+X-Mailer: Mozilla 4.75 [en] (Win98; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-id: <200204010257.10e3@th09.opsion.fr>
+To: linux-kernel@vger.kernel.org
+Subject: Does Solaris source license interfere with Linux contributions?
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+I wish to inquire how signing the solaris 8 foundation source code license might
+affect my future ability to contribute to free software.
 
-I have a bug using my floppy drive under linux
+I would like to do as much as I can in the future to contribute to free
+software.  Off and on I've been studying the linux kernel with the aim
+of contributing meaningful code to Linux and other free software, although
+I haven't done much but some testing and bug reporting so far for the
+kernel.
 
-when i try to fdformat a floppy, i get this error:
+I may have an opportunity to get a job with a good company developing
+Solaris device drivers, pretty fancy ones at that.  It's not a sure thing
+yet, but they have said they'd like to hire me when the economy improves
+somewhat.
 
-	fdformat /dev/fd0H1440
-	Double-faces, 80 pistes, 18 sec/piste. Capacité totale 1440Ko.
-	Formatage en cours ... terminé
-	Verification en cours ... Lecture : : Erreur d'entree/sortie
-	Probleme lors de la lecture du cylindre 0, 18432 attendu, -1 lu
+I'd like to improve my odds at getting the job and keeping it, so I'm
+thinking of installing Solaris for Intel on my PC and later getting a sparc
+machine, and learning all about the Solaris kernel.  It's been a while since
+I've used Solaris at all.
 
-when i try to mke2fsck /dev/fd0H1440, it hangs and my floppy driver seeks 
-infinitely
+Sun makes the solaris 8 source available for "viewing" (perhaps just a little
+better than Microsoft's "shared source").  It would serve my
+immediate purposes to study that source code, but I'm concerned the license
+I would have to sign would restrict my ability to write free software in
+the future.  That is, if I was privy to proprietary Sun algorithms or
+implementations, then Sun might give me a hard time if I later 
+contributed code to the Linux kernel, or if my code made it into the kernel,
+then Sun could give everyone a hard time.
 
-I've try with a lot of floppies and with another floppy drive and I get the 
-same error
-my floppy drive works fine under window$
+The license can be downloaded from:
 
-I'm using the kernel 2.4.18 from kernel.org, with a redhat 7.2
+http://www.sun.com/solaris/source/license_agreement.html
 
-I own a Abit kg7, a amd duron 1000 processor 
+But rather than asking you to download the license there must be some among
+you who have considered the question already, so I ask you to share your
+thoughts on this.
 
-I'm at your disposition if you need some help, or renseignements
+I felt concerned when I found the license requirement because I read on the
+Kaffe.org website that they could not accept code into the VM that came from
+people who'd ever read the Sun Java VM source code.  I have wide-ranging
+programming interests, and I'd like to be able to contribute to anything I
+wanted.
 
-Fabien
- 
-______________________________________________________________________________
-ifrance.com, l'email gratuit le plus complet de l'Internet !
-vos emails depuis un navigateur, en POP3, sur Minitel, sur le WAP...
-http://www.ifrance.com/_reloc/email.emailif
+If you wonder how a joker who's never programmed either a solaris or
+linux driver could get a job writing fancy solaris drivers, I did used to
+be a system software engineer at Apple, where I did a bunch of 
+debugging and performance tuning of the classic Mac OS (not Mac OS X), mostly
+at the assembly level, working on interrupt, VM code and such.  So
+I have worked on device drivers and kernel level work, although it was
+nothing like a Unix or Linux kernel.  In some ways it was much harder
+than what you folks do, because the classic Mac OS architecture lived
+much longer than it really should have, and grew a lot of warts.
 
+I've been programming for a long time, and the head of engineering at this
+company that wants to hire me seemed to care more for the fact that I just knew
+my way around software than that I had a specific skillset.  I consider clients
+and employers who have this attitude to be a rare and refreshing contrast from
+the usual buzzword-blinded recruiters, so I prize them like jewels.  So I'd
+really like to work for these people.
 
+Thanks for any advice you can give me,
+
+Michael D. Crawford
+GoingWare Inc. - Expert Software Development and Consulting
+http://www.goingware.com/
+crawford@goingware.com
+
+    Tilting at Windmills for a Better Tomorrow.

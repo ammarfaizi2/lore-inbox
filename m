@@ -1,37 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136403AbREDOpT>; Fri, 4 May 2001 10:45:19 -0400
+	id <S136418AbREDOxM>; Fri, 4 May 2001 10:53:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136412AbREDOpJ>; Fri, 4 May 2001 10:45:09 -0400
-Received: from srv01s4.cas.org ([134.243.50.9]:63949 "EHLO srv01.cas.org")
-	by vger.kernel.org with ESMTP id <S136403AbREDOpC>;
-	Fri, 4 May 2001 10:45:02 -0400
-From: Mike Harrold <mharrold@cas.org>
-Message-Id: <200105041444.KAA16558@mah21awu.cas.org>
-Subject: close()
-To: linux-kernel@vger.kernel.org
-Date: Fri, 4 May 2001 10:44:53 -0400 (EDT)
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
+	id <S136415AbREDOxC>; Fri, 4 May 2001 10:53:02 -0400
+Received: from host194.steeleye.com ([216.33.1.194]:56332 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S136411AbREDOwt>; Fri, 4 May 2001 10:52:49 -0400
+Message-Id: <200105041452.f44EqI101653@localhost.localdomain>
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+To: Doug Ledford <dledford@redhat.com>
+cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: Linux Cluster using shared scsi 
+In-Reply-To: Message from Doug Ledford <dledford@redhat.com> 
+   of "Wed, 02 May 2001 13:47:40 EDT." <3AF0483C.49C8CF90@redhat.com> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Fri, 04 May 2001 10:52:18 -0400
+From: Eddie Williams <Eddie.Williams@steeleye.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Doug Ledford wrote:
+>
+> ...
+>
+> If told to hold a reservation, then resend your reservation request once every
+> 2 seconds (this actually has very minimal CPU/BUS usage and isn't as big a
+> deal as requesting a reservation every 2 seconds might sound).  The first time
+> the reservation is refused, consider the reservation stolen by another machine
+> and exit (or optionally, reboot).
 
-We have a server which runs on a machine that now runs the new 2.4 kernel.
-Since upgrading we've seen periods where it seems to just hang for minutes
-at a time (anywhere form 5 minutes to an hour). I was finally able to get
-a core dump of the server during one of these periods and it appears that
-the hang is occuring during a call to close().
+I agree that the resend of the reservation is not all that big but there is 
+also the proverbial "straw that broke the Camel's back."  When there is enough 
+activity there could be logic added to avoid sending reservations.  In all 
+cases when a reservation is forcefully removed the result will cause the 
+device to return a UNIT ATTENTION (Well, I guess I know that is the behavior 
+on Parallel SCSI, is this true for FC?).  So the host should know with the 
+next command issued that it lost the reservation (not necessarily that someone 
+else has stolen it but that for some reason the device just lost it).  So you 
+could "check" to see if within the last 2 seconds (a) has an IO completed and 
+(b) every IO that completed in that 2 second span completed without any 
+"error".  In error I mean without incident, such as a check condition.  In 
+this case the reservation is not needed as you know nothing has happened to 
+cause the reservation to be lost.  Perhaps in this heavy load situation you 
+could even add logic to issue the reservation as soon as the mid-layer is 
+aware that the reservation was broken maybe saving a second or so?
 
-Has anyone else seen anything like this? Kernel version is:
+I see this as an enhancement that could be added on later, perhaps keep in 
+mind this enhancement so that your initial development does not make it more 
+difficult to implement it later.
 
-  Linux version 2.4.2-4GB (root@Pentium.suse.de)
-
-Thanks,
-
-/Mike
+Eddie
 
 

@@ -1,50 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287827AbSABPHg>; Wed, 2 Jan 2002 10:07:36 -0500
+	id <S287838AbSABPLG>; Wed, 2 Jan 2002 10:11:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287834AbSABPH0>; Wed, 2 Jan 2002 10:07:26 -0500
-Received: from mail3.aracnet.com ([216.99.193.38]:30732 "EHLO
-	mail3.aracnet.com") by vger.kernel.org with ESMTP
-	id <S287827AbSABPHR>; Wed, 2 Jan 2002 10:07:17 -0500
-From: "M. Edward Borasky" <znmeb@aracnet.com>
-To: <hauan@cmu.edu>
-Cc: <knobi@knobisoft.de>, <linux-kernel@vger.kernel.org>
-Subject: RE: smp cputime issues
-Date: Wed, 2 Jan 2002 07:07:03 -0800
-Message-ID: <HBEHIIBBKKNOBLMPKCBBIEBLEFAA.znmeb@aracnet.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <3C33071A.EB4943E8@sirius-cafe.de>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
+	id <S287836AbSABPK4>; Wed, 2 Jan 2002 10:10:56 -0500
+Received: from dsl-65-186-161-49.telocity.com ([65.186.161.49]:37134 "EHLO
+	nic.osagesoftware.com") by vger.kernel.org with ESMTP
+	id <S287838AbSABPKr>; Wed, 2 Jan 2002 10:10:47 -0500
+Message-Id: <4.3.2.7.2.20020102100856.00e78f00@mail.osagesoftware.com>
+X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
+Date: Wed, 02 Jan 2002 10:10:42 -0500
+To: linux-kernel@vger.kernel.org
+From: David Relson <relson@osagesoftware.com>
+Subject: Re: CML2 funkiness
+Cc: "Andrew Rodland" <arodland@noln.com>, "Eric S. Raymond" <esr@thyrsus.com>
+In-Reply-To: <web-54668623@admin.nni.com>
+In-Reply-To: <200201010217.g012H2d00406@lists.us.dell.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  Second - you mention that you see the effect mainly on linear algebra
-> stuff. Could it be that you are memory bandwidth limited if you run two
-> of them together? Are you using Intel CPUs (my guess) which have the FSB
-> concept that may make memory bandwidth scaling a problem, or AMD Athlons
-> which use the Alpha/EV6 bus and should be a bit more friendly.
+At 09:03 AM 1/2/02, Andrew Rodland wrote:
+>First off, I'd like to apologize for lack of all the
+>  information I'd like to have, I'm at school, and
+>  temporarily semidisconnected at home.
+>
+>CML2 is definitely still not quite right for me
+>(2.4.17 + kpreempt-rml, latest CML2 as of 3ish days ago).
+>
+>Menuconfig and friends seem okay, as far as I can tell (and
+>  they've apparently been tested pretty well), but oldconfig
+>  is wacky...
+>
+>So, "mv config .config ; make mrproper ; mv config .config
+>  ; make oldconfig" does odd things to my config, but more
+>  in-your-face, on "make oldconfig ; make oldconfig" (ad
+>  inifinitum if you want), it will continue asking the same
+>  questions, and never remember the answer.
 
-Hmmm ... linear algebra ... are you by any chance using Atlas? Atlas is
-highly optimized for the chips and as many other architectural features as
-it can discover, such as cache size. I'm sure a well-tuned Atlas application
-is quite capable of bending a machine to its own purposes, quite possibly
-to the discomfort of other users attempting to use the system. If the issue
-is sharing of resources between the linear algebra code and other users,
-perhaps the thing to do is get Atlas, if you're not currently using it,
-and then "nice" the linear algebra code.
+Andrew,
 
-I run Atlas on my (UP) 1.333 GHz Athlon Thunderbird and it screams. I can
-get 4+ GFLOPS in the 3DNOW 32-bit code and well over 1 GFLOP in 64 bits.
---
-M. Edward Borasky
+I have just tested this, and have reproduced your problem.  Using 
+kernel-2.4.16 and cml2-1.2.20, i.e. my current kernel and the latest CML2, 
+I ran "make oldconfig" three times.  The first time I answered "n" to 21 
+queries.  The second and third times, I had to answer "n" to 9 
+queries.  The 9 all appeared in the first run and were exactly the same in 
+the second and third runs.
 
-znmeb@borasky-research.net
-http://www.borasky-research.net
+Here're the 9 queries from runs 2 and 3:
+EXPERT: Prompt for expert choices (those with no help attached) 
+(EXPERIMENTAL) [ ] (NEW)?:
+DEVELOPMENT: Configure a development or 2.5 kernel? (EXPERIMENTAL) [ ] (NEW)?:
+CD_NO_IDESCSI: Support CD-ROM drives that are not SCSI or IDE/ATAPI [ ] 
+(NEW)?:
+IP_ADVANCED_ROUTER: Advanced router [ ] (NEW)?:
+NET_VENDOR_SMC: Western Digital/SMC cards [ ] (NEW)?:
+NET_VENDOR_RACAL: Racal-Interlan (Micom) NI cards [ ] (NEW)?:
+NET_POCKET: Pocket and portable adapters [ ] (NEW)?:
+HAMRADIO: Amateur Radio support [ ] (NEW)?:
+FBCON_FONTS: Select other compiled-in fonts [ ] (NEW)?:
+
+ From past testing of CML2 I know it uses file config.out as its 
+"memory".  Looking in it, I didn't see any CONFIG symbols for these symbols.
+
+There's definitely something here for Eric to fix!
+
+David
+
 

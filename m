@@ -1,54 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262225AbSJFWSG>; Sun, 6 Oct 2002 18:18:06 -0400
+	id <S262224AbSJFWUi>; Sun, 6 Oct 2002 18:20:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262226AbSJFWSG>; Sun, 6 Oct 2002 18:18:06 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:21516
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S262225AbSJFWSF>; Sun, 6 Oct 2002 18:18:05 -0400
-Subject: Re: 2.5.40-mm2
-From: Robert Love <rml@tech9.net>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Dave Hansen <haveblue@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
-       "linux-mm@kvack.org" <linux-mm@kvack.org>,
-       Ingo Molnar <mingo@redhat.com>
-In-Reply-To: <3DA0B422.C23B23D4@digeo.com>
-References: <3DA0854E.CF9080D7@digeo.com> <3DA0A144.8070301@us.ibm.com>
-	<3DA0B151.6EF8C8D9@digeo.com>  <3DA0B422.C23B23D4@digeo.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 06 Oct 2002 18:23:40 -0400
-Message-Id: <1033943021.27093.29.camel@phantasy>
-Mime-Version: 1.0
+	id <S262230AbSJFWUi>; Sun, 6 Oct 2002 18:20:38 -0400
+Received: from grunt2.ihug.co.nz ([203.109.254.42]:55442 "EHLO
+	grunt2.ihug.co.nz") by vger.kernel.org with ESMTP
+	id <S262224AbSJFWUh> convert rfc822-to-8bit; Sun, 6 Oct 2002 18:20:37 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: cll muzh <muzh@ihug.co.nz>
+Organization: -
+To: mec@shout.net
+Subject: Make menu config crash when trying to configure ALSA modules
+Date: Mon, 7 Oct 2002 11:27:25 +1300
+User-Agent: KMail/1.4.3
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200210071127.25952.muzh@ihug.co.nz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-10-06 at 18:07, Andrew Morton wrote:
+Hello!
+While running make menuconfig on a 2.5.40 kernel (constructed from stock 
+2.5.31 + stock patches) I received an immediate crash and exit while trying 
+to enter Sound --> Advanced Linux Sound Architecture.
+The error reported was :
 
-> > -                       while (base->running_timer == timer) {
-> > +                       while (base->running_timer == timer)
-> >                                 cpu_relax();
-> > -                               preempt_disable();
-> > -                               preempt_enable();
+Q> ./scripts/Menuconfig: MCmenu74: command not found
 
-I am confused as to why Ingo would put these here.  He knows very well
-what he is doing... surely he had a reason.
+I am just reporting this as advised in the crash report --
+Best wishes, Peter Keller.
 
-If he intended to force a preemption point here, then the lines needs to
-be reversed.  This assumes, of course, preemption is disabled here.  But
-I do not think it is.
-
-If he just wanted to check for preemption, we have a
-preempt_check_resched() which does just that (I even think he wrote
-it).  Note as long as interrupts are enabled this probably does not
-achieve much anyhow.
-
-So I do not know.  I find it odd the solution is to completely remove
-it...
-
-Btw, I think the solution to the crash is to add a check to
-cpu_online().
-
-	Robert Love
-
+-- 
+This mail is certified Virus-free as no Microsoft products were used in its 
+preparation or propagation

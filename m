@@ -1,36 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265062AbTLMPtY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Dec 2003 10:49:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265078AbTLMPtY
+	id S265095AbTLMPyL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Dec 2003 10:54:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265143AbTLMPyL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Dec 2003 10:49:24 -0500
-Received: from delerium.codemonkey.org.uk ([81.187.208.145]:60571 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S265062AbTLMPtX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Dec 2003 10:49:23 -0500
-Date: Sat, 13 Dec 2003 15:42:01 +0000
-From: Dave Jones <davej@redhat.com>
-To: Andrew Walrond <andrew@walrond.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Which .config processor for Centaur VIA Samual 2 stepping 03?
-Message-ID: <20031213154201.GA13269@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Andrew Walrond <andrew@walrond.org>, linux-kernel@vger.kernel.org
-References: <200312131430.40731.andrew@walrond.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 13 Dec 2003 10:54:11 -0500
+Received: from cmailg1.svr.pol.co.uk ([195.92.195.171]:36365 "EHLO
+	cmailg1.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id S265095AbTLMPyI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Dec 2003 10:54:08 -0500
+From: Chris Vine <chris@cvine.freeserve.co.uk>
+To: Con Kolivas <kernel@kolivas.org>,
+       William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: 2.6.0-test9 - poor swap performance on low end machines
+Date: Sat, 13 Dec 2003 14:08:05 +0000
+User-Agent: KMail/1.5.4
+Cc: Rik van Riel <riel@redhat.com>, linux-kernel@vger.kernel.org,
+       "Martin J. Bligh" <mbligh@aracnet.com>
+References: <Pine.LNX.4.44.0310302256110.22312-100000@chimarrao.boston.redhat.com> <20031208135225.GT19856@holomorphy.com> <200312090123.31895.kernel@kolivas.org>
+In-Reply-To: <200312090123.31895.kernel@kolivas.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200312131430.40731.andrew@walrond.org>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200312131408.05558.chris@cvine.freeserve.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 13, 2003 at 02:30:40PM +0000, Andrew Walrond wrote:
- > Should this be configured as Via C3 or VIA C3-2?
- > Even after a googling session I'm none the wiser...
+On Monday 08 December 2003 2:23 pm, Con Kolivas wrote:
+> [snip original discussion thrashing swap on 2.6test with 32mb ram]
+>
+> Chris
+>
+> By an unusual coincidence I was looking into the patches that were supposed
+> to speed up application startup and noticed this one was merged. A brief
+> discussion with wli suggests this could cause thrashing problems on low
+> memory boxes so can you try this patch? Applies to test11.
 
-C3-2 is for Nehemiah. It signifies that we should use SSE instead of 3dnow.
+Con,
 
-		Dave
+I have applied the patch, and performance is nearly indistinguishable from 
+that with the kernel without it.
+
+Chris.
 

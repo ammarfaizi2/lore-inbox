@@ -1,63 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129758AbQKJKrt>; Fri, 10 Nov 2000 05:47:49 -0500
+	id <S129322AbQKJKta>; Fri, 10 Nov 2000 05:49:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129906AbQKJKrj>; Fri, 10 Nov 2000 05:47:39 -0500
-Received: from www.wen-online.de ([212.223.88.39]:49934 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S129758AbQKJKre>;
-	Fri, 10 Nov 2000 05:47:34 -0500
-Date: Fri, 10 Nov 2000 11:47:21 +0100 (CET)
-From: Mike Galbraith <mikeg@wen-online.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Jens Axboe <axboe@suse.de>, MOLNAR Ingo <mingo@chiara.elte.hu>,
-        Rik van Riel <H.H.vanRiel@phys.uu.nl>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [BUG] /proc/<pid>/stat access stalls badly for swapping process,
- 2.4.0-test10
-In-Reply-To: <Pine.Linu.4.10.10011100732250.601-100000@mikeg.weiden.de>
-Message-ID: <Pine.Linu.4.10.10011101145220.889-100000@mikeg.weiden.de>
+	id <S129192AbQKJKtU>; Fri, 10 Nov 2000 05:49:20 -0500
+Received: from web1101.mail.yahoo.com ([128.11.23.121]:10244 "HELO
+	web1101.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S129322AbQKJKtP>; Fri, 10 Nov 2000 05:49:15 -0500
+Message-ID: <20001110104909.7345.qmail@web1101.mail.yahoo.com>
+Date: Fri, 10 Nov 2000 11:49:09 +0100 (CET)
+From: willy tarreau <wtarreau@yahoo.fr>
+Subject: Re: Linux 2.2.18pre21
+To: Matti Aarnio <matti.aarnio@zmailer.org>
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/mixed; boundary="0-861021530-973853349=:7091"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I understood the above well enough to be very interested in seeing what
-> happens with flush IO restricted.
-> 
-> 	-Mike
-> 
-> [try_to_free_pages()->swap_out()/shm_swap().. can fight over who gets
-> to shrink the best candidate's footprint?]
-> 
-> Thanks!
+--0-861021530-973853349=:7091
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
 
-The results:
+> > >         is important.  We could call it
+ETHERNETCHANNEL (and even
+> > >         "Etherchannel" or "ETHERCHANNEL") get
+away with it clean.
+> > > ...
+> > > /Matti Aarnio
+ 
+> 	Anything but "EtherChannel" -- trademark people 
 
-pre2+semaphore
-real    14m19.987s
-user    6m24.480s
-sys     1m12.970s
 
-pre2+semaphore+throttle_IO
-real    10m13.953s
-user    6m19.980s
-sys     0m28.960s
+Ok, Matti. Let's keep "Etherchannel" as you proposed
+and as it was documented in the Configure.help. This
+patch fixes it (I won't resend the complete patch
+on the LKML because 20kB is generally to big for
+unconcerned people).
 
-pre2+semaphore+throttle_IO extended to refill_inactive()
-real    9m46.395s
-user    6m23.510s
-sys     0m29.420s
+Willy
 
-pre2+semaphore+throttle_IO + above + tiny little tweak to page_launder()
-real    8m56.808s
-user    6m23.420s
-sys     0m29.430s
 
-Unfortunately, when I try to get past this point I burn trees :-)
+___________________________________________________________
+Do You Yahoo!? -- Pour dialoguer en direct avec vos amis, 
+Yahoo! Messenger : http://fr.messenger.yahoo.com
+--0-861021530-973853349=:7091
+Content-Type: application/x-unknown; name="etherchannel-spelling-fix.diff.gz"
+Content-Transfer-Encoding: base64
+Content-Description: etherchannel-spelling-fix.diff.gz
+Content-Disposition: attachment; filename="etherchannel-spelling-fix.diff.gz"
 
-	-Mike
+H4sIAGXSCzoCA61V247bNhB9tr5ikCc7uthyN92uURROsmlrYJsWsIFFH2lp
+ZBGmSIUXX/6+Q0pyvem22TY1DNkUOYfDM3MOS15VkDr9EQSX7pTOs3mWf9fO
+83irZMnlbnqvCtegtMxyJacS7VHpvZ/oF2T2ZP8uOC5VUfHTizCiNE2/KonR
+j5rDR3WAfAZ5vpjPF/kdzGezWRTH8f+R4Wcb3NwubmbdBsslpPM8T24h7n6W
+ywgiGK0kaOVkmWq15RIaVWIC3IIHN3DktgZzNhYbA7ZmFoxrW6UtWO2k331B
+GFE6eg3vuSkUvHkzm4FBzdHAWCi1h0pp+GBr1O9rJiWKAWGSRfFLwoq/hAGF
+rZ3c9BmAUZU9Mo3dzFthUUl4W+A911hYwjF0jKIm6Ck84vbXNYydQQjxpsd7
+x85ry4o9rIe143BCA40zFrYIeGoFL7gVZyiUrPjOaSwnGYQwthUYKP5mFiju
+fjzF6b/9RLCywD3btCczxAiRrYgcC64FJks/ooKhNpZGlABv2uukfGQEGhtl
+CeGT463vGhjXipAubEw8DNvtNO4YrbOaVRUvQB2QViA9mYhST/jARAJ4VQ4/
+KrJJyOfJztB3I3BpUVesQEOF7oE2HdCH/wwEqyrMUZs6gVAzQ6VBCUKxEsuu
+Xf18q1VLB/lltQLVer10Pc2FCI0dAXNWNaSkgglxzuB35aBg0sfSQ589OZ7B
+A4bENBVBUVolWRFqzyZpdW+iMGkQKUc4K6cpjx2JxuvEZ1Fq7uks0VIfmgwe
+Azph0bESHwANO0flF/2twzFe8xexF1+yi2eD/tHBno34Kst6CSJ51Cz/06Nu
+Enodh6eXD5BDqPas+a62kN/d3SWwqalyBu7ZgZsELCv9n6XYimynDhlACHrg
+BUpDLRGUEqrx028PGencvyR/KF3TnLMiCSXET4IILfHAuy6D11FKIJeUF8CG
+wfRaBVPj5MUJgU7ZlzyKP49+10dft/6UTAw2z0T7/f0hNjX5AH3JrSonfE9a
+JvZBuFe+mQBBSA/xVFdszxb+GKMHXyQY7LfPxKfYzwxvaMvRk5TGayWY5mZy
+yehndbxcDotQr9s8+Rbi28HuaE33CSLQ6OXV3yVkPVLZwG4o9zTPp1T5FB65
+X7RhmpY7+P4YhhTdoGXpKVN698MFOAXqK6pgxcn+wAhGCiXUp3r2hJVek6E0
+4U7LQkmGbam5FmBaFMIfU1Xw6pq6V2RE2l8dWGbDyad0Wf4BQgThfIkIAAA=
 
+
+--0-861021530-973853349=:7091--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

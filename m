@@ -1,36 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262544AbTHUJ4G (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Aug 2003 05:56:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262550AbTHUJ4G
+	id S262541AbTHUJyE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Aug 2003 05:54:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262552AbTHUJyE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Aug 2003 05:56:06 -0400
-Received: from [66.212.224.118] ([66.212.224.118]:47117 "EHLO
-	hemi.commfireservices.com") by vger.kernel.org with ESMTP
-	id S262544AbTHUJz0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Aug 2003 05:55:26 -0400
-Date: Thu, 21 Aug 2003 05:55:22 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: "Zach, Yoav" <yoav.zach@intel.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]: non-readable binaries - binfmt_misc, linux-2.6.0-test3
-In-Reply-To: <2C83850C013A2540861D03054B478C0601CF6492@hasmsx403.iil.intel.com>
-Message-ID: <Pine.LNX.4.53.0308210552420.17457@montezuma.mastecende.com>
-References: <2C83850C013A2540861D03054B478C0601CF6492@hasmsx403.iil.intel.com>
+	Thu, 21 Aug 2003 05:54:04 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:37608 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S262541AbTHUJyC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Aug 2003 05:54:02 -0400
+Date: Thu, 21 Aug 2003 11:42:08 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Sam Ravnborg <sam@ravnborg.org>
+cc: Jeff Garzik <jgarzik@pobox.com>, Linus Torvalds <torvalds@osdl.org>,
+       akpm@ravnborg.org, Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: kbuild: Separate ouput directory support
+In-Reply-To: <20030819215656.GE1791@mars.ravnborg.org>
+Message-ID: <Pine.GSO.4.21.0308211141500.11810-100000@waterleaf.sonytel.be>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Aug 2003, Zach, Yoav wrote:
+On Tue, 19 Aug 2003, Sam Ravnborg wrote:
+> On Tue, Aug 19, 2003 at 05:53:33PM -0400, Jeff Garzik wrote:
+> > Is it possible, with your patches, to build from a kernel tree on a 
+> > read-only medium?
+> 
+> Yes, thats possible. But I have seen that as a secondary possibility.
+> But I know people has asked about the possibility to build a kernel
+> from src located on a CD. And thats possible with this patch.
 
-> This patch was posted on the list on August 14th ( with 'RO binaries'
-> instead of 'non-readable' ) and got no response. As it is very important
-> for us, I'd like to ask anyone who's involved with interpreters and
-> binfmt_misc to review the proposed patch and comment.
+Or from a src tree in ClearCase.
 
-You can start by making your patch inline with your email, the patch 
-isn't terribly long why do you need to zip it? People have a lot of email 
-to read here, if they see too much work involved in looking at something 
-then they just move on.
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+

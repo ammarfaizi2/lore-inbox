@@ -1,51 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265133AbTFEUtA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jun 2003 16:49:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264941AbTFEUrr
+	id S265132AbTFEUzU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jun 2003 16:55:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265161AbTFEUyO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jun 2003 16:47:47 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:6838 "EHLO e32.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S265134AbTFEUrW (ORCPT
+	Thu, 5 Jun 2003 16:54:14 -0400
+Received: from smtp2.libero.it ([193.70.192.52]:20979 "EHLO smtp2.libero.it")
+	by vger.kernel.org with ESMTP id S265132AbTFEUxR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jun 2003 16:47:22 -0400
-Date: Thu, 5 Jun 2003 13:55:15 -0700
-From: Greg KH <greg@kroah.com>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
-Subject: [BK PATCH] i2c driver changes for 2.5.70
-Message-ID: <20030605205515.GA6846@kroah.com>
+	Thu, 5 Jun 2003 16:53:17 -0400
+Date: Fri, 1 Jan 1904 02:51:54 +0100
+From: Daniele Pala <dandario@libero.it>
+To: linux-kernel@vger.kernel.org
+Cc: benh@kernel.crashing.org
+Subject: [2.5.70][PPC] Small change to config
+Message-ID: <19040101015154.GA346@libero.it>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Since "control" and "platinum" display support doesn't compile if /dev/nvram suppor is selected as a module, here's this
+small patch. The problem is that the suppor for /dev/nvram is asked after the "control" and "platinum" support...
+Cheers,
+	Daniele
 
-Here are some i2c driver changes for 2.5.70.  These consist of some
-small bug fixes to the i2c core which fixes some oopses, a update to the w83781d.c driver, and a sync with the cvs version of the i2c-id.h file.
 
-Please pull from:  bk://kernel.bkbits.net/gregkh/linux/i2c-2.5
-
-thanks,
-
-greg k-h
-
- drivers/i2c/chips/w83781d.c |  306 +++++++++++++++++++++++++-------------------
- drivers/i2c/i2c-core.c      |    9 -
- include/linux/i2c-id.h      |    7 +
- 3 files changed, 185 insertions(+), 137 deletions(-)
------
-
-<aschultz:warp10.net>:
-  o I2C: fix unsafe usage of list_for_each in i2c-core
-
-<mhoffman:lightlink.com>:
-  o I2C: more w83781d fixes
-  o I2C: fix oops w83781d during rmmod
-
-Greg Kroah-Hartman:
-  o I2C: sync i2c-id.h with cvs version
-
+--- a/drivers/video/Kconfig	Fri Jan  1 02:39:17 1904
++++ b/drivers/video/Kconfig	Fri Jan  1 02:42:54 1904
+@@ -242,14 +242,14 @@
+ 
+ config FB_CONTROL
+ 	bool "Apple \"control\" display support"
+-	depends on FB && PPC && ALL_PPC
++	depends on FB && PPC && ALL_PPC && NVRAM=y
+ 	help
+ 	  This driver supports a frame buffer for the graphics adapter in the
+ 	  Power Macintosh 7300 and others.
+ 
+ config FB_PLATINUM
+ 	bool "Apple \"platinum\" display support"
+-	depends on FB && PPC && ALL_PPC
++	depends on FB && PPC && ALL_PPC && NVRAM=y
+ 	help
+ 	  This driver supports a frame buffer for the "platinum" graphics
+ 	  adapter in some Power Macintoshes.

@@ -1,40 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266813AbTGKWNa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 18:13:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266899AbTGKWNa
+	id S266987AbTGKWTX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 18:19:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266997AbTGKWTW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 18:13:30 -0400
-Received: from mail.kroah.org ([65.200.24.183]:8686 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S266813AbTGKWN2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 18:13:28 -0400
-Date: Fri, 11 Jul 2003 15:27:13 -0700
-From: Greg KH <greg@kroah.com>
-To: Ronald Jerome <imun1ty@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: generate-modprobe question and USB fatal error during INIT:-resending
-Message-ID: <20030711222712.GC23189@kroah.com>
-References: <20030711182015.71489.qmail@web13301.mail.yahoo.com>
+	Fri, 11 Jul 2003 18:19:22 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:40646 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266987AbTGKWTS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jul 2003 18:19:18 -0400
+Date: Fri, 11 Jul 2003 23:33:59 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Bernardo Innocenti <bernie@develer.com>
+Cc: Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org
+Subject: do_div vs sector_t
+Message-ID: <20030711223359.GP20424@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030711182015.71489.qmail@web13301.mail.yahoo.com>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 11, 2003 at 11:20:15AM -0700, Ronald Jerome wrote:
-> I see that the the sections for "usb-uhci" "mousedev"
-> and "keybdev".   Those are incorrect.  They should be
-> "uhci-hcd", "usbmouse" and "usbkbd".  Once I changed
-> the "usb-uhci" to "uhci-hcd"  at least the usb
-> installed ok but those changes I made for the mouse
-> and keyboard still does not work.
 
-Bleah, we are calling those drivers by their wrong names internally.
-The code needs to be fixed, care to send me a patch?
+# define do_div(n,base) ({                              \
+        uint32_t __base = (base);                       \
+        uint32_t __rem;                                 \
+        if (likely(((n) >> 32) == 0)) {                 \
 
-thanks,
+so if we call do_div() on a u32, the compiler emits nasal daemons.
+and we do this -- in the antcipatory scheduler:
 
-greg k-h
+                if (aic->seek_samples) {
+                        aic->seek_mean = aic->seek_total + 128;
+                        do_div(aic->seek_mean, aic->seek_samples);
+                }
+
+seek_mean is a sector_t so sometimes it's 64-bit on a 32-bit platform.
+so we can't avoid calling do_div().
+
+This almost works (the warning is harmless since gcc optimises away the call)
+
+# define do_div(n,base) ({                                              \
+        uint32_t __base = (base);                                       \
+        uint32_t __rem;                                                 \
+        if ((sizeof(n) < 8) || (likely(((n) >> 32) == 0))) {            \
+                __rem = (uint32_t)(n) % __base;                         \
+                (n) = (uint32_t)(n) / __base;                           \
+        } else                                                          \
+                __rem = __div64_32(&(n), __base);                       \
+        __rem;                                                          \
+ })
+
+Better ideas?
+
+-- 
+"It's not Hollywood.  War is real, war is primarily not about defeat or
+victory, it is about death.  I've seen thousands and thousands of dead bodies.
+Do you think I want to have an academic debate on this subject?" -- Robert Fisk

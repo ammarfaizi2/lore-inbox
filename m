@@ -1,60 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288435AbSAHWDQ>; Tue, 8 Jan 2002 17:03:16 -0500
+	id <S288481AbSAHWDg>; Tue, 8 Jan 2002 17:03:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288473AbSAHWBY>; Tue, 8 Jan 2002 17:01:24 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:52742 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S288466AbSAHWBI>; Tue, 8 Jan 2002 17:01:08 -0500
-Message-ID: <3C3B6ADF.4AAABE58@zip.com.au>
-Date: Tue, 08 Jan 2002 13:55:43 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18pre1 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Dave Anderson <anderson@mclinux.com>
-CC: linux-kernel@vger.kernel.org, blinn@mclinux.com
-Subject: Re: [BUG][PATCH] 2.4.* mlockall(MCL_FUTURE) is broken -- child inherits 
- VM_LOCKED
-In-Reply-To: <3C3B5D1B.45CBF593@mclinux.com>
+	id <S288473AbSAHWDR>; Tue, 8 Jan 2002 17:03:17 -0500
+Received: from codepoet.org ([166.70.14.212]:22537 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id <S288486AbSAHWCZ>;
+	Tue, 8 Jan 2002 17:02:25 -0500
+Date: Tue, 8 Jan 2002 15:02:25 -0700
+From: Erik Andersen <andersen@codepoet.org>
+To: Louis Garcia <louisg00@bellsouth.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.18-pre2
+Message-ID: <20020108220225.GA342@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	Louis Garcia <louisg00@bellsouth.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <1010460206.8690.0.camel@tiger>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <1010460206.8690.0.camel@tiger>
+User-Agent: Mutt/1.3.24i
+X-Operating-System: Linux 2.4.16-rmk1, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Anderson wrote:
-> 
-> In 2.4.*, mlockall(MCL_FUTURE) is erroneously inherited by child processes
-> across fork() and exec():
+On Mon Jan 07, 2002 at 10:23:25PM -0500, Louis Garcia wrote:
+> The radeonfb is still broken from the update in pre1. I have attached
+> the missing parts of that update. This is from Ani Joshi himself.
 
-The Linux manpage says that it is not inherited across either.
+Also looks like drivers/video/radeonfb.c needs to be fixed
+to cope with newer binutils....
 
-However SUS says that it is not inherited across exec, and
-doesn't mention fork() at all.
-http://www.opengroup.org/onlinepubs/007908799/xsh/mlockall.html
++#ifdef MODULE
+        remove:         radeonfb_pci_unregister,
++#endif
 
-So...  Shouldn't we be clearing it in the exec() path?
+ -Erik
 
-> ...
-> # diff -u linux/kernel/fork.c linux-2.4.17/kernel/fork.c
-> --- linux/kernel/fork.c Tue Jan  8 15:11:13 2002
-> +++ linux-2.4.17/kernel/fork.c  Tue Jan  8 15:12:26 2002
-> @@ -219,6 +219,7 @@
->         init_rwsem(&mm->mmap_sem);
->         mm->page_table_lock = SPIN_LOCK_UNLOCKED;
->         mm->pgd = pgd_alloc(mm);
-> +       mm->def_flags = 0;
->         if (mm->pgd)
->                 return mm;
->         free_mm(mm);
-> 
-> Note that it worked OK in 2.2 because mm->def_flags was explicitly cleared in
-> mm_alloc(), which was called by both copy_mm() and exec_mmap().  But things
-> were shuffled around a bit in 2.4, and it must have gotten lost in the
-> translation...
-
-um.  Is this correct?  It seems that we'll be clearing things
-like VM_IO on device mappings across fork.  Bad.  Would an explicit
-clear of VM_LOCKED be better here?  (Assuming we want to ignore SUS).
-
--
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

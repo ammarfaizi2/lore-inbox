@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261439AbULIBxA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261434AbULIB4Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261439AbULIBxA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Dec 2004 20:53:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261434AbULIBwn
+	id S261434AbULIB4Z (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Dec 2004 20:56:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261443AbULIByU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Dec 2004 20:52:43 -0500
-Received: from palrel10.hp.com ([156.153.255.245]:15037 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S261435AbULIBvf (ORCPT
+	Wed, 8 Dec 2004 20:54:20 -0500
+Received: from palrel12.hp.com ([156.153.255.237]:35532 "EHLO palrel12.hp.com")
+	by vger.kernel.org with ESMTP id S261435AbULIBxM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Dec 2004 20:51:35 -0500
-Date: Wed, 8 Dec 2004 17:51:34 -0800
+	Wed, 8 Dec 2004 20:53:12 -0500
+Date: Wed, 8 Dec 2004 17:53:05 -0800
 To: "David S. Miller" <davem@davemloft.net>,
        Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.6 IrDA] Fix via_ircc pci init code
-Message-ID: <20041209015134.GB2298@bougret.hpl.hp.com>
+Subject: [PATCH 2.6 IrDA] Use kill_urb() in irda-usb
+Message-ID: <20041209015305.GD2298@bougret.hpl.hp.com>
 Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -26,76 +26,76 @@ From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ir260_via_pci_hack.diff :
-~~~~~~~~~~~~~~~~~~~~~~~
-		<Bugfix suggested by Arkadiusz Miskiewicz>
-	o [CORRECT] Try to fix the worse abuse of the pci init code in via_ircc
+ir260_irda-usb-kill-2.diff :
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+		<Original patch from Stephen Hemminger>
+Updates for irda-usb.
+        * change comment about Sigmatel now that there is a driver
+        * convert to new module_param
+        * places where urb is unlinked synchronously, use usb_kill_urb
+          because that is now a runtime warning.
 
+Signed-off-by: Stephen Hemminger <shemminger@osdl.org>
 Signed-off-by: Jean Tourrilhes <jt@hpl.hp.com>
 
 
-diff -u -p linux/drivers/net/irda/via-ircc.d2.c linux/drivers/net/irda/via-ircc.c
---- linux/drivers/net/irda/via-ircc.d2.c	Wed Dec  8 16:13:03 2004
-+++ linux/drivers/net/irda/via-ircc.c	Wed Dec  8 16:39:43 2004
-@@ -75,6 +75,9 @@ static int dongle_id = 0;	/* default: pr
- /* We can't guess the type of connected dongle, user *must* supply it. */
- MODULE_PARM(dongle_id, "i");
+diff -u -p linux/drivers/net/irda/irda-usb.d2.c linux/drivers/net/irda/irda-usb.c
+--- linux/drivers/net/irda/irda-usb.d2.c	Wed Dec  8 17:13:29 2004
++++ linux/drivers/net/irda/irda-usb.c	Wed Dec  8 17:20:20 2004
+@@ -52,7 +52,7 @@
+ /*------------------------------------------------------------------*/
  
-+/* FIXME : we should not need this, because instances should be automatically
-+ * managed by the PCI layer. Especially that we seem to only be using the
-+ * first entry. Jean II */
- /* Max 4 instances for now */
- static struct via_ircc_cb *dev_self[] = { NULL, NULL, NULL, NULL };
+ #include <linux/module.h>
+-
++#include <linux/moduleparam.h>
+ #include <linux/kernel.h>
+ #include <linux/types.h>
+ #include <linux/init.h>
+@@ -88,10 +88,10 @@ static struct usb_device_id dongles[] = 
  
-@@ -153,11 +156,9 @@ static int __init via_ircc_init(void)
- 	IRDA_DEBUG(3, "%s()\n", __FUNCTION__);
+ /*
+  * Important note :
+- * Devices based on the SigmaTel chipset (0x66f, 0x4200) are not compliant
+- * with the USB-IrDA specification (and actually very very different), and
+- * there is no way this driver can support those devices, apart from
+- * a complete rewrite...
++ * Devices based on the SigmaTel chipset (0x66f, 0x4200) are not designed
++ * using the "USB-IrDA specification" (yes, there exist such a thing), and
++ * therefore not supported by this driver (don't add them above).
++ * There is a Linux driver, stir4200, that support those USB devices.
+  * Jean II
+  */
  
- 	rc = pci_register_driver(&via_driver);
--	if (rc < 1) {
-+	if (rc < 0) {
- 		IRDA_DEBUG(0, "%s(): error rc = %d, returning  -ENODEV...\n",
- 			   __FUNCTION__, rc);
--		if (rc == 0)
--			pci_unregister_driver (&via_driver);
- 		return -ENODEV;
+@@ -1007,9 +1007,9 @@ static int irda_usb_net_close(struct net
  	}
- 	return 0;
-@@ -288,15 +289,27 @@ static void __exit via_remove_one (struc
- {
- 	IRDA_DEBUG(3, "%s()\n", __FUNCTION__);
+ 	/* Cancel Tx and speed URB - need to be synchronous to avoid races */
+ 	self->tx_urb->transfer_flags &= ~URB_ASYNC_UNLINK;
+-	usb_unlink_urb(self->tx_urb);
++	usb_kill_urb(self->tx_urb);
+ 	self->speed_urb->transfer_flags &= ~URB_ASYNC_UNLINK;
+-	usb_unlink_urb(self->speed_urb);
++	usb_kill_urb(self->speed_urb);
  
-+	/* FIXME : This is ugly. We should use pci_get_drvdata(pdev);
-+	 * to get our driver instance and call directly via_ircc_close().
-+	 * See vlsi_ir for details...
-+	 * Jean II */
- 	via_ircc_clean();
+ 	/* Stop and remove instance of IrLAP */
+ 	if (self->irlap)
+@@ -1520,9 +1520,9 @@ static void irda_usb_disconnect(struct u
+ 		/* Cancel Tx and speed URB.
+ 		 * Toggle flags to make sure it's synchronous. */
+ 		self->tx_urb->transfer_flags &= ~URB_ASYNC_UNLINK;
+-		usb_unlink_urb(self->tx_urb);
++		usb_kill_urb(self->tx_urb);
+ 		self->speed_urb->transfer_flags &= ~URB_ASYNC_UNLINK;
+-		usb_unlink_urb(self->speed_urb);
++		usb_kill_urb(self->speed_urb);
+ 	}
  
-+	/* FIXME : This should be in via_ircc_close(), because here we may
-+	 * theoritically disable still configured devices :-( - Jean II */
-+	pci_disable_device(pdev);
- }
- 
- static void __exit via_ircc_cleanup(void)
- {
- 	IRDA_DEBUG(3, "%s()\n", __FUNCTION__);
- 
-+	/* FIXME : This should be redundant, as pci_unregister_driver()
-+	 * should call via_remove_one() on each device.
-+	 * Jean II */
- 	via_ircc_clean();
-+
-+	/* Cleanup all instances of the driver */
- 	pci_unregister_driver (&via_driver); 
- }
- 
-@@ -323,6 +336,10 @@ static __devinit int via_ircc_open(int i
- 	self->netdev = dev;
- 	spin_lock_init(&self->lock);
- 
-+	/* FIXME : We should store our driver instance in the PCI layer,
-+	 * using pci_set_drvdata(), not in this array.
-+	 * See vlsi_ir for details... - Jean II */
-+	/* FIXME : 'i' is always 0 (see via_init_one()) :-( - Jean II */
- 	/* Need to store self somewhere */
- 	dev_self[i] = self;
- 	self->index = i;
+ 	/* Cleanup the device stuff */
+@@ -1593,7 +1593,7 @@ module_exit(usb_irda_cleanup);
+ /*
+  * Module parameters
+  */
+-MODULE_PARM(qos_mtt_bits, "i");
++module_param(qos_mtt_bits, int, 0);
+ MODULE_PARM_DESC(qos_mtt_bits, "Minimum Turn Time");
+ MODULE_AUTHOR("Roman Weissgaerber <weissg@vienna.at>, Dag Brattli <dag@brattli.net> and Jean Tourrilhes <jt@hpl.hp.com>");
+ MODULE_DESCRIPTION("IrDA-USB Dongle Driver"); 

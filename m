@@ -1,46 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129557AbRABAAb>; Mon, 1 Jan 2001 19:00:31 -0500
+	id <S129733AbRABATy>; Mon, 1 Jan 2001 19:19:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129675AbRABAAM>; Mon, 1 Jan 2001 19:00:12 -0500
-Received: from linuxcare.com.au ([203.29.91.49]:13829 "EHLO
-	front.linuxcare.com.au") by vger.kernel.org with ESMTP
-	id <S129557AbRABAAJ>; Mon, 1 Jan 2001 19:00:09 -0500
-From: Rusty Russell <rusty@linuxcare.com.au>
-To: Mark James <mrj@cs.usyd.edu.au>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: netfilter enum conflict? 
-In-Reply-To: Your message of "Tue, 02 Jan 2001 04:49:32 +1100."
-             <3A50C32C.91350CB@cs.usyd.edu.au> 
-Date: Tue, 02 Jan 2001 10:29:13 +1100
-Message-Id: <E14DEO9-0001GI-00@halfway>
+	id <S129593AbRABATo>; Mon, 1 Jan 2001 19:19:44 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:9481 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129733AbRABATh>; Mon, 1 Jan 2001 19:19:37 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: devices.txt inconsistency
+Date: 1 Jan 2001 15:48:43 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <92r50r$5vq$1@cesium.transmeta.com>
+In-Reply-To: <20010101170654.A5856@sourceware.net> <20010101232454.C8481@tenchi.datarithm.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <3A50C32C.91350CB@cs.usyd.edu.au> you write:
-> Hi:
+Followup to:  <20010101232454.C8481@tenchi.datarithm.net>
+By author:    Robert Read <rread@datarithm.net>
+In newsgroup: linux.dev.kernel
+>
+> devices.txt does need some updating. It still lists char-major-13 as
+> the PC Speaker, but 13 appears to be the major for new input driver,
+> and the joystick driver is now a minor off the that.  Are there now
+> two Joystick drivers, or can char-major-15 be obsoleted/deleted?
 > 
-> include/linux/netfilter_ipv4.h and include/linux/netfilter_ipv6.h
-> both define enum nf_ip_hook_priorities.  This trips the compiler
-> if both are included.  Should one change to nf_ipv6_hook_priorities?
 
-Yes.  Only noone has ever included both yet.
+I think there are two; at least, the number will remain reserved for a
+long time.
 
-Rusty.
---
-Hacking time.
+The current devices.txt is available at:
 
---- working-2.4.0-test13-3/include/linux/netfilter_ipv6.h.~1~	Tue May 23 02:50:55 2000
-+++ working-2.4.0-test13-3/include/linux/netfilter_ipv6.h	Tue Jan  2 10:27:51 2001
-@@ -54,7 +54,7 @@
- #define NF_IP6_NUMHOOKS		5
- 
- 
--enum nf_ip_hook_priorities {
-+enum nf_ip6_hook_priorities {
- 	NF_IP6_PRI_FIRST = INT_MIN,
- 	NF_IP6_PRI_CONNTRACK = -200,
- 	NF_IP6_PRI_MANGLE = -150,
+   http://www.lanana.org/docs/device-list/devices.txt
+
+I don't have the details for /dev/input/* in there; I need to still
+make that update.
+
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

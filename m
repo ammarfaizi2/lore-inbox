@@ -1,35 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315850AbSEQMae>; Fri, 17 May 2002 08:30:34 -0400
+	id <S315539AbSEQM3L>; Fri, 17 May 2002 08:29:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315374AbSEQM3M>; Fri, 17 May 2002 08:29:12 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:8348 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S315372AbSEQM2l>;
-	Fri, 17 May 2002 08:28:41 -0400
-Date: Fri, 17 May 2002 05:15:18 -0700 (PDT)
-Message-Id: <20020517.051518.35579118.davem@redhat.com>
-To: ink@jurassic.park.msu.ru
-Cc: jgarzik@mandrakesoft.com, andrew.grover@intel.com, mochel@osdl.org,
-        Greg@kroah.com, linux-kernel@vger.kernel.org
-Subject: Re: pci segments/domains
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020517162621.A24213@jurassic.park.msu.ru>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S315374AbSEQM1x>; Fri, 17 May 2002 08:27:53 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:44298 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S315480AbSEQM0f>; Fri, 17 May 2002 08:26:35 -0400
+Subject: Re: [PATCH] Page replacement documentation
+To: mel@csn.ul.ie (Mel)
+Date: Fri, 17 May 2002 13:46:37 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0205170442260.29254-100000@skynet> from "Mel" at May 17, 2002 04:48:20 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E178h81-0006OV-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-   Date: Fri, 17 May 2002 16:26:21 +0400
-   
-   BTW, I don't see anymore why pci domain info should be exposed to
-   users at all. :-)
+> +     ----------------------------------------------------------------------
+> +
+> +     This document was translated from LATEX by HEVEA.
 
-It allows the X server do what it wants to sort-of sanely.
+If you switched it into DocBook format then the kernel shipped tools
+will generate a document from it including html/pdf/ps etc as well as
+being able to embed stuff
 
-It wants to be able to assign resources to video devices (even
-implicit resources like VGA) and to do that properly it has to know
-which PCI domain which devices are on and also the extent of the I/O
-and MEM space on that domain.
+> +/*
+> + * shink_cache - Shrinks buffer caches in a zone
+> + * nr_pages: Helps determine if process information needs to be sweapped
+
+You've not tested these. They should start
+
+/**
+ *  ....
+
+
+thats how it knows how to pick out that comment using kernel-doc. You 
+can run scripts/kernel-doc over just one file if you want to check
+it without all the docbook tools

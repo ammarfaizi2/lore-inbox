@@ -1,62 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262063AbTIMHNZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Sep 2003 03:13:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262064AbTIMHNZ
+	id S262002AbTIMHMz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Sep 2003 03:12:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262063AbTIMHMz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Sep 2003 03:13:25 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:39066 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S262063AbTIMHNW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Sep 2003 03:13:22 -0400
-Date: Sat, 13 Sep 2003 09:13:02 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, Raphael Assenat <raph@raphnet.net>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] ioctl entries for joystick in compat_ioctl.h
-Message-ID: <20030913071302.GA9315@ucw.cz>
-References: <20030912112557.C10099@raphnet.net> <20030912184145.GB5805@elf.ucw.cz> <20030912200148.GA7711@ucw.cz> <20030912211306.GA444@elf.ucw.cz>
+	Sat, 13 Sep 2003 03:12:55 -0400
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:36023 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S262002AbTIMHMx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Sep 2003 03:12:53 -0400
+Subject: Re: "busy" load counters
+From: Albert Cahalan <albert@users.sf.net>
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: xuan--lkml--2003.09.12@baldauf.org
+Content-Type: text/plain; charset=ISO-8859-1
+Organization: 
+Message-Id: <1063436451.314.9010.camel@cube>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030912211306.GA444@elf.ucw.cz>
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 13 Sep 2003 03:00:51 -0400
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 12, 2003 at 11:13:06PM +0200, Pavel Machek wrote:
+Xuân Baldauf writes:
 
-> > > > I wanted to use a joystick on my sparc64 workstation, and discovered that the
-> > > > joystick driver uses simple ioclt that are safe to pass from 32bit user space
-> > > > to 64bit kernel space. My patch adds the necessary entries in compat_ioctl.h.
-> > > > 
-> > > > There is only one missing ioctl in the patch. The ioctl is defined like this:
-> > > > #define JSIOCGNAME(len)         _IOC(_IOC_READ, 'j', 0x13, len)
-> > > > so the command does not have a fixed value. I dont know how to handle this one,
-> > > > but it is only used to get the joystick name, all the applications I tried work
-> > > > well even if this ioctl fails.
-> > > 
-> > > Well, whoever invented that JSIOCGNAME should be shot. That is not
-> > > single ioctl, its 2^14 of them!
-> > 
-> > Well, who could ever have known that this will be a problem in 1998?
-> > It's not the only ioctl done this way.
-> 
-> So it was you? :-)
+> Currently, tools like "top" show stats like
+>
+>   Cpu(s):  92.1% user,   6.9% system,   0.0% nice,   1.0% idle
+>
+> Unfortunately, these stats are not sufficient to determine wether the 
+> system is "busy". Determining wether the system is "busy" is very useful 
+> in case an interactive application (e.g. a shell or some shell command) 
+> does not respond.
+> Maybe it just hangs (waits for input) or does serious work (e.g. uses 
+> the CPU or accesses the disk). Disk access is not visible in "top". 
+> Depending on the machine, on disk accesses, there might be a slight or 
+> significant rise in the "system" portion of those stats, but this is not 
+> trustable.
 
-Yes. :)
+The feature is available, but you'll need to upgrade
+to procps-3.1.12 and linux-2.6.0-test4 at least.
 
-> I believe ultrasparcs were around in '98. Anyway, what are other
-> ioctls doing this? They look pretty problematic from compat_ioctl
-> perspective.
+http://www.kernel.org/pub/linux/kernel/v2.6/
+http://procps.sf.net/
 
-I don't remember - I know I just copied the concept from elsewhere.
-I'm sure you'll be able to grep for it.
+Once you've done that, both "top" and "vmstat" will
+supply the info you want. There are 7 basic %CPU stats
+right now:
 
-> We could do better by pushing compat handler down to the drivers for
-> ugly cases like this...
+us  regular user apps
+sy  system (general kernel stuff)
+ni  nice user apps (low-priority tasks)
+id  idle
+wa  waiting for IO to complete
+hi  hard interrupt (IRQ) handlers
+si  soft interrupt (network stack, mostly?) handlers
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+The "top" program shows all of those. The "vmstat"
+program mixes "ni" into "us", and mixes "hi" and "si"
+into "sy". An example for each:
+
+procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
+ r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
+ 0  0      0   6896   2668 108896    0    0     0     1   34    14 10  3 87  0
+
+top - 02:56:17 up 12 days, 13:43, 25 users,  load average: 0.37, 0.25, 0.22
+Tasks: 129 total,   4 running, 124 sleeping,   1 stopped,   0 zombie
+Cpu(s):  8.6% us,  5.6% sy,  0.0% ni, 85.8% id,  0.0% wa,  0.0% hi,  0.0% si
+Mem:    513924k total,   507068k used,     6856k free,     2664k buffers
+Swap:        0k total,        0k used,        0k free,   108844k cached
+
+

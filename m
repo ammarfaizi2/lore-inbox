@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317674AbSGOWL6>; Mon, 15 Jul 2002 18:11:58 -0400
+	id <S317676AbSGOWPI>; Mon, 15 Jul 2002 18:15:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317678AbSGOWL5>; Mon, 15 Jul 2002 18:11:57 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:60867 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S317674AbSGOWL4>; Mon, 15 Jul 2002 18:11:56 -0400
-Date: Mon, 15 Jul 2002 18:12:59 -0400 (EDT)
-From: Richard A Nelson <cowboy@vnet.ibm.com>
-X-X-Sender: cowboy@badlands.lexington.ibm.com
-To: "Patrick J. LoPresti" <patl@curl.com>
-cc: Chris Mason <mason@suse.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] Ext3 vs Reiserfs benchmarks
-In-Reply-To: <s5gy9ccr84k.fsf@egghead.curl.com>
-Message-ID: <Pine.LNX.4.44.0207151810150.2834-100000@badlands.lexington.ibm.com>
-X-No-Markup: yes
-x-No-ProductLinks: yes
-x-No-Archive: yes
+	id <S317680AbSGOWPH>; Mon, 15 Jul 2002 18:15:07 -0400
+Received: from moutvdomng1.kundenserver.de ([195.20.224.131]:46827 "EHLO
+	moutvdomng1.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S317676AbSGOWPG>; Mon, 15 Jul 2002 18:15:06 -0400
+Date: Mon, 15 Jul 2002 16:18:00 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Hell.Surfers@cwctv.net
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: How do i join?
+In-Reply-To: <0e4d25511220f72DTVMAIL11@smtp.cwctv.net>
+Message-ID: <Pine.LNX.4.44.0207151616350.3452-100000@hawkeye.luckynet.adm>
+X-Location: Canberra; Australia
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 15 Jul 2002, Patrick J. LoPresti wrote:
+Hi,
 
-> I really wish MTA authors would just support Linux's "fsync the
-> directory" approach.  It is simple, reliable, and fast.  Yes, it does
-> require Linux-specific support in the application, but that's what
-> application authors should expect when there is a gap in the
-> standards.
+On Mon, 15 Jul 2002 Hell.Surfers@cwctv.net wrote:
+> I would like to know how to join, as I want to develop for the kernel.
 
-This is exactly what sendmail did in its 8.12.0 release (2001/09/08)
+Supposedly, <URL:http://www.kernelnewbies.org/> is a good starting point. 
+Also, have a look at the FAQ: <URL:http://www.tux.org/lkml/>
 
+							Regards,
+							Thunder
 -- 
-Rick Nelson
-"...very few phenomena can pull someone out of Deep Hack Mode, with two
-noted exceptions: being struck by lightning, or worse, your *computer*
-being struck by lightning."
-(By Matt Welsh)
+(Use http://www.ebb.org/ungeek if you can't decode)
+------BEGIN GEEK CODE BLOCK------
+Version: 3.12
+GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+e++++ h* r--- y- 
+------END GEEK CODE BLOCK------
 

@@ -1,73 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136094AbREGNhZ>; Mon, 7 May 2001 09:37:25 -0400
+	id <S136098AbREGNmZ>; Mon, 7 May 2001 09:42:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136098AbREGNhP>; Mon, 7 May 2001 09:37:15 -0400
-Received: from dsl081-067-005.sfo1.dsl.speakeasy.net ([64.81.67.5]:39431 "EHLO
-	renegade") by vger.kernel.org with ESMTP id <S136094AbREGNhE>;
-	Mon, 7 May 2001 09:37:04 -0400
-Date: Mon, 7 May 2001 06:36:57 -0700 (PDT)
-From: Zack Brown <zbrown@tumblerings.org>
-To: Phillipus Gunawan <mr_phillipus@yahoo.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Help: kernel-2.4.4 and iptables: Error?
-In-Reply-To: <02f101c0d6c9$4b0197a0$d830a4cb@co3042727a>
-Message-ID: <Pine.LNX.3.96.1010507063343.8114I-100000@renegade>
+	id <S136104AbREGNmP>; Mon, 7 May 2001 09:42:15 -0400
+Received: from piggy.rz.tu-ilmenau.de ([141.24.4.8]:6584 "EHLO
+	piggy.rz.tu-ilmenau.de") by vger.kernel.org with ESMTP
+	id <S136098AbREGNmA>; Mon, 7 May 2001 09:42:00 -0400
+Message-ID: <3AF6A697.22370520@rz.tu-ilmenau.de>
+Date: Mon, 07 May 2001 15:43:51 +0200
+From: Alexander Eichhorn <alexander.eichhorn@rz.tu-ilmenau.de>
+Reply-To: alexander.eichhorn@rz.tu-ilmenau.de
+Organization: Technical University Ilmenau
+X-Mailer: Mozilla 4.7 [de] (WinNT; I)
+X-Accept-Language: de,en
 MIME-Version: 1.0
-Content-Type: MULTIPART/ALTERNATIVE; BOUNDARY="----=_NextPart_000_02EE_01C0D71D.1BDC4DE0"
-Content-ID: <Pine.LNX.3.96.1010507063343.8114J@renegade>
+To: linux-kernel@vger.kernel.org
+Subject: [Question] Explanation of zero-copy networking
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+Hi all,
 
-------=_NextPart_000_02EE_01C0D71D.1BDC4DE0
-Content-Type: TEXT/PLAIN; CHARSET=iso-8859-1
-Content-ID: <Pine.LNX.3.96.1010507063343.8114K@renegade>
+we are currently developing (as part of my dissertation)
+a research-platform to study some new ideas in 
+constructing transport systems to support applications 
+with realtime-requirements (e.g. multimedia) and new 
+networking technologies. The test-platform consists of 
+typical multimedia-elements, such as sources, filters, 
+sinks and transport-modules, which can be distributed 
+across a set of computers. 
 
-Can someone help this guy?
+To achieve the principle of sparing ressource-usage - which 
+we consider fundamental for multimedia-systems - we are 
+looking for new (already implemented or planned) mechanisms to 
+avoid copying the data-streams where possible (Device-IO, 
+especially Network-IO; User-User-IPC). 
+
+That's why i'd like to ask if one of the net-core developers 
+could give us a (more or less - depends on what you've 
+documented so far) detailed description of the newly 
+implemented zero-copy mechanisms in the network-stack. 
+We are interested in how to use it (changed network-API?) 
+and also in the internal architecture. 
+
+We already had a look at the kernel mailingslist 
+archieves and some search machines, but all we found 
+were some fragments of the puzzle only. Before digging into 
+the sourcecode we try this way to get an overall description.
+
+
+Our second question: Are there any plans for contructing 
+a general copy-avoidance infrastructure (smth. like UVM in 
+NetBSD does) and new IPC-mechanisms on top of it yet??
+
+
+Thanks in advance.
+
+Alexander Eichhorn
+
 
 -- 
-Zack Brown
-
-On Mon, 7 May 2001, Phillipus Gunawan wrote:
-
-> I'm having problem with iptables...
-> I just upgrade my kernel from 2.2.16 to 2.4.3
-> I also upgrade the iptables with: iptables-1.2.1a-1.i386.rpm
-> After the installation finished, I try to test it with: iptables -L
-> Here's what I've seen on my screen:
-> 
-> modprobe: Can't locate module ip_tables
-> iptables v1.2.1a: can't initialise iptables table 'filter': Module is wrong version
-> Perhaps iptables or your kernel needs to be upgraded.
-> 
-> I install the iptables-1.2.1a-1.i386.rpm first and then upgrade my kernel.
-> The way I upgrade my kernel:
-> 
-> make mrproper
-> make dep bzImage
-> make modules
-> make modules_install
-> cp .........
-> cp....
-> 
-> I've choose all option regarding iptables 'netfilter'
-> My friend said I might built netfilter with the ipfwadm
-> compatibility compiled in, which is mutually exclusive with iptables
-> and ipchains support. I didn't build ipfwadm and all other modules I compiled as modules ('M' instead of 'Y')
-> 
-> But I still can't understand, it still doesn't work...
-> 
-> Could you please help me. I've tried everywhere asking this question, still, nobody can answer it
-> 
-> Thank You.
-> Best Regards,
-> 
-> 
-> Phillipus.
-> 
-
-------=_NextPart_000_02EE_01C0D71D.1BDC4DE0--
+Alexander Eichhorn
+Technical University of Ilmenau
+Computer Science And Automation Faculty
+Distributed Systems and Operating Systems Department
+Phone +49 3677 69 4557, Fax  +49 3677 69 4541

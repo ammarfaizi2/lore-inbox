@@ -1,50 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262145AbULQWPS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262178AbULQW3h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262145AbULQWPS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Dec 2004 17:15:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262200AbULQWPS
+	id S262178AbULQW3h (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Dec 2004 17:29:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262182AbULQW3h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Dec 2004 17:15:18 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:58004 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S262145AbULQWPI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Dec 2004 17:15:08 -0500
-Message-ID: <41C35A45.7090206@sgi.com>
-Date: Fri, 17 Dec 2004 16:14:29 -0600
-From: Patrick Gefre <pfg@sgi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: Re: [PATCH] 2.6.10 Altix : ioc4 serial driver support
-References: <200412162224.iBGMOQ52284713@fsgi900.americas.sgi.com> <20041216231519.GA16249@infradead.org>
-In-Reply-To: <20041216231519.GA16249@infradead.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 17 Dec 2004 17:29:37 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:60118 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262178AbULQW3e (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Dec 2004 17:29:34 -0500
+Date: Fri, 17 Dec 2004 14:11:29 -0800
+From: Greg KH <greg@kroah.com>
+To: Kumar Gala <galak@linen.sps.mot.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, rmk@arm.linux.org.uk
+Subject: Re: [RFC][PATCH] Add platform_get_resource_byname & platform_get_resource_byirq
+Message-ID: <20041217221129.GA22885@kroah.com>
+References: <Pine.LNX.4.61.0412081703030.4040@linen.sps.mot.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0412081703030.4040@linen.sps.mot.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
-> On Thu, Dec 16, 2004 at 04:24:26PM -0600, Pat Gefre wrote:
+On Wed, Dec 08, 2004 at 05:16:16PM -0600, Kumar Gala wrote:
+> Adds the ability to find a resource or irq on a platform device by its 
+> resource name.  This patch also tweaks how resource names get set.  
+> Before, resources names were set to pdev->dev.bus_id, now that only 
+> happens if the resource name has not been previous set.
 > 
->>I have a serial driver for Altix I'd like to submit.
->>
->>The code is at:
->>ftp://oss.sgi.com/projects/sn2/sn2-update/033-ioc4-support
->>
->>Signed-off-by: Patrick Gefre <pfg@sgi.com>
+> All of this allows us to find a resource without assuming what order the 
+> resources are in.
 > 
-> 
-> I took a very short look and what spring to mind first is that the
-> device probing/remoal is rather bogus.  The ->probe/->remove callbacks
-> of a PCI driver can be called at any time, and any initialization /
-> teardown actions must happen from those.  A logical consequence of that
-> is that a proper PCI driver should have no global state.
-> 
+> Signed-off-by; Kumar Gala <kumar.gala@freescale.com>
 
-Christoph,
+Thanks, I've applied this (minus the bogus .h file, and plus the proper
+.h file change.)
 
-I'm not sure what you mean here. I don't have an entry for ->remove and the driver is self-contained.
-
--- Pat
+greg k-h

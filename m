@@ -1,72 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270489AbTG1TqQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jul 2003 15:46:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270501AbTG1TqQ
+	id S270458AbTG1Toh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jul 2003 15:44:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270479AbTG1Tog
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jul 2003 15:46:16 -0400
-Received: from obsidian.spiritone.com ([216.99.193.137]:17389 "EHLO
-	obsidian.spiritone.com") by vger.kernel.org with ESMTP
-	id S270489AbTG1TqE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jul 2003 15:46:04 -0400
-Date: Mon, 28 Jul 2003 12:45:47 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 1000] New: file corruption using cryptoloop on ext2/ext3/other file systems 
-Message-ID: <3899210000.1059421547@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Mon, 28 Jul 2003 15:44:36 -0400
+Received: from maild.telia.com ([194.22.190.101]:33237 "EHLO maild.telia.com")
+	by vger.kernel.org with ESMTP id S270458AbTG1Toe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jul 2003 15:44:34 -0400
+X-Original-Recipient: linux-kernel@vger.kernel.org
+To: Nico Schottelius <nico-kernel@schottelius.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: psmouse: synaptics (2.6.0-test1|2)
+References: <20030728081832.GA453@schottelius.org>
+From: Peter Osterlund <petero2@telia.com>
+Date: 28 Jul 2003 21:13:49 +0200
+In-Reply-To: <20030728081832.GA453@schottelius.org>
+Message-ID: <m265lmihw2.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=1000
+Nico Schottelius <nico-kernel@schottelius.org> writes:
 
-           Summary: file corruption using cryptoloop on ext2/ext3/other file
-                    systems
-    Kernel Version: 2.6.0-test2
-            Status: NEW
-          Severity: normal
-             Owner: axboe@suse.de
-         Submitter: kernel@gozer.org
+> My questions:
+>    3) how can I read /dev/misc/psaux in Linux 2.6 ?
 
+AFAIK, you can't.
 
-Distribution: unstable debian (util-linux 2.12)
-Hardware Environment: AMD K7
-Software Environment:
-Problem Description:
+>    1) why are you implementing drivers in the kernel?
 
-Using cryptoloop, any files copied to ext2/ext3, and from what I hear anything
-other than msdos/vfat (vfat verified), leaves files corrupted.
+Because the raw psaux device is no longer exposed to user space.
 
-# this talks about files larger than system memory, but I see this with files
-# of any size.
-http://marc.theaimsgroup.com/?l=linux-kernel&m=105932373007928&w=2
+>    2) what source of information do you use to program them?
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=105873721209176&w=2
+The synaptics touchpad interfacing guide. I think this link is still valid:
 
-Steps to reproduce:
+        http://www.synaptics.com/decaf/utilities/ACF126.pdf
 
-losetup /dev/loop0 /dev/hdX -e aes
-mkfs -t ext3 /dev/loop0
-mount /dev/loop0 /mnt
-cp /tmp/some.mp3 /mnt
-umount /mnt
-losetup -d /dev/loop0
+>    3.1) howto get gpm running?
 
-md5sum /tmp/some.mp3
+You have to hack gpm to add support for the 2.6 kernel driver. Until
+someone fixes gpm you have to use the "psmouse_noext=1" module
+option.
 
-losetup /dev/loop0 /dev/hdX -e aes
-mount /dev/loop0 /mnt
-md5sum /mnt/some.mp3
+>    3.2) is the patch mentioned for X implemented in X cvs?
 
-While the fs is mounted, everything checks out ok, but as soon as you unmount
-and remount, it's all messed up.
+No, not currently. Aside from technical considerations, there is also
+a license problem, because the synaptics driver is GPL:ed, which is
+not compatible (I think) with the license used by XFree86. This means
+that all copyright holders for the synaptics driver need to agree to
+change the license, or their contributions have to be removed and
+reimplemented.
 
-I created a 10MB test file, and instead of using a drive/partition as above, I
-used the file. ext2 on there worked ok, so I don't know if it's something over a
-certain size or what.
-
-
+-- 
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

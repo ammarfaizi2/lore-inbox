@@ -1,65 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264635AbTFWAmj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jun 2003 20:42:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264660AbTFWAmj
+	id S264547AbTFWAiE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jun 2003 20:38:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264635AbTFWAiE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jun 2003 20:42:39 -0400
-Received: from nessie.weebeastie.net ([61.8.7.205]:32476 "EHLO
-	nessie.weebeastie.net") by vger.kernel.org with ESMTP
-	id S264635AbTFWAmh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jun 2003 20:42:37 -0400
-Date: Mon, 23 Jun 2003 10:58:14 +1000
-From: CaT <cat@zip.com.au>
-To: Pavel Machek <pavel@suse.cz>
-Cc: swsusp@lister.fornax.hu, linux-kernel@vger.kernel.org
-Subject: Re: can't get linux to perform a bios suspend (was: Re: [FIX, please test] Re: 2.5.70-bk16 - nfs interferes with s4bios suspend)
-Message-ID: <20030623005814.GA583@zip.com.au>
-References: <20030613033703.GA526@zip.com.au> <20030615183111.GD315@elf.ucw.cz> <20030616001141.GA364@zip.com.au> <20030616104710.GA12173@atrey.karlin.mff.cuni.cz> <20030618081600.GA484@zip.com.au> <20030618101728.GA203@elf.ucw.cz> <20030618102602.GA593@zip.com.au> <20030618103528.GB203@elf.ucw.cz> <20030621142400.GB5388@zip.com.au> <20030622151549.GD199@elf.ucw.cz>
+	Sun, 22 Jun 2003 20:38:04 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:12434 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S264547AbTFWAiD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Jun 2003 20:38:03 -0400
+Date: Sun, 22 Jun 2003 17:46:41 -0700 (PDT)
+Message-Id: <20030622.174641.74727201.davem@redhat.com>
+To: alan@lxorguk.ukuu.org.uk
+Cc: girouard@us.ibm.com, stekloff@us.ibm.com, janiceg@us.ibm.com,
+       jgarzik@pobox.com, kenistonj@us.ibm.com, lkessler@us.ibm.com,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com, niv@us.ibm.com
+Subject: Re: patch for common networking error messages
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <1056199013.25974.27.camel@dhcp22.swansea.linux.org.uk>
+References: <OFC2446DB8.6D4DA3ED-ON85256D47.007C79EE@us.ibm.com>
+	<20030616.155533.63022973.davem@redhat.com>
+	<1056199013.25974.27.camel@dhcp22.swansea.linux.org.uk>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030622151549.GD199@elf.ucw.cz>
-User-Agent: Mutt/1.3.28i
-Organisation: Furball Inc.
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 22, 2003 at 05:15:49PM +0200, Pavel Machek wrote:
-> > To me this appears to indicate that it's treating a request for a
-> > sleep state of 4 (s/w suspend) and 4b (bios suspend) as the same thing
-> > as simple_strtoul will stop at the b and return 4 and there are no
-> > further checks being done. In a small experiment I added a test of
-> > state_string[1] == 'b', recompiled and tried it again. It did not go
-> > into s/w suspend as expected but it failed to do a suspend alltogether.
-> 
-> If you have 2.4.X, get 2.5.72. That should have
-> do_suspend_lowlevel_s4bios in wakeup.S. Look around and fix it so that
-> it is called when user does echo 4b. It may well be broken.
+   From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+   Date: 21 Jun 2003 13:36:54 +0100
+   
+   Standardising strings is a real help for end users,
 
-Been using 2.5.x all this time. Just did the following mod on 2.5.72-bk3:
-
-#ifdef CONFIG_SOFTWARE_SUSPEND
-        if (state == 4) {
-                if (state_string[1] == 'b') {
-                        do_suspend_lowlevel_s4bios(0);
-                } else {
-                        software_suspend();
-                }
-                goto Done;
-        }
-#endif  
-
-And it activated bios suspend just fine. It didn't resume properly though.
-The bios resume screen was left behind and the whole setup hung. I've
-been using the suspend2disk functionality of this laptop under apm and 2.4.x
-just fine (for months really - I rarely 'rebooted' my laptop) so I don't
-think it's the bios that's b0rked.
-
--- 
-Martin's distress was in contrast to the bitter satisfaction of some
-of his fellow marines as they surveyed the scene. "The Iraqis are sick
-people and we are the chemotherapy," said Corporal Ryan Dupre. "I am
-starting to hate this country. Wait till I get hold of a friggin' Iraqi.
-No, I won't get hold of one. I'll just kill him."
-	- http://www.informationclearinghouse.info/article2479.htm
+I agree.  But my objections are in the context of doing this
+inside the kernel, where such things do not belong.

@@ -1,58 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268312AbUHFVIn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268329AbUHFVN2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268312AbUHFVIn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 17:08:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268313AbUHFVIa
+	id S268329AbUHFVN2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 17:13:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268323AbUHFVMj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 17:08:30 -0400
-Received: from holomorphy.com ([207.189.100.168]:43215 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S268312AbUHFVH4 (ORCPT
+	Fri, 6 Aug 2004 17:12:39 -0400
+Received: from gprs214-146.eurotel.cz ([160.218.214.146]:55424 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S268309AbUHFVMH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 17:07:56 -0400
-Date: Fri, 6 Aug 2004 14:07:50 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Cc: "'Hirokazu Takahashi'" <taka@valinux.co.jp>, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org, "Seth, Rohit" <rohit.seth@intel.com>
-Subject: Re: Hugetlb demanding paging for -mm tree
-Message-ID: <20040806210750.GT17188@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	"Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-	'Hirokazu Takahashi' <taka@valinux.co.jp>,
-	linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
-	"Seth, Rohit" <rohit.seth@intel.com>
-References: <20040806.013522.74731251.taka@valinux.co.jp> <200408062055.i76KtcY08296@unix-os.sc.intel.com>
+	Fri, 6 Aug 2004 17:12:07 -0400
+Date: Fri, 6 Aug 2004 23:11:52 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Patrick Mochel <mochel@digitalimplant.org>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: -mm swsusp: fix highmem handling
+Message-ID: <20040806211152.GF30518@elf.ucw.cz>
+References: <20040728222300.GA16671@elf.ucw.cz> <Pine.LNX.4.50.0408012308370.4359-100000@monsoon.he.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200408062055.i76KtcY08296@unix-os.sc.intel.com>
-User-Agent: Mutt/1.5.6+20040722i
+In-Reply-To: <Pine.LNX.4.50.0408012308370.4359-100000@monsoon.he.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 06, 2004 at 01:55:38PM -0700, Chen, Kenneth W wrote:
-> diff -Nurp linux-2.6.7/mm/hugetlb.c linux-2.6.7.hugetlb/mm/hugetlb.c
-> --- linux-2.6.7/mm/hugetlb.c	2004-08-06 11:44:59.000000000 -0700
-> +++ linux-2.6.7.hugetlb/mm/hugetlb.c	2004-08-06 13:15:24.000000000 -0700
-> @@ -276,9 +276,10 @@ retry:
->  	}
+Hi!
+
+> > I'm not sure why you are saving state before save_processor_state.
+> > swsusp_arch_resume will overwrite this, anyway. Is it to make something
+> > balanced?
 > 
->  	spin_lock(&mm->page_table_lock);
-> -	if (pte_none(*pte))
-> +	if (pte_none(*pte)) {
->  		set_huge_pte(mm, vma, page, pte, vma->vm_flags & VM_WRITE);
-> -	else
-> +		update_mmu_cache(vma, addr, *pte);
-> +	} else
->  		put_page(page);
->  out:
->  	spin_unlock(&mm->page_table_lock);
+> Yes, so it matches the calls in swsusp_suspend() - Previously there was a
+> hack that did kernel_fpu_end() after calling save_processor_state(), to
+> pass in_atomic() checks. By restoring the state after we've snapshotted on
+> suspend prevents this from being a problem.
 
-update_mmu_cache() does not appear to check the size of the translation
-to be established in many architectures. e.g. on arch/ia64/ it does
-flush_icache_range(addr, addr + PAGE_SIZE) unconditionally, and only
-sets PG_arch_1 on a single struct page. Similar comments apply to
-sparc64 and ppc64; I didn't check any others.
+> In general, if we assume that save_processor_state() does anything to the
+> CPU, besides just benign register saving, we have to make sure that it's
+> put into the same state on resume before we restore state..
 
+Perhaps comment is needed there? "state saved by this is ignored, but
+save_processor_state changes preempt count"? 
 
--- wli
+									Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

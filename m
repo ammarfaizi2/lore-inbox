@@ -1,62 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266248AbUHCM4A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266293AbUHCNAy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266248AbUHCM4A (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 08:56:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266353AbUHCMzy
+	id S266293AbUHCNAy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 09:00:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266324AbUHCNAx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 08:55:54 -0400
-Received: from grendel.digitalservice.pl ([217.67.200.140]:52119 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S266248AbUHCMzr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 08:55:47 -0400
-From: "R. J. Wysocki" <rjwysocki@sisk.pl>
-Organization: SiSK
-To: Mark Watts <m.watts@eris.qinetiq.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.8-rc2-mm2
-Date: Tue, 3 Aug 2004 15:05:37 +0200
-User-Agent: KMail/1.5
-Cc: Andrew Morton <akpm@osdl.org>
-References: <20040802015527.49088944.akpm@osdl.org> <200408030927.18395.m.watts@eris.qinetiq.com>
-In-Reply-To: <200408030927.18395.m.watts@eris.qinetiq.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+	Tue, 3 Aug 2004 09:00:53 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:16780 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266293AbUHCNAw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Aug 2004 09:00:52 -0400
+Date: Tue, 3 Aug 2004 13:57:56 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Maneesh Soni <maneesh@in.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 4/5] Change sysfs_file_operations
+Message-ID: <20040803125756.GV12308@parcelfarce.linux.theplanet.co.uk>
+References: <20040729203718.GB4592@in.ibm.com> <20040729203821.GC4592@in.ibm.com> <20040729203919.GD4592@in.ibm.com> <20040729204031.GE4592@in.ibm.com> <20040729204359.GF4592@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200408031505.37005.rjwysocki@sisk.pl>
+In-Reply-To: <20040729204359.GF4592@in.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 03 of August 2004 10:27, Mark Watts wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
->
->
-> Something bad might have slipped in to do with dual opterons.
+On Thu, Jul 29, 2004 at 03:43:59PM -0500, Maneesh Soni wrote:
+> 
+> 
+> 
+> o This patch modifies the sysfs_file_operations methods so as to get the
+>   kobject and attribute pointers via corresponding sysfs_dirent.
 
-I've run it successfully on a dual-Opteron system, so it's not related to dual 
-Opterons in general.  Could you be more specific, please?
-
-> Whenever I boot, I get a kernel panic right after it brings up the
-> processors.
->
-> console=ttyS0 only lets me see
-> 'Kernel unable to handle ...'  with the rest cut off.
->
-> If I boot normally, there's a couple of oops' or panics on the screen but
-> the roll by to fast to see.
->
-> .config is attched and its the same config that boots 2.6.8rc2 just fine.
-
-Ah, I've set CONFIG_NR_CPUS=2.  The rest looks similarly.
-
-Greets,
-R.
-
--- 
-Rafael J. Wysocki
-[tel. (+48) 605 053 693]
-----------------------------
-For a successful technology, reality must take precedence over public 
-relations, for nature cannot be fooled.
-					-- Richard P. Feynman
+Hmm...  After looking at that, I'd probably add typed inlined helpers
+(dentry to attr, dentry to kobject, dentry to bin_attr) and converted
+to their use *before* everything else (patch #0).  And change their
+definitions to use sysfs_dirent in patch #1.  That way we avoid breakage
+on intermediate stages.

@@ -1,57 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265276AbUENN0X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265277AbUENN2d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265276AbUENN0X (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 May 2004 09:26:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265277AbUENN0X
+	id S265277AbUENN2d (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 May 2004 09:28:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265278AbUENN2d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 May 2004 09:26:23 -0400
-Received: from outpost.ds9a.nl ([213.244.168.210]:40165 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id S265276AbUENN0Q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 May 2004 09:26:16 -0400
-Date: Fri, 14 May 2004 15:26:15 +0200
-From: bert hubert <ahu@ds9a.nl>
-To: Fruhwirth Clemens <clemens-dated-1085404045.d167@endorphin.org>
-Cc: linux-kernel@vger.kernel.org, Christophe Saout <christophe@saout.de>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       James Morris <jmorris@redhat.com>
-Subject: Re: [PATCH] AES i586 optimized, regparm fixed
-Message-ID: <20040514132615.GA21039@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Fruhwirth Clemens <clemens-dated-1085404045.d167@endorphin.org>,
-	linux-kernel@vger.kernel.org, Christophe Saout <christophe@saout.de>,
-	Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-	James Morris <jmorris@redhat.com>
-References: <20040514130724.GA8081@ghanima.endorphin.org>
-Mime-Version: 1.0
+	Fri, 14 May 2004 09:28:33 -0400
+Received: from web90105.mail.scd.yahoo.com ([66.218.94.76]:21937 "HELO
+	web90105.mail.scd.yahoo.com") by vger.kernel.org with SMTP
+	id S265277AbUENN2c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 May 2004 09:28:32 -0400
+Message-ID: <20040514110147.66697.qmail@web90105.mail.scd.yahoo.com>
+Date: Fri, 14 May 2004 04:01:47 -0700 (PDT)
+From: linux lover <linux_lover2004@yahoo.com>
+Subject: /proc query
+To: netdev <netdev@oss.sgi.com>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040514130724.GA8081@ghanima.endorphin.org>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 14, 2004 at 03:07:24PM +0200, Fruhwirth Clemens wrote:
+hello,
+        can it be possible to allow /proc new entry
+file to update its value after few times. i
+implemented a file /proc/text that updates text value
+at each seconds not after 1 minutes. for that i am
+using sleep. is it allow to use sleep in kernel source
+modification.
+regards,
+linuxlover
+ 
 
-> +config CRYPTO_AES_586
-> +	tristate "AES cipher algorithms (586)"
-> +	depends on CRYPTO && X86 && !X86_64 
-> +	help
-> +	  AES cipher algorithms (FIPS-197). AES uses the Rijndael 
-> +	  algorithm.
 
-I'm wondering if this should be a configurable setting. Reminds me of older
-programs asking if they should do something using the 'fast' or 'slow'
-algorithm, even though results were identical.
-
-If we trust the AES assembler code, and it is supposed to be faster on >586,
-it should be the default on those CPUs as there is no gain in using the C version.
-
-On the other hand, if we think there are situations when the new assembler
-code won't be correct or faster, we should not merge it.
-
-In any case, Kconfig does not seem the way to go.
-
--- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+	
+		
+__________________________________
+Do you Yahoo!?
+SBC Yahoo! - Internet access at a great low price.
+http://promo.yahoo.com/sbc/

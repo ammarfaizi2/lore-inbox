@@ -1,49 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132046AbRDDToT>; Wed, 4 Apr 2001 15:44:19 -0400
+	id <S131346AbRDDTvu>; Wed, 4 Apr 2001 15:51:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132053AbRDDToJ>; Wed, 4 Apr 2001 15:44:09 -0400
-Received: from tartarus.telenet-ops.be ([195.130.132.34]:62130 "HELO
-	smtp2.pandora.be") by vger.kernel.org with SMTP id <S132046AbRDDTnz>;
-	Wed, 4 Apr 2001 15:43:55 -0400
-Message-ID: <001701c0bd2e$f321d580$04a8a8c0@vortex.prv>
-From: "Vik Heyndrickx" <vik.heyndrickx@pandora.be>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: <linux-kernel@vger.kernel.org>, <bgerst@didntduck.org>
-In-Reply-To: <E14krU0-0002P8-00@the-village.bc.nu>
-Subject: Re: 2.4 kernel hangs on 486 machine at boot
-Date: Wed, 4 Apr 2001 19:44:47 +0200
+	id <S132053AbRDDTvk>; Wed, 4 Apr 2001 15:51:40 -0400
+Received: from ns2.servicenet.com.ar ([200.41.148.12]:22535 "EHLO
+	servnet.servicenet.com.ar") by vger.kernel.org with ESMTP
+	id <S131346AbRDDTvZ>; Wed, 4 Apr 2001 15:51:25 -0400
+Message-ID: <A0C675E9DC2CD411A5870040053AEBA028416D@MAINSERVER>
+From: =?iso-8859-1?Q?Sarda=F1ons=2C_Eliel?= 
+	<Eliel.Sardanons@philips.edu.ar>
+To: linux-kernel@vger.kernel.org
+Subject: kernel/sched.c questions
+Date: Wed, 4 Apr 2001 16:52:32 -0300 
 MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.0.1461.28)
 Content-Type: text/plain;
 	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message -----
-From: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-To: "Vik Heyndrickx" <vik.heyndrickx@pandora.be>
-Cc: <rhw@memalpha.cx>; <linux-kernel@vger.kernel.org>;
-<rgooch@atnf.csiro.au>
-Sent: Wednesday, April 04, 2001 7:54 PM
-Subject: Re: 2.4 kernel hangs on 486 machine at boot
+Hello, I would like to know why you put this two functions:
+void scheduling_functions_start_here(void) { }
+...
+void scheduling_functions_end_here(void) { }
+
+why you put 'case TASK_RUNNING'
+
+switch (prev->state) {
+                case TASK_INTERRUPTIBLE:
+                        if (signal_pending(prev)) {
+                                prev->state = TASK_RUNNING;
+                                break;
+                        }
+                default:
+                        del_from_runqueue(prev);
+                case TASK_RUNNING:
+}
+
+and the last one:
+
+in the function schedule() you always use this syntax:
+
+-----
+if (a_condition)
+    goto bebe;
+bebe_back
 
 
-> > Problem: Linux kernel 2.4 consistently hangs at boot on 486 machine
-> >
-> > Shortly after lilo starts the kernel it hangs at the following message:
-> > Checking if this processor honours the WP bit even in supervisor mode...
-> > <blinking cursor>
->
-> Does this happen on 2.4.3-ac kernel trees ? I thought i had it zapped
+bebe:
+    do_bebe();
+    goto bebe_back;
+------
+why not just doing:
+   
+   if (a_condition)
+         do_bebe();
 
-It doesn't even happen with with 2.4.3. Now I feel silly.
 
---
-Vik
-
+I know that goto's are better but finaly you are jumping to a function and
+then calling the function. I think you can improve performance doing this.
 

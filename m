@@ -1,49 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136820AbRECOlR>; Thu, 3 May 2001 10:41:17 -0400
+	id <S136821AbRECOmh>; Thu, 3 May 2001 10:42:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136821AbRECOlI>; Thu, 3 May 2001 10:41:08 -0400
-Received: from 205-CORU-X5.libre.retevision.es ([62.83.56.205]:13736 "HELO
-	trasno.mitica") by vger.kernel.org with SMTP id <S136820AbRECOky>;
-	Thu, 3 May 2001 10:40:54 -0400
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, stoffel@casc.com (John Stoffel),
-        esr@thyrsus.com, cate@dplanet.ch, linux-kernel@vger.kernel.org (CML2),
-        kbuild-devel@lists.sourceforge.net
-Subject: Re: Requirement of make oldconfig [was: Re: [kbuild-devel] Re: CML2 1.3.1, aka ...]
-In-Reply-To: <200105031324.f43DOeaA030953@pincoya.inf.utfsm.cl>
-X-Url: http://www.lfcia.org/~quintela
-From: Juan Quintela <quintela@mandrakesoft.com>
-In-Reply-To: <200105031324.f43DOeaA030953@pincoya.inf.utfsm.cl>
-Date: 03 May 2001 16:40:30 +0200
-Message-ID: <m266fi7axt.fsf@trasno.mitica>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+	id <S136822AbRECOm3>; Thu, 3 May 2001 10:42:29 -0400
+Received: from bacchus.veritas.com ([204.177.156.37]:13709 "EHLO
+	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
+	id <S136821AbRECOmN>; Thu, 3 May 2001 10:42:13 -0400
+Message-ID: <3AF16F32.A10EB093@veritas.com>
+Date: Thu, 03 May 2001 15:46:10 +0100
+From: "Amit S. Kale" <akale@veritas.com>
+Organization: Veritas Software (India)
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Keith Owens <kaos@ocs.com.au>
+CC: Paul J Albrecht <pjalbrecht@home.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux Kernel Debuggers, KDB or KGDB?
+In-Reply-To: <5003.988844635@ocs3.ocs-net>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "horst" == Horst von Brand <vonbrand@inf.utfsm.cl> writes:
+Keith Owens wrote:
+> 
+> On Wed, 2 May 2001 16:06:15 -0500,
+> Paul J Albrecht <pjalbrecht@home.com> wrote:
+> >I'd like to know more about your plans to enhance KDB with source level debug
+> >capability.
+> 
+> Use a combination of gdb and kdb.  kdb to support kernel internals, gdb
+> to take the kdb output and add source level data.  It needs two
+> machines, one that is running to support gdb, the second machine is
+> being debugged, with a serial console between them.
 
-Hi
+This is how solaris ksld (kernel source level debugger
+works). solaris dbx connects to a kernel stub which
+serves as kadb (solaris assembly level debugger) as
+well as a debugger stub.
 
-horst> Hell, I had to rebuild my .config files from scratch a few times already
-horst> because of wild changes in the hardware on which the resulting kernels
-horst> would have to run, its not _that_ big a deal to have to perhaps have to do
-horst> it once each time a new stable kernel series starts or so.
+> The problem will be stopping gdb from making assumptions about the
+> machine being debugged.  Instead of changing gdb code, use a gdb
+> wrapper program to intercept user commands and gdb serial protocol and
+> convert them to kdb commands.
 
-Not a option.  You can have to had _several_ configurations around
-(here at MandrakeSoft we have normal/smp/enterprise) and we have
-basically everything that can be compiled as modules compiled as
-modules.  Add to that that we build the alpha (normal&smp) from the
-same package.  We want to add more architectures to the rpm.  Are you
-really serious that _answering_ all the options for several kernels is
-an option?  I don't think so.  And the actual olconfig target works
-well for me (tm).  I don't see the point to rewrote the configuration
-language and made it _less_ powerfull for no good reason.
+I am not sure if kdb provides access to kernel threads
+in a form that can be conveniently by a wrapper
+program.
 
-Later, Juan.
+Interested people can check whether all features of kgdb
+(http://kgdb.sourceforge.net/) are available in convenient
+form in kdb.
+
+The logic of holding slave cpus (the cpu in the debugger
+is the master while others are slaves) is different in kdb
+and kgdb. Handling of nmi-watchdog too is different.
+
+> 
+> >Would you have to boot an unstripped kernel executable whenever you
+> >wanted to debug?
+> 
+> Boot, no.  But the machine running gdb will need an copy of the
+> unstripped vmlinux and module objects to get the debug information.
+
+Plus all the sources.
+
+All this is required by gdb. In theory gdb could do well
+with just source code and symbol information only, though
+for lack of a symbol information requesting packet in
+the gdb remote protocol, gdb can't get symbol information
+directly from the stub.
+
+There is some effort in gdb world to allow a stub to query
+gdb for symbol information. Probably the reverse can also
+be added. Need someone good understanding of gdb to do
+that.
+
+It's because of these reasons that kgdb module debugging setup
+is combersome.
+
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
 -- 
-In theory, practice and theory are the same, but in practice they 
-are different -- Larry McVoy
+Amit Kale
+Veritas Software ( http://www.veritas.com )

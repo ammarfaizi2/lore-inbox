@@ -1,43 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280506AbRJaVCL>; Wed, 31 Oct 2001 16:02:11 -0500
+	id <S279228AbRJaVFl>; Wed, 31 Oct 2001 16:05:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280507AbRJaVCB>; Wed, 31 Oct 2001 16:02:01 -0500
-Received: from dsl-213-023-038-229.arcor-ip.net ([213.23.38.229]:44804 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S280506AbRJaVBw>;
-	Wed, 31 Oct 2001 16:01:52 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Andrea Arcangeli <andrea@suse.de>
-Subject: Re: Google's mm problem - not reproduced on 2.4.13
-Date: Wed, 31 Oct 2001 22:03:31 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org, Rik van Riel <riel@conectiva.com.br>,
-        Ben Smith <ben@google.com>
-In-Reply-To: <E15yzlQ-00021P-00@starship.berlin> <E15z28m-0000vb-00@starship.berlin> <20011031214540.D1291@athlon.random>
-In-Reply-To: <20011031214540.D1291@athlon.random>
+	id <S280511AbRJaVFb>; Wed, 31 Oct 2001 16:05:31 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:54022 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S279228AbRJaVFU>; Wed, 31 Oct 2001 16:05:20 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: 2.4.14-pre6
+Date: 31 Oct 2001 13:05:35 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9rpp2v$7j2$1@cesium.transmeta.com>
+In-Reply-To: <Pine.LNX.4.33.0110302349550.31996-100000@penguin.transmeta.com> <Pine.LNX.4.33.0110312032110.18881-100000@titan.lahn.de>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-Message-Id: <E15z2WJ-0000wc-00@starship.berlin>
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On October 31, 2001 09:45 pm, Andrea Arcangeli wrote:
-> On Wed, Oct 31, 2001 at 09:39:12PM +0100, Daniel Phillips wrote:
-> > On October 31, 2001 07:06 pm, Daniel Phillips wrote:
-> > > I just tried your test program with 2.4.13, 2 Gig, and it ran without 
-> > > problems.  Could you try that over there and see if you get the same result?
-> > > If it does run, the next move would be to check with 3.5 Gig.
-> > 
-> > Ben reports that his test with 2 Gig memory runs fine, as it does for me, but 
-> > that it locks up tight with 3.5 Gig, requiring power cycle.  Since I only 
-> > have 2 Gig here I can't reproduce that (yet).
+Followup to:  <Pine.LNX.4.33.0110312032110.18881-100000@titan.lahn.de>
+By author:    Philipp Matthias Hahn <pmhahn@titan.lahn.de>
+In newsgroup: linux.dev.kernel
 > 
-> are you sure it isn't an oom condition. can you reproduce on
-> 2.4.14pre5aa1? mainline (at least before pre6) could deadlock with too
-> much mlocked memory.
+> > Other changes:
+> linux/zlib_fs.h is still missing in you tree and breaks compilation of
+> fs/cramfs and other.
+> 
 
-I don't know, I can't reproduce it here, I don't have enough memory.  Ben?
+I have submitted patches to Linus to make cramfs and zisofs work.
 
---
-Daniel
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

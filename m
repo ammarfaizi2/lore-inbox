@@ -1,63 +1,187 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261640AbVCGG40@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261655AbVCGHAp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261640AbVCGG40 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 01:56:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261655AbVCGG40
+	id S261655AbVCGHAp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 02:00:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261658AbVCGHAp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 01:56:26 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:10731 "EHLO suse.cz")
-	by vger.kernel.org with ESMTP id S261640AbVCGG4W (ORCPT
+	Mon, 7 Mar 2005 02:00:45 -0500
+Received: from chilli.pcug.org.au ([203.10.76.44]:43201 "EHLO smtps.tip.net.au")
+	by vger.kernel.org with ESMTP id S261655AbVCGHAT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 01:56:22 -0500
-Date: Mon, 7 Mar 2005 07:57:07 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Micheal Marineau <marineam@engr.orst.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Treat ALPS mouse buttons as mouse buttons
-Message-ID: <20050307065707.GA1778@ucw.cz>
-References: <422BA727.1030506@engr.orst.edu> <20050307055019.GA1541@ucw.cz> <422BF0B0.3030109@engr.orst.edu> <20050307062611.GA1684@ucw.cz> <422BF62E.9080707@engr.orst.edu>
+	Mon, 7 Mar 2005 02:00:19 -0500
+Date: Mon, 7 Mar 2005 18:00:16 +1100
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Andrew Morton <akpm@osdl.org>, Linus <torvalds@osdl.org>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Consolidate the last compat sigvals
+Message-Id: <20050307180016.7cba76c8.sfr@canb.auug.org.au>
+X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <422BF62E.9080707@engr.orst.edu>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 06, 2005 at 10:35:26PM -0800, Micheal Marineau wrote:
+Hi Andrew, Linus,
 
-> > Thanks. Could you also attach the one from -mm1? It's a bit different.
-> > 
-> here is the mm1 version:
-> I: Bus=0011 Vendor=0001 Product=0001 Version=ab41
-> N: Name="AT Translated Set 2 keyboard"
-> P: Phys=isa0060/serio0/input0
-> H: Handlers=kbd mouse0
-> B: EV=120017
-> B: KEY=40000 4 2000000 3802078 f840d001 b2ffffdf ffefffff ffffffff fffffffe
-> B: REL=140
-> B: MSC=10
-> B: LED=7
-> 
-> I: Bus=0011 Vendor=0002 Product=0008 Version=0000
-> N: Name="PS/2 Mouse"
-> P: Phys=isa0060/serio1/input1
-> H: Handlers=mouse1
-> B: EV=7
-> B: KEY=70000 0 0 0 0 0 0 0 0
-> B: REL=3
-> 
-> I: Bus=0011 Vendor=0002 Product=0008 Version=6337
-> N: Name="AlpsPS/2 ALPS GlidePoint"
-> P: Phys=isa0060/serio1/input0
-> H: Handlers=mouse2
-> B: EV=f
-> B: KEY=420 0 70000 0 0 0 0 0 0 0 0
-> B: REL=3
-> B: ABS=1000003
+This patch just consolidates the last of the (what should have been)
+compat_sigval_ts.  It also fixes S390 that had a sigval_t in its struct
+compat_siginfo.
 
-Thanks!
+Signed-off-by: Stephen Rothwell <sfr@canb.auug.org.au>
+
+This patch needs to be applied on top of my "add and use
+COMPAT_SIGEV_PAD_SIZE" patch posted a few minutes ago.
+
+P.S. this patch has not even been compiled as I don't have acces to any of
+the platforms involved, but has been acked by Dave Miller.
 
 -- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
+
+diff -ruNp linus-SIGEV/arch/ia64/ia32/ia32priv.h linus-sigval/arch/ia64/ia32/ia32priv.h
+--- linus-SIGEV/arch/ia64/ia32/ia32priv.h	2005-02-21 12:02:07.000000000 +1100
++++ linus-sigval/arch/ia64/ia32/ia32priv.h	2005-03-07 17:52:28.000000000 +1100
+@@ -225,11 +225,6 @@ struct stat64 {
+ 	unsigned int	st_ino_hi;
+ };
+ 
+-typedef union sigval32 {
+-	int sival_int;
+-	unsigned int sival_ptr;
+-} sigval_t32;
+-
+ typedef struct compat_siginfo {
+ 	int si_signo;
+ 	int si_errno;
+@@ -249,7 +244,7 @@ typedef struct compat_siginfo {
+ 			timer_t _tid;		/* timer id */
+ 			int _overrun;		/* overrun count */
+ 			char _pad[sizeof(unsigned int) - sizeof(int)];
+-			sigval_t32 _sigval;	/* same as below */
++			compat_sigval_t _sigval;	/* same as below */
+ 			int _sys_private;       /* not to be passed to user */
+ 		} _timer;
+ 
+@@ -257,7 +252,7 @@ typedef struct compat_siginfo {
+ 		struct {
+ 			unsigned int _pid;	/* sender's pid */
+ 			unsigned int _uid;	/* sender's uid */
+-			sigval_t32 _sigval;
++			compat_sigval_t _sigval;
+ 		} _rt;
+ 
+ 		/* SIGCHLD */
+@@ -283,7 +278,7 @@ typedef struct compat_siginfo {
+ } compat_siginfo_t;
+ 
+ typedef struct sigevent32 {
+-	sigval_t32 sigev_value;
++	compat_sigval_t sigev_value;
+ 	int sigev_signo;
+ 	int sigev_notify;
+ 	union {
+diff -ruNp linus-SIGEV/arch/mips/kernel/signal32.c linus-sigval/arch/mips/kernel/signal32.c
+--- linus-SIGEV/arch/mips/kernel/signal32.c	2005-02-04 04:10:36.000000000 +1100
++++ linus-sigval/arch/mips/kernel/signal32.c	2005-03-02 14:25:33.000000000 +1100
+@@ -32,11 +32,6 @@
+ 
+ #define SI_PAD_SIZE32   ((SI_MAX_SIZE/sizeof(int)) - 3)
+ 
+-typedef union sigval32 {
+-	int sival_int;
+-	s32 sival_ptr;
+-} sigval_t32;
+-
+ typedef struct compat_siginfo {
+ 	int si_signo;
+ 	int si_code;
+@@ -89,7 +84,7 @@ typedef struct compat_siginfo {
+ 		struct {
+ 			compat_pid_t _pid;	/* sender's pid */
+ 			compat_uid_t _uid;	/* sender's uid */
+-			sigval_t32 _sigval;
++			compat_sigval_t _sigval;
+ 		} _rt;
+ 
+ 	} _sifields;
+diff -ruNp linus-SIGEV/arch/s390/kernel/compat_linux.h linus-sigval/arch/s390/kernel/compat_linux.h
+--- linus-SIGEV/arch/s390/kernel/compat_linux.h	2005-02-21 12:02:07.000000000 +1100
++++ linus-sigval/arch/s390/kernel/compat_linux.h	2005-03-07 17:49:16.000000000 +1100
+@@ -29,11 +29,6 @@ struct old_sigaction32 {
+        __u32			sa_restorer;	/* Another 32 bit pointer */
+ };
+  
+-typedef union sigval32 {
+-        int     sival_int;
+-        __u32   sival_ptr;
+-} sigval_t32;
+-                 
+ typedef struct compat_siginfo {
+ 	int	si_signo;
+ 	int	si_errno;
+@@ -52,7 +47,7 @@ typedef struct compat_siginfo {
+ 		struct {
+ 			timer_t _tid;		/* timer id */
+ 			int _overrun;		/* overrun count */
+-			sigval_t _sigval;	/* same as below */
++			compat_sigval_t _sigval;	/* same as below */
+ 			int _sys_private;       /* not to be passed to user */
+ 		} _timer;
+ 
+@@ -60,7 +55,7 @@ typedef struct compat_siginfo {
+ 		struct {
+ 			pid_t			_pid;	/* sender's pid */
+ 			uid_t			_uid;	/* sender's uid */
+-			sigval_t32		_sigval;
++			compat_sigval_t		_sigval;
+ 		} _rt;
+ 
+ 		/* SIGCHLD */
+diff -ruNp linus-SIGEV/arch/sparc64/kernel/signal32.c linus-sigval/arch/sparc64/kernel/signal32.c
+--- linus-SIGEV/arch/sparc64/kernel/signal32.c	2005-02-04 04:10:36.000000000 +1100
++++ linus-sigval/arch/sparc64/kernel/signal32.c	2005-03-02 14:25:33.000000000 +1100
+@@ -104,7 +104,7 @@ typedef struct compat_siginfo{
+ 		struct {
+ 			timer_t _tid;			/* timer id */
+ 			int _overrun;			/* overrun count */
+-			sigval_t32 _sigval;		/* same as below */
++			compat_sigval_t _sigval;		/* same as below */
+ 			int _sys_private;		/* not to be passed to user */
+ 		} _timer;
+ 
+@@ -112,7 +112,7 @@ typedef struct compat_siginfo{
+ 		struct {
+ 			compat_pid_t _pid;		/* sender's pid */
+ 			unsigned int _uid;		/* sender's uid */
+-			sigval_t32 _sigval;
++			compat_sigval_t _sigval;
+ 		} _rt;
+ 
+ 		/* SIGCHLD */
+diff -ruNp linus-SIGEV/include/asm-sparc64/siginfo.h linus-sigval/include/asm-sparc64/siginfo.h
+--- linus-SIGEV/include/asm-sparc64/siginfo.h	2005-02-21 12:02:07.000000000 +1100
++++ linus-sigval/include/asm-sparc64/siginfo.h	2005-03-07 17:49:55.000000000 +1100
+@@ -18,11 +18,6 @@
+ 
+ #ifdef CONFIG_COMPAT
+ 
+-typedef union sigval32 {
+-	int sival_int;
+-	u32 sival_ptr;
+-} sigval_t32;
+-
+ struct compat_siginfo;
+ 
+ #endif /* CONFIG_COMPAT */
+@@ -42,7 +37,7 @@ struct compat_siginfo;
+ #ifdef CONFIG_COMPAT
+ 
+ typedef struct sigevent32 {
+-	sigval_t32 sigev_value;
++	compat_sigval_t sigev_value;
+ 	int sigev_signo;
+ 	int sigev_notify;
+ 	union {

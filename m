@@ -1,78 +1,202 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261994AbVBUOtm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261999AbVBUOwK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261994AbVBUOtm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Feb 2005 09:49:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262004AbVBUOtc
+	id S261999AbVBUOwK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Feb 2005 09:52:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261998AbVBUOvK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Feb 2005 09:49:32 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:42764 "HELO
+	Mon, 21 Feb 2005 09:51:10 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:46604 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261994AbVBUOsW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Feb 2005 09:48:22 -0500
-Date: Mon, 21 Feb 2005 15:48:18 +0100
+	id S262000AbVBUOsf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Feb 2005 09:48:35 -0500
+Date: Mon, 21 Feb 2005 15:48:32 +0100
 From: Adrian Bunk <bunk@stusta.de>
 To: Jeff Garzik <jgarzik@pobox.com>
 Cc: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/net/sb1000.c: make some variables static
-Message-ID: <20050221144818.GD3187@stusta.de>
-References: <20050219000339.GI4337@stusta.de> <42193B44.1010203@pobox.com>
+Subject: [2.6 patch] drivers/net/smc-mca.c: cleanups
+Message-ID: <20050221144832.GG3187@stusta.de>
+References: <20050219083431.GN4337@stusta.de> <421938D2.3030302@pobox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <42193B44.1010203@pobox.com>
+In-Reply-To: <421938D2.3030302@pobox.com>
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 20, 2005 at 08:37:08PM -0500, Jeff Garzik wrote:
-> this patch eats formfeeds
+On Sun, Feb 20, 2005 at 08:26:42PM -0500, Jeff Garzik wrote:
+
+> these tables should be const-ified
 
 
-Sorry, updated patch:
+Updated patch:
 
 
 <--  snip  -->
 
 
-This patch makes some needlessly global variables static.
+This patch contains the following cleanups:
+- make a needlessly global function static
+- make three needlessly global structs static const
+
+Since after moving the now-static stucts to smc-mca.c the file smc-mca.h 
+was empty except for two #define's, I've also killed the rest of 
+smc-mca.h .
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
 
- drivers/net/sb1000.c |    8 ++++----
- 1 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/net/smc-mca.c |   60 +++++++++++++++++++++++++++++++++++++++--
+ drivers/net/smc-mca.h |   61 ------------------------------------------
+ 2 files changed, 58 insertions(+), 63 deletions(-)
 
---- linux-2.6.11-rc3-mm2-full/drivers/net/sb1000.c.old	2005-02-16 18:17:09.000000000 +0100
-+++ linux-2.6.11-rc3-mm2-full/drivers/net/sb1000.c	2005-02-21 15:16:35.000000000 +0100
-@@ -57,9 +57,9 @@
- #include <asm/uaccess.h>
+--- linux-2.6.11-rc3-mm2-full/drivers/net/smc-mca.h	2004-12-24 22:35:23.000000000 +0100
++++ /dev/null	2004-11-25 03:16:25.000000000 +0100
+@@ -1,61 +0,0 @@
+-/*
+- * djweis weisd3458@uni.edu
+- * most of this file was taken from ps2esdi.h
+- */
+-
+-struct {
+-  unsigned int base_addr;
+-} addr_table[] = {
+-    { 0x0800 },
+-    { 0x1800 },
+-    { 0x2800 },
+-    { 0x3800 },
+-    { 0x4800 },
+-    { 0x5800 },
+-    { 0x6800 },
+-    { 0x7800 },
+-    { 0x8800 },
+-    { 0x9800 },
+-    { 0xa800 },
+-    { 0xb800 },
+-    { 0xc800 },
+-    { 0xd800 },
+-    { 0xe800 },
+-    { 0xf800 }
+-};
+-
+-#define MEM_MASK 64
+-
+-struct {
+-  unsigned char mem_index;
+-  unsigned long mem_start;
+-  unsigned char num_pages;
+-} mem_table[] = {
+-    { 16, 0x0c0000, 40 },
+-    { 18, 0x0c4000, 40 },
+-    { 20, 0x0c8000, 40 },
+-    { 22, 0x0cc000, 40 },
+-    { 24, 0x0d0000, 40 },
+-    { 26, 0x0d4000, 40 },
+-    { 28, 0x0d8000, 40 },
+-    { 30, 0x0dc000, 40 },
+-    {144, 0xfc0000, 40 },
+-    {148, 0xfc8000, 40 },
+-    {154, 0xfd0000, 40 },
+-    {156, 0xfd8000, 40 },
+-    {  0, 0x0c0000, 20 },
+-    {  1, 0x0c2000, 20 },
+-    {  2, 0x0c4000, 20 },
+-    {  3, 0x0c6000, 20 }
+-};
+-
+-#define IRQ_MASK 243
+-struct {
+-   unsigned char new_irq;
+-   unsigned char old_irq;
+-} irq_table[] = {
+-   {  3,  3 },
+-   {  4,  4 },
+-   { 10, 10 },
+-   { 14, 15 }
+-};
+--- linux-2.6.11-rc3-mm2-full/drivers/net/smc-mca.c.old	2005-02-16 18:44:29.000000000 +0100
++++ linux-2.6.11-rc3-mm2-full/drivers/net/smc-mca.c	2005-02-16 18:47:24.000000000 +0100
+@@ -49,7 +49,6 @@
+ #include <asm/system.h>
  
- #ifdef SB1000_DEBUG
--int sb1000_debug = SB1000_DEBUG;
-+static int sb1000_debug = SB1000_DEBUG;
- #else
--int sb1000_debug = 1;
-+static int sb1000_debug = 1;
- #endif
+ #include "8390.h"
+-#include "smc-mca.h"
  
- static const int SB1000_IO_EXTENT = 8;
-@@ -252,7 +252,7 @@
-  * SB1000 hardware routines to be used during open/configuration phases
-  */
+ #define DRV_NAME "smc-mca"
  
--const int TimeOutJiffies = (875 * HZ) / 100;
-+static const int TimeOutJiffies = (875 * HZ) / 100;
+@@ -100,6 +99,63 @@
+ MODULE_PARM_DESC(ultra_io, "SMC Ultra/EtherEZ MCA I/O base address(es)");
+ MODULE_PARM_DESC(ultra_irq, "SMC Ultra/EtherEZ MCA IRQ number(s)");
  
- static inline void nicedelay(unsigned long usecs)
++static const struct {
++  unsigned int base_addr;
++} addr_table[] = {
++    { 0x0800 },
++    { 0x1800 },
++    { 0x2800 },
++    { 0x3800 },
++    { 0x4800 },
++    { 0x5800 },
++    { 0x6800 },
++    { 0x7800 },
++    { 0x8800 },
++    { 0x9800 },
++    { 0xa800 },
++    { 0xb800 },
++    { 0xc800 },
++    { 0xd800 },
++    { 0xe800 },
++    { 0xf800 }
++};
++
++#define MEM_MASK 64
++
++static const struct {
++  unsigned char mem_index;
++  unsigned long mem_start;
++  unsigned char num_pages;
++} mem_table[] = {
++    { 16, 0x0c0000, 40 },
++    { 18, 0x0c4000, 40 },
++    { 20, 0x0c8000, 40 },
++    { 22, 0x0cc000, 40 },
++    { 24, 0x0d0000, 40 },
++    { 26, 0x0d4000, 40 },
++    { 28, 0x0d8000, 40 },
++    { 30, 0x0dc000, 40 },
++    {144, 0xfc0000, 40 },
++    {148, 0xfc8000, 40 },
++    {154, 0xfd0000, 40 },
++    {156, 0xfd8000, 40 },
++    {  0, 0x0c0000, 20 },
++    {  1, 0x0c2000, 20 },
++    {  2, 0x0c4000, 20 },
++    {  3, 0x0c6000, 20 }
++};
++
++#define IRQ_MASK 243
++static const struct {
++   unsigned char new_irq;
++   unsigned char old_irq;
++} irq_table[] = {
++   {  3,  3 },
++   {  4,  4 },
++   { 10, 10 },
++   { 14, 15 }
++};
++
+ static short smc_mca_adapter_ids[] __initdata = {
+ 	0x61c8,
+ 	0x61c9,
+@@ -126,7 +182,7 @@
+ 
+ static int ultra_found = 0;
+ 
+-int __init ultramca_probe(struct device *gen_dev)
++static int __init ultramca_probe(struct device *gen_dev)
  {
-@@ -363,7 +363,7 @@
- /*
-  * SB1000 hardware routines to be used during frame rx interrupt
-  */
--const int Sb1000TimeOutJiffies = 7 * HZ;
-+static const int Sb1000TimeOutJiffies = 7 * HZ;
- 
- /* Card Wait For Ready (to be used during frame rx) */
- static inline int
+ 	unsigned short ioaddr;
+ 	struct net_device *dev;
+
 

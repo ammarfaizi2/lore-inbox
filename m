@@ -1,47 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265489AbUGMQic@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265492AbUGMQpd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265489AbUGMQic (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 12:38:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265487AbUGMQic
+	id S265492AbUGMQpd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 12:45:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265493AbUGMQpd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 12:38:32 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:23347 "EHLO
-	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S265482AbUGMQia (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 12:38:30 -0400
-Date: Tue, 13 Jul 2004 18:15:04 +0100 (BST)
-From: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
-X-X-Sender: tigran@localhost.localdomain
-To: Ricky Beam <jfbeam@bluetronic.net>
-cc: "Eric D. Mudama" <edmudama@bounceswoosh.org>,
-       "Robert M. Stockmann" <stock@stokkie.net>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: SATA disk device naming ?
-In-Reply-To: <Pine.GSO.4.33.0407131221000.25702-100000@sweetums.bluetronic.net>
-Message-ID: <Pine.LNX.4.44.0407131812340.30340-100000@localhost.localdomain>
+	Tue, 13 Jul 2004 12:45:33 -0400
+Received: from mail-relay-2.tiscali.it ([213.205.33.42]:31888 "EHLO
+	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
+	id S265492AbUGMQp3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jul 2004 12:45:29 -0400
+Message-ID: <40F411B6.10200@eidetix.com>
+Date: Tue, 13 Jul 2004 18:45:42 +0200
+From: "David N. Welton" <davidw@eidetix.com>
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040708)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+To: linux-kernel@vger.kernel.org
+Subject: tcp connections dropped in 2.6.7
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 Jul 2004, Ricky Beam wrote:
+[ Please CC replies to me.  Thanks! If there is a more specific list, I 
+will go there. ]
 
-> On Tue, 13 Jul 2004, Eric D. Mudama wrote:
-> >... "root=LABEL=/" ...
-> 
-> I've seen the LABEL method not work at all. (2.6.7-rc3 on the wikipedia
-> servers.)
+Hello,
 
-right, the LABEL=/ never works for me so I always replace it with explicit 
-"root=/dev/sda2" thing, but this is problematic if "/dev/sda2" becomes 
-"/dev/hda2" if you boot with IDE driver compiled in, as opposed to SATA 
-driver.
+This one has really got me stumped, and I would like to debug it if 
+possible (although my boss would really like the machine to 'just 
+work').  I think it's in the kernel because it affects all userspace 
+programs equally.
 
-I assumed that "LABEL=/" thing is a RedHat-specific kernel's feature but 
-never bothered to check. The reason I assumed so was that the problems 
-always happen after installation, i.e. as soon as I replace the vendor's 
-generic kernel with the one properly optimized for my specific needs.
+The problem:
 
-Kind regards
-Tigran
+When logged into the machine via ssh, every so often the connection goes 
+  down (not frozen, it goes away completely) and attempts to log back in 
+fail.  Seemingly, networking comes back up ok if, from the server (the 
+one with the problem) I generate some outgoing traffic - even a single 
+icmp packet.  Pings to the machine in question normally run around 0.12 
+ms from my machine, but slow down to 2 or 3 ms during the problem.
 
+On a suggestion from someone, I tried turning off the windowing bit 
+which has apparently caused some problems lately, but that doesn't help 
+(I'm not going through a router in any case).
+
+There are no messages at all in logfiles.  tcpdump doesn't show anything 
+that looks obvious (to me at least... could be me not seeing something).
+
+Seeing as how outgoing traffic seems to kick the connection back into 
+shape, as a crutch I tried leaving a ping running, but it went down just 
+the same.
+
+As a network card, I'm using a realtek.  Initially I observed the 
+problem with a forcedeth card, which we substituted thinking that might 
+be the problem.
+
+I don't seem to be able to recreate the problem.  It "just happens" 
+every now and then.
+
+I'll put a dmesg up at http://dedasys.com/dmesg.txt
+
+Thankyou for your time,
+-- 
+David N. Welton
+davidw@eidetix.com

@@ -1,61 +1,79 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: (majordomo@vger.rutgers.edu) by vger.rutgers.edu via listexpand id <S160388AbQG0Rgd>; Thu, 27 Jul 2000 13:36:33 -0400
-Received: by vger.rutgers.edu id <S160382AbQG0Rfj>; Thu, 27 Jul 2000 13:35:39 -0400
-Received: from mail.turbolinux.com ([38.170.88.25]:4465 "EHLO mail.turbolinux.com") by vger.rutgers.edu with ESMTP id <S160398AbQG0Re0>; Thu, 27 Jul 2000 13:34:26 -0400
-Date: Thu, 27 Jul 2000 10:52:36 -0700 (PDT)
-From: "Matt D. Robinson" <yakker@turbolinux.com>
-To: linux-kernel@vger.rutgers.edu
-Subject: ANNOUNCE: Linux Kernel Crash Dumps (LKCD) 2.0 Available
-In-Reply-To: <Pine.LNX.4.10.10007271026330.2939-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.21.0007271039150.23130-100000@mail.turbolinux.com>
+Received: (majordomo@vger.rutgers.edu) by vger.rutgers.edu via listexpand id <S157224AbQG1Xmo>; Fri, 28 Jul 2000 19:42:44 -0400
+Received: by vger.rutgers.edu id <S157229AbQG1Xl5>; Fri, 28 Jul 2000 19:41:57 -0400
+Received: from firewall-in.sch57.msk.ru ([195.178.195.6]:2133 "EHLO dell.sch57.msk.ru") by vger.rutgers.edu with ESMTP id <S161152AbQG1Uo4>; Fri, 28 Jul 2000 16:44:56 -0400
+Date: Sat, 29 Jul 2000 01:02:06 +0400 (MSD)
+From: Khimenko Victor <khim@dell.sch57.msk.ru>
+To: "H. Peter Anvin" <hpa@transmeta.com>
+Cc: Peter Jones <pjones@redhat.com>, clubneon@hereintown.net, linux-kernel@vger.rutgers.edu
+Subject: Re: RLIM_INFINITY inconsistency between archs
+In-Reply-To: <3981ED0C.CBE0A0F9@transmeta.com>
+Message-ID: <Pine.LNX.4.10.KSI2.10007290035410.28600-100000@dell.sch57.msk.ru>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-The 2.0 version of the Linux Kernel Crash Dumps (LKCD) project is now
-available -- this version applies to 2.3.99-pre9 kernels, and includes
-some of Stephen Tweedie's patches for kiobufs (since we need them).
 
-LKCD provides systems with the ability to save a system crash dump when
-the kernel has a panic or exception, and saves the memory to your swap
-space, recovering it on reboot, and creating a crash dump report which
-can be sent to support personnel (or groups like 'lkml', if necessary).
 
-Feel free to download our current patch from:
+On Fri, 28 Jul 2000, H. Peter Anvin wrote:
 
-	http://oss.sgi.com/projects/lkcd/download/2.0
+> Peter Jones wrote:
+> > >
+> > > You missed the point here. Yes, /usr/lib/perl is just fine. But what
+> > > about locally compiled modules ? You can download thing from CPAN,
+> > > compile it and install. It's simple: perl Makefile.PL ; make ; make
+> > > install ... It'll compile CPAN module and will install it ... where
+> > > it'll install it ? Currently it'll install it in
+> > > /usr/lib/perl5/site_perl/i386-linux (arch-dependant files) or in
+> > > /usr/lib/perl5/site_perl (non-arch-dependant files). Emacs will search
+> > > for additional packages in /usr/share/emacs/20.7/site-lisp (and
+> > > /usr/share/emacs/site-lisp) and so on. And sysadmin can not change it
+> > > easily: you need to recompile perl, emacs or tcl.
+> > 
+> 
+> Ever heard of "symlinks"?
+> 
 
-You can also look at and contribute to the source project on SourceForge.
-The project's CVS location is at:
+Yeah, of course. Just FHS closed this way as well. Yes, I (as distribution
+maker) can make /usr/lib/perl5/site_perl/i386-linux symlink to
+/usr/local/lib/perl but since
+-- cut --
+This directory should always be empty after first installing a
+FHS-compliant system.  No exceptions to this rule should be made other
+than the listed directory stubs.
+-- cut --
+I (as distribution maker) can not create /usr/local/lib/perl directory.
+Thus perl's make install will mysteriously fail while trying to install
+stuff. Or I (as sysadmin) must GUESS that I should create /usr/local/lib/perl 
+before using perl's `make install' ? Gosh. So much for FHS-compliance.
+Or may be you can suggest some other clever way to solve this problem ?
 
-	http://cvs.sourceforge.net/cgi-bin/cvsweb.cgi/?cvsroot=lkcd
+P.S. May be I just poor in English and in fact creation of subdirectories
+UNDER /usr/local (not IN /usr/local) is allowed ? At least it looks like
+Debian mantainers think so:
+-- cut --
+  3.1.2 Site-specific programs
 
-And as always, information about LKCD, including news, an FAQ, etc.,
-can be found at:
+   As mandated by the FHS no package should place any files in
+   /usr/local, either by putting them in the file system archive to be
+   unpacked by dpkg or by manipulating them in their maintainer scripts.
 
-	http://oss.sgi.com/projects/lkcd/
+   However, the package should create empty directories below /usr/local
+   so that the system administrator knows where to place site-specific
+   files. These directories should be removed on package removal if they
+   are empty.
 
-A few points to note:
+   Note, that this applies only to directories below /usr/local, not in
+   /usr/local. The directory /usr/local itself may only contain the
+   sub-directories listed in FHS, section 4.6. However, you may create
+   directories below them as you wish. You may not remove any of the
+   directories listed in 4.6, even if you created them.
+-- cut --
+It this is so then it's Ok: there are really no need to put anything in
+/usr/local itself and under /usr/local only empty directoryes for local
+stuff are needed...
 
-- The x86 version works great, but we're still working on the Alpha and
-  IA-64 ports.  They're coming along, however ... keep reading the LKCD
-  News page for updates.  Thanks to Brian Hall for his help with the
-  Alpha port.
-
-- While you can build the vmdump code as a *module*, and it works, for now
-  just build the vmdump code directly into the kernel -- the reason is
-  because we still have to build the ability to perform stack traces when
-  the code goes through a module.  (And that will take some time to
-  complete, as it's kind of ugly to do ...)
-
-- We are no longer limited to SCSI devices, like we were with the 2.2 
-  kernel version.  We're going to try to backport the 2.3 changes into
-  2.2, so we have a universal version.
-
-If you have any other questions, please send me an E-mail, or review
-the FAQ on the oss.sgi.com web site.  Thanks.
-
---Matt
+Looks like FHS wording is too vague in this place...
 
 
 -

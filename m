@@ -1,70 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316878AbSGXGV2>; Wed, 24 Jul 2002 02:21:28 -0400
+	id <S316887AbSGXGbq>; Wed, 24 Jul 2002 02:31:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316887AbSGXGV2>; Wed, 24 Jul 2002 02:21:28 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:12480 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S316878AbSGXGV1>;
-	Wed, 24 Jul 2002 02:21:27 -0400
-Date: Wed, 24 Jul 2002 08:24:59 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Peter Osterlund <petero2@telia.com>
-Cc: linux-kernel@vger.kernel.org, Dave Jones <davej@suse.de>,
-       Bill Davidsen <davidsen@tmr.com>,
-       Guillaume Boissiere <boissiere@adiglobal.com>
-Subject: Re: [2.6] Most likely to be merged by Halloween... THE LIST
-Message-ID: <20020724082458.A1109@suse.de>
-References: <20020723113923.H800@suse.de> <Pine.LNX.4.44.0207231435190.4586-100000@best.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0207231435190.4586-100000@best.localdomain>
+	id <S316892AbSGXGbq>; Wed, 24 Jul 2002 02:31:46 -0400
+Received: from [196.26.86.1] ([196.26.86.1]:12194 "HELO
+	infosat-gw.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S316887AbSGXGbp>; Wed, 24 Jul 2002 02:31:45 -0400
+Date: Wed, 24 Jul 2002 08:52:41 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@linux-box.realnet.co.sz
+To: george anzinger <george@mvista.com>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: odd memory corruption in 2.5.27?
+In-Reply-To: <3D3DBD4B.4EFD3543@mvista.com>
+Message-ID: <Pine.LNX.4.44.0207240851030.32636-100000@linux-box.realnet.co.sz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 23 2002, Peter Osterlund wrote:
-> On Tue, 23 Jul 2002, Jens Axboe wrote:
-> 
-> > On Fri, Jul 19 2002, Peter Osterlund wrote:
-> > > Peter Osterlund <petero2@telia.com> writes:
-> > > 
-> > > > Dave Jones <davej@suse.de> writes:
-> > > > 
-> > > > > On Thu, Jul 18, 2002 at 12:46:43PM -0400, Bill Davidsen wrote:
-> > > > > 
-> > > > >  > > o UDF Write support for CD-R/RW (packet writing)  (Jens Axboe, Peter Osterlund)
-> > > > >  > 	Hopefully this is close as well
-> > > > > 
-> > > > > This has been around for an age, but I haven't seen anything for 2.5
-> > > > > yet. Then again, I dropped off the packet-writing mailing list a long
-> > > > > time ago, so I'm not sure how up to date those folks are.
-> > > > 
-> > > > Patches for 2.5 can be found here:
-> > > > 
-> > > >         http://w1.894.telia.com/~u89404340/patches/packet/2.5/
-> > > > 
-> > > > The most recent patch is for 2.5.25. As far as I know, there are only
-> > > > two remaining problems with the 2.5 patch:
-> > > 
-> > > Btw, there is one more potential problem. A new block major number is
-> > > allocated for the pktcdvd device. Is this still forbidden? Are there
-> > > better ways to do this now?
-> > 
-> > Why a new number? What's wrong with the official 97?
-> 
-> It is still using 97. I didn't know it was official until it got into the
-> kernel tree. I think Linus once said he wouldn't accept patches adding
-> device numbers, because he wanted people to think up something better than
-> device numbers.
-> 
-> I was thinking about this old message:
-> 
-> 	http://www.uwsg.indiana.edu/hypermail/linux/kernel/0105.1/1042.html
-> 
-> If that's no longer a problem, then fine.
+On Tue, 23 Jul 2002, george anzinger wrote:
 
-97 was allocated a loong time ago, it predates the above message.
+> protecting them with a combination of interrupt disables and
+> spin_locks.  Preemption is allowed (incorrectly) if
+> interrupts are off and preempt_count goes to zero on the
+> spin_unlock.  I will wager that this is an SMP machine. 
+> After the preemption interrupts will be on (schedule() does
+> that) AND you could be on a different cpu.  Either of these
+> is a BAD thing.
+> 
+> The proposed fix is to catch the attempted preemption in
+> preempt_schedule() and just return if the interrupt system
+> is off.  (Of course there is more that this to it, but I do
+> believe that the problem is known.  You could blow this
+> assertion out of the water by asserting that the machine is
+> NOT smp.)
+
+I haven't looked at it further than gathering oopses and idly browsing 
+surrounding code. About your assertion, you're almost right, its UP box 
+running an SMP kernel w/ CONFIG_PREEMT. 
 
 -- 
-Jens Axboe
+function.linuxpower.ca
 

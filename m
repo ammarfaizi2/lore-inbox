@@ -1,41 +1,56 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315351AbSDWW27>; Tue, 23 Apr 2002 18:28:59 -0400
+	id <S314450AbSDWWhx>; Tue, 23 Apr 2002 18:37:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315356AbSDWW26>; Tue, 23 Apr 2002 18:28:58 -0400
-Received: from tartarus.telenet-ops.be ([195.130.132.34]:40144 "EHLO
-	tartarus.telenet-ops.be") by vger.kernel.org with ESMTP
-	id <S315351AbSDWW25> convert rfc822-to-8bit; Tue, 23 Apr 2002 18:28:57 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: hdcool <hdcool@gmx.co.uk>
-To: linux-kernel@vger.kernel.org
-Subject: compile error in 2.5.9 - stable - easy fix:
-Date: Wed, 24 Apr 2002 00:32:17 +0200
-X-Mailer: KMail [version 1.4]
+	id <S314454AbSDWWhw>; Tue, 23 Apr 2002 18:37:52 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:36619 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S314450AbSDWWhv>; Tue, 23 Apr 2002 18:37:51 -0400
+Date: Tue, 23 Apr 2002 18:34:55 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: A CD with errors (scratches etc.) blocks the whole system while reading damadged files
+In-Reply-To: <Pine.LNX.3.95.1020419100917.724A-100000@chaos.analogic.com>
+Message-ID: <Pine.LNX.3.96.1020423182543.31248C-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200204240032.20043.hdcool@gmx.co.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Fri, 19 Apr 2002, Richard B. Johnson wrote:
 
+> On Thu, 18 Apr 2002, Dr. Death wrote:
+> 
+> > Problem:
+> > 
+> > I use SuSE Linux 7.2 and when I create md5sums from damaged files on a 
+> > CD, the WHOLE system  freezes or is ugly slow untill md5 has passed the 
+> > damaged part of the file !
+> > 
+> 
+> So what do you suggest? You can see from the logs that the device
+> is having difficulty  reading your damaged CD. You can do what
+> Windows-95 does (ignore the errors and pretend everything is fine),
+> or what Windows-98 and Windows-2000/Prof does (blue-screen, and re-boot),
+> or you can try like hell to read the files like Linux does. What do you
+> suggest?
 
-at line 277 in init/main.cpp there is twice set the same function(which 
-actually does nothing by the moment) but gcc bailed out on it...after 
-removing one of those two the compilation finnished succesfull.
+Several things come to mind:
+1 - don't dedicate the entire machine to retrying the error such that
+    everything else runs slowly if at all.
+2 - if the hardware returns an uncorrectable sector error that should be
+    passed back to the user process rather than retried. An unconditional
+    deep retry on an error the hardware labels as uncorrectable is not
+    desirable, and not better than the Windows in most cases.
 
-Kind regards,
+I took a bottle cap to one of the morning's AOL CDs and then tried to read
+it. It's really not just annoying, it's pretty much useless. If you were
+staging software off a CD on a running server, your clients would NOT be
+happy!
 
-hdcool
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE8xeDzFyIyOWm+UdIRAvQCAKDemqn3MkmklaU4WxJ8U12X/aHd1wCg3qtZ
-iNJhX4+2AN9LTBDJzhapWso=
-=3Wb+
------END PGP SIGNATURE-----
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

@@ -1,108 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261807AbSJJSnp>; Thu, 10 Oct 2002 14:43:45 -0400
+	id <S262135AbSJJSvx>; Thu, 10 Oct 2002 14:51:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262110AbSJJSnp>; Thu, 10 Oct 2002 14:43:45 -0400
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:15503 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S261807AbSJJSnn>; Thu, 10 Oct 2002 14:43:43 -0400
-Date: Thu, 10 Oct 2002 13:49:22 -0500 (CDT)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Roman Zippel <zippel@linux-m68k.org>
-cc: Alexander Viro <viro@math.psu.edu>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Patrick Mochel <mochel@osdl.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [bk/patch] driver model update: device_unregister()
-In-Reply-To: <Pine.LNX.4.44.0210100107410.338-100000@serv>
-Message-ID: <Pine.LNX.4.44.0210101315240.10911-100000@chaos.physics.uiowa.edu>
+	id <S262136AbSJJSvx>; Thu, 10 Oct 2002 14:51:53 -0400
+Received: from zeke.inet.com ([199.171.211.198]:17549 "EHLO zeke.inet.com")
+	by vger.kernel.org with ESMTP id <S262135AbSJJSvw>;
+	Thu, 10 Oct 2002 14:51:52 -0400
+Message-ID: <3DA5CD9A.6090707@inet.com>
+Date: Thu, 10 Oct 2002 13:57:30 -0500
+From: Eli Carter <eli.carter@inet.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc2) Gecko/20020510
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Larry McVoy <lm@bitmover.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: BK is *evil* corporate software [was Re: New BK License Problem?]
+References: <20021005112552.A9032@work.bitmover.com> <20021007001137.A6352@elf.ucw.cz> <5.1.0.14.2.20021007204830.00b8b460@pop.gmx.net> <20021007143134.V14596@work.bitmover.com> <ao2ee1$l0c$1@forge.intermeta.de> <20021009165500.L27050@work.bitmover.com> <20021010080448.A17675@hq.fsmlabs.com> <ao490b$3nm$1@forge.intermeta.de> <20021010093859.A587@work.bitmover.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 10 Oct 2002, Roman Zippel wrote:
+Larry McVoy wrote:
+[snip]
+> Everyone has to decide for themselves what make sense.  I tend to agree
+> that paying for BK for a small number of seats doesn't make sense,
+> with a small number of people you can get by easily with CVS or one of
+> the other free tools.  Eventually that will cause you problems and once
+> those problems are costing you money, then you may see that spending
+> that money on BK is actually a net reduction of cost.
 
-> > So at this point, you decide to rather not have the user wait
-> > forever until his "rmmod net_pci" succeeds, but return -EBUSY right away.
-> > You do it by running MOD_INC_USE_COUNT in ::open(), and DEC again in
-> > ::close().
-> 
-> You don't really want to do this. Imagine what happens if you get
-> preempted before you had a chance to run MOD_INC_USE_COUNT.
+Ok, honest question for you Larry:
 
-Well, a rmmod could potentially leave the module in "deleted" but not 
-"freed" state for a long time. Basically the same thing which happens for 
-your solution, where you call the state "cleanup". But I agree, this is 
-not desirable at all (nor do I think your cleanup state is). That's why I 
-said you should be using the right APIs. And the network layer does things 
-correctly, you don't need any MOD_INC_USE_COUNT in your network driver at 
-all, just set .owner and the network layer does it all and race-free for 
-you.
+Assume for the moment that I'm not eligible for the free BK license (I 
+don't think that's the case, but for the question...).
+Assume that I plan a project that is going to start at 1 person and grow.
+Assume that at some point in the future, that project will grow large 
+and complex enough to need BK.
 
-> The unload path could look something like this:
-> 
-> 	if (mod->usecount())
-> 		return -EBUSY;
-> 	mod->state = cleanup;
-> 	if (mod->exit())
-> 		return -EBUSY;
-> 	(free module)
-> 
-> So this does what you want. The only problem is here that the exit call
-> can fail, because there are still users, so the module will stay in the
-> cleanup state. start/stop functions would give you better control over
-> this.
+What source control should I use _now_ so that I can grow into BK over 
+time?  Bonus question: Why?
+(The answer may be something like  'CVS -> Subversion -> ... -> BK', but 
+I don't know.)
 
-Well, I don't think I have a general problem with allowing module_exit()  
-to fail, though again I don't think it's necessary for drivers which use
-safe standard APIs. I'm not sure about your cleanup state, why is that
-necessary? Say you do pci_unregister_driver() in your module_exit(). That
-means that no users will find your driver on the list of all drivers, so
-they have nothing to do try_inc_mod_count() on, which you're trying to
-protect against? This is, AFAICS, currently only needed to guarantee
-race-free access to the module's use count. Since you're only using that
-as a hint right now and leave the final decision to ->exit(), it shouldn't
-be necessary.
+A little bit of background:  In college I didn't know of source control. 
+  CVS was a godsend for me when I found it.  But renames, copies, 
+directories, dealing with multiple files in a change, those kinds of 
+things "hurt" in CVS, even with just me.  I want better tools, ideally 
+open-source, but I suspect that I don't know what I'm looking for.
 
-> > And, done right, the API for the current implementation is so simple that
-> > I doubt you'll be able to come up with something with more ease-of-use.
-> 
-> The current API just hides the complexity, but it requires extra checks
-> all over the kernel, to test if an object belongs to a module and if the
-> module is running. My proposal would get rid of this.
-> Deciding whether when you can release a device object or a driver object
-> is pretty much the same problem and a common solution is IMO prefered. The
-> module code should work like the remaining kernel and not require extra
-> care everywhere.
-> The diff below shows how filesystem.c would change, which becomes simpler
-> as it doesn't has to care about the module state anymore.
+TIA,
 
-(This example seems to emphasize what I just said, no checking for state 
-cleanup neeeded, at least I don't see it).
-
-You're right, code providing standard APIs to drivers (be it filesystem 
-drivers or network card drivers) need to be aware that these drivers can 
-be modular, and need to get that case right.
-
-However, the try_inc_mod_count() is only ever used in the slow 
-registration paths (in the example e.g. for mounting, but not for accesses 
-to a mounted file system), so performance is not an issue. And getting 
-APIs exported to drivers right needs thinking, yes, but the module 
-locking isn't even the hard part there, I would claim.
-
-What you are doing is basically removing the infrastructure to get the use 
-count right in a race-free way, and cope with the race by leaving modules 
-in 'cleanup' but not 'freed' state until the users you raced with have 
-gone away.
-
-BTW, the patch below also needs changes to each filesystem driver to 
-return &fs->refcnt as ->use_count(), I think. And since there's no global 
-lock to protect it, as opposed to the unload_lock for the old module use 
-count, you have no way to protect the use_count between checking it 
-to be zero and calling ->exit(). It can be incremented in between, and you 
-cover up for that race by failing ->exit(), leaving the file_system in 
-used but not registered state. I just don't like this any better.
-
---Kai
+Eli
+--------------------. "If it ain't broke now,
+Eli Carter           \                  it will be soon." -- crypto-gram
+eli.carter(a)inet.com `-------------------------------------------------
 

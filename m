@@ -1,57 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268039AbUIUUaw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268040AbUIUUdV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268039AbUIUUaw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Sep 2004 16:30:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268040AbUIUUaw
+	id S268040AbUIUUdV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Sep 2004 16:33:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267659AbUIUUdV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Sep 2004 16:30:52 -0400
-Received: from [132.68.238.35] ([132.68.238.35]:60047 "EHLO
-	mailgw3.technion.ac.il") by vger.kernel.org with ESMTP
-	id S268039AbUIUUau (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Sep 2004 16:30:50 -0400
-Date: Tue, 21 Sep 2004 23:23:15 +0300 (IDT)
-From: Alon Altman <alon@8ln.org>
-X-X-Sender: alon@alon1.dhs.org
-To: linux-kernel@vger.kernel.org
-Subject: ICH5 SATA problem loading ide-cd module
-Message-ID: <Pine.LNX.4.61.0409212317570.2932@alon1.dhs.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Tue, 21 Sep 2004 16:33:21 -0400
+Received: from smtp-102-tuesday.noc.nerim.net ([62.4.17.102]:18707 "EHLO
+	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
+	id S268040AbUIUUdS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Sep 2004 16:33:18 -0400
+Date: Tue, 21 Sep 2004 22:33:25 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Michael Hunold <hunold-ml@web.de>, Greg KH <greg@kroah.com>,
+       linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com
+Subject: Re: [PATCH][2.6] Add command function to struct i2c_adapter
+Message-Id: <20040921223325.66b07f78.khali@linux-fr.org>
+In-Reply-To: <9e4733910409211039273d5a2f@mail.gmail.com>
+References: <414F111C.9030809@linuxtv.org>
+	<20040921154111.GA13028@kroah.com>
+	<41506099.8000307@web.de>
+	<9e4733910409211039273d5a2f@mail.gmail.com>
+Reply-To: LM Sensors <sensors@stimpy.netroedge.com>,
+       linux-kernel@vger.kernel.org
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please Cc me to any replies, as I'm not subscribed to LKML.
+> There is a related I2C problem with EEPROMs and DDC monitors. DDC
+> monitors look just like EEPROMs, the EEPROM driver can even read most
+> of them. But there are DDC monitors that need special wakeup sequences
+> before their ROMs will appear.
+> 
+> EEPROM and DDC are both algo_bit clients.
 
-Hello,
-   I've just installed the Debian package of the 2.6.8 kernel
-(2.6.8-1-686-smp) on my machine with an ASUS board with an ICH5 chipset and
-a SATA HDD in enhanced mode.
+Not true. algo-bit refers to i2c bus implementations, not i2c clients.
+It happens that all DDC monitors are accessed through bit-banging I2C
+busses (real I2C busses, as opposed to SMBus), but other EEPROMs do not.
+Most EEPROMs are from memory modules and hang off the motherboard SMBus
+(which by definition does not depend on algo-bit).
 
-   The system loads correctly, identifying the SATA drive as /dev/sda, up
-until I load the ide-cd module. The ide-cd module correctly detects the DVD
-Writer as /dev/hdb, and immediately generates the following error:
+> When you attach a bus to algo_bit both clients will run.
 
-APIC error on CPU0: 60(60) [this is repeated several times]
+FYI, there is no ddcmon driver in Linux 2.6 and I believe there won't
+be. The eeprom driver should do the job. Converting the EEPROM data to
+significant info belongs to user-space.
 
-   Then, I get a message "irq 185: nobody cared", which lists the folowing
-handlers:
+> There is concern that sending the
+> special DDC wake up sequence down non-DDC buses might mess up the bus.
 
-f884af00 ata_interrupt
-f88aeea0 ide_intr
+This is however true, and I agree that Michael's proposal could help in
+this respect. And I actually believe that his I2C classes implementation
+would help more than the "command" callback. After all, you need the DDC
+data to identify the monitor, and (in some cases) need to know the
+monitor to properly access the DDC data...
 
-   After this error, all attempts to access the SATA drive time out, and I
-have to resort to a cold reboot.
+(BTW, I am not certain at all that we should add support for these
+broken monitors. As far as I can see, they do not support the DDC
+standard, too bad for them. I would hate to break standard-compliant
+monitors by implementing tricks to support non-standard ones.)
 
-   I heard ICH5 SATA should work on 2.6.8, so is there something simple I'm
-missing here?
+> A proposal was made to implement different classes of algo_bit clients
+> but this was never implemented. Would a class solution help with the
+> dvb problem too?
 
-Thanks,
-   Alon
+As a side note, the classes apply to all I2C adapters, not just
+bit-banging ones. And classes apply to the busses purposes (video, ddc,
+sensors etc...), not the technical details such as the bus being I2C
+compatible or only SMBus.
+
+I have the feeling that we should go on implementing these classes
+first, and see what else is needed only after that.
 
 -- 
-This message was sent by Alon Altman (alon@alon.wox.org) ICQ:1366540
-GPG public key at http://8ln.org/pubkey.txt
-Key fingerprint = A670 6C81 19D3 3773 3627  DE14 B44A 50A3 FE06 7F24
---------------------------------------------------------------------------
-  -=[ Random Fortune ]=-
-A stitch in time saves nine.
+Jean "Khali" Delvare
+http://khali.linux-fr.org/

@@ -1,48 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261367AbSJCUWl>; Thu, 3 Oct 2002 16:22:41 -0400
+	id <S261177AbSJCUTi>; Thu, 3 Oct 2002 16:19:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261376AbSJCUWl>; Thu, 3 Oct 2002 16:22:41 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:28310 "EHLO cherise.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S261367AbSJCUWk>;
-	Thu, 3 Oct 2002 16:22:40 -0400
-Date: Thu, 3 Oct 2002 13:29:18 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: mochel@cherise.pdx.osdl.net
-To: Bryan Hundven <bryanh@nventure.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: SMP: errors.
-In-Reply-To: <3D9B85A8.4050803@nventure.com>
-Message-ID: <Pine.LNX.4.44.0210031325530.1871-100000@cherise.pdx.osdl.net>
+	id <S261238AbSJCUTi>; Thu, 3 Oct 2002 16:19:38 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:59922 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S261177AbSJCUTh>; Thu, 3 Oct 2002 16:19:37 -0400
+Date: Thu, 3 Oct 2002 13:24:35 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Peter Chubb <peter@chubb.wattle.id.au>
+cc: Andreas Dilger <adilger@clusterfs.com>, <peterc@gelato.unsw.edu.au>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Large Block device patch part 3/4
+In-Reply-To: <15772.42409.841005.571964@wombat.chubb.wattle.id.au>
+Message-ID: <Pine.LNX.4.33.0210031323590.23619-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Wed, 2 Oct 2002, Bryan Hundven wrote:
+On Fri, 4 Oct 2002, Peter Chubb wrote:
+>
+> Theoretically as long as individual members are <1TB the
+> sector_div/do_div macro can be used (I'm not an asm-386 expert: will
+> do_div work for the full range of divisor? i.e., 0 to 2^32-1?  Someone
+> on the LKML said it wouldn't)
 
-> The dmesg for my kernel is attached, which should explain it all.
-> 
-> The errors that I am concerned about are:
->     bad: scheduling while atomic!
-> and...
->     Debug: sleeping function called from illegal context at slab.c:1374
-> 
-> This next one really isn't an error, but I have seen this in 2.4 as 
-> well... The motherboard is an asus p2b-d.
->     mtrr: v2.0 (20020519)
->     mtrr: your CPUs had inconsistent fixed MTRR settings
->     mtrr: your CPUs had inconsistent variable MTRR settings
->     mtrr: probably your BIOS does not setup all CPUs
-> 
-> When my computer starts up it says it found 2 cpu's. So if the bios says 
-> it found 2 cpu's, it doesn't mean that it set them up?
+It certainly _should_ work fine, although maybe I've missed something..
 
-Most SMP boxes I've seen emit the same warning. It's because the mtrr 
-settings aren't the same on every CPU, which doesn't really matter anyway, 
-since we reinitialize the other CPUs on boot anyway. Just another silly 
-warning..
-
-	-pat
+		Linus
 

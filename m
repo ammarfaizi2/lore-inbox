@@ -1,49 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268494AbTANBtv>; Mon, 13 Jan 2003 20:49:51 -0500
+	id <S268490AbTANBrR>; Mon, 13 Jan 2003 20:47:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268495AbTANBtv>; Mon, 13 Jan 2003 20:49:51 -0500
-Received: from pacific.moreton.com.au ([203.143.238.4]:22791 "EHLO
-	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
-	id <S268494AbTANBtu>; Mon, 13 Jan 2003 20:49:50 -0500
-Message-ID: <3E236EC3.6030306@snapgear.com>
-Date: Tue, 14 Jan 2003 11:58:27 +1000
-From: Greg Ungerer <gerg@snapgear.com>
-Organization: SnapGear
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021126
-X-Accept-Language: en-us, en
+	id <S268487AbTANBrR>; Mon, 13 Jan 2003 20:47:17 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:23090 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S268490AbTANBrQ>; Mon, 13 Jan 2003 20:47:16 -0500
+To: davidm@hpl.hp.com
+Cc: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
+       Sam Ravnborg <sam@ravnborg.org>,
+       Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Consolidate vmlinux.lds.S files
+References: <20030113180450.GA1870@mars.ravnborg.org>
+	<Pine.LNX.4.44.0301131309240.24477-100000@chaos.physics.uiowa.edu>
+	<15907.5503.334066.50256@napali.hpl.hp.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 13 Jan 2003 18:54:20 -0700
+In-Reply-To: <15907.5503.334066.50256@napali.hpl.hp.com>
+Message-ID: <m1r8bgfqcz.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH]: linux-2.5.57-uc0 (MMU-less fix ups)
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+David Mosberger <davidm@napali.hpl.hp.com> writes:
 
-An update of the uClinux (MMU-less) fixups against 2.5.57.
-Nothing new, just patched against 2.5.57.
+>   Kai> I would suggest an approach like the following, of course
+>   Kai> showing only a first simple step. A series of steps like this
+>   Kai> should allow for a serious reduction in size of
+>   Kai> arch/*/vmlinux.lds.S already, while being obviously correct and
+>   Kai> allowing archs to do their own special thing if necessary (in
+>   Kai> particular, IA64 seems to differ from all the other archs).
+> 
+> The only real difference for the ia64 vmlinux.lds.S is that it
+> generates correct physical addressess, so that the boot loader doesn't
+> have to know anything about the virtual layout of the kernel.
+> Something that might be useful for other arches as well...
 
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.57-uc0.patch.gz
+Thank you.  I appreciate it.
+
+Having the physical addresses there makes writing a sane bootloader
+simpler. 
+
+Alpha practically does this except there is a fixed virtual offset added to
+everything.
+
+In general anything that gives us correct physical addresses makes
+like much simpler on the bootloader..
 
 
-Also updated:
-
-. Motorola 68328 framebuffer driver
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.57-uc0-68328fb.patch.gz
-
-. Hitachi H8300 achitecture support
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.57-uc0-h8300.patch.gz
-
-Regards
-Greg
-
-
-------------------------------------------------------------------------
-Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
-Snapgear Pty Ltd                               PHONE:    +61 7 3279 1822
-825 Stanley St,                                  FAX:    +61 7 3279 1820
-Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
-
-
+Eric

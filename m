@@ -1,118 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262085AbUGREPO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262138AbUGREeU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262085AbUGREPO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jul 2004 00:15:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262138AbUGREPO
+	id S262138AbUGREeU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jul 2004 00:34:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262356AbUGREeU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jul 2004 00:15:14 -0400
-Received: from stokkie.demon.nl ([82.161.49.184]:30340 "HELO stokkie.net")
-	by vger.kernel.org with SMTP id S262085AbUGREPC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jul 2004 00:15:02 -0400
-Date: Sun, 18 Jul 2004 06:14:59 +0200 (CEST)
-From: "Robert M. Stockmann" <stock@stokkie.net>
+	Sun, 18 Jul 2004 00:34:20 -0400
+Received: from ylpvm43-ext.prodigy.net ([207.115.57.74]:18333 "EHLO
+	ylpvm43.prodigy.net") by vger.kernel.org with ESMTP id S262138AbUGREeS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jul 2004 00:34:18 -0400
+Date: Sat, 17 Jul 2004 21:32:24 -0700
 To: linux-kernel@vger.kernel.org
-Subject: Re: Comparing struct pt_regs : asm-i386 vs asm-x86_64
-In-Reply-To: <Pine.LNX.4.44.0407171943430.24250-100000@hubble.stokkie.net>
-Message-ID: <Pine.LNX.4.44.0407180607320.9290-100000@hubble.stokkie.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-AntiVirus: scanned for viruses by AMaViS 0.2.2 (ftp://crashrecovery.org/pub/linux/amavis/)
+Subject: FileSystem Corruption 1,493,339 and counting
+Message-ID: <20040718043224.GA11925@top.worldcontrol.com>
+Mail-Followup-To: Brian Litzinger <brian@top.worldcontrol.com>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-No-Archive: yes
+X-Noarchive: yes
+User-Agent: Mutt/1.5.6i
+From: Brian Litzinger <brian@worldcontrol.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 17 Jul 2004, Robert M. Stockmann wrote:
 
-> Hi,
-> 
-> The (X86_64/AMD64/Opteron) platform is pretty compatible with 32 bits
-> software written for the ia32 architecture, so to seems.
-> 
-> However when going down to assembly language it breaks down to pieces :
-> 
-> include/asm-i386/ptrace.h :
-> ===========================
-> 
-> /* this struct defines the way the registers are stored on the
->    stack during a system call. */
-> 
-> struct pt_regs {
->         long ebx;
->         long ecx;
->         long edx;
->         long esi;
->         long edi;
->         long ebp;
->         long eax;
->         int  xds;
->         int  xes;
->         long orig_eax;
->         long eip;
->         int  xcs;
->         long eflags;
->         long esp;
->         int  xss;
-> };
-> 
-> 
-> include/asm-x86_64/ptrace.h :
-> =============================
-> 
-> #ifndef __ASSEMBLY__
-> 
-> struct pt_regs {
->         unsigned long r15;
->         unsigned long r14;
->         unsigned long r13;
->         unsigned long r12;
->         unsigned long rbp;
->         unsigned long rbx;
-> /* arguments: non interrupts/non tracing syscalls only save upto here*/
->         unsigned long r11;
->         unsigned long r10;
->         unsigned long r9;
->         unsigned long r8;
->         unsigned long rax;
->         unsigned long rcx;
->         unsigned long rdx;
->         unsigned long rsi;
->         unsigned long rdi;
->         unsigned long orig_rax;
-> /* end of arguments */
-> /* cpu exception frame or undefined */
->         unsigned long rip;
->         unsigned long cs;
->         unsigned long eflags;
->         unsigned long rsp;
->         unsigned long ss;
-> /* top of stack page */
-> };
-> 
-> So when porting i386 C-code (which uses the struct pt_regs from
-> include/asm-i386/ptrace.h) how does the pt_regs structure translate into
-> the struct pt_regs from include/asm-x86_64/ptrace.h  ?
-> 
+The other day a machine of mine froze for reasons unknown after about
+30 days of uptime.  No response to anything.
 
-I came across this "Gentle Introduction" on www.x86-64.org :
+Upon reboot it got an unrecoverable file system error during
+fsck.
 
-"Gentle Introduction to x86-64 Assembly "
-http://www.x86-64.org/documentation/assembly :
+So I dropped into a shell and issued the command fsck -y -C /dev/md1.
 
-Where the most striking remark is this :
+Around 73% it starting reporting
 
-"This document is meant to summarise differences between x86-64 and i386 
-assembly assuming that you already know well the i386 gas syntax. I will try 
-to keep this document up to date until official documentation is available."
+Unattached inode 250083
+Connect to /lost+found? yes
 
-Amazing stuff! How can one manufacture full-functional x86_64 AMD64 and
-Opteron CPU's in silicon print, while the white-paper print of the "official
-documentation" on assembly programming on x86_64 is NOT available ??
+Inode 250083 ref count is 2, should be 1. Fix? yes
 
-regards,
+This has been going on for 24 hours now, and fsck is
+at
 
-Robert
+Unattached inode 1494419
+Connect to /lost+found? yes
+
+Inode 1494419 ref count is 2, should be 1. Fix? yes
+
+Do you suppose this will ever end?  Has fsck gotten into
+an infinite loop?  Shall I scrap the filesystem or let
+it keep going?
+
+How many days might it take?
+
+I'm running linux 2.4.25 untainted with an ext2 filesystem
+on an Athlon XP 2000+.
+
 -- 
-Robert M. Stockmann - RHCE
-Network Engineer - UNIX/Linux Specialist
-crashrecovery.org  stock@stokkie.net
-
+Brian Litzinger

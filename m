@@ -1,46 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316632AbSGQUMJ>; Wed, 17 Jul 2002 16:12:09 -0400
+	id <S316615AbSGQUGY>; Wed, 17 Jul 2002 16:06:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316666AbSGQUMI>; Wed, 17 Jul 2002 16:12:08 -0400
-Received: from mnh-1-10.mv.com ([207.22.10.42]:36357 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S316632AbSGQUMG>;
-	Wed, 17 Jul 2002 16:12:06 -0400
-Message-Id: <200207172117.QAA03530@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: linux-kernel@vger.kernel.org, user-mode-linux-user@lists.sourceforge.net
-Subject: [ANNOUNCE] UML 2.5.26
+	id <S316621AbSGQUGY>; Wed, 17 Jul 2002 16:06:24 -0400
+Received: from [209.184.141.189] ([209.184.141.189]:18458 "HELO UberGeek")
+	by vger.kernel.org with SMTP id <S316615AbSGQUGX>;
+	Wed, 17 Jul 2002 16:06:23 -0400
+Subject: [RFC] Groups beyond 32
+From: Austin Gonyou <austin@digitalroadkill.net>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+X-Mailer: Ximian Evolution 1.1.0.99 (Preview Release)
+Date: 17 Jul 2002 15:09:16 -0500
+Message-Id: <1026936556.25347.48.camel@UberGeek>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 17 Jul 2002 16:17:56 -0500
-From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-After a long, relaxing period of ignoring 2.5, I decided that it was about
-to catch up.  So, UML 2.5.26 is available.  It is the same code as the current
-UML - 2.4.18-40.
+When changing the kernel to handle groups beyond 32, and of course the
+glibc as well, I noticed that I could no longer SSH out of the box. 
 
-This went through my testing without major problems.  However, it was a quick
-merge (I started on Thursday with 2.5.3-pre5 and finished on Monday with 
-2.5.25), so there may be lurking problems.
+The problem with this is not huge, ask a few questions, some more
+recompiling and then ssh will start working. Fine.
 
-Any problems should be reported to the uml-devel list
-(user-mode-linux-user at lists dot sourceforge dot net).
+The problem now is more one of maintenance. Most distributions do not
+support groups > 32 AFAIK. So, it's lead me to ask the following
+questions:
 
-At some point in the near future, I am going to split this up a bit and 
-send it to Linus.
+1. Why, in general, is the limit so low? 
+   For specific application, mainly auditing and such, this would be    
+   advantageous I think.
 
-The patch is available at
-	http://uml-pub.ists.dartmouth.edu/uml/uml-patch-2.5.26-1.bz2
+2. What is required to limit the dependence on groups to just GLIBC or
+just the kernel? Is that even possible?
 
-For the other UML mirrors and other downloads, see 
-	http://user-mode-linux.sourceforge.net/dl-sf.html
+3. Is there any true advantage to supporting more than 32 groups, or
+creating "meta-groups" to get around the problem? 
 
-Other links of interest:
 
-	The UML project home page : http://user-mode-linux.sourceforge.net
-	The UML Community site : http://usermodelinux.org
+The main reason I ask, is because just like the unknown with ssh not
+supporting > 32 groups without modification, there can be others. Plus
+with most distros, using automated upgrades via push, or some such
+mechanism is encumbered by customizations to glibc, ssh, and potentially
+other packages. 
 
-				Jeff
 
+-- 
+Austin Gonyou <austin@digitalroadkill.net>

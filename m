@@ -1,160 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269290AbRHCDiD>; Thu, 2 Aug 2001 23:38:03 -0400
+	id <S269292AbRHCDrd>; Thu, 2 Aug 2001 23:47:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269291AbRHCDhy>; Thu, 2 Aug 2001 23:37:54 -0400
-Received: from wb1-a.mail.utexas.edu ([128.83.126.134]:30737 "HELO
-	mail.utexas.edu") by vger.kernel.org with SMTP id <S269290AbRHCDhn>;
-	Thu, 2 Aug 2001 23:37:43 -0400
-Message-ID: <3B697310.EF44BCDB@mail.utexas.edu>
-Date: Thu, 02 Aug 2001 21:34:40 +0600
-From: "Bobby D. Bryant" <bdbryant@mail.utexas.edu>
-Organization: (I do not speak for) The University of Texas at Austin (nor they for 
- me).
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-ac2 i686)
-X-Accept-Language: en,fr,de
+	id <S269295AbRHCDrZ>; Thu, 2 Aug 2001 23:47:25 -0400
+Received: from tomts5.bellnexxia.net ([209.226.175.25]:35545 "EHLO
+	tomts5-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S269292AbRHCDrI>; Thu, 2 Aug 2001 23:47:08 -0400
+Message-ID: <3B6A1EBF.CF292235@sympatico.ca>
+Date: Thu, 02 Aug 2001 23:47:11 -0400
+From: Chris Friesen <chris_friesen@sympatico.ca>
+X-Mailer: Mozilla 4.76 [en] (Win98; U)
+X-Accept-Language: en
 MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-CC: Mike Frisch <mfrisch@saturn.tlug.org>
-Subject: Re: "clock timer configuration lost" on ASUS A7A266
-In-Reply-To: <20010802152921.A6242@saturn.tlug.org>
-Content-Type: multipart/mixed;
- boundary="------------94D54FB41D37AF03B7DAFD90"
+Subject: using ramdisk as root filesystem seems to cause carrier errors
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------94D54FB41D37AF03B7DAFD90
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+SUMMARY: Booting with a ramdisk as the root filesystem causes spurious errors
+(or possibly spurious detection of errors) on an ethernet interface configured
+later on, while the ethernet interface configured by the init scripts works
+fine. Booting with an nfs-mounted rootdisk with contents identical to the
+ramdisk works fine.
 
-Mike Frisch wrote:
+DETAILS: We have a Motorola G4-based compact PCI card with dual DEC 21143-based
+ethernet ports.  We are using a 2.2.17 kernel with various patches, but none to
+the ethernet driver.  We've been working on this card for months now without
+seeing any real problems, but recently someone was doing bandwidth tests through
+each link and noticed a discrepency.  We then looked at the output of ifconfig
+and saw all kinds of carrier errors (one for each packet transmitted) on the
+problem link.
 
-> Hardware: ASUS A7A266 (ALiMAGiK chipset), AMD T-Bird 1.2 GHz
-> Kernel: 2.4.7-ac2
->
-> 'dmesg' frequently reports:
->
-> probable hardware bug: clock timer configuration lost - probably a VIA686a motherboard.
-> probable hardware bug: restoring chip configuration.
+The normal method of booting this card is with a largish (34MB uncompressed)
+ramdisk as the root filesystem.  In this scenario, one ethernet link is
+configured by the system based on information obtained from the bootp server,
+and the other ethernet link is brought up automatically later on based on the
+first address that was configured.  What we've noticed is that the ethernet link
+that is configured later on shows a carrier error for every packet transmitted
+through that link.  Interestingly the vast majority of those packets are
+actually making it through--a "ping -f" from another machine to the affected
+link shows about .1% packet loss.  It doesn't matter which link is configured
+automatically by the system (we've tried it both ways), the carrier errors
+always occur on the other link.
 
-Just FYI, I see the same thing on the same board.  My lspci -vv is also attached.  Ask if
-you need more.
+If we boot the exact same kernel (actually its the kernel and ramdisk glommed
+together into one file, loaded via tftp) but then override the boot args to use
+an nfs-mounted root filesystem that is identical to the one in the ramdisk, then
+everything works fine.  We configure one ethernet link at startup based on bootp
+requests and the other one gets configured later on.  Everything works
+perfectly, "ping -f" from another machine gives a few dropped packets out of a
+few hundred thousand, through either link.  No errors.
 
+Can anyone think of what could possibly be causing this?  Somehow, the act of
+using a ramdisk as our root filesystem is causing problems with our ethernet
+links.  Are there any known gotchas that may be biting us?  Other than the
+problems with one of the two links, the system seems to be working perfectly.
 
-Bobby Bryant
-Austin, Texas
+Thanks for any theories you might have,
 
+Chris Friesen
+Nortel Networks
+Ottawa, ON
 
---------------94D54FB41D37AF03B7DAFD90
-Content-Type: text/plain; charset=us-ascii;
- name="temp.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="temp.txt"
-
-00:00.0 Host bridge: Acer Laboratories Inc. [ALi]: Unknown device 1647 (rev 04)
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR+
-	Latency: 0
-	Region 0: Memory at e0000000 (32-bit, prefetchable) [size=256M]
-	Capabilities: [b0] AGP version 2.0
-		Status: RQ=27 SBA+ 64bit- FW- Rate=x1,x2
-		Command: RQ=0 SBA- AGP- 64bit- FW- Rate=<none>
-	Capabilities: [a4] Power Management version 1
-		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:01.0 PCI bridge: Acer Laboratories Inc. [ALi] M5247 (prog-if 00 [Normal decode])
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=slow >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 0
-	Bus: primary=00, secondary=01, subordinate=01, sec-latency=0
-	Memory behind bridge: dc800000-dddfffff
-	Prefetchable memory behind bridge: ddf00000-dfffffff
-	BridgeCtl: Parity- SERR- NoISA- VGA+ MAbort- >Reset- FastB2B-
-
-00:04.0 IDE interface: Acer Laboratories Inc. [ALi] M5229 IDE (rev c4) (prog-if fa)
-	Subsystem: Asustek Computer, Inc.: Unknown device 8053
-	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 32 (500ns min, 1000ns max)
-	Interrupt: pin A routed to IRQ 0
-	Region 4: I/O ports at d400 [size=16]
-	Capabilities: [60] Power Management version 2
-		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:07.0 ISA bridge: Acer Laboratories Inc. [ALi] M1533 PCI to ISA Bridge [Aladdin IV]
-	Subsystem: Acer Laboratories Inc. [ALi] ALI M1533 Aladdin IV ISA Bridge
-	Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 0
-	Capabilities: [a0] Power Management version 1
-		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:09.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139 (rev 10)
-	Subsystem: Realtek Semiconductor Co., Ltd. RT8139
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 32 (8000ns min, 16000ns max)
-	Interrupt: pin A routed to IRQ 5
-	Region 0: I/O ports at b800 [size=256]
-	Region 1: Memory at da000000 (32-bit, non-prefetchable) [size=256]
-	Expansion ROM at <unassigned> [disabled] [size=64K]
-	Capabilities: [50] Power Management version 2
-		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=375mA PME(D0-,D1+,D2+,D3hot+,D3cold+)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:0b.0 Unknown mass storage controller: Promise Technology, Inc. 20267 (rev 02)
-	Subsystem: Promise Technology, Inc.: Unknown device 4d33
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 32
-	Interrupt: pin A routed to IRQ 10
-	Region 0: I/O ports at b400 [size=8]
-	Region 1: I/O ports at b000 [size=4]
-	Region 2: I/O ports at a800 [size=8]
-	Region 3: I/O ports at a400 [size=4]
-	Region 4: I/O ports at a000 [size=64]
-	Region 5: Memory at d9800000 (32-bit, non-prefetchable) [size=128K]
-	Expansion ROM at <unassigned> [disabled] [size=64K]
-	Capabilities: [58] Power Management version 1
-		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:0d.0 Serial controller: US Robotics/3Com 56K FaxModem Model 5610 (rev 01) (prog-if 02 [16550])
-	Subsystem: US Robotics/3Com: Unknown device 00d7
-	Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Interrupt: pin A routed to IRQ 9
-	Region 0: I/O ports at 9800 [size=8]
-	Capabilities: [dc] Power Management version 2
-		Flags: PMEClk- DSI- D1- D2+ AuxCurrent=0mA PME(D0+,D1-,D2+,D3hot+,D3cold+)
-		Status: D0 PME-Enable- DSel=0 DScale=2 PME-
-
-00:11.0 Bridge: Acer Laboratories Inc. [ALi] M7101 PMU
-	Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-
-01:00.0 VGA compatible controller: Matrox Graphics, Inc. MGA G400 AGP (rev 82) (prog-if 00 [VGA])
-	Subsystem: Matrox Graphics, Inc.: Unknown device 0641
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 64 (4000ns min, 8000ns max), cache line size 08
-	Interrupt: pin A routed to IRQ 11
-	Region 0: Memory at de000000 (32-bit, prefetchable) [size=32M]
-	Region 1: Memory at dd000000 (32-bit, non-prefetchable) [size=16K]
-	Region 2: Memory at dc800000 (32-bit, non-prefetchable) [size=8M]
-	Expansion ROM at ddfe0000 [disabled] [size=128K]
-	Capabilities: [dc] Power Management version 2
-		Flags: PMEClk- DSI+ D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-	Capabilities: [f0] AGP version 2.0
-		Status: RQ=31 SBA+ 64bit- FW- Rate=x1,x2
-		Command: RQ=31 SBA+ AGP+ 64bit- FW- Rate=x1
-
-
---------------94D54FB41D37AF03B7DAFD90--
-
+PS.  This is my third time sending this, since my first two tries (from two
+different addresses) don't seem to have made it onto the list at all.  Anyone
+else seeing this?

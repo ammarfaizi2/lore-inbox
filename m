@@ -1,92 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263162AbTIVO0N (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Sep 2003 10:26:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263163AbTIVO0N
+	id S263157AbTIVOVq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Sep 2003 10:21:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263158AbTIVOVq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Sep 2003 10:26:13 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:38901 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S263162AbTIVO0I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Sep 2003 10:26:08 -0400
-Date: Mon, 22 Sep 2003 16:26:02 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Russell King <rmk@arm.linux.org.uk>
-Subject: [2.5 patch] remove CONFIG_SERIAL_21285_OLD (fwd)
-Message-ID: <20030922142602.GA6325@fs.tum.de>
+	Mon, 22 Sep 2003 10:21:46 -0400
+Received: from nessie.weebeastie.net ([61.8.7.205]:457 "EHLO
+	nessie.weebeastie.net") by vger.kernel.org with ESMTP
+	id S263157AbTIVOVp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Sep 2003 10:21:45 -0400
+Date: Tue, 23 Sep 2003 00:20:23 +1000
+From: CaT <cat@zip.com.au>
+To: Dave Jones <davej@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
+       Kronos <kronos@kronoz.cjb.net>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix Athlon MCA
+Message-ID: <20030922142023.GC514@zip.com.au>
+References: <20030921143934.GA1867@dreamland.darkstar.lan> <Pine.LNX.4.44.0309211034080.11614-100000@home.osdl.org> <20030921174731.GA891@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20030921174731.GA891@redhat.com>
+User-Agent: Mutt/1.3.28i
+Organisation: Furball Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below (already approved by Russell King) still applies (with a 
-few lines offset) against current 2.6 kernels.
+On Sun, Sep 21, 2003 at 06:47:31PM +0100, Dave Jones wrote:
+> yeah, I prefer that way just for the added comment outside the loop.
+> expanding it to mention "some athlons don't work with bank 0 enabled"
 
-Please apply
-Adrian
+Would this MCE message be of the same flavour as the one this
+thread is about?
 
+Message from syslogd@lexx at Mon Sep 22 21:38:01 2003 ...
+lexx kernel: MCE: The hardware reports a non fatal, correctable incident occurred on CPU 0.
 
------ Forwarded message from Adrian Bunk <bunk@fs.tum.de> -----
+Message from syslogd@lexx at Mon Sep 22 21:38:01 2003 ...
+lexx kernel: Bank 2: 940040000000017a
 
-Date:	Mon, 14 Jul 2003 00:41:11 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Russell King <rmk@arm.linux.org.uk>, linux-serial@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-Subject: [2.5 patch] remove CONFIG_SERIAL_21285_OLD
+I don't have my stick of RAM plugged into the first RAM slot but rather
+the 3rd of 4. I guess this correspends to bank 2 above. I've been ignoring
+them uptil now but is this a linux hassle or a h/w one?
 
-CONFIG_SERIAL_21285_OLD depends on the non-existent option
-CONFIG_OBSOLETE, IOW it's not selectable, and the help text says "This
-is obsolete and will be removed during later 2.5 development.".
-
-Is the patch below to remove this option OK?
-
-cu
-Adrian
-
---- linux-2.5.75-mm1/drivers/serial/Kconfig.old	2003-07-14 00:35:38.000000000 +0200
-+++ linux-2.5.75-mm1/drivers/serial/Kconfig	2003-07-14 00:36:26.000000000 +0200
-@@ -249,13 +249,6 @@
- 	  PCI bridge you can enable its onboard serial port by enabling this
- 	  option.
- 
--config SERIAL_21285_OLD
--	bool "Use /dev/ttyS0 device (OBSOLETE)"
--	depends on SERIAL_21285=y && OBSOLETE
--	help
--	  Use the old /dev/ttyS name, major 4 minor 64.  This is obsolete
--	  and will be removed during later 2.5 development.
--
- config SERIAL_21285_CONSOLE
- 	bool "Console on DC21285 serial port"
- 	depends on SERIAL_21285=y
---- linux-2.5.75-mm1/drivers/serial/21285.c.old	2003-07-14 00:37:07.000000000 +0200
-+++ linux-2.5.75-mm1/drivers/serial/21285.c	2003-07-14 00:38:16.000000000 +0200
-@@ -481,18 +481,6 @@
- }
- 
- extern struct uart_driver serial21285_reg;
--#ifdef CONFIG_SERIAL_21285_OLD
--static struct console serial21285_old_cons =
--{
--	.name		= SERIAL_21285_OLD_NAME,
--	.write		= serial21285_console_write,
--	.device		= uart_console_device,
--	.setup		= serial21285_console_setup,
--	.flags		= CON_PRINTBUFFER,
--	.index		= -1,
--	.data		= &serial21285_reg,
--};
--#endif
- 
- static struct console serial21285_console =
- {
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
------ End forwarded message -----
+-- 
+	And so the stripper looks down and asks 'Can you breathe?'
+		- from a friend's bucks night

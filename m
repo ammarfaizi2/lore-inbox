@@ -1,49 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261370AbTAMP3I>; Mon, 13 Jan 2003 10:29:08 -0500
+	id <S267715AbTAMPcv>; Mon, 13 Jan 2003 10:32:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261530AbTAMP3I>; Mon, 13 Jan 2003 10:29:08 -0500
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:50831 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S261370AbTAMP3H>; Mon, 13 Jan 2003 10:29:07 -0500
-Date: Mon, 13 Jan 2003 09:37:54 -0600 (CST)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Daniel Jacobowitz <dan@debian.org>
-cc: Rusty Russell <rusty@rustcorp.com.au>, <torvalds@transmeta.com>,
-       <linux-kernel@vger.kernel.org>, <tridge@samba.org>
-Subject: Re: [PATCH] Check compiler version, SMP and PREEMPT.
-In-Reply-To: <20030113151901.GA28149@nevyn.them.org>
-Message-ID: <Pine.LNX.4.44.0301130935490.24477-100000@chaos.physics.uiowa.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267762AbTAMPcv>; Mon, 13 Jan 2003 10:32:51 -0500
+Received: from main.gmane.org ([80.91.224.249]:5052 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id <S267715AbTAMPcu>;
+	Mon, 13 Jan 2003 10:32:50 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Lars Magne Ingebrigtsen <larsi@gnus.org>
+Subject: Performance problems with NFS under 2.4.20
+Date: Mon, 13 Jan 2003 16:35:42 +0100
+Organization: Programmerer Ingebrigtsen
+Message-ID: <m3y95pkqpd.fsf@quimbies.gnus.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Complaints-To: usenet@main.gmane.org
+Mail-Copies-To: never
+X-Now-Playing: Cocteau Twins's _Four-Calendar =?iso-8859-1?q?Caf=E9=5F:?=
+ "Pur"
+User-Agent: Gnus/5.090013 (Oort Gnus v0.13) Emacs/21.2.50
+ (i686-pc-linux-gnu)
+Cancel-Lock: sha1:tRvdx9R556VQsiaT1Yc+VdmPQso=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Jan 2003, Daniel Jacobowitz wrote:
+Upgrading from 2.2.20, I'm seeing vastly increased network traffic,
+and after poking around a bit, I find that all calls to open() on
+files on NFS-mounted partitions generates one UDP packet.  Switching
+on NFS debugging, and then saying
 
-> On Mon, Jan 13, 2003 at 04:13:19PM +1100, Rusty Russell wrote:
-> > Linus, please apply if you agree.
-> > 
-> > Tridge reported getting burned by gcc 3.2 compiled (Debian) XFree
-> > modules not working on his gcc 2.95-compiled kernel.  Interestingly,
-> > (as Tridge points out) modversions probably would not have caught the
-> > change in spinlock size, since the ioctl takes a void*, not a
-> > structure pointer...
-> 
-> > D: and compiler version (spinlocks change size on UP with gcc major,
-> > D: at least).
-> 
-> Why does this happen?  It doesn't look like it should, but I only
-> skimmed the headers checking...
+$ cat file
+$ cat file
 
-I suppose it's due to the
+shows me this:
 
-	#if (__GNUC__ > 2)
-	[...]
+Jan 13 16:27:23 litos kernel: NFS: refresh_inode(b/876609548 ct=1 info=0x2)
+Jan 13 16:27:23 litos kernel: nfs: read(//file, 4096@0)
+Jan 13 16:27:23 litos kernel: nfs: read(//file, 4096@17)
+Jan 13 16:27:23 litos kernel: nfs: flush(b/876609548)
+Jan 13 16:27:23 litos kernel: NFS: dentry_delete(//file, 0)
+Jan 13 16:27:24 litos kernel: NFS: refresh_inode(b/876609548 ct=1 info=0x2)
+Jan 13 16:27:24 litos kernel: nfs: read(//file, 4096@0)
+Jan 13 16:27:24 litos kernel: nfs: read(//file, 4096@17)
+Jan 13 16:27:24 litos kernel: nfs: flush(b/876609548)
+Jan 13 16:27:24 litos kernel: NFS: dentry_delete(//file, 0)
 
-in include/linux/spinlock.h, i.e. it's not at all gcc's fault.
+The partition is mounted with just
 
---Kai
+$ mount server:/db /db
 
+Adding a "-o actimeo=100" makes no difference.
+
+Is this supposed 1) to be this way, or 2) a bug, or 3) a
+misconfiguration on my part?
+
+-- 
+(domestic pets only, the antidote for overdose, milk.)
+   larsi@gnus.org * Lars Magne Ingebrigtsen
 

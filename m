@@ -1,51 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266505AbUJWKXa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266473AbUJWKXb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266505AbUJWKXa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Oct 2004 06:23:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266473AbUJWKWg
+	id S266473AbUJWKXb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Oct 2004 06:23:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266585AbUJWKWX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Oct 2004 06:22:36 -0400
-Received: from phoenix.infradead.org ([81.187.226.98]:37387 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S266498AbUJWKWH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Oct 2004 06:22:07 -0400
-Date: Sat, 23 Oct 2004 11:22:03 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: "C.Y.M" <syphir@syphir.sytes.net>
-Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Unknown symbol kill_proc_info in 2.6.10-rc1
-Message-ID: <20041023102203.GB30449@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	"C.Y.M" <syphir@syphir.sytes.net>,
-	Linux-Kernel <linux-kernel@vger.kernel.org>
-References: <417A2292.9090008@syphir.sytes.net> <20041023095714.GD30137@infradead.org> <417A2CBF.9060805@syphir.sytes.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <417A2CBF.9060805@syphir.sytes.net>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+	Sat, 23 Oct 2004 06:22:23 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:41933 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S266473AbUJWKUP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Oct 2004 06:20:15 -0400
+Date: Sat, 23 Oct 2004 12:20:12 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Jean Delvare <khali@linux-fr.org>
+cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: bkbits - "@" question
+In-Reply-To: <20041023121452.1e82a758.khali@linux-fr.org>
+Message-ID: <Pine.LNX.4.53.0410231218470.21920@yvahk01.tjqt.qr>
+References: <2SmNe-6MO-1@gated-at.bofh.it> <2SqR0-10Q-9@gated-at.bofh.it>
+ <20041023121452.1e82a758.khali@linux-fr.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 23, 2004 at 03:04:47AM -0700, C.Y.M wrote:
-> Christoph Hellwig wrote:
-> >On Sat, Oct 23, 2004 at 02:21:22AM -0700, C.Y.M wrote:
-> >
-> >>After building 2.6.10-rc1, i was unable to load my "lufs" module due to 
-> >>an unknown symbol error (kill_proc_info).  When I examined the 
-> >>2.6.10-rc1 patch, I noticed that "EXPORT_SYMBOL(kill_proc_info);" was 
-> >>removed from signal.c.  With the following patch, I was able to resolve 
-> >>my problem, but I am not sure if this is the correct method.  Is there a 
-> >>reason why the kill_proc_info symbol is no longer exported?
-> >
-> >
-> >Because it's not an API you should be using.
-> >
-> >
-> Is there an alternative?
+>> * Larry McVoy asked:
+>> The web pages on bkbits.net contain email addresses.  This is
+>> probably about a 4 year too late question but would it help reduce
+>> spam if we did something like  s/@/ (at) / for all those addresses?
+>>
+>> * Christoph Hellwig answered:
+>> No.
+>
+>Why not, please?
 
-Maybe you could explain what you're actually trying to do at a higher
-level first.
+Counter-example... when I stopped posting to NNTP, the amount of spam also
+decreased. Probably because the bots only skim a fixed timeperiod. In a long
+term, I think it's a good choice to replace it. Maybe some PHP magic that
+either puts <at>, [at] or (at) randomly there for each page request.
 
+
+
+Jan Engelhardt
+-- 
+Gesellschaft für Wissenschaftliche Datenverarbeitung
+Am Fassberg, 37077 Göttingen, www.gwdg.de

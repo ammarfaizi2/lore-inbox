@@ -1,31 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262835AbREMSob>; Sun, 13 May 2001 14:44:31 -0400
+	id <S263105AbREMSqL>; Sun, 13 May 2001 14:46:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263105AbREMSoV>; Sun, 13 May 2001 14:44:21 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:34055 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S262835AbREMSoJ>; Sun, 13 May 2001 14:44:09 -0400
-Subject: Re: LVM 1.0 release decision
-To: dwmw2@infradead.org (David Woodhouse)
-Date: Sun, 13 May 2001 19:39:36 +0100 (BST)
-Cc: davem@redhat.com (David S. Miller), andrea@suse.de (Andrea Arcangeli),
-        alan@lxorguk.ukuu.org.uk (Alan Cox), Mauelshagen@sistina.com,
-        linux-kernel@vger.kernel.org, mge@sistina.com, hch@caldera.de
-In-Reply-To: <23605.989775371@redhat.com> from "David Woodhouse" at May 13, 2001 06:36:11 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S263262AbREMSpw>; Sun, 13 May 2001 14:45:52 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:54450 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S263105AbREMSpq>;
+	Sun, 13 May 2001 14:45:46 -0400
+Message-ID: <3AFED656.92362303@mandrakesoft.com>
+Date: Sun, 13 May 2001 14:45:42 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-pre1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        arjanv@redhat.com, Axel Thimm <Axel.Thimm@physik.fu-berlin.de>,
+        "Manuel A. McLure" <mmt@unify.com>,
+        "Rasmus =?iso-8859-1?Q?B=F8g?= Hansen" <moffe@amagerkollegiet.dk>,
+        ARND BERGMANN <std7652@et.FH-Osnabrueck.DE>,
+        Dunlap Randy <randy.dunlap@intel.com>,
+        Martin Diehl <mdiehlcs@compuserve.de>,
+        Adrian Cox <adrian@humboldt.co.uk>, Capricelli Thomas <orzel@kde.org>,
+        Ian Bicking <ianb@colorstudy.com>, John R Lenton <john@grulic.org.ar>
+Subject: Re: PATCH 2.4.5.1: Fix Via interrupt routing issues
+In-Reply-To: <E14z0l8-0006oS-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14z0mG-0006og-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This is now a sufficiently common requirement that it shouldn't be repeated 
-> by all architectures that require it - it should be somewhere common.
-> Like linux/abi/ioctl32/
+Alan Cox wrote:
+> 
+> > +/* we will likely need a better ifdef, something like
+> > + * ifdef CONFIG_EXTERNAL_APIC
+> > + */
+> > +#ifdef CONFIG_X86_IO_APIC
+> 
+> I disagree. The IO-APIC is the chipset APIC. It is distinct from the APIC
+> on the processors.
 
-Or the 32bit libc shipped with the 64bit box. Lets face it, there is no reason
-you can't have a 32bit glibc 2.2 built to use 64bit calling conventions..
+Disagree with which part?  The fix, or likely needing a better ifdef?
 
+>From the point of view of the Via southbridge chip, IO-APIC is
+external...  The comment above the ifdef was more along the lines of,
+"Via on PPC (OpenPIC?) might need this too, not just io-apic"
+
+-- 
+Jeff Garzik      | Game called on account of naked chick
+Building 1024    |
+MandrakeSoft     |

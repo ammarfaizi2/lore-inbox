@@ -1,115 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316593AbSGGVcB>; Sun, 7 Jul 2002 17:32:01 -0400
+	id <S316599AbSGGVif>; Sun, 7 Jul 2002 17:38:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316594AbSGGVcA>; Sun, 7 Jul 2002 17:32:00 -0400
-Received: from inet-mail1.oracle.com ([148.87.2.201]:56782 "EHLO
-	inet-mail1.oracle.com") by vger.kernel.org with ESMTP
-	id <S316593AbSGGVb7>; Sun, 7 Jul 2002 17:31:59 -0400
-Message-ID: <3D28B1CC.9070002@oracle.com>
-Date: Sun, 07 Jul 2002 23:25:32 +0200
-From: Alessandro Suardi <alessandro.suardi@oracle.com>
-Organization: Oracle Consulting Premium Services
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020606
-X-Accept-Language: en-us, en
+	id <S316600AbSGGVie>; Sun, 7 Jul 2002 17:38:34 -0400
+Received: from mailout03.sul.t-online.com ([194.25.134.81]:52435 "EHLO
+	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S316599AbSGGVid> convert rfc822-to-8bit; Sun, 7 Jul 2002 17:38:33 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Oliver Neukum <oliver@neukum.name>
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>,
+       Werner Almesberger <wa@almesberger.net>
+Subject: Re: [OKS] Module removal
+Date: Sun, 7 Jul 2002 23:41:22 +0200
+User-Agent: KMail/1.4.1
+Cc: Bill Davidsen <davidsen@tmr.com>, Keith Owens <kaos@ocs.com.au>,
+       linux-kernel@vger.kernel.org
+References: <20020702133658.I2295@almesberger.net> <20020704035012.O2295@almesberger.net> <20020707220933.B11999@kushida.apsleyroad.org>
+In-Reply-To: <20020707220933.B11999@kushida.apsleyroad.org>
 MIME-Version: 1.0
-To: Keith Owens <kaos@ocs.com.au>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [Bug] 2.5.25 build as one user and install as root
-References: <30159.1025956852@ocs3.intra.ocs.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200207072341.22896.oliver@neukum.name>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens wrote:
-> On Sat, 06 Jul 2002 13:28:06 +0200, 
-> Alessandro Suardi <alessandro.suardi@oracle.com> wrote:
-> 
->>Keith Owens wrote:
->>
->>>2.5.25 existing build system has a nasty bug.  Build as one user then
->>>make install as root.  It does supurious recompiles of some files and
->>>leaves them owned as root.  All of these files are now owned by root
->>>and cause problems when the build user wants to rebuild.
->>
->>Doesn't happen for me.
-> 
-> 
-> Check include/linux/compile.h after building as yourself and after
-> installing as root.  make install goes
-> 
-> bzImage -> setup.o -> compile.h -> scripts/mkcompile_h ->
-> #define LINUX_COMPILE_BY \"`whoami`\"
+Hi,
 
-Keith Owens wrote:
- > On Sat, 06 Jul 2002 13:28:06 +0200,
- > Alessandro Suardi <alessandro.suardi@oracle.com> wrote:
- >
- >>Keith Owens wrote:
- >>
- >>>2.5.25 existing build system has a nasty bug.  Build as one user then
- >>>make install as root.  It does supurious recompiles of some files and
- >>>leaves them owned as root.  All of these files are now owned by root
- >>>and cause problems when the build user wants to rebuild.
- >>
- >>Doesn't happen for me.
- >
- >
- > Check include/linux/compile.h after building as yourself and after
- > installing as root.  make install goes
- >
- > bzImage -> setup.o -> compile.h -> scripts/mkcompile_h ->
- > #define LINUX_COMPILE_BY \"`whoami`\"
- >
- > whoami is different when you compile as one user then install as
- > another.
- >
+> To do this, have the `free_module' function use `smp_call_function' to
+> ask every CPU "are you executing code for module XXX?".  The question is
+> answered by a routine which walks the stack, checking the instruction
+> pointer at each place on the stack to see whether it's inside the module
+> of interest.
+>
+> Yes this is complex, but it's not that complex -- provided you can rely
+> on stack walking to find the module.  (It wouldn't work if x86 used
+> -fomit-frame-pointer, for example).
 
-Hey, give me some credit :)
+How do you find CPU's that are about to execute module code ?
 
-[asuardi@dolphin linux]$ /bin/pwd
-/usr/local/src/linux-2.5.25/include/linux
-[asuardi@dolphin linux]$ cat compile.h
-/* This file is auto generated, version 1 */
-#define UTS_MACHINE "i386"
-#define UTS_VERSION "#1 Sat Jul 6 02:27:10 CEST 2002"
-#define LINUX_COMPILE_TIME "02:27:10"
-#define LINUX_COMPILE_BY "asuardi"
-#define LINUX_COMPILE_HOST "dolphin"
-#define LINUX_COMPILE_DOMAIN ""
-#define LINUX_COMPILER "gcc version 3.1"
+IMHO you need to do this freeze trick before you check the module
+usage count.
 
-I'm saying "doesn't happen for me" because it doesn't happen.
+[..]
+> Another possibility would be the RCU thing: execute the module's exit
+> function, but keep the module's memory allocated until some safe
+> scheduling point later, when you are sure that no CPU can possibly be
+> running the module.
 
-I've been compiling kernel as non-root (and well, of course
-  installing as root) since 1996.
+But what do you do if that CPU increases the module usage count?
 
-I'll admit I checked only the files I cut'n'pasted last mail,
-  well let's be honest then...
-
-[asuardi@dolphin linux]$ /bin/pwd
-/usr/local/src/linux-2.5.25
-[asuardi@dolphin linux]$ find . -user root -print
-[asuardi@dolphin linux]$
-
-See, *no* root-owned files here. Usual process is
-
-  * save previous kernel's .config
-  * zap previous kernel tree
-  * untar the previous kernel tree in /usr/local/src
-  * patch -p1 it with current kernel patch
-  * create new kernel tarball
-  * copy over saved .config
-  * make oldconfig
-  * make dep; make clean; make bzImage; make modules
-  * (wait for next kernel patch ;)
-
-Ciao,
-
---alessandro
-
-  "my actions make me beautiful / and dignify the flesh"
-                 (R.E.M., "Falls to Climb")
-
+	Regards
+		Oliver
 

@@ -1,49 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262193AbUCaRip (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Mar 2004 12:38:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262236AbUCaRip
+	id S262008AbUCaR6M (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Mar 2004 12:58:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262019AbUCaR6M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Mar 2004 12:38:45 -0500
-Received: from [63.107.13.101] ([63.107.13.101]:24230 "EHLO mail.metavize.com")
-	by vger.kernel.org with ESMTP id S262193AbUCaRio (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Mar 2004 12:38:44 -0500
-Message-ID: <406B0219.3000309@metavize.com>
-Date: Wed, 31 Mar 2004 09:38:33 -0800
-From: Dirk Morris <dmorris@metavize.com>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040306)
-X-Accept-Language: en-us, en
+	Wed, 31 Mar 2004 12:58:12 -0500
+Received: from mtagate5.de.ibm.com ([195.212.29.154]:5291 "EHLO
+	mtagate5.de.ibm.com") by vger.kernel.org with ESMTP id S262008AbUCaR6J convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Mar 2004 12:58:09 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Greg Kroah-Hartman <greg@kroah.com>
+Subject: Re: [PATCH] s390 (8/10): zfcp fixes
+Date: Wed, 31 Mar 2004 19:57:18 +0200
+X-Mailer: KMail [version 1.4]
+Cc: schwidefsky@de.ibm.com, Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
 MIME-Version: 1.0
-To: Jamie Lokier <jamie@shareable.org>
-CC: Rusty Russell <rusty@rustcorp.com.au>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6.2] Badness in futex_wait revisited
-References: <40311703.8070309@metavize.com> <20040217051911.6AC112C066@lists.samba.org> <20040331165656.GG19280@mail.shareable.org>
-In-Reply-To: <20040331165656.GG19280@mail.shareable.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200403311957.18451.heiko.carstens@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-No, I still get them in 2.6.4
+Hi Greg,
 
-To my knowledge, they only happen when one thread is blocked in a system 
-call
-and another thread makes a system("foo bar") call.
-The blocked thread will return with EINTR.
-I see this usually in sem_wait, but also in epoll_wait sometimes.
+>> I'll ask because the zfcp patches are still pending and I want to get this
+>> issue resolved before the next try to get them integrated.
+>I think you need to talk to the scsi people, as kfree() should _never_
+>need to be set as the release function. There's something just wrong
+>with the design if that is necessary.
 
-Is it possible system() is causing the wrong process to get woken up?
+Actually this issue is not SCSI related, but a generic problem that one
+can run into when fiddling around with modules / module unloading.
 
-Let me know if you need any further information, I can reproduce it 
-consistently.
+This was already discussed elsewhere. Please have a look here:
 
-Jamie Lokier wrote:
+http://lwn.net/Articles/67421/
+(paragraph "Module unloading in a reference counted world")
 
->Was the badness in futex_wait problem ever resolved?
->
->-- Jamie
->  
->
+and here for the whole thread:
+
+http://www.ussg.iu.edu/hypermail/linux/kernel/0401.2/1832.html
+(just saw that you participated there :)
+
+I would be more than happy to have a nice release function for the zfcp
+generated objects, but I don't think this is currently possible without
+having the potential problem to run into an Oops after module unloading.
+
+Heiko
 

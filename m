@@ -1,55 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265180AbRGCExr>; Tue, 3 Jul 2001 00:53:47 -0400
+	id <S265466AbRGCFLB>; Tue, 3 Jul 2001 01:11:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265222AbRGCExi>; Tue, 3 Jul 2001 00:53:38 -0400
-Received: from stine.vestdata.no ([195.204.68.10]:9230 "EHLO stine.vestdata.no")
-	by vger.kernel.org with ESMTP id <S265180AbRGCExZ>;
-	Tue, 3 Jul 2001 00:53:25 -0400
-Date: Tue, 3 Jul 2001 06:53:12 +0200
-From: =?iso-8859-1?Q?Ragnar_Kj=F8rstad?= <kernel@ragnark.vestdata.no>
-To: Ben LaHaise <bcrl@redhat.com>
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        mike@bigstorage.com, kevin@bigstorage.com
-Subject: Re: [RFC][PATCH] first cut 64 bit block support
-Message-ID: <20010703065312.J4841@vestdata.no>
-In-Reply-To: <Pine.LNX.4.33.0107010040540.3950-100000@toomuch.toronto.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.5i
-In-Reply-To: <Pine.LNX.4.33.0107010040540.3950-100000@toomuch.toronto.redhat.com>; from Ben LaHaise on Sun, Jul 01, 2001 at 12:53:25AM -0400
+	id <S265473AbRGCFKw>; Tue, 3 Jul 2001 01:10:52 -0400
+Received: from 35.roland.net ([65.112.177.35]:63247 "EHLO earth.roland.net")
+	by vger.kernel.org with ESMTP id <S265466AbRGCFKr>;
+	Tue, 3 Jul 2001 01:10:47 -0400
+Message-ID: <000201c1037e$95403420$bb1cfa18@JimWS>
+From: "Jim Roland" <jroland@roland.net>
+To: <linux-kernel@vger.kernel.org>, "H. Peter Anvin" <hpa@zytor.com>
+In-Reply-To: <200107021509.KAA52993@tomcat.admin.navo.hpc.mil> <Pine.LNX.4.21.0107021307160.3665-100000@benatar.snurgle.org> <9hqc7h$b7f$1@cesium.transmeta.com>
+Subject: Re: Uncle Sam Wants YOU!
+Date: Mon, 2 Jul 2001 13:35:14 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 01, 2001 at 12:53:25AM -0400, Ben LaHaise wrote:
-> Hey folks,
-> 
-> Below is the first cut at making the block size limit configurable to 64
-> bits on x86, as well as always 64 bits on 64 bit machines.  The audit
-> isn't complete yet, but a good chunk of it is done.
-
-Great !
-
-> Filesystem           1k-blocks      Used Available Use% Mounted on
-> /dev/md1             7508125768        20 7476280496   1% /mnt/3
-> 
-> This is a 7TB ext2 filesystem on 4KB blocks.  The 7TB /dev/md1 consists of
-> 7x 1TB sparse files on loop devices raid0'd together.  The current patch
-> does not have the fixes in the SCSI layer or IDE driver yet; expect the
-> SCSI fixes in the next version, although I'll need a tester.  The
-> following should be 64 bit clean now: nbd, loop, raid0, raid1, raid5.
-
-What about LVM?
-
-We'll see what we can do to test the scsi-code. Please send it to us
-when you have code. I guess there are fixes for both generic-scsi code
-and for each controller, right? What controllers are you planning on
-fixing first?
-What tests do you recommend?
-mkfs on a big device, and then putting >2TB data on it?
+@Home tells you the same thing.  Although they portscanned me frequently,
+they were checking for specific servers and actually deny traffic on ports
+135-139 (Winblows traffic).  Unless they change over to non-routables (which
+would kill things like ICQ, etc) they will not be able to stop me from using
+ssh or others for remote access.  @Home and other providers get around the
+"server" issue by capping your maximum outbound bandwidth.  This is
+something I have had to live with when upload FTP files to some off-site
+game servers I own.
 
 
 
--- 
-Ragnar Kjorstad
-Big Storage
+----- Original Message -----
+From: "H. Peter Anvin" <hpa@zytor.com>
+To: <linux-kernel@vger.kernel.org>
+Sent: Monday, July 02, 2001 12:49 PM
+Subject: Re: Uncle Sam Wants YOU!
+
+
+> Followup to:
+<Pine.LNX.4.21.0107021307160.3665-100000@benatar.snurgle.org>
+> By author:    William T Wilson <fluffy@snurgle.org>
+> In newsgroup: linux.dev.kernel
+> >
+> > On Mon, 2 Jul 2001, Jesse Pollard wrote:
+> >
+> > > Better re-read the fine print on the "fair-use" statement. BOTH DSL
+> > > and Cable, or dialup (New Orleans at least) will disconnect you if you
+> > > run ANY unattended operation (if they determine it IS unattended). No
+> >
+> > This would take a lot of watching on their part.
+> >
+> > My cable company occasionally portscans me, so I blackholed the
+> > portscanning machine.  Even before I had done that, though, they never
+> > complained about my remote logins.  They only complain if you use
+> > excessive bandwidth or if you do anything commercial.
+> >
+> > The DSL provider here, when it was still US West, explicitly stated to
+me
+> > (over the phone) that they absolutely did not care what I did with it as
+> > long as it was not illegal.  However they would still not give you a
+> > static IP address unless you paid them extra money. :}
+> >
+>
+> When I got Pac*Smell DSL, the installer guy (who seemed to be a
+> relatively clueful type) said "and [the contract] says you're not
+> allowed to run a server... but who'd know?"
+>
+> -hpa
+>
+> --
+> <hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+> "Unix gives you enough rope to shoot yourself in the foot."
+> http://www.zytor.com/~hpa/puzzle.txt
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+

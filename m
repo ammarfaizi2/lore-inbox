@@ -1,73 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261813AbVDEQtD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261811AbVDEQsh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261813AbVDEQtD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 12:49:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261825AbVDEQtC
+	id S261811AbVDEQsh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 12:48:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261815AbVDEQsg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 12:49:02 -0400
-Received: from mail.kroah.org ([69.55.234.183]:58777 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261813AbVDEQsg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 5 Apr 2005 12:48:36 -0400
-Date: Tue, 5 Apr 2005 09:47:59 -0700
-From: Greg KH <gregkh@suse.de>
-To: linux-kernel@vger.kernel.org, stable@kernel.org
-Cc: davem@davemloft.net, shemminger@osdl.org, netdev@oss.sgi.com
-Subject: [07/08] [TCP] Fix BIC congestion avoidance algorithm error
-Message-ID: <20050405164758.GH17299@kroah.com>
-References: <20050405164539.GA17299@kroah.com>
+Received: from pentafluge.infradead.org ([213.146.154.40]:7144 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261811AbVDEQsY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 12:48:24 -0400
+Subject: Re: 2.6.12-rc2-mm1
+From: David Woodhouse <dwmw2@infradead.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20050405074530.GF26208@infradead.org>
+References: <20050405000524.592fc125.akpm@osdl.org>
+	 <20050405074530.GF26208@infradead.org>
+Content-Type: text/plain
+Date: Tue, 05 Apr 2005 17:48:20 +0100
+Message-Id: <1112719700.24487.415.camel@hades.cambridge.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050405164539.GA17299@kroah.com>
-User-Agent: Mutt/1.5.8i
+X-Mailer: Evolution 2.0.4 (2.0.4-1.dwmw2.1) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2005-04-05 at 08:45 +0100, Christoph Hellwig wrote:
+> This introduces various AUDIT_ARCH numerical constants, which is a blatantly
+> stupid idea.  We already have a way to uniquely identify architectures, and
+> that's the ELF headers, no need for another parallel namespace.
 
--stable review patch.  If anyone has any objections, please let us know.
+We do use the EM_xxx number space but that isn't sufficient to
+distinguish between 32-bit and 64-bit incarnations of certain machine
+types (S390,SH,MIPS,...). I didn't much like adding it either, but
+couldn't see a better option.
 
-------------------
+I pondered strings but we want to filter on this and don't want to have
+to use strcmp. Got any better answers?
 
-Since BIC is the default congestion control algorithm
-enabled in every 2.6.x kernel out there, fixing errors
-in it becomes quite critical.
+> (btw, could you please add to all patches who's responsible for them,
+> bk-audit.patch doesn't tell)
 
-A flaw in the loss handling caused it to not perform
-the binary search regimen of the BIC algorithm
-properly.
+If it were just to point to the BK tree, that might help.
+ ( linux-audit.bkbits.net/audit-2.6-mm )
 
-The fix below from Stephen Hemminger has been heavily
-verified.
-
-[TCP]: BIC not binary searching correctly
-
-While redoing BIC for the split up version, I discovered that the existing
-2.6.11 code doesn't really do binary search. It ends up being just a slightly
-modified version of Reno.  See attached graphs to see the effect over simulated
-1mbit environment.
-
-The problem is that BIC is supposed to reset the cwnd to the last loss value
-rather than ssthresh when loss is detected.  The correct code (from the BIC
-TCP code for Web100) is in this patch.
-
-Signed-off-by: Stephen Hemminger <shemminger@osdl.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Chris Wright <chrisw@osdl.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-
---- 1.92/net/ipv4/tcp_input.c	2005-02-22 10:45:31 -08:00
-+++ edited/net/ipv4/tcp_input.c	2005-03-23 10:55:18 -08:00
-@@ -1653,7 +1653,10 @@
- static void tcp_undo_cwr(struct tcp_sock *tp, int undo)
- {
- 	if (tp->prior_ssthresh) {
--		tp->snd_cwnd = max(tp->snd_cwnd, tp->snd_ssthresh<<1);
-+		if (tcp_is_bic(tp))
-+			tp->snd_cwnd = max(tp->snd_cwnd, tp->bictcp.last_max_cwnd);
-+		else
-+			tp->snd_cwnd = max(tp->snd_cwnd, tp->snd_ssthresh<<1);
- 
- 		if (undo && tp->prior_ssthresh > tp->snd_ssthresh) {
- 			tp->snd_ssthresh = tp->prior_ssthresh;
+-- 
+dwmw2
 

@@ -1,44 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261287AbVCGAyz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261346AbVCGA6n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261287AbVCGAyz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Mar 2005 19:54:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261213AbVCGAyz
+	id S261346AbVCGA6n (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Mar 2005 19:58:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261213AbVCGA6n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Mar 2005 19:54:55 -0500
-Received: from fire.osdl.org ([65.172.181.4]:61402 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261287AbVCGAyn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Mar 2005 19:54:43 -0500
-Date: Sun, 6 Mar 2005 16:54:39 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: domen@coderock.org
-Cc: linux-kernel@vger.kernel.org, domen@coderock.org, yrgrknmxpzlk@gawab.com
-Subject: Re: [patch 11/12] sound/oss/emu10k1/* - compile warning cleanup
-Message-Id: <20050306165439.04acd045.akpm@osdl.org>
-In-Reply-To: <20050305153542.7A66E1F208@trashy.coderock.org>
-References: <20050305153542.7A66E1F208@trashy.coderock.org>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 6 Mar 2005 19:58:43 -0500
+Received: from smtp3.oregonstate.edu ([128.193.0.12]:28575 "EHLO
+	smtp3.oregonstate.edu") by vger.kernel.org with ESMTP
+	id S261346AbVCGA6X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Mar 2005 19:58:23 -0500
+Message-ID: <422BA727.1030506@engr.orst.edu>
+Date: Sun, 06 Mar 2005 16:58:15 -0800
+From: Micheal Marineau <marineam@engr.orst.edu>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050105)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org, torvalds@osdl.org, vojtech@suse.cz
+Subject: [PATCH] Treat ALPS mouse buttons as mouse buttons
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig1A4C177468BAF32EAA8D988F"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-domen@coderock.org wrote:
->
-> @@ -316,7 +320,10 @@ static void copy_block(u8 __user *dst, u
->  
->  		for (i = 0; i < len; i++) {
->  			byte = src[2 * i] ^ 0x80;
-> -			__copy_to_user(dst + i, &byte, 1);
-> +			if (__copy_to_user(dst + i, &byte, 1)) {
-> +				printk( KERN_ERR "emu10k1: %s: copy_to_user failed\n",__FUNCTION__);
-> +				return;
-> +			}
->  		}
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig1A4C177468BAF32EAA8D988F
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-This allows users to spam the logs without bounds, which is normally
-something we try to avoid.  If it's a privileged operation then OK.  But it
-would be better to propagate an error back to userspace.
+The following patch changes the ALPS touchpad driver to treat some mouse
+buttons as mouse buttons rather than what appears to be joystick buttons.
+This is needed for the Dell Inspiron 8500's DualPoint stick buttons. Without
+this patch only the touchpad buttons behave properly.
 
-I'll drop the patch for now.
+--- linux-2.6.11/drivers/input/mouse/alps.c     2005-03-01 23:38:13.000000000 -0800
++++ linux-2.6.11-gentoo-r2/drivers/input/mouse/alps.c   2005-03-06 16:45:07.000000000 -0800
+@@ -97,8 +97,8 @@
+
+                input_report_rel(dev, REL_X, x);
+                input_report_rel(dev, REL_Y, -y);
+-               input_report_key(dev, BTN_A, left);
+-               input_report_key(dev, BTN_B, right);
++               input_report_key(dev, BTN_LEFT, left);
++               input_report_key(dev, BTN_RIGHT, right);
+                input_sync(dev);
+                return;
+        }
+@@ -389,8 +389,6 @@
+        psmouse->dev.evbit[LONG(EV_REL)] |= BIT(EV_REL);
+        psmouse->dev.relbit[LONG(REL_X)] |= BIT(REL_X);
+        psmouse->dev.relbit[LONG(REL_Y)] |= BIT(REL_Y);
+-       psmouse->dev.keybit[LONG(BTN_A)] |= BIT(BTN_A);
+-       psmouse->dev.keybit[LONG(BTN_B)] |= BIT(BTN_B);
+
+        psmouse->dev.evbit[LONG(EV_ABS)] |= BIT(EV_ABS);
+        input_set_abs_params(&psmouse->dev, ABS_X, 0, 1023, 0, 0);
+
+-- 
+Michael Marineau
+marineam@engr.orst.edu
+Oregon State University
+
+
+--------------enig1A4C177468BAF32EAA8D988F
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFCK6csiP+LossGzjARAploAKCASmIsmDVkZ4xS9R94oJYx06Qr1QCgpL8M
+pX1FzFtJ5xmmddXM+q8UIxk=
+=+VV+
+-----END PGP SIGNATURE-----
+
+--------------enig1A4C177468BAF32EAA8D988F--

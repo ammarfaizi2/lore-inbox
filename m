@@ -1,66 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263881AbUE1VkC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263895AbUE1Vn5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263881AbUE1VkC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 May 2004 17:40:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263979AbUE1Vgj
+	id S263895AbUE1Vn5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 May 2004 17:43:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264045AbUE1VmK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 May 2004 17:36:39 -0400
-Received: from mail.kroah.org ([65.200.24.183]:21425 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263885AbUE1Ve7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 May 2004 17:34:59 -0400
-Date: Fri, 28 May 2004 14:33:21 -0700
-From: Greg KH <greg@kroah.com>
-To: torvalds@osdl.org, akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [BK PATCH] PCI fixes for 2.6.7-rc1
-Message-ID: <20040528213321.GA12726@kroah.com>
+	Fri, 28 May 2004 17:42:10 -0400
+Received: from jurassic.park.msu.ru ([195.208.223.243]:50049 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id S263895AbUE1Vho (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 May 2004 17:37:44 -0400
+Date: Sat, 29 May 2004 01:37:38 +0400
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [patch 2.6] don't put IDE disks in standby mode on halt on Alpha
+Message-ID: <20040529013738.A629@den.park.msu.ru>
+References: <20040527194920.A1709@jurassic.park.msu.ru> <200405271940.49386.bzolnier@elka.pw.edu.pl> <20040528191028.A1117@jurassic.park.msu.ru> <200405281740.50798.bzolnier@elka.pw.edu.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200405281740.50798.bzolnier@elka.pw.edu.pl>; from B.Zolnierkiewicz@elka.pw.edu.pl on Fri, May 28, 2004 at 05:40:50PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, May 28, 2004 at 05:40:50PM +0200, Bartlomiej Zolnierkiewicz wrote:
+> - AFAIR there are some buggy disks having flush cache
+>   bits that need standby anyway
 
-Here are some small PCI patches for 2.6.7-rc1.  They are a few pci id
-updates, janitor fixes, and a suspend bus fix patch.  They have all been
-in the last few -mm releases.
+Oh horror. I wouldn't be surprised if some drives don't flush
+the cache even on standby...
 
-Please pull from:
-	bk://kernel.bkbits.net/gregkh/linux/pci-2.6
+> - you will hit 'halt problem' on alpha if your disk has
+>   write cache enabled and it doesn't have flush cache bits
+> 
+> -EAGAIN ;)
 
-thanks,
+Yep... :-(
 
-greg k-h
+Here's variant of the first patch with CONFIG_ALPHA and a Very Big Comment.
 
-p.s. I'll send these as patches in response to this email to lkml for
-those who want to see them.
+Ivan.
 
-
- drivers/pci/pci-driver.c |   26 ++++++++++++++++++++++++--
- drivers/pci/pci.c        |    5 +++++
- drivers/pci/pci.ids      |   26 +++++++++++++-------------
- drivers/pci/probe.c      |    2 ++
- include/linux/pci.h      |    5 +++++
- include/linux/pci_ids.h  |   16 ++++++++++++++++
- 6 files changed, 65 insertions(+), 15 deletions(-)
------
-
-<trimmer:infiniconsys.com>:
-  o PCI: Add InfiniCon PCI ID to pci_ids.h
-
-Arjan van de Ven:
-  o PCI: restore pci config space on resume
-
-Greg Kroah-Hartman:
-  o Reversed pci.ids changes, as Linus already fixed them in his tree
-  o PCI: fix up build warnings in pci.ids file
-
-Luiz Capitulino:
-  o PCI: fix pci/probe.c possible NULL pointer
-
-Roland Dreier:
-  o PCI: Add InfiniBand HCA IDs to pci_ids.h
-
+--- 2.6/drivers/ide/ide-disk.c	Sat May 29 00:43:41 2004
++++ linux/drivers/ide/ide-disk.c	Sat May 29 00:43:06 2004
+@@ -1713,7 +1713,22 @@ static void ide_device_shutdown(struct d
+ {
+ 	ide_drive_t *drive = container_of(dev, ide_drive_t, gendev);
+ 
++#ifdef	CONFIG_ALPHA
++	/* On Alpha, halt(8) doesn't actually turn the machine off,
++	   it puts you into the sort of firmware monitor. Typically,
++	   it's used to boot another kernel image, so it's not much
++	   different from reboot(8). Therefore, we don't need to
++	   spin down the disk in this case, especially since Alpha
++	   firmware doesn't handle disks in standby mode properly.
++	   On the other hand, it's reasonably safe to turn the power
++	   off when the shutdown process reaches the firmware prompt,
++	   as the firmware initialization takes rather long time -
++	   at least 10 seconds, which should be sufficient for
++	   the disk to expire its write cache. */
++	if (system_state != SYSTEM_POWER_OFF) {
++#else
+ 	if (system_state == SYSTEM_RESTART) {
++#endif
+ 		ide_cacheflush_p(drive);
+ 		return;
+ 	}

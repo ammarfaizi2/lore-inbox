@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274972AbRJAMAe>; Mon, 1 Oct 2001 08:00:34 -0400
+	id <S274995AbRJAMQG>; Mon, 1 Oct 2001 08:16:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274979AbRJAMAY>; Mon, 1 Oct 2001 08:00:24 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:25103 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S274972AbRJAMAR>; Mon, 1 Oct 2001 08:00:17 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: "M. Edward Borasky" <znmeb@aracnet.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] New Anti-Terrorism Law makes "hacking" punishable by life in prison
-Date: Mon, 1 Oct 2001 14:00:36 +0200
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <HBEHIIBBKKNOBLMPKCBBIENPDNAA.znmeb@aracnet.com>
-In-Reply-To: <HBEHIIBBKKNOBLMPKCBBIENPDNAA.znmeb@aracnet.com>
+	id <S274994AbRJAMPq>; Mon, 1 Oct 2001 08:15:46 -0400
+Received: from eventhorizon.antefacto.net ([193.120.245.3]:56723 "EHLO
+	eventhorizon.antefacto.net") by vger.kernel.org with ESMTP
+	id <S274896AbRJAMPn>; Mon, 1 Oct 2001 08:15:43 -0400
+Message-ID: <3BB85D50.7020401@antefacto.com>
+Date: Mon, 01 Oct 2001 13:10:56 +0100
+From: Padraig Brady <padraig@antefacto.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010913
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011001120039Z16188-2757+2613@humbolt.nl.linux.org>
+To: Florian Weimer <Florian.Weimer@RUS.Uni-Stuttgart.DE>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: all files are executable in vfat
+In-Reply-To: <Pine.GSO.4.21.0109251332470.24321-100000@weyl.math.psu.edu> <tgr8srrycp.fsf@mercury.rus.uni-stuttgart.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On September 30, 2001 11:16 pm, M. Edward Borasky wrote:
-> 2. The Linux community should *not* believe that we are less vulnerable than
-> Microsoft! We are less vulnerable *now* only because Linux is not as
-> widespread as Windows.
+Florian Weimer wrote:
 
-I try hard not to feed the trolls or engage in advocacy on this list, but 
-this time I can't resist supplying a quote from your mail headers:
+>Alexander Viro <viro@math.psu.edu> writes:
+>
+>>On Tue, 25 Sep 2001, William Scott Lockwood III wrote:
+>>
+>>>dmask?
+>>>
+>>Umm... That makes sense.
+>>
+>
+>I wrote a small patch for that over a year ago, but it wasn't
+>integrated because it didn't seem necessary because of the noexec
+>option, and we didn't know about about the mc problem back then.
+>
+It's not just mc. ls coloring, shell tab completion, ...
 
-    X-MSMail-Priority: Normal
-    X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-    X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Padraig.
 
-I'll give you the benefit of the doubt and assume you're really just a 
-half-deprogrammed dual-booter[1] rather than a genuine troll, so consider 
-this please:  Linux is less vulnerable to worm attacks because our security 
-is an open process in which everybody participates.  End of story.
-
-Note that this does not give us any reason to relax: it's a process, it has 
-to continue.
-
-If you must debate this further could you please respond privately.
-
-[1] It's not a reason to be ashamed, many of us have been there
-
---
-Daniel

@@ -1,48 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261607AbUJ2Tja@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261772AbUJ2TtD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261607AbUJ2Tja (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 15:39:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261601AbUJ2Tiu
+	id S261772AbUJ2TtD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 15:49:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263480AbUJ2Tqq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 15:38:50 -0400
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:7877 "EHLO
-	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S261607AbUJ2TDe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 15:03:34 -0400
-Message-ID: <418293F3.5050108@nortelnetworks.com>
-Date: Fri, 29 Oct 2004 13:03:15 -0600
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: davids@webmaster.com
-CC: Manu Abraham <manu@kromtek.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: BK kernel workflow
-References: <MDEHLPKNGKAHNMBLJOLKAEGFPGAA.davids@webmaster.com>
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKAEGFPGAA.davids@webmaster.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 29 Oct 2004 15:46:46 -0400
+Received: from bay23-f15.bay23.hotmail.com ([64.4.22.65]:21963 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S261996AbUJ2TYE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 15:24:04 -0400
+X-Originating-IP: [64.90.198.61]
+X-Originating-Email: [jocosby@hotmail.com]
+From: "Joseph Cosby" <jocosby@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Call to mmap Failing in SVGALIB
+Date: Fri, 29 Oct 2004 13:23:05 -0600
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <BAY23-F15BIXnnGvgnt0002a704@hotmail.com>
+X-OriginalArrivalTime: 29 Oct 2004 19:24:03.0258 (UTC) FILETIME=[D985E9A0:01C4BDEC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Schwartz wrote:
+  Hi, I've just started using the 2.6.9 kernel in place of the 2.6.7 kernel 
+and now the vga_init call into svgalib is failing. The problem appears to be 
+a call to mmap inside the library. Since I see in the change log that there 
+have been changes, and fixes to changes, in mmap, I suspect that this is a 
+problem with the new kernel, and not the svgalib.
+  Are there any kernel config options that might be a help in using the 
+older mmap or perhaps there are some options that configure mmap usage? I 
+didn't see any.
+  I haven't provided any too detailed information, in case nobody is 
+interested. But if somebody is interested in knowing how this is failing 
+then I'll supply more details.
 
-> 	This position is conditioned on two facts, either:
-> 
-> 	1) Linus does not distribute his BK tree, or
-> 
-> 	2) Linus' BK tree is not a derivative work of the Linux kernel
-> 
-> 	If both of these are false, then the tree must be covered by the GPL. I
-> think 2 is clearly false.
+Thanks,
+Joseph
 
-The linux tree is certainly a derivative work of itself.  The more important 
-(and much more difficult) question is whether the metadata about the tree is a 
-derivative work under the rules of the GPL, or whether it is mere aggregation.
+_________________________________________________________________
+Express yourself instantly with MSN Messenger! Download today - it's FREE! 
+http://messenger.msn.click-url.com/go/onm00200471ave/direct/01/
 
-I think you could make a compelling argument that the linux kernel history 
-metadata is *not* covered under the GPL, and hence can be restricted by licensing.
-
-Chris

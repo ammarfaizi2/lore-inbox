@@ -1,27 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272415AbRI0L4O>; Thu, 27 Sep 2001 07:56:14 -0400
+	id <S272449AbRI0MBE>; Thu, 27 Sep 2001 08:01:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272449AbRI0L4F>; Thu, 27 Sep 2001 07:56:05 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:45068 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S272415AbRI0Lz4>; Thu, 27 Sep 2001 07:55:56 -0400
-Subject: Re: [PATCH]  Re: 2.4.9-ac15 painfully sluggish
-To: jdthoodREMOVETHIS@yahoo.co.uk (Thomas Hood)
-Date: Thu, 27 Sep 2001 13:01:09 +0100 (BST)
+	id <S272473AbRI0MAy>; Thu, 27 Sep 2001 08:00:54 -0400
+Received: from smtp.mailbox.net.uk ([195.82.125.32]:42910 "EHLO
+	smtp.mailbox.net.uk") by vger.kernel.org with ESMTP
+	id <S272449AbRI0MAj>; Thu, 27 Sep 2001 08:00:39 -0400
+Date: Thu, 27 Sep 2001 13:01:05 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Roberto Fichera <robyf@tekno-soft.it>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3BB2AAA5.CDDD6965@yahoo.co.uk> from "Thomas Hood" at Sep 27, 2001 12:27:17 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+Subject: Re: Linux for iPaQ H3630
+Message-ID: <20010927130105.B6684@flint.arm.linux.org.uk>
+In-Reply-To: <5.1.0.14.2.20010927134132.040f9640@mail.tekno-soft.it>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15mZqn-0003lA-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <5.1.0.14.2.20010927134132.040f9640@mail.tekno-soft.it>; from robyf@tekno-soft.it on Thu, Sep 27, 2001 at 01:44:48PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> or compiling a kernel.  The disk would begin thrashing
-> and continue doing so for many minutes.  Swap usage was
-> reported as zero the whole time.
+On Thu, Sep 27, 2001 at 01:44:48PM +0200, Roberto Fichera wrote:
+> I need some links, infos, docs etc about Linux for this Pocket PC.
+> Someone can help me about this ?
 
-Ac15 had a merge error
+http://www.handhelds.org/
+
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

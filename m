@@ -1,41 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261576AbUKIQdM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261582AbUKIQd4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261576AbUKIQdM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 11:33:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261575AbUKIQdM
+	id S261582AbUKIQd4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 11:33:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261580AbUKIQdS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 11:33:12 -0500
-Received: from mail.kroah.org ([69.55.234.183]:3300 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261576AbUKIQ2k (ORCPT
+	Tue, 9 Nov 2004 11:33:18 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:59110 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261578AbUKIQcX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 11:28:40 -0500
-Date: Tue, 9 Nov 2004 08:27:30 -0800
-From: Greg KH <greg@kroah.com>
-To: Nigel Kukard <nkukard@lbsd.net>
+	Tue, 9 Nov 2004 11:32:23 -0500
+From: Jesse Barnes <jbarnes@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.10-rc1-mm4
+Date: Tue, 9 Nov 2004 11:32:15 -0500
+User-Agent: KMail/1.7
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: ub vs. usb-storage
-Message-ID: <20041109162730.GA2439@kroah.com>
-References: <4190AEFC.7060708@lbsd.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+References: <20041109074909.3f287966.akpm@osdl.org>
+In-Reply-To: <20041109074909.3f287966.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <4190AEFC.7060708@lbsd.net>
-User-Agent: Mutt/1.5.6i
+Message-Id: <200411091132.15189.jbarnes@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 09, 2004 at 11:50:20AM +0000, Nigel Kukard wrote:
-> Hi,
-> 
-> Using kernel 2.6.9 bk7 and the UB driver for mass-storage I seem to see 
-> spikes on the load-avg of over 700. There is also times of extreme 
-> responsiveness deficiency.
-> 
-> Using the usb_storage driver seems to fix the problem. Is UB only meant 
->  for low performance situations?
+On Tuesday, November 09, 2004 10:49 am, Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10-rc1/2.
+>6.10-rc1-mm4/
 
-For now, yes.
+I get this build error when I enable x86 support on ia64:
 
-thanks,
+  CC      arch/ia64/ia32/binfmt_elf32.o
+In file included from arch/ia64/ia32/binfmt_elf32.c:47:
+arch/ia64/ia32/../../../fs/binfmt_elf.c:721:60: macro "setup_arg_pages" passed 
+3 arguments, but takes just 2
+In file included from arch/ia64/ia32/binfmt_elf32.c:47:
+arch/ia64/ia32/../../../fs/binfmt_elf.c: In function `load_elf_binary':
+arch/ia64/ia32/../../../fs/binfmt_elf.c:721: warning: assignment makes integer 
+from pointer without a cast
+make[1]: *** [arch/ia64/ia32/binfmt_elf32.o] Error 1
+make: *** [arch/ia64/ia32] Error 2
 
-greg k-h
+Other than that, it builds and comes up fine with sn2_defconfig.
+
+Jesse

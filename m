@@ -1,67 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266912AbUHITOK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266895AbUHITMv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266912AbUHITOK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 15:14:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266920AbUHITNS
+	id S266895AbUHITMv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 15:12:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266900AbUHITKB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 15:13:18 -0400
-Received: from holomorphy.com ([207.189.100.168]:12258 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S266901AbUHITMr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 15:12:47 -0400
-Date: Mon, 9 Aug 2004 12:12:40 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
-       "Seth, Rohit" <rohit.seth@intel.com>
-Subject: Re: Hugetlb demanding paging for -mm tree
-Message-ID: <20040809191240.GS11200@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	"Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-	linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
-	"Seth, Rohit" <rohit.seth@intel.com>
-References: <20040807083613.GZ17188@holomorphy.com> <200408091854.i79IsCY12450@unix-os.sc.intel.com>
-Mime-Version: 1.0
+	Mon, 9 Aug 2004 15:10:01 -0400
+Received: from mail.parknet.co.jp ([210.171.160.6]:8970 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S266895AbUHIS73
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 14:59:29 -0400
+To: "John Stoffel" <stoffel@lucent.com>
+Cc: Harald Arnesen <harald@skogtun.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8-rc2-bk13 and later: Read-only filesystem on USB
+References: <87n01944xd.fsf@basilikum.skogtun.org>
+	<16659.38405.356084.360627@gargle.gargle.HOWL>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Tue, 10 Aug 2004 03:58:31 +0900
+In-Reply-To: <16659.38405.356084.360627@gargle.gargle.HOWL>
+Message-ID: <87d620p294.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3.50
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200408091854.i79IsCY12450@unix-os.sc.intel.com>
-User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote on Saturday, August 07, 2004 1:36 AM
->> This is needed because we're only freeing pagetables at pgd granularity
->> at munmap() -time. It makes more sense to refine it to pmd granularity
->> instead of this cleanup pass, as it's a memory leak beyond just hugetlb
->> data structure corruption.
+"John Stoffel" <stoffel@lucent.com> writes:
 
-On Mon, Aug 09, 2004 at 11:54:13AM -0700, Chen, Kenneth W wrote:
-> That would be nice and ease the pain on x86.  OTOH, leaving pte persistent
-> right now may help in mmap/munmap intensive workload since unmap_region()
-> only destroys all pte allocation at pgd granularity.
+> Finally, the damm thing is mounted RW and actually lets me write
+> something to the goddamm thing.  
+> 
+> What a pain in the ass.  This change should be reverted until it's
+> properly implemented to tell mount(8) that it's not mounted RW, but RO
+> instead.
 
-We're better off caching pagetables for that. I don't appear to be able
-to get the code to cache 3rd-level pagetables on ia32 past permavetoes.
+The kernel is already exporting the some information. cat /proc/mounts.
 
-
-William Lee Irwin III wrote on Saturday, August 07, 2004 1:36 AM
->> I wonder why this bugfix was rolled into the demand paging patch instead
->> of shipped separately. And for that matter, this fix applies to mainline.
-
-On Mon, Aug 09, 2004 at 11:54:13AM -0700, Chen, Kenneth W wrote:
-> The bug fix went into hugetlb_prefault() function in the mainline for the
-> prefaulting case.  It went to that function instead of huge_pte_alloc
-> and huge_pte_offset is to avoid scrubbing at pte lookup time. One
-> thing we can do for demand paging case is to scrub it at initial mmap
-> hugetlb vma, so the penalty is paid upfront instead of at every pte
-> allocation/lookup time.
-
-Good thing I brought a barfbag back from the OLS return flight... the
-leak really is a major issue, esp. on 64-bit where vast amounts of
-virtualspace are mapped and hence vast amounts of pagetables may leak.
-
-I'll put the pagetable cleanup on my TODO along with ia64 pagetable
-caching (which should be as easy as it was for ppc64).
-
-
--- wli
+Yes, probably proper interface would be useful. But it's the another
+story.
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

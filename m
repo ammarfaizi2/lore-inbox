@@ -1,44 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261871AbTDKUvz (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 16:51:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261874AbTDKUvz (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 16:51:55 -0400
-Received: from Mail1.KONTENT.De ([81.88.34.36]:34009 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S261871AbTDKUvy (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Apr 2003 16:51:54 -0400
-From: Oliver Neukum <oliver@neukum.org>
-Reply-To: oliver@neukum.name
-To: Greg KH <greg@kroah.com>
-Subject: Re: [ANNOUNCE] udev 0.1 release
-Date: Fri, 11 Apr 2003 23:03:35 +0200
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org, linux-hotplug-devel@lists.sourceforge.net,
-       message-bus-list@redhat.com, Daniel Stekloff <dsteklof@us.ibm.com>
-References: <20030411032424.GA3688@kroah.com> <200304112131.56457.oliver@neukum.org> <20030411201029.GP1821@kroah.com>
-In-Reply-To: <20030411201029.GP1821@kroah.com>
+	id S261789AbTDKUjn (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 16:39:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261798AbTDKUjn (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 16:39:43 -0400
+Received: from warden3-p.diginsite.com ([208.147.64.186]:1250 "HELO
+	warden3.diginsite.com") by vger.kernel.org with SMTP
+	id S261789AbTDKUjl convert rfc822-to-8bit 
+	(for <rfc822;linux-kernel@vger.kernel.org>); Fri, 11 Apr 2003 16:39:41 -0400
+From: David Lang <david.lang@digitalinsight.com>
+To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+Cc: "'Jeremy Jackson'" <jerj@coplanar.net>, "'Greg KH'" <greg@kroah.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'linux-hotplug-devel@lists.sourceforge.net'" 
+	<linux-hotplug-devel@lists.sourceforge.net>
+Date: Fri, 11 Apr 2003 13:48:17 -0700 (PDT)
+Subject: RE: [ANNOUNCE] udev 0.1 release
+In-Reply-To: <A46BBDB345A7D5118EC90002A5072C780BEBAA44@orsmsx116.jf.intel.com>
+Message-ID: <Pine.LNX.4.44.0304111347370.8422-100000@dlang.diginsite.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200304112303.35521.oliver@neukum.org>
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ant then you also have all the same problems as devfs about default
+permissions, making permissions persistant across reboots, etc.
 
-> I can guarantee nothing :)
+David Lang
 
-I cannot resist. Believe me I tried, but I cannot. I waited years to do
-that line.
+On Fri, 11 Apr 2003, Perez-Gonzalez, Inaky wrote:
 
-> But I can do a lot to prevent losses.  A lot of people around here point
-
-Do or don't do. There is no trying.
-
-		-- Yoda
-
-	May the source be with you
-		Oliver
-
-
-
+> Date: Fri, 11 Apr 2003 13:42:58 -0700
+> From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+> To: 'Jeremy Jackson' <jerj@coplanar.net>, 'Greg KH' <greg@kroah.com>
+> Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+>      "'linux-hotplug-devel@lists.sourceforge.net'"
+>     <linux-hotplug-devel@lists.sourceforge.net>
+> Subject: RE: [ANNOUNCE] udev 0.1 release
+>
+>
+> > From: Jeremy Jackson [mailto:jerj@coplanar.net]
+> >
+> > What about read-only root fs?
+>
+> /dev on a tmpfs?
+>
+> Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own
+> (and my fault)
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

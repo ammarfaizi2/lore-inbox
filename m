@@ -1,55 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265538AbUBBBCW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Feb 2004 20:02:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265549AbUBBBCV
+	id S265549AbUBBBwl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Feb 2004 20:52:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265555AbUBBBwl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Feb 2004 20:02:21 -0500
-Received: from fw.osdl.org ([65.172.181.6]:64987 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265538AbUBBBCU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Feb 2004 20:02:20 -0500
-Date: Sun, 1 Feb 2004 17:00:37 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Bill Davidsen <davidsen@tmr.com>
-cc: "David S. Miller" <davem@redhat.com>, James Morris <jmorris@redhat.com>,
-       jakub@redhat.com, dparis@w3works.com,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       rspchan@starhub.net.sg
-Subject: Re: [CRYPTO]: Miscompiling sha256.c by gcc 3.2.3 and arch   pentium3,4
-In-Reply-To: <401D6D38.3020009@tmr.com>
-Message-ID: <Pine.LNX.4.58.0402011657310.2229@home.osdl.org>
-References: <Xine.LNX.4.44.0401301133350.16128-100000@thoron.boston.redhat.com>
- <20040130131400.13190af5.davem@redhat.com> <401D6D38.3020009@tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 1 Feb 2004 20:52:41 -0500
+Received: from hb6.lcom.net ([216.51.236.182]:25984 "EHLO
+	petrus.dynamic.digitasaru.net") by vger.kernel.org with ESMTP
+	id S265549AbUBBBwk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Feb 2004 20:52:40 -0500
+Date: Mon, 2 Feb 2004 00:04:39 -0600
+From: Joseph Pingenot <trelane@digitasaru.net>
+To: Len Brown <len.brown@intel.com>
+Cc: bluefoxicy@linux.net, linux-kernel@vger.kernel.org
+Subject: Re: ACPI -- Workaround for broken DSDT
+Message-ID: <20040202060434.GA6038@digitasaru.net>
+Reply-To: trelane@digitasaru.net
+Mail-Followup-To: Len Brown <len.brown@intel.com>, bluefoxicy@linux.net,
+	linux-kernel@vger.kernel.org
+References: <BF1FE1855350A0479097B3A0D2A80EE0020AEB5C@hdsmsx402.hd.intel.com> <1075665236.2392.16.camel@dhcppc4>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1075665236.2392.16.camel@dhcppc4>
+X-School: University of Iowa
+X-vi-or-emacs: vi *and* emacs!
+X-MSMail-Priority: High
+X-Priority: 1 (Highest)
+X-MS-TNEF-Correlator: <AFJAUFHRUOGRESULWAOIHFEAUIOFBVHSHNRAIU.monkey@spamcentral.invalid>
+X-MimeOLE: Not Produced By Microsoft MimeOLE V5.50.4522.1200
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>From Len Brown on Sunday, 01 February, 2004:
+>this is probably best addressed to acpi-devel@lists.sourceforge.net
+>where people over-ride their BIOS ACPI DSDT all the time.
+>However, there is a reason that it isn't push-button, and that is
+>because we don't want to encourage people to do it.  We'd rather fix
+>Linux where Linux is broken, or get the OEMs to fix their BIOS where the
+>BIOS is broken.
 
+How does one get a hold of a fixed DSDT?  I've seen postings about
+  how to apply them, but how do they get released?  I'd *love* for
+  Dell to release a fix for my Inspiron 8600 (haven't found a fixed
+  DSDT), or to just get a hold of one.
 
-On Sun, 1 Feb 2004, Bill Davidsen wrote:
-> 
-> What didn't you like about Jakob's patch which avoids the 64 byte size 
-> penalty?
+*sigh*  When will the vendors support Linux?!
 
-What size penalty?
-
-The data has to be allocated somewhere, and on the stack is simply not 
-acceptable. So there can be no size penalty.
-
-Yes, the text size of the binary is slightly bigger, because a "static 
-const" ends up in the ro-section, but that's _purely_ an accounting thing. 
-It has to be somewhere, be it .text, .data or .bss. Who would ever care 
-where it is?
-
-Having it in .ro means that there are no initialization issues, and a 
-compressed kernel compresses the zero bytes better than having init-time 
-code to initialize the array (or, worse, doing it over and over at 
-run-time).
-
-So where does this size penalty idea come from?
-
-In short: "static const" is correct.
-
-		Linus
+-Joseph

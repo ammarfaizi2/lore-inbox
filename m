@@ -1,73 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263646AbUCYXY6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 18:24:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263661AbUCYXY6
+	id S263639AbUCYXYl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 18:24:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263660AbUCYXYl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 18:24:58 -0500
-Received: from alt.aurema.com ([203.217.18.57]:17064 "EHLO smtp.sw.oz.au")
-	by vger.kernel.org with ESMTP id S263646AbUCYXYy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 18:24:54 -0500
-Message-ID: <406369A1.7090905@aurema.com>
-Date: Fri, 26 Mar 2004 10:22:09 +1100
-From: Peter Williams <peterw@aurema.com>
-Organization: Aurema Pty Ltd
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en
+	Thu, 25 Mar 2004 18:24:41 -0500
+Received: from hellhawk.shadowen.org ([212.13.208.175]:30730 "EHLO
+	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S263653AbUCYXYi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Mar 2004 18:24:38 -0500
+Date: Thu, 25 Mar 2004 23:27:20 +0000
+From: Andy Whitcroft <apw@shadowen.org>
+To: Andrew Morton <akpm@osdl.org>
+cc: anton@samba.org, sds@epoch.ncsc.mil, ak@suse.de, raybry@sgi.com,
+       lse-tech@lists.sourceforge.net, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org, mbligh@aracnet.com
+Subject: Re: [PATCH] [0/6] HUGETLB memory commitment
+Message-ID: <41997489.1080257240@42.150.104.212.access.eclipse.net.uk>
+In-Reply-To: <20040325130433.0a61d7ef.akpm@osdl.org>
+References: <18429360.1080233672@42.150.104.212.access.eclipse.net.uk> <20040325130433.0a61d7ef.akpm@osdl.org>
+X-Mailer: Mulberry/3.1.2 (Win32)
 MIME-Version: 1.0
-To: Jamie Lokier <jamie@shareable.org>
-CC: Micha Feigin <michf@post.tau.ac.il>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: finding out the value of HZ from userspace
-References: <1079198671.4446.3.camel@laptop.fenrus.com> <4053624D.6080806@BitWagon.com> <20040313193852.GC12292@devserv.devel.redhat.com> <40564A22.5000504@aurema.com> <20040316063331.GB23988@devserv.devel.redhat.com> <40578FDB.9060000@aurema.com> <20040320102241.GK2803@devserv.devel.redhat.com> <405C2AC0.70605@stesmi.com> <20040322223456.GB2549@luna.mooo.com> <405F70F6.5050605@aurema.com> <20040325174053.GB11236@mail.shareable.org>
-In-Reply-To: <20040325174053.GB11236@mail.shareable.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jamie Lokier wrote:
-> Peter Williams wrote:
-> 
->>>Will this be USER_HZ or kernel HZ?
->>>Someone earlier suggested it would be USER_HZ which would make it
->>>pointless.
->>
->>It has to be whatever enables user space to correctly interpret values 
->>sent to user space as "ticks".  That means USER_HZ and it's not useless 
->>as it enables USER_HZ to be different and/or change without breaking 
->>programs that use values expressed in "ticks".
-> 
-> 
-> It is, however, useless for the _other_ reasons userspace needs to
-> know kernel HZ, including as I mentioned userspace timer granularity.
+--On 25 March 2004 13:04 -0800 Andrew Morton <akpm@osdl.org> wrote:
 
-Theoretically, which I know can be a pain, user space timer granularity 
-should be in USER_HZ as, theoretically, this is the only one user space 
-is supposed to know about.  Because of this, in my view, HZ and USER_HZ 
-should be the same or USER_HZ should be greater than HZ.
-
+> Sorry, but I just don't see why we need all this complexity and generality.
 > 
-> (Btw, that usage would be better as a period rather than a frequency,
-> so that a "tickless" kernel can report zero).
-
-_SC_CLK_TCK is a POSIX.1 definition and can't be changed.  But I don't 
-think that there's any impediment to adding new parameters that can be 
-reported by sysconf().
-
+> If there was any likelihood that there would be additional memory domains
+> in the 2.6 future then OK.  But I don't think there will be.  We simply
+> need some little old patch which fixes this bug.
 > 
-> The fundamental problem is that there are two values,  and both values
-> have programs which can usefully use them.
+> Such as adding a `vma' arg to vm_enough_memory() and vm_unacct_memory() and
+> doing
 > 
-> How hard can it be to export both?
+> 	if (is_vm_hugetlb_page(vma))
+> 		return;
 > 
+> and
+> 
+> -	allowed = totalram_pages * sysctl_overcommit_ratio / 100;
+> +	allowed = (totalram_pages - htlbpagemem << HPAGE_SHIFT) *
+> +			sysctl_overcommit_ratio / 100;
+> 
+> in cap_vm_enough_memory().
 
-Making HZ == USER_HZ would also solve the problem.
+That's pretty much what you get if you only apply the first two patches.  Sadly, you can't just pass a vma as you don't always have one when you are making the decision.  For example when a shm segment is being created you need to commit the memory at that point, but its not been attached at all so there is no vma to check.  That's why I went with an abstract domain.  These patches have been tested in isolation and do seem to work.
 
-Peter
--- 
-Dr Peter Williams, Chief Scientist                peterw@aurema.com
-Aurema Pty Limited                                Tel:+61 2 9698 2322
-PO Box 305, Strawberry Hills NSW 2012, Australia  Fax:+61 2 9699 9174
-79 Myrtle Street, Chippendale NSW 2008, Australia http://www.aurema.com
+The other patches started out wanting to solve a second issue, the generality seemed to come out naturally.  I am not sure how important it is, but when we create a normal shm domain we commit the memory then.  For an hugetlb one we only commit the memory when the region is attached the first time, ie when the pages are cleared and filled.  Also we have no policy control over them.
 
+In short I guess if we only are trying to fix the overcommit cross over between the normal and hugetlb, then the first two patches should be basically there.
+
+Let me know what the decision is and I'll steer the ship in that direction.
+
+-apw

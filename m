@@ -1,69 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132057AbRAVQXU>; Mon, 22 Jan 2001 11:23:20 -0500
+	id <S132567AbRAVQcV>; Mon, 22 Jan 2001 11:32:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132598AbRAVQXK>; Mon, 22 Jan 2001 11:23:10 -0500
-Received: from sdsl-208-184-147-195.dsl.sjc.megapath.net ([208.184.147.195]:29216
-	"EHLO bitmover.com") by vger.kernel.org with ESMTP
-	id <S132057AbRAVQW4>; Mon, 22 Jan 2001 11:22:56 -0500
-Date: Mon, 22 Jan 2001 08:22:54 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Jonathan Earle <jearle@nortelnetworks.com>
-Cc: "'Linux Kernel List'" <linux-kernel@vger.kernel.org>
-Subject: Re: [OT?] Coding Style
-Message-ID: <20010122082254.D9530@work.bitmover.com>
-Mail-Followup-To: Jonathan Earle <jearle@nortelnetworks.com>,
-	'Linux Kernel List' <linux-kernel@vger.kernel.org>
-In-Reply-To: <28560036253BD41191A10000F8BCBD116BDCC5@zcard00g.ca.nortel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre3i
-In-Reply-To: <28560036253BD41191A10000F8BCBD116BDCC5@zcard00g.ca.nortel.com>
+	id <S132560AbRAVQcM>; Mon, 22 Jan 2001 11:32:12 -0500
+Received: from chiara.elte.hu ([157.181.150.200]:12551 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S132490AbRAVQb7>;
+	Mon, 22 Jan 2001 11:31:59 -0500
+Date: Mon, 22 Jan 2001 17:31:15 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: [patch] wait4-2.4.0-A0
+Message-ID: <Pine.LNX.4.30.0101221730020.4205-200000@elte.hu>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="655616-1897787063-980181075=:4205"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 22, 2001 at 11:04:50AM -0500, Jonathan Earle wrote:
-> > -----Original Message-----
-> > From: profmakx.fmp [mailto:profmakx.fmp@gmx.de]
-> > 
-> > So, every good programmer
-> > should know where to put comments. And it is unnecessary to 
-> > put comments to
-> > explain what code does. One should see this as stated in the 
-> > CodingStyle doc.
-> > Ok, there are points where a comment is good, but for example 
-> > at university
-> > we are to comment on every single line of code ...
-> 
-> WRONG!!!
-> 
-> Not documenting your code is not a sign of good coding, but rather shows
-> arrogance, laziness and contempt for "those who would dare tamper with your
-> code after you've written it".  Document and comment your code thoroughly.
-> Do it as you go along.  I was also taught to comment nearly every line - as
-> part of the coding style used by a large, international company I worked for
-> several years ago.  It brings the logic of the programmer into focus and
-> makes code maintenance a whole lot easier.  It also helps one to remember
-> the logic of your own code when you revisit it a year or more hence.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-Please don't listen to this.  The only place you really want comments is
+--655616-1897787063-980181075=:4205
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-    a) at the top of files, describing the point of the file;
-    b) at the top of functions, if the purpose of the function is not obvious;
-    c) in line, when the code is not obvious.
 
-If you are writing code that requires a comment for every line, you are 
-writing bad, obscure, unobvious code and no amount of commenting will fix
-it.
+the attached patch (against -pre9) fixes a possibly dangerous sys_wait4()
+prototype mismatch.
 
-The real reason to sparing in your comments is that code and comments are
-not semantically bound to each other: the program doesn't stop working when
-the comment becomes incorrect.  It's incredibly frustrating to read a comment,
-believe you understand what is going on, only to find out that the comment
-and the code no longer match.   
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+	Ingo
+
+--655616-1897787063-980181075=:4205
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="wait4-2.4.0-A0"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.30.0101221731150.4205@elte.hu>
+Content-Description: 
+Content-Disposition: attachment; filename="wait4-2.4.0-A0"
+
+LS0tIGxpbnV4L2luY2x1ZGUvbGludXgvc2NoZWQuaC5vcmlnCU1vbiBKYW4g
+MjIgMTc6Mjg6MzYgMjAwMQ0KKysrIGxpbnV4L2luY2x1ZGUvbGludXgvc2No
+ZWQuaAlNb24gSmFuIDIyIDE3OjI5OjE3IDIwMDENCkBAIC01NjMsNiArNTYz
+LDcgQEANCiAjZGVmaW5lIHdha2VfdXBfaW50ZXJydXB0aWJsZV9hbGwoeCkJ
+X193YWtlX3VwKCh4KSxUQVNLX0lOVEVSUlVQVElCTEUsIDApDQogI2RlZmlu
+ZSB3YWtlX3VwX2ludGVycnVwdGlibGVfc3luYyh4KQlfX3dha2VfdXBfc3lu
+YygoeCksVEFTS19JTlRFUlJVUFRJQkxFLCAxKQ0KICNkZWZpbmUgd2FrZV91
+cF9pbnRlcnJ1cHRpYmxlX3N5bmNfbnIoeCkgX193YWtlX3VwX3N5bmMoKHgp
+LFRBU0tfSU5URVJSVVBUSUJMRSwgIG5yKQ0KK2FzbWxpbmthZ2UgbG9uZyBz
+eXNfd2FpdDQocGlkX3QgcGlkLHVuc2lnbmVkIGludCAqIHN0YXRfYWRkciwg
+aW50IG9wdGlvbnMsIHN0cnVjdCBydXNhZ2UgKiBydSk7DQogDQogZXh0ZXJu
+IGludCBpbl9ncm91cF9wKGdpZF90KTsNCiBleHRlcm4gaW50IGluX2Vncm91
+cF9wKGdpZF90KTsNCi0tLSBsaW51eC9hcmNoL2kzODYva2VybmVsL3NpZ25h
+bC5jLm9yaWcJTW9uIEphbiAyMiAxNzoyODoyNSAyMDAxDQorKysgbGludXgv
+YXJjaC9pMzg2L2tlcm5lbC9zaWduYWwuYwlNb24gSmFuIDIyIDE3OjI4OjMx
+IDIwMDENCkBAIC0yNiw4ICsyNiw2IEBADQogDQogI2RlZmluZSBfQkxPQ0tB
+QkxFICh+KHNpZ21hc2soU0lHS0lMTCkgfCBzaWdtYXNrKFNJR1NUT1ApKSkN
+CiANCi1hc21saW5rYWdlIGludCBzeXNfd2FpdDQocGlkX3QgcGlkLCB1bnNp
+Z25lZCBsb25nICpzdGF0X2FkZHIsDQotCQkJIGludCBvcHRpb25zLCB1bnNp
+Z25lZCBsb25nICpydSk7DQogYXNtbGlua2FnZSBpbnQgRkFTVENBTEwoZG9f
+c2lnbmFsKHN0cnVjdCBwdF9yZWdzICpyZWdzLCBzaWdzZXRfdCAqb2xkc2V0
+KSk7DQogDQogaW50IGNvcHlfc2lnaW5mb190b191c2VyKHNpZ2luZm9fdCAq
+dG8sIHNpZ2luZm9fdCAqZnJvbSkNCg==
+--655616-1897787063-980181075=:4205--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,72 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263078AbTJJSGT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 14:06:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263081AbTJJSGR
+	id S263134AbTJJSPm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 14:15:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263131AbTJJSPm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 14:06:17 -0400
-Received: from inet-mail4.oracle.com ([148.87.2.204]:15040 "EHLO
-	inet-mail4.oracle.com") by vger.kernel.org with ESMTP
-	id S263078AbTJJSGK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 14:06:10 -0400
-Date: Fri, 10 Oct 2003 11:05:35 -0700
-From: Joel Becker <Joel.Becker@oracle.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: statfs() / statvfs() syscall ballsup...
-Message-ID: <20031010180535.GE29301@ca-server1.us.oracle.com>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	linux-kernel@vger.kernel.org
-References: <20031010172001.GA29301@ca-server1.us.oracle.com> <Pine.LNX.4.44.0310101024200.20420-100000@home.osdl.org>
+	Fri, 10 Oct 2003 14:15:42 -0400
+Received: from fencepost.gnu.org ([199.232.76.164]:5318 "EHLO
+	fencepost.gnu.org") by vger.kernel.org with ESMTP id S263134AbTJJSPk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Oct 2003 14:15:40 -0400
+Date: Fri, 10 Oct 2003 14:12:51 -0400
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: Miles Bader <miles@gnu.org>, miles@lsi.nec.co.jp,
+       linux-kernel@vger.kernel.org
+Subject: Re: initcall ordering of driver w/respect to tty_init?
+Message-ID: <20031010181251.GA32720@fencepost>
+References: <buo65j0f9vi.fsf@mcspd15.ucom.lsi.nec.co.jp> <20031010080212.6ddb02ff.rddunlap@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0310101024200.20420-100000@home.osdl.org>
-X-Burt-Line: Trees are cool.
-X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20031010080212.6ddb02ff.rddunlap@osdl.org>
+User-Agent: Mutt/1.3.28i
+Blat: Foop
+From: Miles Bader <miles@gnu.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 10, 2003 at 10:40:40AM -0700, Linus Torvalds wrote:
-> Actually, the kernel has a "readahead(fd, offset, size)" system call that
-> will start asynchronous read-ahead on any mapping. After that, just
-> touching the page will obviously map in and synchronize the result.
+On Fri, Oct 10, 2003 at 08:02:12AM -0700, Randy.Dunlap wrote:
+> | I have a tty driver, arch/v850/kernel/simcons.c, who's init function is
+> | called via __initcall:
+> 
+> Does it help/work to change it to a console_initcall() ?
 
-	Ok, a quick peruse of sys_readahead() seems to say that it
-doesn't check for existing uptodate()ness.  That would be interesting.
-I could have missed it, though.  
+I think that would solve the problem, but is it the right solution?  How
+about all those other drivers that call tty_register_driver?  module_init
+becomes __initcall when driver is statically linked into the kernel...
 
-> I don't think anybody uses it, and the interface may be broken, but it was
-> literally 20 lines of code, and I had a trivial test program that
-> populated the cache for a directory structure really quickly using it.
-
-	The problem we have with msync() and friends is not 'quick
-population', it's "page is in the page cache already; another node
-writes to the storage; must mark page as !uptodate so as to force a
-re-read from disk".  I can't find where sys_readahead() checks for
-uptodate, so perhaps calling sys_readahead() on a range always causes
-I/O.  Correct me if I missed it.
-
-> For example, things we can do, but don't, partly because of interface 
-> issues and because there is no point in doing it if people wouldn't use 
-> it:
-
-	Lots of interesting stuff snipped.  This discussion has me
-thinking, knowing now that there's possibility to move to a more optimal
-interface.
-
-Joel
-
+-Miles
 -- 
-
-Life's Little Instruction Book #464
-
-	"Don't miss the magic of the moment by focusing on what's
-	 to come."
-
-Joel Becker
-Senior Member of Technical Staff
-Oracle Corporation
-E-mail: joel.becker@oracle.com
-Phone: (650) 506-8127
+Suburbia: where they tear out the trees and then name streets after them.

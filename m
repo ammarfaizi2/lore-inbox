@@ -1,83 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262009AbULPUiQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262015AbULPUjQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262009AbULPUiQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 15:38:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262012AbULPUiQ
+	id S262015AbULPUjQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 15:39:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262014AbULPUjP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 15:38:16 -0500
-Received: from smtp-vbr15.xs4all.nl ([194.109.24.35]:3857 "EHLO
-	smtp-vbr15.xs4all.nl") by vger.kernel.org with ESMTP
-	id S262009AbULPUiE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 15:38:04 -0500
-Date: Thu, 16 Dec 2004 21:37:40 +0100
-From: Jurriaan <thunder7@xs4all.nl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6 flavours
-Message-ID: <20041216203740.GA23365@middle.of.nowhere>
-Reply-To: Jurriaan <thunder7@xs4all.nl>
-References: <003901c4e3ab$d86c8580$0e25fe0a@pysiak>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <003901c4e3ab$d86c8580$0e25fe0a@pysiak>
-X-Message-Flag: Still using Outlook? As you can see, it has some errors.
-User-Agent: Mutt/1.5.6+20040907i
+	Thu, 16 Dec 2004 15:39:15 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:39406 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S262012AbULPUie
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Dec 2004 15:38:34 -0500
+Message-ID: <41C1F23E.9020006@mvista.com>
+Date: Thu, 16 Dec 2004 12:38:22 -0800
+From: George Anzinger <george@mvista.com>
+Reply-To: george@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040308
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Anton Blanchard <anton@samba.org>
+CC: john stultz <johnstul@us.ibm.com>, David Vrabel <dvrabel@arcom.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, mann@vmware.com
+Subject: Re: Jiffy based timers/timeouts can expire too soon.
+References: <41AF3D50.4090707@arcom.com> <1102013246.13294.19.camel@cog.beaverton.ibm.com> <20041202232803.GA6387@krispykreme.ozlabs.ibm.com>
+In-Reply-To: <20041202232803.GA6387@krispykreme.ozlabs.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Maciej Soltysiak <solt2@dns.toxicfilms.tv>
-Date: Thu, Dec 16, 2004 at 09:13:56PM +0100
-> Hi,
+Anton Blanchard wrote:
+>  
 > 
-> AFAICS the -ac tree should be the most stable of all kernels, right?
+>>Well, hopefully the lost tick detection code won't over compensate, so
+>>it shouldn't be an issue. However, as Tim Mann pointed out it, due to
+>>interrupt delay and queuing, it is seen on virtualized systems.
 > 
-> -mm is totally bleeding edge
-
-I don't agree there. It is bleeding edge, but Andrew makes a conscious
-decision when to release it, and I'm sure part of that decision is
-thinking about when things will be stable enough to work for many
-people.
-
-> -bk the same
-
-bk is the central repository, and depending on when you pull it, you may
-have just catched Linus asleep after merging patch 1, meaning the tree
-is unstable until he wakes up and merges patch 2.
-There is no conscious 'release moment' - this is totally bleeding edge.
-
-> -ck is experimental
-
-There are 'release moments' here too.
-
 > 
-> Others are experimental too.
+> We saw this on ppc64 on earlier 2.6 kernels. There were some bugs with
+> the VM where interrupts would get disabled for a long time (we saw 20+
+> second periods). A SCSI timeout would occur on another CPU and at that
+> time irqs would get reenabled and 20 seconds of time would get replayed.
 > 
-> Looking at the changelogs, the most reasonable kernel to use for
-> generic use are the -ac kernels, which I am going to use since 2.6.10
-> as long as Alan is kindly going to continue his fabulous work.
+> A bunch of timers would go off early and the SCSI adapter would explode.
 
-I've understood the 2.6.x-ac kernels started with some ide work, then
-included some serial fixes, and may or may not have other bug fixes.
->From what I read, they are not as all-including as the 2.4.x-ac kernels
-were. Those I recognize most in the 2.6.x-mm kernels.
+The problem is that "most" code believes jiffies is right.  Under long interrupt 
+off times, it is not.  I suspect that most of the early timers came from code 
+that set the timer with the interrupt system off.  Some might say they got what 
+they deserved :).
 
-> 
-> I swear not to use 2.6.10 until Alan publishes 2.6.10-ac1 :-)
->
-Whatever you think best, of course. That may be the release where Alan
-says 'Here's the new, experimental next-generation SATA code. It'll
-probably break every partition you have. Send me bug-reports' :-)
+In the HRT patch, we always correct jiffies to the real value (by marking the 
+TSC value at the last jiffie push and using that plus the current TSC to 
+correct).  It would be rather easy to provide an interface to get the current 
+real current jiffie, but it is another thing to correct all the code that uses 
+jiffie.  Attempts to make jiffie a macro pick up far too many uses of the word 
+in several name spaces to make it a reasonable thing to do.
+-
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
 
-My way of keeping my home system up is to test a new kernel first on my
-laptop (which has good backups and little configuration), then read this
-list for some days and then install it on my main workstation (which
-also has good backups). Only after some weeks quiet I think about such a
-kernel on my firewall/router. Keeping backups helps when testing
-kernels.
-
-YMMV,
-Jurriaan
--- 
-I never think, sir. Didn't get a degree.
-	Chief Inspector Morse
-Debian (Unstable) GNU/Linux 2.6.10-rc3 2x6078 bogomips load 0.23

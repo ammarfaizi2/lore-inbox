@@ -1,47 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265766AbUFIMy0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263685AbUFIM7a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265766AbUFIMy0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jun 2004 08:54:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265782AbUFIMy0
+	id S263685AbUFIM7a (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jun 2004 08:59:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265729AbUFIM73
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jun 2004 08:54:26 -0400
-Received: from moutng.kundenserver.de ([212.227.126.184]:64511 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S265766AbUFIMyY convert rfc822-to-8bit (ORCPT
+	Wed, 9 Jun 2004 08:59:29 -0400
+Received: from mail.fh-wedel.de ([213.39.232.194]:7830 "EHLO mail.fh-wedel.de")
+	by vger.kernel.org with ESMTP id S263685AbUFIM72 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jun 2004 08:54:24 -0400
-From: Christian Borntraeger <linux-kernel@borntraeger.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [STACK] >3k call path in xfs
-Date: Wed, 9 Jun 2004 14:54:17 +0200
-User-Agent: KMail/1.6.2
-References: <20040609122647.GF21168@wohnheim.fh-wedel.de>
-In-Reply-To: <20040609122647.GF21168@wohnheim.fh-wedel.de>
-Cc: nathans@sgi.com, owner-xfs@oss.sgi.com,
-       =?iso-8859-1?q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>
-MIME-Version: 1.0
+	Wed, 9 Jun 2004 08:59:28 -0400
+Date: Wed, 9 Jun 2004 14:59:12 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: chase.maupin@hp.com, iss_storagedev@hp.com, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [STACK] >4k call path in hp/compaq fibre channel driver
+Message-ID: <20040609125912.GK21168@wohnheim.fh-wedel.de>
+References: <20040609124302.GI21168@wohnheim.fh-wedel.de> <1086785454.2810.13.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200406091454.21182.linux-kernel@borntraeger.net>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:5a8b66f42810086ecd21595c2d6103b9
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1086785454.2810.13.camel@laptop.fenrus.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jörn Engel wrote:
-> 3k is not really bad yet, I just like to keep 1k of headroom for
-> surprises like an extra int foo[256] in a structure.
-> stackframes for call path too long (3064):
-[...]
->       12  panic
-[...]
+On Wed, 9 June 2004 14:50:54 +0200, Arjan van de Ven wrote:
+> On Wed, 2004-06-09 at 14:43, Jörn Engel wrote:
+> > Chase, I guess this code won't live long with 4k stacks.  Can you
+> > please fix CpqTsProcessIMQEntry() and PeekIMQEntry()?
+> > 
+> > Linus, Andrew, how about marking CONFIG_SCSI_CPQFCTS as broken for the
+> > time being?
+> 
+> isn't it already? I thought it never got adjusted to the 2.6 scsi layer
+> already (or the 2.4 one for that matter)
 
-I agree thats good to reduce stack size. 
+Doesn't look like it.
 
-On the other hand I think call traces containing panic are not a call trace 
-I want to see at all.
+But that's a good point.  I could use allnonbrokenconfig for stack
+tests the next time.
 
-cheers
+config SCSI_CPQFCTS
+	tristate "Compaq Fibre Channel 64-bit/66Mhz HBA support"
+	depends on PCI && SCSI
+	help
+	  Say Y here to compile in support for the Compaq StorageWorks Fibre
+	  Channel 64-bit/66Mhz Host Bus Adapter.
 
-Christian
+Jörn
+
+-- 
+Happiness isn't having what you want, it's wanting what you have.
+-- unknown

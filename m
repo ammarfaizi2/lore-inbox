@@ -1,52 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314231AbSDVPrx>; Mon, 22 Apr 2002 11:47:53 -0400
+	id <S314226AbSDVPuA>; Mon, 22 Apr 2002 11:50:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314234AbSDVPrw>; Mon, 22 Apr 2002 11:47:52 -0400
-Received: from ns.tasking.nl ([195.193.207.2]:23051 "EHLO ns.tasking.nl")
-	by vger.kernel.org with ESMTP id <S314231AbSDVPrv>;
-	Mon, 22 Apr 2002 11:47:51 -0400
-Date: Mon, 22 Apr 2002 17:46:23 +0200
-From: Frank van Maarseveen <fvm@altium.nl>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.18: writeback of shared mmap'ed files broken?
-Message-ID: <20020422174623.A25397@espoo.tasking.nl>
-Reply-To: frank.van.maarseveen@altium.nl
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-Subliminal-Message: Use Linux!
-Organization: ALTIUM Software BV
+	id <S314234AbSDVPt7>; Mon, 22 Apr 2002 11:49:59 -0400
+Received: from dsl-213-023-039-131.arcor-ip.net ([213.23.39.131]:22940 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S314226AbSDVPt6>;
+	Mon, 22 Apr 2002 11:49:58 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Larry McVoy <lm@bitmover.com>
+Subject: Re: BK, deltas, snapshots and fate of -pre...
+Date: Sun, 21 Apr 2002 17:50:25 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Linus Torvalds <torvalds@transmeta.com>, Ian Molton <spyro@armlinux.org>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0204202108410.10137-100000@home.transmeta.com> <E16zGq9-0001EW-00@starship> <20020422084421.A17613@work.bitmover.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16zJbd-0001GZ-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A news server has two processes both accessing an "active" file.
-This file is constantly being updated:
+On Monday 22 April 2002 17:44, Larry McVoy wrote:
+> On Sun, Apr 21, 2002 at 02:53:13PM +0200, Daniel Phillips wrote:
+> > I hope I made it clear that I believe BK is helping Linux.  Furthermore, I
+> > don't see why Larry should not collect some advertising for his contribution.
+> > Within limits.  IMHO, we're on the wrong side of the limit at the moment,
+> > and moving further with no sign of moderating.
+> 
+> Yes, because so many purchasing managers spend their time reading the
+> Documentation subdirectory of the Linux kernel in order to decide what
+> SCM system they should use.
+> 
+> The existence (or non-existence) of the docs has absolutely no marketing
+> value to BK.
 
-	cp /loc/news/lib/active /tmp/active
-	sleep 1
-	diff /loc/news/lib/active /tmp/active
-		(differences)
-
-However, its mtime does not change: it is days too old. Also, after
-an unclean shutdown and reboot due to a power failure innd seemed to
-operate on a very old version of the active file.
-
-I don't think innd is calling msync() but IMHO that should not prohibit
-the kernel from flushing out dirty pages at regular interval.
-
-AFAIK there was a bug in the past with shared mmap'ed files but I thought
-it was fixed a long time ago.
-
-# lsof|grep lib/active
-actived   30695   news  mem    REG        3,4    70078     209527 /loc/news/lib/active
-innd      30696   news  mem    REG        3,4    70078     209527 /loc/news/lib/active
-innd      30696   news   16u   REG        3,4    70078     209527 /loc/news/lib/active
-# grep lib/active /proc/3069[56]/maps
-4018b000-4019d000 r--s 00000000 03:04 209527     /loc/news/lib/active
-40425000-40437000 rw-s 00000000 03:04 209527     /loc/news/lib/active
-
+So you have no problem with moving them to a website, leaving a url in
+SubmittingPatches?
 
 -- 
-Frank
+Daniel

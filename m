@@ -1,107 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269119AbUICG0e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269237AbUICGfi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269119AbUICG0e (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 02:26:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269237AbUICG0e
+	id S269237AbUICGfi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 02:35:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269278AbUICGfi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 02:26:34 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:21676 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S269119AbUICG0a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 02:26:30 -0400
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-R0
-From: Lee Revell <rlrevell@joe-job.com>
-To: Eric St-Laurent <ericstl34@sympatico.ca>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>,
-       "K.R. Foley" <kr@cybsft.com>,
-       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
-       Daniel Schmitt <pnambic@unu.nu>, Mark_H_Johnson@raytheon.com,
-       "P.O. Gaillard" <pierre-olivier.gaillard@fr.thalesgroup.com>
-In-Reply-To: <1094181447.4815.6.camel@orbiter>
-References: <OF04883085.9C3535D2-ON86256F00.0065652B@raytheon.com>
-	 <20040902063335.GA17657@elte.hu> <20040902065549.GA18860@elte.hu>
-	 <20040902111003.GA4256@elte.hu> <20040902215728.GA28571@elte.hu>
-	 <1094162812.1347.54.camel@krustophenia.net>
-	 <20040902221402.GA29434@elte.hu>
-	 <1094171082.19760.7.camel@krustophenia.net>
-	 <1094181447.4815.6.camel@orbiter>
-Content-Type: text/plain
-Message-Id: <1094192788.19760.47.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 03 Sep 2004 02:26:29 -0400
+	Fri, 3 Sep 2004 02:35:38 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:38896 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S269237AbUICGfb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 02:35:31 -0400
+Message-ID: <413810B6.7020805@namesys.com>
+Date: Thu, 02 Sep 2004 23:35:34 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: David Masover <ninja@slaphack.com>
+CC: Steve Bergman <steve@rueb.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
+       Linus Torvalds <torvalds@osdl.org>, Jamie Lokier <jamie@shareable.org>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
+       viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       reiserfs <reiserfs-list@namesys.com>
+Subject: Re: The argument for fs assistance in handling archives
+References: <20040826150202.GE5733@mail.shareable.org>	 <200408282314.i7SNErYv003270@localhost.localdomain>	 <20040901200806.GC31934@mail.shareable.org>	 <Pine.LNX.4.58.0409011311150.2295@ppc970.osdl.org>	 <20040902002431.GN31934@mail.shareable.org> <413694E6.7010606@slaphack.com>	 <Pine.LNX.4.58.0409012037300.2295@ppc970.osdl.org>	 <4136A14E.9010303@slaphack.com>	 <Pine.LNX.4.58.0409012259340.2295@ppc970.osdl.org>	 <4136C876.5010806@namesys.com>	 <Pine.LNX.4.58.0409020030220.2295@ppc970.osdl.org>	 <4136E0B6.4000705@namesys.com>  <14260000.1094149320@flay> <1094154744.12730.64.camel@voyager.localdomain> <4137BC3C.4010207@slaphack.com>
+In-Reply-To: <4137BC3C.4010207@slaphack.com>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-09-02 at 23:17, Eric St-Laurent wrote:
-> > Judging from these graphs, all of the latency issues are solved, at
-> > least on my UP hardware, and the latencies seem to be getting very close
-> > to the limits of what the hardware can do:
-> > 
-> > http://krustophenia.net/testresults.php?dataset=2.6.9-rc1-Q6#/var/www/2.6.9-rc1-Q6/jack-test-1
-> > 
-> > The worst case latency is only 160 usecs, and the vast majority fall
-> > into the pattern from 0 to 120 usecs.  All of the spikes above 120 are
-> > almost certainly caused by netdev_max_backlog.  However these are not
-> > long enough to cause any problems with my workload; the lowest practical
-> > latency for audio work is around 0.66 ms (32 frames at 48khz). 
-> 
-> Lee,
-> 
-> A few weeks ago you wrote that "the worst latency I was able to trigger
-> was 46 usecs", now it's 160 usecs.
-> 
-> Ingo has done much work on his patches since then.
-> 
-> Why the worst latency is higher now? I presume that the latency
-> measurements technique are more accurate and the 46 usecs was
-> inaccurate?
-> 
-> Ref: http://uwsg.indiana.edu/hypermail/linux/kernel/0407.3/0994.html
-> 
+David Masover wrote:
 
-Yup, due to my incomplete understanding of the jackd code, my initial
-measurements were measuring the time it took to run one process cycle
-(basically a NOOP if there are no clients), rather than the actual time
-jackd spent in poll() between cycles.
+>
+> The use of ext3 as a filesystem isn't cross-platform.  Every disk-write
+> is platform-specific!  We should all be using captive-ntfs instead!
 
-This did have the effect of measuring the scueduler latency, but I
-believe it was being measured indirectly via cache effects - the longer
-it had been since jackd last ran, the colder the cachelines touched by
-the last cycle.
+;-)
 
-Since I am using a patch to jackd to measure these latencies, which will
-be merged in the near future, it's more important for me that the patch
-accurately reflect the latencies jackd users will see than it is for the
-new, accurate results to be compatible with the old.
+All this stuff about how no filesystem should be allowed to have 
+semantic features others don't, it seems very Bolshevist to me.
 
-All datasets for -O and earlier use the old code:
+Let Linux have an ecosystem with a diverse ecology of filesystems, and 
+the features that work will reproduce to other filesystems.  I thought 
+that was the Linus way?
 
-	http://krustophenia.net/testresults.php?dataset=2.6.8-rc3-O5
+If not, why did I spend 10 years laying the storage layer groundwork for 
+semantic enhancements when I could have taken that job at Sun as 
+filesystems architect and made a lot more money?
 
-This one uses the initial version of the new code, measuring the time
-jackd spends in poll().  The bimodal distribution is due to my sound
-card having two different interrupt sources for capture and playback. 
-So one of the spikes represent the elapsed time between the capture
-interrupt and the playback interrupt, and the other the time between the
-playback interrupt and the next capture interrupt:
-	
-	http://krustophenia.net/testresults.php?dataset=2.6.8.1-P0
+I want to tinker.  Let me play in my sandbox, and if you don't like what 
+I do, don't imitate it.....  I think there are plenty of users who like 
+reiser4 though....
 
+Linus, trying to outguess someone who has spent 2 decades studying 
+namespace design as to what will be useful to users is risky.  Look at 
+reiser4's performance, see if it obsoletes V3, and if it does then let 
+me play a bit.
 
--Q and later use the current method, which is like the above except the
-second hump is discarded, as it is a function of the scheduling latency
-and the period size rather than just the scheduling latency:
+Objecting on the grounds that it causes VFS bugs is reasonable, but I 
+answered those questions and you did not respond (I can resend if 
+asked).  If you really really don't like what we do to VFS, well, we can 
+confine ourselves to sys_reiser4(), but that is only a last resort from 
+my view.
 
-	http://krustophenia.net/testresults.php?dataset=2.6.9-rc1-Q6
-
-So, don't be fooled by the numbers, the newest version of the patch is
-in fact the best.  I have been meaning to go back and measure the
-current patches with the old code but it's pretty low priority...
-
-Lee
-
-
-
-
+Hans

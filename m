@@ -1,162 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265651AbSJXUiG>; Thu, 24 Oct 2002 16:38:06 -0400
+	id <S265657AbSJXUkO>; Thu, 24 Oct 2002 16:40:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265653AbSJXUiG>; Thu, 24 Oct 2002 16:38:06 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:51721 "EHLO
-	www.home.local") by vger.kernel.org with ESMTP id <S265651AbSJXUiC>;
-	Thu, 24 Oct 2002 16:38:02 -0400
-Date: Thu, 24 Oct 2002 22:44:04 +0200
-From: Willy TARREAU <willy@w.ods.org>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: linux-kernel@vger.kernel.org, arjanv@redhat.com
-Subject: Re: [CFT] faster athlon/duron memory copy implementation
-Message-ID: <20021024204404.GA486@pcw.home.local>
-References: <3DB82ABF.8030706@colorfullife.com>
-Mime-Version: 1.0
+	id <S265659AbSJXUkO>; Thu, 24 Oct 2002 16:40:14 -0400
+Received: from packet.digeo.com ([12.110.80.53]:49042 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S265657AbSJXUkN>;
+	Thu, 24 Oct 2002 16:40:13 -0400
+Message-ID: <3DB85C1B.62D14184@digeo.com>
+Date: Thu, 24 Oct 2002 13:46:19 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: chrisl@vmware.com
+CC: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
+       chrisl@gnuchina.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: writepage return value check in vmscan.c
+References: <20021024082505.GB1471@vmware.com> <3DB7B11B.9E552CFF@digeo.com> <20021024175718.GA1398@vmware.com> <20021024183327.GS3354@dualathlon.random> <20021024191531.GD1398@vmware.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DB82ABF.8030706@colorfullife.com>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 24 Oct 2002 20:46:19.0247 (UTC) FILETIME=[67920FF0:01C27B9E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 24, 2002 at 07:15:43PM +0200, Manfred Spraul wrote:
-> AMD recommends to perform memory copies with backward read operations 
-> instead of prefetch.
+chrisl@vmware.com wrote:
 > 
-> http://208.15.46.63/events/gdc2002.htm
+> ...
+> See the comment at the source for parameter. basically, if you want
+> 3 virtual machine, each have 2 process, using 1 G ram each you can do:
 > 
-> Attached is a test app that compares several memory copy implementations.
-> Could you run it and report the results to me, together with cpu, 
-> chipset and memory type?
+> bigmm -i 3 -t 2 -c 1024
 > 
-> Please run 2 or 3 times.
+> I run it on two 4G and 8G smp machine. Both can dead lock if I mmap
+> enough memory.
+> 
 
-Dual Athlon XP 1800+ on ASUS A7M266-D (760MPX), 512 MB of PC2100 in two identical banks.
-I observed a noticeable slowdown several minutes later (after typing this mail),
-see below.
-
-willy@pcw:c$ ./athlon
-Athlon test program $Id: fast.c,v 1.6 2000/09/23 09:05:45 arjan Exp $
-
-copy_page() tests
-copy_page function 'warm up run'         took 16402 cycles per page
-copy_page function '2.4 non MMX'         took 17886 cycles per page
-copy_page function '2.4 MMX fallback'    took 17956 cycles per page
-copy_page function '2.4 MMX version'     took 16382 cycles per page
-copy_page function 'faster_copy'         took 9807 cycles per page
-copy_page function 'even_faster'         took 10205 cycles per page
-copy_page function 'no_prefetch'         took 8457 cycles per page
-willy@pcw:c$ ./athlon
-Athlon test program $Id: fast.c,v 1.6 2000/09/23 09:05:45 arjan Exp $
-
-copy_page() tests
-copy_page function 'warm up run'         took 16552 cycles per page
-copy_page function '2.4 non MMX'         took 17744 cycles per page
-copy_page function '2.4 MMX fallback'    took 17713 cycles per page
-copy_page function '2.4 MMX version'     took 16427 cycles per page
-copy_page function 'faster_copy'         took 9823 cycles per page
-copy_page function 'even_faster'         took 10266 cycles per page
-copy_page function 'no_prefetch'         took 8451 cycles per page
-willy@pcw:c$ ./athlon
-Athlon test program $Id: fast.c,v 1.6 2000/09/23 09:05:45 arjan Exp $
-
-copy_page() tests
-copy_page function 'warm up run'         took 16409 cycles per page
-copy_page function '2.4 non MMX'         took 17547 cycles per page
-copy_page function '2.4 MMX fallback'    took 17516 cycles per page
-copy_page function '2.4 MMX version'     took 16354 cycles per page
-copy_page function 'faster_copy'         took 9807 cycles per page
-copy_page function 'even_faster'         took 10219 cycles per page
-copy_page function 'no_prefetch'         took 8442 cycles per page
-
---- several minutes later ---
-
-willy@pcw:c$ ./athlon
-Athlon test program $Id: fast.c,v 1.6 2000/09/23 09:05:45 arjan Exp $
-
-copy_page() tests
-copy_page function 'warm up run'         took 18140 cycles per page
-copy_page function '2.4 non MMX'         took 20370 cycles per page
-copy_page function '2.4 MMX fallback'    took 20361 cycles per page
-copy_page function '2.4 MMX version'     took 18086 cycles per page
-copy_page function 'faster_copy'         took 10231 cycles per page
-copy_page function 'even_faster'         took 10457 cycles per page
-copy_page function 'no_prefetch'         took 8456 cycles per page
-
-=> it seems that the memory areas have changed and that it is a bit
-slower now. But as you can see, no_prefetch is stable. Only "common"
-functions get slower.
-
-So I tried to allocate hundreds of MB of RAM to swap a bit, then free it.
-The results look better again :
-
-willy@pcw:c$ ./athlon
-Athlon test program $Id: fast.c,v 1.6 2000/09/23 09:05:45 arjan Exp $
-
-copy_page() tests
-copy_page function 'warm up run'         took 16135 cycles per page
-copy_page function '2.4 non MMX'         took 17863 cycles per page
-copy_page function '2.4 MMX fallback'    took 17866 cycles per page
-copy_page function '2.4 MMX version'     took 16057 cycles per page
-copy_page function 'faster_copy'         took 9669 cycles per page
-copy_page function 'even_faster'         took 10176 cycles per page
-copy_page function 'no_prefetch'         took 8433 cycles per page
-
-=> "common" implementations seem to really suffer from physical location.
-
-Other data :
-------------
-
-willy@pcw:c$ cat /proc/pci
-  Bus  0, device   0, function  0:
-    Host bridge: Advanced Micro Devices [AMD] AMD-760 MP [IGD4-2P] System Controller (rev 17).
-      Master Capable.  Latency=32.
-      Prefetchable 32 bit memory at 0xfc000000 [0xfdffffff].
-      Prefetchable 32 bit memory at 0xfb800000 [0xfb800fff].
-      I/O at 0xe800 [0xe803].
-
-willy@pcw:c$ cat /proc/cpuinfo
-processor       : 0
-vendor_id       : AuthenticAMD
-cpu family      : 6
-model           : 6
-model name      : AMD Athlon(TM) MP 1800+
-stepping        : 2
-cpu MHz         : 1546.000
-cache size      : 256 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 1
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr sse syscall mmxext 3dnowext 3dnow
-bogomips        : 3080.19
-
-processor       : 1
-vendor_id       : AuthenticAMD
-cpu family      : 6
-model           : 6
-model name      : AMD Athlon(TM) MP 1800+
-stepping        : 2
-cpu MHz         : 1546.000
-cache size      : 256 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 1
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr sse syscall mmxext 3dnowext 3dnow
-bogomips        : 3086.74
-
-
-Cheers,
-Willy
-
+Are you sure it's a deadlock?  A large MAP_SHARED load like this
+on a 2.4 highmem machine can go into a spin, but it will come back
+to life after several minutes.

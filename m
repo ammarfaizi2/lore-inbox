@@ -1,86 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267246AbTBUInd>; Fri, 21 Feb 2003 03:43:33 -0500
+	id <S267248AbTBUIzF>; Fri, 21 Feb 2003 03:55:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267247AbTBUInc>; Fri, 21 Feb 2003 03:43:32 -0500
-Received: from smtp-out-6.wanadoo.fr ([193.252.19.25]:52910 "EHLO
-	mel-rto6.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S267246AbTBUInb>; Fri, 21 Feb 2003 03:43:31 -0500
-From: Duncan Sands <baldrick@wanadoo.fr>
-To: Steve Parker <steve.parker@netops.co.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Alcatel SpeedTouch USB Modem
-Date: Fri, 21 Feb 2003 09:53:17 +0100
-User-Agent: KMail/1.5
-References: <Pine.GSO.4.44.0302210151090.22843-100000@www.netops.co.uk.>
-In-Reply-To: <Pine.GSO.4.44.0302210151090.22843-100000@www.netops.co.uk.>
+	id <S267252AbTBUIzF>; Fri, 21 Feb 2003 03:55:05 -0500
+Received: from mail2.sonytel.be ([195.0.45.172]:21923 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S267248AbTBUIzE>;
+	Fri, 21 Feb 2003 03:55:04 -0500
+Date: Fri, 21 Feb 2003 10:04:19 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: "David S. Miller" <davem@redhat.com>
+cc: James Simmons <jsimmons@infradead.org>,
+       Petr Vandrovec <vandrove@vc.cvut.cz>,
+       Dave Jones <davej@codemonkey.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: [Linux-fbdev-devel] Re: FBdev updates.
+In-Reply-To: <1045791900.21577.5.camel@rth.ninka.net>
+Message-ID: <Pine.GSO.4.21.0302211003250.9232-100000@vervain.sonytel.be>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200302210953.18215.baldrick@wanadoo.fr>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 21 February 2003 03:01, Steve Parker wrote:
-> I see that the Alcatel kernel-level driver for the Alcatel SpeedTouch USB
-> Modem is now included in the 2.5 kernel.
+On 20 Feb 2003, David S. Miller wrote:
+> On Thu, 2003-02-20 at 11:58, James Simmons wrote:
+> > > (3) persuade me that I want to write matroxcon and forget about fbcon at all, or
+> > 
+> > This is the best solution. 
 
-Hi Steve, that is so, and I am maintaining it.
+Huh?
 
-> This seems strange, since there seem to have been (in the past, at least)
-> a lot of (panic) problems reported with it, and the speedtouch.sf.net (and
-> complimentary speedtouchconf.sf.net) are fully capable of running this
-> modem in userspace.
-> Have these problems been resolved? Is the kernel driver as stable as the
-> userspace one? Are there demonstrable perfomance benefits in the kernel
-> driver?
+> And then we will have sbuscon as well, thus two places where
+> putcs() is necessary.
+> 
+> I don't understand, but I do hope that at some point it will be
+> realized that maybe allowing fbcon to generically handle putcs()
+> hardware is beneficial.
+> 
+> I can dream. :-)
 
-These problems are being resolved.  Most of them have already been resolved.
-The cvs version for 2.4, which you can find at
+Don't worry, tile blitting will be there (eventually)...
 
-	http://www.linux-usb.org/SpeedTouch/
+Gr{oetje,eeting}s,
 
-is quite stable.  In theory it can still crash (due to various micro races), but in
-practice it does not.  In any case, these micro races will be fixed soon.  The
-2.5 version, which is essentially identical to 2.4 cvs, doesn't work very well
-in the current 2.5 kernel.  I don't know why.  I am working on it.
+						Geert
 
-I have nothing against the user space version, which I used for many moons.
-The kernel version is certainly much lighter weight - less CPU, less memory.
-Whether this matters for you depends on your machine/needs.  My machine
-is slow, and I need all the CPU time I can get!
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-> I've certainly been using my modem for well over a year with the userspace
-> driver (speedtouch.sf.net) with - as at 2.4.18 - an unpatched kernel, and
-> no troubles whatsoever. Is there any need for the Alcatel code in the
-> kernel when the n_hdlc and ppp configs already cater for this modem, once
-> the microcode is loaded?
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 
-The main disadvantages of the kernel mode driver were:
-(1) unstable, and very unstable on SMP/preempt boxes
-(2) required running the closed source speedmgmt program
-(3) required compiling your own kernel
-
-The driver is in 2.5, and is heading for inclusion in 2.4, so I expect that in the
-future most distributions will ship with the speedtch module compiled.  Thus
-(3) is going away.
-
-The cvs version of the user space driver contains a patch for modem_run
-which enables it to be used with the kernel driver in place of speedmgmt
-(use the -k flag).  Thus (2) has already gone away.
-
-As I mentioned, (1) is (almost) dealt with.
-
-> What is the status of this driver WRT the Alcatel microcode? Last I heard,
-> the Alcatel microcode was required by both the Alcatel kernel-level and
-> the speedtouch.sf.net drivers.
-
-That is correct, but you no longer need to upload it using speedmgmt.
-There are efforts underway to reverse engineer the microcode, with
-some success.  The goal of writing our own microcode (ARM processor
-by the way) is still far, far away though.
-
-All the best,
-
-Duncan.

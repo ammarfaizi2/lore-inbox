@@ -1,55 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263394AbTECTOu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 May 2003 15:14:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263402AbTECTOu
+	id S263387AbTECTL5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 May 2003 15:11:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263390AbTECTL5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 May 2003 15:14:50 -0400
-Received: from mailout.mbnet.fi ([194.100.161.24]:25614 "EHLO posti.mbnet.fi")
-	by vger.kernel.org with ESMTP id S263394AbTECTOs (ORCPT
+	Sat, 3 May 2003 15:11:57 -0400
+Received: from fmx3.freemail.hu ([195.228.242.223]:17 "HELO fmx3.freemail.hu")
+	by vger.kernel.org with SMTP id S263387AbTECTL4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 May 2003 15:14:48 -0400
-Message-ID: <1571.194.100.165.159.1051990031.squirrel@webmail.mbnet.fi>
-Date: Sat, 3 May 2003 22:27:11 +0300 (EEST)
-Subject: Re: 2.5.68-mm4 and 3c900 is a horror
-From: Kmt Sundqvist <rabbit80@mbnet.fi>
-To: <akpm@digeo.com>
-In-Reply-To: <20030502150402.26c4f3b3.akpm@digeo.com>
-References: <20030502150402.26c4f3b3.akpm@digeo.com>
-Cc: <linux-kernel@vger.kernel.org>
-X-Mailer: SquirrelMail (version 1.2.5)
+	Sat, 3 May 2003 15:11:56 -0400
+Date: Sat, 3 May 2003 21:24:22 +0200 (CEST)
+From: Gabe Foobar <foobar.gabe@freemail.hu>
+Subject: will be able to load new kernel without restarting?
+To: linux-kernel@vger.kernel.org
+Message-ID: <freemail.20030403212422.18231@fm9.freemail.hu>
+X-Originating-IP: [195.56.242.144]
+X-HTTP-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-OriginalArrivalTime: 03 May 2003 19:27:15.0454 (UTC) FILETIME=[00F2F1E0:01C311AA]
+Content-Type: TEXT/PLAIN; CHARSET=ISO-8859-2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Kimmo Sundqvist <rabbit80@mbnet.fi> wrote:
+Hi!
 
->> May  2 20:34:10 minjami kernel: irq 19: nobody cared!
+Just a simple question. When I will be able to load new
+kernel without restarting the system? Working anybody on
+this problem?
 
-> Very odd.  How often does this happen?
+If answer is "yes", the question is: when?
+If answer is "no", the question is: why not?
 
-Actually I was booting up for the first time with -mm4 as it happened. 
-The first 8 errors I copied verbatim, and the 22 that happened after the
-8th but before the machine locked up I left out.  So my guess is that
-whatever happened there, happened every time.
-The system is set so that it runs kdm on boot, and opens a PPPoE link from
-/etc/ppp/ppp_on_boot with
-pppd pty "pppoe -I eth0 -m 1412" debug defaultroute
+Thank you.
 
-The screen went black, which is normal in itself, but the X background
-didn't appear.  Neither did it switch virtual consoles, or beep or
-anything while I tried. Just can't remember was my display in sync or not,
-but either way, pressing any (many) keys didn't put it in sync or out.
-The kernel I was running in my previous boot was 2.5.68-osdl2, and
-2.5.68-mm4 was also compiled while 2.5.68-osdl2 was running.  All
-userspace stuff is neatly set up, and with ordinary 2.5.68 (and
-2.5.68-osdl2) everything works fine, with the exception of ALSA.  OSS
-works.
-The ReiserFS partitions didn't complain on next bootup.
-
--Kimmo Sundqvist
+gabe
 
 

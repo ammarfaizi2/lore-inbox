@@ -1,36 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311898AbSD1RmP>; Sun, 28 Apr 2002 13:42:15 -0400
+	id <S310806AbSD1RoE>; Sun, 28 Apr 2002 13:44:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312379AbSD1RmO>; Sun, 28 Apr 2002 13:42:14 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:33192 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S311898AbSD1RmM>; Sun, 28 Apr 2002 13:42:12 -0400
-Date: Sun, 28 Apr 2002 11:42:07 -0600
-Message-Id: <200204281742.g3SHg7S25357@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Daniel Phillips <phillips@bonn-fries.net>
+	id <S313578AbSD1RoD>; Sun, 28 Apr 2002 13:44:03 -0400
+Received: from bstnma1-ar1-4-64-205-250.bstnma1.elnk.dsl.genuity.net ([4.64.205.250]:30920
+	"EHLO mail.spoofed.org") by vger.kernel.org with ESMTP
+	id <S310806AbSD1Rn7>; Sun, 28 Apr 2002 13:43:59 -0400
+Date: Sun, 28 Apr 2002 13:47:25 -0400
+From: warchild@spoofed.org
+To: Andi Kleen <ak@suse.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: BK, deltas, snapshots and fate of -pre...
-In-Reply-To: <E171CC4-0000Bs-00@starship>
+Subject: Re: remote memory reading using arp?
+Message-ID: <20020428174725.GA5399@spoofed.org>
+In-Reply-To: <20020427202756.GC6240@spoofed.org.suse.lists.linux.kernel> <3CCB0EAB.9050602@ixiacom.com.suse.lists.linux.kernel> <p73znzom2kv.fsf@oldwotan.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips writes:
-> On Saturday 27 April 2002 20:59, Richard Gooch wrote:
-> > I've added two subsections to the FAQ about this, which I hope will
-> > avoid some future flamewars:
-> > http://www.tux.org/lkml/#s1-20
-> > http://www.tux.org/lkml/#s1-21
+> The driver should be fixed in that case. I would consider it a driver
+> bug. The cost of clearing the tail should be minimal, it is at most
+> two cache lines.
 > 
+> Is it known which driver caused this?
+
+My testing yesterday was done with a Xircom RBEM58G-100 (10/100 + 56k) and an
+Aironet PC4800 (with xircom_tulip_cb and airo/airo_cs, respectively).
+Since this may be a driver problem, I should note that the airo drivers are
+from pcmcia-cs-3.1.33.
+
+ 
+> > This is NOT a "remote memory reading" exploit, since there is no way to
 > 
-> > it's better that those who feel stronly about it
->                                   ^^^^^^^--------- typo
+> It really is. 
 
-Bugger! Thanks.
+I'm finding it really difficult to replicate this problem today, but if I
+find anything else that may be of use to help shed more light on this
+issue, I'll be sure and share it.
 
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+thanks

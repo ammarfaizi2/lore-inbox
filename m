@@ -1,35 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133106AbRDRMYF>; Wed, 18 Apr 2001 08:24:05 -0400
+	id <S133103AbRDRM1Y>; Wed, 18 Apr 2001 08:27:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133103AbRDRMXq>; Wed, 18 Apr 2001 08:23:46 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:39429 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S133105AbRDRMXm>; Wed, 18 Apr 2001 08:23:42 -0400
-Subject: Re: Supplying missing entries for Configure.help, part 4
-To: philb@gnu.org (Philip Blundell)
-Date: Wed, 18 Apr 2001 13:24:34 +0100 (BST)
-Cc: esr@snark.thyrsus.com (Eric S. Raymond),
-        alan@lxorguk.ukuu.org.uk (Alan Cox), torvalds@transmeta.com,
-        axel@uni-paderborn.de, linux-kernel@vger.kernel.org,
-        kbuild-devel@lists.sourceforge.net
-In-Reply-To: <E14pn6x-00049s-00@kings-cross.london.uk.eu.org> from "Philip Blundell" at Apr 18, 2001 09:14:51 AM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S133100AbRDRM1P>; Wed, 18 Apr 2001 08:27:15 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:21004 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S133103AbRDRM0P>;
+	Wed, 18 Apr 2001 08:26:15 -0400
+Date: Wed, 18 Apr 2001 14:25:36 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Giuliano Pochini <pochini@shiny.it>, lna@bigfoot.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: I can eject a mounted CD
+Message-ID: <20010418142536.C490@suse.de>
+In-Reply-To: <XFMail.010418092543.pochini@shiny.it> <E14pqzO-0004bp-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14pr0g-0004bw-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <E14pqzO-0004bp-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Wed, Apr 18, 2001 at 01:23:15PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >+Support for Cobalt Micro Server
-> >+CONFIG_COBALT_MICRO_SERVER
-> >+  Support for ARM-based Cobalt boxes (they have been bought by Sun and
-> >+  are now the "Server Appliance Business Unit") including the 2700 series
+On Wed, Apr 18 2001, Alan Cox wrote:
+> > > rpm -e magicdev
+> > 
+> > Magicdev is not installed.
+> > Ok, I'm the only one with this problem, I'll manage to find the bug by myself.
 > 
-> Aren't those machines MIPS based?
+> vmware and one or two other apps I've also seen do this. WHen you unlock the
+> cdrom door as root you can unlock it even if a file system is mounted
 
-They are mips based and support for them was also removed from the kernel so
-the entry doesnt want to go in. I'd rather have missing than wrong entries
+yes, unlocking is definitely possible and then of course a manual eject.
+Only by root of course, however an ioctl eject should fail unless the
+cdrom really isn't busy (ie mounted or has other opens).
+
+-- 
+Jens Axboe
 

@@ -1,152 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263620AbUECJQN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263614AbUECJXP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263620AbUECJQN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 May 2004 05:16:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263623AbUECJQN
+	id S263614AbUECJXP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 May 2004 05:23:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263616AbUECJXP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 May 2004 05:16:13 -0400
-Received: from [194.243.27.136] ([194.243.27.136]:47626 "HELO
-	venere.pandoraonline.it") by vger.kernel.org with SMTP
-	id S263620AbUECJQE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 May 2004 05:16:04 -0400
-Date: Mon, 3 May 2004 11:18:36 +0200
-From: Devel <devel@integra-sc.it>
-To: linux-kernel@vger.kernel.org
-Subject: Oops with GigaByte  MainBoard
-Message-Id: <20040503111836.6cff4016.devel@integra-sc.it>
-Organization: Integra Solutions
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
+	Mon, 3 May 2004 05:23:15 -0400
+Received: from mail.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:42702 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S263614AbUECJXI convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 May 2004 05:23:08 -0400
+MIME-Version: 1.0
+To: torvalds@osdl.org, marcelo.tosatti@cyclades.com.br
+Subject: BK-kernel-tools/shortlog update
+Cc: linux-kernel@vger.kernel.org, matthias.andree@gmx.de, samel@mail.cz
+From: Matthias Andree <matthias.andree@gmx.de>
+Content-ID: <Mon_May__3_09_23_04_UTC_2004_0@merlin.emma.line.org>
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Description: An object packed by metasend
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20040503092304.51ABDB556C@merlin.emma.line.org>
+Date: Mon,  3 May 2004 11:23:04 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
-This is a report of a test i made on my two machine.
-I have two identical Machine with Red Hat 7.3 and kernel 2.4.22:
+Hello Linus,
 
-CPU: AMD athlon-xp 3000
-RAM: 512MB
-HD: Maxtor 120GB
-Modem: Conexant
-VIDEO: ATI Radeon 7000
-VIDEO GRABBER.
+you can either use "bk receive" to patch with this mail,
+or you can
+Pull from: bk://krusty.dt.e-technik.uni-dortmund.de/BK-kernel-tools
+or in cases of dire need, you can apply the patch below.
 
-The difference are on The main Board:
-1) GigaByte GA-7VT600(-L) chipset(via kt600)					(VT8235 South Bridge)
-2) GigaByte GA-7VT600 1364 chipset(via kt600 with SATA disabled from BIOS)	(VT8237 South Bridge)
+BK: Parent repository is http://bktools.bkbits.net/bktools
 
-When i run my heavy load application (heavy CPU and I/O load) on the 1) all work fine. But when i run the same application on the same HW on the 2) i have a lot of OOPS (see bottom). The main difference between the two MB is the South Bridge. How i can diagnose these problem There are know proble with 2)? some suggest?
-Thanks a lot !
+Patch description:
 
+ChangeSet@1.162, 2004-05-03 11:22:30+02:00, matthias.andree@gmx.de
+  (vita) 5 new addresses
 
+Matthias
 
-OOPS
+------------------------------------------------------------------------
 
-Apr 23 20:46:15 webeye kernel: Unable to handle kernel paging request at virtual address 23232327
-Apr 23 20:46:15 webeye kernel:  printing eip:
-Apr 23 20:46:15 webeye kernel: c012d96e
-Apr 23 20:46:15 webeye kernel: *pde = 00000000
-Apr 23 20:46:15 webeye kernel: Oops: 0002
-Apr 23 20:46:15 webeye kernel: CPU:    0
-Apr 23 20:46:15 webeye kernel: EIP:    0010:[<c012d96e>]    Tainted: P
-Apr 23 20:46:15 webeye kernel: EFLAGS: 00010046
-Apr 23 20:46:15 webeye kernel: eax: 23232323   ebx: dffd5dd4   ecx: de528000   edx: df79e000
-Apr 23 20:46:15 webeye kernel: esi: 00000282   edi: 0000000d   ebp: c1534ca4   esp: c15efee0
-Apr 23 20:46:15 webeye kernel: ds: 0018   es: 0018   ss: 0018
-Apr 23 20:46:15 webeye kernel: Process kswapd (pid: 4, stackpage=c15ef000)
-Apr 23 20:46:15 webeye kernel: Stack: df0e55c0 de528740 de528740 de528740 c01371bb dffd5dd4 de528740 c01391f1
-Apr 23 20:46:15 webeye kernel:        de528740 de528740 dffe9c80 c1534ca4 000001d0 c013748f 00000000 c1534ca4
-Apr 23 20:46:15 webeye kernel:        00000010 00002d11 c012e7f4 c1534ca4 000001d0 00000000 c15ee000 00000200
-Apr 23 20:46:15 webeye kernel: Call Trace:    [<c01371bb>] [<c01391f1>] [<c013748f>] [<c012e7f4>] [<c012ea40>]
-Apr 23 20:46:15 webeye kernel:   [<c012eaac>] [<c012ebbf>] [<c012ec36>] [<c012ed71>] [<c012ecd0>] [<c0105000>]
-Apr 23 20:46:15 webeye kernel:   [<c0107116>] [<c012ecd0>]
-Apr 23 20:46:15 webeye kernel:
-Apr 23 20:46:15 webeye kernel: Code: 89 50 04 89 02 c7 01 00 00 00 00 c7 41 04 00 00 00 00 8b 43
+##### DIFFSTAT #####
+# shortlog |    7 ++++++-
+# 1 files changed, 6 insertions(+), 1 deletion(-)
 
-Ksymoops:
->>EIP; c012d96e <kmem_cache_free+7e/b0>   <=====
-Trace; c01371bb <__put_unused_buffer_head+2b/60>
-Trace; c01391f1 <try_to_free_buffers+71/f0>
-Trace; c013748f <try_to_release_page+2f/50>
-Trace; c012e7f4 <shrink_cache+214/310>
-Trace; c012ea40 <shrink_caches+50/80>
-Trace; c012eaac <try_to_free_pages_zone+3c/60>
-Trace; c012ebbf <kswapd_balance_pgdat+4f/a0>
-Trace; c012ec36 <kswapd_balance+26/40>
-Trace; c012ed71 <kswapd+a1/c0>
-Trace; c012ecd0 <kswapd+0/c0>
-Trace; c0105000 <_stext+0/0>
-Trace; c0107116 <arch_kernel_thread+26/30>
-Trace; c012ecd0 <kswapd+0/c0>
-Code;  c012d96e <kmem_cache_free+7e/b0>
-00000000 <_EIP>:
-Code;  c012d96e <kmem_cache_free+7e/b0>   <=====
-   0:   89 50 04                  mov    %edx,0x4(%eax)   <=====
-Code;  c012d971 <kmem_cache_free+81/b0>
-   3:   89 02                     mov    %eax,(%edx)
-Code;  c012d973 <kmem_cache_free+83/b0>
-   5:   c7 01 00 00 00 00         movl   $0x0,(%ecx)
-Code;  c012d979 <kmem_cache_free+89/b0>
-   b:   c7 41 04 00 00 00 00      movl   $0x0,0x4(%ecx)
-Code;  c012d980 <kmem_cache_free+90/b0>
-  12:   8b 43 00                  mov    0x0(%ebx),%eax
- 
+##### GNUPATCH #####
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/05/03 11:22:30+02:00 matthias.andree@gmx.de 
+#   (vita) 5 new addresses
+# 
+# shortlog
+#   2004/05/03 11:22:30+02:00 matthias.andree@gmx.de +6 -1
+#   (vita) 5 new addresses
+# 
+diff -Nru a/shortlog b/shortlog
+--- a/shortlog	Mon May  3 11:23:04 2004
++++ b/shortlog	Mon May  3 11:23:04 2004
+@@ -8,7 +8,7 @@
+ #			Tomas Szepe <szepe@pinerecords.com>
+ #			Vitezslav Samel <samel@mail.cz>
+ #
+-# $Id: lk-changelog.pl,v 0.272 2004/05/01 14:57:38 emma Exp $
++# $Id: lk-changelog.pl,v 0.273 2004/05/03 09:05:17 vita Exp $
+ # ----------------------------------------------------------------------
+ # Distribution of this script is permitted under the terms of the
+ # GNU General Public License (GNU GPL) v2.
+@@ -413,6 +413,7 @@
+ 'corryk:us.ibm.com' => 'Kevin Corry',
+ 'cort:fsmlabs.com' => 'Cort Dougan',
+ 'coughlan:redhat.com' => 'Tom Coughlan',
++'coywolf:greatcn.org' => 'Coywolf Qi Hunt',
+ 'cpg:puchol.com' => 'Carlos Puchol',
+ 'cph:zurich.ai.mit.edu' => 'Chris Hanson',
+ 'cr:sap.com' => 'Christoph Rohland',
+@@ -539,6 +540,7 @@
+ 'dtor_core:ameritech.net' => 'Dmitry Torokhov',
+ 'ducrot:poupinou.org' => 'Bruno Ducrot',
+ 'duncan.sands:math.u-psud.fr' => 'Duncan Sands',
++'dvrabel:com.rmk.(none)' => 'David Vrabel',
+ 'dwmw2:dwmw2.baythorne.internal' => 'David Woodhouse',
+ 'dwmw2:infradead.org' => 'David Woodhouse',
+ 'dwmw2:redhat.com' => 'David Woodhouse',
+@@ -625,6 +627,7 @@
+ 'galak:blarg.somerset.sps.mot.com' => 'Kumar Gala',
+ 'ganadist:nakyup.mizi.com' => 'Cha Young-Ho',
+ 'gandalf:netfilter.org' => 'Martin Josefsson',
++'gandalf:winds.org' => 'Byron Stanoszek',
+ 'gandalf:wlug.westbo.se' => 'Martin Josefsson',
+ 'ganesh.venkatesan:intel.com' => 'Ganesh Venkatesan',
+ 'ganesh:tuxtop.vxindia.veritas.com' => 'Ganesh Varadarajan',
+@@ -1286,6 +1289,7 @@
+ 'patmans:us.ibm.com' => 'Patrick Mansfield',
+ 'patrick.boettcher:desy.de' => 'Patrick Boettcher',
+ 'patrick:dreker.de' => 'Patrick Dreker', # lbdb
++'patrick:wildi.com' => 'Patrick Wildi',
+ 'paubert:iram.es' => 'Gabriel Paubert',
+ 'paul.clements:steeleye.com' => 'Paul Clements',
+ 'paul.mundt:timesys.com' => 'Paul Mundt', # google
+@@ -1581,6 +1585,7 @@
+ 'stevef:linux-udp14619769uds.austin.ibm.com' => 'Steve French',
+ 'stevef:linux.local' => 'Steve French', # guessed
+ 'stevef:smfhome.smfdom' => 'Steve French',
++'stevef:smfhome.smfsambadom' => 'Steve French',
+ 'stevef:smfhome1.austin.rr.com' => 'Steve French',
+ 'stevef:smfhome2.austin.rr.com' => 'Steve French',
+ 'stevef:stevef95.austin.ibm.com' => 'Steve French',
 
-
-
-
-Apr 26 11:50:24 webeye kernel: Unable to handle kernel paging request at virtual address 23232327
-Apr 26 11:50:24 webeye kernel:  printing eip:
-Apr 26 11:50:24 webeye kernel: c012d93f
-Apr 26 11:50:24 webeye kernel: *pde = 00000000
-Apr 26 11:50:24 webeye kernel: Oops: 0002
-Apr 26 11:50:24 webeye kernel: CPU:    0
-Apr 26 11:50:24 webeye kernel: EIP:    0010:[<c012d93f>]    Tainted: P
-Apr 26 11:50:24 webeye kernel: EFLAGS: 00010046
-Apr 26 11:50:24 webeye kernel: eax: 23232323   ebx: dffd5dd4   ecx: da7f4000   edx: da7eb000
-Apr 26 11:50:24 webeye kernel: esi: 00000282   edi: 0000000b   ebp: c13bf95c   esp: c15efee0
-Apr 26 11:50:24 webeye kernel: ds: 0018   es: 0018   ss: 0018
-Apr 26 11:50:24 webeye kernel: Process kswapd (pid: 4, stackpage=c15ef000)
-Apr 26 11:50:24 webeye kernel: Stack: c010c0f8 da7f4640 da7f4640 da7f4640 c01371bb dffd5dd4 da7f4640 c01391f1
-Apr 26 11:50:24 webeye kernel:        da7f4640 da7f4640 c131bcf4 c032bf50 c102c01c c032bf64 00000000 c13bf95c
-Apr 26 11:50:24 webeye kernel:        0000001d 00002b68 c012e7f4 c13bf95c 000001d0 00000000 c15ee000 00000200
-Apr 26 11:50:24 webeye kernel: Call Trace:    [<c010c0f8>] [<c01371bb>] [<c01391f1>] [<c012e7f4>] [<c012ea40>]
-Apr 26 11:50:24 webeye kernel:   [<c012eaac>] [<c012ebbf>] [<c012ec36>] [<c012ed71>] [<c012ecd0>] [<c0105000>]
-Apr 26 11:50:24 webeye kernel:   [<c0107116>] [<c012ecd0>]
-Apr 26 11:50:24 webeye kernel:
-Apr 26 11:50:24 webeye kernel: Code: 89 50 04 89 02 c7 01 00 00 00 00 c7 41 04 00 00 00 00 8b 43
-Apr 26 11:59:00 webeye kernel:  memory.c:100: bad pmd 23232323.
+##### BKPATCH #####
+This BitKeeper patch contains the following changesets:
+1.162
+## Wrapped with gzip_uu ##
 
 
-Ksymoops:
-
->>EIP; c012d93f <kmem_cache_free+4f/b0>   <=====
-Trace; c010c0f8 <call_do_IRQ+5/d>
-Trace; c01371bb <__put_unused_buffer_head+2b/60>
-Trace; c01391f1 <try_to_free_buffers+71/f0>
-Trace; c012e7f4 <shrink_cache+214/310>
-Trace; c012ea40 <shrink_caches+50/80>
-Trace; c012eaac <try_to_free_pages_zone+3c/60>
-Trace; c012ebbf <kswapd_balance_pgdat+4f/a0>
-Trace; c012ec36 <kswapd_balance+26/40>
-Trace; c012ed71 <kswapd+a1/c0>
-Trace; c012ecd0 <kswapd+0/c0>
-Trace; c0105000 <_stext+0/0>
-Trace; c0107116 <arch_kernel_thread+26/30>
-Trace; c012ecd0 <kswapd+0/c0>
-Code;  c012d93f <kmem_cache_free+4f/b0>
-00000000 <_EIP>:
-Code;  c012d93f <kmem_cache_free+4f/b0>   <=====
-   0:   89 50 04                  mov    %edx,0x4(%eax)   <=====
-Code;  c012d942 <kmem_cache_free+52/b0>
-   3:   89 02                     mov    %eax,(%edx)
-Code;  c012d944 <kmem_cache_free+54/b0>
-   5:   c7 01 00 00 00 00         movl   $0x0,(%ecx)
-Code;  c012d94a <kmem_cache_free+5a/b0>
-   b:   c7 41 04 00 00 00 00      movl   $0x0,0x4(%ecx)
-Code;  c012d951 <kmem_cache_free+61/b0>
-  12:   8b 43 00                  mov    0x0(%ebx),%eax
+M'XL( '@/ED   [U474_;,!1]KG_%E4 J")+:3MPTD8H8'QL5D\9 ;,]NXK91
+M$[NRW;1,^?&SFP$"C0>V:8F5R/8]]YY[?.0]N#="9[V:6[LHN0FY++00: ^N
+ME+%9;UYOP\)/;Y5RTX%9&S%8"BU%-3B[=B/H)H%5JC+(!=YPFR^@$=ID/1)&
+M3ROV826RWNWEI_O/'VX1&H_A?,'E7-P)"^,QLDHWO"K,Z4K(^;J4H=5<FEI8
+M'N:J;I]B6XHQ=2^A$1ZRM*7ID+%64,%8'A,^34:)R"EZU<]IU\?+-#%FF)"8
+M)7'4NGP4HPL@(1E2P/$ LP&.@)",TBS"1YAF&,/OL\(1@0"C,_C'/9RC' Z:
+MTO)#8"#%!GCAJAHC#+H&0C%#-\\:HN"=#T*88W3R3'JA:O&*L5DH;2LU[P@S
+M,L))G)!1&Y$D9>U,I'R6)SCE6!1\6KPASXLL7O,(I]1U[C1/HV3GA,>(%T;X
+M:SYOF> UG\X#M(U'*8L[#T3LW1X80D#^MP>\?E\@T)NM'\'6&>*QN3_PPP4A
+M0-!D]]V#_4F10;4,\AUCES%<5<<-X) F$7CE?LF#TPRSC"3@6<+E=@7[:!(3
+MYI+T<_6P4=4LFVOA[@ 9*CWOP_@$^N?=!GPMX6HM;?\835CLZ_:+1O.IJ#(G
+M5JCK97@@E12''>J"-V4!WW8!'C*DB8?,W4EP5V53RL(\USA[T$K"G>52F1]B
+MZ0&$CD8>L>)6E_G2(:JB].?2(6ZZ9?CNEW?Q;!3Y>&-%(V:9J6<[4[J_X?64
+F%X_ .[\/'[60^<+AGNZ\?"'RI5G78W>N-)E.!?H)T(JHQW %    
  
 

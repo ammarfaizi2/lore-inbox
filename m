@@ -1,74 +1,151 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262243AbVCVBYh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262305AbVCVBP2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262243AbVCVBYh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 20:24:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262236AbVCVBQL
+	id S262305AbVCVBP2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 20:15:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262258AbVCVBOQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 20:16:11 -0500
-Received: from smtpout.mac.com ([17.250.248.44]:15612 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S262293AbVCVBOw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 20:14:52 -0500
-In-Reply-To: <20050321161925.76c37a7f.akpm@osdl.org>
-References: <9e47339105030909031486744f@mail.gmail.com> <20050321154131.30616ed0.akpm@osdl.org> <9e473391050321155735fc506d@mail.gmail.com> <20050321161925.76c37a7f.akpm@osdl.org>
-Mime-Version: 1.0 (Apple Message framework v619.2)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <5dab45539e663d50b9e3e5d05fc11336@mac.com>
-Content-Transfer-Encoding: 7bit
-Cc: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>,
-       Greg KH <greg@kroah.com>, Jon Smirl <jonsmirl@gmail.com>
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: current linus bk, error mounting root
-Date: Mon, 21 Mar 2005 20:14:29 -0500
+	Mon, 21 Mar 2005 20:14:16 -0500
+Received: from 81-223-104-78.krugerstrasse.xdsl-line.inode.at ([81.223.104.78]:59522
+	"EHLO mail.sk-tech.net") by vger.kernel.org with ESMTP
+	id S262241AbVCVBJx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Mar 2005 20:09:53 -0500
+Date: Tue, 22 Mar 2005 02:09:39 +0100 (CET)
+From: Kianusch Sayah Karadji <kianusch@sk-tech.net>
+X-X-Sender: kianusch@localhost
 To: Andrew Morton <akpm@osdl.org>
-X-Mailer: Apple Mail (2.619.2)
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, dvrabel@cantab.net,
+       lsorense@csclub.uwaterloo.ca, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Support for GEODE CPUs
+In-Reply-To: <20050321154105.3c24c88e.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.61.0503220146470.1994@localhost>
+References: <200503081935.j28JZ433020124@hera.kernel.org>
+ <1110387668.28860.205.camel@localhost.localdomain> <20050309173344.GD17865@csclub.uwaterloo.ca>
+ <1110405563.3072.250.camel@localhost.localdomain> <422F8623.4030405@cantab.net>
+ <1110413198.3116.278.camel@localhost.localdomain> <20050310174206.6b2f27b8.akpm@osdl.org>
+ <1110538950.15927.15.camel@localhost.localdomain> <20050321154105.3c24c88e.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-68182019-1111453779=:1994"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mar 21, 2005, at 19:19, Andrew Morton wrote:
-> Jon Smirl <jonsmirl@gmail.com> wrote:
->> Jens is right that this is a user space issue, but how many people are
->> going to find this out the hard way when their root drives stop
->> mounting. Since no one is complaining I have to assume that most
->> kernel developers have their root device drivers built into the
->> kernel. I was loading mine as a module since for a long time Redhat
->> was not shipping kernels with SATA built in.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+
+--8323328-68182019-1111453779=:1994
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+
+Hi!
+
+On Mon, 21 Mar 2005, Andrew Morton wrote:
+
+>> Either revert it or make it Geode GX and correct the options set. I've 
+>> no problem with a Geode option that sets the right options 8)
 >
-> I don't agree that this is a userspace issue.  It's just not sane for a
-> driver to be in an unusable state for an arbitrary length of time after
-> modprobe returns.
+> Two weeks, no patch.  It looks like we'll be reverting it.
 
-What about if I'm booting from a USB drive?  In that case, because of 
-the
-asynchrony of USB probing, it may take 1 or 2 seconds for my attached 
-hub
-to power on, wake up, boot its embedded microprocessor, etc before it 
-will
-respond to signals.  In such a case, as far as the root hub can tell,
-there are _no_ external devices for a couple seconds, and that's 
-ignoring
-that my external USB bootdrive may _also_ need time to "boot" before it
-will be accessible, and that's only once its parent hub has become
-available.
+I somehow missed the thread in the list discussing the neccesary changes.
 
-I think that the kernel needs some kind of wait-for-device API that is
-accessible from kernel-space for the simple boot sequence, perhaps just
-waiting for a specific kobject to be detected and complete 
-initialization.
+Anyway here's a new patch (this time for 2.6.11).
 
-For an initrd/initramfs in userspace, dnotify on sysfs (For the static
-/dev case), or dnotify on /dev (For the udev case) should allow it to
-detect when the device is available.
+I changed the whole thing from "Geode GX" to "Geode GX1", and made the 
+adjustments Alan suggested.
 
-Cheers,
-Kyle Moffett
+Regards
+   Kianusch
 
------BEGIN GEEK CODE BLOCK-----
-Version: 3.12
-GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
-L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
-PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
-!y?(-)
-------END GEEK CODE BLOCK------
+BTW.: I wish everybody - celebrating "new year" (NowRouz) these days - a 
+happy and peaceful new year - and everybody else a wonderful spring 
+quinox.
+--8323328-68182019-1111453779=:1994
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="geode.patch.2.6.11"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.61.0503220209390.1994@localhost>
+Content-Description: geode.patch.2.6.11
+Content-Disposition: attachment; filename="geode.patch.2.6.11"
 
+ZGlmZiAtTnVyIGxpbnV4LTIuNi4xMS9hcmNoL2kzODYvS2NvbmZpZyBsaW51
+eC0yLjYuMTFfZ2VvZGUvYXJjaC9pMzg2L0tjb25maWcNCi0tLSBsaW51eC0y
+LjYuMTEvYXJjaC9pMzg2L0tjb25maWcJV2VkIE1hciAgMiAwODozNzo0OSAy
+MDA1DQorKysgbGludXgtMi42LjExX2dlb2RlL2FyY2gvaTM4Ni9LY29uZmln
+CVR1ZSBNYXIgMjIgMDI6MDM6MTcgMjAwNQ0KQEAgLTE4Myw2ICsxODMsNyBA
+QA0KIAkgIC0gIldpbmNoaXAtQzYiIGZvciBvcmlnaW5hbCBJRFQgV2luY2hp
+cC4NCiAJICAtICJXaW5jaGlwLTIiIGZvciBJRFQgV2luY2hpcCAyLg0KIAkg
+IC0gIldpbmNoaXAtMkEiIGZvciBJRFQgV2luY2hpcHMgd2l0aCAzZE5vdyEg
+Y2FwYWJpbGl0aWVzLg0KKwkgIC0gIkdlb2RlR1gxIiBmb3IgR2VvZGUgR1gx
+IChDeXJpeCBNZWRpYUdYKS4NCiAJICAtICJDeXJpeElJSS9WSUEgQzMiIGZv
+ciBWSUEgQ3lyaXggSUlJIG9yIFZJQSBDMy4NCiAJICAtICJWSUEgQzMtMiBm
+b3IgVklBIEMzLTIgIk5laGVtaWFoIiAobW9kZWwgOSBhbmQgYWJvdmUpLg0K
+IA0KQEAgLTMxMCw2ICszMTEsMTEgQEANCiAJICBzdG9yZXMgZm9yIHRoaXMg
+Q1BVLCB3aGljaCBjYW4gaW5jcmVhc2UgcGVyZm9ybWFuY2Ugb2Ygc29tZQ0K
+IAkgIG9wZXJhdGlvbnMuDQogDQorY29uZmlnIE1HRU9ERUdYMQ0KKwlib29s
+ICJHZW9kZUdYMSINCisJaGVscA0KKwkgIFNlbGVjdCB0aGlzIGZvciBhIEdl
+b2RlIEdYMSAoQ3lyaXggTWVkaWFHWCkgY2hpcC4NCisNCiBjb25maWcgTUNZ
+UklYSUlJDQogCWJvb2wgIkN5cml4SUlJL1ZJQS1DMyINCiAJaGVscA0KQEAg
+LTM2MCw3ICszNjYsNyBAQA0KIAlpbnQNCiAJZGVmYXVsdCAiNyIgaWYgTVBF
+TlRJVU00IHx8IFg4Nl9HRU5FUklDDQogCWRlZmF1bHQgIjQiIGlmIFg4Nl9F
+TEFOIHx8IE00ODYgfHwgTTM4Ng0KLQlkZWZhdWx0ICI1IiBpZiBNV0lOQ0hJ
+UDNEIHx8IE1XSU5DSElQMiB8fCBNV0lOQ0hJUEM2IHx8IE1DUlVTT0UgfHwg
+TUVGRklDRU9OIHx8IE1DWVJJWElJSSB8fCBNSzYgfHwgTVBFTlRJVU1JSUkg
+fHwgTVBFTlRJVU1JSSB8fCBNNjg2IHx8IE01ODZNTVggfHwgTTU4NlRTQyB8
+fCBNNTg2IHx8IE1WSUFDM18yDQorCWRlZmF1bHQgIjUiIGlmIE1XSU5DSElQ
+M0QgfHwgTVdJTkNISVAyIHx8IE1XSU5DSElQQzYgfHwgTUNSVVNPRSB8fCBN
+RUZGSUNFT04gfHwgTUNZUklYSUlJIHx8IE1LNiB8fCBNUEVOVElVTUlJSSB8
+fCBNUEVOVElVTUlJIHx8IE02ODYgfHwgTTU4Nk1NWCB8fCBNNTg2VFNDIHx8
+IE01ODYgfHwgTVZJQUMzXzIgfHwgTUdFT0RFR1gxDQogCWRlZmF1bHQgIjYi
+IGlmIE1LNyB8fCBNSzggfHwgTVBFTlRJVU1NDQogDQogY29uZmlnIFJXU0VN
+X0dFTkVSSUNfU1BJTkxPQ0sNCkBAIC0zNzksNyArMzg1LDcgQEANCiANCiBj
+b25maWcgWDg2X1BQUk9fRkVOQ0UNCiAJYm9vbA0KLQlkZXBlbmRzIG9uIE02
+ODYgfHwgTTU4Nk1NWCB8fCBNNTg2VFNDIHx8IE01ODYgfHwgTTQ4NiB8fCBN
+Mzg2DQorCWRlcGVuZHMgb24gTTY4NiB8fCBNNTg2TU1YIHx8IE01ODZUU0Mg
+fHwgTTU4NiB8fCBNNDg2IHx8IE0zODYgfHwgTUdFT0RFR1gxDQogCWRlZmF1
+bHQgeQ0KIA0KIGNvbmZpZyBYODZfRjAwRl9CVUcNCkBAIC00MDksNyArNDE1
+LDcgQEANCiANCiBjb25maWcgWDg2X0FMSUdOTUVOVF8xNg0KIAlib29sDQot
+CWRlcGVuZHMgb24gTVdJTkNISVAzRCB8fCBNV0lOQ0hJUDIgfHwgTVdJTkNI
+SVBDNiB8fCBNQ1lSSVhJSUkgfHwgWDg2X0VMQU4gfHwgTUs2IHx8IE01ODZN
+TVggfHwgTTU4NlRTQyB8fCBNNTg2IHx8IE00ODYgfHwgTVZJQUMzXzINCisJ
+ZGVwZW5kcyBvbiBNV0lOQ0hJUDNEIHx8IE1XSU5DSElQMiB8fCBNV0lOQ0hJ
+UEM2IHx8IE1DWVJJWElJSSB8fCBYODZfRUxBTiB8fCBNSzYgfHwgTTU4Nk1N
+WCB8fCBNNTg2VFNDIHx8IE01ODYgfHwgTTQ4NiB8fCBNVklBQzNfMiB8fCBN
+R0VPREVHWDENCiAJZGVmYXVsdCB5DQogDQogY29uZmlnIFg4Nl9HT09EX0FQ
+SUMNCkBAIC01NzAsNyArNTc2LDcgQEANCiANCiBjb25maWcgWDg2X1RTQw0K
+IAlib29sDQotCWRlcGVuZHMgb24gKE1XSU5DSElQM0QgfHwgTVdJTkNISVAy
+IHx8IE1DUlVTT0UgfHwgTUVGRklDRU9OIHx8IE1DWVJJWElJSSB8fCBNSzcg
+fHwgTUs2IHx8IE1QRU5USVVNNCB8fCBNUEVOVElVTU0gfHwgTVBFTlRJVU1J
+SUkgfHwgTVBFTlRJVU1JSSB8fCBNNjg2IHx8IE01ODZNTVggfHwgTTU4NlRT
+QyB8fCBNSzggfHwgTVZJQUMzXzIpICYmICFYODZfTlVNQVENCisJZGVwZW5k
+cyBvbiAoTVdJTkNISVAzRCB8fCBNV0lOQ0hJUDIgfHwgTUNSVVNPRSB8fCBN
+RUZGSUNFT04gfHwgTUNZUklYSUlJIHx8IE1LNyB8fCBNSzYgfHwgTVBFTlRJ
+VU00IHx8IE1QRU5USVVNTSB8fCBNUEVOVElVTUlJSSB8fCBNUEVOVElVTUlJ
+IHx8IE02ODYgfHwgTTU4Nk1NWCB8fCBNNTg2VFNDIHx8IE1LOCB8fCBNVklB
+QzNfMiB8fCBNR0VPREVHWDEpICYmICFYODZfTlVNQVENCiAJZGVmYXVsdCB5
+DQogDQogY29uZmlnIFg4Nl9NQ0UNCmRpZmYgLU51ciBsaW51eC0yLjYuMTEv
+YXJjaC9pMzg2L01ha2VmaWxlIGxpbnV4LTIuNi4xMV9nZW9kZS9hcmNoL2kz
+ODYvTWFrZWZpbGUNCi0tLSBsaW51eC0yLjYuMTEvYXJjaC9pMzg2L01ha2Vm
+aWxlCVdlZCBNYXIgIDIgMDg6Mzc6NTggMjAwNQ0KKysrIGxpbnV4LTIuNi4x
+MV9nZW9kZS9hcmNoL2kzODYvTWFrZWZpbGUJVHVlIE1hciAyMiAwMjowNDoy
+NyAyMDA1DQpAQCAtMTQsNiArMTQsOCBAQA0KICMgMTk5OTA3MTMgIEFydHVy
+IFNrYXdpbmEgPHNrYXdpbmFAZ2VvY2l0aWVzLmNvbT4NCiAjICAgICAgICAg
+ICBBZGRlZCAnLW1hcmNoJyBhbmQgJy1tcHJlZmVycmVkLXN0YWNrLWJvdW5k
+YXJ5JyBzdXBwb3J0DQogIw0KKyMgMjAwNTAzMjAgIEtpYW51c2NoIFNheWFo
+IEthcmFkamkgPGtpYW51c2NoQHNrLXRlY2gubmV0Pg0KKyMgICAgICAgICAg
+IEFkZGVkIHN1cHBvcnQgZm9yIEdFT0RFIENQVQ0KIA0KIExERkxBR1MJCTo9
+IC1tIGVsZl9pMzg2DQogT0JKQ09QWUZMQUdTCTo9IC1PIGJpbmFyeSAtUiAu
+bm90ZSAtUiAuY29tbWVudCAtUw0KQEAgLTUxLDYgKzUzLDkgQEANCiANCiAj
+IEFNRCBFbGFuIHN1cHBvcnQNCiBjZmxhZ3MtJChDT05GSUdfWDg2X0VMQU4p
+CSs9IC1tYXJjaD1pNDg2DQorDQorIyBHZW9kZSBHWDEgc3VwcG9ydA0KK2Nm
+bGFncy0kKENPTkZJR19NR0VPREVHWDEpCQkrPSAkKGNhbGwgY2Mtb3B0aW9u
+LC1tYXJjaD1wZW50aXVtLW1teCwtbWFyY2g9aTQ4NikNCiANCiAjIC1tcmVn
+cGFybT0zIHdvcmtzIG9rIG9uIGdjYy0zLjAgYW5kIGxhdGVyDQogIw0KZGlm
+ZiAtTnVyIGxpbnV4LTIuNi4xMS9pbmNsdWRlL2FzbS1pMzg2L21vZHVsZS5o
+IGxpbnV4LTIuNi4xMV9nZW9kZS9pbmNsdWRlL2FzbS1pMzg2L21vZHVsZS5o
+DQotLS0gbGludXgtMi42LjExL2luY2x1ZGUvYXNtLWkzODYvbW9kdWxlLmgJ
+V2VkIE1hciAgMiAwODozNzo0OCAyMDA1DQorKysgbGludXgtMi42LjExX2dl
+b2RlL2luY2x1ZGUvYXNtLWkzODYvbW9kdWxlLmgJVHVlIE1hciAyMiAwMjow
+MzoxNyAyMDA1DQpAQCAtNTIsNiArNTIsOCBAQA0KICNkZWZpbmUgTU9EVUxF
+X1BST0NfRkFNSUxZICJDWVJJWElJSSAiDQogI2VsaWYgZGVmaW5lZCBDT05G
+SUdfTVZJQUMzXzINCiAjZGVmaW5lIE1PRFVMRV9QUk9DX0ZBTUlMWSAiVklB
+QzMtMiAiDQorI2VsaWYgQ09ORklHX01HRU9ERUdYMQ0KKyNkZWZpbmUgTU9E
+VUxFX1BST0NfRkFNSUxZICJHRU9ERUdYMSAiDQogI2Vsc2UNCiAjZXJyb3Ig
+dW5rbm93biBwcm9jZXNzb3IgZmFtaWx5DQogI2VuZGlmDQo=
 
+--8323328-68182019-1111453779=:1994--

@@ -1,60 +1,27 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272290AbTHSPmm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 11:42:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272311AbTHSPmm
+	id S272068AbTHSPwr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 11:52:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272064AbTHSPwq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 11:42:42 -0400
-Received: from [218.18.211.169] ([218.18.211.169]:3701 "ehlo citiz.net")
-	by vger.kernel.org with ESMTP id S272290AbTHSPmj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 11:42:39 -0400
-From: "HY Tech" <hytechnologyhk@citiz.net>
-Subject: Updated price list for mp3 player, digital camera, cd/vcd/mp3 player
- and USB flash driv!
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain;charset="GB2312"
-Reply-To: hytechnologyhk@citiz.net
-Date: Tue, 19 Aug 2003 23:42:42 +0800
-X-Priority: 2
-X-Mailer: FoxMail 4.0 beta 2 [cn]
-Message-Id: <S272290AbTHSPmj/20030819154239Z+65@vger.kernel.org>
+	Tue, 19 Aug 2003 11:52:46 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:23937 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S272068AbTHSPvp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 11:51:45 -0400
+Date: Tue, 19 Aug 2003 17:03:17 +0100
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200308191603.h7JG3Hb2001425@81-2-122-30.bradfords.org.uk>
+To: linux-kernel@vger.kernel.org, solt@dns.toxicfilms.tv
+Subject: Re: Install new kernel without reboots.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear valued customer,
+> I have heard it is possible to change the kernel without reboots.
+> And I am not talking about UML.
+>
+> Is it true? I could not find any documents on the web.
 
-We are a professional manufacturer of mp3 player, cd/vcd/mp3 player, digital camera and USB flash 
-drive in Shenzhen, China.
+Are you referring to kexec?
 
-Please see the price of some products:
-mp3 player with digital recorder and USB flash drive
-64M 39USD      128M   52USD
-
-cd/vcd/mp3 player (3 function in 1)
-21.5USD
-
-digital camera
-300K pixels  15.5USD      1.3M pixels    24USD
-
-USB flash drive
-64M  17.9USD       128M  29.9USD      256M  54.9USD     
-
-If you have interest, please contacut us and we will give you the detailed catalogue and price 
-list. 
-
-We always try our best to attract our clients with unbeatable prices and quality. Our goal is to 
-treat every 
-client the same as the most potential business partner.So however the client is big or small,we 
-offer the 
-best service. 
-
-Any question, please contact me at any time.
- 
-Have a nice day!
-
-Best Regards,
-
-Frank Ho
-General Manager
-HY Technology (Hong Kong) Company Ltd.
+John.

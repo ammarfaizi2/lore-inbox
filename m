@@ -1,50 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266199AbUHLAwW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268471AbUHLAwY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266199AbUHLAwW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 20:52:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268367AbUHLAuk
+	id S268471AbUHLAwY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 20:52:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268513AbUHLAsg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 20:50:40 -0400
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:59345 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S268515AbUHLAk6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 20:40:58 -0400
-Date: Wed, 11 Aug 2004 20:44:53 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       Rusty Russell <rusty@rustcorp.com.au>, lhcs-devel@lists.sourceforge.net
-Subject: Re: [lhcs-devel] Re: [PATCH][2.6-mm] i386 Hotplug CPU
-In-Reply-To: <20040811135019.GC1120@openzaurus.ucw.cz>
-Message-ID: <Pine.LNX.4.58.0408112043100.2544@montezuma.fsmlabs.com>
-References: <1090870667.22306.40.camel@pants.austin.ibm.com>
- <20040726170157.7f4b414c.akpm@osdl.org> <Pine.LNX.4.58.0407270137510.25781@montezuma.fsmlabs.com>
- <Pine.LNX.4.58.0407270440200.23985@montezuma.fsmlabs.com>
- <20040811135019.GC1120@openzaurus.ucw.cz>
+	Wed, 11 Aug 2004 20:48:36 -0400
+Received: from web14925.mail.yahoo.com ([216.136.225.11]:13660 "HELO
+	web14925.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S268521AbUHLApb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 20:45:31 -0400
+Message-ID: <20040812004525.26380.qmail@web14925.mail.yahoo.com>
+Date: Wed, 11 Aug 2004 17:45:25 -0700 (PDT)
+From: Jon Smirl <jonsmirl@yahoo.com>
+Subject: Re: [PATCH] add PCI ROMs to sysfs
+To: Greg KH <greg@kroah.com>, Jesse Barnes <jbarnes@engr.sgi.com>
+Cc: Martin Mares <mj@ucw.cz>, linux-pci@atrey.karlin.mff.cuni.cz,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Petr Vandrovec <VANDROVE@vc.cvut.cz>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+In-Reply-To: <20040811172800.GB14979@kroah.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Pavel,
+I have to add a pointer to struct pci_dev to track the attribute copy
+with the size in it. Would you rather have me add the pointer or or
+change the sysfs rules to state that a copy of the length is made?
 
-On Wed, 11 Aug 2004, Pavel Machek wrote:
+--- Greg KH <greg@kroah.com> wrote:
+> > Greg was a little worried that your comment
+> > 	/* .size is set individually for each device, sysfs copies it into
+> dentry */
+> > might not be correct.
+> 
+> I looked at the code, and he's right.  But it's pretty scary that it
+> works correctly so I'd prefer to do it the way your patch did it
+> (create
+> a new attribute for every entry.)
+> 
+> thnaks,
+> 
+> greg k-h
+> 
 
-> > +#ifdef CONFIG_HOTPLUG_CPU
-> > +#include <asm/nmi.h>
-> > +/* We don't actually take CPU down, just spin without interrupts. */
-> > +static inline void play_dead(void)
-> > +{
->
-> Well... if this can be fixed to really take cpu down, it will
-> be immediately usefull for suspend-to-ram. If it is made to
-> at least survive registers being overwritten, it will be usefull
-> for suspend-to-disk...
 
-Yeah i recall you mentioning this earlier, i'll look into adding the
-necessary bits so that you have enough state to resume from. Your
-mentioning this was one of the reasons i wanted this in.
+=====
+Jon Smirl
+jonsmirl@yahoo.com
 
-Thanks,
-	Zwane
 
+		
+__________________________________
+Do you Yahoo!?
+New and Improved Yahoo! Mail - Send 10MB messages!
+http://promotions.yahoo.com/new_mail 

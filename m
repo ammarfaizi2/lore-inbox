@@ -1,58 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263280AbTEOAm3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 20:42:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263286AbTEOAm3
+	id S263319AbTEOApb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 20:45:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263338AbTEOApa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 20:42:29 -0400
-Received: from palrel12.hp.com ([156.153.255.237]:12503 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id S263280AbTEOAm1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 20:42:27 -0400
-Date: Wed, 14 May 2003 17:55:08 -0700
-To: Dave Jones <davej@codemonkey.org.uk>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: airo and firmware upload (was Re: 2.6 must-fix list, v3)
-Message-ID: <20030515005508.GA12037@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-References: <20030514211222.GA10453@bougret.hpl.hp.com> <3EC2BDEC.6020401@pobox.com> <20030514233235.GA11581@bougret.hpl.hp.com> <20030514234359.GB9898@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030514234359.GB9898@suse.de>
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+	Wed, 14 May 2003 20:45:30 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:46344 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S263319AbTEOAp0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 20:45:26 -0400
+Date: Wed, 14 May 2003 17:57:43 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Garance A Drosihn <drosih@rpi.edu>
+cc: Jan Harkes <jaharkes@cs.cmu.edu>, David Howells <dhowells@redhat.com>,
+       <linux-kernel@vger.kernel.org>, <linux-fsdevel@vger.kernel.org>,
+       <openafs-devel@openafs.org>
+Subject: Re: [OpenAFS-devel] Re: [PATCH] PAG support, try #2
+In-Reply-To: <p05210619bae885784bd4@[128.113.24.47]>
+Message-ID: <Pine.LNX.4.44.0305141749490.28007-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 15, 2003 at 12:43:59AM +0100, Dave Jones wrote:
-> On Wed, May 14, 2003 at 04:32:35PM -0700, Jean Tourrilhes wrote:
+
+On Wed, 14 May 2003, Garance A Drosihn wrote:
 > 
->  > 	While we are on the subject : a few months ago, Javier added
->  > support for MIC to the airo driver. It's basically crypto based on
->  > AES. You refused to include that part in the kernel because crypto was
->  > not accepted in the kernel.
->  > 	Fast forward : today we have crypto in the 2.5.X kernel. Does
->  > this mean that you would have no objection accepting a patch from
->  > Javier including the crypto part ?
-> 
-> Sounds like it would be better to get it using the in-kernel crypto
-> stuff rather than reimplementing its own routines. Same for the HostAP
-> driver.
->  
-> 		Dave
+>      For any process where pag != 0, that process will share
+>      tokens with all other processes that have the exact same
+>      pag value as it has.  This is true even if the different
+>      processes are tied to different user ids.
 
-	For HostAP, the kernel crypto doesn't include any RC4 support,
-so it can't use kernel crypto as it is.
-	For airo, crypto was added before kernel crypto was available
-in the kernel, and I don't know how easy it will be to refactor the
-code.
-	I just wanted to know the position of Jeff on this issue. I'll
-let the technical decision to the respective authors.
+Yeah, and the thing I think it _totally_ and utterly broken is that there 
+can be only one of these per process.
 
-	Thanks...
+I don't see where the 1:1 idea comes from, except from a bad 
+implementation.
 
-	Jean
+> There is absolutely no connection between userids and PAG's,
+> the same way that there is no connection between userids and
+> process-numbers.  (Roughly speaking:) The 10th person to log
+> in will get the 10th pag, no matter what userid they happen
+> to log in as.
+
+And this is also again nothing but the result of a bad implementation.
+
+>From a system maintenance issue, this is a nightmare. It makes joining a 
+group nigh impossible, since now the joiner (login or something) has to 
+keep track of what pag's it has used for previous logins. Which is fine as 
+long as you have _one_ login authority, but it's a total disaster to 
+require that kind of centralization.
+
+> It's tokens which have some relation to userids.  In the world
+> of AFS, a pag can hold only one token from any one AFS cell
+> at a given time.  But I can change which "AFS userid" that I
+> am, without changing which pag I am in, and all processes in
+> that same pag will instantly become that same "AFS userid".
+
+Yes. And apparently PAG's - as you see them - are nothing but a AFS issue.  
+As such, I think they are totally uninteresting for the core kernel, and I
+will _not_ be applying any patches that introduce such a limiting and
+stupid notion into the core kernel.
+
+I'm interested in a much more generic issue of "user credentials", and 
+here a PAG can be _one_ credential that a user holds on to. But to be 
+useful, a user has to be able to have multiple such credentials. While one 
+might be his "AFS userid", another will be his NFS mount credentials, and 
+a third one will be his key to decrypt his home directory on that machine.
+
+If it's useful for AFS only, I'm not interested. 
+
+		Linus
+

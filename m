@@ -1,53 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269239AbUIBWG7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269130AbUIBWTt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269239AbUIBWG7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 18:06:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269107AbUIBVcw
+	id S269130AbUIBWTt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 18:19:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269161AbUIBWSS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 17:32:52 -0400
-Received: from cantor.suse.de ([195.135.220.2]:38572 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S269177AbUIBV0n (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 17:26:43 -0400
-Date: Thu, 2 Sep 2004 23:26:34 +0200
-From: Andi Kleen <ak@suse.de>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Andrew Morton <akpm@osdl.org>, Christoph Lameter <clameter@sgi.com>,
-       Paul Mackerras <paulus@samba.org>, ak@muc.de, davem@davemloft.net,
-       Andi Kleen <ak@suse.de>, wli@holomorphy.com,
-       "David S. Miller" <davem@redhat.com>, raybry@sgi.com,
-       manfred@colorfullife.com, linux-ia64@vger.kernel.org,
-       Linux Kernel list <linux-kernel@vger.kernel.org>, vrajesh@umich.edu,
-       hugh@veritas.com
-Subject: Re: page fault scalability patch final : i386 tested, x86_64 support added
-Message-ID: <20040902212634.GJ16175@wotan.suse.de>
-References: <20040827172337.638275c3.davem@davemloft.net> <20040827173641.5cfb79f6.akpm@osdl.org> <20040828010253.GA50329@muc.de> <20040827183940.33b38bc2.akpm@osdl.org> <16687.59671.869708.795999@cargo.ozlabs.ibm.com> <Pine.LNX.4.58.0408272021070.16607@schroedinger.engr.sgi.com> <20040827204241.25da512b.akpm@osdl.org> <Pine.LNX.4.58.0408272121300.16949@schroedinger.engr.sgi.com> <20040827223954.7d021aac.akpm@osdl.org> <1094012028.6539.320.camel@gaston>
+	Thu, 2 Sep 2004 18:18:18 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:33420 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S269167AbUIBWPJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 18:15:09 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-R0
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, "K.R. Foley" <kr@cybsft.com>,
+       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
+       Daniel Schmitt <pnambic@unu.nu>, Mark_H_Johnson@raytheon.com,
+       "P.O. Gaillard" <pierre-olivier.gaillard@fr.thalesgroup.com>
+In-Reply-To: <20040902221402.GA29434@elte.hu>
+References: <OF04883085.9C3535D2-ON86256F00.0065652B@raytheon.com>
+	 <20040902063335.GA17657@elte.hu> <20040902065549.GA18860@elte.hu>
+	 <20040902111003.GA4256@elte.hu> <20040902215728.GA28571@elte.hu>
+	 <1094162812.1347.54.camel@krustophenia.net>
+	 <20040902221402.GA29434@elte.hu>
+Content-Type: text/plain
+Message-Id: <1094163308.1347.59.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1094012028.6539.320.camel@gaston>
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 02 Sep 2004 18:15:08 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 01, 2004 at 02:13:49PM +1000, Benjamin Herrenschmidt wrote:
-> On Sat, 2004-08-28 at 15:39, Andrew Morton wrote:
+On Thu, 2004-09-02 at 18:14, Ingo Molnar wrote:
+> * Lee Revell <rlrevell@joe-job.com> wrote:
 > 
-> > atomic64_t already appears to be implemented on alpha, ia64, mips, s390 and
-> > sparc64.
+> > > i've given up on the netdev_backlog_granularity approach, and as a
+> > > replacement i've modified specific network drivers to return at a safe
+> > > point if softirq preemption is requested.
 > > 
-> > As I said - for both these applications we need a new type which is
-> > atomic64_t on 64-bit and atomic_t on 32-bit.
+> > Makes sense, netdev_max_backlog never made a difference on my system
+> > (via-rhine driver).
 > 
-> Implementing it on ppc64 is trivial. I'd vote for atomic_long_t though
-> that is either 32 bits on 32 bits archs or 64 bits on 64 bits arch, as
-> it would be a real pain (spinlock & all) to get a 64 bits atomic on
-> ppc32
+> via-rhine does RX processing from the hardirq handler, this codepath is
+> harder to break up. The NAPI ->poll functions used by e100 and 8193too
+> are much easier to break up because RX throttling and re-trying is a
+> basic property of NAPI.
+> 
 
-I would do atomic64 on 64bit archs only and then do a wrapper 
-somewhere that defines atomiclongt based on BITSPERLONG 
+What I meant was, I did not consider the latencies from via-rhine to be
+a problem.  The other posters reported 300-500 usec latencies in the
+network driver, I did not see this.
 
--Andi
-
-P.S. sorry for the missing underscores, but i am typing this
-on a japanese keyboard and i just cannot find it.
+Lee
 

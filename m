@@ -1,35 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129278AbQKGCiA>; Mon, 6 Nov 2000 21:38:00 -0500
+	id <S130312AbQKGCjJ>; Mon, 6 Nov 2000 21:39:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130312AbQKGChu>; Mon, 6 Nov 2000 21:37:50 -0500
-Received: from chac.inf.utfsm.cl ([200.1.19.54]:26375 "EHLO chac.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id <S129278AbQKGChg>;
-	Mon, 6 Nov 2000 21:37:36 -0500
-Message-Id: <200011070144.eA71itn15684@sleipnir.valparaiso.cl>
-To: "James A. Sutherland" <jas88@cam.ac.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO page] 
-In-Reply-To: Message from "James A. Sutherland" <jas88@cam.ac.uk> 
-   of "Tue, 07 Nov 2000 00:34:14 -0000." <00110700362203.00940@dax.joh.cam.ac.uk> 
-Date: Mon, 06 Nov 2000 22:44:55 -0300
-From: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
+	id <S130012AbQKGCi7>; Mon, 6 Nov 2000 21:38:59 -0500
+Received: from lina.inka.de ([212.227.16.17]:60682 "EHLO matrix.inka.de")
+	by vger.kernel.org with ESMTP id <S130312AbQKGCiq>;
+	Mon, 6 Nov 2000 21:38:46 -0500
+From: Bernd Eckenfels <ecki@lina.inka.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] document ECN in 2.4 Configure.help
+Message-Id: <E13syeh-00018h-00@calista.inka.de>
+Date: Tue, 07 Nov 2000 03:38:35 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"James A. Sutherland" <jas88@cam.ac.uk> said:
+In article <Pine.LNX.4.10.10011060113240.8248-100000@waste.org> you wrote:
+> I'm still not sure why it's been decided not to do fallback or how this
+> whole situation is any different from path MTU discovery.
 
-[...]
+Because this will add a Fallback (non ECN) packet to every denied target. I
+think this is bad policy at least. It might violate the RFCs, too. Keep in
+mind, we cannot recognice a rejection due to ECN.
 
-> That only happens if the driver is stupid enough to try guessing "correct"
-> volume settings.
-
-It did not touch anything: By a fluke, or by default, the sound output was
-going full blast, and the mike input was patched over to it ==> feedback
-shriek until (a few tenths of second later) the volume settings _were_ set.
--- 
-Horst von Brand                             vonbrand@sleipnir.valparaiso.cl
-Casilla 9G, Vin~a del Mar, Chile                               +56 32 672616
+Greetings
+Bernd
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,84 +1,189 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267466AbUHaIRn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267405AbUHaITw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267466AbUHaIRn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 04:17:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267407AbUHaIRn
+	id S267405AbUHaITw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 04:19:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267431AbUHaITw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 04:17:43 -0400
-Received: from pauli.thundrix.ch ([213.239.201.101]:12692 "EHLO
-	pauli.thundrix.ch") by vger.kernel.org with ESMTP id S267431AbUHaIRG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 04:17:06 -0400
-Date: Tue, 31 Aug 2004 10:15:28 +0200
-From: Tonnerre <tonnerre@thundrix.ch>
-To: "Alexander G. M. Smith" <agmsmith@rogers.com>
-Cc: spam@tnonline.net, akpm@osdl.org, wichert@wiggy.net, jra@samba.org,
-       torvalds@osdl.org, reiser@namesys.com, hch@lst.de,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       flx@namesys.com, reiserfs-list@namesys.com, vonbrand@inf.utfsm.cl
-Subject: Re: silent semantic changes with reiser4
-Message-ID: <20040831081528.GA14371@thundrix.ch>
-References: <20040829191044.GA10090@thundrix.ch> <3247172997-BeMail@cr593174-a>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="2oS5YaxWCcQjTEyO"
-Content-Disposition: inline
-In-Reply-To: <3247172997-BeMail@cr593174-a>
-X-GPG-KeyID: 0x8BE1C38D
-X-GPG-Fingerprint: 1AB0 9AD6 D0C8 B9D5 C5C9  9C2A FF86 CBEE 8BE1 C38D
-X-GPG-KeyURL: http://users.thundrix.ch/~tonnerre/tonnerre.asc
-User-Agent: Mutt/1.5.6+20040803i
+	Tue, 31 Aug 2004 04:19:52 -0400
+Received: from TYO201.gate.nec.co.jp ([202.32.8.214]:45810 "EHLO
+	tyo201.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id S267405AbUHaIT1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 04:19:27 -0400
+Message-ID: <01b401c48f33$3fb05000$f97d220a@linux.bs1.fc.nec.co.jp>
+From: "Kaigai Kohei" <kaigai@ak.jp.nec.com>
+To: "Andi Kleen" <ak@muc.de>
+Cc: <linux-kernel@vger.kernel.org>
+References: <2wJxj-7g2-23@gated-at.bofh.it> <2x2JC-3Uu-11@gated-at.bofh.it> <m3k6vjco9e.fsf@averell.firstfloor.org>
+Subject: Re: [PATCH]atomic_inc_return() for i386/x86_64 (Re: RCU issue with SELinux)
+Date: Tue, 31 Aug 2004 17:19:34 +0900
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----=_NextPart_000_01B1_01C48F7E.AF888EB0"
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1409
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
 
---2oS5YaxWCcQjTEyO
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+------=_NextPart_000_01B1_01C48F7E.AF888EB0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 
-Salut,
+Hi Andi, thanks for your comment.
+Sorry, I have not noticed your mail in the flood of Linux-Kernel ML.
 
-On Sun, Aug 29, 2004 at 08:39:25PM -0400, Alexander G. M. Smith wrote:
-> I mostly  agree, like I was  saying earlier, file  types are needed!
-> The kernel  doesn't have  to know  about all of  them, just  some of
-> them.  It should be possible to  attach a file type to everything so
-> you  know what  kind of  thing it  is, not  just block  or character
-> device or file, but something like a MIME type.
+> > atomic_inc_return() is not defined for arm,arm26,i386,x86_64 and um archtectures.
+> > This attached patch adds atomic_inc_return() and atomic_dec_return() to arm,i386 and x86_64.
+> >
+> > It is implemented by 'xaddl' operation with LOCK prefix for i386 and x86_64.
+> > But this operation is permitted after i486 processor only.
+> > Another implementation may be necessary for i386SX/DX processor.
+> > But 'xaddl' operation is used in 'include/asm-i386/rwsem.h' unconditionally.
+> > I think it has agreed on using 'xaddl' operation in past days.
+> 
+> We don't support SMP on 386 boxes. What you can do for 386 is to use 
+> alternative() and just use an non SMP safe version for 386 and xadd 
+> for 486+ 
 
-Then store the value computed  by libmagic into an extended attribute,
-if you  like. I still  don't see why  the kernel should even  care. It
-shouldn't read things from files anyway, as a kernel shall be bootable
-on a busybox  system (and *Step) as  well, so we don't rely  on the fs
-layout in any way.
+We can avoid the problem by the simple solution, since SMP
+on 386 boxes isn't supported. It is to disable interrupt
+while updating atomic_t variable.
 
-> Optionally the  kernel could  also maintain the  global list  of all
-> file types  and their  properties (such as  which ones  are indexed,
-> which are computed),  though that could also be  done in userland if
-> you  aren't doing  indexing or  computed attributes  or  other fancy
-> operations.
+The attached patch modifies the include/asm-i386/atomic.h.
+If the target processor is 386, then atomic_add_return() use
+non-atomic operations between local_irq_disable() and local_irq_enable().
+Otherwise, atomic_add_return() use 'xadd' operation with LOCK prefix.
 
-Quel horreur!
+By the way, do you know why 'xadd' operation is used
+unconditionally in 'include/asm-i386/rwsem.h'?
 
-Do it in userland, really.
+Thanks.
 
-If I  get the time,  I'll write you  a small daemon based  on libmagic
-which  stores  the  file  attributes  in xattrs,  or  if  they're  not
-supported, in some MacOS/Xish per-directory files. Even a file manager
-("finder") can do that, there's not even the need for a daemon.
+Signed-off-by: KaiGai, Kohei <kaigai@ak.jp.nec.com>
+Signed-off-by: Takayoshi Kochi <t-kochi@bq.jp.nec.com>
+--------
+Kai Gai <kaigai@ak.jp.nec.com>
 
-				Tonnerre
+------=_NextPart_000_01B1_01C48F7E.AF888EB0
+Content-Type: application/octet-stream;
+	name="atomic_inc_return-2.6.8.1.M386.patch"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment;
+	filename="atomic_inc_return-2.6.8.1.M386.patch"
 
---2oS5YaxWCcQjTEyO
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+--- linux-2.6.8.1/include/asm-arm/atomic.h	2004-08-14 19:54:50.000000000 =
++0900=0A=
++++ linux-2.6.8.1.rcu/include/asm-arm/atomic.h	2004-08-24 =
+19:31:56.000000000 +0900=0A=
+@@ -194,8 +194,10 @@=0A=
+ #define atomic_dec(v)		atomic_sub(1, v)=0A=
+ =0A=
+ #define atomic_inc_and_test(v)	(atomic_add_return(1, v) =3D=3D 0)=0A=
+ #define atomic_dec_and_test(v)	(atomic_sub_return(1, v) =3D=3D 0)=0A=
++#define atomic_inc_return(v)    (atomic_add_return(1, v))=0A=
++#define atomic_dec_return(v)    (atomic_sub_return(1, v))=0A=
+ =0A=
+ #define atomic_add_negative(i,v) (atomic_add_return(i, v) < 0)=0A=
+ =0A=
+ /* Atomic operations are already serializing on ARM */=0A=
+--- linux-2.6.8.1/include/asm-i386/atomic.h	2004-08-14 =
+19:55:09.000000000 +0900=0A=
++++ linux-2.6.8.1.rcu/include/asm-i386/atomic.h	2004-08-31 =
+13:10:48.000000000 +0900=0A=
+@@ -1,8 +1,9 @@=0A=
+ #ifndef __ARCH_I386_ATOMIC__=0A=
+ #define __ARCH_I386_ATOMIC__=0A=
+ =0A=
+ #include <linux/config.h>=0A=
++#include <asm/system.h>=0A=
+ =0A=
+ /*=0A=
+  * Atomic operations that C can't guarantee us.  Useful for=0A=
+  * resource counting etc..=0A=
+@@ -175,8 +176,41 @@=0A=
+ 		:"ir" (i), "m" (v->counter) : "memory");=0A=
+ 	return c;=0A=
+ }=0A=
+ =0A=
++/**=0A=
++ * atomic_add_return - add and return=0A=
++ * @v: pointer of type atomic_t=0A=
++ * @i: integer value to add=0A=
++ *=0A=
++ * Atomically adds @i to @v and returns @i + @v=0A=
++ */=0A=
++static __inline__ int atomic_add_return(int i, atomic_t *v)=0A=
++{=0A=
++	int __i;=0A=
++#ifdef CONFIG_M386=0A=
++	local_irq_disable();=0A=
++	__i =3D atomic_read(v);=0A=
++	atomic_set(v, i + __i);=0A=
++	local_irq_enable();=0A=
++#else=0A=
++	__i =3D i;=0A=
++	__asm__ __volatile__(=0A=
++		LOCK "xaddl %0, %1;"=0A=
++		:"=3Dr"(i)=0A=
++		:"m"(v->counter), "0"(i));=0A=
++#endif=0A=
++	return i + __i;=0A=
++}=0A=
++=0A=
++static __inline__ int atomic_sub_return(int i, atomic_t *v)=0A=
++{=0A=
++	return atomic_add_return(-i,v);=0A=
++}=0A=
++=0A=
++#define atomic_inc_return(v)  (atomic_add_return(1,v))=0A=
++#define atomic_dec_return(v)  (atomic_sub_return(1,v))=0A=
++=0A=
+ /* These are x86-specific, used by some header files */=0A=
+ #define atomic_clear_mask(mask, addr) \=0A=
+ __asm__ __volatile__(LOCK "andl %0,%1" \=0A=
+ : : "r" (~(mask)),"m" (*addr) : "memory")=0A=
+--- linux-2.6.8.1/include/asm-x86_64/atomic.h	2004-08-14 =
+19:56:23.000000000 +0900=0A=
++++ linux-2.6.8.1.rcu/include/asm-x86_64/atomic.h	2004-08-25 =
+11:57:36.000000000 +0900=0A=
+@@ -177,8 +177,33 @@=0A=
+ 		:"ir" (i), "m" (v->counter) : "memory");=0A=
+ 	return c;=0A=
+ }=0A=
+ =0A=
++/**=0A=
++ * atomic_add_return - add and return=0A=
++ * @v: pointer of type atomic_t=0A=
++ * @i: integer value to add=0A=
++ *=0A=
++ * Atomically adds @i to @v and returns @i + @v=0A=
++ */=0A=
++static __inline__ int atomic_add_return(int i, atomic_t *v)=0A=
++{=0A=
++	int __i =3D i;=0A=
++	__asm__ __volatile__(=0A=
++		LOCK "xaddl %0, %1;"=0A=
++		:"=3Dr"(i)=0A=
++		:"m"(v->counter), "0"(i));=0A=
++	return i + __i;=0A=
++}=0A=
++=0A=
++static __inline__ int atomic_sub_return(int i, atomic_t *v)=0A=
++{=0A=
++	return atomic_add_return(-i,v);=0A=
++}=0A=
++=0A=
++#define atomic_inc_return(v)  (atomic_add_return(1,v))=0A=
++#define atomic_dec_return(v)  (atomic_sub_return(1,v))=0A=
++=0A=
+ /* These are x86-specific, used by some header files */=0A=
+ #define atomic_clear_mask(mask, addr) \=0A=
+ __asm__ __volatile__(LOCK "andl %0,%1" \=0A=
+ : : "r" (~(mask)),"m" (*addr) : "memory")=0A=
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.9.2 (GNU/Linux)
+------=_NextPart_000_01B1_01C48F7E.AF888EB0--
 
-iD8DBQFBNDOg/4bL7ovhw40RAgGhAKDBMz1je85kPUBL+xUiQc1M5GtBdACePQDt
-sBmrUtWy1Sa2nFBaOd/2eY4=
-=lcuu
------END PGP SIGNATURE-----
-
---2oS5YaxWCcQjTEyO--

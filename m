@@ -1,93 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265042AbSKFNUg>; Wed, 6 Nov 2002 08:20:36 -0500
+	id <S265053AbSKFNYY>; Wed, 6 Nov 2002 08:24:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265046AbSKFNUg>; Wed, 6 Nov 2002 08:20:36 -0500
-Received: from gra-vd1.iram.es ([150.214.224.250]:32388 "EHLO gra-vd1.iram.es")
-	by vger.kernel.org with ESMTP id <S265042AbSKFNUf>;
-	Wed, 6 Nov 2002 08:20:35 -0500
-Date: Wed, 6 Nov 2002 14:27:02 +0100 (CET)
-From: Gabriel Paubert <paubert@iram.es>
-To: "H. Peter Anvin" <hpa@zytor.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: New nanosecond stat patch for 2.5.44
-In-Reply-To: <aphqqo$261$1@cesium.transmeta.com>
-Message-ID: <Pine.LNX.4.32.0211061324110.19072-100000@gra-vd1.iram.es>
+	id <S265050AbSKFNYY>; Wed, 6 Nov 2002 08:24:24 -0500
+Received: from smtp1.texas.rr.com ([24.93.36.229]:36080 "EHLO
+	txsmtp01.texas.rr.com") by vger.kernel.org with ESMTP
+	id <S265049AbSKFNYW>; Wed, 6 Nov 2002 08:24:22 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Kevin Corry <kcorry@austin.rr.com>
+Reply-To: kcorry@austin.rr.com
+To: Mike Diehl <mdiehl@dominion.dyndns.org> evms-devel@lists.sourceforge.net
+Subject: Re: [Evms-devel] EVMS announcement
+Date: Wed, 6 Nov 2002 07:47:15 -0600
+X-Mailer: KMail [version 1.2]
+Cc: linux-kernel@vger.kernel.org
+References: <02110516191004.07074@boiler> <02110518360200.00235@cygnus> <20021106022549.C849B55A9@dominion.dyndns.org>
+In-Reply-To: <20021106022549.C849B55A9@dominion.dyndns.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <02110607471500.00233@cygnus>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On 31 Oct 2002, H. Peter Anvin wrote:
-
-> Followup to:  <20021027214913.GA17533@clusterfs.com>
-> By author:    Andreas Dilger <adilger@clusterfs.com>
-> In newsgroup: linux.dev.kernel
-> >
-> > 3) The fields you are usurping in struct stat are actually there for the
-> >    Y2038 problem (when time_t wraps).  At least that's what Ted said when
-> >    we were looking into nsec times for ext2/3.  Granted, we may all be
-> >    using 64-bit systems by 2038...  I've always thought 64 bits is much
-> >    to large for time_t, so we could always use 20 or 30 bits for sub-second
-> >    times, and the remaining bits for extending time_t at the high end,
-> >    and mask those off for now, but that is a separate issue...
-> >
+On Tuesday 05 November 2002 19:45, Mike Diehl wrote:
 >
-> 64-bit time_t is nice because you don't *ever* need to worry about
-> overflow; it's capable of handling times on a galactic lifespan
-> scale.  It's overkill, of course, but it's the *right* kind of
-> overkill.
+> I don't know if you remember me, but you bailed me out from some trouble I
+> had with LVM.... TWICE!
 
-Indeed.
+I do in fact remember you. :)  If I scrounge around on my computer at work, I 
+could probably still find all the information you sent me about the problems 
+you were having.
 
->
-> We probably need to revamp struct stat anyway, to support a larger
-> dev_t, and possibly a larger ino_t (we should account for 64-bit ino_t
-> at least if we have to redesign the structure.)  At that point I would
-> really like to advocate for int64_t ts_sec and uint32_t ts_nsec and
-> quite possibly a int32_t ts_taidelta to deal with leap seconds... I'd
-> personally like struct timespec to look like the above everywhere.
+> So, let me try to understand.  The EVMS team is going to rip out the guts
+> of their user-land utils in order to comply with the existing (mainstream)
+> API, and abandon their own API.  This should reduce the amount of code
+> actually in the kernel.  (ignoring the user-land v. kernel-level discovery
+> debate)
 
-I basically agree but I suspect that filesystem writers will not be very
-happy if you want to use 16 bytes for each timestamp, especially when 8 of
-the bytes (the 32 high order bits from the second count and the TAI-UT
-offset) do not change very often. (besides that tv_nsec is defined as a
-long, i.e.  64 bit on 64 bit machines and _signed_ , stupid if you ask me
-but I digress).
+To say we are going to rip out the guts of the user-land tools is probably a 
+bit extreme. The user tools already do their own version of volume discovery, 
+separate from the kernel. So since that logic already exists, we simply need 
+to add some processing after that discovery to communicate with the kernel 
+drivers to activate the volumes. And yes, this dramatically reducing the 
+amount of kernel code needed. In our current kernel driver, I'd say easily 50 
+to 75% of the code was just for the in-kernel volume discovery.
 
-The goal as I understand it is to avoid first the possibility of ambiguous
-timestamps, but then we have to be careful also not to break existing
-applications (although they already broken wrt leap seconds).
+> Na, I can't ignore the debate.  I can't wait to see how user-land descovery
+> will be implemented.  There is something intrinsically "nice" about having
+> an OS automatically discover every aspect of a machine I'm installing on. 
+> I guess it's going to fall to the Linux distributors to package this system
+> well.  If they don't, first-time Mandrake or RH installers will be doomed
+> to that (shudder) other operating system.
 
-I don't know how to trim the highly repeated most significant bytes of the
-tv_sec field (it's probably file system specific), but 4 bytes can easily
-be shaved from the on-disk structure by packing the leap second
-information in the high order bits of the nsec field: since the number of
-nanoseconds per second is unlikely to ever need more than 30 bits to be
-encoded ;-), the 2 most significant bits can be used to encode inserted
-leap seconds. Actually 1 bit should be sufficient but some texts claim
-that up to 2 leap seconds can be inserted, this has however actually never
-happened AFAICT and I believe that NTP for example does not support 2 leap
-seconds in a row.
+Yes, in order for something like volume management to be easy and seemless to
+user, it should be presented to them at the time they install their system. 
+Having to go back and setup up volumes after the OS is installed is 
+definitely cumbersome. We are hoping this change will make it easier for EVMS 
+to work on a wider variety of distributions. But we are already on our way. 
+We've done a lot of work with UL, Debian, and Gentoo, and this will hopefully 
+make things easier for those folks in the long run.
 
-Converting this encoding to the format you suggest for stat(2) is trivial:
-it only needs a table of leap seconds. I don't care whether it's in the
-kernel or in user space: it's small and grows slowly.
+> I'll just have to wait.  BTW, Kevin, if you are ever in Albuquerque, NM. 
+> let me know; I still owe you a beer. <grin>
 
-For now I have more problems with the fact that gettimeofday and friends
-do not properly handle leap seconds and lead to ambiguous timestamps.
-Once this problem (a real killer for astronomical data acquisition, leap
-seconds are infrequent but they are a problem) is solved, filesystems can
-be updated.
+Thanks. I'll keep that in mind. :)
 
-What could be important now is to mask the low 30 bits of the nsec field
-and declare the 2 MSB reserved so that no kernel is out in the wild that
-simply copies the full nsec field to user space.
-
-	Regards,
-	Gabriel.
-
-
-
+-Kevin

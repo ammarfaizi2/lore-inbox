@@ -1,45 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129428AbQLPALH>; Fri, 15 Dec 2000 19:11:07 -0500
+	id <S129228AbQLPASI>; Fri, 15 Dec 2000 19:18:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129706AbQLPAK5>; Fri, 15 Dec 2000 19:10:57 -0500
-Received: from [206.112.105.83] ([206.112.105.83]:3055 "HELO
-	top.worldcontrol.com") by vger.kernel.org with SMTP
-	id <S129428AbQLPAKt>; Fri, 15 Dec 2000 19:10:49 -0500
-From: brian@worldcontrol.com
-Date: Fri, 15 Dec 2000 15:44:16 -0800
-To: Frank van Maarseveen <F.vanMaarseveen@inter.NL.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Is this a compromise and how?
-Message-ID: <20001215154416.B10854@top.worldcontrol.com>
-Mail-Followup-To: Brian Litzinger <brian@top.worldcontrol.com>,
-	Frank van Maarseveen <F.vanMaarseveen@inter.NL.net>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20001214005345.A3732@top.worldcontrol.com> <20001214005826.H12544@one-eyed-alien.net> <20001214212211.A10157@iapetus.localdomain>
+	id <S129319AbQLPAR6>; Fri, 15 Dec 2000 19:17:58 -0500
+Received: from lsb-catv-1-p021.vtxnet.ch ([212.147.5.21]:44048 "EHLO
+	almesberger.net") by vger.kernel.org with ESMTP id <S129228AbQLPARn>;
+	Fri, 15 Dec 2000 19:17:43 -0500
+Date: Sat, 16 Dec 2000 00:47:14 +0100
+From: Werner Almesberger <Werner.Almesberger@epfl.ch>
+To: "J . A . Magallon" <jamagallon@able.es>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linus's include file strategy redux
+Message-ID: <20001216004714.V573@almesberger.net>
+In-Reply-To: <20001215152137.K599@almesberger.net> <NBBBJGOOMDFADJDGDCPHAENMCJAA.law@sgi.com> <20001215222117.S573@almesberger.net> <20001215234857.A689@werewolf.able.es>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.5i
-In-Reply-To: <20001214212211.A10157@iapetus.localdomain>; from F.vanMaarseveen@inter.NL.net on Thu, Dec 14, 2000 at 09:22:11PM +0100
+In-Reply-To: <20001215234857.A689@werewolf.able.es>; from jamagallon@able.es on Fri, Dec 15, 2000 at 11:48:57PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for all the reponses.
+J . A . Magallon wrote:
+> Easier: public kernel interfaces only work through pointers.
 
-I happened to have /home in its own partition, so I reinstalled from
-scratch via CD and installed all the security updates, among a
-myriad of other security measures.
+Requires more elaborate wrappers or a new layer of wrapper functions
+around system calls, if you want to make this completely general.
+Also, doesn't provide FOOSIZE to "public" space.
 
-I decided not to restore /usr/local from backups, but instead to
-rebuild everything in /usr/local from fresh sources.
+> Too kind-of-classroom-not-real-world-useless-thing ?
 
-All those executables and shared libraries in /usr/local just seemed
-to risky.
+I'm afraid so ...
+
+I don't think there are many opaque types where there's no trival
+solution. Actually, I don't think there are many opaque types at
+kernel APIs to start with. The one I know offhand is atm_kptr_t
+in include/linux/atmapi.h, in this case, there's little risk in
+exposing the internal structure.
+
+So I'd consider opaque types more as a hypothetical obstacle.
+
+- Werner
 
 -- 
-Brian Litzinger <brian@worldcontrol.com>
-
-    Copyright (c) 2000 By Brian Litzinger, All Rights Reserved
+  _________________________________________________________________________
+ / Werner Almesberger, ICA, EPFL, CH           Werner.Almesberger@epfl.ch /
+/_IN_N_032__Tel_+41_21_693_6621__Fax_+41_21_693_6610_____________________/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,48 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262449AbTCJWzL>; Mon, 10 Mar 2003 17:55:11 -0500
+	id <S262452AbTCJW4N>; Mon, 10 Mar 2003 17:56:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262452AbTCJWzL>; Mon, 10 Mar 2003 17:55:11 -0500
-Received: from 205-158-62-158.outblaze.com ([205.158.62.158]:17288 "HELO
-	spf1.us.outblaze.com") by vger.kernel.org with SMTP
-	id <S262449AbTCJWzJ>; Mon, 10 Mar 2003 17:55:09 -0500
-Message-ID: <20030310230539.30103.qmail@linuxmail.org>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
+	id <S262469AbTCJW4N>; Mon, 10 Mar 2003 17:56:13 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:45497
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262452AbTCJW4M>; Mon, 10 Mar 2003 17:56:12 -0500
+Subject: Re: Fix mem= options
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030309221624.GA26517@elf.ucw.cz>
+References: <20030309221624.GA26517@elf.ucw.cz>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Felipe Alfaro Solana" <felipe_alfaro@linuxmail.org>
-To: akpm@digeo.com, george@mvista.com
-Cc: torvalds@transmeta.com, cobra@compuserve.com, linux-kernel@vger.kernel.org
-Date: Tue, 11 Mar 2003 00:05:39 +0100
-Subject: Re: Runaway cron task on 2.5.63/4 bk?
-X-Originating-Ip: 213.4.13.153
-X-Originating-Server: ws5-7.us4.outblaze.com
+Organization: 
+Message-Id: <1047341629.16973.40.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 11 Mar 2003 00:13:50 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message ----- 
-From: Andrew Morton <akpm@digeo.com> 
-Date: 	Mon, 10 Mar 2003 14:29:44 -0800 
-To: george anzinger <george@mvista.com> 
-Subject: Re: Runaway cron task on 2.5.63/4 bk? 
- 
-> If an app wants to sleep forever, calling 
->  
-> 	while (1) 
-> 		sleep(MAX_INT); 
->  
-> seems like a reasonable approach.  I'd expect quite a lot of applications 
-> would be doing that. 
- 
-why not sleep(0)? 
- 
-   Felipe 
- 
--- 
-______________________________________________
-http://www.linuxmail.org/
-Now with e-mail forwarding for only US$5.95/yr
+On Sun, 2003-03-09 at 22:16, Pavel Machek wrote:
+> Hi!
+> 
+> HPA told me bootloaders need to parse mem=, so we should invent other
+> option for stuff like mem=exactmap. Please apply,
 
-Powered by Outblaze
+Its worse than that  grub does strstr(blah, "mem=") !
+

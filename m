@@ -1,62 +1,114 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265523AbTB0Q0B>; Thu, 27 Feb 2003 11:26:01 -0500
+	id <S265470AbTB0QYy>; Thu, 27 Feb 2003 11:24:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265567AbTB0Q0B>; Thu, 27 Feb 2003 11:26:01 -0500
-Received: from DELFT.AURA.CS.CMU.EDU ([128.2.206.88]:64454 "EHLO
-	delft.aura.cs.cmu.edu") by vger.kernel.org with ESMTP
-	id <S265523AbTB0QZ7>; Thu, 27 Feb 2003 11:25:59 -0500
-Date: Thu, 27 Feb 2003 11:36:17 -0500
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Horrible L2 cache effects from kernel compile
-Message-ID: <20030227163617.GB28232@delft.aura.cs.cmu.edu>
-Mail-Followup-To: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-References: <3E5ABBC1.8050203@us.ibm.com.suse.lists.linux.kernel> <p7365r88heo.fsf@amdsimf.suse.de>
+	id <S265523AbTB0QYy>; Thu, 27 Feb 2003 11:24:54 -0500
+Received: from zmamail02.zma.compaq.com ([161.114.64.102]:43525 "EHLO
+	zmamail02.zma.compaq.com") by vger.kernel.org with ESMTP
+	id <S265470AbTB0QYw>; Thu, 27 Feb 2003 11:24:52 -0500
+Date: Thu, 27 Feb 2003 10:37:41 +0600
+From: Stephen Cameron <steve.cameron@hp.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.4.21-pre5 cciss fix unlikely startup problem
+Message-ID: <20030227043741.GA812@zuul.cca.cpqcorp.net>
+Reply-To: steve.cameron@hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <p7365r88heo.fsf@amdsimf.suse.de>
-User-Agent: Mutt/1.5.3i
-From: Jan Harkes <jaharkes@cs.cmu.edu>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 25, 2003 at 05:16:31PM +0100, Andi Kleen wrote:
-> Dave Hansen <haveblue@us.ibm.com> writes:
-> 
-> > The surprising thing?  d_lookup() accounts for 8% of the time spent
-> > waiting for an L2 miss.
-> 
-> The reason:
-> 
-> Dentry cache hash table entries: 131072 (order: 8, 1048576 bytes)
-> Inode cache hash table entries: 65536 (order: 7, 524288 bytes)
-> 
-> (1GB) I bet on your big memory box it is even worse. No cache
-> in the world can cache that. If the hash function works well it'll
-> guarantee few if any cache locality.
 
-Ehh, I read that as 1MB for the dentry cache and .5MB for the inode
-cache, Which is several orders less than 1GB. Ofcourse these are only
-the pointers to the chains of dentries and inodes which take up far more
-than just 8 bytes per entry. And once you have to start traversing those
-hashchains you're toast.
+* Make driver wait longer for board to enter simple mode to
+  handle an unlikely corner case.  (If you hot replace a 144 GB
+  failed disk in a RAID 5 set at just the right time prior to 
+  driver initialization, the board can take an extra long time
+  to become ready when switched into "simple mode" when the
+  driver is starting up.  Without the patch, in those cases, the
+  driver will give up before the board becomes ready, and will not work.  
+  (Though rebooting will generally "fix" it).  This patch avoids
+  the problem.)
+* Fix a couple of affected ioctls to return EAGAIN instead of 
+  inappropriate EFAULT.
 
-> Try the appended experimental patch. It replaces the hash table madness
-> with relatively small fixed tables. The actual size is probably left 
-> for experimentation. I choose 64K for inode and 128K for dcache for now.
 
-And as a result you are probably just making the length of any given
-hashchain longer, and walking the chain is painful as the referenced
-objects are actually scattered throughout memory.
+--- lx2421p5/drivers/block/cciss.c~cfg_table_wait	2003-02-27 10:11:35.000000000 +0600
++++ lx2421p5-scameron/drivers/block/cciss.c	2003-02-27 10:11:35.000000000 +0600
+@@ -94,7 +94,8 @@ static struct board_type products[] = {
+ };
+ 
+ /* How long to wait (in millesconds) for board to go into simple mode */
+-#define MAX_CONFIG_WAIT 1000 
++#define MAX_CONFIG_WAIT 30000 
++#define MAX_IOCTL_CONFIG_WAIT 1000
+ 
+ /*define how many times we will try a command because of bus resets */
+ #define MAX_CMD_RETRIES 3
+@@ -578,7 +579,7 @@ static int cciss_ioctl(struct inode *ino
+                         &(c->cfgtable->HostWrite.CoalIntCount));
+ 		writel( CFGTBL_ChangeReq, c->vaddr + SA5_DOORBELL);
+ 
+-		for(i=0;i<MAX_CONFIG_WAIT;i++) {
++		for(i=0;i<MAX_IOCTL_CONFIG_WAIT;i++) {
+ 			if (!(readl(c->vaddr + SA5_DOORBELL) 
+ 					& CFGTBL_ChangeReq))
+ 				break;
+@@ -586,8 +587,11 @@ static int cciss_ioctl(struct inode *ino
+ 			udelay(1000);
+ 		}	
+ 		spin_unlock_irqrestore(&io_request_lock, flags);
+-		if (i >= MAX_CONFIG_WAIT)
+-			return -EFAULT;
++		if (i >= MAX_IOCTL_CONFIG_WAIT)
++			/* there is an unlikely case where this can happen,
++			 * involving hot replacing a failed 144 GB drive in a 
++			 * RAID 5 set just as we attempt this ioctl. */
++			return -EAGAIN;
+                 return 0;
+         }
+ 	case CCISS_GETNODENAME:
+@@ -627,7 +631,7 @@ static int cciss_ioctl(struct inode *ino
+ 			
+ 		writel( CFGTBL_ChangeReq, c->vaddr + SA5_DOORBELL);
+ 
+-		for(i=0;i<MAX_CONFIG_WAIT;i++) {
++		for(i=0;i<MAX_IOCTL_CONFIG_WAIT;i++) {
+ 			if (!(readl(c->vaddr + SA5_DOORBELL) 
+ 					& CFGTBL_ChangeReq))
+ 				break;
+@@ -635,8 +639,11 @@ static int cciss_ioctl(struct inode *ino
+ 			udelay(1000);
+ 		}	
+ 		spin_unlock_irqrestore(&io_request_lock, flags);
+-		if (i >= MAX_CONFIG_WAIT)
+-			return -EFAULT;
++		if (i >= MAX_IOCTL_CONFIG_WAIT)
++			/* there is an unlikely case where this can happen,
++			 * involving hot replacing a failed 144 GB drive in a 
++			 * RAID 5 set just as we attempt this ioctl. */
++			return -EAGAIN;
+                 return 0;
+         }
+ 
+@@ -2583,11 +2590,17 @@ static int cciss_pci_init(ctlr_info_t *c
+ 		&(c->cfgtable->HostWrite.TransportRequest));
+ 	writel( CFGTBL_ChangeReq, c->vaddr + SA5_DOORBELL);
+ 
++	/* Here, we wait, possibly for a long time, (4 secs or more). 
++	 * In some unlikely cases, (e.g. A failed 144 GB drive in a 
++	 * RAID 5 set was hot replaced just as we're coming in here) it 
++	 * can take that long.  Normally (almost always) we will wait 
++	 * less than 1 sec. */
+ 	for(i=0;i<MAX_CONFIG_WAIT;i++) {
+ 		if (!(readl(c->vaddr + SA5_DOORBELL) & CFGTBL_ChangeReq))
+ 			break;
+ 		/* delay and try again */
+-		udelay(1000);
++		set_current_state(TASK_INTERRUPTIBLE);
++		schedule_timeout(1);
+ 	}	
+ 
+ #ifdef CCISS_DEBUG
 
-Another optimization is to leave the tables big (scaled up with memory
-size), but try to keep the chains as short as possible. f.i. when adding
-a new entry to a non-empty chain, drop the old entry if it isn't used.
-
-That would give a lot more control over the actual size of the dentry
-and inode caches, so that updatedb runs won't push these caches to
-completely take over the VM.
-
-Jan
+_

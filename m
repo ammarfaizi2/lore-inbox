@@ -1,35 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277473AbRJJWVS>; Wed, 10 Oct 2001 18:21:18 -0400
+	id <S277440AbRJJWTS>; Wed, 10 Oct 2001 18:19:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277476AbRJJWVH>; Wed, 10 Oct 2001 18:21:07 -0400
-Received: from sweetums.bluetronic.net ([66.57.88.6]:25537 "EHLO
-	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
-	id <S277473AbRJJWUx>; Wed, 10 Oct 2001 18:20:53 -0400
-Date: Wed, 10 Oct 2001 18:21:01 -0400 (EDT)
-From: Ricky Beam <jfbeam@bluetopia.net>
-X-X-Sender: <jfbeam@sweetums.bluetronic.net>
-To: Mingming cao <cmm@us.ibm.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH]Fix bug:rmdir could remove current working directory
-In-Reply-To: <3BC4E8AD.72F175E3@us.ibm.com>
-Message-ID: <Pine.GSO.4.33.0110101816320.22872-100000@sweetums.bluetronic.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S277473AbRJJWTH>; Wed, 10 Oct 2001 18:19:07 -0400
+Received: from www.inreko.ee ([195.222.18.2]:23520 "EHLO www.inreko.ee")
+	by vger.kernel.org with ESMTP id <S277440AbRJJWSw>;
+	Wed, 10 Oct 2001 18:18:52 -0400
+Date: Thu, 11 Oct 2001 00:36:10 +0200
+From: Marko Kreen <marko@l-t.ee>
+To: Andris Pavenis <pavenis@latnet.lv>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.11: mount flag noexec still broken for VFAT partition
+Message-ID: <20011011003609.B18573@l-t.ee>
+In-Reply-To: <Pine.LNX.4.21.0110102258290.28429-100000@gulbis.latnet.lv> <20011010151333.G10443@turbolinux.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011010151333.G10443@turbolinux.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Oct 2001, Mingming cao wrote:
->I read the man page of
->rmdir(2).  It says in this case EBUSY error should be returned.  I
->suspected this is a bug and added a check in vfs_rmdir(). The following
->patch is against 2.4.10 and has been verified.  Please comment and
->apply.
+On Wed, Oct 10, 2001 at 03:13:33PM -0600, Andreas Dilger wrote:
+> On Oct 10, 2001  23:01 +0300, Andris Pavenis wrote:
+> > Similary as with 2.4.10 mount flag noexec does not work for VFAT
+> > partition. I have following in fstab
+> > 
+> > /dev/hda1      /c       vfat     noexec,gid=201,umask=002,quiet  1    0
+> > /dev/hda5      /d       vfat     noexec,gid=201,umask=002,quiet  1    0
+> > 
+> > but I see that all files in corresponding filesystems are still 
+> > exectuable
+> 
+> Probably because your uid or gid match the above, so your access permission
+> is done by checking "user" or "group" and not "other".  Try "umask=113"
+> instead.
 
-The bug is in the manpage.  This was discussed over a year ago (some time
-after 2.1.44 introduced dcache (it was broken then, but that's when it
-appeared.))
+Um.  'noexec' does not touch flags, it only disallows exec'ing
+on particular mountpoint.  So Andris, have you tried executing
+anything on those partitions?
 
---Ricky
+umask also sets directory permissions, so with umask=113 you
+cant acces any dirs there...
 
+-- 
+marko
 

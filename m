@@ -1,45 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274013AbRISGvq>; Wed, 19 Sep 2001 02:51:46 -0400
+	id <S274016AbRISGy0>; Wed, 19 Sep 2001 02:54:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274014AbRISGvg>; Wed, 19 Sep 2001 02:51:36 -0400
-Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:27787 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S274013AbRISGv2>;
-	Wed, 19 Sep 2001 02:51:28 -0400
-Message-ID: <3BA84088.27698798@candelatech.com>
-Date: Tue, 18 Sep 2001 23:51:52 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-12 i686)
-X-Accept-Language: en
+	id <S274014AbRISGyG>; Wed, 19 Sep 2001 02:54:06 -0400
+Received: from mail.sonytel.be ([193.74.243.200]:5856 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S271587AbRISGyA>;
+	Wed, 19 Sep 2001 02:54:00 -0400
+Date: Wed, 19 Sep 2001 08:54:23 +0200 (MEST)
+From: Geert Uytterhoeven <Geert.Uytterhoeven@sonycom.com>
+To: Linux Kernel Development <linux-kernel@vger.kernel.org>
+cc: Linux/m68k <linux-m68k@lists.linux-m68k.org>
+Subject: Re: Linux 2.4.10-pre12
+In-Reply-To: <Pine.LNX.4.33.0109181737550.1111-100000@penguin.transmeta.com>
+Message-ID: <Pine.GSO.4.21.0109190851450.14079-100000@mullein.sonytel.be>
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Locked up 2.4.10-pre11 on Tyan 815t motherboard.
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 18 Sep 2001, Linus Torvalds wrote:
+> pre12:
+>  - Alan Cox: much more merging
 
-I was running a network stress test (sending lots of 64 byte packets
-on the DLINK 4-port NIC and two EEPRO-100 NICs.  This ran for 5 minutes,
-and all was good (about 12Mbps of 64byte packets)..
+Anybody with an idea where this comes from?!?
 
-Then, I re-started the test with 128 byte packets.  As soon as traffic
-started, the whole machine locked up.  Couldn't even ping it from another
-machine.  I had to hold down the power-switch for about 5 seconds before
-it reset (ie it wasn't even listening to the power-down??)
+  - There should be a test for a failed kmalloc()
+  - sun3fb_init_fb() returns void (it returns int in the m68k tree)
 
-I'm using the eepro100 driver that is included in the kernel, btw.  This
-used to have a lockup problem, but I thought it was fixed...
+diff -u --recursive --new-file v2.4.9/linux/drivers/video/sun3fb.c linux/drivers/video/sun3fb.c
+--- v2.4.9/linux/drivers/video/sun3fb.c	Thu Apr 26 22:17:27 2001
++++ linux/drivers/video/sun3fb.c	Mon Sep 17 22:52:35 2001
+@@ -586,9 +586,11 @@
+ 	fb->cursor.hwsize.fbx = 32;
+ 	fb->cursor.hwsize.fby = 32;
+ 	
+-	if (depth > 1 && !fb->color_map)
++	if (depth > 1 && !fb->color_map) {
+ 		fb->color_map = kmalloc(256 * 3, GFP_ATOMIC);
+-		
++		return -ENOMEM;
++	}
++			
+ 	switch(fbtype) {
+ #ifdef CONFIG_FB_CGSIX
+ 	case FBTYPE_SUNFAST_COLOR:
 
-I'm going to see if I can re-produce this.  If so, can someone suggest
-a way to get more/better debugging information??
+Gr{oetje,eeting}s,
 
-Thanks,
-Ben
+						Geert
 
--- 
-Ben Greear <greearb@candelatech.com>          <Ben_Greear@excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+

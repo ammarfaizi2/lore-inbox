@@ -1,94 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287591AbSBCTEJ>; Sun, 3 Feb 2002 14:04:09 -0500
+	id <S287616AbSBCTK3>; Sun, 3 Feb 2002 14:10:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287596AbSBCTEA>; Sun, 3 Feb 2002 14:04:00 -0500
-Received: from red.csi.cam.ac.uk ([131.111.8.70]:56806 "EHLO red.csi.cam.ac.uk")
-	by vger.kernel.org with ESMTP id <S287591AbSBCTDw>;
-	Sun, 3 Feb 2002 14:03:52 -0500
-Date: Sun, 3 Feb 2002 19:03:44 +0000 (GMT)
-From: Matej Pfajfar <mp292@cam.ac.uk>
-X-X-Sender: <mp292@red.csi.cam.ac.uk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: PF_UNIX socket problem in 2.4
-In-Reply-To: <E16X5v4-0000H9-00@the-village.bc.nu>
-Message-ID: <Pine.SOL.4.33.0202031856050.21647-100000@red.csi.cam.ac.uk>
+	id <S287633AbSBCTKT>; Sun, 3 Feb 2002 14:10:19 -0500
+Received: from relay1.pair.com ([209.68.1.20]:16 "HELO relay.pair.com")
+	by vger.kernel.org with SMTP id <S287616AbSBCTKF>;
+	Sun, 3 Feb 2002 14:10:05 -0500
+X-pair-Authenticated: 24.126.75.99
+Message-ID: <3C5D8C79.4C0792C5@kegel.com>
+Date: Sun, 03 Feb 2002 11:16:09 -0800
+From: Dan Kegel <dank@kegel.com>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Arjen Wolfs <arjen@euro.net>
+CC: coder-com@undernet.org, feedback@distributopia.com,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [Coder-Com] Re: PROBLEM: high system usage / poor SMPnetwork 
+ performance
+In-Reply-To: <3C56E327.69F8B70F@kegel.com>
+	 <001901c1a900$e2bc7420$0201010a@frodo>
+	 <3C58D50B.FD44524F@kegel.com>
+	 <001d01c1aa8e$2e067e60$0201010a@frodo> <5.1.0.14.2.20020203173247.02c946e8@pop.euronet.nl>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > After upgrading to kernel 2.4.18pre7 (from 2.2.19), a recv() operation on
-> > a UNIX socket returns 11 (EGAIN) even though the socket is blocking. My
-> > code worked fine on 2.2.19.
-> >
-> > I am doing some more debugging to see why this happens but I would like to
-> > ask whether anyone else has had similar problems? Is this a known bug?
->
-> Not a known one. A small test case would be good
-The problem was caused when my code tried to read 0 bytes from a unix
-socket (my fault, didn't specifically check for wanting to read 0 bytes,
-assumed recv() would just return 0 ...).
+Arjen Wolfs wrote:
+> The ircu version that supports kqueue and /dev/poll is currently being
+> beta-tested on a few servers on the Undernet. The graph at
+> http://www.break.net/ircu10-to-11.png shows the load average (multiplied by
+> 100) on a on a server with 3000-4000 clients using poll(), and /dev/poll.
+> The difference is obviously quite dramatic, and the same effect is being
+> seen with kqueue. You could also try some of the /dev/poll patches for
+> linux, which migth save you writing a new engine. Note that ircu 2.10.11 is
+> still beta though, and is known to crash in mysterious ways from time to time.
 
-When there is no data available, the code blocks. If, however, data is
-available, recv() returns EGAIN. Is this correct behaviour? In kernel
-2.2.19, recv() did in fact return 0;
+None of the original /dev/poll patches for Linux were much
+good, I seem to recall; they had scaling problems and bugs.
 
-Test example below.
+The /dev/epoll patch is good, but the interface is different enough
+from /dev/poll that ircd would need a new engine_epoll.c anyway.
+(It would look like a cross between engine_devpoll.c and engine_rtsig.c,
+as it would need to be notified by os_linux.c of any EWOULDBLOCK return values.
+Both rtsigs and /dev/epoll only provide 'I just became ready' notification, 
+but no 'I'm not ready anymore' notification.)
 
-Matej
+And then there's /dev/yapoll (http://www.distributopia.com), which
+I haven't tried yet (I don't think the author ever published the patch?).
 
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <netdb.h>
-#include <sys/types.h>
-#include <sys/un.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <errno.h>
+Anyway, the new engine wouldn't be too hard to write, and
+would let irc run fast without a patched kernel.
 
-int main(int argc, char *argv[])
-{
-  char buf[1];
-  int s;
-  int retval;
-  struct sockaddr_un server;
-
-  if (argc < 2)
-    printf("Usage : test socketname");
-
-  s = socket(PF_UNIX, SOCK_STREAM, 0);
-  if (s < 0)
-    perror("socket :");
-  else
-  {
-    server.sun_family = PF_LOCAL;
-    strncpy(server.sun_path, argv[1], sizeof(server.sun_path));
-
-    if (connect(s,(struct sockaddr *)&server,SUN_LEN(&server)) < 0)
-      perror("connect :");
-    else
-    {
-      retval = recv(s,buf,0, 0);
-      if (retval < 0)
-        perror("recv :");
-      else
-        printf("Received %u bytes.",retval);
-
-      close(s);
-      return 0;
-    }
-  }
-}
-
-
-Matej Pfajfar
-St John's College, University of Cambridge, UK
-
-GPG Public Key @ http://matejpfajfar.co.uk/keys
-Most people are good people, the rest of us are going to
-run the world. -- badbytes
-
-
+- Dan

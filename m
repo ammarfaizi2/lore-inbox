@@ -1,79 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310150AbSCKPBw>; Mon, 11 Mar 2002 10:01:52 -0500
+	id <S310141AbSCKPEC>; Mon, 11 Mar 2002 10:04:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310142AbSCKPBn>; Mon, 11 Mar 2002 10:01:43 -0500
-Received: from mailer3.bham.ac.uk ([147.188.128.54]:2972 "EHLO
-	mailer3.bham.ac.uk") by vger.kernel.org with ESMTP
-	id <S310141AbSCKPB3>; Mon, 11 Mar 2002 10:01:29 -0500
-Date: Mon, 11 Mar 2002 15:01:22 +0000 (GMT)
-From: Mark Cooke <mpc@star.sr.bham.ac.uk>
-X-X-Sender: mpc@pc24.sr.bham.ac.uk
-To: Tony Hoyle <tmh@nothing-on.tv>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Dog slow IDE
-In-Reply-To: <3C8CB3EB.8070704@nothing-on.tv>
-Message-ID: <Pine.LNX.4.44.0203111451260.17324-100000@pc24.sr.bham.ac.uk>
+	id <S310142AbSCKPDw>; Mon, 11 Mar 2002 10:03:52 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:3338 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S310141AbSCKPDr>; Mon, 11 Mar 2002 10:03:47 -0500
+Subject: Re: [PATCH] 2.5.6 IDE 19
+To: dalecki@evision-ventures.com (Martin Dalecki)
+Date: Mon, 11 Mar 2002 15:19:05 +0000 (GMT)
+Cc: torvalds@transmeta.com (Linus Torvalds),
+        linux-kernel@vger.kernel.org (Kernel Mailing List)
+In-Reply-To: <3C8CA5D8.50203@evision-ventures.com> from "Martin Dalecki" at Mar 11, 2002 01:40:56 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16kRZp-0000or-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Tony,
+>    in replacements for CF cards in digital cameras and I would rather expect
+>    them to be very tolerant about the driver in front of them. And then 
 
-Just a me too earlier today with 2.4.19-pre2-ac4, on a dual celeron
-440BX-based system.
+Oh dear me. Wrong again. Microdrives require proper polite wakeups. But you
+see camera vendors buy in IDE code from people who can read and follow 
+standards documents. 
 
-Im my case, I have 3 hdds in a raid-5, hda, hdb, and hdc.
+> the WB
+>    caches of IDE devices are not caches in the sense of a MESI cache, 
+> they are
+>    more like buffer caches and should therefore flush them self after s 
+> short
+>    period of inactivity without the application of any special flush 
+> command.
 
-hda and hdb were both performing as expected 18-22MB/sec.  hdc was 
-down at the 1.8-2.2MB/sec - even after trying to use hdparm to reset
-the drive transfer rates (-p, -d1 -X66, -d0 -X12 (to try pio) etc).
+You now have an absolute vote of *NO CONFIDENCE* on my part. I'm simply
+not going to consider running your code. "It probably wont eat your disk"
+and handwaving is not how you write a block layer.
 
-None of the attempts using hdparm altered the hdc transfer rate in any
-noticable fashion.  I powered down the machine, and on reboot, the hdc
-transfer rate returned to the expected range 18-22MB/sec), and the
-raid performance went up to it's usual level from the 5MB/sec it was
-showing.
+How is anyone supposed to debug file system code in 2.5 when its known
+that it will trash data on some disks anyway ? I'd like to see you cite
+a paragraph where the IDE device is required to flush the data back
+promptly, or on power off. I'd like to see what you plan to do about all
+the IBM disks you plan to mistreat and give bad blocks that require a 
+reformat ?
 
-I couldn't see any reason for the odd behaviour, and I had put it down
-to 'just one of those things' as the 3 or 4 test reboots since haven't
-produced the strangely low-transfer rate again.
-
-Cheers,
-
-Mark
-
-On Mon, 11 Mar 2002, Tony Hoyle wrote:
-
-> For some reason the my IDE is running extremely slow (which accounts for 
-> why this box feels so sluggish).
-
-<snip>
-
-> However:
-> 
-> /dev/hda:
->   Timing buffered disk reads:  64 MB in 16.27 seconds =  3.93 MB/sec
-> 
-> /dev/hdb:
->   Timing buffered disk reads:  64 MB in 32.99 seconds =  1.94 MB/sec
-> 
-> 1.94MB/sec is *way* to slow for a UDMA5 hard disk surely?
-
-Yes.  On another system, I pull 35-40MB/sec off each individual
-barracuda IV drive, and 50+ from the combined raid array (I assume PCI 
-bandwidth limited, as twiddling BIOS PCI settings boosted this from 41 
-to 50).
-
-Regards,
-
-Mark
-
--- 
-+-------------------------------------------------------------------------+
-Mark Cooke                  The views expressed above are mine and are not
-Systems Programmer          necessarily representative of university policy
-University Of Birmingham    URL: http://www.sr.bham.ac.uk/~mpc/
-+-------------------------------------------------------------------------+
-
+Alan

@@ -1,71 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263183AbTFPAuk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jun 2003 20:50:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263185AbTFPAuk
+	id S263187AbTFPBCZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jun 2003 21:02:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263195AbTFPBCZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jun 2003 20:50:40 -0400
-Received: from auth22.inet.co.th ([203.150.14.104]:269 "EHLO auth22.inet.co.th")
-	by vger.kernel.org with ESMTP id S263183AbTFPAuj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jun 2003 20:50:39 -0400
-From: Michael Frank <mflt1@micrologica.com.hk>
-To: Jakob Oestergaard <jakob@unthought.net>
-Subject: Re: NFS io errors on transfer from system running 2.4 to system running 2.5
-Date: Mon, 16 Jun 2003 08:56:37 +0800
-User-Agent: KMail/1.5.2
-Cc: linux-kernel@vger.kernel.org
-References: <200306031912.53569.mflt1@micrologica.com.hk> <200306032101.27215.mflt1@micrologica.com.hk> <20030603132609.GE14947@unthought.net>
-In-Reply-To: <20030603132609.GE14947@unthought.net>
-X-OS: KDE 3 on GNU/Linux
-MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200306160018.49652.mflt1@micrologica.com.hk>
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sun, 15 Jun 2003 21:02:25 -0400
+Received: from vcgwp1.bit-drive.ne.jp ([211.9.32.211]:56476 "HELO
+	vcgwp1.bit-drive.ne.jp") by vger.kernel.org with SMTP
+	id S263187AbTFPBCY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jun 2003 21:02:24 -0400
+To: mikpe@csd.uu.se
+Cc: linux-kernel@vger.kernel.org, perfctr-devel@lists.sourceforge.net
+Cc: hyoshiok@miraclelinux.com, hardmeter-users@lists.sourceforge.jp
+Subject: Re: [Perfctr-devel] perfctr-2.5.5 released
+In-Reply-To: <200306160044.h5G0i6Su026505@harpo.it.uu.se>
+References: <200306160044.h5G0i6Su026505@harpo.it.uu.se>
+X-Mailer: Mew version 1.94.2 on XEmacs 21.1 (Cuyahoga Valley)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <20030616095803N.hyoshiok@miraclelinux.com>
+Date: Mon, 16 Jun 2003 09:58:03 +0900
+From: Hiro Yoshioka <hyoshiok@miraclelinux.com>
+X-Dispatcher: imput version 20000228(IM140)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 03 June 2003 21:26, Jakob Oestergaard wrote:
-> On Tue, Jun 03, 2003 at 09:01:27PM +0800, Michael Frank wrote:
-> > On Tuesday 03 June 2003 20:52, Jakob Oestergaard wrote:
-> > > I always use hard,intr so that I can manually interrupt hanging jobs,
-> > > but also know that they do not randomly fail just because a few packets
-> > > get dropped on my network.  This seems to be the common setup, as far
-> > > as I know.
-> >
-> > Thank you,
-> >
-> > I will try hard, intr
->
-> no prob.
->
-> Please let the list know if it solves your problem or not - I'm sure
-> there are people who want to know if it doesn't, and if it does then the
-> solution will be in the archives for the next to find.
->
-> After all, I could be mistaken...  naaahh...   ;)
->
+> On Mon, 16 Jun 2003 09:18:46 +0900, Hiro Yoshioka wrote:
+> > I just download perfctr 2.5.5 and see the difference
+> > between 2.5.4 and 2.5.5 but I could not find code
+> > changes except the changelog and todo.
+> > 
+> > $ diff -u perfctr-2.5.4 perfctr-2.5.5
+> > diff -u perfctr-2.5.4/CHANGES perfctr-2.5.5/CHANGES
+> > --- perfctr-2.5.4/CHANGES       2003-06-01 21:32:45.000000000 +0900
+> > +++ perfctr-2.5.5/CHANGES       2003-06-16 07:11:23.000000000 +0900
+> 
+> Missing '-r' option to diff, so it only diffs the toplevel files.
+> Use diff -ruN to compare two directories recursively.
 
-If have tested mounting nfs partitions mode hard,intr and transfered 
-kernel bitkeeper repos between systems running combinations of recent 
-2.4 and 2.5 kernels, and also did bk resync and bk resolve via the network.
+Thanks for your quick help.
 
-It is working dependably and I won't touch soft mounting mode again ...
+I have made a patch for perfctr 2.5.5 of hardmeter which 
+is a memory profiling tool using Intel P4's PEBS (precise
+event based sampling) hardware monitoring facility.
 
-Regards
-Michael
+See the following patch.
 
--- 
-Powered by linux-2.5.70-mm3, compiled with gcc-2.95-3 because it's rock solid
+http://cvs.sourceforge.jp/cgi-bin/viewcvs.cgi/hardmeter/hardmeter/patch/perfctr-2.5.5.dif?rev=1.1&content-type=text/vnd.viewcvs-markup
 
-My current linux related activities in rough order of priority:
-- Testing of Swsusp for 2.4
-- Learning 2.5 kernel debugging with kgdb - it's in the -mm tree
-- Studying 2.5 serial and ide drivers, ACPI, S3
+https://sourceforge.jp/projects/hardmeter/
+(some pages are written in Japanese)
 
-The 2.5 kernel could use your usage. More info on setting up 2.5 kernel at 
-http://www.codemonkey.org.uk/post-halloween-2.5.txt
-
-
+Regards,
+  Hiro
+--
+Hiro Yoshioka/CTO, Miracle Linux
+mailto:hyoshiok@miraclelinux.com
+http://www.miraclelinux.com

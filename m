@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288675AbSADTpd>; Fri, 4 Jan 2002 14:45:33 -0500
+	id <S288739AbSADTvO>; Fri, 4 Jan 2002 14:51:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288728AbSADTpW>; Fri, 4 Jan 2002 14:45:22 -0500
-Received: from mail.pha.ha-vel.cz ([195.39.72.3]:18185 "HELO
-	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
-	id <S288675AbSADTpK>; Fri, 4 Jan 2002 14:45:10 -0500
-Date: Fri, 4 Jan 2002 20:45:08 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, esr@thyrsus.com,
-        David Woodhouse <dwmw2@infradead.org>, Dave Jones <davej@suse.de>,
-        Lionel Bouton <Lionel.Bouton@free.fr>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
+	id <S288735AbSADTvC>; Fri, 4 Jan 2002 14:51:02 -0500
+Received: from mailout08.sul.t-online.com ([194.25.134.20]:59871 "EHLO
+	mailout08.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S288732AbSADTur>; Fri, 4 Jan 2002 14:50:47 -0500
+Date: 04 Jan 2002 17:04:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: linux-kernel@vger.kernel.org
+Message-ID: <8GDPk6U1w-B@khms.westfalen.de>
+In-Reply-To: <200201031246.g03Ckwkl021028@pincoya.inf.utfsm.cl>
 Subject: Re: ISA slot detection on PCI systems?
-Message-ID: <20020104204508.C22591@suse.cz>
-In-Reply-To: <20020104200410.E21887@suse.cz> <Pine.GSO.3.96.1020104202932.829H-100000@delta.ds2.pg.gda.pl>
-Mime-Version: 1.0
+X-Mailer: CrossPoint v3.12d.kh8 R/C435
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.GSO.3.96.1020104202932.829H-100000@delta.ds2.pg.gda.pl>; from macro@ds2.pg.gda.pl on Fri, Jan 04, 2002 at 08:36:06PM +0100
+Organization: Organisation? Me?! Are you kidding?
+In-Reply-To: <200201031246.g03Ckwkl021028@pincoya.inf.utfsm.cl>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 04, 2002 at 08:36:06PM +0100, Maciej W. Rozycki wrote:
-> On Fri, 4 Jan 2002, Vojtech Pavlik wrote:
-> 
-> > And of course, there will be a huge amount of false positives, because
-> > all the new chipsets have an ISA bridge built into the southbridge chip
-> > and it is there even when no ISA slots are present.
-> 
->  A false positive is less painful than a false negative.  Then if a system
-> has a PCI-ISA bridge, it's surely for purpose there (otherwise what is the
-> justification for the additional cost of unused silicon?).  Maybe for an
-> on-board ISA serial or parallel port or an ISA floppy controller...
+vonbrand@inf.utfsm.cl (Horst von Brand)  wrote on 03.01.02 in <200201031246.g03Ckwkl021028@pincoya.inf.utfsm.cl>:
 
-Because it's much cheaper to buy an off-the-shelf southbridge, even if
-you're not going to use the ISA bus for any devices if you're making an
-ISA-less mainboard, than trying to find or even design one without an
-ISA bridge in it.
+> "Eric S. Raymond" <esr@thyrsus.com> said:
+>
+> [...]
+>
+> > What I want to do with this is make ISA-card questions invisible on modern
+> > PCI-only motherboards.
+>
+> ... in order to make it impossible to build kernels for the coffepot in the
+> corner on my shiny new machine. No, thanks.
 
-I recall people using the vt82c686a's with StrongARM CPUs even ...
+If you want to build the coffeepot kernel with the autoprobe result from  
+your shiny new machine, you'll deserve whatever you get. That's just  
+stupid. Either autoprobe on the right machine, or not at all.
 
--- 
-Vojtech Pavlik
-SuSE Labs
+MfG Kai

@@ -1,101 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262850AbSJWFDH>; Wed, 23 Oct 2002 01:03:07 -0400
+	id <S262868AbSJWFT5>; Wed, 23 Oct 2002 01:19:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262862AbSJWFDH>; Wed, 23 Oct 2002 01:03:07 -0400
-Received: from ns.cinet.co.jp ([210.166.75.130]:39439 "EHLO multi.cinet.co.jp")
-	by vger.kernel.org with ESMTP id <S262850AbSJWFDG>;
-	Wed, 23 Oct 2002 01:03:06 -0400
-Message-ID: <E6D19EE98F00AB4DB465A44FCF3FA46903A30A@ns.cinet.co.jp>
-From: Osamu Tomita <tomita@cinet.co.jp>
-To: "'Vojtech Pavlik '" <vojtech@suse.cz>
-Cc: "'LKML '" <linux-kernel@vger.kernel.org>
-Subject: RE: [PATCH][RFC] add support for PC-9800 architecture (13/26) key
-	board
-Date: Wed, 23 Oct 2002 14:09:12 +0900
+	id <S262871AbSJWFT5>; Wed, 23 Oct 2002 01:19:57 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:53420 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S262868AbSJWFT4>; Wed, 23 Oct 2002 01:19:56 -0400
+Date: Tue, 22 Oct 2002 22:24:00 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+Reply-To: "Martin J. Bligh" <mbligh@aracnet.com>
+To: landley@trommello.org, linux-kernel@vger.kernel.org
+cc: Guillaume Boissiere <boissiere@adiglobal.com>
+Subject: Re: Crunch Time, in 3D!  (2.5 final merge candidate list, v 1.4)
+Message-ID: <2713947410.1035325439@[10.10.2.3]>
+In-Reply-To: <200210221719.41868.landley@trommello.org>
+References: <200210221719.41868.landley@trommello.org>
+X-Mailer: Mulberry/2.1.2 (Win32)
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-2022-jp"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for comments.
+> Similarly, the "VM Large Page Support", which is a pretty vague
+> entry in the 2.5 status list (attributed to "many people" and
+> pointing to http://lse.sf.net which is an umbrealla organization
+> for many smaller projects), has managed to avoid all efforts
+> to track down a related patch.  Rohit Seth at intel seems to think
+> it might be this patch:
+> 
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=102824901019428&w=2
+> 
+> Which already went in.  So until somebody steps up claim that
+> "VM Large Page Support" is not the same as hugetlb patch Linus
+> already merged, 
 
------Original Message-----
-From: Vojtech Pavlik
-To: Osamu Tomita
-Cc: LKML; Linus Torvalds
-Sent: 2002/10/22 19:43
-Subject: Re: [PATCH][RFC] add support for PC-9800 architecture (13/26)
-keyboard
+It's not ;-)
 
-> I won't merge this unless it's cleaned up, kana support either made
-> generic or put into keymaps, and the below problems resolved.
+> that's out.
 
-> ... no way I'll add another default keymap when now we have unified
-> keycodes. And we do support japanese keycodes/keymappings. 
-Japanese keycodes/keymapping support! We are very happy. IMHO To realize
-this, emulations include shift-state modifier are needed??
-Please point me where is source code, and we don't touch defkeymaps.
+Try looking in -mm tree for anything that says hugetlb on it.
+(or searching lkml for hugetlb subject lines). Yeah, I know
+that's totally non-intuitive ;-)
+This is large page support using more reasonable interfaces,
+so it's actually useful.
 
->> diff -urN linux/drivers/char/keyboard.c
-> Either there is a need for a special kanji mode changing function for
-> japanese keyboards or there is not. Either way, it isn't PC-98 specific.
-I think it's for emergency(or rescue) purpose. For example, system cannot
-boot due to illegal kanji named file, input kenji to select one and change
-it. We plan direct character code input. In kanji-mode, do convert from
-hex numeric input to kanji. But not implemented yet.
+M.
 
 
->> +#ifndef CONFIG_PC9800
->>  #define KBD_DEFLEDS 0
->> +#else
->> +#define KBD_DEFLEDS (1 << VC_NUMLOCK)
->> +#endif
-> You want numlock on by default?
-Yes. Desktop PC-9800 has Ten-key pad. But doesn't have NumLock key!
-Perhaps BIOS initialize always NumLock ON.
-Note book PC-9800 has NumLock key. But NumLock key never send scancode,
-do change scancode internaly.
-
->>  #ifdef CONFIG_MAGIC_SYSRQ
->>  unsigned char kbd_sysrq_xlate[128] =
-> The keycodes are defined constants. They do not change between
-> architectures. So this table also must be constant.
-I see.
-
->>  static void fn_scroll_forw(struct vc_data *vc)
->>  {
->> +#ifndef CONFIG_PC9800
->>  	scrollfront(0);
->> +#else
->> +	scrollfront(3);
->> +#endif
->>  }
-> Huh?
-Due to our implementation of console driver. For old PC-9800, we use only
-video ram. If don't, scrolling is _very_ slow. So our console can scroll
-less than half lines of screen. If call with 0, screen doesn't scroll.
-
->>  static void k_spec(struct vc_data *vc, unsigned char value, char
-up_flag)
->>  {
->> +#ifndef CONFIG_PC9800
->>  	if (up_flag)
->> +#else
->> +	if (up_flag && value != 7 && value != 0x14) /* caps/kana lock */
->> +#endif
-> Very ugly. This should be handled by the keymap.
-I'll remove it. Thanks.
-
->> diff -urN linux/include/linux/logibusmouse.h
-linux98/include/linux/logibusmouse.h
->> --- linux/include/linux/logibusmouse.h	Tue Aug  3 01:54:29 1999
->> +++ linux98/include/linux/logibusmouse.h	Fri Aug 17 22:15:13 2001
-> Hmm, this file isn't used at all in 2.5. Why patching it?
-IMHO Those (pc_keyb.h too) are remaining to compile user mode application.
-I think it's a very rare, but ....
-
-Regards
-Osamu Tomita

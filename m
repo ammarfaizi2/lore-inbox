@@ -1,42 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264291AbRFHTNB>; Fri, 8 Jun 2001 15:13:01 -0400
+	id <S263660AbRFHTNB>; Fri, 8 Jun 2001 15:13:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264256AbRFHTMw>; Fri, 8 Jun 2001 15:12:52 -0400
-Received: from e22.nc.us.ibm.com ([32.97.136.228]:52892 "EHLO
-	e22.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S263660AbRFHTMc>; Fri, 8 Jun 2001 15:12:32 -0400
-Subject: Announcing Journaled File System (JFS)  release 0.3.4 available
-To: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
-Message-ID: <OF66A9EF33.B8091BB4-ON85256A65.0069430B@raleigh.ibm.com>
-From: "Steve Best" <sbest@us.ibm.com>
-Date: Fri, 8 Jun 2001 14:12:28 -0500
-X-MIMETrack: Serialize by Router on D04NM201/04/M/IBM(Release 5.0.6 |December 14, 2000) at
- 06/08/2001 03:12:29 PM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S264291AbRFHTMv>; Fri, 8 Jun 2001 15:12:51 -0400
+Received: from codeblau.walledcity.de ([212.84.209.34]:27915 "EHLO codeblau.de")
+	by vger.kernel.org with ESMTP id <S264256AbRFHTMg>;
+	Fri, 8 Jun 2001 15:12:36 -0400
+Date: Fri, 8 Jun 2001 21:12:47 +0200
+From: Felix von Leitner <leitner@fefe.de>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Felix von Leitner <leitner@fefe.de>, linux-kernel@vger.kernel.org
+Subject: Re: Linux kernel headers violate RFC2553
+Message-ID: <20010608211247.A12925@codeblau.de>
+In-Reply-To: <20010608195719.A4862@fefe.de> <15137.8668.590390.10485@pizda.ninka.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.16i
+In-Reply-To: <15137.8668.590390.10485@pizda.ninka.net>; from davem@redhat.com on Fri, Jun 08, 2001 at 12:05:00PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Release 0.3.4 of JFS was made available today.
+Thus spake David S. Miller (davem@redhat.com):
+>  > glibc works around this, but the diet libc uses the kernel headers and
+>  > thus exports the wrong API to user land.
+> Don't user kernel headers for userspace.
 
-Drop 34 on June 8, 2001 (jfs-0.3.4-patch.tar.gz) includes fixes to the
-file system and utilities. There is now a patch being provided that
-will make it easier to move from release 0.3.3 to 0.3.4, the patch file
-is call jfs-0_3_3-to-0_3_4.patch.gz.
+What choice do I have?
+Duplicate everything and then be out of sync when the specs change?
 
-Function and Fixes in release 0.3.4
+Using glibc-2.1.* for IPv6 did not work for 2.4 kernels for more than
+ONE YEAR because of this, then glibc 2.2 became available.  I am not
+willing to follow this shining example of "Linux brokenness" that is
+still being laughed about by avid BSD followers.
 
- - fsck fix to handle pre-existing lost+found sub dir
- - Fixed to remove a hang waiting on inode (jitterbug #73)
- - Fixed dbench hang on SMP 8-way
- - Fixed a log sync problem, improved performance with this fix
+I hereby volunteer to submit patches for all places where the kernel
+headers are not RFC compliant.  The kernel headers are actually
+_intended_ to be used from user space, as kernel specific parts are
+escaped using "#ifdef __KERNEL__" all over the place.  What reason would
+there be for this if the kernel headers were not used from user space?
 
-For more details about the problems fixed, please see the README.
+Even when using glibc the kernel headers are included in most programs.
 
-Steve
-JFS for Linux http://oss.software.ibm.com/jfs
+> Kernel headers and user headers are distinctly different namespaces,
+> and you have pointed out only one of many places where we use
+> different names/structures/etc. for some kernel networking headers
+> vs. what userspace wants.
 
+Then, with all due respect, those places should be fixed.
 
+There is no excuse for sloppy code and sloppy interfaces.  At any rate,
+"don't use our code, then" is not a valid excuse in my humble opinion.
 
+Felix

@@ -1,61 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268037AbUIKJWX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268000AbUIKJVu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268037AbUIKJWX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Sep 2004 05:22:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268073AbUIKJWW
+	id S268000AbUIKJVu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Sep 2004 05:21:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268037AbUIKJUx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Sep 2004 05:22:22 -0400
-Received: from [62.159.120.65] ([62.159.120.65]:64048 "EHLO
-	srv-adh-vm-0007.adminsend.de") by vger.kernel.org with ESMTP
-	id S268037AbUIKJWD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Sep 2004 05:22:03 -0400
-Message-ID: <4142C3A1.1010005@adminsend.de>
-Date: Sat, 11 Sep 2004 11:21:37 +0200
-From: ADH <swing@adminsend.de>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4) Gecko/20030624 Netscape/7.1 (ax)
-X-Accept-Language: en-us, en
+	Sat, 11 Sep 2004 05:20:53 -0400
+Received: from smtp-out.hotpop.com ([38.113.3.61]:42683 "EHLO
+	smtp-out.hotpop.com") by vger.kernel.org with ESMTP id S268000AbUIKJUr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Sep 2004 05:20:47 -0400
+From: "Antonino A. Daplas" <adaplas@hotpop.com>
+Reply-To: adaplas@pol.net
+To: Dave Airlie <airlied@linux.ie>,
+       Michel =?iso-8859-1?q?D=E4nzer?= <michel@daenzer.net>
+Subject: Re: radeon-pre-2
+Date: Sat, 11 Sep 2004 17:20:38 +0800
+User-Agent: KMail/1.5.4
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jon Smirl <jonsmirl@gmail.com>,
+       Felix =?iso-8859-1?q?K=FChling?= <fxkuehl@gmx.de>,
+       DRI Devel <dri-devel@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>
+References: <E3389AF2-0272-11D9-A8D1-000A95F07A7A@fs.ei.tum.de> <1094873412.4838.49.camel@admin.tel.thor.asgaard.local> <Pine.LNX.4.58.0409110600120.26651@skynet>
+In-Reply-To: <Pine.LNX.4.58.0409110600120.26651@skynet>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Major XFS problems...
-References: <2Ca3I-2kY-7@gated-at.bofh.it> <2Cdl9-4Pc-65@gated-at.bofh.it>
-In-Reply-To: <2Cdl9-4Pc-65@gated-at.bofh.it>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200409111720.38477.adaplas@hotpop.com>
+X-HotPOP: -----------------------------------------------
+                   Sent By HotPOP.com FREE Email
+             Get your FREE POP email at www.HotPOP.com
+          -----------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hmm,
+On Saturday 11 September 2004 13:19, Dave Airlie wrote:
+> The other thing I think some people are confusing is 2.4 fbdev and 2.6...
+> there is no console support in 2.6 fbdev drivers, it is all in the fbcon
+> stuff, so the fbdev drivers are only doing 2d mode setting and monitor
+> detection, some points I've considered are:
 
-looks like probs I had recently on big filesystems under load on a smp 
-machine. the only thing different is that I m using samba instead of 
-nfs, but behaviour seems the same. On top of that we re encrypting the 
-entire filesystems on this machine whicht now holds a total of 9 TB of 
-attached storage.
+Correct.  fbdev is almost completely separate from fbcon. And you can
+actually rip out fbdev and place it anywhere you want. As long as fbcon has
+access to a pointer to framebuffer memory, and the characteristics of the
+display such as depth, pitch, etc, then the framebuffer console will work.
+Throw in a few functions, such as for buffer flipping, and fbcon will be happy. 
 
-In my observations those errors occure under the following conditions:
+Hardware acceleration is entirely optional, and most drivers except for a few
+(such as vga16fb or amiga) can use the cfb_* drawing functions.
 
-- using an smp system
-- using applications which concurrently allocating memory in an 
-aggressive manner
-- freemem is at the lower limit given in vm.min_free_kbytes
+There's also a recent change in the latest bk tree that changes the
+intialization order of the framebuffer system. Previously, fbcon triggers
+fbmem, then fbmem triggers each individual drivers.  This method requires
+that a working fbdev is present, otherwise fbcon will fail (although you can
+do a con2fbmap later, or modprobe a driver). With the change, the
+order is reversed, driver->fbmem->fbcon.  This change is probably
+significant because fbcon can wait until an active framebuffer activates.
 
-Following numerous threats in mailinglists the has been some 
-changes/patches for the most current kernels scoping these probs, 
-however, if you are bound to a distribution kernel it may help to set 
-the mentioned parameter
+In theory, one can have a process (kernel or userland) change the video
+mode, then provide the in-kernel driver with the necessary information
+about the layout of the framebuffer.  When this in-kernel driver gets the
+necessary information, it can trigger fbcon. This in-kernel driver need not
+know anything about the hardware (unless 2D acceleration is needed).
 
-vm.min_free_kbytes
-
-5 to 10 times bigger than given by default. At least for me it worked 
-... no more oops, even under heavy load/backup etc.
-
----
-
-Independently from this prob, can anyone confirm that there is a prob 
-with concurrent allocating memory under load on linux smp systems?!
-
-ciao
-andi
-
+Tony
 
 

@@ -1,55 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262774AbREOPNc>; Tue, 15 May 2001 11:13:32 -0400
+	id <S262777AbREOPRM>; Tue, 15 May 2001 11:17:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262775AbREOPNW>; Tue, 15 May 2001 11:13:22 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:21510 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S262774AbREOPNH>;
-	Tue, 15 May 2001 11:13:07 -0400
-Date: Tue, 15 May 2001 12:12:47 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Daniel Phillips <phillips@bonn-fries.net>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] filemap.c fixes
-In-Reply-To: <Pine.LNX.4.21.0105142342040.23955-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.21.0105151210070.4671-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S262779AbREOPRC>; Tue, 15 May 2001 11:17:02 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:53258 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262777AbREOPQv>; Tue, 15 May 2001 11:16:51 -0400
+Date: Tue, 15 May 2001 08:16:31 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Alexander Viro <viro@math.psu.edu>, Neil Brown <neilb@cse.unsw.edu.au>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        "H. Peter Anvin" <hpa@transmeta.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: LANANA: To Pending Device Number Registrants
+In-Reply-To: <E14zbU2-0002IF-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.21.0105150815570.1802-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 May 2001, Linus Torvalds wrote:
 
-> > > > +	if (PageActive(page))
-> > > > +		SetPageReferenced(page);
-> > > > +	else
-> > > > +		activate_page(page);
-
-> Now, please explain to me why it's not just a simple
+On Tue, 15 May 2001, Alan Cox wrote:
 > 
-> 	SetPageReferenced(page);
-> 
-> and then just moving it lazily from one queue to another..
+> Counter argument; We dont want the bloat of making a floppy tape have
+> delusions of grandeur in kernel space when mt-st can do it in userspace.
 
-This might get us into problems when we think we have enough
-inactive pages to take the next load spike, but we don't.
+Counter-counter-argument: we could just export the ioctl's, and make a
+"user-level-filesystem". Except it's not a filesystem, but a driver.
 
-On the other hand, that's a theoretical situation and I don't
-think we'll hit that in practice ... at least, not in workloads
-we'd be able to deal nicely with in any way.
-
-Just going with the simple version should work.
-
-regards,
-
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+		Linus
 

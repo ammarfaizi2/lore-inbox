@@ -1,127 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273703AbRI0WNv>; Thu, 27 Sep 2001 18:13:51 -0400
+	id <S273981AbRI0WQb>; Thu, 27 Sep 2001 18:16:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273975AbRI0WNm>; Thu, 27 Sep 2001 18:13:42 -0400
-Received: from [195.223.140.107] ([195.223.140.107]:22011 "EHLO athlon.random")
-	by vger.kernel.org with ESMTP id <S273703AbRI0WNd>;
-	Thu, 27 Sep 2001 18:13:33 -0400
-Date: Fri, 28 Sep 2001 00:13:21 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Robert Macaulay <robert_macaulay@dell.com>
-Cc: Rik van Riel <riel@conectiva.com.br>,
-        Craig Kulesa <ckulesa@as.arizona.edu>, linux-kernel@vger.kernel.org,
-        Bob Matthews <bmatthews@redhat.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: highmem deadlock fix [was Re: VM in 2.4.10(+tweaks) vs. 2.4.9-ac14/15(+stuff)]
-Message-ID: <20010928001321.L14277@athlon.random>
-In-Reply-To: <20010926164935.J27945@athlon.random> <Pine.LNX.4.33.0109261310340.23259-100000@ping.us.dell.com> <20010926203651.Q27945@athlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010926203651.Q27945@athlon.random>; from andrea@suse.de on Wed, Sep 26, 2001 at 08:36:51PM +0200
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S273977AbRI0WQL>; Thu, 27 Sep 2001 18:16:11 -0400
+Received: from anime.net ([63.172.78.150]:53254 "EHLO anime.net")
+	by vger.kernel.org with ESMTP id <S273975AbRI0WQA>;
+	Thu, 27 Sep 2001 18:16:00 -0400
+Date: Thu, 27 Sep 2001 15:16:18 -0700 (PDT)
+From: Dan Hollis <goemon@anime.net>
+To: Vojtech Pavlik <vojtech@suse.cz>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: AMD viper chipset and UDMA100
+In-Reply-To: <20010927235946.B18423@suse.cz>
+Message-ID: <Pine.LNX.4.30.0109271506030.19289-100000@anime.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 26, 2001 at 08:36:51PM +0200, Andrea Arcangeli wrote:
-> On Wed, Sep 26, 2001 at 01:17:29PM -0500, Robert Macaulay wrote:
-> > We've tried the 2.4.10 with vmtweaks2 on out machine with 8GB RAM. It was 
-> > looking good for a while, until it just stopped. Here is what was 
-> > happening on the machine.
-> > 
-> > I was ftping files into the box at a rate of about 8MB/sec. This continued 
-> > until all the RAM was in the  cache column. This was earlier in the 
-> > included vmstat output. The I started a dd if=/dev/sde of=/dev/null in a 
-> > new window.
-> > 
-> > All was looking good until it just stopped. I captured the vmstat below. 
-> > vmstat continued running for about 1 minute, then it died too. What other 
-> > info can I provide?
-> 
-> the best/first info in this case would be sysrq+T along with the system.map.
+On Thu, 27 Sep 2001, Vojtech Pavlik wrote:
+> On Thu, Sep 27, 2001 at 02:26:50PM -0700, Sean Swallow wrote:
+> > I just got a tyan tiger w/ the AMD Viper chipset on it. For some reason
+> > Linux will only set the onboard (AMD viper) chains to UDMA33.
+> > I'm using linux 2.4.9, and I have also tried 2.4.10. Is there a limitation
+> > to the AMD Viper driver?
+> > PS. The cables (2) are BRAND new ata100 cables.
+> The Viper can do UDMA66 max. At least it's doing it for me quite well.
 
-Ok, both your trace and Bob's trace show the problem clearly. thanks
-to both for the helpful feedback btw.
+If he's got the Tyan Tiger i'm thinking of, it's the Tyan S2460 with
+AMD766 southbridge. Tyan says it will do U100:
+http://www.tyan.com/products/html/tigermp.html
 
-The deadlock happens because of a collision between write_some_buffers()
-and the GFP_NOHIGHIO logic. The deadlock was not introduced in the vm
-rewrite but it was introduced with the nohighio logic.
+AMD does too:
+http://www.amd.com/us-en/Processors/TechnicalResources/0,,30_182_873,00.html
 
-The problem is that we are locking a couple of buffers, and later - after
-they're all locked - we start writing them via write_locked_buffers.
+And I've got the same problem with my S2460:
 
-The deadlock happens in the middle of write_locked_buffers when we hit
-an highmem buffer, so while allocating with GFP_NOHIGHIO we end doing
-sync_page_buffers on any page that isn't highmem, but that incidentally is one of the
-other next buffers in the array that we previously locked in
-write_some_buffers but that aren't in the I/O queue yet (so we'll wait
-forever since they depends on us to be written).
+Uniform Multi-Platform E-IDE driver Revision: 6.31
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+AMD7411: IDE controller on PCI bus 00 dev 39
+AMD7411: chipset revision 1
+AMD7411: not 100% native mode: will probe irqs later
+AMD7411: disabling single-word DMA support (revision < C4)
+    ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:DMA, hdb:pio
+    ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:DMA, hdd:pio
+hda: 20010816 sectors (10246 MB) w/2048KiB Cache, CHS=1245/255/63, UDMA(33)
+hdc: 160086528 sectors (81964 MB) w/2048KiB Cache, CHS=158816/16/63, UDMA(33)
 
-Robert just confirmed that dropping the NOHIGHIO logic fixes the
-problem.
+But these drives will do U66/U100:
 
-So the fix is either:
+# /sbin/hdparm -i /dev/hda
 
-1) to drop the NOHIGHIO logic like my test patch did
-2) or to keep track of what buffers we must not wait while releasing
-   ram
+/dev/hda:
 
-I'll try approch 2) in the below untested patch (the nohighio logic make
-sense so I'd prefer not to drop it), Robert and Bob, can you give it a
-spin on the highmem boxes and check if it helps?
+ Model=Maxtor 51024U2, FwRev=DA620CQ0, SerialNo=K203Z2WC
+ Config={ Fixed }
+ RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=57
+ BuffType=3(DualPortCache), BuffSize=2048kB, MaxMultSect=16, MultSect=16
+ DblWordIO=no, OldPIO=2, DMA=yes, OldDMA=0
+ CurCHS=16383/16/63, CurSects=-66060037, LBA=yes, LBAsects=20010816
+ tDMA={min:120,rec:120}, DMA modes: mword0 mword1 mword2
+ IORDY=on/off, tPIO={min:120,w/IORDY:120}, PIO modes: mode3 mode4
+ UDMA modes: mode0 mode1 *mode2 mode3 mode4
 
-I suggest to test it on top of 2.4.10+vm-tweaks-2.
+# /sbin/hdparm -i /dev/hdc
 
---- 2.4.10aa2/fs/buffer.c.~1~	Wed Sep 26 18:45:29 2001
-+++ 2.4.10aa2/fs/buffer.c	Fri Sep 28 00:04:44 2001
-@@ -194,6 +194,7 @@
- 		struct buffer_head * bh = *array++;
- 		bh->b_end_io = end_buffer_io_sync;
- 		submit_bh(WRITE, bh);
-+		clear_bit(BH_Pending_IO, &bh->b_state);
- 	} while (--count);
- }
- 
-@@ -225,6 +226,7 @@
- 		if (atomic_set_buffer_clean(bh)) {
- 			__refile_buffer(bh);
- 			get_bh(bh);
-+			set_bit(BH_Pending_IO, &bh->b_state);
- 			array[count++] = bh;
- 			if (count < NRSYNC)
- 				continue;
-@@ -2519,7 +2521,9 @@
- 	int tryagain = 1;
- 
- 	do {
--		if (buffer_dirty(p) || buffer_locked(p)) {
-+		if (unlikely(buffer_pending_IO(p)))
-+			tryagain = 0;
-+		else if (buffer_dirty(p) || buffer_locked(p)) {
- 			if (test_and_set_bit(BH_Wait_IO, &p->b_state)) {
- 				if (buffer_dirty(p)) {
- 					ll_rw_block(WRITE, 1, &p);
---- 2.4.10aa2/include/linux/fs.h.~1~	Wed Sep 26 18:51:25 2001
-+++ 2.4.10aa2/include/linux/fs.h	Fri Sep 28 00:01:54 2001
-@@ -217,6 +217,7 @@
- 	BH_New,		/* 1 if the buffer is new and not yet written out */
- 	BH_Async,	/* 1 if the buffer is under end_buffer_io_async I/O */
- 	BH_Wait_IO,	/* 1 if we should throttle on this buffer */
-+	BH_Pending_IO,	/* 1 if the buffer is locked but not in the I/O queue yet */
- 
- 	BH_PrivateStart,/* not a state bit, but the first bit available
- 			 * for private allocation by other entities
-@@ -277,6 +278,7 @@
- #define buffer_mapped(bh)	__buffer_state(bh,Mapped)
- #define buffer_new(bh)		__buffer_state(bh,New)
- #define buffer_async(bh)	__buffer_state(bh,Async)
-+#define buffer_pending_IO(bh)	__buffer_state(bh,Pending_IO)
- 
- #define bh_offset(bh)		((unsigned long)(bh)->b_data & ~PAGE_MASK)
- 
+/dev/hdc:
 
-Thanks,
-Andrea
+ Model=Maxtor 98196H8, FwRev=ZAH814Y0, SerialNo=V803V81C
+ Config={ Fixed }
+ RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=57
+ BuffType=3(DualPortCache), BuffSize=2048kB, MaxMultSect=16, MultSect=16
+ DblWordIO=no, OldPIO=2, DMA=yes, OldDMA=0
+ CurCHS=16383/16/63, CurSects=-66060037, LBA=yes, LBAsects=160086528
+ tDMA={min:120,rec:120}, DMA modes: mword0 mword1 mword2
+ IORDY=on/off, tPIO={min:120,w/IORDY:120}, PIO modes: mode3 mode4
+ UDMA modes: mode0 mode1 *mode2 mode3 mode4 mode5
+
+And yes, I *DO* have the proper cables. These same drives connected to a
+Promise 20267 or a VIA KT133 with the same cables will do U66/U100
+perfectly.
+
+-Dan
+-- 
+[-] Omae no subete no kichi wa ore no mono da. [-]
+

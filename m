@@ -1,36 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266243AbTCEMYq>; Wed, 5 Mar 2003 07:24:46 -0500
+	id <S265687AbTCEMhN>; Wed, 5 Mar 2003 07:37:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265687AbTCEMYp>; Wed, 5 Mar 2003 07:24:45 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:46242
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S266243AbTCEMYp>; Wed, 5 Mar 2003 07:24:45 -0500
-Subject: Re: High Mem Options
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Reed, Timothy A" <timothy.a.reed@lmco.com>
-Cc: Linux "Kernel ML (E-mail)" <linux-kernel@vger.kernel.org>
-In-Reply-To: <9EFD49E2FB59D411AABA0008C7E675C00DCDFE01@emss04m10.ems.lmco.com>
-References: <9EFD49E2FB59D411AABA0008C7E675C00DCDFE01@emss04m10.ems.lmco.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1046871526.14167.2.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 05 Mar 2003 13:38:46 +0000
+	id <S265947AbTCEMhN>; Wed, 5 Mar 2003 07:37:13 -0500
+Received: from blackbird.intercode.com.au ([203.32.101.10]:14609 "EHLO
+	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
+	id <S265687AbTCEMhN>; Wed, 5 Mar 2003 07:37:13 -0500
+Date: Wed, 5 Mar 2003 23:47:03 +1100 (EST)
+From: James Morris <jmorris@intercode.com.au>
+To: Andreas Jellinghaus <aj@dungeon.inka.de>
+cc: mit_warlord@users.sourceforge.net, <HOWTO@ds9a.nl>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: ipsec-tools 0.1 + kernel 2.5.64
+In-Reply-To: <1046863752.441.7.camel@simulacron>
+Message-ID: <Pine.LNX.4.44.0303052346220.22726-100000@blackbird.intercode.com.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-03-05 at 11:28, Reed, Timothy A wrote:
-> Hello all,
-> 	Yet another quick question...is there any down side to using the
-> 64GB option over the 4GB option if the machine only has 2GB of RAM onboard??
-> I would think this would be a performance issue?  Does the kernel only use
-> the translation table if it has to access any memory location over 4GB?
+On 5 Mar 2003, Andreas Jellinghaus wrote:
 
-The 64Gb mode has to use different page table formats, so there is a hit
-always
+> But: don't "setkey -DP" while racoon is running, it crashes
+> my machine. Sorry, could not get any details.
 
+Please apply the patch in this message:
+http://marc.theaimsgroup.com/?l=linux-netdev&m=104669387317759&w=2
+
+
+- James
 -- 
-Alan Cox <alan@lxorguk.ukuu.org.uk>
+James Morris
+<jmorris@intercode.com.au>
+
+

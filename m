@@ -1,49 +1,322 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262170AbVANWFS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262164AbVANWFF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262170AbVANWFS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 17:05:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262189AbVANWFS
+	id S262164AbVANWFF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 17:05:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262186AbVANWFD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 17:05:18 -0500
-Received: from rproxy.gmail.com ([64.233.170.205]:47802 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262170AbVANWDF (ORCPT
+	Fri, 14 Jan 2005 17:05:03 -0500
+Received: from mail.belent.com ([207.96.133.20]:54923 "EHLO mail.belent.com")
+	by vger.kernel.org with ESMTP id S262164AbVANWCR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 17:03:05 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=oqSuHr/l6yyIFlxQduHV9Zjp8j23xOSqcJgNmfix+t+0xyY1gh39w8jYOR/dHoGWw3eADwcklMtM037A7b6SfXGh8IlaT+BYJfABNMscBlj4d351bmnoG17Sjb0VVUX64/4TAbou9e36AKXdEBPO+dIdaqzYnNEIgdjr4COXG40=
-Message-ID: <a36005b50501141403395e8558@mail.gmail.com>
-Date: Fri, 14 Jan 2005 14:03:04 -0800
-From: Ulrich Drepper <drepper@gmail.com>
-Reply-To: Ulrich Drepper <drepper@gmail.com>
-To: Rik van Riel <riel@redhat.com>
-Subject: Re: [PATCH] fix xenU kernel crash in dmi_iterate
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Ian Pratt <m+Ian.Pratt@cl.cam.ac.uk>
-In-Reply-To: <Pine.LNX.4.61.0501141446010.2701@chimarrao.boston.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <Pine.LNX.4.61.0501141446010.2701@chimarrao.boston.redhat.com>
+	Fri, 14 Jan 2005 17:02:17 -0500
+Message-ID: <41E8418B.3030704@belent.com>
+Date: Fri, 14 Jan 2005 17:02:51 -0500
+From: Gabriel Tataranu <tgabi@belent.com>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Severe performance problems with kernel 2.6.10
+Content-Type: multipart/mixed;
+ boundary="------------080903070209040704010003"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 14 Jan 2005 14:49:10 -0500 (EST), Rik van Riel <riel@redhat.com> wrote:
->         char __iomem *p, *q;
-> 
->         for (p = q = ioremap(0xF0000, 0x10000); q < p + 0x10000; q += 16) {
-> +               if (p == NULL)
-> +                       return -1;
->                 memcpy_fromio(buf, q, 15);
->                 if(memcmp(buf, "_DMI_", 5)==0 && dmi_checksum(buf))
->                 {
+This is a multi-part message in MIME format.
+--------------080903070209040704010003
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-SInce p is not modified in the loop, this certainly should look like this
+Attached is the filled template describing the problem as in REPORTING-BUGS.
+For more details please e-mail directly.
 
-p = ioremap(0xF0000, 0x10000);
-if (p == NULL)
-  return -1;
-for (q = p; q < p + 0x10000; q += 16) {
-  memcpy_fromio(buf, q, 15);
-  ...
+  Thank you,
+
+Gabriel
+
+--------------080903070209040704010003
+Content-Type: text/plain;
+ name="kernel-2.6.10-report"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="kernel-2.6.10-report"
+
+
+[1.] One line summary of the problem:    
+Severe performance loss with kernel 2.6.10
+[2.] Full description of the problem/report:
+It looks like 2.6.10 suffers from severe performance issues at least on 
+Pentium 4 CPU. The system is sluggish and compilation of kernel takes more 
+than 5 times longer than 2.6.9.
+[3.] Keywords (i.e., modules, networking, kernel):
+kernel, performance
+[4.] Kernel version (from /proc/version):
+Linux version 2.6.9 (root@stor) (gcc version 3.3.4) #1 Fri Jan 14 14:18:38 
+EST 2005
+[5.] Output of Oops.. message (if applicable) with symbolic information 
+     resolved (see Documentation/oops-tracing.txt)
+[6.] A small shell script or example program which triggers the
+     problem (if possible)
+cd /usr/src/linx-2.6.10; time make
+[7.] Environment
+Standard PC; Slackware linux 10.0; 2.6.9 kernel.
+[7.1.] Software (add the output of the ver_linux script here)
+Linux stor 2.6.9 #1 Fri Jan 14 14:18:38 EST 2005 i686 unknown unknown 
+GNU/Linux
+
+Gnu C                  3.3.4
+Gnu make               3.80
+binutils               2.15.90.0.3
+util-linux             2.12a
+mount                  2.12a
+module-init-tools      3.0
+e2fsprogs              1.35
+jfsutils               1.1.6
+reiserfsprogs          3.6.17
+reiser4progs           line
+xfsprogs               2.6.13
+Linux C Library        2.3.2
+Dynamic linker (ldd)   2.3.2
+Linux C++ Library      5.0.6
+Procps                 3.2.1
+Net-tools              1.60
+Kbd                    81:
+Sh-utils               5.2.1
+Modules Loaded         8139too
+[7.2.] Processor information (from /proc/cpuinfo):
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 15
+model           : 2
+model name      : Intel(R) Pentium(R) 4 CPU 2.80GHz
+stepping        : 5
+cpu MHz         : 2800.867
+cache size      : 512 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr 
+pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe cid xtpr
+bogomips        : 5537.79
+
+[7.3.] Module information (from /proc/modules):
+8139too 17408 0 - Live 0xf8884000
+[7.4.] Loaded driver and hardware information (/proc/ioports, /proc/iomem)
+0000-001f : dma1
+0020-0021 : pic1
+0040-0043 : timer0
+0050-0053 : timer1
+0060-006f : keyboard
+0070-0077 : rtc
+0080-008f : dma page reg
+00a0-00a1 : pic2
+00c0-00df : dma2
+00f0-00ff : fpu
+0170-0177 : ide1
+01f0-01f7 : libata
+0376-0376 : ide1
+03c0-03df : vga+
+03f8-03ff : serial
+0400-041f : 0000:00:1f.3
+0480-04bf : 0000:00:1f.0
+0800-087f : 0000:00:1f.0
+0cf8-0cff : PCI conf1
+d800-d8ff : 0000:01:0d.0
+  d800-d8ff : 8139too
+df90-df9f : 0000:01:0a.0
+dfa8-dfaf : 0000:01:0a.0
+dfe0-dfe3 : 0000:01:0a.0
+dfe4-dfe7 : 0000:01:0a.0
+dff0-dff7 : 0000:01:0a.0
+ef00-ef1f : 0000:00:1d.0
+  ef00-ef1f : uhci_hcd
+eff0-eff7 : 0000:00:02.0
+fc00-fc0f : 0000:00:1f.2
+  fc00-fc0f : libata
+
+00000000-0009fbff : System RAM
+0009fc00-0009ffff : reserved
+000a0000-000bffff : Video RAM area
+000c0000-000c7fff : Video ROM
+000f0000-000fffff : System ROM
+00100000-3fe2ffff : System RAM
+  00100000-0029400d : Kernel code
+  0029400e-0031537f : Kernel data
+3fe30000-3fe3ffff : ACPI Tables
+3fe40000-3feeffff : ACPI Non-volatile Storage
+3fef0000-3fefffff : reserved
+f0000000-f7ffffff : 0000:00:02.0
+fe5ff800-fe5ff8ff : 0000:01:0d.0
+  fe5ff800-fe5ff8ff : 8139too
+fe5ffc00-fe5ffdff : 0000:01:0a.0
+fe77bc00-fe77bfff : 0000:00:1d.7
+  fe77bc00-fe77bfff : ehci_hcd
+fe780000-fe7fffff : 0000:00:02.0
+fe800000-febfffff : 0000:00:00.0
+ffb80000-ffffffff : reserved
+
+[7.5.] PCI information ('lspci -vvv' as root)
+00:00.0 Host bridge: Intel Corp. 82865G/PE/P DRAM Controller/Host-Hub 
+Interface (rev 02)
+        Subsystem: Asustek Computer, Inc. P4P800 Mainboard
+        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- 
+<TAbort- <MAbort+ >SERR- <PERR-
+        Latency: 0
+        Region 0: Memory at fe800000 (32-bit, prefetchable) [size=4M]
+        Capabilities: [e4] #09 [1106]
+
+00:02.0 VGA compatible controller: Intel Corp. 82865G Integrated Graphics 
+Device (rev 02) (prog-if 00 [VGA])
+        Subsystem: Asustek Computer, Inc.: Unknown device 2572
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 0
+        Interrupt: pin A routed to IRQ 10
+        Region 0: Memory at f0000000 (32-bit, prefetchable) [size=128M]
+        Region 1: Memory at fe780000 (32-bit, non-prefetchable) 
+[size=512K]
+        Region 2: I/O ports at eff0 [size=8]
+        Capabilities: [d0] Power Management version 1
+                Flags: PMEClk- DSI+ D1- D2- AuxCurrent=0mA 
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:1d.0 USB Controller: Intel Corp. 82801EB/ER (ICH5/ICH5R) USB UHCI #1 
+(rev 02) (prog-if 00 [UHCI])
+        Subsystem: Asustek Computer, Inc.: Unknown device 24d0
+        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 0
+        Interrupt: pin A routed to IRQ 10
+        Region 4: I/O ports at ef00 [size=32]
+
+00:1d.7 USB Controller: Intel Corp. 82801EB/ER (ICH5/ICH5R) USB2 EHCI 
+Controller (rev 02) (prog-if 20 [EHCI])
+        Subsystem: Asustek Computer, Inc.: Unknown device 24d0
+        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 0
+        Interrupt: pin D routed to IRQ 5
+        Region 0: Memory at fe77bc00 (32-bit, non-prefetchable) [size=1K]
+        Capabilities: [50] Power Management version 2
+                Flags: PMEClk- DSI- D1- D2- AuxCurrent=375mA 
+PME(D0+,D1-,D2-,D3hot+,D3cold+)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+        Capabilities: [58] #0a [20a0]
+
+00:1e.0 PCI bridge: Intel Corp. 82801BA/CA/DB/EB/ER Hub interface to PCI 
+Bridge (rev c2) (prog-if 00 [Normal decode])
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping- SERR+ FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 0
+        Bus: primary=00, secondary=01, subordinate=01, sec-latency=64
+        I/O behind bridge: 0000d000-0000dfff
+        Memory behind bridge: fe400000-fe5fffff
+        Prefetchable memory behind bridge: fff00000-000fffff
+        BridgeCtl: Parity- SERR+ NoISA+ VGA- MAbort- >Reset- FastB2B-
+
+00:1f.0 ISA bridge: Intel Corp. 82801EB/ER (ICH5/ICH5R) LPC Bridge (rev 
+02)
+        Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- 
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 0
+
+00:1f.2 IDE interface: Intel Corp. 82801EB (ICH5) Serial ATA 150 Storage 
+Controller (rev 02) (prog-if 8a [Master SecP PriP])
+        Subsystem: Intel Corp. 82801EB (ICH5) Serial ATA 150 Storage 
+Controller
+        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 0
+        Interrupt: pin A routed to IRQ 11
+        Region 0: I/O ports at <unassigned>
+        Region 1: I/O ports at <unassigned>
+        Region 2: I/O ports at <unassigned>
+        Region 3: I/O ports at <unassigned>
+        Region 4: I/O ports at fc00 [size=16]
+
+00:1f.3 SMBus: Intel Corp. 82801EB/ER (ICH5/ICH5R) SMBus Controller (rev 
+02)
+        Subsystem: Asustek Computer, Inc.: Unknown device 24d0
+        Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+        Interrupt: pin B routed to IRQ 10
+        Region 4: I/O ports at 0400 [size=32]
+
+01:0a.0 RAID bus controller: CMD Technology Inc Silicon Image SiI 3112 
+SATARaid Controller (rev 02)
+        Subsystem: CMD Technology Inc: Unknown device 6112
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 64, cache line size 04
+        Interrupt: pin A routed to IRQ 11
+        Region 0: I/O ports at dff0 [size=8]
+        Region 1: I/O ports at dfe4 [size=4]
+        Region 2: I/O ports at dfa8 [size=8]
+        Region 3: I/O ports at dfe0 [size=4]
+        Region 4: I/O ports at df90 [size=16]
+        Region 5: Memory at fe5ffc00 (32-bit, non-prefetchable) [size=512]
+        Expansion ROM at fe500000 [disabled] [size=512K]
+        Capabilities: [60] Power Management version 2
+                Flags: PMEClk- DSI+ D1+ D2+ AuxCurrent=0mA 
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=2 PME-
+
+01:0d.0 Ethernet controller: Realtek Semiconductor Co., Ltd. 
+RTL-8139/8139C/8139C+ (rev 10)
+        Subsystem: Asustek Computer, Inc.: Unknown device 80b3
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 64 (8000ns min, 16000ns max)
+        Interrupt: pin A routed to IRQ 5
+        Region 0: I/O ports at d800 [size=256]
+        Region 1: Memory at fe5ff800 (32-bit, non-prefetchable) [size=256]
+        Capabilities: [50] Power Management version 2
+                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=375mA 
+PME(D0-,D1+,D2+,D3hot+,D3cold+)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+
+[7.6.] SCSI information (from /proc/scsi/scsi)
+
+Attached devices:
+Host: scsi0 Channel: 00 Id: 00 Lun: 00
+  Vendor: ATA      Model: ST3300831AS      Rev: 3.01
+  Type:   Direct-Access                    ANSI SCSI revision: 05
+Host: scsi0 Channel: 00 Id: 01 Lun: 00
+  Vendor: ATA      Model: ST3300831AS      Rev: 3.01
+  Type:   Direct-Access                    ANSI SCSI revision: 05
+
+
+[7.7.] Other information that might be relevant to the problem
+       (please look in /proc and include all information that you
+       think to be relevant):
+[X.] Other notes, patches, fixes, workarounds:
+
+
+--------------080903070209040704010003--

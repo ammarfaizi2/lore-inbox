@@ -1,64 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129101AbRA2RuF>; Mon, 29 Jan 2001 12:50:05 -0500
+	id <S129101AbRA2R6i>; Mon, 29 Jan 2001 12:58:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130147AbRA2Rtz>; Mon, 29 Jan 2001 12:49:55 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:35716 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S129101AbRA2Rtn>; Mon, 29 Jan 2001 12:49:43 -0500
-Date: Mon, 29 Jan 2001 12:48:53 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: "Craig I. Hagan" <hagan@cih.com>
-cc: Romain Kang <romain@kzsu.stanford.edu>, linux-kernel@vger.kernel.org
-Subject: Re: eepro100 - Linux vs. FreeBSD
-In-Reply-To: <Pine.LNX.4.20.0101291231520.30022-100000@www.cih.com>
-Message-ID: <Pine.LNX.3.95.1010129123830.562A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130127AbRA2R62>; Mon, 29 Jan 2001 12:58:28 -0500
+Received: from smtp9.xs4all.nl ([194.109.127.135]:3018 "EHLO smtp9.xs4all.nl")
+	by vger.kernel.org with ESMTP id <S129101AbRA2R6Q>;
+	Mon, 29 Jan 2001 12:58:16 -0500
+Date: Mon, 29 Jan 2001 17:57:52 +0000
+From: "Roeland Th. Jansen" <roel@grobbebol.xs4all.nl>
+To: linux-kernel@vger.kernel.org
+Cc: arobinso@nyx.net, miquels@cistron.nl
+Subject: esp causing crashes..
+Message-ID: <20010129175752.A657@grobbebol.xs4all.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-OS: Linux grobbebol 2.4.0 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 29 Jan 2001, Craig I. Hagan wrote:
+[mike -- included you for refs only]
 
-> > One approach to the endless eepro100 headaches would be to port
-> > the FreeBSD if_fxp driver to Linux.  After all, drivers have been
-> > ported between these OSs before; e.g., the aic7xxx SCSI adapter.
-> > However, I see no evidence that this has been attempted.  Can
-> > someone tell me what I'm obviously missing?
-> 
-> Had I my druthers, i'd see the intel e100 driver brought into the kernel. It
-> seems to work quite well with the eepro100 boards.
-> 
+recently I started to dive into a problem that causes 2.2.x and 2.4.x to
+crash at shutdown and when minicom/mgetty is used. e.g. shutdown almost
+always crashed the system; if a fax is received, 3 out of 4 faxes ok,
+but also crashes system.
 
-Two of my Linux machines use the Intel Ethernet controller on the
-motherboard. These are both SMP machines. I have never, ever, had
-any problems with the eepro100 driver that handles these chips.
+I tried to contact the author of the hayes esp also but he seems to be
+pretty busy...
 
-I spite of the fact that the driver loops in the ISR, and does other
-things that show poor design, it works so I have not done anything
-to it. "If it ain't broke, don't fix it..."
+Initially I thought that killall5, mike's product, somehow caused the
+mentioned crash but diving deeper into it I found that killall5 tries to
+kill mgetty -- and crashes the system. I tried a source version as well.
+same stuff (I use suse 7.0)
 
-So, if you have problems with using on-board Intel chip, it's
-unlikely that it's a driver problem. If you have cards on the PCI
-bus, the driver doesn't "know" any difference (PCI is PCI even if
-it's not in a connector). You may find that the problem is caused
-by PCI (mis)configuration since recent kernels use internal PCI
-code. You may find that some bus master device does not have its
-latency set correctly so it's taking over the bus. This can cause
-problems with any high-activity device on the bus, such as a
-network device.
+I then tried without mgetty -- shutdown ok. Then I looked at esp.o as
+it's being used with mgetty -- now used minicom... that crashes most
+of the time when I exit the program. most of the time, it only crashes
+if you reset the modem connected. 
 
-Cheers,
-Dick Johnson
+I trouble shooted further and disconnecting the plug of the esp and at
+the reconnect -- crash.
 
-Penguin : Linux version 2.4.0 on an i686 machine (799.53 BogoMips).
+It seems that somewhere in the esp code, something causes this
+particular weird crash. somehting like modem lines that get changed or
+so causing the crash ? 
 
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
+the IRQ is 11, not using DMA, IRQ is set to legacy in the BIOS.
+
+it happens with any 2.2.xx version and also happens with 2.4.0.
+
+the system's a non OC dual SMP (BP6) but it happened on the old hardware
+(P5-100 w 64 MB) as well.
+
+are there any things I could do to truble shoot this further in order to
+use the esp again ?
 
 
+-- 
+Grobbebol's Home                   |  Don't give in to spammers.   -o)
+http://www.xs4all.nl/~bengel       | Use your real e-mail address   /\
+Linux 2.2.16 SMP 2x466MHz / 256 MB |        on Usenet.             _\_v  
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

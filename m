@@ -1,49 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131149AbRAAArU>; Sun, 31 Dec 2000 19:47:20 -0500
+	id <S130147AbRAAAs3>; Sun, 31 Dec 2000 19:48:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131179AbRAAArK>; Sun, 31 Dec 2000 19:47:10 -0500
-Received: from mercury.nildram.co.uk ([195.112.4.37]:53776 "EHLO
-	mercury.nildram.co.uk") by vger.kernel.org with ESMTP
-	id <S131149AbRAAAqx>; Sun, 31 Dec 2000 19:46:53 -0500
-Message-ID: <3A4FCC54.14F38593@magenta-netlogic.com>
-Date: Mon, 01 Jan 2001 00:16:20 +0000
-From: Tony Hoyle <tmh@magenta-netlogic.com>
-Organization: Magenta Logic
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-prerelease i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Tony Spinillo <tspin@epix.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: TEST13-PRE7 - Nvidia Kernel Module Compile Problem
-In-Reply-To: <3A4E3D6D.4D64E13@epix.net>
+	id <S131179AbRAAAsU>; Sun, 31 Dec 2000 19:48:20 -0500
+Received: from hybrid-024-221-152-185.az.sprintbbd.net ([24.221.152.185]:20462
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S130147AbRAAAsJ>; Sun, 31 Dec 2000 19:48:09 -0500
+Date: Sun, 31 Dec 2000 17:16:53 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: J Sloan <jjs@pobox.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.0-prerelease
+Message-ID: <20001231171653.F4703@opus.bloom.county>
+In-Reply-To: <3A4FB558.688EFE01@pobox.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <3A4FB558.688EFE01@pobox.com>; from jjs@pobox.com on Sun, Dec 31, 2000 at 02:38:16PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tony Spinillo wrote:
+On Sun, Dec 31, 2000 at 02:38:16PM -0800, J Sloan wrote:
+
+> Of course, adding
 > 
-> The nvidia kernel module (from www.nvidia.com) has compiled and loaded
-> correctly with all test13-pre series up to pre6. I just tried to
-> compile and load under pre7.
+> #include <linux/modversions.h>
+>
+> to drivers/char/drm/drmP.h makes it all work....
 
-I'm intrigued... how did you resolve the 'mem_map_inc_count' and
-'mem_map_dec_count',
-'put_module_symbol' and 'get_module_symbol' references?
-
-It's only of academic interest for me now as I've ditched the nvidia -
-not worth the hassle.
-
-Amusingly, We're breaking the EULA even by reading the supplied source
-code...
-
-Tony
+Right, but that _shouldn't_ be needed.  iirc, modversions.h should be included
+when needed, so this is covering up the bug not fixing it.
 
 -- 
-Can't think of a decent signature...
-
-tmh@magenta-netlogic.com		http://www.nothing-on.tv
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

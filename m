@@ -1,39 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268474AbUI2N6e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268448AbUI2Ntb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268474AbUI2N6e (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 09:58:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268372AbUI2NxC
+	id S268448AbUI2Ntb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 09:49:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268474AbUI2NtU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 09:53:02 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:42511 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S268463AbUI2No1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 09:44:27 -0400
-Date: Wed, 29 Sep 2004 14:44:11 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: janitor@sternwelten.at
-Cc: akpm@digeo.com, linux-kernel@vger.kernel.org, nacc@us.ibm.com
-Subject: Re: [patch 4/4]  mmc: replace schedule_timeout() 	with msleep_interruptible()
-Message-ID: <20040929144411.C16537@flint.arm.linux.org.uk>
-Mail-Followup-To: janitor@sternwelten.at, akpm@digeo.com,
-	linux-kernel@vger.kernel.org, nacc@us.ibm.com
-References: <E1CAaWc-0002s3-Fd@sputnik>
+	Wed, 29 Sep 2004 09:49:20 -0400
+Received: from mail.fh-wedel.de ([213.39.232.198]:34442 "EHLO
+	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S268430AbUI2NnH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Sep 2004 09:43:07 -0400
+Date: Wed, 29 Sep 2004 15:43:01 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: "Leubner, Achim" <Achim_Leubner@adaptec.com>
+Cc: arjanv@redhat.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-ID: <20040929134301.GB17952@wohnheim.fh-wedel.de>
+References: <B51CDBDEB98C094BB6E1985861F53AF302DE00@nkse2k01.adaptec.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <E1CAaWc-0002s3-Fd@sputnik>; from janitor@sternwelten.at on Thu, Sep 23, 2004 at 10:49:10PM +0200
+In-Reply-To: <B51CDBDEB98C094BB6E1985861F53AF302DE00@nkse2k01.adaptec.com>
+User-Agent: Mutt/1.3.28i
+Subject: Re: [PATCH] gdth update
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Rcpt-To: Achim_Leubner@adaptec.com, arjanv@redhat.com, linux-kernel@vger.kernel.org
+X-SA-Exim-Mail-From: joern@wohnheim.fh-wedel.de
+X-SA-Exim-Version: 3.1 (built Son Feb 22 10:54:36 CET 2004)
+X-SA-Exim-Scanned: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 23, 2004 at 10:49:10PM +0200, janitor@sternwelten.at wrote:
-> Description: Use msleep_interruptible() instead of schedule_timeout()
-> to guarantee the task delays as expected.
+On Wed, 29 September 2004 14:15:57 +0200, Leubner, Achim wrote:
+>  
+> > > +#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
+> > > +static irqreturn_t gdth_interrupt(int irq, void *dev_id, struct
+> pt_regs *regs);
+> > >  #else
+> > > -static void gdth_interrupt(int irq,struct pt_regs *regs);
+> > > +static void gdth_interrupt(int irq, void *dev_id, struct pt_regs
+> *regs);
+> > >  #endif
+> > 
+> > this really is the wrong way to do such irq prototype compatibility in
+> > drivers. *really*
+> > 
+> So please tell me what the right way should be. It works without any
+> problem.
 
-Applied, thanks.
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,0)
+#define irqreturn_t void
+#define IRQ_NONE
+#define IRQ_HANDLED
+#endif
+
+static irqreturn_t gdth_interrupt(int irq, void *_dev, struct pt_regs *regs)
+{
+	if (/*not for me*/)
+		return IRQ_NONE;
+	/* some work */
+	return IRQ_HANDLED;
+}
+
+Magically get's converted to old driver code by the macros above.
+Point is that all ugly parts are confined to some header and don't
+pollute the driver proper.
+
+Jörn
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+Do not stop an army on its way home.
+-- Sun Tzu

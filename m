@@ -1,52 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269519AbTCDTFf>; Tue, 4 Mar 2003 14:05:35 -0500
+	id <S269514AbTCDTCu>; Tue, 4 Mar 2003 14:02:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269522AbTCDTFe>; Tue, 4 Mar 2003 14:05:34 -0500
-Received: from packet.digeo.com ([12.110.80.53]:54941 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S269519AbTCDTFd>;
-	Tue, 4 Mar 2003 14:05:33 -0500
-Date: Tue, 4 Mar 2003 11:16:26 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: ebrunet@lps.ens.fr
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.63 bug when mounting dirty loopback ext3 filesystems
-Message-Id: <20030304111626.52a64e3c.akpm@digeo.com>
-In-Reply-To: <20030304144138.GA28345@lps.ens.fr>
-References: <20030304144138.GA28345@lps.ens.fr>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id <S269516AbTCDTCt>; Tue, 4 Mar 2003 14:02:49 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:49416 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S269514AbTCDTCt>;
+	Tue, 4 Mar 2003 14:02:49 -0500
+Date: Tue, 4 Mar 2003 20:13:11 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Erlend Aasland <erlend-a@ux.his.no>
+Cc: lkml <linux-kernel@vger.kernel.org>, Roman Zippel <zippel@linux-m68k.org>
+Subject: Re: [PATCH 2.5][RFC] Make mconf inform user about supported make targets
+Message-ID: <20030304191311.GB1917@mars.ravnborg.org>
+Mail-Followup-To: Erlend Aasland <erlend-a@ux.his.no>,
+	lkml <linux-kernel@vger.kernel.org>,
+	Roman Zippel <zippel@linux-m68k.org>
+References: <20030304113054.GA29401@badne3.ux.his.no>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 04 Mar 2003 19:15:54.0991 (UTC) FILETIME=[7A9387F0:01C2E282]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030304113054.GA29401@badne3.ux.his.no>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> Oops in 2.6.63 when trying to mount dirty ext3 loopback filesystems.
+On Tue, Mar 04, 2003 at 12:30:54PM +0100, Erlend Aasland wrote:
+> Scenario: I do a make menuconfig on my sparc64 machine. When mconf exits, it
+> tells me "Next, you may run 'make bzImage', 'make bzdisk', or 'make install'."
 > 
-> The kernel is 2.6.63 with the latest (2003/02/28)acpi patches, plus a
-> couple of one-liners found on the mailing-lists to help swsusp working
-> (one in kernel/suspend.c, one in mm/pdflush.c, and one in
-> drivers/net/8139tto.c; nothing related to filesystems)
+> Problem: These are i386-specific targets. Issuing a "make help", I see
+> that {vmlinux{,.aout},tftpboot.img} are the sparc64-specific targets.
 > 
-> The computer is a Pentium IV on an intel chipset.
-> 
-> I have in /data (an ext3 partition) three files containing ext3
-> partitions which are mounted using loopback. For some reason, at
-> shutdown time, /data is unmounted (or remounted ro) before the loopback
-> partitions, and unmounting the loopback partitions fail, and those
-> partitions need to get recovered on next reboot. That is not the issue,
-> I will fix it when I get some time.
-> 
-> The issue is that I got three identical pair of oops in a raw when trying my
-> new 2.6.63 kernel. From the logs:
-> 
+> Solution: Get mconf to tell the user about arch-specific targets,
+> instead of i386 targets.
 
-It is not an oops really - it is just a warning.  2.5 has a number of new
-consistency checks so sometimes these are long-standing things, sometimes
-they are not.
+I see no need for this patch.
+Most architectures today (if not all) has a sensible default target.
 
-I couldn't get this to happen.  Can you please come up with an exact sequence
-of steps to reproduce this?  Also I'd need to know what filesytem the backing
-files reside on, and what size those files are, thanks.
+So changing mconf to print something like:
+"Next, you may run 'make' to build your kernel."
+
+Should be a good enough guide for the user.
+
+	Sam

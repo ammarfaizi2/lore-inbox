@@ -1,51 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261860AbSI3AfV>; Sun, 29 Sep 2002 20:35:21 -0400
+	id <S261875AbSI3AYW>; Sun, 29 Sep 2002 20:24:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261864AbSI3AfV>; Sun, 29 Sep 2002 20:35:21 -0400
-Received: from mx15.sac.fedex.com ([199.81.197.54]:29198 "EHLO
-	mx15.sac.fedex.com") by vger.kernel.org with ESMTP
-	id <S261860AbSI3AfU>; Sun, 29 Sep 2002 20:35:20 -0400
-Date: Mon, 30 Sep 2002 08:39:28 +0800 (SGT)
-From: Jeff Chua <jchua@fedex.com>
-X-X-Sender: root@boston.corp.fedex.com
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Jens Axboe <axboe@suse.de>,
-       "Dr. David Alan Gilbert" <gilbertd@treblig.org>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: v2.6 vs v3.0
-In-Reply-To: <1033316509.13001.23.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0209300834410.2804-100000@boston.corp.fedex.com>
-MIME-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 09/30/2002
- 08:40:33 AM,
-	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 09/30/2002
- 08:40:38 AM,
-	Serialize complete at 09/30/2002 08:40:38 AM
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261876AbSI3AYW>; Sun, 29 Sep 2002 20:24:22 -0400
+Received: from zero.aec.at ([193.170.194.10]:13834 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id <S261875AbSI3AYV>;
+	Sun, 29 Sep 2002 20:24:21 -0400
+Date: Mon, 30 Sep 2002 02:29:15 +0200
+From: Andi Kleen <ak@muc.de>
+To: "David S. Miller" <davem@redhat.com>
+Cc: hch@infradead.org, ak@muc.de, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Use __attribute__((malloc)) for gcc 3.2
+Message-ID: <20020930002915.GA2805@averell>
+References: <20020929152731.GA10631@averell> <20020929182643.C8564@infradead.org> <20020929.171110.04716295.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020929.171110.04716295.davem@redhat.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Sep 30, 2002 at 02:11:10AM +0200, David S. Miller wrote:
+>    From: Christoph Hellwig <hch@infradead.org>
+>    Date: Sun, 29 Sep 2002 18:26:43 +0100
+>    
+>    BTW, do you have any stats on the better optimization?
+> 
+> Unlikely since we disable strict aliasing on the gcc command
+> line which is why I think this suggested __malloc thing is
+> utterly pointless.
 
-On 29 Sep 2002, Alan Cox wrote:
+My understanding of it is: Please correct me if I'm wrong [i haven't 
+verified this with tree dumps]
 
-> On Sun, 2002-09-29 at 16:42, Jens Axboe wrote:
-> > Has anyone actually sent patches to Linus removing LVM completely from
-> > 2.5 and adding the LVM2 device mapper? If I used LVM, I would have done
-> > exactly that long ago. Linus, what's your oppinion on this?
->
-> I added LVM2 a while ago for my 2.4-ac tree and haven't looked back, its
-> much nicer code and its clean and easy to understand. I wouldnt
-> guarantee its bug free but its the kind of code where you can *find* a
-> bug if one turns up
+-fno-strict-aliasing tells each pointer that it can alias with everything
+else (puts it in alias set 0)
 
-I can't even get past "make apply-patches" with device-mapper.0.96.04 on
-2.5.39.
+__attribute__((malloc)) overwrites this so that the compiler knows that
+this particular pointer that has been returned  (puts it into an own
+alias set again and overwrites the -fno-strict-aliasing default) 
 
-Anyone running lvm2 on 2.5.3x ?
+Another way to overwrite it would be restrict, but nobody uses that
+currently. May make sense to add it to compile compiler version checked
+macros too, so that it can be safely used.
 
-Thanks,
-Jeff
+Then it would be actually possible to write functions that get optimized
+this way. I'm aware that the aliasing stuff mostly helps with array walks
+and loops, which are not that common in the kernel, but it could be still
+useful.
 
-
+-Andi

@@ -1,40 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266308AbUGKBGn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266467AbUGKBVt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266308AbUGKBGn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jul 2004 21:06:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266467AbUGKBGm
+	id S266467AbUGKBVt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jul 2004 21:21:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266473AbUGKBVt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jul 2004 21:06:42 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:39092 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266308AbUGKBGk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jul 2004 21:06:40 -0400
-Date: Sat, 10 Jul 2004 21:06:38 -0400 (EDT)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: John Richard Moser <nigelenki@comcast.net>
-cc: linux-kernel@vger.kernel.org,
-       linux-c-programming <linux-c-programming@vger.kernel.org>
-Subject: Re: Garbage Collection and Swap
-In-Reply-To: <Pine.LNX.4.44.0407102057230.14732-100000@chimarrao.boston.redhat.com>
-Message-ID: <Pine.LNX.4.44.0407102105560.14732-100000@chimarrao.boston.redhat.com>
+	Sat, 10 Jul 2004 21:21:49 -0400
+Received: from ny-lasalle1b-127.buf.adelphia.net ([24.49.116.127]:3287 "EHLO
+	sundance.gp") by vger.kernel.org with ESMTP id S266467AbUGKBVs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jul 2004 21:21:48 -0400
+Message-ID: <40F09625.5040303@eng.buffalo.edu>
+Date: Sat, 10 Jul 2004 21:21:41 -0400
+From: Gopikrishnan Sidhardhan <gs33@eng.buffalo.edu>
+User-Agent: Mozilla Thunderbird 0.7 (X11/20040615)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Re: XFS: how to NOT null files on fsck?
+References: <200407050247.53743.norberto+linux-kernel@bensa.ath.cx> <200407102143.49838.jk-lkml@sci.fi> <20040710184601.GB5014@taniwha.stupidest.org> <200407101555.27278.norberto+linux-kernel@bensa.ath.cx>
+In-Reply-To: <200407101555.27278.norberto+linux-kernel@bensa.ath.cx>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 10 Jul 2004, Rik van Riel wrote:
-
+Norberto Bensa wrote:
+> Chris Wedgwood wrote:
 > 
+>>XFS does not journal data.
+> 
+> 
+> I think we all know that. The point, why the hell does it null files?
 
-... and of course the guy has one of those broken
-challenge-response authentication protocol (CRAP)
-systems in front of his mailbox.
+See http://www-106.ibm.com/developerworks/linux/library/l-fs9.html
+- under the section 'Journaling'.
 
-Last time I'll ever help him out...
-
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+Thanks,
+--GS
 

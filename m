@@ -1,50 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261474AbUF0Lnb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262062AbUF0Lvb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261474AbUF0Lnb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jun 2004 07:43:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261987AbUF0Lnb
+	id S262062AbUF0Lvb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jun 2004 07:51:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261987AbUF0Lvb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jun 2004 07:43:31 -0400
-Received: from albireo.ucw.cz ([81.27.203.89]:25984 "EHLO albireo.ucw.cz")
-	by vger.kernel.org with ESMTP id S261474AbUF0Lna (ORCPT
+	Sun, 27 Jun 2004 07:51:31 -0400
+Received: from slimnet.xs4all.nl ([194.109.194.192]:46007 "EHLO slimnas.slim")
+	by vger.kernel.org with ESMTP id S262062AbUF0Lv3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jun 2004 07:43:30 -0400
-Date: Sun, 27 Jun 2004 13:43:29 +0200
-From: Martin Mares <mj@ucw.cz>
-To: Roland Dreier <roland@topspin.com>
-Cc: linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] pciutils: Support for MSI-X capability
-Message-ID: <20040627114329.GE670@ucw.cz>
-References: <52y8mayzdy.fsf@topspin.com>
+	Sun, 27 Jun 2004 07:51:29 -0400
+Subject: 2.6.7-mm3 USB ehci IRQ problem
+From: Jurgen Kramer <gtm.kramer@inter.nl.net>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1088337721.7932.10.camel@paragon.slim>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <52y8mayzdy.fsf@topspin.com>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Sun, 27 Jun 2004 14:02:01 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+With 2.6.7-mm3 I am missing my USB 2.0 memory stick. It doesn't show up
+in the usb device listing. But when I unplug it I get:
 
-> Hi, here is a patch to pciutils that adds parsing of MSI-X capability
-> entries.  With this patch, an MSI-X capability will be dumped with -v as
-> 
-> 	Capabilities: [40] MSI-X: Enable- Mask- TabSize=32
-> 
-> and with -vv as
-> 
-> 	Capabilities: [40] MSI-X: Enable- Mask- TabSize=32
-> 		Vector table: BAR=0 offset=00082000
-> 		PBA: BAR=0 offset=00082200
-> 
-> Please let me know if you need any changes/fixes before you can apply.
+irq 23: nobody cared!
+ [<c0108106>] __report_bad_irq+0x2a/0x8b
+ [<c01081f0>] note_interrupt+0x6f/0x9f
+ [<c0108473>] do_IRQ+0x10c/0x10e
+ [<c0106850>] common_interrupt+0x18/0x20
+handlers:
+[<f9d0f65c>] (snd_emu10k1_interrupt+0x0/0x3c4 [snd_emu10k1])
+Disabling IRQ #23
 
-Applied and will appear in -test6 soon.
+The soundcard is still usable but there are no new interrupts.
 
-Could you please add a couple of comments to the capability defines in header.h?
+When I try to reload the ehci module I get:
 
-				Have a nice fortnight
--- 
-Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
-Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
-Q: Do you believe in One God? A: Yes, up to isomorphism.
+ACPI: PCI interrupt 0000:00:1d.7[D] -> GSI 23 (level, low) -> IRQ 23
+ehci_hcd 0000:00:1d.7: Intel Corp. 82801EB/ER (ICH5/ICH5R) USB2 EHCI
+Controller
+ehci_hcd 0000:00:1d.7: BIOS handoff failed (104, 1010001)
+ehci_hcd 0000:00:1d.7: can't reset
+ehci_hcd 0000:00:1d.7: init 0000:00:1d.7 fail, -95
+ehci_hcd: probe of 0000:00:1d.7 failed with error -95
+
+IRQ23 is normally shared between emu10k1 and the ehci controller without
+problems.
+
+Jurgen
+
+
+

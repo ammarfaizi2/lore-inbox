@@ -1,55 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312386AbSDDSQc>; Thu, 4 Apr 2002 13:16:32 -0500
+	id <S313293AbSDDSTw>; Thu, 4 Apr 2002 13:19:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313293AbSDDSQW>; Thu, 4 Apr 2002 13:16:22 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:52997 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S312386AbSDDSQQ>;
-	Thu, 4 Apr 2002 13:16:16 -0500
-Date: Thu, 4 Apr 2002 15:15:52 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>,
-        Ingo Molnar <mingo@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Keith Owens <kaos@ocs.com.au>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Andrea Arcangeli <andrea@suse.de>, Hugh Dickins <hugh@veritas.com>,
-        Stelian Pop <stelian.pop@fr.alcove.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.5.5] do export vmalloc_to_page to modules...
-In-Reply-To: <20020404125954.C27384@devserv.devel.redhat.com>
-Message-ID: <Pine.LNX.4.44L.0204041514480.18660-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S313297AbSDDSTm>; Thu, 4 Apr 2002 13:19:42 -0500
+Received: from cobae1.consultronics.on.ca ([205.210.130.26]:59783 "EHLO
+	cobae1.consultronics.on.ca") by vger.kernel.org with ESMTP
+	id <S313293AbSDDSTj> convert rfc822-to-8bit; Thu, 4 Apr 2002 13:19:39 -0500
+Date: Thu, 4 Apr 2002 13:19:26 -0500
+From: Greg Louis <glouis@dynamicro.on.ca>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: mini [PATCH] 2.4.19-pre5-ac1 compile error
+Message-ID: <20020404181925.GA25301@athame.dynamicro.on.ca>
+Reply-To: Greg Louis <glouis@dynamicro.on.ca>
+Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+Organization: Dynamicro Consulting Limited
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Apr 2002, Arjan van de Ven wrote:
-> On Thu, Apr 04, 2002 at 04:35:33PM +0100, Tigran Aivazian wrote:
-> > disappeared). Then, to make your thoughts consistent you would need to
-> > disable the exported interfaces required for development of a journalling
->
-> You assume EXPORT_SYMBOL is an exported, stable interface
-> that constitutes a GPL barrier. I disagree with
-> that and I think quite a few others do too.
+I needed this patch to prevent this:
 
-The fact that users have problems with different binary-only
-modules not being available for the same kernel version seems
-to prove that the "interface" EXPORT_SYMBOL "defines" isn't
-stable.
+gcc -D__KERNEL__ -I/usr/src/expt/linux-2.4.19p5a1/include -Wall
+-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
+-fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
+-march=i686   -DKBUILD_BASENAME=do_mounts -c -o init/do_mounts.o
+init/do_mounts.c
+init/do_mounts.c: In function andle_initrd':
+init/do_mounts.c:670: CHED_YIELD' undeclared (first use in this
+function)
+init/do_mounts.c:670: (Each undeclared identifier is reported only once
+init/do_mounts.c:670: for each function it appears in.)
+init/do_mounts.c: At top level:
+init/do_mounts.c:324: warning: ount_nfs_root' defined but not used
+make: *** [init/do_mounts.o] Error 1
 
-If it was, we'd have an nvidia driver for 2.4, not a whole
-serie for each 2.4.x kernel.
+--- linux-2.4.19pre5/init/do_mounts.c.orig	2002-04-04 13:05:05.000000000 -0500
++++ linux-2.4.19pre5/init/do_mounts.c	2002-04-04 13:05:05.000000000 -0500
+@@ -667,8 +667,7 @@
+ 	pid = kernel_thread(do_linuxrc, "/linuxrc", SIGCHLD);
+ 	if (pid > 0) {
+ 		while (pid != wait(&i)) {
+-			current->policy |= SCHED_YIELD;
+-			schedule();
++			yield();
+ 		}
+ 	}
+ 
 
-regards,
 
-Rik
 -- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+| G r e g  L o u i s          | gpg public key:      |
+|   http://www.bgl.nu/~glouis |   finger greg@bgl.nu |

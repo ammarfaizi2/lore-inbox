@@ -1,37 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270748AbRHNTBN>; Tue, 14 Aug 2001 15:01:13 -0400
+	id <S269853AbRHNTCn>; Tue, 14 Aug 2001 15:02:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270746AbRHNTBE>; Tue, 14 Aug 2001 15:01:04 -0400
-Received: from fatbird.isisweb.nl ([212.204.202.107]:61711 "HELO
-	fatbird.isisweb.nl") by vger.kernel.org with SMTP
-	id <S270745AbRHNTAx>; Tue, 14 Aug 2001 15:00:53 -0400
-Date: Tue, 14 Aug 2001 17:18:39 +0200 (CEST)
-From: Ime Smits <ime@isisweb.nl>
-To: <benjilr@free.fr>
-Cc: <linux-kernel@vger.kernel.org>, Ime Smits <ime@iaehv.iae.nl>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Camino 2 (82815/82820) v2.4.x eth/sound related lockups
-In-Reply-To: <997796871.3b792c0759fec@imp.free.fr>
-Message-ID: <Pine.LNX.4.33.0108141714580.8479-100000@fatbird.isisweb.nl>
+	id <S270794AbRHNTCg>; Tue, 14 Aug 2001 15:02:36 -0400
+Received: from [209.202.108.240] ([209.202.108.240]:2835 "EHLO
+	terbidium.openservices.net") by vger.kernel.org with ESMTP
+	id <S270076AbRHNTBo>; Tue, 14 Aug 2001 15:01:44 -0400
+Date: Tue, 14 Aug 2001 15:01:24 -0400 (EDT)
+From: Ignacio Vazquez-Abrams <ignacio@openservices.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: memory compress tech...
+In-Reply-To: <Pine.GSO.4.31.0108140924260.3860-100000@cardinal0.Stanford.EDU>
+Message-ID: <Pine.LNX.4.33.0108141242160.31226-100000@terbidium.openservices.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-scanner: scanned by Inflex 1.0.7 - (http://pldaniels.com/inflex/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-INDIVIDVVS VOCATVR benjilr@free.fr DIE 14/8/2001 15:47 VERE SCRIPSIT:
+On Tue, 14 Aug 2001, Ted Unangst wrote:
 
-| I've had the same problem, with my intel etherExpres Pro/100
-| But I've solve it, by using the e100 driver provide by intel in replacement of
-| the eepro100 driver provide by kernel.
-|
-| You can find source of e100 at this URL : http://appsr.intel.com/scripts-
-| df/File_Filter.asp?FileName=e100  I 've used the file e100-1.6.13.tar.gz.
-| Compile and Install without any problem, and now, the card work perfectly.
+> maybe for compressing swap?  you have to read less data off the disk,
+> which is faster.  and the processor is probably idling anyway, waiting on
+> disk.
 
-Hey, thanks! Sound is working straight for over an hour now while some 3 GB
-of traffic went over the 10BaseT! Still wondering what the problemen with
-the Linux e100 driver is, though.
+Ah, now THAT is a good idea.
 
-Ime
+Compressing groups of pages, probably 16k at a time, and storing them on 20k
+boundaries will result in a loss of swap space but a probable increase in
+speed. And the boundary alignment will probably simplify bookkeeping. You
+shouldn't be using swap anyways, so a 20% loss probably isn't a huge deal.
+
+Maybe someone with a little more experience in the area of swap management
+under Linux should take over the discussion from here...
+
+-- 
+Ignacio Vazquez-Abrams  <ignacio@openservices.net>
+
+
+
+
 

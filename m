@@ -1,52 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262801AbVBYXYu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262802AbVBYXax@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262801AbVBYXYu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Feb 2005 18:24:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262802AbVBYXYt
+	id S262802AbVBYXax (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Feb 2005 18:30:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262803AbVBYXax
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Feb 2005 18:24:49 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:65223 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262801AbVBYXYs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Feb 2005 18:24:48 -0500
-Subject: Re: Xterm Hangs - Possible scheduler defect?
-From: Lee Revell <rlrevell@joe-job.com>
-To: "Chad N. Tindel" <chad@tindel.net>
-Cc: Helge Hafting <helgehaf@aitel.hist.no>,
-       Paulo Marques <pmarques@grupopie.com>,
-       Chris Friesen <cfriesen@nortel.com>, Mike Galbraith <EFAULT@gmx.de>,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20050225210225.GA89109@calma.pair.com>
-References: <20050224075756.GA18639@calma.pair.com>
-	 <30111.1109237503@www1.gmx.net> <20050224175331.GA18723@calma.pair.com>
-	 <421E1AC1.1020901@nortel.com> <20050224183851.GA24359@calma.pair.com>
-	 <421E2528.8060305@grupopie.com> <20050224192237.GA31894@calma.pair.com>
-	 <20050225202543.GA1249@hh.idb.hist.no>
-	 <20050225210225.GA89109@calma.pair.com>
-Content-Type: text/plain
-Date: Fri, 25 Feb 2005 18:24:46 -0500
-Message-Id: <1109373886.14434.7.camel@krustophenia.net>
+	Fri, 25 Feb 2005 18:30:53 -0500
+Received: from news.suse.de ([195.135.220.2]:45475 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262802AbVBYXas (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Feb 2005 18:30:48 -0500
+Date: Sat, 26 Feb 2005 00:30:43 +0100
+From: Olaf Hering <olh@suse.de>
+To: linux-fbdev-devel@lists.sourceforge.net
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Linux-fbdev-devel] Re: 2.6.11-rc5
+Message-ID: <20050225233043.GA16187@suse.de>
+References: <Pine.LNX.4.58.0502232014190.18997@ppc970.osdl.org> <20050224145049.GA21313@suse.de> <1109287708.15026.25.camel@gaston> <20050225070813.GA13735@suse.de> <1109316551.14993.63.camel@gaston> <20050225172945.GA31211@suse.de> <Pine.LNX.4.56.0502251758370.20213@pentafluge.infradead.org> <20050225202423.GA24282@suse.de> <20050225212157.GA31227@suse.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20050225212157.GA31227@suse.de>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-02-25 at 16:02 -0500, Chad N. Tindel wrote:
-> They're expensive and customers don't expect a single userspace thread to
-> tie up the other 63 CPUs no matter how buggy it is.  It is intuitively obvious
-> that a buggy kernel can bring a system to its knees, but it is not intuitively
-> obvious that a buggy userspace app can do the same thing.  It is more of a 
-> supportability issue than anything, because you expect the other processors
-> to function properly so you can get in and live-debug the application when it
-> hits a bug that makes it CPU-bound.  This is especially important if the box 
-> is, say, in a remote jungle of China or something where you don't have access 
-> to the console.
+ On Fri, Feb 25, Olaf Hering wrote:
 
-"Unix policy is to not stop root from doing stupid things because
-that would also stop him from doing clever things." - Andi Kleen
+>  On Fri, Feb 25, Olaf Hering wrote:
+> 
+> >  On Fri, Feb 25, James Simmons wrote:
+> > 
+> > > 
+> > > > cfb_imageblit(320) dst1 fa51a800 base e0b80000 bitstart 1999a800
+> > > > fast_imageblit(237) s daea4000 dst1 fa51a800
+> > > > fast_imageblit(269) j 1 fa51a800 0
+> > > > Unable to handle kernel paging request at virtual address fa51a800
+> > > > 
+> > > > is bitstart incorrect or is the thing just not (yet) mapped?
+> > > 
+> > > Looks like the screen_base is not mapped to.
+> > 
+> > rc3 worked ok, rc4 does not. testing the -bk snapshots now.
+> 
+> bk8 works, bk9 breaks, it contains the radeonfb update.
+> it works ok if the driver is compiled into the kernel.
 
-"It's such a fine line between stupid and clever" - Derek Smalls
 
-Lee
-
+ modedb = rinfo->mon1_modedb; passes some shit to fb_find_mode() which
+ kills my screen(1) when DPRINTK is enabled. it dies because bitstart
+ relies on xres_virtual which is 0xcccccc or whatever.

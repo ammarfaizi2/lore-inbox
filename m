@@ -1,190 +1,162 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261999AbTDQAqR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Apr 2003 20:46:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262000AbTDQAqQ
+	id S261839AbTDQAqJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Apr 2003 20:46:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261999AbTDQAqJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 20:46:16 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:56782 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261999AbTDQAqK
+	Wed, 16 Apr 2003 20:46:09 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:55246 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261839AbTDQAqG
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 20:46:10 -0400
-Message-ID: <3E9DFC11.50800@pobox.com>
-Date: Wed, 16 Apr 2003 20:57:53 -0400
+	Wed, 16 Apr 2003 20:46:06 -0400
+Message-ID: <3E9DFC0D.6010808@pobox.com>
+Date: Wed, 16 Apr 2003 20:57:49 -0400
 From: Jeff Garzik <jgarzik@pobox.com>
 Organization: none
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: [BK+PATCH] remove __constant_memcpy
+To: Linus Torvalds <torvalds@transmeta.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: [BK PATCH] net driver stuff
 Content-Type: multipart/mixed;
- boundary="------------050200030607000809000707"
+ boundary="------------040900060005070707010508"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------050200030607000809000707
-Content-Type: text/plain; charset=us-ascii; format=flowed
+--------------040900060005070707010508
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
-Linus,
 
-Please review the patch below, then do a
-
-	bk pull http://gkernel.bkbits.net/misc-2.5
-
-Summary:
-
-gcc's __builtin_memcpy performs the same function (and more) as the 
-kernel's __constant_memcpy.  So, let's remove __constant_memcpy, and let 
-the compiler do it.
-
-Instead of shouldering the burden of the kernel needing to have a 
-decently-fast memcpy routine, I would prefer to hand off that 
-maintenance burden to the compiler.  For the less common (read: 
-non-Intel) processors, I bet this patch shows immediate asm-level 
-benefits in instruction scheduling.
-
-The patch below is the conservative, obvious patch.  It only kicks in 
-when __builtin_constant_p() is true, and it only applies to the i386 
-arch.  I'm currently running w/ 2.5.67+BK+patch and it's stable.  With 
-some recently-acquired (but still nascent) x86 asm skills, I diff'd the 
-before-and-after x86 asm cases for when a constant memcpy() call was 
-made in the kernel code; nothing interesting.  The instruction sequence 
-was usually longer once you exceeded ~32 byte memcpy, but it looked like 
-it scheduled better on i686.  The small-copy cases looked reasonably 
-equivalent.
-
-The more radical direction, where I would eventually like to go, is to 
-hand off all memcpy duties to the compiler, and -march=xxx selects the 
-best memcpy strategies.  This "radical" direction requires a lot more 
-work, benching both the kernel and gcc before and after the memcpy changes.
-
-Finally, on a compiler note, __builtin_memcpy can fall back to emitting 
-a memcpy function call.  Given the conservatism of my patch, this is 
-unlikely, but it should be mentioned.  This also gives less-capable 
-compilers the ability to simplify, by choosing the slow path of 
-unconditionally emitting a memcpy call.
-
---------------050200030607000809000707
+--------------040900060005070707010508
 Content-Type: text/plain;
- name="patch"
+ name="net-drivers-2.5.txt"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="patch"
+ filename="net-drivers-2.5.txt"
 
-# --------------------------------------------
-# 03/04/16	jgarzik@redhat.com	1.1067.1.1
-# [ia32] remove __constant_memcpy, use __builtin_memcpy
-# 
-# gcc's memcpy handling already takes into account the cases that
-# include/asm-i386/string.h's __constant_memcpy takes into
-# account.  __constant_memcpy is removed, and it is replaced
-# with references to __builtin_memcpy.
-# 
-# Compilers that do not/cannot optimize __builtin_memcpy can choose
-# the slow path and simply emit a memcpy function call.
-# --------------------------------------------
-#
-diff -Nru a/include/asm-i386/string.h b/include/asm-i386/string.h
---- a/include/asm-i386/string.h	Wed Apr 16 20:19:42 2003
-+++ b/include/asm-i386/string.h	Wed Apr 16 20:19:42 2003
-@@ -208,75 +208,6 @@
- return (to);
- }
- 
--/*
-- * This looks horribly ugly, but the compiler can optimize it totally,
-- * as the count is constant.
-- */
--static inline void * __constant_memcpy(void * to, const void * from, size_t n)
--{
--	switch (n) {
--		case 0:
--			return to;
--		case 1:
--			*(unsigned char *)to = *(const unsigned char *)from;
--			return to;
--		case 2:
--			*(unsigned short *)to = *(const unsigned short *)from;
--			return to;
--		case 3:
--			*(unsigned short *)to = *(const unsigned short *)from;
--			*(2+(unsigned char *)to) = *(2+(const unsigned char *)from);
--			return to;
--		case 4:
--			*(unsigned long *)to = *(const unsigned long *)from;
--			return to;
--		case 6:	/* for Ethernet addresses */
--			*(unsigned long *)to = *(const unsigned long *)from;
--			*(2+(unsigned short *)to) = *(2+(const unsigned short *)from);
--			return to;
--		case 8:
--			*(unsigned long *)to = *(const unsigned long *)from;
--			*(1+(unsigned long *)to) = *(1+(const unsigned long *)from);
--			return to;
--		case 12:
--			*(unsigned long *)to = *(const unsigned long *)from;
--			*(1+(unsigned long *)to) = *(1+(const unsigned long *)from);
--			*(2+(unsigned long *)to) = *(2+(const unsigned long *)from);
--			return to;
--		case 16:
--			*(unsigned long *)to = *(const unsigned long *)from;
--			*(1+(unsigned long *)to) = *(1+(const unsigned long *)from);
--			*(2+(unsigned long *)to) = *(2+(const unsigned long *)from);
--			*(3+(unsigned long *)to) = *(3+(const unsigned long *)from);
--			return to;
--		case 20:
--			*(unsigned long *)to = *(const unsigned long *)from;
--			*(1+(unsigned long *)to) = *(1+(const unsigned long *)from);
--			*(2+(unsigned long *)to) = *(2+(const unsigned long *)from);
--			*(3+(unsigned long *)to) = *(3+(const unsigned long *)from);
--			*(4+(unsigned long *)to) = *(4+(const unsigned long *)from);
--			return to;
--	}
--#define COMMON(x) \
--__asm__ __volatile__( \
--	"rep ; movsl" \
--	x \
--	: "=&c" (d0), "=&D" (d1), "=&S" (d2) \
--	: "0" (n/4),"1" ((long) to),"2" ((long) from) \
--	: "memory");
--{
--	int d0, d1, d2;
--	switch (n % 4) {
--		case 0: COMMON(""); return to;
--		case 1: COMMON("\n\tmovsb"); return to;
--		case 2: COMMON("\n\tmovsw"); return to;
--		default: COMMON("\n\tmovsw\n\tmovsb"); return to;
--	}
--}
--  
--#undef COMMON
--}
--
- #define __HAVE_ARCH_MEMCPY
- 
- #ifdef CONFIG_X86_USE_3DNOW
-@@ -290,7 +221,7 @@
- static inline void * __constant_memcpy3d(void * to, const void * from, size_t len)
- {
- 	if (len < 512)
--		return __constant_memcpy(to, from, len);
-+		return __builtin_memcpy(to, from, len);
- 	return _mmx_memcpy(to, from, len);
- }
- 
-@@ -314,7 +245,7 @@
-  
- #define memcpy(t, f, n) \
- (__builtin_constant_p(n) ? \
-- __constant_memcpy((t),(f),(n)) : \
-+ __builtin_memcpy((t),(f),(n)) : \
-  __memcpy((t),(f),(n)))
- 
- #endif
+Linus, please do a
 
---------------050200030607000809000707--
+	bk pull http://gkernel.bkbits.net/net-drivers-2.5
+
+This will update the following files:
+
+ drivers/char/epca.c              |   12 ++----------
+ drivers/net/e1000/e1000_main.c   |   26 ++++++++++++++++----------
+ drivers/net/e1000/e1000_param.c  |    2 +-
+ drivers/net/fc/iph5526.c         |    4 ++--
+ drivers/net/macmace.c            |    4 ++--
+ drivers/net/rcpci45.c            |   10 +++-------
+ drivers/net/tokenring/tms380tr.c |    4 ++--
+ drivers/net/tulip/tulip_core.c   |    8 ++------
+ drivers/net/wan/pc300_tty.c      |    1 +
+ drivers/net/wan/sdla_chdlc.c     |    1 +
+ include/linux/pci_ids.h          |    3 +++
+ 11 files changed, 35 insertions(+), 40 deletions(-)
+
+through these ChangeSets:
+
+<cramerj@intel.com> (03/04/07 1.971.81.10)
+   [E1000] Fixed syntax error for C99 initializers
+   
+   * Fixed syntax error for C99 initializers
+
+<rusty@rustcorp.com.au> (03/04/07 1.971.81.9)
+   [PATCH] [PATCH 2.5.63] epca tty_driver add .owner field remove MOD_INC_DEC_USE_COUNT
+   
+   [ Arjan: you touched it last AFAICT.  Seems trivial. --RR ]
+   
+   From:  Hanna Linder <hannal@us.ibm.com>
+
+<scott.feldman@intel.com> (03/04/07 1.971.81.8)
+   [E1000] Revert NAPI back to interrupt disable/enable mode
+   
+   * Undo botched attempt to run NAPI without
+     disabling/enabling interrupts.
+     [Robert.Olssen@data.slu.se]
+
+<rusty@rustcorp.com.au> (03/04/07 1.971.81.7)
+   [PATCH] [2.5 patch] fix the compilation of drivers_net_tokenring_tms380tr.c
+   
+   [ Guys, assume this is OK? ]
+   
+   From:  Adrian Bunk <bunk@fs.tum.de>
+   
+     Since 2.5.61 compilation of drivers/net/tokenring/tms380tr.c fails with
+     the following error:
+   
+     <--  snip  -->
+   
+     ...
+       gcc -Wp,-MD,drivers/net/tokenring/.tms380tr.o.d -D__KERNEL__ -Iinclude
+     -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing
+     -fno-common -pipe -mpreferred-stack-boundary=2 -march=k6
+     -Iinclude/asm-i386/mach-default -nostdinc -iwithprefix include
+     -DKBUILD_BASENAME=tms380tr -DKBUILD_MODNAME=tms380tr -c -o
+     drivers/net/tokenring/tms380tr.o drivers/net/tokenring/tms380tr.c
+     drivers/net/tokenring/tms380tr.c: In function `tms380tr_open':
+     drivers/net/tokenring/tms380tr.c:260: invalid type argument of `->'
+     drivers/net/tokenring/tms380tr.c:260: invalid type argument of `->'
+     drivers/net/tokenring/tms380tr.c:260: invalid type argument of `->'
+     drivers/net/tokenring/tms380tr.c:260: invalid type argument of `->'
+     drivers/net/tokenring/tms380tr.c:260: invalid type argument of `->'
+     drivers/net/tokenring/tms380tr.c:260: invalid type argument of `->'
+     drivers/net/tokenring/tms380tr.c: In function `tms380tr_init_adapter':
+     drivers/net/tokenring/tms380tr.c:1461: warning: long unsigned int format, different type arg (arg3)
+     make[3]: *** [drivers/net/tokenring/tms380tr.o] Error 1
+   
+     <--  snip  -->
+   
+   
+     The following patch by Jochen Friedrich fixes both the compile error and
+     the warning:
+
+<rusty@rustcorp.com.au> (03/04/07 1.971.81.6)
+   [PATCH] [PATCH 2.5.63] net_wan_pc300_tty tty_driver add .owner field remove MOD_INC_DEC_USE_COUNT
+   
+   From:  Hanna Linder <hannal@us.ibm.com>
+
+<rusty@rustcorp.com.au> (03/04/07 1.971.81.5)
+   [PATCH] [PATCH 2.5.63] net_wan_sdla_chdlc tty_driver add .owner field remove MOD_INC_DEC_USE_COUNT
+   
+   From:  Hanna Linder <hannal@us.ibm.com>
+
+<rusty@rustcorp.com.au> (03/04/07 1.971.81.4)
+   [PATCH] Clear up GFP confusion in rcpci45.c
+   
+   [ Jeff, Pete: looks correct.  Please check. --RR ]
+   
+   From:  Matthew Wilcox <willy@debian.org>
+   
+   
+      - Move PCI ID definitions to pci_ids.h
+      - The GFP_DMA in rcpci45_init_one should be GFP_KERNEL because it's a
+        pci_driver ->probe method, so it can sleep.
+      - The GFP_DMA in RC_allocate_and_post_buffers should be GFP_ATOMIC
+        because it's called from a timer function, so it must not sleep.
+
+<rusty@rustcorp.com.au> (03/04/07 1.971.81.3)
+   [PATCH] Remove naked GFP_DMA from drivers_net_macmace.c
+   
+   From:  Matthew Wilcox <willy@debian.org>
+   
+   
+     Can use GFP_KERNEL since this is a netdevice ->open routine.
+
+<rusty@rustcorp.com.au> (03/04/07 1.971.81.2)
+   [PATCH] Unreachable code in drivers_net_fc_iph5526.c
+   
+   From:  Scott Russell <scott@pantastik.com>
+   
+     - Rearranged unreachable printk code reported at kbugs.org
+
+<zwane@linuxpower.ca> (03/04/07 1.971.81.1)
+   [PATCH] SET_MODULE_OWNER for tulip_core
+   
+   Tested with a pcmcia tulip
+
+
+--------------040900060005070707010508--
 

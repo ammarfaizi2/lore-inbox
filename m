@@ -1,72 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293464AbSCEQoU>; Tue, 5 Mar 2002 11:44:20 -0500
+	id <S293468AbSCEQqK>; Tue, 5 Mar 2002 11:46:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293459AbSCEQoH>; Tue, 5 Mar 2002 11:44:07 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:32734 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S293461AbSCEQnu>; Tue, 5 Mar 2002 11:43:50 -0500
-Date: Tue, 5 Mar 2002 11:43:47 -0500
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: linux-kernel@vger.kernel.org, zaitcev@redhat.com
-Subject: Re: s390 is totally broken in 2.4.18
-Message-ID: <20020305114347.A4062@devserv.devel.redhat.com>
-In-Reply-To: <OF6510BC1D.720C525B-ONC1256B73.003619EE@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <OF6510BC1D.720C525B-ONC1256B73.003619EE@de.ibm.com>; from schwidefsky@de.ibm.com on Tue, Mar 05, 2002 at 11:10:37AM +0100
+	id <S293483AbSCEQp5>; Tue, 5 Mar 2002 11:45:57 -0500
+Received: from zamok.crans.org ([138.231.136.6]:48334 "EHLO zamok.crans.org")
+	by vger.kernel.org with ESMTP id <S293459AbSCEQom>;
+	Tue, 5 Mar 2002 11:44:42 -0500
+To: Shawn Starr <spstarr@sh0n.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ANNOUNCEMENT: 2.4.19-pre2-ac2-xfs-shawn9 released
+In-Reply-To: <Pine.LNX.4.40.0203050052390.10667-100000@coredump.sh0n.net>
+X-PGP-KeyID: 0xF22A794E
+X-PGP-Fingerprint: 5854 AF2B 65B2 0E96 2161  E32B 285B D7A1 F22A 794E
+From: Vincent Bernat <bernat@free.fr>
+In-Reply-To: <Pine.LNX.4.40.0203050052390.10667-100000@coredump.sh0n.net> (Shawn
+ Starr's message of "Tue, 5 Mar 2002 02:24:58 -0500 (EST)")
+Organization: Kabale Inc
+Date: Tue, 05 Mar 2002 17:44:39 +0100
+Message-ID: <m3ofi3rmko.fsf@neo.loria>
+User-Agent: Gnus/5.090006 (Oort Gnus v0.06) XEmacs/21.4 (Common Lisp,
+ i686-pc-linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Subject: Re: s390 is totally broken in 2.4.18
-> From: "Martin Schwidefsky" <schwidefsky@de.ibm.com>
-> Date: Tue, 5 Mar 2002 11:10:37 +0100
- 
-> The patch that was merged in 2.4.18-pre* has been created against
-> 2.4.17-pre7 and it did work. The problem is that not all of the
-> changes I sent Marcelo have been accepted. One of the patches was
-> the asm-offsets fix that removes all of the hardcoded offsets from
-> entry.S. Another patch was accepted that changed the thread
-> structure and this created the inconsistency.
+OoO En ce doux début de matinée du mardi 05 mars 2002, vers 08:24,
+Shawn Starr <spstarr@sh0n.net> disait:
 
-A patch that generated offsets at compilation time would be
-a superiour solution. As a matter of fact, I was thinking
-about adopting DaveM's script that generates offsets for sparc.
-He does it a make dep time in order to prevent mass rebuilds
-on every recompile. See arch/sparc64/kernel/check_asm.sh
-and the corresponding Makefile. Good thing you mentioned that
-and saved me a bunch of work :)
+>  uname -a
+> Linux coredump 2.4.19-pre2-ac2-xfs-shawn9 #4 Tue Mar 5 02:10:19 EST 2002
+> i586 unknown
 
-Please keep poking Marcelo with it, and it's a great pity that
-you did not before 2.4.18 came out.
-
-> >Patch attached.
-
-> Well your patch halfway fixes one of the problems. Halfway because
-> not the fp_regs structure has changed its size but the pt_regs
-> pointer has been removed from the thread structure.
-
-Yes, I noticed. However, offsets are all chained together,
-so all other offsets become correct. But once again, having
-them all generated automatically is preferable.
-
-> Incidentally I sent an s390 update to Marcelo yesterday and the
-> minimal fixes including an rwsem.h implementation and the partition
-> detection fixes are about 2000 lines. Want a copy ?
-
-Certainly, I do. I worked around the partitions part with "obvious"
-fixup:
-
--       if (ioctl_by_bdev(bdev, HDIO_GETGEO, (unsigned long)geo);
-+       if (ioctl_by_bdev(bdev, HDIO_GETGEO, (unsigned long)geo))
--       data = read_dev_sector(bdev, inode->label_block*blocksize, &sect);
-+       data = read_dev_sector(bdev, info->label_block*blocksize, &sect);
-
-But that code did not look too good, in particular it was
-not checking return codes. So, it was on my TODO list to
-clean it up.
-
--- Pete
+I have compiled it with preempt patch from Robert Love (just one line
+of manual merge) and it works fine.
+-- 
+Don't compare floating point numbers just for equality.
+            - The Elements of Programming Style (Kernighan & Plaugher)

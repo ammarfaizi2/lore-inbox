@@ -1,78 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264542AbUD2Nz0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264545AbUD2N6r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264542AbUD2Nz0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 09:55:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264546AbUD2Nz0
+	id S264545AbUD2N6r (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 09:58:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264561AbUD2N6r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 09:55:26 -0400
-Received: from gonzo.one-2-one.net ([217.115.142.69]:4794 "EHLO
+	Thu, 29 Apr 2004 09:58:47 -0400
+Received: from gonzo.one-2-one.net ([217.115.142.69]:59837 "EHLO
 	gonzo.webpack.hosteurope.de") by vger.kernel.org with ESMTP
-	id S264542AbUD2NzS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 09:55:18 -0400
+	id S264545AbUD2N6p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Apr 2004 09:58:45 -0400
 Envelope-to: linux-kernel@vger.kernel.org
-Date: Thu, 29 Apr 2004 15:55:00 +0200
+Date: Thu, 29 Apr 2004 15:58:29 +0200
 From: stefan.eletzhofer@eletztrick.de
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Russell King - ARM Linux <linux@arm.linux.org.uk>,
-       Ian Campbell <icampbell@arcom.com>, Greg KH <greg@kroah.com>
+Cc: Ian Campbell <icampbell@arcom.com>,
+       Russell King - ARM Linux <linux@arm.linux.org.uk>
 Subject: Re: [PATCH] 2.6 I2C epson 8564 RTC chip
-Message-ID: <20040429135500.GA23468@gonzo.local>
+Message-ID: <20040429135829.GB23468@gonzo.local>
 Reply-To: stefan.eletzhofer@eletztrick.de
 Mail-Followup-To: stefan.eletzhofer@eletztrick.de,
 	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Russell King - ARM Linux <linux@arm.linux.org.uk>,
-	Ian Campbell <icampbell@arcom.com>, Greg KH <greg@kroah.com>
-References: <20040429120250.GD10867@gonzo.local> <1083243580.26762.38.camel@icampbell-debian>
+	Ian Campbell <icampbell@arcom.com>,
+	Russell King - ARM Linux <linux@arm.linux.org.uk>
+References: <20040429120250.GD10867@gonzo.local> <1083242482.26762.30.camel@icampbell-debian> <20040429135408.G16407@flint.arm.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1083243580.26762.38.camel@icampbell-debian>
+In-Reply-To: <20040429135408.G16407@flint.arm.linux.org.uk>
 User-Agent: Mutt/1.3.27i
 Organization: Eletztrick Computing
 X-HE-MXrcvd: no
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 29, 2004 at 01:59:40PM +0100, Ian Campbell wrote:
-> On Thu, 2004-04-29 at 13:02, stefan.eletzhofer@eletztrick.de wrote:
-> > This driver only does the low-level I2C stuff, the rtc misc device
-> > driver is a separate driver module which I will send a patch for soon.
+On Thu, Apr 29, 2004 at 01:54:08PM +0100, Russell King wrote:
+> On Thu, Apr 29, 2004 at 01:41:23PM +0100, Ian Campbell wrote:
+> > Hi Stefan,
+> > 
+> > > This driver only does the low-level I2C stuff, the rtc misc device
+> > > driver is a separate driver module which I will send a patch for soon.
+> > 
+> > I have a patch (attached, it could do with cleaning up) for the Dallas
+> > DS1307 I2C RTC which I ported from the 2.4 rmk patch, originally written
+> > by Intrinsyc. Currently it includes both the I2C and the RTC bits in the
+> > same driver.
 > 
-> By the way -- I notice you have said you need i2c_get_client for your
-> RTC driver to locate the i2c chip it wants to work with. 
-
-Correct. I'll send a patch which re-adds this call to 2.6.6-rcx.
-
+> Have a look at drivers/acorn/char/{i2c,pcf8583}.[ch]
 > 
-> Just a thought -- perhaps it would make sense to reverse the roles and
-> for the rtc driver to export a 'register_rtc_device' type call which the
-> specific i2c chip driver could then call to hook itself up to /dev/rtc
-
-The problem with this approach is IHMO that you need the i2c_client struct in
-I2C chrip driver as well (to call the i2c access primitives). You'd need to
-store the pointer to the client somewhere in the driver itself. What if we have
-more than one client per driver?
-
-IMHO the call i2c_get_client() is nice and clean. One could wish another call like
-  int i2c_command( struct i2c_client *c, long cmd, void *arg );
-whcih does a
-  client->driver->command( client, cmd, arg );
-internally.
-
+> > Do you think it is realistic/possible to have the same generic RTC
+> > driver speak to multiple I2C devices, from what I can see in your driver
+> > the two chips seem pretty similar and the differences could probably be
+> > abstracted away. Perhaps that is your intention from the start?
+> > 
+> > I guess I will wait until you post the RTC misc driver and try and make
+> > the DS1307 one work with that before I submit it.
 > 
-> Ian.
+> If you look at the last 2.6-rmk patch, you'll notice that it contains
+> an abstracted RTC driver - I got peed off with writing the same code
+> to support the user interfaces to the variety of RTCs over and over
+> again.  (Ones which are simple 32-bit second counters with alarms
+> through to ones which return D/M/Y H:M:S.C format.)
+
+Oh, I wasn't aware of that. I assume that one is not in linus bk tree already?
+
 > 
 > -- 
-> Ian Campbell, Senior Design Engineer
->                                         Web: http://www.arcom.com
-> Arcom, Clifton Road, 			Direct: +44 (0)1223 403 465
-> Cambridge CB1 7EA, United Kingdom	Phone:  +44 (0)1223 411 200
-> 
-> 
-> _____________________________________________________________________
-> The message in this transmission is sent in confidence for the attention of the addressee only and should not be disclosed to any other party. Unauthorised recipients are requested to preserve this confidentiality. Please advise the sender if the addressee is not resident at the receiving end.  Email to and from Arcom is automatically monitored for operational and lawful business reasons.
-> 
-> This message has been virus scanned by MessageLabs.
+> Russell King
+>  Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+>  maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+>                  2.6 Serial core
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org

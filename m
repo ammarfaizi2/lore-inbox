@@ -1,66 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266485AbUIANMy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266486AbUIANPL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266485AbUIANMy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 09:12:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266473AbUIANMx
+	id S266486AbUIANPL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 09:15:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266498AbUIANPK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 09:12:53 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:7051 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S266467AbUIANMp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 09:12:45 -0400
-Subject: Re: silent semantic changes with reiser4
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Horst von Brand <vonbrand@inf.utfsm.cl>, Pavel Machek <pavel@ucw.cz>,
-       David Masover <ninja@slaphack.com>, Jamie Lokier <jamie@shareable.org>,
-       Chris Wedgwood <cw@f00f.org>, viro@parcelfarce.linux.theplanet.co.uk,
-       Christoph Hellwig <hch@lst.de>, Hans Reiser <reiser@namesys.com>,
-       linux-fsdevel@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-In-Reply-To: <Pine.LNX.4.58.0408311252150.2295@ppc970.osdl.org>
-References: <200408311931.i7VJV8kt028102@laptop11.inf.utfsm.cl>
-	 <Pine.LNX.4.58.0408311252150.2295@ppc970.osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1094040615.2474.50.camel@localhost.localdomain>
+	Wed, 1 Sep 2004 09:15:10 -0400
+Received: from delerium.kernelslacker.org ([81.187.208.145]:6062 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S266486AbUIANOz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 09:14:55 -0400
+Date: Wed, 1 Sep 2004 14:14:34 +0100
+From: Dave Jones <davej@redhat.com>
+To: Romain Moyne <aero_climb@yahoo.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Time runs exactly three times too fast
+Message-ID: <20040901131434.GB11182@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Romain Moyne <aero_climb@yahoo.fr>, linux-kernel@vger.kernel.org
+References: <200409021453.09730.aero_climb@yahoo.fr> <200409021708.31410.aero_climb@yahoo.fr> <20040901130011.GB10829@redhat.com> <200409021831.55002.aero_climb@yahoo.fr>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 01 Sep 2004 13:10:17 +0100
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200409021831.55002.aero_climb@yahoo.fr>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2004-08-31 at 21:05, Linus Torvalds wrote:
-> In a graphical environment, the "icon" stream is a good example of this.  
-> It literally has _nothing_ to do with the data in the main stream. The
-> only linkage is a totally non-technical one, where the user wanted to
-> associate a secondary stream with the main stream _without_ altering the
-> main one. THAT is where named streams make sense.
+On Thu, Sep 02, 2004 at 06:31:54PM +0200, Romain Moyne wrote:
+ > Le Mercredi 01 Septembre 2004 15:00, Dave Jones a écrit :
+ > > On Thu, Sep 02, 2004 at 05:08:30PM +0200, Romain Moyne wrote:
+ > >  > >Do you have files in /sys/devices/system/cpu/cpu0/cpufreq ?
+ > >  >
+ > >  > I don't.
+ > >
+ > > what about after modprobe powernow-k8 ?
+ > > (that should also print out some messages in dmesg)
+ > 
+ > powernow-k8 is for athlon64, no ? I have just compiled in the kernel (not as a 
+ > module) the option powernow-k7 (I have a Athlon XP-M).
+ > So, I can't do modprobe powernow-k7...
 
-The icon doesn't belong in the document, that was a catastrophic
-disaster in early MacOS (although they only use an index). Users want to
-manage their icon choices, tags, tooltip notes and attached labels, and
-you cannot do that in the file if you don't own the file. 
+You have one of the 32bit models of the athlon64. (Basically a crippled athlon64)
+(See proc/cpuinfo..)
 
-Also the icon is *not* unrelated to the file in a modern GUI, eg rox and
-nautilus uses scaled versions of the content for many media types and
-will show you pictures, frames from a movie etc to help you remember the
-content. On top they then add user specific annotations.
+cpu family      : 15
 
-The things that are more independant are:
+I've not heard reports of whether powernow-k8 works or not on these cpu's,
+but it should if the cpu reports the powernow capability bits.
 
-"This file was created by OpenOffice 1.2"
-"This is a text/plain file in UTF-8"
-"This file has a UUID of ...."
+My suspicion is that for some reason, your cpu is booting at a low speed.
+Are there any powernow/power management settings in the BIOS that change
+this ?
 
-The type has dragons because you get heirarchical typing within
-documents (consider XML containing namespaces)
-
-(UUIDs being one really useful thing we don't tag everywhere onto files
-that would be a godsend on the desktop providing they moved with the
-file on rename)
-
-Alan
+		Dave
 

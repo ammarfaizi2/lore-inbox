@@ -1,58 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288921AbSAUBWY>; Sun, 20 Jan 2002 20:22:24 -0500
+	id <S288954AbSAUB0O>; Sun, 20 Jan 2002 20:26:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288954AbSAUBWP>; Sun, 20 Jan 2002 20:22:15 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:52234 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S288921AbSAUBWA>;
-	Sun, 20 Jan 2002 20:22:00 -0500
-Date: Sun, 20 Jan 2002 23:21:14 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
+	id <S288957AbSAUB0E>; Sun, 20 Jan 2002 20:26:04 -0500
+Received: from red.csi.cam.ac.uk ([131.111.8.70]:1158 "EHLO red.csi.cam.ac.uk")
+	by vger.kernel.org with ESMTP id <S288954AbSAUBZ6>;
+	Sun, 20 Jan 2002 20:25:58 -0500
+Message-Id: <5.1.0.14.2.20020121010950.02672870@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Mon, 21 Jan 2002 01:28:09 +0000
 To: Hans Reiser <reiser@namesys.com>
-Cc: Shawn Starr <spstarr@sh0n.net>, <linux-kernel@vger.kernel.org>
+From: Anton Altaparmakov <aia21@cam.ac.uk>
 Subject: Re: Possible Idea with filesystem buffering.
-In-Reply-To: <3C4B6867.8070302@namesys.com>
-Message-ID: <Pine.LNX.4.33L.0201202318090.32617-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: Matt <matt@progsoc.uts.edu.au>, Rik van Riel <riel@conectiva.com.br>,
+        Shawn <spstarr@sh0n.net>, linux-kernel@vger.kernel.org,
+        Josh MacDonald <jmacd@CS.Berkeley.EDU>
+In-Reply-To: <3C4B6778.7040509@namesys.com>
+In-Reply-To: <Pine.LNX.4.33L.0201201936340.32617-100000@imladris.surriel.com>
+ <3C4B3B67.60505@namesys.com>
+ <20020121111005.F12258@ftoomsh.progsoc.uts.edu.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Jan 2002, Hans Reiser wrote:
-> Rik van Riel wrote:
+[snip]
+At 00:57 21/01/02, Hans Reiser wrote:
+[snip]
+ > Would be best if VM told us if we really must write that page.
 
-> >If your ->writepage() writes pages to disk it just means
-> >that reiserfs will be able to clean its pages faster than
-> >the other filesystems.
->
-> the logical extreme of this is that no write caching should be done at
-> all, only read caching?
+In theory the VM should never call writepage unless the page must be writen 
+out...
 
-You know that's bad for write clustering ;)))
+But I agree with you that it would be good to be able to distinguish the 
+two cases. I have been thinking about this a bit in the context of NTFS TNG 
+but I think that it would be better to have a generic solution rather than 
+every fs does their own copy of the same thing. I envisage that there is a 
+flush daemon which just walks around writing pages to disk in the 
+background (there could be one per fs, or a generic one which fs register 
+with, at their option they could have their own of course) in order to keep 
+the number of dirty pages low and in order to minimize data loss on the 
+event of system/power failure.
 
-> >This means the VM will not call reiserfs ->writepage() as
-> >often as for the other filesystems, since more of the
-> >pages it finds will already be clean and freeable.
-> >
-> >I guess the only way to unbalance the caches is by actually
-> >freeing pages in ->writepage, but I don't see any real reason
-> >why you'd want to do that...
->
-> It would unbalance the write cache, not the read cache.
+This demon requires several interfaces though, with regards to journalling 
+fs. The daemon should have an interface where the fs can say "commit pages 
+in this list NOW and do not return before done", also a barrier operation 
+would be required in journalling context. A transactions interface would be 
+ideal, where the fs can submit whole transactions consisting of writing out 
+a list of pages and optional write barriers; e.g. write journal pages x, y, 
+z, barrier, write metadata, perhaps barrier, finally write data pages a, b, 
+c. Simple file systems could just not bother at all and rely on the flush 
+daemon calling the fs to write the pages.
 
-Many workloads tend to read pages again after they've written
-them, so throwing away pages immediately doesn't seem like a
-good idea.
+Obviously when this daemon writes pages the pages will continue being 
+there. OTOH, if the VM calls write page because it needs to free memory 
+then writepage must write and clean the page.
 
-regards,
+So, yes, a parameter to write page would be great in this context. 
+Alternatively we could have ->writepage and ->flushpage (or pick your 
+favourite two names) one being an optional writeout and one a forced 
+writeout... I like the parameter to writepage idea better but in the end it 
+doesn't really matter that much I would suspect...
 
-Rik
+Best regards,
+
+Anton
+
+
 -- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
-
-http://www.surriel.com/		http://distro.conectiva.com/
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 

@@ -1,79 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269413AbUKAX00@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S289515AbUKBBwP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269413AbUKAX00 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Nov 2004 18:26:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S381735AbUKAX0G
+	id S289515AbUKBBwP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Nov 2004 20:52:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265680AbUKAX1C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Nov 2004 18:26:06 -0500
-Received: from fed1rmmtao05.cox.net ([68.230.241.34]:39558 "EHLO
-	fed1rmmtao05.cox.net") by vger.kernel.org with ESMTP
-	id S325256AbUKAWKY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 17:10:24 -0500
-Date: Mon, 1 Nov 2004 15:10:22 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Russell King <rmk@arm.linux.org.uk>,
-       Torben Mathiasen <device@lanana.org>
-Subject: [PATCH 2.6.10-rc1] Fix CPM2 uart driver device number brain damage
-Message-ID: <20041101221022.GO24459@smtp.west.cox.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 1 Nov 2004 18:27:02 -0500
+Received: from proxy.vc-graz.ac.at ([193.171.121.30]:44283 "EHLO
+	proxy.vc-graz.ac.at") by vger.kernel.org with ESMTP id S262256AbUKAWTX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Nov 2004 17:19:23 -0500
+From: Wolfgang Scheicher <worf@sbox.tu-graz.ac.at>
+To: zaitcev@yahoo.com
+Subject: Re: 2.6.9 USB storage problems
+Date: Mon, 1 Nov 2004 23:19:13 +0100
+User-Agent: KMail/1.7
+Cc: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
+       linux-kernel@vger.kernel.org
+References: <200410121424.59584.worf@sbox.tu-graz.ac.at> <200411012040.33285.worf@sbox.tu-graz.ac.at> <20041101213501.GD18227@one-eyed-alien.net>
+In-Reply-To: <20041101213501.GD18227@one-eyed-alien.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+Message-Id: <200411012319.13676.worf@sbox.tu-graz.ac.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following patch against 2.6.10-rc1 fixes the brain damage that was
-found in the CPM2 uart driver.  Previously, if 8250 was configured in,
-it would use one set of numbers (which at the time didn't conflict with
-anything, but have since been officially given to the Motorola i.MX
-driver) and if 8250 wasn't in, it would masquerade as it.  The following
-switches us over to 204/46...49 (Which is still unclaimed).  I don't
-know whose tree this should go in, however..
+Am Montag, 1. November 2004 22:35 schrieb Matthew Dharm:
+> On Mon, Nov 01, 2004 at 08:40:32PM +0100, Wolfgang Scheicher wrote:
+>> Am Montag, 1. November 2004 20:10 schrieb Matthew Dharm:
+>>> You're using the UB driver.  Does it work if you turn that off and use
+>>> the usb-storage driver instead?
+>>
+>> Damn, you are right - this is a new driver...
+>> I didn't notice that, i did rely on hotplug to load the correct modules.
+>>
+>> Removed the ub driver and everything is fine now.
+>>
+>> That means - just unloadin ub and loading usb-storage didn't work.
+>>
+>> I had to remove it from the kernel config and rebuild the modules.
+>> Actually usb-storage was the only module being rebuilt. Looks like
+>> usb-storage's functionality is different if ub is built.
+>>
+>> So, my system works fine again, thank you.
+>> But it leaves the question: why does ub perform so badly?
+>
+> Talk to Pete Zaitcev about that.
 
-Signed-off-by: Tom Rini <trini@kernel.crashing.org>
+ok - so this goes to him too :-)
 
---- 1.3/drivers/serial/cpm_uart/cpm_uart.h	2004-06-21 08:37:14 -07:00
-+++ edited/drivers/serial/cpm_uart/cpm_uart.h	2004-11-01 15:05:21 -07:00
-@@ -17,13 +17,8 @@
- #include "cpm_uart_cpm1.h"
- #endif
- 
--#ifndef CONFIG_SERIAL_8250
--#define SERIAL_CPM_MAJOR	TTY_MAJOR
--#define SERIAL_CPM_MINOR	64
--#else
- #define SERIAL_CPM_MAJOR	204
--#define SERIAL_CPM_MINOR	42
--#endif
-+#define SERIAL_CPM_MINOR	46
- 
- #define IS_SMC(pinfo) 		(pinfo->flags & FLAG_SMC)
- #define IS_DISCARDING(pinfo)	(pinfo->flags & FLAG_DISCARDING)
---- 1.21/Documentation/devices.txt	2004-10-20 15:28:12 -07:00
-+++ edited/Documentation/devices.txt	2004-11-01 15:03:02 -07:00
-@@ -2758,6 +2758,10 @@
- 		 43 = /dev/ttySMX2		Motorola i.MX - port 2
- 		 44 = /dev/ttyMM0		Marvell MPSC - port 0
- 		 45 = /dev/ttyMM1		Marvell MPSC - port 1
-+		 46 = /dev/ttyCPM0		PPC CPM (SCC or SMC) - port 0
-+		    ...
-+		 49 = /dev/ttyCPM5		PPC CPM (SCC or SMC) - port 5
-+
- 
- 205 char	Low-density serial ports (alternate device)
- 		  0 = /dev/culu0		Callout device for ttyLU0
-@@ -2786,6 +2790,9 @@
- 		 41 = /dev/ttySMX0		Callout device for ttySMX0
- 		 42 = /dev/ttySMX1		Callout device for ttySMX1
- 		 43 = /dev/ttySMX2		Callout device for ttySMX2
-+		 46 = /dev/cucpm0		Callout device for ttyCPM0
-+		    ...
-+		 49 = /dev/cucpm5		Callout device for ttyCPM5
- 
- 206 char	OnStream SC-x0 tape devices
- 		  0 = /dev/osst0		First OnStream SCSI tape, mode 0
+Pete, i don't know if you have seen my previous posts...
+I did now have a look at the comments in ub.c
+Looks like the driver is very new and a lot has yet to be done.
+I cannot really tell what of the points on the todo list may be related to my 
+problem. I miss information and "ub" isn't really a good keyword to google 
+for either.
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+What is the difference to the usb-storage driver?
+What is the state, what are the plans?
+
+>> And: could maybe somebody put some hints into the ub help?
+>> "This driver supports certain USB attached storage devices such as flash
+>> keys." didn't sound so bad to me...
+>
+> That should definately happen.  Along with a note that this blocks
+> usb-storage from working with many devices if enabled.
+
+Yep. Absolutely.
+
+Worf

@@ -1,39 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263256AbSLaPvB>; Tue, 31 Dec 2002 10:51:01 -0500
+	id <S263246AbSLaPup>; Tue, 31 Dec 2002 10:50:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263276AbSLaPvB>; Tue, 31 Dec 2002 10:51:01 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:61828
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S263256AbSLaPvA>; Tue, 31 Dec 2002 10:51:00 -0500
-Subject: Re: [STATUS 2.5]  December 24, 2002
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Cc: Rik van Riel <riel@conectiva.com.br>,
-       Guillaume Boissiere <boissiere@adiglobal.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200212311428.38516.roy@karlsbakk.net>
-References: <63942A45-1722-11D7-8DC6-000393950CC2@karlsbakk.net>
-	<200212302319.54390.roy@karlsbakk.net>
-	<1041289888.13684.178.camel@irongate.swansea.linux.org.uk> 
-	<200212311428.38516.roy@karlsbakk.net>
-Content-Type: text/plain
+	id <S263256AbSLaPup>; Tue, 31 Dec 2002 10:50:45 -0500
+Received: from pa90.banino.sdi.tpnet.pl ([213.76.211.90]:51981 "EHLO
+	alf.amelek.gda.pl") by vger.kernel.org with ESMTP
+	id <S263246AbSLaPuo>; Tue, 31 Dec 2002 10:50:44 -0500
+Subject: Recent 2.4.x PPP bug? (PPPIOCDETACH file->f_count=3)
+To: linux-kernel@vger.kernel.org
+Date: Tue, 31 Dec 2002 16:59:06 +0100 (CET)
+X-Mailer: ELM [version 2.4ME+ PL95 (25)]
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 31 Dec 2002 16:41:21 +0000
-Message-Id: <1041352881.17411.0.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <E18TOnK-0007Tp-00@alf.amelek.gda.pl>
+From: Marek Michalkiewicz <marekm@amelek.gda.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-12-31 at 13:28, Roy Sigurd Karlsbakk wrote:
-> > > I've submitted a few bug reports. will they be considered?
-> >
-> > The bug reports are all there on record and useful. It depends if Jens
-> > has time to fix it, or someone else does the job before we begin the
-> > final stabilizing freeze
-> 
-> then perhaps it should go into the STATUS 2.5 ?
+Hello,
 
-Maybe
+Starting with recent 2.4.19 and 2.4.20 kernels, when any
+one (or both) of my two permanent PPP connections goes
+down (usually due to the ISP rebooting their equipment),
+quite often something bad happens.
+
+Dec 31 16:31:52 alf kernel: PPPIOCDETACH file->f_count=3
+Dec 31 16:31:52 alf kernel: PPPIOCDETACH file->f_count=3
+
+Dec 31 16:31:52 alf pppd[31783]: Hangup (SIGHUP)
+Dec 31 16:31:52 alf pppd[31783]: Modem hangup
+Dec 31 16:31:52 alf pppd[27363]: Hangup (SIGHUP)
+Dec 31 16:31:52 alf pppd[27363]: Modem hangup
+Dec 31 16:31:52 alf pppd[31783]: Connection terminated.
+Dec 31 16:31:52 alf pppd[27363]: Connection terminated.
+Dec 31 16:31:52 alf pppd[27363]: Connect time 3961.2 minutes.
+Dec 31 16:31:52 alf pppd[27363]: Sent 12744359 bytes, received 11908495 bytes.
+Dec 31 16:31:52 alf pppd[31783]: Connect time 3961.2 minutes.
+Dec 31 16:31:52 alf pppd[31783]: Sent 13843367 bytes, received 38226866 bytes.
+Dec 31 16:31:53 alf pppd[31783]: Couldn't release PPP unit: Invalid argument
+Dec 31 16:31:53 alf pppd[27363]: Couldn't release PPP unit: Invalid argument
+Dec 31 16:31:54 alf pppd[31783]: Couldn't create new ppp unit: Inappropriate ioctl for device
+Dec 31 16:31:54 alf pppd[27363]: Couldn't create new ppp unit: Inappropriate ioctl for device
+
+Then the "Couldn't create new ppp unit" messages are repeated
+very often until pppd is killed with SIGKILL (SIGHUP or SIGTERM
+don't work).  Killing and restarting pppd seems to be the only
+way to restore the connection, despite the pppd "persist" and
+"maxfail 0" options.
+
+I've tried to google for the "PPPIOCDETACH file->f_count=3"
+message, and found that someone had this problem with PPPoE.
+In my case, this is normal PPP over a serial port, which has
+always been rock solid for me.
+
+Please help - is this a known problem, which could be fixed
+in recent 2.4.21-pre kernels?
+
+Thanks,
+Marek
 

@@ -1,50 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267841AbTB1MdJ>; Fri, 28 Feb 2003 07:33:09 -0500
+	id <S267869AbTB1Miy>; Fri, 28 Feb 2003 07:38:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267844AbTB1MdI>; Fri, 28 Feb 2003 07:33:08 -0500
-Received: from kiruna.synopsys.com ([204.176.20.18]:20465 "HELO
-	kiruna.synopsys.com") by vger.kernel.org with SMTP
-	id <S267841AbTB1MdH>; Fri, 28 Feb 2003 07:33:07 -0500
-Date: Fri, 28 Feb 2003 13:43:14 +0100
-From: Alex Riesen <alexander.riesen@synopsys.COM>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.20-ck4
-Message-ID: <20030228124314.GS5239@riesen-pc.gr05.synopsys.com>
-Reply-To: alexander.riesen@synopsys.COM
-References: <200302281545.01222.kernel@kolivas.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200302281545.01222.kernel@kolivas.org>
-User-Agent: Mutt/1.4i
-Organization: Synopsys, Inc.
+	id <S267870AbTB1Miy>; Fri, 28 Feb 2003 07:38:54 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:12553 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S267869AbTB1Mix>; Fri, 28 Feb 2003 07:38:53 -0500
+Message-ID: <3E5F5B1F.5050801@aitel.hist.no>
+Date: Fri, 28 Feb 2003 13:50:39 +0100
+From: Helge Hafting <helgehaf@aitel.hist.no>
+Organization: AITeL, HiST
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+X-Accept-Language: no, en
+MIME-Version: 1.0
+To: "Adam J. Richter" <adam@yggdrasil.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Patch: 2.5.62 devfs shrink
+References: <200302280314.TAA11682@baldur.yggdrasil.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas, Fri, Feb 28, 2003 05:45:01 +0100:
-> I've updated my patchset
+Adam J. Richter wrote:
+
+> Tangential note:	
 > 
-> It includes:
-> O(1) scheduler
-> Preempt
-> Low Latency
-> AA VM addons
-> Read Latency2
-> SuperMount
-> XFS
-> ACPI
-> DVD/CDRW packet writing
-> Desktop Tuning
-> optional extras:
-> Compressed caching
-> Rmap15d
-> 
+> 	For what it's worth, my preference would be to change from
+> /dev/discs/disc0/part1 to /dev/disk/0/part1, but I think it would
 
-You do not include ALSA anymore. Is that just because of lack of time,
-or did i miss some serious problem with it?
+Yes, that is nice and short.  There is no need for the disc0 part,
+we know it is a disk because it is in /dev/disk.
 
-Thanks for you patches, anyway
+> probably do more harm than good to try to coordinate such a change
+> with switching devfs.  If you want to try to make a change where
 
--alex
+Well, I wouldn't mind a disc->disk transition.  It seems to mee there 
+aren't that many devfs users yet so I don't think it'll be that much of 
+a problem.
+
+> people will eventually have to update their systems, I think it would
+> probably make more sense to survey existing devfs naming practices and
+> try to come up with some recommendations harmonize them a bit.  For
+> example, should the directory names be singular or plural (/dev/loop
+> or /dev/loops, /dev/disk or /dev/disks)?  I would recommend signular
+> because it is less English-centric.  
+
+Singular is nice, because we think about /dev/disk/4 (one
+particular disk) a lot more than we think about "the collection
+/dev/disks"
+
+
+Helge Hafting
+

@@ -1,61 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265548AbUABST2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jan 2004 13:19:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265553AbUABST2
+	id S265553AbUABS3Y (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jan 2004 13:29:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265554AbUABS3Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jan 2004 13:19:28 -0500
-Received: from CPE-24-163-213-29.mn.rr.com ([24.163.213.29]:47810 "EHLO
-	www.enodev.com") by vger.kernel.org with ESMTP id S265548AbUABST1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jan 2004 13:19:27 -0500
-Subject: Re: udev and devfs - The final word
-From: Shawn <core@enodev.com>
-To: Andreas Jellinghaus <aj@dungeon.inka.de>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <pan.2004.01.02.17.52.48.455285@dungeon.inka.de>
-References: <20031231002942.GB2875@kroah.com>
-	 <pan.2004.01.02.17.52.48.455285@dungeon.inka.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1073067563.1073.12.camel@localhost>
+	Fri, 2 Jan 2004 13:29:24 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:62735 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S265553AbUABS3X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jan 2004 13:29:23 -0500
+Date: Fri, 2 Jan 2004 18:29:21 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Claas Langbehn <claas@rootdir.de>
+Cc: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
+Subject: Re: XFS forced shutdown with kernel 2.6.0
+Message-ID: <20040102182921.A27237@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Claas Langbehn <claas@rootdir.de>, linux-kernel@vger.kernel.org,
+	linux-xfs@oss.sgi.com
+References: <20040102095051.GA19872@rootdir.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 02 Jan 2004 12:19:23 -0600
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040102095051.GA19872@rootdir.de>; from claas@rootdir.de on Fri, Jan 02, 2004 at 10:50:51AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Let me begin by pointing out that I was a proponent of devfs from when
-it first got written.
+On Fri, Jan 02, 2004 at 10:50:51AM +0100, Claas Langbehn wrote:
+> Hello!
+> 
+> 
+> Last night one of my machines running xfs shut down my /homes partition.
+> 
+> That machine was running Azureus (a bittorrent client) with probably
+> high memory usage.
+> 
+> But even if the memory usage of one program is going near to 100% it
+> should not force the filesystem to shutdown. Instead it should crash
+> the application.
+> 
+> I could also think of bad memory, but we did test the SDRAM modules
+> only a week ago, and they passed memtest86.
+> 
+> After rebooting everything was working fine, again.
+> 
+> So, is this a bug of xfs?
 
-On Fri, 2004-01-02 at 11:54, Andreas Jellinghaus wrote:
-> On Wed, 31 Dec 2003 00:32:58 +0000, Greg KH wrote:
-> > The Problems:
-> >  1) A static /dev is unwieldy and big.  It would be nice to only show
-> >     the /dev entries for the devices we actually have running in the
-> >     system.
-> neither devfs nor udev handle the virtual part. only devpts does, 
-> and only for one special class of virtual devices. and usb devices
-> are neither handled by devfs nor udev, but by usbfs.
-I'm thinking maybe this is just fine.
+I've seen the same bug a few times lately, but only if I had previous
+memory corruption due to code I was hacking on.  Can you reproduce it
+without the nvidia module loaded as that is likely source of such
+corruption?
 
-> Actually udev is a regression:
->  - devfs was a first efford at a sane /dev naming policy, udev returns to
->    the old and cryptic lsb device naming.
-Every way of doing things is just another say of doing it. Location
-based naming has it's major issues. It's solved by UUID or LABEL, so
-device naming is just a matter of preference anyway. You can change it
-with udev, IIRC. You could not with devfs. Chances are you use devfsd
-anyway, right?
-
->  - devfs made makedev obsolete, udev doesn't work without it / can
->    currently not create all devices because of missing sysfs support.
-No one is saying it is currently perfect for everyone, however, it suits
-many people just fine. devfs went through the same thing and this is an
-invalid argument when debating the technical merit of either.
-
-> Ignore this mail if you want, but people might be unhappy with udev
-> because of these regressions and not caring about it will not improve
-> the situation.
-By the time devfs goes away enough testing will have happened. Don't
-look for it to go away within 2.6.

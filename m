@@ -1,55 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131193AbRCMVcR>; Tue, 13 Mar 2001 16:32:17 -0500
+	id <S131209AbRCMVcR>; Tue, 13 Mar 2001 16:32:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131199AbRCMVcJ>; Tue, 13 Mar 2001 16:32:09 -0500
+	id <S131193AbRCMVcI>; Tue, 13 Mar 2001 16:32:08 -0500
 Received: from zeus.kernel.org ([209.10.41.242]:7373 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S131187AbRCMVbz>;
-	Tue, 13 Mar 2001 16:31:55 -0500
-X-Sent: 13 Mar 2001 20:35:48 GMT
-Date: Tue, 13 Mar 2001 12:37:16 -0800 (PST)
-From: "Jeffrey W. Baker" <jwbaker@acm.org>
-X-X-Sender: <jwb@desktop>
-To: <linux-kernel@vger.kernel.org>
-cc: <torvalds@transmeta.com>
-Subject: [PATCH] 2.4.3-pre3 add PBG4 native LCD mode to modedb.c
-Message-ID: <Pine.LNX.4.33.0103131224340.252-200000@desktop>
+	by vger.kernel.org with ESMTP id <S131199AbRCMVbt>;
+	Tue, 13 Mar 2001 16:31:49 -0500
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200103132105.f2DL5D8411265@saturn.cs.uml.edu>
+Subject: Re: system call for process information?
+To: npsimons@fsmlabs.com
+Date: Tue, 13 Mar 2001 16:05:13 -0500 (EST)
+Cc: g.liakhovetski@ragingbull.com (Guennadi Liakhovetski),
+        viro@math.psu.edu (Alexander Viro), linux-kernel@vger.kernel.org
+In-Reply-To: <20010312195647.A32437@fsmlabs.com> from "Nathan Paul Simons" at Mar 12, 2001 07:56:47 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="655872-432902778-984515836=:252"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+Nathan Paul Simons writes:
+> On Mon, Mar 12, 2001 at 09:21:37PM +0000, Guennadi Liakhovetski wrote:
 
---655872-432902778-984515836=:252
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+>> CPU utilisation. Each new application has to calculate it (ps, top, qps,
+>> kps, various sysmons, procmons, etc.). Wouldn't it be worth it having a
+>> syscall for that? Wouldn't it be more optimal?
+>
+> 	No, it wouldn't be worth it because you're talking about 
+> sacrificing simplicity and kernel speed in favor of functionality.
+> This has been know to lead to "bloat-ware".  Every new syscall you
 
-The attached patch adds the a new mode to the modedb, used by the ATI,
-3Dfx, and Amiga frame buffer devices.  The new mode is the native,
-slightly wide resolution of the new Apple laptops.  It isn't obvious how
-popular a mode has to be before it goes into modedb.c.
+Bloat removal: being able to run without /proc mounted.
 
--jwb
+We don't have "kernel speed". We have kernel-mode screwing around
+with text formatting.
 
---655872-432902778-984515836=:252
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="mode.diff"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.33.0103131237160.252@desktop>
-Content-Description: Patch to drivers/video/modedb.c
-Content-Disposition: attachment; filename="mode.diff"
+> add takes just a little bit more time and space in the kernel, and
+> when only a small number of programs will be using it, it's really 
+> not worth it.  This time and space may not be large, but once you
+> get _your_ syscall added, why can't everyone else get theirs added 
+> as well?  And so, after making about a thousand specialized syscalls
+> standard in the kernel, you end up with IRIX (from what I've heard).
 
-LS0tIGRyaXZlcnMvdmlkZW8vbW9kZWRiLmMub3JpZwlUdWUgTWFyIDEzIDA0
-OjIwOjQzIDIwMDENCisrKyBkcml2ZXJzL3ZpZGVvL21vZGVkYi5jCVR1ZSBN
-YXIgMTMgMDQ6MTY6MjAgMjAwMQ0KQEAgLTkxLDYgKzkxLDEwIEBADQogCU5V
-TEwsIDYwLCAxMDI0LCA3NjgsIDE1Mzg0LCAxNjgsIDgsIDI5LCAzLCAxNDQs
-IDYsDQogCTAsIEZCX1ZNT0RFX05PTklOVEVSTEFDRUQNCiAgICAgfSwgew0K
-KwkvKiAxMTUyeDc2OCBAIDU1IEh6LCA0NC4xNTQga0h6IGhzeW5jLCBQb3dl
-ckJvb2sgRzQgTENEICovDQorICAgICAgICBOVUxMLCA1NSwgMTE1MiwgNzY4
-LCAxNTM4NiwgMTI2LCA1OCwgMjksIDMsIDEzNiwgNiwNCisgICAgICAgIDAs
-IEZCX1ZNT0RFX05PTklOVEVSTEFDRUQgDQorICAgIH0sIHsNCiAJLyogNjQw
-eDQ4MCBAIDEwMCBIeiwgNTMuMDEga0h6IGhzeW5jICovDQogCU5VTEwsIDEw
-MCwgNjQwLCA0ODAsIDIxODM0LCA5NiwgMzIsIDM2LCA4LCA5NiwgNiwNCiAJ
-MCwgRkJfVk1PREVfTk9OSU5URVJMQUNFRA0K
---655872-432902778-984515836=:252--
+This isn't just for him. Many people have wanted it.
+
+> 	Don't even get me started about opening security holes, and
+> increasing code complexity.  Please do a search for every other
+
+I'll get you started. Compare:
+
+1. variable-length ASCII strings with undefined ad-hoc syntax
+2. array of fixed-size (64-bit) values
+
+> ps - CPU time is cheap, that's why they don't charge for it anymore.
+> Programmer time is _not_.
+
+Parsing costs programmer time.

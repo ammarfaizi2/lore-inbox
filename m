@@ -1,51 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285179AbRLFVJ5>; Thu, 6 Dec 2001 16:09:57 -0500
+	id <S285195AbRLFVLn>; Thu, 6 Dec 2001 16:11:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285180AbRLFVJs>; Thu, 6 Dec 2001 16:09:48 -0500
-Received: from fencepost.gnu.org ([199.232.76.164]:13836 "EHLO
-	fencepost.gnu.org") by vger.kernel.org with ESMTP
-	id <S284248AbRLFVJm>; Thu, 6 Dec 2001 16:09:42 -0500
-Date: Thu, 6 Dec 2001 16:09:40 -0500
-From: Lennert Buytenhek <buytenh@gnu.org>
-To: netfilter@lists.samba.org, linux-kernel@vger.kernel.org
-Cc: bridge@math.leidenuniv.nl
-Subject: bridge firewalling with linux 2.4: it _is_ possible..
-Message-ID: <20011206160940.A9972@gnu.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S284248AbRLFVL1>; Thu, 6 Dec 2001 16:11:27 -0500
+Received: from [160.131.145.246] ([160.131.145.246]:31754 "EHLO W20303512")
+	by vger.kernel.org with ESMTP id <S285194AbRLFVLI>;
+	Thu, 6 Dec 2001 16:11:08 -0500
+Message-ID: <047d01c17e9a$598b76a0$f69183a0@W20303512>
+From: "Wilson" <defiler@null.net>
+To: <linux-kernel@vger.kernel.org>
+In-Reply-To: <20011202155440.F2622@work.bitmover.com> <2379997133.1007402344@mbligh.des.sequent.com> <20011206134642.D49@toy.ucw.cz> <20011206125005.K27589@work.bitmover.com>
+Subject: Re: Linux/Pro [was Re: Coding style - a non-issue]
+Date: Thu, 6 Dec 2001 16:09:51 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-People say my PR sucks, and it probably does.  I've been somewhat reluctant
-to announce this, but people here at Linux Kongress convinced me that a lot
-of people probably don't even know about this, so here goes.
-
-For a while now I've had a patch that makes bridge firewalling with linux
-2.4 possible.  This gives you all the goodies of the already present
-netfilter/iptables infrastructure, including state tracking, various baroque
-packet mangling techniques and network address translation (yeah, NAT on a
-bridge, I know, you can call me sick, a lot of people do, hi Rusty).
-
-Get the patch at:
-
-(stable)
-	http://bridge.sourceforge.net/devel/bridge-nf/bridge-nf-0.0.3-against-2.4.13-ac7.diff
-
-(devel)
-	http://bridge.sourceforge.net/devel/bridge-nf/bridge-nf-0.0.4-pre1-against-2.4.16.diff
+----- Original Message -----
+From: "Larry McVoy" <lm@bitmover.com>
+To: "Pavel Machek" <pavel@suse.cz>
+Cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>; "Larry McVoy"
+<lm@bitmover.com>; "Stephan von Krawczynski" <skraw@ithnet.com>; "Horst von
+Brand" <vonbrand@sleipnir.valparaiso.cl>; "lkml"
+<linux-kernel@vger.kernel.org>
+Sent: Thursday, December 06, 2001 3:50 PM
+Subject: Re: Linux/Pro [was Re: Coding style - a non-issue]
 
 
-The patch makes bridging look like routing, as far as netfilter is concerned,
-so you can use your existing rulesets with minimal modification.  The patch
-will be submitted for netfilter patch-o-matic sometime in the future, once
-I clean it up some more (there are some known loose ends).
+> > Then we can create memnet (netdevice over shared memory), and Larry's
+dream
+> > can come true...
+>
+> I'm hoping, but my dreams do not include shared memory over a network.
+
+He's talking about net over shared memory, not shared memory over net.
 
 
-cheers,
-Lennert
 

@@ -1,67 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263326AbTBNRf5>; Fri, 14 Feb 2003 12:35:57 -0500
+	id <S263215AbTBNRlR>; Fri, 14 Feb 2003 12:41:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263333AbTBNRf4>; Fri, 14 Feb 2003 12:35:56 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:35241 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S263326AbTBNRfz>;
-	Fri, 14 Feb 2003 12:35:55 -0500
-Date: Fri, 14 Feb 2003 17:41:25 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Toplica Tanaskovic <toptan@EUnet.yu>
+	id <S263256AbTBNRlQ>; Fri, 14 Feb 2003 12:41:16 -0500
+Received: from [208.0.185.14] ([208.0.185.14]:58377 "EHLO ncbdc.bbs.com")
+	by vger.kernel.org with ESMTP id <S263215AbTBNRlQ>;
+	Fri, 14 Feb 2003 12:41:16 -0500
+Message-ID: <057889C7F1E5D61193620002A537E8690B5A2D@NCBDC>
+From: Larry Hileman <LHileman@snapappliance.com>
+To: "'Tomas Szepe'" <szepe@pinerecords.com>,
+       Larry Hileman <LHileman@snapappliance.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.4.18 KT400 support
-Message-ID: <20030214174125.GA2694@codemonkey.org.uk>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Toplica Tanaskovic <toptan@EUnet.yu>, linux-kernel@vger.kernel.org
-References: <200302141821.14768.toptan@EUnet.yu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200302141821.14768.toptan@EUnet.yu>
-User-Agent: Mutt/1.5.3i
+Subject: RE: Question about 48 bit IDE on 2.4.18 kernel
+Date: Fri, 14 Feb 2003 09:51:06 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 14, 2003 at 06:25:52PM +0100, Toplica Tanaskovic wrote:
+I was asked to figure a way to get us over the 137G barrier on
+the 2.4.18 kernel.  Going to 2.4.20/21 can be done in parallel
+and I will explain this.
 
- > 	Here is the patch that adds complete support for Via KT400 chipsets for 
- > 2.4.18 kernel
+Moving to 2.4.20/21 is a large effort here.  If I need to implement
+the larger drives in 2.4.18, I'd like to make sure that this
+has not already been done and that I have the latest code.
 
-Not complete. This will only work if you have an AGP2.0 card.
-There is no code here to setup the bridge in AGP3.0 mode, or handling
-what happens when it sees a x8 card.  Fully working code is present in
-2.5.60-bk if you have time to backport it (hint: I don't right now)
- 
- > 	Don't forget to update yours pci.ids, before applying this patch don't forget 
- > to update your pci.ids to the latest version.
 
-Has no relevance to the patch. pci.ids is only used by pciutils, and
-should not affect behaviour of this agp/ide patch.
+-----Original Message-----
+From: Tomas Szepe [mailto:szepe@pinerecords.com]
+Sent: Friday, February 14, 2003 9:43 AM
+To: Larry Hileman
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Question about 48 bit IDE on 2.4.18 kernel
 
-Also..
 
-> +	{ PCI_DEVICE_ID_VIA_8377_0,
-> +		PCI_VENDOR_ID_VIA,
-> +		VIA_APOLLO_KT400,
-> +		"Via",
+> [LHileman@snapappliance.com]
+> 
+> Ok, from this information it would seem that the 2.4.18 kernel
+> will not support > 137G drives?  
 
-Should be capitalised 'VIA'.
-
-> --- orig/linux/drivers/ide/via82cxxx.c	Wed Mar 27 13:57:19 2002
-> +++ linux/drivers/ide/via82cxxx.c	Tue Feb 11 22:39:28 2003
-> @@ -105,8 +105,8 @@
->  } via_isa_bridges[] = {
->  #ifdef FUTURE_BRIDGES
->  	{ "vt8237",	PCI_DEVICE_ID_VIA_8237,     0x00, 0x2f, VIA_UDMA_133 },
-> -	{ "vt8235",	PCI_DEVICE_ID_VIA_8235,     0x00, 0x2f, VIA_UDMA_133 },
->  #endif
-> +	{ "vt8235",	PCI_DEVICE_ID_VIA_8235,     0x00, 0x2f, VIA_UDMA_133 },
-
-Already in 2.4-bk
-
-		Dave
+Is there any reason why you couldn't upgrade to 2.4.20?
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Tomas Szepe <szepe@pinerecords.com>

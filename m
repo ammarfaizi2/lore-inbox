@@ -1,44 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286894AbRLWONr>; Sun, 23 Dec 2001 09:13:47 -0500
+	id <S286893AbRLWOOh>; Sun, 23 Dec 2001 09:14:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282483AbRLWONl>; Sun, 23 Dec 2001 09:13:41 -0500
-Received: from fepF.post.tele.dk ([195.41.46.135]:47771 "EHLO
-	fepF.post.tele.dk") by vger.kernel.org with ESMTP
-	id <S282801AbRLWOMH>; Sun, 23 Dec 2001 09:12:07 -0500
-Date: Sun, 23 Dec 2001 15:11:47 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
-Cc: really mason_at_soo_dot_com <lnx-kern@Sophia.soo.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: 2.5.2-pre1 oddness under X
-Message-ID: <20011223151147.F7438@suse.de>
-In-Reply-To: <20011222164602.A20623@Sophia.soo.com> <3C250835.9010806@wanadoo.fr>
+	id <S282801AbRLWONo>; Sun, 23 Dec 2001 09:13:44 -0500
+Received: from f113.pav1.hotmail.com ([64.4.31.113]:50705 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S286894AbRLWON0>;
+	Sun, 23 Dec 2001 09:13:26 -0500
+X-Originating-IP: [128.107.253.38]
+From: "Eyal Sohya" <linuz_kernel_q@hotmail.com>
+To: dana.lacoste@peregrine.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: The direction linux is taking
+Date: Sun, 23 Dec 2001 14:13:20 +0000
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C250835.9010806@wanadoo.fr>
+Content-Type: text/plain; format=flowed
+Message-ID: <F113yeKzGZuNY1SWoBD0000e383@hotmail.com>
+X-OriginalArrivalTime: 23 Dec 2001 14:13:20.0356 (UTC) FILETIME=[F9771240:01C18BBB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 22 2001, Pierre Rousselet wrote:
-> really mason_at_soo_dot_com wrote:
-> 
-> >Running kernel 2.5.2-pre1 compiled with gcc 3.0.3,
-> >i get the following error irregularly when starting
-> >X or trying to compile sawfish in an xterm:
+
+
+
+>From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+>To: dana.lacoste@peregrine.com (Dana Lacoste)
+>CC: linuz_kernel_q@hotmail.com ('Eyal Sohya'), linux-kernel@vger.kernel.org
+>Subject: Re: The direction linux is taking
+>Date: Tue, 18 Dec 2001 15:04:13 +0000 (GMT)
+>
+> > > 1. Are we satisfied with the source code control system ?
 > >
-> >Inconsistency detected by ld.so: dynamic-link.h: 62: elf_get_dynamic_info: 
-> >Assertion `! "bad dynamic tag"' failed!
-> 
-> 
-> I've also seen sawfish seg-faulting at the first try of 2.5.2-pre1.
+> > Yes.  Alan (2.2) and Marcelo (2.4) and Linus (2.5) are doing
+> > a good job with source control.
 
-This sounds like disk corruption, it may be that the -pre1 changes are
-partially broken.
+really ?
+Do you know what good source control is ? i doubt it.
 
-I'll go take a look. IDE?
+>
+>Not really. We do a passable job. Stuff gets dropped, lost,
+>deferred and forgotten, applied when it conflicts with other work
+>- much of this stuff that software wouldnt actually improve on over a
+>person
+>
+> > Although this seems annoying, it's just one facet of the
+> > primary difference between Linux and a commercially based
+> > kernel : if you want to know how something works and how
+> > it's being developed, then you MUST participate, in this
+> > and other mailing lists.
+>
+>That wont help you - most discussion occurs in private because l/k
+>is too noisy and many key people dont read it.
+>
+> > > 3. There is no central bug tracking database. At least people
+> > > should know the status of the bugs they have found with some
+> > > releases.
+> >
+> > There is no central product, so there can be no central bug track.
+> > (see below)
+>
+>Rubbish. Ask the engineering world about fault tracking. You won't get
+>"different products no central flaw tracking" you'll get extensive cross
+>correlation, statistical tools and the like in any syste, where reliability
+>matters
+>
+>Many kernel bug reports end up invisible to some of the developers.
 
--- 
-Jens Axboe
+
+that is exactly my point.
+>
+>Alan
+
+
+
+
+_________________________________________________________________
+MSN Photos is the easiest way to share and print your photos: 
+http://photos.msn.com/support/worldwide.aspx
 

@@ -1,33 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132089AbQKSBEH>; Sat, 18 Nov 2000 20:04:07 -0500
+	id <S132053AbQKSBPl>; Sat, 18 Nov 2000 20:15:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132100AbQKSBD5>; Sat, 18 Nov 2000 20:03:57 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:28210 "EHLO
+	id <S132034AbQKSBPb>; Sat, 18 Nov 2000 20:15:31 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:31794 "EHLO
 	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S132089AbQKSBDj>; Sat, 18 Nov 2000 20:03:39 -0500
-Date: Sun, 19 Nov 2000 01:33:24 +0100
+	id <S132073AbQKSBPR>; Sat, 18 Nov 2000 20:15:17 -0500
+Date: Sun, 19 Nov 2000 01:45:12 +0100
 From: Andrea Arcangeli <andrea@suse.de>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ext2 largefile fixes + [f]truncate() error value fix
-Message-ID: <20001119013324.F26779@athlon.random>
-In-Reply-To: <20001118194058.C24555@athlon.random> <Pine.GSO.4.21.0011181643420.21893-100000@weyl.math.psu.edu>
+To: "H . J . Lu" <hjl@valinux.com>
+Cc: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: lseek/llseek allows the negative offset
+Message-ID: <20001119014512.G26779@athlon.random>
+In-Reply-To: <20001117155913.A26622@valinux.com> <20001117160900.A27010@valinux.com> <20001118192542.B24555@athlon.random>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.21.0011181643420.21893-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Sat, Nov 18, 2000 at 04:55:23PM -0500
+In-Reply-To: <20001118192542.B24555@athlon.random>; from andrea@suse.de on Sat, Nov 18, 2000 at 07:25:42PM +0100
 X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
 X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 18, 2000 at 04:55:23PM -0500, Alexander Viro wrote:
-> > 		if (size >> 33) {
->                        ITYM 32 
+On Sat, Nov 18, 2000 at 07:25:42PM +0100, Andrea Arcangeli wrote:
+> I fixed it this way:
 
-this is a bug in 2.2.x mainstream btw.
+fix is plain wrong, it's still possible to have lseek return -1 -2 -3 -4
+even when it should return -EINVAL.
 
 Andrea
 -

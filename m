@@ -1,45 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132028AbRCYPDQ>; Sun, 25 Mar 2001 10:03:16 -0500
+	id <S132030AbRCYPJG>; Sun, 25 Mar 2001 10:09:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131999AbRCYPDG>; Sun, 25 Mar 2001 10:03:06 -0500
-Received: from storm.ca ([209.87.239.69]:14756 "EHLO mail.storm.ca")
-	by vger.kernel.org with ESMTP id <S132035AbRCYPDD>;
-	Sun, 25 Mar 2001 10:03:03 -0500
-Message-ID: <3ABE086B.1CAF28FA@storm.ca>
-Date: Sun, 25 Mar 2001 10:02:03 -0500
-From: Sandy Harris <sandy@storm.ca>
-X-Mailer: Mozilla 4.76 [en] (Win98; U)
-X-Accept-Language: en,fr
+	id <S132032AbRCYPIr>; Sun, 25 Mar 2001 10:08:47 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:42765 "HELO
+	postfix.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S132030AbRCYPIp>; Sun, 25 Mar 2001 10:08:45 -0500
+Date: Sun, 25 Mar 2001 12:06:56 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "James A. Sutherland" <jas88@cam.ac.uk>,
+        Guest section DW <dwguest@win.tue.nl>,
+        "Patrick O'Rourke" <orourke@missioncriticallinux.com>,
+        linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] OOM handling
+In-Reply-To: <3ABDF8A6.7580BD7D@evision-ventures.com>
+Message-ID: <Pine.LNX.4.21.0103251156450.1863-100000@imladris.rielhome.conectiva>
 MIME-Version: 1.0
-To: Linux kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Prevent OOM from killing init
-In-Reply-To: <20010322124727.A5115@win.tue.nl> <Pine.LNX.4.30.0103231721480.4103-100000@dax.joh.cam.ac.uk> <20010325013241.F2274@garloff.casa-etp.nl>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kurt Garloff wrote:
+On Sun, 25 Mar 2001, Martin Dalecki wrote:
 
-> Kernel related questions IMHO are:
-> (1) Why do we get into OOM?
+> Ah... and of course I think this patch can already go directly 
+> into the official kernel. The quality of code should permit 
+> it. I would esp. request Rik van Riel to have a closer look
+> at it...
 
-There was a long thread about this a few months back. We get into OOM because
-malloc(), calloc() etc. can allocate more memory than is actually available.
+- the algorithms are just as much black magic as the old ones
+- it hasn't been tested in any other workload than your Oracle
+  server (at least, not that I've heard of)
+- the comments are just too rude  ;)
+  (though fun)
+- the AGE_FACTOR calculation will overflow after the system has
+  an uptime of just _3_ days 
+- your code might be good for server loads, but for normal
+  users it will kill what amounts to a random process ... this
+  is horribly wrong for desktop systems
 
-e.g. Say you have machine with 64 RAM + 64 swap = 128 megs with 40 megs in use,
-so 88 free. Now two processes each malloc() 80 megs. Both succeed. If both
-processes then use that memory, someone is likely to fail later.
+In short, I like some of your ideas, but I really fail to see why
+this version of the code would be any better than what we're having
+now. In fact, since there seem to be about 1000x more desktop boxes
+than Oracle boxes (probably even more), I'd say that the current
+algorithm in the kernel is better (since it's right for more systems).
 
-> Can we avoid it?
+Now if you can make something which preserves the heuristics which
+serve us so well on desktop boxes and add something that makes it
+also work on your Oracle servers, then I'd be interested.
 
-The obvious solution is to consider the above behaviour a bug and fix it.
-The second malloc() should fail. The process making that call can then look
-at the return value and decide what to do about the failure.
+Alternatively, I also wouldn't mind a completely new algorithm, as
+long as it turns out to work well on desktop boxes too. But remember
+that we cannot tell this without first testing the thing on a few
+dozen (hundreds?) of machines with different workloads...
 
-However, this was extensively discussed here last year, and that solution was
-quite firmly rejected. I never understood the reasons. See the archives.
+regards,
 
-Someone did announce they were working on patches implementing a sane malloc().
-What happened to that project?
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
+
+
+
+

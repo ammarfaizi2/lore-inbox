@@ -1,80 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266109AbUALKVW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 05:21:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266099AbUALKVW
+	id S266097AbUALKgv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 05:36:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266099AbUALKgv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 05:21:22 -0500
-Received: from madrid10.amenworld.com ([62.193.203.32]:36877 "EHLO
-	madrid10.amenworld.com") by vger.kernel.org with ESMTP
-	id S266109AbUALKVJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 05:21:09 -0500
-Date: Mon, 12 Jan 2004 11:20:39 +0100
-From: DervishD <raul@pleyades.net>
-To: Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: SMP or UP???
-Message-ID: <20040112102039.GF18338@DervishD>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Mon, 12 Jan 2004 05:36:51 -0500
+Received: from host213-160-108-25.dsl.vispa.com ([213.160.108.25]:25476 "HELO
+	cenedra.office") by vger.kernel.org with SMTP id S266097AbUALKgu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jan 2004 05:36:50 -0500
+From: Andrew Walrond <andrew@walrond.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.1-mm1: drivers/video/sis/sis_main.c link error
+Date: Mon, 12 Jan 2004 10:36:48 +0000
+User-Agent: KMail/1.5.4
+References: <20040109014003.3d925e54.akpm@osdl.org> <3FFF79E5.5010401@winischhofer.net> <Pine.LNX.4.58.0401111502380.1825@evo.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0401111502380.1825@evo.osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.4i
-Organization: Pleyades
-User-Agent: Mutt/1.4i <http://www.mutt.org>
+Message-Id: <200401121036.48107.andrew@walrond.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi all :))
+On Monday 12 Jan 2004 2:58 am, Linus Torvalds wrote:
+>
+> I occasionally get huge drops from James, and they invariably break stuff.
+> Which means that I often decide (espcially when trying to stabilize
+> things) that I just can't _afford_ to apply the fr*gging patches. Because
+> by past experience applying one of the big "everything changes" patches
+> tends to break more things that it fixes.
+>
 
-    I have an used Gigabyte GA-7ZXE mobo, with chipset VIA KT133A,
-wearing a Duron 1000 processor, since December. AFAIK this mobo is
-uniprocessor (it has only a socket, that should be a good
-evidence...), but when booting I get these messages (I just show
-those relevant to the issue):
+I want the new fb stuff very badly.
 
-kernel: Linux version 2.4.21 (root@DervishD) (gcc version 3.2.2) #1 Wed Jul 2 17:25:21 CEST 2003
-kernel: found SMP MP-table at 000fb210
+My particular application is a game which has it's own software 3D renderer, 
+so it just needs to be able to blast the frames into video ram. A good fbdev 
+would mean not needing X, which would be nice.
 
-    What, SMP table?
+Please consider this for inclusion in very early 2.7. And I urge James to work 
+with Linus on this. Perhaps when it's stable in 2.7, we can back-port to 
+2.6 :)
 
-kernel: hm, page 000fb000 reserved twice.
-kernel: hm, page 000fc000 reserved twice.
-kernel: hm, page 000f5000 reserved twice.
-kernel: hm, page 000f6000 reserved twice.
-kernel: Intel MultiProcessor Specification v1.1
-kernel:     Virtual Wire compatibility mode.
+Andrew Walrond
 
-    Is this chipset then SMP capable? 
-
-kernel: OEM ID: VIA      Product ID: KT133        APIC at: 0xFEE00000
-kernel: Processor #0 Pentium(tm) Pro APIC version 17
-
-    What Pentium? This is an AMD mobo :??
-
-kernel: I/O APIC #2 Version 17 at 0xFEC00000.
-kernel: Enabling APIC mode: Flat.?Using 1 I/O APICs
-kernel: Processors: 1
-
-    When booting some distros, like Knoppix, I have an 'Error: only
-one processor found' log message.
-
-kernel: Initializing CPU#0
-kernel: Detected 1000.077 MHz processor.
-kernel: Calibrating delay loop... 1992.29 BogoMIPS
-kernel: CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
-kernel: CPU: L2 Cache: 64K (64 bytes/line)
-kernel: CPU: AMD Duron(tm) stepping 00
-
-    Well, finally my Duron got detected...
-
-    This is not an issue, because the system seems to work OK, but
-for me is very strange and I'm not sure wether this may cause
-problems or not...
-
-    Thanks in advance :)
-
-    Raúl Núñez de Arenas Coronado
-
--- 
-Linux Registered User 88736
-http://www.pleyades.net & http://raul.pleyades.net/

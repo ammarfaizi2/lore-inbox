@@ -1,55 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129545AbQLEQJp>; Tue, 5 Dec 2000 11:09:45 -0500
+	id <S129183AbQLEQUJ>; Tue, 5 Dec 2000 11:20:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129538AbQLEQJZ>; Tue, 5 Dec 2000 11:09:25 -0500
-Received: from columba.EUR.3Com.COM ([161.71.169.13]:59376 "EHLO
-	columba.eur.3com.com") by vger.kernel.org with ESMTP
-	id <S129535AbQLEQJX>; Tue, 5 Dec 2000 11:09:23 -0500
-X-Lotus-FromDomain: 3COM
-From: "Jon Burgess" <Jon_Burgess@eur.3com.com>
-To: Steve Hill <steve@navaho.co.uk>
-cc: PaulJakma <paulj@itg.ie>, linux-kernel@vger.kernel.org
-Message-ID: <802569AC.0054D7AC.00@notesmta.eur.3com.com>
-Date: Tue, 5 Dec 2000 15:20:28 +0000
-Subject: Re: Serial Console
+	id <S129210AbQLEQUB>; Tue, 5 Dec 2000 11:20:01 -0500
+Received: from hermes.mixx.net ([212.84.196.2]:33806 "HELO hermes.mixx.net")
+	by vger.kernel.org with SMTP id <S129183AbQLEQTm>;
+	Tue, 5 Dec 2000 11:19:42 -0500
+From: Daniel Phillips <news-innominate.list.linux.kernel@innominate.de>
+Reply-To: Daniel Phillips <phillips@innominate.de>
+X-Newsgroups: innominate.list.linux.kernel
+Subject: Re: test12-pre5
+Date: Tue, 05 Dec 2000 16:48:10 +0100
+Organization: innominate
+Distribution: local
+Message-ID: <news2mail-3A2D0E3A.99312EA3@innominate.de>
+In-Reply-To: <Pine.LNX.4.10.10012041906510.2047-100000@penguin.transmeta.com>
 Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Trace: mate.bln.innominate.de 976031354 20403 10.0.0.90 (5 Dec 2000 15:49:14 GMT)
+X-Complaints-To: news@innominate.de
+To: Linus Torvalds <torvalds@transmeta.com>
+X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0-test10 i586)
+X-Accept-Language: en
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus Torvalds wrote:
+> NOTE! There's another change to "writepage()" semantics than just dropping
+> the "struct file": the new writepage() is supposed to mirror the logic of
+> readpage(), and unlock the page when it is done with it. This allows the
+> VM system more visibility into what IO is pending (which the VM doesn't
+> take advantage of yet, but now it can _truly_ use the same logic for both
+> swapout and for dirty file writeback).
 
+Or maybe readpage should *not* unlock the page.  What if we wanted to
+follow the writepage immediately by traversing the page's buffers?  We'd
+have to lock the page again, and we wouldn't know what happened in the
+interim.
 
->>
->> /dev/console will go to serial, but afaik it doesn't block for lack of
->> a terminal. (has something to do with /dev/console being semantically
->> different to /dev/tty..., eg it doesn't block, not sure of the exact
->> details).
+Thanks for fixing the (struct file *)'s!  (major wart gone)
 
->Nope, /dev/console *does* block.  ATM I've found a quick workaround - I
->use "stty -F /dev/console clocal -crtscts" to turn off the serial flow
->control at the stawrt of /etc/rc.d/rc.sysinit - this seems to work quite
->well... of course it doesn't stop some program turning flow control back
->on and ballsing it all up again :)
-
-I've got a machine here which redirects the console to the serial port using
-Lilo 'append="console=ttyS0"' and it boots fine without a connection to the
-serial port without having to do any specific manipulation of the flow control.
-I think that all serial output is dumped to /dev/null if DCD is not asserted no
-matter what the flow control says. Perhaps there are some hardware differences
-in the configuration of the control signal pull-up/downs.
-
-     Jon Burgess
-
-
-
-
-PLANET PROJECT will connect millions of people worldwide through the combined
-technology of 3Com and the Internet. Find out more and register now at
-http://www.planetproject.com
-
-
+--
+Daniel
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

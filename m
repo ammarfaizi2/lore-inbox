@@ -1,61 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261782AbUKHIs5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261786AbUKHIxE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261782AbUKHIs5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 03:48:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261786AbUKHIs5
+	id S261786AbUKHIxE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 03:53:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261787AbUKHIxE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 03:48:57 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:31390 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261782AbUKHIsu (ORCPT
+	Mon, 8 Nov 2004 03:53:04 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:2977 "EHLO e31.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261786AbUKHIv7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 03:48:50 -0500
-Date: Mon, 8 Nov 2004 10:50:48 +0100
-From: Ingo Molnar <mingo@elte.hu>
+	Mon, 8 Nov 2004 03:51:59 -0500
+Date: Mon, 8 Nov 2004 14:18:25 +0530
+From: Ravikiran G Thirumalai <kiran@in.ibm.com>
 To: linux-kernel@vger.kernel.org
-Cc: Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Mark_H_Johnson@Raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
-       Shane Shrybman <shrybman@aei.ca>,
-       Peter Zijlstra <peter@programming.kicks-ass.net>
-Subject: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm3-V0.7.20
-Message-ID: <20041108095048.GA11920@elte.hu>
-References: <20041020094508.GA29080@elte.hu> <20041021132717.GA29153@elte.hu> <20041022133551.GA6954@elte.hu> <20041022155048.GA16240@elte.hu> <20041022175633.GA1864@elte.hu> <20041025104023.GA1960@elte.hu> <20041027001542.GA29295@elte.hu> <20041103105840.GA3992@elte.hu> <20041106155720.GA14950@elte.hu> <20041108091619.GA9897@elte.hu>
+Subject: unix_gc and file_count
+Message-ID: <20041108084825.GA8704@impedimenta.in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041108091619.GA9897@elte.hu>
 User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I am trying to clean up uses of file_count in 2.6 as suggested by Viro
+earlier.  Biggest hurdle is unix_gc.  I am trying to get rid of file_count in
+unix_gc.  But I am not sure if I understand unix_gc very well.
+I thought I'd put out questions I've been having...
+Appreciate if someone can clarify.
 
-i have released the -V0.7.20 Real-Time Preemption patch, which can be
-downloaded from the usual place:
+Here goes:
 
-   http://redhat.com/~mingo/realtime-preempt/
+unix_gc pushes a root set onto a stack.  This root set is not to be garbage
+collected.  Root set is determined by the condition:
+	if (open_count > atomic_read(&unix_sk(s)->inflight))
+>From my understanding, for a unix socket, opencount cannot be less than 
+inflight, simply because unix_*_sendmsg bumps up the f_count of each struct
+file of the passed fd array through scm_send. inflight is later bumped up at
+unix_attach_fds for unix sockets in the fd[] payload.  unix_*_recvmsg bumps 
+down inflight for unix sockets of the payload fd[] and later does a fput for
+all fds of the payload fd array.  Hence, the condition for sockets to
+be GC'ed is open_count == inflight.  If open_count is +'ve for a GC able socket,
+it means  the open_count is only because the socket is part of a fd payload
+waiting to be received.  Some of the sockets with open_count == inflight 
+may not be GC'ed if they happen to be in the receive queue as a fd payload 
+of a inuse unix socket (on the stack).  All sockets which can be GC'ed will 
+be in the hash list with unix_sk(s)->gc_tree == GC_ORPHAN;
+unix_gc then walks through all the unix sockets in the hashtable, and 
+processes sockets marked for gc (GC_ORPHAN).  unix_gc frees up the skbs in the 
+receive queue of these unix sockets which have a fd[] payload on that skb.  
+Other skbs are left as is.
 
-this release includes a single fix relative to -V0.7.19: it fixes the
-nondebug build errors reported by Rui Nuno Capela and Peter Zijlstra,
-introduced in -V0.7.18.
+1. Even if gc doesn't garbage collect the fd[] payload skbs, they'll be later
+freed by unix_release through __fput when the f_count for that socket goes to 0.
+Isn't a GC just for fd[] payloads which will anyway be freed wasteful?  I
+probably am missing something here........ 
+2. Now, other skbs are left as is, what is the need for just the fd[] payload 
+to be freed? Either free all skbs or free none at all no?
+3. If a process does a sendmsg with SCM_RIGHTS payload and the process which
+is supposed to do do recvmsg dies, will the payload fd[] f_count not hang 
+around for ever? Only the fds which are unix sockets will have their skbs having
+fd[] load cleaned up.  All struct (file)s of the payload remain....  
 
-to create a -V0.7.20 tree from scratch, the patching order is:
+Appreciate if someone can answer the above/point out gaps in my understanding.
 
-  http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.9.tar.bz2
-  http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.10-rc1.bz2
-  http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10-rc1/2.6.10-rc1-mm3/2.6.10-rc1-mm3.bz2
-  http://redhat.com/~mingo/realtime-preempt/realtime-preempt-2.6.10-rc1-mm3-V0.7.20
+Thanks,
+Kiran
 
-	Ingo

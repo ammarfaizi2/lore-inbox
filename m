@@ -1,67 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263172AbTJaKho (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Oct 2003 05:37:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263181AbTJaKho
+	id S263185AbTJaKqd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Oct 2003 05:46:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263189AbTJaKqd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Oct 2003 05:37:44 -0500
-Received: from gort.metaparadigm.com ([203.117.131.12]:43199 "EHLO
-	gort.metaparadigm.com") by vger.kernel.org with ESMTP
-	id S263172AbTJaKhk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Oct 2003 05:37:40 -0500
-Message-ID: <3FA23B77.5040804@metaparadigm.com>
-Date: Fri, 31 Oct 2003 18:37:43 +0800
-From: Michael Clark <michael@metaparadigm.com>
-Organization: Metaparadigm Pte Ltd
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031024 Debian/1.5-2
-X-Accept-Language: en
+	Fri, 31 Oct 2003 05:46:33 -0500
+Received: from imap.gmx.net ([213.165.64.20]:36498 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263185AbTJaKqb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Oct 2003 05:46:31 -0500
+Date: Fri, 31 Oct 2003 11:46:31 +0100 (MET)
+From: "Mario Ohnewald" <mario.Ohnewald@gmx.de>
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: Russell King <rmk+lkml@arm.linux.org.uk>, greg@kroah.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6.0-test9 Fix oops in quirk_via_bridge
-References: <3FA22E6F.8000404@metaparadigm.com> <20031031094946.A4556@flint.arm.linux.org.uk> <3FA2324F.20801@metaparadigm.com> <20031031100043.B4556@flint.arm.linux.org.uk>
-In-Reply-To: <20031031100043.B4556@flint.arm.linux.org.uk>
-Content-Type: multipart/mixed;
- boundary="------------090807040309000205000607"
+Subject: Swap usage
+X-Priority: 3 (Normal)
+X-Authenticated: #929500
+Message-ID: <1377.1067597191@www53.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090807040309000205000607
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Hello!
+I am running Kernel 2.4.21 on a unstable Debian box. I have included my IDE
+Chipset driver
+I have just ONE game server on it and do not use that box very much,
+although, it uses its swap space for some reasons.
 
-On 10/31/03 18:00, Russell King wrote:
-> On Fri, Oct 31, 2003 at 05:58:39PM +0800, Michael Clark wrote:
-> 
-> Your fix looks 99% correct, except for the "__devinitdata" part - if
-> you drop this and resubmit the patch, I'm sure gregkh will take it.
+load average: 0.00, 0.01, 0.00
+Mem:    249136k total,   153572k used,    95564k free,    23636k buffers
+Swap:   512024k total,   143652k used,   368372k free,    24500k cached
 
-Cool. dropped __devinitdata, tested and works. Now I can suspend
-and resume then insert my ieee1394 cardbus controller with no oops.
+# hdparm -t /dev/hda
+/dev/hda:
+ Timing buffered disk reads:  150 MB in  3.01 seconds =  49.83 MB/sec
 
-~mc
+How can i find out why it is using so much swap, and how can i prevent it
+form doing so? 
+This swap usage makes my box very slow.
 
-
---------------090807040309000205000607
-Content-Type: text/plain;
- name="fix_via_quirk2.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="fix_via_quirk2.patch"
-
---- linux-2.6.0-test9/drivers/pci/quirks.c	2003-10-31 16:49:25.000000000 +0800
-+++ linux-2.6.0-test9-mc/drivers/pci/quirks.c	2003-10-31 18:27:41.000000000 +0800
-@@ -646,7 +646,7 @@
-  
- int interrupt_line_quirk;
- 
--static void __init quirk_via_bridge(struct pci_dev *pdev)
-+static void __devinit quirk_via_bridge(struct pci_dev *pdev)
- {
- 	if(pdev->devfn == 0)
- 		interrupt_line_quirk = 1;
+Cheers, Mario
 
 
---------------090807040309000205000607--
+
+-- 
+NEU FÜR ALLE - GMX MediaCenter - für Fotos, Musik, Dateien...
+Fotoalbum, File Sharing, MMS, Multimedia-Gruß, GMX FotoService
+
+Jetzt kostenlos anmelden unter http://www.gmx.net
+
++++ GMX - die erste Adresse für Mail, Message, More! +++
 

@@ -1,39 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261229AbTIKLay (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 07:30:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261231AbTIKLay
+	id S261216AbTIKL0j (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 07:26:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261219AbTIKL0j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 07:30:54 -0400
-Received: from boss.staszic.waw.pl ([195.205.163.66]:17844 "EHLO
-	boss.staszic.waw.pl") by vger.kernel.org with ESMTP id S261229AbTIKLar
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 07:30:47 -0400
-From: Marek Szyprowski <march@staszic.waw.pl>
-To: linux-kernel@vger.kernel.org
-Date: Thu, 11 Sep 2003 13:26:43 +0100
-Message-ID: <yam9384.2177.1200381112@boss.staszic.waw.pl>
-X-Mailer: YAM 2.4p1 [040] AmigaOS E-mail Client (c) 2000-2003 by YAM Open Source Team - http://www.yam.ch/
-Subject: [PATCH] ASFS filesystem patch, kernel 2.4.21
+	Thu, 11 Sep 2003 07:26:39 -0400
+Received: from mail.skjellin.no ([80.239.42.67]:19666 "HELO mail.skjellin.no")
+	by vger.kernel.org with SMTP id S261216AbTIKL0i (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Sep 2003 07:26:38 -0400
+Message-ID: <3F605BF2.7030001@tomt.net>
+Date: Thu, 11 Sep 2003 13:26:42 +0200
+From: Andre Tomt <andre@tomt.net>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5b) Gecko/20030820 Mozilla Thunderbird/0.2a
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+To: Eric Bickle <ebickle@healthspace.ca>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Problem: IDE data corruption with VIA chipsets on 2.4.20-19.8+others
+References: <003601c37826$26d8d220$5d74ad8e@hyperwolf>
+In-Reply-To: <003601c37826$26d8d220$5d74ad8e@hyperwolf>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Eric Bickle wrote:
+> The core issue:
+> ----------------
+> Random crashes, general operating system instability with a RedHat 8 Linux
+> install running a moderately heavy-use database server (IBM Lotus Domino 5
+> or 6). All current indications point to a data
+> corruption/ide-incompatibility between the linux IDE driver and various VIA
+> chipsets. The problem only occurs during heavy database server load.
+<snip long story>
 
-This patch adds read-only support for Amiga SmartFileSystem. This filesystem
-is being used very commonly on AmigaOS and MorphOS systems. This patch has
-been tested on Linux/PPC, Linux/m68k and Linux/x86 machines. This patch is
-prepared for kernel 2.4.21.
+If I didn't misread your story, the other common issue is Red Hat's 
+kernel, wich is heavily patched with several good (and not so good) 
+patches. You may have better luck with mainline 2.4.22 (kernel.org).
 
-The patch is available on
-http://www.staszic.waw.pl/~march/asfs/asfs-0.6_patch_2.4.21.diff
-(because of the size, it has over 1000 lines).
+In any case Red Hat kernel problems should probably be reported to Red 
+Hat, their bugzilla comes to mind.
 
-Regards
 -- 
-Marek Szyprowski .. GG:2309080 .. mailto:marek@amiga.pl ..
-...... happy AmigaOS, MacOS and Debian/Linux user ........
-........... http://march.home.staszic.waw.pl/ ............
+Cheers,
+André Tomt
+andre@tomt.net
 

@@ -1,59 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262028AbUBWWD1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 17:03:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262056AbUBWWD1
+	id S262003AbUBWWAb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 17:00:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262028AbUBWWAb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 17:03:27 -0500
-Received: from fw.osdl.org ([65.172.181.6]:49801 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262028AbUBWWDZ (ORCPT
+	Mon, 23 Feb 2004 17:00:31 -0500
+Received: from mtvcafw.SGI.COM ([192.48.171.6]:4248 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id S262003AbUBWWA3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 17:03:25 -0500
-Date: Mon, 23 Feb 2004 14:08:40 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: "David S. Miller" <davem@redhat.com>
-cc: riel@redhat.com, herbert@13thfloor.at, mikpe@csd.uu.se,
-       linux-kernel@vger.kernel.org
-Subject: Re: Intel vs AMD x86-64
-In-Reply-To: <20040223134853.5947a414.davem@redhat.com>
-Message-ID: <Pine.LNX.4.58.0402231359280.3005@ppc970.osdl.org>
-References: <Pine.LNX.4.44.0402231625220.9708-100000@chimarrao.boston.redhat.com>
- <Pine.LNX.4.58.0402231335430.3005@ppc970.osdl.org> <20040223134853.5947a414.davem@redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 23 Feb 2004 17:00:29 -0500
+Date: Mon, 23 Feb 2004 14:00:27 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Hansjoerg Lipp <hjlipp@web.de>
+Cc: jamie@shareable.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Linux 2.6: shebang handling in fs/binfmt_script.c
+Message-Id: <20040223140027.5c035157.pj@sgi.com>
+In-Reply-To: <20040223202524.GC13914@hobbes>
+References: <20040216133418.GA4399@hobbes>
+	<20040222020911.2c8ea5c6.pj@sgi.com>
+	<20040222155410.GA3051@hobbes>
+	<20040222125312.11749dfd.pj@sgi.com>
+	<20040222225750.GA27402@mail.shareable.org>
+	<20040222214457.6f8d2224.pj@sgi.com>
+	<20040223202524.GC13914@hobbes>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hansjoerg wrote:
+> I still don't understand your argument... If there is a shell having
+> those problems, nobody would use something like
 
+I will acknowledge that while one _could_ code a shell so that your
+proposed change would break it, it would be a stupid, silly and ugly
+way to code a shell.
 
-On Mon, 23 Feb 2004, David S. Miller wrote:
-> 
-> You mean the PCI controller is in the CPU, else how else would you
-> accomplish this?
+That is, one _could_ code a shell to say:
 
-The IOMMU basically needs to be on the northbridge or at least in between
-the PCI bus an a northbridge (pretty much by definition: the bridge
-between IO and memory). On an Opteron, that's on-the-chip. For current
-Intel chips that's a separate chip.
+ 1) If argv[1] starts with a '-', consume and handle as an option
+    (or possibly as a space separated list of options).
+ 2) Presume the next argument, if any, is a shell script file.
 
-In fact, I _think_ you could actually use the AGP bridge as a strange
-IOMMU. Of course, right now their AGP bridges are all 32-bit limited
-anyway, but the point being that they at least in theory would seem to
-have the capability to do this.
+I would be surprised if any of the major shells are coded this way.
 
-> Really, not having an IOMMU on a 64-bit platform these days is basically like
-> pulling out one's toenails with an ice pick.
-
-Well, as long as they had that "64-bit is server" mentality, they can 
-honestly say that you just have to use 64-bit-capable PCI cards.
-
-Now, the "server only" mentality is obviously crap, but since we haven't
-even seen the chipsets designed for the 64-bit chips, we shouldn't
-complain. At least yet.
-
-Now, I'm not above complaining about Intel (in fact, the Intel people seem
-to often think I hate them because I'm apparently the only person who gets
-quoted who complains about bad decisions publicly), but at least I try to
-avoid complaining before-the-fact ;)
-
-			Linus
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

@@ -1,64 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270643AbUJUKUD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270657AbUJUKQN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270643AbUJUKUD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 06:20:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270378AbUJUKSJ
+	id S270657AbUJUKQN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 06:16:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270650AbUJUKON
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 06:18:09 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:14997 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S270384AbUJUKRa (ORCPT
+	Thu, 21 Oct 2004 06:14:13 -0400
+Received: from vana.vc.cvut.cz ([147.32.240.58]:24960 "EHLO vana.vc.cvut.cz")
+	by vger.kernel.org with ESMTP id S270629AbUJUKNO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 06:17:30 -0400
-Date: Thu, 21 Oct 2004 12:18:21 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Jens Axboe <axboe@suse.de>
-Cc: Thomas Gleixner <tglx@linutronix.de>, Rui Nuno Capela <rncbc@rncbc.org>,
-       LKML <linux-kernel@vger.kernel.org>, Lee Revell <rlrevell@joe-job.com>,
-       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U8
-Message-ID: <20041021101821.GB473@elte.hu>
-References: <20041016153344.GA16766@elte.hu> <20041018145008.GA25707@elte.hu> <20041019124605.GA28896@elte.hu> <20041019180059.GA23113@elte.hu> <20041020094508.GA29080@elte.hu> <30690.195.245.190.93.1098349976.squirrel@195.245.190.93> <1098350190.26758.24.camel@thomas> <20041021095344.GA10531@suse.de> <1098352441.26758.30.camel@thomas> <20041021101103.GC10531@suse.de>
+	Thu, 21 Oct 2004 06:13:14 -0400
+Date: Thu, 21 Oct 2004 12:13:13 +0200
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+To: linux-kernel@vger.kernel.org
+Subject: NPTL: Parent thread receives SIGHUP when child thread terminates?
+Message-ID: <20041021101313.GA19246@vana.vc.cvut.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041021101103.GC10531@suse.de>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
+  one friend noticed that multithreaded programs (VMware...) behave erraticaly 
+when started from rxvt or xterm with -e option.  We've traced it down to some 
+strange SIGHUP delivery.
 
-* Jens Axboe <axboe@suse.de> wrote:
+  When process is session leader, is it supposed to receive SIGHUP when child
+thread terminates?  It did not receive SIGHUP under non-NPTL library, and IMHO
+it was correct behavior.  Now all exiting threads cause SIGHUP to be delivered
+to the parent, and parent (I'd say correctly) assumes that connection to the
+program was broken and terminates.
 
-> I didn't look at the USB code, I'm just saying that it's perfectly
-> valid use of a semaphore the pattern you describe (process A holding
-> it, process B releasing it).
+  Probably disassociate_ctty(1) in do_exit() should not be invoked for all
+tsk->signal->leader, but only for those with thread_group_empty() == 1, i.e.
+when this process is really going away ?  Or only for thread group leader?
 
-yes, that is perfectly true, and sorry if we gave you the wrong
-impression.
+					Thanks,
+						Petr Vandrovec
 
-the goal of these patches is to do a semaphore->completion conversion in
-cases where the semaphore was used for completion purposes. It's a bit
-faster and more readable but not a 'bugfix' in any way. (another set of
-patches are converting sleep_on() uses to wait_event*() plus waitqueues
-- those can in fact be considered bugfixes in some cases.)
 
-typically the cases where semaphores are held by one task and released
-by another task happens coincide with this used-for-completion scenario.
 
-[ the different-owner assert that triggers in my PREEMPT_REALTIME tree
-is for completely different reasons and has no impact on upstream at
-all. (It merely means 'Ingo does some weird stuff again, pester him, not
-others'.) ]
 
-	Ingo
+/* Build with:
+gcc -W -Wall -O2 -o testhup testhup.c -lpthread -lutil
+
+vana:~# ./testhup
+Got SIGHUP!
+vana:~# LD_ASSUME_KERNEL=2.4.1 ./testhup
+vana:~#
+
+*/
+
+#include <pthread.h>
+#include <unistd.h>
+#include <signal.h>
+#include <stdio.h>
+#include <fcntl.h>
+#include <pty.h>
+#include <stdlib.h>
+#include <sys/wait.h>
+
+static void sighup(int sig) {
+	printf("Got SIGHUP!\n");
+}
+
+static void* child(void* arg) {
+	return arg;
+}
+
+int main(void) {
+	int master, slave;
+	char name[100];
+
+	openpty(&master, &slave, name, NULL, NULL);
+	if (fork() == 0) {
+		pthread_t pth;
+
+		signal(SIGHUP, sighup);
+
+		/* Become session leader. */
+		if (setsid() == -1) {
+			perror("SetSID");
+			exit(1);
+		}
+		/* Assign controlling terminal. */
+		if (open(name, O_RDWR) == -1) {
+			perror("Open PTY");
+			exit(2);
+		}
+
+		/* In reality code above is xterm/rxvt, code below is an
+                 * innocent MT application execed by xterm/rxvt */
+
+		/* Die with SIGHUP after child thread terminates. */
+		pthread_create(&pth, NULL, child, NULL);
+		pthread_join(pth, NULL);
+		exit(3);
+	} else {
+		wait(NULL);
+	}
+	return 0;
+}
+

@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131562AbRC3R3K>; Fri, 30 Mar 2001 12:29:10 -0500
+	id <S131555AbRC3RTT>; Fri, 30 Mar 2001 12:19:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131573AbRC3R27>; Fri, 30 Mar 2001 12:28:59 -0500
-Received: from mehl.gfz-potsdam.de ([139.17.1.100]:20723 "EHLO
-	mehl.gfz-potsdam.de") by vger.kernel.org with ESMTP
-	id <S131562AbRC3R2r> convert rfc822-to-8bit; Fri, 30 Mar 2001 12:28:47 -0500
-Date: Fri, 30 Mar 2001 19:28:03 +0200
-From: Steffen Grunewald <steffen@gfz-potsdam.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Cool Road Runner
-Message-ID: <20010330192803.J1396@dss19>
-Mail-Followup-To: Steffen Grunewald <steffen>, linux-kernel@vger.kernel.org
-In-Reply-To: <20010330175900.I1396@dss19> <20010330121414.A782@rochester.rr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010330121414.A782@rochester.rr.com>; from gnea@rochester.rr.com on Fri, Mar 30, 2001 at 12:14:14PM -0500
-X-Disclaimer: I don't speak for no one else. And vice versa
-X-Operating-System: SunOS
-Content-Transfer-Encoding: 8BIT
-X-MIME-Autoconverted: from 8bit to quoted-printable by dss19.gfz-potsdam.de id TAA22852
+	id <S131562AbRC3RTK>; Fri, 30 Mar 2001 12:19:10 -0500
+Received: from fmfdns02.fm.intel.com ([132.233.247.11]:58313 "EHLO
+	thalia.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S131555AbRC3RTE>; Fri, 30 Mar 2001 12:19:04 -0500
+Message-ID: <4148FEAAD879D311AC5700A0C969E89006887716@orsmsx35.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: pavel@suse.cz, sfr@canb.auug.org.au, twoller@crystal.cirrus.com,
+   linux-kernel@vger.kernel.org
+Subject: RE: Incorrect mdelay() results on Power Managed Machines x86
+Date: Fri, 30 Mar 2001 09:17:14 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri 2001-03-30 (12:14), Gnea wrote:
-> > http://www.emjembedded.com/products/single/coolroadr.html
+I'm not sure what you mean by well-defined. Do you mean, does it have a
+fixed address? No, it is relocatable. The ACPI driver can find it because
+the base address is specified in the ACPI tables. After the ACPI driver is
+loaded the driver could export a pmtimer read function. This is great except
+that anything before ACPI load would be out of luck.
+
+After reading a chipset datasheet (in this case for the ICH-2M) both the
+8254 timers and the PM timer are driven off a 14.31818 MHz clock input - the
+PM timer is that divided by 4 and the 8254 is that divided by 12.
+
+Is there any way we could use the 8254 timer for a reliable udelay? Not as
+accurate, but no ACPI dependency.
+
+Regards -- Andy
+
+> From: Alan Cox [mailto:alan@lxorguk.ukuu.org.uk]
+> > I know on ACPI systems you are guaranteed a PM timer 
+> running at ~3.57 Mhz.
+> > Could udelay use that, or are there other timers that are 
+> better (maybe
+> > without the ACPI dependency)? 
 > 
-> well looking at that page, there's a linux link to
-> http://www.whitedwarflinux.org which looks like a distro specific to
-> this board...
-
-Did look there, but they seem to have stopped at 2.2.14, too.
-Sent a mail to them,. let's see...
-
-Thanks, and enjoy the weekend
-
-Steffen
--- 
- Steffen Grunewald | GFZ | PB 2.2 | Telegrafenberg E3 | D-14473 Potsdam
- » email: steffen(at)gfz-potsdam.de | fax/fon: +49-331-288-1266/-1245 «
-               Swim nude. Sharks hate to peel their food.
+> We could use that if ACPI was present. It might be worth 
+> exploring. Is this
+> PM timer well defined for accesses  ?

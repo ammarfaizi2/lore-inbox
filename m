@@ -1,116 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263837AbUDNAmI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Apr 2004 20:42:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263842AbUDNAmI
+	id S263731AbUDNAqA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Apr 2004 20:46:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263834AbUDNAqA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Apr 2004 20:42:08 -0400
-Received: from pileup.ihatent.com ([217.13.24.22]:49609 "EHLO
-	pileup.ihatent.com") by vger.kernel.org with ESMTP id S263837AbUDNAlp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Apr 2004 20:41:45 -0400
-To: Josh Logan <josh@wcug.wwu.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel hang on MX server
-References: <Pine.LNX.4.58.0404131648480.27502@sloth.wcug.wwu.edu>
-From: Alexander Hoogerhuis <alexh@boxed.no>
-Date: Wed, 14 Apr 2004 02:41:23 +0200
-In-Reply-To: <Pine.LNX.4.58.0404131648480.27502@sloth.wcug.wwu.edu> (Josh
- Logan's message of "Tue, 13 Apr 2004 17:14:23 -0700 (PDT)")
-Message-ID: <87r7ur5r2k.fsf@dorker.boxed.no>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 13 Apr 2004 20:46:00 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:50099 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263731AbUDNAp4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Apr 2004 20:45:56 -0400
+Subject: [PATCH 0/4] ext3 block reservation patch set
+From: Mingming Cao <cmm@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: tytso@mit.edu, pbadari@us.ibm.com, linux-kernel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net
+In-Reply-To: <20040402185007.7d41e1a2.akpm@osdl.org>
+References: <200403190846.56955.pbadari@us.ibm.com>
+	<20040321015746.14b3c0dc.akpm@osdl.org>
+	<1080636930.3548.4549.camel@localhost.localdomain>
+	<20040330014523.6a368a69.akpm@osdl.org>
+	<1080956712.15980.6505.camel@localhost.localdomain>
+	<20040402175049.20b10864.akpm@osdl.org>
+	<1080959870.3548.6555.camel@localhost.localdomain> 
+	<20040402185007.7d41e1a2.akpm@osdl.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 13 Apr 2004 17:52:26 -0700
+Message-Id: <1081903949.3548.6837.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have two HP DL360G3's running a very identical load on Gentoo, both
-go into doorstop-emulation mode on 2.6.5-mm1 and higher -mm-kernels
-withing 24 of running with very low load. I use hardware RAID, and
-ha've SCSI, but otherwise its ServerWorks chipsets and ext3.
+Hello,
 
-I've only caught them a few times in seeing the actual oops; at other
-times it's happened with a blanked console, but the few I've seen have
-been dying while handling an interrupt, and also, the tg3-driver have
-figured prominently in the stack trace. 
+Here is a set of patches which implement the in-memory ext3 block
+reservation (previously called reservation based ext3 preallocation). 
 
-If anyone have have a good idea on how to capture an oops that
-instantly freezes the machine, then I'll go through and capture it
-again; but for now I'm down on 2.6.3-mm3 and running solidly.
+[patch 1]ext3_rsv_cleanup.patch: Cleans up the old ext3 preallocation
+code carried from ext2 but turned off.
 
-mvh,
-A
+[patch 2]ext3_rsv_base.patch: Implements the base of in-memory block
+reservation and block allocation from reservation window.
 
-Josh Logan <josh@wcug.wwu.edu> writes:
+[patch 3]ext3_rsv_mount.patch: Adds features on top of the
+ext3_rsv_base.patch: 
+	- deal with earlier bogus -ENOSPC error
+	- do block reservation only for regular file 
+	- make the ext3 reservation feature as a mount option:
+		new mount option added: reservation
+	- A pair of file ioctl commands are added for application to 	control
+the block reservation window size.
 
-> I have 2 IBM x305's which hang every few days in identical ways.  Both are
-> running postfix (with amavis-new, spamassassin and clamav from
-> backports.org) and bind9.  They are running debian stable.
->
-> The IDE controler is: ServerWorks CSB5 IDE
-> The Kernel is 2.6.4
-> I have tried 2.4 kernels with ext3.  I have also tried 2.6.4 kernels with
-> ext3, jfs, and xfs, but all three FS show the same errors.
-> Currently trying ext2 on one of the machines.
->
-> The systems is running software raid1 between both hard drives.
-> /dev/hda1 and /dev/hdc1 make up md0 which is mount on /
-> /dev/hda3 and /dev/hdc3 make up md1 which used LVM to make /usr /home /var
-> and /var/spool/postfix
->
-> I have also tried mount --bind /postfix /var/spool/postfix to take LVM out
-> of the picture.  That did not help.  I have not tried to break the mirror
-> and only use 1 IDE drive.
->
-> Please see the attached files for better formating, and all of the
-> running commands.
->
-> The following processes are in uninterruptible sleep (usually IO) via ps:
-> root@ares:~# ps axln | grep D
-> F   UID   PID  PPID PRI  NI   VSZ  RSS  WCHAN STAT TTY        TIME COMMAND
-> 1     0   103     1  15   0     0    0 11e11e D    ?          0:07
-> [kjournald]
-> 1     0   248     1  15   0     0    0 11e11e D    ?          0:04
-> [kjournald]
-> 5     0   332     1  15   0  1432  672 86e7cf Ds   ?          0:24
-> /sbin/syslogd
-> 4   102  9574  9572  16   0  2596 1176 109ea5 D    ?          0:24 qmgr -l
-> -t fifo -u -c
-> 4   102 26473  9572  17   0  2544 1112 86e7cf D    ?          0:00 cleanup
-> -z -n pre-cleanup -t unix -u -c -o virtual_alias_maps  -o canonical_maps
-> -o sender_canonical_maps  -o recipient_canonical_maps  -o masquerade_domains
-> 4   102 26509  9572  16   0  2464 1020 109ea5 D    ?          0:00 showq
-> -t unix -u -c
->
-> Decoding the WCHAN:
-> 11e11e ->
-> c011e0f4 T yield
-> c011e110 T io_schedule
-> c011e128 T io_schedule_timeout
-> c011e144 T sys_sched_get_priority_max
->
->
-> 86e7cf ->
-> not in System.map, but PS gave: log_wait_commit
->
->
-> 109ea5 ->
-> c0109df4 t __check_printsym_format
-> c0109e00 T __up
-> c0109e18 T __down
-> c0109f24 T __down_interruptible
->
-> Where PS was run as:
-> ps -o pid,nwchan,wchan=WIDE-WCHAN-COLUMN -o comm -o state axf
->
->
-> I'll happily provide more information, but not sure what to try next.
-> Looks like it may be a driver issue, blocking IO writes to the drives.
->
-> 							Later, JOSH
->
+[patch 4]ext3_rsv_dw.patch: adjust the reservation window size
+dynamically:
+	Start from the deault reservation window size, if the hit ration 	of
+the reservation window is more than 50%, we will double the 	reservation
+window size next time up to a certain upper limit.
 
--- 
-Alexander Hoogerhuis                               | alexh@boxed.no
-CCNP - CCDP - MCNE - CCSE                          | +47 908 21 485
-"You have zero privacy anyway. Get over it."  --Scott McNealy
+Here are some numbers collected on dbench on 8 way PIII 700Mhz:
+
+      dbench average throughputs on 4 runs
+==================================================
+Threads ext3    ext3+rsv(8)             ext3+rsv+dw
+1       103     104(0%)                 105(1%)
+4       144     286(98%)                256(77%)
+8       118     197(66%)                210(77%)
+16      113     160(41%)                177(56%)
+32      61      123(101%)               150(145%)
+64      41      82(100%)                85(107%)
+
+And some numbers on tiobench sequential write: 
+
+            tiobench Sequential Writes throughputs(improvments)
+=====================================================================
+Threads ext2  ext3  ext3+rsv(8)(%)  ext3+rsv(128)(%)   ext3+rsv+dw(%)
+1       26      23      25(8%)      26(13%)            26(13%)
+4       17      4       14(250%)    24(500%)           25(525%)
+8       15      7       13(85%)     23(228%)           24(242%)
+16      16      13      12(-7%)     22(69%)            24(84%)
+32      15      3       12(300%)    23(666%)           23(666%)
+64      14      1       11(1000%)   22(2100%)          23(2200%)
+
+Note each time we run the test on a fresh created ext3 filesystem.
+
+We have also run fsx tests on a 8 way on 2.6.4 kernel with the patch set
+for a whole weekend on fresh created ext3 filesystem, as well as on a 4
+way with the root filesystem as ext3 plus all the changes. Other tests
+include 8 threads dd tests and untar a kernel source tree. 
+
+Besides look at the performance numbers and verify the functionality, we
+also checked the block allocation layout for each file generated during
+the test: the blocks for a file are more contiguous with the reservation
+mount option on, especially when we dynamically increase the reservation
+window size in the sequential write cases.
+
+Andrew, is this something that you would consider for -mm tree?
+
+Thanks again for Andrew, Ted and Badari's ideas and helps on this
+project. I would really appreciate any comments and feedbacks.
+
+
+Mingming
+
+

@@ -1,35 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267786AbRGZN2f>; Thu, 26 Jul 2001 09:28:35 -0400
+	id <S267951AbRGZNdz>; Thu, 26 Jul 2001 09:33:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267951AbRGZN2W>; Thu, 26 Jul 2001 09:28:22 -0400
-Received: from t2.redhat.com ([199.183.24.243]:10226 "HELO
-	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
-	id <S267786AbRGZN2D>; Thu, 26 Jul 2001 09:28:03 -0400
-To: "Brian J. Watson" <Brian.J.Watson@compaq.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG 2.4.7] enabling RWSEM_DEBUG 
-In-Reply-To: Your message of "Wed, 25 Jul 2001 10:56:41 PDT."
-             <3B5F0859.94557FF5@compaq.com> 
-Date: Thu, 26 Jul 2001 14:28:09 +0100
-Message-ID: <26413.996154089@warthog.cambridge.redhat.com>
-From: David Howells <dhowells@redhat.com>
+	id <S267961AbRGZNdq>; Thu, 26 Jul 2001 09:33:46 -0400
+Received: from charybda.fi.muni.cz ([147.251.48.214]:12038 "HELO
+	charybda.fi.muni.cz") by vger.kernel.org with SMTP
+	id <S267951AbRGZNda>; Thu, 26 Jul 2001 09:33:30 -0400
+From: Jan Kasprzak <kas@informatics.muni.cz>
+Date: Thu, 26 Jul 2001 15:33:34 +0200
+To: craig.schlenter@freemail.absa.co.za
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Fwd: Linux 2.4 networking/routing slowdown]
+Message-ID: <20010726153334.M1024@informatics.muni.cz>
+In-Reply-To: <3B600EAD.3F8F9A70@isg.de> <3B6010EC.B7428A0D@isg.de> <20010726145442.K1024@informatics.muni.cz> <20010726152322.A1339@codefountain.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010726152322.A1339@codefountain.com>; from craig.schlenter@freemail.absa.co.za on Thu, Jul 26, 2001 at 03:23:22PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
+[Cc'd linux-kernel as well, maybe this can help someone]
 
-> Unfortunately, I ran into a bug with enabling RWSEM_DEBUG. The bug still
-> exists in 2.4.7.
+craig.schlenter@freemail.absa.co.za wrote:
+: Are you sure the network cards are running at full speed - perhaps
+: something has decided to run at half duplex or whatever due to a network
+: driver change ... how about putting the box on the network without
+: having it do any routing and just doing a couple of ftp's to other local
+: machines to check the speeds with 2.2 and 2.4 kernels, testing all the cards
+: involved ...
 
-It's because you've got CONFIG_MODVERSIONS=y set. This causes the following to
-be emitted and automatically included:
+	The NICs on firewall are set up to 100baseTX-FD using /sbin/mii-tool
+(and in 2.2. kernel, they are hardcoded to 100baseTX-FD via the boot
+parameters).
 
-	[include/linux/modules/rwsem.ver]
-	#define __ver_rwsemtrace	smp_8447b3cd
-	#define rwsemtrace	_set_ver(rwsemtrace)
+	The FTP from firewall to our FTP server (which is connected to the
+same switch - Cisco Catalyst 2900) is slow as well (I tried to
+get /pub/FILES.byname /dev/null).
 
-This then causes the #ifndef rwsemtrace in fail, and thus not to include an
-actual declaration of the rwsemtrace function.
+-Y.
 
-David
+-- 
+\ Jan "Yenya" Kasprzak <kas at fi.muni.cz>       http://www.fi.muni.cz/~kas/
+\\ PGP: finger kas at aisa.fi.muni.cz   0D99A7FB206605D7 8B35FCDE05B18A5E //
+\\\             Czech Linux Homepage:  http://www.linux.cz/              ///
+--Just returned after being 10 days off-line. Sorry for the delayed reply.--

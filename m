@@ -1,64 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291327AbSBMDp3>; Tue, 12 Feb 2002 22:45:29 -0500
+	id <S291323AbSBMDk7>; Tue, 12 Feb 2002 22:40:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291329AbSBMDpT>; Tue, 12 Feb 2002 22:45:19 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:28935 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S291327AbSBMDpK>; Tue, 12 Feb 2002 22:45:10 -0500
-Date: Tue, 12 Feb 2002 22:42:59 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Andrew Morton <akpm@zip.com.au>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Rik van Riel <riel@conectiva.com.br>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] sys_sync livelock fix
-In-Reply-To: <3C69B5D7.CFF9E8EA@zip.com.au>
-Message-ID: <Pine.LNX.3.96.1020212223440.8017B-100000@gatekeeper.tmr.com>
+	id <S291325AbSBMDkk>; Tue, 12 Feb 2002 22:40:40 -0500
+Received: from 216-99-213-120.dsl.aracnet.com ([216.99.213.120]:50444 "EHLO
+	clueserver.org") by vger.kernel.org with ESMTP id <S291323AbSBMDki>;
+	Tue, 12 Feb 2002 22:40:38 -0500
+Message-Id: <200202130456.g1D4u5L21909@clueserver.org>
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Alan <alan@clueserver.org>
+Reply-To: alan@clueserver.org
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.4 sound module problem
+Date: Tue, 12 Feb 2002 18:22:09 -0800
+X-Mailer: KMail [version 1.3.1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 12 Feb 2002, Andrew Morton wrote:
+I checked the last few days of the kernel list, but did not find this 
+problem. (Found the other compile problem (in more ways than one) though.)
 
-> Alan Cox wrote:
-> > 
-> > > I don't see why it should be different for applications
-> > > that write data after sync has started.
-> > 
-> > The guarantee about data written _before_ the sync started is also being
-> > broken unless I misread the code
-> 
-> That would be very broken.
-> 
-> The theory is: newly dirtied buffers are added at the "new"
-> end of the LRU.  write_some_buffers() starts at the "old"
-> end of the LRU.
-> 
-> So if write_unlock_buffers writes out the "oldest"
-> nr_buffers_type[BUF_DIRTY] buffers, then it knows
-> that it has written out everything which was dirty
-> at the time it was called.
-> 
-> Or did I miss something?
+Everything seems to compile correctly, but I get the following error message 
+on "make modules_install".
 
-Alan is right about the first version of the patch not getting all dirty
-buffers I haven't looked at the latest version but the change seems to be
-correct. Other than that I agree that "everything which was dirty at the
-time it was called" is exactly right, what the user expects and what the
-SuS says.
+depmod: *** Unresolved symbols in 
+/lib/modules/2.5.4/kernel/drivers/sound/sound.o
+depmod: 	virt_to_bus_not_defined_use_pci_map
 
-However, after thinksing about the SuS, it says (paraphrase) "queued but
-not necessarily written." So if I read that right sync() is intended to be
-a non-blocking operation. We can do that, but there is one thing which
-must be added: with all the various patches which hack the elevator code,
-we need a flag which says "do not add anything more to this pass." That
-makes the SuS implementation of sync() possible, and makes the completion
-of the operation deterministic. When all the dirty blocks are written the
-operation is done.
+Something is not right.  Had not seen that message though...
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+I get the same error if I build modules for PCMCIA drivers for aerotech cards 
+and probably more.
 
+Anyone have a quick idea what is wrong?  I can provide more info if this is 
+new. (Which i doubt...)

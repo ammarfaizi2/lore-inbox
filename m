@@ -1,61 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262279AbUG2Tcd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264704AbUG2Tg1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262279AbUG2Tcd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 15:32:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263980AbUG2Tcd
+	id S264704AbUG2Tg1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 15:36:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264542AbUG2Tg1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 15:32:33 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:48772 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262279AbUG2TcV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 15:32:21 -0400
-Date: Thu, 29 Jul 2004 21:33:41 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Scott Wood <scott@timesys.com>
-Cc: linux-kernel@vger.kernel.org, "La Monte H.P. Yarroll" <piggy@timesys.com>,
-       Manas Saksena <manas.saksena@timesys.com>
-Subject: Re: [patch] IRQ threads
-Message-ID: <20040729193341.GA27057@elte.hu>
-References: <20040727225040.GA4370@yoda.timesys> <20040728081005.GA20100@elte.hu> <20040728231241.GE6685@yoda.timesys>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040728231241.GE6685@yoda.timesys>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Thu, 29 Jul 2004 15:36:27 -0400
+Received: from mail.convergence.de ([212.84.236.4]:24461 "EHLO
+	mail.convergence.de") by vger.kernel.org with ESMTP id S265027AbUG2Tf7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jul 2004 15:35:59 -0400
+Message-ID: <4109519A.1000201@convergence.de>
+Date: Thu, 29 Jul 2004 21:35:54 +0200
+From: Michael Hunold <hunold@convergence.de>
+User-Agent: Mozilla Thunderbird 0.7 (X11/20040615)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Johannes Stezenbach <js@convergence.de>
+CC: viro@parcelfarce.linux.theplanet.co.uk, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8-rc2-mm1
+References: <20040728020444.4dca7e23.akpm@osdl.org> <20040728222455.GC5878@convergence.de> <20040728224423.GJ12308@parcelfarce.linux.theplanet.co.uk> <20040728232453.GA6377@convergence.de>
+In-Reply-To: <20040728232453.GA6377@convergence.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-* Scott Wood <scott@timesys.com> wrote:
-
-> > Also, why the enable_irq() change? 
+On 07/29/04 01:24, Johannes Stezenbach wrote:
+> On Wed, Jul 28, 2004 at 11:44:23PM +0100, viro@parcelfarce.linux.theplanet.co.uk wrote:
 > 
-> If you mean the do_startup_irq() change, [...]
+>>On Thu, Jul 29, 2004 at 12:24:55AM +0200, Johannes Stezenbach wrote:
+>>
+>>>Signed-off-by: Johannes Stezenbach <js@convergence.de>
+>>>
+>>>--- linux-2.6.8-rc2/drivers/media/dvb/dvb-core/dvb_functions.c.orig	2004-07-29 00:19:50.000000000 +0200
+>>>+++ linux-2.6.8-rc2/drivers/media/dvb/dvb-core/dvb_functions.c	2004-07-29 00:20:05.000000000 +0200
+>>>@@ -36,7 +36,7 @@ int dvb_usercopy(struct inode *inode, st
+>>>         /*  Copy arguments into temp kernel buffer  */
+>>>         switch (_IOC_DIR(cmd)) {
+>>>         case _IOC_NONE:
+>>>-                parg = NULL;
+>>>+                parg = (void *) arg;
+>>
+>>Mind explaining why it is the right thing to do?  You are creating a kernel
+>>pointer out of value passed to you by userland and feed it to a function
+>>that expects a kernel pointer.  Which is an invitation for trouble - if
+>>it ends up dereferenced, we are screwed and won't notice that.
+> 
+> 
+> This is a hack introduced by someone years ago. The "pointer" is
+> actually an integer argument, e.g. in include/linux/dvb/audio.h:
+> 
+> #define AUDIO_SET_MUTE             _IO('o', 6)
+> 
+> actually takes an integer argument (!0 mute, 0 unmute), so one can write
+> 
+> 	if (ioctl(fd, AUDIO_SET_MUTE, 1) == -1)
+> 		perror("mute");
+> 
+> It is unusual (maybe even wrong?), but we cannot change it without
+> losing binary API compatibility. However, I see that sparse might
+> flag this as a possible bug :-(
 
-i mean the change below - why do irqthreads necessiate it?
+Is this convenient trick considered harmful?
+Or is it a creative way of using ioctls?
 
-	Ingo
+We're currently using this stuff in the overhauled DVB v4 API, too. So 
+before we finally establish the DVB v4 API, I'd like to know if this is 
+a no-no.
 
-@@ -395,7 +402,14 @@ void enable_irq(unsigned int irq)
- 			desc->status = status | IRQ_REPLAY;
- 			hw_resend_irq(desc->handler,irq);
- 		}
--		desc->handler->enable(irq);
-+		
-+		/* Don't unmask the IRQ if it's in progress, or else you
-+		   could re-enter the IRQ handler.  As it is now enabled,
-+		   the IRQ will be unmasked when the handler is finished. */
-+		
-+		if (!(desc->status & (IRQ_INPROGRESS | IRQ_THREADRUNNING |
-+		                      IRQ_THREADPENDING)))
-+			desc->handler->enable(irq);
- 		/* fall-through */
- 	}
- 	default:
+Comments?
+
+CU
+Michael.
+

@@ -1,34 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287701AbSAABE1>; Mon, 31 Dec 2001 20:04:27 -0500
+	id <S287704AbSAABWI>; Mon, 31 Dec 2001 20:22:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287708AbSAABET>; Mon, 31 Dec 2001 20:04:19 -0500
-Received: from front1.mail.megapathdsl.net ([66.80.60.31]:8209 "EHLO
-	front1.mail.megapathdsl.net") by vger.kernel.org with ESMTP
-	id <S287701AbSAABEB>; Mon, 31 Dec 2001 20:04:01 -0500
-Subject: Re: 2.4.18-pre1 -- fs/partitions/ibm.c doesn't compile.
-From: Miles Lane <miles@megapathdsl.net>
-To: LKML <linux-kernel@vger.kernel.org>,
-        Holger Smolinski <Holger.Smolinski@de.ibm.com>,
-        Volker Sameske <sameske@de.ibm.com>, Linux390@de.ibm.com
-In-Reply-To: <1009845099.1407.623.camel@stomata.megapathdsl.net>
-In-Reply-To: <1009845099.1407.623.camel@stomata.megapathdsl.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.1.99+cvs.2001.12.29.08.57 (Preview Release)
-Date: 31 Dec 2001 17:04:44 -0800
-Message-Id: <1009847085.1407.691.camel@stomata.megapathdsl.net>
+	id <S287705AbSAABV5>; Mon, 31 Dec 2001 20:21:57 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:47110 "EHLO
+	wire.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S287704AbSAABVu>; Mon, 31 Dec 2001 20:21:50 -0500
+Date: Mon, 31 Dec 2001 19:21:19 -0600
+To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+        Horst von Brand <vonbrand@sleipnir.valparaiso.cl>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+        kbuild-devel@lists.sourceforge.net
+Subject: Re: State of the new config & build system
+Message-ID: <20020101012119.GA1303@cadcamlab.org>
+In-Reply-To: <E16K1fn-0001Ky-00@the-village.bc.nu> <200112312251.fBVMpNws032221@sleipnir.valparaiso.cl> <20011231205552.A17089@conectiva.com.br>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011231205552.A17089@conectiva.com.br>
+User-Agent: Mutt/1.3.24i
+From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hmm.  My apologies.  I was testing CML2 when I encountered this
-problem.  When I removed CML2 and ran make oldconfig, I didn't
-see IBM Partition offered as a configuration option.  So, I expect
-that this is a CML2 problem.
+    [Alan Cox]
+> > > 	find $TOPDIR -name "*.cf" -exec cat {} \; > Configure.help 
 
-I'll follow up with Eric S. Raymond.
+  [Horst von Brand]
+> >      cat `find $TOPDIR -name "*.cf"` > Configure.help #;-)
 
-	Miles
+[Arnaldo Carvalho de Melo]
+> whatever is faster, do you have trustable benchmark numbers? ;)
 
+Fewer forks vs. increased parallelism ... depends on the nature of your
+bottlenecks, I guess, and cold vs. hot cache.  Or you could have it
+both ways:
+
+	find $TOPDIR -name \*.cf | xargs -n10 cat > Configure.help
+
+...where 10 is tuned by benchmarking. (:
+
+> Yes, its a joke, have a nice 2002 all!
+
+Yeah, same from me..
+
+Peter

@@ -1,35 +1,33 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316245AbSEQOh5>; Fri, 17 May 2002 10:37:57 -0400
+	id <S316248AbSEQOkm>; Fri, 17 May 2002 10:40:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316248AbSEQOhQ>; Fri, 17 May 2002 10:37:16 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:14348 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S316247AbSEQOgZ>; Fri, 17 May 2002 10:36:25 -0400
-Subject: Re: Dell Inspiron i8100 with 2 batteries
-To: rutt@chezrutt.com
-Date: Fri, 17 May 2002 15:56:16 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <15589.4802.37068.931146@localhost.localdomain> from "John Ruttenberg" at May 17, 2002 10:25:06 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S316247AbSEQOj6>; Fri, 17 May 2002 10:39:58 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:24733 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S316252AbSEQOjs>;
+	Fri, 17 May 2002 10:39:48 -0400
+Date: Fri, 17 May 2002 07:26:25 -0700 (PDT)
+Message-Id: <20020517.072625.29433758.davem@redhat.com>
+To: jgarzik@mandrakesoft.com
+Cc: ink@jurassic.park.msu.ru, andrew.grover@intel.com, mochel@osdl.org,
+        Greg@kroah.com, linux-kernel@vger.kernel.org
+Subject: Re: pci segments/domains
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <3CE514B6.6070302@mandrakesoft.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E178j9U-0006fz-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> of the batteries is less than 50% (according to the bios), then /proc/apm
-> shows the battery power level X 2.  If the combined charge of the batteries is
-> greater than 50%, then /proc/apm shows:
-> 
->     1.16 1.2 0x03 0x01 0xff 0x10 -1% -1 ?
-> 
-> I think this is because the bogus calculation it would make would result in a
-> percentage > 100.
-> 
-> I took a quick look at arch/i386/kernel/apm.c but it wasn't obvious what to
-> do.
+   From: Jeff Garzik <jgarzik@mandrakesoft.com>
+   Date: Fri, 17 May 2002 10:33:26 -0400
 
-The data basically comes from the BIOS as is
+   My main want is cosmetic -- call a spade a spade, so to speak. 
+    s/sysdata/pci_domain/  But doing so opens the door to increased 
+   flexibility.  Later steps can add common members needed by pci-to-pci 
+   IOMMU tricks which are common to most platforms.
+
+Since the name really doesn't matter let's call it struct pci_controller
+since that is what Alpha and Sparc use already :-)

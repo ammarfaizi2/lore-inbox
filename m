@@ -1,39 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265333AbSKOAU4>; Thu, 14 Nov 2002 19:20:56 -0500
+	id <S265385AbSKOAZI>; Thu, 14 Nov 2002 19:25:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265373AbSKOAU4>; Thu, 14 Nov 2002 19:20:56 -0500
-Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:54241 "EHLO
-	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S265333AbSKOAUz>;
-	Thu, 14 Nov 2002 19:20:55 -0500
-Date: Fri, 15 Nov 2002 00:27:30 +0000
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Andi Kleen <ak@suse.de>, John Alvord <jalvo@mbay.net>,
-       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: module mess in -CURRENT
-Message-ID: <20021115002730.GA22547@bjl1.asuk.net>
-References: <p731y5owj0x.fsf@oldwotan.suse.de> <Pine.LNX.4.20.0211140929080.28420-100000@otter.mbay.net> <20021114184049.A28183@wotan.suse.de> <20021114180117.GM31697@dualathlon.random>
+	id <S265400AbSKOAZI>; Thu, 14 Nov 2002 19:25:08 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:44200 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S265385AbSKOAZH>; Thu, 14 Nov 2002 19:25:07 -0500
+Date: Thu, 14 Nov 2002 19:31:56 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Tim Hockin <thockin@sun.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCH 1/2] Remove NGROUPS hardlimit (resend w/o qsort)
+Message-ID: <20021114193156.A2801@devserv.devel.redhat.com>
+References: <mailman.1037316781.6599.linux-kernel2news@redhat.com> <200211150006.gAF06JF01621@devserv.devel.redhat.com> <3DD43C65.80103@sun.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021114180117.GM31697@dualathlon.random>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3DD43C65.80103@sun.com>; from thockin@sun.com on Thu, Nov 14, 2002 at 04:14:29PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli wrote:
-> 1msec still leave a reasonable window open IMHO. this problem would need
-> sequence numbers updated atomically to be solved correctly without
-> regard to the timing
+> Date: Thu, 14 Nov 2002 16:14:29 -0800
+> From: Tim Hockin <thockin@sun.com>
 
-I agree 100% - it would be nice to be correct instead of "usually
-works".
+> > 1. Why are arrays vmalloc-ed? This is a goochism which you have
+> >    to justify.
+> 
+> Because they can be as large as root allows, and when we used kmalloc() 
+> it would actually fail from time to time.
 
-Once you're talking about nanoseconds, you can have both: each time
-you store an mtime, make sure the value is at least 1 nanosecond
-greater than the previously stored mtime for any file in the
-serialisation domain.  If it is not, simply _wait_ for up to a
-nanosecond until the value has advanced enough.
+OK. I think in your case it's probably harmless. I thought
+that two (order 1) 4K pages can hold 2000 4 byte group IDs,
+and that "ought to be enough for anybody". If you envision
+10,000 groups, then perhaps you are right, except that it may
+be about time to think about your data structures a little more.
+I'll let Andi to remind you about the performance impact (vmalloc
+area is outside of the big TLB area).
 
--- Jamie
+> > 2. How do these changes sit with LLNL's changes to increase
+> >    number of groups that NFS client can support? It's not
+> >    a showstopper, but would be nice if you two cooperated.
+> 
+> hmm, I haven't heard anything about them - can you offer an email or URL?
+
+http://www.uwsg.iu.edu/hypermail/linux/kernel/0010.0/0788.html
+
+The sad part is that the patch was around since 2000, but the
+effort to get it in was a little half-hearted, perhaps.
+I am thinking about reviving it.
+
+-- Pete

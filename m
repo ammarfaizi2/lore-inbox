@@ -1,43 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131841AbRCXW3D>; Sat, 24 Mar 2001 17:29:03 -0500
+	id <S131878AbRCXXiB>; Sat, 24 Mar 2001 18:38:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131842AbRCXW2w>; Sat, 24 Mar 2001 17:28:52 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:54033 "HELO
-	postfix.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S131841AbRCXW2e>; Sat, 24 Mar 2001 17:28:34 -0500
-Date: Sat, 24 Mar 2001 19:11:28 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Jonathan Morton <chromi@cyberspace.org>
+	id <S131887AbRCXXhv>; Sat, 24 Mar 2001 18:37:51 -0500
+Received: from zooty.lancs.ac.uk ([148.88.16.231]:14582 "EHLO
+	zooty.lancs.ac.uk") by vger.kernel.org with ESMTP
+	id <S131878AbRCXXhl>; Sat, 24 Mar 2001 18:37:41 -0500
+Message-Id: <l0313031eb6e2dfb37759@[192.168.239.101]>
+In-Reply-To: <Pine.LNX.4.21.0103241910340.1863-100000@imladris.rielhome.conectiva>
+In-Reply-To: <l0313031ab6e2b9537342@[192.168.239.101]>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Date: Sat, 24 Mar 2001 23:36:31 +0000
+To: Rik van Riel <riel@conectiva.com.br>
+From: Jonathan Morton <chromi@cyberspace.org>
+Subject: Re: [PATCH] Prevent OOM from killing init
 Cc: Doug Ledford <dledford@redhat.com>,
         linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Prevent OOM from killing init
-In-Reply-To: <l0313031ab6e2b9537342@[192.168.239.101]>
-Message-ID: <Pine.LNX.4.21.0103241910340.1863-100000@imladris.rielhome.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 24 Mar 2001, Jonathan Morton wrote:
+>>         free = atomic_read(&buffermem_pages);
+>>         free += atomic_read(&page_cache_size);
+>>         free += nr_free_pages();
+>> -       free += nr_swap_pages;
+>
+>> +       /* Since getting swap info is expensive, see if our allocation
+>>can happen in physical RAM */
+>
+>Actually, getting swap info is as cheap as reading the variable
+>nr_swap_pages. I should fix this in the OOM killer ;)
 
->         free = atomic_read(&buffermem_pages);
->         free += atomic_read(&page_cache_size);
->         free += nr_free_pages();
-> -       free += nr_swap_pages;
+Just fixed that for myself (in both places) and about to test.  I'm almost
+sure I actually encountered an error related to this, but I'll retest and
+make sure...
 
-> +       /* Since getting swap info is expensive, see if our allocation can happen in physical RAM */
+--------------------------------------------------------------
+from:     Jonathan "Chromatix" Morton
+mail:     chromi@cyberspace.org  (not for attachments)
+big-mail: chromatix@penguinpowered.com
+uni-mail: j.d.morton@lancaster.ac.uk
 
-Actually, getting swap info is as cheap as reading the variable
-nr_swap_pages. I should fix this in the OOM killer ;)
+The key to knowledge is not to rely on people to teach you it.
 
-regards,
+Get VNC Server for Macintosh from http://www.chromatix.uklinux.net/vnc/
 
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
+-----BEGIN GEEK CODE BLOCK-----
+Version 3.12
+GCS$/E/S dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS
+PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r++ y+(*)
+-----END GEEK CODE BLOCK-----
 
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
 

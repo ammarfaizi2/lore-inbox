@@ -1,48 +1,35 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315225AbSDWO7h>; Tue, 23 Apr 2002 10:59:37 -0400
+	id <S315226AbSDWPAc>; Tue, 23 Apr 2002 11:00:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315228AbSDWO7g>; Tue, 23 Apr 2002 10:59:36 -0400
-Received: from sproxy.gmx.de ([213.165.64.20]:39085 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S315225AbSDWO7g>;
-	Tue, 23 Apr 2002 10:59:36 -0400
-Date: Tue, 23 Apr 2002 16:57:17 +0200
-From: Sebastian Droege <sebastian.droege@gmx.de>
-To: alsa-devel@alsa-project.org, perex@suse.cz, abramo@alsa-project.org
-Cc: linux-kernel@vger.kernel.org, alsa-user@alsa-project.org
-Subject: Progress of DSP Code for CS46xx?
-Message-Id: <20020423165717.32057fbe.sebastian.droege@gmx.de>
-X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i386-debian-linux-gnu)
+	id <S315228AbSDWPAb>; Tue, 23 Apr 2002 11:00:31 -0400
+Received: from AMontpellier-201-1-4-206.abo.wanadoo.fr ([217.128.205.206]:5564
+	"EHLO awak") by vger.kernel.org with ESMTP id <S315226AbSDWPAa> convert rfc822-to-8bit;
+	Tue, 23 Apr 2002 11:00:30 -0400
+Subject: Re: Adding snapshot capability to Linux
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Alvaro Figueroa <fede2@fuerzag.ulatina.ac.cr>,
+        LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.GSO.4.21.0204231041010.8087-100000@weyl.math.psu.edu>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 23 Apr 2002 16:58:50 +0200
+Message-Id: <1019573931.11011.0.camel@bip>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- boundary="=..Lmm7E,DZEwH6r"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=..Lmm7E,DZEwH6r
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+le mar 23-04-2002 à 16:45, Alexander Viro a écrit :
+> You _can't_ get consistent snapshots without cooperation from fs.  LVM,
+> EVMS, whatever.  Only filesystem knows what IO needs to be pushed to
+> make what we have on device consistent and what IO needs to be held
+> back.  Neither VFS nor device driver do not and can not have such
+> knowledge - it depends both on fs layout and on implementation details.
 
-Hi,
-are there any efforts or is there any progress in updating the CS46xx driver?
-Is someone working on changing the DSP code to support multichannel output and S/PDIF output?
-Is there someone out there who tries to reverse engineer the windows driver to enhance the ALSA driver?
-Or has Cirrus released their specs for the DPS chip (I don't think so :( )?
+I always thought that with a journalled fs, data was always consistent
+on disk - i.e. always in a state where remounting the image (and
+replaying the journal) makes it consistent.
 
-If so I am willing to test and help this person(s) wherever I can.
-I have a Terratec XFire 1024 with CS4624 chipset and want to use multichannel output without a soundserver and S/PDIF output (but this isn't as important as the multichannel output) without buying a new card
-
-Thanks & Bye
---=..Lmm7E,DZEwH6r
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-
-iD8DBQE8xXZWe9FFpVVDScsRAr05AKDrFmnn1AbLuYpj/4k/oII/+LKQDwCgus8H
-sXMatjXOafMYtsmKdGcy7D8=
-=vDAf
------END PGP SIGNATURE-----
-
---=..Lmm7E,DZEwH6r--
 

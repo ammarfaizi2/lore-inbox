@@ -1,41 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263365AbTDYX77 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 19:59:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263869AbTDYX77
+	id S263869AbTDZARm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 20:17:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263993AbTDZARl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 19:59:59 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:27921 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S263365AbTDYX76 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 19:59:58 -0400
-Message-ID: <3EA9CEB2.7090804@zytor.com>
-Date: Fri, 25 Apr 2003 17:11:30 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-Organization: Zytor Communications
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en, sv
+	Fri, 25 Apr 2003 20:17:41 -0400
+Received: from dci.doncaster.on.ca ([66.11.168.194]:32451 "EHLO smtp.istop.com")
+	by vger.kernel.org with ESMTP id S263869AbTDZARl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Apr 2003 20:17:41 -0400
+Message-ID: <3EA9D36D.5030104@suwalski.net>
+Date: Fri, 25 Apr 2003 20:31:41 -0400
+From: Pat Suwalski <pat@suwalski.net>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.2.1) Gecko/20021130
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: "Martin J. Bligh" <mbligh@aracnet.com>
-CC: Timothy Miller <miller@techsource.com>, linux-kernel@vger.kernel.org
-Subject: Re: TASK_UNMAPPED_BASE & stack location
-References: <459930000.1051302738@[10.10.2.4]> <b8c7no$u59$1@cesium.transmeta.com> <1750000.1051305030@[10.10.2.4]> <3EA9B061.600@techsource.com> <3280000.1051308382@[10.10.2.4]> <3EA9C19E.9020205@zytor.com> <10000000.1051312797@[10.10.2.4]>
-In-Reply-To: <10000000.1051312797@[10.10.2.4]>
-Content-Type: text/plain; charset=us-ascii
+Cc: Werner Almesberger <wa@almesberger.net>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Jamie Lokier <jamie@shareable.org>,
+       Matthias Schniedermeyer <ms@citd.de>, Marc Giger <gigerstyle@gmx.ch>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Bug 623] New: Volume not remembered.
+References: <20030423231149.I3557@almesberger.net> <25450000.1051152052@[10.10.2.4]> <20030424003742.J3557@almesberger.net> <20030424071439.GB28253@mail.jlokier.co.uk> <20030424103858.M3557@almesberger.net> <20030424213632.GK30082@mail.jlokier.co.uk> <20030424205515.T3557@almesberger.net> <3EA87BE1.1070107@suwalski.net> <20030425074116.V3557@almesberger.net> <1051265094.5573.8.camel@dhcp22.swansea.linux.org.uk> <20030425144449.X3557@almesberger.net> <427040000.1051293569@[10.10.2.4]>
+In-Reply-To: <427040000.1051293569@[10.10.2.4]>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Martin J. Bligh wrote:
-> 
-> Right ... I was just suggesting changing it by default. Was wondering if
-> anyone knew of anything it'd break. Your issue with NULL pointers is
-> interesting, but I'm not sure this would really affect that much ... the
-> stack is normally tiny in comparison.
-> 
+> BTW, I realised there's a much simpler solution to the "but there's no
+> sound coming out" problem .... xmms and friends should just give the user a
+> warning on startup (or on play) if the main volume or pcm channel is at 0
+> (or muted).
 
-Normally, yes, but there are applications which use very large stacks.
+No. This never happens.
 
-	-hpa
+It only complains if it its OSS output plugin cannot communicate with 
+the kernel.
 
+At least on all the cards I have ever used.
+
+--Pat
 

@@ -1,65 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261205AbUCAJkm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Mar 2004 04:40:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261184AbUCAJkl
+	id S261210AbUCAJmh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Mar 2004 04:42:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261199AbUCAJmg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Mar 2004 04:40:41 -0500
-Received: from gprs153-254.eurotel.cz ([160.218.153.254]:34944 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S261205AbUCAJke (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Mar 2004 04:40:34 -0500
-Date: Mon, 1 Mar 2004 10:40:23 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: M?ns Rullg?rd <mru@kth.se>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Dropping CONFIG_PM_DISK?
-Message-ID: <20040301094023.GF352@elf.ucw.cz>
-References: <1ulUA-33w-3@gated-at.bofh.it> <20040229161721.GA16688@hell.org.pl> <20040229162317.GC283@elf.ucw.cz> <yw1x4qt93i6y.fsf@kth.se> <20040229181053.GD286@elf.ucw.cz> <yw1xznb120zn.fsf@kth.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <yw1xznb120zn.fsf@kth.se>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+	Mon, 1 Mar 2004 04:42:36 -0500
+Received: from fmr10.intel.com ([192.55.52.30]:10449 "EHLO
+	fmsfmr003.fm.intel.com") by vger.kernel.org with ESMTP
+	id S261191AbUCAJmU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Mar 2004 04:42:20 -0500
+Date: Mon, 1 Mar 2004 17:36:22 +0800 (CST)
+From: "Zhu, Yi" <yi.zhu@intel.com>
+X-X-Sender: chuyee@mazda.sh.intel.com
+Reply-To: "Zhu, Yi" <yi.zhu@intel.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [start_kernel] Suggest to move parse_args() before trap_init()
+Message-ID: <Pine.LNX.4.44.0403011721220.2367-100000@mazda.sh.intel.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> >> >> > Would there be any major screaming if I tried to drop CONFIG_PM_DISK?
-> >> >> > It seems noone is maintaining it, equivalent functionality is provided
-> >> >> > by swsusp, and it is confusing users...
-> >> >> 
-> >> >> It may be ugly, it may be unmaintained, but I get the impression that it
-> >> >> works for some people for whom swsusp doesn't. So unless swsusp works for
-> >> >> everyone or Nigel's swsusp2 is merged, I'd suggest leaving that in.
-> >> >
-> >> > Do you have example when pmdisk works and swsusp does not? I'm not
-> >> > aware of any in recent history...
-> >> 
-> >> For me, none of them (pmdisk, swsusp and swsusp2) work.  I did manage
-> >> to get pmdisk to resume once, and swsusp2 makes it half-way through
-> >> the resume.  The old swsusp doesn't even get that far.
-> >
-> > Try current swsusp with minimal drivers, init=/bin/bash.
-> 
-> Well, if I do that it works.  Or at least some old version did, I
-> assume the later ones would too.  However, that sort of removes the
-> whole point.  Taking down the system enough to be able to unload
-> almost everything is as close as rebooting you'll get.
+Hi,
 
-Well, now do a search for "which module/application causes failure".
+I'm not sure it is _correct_ to move parse_args() before trap_init() in
+start_kernel(). Is there any potencial dependencies? I did this on my P4 UP
+box, it boots OK.
 
-> BTW, is there some easier way to track the development than using the
-> patches from the web page?  Unpatching after a couple of BK merges
-> isn't the easiest thing.  Is there a BK tree somewhere I can pull
-> from?
+My issue is if the parse_args() runs after trap_init(), the kernel
+parameter "lapic" and "nolapic" takes no effect. Because lapic_enable()
+is called after init_apic_mappings().
 
-Are you using swsusp2? That's _not_ what I'm talking about. swsusp is
-in mainline.
-								Pavel
 
+--- init/main.c.orig    2004-03-01 16:54:23.000000000 +0800
++++ init/main.c 2004-03-01 16:54:45.000000000 +0800
+@@ -416,11 +416,11 @@
+
+        build_all_zonelists();
+        page_alloc_init();
+-       trap_init();
+        printk("Kernel command line: %s\n", saved_command_line);
+        parse_args("Booting kernel", command_line, __start___param,
+                   __stop___param - __start___param,
+                   &unknown_bootoption);
++       trap_init();
+        sort_main_extable();
+        rcu_init();
+        init_IRQ();
+
+
+Thanks,
 -- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+-----------------------------------------------------------------
+Opinions expressed are those of the author and do not represent
+Intel Corp.
+
+Zhu Yi (Chuyee)
+
+GnuPG v1.0.6 (GNU/Linux)
+http://cn.geocities.com/chewie_chuyee/gpg.txt or
+$ gpg --keyserver wwwkeys.pgp.net --recv-keys 71C34820
+1024D/71C34820 C939 2B0B FBCE 1D51 109A  55E5 8650 DB90 71C3 4820
+

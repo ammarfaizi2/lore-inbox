@@ -1,102 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261477AbSJQNI0>; Thu, 17 Oct 2002 09:08:26 -0400
+	id <S261742AbSJQNFU>; Thu, 17 Oct 2002 09:05:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261555AbSJQNI0>; Thu, 17 Oct 2002 09:08:26 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:37893 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S261477AbSJQNIY>; Thu, 17 Oct 2002 09:08:24 -0400
-Date: Thu, 17 Oct 2002 09:14:01 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Shawn <core@enodev.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.5.43
-In-Reply-To: <Pine.LNX.4.44.0210161437010.1108-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.3.96.1021017085823.16060C-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261747AbSJQNFU>; Thu, 17 Oct 2002 09:05:20 -0400
+Received: from wilma1.suth.com ([207.127.128.4]:53767 "EHLO wilma1.suth.com")
+	by vger.kernel.org with ESMTP id <S261742AbSJQNFT>;
+	Thu, 17 Oct 2002 09:05:19 -0400
+Subject: Re: 2.5.43 and the VIA vt8233 IDE controller.
+From: Jason Williams <jason_williams@suth.com>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1034800703.12979.12.camel@cermanius.suth.com>
+References: <1034800703.12979.12.camel@cermanius.suth.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 17 Oct 2002 09:13:29 -0400
+Message-Id: <1034860413.19730.91.camel@cermanius.suth.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 Oct 2002, Linus Torvalds wrote:
+Just a small addendum to this post I made yesterday, I took the VIA IDE
+controller code out of the kernel and it booted just fine.  And again,
+my Promise RAID controller was seen just fine by the kernel, so I am
+leaning even more toward a problem in the VIA driver. 
 
-> On Wed, 16 Oct 2002, Shawn wrote:
-> > On 10/16, Bill Davidsen said something like:
-> > > On Tue, 15 Oct 2002, Linus Torvalds wrote:
-> > > > A huge merging frenzy for the feature freeze, although I also spent a few
-> > > > days getting rid of the need for ide-scsi.c and the SCSI layer to burn
-> > > > CD-ROM's with the IDE driver (it still needs an update to cdrecord, I sent 
-> > > > those off to the maintainer).
-> > > 
-> > > I hope you haven't broken running WITH ide-scsi, because most people still
-> > > run 2.4 kernels in real life and only test 2.5 because someone has to do
-> > > it. Reconfiguring the system to use ide-scsi or not is just one more PITA
-> > > thing which needs to be done, or more likely forgotten, with every new
-> > > kernel.
-> > 
-> > Honestly, I think it's ok to bust the old stuff if needed. This is
-> > simply my opinion from a user standpoint.
+Jason
+
+On Wed, 2002-10-16 at 16:38, Jason Williams wrote:
+> I am suspecting something is amist with the via controller code in
+> 2.5.43, because my promise controller goes through the same routines
+> just fine.  I started to try to back trace everything to hunt down the
+> culperate myself, but alas, I couldn't find the cause.  So if anyone can
+> give me a hand here, I would be very grateful.  What follows is the
+> bottom snippet of kernel output.  If you require anything further, let
+> me know I will send it.
 > 
-> Anyway, ide-scsi should work as well as it ever did, which is not to say
-> too well.  It's just that the IDE native implementation is cleaner and 
-> simpler, and a _hell_ of a lot easier to use.
-
-Clearly you are talking about systems which are not used in production,
-and which run 2.5 kernels all the time. Having to switch back and forth in
-all the naming conventions, device to interface assignments, etc, is a
-PITA. And like anything you have to do to convert, some day you will
-forget a step and leave your production 2.4 capability broken.
- 
-> The scsi-generic layer is a total nightmare. If you want to write to the 
-> device that is /dev/scd0, you can't just use /dev/scd0, you have to use 
-> the right /dev/sgX, and the X depends on how many disks etc you have in 
-> the system and where your controller is. The amount of crap you have to do 
-> with things like "cdrecord -scanbus" to just figure out what the right 
-> device is is just ludicrous.
-
-Do you mean that the new cdrecord -scanbus will now scan the IDE bus(es)
-as well, or that we can just try to find time to write something else
-which lists all the CD devices? You are aware that you don't *need* to
-know any of that /dev/sgX stuff, you just say dev=b,d,l (bus, device, lun)
-and cdrecord does it?
- 
-> So right now, you can do "cdrecord dev=/dev/hdc ..", but because I didn't
-> bother to try to figure out what the SCSI layer wants to do you can _not_
-> do the simple "cdrecord dev=/dev/scd0 .." if you have a SCSI disk. That's
-> nothing fundamental, I just don't think SCSI CD-RW's are very interesting
-> any more, since they are overpriced and hard to find. I hope some SCSI 
-> fanatic will do the (probably trivial) addition to sr.c to accept the SCSI 
-> ioctl interface.
-
-Again, I think you have never done any of this in a production
-environment. Joe User burning a little music on his one CD-RW and a
-production CD based distribution or backup setup are as related as the guy
-with the the single Celeron and a NUMA system. SCSI allow writing multiple
-CDs at once without fighting with "what's on the same cable," and allows
-more than a few drives. And these days the writers are becoming DVD, which
-makes it even more desirable to have an adult-strength bus.
- 
-> (Hint for such SCSI users: you should just do:
+> Jason
 > 
->  - call "scsi_cmd_ioctl()" in your ioctl routine, and if it returns 
->    ENOTTY that means that it wasn't one of the SCSI generic commands.
 > 
->  - make the request queue handler understand that requests with the
->    REQ_BLOCK_PC flag set are SCSI packet commands, and "req->cmd" contains 
->    the command, while "req->data" and "req->data_len" are the data for the 
->    command)
 > 
->  - make sure that an open() with the O_NONBLOCK flag set will succeed even 
->    if the medium is not accessible (and will succeed even if it's a
->    writable open).
 > 
-> and that should be pretty much it).
+> ----
+> 
 
-All tips and hints appreciated.
+> 
+> VP_IDE: chipset revision 6
+> VP_IDE: not 100% native mode: will probe irqs later
+> ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+> VP_IDE: VIA vt8233 (rev 00) IDE UDMA100 controller on pci00:11.1
+>     ide1: BM-DMA at 0x9008-0x900fUnable to handle kernel NULL pointer dereference at virtual address 00000650
+>  printing eip:
+> c024a52b
+> *pde = 00000000
+> Oops: 0000
+> 
+> CPU:    0
+> EIP:    0060:[<c024a52b>]    Not tainted
+> EFLAGS: 00010202
+> EIP is at ide_iomio_dma+0xbb/0x1c0
+> eax: 00000000   ebx: c052cbb4   ecx: c03aa274   edx: 00000001
+> esi: c052cbc4   edi: 00009008   ebp: 00000008   esp: dffcbeb4
+> ds: 0068   es: 0068   ss: 0068
+> Process swapper (pid: 1, threadinfo=dffca000 task=dffc8040)
+> Stack: c0380d6f 00009008 00000008 c052cbc4 c1526000 c052cbb4 c03e7a50 c052cbb4
+>        c024a687 c052cbb4 00009008 00000008 00000089 c04195dd c1526000 00009008
+>        c0418a58 c052cbb4 00009008 00000008 c02488be c052cbb4 00009008 00000004
+> Call Trace:
+>  [<c024a687>] ide_setup_dma+0x27/0x380
+>  [<c02488be>] ide_hwif_setup_dma+0x10e/0x150
+>  [<c0248bce>] do_ide_setup_pci_device+0x16e/0x330
+>  [<c0248dbb>] ide_setup_pci_device+0x2b/0x80
+>  [<c02388e8>] via_init_one+0x38/0x40
+>  [<c010507a>] init+0x3a/0x160
+>  [<c0105040>] init+0x0/0x160
+>  [<c0105641>] kernel_thread_helper+0x5/0x14
+> 
+> Code: 8b 80 50 06 00 00 89 83 4c 06 00 00 c7 04 24 77 0d 38 c0 e8
+>  <0>Kernel panic: Attempted to kill init!
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
 

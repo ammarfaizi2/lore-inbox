@@ -1,46 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317930AbSFSQjF>; Wed, 19 Jun 2002 12:39:05 -0400
+	id <S317934AbSFSQne>; Wed, 19 Jun 2002 12:43:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317931AbSFSQjE>; Wed, 19 Jun 2002 12:39:04 -0400
-Received: from mail14.speakeasy.net ([216.254.0.214]:5251 "EHLO
-	mail.speakeasy.net") by vger.kernel.org with ESMTP
-	id <S317930AbSFSQjE>; Wed, 19 Jun 2002 12:39:04 -0400
-Subject: Re: Incredible weirdness with eepro100?
-From: Joshua Newton <jpnewton@speakeasy.net>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0206191129040.19899-100000@mammut.nsc.liu.se>
-References: <Pine.LNX.4.21.0206191129040.19899-100000@mammut.nsc.liu.se>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.7-1mdk 
-Date: 19 Jun 2002 12:39:03 -0400
-Message-Id: <1024504745.4149.12.camel@claymore.corona>
-Mime-Version: 1.0
+	id <S317936AbSFSQnd>; Wed, 19 Jun 2002 12:43:33 -0400
+Received: from netfinity.realnet.co.sz ([196.28.7.2]:47543 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S317934AbSFSQnc>; Wed, 19 Jun 2002 12:43:32 -0400
+Date: Wed, 19 Jun 2002 18:15:25 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: zwane@netfinity.realnet.co.sz
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: Martin Dalecki <dalecki@evision-ventures.com>
+Subject: Oops on 2.5.23 and IDE
+Message-ID: <Pine.LNX.4.44.0206191810310.1263-100000@netfinity.realnet.co.sz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well, the fix is sadly simple: switching to a spare 3c905C-TX seems to
-have eliminated the problem. Copying the contents of claymore:/pack (a
-directory with lots of big RPMs and tarballs and other miscellany) to
-rapier:/scratch is super-fast and error-free. This directory includes a
-few files (such as the Chaos SoundFont) that killed the transfer
-yesterday.
+Hi Martin,
+	IDE seems to be doing odd things.
 
-Once I receive my new chassis, I'll move rapier's guts to it and start
-testing with FreeBSD 4.6 to try to determine whether the problem is
-linked to this particular /hardware/ configuration, or if it's something
-in the Linux kernel and/or drivers. I'll also swap around network cards
-to try and determine if this is some sort of strange interaction between
-the 3c59x and e100/eepro100 drivers.
+>>EIP; c0117318 <schedule+28/4f0>   <=====
+Trace; c0117c6a <wait_for_completion+11a/1d0>
+Trace; c0117820 <default_wake_function+0/40>
+Trace; c0117820 <default_wake_function+0/40>
+Trace; c022e1ae <ide_do_drive_cmd+18e/1b0>
+Trace; c01bc082 <vsnprintf+2a2/420>
+Trace; c022e439 <ide_raw_taskfile+59/60>
+Trace; c02302f4 <do_recalibrate+54/70>
+Trace; c022e1d0 <special_intr+0/210>
+Trace; c0234e75 <ide_dma_intr+115/120>
+Trace; c0231138 <ata_irq_request+148/230>
+Trace; c0234d60 <ide_dma_intr+0/120>
+
+
+int ide_do_drive_cmd()
+{
+[...]
+	if (action == ide_wait) {
+                wait_for_completion(&wait);     /* wait for it to be serviced */
+                return rq->errors ? -EIO : 0;   /* return -EIO if errors */
+        }
+[...]
+}
+
+Was that function really designed to be called from interrupt context?
+
+Cheers,
+	Zwane Mwaikambo
 
 -- 
-
-"However, Science People like to believe in laws, even when such laws
-can be circumvented by their own Science. They become most displeased
-if you suggest it would be more accurate to speak of the Generally
-Good Idea of Gravity or the Three Useful Guidelines of
-Thermodynamics."
-
-		-- James Alan Gardner, /Ascending/
+http://function.linuxpower.ca
+		
 

@@ -1,40 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261530AbVACTiQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261480AbVACTp7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261530AbVACTiQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 14:38:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261585AbVACTiQ
+	id S261480AbVACTp7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 14:45:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261585AbVACTp7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 14:38:16 -0500
-Received: from smtpout3.compass.net.nz ([203.97.97.135]:8674 "EHLO
-	smtpout1.compass.net.nz") by vger.kernel.org with ESMTP
-	id S261530AbVACTiP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 14:38:15 -0500
-Date: Tue, 4 Jan 2005 08:38:22 +1300 (NZDT)
-From: steve@perfectpc.co.nz
-X-X-Sender: sk@localhost
-Reply-To: steve@perfectpc.co.nz
-To: Phil Oester <kernel@linuxace.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: iptable_nat: Unknown symbol need_ip_conntrack
-In-Reply-To: <20050103050001.GA12500@linuxace.com>
-Message-ID: <Pine.LNX.4.60.0501040830080.1409@localhost>
-References: <Pine.LNX.4.60.0501031641250.32415@localhost>
- <20050103050001.GA12500@linuxace.com>
+	Mon, 3 Jan 2005 14:45:59 -0500
+Received: from umhlanga.stratnet.net ([12.162.17.40]:22446 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S261480AbVACTp4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jan 2005 14:45:56 -0500
+To: Adrian Bunk <bunk@stusta.de>
+Cc: mshefty@ichips.intel.com, halr@voltaire.com, openib-general@openib.org,
+       linux-kernel@vger.kernel.org
+X-Message-Flag: Warning: May contain useful information
+References: <20050103171937.GG2980@stusta.de>
+From: Roland Dreier <roland@topspin.com>
+Date: Mon, 03 Jan 2005 11:45:53 -0800
+In-Reply-To: <20050103171937.GG2980@stusta.de> (Adrian Bunk's message of
+ "Mon, 3 Jan 2005 18:19:37 +0100")
+Message-ID: <52sm5i70um.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: roland@topspin.com
+Subject: Re: [2.6 patch] infiniband: possible cleanups
+Content-Type: text/plain; charset=us-ascii
+X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
+X-SA-Exim-Scanned: Yes (on eddore)
+X-OriginalArrivalTime: 03 Jan 2005 19:45:54.0365 (UTC) FILETIME=[D64476D0:01C4F1CC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Thanks, I've applied the changes adding "static" to our tree.  I'm
+holding off on the "#if 0" changes since some is code useful for
+debugging modules and other code is used by modules in development.
 
->> Kernel 2.6.10-ac2 . Apart from this, the system appears to be normal;
->
-> Looks like a problem with your configuration/kernel build...I have no
-> such problems here on 2.6.10.
+Thanks,
+  Roland
 
-Me too, on the other two machine doesn't have ; only the firewall box has. It seems
-to be related to iproute2 or MARK target? as only the firewall box uses 
-iptables to mark packets and then use iproute2 to route it.
-
-I am pretty sure the config and kernel build are correct.
-
-I will try to find out how to reproduce the problem with the other two machine I have here

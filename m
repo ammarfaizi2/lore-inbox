@@ -1,81 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261612AbSJYVdn>; Fri, 25 Oct 2002 17:33:43 -0400
+	id <S261615AbSJYVkD>; Fri, 25 Oct 2002 17:40:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261613AbSJYVdn>; Fri, 25 Oct 2002 17:33:43 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:5133
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S261612AbSJYVdl>; Fri, 25 Oct 2002 17:33:41 -0400
-Subject: Re: [PATCH] hyper-threading information in /proc/cpuinfo
-From: Robert Love <rml@tech9.net>
-To: Robert Love <rml@tech9.net>
-Cc: "Nakajima, Jun" <jun.nakajima@intel.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "'Dave Jones'" <davej@codemonkey.org.uk>,
-       "'akpm@digeo.com'" <akpm@digeo.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'chrisl@vmware.com'" <chrisl@vmware.com>,
-       "'Martin J. Bligh'" <mbligh@aracnet.com>
-In-Reply-To: <1035581420.734.3873.camel@phantasy>
-References: <F2DBA543B89AD51184B600508B68D4000EA1718C@fmsmsx103.fm.intel.com> 
-	<1035581420.734.3873.camel@phantasy>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 25 Oct 2002 17:39:55 -0400
-Message-Id: <1035581995.1501.3906.camel@phantasy>
+	id <S261619AbSJYVkD>; Fri, 25 Oct 2002 17:40:03 -0400
+Received: from main.gmane.org ([80.91.224.249]:44700 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id <S261615AbSJYVkC>;
+	Fri, 25 Oct 2002 17:40:02 -0400
+To: linux-kernel@vger.kernel.org
+X-Injected-Via-Gmane: http://gmane.org/
+Path: not-for-mail
+From: Nicholas Wourms <nwourms@netscape.net>
+Subject: Re: [PATCH 2/3] High-res-timers part 2 (x86 platform code) take 7
+Date: Fri, 25 Oct 2002 17:47:14 -0400
+Message-ID: <apce14$n0o$1@main.gmane.org>
+References: <3DB9A314.6CECA1AC@mvista.com>
+Reply-To: nwourms@netscape.net
+NNTP-Posting-Host: 130-127-121-177.generic.clemson.edu
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+X-Trace: main.gmane.org 1035582309 23576 130.127.121.177 (25 Oct 2002 21:45:09 GMT)
+X-Complaints-To: usenet@main.gmane.org
+NNTP-Posting-Date: Fri, 25 Oct 2002 21:45:09 +0000 (UTC)
+User-Agent: KNode/0.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-10-25 at 17:30, Robert Love wrote:
+george anzinger wrote:
 
-> 	- wrap print in "if (cpu_has_ht) { ... }"   (Dave Jones)
-> 	- remove initdata from phys_proc_id         (Jun Nakajima)
-> 	- match field names in latest 2.4-ac        (Alan Cox)
+> 
+> This patch, in conjunction with the "core" high-res-timers
+> patch implements high resolution timers on the i386
+> platforms.  The high-res-timers use the periodic interrupt
+> to "remind" the system to look at the clock.  The clock
+> should be relatively high resolution (1 micro second or
+> better).  This patch allows configuring of three possible
+> clocks, the TSC, the ACPI pm timer, or the Programmable
+> interrupt timer (PIT).  Most of the changes in this patch
+> are in the arch/i386/kernel/timer/* code.
+> 
+Any suggestions on making this patch "more friendly" with 2.5.44-ac3?  
+Apparently some of his patch mucked around in the timers source files as 
+well as defining completely opposite macros in 
+arch/i386/kernel/timers/Makefile.  I might of missed it, but I didn't 
+notice anything in his changelog which would jump out at me, except for 
+some of the Cyrix fixes.  I'm going to give it a shot, but I thought I'd 
+ask as well.
 
-missing this last bit, sorry..
+Cheers,
+Nicholas
 
-	Robert Love
-
- cpu/proc.c |    7 +++++++
- smpboot.c  |    2 +-
- 2 files changed, 8 insertions(+), 1 deletion(-)
-
-diff -urN linux-2.5.44/arch/i386/kernel/cpu/proc.c linux/arch/i386/kernel/cpu/proc.c
---- linux-2.5.44/arch/i386/kernel/cpu/proc.c	2002-10-19 00:02:29.000000000 -0400
-+++ linux/arch/i386/kernel/cpu/proc.c	2002-10-25 15:18:03.000000000 -0400
-@@ -17,6 +17,7 @@
- 	 * applications want to get the raw CPUID data, they should access
- 	 * /dev/cpu/<cpu_nr>/cpuid instead.
- 	 */
-+	extern int phys_proc_id[NR_CPUS];
- 	static char *x86_cap_flags[] = {
- 		/* Intel-defined */
- 	        "fpu", "vme", "de", "pse", "tsc", "msr", "pae", "mce",
-@@ -74,6 +75,12 @@
- 	/* Cache size */
- 	if (c->x86_cache_size >= 0)
- 		seq_printf(m, "cache size\t: %d KB\n", c->x86_cache_size);
-+#ifdef CONFIG_SMP
-+	if (cpu_has_ht) {
-+		seq_printf(m, "physical id\t: %d\n", phys_proc_id[n]);
-+		seq_printf(m, "siblings\t: %d\n", smp_num_siblings);
-+	}
-+#endif
- 	
- 	/* We use exception 16 if we have hardware math and we've either seen it or the CPU claims it is internal */
- 	fpu_exception = c->hard_math && (ignore_irq13 || cpu_has_fpu);
-diff -urN linux-2.5.44/arch/i386/kernel/smpboot.c linux/arch/i386/kernel/smpboot.c
---- linux-2.5.44/arch/i386/kernel/smpboot.c	2002-10-19 00:01:53.000000000 -0400
-+++ linux/arch/i386/kernel/smpboot.c	2002-10-25 17:24:26.000000000 -0400
-@@ -58,7 +58,7 @@
- 
- /* Number of siblings per CPU package */
- int smp_num_siblings = 1;
--int __initdata phys_proc_id[NR_CPUS]; /* Package ID of each logical CPU */
-+int phys_proc_id[NR_CPUS]; /* Package ID of each logical CPU */
- 
- /* Bitmask of currently online CPUs */
- unsigned long cpu_online_map;
 

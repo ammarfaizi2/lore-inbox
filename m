@@ -1,24 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262947AbREWCGB>; Tue, 22 May 2001 22:06:01 -0400
+	id <S262954AbREWCib>; Tue, 22 May 2001 22:38:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262948AbREWCFv>; Tue, 22 May 2001 22:05:51 -0400
-Received: from pneumatic-tube.sgi.com ([204.94.214.22]:37158 "EHLO
-	pneumatic-tube.sgi.com") by vger.kernel.org with ESMTP
-	id <S262947AbREWCFh>; Tue, 22 May 2001 22:05:37 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Alan Cox <laughing@shared-source.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.4-ac14 
-In-Reply-To: Your message of "Tue, 22 May 2001 22:30:48 +0100."
-             <20010522223048.A9649@lightning.swansea.linux.org.uk> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 23 May 2001 12:05:19 +1000
-Message-ID: <7185.990583519@kao2.melbourne.sgi.com>
+	id <S262955AbREWCiV>; Tue, 22 May 2001 22:38:21 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:23046 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262954AbREWCiJ>; Tue, 22 May 2001 22:38:09 -0400
+Date: Tue, 22 May 2001 19:37:50 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: Alexander Viro <viro@math.psu.edu>, Andries.Brouwer@cwi.nl,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] struct char_device
+In-Reply-To: <3B0AFEFE.1198871C@mandrakesoft.com>
+Message-ID: <Pine.LNX.4.21.0105221936030.4713-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is drivers/char/ser_a2232fw.ax supposed to be included?  Nothing uses it.
+
+On Tue, 22 May 2001, Jeff Garzik wrote:
+> 
+> Alan recently straightened me out with "EVMS/LVM is partitions done
+> right"
+> 
+> so... why not implement partitions as simply doing block remaps to the
+> lower level device?  That's what EVMS/LVM/md are doing already.
+
+Because we still need the partitioning code for backwards
+compatibility. There's no way I'm going to use initrd to do partition
+setup with lvmtools etc.
+
+Also, lvm and friends are _heavyweight_. The partitioning stuff should be
+_one_ add (and perhaps a range check) at bh submit time. None of this
+remapping crap. We don't need no steenking overhead for something we need
+to do anyway.
+
+		Linus
 

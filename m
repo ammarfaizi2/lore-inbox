@@ -1,48 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268531AbTANCrc>; Mon, 13 Jan 2003 21:47:32 -0500
+	id <S268532AbTANCrd>; Mon, 13 Jan 2003 21:47:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268532AbTANCqf>; Mon, 13 Jan 2003 21:46:35 -0500
-Received: from dp.samba.org ([66.70.73.150]:46732 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S268535AbTANCqB>;
+	id <S268535AbTANCqj>; Mon, 13 Jan 2003 21:46:39 -0500
+Received: from dp.samba.org ([66.70.73.150]:43916 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S268534AbTANCqB>;
 	Mon, 13 Jan 2003 21:46:01 -0500
 From: Rusty Trivial Russell <rusty@rustcorp.com.au>
-To: akpm@zip.com.au, torvalds@transmeta.com
-Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
-Subject: [TRIVIAL] Drain local pages to make swsusp work
-Date: Tue, 14 Jan 2003 13:42:54 +1100
-Message-Id: <20030114025453.790822C445@lists.samba.org>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [TRIVIAL] [2.5 patch] MODULE_FORCE_UNLOAD must depend on MODULE_UNLOAD (fwd)
+Date: Tue, 14 Jan 2003 13:25:21 +1100
+Message-Id: <20030114025453.561EF2C43E@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From:  Pavel Machek <pavel@ucw.cz>
+From:  Adrian Bunk <bunk@fs.tum.de>
 
-  Hi!
+  Hi Linus,
   
-  With local pages present, swsusp's accounting goes wrong and you get
-  nice BUG(). This fixes it, please apply.
-  								Pavel
+  the patch in the mail forwarded below is still needed in 2.5.56.
+  Rusty already stated that the patch is correct.
+  
+  Please apply
+  Adrian
+  
+  
+  ----- Forwarded message from Adrian Bunk <bunk@fs.tum.de> -----
+  
+  Date:	Wed, 8 Jan 2003 00:07:42 +0100
+  From: Adrian Bunk <bunk@fs.tum.de>
+  To: "Robert P. J. Day" <rpjday@mindspring.com>,
+      rusty@rustcorp.com.au,
+      Linus Torvalds <torvalds@transmeta.com>
+  Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+  Subject: [2.5 patch] MODULE_FORCE_UNLOAD must depend on MODULE_UNLOAD
+  
+  On Wed, Jan 01, 2003 at 02:55:01PM -0500, Robert P. J. Day wrote:
+  
+  >...
+  > Loadable module support
+  >     
+  >     Does "Module unloading" mean whether or not I can run "rmmod"?
+  >   And if I deselect this, why can I still select "Forced module
+  >   unloading"?  Either I can unload or I can't, no?
+  >...
+  
+  Thanks for spotting this, after reading kernel/module.c it seems obvious 
+  to me that you are right. The following simple patch fixes it:
   
 
---- trivial-2.5.57/kernel/suspend.c.orig	2003-01-14 12:54:30.000000000 +1100
-+++ trivial-2.5.57/kernel/suspend.c	2003-01-14 12:54:30.000000000 +1100
-@@ -680,6 +680,8 @@
- 	struct sysinfo i;
- 	unsigned int nr_needed_pages = 0;
+--- trivial-2.5.57/init/Kconfig.orig	2003-01-14 12:11:56.000000000 +1100
++++ trivial-2.5.57/init/Kconfig	2003-01-14 12:11:56.000000000 +1100
+@@ -156,7 +156,7 @@
  
-+	drain_local_pages();
-+
- 	pagedir_nosave = NULL;
- 	printk( "/critical section: Counting pages to copy" );
- 	nr_copy_pages = count_and_copy_data_pages(NULL);
-@@ -714,6 +716,7 @@
- 	nr_copy_pages_check = nr_copy_pages;
- 	pagedir_order_check = pagedir_order;
- 
-+	drain_local_pages();	/* During allocating of suspend pagedir, new cold pages may appear. Kill them */
- 	if (nr_copy_pages != count_and_copy_data_pages(pagedir_nosave))	/* copy */
- 		BUG();
- 
+ config MODULE_FORCE_UNLOAD
+ 	bool "Forced module unloading"
+-	depends on MODULES && EXPERIMENTAL
++	depends on MODULE_UNLOAD && EXPERIMENTAL
+ 	help
+ 	  This option allows you to force a module to unload, even if the
+ 	  kernel believes it is unsafe: the kernel will remove the module
 -- 
   Don't blame me: the Monkey is driving
-  File: Pavel Machek <pavel@ucw.cz>: Drain local pages to make swsusp work
+  File: Adrian Bunk <bunk@fs.tum.de>: [2.5 patch] MODULE_FORCE_UNLOAD must depend on MODULE_UNLOAD (fwd)

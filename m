@@ -1,51 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135389AbQL3Sq6>; Sat, 30 Dec 2000 13:46:58 -0500
+	id <S133030AbQL3Sr6>; Sat, 30 Dec 2000 13:47:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135388AbQL3Sqt>; Sat, 30 Dec 2000 13:46:49 -0500
-Received: from ip-205-254-202-114.netwrx1.com ([205.254.202.114]:17415 "EHLO
-	eagle.netwrx1.com") by vger.kernel.org with ESMTP
-	id <S135385AbQL3Sqf>; Sat, 30 Dec 2000 13:46:35 -0500
-From: "George R. Kasica" <georgek@netwrx1.com>
-To: linux-kernel@vger.kernel.org
-Subject: Any Problems with these items and Linux?
-Date: Sat, 30 Dec 2000 12:16:08 -0600
-Organization: Netwrx Consulting Inc.
-Reply-To: georgek@netwrx1.com
-Message-ID: <0c9s4t4ffrgemsqeer82da0s1acarcv9pf@4ax.com>
-X-Mailer: Forte Agent 1.8/32.548
-MIME-Version: 1.0
+	id <S132788AbQL3Srj>; Sat, 30 Dec 2000 13:47:39 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:9026 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S135403AbQL3SrT>; Sat, 30 Dec 2000 13:47:19 -0500
+Date: Sat, 30 Dec 2000 19:16:39 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Rafal Boni <rafal.boni@eDial.com>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+        Gregory Maxwell <greg@linuxpower.cx>
+Subject: Re: 2.2.19pre3 and poor reponse to RT-scheduled processes?
+Message-ID: <20001230191639.E9332@athlon.random>
+In-Reply-To: <20001229161927.A560@xi.linuxpower.cx> <200012292154.QAA17527@ninigret.metatel.office>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <200012292154.QAA17527@ninigret.metatel.office>; from rafal.boni@eDial.com on Fri, Dec 29, 2000 at 04:54:23PM -0500
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello:
+On Fri, Dec 29, 2000 at 04:54:23PM -0500, Rafal Boni wrote:
+> Now my box behaves much more reasonably... I'll just have to beat harder
+> on it and see what happens.
 
-Currently running 2.2.18 with a Celeron 333 MHz and 1 256MB SDRAM
-PC100 chip on the motherboard.
+Another thing: while writing to disk if you want low latency readers you can
+do:
 
-The MB will support up to a P-III 600 and 1GB of RAM using 256MB
-Chips....I'm looking at going to the following in addition to the
-existing RAM:
+	elvtune -r 1 /dev/hd[abcd]
 
-TWO -  **256MB 32x64 PC100 Non-Parity Unbuf DIMM 3.3V SDRAM Standard
-Simm/Flash Memory Card 168 Pin PC100 Unbuf 3.3V SDRAM
+The 1/2 seconds stalls you see could be just because of applications that waits
+I/O synchronously while the elevator is reodering I/O requests (and even if the
+elevator wouldn't reorder anything the new requests would go to the end of the
+I/O queue so they would have some higher latency anyways). That's normal and if
+it's the case to avoid those stalls you can only decrease the I/O load or
+increase disk throughput ;). The important thing is that the kernel is
+not sitting in a tight kernel loop without reschedule in it during such 2
+seconds.
 
-And a new CPU Intel Pentium III 600EB SECC2 rather than the Celeron.
+However 2.2.19pre3aa4 includes also the lowlatency bugfixes in case you have
+tons of ram and you're sending huge buffers to syscalls.
 
-Any problems with doing this or changes I need to make to the
-kernal/system to optimize it??
-
-George
-
-
-===[George R. Kasica]===        +1 262 513 8503
-President                       +1 206 374 6482 FAX 
-Netwrx Consulting Inc.          Waukesha, WI USA 
-http://www.netwrx1.com
-georgek@netwrx1.com
-ICQ #12862186
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

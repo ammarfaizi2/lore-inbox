@@ -1,54 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264668AbUE0PMr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264728AbUE0PN1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264668AbUE0PMr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 May 2004 11:12:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264732AbUE0PMr
+	id S264728AbUE0PN1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 May 2004 11:13:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264734AbUE0PN1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 May 2004 11:12:47 -0400
-Received: from lnscu5.lns.cornell.edu ([128.84.44.111]:17929 "EHLO
-	lnscu5.lns.cornell.edu") by vger.kernel.org with ESMTP
-	id S264668AbUE0PMp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 May 2004 11:12:45 -0400
-From: Valentin Kuznetsov <vk@mail.lns.cornell.edu>
-Organization: Cornell University
-To: linux-kernel@vger.kernel.org
-Subject: maestro3 is broken in 2.6.5 and 2.6.6
-Date: Thu, 27 May 2004 11:10:21 -0400
-User-Agent: KMail/1.5
+	Thu, 27 May 2004 11:13:27 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:24390 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S264728AbUE0PNS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 May 2004 11:13:18 -0400
+From: Matthias Fouquet-Lapar <mfl@kernel.paris.sgi.com>
+Message-Id: <200405271502.i4RF2F3X002327@mtv-vpn-hw-mfl-1.corp.sgi.com>
+Subject: Re: Hot plug vs. reliability
+To: Zoltan.Menyhart@bull.net
+Date: Thu, 27 May 2004 17:02:14 +0200 (CEST)
+Cc: mfl@kernel.paris.sgi.com (Matthias Fouquet-Lapar),
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <40B5FF96.44F9EE15@nospam.org> from "Zoltan Menyhart" at May 27, 2004 04:47:51 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200405271110.21376.vk@mail.lns.cornell.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-when I switched from 2.6.4 kernel to 2.6.5 and 2.6.6 my maestro sound card 
-stop working meaning instead of sound I can hear noise. I was using OSS 
-matestro3 module.
+> I agree, in this case there is no loss of MTBF.
+> Yet let's call this activity as run time re-partitioning of the machine.
+> (Most people - me too - consider hot plugging as physically plugging
+> things in / out.)
 
-Here is my profile:
-PCI:
-02:09.0 Multimedia audio controller: ESS Technology ES1988 Allegro-1 (rev 12)
+You're right, it's confusing and I made the same assumptions you make :
+physically moving parts. (and I worked on a systems a couple of years
+back where we actually had hotswap :-))
 
-Modules:
-maestro3               36232  0
-soundcore               9344  1 maestro3
-ac97_codec             19040  1 maestro3
+> But the new comers are tested in a different environment, with
+> different tolerance range. I just simply do not trust :-)
 
-Config:
-CONFIG_SND=m
-CONFIG_SND_TIMER=m
-CONFIG_SND_PCM=m
-CONFIG_SND_MAESTRO3=m
-CONFIG_SOUND_PRIME=m
-CONFIG_SOUND_MAESTRO3=m
+Not really. It's up to the vendor and at least here at SGI we have pretty
+tight rules and tolerances.
 
-the rest is commented out.
+> I do not think the timing / the delays are auto adjusting. You select
+> a component X to work next to the component Y because you know that
+> X in "here" and Y in "there" in the tolerance range...
 
-Any clue why it stop working? I'm willing to help testing stuff if necessary.
-Thanks,
-Valentin.
+They do (impedance match). An example are SRAMs used for CPUs with external 
+caches for example.  I've learned a lot about that :-)). You also
+have stuff like auto-learning for echo-clock timings etc, but this is really
+very platform and CPU specific
+
+> I think the OS has to be platform independent. How can a platform independent
+> OS know if <n> errors of this / that type requires what intervention ?
+> We'll have the same binary of the OS (+ drivers) for a small desk top or
+> for a 32 CPU "main frame". Only the firmware is different...
+
+An OS is never platform independent, there always is a machine dependant layer.
+I'm not really concerned about the total numbers of errors in a system, 
+regardless if we have one, 32 or 512 CPUs. If we see a component starting to 
+fail, it should be isolated in order to avoid catastrophic failure
+
+> Most of our clients just do not want to touch their 10 year old rubbish
+> Fortran programs. If I get a hint of danger (today it does not come from the FW)
+> I could take a check point and call for service intervention...
+
+That's a well know problem (although I think 20 years or more are more 
+likely ...)
+I think however there are new applications coming up using large or 
+ultra-scale systems where more fault tolerance can be designed in at the OS,
+libarary or even user level
+
+Amicalement
+
+Matthias Fouquet-Lapar  Core Platform Software    mfl@sgi.com  VNET 521-8213
+Principal Engineer      Silicon Graphics          Home Office (+33) 1 3047 4127
 

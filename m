@@ -1,71 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262782AbTLNXRV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Dec 2003 18:17:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262787AbTLNXRS
+	id S262788AbTLNXv4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Dec 2003 18:51:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262789AbTLNXv4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Dec 2003 18:17:18 -0500
-Received: from adsl-67-114-19-185.dsl.pltn13.pacbell.net ([67.114.19.185]:36785
-	"EHLO bastard") by vger.kernel.org with ESMTP id S262782AbTLNXRK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Dec 2003 18:17:10 -0500
-Message-ID: <3FDCEF70.5040808@tupshin.com>
-Date: Sun, 14 Dec 2003 15:17:04 -0800
-From: Tupshin Harper <tupshin@tupshin.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+	Sun, 14 Dec 2003 18:51:56 -0500
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:7689 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id S262788AbTLNXvx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Dec 2003 18:51:53 -0500
+Message-ID: <3FDCF78F.4020403@lunar-linux.org>
+Date: Mon, 15 Dec 2003 00:51:43 +0100
+From: Auke Kok <sofar@lunar-linux.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5.1) Gecko/20031201
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Larry McVoy <lm@bitmover.com>
-Cc: linux-kernel@vger.kernel.org, bitkeeper-users@bitmover.com
-Subject: Re: RFC - tarball/patch server in BitKeeper
-References: <20031214172156.GA16554@work.bitmover.com>
-In-Reply-To: <20031214172156.GA16554@work.bitmover.com>
+To: linux-kernel@vger.kernel.org
+CC: dev@grsecurity.net, lunar-dev@lunar-linux.org
+Subject: 2x procfs bug with 2.4.23
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy wrote:
 
->Merry Christmas.
->
->I've prototyped an extension to BitKeeper that provides tarballs
->and patches.  The idea is to make it possible for all trees hosted by
->bkbits.net provide access to the data with a free client (included below
->in prototype form).
->
->The system is simplistic, it just provides a way to get the most recent
->sources as a tarball and then any later updates as a patch.  There is
->no provision for generating diffs, editing files, merging, etc.  All of
->that is something that you can write, if you want, using standard tools
->(think hard linked trees).
->
->Before rolling this out, I want to know if this is going to (finally)
->put to rest any complaints about BK not being open source, available on
->all platforms, etc.  You need to understand that this is all you get,
->we're not going to extend this so you can do anything but track the most
->recent sources accurately.  No diffs.  No getting anything but the most
->recent version.  No revision history.  
->
->If you want anything other than the most recent version your choices
->are to use BitKeeper itself or, if you want the main branches of the
->Linux kernel, the BK2CVS exports.  This is not a gateway product, it
->is a way for developers to track the latest and greatest with a free
->(source based) client.  It is not a way to convert BK repos to $SCM.
->
->If the overwhelming response is positive then I'll add this to the
->bkbits.net server and perhaps eventually to the BK product itself.
->
->--lm
->
-I'm sure many people will find this useful. Personally (and this is not 
-intended as any sort of flame bait), I just want a way to get access to 
-all raw bk changesets for a given project. All existing methods of 
-getting information out of a bk repository either involve running bk 
-yourself, or getting incomplete information. You have argued 
-(succesfully) that the CVS export doesn't lose very much information, 
-but an argument can be made that any information loss is too much. After 
-all, the information I am talking about is simply what was put into the 
-system by the developers in the first place.
+Hi,
 
--Tupshin
+I have encountered 2 different procfs bugs with 2.4.23, where procfs 
+seems to be running a possible race, the other with ACPI subdirs being 
+created in /proc instead of /proc/acpi, possibly leading to more problems.
+
+both kernels run the official grsec patchset, so I forward them to
+
+1) procfs sys shows alternatingly up as "file", "socket", and "directory"
+
+root@server /proc # ls -ld sys
+srwxrwxrwx   10 root     root            0 2003-12-15 00:38 sys
+root@server /proc # ls -ld sys
+-r--r--r--   10 root     root            0 2003-12-15 00:38 sys
+root@server /proc # ls -ld sys
+prw-------   10 root     root            0 2003-12-15 00:41 sys
+root@server /proc # ls -ld sys
+prw-------   10 root     root            0 2003-12-15 00:41 sys
+root@server /proc # ls -ld sys
+srwxrwxrwx   10 root     root            0 2003-12-15 00:41 sys
+root@server /proc # cd sys
+root@server /proc/sys # ls -ld .
+srwxrwxrwx   10 root     root            0 2003-12-15 00:41 .
+root@server /proc/sys # pwd
+/proc/sys
+root@server /proc/sys # ls
+abi  debug  dev  fs  kernel  net  proc  vm
+
+etc... very very annoying since this box needs ip_forward enabled after 
+boot to function!
+
+The other box has an unsupported ACPI core:
+
+[from dmesg]
+ACPI: Unable to locate RSDP
+ACPI: Subsystem revision 20031002
+PCI: PCI BIOS revision 2.10 entry at 0xf7ec0, last bus=0
+PCI: Using configuration type 1
+ACPI: System description tables not found
+     ACPI-0084: *** Error: acpi_load_tables: Could not get RSDP, 
+AE_NOT_FOUND
+     ACPI-0134: *** Error: acpi_load_tables: Could not load tables: 
+AE_NOT_FOUND
+ACPI: Unable to load the System Description Tables
+PCI: Probing PCI hardware
+PCI: ACPI tables contain no PCI IRQ routing entries
+
+it's a genuine pII-mmx, so I don't care about the ACPI. However, the 
+/proc/acpi directory isn't created but the subdirs for enabled 
+components are, which could result in confusion/problems:
+
+~ # ls -dF /proc/[a-zA-Z_-]*
+/proc/ac_adapter/  /proc/interrupts  /proc/partitions
+/proc/battery/     /proc/iomem       /proc/pci
+/proc/bus/         /proc/ioports     /proc/processor/
+/proc/button/      /proc/irq/        /proc/self@
+/proc/cmdline      /proc/kmsg        /proc/slabinfo
+/proc/cpuinfo      /proc/ksyms       /proc/stat
+/proc/crypto       /proc/loadavg     /proc/swaps
+/proc/devices      /proc/locks       /proc/sys/
+/proc/dma          /proc/lvm/        /proc/sysvipc/
+/proc/driver/      /proc/mdstat      /proc/thermal_zone/
+/proc/execdomains  /proc/meminfo     /proc/tty/
+/proc/fan/         /proc/misc        /proc/uptime
+/proc/filesystems  /proc/modules     /proc/version
+/proc/fs/          /proc/mounts@
+/proc/ide/         /proc/net/
+
+[note the thermal_zone... it should not be there I think ;^)]
+
+
+-- not subscribed, reply to sofar <at> lunar.linux <dot> org
+
+

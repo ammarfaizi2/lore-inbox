@@ -1,143 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261557AbVCRLA6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261540AbVCRLIQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261557AbVCRLA6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Mar 2005 06:00:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261540AbVCRLA6
+	id S261540AbVCRLIQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Mar 2005 06:08:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261575AbVCRLIQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Mar 2005 06:00:58 -0500
-Received: from r3az252.chello.upc.cz ([213.220.243.252]:3715 "EHLO
-	aquarius.doma") by vger.kernel.org with ESMTP id S261557AbVCRLAh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Mar 2005 06:00:37 -0500
-Message-ID: <4239F4E8.8020303@ribosome.natur.cuni.cz>
-Date: Thu, 17 Mar 2005 22:21:44 +0100
-From: =?windows-1252?Q?Martin_MOKREJ=8A?= 
-	<mmokrejs@ribosome.natur.cuni.cz>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8b2) Gecko/20050304
-MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-CC: Arjan van de Ven <arjan@infradead.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Unresolved symbols in	/lib/modules/2.4.28-pre2/xfree-drm/via_drv.o
-References: <42384AB9.1080905@ribosome.natur.cuni.cz> <1110986170.6292.20.camel@laptopd505.fenrus.org> <42384EE8.9000003@ribosome.natur.cuni.cz> <20050316115312.GA12881@logos.cnet>
-In-Reply-To: <20050316115312.GA12881@logos.cnet>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+	Fri, 18 Mar 2005 06:08:16 -0500
+Received: from fire.osdl.org ([65.172.181.4]:59060 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261540AbVCRLIG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Mar 2005 06:08:06 -0500
+Date: Fri, 18 Mar 2005 03:07:31 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: rostedt@goodmis.org
+Cc: mingo@elte.hu, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] remove lame schedule in journal inverted_lock (was: Re:
+ [patch 0/3] j_state_lock, j_list_lock, remove-bitlocks)
+Message-Id: <20050318030731.224aa95f.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0503180531580.21994@localhost.localdomain>
+References: <Pine.LNX.4.58.0503141024530.697@localhost.localdomain>
+	<Pine.LNX.4.58.0503150746110.6456@localhost.localdomain>
+	<20050315133540.GB4686@elte.hu>
+	<Pine.LNX.4.58.0503151150170.6456@localhost.localdomain>
+	<20050316085029.GA11414@elte.hu>
+	<20050316011510.2a3bdfdb.akpm@osdl.org>
+	<20050316095155.GA15080@elte.hu>
+	<20050316020408.434cc620.akpm@osdl.org>
+	<20050316101906.GA17328@elte.hu>
+	<20050316024022.6d5c4706.akpm@osdl.org>
+	<Pine.LNX.4.58.0503160600200.11824@localhost.localdomain>
+	<20050316031909.08e6cab7.akpm@osdl.org>
+	<Pine.LNX.4.58.0503160853360.11824@localhost.localdomain>
+	<Pine.LNX.4.58.0503161141001.14087@localhost.localdomain>
+	<Pine.LNX.4.58.0503161234350.14460@localhost.localdomain>
+	<20050316131521.48b1354e.akpm@osdl.org>
+	<Pine.LNX.4.58.0503170406500.17019@localhost.localdomain>
+	<Pine.LNX.4.58.0503180415370.21994@localhost.localdomain>
+	<20050318013251.330e4d78.akpm@osdl.org>
+	<Pine.LNX.4.58.0503180531580.21994@localhost.localdomain>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti wrote:
-> On Wed, Mar 16, 2005 at 04:21:12PM +0100, Martin MOKREJ? wrote:
+Steven Rostedt <rostedt@goodmis.org> wrote:
+>
+> >
+>  > I really should knock up a script to send out an email when I add a patch
+>  > to -mm.
+>  >
 > 
->>Arjan van de Ven wrote:
->>
->>>On Wed, 2005-03-16 at 16:03 +0100, Martin MOKREJ?? wrote:
->>>
->>>
->>>>Hi,
->>>>does anyone still use 2.4 series kernel? ;)
->>
->>>># make dep; make bzImage; make modules
->>>>[cut]
->>>># make modules_install
->>>>[cut]
->>>>cd /lib/modules/2.4.30-pre3-bk2; \
->>>>mkdir -p pcmcia; \
->>>>find kernel -path '*/pcmcia/*' -name '*.o' | xargs -i -r ln -sf ../{} 
->>>>pcmcia
->>>>if [ -r System.map ]; then /sbin/depmod -ae -F System.map  
->>>>2.4.30-pre3-bk2; fi
->>>>depmod: *** Unresolved symbols in 
->>>>/lib/modules/2.4.28-pre2/xfree-drm/via_drv.o
->>>
->>>
->>>this is not the module shipped by the kernel.org kernel...
->>
->>Right. Sorry that I didn't say it more clearly, but I'm installing 
->>2.4.30-pre3-bk2 kernel.
->>cd /usr/src/linux-2.4.30-pre3-bk2
->>make dep
->>make bzImage
->>make modules
->>make modules_install
->>
->>and then I hit the error about some totally unrelated kernel version in 
->>/lib/modules? :(
+>  I thought you might have had something like that already, which was
+>  another reason I thought you might have skipped this.
+>
+
+I do now..
+
 > 
+>  > > I'd figure that you may have
+>  > > missed this, since the subject didn't change.  So I changed the subject to
+>  > > get your attention, and I've resent this. Here's the patch to get rid of
+>  > > the the lame schedule that was in fs/jbd/commit.c.   Let me know if this
+>  > > patch is appropriate.
+>  >
+>  > I'm rather aghast at all the ifdeffery and complexity in this one.  But I
+>  > haven't looked at it closely yet.
+>  >
 > 
-> Martin,
-> 
-> Can you find out why is depmod trying to open /lib/modules/2.4.28-pre2/ ?
-> 
-> I've got no clue.
+>  I wanted to keep the wait logic out when it wasn't a problem. Basically,
+>  the problem only occurs when bit_spin_trylock is defined as an actual
+>  trylock. So I put in a define there to enable the wait queues.  I didn't
+>  want to waste cycles checking the wait queue in jbd_unlock_bh_state when
+>  there would never be anything on it.  Heck, I figured why even have the
+>  wait queue wasting memory if it wasn't needed.  So that added the
+>  ifdeffery complexity.
 
-Hi all,
-  unfortunately I was too fast deleting the problematic /lib/modules/2.4.28-pre2
-directory. Here's the log of what I've done at about the time I hit the problem:
+No, that code's just a problem.  For ranking reasons it's essentially doing
+this:
 
-  427  cd /usr/src
-  428  ls
-  429  uname -a
-  430  bzip2 -dc linux-2.4.29.tar.bz2 | tar xf -
-  431  cd linux-2.4.29
-  432  bzip2 -dc ~mmokrejs/tmp/patch-2.4.30-pre3.bz2 | patch -p1
-  433  bzip2 -dc ~mmokrejs/tmp/patch-2.4.30-pre3-bk2.bz2 | patch -p1
-  434  cp ../linux-2.4.30-pre1-bk5/.config .
-  435  cd ..
-  436  mv linux-2.4.29 linux-2.4.30-pre3-bk2
-  437  pwd
-  438  cd linux-2.4.30-pre3-bk2
-  439  make oldconfig
-  440  make dep; make bzIMage; make modules
-  441  make modules_install
-  442  make modules_install
-  443  ls
-  444  make bzImage
-  445  make modules
-  446  make modules_install
-  447  make bzImage
-  448  make modules
-  449  make modules_install
-  450  gzip .config
-  451  gzip -d .config.
-  452  gzip -d .config.gz 
-  453  cp .config .config-ok
-  454  make menuconfig
-  455  make dep; make bzImage; make modules
-  456  make modules_install
-  457  make menuconfig
-  458  make dep; make bzImage; make modules
-  459  make modules_install
-  460  make menuconfig
-  461  make dep; make bzImage; make modules
-  462  make modules_install
-  463  make menuconfig
-  464  make dep; make bzImage; make modules
-  465  make modules_install
-  466  rm -rf /lib/modules/2.4.28-pre2
-  467  make modules_install
+repeat:
+	cond_resched();
+	spin_lock(j_list_lock);
+	....
+	if (!bit_spin_trylock(bh)) {
+		spin_unlock(j_list_lock);
+		schedule();
+		goto repeat;
+	}
 
+Now imagine that some other CPU holds the bit_spin_lock and is spinning,
+trying to get the spin_lock().  The above code assumes that the schedule()
+and cond_resched() will take "long enough" for the other CPU to get the
+spinlock, do its business then release the locks.
 
-The step 466 "fixed" my problem. I have repeated all the steps as show in the history log,
-but no luck to hit the problem again. I just guess the /lib/modules/2.4.28-pre2/xfree-drm/via_drv.o
-file came from gentoo's xfree-drm package as at that time /usr/src/linux pointed to that kernel version.
-The System.map (/usr/src/linux-2.4.28-pre2/System.map) maybe wasn't updated, as I think the modules
-just get compiled against configured kernel src tree.
+So all the schedule() is really doing is "blow a few cycles so the other
+CPU can get in and grab the spinlock".  That'll work OK on normal SMP but I
+suspect that on NUMA setups with really big latencies we could end up
+starving the other CPU: this CPU would keep on grabbing the lock.  It
+depends on how the interconnect cache and all that goop works.
 
-I did in the /usr/src/linux-2.4.30-pre3-bk2 tree (while rm -rf /lib/modules/2.4.28-pre2 already happened):
-strace make modules_install 2>&1 | grep '2.4.28'
-and go nothing interresting.
+So what to do?
 
-Also, 
-find . -type f | xargs grep 2.4.28
-doesn't show anything of interrest.
+One approach would be to spin on the bit_spin_trylock after having dropped
+j_list_lock.  That'll tell us when the other CPU has moved on.
 
+Another approach would be to sleep on a waitqueue somewhere.  But that
+means that jbd_unlock_bh_state() needs to do wakeups all the time - costly.
 
-# depmod --version
-module-init-tools 3.1
+Another approach would be to simply whack an msleep(1) in there.  That
+might be OK - it should be very rare.
 
--- 
-Martin Mokrejs
-Email: 'bW9rcmVqc21Acmlib3NvbWUubmF0dXIuY3VuaS5jeg==\n'.decode('base64')
-GPG key is at http://www.natur.cuni.cz/~mmokrejs
+Probably the first approach would be the one to use.  That's for mainline. 
+I don't know what the super-duper-RT fix would be.  Why did we start
+discussing this anyway?
+
+Oh, SCHED_FIFO.  kjournald doesn't run SCHED_FIFO, but someone may decide
+to make it do so.  But even then I don't see a problem for the mainline
+kernel, because this CPU's SCHED_FIFO doesn't stop the other CPU from
+running.
+
 

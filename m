@@ -1,81 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262190AbTBJRIY>; Mon, 10 Feb 2003 12:08:24 -0500
+	id <S261290AbTBJRUK>; Mon, 10 Feb 2003 12:20:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262418AbTBJRIY>; Mon, 10 Feb 2003 12:08:24 -0500
-Received: from smtp1.wlink.com.np ([202.79.32.76]:976 "HELO smtp1.wlink.com.np")
-	by vger.kernel.org with SMTP id <S262190AbTBJRIW>;
-	Mon, 10 Feb 2003 12:08:22 -0500
-Message-ID: <000c01c2d128$51cc0f60$0100a8c3@wesserver>
-From: "npguy" <wl2625@wlink.com.np>
-To: "John W. M. Stevens" <john@betelgeuse.us>
-Cc: <linux-kernel@vger.kernel.org>
-References: <20030209042031.GA1222@morningstar.nowhere.lie>
-Subject: Re: Bug Report (New Info about PS/2 Mouse)
-Date: Mon, 10 Feb 2003 23:02:39 +0545
+	id <S261330AbTBJRUK>; Mon, 10 Feb 2003 12:20:10 -0500
+Received: from zok.sgi.com ([204.94.215.101]:32182 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S261290AbTBJRUJ>;
+	Mon, 10 Feb 2003 12:20:09 -0500
+Message-ID: <3E47E170.FD3BC5BC@sgi.com>
+Date: Mon, 10 Feb 2003 09:29:20 -0800
+From: Casey Schaufler <casey@sgi.com>
+Organization: Silicon Graphics
+X-Mailer: Mozilla 4.8 [en] (X11; U; IRIX 6.5 IP32)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: linux-security-module@wirex.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCH] LSM changes for 2.5.59
+References: <001001c2d0b0$cf49b190$1403a8c0@sc.tlinx.org> <3E471F21.4010803@wirex.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-same probs with me, overall same config...! wheneveri try to load mouse
-module the system freeze...noway but to reboot ...any fix around?
+Crispin Cowan wrote:
+> 
+> LA Walsh wrote:
+> 
+> >>From: Crispin Cowan
+> >>
+> >>LSM does have a careful design.... meeting a
+> >>goal stated by Linus nearly two years ago.
+> >>
+> >>
+> >       A security model that mediates access to security objects by
+> >logging all access and blocking access if logging cannot continue is
+> >unsupportable in any straight forward, efficient and/or non-kludgy, ugly
+> >way.
+> >
+> Because Linus asked for access control support, not audit logging
+> support, it is not surprising that logging models don't fit so well.
+> 
+> >  Some security people were banned from the kernel
+> >devel. summit because their thoughts were deemed 'dangerous': fear was they
+> >were too persuasive about ideas that were deemed 'ignorant' and would
+> >fool those poor kernel lambs at the summit.
+> >
+> Internal SGI politics.
 
-- npguy
-ysgnet.com
------ Original Message -----
-From: "John W. M. Stevens" <john@betelgeuse.us>
-To: <linux-kernel@vger.kernel.org>
-Sent: Sunday, February 09, 2003 10:05 AM
-Subject: Bug Report (New Info about PS/2 Mouse)
+Just a gentle reminder that Ms. Walsh is not an SGI employee
+and that any opinions she may express regarding the Linux
+development process are her own, and may not reflect the
+views or understandings of SGI or any other individuals
+involved.
 
+In particular, dragging SGI into this discussion is
+inappropriate and unnecessary. SGI is currently not
+active in this effort, and makes no claims regarding
+it's appropriateness to any particular purpose.
 
-> The bug I reported earlier does occur when a PS/2 mouse is plugged
-> in to the box.  The hang no longer occurs every time, but it still
-> occurs.
->
-> [1.] One line summary of the problem:
->
->    Defect is kernel hang on Dual Processor, Athlon MP system.
->
-> [2.] Full description of the problem/report:
->
->    The system regularly experiences short (from 1 to 5 seconds)
->    hangs where both processors appear to be "hung".  Most often,
->    the system will recover, but in three different cases the
->    system has hung "permanently" (for values of "permanently"
->    ranging from 10 minutes, to at most four hours before I gave
->    up and hit reset).
->
-> [3.] Keywords (i.e., modules, networking, kernel):
->
->    Hard freeze.
->
-> [4.] Kernel version (from /proc/version):
->
->    Linux version 2.4.20 (root@morningstar)
->    (gcc version 2.95.4 20011002 (Debian prerelease))
->    #20 SMP Thu Feb 6 20:35:14 MST 2003
->
-> [5.] Output of Oops.
->
->    Sorry, but since the system hung, there was no Oops.
->
-> [6.] A small shell script or example program which triggers the
->       problem (if possible)
->
->    Two steps: 1) enable support for AMD Viper chipset and using
->    DMA by default.  2) Using IDE-SCSI, attemp to burn a CD.
->
+Please leave SGI, in spirit and name, out of
+this discussion.
 
+-- 
 
-
-
-
-
+Casey Schaufler				Manager, Trust Technology, SGI
+casey@sgi.com				voice: 650.933.1634
+casey_p@pager.sgi.com			Pager: 877.557.3184

@@ -1,81 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263823AbUFXFU6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262050AbUFXFl1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263823AbUFXFU6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jun 2004 01:20:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263820AbUFXFU6
+	id S262050AbUFXFl1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jun 2004 01:41:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262060AbUFXFl1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jun 2004 01:20:58 -0400
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:11697 "EHLO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
-	id S263823AbUFXFUz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jun 2004 01:20:55 -0400
-From: Darren Williams <dsw@gelato.unsw.edu.au>
-To: LKML <linux-kernel@vger.kernel.org>
-Date: Thu, 24 Jun 2004 15:20:49 +1000
-Cc: rth@twiddle.net
-Subject: [PATCH] 2.6.7 fix broken alpha build ptrace.c error
-Message-ID: <20040624052049.GB20676@cse.unsw.EDU.AU>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="a8Wt8u1KmwUX3Y2C"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Thu, 24 Jun 2004 01:41:27 -0400
+Received: from [210.22.146.172] ([210.22.146.172]:49877 "EHLO
+	asbmx.sbell.com.cn") by vger.kernel.org with ESMTP id S262050AbUFXFl0 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jun 2004 01:41:26 -0400
+content-class: urn:content-classes:message
+Subject: RE: Which factors affect linux context switch time?
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="gb2312"
+Content-Transfer-Encoding: 8BIT
+Date: Thu, 24 Jun 2004 13:40:51 +0800
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6556.0
+Message-ID: <8519CCCD09C9FD409F4CF310566CB4D2010BFD87@sdcmail.sbell.com.cn>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Which factors affect linux context switch time?
+Thread-Index: AcRZqo51QA9u3ebFTPGky0jAIatijwAAtqNQ
+From: "MCG LU Fengcheng" <Fengcheng.LU@alcatel-sbell.com.cn>
+To: "Jeff Woods" <Kazrak+kernel@cesmail.net>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 24 Jun 2004 05:40:52.0227 (UTC) FILETIME=[CFB66D30:01C459AD]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Thank you very much!
+May you tell me How process code segment size, process data segment size and process RSS affect the context switch time?
+(Swap is disabled)
 
---a8Wt8u1KmwUX3Y2C
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+-----Original Message-----
+From: Jeff Woods [mailto:Kazrak+kernel@cesmail.net]
+Sent: Thursday, June 24, 2004 1:01 PM
+To: MCG LU Fengcheng
+Subject: Re: Which factors affect linux context switch time?
 
-When compiling an alpha 2.6.7 kernel the following
-error was produced, attached is a patch that fixes
-the build. I can supply a config file if necessary.
- 
- alpha-linux-gcc -Wp,-MD,arch/alpha/kernel/.ptrace.o.d -nostdinc -iwithprefix include -D__KERNEL__ -Iinclude  -Wall -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -pipe -mno-fp-regs -ffixed-8 -msmall-data -mcpu=ev56 -Wa,-mev6 -O2 -fomit-frame-pointer  -Werror -Wno-sign-compare   -DKBUILD_BASENAME=ptrace -DKBUILD_MODNAME=ptrace -c -o arch/alpha/kernel/ptrace.o arch/alpha/kernel/ptrace.c
-cc1: warnings being treated as errors
-In file included from include/net/checksum.h:26,
-                 from include/linux/skbuff.h:30,
-                 from include/linux/security.h:34,
-                 from arch/alpha/kernel/ptrace.c:16:
-include/asm/checksum.h:75: warning: `struct in6_addr' declared inside parameter list
-include/asm/checksum.h:75: warning: its scope is only this definition or declaration, which is probably not what you want
-make[1]: *** [arch/alpha/kernel/ptrace.o] Error 1
-make: *** [arch/alpha/kernel] Error 2
 
- Darren
+At 6/24/2004 11:37 AM +0800, you asked:
+>Which factors affect Linux context switch time?
 
---------------------------------------------------
-Darren Williams <dsw AT gelato.unsw.edu.au>
-Gelato@UNSW <www.gelato.unsw.edu.au>
---------------------------------------------------
+>kernel Scheduler, cpu cache, process code segment size, process data 
+>segment size, process RSS, or other?
 
---a8Wt8u1KmwUX3Y2C
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="alpha-2.6.7-build-fix.patch"
+All of the above.
 
-# This is a BitKeeper generated diff -Nru style patch.
-#
-# ChangeSet
-#   2004/06/24 15:04:33+10:00 dsw@quasar.(none) 
-#   Fix broken alpha build
-# 
-# include/asm-alpha/checksum.h
-#   2004/06/24 15:04:23+10:00 dsw@quasar.(none) +1 -0
-#   A change was made between 2.6.6 and 2.6.7 that breaks the alpha build.
-#   This patch rectifies the problem, by including 'linux/in6.h'
-#   
-#   signed-off-by Darren Williams <dsw@gelato.unsw.edu.au>
-# 
-diff -Nru a/include/asm-alpha/checksum.h b/include/asm-alpha/checksum.h
---- a/include/asm-alpha/checksum.h	2004-06-24 15:06:28 +10:00
-+++ b/include/asm-alpha/checksum.h	2004-06-24 15:06:28 +10:00
-@@ -1,6 +1,7 @@
- #ifndef _ALPHA_CHECKSUM_H
- #define _ALPHA_CHECKSUM_H
- 
-+#include <linux/in6.h>
- 
- /*
-  *	This is a version of ip_compute_csum() optimized for IP headers,
+--
+Jeff Woods <kazrak+kernel@cesmail.net> 
 
---a8Wt8u1KmwUX3Y2C--
+

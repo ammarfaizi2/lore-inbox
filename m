@@ -1,64 +1,36 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317408AbSFMHmn>; Thu, 13 Jun 2002 03:42:43 -0400
+	id <S317491AbSFMIOh>; Thu, 13 Jun 2002 04:14:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317491AbSFMHmm>; Thu, 13 Jun 2002 03:42:42 -0400
-Received: from point41.gts.donpac.ru ([213.59.116.41]:24589 "EHLO orbita1.ru")
-	by vger.kernel.org with ESMTP id <S317408AbSFMHmm>;
-	Thu, 13 Jun 2002 03:42:42 -0400
-Date: Thu, 13 Jun 2002 11:40:53 +0400
-From: Andrey Panin <pazke@orbita1.ru>
-To: Frank Davis <fdavis@si.rr.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.21: i2c conversion for drivers/media/video/saa7110.c
-Message-ID: <20020613074053.GA305@pazke.ipt>
-Mail-Followup-To: Frank Davis <fdavis@si.rr.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <3D077C26.1090800@si.rr.com>
+	id <S317492AbSFMIOg>; Thu, 13 Jun 2002 04:14:36 -0400
+Received: from isolaweb.it ([213.82.132.2]:44303 "EHLO web.isolaweb.it")
+	by vger.kernel.org with ESMTP id <S317491AbSFMIOg>;
+	Thu, 13 Jun 2002 04:14:36 -0400
+Message-Id: <5.1.1.6.0.20020613095304.00a6fc60@mail.tekno-soft.it>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1.1
+Date: Thu, 13 Jun 2002 10:13:35 +0200
+To: linux-kernel@vger.kernel.org
+From: Roberto Fichera <kernel@tekno-soft.it>
+Subject: Developing multi-threading applications
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="4Ckj6UjgE2iN1+kY"
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-Uname: Linux pazke 2.5.21 
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi All,
 
---4Ckj6UjgE2iN1+kY
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I'm designing a multithreding application with many threads,
+from ~100 to 300/400. I need to take some decisions about
+which threading library use, and which patch I need for the
+kernel to improve the scheduler performances. The machines
+will be a SMP Xeon with 4/8 processors with 4Gb RAM.
+All threads are almost computational intensive and the library
+need a fast interprocess comunication and syncronization
+because there are many sync & async threads time
+dependent and/or critical. I'm planning, in the future, to distribuite
+all the threads in a pool of SMP box.
 
-On =D0=A1=D1=80=D0=B4, =D0=98=D1=8E=D0=BD 12, 2002 at 12:51:50 -0400, Frank=
- Davis wrote:
-> Hello all,
->   Here's what I propose as a complete conversion from the old i2c-old=20
-> interface to the current one (against 2.5.21). I used=20
-> drivers/media/video/saa5249.c as a basis for the conversion, as well as=
-=20
-> reviewing the i2c documentation. Let me know what you think.
-> Regards,
-> Frank
+Thanks in advance.
 
-<snipped, patch eaten by the mailer>
+Roberto Fichera.
 
-Please resend as attachment.
-=20
---=20
-Andrey Panin            | Embedded systems software engineer
-pazke@orbita1.ru        | PGP key: wwwkeys.eu.pgp.net
---4Ckj6UjgE2iN1+kY
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.1 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE9CEyFBm4rlNOo3YgRAjafAJ9CIYqK9++SEZehbvKyMWg5j2jUcwCeKOmo
-iqIpqdSsRQ5j3lKOG5GO0FQ=
-=t4OA
------END PGP SIGNATURE-----
-
---4Ckj6UjgE2iN1+kY--

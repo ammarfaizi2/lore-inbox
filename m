@@ -1,69 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280201AbRJaNX0>; Wed, 31 Oct 2001 08:23:26 -0500
+	id <S280212AbRJaNUq>; Wed, 31 Oct 2001 08:20:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280235AbRJaNXR>; Wed, 31 Oct 2001 08:23:17 -0500
-Received: from mail006.mail.bellsouth.net ([205.152.58.26]:51643 "EHLO
-	imf06bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S280232AbRJaNXN>; Wed, 31 Oct 2001 08:23:13 -0500
-Message-ID: <3BDFFB64.CE5F73D9@mandrakesoft.com>
-Date: Wed, 31 Oct 2001 08:23:48 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14-pre6 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: pre6 weird ps output
-In-Reply-To: <3BDFF758.C5CC5A61@mandrakesoft.com>
+	id <S280210AbRJaNUh>; Wed, 31 Oct 2001 08:20:37 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:19726 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S280196AbRJaNUX>; Wed, 31 Oct 2001 08:20:23 -0500
+Date: Wed, 31 Oct 2001 14:19:18 +0100
+From: Jan Kara <jack@suse.cz>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "David S. Miller" <davem@redhat.com>, jgarzik@mandrakesoft.com,
+        miles@megapathdsl.net, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: What is standing in the way of opening the 2.5 tree?
+Message-ID: <20011031141918.C905@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20011030192902.B22781@atrey.karlin.mff.cuni.cz> <E15yhv5-0001YY-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <E15yhv5-0001YY-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> [jgarzik@brutus rpm]$ ps xf
->   PID TTY      STAT   TIME COMMAND
-> 16013 pts/1    S      0:00 -bash
-> 32105 pts/1    R      0:00 ps xf
-> 15858 pts/0    S      0:00 -bash
-> 15889 pts/0    S      0:02 /bin/sh /usr/bin/rpm-rebuilder
-> 30660 /tmp/rpm/other_clisp-2.27-1mdk.src.rpm.log S   0:00  \_
-> /usr/lib/rpm/rpmb
-> 30670 /tmp/rpm/other_clisp-2.27-1mdk.src.rpm.log S   0:00      \_
-> /bin/sh -e /tm
-> 30671 /tmp/rpm/other_clisp-2.27-1mdk.src.rpm.log S   0:00          \_
-> /bin/sh ./
-> 31942 /tmp/rpm/other_clisp-2.27-1mdk.src.rpm.log S   0:00
+> >   The second patch is patch which implements new quota format. It makes
+> > changes in quotactl() interface and other changes visible in userspace.
+> > I think that is the reason why Linus doesn't want it in 2.4 and I agree with him.
+> 
+> The problem is that without it 32bit uids are useless. That means any real
+> world ldap using customer can't use Linus quotas.
+> 
+> I'd really like to figure a way the code can handle both at once
+  In principle both formats can exist in one kernel. The problem is how
+to fit them into quotactl() syscall and don't bloat it too much. I'll try to
+write something...
 
-Further clue:  kill ssh session and log back in later, and ps output
-[from a different pty] is normal.
+									Honza
 
-> [jgarzik@brutus jgarzik]$ ps xf
->   PID TTY      STAT   TIME COMMAND
-> 15858 pts/0    S      0:00 -bash
-> 15889 pts/0    S      0:02 /bin/sh /usr/bin/rpm-rebuilder
-> 21855 pts/0    S      0:00  \_ /usr/lib/rpm/rpmb -bb --clean --rmspec --rmsource
-> 21863 pts/0    S      0:00      \_ /bin/sh -e /tmp/rpm/tmp/rpm-tmp.70455
-> 25822 pts/0    S      0:00          \_ make
-> 25823 pts/0    S      0:00              \_ make all-recursive
-> 25824 pts/0    S      0:00                  \_ /bin/sh -c set fnord w; amf=$2;  
-> 25840 pts/0    S      0:00                      \_ /bin/sh -c set fnord w; amf=$
-> 25841 pts/0    S      0:00                          \_ make all
-> 25842 pts/0    S      0:00                              \_ /bin/sh -c set fnord 
->  2530 pts/0    S      0:00                                  \_ /bin/sh -c set fn
->  2531 pts/0    S      0:00                                      \_ make all
->  3802 pts/0    S      0:00                                          \_ /bin/sh .
->  4041 pts/0    S      0:00                                              \_ gcc -
->  4043 pts/0    R      0:01                                                  \_ /
->  4044 pts/0    S      0:00                                                  \_ a
->  2801 pts/2    S      0:00 -bash
->  2777 pts/1    S      0:00 -bash
->  4045 pts/1    R      0:00 ps xf
-
-
--- 
-Jeff Garzik      | Only so many songs can be sung
-Building 1024    | with two lips, two lungs, and one tongue.
-MandrakeSoft     |         - nomeansno
-
+--
+Jan Kara <jack@suse.cz>
+SuSE CR Labs

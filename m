@@ -1,38 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287941AbSABUUe>; Wed, 2 Jan 2002 15:20:34 -0500
+	id <S287947AbSABUWE>; Wed, 2 Jan 2002 15:22:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287944AbSABUUZ>; Wed, 2 Jan 2002 15:20:25 -0500
-Received: from relay-3m.club-internet.fr ([195.36.216.172]:5513 "HELO
-	relay-3m.club-internet.fr") by vger.kernel.org with SMTP
-	id <S287941AbSABUUK>; Wed, 2 Jan 2002 15:20:10 -0500
-Message-ID: <3C336B65.2020905@freesurf.fr>
-Date: Wed, 02 Jan 2002 21:19:49 +0100
-From: Kilobug <kilobug@freesurf.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20011228
-X-Accept-Language: fr-fr, fr, en
+	id <S287945AbSABUVp>; Wed, 2 Jan 2002 15:21:45 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:2944 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S287944AbSABUVm>; Wed, 2 Jan 2002 15:21:42 -0500
+Date: Wed, 2 Jan 2002 15:21:46 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: dean gaudet <dean-list-linux-kernel@arctic.org>
+cc: Michal Moskal <malekith@pld.org.pl>, linux-kernel@vger.kernel.org
+Subject: Re: strange TCP stack behiviour with write()es in pieces
+In-Reply-To: <Pine.LNX.4.33.0201021140130.22556-100000@twinlark.arctic.org>
+Message-ID: <Pine.LNX.3.95.1020102150256.498A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-To: timothy.covell@ashavan.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: system.map
-In-Reply-To: <20020102191157.49760.qmail@web21204.mail.yahoo.com> <200201021930.g02JUCSr021556@svr3.applink.net> <3C336209.8000808@nothing-on.tv> <200201022006.g02K6vSr021827@svr3.applink.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2 Jan 2002, dean gaudet wrote:
 
-> 5. sync;sync;shutdown -r now
+> On Wed, 2 Jan 2002, Michal Moskal wrote:
+> 
+> > 	void send_packet(int cmd, void *data, int len)
+> > 	{
+> > 		struct header h = { cmd, len };
+> >
+> > 		write(fd, &h, sizeof(h));
+> > 		write(fd, data, len);
+> > 	}
+> 
+> you should look into writev(2).
+[SNIPPED...]
 
-Is there any particular reason for this double sync ? One isn't enough ?
-(And is sync even needed with shutdown, all should be synced when 
-filesystems are unmounted or remounted read-only, am I wrong ? )
+First, this isn't "TCP stack behavior...". It's an apparent attempt
+to write raw (network?) packets using some kernel primitives. I presume
+that you have obtained the fd from either socket() or by opening some
+device. Whatever. If you are generating a "packet", you need to
+make the packet in a buffer and send the packet. You can't presume
+that something will concatenate to separate writes into some
+kind of "packet". If the hardware is Ethernet, even the hardware
+will fight you because it puts a destination-hardware-address, 
+source-hardware-address, packet-length, data (your packet), then
+32-bit CRC into the outgoing packet. FYI, that 'data' is where
+the TCP/IP data-gram exists.
 
--- 
-** Gael Le Mignot "Kilobug", Ing3 EPITA - http://kilobug.free.fr **
-Home Mail   : kilobug@freesurf.fr          Work Mail : le-mig_g@epita.fr
-GSM         : 06.71.47.18.22 (in France)   ICQ UIN   : 7299959
-Fingerprint : 1F2C 9804 7505 79DF 95E6 7323 B66B F67B 7103 C5DA
+That said, if you are trying to make some kind of "zero-copy" thing,
+you need to leave space in the initial allocation for the header and
+other overhead. That way, you do one write to the device.
 
-"Software is like sex it's better when it's free.", Linus Torvalds
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
 

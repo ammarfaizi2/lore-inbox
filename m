@@ -1,51 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129477AbQLRUMi>; Mon, 18 Dec 2000 15:12:38 -0500
+	id <S130473AbQLRUP2>; Mon, 18 Dec 2000 15:15:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129604AbQLRUM3>; Mon, 18 Dec 2000 15:12:29 -0500
-Received: from ferret.phonewave.net ([208.138.51.183]:28173 "EHLO
-	tarot.mentasm.org") by vger.kernel.org with ESMTP
-	id <S129477AbQLRUMQ>; Mon, 18 Dec 2000 15:12:16 -0500
-Date: Mon, 18 Dec 2000 11:34:44 -0800 (PST)
-From: ferret@phonewave.net
-To: Heiko.Carstens@de.ibm.com
-cc: Pavel Machek <pavel@suse.cz>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        linux-kernel@vger.kernel.org
-Subject: Re: CPU attachent and detachment in a running Linux system
-In-Reply-To: <C12569B9.002C03CF.00@d12mta01.de.ibm.com>
-Message-ID: <Pine.LNX.3.96.1001218113403.3555B-100000@tarot.mentasm.org>
+	id <S129944AbQLRUPT>; Mon, 18 Dec 2000 15:15:19 -0500
+Received: from uucp.nl.uu.net ([193.79.237.146]:26497 "EHLO uucp.nl.uu.net")
+	by vger.kernel.org with ESMTP id <S129604AbQLRUPI>;
+	Mon, 18 Dec 2000 15:15:08 -0500
+Date: Mon, 18 Dec 2000 20:30:16 +0100 (CET)
+From: kees <kees@schoen.nl>
+To: linux-kernel@vger.kernel.org
+Subject: old binary works not with 2.2.18
+Message-ID: <Pine.LNX.4.21.0012182026170.8049-100000@schoen3.schoen.nl>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+I have an old 4GL application (from SCO3.2v4) that is a neat database
+tool. Under 2.2.17 with iBCS this works well:
 
-On Mon, 18 Dec 2000 Heiko.Carstens@de.ibm.com wrote:
+kees@renske1:~ > cat /proc/version
+Linux version 2.2.17 (root@renske1) (gcc version 2.95.2 19991024
+(release)) #10
+Wed Dec 6 20:16:39 CET 2000
+kees@renske1:~ > sage
+ 
+sage : Screen language interpreter
+ 
+SCULPTOR 4GL + SQL
+Release 2.0b (30 May 1990)
+(C) 1984-1990 Microprocessor Developments Ltd.
+All rights reserved
+   
+However under 2.2.18 I get:
 
-> Hi,
-> 
-> >> I still wonder what you and other people think about the idea of an
-> >> interface where the parts of the kernel with per-cpu dependencies should
-> >> register two functions...
-> >Why not compile kernel with structeres big enough for 32 processors,
-> >and then just add CPUs up to the limit without changing anything?
-> 
-> That's a good point and it would probably work for attachment of cpus, but
-> it won't work for detachment because there are some data structures that
-> need to be updated if a cpu gets detached. For example it would be nice
-> to flush the per-cpu cache of the detached cpu in the slabcache. Then one
-> has to think of pending tasklets for the detached cpu which should be
-> moved to another cpu and then there are a lot of per-cpu data structures
-> in the networking part of the kernel.. most of them seem to be for
-> statistics only but I think these structures should be updated in any
-> case.
-> So at least for detaching it would make sense to register functions which
-> will be called whenever a cpu gets detached.
+kees@schoen3:~ > cat /proc/version
+Linux version 2.2.18 (root@schoen3) (gcc version 2.95.2 19991024
+(release)) #1 SMP Mon Dec 18 00:48:04 CET 2000
+kees@schoen3:~ > sage
+Segmentation fault
 
+schoen3:~ #  file /usr/SCULPTOR/bin/sage
+/usr/SCULPTOR/bin/sage: Microsoft a.out separate pure segmented
+word-swapped V2.3 V3.0 386 small model executable  
 
-Plus userspace CPU monitors will need to know when the CPU arrangement has
-changed.
+Hints?
+
+Kees
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,73 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270684AbUJVEX5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270926AbUJVETo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270684AbUJVEX5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 00:23:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270899AbUJVEUY
+	id S270926AbUJVETo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 00:19:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270940AbUJVEQc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 00:20:24 -0400
-Received: from mail.timesys.com ([65.117.135.102]:44703 "EHLO
-	exchange.timesys.com") by vger.kernel.org with ESMTP
-	id S270930AbUJUUU0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 16:20:26 -0400
-Message-ID: <41781984.5090602@timesys.com>
-Date: Thu, 21 Oct 2004 16:18:12 -0400
-From: john cooper <john.cooper@timesys.com>
+	Fri, 22 Oct 2004 00:16:32 -0400
+Received: from fw.osdl.org ([65.172.181.6]:27885 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S270899AbUJVELX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 00:11:23 -0400
+Message-ID: <41788761.8020508@osdl.org>
+Date: Thu, 21 Oct 2004 21:06:57 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
 User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Scott Wood <scott@timesys.com>
-CC: "Eugeny S. Mints" <emints@ru.mvista.com>, Esben Nielsen <simlo@phys.au.dk>,
-       Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
-       Jens Axboe <axboe@suse.de>, Rui Nuno Capela <rncbc@rncbc.org>,
-       LKML <linux-kernel@vger.kernel.org>, Lee Revell <rlrevell@joe-job.com>,
-       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       john cooper <john.cooper@timesys.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U8
-References: <Pine.OSF.4.05.10410211601500.11909-100000@da410.ifa.au.dk> <4177CD3C.9020201@timesys.com> <4177DA11.4090902@ru.mvista.com> <4177E89A.1090100@timesys.com> <20041021173302.GA26318@yoda.timesys> <4177FB4F.9030202@timesys.com> <20041021184742.GB26530@yoda.timesys>
-In-Reply-To: <20041021184742.GB26530@yoda.timesys>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: pavel@suse.cz, linux-kernel@vger.kernel.org
+Subject: __init & __initdata during resume
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 21 Oct 2004 20:15:22.0406 (UTC) FILETIME=[B1889C60:01C4B7AA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Scott Wood wrote:
+Hi Pavel,
 
->On Thu, Oct 21, 2004 at 02:09:19PM -0400, john cooper wrote:
->
->>That's true for the case where the current priority is
->>somewhere else handy (likely) and we don't need to traverse
->>the list for other reasons such as allowing/disallowing
->>recursive acquisition of a mutex by a given task.
->>
->
->How would maintaining priority order make it faster to check for
->recursive usage?  
->
-It wouldn't. My point was an exhaustive traversal may be
-needed for other reasons with an insertion sort being
-near free.
-
-Yet considering the cost to maintain these lists in priority
-order with multiple spinlock acquisition sequences due to how
-the aggregate data structure must be traversed/ordered,
-I haven't yet convinced myself either way.
-
->On uniprocessor, one may wish to turn rwlocks into recursive non-rw
->mutexes, where recursion checking would use a single owner field.
->
-It isn't obvious to me how this would address the case of a
-task holding a reader lock on mx-A then blocking on mx-B.
-Another task attempting to acquire a reader lock on mx-A would
-block rather than immediately acquiring the lock.
-
--john
+'make buildcheck' reports:
+Error: ./arch/x86_64/ia32/syscall32.o .text refers to 0000000000000002
+R_X86_64_PC32     .init.data+0x000000000000152b
+Error: ./arch/x86_64/ia32/syscall32.o .text refers to 0000000000000017
+R_X86_64_PC32     .init.data+0x000000000000152c
 
 
--- 
-john.cooper@timesys.com
+I'm looking at a recent (2 weeks) changeset:
+[PATCH] Fix random crashes in x86-64 swsusp
+
+http://linux.bkbits.net:8080/linux-2.5/cset@4166a52aYzzfOE3F63Kkb966K2Qz3g?nav=index.html|src/|src/arch|src/arch/x86_64|src/arch/x86_64/ia32|related/arch/x86_64/ia32/syscall32.c
+
+in which this change was made:
+
+-void __init syscall32_cpu_init(void)
++/* May not be __init: called during resume */
++void syscall32_cpu_init(void)
+
+but syscall32_cpu_init() uses <use_sysenter>, which is:
+static int use_sysenter __initdata = -1;
+
+so the question is:  does that "__initdata" need to removed also?
+
+--
+~Randy
 

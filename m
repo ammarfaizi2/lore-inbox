@@ -1,87 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273175AbSISVN1>; Thu, 19 Sep 2002 17:13:27 -0400
+	id <S273427AbSISVRh>; Thu, 19 Sep 2002 17:17:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273177AbSISVN0>; Thu, 19 Sep 2002 17:13:26 -0400
-Received: from ztxmail05.ztx.compaq.com ([161.114.1.209]:42255 "EHLO
-	ztxmail05.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id <S273175AbSISVNY> convert rfc822-to-8bit; Thu, 19 Sep 2002 17:13:24 -0400
-x-mimeole: Produced By Microsoft Exchange V6.0.5762.3
-content-class: urn:content-classes:message
+	id <S273440AbSISVRh>; Thu, 19 Sep 2002 17:17:37 -0400
+Received: from packet.digeo.com ([12.110.80.53]:31140 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S273427AbSISVRc>;
+	Thu, 19 Sep 2002 17:17:32 -0400
+Message-ID: <3D8A4016.F364B303@digeo.com>
+Date: Thu, 19 Sep 2002 14:22:30 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: TPC-C benchmark used standard RH kernel
-Date: Thu, 19 Sep 2002 16:18:22 -0500
-Message-ID: <45B36A38D959B44CB032DA427A6E106402D09E45@cceexc18.americas.cpqcorp.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: TPC-C benchmark used standard RH kernel
-Thread-Index: AcJgHOs3lV5H11YeQ6mZ3Elfa/QVDwAANKbA
-From: "Bond, Andrew" <Andrew.Bond@hp.com>
-To: "Dave Hansen" <haveblue@us.ibm.com>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 19 Sep 2002 21:18:23.0221 (UTC) FILETIME=[15E3F250:01C26022]
+To: Duncan Sands <duncan.sands@math.u-psud.fr>
+CC: lkml <linux-kernel@vger.kernel.org>,
+       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>
+Subject: Re: fsync 50 times slower after 2.5.27
+References: <200209190222.33276.duncan.sands@math.u-psud.fr> <3D891BD1.8F774946@digeo.com> <200209192032.25933.duncan.sands@math.u-psud.fr>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 19 Sep 2002 21:22:30.0885 (UTC) FILETIME=[A9827950:01C26022]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> -----Original Message-----
-> From: Dave Hansen [mailto:haveblue@us.ibm.com]
-> Sent: Thursday, September 19, 2002 4:41 PM
-> To: Bond, Andrew
-> Cc: linux-kernel@vger.kernel.org
-> Subject: Re: TPC-C benchmark used standard RH kernel
+Duncan Sands wrote:
 > 
+> On Thursday 19 September 2002 02:35, you wrote:
+> > Duncan Sands wrote:
+> > > I noticed a performance degradation in recent kernels:
+> > > fsync takes around 50 times longer in kernels 2.5.28 to
+> > > 2.5.34 when the system is under heavy load, as compared
+> > > to kernels <= 2.5.27.  I noticed this because it makes kmail
+> > > unusable.  2.5.34 is the most recent kernel I tested.
+> >
+> > Please try replacing the yield() in fs/jbd/transaction.c
+> > with
+> >
+> >       set_current_state(TASK_RUNNING);
+> >       schedule();
 > 
-> Bond, Andrew wrote:
->  > This isn't as recent as I would like, but it will give you an idea.
->  > Top 75 from readprofile.  This run was not using bigpages though.
->  >
->  > 00000000 total                                      7872   0.0066
->  > c0105400 default_idle                               1367  21.3594
->  > c012ea20 find_vma_prev                               462   2.2212
->  > c0142840 create_bounce                               378   1.1250
->  > c0142540 bounce_end_io_read                          332   0.9881
->  > c0197740 __make_request                              256   0.1290
->  > c012af20 zap_page_range                              231   0.1739
->  > c012e9a0 find_vma                                    214   1.6719
->  > c012e780 avl_rebalance                               160   0.4762
->  > c0118d80 schedule                                    157   0.1609
->  > c010ba50 do_gettimeofday                             145   1.0069
->  > c0130c30 __find_lock_page                            144   0.4500
->  > c0119150 __wake_up                                   142   0.9861
->  > c01497c0 end_buffer_io_kiobuf_async                  140   0.6250
->  > c0113020 flush_tlb_mm                                128   1.0000
->  > c0168000 proc_pid_stat                               125   0.2003
-> 
-> Forgive my complete ignorane about TPC-C...  Why do you have so much 
-> idle time?  Are you I/O bound? (with that many disks, I sure hope not 
-> :) )  Or is it as simple as leaving profiling running for a 
-> bit before 
-> or after the benchmark was run?
-> 
+> OK!  This seems to fix the problem for 2.5.36.  I will also
+> test it for 2.5.34 since I didn't test 2.5.36 as rigourously
+> as 2.5.34 for the presence of the problem without the patch.
 
-We were never able to run the system at 100%.  This run looks like it may have had more than normal.  We always had around 5% idle time that we were not able to get ride of by adding more user load, so we were definitely hitting a bottleneck somewhere.  Initial attempts at identifying that bottleneck yielded no results.  So we ended up living with it for the benchmark, intending to post-mortem a root cause.
+(I dragged you back onto the mailing list)
 
-> Earlier, I got a little over-excited because I thinking that the 
-> machines under test were 8-ways, but it looks like the DL580 is a 
-> 4xPIII-Xeon, and you have 8 of them.  I know you haven't 
-> published it, 
-> but do you do any testing on 8-ways?
-> 
-> For most of our work (Specweb, dbench, plain kernel compiles), the 
-> kernel tends to blow up a lot worse at 8 CPUs than 4.  It really dies 
-> on the 32-way NUMA-Qs, but that's a whole other story...
-> 
-> -- 
-> Dave Hansen
-> haveblue@us.ibm.com
-> 
-> 
+Thanks for testing.  The semantics of sched_yield() have changed
+significantly in 2.5.  Probably correctly, but it is breaking a
+few things which were tuned for the old semantics.  Amongst those
+things are OpenOffice and, it seems, ext3 transaction batching.
 
-Don't have any data yet on 8-ways.  Our focus for the cluster was 4-ways because those are what HP uses for most Oracle RAC configurations.  We had done some testing last year that showed very bad scaling from 4 to 8 cpus (only around 10% gain), but that was in the days of 2.4.5.  The kernel has come a long way from then, but like you said there is more work to do in the 8-way arena.
+The transaction batching does good things under some situations,
+and we want it to keep working.  I'll sit tight for the while, see
+where shed_yield() behaviour ends up.  If we still have a problem
+then probably a schedule_timeout(1) in there would suffice.
 
-Are the 8-way's you are talking about 8 full processors, or 4 with Hyperthreading?
+> I will also test using ext2 (does ext2 use transaction.c?).
 
-Regards, 
-Andy
+No. ext2 will not exhibit this problem.

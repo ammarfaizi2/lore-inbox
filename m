@@ -1,44 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264733AbUEPUSd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264811AbUEPUXS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264733AbUEPUSd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 May 2004 16:18:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263183AbUEPUSd
+	id S264811AbUEPUXS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 May 2004 16:23:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264815AbUEPUXR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 May 2004 16:18:33 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:19688 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S264736AbUEPUSa
+	Sun, 16 May 2004 16:23:17 -0400
+Received: from pfepc.post.tele.dk ([195.41.46.237]:605 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S264736AbUEPUXL
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 May 2004 16:18:30 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Alan Cox <alan@redhat.com>, Rene Herman <rene.herman@keyaccess.nl>
-Subject: Re: [RFT][PATCH] ide-disk.c: more write cache fixes
-Date: Sun, 16 May 2004 22:20:23 +0200
-User-Agent: KMail/1.5.3
-Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
-       Alan Cox <alan@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       "Eric D. Mudama" <edmudama@mail.bounceswoosh.org>,
-       Jens Axboe <axboe@suse.de>
-References: <200405132116.44201.bzolnier@elka.pw.edu.pl> <40A4B482.3040706@keyaccess.nl> <20040516195811.GH20505@devserv.devel.redhat.com>
-In-Reply-To: <20040516195811.GH20505@devserv.devel.redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sun, 16 May 2004 16:23:11 -0400
+Date: Sun, 16 May 2004 22:33:22 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Mathieu Chouquet-Stringer <mchouque@online.fr>,
+       linux-kernel@vger.kernel.org, rth@twiddle.net,
+       linux-alpha@vger.kernel.org, ralf@gnu.org, linux-mips@linux-mips.org,
+       akpm@osdl.org, bjornw@axis.com, dev-etrax@axis.com,
+       mikael.starvik@axis.com
+Subject: Re: [PATCH] Fix for 2.6.6 Makefiles to get KBUILD_OUTPUT working
+Message-ID: <20040516203322.GA4784@mars.ravnborg.org>
+Mail-Followup-To: Mathieu Chouquet-Stringer <mchouque@online.fr>,
+	linux-kernel@vger.kernel.org, rth@twiddle.net,
+	linux-alpha@vger.kernel.org, ralf@gnu.org, linux-mips@linux-mips.org,
+	akpm@osdl.org, bjornw@axis.com, dev-etrax@axis.com,
+	mikael.starvik@axis.com
+References: <20040516012245.GA11733@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200405162220.23971.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <20040516012245.GA11733@localhost>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 16 of May 2004 21:58, Alan Cox wrote:
-> On Fri, May 14, 2004 at 01:58:58PM +0200, Rene Herman wrote:
-> > Have again attached a 'rollup' patch against vanilla 2.6.6, including
-> > this, Andrew's SYSTEM_SHUTDOWN split and the quick "don't switch of
-> > spindle if rebooting" hack. Again, just in case anyone finds it useful.
->
-> This reintroduces corruption on my thinkpad 600.
+On Sat, May 15, 2004 at 09:22:45PM -0400, Mathieu Chouquet-Stringer wrote:
+> 	Hi,
+> 
+> if you use O=/someotherdir or KBUILD_OUTPUT=/someotherdir on the following
+> architectures: alpha, mips, sh and cris, the build process is probably
+> going to fail at one point or another, depending on the target you used,
+> because make can't find scripts/Makefile.build or scripts/Makefile.clean.
+> 
+> The following patch (which should apply cleanly to the latest 2.6.6 bk
+> tree) fixes this, I greped the whole tree and these four were the only
+> "offenders" I found.
+Thanks, it has been on my todo for a while.
+A few comments though.
 
-[ this corruption was fixed by kernel 2.6.6 ]
+> --- arch/mips/Makefile.orig	2004-05-15 20:48:52.000000000 -0400
+> +++ arch/mips/Makefile	2004-05-15 20:49:58.000000000 -0400
+>  
+> -makeboot =$(Q)$(MAKE) -f scripts/Makefile.build obj=arch/mips/boot $(1)
+> +makeboot =$(Q)$(MAKE) $(build)=arch/mips/boot $(1)
 
-Please see if reverting changes to ide_device_shutdown() helps.
+Please get rid of makeboot. Use $(Q)$(MAKE) ... instead.
+Hereby the '+' sign is no longer needed (used today where makeboot is used.
 
+>  archclean:
+> -	@$(MAKE) -f scripts/Makefile.clean obj=arch/mips/boot
+> -	@$(MAKE) -f scripts/Makefile.clean obj=arch/mips/baget
+> -	@$(MAKE) -f scripts/Makefile.clean obj=arch/mips/lasat
+> +	@$(MAKE) $(clean)=arch/mips/boot
+> +	@$(MAKE) $(clean)=arch/mips/baget
+> +	@$(MAKE) $(clean)=arch/mips/lasat
+Please use $(Q)$(MAKE), so command is expanded with make V=1, and
+to make it look like all other usages.
+
+
+> --- arch/cris/Makefile.orig	2004-05-15 20:59:49.000000000 -0400
+> +++ arch/cris/Makefile	2004-05-15 21:00:36.000000000 -0400
+OK.
+
+But this file in general looks strange. There seems to be no way
+to descend into arch-v10?
+Mikael - any pending patches for this file / architecture?
+
+Mathieu, could you please update the patch and send onwards to Andrew.
+Do not touch the cris Makefile more than you did, the maintainer needs
+to clean it up.
+
+Thanks,
+	Sam

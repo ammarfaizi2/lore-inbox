@@ -1,65 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262418AbSI2If2>; Sun, 29 Sep 2002 04:35:28 -0400
+	id <S262421AbSI2JAo>; Sun, 29 Sep 2002 05:00:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262420AbSI2If2>; Sun, 29 Sep 2002 04:35:28 -0400
-Received: from natpost.webmailer.de ([192.67.198.65]:32238 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S262418AbSI2If1>; Sun, 29 Sep 2002 04:35:27 -0400
-Date: Sun, 29 Sep 2002 10:38:08 +0200
-From: Dominik Brodowski <linux@brodo.de>
-To: Toon van der Pas <toon@vanvergehaald.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: [2.5.39] (3/5) CPUfreq i386 drivers
-Message-ID: <20020929103807.A1250@brodo.de>
-References: <20020928112503.E1217@brodo.de> <20020928134457.A14784@brodo.de> <20020929000332.A16506@vdpas.hobby.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S262422AbSI2JAo>; Sun, 29 Sep 2002 05:00:44 -0400
+Received: from 205-158-62-105.outblaze.com ([205.158.62.105]:986 "HELO
+	ws4-4.us4.outblaze.com") by vger.kernel.org with SMTP
+	id <S262421AbSI2JAn>; Sun, 29 Sep 2002 05:00:43 -0400
+Message-ID: <20020929090045.25295.qmail@linuxmail.org>
+Content-Type: text/plain; charset="iso-8859-15"
 Content-Disposition: inline
-User-Agent: Mutt/1.3.16i
-In-Reply-To: <20020929000332.A16506@vdpas.hobby.nl>; from toon@vanvergehaald.nl on Sun, Sep 29, 2002 at 12:03:32AM +0200
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
+To: <conman@kolivas.net>
+Cc: linux-kernel@vger.kernel.org
+Date: Sun, 29 Sep 2002 17:00:45 +0800
+Subject: Re: [BENCHMARK] 2.5.39 with contest 0.41
+X-Originating-Ip: 193.76.202.244
+X-Originating-Server: ws4-4.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 29, 2002 at 12:03:32AM +0200, Toon van der Pas wrote:
-> On Sat, Sep 28, 2002 at 01:44:57PM +0200, Dominik Brodowski wrote:
+From: Con Kolivas <conman@kolivas.net>
+[...]
+> > process_load:
+> > Kernel                  Time            CPU             Ratio
+> > 2.4.19                  200.43          60%             1.51
+> > 2.4.19                  203.11          60%             1.53
+> > 2.4.19                  203.97          59%             1.53
+> > 2.5.38-mm2              194.42          69%             1.46
+> > 2.5.38-mm2              195.19          69%             1.47
+> > 2.5.38-mm2              207.36          64%             1.56
+> > 2.5.39                  190.44          70%             1.43
+> > 2.5.39                  191.37          70%             1.44
+> > 2.5.39                  193.60          69%             1.45
 > > 
-> > This add-on patch is needed to abort on Dell Inspiron 8000 / 8100
-> > which would lock up during speedstep.c and to resolve an oops
-> > (thanks to Hu Gang for reporting this)
+> > io_load:
+> > Kernel                  Time            CPU             Ratio
+> > 2.4.19                  486.58          27%             3.66
+> > 2.4.19                  593.72          22%             4.46
+> > 2.4.19                  637.61          21%             4.79
+> > 2.5.38-mm2              232.35          61%             1.75
+> > 2.5.38-mm2              237.83          57%             1.79
+> > 2.5.38-mm2              274.39          50%             2.06
+> > 2.5.39                  242.98          57%             1.83
+> > 2.5.39                  294.52          50%             2.21
+> > 2.5.39                  328.01          42%             2.46
 > > 
-> > 	Dominik
+> > mem_load:
+> > Kernel                  Time            CPU             Ratio
+> > 2.4.19                  172.24          78%             1.29
+> > 2.4.19                  174.74          77%             1.31
+> > 2.4.19                  174.87          77%             1.31
+> > 2.5.38-mm2              165.53          82%             1.24
+> > 2.5.38-mm2              170.00          80%             1.28
+> > 2.5.38-mm2              171.96          79%             1.29
+> > 2.5.39                  167.92          81%             1.26
+> > 2.5.39                  170.80          80%             1.28
+> > 2.5.39                  172.68          79%             1.30
 > 
-> Wait a minute...
-> Do I understand you and your patch right?
-> Dell sells a machine with a Pentium III Mobile CPU with Speedstep
-> technology, and now you tell us that it won't work?  Ever?
-> Does this mean that a lot of people (including me) bought a very
-> advanced and expensive piece of trash?  Then it's about time that
-> I contact Dell, because they screwed me.
-I've been contacted by two Dell Inspiron 8100 users who reported deadlocks
-when using any cpufreq version on their systems. The reason is that Dell
-doesn't use the (documented) interface in the ICH2-M southbridge, but
-(proabably) the ISSCL (Intel SpeedStep Control Logic)-Interface also used on
-440?X chipsets. Unfortunately, this interface is not documented - Intel
-even _removes_ parts of documentation avaialable to the public that could 
-lead to reverse-engineering of the ISSCL-Interface (440 MX Platform Design
-Guide). So, a "legacy" speedstep driver for 440?X chipsets or Dell Inspiron 
-8000/8100s is unlikely, at least for the moment.
+> Quick statistical analysis:
+> Noload, 2.5.39 is slower than 2.4.19 and same as 2.5.38-mm2
+> 
+> ProcessLoad, 2.5.39 is slower than 2.4.19 and same as 2.5.38-mm2
+Why ? 
+If look at the numbers I assume that 2.5.39 is faster then 2.4.19.
+Am I missing something?
 
-However, you might have another chance: by using ACPI. The latest ACPI
-releases for 2.4. as well as the 2.5. tree offers "P-State" support. So if
-your BIOS' ACPI-tables make these P-States available, you _can_ use
-speedstep on this notebook. For details on ACPI P-States, please take a look
-at http://www.brodo.de/english/pub/acpi/proc/processor.html
+I'll run further test...
 
-> Does Speedstep work on this machine with Windows/XP?
-> (I never checked, removed it first thing after unpacking the machine.)
-AFAICT, it does work on the 8100  but not on the 8000.
+Ciao,
+                Paolo
+-- 
+Get your free email from www.linuxmail.org 
 
-BTW, just to set things clear: The only computer I own only uses the 440?X /
-ISSCL-Interface, so I sit in the same boat as you. By developing the
-ICH2-M/ICH3-M driver I had hoped to find ways to reverse-engineer the "old"
-speedstep interface; so far I have been unsuccessful, though.
 
-	Dominik
+Powered by Outblaze

@@ -1,308 +1,225 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265546AbUABSBt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jan 2004 13:01:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265548AbUABSBs
+	id S265552AbUABSIz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jan 2004 13:08:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265548AbUABSIz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jan 2004 13:01:48 -0500
-Received: from out012pub.verizon.net ([206.46.170.137]:41976 "EHLO
-	out012.verizon.net") by vger.kernel.org with ESMTP id S265546AbUABSBi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jan 2004 13:01:38 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None that appears to be detectable by casual observers
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: lm_sensors, again, still, yet
-Date: Fri, 2 Jan 2004 13:01:35 -0500
-User-Agent: KMail/1.5.1
+	Fri, 2 Jan 2004 13:08:55 -0500
+Received: from mx1.it.wmich.edu ([141.218.1.89]:5363 "EHLO mx1.it.wmich.edu")
+	by vger.kernel.org with ESMTP id S265552AbUABSIr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jan 2004 13:08:47 -0500
+Message-ID: <3FF5B3AB.5020309@wmich.edu>
+Date: Fri, 02 Jan 2004 13:08:43 -0500
+From: Ed Sweetman <ed.sweetman@wmich.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Paolo Ornati <ornati@lycos.it>
+CC: linux-kernel@vger.kernel.org, William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: Strange IDE performance change in 2.6.1-rc1 (again)
+References: <200401021658.41384.ornati@lycos.it>
+In-Reply-To: <200401021658.41384.ornati@lycos.it>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200401021301.35349.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out012.verizon.net from [151.205.61.108] at Fri, 2 Jan 2004 12:01:37 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi;
 
-I have a Biostar M7VIB, 8233, 82c686 etc mobo.
-Running ATM, 2.6.1-rc1-mm1
-I have, from .config
 
-CONFIG_X86=y
-CONFIG_MMU=y
-CONFIG_UID16=y
-CONFIG_GENERIC_ISA_DMA=y
-^^^^^^^^^^ this because the smbus emulates it AFAIK
-CONFIG_EXPERIMENTAL=y
-CONFIG_CLEAN_COMPILE=y
-CONFIG_STANDALONE=y
-CONFIG_BROKEN_ON_SMP=y
+I do not see this behavior and i'm using the same ide chipset driver 
+(though not the same ide chipset).  btw, readahead for all my other 
+drives is set to 8192 during these tests but changing them showed no 
+effect on my numbers.
 
-CONFIG_X86_PC=y
-CONFIG_MK7=y
-CONFIG_X86_GENERIC=y
 
-CONFIG_PREEMPT=y
-CONFIG_X86_TSC=y
-CONFIG_X86_CPUID=y
-CONFIG_NOHIGHMEM=y
-CONFIG_MTRR=y
-CONFIG_HAVE_DEC_LOCK=y
 
-CONFIG_PM=y
+/dev/hda:
 
-CONFIG_APM=y
-CONFIG_APM_RTC_IS_GMT=y
-CONFIG_APM_REAL_MODE_POWER_OFF=y
-CONFIG_PCI=y
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_NAMES=y
+  Model=Maxtor 6Y120P0, FwRev=YAR41VW0, SerialNo=Y40D924E
+  Config={ Fixed }
+  RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=57
+  BuffType=DualPortCache, BuffSize=7936kB, MaxMultSect=16, MultSect=16
+  CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=240121728
+  IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
+  PIO modes:  pio0 pio1 pio2 pio3 pio4
+  DMA modes:  mdma0 mdma1 mdma2
+  UDMA modes: udma0 udma1 udma2 udma3 udma4 *udma5 udma6
+  AdvancedPM=yes: disabled (255) WriteCache=enabled
+  Drive conforms to: (null):
 
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_AOUT=y
-CONFIG_BINFMT_MISC=y
-CONFIG_PARPORT=y
-CONFIG_PARPORT_PC=y
-CONFIG_PARPORT_PC_CML1=y
-CONFIG_PARPORT_PC_SUPERIO=y
-CONFIG_PARPORT_1284=y
+00:07.1 IDE interface: VIA Technologies, Inc. 
+VT82C586A/B/VT82C686/A/B/VT8233/A/C/VT8235 PIPC Bus Master IDE (rev 06)
 
-CONFIG_PNP=y
+it's a vt82C686A
 
-CONFIG_PNPBIOS=y
+128
+/dev/hda:
+  Timing buffered disk reads:  130 MB in  3.05 seconds =  42.69 MB/sec
 
-CONFIG_BLK_DEV_FD=y
-CONFIG_BLK_DEV_LOOP=y
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_BLK_DEV_IDECD=y
+256
+/dev/hda:
+  Timing buffered disk reads:  134 MB in  3.03 seconds =  44.27 MB/sec
 
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_BLK_DEV_GENERIC=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_BLK_DEV_ADMA=y
-CONFIG_BLK_DEV_VIA82CXXX=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_IDEDMA_AUTO=y
-CONFIG_SCSI=y
-CONFIG_SCSI_PROC_FS=y
-CONFIG_BLK_DEV_SD=y
-CONFIG_MAX_SD_DISKS=256
-CONFIG_CHR_DEV_ST=y
-CONFIG_BLK_DEV_SR=y
-CONFIG_CHR_DEV_SG=y
+512
+/dev/hda:
+  Timing buffered disk reads:  136 MB in  3.00 seconds =  45.33 MB/sec
 
-CONFIG_SCSI_MULTI_LUN=y
-CONFIG_SCSI_ADVANSYS=y
-CONFIG_NET=y
-CONFIG_PACKET=y
-CONFIG_PACKET_MMAP=y
-CONFIG_NETLINK_DEV=y
-CONFIG_UNIX=y
-CONFIG_INET=y
-CONFIG_NETDEVICES=y
-CONFIG_DUMMY=y
-CONFIG_NET_ETHERNET=y
-CONFIG_MII=y
-CONFIG_NET_PCI=y
-CONFIG_8139TOO=y
-CONFIG_8139_RXBUF_IDX=2
-CONFIG_INPUT=y
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_PSAUX=y
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1600
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=1200
-CONFIG_INPUT_EVDEV=y
-CONFIG_SOUND_GAMEPORT=y
-CONFIG_SERIO=y
-CONFIG_SERIO_I8042=y
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_KEYBOARD_ATKBD=y
-CONFIG_INPUT_MOUSE=y
-CONFIG_MOUSE_PS2=y
-CONFIG_INPUT_MISC=y
-CONFIG_INPUT_PCSPKR=y
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_HW_CONSOLE=y
-CONFIG_SERIAL_8250=y
-CONFIG_SERIAL_8250_NR_UARTS=2
-CONFIG_SERIAL_8250_EXTENDED=y
-CONFIG_SERIAL_8250_SHARE_IRQ=y
-CONFIG_SERIAL_CORE=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_UNIX98_PTY_COUNT=256
-CONFIG_PRINTER=m
+8192
+/dev/hda:
+  Timing buffered disk reads:  140 MB in  3.03 seconds =  46.24 MB/sec
 
-#
-# I2C support
-#
-CONFIG_I2C=y
-CONFIG_I2C_CHARDEV=y
 
-#
-# I2C Algorithms
-#
-CONFIG_I2C_ALGOBIT=y
-# CONFIG_I2C_ALGOPCF is not set
 
-#
-# I2C Hardware Bus support
-#
-CONFIG_I2C_VIAPRO=y
-#
-# I2C Hardware Sensors Chip support
-#
-CONFIG_I2C_SENSOR=y
-CONFIG_SENSORS_EEPROM=y
-CONFIG_SENSORS_W83781D=y
 
-CONFIG_IPMI_HANDLER=y
-CONFIG_IPMI_DEVICE_INTERFACE=y
-CONFIG_RTC=y
+Note, sometimes when moving backwards back to a lower readhead my speed 
+does not decrease to the values you see here. readahead on my system 
+always goes up (on avg) with higher readahead numbers, maxing at 8192. 
+No matter the buffer size or speed or position the ide drive is in.
 
-CONFIG_AGP=y
-CONFIG_AGP_VIA=y
-CONFIG_VIDEO_DEV=y
-CONFIG_VIDEO_BT848=y
-CONFIG_VIDEO_TUNER=y
-CONFIG_VIDEO_BUF=y
-CONFIG_VIDEO_BTCX=y
+hdparm -t is difficult to get really accurate, which is why they suggest 
+running it multiple times.  I see differences of 4MB/sec on subsequent 
+runs without changing anything.  run hdparm -t at least 3-4 times for 
+each readahead value.
 
-CONFIG_FB=y
-CONFIG_VIDEO_SELECT=y
-CONFIG_FB_RIVA=y
-CONFIG_VGA_CONSOLE=y
-CONFIG_DUMMY_CONSOLE=y
+I suggest trying 128, 256,512,8192 as values for readahead and skip all 
+those crap numbers in between.
 
-CONFIG_SOUND=y
-CONFIG_SND=y
-CONFIG_SND_SEQUENCER=y
-CONFIG_SND_OSSEMUL=y
-CONFIG_SND_MIXER_OSS=y
-CONFIG_SND_PCM_OSS=y
-CONFIG_SND_SEQUENCER_OSS=y
-CONFIG_SND_DEBUG=y
-CONFIG_SND_DEBUG_DETECT=y
-CONFIG_SND_VIRMIDI=y
-CONFIG_SND_VIA82XX=y
-CONFIG_SOUND_PRIME=y
-CONFIG_SOUND_BT878=y
-CONFIG_SOUND_VIA82CXXX=y
-CONFIG_SOUND_OSS=y
-CONFIG_SOUND_TRACEINIT=y
-CONFIG_SOUND_DMAP=y
-CONFIG_SOUND_TVMIXER=y
-CONFIG_USB=y
-CONFIG_USB_DEVICEFS=y
-CONFIG_USB_UHCI_HCD=y
-CONFIG_USB_PRINTER=y
-CONFIG_USB_STORAGE=y
-CONFIG_USB_HID=y
-CONFIG_USB_HIDINPUT=y
-CONFIG_USB_HIDDEV=y
-CONFIG_USB_SERIAL=y
-CONFIG_USB_SERIAL_DEBUG=y
-CONFIG_USB_SERIAL_PL2303=y
 
-CONFIG_EXT2_FS=y
-CONFIG_EXT2_FS_XATTR=y
-CONFIG_EXT3_FS=y
-CONFIG_JBD=y
-CONFIG_FS_MBCACHE=y
-CONFIG_AUTOFS4_FS=y
-CONFIG_ISO9660_FS=y
-CONFIG_JOLIET=y
-CONFIG_UDF_FS=y
+if you still see on avg lower numbers on the top end, try nicing hdparm 
+to -20.  Also, update to a newer hdparm. hdparm v5.4, you seem to be 
+using an older one.
 
-CONFIG_FAT_FS=y
-CONFIG_MSDOS_FS=y
-CONFIG_VFAT_FS=y
-
-CONFIG_PROC_FS=y
-CONFIG_PROC_KCORE=y
-CONFIG_SYSFS=y
-CONFIG_DEVPTS_FS=y
-CONFIG_TMPFS=y
-CONFIG_RAMFS=y
-CONFIG_SMB_FS=y
-CONFIG_MSDOS_PARTITION=y
-
-CONFIG_NLS=y
-CONFIG_NLS_DEFAULT="iso8859-1"
-CONFIG_NLS_CODEPAGE_437=y
-CONFIG_NLS_CODEPAGE_737=m
-CONFIG_NLS_CODEPAGE_775=m
-CONFIG_NLS_CODEPAGE_850=m
-CONFIG_NLS_CODEPAGE_852=m
-CONFIG_NLS_CODEPAGE_855=m
-CONFIG_NLS_CODEPAGE_857=m
-CONFIG_NLS_CODEPAGE_860=m
-CONFIG_NLS_CODEPAGE_861=m
-CONFIG_NLS_CODEPAGE_862=m
-CONFIG_NLS_CODEPAGE_863=m
-CONFIG_NLS_CODEPAGE_864=m
-CONFIG_NLS_CODEPAGE_865=m
-CONFIG_NLS_CODEPAGE_866=m
-CONFIG_NLS_CODEPAGE_869=m
-CONFIG_NLS_CODEPAGE_936=m
-CONFIG_NLS_CODEPAGE_950=m
-CONFIG_NLS_CODEPAGE_932=m
-CONFIG_NLS_CODEPAGE_949=m
-CONFIG_NLS_CODEPAGE_874=m
-CONFIG_NLS_ISO8859_8=m
-CONFIG_NLS_CODEPAGE_1250=m
-CONFIG_NLS_CODEPAGE_1251=m
-CONFIG_NLS_ISO8859_1=y
-CONFIG_NLS_ISO8859_2=m
-CONFIG_NLS_ISO8859_3=m
-CONFIG_NLS_ISO8859_4=m
-CONFIG_NLS_ISO8859_5=m
-CONFIG_NLS_ISO8859_6=m
-CONFIG_NLS_ISO8859_7=m
-CONFIG_NLS_ISO8859_9=m
-CONFIG_NLS_ISO8859_13=m
-CONFIG_NLS_ISO8859_14=m
-CONFIG_NLS_ISO8859_15=m
-CONFIG_NLS_KOI8_R=m
-CONFIG_NLS_KOI8_U=m
-CONFIG_NLS_UTF8=m
-CONFIG_DEBUG_KERNEL=y
-CONFIG_MAGIC_SYSRQ=y
-CONFIG_SECURITY=y
-CONFIG_SECURITY_CAPABILITIES=y
-CONFIG_CRC32=y
-CONFIG_X86_BIOS_REBOOT=y
-CONFIG_PC=y
-
-The question is: Based on the above, what sensors data is available 
-and where is it to be found in /sys?
-
-I have now built the newest gtk+-2.2.5, and the newest gkrellm-2.1.24.  
-Took me 2 days to sort the glib dependency hell to do all that.
-
-But the gkrellm sensors menu's are still ghosted, and it says no 
-sensors detected in that configuration window.  I've hand browsed 
-/sys, and cannot find anything that looks like sensors data there.
-
-ksysguard is also blank, but its only 2.4 aware, so I expected that.
-
-WHat am I yet missing?
-
--- 
-Cheers, Gene
-AMD K6-III@500mhz 320M
-Athlon1600XP@1400mhz  512M
-99.22% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attornies please note, additions to this message
-by Gene Heskett are:
-Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
+Paolo Ornati wrote:
+> As I have already said I have noticed a strange IDE performance change 
+> upgrading from 2.6.0 to 2.6.1-rc1.
+> 
+> Now I have more data (and a graph) to show: the test is done using
+> "hdparm -t dev/hda" at various readahead (form 0 to 512).
+> 
+> o SCRIPT
+> 
+> #!/bin/bash
+> 
+> MIN=0
+> MAX=512
+> 
+> ra=$MIN
+> while test $ra -le $MAX; do
+>     hdparm -a $ra /dev/hda > /dev/null;
+>     echo -n $ra$'\t';
+>     s1=`hdparm -t /dev/hda | grep 'Timing' | cut -d'=' -f2| cut -d' ' -f2`;
+>     s2=`hdparm -t /dev/hda | grep 'Timing' | cut -d'=' -f2| cut -d' ' -f2`;
+>     s=`echo "scale=2; ($s1+$s2)/2" | bc`;
+>     echo $s;
+>     ra=$(($ra+16));
+> done
+> 
+> 
+> o RESULTS for 2.6.0  (readahead / speed)
+> 
+> 0	13.30
+> 16	13.52
+> 32	13.76
+> 48	31.81
+> 64	31.83
+> 80	31.90
+> 96	31.86
+> 112	31.82
+> 128	31.89
+> 144	31.93
+> 160	31.89
+> 176	31.86
+> 192	31.93
+> 208	31.91
+> 224	31.87
+> 240	31.18
+> 256	26.41
+> 272	27.52
+> 288	31.74
+> 304	27.29
+> 320	27.23
+> 336	25.44
+> 352	27.59
+> 368	27.32
+> 384	31.84
+> 400	28.03
+> 416	28.07
+> 432	20.46
+> 448	28.59
+> 464	28.63
+> 480	23.95
+> 496	27.21
+> 512	22.38
+> 
+> 
+> o RESULTS for 2.6.1-rc1  (readahead / speed)
+> 
+> 0	13.34
+> 16	25.86
+> 32	26.27
+> 48	24.81
+> 64	26.26
+> 80	24.88
+> 96	27.09
+> 112	24.88
+> 128	26.31
+> 144	24.79
+> 160	26.31
+> 176	24.51
+> 192	25.86
+> 208	24.35
+> 224	26.48
+> 240	24.82
+> 256	26.38
+> 272	24.60
+> 288	31.15
+> 304	24.61
+> 320	26.69
+> 336	24.54
+> 352	26.23
+> 368	24.87
+> 384	25.91
+> 400	25.74
+> 416	26.45
+> 432	23.61
+> 448	26.44
+> 464	24.36
+> 480	26.80
+> 496	24.60
+> 512	26.49
+> 
+> 
+> The graph is attached. (x = readahead && y = MB/s)
+> 
+> The kernel config for 2.6.0 is attached (for 2.6.1-rc1 I have just used 
+> "make oldconfig").
+> 
+> INFO on my HD:
+> 
+> /dev/hda:
+> 
+>  Model=WDC WD200BB-53AUA1, FwRev=18.20D18, SerialNo=WD-WMA6Y1501425
+>  Config={ HardSect NotMFM HdSw>15uSec SpinMotCtl Fixed DTR>5Mbs FmtGapReq }
+>  RawCHS=16383/16/63, TrkSize=57600, SectSize=600, ECCbytes=40
+>  BuffType=DualPortCache, BuffSize=2048kB, MaxMultSect=16, MultSect=16
+>  CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=39102336
+>  IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
+>  PIO modes:  pio0 pio1 pio2 pio3 pio4
+>  DMA modes:  mdma0 mdma1 mdma2
+>  UDMA modes: udma0 udma1 udma2 udma3 *udma4 udma5
+>  AdvancedPM=no WriteCache=enabled
+>  Drive conforms to: device does not report version:  1 2 3 4 5
+> 
+> INFO on my IDE controller:
+> 
+> 00:04.1 IDE interface: VIA Technologies, Inc. VT82C586/B/686A/B PIPC Bus 
+> Master IDE (rev 10)
+> 
+> 
+> Comments are welcomed.
+> 
+> Bye,
+> 
+> 
 

@@ -1,111 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282252AbRKWVvd>; Fri, 23 Nov 2001 16:51:33 -0500
+	id <S282253AbRKWVvx>; Fri, 23 Nov 2001 16:51:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282255AbRKWVvY>; Fri, 23 Nov 2001 16:51:24 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:24540 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S282252AbRKWVvI>;
-	Fri, 23 Nov 2001 16:51:08 -0500
-Date: Fri, 23 Nov 2001 16:51:03 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
+	id <S282255AbRKWVvo>; Fri, 23 Nov 2001 16:51:44 -0500
+Received: from [213.228.128.57] ([213.228.128.57]:11704 "HELO
+	front2.netvisao.pt") by vger.kernel.org with SMTP
+	id <S282253AbRKWVvZ>; Fri, 23 Nov 2001 16:51:25 -0500
 To: linux-kernel@vger.kernel.org
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: [PATCH][CFT] Re: 2.4.15-pre9 breakage (inode.c)
-In-Reply-To: <Pine.GSO.4.21.0111231606150.2422-100000@weyl.math.psu.edu>
-Message-ID: <Pine.GSO.4.21.0111231634310.2422-100000@weyl.math.psu.edu>
+Subject: Kernel Compilation Basics
+From: pocm@rnl.ist.utl.pt (Paulo J. Matos aka PDestroy)
+Date: 23 Nov 2001 21:57:51 +0000
+Message-ID: <m3pu69qheo.fsf@localhost.localdomain>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Untested fix follows.  And please, pass the brown paperbag... ;-/
+Hi all,
 
-diff -urN S15/fs/inode.c S15-fix/fs/inode.c
---- S15/fs/inode.c	Fri Nov 23 06:45:43 2001
-+++ S15-fix/fs/inode.c	Fri Nov 23 16:33:33 2001
-@@ -1065,24 +1065,27 @@
- 			if (inode->i_state != I_CLEAR)
- 				BUG();
- 		} else {
--			if (!list_empty(&inode->i_hash) && sb && sb->s_root) {
-+			if (!list_empty(&inode->i_hash) {
- 				if (!(inode->i_state & (I_DIRTY|I_LOCK))) {
- 					list_del(&inode->i_list);
- 					list_add(&inode->i_list, &inode_unused);
- 				}
- 				inodes_stat.nr_unused++;
- 				spin_unlock(&inode_lock);
--				return;
--			} else {
--				list_del_init(&inode->i_list);
-+				if (!sb || sb->s_flags & MS_ACTIVE))
-+					return;
-+				write_inode_now(inode);
-+				spin_lock(&inode_lock);
-+				inodes_stat.nr_unused--;
- 				list_del_init(&inode->i_hash);
--				inode->i_state|=I_FREEING;
--				inodes_stat.nr_inodes--;
--				spin_unlock(&inode_lock);
--				if (inode->i_data.nrpages)
--					truncate_inode_pages(&inode->i_data, 0);
--				clear_inode(inode);
- 			}
-+			list_del_init(&inode->i_list);
-+			inode->i_state|=I_FREEING;
-+			inodes_stat.nr_inodes--;
-+			spin_unlock(&inode_lock);
-+			if (inode->i_data.nrpages)
-+				truncate_inode_pages(&inode->i_data, 0);
-+			clear_inode(inode);
- 		}
- 		destroy_inode(inode);
- 	}
-diff -urN S15/fs/super.c S15-fix/fs/super.c
---- S15/fs/super.c	Fri Nov 23 06:45:43 2001
-+++ S15-fix/fs/super.c	Fri Nov 23 16:26:18 2001
-@@ -462,6 +462,7 @@
- 	lock_super(s);
- 	if (!type->read_super(s, data, flags & MS_VERBOSE ? 1 : 0))
- 		goto out_fail;
-+	s->s_flags |= MS_ACTIVE;
- 	unlock_super(s);
- 	/* tell bdcache that we are going to keep this one */
- 	if (bdev)
-@@ -614,6 +615,7 @@
- 	lock_super(s);
- 	if (!fs_type->read_super(s, data, flags & MS_VERBOSE ? 1 : 0))
- 		goto out_fail;
-+	s->s_flags |= MS_ACTIVE;
- 	unlock_super(s);
- 	get_filesystem(fs_type);
- 	path_release(&nd);
-@@ -695,6 +697,7 @@
- 		lock_super(s);
- 		if (!fs_type->read_super(s, data, flags & MS_VERBOSE ? 1 : 0))
- 			goto out_fail;
-+		s->s_flags |= MS_ACTIVE;
- 		unlock_super(s);
- 		get_filesystem(fs_type);
- 		return s;
-@@ -739,6 +742,7 @@
- 	dput(root);
- 	fsync_super(sb);
- 	lock_super(sb);
-+	sb->s_flags &= ~MS_ACTIVE;
- 	invalidate_inodes(sb);	/* bad name - it should be evict_inodes() */
- 	if (sop) {
- 		if (sop->write_super && sb->s_dirt)
-diff -urN S15/include/linux/fs.h S15-fix/include/linux/fs.h
---- S15/include/linux/fs.h	Fri Nov 23 06:45:44 2001
-+++ S15-fix/include/linux/fs.h	Fri Nov 23 16:24:44 2001
-@@ -110,6 +110,7 @@
- #define MS_BIND		4096
- #define MS_REC		16384
- #define MS_VERBOSE	32768
-+#define MS_ACTIVE	(1<<30)
- #define MS_NOUSER	(1<<31)
- 
- /*
+I'm trying to compile 2.4.15.
+I've read Kernel Howto and I've done the quick compilation steps:
+make xconfig
+make dep
+make clean
+make bzImage
+cp arch/i386/boot/bzImage /boot/vmlinuz-2.4.15
+make modules
+make modules_install
+
+What about now?
+How do I create system map and modules info?
+What are they for?
+I feel that kernel howto is not explicit with this questions.
+Is there any place where can I get insight about these questions?
+
+Best regards,
+
+-- 
+Paulo J. Matos aka PDestroy : pocm(_at_)rnl.ist.utl.pt
+Instituto Superior Tecnico - Lisbon    
+Software & Computer Engineering - A.I.
+ - > http://www.rnl.ist.utl.pt/~pocm 
+ ---	
+	Yes, God had a deadline...
+		So, He wrote it all in Lisp!
 

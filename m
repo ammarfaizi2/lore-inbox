@@ -1,70 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262052AbUAFNUe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jan 2004 08:20:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262128AbUAFNUe
+	id S262153AbUAFNbv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jan 2004 08:31:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262901AbUAFNbv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jan 2004 08:20:34 -0500
-Received: from smtp2.actcom.co.il ([192.114.47.15]:58566 "EHLO
-	smtp2.actcom.co.il") by vger.kernel.org with ESMTP id S262052AbUAFNUc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jan 2004 08:20:32 -0500
-Date: Tue, 6 Jan 2004 15:19:59 +0200
-From: Muli Ben-Yehuda <mulix@mulix.org>
-To: Libor Vanek <libor@conet.cz>
-Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org,
-       viro@parcelfarce.linux.theplanet.co.uk
-Subject: Re: 2.6.0-mm1 - kernel panic (VFS bug?)
-Message-ID: <20040106131958.GB4268@actcom.co.il>
-References: <1aQy3-2y1-7@gated-at.bofh.it> <m3znd139ur.fsf@averell.firstfloor.org> <3FFAAB91.6090207@conet.cz>
+	Tue, 6 Jan 2004 08:31:51 -0500
+Received: from h80ad2652.async.vt.edu ([128.173.38.82]:7552 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S262153AbUAFNbt (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jan 2004 08:31:49 -0500
+Message-Id: <200401061331.i06DVQF2016758@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Jean-Marc Valin <Jean-Marc.Valin@USherbrooke.ca>
+Cc: Dax Kelson <dax@gurulabs.com>, Andrew Morton <akpm@osdl.org>,
+       "Yu, Luming" <luming.yu@intel.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, linux-acpi@intel.com
+Subject: Re: ACPI battery problem with 2.6.1-rc1-mm2 kernel patch 
+In-Reply-To: Your message of "Tue, 06 Jan 2004 03:23:13 EST."
+             <1073377393.3910.0.camel@idefix.homelinux.org> 
+From: Valdis.Kletnieks@vt.edu
+References: <1073354003.4101.11.camel@idefix.homelinux.org> <20040105180859.7e20e87a.akpm@osdl.org> <200401060259.i062xrb3002240@turing-police.cc.vt.edu> <1073370806.2687.18.camel@mentor.gurulabs.com>
+            <1073377393.3910.0.camel@idefix.homelinux.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="aM3YZ0Iwxop3KEKx"
-Content-Disposition: inline
-In-Reply-To: <3FFAAB91.6090207@conet.cz>
-User-Agent: Mutt/1.5.4i
+Content-Type: multipart/signed; boundary="==_Exmh_1405945126P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Tue, 06 Jan 2004 08:31:25 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---aM3YZ0Iwxop3KEKx
+--==_Exmh_1405945126P
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Tue, Jan 06, 2004 at 01:35:29PM +0100, Libor Vanek wrote:
+On Tue, 06 Jan 2004 03:23:13 EST, Jean-Marc Valin said:
+> > > As suggested by Yu Luming, the patch at http://bugzilla.kernel.org/show=_bug.cgi?id=3D1766
+> > > is confirmed to fix my issue.  2.6.1-rc1-mm2 with that patch gives me:
+> >
+> > Just confirming that the same patched fixed up the battery reporting
+> > problems on my laptop as well.
+> 
+> Works for me too. Case closed?
 
-> >PATH_MAX is 4096. The i386 stack is only 6k. You already overflowed it.
-> >You're lucky if your machine only panics, much worse things can happen
-> >with kernel stack overflows.
+I admit that although *my* configuration works now, somebody else who understands
+the code better (Yu Luming and Len Brown, probably) get to decide if it's an "obvious"
+fix or something that introduces other issues.  I know back around 2.5.68, there was a
+2-line change to the Cardbus support that broke my Xircom card, but backing it out
+was technically wrong as well - the proper fix involved a complete re-write of the Yenta
+stuff.
 
-> OK - what's correct implementation? Do a "char * tmp_path" and
-> kmalloc it?
-
-Generally speaking, yes. That way you get reentrancy for free and
-don't use up too much kernel stack. If speed is of the utmost
-importance, there are other possible solutions.=20
-
-Cheers,=20
-Muli=20
---=20
-Muli Ben-Yehuda
-http://www.mulix.org | http://mulix.livejournal.com/
-
-"the nucleus of linux oscillates my world" - gccbot@#offtopic
-
-
---aM3YZ0Iwxop3KEKx
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+--==_Exmh_1405945126P
+Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-iD8DBQE/+rX+KRs727/VN8sRAi1jAKCUXpW7eHOlc7seEjgajeXI7aXhMACgobTO
-7SmUVkVVwnWnKAMYmn4WYxk=
-=JfMO
+iD8DBQE/+ritcC3lWbTT17ARAk2mAKCvC0o73VbDaByQ3kS5xOKNMLn7+ACg0r7+
+HA2h/0c3jgfBdVLEuQYFC00=
+=743F
 -----END PGP SIGNATURE-----
 
---aM3YZ0Iwxop3KEKx--
+--==_Exmh_1405945126P--

@@ -1,58 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129501AbRBFC0W>; Mon, 5 Feb 2001 21:26:22 -0500
+	id <S129824AbRBFCaD>; Mon, 5 Feb 2001 21:30:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130869AbRBFC0M>; Mon, 5 Feb 2001 21:26:12 -0500
-Received: from smtp.sunflower.com ([24.124.0.137]:37901 "EHLO
-	smtp.sunflower.com") by vger.kernel.org with ESMTP
-	id <S129501AbRBFC0B>; Mon, 5 Feb 2001 21:26:01 -0500
-From: "Steve 'Denali' McKnelly" <denali@sunflower.com>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Motherboard Misdetect
-Date: Mon, 5 Feb 2001 20:25:11 -0600
-Message-ID: <PGEDKPCOHCLFJBPJPLNMMEKHCBAA.denali@sunflower.com>
+	id <S136298AbRBFC3x>; Mon, 5 Feb 2001 21:29:53 -0500
+Received: from r67h147.res.gatech.edu ([128.61.67.147]:31236 "HELO
+	kermit.wreck.org") by vger.kernel.org with SMTP id <S130869AbRBFC3l>;
+	Mon, 5 Feb 2001 21:29:41 -0500
+Date: Mon, 5 Feb 2001 21:29:39 -0500 (EST)
+From: Misc Mail for Erich <junkmail@wreck.org>
+To: linux-kernel@vger.kernel.org
+Subject: FA-311 / Natsemi problems with 2.4.1
+Message-ID: <Pine.LNX.4.21.0101310919330.7723-100000@kermit.wreck.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-In-Reply-To: <E14Pk6B-00039b-00@the-village.bc.nu>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
-Importance: Normal
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Howdy Alan,
 
-	I won't disagree with what you and David are saying.  I
-	took a look at the picture of the 6KD, and they're similar.
-	Main difference is missing SCSI connectors and an extra long
-	PCI slot (on the 6KD).
+I'm having problems with the natsemi drivers on my Netgear FA-311 card.
 
-	Thanks!
+On one host, I get lots of messages like this:
 
-Steve
+eth1: Something Wicked happened! 0700.
+eth1: Something Wicked happened! 0740.
+eth1: Something Wicked happened! 0740.
+eth1: Something Wicked happened! 0740.
+eth1: Something Wicked happened! 0740.
+eth1: Something Wicked happened! 0740.
+eth1: Something Wicked happened! 0540.
 
------Original Message-----
-From: Alan Cox [mailto:alan@lxorguk.ukuu.org.uk]
-Sent: Monday, February 05, 2001 5:46 AM
-To: Steve 'Denali' McKnelly
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Motherboard Misdetect
+This is on a K6-166
 
+On my athlon/duron, I don't get those messages, but once in a while it will 
+just stop working.  If I bring the interface down, remove the module, and 
+bring the interface back up again it will start to work again.
 
-> 	I own a M-Technology M-668DS motherboard.  Linux 2.4.1
-> 	identifies my board as a Soyo SY-6KD.  They're not really
-> 	the same board, and they each have features the other doesn't
+These two cards are connected by a crossover cable.  When the cards are 
+working the link works just fine.
 
-We read the data from the BIOS. Its actually only scanned to match against
-known system bugs so won't be a problem. It sounds like they are using the
-same bios image on a set of boards and didnt bother to fix the name.
+What more information do I need to obtain?  Please cc me, though I'll
+be watching the list archives as well.
 
-It may well also be they are the same board minus a few components.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

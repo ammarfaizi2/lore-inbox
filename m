@@ -1,52 +1,117 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319182AbSIJO7r>; Tue, 10 Sep 2002 10:59:47 -0400
+	id <S319190AbSIJPFE>; Tue, 10 Sep 2002 11:05:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319186AbSIJO7r>; Tue, 10 Sep 2002 10:59:47 -0400
-Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:13822
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S319182AbSIJO7q>; Tue, 10 Sep 2002 10:59:46 -0400
-Subject: RE: [RFC] Multi-path IO in 2.5/2.6 ?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Cameron, Steve" <Steve.Cameron@hp.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <45B36A38D959B44CB032DA427A6E10640167D03B@cceexc18.americas.cpqcorp.net>
-References: <45B36A38D959B44CB032DA427A6E10640167D03B@cceexc18.americas.cpqcorp.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
-Date: 10 Sep 2002 16:05:54 +0100
-Message-Id: <1031670354.31549.80.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S319191AbSIJPFD>; Tue, 10 Sep 2002 11:05:03 -0400
+Received: from citi.umich.edu ([141.211.92.141]:25408 "HELO citi.umich.edu")
+	by vger.kernel.org with SMTP id <S319190AbSIJPFB>;
+	Tue, 10 Sep 2002 11:05:01 -0400
+Date: Tue, 10 Sep 2002 11:09:47 -0400 (EDT)
+From: Chuck Lever <cel@citi.umich.edu>
+To: Daniel Phillips <phillips@arcor.de>
+Cc: Andrew Morton <akpm@digeo.com>, Rik van Riel <riel@conectiva.com.br>,
+       <trond.myklebust@fys.uio.no>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: invalidate_inode_pages in 2.5.32/3
+In-Reply-To: <E17oZUa-0006wh-00@starship>
+Message-ID: <Pine.BSO.4.33.0209101036040.5887-100000@citi.umich.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-09-10 at 15:43, Cameron, Steve wrote:
-> Well, the BIOS can do it if it has one working path, right?
-> (I think the md information is at the end of the partition,)
+On Tue, 10 Sep 2002, Daniel Phillips wrote:
 
-Yes. A good PC bios will spot an hda boot fail, and try hdc. Good PC
-bioses are alas slightly hard to find nowdays. In that set up raid1
-works very well. Multipath is obviously a lot more complicated.
+> On Tuesday 10 September 2002 01:51, Chuck Lever wrote:
+> > rpciod must never call a function that sleeps.  if this happens, the whole
+> > NFS client stops working until the function wakes up again.  this is not
+> > really bogus -- it is similar to restrictions placed on socket callbacks.
+>
+> Ah, a warm body with answers :-)
+>
+> It *sounds* bogus: why should we be satisfied with a function that doesn't
+> do its job reliably (invalidate_inode_pages) in order to avoid coming up
+> with a way of keeping the client daemon from blocking?  How about having
+> invalidate_inode_pages come back with "sorry boss, I couldn't complete the
+> job so I started as much IO as I could and I'm back now, try again later"?
 
-> lilo and grub as they stand today, and anaconda (et al) as it 
-> stands today, cannot do it.  They can do RAID1 md devices only.  
-> lilo for example will complain if you try to run it with 
-> boot=/dev/md0, and /dev/md0 is not a RAID1 device.   At least 
+i'm not suggesting that invalidate_inode_pages behaves properly, i'm
+simply trying to document why it works the way it does.  i agree that it
+leaves a window open for broken behavior today.  what is *not* bogus is
+the requirement for functions invoked by async RPC tasks not to sleep;
+that's reasonable, i feel.
 
-It relies on the BIOS to do the data loading off the md0. In your
-scenario you would tell it the boot is on /dev/sdfoo where that is the
-primary path. I guess the ugly approach would be to add lilo/grub
-entries for booting off either path as two seperate kernel entries.
+> > thus:
+> >
+> > 1.  whatever function purges a file's cached data must not sleep when
+> >     invoked from an async RPC task.
+>
+> [otherwise other tasks using the client will stall needlessly]
 
-> bit, but so far, I am unsuccessful.  I think grub cannot even do
-> RAID1.
+correct.
 
-Works for me
- 
-> I agree in principle, the initrd scripts can insmod multipath.o
-> to get things rolling, etc.  The trouble comes from lilo, grub 
-> and install time configuration.
+> > 3.  mmap'd pages must behave reasonably when a file's cache is purged.
+> >     clean pages should be faulted back in.  what to do with dirty mmap'd
+> >     pages?
+>
+> I don't know, sorry.  What?
 
-Yes. 
+'twas a rhetorical question.  i'm trying to understand this myself.  the
+case of what to do with dirty mmap'd pages is somewhat sticky.
+
+> You've probably been through this before, but could you please explain
+> the ground rules behind the cache purging strategy?
+
+i can answer the question "when does the NFS client purge a file's cached
+data?"
+
+there are four major categories:
+
+a.  directory changes require any cached readdir results be purged.  this
+    forces the readdir results to be re-read from the server the next time
+    the client needs them.  this is what broke with the recent changes in
+    2.5.32/3 that triggered this thread.
+
+b.  when the client discovers a file on the server was changed by some
+    other client, all pages in the page cache for that file are purged
+    (except the ones that can't be because they are locked, etc).  this
+    is the case that is hit most often and in async RPC tasks, and is
+    on many critical performance paths.
+
+c.  when a file is locked or unlocked via lockf/fcntl, all pending writes
+    are pushed back to the server and any cached data in the page cache is
+    purged before the lock/unlock call returns.  applications sometimes
+    depend on this behavior to checkpoint the client's cache.
+
+d.  some error occurred while reading a directory, or the object on the
+    server has changed type (like, a file becomes a directory but the
+    file handle is still the same -- a protocol error, but the client
+    checks for this just in case).
+
+so let's talk about b.  before and after many operations, the NFS client
+attempts to revalidate an inode.  this means it does a GETATTR operation,
+or uses the attr results returned in many NFS requests, to compare the
+file's size and mtime on the server with the same values it has cached
+locally.  this revalidation can occur during XDR processing while the RPC
+layer marshals and unmarshals the results of an NFS request.
+
+i don't want to speculate too much without Trond around to keep me honest.
+however, i think what we want here is behavior that is closer to category
+c., with as few negative performance implications as possible.
+
+i think one way to accomplish this is to create two separate revalidation
+functions -- one that can be used by synchronous code in the NFS client
+that uses the 100% bug killer, and one that can be used from async RPC
+tasks that simply marks that a purge is necessary, and next time through
+the sync one, the purge actually occurs.
+
+the only outstanding issue then is how to handle pages that are dirtied
+via mmap'd files, since they are touched without going through the NFS
+client.  also, i'd really like to hear from maintainers of other network
+file systems about how they manage cache coherency.
+
+	- Chuck Lever
+--
+corporate:	<cel at netapp dot com>
+personal:	<chucklever at bigfoot dot com>
 

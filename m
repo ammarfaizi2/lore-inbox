@@ -1,33 +1,30 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261322AbVABUei@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261327AbVABUig@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261322AbVABUei (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jan 2005 15:34:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261324AbVABUei
+	id S261327AbVABUig (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jan 2005 15:38:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261334AbVABUh7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jan 2005 15:34:38 -0500
-Received: from mail1.kontent.de ([81.88.34.36]:27343 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S261322AbVABUd6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jan 2005 15:33:58 -0500
-From: Oliver Neukum <oliver@neukum.org>
-To: Adrian Bunk <bunk@stusta.de>
+	Sun, 2 Jan 2005 15:37:59 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:44560 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261328AbVABUgM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Jan 2005 15:36:12 -0500
+Date: Sun, 2 Jan 2005 21:36:10 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: luto@myrealbox.com, aebr@win.tue.nl, linux-kernel@vger.kernel.org
 Subject: Re: the umount() saga for regular linux desktop users
-Date: Sun, 2 Jan 2005 21:34:16 +0100
-User-Agent: KMail/1.7.1
-Cc: Pavel Machek <pavel@ucw.cz>, luto@myrealbox.com, aebr@win.tue.nl,
-       linux-kernel@vger.kernel.org
+Message-ID: <20050102203610.GD4183@stusta.de>
 References: <20050102193724.GA18136@elf.ucw.cz> <20050102201147.GB4183@stusta.de>
-In-Reply-To: <20050102201147.GB4183@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200501022134.16338.oliver@neukum.org>
+In-Reply-To: <20050102201147.GB4183@stusta.de>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Sonntag, 2. Januar 2005 21:11 schrieb Adrian Bunk:
+On Sun, Jan 02, 2005 at 09:11:47PM +0100, Adrian Bunk wrote:
 > On Sun, Jan 02, 2005 at 08:37:24PM +0100, Pavel Machek wrote:
 > 
 > > Well, umount -l can be handy, but it does not allow you to get your CD
@@ -41,10 +38,19 @@ Am Sonntag, 2. Januar 2005 21:11 schrieb Adrian Bunk:
 > What's wrong with
 > 
 >   fuser -k /mnt && umount /mnt
+>...
 
-1. Would need suid.
-2. Is a mindless slaughter of important processes.
-3. Is a race condition.
+I meant
 
-	Regards
-			Oliver
+  fuser -km /mnt && umount /mnt
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

@@ -1,77 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262171AbVBJQgk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262109AbVBJQlS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262171AbVBJQgk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Feb 2005 11:36:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262170AbVBJQgk
+	id S262109AbVBJQlS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Feb 2005 11:41:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262157AbVBJQlS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Feb 2005 11:36:40 -0500
-Received: from dobermann.cosy.sbg.ac.at ([141.201.2.56]:1174 "EHLO
-	dobermann.cosy.sbg.ac.at") by vger.kernel.org with ESMTP
-	id S262171AbVBJQg1 (ORCPT <rfc822;linux-kernel@VGER.KERNEL.ORG>);
-	Thu, 10 Feb 2005 11:36:27 -0500
-Date: Thu, 10 Feb 2005 17:36:25 +0100 (MET)
-From: Andreas Maier <andi@cosy.sbg.ac.at>
-To: <linux-kernel@VGER.KERNEL.ORG>
-Subject: [PATCH] sundance.c: high interrupt load [resent]
-Message-ID: <Pine.GSO.4.33.0502101731400.16515-100000@lama.cosy.sbg.ac.at>
+	Thu, 10 Feb 2005 11:41:18 -0500
+Received: from cyberhostplus.biz ([209.124.87.2]:30183 "EHLO
+	server.cyberhostplus.biz") by vger.kernel.org with ESMTP
+	id S262109AbVBJQlR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Feb 2005 11:41:17 -0500
+From: "Steve Lee" <steve@tuxsoft.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: <zippel@linux-m68k.org>
+Subject: Re: [RFC] Linux Kernel Subversion Howto
+Date: Thu, 10 Feb 2005 10:42:15 -0600
+Message-ID: <000001c50f8f$7f420420$8119fea9@pluto>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4024
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - server.cyberhostplus.biz
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - tuxsoft.com
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In at least some versions of Kernel 2.6 (2.6.8.1, 2.6.11-rc2)
-the driver drivers/net/sundance.c creates high interrupt load
-(~ 100 interrupts per second) even in case of no network traffic
-at all.
+Roman, besides BK being closed source, how exactly is it lacking for
+your needs?  If what it lacks is a good idea and helps many, Larry and
+crew might be willing to add whatever it is you need.
 
-It seems that some sort of TX overflow handling is misplaced
-and triggers interrupts very often even in case of no data to
-send. The TX overflow handling has been moved to a more
-appropriate place.
-
-While there, an off by one error of reading the TX status has
-also been corrected by moving the read after the break.
-
-Thanks to Jeroen who tested the patch (also with high workload).
-Interrupts are down to normal and there are no obvious side
-effects.
-
-The attached patch is against kernel 2.6.11-rc2. A copy has been
-sent to Donald Becker but unfortunately no response arrived.
-Comments are very much appreciated.
-
-Best regards,
--andi
-
-
---- sundance.c.orig	2005-01-22 02:48:26.000000000 +0100
-+++ sundance.c	2005-01-28 19:55:59.000000000 +0100
-@@ -1210,9 +1210,11 @@
- 				}
- 				/* Yup, this is a documentation bug.  It cost me *hours*. */
- 				iowrite16 (0, ioaddr + TxStatus);
--				tx_status = ioread16 (ioaddr + TxStatus);
--				if (tx_cnt < 0)
-+				if (tx_cnt < 0) {
-+					iowrite32(5000, ioaddr + DownCounter);
- 					break;
-+				}
-+				tx_status = ioread16 (ioaddr + TxStatus);
- 			}
- 			hw_frame_id = (tx_status >> 8) & 0xff;
- 		} else 	{
-@@ -1278,7 +1280,6 @@
- 	if (netif_msg_intr(np))
- 		printk(KERN_DEBUG "%s: exiting interrupt, status=%#4.4x.\n",
- 			   dev->name, ioread16(ioaddr + IntrStatus));
--	iowrite32(5000, ioaddr + DownCounter);
- 	return IRQ_RETVAL(handled);
- }
-
-
--- 
-| Andreas Maier                     University of Salzburg               |
-| (andi@cosy.sbg.ac.at)             Department of Computing Sciences     |
-| Tel. +43/662/8044-6339            Jakob Haringerstr. 2                 |
-| Fax. +43/662/8044-611             5020 Salzburg / Austria, Europe      |
 

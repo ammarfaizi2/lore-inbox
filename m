@@ -1,42 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289024AbSANUbF>; Mon, 14 Jan 2002 15:31:05 -0500
+	id <S288992AbSANUfN>; Mon, 14 Jan 2002 15:35:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288992AbSANU3l>; Mon, 14 Jan 2002 15:29:41 -0500
-Received: from ns1.system-techniques.com ([199.33.245.254]:56707 "EHLO
-	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
-	id <S289018AbSANU3L>; Mon, 14 Jan 2002 15:29:11 -0500
-Date: Mon, 14 Jan 2002 15:28:59 -0500 (EST)
-From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Hardwired drivers are going away?
-In-Reply-To: <E16QCvI-0002f8-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.44.0201141526080.3238-100000@filesrv1.baby-dragons.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S289012AbSANUc1>; Mon, 14 Jan 2002 15:32:27 -0500
+Received: from UX3.SP.CS.CMU.EDU ([128.2.198.103]:12391 "HELO
+	ux3.sp.cs.cmu.edu") by vger.kernel.org with SMTP id <S289013AbSANUbT>;
+	Mon, 14 Jan 2002 15:31:19 -0500
+Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery --
+	the elegant solution)
+From: Justin Carlson <justincarlson@cmu.edu>
+To: esr@thyrsus.com
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020114145035.E17522@thyrsus.com>
+In-Reply-To: <20020114132618.G14747@thyrsus.com>
+	<m16QCNJ-000OVeC@amadeus.home.nl>  <20020114145035.E17522@thyrsus.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-DPX0qPgcxV5HQj95+lQ1"
+X-Mailer: Evolution/0.99.2 (Preview Release)
+Date: 14 Jan 2002 15:30:46 -0500
+Message-Id: <1011040246.19071.42.camel@gs256.sp.cs.cmu.edu>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-	Hello Alan ,
+--=-DPX0qPgcxV5HQj95+lQ1
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, 14 Jan 2002, Alan Cox wrote:
-> > 	No,  But it is -mine- !  If I can not have complete control over
-> > 	my system due to the way the Fathers of this operating system
-> > 	are taking it I will have no choice but to use another or be stuck
-> > 	at a non-maintained version .  Now mind you I LIKE LINUX !
-> Right but you aren't going to go and use autoconfig except maybe to get
-> an initial Configuration to frob with ?
-	Ok , Now I am confused .  I guess it's not hard to do .
-	Is the Kernel headed toward Soft drivers or not ?
+There are many times I would have found (and, I anticipate, many times I
+will find) an autoconfigurator useful in my work, if only to get a
+rough-cut kernel configuration done in minimal time.  For my purposes,
+it doesn't have to be 100% correct to save me some significant amount of
+work.
 
-	I get my initial Config (say from autoconf.) how will that keep
-	the Drivers in the Kernel ?  Tia ,  JimL
+Does this mean I'm incapable of configuring a kernel with the available
+tools?  No.  And it doesn't mean I think there needs to be some grand
+shift in the way distro vendors provide kernels, but this kind of a
+facility would be useful for *me*.  I don't want to get into whether
+this is an appropriate thing to make easily accessible to good ol' Aunt
+Tillie.=20
 
-       +------------------------------------------------------------------+
-       | James   W.   Laferriere | System    Techniques | Give me VMS     |
-       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
-       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
-       +------------------------------------------------------------------+
+>From the other side, how does having the ability to probe local hardware
+hurt?  It should be cleanly seperable from the classical build process
+for the purists, and helpful to some (I think) significant portion of
+the userbase, particularly those folks who like to test bleeding edge
+stuff on a variety of hardware.  I don't really understand the
+resistance to the idea of someone going out and implementing this.
+
+my $.02.
+
+-Justin
+
+--=-DPX0qPgcxV5HQj95+lQ1
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQA8Qz/247Lg4cGgb74RAqpcAKDE+NVnfV19AkQOcCAff8fei04qAQCgk4re
+TYUz+vTp9nAAYiQv0JiABfU=
+=6C03
+-----END PGP SIGNATURE-----
+
+--=-DPX0qPgcxV5HQj95+lQ1--
 

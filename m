@@ -1,44 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132571AbREICYJ>; Tue, 8 May 2001 22:24:09 -0400
+	id <S132580AbREIC3A>; Tue, 8 May 2001 22:29:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132580AbREICX7>; Tue, 8 May 2001 22:23:59 -0400
-Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:61960
-	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
-	with ESMTP id <S132571AbREICXr>; Tue, 8 May 2001 22:23:47 -0400
-Date: Tue, 08 May 2001 22:22:43 -0400
-From: Chris Mason <mason@suse.com>
-To: Michael Stiller <michael@ping.de>, linux-kernel@vger.kernel.org
-cc: nfs@lists.sourceforge.net
-Subject: Re: 2.2.19 + reiserfs 3.5.32 nfsd wait_on_buffer/down_failed
-Message-ID: <1164860000.989374963@tiny>
-In-Reply-To: <20010508164243.A23213@ping.de>
-X-Mailer: Mulberry/2.0.8 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	id <S135216AbREIC2k>; Tue, 8 May 2001 22:28:40 -0400
+Received: from juicer24.bigpond.com ([139.134.6.34]:27853 "EHLO
+	mailin3.email.bigpond.com") by vger.kernel.org with ESMTP
+	id <S132580AbREIC20>; Tue, 8 May 2001 22:28:26 -0400
+Message-Id: <m14xJmW-001QgaC@mozart>
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: page_launder() bug 
+In-Reply-To: Your message of "Sun, 06 May 2001 21:55:26 MST."
+             <15094.10942.592911.70443@pizda.ninka.net> 
+Date: Wed, 09 May 2001 12:32:51 +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tuesday, May 08, 2001 04:42:43 PM +0200 Michael Stiller <michael@ping.de> wrote:
-
-> Hi,
+In message <15094.10942.592911.70443@pizda.ninka.net> you write:
 > 
-> we run a nfs server utilizing 2.2.19 + ReiserFS version 3.5.32 on a
-> P 3 550 machine. Disk subsystem is a GDT7518RN using 4 UW disks as raid 5
-> device. After upgrading from 2.2.17 + reiserfs to 2.2.19 we experience
-> many (very much more than with 2.2.17) problems with our nfs clients
-> about 12 (linux). Network ist 100Mbit full duplex / switched. 
-> I do not think this is network related, cause ping -f doesnt show any
-> packet loss. 
+> Jonathan Morton writes:
+>  > >-			 page_count(page) == (1 + !!page->buffers));
+>  > 
+>  > Two inversions in a row?
 > 
-> During not so heavy IO on the exported fs
-> one nfsd thread seems to be waiting for the disk:
+> It is the most straightforward way to make a '1' or '0'
+> integer from the NULL state of a pointer.
 
-Are you running any patches to make knfsd deal with the reiserfs iget issues?
+Overall, I'd have to say that this:
 
--chris
+-		dead_swap_page =
+-			(PageSwapCache(page) &&
+-			 page_count(page) == (1 + !!page->buffers));
+-
 
+Is nicer as:
+
+		int dead_swap_page = 0;
+
+		if (PageSwapCache(page)
+		    && page_count(page) == (page->buffers ? 1 : 2))
+			dead_swap_page = 1;
+
+After all, the second is what the code *means* (1 and 2 are magic
+numbers).
+
+That said, anyone who doesn't understand the former should probably
+get some more C experience before commenting on others' code...
+
+Rusty.
+--
+Premature optmztion is rt of all evl. --DK

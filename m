@@ -1,56 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261430AbVACVrD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261764AbVACVtu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261430AbVACVrD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 16:47:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261456AbVACVrD
+	id S261764AbVACVtu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 16:49:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261503AbVACVtP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 16:47:03 -0500
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:29879 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S261430AbVACVq6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 16:46:58 -0500
-Subject: Re: [PATCH] get/set FAT filesystem attribute bits
-From: Nicholas Miell <nmiell@comcast.net>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: hirofumi@mail.parknet.co.jp, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <41D9BA8B.2000108@zytor.com>
-References: <41D9B1C4.5050507@zytor.com>
-	 <1104787447.3604.9.camel@localhost.localdomain>
-	 <41D9BA8B.2000108@zytor.com>
-Content-Type: text/plain
-Date: Mon, 03 Jan 2005 13:46:56 -0800
-Message-Id: <1104788816.3604.17.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3.njm.1) 
+	Mon, 3 Jan 2005 16:49:15 -0500
+Received: from smtpout.mac.com ([17.250.248.88]:50912 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S261772AbVACVsD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jan 2005 16:48:03 -0500
+In-Reply-To: <200501032059.j03KxOEB004666@laptop11.inf.utfsm.cl>
+References: <200501032059.j03KxOEB004666@laptop11.inf.utfsm.cl>
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <0F9DCB4E-5DD1-11D9-892B-000D9352858E@mac.com>
 Content-Transfer-Encoding: 7bit
+Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
+       Rik van Riel <riel@redhat.com>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Maciej Soltysiak <solt2@dns.toxicfilms.tv>,
+       Andries Brouwer <aebr@win.tue.nl>,
+       William Lee Irwin III <wli@debian.org>
+From: Felipe Alfaro Solana <lkml@mac.com>
+Subject: Re: starting with 2.7
+Date: Mon, 3 Jan 2005 22:47:27 +0100
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-01-03 at 13:35 -0800, H. Peter Anvin wrote:
-> Nicholas Miell wrote:
-> > Instead of adding another ioctl, wouldn't an xattr be more appropriate?
-> > For instance, system.fatattrs containing a text representation of the
-> > attribute bits.
-> > 
-> 
-> This really worries me, because it's not clear to me that Microsoft 
-> isn't going to add NTFS-style xattrs to FAT in the future.  There is a 
-> very specific reason why they might want to do that: since they want to 
-> keep NTFS secret and proprietary, FAT is the published interchange 
-> format that other devices can use to exchange data with MS operating 
-> systems.  If we then have overloaded the xattr mechanism, that would be 
-> very ugly.
-> 
-> 	-hpa
+On 3 Jan 2005, at 21:59, Horst von Brand wrote:
 
-That's why I put fatattrs in the system namespace, which is wholly owned
-by the Linux kernel. Any theoretical FAT-with-xattrs variant would put
-those xattrs in the user namespace.
+> Felipe Alfaro Solana <lkml@mac.com> said:
+>
+> [...]
+>
+>> I would like to comment in that the issue is not exclusively targeted
+>> to stability, but the ability to keep up with kernel development. For
+>> example, it was pretty common for older versions of VMWare and NVidia
+>> driver to break up whenever a new kernel version was released.
+>
+> That is the price for closed-source drivers.
+>
+>> I think it's a PITA for developers to rework some of the closed-source
+>> code to adopt the new changes in the Linux kernel.
+>
+> Open up the code. Most of the changes will then be done as a matter of
+> course by others.
 
-On another note, NTFS-style xattrs (aka named streams) are unrelated to
-Linux xattrs. A named stream is a separate file with a funny name, while
-a Linux xattr is a named extension to struct stat.
--- 
-Nicholas Miell <nmiell@comcast.net>
+Unfortunately, you can't force the entire hardware industry to open up 
+their drivers.
 

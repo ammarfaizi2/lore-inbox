@@ -1,33 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270466AbRIBJV4>; Sun, 2 Sep 2001 05:21:56 -0400
+	id <S270480AbRIBJ00>; Sun, 2 Sep 2001 05:26:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270480AbRIBJVq>; Sun, 2 Sep 2001 05:21:46 -0400
-Received: from fenrus.demon.co.uk ([158.152.228.152]:31659 "EHLO
-	amadeus.home.nl") by vger.kernel.org with ESMTP id <S270466AbRIBJVa>;
-	Sun, 2 Sep 2001 05:21:30 -0400
-Message-Id: <m15dTRm-000QCGC@amadeus.home.nl>
-Date: Sun, 2 Sep 2001 10:21:42 +0100 (BST)
-From: arjan@fenrus.demon.nl
-To: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: 2.4.10-pre3 - bug report
-cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200109020348.f823mCs01183@penguin.transmeta.com>
-X-Newsgroups: fenrus.linux.kernel
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.3-6.0.1 (i586))
+	id <S271598AbRIBJ0Q>; Sun, 2 Sep 2001 05:26:16 -0400
+Received: from mustard.heime.net ([194.234.65.222]:3490 "EHLO
+	mustard.heime.net") by vger.kernel.org with ESMTP
+	id <S270480AbRIBJ0J>; Sun, 2 Sep 2001 05:26:09 -0400
+Date: Sun, 2 Sep 2001 11:26:27 +0200 (CEST)
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+To: <linux-kernel@vger.kernel.org>
+cc: Lars Christian Nygaard <lars@snart.com>
+Subject: 2.4.6 error
+Message-ID: <Pine.LNX.4.30.0109021117260.2609-100000@mustard.heime.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <200109020348.f823mCs01183@penguin.transmeta.com> you wrote:
-> These are bounce buffer allocations - they do fail, but the failures
-> should be temporary and the machine should make progress. 
+hi all
 
-The patch I sent to linux-mm a week ago fixes this for "normal" loads.
-It obviously doesn't fix the worst case scenario, but in the testing in the
-Red Hat lab we've seen it 1) improve performance and 2) get rid of VM
-problems caused by highmem; under normal load. Under the insane load we also
-put our kernels on, it doesn't make much difference, the obvious deadlock is
-still there.
+I just got a whole bunch of the following error on my 2.4.6 installation.
+Virtual address (EIP), pde, pte, eflags, edx, esi, edi, the first quad in
+the stack and the call trace remains stable. The others are varying. The
+oops comes whenever sa1 (in sysstat) is run.
 
-Greetings,
-    Arjan van de Ven
+please cc: to me as I'm not on the list
+
+roy
+
+Code:  Bad EIP value.
+Unable to handle kernel paging request at virtual address c9049180
+ printing eip:
+c9049180
+*pde = 07f8b067
+*pte = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<c9049180>]
+EFLAGS: 00010282
+eax: c1903f68   ebx: c6c5d960   ecx: c6c5d980   edx: c9049180
+esi: 00000400   edi: 00000000   ebp: c3b7c000   esp: c1903f40
+ds: 0018   es: 0018   ss: 0018
+Process sadc (pid: 9922, stackpage=c1903000)
+Stack: c0149fcd c3b7c000 c1903f68 00000000 00000400 c1903f64 c90500e0 c7f7b8c0
+       00000000 00000000 00000000 c6c5d960 ffffffea 00000000 00000400 c012ea28
+       c6c5d960 40017000 00000400 c6c5d980 00000000 00001000 00000003 00000022
+Call Trace: [<c0149fcd>] [<c012ea28>] [<c0106d43>]
+
+
+

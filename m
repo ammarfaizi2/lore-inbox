@@ -1,108 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267988AbUIAVEO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267926AbUIAXAJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267988AbUIAVEO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 17:04:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267989AbUIAVDn
+	id S267926AbUIAXAJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 19:00:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267435AbUIAVCQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 17:03:43 -0400
-Received: from baikonur.stro.at ([213.239.196.228]:57562 "EHLO
-	baikonur.stro.at") by vger.kernel.org with ESMTP id S267987AbUIAU5B
+	Wed, 1 Sep 2004 17:02:16 -0400
+Received: from baikonur.stro.at ([213.239.196.228]:57832 "EHLO
+	baikonur.stro.at") by vger.kernel.org with ESMTP id S268005AbUIAU6A
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 16:57:01 -0400
-Subject: [patch 15/25]  drivers/char/synclinkmp.c MIN/MAX removal
+	Wed, 1 Sep 2004 16:58:00 -0400
+Subject: [patch 25/25]  synclink: replace jiffies_from_ms() with 	msecs_to_jiffies()
 To: linux-kernel@vger.kernel.org
 Cc: akpm@digeo.com, janitor@sternwelten.at
 From: janitor@sternwelten.at
-Date: Wed, 01 Sep 2004 22:57:00 +0200
-Message-ID: <E1C2cA9-0007Pp-2y@sputnik>
+Date: Wed, 01 Sep 2004 22:57:55 +0200
+Message-ID: <E1C2cB2-0007X7-2v@sputnik>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-Patch (against 2.6.7) removes unnecessary min/max macros and changes
-calls to use kernel.h macros instead.
 
-Feedback is always welcome
-Michael
 
+
+
+I would appreciate any comments from the janitors list.
+
+-Nish
+
+
+
+Description: Uses msecs_to_jiffies() instead of the custom
+jiffies_from_ms().
+
+Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
 Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
 
 
 
 ---
 
- linux-2.6.9-rc1-bk7-max/drivers/char/synclinkmp.c |   18 +++++++-----------
- 1 files changed, 7 insertions(+), 11 deletions(-)
+ linux-2.6.9-rc1-bk7-max/drivers/char/synclink.c |   16 +++++++---------
+ 1 files changed, 7 insertions(+), 9 deletions(-)
 
-diff -puN drivers/char/synclinkmp.c~min-max-char_synclinkmp drivers/char/synclinkmp.c
---- linux-2.6.9-rc1-bk7/drivers/char/synclinkmp.c~min-max-char_synclinkmp	2004-09-01 19:34:13.000000000 +0200
-+++ linux-2.6.9-rc1-bk7-max/drivers/char/synclinkmp.c	2004-09-01 19:34:13.000000000 +0200
-@@ -515,10 +515,6 @@ static struct tty_driver *serial_driver;
- /* number of characters left in xmit buffer before we ask for more */
- #define WAKEUP_CHARS 256
+diff -puN drivers/char/synclink.c~use-msecs-to-jiffies-drivers_char_synclink drivers/char/synclink.c
+--- linux-2.6.9-rc1-bk7/drivers/char/synclink.c~use-msecs-to-jiffies-drivers_char_synclink	2004-09-01 19:35:56.000000000 +0200
++++ linux-2.6.9-rc1-bk7-max/drivers/char/synclink.c	2004-09-01 19:35:56.000000000 +0200
+@@ -851,8 +851,6 @@ static int mgsl_rxenable(struct mgsl_str
+ static int mgsl_wait_event(struct mgsl_struct * info, int __user *mask);
+ static int mgsl_loopmode_send_done( struct mgsl_struct * info );
  
--#ifndef MIN
--#define MIN(a,b) ((a) < (b) ? (a) : (b))
--#endif
+-#define jiffies_from_ms(a) ((((a) * HZ)/1000)+1)
 -
+ /* set non-zero on successful registration with PCI subsystem */
+ static int pci_registered;
  
- /* tty callbacks */
+@@ -4171,7 +4169,7 @@ int load_next_tx_holding_buffer(struct m
+ 				info->get_tx_holding_index=0;
  
-@@ -1000,8 +996,8 @@ static int write(struct tty_struct *tty,
+ 			/* restart transmit timer */
+-			mod_timer(&info->tx_timer, jiffies + jiffies_from_ms(5000));
++			mod_timer(&info->tx_timer, jiffies + msecs_to_jiffies(5000));
+ 
+ 			ret = 1;
+ 		}
+@@ -5800,7 +5798,7 @@ void usc_start_transmitter( struct mgsl_
+ 			
+ 			usc_TCmd( info, TCmd_SendFrame );
+ 			
+-			info->tx_timer.expires = jiffies + jiffies_from_ms(5000);
++			info->tx_timer.expires = jiffies + msecs_to_jiffies(5000);
+ 			add_timer(&info->tx_timer);	
+ 		}
+ 		info->tx_active = 1;
+@@ -7196,7 +7194,7 @@ BOOLEAN mgsl_irq_test( struct mgsl_struc
+ 	EndTime=100;
+ 	while( EndTime-- && !info->irq_occurred ) {
+ 		set_current_state(TASK_INTERRUPTIBLE);
+-		schedule_timeout(jiffies_from_ms(10));
++		schedule_timeout(msecs_to_jiffies(10));
  	}
+ 	
+ 	spin_lock_irqsave(&info->irq_spinlock,flags);
+@@ -7335,7 +7333,7 @@ BOOLEAN mgsl_dma_test( struct mgsl_struc
+ 	/*************************************************************/
  
- 	for (;;) {
--		c = MIN(count,
--			MIN(info->max_frame_size - info->tx_count - 1,
-+		c = min_t(int, count,
-+			min(info->max_frame_size - info->tx_count - 1,
- 			    info->max_frame_size - info->tx_put));
- 		if (c <= 0)
- 			break;
-@@ -1144,7 +1140,7 @@ static void wait_until_sent(struct tty_s
- 		char_time = 1;
+ 	/* Wait 100ms for interrupt. */
+-	EndTime = jiffies + jiffies_from_ms(100);
++	EndTime = jiffies + msecs_to_jiffies(100);
  
- 	if (timeout)
--		char_time = MIN(char_time, timeout);
-+		char_time = min_t(unsigned long, char_time, timeout);
+ 	for(;;) {
+ 		if (time_after(jiffies, EndTime)) {
+@@ -7391,7 +7389,7 @@ BOOLEAN mgsl_dma_test( struct mgsl_struc
+ 	/**********************************/
+ 	
+ 	/* Wait 100ms */
+-	EndTime = jiffies + jiffies_from_ms(100);
++	EndTime = jiffies + msecs_to_jiffies(100);
  
- 	if ( info->params.mode == MGSL_MODE_HDLC ) {
- 		while (info->tx_active) {
-@@ -5024,7 +5020,7 @@ CheckAgain:
+ 	for(;;) {
+ 		if (time_after(jiffies, EndTime)) {
+@@ -7433,7 +7431,7 @@ BOOLEAN mgsl_dma_test( struct mgsl_struc
+ 		/******************************/
  
- 	if ( debug_level >= DEBUG_LEVEL_DATA )
- 		trace_block(info,info->rx_buf_list_ex[StartIndex].virt_addr,
--			MIN(framesize,SCABUFSIZE),0);
-+			min_t(int, framesize,SCABUFSIZE),0);
+ 		/* Wait 100ms */
+-		EndTime = jiffies + jiffies_from_ms(100);
++		EndTime = jiffies + msecs_to_jiffies(100);
  
- 	if (framesize) {
- 		if (framesize > info->max_frame_size)
-@@ -5039,7 +5035,7 @@ CheckAgain:
- 			info->icount.rxok++;
+ 		/* While timer not expired wait for transmit complete */
  
- 			while(copy_count) {
--				int partial_count = MIN(copy_count,SCABUFSIZE);
-+				int partial_count = min(copy_count,SCABUFSIZE);
- 				memcpy( ptmp,
- 					info->rx_buf_list_ex[index].virt_addr,
- 					partial_count );
-@@ -5096,14 +5092,14 @@ void tx_load_dma_buffer(SLMP_INFO *info,
- 	SCADESC_EX *desc_ex;
+@@ -7464,7 +7462,7 @@ BOOLEAN mgsl_dma_test( struct mgsl_struc
+ 		/* WAIT FOR RECEIVE COMPLETE */
  
- 	if ( debug_level >= DEBUG_LEVEL_DATA )
--		trace_block(info,buf, MIN(count,SCABUFSIZE), 1);
-+		trace_block(info,buf, min_t(int, count,SCABUFSIZE), 1);
+ 		/* Wait 100ms */
+-		EndTime = jiffies + jiffies_from_ms(100);
++		EndTime = jiffies + msecs_to_jiffies(100);
  
- 	/* Copy source buffer to one or more DMA buffers, starting with
- 	 * the first transmit dma buffer.
- 	 */
- 	for(i=0;;)
- 	{
--		copy_count = MIN(count,SCABUFSIZE);
-+		copy_count = min_t(unsigned short,count,SCABUFSIZE);
- 
- 		desc = &info->tx_buf_list[i];
- 		desc_ex = &info->tx_buf_list_ex[i];
+ 		/* Wait for 16C32 to write receive status to buffer entry. */
+ 		status=info->rx_buffer_list[0].status;
 
 _

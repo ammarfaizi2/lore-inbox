@@ -1,62 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264804AbSJVSAO>; Tue, 22 Oct 2002 14:00:14 -0400
+	id <S264858AbSJVSKk>; Tue, 22 Oct 2002 14:10:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261641AbSJVR75>; Tue, 22 Oct 2002 13:59:57 -0400
-Received: from hellcat.admin.navo.hpc.mil ([204.222.179.34]:42132 "EHLO
-	hellcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S261784AbSJVR6X> convert rfc822-to-8bit; Tue, 22 Oct 2002 13:58:23 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Jesse Pollard <pollard@admin.navo.hpc.mil>
-To: Tim Hockin <thockin@sun.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [BK PATCH 1/4] fix NGROUPS hard limit (resend)
-Date: Tue, 22 Oct 2002 13:03:47 -0500
-User-Agent: KMail/1.4.1
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200210220036.g9M0aP831358@scl2.sfbay.sun.com> <1035308740.31873.107.camel@irongate.swansea.linux.org.uk> <3DB58CBD.3030207@sun.com>
-In-Reply-To: <3DB58CBD.3030207@sun.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200210221303.47488.pollard@admin.navo.hpc.mil>
+	id <S264864AbSJVSJ7>; Tue, 22 Oct 2002 14:09:59 -0400
+Received: from adsl-65-70-169-159.dsl.rcsntx.swbell.net ([65.70.169.159]:49662
+	"EHLO keyser.soze.net") by vger.kernel.org with ESMTP
+	id <S264873AbSJVSJc>; Tue, 22 Oct 2002 14:09:32 -0400
+Date: Tue, 22 Oct 2002 18:15:40 +0000
+From: Justin Guyett <justin@soze.net>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Listmaster request: Do not blacklist rms@gnu.org
+Message-ID: <20021022181540.GM19387@dreams.soze.net>
+References: <20021021182737.A23371@infradead.org> <20021022014015.GB23958@Master.Wizards> <3DB4AEC1.1060906@pobox.com> <3DB4B455.921467D3@digeo.com> <20021021193131.G20688@work.bitmover.com> <E183sO7-0003td-00@comet.linuxguru.net> <20021022080037.A1500@work.bitmover.com> <E1842ls-0000yJ-00@comet.linuxguru.net> <20021022184246.B2142@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021022184246.B2142@infradead.org>
+User-Agent: Mutt/1.4i
+X-Message-Flag: The contents of this message are known to the state of California to cause cancer.
+X-PGP-Fingerprint: 9AE2 9FC3 D98B 9AE2 EE83  15CC 9C7D 1925 4568 5243
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 22 October 2002 12:37 pm, Tim Hockin wrote:
-> Alan Cox wrote:
-> > On Tue, 2002-10-22 at 18:26, Tim Hockin wrote:
-> >>Alan Cox wrote:
-> >>>Ok sanity check time. Why do you need qsort and bsearch for this kind of
-> >>>thing. Just how many groups do you plan to support ?
-> >>
-> >>Unlimited - we've tested with tens of thousands.
-> >
-> > Now how about the real world requirements ?
->
-> Those were real world requirements - we got the number 10,000 from our
-> product management, which (presumably) spoke with customers.  On the
-> hosting systems, it is really possible to have thousands of virtual sites.
->
-> Now, I don't much care if you want it to be a linear search, and I'll
-> revert it, if needed, but qsort() is already in in XFS specific code,
-> and bsearch is small.  It doesn't negatively impact any fast path, and
-> provides better behavior for the crazies that really want 10,000 groups.
->
-> Tim
+At 2002-10-22 17:42 +0000, Christoph Hellwig wrote:
 
-Does it actually work with NFS???? or any networked file system?
-Most of them limit ngroups to 16 to 32, and cannot send any data
-if there is an overflow, since that overflow would replace all of the
-data you try to send/recieve...
+> On Tue, Oct 22, 2002 at 01:24:48PM -0400, James Blackwell wrote:
+> > The point I was making was that you and Richard Stallman do not
+> > have the same goal in mind. His goal is to alleviate what he
+> > percieves as an ill in society. Your goal is to run a business.
+> > You have stated so yourself. 
+> 
+> Well, Richards goal is to force his ideology on everyone.  Larry's
+> goal in lkml context is to help to reduce Linus' load, in the
+> context of his business, Bitkeeper it's probably to make money - at
+> least enough for him and his employees to live.
 
-And I really doubt that anybody has 10000 unique groups (or even
-close to that) running under any system. The center I'm at has
-some of the largest UNIX systems ever made, and there are only
-about 600 unique groups over the entire center. The largest number
-of groups a user can be in is 32. And nobody even comes close.
+I don't think so.  Richard's goal seems to be to attempt to convince
+everyone his ideology is good.  He doesn't appear to be trying to
+force anyone to do anything.  If you don't like his free software
+concept, you don't have to GPL your code.
+
+Larry, however, is forcing developers off of a BM-hosted project
+simply because one of their hobbies is in competition with his
+company, and has explicitly rejected granting limited license to such
+people for the sole purpose of developing for BM-hosted projects.
+Larry also has the potential to significantly influence kernel
+development by threatening withdrawal of BM hosting if the kernel
+incorporates "competing" features.  Larry hides behind the excuse
+that (e.g. subversion) developers would get a feel for BK operation
+and implement competing features in subversion, ignoring that those
+developers probably understand most of the significant BK features
+already.  Then he rants about how nobody would do the work BM is
+doing without pay, and carefully avoids connecting that argument to
+his rationale for disallowing competing developers use of BK
+exclusively for BM-hosted projects.
+
+I'm sick of Larry, and I bet he's sick of me, but this BK mess is bad
+mojo.
+
+And so is posting to this flamewar.
+
 -- 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
-
-Any opinions expressed are solely my own.
+When faced with the prisoner's dilemma, kill your accomplice.

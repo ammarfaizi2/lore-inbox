@@ -1,83 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262966AbVAFSQf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262952AbVAFSI5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262966AbVAFSQf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 13:16:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262931AbVAFSOm
+	id S262952AbVAFSI5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 13:08:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262989AbVAFSFN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 13:14:42 -0500
-Received: from tag.witbe.net ([81.88.96.48]:19920 "EHLO tag.witbe.net")
-	by vger.kernel.org with ESMTP id S262955AbVAFSJU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 13:09:20 -0500
-Message-Id: <200501061808.j06I84104393@tag.witbe.net>
-Reply-To: <rol@as2917.net>
-From: "Paul Rolland" <rol@as2917.net>
-To: "'Willy Tarreau'" <willy@w.ods.org>, "'Theodore Ts'o'" <tytso@mit.edu>,
-       "'Horst von Brand'" <vonbrand@inf.utfsm.cl>,
-       "'Thomas Graf'" <tgraf@suug.ch>, "'Bill Davidsen'" <davidsen@tmr.com>,
-       "'Adrian Bunk'" <bunk@stusta.de>,
-       "'Diego Calleja'" <diegocg@teleline.es>, <wli@holomorphy.com>,
-       <aebr@win.tue.nl>, <solt2@dns.toxicfilms.tv>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: starting with 2.7
-Date: Thu, 6 Jan 2005 19:08:04 +0100
-Organization: AS2917
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-In-Reply-To: <20050104214324.GG22075@alpha.home.local>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-Thread-Index: AcTyqcHqiJFa1qRURJmAv4SD7Vq9sQBb4h2A
+	Thu, 6 Jan 2005 13:05:13 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:19216 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262932AbVAFR5K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 12:57:10 -0500
+Date: Thu, 6 Jan 2005 18:57:07 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, Paul Jackson <pj@sgi.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [patch] 2.6.10-mm2: move CPUSETS above EMBEDDED
+Message-ID: <20050106175707.GF3096@stusta.de>
+References: <20050106002240.00ac4611.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050106002240.00ac4611.akpm@osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+The placement of CPUSETS somewhere in the middle of the EMBEDDED options 
+breaks the EMBEDDED submenu (at least in menuconfig).
 
-> > In practice, that's all the -rc releases are these days 
-> anyway (there
-> > are times when a 2.6.x-rcy release is more stable than 2.6.z).  The
-> > problem is that since the -rc releases are called what they are
-> > called, they don't get enough testing.
-> 
-> Perfectly true. I would add that with -rc releases, people 
-> only upgrade when
-> we tell them that they can, while with more frequent 
-> releases, they upgrade
-> when they *need* to, and can try several versions if the 
-> first one they pick
-> does not work.
-> 
+The patch below fixes this by simply moving CPUSETS above EMBEDDED.
 
-I'd like to add some personal view : After 2.4.x, we have had a fork and
-2.5.x was born, clearly identified as a development tree, so no stability
-guaranteed... Then one day came 2.6.0, and so on...
-I'm sorry, but I still cannot consider 2.6.x being any stable the way 2.4.x
-is today.
 
-Theodore wrote :
-> that at least 1 in 3 releases will turn out to be stable enough for
-> most purposes.  But we won't know until after 2 or 3 days which
-> releases will be the good ones.
+diffstat output:
+ init/Kconfig |   21 ++++++++++-----------
+ 1 files changed, 10 insertions(+), 11 deletions(-)
 
-I mostly agree. When a new 2.4.x comes out, I have a confident feeling
-about it, and there is no reason for me to wait 2 or 3 days to know if 
-it's stable or not. It's part of a stable branch, and there are no
-major changes in it.
-2.6.x, I still consider as a development branch. OK, people changed the
-numbering from 2.5.x to 2.6.x, but the number of changes still going on
-didn't really change. Just have a look at the numbers : patches are even
-bigger now that we are in a "stable" branch (4Mo average for 2.6 patch, 
-gzip when we had a 1Mo average for 2.5 !)
 
-Yes, it is a wonderful playground. So let's keep it a playground, let
-number it 2.5.x again, and play with. Or let it be a stable branch,
-and do something for people needing a playground.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Paul
-
-PS : on my personal computer, I'm a player, so I'm running 2.6.x, but don't
-expect me to put that on a production server for long... No way, not yet,
-not as long as the decision on what *really* is 2.6.x is clear.
-
+--- linux-2.6.10-mm2-full/init/Kconfig.old	2005-01-06 18:49:14.000000000 +0100
++++ linux-2.6.10-mm2-full/init/Kconfig	2005-01-06 18:51:11.000000000 +0100
+@@ -248,6 +248,16 @@
+ 	  This option enables access to the kernel configuration file
+ 	  through /proc/config.gz.
+ 
++config CPUSETS
++	bool "Cpuset support"
++	depends on SMP
++	help
++	  This options will let you create and manage CPUSET's which
++	  allow dynamically partitioning a system into sets of CPUs and
++	  Memory Nodes and assigning tasks to run only within those sets.
++	  This is primarily useful on large SMP or NUMA systems.
++
++	  Say N if unsure.
+ 
+ menuconfig EMBEDDED
+ 	bool "Configure standard kernel features (for small systems)"
+@@ -302,17 +312,6 @@
+ 	  Disabling this option will cause the kernel to be built without
+ 	  support for epoll family of system calls.
+ 
+-config CPUSETS
+-	bool "Cpuset support"
+-	depends on SMP
+-	help
+-	  This options will let you create and manage CPUSET's which
+-	  allow dynamically partitioning a system into sets of CPUs and
+-	  Memory Nodes and assigning tasks to run only within those sets.
+-	  This is primarily useful on large SMP or NUMA systems.
+-
+-	  Say N if unsure.
+-
+ config CC_OPTIMIZE_FOR_SIZE
+ 	bool "Optimize for size" if EMBEDDED
+ 	default y if ARM || H8300

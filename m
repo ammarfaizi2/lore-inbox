@@ -1,46 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267621AbTACSby>; Fri, 3 Jan 2003 13:31:54 -0500
+	id <S267620AbTACSah>; Fri, 3 Jan 2003 13:30:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267622AbTACSbx>; Fri, 3 Jan 2003 13:31:53 -0500
-Received: from ns.suse.de ([213.95.15.193]:25874 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S267621AbTACSbw>;
-	Fri, 3 Jan 2003 13:31:52 -0500
-To: Andrew Morton <akpm@digeo.com>
-Cc: davem@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [BENCHMARK] Lmbench 2.5.54-mm2 (impressive improvements)
-References: <94F20261551DC141B6B559DC4910867204491F@blr-m3-msg.wipro.com.suse.lists.linux.kernel> <3E155903.F8C22286@digeo.com.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 03 Jan 2003 19:40:22 +0100
-In-Reply-To: Andrew Morton's message of "3 Jan 2003 10:36:28 +0100"
-Message-ID: <p734r8qnkkp.fsf@oldwotan.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.6
+	id <S267621AbTACSah>; Fri, 3 Jan 2003 13:30:37 -0500
+Received: from im1.mail.tds.net ([216.170.230.91]:33770 "EHLO im1.sec.tds.net")
+	by vger.kernel.org with ESMTP id <S267620AbTACSag>;
+	Fri, 3 Jan 2003 13:30:36 -0500
+Date: Fri, 3 Jan 2003 13:38:52 -0500 (EST)
+From: Jon Portnoy <portnoy@tellink.net>
+X-X-Sender: portnoy@cerberus.localhost
+To: Andrew Walrond <andrew@walrond.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
+In-Reply-To: <3E158738.4050003@walrond.org>
+Message-ID: <Pine.LNX.4.50.0301031338180.1030-100000@cerberus.localhost>
+References: <Pine.LNX.4.10.10301022110580.421-100000@master.linux-ide.org>
+ <1041596161.1157.34.camel@fly> <3E158738.4050003@walrond.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@digeo.com> writes:
+You don't understand "free" in this context. You're talking about free as 
+in price, we're talking about free as in freedom.
+
+Educate yourself, then come back and discuss freedom.
+
+On Fri, 3 Jan 2003, Andrew Walrond wrote:
+
+> Yes but....
 > 
-> The teeny little microbenchmarks are telling us that the rmap overhead
-> hurts, that the uninlining of copy_*_user may have been a bad idea, that
-> the addition of AIO has cost a little and that the complexity which
-> yielded large improvements in readv(), writev() and SMP throughput were
-> not free.  All of this is already known.
-
-If you mean the signal speed regressions they caused - I fixed 
-that on x86-64 by inlining 1,2,4,8,10(used by signal fpu frame),16.
-But it should not use the stupud rep ; ..., of the old ersio but direct 
-unrolled moves.
-
-x86-64 version in include/asm-x86_64/uaccess.h, could be ported
-to i386 given that movqs need to be replaced by two movls.
-
--Andi
-
-P.S.: regarding recent lmbench slow downs: I'm a bit
-worried about the two wrmsrs which are in the i386 context switch
-in load_esp0 for sysenter now. Last time I benchmarked WRMSRs on
-Athlon they were really slow and knowing the P4 it is probably
-even slower there. Imho it would be better to undo that patch
-and use Linus' original trampoline stack.
-
-
+> I develop computer games. The last one I did took a team of 35 people 2 
+> years and cost $X million to develop.
+> 
+> Please explain how I could do this as free software, while still feeding 
+> my people? Am I a bad person charging for my work?
+> 
+> Really - I want to understand so I too can join this merry band of happy 
+> people giving everything away for free!
+> 
+> Andrew
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

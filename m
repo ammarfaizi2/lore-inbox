@@ -1,52 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276684AbRJKShn>; Thu, 11 Oct 2001 14:37:43 -0400
+	id <S276701AbRJKSrX>; Thu, 11 Oct 2001 14:47:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276689AbRJKShd>; Thu, 11 Oct 2001 14:37:33 -0400
-Received: from orange.csi.cam.ac.uk ([131.111.8.77]:30111 "EHLO
-	orange.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S276684AbRJKShR>; Thu, 11 Oct 2001 14:37:17 -0400
-Date: Thu, 11 Oct 2001 19:19:51 +0100 (BST)
-From: James Sutherland <jas88@cam.ac.uk>
-X-X-Sender: <jas88@orange.csi.cam.ac.uk>
-To: Ralf Baechle <ralf@uni-koblenz.de>
-cc: Christopher Friesen <cfriesen@nortelnetworks.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: unkillable process in R state?
-In-Reply-To: <20011011192520.A27394@dea.linux-mips.net>
-Message-ID: <Pine.SOL.4.33.0110111918330.24868-100000@orange.csi.cam.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S276707AbRJKSrO>; Thu, 11 Oct 2001 14:47:14 -0400
+Received: from h24-78-175-24.nv.shawcable.net ([24.78.175.24]:46471 "EHLO
+	oof.localnet") by vger.kernel.org with ESMTP id <S276701AbRJKSrI>;
+	Thu, 11 Oct 2001 14:47:08 -0400
+Date: Thu, 11 Oct 2001 11:47:36 -0700
+From: Simon Kirby <sim@netnation.com>
+To: linux-kernel@vger.kernel.org
+Cc: "David S. Miller" <davem@redhat.com>
+Subject: Really slow netstat and /proc/net/tcp in 2.4
+Message-ID: <20011011114736.A13722@netnation.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 Oct 2001, Ralf Baechle wrote:
+Is there something that changed from 2.2 -> 2.4 with regards to the
+speed of netstat and /proc/net/tcp?  We have some webservers we just
+upgraded from 2.2.19 to 2.4.12, and some in-house monitoring tools that
+check /proc/net/tcp have begun to suck up a lot of CPU cycles trying to
+read that file.
 
-> On Thu, Oct 11, 2001 at 12:48:22PM -0400, Christopher Friesen wrote:
->
-> > I have a process (an instance of a find command) that seems to be
-> > unkillable (ie kill -9 <pid> as root doesn't work).
-> >
-> > Top shows it's status as R.
-> >
-> > Is there anything I can do to kill the thing? It's taking up all unused cpu
-> > cycles (currently at 97.4%).
->
-> I assume that's kapm-idled.  That's normal, it's job is exactly burning
-> unused cycles.
+A simple cat or wc -l on the file feels like about on the order of two
+magnitudes slower ("time" reports around a second when the file has 450
+entries).  Some servers seem to be worse than others, and it does not
+appear to be proportional to the number of entries across servers.
 
-No. He said it's an instance of find.
+netstat -tn just crawls along on these servers.  Should I enable
+profile=1 or something to see what's happening here?
 
-Stuck in R, though - some sort of loop? Christopher, can you attach gdb to
-it and see what's happening?
+Examples:
 
+2.2.19:
 
-James.
--- 
-"Our attitude with TCP/IP is, `Hey, we'll do it, but don't make a big
-system, because we can't fix it if it breaks -- nobody can.'"
+[sroot@marble:/root]# time wc -l /proc/net/tcp
+    858 /proc/net/tcp
+0.000u 0.010s 0:00.01 100.0%    0+0k 0+0io 112pf+0w
 
-"TCP/IP is OK if you've got a little informal club, and it doesn't make
-any difference if it takes a while to fix it."
-		-- Ken Olson, in Digital News, 1988
+2.4.12:
 
+[sroot@pro:/root]# time wc -l /proc/net/tcp
+    463 /proc/net/tcp
+0.000u 0.640s 0:00.64 100.0%    0+0k 0+0io 69pf+0w
+
+Simon-
+
+[  Stormix Technologies Inc.  ][  NetNation Communications Inc. ]
+[       sim@stormix.com       ][       sim@netnation.com        ]
+[ Opinions expressed are not necessarily those of my employers. ]

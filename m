@@ -1,62 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262144AbUKDJSm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262139AbUKDJT5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262144AbUKDJSm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 04:18:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262143AbUKDJSl
+	id S262139AbUKDJT5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 04:19:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262146AbUKDJT5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 04:18:41 -0500
-Received: from zone3.gcu-squad.org ([217.19.50.74]:24075 "EHLO
-	zone3.gcu-squad.org") by vger.kernel.org with ESMTP id S262139AbUKDJSX convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 04:18:23 -0500
-Date: Thu, 4 Nov 2004 10:12:20 +0100 (CET)
-To: degger@fhm.edu
-Subject: Re: dmi_scan on x86_64
-X-IlohaMail-Blah: khali@gcu.info
-X-IlohaMail-Method: mail() [mem]
-X-IlohaMail-Dummy: moo
-X-Mailer: IlohaMail/0.8.13 (On: webmail.gcu.info)
-Message-ID: <ik4HgxjQ.1099559539.9911850.khali@gcu.info>
-In-Reply-To: <E27340F4-2DFA-11D9-BF00-000A958E35DC@fhm.edu>
-From: "Jean Delvare" <khali@linux-fr.org>
-Bounce-To: "Jean Delvare" <khali@linux-fr.org>
-CC: "Andi Kleen" <ak@suse.de>, "LKML" <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Thu, 4 Nov 2004 04:19:57 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:62869 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262139AbUKDJTl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 04:19:41 -0500
+Date: Thu, 4 Nov 2004 10:19:10 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Clemens Schwaighofer <cs@tequila.co.jp>
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: still no cd/dvd burning as user with 2.6.9
+Message-ID: <20041104091909.GD14993@suse.de>
+References: <41889857.5040506@tequila.co.jp> <20041103084330.GB10434@suse.de> <41889EB5.3060304@tequila.co.jp> <20041103090550.GG10434@suse.de> <41896816.2090204@tequila.co.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41896816.2090204@tequila.co.jp>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Nov 04 2004, Clemens Schwaighofer wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> On 11/03/2004 06:05 PM, Jens Axboe wrote:
+> > On Wed, Nov 03 2004, Clemens Schwaighofer wrote:
+> > 
+> >>-----BEGIN PGP SIGNED MESSAGE-----
+> >>Hash: SHA1
+> >>
+> >>On 11/03/2004 05:43 PM, Jens Axboe wrote:
+> >>
+> >>
+> >>>It should work, are the permissions on your device file correct?
+> >>
+> >>that was the first thing I checked:
+> >>
+> >>gullevek@pluto:~$ ls -l /dev/scd3
+> >>brw-rw----  1 root cdrom 11, 3 2004-04-30 09:28 /dev/scd3
+> >>
+> >>then I thought I am not in the right group:
+> >>
+> >>gullevek@pluto:~$ groups
+> >>users disk cdrom audio operator video staff games
+> >>
+> >>but I am ...
+> >>
+> >>I haven't tried to write a CD, but DVD is definilty not possible,
+> >>because the device is _not_ listed in k3b if started as user. The
+> >>internal CD writer is, so probably I can write here, because before,
+> >>this wasn't even listed ...
+> > 
+> > 
+> > Try with this debug patch so we can see if it rejects command it should
+> > not.
+> 
+> I added the patch again 2.6.9-ac6:
+> 
+> The strange thing is, this time I see a device, but its crippled:
+> 
+> k3b sees it as 7 0.62 1 /157 3474
+> 
+> But this device can not the DVD writer, because the dvd writer is on
+> /dev/scd3, this strange device above is on /dev/scd0. But still acording
+> to the settings, this device can burn dvds (Writes-DVD-R(W)s: yes).
+> 
+> So I tried again to start k3b as root, but this time the dvd writer
+> didn't show up anymore ... Somehow I get here very confused.
+> 
+> this is my dmesg output when I turn on my DVD writer
+> 
+> drivers/usb/input/hid-input.c: event field not found
+> ieee1394: Error parsing configrom for node 0-00:1023
+> ieee1394: Error parsing configrom for node 0-01:1023
+> ieee1394: Error parsing configrom for node 0-02:1023
+> ieee1394: Error parsing configrom for node 0-03:1023
+> ieee1394: The root node is not cycle master capable; selecting a new
+> root node and resetting...
+> ieee1394: Node added: ID:BUS[0-00:1023]  GUID[00e03600500008f2]
+> ieee1394: Node changed: 0-00:1023 -> 0-01:1023
+> ieee1394: Node changed: 0-01:1023 -> 0-02:1023
+> ieee1394: Node changed: 0-02:1023 -> 0-03:1023
+> ieee1394: sbp2: Error reconnecting to SBP-2 device - reconnect failed
+> ieee1394: sbp2: Logged out of SBP-2 device
+> ieee1394: sbp2: Logged into SBP-2 device
+> ieee1394: Node 0-01:1023: Max speed [S400] - Max payload [2048]
+> ieee1394: sbp2: Error reconnecting to SBP-2 device - reconnect failed
+> ieee1394: sbp2: Logged out of SBP-2 device
+> ieee1394: sbp2: Logged into SBP-2 device
+> ieee1394: Node 0-02:1023: Max speed [S400] - Max payload [2048]
+> scsi3 : SCSI emulation for IEEE-1394 SBP-2 Devices
+> ieee1394: sbp2: Logged into SBP-2 device
+> ieee1394: Node 0-00:1023: Max speed [S400] - Max payload [2048]
+>   Vendor: PIONEER   Model: DVD-RW  DVR-105   Rev: 1.20
+>   Type:   CD-ROM                             ANSI SCSI revision: 02
+> sr0: scsi3-mmc drive: 32x/32x writer cd/rw xa/form2 cdda tray
+> Attached scsi CD-ROM sr0 at scsi3, channel 0, id 0, lun 0
+> Attached scsi generic sg3 at scsi3, channel 0, id 0, lun 0,  type 5
 
-Hi Daniel,
+Probably talk to the firewire folks about this issue.
 
-> Is this stuff any relevant to a Tyan Tiger K8W (S2875), i.e. is Tyan
-> employing the multiplexing trick on several boards or just the one you
-> tried to identify?
+-- 
+Jens Axboe
 
-The SMBus multiplexing is rarely used and highly board dependent. I have
-no reason to believe that the Tyan Tiger K8W (S2875) has its SMBus
-multiplexed (and if it were, it would require different, although
-similar, code than I wrote for the S4882 anyway).
-
-For reference, the only boards I know for sure use a form of multiplexing
-for their hardware monitoring capabilities are the Iwill MPX2 and the
-Gigabyte GA7 DPXDW+. Both use LM90 chips. One of them (can't remember
-which) does true SMBus multiplexing over two of these, while the other
-has a single chip which can be routed to either of two thermal diodes.
-The sensors drivers don't support these setups yet.
-
-I think I also remember of a board where fan inputs were somehow
-multiplexed (the board had six fan headers, all of them reported speeds
-in the BIOS setup screen, but the hardware monitoring chip would only
-have three tachometers inputs.) I can't seem to remember the brand and
-model, and we did not investigate the problem deep enough to propose a
-solution back then anyway.
-
-As a matter of fact, my proposal to support the S4882 SMBus multiplexing
-is the first attempt to support this kind of setup. Note that other
-proposals were already made but they were aimed at supporting home-made
-setups, not publicly available motherboards.
-
---
-Jean

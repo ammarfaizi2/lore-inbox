@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263642AbTETJLm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 May 2003 05:11:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263654AbTETJLm
+	id S263654AbTETJil (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 May 2003 05:38:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263657AbTETJil
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 May 2003 05:11:42 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:9786 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S263642AbTETJLl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 May 2003 05:11:41 -0400
-Date: Tue, 20 May 2003 02:27:01 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] dentry/inode accounting for vm_enough_mem()
-Message-Id: <20030520022701.406a0d4e.akpm@digeo.com>
-In-Reply-To: <1053391863.12309.2.camel@nighthawk>
-References: <1053391863.12309.2.camel@nighthawk>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 20 May 2003 05:38:41 -0400
+Received: from phoenix.infradead.org ([195.224.96.167]:8714 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S263654AbTETJik (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 May 2003 05:38:40 -0400
+Date: Tue, 20 May 2003 10:51:16 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, Ulrich Drepper <drepper@redhat.com>,
+       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] futex requeueing feature, futex-requeue-2.5.69-D3
+Message-ID: <20030520105116.A4609@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Ingo Molnar <mingo@elte.hu>, Rusty Russell <rusty@rustcorp.com.au>,
+	Ulrich Drepper <drepper@redhat.com>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	linux-kernel@vger.kernel.org
+References: <20030520085911.90EE72C232@lists.samba.org> <Pine.LNX.4.44.0305201100390.6448-100000@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 20 May 2003 09:24:36.0333 (UTC) FILETIME=[A174B1D0:01C31EB1]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0305201100390.6448-100000@localhost.localdomain>; from mingo@elte.hu on Tue, May 20, 2003 at 11:03:36AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Hansen <haveblue@us.ibm.com> wrote:
->
->   struct dentry_stat_t {
->   	int nr_dentry;
->   	int nr_unused;
->  +	atomic_t nr_alloced;
->   	int age_limit;          /* age in seconds */
->   	int want_pages;         /* pages requested by system */
->   	int dummy[2];
+On Tue, May 20, 2003 at 11:03:36AM +0200, Ingo Molnar wrote:
+> have you all gone nuts??? It's not an option to break perfectly working
+> binaries out there.
 
-We're not at liberty to do this because /proc/sys/fs/dentry-state and
-inode-state are implemented assuming that these structs are an array of
-integers.  It'll screw up if the architecture's "int" and "atomic_t"
-representations are different.
+Of course it is.  Linux has enough problem problems due to past mainline
+stupidities, now we don't need to codify vendor braindamages aswell.  E.g
+mainline doesn't have the RH AS aio vsyscall crap or suse's get dev_t behind
+/dev/console stuff either.  If Red Hat thinks it needs to live with more interfaces
+than what the stable kernel release provide their on their own luck.
 
-Probably you can just make this an integer and add a spinlock for it, or
-not place it in dentry_stat.
+And it's a lot of time to 2.6 anyway, don't tell me Jakub isn't smart enough to
+get a glibc rpm out by then that works with the new and the old futex stuff.
 
-Seems otherwise OK though.  Thanks.

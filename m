@@ -1,88 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263049AbTH0IVL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 04:21:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263196AbTH0IVL
+	id S263230AbTH0IW7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 04:22:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263244AbTH0IW7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 04:21:11 -0400
-Received: from fw.osdl.org ([65.172.181.6]:18099 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263049AbTH0IVH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 04:21:07 -0400
-Date: Wed, 27 Aug 2003 01:23:46 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Okrain Genady <mafteah@mafteah.co.il>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: Some errors with 2.6.0-test4-mm2
-Message-Id: <20030827012346.50d4955a.akpm@osdl.org>
-In-Reply-To: <200308271047.47794.mafteah@mafteah.co.il>
-References: <200308271047.47794.mafteah@mafteah.co.il>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 27 Aug 2003 04:22:59 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:30980 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S263230AbTH0IW5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Aug 2003 04:22:57 -0400
+Date: Wed, 27 Aug 2003 09:22:54 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Marcus Hall <mhall@coraccess.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: linux-arm-2.5.59 problem connecting from win 98
+Message-ID: <20030827092254.A22441@flint.arm.linux.org.uk>
+Mail-Followup-To: Marcus Hall <mhall@coraccess.com>,
+	linux-kernel@vger.kernel.org
+References: <3F4BD073.6020105@coraccess.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3F4BD073.6020105@coraccess.com>; from mhall@coraccess.com on Tue, Aug 26, 2003 at 03:26:11PM -0600
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Okrain Genady <mafteah@mafteah.co.il> wrote:
->
-> 1)
-> On reboot:
-> 
-> Debug: sleeping function called from invalid context at 
-> include/linux/rwsem.h:43
-> Call Trace:
->  [<c011cc3f>] __might_sleep+0x5f/0x70
->  [<c0119eff>] do_page_fault+0x19f/0x4ca
->  [<c0121e20>] it_real_fn+0x0/0x70
->  [<c0126f82>] run_timer_softirq+0x112/0x1c0
->  [<c0127120>] do_timer+0xe0/0xf0
->  [<c011b5b2>] schedule+0x1b2/0x3c0
->  [<c010cff6>] do_IRQ+0x116/0x160
->  [<c0119d60>] do_page_fault+0x0/0x4ca
->  [<c010b4e5>] error_code+0x2d/0x38
->
-> btw I had it on 2.6.0-test4 and on -bk2 and on -mm1
+On Tue, Aug 26, 2003 at 03:26:11PM -0600, Marcus Hall wrote:
+> Things work just fine with http/ftp/telnet from a linux box, but if I
+> try to connect from a win 98 system, linux panics (don't really blame
+> it..) with the error message 'kernel BUG at net/core/skbuff.c:323',
+> which appears to say that an skbuff is being freed while still on a
+> list.
 
-Not sure what that is.
+Please supply the full backtrace - it may be a driver doing something it
+shouldn't.
 
-> 
-> 2)
-> This error started with -mm2:
-> 
-> # lilo
-> <1>Unable to handle kernel NULL pointer dereference at virtual address 
-> 00000000
->  printing eip:
-> c029f9b2
-> *pde = 00000000
-> Oops: 0000 [#4]
-> PREEMPT
-> CPU:    0
-> EIP:    0060:[<c029f9b2>]    Tainted: PF  VLI
+> I don't believe that there are any changes in the core networking in
+> the arm/xscale patches applied to the base 2.5.59 kernel, just some
+> tweaking of the smc9194 and cs89x0 modules.  It seems unlikely that this
+> problem would exist in the "official" kernel for long, but it also seems
+> unlikely to be particular to the arm either...  Is it a known bug
+> (hopefully with a patch somewhere)?
 
-What's the taint?
+The best I can advise is to upgrade to something more recent (eg, a
+2.6.0-test kernel.)
 
-> EFLAGS: 00010246
-> EIP is at generic_ide_ioctl+0x352/0x8b0
-> eax: 00000000   ebx: bfffec70   ecx: 0000e7a2   edx: 00000000
-> esi: bfffec68   edi: c87ca000   ebp: c87cbf68   esp: c87cbf2c
-> ds: 007b   es: 007b   ss: 0068
-> Process lilo (pid: 5503, threadinfo=c87ca000 task=c8eac080)
-> Stack: c03c76db 0000064e c7853200 fffffff2 00000000 00000000 e7a20003 c04ccb8c
->        cfa7e000 c87cbf9c c0153b66 cf5ae6c0 cfd33e40 c02a3a60 cf619680 c87cbf90
->        c0268235 cfd33e40 00000301 bfffec68 bfffec68 00000001 00000301 c7853200
-> Call Trace:
->  [<c0153b66>] filp_open+0x66/0x70
->  [<c02a3a60>] idedisk_ioctl+0x0/0x30
->  [<c0268235>] blkdev_ioctl+0xa5/0x447
->  [<c0167b84>] sys_ioctl+0xf4/0x290
->  [<c0397e07>] syscall_call+0x7/0xb
-
-Works OK here.  Could you please do `strace lilo', see what the offending
-ioctl args are?
-
-> setfont sets font only for the current tty and not for all ttys like 2.4 do.
-
-hm, I wonder who to blame that on.
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

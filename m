@@ -1,51 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130903AbRCMSC7>; Tue, 13 Mar 2001 13:02:59 -0500
+	id <S131155AbRCMRum>; Tue, 13 Mar 2001 12:50:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131151AbRCMSCs>; Tue, 13 Mar 2001 13:02:48 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:63493
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S130903AbRCMSCk>; Tue, 13 Mar 2001 13:02:40 -0500
-Date: Tue, 13 Mar 2001 10:02:11 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: linux-kernel@vger.kernel.org
-Subject: new generic content schemes popping up everywhere...
-Message-ID: <Pine.LNX.4.10.10103131000410.2900-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S131163AbRCMRud>; Tue, 13 Mar 2001 12:50:33 -0500
+Received: from toscano.org ([64.50.191.142]:13784 "HELO bubba.toscano.org")
+	by vger.kernel.org with SMTP id <S131155AbRCMRuU>;
+	Tue, 13 Mar 2001 12:50:20 -0500
+Date: Tue, 13 Mar 2001 12:49:54 -0500
+From: Pete Toscano <pete.lkml@toscano.org>
+To: Greg KH <greg@wirex.com>, linux-kernel@vger.kernel.org
+Subject: Re: APIC  usb MPS 1.4 and the 2.4.2 kernel
+Message-ID: <20010313124954.B5626@bubba.toscano.org>
+Mail-Followup-To: Pete Toscano <pete.lkml@toscano.org>,
+	Greg KH <greg@wirex.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <200103130245.f2D2j2J01057@janus.local.degeorge.org> <20010313002513.A1664@bubba.toscano.org> <20010313092837.A805@wirex.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="VS++wcV0S1rZb1Fb"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010313092837.A805@wirex.com>; from greg@wirex.com on Tue, Mar 13, 2001 at 09:28:37AM -0800
+X-Unexpected: The Spanish Inquisition
+X-Uptime: 12:46pm  up  3:48,  4 users,  load average: 0.06, 0.08, 0.02
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--VS++wcV0S1rZb1Fb
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
->From siliconvalley.com's GMSV column today:
 
-   No one expects the Spanish Inquisition, "the white screen of
-   death"" A small Texas venture with roots in the intelligence
-   community has developed a digital copy protection scheme that
-   it says is nearly unbeatable.  Infraworks' InTether utility
-   can not only limit the number of times a recipient can view or
-   play a file, it can determine how long that file can be viewed
-   or played.  More intriguing still, InTether can make a file
-   self-destruct if it's tampered with.  The utility is enabled
-   with 11 layers of security defenses, all of which must be
-   successfully navigated to disable the system.  These layers
-   range from a series of forced reboots designed to thwart
-   automated hacking tools to something called "the white screen
-   of death" which destroys the software and all files stored
-   inside it.  Infraworks CEO George Friedman says the
-   application's system-level control is possible largely because
-   it is firmly anchored into users' C drives during
-   installation.  "We're fairly deep in the operating system,"
-   Friedman told Inside.com, "so we see what's going on and we
-   either permit or deny it from happening in relation ... to the
-   files under our control."  While InTether has been dismissed
-   by some -- most notably encryption expert Bruce Schneier -- as
-   untenable, the technology has sparked the interest of some
-   publishing concerns, among them Time Inc.and McGraw-Hill.
 
-Se if these bozos get into the kernel anytime soon...
+On Tue, 13 Mar 2001, Greg KH wrote:
 
-Andre Hedrick
-Linux ATA Development
+> On Tue, Mar 13, 2001 at 12:25:13AM -0500, Pete Toscano wrote:
+> > Well, I can't speak for the consequences of noapic (I've wondered as
+> > much myself), but I know that there's been a problem with SMP 2.4
+> > kernels (even the 2.4 test kernels) and USB running on VIA chipsets for
+> > a while now.  I'm told by the linux-usb maintainers that it's a problem
+> > with the PCI IRQ routing for the VIA chipsets, but I've been unable to
+> > get anyone who knows about this to do anything (and I've been asking for
+> > a while).  Alas, since this stuff is beyond me, I just accept the fact
+> > that it'll probably always be broke.
 
+> It seems that the APIC on this motherboard does not have most of the
+> pins connected, so that even if we could get the USB interrupt to work
+> properly (which we couldn't) there would be no benefit to run in APIC
+> mode.  I was going to run some crude benchmarks on the box with and
+> without APIC mode just to get an sense if we are missing anything
+> running in noapic mode, but I haven't gotten around to it yet.
+
+Very interesting.  I had not heard about this.  Are there any SMP boards
+with a VIA chipset that does work well with Linux and USB?  I have an
+old P2B-DS that I had replace with this board as I needed more PCI
+slots.  Heck, for that matter are there any SMP boards that work well
+with Linux and USB that have six or more PCI slots?
+
+> But, Linux does seem to run just fine with USB and SMP in the noapic
+> mode, which is a lot better than Win2000 can say, as it doesn't even
+> support the VIA USB chipset on this board at all :)
+
+How would this express itself?  I recently upgraded from WinME to Win2k
+and it all _seems_ to be working well.  Where would I look to verify
+this?
+
+Thanks for the info and the update.
+
+pete
+
+--VS++wcV0S1rZb1Fb
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE6rl3CsMikd2rK89sRAhC8AJ96mC8KtD3+bmVG/2mecwtrzB/LEQCghUWD
+dntbMdA0L5WS2pMICZJxG/8=
+=RSEL
+-----END PGP SIGNATURE-----
+
+--VS++wcV0S1rZb1Fb--

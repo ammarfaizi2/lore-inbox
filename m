@@ -1,35 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263975AbRFSICv>; Tue, 19 Jun 2001 04:02:51 -0400
+	id <S264007AbRFSIKl>; Tue, 19 Jun 2001 04:10:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263992AbRFSICk>; Tue, 19 Jun 2001 04:02:40 -0400
-Received: from htt06-acc.tin.it ([212.216.176.133]:49551 "EHLO
-	fep41-svc.tin.it") by vger.kernel.org with ESMTP id <S263975AbRFSIC3>;
-	Tue, 19 Jun 2001 04:02:29 -0400
-From: "Delio Brignoli" <nordkyn@tin.it>
-Date: Tue, 19 Jun 2001 09:57:33 +0200
-To: Michael <public@dgmo.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: i810 audio problem
-Message-ID: <20010619095733.B1569@argo.tin.it>
-In-Reply-To: <20010618141715.A534@argo.tin.it> <m1wv6945ub.fsf@mo.optusnet.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <m1wv6945ub.fsf@mo.optusnet.com.au>; from public@dgmo.org on Tue, Jun 19, 2001 at 11:27:08AM +1000
+	id <S264008AbRFSIKb>; Tue, 19 Jun 2001 04:10:31 -0400
+Received: from adsl-64-175-255-50.dsl.sntc01.pacbell.net ([64.175.255.50]:57474
+	"HELO kobayashi.soze.net") by vger.kernel.org with SMTP
+	id <S264007AbRFSIK0>; Tue, 19 Jun 2001 04:10:26 -0400
+Date: Tue, 19 Jun 2001 01:12:14 -0700 (PDT)
+From: Justin Guyett <justin@soze.net>
+X-X-Sender: <tyme@gw.soze.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.6-pre3 breaks ReiserFS mount on boot
+In-Reply-To: <Pine.LNX.4.30.0106182320510.2168-100000@coredump.sh0n.net>
+Message-ID: <Pine.LNX.4.33.0106190106220.26701-100000@gw.soze.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 19, 2001 at 11:27:08AM +1000, Michael wrote:
-> [snip] This cures the hang
-> but it isn't an optimal solutions.
+On Mon, 18 Jun 2001, Shawn Starr wrote:
 
-Thank you, but sadly the cure doesn't work for me (it just takes more time to die)
-I tried it against 2.4.5 tree.
-I'll take a look at the specs later and hope for inspiration :)
+> 1) It broke apparently with gcc 2.95.3 when patching from 2.4.6-pre2 ->
+> 2.4.6pre3
+>
+> 2) I tried building it with gcc 3.00 and had same result.
 
-Regards
+hmm, how ironic, i just had 2.4.5ac15 lock up when untarring gcc 3.0 on a
+reiserfs partition (/)
 
---
-Delio
+This after only using ac15 for a few hours... I've never seen anything
+like that with ac13, which I've used for days.
+
+
+Justin
+

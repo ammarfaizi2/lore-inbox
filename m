@@ -1,54 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270455AbTGMXj4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jul 2003 19:39:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270454AbTGMXj4
+	id S270447AbTGMXb2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jul 2003 19:31:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270448AbTGMXb1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jul 2003 19:39:56 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:54161 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S270451AbTGMXjw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jul 2003 19:39:52 -0400
-Date: Sun, 13 Jul 2003 16:54:24 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: Larry McVoy <lm@bitmover.com>, roland@topspin.com, alan@storlinksemi.com,
-       linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
-       netdev@oss.sgi.com
-Subject: Re: TCP IP Offloading Interface
-Message-ID: <20030713235424.GB31793@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	"David S. Miller" <davem@redhat.com>, Larry McVoy <lm@bitmover.com>,
-	roland@topspin.com, alan@storlinksemi.com,
-	linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
-	netdev@oss.sgi.com
-References: <ODEIIOAOPGGCDIKEOPILCEMBCMAA.alan@storlinksemi.com> <20030713004818.4f1895be.davem@redhat.com> <52u19qwg53.fsf@topspin.com> <20030713160200.571716cf.davem@redhat.com> <20030713233503.GA31793@work.bitmover.com> <20030713164003.21839eb4.davem@redhat.com>
+	Sun, 13 Jul 2003 19:31:27 -0400
+Received: from aneto.able.es ([212.97.163.22]:6548 "EHLO aneto.able.es")
+	by vger.kernel.org with ESMTP id S270447AbTGMXb0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Jul 2003 19:31:26 -0400
+Date: Mon, 14 Jul 2003 01:40:24 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Cc: Andrea Arcangeli <andrea@suse.de>
+Subject: gcc-3.3.1-hammer vs current pre
+Message-ID: <20030713234024.GA2346@werewolf.able.es>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Disposition: inline
-In-Reply-To: <20030713164003.21839eb4.davem@redhat.com>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
-	required 7, AWL, DATE_IN_PAST_06_12)
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 2.0.12
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The whole point is to not touch any of this data.
-> 
-> The idea is to push the pages directly into the page cache
-> of the filesystem.
+Hi all...
 
-It doesn't work.  Measure the cost of the VM operations before you go
-down this path.  Just set up a system call that swaps a page with a
-kernel allocated buffer and then see how many of those you can do a 
-second.  Maybe Linux is so blindingly fast this makes sense but IRIX
-certainly wasn't, the VM overhead hurt like crazy.
+One good and one bad news...
 
-Every time I tried to push the page flip idea or offloading or any of
-that crap, Andy Bechtolsheim would tell "the CPUs will get faster faster
-than you can make that work".  He was right.
+The good:
+Current 22-pre5 builds at -O1 level. I always thought it was mandatory to
+build at -O2...At least it can be useful to detect optimizer bugs...
+
+And the bad. The current gcc in mandrakke cooker miscompiles the kernel.
+Current 2.4.22-pre5 (plain, even a comma touched) works if built with -O1
+and breaks with -O2 (does not pass init launch). As it is based on
+the hammer branch from SuSE, I think this also affects SuSE developers,
+if not corrected in their tree yet.
+
+Is there any way to set compile flags for _subsystems_ ? To start
+a search on what breaks at -O2.
+
+[OT] (off-topic, not Operacion Triunfo -bleh- ...)
+BTW, is anybody from Mandrake reading this ? The cooker list looks dead
+since a week or so. If someone reads this, plz mail me in private.
+
+TIA
+
 -- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
+werewolf.able.es                         \           It's better when it's free
+Mandrake Linux release 9.2 (Cooker) for i586
+Linux 2.4.22-pre2-jam1 (gcc 3.3 (Mandrake Linux 9.2 3.3-2mdk))

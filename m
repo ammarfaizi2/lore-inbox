@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262143AbTFPTf0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jun 2003 15:35:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264192AbTFPTf0
+	id S264192AbTFPTgS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jun 2003 15:36:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264197AbTFPTgS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jun 2003 15:35:26 -0400
-Received: from wmail.atlantic.net ([209.208.0.84]:28907 "HELO
-	wmail.atlantic.net") by vger.kernel.org with SMTP id S262143AbTFPTfX
+	Mon, 16 Jun 2003 15:36:18 -0400
+Received: from sklave3.rackland.de ([213.133.101.23]:50404 "EHLO
+	sklave3.rackland.de") by vger.kernel.org with ESMTP id S264192AbTFPTgP
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jun 2003 15:35:23 -0400
-Message-ID: <3EEE2293.6010304@techsource.com>
-Date: Mon, 16 Jun 2003 16:03:31 -0400
-From: Timothy Miller <miller@techsource.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Coding technique question
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 16 Jun 2003 15:36:15 -0400
+From: Hadmut Danisch <hadmut@danisch.de>
+Date: Mon, 16 Jun 2003 21:49:24 +0200
+To: linux-kernel@vger.kernel.org
+Subject: VIA VT8366 and IDE/DMA?
+Message-ID: <20030616194924.GA15602@danisch.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I believe I've seen this sort of thing done in the kernel:
+Hi,
 
-do {
-     ....
-     code
-     ....
-} while (0);
+I have a K7 mainboard with VT8366 chipset, but I can't
+turn IDE DMA on:
 
+atlantis# hdparm -d1 /dev/hda
 
-What I was wondering is how this is any different from:
-
-{
-     ....
-     code
-     ....
-}
+/dev/hda:
+ setting using_dma to 1 (on)
+ HDIO_SET_DMA failed: Operation not permitted
+ using_dma    =  0 (off)
 
 
+Writing to /proc/ide/ide0/hda/settings has no effect.
 
+
+Can anyone give me a hint how to turn DMA on?
+
+regards
+Hadmut

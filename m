@@ -1,62 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264042AbTEGQaN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 12:30:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264054AbTEGQaN
+	id S264056AbTEGQcT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 12:32:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264060AbTEGQcT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 12:30:13 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:58242 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S264042AbTEGQaM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 12:30:12 -0400
-Date: Wed, 7 May 2003 12:45:04 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: petter wahlman <petter@bluezone.no>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: The disappearing sys_call_table export.
-In-Reply-To: <1052323711.3739.750.camel@badeip>
-Message-ID: <Pine.LNX.4.53.0305071243400.12878@chaos>
-References: <1052321673.3727.737.camel@badeip>  <Pine.LNX.4.53.0305071147510.12652@chaos>
- <1052323711.3739.750.camel@badeip>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 7 May 2003 12:32:19 -0400
+Received: from holomorphy.com ([66.224.33.161]:43152 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S264056AbTEGQcS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 12:32:18 -0400
+Date: Wed, 7 May 2003 09:44:45 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: markw@osdl.org
+Cc: akpm@digeo.com, linux-kernel@vger.kernel.org
+Subject: Re: OSDL DBT-2 AS vs. Deadline 2.5.68-mm2
+Message-ID: <20030507164445.GH8978@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	markw@osdl.org, akpm@digeo.com, linux-kernel@vger.kernel.org
+References: <200305071633.h47GXWW15850@mail.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200305071633.h47GXWW15850@mail.osdl.org>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 May 2003, petter wahlman wrote:
+On Wed, May 07, 2003 at 09:33:29AM -0700, markw@osdl.org wrote:
+> FUNCTIONS SORTED BY TICKS:
+> -- ------------------------- ------- ------------------------- -------
+>  # as 2.5.68-mm2             ticks   deadline 2.5.68-mm2       ticks  
+> -- ------------------------- ------- ------------------------- -------
+>  1 default_idle              6103428 default_idle              5359025
+>  2 bounce_copy_vec             86272 bounce_copy_vec             97696
+>  3 schedule                    63819 schedule                    70114
+>  4 __make_request              30397 __blk_queue_bounce          31167
+>  5 __blk_queue_bounce          26962 scsi_request_fn             26623
+>  6 scsi_request_fn             24845 __make_request              25012
+>  7 do_softirq                  21122 do_softirq                  24623
+>  8 scsi_end_request            14080 system_call                 13056
+>  9 system_call                 12059 try_to_wake_up              12503
+> 10 try_to_wake_up              11240 dio_bio_end_io              11511
 
-> On Wed, 2003-05-07 at 18:00, Richard B. Johnson wrote:
-> > On Wed, 7 May 2003, petter wahlman wrote:
-> >
-> > >
-> > > It seems like nobody belives that there are any technically valid
-> > > reasons for hooking system calls, but how should e.g anti virus
-> > > on-access scanners intercept syscalls?
-> > > Preloading libraries, ptracing init, patching g/libc, etc. are
-> >   ^^^^^^^^^^^^^^^^^^^
-> >                     |________  Is the way to go. That's how
-> > you communicate every system-call to a user-mode daemon that
-> > does whatever you want it to do, including phoning the National
-> > Security Administrator if that's the policy.
-> >
-> > > obviously not the way to go.
-> > >
-> >
-> > Oviously wrong.
->
->
-> And how would you force the virus to preload this library?
->
-> -p.
->
-
-I wouldn't.
+You're already in deeper trouble than elevators can get you out of as
+your driver is using bounce buffers. What hardware/driver are you using?
 
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
-
+-- wli

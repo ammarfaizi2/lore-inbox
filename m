@@ -1,53 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287480AbRLaKIt>; Mon, 31 Dec 2001 05:08:49 -0500
+	id <S287427AbRLaK2k>; Mon, 31 Dec 2001 05:28:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287427AbRLaKIj>; Mon, 31 Dec 2001 05:08:39 -0500
-Received: from mailout03.sul.t-online.com ([194.25.134.81]:5253 "EHLO
-	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S287482AbRLaKIY>; Mon, 31 Dec 2001 05:08:24 -0500
-Date: Mon, 31 Dec 2001 11:08:13 +0100
-Message-Id: <200112311008.fBVA8DP25091@home.geggus.net>
-From: Sven Geggus <sven@geggus.net>
+	id <S287483AbRLaK2a>; Mon, 31 Dec 2001 05:28:30 -0500
+Received: from [202.54.26.202] ([202.54.26.202]:20715 "EHLO hindon.hss.co.in")
+	by vger.kernel.org with ESMTP id <S287427AbRLaK2Q>;
+	Mon, 31 Dec 2001 05:28:16 -0500
+X-Lotus-FromDomain: HSS
+From: alad@hss.hns.com
 To: linux-kernel@vger.kernel.org
-Subject: Re: writing device drivers for commercial hardware
-Organization: World Domination, fast!
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+Message-ID: <65256B33.0039476C.00@sandesh.hss.hns.com>
+Date: Mon, 31 Dec 2001 15:50:54 +0530
+Subject: locked page handling
+Mime-Version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3C2A2BF6.9718.4C5955@localhost> you wrote:
-
-> As I've said, this is a really cheap one, I don't think that it's well-
-> known.
-> It's from ELV and called 'GSM- und Chipkartenlesegerät', so, it's a 
-> German one. Sorry for that.
-> But thanks for all your hints and tips. I'll keep on trying.
-
-Wegen diesem teil hab ich schon bei ELV angefragt:
-
-Keinerlei Doku im Gegensatz zu den sonstigen ELV Produkten. Ich nehme an,
-dass es sich um Taiwan Schrott handelt, den die selbst nur durchreichen.
-
-Wie die Vorredner schon sagten: Meist braucht man fuer seriell
-angeschlossenen Geraete definitiv keinen Kernelreiber. Der vorhandene
-Treiber fuer die serielle Schnittstelle reicht aus.
-
-Conrad verkauft ein ebensobilliges Teil von Towitoko, fuer das es
-Linuxtreiber gibt (stichwort scez).
-
-Gute Links rund um das Thema Programmierung der seriellen Schnittstelle
-unter Linux hat die Homepage eines ganz anderen Projektes:
-
-http://wth.berlios.de
-
-Sven
 
 
--- 
-"I'm a bastard, and proud of it"
-                          (Linus Torvalds, Wednesday Sep 6, 2000)
+In 2.4.16, vmscan.c::shrink_cache(), we have following piece of code -
 
-/me is giggls@ircnet, http://geggus.net/sven/ on the Web
+          /*
+           * The page is locked. IO in progress?
+           * Move it to the back of the list.
+           */
+          if (unlikely(TryLockPage(page))) {
+               if (PageLaunder(page) && (gfp_mask & __GFP_FS)) {
+                    page_cache_get(page);
+                    spin_unlock(&pagemap_lru_lock);
+                    wait_on_page(page);
+                    page_cache_release(page);
+                    spin_lock(&pagemap_lru_lock);
+               }
+               continue;
+          }
+
+1) Who is moving the page the back of list ?
+2) Is the locked page worth waiting for? I can understand that the page is being
+ laundered so after wait we may get a clean page but from performance
+     point of view this is involving unnecessary context switches. Also during
+high memory pressure kswapd shall sleep here when it can get more
+     clean pages on the inactive list ? What are we loosing if we don't wait on
+the page and believe that in next pass we shall free this page
+
+-- Amol
+
+
+
+
+

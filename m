@@ -1,75 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276587AbRJKRTF>; Thu, 11 Oct 2001 13:19:05 -0400
+	id <S276601AbRJKRWz>; Thu, 11 Oct 2001 13:22:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276369AbRJKRS4>; Thu, 11 Oct 2001 13:18:56 -0400
-Received: from 208-58-240-129.s383.tnt1.atnnj.pa.dialup.rcn.com ([208.58.240.129]:48626
-	"EHLO trianna.2y.net") by vger.kernel.org with ESMTP
-	id <S276600AbRJKRSj>; Thu, 11 Oct 2001 13:18:39 -0400
-Date: Thu, 11 Oct 2001 13:20:03 -0400
-From: Malcolm Mallardi <magamo@mirkwood.net>
+	id <S276369AbRJKRWp>; Thu, 11 Oct 2001 13:22:45 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:48295 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S276594AbRJKRWa>;
+	Thu, 11 Oct 2001 13:22:30 -0400
+Date: Thu, 11 Oct 2001 13:23:00 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
 To: linux-kernel@vger.kernel.org
-Subject: Kernel 2.4.12 Compiling error.
-Message-ID: <20011011132003.A13730@trianna.upcommand.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="FCuugMFkClbJLl1L"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Subject: Re: 2.4.11 loses sda9
+In-Reply-To: <Pine.GSO.4.21.0110111248550.22698-100000@weyl.math.psu.edu>
+Message-ID: <Pine.GSO.4.21.0110111307020.22698-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---FCuugMFkClbJLl1L
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-In the new Kernel 2.4.12, when attempting to compile modules, the parport=
-=20
-module dies, I'm attempting to compile it with IEEE1284 readback support=20
-(HP OJ T45 printer)
+On Thu, 11 Oct 2001, Alexander Viro wrote:
 
-make -C parport modules
-make[2]: Entering directory `/usr/src/linux-2.4.12/drivers/parport'
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.12/include -Wall -Wstrict-prototypes=
-=20
--Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common=20
--pipe -mpreferred-stack-boundary=3D2 -march=3Di686 -DMODULE   -c -o=20
-ieee1284_ops.o ieee1284_ops.c
-ieee1284_ops.c: In function `ecp_forward_to_reverse':
-ieee1284_ops.c:365: `IEEE1284_PH_DIR_UNKNOWN' undeclared (first use in=20
-this function)
-ieee1284_ops.c:365: (Each undeclared identifier is reported only once
-ieee1284_ops.c:365: for each function it appears in.)
-ieee1284_ops.c: In function `ecp_reverse_to_forward':
-ieee1284_ops.c:397: `IEEE1284_PH_DIR_UNKNOWN' undeclared (first use in=20
-this function)
-make[2]: *** [ieee1284_ops.o] Error 1
-make[2]: Leaving directory `/usr/src/linux-2.4.12/drivers/parport'
-make[1]: *** [_modsubdir_parport] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.4.12/drivers'
-make: *** [_mod_drivers] Error 2
+> 
+> 
+> On Thu, 11 Oct 2001, Ignacio Vazquez-Abrams wrote:
+> 
+> > Ouch. You may have to use partedit from PartitionMagic (or some other
+> > low-level partition editor) to manually change the partition type.
+> 
+> Like, say it, dd(1).  However, partitioning code doesn't give a damn for
+> entry type - "empty" means "zero number of sectors" for it.  Something
+> very screwy is going on.
 
-Is the error I get.
 
---
-Malcolm D. Mallardi - Dark Freak At Large
-"Captain, we are receiving two-hundred eighty-five THOUSAND hails."
-AOL: Nuark  UIN: 11084092 Y!: Magamo Jabber: Nuark@jabber.com
-http://ranka.2y.net/~magamo/index.htm
+Owww...  I think I know what can be happening here.  Combination of very
+weird (and apparently old) paritioning corruption with slightly broken
+error handling in old extended_partition() code.
 
---FCuugMFkClbJLl1L
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Setup that could explain everything we'd seen on that one looks so:
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.5 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+	a) extended partitions' chain ends with empty partition table.
+	b) extended_partition() sets a fake device on the tail of
+extended partitionbefore going into it.  Normally that fake device is
+overwritten by _data_ partition refered from the EPT in the beginning of
+the tail.  In this case, though, the fake is left untouched.
+	c) it can be opened.  fdisk screams bloody murder seeing the
+extended partition with no partitions inside, but it can be opened.
+And mkfs'ed.
 
-iD8DBQE7xdTD37pc5u26PgoRAsVGAKCVskWIiN1HyMBezowLiaJ94D9f+wCeLCAZ
-dAblyYX3P1yJNqHCWKFkoCU=
-=WfTi
------END PGP SIGNATURE-----
+	IOW, you've got ext2 living on partition with type 5.  Since its
+(empty) EPT lives where the boot sector should be, ext2 leaves the thing
+untouched.
 
---FCuugMFkClbJLl1L--
+	That's one very sick puppy - any fdisk-style program will have
+a fit on it and it certainly shouldn't create anything like that.  And
+no, I don't see a good solution for that one - it's going to be very hard
+to turn into valid partitions' chain.
+
+	We can restore the bug in question, but it's still going to be
+hell on any fdisk and there's nothing kernel could do about that one.
+Notice that even with the old kernel sda9 officially doesn't exist -
+it can be opened only because of the lack of proper error-recovery in
+old extended_partition().
+
+	All that, unfortunately, doesn't explain another bug-report
+on lost partitions, but there we have very different picture - 2.4.10
+actually seeing the partition in question and fdisk being OK with it.
+Ugh...
+

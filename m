@@ -1,44 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262257AbTEUTzK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 May 2003 15:55:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262258AbTEUTzJ
+	id S262253AbTEUUDE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 May 2003 16:03:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262258AbTEUUDE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 May 2003 15:55:09 -0400
-Received: from smtp3.wanadoo.fr ([193.252.22.25]:17395 "EHLO
-	mwinf0603.wanadoo.fr") by vger.kernel.org with ESMTP
-	id S262257AbTEUTzI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 May 2003 15:55:08 -0400
-From: Duncan Sands <baldrick@wanadoo.fr>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] spin_lock_irq debugging
-Date: Wed, 21 May 2003 22:08:09 +0200
-User-Agent: KMail/1.5.1
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200305212208.09376.baldrick@wanadoo.fr>
+	Wed, 21 May 2003 16:03:04 -0400
+Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:13811 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP id S262253AbTEUUDC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 May 2003 16:03:02 -0400
+Subject: Re: userspace irq balancer
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: James Bottomley <James.Bottomley@steeleye.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1053534694.1681.10.camel@mulgrave>
+References: <1053534694.1681.10.camel@mulgrave>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-gOLg9llFQ0X4u/64pHsq"
+Organization: Red Hat, Inc.
+Message-Id: <1053548160.1301.10.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 (1.2.4-2) 
+Date: 21 May 2003 22:16:01 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Of course the real problem is the corresponding spin_unlock_irq
-enabling local irqs when they should have been left disabled, but
-this is easier to check for.  Your logs will fill up.
 
-diff -Nru a/include/linux/spinlock.h b/include/linux/spinlock.h
---- a/include/linux/spinlock.h	Wed May 21 22:04:29 2003
-+++ b/include/linux/spinlock.h	Wed May 21 22:04:29 2003
-@@ -261,6 +261,10 @@
- 
- #define spin_lock_irq(lock) \
- do { \
-+	if (unlikely(irqs_disabled())) { \
-+		printk(KERN_ERR "bad: spin_lock_irq with irqs disabled!\n"); \
-+		dump_stack(); \
-+	} \
- 	local_irq_disable(); \
- 	preempt_disable(); \
- 	_raw_spin_lock(lock); \
+--=-gOLg9llFQ0X4u/64pHsq
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
+On Wed, 2003-05-21 at 18:31, James Bottomley wrote:
+> I'm interested in using this for voyager.  However, I have a problem in
+> that voyager may have CPUs that can't accept interrupts (this is global
+> on voyager, but may be per-interrupt on NUMA like systems).  I think
+> before we move to a userspace solution, some thought about how to cope
+> with this is needed.
+>=20
+> I have several suggestions:
+>=20
+> 1. Place the masks into /proc/irq/<n>/smp_affinity at start of day and
+> have the userspace irqbalancer take this as the maximal mask
+>=20
+> 2. Have a separate file /proc/irq/<n>/mask(?) to expose the mask always
+>=20
+> 3. Some other method...
+
+I would prefer the second method.
+
+
+--=-gOLg9llFQ0X4u/64pHsq
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA+y96AxULwo51rQBIRAsr0AKCKTznvHPgPEc7W9aTN8Rd0Vu4SQgCfRksV
+V6my+OA4FIGNuXuIj9t82H4=
+=Dmpm
+-----END PGP SIGNATURE-----
+
+--=-gOLg9llFQ0X4u/64pHsq--

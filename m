@@ -1,270 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261824AbVAHJem@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261892AbVAHJsV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261824AbVAHJem (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 04:34:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262002AbVAHJdV
+	id S261892AbVAHJsV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 04:48:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261825AbVAHJfj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 04:33:21 -0500
-Received: from mail.kroah.org ([69.55.234.183]:27525 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261825AbVAHFsE convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 00:48:04 -0500
-Subject: Re: [PATCH] USB and Driver Core patches for 2.6.10
-In-Reply-To: <11051632594155@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Fri, 7 Jan 2005 21:47:39 -0800
-Message-Id: <1105163259922@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+	Sat, 8 Jan 2005 04:35:39 -0500
+Received: from mail.joq.us ([67.65.12.105]:8321 "EHLO sulphur.joq.us")
+	by vger.kernel.org with ESMTP id S261960AbVAHGM0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jan 2005 01:12:26 -0500
+To: Chris Wright <chrisw@osdl.org>
+Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Lee Revell <rlrevell@joe-job.com>, paul@linuxaudiosystems.com,
+       arjanv@redhat.com, mingo@elte.hu, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM
+References: <200501071620.j07GKrIa018718@localhost.localdomain>
+	<1105132348.20278.88.camel@krustophenia.net>
+	<20050107134941.11cecbfc.akpm@osdl.org>
+	<20050107221059.GA17392@infradead.org>
+	<20050107142920.K2357@build.pdx.osdl.net>
+From: "Jack O'Quin" <joq@io.com>
+Date: Sat, 08 Jan 2005 00:12:59 -0600
+In-Reply-To: <20050107142920.K2357@build.pdx.osdl.net> (Chris Wright's
+ message of "Fri, 7 Jan 2005 14:29:20 -0800")
+Message-ID: <87mzvkxxck.fsf@sulphur.joq.us>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1938.444.7, 2004/12/16 13:19:24-08:00, greg@kroah.com
+Chris Wright <chrisw@osdl.org> writes:
 
-USB: convert uhci-hcd driver to use debugfs.
+> * Christoph Hellwig (hch@infradead.org) wrote:
+>> So to make forward progress I'd like the audio people to confirm whether
+>> the mlock bits in 2.6.9+ do help that half of their requirement first
+>
+> It sure should, but I guess they can reply on that.
 
-Look, we saved 24 lines of code...
+That does seem to work now (finally).  It looks like that longstanding
+CAP_IPC_LOCK bug is finally fixed, too.
 
-Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
+I find it hard to understand why some of you think PAM is an adequate
+solution.  As currently deployed, it is poorly documented and nearly
+impossible for non-experts to administer securely.  On my Debian woody
+system, when I login from the console I get one fairly sensible set of
+ulimit values, but from gdm I get a much more permissive set (with
+ulimited mlocking, BTW).  Apparently, this is because the `gdm' PAM
+config includes `session required pam_limits.so' but the system comes
+with an empty /etc/security/limits.conf.  I'm just guessing about that
+because I can't find any decent documentation for any of this crap.
 
+Remember, if something is difficult to administer, it's *not* secure.
 
- drivers/usb/host/uhci-debug.c |   36 +++++++++++--------------
- drivers/usb/host/uhci-hcd.c   |   60 ++++++++++++++----------------------------
- drivers/usb/host/uhci-hcd.h   |    6 +---
- 3 files changed, 39 insertions(+), 63 deletions(-)
+>> (and if not find a way to fix it) and then tackle the scheduling part.
+>> For that one I really wonder whether the combination of the now actually
+>> working nicelevels (see Mingo's post) and a simple wrapper for the really
+>> high requirements cases doesn't work.
+>
+> I saw Jack (I think) post some numbers showing that it wasn't enough.
+> What about making priority level protected via rlimit?
 
+The numbers I reported yesterday were so bad I couldn't figure out why
+anyone even thought it was worth trying.  Now I realize why.  
 
-diff -Nru a/drivers/usb/host/uhci-debug.c b/drivers/usb/host/uhci-debug.c
---- a/drivers/usb/host/uhci-debug.c	2005-01-07 15:47:27 -08:00
-+++ b/drivers/usb/host/uhci-debug.c	2005-01-07 15:47:27 -08:00
-@@ -11,7 +11,7 @@
- 
- #include <linux/config.h>
- #include <linux/kernel.h>
--#include <linux/proc_fs.h>
-+#include <linux/debugfs.h>
- #include <linux/smp_lock.h>
- #include <asm/io.h>
- 
-@@ -496,19 +496,18 @@
- 
- #define MAX_OUTPUT	(64 * 1024)
- 
--static struct proc_dir_entry *uhci_proc_root = NULL;
-+static struct dentry *uhci_debugfs_root = NULL;
- 
--struct uhci_proc {
-+struct uhci_debug {
- 	int size;
- 	char *data;
- 	struct uhci_hcd *uhci;
- };
- 
--static int uhci_proc_open(struct inode *inode, struct file *file)
-+static int uhci_debug_open(struct inode *inode, struct file *file)
- {
--	const struct proc_dir_entry *dp = PDE(inode);
--	struct uhci_hcd *uhci = dp->data;
--	struct uhci_proc *up;
-+	struct uhci_hcd *uhci = inode->u.generic_ip;
-+	struct uhci_debug *up;
- 	int ret = -ENOMEM;
- 
- 	lock_kernel();
-@@ -532,9 +531,9 @@
- 	return ret;
- }
- 
--static loff_t uhci_proc_lseek(struct file *file, loff_t off, int whence)
-+static loff_t uhci_debug_lseek(struct file *file, loff_t off, int whence)
- {
--	struct uhci_proc *up;
-+	struct uhci_debug *up;
- 	loff_t new = -1;
- 
- 	lock_kernel();
-@@ -556,16 +555,16 @@
- 	return (file->f_pos = new);
- }
- 
--static ssize_t uhci_proc_read(struct file *file, char __user *buf,
-+static ssize_t uhci_debug_read(struct file *file, char __user *buf,
- 				size_t nbytes, loff_t *ppos)
- {
--	struct uhci_proc *up = file->private_data;
-+	struct uhci_debug *up = file->private_data;
- 	return simple_read_from_buffer(buf, nbytes, ppos, up->data, up->size);
- }
- 
--static int uhci_proc_release(struct inode *inode, struct file *file)
-+static int uhci_debug_release(struct inode *inode, struct file *file)
- {
--	struct uhci_proc *up = file->private_data;
-+	struct uhci_debug *up = file->private_data;
- 
- 	kfree(up->data);
- 	kfree(up);
-@@ -573,11 +572,10 @@
- 	return 0;
- }
- 
--static struct file_operations uhci_proc_operations = {
--	.open =		uhci_proc_open,
--	.llseek =	uhci_proc_lseek,
--	.read =		uhci_proc_read,
--//	write:		uhci_proc_write,
--	.release =	uhci_proc_release,
-+static struct file_operations uhci_debug_operations = {
-+	.open =		uhci_debug_open,
-+	.llseek =	uhci_debug_lseek,
-+	.read =		uhci_debug_read,
-+	.release =	uhci_debug_release,
- };
- #endif
-diff -Nru a/drivers/usb/host/uhci-hcd.c b/drivers/usb/host/uhci-hcd.c
---- a/drivers/usb/host/uhci-hcd.c	2005-01-07 15:47:27 -08:00
-+++ b/drivers/usb/host/uhci-hcd.c	2005-01-07 15:47:27 -08:00
-@@ -46,7 +46,7 @@
- #include <linux/unistd.h>
- #include <linux/interrupt.h>
- #include <linux/spinlock.h>
--#include <linux/proc_fs.h>
-+#include <linux/debugfs.h>
- #include <linux/pm.h>
- #include <linux/dmapool.h>
- #include <linux/dma-mapping.h>
-@@ -74,7 +74,7 @@
-  * debug = 0, no debugging messages
-  * debug = 1, dump failed URB's except for stalls
-  * debug = 2, dump all failed URB's (including stalls)
-- *            show all queues in /proc/driver/uhci/[pci_addr]
-+ *            show all queues in /debug/uhci/[pci_addr]
-  * debug = 3, show all TD's in URB's when dumping
-  */
- #ifdef DEBUG
-@@ -1927,12 +1927,10 @@
- 		uhci->fl = NULL;
- 	}
- 
--#ifdef CONFIG_PROC_FS
--	if (uhci->proc_entry) {
--		remove_proc_entry(uhci->hcd.self.bus_name, uhci_proc_root);
--		uhci->proc_entry = NULL;
-+	if (uhci->dentry) {
-+		debugfs_remove(uhci->dentry);
-+		uhci->dentry = NULL;
- 	}
--#endif
- }
- 
- static int uhci_reset(struct usb_hcd *hcd)
-@@ -1972,25 +1970,17 @@
- 	unsigned io_size;
- 	dma_addr_t dma_handle;
- 	struct usb_device *udev;
--#ifdef CONFIG_PROC_FS
--	struct proc_dir_entry *ent;
--#endif
-+	struct dentry *dentry;
- 
- 	io_size = pci_resource_len(to_pci_dev(uhci_dev(uhci)), hcd->region);
- 
--#ifdef CONFIG_PROC_FS
--	ent = create_proc_entry(hcd->self.bus_name, S_IFREG|S_IRUGO|S_IWUSR, uhci_proc_root);
--	if (!ent) {
--		dev_err(uhci_dev(uhci), "couldn't create uhci proc entry\n");
-+	dentry = debugfs_create_file(hcd->self.bus_name, S_IFREG|S_IRUGO|S_IWUSR, uhci_debugfs_root, uhci, &uhci_debug_operations);
-+	if (!dentry) {
-+		dev_err(uhci_dev(uhci), "couldn't create uhci debugfs entry\n");
- 		retval = -ENOMEM;
--		goto err_create_proc_entry;
-+		goto err_create_debug_entry;
- 	}
--
--	ent->data = uhci;
--	ent->proc_fops = &uhci_proc_operations;
--	ent->size = 0;
--	uhci->proc_entry = ent;
--#endif
-+	uhci->dentry = dentry;
- 
- 	uhci->fsbr = 0;
- 	uhci->fsbrtimeout = 0;
-@@ -2192,13 +2182,10 @@
- 	uhci->fl = NULL;
- 
- err_alloc_fl:
--#ifdef CONFIG_PROC_FS
--	remove_proc_entry(hcd->self.bus_name, uhci_proc_root);
--	uhci->proc_entry = NULL;
--
--err_create_proc_entry:
--#endif
-+	debugfs_remove(uhci->dentry);
-+	uhci->dentry = NULL;
- 
-+err_create_debug_entry:
- 	return retval;
- }
- 
-@@ -2405,11 +2392,9 @@
- 			goto errbuf_failed;
- 	}
- 
--#ifdef CONFIG_PROC_FS
--	uhci_proc_root = create_proc_entry("driver/uhci", S_IFDIR, NULL);
--	if (!uhci_proc_root)
--		goto proc_failed;
--#endif
-+	uhci_debugfs_root = debugfs_create_dir("uhci", NULL);
-+	if (!uhci_debugfs_root)
-+		goto debug_failed;
- 
- 	uhci_up_cachep = kmem_cache_create("uhci_urb_priv",
- 		sizeof(struct urb_priv), 0, 0, NULL, NULL);
-@@ -2427,12 +2412,9 @@
- 		warn("not all urb_priv's were freed!");
- 
- up_failed:
-+	debugfs_remove(uhci_debugfs_root);
- 
--#ifdef CONFIG_PROC_FS
--	remove_proc_entry("driver/uhci", NULL);
--
--proc_failed:
--#endif
-+debug_failed:
- 	if (errbuf)
- 		kfree(errbuf);
- 
-@@ -2448,9 +2430,7 @@
- 	if (kmem_cache_destroy(uhci_up_cachep))
- 		warn("not all urb_priv's were freed!");
- 
--#ifdef CONFIG_PROC_FS
--	remove_proc_entry("driver/uhci", NULL);
--#endif
-+	debugfs_remove(uhci_debugfs_root);
- 
- 	if (errbuf)
- 		kfree(errbuf);
-diff -Nru a/drivers/usb/host/uhci-hcd.h b/drivers/usb/host/uhci-hcd.h
---- a/drivers/usb/host/uhci-hcd.h	2005-01-07 15:47:27 -08:00
-+++ b/drivers/usb/host/uhci-hcd.h	2005-01-07 15:47:27 -08:00
-@@ -326,10 +326,8 @@
- struct uhci_hcd {
- 	struct usb_hcd hcd;		/* must come first! */
- 
--#ifdef CONFIG_PROC_FS
--	/* procfs */
--	struct proc_dir_entry *proc_entry;
--#endif
-+	/* debugfs */
-+	struct dentry *dentry;
- 
- 	/* Grabbed from PCI */
- 	unsigned long io_addr;
+When Ingo said to try "nice -20", I took him literally, forgetting
+that the stupid command to achieve a nice value of -20 is `nice --20'.
+So I was actually testing with a nice value of 19.  Bah!  No wonder it
+sucked.
 
+Running `nice --20' is still significantly worse than SCHED_FIFO, but
+not the unmitigated disaster shown in the middle column.  But, this
+improved performance is still not adequate for audio work.  The worst
+delay was absurdly long (~1/2 sec).
+
+Here are the corrected results...
+
+                                 With -R        Without -R      Without -R
+                               (SCHED_FIFO)     (nice -20)      (nice --20)
+
+************* SUMMARY RESULT ****************
+Total seconds ran . . . . . . :   300
+Number of clients . . . . . . :    20
+Ports per client  . . . . . . :     4
+Frames per buffer . . . . . . :    64
+*********************************************
+Timeout Count . . . . . . . . :(    1)          (    1)          (    1)
+XRUN Count  . . . . . . . . . :     2             2837               43
+Delay Count (>spare time) . . :     0                0                0
+Delay Count (>1000 usecs) . . :     0                0                0
+Delay Maximum . . . . . . . . :  3130 usecs    5038044 usecs   501374 usecs
+Cycle Maximum . . . . . . . . :   960 usecs      18802 usecs     1036 usecs
+Average DSP Load. . . . . . . :    34.3 %           44.1 %         34.3 %    
+Average CPU System Load . . . :     8.7 %            7.5 %          7.8 %    
+Average CPU User Load . . . . :    29.8 %            5.2 %         25.3 %    
+Average CPU Nice Load . . . . :     0.0 %           20.3 %          0.0 %    
+Average CPU I/O Wait Load . . :     3.2 %            5.2 %          0.1 %    
+Average CPU IRQ Load  . . . . :     0.7 %            0.7 %          0.7 %    
+Average CPU Soft-IRQ Load . . :     0.0 %            0.2 %          0.0 %    
+Average Interrupt Rate  . . . :  1707.6 /sec      1677.3 /sec    1692.9 /sec 
+Average Context-Switch Rate . : 11914.9 /sec     11197.6 /sec   11611.2 /sec 
+*********************************************
+
+> Here's an uncompiled, untested patch doing that (probably has some math
+> error or logic hole in it, but idea seems sound enough).  I think it has
+> at least one problem, where nice 19 process, could renice itself back to
+> 0.  And it doesn't really handle the different scheduling policies,
+> other than implicit 40 - 139 being used for SCHED_FIFO/SCHED_RR.
+>
+> It takes the 140 priority levels (0-139), inverts their priority
+> order, and then uses that number as the basis for the rlimit (so that a
+> larger rlimit means higher priority, to fall inline with normal rlimit
+> semantics).  Defaults to 19 (which should be niceval of 0).  And allows
+> CAP_SYS_NICE to continue to override if the rlimit is too low.
+
+If you really want to use PAM for everything, then this idea makes a
+lot of sense.
+
+But, what about all the other programs that would need updating to
+make it useful?  We'd need at least a new pam_limits.so module and a
+new shell (since ulimit is built-in).  I expect I will need to
+maintain the realtime-lsm for at least another year before all that
+can trickle down to actual end users.
+
+-- 
+  joq

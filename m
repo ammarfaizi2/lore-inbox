@@ -1,44 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319044AbSHFKWE>; Tue, 6 Aug 2002 06:22:04 -0400
+	id <S319045AbSHFKXe>; Tue, 6 Aug 2002 06:23:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319045AbSHFKWE>; Tue, 6 Aug 2002 06:22:04 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:61189 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S319044AbSHFKWD>; Tue, 6 Aug 2002 06:22:03 -0400
-Message-ID: <3D4FA2F8.2050305@evision.ag>
-Date: Tue, 06 Aug 2002 12:20:40 +0200
-From: Marcin Dalecki <dalecki@evision.ag>
-Reply-To: martin@dalecki.de
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.1b) Gecko/20020722
-X-Accept-Language: en-us, en, pl, ru
-MIME-Version: 1.0
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-CC: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [PATCH] 2.5.30 IDE 113
-References: <13A77E76028@vcnet.vc.cvut.cz>
-Content-Type: text/plain; charset=US-ASCII;
-Content-Transfer-Encoding: 7BIT
+	id <S319046AbSHFKXe>; Tue, 6 Aug 2002 06:23:34 -0400
+Received: from kweetal.tue.nl ([131.155.2.7]:36862 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id <S319045AbSHFKXc>;
+	Tue, 6 Aug 2002 06:23:32 -0400
+Date: Tue, 6 Aug 2002 12:27:07 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: martin@dalecki.de
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH] 2.5.30 IDE 112
+Message-ID: <20020806102707.GA29785@win.tue.nl>
+References: <3D4F8DE2.8020904@evision.ag>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3D4F8DE2.8020904@evision.ag>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Uz.ytkownik Petr Vandrovec napisa?:
+On Tue, Aug 06, 2002 at 10:50:42AM +0200, Marcin Dalecki wrote:
+> - Just removaing dead obscure xlate_1024 code.
 
-> Hi Marcin,
->   what synchronizes these accesses to make sure that you do not have
-> two ide_raw_taskfile requests on the flight, both using same 
-> drive->srequest? It looks to me like that nothing, so you can overwrite 
-> request's contents while somebody else already uses this buffer.
+Hmm. You have a somewhat literal idea of "dead": code that is not
+called today, regardless of whether it was called yesterday and
+will be needed tomorrow.
 
-I don't think so. The queue lock is synchronizing them.
-And then we usually add them just to the front of the queue in question
-and wait for finishment until the request is done.
-After all ide_raw_taskfile only gets used for REQ_SPECIAL request
-types. This does *not* contain normal data request from block IO.
-As of master slave issues - well we have the data pre allocated per
-device not per channel! If q->request_fn would properly return the
-error count instead of void, we could even get rid ot the
-checking for rq->errors after finishment... But well that's
-entierly different story.
+Just plain removing everything keeps the source clean but has
+the unpleasant side effect that Linux no longer works on certain
+machines.
 
+Command line options must be added to ask for what this
+xlate_1024 code did earlier. So, some fragments of what you remove
+in this patch will have to come back in some form.
 
+Andries

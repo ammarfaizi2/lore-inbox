@@ -1,40 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263480AbRFMRUb>; Wed, 13 Jun 2001 13:20:31 -0400
+	id <S263904AbRFMRkE>; Wed, 13 Jun 2001 13:40:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263473AbRFMRUV>; Wed, 13 Jun 2001 13:20:21 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:20488 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S263480AbRFMRUF>;
-	Wed, 13 Jun 2001 13:20:05 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200106131717.f5DHHRJ295569@saturn.cs.uml.edu>
-Subject: Re: Going beyond 256 PCI buses
-To: tom_gall@vnet.ibm.com (Tom Gall)
-Date: Wed, 13 Jun 2001 13:17:27 -0400 (EDT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3B273A20.8EE88F8F@vnet.ibm.com> from "Tom Gall" at Jun 13, 2001 05:02:08 AM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S263934AbRFMRjy>; Wed, 13 Jun 2001 13:39:54 -0400
+Received: from cpe-66-1-45-23.az.sprintbbd.net ([66.1.45.23]:1286 "EHLO
+	deming-os.org") by vger.kernel.org with ESMTP id <S263904AbRFMRji>;
+	Wed, 13 Jun 2001 13:39:38 -0400
+Message-ID: <3B27A546.A64F8B00@lycosmail.com>
+Date: Wed, 13 Jun 2001 10:39:19 -0700
+From: Russ Lewis <russl@lycosmail.com>
+X-Mailer: Mozilla 4.74 [en] (WinNT; U)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Has it been done: User Script File System?
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tom Gall writes:
+Is there any filesystem in Linux that uses user scripts/executables to
+implement the various function calls?  What I'm thinking of is something
+along the lines of a file system module that, when it receives a call
+from VFS, passes the information out to a user-mode daemon which could
+then run scripts or executables to answer the question.  The daemon
+would then return the answer to the module, and the module would answer
+VFS.
 
->   I was wondering if there are any other folks out there like me who
-> have the 256 PCI bus limit looking at them straight in the face?
+The reason I'm wondering is that I have a lot of brainstorms about
+things that might be cool to implement as filesystems, but I don't want
+to take the time to have to implement a full filesystem for each
+(especially considering the number of bugs and kernel panics I'm likely
+to encounter in the process).  What I'd really like to do is something
+like this:
 
-I might. The need to reserve bus numbers for hot-plug looks like
-a quick way to waste all 256 bus numbers.
+mount -t userfs   /etc/myfs.conf   /myfs
 
-> each PHB has an
-> additional id, then each PHB can have up to 256 buses.
+Where /etc/myfs.conf would have something like this:
 
-Try not to think of him as a PHB with an extra id. Lots of people
-have weird collections. If your boss wants to collect buses, well,
-that's his business. Mine likes boats. It's not a big deal, really.
+lookup:  /usr/bin/myfslookup
+open:   /usr/bin/myfsopen
+etc...
 
-(Did you not mean your pointy-haired boss has mental problems?)
+I know that it would be very slow, and might require some modifications
+to VFS to make it work (in addition to the module I'd have to write),
+but it would be really nice to be able to throw together a very simple
+utility filesystem without having to worry about crashing the kernel.
 
+Does Linux have anything even remotely like this?  If not, I might (if I
+can spare the time) play around with something like this of my own.
 

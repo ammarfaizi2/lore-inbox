@@ -1,53 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267363AbUIBRIU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268726AbUIBRLw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267363AbUIBRIU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 13:08:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268714AbUIBRIU
+	id S268726AbUIBRLw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 13:11:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268738AbUIBRLw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 13:08:20 -0400
-Received: from ms003msg.fastwebnet.it ([213.140.2.42]:7308 "EHLO
-	ms003msg.fastwebnet.it") by vger.kernel.org with ESMTP
-	id S267363AbUIBRIS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 13:08:18 -0400
-From: Paolo Ornati <ornati@fastwebnet.it>
-To: adaplas@pol.net
-Subject: Re: 2.6.9-rc1: scrolling with tdfxfb 5 times slower
-Date: Thu, 2 Sep 2004 19:10:57 +0200
-User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org
-References: <200408312133.40039.ornati@fastwebnet.it> <200409021123.26299.ornati@fastwebnet.it> <200409022020.19062.adaplas@hotpop.com>
-In-Reply-To: <200409022020.19062.adaplas@hotpop.com>
+	Thu, 2 Sep 2004 13:11:52 -0400
+Received: from mailgate.urz.tu-dresden.de ([141.30.66.154]:56758 "EHLO
+	mailgate.urz.tu-dresden.de") by vger.kernel.org with ESMTP
+	id S268726AbUIBRLq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 13:11:46 -0400
+Message-ID: <1094145103.4137544f97e2a@rmc60-231.urz.tu-dresden.de>
+Date: Thu,  2 Sep 2004 19:11:43 +0200
+From: Hendrik Fehr <s4248297@rcs.urz.tu-dresden.de>
+To: linux-kernel@vger.kernel.org
+Subject: PROBLEM: Full CPU-usage on sis5513-chipset disc input/output-operations
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200409021910.58511.ornati@fastwebnet.it>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.2
+X-Originating-IP: 217.238.216.13
+X-TUD-Virus-Scanned: by amavisd-new at rks24.urz.tu-dresden.de
+X-TUD-Spam-Checker-Version: SpamAssassin 2.63 (2004-01-11) on rks24
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 02 September 2004 14:20, Antonino A. Daplas wrote:
->
-> Just to finalize everything, 2 more things:
->
-> 1. Does changing the resolution affect the vyres upper limit?
+Hello!
+I was busying myself with this for about two weeks, and today i am likely to
+say
+that this is a bug in the kernel.
 
-I have tried with 640x480, 800x600 and 1024x768 and the upper limit seems 
-the same (I've also tried some combinations of resolution / BPP)
+The symptoms for short:
+On 2.4.x (actually 2.4.27) kernel, disk i/o operations perform well (no
+noticable cpu overhead). But: on kernel 2.6.9-rc1-bk8 (and all the other
+2.6.x that i tested), disk i/o operations perform bad: full cpu usage
+(sys) when copying files or doing other i/o operations.
 
->
-> 2. What happens if you comment out banshee_wait_idle in tdfxfb_fillrect,
-> tdfxfb_copyarea and tdfxfb_imageblit?  Scrolling should go faster but
-> will removing it cause additional screen corruption?
+And to make sure that the new scheduling interface is not the "bad guy" i
+tried different schedulers with elevator=<something>. The bug was still
+there.
 
-scrolling is a bit faster and I don't notice any additional screen 
-corruption
+That is what i was doing to resolve the problem:
+I wrote to Lionel (the sis5513.c author found in MAINTAINERS) on 20040831:
+----8<-----
+I am using linux-2.6.x kernel with sis5513 support enabled. I discovered a
+strange performance problem that was mentioned on bugzilla.kernel.org some time
+before [1.]. For a full and details report you may have a look at [2.].
 
-time cat MAINTAINERS (2.6.9-rc1 + your patch / 800x600 8bpp / YRES 3200)
+[1.] http://bugzilla.kernel.org/show_bug.cgi?id=2983
+[2.] http://rcswww.urz.tu-dresden.de/~s4248297/gubed/report.html
 
-normal: ~0.19
-without banshee_wait_idle in the three functions: ~0.12 
+I dont know if it is a problem of the sis5513.c code, but i hope you may be
+helpful in finding the right person to whom i should send this bug.
+----8<-----
 
--- 
-	Paolo Ornati
-	Gentoo Linux (kernel 2.6.8-gentoo-r3)
+He tried to figure out, if this behaviour may be a problem of his driver,
+and it seems that this is not the case. He sugested that i may post this
+problem to this list, that is, what i am doing here. You can see the full
+conversation with Linonel at the web page at [2.]
+
+IMHO it must have to do with the Uniform Multi-Platform E-IDE driver. The
+2.4 kernel uses revision 7.00beta4-2.4 and the 2.6 uses revision
+7.00alpha2. If this sugestion is wrong excuse me, i am not a C programer.
+
+Everyone who is keen on solving this problem should have a look at the very
+detailed description of the bug on the web page [2.]. I kept it as close as
+possible to the rules in the REPORTING-BUGS file (hey i even made some
+screenshots).
+The question is: why would the same hardware combination on the 2.4 kernel
+perform well, and not so well on 2.6.
+
+PS: please CC me, i am not on the list ;-)
+
+Best regards,
+Hendrik Fehr.

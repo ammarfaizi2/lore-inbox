@@ -1,51 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264897AbUEVH1q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264893AbUEVHlN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264897AbUEVH1q (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 May 2004 03:27:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264893AbUEVH1q
+	id S264893AbUEVHlN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 May 2004 03:41:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264898AbUEVHlN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 May 2004 03:27:46 -0400
-Received: from server112.anhosting.com ([205.243.144.10]:17902 "EHLO
-	server112.anhosting.com") by vger.kernel.org with ESMTP
-	id S264897AbUEVH1k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 May 2004 03:27:40 -0400
-From: system <system@eluminoustechnologies.com>
-To: linux-kernel@vger.kernel.org
-Subject: hda Kernel error!!!
-Date: Sat, 22 May 2004 12:57:28 +0530
-User-Agent: KMail/1.5
-Organization: eluminous technologies
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sat, 22 May 2004 03:41:13 -0400
+Received: from colin2.muc.de ([193.149.48.15]:60166 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S264893AbUEVHlM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 May 2004 03:41:12 -0400
+Date: 22 May 2004 09:41:11 +0200
+Date: Sat, 22 May 2004 09:41:11 +0200
+From: Andi Kleen <ak@muc.de>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: brettspamacct@fastclick.com, Andi Kleen <ak@muc.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: How can I optimize a process on a NUMA architecture(x86-64 specifically)?
+Message-ID: <20040522074111.GA10462@colin2.muc.de>
+References: <1Y6yr-eM-11@gated-at.bofh.it> <1Yn67-50q-7@gated-at.bofh.it> <m3lljld1v1.fsf@averell.firstfloor.org> <93090000.1085171530@flay> <40AE93E0.7060308@fastclick.com> <1720000.1085206414@[10.10.2.4]>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200405221257.28570.system@eluminoustechnologies.com>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - server112.anhosting.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - eluminoustechnologies.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+In-Reply-To: <1720000.1085206414@[10.10.2.4]>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello All,
-  When today I checked the server logs with logwatch I found under kernel 
-section a very long messages about the kernel .
-  I am usuall checking the logs daily,but I didn;t see the kernel sction so 
-long before.
- In that I found warning about kernel error!!
+> > 
+> ># numactl --show
+> > No NUMA support available on this system.
+> > 
+> > despite using kernel 2.6.6.
 
-WARNING:  Kernel Errors Present
-   hda: drive_cmd: error=0x04 { DriveStat...:  1Time(s)
-   hda: drive_cmd: status=0x51 { DriveReady SeekComplete Error }...:  1Time(s)
+You need 2.6.6-mm*. numa api hasn't been merged to mainline yet.
 
-What is this error?
-Dose this indicate error on hda?
-Should I replace hda?OR it's different from all these?
-Please help thank you...
-
-
+-Andi

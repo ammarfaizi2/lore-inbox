@@ -1,48 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262704AbTC0ALJ>; Wed, 26 Mar 2003 19:11:09 -0500
+	id <S262688AbTC0AMR>; Wed, 26 Mar 2003 19:12:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262699AbTC0ALJ>; Wed, 26 Mar 2003 19:11:09 -0500
-Received: from phoenix.mvhi.com ([195.224.96.167]:31240 "EHLO
+	id <S262699AbTC0AMR>; Wed, 26 Mar 2003 19:12:17 -0500
+Received: from phoenix.infradead.org ([195.224.96.167]:34312 "EHLO
 	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S262688AbTC0ALI>; Wed, 26 Mar 2003 19:11:08 -0500
-Date: Thu, 27 Mar 2003 00:22:19 +0000 (GMT)
+	id <S262688AbTC0AMQ>; Wed, 26 Mar 2003 19:12:16 -0500
+Date: Thu, 27 Mar 2003 00:23:27 +0000 (GMT)
 From: James Simmons <jsimmons@infradead.org>
-To: Torrey Hoffman <thoffman@arnor.net>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: sisfb: two more little problems
-In-Reply-To: <1048723564.1156.5.camel@rohan.arnor.net>
-Message-ID: <Pine.LNX.4.44.0303270021000.25001-100000@phoenix.infradead.org>
+To: Wichert Akkerman <wichert@wiggy.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [FIX] Re: 2.5.66 new fbcon oops while loading X
+In-Reply-To: <20030326224245.GN2078@wiggy.net>
+Message-ID: <Pine.LNX.4.44.0303270023040.25001-100000@phoenix.infradead.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> Besides the problems with mode switching with fbcon, I have two other
-> problems with sisfb:
+> Previously James Simmons wrote:
+> > That is no longer true. The fb nodes should be recreated. I fixed the docs 
+> > in devices.txt
 > 
-> 1. My gpm mouse cursor on the framebuffer console is a cyan rectangle
-> with a bright orange "G" in it.  Actually the G has a "^" accent over
-> it.  That's just when it's over a blank spot.  When I move it over other
-> characters, the character in the pointer changes.  However, it does work
-> for selecting text.
+> Fine with me, however someone might want to look at the device numbering
+> that the various Linux distros are using at this moment. I know Debian
+> is using the old numbering and I just filed a bugreport to get that
+> updated. I do expect a fair amount of people will run into this when
+> they upgrade to 2.5/2.6 kernels.
 
-Try my latest patch. It should fix this. 
+Only if they have more than one video card which is pretty small number.
 
-http://phoenix.infradead.org/~jsimmons/fbdev.diff.gz
-
-Let me know how it works out for you.
- 
-> 2. I can't seem to set the default video mode from the kernel command
-> line.  I have tried:
-> 
-> video=sis:1024x768-24@75
-> video=sisfb:1024x768-24@75
-> 
-> and neither one works.  What is the expected command line?
-
-It is video=sisfb:...
-
-Hm. It should work. 
 

@@ -1,64 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261535AbVAXRZu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261536AbVAXR3Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261535AbVAXRZu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 12:25:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261537AbVAXRZt
+	id S261536AbVAXR3Z (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 12:29:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261492AbVAXR3Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 12:25:49 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:35333 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261535AbVAXRZS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 12:25:18 -0500
-Date: Mon, 24 Jan 2005 18:25:12 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-rc2-mm1 [compile fix]
-Message-ID: <20050124172512.GI3515@stusta.de>
-References: <20050124021516.5d1ee686.akpm@osdl.org> <20050124151113.GA12312@ens-lyon.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 24 Jan 2005 12:29:25 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:47005 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261537AbVAXRZ4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 12:25:56 -0500
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Jon Smirl <jonsmirl@gmail.com>
+Subject: Re: Patch to control VGA bus routing and active VGA device.
+Date: Mon, 24 Jan 2005 09:25:51 -0800
+User-Agent: KMail/1.7.1
+Cc: "H.Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+References: <9e47339105011719436a9e5038@mail.gmail.com> <200501181306.03635.jbarnes@engr.sgi.com> <9e473391050122110463d62b5d@mail.gmail.com>
+In-Reply-To: <9e473391050122110463d62b5d@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20050124151113.GA12312@ens-lyon.fr>
-User-Agent: Mutt/1.5.6+20040907i
+Message-Id: <200501240925.51988.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 24, 2005 at 04:11:13PM +0100, Benoit Boissinot wrote:
-> On Mon, Jan 24, 2005 at 02:15:16AM -0800, Andrew Morton wrote:
-> > 
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11-rc1/2.6.11-rc1-mm1/
-> > 
-> > 
-> > - Lots of updates and fixes all over the place.
-> > 
-> > 
-> > Changes since 2.6.11-rc1-mm2:
-> > 
-> > [snip]
-> > 
-> > +kernel-forkc-make-mm_cachep-static.patch
-> > 
-> >  Little fixes.
-> > 
-> >
-> It breaks compilation with gcc-4.0
-> 
-> kernel/fork.c:1249: error: static declaration of ???mm_cachep??? follows non-static declaration
-> include/linux/slab.h:117: error: previous declaration of ???mm_cachep??? was here
-> make[1]: *** [kernel/fork.o] Error 1
-> make: *** [kernel] Error 2
->...
+On Saturday, January 22, 2005 11:04 am, Jon Smirl wrote:
+> > Well, not all of them, which is why I asked.  Though obviously this patch
+> > will need some very platform specific bits at any rate.
+>
+> What is a case of where the VGA forwarding bit isn't in the bridge
+> control? It's part of the PCI spec to have it.
 
-Ups, yes, thanks. This was my fault.
+Hmm... lemme check my specs.  It doesn't look like we support that aspect of 
+the PCI spec in our bridges.
 
-cu
-Adrian
+> We ultimately need both pieces of code, VGA bus routing, and card
+> specific VGA enabling code. Even without the card specific code the
+> routing code is still useful.
 
--- 
+Oh right, doing card specific up/down will allow multiple cards to share the 
+same bus, which would be nice.
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Jesse

@@ -1,79 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261275AbVDDQeh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261273AbVDDQtg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261275AbVDDQeh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 12:34:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261273AbVDDQec
+	id S261273AbVDDQtg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 12:49:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261274AbVDDQtg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 12:34:32 -0400
-Received: from fmr18.intel.com ([134.134.136.17]:2192 "EHLO
-	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261272AbVDDQeY convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 12:34:24 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: Re: [RFC] PCI bridge driver rewrite
-Date: Mon, 4 Apr 2005 09:33:43 -0700
-Message-ID: <C7AB9DA4D0B1F344BF2489FA165E50240838EA87@orsmsx404.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Re: [RFC] PCI bridge driver rewrite
-Thread-Index: AcU5NBEd9FjV/4sOTZuEK8UhJAbGLw==
-From: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
-To: <ambx1@neo.rr.com>
-Cc: "Greg KH" <gregkh@suse.de>, <linux-kernel@vger.kernel.org>,
-       "Nguyen, Tom L" <tom.l.nguyen@intel.com>
-X-OriginalArrivalTime: 04 Apr 2005 16:33:43.0621 (UTC) FILETIME=[10FFCF50:01C53934]
+	Mon, 4 Apr 2005 12:49:36 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:29964 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261273AbVDDQte (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Apr 2005 12:49:34 -0400
+Date: Mon, 4 Apr 2005 17:49:23 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Pavel Machek <pavel@ucw.cz>, Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Fix u32 vs. pm_message_t in arm
+Message-ID: <20050404174923.B12975@flint.arm.linux.org.uk>
+Mail-Followup-To: Pavel Machek <pavel@ucw.cz>,
+	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+	kernel list <linux-kernel@vger.kernel.org>
+References: <20050329191543.GA8309@elf.ucw.cz> <20050403113804.A921@flint.arm.linux.org.uk> <20050403104414.GE1357@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050403104414.GE1357@elf.ucw.cz>; from pavel@ucw.cz on Sun, Apr 03, 2005 at 12:44:14PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu Feb 24 2005 - 01:33:38 Adam Belay wrote:
+On Sun, Apr 03, 2005 at 12:44:14PM +0200, Pavel Machek wrote:
+> > > This fixes u32 vs. pm_message_t confusion in arm. I was not able to
+> > > even compile it, but it should not cause any problems. Please apply,
+> > 
+> > On testing this patch, it doesn't build.  You need to include
+> > linux/pm.h into linux/sysdev.h for starters, and fix sysdev.h
+> > to also use pm_message_t in it's function pointers.
+> > 
+> > Therefore, I'd like the following patch either to be in mainline first,
+> > or in my ARM tree for Linus to pull so ARM doesn't completely break
+> > on my next merge.
+> 
+> That patch was recently merged into -mm, so I hope its okay... Thanks
+> for testing. (And sorry, I did not realize patches depend on each
+> other this way).
 
->The basic flow of the new code is as follows:
->1.) A standard "driver core" driver binds to a bridge device.
->2.) When "*probe" is called it sets up the hardware and allocates a
-"struct pci_bus".
->3.) The "struct pci_bus" is filled with information about the detected
-bridge.
->4.) The driver then registers the "struct pci_bus" with the PCI Bus
-Class.
->5.) The PCI Bus Class makes the bridge available to sysfs.
->6.) It then detects hardware attached to the bridge.
->7.) Each new PCI bridge device is registered with the driver model.
->8.) All remaining PCI devices are registered with the driver model.
->
->+static void pci_enable_crs(struct pci_dev *dev)
->+{
->+ u16 cap, rpctl;
->+ int rpcap = pci_find_capability(dev, PCI_CAP_ID_EXP);
->+ if (!rpcap)
->+ return;
->+
->+ pci_read_config_word(dev, rpcap + PCI_CAP_FLAGS, &cap);
->+ if (((cap & PCI_EXP_FLAGS_TYPE) >> 4) != PCI_EXP_TYPE_ROOT_PORT)
->+ return;
->+
->+ pci_read_config_word(dev, rpcap + PCI_EXP_RTCTL, &rpctl);
->+ rpctl |= PCI_EXP_RTCTL_CRSSVE;
->+ pci_write_config_word(dev, rpcap + PCI_EXP_RTCTL, rpctl);
->+}
+Grumble.  So it hasn't been merged before the ARM changes, which means
+mainline is now broken for ARM.  I knew I should've just thrown it
+straight in along with the stuff depending on it. ;(
 
-Adam,
+Linus - is the pm.h included in sysdev.h in -rc2?
 
-We need to coordinate your work with the PCI Express Port bus driver
-that was accepted into the 2.6.x kernel.  The PCI Express Port Bus
-driver claims all PCI-PCI Bridge's which implements PCI Express
-Capability Structure. Please refer to PCIEBUS-HOWTO.txt for why we
-developed PCI Express Port Bus driver to support PCI Express features.
-Your current patch will claim PCI Express root ports, preventing the PCI
-Express Port bus driver from loading.   Given the many advanced features
-of PCI Express a separate bus driver was required.   Can you change the
-patch so it only loads on standard PCI bridges and not PCI Express
-devices?
-
-Thanks,
-Long
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

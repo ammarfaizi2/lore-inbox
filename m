@@ -1,48 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312718AbSDLGRM>; Fri, 12 Apr 2002 02:17:12 -0400
+	id <S312972AbSDLG0Y>; Fri, 12 Apr 2002 02:26:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313403AbSDLGRL>; Fri, 12 Apr 2002 02:17:11 -0400
-Received: from violet.setuza.cz ([194.149.118.97]:12563 "EHLO violet.setuza.cz")
-	by vger.kernel.org with ESMTP id <S312718AbSDLGRL>;
-	Fri, 12 Apr 2002 02:17:11 -0400
-Subject: Re: I want to help with 2.5
-From: Frank Schaefer <frank.schafer@setuza.cz>
-To: Linux Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3CB599A2.3010908@tabi.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 12 Apr 2002 08:17:11 +0200
-Message-Id: <1018592231.3133.0.camel@ADMIN>
-Mime-Version: 1.0
+	id <S313403AbSDLG0X>; Fri, 12 Apr 2002 02:26:23 -0400
+Received: from swazi.realnet.co.sz ([196.28.7.2]:33209 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S312972AbSDLG0X>; Fri, 12 Apr 2002 02:26:23 -0400
+Date: Fri, 12 Apr 2002 08:11:03 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: zwane@netfinity.realnet.co.sz
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Oops in 2.4.18 - opl3sa2 related? (typo fix)
+In-Reply-To: <Pine.LNX.4.44.0204101242520.9710-100000@netfinity.realnet.co.sz>
+Message-ID: <Pine.LNX.4.44.0204120810280.13542-100000@netfinity.realnet.co.sz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-04-11 at 16:11, Timur Tabi wrote:
-> Hi,
-> 
-> I would like to make a meaningful contribution to the 2.5 kernel, so I'm 
-> wondering if anyone out there would like my help.  I would prefer to 
-> work on a component where I could do the majority of the work, rather 
-> than just help out with something massive.  Is there a particular piece 
-> of hardware that needs a device driver that no one is working on?  Is 
-> there some kernel enhancement that no one has gotten around too but 
-> would be a good addition?  Please post or email your suggestion!  Thanks!
-> 
-> 
-> --
-> Timur Tabi
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-Get the veryveryvery latest kernel source, and have a look in the MAINAINERS file.
+Slight typo...
 
-Regards
-Frank
+--- linux-2.4.19/drivers/sound/opl3sa2.c.orig	Tue Apr  9 13:17:21 2002
++++ linux-2.4.19/drivers/sound/opl3sa2.c	Tue Apr  9 13:19:38 2002
+@@ -641,7 +641,7 @@
+ 	if(!request_region(hw_config->io_base, 2, OPL3SA2_MODULE_NAME)) {
+ 		printk(KERN_ERR PFX "Control I/O port %#x not free\n",
+ 		       hw_config->io_base);
+-		return 0;
++		goto out_nodev;
+ 	}
+ 
+ 	/*
+@@ -654,7 +654,7 @@
+ 	if(tmp != misc) {
+ 		printk(KERN_ERR PFX "Control I/O port %#x is not a YMF7xx chipset!\n",
+ 		       hw_config->io_base);
+-		return 0;
++		goto out_region;
+ 	}
+ 
+ 	/*
+@@ -667,7 +667,7 @@
+ 		printk(KERN_ERR
+ 		       PFX "Control I/O port %#x is not a YMF7xx chipset!\n",
+ 		       hw_config->io_base);
+-		return 0;
++		goto out_region;
+ 	}
+ 	opl3sa2_write(hw_config->io_base, OPL3SA2_MIC, tmp);
+ 
+@@ -714,9 +714,13 @@
+ 	if(opl3sa2_state[card].chipset != CHIPSET_UNKNOWN) {
+ 		/* Generate a pretty name */
+ 		opl3sa2_state[card].chipset_name = (char *)CHIPSET_TABLE[opl3sa2_state[card].chipset];
+-		return 1;
++		return 0;
+ 	}
+-	return 0;
++
++out_region:
++	release_region(hw_config->io_base, 2);
++out_nodev:
++	return -ENODEV;
+ }
+ 
+ 
+@@ -1061,7 +1065,7 @@
+ 			opl3sa2_clear_slots(&opl3sa2_state[card].cfg_mpu);
+ 		}
+ 
+-		if(!probe_opl3sa2(&opl3sa2_state[card].cfg, card) ||
++		if(probe_opl3sa2(&opl3sa2_state[card].cfg, card) ||
+ 		   !probe_opl3sa2_mss(&opl3sa2_state[card].cfg_mss)) {
+ 			/*
+ 			 * If one or more cards are already registered, don't
 
+-- 
+http://function.linuxpower.ca
+		
 

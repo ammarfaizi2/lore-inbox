@@ -1,30 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136082AbRDVMpP>; Sun, 22 Apr 2001 08:45:15 -0400
+	id <S136084AbRDVMuF>; Sun, 22 Apr 2001 08:50:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136080AbRDVMoz>; Sun, 22 Apr 2001 08:44:55 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:41487 "EHLO
+	id <S136083AbRDVMtz>; Sun, 22 Apr 2001 08:49:55 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:43279 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S136079AbRDVMow>; Sun, 22 Apr 2001 08:44:52 -0400
-Subject: Re: [2.4.3ac11] clock timer configuration lost - probably a VIA686a motherboard
-To: andihartmann@freenet.de (Andreas Hartmann)
-Date: Sun, 22 Apr 2001 13:46:39 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <01042214101400.15273@athlon> from "Andreas Hartmann" at Apr 22, 2001 02:10:14 PM
+	id <S136084AbRDVMtl>; Sun, 22 Apr 2001 08:49:41 -0400
+Subject: Re: Linux 2.4.3-ac12
+To: rmk@arm.linux.org.uk (Russell King)
+Date: Sun, 22 Apr 2001 13:51:19 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), manuel@mclure.org (Manuel McLure),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20010422131803.C20807@flint.arm.linux.org.uk> from "Russell King" at Apr 22, 2001 01:18:03 PM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14rJGD-0005lO-00@the-village.bc.nu>
+Message-Id: <E14rJKj-0005mR-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I got a lot of messages while continuous writing / reading datas from one a 
-> harddisk to another harddisk (both at 1. ide-channel) during backup with 
-> rsync. Both harddisks use udma4. The data-stream was between 0,5 MB/s and 
-> 20MB/s.
-> I never got these messages before and after the backup finished I couldn't 
-> see them anymore.
+> On Sun, Apr 22, 2001 at 01:11:31PM +0100, Alan Cox wrote:
+> > This is from Linus tree. You currently need gcc 2.96 or higher to build
+> > the 2.4.x kernel. 
+> 
+> Which goes back to the old argument that 2.96 is a redhat-ism and not a
+> real compiler.
 
-Thy do trigger to easily. Im still investigating that
+I didnt say it was a good idea.. People want to build with egcs and especially
+with 2.95.3
+
+> Anyway, the work around is a trivial one that I've already posted to the
+> list, including the necessary GCC version tests.  Additionally David
+> Howells has posted a patch to remove the __builtin_expect stuff, so
+> this is a non-issue now.
+
+I've applied one of them to my tree already too.

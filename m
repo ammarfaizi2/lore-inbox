@@ -1,27 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261955AbUK3Ccg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261928AbUK3B6z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261955AbUK3Ccg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 21:32:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261821AbUK3CBT
+	id S261928AbUK3B6z (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 20:58:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261926AbUK3B5j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 21:01:19 -0500
-Received: from baikonur.stro.at ([213.239.196.228]:46556 "EHLO
-	baikonur.stro.at") by vger.kernel.org with ESMTP id S261824AbUK3B52
+	Mon, 29 Nov 2004 20:57:39 -0500
+Received: from baikonur.stro.at ([213.239.196.228]:46017 "EHLO
+	baikonur.stro.at") by vger.kernel.org with ESMTP id S261820AbUK3B5W
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 20:57:28 -0500
-Subject: [patch 06/11] Subject: ifdef typos: drivers_char_ipmi_ipmi_si_intf.c
+	Mon, 29 Nov 2004 20:57:22 -0500
+Subject: [patch 04/11] Subject: ifdef typos: arch_ppc_syslib_ppc4xx_dma.c
 To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org, janitor@sternwelten.at, domen@coderock.org,
        rddunlap@osdl.org
 From: janitor@sternwelten.at
-Date: Tue, 30 Nov 2004 02:57:25 +0100
-Message-ID: <E1CYxGf-0002pu-UD@sputnik>
+Date: Tue, 30 Nov 2004 02:57:19 +0100
+Message-ID: <E1CYxGa-0002lo-0a@sputnik>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-CONFIG_ACPI_INTERPETER is wrong.
+ppc4xx_dma.h defines PPC4xx_DMA_64BIT.
 
 Signed-off-by: Domen Puncer <domen@coderock.org>
 Acked-by: Randy Dunlap <rddunlap@osdl.org>
@@ -29,19 +29,28 @@ Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
 
 ---
 
- linux-2.6.10-rc2-bk13-max/drivers/char/ipmi/ipmi_si_intf.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+ linux-2.6.10-rc2-bk13-max/arch/ppc/syslib/ppc4xx_dma.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-diff -puN drivers/char/ipmi/ipmi_si_intf.c~ifdef-drivers_char_ipmi_ipmi_si_int drivers/char/ipmi/ipmi_si_intf.c
---- linux-2.6.10-rc2-bk13/drivers/char/ipmi/ipmi_si_intf.c~ifdef-drivers_char_ipmi_ipmi_si_int	2004-11-30 02:41:38.000000000 +0100
-+++ linux-2.6.10-rc2-bk13-max/drivers/char/ipmi/ipmi_si_intf.c	2004-11-30 02:41:38.000000000 +0100
-@@ -959,7 +959,7 @@ MODULE_PARM_DESC(regshifts, "The amount 
- #define IPMI_MEM_ADDR_SPACE 1
- #define IPMI_IO_ADDR_SPACE  2
+diff -puN arch/ppc/syslib/ppc4xx_dma.c~ifdef-arch_ppc_syslib_ppc4xx_dma arch/ppc/syslib/ppc4xx_dma.c
+--- linux-2.6.10-rc2-bk13/arch/ppc/syslib/ppc4xx_dma.c~ifdef-arch_ppc_syslib_ppc4xx_dma	2004-11-30 02:41:35.000000000 +0100
++++ linux-2.6.10-rc2-bk13-max/arch/ppc/syslib/ppc4xx_dma.c	2004-11-30 02:41:35.000000000 +0100
+@@ -48,7 +48,7 @@ ppc4xx_set_src_addr(int dmanr, phys_addr
+ 		return;
+ 	}
  
--#if defined(CONFIG_ACPI_INTERPETER) || defined(CONFIG_X86) || defined(CONFIG_PCI)
-+#if defined(CONFIG_ACPI_INTERPRETER) || defined(CONFIG_X86) || defined(CONFIG_PCI)
- static int is_new_interface(int intf, u8 addr_space, unsigned long base_addr)
- {
- 	int i;
+-#ifdef PPC4xx_DMA64BIT
++#ifdef PPC4xx_DMA_64BIT
+ 	mtdcr(DCRN_DMASAH0 + dmanr*2, (u32)(src_addr >> 32));
+ #else
+ 	mtdcr(DCRN_DMASA0 + dmanr*2, (u32)src_addr);
+@@ -63,7 +63,7 @@ ppc4xx_set_dst_addr(int dmanr, phys_addr
+ 		return;
+ 	}
+ 
+-#ifdef PPC4xx_DMA64BIT
++#ifdef PPC4xx_DMA_64BIT
+ 	mtdcr(DCRN_DMADAH0 + dmanr*2, (u32)(dst_addr >> 32));
+ #else
+ 	mtdcr(DCRN_DMADA0 + dmanr*2, (u32)dst_addr);
 _

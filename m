@@ -1,45 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264915AbUFHJpB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261991AbUFHJts@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264915AbUFHJpB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jun 2004 05:45:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261993AbUFHJpB
+	id S261991AbUFHJts (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jun 2004 05:49:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262079AbUFHJts
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jun 2004 05:45:01 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:33679 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S264915AbUFHJo7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jun 2004 05:44:59 -0400
-To: Andi Kleen <ak@muc.de>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-Subject: Re: WINE + NX (No eXecute) support for x86, 2.6.7-rc2-bk2
-References: <23Y4Y-6F5-1@gated-at.bofh.it> <240qb-8ir-7@gated-at.bofh.it>
-	<240Tc-gV-5@gated-at.bofh.it> <2412S-pU-3@gated-at.bofh.it>
-	<24vX0-81P-7@gated-at.bofh.it> <m3brjv2rmy.fsf@averell.firstfloor.org>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 08 Jun 2004 03:42:35 -0600
-In-Reply-To: <m3brjv2rmy.fsf@averell.firstfloor.org>
-Message-ID: <m1u0xmmlmc.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+	Tue, 8 Jun 2004 05:49:48 -0400
+Received: from atlas.informatik.uni-freiburg.de ([132.230.150.3]:53405 "EHLO
+	atlas.informatik.uni-freiburg.de") by vger.kernel.org with ESMTP
+	id S261991AbUFHJtq convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jun 2004 05:49:46 -0400
+To: Sebastian Kloska <kloska@scienion.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: APM realy sucks on 2.6.x
+From: Sau Dan Lee <danlee@informatik.uni-freiburg.de>
+Date: 08 Jun 2004 11:49:44 +0200
+Message-ID: <xb7smd6v0p3.fsf@savona.informatik.uni-freiburg.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=big5
+Content-Transfer-Encoding: 8BIT
+Organization: Universitaet Freiburg, Institut fuer Informatik
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@muc.de> writes:
+>>>>> "Sebastian" == Sebastian Kloska <kloska@scienion.de> writes:
 
-> Ingo Molnar <mingo@elte.hu> writes:
-> >
-> > Wine is in a really difficult position (due to the complex task it
-> > achieves) and is more sensitive to VM layout changes than other
-> > applications. So lets try to find the solution that preserves the
-> 
-> More ELF headers bits are not really hard to add.
+    Sebastian>   But I also think that more and more hardware
+    Sebastian> functions (aka network, nd f***ing WinModem (arrg)
+    Sebastian> moves onto the motherboards of the laptops)
 
-Actually I think the cleanest thing at this point, and it was discussed
-earlier is for the wine binary to have an ELF segment that is all bss
-in the first 1GB.  If the kernel loader can't cope we should fix that
-before we start adding new ELF bits.
+    Sebastian>   Not to mention WLAN etc ...
 
-Wine can then mmap over it as it sees fit.
+    Sebastian>   So the support for PCMCIA will slowly dissolve....
 
-Eric
+Add to  that, that  more and more  devices and  gadgets have a  USB or
+IEEE1394 interface, and new laptops have these versatile ports.
+
+BTW, is  there *still* any technical  advantage of PCMCIA  over USB or
+1394?  (e.g. I know that USB pre 2.0 didn't have DMA and the interrupt
+model  is inferior.   That's why  PCMCIA 100BaseT  Ethernet  cards are
+superior to USB<-->Fast Ethernet bridges.)
+
+
+-- 
+Sau Dan LEE                     §õ¦u´°(Big5)                    ~{@nJX6X~}(HZ) 
+
+E-mail: danlee@informatik.uni-freiburg.de
+Home page: http://www.informatik.uni-freiburg.de/~danlee
+

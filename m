@@ -1,43 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291436AbSBXVsS>; Sun, 24 Feb 2002 16:48:18 -0500
+	id <S291414AbSBXVuI>; Sun, 24 Feb 2002 16:50:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291431AbSBXVsK>; Sun, 24 Feb 2002 16:48:10 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:4367 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S291579AbSBXVry>;
-	Sun, 24 Feb 2002 16:47:54 -0500
-Date: Sun, 24 Feb 2002 18:47:34 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
+	id <S291444AbSBXVt7>; Sun, 24 Feb 2002 16:49:59 -0500
+Received: from ns.snowman.net ([63.80.4.34]:2063 "EHLO ns.snowman.net")
+	by vger.kernel.org with ESMTP id <S291414AbSBXVtp>;
+	Sun, 24 Feb 2002 16:49:45 -0500
+Date: Sun, 24 Feb 2002 16:47:47 -0500 (EST)
+From: <nick@snowman.net>
 To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+cc: Rik van Riel <riel@conectiva.com.br>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
         Martin Dalecki <dalecki@evision-ventures.com>,
         Troy Benjegerdes <hozer@drgw.net>,
         Linus Torvalds <torvalds@transmeta.com>,
         Andre Hedrick <andre@linuxdiskcert.org>,
         Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Flash Back -- kernel 2.1.111
-In-Reply-To: <20020224224135.B1949@ucw.cz>
-Message-ID: <Pine.LNX.4.33L.0202241847130.7820-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+In-Reply-To: <20020224224246.C1949@ucw.cz>
+Message-ID: <Pine.LNX.4.21.0202241647130.10803-100000@ns>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+That was my understanding as well.  It woulnd't make terribly much sense
+to hang a VLB off a PCI bus, and I'd expect it to be very difficult.
+	Nick
+
 On Sun, 24 Feb 2002, Vojtech Pavlik wrote:
 
-> I think having two VLBs is quite impossible - they were wired right to
-> the CPU. Maybe in some early weird multiprocessor 486 or p5 machine?
-
-I've had a 486 box with a PCI bus and a VLB bus behind a
-PCI-VLB bridge.
-
-Rik
--- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
-
-http://www.surriel.com/		http://distro.conectiva.com/
+> On Sun, Feb 24, 2002 at 06:32:09PM -0300, Rik van Riel wrote:
+> > On Sun, 24 Feb 2002 nick@snowman.net wrote:
+> > 
+> > > None of the chipsets that supported VLB had more than one buss.  What
+> > > I don't know is some idiot may have built a VLB-VLB bridge, but I
+> > > doubt it.
+> > 
+> > There are PCI-VLB bridges.  Though it's unlikely, it may be
+> > possible that there are systems with multiple such bridges
+> > around... ;)
+> 
+> Uhh? I thought most the PCI & VLB systems had the PCI hanging off the
+> VLB and not the other way around. At least those I've seen had it this
+> way.
+> 
+> -- 
+> Vojtech Pavlik
+> SuSE Labs
+> 
 

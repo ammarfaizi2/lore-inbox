@@ -1,72 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264139AbVBEA7z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263508AbVBEBAY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264139AbVBEA7z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 19:59:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263169AbVBEAys
+	id S263508AbVBEBAY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 20:00:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263428AbVBEBAX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 19:54:48 -0500
-Received: from mail.gmx.net ([213.165.64.20]:48088 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S264326AbVBEAvr (ORCPT
+	Fri, 4 Feb 2005 20:00:23 -0500
+Received: from wproxy.gmail.com ([64.233.184.206]:52961 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S263508AbVBEAzC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 19:51:47 -0500
-X-Authenticated: #26200865
-Message-ID: <420418C7.5010309@gmx.net>
-Date: Sat, 05 Feb 2005 01:52:23 +0100
-From: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.7.2) Gecko/20040906
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: Jon Smirl <jonsmirl@gmail.com>
-CC: Pavel Machek <pavel@ucw.cz>, ncunningham@linuxmail.org,
-       ACPI List <acpi-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] Reliable video POSTing on resume
-References: <20050122134205.GA9354@wsc-gmbh.de>	 <e796392205020221387d4d8562@mail.gmail.com> <420217DB.709@gmx.net>	 <4202A972.1070003@gmx.net> <20050203225410.GB1110@elf.ucw.cz>	 <1107474198.5727.9.camel@desktop.cunninghams>	 <4202DF7B.2000506@gmx.net>	 <1107485504.5727.35.camel@desktop.cunninghams>	 <9e4733910502032318460f2c0c@mail.gmail.com>	 <20050204074454.GB1086@elf.ucw.cz> <9e473391050204093837bc50d3@mail.gmail.com>
-In-Reply-To: <9e473391050204093837bc50d3@mail.gmail.com>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+	Fri, 4 Feb 2005 19:55:02 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:references;
+        b=LKrE0wT2sNKOu4+PVEeDSPNhD+H37P4Q9FqxnZvgp9o1phEX3GtxjOKL7LZMkxjtR1btCXIMuSmn3W9aj/ehrTXBBRWxp7WV/SDyAB1l/LpOgwjZwEOhuJGHPqJrhmSoM+w6cEDfmiXUsBvU+FOR2D8mGfNimAgqJHR89ETU9Rk=
+Message-ID: <58cb370e05020416546e0d6b0e@mail.gmail.com>
+Date: Sat, 5 Feb 2005 01:54:56 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: 2.6.11-rc3-mm1
+Cc: Sean Neakums <sneakums@zork.net>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <1107562609.2363.134.camel@gaston>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_212_3577328.1107564896831"
+References: <20050204103350.241a907a.akpm@osdl.org>
+	 <6ud5vgezqx.fsf@zork.zork.net> <1107561472.2363.125.camel@gaston>
+	 <6u7jlng9b0.fsf@zork.zork.net> <1107562609.2363.134.camel@gaston>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jon Smirl schrieb:
-> On Fri, 4 Feb 2005 08:44:54 +0100, Pavel Machek <pavel@ucw.cz> wrote:
+------=_Part_212_3577328.1107564896831
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+On Sat, 05 Feb 2005 11:16:49 +1100, Benjamin Herrenschmidt
+<benh@kernel.crashing.org> wrote:
 > 
->>We already try to do that, but it hangs on 70% of machines. See
->>Documentation/power/video.txt.
+> > I tried it two or three times, same result each time.  I'll give it a
+> > lash with USB disabled.
 > 
-> We know that all of these ROMs are run at power on so they have to
-> work. This implies that there must be something wrong with the
-> environment the ROM are being run in. Video ROMs make calls into the
-> INT vectors of the system BIOS. If these haven't been set up yet
-> running the VBIOS is sure to hang.  Has someone with ROM source and
-> the appropriate debugging tools tried to debug one of these hangs?
-> Alternatively code could be added to wakeup.S to try and set these up
-> or dump the ones that are there and see if they are sane.
+> Also, can you try editing arch/ppc/syslib/open_pic.c, in function
+> openpic_resume(), comment out the call to openpic_reset() and let me
+> know if that helps...
 
-My problem (Samsung P35) is that the BIOS wants to call code which
-is no longer mapped because the BIOS is too big to fit into the
-standard area. Since that additional area has been overwritten, we
-are out of luck. Maybe if we did something like backing up all
-untouched real mode memory immediately after switching to protected
-mode, it could work. But I don't know whether that is feasible on
-boot. Anyways, you don't want to run possibly buggy closed source
-bios code in an environment where a single random memory write
-may corrupt the kernel without debuggability.
+Well, maybe I'm to blame this time...
 
-And sometimes there is BIOS code which is can't be run twice.
-Period.
-Don't believe that one? I have a machine where calling EDD code
-in the BIOS twice will hang the second time. See boot parameter
-edd=off for reference :-(
+I've introduced bug in ATAPI Power Management handling,
+idedisk_pm_idle shouldn't be done for ATAPI devices.
 
-So I agree that we could try to preserve the state better, but
-I also can guarantee you it won't help everywhere.
+Sorry for that, fix attached.
 
+------=_Part_212_3577328.1107564896831
+Content-Type: text/x-patch; name="ide-io.diff"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment; filename="ide-io.diff"
 
-Regards,
-Carl-Daniel
--- 
-http://www.hailfinger.org/
+--- a/drivers/ide/ide-io.c=092005-02-04 03:27:35.000000000 +0100
++++ b/drivers/ide/ide-io.c=092005-02-05 01:44:33.000000000 +0100
+@@ -230,6 +230,12 @@
+=20
+ =09memset(args, 0, sizeof(*args));
+=20
++=09if (drive->media !=3D ide_disk) {
++=09=09/* skip idedisk_pm_idle for ATAPI devices */
++=09=09if (rq->pm->pm_step =3D=3D idedisk_pm_idle)
++=09=09=09rq->pm->pm_step =3D ide_pm_restore_dma;
++=09}
++
+ =09switch (rq->pm->pm_step) {
+ =09case ide_pm_flush_cache:=09/* Suspend step 1 (flush cache) */
+ =09=09if (drive->media !=3D ide_disk)
+
+------=_Part_212_3577328.1107564896831--

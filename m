@@ -1,44 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265161AbTFFJZR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jun 2003 05:25:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265172AbTFFJZR
+	id S265206AbTFFJed (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jun 2003 05:34:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265269AbTFFJed
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jun 2003 05:25:17 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:60649 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S265161AbTFFJZR (ORCPT
+	Fri, 6 Jun 2003 05:34:33 -0400
+Received: from verein.lst.de ([212.34.189.10]:33746 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S265206AbTFFJec (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jun 2003 05:25:17 -0400
-Date: Fri, 06 Jun 2003 02:36:18 -0700 (PDT)
-Message-Id: <20030606.023618.13768006.davem@redhat.com>
-To: chas@cmf.nrl.navy.mil
+	Fri, 6 Jun 2003 05:34:32 -0400
+Date: Fri, 6 Jun 2003 11:47:59 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: support@comtrol.com
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][ATM] use rtnl_{lock,unlock} during device operations
- (take 2)
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <200306051530.h55FUYsG014279@ginger.cmf.nrl.navy.mil>
-References: <200306051530.h55FUYsG014279@ginger.cmf.nrl.navy.mil>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Subject: [PATCH] License issue with rocket driver
+Message-ID: <20030606094759.GA20229@lst.de>
+Mail-Followup-To: Christoph Hellwig <hch>, support@comtrol.com,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -2.5 () USER_AGENT_MUTT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: chas williams <chas@cmf.nrl.navy.mil>
-   Date: Thu, 05 Jun 2003 11:28:47 -0400
+drivers/char/rocket{,_int}.h have an intereesting and gpl-incompatible
+license.  Could you please fix it or remove the drier from the tree?
+(given that mess that this driver is the latter might be the better
+idea..)
 
-   thanks to someone for pointing out to me my flub when i errantly
-   converted a spin_unlock to rtnl_lock (it in a very rarely, never
-   in fact as far as i know, used section of the code.  this following
-   should now be even more correct.
-   
-   [ATM]: use rtnl_{lock,unlock} during device operations
-   
-Are you sure nothing needs to walk the list in interrupt or softint
-context?  That's why you can't normally protect all of it using the
-RTNL semaphore, because walks occur in non-sleepable contexts.
+The license is:
 
-Read the comment above dev_base in drivers/net/Space.c to see what
-the intended locking model is.
+ * The following source code is subject to Comtrol Corporation's
+ * Developer's License Agreement.
+ * 
+ * This source code is protected by United States copyright law and 
+ * international copyright treaties.
+ * 
+ * This source code may only be used to develop software products
+ * international copyright treaties.
+ * 
+ * This source code may only be used to develop software products that
+ * will operate with Comtrol brand hardware.
+ * 
+ * You may not reproduce nor distribute this source code in its original
+ * form but must produce a derivative work which includes portions of
+ * this source code only.
+ * 
+ * The portions of this source code which you use in your derivative
+ * work must bear Comtrol's copyright notice:
+ * 
+ *              Copyright 1994 Comtrol Corporation.

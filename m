@@ -1,233 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130203AbRBASP7>; Thu, 1 Feb 2001 13:15:59 -0500
+	id <S129750AbRBASVK>; Thu, 1 Feb 2001 13:21:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130701AbRBASPt>; Thu, 1 Feb 2001 13:15:49 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:62735 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130203AbRBASPi>; Thu, 1 Feb 2001 13:15:38 -0500
-Subject: Linux 2.2.19pre8
-To: linux-kernel@vger.kernel.org
-Date: Thu, 1 Feb 2001 18:16:42 +0000 (GMT)
-X-Mailer: ELM [version 2.5 PL1]
+	id <S130601AbRBASVB>; Thu, 1 Feb 2001 13:21:01 -0500
+Received: from winds.org ([207.48.83.9]:56077 "EHLO winds.org")
+	by vger.kernel.org with ESMTP id <S129750AbRBASUn>;
+	Thu, 1 Feb 2001 13:20:43 -0500
+Date: Thu, 1 Feb 2001 13:20:00 -0500 (EST)
+From: Byron Stanoszek <gandalf@winds.org>
+To: Vojtech Pavlik <vojtech@suse.cz>
+cc: safemode <safemode@voicenet.com>, linux-kernel@vger.kernel.org
+Subject: Re: VT82C686A corruption with 2.4.x
+In-Reply-To: <20010201190653.H2341@suse.cz>
+Message-ID: <Pine.LNX.4.21.0102011316210.27273-100000@winds.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Message-Id: <E14OOHk-0004nN-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 1 Feb 2001, Vojtech Pavlik wrote:
 
-This merges the majority of the pending patches. The sysctl stuff isn't done
-yet and the dumpable stuff needs verification.
+> On Thu, Feb 01, 2001 at 11:46:08AM -0500, Byron Stanoszek wrote:
+> 
+> > Yeah, by bios does the same thing too on the Abit KT7(a).
+> 
+> Ok, I'll remember this. This is most likely the cause of the problems
+> many people had with the KT7 in the past.
 
-I got a pile of NFS/sunrpc patches all of which clashed and had undocumented
-ordering requirements for application. I've simply flushed all the
-sunrpc/nfs changes. Can I get a single sorted sunrpc patch set, nfsd patch
-set and nfs patch set from the relevant maintainers please.
+What cause are you referring to? As far as I know, there are two options to
+increasing the FSB clock.. one increases both FSB+PCICLK, the other just
+increases FSB. If you increase the FSB only, it should keep PCICLK at a solid
+33. (But I could be wrong, I've never tested that. I can tomorrow though.)
 
-Alan
+> The U33 chips do UDMA timing in PCICLK (T = 30ns @ 33MHz) increments, U66 in
+> PCICLK*2 (T = 15ns @ 33 MHz) increments, and for U100 it's assumed that
+> there is an external 100MHz clock fed to the chip, so that the UDMA timing is
+> in T = 10ns increments independent of the PCICLK. I'm not 100% sure about
+> the last, it might be just PCICLK*3 (T = 10ns @ 33 MHz). An experiment needs
+> to be carried out to verify this.
 
+I don't have a KT7A personally, I only have a KT7. Can anyone else with a KT7A
+verify this? By verify, I take it you mean to use idebus=33 and overclock
+PCICLK? :) At least that would determine if UDMA100 is based on PCI or an
+external 100MHz source.
 
-2.2.19pre8
-o	Add support for ICS1893 PHY to sis900		(L C Chang)
-o	Fix typo in nautilus code			(Tom Vier)
-o	Clean up usb bandwidth messages			(Randy Dunlap)
-o	USB ACM loosen up end point rules		(Randy Dunlap)
-o	Fix tty module count corruptions		(Maciej Rozycki)
-o	i2o block updates				(Boji Kannanthanam)
-o	menuconfig updates				(Kirk Reiser)
-o	Fix dmi/apm ordering bug			(Keith Owens,
-							 Neale Banks)
-o	Alpha SMP build fix				(Herbert Xu)
-o	Fix igmp bugs					(Stefan Jonsson)
-o	Fix USB config.in problems			(Greg Kroah-Hartmann)
-o	Update Cort Dougan's info			(Cort Dougan)
-o	Update to 2.4.0 style A20 gate handler		(Randy Dunlap)
-o	Fix unneeded compat defines on S/390 ctc	(Kurt Roeckx)
-o	Macintosh HID driver fixes			(Cort Dougan)
-o	Fix ppc config/input layer and ksyms		(Cort Dougan)
-o	ISDN updates					(Kai Germaschewski)
-o	TGAfb as a module			(Andrzej Krzysztofowicz)
-o	Syscall table updates for sparc64		(Ben Collins)
-o	8139too driver updates				(Jens David)
-o	Tighten packet length checks in masq/tproxy	(Julian Anastasov)
-o	Fix udp port selection hang			(Dave Miller)
+Regards,
+ Byron
 
-2.2.19pre7
-o	Remove dead arm files				(Russell King)
-o	Fix VIA rhine build failure for a few folks	(Peter Monta)
-o	ARM ptrace fixes				(Russell King)
-o	Fix ymfpci setup for legacy devices		(Pete Zaitcev)
-o	xspeed dsl needs pci				(Lars Holmberg)
-o	Typo fix					(Dave Miller)
-o	Update ftdi usb serial driver			(Greg Kroah-Hartmann)
-o	Update keyspan usb serial drivers		(Greg Kroah-Hartmann)
-o	Sparc updates					(Dave Miller)
-o	Remove incorrect lp printk			(Tim Waugh)
-o	Fix ppa panic on timeout			(Tim Waugh)
-o	Maestro3 needs ac97 codec			(Oleg Krivosheev)
-o	Fix kwhich versus old bash			(Pete Zaitcev)
-o	Fix ip checksum compiler behaviour assumption	(Dave Miller)
-o	Fix real audio masq in presence of options	(John Villalovos)
-o	ne2k-pci version printing tweaks		(J. Magallon)
-o	Fix incorrect minors for some dasd devices as	(Holger Smolinski)
-	root
-o	Fix alpha exception table printk	    (Andrzej Krzysztofowicz)
-o	USB config updates				(Greg Kroah-Hartmann)
-o	USB audio driver updates			(Greg Kroah-Hartmann)
-o	Fix missing unlock_kernel in usbdev		(Greg Kroah-Hartmann)
-o	Update USB hid driver				(Greg Kroah-Hartmann)
-o	USB rio driver update				(Greg Kroah-Hartmann)
-o	Hopefully fix CyrixIII panic on boot		(Ingo Oeser, 
-							 H Peter Anvin)
-o	Further CMOS lock fixes, move ioctls		(Paul Gortmaker)
-o	Dumpable should now work right again		(Zack Weinberg,
-							 me)
-
-2.2.19pre6
-o	Yamaha PCI sound updates			(Pete Zaitcev)
-o	Alpha SMP ASN reuse races			(Andrea Arcangeli)
-o	Alpha bottom half SMP race fixes		(Andrea Arcangeli)
-o	Alpha SMP read_unloc race fix			(Andrea Arcangeli)
-o	Show registers across CPUs on SMP alpha death	(Andrea Arcangeli)
-o	Print the 8K of stack not the top 4K on x86	(Andrea Arcangeli)
-o	Dcache aging					(Andrea Arcangeli)
-o	Kill unused parameter in free_inode_memory	(Andrea Arcangeli)
-
-2.2.19pre5
-o	Fix dumpable stuff				(Wolfgang Walter)
-o	PPA driver update				(Tim Waugh)
-o	ARM updates (Russell - ptrace.c errored please	(Russell King)
-		resolve)
-o	Fix NFS data alignment on ARM			(Russell King)
-o	Fix hang on boot with ALi5451 shared irq midi	(Stephen Usher)
-o	ESS Maestro 3 driver				(Zach 'Fufu' Brown)
-o	Belorussia/Ukraine NLS table (koi8-ru)		(Andy Rysin)
-
-2.2.19pre4
-o	Fixed duplicate info on the microcode driver	(Daniel Rogers)
-o	Update watchdog structs for nice user export	(Eric Brower)
-o	Update Documentation/devices.txt		(H Peter Anvin)
-o	Tweak sched.h to handle limit in Sparc		(Andrea Arcangeli)
-	'make check_asm'
-o	Move isdn pci definitions into pci.h		(Kai Germaschewski)
-o	Tidy init data/static vars in the isdn code	(Kai Germaschewski)
-o	Fix abuse of int for bitops in isdn		(Kai Germaschewski)
-o	Use named initializers on the AVM B1		(Kai Germaschewski)
-o	Switch capi message length to unsigned		(Kai Germaschewski)
-o	ISDN updates					(Kai Germaschewski)
-o	Update microcode code to check features right	(Tigran Aivazian)
-	in 2.2
-o	E820 handling fixup 				(Andrea Arcangeli)
-o	Fix ne2k-pci driver build bug 			(J.A. Magallon)
-o	DC390 driver updates				(Kurt Garloff)
-o	Handle thinkpad E820 edx overwriting		(Marc Joosen)
-o	Update the osst driver to 0.8.6.1		(Kurt Garloff, 
-							 Willem Riede)
-o	Init the cmpci if compiled in		(Raúl Núñez de Arenas Coronado)
-o	ATP870U SCSI updates to fix disconnect bug	(Wittman Li)
-o	Clean up the usbdevfs backport			(Dan Streetman)
-o	Fix ATI rage makefiles				(Brad Douglas)
-
-2.2.19pre3
-o	Merge ADMtek-comet tulip support		(Jim McQuillan)
-o	Update microcode driver				(Tigran Aivazian)
-o	Merge Don Becker's NE2K full duplex support	(Juan Lacarta)
-o	Optimise kernel compiler detect, kgcc before	(Peter Samuelson)
-	gcc272 also
-o	Fix compile combination problems		(Arjan van de Ven)
-o	Update via-rhine driver to include Don's changes(Urban Widmark)
-	for VT6102
-o	Documentation updates				(Tim Waugh)
-o	Add ISDN PCI defines to pci.h			(Kai Germaschewski)
-o	Fix smb/fat handling for pre 1980 dates		(Igor Zhbanov)
-o	SyncLink updates				(Paul Fulghum)
-o	ICP vortex driver updates 			(Andreas Köpf)
-o	mdacon clean up					(Pavel Rabel)
-o	Fix bugs in es1370/es1371/sonicvibes/solo1/	(Thomas Sailer)
-	dabusb
-o	Speed up x86 irq/fault paths by avoiding xchg	(Mikael Pettersson)
-	locked cycles (from Brian Gerst's 2.4test change)
-o	Tighten up K6 check in bug tests		(Mikael Pettersson)
-o	Backport configure scripts bug fixes		(Mikael Pettersson)
-o	Fix duplicat help entries			(Riley Williams)
-o	Fix small asm bug in constant size uaccess	(David Kutz)
-o	Update ymfpci driver to handle legacy audio	(Daisuke Nagano)
-o	Remove ymfsb driver now no longer needed	(Daisuke Nagano)
-o	Add Empeg support to usb-serial			(Gary Brubaker)
-o	Fix e820 handling				(Andrea Arcangeli)
-o	Fix lanstreamer SMP locking			(George Staikos)
-o	Fix S/390 non SMP build				(Kurt Roeckx)
-o	Fix the PCI syscall on PowerMac		(Benjamin Herrenschmidt)
-o	Fix IPC_RMID behaviour				(Christoph Rohland)
-o	Fix NETCTL_GETFD on sparc64			(Dave Miller)
-o	Tidy unneeded restore_flags/save sequence  (Arnaldo Carvalho de Melo)
-	on the ultrastor
-o	Fix resource clean up on error in 89xo     (Arnaldo Carvalho de Melo)
-	driver
-o	Update wireless headers				(Jean Tourrilhes)
-o	Fix non modular emu10k init			(Mikael Pettersson)
-o	Fix cpuid/msr driver crashes			(Andrew Morton)
-o	Write core files sparse				(Christoph Rohland)
-o	Merge the i810 tco (watchdog) timer		(me)
-	| original by Jeff Garzik
-
-
-2.2.19pre2
-o	Drop the page aging for a moment to merge the
-	Andrea VM
-o	Merge Andrea's VM-global patch			(Andrea Arcangeli)
-
-2.2.19pre1
-o	Basic page aging				(Neil Schemenauer)
-	| This is a beginning to trying to get the VM right
-	| Next stage is to go through Andrea's stuff and sort 
-	| it out the way I want it.
-o	E820 memory detect backport from 2.4		(Michael Chen)
-o	Fix cs46xx refusing to run on emachines400	(me)
-o	Fix parport docs				(Tim Waugh)
-o	Fix USB serial name reporting			(me)
-o	Fix else warning in initio scsi			(John Fort)
-o	Fix incorrect timeout (that couldnt occur
-	fortunately) in sched.c				(Andrew Archibald)
-o	Fix A20 fix credits				(Christian Lademann)
-o	Support for OnStream SC-x0 tape drives		(Willem Riede, 
-							 Kurt Garloff)
-o	Intel 815 added to the AGPGART code		(Robert M Love)
-o	3Ware scsi fixes			(Arnaldo Carvalho de Melo)
-o	Clean up scsi_init_malloc no mem case	(Arnaldo Carvalho de Melo)
-o	Fix dead module parameter in ip_masq_user.c	(Keith Owens)
-o	Switch max_files and friends to a struct to	(Tigran Aivazian)
-	be sure they stay together
-o	Update microcode driver				(Tigran Aivazian)
-o	Fix free memory dereference in lance driver	(Eli Carter)
-o	ISOfs fixes 					(Andries Brouwer)
-o	Watchdog driver for Advantech boards		(Marek Michalkiewicz)
-o	ISDN updates					(Karsten Keil)
-o	Docs fix 					(Pavel Rabel)
-o	wake_one semantics for accept()			(Andrew Morton)
-o	Masquerade updates				(Juanjo Ciarlante)
-o	Add support for long serialnums on the Metricom	(Alex Belits)
-o	Onboard ethernet driver for the Intel 'Panther'	(Ard van Breemen,
-	boards						 Andries Brouwer)
-o	VIA686a timer reset to 18Hz background		(Vojtech Pavlik)
-o	3c527 driver rewrite				(Richard Procter)
-	| This supercedes my driver because
-	| - it works for more people
-	| - he has time to use his MCA box to debug it
-o	Minix subpartition support			(Anand Krishnamurthy 
-							 Rajeev Pillai)
-o	Remove unused() crap from DRM. You will need
-	to hand load agp as well if needed		(me)
-
-
---
-Alan Cox <alan@lxorguk.ukuu.org.uk>
-Red Hat Kernel Hacker
-& Linux 2.2 Maintainer                        Brainbench MVP for TCP/IP
-http://www.linux.org.uk/diary                 http://www.brainbench.com
+-- 
+Byron Stanoszek                         Ph: (330) 644-3059
+Systems Programmer                      Fax: (330) 644-8110
+Commercial Timesharing Inc.             Email: byron@comtime.com
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

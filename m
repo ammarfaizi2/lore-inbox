@@ -1,51 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278108AbRJ3UvA>; Tue, 30 Oct 2001 15:51:00 -0500
+	id <S278085AbRJ3Uva>; Tue, 30 Oct 2001 15:51:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278085AbRJ3Uuv>; Tue, 30 Oct 2001 15:50:51 -0500
-Received: from vti01.vertis.nl ([145.66.4.26]:46602 "EHLO vti01.vertis.nl")
-	by vger.kernel.org with ESMTP id <S278136AbRJ3Uuh>;
-	Tue, 30 Oct 2001 15:50:37 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Rolf Fokkens <fokkensr@linux06.vertis.nl>
-To: "David S. Miller" <davem@redhat.com>, rusty@rustcorp.com.au
-Subject: Re: iptables and tcpdump
-Date: Tue, 30 Oct 2001 21:45:24 -0800
-X-Mailer: KMail [version 1.2]
-Cc: fokkensr@linux06.vertis.nl, linux-kernel@vger.kernel.org,
-        kuznet@ms2.inr.ac.ru
-In-Reply-To: <01102817104101.01788@home01> <20011030152812.2e9ba8ee.rusty@rustcorp.com.au> <20011029.213157.39157336.davem@redhat.com>
-In-Reply-To: <20011029.213157.39157336.davem@redhat.com>
-MIME-Version: 1.0
-Message-Id: <01103021452400.03241@home01>
-Content-Transfer-Encoding: 7BIT
+	id <S278136AbRJ3UvV>; Tue, 30 Oct 2001 15:51:21 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:3716 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S278085AbRJ3UvF>;
+	Tue, 30 Oct 2001 15:51:05 -0500
+Date: Tue, 30 Oct 2001 12:51:34 -0800 (PST)
+Message-Id: <20011030.125134.93645850.davem@redhat.com>
+To: csr21@cam.ac.uk
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: SPARC and SA_SIGINFO signal handling
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20011029190027.A21372@cam.ac.uk>
+In-Reply-To: <20011029190027.A21372@cam.ac.uk>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-I may have missed something, but I'm not on the maillists which would explain 
-why. And the archives dont contain the email messages (yet) between my 
-initial question and this part of the discussion.
+You're doing something really wrong, it works perfectly
+fine here:
 
-Apparently my question triggered a discussion about some deep NAT details at 
-the skb level. As much as I understand it, something goes wrong with the skb 
-cloning in the NAT layer, NAT changes read-only copies.
+? cat test.c
+#include <stdlib.h>
+#include <sys/ucontext.h>
+#include <signal.h>
 
-Is this the cause of the weird data that shows up with tcpdump?
+void sigsegv_handler (int signo, siginfo_t *info, void *data) {
+	if (info != 0)
+		exit(1);
+	exit(0);
+}
 
-Or in other words: does tcpdump show something buggy?
+int main () {
+  int *foo;
+  struct sigaction sa;
 
-Rolf
+  sa.sa_sigaction = sigsegv_handler;
+  sa.sa_flags = SA_SIGINFO | SA_RESTART;
+  sigaction(SIGSEGV, &sa, NULL);
 
-On Tuesday 30 October 2001 09:31, you wrote:
-> Hello!
->
-> > Alexey, should the NAT layer be doing skb_unshare() before altering the
-> > packet?
->
-> MUST. Cloned skbs are read-only.
->
-> I did not expect such question from you. :-)
->
-> Alexey
+  foo = NULL;
+  *foo = 3;
+  return 0;
+}
+? gcc -o test test.c
+? ./test
+? echo $?
+1
+? uname -a
+Linux pizda.ninka.net 2.4.14-pre4 #1 SMP Mon Oct 29 18:55:18 PST 2001 sparc64 unknown
+?

@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281805AbRLLSuP>; Wed, 12 Dec 2001 13:50:15 -0500
+	id <S281739AbRLLTCP>; Wed, 12 Dec 2001 14:02:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281794AbRLLSuG>; Wed, 12 Dec 2001 13:50:06 -0500
-Received: from balu.sch.bme.hu ([152.66.208.40]:6583 "EHLO balu.sch.bme.hu")
-	by vger.kernel.org with ESMTP id <S281762AbRLLStt>;
-	Wed, 12 Dec 2001 13:49:49 -0500
-Date: Wed, 12 Dec 2001 19:49:43 +0100 (MET)
-From: Pozsar Balazs <pozsy@sch.bme.hu>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: FBdev remains in unusable state
-Message-ID: <Pine.GSO.4.30.0112121942460.18842-100000@balu>
+	id <S281806AbRLLTCG>; Wed, 12 Dec 2001 14:02:06 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:6417 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S281739AbRLLTBx>;
+	Wed, 12 Dec 2001 14:01:53 -0500
+Message-ID: <3C17A99F.173E534C@mandrakesoft.com>
+Date: Wed, 12 Dec 2001 14:01:51 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.13-12mdksmp i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Re: Long time no chat...
+In-Reply-To: <E16EEVa-0000D8-00@starship.berlin>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Daniel Phillips wrote:
+> 
+> Hi Dana,
+> 
+> It's been a while.  I see you're posting on lkml regularly now, maybe that
+> means your school work isn't so heavy now.
+> 
+> Are you still interested in signing up for a kernel project?  I've got a good
+> one I think would be perfect for you.
 
-Hi all,
+Hey Dana,
 
-I am currently using 2.4.17-pre8, and X-4.1.0.
+I have a long list of projects you can work on, too.  Let me know.
 
-My problem is that if I turn on fb (eg pass vga=0x301 parameter), start an
-X session, then switch back to the console using CTRL-ALT-Fx (or
-ctrl-alt-bs :), i get 'out of sync' messages on my monitor. I can switch
-back to the X session properly using ctrl-alt-fx, but i can never get back
-again my console.
-
-The video card is a matrox G450, and I am using the vesa framebuffer.
-(I know there's a seperate mga fb driver, but this should work for this
-combination)
-
-Is this a bug in the kernel fb code, or in X? Are there any workarounds?
-How could I restore textmode?
+	Jeff
 
 
-Please help if you can,
+
+;-)
+
 -- 
-Balazs Pozsar
-
+Jeff Garzik      | Only so many songs can be sung
+Building 1024    | with two lips, two lungs, and one tongue.
+MandrakeSoft     |         - nomeansno

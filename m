@@ -1,62 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261163AbVAHNXw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261168AbVAHN1X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261163AbVAHNXw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 08:23:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261162AbVAHNXv
+	id S261168AbVAHN1X (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 08:27:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261165AbVAHN1X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 08:23:51 -0500
-Received: from gprs215-164.eurotel.cz ([160.218.215.164]:62336 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S261163AbVAHNXO (ORCPT
+	Sat, 8 Jan 2005 08:27:23 -0500
+Received: from mail.sf-mail.de ([62.27.20.61]:3030 "EHLO mail.sf-mail.de")
+	by vger.kernel.org with ESMTP id S261168AbVAHNZo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 08:23:14 -0500
-Date: Sat, 8 Jan 2005 14:22:58 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <ncunningham@linuxmail.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       John Stultz <johnstul@us.ibm.com>, David Shaohua <shaohua.li@intel.com>
-Subject: Re: Patch 2/3: Reduce number of get_cmos_time_calls.
-Message-ID: <20050108132258.GC7363@elf.ucw.cz>
-References: <1105176732.5478.20.camel@desktop.cunninghams> <1105177184.5478.39.camel@desktop.cunninghams>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 8 Jan 2005 08:25:44 -0500
+From: Rolf Eike Beer <eike-kernel@sf-tec.de>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] s/driverfs/sysfs/ in include/linux/cpu.h and net/sunrpc/rpc_pipe.c
+Date: Fri, 7 Jan 2005 13:58:49 +0100
+User-Agent: KMail/1.7.2
+References: <200501071349.08553.eike-kernel@sf-tec.de>
+In-Reply-To: <200501071349.08553.eike-kernel@sf-tec.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1105177184.5478.39.camel@desktop.cunninghams>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+Message-Id: <200501071358.51205.eike-kernel@sf-tec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi,
 
-> Change sleep_start from signed to unsigned long. This appears to address
-> an issue with the clock being occasionally off by around 1 hr 10
-> minutes.
+here is another rename of driverfs to sysfs. It looks like there are some 
+more. I will not fix them all, someone should use "grep -ri drivers *" to 
+find and fix some more.
 
-sleep_start is in seconds, right? I do not see how it could explain
-1hr10 difference... Please do not apply this.
+Eike
 
-OTOH try this code (in userspace, run as root). It did strange thigs
-to my time, and it is unrelated to swsusp. (But it does similar weird
-things with interrupts).
+Signed-off-by: Rolf Eike Beer <eike-kernel@sf-tec.de>
 
-pavel@amd:~$ cat misc/latency.c
-void
-main(void)
-{
-        int i;
-        iopl(3);
-        while (1) {
-                asm volatile("cli");
-                //              for (i=0; i<20000000; i++)
-                for (i=0; i<1000000000; i++)
-                        asm volatile("");
-                asm volatile("sti");
-                sleep(1);
-        }
-}
-pavel@amd:~$
-
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+--- linux-2.6.10/include/linux/cpu.h	2005-01-01 17:55:38.000000000 +0100
++++ linux-2.6.10/include/linux/cpu.h.fixed	2005-01-07 13:55:36.167681848 +0100
+@@ -8,7 +8,7 @@
+  * Basic handling of the devices is done in drivers/base/cpu.c
+  * and system devices are handled in drivers/base/sys.c. 
+  *
+- * CPUs are exported via driverfs in the class/cpu/devices/
++ * CPUs are exported via sysfs in the class/cpu/devices/
+  * directory. 
+  *
+  * Per-cpu interfaces can be implemented using a struct device_interface. 
+--- linux-2.6.10/net/sunrpc/rpc_pipe.c	2005-01-01 17:55:50.000000000 +0100
++++ linux-2.6.10/net/sunrpc/rpc_pipe.c.fixed	2005-01-07 14:01:05.373634936 +0100
+@@ -3,7 +3,7 @@
+  *
+  * Userland/kernel interface for rpcauth_gss.
+  * Code shamelessly plagiarized from fs/nfsd/nfsctl.c
+- * and fs/driverfs/inode.c
++ * and fs/sysfs/inode.c
+  *
+  * Copyright (c) 2002, Trond Myklebust <trond.myklebust@fys.uio.no>
+  *

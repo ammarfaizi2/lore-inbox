@@ -1,52 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262330AbRENRO5>; Mon, 14 May 2001 13:14:57 -0400
+	id <S262322AbRENRKR>; Mon, 14 May 2001 13:10:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262334AbRENROr>; Mon, 14 May 2001 13:14:47 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:8972 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S262330AbRENROk>;
-	Mon, 14 May 2001 13:14:40 -0400
-Date: Mon, 14 May 2001 18:13:57 +0100
-From: Joel Becker <jlbec@evilplan.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Rogier Wolff <R.E.Wolff@BitWizard.nl>, Alex Q Chen <aqchen@us.ibm.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Minor numbers
-Message-ID: <20010514181356.U6223@parcelfarce.linux.theplanet.co.uk>
-Mail-Followup-To: Joel Becker <jlbec@evilplan.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Rogier Wolff <R.E.Wolff@BitWizard.nl>,
-	Alex Q Chen <aqchen@us.ibm.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <200105141302.PAA14005@cave.bitwizard.nl> <E14zJmj-0000p3-00@the-village.bc.nu>
-Mime-Version: 1.0
+	id <S262344AbRENRKH>; Mon, 14 May 2001 13:10:07 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:35846 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S262322AbRENRJr>; Mon, 14 May 2001 13:09:47 -0400
+Subject: Re: Not a typewriter
+To: meissner@spectacle-pond.org (Michael Meissner)
+Date: Mon, 14 May 2001 18:01:42 +0100 (BST)
+Cc: vonbrand@sleipnir.valparaiso.cl (Horst von Brand),
+        mharris@opensourceadvocate.org (Mike A. Harris), Wayne.Brown@altec.com,
+        hacksaw@hacksaw.org (Hacksaw),
+        linux-kernel@vger.kernel.org (Linux Kernel mailing list)
+In-Reply-To: <20010514112554.A10909@munchkin.spectacle-pond.org> from "Michael Meissner" at May 14, 2001 11:25:54 AM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E14zJmj-0000p3-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, May 14, 2001 at 03:57:21PM +0100
-X-Burt-Line: Trees are cool.
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14zLj4-0000zO-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 14, 2001 at 03:57:21PM +0100, Alan Cox wrote:
-> > > 20:12 is more common
-> > 
-> > Which is major, which is minor?
-> 
-> 20bit major
+> IIRC, the 6 character linker requirement came from when the Bell Labs folk
+> ported the C compiler the IBM mainframe world, not from the early UNIX (tm)
+> world.  During the original ANSI C meetings, I got the sense from the IBM rep,
 
-	Well, AIX 4.3 (and 4.[12] I think as well) uses 16:16, and they
-are preparing for 32:32 when the kernel finaly goes fully 64-bit.  I
-don't know enough about AIX 5.1 to know if they really did that or
-backed down on their promise (The kernel guys told me two years ago that
-they were going to push the full 64-bit migration, but I haven't heard
-anything since).
+6 character linker name limits are very old. Honeywell L66 GCOS3/TSS which I
+had the dubious pleasure of experiencing and which is a direct derivative of
+GECOS and thus relevant to the era like many 36bit boxes uses 6 char link names
 
-Joel
+Why - well because 6 BCD characters fit in a 36bit word and its a single compare
+to check symbol matches
 
--- 
-
-"We'd better get back, `cause it'll be dark soon,
- and they mostly come at night.  Mostly."
-
-			http://www.jlbec.org/
-			jlbec@evilplan.org

@@ -1,89 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266398AbUBFCfW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 21:35:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266404AbUBFCfW
+	id S265319AbUBFCjS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 21:39:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265335AbUBFCjS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 21:35:22 -0500
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:1681 "HELO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id S266398AbUBFCfN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 21:35:13 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Nick Piggin <piggin@cyberone.com.au>
-Date: Fri, 6 Feb 2004 13:34:33 +1100
+	Thu, 5 Feb 2004 21:39:18 -0500
+Received: from relay01.roc.ny.frontiernet.net ([66.133.131.34]:18076 "EHLO
+	relay01.roc.ny.frontiernet.net") by vger.kernel.org with ESMTP
+	id S265319AbUBFCjN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 21:39:13 -0500
+Message-ID: <4021AC9F.4090408@xfs.org>
+Date: Wed, 04 Feb 2004 20:38:23 -0600
+From: Steve Lord <lord@xfs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Andi Kleen <ak@suse.de>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       kenneth.w.chen@intel.com
+Subject: Re: Limit hash table size
+References: <B05667366EE6204181EABE9C1B1C0EB5802441@scsmsx401.sc.intel.com.suse.lists.linux.kernel>	<20040205155813.726041bd.akpm@osdl.org.suse.lists.linux.kernel> <p73isilkm4x.fsf@verdi.suse.de>
+In-Reply-To: <p73isilkm4x.fsf@verdi.suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <16418.64825.5919.694924@notabene.cse.unsw.edu.au>
-Cc: Mattias Wadenstein <maswan@acc.umu.se>, linux-kernel@vger.kernel.org
-Subject: Re: Performance issue with 2.6 md raid0
-In-Reply-To: message from Nick Piggin on Friday February 6
-References: <Pine.A41.4.58.0402051304410.28218@lenin.acc.umu.se>
-	<402263E7.6010903@cyberone.com.au>
-	<Pine.A41.4.58.0402051647460.28218@lenin.acc.umu.se>
-	<4022F94C.30605@cyberone.com.au>
-X-Mailer: VM 7.18 under Emacs 21.3.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday February 6, piggin@cyberone.com.au wrote:
+Andi Kleen wrote:
+> Andrew Morton <akpm@osdl.org> writes:
 > 
 > 
-> Mattias Wadenstein wrote:
+>>Ken, I remain unhappy with this patch.  If a big box has 500 million
+>>dentries or inodes in cache (is possible), those hash chains will be more
+>>than 200 entries long on average.  It will be very slow.
 > 
-> >On Fri, 6 Feb 2004, Nick Piggin wrote:
-> >
-> >
-> >>Mattias Wadenstein wrote:
-> >>
-> >>
-> >>>Greetings.
-> >>>
-> >>>While testing a file server to store a couple of TB in resonably large
-> >>>files (>1G), I noticed an odd performance behaviour with the md raid0 in a
-> >>>pristine 2.6.2 kernel as compared to a 2.4.24 kernel.
-> >>>
-> >>>When striping two md raid5:s, instead of going from about 160-200MB/s for
-> >>>a single raid5 to 300M/s for the raid0 in 2.4.24, the 2.6.2 kernel gave
-> >>>135M/s in single stream read performance.
-> >>>
-> >>Can you try booting with elevator=deadline please?
-> >>
-> >
-> >Ok, then I get 253267 kB/s write and 153187 kB/s read from the raid0. A
-> >bit better, but still nowhere near the 2.4.24 numbers.
-> >
-> >For a single raid5, 158028 kB/s write and 162944 kB/s read.
-> >
-> >
 > 
-> Any idea what is holding back performance? Is it IO or CPU bound?
-> Can you get a profile of each kernel while doing a read please?
+> How about limiting the global size of the dcache in this case ? 
+> 
+> I cannot imagine a workload where it would make sense to ever cache 
+> 500 million dentries. It just risks to keep the whole file system
+> after an updatedb in memory on a big box, which is not necessarily
+> good use of the memory.
+> 
+> Limiting the number of dentries would keep the hash chains at a 
+> reasonable length too and somewhat bound the worst case CPU 
+> use for cache misses and search time in cache lookups.
 > 
 
-Possibly the read-ahead size isn't getting set correctly.
+This is not directly on the topic of hash chain length but related.
 
-What chunksize are you using on the raid0?
-Are you free to rebuild the raid0 array?
-If so, please rebuild it with a chunksize that is 2 or 4 times the
-size of a raid5 stripe (i.e. raid5-chunksize * (raid5-drives - 1) ).
+I have seen some dire cases with the dcache, SGI had some boxes with
+millions of files out there, and every night a cron job would come
+along and suck them all into memory. Resources got tight at some point,
+and as more inodes and dentries were being read in, the try to free
+pages path was continually getting called. There was always something
+in filesystem cache which could get freed, and the inodes and dentries
+kept getting more and more of the memory.
 
-If not, can you change:
+The fact that directory dcache entries are hard to get rid of because
+they have children and the directory dcache entries pinned pages in
+the cache meant that even if you could persuade the system to run a
+prune_dcache, it did not free much of the memory.
 
-		if (mddev->queue->backing_dev_info.ra_pages < stripe)
-			mddev->queue->backing_dev_info.ra_pages = stripe;
+Some sort of scheme where instead of a memory allocate for a new dcache
+first attempting to push out file contents, it first attempted to prune
+a few old dcache entries instead might go a long way in this area.
 
-at about line 327 of drives/md/raid1.c to something like:
+Now if there was some way of knowing in advance what a new dcache entry
+would be for (directory or leaf node), at least they could be seperated
+into distinct caches - but that would take some work I suspect. How
+you balance between getting fresh pages and reclaiming old dentries
+is the hard part.
 
-		mddev->queue->backing_dev_info.ra_pages = stripe * 32;
+Hmm, looks like Pavel maybe just hit something along these lines... see
 
-or whatever is needed to make ra_pages big enough to gold a couple of
-raid5 stripes.
+'2.6.2 extremely unresponsive after rsync backup'
 
-Thanks,
-NeilBrown
-
+Steve

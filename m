@@ -1,47 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312901AbSDGBfP>; Sat, 6 Apr 2002 20:35:15 -0500
+	id <S312917AbSDGCJY>; Sat, 6 Apr 2002 21:09:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312899AbSDGBfO>; Sat, 6 Apr 2002 20:35:14 -0500
-Received: from mail3.aracnet.com ([216.99.193.38]:29637 "EHLO
-	mail3.aracnet.com") by vger.kernel.org with ESMTP
-	id <S312901AbSDGBfN>; Sat, 6 Apr 2002 20:35:13 -0500
-Date: Sat, 06 Apr 2002 17:35:37 -0800
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Faster reboots (and a better way of taking crashdumps?)
-Message-ID: <1759693825.1018114535@[10.10.2.3]>
-In-Reply-To: <E16tuQV-0002Lt-00@the-village.bc.nu>
-X-Mailer: Mulberry/2.1.2 (Win32)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	id <S312918AbSDGCJX>; Sat, 6 Apr 2002 21:09:23 -0500
+Received: from [209.143.110.29] ([209.143.110.29]:17633 "HELO
+	mail.the-rileys.net") by vger.kernel.org with SMTP
+	id <S312917AbSDGCJX>; Sat, 6 Apr 2002 21:09:23 -0500
+Date: 7 Apr 2002 02:11:22 -0000
+Message-ID: <20020407021122.3009.qmail@mail.the-rileys.net>
+From: oscar@mail.the-rileys.net
+To: linux-kernel@vger.kernel.org
+Subject: Keyboard trouble with 2.5.8-pre2: missed interrupt?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 1. Are there tables that are created by the BIOS that we 
->> destroy during Linux runtime? mps tables spring to mind - 
->> I can't see where we preserve them ...
-> 
-> They should be in E820 reserved pages anyway and we do keep them 
-> and the EBDA safe. 
-
-Ah, OK. I will have to check the BIOS is doing this correctly,
-since I hacked it to move the MPS tables to a different place
-(below 8Mb). I should really fix that using a fixmap or something
-anyway ...
-
-> You will however have blown away ACPI pages marked as disposable
-
-Pah, ACPI ;-) I don't have ACPI on these machines, but it would
-be needed for a more general solution - sounds easy enough to fix 
-anyway - we just keep them and mark them reserved during the Linux
-ACPI parse, I think.
-
-Thanks,
-
-M.
-
+I've been having keyboard troubles on my Athlon box with recent kernels, and I've traced it to a problem with interrupts.  In kernel 2.4.x, the function handle_kbd_event() does not find a full input buffer when it is first called (status = 0x14).  However, when the keyboard controller interrupt calls it, it (logically, since it was from the interrupt) finds 0x15 in the status register[D.  Howerver, in 2.5.8-pre2 (and presumably others), the keyboard interrupt is only caught once, before the first send_data function is called.  I can't offer any reasons as to why that may be, since I don't see much change related to the keyboard interrupt in drivers/char/pc_keyb.c, but that is what I've traced it to.  If you have any help, please CC me directly, since I'm no longer on the list.

@@ -1,48 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312748AbSCYWVe>; Mon, 25 Mar 2002 17:21:34 -0500
+	id <S312754AbSCYWhC>; Mon, 25 Mar 2002 17:37:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312737AbSCYWVY>; Mon, 25 Mar 2002 17:21:24 -0500
-Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:63940
-	"EHLO ani.animx.eu.org") by vger.kernel.org with ESMTP
-	id <S312748AbSCYWVO>; Mon, 25 Mar 2002 17:21:14 -0500
-Date: Mon, 25 Mar 2002 17:32:34 -0500
-From: Wakko Warner <wakko@animx.eu.org>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: IDE and hot-swap disk caddies
-Message-ID: <20020325173234.A18888@animx.eu.org>
-In-Reply-To: <20020325152617.A18605@animx.eu.org> <Pine.LNX.4.10.10203251319100.1305-100000@master.linux-ide.org>
-Mime-Version: 1.0
+	id <S312757AbSCYWgw>; Mon, 25 Mar 2002 17:36:52 -0500
+Received: from mail.cert.uni-stuttgart.de ([129.69.16.17]:56811 "HELO
+	Mail.CERT.Uni-Stuttgart.DE") by vger.kernel.org with SMTP
+	id <S312754AbSCYWgh>; Mon, 25 Mar 2002 17:36:37 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: SSSCA Hits the Senate
+In-Reply-To: <200203251522.JAA62284@tomcat.admin.navo.hpc.mil>
+	<001b01c1d417$7ec599a0$0100007f@localdomain.wni.com.wirelessnetworksinc.com>
+From: Florian Weimer <Weimer@CERT.Uni-Stuttgart.DE>
+Date: Mon, 25 Mar 2002 23:33:58 +0100
+Message-ID: <87zo0wnup5.fsf@CERT.Uni-Stuttgart.DE>
+User-Agent: Gnus/5.090005 (Oort Gnus v0.05) Emacs/21.1 (i686-pc-linux-gnu)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > >   The way you say that makes me think that it does support at some other
-> > > > level... hot swap controller? Doesn't match MY hardware. Hot swap
-> > > 
-> > > Controller level hotswap works mostly (think about pcmcia ide for example)
-> > 
-> > Just to throw this out there.  Is it possible to make the ide subsystem look
-> > like a scsi controller ?  that way the scsi layer could insert/remove
-> > devices.  say: ide0/1 = scsi0 (assuming no other scsi controllers) and hda =
-> > scsi0 channel0 id0 lun0  and hdc = scsi0 channel1 id0 lun0 ...
-> > 
-> > Personally, if it's doable, i'd like it.
-> 
-> Hardware is different.
-> You can paint a goose yellow and call it a duck, but it is still a goose.
-> The electrical/electronic interface will kill you!
+"Herman Oosthuysen" <Herman@WirelessNetworksInc.com> writes:
 
-how is it different than all the different scsi controllers?
+> The obvious solution is to continue the way Richard Stallman envisaged:
+> ***Distribute all code in source form only - no binary distributions.***
+>
+> This way, the source files are protected under freedom of speech rules and
+> the originator of the work is safe.
 
-What I'm saying is an ide module that talks to the ide hardware and to the
-scsi subsystem.
+Unfortunately, this works only in the U.S.  Other countries which will
+follow the US leadership in consumer suppression regulate free speech
+to make it conforming to law.
 
-both scsi and ide support disks, tapes, cdroms, and other removable media.
-
-IIRC, windows nt sees ide controllers as a scsi controller (in a sence)
+I agree, though, that source-only distribution avoids many problems
+and is preferable.
 
 -- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+Florian Weimer 	                  Weimer@CERT.Uni-Stuttgart.DE
+University of Stuttgart           http://CERT.Uni-Stuttgart.DE/people/fw/
+RUS-CERT                          +49-711-685-5973/fax +49-711-685-5898

@@ -1,111 +1,169 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261353AbUKSVTE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261568AbUKSVWf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261353AbUKSVTE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 16:19:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261568AbUKSVTE
+	id S261568AbUKSVWf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 16:22:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261571AbUKSVWf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 16:19:04 -0500
-Received: from motgate6.mot.com ([144.189.100.106]:48601 "EHLO
-	motgate6.mot.com") by vger.kernel.org with ESMTP id S261353AbUKSVS5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 16:18:57 -0500
-In-Reply-To: <1100820391.25521.14.camel@gaston>
-References: <069B6F33-341C-11D9-9652-000393DBC2E8@freescale.com> <9B0D9272-398A-11D9-96F6-000393C30512@freescale.com> <1100820391.25521.14.camel@gaston>
-Mime-Version: 1.0 (Apple Message framework v619)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <97DA0EF0-3A70-11D9-B023-000393C30512@freescale.com>
-Content-Transfer-Encoding: 7bit
-Cc: <netdev@oss.sgi.com>, Linux Kernel list <linux-kernel@vger.kernel.org>,
-       <jason.mcmullan@timesys.com>, Andy Fleming <AFLEMING@motorola.com>
-From: Andy Fleming <afleming@freescale.com>
-Subject: Re: [PATCH] MII bus API for PHY devices
-Date: Fri, 19 Nov 2004 15:18:44 -0600
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-X-Mailer: Apple Mail (2.619)
+	Fri, 19 Nov 2004 16:22:35 -0500
+Received: from fw.osdl.org ([65.172.181.6]:32139 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261568AbUKSVW2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Nov 2004 16:22:28 -0500
+Date: Fri, 19 Nov 2004 13:22:02 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Eric Pouech <pouech-eric@wanadoo.fr>
+cc: Roland McGrath <roland@redhat.com>, Mike Hearn <mh@codeweavers.com>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       wine-devel <wine-devel@winehq.com>
+Subject: Re: ptrace single-stepping change breaks Wine
+In-Reply-To: <419E5A88.1050701@wanadoo.fr>
+Message-ID: <Pine.LNX.4.58.0411191319360.2222@ppc970.osdl.org>
+References: <200411152253.iAFMr8JL030601@magilla.sf.frob.com>
+ <419E42B3.8070901@wanadoo.fr> <Pine.LNX.4.58.0411191119320.2222@ppc970.osdl.org>
+ <419E4A76.8020909@wanadoo.fr> <Pine.LNX.4.58.0411191148480.2222@ppc970.osdl.org>
+ <419E5A88.1050701@wanadoo.fr>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Nov 18, 2004, at 17:26, Benjamin Herrenschmidt wrote:
 
-> On Thu, 2004-11-18 at 11:52 -0600, Andy Fleming wrote:
->
->> 1) How should we pass initialization information from the system to 
->> the
->> bus.  Information like which irq to use for each PHY, and what the
->> address space for the bus's controls is.  I would like to enforce
->> encapsulation so that the ethernet drivers don't need to know this
->> information, or pass it to the bus.
->
-> Unfortunately, this is all quite platform specific and the ethernet
-> driver may be the only one to know what to do here... add to that
-> various special cases of the way the PHY is wired or controlled, I 
-> think
-> we can't completely avoid special casing...
+On Fri, 19 Nov 2004, Eric Pouech wrote:
+> 
+> wine mixes both approches, we have (to control what's generated inside the 
+> various exception) to ptrace from our NT-kernel-like process (the ptracer) to 
+> get the context of the exception. Restart from the ptracer is done with 
+> PTRACE_SINGLESTEP.
 
-Well, under the system I'm currently envisioning, the driver would be 
-able to provide the data needed by the mii bus, but the hope would be 
-to enable board files (for when the PHY is soldered on the motherboard, 
-and the enet is not -- like on an MPC85xx) to provide this information 
-instead, and leave out the enet as middleman.
+Here's a new patch to try. Totally untested. 
 
->
->> 2) How should we reflect the dependency of the ethernet driver on the
->> mii bus driver?
->
-> The ethernet driver can instanciate the PHYs at it's childs, though the
-> case of several MACs sharing PHYs will be difficult to represent...
+It is more careful about clearing PT_DTRACED (which by now should probably
+be renamed PT_PRACE_SINGLESTEP or something on x86, since we should never
+be lazy about this thing any more), and it may or may not help.
 
-I really don't want the driver to intantiate PHYs directly.  The PHY is 
-its own device, and the less net drivers have to understand their inner 
-workings, the better.  However, I hadn't considered the possibility of 
-multiple MACs sharing the same PHY.  It does, as you say, support my 
-argument, though.  With some careful design, the mii bus should be able 
-to handle this type of setup easily.
+Pls test _together_ with the previous patch (which is already applied in 
+the current top-of-tree for anybody with really recent kernels).
 
-One of my goals, personally, is to allow multiple net drivers to share 
-the same mii bus, as in the case of the FCC enet controllers' PHYs on 
-an 8560 ADS, which can be accessed through TSEC1's MII Management bus.
+		Linus
 
-
->
->> 3) How should we bind ethernet drivers to PHY drivers?
->
-> I would have them instanciated by the ethernet driver. Besides, the PHY
-> driver will need to be able to identify it's "parent" driver in some
-> ways to deal with special cases. It would be nice to have a library of
-> utility code to independently deal with link tracking (basically what
-> drivers like sungem do independently), with a callback to the ethernet
-> driver to inform it of actual changes (notifier ?). MACs often have
-> autopoll features and PHY often have interrupts, but from experience,
-> that's not very useful and a good old timer based polling tend to do a
-> better job most of the time.
-
-So when you say instantiated, would you consider calling an "attach" 
-function with the phy_id and bus_id of the desired PHY instantiation?  
-I'm fine with that.  The PHY would need to be able to send 
-notifications to the enet controller (currently done through a 
-callback).  I'm interested in ideas on how the notifier could be used 
-(I have a distaste for callbacks).
-
-Autopoll features sound pretty neat.  I think the system should support 
-that.  PHY interrupts are supported (they work quite well on my 85xx 
-system), as is timer-based polling.  Do you really think that there are 
-special cases which can't be handled using a library similar to the 
-sungem_phy one?
->
->> Oh, and a 4th side-issue:
->> Should each PHY have its own file?  Or should we dump all the PHY
->> drivers in one file?  And if so, should THAT file be separate from the
->> mii bus implementation file?
->
-> I'd put all bcm5xxx in the same file ... they can be put together by
-> families...
-
-Yeah, that sounds good.
-
-
-Andy Fleming
-Open Source Team
-Freescale Semiconductor, Inc
-
+-----
+===== arch/i386/kernel/ptrace.c 1.27 vs edited =====
+--- 1.27/arch/i386/kernel/ptrace.c	2004-11-07 18:10:34 -08:00
++++ edited/arch/i386/kernel/ptrace.c	2004-11-19 13:18:56 -08:00
+@@ -138,6 +138,26 @@
+ 	return retval;
+ }
+ 
++static void set_singlestep(struct task_struct *child)
++{
++	long eflags;
++
++	set_tsk_thread_flag(child, TIF_SINGLESTEP);
++	eflags = get_stack_long(child, EFL_OFFSET);
++	put_stack_long(child, EFL_OFFSET, eflags | TRAP_FLAG);
++	child->ptrace |= PT_DTRACE;
++}
++
++static void clear_singlestep(struct task_struct *child)
++{
++	long eflags;
++
++	clear_tsk_thread_flag(child, TIF_SINGLESTEP);
++	eflags = get_stack_long(child, EFL_OFFSET);
++	put_stack_long(child, EFL_OFFSET, eflags & ~TRAP_FLAG);
++	child->ptrace &= ~PT_DTRACE;
++}
++
+ /*
+  * Called by kernel/ptrace.c when detaching..
+  *
+@@ -145,11 +165,7 @@
+  */
+ void ptrace_disable(struct task_struct *child)
+ { 
+-	long tmp;
+-
+-	clear_tsk_thread_flag(child, TIF_SINGLESTEP);
+-	tmp = get_stack_long(child, EFL_OFFSET) & ~TRAP_FLAG;
+-	put_stack_long(child, EFL_OFFSET, tmp);
++	clear_singlestep(child);
+ }
+ 
+ /*
+@@ -388,10 +404,8 @@
+ 		  }
+ 		  break;
+ 
+-	case PTRACE_SYSCALL: /* continue and stop at next (return from) syscall */
+-	case PTRACE_CONT: { /* restart after signal. */
+-		long tmp;
+-
++	case PTRACE_SYSCALL:	/* continue and stop at next (return from) syscall */
++	case PTRACE_CONT:	/* restart after signal. */
+ 		ret = -EIO;
+ 		if ((unsigned long) data > _NSIG)
+ 			break;
+@@ -401,56 +415,39 @@
+ 		else {
+ 			clear_tsk_thread_flag(child, TIF_SYSCALL_TRACE);
+ 		}
+-		clear_tsk_thread_flag(child, TIF_SINGLESTEP);
+ 		child->exit_code = data;
+-	/* make sure the single step bit is not set. */
+-		tmp = get_stack_long(child, EFL_OFFSET) & ~TRAP_FLAG;
+-		put_stack_long(child, EFL_OFFSET,tmp);
++		/* make sure the single step bit is not set. */
++		clear_singlestep(child);
+ 		wake_up_process(child);
+ 		ret = 0;
+ 		break;
+-	}
+ 
+ /*
+  * make the child exit.  Best I can do is send it a sigkill. 
+  * perhaps it should be put in the status that it wants to 
+  * exit.
+  */
+-	case PTRACE_KILL: {
+-		long tmp;
+-
++	case PTRACE_KILL:
+ 		ret = 0;
+ 		if (child->exit_state == EXIT_ZOMBIE)	/* already dead */
+ 			break;
+ 		child->exit_code = SIGKILL;
+-		clear_tsk_thread_flag(child, TIF_SINGLESTEP);
+ 		/* make sure the single step bit is not set. */
+-		tmp = get_stack_long(child, EFL_OFFSET) & ~TRAP_FLAG;
+-		put_stack_long(child, EFL_OFFSET, tmp);
++		clear_singlestep(child);
+ 		wake_up_process(child);
+ 		break;
+-	}
+-
+-	case PTRACE_SINGLESTEP: {  /* set the trap flag. */
+-		long tmp;
+ 
++	case PTRACE_SINGLESTEP:	/* set the trap flag. */
+ 		ret = -EIO;
+ 		if ((unsigned long) data > _NSIG)
+ 			break;
+ 		clear_tsk_thread_flag(child, TIF_SYSCALL_TRACE);
+-		if ((child->ptrace & PT_DTRACE) == 0) {
+-			/* Spurious delayed TF traps may occur */
+-			child->ptrace |= PT_DTRACE;
+-		}
+-		tmp = get_stack_long(child, EFL_OFFSET) | TRAP_FLAG;
+-		put_stack_long(child, EFL_OFFSET, tmp);
+-		set_tsk_thread_flag(child, TIF_SINGLESTEP);
++		set_singlestep(child);
+ 		child->exit_code = data;
+ 		/* give it a chance to run. */
+ 		wake_up_process(child);
+ 		ret = 0;
+ 		break;
+-	}
+ 
+ 	case PTRACE_DETACH:
+ 		/* detach a process that was attached. */

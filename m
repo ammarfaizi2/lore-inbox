@@ -1,57 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261298AbUCVRhB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 12:37:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261532AbUCVRhA
+	id S261317AbUCVRrY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 12:47:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261361AbUCVRrY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 12:37:00 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:14812 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261298AbUCVRg7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 12:36:59 -0500
-Message-ID: <405F2429.6040905@pobox.com>
-Date: Mon, 22 Mar 2004 12:36:41 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
+	Mon, 22 Mar 2004 12:47:24 -0500
+Received: from math.ut.ee ([193.40.5.125]:3569 "EHLO math.ut.ee")
+	by vger.kernel.org with ESMTP id S261317AbUCVRrX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Mar 2004 12:47:23 -0500
+Date: Mon, 22 Mar 2004 19:47:21 +0200 (EET)
+From: Meelis Roos <mroos@linux.ee>
+To: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: PnPBIOS: Unknown tag '0x82'
+Message-ID: <Pine.GSO.4.44.0403221937330.18189-100000@math.ut.ee>
 MIME-Version: 1.0
-To: Clay Haapala <chaapala@cisco.com>
-CC: James Morris <jmorris@redhat.com>, Jouni Malinen <jkmaline@cc.hut.fi>,
-       "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
-       Matt_Domsch@dell.com
-Subject: Re: [PATCH] lib/libcrc32c implementation
-References: <Xine.LNX.4.44.0403211006190.16503-100000@thoron.boston.redhat.com>	<yqujptb4ltc9.fsf@chaapala-lnx2.cisco.com>	<405F1B99.3050707@pobox.com> <yqujsmg0kd10.fsf@chaapala-lnx2.cisco.com>
-In-Reply-To: <yqujsmg0kd10.fsf@chaapala-lnx2.cisco.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Clay Haapala wrote:
-> On Mon, 22 Mar 2004, Jeff Garzik spake thusly:
-> 
->>Clay Haapala wrote:
->>
->>>This patch agains 2.6.4 kernel code implements the CRC32C
->>>algorithm.  The routines are based on the same design as the
->>>existing CRC32 code.  Licensing is intended to be identical (GPL).
->>>The immediate customer of this code is the wrapper code in
->>>crypto/crc32c, available in another patch.
->>
->>
->>Why not call it 'crc32c' like its cousin crc32, rather than the
->>less-similar 'libcrc32c'?  Violates the Principle of Least Surprise
->>;-)
->>
->>	Jeff
-> 
-> 
-> The module under crypto is call "crc32c", which would conflict, UIASM.
+Since the beginning of its existence, the pnpbios driver talks about
+unknown tag '0x82' on one of my computers. The computer has Intel
+D815EEA2 mainboard, BIOS has been updated quite recently. I added the
+tag dump to printout and here it is:
 
-Fair enough...
+PnPBIOS: Unknown tag '0x82', length '18': 82 12 00 49 6e 74 65 6c 20 46 69 72 6d 77 61 72 65 20
 
-	Jeff
+This 0x82 0x12 0x00 and then 'Intel Firmware'.
 
+Anything to worry about? Are the next tags still correctly parsed? The
+full dmesg is now
 
+PnPBIOS: Scanning system for PnP BIOS support...
+PnPBIOS: Found PnP BIOS installation structure at 0xc00f2480
+PnPBIOS: PnP BIOS version 1.0, entry 0xf0000:0x1d2a, dseg 0xf0000
+pnp: 00:09: ioport range 0x4d0-0x4d1 has been reserved
+pnp: 00:09: ioport range 0xcf8-0xcff could not be reserved
+PnPBIOS: Unknown tag '0x82', length '18': 82 12 00 49 6e 74 65 6c 20 46 69 72 6d 77 61 72 65 20 .
+pnp: 00:0b: ioport range 0x800-0x87f has been reserved
+PnPBIOS: 20 nodes reported by PnP BIOS; 20 recorded by driver
+
+-- 
+Meelis Roos (mroos@linux.ee)
 
 

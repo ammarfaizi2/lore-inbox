@@ -1,59 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129257AbRB1URj>; Wed, 28 Feb 2001 15:17:39 -0500
+	id <S129250AbRB1UT3>; Wed, 28 Feb 2001 15:19:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129250AbRB1URa>; Wed, 28 Feb 2001 15:17:30 -0500
-Received: from cs.columbia.edu ([128.59.16.20]:8605 "EHLO cs.columbia.edu")
-	by vger.kernel.org with ESMTP id <S129216AbRB1URQ>;
-	Wed, 28 Feb 2001 15:17:16 -0500
-Date: Wed, 28 Feb 2001 12:17:13 -0800 (PST)
-From: Ion Badulescu <ionut@cs.columbia.edu>
-To: Alexander Viro <viro@math.psu.edu>
-cc: <linux-kernel@vger.kernel.org>, <linux-fsdevel@vger.kernel.org>
-Subject: Re: [PATCH][CFT] per-process namespaces for Linux
-In-Reply-To: <Pine.GSO.4.21.0102281416460.7107-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.4.30.0102281152210.15118-100000@age.cs.columbia.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129259AbRB1UTU>; Wed, 28 Feb 2001 15:19:20 -0500
+Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:46864 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S129250AbRB1UTN>;
+	Wed, 28 Feb 2001 15:19:13 -0500
+Date: Wed, 28 Feb 2001 12:18:31 -0800
+From: Greg KH <greg@kroah.com>
+To: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+        linux-usb-devel@lists.sourceforge.net,
+        Linux-usb-users@lists.sourceforge.net
+Subject: 2001-02-28 release of hotplug scripts
+Message-ID: <20010228121831.B29281@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+X-Operating-System: Linux 2.2.18-immunix (i586)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 28 Feb 2001, Alexander Viro wrote:
+I've just packaged up the latest hotplug scripts into a release, and
+they can be found at:
+	http://download.sourceforge.net/linux-hotplug/hotplug-2001_02_28.tar.gz
+	http://download.sourceforge.net/linux-hotplug/hotplug-2001_02_28-1.noarch.rpm
+	http://download.sourceforge.net/linux-hotplug/hotplug-2001_02_28-1.src.rpm
+depending on which format you prefer.
 
-> > And disadvantages: you can't have broken symlinks.
-> > 
-> > This actually turns out to be quite a bit of a problem when one tries
-> > to use bind mounts with autofs. For one thing, it's perfectly legal
-> > to have /autofs/foo as a symlink to /autofs/bar/foo, where /autofs/bar
-> > is not yet mounted -- but a bind mount can't handle that...
-> 
-> First of all, you still have symlinks. 
+The package fixes some problems that kept the last release from working
+properly on RedHat 6.x based machines.  There is also a bit of RedHat
+init script assumptions in the package, due to the support of patches
+from RedHat engineers :)
+If people have problems with other distro bases, please let us know on
+the linux-hotplug-devel mailing list.
 
-Oh yeah, of course. :-)
+Changes in this version from the last release are:
+        - added keyspan to the list of modules to be unloaded
+        - more network interface special cases: lo, plip
+        - cleanup, enable '#' comment lines (Gioele Barabuci)
+        - add 'usbcore' and comments to usb.handmap for hub device class
+        - cope with bash1 vs bash2 issue ("unset IFS")
+        - add /etc/hotplug/blacklist
+        - update README
+	- added patch from Trond Glomsrød to make the scripts able to
+	  handle i18n properly.  Might not work so well on older
+	  initscript packages, especially non-redhat based systems.
+	  Tweaked the patch to handle different locations of the
+	  'functions' script.
+	- added patch from Trond Glomsrød to keep the ppp, ippp, and
+	  isdn network interfaces from being called in the network
+	  script.
+	- added patch from Adam Richter that removes dependency on /tmp
+	  being writable.
 
-> What's more, the right solution is to use local objects at the
-> mountpoints. And forget about having a small tree full of links to
-> real mountpoints. Think of autofs-with-one-node.
 
-That's what Sun's autofs and am-utils call 'direct mounts', which are not 
-yet supported by our autofs (unless I missed something recently). Direct 
-mounts are good for some things, but not for everything. In particular, 
-they are useless for cascading auto-triggered mounts (think 
-/usr/local/src, /usr/local, and /usr, all automounted).
-
-[and, btw, Linux _still_ doesn't properly support am-utils' direct mounts, 
-although all that's needed is to remove LOOKUP_FOLLOW from path_init in 
-sys_umount...]
-
-As for bind mounts, I'll probably revisit them after I'm done with the 
-Solaris autofs support in am-utils -- which will probably be a while. If I 
-can get the thing to chain-trigger all the necessary mounts, we might be 
-able to do something useful with it..
-
-Thanks,
-Ion
+greg k-h
 
 -- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
-
+greg@(kroah|wirex).com

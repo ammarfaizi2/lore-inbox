@@ -1,83 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264917AbUEKRbm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264897AbUEKReZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264917AbUEKRbm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 13:31:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264914AbUEKRbF
+	id S264897AbUEKReZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 13:34:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264805AbUEKReZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 13:31:05 -0400
-Received: from smtp015.mail.yahoo.com ([216.136.173.59]:3199 "HELO
-	smtp015.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S264885AbUEKR2p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 13:28:45 -0400
-Subject: Re: [patch] really-ptrace-single-step
-From: Fabiano Ramos <ramos_fabiano@yahoo.com.br>
-To: Davide Libenzi <davidel@xmailserver.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0405111007440.25232@bigblue.dev.mdolabs.com>
-References: <Pine.LNX.4.58.0405111007440.25232@bigblue.dev.mdolabs.com>
-Content-Type: text/plain
-Message-Id: <1084296680.2912.8.camel@slack.domain.invalid>
+	Tue, 11 May 2004 13:34:25 -0400
+Received: from chaos.ao.net ([208.5.40.6]:22242 "EHLO chaos.ao.net")
+	by vger.kernel.org with ESMTP id S264897AbUEKRdi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 May 2004 13:33:38 -0400
+Date: Tue, 11 May 2004 13:33:34 -0400
+From: Dan Merillat <dmerillat@sequiam.com>
+To: linux-kernel@vger.kernel.org
+Subject: VM issues in 2.6.6
+Message-ID: <20040511173333.GS5945@chaos.ao.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 11 May 2004 14:31:20 -0300
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Still not getting the desired result.
-Which kernel is the patch based on?
+I've been doing performance testing on a new dual-opteron box (Running a 64 bit
+kernel) and found something that's very strange to me: mounting a filesystem
+synchronously moves the data to the disk 33% faster then mounting it async.  
 
-On Tue, 2004-05-11 at 14:12, Davide Libenzi wrote:
-> This patch lets a ptrace process on x86 to "see" the instruction 
-> following the INT #80h op.
-> 
-> 
-> 
-> - Davide
-> 
-> 
-> arch/i386/kernel/entry.S       |    2 +-
-> include/asm-i386/thread_info.h |    2 +-
-> 2 files changed, 2 insertions(+), 2 deletions(-)
-> 
-> 
-> 
-> 
-> Index: arch/i386/kernel/entry.S
-> ===================================================================
-> RCS file: /usr/src/bkcvs/linux-2.5/arch/i386/kernel/entry.S,v
-> retrieving revision 1.83
-> diff -u -r1.83 entry.S
-> --- arch/i386/kernel/entry.S	12 Apr 2004 20:29:12 -0000	1.83
-> +++ arch/i386/kernel/entry.S	11 May 2004 06:35:29 -0000
-> @@ -354,7 +354,7 @@
->  	# perform syscall exit tracing
->  	ALIGN
->  syscall_exit_work:
-> -	testb $(_TIF_SYSCALL_TRACE|_TIF_SYSCALL_AUDIT), %cl
-> +	testb $(_TIF_SYSCALL_TRACE|_TIF_SYSCALL_AUDIT|_TIF_SINGLESTEP), %cl
->  	jz work_pending
->  	sti				# could let do_syscall_trace() call
->  					# schedule() instead
-> Index: include/asm-i386/thread_info.h
-> ===================================================================
-> RCS file: /usr/src/bkcvs/linux-2.5/include/asm-i386/thread_info.h,v
-> retrieving revision 1.19
-> diff -u -r1.19 thread_info.h
-> --- include/asm-i386/thread_info.h	12 Apr 2004 20:29:12 -0000	1.19
-> +++ include/asm-i386/thread_info.h	11 May 2004 06:34:47 -0000
-> @@ -165,7 +165,7 @@
->  
->  /* work to do on interrupt/exception return */
->  #define _TIF_WORK_MASK \
-> -  (0x0000FFFF & ~(_TIF_SYSCALL_TRACE|_TIF_SYSCALL_AUDIT))
-> +  (0x0000FFFF & ~(_TIF_SYSCALL_TRACE|_TIF_SYSCALL_AUDIT|_TIF_SINGLESTEP))
->  #define _TIF_ALLWORK_MASK	0x0000FFFF	/* work to do on any return to u-space */
->  
->  /*
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+I tested using both reiser and ext2, with the same results, so it looks
+like a vm/pagecache issue rather then a filesystem issue.
 
+I create a 1gig file with dd on a filesystem mounted synchronously, and I 
+achieve 45megabytes/second
+
+harik@hailstorm:/test2$ dd if=/dev/zero of=testfile bs=1024k count=1024
+1024+0 records in
+1024+0 records out
+1073741824 bytes transferred in 23.857952 seconds (45005616 bytes/sec)
+
+procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
+ r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
+ 2  0    324 1205740 355272 314252    0    0     0 49152 2029 19238  0 15 47 39
+ 0  1    324 1161836 355316 356368    0    0     0 43008 1874  1610  0 10 50 40
+ 0  1    324 1120436 355352 396316    0    0     0 39916 1946  1796  0 10 50 41
+ 1  0    324 1083060 355660 434224    0    0     0 37688 1798  4242  0 12 46 42
+ 0  1    324 1033140 355708 482388    0    0     0 48952 1995  1895  0 13 50 37
+ 0  1    324 985396 355752 528448    0    0     0 46080 2022  4547  0 12 49 38
+ 1  0    324 934388 355800 577632    0    0     0 48520 1990 16480  0 16 46 39
+ 0  1    324 887476 355844 622672    0    0     0 45688 1953  1793  0 11 50 40
+ 0  1    324 849076 356152 661532    0    0     0 39516 1827  3877  0 12 47 42
+ 1  1    324 798132 356200 710716    0    0     0 49152 2003 19758  0 16 46 38
+ 1  0    324 747124 356248 759900    0    0     0 48448 2011 22061  0 16 46 39
+ 1  0    324 700212 356300 804932    0    0     0 44736 1932  3833  0 12 49 40
+
+If I do the same on the filesystem mounted async:
+
+harik@hailstorm:/test2$ dd if=/dev/zero of=testfile bs=1024k count=1024 ; time sync
+1024+0 records in
+1024+0 records out
+1073741824 bytes transferred in 24.524777 seconds (43781920 bytes/sec)
+
+real    0m14.635s
+user    0m0.000s
+sys     0m0.276s
+
+for a total time of 39 seconds, at 27megabytes/second.
+
+Sample vmstat:
+ 1  4    312 351052 356444 1151804    0    0     0 23636 1506   106  0  4 48 48
+ 0  4    312 350860 356444 1151804    0    0     0 26492 1571   110  0  4 49 47
+ 1  3    312 350732 356444 1151804    0    0     0 31288 1663   168  0  5 35 60
+ 0  4    312 350604 356444 1151804    0    0     0 28448 1629   168  0  5  0 95
+ 0  4    312 350476 356444 1151804    0    0     0 32824 1706   158  0  4  0 95
+ 0  4    312 347140 356444 1151804    0    0     0 29132 1605   246  0 15  0 85
+ 0  4    312 347012 356444 1151804    0    0     0 24996 1523   113  0  4  0 95
+ 0  4    312 346756 356444 1151804    0    0     0 31296 1666    97  0  5  0 96
+ 0  4    312 346692 356444 1151804    0    0     0 33104 1690    94  0  5  0 95
+ 0  4    312 346500 356444 1151804    0    0     0 28360 1569    91  0  4  0 96
+ 0  4    312 346436 356444 1151804    0    0     0 26528 1572    88  0  4  0 97
+ 0  1    312 344708 356444 1151804    0    0     0 24684 1477   309  0 10 32 57
+ 0  1    312 344580 356444 1151804    0    0     0 23040 1385   339  0  3 49 49
+ 0  1    312 344388 356444 1151804    0    0     0 20352 1337   286  0  3 49 48
+ 0  1    312 344388 356444 1151804    0    0     0 21120 1355   307  0  2 49 49
+ 0  1    312 344580 356444 1151804    0    0     0 21696 1358   306  0  3 49 48
+ 0  1    312 344588 356444 1151804    0    0     0 22592 1378   327  0  3 48 49
+
+
+
+Could it be that we're seeking like mad in test #2 as 3 PDflushes and
+the dd all try to write out different parts of the file?  If so,  a
+possible fix would be to track pathological writers like this and force
+them to clean their own dirty pages (pdflush then ignores their pages)
+leaving only one writer on the file, which should stream much nicer to
+the disk.  
+
+The nasty side-effect of what I'm seeing is that the entire system
+grinds to a halt waiting on disk, as every program run bumps the atime,
+dirtying the page, which has to be flushed synchronously before it can
+continue.  
+
+Or I could be completely wrong.  I just know how ungodly slow my system
+gets when running that test async.
+
+--Dan

@@ -1,100 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261347AbVAWUDe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261354AbVAWUH2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261347AbVAWUDe (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Jan 2005 15:03:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261348AbVAWUDe
+	id S261354AbVAWUH2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Jan 2005 15:07:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261355AbVAWUH2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Jan 2005 15:03:34 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:13839 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261347AbVAWUD0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Jan 2005 15:03:26 -0500
-Date: Sun, 23 Jan 2005 20:03:15 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Jens Axboe <axboe@suse.de>, alexn@dsv.su.se, kas@fi.muni.cz,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: Memory leak in 2.6.11-rc1?
-Message-ID: <20050123200315.A25351@flint.arm.linux.org.uk>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>, Jens Axboe <axboe@suse.de>,
-	alexn@dsv.su.se, kas@fi.muni.cz, linux-kernel@vger.kernel.org,
-	netdev@oss.sgi.com
-References: <20050121161959.GO3922@fi.muni.cz> <1106360639.15804.1.camel@boxen> <20050123091154.GC16648@suse.de> <20050123011918.295db8e8.akpm@osdl.org> <20050123095608.GD16648@suse.de> <20050123023248.263daca9.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 23 Jan 2005 15:07:28 -0500
+Received: from anchor-post-35.mail.demon.net ([194.217.242.85]:60432 "EHLO
+	anchor-post-35.mail.demon.net") by vger.kernel.org with ESMTP
+	id S261354AbVAWUHW convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Jan 2005 15:07:22 -0500
+From: Stephen Kitchener <stephen@g6dzj.demon.co.uk>
+Organization: None
+To: Sergey Vlasov <vsu@altlinux.ru>
+Subject: Re: System beeper - no sound from mobo's own speaker
+Date: Sun, 23 Jan 2005 20:07:21 +0000
+User-Agent: KMail/1.6.1
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+References: <200501231937.53099.stephen@g6dzj.demon.co.uk> <20050123225010.0172a6e0.vsu@altlinux.ru>
+In-Reply-To: <20050123225010.0172a6e0.vsu@altlinux.ru>
+MIME-Version: 1.0
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050123023248.263daca9.akpm@osdl.org>; from akpm@osdl.org on Sun, Jan 23, 2005 at 02:32:48AM -0800
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200501232007.21027.stephen@g6dzj.demon.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 23, 2005 at 02:32:48AM -0800, Andrew Morton wrote:
-> Jens Axboe <axboe@suse.de> wrote:
-> >
-> > But I'm still stuck with all of my ram gone after a
-> >  600MB fillmem, half of it is just in swap.
-> 
-> Well.  Half of it has gone so far ;)
-> 
-> > 
-> >  Attaching meminfo and sysrq-m after fillmem.
-> 
-> (I meant a really big fillmem: a couple of 2GB ones.  Not to worry.)
-> 
-> It's not in slab and the pagecache and anonymous memory stuff seems to be
-> working OK.  So it has to be something else, which does a bare
-> __alloc_pages().  Low-level block stuff, networking, arch code, perhaps.
-> 
-> I don't think I've ever really seen code to diagnose this.
-> 
-> A simplistic approach would be to add eight or so ulongs into struct page,
-> populate them with builtin_return_address(0...7) at allocation time, then
-> modify sysrq-m to walk mem_map[] printing it all out for pages which have
-> page_count() > 0.  That'd find the culprit.
+On Sunday 23 Jan 2005 19:50, Sergey Vlasov wrote:
 
-I think I may be seeing something odd here, maybe a possible memory leak.
-The only problem I have is wondering whether I'm actually comparing like
-with like.  Maybe some networking people can provide a hint?
+Hi Sergey,
 
-Below is gathered from 2.6.11-rc1.
+You know - I've just found that and yes it does help on one system, so I'm 50% 
+better off - just need to find out where to put the command so that it loads 
+it on startup...modules.conf would be it I guess.
 
-bash-2.05a# head -n2 /proc/slabinfo
-slabinfo - version: 2.1
-# name            <active_objs> <num_objs> <objsize> <objperslab> <pagesperslab>
-bash-2.05a# cat /proc/net/rt_cache | wc -l; grep ip_dst /proc/slabinfo
-115
-ip_dst_cache         759    885    256   15    1
-bash-2.05a# cat /proc/net/rt_cache | wc -l; grep ip_dst /proc/slabinfo
-117
-ip_dst_cache         770    885    256   15    1
-bash-2.05a# cat /proc/net/rt_cache | wc -l; grep ip_dst /proc/slabinfo
-133
-ip_dst_cache         775    885    256   15    1
-bash-2.05a# cat /proc/net/rt_cache | wc -l; grep ip_dst /proc/slabinfo
-18
-ip_dst_cache         664    885    256   15    1
-bash-2.05a# cat /proc/net/rt_cache | wc -l; grep ip_dst /proc/slabinfo
-20
-ip_dst_cache         664    885    256   15    1
-bash-2.05a# cat /proc/net/rt_cache | wc -l; grep ip_dst /proc/slabinfo
-22
-ip_dst_cache         673    885    256   15    1
-bash-2.05a# cat /proc/net/rt_cache | wc -l; grep ip_dst /proc/slabinfo
-23
-ip_dst_cache         670    885    256   15    1
-bash-2.05a# cat /proc/net/rt_cache | wc -l; grep ip_dst /proc/slabinfo
-24
-ip_dst_cache         675    885    256   15    1
-bash-2.05a# cat /proc/net/rt_cache | wc -l; grep ip_dst /proc/slabinfo
-24
-ip_dst_cache         669    885    256   15    1
+Thanks for quick reply.
 
-I'm fairly positive when I rebooted the machine a couple of days ago,
-ip_dst_cache was significantly smaller for the same number of lines in
-/proc/net/rt_cache.
+Steve
+> On Sun, 23 Jan 2005 19:37:53 +0000 Stephen Kitchener wrote:
+> > I seem to have a problem that, in that when I am using the kernel
+> > supplied with Mandrake 10.0 and 10.1 and also fedora 3, there seems to be
+> > a distinct lack of beeps coming from the system, once it is up and
+> > running. I am NOT talking about sounds that might be coming from any
+> > sound card that might be connected to the system, but the plain old
+> > speaker that sits in the PC case.
+>
+> Does "modprobe pcspkr" help?  In 2.6.x kernels the PC speaker support
+> can be built as a loadable module; probably the startup scripts do not
+> load it automatically.
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+                 O  o
+            _\_   o
+         \\/  o\ .
+         //\___=
+            ''
+Sun, 23 Jan 2005 20:04:43 +0000
+ 20:04:43 up 10:19,  0 users,  load average: 1.24, 1.14, 1.10
+The crying baby on board your flight is always seated next to you
+		-- Murphy's Laws for Frequent Flyers n°8

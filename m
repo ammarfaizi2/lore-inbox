@@ -1,88 +1,113 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267216AbTBLNrT>; Wed, 12 Feb 2003 08:47:19 -0500
+	id <S267221AbTBLNtj>; Wed, 12 Feb 2003 08:49:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267222AbTBLNrT>; Wed, 12 Feb 2003 08:47:19 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:62188 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S267216AbTBLNph>; Wed, 12 Feb 2003 08:45:37 -0500
-Date: Wed, 12 Feb 2003 14:55:21 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Alan Cox <alan@redhat.com>, "Justin T. Gibbs" <gibbs@scsiguy.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: 2.4.21-pre4-ac4: aicasm/aicasm doesn't compile
-Message-ID: <20030212135520.GI17128@fs.tum.de>
-References: <200302111754.h1BHsTB11002@devserv.devel.redhat.com>
+	id <S267224AbTBLNti>; Wed, 12 Feb 2003 08:49:38 -0500
+Received: from chii.cinet.co.jp ([61.197.228.217]:37504 "EHLO
+	yuzuki.cinet.co.jp") by vger.kernel.org with ESMTP
+	id <S267221AbTBLNr6>; Wed, 12 Feb 2003 08:47:58 -0500
+Date: Wed, 12 Feb 2003 22:56:40 +0900
+From: Osamu Tomita <tomita@cinet.co.jp>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: [PATCHSET] PC-9800 subarch. support for 2.5.60 (20/34) input-update
+Message-ID: <20030212135640.GU1551@yuzuki.cinet.co.jp>
+References: <20030212131737.GA1551@yuzuki.cinet.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200302111754.h1BHsTB11002@devserv.devel.redhat.com>
+In-Reply-To: <20030212131737.GA1551@yuzuki.cinet.co.jp>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-FYI:
+This is patchset to support NEC PC-9800 subarchitecture
+against 2.5.60 (20/34).
 
-I get the following compile error when trying to compile 2.4.21-pre4-ac4 
-using gcc 2.95.4 20011002 (Debian prerelease) and binutils 2.13.90.0.18:
+Updates input driver for PC98 in 2.5.50-ac1.
 
-<--  snip  -->
+- Osamu Tomita
 
-...
-gcc -D__KERNEL__ -I/home/bunk/linux/kernel-2.4/linux-2.4.20-ac/include 
--Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing 
--fno-common -pipe -mpreferred-stack-boundary=2 -march=k6  -D__KERNEL__ 
--I/home/bunk/linux/kernel-2.4/linux-2.4.20-ac/include -e stext  
-aicasm/aicasm.c   -o aicasm/aicasm
-/usr/bin/ld: warning: cannot find entry symbol stext; defaulting to 
-08048760
-/tmp/ccF9fYkp.o(.text+0x372): In function `main':
-: undefined reference to `symtable_open'
-/tmp/ccF9fYkp.o(.text+0x37f): In function `main':
-: undefined reference to `include_file'
-/tmp/ccF9fYkp.o(.text+0x384): In function `main':
-: undefined reference to `yyparse'
-/tmp/ccF9fYkp.o(.text+0x3ea): In function `main':
-: undefined reference to `symtable_dump'
-/tmp/ccF9fYkp.o(.text+0x4bf): In function `output_code':
-: undefined reference to `versions'
-/tmp/ccF9fYkp.o(.text+0x548): In function `output_code':
-: undefined reference to `patch_arg_list'
-/tmp/ccF9fYkp.o(.text+0x560): In function `output_code':
-: undefined reference to `patch_arg_list'
-/tmp/ccF9fYkp.o(.text+0x566): In function `output_code':
-: undefined reference to `prefix'
-/tmp/ccF9fYkp.o(.text+0x58e): In function `output_code':
-: undefined reference to `patch_arg_list'
-/tmp/ccF9fYkp.o(.text+0x59c): In function `output_code':
-: undefined reference to `prefix'
-/tmp/ccF9fYkp.o(.text+0x5c6): In function `output_code':
-: undefined reference to `prefix'
-/tmp/ccF9fYkp.o(.text+0x5fa): In function `output_code':
-: undefined reference to `prefix'
-/tmp/ccF9fYkp.o(.text+0xb56): In function `stop':
-: undefined reference to `yyfilename'
-/tmp/ccF9fYkp.o(.text+0xb63): In function `stop':
-: undefined reference to `yylineno'
-/tmp/ccF9fYkp.o(.text+0xc55): In function `stop':
-: undefined reference to `symlist_free'
-/tmp/ccF9fYkp.o(.text+0xc5a): In function `stop':
-: undefined reference to `symtable_close'
-/tmp/ccF9fYkp.o(.text+0xcaf): In function `seq_alloc':
-: undefined reference to `yylineno'
-collect2: ld returned 1 exit status
-make[4]: *** [aicasm/aicasm] Error 1
-make[4]: Leaving directory `/home/bunk/linux/kernel-2.4/linux-2.4.20-ac/drivers/scsi/aic7xxx'
-
-<--  snip  -->
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+diff -Nru linux-2.5.50-ac1/drivers/input/keyboard/Kconfig linux98-2.5.54/drivers/input/keyboard/Kconfig
+--- linux-2.5.50-ac1/drivers/input/keyboard/Kconfig	2003-01-04 10:47:57.000000000 +0900
++++ linux98-2.5.54/drivers/input/keyboard/Kconfig	2003-01-04 15:28:14.000000000 +0900
+@@ -92,7 +92,7 @@
+ 
+ config KEYBOARD_98KBD
+ 	tristate "NEC PC-9800 Keyboard support"
+-	depends on PC9800 && INPUT && INPUT_KEYBOARD && SERIO
++	depends on X86_PC9800 && INPUT && INPUT_KEYBOARD && SERIO
+ 	help
+ 	  Say Y here if you want to use the NEC PC-9801/PC-9821 keyboard (or
+ 	  compatible) on your system. 
+diff -Nru linux-2.5.50-ac1/drivers/input/mouse/98busmouse.c linux98-2.5.52/drivers/input/mouse/98busmouse.c
+--- linux-2.5.50-ac1/drivers/input/mouse/98busmouse.c	2002-12-17 09:07:10.000000000 +0900
++++ linux98-2.5.52/drivers/input/mouse/98busmouse.c	2002-12-17 13:58:53.000000000 +0900
+@@ -31,15 +31,16 @@
+  * 
+  */
+ 
+-#include <asm/io.h>
+-#include <asm/irq.h>
+-
+ #include <linux/config.h>
+ #include <linux/module.h>
+ #include <linux/delay.h>
+ #include <linux/ioport.h>
+ #include <linux/init.h>
+ #include <linux/input.h>
++#include <linux/interrupt.h>
++
++#include <asm/io.h>
++#include <asm/irq.h>
+ 
+ MODULE_AUTHOR("Osamu Tomita <tomita@cinet.co.jp>");
+ MODULE_DESCRIPTION("PC-9801 busmouse driver");
+diff -Nru linux-2.5.50-ac1/drivers/input/mouse/Kconfig linux98-2.5.54/drivers/input/mouse/Kconfig
+--- linux-2.5.50-ac1/drivers/input/mouse/Kconfig	2003-01-04 10:47:57.000000000 +0900
++++ linux98-2.5.54/drivers/input/mouse/Kconfig	2003-01-04 15:31:55.000000000 +0900
+@@ -123,7 +123,7 @@
+ 
+ config MOUSE_PC9800
+ 	tristate "NEC PC-9800 busmouse"
+-	depends on PC9800 && INPUT && INPUT_MOUSE && ISA
++	depends on X86_PC9800 && INPUT && INPUT_MOUSE && ISA
+ 	help
+ 	  Say Y here if you have NEC PC-9801/PC-9821 computer and want its
+ 	  native mouse supported.
+diff -Nru linux-2.5.50-ac1/drivers/input/serio/98kbd-io.c linux98-2.5.52/drivers/input/serio/98kbd-io.c
+--- linux-2.5.50-ac1/drivers/input/serio/98kbd-io.c	2002-12-17 09:07:10.000000000 +0900
++++ linux98-2.5.52/drivers/input/serio/98kbd-io.c	2002-12-17 14:01:05.000000000 +0900
+@@ -11,16 +11,17 @@
+  * the Free Software Foundation.
+  */
+ 
+-#include <asm/io.h>
+-
++#include <linux/config.h>
+ #include <linux/delay.h>
+ #include <linux/module.h>
++#include <linux/interrupt.h>
+ #include <linux/ioport.h>
+-#include <linux/config.h>
+ #include <linux/init.h>
+ #include <linux/serio.h>
+ #include <linux/sched.h>
+ 
++#include <asm/io.h>
++
+ MODULE_AUTHOR("Osamu Tomita <tomita@cinet.co.jp>");
+ MODULE_DESCRIPTION("NEC PC-9801 keyboard controller driver");
+ MODULE_LICENSE("GPL");
+diff -Nru linux-2.5.50-ac1/drivers/input/serio/Kconfig linux98-2.5.57/drivers/input/serio/Kconfig
+--- linux-2.5.50-ac1/drivers/input/serio/Kconfig	2003-01-14 09:33:34.000000000 +0900
++++ linux98-2.5.57/drivers/input/serio/Kconfig	2003-01-14 10:19:27.000000000 +0900
+@@ -109,7 +109,7 @@
+ 
+ config SERIO_98KBD
+ 	tristate "NEC PC-9800 keyboard controller"
+-	depends on PC9800 && SERIO
++	depends on X86_PC9800 && SERIO
+ 	help
+ 	  Say Y here if you have the NEC PC-9801/PC-9821 and want to use its
+ 	  standard keyboard connected to its keyboard controller.

@@ -1,105 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269286AbUHaWog@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268637AbUHaWr7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269286AbUHaWog (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 18:44:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269125AbUHaWoW
+	id S268637AbUHaWr7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 18:47:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269129AbUHaWok
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 18:44:22 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:15251 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S269238AbUHaWmX (ORCPT
+	Tue, 31 Aug 2004 18:44:40 -0400
+Received: from fw.osdl.org ([65.172.181.6]:49096 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269245AbUHaWnj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 18:42:23 -0400
-Date: Tue, 31 Aug 2004 17:42:14 -0500
-From: Ken Preslan <kpreslan@redhat.com>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       sfrench@samba.org
-Subject: Re: [PATCH] Allow cluster-wide flock
-Message-ID: <20040831224214.GA28219@potassium.msp.redhat.com>
-References: <1093907129.8729.148.camel@lade.trondhjem.org>
+	Tue, 31 Aug 2004 18:43:39 -0400
+Date: Tue, 31 Aug 2004 15:47:13 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Harry Edmon <harry@atmos.washington.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Re[4]: PROBLEM: page allocation or what in 2.6.8.1
+Message-Id: <20040831154713.470e25a6.akpm@osdl.org>
+In-Reply-To: <200408312221.i7VMLHPu007234@moist.atmos.washington.edu>
+References: <20040831120232.18dfa3c0.akpm@osdl.org>
+	<200408312221.i7VMLHPu007234@moist.atmos.washington.edu>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1093907129.8729.148.camel@lade.trondhjem.org>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 30, 2004 at 07:05:29PM -0400, Trond Myklebust wrote:
-> ...
-> Firstly, it would be nice to throw out the existing wait loop in
-> sys_flock(), and replace it with a call to this new
-> flock_lock_file_wait(). I suppose that can be done in a separate cleanup
-> patch, though...
-> ... 
-> One solution that I've already suggested to Ken & co is to use a
-> separate f_op->flock() call. That would be my preference, since the
-> filesystems have to treat flock and posix locks differently anyway.
-> ...
+Harry Edmon <harry@atmos.washington.edu> wrote:
+>
+> So far, no crash.  But now I have NFS clients that from time to time are unable
+> to access this server.  The server has the following messages on it:
+> 
+> Aug 31 15:16:43 funnel rpc.mountd: getfh failed: Operation not permitted
+> 
+> I can temporarily fix the problem by typing:
+> 
+> exportfs -ar
+> 
+> But eventually it happens again.
+> 
 
-Thanks for the suggestions.  Below is a patch that implements both of
-them.
-
-
-diff -urN -p linux-2.6.9-rc1-mm2/fs/locks.c linux/fs/locks.c
---- linux-2.6.9-rc1-mm2/fs/locks.c	2004-08-31 16:44:58.385205028 -0500
-+++ linux/fs/locks.c	2004-08-31 16:45:03.260092514 -0500
-@@ -1392,24 +1392,12 @@ asmlinkage long sys_flock(unsigned int f
- 	if (error)
- 		goto out_free;
- 
--	if (filp->f_op && filp->f_op->lock) {
--		error = filp->f_op->lock(filp,
--					(can_sleep) ? F_SETLKW : F_SETLK,
--					lock);
--		goto out_free;
--	}
--
--	for (;;) {
--		error = flock_lock_file(filp, lock);
--		if ((error != -EAGAIN) || !can_sleep)
--			break;
--		error = wait_event_interruptible(lock->fl_wait, !lock->fl_next);
--		if (!error)
--			continue;
--
--		locks_delete_block(lock);
--		break;
--	}
-+	if (filp->f_op && filp->f_op->flock)
-+		error = filp->f_op->flock(filp,
-+					  (can_sleep) ? F_SETLKW : F_SETLK,
-+					  lock);
-+	else
-+		error = flock_lock_file_wait(filp, lock);
- 
-  out_free:
- 	if (list_empty(&lock->fl_link)) {
-@@ -1766,10 +1754,10 @@ void locks_remove_flock(struct file *fil
- 	if (!inode->i_flock)
- 		return;
- 
--	if (filp->f_op && filp->f_op->lock) {
-+	if (filp->f_op && filp->f_op->flock) {
- 		struct file_lock fl = { .fl_flags = FL_FLOCK,
- 					.fl_type = F_UNLCK };
--		filp->f_op->lock(filp, F_SETLKW, &fl);
-+		filp->f_op->flock(filp, F_SETLKW, &fl);
- 	}
- 
- 	lock_kernel();
-diff -urN -p linux-2.6.9-rc1-mm2/include/linux/fs.h linux/include/linux/fs.h
---- linux-2.6.9-rc1-mm2/include/linux/fs.h	2004-08-31 16:44:58.386204800 -0500
-+++ linux/include/linux/fs.h	2004-08-31 16:45:03.261092285 -0500
-@@ -983,6 +983,7 @@ struct file_operations {
- 	unsigned long (*get_unmapped_area)(struct file *, unsigned long, unsigned long, unsigned long, unsigned long);
- 	int (*check_flags)(int);
- 	int (*dir_notify)(struct file *filp, unsigned long arg);
-+	int (*flock) (struct file *, int, struct file_lock *);
- };
- 
- struct inode_operations {
-
--- 
-Ken Preslan <kpreslan@redhat.com>
-
+Well there were a few other NFS fixes.  Can you test the latest kernel
+from ftp://ftp.kernel.org/pub/linux/kernel/v2.6/snapshots/ ?

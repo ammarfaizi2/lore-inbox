@@ -1,22 +1,22 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310913AbSCROGt>; Mon, 18 Mar 2002 09:06:49 -0500
+	id <S310916AbSCROGs>; Mon, 18 Mar 2002 09:06:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310920AbSCROGi>; Mon, 18 Mar 2002 09:06:38 -0500
-Received: from d12lmsgate.de.ibm.com ([195.212.91.199]:40939 "EHLO
-	d12lmsgate.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S310913AbSCROGY> convert rfc822-to-8bit; Mon, 18 Mar 2002 09:06:24 -0500
+	id <S310913AbSCROGj>; Mon, 18 Mar 2002 09:06:39 -0500
+Received: from d12lmsgate-2.de.ibm.com ([195.212.91.200]:60061 "EHLO
+	d12lmsgate-2.de.ibm.com") by vger.kernel.org with ESMTP
+	id <S310916AbSCROG0> convert rfc822-to-8bit; Mon, 18 Mar 2002 09:06:26 -0500
 Importance: Normal
 Sensitivity: 
-Subject: Re: 2.4.19-pre3 s390 memorandum
+Subject: Re: 2.4.9-pre3 s390 patch for partition code
 To: Pete Zaitcev <zaitcev@redhat.com>
 Cc: linux-kernel@vger.kernel.org
 X-Mailer: Lotus Notes Release 5.0.4a  July 24, 2000
-Message-ID: <OF2734EA62.9BBA966E-ONC1256B80.00382912@de.ibm.com>
+Message-ID: <OFDDA69694.7030D648-ONC1256B80.00373644@de.ibm.com>
 From: "Martin Schwidefsky" <schwidefsky@de.ibm.com>
-Date: Mon, 18 Mar 2002 15:03:36 +0100
+Date: Mon, 18 Mar 2002 15:03:40 +0100
 X-MIMETrack: Serialize by Router on D12ML016/12/M/IBM(Release 5.0.9a |January 7, 2002) at
- 18/03/2002 15:06:13
+ 18/03/2002 15:06:17
 MIME-Version: 1.0
 Content-type: text/plain; charset=iso-8859-1
 Content-transfer-encoding: 8BIT
@@ -26,30 +26,35 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi Pete,
 
->thanks for taking action and sending updates for 2.4.19-pre3.
->I am happy to report that it generally works, and with the
->partition code it recognises ECKD volumes.
+>This is a patch that I extracted from a tarball received last week.
+>It is said to be failed by Marcelo for 2.4.18, but something is
+>need to fix this.
 
-Good!
+Definitly.
 
->I would very much prefer if you sent future updates in plain
->diff -u to linux-kernel too. I appreciate tarballs that you
->sent to me, but this is not quite what would prevent broken
->kernels in the future [it helps Red Hat to ship working kernels,
->but it does not help Marcelo]. As it was with 2.4.18, Marcelo
->has no choice but to accept all code that belongs to your
->authority and to fail every else, producing inconsistency.
->Posting to linux-kernel beforehand is supposed to start a
->discussion that may guide Marcelo to accept changes to generic code.
->I will send the example with the partition code immediately.
+>To that end, I considered pulling ioctls and replacing them with
+>reads, but it is too much work. So, I talked to Al Viro
+>and secured his help to have ioctl_by_bdev working at check_part()
+>time with a proper fix. Before it is available, I suggest we
+>push the fs/block_dev.c change into 2.4.19-preX as a stop-gap.
 
-I certainly can post our patches to linux-kernel but in general
-they are way to big for the newsgroup. For example the rework of
-s390io.c (not yet finished) is already about 12K lines. I'd say
-to big for linux-kernel. We usually post problems with common
-code on linux-kernel. I dunno about the partition problem. I
-might have sent the patch only to Al Viro but at the moment
-I am too lazy to check..
+Even worse, you can't replace the ioctls by reads. You need two
+pieces of information 1) the number of the label block which is
+different for the three formats CMS1, VOL1, and LNX1 and 2) the
+geometry of the device to do the calculations for the VOL1 format.
+Both informations are only known to the dasd driver. The only
+clean way to get them is to "ask" the dasd driver using an ioctl.
+The try to be smarter then the dasd driver and do you own reads
+to find out what is needed is imho asking for trouble.
+
+>The fs/partitions/ibm.c change from the tarball was useful, but
+>I *STRONGLY* disagree with putting so much crap on the stack.
+>It may explain why we have so much trouble with stacks on s390:
+>they are simply overused. I changed the code to allocate structures
+>properly. This should go in regartless of Al's work on ioctl.
+
+I just checked. Its 744 bytes for ibm_partition(). Probably a bit
+much ... so you version makes sense.
 
 blue skies,
    Martin

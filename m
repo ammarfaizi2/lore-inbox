@@ -1,155 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290228AbSCKVMR>; Mon, 11 Mar 2002 16:12:17 -0500
+	id <S290713AbSCKVRS>; Mon, 11 Mar 2002 16:17:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290713AbSCKVL6>; Mon, 11 Mar 2002 16:11:58 -0500
-Received: from [217.79.102.244] ([217.79.102.244]:39663 "EHLO
-	monkey.beezly.org.uk") by vger.kernel.org with ESMTP
-	id <S290228AbSCKVLp>; Mon, 11 Mar 2002 16:11:45 -0500
-Subject: Re: Sun GEM card looses TX on x86 32bit PCI
-From: Beezly <beezly@beezly.org.uk>
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020311.110236.133275094.davem@redhat.com>
-In-Reply-To: <1015849164.2153.3.camel@monkey>
-	<20020311.042124.103955441.davem@redhat.com>
-	<1015871701.2832.1.camel@monkey> 
-	<20020311.110236.133275094.davem@redhat.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-PM27SmrODWXWBKciDQiW"
-X-Mailer: Evolution/1.0.2 
-Date: 11 Mar 2002 21:11:42 +0000
-Message-Id: <1015881102.4312.10.camel@monkey>
-Mime-Version: 1.0
+	id <S290797AbSCKVRJ>; Mon, 11 Mar 2002 16:17:09 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:38662 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S290713AbSCKVRG>;
+	Mon, 11 Mar 2002 16:17:06 -0500
+Date: Mon, 11 Mar 2002 18:11:09 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Neil Brown <neilb@cse.unsw.edu.au>, Andrew Morton <akpm@zip.com.au>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel SCM: When does CVS fall down where it REALLY matters?
+In-Reply-To: <20020310202745.GB173@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.44L.0203111808550.2181-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 10 Mar 2002, Pavel Machek wrote:
 
---=-PM27SmrODWXWBKciDQiW
-Content-Type: multipart/mixed; boundary="=-G8+FGwSuhXanN/s429MM"
+> > > The problem I find is that I often want to take (file1+patch) -> file2,
+> > > when I don't have file1.  But merge tools want to take (file1|file2) -> file3.
+> > > I haven't seen a graphical tool which helps you to wiggle a patch into
+> > > a file.
 
+> > I often run "patch" and it drops some chunk because it doesn't match,
+> > and it turns out that the miss-match is just one or two lines in a
+> > chunk that could be very big.
 
---=-G8+FGwSuhXanN/s429MM
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> Yes, this would be [: very very :] nice.
 
-Hi David,
+Have you people heard about this thing called "branches" ?
 
-It seems I fubar'd. I recompiled the module and run it through the test
-again... no hang. It looks like I forgot to copy the new module into my
-/lib/modules/<blah>. Apologies for messing up there.
+- You keep your own code in your own branch.
 
-Anyway... the new driver still drops packets after the initial RX
-overflow, so I had a poke around with it and I've seen some definate
-improvement by forcing the whole chip to reset when the RX overflows.
+- You keep Linus's code in a linus branch.
 
-My modifications to the driver are evil and I only intend them to be a
-test, but it helps to shed some extra light on what's going on.
+- The patches from Linus always apply to the linus branch.
 
-When the chip does a full reset I loose a whole load of packets, but I'm
-guessing this is normal :(
+- You pull Linus's latest updates into your own branch for
+  development work, at this point you may need to do some
+  merging.  Some SCM systems are horrible at merging (CVS)
+  while others are really nice (BK).
 
-Also, I can't remember where I read it, but the Extreme Summit 48 is
-supposed to support *receiving* the xon/xoff Pause stuff (I'm no expert
-in this area, so I could be talking complete twaddle!), no transmit
-capability though.
+No need to (badly) reinvent the wheel, all of this stuff has
+been solved for many years now.
 
-Here's what I get out of the module when it resets (with my limit=3D5000
-mod);
+regards,
 
-eth0: RX buffer overflowed - running rxmac_reset
-eth0: RX MAC resetting
-eth0: RX MAC *ONLY* reset
-eth0: RX MAC reset ok?
-eth0: RX MAC will not disable, resetting whole chip.
-eth0: PCS AutoNEG complete.
-eth0: PCS link is now up.
+Rik
+-- 
+<insert bitkeeper endorsement here>
 
-Without the limit=3D5000, it appears that the module detects the RX
-section is "un-hung" when it isn't.
+http://www.surriel.com/		http://distro.conectiva.com/
 
-Cheers,
-
-Beezly
-
-On Mon, 2002-03-11 at 19:02, David S. Miller wrote:
->    From: Beezly <beezly@beezly.org.uk>
->    Date: 11 Mar 2002 18:35:01 +0000
->=20
->    Sorry it took so long for me to get back to you. Sadly it also hung wi=
-th
->    this patch ;) I was unable to get an oops out of it (machine was
->    completely hosed and in X so I couldn't even note the oops on paper :(
->    ).
->   =20
-> So rerun the test not under X please?
-
-
---=-G8+FGwSuhXanN/s429MM
-Content-Disposition: attachment; filename=sungem.testing.diff
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-
---- sungem.c	Mon Mar 11 20:37:57 2002
-+++ sungem.c.testing	Mon Mar 11 20:31:12 2002
-@@ -302,14 +302,23 @@
- 	u64 desc_dma;
- 	u32 val;
-=20
-+	printk(KERN_ERR "%s: RX MAC resetting\n", dev->name);
- 	/* First, reset MAC RX. */
- 	writel(gp->mac_rx_cfg & ~MAC_RXCFG_ENAB,
- 	       gp->regs + MAC_RXCFG);
-+	printk(KERN_ERR "%s: RX MAC *ONLY* reset\n", dev->name);
-+=09
- 	for (limit =3D 0; limit < 5000; limit++) {
--		if (!(readl(gp->regs + MAC_RXCFG) & MAC_RXCFG_ENAB))
-+		if (!(readl(gp->regs + MAC_RXCFG) & MAC_RXCFG_ENAB)) {
-+			printk(KERN_ERR "%s: RX MAC reset ok?\n", dev->name);
- 			break;
-+		}
- 		udelay(10);
- 	}
-+
-+	/* RX MAC reset doesn't appear to work so I force a whole reset */
-+	limit =3D 5000;
-+=09
- 	if (limit =3D=3D 5000) {
- 		printk(KERN_ERR "%s: RX MAC will not disable, resetting whole "
- 		       "chip.\n", dev->name);
-@@ -323,6 +332,9 @@
- 			break;
- 		udelay(10);
- 	}
-+
-+	limit=3D5000;
-+
- 	if (limit =3D=3D 5000) {
- 		printk(KERN_ERR "%s: RX DMA will not disable, resetting whole "
- 		       "chip.\n", dev->name);
-@@ -399,6 +411,8 @@
- 	if (rxmac_stat & MAC_RXSTAT_OFLW) {
- 		gp->net_stats.rx_over_errors++;
- 		gp->net_stats.rx_fifo_errors++;
-+		printk(KERN_DEBUG "%s: RX buffer overflowed - running rxmac_reset\n",
-+			gp->dev->name);
-=20
- 		ret =3D gem_rxmac_reset(gp);
- 	}
-
---=-G8+FGwSuhXanN/s429MM--
-
---=-PM27SmrODWXWBKciDQiW
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQA8jR2OXu4ZFsMQjPgRAoRmAKCNMu/XJd8nAtuNhLU4LNKGbpVC+wCbBpdR
-fAmoEWinYZuH3Mdc9cU23gw=
-=5FJZ
------END PGP SIGNATURE-----
-
---=-PM27SmrODWXWBKciDQiW--

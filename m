@@ -1,56 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261647AbVAXVD1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261655AbVAXVFD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261647AbVAXVD1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 16:03:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261595AbVAXVCD
+	id S261655AbVAXVFD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 16:05:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261595AbVAXVDp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 16:02:03 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:40911 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261651AbVAXUzv (ORCPT
+	Mon, 24 Jan 2005 16:03:45 -0500
+Received: from mail.dif.dk ([193.138.115.101]:37061 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S261652AbVAXVCk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 15:55:51 -0500
-Date: Mon, 24 Jan 2005 21:55:09 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: "Jack O'Quin" <joq@io.com>
-Cc: Con Kolivas <kernel@kolivas.org>, Paul Davis <paul@linuxaudiosystems.com>,
-       linux <linux-kernel@vger.kernel.org>, rlrevell@joe-job.com,
-       CK Kernel <ck@vds.kolivas.org>, utz <utz@s2y4n2c.de>,
-       Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
-       Rui Nuno Capela <rncbc@rncbc.org>
-Subject: Re: [PATCH]sched: Isochronous class v2 for unprivileged soft rt scheduling
-Message-ID: <20050124205509.GB20485@elte.hu>
-References: <200501201542.j0KFgOwo019109@localhost.localdomain> <87y8eo9hed.fsf@sulphur.joq.us> <20050120172506.GA20295@elte.hu> <877jm3qqxz.fsf@sulphur.joq.us>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <877jm3qqxz.fsf@sulphur.joq.us>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Mon, 24 Jan 2005 16:02:40 -0500
+Date: Mon, 24 Jan 2005 22:05:48 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: kbuild-devel <kbuild-devel@lists.sourceforge.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] make 'make help' show all *config targets and update
+ descriptions slightly.
+Message-ID: <Pine.LNX.4.61.0501242201200.2798@dragon.hygekrogen.localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Jack O'Quin <joq@io.com> wrote:
+"make help" doesn't show "make randconfig" nor "make config" as options 
+and the description of oldconfig could be better (IMHO). Patch below adds 
+the missing targets to the help and updates the description of oldconfig.
 
-> Has anyone done this kind of realtime testing on an SMP system?  I'd
-> love to know how they compare.  Unfortunately, I don't have access to
-> one at the moment.  Are they generally better or worse for this kind
-> of work?  I'm not asking about partitioning or processor affinity, but
-> actually using the entire SMP complex as a realtime machine.
 
-this particular test was done with an UP kernel. (although the
-testsystem indeed is an SMP box.) Generally i mention SMP explicitly. 
-There are a couple of patches in the -RT tree to make RT scheduling
-better on SMP systems.
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
 
-with those fixes applied (i.e. under the -RT kernel), jackd/jack_test
-behaves better than on a single CPU. I didnt find any scheduling anomaly
-that wasnt caused by the kernel.
+--- linux-2.6.11-rc2-bk2-orig/scripts/kconfig/Makefile	2004-12-24 22:35:40.000000000 +0100
++++ linux-2.6.11-rc2-bk2/scripts/kconfig/Makefile	2005-01-24 21:42:21.000000000 +0100
+@@ -49,12 +49,14 @@
+ 	$(Q)$< -D arch/$(ARCH)/configs/$@ arch/$(ARCH)/Kconfig
+ 
+ # Help text used by make help
+ help:
+-	@echo  '  oldconfig	  - Update current config utilising a line-oriented program'
++	@echo  '  config	  - Update current config utilising a line-oriented program'
+ 	@echo  '  menuconfig	  - Update current config utilising a menu based program'
+ 	@echo  '  xconfig	  - Update current config utilising a QT based front-end'
+ 	@echo  '  gconfig	  - Update current config utilising a GTK based front-end'
++	@echo  '  oldconfig	  - Update current config utilising a provided .config as base'
++	@echo  '  randconfig	  - New config with random answer to all options'
+ 	@echo  '  defconfig	  - New config with default answer to all options'
+ 	@echo  '  allmodconfig	  - New config selecting modules when possible'
+ 	@echo  '  allyesconfig	  - New config where all options are accepted with yes'
+ 	@echo  '  allnoconfig	  - New minimal config'
 
-	Ingo
+
+
+

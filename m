@@ -1,79 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261494AbVAMUXJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261365AbVAMUap@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261494AbVAMUXJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 15:23:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261519AbVAMUTb
+	id S261365AbVAMUap (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 15:30:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261437AbVAMU2c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 15:19:31 -0500
-Received: from mail.suse.de ([195.135.220.2]:6298 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261669AbVAMURp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 15:17:45 -0500
-Date: Thu, 13 Jan 2005 21:17:41 +0100
-From: Andi Kleen <ak@suse.de>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: Andi Kleen <ak@muc.de>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Andrew Morton <akpm@osdl.org>, torvalds@osdl.org, hugh@veritas.com,
-       linux-mm@kvack.org, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, benh@kernel.crashing.org
-Subject: Re: page table lock patch V15 [0/7]: overview
-Message-ID: <20050113201741.GE20738@wotan.suse.de>
-References: <41E5AFE6.6000509@yahoo.com.au> <20050112153033.6e2e4c6e.akpm@osdl.org> <41E5B7AD.40304@yahoo.com.au> <Pine.LNX.4.58.0501121552170.12669@schroedinger.engr.sgi.com> <41E5BC60.3090309@yahoo.com.au> <Pine.LNX.4.58.0501121611590.12872@schroedinger.engr.sgi.com> <20050113031807.GA97340@muc.de> <Pine.LNX.4.58.0501130907050.18742@schroedinger.engr.sgi.com> <20050113180205.GA17600@muc.de> <Pine.LNX.4.58.0501131005280.19097@schroedinger.engr.sgi.com>
+	Thu, 13 Jan 2005 15:28:32 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:21221 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261469AbVAMUYZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 15:24:25 -0500
+Subject: Re: thoughts on kernel security issues
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: grendel@caudium.net
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Linus Torvalds <torvalds@osdl.org>, Greg KH <greg@kroah.com>,
+       Chris Wright <chrisw@osdl.org>, akpm@osdl.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050113194246.GC24970@beowulf.thanes.org>
+References: <20050112094807.K24171@build.pdx.osdl.net>
+	 <Pine.LNX.4.58.0501121002200.2310@ppc970.osdl.org>
+	 <20050112185133.GA10687@kroah.com>
+	 <Pine.LNX.4.58.0501121058120.2310@ppc970.osdl.org>
+	 <20050112161227.GF32024@logos.cnet>
+	 <Pine.LNX.4.58.0501121148240.2310@ppc970.osdl.org>
+	 <20050112174203.GA691@logos.cnet>
+	 <1105627541.4624.24.camel@localhost.localdomain>
+	 <20050113194246.GC24970@beowulf.thanes.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1105643984.5193.95.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0501131005280.19097@schroedinger.engr.sgi.com>
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 13 Jan 2005 19:19:45 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 13, 2005 at 10:16:58AM -0800, Christoph Lameter wrote:
-> On Thu, 13 Jan 2005, Andi Kleen wrote:
-> 
-> > The rule in i386/x86-64 is that you cannot set the PTE in a non atomic way
-> > when its present bit is set (because the hardware could asynchronously
-> > change bits in the PTE that would get lost). Atomic way means clearing
-> > first and then replacing in an atomic operation.
-> 
-> Hmm. I replaced that portion in the swapper with an xchg operation
-> and inspect the result later. Clearing a pte and then setting it to
-> something would open a window for the page fault handler to set up a new
+On Iau, 2005-01-13 at 19:42, Marek Habersack wrote:
+> On Thu, Jan 13, 2005 at 03:36:27PM +0000, Alan Cox scribbled:
+> > We cannot do this without the reporters permission. Often we get
+> I think I don't understand that. A reporter doesn't "own" the bug - not the
+> copyright, not the code, so how come they can own the fix/report?
 
-Yes, it usually assumes page table lock hold.
+They own the report. Who owns it is kind of irrelevant. If we publish it
+when they don't want it published then next time they'll send it to
+full-disclosure or worse still just share an exploit with the bad guys.
+So unless we get really stoopid requests we try not to annoy people -
+hole reporting is a volunatry activity
 
-> pte there since it does not take the page_table_lock. That xchg must be
-> atomic for PAE mode to work then.
+> > material that even the list isn't allowed to directly see only by
+> > contacting the relevant bodies directly as well. The list then just
+> > serves as a "foo should have told you about issue X" notification.
+> This sounds crazy. I understand that this may happen with proprietary
+> software, or software that is made/supported by a company but otherwise opensource
+> (like OpenOffice, for instance), but the kernel?
 
-You can always use cmpxchg8 for that if you want. Just to make
-it really atomic you may need a LOCK prefix, and with that the
-cost is not much lower than a real spinlock.
+Its not uncommon. Not all security bodies (especially government
+security agencies) trust vendor-sec directly, only some members on the
+basis of their own private auditing/background checks.
+
+Alan
 
 
-> 
-> > This helps you because you shouldn't be looking at the pte anyways
-> > when pte_present is false. When it is not false it is always updated
-> > atomically.
-> 
-> so pmd_present, pud_none and pgd_none could be considered atomic even if
-> the pm/u/gd_t is a multi-word entity? In that case the current approach
-
-The optimistic read function I posted would do this.
-
-But you have to read multiple entries anyways, which could get
-non atomic no? (e.g. to do something on a PTE you always need
-to read PGD/PUD/PMD)
-
-In theory you could do this lazily with retires too, but it would be probably
-somewhat costly and complicated.
-
-> would work for higher level entities and in particular S/390 would be in
-> the clear.
-> 
-> But then the issues of replacing multi-word ptes on i386 PAE remain. If no
-> write lock is held on mmap_sem then all writes to pte's must be atomic in
-
-mmap_sem is only for VMAs. The page tables itself are protected by page table 
-lock.
-
-> order for the get_pte_atomic operation to work reliably.
-
--Andi

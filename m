@@ -1,72 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261548AbVCIGCb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261620AbVCIGGJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261548AbVCIGCb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 01:02:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261549AbVCIGCa
+	id S261620AbVCIGGJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 01:06:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261550AbVCIGF6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 01:02:30 -0500
-Received: from rproxy.gmail.com ([64.233.170.192]:17751 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261548AbVCIGCZ (ORCPT
+	Wed, 9 Mar 2005 01:05:58 -0500
+Received: from waste.org ([216.27.176.166]:44984 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261552AbVCIGFq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 01:02:25 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=pMgOMK1I+iNoZ9AUZMMmdBs0Zym3ur7HGkllMTmTICe8nrZ7cepNs2EPss/Yw+ZeJm4Ddt6/JQtNxNw6+5FOvnTVzNzCs3ZTRROrNrOUd4IU1FJwGfI6J9taa8XL88KVVBXnf/ALYL8FC1VaFyIjLYxVesaxxOXdISj35Fijqvs=
-Message-ID: <9e473391050308220218cc26a3@mail.gmail.com>
-Date: Wed, 9 Mar 2005 01:02:25 -0500
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: linux-fbdev-devel@lists.sourceforge.net
-Subject: Re: [Linux-fbdev-devel] [announce 0/7] fbsplash - The Framebuffer Splash
-Cc: Michal Januszewski <spock@gentoo.org>, linux-kernel@vger.kernel.org,
-       "Antonino A. Daplas" <adaplas@hotpop.com>
-In-Reply-To: <200503091301.15832.adaplas@hotpop.com>
+	Wed, 9 Mar 2005 01:05:46 -0500
+Date: Tue, 8 Mar 2005 22:05:44 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: Alex Aizman <itn780@yahoo.com>
+Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE 0/6] Open-iSCSI High-Performance Initiator for Linux
+Message-ID: <20050309060544.GW3120@waste.org>
+References: <422BFCB2.6080309@yahoo.com> <20050309050434.GT3163@waste.org> <422E8EEB.7090209@yahoo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20050308015731.GA26249@spock.one.pl>
-	 <200503091301.15832.adaplas@hotpop.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <422E8EEB.7090209@yahoo.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 9 Mar 2005 13:01:15 +0800, Antonino A. Daplas
-<adaplas@hotpop.com> wrote:
-> On Tuesday 08 March 2005 09:57, Michal Januszewski wrote:
-> > Fbsplash - The Framebuffer Splash - is a feature that allows displaying
-> > images in the background of consoles that use fbcon. The project is
-> > partially descended from bootsplash.
+On Tue, Mar 08, 2005 at 09:51:39PM -0800, Alex Aizman wrote:
+> Matt Mackall wrote:
+> 
+> >How big is the userspace client?
 > >
-> > Unlike bootsplash, fbsplash has no in-kernel image decoder. Picture
-> > decompression is handled by a userspace helper which provides raw image
-> > data to the kernel. There is also no support for things like the silent
-> > mode and progress bars, as these are best handled by userspace programs.
+> Hmm.. x86 executable? source?
+> 
+> Anyway, there's about 12,000 lines of user space code, and growing. In 
+> the kernel we have approx. 3,300 lines.
+> 
+> >>- 450MB/sec Read on a single connection (2-way 2.4Ghz Opteron, 64KB block 
+> >>size);
 > >
-> 
-> If splash support is really, really, really wanted in the kernel, it's probably better
-> to just add minimal Overlay support for the framebuffer.  If overlay is added, it
-> won't be necessary to modify fbcon and the drivers, just core fb.
-> 
-> We can have 3 levels of support.  In it's most basic form, we have the display
-> layer (what get's shown in your monitor) plus 2 buffers in system ram, the
-> primary layer (where the console output is written) and the overlay, the
-> static image in raw framebuffer format.  Then we replace the basic
-> framebuffer operations (imageblit, fillrect and copyarea) with ones that
-> will read the contents of both buffers, do basic raster ops (colorkey, alpha
-> blend, etc) before writing to the actual display buffer.
-> 
-> The next level is both buffers are in video ram. This will need basic driver
-> support, at least to subdivide the framebuffer memory to display, primary,
-> and overlay.  We can use the drivers accelerated drawing functions to
-> write to the primary layer, then use software to write the processed
-> contents to the display layer.
-> 
-> Finally, we can enable full hardware video overlay.
+> >With what network hardware and drives, please?
+> >
+> Neterion's 10GbE adapters. RAM disk on the target side.
 
-Another idea would be to build a console is user space. Think of it as
-a full screen xterm. A user space console has access to full hardware
-acceleration using the DRM interface.
+Ahh.
+
+Snipped my question about userspace deadlocks - that was the important
+one. It is in fact why the sfnet one is written as it is - it
+originally had a userspace component and turned out to be easy to
+deadlock under load because of it.
 
 -- 
-Jon Smirl
-jonsmirl@gmail.com
+Mathematics is the supreme nostalgia of our time.

@@ -1,47 +1,656 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262451AbTE2R00 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 May 2003 13:26:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262456AbTE2R00
+	id S262430AbTE2RbE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 May 2003 13:31:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262434AbTE2RbE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 May 2003 13:26:26 -0400
-Received: from mail-in-04.arcor-online.net ([151.189.21.44]:6548 "EHLO
-	mail-in-04.arcor-online.net") by vger.kernel.org with ESMTP
-	id S262451AbTE2R0Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 May 2003 13:26:25 -0400
-From: Daniel Phillips <phillips@arcor.de>
-To: Hugh Dickins <hugh@veritas.com>, "Paul E. McKenney" <paulmck@us.ibm.com>
-Subject: Re: [RFC][PATCH] Avoid vmtruncate/mmap-page-fault race
-Date: Thu, 29 May 2003 19:39:47 +0200
-User-Agent: KMail/1.5.1
-Cc: <akpm@digeo.com>, <hch@infradead.org>, <linux-mm@kvack.org>,
-       <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0305291723310.1800-100000@localhost.localdomain> <200305291915.22235.phillips@arcor.de>
-In-Reply-To: <200305291915.22235.phillips@arcor.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200305291939.47451.phillips@arcor.de>
+	Thu, 29 May 2003 13:31:04 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:56506 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262430AbTE2Rai (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 May 2003 13:30:38 -0400
+Subject: [PATCH 2.5.70 2/2] i_size atomic access
+From: Daniel McNeil <daniel@osdl.org>
+To: Andrew Morton <akpm@digeo.com>, Andrea Arcangeli <andrea@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: multipart/mixed; boundary="=-ngKkqxOkbMHJNbjLymPi"
+Organization: 
+Message-Id: <1054230230.2468.13.camel@ibm-c.pdx.osdl.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 29 May 2003 10:43:50 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 29 May 2003 19:15, Daniel Phillips wrote:
-> On Thursday 29 May 2003 18:33, you wrote:
-> > Me?  I much preferred your original, much sparer, nopagedone patch
-> > (labelled "uglyh as hell" by hch).
->
-> "me too".
 
-Oh wait, I mispoke... there is another formulation of the patch that hasn't 
-yet been posted for review.  Instead of having the nopagedone hook, it turns 
-the entire do_no_page into a hook, per hch's suggestion, but leaves in the 
-->nopage hook, which makes the patch small and obviously right.  I need to 
-post that version for comparison, please bear with me.
+--=-ngKkqxOkbMHJNbjLymPi
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-IMHO, it's nicer than the ->nopagedone form.
+This adds i_seqcnt to inode structure and then uses i_size_read() and
+i_size_write() to provide atomic access to i_size.  This is port
+of Andrea Arcangeli i_size atomic access patch from 2.4.  This only
+uses the generic reader/writer consistent mechanism.
 
-Regards,
+re-diff against 2.5.70.
 
-Daniel
+This patch has been tested on 1 proc, 2 proc, and 8 proc machines.
+
+This patch is available for download from OSDL's patch lifecycle 
+manager (PLM):
+
+https://www.osdl.org/cgi-bin/plm?module=patch_info&patch_id=1874
+
+-- 
+Daniel McNeil <daniel@osdl.org>
+
+--=-ngKkqxOkbMHJNbjLymPi
+Content-Disposition: attachment; filename=patch-2.5.70-isize.2
+Content-Type: text/x-patch; name=patch-2.5.70-isize.2; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+
+diff -rupN -X /home/daniel_nfs/dontdiff linux-2.5.70/drivers/block/loop.c linux-2.5.70-isize/drivers/block/loop.c
+--- linux-2.5.70/drivers/block/loop.c	2003-05-26 18:00:41.000000000 -0700
++++ linux-2.5.70-isize/drivers/block/loop.c	2003-05-28 10:42:31.000000000 -0700
+@@ -153,7 +153,7 @@ struct loop_func_table *xfer_funcs[MAX_L
+ 
+ static int figure_loop_size(struct loop_device *lo)
+ {
+-	loff_t size = lo->lo_backing_file->f_dentry->d_inode->i_mapping->host->i_size;
++	loff_t size = i_size_read(lo->lo_backing_file->f_dentry->d_inode->i_mapping->host);
+ 	sector_t x;
+ 	/*
+ 	 * Unfortunately, if we want to do I/O on the device,
+diff -rupN -X /home/daniel_nfs/dontdiff linux-2.5.70/fs/attr.c linux-2.5.70-isize/fs/attr.c
+--- linux-2.5.70/fs/attr.c	2003-05-26 18:00:24.000000000 -0700
++++ linux-2.5.70-isize/fs/attr.c	2003-05-28 10:42:31.000000000 -0700
+@@ -68,7 +68,7 @@ int inode_setattr(struct inode * inode, 
+ 	int error = 0;
+ 
+ 	if (ia_valid & ATTR_SIZE) {
+-		if (attr->ia_size != inode->i_size)
++		if (attr->ia_size != i_size_read(inode))
+ 			error = vmtruncate(inode, attr->ia_size);
+ 		if (error || (ia_valid == ATTR_SIZE))
+ 			goto out;
+diff -rupN -X /home/daniel_nfs/dontdiff linux-2.5.70/fs/binfmt_aout.c linux-2.5.70-isize/fs/binfmt_aout.c
+--- linux-2.5.70/fs/binfmt_aout.c	2003-05-26 18:00:25.000000000 -0700
++++ linux-2.5.70-isize/fs/binfmt_aout.c	2003-05-28 10:42:31.000000000 -0700
+@@ -269,7 +269,7 @@ static int load_aout_binary(struct linux
+ 	if ((N_MAGIC(ex) != ZMAGIC && N_MAGIC(ex) != OMAGIC &&
+ 	     N_MAGIC(ex) != QMAGIC && N_MAGIC(ex) != NMAGIC) ||
+ 	    N_TRSIZE(ex) || N_DRSIZE(ex) ||
+-	    bprm->file->f_dentry->d_inode->i_size < ex.a_text+ex.a_data+N_SYMSIZE(ex)+N_TXTOFF(ex)) {
++	    i_size_read(bprm->file->f_dentry->d_inode) < ex.a_text+ex.a_data+N_SYMSIZE(ex)+N_TXTOFF(ex)) {
+ 		return -ENOEXEC;
+ 	}
+ 
+@@ -454,7 +454,7 @@ static int load_aout_library(struct file
+ 	/* We come in here for the regular a.out style of shared libraries */
+ 	if ((N_MAGIC(ex) != ZMAGIC && N_MAGIC(ex) != QMAGIC) || N_TRSIZE(ex) ||
+ 	    N_DRSIZE(ex) || ((ex.a_entry & 0xfff) && N_MAGIC(ex) == ZMAGIC) ||
+-	    inode->i_size < ex.a_text+ex.a_data+N_SYMSIZE(ex)+N_TXTOFF(ex)) {
++	    i_size_read(inode) < ex.a_text+ex.a_data+N_SYMSIZE(ex)+N_TXTOFF(ex)) {
+ 		goto out;
+ 	}
+ 
+diff -rupN -X /home/daniel_nfs/dontdiff linux-2.5.70/fs/block_dev.c linux-2.5.70-isize/fs/block_dev.c
+--- linux-2.5.70/fs/block_dev.c	2003-05-26 18:01:03.000000000 -0700
++++ linux-2.5.70-isize/fs/block_dev.c	2003-05-28 10:42:31.000000000 -0700
+@@ -29,7 +29,7 @@
+ static sector_t max_block(struct block_device *bdev)
+ {
+ 	sector_t retval = ~((sector_t)0);
+-	loff_t sz = bdev->bd_inode->i_size;
++	loff_t sz = i_size_read(bdev->bd_inode);
+ 
+ 	if (sz) {
+ 		unsigned int size = block_size(bdev);
+@@ -156,7 +156,7 @@ static int blkdev_commit_write(struct fi
+ static loff_t block_llseek(struct file *file, loff_t offset, int origin)
+ {
+ 	/* ewww */
+-	loff_t size = file->f_dentry->d_inode->i_bdev->bd_inode->i_size;
++	loff_t size = i_size_read(file->f_dentry->d_inode->i_bdev->bd_inode);
+ 	loff_t retval;
+ 
+ 	lock_kernel();
+@@ -485,7 +485,7 @@ int check_disk_change(struct block_devic
+ static void bd_set_size(struct block_device *bdev, loff_t size)
+ {
+ 	unsigned bsize = bdev_hardsect_size(bdev);
+-	bdev->bd_inode->i_size = size;
++	i_size_write(bdev->bd_inode, size);
+ 	while (bsize < PAGE_CACHE_SIZE) {
+ 		if (size & bsize)
+ 			break;
+diff -rupN -X /home/daniel_nfs/dontdiff linux-2.5.70/fs/buffer.c linux-2.5.70-isize/fs/buffer.c
+--- linux-2.5.70/fs/buffer.c	2003-05-26 18:00:41.000000000 -0700
++++ linux-2.5.70-isize/fs/buffer.c	2003-05-28 10:42:31.000000000 -0700
+@@ -1709,7 +1709,7 @@ static int __block_write_full_page(struc
+ 
+ 	BUG_ON(!PageLocked(page));
+ 
+-	last_block = (inode->i_size - 1) >> inode->i_blkbits;
++	last_block = (i_size_read(inode) - 1) >> inode->i_blkbits;
+ 
+ 	if (!page_has_buffers(page)) {
+ 		if (!PageUptodate(page))
+@@ -2045,7 +2045,7 @@ int block_read_full_page(struct page *pa
+ 	head = page_buffers(page);
+ 
+ 	iblock = (sector_t)page->index << (PAGE_CACHE_SHIFT - inode->i_blkbits);
+-	lblock = (inode->i_size+blocksize-1) >> inode->i_blkbits;
++	lblock = (i_size_read(inode)+blocksize-1) >> inode->i_blkbits;
+ 	bh = head;
+ 	nr = 0;
+ 	i = 0;
+@@ -2270,8 +2270,12 @@ int generic_commit_write(struct file *fi
+ 	struct inode *inode = page->mapping->host;
+ 	loff_t pos = ((loff_t)page->index << PAGE_CACHE_SHIFT) + to;
+ 	__block_commit_write(inode,page,from,to);
++	/*
++	 * No need to use i_size_read() here, the i_size
++	 * cannot change under us because we hold i_sem.
++	 */
+ 	if (pos > inode->i_size) {
+-		inode->i_size = pos;
++		i_size_write(inode, pos);
+ 		mark_inode_dirty(inode);
+ 	}
+ 	return 0;
+@@ -2423,7 +2427,7 @@ int nobh_commit_write(struct file *file,
+ 
+ 	set_page_dirty(page);
+ 	if (pos > inode->i_size) {
+-		inode->i_size = pos;
++		i_size_write(inode, pos);
+ 		mark_inode_dirty(inode);
+ 	}
+ 	return 0;
+@@ -2553,7 +2557,8 @@ int block_write_full_page(struct page *p
+ 			struct writeback_control *wbc)
+ {
+ 	struct inode * const inode = page->mapping->host;
+-	const unsigned long end_index = inode->i_size >> PAGE_CACHE_SHIFT;
++	loff_t i_size = i_size_read(inode);
++	const unsigned long end_index = i_size >> PAGE_CACHE_SHIFT;
+ 	unsigned offset;
+ 	void *kaddr;
+ 
+@@ -2562,7 +2567,7 @@ int block_write_full_page(struct page *p
+ 		return __block_write_full_page(inode, page, get_block, wbc);
+ 
+ 	/* Is the page fully outside i_size? (truncate in progress) */
+-	offset = inode->i_size & (PAGE_CACHE_SIZE-1);
++	offset = i_size & (PAGE_CACHE_SIZE-1);
+ 	if (page->index >= end_index+1 || !offset) {
+ 		/*
+ 		 * The page may have dirty, unmapped buffers.  For example,
+diff -rupN -X /home/daniel_nfs/dontdiff linux-2.5.70/fs/ext3/inode.c linux-2.5.70-isize/fs/ext3/inode.c
+--- linux-2.5.70/fs/ext3/inode.c	2003-05-26 18:00:42.000000000 -0700
++++ linux-2.5.70-isize/fs/ext3/inode.c	2003-05-28 10:42:31.000000000 -0700
+@@ -1163,7 +1163,7 @@ static int ext3_commit_write(struct file
+ 		if (!partial)
+ 			SetPageUptodate(page);
+ 		if (pos > inode->i_size)
+-			inode->i_size = pos;
++			i_size_write(inode, pos);
+ 		EXT3_I(inode)->i_state |= EXT3_STATE_JDATA;
+ 		if (inode->i_size > EXT3_I(inode)->i_disksize) {
+ 			EXT3_I(inode)->i_disksize = inode->i_size;
+@@ -1488,7 +1488,7 @@ out_stop:
+ 			loff_t end = offset + ret;
+ 			if (end > inode->i_size) {
+ 				ei->i_disksize = end;
+-				inode->i_size = end;
++				i_size_write(inode, end);
+ 				err = ext3_mark_inode_dirty(handle, inode);
+ 				if (!ret) 
+ 					ret = err;
+diff -rupN -X /home/daniel_nfs/dontdiff linux-2.5.70/fs/inode.c linux-2.5.70-isize/fs/inode.c
+--- linux-2.5.70/fs/inode.c	2003-05-26 18:01:00.000000000 -0700
++++ linux-2.5.70-isize/fs/inode.c	2003-05-28 10:42:31.000000000 -0700
+@@ -190,6 +190,7 @@ void inode_init_once(struct inode *inode
+ 	INIT_LIST_HEAD(&inode->i_data.i_mmap);
+ 	INIT_LIST_HEAD(&inode->i_data.i_mmap_shared);
+ 	spin_lock_init(&inode->i_lock);
++	i_size_ordered_init(inode);
+ }
+ 
+ static void init_once(void * foo, kmem_cache_t * cachep, unsigned long flags)
+diff -rupN -X /home/daniel_nfs/dontdiff linux-2.5.70/fs/ioctl.c linux-2.5.70-isize/fs/ioctl.c
+--- linux-2.5.70/fs/ioctl.c	2003-05-26 18:00:25.000000000 -0700
++++ linux-2.5.70-isize/fs/ioctl.c	2003-05-28 10:42:31.000000000 -0700
+@@ -40,7 +40,7 @@ static int file_ioctl(struct file *filp,
+ 				return -EBADF;
+ 			return put_user(inode->i_sb->s_blocksize, (int *) arg);
+ 		case FIONREAD:
+-			return put_user(inode->i_size - filp->f_pos, (int *) arg);
++			return put_user(i_size_read(inode) - filp->f_pos, (int *) arg);
+ 	}
+ 	if (filp->f_op && filp->f_op->ioctl)
+ 		return filp->f_op->ioctl(inode, filp, cmd, arg);
+diff -rupN -X /home/daniel_nfs/dontdiff linux-2.5.70/fs/libfs.c linux-2.5.70-isize/fs/libfs.c
+--- linux-2.5.70/fs/libfs.c	2003-05-26 18:00:20.000000000 -0700
++++ linux-2.5.70-isize/fs/libfs.c	2003-05-28 10:42:32.000000000 -0700
+@@ -328,8 +328,12 @@ int simple_commit_write(struct file *fil
+ 	struct inode *inode = page->mapping->host;
+ 	loff_t pos = ((loff_t)page->index << PAGE_CACHE_SHIFT) + to;
+ 
++	/*
++	 * No need to use i_size_read() here, the i_size
++	 * cannot change under us because we hold the i_sem.
++	 */
+ 	if (pos > inode->i_size)
+-		inode->i_size = pos;
++		i_size_write(inode, pos);
+ 	set_page_dirty(page);
+ 	return 0;
+ }
+diff -rupN -X /home/daniel_nfs/dontdiff linux-2.5.70/fs/locks.c linux-2.5.70-isize/fs/locks.c
+--- linux-2.5.70/fs/locks.c	2003-05-26 18:00:58.000000000 -0700
++++ linux-2.5.70-isize/fs/locks.c	2003-05-28 10:42:32.000000000 -0700
+@@ -285,7 +285,7 @@ static int flock_to_posix_lock(struct fi
+ 		start = filp->f_pos;
+ 		break;
+ 	case 2: /*SEEK_END*/
+-		start = filp->f_dentry->d_inode->i_size;
++		start = i_size_read(filp->f_dentry->d_inode);
+ 		break;
+ 	default:
+ 		return -EINVAL;
+@@ -335,7 +335,7 @@ static int flock64_to_posix_lock(struct 
+ 		start = filp->f_pos;
+ 		break;
+ 	case 2: /*SEEK_END*/
+-		start = filp->f_dentry->d_inode->i_size;
++		start = i_size_read(filp->f_dentry->d_inode);
+ 		break;
+ 	default:
+ 		return -EINVAL;
+diff -rupN -X /home/daniel_nfs/dontdiff linux-2.5.70/fs/mpage.c linux-2.5.70-isize/fs/mpage.c
+--- linux-2.5.70/fs/mpage.c	2003-05-26 18:00:26.000000000 -0700
++++ linux-2.5.70-isize/fs/mpage.c	2003-05-28 10:42:32.000000000 -0700
+@@ -227,7 +227,7 @@ do_mpage_readpage(struct bio *bio, struc
+ 		goto confused;
+ 
+ 	block_in_file = page->index << (PAGE_CACHE_SHIFT - blkbits);
+-	last_block = (inode->i_size + blocksize - 1) >> blkbits;
++	last_block = (i_size_read(inode) + blocksize - 1) >> blkbits;
+ 
+ 	bh.b_page = page;
+ 	for (page_block = 0; page_block < blocks_per_page;
+@@ -459,7 +459,7 @@ mpage_writepage(struct bio *bio, struct 
+ 	 */
+ 	BUG_ON(!PageUptodate(page));
+ 	block_in_file = page->index << (PAGE_CACHE_SHIFT - blkbits);
+-	last_block = (inode->i_size - 1) >> blkbits;
++	last_block = (i_size_read(inode) - 1) >> blkbits;
+ 	map_bh.b_page = page;
+ 	for (page_block = 0; page_block < blocks_per_page; ) {
+ 
+@@ -489,9 +489,9 @@ mpage_writepage(struct bio *bio, struct 
+ 
+ 	first_unmapped = page_block;
+ 
+-	end_index = inode->i_size >> PAGE_CACHE_SHIFT;
++	end_index = i_size_read(inode) >> PAGE_CACHE_SHIFT;
+ 	if (page->index >= end_index) {
+-		unsigned offset = inode->i_size & (PAGE_CACHE_SIZE - 1);
++		unsigned offset = i_size_read(inode) & (PAGE_CACHE_SIZE - 1);
+ 		char *kaddr;
+ 
+ 		if (page->index > end_index || !offset)
+diff -rupN -X /home/daniel_nfs/dontdiff linux-2.5.70/fs/open.c linux-2.5.70-isize/fs/open.c
+--- linux-2.5.70/fs/open.c	2003-05-26 18:00:21.000000000 -0700
++++ linux-2.5.70-isize/fs/open.c	2003-05-28 10:42:32.000000000 -0700
+@@ -908,7 +908,7 @@ asmlinkage long sys_vhangup(void)
+  */
+ int generic_file_open(struct inode * inode, struct file * filp)
+ {
+-	if (!(filp->f_flags & O_LARGEFILE) && inode->i_size > MAX_NON_LFS)
++	if (!(filp->f_flags & O_LARGEFILE) && i_size_read(inode) > MAX_NON_LFS)
+ 		return -EFBIG;
+ 	return 0;
+ }
+diff -rupN -X /home/daniel_nfs/dontdiff linux-2.5.70/fs/quota_v1.c linux-2.5.70-isize/fs/quota_v1.c
+--- linux-2.5.70/fs/quota_v1.c	2003-05-26 18:00:45.000000000 -0700
++++ linux-2.5.70-isize/fs/quota_v1.c	2003-05-28 10:42:32.000000000 -0700
+@@ -132,12 +132,14 @@ static int v1_check_quota_file(struct su
+ 	mm_segment_t fs;
+ 	ssize_t size;
+ 	loff_t offset = 0;
++	loff_t isize;
+ 	static const uint quota_magics[] = V2_INITQMAGICS;
+ 
+-	if (!inode->i_size)
++	isize = i_size_read(inode);
++	if (!isize)
+ 		return 0;
+-	blocks = inode->i_size >> BLOCK_SIZE_BITS;
+-	off = inode->i_size & (BLOCK_SIZE - 1);
++	blocks = isize >> BLOCK_SIZE_BITS;
++	off = isize & (BLOCK_SIZE - 1);
+ 	if ((blocks % sizeof(struct v1_disk_dqblk) * BLOCK_SIZE + off) % sizeof(struct v1_disk_dqblk))
+ 		return 0;
+ 	/* Doublecheck whether we didn't get file with new format - with old quotactl() this could happen */
+diff -rupN -X /home/daniel_nfs/dontdiff linux-2.5.70/fs/stat.c linux-2.5.70-isize/fs/stat.c
+--- linux-2.5.70/fs/stat.c	2003-05-26 18:00:25.000000000 -0700
++++ linux-2.5.70-isize/fs/stat.c	2003-05-28 10:42:32.000000000 -0700
+@@ -28,7 +28,7 @@ void generic_fillattr(struct inode *inod
+ 	stat->atime = inode->i_atime;
+ 	stat->mtime = inode->i_mtime;
+ 	stat->ctime = inode->i_ctime;
+-	stat->size = inode->i_size;
++	stat->size = i_size_read(inode);
+ 	stat->blocks = inode->i_blocks;
+ 	stat->blksize = inode->i_blksize;
+ }
+diff -rupN -X /home/daniel_nfs/dontdiff linux-2.5.70/include/linux/fs.h linux-2.5.70-isize/include/linux/fs.h
+--- linux-2.5.70/include/linux/fs.h	2003-05-26 18:00:26.000000000 -0700
++++ linux-2.5.70-isize/include/linux/fs.h	2003-05-28 10:42:32.000000000 -0700
+@@ -349,6 +349,17 @@ struct block_device {
+ 	struct gendisk *	bd_disk;
+ };
+ 
++/*
++ * Use sequence counter to get consistent i_size on 32-bit processors.
++ */
++#if BITS_PER_LONG==32 && defined(CONFIG_SMP)
++#include <linux/seqlock.h>
++#define __NEED_I_SIZE_ORDERED
++#define i_size_ordered_init(inode) seqcnt_init(&inode->i_size_seqcnt)
++#else
++#define i_size_ordered_init(inode) do { } while (0)
++#endif
++
+ struct inode {
+ 	struct hlist_node	i_hash;
+ 	struct list_head	i_list;
+@@ -399,8 +410,60 @@ struct inode {
+ 	union {
+ 		void		*generic_ip;
+ 	} u;
++#ifdef __NEED_I_SIZE_ORDERED
++	seqcnt_t		i_size_seqcnt;
++#endif
+ };
+ 
++/*
++ * NOTE: in a 32bit arch with a preemptable kernel and
++ * an UP compile the i_size_read/write must be atomic
++ * with respect to the local cpu (unlike with preempt disabled),
++ * but they don't need to be atomic with respect to other cpus like in
++ * true SMP (so they need either to either locally disable irq around
++ * the read or for example on x86 they can be still implemented as a
++ * cmpxchg8b without the need of the lock prefix). For SMP compiles
++ * and 64bit archs it makes no difference if preempt is enabled or not.
++ */
++static inline loff_t i_size_read(struct inode * inode)
++{
++#if BITS_PER_LONG==32 && defined(CONFIG_SMP)
++	loff_t i_size;
++	unsigned int seq;
++
++	do {
++		seq = read_seqcntbegin(&inode->i_size_seqcnt);
++		i_size = inode->i_size;
++	} while (read_seqcntretry(&inode->i_size_seqcnt, seq));
++	return i_size;
++#elif BITS_PER_LONG==32 && defined(CONFIG_PREEMPT)
++	loff_t i_size;
++
++	preempt_disable();
++	i_size = inode->i_size;
++	preempt_enable();
++	return i_size;
++#else
++	return inode->i_size;
++#endif
++}
++
++
++static inline void i_size_write(struct inode * inode, loff_t i_size)
++{
++#if BITS_PER_LONG==32 && defined(CONFIG_SMP)
++	write_seqcntbegin(&inode->i_size_seqcnt);
++	inode->i_size = i_size;
++	write_seqcntend(&inode->i_size_seqcnt);
++#elif BITS_PER_LONG==32 && defined(CONFIG_PREEMPT)
++	preempt_disable();
++	inode->i_size = i_size;
++	preempt_enable();
++#else
++	inode->i_size = i_size;
++#endif
++}
++
+ struct fown_struct {
+ 	rwlock_t lock;          /* protects pid, uid, euid fields */
+ 	int pid;		/* pid or -pgrp where SIGIO should be sent */
+diff -rupN -X /home/daniel_nfs/dontdiff linux-2.5.70/ipc/shm.c linux-2.5.70-isize/ipc/shm.c
+--- linux-2.5.70/ipc/shm.c	2003-05-26 18:00:40.000000000 -0700
++++ linux-2.5.70-isize/ipc/shm.c	2003-05-28 10:42:32.000000000 -0700
+@@ -703,7 +703,7 @@ long sys_shmat(int shmid, char __user *s
+ 	}
+ 		
+ 	file = shp->shm_file;
+-	size = file->f_dentry->d_inode->i_size;
++	size = i_size_read(file->f_dentry->d_inode);
+ 	shp->shm_nattch++;
+ 	shm_unlock(shp);
+ 
+diff -rupN -X /home/daniel_nfs/dontdiff linux-2.5.70/mm/filemap.c linux-2.5.70-isize/mm/filemap.c
+--- linux-2.5.70/mm/filemap.c	2003-05-26 18:00:37.000000000 -0700
++++ linux-2.5.70-isize/mm/filemap.c	2003-05-28 10:42:32.000000000 -0700
+@@ -557,14 +557,15 @@ void do_generic_mapping_read(struct addr
+ 	for (;;) {
+ 		struct page *page;
+ 		unsigned long end_index, nr, ret;
++		loff_t isize = i_size_read(inode);
+ 
+-		end_index = inode->i_size >> PAGE_CACHE_SHIFT;
++		end_index = isize >> PAGE_CACHE_SHIFT;
+ 			
+ 		if (index > end_index)
+ 			break;
+ 		nr = PAGE_CACHE_SIZE;
+ 		if (index == end_index) {
+-			nr = inode->i_size & ~PAGE_CACHE_MASK;
++			nr = isize & ~PAGE_CACHE_MASK;
+ 			if (nr <= offset)
+ 				break;
+ 		}
+@@ -765,7 +766,7 @@ __generic_file_aio_read(struct kiocb *io
+ 		retval = 0;
+ 		if (!count)
+ 			goto out; /* skip atime */
+-		size = inode->i_size;
++		size = i_size_read(inode);
+ 		if (pos < size) {
+ 			retval = generic_file_direct_IO(READ, iocb,
+ 						iov, pos, nr_segs);
+@@ -954,7 +955,7 @@ retry_all:
+ 	 * An external ptracer can access pages that normally aren't
+ 	 * accessible..
+ 	 */
+-	size = (inode->i_size + PAGE_CACHE_SIZE - 1) >> PAGE_CACHE_SHIFT;
++	size = (i_size_read(inode) + PAGE_CACHE_SIZE - 1) >> PAGE_CACHE_SHIFT;
+ 	if ((pgoff >= size) && (area->vm_mm == current->mm))
+ 		return NULL;
+ 
+@@ -1221,7 +1222,7 @@ static int filemap_populate(struct vm_ar
+ 					pgoff, len >> PAGE_CACHE_SHIFT);
+ 
+ repeat:
+-	size = (inode->i_size + PAGE_CACHE_SIZE - 1) >> PAGE_CACHE_SHIFT;
++	size = (i_size_read(inode) + PAGE_CACHE_SIZE - 1) >> PAGE_CACHE_SHIFT;
+ 	if (pgoff + (len >> PAGE_CACHE_SHIFT) > size)
+ 		return -EINVAL;
+ 
+@@ -1510,7 +1511,7 @@ inline int generic_write_checks(struct i
+ 	if (!isblk) {
+ 		/* FIXME: this is for backwards compatibility with 2.4 */
+ 		if (file->f_flags & O_APPEND)
+-                        *pos = inode->i_size;
++                        *pos = i_size_read(inode);
+ 
+ 		if (limit != RLIM_INFINITY) {
+ 			if (*pos >= limit) {
+@@ -1556,15 +1557,17 @@ inline int generic_write_checks(struct i
+ 		if (unlikely(*pos + *count > inode->i_sb->s_maxbytes))
+ 			*count = inode->i_sb->s_maxbytes - *pos;
+ 	} else {
++		loff_t isize;
+ 		if (bdev_read_only(inode->i_bdev))
+ 			return -EPERM;
+-		if (*pos >= inode->i_size) {
+-			if (*count || *pos > inode->i_size)
++		isize = i_size_read(inode);
++		if (*pos >= isize) {
++			if (*count || *pos > isize)
+ 				return -ENOSPC;
+ 		}
+ 
+-		if (*pos + *count > inode->i_size)
+-			*count = inode->i_size - *pos;
++		if (*pos + *count > isize)
++			*count = isize - *pos;
+ 	}
+ 	return 0;
+ }
+@@ -1651,8 +1654,8 @@ generic_file_aio_write_nolock(struct kio
+ 					iov, pos, nr_segs);
+ 		if (written > 0) {
+ 			loff_t end = pos + written;
+-			if (end > inode->i_size && !isblk) {
+-				inode->i_size = end;
++			if (end > i_size_read(inode) && !isblk) {
++				i_size_write(inode,  end);
+ 				mark_inode_dirty(inode);
+ 			}
+ 			*ppos = end;
+@@ -1696,14 +1699,15 @@ generic_file_aio_write_nolock(struct kio
+ 
+ 		status = a_ops->prepare_write(file, page, offset, offset+bytes);
+ 		if (unlikely(status)) {
++			loff_t isize = i_size_read(inode);
+ 			/*
+ 			 * prepare_write() may have instantiated a few blocks
+ 			 * outside i_size.  Trim these off again.
+ 			 */
+ 			unlock_page(page);
+ 			page_cache_release(page);
+-			if (pos + bytes > inode->i_size)
+-				vmtruncate(inode, inode->i_size);
++			if (pos + bytes > isize)
++				vmtruncate(inode, isize);
+ 			break;
+ 		}
+ 		if (likely(nr_segs == 1))
+diff -rupN -X /home/daniel_nfs/dontdiff linux-2.5.70/mm/memory.c linux-2.5.70-isize/mm/memory.c
+--- linux-2.5.70/mm/memory.c	2003-05-26 18:00:39.000000000 -0700
++++ linux-2.5.70-isize/mm/memory.c	2003-05-28 11:00:02.000000000 -0700
+@@ -1107,7 +1107,7 @@ int vmtruncate(struct inode * inode, lof
+ 
+ 	if (inode->i_size < offset)
+ 		goto do_expand;
+-	inode->i_size = offset;
++	i_size_write(inode, offset);
+ 	pgoff = (offset + PAGE_SIZE - 1) >> PAGE_SHIFT;
+ 	down(&mapping->i_shared_sem);
+ 	if (unlikely(!list_empty(&mapping->i_mmap)))
+@@ -1124,7 +1124,7 @@ do_expand:
+ 		goto out_sig;
+ 	if (offset > inode->i_sb->s_maxbytes)
+ 		goto out;
+-	inode->i_size = offset;
++	i_size_write(inode, offset);
+ 
+ out_truncate:
+ 	if (inode->i_op && inode->i_op->truncate)
+diff -rupN -X /home/daniel_nfs/dontdiff linux-2.5.70/mm/nommu.c linux-2.5.70-isize/mm/nommu.c
+--- linux-2.5.70/mm/nommu.c	2003-05-26 18:00:56.000000000 -0700
++++ linux-2.5.70-isize/mm/nommu.c	2003-05-28 10:42:32.000000000 -0700
+@@ -48,7 +48,7 @@ int vmtruncate(struct inode *inode, loff
+ 
+ 	if (inode->i_size < offset)
+ 		goto do_expand;
+-	inode->i_size = offset;
++	i_size_write(inode, offset);
+ 
+ 	truncate_inode_pages(mapping, offset);
+ 	goto out_truncate;
+@@ -59,7 +59,7 @@ do_expand:
+ 		goto out_sig;
+ 	if (offset > inode->i_sb->s_maxbytes)
+ 		goto out;
+-	inode->i_size = offset;
++	i_size_write(inode, offset);
+ 
+ out_truncate:
+ 	if (inode->i_op && inode->i_op->truncate) {
+diff -rupN -X /home/daniel_nfs/dontdiff linux-2.5.70/mm/readahead.c linux-2.5.70-isize/mm/readahead.c
+--- linux-2.5.70/mm/readahead.c	2003-05-26 18:00:22.000000000 -0700
++++ linux-2.5.70-isize/mm/readahead.c	2003-05-28 10:42:32.000000000 -0700
+@@ -208,11 +208,12 @@ __do_page_cache_readahead(struct address
+ 	LIST_HEAD(page_pool);
+ 	int page_idx;
+ 	int ret = 0;
++	loff_t isize = i_size_read(inode);
+ 
+-	if (inode->i_size == 0)
++	if (isize == 0)
+ 		goto out;
+ 
+- 	end_index = ((inode->i_size - 1) >> PAGE_CACHE_SHIFT);
++ 	end_index = ((isize - 1) >> PAGE_CACHE_SHIFT);
+ 
+ 	/*
+ 	 * Preallocate as many pages as we will need.
+diff -rupN -X /home/daniel_nfs/dontdiff linux-2.5.70/mm/shmem.c linux-2.5.70-isize/mm/shmem.c
+--- linux-2.5.70/mm/shmem.c	2003-05-26 18:00:39.000000000 -0700
++++ linux-2.5.70-isize/mm/shmem.c	2003-05-28 10:42:32.000000000 -0700
+@@ -297,7 +297,7 @@ static swp_entry_t *shmem_swp_alloc(stru
+ 	static const swp_entry_t unswapped = {0};
+ 
+ 	if (sgp != SGP_WRITE &&
+-	    ((loff_t) index << PAGE_CACHE_SHIFT) >= inode->i_size)
++	    ((loff_t) index << PAGE_CACHE_SHIFT) >= i_size_read(inode))
+ 		return ERR_PTR(-EINVAL);
+ 
+ 	while (!(entry = shmem_swp_entry(info, index, &page))) {
+@@ -330,7 +330,7 @@ static swp_entry_t *shmem_swp_alloc(stru
+ 			return ERR_PTR(-ENOMEM);
+ 		}
+ 		if (sgp != SGP_WRITE &&
+-		    ((loff_t) index << PAGE_CACHE_SHIFT) >= inode->i_size) {
++		    ((loff_t) index << PAGE_CACHE_SHIFT) >= i_size_read(inode)) {
+ 			entry = ERR_PTR(-EINVAL);
+ 			break;
+ 		}
+diff -rupN -X /home/daniel_nfs/dontdiff linux-2.5.70/mm/swapfile.c linux-2.5.70-isize/mm/swapfile.c
+--- linux-2.5.70/mm/swapfile.c	2003-05-26 18:00:25.000000000 -0700
++++ linux-2.5.70-isize/mm/swapfile.c	2003-05-28 11:02:40.000000000 -0700
+@@ -922,7 +922,7 @@ static int setup_swap_extents(struct swa
+ 	 */
+ 	probe_block = 0;
+ 	page_no = 0;
+-	last_block = inode->i_size >> blkbits;
++	last_block = i_size_read(inode) >> blkbits;
+ 	while ((probe_block + blocks_per_page) <= last_block &&
+ 			page_no < sis->max) {
+ 		unsigned block_in_page;
+@@ -1308,7 +1308,7 @@ asmlinkage long sys_swapon(const char __
+ 		goto bad_swap;
+ 	}
+ 
+-	swapfilesize = mapping->host->i_size >> PAGE_SHIFT;
++	swapfilesize = i_size_read(mapping->host) >> PAGE_SHIFT;
+ 
+ 	/*
+ 	 * Read the swap header.
+
+--=-ngKkqxOkbMHJNbjLymPi--
+

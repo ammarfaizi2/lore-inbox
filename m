@@ -1,68 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269838AbUJSUsu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270053AbUJSUKq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269838AbUJSUsu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 16:48:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269863AbUJSUh5
+	id S270053AbUJSUKq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 16:10:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269504AbUJSUJI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 16:37:57 -0400
-Received: from mail.gurulabs.com ([67.137.148.7]:21657 "EHLO mail.gurulabs.com")
-	by vger.kernel.org with ESMTP id S267401AbUJSUhi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 16:37:38 -0400
-Subject: Re: Linux v2.6.9 and GPL Buyout
-From: Dax Kelson <dax@gurulabs.com>
-To: "Jeff V. Merkey" <jmerkey@drdos.com>
-Cc: Linus Torvalds <torvalds@osdl.org>,
+	Tue, 19 Oct 2004 16:09:08 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:4224 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S269882AbUJSUGA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 16:06:00 -0400
+Date: Tue, 19 Oct 2004 16:05:19 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Rik van Riel <riel@redhat.com>
+cc: "Jeff V. Merkey" <jmerkey@drdos.com>,
        Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <417550FB.8020404@drdos.com>
-References: <Pine.LNX.4.58.0410181540080.2287@ppc970.osdl.org>
-	 <417550FB.8020404@drdos.com>
-Content-Type: text/plain
-Message-Id: <1098218286.8675.82.camel@mentorng.gurulabs.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 19 Oct 2004 14:38:07 -0600
-Content-Transfer-Encoding: 7bit
+Subject: Re: Linux v2.6.9 and GPL Buyout
+In-Reply-To: <Pine.LNX.4.44.0410191530060.18723-100000@chimarrao.boston.redhat.com>
+Message-ID: <Pine.LNX.4.61.0410191602120.6287@chaos.analogic.com>
+References: <Pine.LNX.4.44.0410191530060.18723-100000@chimarrao.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-10-19 at 11:38, Jeff V. Merkey wrote:
-> Although we do not work with them and are in fact on the the other side 
-> of Unixware from a
-> competing viewpoint, SCO has contacted us and identifed with precise 
-> detail and factual
-> documentation the code and intellectual property in Linux they claim was 
-> taken from Unix.
-> We have reviewed their claims and they appear to create enough 
-> uncertianty to warrant
-> removal of the infringing portions.
-> 
-> We have identified and removed the infringing portions of Linux for our 
-> products that
-> SCO claims was stolen from Unix. They are:
-> 
-> JFS, XFS, All SMP support in Linux, and RCU.
-> 
+On Tue, 19 Oct 2004, Rik van Riel wrote:
 
-This isn't SCO code. This goes back to SCO's claims of "control rights"
-over any source code that has been in the same room as UNIX code.
+> On Tue, 19 Oct 2004, Jeff V. Merkey wrote:
+>
+>> We have identified and removed the infringing portions of Linux for our
+>> products that SCO claims was stolen from Unix. They are:
+>>
+>> JFS, XFS, All SMP support in Linux, and RCU.
+>
+> Don't tell your customers you removed all the cool stuff.
+> Oh wait, they'll find your lkml post through Google...
+>
+> Lets just hope your marketing folks don't find out about
+> this mail. ;)
 
-These "control rights" depend on SCOs interpretation of what a 
-derivative work is. This is a contractual dispute, an attempt of SCO to
-reframe what a derivative work is and a big up hill battle for SCO as
-virtually all the parties of original contracts have in their
-declarations not supported SCO claims of "control rights".
+Note it's all 3-letter stuff. They just couldn't do
+any better...... Maybe SCO has a patent on all 3-letter
+logos and that's what they are complaining about!!  I'm
+pretty sure the Intel guys will get a kick out of the
+"SMP" claim!
 
-Stephen D. Vuksanovich, Scott Nelson, Richard A. McDonough III, Robert
-C. Swanson, Ira Kistenberg, David Frasure, and Geoffrey D. Green.
-
-Four of them are (or were at relevant time periods) AT&T employees.
-
-See: http://www.groklaw.net/article.php?story=20041007032319488
-
-Besides the declarations, there is other items that don't back SCO
-"control rights" claims such as the $echo newletter, and amendment X to
-the contract.
-
-Dax Kelson
-
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.9 on an i686 machine (5537.79 GrumpyMips).
+                  98.36% of all statistics are fiction.

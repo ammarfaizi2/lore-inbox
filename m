@@ -1,63 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265821AbUBPUpv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 15:45:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265823AbUBPUpv
+	id S265915AbUBPUm2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 15:42:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265918AbUBPUm2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 15:45:51 -0500
-Received: from pfepc.post.tele.dk ([195.41.46.237]:51334 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S265821AbUBPUpt
+	Mon, 16 Feb 2004 15:42:28 -0500
+Received: from pfepa.post.tele.dk ([195.41.46.235]:10615 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S265915AbUBPUmZ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 15:45:49 -0500
-Date: Mon, 16 Feb 2004 22:01:21 +0100
+	Mon, 16 Feb 2004 15:42:25 -0500
+Date: Mon, 16 Feb 2004 21:58:00 +0100
 From: Sam Ravnborg <sam@ravnborg.org>
-To: Thomas Davis <tadavis@lbl.gov>, Andrew Morton <akpm@osdl.org>
-Cc: Bill Davidsen <davidsen@tmr.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Fix make rpm in 2.6 when using RH9 or Fedora..
-Message-ID: <20040216210121.GD2977@mars.ravnborg.org>
-Mail-Followup-To: Thomas Davis <tadavis@lbl.gov>,
-	Andrew Morton <akpm@osdl.org>, Bill Davidsen <davidsen@tmr.com>,
-	lkml <linux-kernel@vger.kernel.org>
-References: <402BD507.2040201@lbl.gov> <402EE151.4000807@tmr.com> <403008C0.1070806@lbl.gov>
+To: Pratik Solanki <pratik.solanki@timesys.com>
+Cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Minor cross-compile issues
+Message-ID: <20040216205800.GC2977@mars.ravnborg.org>
+Mail-Followup-To: Pratik Solanki <pratik.solanki@timesys.com>,
+	Andrew Morton <akpm@osdl.org>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <4027B7D3.2020107@timesys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <403008C0.1070806@lbl.gov>
+In-Reply-To: <4027B7D3.2020107@timesys.com>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 15, 2004 at 04:03:12PM -0800, Thomas Davis wrote:
-> Bill Davidsen wrote:
-> >
-> >
-> >Why do you want to disable the missing file check? As opposed to 
-> >providing the file?
-> >
-> >I personally fix ther problem instead of disabling the check, the list 
-> >can be empty, of course.
-
-There is enough files that needs to be cleaned up after a build, no reason to
-add more of them.
-
-> >
+On Mon, Feb 09, 2004 at 11:39:47AM -0500, Pratik Solanki wrote:
+> Attached are 2 patches
 > 
-> There is four options to fix this problem.
-> 
-> 1) Change the RH9/Fedora macros.
-> 2) Add a global entry into my .rpmmacros
-> 3) Find and create the missing file (empty, in this case) (ie, do a 'touch 
-> /usr/src/linux-2.6.3/debugfiles.list' and it will proceed without making 
-> the debugfile RPM.)
-> 4) Disable it in the specfile, since only RH9/Fedora does this, and 
-> Mandrake/SuSE probably doesn't.
-> 
-> I'm not going to do #1, and I'm not going to do #2, I'll settle for #3 or 
-> #4, but #3 now means another file to ship around or create, even if it's 
-> empty.
+> asm-boot.patch - Fixes include path for build.c so that it finds 
+> asm/boot.h. /usr/include/asm/boot.h may not be present when 
+> cross-compiling on a non-Linux machine.
+OK - but see minor comemnt.
 
-Since this is a fedora/RH9 issue go for option #4. If we need this file in the
-future we will add it.
-Please forward the original patch to Andrew for inclusion.
+ 
+> shell.patch - Use $(CONFIG_SHELL) instead of sh.
+OK
+
+	Sam
+
+> ===== arch/i386/boot/Makefile 1.28 vs edited =====
+> --- 1.28/arch/i386/boot/Makefile	Thu Sep 11 06:01:23 2003
+> +++ edited/arch/i386/boot/Makefile	Thu Feb  5 15:56:28 2004
+> @@ -31,6 +31,8 @@
+>  
+>  host-progs	:= tools/build
+>  
+> +HOSTCFLAGS_build.o := -I$(TOPDIR)/include
+Do not use absolute paths here.
+
+> +HOSTCFLAGS_build.o := -Iinclude
+Is the preferred way to do it.
 
 	Sam

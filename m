@@ -1,45 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263521AbTJWKIW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Oct 2003 06:08:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263523AbTJWKIW
+	id S263525AbTJWKRo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Oct 2003 06:17:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263531AbTJWKRo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Oct 2003 06:08:22 -0400
-Received: from [80.88.36.193] ([80.88.36.193]:58047 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S263521AbTJWKIV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Oct 2003 06:08:21 -0400
-Date: Thu, 23 Oct 2003 12:00:24 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: James Simmons <jsimmons@infradead.org>
-cc: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [FBDEV UPDATE] Newer patch.
-In-Reply-To: <Pine.LNX.4.44.0310221814290.25125-100000@phoenix.infradead.org>
-Message-ID: <Pine.GSO.4.21.0310231200050.27218-100000@waterleaf.sonytel.be>
+	Thu, 23 Oct 2003 06:17:44 -0400
+Received: from data.iemw.tuwien.ac.at ([128.131.70.3]:10629 "EHLO
+	data.iemw.tuwien.ac.at") by vger.kernel.org with ESMTP
+	id S263525AbTJWKRn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Oct 2003 06:17:43 -0400
+Message-ID: <3F97AACB.2020609@tuwien.ac.at>
+Date: Thu, 23 Oct 2003 12:17:47 +0200
+From: Samuel Kvasnica <samuel.kvasnica@tuwien.ac.at>
+Organization: IEMW TU-Wien
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en, de-at, cs
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+CC: Vitez Gabor <gabor@swszl.szkp.uni-miskolc.hu>,
+       ivtv-devel@lists.sourceforge.net
+Subject: Re: nforce2 random lockups - still no solution ?
+References: <3F95748E.8020202@tuwien.ac.at> <200310211113.00326.lkml@lpbproductions.com> <20031022085449.GA21393@swszl.szkp.uni-miskolc.hu> <3F96847C.4000506@tuwien.ac.at> <20031022133327.GA25283@swszl.szkp.uni-miskolc.hu>
+In-Reply-To: <20031022133327.GA25283@swszl.szkp.uni-miskolc.hu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 22 Oct 2003, James Simmons wrote:
->   I have a new patch against 2.6.0-test8. This patch is a few fixes and I 
-> added back in functionality for switching the video mode for fbcon via 
-> fbset again. Give it a try and let me know the results.
-> 
-> http://phoenix.infradead.org/~jsimmons/fbdev.diff.gz
+Dear Gabor,
 
-This patch accidentally includes drivers/video/logo/logo_linux_clut224.c.
+thantks a lot, indeed you are right ! I've been confused by some nforce 
+FAQs where 'nolapic' option was recommended. In fact I did never check 
+whether this option
+really exists. Now, after recompiling the kernel the framegrabber works 
+with uncompressed stream for almost 24h and it is rock-solid.
 
-Gr{oetje,eeting}s,
+So, a workaround recommendation for all using ivtv driver on nforce2 
+chipsets and kernels up to 2.4.22:
 
-						Geert
+*** RECOMPILE YOUR KERNEL WITH LOCAL APIC DISABLED ***,
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+otherwise you'll experience very rare random lockups while watching the 
+compressed stream and lockups within 10 minutes when watching the 
+uncompressed
+yuv stream.
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+What I'd like to know is whether this bug is AMD processor or chipset 
+related. Is there a patch available ? I tried 2.6.0-test8 and it wasn't 
+stable. I'd prefer to use APIC instead of XT-PIC because some drivers 
+e.g. kernel DRM don't support shared interrupts and I can't get own 
+interrupt for the video card.
+
+Sam
+
+
+Vitez Gabor wrote:
+
+>Hi,
+>
+>On Wed, Oct 22, 2003 at 03:22:04PM +0200, Samuel Kvasnica wrote:
+>  
+>
+>>I'm booting the kernel with acpi=off, noapic and nolapic options and 
+>>    
+>>
+>
+>nolapic? That's not a valid kernel command line parameter I'm afraid. 
+>
+>fgrep -ri nolapic $KERNEL_SOURCE_DIR
+>
+>gives nothing. ???
+>
+>
+>	Gabor
+>  
+>
 

@@ -1,81 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318352AbSGYGZv>; Thu, 25 Jul 2002 02:25:51 -0400
+	id <S318353AbSGYG3R>; Thu, 25 Jul 2002 02:29:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318353AbSGYGZv>; Thu, 25 Jul 2002 02:25:51 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:519 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S318352AbSGYGZu>; Thu, 25 Jul 2002 02:25:50 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Header files and the kernel ABI
-Date: 24 Jul 2002 23:28:37 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <aho5ql$9ja$1@cesium.transmeta.com>
+	id <S318354AbSGYG3R>; Thu, 25 Jul 2002 02:29:17 -0400
+Received: from www.transvirtual.com ([206.14.214.140]:14598 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S318353AbSGYG3R>; Thu, 25 Jul 2002 02:29:17 -0400
+Date: Wed, 24 Jul 2002 23:32:09 -0700 (PDT)
+From: James Simmons <jsimmons@transvirtual.com>
+To: Russell King <rmk@arm.linux.org.uk>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux console project <linuxconsole-dev@lists.sourceforge.net>
+Subject: Re: [PATCH] Second set of console changes.
+In-Reply-To: <20020724225835.H25115@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0207242326520.29650-100000@www.transvirtual.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OK... I have had a thought grinding in my head for a while, and wanted
-to throw it out for everyone to think about...
 
-In the libc4/libc5 days, we attempted to use kernel headers in user
-space.  This was a total mess, not the least because the kernel
-headers tended to pull in a lot of other kernel headers, and the
-datatypes were unsuitable to have spead all across userspace.
+> On Wed, Jul 24, 2002 at 01:08:33PM -0700, James Simmons wrote:
+> >  drivers/char/sysrq.c           |  486 ----
+>
+> Do you really mean to remove _all_ sysrq functionality from the kernel,
+> thereby removing an important debugging feature?
 
-In glibc, the official rule is "don't use kernel headers."  This
-causes problems, because certain aspects of the kernel ABI is only
-available through the include files, and reproducing them by hand is
-tedious and error-prone.
+Oops. I forgot to do a bk -r co -q after the push. Will send out a newer
+patch. Also I discovered a few missed files with the handle_sysrq change.
+New patch in the works.
 
-I'm in the process of writing a very tiny libc for initramfs, and will
-likely have to deal with how to use the kernel ABI as well.
+P.S
 
-It seems to me that a reasonable solution for how to do this is not
-for user space to use kernel headers, but for user space and the
-kernel to share a set of common ABI description files[1].  These files
-should be highly stylized, and only describe things visible to user
-space.  Furthermore, if they introduce types, they should use the
-already-established __kernel_ namespace, and of course __s* and __u*
-could be used for specific types.
+   To the people with the devfs issues. Please send me a log of what
+exactly happened and a detail ksymoop if you can. I just tried it on my
+system with devfs enabled and it works for me.
 
-This means that we would be able to get rid of #if(n)def __KERNEL__ in
-the main kernel header files, because there would be a separation by
-file location -- something in the main kernel include files could
-include the ABI description files, but the opposite should never be
-true.
-
-I would like to propose that these files be set up in the #include
-namespace as <linux/abi/*>, with <linux/abi/arch/*> for any
-architecture-specific support files (I do believe, however, that those
-files should only be included by files in the linux/abi/ root.  This
-probably would be a symlink to ../asm/abi in the kernel sources,
-unless we change the kernel include layout.)  The linux/ namespace is
-universally reserved for the kernel, and unlike <abi/*> I don't know
-of any potential conflicts.  I was considered <kabi/*>, but it seems
-cleaner to use existing namespace.
-
-If people think this is an idea, I will try to set up the
-infrastructure as part of my work on klibc, although I'm definitely
-not going to be able to migrate every portion of every include file
-that needs to be migrated all by myself.
-
-Thoughts?
-
-	-hpa
-
-
-
-[1] I'm assuming here they are C include files, just because it's a
-common language to everyone; however, it would be possible to create
-an "ABI description language" which would compile to C headers as well
-as perhaps other formats (assembly language support files?), ...)
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

@@ -1,78 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261782AbVCGVeQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261816AbVCGVjM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261782AbVCGVeQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 16:34:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261825AbVCGVaw
+	id S261816AbVCGVjM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 16:39:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261815AbVCGV2U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 16:30:52 -0500
-Received: from av3-2-sn4.m-sp.skanova.net ([81.228.10.113]:54425 "EHLO
-	av3-2-sn4.m-sp.skanova.net") by vger.kernel.org with ESMTP
-	id S261767AbVCGV3a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 16:29:30 -0500
-To: dtor_core@ameritech.net
-Cc: Henrik Persson <root@fulhack.info>, linux-kernel@vger.kernel.org
-Subject: Re: Touchpad "tapping" changes in 2.6.11?
-References: <422C539A.4040407@fulhack.info>
-	<d120d500050307055522415fb3@mail.gmail.com>
-	<422C7CF3.9080609@fulhack.info>
-	<d120d50005030708365a4917c5@mail.gmail.com>
-From: Peter Osterlund <petero2@telia.com>
-Date: 07 Mar 2005 22:29:26 +0100
-In-Reply-To: <d120d50005030708365a4917c5@mail.gmail.com>
-Message-ID: <m37jkjdu15.fsf@telia.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 7 Mar 2005 16:28:20 -0500
+Received: from stat16.steeleye.com ([209.192.50.48]:10415 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S261341AbVCGVHm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Mar 2005 16:07:42 -0500
+Subject: Re: [patch] add scsi changer driver
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Gerd Knorr <kraxel@bytesex.org>
+Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+In-Reply-To: <20050307082107.GC17704@bytesex>
+References: <20050215164245.GA13352@bytesex>
+	 <20050215175431.GA2896@infradead.org> <20050216143936.GA23892@bytesex>
+	 <1110131725.9206.25.camel@mulgrave>  <20050307082107.GC17704@bytesex>
+Content-Type: text/plain
+Date: Mon, 07 Mar 2005 10:42:35 +0200
+Message-Id: <1110184955.5410.1.camel@mulgrave>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dmitry Torokhov <dmitry.torokhov@gmail.com> writes:
+On Mon, 2005-03-07 at 09:21 +0100, Gerd Knorr wrote:
+> Probably historical reasons, I havn't tracked the scsi layer changes for
+> quite some time, so this might simply be a 2.6 cleanup I've missed
+> because of that.  Will check ...
 
-> On Mon, 07 Mar 2005 17:10:27 +0100, Henrik Persson <root@fulhack.info> wrote:
-> > Dmitry Torokhov wrote:
-> > > On Mon, 07 Mar 2005 14:14:02 +0100, Henrik Persson <root@fulhack.info> wrote:
-> > >
-> > >>I noticed that the ALPS driver was added to 2.6.11, a thing that alot of
-> > >>people probably like, but since my touchpad (Acer Aspire 1300XV) worked
-> > >>perfectly before (like, 2.6.10) and now the ALPS driver disables
-> > >>'hardware tapping', wich makes it hard to tap. I commented out the
-> > >>disable-tapping bits in alps.c and now it's working like a charm again.
-> > >
-> > > Could you please try 2.6.11-mm1. It has bunch of Peter Osterlund's
-> > > patches that shoudl improve the situation with tapping.
-> > 
-> > Well, -mm1 didn't quite agree with my savage gfx drivers. But I'm
-> > booting with psmouse.proto=exps now, and it's working the way I'm used
-> > to now.
-> > 
-> > The Aspire 1300-series is quite different from the 1350 ones.. The
-> > touchpad on the 1300 will work like a charm without the synaptics driver
-> > (but no fancy stuff is supported, I guess). Before you could boot and be
-> > happy without the synaptics driver, now you probably have to install the
-> > synaptics driver to be happy.. Maybe that's not so good. :)
-> > 
-> > Could this touchpad use the "exps" proto as default and then you could
-> > reconfigure if you want to use the ALPS driver..?
+OK, Thanks.
+
+> > ch_ioctl() (and the compat): since this is a new driver, can't this all
+> > be done via sysfs?  That way, the user would be able to manipulate it
+> > from the command line, and we'd no longer need any of the 32->64 compat
+> > glue.
 > 
-> We (well Peter and Vojtech mostly as I don't have ALPS touchpad in my
-> box) are trying to make ALPS work as it was working before even
-> without Synaptics X driver without any additional options, please bear
-> with us.
+> Well, it isn't new, it already exists for many years, just not living in
+> mainline (which I finally want to change now ...).
 
-I have some touchpad related patches in my tree, which I have uploaded
-here:
+OK, so could you look at doing the sysfs conversions?  These are
+required before the driver goes in.  I can help you when I get back from
+holiday (in about a week's time).
 
-        http://web.telia.com/~u89404340/patches/touchpad/2.6.11/
+James
 
-All of these patches are already in -mm I think.
 
-> Still I think having Synaptics driver installed is the best way in the
-> end simply because it has a lot of knobs so one can adjust tpouchpad's
-> behavior to his/her liking. Maybe once distibutions start packaging
-> and activating it by default it will be less of an issue.
-
-Fedora Core 3 already does that if I remember correctly.
-
--- 
-Peter Osterlund - petero2@telia.com
-http://web.telia.com/~u89404340

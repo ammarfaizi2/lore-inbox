@@ -1,59 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261471AbSIZUPx>; Thu, 26 Sep 2002 16:15:53 -0400
+	id <S261374AbSIZUEE>; Thu, 26 Sep 2002 16:04:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261462AbSIZUPw>; Thu, 26 Sep 2002 16:15:52 -0400
-Received: from nl-ams-slo-l4-02-pip-5.chellonetwork.com ([213.46.243.22]:56379
-	"EHLO amsfep14-int.chello.nl") by vger.kernel.org with ESMTP
-	id <S261400AbSIZUPw>; Thu, 26 Sep 2002 16:15:52 -0400
-Message-ID: <3D936C30.6070609@users.sf.net>
-Date: Thu, 26 Sep 2002 22:21:04 +0200
-From: Thomas Tonino <ttonino@users.sf.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2a) Gecko/20020910
-X-Accept-Language: en-us, en
+	id <S261480AbSIZUEE>; Thu, 26 Sep 2002 16:04:04 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:52705 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S261374AbSIZUD7>; Thu, 26 Sep 2002 16:03:59 -0400
+Date: Thu, 26 Sep 2002 17:09:10 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@duckman.distro.conectiva
+To: Marco Colombo <marco@esi.it>
+Cc: Ernst Herzberg <earny@net4u.de>, Adam Goldstein <Whitewlf@Whitewlf.net>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Very High Load, kernel 2.4.18, apache/mysql
+In-Reply-To: <Pine.LNX.4.44.0209262141320.26363-100000@Megathlon.ESI>
+Message-ID: <Pine.LNX.4.44L.0209261708190.1837-100000@duckman.distro.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] deadline io scheduler
-References: <3D92B450.2090805@pobox.com>	<20020926.001343.57159108.davem@redhat.com>	<3D92B83E.3080405@pobox.com> <20020926.003503.35357667.davem@redhat.com> <3D92C206.2050905@metaparadigm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Clark wrote:
+On Thu, 26 Sep 2002, Marco Colombo wrote:
 
-> Although last time i tried Matt Jabob's driver, it locked up
-> after 30 seconds of running bonnie. At least with Qlogic's
-> driver I can run bonnie and cerberus continuously for 2 weeks
-> with no problems (although this may have been because
-> Matt's driver ignored the command queue throttle set in the
-> qlogic cards BIOS).
+> Say we set MaxKeepAliveRequests to 190 (~2/3 of 256) instead of 1000.
+>
+> How many requests does a client perform before it hits the 15 sec idle
+> timer?  Is it 189? The apache process is stuck in the timeout phase
+> anyway. Is it 191? Then the first apache process drops the keepalive
+> connection, the client reconnects to a second server process, which
+> is stuck again in the timeout phase. Or am I missing something?
 
-My excerience with a JBOD box is the in kernel driver locking up with the "no 
-handle slots, this should not happen" message in half an hour running a 4 MB/sec 
-write load.
+As I read it, MaxKeepAliveRequests is the maximum of simultaneous
+keepalive requests that are tying up apache processes.
 
-Then tried the feral.com driver. That one was stable with the same load. Ran 
-that one for a month or two.
+regards,
 
-Then came along the highio patch in -AA. Made me want to switch to the in kernel 
-qlogic driver again. This was a good time to try a patch by Andrew Patterson, 
-AFAIR upping the number of slots to 255 and fixing the calculations around them. 
-This has been running without problems for a few months now.
+Rik
+-- 
+A: No.
+Q: Should I include quotations after my reply?
 
-The patch has been posted to the list. It can be found at 
-http://groups.google.com/groups?selm=linux.scsi.1019759258.2413.1.camel%40lvadp.fc.hp.com
-
-> The qlogic HBAs are a real problem in choosing which driver
-> to use out of:
-> 
-> in kernel qlogicfc
-> Qlogic's qla2x00 v4.x, v5.x, v6.x
-> Matthew Jacob's isp_mod
-
-I never tried Qlogic's driver, probably because of all the versions floating around.
-
-
-Thomas
-
+http://www.surriel.com/		http://distro.conectiva.com/
 

@@ -1,173 +1,267 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319281AbSH3BKV>; Thu, 29 Aug 2002 21:10:21 -0400
+	id <S316886AbSH3Bx5>; Thu, 29 Aug 2002 21:53:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319331AbSH3BKU>; Thu, 29 Aug 2002 21:10:20 -0400
-Received: from ppp-217-133-223-7.dialup.tiscali.it ([217.133.223.7]:55695 "EHLO
-	home.ldb.ods.org") by vger.kernel.org with ESMTP id <S319281AbSH3BKT>;
-	Thu, 29 Aug 2002 21:10:19 -0400
-Subject: [PATCH] i386 dynamic fixup SMP deadlock workaround
-From: Luca Barbieri <ldb@ldb.ods.org>
-To: Linux-Kernel ML <linux-kernel@vger.kernel.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-MmbBEQ+WUKaQmloZjARt"
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 30 Aug 2002 03:14:39 +0200
-Message-Id: <1030670079.1491.164.camel@ldb>
+	id <S319257AbSH3Bx5>; Thu, 29 Aug 2002 21:53:57 -0400
+Received: from holomorphy.com ([66.224.33.161]:10374 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S316886AbSH3Bxy>;
+	Thu, 29 Aug 2002 21:53:54 -0400
+Date: Thu, 29 Aug 2002 18:58:14 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: linux-kernel@vger.kernel.org
+Cc: linux-mm@kvack.org, akpm@zip.com.au, riel@surriel.com
+Subject: statm_pgd_range() sucks!
+Message-ID: <20020830015814.GN18114@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org, linux-mm@kvack.org, akpm@zip.com.au,
+	riel@surriel.com
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Okay, I have *had it* with statm_pgd_range()!
 
---=-MmbBEQ+WUKaQmloZjARt
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+So I started up top(1) to monitor a benchmark. And the idiot thing
+couldn't get out of the kernel fast enough to refresh the screen every
+5s and ate an entire cpu (well, I did have 15 to spare, but still). I
+pulled the plug and applied the following, which fixed the situation,
+albeit with slight changes to the semantics of what's reported.
 
-This patch works around the deadlock that would happen if another CPU is
-waiting with interrupts disabled for the CPU executing the fixup.
+(1) shared, lib, text, & total are now reported as what's mapped
+	instead of what's resident. This actually fixes two bugs:
+	(1A) Misreporting the total size of what's mapped by a task
+		when third-level pagetables haven't been instantiated
+		for regions (i.e. incorrect VSZ).
+	(1B) Misreporting "shared" because elevated reference counts
+		do not represent sharing of pages between processes,
+		such things as presence on the LRU and buffers foil it.
+		shared is now the size of the regions mapped as MAP_SHARED,
+		which is different, but at least meaningful.
 
-This is worked around by waiting up to 1000 iterations and emulating the
-instruction if the other CPU still doesn't respond.
+(2) dirty and reported as 0. It wasn't used by userspace anyway, and
+	frankly that information is too expensive to collect at all.
 
-This patch is sent mostly for completeness since I think that at this
-point it is better to just drop the idea of dynamic fixups and instead
-do them at bootup (or module load) using a list of fixups in a separate
-section: this way SMP becomes irrelevant.
+(3) The hardcoded i386 a.out format hack (0x60000000) is removed
+	and lib pages reported as 0. This value is not used by
+	userspace and has not been reliable or meaningful for some time,
+	as library pages have no special meaning to ELF. It can only be
+	faithfully reported by means of awareness of both the executable
+	format and architectural address space layout.
 
-In other words, dynamic fixups are cooler and slightly better due to
-automatic support of compiler prefetches, modules and reduced size but
-given the Intel erratas, the cost in stability becomes too much.
+(4) The horrifically expensive pagetable walk is gone, and so
+	/proc/$PID/statm will disturb the system far less in general.
+	The reduction in cpu consumption observed was immense.
+	B = Before, A = After:
+
+	     PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME COMMAND
+	B:  2813 wli       25   0  1624 1624   744 R    99.9  0.0   0:38 top
+	A:   259 wli       15   0  2452 1616     0 R     6.1  0.0   3:45 top
+
+	Those cpus are 700MHz P-III Xeons. This efficiency gain is immense.
+
+	Profile of a stock kernel from a UP "desktop" system where I
+	continually run top(1) to catch runaway memory consumers:
+
+	Before (running for 20 days or so):
+	1492108515	total                               1102.3391
+	1340420417	default_idle                    27925425.3542
+	  13822366	statm_pgd_range                    29789.5819
+	   7922620	number                             11515.4360
+	   7052090	handle_IRQ_event                   88151.1250
+	   6041850	fget                               94403.9062
+	   5077128	__generic_copy_to_user             63464.1000
+	   4278107	csum_partial_copy_generic          16711.3555
+	   3968287	vsnprintf                           3757.8475
+	   3336038	proc_pid_stat                       4255.1505
+
+	After (running for 24 hours or so):
+	   9921095	total                                  7.3620
+	   9710998	default_idle                      202312.4583
+	     20253	number                                18.6149
+	     13130	proc_getdata                          23.4464
+	     12696	__generic_copy_to_user               158.7000
+	      7454	vsnprintf                              7.0587
+	      6963	handle_IRQ_event                      72.5312
+	      6112	fast_clear_page                       54.5714
+	      4568	proc_pid_stat                          6.3444
+	      3931	kmem_cache_free                       27.2986
 
 
-diff --exclude-from=/home/ldb/src/linux-exclude -urNdp linux-2.5.32_fixup_smp/arch/i386/kernel/fixup.c linux-2.5.32_fixup_smp_unlock/arch/i386/kernel/fixup.c
---- linux-2.5.32_fixup_smp/arch/i386/kernel/fixup.c	2002-08-29 00:01:15.000000000 +0200
-+++ linux-2.5.32_fixup_smp_unlock/arch/i386/kernel/fixup.c	2002-08-30 02:57:22.000000000 +0200
-@@ -54,7 +54,6 @@
-    done and instructions are emulated if necessary.
- */
- u8 lock_fixup = 0;
--#define perform_fixup lock_fixup
- 
- #ifdef CONFIG_SMP
- static spinlock_t smp_lock = SPIN_LOCK_UNLOCKED;
-@@ -150,20 +149,29 @@ static inline void dynamic_fixup_send_IP
- 	}
+	statm_pgd_range() was eating buttloads of cpu for exactly zero
+	gain. Cutting it down to size is worthwhile even for "desktops".
+	This UP box is under heavy load with general network I/O,
+	serving up nfsroots to ancient NetBSD toasters, Mozilla/GNOME
+	gunk, and by some braindeath top(1) manages to dominate the
+	profile. It's not difficult to understand that a real-life
+	end-user interactive load is being dominated, and perhaps even
+	its progress hindered, by the cost of collecting information to
+	report to userspace in a grossly inefficient manner. And yes, I
+	do need to know what's eating cpu & mem on my box at all times.
+	(Before telling me to get more memory, I see enough highmem to
+	know I don't want highmem at home, and it's already got 768MB.)
+
+(5) The code fits into 80x24 and is generally easier on the eyes.
+
+(6) Less code:
+$ diffstat no_statm_pgd_range-2.5.31-4 
+ array.c |  128 ++++++++++------------------------------------------------------
+ 1 files changed, 21 insertions(+), 107 deletions(-)
+
+
+Against 2.5.31, applies cleanly to 2.5.32.
+
+
+Cheers,
+Bill
+
+
+===== fs/proc/array.c 1.26 vs edited =====
+--- 1.26/fs/proc/array.c	Wed Jul 24 18:36:09 2002
++++ edited/fs/proc/array.c	Tue Aug 20 09:12:37 2002
+@@ -394,120 +394,34 @@
+ 	return res;
  }
- 
--static void __dynamic_fixup_smp_lock(void)
-+#define MAX_WAIT_ITERS 1000
-+static unsigned __dynamic_fixup_smp_lock(void)
+ 		
+-static inline void statm_pte_range(pmd_t * pmd, unsigned long address, unsigned long size, int * pages, int * shared, int * dirty, int * total)
+-{
+-	unsigned long end, pmd_end;
+-	pte_t *pte;
+-
+-	if (pmd_none(*pmd))
+-		return;
+-	if (pmd_bad(*pmd)) {
+-		pmd_ERROR(*pmd);
+-		pmd_clear(pmd);
+-		return;
+-	}
+-	preempt_disable();
+-	pte = pte_offset_map(pmd, address);
+-	end = address + size;
+-	pmd_end = (address + PMD_SIZE) & PMD_MASK;
+-	if (end > pmd_end)
+-		end = pmd_end;
+-	do {
+-		pte_t page = *pte;
+-		struct page *ptpage;
+-		unsigned long pfn;
+-
+-		address += PAGE_SIZE;
+-		pte++;
+-		if (pte_none(page))
+-			continue;
+-		++*total;
+-		if (!pte_present(page))
+-			continue;
+-		pfn = pte_pfn(page);
+-		if (!pfn_valid(pfn))
+-			continue;
+-		ptpage = pfn_to_page(pfn);
+-		if (PageReserved(ptpage))
+-			continue;
+-		++*pages;
+-		if (pte_dirty(page))
+-			++*dirty;
+-		if (page_count(pte_page(page)) > 1)
+-			++*shared;
+-	} while (address < end);
+-	pte_unmap(pte - 1);
+-	preempt_enable();
+-}
+-
+-static inline void statm_pmd_range(pgd_t * pgd, unsigned long address, unsigned long size,
+-	int * pages, int * shared, int * dirty, int * total)
+-{
+-	pmd_t * pmd;
+-	unsigned long end;
+-
+-	if (pgd_none(*pgd))
+-		return;
+-	if (pgd_bad(*pgd)) {
+-		pgd_ERROR(*pgd);
+-		pgd_clear(pgd);
+-		return;
+-	}
+-	pmd = pmd_offset(pgd, address);
+-	address &= ~PGDIR_MASK;
+-	end = address + size;
+-	if (end > PGDIR_SIZE)
+-		end = PGDIR_SIZE;
+-	do {
+-		statm_pte_range(pmd, address, end - address, pages, shared, dirty, total);
+-		address = (address + PMD_SIZE) & PMD_MASK;
+-		pmd++;
+-	} while (address < end);
+-}
+-
+-static void statm_pgd_range(pgd_t * pgd, unsigned long address, unsigned long end,
+-	int * pages, int * shared, int * dirty, int * total)
+-{
+-	while (address < end) {
+-		statm_pmd_range(pgd, address, end - address, pages, shared, dirty, total);
+-		address = (address + PGDIR_SIZE) & PGDIR_MASK;
+-		pgd++;
+-	}
+-}
+-
+ int proc_pid_statm(struct task_struct *task, char * buffer)
  {
-+	int count;
- 	local_irq_disable();
- 	dynamic_fixup_smp_mask_lock();
+-	int size=0, resident=0, share=0, trs=0, lrs=0, drs=0, dt=0;
++	int size, resident, shared, text, lib, data, dirty = 0;
+ 	struct mm_struct *mm = get_task_mm(task);
++	struct vm_area_struct * vma;
  
- 	dynamic_fixup_send_IPIs(DYNAMIC_FIXUP_SMP_LOCK_VECTOR);
--	while (smp_lock_spinning_cpus != cpu_online_map) {}
+-	if (mm) {
+-		struct vm_area_struct * vma;
+-		down_read(&mm->mmap_sem);
+-		vma = mm->mmap;
+-		while (vma) {
+-			pgd_t *pgd = pgd_offset(mm, vma->vm_start);
+-			int pages = 0, shared = 0, dirty = 0, total = 0;
++	size = resident = shared = text = lib = data = 0;
+ 
+-			statm_pgd_range(pgd, vma->vm_start, vma->vm_end, &pages, &shared, &dirty, &total);
+-			resident += pages;
+-			share += shared;
+-			dt += dirty;
+-			size += total;
+-			if (vma->vm_flags & VM_EXECUTABLE)
+-				trs += pages;	/* text */
+-			else if (vma->vm_flags & VM_GROWSDOWN)
+-				drs += pages;	/* stack */
+-			else if (vma->vm_end > 0x60000000)
+-				lrs += pages;	/* library */
+-			else
+-				drs += pages;
+-			vma = vma->vm_next;
+-		}
+-		up_read(&mm->mmap_sem);
+-		mmput(mm);
++	if (!mm)
++		goto out;
 +
-+	/* If MAX_WAIT_ITERS iterations elapse without the CPU stopping,
-+	   we emulate to instruction; this is done to avoid deadlocks */
-+	for(count = 0; (smp_lock_spinning_cpus != cpu_online_map) && (count < MAX_WAIT_ITERS); ++count) {}
-+
-+	return count < MAX_WAIT_ITERS;
- }
- 
--static inline void dynamic_fixup_smp_lock(void)
-+static inline unsigned dynamic_fixup_smp_lock(void)
- {
- 	/* check if we are fixing up and we are smp */	
- 	if(lock_fixup == 0xf0)
--		__dynamic_fixup_smp_lock();
-+		return __dynamic_fixup_smp_lock();
-+	else
-+		return lock_fixup;
- }
- 
- static inline void dynamic_fixup_smp_unlock(void)
-@@ -176,7 +184,7 @@ static inline void dynamic_fixup_smp_unl
++	down_read(&mm->mmap_sem);
++	resident = mm->rss;
++	for (vma = mm->mmap; vma; vma = vma->vm_next) {
++		int pages = (vma->vm_end - vma->vm_start) >> PAGE_SHIFT;
++		size += pages;
++		if (vma->vm_flags & VM_SHARED)
++			shared += pages;
++		if (vma->vm_flags & VM_EXECUTABLE)
++			text += pages;
++		else
++			data += pages;
  	}
++	up_read(&mm->mmap_sem);
++	mmput(mm);
++out:
+ 	return sprintf(buffer,"%d %d %d %d %d %d %d\n",
+-		       size, resident, share, trs, lrs, drs, dt);
++		       size, resident, shared, text, lib, data, dirty);
  }
- #else
--#define dynamic_fixup_smp_lock() do {} while(0)
-+#define dynamic_fixup_smp_lock() lock_fixup
- #define dynamic_fixup_smp_unlock() do {} while(0)
- #endif
  
-@@ -427,9 +435,10 @@ dynamic_fixup_start(void)
- void
- dynamic_fixup_x86_int(u32 ecx, u32 edx, u32 eax, u8 * eip)
- {
-+	unsigned perform_fixup;
- 	u8 *instr = eip - 2;
- 	u32 value;
--	dynamic_fixup_smp_lock();
-+	perform_fixup = dynamic_fixup_smp_lock();
- 	value = atomic_read_unaligned32((u32 *) instr);
- 	if ((value & 0xffff) == (0xcd | (DYNAMIC_FIXUP_VECTOR << 8))) {
- 		switch ((u8) (value >> 16)) {
-@@ -487,9 +496,10 @@ dynamic_fixup_x86_int(u32 ecx, u32 edx, 
- void
- dynamic_fixup_x86_int3(u32 ecx, u32 edx, u32 eax, u8 * eip)
- {
-+	unsigned perform_fixup;
- 	u8 *instr = eip - 1;
- 	u32 value;
--	dynamic_fixup_smp_lock();
-+	perform_fixup = dynamic_fixup_smp_lock();
- 	value = atomic_read_unaligned32((u32 *) instr);
- 	if ((u8) value == 0xcc) {
- 		switch ((u8) (value >> 8)) {
-@@ -554,7 +564,7 @@ modrm_length(u32 value)
- #define mod2 ((value >> 16) & 0xc0)
- 
- static inline void
--handle_prefetch(decl_atomic u8 ** pinstr)
-+handle_prefetch(decl_atomic unsigned perform_fixup, u8 ** pinstr)
- {
- 	u8 *instr = *pinstr;
- 	STAT_(prefetch);
-@@ -572,9 +582,10 @@ handle_prefetch(decl_atomic u8 ** pinstr
- int
- dynamic_fixup_x86_ud(u8 ** pinstr)
- {
-+	unsigned perform_fixup;
- 	u8 *instr = *pinstr;
- 	u32 value;
--	dynamic_fixup_smp_lock();
-+	perform_fixup = dynamic_fixup_smp_lock();
- 	value = atomic_read_unaligned32((u32 *) instr);
- 	switch ((u8) value) {
- 	case 0x0f:
-@@ -594,14 +605,14 @@ dynamic_fixup_x86_ud(u8 ** pinstr)
- 			switch (regop2) {
- 			case 0:	/* prefetch */
- 			case 1:	/* prefetchw */
--				handle_prefetch(want_atomic pinstr);
-+				handle_prefetch(want_atomic perform_fixup, pinstr);
- 				break;
- 			}
- 			break;
- 		case 0x18:	/* Intel prefetch group 16 */
- 			if (mod2 != MOD_REG) {
- 				if (regop2 <= 3) {	/* prefetch{nta,t[012]} */
--					handle_prefetch(want_atomic pinstr);
-+					handle_prefetch(want_atomic perform_fixup, pinstr);
- 				}
- 			}
- 			break;
-
-
---=-MmbBEQ+WUKaQmloZjARt
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQA9bsb/djkty3ft5+cRAhS0AJ0Zq3U7I/REuR3+txeFEPFGSmpy1gCgnaWW
-7r0Iat5IV2HTaMBTS8mTdqs=
-=lXzT
------END PGP SIGNATURE-----
-
---=-MmbBEQ+WUKaQmloZjARt--
+ /*

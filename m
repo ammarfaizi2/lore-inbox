@@ -1,66 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318806AbSHWNSX>; Fri, 23 Aug 2002 09:18:23 -0400
+	id <S318799AbSHWN2H>; Fri, 23 Aug 2002 09:28:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318807AbSHWNSX>; Fri, 23 Aug 2002 09:18:23 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:59260 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S318806AbSHWNSV>; Fri, 23 Aug 2002 09:18:21 -0400
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Andre Hedrick <andre@linux-ide.org>,
-       "Heater, Daniel (IndSys, GEFanuc, VMIC)" <Daniel.Heater@gefanuc.com>,
-       "'Padraig Brady'" <padraig.brady@corvil.com>,
-       "'Linux Kernel'" <linux-kernel@vger.kernel.org>
-Subject: Re: IDE-flash device and hard disk on same controller
-References: <Pine.LNX.4.10.10208201452210.3867-100000@master.linux-ide.org>
-	<3D62BC10.3060201@mandrakesoft.com>
-	<3D62C2A3.4070701@mandrakesoft.com>
-	<m1sn17pici.fsf@frodo.biederman.org>
-	<3D656FDC.8040008@mandrakesoft.com>
-	<m1ofbupfe1.fsf@frodo.biederman.org>
-	<3D658F2C.1080400@mandrakesoft.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 23 Aug 2002 07:09:03 -0600
-In-Reply-To: <3D658F2C.1080400@mandrakesoft.com>
-Message-ID: <m1k7mhpvrk.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S318804AbSHWN2H>; Fri, 23 Aug 2002 09:28:07 -0400
+Received: from cttsv008.ctt.ne.jp ([210.166.4.137]:14032 "EHLO
+	cttsv008.ctt.ne.jp") by vger.kernel.org with ESMTP
+	id <S318799AbSHWN2F>; Fri, 23 Aug 2002 09:28:05 -0400
+Message-Id: <200208231332.WAA29857@cttsv008.ctt.ne.jp>
+Date: Fri, 23 Aug 2002 15:22:51 +0900
+To: root@chaos.analogic.com
+CC: sanket rathi <sanket@linuxmail.org>, linux-kernel@vger.kernel.org
+From: Kerenyi Gabor <wom@tateyama.hu>
+Subject: Re: interrupt handler
+Organization: Tateyama Hungary Ltd.
+X-Mailer: Opera 5.12 build 932
+X-Priority: 3 (Normal)
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik <jgarzik@mandrakesoft.com> writes:
+8/23/2002 10:07:54 PM, "Richard B. Johnson" <root@chaos.analogic.com> wrote:
 
-> Eric W. Biederman wrote:
-> > The problem is that immediately after bootup ATA devices do not respond until
-> > their media has spun up.  Which is both required by the spec, and observed in
-> > practice.   Which is likely a problem if this code is run a few seconds after
-> > bootup.  Which makes it quite possible the drive will ignore the EXECUTE
-> DEVICE
-> 
-> > DIAGNOSTICS and your error code won't be valid when the bsy flag
-> > clears.   I don't know how serious that would be.
-> 
-> 
-> Well, this only applies if you are slack and letting the kernel init your ATA
-> from scratch, instead of doing proper ATA initialization in firmware ;-)
+>On Fri, 23 Aug 2002, Kerenyi Gabor wrote:
+>> Anyway, do anybody know what kind of advantages/disadvantages I can get
+>> if I don't disable interrupts at all in my driver? Even if I have to
+>> use a circular
+>> buffer or anything else? Is it worth trying to find such a solution or is it
+>> a wasted time?
+>> 
+>> Gabor
+>
+>If your ISR manipulates any data, which is quite likely, then
+>your driver code, that is outside the ISR, must be written
+>with the knowledge that an interrupt can happen at any time.
 
-That would be nice.  I do admit it is hard to trigger if you don't do
-it deliberately. 
+Well I wrote it in this way of course.
 
-The x86 BIOS specifications say only the boot devices must be
-initialized, before the BIOS gives up control.  A more likely
-reproducer is a plug-in ata controller that the BIOS does not
-recognize, and the kernel does.
- 
-> Seriously, if you are a handed an ATA device that is actually in operation when
-> the kernel boots, you are already out of spec.  I would prefer to barf if the
-> BSY or DRDY bits are set, because taking over the ATA bus while a device is in
-> the middle of a command shouldn't be happening at Linux kernel boot, ever.
+>There are probably certain critical regions of code that must
+>be protected against modification from the ISR code. You need
+>to protect those critical regions with spin-locks.
 
-Throwing an error and giving up would certainly be a safe response,
-though it is a strange way to handle in spec hardware and firmware
-behavior.  On the other hand it is a rare enough case deliberately not
-coping with it is probably fine.
+I know. But there are some technics that can be used to workaorund
+the irq disabling thing.
 
-Eric
+>Spin-locks have very little code. If there is no contention,
+>they do not affect performance in any measurable way. If there
+>is contention, they simply delay execution of the ISR to a time
+>where code is executing in a non-critical section. This delay
+>is necessary so, even though it does affect performance, the
+>system would not work without it.
+
+I talked about irq disabling, not spinlocks. With or without spinlocks.
+When you need synch between a bottom half(or user context) and irq
+handler on single processor machine you can't use just spinlocks. you have to
+disable the irq. so the question is about irq disabling to modify data
+in a mutual way.
+I solved it without disabling irq using a circular buffer (very simple one)
+I think with this solution there is a better response time for the hardware
+items. (they can get immediate response from the OS)
+
+Gabor
+
+

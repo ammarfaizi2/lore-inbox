@@ -1,68 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135576AbRDXReS>; Tue, 24 Apr 2001 13:34:18 -0400
+	id <S132939AbRDXWc2>; Tue, 24 Apr 2001 18:32:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135595AbRDXReI>; Tue, 24 Apr 2001 13:34:08 -0400
-Received: from [62.81.160.201] ([62.81.160.201]:54481 "EHLO smtp4.eresmas.com")
-	by vger.kernel.org with ESMTP id <S135576AbRDXReA>;
-	Tue, 24 Apr 2001 13:34:00 -0400
-Date: Tue, 24 Apr 2001 19:19:41 -0400
-From: Ignacio Monge <ignaciomonge@navegalia.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: PIO disk writes using 100% system time and performing poorly with VIA vt82c686b on kernels 2.2 & 2.4
-Message-Id: <20010424191941.5e719746.ignaciomonge@navegalia.com>
-X-Mailer: Sylpheed version 0.4.64 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
+	id <S133009AbRDXWcT>; Tue, 24 Apr 2001 18:32:19 -0400
+Received: from pat.uio.no ([129.240.130.16]:63731 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S132939AbRDXWcE>;
+	Tue, 24 Apr 2001 18:32:04 -0400
+MIME-Version: 1.0
+Message-ID: <15077.65246.992239.329501@charged.uio.no>
+Date: Wed, 25 Apr 2001 00:31:58 +0200
+To: Alexander Viro <viro@math.psu.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: hundreds of mount --bind mountpoints?
+In-Reply-To: <Pine.GSO.4.21.0104241805280.9199-100000@weyl.math.psu.edu>
+In-Reply-To: <shszod6j6w4.fsf@charged.uio.no>
+	<Pine.GSO.4.21.0104241805280.9199-100000@weyl.math.psu.edu>
+X-Mailer: VM 6.89 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+User-Agent: SEMI/1.13.7 (Awazu) CLIME/1.13.6 (=?ISO-2022-JP?B?GyRCQ2YbKEI=?=
+ =?ISO-2022-JP?B?GyRCJU4+MRsoQg==?=) MULE XEmacs/21.1 (patch 14) (Cuyahoga
+ Valley) (i386-redhat-linux)
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> " " == Alexander Viro <viro@math.psu.edu> writes:
 
-	Hi.
-	I have  VIA686a too and a UDMA100 hard disk.
-	This is my cat /proc/ide/via:
+     > _Ouch_. So what are you going to do if another iget4() comes
+     > between the moment when you hash the inode and set these
+     > fields? You are filling them only after you drop inode_lock, so
+     > AFAICS the current code has the same problem.
 
-----------VIA BusMastering IDE Configuration----------------
-Driver Version:                     3.23
-South Bridge:                       VIA vt82c686a
-Revision:                           ISA 0x22 IDE 0x10
-Highest DMA rate:                   UDMA66
-BM-DMA base:                        0xb800
-PCI clock:                          33MHz
-Master Read  Cycle IRDY:            0ws
-Master Write Cycle IRDY:            0ws
-BM IDE Status Register Read Retry:  yes
-Max DRDY Pulse Width:               No limit
------------------------Primary IDE-------Secondary IDE------
-Read DMA FIFO flush:          yes                 yes
-End Sector FIFO flush:         no                  no
-Prefetch Buffer:               no                  no
-Post Write Buffer:             no                  no
-Enabled:                      yes                 yes
-Simplex only:                  no                  no
-Cable Type:                   40w                 40w
--------------------drive0----drive1----drive2----drive3-----
-Transfer Mode:        DMA      UDMA       PIO       PIO
-Address Setup:       30ns      30ns     120ns     120ns
-Cmd Active:          90ns      90ns     480ns     480ns
-Cmd Recovery:        30ns      30ns     480ns     480ns
-Data Active:         90ns      90ns     330ns     330ns
-Data Recovery:       30ns      30ns     270ns     270ns
-Cycle Time:         120ns      60ns     600ns     600ns
-Transfer Rate:   16.5MB/s  33.0MB/s   3.3MB/s   3.3MB/s
+The entire call to iget4() is protected by the BKL in all relevant
+instances. As long as we don't sleep between find_inode() and
+nfs_fill_inode(), we're safe.
 
+In fact the BKL protection is needed also for another reason: we don't
+actually initialize the inode in the I_LOCK-protected read_inode() but
+instead rely on the caller of iget4 to do it for us. The reason is
+that one we would need to pass the struct nfs_fattr to read_inode()
+and this wasn't possible until the ReiserFS people introduced
+read_inode2().
 
-	As you can see, l use UDMA66 instead UDMA100. I don't know why. Maybe VIA vt82c686a doesn't support it? I have answering in this list a days ago about this problem. but none seems to have a question. Like you, my system goes down when I try to compile something (I have a 394 Mb of RAM and a 1 Ghz processor).
-	Although, my hdparm output is this:
-	/dev/hde2:
- Timing buffer-cache reads:   128 MB in  0.79 seconds =162.03 MB/sec
- Timing buffered disk reads:  64 MB in  2.44 seconds = 26.23 MB/sec
-	and sometime looks better.
-
-	I don't know is this is a problem with the VIA kernel driver or not. But the system doesn't seem to work fine since 2.4.2 or 2.4.1 kernel. I hope (plz!) this problem will be fixed in future.
-	Luck.
-
-	PS: in cat /proc/ide/via I see "Cable Type:                   40w                 40w"... Is it right? I have a 80w cable, not 40.
-
-	
+Cheers,
+   Trond

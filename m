@@ -1,102 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265208AbTLFQLu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Dec 2003 11:11:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265211AbTLFQLt
+	id S265217AbTLFQrk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Dec 2003 11:47:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265223AbTLFQrk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Dec 2003 11:11:49 -0500
-Received: from mx2.it.wmich.edu ([141.218.1.94]:27320 "EHLO mx2.it.wmich.edu")
-	by vger.kernel.org with ESMTP id S265208AbTLFQLr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Dec 2003 11:11:47 -0500
-Message-ID: <3FD1FFC1.5030100@wmich.edu>
-Date: Sat, 06 Dec 2003 11:11:45 -0500
-From: Ed Sweetman <ed.sweetman@wmich.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
-X-Accept-Language: en
+	Sat, 6 Dec 2003 11:47:40 -0500
+Received: from bay7-dav25.bay7.hotmail.com ([64.4.10.82]:46097 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S265217AbTLFQri
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Dec 2003 11:47:38 -0500
+X-Originating-IP: [24.61.138.213]
+X-Originating-Email: [jason_kingsland@hotmail.com]
+From: "Jason Kingsland" <Jason_Kingsland@hotmail.com>
+To: "Theodore Ts'o" <tytso@mit.edu>, "Larry McVoy" <lm@work.bitmover.com>,
+       "Linus Torvalds" <torvalds@osdl.org>, "Larry McVoy" <lm@bitmover.com>,
+       "Erik Andersen" <andersen@codepoet.org>,
+       "Zwane Mwaikambo" <zwane@arm.linux.org.uk>,
+       "Paul Adams" <padamsdev@yahoo.com>,
+       "Kernel Mailing List" <linux-kernel@vger.kernel.org>
+References: <20031206153845.GA8552@thunk.org>
+Subject: Re: Linux GPL and binary module exception clause?
+Date: Sat, 6 Dec 2003 11:47:37 -0500
 MIME-Version: 1.0
-To: Markku Savela <msa@burp.tkv.asdf.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test11, TSC cannot be used as a timesource.
-References: <200312061603.hB6G3CrG012634@burp.tkv.asdf.org>
-In-Reply-To: <200312061603.hB6G3CrG012634@burp.tkv.asdf.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Message-ID: <BAY7-DAV25C8DWtqchS000047e3@hotmail.com>
+X-OriginalArrivalTime: 06 Dec 2003 16:47:37.0661 (UTC) FILETIME=[A7C776D0:01C3BC18]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ok, so we've shown it's not dependent on the number of cpu's you have. 
-Not dependent on the amd/intel mobo and cpu you have. Not dependendent 
-on if you're using akpm's test10 patch on test11 or not.   So this seems 
-to be proving to be a real bug.
 
+"Theodore Ts'o" wrote:
+> you could potentially have in the single address space:
+>
+> * Solaris's propietary admin client
+> * The libss shared library (BSD)
+> * The GPL'ed readline library
+>
+> OK, riddle me this: is there a GPL violation, and if so, who committed it?
 
-Markku Savela wrote:
-> I've seen some references to above problem, but no clear answer. The
-> 'ntpd' is complaining a lot...
-> 
-> I have ASUS P4S800. Here is some extracts from dmesg (I can provide
-> more complete dump, if anyone wants something specific.)
-> 
-> Linux version 2.6.0-test11 (root@moth) (gcc version 3.3.2 (Debian)) #2 SMP Thu Dec 4 22:32:52 EET 2003
-> ...
-> Kernel command line: BOOT_IMAGE=Linux-2 ro root=301
-> Initializing CPU#0
-> PID hash table entries: 1024 (order 10: 8192 bytes)
-> Detected 2400.326 MHz processor.
-> ...
-> CPU: Hyper-Threading is disabled
-> ...
-> Intel machine check reporting enabled on CPU#0.
-> CPU#0: Intel P4/Xeon Extended MCE MSRs (12) available
-> CPU#0: Thermal monitoring enabled
-> Enabling fast FPU save and restore... done.
-> Enabling unmasked SIMD FPU exception support... done.
-> Checking 'hlt' instruction... OK.
-> POSIX conformance testing by UNIFIX
-> CPU0: Intel(R) Celeron(R) CPU 2.40GHz stepping 09
-> per-CPU timeslice cutoff: 365.75 usecs.
-> task migration cache decay timeout: 1 msecs.
-> enabled ExtINT on CPU#0
-> ...
-> Using local APIC timer interrupts.
-> calibrating APIC timer ...
-> ..... CPU clock speed is 2399.0868 MHz.
-> ..... host bus clock speed is 99.0994 MHz.
-> Starting migration thread for cpu 0
-> CPUS done 2
-> ...
-> PCI: Using ACPI for IRQ routing
-> PCI: if you experience problems, try using option 'pci=noacpi' or even 'acpi=off'
-> PCI: Cannot allocate resource region 4 of device 0000:00:02.1
-> radeonfb_pci_register BEGIN
-> radeonfb: ref_clk=2700, ref_div=60, xclk=15000 from BIOS
-> radeonfb: probed DDR SGRAM 32768k videoram
-> radeon_get_moninfo: bios 4 scratch = 2000002
-> radeonfb: ATI Radeon VE QY DDR SGRAM 32 MB
-> radeonfb: DVI port no monitor connected
-> radeonfb: CRT port CRT monitor connected
-> radeonfb_pci_register END
-> ...
-> ACPI: Power Button (FF) [PWRF]
-> ACPI: Processor [CPU0] (supports C1)
-> ...
-> Real Time Clock Driver v1.12
-> Linux agpgart interface v0.100 (c) Dave Jones
-> agpgart: Detected SiS 648 chipset
-> agpgart: Maximum main memory to use for agp memory: 203M
-> agpgart: AGP aperture is 64M @ 0xe8000000
-> [drm] Initialized radeon 1.9.0 20020828 on minor 0
-> ...
-> Losing too many ticks!
-> TSC cannot be used as a timesource. (Are you running with SpeedStep?)
-> Falling back to a sane timesource.
-> set_rtc_mmss: can't update from 59 to 0
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+There is no violation so long as the GPL code isn't being distributed as
+part of the Solaris proprietary work. It would be the responsibility of the
+distributor (Sun?) to ensure the licenses on everything they distribute are
+mutually compatible.
 
+That is specifically the reason for the exception clause in GPL:
 
+"
+If identifiable sections of that work are not derived from the Program, and
+can be reasonably considered independent and separate works in themselves,
+then this License, and its terms, do not apply to those sections when you
+distribute them as separate works. But when you distribute the same sections
+as part of a whole which is a work based on the Program, the distribution of
+the whole must be on the terms of this License, whose permissions for other
+licensees extend to the entire whole, and thus to each and every part
+regardless of who wrote it.
+"

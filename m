@@ -1,70 +1,126 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319135AbSHTBXY>; Mon, 19 Aug 2002 21:23:24 -0400
+	id <S319139AbSHTB3E>; Mon, 19 Aug 2002 21:29:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319136AbSHTBXY>; Mon, 19 Aug 2002 21:23:24 -0400
-Received: from p042.as-l031.contactel.cz ([212.65.234.234]:16768 "EHLO
-	ppc.vc.cvut.cz") by vger.kernel.org with ESMTP id <S319135AbSHTBXX>;
-	Mon, 19 Aug 2002 21:23:23 -0400
-Date: Tue, 20 Aug 2002 03:25:08 +0200
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Pete Zaitcev <zaitcev@redhat.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       jsimmons@infradead.org
-Subject: Re: Little console problem in 2.5.30
-Message-ID: <20020820012508.GE6988@ppc.vc.cvut.cz>
-References: <20020819023731.C316@devserv.devel.redhat.com> <Pine.GSO.4.21.0208191433430.23654-100000@vervain.sonytel.be>
-Mime-Version: 1.0
+	id <S319140AbSHTB3E>; Mon, 19 Aug 2002 21:29:04 -0400
+Received: from dp.samba.org ([66.70.73.150]:37284 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S319139AbSHTB3C>;
+	Mon, 19 Aug 2002 21:29:02 -0400
+From: Paul Mackerras <paulus@samba.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.21.0208191433430.23654-100000@vervain.sonytel.be>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
+Message-ID: <15713.39843.741159.195405@argo.ozlabs.ibm.com>
+Date: Tue, 20 Aug 2002 11:30:11 +1000 (EST)
+To: James Simmons <jsimmons@infradead.org>
+Cc: <linux-kernel@vger.kernel.org>, <linux-fbdev-devel@lists.sourceforge.net>
+Subject: [PATCH] fix endian problems in cfb_imageblit
+X-Mailer: VM 6.75 under Emacs 20.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 19, 2002 at 02:36:25PM +0200, Geert Uytterhoeven wrote:
-> On Mon, 19 Aug 2002, Pete Zaitcev wrote:
-> > I would appreciate if someone would explain me if the attached patch
-> > does the right thing. The problem is that I do not use the framebuffer,
-> > and use a serial console. Whenever a legacy /sbin/init tries to
-> > open /dev/tty0, the system oopses dereferencing conswitchp in
-> > visual_init().
-> 
-> And this worked before?
+The cfb_imageblit() function in drivers/video/cfbimgblt.c is broken on
+big-endian machines.  Using test_bit on the font data is a really bad
+idea.  First, on big-endian machines it doesn't test the bit you
+expect, and secondly, many architectures require the pointer argument
+to be 4-byte or 8-byte aligned.  Finally, the loop was always doing
+the pixels right-to-left within a 32-bit word, which is wrong on
+big-endian machines.
 
-I was simillary surprised when it happened (between 2.5.25 and 2.5.26 if
-my memory serves correctly).
+Here is a patch that fixes these problems.
+
+Paul.
+
+diff -urN linux-2.5/drivers/video/cfbimgblt.c pmac-2.5/drivers/video/cfbimgblt.c
+--- linux-2.5/drivers/video/cfbimgblt.c	Mon Jun 10 03:39:17 2002
++++ pmac-2.5/drivers/video/cfbimgblt.c	Sat Aug 17 21:15:26 2002
+@@ -41,11 +41,21 @@
+ #define DPRINTK(fmt, args...)
+ #endif
  
-> conswitchp must never be NULL, say `conswitchp = &dummy_con;' in your setup.c
-> if you have a serial console.
-
-No, it does not work that way for very loooong... Just remove VGA device from
-your box, VGA con_startup will fail and conswitchp will become NULL... And
-in 2.5.26 more than 50% of archs (including i386) does not use dummy_con, it
-leaves conswitchp uninitialized (== NULL).
++#ifdef __BIG_ENDIAN
++#define LEFT_POS(bpp)		(BITS_PER_LONG - bpp)
++#define NEXT_POS(pos, bpp)	((pos) -= (bpp))
++#else
++#define LEFT_POS(bpp)		(0)
++#define NEXT_POS(pos, bpp)	((pos) += (bpp))
++#endif
++
+ void cfb_imageblit(struct fb_info *p, struct fb_image *image)
+ {
+ 	int pad, ppw;
+ 	int x2, y2, n, i, j, k, l = 7;
+-	unsigned long tmp = ~0 << (BITS_PER_LONG - p->var.bits_per_pixel);
++	int bpp = p->var.bits_per_pixel;
++	int ppos;
++	unsigned long tmp = (1 << bpp) - 1;
+ 	unsigned long fgx, bgx, fgcolor, bgcolor, eorx;	
+ 	unsigned long end_mask;
+ 	unsigned long *dst = NULL;
+@@ -66,11 +76,11 @@
+ 	image->height = y2 - image->dy;
+   
+ 	dst1 = p->screen_base + image->dy * p->fix.line_length + 
+-		((image->dx * p->var.bits_per_pixel) >> 3);
++		((image->dx * bpp) >> 3);
+   
+-	ppw = BITS_PER_LONG/p->var.bits_per_pixel;
++	ppw = BITS_PER_LONG / bpp;
  
-> > diff -ur -X dontdiff linux-2.5.30-sp_pbk/drivers/char/console.c linux-2.5.30-sparc/drivers/char/console.c
-> > --- linux-2.5.30-sp_pbk/drivers/char/console.c	Thu Aug  1 14:16:34 2002
-> > +++ linux-2.5.30-sparc/drivers/char/console.c	Sun Aug 18 23:14:20 2002
-> > @@ -652,7 +652,7 @@
-> >  
-> >  int vc_allocate(unsigned int currcons)	/* return 0 on success */
-> >  {
-> > -	if (currcons >= MAX_NR_CONSOLES)
-> > +	if (currcons >= MAX_NR_CONSOLES || conswitchp == NULL)
-> >  		return -ENXIO;
-> >  	if (!vc_cons[currcons].d) {
-> >  	    long p, q;
-
-In 2.5.25 con_init and vty_init was one function, which checked conswitchp == NULL
-at beginning. In 2.5.26 it was spilt down, and vty_init does no conswitchp checking,
-it blindly registers console tty driver. Proper fix is putting
-
-if (!conswitchp) return;
-
-at the beginning of vty_init(), unless we support hotplug tty. If we support hotplug tty,
-then your fix is probably correct, but it needs deeper inspection, as no tty code
-ever expected conswitchp == NULL.
-								Petr Vandrovec
-								vandrove@vc.cvut.cz
+-	src = image->data;	
++	src = image->data;
+ 
+ 	if (image->depth == 1) {
+ 
+@@ -83,8 +93,8 @@
+ 		}	
+  
+ 		for (i = 0; i < ppw-1; i++) {
+-			fgx <<= p->var.bits_per_pixel;
+-			bgx <<= p->var.bits_per_pixel;
++			fgx <<= bpp;
++			bgx <<= bpp;
+ 			fgx |= fgcolor;
+ 			bgx |= bgcolor;
+ 		}
+@@ -98,10 +108,12 @@
+ 		
+ 			for (j = image->width/ppw; j > 0; j--) {
+ 				end_mask = 0;
+-		
++				ppos = LEFT_POS(bpp);
++
+ 				for (k = ppw; k > 0; k--) {
+-					if (test_bit(l, (unsigned long *) src))
+-						end_mask |= (tmp >> (p->var.bits_per_pixel*(k-1)));
++					if (*src & (1 << l))
++						end_mask |= tmp << ppos;
++					NEXT_POS(ppos, bpp);
+ 					l--;
+ 					if (l < 0) { l = 7; src++; }
+ 				}
+@@ -110,10 +122,12 @@
+ 			}
+ 		
+ 			if (n) {
+-				end_mask = 0;	
++				end_mask = 0;
++				ppos = LEFT_POS(bpp);
+ 				for (j = n; j > 0; j--) {
+-					if (test_bit(l, (unsigned long *) src))
+-						end_mask |= (tmp >> (p->var.bits_per_pixel*(j-1)));
++					if (*src & (1 << l))
++						end_mask |= tmp << ppos;
++					NEXT_POS(ppos, bpp);
+ 					l--;
+ 					if (l < 0) { l = 7; src++; }
+ 				}
+@@ -125,7 +139,7 @@
+ 		}	
+ 	} else {
+ 		/* Draw the penguin */
+-		n = ((image->width * p->var.bits_per_pixel) >> 3);
++		n = ((image->width * bpp) >> 3);
+ 		end_mask = 0;
+ 	}
+ }

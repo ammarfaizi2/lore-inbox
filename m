@@ -1,42 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262637AbTCTV4x>; Thu, 20 Mar 2003 16:56:53 -0500
+	id <S262660AbTCTWDK>; Thu, 20 Mar 2003 17:03:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262643AbTCTV4x>; Thu, 20 Mar 2003 16:56:53 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:49792 "EHLO doc.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S262637AbTCTV4w>;
-	Thu, 20 Mar 2003 16:56:52 -0500
-Date: Thu, 20 Mar 2003 14:06:51 -0800
-From: Bob Miller <rem@osdl.org>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-sh@m17n.org, gniibe@m17n.org,
-       kkojima@rr.iij4u.or.jp
-Subject: Re: [PATCH] reduce stack usage in arch/sh/kernel/pci-sh7751
-Message-ID: <20030320220651.GB16501@doc.pdx.osdl.net>
-References: <20030320120833.2ddbfcc1.rddunlap@osdl.org> <20030320215910.GA16501@doc.pdx.osdl.net>
+	id <S262662AbTCTWDK>; Thu, 20 Mar 2003 17:03:10 -0500
+Received: from bay1-f213.bay1.hotmail.com ([65.54.245.213]:62724 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id <S262660AbTCTWCn>;
+	Thu, 20 Mar 2003 17:02:43 -0500
+X-Originating-IP: [216.75.178.213]
+X-Originating-Email: [bustedkernel@hotmail.com]
+From: "p b" <bustedkernel@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: crystallizing ulimit
+Date: Thu, 20 Mar 2003 22:13:38 +0000
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030320215910.GA16501@doc.pdx.osdl.net>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; format=flowed
+Message-ID: <BAY1-F213uy0RhP2djy00044d82@hotmail.com>
+X-OriginalArrivalTime: 20 Mar 2003 22:13:39.0089 (UTC) FILETIME=[F57BC010:01C2EF2D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 20, 2003 at 01:59:11PM -0800, Bob Miller wrote:
-> On Thu, Mar 20, 2003 at 12:08:33PM -0800, Randy.Dunlap wrote:
-> > +
-> > +	bus = kmalloc(sizeof(*bus), GFP_ATOMIC);
-> > +	dev = kmalloc(sizeof(*dev), GFP_ATOMIC);
-> > +	if (!bus || !dev) {
-> > +		printk(KERN_ERR "Out of memory in %s\n", __FUNCTION__);
-> > +		goto exit;
-> > +	}
-> > +
-> If the kmalloc() for bus succeeds but for dev fails this will leak the
-> memory given to bus.
-> 
-That's a goto, not a return... Never mind.
+I'd like to permanently alter a "ulimit" setting by recompiling the kernel. 
+Can I do this? (What file do I have to touch?). Please reply to this e-mail 
+handle if you have time.
+TIA,
+PB
 
--- 
-Bob Miller					Email: rem@osdl.org
-Open Source Development Lab			Phone: 503.626.2455 Ext. 17
+
+
+
+
+_________________________________________________________________
+The new MSN 8: advanced junk mail protection and 2 months FREE*  
+http://join.msn.com/?page=features/junkmail
+

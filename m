@@ -1,60 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266684AbUGQC3F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266691AbUGQCfr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266684AbUGQC3F (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jul 2004 22:29:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266686AbUGQC3F
+	id S266691AbUGQCfr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jul 2004 22:35:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266686AbUGQCfr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jul 2004 22:29:05 -0400
-Received: from mail.ocs.com.au ([202.147.117.210]:64964 "EHLO mail.ocs.com.au")
-	by vger.kernel.org with ESMTP id S266684AbUGQC3B (ORCPT
+	Fri, 16 Jul 2004 22:35:47 -0400
+Received: from holomorphy.com ([207.189.100.168]:21169 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S266691AbUGQCfq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jul 2004 22:29:01 -0400
-X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: William Lee Irwin III <wli@holomorphy.com>
+	Fri, 16 Jul 2004 22:35:46 -0400
+Date: Fri, 16 Jul 2004 19:34:09 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Keith Owens <kaos@ocs.com.au>
 Cc: Jesse Barnes <jbarnes@engr.sgi.com>, Chris Wright <chrisw@osdl.org>,
        Ravikiran G Thirumalai <kiran@in.ibm.com>, linux-kernel@vger.kernel.org,
        dipankar@in.ibm.com
-Subject: Re: [RFC] Lock free fd lookup 
-In-reply-to: Your message of "Fri, 16 Jul 2004 18:19:36 MST."
-             <20040717011936.GK3411@holomorphy.com> 
+Subject: Re: [RFC] Lock free fd lookup
+Message-ID: <20040717023409.GL3411@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Keith Owens <kaos@ocs.com.au>, Jesse Barnes <jbarnes@engr.sgi.com>,
+	Chris Wright <chrisw@osdl.org>,
+	Ravikiran G Thirumalai <kiran@in.ibm.com>,
+	linux-kernel@vger.kernel.org, dipankar@in.ibm.com
+References: <20040717011936.GK3411@holomorphy.com> <3310.1090030359@ocs3.ocs.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sat, 17 Jul 2004 12:28:54 +1000
-Message-ID: <3671.1090031334@ocs3.ocs.com.au>
+Content-Disposition: inline
+In-Reply-To: <3310.1090030359@ocs3.ocs.com.au>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 16 Jul 2004 18:19:36 -0700, 
-William Lee Irwin III <wli@holomorphy.com> wrote:
->On Sat, Jul 17, 2004 at 10:55:59AM +1000, Keith Owens wrote:
->> The beauty of these lockfree algorithms on large structures is that
->> nothing ever stalls indefinitely.  If the underlying SMP cache hardware
->> is fair, everything running a lockfree list will make progress.  These
->> algorithms do not suffer from reader vs. writer starvation.
->
->That's a large assumption. NUMA hardware typically violates it.
+On Fri, 16 Jul 2004 18:19:36 -0700, William Lee Irwin III wrote:
+>> This actually appears to confirm my earlier assertion about the linkage
+>> of the data structure. Is this conclusion what you had in mind?
 
-True, which is why I mentioned it.  However I suspect that you read
-something into that paragraph which was not intended.
+On Sat, Jul 17, 2004 at 12:12:39PM +1000, Keith Owens wrote:
+> Not quite.  The 2-3-4 tree has embedded linkage, but it can be done
+> lockfree if you really have to.  The problem is that a single 2-3-4
+> list entry maps to two red-black list entries.  I could atomically
+> update a single 2-3-4 list entry, including its pointers, even when the
+> list was being read or updated by other users.  I could not work out
+> how to do the equivalent update when the list linkage data was split
+> over two red-black nodes.
 
-Just reading the lockfree list and the structures on the list does not
-suffer from any NUMA problems, because reading does not perform any
-global updates at all.  The SMP starvation problem only kicks in when
-multiple concurrent updates are being done.  Even with multiple
-writers, one of the writers is guaranteed to succeed every time, so
-over time all the write operations will proceed, subject to fair access
-to exclusive cache lines.
+2-3 trees have external linkage just like B/B+ trees as I had
+envisioned what external linkage is. Terminological issue I guess.
 
-Lockfree reads with Moir's algorithms require extra memory bandwidth.
-In the absence of updates, all the cache lines end up in shared state.
-That reduces to local memory bandwidth for the (hopefully) common case
-of lots of readers and few writers.  Lockfree code is nicely suited to
-the same class of problem that RCU addresses, but without the reader
-vs. writer starvation problems.
 
-Writer vs. writer starvation on NUMA is a lot harder.  I don't know of
-any algorithm that handles lists with lots of concurrent updates and
-also scales well on large cpus, unless the underlying hardware is fair
-in its handling of exclusive cache lines.
+On Sat, Jul 17, 2004 at 12:12:39PM +1000, Keith Owens wrote:
+> The list structure is an implementation detail, the use of 2-3-4 or
+> red-black is completely transparent to the main code.  The main code
+> wants to lookup a structure from the list, to update a structure, to
+> insert or to delete a structure without waiting.  How the list of
+> structures is maintained is a problem for the internals of the API.
 
+That kind of genericity is tough to come by in C. I guess callbacks and
+void * can do it when pressed.
+
+
+-- wli

@@ -1,623 +1,172 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267191AbSKMMOc>; Wed, 13 Nov 2002 07:14:32 -0500
+	id <S267175AbSKMMZV>; Wed, 13 Nov 2002 07:25:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267169AbSKMMOc>; Wed, 13 Nov 2002 07:14:32 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:7120 "EHLO e31.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S267192AbSKMMOY>;
-	Wed, 13 Nov 2002 07:14:24 -0500
-Date: Wed, 13 Nov 2002 18:05:43 +0530
-From: "Vamsi Krishna S ." <vamsi@in.ibm.com>
-To: torvalds@transmeta.com
-Cc: lkml <linux-kernel@vger.kernel.org>, richard <richardj_moore@uk.ibm.com>,
-       tom <hanrahat@us.ibm.com>,
-       dprobes <dprobes@www-124.southbury.usf.ibm.com>
-Subject: [PATCH] kprobes for 2.5.47-bk1
-Message-ID: <20021113180543.A3998@in.ibm.com>
-Reply-To: vamsi@in.ibm.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S267178AbSKMMZV>; Wed, 13 Nov 2002 07:25:21 -0500
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:47116 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP
+	id <S267175AbSKMMZT>; Wed, 13 Nov 2002 07:25:19 -0500
+Date: Wed, 13 Nov 2002 07:32:04 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+X-X-Sender: root@oddball.prodigy.com
+Reply-To: Bill Davidsen <davidsen@tmr.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [BUG] 2.5.47-ac1 fails linking
+Message-ID: <Pine.LNX.4.44.0211130726380.16139-101000@oddball.prodigy.com>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-1165167311-1037190724=:16139"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is the same patch Rusty has been sending you for a while,
-rediffed against 2.5.47-bk1.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-This has incorporated all your feedback and DaveM's (who wanted
-the arch-indep bits for sparc).
+--8323328-1165167311-1037190724=:16139
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-Please apply,
-Vamsi.
---
+I get this failure in the link. Config file attached.
 
-Name: Kprobes for i386
-Author: Vamsi Krishna S
-Status: Tested on 2.5.47 SMP
+  [... snip ...]
+make -f scripts/Makefile.build obj=lib/zlib_deflate
+make -f scripts/Makefile.build obj=lib/zlib_inflate
+make -f scripts/Makefile.build obj=arch/i386/lib
+  Generating build number
+  Generating include/linux/compile.h (updated)
+  gcc -Wp,-MD,init/.version.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -p -Iarch/i386/mach-generic -Iarch/i386/mach-defaults -nostdinc -iwithprefix include    -DKBUILD_BASENAME=version   -c -o init/version.o init/version.c
+   ld -m elf_i386  -r -o init/built-in.o init/main.o init/version.o init/do_mounts.o init/initramfs.o
+  	ld -m elf_i386 -e stext -T arch/i386/vmlinux.lds.s arch/i386/kernel/head.o arch/i386/kernel/init_task.o  init/built-in.o --start-group  usr/built-in.o  arch/i386/kernel/built-in.o  arch/i386/mm/built-in.o  arch/i386/mach-generic/built-in.o  kernel/built-in.o  mm/built-in.o  fs/built-in.o  ipc/built-in.o  security/built-in.o  crypto/built-in.o  drivers/built-in.o  sound/built-in.o  arch/i386/pci/built-in.o  net/built-in.o  lib/lib.a  arch/i386/lib/lib.a --end-group  -o .tmp_vmlinux1
+arch/i386/kernel/built-in.o: In function `identify_cpu':
+arch/i386/kernel/built-in.o(.init.text+0x25f4): undefined reference to `mcheck_init'
+arch/i386/kernel/built-in.o: In function `gdt_48':
+arch/i386/kernel/built-in.o(.data+0x15b5): undefined reference to `boot_gdt_table'
+make: *** [.tmp_vmlinux1] Error 1
 
-D: This patch allows trapping at almost any kernel address, useful for
-D: various kernel-hacking tasks, and building on for more
-D: infrastructure.  This patch is x86 only, but other archs can add
-D: support as required.
---
-diff -urN -X /home/vamsi/.dontdiff 47-bk1-pure/arch/i386/Kconfig 47-bk1-kprobes/arch/i386/Kconfig
---- 47-bk1-pure/arch/i386/Kconfig	2002-11-13 15:06:52.000000000 +0530
-+++ 47-bk1-kprobes/arch/i386/Kconfig	2002-11-13 15:07:16.000000000 +0530
-@@ -1551,6 +1551,15 @@
- 	  Say Y here if you are developing drivers or trying to debug and
- 	  identify kernel problems.
- 
-+config KPROBES
-+	bool "Kprobes"
-+	depends on DEBUG_KERNEL
-+	help
-+	  Kprobes allows you to trap at almost any kernel address, using
-+	  register_kprobe(), and providing a callback function.  This is useful
-+	  for kernel debugging, non-intrusive instrumentation and testing.  If
-+	  in doubt, say "N".
-+
- config DEBUG_STACKOVERFLOW
- 	bool "Check for stack overflows"
- 	depends on DEBUG_KERNEL
-diff -urN -X /home/vamsi/.dontdiff 47-bk1-pure/arch/i386/kernel/entry.S 47-bk1-kprobes/arch/i386/kernel/entry.S
---- 47-bk1-pure/arch/i386/kernel/entry.S	2002-11-13 15:06:52.000000000 +0530
-+++ 47-bk1-kprobes/arch/i386/kernel/entry.S	2002-11-13 15:07:16.000000000 +0530
-@@ -404,9 +404,16 @@
- 	jmp ret_from_exception
- 
- ENTRY(debug)
-+	pushl $-1			# mark this as an int
-+	SAVE_ALL
-+	movl %esp,%edx
- 	pushl $0
--	pushl $do_debug
--	jmp error_code
-+	pushl %edx
-+	call do_debug
-+	addl $8,%esp
-+	testl %eax,%eax 
-+	jnz restore_all
-+	jmp ret_from_exception
- 
- ENTRY(nmi)
- 	pushl %eax
-@@ -419,9 +426,16 @@
- 	RESTORE_ALL
- 
- ENTRY(int3)
-+	pushl $-1			# mark this as an int
-+	SAVE_ALL
-+	movl %esp,%edx
- 	pushl $0
--	pushl $do_int3
--	jmp error_code
-+	pushl %edx
-+	call do_int3
-+	addl $8,%esp
-+	testl %eax,%eax 
-+	jnz restore_all
-+	jmp ret_from_exception
- 
- ENTRY(overflow)
- 	pushl $0
-diff -urN -X /home/vamsi/.dontdiff 47-bk1-pure/arch/i386/kernel/kprobes.c 47-bk1-kprobes/arch/i386/kernel/kprobes.c
---- 47-bk1-pure/arch/i386/kernel/kprobes.c	1970-01-01 05:30:00.000000000 +0530
-+++ 47-bk1-kprobes/arch/i386/kernel/kprobes.c	2002-11-13 15:07:16.000000000 +0530
-@@ -0,0 +1,160 @@
-+/* 
-+ * Support for kernel probes.
-+ * (C) 2002 Vamsi Krishna S <vamsi_krishna@in.ibm.com>.
-+ */
-+
-+#include <linux/config.h>
-+#include <linux/kprobes.h>
-+#include <linux/ptrace.h>
-+#include <linux/spinlock.h>
-+#include <linux/preempt.h>
-+
-+/* kprobe_status settings */
-+#define KPROBE_HIT_ACTIVE	0x00000001
-+#define KPROBE_HIT_SS		0x00000002
-+
-+static struct kprobe *current_kprobe;
-+static unsigned long kprobe_status, kprobe_old_eflags, kprobe_saved_eflags;
-+
-+/*
-+ * returns non-zero if opcode modifies the interrupt flag.
-+ */
-+static inline int is_IF_modifier(u8 opcode)
-+{
-+	switch(opcode) {
-+		case 0xfa: 	/* cli */
-+		case 0xfb:	/* sti */
-+		case 0xcf:	/* iret/iretd */
-+		case 0x9d:	/* popf/popfd */
-+			return 1;
-+	}
-+	return 0;
-+}
-+
-+static inline void disarm_kprobe(struct kprobe *p, struct pt_regs *regs)
-+{
-+	*p->addr = p->opcode;
-+	regs->eip = (unsigned long)p->addr;
-+}
-+
-+/*
-+ * Interrupts are disabled on entry as trap3 is an interrupt gate and they
-+ * remain disabled thorough out this function.
-+ */
-+int kprobe_handler(struct pt_regs *regs)
-+{
-+	struct kprobe *p;
-+	int ret = 0;
-+	u8 *addr = (u8 *)(regs->eip-1);
-+
-+	/* We're in an interrupt, but this is clear and BUG()-safe. */
-+	preempt_disable();
-+
-+	/* Check we're not actually recursing */
-+	if (kprobe_running()) {
-+		/* We *are* holding lock here, so this is safe.
-+                   Disarm the probe we just hit, and ignore it. */
-+		p = get_kprobe(addr);
-+		if (p) {
-+			disarm_kprobe(p, regs);
-+			ret = 1;
-+		}
-+		/* If it's not ours, can't be delete race, (we hold lock). */
-+		goto no_kprobe;
-+	}
-+
-+	lock_kprobes();
-+	p = get_kprobe(addr); 
-+	if (!p) {
-+		unlock_kprobes();
-+		/* Unregistered (on another cpu) after this hit?  Ignore */
-+		if (*addr != BREAKPOINT_INSTRUCTION)
-+			ret = 1;
-+		/* Not one of ours: let kernel handle it */
-+		goto no_kprobe;
-+	}
-+
-+	kprobe_status = KPROBE_HIT_ACTIVE;
-+	current_kprobe = p;
-+	kprobe_saved_eflags = kprobe_old_eflags 
-+		= (regs->eflags & (TF_MASK|IF_MASK));
-+	if (is_IF_modifier(p->opcode))
-+		kprobe_saved_eflags &= ~IF_MASK;
-+
-+	p->pre_handler(p, regs);
-+
-+	regs->eflags |= TF_MASK;
-+	regs->eflags &= ~IF_MASK;
-+
-+	/* We hold lock, now we remove breakpoint and single step. */
-+	disarm_kprobe(p, regs);
-+	kprobe_status = KPROBE_HIT_SS;
-+	return 1;
-+
-+no_kprobe:
-+	preempt_enable_no_resched();
-+	return ret;
-+}
-+
-+static void rearm_kprobe(struct kprobe *p, struct pt_regs *regs)
-+{
-+	regs->eflags &= ~TF_MASK;
-+	*p->addr = BREAKPOINT_INSTRUCTION;
-+}
-+	
-+/*
-+ * Interrupts are disabled on entry as trap1 is an interrupt gate and they
-+ * remain disabled thorough out this function.  And we hold kprobe lock.
-+ */
-+int post_kprobe_handler(struct pt_regs *regs)
-+{
-+	if (!kprobe_running())
-+		return 0;
-+
-+	if (current_kprobe->post_handler)
-+		current_kprobe->post_handler(current_kprobe, regs, 0);
-+
-+	/*
-+	 * We singlestepped with interrupts disabled. So, the result on
-+	 * the stack would be incorrect for "pushfl" instruction.
-+	 * Note that regs->esp is actually the top of the stack when the
-+	 * trap occurs in kernel space.
-+	 */
-+	if (current_kprobe->opcode == 0x9c) { /* pushfl */
-+		regs->esp &= ~(TF_MASK | IF_MASK);
-+		regs->esp |= kprobe_old_eflags;
-+	}
-+
-+	rearm_kprobe(current_kprobe, regs);
-+	regs->eflags |= kprobe_saved_eflags;
-+
-+	unlock_kprobes();
-+	preempt_enable_no_resched();
-+
-+        /*
-+	 * if somebody else is singlestepping across a probe point, eflags
-+	 * will have TF set, in which case, continue the remaining processing
-+	 * of do_debug, as if this is not a probe hit.
-+	 */
-+	if (regs->eflags & TF_MASK)
-+		return 0;
-+
-+	return 1;
-+}
-+
-+/* Interrupts disabled, kprobe_lock held. */
-+int kprobe_fault_handler(struct pt_regs *regs, int trapnr)
-+{
-+	if (current_kprobe->fault_handler
-+	    && current_kprobe->fault_handler(current_kprobe, regs, trapnr))
-+		return 1;
-+
-+	if (kprobe_status & KPROBE_HIT_SS) {
-+		rearm_kprobe(current_kprobe, regs);
-+        	regs->eflags |= kprobe_old_eflags;
-+
-+		unlock_kprobes();
-+		preempt_enable_no_resched();
-+	}
-+	return 0;
-+}
-diff -urN -X /home/vamsi/.dontdiff 47-bk1-pure/arch/i386/kernel/Makefile 47-bk1-kprobes/arch/i386/kernel/Makefile
---- 47-bk1-pure/arch/i386/kernel/Makefile	2002-11-13 15:06:52.000000000 +0530
-+++ 47-bk1-kprobes/arch/i386/kernel/Makefile	2002-11-13 15:07:42.000000000 +0530
-@@ -29,6 +29,7 @@
- obj-$(CONFIG_PROFILING)		+= profile.o
- obj-$(CONFIG_EDD)             	+= edd.o
- obj-$(CONFIG_MODULES)		+= module.o
-+obj-$(CONFIG_KPROBES)		+= kprobes.o
- 
- EXTRA_AFLAGS   := -traditional
- 
-diff -urN -X /home/vamsi/.dontdiff 47-bk1-pure/arch/i386/kernel/traps.c 47-bk1-kprobes/arch/i386/kernel/traps.c
---- 47-bk1-pure/arch/i386/kernel/traps.c	2002-11-13 15:06:52.000000000 +0530
-+++ 47-bk1-kprobes/arch/i386/kernel/traps.c	2002-11-13 15:07:16.000000000 +0530
-@@ -23,6 +23,7 @@
- #include <linux/spinlock.h>
- #include <linux/interrupt.h>
- #include <linux/highmem.h>
-+#include <linux/kprobes.h>
- 
- #ifdef CONFIG_EISA
- #include <linux/ioport.h>
-@@ -403,7 +404,6 @@
- }
- 
- DO_VM86_ERROR_INFO( 0, SIGFPE,  "divide error", divide_error, FPE_INTDIV, regs->eip)
--DO_VM86_ERROR( 3, SIGTRAP, "int3", int3)
- DO_VM86_ERROR( 4, SIGSEGV, "overflow", overflow)
- DO_VM86_ERROR( 5, SIGSEGV, "bounds", bounds)
- DO_ERROR_INFO( 6, SIGILL,  "invalid operand", invalid_op, ILL_ILLOPN, regs->eip)
-@@ -419,6 +419,9 @@
- {
- 	if (regs->eflags & VM_MASK)
- 		goto gp_in_vm86;
-+	
-+	if (kprobe_running() && kprobe_fault_handler(regs, 13))
-+		return;
- 
- 	if (!(regs->xcs & 3))
- 		goto gp_in_kernel;
-@@ -550,6 +553,17 @@
- 	nmi_callback = dummy_nmi_callback;
- }
- 
-+asmlinkage int do_int3(struct pt_regs *regs, long error_code)
-+{
-+	if (kprobe_handler(regs))
-+		return 1;
-+	/* This is an interrupt gate, because kprobes wants interrupts
-+           disabled.  Normal trap handlers don't. */
-+	restore_interrupts(regs);
-+	do_trap(3, SIGTRAP, "int3", 1, regs, error_code, NULL);
-+	return 0;
-+}
-+
- /*
-  * Our handling of the processor debug registers is non-trivial.
-  * We do not clear them on entry and exit from the kernel. Therefore
-@@ -572,7 +586,7 @@
-  * find every occurrence of the TF bit that could be saved away even
-  * by user code)
-  */
--asmlinkage void do_debug(struct pt_regs * regs, long error_code)
-+asmlinkage int do_debug(struct pt_regs * regs, long error_code)
- {
- 	unsigned int condition;
- 	struct task_struct *tsk = current;
-@@ -580,6 +594,12 @@
- 
- 	__asm__ __volatile__("movl %%db6,%0" : "=r" (condition));
- 
-+	if (post_kprobe_handler(regs))
-+		return 1;
-+
-+	/* Interrupts not disabled for normal trap handling. */
-+	restore_interrupts(regs);
-+
- 	/* Mask out spurious debug traps due to lazy DR7 setting */
- 	if (condition & (DR_TRAP0|DR_TRAP1|DR_TRAP2|DR_TRAP3)) {
- 		if (!tsk->thread.debugreg[7])
-@@ -630,15 +650,15 @@
- 	__asm__("movl %0,%%db7"
- 		: /* no output */
- 		: "r" (0));
--	return;
-+	return 0;
- 
- debug_vm86:
- 	handle_vm86_trap((struct kernel_vm86_regs *) regs, error_code, 1);
--	return;
-+	return 0;
- 
- clear_TF:
- 	regs->eflags &= ~TF_MASK;
--	return;
-+	return 0;
- }
- 
- /*
-@@ -802,6 +822,8 @@
- 	struct task_struct *tsk = current;
- 	clts();		/* Allow maths ops (or we recurse) */
- 
-+	if (kprobe_running() && kprobe_fault_handler(&regs, 7))
-+		return;
- 	if (!tsk->used_math)
- 		init_fpu(tsk);
- 	restore_fpu(tsk);
-@@ -895,9 +917,9 @@
- #endif
- 
- 	set_trap_gate(0,&divide_error);
--	set_trap_gate(1,&debug);
-+	_set_gate(idt_table+1,14,3,&debug); /* debug trap for kprobes */
- 	set_intr_gate(2,&nmi);
--	set_system_gate(3,&int3);	/* int3-5 can be called from all */
-+	_set_gate(idt_table+3,14,3,&int3); /* int3-5 can be called from all */
- 	set_system_gate(4,&overflow);
- 	set_system_gate(5,&bounds);
- 	set_trap_gate(6,&invalid_op);
-diff -urN -X /home/vamsi/.dontdiff 47-bk1-pure/arch/i386/mm/fault.c 47-bk1-kprobes/arch/i386/mm/fault.c
---- 47-bk1-pure/arch/i386/mm/fault.c	2002-11-05 04:00:03.000000000 +0530
-+++ 47-bk1-kprobes/arch/i386/mm/fault.c	2002-11-13 15:07:16.000000000 +0530
-@@ -19,6 +19,7 @@
- #include <linux/init.h>
- #include <linux/tty.h>
- #include <linux/vt_kern.h>		/* For unblank_screen() */
-+#include <linux/kprobes.h>
- 
- #include <asm/system.h>
- #include <asm/uaccess.h>
-@@ -163,6 +164,9 @@
- 	/* get the address */
- 	__asm__("movl %%cr2,%0":"=r" (address));
- 
-+	if (kprobe_running() && kprobe_fault_handler(regs, 14))
-+		return;
-+
- 	/* It's safe to allow irq's after cr2 has been saved */
- 	if (regs->eflags & X86_EFLAGS_IF)
- 		local_irq_enable();
-diff -urN -X /home/vamsi/.dontdiff 47-bk1-pure/include/asm-i386/kprobes.h 47-bk1-kprobes/include/asm-i386/kprobes.h
---- 47-bk1-pure/include/asm-i386/kprobes.h	1970-01-01 05:30:00.000000000 +0530
-+++ 47-bk1-kprobes/include/asm-i386/kprobes.h	2002-11-13 15:07:16.000000000 +0530
-@@ -0,0 +1,34 @@
-+#ifndef _ASM_KPROBES_H
-+#define _ASM_KPROBES_H
-+/*
-+ *  Dynamic Probes (kprobes) support
-+ *  	Vamsi Krishna S <vamsi_krishna@in.ibm.com>, July, 2002
-+ *	Mailing list: dprobes@www-124.ibm.com
-+ */
-+#include <linux/types.h>
-+#include <linux/ptrace.h>
-+
-+struct pt_regs;
-+
-+typedef u8 kprobe_opcode_t;
-+#define BREAKPOINT_INSTRUCTION	0xcc
-+
-+/* trap3/1 are intr gates for kprobes.  So, restore the status of IF,
-+ * if necessary, before executing the original int3/1 (trap) handler.
-+ */
-+static inline void restore_interrupts(struct pt_regs *regs)
-+{
-+	if (regs->eflags & IF_MASK)
-+		__asm__ __volatile__ ("sti");
-+}
-+
-+#ifdef CONFIG_KPROBES
-+extern int kprobe_fault_handler(struct pt_regs *regs, int trapnr);
-+extern int post_kprobe_handler(struct pt_regs *regs);
-+extern int kprobe_handler(struct pt_regs *regs);
-+#else /* !CONFIG_KPROBES */
-+static inline int kprobe_fault_handler(struct pt_regs *regs, int trapnr) { return 0; }
-+static inline int post_kprobe_handler(struct pt_regs *regs) { return 0; }
-+static inline int kprobe_handler(struct pt_regs *regs) { return 0; }
-+#endif
-+#endif /* _ASM_KPROBES_H */
-diff -urN -X /home/vamsi/.dontdiff 47-bk1-pure/include/linux/kprobes.h 47-bk1-kprobes/include/linux/kprobes.h
---- 47-bk1-pure/include/linux/kprobes.h	1970-01-01 05:30:00.000000000 +0530
-+++ 47-bk1-kprobes/include/linux/kprobes.h	2002-11-13 15:07:16.000000000 +0530
-@@ -0,0 +1,60 @@
-+#ifndef _LINUX_KPROBES_H
-+#define _LINUX_KPROBES_H
-+#include <linux/config.h>
-+#include <linux/list.h>
-+#include <linux/notifier.h>
-+#include <linux/smp.h>
-+#include <asm/kprobes.h>
-+
-+struct kprobe;
-+struct pt_regs;
-+
-+typedef void (*kprobe_pre_handler_t)(struct kprobe *, struct pt_regs *);
-+typedef void (*kprobe_post_handler_t)(struct kprobe *, struct pt_regs *,
-+				      unsigned long flags);
-+typedef int (*kprobe_fault_handler_t)(struct kprobe *, struct pt_regs *,
-+				      int trapnr);
-+
-+struct kprobe {
-+	struct list_head list;
-+
-+	/* location of the probe point */
-+	kprobe_opcode_t *addr;
-+
-+	 /* Called before addr is executed. */
-+	kprobe_pre_handler_t pre_handler;
-+
-+	/* Called after addr is executed, unless... */
-+	kprobe_post_handler_t post_handler;
-+
-+	 /* ... called if executing addr causes a fault (eg. page fault).
-+	  * Return 1 if it handled fault, otherwise kernel will see it. */
-+	kprobe_fault_handler_t fault_handler;
-+
-+	/* Saved opcode (which has been replaced with breakpoint) */
-+	kprobe_opcode_t opcode;
-+};
-+
-+#ifdef CONFIG_KPROBES
-+/* Locks kprobe: irq must be disabled */
-+void lock_kprobes(void);
-+void unlock_kprobes(void);
-+
-+/* kprobe running now on this CPU? */
-+static inline int kprobe_running(void)
-+{
-+	extern unsigned int kprobe_cpu;
-+	return kprobe_cpu == smp_processor_id();
-+}
-+
-+/* Get the kprobe at this addr (if any).  Must have called lock_kprobes */
-+struct kprobe *get_kprobe(void *addr);
-+
-+int register_kprobe(struct kprobe *p);
-+void unregister_kprobe(struct kprobe *p);
-+#else
-+static inline int kprobe_running(void) { return 0; }
-+static inline int register_kprobe(struct kprobe *p) { return -ENOSYS; }
-+static inline void unregister_kprobe(struct kprobe *p) { }
-+#endif
-+#endif /* _LINUX_KPROBES_H */
-diff -urN -X /home/vamsi/.dontdiff 47-bk1-pure/kernel/kprobes.c 47-bk1-kprobes/kernel/kprobes.c
---- 47-bk1-pure/kernel/kprobes.c	1970-01-01 05:30:00.000000000 +0530
-+++ 47-bk1-kprobes/kernel/kprobes.c	2002-11-13 15:07:16.000000000 +0530
-@@ -0,0 +1,89 @@
-+/* Support for kernel probes.
-+   (C) 2002 Vamsi Krishna S <vamsi_krishna@in.ibm.com>.
-+*/
-+#include <linux/kprobes.h>
-+#include <linux/spinlock.h>
-+#include <linux/hash.h>
-+#include <linux/init.h>
-+#include <linux/module.h>
-+#include <asm/cacheflush.h>
-+#include <asm/errno.h>
-+
-+#define KPROBE_HASH_BITS 6
-+#define KPROBE_TABLE_SIZE (1 << KPROBE_HASH_BITS)
-+
-+static struct list_head kprobe_table[KPROBE_TABLE_SIZE];
-+
-+unsigned int kprobe_cpu = NR_CPUS;
-+static spinlock_t kprobe_lock = SPIN_LOCK_UNLOCKED;
-+
-+/* Locks kprobe: irqs must be disabled */
-+void lock_kprobes(void)
-+{
-+	spin_lock(&kprobe_lock);
-+	kprobe_cpu = smp_processor_id();
-+}
-+
-+void unlock_kprobes(void)
-+{
-+	kprobe_cpu = NR_CPUS;
-+	spin_unlock(&kprobe_lock);
-+}
-+
-+/* You have to be holding the kprobe_lock */
-+struct kprobe *get_kprobe(void *addr)
-+{
-+	struct list_head *head, *tmp;
-+
-+	head = &kprobe_table[hash_ptr(addr, KPROBE_HASH_BITS)];
-+	list_for_each(tmp, head) {
-+		struct kprobe *p = list_entry(tmp, struct kprobe, list);
-+		if (p->addr == addr)
-+			return p;
-+	}
-+	return NULL;
-+}
-+
-+int register_kprobe(struct kprobe *p)
-+{
-+	int ret = 0;
-+
-+	spin_lock_irq(&kprobe_lock);
-+	if (get_kprobe(p->addr)) {
-+		ret = -EEXIST;
-+		goto out;
-+	}
-+	list_add(&p->list, &kprobe_table[hash_ptr(p->addr, KPROBE_HASH_BITS)]);
-+
-+	p->opcode = *p->addr;
-+	*p->addr = BREAKPOINT_INSTRUCTION;
-+	flush_icache_range(p->addr, p->addr + sizeof(kprobe_opcode_t));
-+ out:
-+	spin_unlock_irq(&kprobe_lock);
-+	return ret;
-+}
-+
-+void unregister_kprobe(struct kprobe *p)
-+{
-+	spin_lock_irq(&kprobe_lock);
-+	*p->addr = p->opcode;
-+	list_del(&p->list);
-+	flush_icache_range(p->addr, p->addr + sizeof(kprobe_opcode_t));
-+	spin_unlock_irq(&kprobe_lock);
-+}
-+
-+static int __init init_kprobes(void)
-+{
-+	int i;
-+
-+	/* FIXME allocate the probe table, currently defined statically */
-+	/* initialize all list heads */
-+	for (i = 0; i < KPROBE_TABLE_SIZE; i++)
-+		INIT_LIST_HEAD(&kprobe_table[i]);
-+
-+	return 0;
-+}
-+__initcall(init_kprobes);
-+
-+EXPORT_SYMBOL_GPL(register_kprobe);
-+EXPORT_SYMBOL_GPL(unregister_kprobe);
-diff -urN -X /home/vamsi/.dontdiff 47-bk1-pure/kernel/Makefile 47-bk1-kprobes/kernel/Makefile
---- 47-bk1-pure/kernel/Makefile	2002-11-13 15:06:55.000000000 +0530
-+++ 47-bk1-kprobes/kernel/Makefile	2002-11-13 15:08:14.000000000 +0530
-@@ -4,7 +4,7 @@
- 
- export-objs = signal.o sys.o kmod.o workqueue.o ksyms.o pm.o exec_domain.o \
- 		printk.o platform.o suspend.o dma.o module.o cpufreq.o \
--		profile.o rcupdate.o intermodule.o
-+		profile.o rcupdate.o intermodule.o kprobes.o
- 
- obj-y     = sched.o fork.o exec_domain.o panic.o printk.o profile.o \
- 	    exit.o itimer.o time.o softirq.o resource.o \
-@@ -21,6 +21,7 @@
- obj-$(CONFIG_CPU_FREQ) += cpufreq.o
- obj-$(CONFIG_BSD_PROCESS_ACCT) += acct.o
- obj-$(CONFIG_SOFTWARE_SUSPEND) += suspend.o
-+obj-$(CONFIG_KPROBES) += kprobes.o
- 
- ifneq ($(CONFIG_IA64),y)
- # According to Alan Modra <alan@linuxcare.com.au>, the -fno-omit-frame-pointer is
+
+-- 
+bill davidsen <davidsen@tmr.com>
+
+
+--8323328-1165167311-1037190724=:16139
+Content-Type: APPLICATION/x-bzip2; name="config.bz2"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.44.0211130732040.16139@oddball.prodigy.com>
+Content-Description: 
+Content-Disposition: attachment; filename="config.bz2"
+
+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
+GQSQZMV9+ktEYlKFBibOCfxdyRThQkK2cvP0
+--8323328-1165167311-1037190724=:16139--

@@ -1,68 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262844AbTJ3VCA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Oct 2003 16:02:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262848AbTJ3VCA
+	id S262878AbTJ3VQP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Oct 2003 16:16:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262839AbTJ3VQP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Oct 2003 16:02:00 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:41462 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S262844AbTJ3VB6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Oct 2003 16:01:58 -0500
-Message-ID: <3FA17C43.5030709@mvista.com>
-Date: Thu, 30 Oct 2003 13:01:55 -0800
-From: George Anzinger <george@mvista.com>
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: First Name <linuxquestasu@yahoo.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Cyclic Scheduling for linux
-References: <20031030181510.5504.qmail@web12905.mail.yahoo.com>
-In-Reply-To: <20031030181510.5504.qmail@web12905.mail.yahoo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 30 Oct 2003 16:16:15 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:36052 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S262834AbTJ3VQK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Oct 2003 16:16:10 -0500
+Date: Thu, 30 Oct 2003 13:08:59 -0800
+From: "David S. Miller" <davem@redhat.com>
+To: devik <devik@cdi.cz>
+Cc: daniel.blueman@gmx.net, netdev@oss.sgi.com, linux-net@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6.0-test9] QoS HTB crash...
+Message-Id: <20031030130859.605f856d.davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.33.0310302047440.11221-100000@devix>
+References: <26412.1067530225@www3.gmx.net>
+	<Pine.LNX.4.33.0310302047440.11221-100000@devix>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-First Name wrote:
-> Hi there,
-> 
-> I am working on providing a cyclic scheduling policy
-> to the current non real time version of the linux to
-> support hard real time tasks as part of one of my
-> projects. This policy should be able to support
-> aperiodic, periodic and sporadic tasks too. Could any
-> one pour some light on how to go about achieving it?.
-> 
-> Any Helpful tips, project reports, links or advices
-> are greatly appreciated.
+On Thu, 30 Oct 2003 20:50:16 +0100 (CET)
+devik <devik@cdi.cz> wrote:
 
-Instead of kernel changes, you might want to consider a user monitor task 
-running at high rt priority which changes the priority of the tasks you want to 
-use the new policy.  You could write an intercept routine for the scheduleset* 
-calls and pass the new policy to the monitor.  More thought would be needed to 
-make it inherit across a fork..
+> thanks for the report. I know that there is an issue regarding
+> HTB in 2.6.x. Please send me net/sched/sch_htb.o,
+> net/sched/sch_htb.c (just to be sure) and be sure that you
+> build the kernel with debugging symbols (see debugging section
+> of menuconfig/xconfig).
 
--g
-> 
-> Thanks and Regards,
-> LQ
-> 
-> __________________________________
-> Do you Yahoo!?
-> Exclusive Video Premiere - Britney Spears
-> http://launch.yahoo.com/promos/britneyspears/
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+I think the problem is the changes that were made
+in 2.5.x to htb_next_rb_node().  It used to be:
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+static void htb_next_rb_node(rb_node_t **n)
+{
+        rb_node_t *p;
+        if ((*n)->rb_right) {
+                /* child at right. use it or its leftmost ancestor */
+                *n = (*n)->rb_right;
+                while ((*n)->rb_left)
+                        *n = (*n)->rb_left;
+                return;
+        }
+        while ((p = (*n)->rb_parent) != NULL) {
+                /* if we've arrived from left child then we have next node */
+                if (p->rb_left == *n) break;
+                *n = p;
+        }
+        *n = p;
+}
 
+But it was changed into:
+
+static void htb_next_rb_node(struct rb_node **n)
+{
+        *n = rb_next(*n);
+}
+
+This is wrong, the new code has much different side effects
+than the original code.
+
+This looks like the problem, devik what do you think?

@@ -1,63 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310316AbSCLBmu>; Mon, 11 Mar 2002 20:42:50 -0500
+	id <S310324AbSCLBqK>; Mon, 11 Mar 2002 20:46:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310323AbSCLBmh>; Mon, 11 Mar 2002 20:42:37 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:29707 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S310309AbSCLBlw>;
-	Mon, 11 Mar 2002 20:41:52 -0500
-Message-ID: <3C8D5CCD.3050208@mandrakesoft.com>
-Date: Mon, 11 Mar 2002 20:41:33 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020214
-X-Accept-Language: en
+	id <S310332AbSCLBqE>; Mon, 11 Mar 2002 20:46:04 -0500
+Received: from defiant.secureone.com.au ([203.55.158.195]:13984 "EHLO
+	defiant.secureone.com.au") by vger.kernel.org with ESMTP
+	id <S310309AbSCLBpr>; Mon, 11 Mar 2002 20:45:47 -0500
+Posted-Date: Tue, 12 Mar 2002 11:45:34 +1000
+X-URL: SecureONE SecureSentry - http://www.secureone.com.au/
+Message-ID: <05ca01c1c968$10358810$0f01000a@brisbane.hatfields.com.au>
+Reply-To: "Andrew Hatfield" <lkml@secureone.com.au>
+From: "Andrew Hatfield" <lkml@secureone.com.au>
+To: <meusel@codixx.de>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <E16j1Z6-0002xf-00@the-village.bc.nu> <02031109444400.00601@huschki> <20020311084741.GC311@matchmail.com> <02031110223301.00601@huschki>
+Subject: Re: Ext2/3 uid/gid support
+Date: Tue, 12 Mar 2002 11:48:52 +1000
+Organization: SecureONE
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Bill Davidsen <davidsen@tmr.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] My AMD IDE driver, v2.7
-In-Reply-To: <Pine.LNX.4.33.0203111638290.26250-100000@home.transmeta.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+chgrp /dev/fd0 floppy
 
->The only common factor here is the "synchronize with other requests" - I
->feel strongly (much more strongly than any parsing notion) that the raw
->requests have to be passed down the "struct request" and NOT be done the
->way they are traditionally done (ie completely outside the request stream,
->with no synchronization at all with any IO currently in progress).
+
+  --
+
+  Andrew Hatfield
+  SecureONE - http://www.secureone.com.au/
+  President - South East Brisbane Linux Users Group  http://www.seblug.org/
+
+  Kernel work available at http://development.secureone.com.au/kernel/
+
+----- Original Message -----
+From: "Erik Meusel" <meusel@codixx.de>
+To: <linux-kernel@vger.kernel.org>
+Sent: Monday, March 11, 2002 7:22 PM
+Subject: Re: Ext2/3 uid/gid support
+
+
+> Am Montag, 11. März 2002 09:47 schrieb Mike Fedyk:
+> > On Mon, Mar 11, 2002 at 09:44:44AM +0100, Erik Meusel wrote:
+> > > Hi.
+> > >
+> > > Just one little question:
+> > >
+> > > Why do ext2 and ext3 not support mount options uid and gid as all the
+> > > other  filesystems do?
+> >
+> > because they have uid and gid within the filesystem itself for
+directories,
+> > files, pipes, etc stored in the inodes of the fs.  Same with any other
+> > posix filesystem (which vfat, iso9660(not counting rockridge), hfs, etc
+are
+> > *not*).
+> Sure.
+> The reason why I ask is, I have two linux stations and I want to use ext2
+> for the floppy disks to save space for fat vfat and so on. Now it would
+> be nice to automatically mount my floppies with group "floppy", so that
+> all the users, belonging to group "floppy", can read/write from/to disk.
 >
-agreed
-
->>I think "future new commands" is total FUD, the idea that some new command
->>would come along and be so instantly popular, useful and incompatible that
->>all Linux boxes would require it before the next kernel or driver update
->>is silly at best, and I'm working hard to keep this on a civil plane.
->>
+> mfg, Erik
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 >
->It has nothing to do with "new" commands, and everything to do with
->"random vendor-specific commands and the vendor-specific tools". Commands
->that simply should _never_ be parsed in the kernel, because we do not want
->to care about 10 different vendors 10 different revisions of their
->firmware having 10 different small random special commands for that
->particular drive.
->
->In particular, a user that upgrades his hardware should never _ever_ have
->to upgrade his kernel just because some random disk diagnostic tool needs
->support for a disk that is new and has new diagnostics.
->
-Are such random vendor-specific commands really that common?
-
-Linus, would it be acceptable to you to include an -optional- filter for 
-ATA commands?  There is definitely a segment of users that would like to 
-firewall their devices, and I think (as crazy as it may sound) that 
-notion is a valid one.
-
-    Jeff
-
-
-
-
 

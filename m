@@ -1,45 +1,131 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284175AbRLPA4V>; Sat, 15 Dec 2001 19:56:21 -0500
+	id <S284178AbRLPBlM>; Sat, 15 Dec 2001 20:41:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284171AbRLPA4M>; Sat, 15 Dec 2001 19:56:12 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:16296 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S284175AbRLPAz7>; Sat, 15 Dec 2001 19:55:59 -0500
-Date: Sat, 15 Dec 2001 17:56:31 -0700
-Message-Id: <200112160056.fBG0uVW21900@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: linux-kernel@vger.kernel.org
-Subject: es1371 damaged after 2.2.x
+	id <S284176AbRLPBkw>; Sat, 15 Dec 2001 20:40:52 -0500
+Received: from hq.pm.waw.pl ([195.116.170.10]:27072 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id <S284171AbRLPBkj>;
+	Sat, 15 Dec 2001 20:40:39 -0500
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: keyboard + PS/2 mouse locks after opening psaux
+In-Reply-To: <m3elodw1tv.fsf@defiant.pm.waw.pl>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: 16 Dec 2001 02:36:31 +0100
+In-Reply-To: <m3elodw1tv.fsf@defiant.pm.waw.pl>
+Message-ID: <m3zo4k0wv4.fsf@defiant.pm.waw.pl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi, all. I've finally sat down and looked at a problem that's been
-annoying me for a long time: the es1371 driver in 2.4.x does not allow
-me to set the mic recording gain as high as the 2.2.x driver does.
+Hi,
 
-With 2.2.20, the mixer channels SOUND_MIXER_MIC (7) and
-SOUND_MIXER_RECLEV (11) can both be adjusted to control the recoding
-level. The default levels are sufficient for my needs, and I can
-adjust them to a much higher level.
+The original problem description:
 
-With 2.4.17-rc1, I can only control the recording level with
-SOUND_MIXER_IGAIN (12), and even setting it to the maximum 0x6464
-value does not yield a satisfactory recording level. Changing
-SOUND_MIXER_MIC (7) does not affect the recording level (unlike
-2.2.x). Further, SOUND_MIXER_RECLEV (11) is not available for reading
-or writing.
+> I'm having the following problem: after I start X11 (or gpm with no X)
+> my keyboard and PS/2 mouse sometimes locks up. What could that be?
+> 
+> 440BX UP celeron mobo here (Abit - BH6?), '94 AT keyboard, '2000 A4tech
+> 2-wheel mouse, various Linux 2.4 versions (usually -ac, currently 2.4.10ac3).
+> I'm using NVidia Xserver module, but it doesn't seem related (the lookup
+> occured with no X while starting gpm once or twice).
+> 
+> If I kill Xserver (haven't tried with gpm), the keyboard (and mouse) start
+> working again (the next Xserver spawn works fine).
+> 
+> For me, it looks like some race condition between open_aux and mouse
+> (kbd?) interrupt, causing interrupts or kbd controller to stay disabled
+> after the mouse device is opened. The interrupt counters for both kbd
+> and psaux stay constant when I move the mouse and/or press buttons/keyboard
+> keys:
 
-My guess is that the change in 2.3.x to use the ac97_codec driver for
-es1371 is the cause of this damage. Under 2.4.x, the maximum available
-recording level is barely usable for my application. Does anyone have
-a fix for this?
+I finally found some free time for investigation. It seems the problem is
+the mouse + the keyboard controller - it's A4Tech WWW-something mouse
+with 3 buttons and 2 wheels (PS/2 Intellimouse-compatible). The mother-
+board is Abit BH6 (slot-1, Intel 440BX + Winbond W83977 - I'm not sure
+which IC works as the keyboard controller).
 
-Note that when I say "recording level", I do mean recording. For later
-processing. I don't mean "gain from mic to headphones".
+The following script hangs on dd (keyboard hangs as well) on my system
+after few seconds:
 
-				Regards,
+q=0;
+while :; do
+        (echo -en '\xe8\x03'; dd bs=1 count=2 >/dev/null)<>/dev/psaux 1>&0;
+        q=$[$q+1];
+        echo $q;
+done
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+(If you want to check this script on your system, remember it may lock
+your PS/2 mouse and keyboard and you may need to use remote shell to kill
+the script - closing /dev/psaux makes keyboard alive again). Of course,
+it's pointless to run it if you don't have PS/2 mouse. Before running
+the script, make sure no processes have /dev/psaux open (kill gpm, Xserver
+etc).
+
+The script basically opens /dev/psaux (the kernel initializes mouse),
+writes E8 03 (two bytes) there, tries to read 2 bytes back, then closes
+the psaux. It looks like under some circumstances, the mouse does something
+really bad to the keyboard controller and then it stops requesting
+interrupts.
+
+After swapping the mouse with old MS 2-key one, the script no longer
+hangs the keyboard. I'm not sure if the (A4Tech) mouse can cause malfunction
+to other machines (with other motherboards), but it doesn't do any harm
+to my notebook (internal mouse off).
+
+
+Last accesses to the keyboard controller before a hang (gpm start):
+Dec 15 20:46:46 kernel: CMD D4 KBD_CCMD_WRITE_MOUSE
+Dec 15 20:46:46 kernel: STA 3F
+Dec 15 20:46:46 kernel: INP FA
+Dec 15 20:46:46 kernel: STA 3C
+Dec 15 20:46:46 kernel: OUT F3 AUX_SET_SAMPLE
+Dec 15 20:46:46 kernel: STA 34
+Dec 15 20:46:46 kernel: CMD D4 KBD_CCMD_WRITE_MOUSE
+Dec 15 20:46:46 kernel: STA 3D
+Dec 15 20:46:46 kernel: INP FA
+Dec 15 20:46:46 kernel: STA 3C
+Dec 15 20:46:46 kernel: OUT 64 (100)
+Dec 15 20:46:46 kernel: STA 34
+Dec 15 20:46:46 kernel: CMD D4 KBD_CCMD_WRITE_MOUSE
+Dec 15 20:46:46 kernel: STA 3D
+Dec 15 20:46:46 kernel: INP FA
+Dec 15 20:46:46 kernel: STA 3C
+Dec 15 20:46:46 kernel: OUT E8 AUX_SET_RES
+Dec 15 20:46:46 kernel: STA 34
+Dec 15 20:46:46 kernel: CMD D4 KBD_CCMD_WRITE_MOUSE
+Dec 15 20:46:46 kernel: STA 3F
+Dec 15 20:46:46 kernel: INP FA
+Dec 15 20:46:46 kernel: STA 3C
+Dec 15 20:46:46 kernel: OUT 03 (3)
+Dec 15 20:46:46 kernel: STA 34 <<<<<<<<<<< status = 34 here
+Dec 15 20:46:55 root: kbd and mouse dead
+
+CMD - command write, STA - status read, INP - data read, OUT - data write.
+The last mouse command is E8 03 (AUX_SET_RES 3).
+
+
+gpm started without a hang:
+...
+Dec 15 20:44:44 kernel: INP FA
+Dec 15 20:44:44 kernel: STA 3C
+Dec 15 20:44:44 kernel: OUT 03 (3)
+Dec 15 20:44:44 kernel: STA 35 <<<<<<<<<<< status is different here
+Dec 15 20:44:44 kernel: INP FA
+Dec 15 20:44:46 kernel: STA 15
+Dec 15 20:44:46 kernel: INP 1C
+Dec 15 20:44:46 kernel: STA 15
+Dec 15 20:44:46 kernel: INP 9C
+Dec 15 20:44:46 kernel: STA 14
+Dec 15 20:44:47 root: kbd ok
+
+
+I've noted that the status after the AUX_SET_RES(3) command is always
+0x35 when there is no hang, and 0x34 or 0x36 otherwise.
+
+
+The question is - is the hardware (kbd controller or mouse) faulty,
+or should we do something to it in the kernel?
+-- 
+Krzysztof Halasa
+Network Administrator

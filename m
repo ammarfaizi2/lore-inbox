@@ -1,300 +1,780 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262420AbTA2Dfa>; Tue, 28 Jan 2003 22:35:30 -0500
+	id <S262602AbTA2Drp>; Tue, 28 Jan 2003 22:47:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262602AbTA2Dfa>; Tue, 28 Jan 2003 22:35:30 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:60355 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S262420AbTA2Df0>; Tue, 28 Jan 2003 22:35:26 -0500
-Date: Wed, 29 Jan 2003 01:44:49 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Linux 2.4.21-pre4
-Message-ID: <Pine.LNX.4.53L.0301290143350.27119@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262780AbTA2Drp>; Tue, 28 Jan 2003 22:47:45 -0500
+Received: from fmr05.intel.com ([134.134.136.6]:61407 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP
+	id <S262602AbTA2Dre>; Tue, 28 Jan 2003 22:47:34 -0500
+Message-ID: <15927.20631.762730.598344@milikk.co.intel.com>
+Date: Tue, 28 Jan 2003 19:55:03 -0800
+From: Inaky Perez-Gonzalez <inaky.perez-gonzalez@intel.com>
+Subject: [PATCH 2.5.59] Optimize include/asm-ARCH/page.h:get_order() (take 1.0)
+To: falk.hueffner@student.uni-tuebingen.de, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org
+X-Mailer: VM 7.07 under Emacs 21.2.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi,
 
-So here goes -pre4...
+Hi all
+
+This patch is a reorganization and optimization of the get_order()
+function. 
+
+Currently each architecture defines its version in
+asm-${ARCH}/page.h, being most of them the same function. I have
+unified the implementation in asm-generic/page.h, as
+generic_get_order(). Then each arch can implement it's own version
+or use the generic one [as the patch stands now, every
+architecture that had the generic version uses
+generic_get_oder()].
+
+The optimization is done in the way the generic_get_order() is
+implemented; currently it is a loop - however, that can be highly
+optimized by using fls() [available on each architecture or as
+generic_fls() where not optimized]. 
+
+On my tests in a tight loop doing repeated get_order() calls (see
+included test program), I got an aprox average run time of 6m24s
+for the unoptimized version (the old one, executing "time ./goo -v
+speed-new") and 2m32s for the optimized version (executing "time
+./goo -v speed-old"). The test machine is a 2xP3 933MHhz 1.5GB.
+
+Even using generic_fls() on ia32 yields better results - my guess
+is it caused for it being a fixed-path function instead of a for()
+loop. 
+
+I was only able to test it and try it in ia32, so I don't know if
+I broke anything else in other archs; reports welcome.
+
+CAVEATS:
+
+- the #include <asm-generic/page.h> ... I don't know if it is the
+  best way to do it. Any ideas?
+
+- Some arches still define fls() as the generic_fls(), instead of
+  using bit-searching ASM instructions - I lack the knowledge to
+  fix it, though.
+
+Changelog:
+
+ - Pull up to 2.5.59
+
+ - Pull up to 2.5.57
+
+ - Pull up to 2.5.52
+
+ - Fixes some obvious, blatant and stupid errors I did in the
+   first release.
+
+ - Increase the speed up.
 
 
-Summary of changes from v2.4.21-pre3 to v2.4.21-pre4
-============================================
+Test program (patch follows):
 
-<blueflux@koffein.net>:
-  o [IPV4 ROUTE]: Fix some sysctl documentation
+compile with 'cc -Iinclude/ -Wall -g -O2 goo.c -o goo' from the
+root of the patched linux kernel tree.
 
-<dwmw2@dwmw2.baythorne.internal>:
-  o Miscellaneous MTD block driver fixes
-  o MTD partitioning updates
-  o MTD updates
+#define __KERNEL__
+#define __ASSEMBLY__
 
-<filip.sneppe@cronos.be>:
-  o [NETFILTER]: ip_conntrack_ftp.c, fixes a typo in a DEBUG statement
+#include "asm-i386/bitops.h"
+#include "asm-i386/page.h"
+#include "asm-generic/page.h"
+#include <stdio.h>
+#include <getopt.h>
+#include <stdlib.h>
 
-<gandalf@wlug.westbo.se>:
-  o [NETFILTER]: Fix a locking bug in ip_conntrack_proto_tcp
+  /* Old, unoptimized version */
 
-<ganesh@tuxtop.vxindia.veritas.com>:
-  o Added ids for the Dell Axim and Toshiba E740. Thanks to Ian Molton
+static __inline__
+int get_order_0 (unsigned long size)
+{
+  int order;
+  
+  size = (size-1) >> (PAGE_SHIFT-1);
+  order = -1;
+  do {
+    size >>= 1;
+    order++;
+  } while (size);
+  return order;
+}
 
-<georgn@somanetworks.com>:
-  o Fix /proc/slabinfo on ARM
+unsigned long verbose_step = 0;
 
-<henning@meier-geinitz.de>:
-  o scanner.c: remove "magic" number for interface
-  o USB scanner driver: updated Configure.help
-  o scanner.h, scanner.c: New vendor/product ids for visioneer scanners
-  o scanner.c: print user-supplied ids only on start-up
-  o scanner.c, scanner.h: Remove PV8630 ioctls
-  o scanner.c: endpoint detection cleanup
-  o Add maintainer for USB scanner driver
-  o scanner.h, scanner.c: maintainer change
+static __inline__
+void progress (unsigned long cnt)
+{
+  if (verbose_step && (cnt % verbose_step) == 0)
+    printf ("Going through %lu\n", cnt);
+}
 
-<jamie@shareable.org>:
-  o [SPARC64]: Fix MAP_GROWSDOWN value, cannot be the same as MAP_LOCKED
 
-<kadlec@blackhole.kfki.hu>:
-  o [NETFILTER]: Fix excess logging of reused FTP expectations
+void help (FILE *f)
+{
+  fprintf (f,
+           "Usage: goo [-b BOTTOM] [-t TOP] [-s STEP] [-v VSTEP] [-h]\n"
+           "           {verify,speed-new,speed-old}\n"
+           "\n"
+           "-b BOTTOM where to start counting [0]\n"
+           "-t TOP    where to stop counting [~0UL]\n"
+           "-s STEP   count increment [1]\n"
+           "-v VSTEP  Every VSTEP report the count [0]\n"
+           "\n"
+           "verify     Verify that the old and new implementations behave the same\n"
+           "           from BOTTOM to TOP with STEP.\n"
+           "\n"
+           "speed-new  Call the optimized get_order() for all the numbers from\n"
+           "           BOTTOM to TOP with STEP.\n"
+           "\n"
+           "speed-old  Call the original get_order() for all the numbers from\n"
+           "           BOTTOM to TOP with STEP.\n"
+           "\n"
+           "It is nice to have a wide range, so that the timing is better; use -v\n"
+           "if you want reporting because it feels nice. The default range covers\n"
+           "all that an unsigned long can hold.\n"
+    );
+}
 
-<manish@zambeel.com>:
-  o [netdrvr tg3] add support for another 5704 board, fix up 5704 phy init
 
-<marcus@ingate.com>:
-  o [NETFILTER]: ipt_multiport invert fix
 
-<neilt@slimy.greenend.org.uk>:
-  o USB Serial patch
+  /* Test driver
+  **
+  ** We just count from 0 to ~0UL; in verify mode, we verify that
+  ** _every_ number get's the same order with the old and new
+  ** versions. In the speed mode we just run in a tight loop so that
+  ** it can be rawly measured how fast is the new version (speed-new)
+  ** against the old version (speed-old). time(1) is your friend.
+  */
 
-<netfilter@interlinx.bc.ca>:
-  o [NETFILTER]: UDP nat helper support
+int main (int argc, char **argv)
+{
+  const char *mode;
+  int opterr, c;
+  unsigned long bottom = 0,
+    top = ~0UL,
+    step = 1,
+    dummy = 0,
+    cnt;
+  
+  opterr = 0;  
+  
+  while ((c = getopt (argc, argv, "b:t:s:v:h")) != -1)
+    switch (c) {
+     case 'b':
+      bottom = strtoul (optarg, NULL, 10);
+      break;
+     case 't':
+      top = strtoul (optarg, NULL, 10);
+      break;
+     case 's':
+      step = strtoul (optarg, NULL, 10);
+      break;
+     case 'v':
+      verbose_step = strtoul (optarg, NULL, 10);
+      break;
+     case 'h':
+      help (stdout);
+      exit (0);
+      break;
+     case '?':
+     default:
+      fprintf (stderr, "Unknown option %s\n", argv[optind]);
+      help (stderr);
+      exit (1);
+    }
 
-<stelian@popies.net>:
-  o sonypi driver update
-  o make sonypi use ec_read/ec_write from ACPI patch
+  if (argc < 2) {
+    help (stderr);
+    return 1;
+  }
+  
+  mode = argv[optind];
 
-<valko@linux.karinthy.hu>:
-  o [SPARC64]: Translate IPT_SO_SET_REPLACE socket option for 32-bit apps
-  o [SPARC64]: Handle SO_TIMESTAMP properly in compat recvmsg
+  if (!strcmp (mode, "verify")) {
+    for (cnt = bottom; cnt < top; cnt += step) {
+      if (get_order_0 (cnt) != generic_get_order (cnt))
+        printf ("error: %lu - different results\n", cnt);
+      progress (cnt);
+    }
+  }
+  else if (!strcmp (mode, "speed-old")) {
+    for (cnt = bottom; cnt < top; cnt += step) {
+      dummy += get_order_0 (cnt);
+      progress (cnt);
+    }
+  }
+  else if (!strcmp (mode, "speed-new")) {
+    for (cnt = bottom; cnt < top; cnt += step) {
+      dummy += generic_get_order (cnt);
+      progress (cnt);
+    }
+  }
+  else {
+    fprintf (stderr, "Unknown mode\n");
+    help (stderr);
+    exit (1);
+  }
+  printf ("accumulated dummy = %lu\n", dummy);
+  return 0;
+}
 
-Adrian Bunk <bunk@fs.tum.de>:
-  o remove duplicate entries from Configure.help
+/*
+** Local Variables:
+**   compile-command: "cc -Iinclude/ -Wall -g -O2 goo.c -o goo"
+** End:
+*/
 
-Alan Cox <alan@lxorguk.ukuu.org.uk>:
-  o allow people to build M686 without PGE kernels
-  o more vaio apm blacklist entries
-  o mp oops fix
-  o MP message improvements
-  o remove confusing MP report
-  o nmi stack usage
-  o fix linux crash on boot with some boarss
-  o fix up cx86 docs
-  o IPMI driver
-  o enable ipmi config
-  o fix compile of 4.0 DRM
-  o more parisc specific merge bits
-  o parisc mux driver (parisc specific)
-  o disable taskfile I/O
-  o further IDE tape fixes
-  o Skip disabled IDE generic controllers
-  o Add ide software raid driver for Medley IDE raid
-  o add support for Nvidia nForce2 IDE
-  o Allow DMA setup on radeon IGP now we think its fixed
-  o allow selection of SI raid
-  o fix packet padding on 3c501
-  o fix packet padding on the 3c505
-  o more unusual USB storage devices
-  o fix packet padding on the 3c507
-  o fix packet padding on the 3c523
-  o fix packet padding on the 7990
-  o fix packet padding on the 8139too
-  o fix 8390 packet padding
-  o fix packet padding on at1700
-  o fix packet padding on atp
-  o fix de600/20 packet padding
-  o fix ni5010 packet padding
-  o fix ni52 packet padding
-  o fix packet padding on ni65
-  o fix packet padding on axnet_cs
-  o fix padding on sgiseeq
-  o fix sk_g16 padding
-  o fix sun3_82586 padding
-  o fix sun3lance packet padding
-  o further dscc4 updates
-  o document undocumentend field in SCSI headers
-  o fix ad1889 warning - void functions dont return values
-  o more unusual USB storage devices
-  o ; cut the mount hash table down to a sane size, and fix printk
-  o fix casting in pci dma
-  o parisc header update
-  o fix msdos end markers for compatibility with cameras etc
+diff -u linux/include/asm-alpha/page.h:1.1.1.2 linux/include/asm-alpha/page.h:1.1.1.1.6.4
+--- linux/include/asm-alpha/page.h:1.1.1.2	Mon Jan 13 23:03:09 2003
++++ linux/include/asm-alpha/page.h	Tue Jan 28 19:19:16 2003
+@@ -2,6 +2,7 @@
+ #define _ALPHA_PAGE_H
+ 
+ #include <asm/pal.h>
++#include <asm-generic/page.h>
+ 
+ /* PAGE_SHIFT determines the page size */
+ #define PAGE_SHIFT	13
+@@ -60,17 +61,9 @@
+ #endif /* STRICT_MM_TYPECHECKS */
+ 
+ /* Pure 2^n version of get_order */
+-extern __inline__ int get_order(unsigned long size)
++static __inline__ int get_order(unsigned long size)
+ {
+-	int order;
+-
+-	size = (size-1) >> (PAGE_SHIFT-1);
+-	order = -1;
+-	do {
+-		size >>= 1;
+-		order++;
+-	} while (size);
+-	return order;
++        return generic_get_order (size);
+ }
+ 
+ #endif /* !__ASSEMBLY__ */
+diff -u linux/include/asm-arm/page.h:1.1.1.2 linux/include/asm-arm/page.h:1.1.1.1.6.4
+--- linux/include/asm-arm/page.h:1.1.1.2	Mon Jan 13 23:03:09 2003
++++ linux/include/asm-arm/page.h	Tue Jan 28 19:19:16 2003
+@@ -2,6 +2,7 @@
+ #define _ASMARM_PAGE_H
+ 
+ #include <linux/config.h>
++#include <asm-generic/page.h>
+ 
+ #ifdef __KERNEL__
+ #ifndef __ASSEMBLY__
+@@ -163,15 +164,7 @@
+ /* Pure 2^n version of get_order */
+ static inline int get_order(unsigned long size)
+ {
+-	int order;
+-
+-	size = (size-1) >> (PAGE_SHIFT-1);
+-	order = -1;
+-	do {
+-		size >>= 1;
+-		order++;
+-	} while (size);
+-	return order;
++        return generic_get_order (size);
+ }
+ 
+ #include <asm/memory.h>
+diff -u /dev/null linux/include/asm-generic/page.h:1.1.2.1
+--- /dev/null	Tue Jan 28 19:40:27 2003
++++ linux/include/asm-generic/page.h	Mon Dec 16 20:36:48 2002
+@@ -0,0 +1,20 @@
++#ifndef _GENERIC_PAGE_H
++#define _GENERIC_PAGE_H
++
++#include <asm/bitops.h>
++
++/* Return 'n' in how many 2^n pages are needed to store s bytes.
++** (n == 0 for s == 0)
++*/
++
++static __inline__
++int generic_get_order (unsigned long s)
++{
++        s = (s - 1) >> PAGE_SHIFT;
++        if (s == 0)
++                return 0;
++        return fls (s);
++}
++
++#endif _GENERIC_PAGE_H
++
+diff -u linux/include/asm-i386/bitops.h:1.1.1.3 linux/include/asm-i386/bitops.h:1.1.1.3.2.3
+--- linux/include/asm-i386/bitops.h:1.1.1.3	Wed Dec 11 11:13:36 2002
++++ linux/include/asm-i386/bitops.h	Mon Jan 13 18:43:43 2003
+@@ -416,11 +416,19 @@
+ 	return word;
+ }
+ 
+-/*
+- * fls: find last bit set.
++/**
++ * __fls - find last bit in word.
++ * @word: The word to search
++ *
++ * Undefined if no bit exists, so code should check against 0 first.
+  */
+-
+-#define fls(x) generic_fls(x)
++static __inline__ unsigned long __fls(unsigned long word)
++{
++	__asm__("bsrl %1,%0"
++		:"=r" (word)
++		:"rm" (word));
++	return word;
++}
+ 
+ #ifdef __KERNEL__
+ 
+@@ -456,6 +464,23 @@
+ 	int r;
+ 
+ 	__asm__("bsfl %1,%0\n\t"
++		"jnz 1f\n\t"
++		"movl $-1,%0\n"
++		"1:" : "=r" (r) : "g" (x));
++	return r+1;
++}
++
++/**
++ * fls - find last bit set
++ * @x: the word to search
++ *
++ * Check out comments for ffs()
++ */
++static __inline__ int fls(int x)
++{
++	int r;
++
++	__asm__("bsrl %1,%0\n\t"
+ 		"jnz 1f\n\t"
+ 		"movl $-1,%0\n"
+ 		"1:" : "=r" (r) : "g" (x));
+diff -u linux/include/asm-i386/page.h:1.1.1.2 linux/include/asm-i386/page.h:1.1.1.1.6.4
+--- linux/include/asm-i386/page.h:1.1.1.2	Mon Jan 13 23:03:09 2003
++++ linux/include/asm-i386/page.h	Tue Jan 28 19:19:16 2003
+@@ -13,6 +13,7 @@
+ #ifndef __ASSEMBLY__
+ 
+ #include <linux/config.h>
++#include <asm-generic/page.h>
+ 
+ #ifdef CONFIG_X86_USE_3DNOW
+ 
+@@ -102,15 +103,7 @@
+ /* Pure 2^n version of get_order */
+ static __inline__ int get_order(unsigned long size)
+ {
+-	int order;
+-
+-	size = (size-1) >> (PAGE_SHIFT-1);
+-	order = -1;
+-	do {
+-		size >>= 1;
+-		order++;
+-	} while (size);
+-	return order;
++        return generic_get_order (size);
+ }
+ 
+ #endif /* __ASSEMBLY__ */
+diff -u linux/include/asm-m68k/page.h:1.1.1.3 linux/include/asm-m68k/page.h:1.1.1.2.2.4
+--- linux/include/asm-m68k/page.h:1.1.1.3	Mon Jan 13 23:03:09 2003
++++ linux/include/asm-m68k/page.h	Tue Jan 28 19:19:16 2003
+@@ -100,18 +100,17 @@
+ /* to align the pointer to the (next) page boundary */
+ #define PAGE_ALIGN(addr)	(((addr)+PAGE_SIZE-1)&PAGE_MASK)
+ 
+-/* Pure 2^n version of get_order */
+-extern __inline__ int get_order(unsigned long size)
+-{
+-	int order;
+ 
+-	size = (size-1) >> (PAGE_SHIFT-1);
+-	order = -1;
+-	do {
+-		size >>= 1;
+-		order++;
+-	} while (size);
+-	return order;
++/* Return 'n' in how many 2^n pages are needed to store s bytes.
++** (n == 0 for s == 0)
++*/
++
++#include <asm-generic/page.h>
++
++static __inline__
++int get_order (unsigned long s)
++{
++        return generic_get_order (s);
+ }
+ 
+ #endif /* !__ASSEMBLY__ */
+diff -u linux/include/asm-m68knommu/page.h:1.1.2.2 linux/include/asm-m68knommu/page.h:1.1.2.1.2.4
+--- linux/include/asm-m68knommu/page.h:1.1.2.2	Thu Jan 16 18:56:22 2003
++++ linux/include/asm-m68knommu/page.h	Tue Jan 28 19:19:16 2003
+@@ -51,19 +51,18 @@
+ /* to align the pointer to the (next) page boundary */
+ #define PAGE_ALIGN(addr)	(((addr)+PAGE_SIZE-1)&PAGE_MASK)
+ 
+-/* Pure 2^n version of get_order */
+-extern __inline__ int get_order(unsigned long size)
+-{
+-	int order;
++/* Return 'n' in how many 2^n pages are needed to store s bytes.
++** (n == 0 for s == 0)
++*/
++
++#include <asm-generic/page.h>
+ 
+-	size = (size-1) >> (PAGE_SHIFT-1);
+-	order = -1;
+-	do {
+-		size >>= 1;
+-		order++;
+-	} while (size);
+-	return order;
++static __inline__
++int get_order (unsigned long s)
++{
++        return generic_get_order (s);
+ }
++
+ 
+ extern unsigned long memory_start;
+ extern unsigned long memory_end;
+diff -u linux/include/asm-mips/page.h:1.1.1.2 linux/include/asm-mips/page.h:1.1.1.1.6.4
+--- linux/include/asm-mips/page.h:1.1.1.2	Mon Jan 13 23:03:09 2003
++++ linux/include/asm-mips/page.h	Tue Jan 28 19:19:16 2003
+@@ -46,18 +46,16 @@
+ #define __pgd(x)	((pgd_t) { (x) } )
+ #define __pgprot(x)	((pgprot_t) { (x) } )
+ 
+-/* Pure 2^n version of get_order */
+-extern __inline__ int get_order(unsigned long size)
+-{
+-	int order;
++/* Return 'n' in how many 2^n pages are needed to store s bytes.
++** (n == 0 for s == 0)
++*/
++
++#include <asm-generic/page.h>
+ 
+-	size = (size-1) >> (PAGE_SHIFT-1);
+-	order = -1;
+-	do {
+-		size >>= 1;
+-		order++;
+-	} while (size);
+-	return order;
++static __inline__
++int get_order (unsigned long s)
++{
++        return generic_get_order (s);
+ }
+ 
+ #endif /* _LANGUAGE_ASSEMBLY */
+diff -u linux/include/asm-parisc/page.h:1.1.1.2 linux/include/asm-parisc/page.h:1.1.1.1.6.4
+--- linux/include/asm-parisc/page.h:1.1.1.2	Mon Jan 13 23:03:09 2003
++++ linux/include/asm-parisc/page.h	Tue Jan 28 19:19:16 2003
+@@ -53,19 +53,18 @@
+ #define __pgd(x)	((pgd_t) { (x) } )
+ #define __pgprot(x)	((pgprot_t) { (x) } )
+ 
+-/* Pure 2^n version of get_order */
+-extern __inline__ int get_order(unsigned long size)
+-{
+-	int order;
++/* Return 'n' in how many 2^n pages are needed to store s bytes.
++** (n == 0 for s == 0)
++*/
++
++#include <asm-generic/page.h>
+ 
+-	size = (size-1) >> (PAGE_SHIFT-1);
+-	order = -1;
+-	do {
+-		size >>= 1;
+-		order++;
+-	} while (size);
+-	return order;
++static __inline__
++int get_order (unsigned long s)
++{
++        return generic_get_order (s);
+ }
++
+ 
+ #ifdef __LP64__
+ #define MAX_PHYSMEM_RANGES 8 /* Fix the size for now (current known max is 3) */
+diff -u linux/include/asm-ppc64/page.h:1.1.1.4 linux/include/asm-ppc64/page.h:1.1.1.2.2.5
+--- linux/include/asm-ppc64/page.h:1.1.1.4	Thu Jan 16 18:56:22 2003
++++ linux/include/asm-ppc64/page.h	Tue Jan 28 19:19:17 2003
+@@ -11,6 +11,7 @@
+  */
+ 
+ #include <linux/config.h>
++#include <asm-generic/page.h>
+ 
+ /* PAGE_SHIFT determines the page size */
+ #define PAGE_SHIFT	12
+@@ -96,19 +97,11 @@
+ 
+ #endif
+ 
+-/* Pure 2^n version of get_order */
+ static inline int get_order(unsigned long size)
+ {
+-	int order;
+-
+-	size = (size-1) >> (PAGE_SHIFT-1);
+-	order = -1;
+-	do {
+-		size >>= 1;
+-		order++;
+-	} while (size);
+-	return order;
++        return generic_get_order (size);
+ }
++
+ 
+ #define __pa(x) ((unsigned long)(x)-PAGE_OFFSET)
+ 
+diff -u linux/include/asm-s390/page.h:1.1.1.3 linux/include/asm-s390/page.h:1.1.1.2.2.4
+--- linux/include/asm-s390/page.h:1.1.1.3	Mon Jan 13 23:03:09 2003
++++ linux/include/asm-s390/page.h	Tue Jan 28 19:19:17 2003
+@@ -11,6 +11,7 @@
+ 
+ #include <asm/setup.h>
+ #include <asm/types.h>
++#include <asm-generic/page.h>
+ 
+ /* PAGE_SHIFT determines the page size */
+ #define PAGE_SHIFT      12
+@@ -63,17 +64,9 @@
+ #define copy_user_page(to, from, vaddr, pg)	copy_page(to, from)
+ 
+ /* Pure 2^n version of get_order */
+-extern __inline__ int get_order(unsigned long size)
++static __inline__ int get_order(unsigned long size)
+ {
+-        int order;
+-
+-        size = (size-1) >> (PAGE_SHIFT-1);
+-        order = -1;
+-        do {
+-                size >>= 1;
+-                order++;
+-        } while (size);
+-        return order;
++        return generic_get_order (size);
+ }
+ 
+ /*
+diff -u linux/include/asm-s390x/page.h:1.1.1.2 linux/include/asm-s390x/page.h:1.1.1.1.6.4
+--- linux/include/asm-s390x/page.h:1.1.1.2	Mon Jan 13 23:03:09 2003
++++ linux/include/asm-s390x/page.h	Tue Jan 28 19:19:17 2003
+@@ -10,6 +10,7 @@
+ #define _S390_PAGE_H
+ 
+ #include <asm/setup.h>
++#include <asm-generic/page.h>
+ 
+ /* PAGE_SHIFT determines the page size */
+ #define PAGE_SHIFT      12
+@@ -61,17 +62,9 @@
+ #define copy_user_page(to, from, vaddr, pg) copy_page(to, from)
+ 
+ /* Pure 2^n version of get_order */
+-extern __inline__ int get_order(unsigned long size)
++static __inline__ int get_order(unsigned long size)
+ {
+-        int order;
+-
+-        size = (size-1) >> (PAGE_SHIFT-1);
+-        order = -1;
+-        do {
+-                size >>= 1;
+-                order++;
+-        } while (size);
+-        return order;
++        return generic_get_order (size);
+ }
+ 
+ /*
+diff -u linux/include/asm-sh/page.h:1.1.1.2 linux/include/asm-sh/page.h:1.1.1.1.6.4
+--- linux/include/asm-sh/page.h:1.1.1.2	Mon Jan 13 23:03:09 2003
++++ linux/include/asm-sh/page.h	Tue Jan 28 19:19:17 2003
+@@ -14,6 +14,7 @@
+  */
+ 
+ #include <linux/config.h>
++#include <asm-generic/page.h>
+ 
+ /* PAGE_SHIFT determines the page size */
+ #define PAGE_SHIFT	12
+@@ -93,16 +94,9 @@
+ /* Pure 2^n version of get_order */
+ static __inline__ int get_order(unsigned long size)
+ {
+-	int order;
+-
+-	size = (size-1) >> (PAGE_SHIFT-1);
+-	order = -1;
+-	do {
+-		size >>= 1;
+-		order++;
+-	} while (size);
+-	return order;
++        return generic_get_order (size);
+ }
++
+ 
+ #endif
+ 
+diff -u linux/include/asm-sparc/page.h:1.1.1.3 linux/include/asm-sparc/page.h:1.1.1.2.2.4
+--- linux/include/asm-sparc/page.h:1.1.1.3	Mon Jan 13 23:03:09 2003
++++ linux/include/asm-sparc/page.h	Tue Jan 28 19:19:17 2003
+@@ -127,19 +127,18 @@
+ 
+ #define TASK_UNMAPPED_BASE	BTFIXUP_SETHI(sparc_unmapped_base)
+ 
+-/* Pure 2^n version of get_order */
+-extern __inline__ int get_order(unsigned long size)
+-{
+-	int order;
++/* Return 'n' in how many 2^n pages are needed to store s bytes.
++** (n == 0 for s == 0)
++*/
++
++#include <asm-generic/page.h>
+ 
+-	size = (size-1) >> (PAGE_SHIFT-1);
+-	order = -1;
+-	do {
+-		size >>= 1;
+-		order++;
+-	} while (size);
+-	return order;
++static __inline__
++int get_order (unsigned long s)
++{
++        return generic_get_order (s);
+ }
++
+ 
+ #else /* !(__ASSEMBLY__) */
+ 
+diff -u linux/include/asm-sparc64/page.h:1.1.1.2 linux/include/asm-sparc64/page.h:1.1.1.1.6.4
+--- linux/include/asm-sparc64/page.h:1.1.1.2	Mon Jan 13 23:03:09 2003
++++ linux/include/asm-sparc64/page.h	Tue Jan 28 19:19:17 2003
+@@ -149,18 +149,16 @@
+ 
+ extern struct sparc_phys_banks sp_banks[SPARC_PHYS_BANKS];
+ 
+-/* Pure 2^n version of get_order */
+-static __inline__ int get_order(unsigned long size)
+-{
+-	int order;
++/* Return 'n' in how many 2^n pages are needed to store s bytes.
++** (n == 0 for s == 0)
++*/
++
++#include <asm-generic/page.h>
+ 
+-	size = (size-1) >> (PAGE_SHIFT-1);
+-	order = -1;
+-	do {
+-		size >>= 1;
+-		order++;
+-	} while (size);
+-	return order;
++static __inline__
++int get_order (unsigned long s)
++{
++        return generic_get_order (s);
+ }
+ 
+ #endif /* !(__ASSEMBLY__) */
+diff -u linux/include/asm-v850/page.h:1.1.2.1 linux/include/asm-v850/page.h:1.1.2.1.2.3
+--- linux/include/asm-v850/page.h:1.1.2.1	Wed Dec 11 11:07:56 2002
++++ linux/include/asm-v850/page.h	Mon Jan 13 18:44:01 2003
+@@ -98,19 +98,18 @@
+ #define BUG()		__bug()
+ #define PAGE_BUG(page)	__bug()
+ 
+-/* Pure 2^n version of get_order */
+-extern __inline__ int get_order (unsigned long size)
+-{
+-	int order;
++/* Return 'n' in how many 2^n pages are needed to store s bytes.
++** (n == 0 for s == 0)
++*/
++
++#include <asm-generic/page.h>
+ 
+-	size = (size-1) >> (PAGE_SHIFT-1);
+-	order = -1;
+-	do {
+-		size >>= 1;
+-		order++;
+-	} while (size);
+-	return order;
++static __inline__
++int get_order (unsigned long s)
++{
++        return generic_get_order (s);
+ }
++
+ 
+ #endif /* !__ASSEMBLY__ */
+ 
+diff -u linux/include/asm-x86_64/page.h:1.1.1.3 linux/include/asm-x86_64/page.h:1.1.1.1.6.5
+--- linux/include/asm-x86_64/page.h:1.1.1.3	Thu Jan 16 18:56:22 2003
++++ linux/include/asm-x86_64/page.h	Tue Jan 28 19:19:17 2003
+@@ -71,19 +71,18 @@
+ 
+ #include <asm/bug.h>
+ 
+-/* Pure 2^n version of get_order */
+-extern __inline__ int get_order(unsigned long size)
+-{
+-	int order;
++/* Return 'n' in how many 2^n pages are needed to store s bytes.
++** (n == 0 for s == 0)
++*/
++
++#include <asm-generic/page.h>
+ 
+-	size = (size-1) >> (PAGE_SHIFT-1);
+-	order = -1;
+-	do {
+-		size >>= 1;
+-		order++;
+-	} while (size);
+-	return order;
++static __inline__
++int get_order (unsigned long s)
++{
++        return generic_get_order (s);
+ }
++
+ 
+ #endif /* __ASSEMBLY__ */
+ 
 
-Andi Kleen <ak@muc.de>:
-  o x86-64 update
-  o hammer support for i386
+-- 
 
-Andrea Arcangeli <andrea@suse.de>:
-  o O_DIRECT alignment fix
-
-Andrew Morton <akpm@digeo.com>:
-  o [SPARC64]: Handle unchanging _TIF_32BIT properly in SET_PERSONALITY
-  o sync_supers() race fix
-  o Fix ext3 scheduling storm and lockup
-  o 3c59x: add 3c920 support
-  o fix rare BUG in ext3
-
-Christoph Hellwig <hch@sgi.com>:
-  o fix scsi module unload bug
-  o cciss/cpqarray/md should use generic BLKGETSIZE
-  o properly handle too long pathnames in d_path
-  o update bdflush documentation
-
-Dave Engebretsen <engebret@us.ibm.com>:
-  o PPC64 update
-
-Dave Kleikamp <shaggy@shaggy.austin.ibm.com>:
-  o JFS: Remove invalid warning
-  o JFS: Remove COMMIT_Holdlock
-  o JFS: add jfs_get_volume_size() back
-  o JFS: Clean up flushing outstanding transactions to journal
-  o JFS: add sync_fs super_operation
-
-David Brownell <david-b@pacbell.net>:
-  o zaurus B500 (sl-5600?) & usbnet
-  o usb root hub strings
-
-David Gibson <david@gibson.dropbear.id.au>:
-  o Squash warnings in init/do_mounts.c
-
-David S. Miller <davem@nuts.ninka.net>:
-  o [USB]: rtl8150.c needs linux/init.h
-  o [TCP]: Add tcp_low_latency sysctl
-  o [TCP]: Fix typo in TCP_LOW_LATENCY changes
-
-Geert Uytterhoeven <geert@linux-m68k.org>:
-  o Amiflop incorrect sti()
-  o Atari ACSI exports
-  o M68k misc_register audit
-  o Mac/m68k config fixes
-  o Mac/m68k early startup fixes
-  o Mac/m68k Nubus updates
-  o Atari NVRAM
-  o m68k typo
-  o Q40 IRQ typo
-  o Replace Mac/m68k NS8390 with daynaport driver
-  o init_rootfs() prototype
-  o M68k matroxfb
-  o register_console() comment typo
-  o Mac/m68k NCR5380 SCSI updates
-
-Gerd Knorr <kraxel@bytesex.org>:
-  o videodev bugfix
-  o add bt832 driver
-  o bttv documentation update
-  o tuner update
-  o i2c tv modules update
-
-Greg Kroah-Hartman <greg@kroah.com>:
-  o USB: fix ehci build problem for older versions of gcc
-  o USB bluetooth: fix incorrect url in help text
-  o USB: Move the scanner ioctls to usb_scanner_ioctl.h to allow access by archs that need it
-
-Harald Welte <laforge@gnumonks.org>:
-  o [NETFILTER]: This patch fixes the ULOG target when logging packets without any ethernet header (mac address).
-
-Ivan Kokshaysky <ink@jurassic.park.msu.ru>:
-  o alpha update
-  o alpha: titan, marvel, srmcons updates
-
-Jeff Garzik <jgarzik@redhat.com>:
-  o [netdrvr tg3] s/spin_lock/spin_lock_irqsave/ in tg3_poll and tg3_timer
-  o [netdrvr tg3] Better interrupt masking
-  o [netdrvr tg3] flush irq-mask reg write before checking hw status block, in tg3_enable_ints.
-  o [netdrvr tg3] manage jumbo flag on MTU change when interface is down
-  o [netdrvr e100] remove file e100_proc, missed in previous patch (standard stats)
-  o [netdrvr tg3] more verbose failures, during initialization
-
-Jens Axboe <axboe@suse.de>:
-  o Fix ide highmem scatterlist setup
-  o fix CONFIG_IDE_DMA_ONLYDISK
-  o IDE: Do not call bh_phys() on buffers with invalid b_page
-
-John Stultz <johnstul@us.ibm.com>:
-  o Compensate lost ticks in x440s
-
-Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>:
-  o ISDN: Remove unfinished driver
-  o ISDN: Improve DTMF detection
-  o ISDN: Fix HiSax/ISAR fax handling bug
-  o ISDN: Add locking for list access
-  o ISDN: Add ISDN side support for Auerswald USB ISDN support
-  o ISDN: Small HiSax cleanups
-
-Khalid Aziz <khalid_aziz@hp.com>:
-  o Avoid ide-scsi from starting DMA too soon
-
-Marcel Holtmann <marcel@holtmann.org>:
-  o [Bluetooth] Make READ_VOICE_SETTING available for normal users
-  o [Bluetooth] Replace info message about SCO MTU with BT_DBG
-  o [Bluetooth] Remove wrong check for size value in rfcomm_wmalloc()
-
-Marcelo Tosatti <marcelo@freak.distro.conectiva>:
-  o Changed EXTRAVERSION to -pre4
-
-Olaf Hering <olh@suse.de>:
-  o autofs compat for ppc
-
-Oleg Drokin <green@angband.namesys.com>:
-  o reiserfs: iput deadlock fix - do not call iput() from inside of transaction
-
-Patrick McHardy <kaber@trash.net>:
-  o [NETFILTER]: Fix ipt_REJECT udp checksums
-  o [NETFILTER]: Fix incremental TCP checksum in ECN module
-  o [PPP]: Handle filtering drops correctly
-
-Paul Gortmaker <p_gortmaker@yahoo.com>:
-  o Fix wildcards in RTC alarm settings
-
-Paul Mackerras <paulus@samba.org>:
-  o add prctls for FP exception control
-
-Petr Vandrovec <vandrove@vc.cvut.cz>:
-  o Fix non-G450/G550 build of matroxfb
-
-Randy Dunlap <randy.dunlap@verizon.net>:
-  o usb-skeleton MINOR_BASE change
-
-Richard Henderson <rth@dot.sfbay.redhat.com>:
-  o [ALPHA] Add debugging access (core and ptrace) to the PAL unique value.
-
-Robert Olsson <robert.olsson@data.slu.se>:
-  o [NAPI]: Discuss some more issues in driver HOWTO
-
-Scott Feldman <scott.feldman@intel.com>:
-  o [netdrvr e100] Sync 2.4.x driver with 2.5.x driver
-  o [netdrvr e100] udelay a better way
-  o [netdrvr e100] standardize nic-specific stats output
-  o [netdrvr e100] fix TxDescriptor bit setting
-  o [netdrvr e1000] allocate ethtool eeprom buffer dynamically, rather than a large static allocation on the stack
-  o [netdrvr e1000] remove /proc support
-  o [netdrvr e1000] Add ethtool GSTATS support
-
-Simon Evans <spse@secret.org.uk>:
-  o USB: Backport konicawc driver to 2.4
-
-Tom Callaway <tcallawa@redhat.com>:
-  o [SUNLANCE]: Add missing asm/machine.h include for sun4 builds
-  o [SPARC64]: Add USB scanner ioctls to 32-bit compat table
-
-Trond Myklebust <trond.myklebust@fys.uio.no>:
-  o Fix Oopsable NFS condition in 2.4.21-preX
-
-Vojtech Pavlik <vojtech@suse.cz>:
-  o Fix the JSIOCGABSMAP et al ioctls in joydev.c
-  o Add new devices support to I-Force driver
-
+Inaky Perez-Gonzalez -- Not speaking for Intel - opinions are my own [or my fault]

@@ -1,53 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272540AbTHMNNH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 09:13:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272778AbTHMNNH
+	id S272778AbTHMNNT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 09:13:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272976AbTHMNNT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 09:13:07 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:56995 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S272540AbTHMNNF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 09:13:05 -0400
+	Wed, 13 Aug 2003 09:13:19 -0400
+Received: from [66.212.224.118] ([66.212.224.118]:1034 "EHLO
+	hemi.commfireservices.com") by vger.kernel.org with ESMTP
+	id S272778AbTHMNNR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Aug 2003 09:13:17 -0400
+Date: Wed, 13 Aug 2003 09:01:26 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: Andi Kleen <ak@suse.de>
+Subject: [PATCH][2.6-mm] cpumask_t/x86_64 __flush_gart fix
+Message-ID: <Pine.LNX.4.53.0308130852050.4078@montezuma.mastecende.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16186.14686.455795.927909@gargle.gargle.HOWL>
-Date: Wed, 13 Aug 2003 15:13:02 +0200
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: Ruben Puettmann <ruben@puettmann.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.22 APM problems with IBM Thinkpad's
-In-Reply-To: <20030813123119.GA25111@puettmann.net>
-References: <20030813123119.GA25111@puettmann.net>
-X-Mailer: VM 6.90 under Emacs 20.7.1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ruben Puettmann writes:
- > 
- >     hy,
- > 
- > cause many problems with acpi I try to get apm running on my ibm
- > thinkpad R40 ( 2722). But with 2.4.22-pre10 and 2.4.22-pre10-ac1.
- > 
- > Problems which happend:
- > 
- > apm -s don't work with radeonfb usb and so on see my mails on lkm the
- > last days
- > 
- > If CONFIG_APM_DISPLAY_BLANK is Y the thinkpad freezed on blanking the
- > display
-
-This sounds like a well-known APM/local-APIC clash.
-
-Never ever use DISPLAY_BLANK if you also have SMP or UP_APIC.
-
-With APIC support enabled (SMP or UP_APIC), APM must be constrained:
-DISPLAY_BLANK off
-CPU_IDLE off
-built-in driver, not module
-
-This is because the apm driver does BIOS calls, and many BIOSen
-(including the code in graphics cards, e.g. all Radeons it seems)
-like to hang if a local APIC timer interrupt arrives.
+Index: linux-2.6.0-test3-mm2-x86_64/arch/x86_64/kernel/pci-gart.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.6.0-test3/arch/x86_64/kernel/pci-gart.c,v
+retrieving revision 1.1.1.2
+diff -u -p -B -r1.1.1.2 pci-gart.c
+--- linux-2.6.0-test3-mm2-x86_64/arch/x86_64/kernel/pci-gart.c	13 Aug 2003 12:10:24 -0000	1.1.1.2
++++ linux-2.6.0-test3-mm2-x86_64/arch/x86_64/kernel/pci-gart.c	13 Aug 2003 12:50:14 -0000
+@@ -141,15 +141,16 @@ static void free_iommu(unsigned long off
+ static void __flush_gart(struct pci_dev *dev)
+ { 
+ 	unsigned long flags;
+-	int bus = dev ? dev->bus->number : -1; 
++	int bus = dev ? dev->bus->number : -1;
++	cpumask_const_t bus_cpumask = pcibus_to_cpumask(bus);
+ 	int flushed = 0;
+ 	int i;
+ 
+ 	spin_lock_irqsave(&iommu_bitmap_lock, flags);
+ 	/* recheck flush count inside lock */
+ 	if (need_flush) { 
+-		for (i = 0; northbridges[i]; i++) { 
+-			if (bus >= 0 && !(pcibus_to_cpumask(bus) & (1UL << i))) 
++		for (i = 0; northbridges[i]; i++) {
++			if (bus >= 0 && !(cpu_isset_const(i, bus_cpumask))) 
+ 				continue;
+ 			pci_write_config_dword(northbridges[i], 0x9c, 
+ 					       northbridge_flush_word[i] | 1); 

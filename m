@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291374AbSBGW2R>; Thu, 7 Feb 2002 17:28:17 -0500
+	id <S291375AbSBGW3r>; Thu, 7 Feb 2002 17:29:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291375AbSBGW17>; Thu, 7 Feb 2002 17:27:59 -0500
-Received: from air-2.osdl.org ([65.201.151.6]:63669 "EHLO segfault.osdlab.org")
-	by vger.kernel.org with ESMTP id <S291374AbSBGW1r>;
-	Thu, 7 Feb 2002 17:27:47 -0500
-Date: Thu, 7 Feb 2002 14:28:22 -0800 (PST)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: <mochel@segfault.osdlab.org>
-To: Peter Osterlund <petero2@telia.com>
-cc: Alessandro Suardi <alessandro.suardi@oracle.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.4-pre1 (decoded) oops on boot in device_create_file
-In-Reply-To: <m2bsf1hqz7.fsf@ppro.localdomain>
-Message-ID: <Pine.LNX.4.33.0202071426170.25114-100000@segfault.osdlab.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S291378AbSBGW3i>; Thu, 7 Feb 2002 17:29:38 -0500
+Received: from gw-yyz.somanetworks.com ([216.126.67.39]:28640 "EHLO
+	somanetworks.com") by vger.kernel.org with ESMTP id <S291375AbSBGW3e>;
+	Thu, 7 Feb 2002 17:29:34 -0500
+Date: Thu, 7 Feb 2002 17:29:26 -0500
+From: Mark Frazer <mark@somanetworks.com>
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+Cc: root@chaos.analogic.com, "Perches, Joe" <joe.perches@spirentcom.com>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+        "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>
+Subject: Re: want opinions on possible glitch in 2.4 network error reporti ng
+Message-ID: <20020207172926.A22693@somanetworks.com>
+In-Reply-To: <Pine.LNX.3.95.1020207151325.10014A-100000@chaos.analogic.com> <3C62EC67.FCB9958A@nortelnetworks.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C62EC67.FCB9958A@nortelnetworks.com>; from cfriesen@nortelnetworks.com on Thu, Feb 07, 2002 at 04:06:47PM -0500
+X-Message-Flag: Lookout!
+Organization: Detectable, well, not really
+X-Bender-1: In the event of an emergency, my ass can be used as a flotation
+X-Bender-2: device.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Chris Friesen <cfriesen@nortelnetworks.com> [02/02/07 16:04]:
+> under our control.  It seems to me to be logical to block the sender
+> until the congestion goes away, or return with an error code if the
+> sender is non-blocking.  This may not play nice with the current kernel
+> networking code (qdisc and all that) but doesn't it seem like a good
+> idea in principle?
 
-On 7 Feb 2002, Peter Osterlund wrote:
+If not, it is then possible for a user on a fast machine to hammer the
+network interfaces with UDP packets as some sort of denial of service
+attack?
 
-> Alessandro Suardi <alessandro.suardi@oracle.com> writes:
-> 
-> > Must be my time of the year - first the kmem_cache_create one in
-> >  2.5.3-pre[45], now this one (should happen about PCI allocation
-> >  of one of the Xircom CardBus resources):
-> 
-> I had the same problem with 2.5.4-pre2. The patch below makes my
-> laptop able to boot again, but I don't know if the patch is correct.
-
-That looks ok, since cardbus behaves internally much like PCI. 
-
-I'll check if there's anything else that needs to happen.
-
-	-pat
-
-Btw, thanks - I missed the original email in the sea of all the rest ;)
-
-
-
+Blocking all senders when the qdisc is full and round-robin'ing among
+the blocked would prevent this particular attack.

@@ -1,47 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267344AbUIUORl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267662AbUIUOTM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267344AbUIUORl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Sep 2004 10:17:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267592AbUIUORl
+	id S267662AbUIUOTM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Sep 2004 10:19:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267696AbUIUOTF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Sep 2004 10:17:41 -0400
-Received: from atlrel8.hp.com ([156.153.255.206]:53677 "EHLO atlrel8.hp.com")
-	by vger.kernel.org with ESMTP id S267344AbUIUORj (ORCPT
+	Tue, 21 Sep 2004 10:19:05 -0400
+Received: from pop.gmx.net ([213.165.64.20]:1235 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S267545AbUIUOSt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Sep 2004 10:17:39 -0400
-Subject: Re: [PATCH/RFC] exposing ACPI objects in sysfs
-From: Alex Williamson <alex.williamson@hp.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: acpi-devel <acpi-devel@lists.sourceforge.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040921122428.GB2383@elf.ucw.cz>
-References: <1095716476.5360.61.camel@tdi>
-	 <20040921122428.GB2383@elf.ucw.cz>
-Content-Type: text/plain
-Organization: LOSL
-Date: Tue, 21 Sep 2004 08:18:05 -0600
-Message-Id: <1095776285.6307.0.camel@tdi>
-Mime-Version: 1.0
-X-Mailer: Evolution 1.5.94.1 
+	Tue, 21 Sep 2004 10:18:49 -0400
+Date: Tue, 21 Sep 2004 16:18:47 +0200 (MEST)
+From: "Peter Seiderer" <ps.report@gmx.net>
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+References: <Pine.LNX.4.53.0409210944320.3495@chaos.analogic.com>
+Subject: Re: [BUG][2.6.8.1] Nevver dump core while /dev/men is mmaped
+X-Priority: 3 (Normal)
+X-Authenticated: #23711316
+Message-ID: <18354.1095776327@www24.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-09-21 at 14:24 +0200, Pavel Machek wrote:
-> Hi!
+> On Tue, 21 Sep 2004, Peter Seiderer wrote:
 > 
-> >    I've lost track of how many of these patches I've done, but here's
-> > the much anticipated next revision ;^)  The purpose of this patch is to
-> > expose ACPI objects in the already existing namespace in sysfs
-> > (/sys/firmware/acpi/namespace/ACPI).  There's a lot of information
+> > Hello,
+> > the following short program stops my computer immediately (no more
+> > input, telnet etc. possible):
+> >
+> > --- begin ---
+> > #include <stdio.h>
+> > #include <sys/types.h>
+> > #include <sys/stat.h>
+> > #include <fcntl.h>
+> > #include <sys/mman.h>
+> > #include <assert.h>
+> >
+> > int main(int argc, char *argv[]) {
+> > 	int fd;
+> > 	assert((fd = open("/dev/mem", O_RDWR)) != (-1));
+> >
+> > 	size_t s = 67108864;
+> > 	void *m;
+> > 	assert((m = mmap(NULL, s, PROT_READ|PROT_WRITE, MAP_SHARED, fd,
+> > 0xd0000000)) != NULL);
+>          ^^^^^^^^^^^^^^^
+>  Incorrect. mmap() returns MAP_FAILED, (void *)-1, when it fails, not
+> NULL, (void *)0.
 > 
-> Perhaps this needs some description in Documentation/ ?
+> 
+> Cheers,
+> Dick Johnson
+> Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
+>             Note 96.31% of all statistics are fiction.
 > 
 
-   Yes, definitely.  I'll work on some.  Thanks,
-
-	Alex
+Shit, you are right! But did not change anything on the bad kernel
+behaviour.....the mmap succeeds, and the kernel hangs in elf_core_dump.
+Peter
 
 -- 
-Alex Williamson                             HP Linux & Open Source Lab
++++ GMX DSL Premiumtarife 3 Monate gratis* + WLAN-Router 0,- EUR* +++
+Clevere DSL-Nutzer wechseln jetzt zu GMX: http://www.gmx.net/de/go/dsl
 

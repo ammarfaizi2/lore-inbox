@@ -1,46 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292429AbSBZRmv>; Tue, 26 Feb 2002 12:42:51 -0500
+	id <S292447AbSBZRqV>; Tue, 26 Feb 2002 12:46:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292447AbSBZRmq>; Tue, 26 Feb 2002 12:42:46 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:50949 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S292429AbSBZRmK>;
-	Tue, 26 Feb 2002 12:42:10 -0500
-Message-ID: <3C7BC897.8D607D08@zip.com.au>
-Date: Tue, 26 Feb 2002 09:40:39 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-rc2 i686)
-X-Accept-Language: en
+	id <S292466AbSBZRpt>; Tue, 26 Feb 2002 12:45:49 -0500
+Received: from mail.sonytel.be ([193.74.243.200]:31165 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S292467AbSBZRp1>;
+	Tue, 26 Feb 2002 12:45:27 -0500
+Date: Tue, 26 Feb 2002 18:45:08 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: Linux-Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: BK Kernel Hacking HOWTO
+In-Reply-To: <3C751CB2.52110E58@mandrakesoft.com>
+Message-ID: <Pine.GSO.4.21.0202261842290.8085-100000@vervain.sonytel.be>
 MIME-Version: 1.0
-To: christophe =?iso-8859-1?Q?barb=E9?= 
-	<christophe.barbe.ml@online.fr>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 3c59x and cardbus
-In-Reply-To: <20020226173038.GD803@ufies.org>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-christophe barbé wrote:
-> 
-> When you remove a 3c59x-based cardbus, the fonction vortex_remove_one
-> is called and this function end with kfree(dev).
-> 
-> I was looking why enable_wol loose its value after a remove/insert cycle
-> but this value is store in the private part of dev so it's free with
-> dev.
-> 
-> The driver is not unloaded during the remove/insert cycle so it's a
-> kernel space problem.
+On Thu, 21 Feb 2002, Jeff Garzik wrote:
+> Comments welcome...
 
-Yes, all driver state is destroyed when the hardware is removed.
-Look at it the other way: if this was not done, the driver would
-have a memory leak.
+| Submitting Changes to Linus
+| ---------------------------
 
-I guess it would be possible to retain some state across insertion
-cycles, keyed off the MAC address or something.  What's it needed
-for?
+  [...]
 
+| 2) Include an Internet-available URL for Linus to pull from, such as
+| 
+| 	Pull from:  http://gkernel.bkbits.net/net-drivers-2.5
+| 
+| 
+| 
+| 3) Include a summary and "diffstat -p1" of each changeset that will be
+| downloaded, when Linus issues a "bk pull".  The author auto-generates
+| these summaries using "bk push -nl <parent> 2>&1", to obtain a listing
+| of all the pending-to-send changesets, and their commit messages.
+| 
+| It is important to show Linus what he will be downloading when he issues
+| a "bk pull", to reduce the time required to sift the changes once they
+| are downloaded to Linus's local machine.
+| 
+| IMPORTANT NOTE:  One of the features of BK is that your repository does
+| not have to be up to date, in order for Linus to receive your changes.
+| It is considered a courtesy to keep your repository fairly recent, to
+| lessen any potential merge work Linus may need to do.
+| 
+| 
+| 4) Split up your changes.  Each maintainer<->Linus situation is likely
+| to be slightly different here, so take this just as general advice.  The
+| author splits up changes according to "themes" when merging with Linus.
+| Simultaneous pushes from local development to goes special trees which
+| exist solely to house changes "queued" for Linus.  Example of the trees:
+| 
+| 	net-drivers-2.5 -- on-going net driver maintenance
+| 	vm-2.5 -- VM-related changes
+| 	fs-2.5 -- filesystem-related changes
+| 
+| Linus then has much more freedom for pulling changes.  He could (for
+| example) issue a "bk pull" on vm-2.5 and fs-2.5 trees, to merge their
+| changes, but hold off net-drivers-2.5 because of a change that needs
+| more discussion.
+| 
+| Other maintainers may find that a single linus-pull-from tree is
+| adequate for passing BK changesets to him.
 
--
+So what if Linus isn't happy with the changes you made in the for-Him-to-pull
+tree? How do I back off (part of the changes)?
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+

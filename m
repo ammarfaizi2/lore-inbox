@@ -1,37 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263365AbTC2Afk>; Fri, 28 Mar 2003 19:35:40 -0500
+	id <S263328AbTC2AdL>; Fri, 28 Mar 2003 19:33:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263368AbTC2Afj>; Fri, 28 Mar 2003 19:35:39 -0500
-Received: from deviant.impure.org.uk ([195.82.120.238]:7343 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id <S263365AbTC2Afh>; Fri, 28 Mar 2003 19:35:37 -0500
-Message-Id: <200303290046.h2T0kp35027188@deviant.impure.org.uk>
-Date: Sat, 29 Mar 2003 00:46:36 +0000
-To: torvalds@transmeta.com
-From: davej@codemonkey.org.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: fix up newer x86 cpuinfo flags.
+	id <S263353AbTC2AdL>; Fri, 28 Mar 2003 19:33:11 -0500
+Received: from [12.47.58.223] ([12.47.58.223]:39572 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id <S263328AbTC2AdK>; Fri, 28 Mar 2003 19:33:10 -0500
+Date: Fri, 28 Mar 2003 16:44:19 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Cc: jamagallon@able.es, linux-kernel@vger.kernel.org
+Subject: Re: 3c59x gives HWaddr FF:FF:...
+Message-Id: <20030328164419.0fe82430.akpm@digeo.com>
+In-Reply-To: <1048897765.601.5.camel@teapot>
+References: <20030328145159.GA4265@werewolf.able.es>
+	<20030328124832.44243f83.akpm@digeo.com>
+	<20030328230510.GA5124@werewolf.able.es>
+	<1048897765.601.5.camel@teapot>
+X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 29 Mar 2003 00:44:20.0625 (UTC) FILETIME=[55F6A810:01C2F58C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-According to Intel document 24161823.pdf[*] page 18, 'tm2' is misdefined.
-Its bit 7 not, bit 8. Also add the missing 'EST' (Enhanced Speedstep Technology)
-bit, and use the correct Intel terminology for the context ID bit.
+Felipe Alfaro Solana <felipe_alfaro@linuxmail.org> wrote:
+>
+> I had exactly the same issue as you, but this time it was on my laptop
+> when using a 3CCFE575CT CardBus 10/100 NIC.
 
-[*] http://www.intel.com/design/xeon/applnots/241618.htm
+Don't think so.  You were getting 0xff when reading all PCI registers.  In
+this case it is only the MAC address (which comes from an external eeprom)
+which is coming up as 0xff.
 
-diff -urpN --exclude-from=/home/davej/.exclude bk-linus/arch/i386/kernel/cpu/proc.c linux-2.5/arch/i386/kernel/cpu/proc.c
---- bk-linus/arch/i386/kernel/cpu/proc.c	2003-03-15 19:33:58.000000000 +0000
-+++ linux-2.5/arch/i386/kernel/cpu/proc.c	2003-03-28 12:10:26.000000000 +0000
-@@ -44,8 +44,8 @@ static int show_cpuinfo(struct seq_file 
- 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
- 
- 		/* Intel-defined (#2) */
--		"pni", NULL, NULL, "monitor", "ds_cpl", NULL, NULL, NULL,
--		"tm2", NULL, "cnxt_id", NULL, NULL, NULL, NULL, NULL,
-+		"pni", NULL, NULL, "monitor", "ds_cpl", NULL, NULL, "tm2",
-+		"est", NULL, "cid", NULL, NULL, NULL, NULL, NULL,
- 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
- 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
- 
+0xff in the PCI regisers is a PCI setup problem, 0xff in the eeprom is a
+power management problem.
+
+(But the PCI IDs are read out of the eeprom into the PCI interface hardware
+by the hardware.  So the EEPROM must have been powered up and down again at
+some point.)
+

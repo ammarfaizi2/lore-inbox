@@ -1,53 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282848AbRK0H4G>; Tue, 27 Nov 2001 02:56:06 -0500
+	id <S282847AbRK0H5p>; Tue, 27 Nov 2001 02:57:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282847AbRK0Hz4>; Tue, 27 Nov 2001 02:55:56 -0500
-Received: from web20510.mail.yahoo.com ([216.136.226.145]:3588 "HELO
-	web20510.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S282846AbRK0Hzn>; Tue, 27 Nov 2001 02:55:43 -0500
-Message-ID: <20011127075542.70603.qmail@web20510.mail.yahoo.com>
-Date: Tue, 27 Nov 2001 08:55:42 +0100 (CET)
-From: =?iso-8859-1?q?willy=20tarreau?= <wtarreau@yahoo.fr>
-Subject: Re: [patch] 2.4.16: 802.1Q VLAN non-modular
-To: Ben Greear <greearb@candelatech.com>
+	id <S282849AbRK0H5i>; Tue, 27 Nov 2001 02:57:38 -0500
+Received: from ffke-campus-gw.mipt.ru ([194.85.82.65]:33484 "EHLO
+	www.2ka.mipt.ru") by vger.kernel.org with ESMTP id <S282846AbRK0H5S>;
+	Tue, 27 Nov 2001 02:57:18 -0500
+Date: Tue, 27 Nov 2001 10:57:07 +0300
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: sekhar raja <manamraja@yahoo.com>
 Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Subject: Re: Doubt in Kernel Timers
+Message-Id: <20011127105707.15897491.johnpol@2ka.mipt.ru>
+In-Reply-To: <20011127070845.55943.qmail@web14510.mail.yahoo.com>
+In-Reply-To: <20011127083602.0d19d985.johnpol@2ka.mipt.ru>
+	<20011127070845.55943.qmail@web14510.mail.yahoo.com>
+Reply-To: johnpol@2ka.mipt.ru
+Organization: MIPT
+X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> By the way, I just successfully compiled 2.4.16
-(including
-> VLAN builtin) with no problems.  It looks like
-Maciej is
-> compiling MIPS, so it may be a bug particular to
-that
-> platform?? 
+On Mon, 26 Nov 2001 23:08:45 -0800 (PST)
+sekhar raja <manamraja@yahoo.com> wrote:
 
-Ben, you remember the patch I sent to you a few weeks
-ago ?
-VLAN didn't link builtin on alpha because
-vlan_proc_cleanup()
-in section __exit was called from vlan_proc_init() in
-section
-__init, and it semt that the absolute offsets between
-these
-two functions were too big for the linker to put it on
-a 16 bit
-value (which was the space reserved for a relative
-call, it 
-seems). So the linker complained and stopped. I had to
-extract
-the cleanup from __exit and put it into another
-function which
-worked.
+> Do we need to Stop the timers if we want to Restart
+> the timers with new expiry time. 
 
-Regards,
-Willy
+You must simply use mod_timer() to change timer expires time.
 
+> I see in some implementations the timers are not
+> stoped before before they restart. Is it correct?
 
-___________________________________________________________
-Do You Yahoo!? -- Une adresse @yahoo.fr gratuite et en français !
-Yahoo! Courrier : http://courrier.yahoo.fr
+T.e. they are *not* use del_timer() and after it add_timer() with new
+expires time?
+With del and add some races can arise.
+It is correct to use mod_timer().
+
+> 
+> Thanks in Advance
+> -Rajasekhar
+> 
+---
+WBR. //s0mbre

@@ -1,65 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268113AbUHYP53@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267985AbUHYQAx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268113AbUHYP53 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 11:57:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267985AbUHYP53
+	id S267985AbUHYQAx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 12:00:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268042AbUHYQAx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 11:57:29 -0400
-Received: from smtp5.wanadoo.fr ([193.252.22.26]:53784 "EHLO
-	mwinf0507.wanadoo.fr") by vger.kernel.org with ESMTP
-	id S268121AbUHYP5H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 11:57:07 -0400
-Date: Wed, 25 Aug 2004 18:01:07 +0200
-From: Philippe Elie <phil.el@wanadoo.fr>
-To: Zarakin <zarakin@hotpop.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: nmi_watchdog=2 - Oops with 2.6.8
-Message-ID: <20040825160107.GA562@zaniah>
-References: <021101c48a44$c8f846e0$6401a8c0@novustelecom.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <021101c48a44$c8f846e0$6401a8c0@novustelecom.net>
-User-Agent: Mutt/1.4.2.1i
+	Wed, 25 Aug 2004 12:00:53 -0400
+Received: from mail4.utc.com ([192.249.46.193]:59332 "EHLO mail4.utc.com")
+	by vger.kernel.org with ESMTP id S267985AbUHYQAu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Aug 2004 12:00:50 -0400
+Message-ID: <412CB78F.9020000@cybsft.com>
+Date: Wed, 25 Aug 2004 11:00:15 -0500
+From: "K.R. Foley" <kr@cybsft.com>
+Organization: Cybersoft Solutions, Inc.
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040803)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Lee Revell <rlrevell@joe-job.com>
+CC: Ingo Molnar <mingo@elte.hu>, Scott Wood <scott@timesys.com>,
+       manas.saksena@timesys.com, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] voluntary-preempt-2.6.8.1-P9
+References: <20040823221816.GA31671@yoda.timesys>	 <20040824061459.GA29630@elte.hu>  <412C04DB.9000508@cybsft.com> <1093404161.5678.12.camel@krustophenia.net>
+In-Reply-To: <1093404161.5678.12.camel@krustophenia.net>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 24 Aug 2004 at 18:42 +0000, Zarakin wrote:
-
-> Hi,
+Lee Revell wrote:
+> On Tue, 2004-08-24 at 23:17, K.R. Foley wrote:
 > 
-> My Gentoo machine will not boot with nmi_watchdog=2 parameter - I get an
-> oops at clear_msr_range.
+>>Ingo Molnar wrote:
+>>
+>>>  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8.1-P9
+>>>
 > 
-> Handwritten oops Info:
-> CPU 0
-> EIP:  0060: [<0xc0110d4b>] Not tainted
-> EIP is at clear_msr_range+0x18/0x25
-> eax: 0  ebx:1f  ecx: 3ba  edx: 0
-> esi: 3a0  edi: 1a  ebp:0 esp: d7d83f74
-> ds: 7b es: 7b ss: 68
+> 
+>>latency trace of ~148 usec in scsi_request? I don't know if this is real 
+>>or not. Note the 79 usec here:
+>>
+>>00000001 0.107ms (+0.079ms): sd_init_command (scsi_prep_fn)
+>>
+>>Entire trace is here:
+>>
+>>http://www.cybsft.com/testresults/2.6.8.1-P9/latency_trace7.txt
+>>
+>>
+>>Is this possible? This is not the first time I have seen this. There is 
+>>another one here:
+>>
+>>http://www.cybsft.com/testresults/2.6.8.1-P9/latency_trace5.txt
+>>
+> 
+> 
+> This looks like a real latency.  What is
+> /sys/block/sdX/queue/max_sectors_kb set to?  Does lowering it help?
+> 
+> Lee
+> 
+> 
+Well I had no sooner sent the last message and another one of these 
+popped up. This one is 123 usec:
 
-> 0xc0110d4b <clear_msr_range+24>:        wrmsr
+http://www.cybsft.com/testresults/2.6.8.1-P9/latency_trace12.txt
 
-> model           : 3
-> model name      : Intel(R) Pentium(R) 4 CPU 2.80GHz
-
-try this patch please.
-
---- linux-2.5/arch/i386/kernel/nmi.c~	2004-06-15 10:52:00.000000000 +0200
-+++ linux-2.5/arch/i386/kernel/nmi.c	2004-08-25 17:33:45.000000000 +0200
-@@ -376,7 +376,13 @@
- 		clear_msr_range(0x3F1, 2);
- 	/* MSR 0x3F0 seems to have a default value of 0xFC00, but current
- 	   docs doesn't fully define it, so leave it alone for now. */
--	clear_msr_range(0x3A0, 31);
-+	if (boot_cpu_data.x86_model >= 0x3) {
-+		/* MSR_P4_IQ_ESCR0/1 (0x3ba/0x3bb) removed */
-+		clear_msr_range(0x3A0, 26);
-+		clear_msr_range(0x3BC, 3);
-+	} else {
-+		clear_msr_range(0x3A0, 31);
-+	}
- 	clear_msr_range(0x3C0, 6);
- 	clear_msr_range(0x3C8, 6);
- 	clear_msr_range(0x3E0, 2);
+kr

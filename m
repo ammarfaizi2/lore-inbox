@@ -1,42 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264915AbUGZDfa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264917AbUGZDfs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264915AbUGZDfa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jul 2004 23:35:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264917AbUGZDfa
+	id S264917AbUGZDfs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jul 2004 23:35:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264919AbUGZDfs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jul 2004 23:35:30 -0400
-Received: from mail.aspec.ru ([217.14.198.4]:57868 "EHLO mail.aspec.ru")
-	by vger.kernel.org with ESMTP id S264915AbUGZDf0 (ORCPT
+	Sun, 25 Jul 2004 23:35:48 -0400
+Received: from c3p0.cc.swin.edu.au ([136.186.1.30]:28937 "EHLO swin.edu.au")
+	by vger.kernel.org with ESMTP id S264917AbUGZDfp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jul 2004 23:35:26 -0400
-Message-ID: <41047BF6.1040403@belkam.com>
-Date: Mon, 26 Jul 2004 08:35:18 +0500
-From: Dmitry Melekhov <dm@belkam.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.4) Gecko/20030630
-X-Accept-Language: ru, en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.26, sundance, oops
-References: <40FB9119.5030507@belkam.com> <40FBA854.5050102@belkam.com>
-In-Reply-To: <40FBA854.5050102@belkam.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 25 Jul 2004 23:35:45 -0400
+To: "Adam J. Richter" <adam@yggdrasil.com>
+Cc: akpm@osdl.org, gotrooted@pop.com.br, linux-kernel@vger.kernel.org,
+       maillist@jg555.com, ramon.rey@hispalinux.es
+From: Tim Connors <tconnors+linuxkernel1090812328@astro.swin.edu.au>
+Subject: Re: Future devfs plans (sorry for previous incomplete message)
+In-reply-to: <200407261737.i6QHbff04878@freya.yggdrasil.com>
+References: <200407261737.i6QHbff04878@freya.yggdrasil.com>
+X-Face: +*%dmR:3=9i\[:8fga\UgZT#@`f=DU0(wQqI'AR2/r0sBMO}Ax\,V*cWaW-owRlUmuz&=v\KItx0:gRCBg1&z_"4x&-N#Di7))]~p2('`6|5.c3&:Z?VLU`Zt5Kb,~uC6<y}P'~7A+^'|'+iAd4t43:P;tPiT<q=9P$MO]u^@OHn1_4#qP7,XiSo21SkgI`:5=i$,t&uNN_\LfuLyH`)8!:Tb]Z
+Message-ID: <slrn-0.9.7.4-8783-19054-200407261325-tc@hexane.ssi.swin.edu.au>
+Date: Mon, 26 Jul 2004 13:34:30 +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dmitry Melekhov wrote:
+"Adam J. Richter" <adam@yggdrasil.com> said on Mon, 26 Jul 2004 10:37:41 -0700:
+> 	3. hardware that is incidentally plugged in, but which might not
+> 	   be used in the current session from boot to shutdown.  With the
+> 	   increasing popularity of USB and firewire, a user might have a
+> 	   "webcam", a still digital camera, a digital video converter, a
+> 	   flash reader, a printer, a scanner and an external disk that
+> 	   happen attached to the computer's USB network, with the user
+> 	   having no intention of using any of them during the current
+> 	   session from boot to shutdown.  This way, the cost of leaving
+> 	   some things plugged in for convenience is reduced.
 
-> Hello!
->
-> btw, I just got following:
->
-> NETDEV WATCHDOG: eth1: transmit timed out
-> eth1: Transmit timed out, TxStatus 00 TxFrameId 1e, resetting...
+Can udev etc handle the case where you have a parallel zip disk
+attached with a passthrough parallel port to the printer?
 
-OK. Just because there is no replies, I changed driver to
-sundance.c:v1.11 2/4/2003  Written by Donald Becker
+You can only have one of the lp or ppa drivers loaded at a time, and
+that is easy enough to do with autoloading of modules and devfs. It
+sounds like this is something which udev wouldn't be able to handle,
+and hence would be quite a regression.
 
-And it works for 5 days without any problem- no transmit timeouts, no 
-oopses.
+(please correct me if I am wrong)
 
-
+-- 
+TimC -- http://astronomy.swin.edu.au/staff/tconnors/
+Hacking's just another word for nothing left to kludge.

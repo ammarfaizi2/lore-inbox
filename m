@@ -1,119 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261497AbUEDWxK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261528AbUEDW45@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261497AbUEDWxK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 May 2004 18:53:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261528AbUEDWxK
+	id S261528AbUEDW45 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 May 2004 18:56:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261563AbUEDW45
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 May 2004 18:53:10 -0400
-Received: from the.earth.li ([193.201.200.66]:47568 "EHLO the.earth.li")
-	by vger.kernel.org with ESMTP id S261497AbUEDWwz (ORCPT
+	Tue, 4 May 2004 18:56:57 -0400
+Received: from zlynx.org ([199.45.143.209]:30214 "EHLO 199.45.143.209")
+	by vger.kernel.org with ESMTP id S261528AbUEDW4v (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 May 2004 18:52:55 -0400
-Date: Tue, 4 May 2004 23:52:54 +0100
-From: Jonathan McDowell <noodles@earth.li>
-To: Mirko Caserta <mirko@mcaserta.com>
-Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>, linux-scsi@vger.kernel.org
-Subject: Re: Initio INI-9X00U/UW error handling in 2.6
-Message-ID: <20040504225254.GQ2360@earth.li>
-References: <opr619y8b4psnffn@mail.mcaserta.com> <20040430183349.GX2360@earth.li> <opr7d7clzzpsnffn@mail.mcaserta.com>
+	Tue, 4 May 2004 18:56:51 -0400
+Subject: Re: sigaction, fork, malloc, and futex
+From: Zan Lynx <zlynx@acm.org>
+To: chris@scary.beasts.org
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0405042315001.24297@sphinx.mythic-beasts.com>
+References: <200405042015.i44KFb0R001900@emess.mscd.edu>
+	 <Pine.LNX.4.58.0405042315001.24297@sphinx.mythic-beasts.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-LeZ+qdJeNP6oUZ9/D39G"
+Message-Id: <1083711395.29189.10.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <opr7d7clzzpsnffn@mail.mcaserta.com>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7jb) 
+Date: Tue, 04 May 2004 16:56:36 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 02, 2004 at 11:58:59PM +0200, Mirko Caserta wrote:
-> On Fri, 30 Apr 2004 19:33:49 +0100, Jonathan McDowell <noodles@earth.li>  
-> wrote:
-> >On Mon, Apr 26, 2004 at 01:24:34PM +0200, Mirko Caserta wrote:
-> >>I was just wondering if someone is working on a fix for this:
-> >>
-> >>i91u: PCI Base=0xD000, IRQ=11, BIOS=0xFF000, SCSI ID=7
-> >>i91u: Reset SCSI Bus ...
-> >>ERROR: SCSI host `INI9100U' has no error handling
-> >>ERROR: This is not a safe way to run your SCSI host
-> >...
+
+--=-LeZ+qdJeNP6oUZ9/D39G
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+On Tue, 2004-05-04 at 16:30, chris@scary.beasts.org wrote:
+> Hi-
+>=20
+> On Tue, 4 May 2004, Steve Beaty wrote:
+>=20
 > >
-> >Try the attached; I wrote it a while back and made a cleanup based on
-> >comments from James Bottomley, but no one else seemed to be using the
-> >driver. It worked for me however.
-> I had to hack it a little bit to make it cleanly patch my 2.6.6-rc2-mm2  
-> and it works great.
+> > 	anyone have a clue on this one?  we set up a signal handler, create
+> > 	a child that sends that signal, and have the signal handler fork
+> > 	another child.  if there is a malloc(), the second child gets stuck
+> > 	in a futex(); without the malloc(), no problem.  2.4.20-30.9
+> > 	kernel.  straces at the end.  any help would be appreciated.
+> > 	thanks!
+>=20
+> Your signal handler function is illegally calling non-reentrant functions=
+.
+> The *printf() family of functions are going to need to call malloc() to
+> allocate buffers. malloc() cannot be re-entered.
+>=20
+> So specifically your deadlock sequence is:
+>=20
+> Parent:
+> fork()
+> fprintf()
+> -> malloc()
+>    -> take a malloc() lock
+> (Child schedules and sends SIGALRM at this point)
+> SIGALRM:
+> fprintf()
+> -> malloc()
+>    -> try to take a malloc() lock
+>       -> deadlock, lock is already taken and will never be released!
+>=20
+> Modern glibc / kernel combinations which use futexes in the malloc code
+> really seem to expose this race.
+>=20
+> Cheers
+> Chris
 
-Cool, glad it works for you.
+No, it's nothing to do with the fprintf.  I tried the program without
+any fprints at all and got the same result.
 
-> Thanks, could you please let this patch make its way upstream?
+I'm pretty sure the problem is in glibc.  Look at malloc_atfork and
+free_atfork in glibc's malloc/arena.c.  I think the reason you are only
+seeing it happen when you malloc is that glibc only initializes the
+malloc system when you first use it.
 
-I guess the right people to ask are the folk on linux-scsi; is there
-any chance of it going into the linux-scsi bk patches that akpm is
-pulling into -mm?
+I am not sure it is really a problem though.  I don't think you should
+be allowed to fork inside a signal handler.  That seems very wrong.
+--=20
+Zan Lynx <zlynx@acm.org>
 
-J.
+--=-LeZ+qdJeNP6oUZ9/D39G
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
--- 
-Revd. Jonathan McDowell, ULC | noodles is criminal
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
-------------
-diff -ruN linux-2.6.5.orig/drivers/scsi/ini9100u.c linux-2.6.5/drivers/scsi/ini9100u.c
---- linux-2.6.5.orig/drivers/scsi/ini9100u.c	2004-04-30 19:36:05.000000000 +0100
-+++ linux-2.6.5/drivers/scsi/ini9100u.c	2004-04-30 19:40:06.000000000 +0100
-@@ -106,6 +106,8 @@
-  *		- Changed the assumption that HZ = 100
-  * 10/17/03 mc	- v1.04
-  *		- added new DMA API support
-+ * 06/01/04 jmd	- v1.04a
-+ *		- Re-add reset_bus support
-  **************************************************************************/
- 
- #define CVT_LINUX_VERSION(V,P,S)        (V * 65536 + P * 256 + S)
-@@ -149,6 +151,7 @@
- 	.queuecommand	= i91u_queue,
- //	.abort		= i91u_abort,
- //	.reset		= i91u_reset,
-+	.eh_bus_reset_handler = i91u_bus_reset,
- 	.bios_param	= i91u_biosparam,
- 	.can_queue	= 1,
- 	.this_id	= 1,
-@@ -161,7 +164,7 @@
- char *i91uCopyright = "Copyright (C) 1996-98";
- char *i91uInitioName = "by Initio Corporation";
- char *i91uProductName = "INI-9X00U/UW";
--char *i91uVersion = "v1.04";
-+char *i91uVersion = "v1.04a";
- 
- #define TULSZ(sz)     (sizeof(sz) / sizeof(sz[0]))
- #define TUL_RDWORD(x,y)         (short)(inl((int)((ULONG)((ULONG)x+(UCHAR)y)) ))
-@@ -550,6 +553,15 @@
- 		return tul_device_reset(pHCB, (ULONG) SCpnt, SCpnt->device->id, reset_flags);
- }
- 
-+int i91u_bus_reset(Scsi_Cmnd * SCpnt)
-+{
-+	HCS *pHCB;
-+
-+	pHCB = (HCS *) SCpnt->device->host->base;
-+	tul_reset_scsi(pHCB, 0);
-+	return SUCCESS;
-+}
-+
- /*
-  * Return the "logical geometry"
-  */
-diff -ruN linux-2.6.5.orig/drivers/scsi/ini9100u.h linux-2.6.5/drivers/scsi/ini9100u.h
---- linux-2.6.5.orig/drivers/scsi/ini9100u.h	2003-12-18 02:58:56.000000000 +0000
-+++ linux-2.6.5/drivers/scsi/ini9100u.h	2004-04-30 19:39:30.000000000 +0100
-@@ -82,10 +82,11 @@
- extern int i91u_queue(Scsi_Cmnd *, void (*done) (Scsi_Cmnd *));
- extern int i91u_abort(Scsi_Cmnd *);
- extern int i91u_reset(Scsi_Cmnd *, unsigned int);
-+extern int i91u_bus_reset(Scsi_Cmnd *);
- extern int i91u_biosparam(struct scsi_device *, struct block_device *,
- 		sector_t, int *);
- 
--#define i91u_REVID "Initio INI-9X00U/UW SCSI device driver; Revision: 1.03g"
-+#define i91u_REVID "Initio INI-9X00U/UW SCSI device driver; Revision: 1.04a"
- 
- #define VIRT_TO_BUS(i)  (unsigned int) virt_to_bus((void *)(i))
- #define ULONG   unsigned long
+iD8DBQBAmB+jG8fHaOLTWwgRAq/0AKCj3rtUWKKjifAsTaWvY4lwUeRQOgCeOQcp
+ipsxNgWy9H1EL0QPB6Gu6XY=
+=JJih
+-----END PGP SIGNATURE-----
+
+--=-LeZ+qdJeNP6oUZ9/D39G--
+

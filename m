@@ -1,58 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268965AbUIBUQq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268937AbUIBUUX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268965AbUIBUQq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 16:16:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268963AbUIBUNu
+	id S268937AbUIBUUX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 16:20:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268764AbUIBURH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 16:13:50 -0400
-Received: from c002781a.fit.bostream.se ([217.215.235.8]:36228 "EHLO
-	mail.tnonline.net") by vger.kernel.org with ESMTP id S268906AbUIBUKP
+	Thu, 2 Sep 2004 16:17:07 -0400
+Received: from pfepb.post.tele.dk ([195.41.46.236]:18052 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S268948AbUIBUIm
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 16:10:15 -0400
-Date: Thu, 2 Sep 2004 22:10:07 +0200
-From: Spam <spam@tnonline.net>
-Reply-To: Spam <spam@tnonline.net>
-X-Priority: 3 (Normal)
-Message-ID: <534382013.20040902221007@tnonline.net>
-To: Chris Wedgwood <cw@f00f.org>
-CC: Lee Revell <rlrevell@joe-job.com>, Pavel Machek <pavel@ucw.cz>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Jamie Lokier <jamie@shareable.org>, David Masover <ninja@slaphack.com>,
-       <viro@parcelfarce.linux.theplanet.co.uk>,
-       Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
-       Hans Reiser <reiser@namesys.com>, <linux-fsdevel@vger.kernel.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: silent semantic changes with reiser4
-In-Reply-To: <20040902200403.GA6875@taniwha.stupidest.org>
-References: <rlrevell@joe-job.com> <1094079071.1343.25.camel@krustophenia.net>
- <200409021425.i82EPn9i005192@laptop11.inf.utfsm.cl>
- <1535878866.20040902214144@tnonline.net>
- <20040902194909.GA8653@atrey.karlin.mff.cuni.cz>
- <1094155277.11364.92.camel@krustophenia.net>
- <20040902200403.GA6875@taniwha.stupidest.org>
-MIME-Version: 1.0
+	Thu, 2 Sep 2004 16:08:42 -0400
+Date: Thu, 2 Sep 2004 22:11:00 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Oliver Antwerpen <olli@giesskaennchen.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel Build error (objdump fails)
+Message-ID: <20040902201100.GA15298@mars.ravnborg.org>
+Mail-Followup-To: Oliver Antwerpen <olli@giesskaennchen.de>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <41377705.9060305@giesskaennchen.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <41377705.9060305@giesskaennchen.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Sep 02, 2004 at 09:39:49PM +0200, Oliver Antwerpen wrote:
+> Hi folks,
+> 
+> when compiling the linux kernel (I tried 2.6.8, 2.6.8.1, 2.6.9-rc1) I get:
+> 
+>   CC      arch/i386/kernel/acpi/sleep.o
+>   AS      arch/i386/kernel/acpi/wakeup.o
+>   LD      arch/i386/kernel/acpi/built-in.o
+> arch/i386/kernel/acpi/boot.o: file not recognized: File truncated
+> make[2]: *** [arch/i386/kernel/acpi/built-in.o] Error 1
+> make[1]: *** [arch/i386/kernel/acpi] Error 2
+> make: *** [arch/i386/kernel] Error 2
 
-> On Thu, Sep 02, 2004 at 04:01:17PM -0400, Lee Revell wrote:
+Strange...
+Try the following:
+rm arch/i386/kernel/acpi/boot.o
+make V=1
 
->> Better to have the contents accessible via a separate stream, in the
->> same namespace.  Fix it once in the kernel vs. fix it in umpteen
->> apps.
+Since you have tried several versions I assume this file has been rebuild,
+so it will still fail.
 
-> This is ridiculous.  We have shared libraries, 99% of applications
-> manage to use libc for example --- this isn't that different.
+Try:
+nm -p arch/i386/kernel/acpi/boot.o
+objdump -x arch/i386/kernel/acpi/boot.o
 
-  Yes if that was the case then programs wouldn't brake if libc and
-  its API was fixed. Sadly, I think it isn't.
+Try running the gcc command by hand and see if .o file is still bad.
 
-  ~S
-
-
->   --cw
-
+	Sam

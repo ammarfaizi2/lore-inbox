@@ -1,74 +1,212 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261488AbTDHQkZ (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 12:40:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261528AbTDHQkZ (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 12:40:25 -0400
-Received: from ns2.ypf.com.ar ([200.32.103.4]:58250 "EHLO ns2.ypf.com.ar")
-	by vger.kernel.org with ESMTP id S261488AbTDHQjo convert rfc822-to-8bit (for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Apr 2003 12:39:44 -0400
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Subject: Uncompressing Linux... Ok, booting the kernel.
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
-Date: Tue, 8 Apr 2003 13:51:16 -0300
-Message-ID: <B93FC7A08A0B954C9590761383E59C9F4951A9@dti.ypf.com.ar>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Uncompressing Linux... Ok, booting the kernel.
-Thread-Index: AcL97xI+1B9QtmSDQySM/Hvl5gnmOA==
-From: <FRODRIGUEZC@REPSOLYPF.COM>
-To: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 08 Apr 2003 16:51:04.0546 (UTC) FILETIME=[0B201C20:01C2FDEF]
+	id S261326AbTDHQdF (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 12:33:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261482AbTDHQdF (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 12:33:05 -0400
+Received: from mailrelay2.lanl.gov ([128.165.4.103]:38860 "EHLO
+	mailrelay2.lanl.gov") by vger.kernel.org with ESMTP id S261326AbTDHQc6 (for <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Apr 2003 12:32:58 -0400
+Subject: Re: 2.5.67 kernel BUG at fs/buffer.c:2538
+From: Steven Cole <elenstev@mesatop.com>
+To: Helge Hafting <helgehaf@aitel.hist.no>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20030408163054.GA568@hh.idb.hist.no>
+References: <1049815653.32665.1135.camel@spc9.esa.lanl.gov>
+	 <20030408163054.GA568@hh.idb.hist.no>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1049820255.32480.1145.camel@spc9.esa.lanl.gov>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2-3mdk 
+Date: 08 Apr 2003 10:44:15 -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2003-04-08 at 10:30, Helge Hafting wrote:
+> On Tue, Apr 08, 2003 at 09:27:33AM -0600, Steven Cole wrote:
+> > This may be a case of:
+> > 
+> > "It hurts when I do this:"
+> > "Then don't do that!"
+> > 
+> > I started the latest security updated package of samba with
+> > kernel 2.5.67, but I had forgotten to set CONFIG_SMB_FS.
+> > The box became unresponsive, and then locked hard. Didn't respond
+> > to pings, etc.  So I had to alt-sysrq-b. Now, samba is broken somehow, 
+> > ERROR: Samba cannot create a SAM SID.
+> > so I can't presently retest with SMB_FS=y and 2.5.67 or with
+> > the vendor kernel (2.4.21-0.13mdk). 
+> 
+> I tried starting samba on 2.5.66-mm3, and it died the same way,
+> even though I had smbfs compiled in.  I guess smbfs in 2.5 is a bit
+> shaky, at least in some configurations.  Do you too have
+> preempt?
 
-Please, if someone can help me... the problem is, that all I see is:
+Yes, PREEMPT=y.  For what it's worth, here is the
+output of grep ^CONFIG .config
 
-Uncompressing Linux... Ok, booting the kernel. 
+CONFIG_X86=y
+CONFIG_MMU=y
+CONFIG_UID16=y
+CONFIG_GENERIC_ISA_DMA=y
+CONFIG_EXPERIMENTAL=y
+CONFIG_SWAP=y
+CONFIG_SYSVIPC=y
+CONFIG_SYSCTL=y
+CONFIG_LOG_BUF_SHIFT=14
+CONFIG_X86_PC=y
+CONFIG_MPENTIUMIII=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_L1_CACHE_SHIFT=5
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_INTEL_USERCOPY=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_X86_PREFETCH=y
+CONFIG_PREEMPT=y
+CONFIG_X86_UP_APIC=y
+CONFIG_X86_UP_IOAPIC=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_X86_IO_APIC=y
+CONFIG_X86_TSC=y
+CONFIG_X86_MCE=y
+CONFIG_NOHIGHMEM=y
+CONFIG_HAVE_DEC_LOCK=y
+CONFIG_PM=y
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_NAMES=y
+CONFIG_ISA=y
+CONFIG_KCORE_ELF=y
+CONFIG_BINFMT_AOUT=y
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_MISC=y
+CONFIG_PARPORT=y
+CONFIG_PARPORT_PC=y
+CONFIG_PNP=y
+CONFIG_ISAPNP=y
+CONFIG_BLK_DEV_FD=y
+CONFIG_LBD=y
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_IDEDISK_MULTI_MODE=y
+CONFIG_BLK_DEV_IDECD=y
+CONFIG_BLK_DEV_CMD640=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_BLK_DEV_GENERIC=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_BLK_DEV_ADMA=y
+CONFIG_BLK_DEV_PIIX=y
+CONFIG_BLK_DEV_RZ1000=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_BLK_DEV_IDE_MODES=y
+CONFIG_SCSI=y
+CONFIG_CHR_DEV_SG=y
+CONFIG_SCSI_MULTI_LUN=y
+CONFIG_SCSI_CONSTANTS=y
+CONFIG_SCSI_SYM53C8XX=y
+CONFIG_SCSI_NCR53C8XX_DEFAULT_TAGS=4
+CONFIG_SCSI_NCR53C8XX_MAX_TAGS=32
+CONFIG_SCSI_NCR53C8XX_SYNC=20
+CONFIG_NET=y
+CONFIG_PACKET=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+CONFIG_IPV6_SCTP__=y
+CONFIG_NETDEVICES=y
+CONFIG_DUMMY=y
+CONFIG_NET_ETHERNET=y
+CONFIG_NET_VENDOR_3COM=y
+CONFIG_VORTEX=y
+CONFIG_NET_PCI=y
+CONFIG_EEPRO100=y
+CONFIG_INPUT=y
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+CONFIG_SOUND_GAMEPORT=y
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+CONFIG_KEYBOARD_XTKBD=y
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=y
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX98_PTY_COUNT=256
+CONFIG_PRINTER=y
+CONFIG_AGP=y
+CONFIG_AGP_INTEL=y
+CONFIG_AGP_VIA=y
+CONFIG_AGP_AMD=y
+CONFIG_AGP_SIS=y
+CONFIG_AGP_ALI=y
+CONFIG_DRM=y
+CONFIG_HANGCHECK_TIMER=y
+CONFIG_EXT2_FS=y
+CONFIG_EXT3_FS=y
+CONFIG_EXT3_FS_XATTR=y
+CONFIG_EXT3_FS_POSIX_ACL=y
+CONFIG_JBD=y
+CONFIG_FS_MBCACHE=y
+CONFIG_REISERFS_FS=y
+CONFIG_JFS_FS=y
+CONFIG_FS_POSIX_ACL=y
+CONFIG_XFS_FS=y
+CONFIG_AUTOFS4_FS=y
+CONFIG_ISO9660_FS=y
+CONFIG_PROC_FS=y
+CONFIG_DEVFS_FS=y
+CONFIG_DEVFS_MOUNT=y
+CONFIG_DEVPTS_FS=y
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+CONFIG_NFS_FS=y
+CONFIG_NFSD=y
+CONFIG_LOCKD=y
+CONFIG_EXPORTFS=y
+CONFIG_SUNRPC=y
+CONFIG_SMB_FS=y
+CONFIG_SMB_NLS_DEFAULT=y
+CONFIG_SMB_NLS_REMOTE="n"
+CONFIG_MSDOS_PARTITION=y
+CONFIG_SMB_NLS=y
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="iso8859-1"
+CONFIG_NLS_CODEPAGE_850=y
+CONFIG_NLS_ISO8859_1=y
+CONFIG_FB=y
+CONFIG_VGA_CONSOLE=y
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_LOGO=y
+CONFIG_LOGO_LINUX_MONO=y
+CONFIG_LOGO_LINUX_VGA16=y
+CONFIG_LOGO_LINUX_CLUT224=y
+CONFIG_USB=y
+CONFIG_USB_STORAGE=y
+CONFIG_DEBUG_KERNEL=y
+CONFIG_MAGIC_SYSRQ=y
+CONFIG_KALLSYMS=y
+CONFIG_X86_EXTRA_IRQS=y
+CONFIG_X86_FIND_SMP_CONFIG=y
+CONFIG_X86_MPPARSE=y
+CONFIG_X86_BIOS_REBOOT=y
 
-The kernel type is OK, because the same kernel is happily running on another Pentium III Xeon.
-Actually this kernel was compiled by the people at SAP and I am supposed to make it run without
-making any changes. Actually I do not have the info on how this kernel was compiled
-(or with what patches).
-
-I read an Alan Cox message stating it could be that the kernel would be running, but not
-showing it on a terminal. This is not the case though because I have pinged the machine
-several minutes after the above message appears on screen an nothing, the machine is dead.
-
-I also tried disabling the serial consoles with no results.
-
-The machine is a Compaq Proliant DL580 with 4 Pentium Xeon 700mhz processors and
-4 GBs of RAM. It has installed linux RedHat 7.1 (the release certified by SAP).
-
-This is the ls of the non working kernel:
-
--rw-r--r--    1 root     root      1052022 Feb 26  2002 vmlinuz-2.4.9-31enterprise
--rw-r--r--    1 root     root       237352 Apr  8 12:55 initrd-2.4.9-31enterprise.reiserfs.img
-
-I rebuilt the initrd file like this:
-mkinitrd -f --with=reiserfs  --fstab=/etc/fstab /boot/initrd-2.4.9-31enterprise.reiserfs.img 2.4.9-31enterprise
-
-The original SMP kernel included in RedHat boots fine on this hardware. It is somewhat smaller
-though:
-
--rw-r--r--    1 root     root       840884 Apr  8  2001 vmlinuz-2.4.2-2smp
-
-This same SAP kernel I have already running on an 8 PIII Xeon with 8 GBs RAM, without problems.
-The server is a Hewlett Packard, instead of a Compaq.
-
-I also tried to check the servers base memory settings, but there is no such thing in the
-Compaq BIOS setup program. Only param shown is the memory size.
-
-I did an md5sum on the kernel image and compared to the one running on the HP server. Both
-images are identical.
 
 
-
-Thanks in advance.
-
---------------------------------------------------
-Fernán Rodríguez Céspedes
-.--. .- ... - .. - --- 

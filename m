@@ -1,49 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262349AbVCHVUo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262359AbVCHVYA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262349AbVCHVUo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 16:20:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262350AbVCHVUo
+	id S262359AbVCHVYA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 16:24:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262369AbVCHVYA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 16:20:44 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:54999 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262349AbVCHVUk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 16:20:40 -0500
-Date: Tue, 8 Mar 2005 21:20:27 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>, paul@linuxaudiosystems.com,
-       mpm@selenic.com, joq@io.com, cfriesen@nortelnetworks.com,
-       Chris Wright <chrisw@osdl.org>, arjanv@redhat.com,
-       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [request for inclusion] Realtime LSM
-Message-ID: <20050308212027.GA17664@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Lee Revell <rlrevell@joe-job.com>, Andrew Morton <akpm@osdl.org>,
-	Ingo Molnar <mingo@elte.hu>, paul@linuxaudiosystems.com,
-	mpm@selenic.com, joq@io.com, cfriesen@nortelnetworks.com,
-	Chris Wright <chrisw@osdl.org>, arjanv@redhat.com,
-	alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-References: <20050112185258.GG2940@waste.org> <200501122116.j0CLGK3K022477@localhost.localdomain> <20050307195020.510a1ceb.akpm@osdl.org> <20050308035503.GA31704@infradead.org> <20050307201646.512a2471.akpm@osdl.org> <20050308042242.GA15356@elte.hu> <20050307202821.150bd023.akpm@osdl.org> <20050308043250.GA32746@infradead.org> <1110308156.4401.4.camel@mindpipe>
+	Tue, 8 Mar 2005 16:24:00 -0500
+Received: from cimice4.lam.cz ([212.71.168.94]:37255 "EHLO vagabond.light.src")
+	by vger.kernel.org with ESMTP id S262359AbVCHVWo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Mar 2005 16:22:44 -0500
+Date: Tue, 8 Mar 2005 22:18:49 +0100
+From: Jan Hudec <bulb@ucw.cz>
+To: Weber Matthias <weber@faps.uni-erlangen.de>
+Cc: kernelnewbies@nl.linux.org, linux-kernel@vger.kernel.org
+Subject: Re: Writing data > PAGESIZE into kernel with proc fs
+Message-ID: <20050308211849.GA20626@vagabond>
+References: <09766A6E64A068419B362367800D50C0B58A4F@moritz.faps.uni-erlangen.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="RnlQjJ0d97Da+TV1"
 Content-Disposition: inline
-In-Reply-To: <1110308156.4401.4.camel@mindpipe>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+In-Reply-To: <09766A6E64A068419B362367800D50C0B58A4F@moritz.faps.uni-erlangen.de>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 08, 2005 at 01:55:55PM -0500, Lee Revell wrote:
-> And as I mentioned a few times, the authors have neither the inclination
-> nor the ability to do that, because they are not kernel hackers.  The
-> realtime LSM was written by users (not developers) of the kernel, to
-> solve a specific real world problem.  No one ever claimed it was the
-> correct solution from the kernel POV.
 
-And I told you that doesn't matter.  If someone wants a feature in they
-should find a way to make it palable.  We're not accepting such excuses
-to put in crap.
+--RnlQjJ0d97Da+TV1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
+On Tue, Mar 08, 2005 at 20:05:42 +0100, Weber Matthias wrote:
+> is there any chance to signal an EOF when writing data to kernel via proc fs? Actually if the length of data is N*PAGE_SIZE it seems not to be detectable. I followed up the "struct file" but haven't found anything that helped...
+
+End-of-file is signified by closing the file. As usual.
+
+-------------------------------------------------------------------------------
+						 Jan 'Bulb' Hudec <bulb@ucw.cz>
+
+--RnlQjJ0d97Da+TV1
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iD8DBQFCLha5Rel1vVwhjGURAo4DAJ9afXHt8DV7v2lfhl5dzIuH7nL3zgCgpuO+
+aXpi8GGVd4A1XhT4CNxJZHk=
+=UOzj
+-----END PGP SIGNATURE-----
+
+--RnlQjJ0d97Da+TV1--

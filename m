@@ -1,37 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313260AbSDTXQd>; Sat, 20 Apr 2002 19:16:33 -0400
+	id <S313305AbSDTXWO>; Sat, 20 Apr 2002 19:22:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313261AbSDTXQb>; Sat, 20 Apr 2002 19:16:31 -0400
-Received: from as3-1-8.ras.s.bonet.se ([217.215.75.181]:26340 "EHLO
-	garbo.kenjo.org") by vger.kernel.org with ESMTP id <S313260AbSDTXQY>;
-	Sat, 20 Apr 2002 19:16:24 -0400
-Message-ID: <3CC1F6AB.16C5E6D3@kenjo.org>
-Date: Sun, 21 Apr 2002 01:15:55 +0200
-From: Kenneth Johansson <ken@kenjo.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.19-pre3 i686)
-X-Accept-Language: en
+	id <S313309AbSDTXWN>; Sat, 20 Apr 2002 19:22:13 -0400
+Received: from pcow034o.blueyonder.co.uk ([195.188.53.122]:38920 "EHLO
+	blueyonder.co.uk") by vger.kernel.org with ESMTP id <S313305AbSDTXWN>;
+	Sat, 20 Apr 2002 19:22:13 -0400
+Message-ID: <3CC1EC30.7020902@blueyonder.co.uk>
+Date: Sat, 20 Apr 2002 22:31:12 +0000
+From: Sid Boyce <sboyce@blueyonder.co.uk>
+Organization: blueyonder
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011126 Netscape6/6.2.1
+X-Accept-Language: en-us
 MIME-Version: 1.0
-To: Daniel Phillips <phillips@bonn-fries.net>
-CC: Jeff Garzik <garzik@havoc.gtf.org>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Anton Altaparmakov <aia21@cantab.net>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Remove Bitkeeper documentation from Linux tree
-In-Reply-To: <Pine.LNX.4.44.0204201039130.19512-100000@home.transmeta.com> <E16yfW9-0000aZ-00@starship> <20020420170747.B14186@havoc.gtf.org> <E16ygRk-0000bR-00@starship>
-Content-Type: text/plain; charset=us-ascii
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: 2.4.19-pre7-ac2 ACPI compile failure
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips wrote:
+ar  rcs lib.a checksum.o old-checksum.o delay.o usercopy.o getuser.o 
+memcpy.o strstr.o iodebug.o
+make[2]: Leaving directory `/usr/src/linux/arch/i386/lib'
+make[1]: Leaving directory `/usr/src/linux/arch/i386/lib'
+ld -m elf_i386 -T /usr/src/linux/arch/i386/vmlinux.lds -e stext 
+arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o 
+init/version.o init/do_mounts.o \
+         --start-group \
+         arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o 
+mm/mm.o fs/fs.o ipc/ipc.o \
+          drivers/acpi/acpi.o drivers/parport/driver.o 
+drivers/char/char.o drivers/block/block.o drivers/misc/misc.o 
+drivers/net/net.o drivers/media/media.o drivers/char/agp/agp.o 
+drivers/char/drm/drm.o drivers/ide/idedriver.o drivers/cdrom/driver.o 
+drivers/sound/sounddrivers.o drivers/pci/driver.o 
+drivers/pcmcia/pcmcia.o drivers/net/pcmcia/pcmcia_net.o 
+drivers/pnp/pnp.o drivers/video/video.o drivers/usb/usbdrv.o 
+drivers/input/inputdrv.o drivers/message/i2o/i2o.o 
+drivers/hotplug/vmlinux-obj.o \
+         net/network.o \
+         /usr/src/linux/arch/i386/lib/lib.a /usr/src/linux/lib/lib.a 
+/usr/src/linux/arch/i386/lib/lib.a \
+         --end-group \
+drivers/acpi/acpi.o: In function `sm_osl_proc_write_sleep':
+drivers/acpi/acpi.o(.text+0x2bba1): undefined reference to 
+`software_suspend'
+make: *** [vmlinux] Error 1
 
-> My conclusion: though there are more BK patches being applied to Linus's
-> tree than non-BK, they are generating less discussion on lkml than non-BK
-> patches do.  Or to put it bluntly: BK patches are not being discussed.
 
-I think your conclusion is wrong and there has always gone patches directly to
-Linus even before BK. With BK we can actually see who did what and often why so if
-something gets in that should not we know who to blame. If anything this should
-make people think one extra time before hitting the send button.
+Regards
+-- 
+Sid Boyce ... hamradio G3VBV ... Cessna/Warrior Pilot
+Linux only shop
 
 

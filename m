@@ -1,106 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266512AbUIHENP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268706AbUIHEPd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266512AbUIHENP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 00:13:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268706AbUIHENP
+	id S268706AbUIHEPd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 00:15:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268807AbUIHEPd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 00:13:15 -0400
-Received: from web11908.mail.yahoo.com ([216.136.172.192]:35341 "HELO
-	web11908.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S266512AbUIHENI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 00:13:08 -0400
-Message-ID: <20040908041307.34927.qmail@web11908.mail.yahoo.com>
-Date: Tue, 7 Sep 2004 21:13:07 -0700 (PDT)
-From: Mike Mestnik <cheako911@yahoo.com>
-Subject: Re: [BUG] r200 dri driver deadlocks
-To: Dave Airlie <airlied@gmail.com>, arjanv@redhat.com,
-       Roland Scheidegger <rscheidegger_lists@hispeed.ch>
-Cc: =?ISO-8859-1?Q?=20=22Felix=5FK=FChling=22?= <fxkuehl@gmx.de>,
-       Lee Revell <rlrevell@joe-job.com>, diablod3@gmail.com,
-       dri-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-In-Reply-To: <21d7e997040907013071ebb60d@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 8 Sep 2004 00:15:33 -0400
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:34500
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S268706AbUIHEP2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Sep 2004 00:15:28 -0400
+Date: Tue, 7 Sep 2004 21:12:22 -0700
+From: "David S. Miller" <davem@davemloft.net>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: willy@debian.org, jbarnes@engr.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: multi-domain PCI and sysfs
+Message-Id: <20040907211222.6184f14b.davem@davemloft.net>
+In-Reply-To: <9e473391040907203941e4af81@mail.gmail.com>
+References: <9e4733910409041300139dabe0@mail.gmail.com>
+	<200409041527.50136.jbarnes@engr.sgi.com>
+	<9e47339104090415451c1f454f@mail.gmail.com>
+	<200409041603.56324.jbarnes@engr.sgi.com>
+	<20040905230425.GU642@parcelfarce.linux.theplanet.co.uk>
+	<9e473391040905165048798741@mail.gmail.com>
+	<20040906014058.GV642@parcelfarce.linux.theplanet.co.uk>
+	<9e47339104090715585fa4f8af@mail.gmail.com>
+	<20040907161140.29fbfccc.davem@davemloft.net>
+	<9e473391040907203941e4af81@mail.gmail.com>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry, I don't know why we are cross posting and including subscribers in
-CC.  This belongs on the DRI list, as it is only with 3rd party DRI-client
-code that the problem exists.
+On Tue, 7 Sep 2004 23:39:49 -0400
+Jon Smirl <jonsmirl@gmail.com> wrote:
 
---- Dave Airlie <airlied@gmail.com> wrote:
-
-> On Tue, 07 Sep 2004 09:07:11 +0200, Arjan van de Ven <arjanv@redhat.com>
-> wrote:
-> > On Tue, 2004-09-07 at 08:54, Dave Airlie wrote:
+> On Tue, 7 Sep 2004 16:11:40 -0700, David S. Miller <davem@davemloft.net> wrote:
+> > On Tue, 7 Sep 2004 18:58:53 -0400
+> > Jon Smirl <jonsmirl@gmail.com> wrote:
+> > > How many active VGA devices can I have in this system 1 or 4? If the
+> > > answer is 4, how do I independently address each VGA card? If the
+> > > answer is one, you can see why I want a pci0000 node to hold the
+> > > attribute for turning it off and on.
 > > 
-> > > Feel free to implement it and profile it, but there are so many ways
-> > > to lock up a radeon chip it is scary, the above was just one
-> example,
-> > > some days if you look at it funny it can lockup :-), it is accepted
-> > > that userland can crap out 3D chips, the Intel ones are fairly easy
-> to
-> > > hangup also..
-> > 
-> > 
-> > hmmm.. I thought the entire reason for having part of DRM in the
-> kernel
-> > was to be able to prevent such events from happening....
+> > I don't know about the above but for a multi-domain system the
+> > way it works is that the I/O ports are accessed using a different
+> > base address for each domain.
 > 
-> only one reason...
-> http://dri.sourceforge.net/doc/drm_low_level.html
-> 
-> But to be honest the chips are entirely capable of locking up on what
-> the docs say are valid things, writing enough workarounds and test
-> would bloat the drm considerably,
-> at the moment we try and have it so a valid OpenGL application doesn't
-> lock it up, but someone writing directly to the DRM would be able to
-> lockup a fair few chips in many interesting ways....
-> 
-> Dave.
-> 
+> How does this work for IO ports in port space instead of memory mapped IO?
 
---- Roland Scheidegger <rscheidegger_lists@hispeed.ch> wrote:
-> 
-> I seriously doubt this is doable. Unless you put the whole driver in the
-> 
-> kernel, which of course nobody wants. I frequently caused gpu lockups by
-> 
-> experimental driver changes (for instance, wrong vertex setup). I think 
-> the consensus was that it's ok for the driver to lock up the gpu, but it
-> 
-> should not lock up the kernel.
-> It might be possible to prevent lockups by a watchdog, resetting the gpu
-> 
-> if a lockup is detected. This is how ATI deals with lockups in windows 
-> (dubbed "VPU Recover"), and there is a patch floating around for DRI too
-> 
-> (though it is not exactly for that, and doesn't always work).
-> 
-> Roland
-> 
-
-It's a simple matter of enforcing 3rd party(this means every DRM user)
-clients to use DRI's *dialect or style*.  If the DRM see activities that
-are not expected to be generated by pure DRI-clients, action should be
-taken to prevent a posible lockup.  This means that even valid activities
-should be treated as invalid IF the DRM can clerly detect a deviation from
-pure DRI-client activities.
-
-For example, pure DRI-clients emit state changing commands is a vary
-specific order.  The DRM could easily spot if these cmds where out of any
-knowen/used order or if any other cmds where also inserted into the
-expected order.  This should be denied"."  Only DRI-clients(any client)
-using the DRI supplied order(the one used by pure DRI-clients) should be
-allowed to access the hardware.
-
-
-
-
-
-
-		
-__________________________________
-Do you Yahoo!?
-New and Improved Yahoo! Mail - Send 10MB messages!
-http://promotions.yahoo.com/new_mail 
+Those are IO ports in port space.  IO ports and PCI memory space just
+live in different physical memory windows, no special instructions
+for IO port space access as on x86.

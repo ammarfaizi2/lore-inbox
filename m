@@ -1,48 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131044AbQKNQ4e>; Tue, 14 Nov 2000 11:56:34 -0500
+	id <S131226AbQKNQ6Y>; Tue, 14 Nov 2000 11:58:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131226AbQKNQ4Y>; Tue, 14 Nov 2000 11:56:24 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:60290 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S131044AbQKNQ4R>; Tue, 14 Nov 2000 11:56:17 -0500
-Date: Tue, 14 Nov 2000 11:25:59 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Michael Rothwell <rothwell@holly-springs.nc.us>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Advanced Linux Kernel/Enterprise Linux Kernel
-In-Reply-To: <3A117311.8DC02909@holly-springs.nc.us>
-Message-ID: <Pine.LNX.3.95.1001114112055.23624A-100000@chaos.analogic.com>
+	id <S131203AbQKNQ6O>; Tue, 14 Nov 2000 11:58:14 -0500
+Received: from 513.holly-springs.nc.us ([216.27.31.173]:20998 "EHLO
+	513.holly-springs.nc.us") by vger.kernel.org with ESMTP
+	id <S130601AbQKNQ57>; Tue, 14 Nov 2000 11:57:59 -0500
+Message-ID: <3A117611.E3C80A4C@holly-springs.nc.us>
+Date: Tue, 14 Nov 2000 12:27:45 -0500
+From: Michael Rothwell <rothwell@holly-springs.nc.us>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.16 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Mike Dresser <mdresser@windsormachine.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Advanced Linux Kernel/Enterprise Linux Kernel
+In-Reply-To: <200011141459.IAA413471@tomcat.admin.navo.hpc.mil> <3A117311.8DC02909@holly-springs.nc.us> <3A116640.813C1C29@windsormachine.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Nov 2000, Michael Rothwell wrote:
+Mike Dresser wrote:
 
-> One historically significant "Enterprise" OS is Multics. It had nine
-> major goals. Perhaps we should think about how Linux measures up to
-> these 1965 goals for "Enterprise Computing."
->
+> What's that $0.02 worth after 35 years of inflation?
 
-Multics???  No way. It was abandoned as unusable and part of the
-kernel code, basically the boot loader, was modified to become
-part of Unix.
-
-You have way too many persons on this list who know the history of
-Unix to try this BS.
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.0 on an i686 machine (799.54 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
-
+About $6
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,51 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268035AbUJOBzX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268100AbUJOBz0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268035AbUJOBzX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 21:55:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268101AbUJOBzX
+	id S268100AbUJOBz0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 21:55:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268074AbUJOBz0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 21:55:23 -0400
-Received: from mproxy.gmail.com ([216.239.56.247]:26696 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S268035AbUJOBzV (ORCPT
+	Thu, 14 Oct 2004 21:55:26 -0400
+Received: from ozlabs.org ([203.10.76.45]:39389 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S268100AbUJOBzX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 21:55:21 -0400
-Message-ID: <c0a09e5c041014185545517031@mail.gmail.com>
-Date: Thu, 14 Oct 2004 18:55:20 -0700
-From: Andrew Grover <andy.grover@gmail.com>
-Reply-To: Andrew Grover <andy.grover@gmail.com>
-To: Matthias Urlichs <smurf@smurf.noris.de>
-Subject: Re: 4level page tables for Linux II
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <pan.2004.10.14.16.57.23.884792@smurf.noris.de>
+	Thu, 14 Oct 2004 21:55:23 -0400
+Subject: Re: [PATCH] Realtime LSM
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Jody McIntyre <realtime-lsm@modernduck.com>
+Cc: Lee Revell <rlrevell@joe-job.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>, joq@io.com, torbenh@gmx.de
+In-Reply-To: <20040930211408.GE4273@conscoop.ottawa.on.ca>
+References: <1094967978.1306.401.camel@krustophenia.net>
+	 <20040920202349.GI4273@conscoop.ottawa.on.ca>
+	 <20040930211408.GE4273@conscoop.ottawa.on.ca>
+Content-Type: text/plain
+Message-Id: <1097805332.22673.63.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 15 Oct 2004 11:55:32 +1000
 Content-Transfer-Encoding: 7bit
-References: <1097638599.2673.9668.camel@cube>
-	 <20041013092221.471f7232.ak@suse.de>
-	 <pan.2004.10.14.16.57.23.884792@smurf.noris.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 14 Oct 2004 18:57:24 +0200, Matthias Urlichs
-<smurf@smurf.noris.de> wrote:
-> Hi, Andi Kleen wrote:
-> 
-> > And when you cannot remember the few names for the level you
-> > better shouldn't touch VM at all.
-> 
-> Disagree. Rather strongly in fact.
-> 
-> It's probably OK if you already know the stuff and have been hacking
-> Linux' mm for years already, but if you try to learn how things work by
-> actually looking at the code..?
-> 
-> Just number them. Let pd1 point to pages, pd2 to pd1 entries, and so on.
-> (Level zero is the actual pages.)
+On Fri, 2004-10-01 at 07:14, Jody McIntyre wrote:
+> +/* module parameters */
+> +static int any = 0;			/* if TRUE, any process is realtime */
+> +MODULE_PARM(any, "i");
 
-I happen to agree, but surely this can be addressed at our leisure,
-after pml4 is in.
+Please node that MODULE_PARM is deprecated.  This looks like a job for
+"module_param(any, bool, 0400)" or even "0644".  Please consider, and
+for the others.
 
-Maybe a good task for the kernel janitors, if we all agree more
-sensible names are desirable.
+Thanks,
+Rusty.
+-- 
+Anyone who quotes me in their signature is an idiot -- Rusty Russell
 
-Regards -- Andy

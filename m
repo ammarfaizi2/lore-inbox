@@ -1,154 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291678AbSBHR6E>; Fri, 8 Feb 2002 12:58:04 -0500
+	id <S291684AbSBHSBY>; Fri, 8 Feb 2002 13:01:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291679AbSBHR5z>; Fri, 8 Feb 2002 12:57:55 -0500
-Received: from altus.drgw.net ([209.234.73.40]:5126 "EHLO altus.drgw.net")
-	by vger.kernel.org with ESMTP id <S291678AbSBHR5j>;
-	Fri, 8 Feb 2002 12:57:39 -0500
-Date: Fri, 8 Feb 2002 11:57:26 -0600
-From: Troy Benjegerdes <hozer@drgw.net>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Cc: wli@holomorphy.com, torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] bring sanity to div64.h and do_div usage
-Message-ID: <20020208115726.U17426@altus.drgw.net>
-In-Reply-To: <20020207234555.N17426@altus.drgw.net> <5.1.0.14.2.20020208113710.04ecedf0@pop.cus.cam.ac.uk>
-Mime-Version: 1.0
+	id <S291689AbSBHSBP>; Fri, 8 Feb 2002 13:01:15 -0500
+Received: from as3-1-8.ras.s.bonet.se ([217.215.75.181]:51677 "EHLO
+	garbo.kenjo.org") by vger.kernel.org with ESMTP id <S291684AbSBHSBE>;
+	Fri, 8 Feb 2002 13:01:04 -0500
+Message-ID: <3C641250.FB2D0977@canit.se>
+Date: Fri, 08 Feb 2002 19:00:48 +0100
+From: Kenneth Johansson <ken@canit.se>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Mathieu Desnoyers <compudj@krystal.dyndns.org>
+CC: linux-kernel@vger.kernel.org, andre@linuxdiskcert.org
+Subject: Re: Promise PDC20268 spurious interrupt
+In-Reply-To: <20020208004954.GA19421@Krystal>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <5.1.0.14.2.20020208113710.04ecedf0@pop.cus.cam.ac.uk>; from aia21@cam.ac.uk on Fri, Feb 08, 2002 at 12:15:40PM +0000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[snip]
+I don't see this problem but I have a PDC20262 ultra66 and have been running raid0
+on that for 1.5 years but one disk broke down and I got a new one. This was a
+newer model and thus faster.
 
-> >+
-> >+#ifdef __USE_ASM
-> >+/* yeah, this is a mess, and leaves out m68k.... */
-> >+# if defined(CONFIG_X86) || define(CONFIG_ARCH_S390) || defined(CONFIG_MIPS)
-> >+#  define __USE_ASM__
-> >+# endif
-> >+#endif
-> 
+The problem I see is that DD from the new disk hangs the system in interesting
+ways from dd hangs in uninterruptible sleep to the whole system going down. This
+happens on both channels but only on the new disk.
 
-[snip]
+I get two errors in the log
 
-> I.e. remove the #ifdef __USE_ASM and add CONFIG_M68K dependence.
- 
-Well, there's a reason I left out CONFIG_M68K deps.. Go tell me where 
-CONFIG_M68K is defined.. ;)
+hdg: timeout waiting for DMA
+ide_dmaproc: chipset supported ide_dma_timeout func only: 14
 
 
-> >+#ifdef __USE_ASM__
-> >+#include <asm/div64.h>
-> >+#else /* __USE_ASM__ */
-> >+static inline int do_div(unsigned long long * n, unsigned long base)
-> >+{
-> >+       int res = 0;
-> >+       unsigned long long t = *n;
-> >+       if ( t == (unsigned long)t ){ /* this should handle 64 bit 
-> >platforms */
-> >+               res = ((unsigned long) t) % base;
-> >+               t = ((unsigned long) t) / base;
-> >+       } else {
-> 
-> This check is silly. It is _way_ more efficient to do:
-> 
-> if (BITS_PER_LONG == 64) {
->          res = ((unsigned long)t) % base;
->          t = ((unsigned long)t) / base;
-> } else {
+Mathieu Desnoyers wrote:
+
+> I have a problem here since I plugged my second hard disk on my Promise
+> Ultra 100 TX2 PDC20268 controller. It occurs all the time when I use software
+> raid 0. I looked at the LKML archives, and this problem does not seems to be
+> solved. There is a simpler way to generate the problem than to use raid.
 >
-> This actually only compiles one or the other but not both.
+> It occurs when I use dd for reading on my both hard disks in parallel.
+> The disks are both masters of their channel.
+>
+> When I do this test, The message I get is
+>
+> spurious 8259A interrupt: IRQ7.
+> spurious 8259A interrupt: IRQ15.
+>
+> And I can look at /proc/interrupts and see the ERR counter increment at
+> a phenomenal speed.
+>
+> I wonder if this problem is due to the linux driver support or if it is
+> a hardware bug.
+>
+> OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
+> Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68
+>
+>   ------------------------------------------------------------------------
+>
+>    Part 1.2    Type: application/pgp-signature
+>            Encoding: 7bit
 
-The intent of this is to have one check that handles both 64 and 32 bit 
-platforms nicely, and handle degenerate cases where N is less than 32 
-bits on 32 bit platforms.
-
-I could be persuaded to add a (BITS_PER_LONG) check for 64 bit machines 
-if someone shows me ASM showing gcc isn't smart enough to figure out that
-	
-	(unsigned long long)t == (unsigned long)t 
-
-is always true on 64 bit.
-
-> 
-> >+#ifndef USE_SLOW_64BIT_DIVIDES
-> 
-> This is stupid. If someone knows in advance they are only doing a division 
-> by 8 or 16 they would not be using do_div in the first place, they would be 
-> using a shift or even just normal division sign which gcc is supposed to 
-> optimize to a shift itself (assuming division by constant).
-> 
-> Please remove this. People using do_div() are using it for a reason.
-
-I am trying to provide a cleanup that is acceptable to most people.
-
-Several people I have talked to on the issue specifically asked for the 
-panic(), as people using do_div() should really know better than to do 64 
-bit divides in the kernel.
-
-I provided the #define option so we can have *one* sane cross platform 64 
-bit divide, but one that still makes people think before using do_div.
-
-> Anyway, why do you randomly pick 8 and 16? You could do any power of two 
-> via shift by simply doing something along these lines:
-> 
-> if (!(base & (base - 1))) {
->          res = t & (base - 1);
->          t >>= ffs(base) - 1;
-> } else
->          panic("blah");
-> 
-> But I still think this is a really stupid thing to do.
-
-using do_div() blindly is also considered a really stupid thing to do. 
-YMMV.
-
-This patch is primarily intended to fix vsprintf of long longs on all 
-platforms, once and for all, and vsprintf only uses base 8 and 16. Anyone 
-doing a printk and wanting a decimal representation of a long long 
-probably deserves a panic anyway. (IHMO)
-
-
-[snip]
-
-> Look at asm-parisc/div64.h which has an optimized version of this for t 
-> actually being 32bit.
-
-That came from asm-parisc/div64 originally.
-
-The t being 32bit case is handled earlier
-
-> 
-> I think the patch is generally a good idea but it has to be done right...
-> 
-> Best regards,
-
-Gabriel Paubert also pointed out one problem I'm not sure how to deal 
-with..
-
-The generic C algorithm only handles base < 65536.
-
-I can think of a couple ways around this..
-
-1) Make the base argument be a 'u16 base', and people with too large a
-   base would get compile warnings/errors.
-
-2) run-time check on base, and panic if too large
-
-3) run-time check on base, print dmesg warning if too large
-
-
-
-I'll re-post a new patch once I hear more feedback, and after I get some
-suggestions on how to deal with base > 65535 problem
-
-
--- 
-Troy Benjegerdes | master of mispeeling | 'da hozer' |  hozer@drgw.net
------"If this message isn't misspelled, I didn't write it" -- Me -----
-"Why do musicians compose symphonies and poets write poems? They do it
-because life wouldn't have any meaning for them if they didn't. That's 
-why I draw cartoons. It's my life." -- Charles Schulz

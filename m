@@ -1,48 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132228AbRAIW0J>; Tue, 9 Jan 2001 17:26:09 -0500
+	id <S129406AbRAIW2T>; Tue, 9 Jan 2001 17:28:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132163AbRAIWZt>; Tue, 9 Jan 2001 17:25:49 -0500
-Received: from cliff.mcs.anl.gov ([140.221.9.17]:48768 "EHLO mcs.anl.gov")
-	by vger.kernel.org with ESMTP id <S131615AbRAIWZk>;
-	Tue, 9 Jan 2001 17:25:40 -0500
-Message-ID: <3A5B8F34.125231D4@mcs.anl.gov>
-Date: Tue, 09 Jan 2001 16:22:44 -0600
-From: JP Navarro <navarro@mcs.anl.gov>
-Organization: Argonne National Laboratory
-X-Mailer: Mozilla 4.75 [en] (Windows NT 5.0; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Miles Lane <miles@megapathdsl.net>
-CC: Ken Brunsen/Iris <kenbo@iris.com>, linux-kernel@vger.kernel.org
-Subject: Re: linux-2.4.0 scsi problems on NetFinity servers
-In-Reply-To: <OF0CDA4866.9019CFB7-ON852569CF.006D12FC@lotus.com> <3A5B7DB3.F29D02CE@mcs.anl.gov> <3A5B847A.3010200@megapathdsl.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S129383AbRAIW2J>; Tue, 9 Jan 2001 17:28:09 -0500
+Received: from enterprise.cistron.net ([195.64.68.33]:14098 "EHLO
+	enterprise.cistron.net") by vger.kernel.org with ESMTP
+	id <S129406AbRAIW1v>; Tue, 9 Jan 2001 17:27:51 -0500
+From: miquels@traveler.cistron-office.nl (Miquel van Smoorenburg)
+Subject: Re: Linux 2.2.19pre7
+Date: 9 Jan 2001 22:27:55 GMT
+Organization: Cistron Internet Services B.V.
+Message-ID: <93g39b$a9b$1@enterprise.cistron.net>
+In-Reply-To: <3A5B6437.3BC23AD3@metabyte.com>
+X-Trace: enterprise.cistron.net 979079275 10539 195.64.65.67 (9 Jan 2001 22:27:55 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test74 (May 26, 2000)
+Originator: miquels@traveler.cistron-office.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miles Lane wrote:
-...
-> Are you saying that this is a hardware bug that is impossible to
-> develop a work-around for in the kernel?  If this is just a bug,
-> shouldn't we try to fix it rather than avoid it?
+In article <3A5B6437.3BC23AD3@metabyte.com>,
+Pete Zaitcev  <zaitcev@metabyte.com> wrote:
+>> o Fix kwhich versus old bash (Pete Zaitcev) 
+>
+>DaveM pointed out that it fixes a non-problem.
+>I stepped on a bug with an obscure kernel, I think it
+>was 2.2.18-pre3, which called kwhich with several arguments.
+>Current kernels call kwhich with one argument at a time,
+>so they are not affected.
 
-This is hardware behaving as designed but not supported by the kernel. IBM was
-aware of the problem and working on a solution. Since the offending hardware is
-a PCI card that is useless under Linux. The simple solution is to remove it.
+Yes, but I think it simply puts something right that might be wrong
+or at least less portable. So it's correct. Also calling kwhich with
+multiple arguments was actually the idea behind the script. Oh well, as
+long as it works ...
 
-If IBM wants these cards to work with Linux they should do a lot more than
-supply patches that keep the kernel from crashing.  At a minimum, publish specs
-so someone else can patch the kernel and write drivers to make full use of the
-card's features under Linux. We're still hoping.
-
-> If you have detailed information about the interrupt problem,
-> perhaps you could send it to the list and see if a fix is possible.
-
-Wish I could have. Our machines would totally freeze.
-
-JP Navarro
+Mike.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

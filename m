@@ -1,87 +1,109 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262585AbTCZVWf>; Wed, 26 Mar 2003 16:22:35 -0500
+	id <S262501AbTCZVic>; Wed, 26 Mar 2003 16:38:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262587AbTCZVWf>; Wed, 26 Mar 2003 16:22:35 -0500
-Received: from twinlark.arctic.org ([208.44.199.239]:53668 "EHLO
-	twinlark.arctic.org") by vger.kernel.org with ESMTP
-	id <S262585AbTCZVWd>; Wed, 26 Mar 2003 16:22:33 -0500
-Date: Wed, 26 Mar 2003 13:33:45 -0800 (PST)
-From: Jauder Ho <jauderho@carumba.com>
-X-X-Sender: jauderho@twinlark.arctic.org
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: BK-kernel-tools/shortlog update
-In-Reply-To: <20030326211508.GD16662@gtf.org>
-Message-ID: <Pine.LNX.4.50.0303261331540.1391-100000@twinlark.arctic.org>
-References: <20030326103036.064147C8DD@merlin.emma.line.org>
- <Pine.LNX.4.44.0303260917320.15530-100000@home.transmeta.com>
- <20030326201031.GA29746@merlin.emma.line.org> <20030326211508.GD16662@gtf.org>
-X-Mailer: UW Pine 4.44 + a bunch of schtuff
-X-There-Is-No-Hidden-Message-In-This-Email: There are no tyops either
+	id <S262505AbTCZVic>; Wed, 26 Mar 2003 16:38:32 -0500
+Received: from mail1.csc.albany.edu ([169.226.1.133]:42697 "EHLO
+	smtp.albany.edu") by vger.kernel.org with ESMTP id <S262501AbTCZVia>;
+	Wed, 26 Mar 2003 16:38:30 -0500
+From: Craig Dooley <cd5697@albany.edu>
+To: linux-kernel@vger.kernel.org
+Subject: Re: uhci kernel panic
+Date: Wed, 26 Mar 2003 07:55:19 -0500
+User-Agent: KMail/1.5.1
+References: <200303241632.32818.cd5697@albany.edu> <20030325065739.GB12590@kroah.com>
+In-Reply-To: <20030325065739.GB12590@kroah.com>
+Cc: Greg KH <greg@kroah.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200303260755.19407.cd5697@albany.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This was a message I wrote down by hand.  The bootmessages is a previous boot 
+from the same kernel, but I wrote to the list with that problem.  I have a 
+null modem cable now, but because of some wierd problem I had to swap 
+motherboards yesterday.  The probably was that with the mouse plugged in I 
+would get either that panic, or 
 
-one suggestion I would make would be to break out the regex into a
-seperate file, that way you will no longer need to touch the script once
-the core logic is correct.
+usb/host/uhci-hcd.c: d800: host controller process error.  something bad 
+happened
+usb/host/uhci-hcd.c: d800: host controller halted.  very bad
+usb/core/message.c: usb_control/bulk_msg: timeout
+and then freeze
 
-got this working nicely to count users based upon patterns.
+Im building 2.5.66 now to see if it helps the problem.  I should have stripped 
+that dmesg output, but it was mostly there for a system config
 
---jauder
+-Craig
 
-On Wed, 26 Mar 2003, Jeff Garzik wrote:
-
-> On Wed, Mar 26, 2003 at 09:10:31PM +0100, Matthias Andree wrote:
-> > On Wed, 26 Mar 2003, Linus Torvalds wrote:
+On Tuesday 25 March 2003 01:57, you wrote:
+> On Mon, Mar 24, 2003 at 04:32:32PM -0500, Craig Dooley wrote:
+> > Reproducable kernel panic.  If I boot with a Microsoft Intellimouse
+> > Explorer plugged in, I get the following panic
 > >
-> > > Btw, one feature I'd like to see in shortlog is the ability to use
-> > > regexps for email address matching, ie something like
-> > >
-> > > 	'torvalds@.*transmeta.com' => 'Linus Torvalds'
-> > > 	...
-> > > 	'alan@.*swansea.linux.org.uk' => 'Alan Cox'
-> > > 	...
-> > > 	'bcrl@redhat.com' => 'Benjamin LaHaise',
-> > > 	'bcrl@.*' => '?? Benjamin LaHaise',
-> > > 	..
-> > >
-> > > I don't know whether you can force perl to do something like this, but if
-> > > somebody were to try...
+> > [<c02d24a8>]	uhci_tranfer_result+0x1d8/0x1f0
+> > [<c02d2d31>]	uhci_irq+0xd1/0x160
+> > [<c02c68ec>]	usb_hdc_irq+0x2c/0x60
 >
-> Perl is very regex-friendly.  Sure it can do this :)
+> Um, I don't see that oops down below.  I see some other strange stuff:
+> > Mar 21 21:33:48 broken kernel:
+> > *************************************************************************
+> >**************************************************************************
+> >**************************************************************************
+> >**************************************************************************
+> >**************************************************************************
+> >**************************************************************************
+> >**************************************************************************
+> >**************************************************************************
+> >**************************************************************************
+> >**************************************************************************
+> >**************************************************************************
+> >**************************************************************************
+> >**************************************************************************
+> >********************************** Mar 21 21:33:48 broken kernel:
+> > *************************************************************************
+> >*************************************A5 Mar 21 21:33:48 broken kernel:
+> > Call Trace:
+> > Mar 21 21:33:48 broken kernel:  [check_poison_obj+347/416]
+> > check_poison_obj+0x15b/0x1a0 Mar 21 21:33:48 broken kernel: 
+> > [kmalloc+361/448] kmalloc+0x169/0x1c0 Mar 21 21:33:48 broken kernel: 
+> > [ip_rcv+776/1088] ip_rcv+0x308/0x440 Mar 21 21:33:48 broken kernel: 
+> > [alloc_skb+174/576] alloc_skb+0xae/0x240 Mar 21 21:33:48 broken kernel: 
+> > [alloc_skb+174/576] alloc_skb+0xae/0x240 Mar 21 21:33:48 broken kernel: 
+> > [e100_rx_srv+388/960] e100_rx_srv+0x184/0x3c0 Mar 21 21:33:48 broken
+> > kernel:  [e100intr+596/656] e100intr+0x254/0x290 Mar 21 21:33:48 broken
+> > kernel:  [handle_IRQ_event+56/96] handle_IRQ_event+0x38/0x60 Mar 21
+> > 21:33:48 broken kernel:  [do_IRQ+174/352] do_IRQ+0xae/0x160 Mar 21
+> > 21:33:48 broken kernel:  [common_interrupt+24/32]
+> > common_interrupt+0x18/0x20 Mar 21 21:33:48 broken kernel: 
+> > [acpi_processor_idle+346/495] acpi_processor_idle+0x15a/0x1ef Mar 21
+> > 21:33:48 broken kernel:  [default_idle+0/48] default_idle+0x0/0x30 Mar 21
+> > 21:33:48 broken kernel:  [acpi_processor_idle+0/495]
+> > acpi_processor_idle+0x0/0x1ef Mar 21 21:33:48 broken kernel: 
+> > [default_idle+0/48] default_idle+0x0/0x30 Mar 21 21:33:48 broken kernel: 
+> > [cpu_idle+49/64] cpu_idle+0x31/0x40 Mar 21 21:33:48 broken kernel: 
+> > [rest_init+0/96] _stext+0x0/0x60 Mar 21 21:33:48 broken kernel:
+> > Mar 21 21:35:49 broken kernel: nvidia: no version magic, tainting kernel.
+> > Mar 21 21:35:49 broken kernel: nvidia: module license 'unspecified'
+> > taints kernel. Mar 21 21:37:57 broken kernel: nvidia: no version magic,
+> > tainting kernel. Mar 21 21:37:57 broken kernel: nvidia: module license
+> > 'unspecified' taints kernel. Mar 21 21:37:57 broken kernel: 0: nvidia:
+> > loading NVIDIA Linux x86 nvidia.o Kernel Module  1.0-4191  Mon Dec  9
+> > 11:49:01 PST 2002
 >
+> Um, sorry, I don't think this is a usb problem, unless you can duplicate
+> it without the nvidia driver in your kernel.
 >
-> > I'd like to keep the hash for all those addresses that aren't wildcards
-> > and that aren't regexps -- we have fast, that is O(1) to O(log n),
-> > access to the hash (depending on Perl's implementation) and we have
-> > worse than O(n) for regexp, where n is the count of address strings or
-> > regexps.
-> >
-> > Would you agree to a version that has a set of fixed addresses and a
-> > separate list of regexps, tries the hash first and then a list of
-> > regexps?  That sounds like a) easy addition, b) good performance to me
-> > (before implementing it). If so, I could add some code for that feature.
+> Can you?
 >
-> Do we really care about performance here?
+> If so, does the same thing happen if when you boot, you don't have the
+> device plugged in, and then plug it in after boot?
 >
-> I think maintain-ability is probably more important.
+> thanks,
 >
-> In any case, splitting the lists into "fixed" and "regex" doesn't seem
-> like a bad idea, provided that the change was fairly easy and
-> self-contained.
->
-> 	Jeff
->
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
->
+> greg k-h
+

@@ -1,48 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131351AbRCWTTV>; Fri, 23 Mar 2001 14:19:21 -0500
+	id <S131349AbRCWTPv>; Fri, 23 Mar 2001 14:15:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131353AbRCWTTN>; Fri, 23 Mar 2001 14:19:13 -0500
-Received: from dfmail.f-secure.com ([194.252.6.39]:6928 "HELO
-	dfmail.f-secure.com") by vger.kernel.org with SMTP
-	id <S131351AbRCWTSA>; Fri, 23 Mar 2001 14:18:00 -0500
-Date: Fri, 23 Mar 2001 21:26:37 +0200 (MET DST)
-From: Szabolcs Szakacsits <szaka@f-secure.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Stephen Clouse <stephenc@theiqgroup.com>,
-        Guest section DW <dwguest@win.tue.nl>,
-        Rik van Riel <riel@conectiva.com.br>,
-        "Patrick O'Rourke" <orourke@missioncriticallinux.com>,
-        <linux-mm@kvack.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Prevent OOM from killing init
-In-Reply-To: <E14gCYn-0003K3-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.30.0103232124120.13864-100000@fs131-224.f-secure.com>
+	id <S131352AbRCWTPo>; Fri, 23 Mar 2001 14:15:44 -0500
+Received: from tomts7.bellnexxia.net ([209.226.175.40]:19880 "EHLO
+	tomts7-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S131351AbRCWTPe>; Fri, 23 Mar 2001 14:15:34 -0500
+Message-ID: <3ABB9F25.9FF61FF8@coplanar.net>
+Date: Fri, 23 Mar 2001 14:08:21 -0500
+From: Jeremy Jackson <jerj@coplanar.net>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Dax Kelson <dax@gurulabs.com>
+CC: Gerhard Mack <gmack@innerfire.net>,
+        Bob Lorenzini <hwm@newportharbornet.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux Worm (fwd)
+In-Reply-To: <Pine.LNX.4.30.0103231150460.18026-100000@duely.gurulabs.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dax Kelson wrote:
 
-On Thu, 22 Mar 2001, Alan Cox wrote:
+> Gerhard Mack said once upon a time (Fri, 23 Mar 2001):
+>
+> > On Fri, 23 Mar 2001, Bob Lorenzini wrote:
+> >
+> > > I'm annoyed when persons post virus alerts to unrelated lists but this
+> > > is a serious threat. If your offended flame away.
+> >
+> > This should be a wake up call... distributions need to stop using product
+> > with consistently bad security records.
+>
+> This TSIG bug in BIND 8 that is being exploited was added to BIND 8 by the
+> same team who wrote BIND 9.
+>
+> In fact the last two major remote root compromises (TSIG and NXT) for BIND
+> 8 was in code added to BIND 8 by the BIND 9 developers.
 
-> One of the things that we badly need to resurrect for 2.5 is the
-> beancounter work which would let you reasonably do things like
-> guaranteed Oracle a certain amount of the machine, or restrict all
-> the untrusted users to a total of 200Mb hard limit between them etc
-
-This would improve Linux reliability but it could be much better with
-added *optional* non-overcommit (most other OS also support this, also
-that's the default mostly [please no, "but it deadlocks" because it's
-not true, they also kill processes (Solaris, etc)]), reserved superuser
-memory (ala Solaris, True64, etc when OOM in non-overcommit, users
-complain and superuser acts, not the OS killing their tasks) and
-superuser *advisory* OOM killer [there was patch for this before], I
-think in the last area Linux is already more ahead than others at
-present.
-
-About the "use resource limits!". Yes, this is one solution. The
-*expensive* solution (admin time, worse resource utilization, etc).
-Others make it cheaper mixing with the above ones.
-
-        Szaka
+You could say new code in general causes security holes... don't fix it
+and you won't break it.   There is the security principle of least privilege
+though...
+RH7 (and earlier I think) run bind drops root and runs as user named after
+opening
+a listening socket, so I don't think a bind
+compromise could retrieve the /etc/shadow file and modify system binaries...
+and RH7.1(beta) will use capabilities to furthur restrict privileges given to
+bind(v9).
+(not root ever)
 

@@ -1,69 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266233AbTCCPud>; Mon, 3 Mar 2003 10:50:33 -0500
+	id <S266243AbTCCPxT>; Mon, 3 Mar 2003 10:53:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266243AbTCCPud>; Mon, 3 Mar 2003 10:50:33 -0500
-Received: from nef.ens.fr ([129.199.96.32]:30482 "EHLO nef.ens.fr")
-	by vger.kernel.org with ESMTP id <S266233AbTCCPu3>;
-	Mon, 3 Mar 2003 10:50:29 -0500
-Date: Mon, 3 Mar 2003 17:00:50 +0100
-From: Nicolas George <nicolas.george@ens.fr>
-To: linux-kernel@vger.kernel.org
-Subject: /dev/mem and highmem
-Message-ID: <20030303160050.GA17182@clipper.ens.fr>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Nicolas George <nicolas.george@ens.fr>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="0F1p//8PRICkK4MW"
-Content-Disposition: inline
-User-Agent: Mutt/1.4
+	id <S265857AbTCCPxT>; Mon, 3 Mar 2003 10:53:19 -0500
+Received: from rzserv1.gsi.de ([140.181.96.11]:10201 "EHLO rzserv1.gsi.de")
+	by vger.kernel.org with ESMTP id <S265791AbTCCPxO>;
+	Mon, 3 Mar 2003 10:53:14 -0500
+Message-ID: <3E637CDC.3030409@GSI.de>
+Date: Mon, 03 Mar 2003 17:03:40 +0100
+From: ChristopherHuhn <c.huhn@gsi.de>
+Organization: GSI
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: de-de, en-us, fr-fr
+MIME-Version: 1.0
+To: root@chaos.analogic.com
+CC: linux-kernel@vger.kernel.org, linux-smp <linux-smp@vger.kernel.org>,
+       support-gsi@credativ.de
+Subject: Re: Kernel Bug at spinlock.h ?!
+References: <Pine.LNX.3.95.1030303103332.22802A-100000@chaos>
+In-Reply-To: <Pine.LNX.3.95.1030303103332.22802A-100000@chaos>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---0F1p//8PRICkK4MW
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I'm sorry I didn't know about ksymoops as I'm not experienced with 
+kernel bugs yet.
 
-Is there any hope to have access to the highmem through /dev/mem, or a
-similar device? Or did I miss an already existing method?
+Richard B. Johnson wrote:
 
-Rationale:
+>The "Re: Kernel Bug at spinlock.h ?!" is an eye-catcher because this
+>inline code cannot have any bugs or you wouldn't even have booted.
+>
+I think this is the code, that produced the BUG message:
 
-These days, bad RAM seems to become dramatically frequent. We have here
-a PC with a few bad bits (switching to ECC is in project), but memtest86
-did not find them. Recently, sshd started to segfault. Using cmp -lb
-with an uncorrupted version we found the bad bit in the file, and then
-looked for it in the phyical memory with `xxd /dev/mem | grep'. We found
-it, disabled the area using mem=3D boot parameter.
+static inline void spin_unlock(spinlock_t *lock)
+{
+        char oldval = 1;
+#if SPINLOCK_DEBUG
+        if (lock->magic != SPINLOCK_MAGIC)
+                BUG();
+...
 
-Now this PC has a crontab that will write pseudo-random data in the
-disabled area, and later read it back and compare it with the original
-to find all bad bits.
+The oops occured after an uptime of about 50 hours.
 
-Then I have another PC with bad RAM, I also discovered a file affected,
-and tried the same method. Unfortunately the grep failed. The reason is
-likely to be that the file was in highmem.
+I just discovered the following messages in the syslog, right before 
+that oops (I never found any kernel oops logs in the syslog until now ...):
 
-PS: please Cc me the answers.
+Feb 27 20:51:37 lxb039 kernel: Unable to handle kernel NULL pointer 
+dereference at virtual address 00000000
+Feb 27 20:51:37 lxb039 kernel:  printing eip:
+Feb 27 20:51:37 lxb039 kernel: 00000000
+Feb 27 20:51:37 lxb039 kernel: *pde = 00000000
+Feb 27 20:51:37 lxb039 kernel: Oops: 0000
+Feb 27 20:51:37 lxb039 kernel: CPU:    3
+Feb 27 20:51:37 lxb039 kernel: EIP:    0010:[msr_exit+0/24]    Not tainted
+Feb 27 20:51:37 lxb039 kernel: EFLAGS: 00010246
+Feb 27 20:51:37 lxb039 kernel: eax: fffffffe   ebx: f1857cb0   ecx: 
+00000002   edx: 00000008
+Feb 27 20:51:37 lxb039 kernel: esi: fffffff5   edi: f1857cb0   ebp: 
+f1857c90   esp: f1857c84
+Feb 27 20:51:37 lxb039 kernel: ds: 0018   es: 0018   ss: 0018
+Feb 27 20:51:37 lxb039 kernel: Process sh (pid: 29359, stackpage=f1857000)
+Feb 27 20:51:37 lxb039 kernel: Stack: f1857cb0 f1857ca8 00000000 
+f1857d38 c02a8ff1 f1857cb0 f1857d58 f1856000
+Feb 27 20:51:37 lxb039 kernel:        00000001 fffffefd ffffffff 
+00000000 00000000 00000000 00000000 00000000
+Feb 27 20:51:37 lxb039 kernel:        00000000 00000000 fffffffe 
+00000000 00000003 f1857da8 f1857d9c 00000000
+Feb 27 20:51:38 lxb039 kernel: Call Trace:    [rpc_call_sync+121/164] 
+[rpc_run_timer+0/240] [nfs3_rpc_wrapper+54/124] [nfs3_proc_lookup
++194/340] [nfs_lookup+122/204]
+Feb 27 20:51:38 lxb039 kernel:   [dput+27/464] 
+[link_path_walk+2940/3200] [in_group_p+32/40] [vfs_permission+121/248] 
+[d_alloc+25/476]
+[real_lookup+169/360]
+Feb 27 20:51:38 lxb039 kernel:   [link_path_walk+2425/3200] 
+[path_walk+29/36] [path_lookup+30/44] [__user_walk+45/72] [sys_stat64+26/11
+2] [sys_close+115/140]
+Feb 27 20:51:38 lxb039 kernel:   [system_call+51/56]
+Feb 27 20:51:38 lxb039 kernel:
+Feb 27 20:51:38 lxb039 kernel: Code:  Bad EIP value.
 
-Regards,
 
---=20
-  Nicolas George
+Looks like a NFS problem, huh?
 
---0F1p//8PRICkK4MW
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (SunOS)
-
-iD8DBQE+Y3wxsGPZlzblTJMRAi67AJ46kTS/iyWTOv05aikeBKODP97CVgCfXdA7
-Tz6WXJtiyhxUooIsTEhLjyI=
-=Z8mx
------END PGP SIGNATURE-----
-
---0F1p//8PRICkK4MW--

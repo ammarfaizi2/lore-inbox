@@ -1,40 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269047AbTGJIDW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 04:03:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269043AbTGJIDV
+	id S269100AbTGJIHM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 04:07:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269043AbTGJIDx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 04:03:21 -0400
-Received: from f16.mail.ru ([194.67.57.46]:10764 "EHLO f16.mail.ru")
-	by vger.kernel.org with ESMTP id S269047AbTGJICS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 04:02:18 -0400
-From: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
-	<arvidjaar@mail.ru>
-To: linux-kernel@vger.kernel.org
-Subject: Are =?koi8-r?Q?=22?=,=?koi8-r?Q?=22=20?=and =?koi8-r?Q?=22?=..=?koi8-r?Q?=22=20?=in directory required=?koi8-r?Q?=3F?=
+	Thu, 10 Jul 2003 04:03:53 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:62226 "EHLO
+	www.home.local") by vger.kernel.org with ESMTP id S269056AbTGJIDB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 04:03:01 -0400
+Date: Thu, 10 Jul 2003 09:58:50 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Aschwin Marsman <a.marsman@aYniK.com>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.22-pre4
+Message-ID: <20030710075850.GA20790@alpha.home.local>
+References: <Pine.LNX.4.55L.0307091918400.5325@freak.distro.conectiva> <Pine.LNX.4.44.0307100717570.18695-100000@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: mPOP Web-Mail 2.19
-X-Originating-IP: [212.248.25.26]
-Date: Thu, 10 Jul 2003 12:16:56 +0400
-Reply-To: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
-	  <arvidjaar@mail.ru>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E19aWbo-00031x-00.arvidjaar-mail-ru@f16.mail.ru>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0307100717570.18695-100000@localhost.localdomain>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi !
 
-Is it possible for readdir to return really empty directory - without
-and entry, even "." and ".."?
+On Thu, Jul 10, 2003 at 07:23:32AM +0200, Aschwin Marsman wrote:
+> On Wed, 9 Jul 2003, Marcelo Tosatti wrote:
+> 
+> > Hi,
+> > 
+> > Here goes -pre4. It contains a lot of updates and fixes.
+> > 
+> > We decided to include this new code quota code which allows usage of
+> > quotas with 32bit UID/GIDs.
+> > 
+> > Most Toshibas should work now due to an important ACPI fix.
+> > 
+> > Please help and test.
+> 
+> I use -pre3 with succes, only power down is currently not working
+> (only the discs shutdown, no real poweroff). That's why I disabled
+> apm and enabled apm in the kernel with -pre4, but that gives:
 
-The reason is, to enable full FAM/dnotify support for supermount I
-have to allow open of non-mounted root and - if possible - readdir
-in this case. Any attepmpt to simulate "." and ".." in this case
-will result in races between kernel/user space, so the best case
-would be just return nothing (meaning empty directory).
+I remember having had problems with ACPI because my power off didn't work.
+After reading through the code, I noticed that due to erroneous comparisons,
+some code path would never be executed, and/or some preparatory work before
+entering S5 would be done twice, or could not recover from error, I don't
+recall exactly. So I sent the two patches below to the acpi-devel list twice,
+but never got any reply.
 
-TIA
+I don't even know if they still apply, but you can try them anyway, they're
+simple.
 
--andrey
+If I recall correctly, the first one should be enough to poweroff with a simple
+"echo 5 > /proc/acpi/sleep", while the second one allows the system to use this
+for poweroff.
+
+Cheers,
+Willy
+
+
+--- ./drivers/acpi/system.c-orig	Tue Apr 29 17:39:34 2003
++++ ./drivers/acpi/system.c	Tue Apr 29 19:08:09 2003
+@@ -180,7 +180,7 @@
+ 			return AE_ERROR;
+ 	}
+ 
+-	if (state < ACPI_STATE_S5) {
++	if (state <= ACPI_STATE_S5) {
+ 		/* Tell devices to stop I/O and actually save their state.
+ 		 * It is theoretically possible that something could fail,
+ 		 * so handle that gracefully..
+@@ -277,6 +277,7 @@
+ 
+ 	switch (state) {
+ 	case ACPI_STATE_S1:
++	case ACPI_STATE_S5:
+ 		barrier();
+ 		status = acpi_enter_sleep_state(state);
+ 		break;
+
+
+
+--- ./drivers/acpi/system.c-orig	Tue Apr 29 19:09:19 2003
++++ ./drivers/acpi/system.c	Tue Apr 29 19:36:08 2003
+@@ -90,9 +90,7 @@
+ static void
+ acpi_power_off (void)
+ {
+-	acpi_enter_sleep_state_prep(ACPI_STATE_S5);
+-	ACPI_DISABLE_IRQS();
+-	acpi_enter_sleep_state(ACPI_STATE_S5);
++	acpi_suspend(ACPI_STATE_S5);
+ }
+ 
+ #endif /*CONFIG_PM*/
+
+
+

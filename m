@@ -1,40 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261497AbSJCR2E>; Thu, 3 Oct 2002 13:28:04 -0400
+	id <S261679AbSJCRkJ>; Thu, 3 Oct 2002 13:40:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261502AbSJCR2E>; Thu, 3 Oct 2002 13:28:04 -0400
-Received: from pc1-cwma1-5-cust51.swa.cable.ntl.com ([80.5.120.51]:63474 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261497AbSJCR2D>; Thu, 3 Oct 2002 13:28:03 -0400
-Subject: Re: [OT] 2.6 not 3.0 - (WAS Re: [PATCH-RFC] 4 of 4 - New problem
-	logging macros, SCSI RAIDdevice)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: jbradford@dial.pipex.com, jgarzik@pobox.com, kessler@us.ibm.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       saw@saw.sw.com.sg, rusty@rustcorp.com.au, richardj_moore@uk.ibm.com
-In-Reply-To: <Pine.LNX.4.44.0210030952010.2067-100000@home.transmeta.com>
-References: <Pine.LNX.4.44.0210030952010.2067-100000@home.transmeta.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 03 Oct 2002 18:40:51 +0100
-Message-Id: <1033666851.28814.29.camel@irongate.swansea.linux.org.uk>
+	id <S261669AbSJCRkJ>; Thu, 3 Oct 2002 13:40:09 -0400
+Received: from RAVEL.CODA.CS.CMU.EDU ([128.2.222.215]:53388 "EHLO
+	ravel.coda.cs.cmu.edu") by vger.kernel.org with ESMTP
+	id <S261679AbSJCRkI>; Thu, 3 Oct 2002 13:40:08 -0400
+Date: Thu, 3 Oct 2002 13:45:40 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] AFS filesystem for Linux (2/2)
+Message-ID: <20021003174540.GB25718@ravel.coda.cs.cmu.edu>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <torvalds@transmeta.com> <Pine.LNX.4.33.0210021730170.22980-100000@penguin.transmeta.com> <13691.1033635939@warthog.cambridge.redhat.com> <20021003165304.GA25718@ravel.coda.cs.cmu.edu>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021003165304.GA25718@ravel.coda.cs.cmu.edu>
+User-Agent: Mutt/1.4i
+From: Jan Harkes <jaharkes@cs.cmu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-10-03 at 17:56, Linus Torvalds wrote:
-> And that "old_stat()" thing really ought to go some day.. It's not much of
-> a support burden, and yeah, we can point people to "that old a.out binary
-> from 1993 still works fine", so I guess we'll keep it another ten years,
-> but at this point that has less to do with technical judgement than with
-> sentimentality, I think ;^)
+On Thu, Oct 03, 2002 at 12:53:04PM -0400, Jan Harkes wrote:
+> On Thu, Oct 03, 2002 at 10:05:39AM +0100, David Howells wrote:
+> > To have a heterogenous cache, the VLDB record and vnode index records could be
+> > extended to 2K or 4K in size, or maybe separate catalogues and indices could
+> > be maintained for different filesystem types, and a 0th tier could be a
+> > catalogue of different types held within this cache, complete with information
+> > as to the entry sizes of the tier 1, 2 and 3 catalogues.
 > 
-> But yeah, I think on the whole we've done pretty well on being binary 
-> compatible.
+> Or you could use a hash or a userspace daemon that can map a fs-specific
+> handle to a local cache file.
 
-Im not sure we want to throw those things out. However all the stuff
-that went out before libc5 could go into a legacy.c file that is only
-liked if a.out loaders are present
+I just thought of the fh_to_dentry stuff that is used by knfsd. Those
+fh keys should be just the right (and fs independent) thing to index
+such a generic fs-cache with.
+
+Jan
 

@@ -1,259 +1,581 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264001AbSLEQbo>; Thu, 5 Dec 2002 11:31:44 -0500
+	id <S262415AbSLEQ1b>; Thu, 5 Dec 2002 11:27:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264638AbSLEQaO>; Thu, 5 Dec 2002 11:30:14 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:42234 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S264001AbSLEQ3u>;
-	Thu, 5 Dec 2002 11:29:50 -0500
-Message-ID: <3DEF8046.8A0C5ED9@mvista.com>
-Date: Thu, 05 Dec 2002 08:35:18 -0800
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: jim.houston@ccur.com
-CC: Linus Torvalds <torvalds@transmeta.com>,
-       Stephen Rothwell <sfr@canb.auug.org.au>,
-       LKML <linux-kernel@vger.kernel.org>, anton@samba.org,
-       "David S. Miller" <davem@redhat.com>, ak@muc.de, davidm@hpl.hp.com,
-       schwidefsky@de.ibm.com, ralf@gnu.org, willy@debian.org
-Subject: Re: [PATCH] compatibility syscall layer (lets try again)
-References: <Pine.LNX.4.44.0212042009340.11869-100000@home.transmeta.com> <3DEF20E2.5AEE3E78@mvista.com> <3DEF6FC9.AFF1EB0B@ccur.com>
-Content-Type: multipart/mixed;
- boundary="------------8A6C43A0A86963BB30A45970"
+	id <S263544AbSLEQ1b>; Thu, 5 Dec 2002 11:27:31 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:14096 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S262415AbSLEQ0o>;
+	Thu, 5 Dec 2002 11:26:44 -0500
+Date: Thu, 5 Dec 2002 08:34:07 -0800
+From: Greg KH <greg@kroah.com>
+To: linux-kernel@vger.kernel.org, linux-security-module@wirex.com
+Subject: Re: [PATCH] LSM changes for 2.5.50
+Message-ID: <20021205163406.GE2865@kroah.com>
+References: <20021205163152.GA2865@kroah.com> <20021205163234.GB2865@kroah.com> <20021205163300.GC2865@kroah.com> <20021205163339.GD2865@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021205163339.GD2865@kroah.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ChangeSet 1.797.142.3, 2002/12/04 16:14:32-06:00, greg@kroah.com
 
-This is a multi-part message in MIME format.
---------------8A6C43A0A86963BB30A45970
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+LSM: remove "dummy" functions from the capability code, as they are no longer needed.
 
-Jim Houston wrote:
-> 
-> Hi Linus, George,
-> 
-> I like the direction that this ERESTART_RESTARTBLOCK patch is
-> going.
-> 
-> It might be nice to clear the restart_block.fun in handle_signal()
-> in the ERESTART_RESTARTBLOCK path which returns -EINTR.  This eliminates
-> the chance of a stale restart.
 
-How is this?
-
-Note that we do leave tracks in user land when this happens
-as the return array is set on the restart exit.  Since we
-don't know what it was AND the standard says NOTHING about
-it being set (or not set) if there is no error, I don't
-think this is a problem.
--- 
-George Anzinger   george@mvista.com
-High-res-timers: 
-http://sourceforge.net/projects/high-res-timers/
-Preemption patch:
-http://www.kernel.org/pub/linux/kernel/people/rml
---------------8A6C43A0A86963BB30A45970
-Content-Type: text/plain; charset=us-ascii;
- name="regs-fix-2.5.50-bk4.1.1.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="regs-fix-2.5.50-bk4.1.1.patch"
-
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.50-bk4-kb/arch/i386/kernel/entry.S linux/arch/i386/kernel/entry.S
---- linux-2.5.50-bk4-kb/arch/i386/kernel/entry.S	Wed Dec  4 23:28:20 2002
-+++ linux/arch/i386/kernel/entry.S	Wed Dec  4 23:48:49 2002
-@@ -769,6 +769,7 @@
- 	.long sys_epoll_wait
-  	.long sys_remap_file_pages
-  	.long sys_set_tid_address
-+	.long sys_restart_syscall
+diff -Nru a/security/capability.c b/security/capability.c
+--- a/security/capability.c	Thu Dec  5 01:19:14 2002
++++ b/security/capability.c	Thu Dec  5 01:19:14 2002
+@@ -279,550 +279,20 @@
  
+ #ifdef CONFIG_SECURITY
  
- 	.rept NR_syscalls-(.-sys_call_table)/4
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.50-bk4-kb/arch/i386/kernel/signal.c linux/arch/i386/kernel/signal.c
---- linux-2.5.50-bk4-kb/arch/i386/kernel/signal.c	Thu Oct  3 10:41:57 2002
-+++ linux/arch/i386/kernel/signal.c	Thu Dec  5 08:16:30 2002
-@@ -506,6 +506,8 @@
- 	if (regs->orig_eax >= 0) {
- 		/* If so, check system call restarting.. */
- 		switch (regs->eax) {
-+		        case -ERESTART_RESTARTBLOCK:
-+				current_thread_info()->restart_block.fun = NULL;
- 			case -ERESTARTNOHAND:
- 				regs->eax = -EINTR;
- 				break;
-@@ -589,6 +591,10 @@
- 		    regs->eax == -ERESTARTSYS ||
- 		    regs->eax == -ERESTARTNOINTR) {
- 			regs->eax = regs->orig_eax;
-+			regs->eip -= 2;
-+		}
-+		if (regs->eax == -ERESTART_RESTARTBLOCK){
-+			regs->eax = __NR_restart_syscall;
- 			regs->eip -= 2;
- 		}
- 	}
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.50-bk4-kb/include/asm-i386/thread_info.h linux/include/asm-i386/thread_info.h
---- linux-2.5.50-bk4-kb/include/asm-i386/thread_info.h	Mon Sep  9 10:35:03 2002
-+++ linux/include/asm-i386/thread_info.h	Thu Dec  5 01:07:23 2002
-@@ -20,6 +20,12 @@
-  * - if the contents of this structure are changed, the assembly constants must also be changed
-  */
- #ifndef __ASSEMBLY__
-+struct restart_block {
-+	int (*fun)(void *);
-+	long arg0;
-+	long arg1;
-+};
-+
- struct thread_info {
- 	struct task_struct	*task;		/* main task structure */
- 	struct exec_domain	*exec_domain;	/* execution domain */
-@@ -31,6 +37,7 @@
- 					 	   0-0xBFFFFFFF for user-thead
- 						   0-0xFFFFFFFF for kernel-thread
- 						*/
-+	struct restart_block    restart_block;
+-static int cap_quotactl (int cmds, int type, int id, struct super_block *sb)
+-{
+-	return 0;
+-}
+-
+-static int cap_quota_on (struct file *f)
+-{
+-	return 0;
+-}
+-
+-static int cap_acct (struct file *file)
+-{
+-	return 0;
+-}
+-
+-static int cap_bprm_alloc_security (struct linux_binprm *bprm)
+-{
+-	return 0;
+-}
+-
+-static int cap_bprm_check_security (struct linux_binprm *bprm)
+-{
+-	return 0;
+-}
+-
+-static void cap_bprm_free_security (struct linux_binprm *bprm)
+-{
+-	return;
+-}
+-
+-static int cap_sb_alloc_security (struct super_block *sb)
+-{
+-	return 0;
+-}
+-
+-static void cap_sb_free_security (struct super_block *sb)
+-{
+-	return;
+-}
+-
+-static int cap_sb_statfs (struct super_block *sb)
+-{
+-	return 0;
+-}
+-
+-static int cap_mount (char *dev_name, struct nameidata *nd, char *type,
+-		      unsigned long flags, void *data)
+-{
+-	return 0;
+-}
+-
+-static int cap_check_sb (struct vfsmount *mnt, struct nameidata *nd)
+-{
+-	return 0;
+-}
+-
+-static int cap_umount (struct vfsmount *mnt, int flags)
+-{
+-	return 0;
+-}
+-
+-static void cap_umount_close (struct vfsmount *mnt)
+-{
+-	return;
+-}
+-
+-static void cap_umount_busy (struct vfsmount *mnt)
+-{
+-	return;
+-}
+-
+-static void cap_post_remount (struct vfsmount *mnt, unsigned long flags,
+-			      void *data)
+-{
+-	return;
+-}
+-
+-static void cap_post_mountroot (void)
+-{
+-	return;
+-}
+-
+-static void cap_post_addmount (struct vfsmount *mnt, struct nameidata *nd)
+-{
+-	return;
+-}
+-
+-static int cap_pivotroot (struct nameidata *old_nd, struct nameidata *new_nd)
+-{
+-	return 0;
+-}
+-
+-static void cap_post_pivotroot (struct nameidata *old_nd, struct nameidata *new_nd)
+-{
+-	return;
+-}
+-
+-static int cap_inode_alloc_security (struct inode *inode)
+-{
+-	return 0;
+-}
+-
+-static void cap_inode_free_security (struct inode *inode)
+-{
+-	return;
+-}
+-
+-static int cap_inode_create (struct inode *inode, struct dentry *dentry,
+-			     int mask)
+-{
+-	return 0;
+-}
+-
+-static void cap_inode_post_create (struct inode *inode, struct dentry *dentry,
+-				   int mask)
+-{
+-	return;
+-}
+-
+-static int cap_inode_link (struct dentry *old_dentry, struct inode *inode,
+-			   struct dentry *new_dentry)
+-{
+-	return 0;
+-}
+-
+-static void cap_inode_post_link (struct dentry *old_dentry, struct inode *inode,
+-				 struct dentry *new_dentry)
+-{
+-	return;
+-}
+-
+-static int cap_inode_unlink (struct inode *inode, struct dentry *dentry)
+-{
+-	return 0;
+-}
+-
+-static int cap_inode_symlink (struct inode *inode, struct dentry *dentry,
+-			      const char *name)
+-{
+-	return 0;
+-}
+-
+-static void cap_inode_post_symlink (struct inode *inode, struct dentry *dentry,
+-				    const char *name)
+-{
+-	return;
+-}
+-
+-static int cap_inode_mkdir (struct inode *inode, struct dentry *dentry,
+-			    int mask)
+-{
+-	return 0;
+-}
+-
+-static void cap_inode_post_mkdir (struct inode *inode, struct dentry *dentry,
+-				  int mask)
+-{
+-	return;
+-}
+-
+-static int cap_inode_rmdir (struct inode *inode, struct dentry *dentry)
+-{
+-	return 0;
+-}
+-
+-static int cap_inode_mknod (struct inode *inode, struct dentry *dentry,
+-			    int mode, dev_t dev)
+-{
+-	return 0;
+-}
+-
+-static void cap_inode_post_mknod (struct inode *inode, struct dentry *dentry,
+-				  int mode, dev_t dev)
+-{
+-	return;
+-}
+-
+-static int cap_inode_rename (struct inode *old_inode, struct dentry *old_dentry,
+-			     struct inode *new_inode, struct dentry *new_dentry)
+-{
+-	return 0;
+-}
+-
+-static void cap_inode_post_rename (struct inode *old_inode,
+-				   struct dentry *old_dentry,
+-				   struct inode *new_inode,
+-				   struct dentry *new_dentry)
+-{
+-	return;
+-}
+-
+-static int cap_inode_readlink (struct dentry *dentry)
+-{
+-	return 0;
+-}
+-
+-static int cap_inode_follow_link (struct dentry *dentry,
+-				  struct nameidata *nameidata)
+-{
+-	return 0;
+-}
+-
+-static int cap_inode_permission (struct inode *inode, int mask)
+-{
+-	return 0;
+-}
+-
+-static int cap_inode_permission_lite (struct inode *inode, int mask)
+-{
+-	return 0;
+-}
+-
+-static int cap_inode_setattr (struct dentry *dentry, struct iattr *iattr)
+-{
+-	return 0;
+-}
+-
+-static int cap_inode_getattr (struct vfsmount *mnt, struct dentry *dentry)
+-{
+-	return 0;
+-}
+-
+-static void cap_post_lookup (struct inode *ino, struct dentry *d)
+-{
+-	return;
+-}
+-
+-static void cap_delete (struct inode *ino)
+-{
+-	return;
+-}
+-
+-static int cap_inode_setxattr (struct dentry *dentry, char *name, void *value,
+-				size_t size, int flags)
+-{
+-	return 0;
+-}
+-
+-static int cap_inode_getxattr (struct dentry *dentry, char *name)
+-{
+-	return 0;
+-}
+-
+-static int cap_inode_listxattr (struct dentry *dentry)
+-{
+-	return 0;
+-}
+-
+-static int cap_inode_removexattr (struct dentry *dentry, char *name)
+-{
+-	return 0;
+-}
+-
+-static int cap_file_permission (struct file *file, int mask)
+-{
+-	return 0;
+-}
+-
+-static int cap_file_alloc_security (struct file *file)
+-{
+-	return 0;
+-}
+-
+-static void cap_file_free_security (struct file *file)
+-{
+-	return;
+-}
+-
+-static int cap_file_ioctl (struct file *file, unsigned int command,
+-			   unsigned long arg)
+-{
+-	return 0;
+-}
+-
+-static int cap_file_mmap (struct file *file, unsigned long prot,
+-			  unsigned long flags)
+-{
+-	return 0;
+-}
+-
+-static int cap_file_mprotect (struct vm_area_struct *vma, unsigned long prot)
+-{
+-	return 0;
+-}
+-
+-static int cap_file_lock (struct file *file, unsigned int cmd)
+-{
+-	return 0;
+-}
+-
+-static int cap_file_fcntl (struct file *file, unsigned int cmd,
+-			   unsigned long arg)
+-{
+-	return 0;
+-}
+-
+-static int cap_file_set_fowner (struct file *file)
+-{
+-	return 0;
+-}
+-
+-static int cap_file_send_sigiotask (struct task_struct *tsk,
+-				    struct fown_struct *fown, int fd,
+-				    int reason)
+-{
+-	return 0;
+-}
+-
+-static int cap_file_receive (struct file *file)
+-{
+-	return 0;
+-}
+-
+-static int cap_task_create (unsigned long clone_flags)
+-{
+-	return 0;
+-}
+-
+-static int cap_task_alloc_security (struct task_struct *p)
+-{
+-	return 0;
+-}
+-
+-static void cap_task_free_security (struct task_struct *p)
+-{
+-	return;
+-}
+-
+-static int cap_task_setuid (uid_t id0, uid_t id1, uid_t id2, int flags)
+-{
+-	return 0;
+-}
+-
+-static int cap_task_setgid (gid_t id0, gid_t id1, gid_t id2, int flags)
+-{
+-	return 0;
+-}
+-
+-static int cap_task_setpgid (struct task_struct *p, pid_t pgid)
+-{
+-	return 0;
+-}
+-
+-static int cap_task_getpgid (struct task_struct *p)
+-{
+-	return 0;
+-}
+-
+-static int cap_task_getsid (struct task_struct *p)
+-{
+-	return 0;
+-}
+-
+-static int cap_task_setgroups (int gidsetsize, gid_t * grouplist)
+-{
+-	return 0;
+-}
+-
+-static int cap_task_setnice (struct task_struct *p, int nice)
+-{
+-	return 0;
+-}
+-
+-static int cap_task_setrlimit (unsigned int resource, struct rlimit *new_rlim)
+-{
+-	return 0;
+-}
+-
+-static int cap_task_setscheduler (struct task_struct *p, int policy,
+-				  struct sched_param *lp)
+-{
+-	return 0;
+-}
+-
+-static int cap_task_getscheduler (struct task_struct *p)
+-{
+-	return 0;
+-}
+-
+-static int cap_task_wait (struct task_struct *p)
+-{
+-	return 0;
+-}
+-
+-static int cap_task_kill (struct task_struct *p, struct siginfo *info, int sig)
+-{
+-	return 0;
+-}
+-
+-static int cap_task_prctl (int option, unsigned long arg2, unsigned long arg3,
+-			   unsigned long arg4, unsigned long arg5)
+-{
+-	return 0;
+-}
+-
+-static int cap_ipc_permission (struct kern_ipc_perm *ipcp, short flag)
+-{
+-	return 0;
+-}
+-
+-static int cap_msg_queue_alloc_security (struct msg_queue *msq)
+-{
+-	return 0;
+-}
+-
+-static void cap_msg_queue_free_security (struct msg_queue *msq)
+-{
+-	return;
+-}
+-
+-static int cap_shm_alloc_security (struct shmid_kernel *shp)
+-{
+-	return 0;
+-}
+-
+-static void cap_shm_free_security (struct shmid_kernel *shp)
+-{
+-	return;
+-}
+-
+-static int cap_sem_alloc_security (struct sem_array *sma)
+-{
+-	return 0;
+-}
+-
+-static void cap_sem_free_security (struct sem_array *sma)
+-{
+-	return;
+-}
+-
+-static int cap_register (const char *name, struct security_operations *ops)
+-{
+-	return -EINVAL;
+-}
+-
+-static int cap_unregister (const char *name, struct security_operations *ops)
+-{
+-	return -EINVAL;
+-}
  
- 	__u8			supervisor_stack[0];
+ static struct security_operations capability_ops = {
+ 	.ptrace =			cap_ptrace,
+ 	.capget =			cap_capget,
+ 	.capset_check =			cap_capset_check,
+ 	.capset_set =			cap_capset_set,
+-	.acct =				cap_acct,
+ 	.capable =			cap_capable,
+-	.quotactl =			cap_quotactl,
+-	.quota_on =			cap_quota_on,
+ 
+-	.bprm_alloc_security =		cap_bprm_alloc_security,
+-	.bprm_free_security =		cap_bprm_free_security,
+ 	.bprm_compute_creds =		cap_bprm_compute_creds,
+ 	.bprm_set_security =		cap_bprm_set_security,
+-	.bprm_check_security =		cap_bprm_check_security,
+-
+-	.sb_alloc_security =		cap_sb_alloc_security,
+-	.sb_free_security =		cap_sb_free_security,
+-	.sb_statfs =			cap_sb_statfs,
+-	.sb_mount =			cap_mount,
+-	.sb_check_sb =			cap_check_sb,
+-	.sb_umount =			cap_umount,
+-	.sb_umount_close =		cap_umount_close,
+-	.sb_umount_busy =		cap_umount_busy,
+-	.sb_post_remount =		cap_post_remount,
+-	.sb_post_mountroot =		cap_post_mountroot,
+-	.sb_post_addmount =		cap_post_addmount,
+-	.sb_pivotroot =			cap_pivotroot,
+-	.sb_post_pivotroot =		cap_post_pivotroot,
+-	
+-	.inode_alloc_security =		cap_inode_alloc_security,
+-	.inode_free_security =		cap_inode_free_security,
+-	.inode_create =			cap_inode_create,
+-	.inode_post_create =		cap_inode_post_create,
+-	.inode_link =			cap_inode_link,
+-	.inode_post_link =		cap_inode_post_link,
+-	.inode_unlink =			cap_inode_unlink,
+-	.inode_symlink =		cap_inode_symlink,
+-	.inode_post_symlink =		cap_inode_post_symlink,
+-	.inode_mkdir =			cap_inode_mkdir,
+-	.inode_post_mkdir =		cap_inode_post_mkdir,
+-	.inode_rmdir =			cap_inode_rmdir,
+-	.inode_mknod =			cap_inode_mknod,
+-	.inode_post_mknod =		cap_inode_post_mknod,
+-	.inode_rename =			cap_inode_rename,
+-	.inode_post_rename =		cap_inode_post_rename,
+-	.inode_readlink =		cap_inode_readlink,
+-	.inode_follow_link =		cap_inode_follow_link,
+-	.inode_permission =		cap_inode_permission,
+-	.inode_permission_lite =	cap_inode_permission_lite,
+-	.inode_setattr =		cap_inode_setattr,
+-	.inode_getattr =		cap_inode_getattr,
+-	.inode_post_lookup =		cap_post_lookup,
+-	.inode_delete =			cap_delete,
+-	.inode_setxattr =		cap_inode_setxattr,
+-	.inode_getxattr =		cap_inode_getxattr,
+-	.inode_listxattr =		cap_inode_listxattr,
+-	.inode_removexattr =		cap_inode_removexattr,
+-	
+-	.file_permission =		cap_file_permission,
+-	.file_alloc_security =		cap_file_alloc_security,
+-	.file_free_security =		cap_file_free_security,
+-	.file_ioctl =			cap_file_ioctl,
+-	.file_mmap =			cap_file_mmap,
+-	.file_mprotect =		cap_file_mprotect,
+-	.file_lock =			cap_file_lock,
+-	.file_fcntl =			cap_file_fcntl,
+-	.file_set_fowner =		cap_file_set_fowner,
+-	.file_send_sigiotask =		cap_file_send_sigiotask,
+-	.file_receive =			cap_file_receive,
+ 
+-	.task_create =			cap_task_create,
+-	.task_alloc_security =		cap_task_alloc_security,
+-	.task_free_security =		cap_task_free_security,
+-	.task_setuid =			cap_task_setuid,
+ 	.task_post_setuid =		cap_task_post_setuid,
+-	.task_setgid =			cap_task_setgid,
+-	.task_setpgid =			cap_task_setpgid,
+-	.task_getpgid =			cap_task_getpgid,
+-	.task_getsid =			cap_task_getsid,
+-	.task_setgroups =		cap_task_setgroups,
+-	.task_setnice =			cap_task_setnice,
+-	.task_setrlimit =		cap_task_setrlimit,
+-	.task_setscheduler =		cap_task_setscheduler,
+-	.task_getscheduler =		cap_task_getscheduler,
+-	.task_wait =			cap_task_wait,
+-	.task_kill =			cap_task_kill,
+-	.task_prctl =			cap_task_prctl,
+ 	.task_kmod_set_label =		cap_task_kmod_set_label,
+ 	.task_reparent_to_init =	cap_task_reparent_to_init,
+-
+-	.ipc_permission =		cap_ipc_permission,
+-
+-	.msg_queue_alloc_security =	cap_msg_queue_alloc_security,
+-	.msg_queue_free_security =	cap_msg_queue_free_security,
+-	
+-	.shm_alloc_security =		cap_shm_alloc_security,
+-	.shm_free_security =		cap_shm_free_security,
+-	
+-	.sem_alloc_security =		cap_sem_alloc_security,
+-	.sem_free_security =		cap_sem_free_security,
+-
+-	.register_security =		cap_register,
+-	.unregister_security =		cap_unregister,
  };
-@@ -44,6 +51,7 @@
- #define TI_CPU		0x0000000C
- #define TI_PRE_COUNT	0x00000010
- #define TI_ADDR_LIMIT	0x00000014
-+#define TI_RESTART_BLOCK 0x0000018
  
- #endif
- 
-@@ -63,6 +71,9 @@
- 	.cpu		= 0,			\
- 	.preempt_count	= 1,			\
- 	.addr_limit	= KERNEL_DS,		\
-+	.restart_block = {                      \
-+		.fun = 0,                       \
-+	},		                        \
- }
- 
- #define init_thread_info	(init_thread_union.thread_info)
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.50-bk4-kb/include/asm-i386/unistd.h linux/include/asm-i386/unistd.h
---- linux-2.5.50-bk4-kb/include/asm-i386/unistd.h	Wed Nov 27 15:49:22 2002
-+++ linux/include/asm-i386/unistd.h	Wed Dec  4 23:48:46 2002
-@@ -263,7 +263,7 @@
- #define __NR_sys_epoll_wait	256
- #define __NR_remap_file_pages	257
- #define __NR_set_tid_address	258
--
-+#define __NR_restart_syscall    259
- 
- /* user-visible error numbers are in the range -1 - -124: see <asm-i386/errno.h> */
- 
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.50-bk4-kb/include/linux/errno.h linux/include/linux/errno.h
---- linux-2.5.50-bk4-kb/include/linux/errno.h	Mon Sep  9 10:35:15 2002
-+++ linux/include/linux/errno.h	Wed Dec  4 23:53:21 2002
-@@ -10,6 +10,7 @@
- #define ERESTARTNOINTR	513
- #define ERESTARTNOHAND	514	/* restart if no handler.. */
- #define ENOIOCTLCMD	515	/* No ioctl command */
-+#define ERESTART_RESTARTBLOCK 516 /* restart by calling sys_restart_syscall */
- 
- /* Defined for the NFSv3 protocol */
- #define EBADHANDLE	521	/* Illegal NFS file handle */
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.50-bk4-kb/kernel/signal.c linux/kernel/signal.c
---- linux-2.5.50-bk4-kb/kernel/signal.c	Wed Dec  4 23:27:02 2002
-+++ linux/kernel/signal.c	Thu Dec  5 01:18:20 2002
-@@ -1351,6 +1351,15 @@
-  * System call entry points.
-  */
- 
-+asmlinkage long
-+sys_restart_syscall( void *parm)
-+{
-+	if ( ! current_thread_info()->restart_block.fun){
-+		return current_thread_info()->restart_block.fun(&parm);
-+	}
-+	return -ENOSYS;
-+}
-+
- /*
-  * We don't need to get the kernel lock - this is all local to this
-  * particular thread.. (and that's good, because this is _heavily_
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.50-bk4-kb/kernel/timer.c linux/kernel/timer.c
---- linux-2.5.50-bk4-kb/kernel/timer.c	Wed Dec  4 23:27:02 2002
-+++ linux/kernel/timer.c	Thu Dec  5 01:16:03 2002
-@@ -1020,19 +1020,39 @@
- 	return current->pid;
- }
- 
-+struct nano_sleep_call {
-+	struct timespec *rqtp; 
-+	struct timespec *rmtp;
-+};
-+
-+asmlinkage long sys_nanosleep_restart( struct nano_sleep_call * parms);
-+
- asmlinkage long sys_nanosleep(struct timespec *rqtp, struct timespec *rmtp)
- {
- 	struct timespec t;
- 	unsigned long expire;
-+	struct  restart_block *restart_block;
- 
--	if(copy_from_user(&t, rqtp, sizeof(struct timespec)))
--		return -EFAULT;
--
--	if (t.tv_nsec >= 1000000000L || t.tv_nsec < 0 || t.tv_sec < 0)
--		return -EINVAL;
-+	if (rqtp) {
-+		if(copy_from_user(&t, rqtp, sizeof(struct timespec)))
-+			return -EFAULT;
- 
--	expire = timespec_to_jiffies(&t) + (t.tv_sec || t.tv_nsec);
-+		if (t.tv_nsec >= 1000000000L || t.tv_nsec < 0 || t.tv_sec < 0)
-+			return -EINVAL;
-+		expire = timespec_to_jiffies(&t) + (t.tv_sec || t.tv_nsec);
- 
-+	}else{
-+		restart_block = &current_thread_info()->restart_block;
-+		if( restart_block->fun != 
-+		    (int (*)(void *))sys_nanosleep_restart ||
-+		    ! restart_block->arg0){
-+			return  -EFAULT;
-+		}
-+		restart_block->fun = NULL;
-+		expire = restart_block->arg0 - jiffies;
-+		if (expire < 0)
-+			return 0;
-+	}
- 	current->state = TASK_INTERRUPTIBLE;
- 	expire = schedule_timeout(expire);
- 
-@@ -1042,10 +1062,19 @@
- 			if (copy_to_user(rmtp, &t, sizeof(struct timespec)))
- 				return -EFAULT;
- 		}
--		return -EINTR;
-+		restart_block = &current_thread_info()->restart_block;
-+		restart_block->fun = (int (*)(void *))sys_nanosleep_restart;
-+		restart_block->arg0 = jiffies + expire;
-+		return -ERESTART_RESTARTBLOCK;
- 	}
- 	return 0;
- }
-+
-+asmlinkage long sys_nanosleep_restart( struct nano_sleep_call * parms)
-+{
-+	return sys_nanosleep(NULL, parms->rmtp);
-+}
-+
- 
- /*
-  * sys_sysinfo - fill in sysinfo struct
-Binary files linux-2.5.50-bk4-kb/scripts/lxdialog/lxdialog and linux/scripts/lxdialog/lxdialog differ
-Binary files linux-2.5.50-bk4-kb/usr/gen_init_cpio and linux/usr/gen_init_cpio differ
-Binary files linux-2.5.50-bk4-kb/usr/initramfs_data.cpio.gz and linux/usr/initramfs_data.cpio.gz differ
-
---------------8A6C43A0A86963BB30A45970--
-
+ #if defined(CONFIG_SECURITY_CAPABILITIES_MODULE)

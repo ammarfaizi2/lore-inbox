@@ -1,73 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264401AbTKMTaw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Nov 2003 14:30:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264405AbTKMTav
+	id S264400AbTKMTil (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Nov 2003 14:38:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264411AbTKMTil
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Nov 2003 14:30:51 -0500
-Received: from dd1234.kasserver.com ([81.209.148.157]:52183 "EHLO
-	dd1234.kasserver.com") by vger.kernel.org with ESMTP
-	id S264401AbTKMTat (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Nov 2003 14:30:49 -0500
-Date: Thu, 13 Nov 2003 19:30:43 +0000
-From: Jochen Voss <voss@seehuhn.de>
-To: "Nakajima, Jun" <jun.nakajima@intel.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: invalid SMP mptable on Toshiba Satellite 2430-301
-Message-ID: <20031113193043.GA1366@seehuhn.de>
-References: <7F740D512C7C1046AB53446D37200173618736@scsmsx402.sc.intel.com>
+	Thu, 13 Nov 2003 14:38:41 -0500
+Received: from fw.osdl.org ([65.172.181.6]:50337 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264400AbTKMTij (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Nov 2003 14:38:39 -0500
+Date: Thu, 13 Nov 2003 11:39:06 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Mary Edie Meredith <maryedie@osdl.org>
+Cc: piggin@cyberone.com.au, linux-kernel@vger.kernel.org, jenny@osdl.org
+Subject: Re: Nick's scheduler v18
+Message-Id: <20031113113906.65431b18.akpm@osdl.org>
+In-Reply-To: <1068746827.1750.1358.camel@ibm-e.pdx.osdl.net>
+References: <3FAFC8C6.8010709@cyberone.com.au>
+	<1068746827.1750.1358.camel@ibm-e.pdx.osdl.net>
+X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="EeQfGwPcQSOJBaQU"
-Content-Disposition: inline
-In-Reply-To: <7F740D512C7C1046AB53446D37200173618736@scsmsx402.sc.intel.com>
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Mary Edie Meredith <maryedie@osdl.org> wrote:
+>
+> Nick,
+> 
+> We ran your patch on STP against one of our database workloads (DBT3 on
+> postgreSQL which uses file system rather than raw).
+> 
+> The test was able to compile, successfully start up the database,
+> successfully load the database from source file, successfully run the
+> power test (single stream update/query/delete).   
+> 
+> It failed, however at the next stage, where it starts 8 streams of query
+> and one stream of updates/deletes where it ran for approximately 40
+> minutes (usually takes over an hour to complete).  The updates appear to
+> have completed and only queries were active at the time of failure.  See
+> the error message below from the database log.
+>
+> ...
+>
+> PANIC:  fdatasync of log file 1, segment 81 failed: Input/output error
+>
 
---EeQfGwPcQSOJBaQU
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+It's hard to see how a CPU scheduler change could cause fdatasync() to
+return EIO.
 
-Hello,
+What filesystem was being used?
 
-On Thu, Nov 13, 2003 at 10:56:34AM -0800, Nakajima, Jun wrote:
-> Which kernel is this?
-It is 2.6.0-test9 source from Debian, which Herbert Xu's patch
-to make it boot.
+If it was ext2 then perhaps you hit the recently-fixed block allocator
+race.  That fix was merged after test9.  Please check the kernel logs for
+any filesystem error messages.
 
-> In 2.6 we don't look at the MPS table if ACPI is
-> available. Or ACPI detection is failing?
-How do I check this?  The calling chain which leads to the "BIOS bug,
-MP table errors detected!" message is described in my original report
+Also, please retry the run, see if it is repeatable.
 
-    http://www.ussg.iu.edu/hypermail/linux/kernel/0311.1/0894.html
-
-Other relevant information:
-
-the full dmesg output: http://seehuhn.de/comp/dmesg-2.6.0-test9
-my kernel config file: http://seehuhn.de/comp/config-2.6.0-test9
-Herbert's patch: http://www.ussg.iu.edu/hypermail/linux/kernel/0311.1/0879.=
-html
-
-I hope this helps,
-Jochen
---=20
-http://seehuhn.de/
-
---EeQfGwPcQSOJBaQU
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQE/s9vif+iD8yEbECURApj2AKC2BNF1E7hyO2wg/5+HDgvMGxxvtwCfSoQ+
-yS1+TMQmRLJ+KvkXyXxqrgg=
-=SFwS
------END PGP SIGNATURE-----
-
---EeQfGwPcQSOJBaQU--
+Thanks.

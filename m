@@ -1,51 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261943AbTJXDK4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Oct 2003 23:10:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261946AbTJXDK4
+	id S261956AbTJXDfj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Oct 2003 23:35:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261957AbTJXDfj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Oct 2003 23:10:56 -0400
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:54971 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S261943AbTJXDKz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Oct 2003 23:10:55 -0400
-From: jtholmesjr@comcast.net
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test8  scsi logging not working
-Date: Fri, 24 Oct 2003 03:10:53 +0000
-Message-Id: <102420030310.18374.4e89@comcast.net>
-X-Mailer: AT&T Message Center Version 1 (Oct 14 2003)
-X-Authenticated-Sender: anRob2xtZXNqckBjb21jYXN0Lm5ldA==
+	Thu, 23 Oct 2003 23:35:39 -0400
+Received: from user-118bg4o.cable.mindspring.com ([66.133.192.152]:26252 "EHLO
+	BL4ST") by vger.kernel.org with ESMTP id S261956AbTJXDfi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Oct 2003 23:35:38 -0400
+Date: Thu, 23 Oct 2003 20:35:51 -0700
+From: Eric Wong <normalperson@yhbt.net>
+To: marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] trivial compile fix when FANCY_STATUS_DUMPS disabled
+Message-ID: <20031024033550.GA13374@BL4ST>
+References: <20031024033226.GA530@BL4ST>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031024033226.GA530@BL4ST>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I dont take the mail list dist just answer here in and i will see the
-answer.
+Eric Wong <normalperson@yhbt.net> wrote:
+> This fixes compilation when FANCY_STATUS_DUMPS is disabled in
+> include/linux/ide.h
 
-The problem:
+Oops, forgot to say, this is against 2.4.22
 
-I thought
-echo "scsi log all" >/proc/scsi/scsi 
-with
-scsi_logging=y  in .config
-would turn on kernel scsi logging and put some notification line
-in /var/log/messages
-indicating scsi logging was now active at such and such a level
+diff -ruNp a/drivers/ide/ide-disk.c b/drivers/ide/ide-disk.c
+--- a/drivers/ide/ide-disk.c	2003-06-13 07:51:33.000000000 -0700
++++ b/drivers/ide/ide-disk.c	2003-10-23 02:05:53.000000000 -0700
+@@ -881,8 +881,8 @@ static u8 idedisk_dump_status (ide_drive
+ 				printk(", sector=%ld",
+ 					HWGROUP(drive)->rq->sector);
+ 		}
+-	}
+ #endif	/* FANCY_STATUS_DUMPS */
++	}
+ 	printk("\n");
+ 	local_irq_restore(flags);
+ 	return err;
 
-that is not happening and I have a external drive connected via
-usb talking scsi that cannot be unmounted and i need to trace
-scsi action so I can post here.
-
-lsscsi output is
-[0:0:0:0]    disk    USB 2.0  Storage Device   0100  /dev/sda
-[1:0:0:0]    disk    Linux    scsi_debug       0004  /dev/sdb
-
-
-
-any help would be appreciated.
-thanks
-jt
---
-Please respond to 
-jtholmes@jtholmes.com
-Not to  jtholmesjr@comcast.net
+-- 
+Eric Wong

@@ -1,42 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264788AbSJOUjb>; Tue, 15 Oct 2002 16:39:31 -0400
+	id <S264786AbSJOUiQ>; Tue, 15 Oct 2002 16:38:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264736AbSJOUjb>; Tue, 15 Oct 2002 16:39:31 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:26541 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S264788AbSJOUix>;
-	Tue, 15 Oct 2002 16:38:53 -0400
-Date: Tue, 15 Oct 2002 16:44:46 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Daniele Lugli <genlogic@inrete.it>
-cc: Mikael Pettersson <mikpe@csd.uu.se>, linux-kernel@vger.kernel.org
-Subject: Re: unhappy with current.h
-In-Reply-To: <3DAC7AAC.B81A406E@inrete.it>
-Message-ID: <Pine.GSO.4.21.0210151633410.10323-100000@weyl.math.psu.edu>
+	id <S264788AbSJOUiP>; Tue, 15 Oct 2002 16:38:15 -0400
+Received: from fw-az.mvista.com ([65.200.49.158]:61939 "EHLO
+	zipcode.az.mvista.com") by vger.kernel.org with ESMTP
+	id <S264786AbSJOUiM>; Tue, 15 Oct 2002 16:38:12 -0400
+Message-ID: <3DAC7EAA.5020408@mvista.com>
+Date: Tue, 15 Oct 2002 13:46:34 -0700
+From: Steven Dake <sdake@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Greg KH <greg@kroah.com>
+CC: Michael Clark <michael@metaparadigm.com>, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] [PATCHES] Advanced TCA Hotswap Support in Linux Kernel
+References: <3DAB1007.6040400@mvista.com> <20021015052916.GA11190@kroah.com> <3DAC52A7.907@mvista.com> <3DAC685B.9070102@metaparadigm.com> <3DAC6C7B.1080205@mvista.com> <20021015203423.GI15864@kroah.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The data/telecoms I've talked to require disk hotswap times of less then 
+20 msec from notification of hotwap to blue led (a light used to 
+indicate the device can be removed).  They would like 10 msec if it 
+could be done.  This is because of how long it takes on a surprise 
+extraction for the hardware to send the signal vs the user to disconnect 
+the hardware.
 
+For legacy systems such as SAFTE hotswap, polling through sg at 10 msec 
+intervals would be extremely painful because of all the context 
+switches.  A timer scheduled every 10 msec to send out a SCSI message 
+and handle a response if there is a hotswap event is a much better course.
 
-On Tue, 15 Oct 2002, Daniele Lugli wrote:
+Thanks
+-steve
 
-> But let me at least summarize my poor-programmer-not-kernel-developer
-> point of view: at present the kernel if a mined field for c++ and i
-> understand it is not viable nor interesting for the majority to rewrite
-> it in a more c++-friendly way. But why not at least keep in mind, while
-> writing new stuff (not the case of current.h i see), that kernel headers
-> could be included by c++?
+Greg KH wrote:
 
-current.h is, indeed, a special case.  #define i j would not be tolerated
-simply because it's stupid.  Abuses of preprocessor are generally frowned
-upon, but there are passionate wa^H^Hpersons who just can't help themselves
-and use e.g. ## for no good reason.
-
-But as for C++... frankly, for all I care it doesn't exist.  As long as
-requirements of style happen to reduce problems of C++ programmers -
-they are lucky.  But other than that... watch me not care.  In the linux
-kernel context C++ is obscure language and it will stay that way.  Ergo,
-no reasons to spend any mental efforts on being nice to it.  Deal.
+>On Tue, Oct 15, 2002 at 12:28:59PM -0700, Steven Dake wrote:
+>  
+>
+>>Safte polling in the kernel isn't inherently bad and could be tied into 
+>>the hotplug mechanism.
+>>
+>>Making SAFTE hotswap available via SG would also work but system 
+>>performance would be bad at small poll intervals (like 100 msec).
+>>    
+>>
+>
+>Is there a real nead to get hotplug notification any faster than that?
+>
+>And yes, it should all be done in userspace, whenever possible :)
+>
+>thanks,
+>
+>greg k-h
+>
+>
+>
+>  
+>
 

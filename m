@@ -1,38 +1,28 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263756AbTCUSiM>; Fri, 21 Mar 2003 13:38:12 -0500
+	id <S263800AbTCUSvn>; Fri, 21 Mar 2003 13:51:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263744AbTCUShW>; Fri, 21 Mar 2003 13:37:22 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:4228
+	id <S263810AbTCUSun>; Fri, 21 Mar 2003 13:50:43 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:24196
 	"EHLO hraefn.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S263741AbTCUSfL>; Fri, 21 Mar 2003 13:35:11 -0500
-Date: Fri, 21 Mar 2003 19:50:26 GMT
+	id <S263793AbTCUStC>; Fri, 21 Mar 2003 13:49:02 -0500
+Date: Fri, 21 Mar 2003 20:04:17 GMT
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Message-Id: <200303211950.h2LJoQOZ026049@hraefn.swansea.linux.org.uk>
+Message-Id: <200303212004.h2LK4HjD026217@hraefn.swansea.linux.org.uk>
 To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: PATCH: __NO_VERSION__ for autofs
+Subject: PATCH: update Achim's address
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.65/fs/autofs/inode.c linux-2.5.65-ac2/fs/autofs/inode.c
---- linux-2.5.65/fs/autofs/inode.c	2003-02-10 18:38:48.000000000 +0000
-+++ linux-2.5.65-ac2/fs/autofs/inode.c	2003-03-14 00:52:26.000000000 +0000
-@@ -16,7 +16,6 @@
- #include <linux/file.h>
- #include <asm/bitops.h>
- #include "autofs_i.h"
--#define __NO_VERSION__
- #include <linux/module.h>
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.65/MAINTAINERS linux-2.5.65-ac2/MAINTAINERS
+--- linux-2.5.65/MAINTAINERS	2003-03-18 16:46:45.000000000 +0000
++++ linux-2.5.65-ac2/MAINTAINERS	2003-03-18 16:49:55.000000000 +0000
+@@ -728,7 +731,7 @@
  
- static void autofs_put_super(struct super_block *sb)
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.65/fs/autofs4/inode.c linux-2.5.65-ac2/fs/autofs4/inode.c
---- linux-2.5.65/fs/autofs4/inode.c	2003-02-10 18:38:48.000000000 +0000
-+++ linux-2.5.65-ac2/fs/autofs4/inode.c	2003-03-14 00:52:26.000000000 +0000
-@@ -16,7 +16,6 @@
- #include <linux/pagemap.h>
- #include <asm/bitops.h>
- #include "autofs_i.h"
--#define __NO_VERSION__
- #include <linux/module.h>
- 
- static void ino_lnkfree(struct autofs_info *ino)
+ GDT SCSI DISK ARRAY CONTROLLER DRIVER
+ P:	Achim Leubner
+-M:	achim@vortex.de
++M:	achim.leubner@intel.com
+ L:	linux-scsi@vger.kernel.org
+ W:	http://www.icp-vortex.com/
+ S:	Supported

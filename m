@@ -1,190 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262224AbVAYWzx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262225AbVAYWzw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262224AbVAYWzx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 17:55:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262206AbVAYWzI
+	id S262225AbVAYWzw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 17:55:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262224AbVAYWz2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 17:55:08 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:16512 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S262224AbVAYWx3 (ORCPT
+	Tue, 25 Jan 2005 17:55:28 -0500
+Received: from morgana.xs4all.nl ([213.84.43.3]:37384 "EHLO Waltz.Morgana.NET")
+	by vger.kernel.org with ESMTP id S262223AbVAYWwS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 17:53:29 -0500
-Date: Tue, 25 Jan 2005 14:52:56 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: Roland McGrath <roland@redhat.com>
-cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org, george@mvista.com
-Subject: Re: [PATCH 4/7] posix-timers: CPU clock support for POSIX timers
-In-Reply-To: <Pine.LNX.4.58.0501241834190.19044@schroedinger.engr.sgi.com>
-Message-ID: <Pine.LNX.4.58.0501251450080.26368@schroedinger.engr.sgi.com>
-References: <200501232325.j0NNPUg7006501@magilla.sf.frob.com>
- <41F5AF72.8000502@mvista.com> <Pine.LNX.4.58.0501241834190.19044@schroedinger.engr.sgi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 25 Jan 2005 17:52:18 -0500
+Subject: Drive missing only with LVM kernel
+From: Jasper Koolhaas <jasper@Morgana.NET>
+Reply-To: jasper@Morgana.NET
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: Morgana
+Date: Tue, 25 Jan 2005 21:30:09 +0100
+Message-Id: <1106685009.8968.15.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Jan 2005, Christoph Lameter wrote:
+Hiya,
 
-> It would be great to have a kind of private field that other clocks (like
-> clock drivers) could use for their purposes. mmtimer f.e. does use some
-> of the fields for the tick based timers for its purposes.
+I run a Linux 2.6.9 kernel with RAID and LVM on a combined total of six
+ATA and SATA harddisks. While booting /dev/hdg is recognised and even
+used by RAID:
 
-On that note:
+# dmesg |grep hdg
+    ide3: BM-DMA at 0xdf98-0xdf9f, BIOS settings: hdg:pio, hdh:pio
+hdg: WDC WD2000JB-00EVA0, ATA DISK drive
+hdg: max request size: 1024KiB
+hdg: 390721968 sectors (200049 MB) w/8192KiB Cache, CHS=24321/255/63,
+UDMA(100)
+hdg: cache flushes supported
+md:  adding hdg1 ...
+md: bind<hdg1>
+md: running: <sdb1><sda1><hdg1><hdc1><hda1>
+raid5: device hdg1 operational as raid disk 2
+ disk 2, o:1, dev:hdg1
 
-Your patch breaks the mmtimer driver because it used k_itimer values for
-its own purposes. Here is a fix by defining an additional structure
-in k_itimer (same approach for mmtimer as the cpu timers):
+As soon as the system had booted hdg has completely vanished, even in
+single user mode:
 
-Signed-off-by: Christoph Lameter <clameter@sgi.com>
+# ls /dev/hd* /dev/sd*
+/dev/hda   /dev/hda3  /dev/hdc1  /dev/hde   /dev/hde3  /dev/sda2  /dev/sdb1
+/dev/hda1  /dev/hda4  /dev/hdc2  /dev/hde1  /dev/sda   /dev/sda3  /dev/sdb2
+/dev/hda2  /dev/hdc   /dev/hdc3  /dev/hde2  /dev/sda1  /dev/sdb   /dev/sdb3
 
-Index: linux-2.6.10/include/linux/posix-timers.h
-===================================================================
---- linux-2.6.10.orig/include/linux/posix-timers.h	2005-01-25 14:35:11.000000000 -0800
-+++ linux-2.6.10/include/linux/posix-timers.h	2005-01-25 14:35:16.000000000 -0800
-@@ -57,6 +57,12 @@ struct k_itimer {
- 			unsigned long incr; /* interval in jiffies */
- 		} real;
- 		struct cpu_timer_list cpu;
-+		struct {
-+			unsigned int clock;
-+			unsigned int node;
-+			unsigned long incr;
-+			unsigned long expires;
-+		} mmtimer;
- 	} it;
- };
+But the RAID is working just fine:
 
-Index: linux-2.6.10/drivers/char/mmtimer.c
-===================================================================
---- linux-2.6.10.orig/drivers/char/mmtimer.c	2005-01-25 14:35:09.000000000 -0800
-+++ linux-2.6.10/drivers/char/mmtimer.c	2005-01-25 14:34:41.000000000 -0800
-@@ -420,19 +420,19 @@ static int inline reschedule_periodic_ti
- 	int n;
- 	struct k_itimer *t = x->timer;
+# cat /proc/mdstat
+Personalities : [raid5]
+md0 : active raid5 sdb1[4] sda1[3] hdg1[2] hdc1[1] hda1[0]
+      97674240 blocks level 5, 256k chunk, algorithm 2 [5/5] [UUUUU]
 
--	t->it_timer.magic = x->i;
-+	t->it.mmtimer.clock = x->i;
- 	t->it_overrun--;
+When I boot this same system with the same kernel without LVM appears
+just fine. As soon as I compile LVM in (even as not-yet-activated
+module) hdg is gone after booting.
 
- 	n = 0;
- 	do {
+This beheavure also happens if I add this particular or a different
+drive to a different controller like /dev/hdb
 
--		t->it_timer.expires += t->it_incr << n;
-+		t->it.mmtimer.expires += t->it.mmtimer.incr << n;
- 		t->it_overrun += 1 << n;
- 		n++;
- 		if (n > 20)
- 			return 1;
+My full kernel config can be found at:
+http://www.morgana.net/~jasper/config-2.6.9
 
--	} while (mmtimer_setup(x->i, t->it_timer.expires));
-+	} while (mmtimer_setup(x->i, t->it.mmtimer.expires));
+Any ideas how I can use LVM and this 6th drive?
 
- 	return 0;
- }
-@@ -468,7 +468,7 @@ mmtimer_interrupt(int irq, void *dev_id,
- 		spin_lock(&base[i].lock);
- 		if (base[i].cpu == smp_processor_id()) {
- 			if (base[i].timer)
--				expires = base[i].timer->it_timer.expires;
-+				expires = base[i].timer->it.mmtimer.expires;
- 			/* expires test won't work with shared irqs */
- 			if ((mmtimer_int_pending(i) > 0) ||
- 				(expires && (expires < rtc_time()))) {
-@@ -505,7 +505,7 @@ void mmtimer_tasklet(unsigned long data)
+hda: 320173056 sectors (163928 MB) w/7936KiB Cache, CHS=19929/255/63,
+UDMA(100)
+hdc: 312581808 sectors (160041 MB) w/8192KiB Cache, CHS=19457/255/63,
+UDMA(100)
+hde: 398297088 sectors (203928 MB) w/8192KiB Cache, CHS=24792/255/63,
+UDMA(100)
+hdg: 390721968 sectors (200049 MB) w/8192KiB Cache, CHS=24321/255/63,
+UDMA(100)
+ata1: dev 0 ATA, max UDMA/100, 488397168 sectors: lba48
+ata2: dev 0 ATA, max UDMA/100, 488397168 sectors: lba48
 
- 		t->it_overrun++;
- 	}
--	if(t->it_incr) {
-+	if(t->it.mmtimer.incr) {
- 		/* Periodic timer */
- 		if (reschedule_periodic_timer(x)) {
- 			printk(KERN_WARNING "mmtimer: unable to reschedule\n");
-@@ -513,7 +513,7 @@ void mmtimer_tasklet(unsigned long data)
- 		}
- 	} else {
- 		/* Ensure we don't false trigger in mmtimer_interrupt */
--		t->it_timer.expires = 0;
-+		t->it.mmtimer.expires = 0;
- 	}
- 	t->it_overrun_last = t->it_overrun;
- out:
-@@ -524,7 +524,7 @@ out:
- static int sgi_timer_create(struct k_itimer *timer)
- {
- 	/* Insure that a newly created timer is off */
--	timer->it_timer.magic = TIMER_OFF;
-+	timer->it.mmtimer.clock = TIMER_OFF;
- 	return 0;
- }
+Kind regards, Jasper.
 
-@@ -535,8 +535,8 @@ static int sgi_timer_create(struct k_iti
-  */
- static int sgi_timer_del(struct k_itimer *timr)
- {
--	int i = timr->it_timer.magic;
--	cnodeid_t nodeid = timr->it_timer.data;
-+	int i = timr->it.mmtimer.clock;
-+	cnodeid_t nodeid = timr->it.mmtimer.node;
- 	mmtimer_t *t = timers + nodeid * NUM_COMPARATORS +i;
- 	unsigned long irqflags;
 
-@@ -544,8 +544,8 @@ static int sgi_timer_del(struct k_itimer
- 		spin_lock_irqsave(&t->lock, irqflags);
- 		mmtimer_disable_int(cnodeid_to_nasid(nodeid),i);
- 		t->timer = NULL;
--		timr->it_timer.magic = TIMER_OFF;
--		timr->it_timer.expires = 0;
-+		timr->it.mmtimer.clock = TIMER_OFF;
-+		timr->it.mmtimer.expires = 0;
- 		spin_unlock_irqrestore(&t->lock, irqflags);
- 	}
- 	return 0;
-@@ -558,7 +558,7 @@ static int sgi_timer_del(struct k_itimer
- static void sgi_timer_get(struct k_itimer *timr, struct itimerspec *cur_setting)
- {
 
--	if (timr->it_timer.magic == TIMER_OFF) {
-+	if (timr->it.mmtimer.clock == TIMER_OFF) {
- 		cur_setting->it_interval.tv_nsec = 0;
- 		cur_setting->it_interval.tv_sec = 0;
- 		cur_setting->it_value.tv_nsec = 0;
-@@ -566,8 +566,8 @@ static void sgi_timer_get(struct k_itime
- 		return;
- 	}
 
--	ns_to_timespec(cur_setting->it_interval, timr->it_incr * sgi_clock_period);
--	ns_to_timespec(cur_setting->it_value, (timr->it_timer.expires - rtc_time())* sgi_clock_period);
-+	ns_to_timespec(cur_setting->it_interval, timr->it.mmtimer.incr * sgi_clock_period);
-+	ns_to_timespec(cur_setting->it_value, (timr->it.mmtimer.expires - rtc_time())* sgi_clock_period);
- 	return;
- }
 
-@@ -640,19 +640,19 @@ retry:
- 	base[i].timer = timr;
- 	base[i].cpu = smp_processor_id();
-
--	timr->it_timer.magic = i;
--	timr->it_timer.data = nodeid;
--	timr->it_incr = period;
--	timr->it_timer.expires = when;
-+	timr->it.mmtimer.clock = i;
-+	timr->it.mmtimer.node = nodeid;
-+	timr->it.mmtimer.incr = period;
-+	timr->it.mmtimer.expires = when;
-
- 	if (period == 0) {
- 		if (mmtimer_setup(i, when)) {
- 			mmtimer_disable_int(-1, i);
- 			posix_timer_event(timr, 0);
--			timr->it_timer.expires = 0;
-+			timr->it.mmtimer.expires = 0;
- 		}
- 	} else {
--		timr->it_timer.expires -= period;
-+		timr->it.mmtimer.expires -= period;
- 		if (reschedule_periodic_timer(base+i))
- 			err = -EINVAL;
- 	}
->

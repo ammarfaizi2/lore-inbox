@@ -1,91 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312457AbSFAPIs>; Sat, 1 Jun 2002 11:08:48 -0400
+	id <S315481AbSFAPx1>; Sat, 1 Jun 2002 11:53:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313060AbSFAPIr>; Sat, 1 Jun 2002 11:08:47 -0400
-Received: from pool-129-44-55-198.ny325.east.verizon.net ([129.44.55.198]:28175
-	"EHLO arizona.localdomain") by vger.kernel.org with ESMTP
-	id <S312457AbSFAPIq>; Sat, 1 Jun 2002 11:08:46 -0400
-Date: Sat, 1 Jun 2002 11:08:40 -0400
-From: "Kevin O'Connor" <kevin@koconnor.net>
-To: Kai Germaschewski <kai-germaschewski@uiowa.edu>
+	id <S315627AbSFAPx0>; Sat, 1 Jun 2002 11:53:26 -0400
+Received: from avplin2.lanet.lv ([195.13.129.96]:16058 "EHLO avplin2.lanet.lv")
+	by vger.kernel.org with ESMTP id <S315481AbSFAPxZ>;
+	Sat, 1 Jun 2002 11:53:25 -0400
+Message-ID: <3CF8EDEF.3070708@lanet.lv>
+Date: Sat, 01 Jun 2002 18:53:19 +0300
+From: Andris Pavenis <pavenis@lanet.lv>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020523
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: haiquy@yahoo.com
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel compile quiet mode
-Message-ID: <20020601110840.A13076@arizona.localdomain>
-In-Reply-To: <20020531230153.A12477@arizona.localdomain> <Pine.LNX.4.44.0206010228460.21152-100000@chaos.physics.uiowa.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Subject: Re: 2.4.19-pre9-ac3 still OOPS when exiting X with i810 chipset
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 01, 2002 at 02:34:25AM -0500, Kai Germaschewski wrote:
-> > > gcc $CFLAGS -DKBUILD_BASENAME=raw -c -o raw.o raw.c
-> > > gcc $CFLAGS -DKBUILD_BASENAME=pty -DEXPORT_SYMTAB -c -o pty.o pty.c
-> > > gcc $CFLAGS -DKBUILD_BASENAME=misc -DEXPORT_SYMTAB -c -o misc.o misc.c
-> > > gcc $CFLAGS -DKBUILD_BASENAME=random -DEXPORT_SYMTAB -c -o random.o random.c
-> > > gcc $CFLAGS -DKBUILD_BASENAME=vt -c -o vt.o vt.c
-> > > gcc $CFLAGS -DKBUILD_BASENAME=vc_screen -c -o vc_screen.o vc_screen.c
-> 
-> Not bad, I suppose different people prefer different approaches, anyway. 
-> There is, however, still redundant output there, the "-o vt.o" and 
-> "KBUILD_BASENAME=vt" should go away as well too, IMO.
+ > I hope the problem has been fixed but not, Exactly the
+ > same oop message as I posted before; from 2.4.19-pre7
+ > up ; it always happen.
 
-I agree about the "-o vt.o" part.  I'm not so sure about KBUILD_BASENAME -
-it's a little redundant, but it is sent to the compiler and is different on
-each compile.  Anyway, fixing the '-o' redundancy is simple - just don't
-send it to the compiler in the first place (the compiler will always do it
-anyway).
+Same hardware as I'm using, but I haven't seen any OOPSes
+already for a long time.
 
-I've attached another example patch to the end of this message.  Output
-looks like:
+Currently I'm using the same kernel 2.4.19-pre9-ac3, XFree86-4.2.0
+(with one i810 chipset related fix applied), KDE-3.0.1
+All these are compiled with gcc-3.1 release. I haven't seen
+any kernel OOPS'es already for a rather long time.
 
-gcc $CFLAGS -fno-omit-frame-pointer -DKBUILD_BASENAME=sched -c sched.c
-gcc $CFLAGS -DKBUILD_BASENAME=dma -c dma.c
-gcc $CFLAGS -DKBUILD_BASENAME=fork -c fork.c
-gcc $CFLAGS -DKBUILD_BASENAME=exec_domain -DEXPORT_SYMTAB -c exec_domain.c
-gcc $CFLAGS -DKBUILD_BASENAME=panic -c panic.c
+Andris
 
-> 
-> [Answered a follow-up mail and didn't realize that l-k was CC'ed in
->  the first one, so here's my reply again.]
+PS. i810 fix I mentioned dos not fix kernel OOPS, but only
+X11 fatal error when switching from X11 to console (especially nasty
+with new KDE versions, haven't seen with GNOME)
 
-Sorry about that.  This one is also CC'ed to lkml.
-
-Thanks,
--Kevin
+Andris
 
 
 
---- ../gold-2.5/Rules.make      Fri May 31 22:10:04 2002
-+++ ./Rules.make        Sat Jun  1 10:57:18 2002
-@@ -127,7 +127,7 @@
- %.i: %.c FORCE
-        $(call if_changed,cmd_cc_i_c)
- 
--cmd_cc_o_c = $(CC) $(c_flags) -c -o $@ $<
-+cmd_cc_o_c = $(CC) $(c_flags) -c $<
- 
- %.o: %.c FORCE
-        $(call if_changed,cmd_cc_o_c)
-@@ -396,8 +396,9 @@
- 
- # function to only execute the passed command if necessary
- 
-+echo_cmd = echo '$(strip $(subst $(CFLAGS),$$CFLAGS,$(subst $(CFLAGS_MODULE),$$CFLAGS_MODULE,$($(1)))))'
-+
- if_changed = $(if $(strip $? \
-                          $(filter-out $($(1)),$(cmd_$(@F)))\
-                          $(filter-out $(cmd_$(@F)),$($(1)))),\
--              @echo '$($(1))' && $($(1)) && echo 'cmd_$@ := $($(1))' > $(@D)/.$(@F).cmd)
--
-+              @$(call echo_cmd,$(1)) && $($(1)) && echo 'cmd_$@ := $($(1))' > $(@D)/.$(@F).cmd)
-
-
-
--- 
- ------------------------------------------------------------------------
- | Kevin O'Connor                     "BTW, IMHO we need a FAQ for      |
- | kevin@koconnor.net                  'IMHO', 'FAQ', 'BTW', etc. !"    |
- ------------------------------------------------------------------------

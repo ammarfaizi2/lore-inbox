@@ -1,50 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288477AbSAIDrq>; Tue, 8 Jan 2002 22:47:46 -0500
+	id <S288478AbSAIDx0>; Tue, 8 Jan 2002 22:53:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288478AbSAIDrg>; Tue, 8 Jan 2002 22:47:36 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:37893 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S288477AbSAIDrc>; Tue, 8 Jan 2002 22:47:32 -0500
-Message-ID: <3C3BBD50.2020805@zytor.com>
-Date: Tue, 08 Jan 2002 19:47:28 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us, en, sv
+	id <S288765AbSAIDxQ>; Tue, 8 Jan 2002 22:53:16 -0500
+Received: from blackbird.intercode.com.au ([203.32.101.10]:50696 "EHLO
+	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
+	id <S288478AbSAIDxD>; Tue, 8 Jan 2002 22:53:03 -0500
+Date: Wed, 9 Jan 2002 14:52:56 +1100 (EST)
+From: James Morris <jmorris@intercode.com.au>
+To: CaT <cat@zip.com.au>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: undefined reference to `local symbols in discarded section
+ .text.exit
+In-Reply-To: <20020109010122.GC822@zip.com.au>
+Message-ID: <Pine.LNX.4.31.0201091445570.9931-100000@blackbird.intercode.com.au>
 MIME-Version: 1.0
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] DevFS support for /dev/cpu/X/(cpuid|msr)
-In-Reply-To: <20020106181749.A714@butterlicious.bodgit-n-scarper.com>	<20020108201451.088f7f99.rusty@rustcorp.com.au>	<a1f9j9$5i9$1@cesium.transmeta.com>	<20020109120108.39bcf7ad.rusty@rustcorp.com.au>	<a1gcme$18t$1@cesium.transmeta.com> <200201090330.g093UB427696@vindaloo.ras.ucalgary.ca>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Gooch wrote:
+On Wed, 9 Jan 2002, CaT wrote:
 
->>>
->>So you chown an entry, then a module is unloaded and reloaded, now
->>what happens?
->>
->>It's the old "virtual filesystem which really wants persistence"
->>issue again...
->>
-> 
-> Works beautifully with devfs+devfsd :-)
-> 
-> Permissions get saved elsewhere in the namespace (perhaps even to the
-> underlying /dev) as you chown(2)/chmod(2)/mknod(2), and are restored
-> when entries are (re)created and/or at startup.
-> 
-> My /dev has persistence behaviour which looks like a FS with backing
-> store.
-> 
+> I have modules and hotplug turned on (but nothing turned on in the
+> hotplug suboptions) but I get this error anyway:
+>
+>         /usr/src/linux/arch/i386/lib/lib.a /usr/src/linux/lib/lib.a
+> /usr/src/linux/arch/i386/lib/lib.a \
+>         --end-group \
+>         -o vmlinux
+> net/network.o(.text.lock+0x1730): undefined reference to `local symbols
+> in discarded section .text.exit'
+> make: *** [vmlinux] Error 1
+>
+
+If you have CONFIG_IP_NF_NAT_SNMP_BASIC=y, see:
+
+http://groups.google.com/groups?selm=18061.1009501031%40ocs3.intra.ocs.com.au
 
 
-Yes, after quite a few years it finally got in there.  This is a Good 
-Thing[TM].  Now apply the same problem to /proc.
 
-	-hpa
+- James
+-- 
+James Morris
+<jmorris@intercode.com.au>
+
 
 

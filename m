@@ -1,131 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267396AbUHMTsn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267383AbUHMTrP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267396AbUHMTsn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Aug 2004 15:48:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267357AbUHMTs3
+	id S267383AbUHMTrP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Aug 2004 15:47:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267351AbUHMTnO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Aug 2004 15:48:29 -0400
-Received: from pfepc.post.tele.dk ([195.41.46.237]:4906 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S267168AbUHMTnh
+	Fri, 13 Aug 2004 15:43:14 -0400
+Received: from fep02fe.ttnet.net.tr ([212.156.4.132]:26612 "EHLO
+	fep02.ttnet.net.tr") by vger.kernel.org with ESMTP id S267334AbUHMTjm
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Aug 2004 15:43:37 -0400
-Date: Fri, 13 Aug 2004 21:45:54 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: [2/12] kbuild/sparc: Use new generic mksysmap script to generate System.map
-Message-ID: <20040813194554.GB10556@mars.ravnborg.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-References: <20040813192804.GA10486@mars.ravnborg.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040813192804.GA10486@mars.ravnborg.org>
-User-Agent: Mutt/1.5.6i
+	Fri, 13 Aug 2004 15:39:42 -0400
+Message-ID: <411D18CA.9060709@ttnet.net.tr>
+Date: Fri, 13 Aug 2004 22:38:50 +0300
+From: "O.Sezer" <sezeroz@ttnet.net.tr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040308
+X-Accept-Language: tr, en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: marcelo.tosatti@cyclades.com
+Subject: [PATCH 2.4] amd76xrom.c unused warning
+Content-Type: multipart/mixed;
+	boundary="------------040003060109030103050300"
+X-ESAFE-STATUS: Mail clean
+X-ESAFE-DETAILS: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-# This is a BitKeeper generated diff -Nru style patch.
-#
-# ChangeSet
-#   2004/08/08 09:34:43+02:00 sam@mars.ravnborg.org 
-#   kbuild/sparc: Use new generic mksysmap script to generate System.map
-#   
-#   o Introduced usage of the mksysmap script.
-#   o Improved the non-verbose output to look like this:
-#     BTFIX   arch/sparc/boot/btfix.S
-#     AS      arch/sparc/boot/btfix.o
-#     LD      arch/sparc/boot/image
-#     SYSMAP  arch/sparc/boot/System.map
-#   
-#   o No longer generate System.map for each build
-#   o Use normal AS rule to compile btfix.S
-#   
-#   Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-# 
-# scripts/mksysmap
-#   2004/08/08 09:34:27+02:00 sam@mars.ravnborg.org +1 -1
-#   Three, not four underscores
-# 
-# arch/sparc/boot/Makefile
-#   2004/08/08 09:34:27+02:00 sam@mars.ravnborg.org +32 -8
-#   Use the new mksysmap script
-#   Do not generate System.map for every build
-#   Use normal AS rule for btfix.S
-# 
-diff -Nru a/arch/sparc/boot/Makefile b/arch/sparc/boot/Makefile
---- a/arch/sparc/boot/Makefile	2004-08-13 21:09:21 +02:00
-+++ b/arch/sparc/boot/Makefile	2004-08-13 21:09:21 +02:00
-@@ -8,27 +8,51 @@
- ELFTOAOUT	:= elftoaout
+This is a multi-part message in MIME format.
+--------------040003060109030103050300
+Content-Type: text/plain;
+	charset=us-ascii;
+	format=flowed
+Content-Transfer-Encoding: 7bit
+
+$SUBJECT
+
+--------------040003060109030103050300
+Content-Type: text/plain;
+	name="amd76xrom.c-unused.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+	filename="amd76xrom.c-unused.diff"
+
+--- 27rc5~/drivers/mtd/maps/amd76xrom.c	2003-06-13 17:51:34.000000000 +0300
++++ 27rc5/drivers/mtd/maps/amd76xrom.c	2004-08-07 14:09:39.000000000 +0300
+@@ -178,7 +178,7 @@
+ 	iounmap((void *)(info->window_addr));
+ err_out_free_mmio_region:
+ 	release_mem_region(window->start, window->size);
+-err_out_none:
++//err_out_none:
+ 	return -ENODEV;
+ }
  
- host-progs	:= piggyback btfixupprep
--targets		:= tftpboot.img btfix.o btfix.s image
-+targets		:= tftpboot.img btfix.o btfix.S image
- 
- quiet_cmd_elftoaout	= ELFTOAOUT $@
-       cmd_elftoaout	= $(ELFTOAOUT) $(obj)/image -o $@
--quiet_cmd_piggy		= PIGGY $@
-+quiet_cmd_piggy		= PIGGY   $@
-       cmd_piggy		= $(obj)/piggyback $@ $(obj)/System.map $(ROOT_IMG)
--quiet_cmd_btfix		= BTFIX $@
-+quiet_cmd_btfix		= BTFIX   $@
-       cmd_btfix		= $(OBJDUMP) -x vmlinux | $(obj)/btfixupprep > $@
-+quiet_cmd_sysmap        = SYSMAP  $(obj)/System.map
-+      cmd_sysmap        = $(CONFIG_SHELL) $(srctree)/scripts/mksysmap
-+quiet_cmd_image = LD      $@
-+      cmd_image = $(LD) $(LDFLAGS) $(EXTRA_LDFLAGS) $(LDFLAGS_$(@F)) -o $@
-+
-+define rule_image
-+	$(if $($(quiet)cmd_image),               \
-+	  echo '  $($(quiet)cmd_image)' &&)      \
-+	  $(cmd_image);                          \
-+	$(if $($(quiet)cmd_sysmap),              \
-+	  echo '  $($(quiet)cmd_sysmap)' &&)  \
-+	$(cmd_sysmap) $@ $(obj)/System.map;      \
-+	if [ $$? -ne 0 ]; then                   \
-+		rm -f $@;                        \
-+		/bin/false;                      \
-+	fi;                                      \
-+	echo 'cmd_$@ := $(cmd_image)' > $(@D)/.$(@F).cmd
-+endef
- 
- BTOBJS := $(HEAD_Y) $(INIT_Y)
- BTLIBS := $(CORE_Y) $(LIBS_Y) $(DRIVERS_Y) $(NET_Y)
--LDFLAGS_image := -T arch/sparc/kernel/vmlinux.lds.s $(BTOBJS) --start-group $(BTLIBS) --end-group $(kallsyms.o)
-+LDFLAGS_image := -T arch/sparc/kernel/vmlinux.lds.s $(BTOBJS) \
-+                  --start-group $(BTLIBS) --end-group \
-+                  $(kallsyms.o) $(obj)/btfix.o
- 
--# Actual linking
-+# Link the final image including btfixup'ed symbols.
-+# This is a replacement for the link done in the top-level Makefile.
-+# Note: No dependency on the prerequisite files since that would require
-+# make to try check if they are updated - and due to changes
-+# in gcc options (path for example) this would result in
-+# these files being recompiled for each build.
- $(obj)/image: $(obj)/btfix.o FORCE
--	$(call if_changed,ld)
--	$(NM) $@ | grep -v  '\(compiled\)\|\(\.o$$\)\|\( [aUw] \)\|\(\.\.ng$$\)\|\(LASH[RL]DI\)' | sort > $(obj)/System.map
-+	$(call if_changed_rule,image)
- 
- $(obj)/tftpboot.img: $(obj)/piggyback $(obj)/System.map $(obj)/image FORCE
- 	$(call if_changed,elftoaout)
- 	$(call if_changed,piggy)
- 
--$(obj)/btfix.s: $(obj)/btfixupprep vmlinux FORCE
-+$(obj)/btfix.S: $(obj)/btfixupprep vmlinux FORCE
- 	$(call if_changed,btfix)
-diff -Nru a/scripts/mksysmap b/scripts/mksysmap
---- a/scripts/mksysmap	2004-08-13 21:09:21 +02:00
-+++ b/scripts/mksysmap	2004-08-13 21:09:21 +02:00
-@@ -18,7 +18,7 @@
- # they are used by the sparc BTFIXUP logic - and is assumed to be undefined.
- 
- 
--if [ "`$NM -u $1 | grep -v ' ____'`" != "" ]; then
-+if [ "`$NM -u $1 | grep -v ' ___'`" != "" ]; then
- 	echo "$1: error: undefined symbol(s) found:"
- 	$NM -u $1 | grep -v ' ___'
- 	exit 1
+
+--------------040003060109030103050300--

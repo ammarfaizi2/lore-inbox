@@ -1,41 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268310AbRG3DyR>; Sun, 29 Jul 2001 23:54:17 -0400
+	id <S268308AbRG3EDa>; Mon, 30 Jul 2001 00:03:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268308AbRG3DyH>; Sun, 29 Jul 2001 23:54:07 -0400
-Received: from [209.226.93.226] ([209.226.93.226]:46834 "EHLO
-	mobilix.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S268307AbRG3DyA>; Sun, 29 Jul 2001 23:54:00 -0400
-Date: Sun, 29 Jul 2001 23:53:56 -0400
-Message-Id: <200107300353.f6U3ruc02345@mobilix.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: John Covici <covici@ccs.covici.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] devfs v183 available
-In-Reply-To: <m3lml7yt4o.fsf@ccs.covici.com>
-In-Reply-To: <200107230502.f6N528g05023@vindaloo.ras.ucalgary.ca>
-	<m3lml7yt4o.fsf@ccs.covici.com>
+	id <S268317AbRG3EDU>; Mon, 30 Jul 2001 00:03:20 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:57353 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S268308AbRG3EDD>;
+	Mon, 30 Jul 2001 00:03:03 -0400
+Date: Mon, 30 Jul 2001 01:02:38 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+Cc: <postmaster@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: Test mail
+In-Reply-To: <5.1.0.14.2.20010730024303.00b1cec0@pop.cus.cam.ac.uk>
+Message-ID: <Pine.LNX.4.33L.0107300101490.11893-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-John Covici writes:
-> I have two questions -- please forgive me if they are somewhat dumb.
-> 
-> First, if I have the 2.4.7 source tree what patch level of devfs do I
-> have -- how is that related to the devfs 183 you announced?
+On Mon, 30 Jul 2001, Anton Altaparmakov wrote:
+> At 23:20 29/07/2001, Mailing Server wrote:
+> >Hi, just verifying email, enjoy the attached file.
+>
+> Would it be possible to have lkml setup to filter out this kind of crap?!?
 
-Check Documentation/filesystems/devfs/ChangeLog
+IIRC lkml already has pretty strict filters.
 
-> Second, I need to change a driver which is now not devfs aware, but
-> hangs the kernel if devfs is not present -- where can I get
-> documentation for the devfs api?
+However, you cannot have your filters prepared for
+any random thing. Eventually something will get
+through.
 
-Build the man pages: the source code has markups so that documentation
-can be automatically extracted.
+It seems that this month's something just got through.
 
-				Regards,
+such is life,
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+

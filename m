@@ -1,84 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261848AbVCAKHx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261851AbVCAKIi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261848AbVCAKHx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 05:07:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261851AbVCAKHx
+	id S261851AbVCAKIi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 05:08:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261852AbVCAKIh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 05:07:53 -0500
-Received: from fire.osdl.org ([65.172.181.4]:7048 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261848AbVCAKHm (ORCPT
+	Tue, 1 Mar 2005 05:08:37 -0500
+Received: from rproxy.gmail.com ([64.233.170.204]:651 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261851AbVCAKI3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 05:07:42 -0500
-Date: Tue, 1 Mar 2005 02:07:22 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-rc4-mm1: something is wrong with swsusp powerdown
-Message-Id: <20050301020722.6faffb69.akpm@osdl.org>
-In-Reply-To: <20050228231721.GA1326@elf.ucw.cz>
-References: <20050228231721.GA1326@elf.ucw.cz>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Tue, 1 Mar 2005 05:08:29 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=DcIwEOzhapd1EM8Wm/rGUZbUoiRS+njBnWKBZWql6NrFQruCGV08MYSVbH/AGAcMTK7fQvaSK+z88Sn087322xX21FXzRyNj4Ib83RftUmx5YB9FoUbpH8J2N7Sr+Ako+tfE11vI2fAQeBIGAhfdnjXGzSxLbm2MpMTwPSCal1w=
+Message-ID: <8b46b8f10503010208589e7c1f@mail.gmail.com>
+Date: Tue, 1 Mar 2005 18:08:00 +0800
+From: MingJie Chang <mingjie.tw@gmail.com>
+Reply-To: MingJie Chang <mingjie.tw@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: question about sockfd_lookup( )
+Cc: Eric Dumazet <dada1@cosmosbay.com>
+In-Reply-To: <42242023.9070101@cosmosbay.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <8b46b8f1050228220257173ddf@mail.gmail.com>
+	 <42242023.9070101@cosmosbay.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I can't use sockfd_put(sock)  directly.
+I trace its code, the code is 
 
-btw, suspend is a bit messy.  The disk spins down.  Then up.  Then down
-again.  And:
+extern __inline__ void sockfd_put(struct socket *sock)
+ {
+         fput(sock->file);
+}
 
+so I use fput(sock->file)
 
+but it has problems too
 
-Stopping tasks: ==========================================|
-Freeing memory... done (7069 pages freed)                  
-swsusp: Need to copy 7847 pages          
-swsusp: critical section/: done (7879 pages copied)
-swsusp: Restoring Highmem                          
-Debug: sleeping function called from invalid context at mm/slab.c:2082
-in_atomic():0, irqs_disabled():1                                      
- [<c010318d>] dump_stack+0x19/0x20
- [<c0111731>] __might_sleep+0x91/0x9c
- [<c01365df>] kmem_cache_alloc+0x23/0x84
- [<c0232d50>] acpi_evaluate_integer+0x3c/0xac
- [<c024b3d9>] acpi_bus_get_status+0x39/0x94  
- [<c024ca99>] acpi_pci_link_set+0x16d/0x1e8
- [<c024ce65>] acpi_pci_link_resume+0x1d/0x28
- [<c024ce8a>] irqrouter_resume+0x1a/0x38    
- [<c0281e3c>] sysdev_resume+0x2c/0xae   
- [<c0285ea8>] device_power_up+0x8/0x11
- [<c012a873>] swsusp_suspend+0x4b/0x58
- [<c012ac35>] pm_suspend_disk+0x35/0x74
- [<c01292ea>] enter_state+0x2e/0x70    
- [<c0129336>] software_suspend+0xa/0x10
- [<c024a8a7>] acpi_system_write_sleep+0x73/0x98
- [<c0149f1b>] vfs_write+0xaf/0x118             
- [<c014a028>] sys_write+0x3c/0x68 
- [<c0102c05>] sysenter_past_esp+0x52/0x75
-PCI: Setting latency timer of device 0000:00:1f.2 to 64
-ACPI: PCI interrupt 0000:00:1f.5[B] -> GSI 9 (level, low) -> IRQ 9
-PCI: Setting latency timer of device 0000:00:1f.5 to 64           
-ACPI: PCI interrupt 0000:01:00.0[A] -> GSI 11 (level, low) -> IRQ 11
-ehci_hcd 0000:02:01.2: USB 2.0 restarted, EHCI 0.95, driver 10 Dec 2004
-ACPI: PCI interrupt 0000:02:0c.0[A] -> GSI 9 (level, low) -> IRQ 9     
-e100: eth0: e100_watchdog: link up, 100Mbps, full-duplex          
-Writing data to swap (7879 pages)... done               
-Writing pagedir (31 pages)               
-S|                        
-Powering off system
-Debug: sleeping function called from invalid context at include/linux/rwsem.h:66
-in_atomic():0, irqs_disabled():1                                                
- [<c010318d>] dump_stack+0x19/0x20
- [<c0111731>] __might_sleep+0x91/0x9c
- [<c0285872>] device_shutdown+0x16/0x82
- [<c012aa97>] power_down+0x47/0x74     
- [<c012ac5a>] pm_suspend_disk+0x5a/0x74
- [<c01292ea>] enter_state+0x2e/0x70    
- [<c0129336>] software_suspend+0xa/0x10
- [<c024a8a7>] acpi_system_write_sleep+0x73/0x98
- [<c0149f1b>] vfs_write+0xaf/0x118             
- [<c014a028>] sys_write+0x3c/0x68 
- [<c0102c05>] sysenter_past_esp+0x52/0x75
-Synchronizing SCSI cache for disk sda:   
-Shutdown: hda                          
-acpi_power_off called
+1) execute "ls" in the ftp is also block
+2) kernel prints "socki_lookup: socket file changed!" 
+3) execute "ftp localhost" after rmmod, it will crash
+
+and why the sockfd_put is needed after sockfd_lookup
+
+Thanak again
+
+MingChieh Chang
+Taiwan
+===============================================
+
+On Tue, 01 Mar 2005 08:56:19 +0100, Eric Dumazet <dada1@cosmosbay.com> wrote:
+> Hi
+> 
+> Try adding sockfd_put(sock) ;
+> 
+> MingJie Chang wrote:
+> > Dear all,
+> >
+> > I want to get socket information by the sockfd while accetping,
+> >
+> > so I write a module to test sockfd_lookup(),
+> >
+> > but I got some problems when I test it.
+> >
+> > I hope someone can help me...
+> >
+> > Thank you
+> >
+> > following text is my code and error message
+> > ===========================================
+> > === code ===
+> >
+> > int my_socketcall(int call,unsigned long *args)
+> > {
+> >    int ret,err;
+> >    struct socket * sock;
+> >
+> >    ret = run_org_socket_call(call,args);   //orignal sys_sockcall()
+> >
+> >    if(call==SYS_ACCEPT&&ret>=0)
+> >    {
+> >           sock=sockfd_lookup(ret,&err);
+> >           printk("lookup done\n");
+> 
+>         if (sock) sockfd_put(sock) ;
+> 
+> >    }
+> >    return ret;
+> > }
+> 
+> Eric Dumazet
+> 
+>

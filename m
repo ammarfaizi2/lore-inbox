@@ -1,186 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S272270AbUKAWqi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261977AbUKAWqb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272270AbUKAWqi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Nov 2004 17:46:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S378261AbUKAWoH
+	id S261977AbUKAWqb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Nov 2004 17:46:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274748AbUKAWpM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Nov 2004 17:44:07 -0500
-Received: from peabody.ximian.com ([130.57.169.10]:29854 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S315739AbUKAUpL
+	Mon, 1 Nov 2004 17:45:12 -0500
+Received: from alog0687.analogic.com ([208.224.223.224]:3456 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S316732AbUKAUzS
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 15:45:11 -0500
-Subject: [patch] inotify: misc. style cleanup
-From: Robert Love <rml@novell.com>
-To: John McCutchan <ttb@tentacle.dhs.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1099330316.12182.2.camel@vertex>
-References: <1099330316.12182.2.camel@vertex>
-Content-Type: text/plain
-Date: Mon, 01 Nov 2004 15:42:51 -0500
-Message-Id: <1099341771.31022.49.camel@betsy.boston.ximian.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
-Content-Transfer-Encoding: 7bit
+	Mon, 1 Nov 2004 15:55:18 -0500
+Date: Mon, 1 Nov 2004 15:52:21 -0500 (EST)
+From: linux-os <linux-os@chaos.analogic.com>
+Reply-To: linux-os@analogic.com
+To: dean gaudet <dean-list-linux-kernel@arctic.org>
+cc: Linus Torvalds <torvalds@osdl.org>, Andreas Steinmetz <ast@domdv.de>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Richard Henderson <rth@redhat.com>, Andi Kleen <ak@muc.de>,
+       Andrew Morton <akpm@osdl.org>, Jan Hubicka <jh@suse.cz>
+Subject: Re: Semaphore assembly-code bug
+In-Reply-To: <Pine.LNX.4.61.0411011219200.8483@twinlark.arctic.org>
+Message-ID: <Pine.LNX.4.61.0411011542430.24533@chaos.analogic.com>
+References: <Pine.LNX.4.58.0410181540080.2287@ppc970.osdl.org> 
+ <417550FB.8020404@drdos.com>  <1098218286.8675.82.camel@mentorng.gurulabs.com>
+  <41757478.4090402@drdos.com>  <20041020034524.GD10638@michonline.com> 
+ <1098245904.23628.84.camel@krustophenia.net> <1098247307.23628.91.camel@krustophenia.net>
+ <Pine.LNX.4.61.0410200744310.10521@chaos.analogic.com>
+ <Pine.LNX.4.61.0410290805570.11823@chaos.analogic.com>
+ <Pine.LNX.4.58.0410290740120.28839@ppc970.osdl.org> <41826A7E.6020801@domdv.de>
+ <Pine.LNX.4.61.0410291255400.17270@chaos.analogic.com>
+ <Pine.LNX.4.58.0410291103000.28839@ppc970.osdl.org>
+ <Pine.LNX.4.61.0410291424180.4870@chaos.analogic.com>
+ <Pine.LNX.4.58.0410291209170.28839@ppc970.osdl.org>
+ <Pine.LNX.4.61.0410312024150.19538@chaos.analogic.com>
+ <Pine.LNX.4.61.0411011219200.8483@twinlark.arctic.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John!
+On Mon, 1 Nov 2004, dean gaudet wrote:
 
-Misc. style clean up.
+> On Sun, 31 Oct 2004, linux-os wrote:
+>
+>> Timer overhead = 88 CPU clocks
+>> push 3, pop 3 = 12 CPU clocks
+>> push 3, pop 2 = 12 CPU clocks
+>> push 3, pop 1 = 12 CPU clocks
+>> push 3, pop none using ADD = 8 CPU clocks
+>> push 3, pop none using LEA = 8 CPU clocks
+>> push 3, pop into same register = 12 CPU clocks
+>
+> your microbenchmark makes assumptions about rdtsc which haven't been valid 
+> since the days of the 486.  rdtsc has serializing aspects and overhead that 
+> you can't just eliminate by running it in a tight loop and subtracting out 
+> that "overhead".
+>
 
-	Robert Love
+Wrong.
 
+(1)  The '486 didn't have the rdtsc instruction.
+(2)  There are no 'serializing' or other black-magic aspects of
+using the internal cycle-counter. That's exactly how you you
+can benchmark the execution time of accessible code sequences.
 
-misc. style cleanup
+> you have to run your inner loops at least a few thousand of times between 
+> rdtsc invocations and divide it out to find out the average cost in order to 
+> eliminate the problems associated with rdtsc.
+>
+> -dean
+>
 
-Signed-Off-By: Robert Love <rml@novell.com>
+You never average the cycle-time. The cycle-time is absolute.
+You need to remove the affect of interrupts when you measure
+performance so you need to sample a few times and save the
+lowest number. That's the number obtained during the testing interval,
+was not interrupted.
 
- drivers/char/inotify.c |   46 ++++++++++++++++------------------------------
- 1 files changed, 16 insertions(+), 30 deletions(-)
+The provided code allows you to experiment. You can set the
+TRIES count to 1. You will find that the results are noisy if
+you are connected to an active network. Good results can be
+obtained with it set to 4 if your computer is not being blasted
+with lots of broadcast packets from M$ servers.
 
-diff -urN linux-2.6.10-rc1-inotify/drivers/char/inotify.c linux/drivers/char/inotify.c
---- linux-2.6.10-rc1-inotify/drivers/char/inotify.c	2004-11-01 15:04:12.039747832 -0500
-+++ linux/drivers/char/inotify.c	2004-11-01 15:38:22.277064384 -0500
-@@ -80,21 +80,20 @@
- #define inotify_watch_i_list(pos) list_entry((pos), struct inotify_watch, i_list)
- #define inotify_watch_u_list(pos) list_entry((pos), struct inotify_watch, u_list)
- 
--static ssize_t show_max_queued_events (struct device *dev, char *buf)
-+static ssize_t show_max_queued_events(struct device *dev, char *buf)
- {
- 	sprintf(buf, "%d", sysfs_attrib_max_queued_events);
--
--	return strlen(buf)+1;
-+	return strlen(buf) + 1;
- }
- 
--static ssize_t store_max_queued_events (struct device *dev,
--										const char *buf,
--										size_t count)
-+static ssize_t store_max_queued_events(struct device *dev, const char *buf,
-+				       size_t count)
- {
- 	return 0;
- }
- 
--static DEVICE_ATTR(max_queued_events, S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH, show_max_queued_events, store_max_queued_events);
-+static DEVICE_ATTR(max_queued_events, S_IRUGO | S_IWUSR, show_max_queued_events,
-+ store_max_queued_events);
- 
- static struct device_attribute *inotify_device_attrs[] = {
- 	&dev_attr_max_queued_events,
-@@ -203,9 +202,7 @@
- {
- 	struct inotify_kernel_event *kevent, *last;
- 
--	/*
--	 * Check if the new event is a duplicate of the last event queued.
--	 */
-+	/* check if the new event is a duplicate of the last event queued. */
- 	last = inotify_dev_get_event(dev);
- 	if (dev->event_count && last->event.mask == mask &&
- 			last->event.wd == watch->wd) {
-@@ -272,17 +269,16 @@
-  * This function can sleep.
-  */
- static int inotify_dev_get_wd(struct inotify_device *dev,
--				struct inotify_watch *watch)
-+			      struct inotify_watch *watch)
- {
- 	int ret;
- 
--	if (!dev || !watch || dev->nr_watches >= current->signal->rlim[RLIMIT_IWATCHES].rlim_cur)
-+	if (dev->nr_watches >= current->rlim[RLIMIT_IWATCHES].rlim_cur)
- 		return -1;
- 
- repeat:
--	if (!idr_pre_get(&dev->idr, GFP_KERNEL)) {
-+	if (!idr_pre_get(&dev->idr, GFP_KERNEL))
- 		return -ENOSPC;
--	}
- 	spin_lock(&dev->lock);
- 	ret = idr_get_new(&dev->idr, watch, &watch->wd);
- 	spin_unlock(&dev->lock);
-@@ -394,9 +390,8 @@
- 	struct inotify_watch *watch;
- 
- 	list_for_each_entry(watch, &dev->watches, d_list) {
--		if (watch->inode == inode) {
-+		if (watch->inode == inode)
- 			return 1;
--		}
- 	}
- 
- 	return 0;
-@@ -410,9 +405,8 @@
- static int inotify_dev_add_watch(struct inotify_device *dev,
- 				 struct inotify_watch *watch)
- {
--	if (!dev || !watch) {
-+	if (!dev || !watch)
- 		return -EINVAL;
--	}
- 
- 	list_add(&watch->d_list, &dev->watches);
- 	return 0;
-@@ -477,9 +471,7 @@
- 	}
- 
- 	if (inode_find_dev (inode, watch->dev))
--	{
- 		return -EINVAL;
--	}
- 
- 	list_add(&watch->i_list, &inode->inotify_data->watches);
- 	inode->inotify_data->watch_count++;
-@@ -678,7 +670,7 @@
- 	if (count < event_size)
- 		return -EINVAL;
- 
--	while(1) {
-+	while (1) {
- 		int has_events;
- 
- 		spin_lock(&dev->lock);
-@@ -760,9 +752,8 @@
- {
- 	struct inotify_watch *watch,*next;
- 
--	list_for_each_entry_safe(watch, next, &dev->watches, d_list) {
-+	list_for_each_entry_safe(watch, next, &dev->watches, d_list)
- 		ignore_helper(watch, 0);
--	}
- }
- 
- /*
-@@ -797,9 +788,8 @@
- 	int ret;
- 
- 	inode = find_inode(request->dirname);
--	if (IS_ERR(inode)) {
-+	if (IS_ERR(inode))
- 		return PTR_ERR(inode);
--	}
- 
- 	spin_lock(&inode->i_lock);
- 	spin_lock(&dev->lock);
-@@ -934,9 +924,7 @@
- 	sysfs_attrib_max_queued_events = 16384;
- 
- 	for (i = 0;inotify_device_attrs[i];i++)
--	{
--		device_create_file (inotify_device.dev, inotify_device_attrs[i]);
--	}
-+		device_create_file(inotify_device.dev, inotify_device_attrs[i]);
- 
- 	atomic_set(&watch_count, 0);
- 	atomic_set(&inotify_cookie, 0);
-@@ -958,6 +946,4 @@
- 	return 0;
- }
- 
--
--
- module_init(inotify_init);
+>
 
+Of course you are not really interested in learning anything
+about this are you?
 
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.9 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by John Ashcroft.
+                  98.36% of all statistics are fiction.

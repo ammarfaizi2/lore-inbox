@@ -1,52 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262695AbTJJScF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 14:32:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263125AbTJJScF
+	id S263121AbTJJSai (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 14:30:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263122AbTJJSai
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 14:32:05 -0400
-Received: from gate.in-addr.de ([212.8.193.158]:33769 "EHLO mx.in-addr.de")
-	by vger.kernel.org with ESMTP id S262695AbTJJScC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 14:32:02 -0400
-Date: Fri, 10 Oct 2003 20:29:18 +0200
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: Kevin Corry <kevcorry@us.ibm.com>,
-       Stuart Longland <stuartl@longlandclan.hopto.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.7 thoughts
-Message-ID: <20031010182918.GF1084@marowsky-bree.de>
-References: <D9B4591FDBACD411B01E00508BB33C1B01F13BCE@mesadm.epl.prov-liege.be> <20031009165723.43ae9cb5.skraw@ithnet.com> <3F864F82.4050509@longlandclan.hopto.org> <200310100830.03216.kevcorry@us.ibm.com>
+	Fri, 10 Oct 2003 14:30:38 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:53148
+	"EHLO velociraptor.random") by vger.kernel.org with ESMTP
+	id S263121AbTJJSag (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Oct 2003 14:30:36 -0400
+Date: Fri, 10 Oct 2003 20:31:01 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: statfs() / statvfs() syscall ballsup...
+Message-ID: <20031010183101.GG16013@velociraptor.random>
+References: <20031010172001.GA29301@ca-server1.us.oracle.com> <Pine.LNX.4.44.0310101024200.20420-100000@home.osdl.org> <20031010180535.GE29301@ca-server1.us.oracle.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200310100830.03216.kevcorry@us.ibm.com>
+In-Reply-To: <20031010180535.GE29301@ca-server1.us.oracle.com>
 User-Agent: Mutt/1.4.1i
-X-Ctuhulu: HASTUR
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2003-10-10T08:30:03,
-   Kevin Corry <kevcorry@us.ibm.com> said:
+On Fri, Oct 10, 2003 at 11:05:35AM -0700, Joel Becker wrote:
+> thinking, knowing now that there's possibility to move to a more optimal
+> interface.
 
-> On Friday 10 October 2003 01:19, Stuart Longland wrote:
-> > 	- Software RAID 0+1 perhaps?
+cleaner and simpler could very well be (many simpler db works that way
+infact), but more optimal I doubt. To be more optimal you should let the
+kernel do all the garbage collection of mappings, and not use
+remap_file_pages. But then I'm unsure if the kernel is really able
+better than you to choose what info to discard from the cache, and you'd
+still have to pay for page faults that you don't have to right now.
 
-Because RAID 0+1 is a rather bad idea. You want RAID 1+0. Make up the
-fault matrix and simulate what happens if drives fail.
+And if you use remap_file_pages to still choose what to ""discard
+first"" from userspace, then you'd better use O_DIRECT instead, that
+doesn't require any pte mangling (ignoring the readahead, async-io and
+msync, scsi-shared issues that sounds fixable).
 
-We can do both though, as Kevin pointed out. So if you want to shot
-yourself in the foot, in the best Unix tradition, we allow you to ;)
+About the security issues, they existed in older kernels they're
+nowadays fixed thanks to Stephen's i_alloc_sem.
 
-I'd suggest moving this to the linux-raid list though.
+though, I'd be interesting to compared different models in practice to
+be sure, I just don't have expectations for it being a "more optimal"
+design at the moment.
 
-
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
-
--- 
-High Availability & Clustering		ever tried. ever failed. no matter.
-SuSE Labs				try again. fail again. fail better.
-Research & Development, SUSE LINUX AG		-- Samuel Beckett
-
+Andrea - If you prefer relying on open source software, check these links:
+	    rsync.kernel.org::pub/scm/linux/kernel/bkcvs/linux-2.[45]/
+	    http://www.cobite.com/cvsps/

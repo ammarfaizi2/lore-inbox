@@ -1,38 +1,26 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261572AbRERVmI>; Fri, 18 May 2001 17:42:08 -0400
+	id <S261574AbRERVvI>; Fri, 18 May 2001 17:51:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261573AbRERVl6>; Fri, 18 May 2001 17:41:58 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:53632 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S261572AbRERVlt>;
-	Fri, 18 May 2001 17:41:49 -0400
-Date: Fri, 18 May 2001 17:41:48 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
+	id <S261575AbRERVu6>; Fri, 18 May 2001 17:50:58 -0400
+Received: from ams8uucp0.ams.ops.eu.uu.net ([212.153.111.69]:21666 "EHLO
+	ams8uucp0.ams.ops.eu.uu.net") by vger.kernel.org with ESMTP
+	id <S261574AbRERVuu>; Fri, 18 May 2001 17:50:50 -0400
+Date: Fri, 18 May 2001 23:53:24 +0200 (CEST)
+From: kees <kees@schoen.nl>
+To: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
 cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] minor crapectomy in drivers/char/misc.c
-Message-ID: <Pine.GSO.4.21.0105181726090.3555-100000@weyl.math.psu.edu>
+Subject: Re: Delivery reports about your email [FAILED(1)] (fwd)
+In-Reply-To: <20010518232531.G18853@arthur.ubicom.tudelft.nl>
+Message-ID: <Pine.LNX.4.21.0105182352370.14625-100000@schoen3.schoen.nl>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-% find . -type f -print | xargs grep -nwC1 radio_init  
-./drivers/char/misc.c-75-extern int ds1286_init(void);
-./drivers/char/misc.c:76:extern int radio_init(void);
-./drivers/char/misc.c-77-extern int pmu_device_init(void);
---
-./drivers/char/misc.c-265-#ifdef CONFIG_MISC_RADIO
-./drivers/char/misc.c:266:      radio_init();
-./drivers/char/misc.c-267-#endif
-% find . -type f -print | xargs grep -nw CONFIG_MISC_RADIO 
-./drivers/char/misc.c:265:#ifdef CONFIG_MISC_RADIO
-% 
+Hi
 
-IOW, radio_init() is never defined and CONFIG_MISC_RADIO is never set.
+I've send them a notice. Sorry for the disturbance, want happen again.
 
-Proposed fix:
-vi -c'/radio_init/d|/CONFIG_MISC_RADIO/|,+2d|x' drivers/char/misc.c
-
-									Al
+Kees
 

@@ -1,44 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261734AbVAIUDH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261735AbVAIUTV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261734AbVAIUDH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jan 2005 15:03:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261735AbVAIUDH
+	id S261735AbVAIUTV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jan 2005 15:19:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261740AbVAIUTV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jan 2005 15:03:07 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:29958 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261734AbVAIUDF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jan 2005 15:03:05 -0500
-Date: Sun, 9 Jan 2005 20:03:01 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
+	Sun, 9 Jan 2005 15:19:21 -0500
+Received: from fw.osdl.org ([65.172.181.6]:16261 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261735AbVAIUTR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jan 2005 15:19:17 -0500
+Date: Sun, 9 Jan 2005 12:19:09 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
 To: Arjan van de Ven <arjan@infradead.org>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Richard Henderson <rth@twiddle.net>
 Subject: Re: removing bcopy... because it's half broken
-Message-ID: <20050109200301.B12788@flint.arm.linux.org.uk>
-Mail-Followup-To: Arjan van de Ven <arjan@infradead.org>,
-	linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org
+In-Reply-To: <20050109192305.GA7476@infradead.org>
+Message-ID: <Pine.LNX.4.58.0501091213000.2339@ppc970.osdl.org>
 References: <20050109192305.GA7476@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050109192305.GA7476@infradead.org>; from arjan@infradead.org on Sun, Jan 09, 2005 at 07:23:05PM +0000
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 09, 2005 at 07:23:05PM +0000, Arjan van de Ven wrote:
-> Nothing in the kernel is using bcopy right know, and that is a good thing.
-> Why? Because a lot of the architectures implement a broken bcopy()....
-> the userspace standard bcopy() is basically a memmove() with a weird
-> parameter order, however a bunch of architectures implement a memcpy() not a
-> memmove(). 
 
-ARM doesn't implement bcopy() but does define __HAVE_ARCH_BCOPY - so
-any users would error.  Removing bcopy() is therefore no problem
-afaics, and I'll lend my support by trying to will it to be gone. 8)
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+On Sun, 9 Jan 2005, Arjan van de Ven wrote:
+>
+> Instead of fixing this inconsistency, I decided to remove it entirely,
+> explicit memcpy() and memmove() are prefered anyway (welcome to the 1990's)
+> and nothing in the kernel is using these functions, so this saves code size
+> as well for everyone.
+
+The problem is that at least some gcc versions would historically generate
+calls to "bcopy" on alpha for structure assignments. Maybe it doesn't any
+more, and no such old gcc versions exist any more, but who knows?
+
+That's also why "bcopy" just acts like a memcpy() in many cases: it's 
+simply not worth it to do the complex case, because the only valid use was 
+a compiler that would never validly do overlapping ranges anyway.
+
+Gcc _used_ to have a target-specific "do I use bcopy or memcpy" setting,
+and I just don't know if that is still true. I also don't know if it
+affected any other platforms than alpha (I would assume that it matched
+"target has BSD heritage", and that would likely mean HP-UX too)
+
+Richard? You know both gcc and alpha, what's the word?
+
+		Linus

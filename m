@@ -1,70 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261206AbSJUHaD>; Mon, 21 Oct 2002 03:30:03 -0400
+	id <S261205AbSJUHaJ>; Mon, 21 Oct 2002 03:30:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261218AbSJUHaD>; Mon, 21 Oct 2002 03:30:03 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:25056 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S261206AbSJUHaA>; Mon, 21 Oct 2002 03:30:00 -0400
-Date: Mon, 21 Oct 2002 00:37:18 -0700
-From: Mike Anderson <andmike@us.ibm.com>
-To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: [PATCH] scsi_error device offline fix
-Message-ID: <20021021073718.GB3197@beaverton.ibm.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	linux-scsi@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.0.32 on an i486
+	id <S261211AbSJUHaF>; Mon, 21 Oct 2002 03:30:05 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:20234 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S261205AbSJUHaD>; Mon, 21 Oct 2002 03:30:03 -0400
+Message-Id: <200210210731.g9L7V8p21199@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: landley@trommello.org, linux-kernel@vger.kernel.org
+Subject: Re: Crunch time -- Final merge candidates for 3.0 (the list).
+Date: Mon, 21 Oct 2002 10:23:54 -0200
+X-Mailer: KMail [version 1.3.2]
+Cc: boissiere@nl.linux.org
+References: <200210201849.23667.landley@trommello.org>
+In-Reply-To: <200210201849.23667.landley@trommello.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch corrects a problem in scsi error handling.
+On 20 October 2002 21:49, Rob Landley wrote:
+> When Linus comes back, at best he's going to give a thumbs up or
+> thumbs down to each patch currently sitting there in front of him,
+> and then it's on to the feature freeze.  He may not take any of them,
+> or he may just take one or two.  But the best we can hope to do is
+> present him with a nice (short) list of tested patches. (Remember,
+> the less work Linus has to do, the higher the percentage of it that
+> will actually get done.)
 
-When a device is offlined indicated by a message like ...Device offlined
-- not ready...
+Well, maybe it makes sense to reduce flow of non-features patches
+for a couple of days to let Linus feel less buried in email?
+I think VM tweaking and such... It could be done after Linus
+say what got in and what did not.
 
-the command return status was not being updated with a failure status if
-the IO was a timeout.
-
-I tested the patch on system with ips, aic, and qlogic fc adapters, but
-was unable to generate a satisfactory device offline test case.
-
-I did test this fix on uml with scsi_debug and generated a device
-offline condition with verified this fix was working correctly.
-
--andmike
+Although I doubt we can keep akpm/acme/davem/etc/etc/etc from hacking,
+maybe there's a way to block SMTP traffic from them? ;)
+(just kidding. They develop features as well)
 --
-Michael Anderson
-andmike@us.ibm.com
-
- scsi_error.c |    8 ++++++--
- 1 files changed, 6 insertions(+), 2 deletions(-)
-------
-
-===== drivers/scsi/scsi_error.c 1.18 vs edited =====
---- 1.18/drivers/scsi/scsi_error.c	Thu Oct 17 10:52:39 2002
-+++ edited/drivers/scsi/scsi_error.c	Sat Oct 19 15:24:06 2002
-@@ -1145,14 +1145,18 @@
- 		if (!scsi_eh_eflags_chk(scmd, SCSI_EH_CMD_ERR))
- 			continue;
- 
--		printk(KERN_INFO "%s: Device offlined - not"
-+		printk(KERN_INFO "scsi: Device offlined - not"
- 				" ready or command retry failed"
- 				" after error recovery: host"
- 				" %d channel %d id %d lun %d\n",
--				__FUNCTION__, shost->host_no,
-+				shost->host_no,
- 				scmd->device->channel,
- 				scmd->device->id,
- 				scmd->device->lun);
-+
-+		if (scsi_eh_eflags_chk(scmd, SCSI_EH_CMD_TIMEOUT))
-+			scmd->result |= (DRIVER_TIMEOUT << 24);
-+
- 		scmd->device->online = FALSE;
- 		scsi_eh_finish_cmd(scmd, shost);
- 	}
+vda

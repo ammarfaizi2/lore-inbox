@@ -1,99 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266469AbUFQMhb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266456AbUFQMly@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266469AbUFQMhb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 08:37:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266477AbUFQMhb
+	id S266456AbUFQMly (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 08:41:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266457AbUFQMly
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 08:37:31 -0400
-Received: from p10068181.pureserver.de ([217.160.75.209]:12812 "EHLO
-	www.kuix.de") by vger.kernel.org with ESMTP id S266469AbUFQMhY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 08:37:24 -0400
-Message-ID: <40D1909F.4090408@kuix.de>
-Date: Thu, 17 Jun 2004 14:37:51 +0200
-From: Kai Engert <kaie@kuix.de>
-Reply-To: kai.engert@gmx.de
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040608
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Thu, 17 Jun 2004 08:41:54 -0400
+Received: from main.gmane.org ([80.91.224.249]:61118 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S266456AbUFQMl2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jun 2004 08:41:28 -0400
+X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
-Cc: Greg KH <greg@kroah.com>, "Nemosoft Unv." <webcam@smcc.demon.nl>
-Subject: Re: small patch: enable pwc usb camera driver
-References: <40C466FB.1040309@kuix.de> <20040607202036.GA6185@kroah.com> <200406080027.04577@smcc.demon.nl> <20040607223919.GA9172@kroah.com>
-In-Reply-To: <20040607223919.GA9172@kroah.com>
-Content-Type: multipart/mixed;
- boundary="------------020502010302080400000305"
+From: Jason Lunz <lunz@falooley.org>
+Subject: repeatable tty OOPSes w/ 2.6.7
+Date: Thu, 17 Jun 2004 12:41:25 +0000 (UTC)
+Organization: PBR Streetgang
+Message-ID: <slrncd34bn.35b.lunz@orr.homenet>
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: finn.gmane.org
+User-Agent: slrn/0.9.8.0 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020502010302080400000305
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+I put 2.6.7 on my workstation yesterday. For some reason, the fgetty on tty3
+causes this whenever it tries to start (i get 10 of these every 5
+minutes from init trying to respawn the fgetty):
 
-Greg KH wrote:
-> On Tue, Jun 08, 2004 at 12:27:04AM +0200, Nemosoft Unv. wrote:
->> ... 
->>Don't use this. It will BUG() your kernel hard, because of a double free(). 
+	Unable to handle kernel NULL pointer dereference at virtual address 00000000
+	printing eip:
+	c01d3b5e
+	*pde = 00000000
+	Oops: 0000 [#1]
+	PREEMPT 
+	Modules linked in: cls_u32 sch_sfq sch_htb ipt_REJECT ipt_LOG ipt_limit ipt_state iptable_filter joydev evdev usbhid uhci_hcd usbcore parport_pc parport snd_emu10k1 snd_rawmidi snd_pcm_oss snd_mixer_oss snd_pcm snd_timer snd_seq_device snd_ac97_codec snd_page_alloc snd_util_mem snd_hwdep snd soundcore mga_vid 8250_pnp 8250 serial_core ip_nat_ftp iptable_nat ip_tables ip_conntrack_ftp ip_conntrack w83781d i2c_sensor i2c_viapro i2c_core sr_mod cdrom aic7xxx scsi_mod rtc
+	CPU:    0
+	EIP:    0060:[vt_ioctl+30/7216]    Not tainted
+	EFLAGS: 00010282   (2.6.7) 
+	EIP is at vt_ioctl+0x1e/0x1c30
+	eax: 00000000   ebx: 00005401   ecx: 00000000   edx: bffffdc4
+	esi: c01d3b40   edi: c9f9f000   ebp: c888aec0   esp: cab65ea4
+	ds: 007b   es: 007b   ss: 0068
+	Process fgetty (pid: 2118, threadinfo=cab64000 task=cabb2e30)
+	Stack: c13b220c c015fda2 c13b220c 00000002 00000000 00000292 c888aec0 c028e898 
+	00000002 00000000 c9f9f000 c888aec0 c01dde2b cab64000 cab64000 cffcf800 
+	00000000 c01cde97 c9f9f000 c888aec0 cab65f00 00020006 00400003 c9f9f000 
+	Call Trace:
+	[dput+34/528] dput+0x22/0x210
+	[__down_failed+8/12] __down_failed+0x8/0xc
+	[con_open+43/192] con_open+0x2b/0xc0
+	[tty_open+567/864] tty_open+0x237/0x360
+	[tty_open+0/864] tty_open+0x0/0x360
+	[chrdev_open+230/528] chrdev_open+0xe6/0x210
+	[open_namei+159/1024] open_namei+0x9f/0x400
+	[dentry_open+260/544] dentry_open+0x104/0x220
+	[copy_from_user+66/128] copy_from_user+0x42/0x80
+	[vt_ioctl+0/7216] vt_ioctl+0x0/0x1c30
+	[tty_ioctl+1096/1344] tty_ioctl+0x448/0x540
+	[sys_ioctl+239/608] sys_ioctl+0xef/0x260
+	[sysenter_past_esp+82/113] sysenter_past_esp+0x52/0x71
 
-I confirm, if you disconnect the device / unload the driver, it doesn't 
-take long and the kernel reports an exception. My fault, sorry.
+	Code: 8b 30 8b 04 b5 a0 6c 37 c0 89 34 24 89 44 24 50 e8 fd 68 00 
 
-> ... I'll wait for someone to send another patch fixing this one ...
+oddly, this only happens on tty3. The identically-configured fgettys on
+the other 5 ttys work fine. Which makes me think that the scsi cd writer
+that burned up yesterday may have taken some other hardware with it?
 
-I'm attaching a new patch:
+FWIW, with vmware tainting the kernel, the trace changes to this:
 
-- revert video device release code to original no-op,
-   using correct function signature.
+	<1>Unable to handle kernel NULL pointer dereference at virtual address 00000000
+	printing eip:
+	c01d3b5e
+	*pde = 00000000
+	Oops: 0000 [#53]
+	PREEMPT 
+	Modules linked in: vmnet vmmon cls_u32 sch_sfq sch_htb ipt_REJECT ipt_LOG ipt_limit ipt_state iptable_filter joydev evdev usbhid uhci_hcd usbcore parport_pc parport snd_emu10k1 snd_rawmidi snd_pcm_oss snd_mixer_oss snd_pcm snd_timer snd_seq_device snd_ac97_codec snd_page_alloc snd_util_mem snd_hwdep snd soundcore mga_vid 8250_pnp 8250 serial_core ip_nat_ftp iptable_nat ip_tables ip_conntrack_ftp ip_conntrack w83781d i2c_sensor i2c_viapro i2c_core sr_mod cdrom aic7xxx scsi_mod rtc
+	CPU:    0
+	EIP:    0060:[vt_ioctl+30/7216]    Tainted: P  
+	EFLAGS: 00010282   (2.6.7) 
+	EIP is at vt_ioctl+0x1e/0x1c30
+	eax: 00000000   ebx: 00005401   ecx: 00000000   edx: bffffdc4
+	esi: c01d3b40   edi: cc30c000   ebp: c443f6a0   esp: c438bea4
+	ds: 007b   es: 007b   ss: 0068
+	Process fgetty (pid: 3360, threadinfo=c438a000 task=c4d8d810)
+	Stack: 00000000 00000000 c438a000 0001cd18 fffff17c c01154bb 00000000 c0157534 
+	00000002 00000000 cc30c000 c443f6a0 c01dde2b c438a000 c438a000 cffcf800 
+	00000000 c01cde97 cc30c000 c443f6a0 c438bf00 00020006 00400003 cc30c000 
+	Call Trace:
+	[release_console_sem+203/224] release_console_sem+0xcb/0xe0
+	[link_path_walk+1604/2400] link_path_walk+0x644/0x960
+	[con_open+43/192] con_open+0x2b/0xc0
+	[tty_open+567/864] tty_open+0x237/0x360
+	[tty_open+0/864] tty_open+0x0/0x360
+	[chrdev_open+230/528] chrdev_open+0xe6/0x210
+	[open_namei+159/1024] open_namei+0x9f/0x400
+	[dentry_open+260/544] dentry_open+0x104/0x220
+	[copy_from_user+66/128] copy_from_user+0x42/0x80
+	[vt_ioctl+0/7216] vt_ioctl+0x0/0x1c30
+	[tty_ioctl+1096/1344] tty_ioctl+0x448/0x540
+	[sys_ioctl+239/608] sys_ioctl+0xef/0x260
+	[sysenter_past_esp+82/113] sysenter_past_esp+0x52/0x71
 
-With this patch applied to 2.6.7, I am able to connect/disconnect the 
-camera, load/unload the driver 20 times and everything still works fine.
+	Code: 8b 30 8b 04 b5 a0 6c 37 c0 89 34 24 89 44 24 50 e8 fd 68 00 
 
-No warnings during compilation (which was the original reason to mark 
-the driver broken, IIUC).
+jason
 
-Thanks and Regards,
-Kai
-
---------------020502010302080400000305
-Content-Type: text/plain;
- name="pwcdiff3"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="pwcdiff3"
-
-diff -ruw org-267/drivers/usb/media/pwc-if.c linux-2.6.7/drivers/usb/media/pwc-if.c
---- org-267/drivers/usb/media/pwc-if.c	2004-06-16 07:19:44.000000000 +0200
-+++ linux-2.6.7/drivers/usb/media/pwc-if.c	2004-06-17 13:49:58.268336544 +0200
-@@ -129,6 +129,7 @@
- 
- static int pwc_video_open(struct inode *inode, struct file *file);
- static int pwc_video_close(struct inode *inode, struct file *file);
-+static void pwc_video_release(struct video_device *);
- static ssize_t pwc_video_read(struct file *file, char *buf,
- 			  size_t count, loff_t *ppos);
- static unsigned int pwc_video_poll(struct file *file, poll_table *wait);
-@@ -1120,6 +1121,12 @@
- 	return 0;
- }
- 
-+static void pwc_video_release(struct video_device *vfd)
-+{
-+	/* Do nothing to prevent a double free */
-+	Trace(TRACE_OPEN, "pwc_video_release() called.\n");
-+}
-+
- /*
-  *	FIXME: what about two parallel reads ????
-  *      ANSWER: Not supported. You can't open the device more than once,
-@@ -1848,7 +1855,7 @@
- 		}
- 	}
- 
--	pdev->vdev.release = video_device_release;
-+	pdev->vdev.release = pwc_video_release;
- 	i = video_register_device(&pdev->vdev, VFL_TYPE_GRABBER, video_nr);
- 	if (i < 0) {
- 		Err("Failed to register as video device (%d).\n", i);
-
---------------020502010302080400000305--

@@ -1,54 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263743AbTDGWri (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 18:47:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263744AbTDGWri (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 18:47:38 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:39552
-	"EHLO hraefn.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263743AbTDGWre (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 18:47:34 -0400
-Date: Tue, 8 Apr 2003 01:06:24 +0100
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Message-Id: <200304080006.h3806OC8008935@hraefn.swansea.linux.org.uk>
-To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: PATCH: ppc64 syscalls return long purity
+	id S263781AbTDGWxt (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 18:53:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263768AbTDGWwB (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 18:52:01 -0400
+Received: from siaag1ac.compuserve.com ([149.174.40.5]:42172 "EHLO
+	siaag1ac.compuserve.com") by vger.kernel.org with ESMTP
+	id S263761AbTDGWvb (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 18:51:31 -0400
+Date: Mon, 7 Apr 2003 19:00:20 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: subobj-rmap
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Rik van Riel <riel@surriel.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200304071902_MC3-1-3368-B950@compuserve.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.67/arch/ppc64/kernel/sys_ppc32.c linux-2.5.67-ac1/arch/ppc64/kernel/sys_ppc32.c
---- linux-2.5.67/arch/ppc64/kernel/sys_ppc32.c	2003-03-26 19:59:50.000000000 +0000
-+++ linux-2.5.67-ac1/arch/ppc64/kernel/sys_ppc32.c	2003-04-03 23:27:34.000000000 +0100
-@@ -2781,10 +2781,10 @@
- 	return secs;
- }
- 
--extern asmlinkage int sys_sched_setaffinity(pid_t pid, unsigned int len,
-+extern asmlinkage long sys_sched_setaffinity(pid_t pid, unsigned int len,
- 					    unsigned long *user_mask_ptr);
- 
--asmlinkage int sys32_sched_setaffinity(compat_pid_t pid, unsigned int len,
-+asmlinkage long sys32_sched_setaffinity(compat_pid_t pid, unsigned int len,
- 				       u32 *user_mask_ptr)
- {
- 	unsigned long kernel_mask;
-@@ -2805,10 +2805,10 @@
- 	return ret;
- }
- 
--extern asmlinkage int sys_sched_getaffinity(pid_t pid, unsigned int len,
-+extern asmlinkage long sys_sched_getaffinity(pid_t pid, unsigned int len,
- 					    unsigned long *user_mask_ptr);
- 
--asmlinkage int sys32_sched_getaffinity(compat_pid_t pid, unsigned int len,
-+asmlinkage long sys32_sched_getaffinity(compat_pid_t pid, unsigned int len,
- 				       u32 *user_mask_ptr)
- {
- 	unsigned long kernel_mask;
-@@ -2914,7 +2914,7 @@
- 	return sys_ftruncate(fd, (high << 32) | low);
- }
- 
--extern int sys_lookup_dcookie(u64 cookie64, char *buf, size_t len);
-+extern long sys_lookup_dcookie(u64 cookie64, char *buf, size_t len);
- 
- long ppc32_lookup_dcookie(u32 cookie_high, u32 cookie_low, char *buf,
- 			  size_t len)
+Davide Libenzi wrote:
 
+1) |----------------------|
+2)     |-----------|
+3) |--------------------------|
+4)         |-----------|
+
+R) |---|---|-------|---|--|---|
+
+    1   1   1       1   1  3
+    3   2   2       3   3
+        3   3       4
+            4
+
+
+ How's this for an alogorithm for finding which
+chunk of 'R' you have hit with a given memory reference:
+
+ o  Use a bitmap to represent the whole address range.
+ o  Set the bits that correspond the the first page
+    of each subregion.
+
+ To search:
+
+ o  Look up the bit for the page you are interested in.
+ o  Scan backwards for a 1.
+ o  Convert bit position to address, this is the
+    base of the subregion.
+
+ Since this is i386-only you can play neat assembler
+tricks with this code to make it fast.
+
+ (OS/2 did/does it that way.)
+
+--
+ Chuck
+ I am not a number!

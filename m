@@ -1,34 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267324AbRGKXxR>; Wed, 11 Jul 2001 19:53:17 -0400
+	id <S267308AbRGLAHx>; Wed, 11 Jul 2001 20:07:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267308AbRGKXxH>; Wed, 11 Jul 2001 19:53:07 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:11538 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267259AbRGKXw7>; Wed, 11 Jul 2001 19:52:59 -0400
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: PROBLEM: <BUG Report: kernel BUG at slab.c:1062! from pppd with speedtouch drivers and pppoatm>
-Date: Wed, 11 Jul 2001 23:51:35 +0000 (UTC)
-Organization: Transmeta Corporation
-Message-ID: <9iioq7$43o$1@penguin.transmeta.com>
-In-Reply-To: <007501c10a1b$bc3a0bc0$0301a8c0@rpnet.com> <01071116375404.29517@frumious.unidec.co.uk> <003f01c10a63$08f50540$0301a8c0@rpnet.com>
-X-Trace: palladium.transmeta.com 994895561 12166 127.0.0.1 (11 Jul 2001 23:52:41 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 11 Jul 2001 23:52:41 GMT
-Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+	id <S267378AbRGLAHm>; Wed, 11 Jul 2001 20:07:42 -0400
+Received: from 216-60-128-137.ati.utexas.edu ([216.60.128.137]:5834 "HELO
+	tsunami.webofficenow.com") by vger.kernel.org with SMTP
+	id <S267308AbRGLAHa>; Wed, 11 Jul 2001 20:07:30 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@webofficenow.com>
+Reply-To: landley@webofficenow.com
+To: Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: Hardware testing [was Re: VIA Southbridge bug (Was: Crash on boot (2.4.5))]
+Date: Wed, 11 Jul 2001 11:05:19 -0400
+X-Mailer: KMail [version 1.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E15JIVD-0000Qc-00@the-village.bc.nu> <01071011282504.00634@localhost.localdomain> <20010711111159.A2026@suse.cz>
+In-Reply-To: <20010711111159.A2026@suse.cz>
+MIME-Version: 1.0
+Message-Id: <01071111051902.02490@localhost.localdomain>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <003f01c10a63$08f50540$0301a8c0@rpnet.com>,
-Richard Purdie <rpurdie@bigfoot.com> wrote:
+On Wednesday 11 July 2001 05:11, Vojtech Pavlik wrote:
+
+> Don't forget the L1/L2/L3 caches. I had once a mainboard with a faulty
+> L2 cache chip ('twas a K6-3 CPU, plus a FIC VA-503+ mainboard). No memory
+> or CPU test found the failure, yet kernel compliation was still crashing
+> after 6-8 hours.
 >
->Now I'm back to the kerenel panic below which takes down the system at the
->same point as before:
+> I modified the 'memtest.c' little proggy (not the big memtest86, just a
+> little utility that runs under Linux), to use patterns and test size
+> that tests the L1 and then L2, and the error has shown after ten seconds
+> of running the test.
 
-Looks like a "cmovne" that traps - are you sure you've compiled your
-module with the right CPU flags? In particular, maybe you compiled it
-for a i686, and are running it on a Pentium?
+I don't suppose you still have that lying around somewhere? :)
 
-		Linus
+Rob

@@ -1,64 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267887AbTAHTxi>; Wed, 8 Jan 2003 14:53:38 -0500
+	id <S267879AbTAHTuz>; Wed, 8 Jan 2003 14:50:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267894AbTAHTxi>; Wed, 8 Jan 2003 14:53:38 -0500
-Received: from fmr02.intel.com ([192.55.52.25]:55758 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S267887AbTAHTxZ> convert rfc822-to-8bit; Wed, 8 Jan 2003 14:53:25 -0500
-content-class: urn:content-classes:message
-Subject: RE: PCI code:  why need  outb (0x01, 0xCFB); ?
-Date: Wed, 8 Jan 2003 11:10:33 -0800
-Message-ID: <3014AAAC8E0930438FD38EBF6DCEB5647D0D1C@fmsmsx407.fm.intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: PCI code:  why need  outb (0x01, 0xCFB); ?
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6334.0
-Thread-Index: AcK3R6r0/FZ+0SM5Edeo8gBQi2jWzAAATRpg
-From: "Nakajima, Jun" <jun.nakajima@intel.com>
-To: "H. Peter Anvin" <hpa@zytor.com>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 08 Jan 2003 19:10:34.0626 (UTC) FILETIME=[9EE77620:01C2B749]
+	id <S267880AbTAHTuz>; Wed, 8 Jan 2003 14:50:55 -0500
+Received: from probity.mcc.ac.uk ([130.88.200.94]:31753 "EHLO
+	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S267879AbTAHTuy>; Wed, 8 Jan 2003 14:50:54 -0500
+Date: Wed, 8 Jan 2003 19:59:34 +0000
+From: John Levon <levon@movementarian.org>
+To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Cc: davem@redhat.com
+Subject: [PATCH] /proc/sys/kernel/pointer_size
+Message-ID: <20030108195934.GA35912@compsoc.man.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Mr. Scruff - Trouser Jazz
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *18WMMR-000CXc-00*L0DcvXtlbec*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Normally all accesses should be long (0xcf8/0xcfc) but x86 is byte addresseable and some chipsets do support byte accesses. 
 
-We do not encourage use of byte accesses as it will not be supported in future platforms.
+OProfile needs to know the pointer size being used for the kernel,
+on platforms with 32-bit userspace and 64-bit kernel. This patch adds
+a simple ro sysctl that exports this information as suggested by davem
 
-Thanks,
-Jun
+thanks,
+john
 
-> -----Original Message-----
-> From: H. Peter Anvin [mailto:hpa@zytor.com]
-> Sent: Wednesday, January 08, 2003 10:53 AM
-> To: linux-kernel@vger.kernel.org
-> Subject: Re: PCI code: why need outb (0x01, 0xCFB); ?
-> 
-> Followup to:  <F87sTOHYNhMwqvbLaKL0001615a@hotmail.com>
-> By author:    "fretre lewis" <fretre3618@hotmail.com>
-> In newsgroup: linux.dev.kernel
-> 
-> > 1. which device is at port address 0xCFB?
-> 
-> Hopefully none.
-> 
-> > 2. what is meaning of the writing operation "outb (0x01, 0xCFB);" for
-> THIS
-> > device?, it'seem that PCI spec v2.0 not say anything about it?
-> 
-> It's trying to verify that the PCI northbridge does *NOT* respond to
-> this (byte-wide) reference.
-> 
-> 	-hpa
-> --
-> <hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-> "Unix gives you enough rope to shoot yourself in the foot."
-> http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+
+diff -X dontdiff -Naur linux-linus/include/linux/sysctl.h linux/include/linux/sysctl.h
+--- linux-linus/include/linux/sysctl.h	2003-01-03 02:59:14.000000000 +0000
++++ linux/include/linux/sysctl.h	2003-01-03 03:14:44.000000000 +0000
+@@ -129,6 +129,7 @@
+ 	KERN_CADPID=54,		/* int: PID of the process to notify on CAD */
+ 	KERN_PIDMAX=55,		/* int: PID # limit */
+   	KERN_CORE_PATTERN=56,	/* string: pattern for core-file names */
++	KERN_POINTER_SIZE=57,	/* size_t: sizeof(void *) */
+ };
+ 
+ 
+diff -X dontdiff -Naur linux-linus/kernel/sysctl.c linux/kernel/sysctl.c
+--- linux-linus/kernel/sysctl.c	2002-12-16 04:09:26.000000000 +0000
++++ linux/kernel/sysctl.c	2002-12-16 04:13:58.000000000 +0000
+@@ -56,6 +56,9 @@
+ extern int pid_max;
+ extern int sysctl_lower_zone_protection;
+ 
++/* Needed when user-space is 32-bit with 64-bit kernel */
++static int pointer_size = (int)sizeof(void *);
++ 
+ /* this is needed for the proc_dointvec_minmax for [fs_]overflow UID and GID */
+ static int maxolduid = 65535;
+ static int minolduid;
+@@ -180,6 +183,8 @@
+ 	 0644, NULL, &proc_dointvec},
+ 	{KERN_CAP_BSET, "cap-bound", &cap_bset, sizeof(kernel_cap_t),
+ 	 0600, NULL, &proc_dointvec_bset},
++	{KERN_POINTER_SIZE, "pointer_size", &pointer_size, sizeof(int),
++	 0444, NULL, &proc_dointvec},
+ #ifdef CONFIG_BLK_DEV_INITRD
+ 	{KERN_REALROOTDEV, "real-root-dev", &real_root_dev, sizeof(int),
+ 	 0644, NULL, &proc_dointvec},

@@ -1,67 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272302AbTHAXTB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Aug 2003 19:19:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272426AbTHAXSY
+	id S272426AbTHAXXv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Aug 2003 19:23:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274995AbTHAXXu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Aug 2003 19:18:24 -0400
-Received: from mrout1.yahoo.com ([216.145.54.171]:17170 "EHLO mrout1.yahoo.com")
-	by vger.kernel.org with ESMTP id S272302AbTHAXSR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Aug 2003 19:18:17 -0400
-Message-ID: <3F2AF529.3040100@bigfoot.com>
-Date: Fri, 01 Aug 2003 16:18:01 -0700
-From: Erik Steffl <steffl@bigfoot.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i386; en-US; rv:1.3) Gecko/20030312
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: SATA (Serial ATA) support in 2.4.x?
-References: <3F217BE8.5070807@bigfoot.com> <20030725193548.GA14017@gtf.org>
-In-Reply-To: <20030725193548.GA14017@gtf.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 1 Aug 2003 19:23:50 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:29929 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S272426AbTHAXXq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Aug 2003 19:23:46 -0400
+Date: Fri, 1 Aug 2003 16:27:22 -0700
+From: Mike Anderson <andmike@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Diffie <diffie@blazebox.homeip.net>, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org,
+       James Bottomley <James.Bottomley@steeleye.com>
+Subject: Re: Badness in device_release at drivers/base/core.c:84
+Message-ID: <20030801232721.GA5249@beaverton.ibm.com>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	Diffie <diffie@blazebox.homeip.net>, linux-kernel@vger.kernel.org,
+	linux-scsi@vger.kernel.org,
+	James Bottomley <James.Bottomley@steeleye.com>
+References: <20030801182207.GA3759@blazebox.homeip.net> <20030801144455.450d8e52.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030801144455.450d8e52.akpm@osdl.org>
+X-Operating-System: Linux 2.0.32 on an i486
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> On Fri, Jul 25, 2003 at 11:50:16AM -0700, Erik Steffl wrote:
+Andrew Morton [akpm@osdl.org] wrote:
+> This patch should fix the oops.
 > 
->>  I am specifically interested whether it should support disks above 
->>137GB (as I have problems accessing anything above 137GB on 250GB SATA 
->>drive)
+> As for why the proc reading code was unable to locate the HBA: dunno, but
+> this is a first step.
+> 
+> Or maybe you don't have any adaptec controllers in the machine?
+> 
+> (jejb, please apply..)
 > 
 > 
-> It should.
+>  25-akpm/drivers/scsi/aic7xxx_old/aic7xxx_proc.c |    2 +-
+>  1 files changed, 1 insertion(+), 1 deletion(-)
 > 
-> I will be testing this when I return from OLS, next week.
+> diff -puN drivers/scsi/aic7xxx_old/aic7xxx_proc.c~aic7xxx_old-oops-fix drivers/scsi/aic7xxx_old/aic7xxx_proc.c
+> --- 25/drivers/scsi/aic7xxx_old/aic7xxx_proc.c~aic7xxx_old-oops-fix	Fri Aug  1 14:41:14 2003
+> +++ 25-akpm/drivers/scsi/aic7xxx_old/aic7xxx_proc.c	Fri Aug  1 14:41:20 2003
+> @@ -92,7 +92,7 @@ aic7xxx_proc_info ( struct Scsi_Host *HB
+>  
+>    HBAptr = NULL;
+>  
+> -  for(p=first_aic7xxx; p->host != HBAptr; p=p->next)
+> +  for(p=first_aic7xxx; p && p->host != HBAptr; p=p->next)
+>      ;
+>  
+>    if (!p)
 
-   any news?
+Is this really the right thing to add. The only purpose of these few lines
+is a poor sanity check as down further in the code a pointer to the
+structure is already present in hostdata. 
 
-   I have found that /var/log/kern.log has following messages (when 
-trying to access blocks above 137GB, using e.g. badblocks):
+Adding the "p" is an indication that this drivers list got corrupted some
+where.
 
-Jul 29 00:41:02 jojda kernel: Attached scsi disk sda at scsi0, channel 
-0, id 0, lun 0
-Jul 29 00:41:02 jojda kernel: SCSI device sda: 490234752 512-byte hdwr 
-sectors (251000 MB)
-Jul 29 00:41:03 jojda kernel:  sda: sda1
-Jul 29 00:47:41 jojda kernel:  I/O error: dev 08:00, sector 268435456
-Jul 29 00:47:41 jojda kernel:  I/O error: dev 08:00, sector 268435456
-Jul 29 00:47:41 jojda kernel:  I/O error: dev 08:00, sector 268435472
-Jul 29 00:47:41 jojda kernel:  I/O error: dev 08:00, sector 268435456
-Jul 29 00:47:41 jojda kernel:  I/O error: dev 08:00, sector 268435456
-Jul 29 00:47:41 jojda kernel:  I/O error: dev 08:00, sector 268435464
-Jul 29 00:47:41 jojda last message repeated 3 times
+I agree it may be better than an oops, but what else is invalid?
 
-   I have found where these are coming from (drivers/scsi/scsi_lib.c) 
-but  it's in fairly generic error routine that is called from number of 
-places so it doesn't explain anything to me... (I'll take a look at it 
-again but considering that I have almost zero experience with kernel 
-programming it probably will not be very useful)
+You need to have adaptec controllers in the system to get a procfs node
+to read / write, but this error could be related to the node not getting
+cleaned up correctly on a remove which a patch has previously been
+posted.
 
-   this is using linux-2.4.21-ac4 kernel (scsi sata, as above messages show)
-
-	erik
+-andmike
+--
+Michael Anderson
+andmike@us.ibm.com
 

@@ -1,21 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261276AbVCKSbK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261306AbVCKSbB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261276AbVCKSbK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 13:31:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261301AbVCKS3T
+	id S261306AbVCKSbB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 13:31:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261276AbVCKS1r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 13:29:19 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:20497 "HELO
+	Fri, 11 Mar 2005 13:27:47 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:14097 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261273AbVCKSQc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 13:16:32 -0500
-Date: Fri, 11 Mar 2005 19:16:25 +0100
+	id S261256AbVCKSQK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Mar 2005 13:16:10 -0500
+Date: Fri, 11 Mar 2005 19:16:03 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: jgarzik@pobox.com
-Cc: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org,
-       David Dillow <dave@thedillows.org>
-Subject: [2.6 patch] drivers/net/typhoon: make a firmware image static
-Message-ID: <20050311181625.GH3723@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] unexport *flush_tlb_all
+Message-ID: <20050311181603.GB3723@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,26 +22,83 @@ User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes a nedlessly global firmware image static.
+flush_tlb_all was exported on i386 for a DRM usage - that was removed
+in 2003.
 
-This patch was already ACK'ed by David Dillow.
+I haven't found any modular usage of *flush_tlb_all in the kernel.
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
 
 This patch was already sent on:
-- 19 Feb 2005
+- 21 Jan 2005
 
---- linux-2.6.11-rc3-mm2-full/drivers/net/typhoon-firmware.h.old	2005-02-16 18:56:23.000000000 +0100
-+++ linux-2.6.11-rc3-mm2-full/drivers/net/typhoon-firmware.h	2005-02-16 18:56:31.000000000 +0100
-@@ -32,7 +32,7 @@
-  */ 
+ arch/alpha/kernel/alpha_ksyms.c  |    1 -
+ arch/i386/kernel/i386_ksyms.c    |    1 -
+ arch/ia64/kernel/smp.c           |    1 -
+ arch/ia64/mm/tlb.c               |    1 -
+ arch/m32r/kernel/m32r_ksyms.c    |    1 -
+ arch/x86_64/kernel/x8664_ksyms.c |    1 -
+ 6 files changed, 6 deletions(-)
+
+--- linux-2.6.11-rc1-mm2-full/arch/i386/kernel/i386_ksyms.c.old	2005-01-21 11:23:26.000000000 +0100
++++ linux-2.6.11-rc1-mm2-full/arch/i386/kernel/i386_ksyms.c	2005-01-21 11:25:59.000000000 +0100
+@@ -144,7 +144,6 @@
  
-  /* ver 03.001.008 */
--const u8 typhoon_firmware_image[] = {
-+static const u8 typhoon_firmware_image[] = {
- 0x54, 0x59, 0x50, 0x48, 0x4f, 0x4f, 0x4e, 0x00, 0x02, 0x00, 0x00, 0x00, 
- 0x09, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xcb, 0x99, 0xb1, 0xd4, 
- 0x4c, 0xb8, 0xd0, 0x4b, 0x32, 0x02, 0xd4, 0xee, 0x73, 0x7e, 0x0b, 0x13, 
-
+ /* TLB flushing */
+ EXPORT_SYMBOL(flush_tlb_page);
+-EXPORT_SYMBOL_GPL(flush_tlb_all);
+ #endif
+ 
+ #ifdef CONFIG_X86_IO_APIC
+--- linux-2.6.11-rc1-mm2-full/arch/ia64/kernel/smp.c.old	2005-01-21 11:26:20.000000000 +0100
++++ linux-2.6.11-rc1-mm2-full/arch/ia64/kernel/smp.c	2005-01-21 11:26:55.000000000 +0100
+@@ -227,7 +227,6 @@
+ {
+ 	on_each_cpu((void (*)(void *))local_flush_tlb_all, NULL, 1, 1);
+ }
+-EXPORT_SYMBOL(smp_flush_tlb_all);
+ 
+ void
+ smp_flush_tlb_mm (struct mm_struct *mm)
+--- linux-2.6.11-rc1-mm2-full/arch/ia64/mm/tlb.c.old	2005-01-21 11:27:34.000000000 +0100
++++ linux-2.6.11-rc1-mm2-full/arch/ia64/mm/tlb.c	2005-01-21 11:27:42.000000000 +0100
+@@ -127,7 +127,6 @@
+ 	local_irq_restore(flags);
+ 	ia64_srlz_i();			/* srlz.i implies srlz.d */
+ }
+-EXPORT_SYMBOL(local_flush_tlb_all);
+ 
+ void
+ flush_tlb_range (struct vm_area_struct *vma, unsigned long start, unsigned long end)
+--- linux-2.6.11-rc1-mm2-full/arch/alpha/kernel/alpha_ksyms.c.old	2005-01-21 11:27:49.000000000 +0100
++++ linux-2.6.11-rc1-mm2-full/arch/alpha/kernel/alpha_ksyms.c	2005-01-21 11:27:54.000000000 +0100
+@@ -176,7 +176,6 @@
+ 
+ #ifdef CONFIG_SMP
+ EXPORT_SYMBOL(synchronize_irq);
+-EXPORT_SYMBOL(flush_tlb_all);
+ EXPORT_SYMBOL(flush_tlb_mm);
+ EXPORT_SYMBOL(flush_tlb_range);
+ EXPORT_SYMBOL(flush_tlb_page);
+--- linux-2.6.11-rc1-mm2-full/arch/m32r/kernel/m32r_ksyms.c.old	2005-01-21 11:28:01.000000000 +0100
++++ linux-2.6.11-rc1-mm2-full/arch/m32r/kernel/m32r_ksyms.c	2005-01-21 11:28:06.000000000 +0100
+@@ -76,7 +76,6 @@
+ 
+ /* TLB flushing */
+ EXPORT_SYMBOL(smp_flush_tlb_page);
+-EXPORT_SYMBOL_GPL(smp_flush_tlb_all);
+ #endif
+ 
+ /* compiler generated symbol */
+--- linux-2.6.11-rc1-mm2-full/arch/x86_64/kernel/x8664_ksyms.c.old	2005-01-21 11:28:13.000000000 +0100
++++ linux-2.6.11-rc1-mm2-full/arch/x86_64/kernel/x8664_ksyms.c	2005-01-21 11:28:18.000000000 +0100
+@@ -218,7 +218,6 @@
+ 
+ #ifdef CONFIG_SMP
+ EXPORT_SYMBOL(flush_tlb_page);
+-EXPORT_SYMBOL_GPL(flush_tlb_all);
+ #endif
+ 
+ EXPORT_SYMBOL(cpu_khz);

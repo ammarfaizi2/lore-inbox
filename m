@@ -1,74 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267365AbTBULid>; Fri, 21 Feb 2003 06:38:33 -0500
+	id <S267385AbTBULkY>; Fri, 21 Feb 2003 06:40:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267385AbTBULid>; Fri, 21 Feb 2003 06:38:33 -0500
-Received: from node-c-58b2.a2000.nl ([62.194.88.178]:64384 "EHLO
-	wsprwl.xs4all.nl") by vger.kernel.org with ESMTP id <S267365AbTBULib>;
-	Fri, 21 Feb 2003 06:38:31 -0500
-Date: Fri, 21 Feb 2003 12:48:38 +0100
-From: rkmp@xs4all.nl
-To: linux-kernel@vger.kernel.org
-Cc: Thomas Stuefe <thomas.stuefe@online.de>
-Subject: Re: 2.5.62 hisax compile broke. isac_setup double defined (hisax.o & hisax_isac.o)
-Message-ID: <20030221114838.GA26631@wsprwl.xs4all.nl>
-References: <200302211138.19592.thomas.stuefe@online.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S267392AbTBULkY>; Fri, 21 Feb 2003 06:40:24 -0500
+Received: from smtp1.EUnet.yu ([194.247.192.50]:46803 "EHLO smtp1.eunet.yu")
+	by vger.kernel.org with ESMTP id <S267385AbTBULkX>;
+	Fri, 21 Feb 2003 06:40:23 -0500
+From: Toplica =?utf-8?q?Tanaskovi=C4=87?= <toptan@EUnet.yu>
+To: Samium Gromoff <deepfire@ibe.miee.ru>
+Subject: Re: AGP backport from 2.5 to 2.4.21-pre4
+Date: Fri, 21 Feb 2003 12:36:13 +0100
+User-Agent: KMail/1.5
+References: <20030221122051.20942f70.deepfire@ibe.miee.ru>
+In-Reply-To: <20030221122051.20942f70.deepfire@ibe.miee.ru>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <200302211138.19592.thomas.stuefe@online.de>
-User-Agent: Mutt/1.3.25i
+Message-Id: <200302211235.33025.toptan@EUnet.yu>
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8bit
+X-MIME-Autoconverted: from quoted-printable to 8bit by smtp1.eunet.yu id h1LBoRV21606
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Seems not the only bug in compiling ISDN,  I have this for the last
-few kernel versions (note the "....hisax 1..." probably should read "=1")
-
-  gcc -Wp,-MD,drivers/isdn/hisax/.fsm.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -Iinclude/asm-i386/mach-default -fomit-frame-pointer -nostdinc -iwithprefix include  -DHISAX_MAX_CARDS=2  -DKBUILD_BASENAME=fsm -DKBUILD_MODNAME=hisax -c -o drivers/isdn/hisax/fsm.o drivers/isdn/hisax/fsm.c
-  gcc -Wp,-MD,drivers/isdn/hisax/.cert.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -Iinclude/asm-i386/mach-default -fomit-frame-pointer -nostdinc -iwithprefix include  -DHISAX_MAX_CARDS=2 -DCERTIFICATION=/usr/src/linux-2.5.62/drivers/isdn/hisax 1 -DKBUILD_BASENAME=cert -DKBUILD_MODNAME=hisax -c -o drivers/isdn/hisax/cert.o drivers/isdn/hisax/cert.c
-gcc: cannot specify -o with -c or -S and multiple compilations
-make[3]: *** [drivers/isdn/hisax/cert.o] Error 1
-make[2]: *** [drivers/isdn/hisax] Error 2
-make[1]: *** [drivers/isdn] Error 2
-make: *** [drivers] Error 2
-
->gcc --version
-2.95.3
-
->grep ISDN .config
-# ISDN subsystem
-CONFIG_ISDN_BOOL=y
-# Old ISDN4Linux
-CONFIG_ISDN=y
-# CONFIG_ISDN_NET_SIMPLE is not set
-# CONFIG_ISDN_NET_CISCO is not set
-CONFIG_ISDN_PPP=y
-# CONFIG_ISDN_PPP_VJ is not set
-# CONFIG_ISDN_MPP is not set
-# CONFIG_ISDN_PPP_BSDCOMP is not set
-# CONFIG_ISDN_AUDIO is not set
-# ISDN feature submodules
-# CONFIG_ISDN_DRV_LOOP is not set
-# CONFIG_ISDN_DIVERSION is not set
-# CONFIG_ISDN_CAPI is not set
-# ISDN4Linux hardware drivers
-CONFIG_ISDN_DRV_HISAX=y
-# CONFIG_ISDN_DRV_ICN is not set
-# CONFIG_ISDN_DRV_PCBIT is not set
-# CONFIG_ISDN_DRV_SC is not set
-# CONFIG_ISDN_DRV_ACT2000 is not set
-# CONFIG_ISDN_DRV_EICON is not set
-# CONFIG_ISDN_DRV_TPAM is not set
-
-_
-Ruud Linders
-
-On Fri, Feb 21, 2003 at 11:38:19AM +0100, Thomas Stuefe wrote:
-> hi all,
+Dana petak 21. februar 2003. 10:20, Samium Gromoff je napisao/la:
+>
+>  From all this hardware only the KT400+R9000 pair possibly engage in AGP8x
+> transfers, and i`m suspicious whether R9000 does it at all...
+>
+	No, AGP4x max. As I said I did only a few tests, due to lack of hardware.
 > 
-> tried to compile 2.5.62. 
-> 
-> when linking hisax/built-in.o, the linker complains about the function 
-> isac_setup being defined twice, once in hisax.o and once in hisax_isac.o.
-> 
-> 
+>  So i think somebody testing it on real AGP3.0-capable hardware would do
+> good...
+>
+
+	That would be most apreciated. But I would like to see results for other 
+chipsets AGP8x, AGP4x deosn't mather.
+
+-- 
+Pozdrav,
+Tanasković Toplica
+
+

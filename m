@@ -1,127 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261477AbUCKQZo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 11:25:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261496AbUCKQZo
+	id S261496AbUCKQfL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 11:35:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261183AbUCKQfK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 11:25:44 -0500
-Received: from web60709.mail.yahoo.com ([216.109.117.232]:55726 "HELO
-	web60709.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261477AbUCKQZi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 11:25:38 -0500
-Message-ID: <20040311162534.48316.qmail@web60709.mail.yahoo.com>
-Date: Thu, 11 Mar 2004 11:25:34 -0500 (EST)
-From: Jonathan Filiatrault <lintuxicated@yahoo.ca>
-Subject: Weirdness with romfs automatic filesystem detection
-To: linux-kernel@vger.kernel.org
-Cc: viro@math.psu.edu
+	Thu, 11 Mar 2004 11:35:10 -0500
+Received: from rtp-iport-2.cisco.com ([64.102.122.149]:59039 "EHLO
+	rtp-iport-2.cisco.com") by vger.kernel.org with ESMTP
+	id S261496AbUCKQfD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Mar 2004 11:35:03 -0500
+X-BrightmailFiltered: true
+To: Jouni Malinen <jkmaline@cc.hut.fi>
+Cc: James Morris <jmorris@redhat.com>, "David S. Miller" <davem@redhat.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Crypto API and keyed non-HMAC digest algorithms / Michael MIC
+References: <20040311030035.GA3782@jm.kir.nu>
+	<Xine.LNX.4.44.0403102302450.935-100000@thoron.boston.redhat.com>
+	<20040311060818.GA3739@jm.kir.nu>
+From: Clay Haapala <chaapala@cisco.com>
+Organization: Cisco Systems, Inc. SRBU
+Face: iVBORw0KGgoAAAANSUhEUgAAADAAAAAwBAMAAAClLOS0AAAAHlBMVEXl5ufMrp3a4OLr6ujO
+ lXzChGmsblZzRzjF1+ErFRAz+KIaAAACVElEQVR4nG3TQW/aMBQAYC9IO88dguyWUomqt0DQ
+ do7koO22SXFQb6uE7XIMKrFya+mhPk8D43+79+wMyrp3gnx59nvxMxmNEnIWycgH+U9E55CO
+ rkZJ8hYipbXTdfcvQK/Xy6JF2zqI+qpbjZAszSDG2oXYp0FI5mOqbAeuDtLBdeuO8fNVxkzr
+ E9jklKEgQWsppYYf9v4IE3i/4RiVRPneQTpoXSM8QA7un3QZQ2cl54wXIH7VDwEmrdOiZBgF
+ V5BiLwLM4B3BS0ZpB24d4IvzW+QIc7/JIcAQIadF2eeUzn3FAa6xWFYUotjIRmLB7vEvCC4t
+ VAugpTrC2FleLBm2wVnlAc7Dl2u5L1UozgWCjTxMW+vb4GVVFhWWFSCdKmgDMhaNFoxL3bSH
+ rc/Irn1/RcWlh+UqNgHeNwishJ1L6LCpjdmGz76RmFGyuSwLgLUxJhyUlLA7fHMpeSGVPsFA
+ wqtK4voI8RE+I3DsDpfamSNMpIBTKrF1yIpPMA0AzQPU5gSwCTyC/aEAtX4NM6gLM3CCziBT
+ jRR+StQ/AA8a7AMuwxn0YAmcRKnVGwDRiOcw3uMWlajgAJsAPbw4OIpwrH3/vdq9B7hpl7GD
+ w61A4PxwSqyH9J25gePnYdqhYjjZ5s6QCb3bwvOLJWPBFvCvWVDSthYmcff44IcacOUOt1Yv
+ yGCF1+twuQtQCPjzZIaK/Lrx9+6b7TKEdXTwgz8R+uJv5K1jOcWMnO7NJ3v/QlprnzP1deUe
+ 8j4CpVE82MRj4j5SHGDnfvul8uGwjqNnpf4Ak4pzJDIy3lkAAAAASUVORK5CYII=
+Date: Thu, 11 Mar 2004 10:34:58 -0600
+In-Reply-To: <20040311060818.GA3739@jm.kir.nu> (Jouni Malinen's message of
+ "Wed, 10 Mar 2004 22:08:19 -0800")
+Message-ID: <yqujr7vztk99.fsf@chaapala-lnx2.cisco.com>
+User-Agent: Gnus/5.110001 (No Gnus v0.1) XEmacs/21.5 (celeriac, linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi to you all,
-	Recently(yesterday), I had trouble getting the
-kernel(2.6.3) to mount my romfs initrd. After hours of
-tinkering, I found out that I HAD to specify
-rootfstype in order to make it work(ext2 worked w/o
-rootfstype).
-	So, I did a little investigating(see patch below), I
-found out that when the romfs driver is the first to
-try to mount the initrd, it does allright, but when it
-tries after all the other drivers, it fails with code
--22(EINVAL I think)
+On Wed, 10 Mar 2004, Jouni Malinen outgrape:
+> On Wed, Mar 10, 2004 at 11:06:37PM -0500, James Morris wrote:
+> 
+>> I can't reproduce it now either (AFAICR, it oopsed in test_hash().
+>> 
+>> I suspect it may have been caused by loading tcrypt module which
+>> was out of sync with the digest setkey change.
+> 
+> That's possible. It didn't fail in my test with an updated version
+> from the BK repository either, so I would assume this issue can be
+> called resolved.
+> 
+> Here's the digest setkey part of the previous combined patch; I'll
+> send a patch for Michael MIC separately.
+> 
+> 
+> 
+> Added support for using keyed digest with an optional dit_setkey
+> handler.  This does not change the behavior of the existing digest
+> algorithms, but allows new ones to add setkey handler that can be
+> used to initialize the algorithm with a key or seed. setkey is to be
+> called after init, but before any of the update call(s).
+> 
+> [ ... patch omitted ... ]
 
-Conclusions:
--This is expected behaviour (hope not).
--The filesystem drivers modify the initrd or its
-state.
--The romfs driver has something nasty in it.
--Im only a n00b and I dont know what im talking about.
+OK, so I should recode CRC32C to be a variation of digest that employs
+a setkey() handler, right?  Should be no problem.
 
-It would be great if I could get help solving this
-mistery, as my hacking skills are lacking...
-
-Sincerly, Joe
-
-Below is my kernel output:
-
-By leaving the kernel determine the filesystem type
-(copied by hand):
-
-(next line when using compressed ramdisk)
-RAMDISK: Compressed image found at block 0
-(next two lines w/o compression)
-RAMDISK: romfs filesystem found at block 0
-RAMDISK: Loading 1093 blocks [1 disk] into ram disk...
-done.
-Trying to mount root as type reiserfs: got -22
-Trying to mount root as type minix: got -22
-Trying to mount root as type vfat: got -22
-Trying to mount root as type iso9660: got -22
-Trying to mount root as type ntfs: got -22
-Trying to mount root as type romfs: VFS: Can't find a
-romfs filesystem on dev ram0.
-got -22
-...
-Panic, could not mount root fs, etc
-
-
-By specifiyng rootfstype=romfs:
-
-(next line when using compressed ramdisk)
-RAMDISK: Compressed image found at block 0
-(next two lines w/o compression)
-RAMDISK: romfs filesystem found at block 0
-RAMDISK: Loading 1093 blocks [1 disk] into ram disk...
-done.
-Trying to mount root as type romfs: VFS: Mounted root
-(romfs filesystem) readonly.
-got 0
-...
-success, initrd mounts system, etc...
-
-This patch show the code returned by the different fs
-drivers.
-
-diff -uprN linux-2.6.3/fs/romfs/inode.c
-linux-modded/fs/romfs/inode.c
---- linux-2.6.3/fs/romfs/inode.c	2004-02-17
-22:58:40.000000000 -0500
-+++ linux-modded/fs/romfs/inode.c	2004-03-10
-21:54:41.000000000 -0500
-@@ -116,6 +116,7 @@ static int romfs_fill_super(struct
-super
- 	struct buffer_head *bh;
- 	struct romfs_super_block *rsb;
- 	int sz;
-+	silent = 0;
- 
- 	/* I would parse the options here, but there are
-none.. :) */
- 
-diff -uprN linux-2.6.3/init/do_mounts.c
-linux-modded/init/do_mounts.c
---- linux-2.6.3/init/do_mounts.c	2004-02-17
-22:57:28.000000000 -0500
-+++ linux-modded/init/do_mounts.c	2004-03-10
-21:44:32.000000000 -0500
-@@ -274,7 +274,10 @@ void __init mount_block_root(char
-*name,
- 	get_fs_names(fs_names);
- retry:
- 	for (p = fs_names; *p; p += strlen(p)+1) {
--		int err = do_mount_root(name, p, flags,
-root_mount_data);
-+		int err;
-+		printk("Trying to mount root as type %s: ", p);
-+		err = do_mount_root(name, p, flags,
-root_mount_data);
-+		printk("got %d\n", err);
- 		switch (err) {
- 			case 0:
- 				goto out;
-
-
-______________________________________________________________________ 
-Post your free ad now! http://personals.yahoo.ca
+Can I get to a reasonable development environment by starting with
+2.6.3, and adding the patch you just sent?  Or, do I need the Michael
+MIC patch, as well?
+-- 
+Clay Haapala (chaapala@cisco.com) Cisco Systems SRBU +1 763-398-1056
+   6450 Wedgwood Rd, Suite 130 Maple Grove MN 55311 PGP: C89240AD
+  Windows XP 'Reloaded'?  *Reloaded?*  Have they no sense of irony?

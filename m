@@ -1,69 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267445AbUIFXKL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267449AbUIFXKg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267445AbUIFXKL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Sep 2004 19:10:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267449AbUIFXKL
+	id S267449AbUIFXKg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Sep 2004 19:10:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267451AbUIFXKg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Sep 2004 19:10:11 -0400
-Received: from mail01.syd.optusnet.com.au ([211.29.132.182]:62660 "EHLO
-	mail01.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S267445AbUIFXKD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Sep 2004 19:10:03 -0400
-References: <413CB661.6030303@sgi.com>
-Message-ID: <cone.1094512172.450816.6110.502@pc.kolivas.org>
-X-Mailer: http://www.courier-mta.org/cone/
-From: Con Kolivas <kernel@kolivas.org>
-To: Ray Bryant <raybry@sgi.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
-       Rik van Riel <riel@redhat.com>, Nick Piggin <piggin@cyberone.com.au>,
-       Martin =?ISO-8859-1?B?Si4=?= Bligh <mbligh@aracnet.com>
-Subject: Re: swapping and the value of /proc/sys/vm/swappiness
-Date: Tue, 07 Sep 2004 09:09:32 +1000
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; charset="US-ASCII"
+	Mon, 6 Sep 2004 19:10:36 -0400
+Received: from grendel.digitalservice.pl ([217.67.200.140]:26256 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S267449AbUIFXKW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Sep 2004 19:10:22 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: swsusp on x86-64 w/ nforce3
+Date: Tue, 7 Sep 2004 01:10:35 +0200
+User-Agent: KMail/1.6.2
+Cc: Pavel Machek <pavel@suse.cz>, Andi Kleen <ak@suse.de>
+References: <200409061836.21505.rjw@sisk.pl> <200409062123.08476.rjw@sisk.pl> <20040906203228.GA18105@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20040906203228.GA18105@atrey.karlin.mff.cuni.cz>
+MIME-Version: 1.0
 Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200409070110.35826.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ray Bryant writes:
-
-> Andrew (et al),
+On Monday 06 of September 2004 22:32, Pavel Machek wrote:
+> Hi!
 > 
-> The attached results started as an exercise to try to understand what value of 
-> "swappiness" we should be recommending to our Altix customers when they start 
-> running Linux 2.6 kernels.  The benchmark is very simple -- a task first 
-> mallocs around 90% of memory, touches all of the memory, then sleeps forever.
-> After the task begins to sleep, we start up a bunch of "dd" copies.  When the 
-> dd's all complete, we record the amount of swap used, the size of the page 
-> cache, and the data rates for the dd's.  (Exact details are given in the 
-> attachment.)  The benchmark was repeated for swappiness values of 0, 20, 40, 
-> 60, 80, 100, for a number of recent 2.6 kernels.
+> > > Can you tell me, please, if swsusp, as in the 2.6.9-rc1-bk12 kernel, is 
+> > > supposed to work on x86-64-based systems (specifically, with the nforce3 
+> > > chipset)?
+> > 
+> > Anyway, on such a system (.config and the output of dmesg are attached), I 
+get 
+> > the following:
+> > 
+> > Stopping tasks: 
+> > ==============================================================|
+> > Freeing 
+> > 
+memory: ............................................................................................................|
+> > Suspending devices... /critical section: counting pages to copy..[nosave 
+pfn 
+> > 0x59b]..................................................)
+> > Alloc pagedir
+> > ..[nosave pfn 
+> > 
+0x59b]................................................................................critical 
+> > section/: done (40890 pa)
+> > APIC error on CPU0: 80(08)
 > 
-> What is unexpected is that the amount of swap space used at a particular
-> swappiness setting varies dramatically with the kernel version being tested, 
-> in spite of the fact that the basic swap_tendency calculation in 
-> refile_ianctive_zone() is unchanged.  (Other, subtle changes in the vm as a 
-> whole and this routine in particular clearly effect the impact of that 
-> computation.)
-> 
-> For example, at a swappiness value of 0, Kernel 2.6.5 swapped out 0 bytes,
-> whereas Kernel 2.6.9-rc1-mm3 swapped out 10 GB.  Similarly, most kernels
-> have a significant change in behavior for swappiness values near 100, but
-> for SLES9 the change point occurs at swappness=60.
-> 
-> A scan of the change logs for swappiness related changes shows nothing that 
-> might explain these changes.  My question is:  "Is this change in behavior
-> deliberate, or just a side effect of other changes that were made in the vm?" 
-> and "What kind of swappiness behavior might I expect to find in future kernels?".
+> Try noapic?
 
-The change was not deliberate but there have been some other people report 
-significant changes in the swappiness behaviour as well (see archives). It 
-has usually been of the increased swapping variety lately. It has been 
-annoying enough to the bleeding edge desktop users for a swag of out-of-tree 
-hacks to start appearing (like mine).
+The result is the same. :-(  It is quite strange, though, because I have:
 
-Cheers,
-Con
+rafael@albercik:~> cat /proc/interrupts
+           CPU0
+  0:     448292          XT-PIC  timer
+  1:       1047          XT-PIC  i8042
+  2:          0          XT-PIC  cascade
+  5:        684          XT-PIC  ohci_hcd, NVidia nForce3
+  8:          0          XT-PIC  rtc
+  9:        839          XT-PIC  acpi, yenta
+ 10:          2          XT-PIC  ehci_hcd
+ 11:       3034          XT-PIC  SysKonnect SK-98xx, ohci_hcd, yenta, ohci1394
+ 12:       4520          XT-PIC  i8042
+ 14:       2522          XT-PIC  ide0
+ 15:       8635          XT-PIC  ide1
+NMI:         74
+LOC:     448090
+ERR:          1
+MIS:          0
 
+but at the same time:
+
+rafael@albercik:~> dmesg | grep -i apic
+Bootdata ok (command line is root=/dev/hdc6 vga=792 resume=/dev/hdc3 noapic)
+PCI bridge 00:0a from 10de found. Setting "noapic". Overwrite with "apic"
+OEM ID: ASUSTeK  <6>Product ID: L5D          <6>APIC at: 0xFEE00000
+Processor #0 15:4 APIC version 16
+I/O APIC #1 Version 17 at 0xFEC00000.
+Kernel command line: root=/dev/hdc6 vga=792 resume=/dev/hdc3 noapic 
+console=tty0
+Using local APIC NMI watchdog using perfctr0
+Using local APIC timer interrupts.
+Detected 12.468 MHz APIC timer.
+
+The nolapic probably oopses, because the box sort of hanged when I set it, but 
+I have to use the serial console to confirm it.
+
+Regards,
+RJW
+
+-- 
+For a successful technology, reality must take precedence over public 
+relations, for nature cannot be fooled.
+					-- Richard P. Feynman

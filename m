@@ -1,35 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268021AbUIKBqm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268024AbUIKCMy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268021AbUIKBqm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 21:46:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268024AbUIKBqm
+	id S268024AbUIKCMy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 22:12:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268056AbUIKCMy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 21:46:42 -0400
-Received: from [66.35.79.110] ([66.35.79.110]:28038 "EHLO www.hockin.org")
-	by vger.kernel.org with ESMTP id S268021AbUIKBpx (ORCPT
+	Fri, 10 Sep 2004 22:12:54 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:49346 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S268024AbUIKCMw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 21:45:53 -0400
-Date: Fri, 10 Sep 2004 18:45:43 -0700
-From: Tim Hockin <thockin@hockin.org>
-To: Greg KH <greg@kroah.com>
-Cc: Kay Sievers <kay.sievers@vrfy.org>, Robert Love <rml@ximian.com>,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch] kernel sysfs events layer
-Message-ID: <20040911014543.GA5053@hockin.org>
-References: <1093989924.4815.56.camel@betsy.boston.ximian.com> <20040902083407.GC3191@kroah.com> <1094142321.2284.12.camel@betsy.boston.ximian.com> <20040904005433.GA18229@kroah.com> <1094353088.2591.19.camel@localhost> <20040905121814.GA1855@vrfy.org> <20040906020601.GA3199@vrfy.org> <20040910235409.GA32424@kroah.com> <20040911001849.GA321@hockin.org> <20040911004827.GA8139@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 10 Sep 2004 22:12:52 -0400
+From: "Antonino A. Daplas" <adaplas@hotpop.com>
+Reply-To: adaplas@pol.net
+To: linux-fbdev-devel@lists.sourceforge.net,
+       Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [Linux-fbdev-devel] fbdev broken in current bk for PPC
+Date: Sat, 11 Sep 2004 09:04:42 +0800
+User-Agent: KMail/1.5.4
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+References: <1094783022.2667.106.camel@gaston> <Pine.GSO.4.58.0409101004320.93@waterleaf.sonytel.be> <200409101635.25738.adaplas@hotpop.com>
+In-Reply-To: <200409101635.25738.adaplas@hotpop.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20040911004827.GA8139@kroah.com>
-User-Agent: Mutt/1.4.2i
+Message-Id: <200409110904.42118.adaplas@hotpop.com>
+X-HotPOP: -----------------------------------------------
+                   Sent By HotPOP.com FREE Email
+             Get your FREE POP email at www.HotPOP.com
+          -----------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 10, 2004 at 05:48:27PM -0700, Greg KH wrote:
-> need be.  This keeps the kernel interface much simpler, and doesn't
-> allow you to abuse it for things it is not intended for (like error
-> reporting stuff...)
+On Friday 10 September 2004 16:35, Antonino A. Daplas wrote:
+>
+> > > what about failing register_framebuffer for anything but offb ?
+> >
+> > Humm, indeed hackerish...
+> >
+> > But the advantage of this is that we can finally exercise the failure
+> > path of many frame buffer device drivers in the wild ;-)
+>
+> Assuming, as I've mentioned in another thread, that info->fix.name ==
+> to video=xxxfb.
+>
 
-Errm, not for error reporting?  So the "driver hardening" and fault
-logging people shouldn't use this?
+Sorry Geert, I misinterpret.  And you are correct, but that will be scary :-)
+
+Tony
+
 

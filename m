@@ -1,73 +1,167 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267224AbTABVcn>; Thu, 2 Jan 2003 16:32:43 -0500
+	id <S267266AbTABVhj>; Thu, 2 Jan 2003 16:37:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267184AbTABVbK>; Thu, 2 Jan 2003 16:31:10 -0500
-Received: from louise.pinerecords.com ([213.168.176.16]:12997 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S267224AbTABVas>; Thu, 2 Jan 2003 16:30:48 -0500
-From: Tomas Szepe <kala@pinerecords.com>
-Date: Thu, 02 Jan 2003 22:39:14 +0100
+	id <S267284AbTABVgb>; Thu, 2 Jan 2003 16:36:31 -0500
+Received: from natsmtp00.webmailer.de ([192.67.198.74]:38042 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S267254AbTABVfQ>; Thu, 2 Jan 2003 16:35:16 -0500
+Date: Thu, 2 Jan 2003 22:43:33 +0100
+From: Dominik Brodowski <linux@brodo.de>
 To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [unify netdev config 21/22] Add the unified NETDEVICES submenu
-Message-ID: <3E14B182.mailLZW1UUUN6@louise.pinerecords.com>
-User-Agent: nail 10.3 11/29/02
-MIME-Version: 1.0
+Cc: linux-kernel@vger.kernel.org, cpufreq@www.linux.org.uk
+Subject: [PATCH 2.5.54] cpufreq: p4-clockmod bugfixes
+Message-ID: <20030102214333.GD19479@brodo.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -urN a/drivers/net/Kconfig b/drivers/net/Kconfig
---- a/drivers/net/Kconfig	2003-01-02 22:05:15.000000000 +0100
-+++ b/drivers/net/Kconfig	2003-01-02 22:05:21.000000000 +0100
-@@ -1,7 +1,42 @@
- #
- # Network device configuration
- #
--source "drivers/net/arcnet/Kconfig"
-+
-+config NETDEVICES
-+	depends on NET
-+	bool "Network device support"
-+	---help---
-+	  You can say N here if you don't intend to connect your Linux box to
-+	  any other computer at all or if all your connections will be over a
-+	  telephone line with a modem either via UUCP (UUCP is a protocol to
-+	  forward mail and news between unix hosts over telephone lines; read
-+	  the UUCP-HOWTO, available from
-+	  <http://www.linuxdoc.org/docs.html#howto>) or dialing up a shell
-+	  account or a BBS, even using term (term is a program which gives you
-+	  almost full Internet connectivity if you have a regular dial up
-+	  shell account on some Internet connected Unix computer. Read
-+	  <http://www.bart.nl/~patrickr/term-howto/Term-HOWTO.html>).
-+
-+	  You'll have to say Y if your computer contains a network card that
-+	  you want to use under Linux (make sure you know its name because you
-+	  will be asked for it and read the Ethernet-HOWTO (especially if you
-+	  plan to use more than one network card under Linux)) or if you want
-+	  to use SLIP (Serial Line Internet Protocol is the protocol used to
-+	  send Internet traffic over telephone lines or null modem cables) or
-+	  CSLIP (compressed SLIP) or PPP (Point to Point Protocol, a better
-+	  and newer replacement for SLIP) or PLIP (Parallel Line Internet
-+	  Protocol is mainly used to create a mini network by connecting the
-+	  parallel ports of two local machines) or AX.25/KISS (protocol for
-+	  sending Internet traffic over amateur radio links).
-+
-+	  Make sure to read the NET-3-HOWTO. Eventually, you will have to read
-+	  Olaf Kirch's excellent and free book "Network Administrator's
-+	  Guide", to be found in <http://www.linuxdoc.org/docs.html#guide>. If
-+	  unsure, say Y.
-+
-+if NETDEVICES
-+	source "drivers/net/arcnet/Kconfig"
-+endif
+The "get current state" algorithm wasn't aware of the disable/enable bit,
+and the policy verification function wasn't aware of the N44 / O17 bug.
+Also, some unused code is removed.
+
+	Dominik
+
+diff -ruN linux-original/arch/i386/kernel/cpu/cpufreq/p4-clockmod.c linux/arch/i386/kernel/cpu/cpufreq/p4-clockmod.c
+--- linux-original/arch/i386/kernel/cpu/cpufreq/p4-clockmod.c	2003-01-02 20:56:45.000000000 +0100
++++ linux/arch/i386/kernel/cpu/cpufreq/p4-clockmod.c	2003-01-02 20:58:34.000000000 +0100
+@@ -82,12 +82,17 @@
  
- config DUMMY
- 	tristate "Dummy net driver support"
-@@ -2511,3 +2546,4 @@
+ 	/* get current state */
+ 	rdmsr(MSR_IA32_THERM_CONTROL, l, h);
+-	l = l >> 1;
+-	l &= 0x7;
+-
++	if (l & 0x10) {
++		l = l >> 1;
++		l &= 0x7;
++	} else
++		l = DC_DISABLE;
++	
+ 	if (l == newstate) {
+ 		set_cpus_allowed(current, cpus_allowed);
+ 		return 0;
++	} else if (l == DC_RESV) {
++		printk(KERN_ERR PFX "BIG FAT WARNING: currently in invalid setting\n");
+ 	}
  
- source "drivers/net/pcmcia/Kconfig"
+ 	/* notifiers */
+@@ -141,13 +146,18 @@
+ 	unsigned int    i;
+ 	unsigned int    newstate = 0;
+ 	unsigned int    number_states = 0;
++	unsigned int    minstate = 1;
  
-+source "drivers/atm/Kconfig"
+-	if (!cpufreq_p4_driver || !stock_freq || !policy)
++	if (!cpufreq_p4_driver || !stock_freq || 
++	    !policy || !cpu_online(policy->cpu))
+ 		return -EINVAL;
+ 
++	if (has_N44_O17_errata)
++		minstate = 3;
++
+ 	if (policy->policy == CPUFREQ_POLICY_POWERSAVE)
+ 	{
+-		for (i=8; i>0; i--)
++		for (i=8; i>=minstate; i--)
+ 			if ((policy->min <= ((stock_freq / 8) * i)) &&
+ 			    (policy->max >= ((stock_freq / 8) * i))) 
+ 			{
+@@ -155,7 +165,7 @@
+ 				number_states++;
+ 			}
+ 	} else {
+-		for (i=1; i<=8; i++)
++		for (i=minstate; i<=8; i++)
+ 			if ((policy->min <= ((stock_freq / 8) * i)) &&
+ 			    (policy->max >= ((stock_freq / 8) * i))) 
+ 			{
+@@ -164,25 +174,8 @@
+ 			}
+ 	}
+ 
+-	/* if (number_states == 1) */
+-	{
+-		if (policy->cpu == CPUFREQ_ALL_CPUS) {
+-			for (i=0; i<NR_CPUS; i++)
+-				if (cpu_online(i))
+-					cpufreq_p4_setdc(i, newstate);
+-		} else {
+-			cpufreq_p4_setdc(policy->cpu, newstate);
+-		}
+-	}
+-	/* else {
+-		if (policy->policy == CPUFREQ_POLICY_POWERSAVE) {
+-			min_state = newstate;
+-			max_state = newstate + (number_states - 1);
+-		} else {
+-			max_state = newstate;
+-			min_state = newstate - (number_states - 1);
+-		}
+-	} */
++	cpufreq_p4_setdc(policy->cpu, newstate);
++
+ 	return 0;
+ }
+ 
+@@ -190,17 +183,21 @@
+ static int cpufreq_p4_verify(struct cpufreq_policy *policy)
+ {
+ 	unsigned int    number_states = 0;
+-	unsigned int    i;
++	unsigned int    i = 1;
+ 
+-	if (!cpufreq_p4_driver || !stock_freq || !policy)
++	if (!cpufreq_p4_driver || !stock_freq || 
++	    !policy || !cpu_online(policy->cpu))
+ 		return -EINVAL;
+ 
+-	if (!cpu_online(policy->cpu))
+-		policy->cpu = CPUFREQ_ALL_CPUS;
+-	cpufreq_verify_within_limits(policy, (stock_freq / 8), stock_freq);
++	cpufreq_verify_within_limits(policy, 
++				     policy->cpuinfo.min_freq, 
++				     policy->cpuinfo.max_freq);
++
++	if (has_N44_O17_errata)
++		i = 3;
+ 
+-	/* is there at least one state within limit? */
+-	for (i=1; i<=8; i++)
++	/* is there at least one state within the limit? */
++	for (; i<=8; i++)
+ 		if ((policy->min <= ((stock_freq / 8) * i)) &&
+ 		    (policy->max >= ((stock_freq / 8) * i)))
+ 			number_states++;
+@@ -209,6 +206,9 @@
+ 		return 0;
+ 
+ 	policy->max = (stock_freq / 8) * (((unsigned int) ((policy->max * 8) / stock_freq)) + 1);
++	cpufreq_verify_within_limits(policy, 
++				     policy->cpuinfo.min_freq, 
++				     policy->cpuinfo.max_freq);
+ 	return 0;
+ }
+ 
+@@ -292,13 +292,14 @@
+ 
+ void __exit cpufreq_p4_exit(void)
+ {
+-	u32 l, h;
++	unsigned int i;
+ 
+ 	if (cpufreq_p4_driver) {
++		for (i=0; i<NR_CPUS; i++) {
++			if (cpu_online(i)) 
++				cpufreq_p4_setdc(i, DC_DISABLE);
++		}
+ 		cpufreq_unregister();
+-		/* return back to a non modulated state */
+-		rdmsr(MSR_IA32_THERM_CONTROL, l, h);
+-		wrmsr(MSR_IA32_THERM_CONTROL, l & ~(1<<4), h);
+ 		kfree(cpufreq_p4_driver);
+ 	}
+ }

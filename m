@@ -1,48 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262109AbTKYIhC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Nov 2003 03:37:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262111AbTKYIhC
+	id S262114AbTKYIrl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Nov 2003 03:47:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262118AbTKYIrl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Nov 2003 03:37:02 -0500
-Received: from pub234.cambridge.redhat.com ([213.86.99.234]:44549 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S262109AbTKYIhA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Nov 2003 03:37:00 -0500
-Date: Tue, 25 Nov 2003 08:36:43 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Mingming Cao <cmm@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       marcelo.tosatti@cyclades.com, Paul.McKenney@us.ibm.com
-Subject: Re: [BUG]Missing i_sb NULL pointer check in destroy_inode()
-Message-ID: <20031125083643.A15777@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Mingming Cao <cmm@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org, marcelo.tosatti@cyclades.com,
-	Paul.McKenney@us.ibm.com
-References: <1068066524.10726.289.camel@socrates> <20031106033817.GB22081@thunk.org> <1068145132.10735.322.camel@socrates> <20031106123922.Y10197@schatzie.adilger.int> <1068148881.10730.337.camel@socrates> <1068230146.10726.359.camel@socrates> <20031109130826.2b37219d.akpm@osdl.org> <1068419747.687.28.camel@socrates> <20031109152936.3a9ffb69.akpm@osdl.org> <1069700440.16649.19433.camel@localhost.localdomain>
+	Tue, 25 Nov 2003 03:47:41 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:8201
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id S262114AbTKYIrk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Nov 2003 03:47:40 -0500
+Date: Tue, 25 Nov 2003 00:47:36 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: OOps! was: 2.6.0-test9-mm5
+Message-ID: <20031125084736.GA1357@mis-mike-wstn.matchmail.com>
+Mail-Followup-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	linux-mm@kvack.org
+References: <20031124235807.GA1586@mis-mike-wstn.matchmail.com> <20031125003658.GA1342@mis-mike-wstn.matchmail.com> <Pine.LNX.4.58.0311242013270.1859@montezuma.fsmlabs.com> <20031125051018.GA1331@mis-mike-wstn.matchmail.com> <Pine.LNX.4.58.0311250033170.4230@montezuma.fsmlabs.com> <20031125054709.GC1331@mis-mike-wstn.matchmail.com> <Pine.LNX.4.58.0311250053410.4230@montezuma.fsmlabs.com> <20031125063602.GA1329@mis-mike-wstn.matchmail.com> <20031125075421.GA1342@mis-mike-wstn.matchmail.com> <20031125080512.GA1356@mis-mike-wstn.matchmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1069700440.16649.19433.camel@localhost.localdomain>; from cmm@us.ibm.com on Mon, Nov 24, 2003 at 11:00:38AM -0800
+In-Reply-To: <20031125080512.GA1356@mis-mike-wstn.matchmail.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 24, 2003 at 11:00:38AM -0800, Mingming Cao wrote:
-> Hello, Andrew, Marcelo,
-> 
-> destroy_inode() dereferences inode->i_sb without checking if it is NULL.
-> This is inconsistent with its caller: iput() and clear_inode(),  both of
-> which check inode->i_sb before dereferencing it. Since iput() calls
-> destroy_inode() after calling file system's .clear_inode method(via
-> clear_inode()),  some file systems might choose to clear the i_sb in the
-> .clear_inode super block operation. This results in a crash in
-> destroy_inode().
-> 
-> This issue exists in both 2.6, 2.4 and 2.4 kernel.  A simple fix against
-> 2.6.0-test9 is included below. 2.4 based fix should be very similar to
-> this one.  Please take a look and consider include it.  
+On Tue, Nov 25, 2003 at 12:05:12AM -0800, Mike Fedyk wrote:
+> Trying the last one...
 
-inode->i_sb can't be NULL.  We should remove all those checks.
+pnp-fix-1
 
+That's the one!  Revert it, and no more oops. :)
+
+00:00.0 Host bridge: VIA Technologies, Inc. VT8377 [KT400 AGP] Host Bridge
+00:01.0 PCI bridge: VIA Technologies, Inc. VT8235 PCI Bridge
+00:0c.0 Unknown mass storage controller: Promise Technology, Inc. 20269 (rev 02)
+00:0e.0 RAID bus controller: CMD Technology Inc PCI0680 (rev 02)
+00:0f.0 VGA compatible controller: S3 Inc. 86c325 [ViRGE] (rev 06)
+00:10.0 USB Controller: VIA Technologies, Inc. USB (rev 80)
+00:10.1 USB Controller: VIA Technologies, Inc. USB (rev 80)
+00:10.2 USB Controller: VIA Technologies, Inc. USB (rev 80)
+00:10.3 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 82)
+00:11.0 ISA bridge: VIA Technologies, Inc. VT8235 ISA Bridge
+00:11.1 IDE interface: VIA Technologies, Inc. VT82C586A/B/VT82C686/A/B/VT8233/A/C/VT8235 PIPC Bus Master IDE (rev 06)
+00:12.0 Ethernet controller: VIA Technologies, Inc. VT6102 [Rhine-II] (rev 74)
+
+Linux mis-mike-wstn 2.6.0-test9-mm5-revpnp1 #7 SMP Tue Nov 25 00:08:46 PST 2003 i686 GNU/Linux

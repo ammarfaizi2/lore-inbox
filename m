@@ -1,59 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261269AbUKHWWS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261270AbUKHWXd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261269AbUKHWWS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 17:22:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261278AbUKHWWS
+	id S261270AbUKHWXd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 17:23:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261273AbUKHWXc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 17:22:18 -0500
-Received: from brown.brainfood.com ([146.82.138.61]:20356 "EHLO
-	gradall.private.brainfood.com") by vger.kernel.org with ESMTP
-	id S261269AbUKHWWC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 17:22:02 -0500
-Date: Mon, 8 Nov 2004 16:21:27 -0600 (CST)
-From: Adam Heath <doogie@debian.org>
-X-X-Sender: adam@gradall.private.brainfood.com
-To: Ingo Molnar <mingo@elte.hu>
-cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
-       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
-       Shane Shrybman <shrybman@aei.ca>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm3-V0.7.19
-In-Reply-To: <20041108091619.GA9897@elte.hu>
-Message-ID: <Pine.LNX.4.58.0411081620400.1229@gradall.private.brainfood.com>
-References: <20041019180059.GA23113@elte.hu> <20041020094508.GA29080@elte.hu>
- <20041021132717.GA29153@elte.hu> <20041022133551.GA6954@elte.hu>
- <20041022155048.GA16240@elte.hu> <20041022175633.GA1864@elte.hu>
- <20041025104023.GA1960@elte.hu> <20041027001542.GA29295@elte.hu>
- <20041103105840.GA3992@elte.hu> <20041106155720.GA14950@elte.hu>
- <20041108091619.GA9897@elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 8 Nov 2004 17:23:32 -0500
+Received: from pfepa.post.tele.dk ([195.41.46.235]:15415 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S261270AbUKHWWy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Nov 2004 17:22:54 -0500
+Date: Mon, 8 Nov 2004 23:23:20 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Zbigniew Szmek <zjedrzejewski-szmek@wp.pl>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] make crypto modular
+Message-ID: <20041108222320.GA16150@mars.ravnborg.org>
+Mail-Followup-To: Zbigniew Szmek <zjedrzejewski-szmek@wp.pl>,
+	linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <200411082149.54723.zjedrzejewski-szmek@wp.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200411082149.54723.zjedrzejewski-szmek@wp.pl>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 8 Nov 2004, Ingo Molnar wrote:
+On Mon, Nov 08, 2004 at 09:49:54PM +0100, Zbigniew Szmek wrote:
+ diff -rupN 2610rc1mm1.um/crypto.modular/Makefile 2610rc1mm1.um/crypto/Makefile
+> --- 2610rc1mm1.um/crypto.modular/Makefile	2004-11-07 18:41:35.000000000 +0100
+> +++ 2610rc1mm1.um/crypto/Makefile	2004-11-08 11:44:52.000000000 +0100
+> @@ -2,12 +2,13 @@
+>  # Cryptographic API
+>  #
+>  
+> -proc-crypto-$(CONFIG_PROC_FS) = proc.o
+> +obj-$(CONFIG_CRYPTO) += crypto.o
+>  
+> -obj-$(CONFIG_CRYPTO) += api.o scatterwalk.o cipher.o digest.o compress.o \
+> -			$(proc-crypto-y)
 
->
-> i have released the -V0.7.19 Real-Time Preemption patch, which can be
-> downloaded from the usual place:
->
->    http://redhat.com/~mingo/realtime-preempt/
->
-> this release includes fixes only.
->
-> Changes since -V0.7.18:
->
->  - fixed a merge bug introduced in -V0.7.18, breaking bit-spinlocks used
->    by ext3's journalling code. This could/should fix the kjournald crash
->    reported by Adam Heath, Gunther Persoons and Eran Mann. Bug triggered
->    on !SMP kernels only.
+> +crypto-objs = $(crypto-objs-y)
+> +crypto-objs-y = api.o scatterwalk.o cipher.o digest.o compress.o
+> +crypto-objs-$(CONFIG_PROC_FS) += proc.o
+> +crypto-objs-$(CONFIG_CRYPTO_HMAC) += hmac.o
+Please use:
+crypto-y := api.o scatterwalk.o cipher.o digest.o compress.o
+crypto-$(CONFIG_PROC_FS)     += proc.o
+crypto-$(CONFIG_CRYPTO_HMAC) += hmac.o
 
-The last kernel I tried was v0.7.13, so I doubt it was a recent introduction.
+More compact and nicer format.
 
-Will try something newer soon.
+I did not look through the rest of the changes.
+
+	Sam

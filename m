@@ -1,85 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261243AbVABEiB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261164AbVABF56@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261243AbVABEiB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jan 2005 23:38:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261244AbVABEiB
+	id S261164AbVABF56 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jan 2005 00:57:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261209AbVABF56
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jan 2005 23:38:01 -0500
-Received: from web41408.mail.yahoo.com ([66.218.93.74]:1655 "HELO
-	web41408.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261243AbVABEhn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Jan 2005 23:37:43 -0500
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  b=01C7idn1OlvmwWa1CnsS+P/P9bFrn3QFxFPcpz3j5aheIi/0P0OrZxqPjYV75Bbn/ywndBrjXfNv5L8PO5a6/mdinkn4X0ken2Z/Zy1DZ7MePYiHzuLdJRmekSIHoZ3IqnDEq4GFtTL8vn2f3FU6OW7v/URlhNSvY30tLsvVmtI=  ;
-Message-ID: <20050102043741.9207.qmail@web41408.mail.yahoo.com>
-Date: Sat, 1 Jan 2005 20:37:41 -0800 (PST)
-From: cranium2003 <cranium2003@yahoo.com>
-Subject: ip_fast_csum usage
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	Sun, 2 Jan 2005 00:57:58 -0500
+Received: from orb.pobox.com ([207.8.226.5]:25812 "EHLO orb.pobox.com")
+	by vger.kernel.org with ESMTP id S261164AbVABF55 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Jan 2005 00:57:57 -0500
+Date: Sat, 1 Jan 2005 21:57:53 -0800
+From: "Barry K. Nathan" <barryn@pobox.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: John M Flinchbaugh <john@hjsoft.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.10: e100 network broken after swsusp/resume
+Message-ID: <20050102055753.GB7406@ip68-4-98-123.oc.oc.cox.net>
+References: <20041228144741.GA2969@butterfly.hjsoft.com> <20050101172344.GA1355@elf.ucw.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050101172344.GA1355@elf.ucw.cz>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
-          In linux kernel source code of IP layer i
-found that calculation of IP header checksum requires
- ip_fast_csum function to be called with IP header as
-unsigned char string parameter.
- I want to know what will happen if i replace that IP
-header parameter with my own unsigned char *data
-variable which is align to 4 octet boundry.
+On Sat, Jan 01, 2005 at 06:23:44PM +0100, Pavel Machek wrote:
+> e100 seems to have some suspend/resume support [but if even reloading
+> e100 does not help, fault is not in e100]. Are you running with APIC
+> enabled? Try noapic. Try acpi=off.
 
-	iph->check = ip_fast_csum((unsigned char *) iph,
-iph->ihl);
+Reloading doesn't help, with either e100 or 8139too. I forgot to mention
+that in my other e-mail in this thread. (As I previously mentioned, on
+my system with 8139too, noapic makes matters worse, and the problem goes
+away if I use *either* pci=routeirq or acpi=off. I haven't tried using
+both.)
 
-the ip_fast_csum defined in kernel source is as
-static inline unsigned short ip_fast_csum(unsigned
-char * iph,
-					  unsigned int ihl)
-{
-	unsigned int sum;
+-Barry K. Nathan <barryn@pobox.com>
 
-	__asm__ __volatile__(
-	    "movl (%1), %0	;\n"
-	    "subl $4, %2	;\n"
-	    "jbe 2f		;\n"
-	    "addl 4(%1), %0	;\n"
-	    "adcl 8(%1), %0	;\n"
-	    "adcl 12(%1), %0	;\n"
-"1:	    adcl 16(%1), %0	;\n"
-	    "lea 4(%1), %1	;\n"
-	    "decl %2		;\n"
-	    "jne 1b		;\n"
-	    "adcl $0, %0	;\n"
-	    "movl %0, %2	;\n"
-	    "shrl $16, %0	;\n"
-	    "addw %w2, %w0	;\n"
-	    "adcl $0, %0	;\n"
-	    "notl %0		;\n"
-"2:				;\n"
-	/* Since the input registers which are loaded with
-iph and ipl
-	   are modified, we must also specify them as
-outputs, or gcc
-	   will assume they contain their original values. */
-	: "=r" (sum), "=r" (iph), "=r" (ihl)
-	: "1" (iph), "2" (ihl)
-	: "memory");
-	return(sum);
-}
-
-I am just experimenting with this function from kernel
-module to check how it works?
-Thanks in advance.
-regards,
-cranium.
-
-
-		
-__________________________________ 
-Do you Yahoo!? 
-Take Yahoo! Mail with you! Get it on your mobile phone. 
-http://mobile.yahoo.com/maildemo 

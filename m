@@ -1,58 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264134AbTEOSAu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 May 2003 14:00:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264139AbTEOSAu
+	id S264138AbTEOR6z (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 May 2003 13:58:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264139AbTEOR6z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 May 2003 14:00:50 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:24841 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S264134AbTEOSAt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 May 2003 14:00:49 -0400
-Date: Thu, 15 May 2003 19:13:36 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Matt Porter <mporter@kernel.crashing.org>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Patrick Mochel <mochel@osdl.org>
-Subject: Re: [PATCH] IRQ and resource for platform_device
-Message-ID: <20030515191336.E31491@flint.arm.linux.org.uk>
-Mail-Followup-To: Matt Porter <mporter@kernel.crashing.org>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>,
-	Patrick Mochel <mochel@osdl.org>
-References: <20030515145920.B31491@flint.arm.linux.org.uk> <20030515090350.A7685@home.com> <20030515173052.C31491@flint.arm.linux.org.uk> <20030515103513.B7685@home.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030515103513.B7685@home.com>; from mporter@kernel.crashing.org on Thu, May 15, 2003 at 10:35:13AM -0700
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+	Thu, 15 May 2003 13:58:55 -0400
+Received: from ida.rowland.org ([192.131.102.52]:31492 "HELO ida.rowland.org")
+	by vger.kernel.org with SMTP id S264138AbTEOR6y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 May 2003 13:58:54 -0400
+Date: Thu, 15 May 2003 14:11:44 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@ida.rowland.org
+To: Paul Fulghum <paulkf@microgate.com>
+cc: Greg KH <greg@kroah.com>, Andrew Morton <akpm@digeo.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       Arnd Bergmann <arnd@arndb.de>, <johannes@erdfelt.com>,
+       USB development list <linux-usb-devel@lists.sourceforge.net>
+Subject: Re: Test Patch: 2.5.69 Interrupt Latency
+In-Reply-To: <1053012368.2026.6.camel@diemos>
+Message-ID: <Pine.LNX.4.44L0.0305151355290.1139-100000@ida.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 15, 2003 at 10:35:13AM -0700, Matt Porter wrote:
-> On Thu, May 15, 2003 at 05:30:52PM +0100, Russell King wrote:
-> > Is there a sane limit on the number of interrupts and resources for one
-> > device?
+On 15 May 2003, Paul Fulghum wrote:
+
+> I think I found the key to this whole problem:
 > 
-> As of today, I know of a device that has 5 interrupts and another
-> with 2 interrupts.  I believe two resources is the most I've seen
-> so far on a "dumb" on-chip device.
+> Note:I mistakenly referred to the chipset as PIIX3
+> in previous messages, in fact it is the PIIX4 (BX)
 > 
-> I think having an array of irqs and resources of max count 8 should
-> do it for now.
+> The PIIX4 errata states that false resume indications
+> can be generated if CLK48 is active during an
+> overcondition indication (OC[1..0]).
 > 
-> No matter what we choose, the hardware designers will screw it up
-> eventually.
+> Sure enough, the USBPORTSC[12] registers constantly
+> report a status of 0C80 which shows that both
+> ports are showing overcurrent condition (which
+> disables the associated port).
+> 
+> My guess is that HP deliberately tied the OC[1..0]
+> inputs active to force the ports to a disabled state.
+> 
+> So checking for the case of both ports constantly
+> in OC condition and disabled may be a reasonable
+> way to either disable the controller altogether or 
+> at least not do the wakeup/suspend shuffle.
+> 
+> Any comments?
 
-Hmm, how would people feel if I suggested just:
+That sounds like a believable explanation.  My copy of the generic UHCI
+specification does not include the OC port status bits.  I'm guessing from
+your mail they are either bit 10 or bit 11 of the PORTSC registers, can't
+tell which.  Maybe they are an Intel-specific addition?  Or perhaps a more 
+recent version of the spec has more information -- the one I've got is 1.1 
+(March 1996).
 
-	int num_resources;
-	struct resource	*resources;
+Can you suggest a good way of detecting whether or not a controller is
+part of a PIIX4 chipset, to indicate whether or not the OC bits are valid?  
+Maybe the PCI vendor and product codes will have that information?  I'm
+not sure it's safe to assume that any old host controller will have
+meaningful values there; the spec just says "reserved" and doesn't
+stipulate that they will always read as 0's.
 
-We have an IORESOURCE_IRQ, which can be used to indicate IRQ
-resources.
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Alan Stern
 

@@ -1,68 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271701AbTG2PBR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 11:01:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271813AbTG2PBR
+	id S271749AbTG2PCf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 11:02:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271755AbTG2PCf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 11:01:17 -0400
-Received: from dsl-200-55-80-165.prima.net.ar ([200.55.80.165]:20100 "EHLO
-	runner.matiu.com.ar") by vger.kernel.org with ESMTP id S271701AbTG2PBP convert rfc822-to-8bit
+	Tue, 29 Jul 2003 11:02:35 -0400
+Received: from mail.convergence.de ([212.84.236.4]:18669 "EHLO
+	mail.convergence.de") by vger.kernel.org with ESMTP id S271749AbTG2PCd
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 11:01:15 -0400
-Subject: Dell Keyboard patch
-From: Matias Alejo Garcia <linux@matiu.com.ar>
-To: vojtech@suse.cz
-Cc: Kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
-Organization: 
-Message-Id: <1059493920.1111.92.camel@runner>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 29 Jul 2003 11:52:01 -0400
+	Tue, 29 Jul 2003 11:02:33 -0400
+Message-ID: <3F268C84.6060004@convergence.de>
+Date: Tue, 29 Jul 2003 17:02:28 +0200
+From: Michael Hunold <hunold@convergence.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.4) Gecko/20030715
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: ranty@debian.org
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] request_firmware() private workqueue
+References: <3F1BD157.4090509@convergence.de> <20030726101818.GA25104@ranty.pantax.net> <20030726155952.GA23335@ranty.pantax.net>
+In-Reply-To: <20030726155952.GA23335@ranty.pantax.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hello Manuel,
 
-This is a trival patch por Dell Inpiron Notebooks, in order to have the
-play and rew keys mapped to KEY_PLAYPAUSE and KEY_PREVIOUSSONG, and the
-stop key mapped to KEY_STOPCD (instead of KEY_PLAYPAUSE).
+I've applied your patches
+- request_firmware_own-workqueue.diff
+- sysfs-bin-unbreak.diff
 
-In detail:
+and it's working very well for the av7110 DVB driver.
 
-               keycode         keycode
-scancode       before          after this patch
------------------------------------------
-287            0               KEY_PREVIOUSSONG	
-309            KEY_PLAYPAUSE   KEY_STOPCD
-375            0               KEY_PLAYPAUSE
+I hope that these patches are applied to the mainline kernel soon, so 
+the other DVB drivers which need binary firmware blobs (namely 
+dvb-ttusb-dec, dvb-ttusb-budget and one frontend driver) can be ported.
 
-It may help somebody.
+This will get rid of the av7110 firmware in the kernel and the ugly 
+config hacks to get the other drivers working.
 
-matías
-
-
---- linux-2.6.0-test2/drivers/input/keyboard/atkbd.c	2003-07-29
-11:22:50.000000000 -0400
-+++ linux-2.6.0-test1-mg/drivers/input/keyboard/atkbd.c	2003-07-29
-11:28:13.000000000 -0400
-@@ -55,13 +55,13 @@
- 	252,253,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
- 	254,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,255,
- 	  0,  0, 92, 90, 85,  0,137,  0,  0,  0,  0, 91, 89,144,115,  0,
--	217,100,255,  0, 97,165,164,  0,156,  0,  0,140,115,  0,  0,125,
-+	217,100,255,  0, 97,165,166,  0,156,  0,  0,140,115,  0,165,125,
- 	173,114,  0,113,152,163,151,126,128,166,  0,140,  0,147,  0,127,
--	159,167,115,160,164,  0,  0,116,158,  0,150,166,  0,  0,  0,142,
-+	159,167,115,160,166,  0,  0,116,158,  0,150,166,  0,  0,  0,142,
- 	157,  0,114,166,168,  0,  0,  0,155,  0, 98,113,  0,163,  0,138,
- 	226,  0,  0,  0,  0,  0,153,140,  0,255, 96,  0,  0,  0,143,  0,
- 	133,  0,116,  0,143,  0,174,133,  0,107,  0,105,102,  0,  0,112,
--	110,111,108,112,106,103,  0,119,  0,118,109,  0, 99,104,119
-+	110,111,108,112,106,103,164,119,  0,118,109,  0, 99,104,119
- };
- 
- static unsigned char atkbd_set3_keycode[512] = {
-
+CU
+Michael.
 

@@ -1,72 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285499AbRLNVBW>; Fri, 14 Dec 2001 16:01:22 -0500
+	id <S283672AbRLNVY2>; Fri, 14 Dec 2001 16:24:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285501AbRLNVBN>; Fri, 14 Dec 2001 16:01:13 -0500
-Received: from mail.libertysurf.net ([213.36.80.91]:23594 "EHLO
-	mail.libertysurf.net") by vger.kernel.org with ESMTP
-	id <S285499AbRLNVBA> convert rfc822-to-8bit; Fri, 14 Dec 2001 16:01:00 -0500
-Date: Fri, 14 Dec 2001 19:05:58 +0100 (CET)
-From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
-X-X-Sender: <groudier@gerard>
-To: Jens Axboe <axboe@suse.de>
-cc: Kirk Alexander <kirkalx@yahoo.co.nz>, <linux-kernel@vger.kernel.org>
-Subject: Re: your mail
-In-Reply-To: <20011214200948.GT1180@suse.de>
-Message-ID: <20011214183721.H1878-100000@gerard>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S283724AbRLNVYR>; Fri, 14 Dec 2001 16:24:17 -0500
+Received: from suntan.tandem.com ([192.216.221.8]:25832 "EHLO
+	suntan.tandem.com") by vger.kernel.org with ESMTP
+	id <S283672AbRLNVYJ>; Fri, 14 Dec 2001 16:24:09 -0500
+From: dzafman@kahuna.cag.cpqcorp.net
+Message-Id: <200112142109.fBEL90123231@kahuna.cag.cpqcorp.net>
+To: trond.myklebust@fys.uio.no
+Cc: linux-kernel@vger.kernel.org
+Date: Fri, 14 Dec 2001 12:45 PST
+Subject: re: NFS client llseek
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Trond Myklebust wrote:
 
-On Fri, 14 Dec 2001, Jens Axboe wrote:
-
-> On Fri, Dec 14 2001, Gérard Roudier wrote:
-> > > I fixed the problem by seeing what the sym
-> > > driver did i.e. the patch below
-> > > This may not be right at all, and I haven't had a
-> > > chance to boot the kernel - but it did build OK.
-> >
-> > The ncr53c8xx and sym53c8xx version 1 use the obsolete scsi eh handling.
-> > Moving the eh code from sym53c8xx_2 (version 2) to ncr53c8xx/sym53c8xx is
-> > quite feasible, but may-be it is just useless given sym53c8xx_2. For now,
-> > it seems that sym53c8xx_2 replaces both ncr/sym53c8xx without any loss of
-> > reliability and performance.
+>    Just one comment: Isn't it easier to do this in generic_file_llseek()
+>    itself using inode->i_op->revalidate()? That would make it work for
+>    coda and smbfs too...
 >
-> Gerard,
->
-> For 2.5, why don't we just yank old sym and ncr out of the kernel? Is
-> there _any_ reason to keep the two older ones given your new driver
-> handles it all?
+>    Cheers,
+>       Trond
 
-On my side, there is obviously no reason to keep them in 2.5, as sym-2 is
-intended to replace them both. Personnaly I have switched to sym-2 on my
-systems since several months.
+Yes, you are right.  I've attached a patch which does the revalidate in
+both default_llseek() and generic_file_llseek().  Also, it only happens
+if i_size is going to be used.  This makes NFS client, smbfs, opengfs, and coda
+work right, among others.  I copied do_revalidate() from fs/stat.c.  It would be
+nice if it was in a header file instead.
 
-However, I donnot consider myself as the only owner of these drivers. The
-owners are all people that may need symbios chips support under Linux. My
-personnal vote, as a user/owner, is to remove them and rely for symbios
-chip support on sym-2.
+By the way, we are looking at the challenges of integrating a fully coherent
+distributed/cluster filesystem into the Linux filesystem architecture.
 
---
-
-Linux stable is a different issue. For this one, I would prefer the old
-drivers to remain in place for a longer time. However, I personnaly will
-not track bugs on old drivers if either,
-
-- The problem also shows up in sym-2. Then I will try to fix sym-2,
-- Or the problem simply doesn't occur in sym-2.
-
-This will apply to problems reported directly by users or by packagers.
-
-By the way, for now, I haven't received any report about sym-2 failing
-when sym-1 or ncr succeeds, and my feeling is that this could well be very
-unlikely.
-
-But I can make mistakes, me too. :-)
-
-  Gérard.
-
+--- linux-2.4.16.orig/fs/read_write.c	Fri Dec 14 12:06:44 2001
++++ linux-2.4.16/fs/read_write.c	Fri Dec 14 12:54:02 2001
+@@ -20,6 +20,19 @@
+ 	mmap:		generic_file_mmap,
+ };
+ 
++/*
++ * Revalidate the inode. This is required for proper NFS attribute caching.
++ * ARG! Copied from fs/stat.c   (move to a header file)
++ */
++static __inline__ int
++do_revalidate(struct dentry *dentry)
++{
++	struct inode * inode = dentry->d_inode;
++	if (inode->i_op && inode->i_op->revalidate)
++		return inode->i_op->revalidate(dentry);
++	return 0;
++}
++
+ ssize_t generic_read_dir(struct file *filp, char *buf, size_t siz, loff_t *ppos)
+ {
+ 	return -EISDIR;
+@@ -31,6 +44,8 @@
+ 
+ 	switch (origin) {
+ 		case 2:
++			if ((retval = do_revalidate(file->f_dentry)) < 0)
++				return retval;
+ 			offset += file->f_dentry->d_inode->i_size;
+ 			break;
+ 		case 1:
+@@ -59,6 +74,8 @@
+ 
+ 	switch (origin) {
+ 		case 2:
++			if ((retval = do_revalidate(file->f_dentry)) < 0)
++				return retval;
+ 			offset += file->f_dentry->d_inode->i_size;
+ 			break;
+ 		case 1:

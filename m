@@ -1,42 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264254AbUESPk0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264247AbUESPno@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264254AbUESPk0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 May 2004 11:40:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264246AbUESPh2
+	id S264247AbUESPno (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 May 2004 11:43:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264256AbUESPkz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 May 2004 11:37:28 -0400
-Received: from sweetums.bluetronic.net ([24.199.150.42]:25338 "EHLO
-	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
-	id S264251AbUESPgL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 May 2004 11:36:11 -0400
-Date: Wed, 19 May 2004 11:31:15 -0400 (EDT)
-From: Ricky Beam <jfbeam@bluetronic.net>
-To: Tigran Aivazian <tigran@veritas.com>
-cc: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
-Subject: Re: overlaping printk
-In-Reply-To: <Pine.LNX.4.44.0405191624240.4081-100000@einstein.homenet>
-Message-ID: <Pine.GSO.4.33.0405191127050.14297-100000@sweetums.bluetronic.net>
+	Wed, 19 May 2004 11:40:55 -0400
+Received: from mail.tmr.com ([216.238.38.203]:12443 "EHLO gaimboi.tmr.com")
+	by vger.kernel.org with ESMTP id S264251AbUESPiX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 May 2004 11:38:23 -0400
+Message-ID: <40AB8147.5080404@tmr.com>
+Date: Wed, 19 May 2004 11:46:15 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jan De Luyck <lkml@kcore.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.6] eepro100 vs e100?
+References: <200405190858.44632.lkml@kcore.org>
+In-Reply-To: <200405190858.44632.lkml@kcore.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 19 May 2004, Tigran Aivazian wrote:
->It happens to me often (on SMP) too. Originally I thought that printk is
->broken but having looked at the code I see that it has sufficient locking
->in place to prevent this from happening (on printk side). However, the
->fact that it only happens on a serial console (especially at low baud
->rates like 9600)  points in the direction of the serial driver.
+Jan De Luyck wrote:
 
-(the port's @ 115.2k, btw)
+> I'm currently in the process of cleaning up my 2.6 kernel configuration on my 
+> trusty SMP HP Netserver LC3, which comes shipped with 2 identical intel Pro 
+> Ethernet 100 mbit cards:
 
-That doesn't make sense.  printk is putting things in it's ring buffer
-correctly, however the process that reads out of the buffer is reading
-from two different points and unpredictably pushing them out the serial
-port.
+While initially there did seem to be lockups with multiple e100 devices, 
+I haven't seen that in some versions. I have several servers which run 
+the NICs at 70-80 Mbit all the time and see no issues with the e100 at 
+this time.
 
-I'll go look at the code behind kseriod.
-
---Ricky
-
-
+-- 
+bill davidsen <davidsen@tmr.com>
+   CTO TMR Associates, Inc
+   Doing interesting things with small computers since 1979

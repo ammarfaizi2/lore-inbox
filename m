@@ -1,44 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263600AbUFKAU2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263609AbUFKAcv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263600AbUFKAU2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jun 2004 20:20:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263609AbUFKAU2
+	id S263609AbUFKAcv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jun 2004 20:32:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263614AbUFKAcv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jun 2004 20:20:28 -0400
-Received: from mail.tpgi.com.au ([203.12.160.61]:40937 "EHLO mail.tpgi.com.au")
-	by vger.kernel.org with ESMTP id S263600AbUFKAUY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jun 2004 20:20:24 -0400
-Message-ID: <40C8F7BA.1060700@linuxmail.org>
-Date: Fri, 11 Jun 2004 10:07:22 +1000
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040502)
+	Thu, 10 Jun 2004 20:32:51 -0400
+Received: from wsip-68-99-153-203.ri.ri.cox.net ([68.99.153.203]:27811 "EHLO
+	blue-labs.org") by vger.kernel.org with ESMTP id S263609AbUFKAct
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jun 2004 20:32:49 -0400
+Message-ID: <40C8FDB7.5050102@blue-labs.org>
+Date: Thu, 10 Jun 2004 20:32:55 -0400
+From: David Ford <david+challenge-response@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8a2) Gecko/20040609
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: alan <alan@clueserver.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Insults in the kernel-sources
-References: <Pine.LNX.4.44.0406101316480.16923-100000@www.fnordora.org>
-In-Reply-To: <Pine.LNX.4.44.0406101316480.16923-100000@www.fnordora.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TPG-Antivirus: Passed
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       linux-usb-devel@lists.sourceforge.net
+Subject: USB HID failure, 2.6.7-rc2
+Content-Type: multipart/mixed;
+ boundary="------------000905020506040807020404"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-alan wrote:
-> Turns out the Microsoft code has just as much profanity, if not more, than 
-> the Linux kernel source.  (Of course, they have more to swear about...)
+This is a multi-part message in MIME format.
+--------------000905020506040807020404
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-The amount of profanity in the Microsoft code is irrelevant, unless you want to base your ethics on 
-what people do. If you think it through, you'll see that's a very shaky foundation for determining 
-right and wrong.
+After some unknown event happens, I lose my USB mouse and dmesg starts 
+filling up with the following message:
 
-Regards,
+    drivers/usb/input/hid-core.c: control queue full
 
-Nigel
--- 
-Nigel & Michelle Cunningham
-C/- Westminster Presbyterian Church Belconnen
-61 Templeton Street, Cook, ACT 2614.
-+61 (417) 100 574 (mobile)
+I'm moving to -rc3 this evening - hoping this bug is gone then.  There 
+are no other messages prior to this other than the broken ALSA stuff, 
+but that happens since boot anyways.  The machine had been up for almost 
+24 hours (random instant lockups/reboots, sometimes an hour, sometimes 
+two days) before this happened.  I was away for the day so the machine 
+had been idle for almost 14 hours.  Unplugging and replugging this mouse 
+has zero effect, the action isn't even noticed by the computer.
+
+David
+
+
+--------------000905020506040807020404
+Content-Type: text/x-vcard; charset=utf-8;
+ name="david+challenge-response.vcf"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="david+challenge-response.vcf"
+
+begin:vcard
+fn:David Ford
+n:Ford;David
+email;internet:david@blue-labs.org
+title:Industrial Geek
+tel;home:Ask please
+tel;cell:(203) 650-3611
+x-mozilla-html:TRUE
+version:2.1
+end:vcard
+
+
+--------------000905020506040807020404--

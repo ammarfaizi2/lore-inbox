@@ -1,41 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271518AbTGQRW3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 13:22:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271519AbTGQRW3
+	id S271519AbTGQRXQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 13:23:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271523AbTGQRXQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 13:22:29 -0400
-Received: from pub234.cambridge.redhat.com ([213.86.99.234]:32007 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S271518AbTGQRW1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 13:22:27 -0400
-Date: Thu, 17 Jul 2003 18:37:20 +0100 (BST)
-From: James Simmons <jsimmons@infradead.org>
-To: Dave Jones <davej@codemonkey.org.uk>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <dank@reflexsecurity.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0-test1-ac1 Matrox Compile Error
-In-Reply-To: <20030717170708.GB4280@suse.de>
-Message-ID: <Pine.LNX.4.44.0307171834420.10255-100000@phoenix.infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 17 Jul 2003 13:23:16 -0400
+Received: from lightning.hereintown.net ([141.157.132.3]:40599 "EHLO
+	lightning.hereintown.net") by vger.kernel.org with ESMTP
+	id S271519AbTGQRXN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 13:23:13 -0400
+Subject: Re: 2.6.0-t1-ac2: unable to compile glibc 2.3.2
+From: Chris Meadors <twrchris@hereintown.net>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <1058436931.5778.2.camel@laptop.fenrus.com>
+References: <20030717114548.5f5d506d.martin.zwickel@technotrend.de>
+	 <1058436931.5778.2.camel@laptop.fenrus.com>
+Content-Type: text/plain
+Message-Id: <1058463273.30267.7.camel@clubneon.priv.hereintown.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 17 Jul 2003 13:34:33 -0400
+Content-Transfer-Encoding: 7bit
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *19dChj-0007YU-GG*4sCn8233ZNQ*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2003-07-17 at 06:15, Arjan van de Ven wrote:
 
->  > Strange that CONFIG_VT would get set to no. Another huge issue is that 
->  > people are configuring several framebuffer drivers to run the same piece 
->  > of hardware. 
-> 
-> A number of people seem to be seeing regressions with vesafb too.
-> Configs that worked with 2.4 give a blank screen, and lock up under 2.5
-> I believe vga=791 was one such option.
+> you're probably better off using not-the-kernel headers for building
+> glibc. eg on a RHL distro it's glibc-kernheaders package, other distros
+> have different package names for these files.
 
-They are forgetting to set CONFIG_FRAMEBUFFER_CONSOLE.
+In the past I would grab the headers of the kernel of which I compiled
+glibc against.  glibc has #ifdefs in it to turn on/off some features
+based on the kernel version.
 
-P.S
-   I have had VESA compiled without framebuffer console but with mdacon 
-instead. If they would log in a do a cat /dev/urandom > /dev/fb0 they 
-would see that the VESA fbdev driver is functional.
-  
+Are there plans get a sane set of kernel headers together that can be
+used by userspace (at least glibc) that properly describe the features
+of the current kernel, so the C library may take advantage of them?
+
+-- 
+Chris
 

@@ -1,71 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265815AbSKTGSy>; Wed, 20 Nov 2002 01:18:54 -0500
+	id <S265786AbSKTGO1>; Wed, 20 Nov 2002 01:14:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265816AbSKTGSy>; Wed, 20 Nov 2002 01:18:54 -0500
-Received: from mtl.slowbone.net ([213.237.73.175]:1408 "EHLO
-	leeloo.slowbone.net") by vger.kernel.org with ESMTP
-	id <S265815AbSKTGSx>; Wed, 20 Nov 2002 01:18:53 -0500
-Message-ID: <003e01c2905d$b413a5e0$0201a8c0@mtl>
-From: =?iso-8859-1?Q?Thorbj=F8rn_Lind?= <mtl@slowbone.net>
-To: <linux-kernel@vger.kernel.org>
-References: <15835.5488.59408.747895@wombat.chubb.wattle.id.au>
-Subject: Re: [patch] 2.5.48-bk, md raid0 fix
-Date: Wed, 20 Nov 2002 07:26:04 +0100
+	id <S265815AbSKTGO1>; Wed, 20 Nov 2002 01:14:27 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:6661 "EHLO
+	master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S265786AbSKTGOZ>; Wed, 20 Nov 2002 01:14:25 -0500
+Date: Tue, 19 Nov 2002 22:21:16 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Jeff Garzik <jgarzik@pobox.com>, Eben Moglen <moglen@columbia.edu>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: spinlocks, the GPL, and binary-only modules
+In-Reply-To: <3DDAB6AD.4050400@pobox.com>
+Message-ID: <Pine.LNX.4.10.10211192102490.1342-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Are you not using power-of-two sized chunks?  If not, use the
-Yes
 
-> You could try ... (untested)
-> - return (chunk_size - ((block & (chunk_size - 1)) + bio_sz)) << 10;
-> + return (chunk_size - (sector_div(block, chunk_size) + bio_sz)) << 10;
+Greeting Jeff and Eben,
 
-No good either.. not many using raid0 I guess :)
+Eben, if I understand you are presently or in the past the general council
+for FSF arguments and legal briefs, would you be kind enough to set a
+legal position of the nature of headers in any environment.  I would have
+#include RMS but his position is known, and may have violated a license.
 
-... here is what happenes with either of the above.
+Now the joke is over, but it has significant implications now.
 
-raid0_mergeable: chunk_size 32768 bi_sector 524288, bi_size 0, bv_len 4096, ret 28672
-raid0_mergeable: chunk_size 32768 bi_sector 100401152, bi_size 0, bv_len 4096, ret 28672
-raid0_mergeable: chunk_size 32768 bi_sector 96, bi_size 0, bv_len 4096, ret 12288
-raid0_mergeable: chunk_size 32768 bi_sector 4216, bi_size 0, bv_len 4096, ret 0
-kernel BUG at drivers/block/ll_rw_blk.c:1995!
-invalid operand: 0000
+Soon the question will be raised and either you or somebody else will be
+called to answer and justify the point.  So please send me a quote for the
+estimated cost of a legal brief on the specifics related to the content
+below.  If I can afford it, I will pay for it to begin the process of
+setting the legal guides of usage of binary only drivers which only use
+the headers of a given kernel.
 
-Should it really return 0 when we are actually ready to recieve that 4k request? That is.. should it
-return how much can be merged or how much it can take after the merge. The first seems to work.
-That would be something like:
+Given the context of embedded software based on GPL, VAR appliance
+builders, large|mid|small cap companies, individuals, etc... who are using
+and improving the quality of entire package because it benefits them to do
+so and it is the right thing to do.
 
---- a/drivers/md/raid0.c        2002-11-18 05:29:46.000000000 +0100
-+++ b/drivers/md/raid0.c        2002-11-20 07:19:15.000000000 +0100
-@@ -173,15 +173,10 @@
- static int raid0_mergeable_bvec(request_queue_t *q, struct bio *bio, struct bio_vec *biovec)
- {
-        mddev_t *mddev = q->queuedata;
--       sector_t block;
--       unsigned int chunk_size;
--       unsigned int bio_sz;
-+       unsigned int chunk_sects = mddev->chunk_size >> 9;
-+       unsigned int max_sectors = chunk_sects - (bio->bi_sector % chunk_sects);
+So the issue come down to the following:
 
--       chunk_size = mddev->chunk_size >> 10;
--       block = bio->bi_sector >> 1;
--       bio_sz = (bio->bi_size + biovec->bv_len) >> 10;
--
--       return (chunk_size - ((block & (chunk_size - 1)) + bio_sz)) << 10;
-+       return (max_sectors - (bio->bi_size >> 9)) << 9;
- }
+Will the few idealist in the world who dream the impossible, make it
+impossible to for the realist whom are trying to follow but have to make
+money to justify the goal.  There appears to be a push to kill the dream
+by forcing the folks who believe in the goals but now will have to justify
+their position and risk.  If the risk of litigation becomes to high, even
+for those who follow the rules and promote compliance to rules set forth
+in the past, people will adopt another environment.
 
- static int raid0_run (mddev_t *mddev)
+Now we are in quite a dangerous position presently, as the strength and
+maturity of the Linux Community of Contributors rises to the what everyone
+knew it could be, to have find out it is a house of cards build on sand 
+and not pilars of stone set on bedrock.
 
+I have already carpet bombed the mailing list in sheer anger.
+
+Now it is time to put the rubber on the road, and it costs money.
+So again I do not have an endless pile of money to do it alone, but I have
+to risk it all now including a potential for personal bankruptecy, if I
+stand a chance to help keep the dream alive.  Please provide me a quote
+for the brief and the estimated time to complete.
+
+
+Sincerely,
+
+Andre Hedrick
+LAD Storage Consulting Group
+
+I apologize if it is not clear, as I am trying to not mix words.
+
+On Tue, 19 Nov 2002, Jeff Garzik wrote:
+
+> blah.
+> 
+> So, since spinlocks and semaphores are (a) inline and #included into 
+> your code, and (b) required for just about sane interoperation with Linux...
+> 
+> does this mean that all binary-only modules that #include kernel code 
+> such as spinlocks are violating the GPL?  IOW just about every binary 
+> module out there, I would think...
+> 
+> I'm sure this would make extremeists happy, but I personally don't mind 
+> binary-only modules as long as the binary-only code [ignoring the 
+> #included kernel code] cannot be considered a derived work.
+> 
+> But who knows if #include'd code constitutes a derived work :(
+> 
+> 	Jeff
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
 

@@ -1,40 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279986AbRKIQ36>; Fri, 9 Nov 2001 11:29:58 -0500
+	id <S279981AbRKIQot>; Fri, 9 Nov 2001 11:44:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279987AbRKIQ3t>; Fri, 9 Nov 2001 11:29:49 -0500
-Received: from mta02-svc.ntlworld.com ([62.253.162.42]:41610 "EHLO
-	mta02-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id <S279986AbRKIQ3o>; Fri, 9 Nov 2001 11:29:44 -0500
-Date: Fri, 9 Nov 2001 16:29:34 +0000
-From: Anthony Campbell <a.campbell@doctors.org.uk>
-To: linux-kernel@vger.kernel.org
-Subject: Total lockup with 2.4.14
-Message-ID: <20011109162934.A515@debian.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.23i
+	id <S279983AbRKIQoj>; Fri, 9 Nov 2001 11:44:39 -0500
+Received: from sweetums.bluetronic.net ([66.57.88.6]:3505 "EHLO
+	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
+	id <S279981AbRKIQob>; Fri, 9 Nov 2001 11:44:31 -0500
+Date: Fri, 9 Nov 2001 11:44:28 -0500 (EST)
+From: Ricky Beam <jfbeam@bluetopia.net>
+X-X-Sender: <jfbeam@sweetums.bluetronic.net>
+To: Remco Post <r.post@sara.nl>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Yet another design for /proc. Or actually /kernel. 
+In-Reply-To: <200111081000.LAA00436@zhadum.sara.nl>
+Message-ID: <Pine.GSO.4.33.0111091139580.17287-100000@sweetums.bluetronic.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've had 3 total lockups with kernel 2.4.12 and now one with 2.4.14.
+>the discussion is irrelevant. Despite what everybody thinks, Linus thinks
+>/proc must be not binary, so it will stay that way for those of us who run
+>Linus kernels...
 
-I was online at the time, using Acroread on this occasion. No key would
-work, nor would the mouse.
+Linus has been "wrong" before.  It will require good code and numbers
+backing that codes "goodness" before Linus will begin to listen.  Yes,
+a new procfs format will break a great deal of userland toys, so the
+changes had better be worth it and sufficient to never, EVER require
+a complete overhaul in the future.
 
-This doesn't seem to happen with the Alan Cox patches, so perhaps it is
-something to do with VM.
+>I can inmagine people like Alan ignoring this discussion after such a
+>statement, the outcome of the discussion is irrelevant for the kernel
+>development.
 
+I think Alan is already ignoring the entire discussion.
 
--- 
-Anthony Campbell - running Linux GNU/Debian (Windows-free zone)
-For an electronic book (The Assassins of Alamut), skeptical 
-essays, and over 140 book reviews, go to: http://www.acampbell.org.uk/
-
-Our planet is a lonely speck in the great enveloping cosmic dark. In our
-obscurity, in all this vastness, there is no hint that help will come
-from elsewhere to save us from ourselves. [Carl Sagan]
-
+--Ricky
 
 

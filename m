@@ -1,36 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262136AbSJNT7l>; Mon, 14 Oct 2002 15:59:41 -0400
+	id <S262150AbSJNT7p>; Mon, 14 Oct 2002 15:59:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262150AbSJNT7k>; Mon, 14 Oct 2002 15:59:40 -0400
-Received: from numenor.qualcomm.com ([129.46.51.58]:21639 "EHLO
-	numenor.qualcomm.com") by vger.kernel.org with ESMTP
-	id <S262136AbSJNT7j>; Mon, 14 Oct 2002 15:59:39 -0400
-Message-Id: <5.1.0.14.2.20021014125856.08435570@mail1.qualcomm.com>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Mon, 14 Oct 2002 13:05:26 -0700
-To: Jeff Garzik <jgarzik@pobox.com>
-From: "Maksim (Max) Krasnyanskiy" <maxk@qualcomm.com>
-Subject: Re: [RFC] Rename _bh to _softirq
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3DAB1738.2030706@pobox.com>
-References: <5.1.0.14.2.20021014115238.084140f8@mail1.qualcomm.com>
+	id <S262154AbSJNT7p>; Mon, 14 Oct 2002 15:59:45 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:61340 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S262151AbSJNT7l>;
+	Mon, 14 Oct 2002 15:59:41 -0400
+Date: Mon, 14 Oct 2002 12:58:29 -0700 (PDT)
+Message-Id: <20021014.125829.01014301.davem@redhat.com>
+To: perex@perex.cz
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: ALSA update
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.33.0210142139080.7202-100000@pnote.perex-int.cz>
+References: <Pine.LNX.4.33.0210142139080.7202-100000@pnote.perex-int.cz>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 03:12 PM 10/14/2002 -0400, Jeff Garzik wrote:
->Maksim (Max) Krasnyanskiy wrote:
->>Hi Folks,
->>Old BHs have been almost completely replaced with tasklets and softirqs.
->
->In 2.5?  They have been replaced by work queues...
->though in some cases manual conversion to tasklets is more appropriate.
-Task queues were replaced with work queues. I'm taking about things like 
-NET_BH, TIMER_BH, etc.
-In general what's been called "bottom half" is now referred to as "softirq".
 
-Max
+This breaks the build on sparc64:
 
-
+sound/core/ioctl32/ioctl32.h:95: parse error before `if'
+sound/core/ioctl32/ioctl32.h:99: parse error before `sizeof'
+sound/core/ioctl32/ioctl32.h:99: `data32' undeclared here (not in a function)
+sound/core/ioctl32/ioctl32.h:99: warning: type defaults to `int' in declaration of `CVT_s\ndrv_type'
+sound/core/ioctl32/ioctl32.h:99: warning: function declaration isn't a prototype
+sound/core/ioctl32/ioctl32.h:99: warning: data definition has no type or storage class
+sound/core/ioctl32/ioctl32.h:99: parse error before `}'
+sound/core/ioctl32/ioctl32.h:99: warning: type defaults to `int' in declaration of `oldse\g'
+sound/core/ioctl32/ioctl32.h:99: incompatible types in initialization
+sound/core/ioctl32/ioctl32.h:99: initializer element is not constant
+sound/core/ioctl32/ioctl32.h:99: warning: data definition has no type or storage class
+sound/core/ioctl32/ioctl32.h:99: parse error before `do'
+sound/core/ioctl32/ioctl32.h:99: warning: type defaults to `int' in declaration of `err'
+sound/core/ioctl32/ioctl32.h:99: `file' undeclared here (not in a function)
+sound/core/ioctl32/ioctl32.h:99: `file' undeclared here (not in a function)
+sound/core/ioctl32/ioctl32.h:99: `file' undeclared here (not in a function)
+sound/core/ioctl32/ioctl32.h:99: `native_ctl' undeclared here (not in a function)
+sound/core/ioctl32/ioctl32.h:99: `data' undeclared here (not in a function)
+sound/core/ioctl32/ioctl32.h:99: warning: data definition has no type or storage class
+sound/core/ioctl32/ioctl32.h:99: parse error before `if'
+sound/core/ioctl32/ioctl32.h:99: warning: type defaults to `int' in declaration of `err'
+sound/core/ioctl32/ioctl32.h:99: redefinition of `err'
+sound/core/ioctl32/ioctl32.h:99: `err' previously defined here
+sound/core/ioctl32/ioctl32.h:99: warning: data definition has no type or storage class
+sound/core/ioctl32/ioctl32.h:99: parse error before `if'
+sound/core/ioctl32/ioctl32.h:99: `data32' undeclared here (not in a function)
+sound/core/ioctl32/ioctl32.h:99: warning: type defaults to `int' in declaration of `CVT_s\ndrv_type'
+sound/core/ioctl32/ioctl32.h:99: warning: function declaration isn't a prototype
+sound/core/ioctl32/ioctl32.h:99: warning: data definition has no type or storage class
+sound/core/ioctl32/ioctl32.h:99: parse error before `}'
+sound/core/ioctl32/ioctl32.h:136: warning: This file contains more `}'s than `{'s.
+sound/core/ioctl32/ioctl32.c: In function `_snd_ioctl32_ctl_elem_value':
+sound/core/ioctl32/ioctl32.c:275: warning: implicit declaration of function `kmalloc_Rsmp\_6f6c1cf7'
+sound/core/ioctl32/ioctl32.c:275: `GFP_KERNEL' undeclared (first use in this function)
+sound/core/ioctl32/ioctl32.c:275: (Each undeclared identifier is reported only once
+sound/core/ioctl32/ioctl32.c:275: for each function it appears in.)
+sound/core/ioctl32/ioctl32.c:275: warning: assignment makes pointer from integer without \a cast
+sound/core/ioctl32/ioctl32.c:276: warning: assignment makes pointer from integer without \a cast
+sound/core/ioctl32/ioctl32.c:290: request for member `value' in something not a structure\ or union
+sound/core/ioctl32/ioctl32.c:296: request for member `indirect' in something not a struct\ure or union
+sound/core/ioctl32/ioctl32.c:331: request for member `indirect' in something not a struct\ure or union
+sound/core/ioctl32/ioctl32.c:362: warning: implicit declaration of function `kfree_Rsmp_0\37a0cba'

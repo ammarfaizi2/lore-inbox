@@ -1,65 +1,122 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280676AbRKSUEs>; Mon, 19 Nov 2001 15:04:48 -0500
+	id <S280669AbRKSUDS>; Mon, 19 Nov 2001 15:03:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280678AbRKSUEi>; Mon, 19 Nov 2001 15:04:38 -0500
-Received: from mirza.iland.net ([204.87.167.69]:53133 "HELO paco2.iland.net")
-	by vger.kernel.org with SMTP id <S280676AbRKSUE0>;
-	Mon, 19 Nov 2001 15:04:26 -0500
-Date: 19 Nov 2001 14:04:25 -0600
-Date: Mon, 19 Nov 2001 14:04:25 -0600
-From: Chris Kennedy <ckennedy-kernel@iland.net>
-To: Miguel Maria Godinho de Matos <Astinus@netcabo.pt>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Hp 8xxx Cd writer
-Message-ID: <20011119140425.A9262@iland.net>
-In-Reply-To: <EXCH01SMTP01CJiLyNf000018e2@smtp.netcabo.pt>
+	id <S280676AbRKSUDJ>; Mon, 19 Nov 2001 15:03:09 -0500
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:53239 "EHLO
+	lynx.adilger.int") by vger.kernel.org with ESMTP id <S280669AbRKSUDA>;
+	Mon, 19 Nov 2001 15:03:00 -0500
+Date: Mon, 19 Nov 2001 13:02:23 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: DD-ing from device to device.
+Message-ID: <20011119130223.K1308@lynx.no>
+Mail-Followup-To: Rogier Wolff <R.E.Wolff@BitWizard.nl>,
+	Linux kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20011119101340.I1308@lynx.no> <200111191728.SAA05962@cave.bitwizard.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <EXCH01SMTP01CJiLyNf000018e2@smtp.netcabo.pt>; from Astinus@netcabo.pt on Mon, Nov 19, 2001 at 02:00:34PM +0000
-X-Chris-Kennedy: Use Linux and prosper :)
-X-URL: http://www.groovy.org/
-X-Disclaimer: My opinions do not necessarily represent the opinions of my employer
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <200111191728.SAA05962@cave.bitwizard.nl>; from R.E.Wolff@BitWizard.nl on Mon, Nov 19, 2001 at 06:28:55PM +0100
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It needs to have the SCSI emulation enabled, and then the SCSI 
-generic device (sg) and also the SCSI/USB mass storage support
-plus scsi CDROM support.  It treats it as scsi cdrom basically,
-which is why all the scsi stuff is needed.
+On Nov 19, 2001  18:28 +0100, Rogier Wolff wrote:
+> > There is another report saying 2.4.14
+> > also "Creating partitions under 2.4.14", and I have read several more
+> > recently but am unsure of the exact kernel version.  What fs are you
+> > using, just in case it matters?
+> 
+> ext2. 
 
-Chris Kennedy
-On Mon, Nov 19, 2001 at 02:00:34PM +0000, Miguel Maria Godinho de Matos wrote:
-> Hi, I am crrently runnig linux red hat 7.2 with a 2.4.7 kernel ( i havent 
-> upgraded cause i am a newbie and haven't had he guts to do so ).
-> 
-> However i am trying to configure the kernel 2.4.14 which i actually have even 
-> acomplished to compile.
-> 
-> I have a doubt though! I have an externel cd-writer ( hp 8200 ) which is 
-> supported by the kernel, but in the make xconfig menu, that options appears 
-> in gray ( u can't select it ). As a lot of kernel options need some kind of 
-> pre-selected items, i am asking anyone who  knows what do i have to 
-> pre-select so i can choose the module for hp..... support in my usb kernel 
-> configuration menu.
-> 
-> If i didn't provide enough information plz tell me so!
-> 
-> Crying for help: 
-> 
-> Astinus.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Well, I just tried this on ext2 instead of ext3 (on my 2.4.13 system)
+and it worked fine as a logged-in non-root user (creates a 16GB sparse file):
 
--- 
-Chris Kennedy / ckennedy@iland.net / (660) 829-4638x117
-I-Land Internet Services / Network Operations Center
-     \|/ ____ \|/
-     "@'/ .. \`@"   
-     /_| \__/ |_\
-        \__U_/ -Linux SPARC Kernel Oops
+dd if=/dev/zero of=tt bs=1k count=1 seek=16M
+
+> > I know for sure that 2.4.13+ext3 is working mostly OK, as I have been
+> > playing with multi-TB file sizes (sparse of course) although there is
+> > a minor bug in the case where you hit the fs size maximum.  I'm glad
+> > my patch isn't in yet, or I would be getting flak over this I'm sure.
+> 
+> > The only problem is that I can't see anything in the 2.4.14 patch which
+> > would cause this problem.  All the previous reports had to do with
+> > ulimit, caused by su'ing to root instead of logging into root, but I'm
+> > not sure exactly where the problem lies.
+> 
+> Gotcha!!!! 
+> 
+> The "wouldn't work" case was tested by me, logged in as wolff, su-ing
+> to root, and the "works just fine" cases were tested by a guy who logs
+> in to the machine on the console (as root).
+> 
+> 
+> Now, can someone tell me why "unlimited" is interpreted somehow as 2G
+> or something thereabouts? :
+> 
+>  /home/wolff> limit
+> cputime         unlimited
+> filesize        unlimited
+> datasize        unlimited
+> stacksize       unlimited
+> coredumpsize    unlimited
+> memoryuse       unlimited
+> descriptors     1024 
+> memorylocked    unlimited
+> maxproc         4095 
+> openfiles       1024 
+>  /home/wolff> su
+> Password: 
+>  /home/wolff# limit
+> cputime         unlimited
+> filesize        unlimited
+> datasize        unlimited
+> stacksize       unlimited
+> coredumpsize    unlimited
+> memoryuse       unlimited
+> descriptors     1024 
+> memorylocked    unlimited
+> maxproc         4095 
+> openfiles       1024 
+
+Well, because of 32-bit API issues "unlimited" actually IS the same as 2G
+for 32-bit systems, but the code internally checks if the limit is equal
+to RLIM_INFINITY (mm/filemap.c:generic_file_write()) and (should) ignore
+it if so.  Thus it is impossible to set a ulimit exactly 2GB, but that
+isn't really a problem.
+
+Hmm, looking at the user-space header <customs/customs.h>, it has
+RLIM_INFINITY as 0x7fffffff, the <bits/resource.h> has:
+
+#ifndef __USE_FILE_OFFSET64
+# define RLIM_INFINITY ((long int) (~0UL >> 1))
+#else
+# define RLIM_INFINITY 0x7fffffffffffffffLL
+#endif
+
+but the kernel code has RLIM_INFINITY as ~0UL for most arches.
+
+>  /home/wolff# cat /proc/version
+> Linux version 2.4.9 (wolff@machine) (gcc version 2.95.2 19991024 (release)) #3 SMP
+>  Mon Sep 10 09:17:17 BST 2001
+>  /home/wolff# 
+> 
+> (The machine was downgraded due to other problems. )
+
+Can you test the "dd" above to ensure it works with your tools and the old
+kernel?  For your next 2.4.14 kernel build, it may be instructive to put
+a printk() inside the 3 checks in generic_file_write() before it outputs
+SIGXFSZ, which tells us limit and RLIM_INIFINITY, pos and count, and pos
+and s_maxbytes are, respectively.  This will also tell us what limit is
+being hit (although it is most likely a ulimit issue).
+
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+

@@ -1,27 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136699AbREATdj>; Tue, 1 May 2001 15:33:39 -0400
+	id <S136701AbREATgJ>; Tue, 1 May 2001 15:36:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136701AbREATd3>; Tue, 1 May 2001 15:33:29 -0400
-Received: from anime.net ([63.172.78.150]:30218 "EHLO anime.net")
-	by vger.kernel.org with ESMTP id <S136699AbREATdU>;
-	Tue, 1 May 2001 15:33:20 -0400
-Date: Tue, 1 May 2001 12:33:10 -0700 (PDT)
-From: Dan Hollis <goemon@anime.net>
-To: Seth Goldberg <bergsoft@home.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: DISCOVERED! Cause of Athlon/VIA KX133 Instability
-In-Reply-To: <3AEF067F.C1535BAA@home.com>
-Message-ID: <Pine.LNX.4.30.0105011232400.29164-100000@anime.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S136703AbREATf7>; Tue, 1 May 2001 15:35:59 -0400
+Received: from www.linux.org.uk ([195.92.249.252]:14086 "EHLO www.linux.org.uk")
+	by vger.kernel.org with ESMTP id <S136701AbREATfs>;
+	Tue, 1 May 2001 15:35:48 -0400
+Date: Tue, 1 May 2001 20:35:14 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: "J . A . Magallon" <jamagallon@able.es>
+Cc: mirabilos <eccesys@topmail.de>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: bandwidth
+Message-ID: <20010501203514.A3541@flint.arm.linux.org.uk>
+Mail-Followup-To: Russell King <rmk@flint.arm.linux.org.uk>,
+	"J . A . Magallon" <jamagallon@able.es>,
+	mirabilos <eccesys@topmail.de>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <00da01c0d251$240894e0$de00a8c0@homeip.net> <20010501175312.A1057@werewolf.able.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010501175312.A1057@werewolf.able.es>; from jamagallon@able.es on Tue, May 01, 2001 at 05:53:12PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 1 May 2001, Seth Goldberg wrote:
->   I Should clarify that this is the KX133A chipset.
+On Tue, May 01, 2001 at 05:53:12PM +0200, J . A . Magallon wrote:
+> What you have todo is to learn how to configure your mailer to display
+> headers you want. elm and balsa can do it. Do not know about Outlook...
+> (btw, it is curious, mailing to lkml with outlook...)
 
-No such thing. Surely you mean KT133A. No X.
+Outlook express is different from outlook.  Outlook doesn't let you
+look at the mail headers.  Outlook express doesn't, but doesn't display
+them by default (iirc, you need to look at the message properties).
 
--Dan
+PS, you can't remove Received: headers at source - they are added by
+each hop on the mails journey across the Internet.
+
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

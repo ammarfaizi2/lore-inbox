@@ -1,83 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265043AbUFBHPJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265091AbUFBHRp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265043AbUFBHPJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 03:15:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265091AbUFBHPJ
+	id S265091AbUFBHRp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 03:17:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265093AbUFBHRp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 03:15:09 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:29359 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S265043AbUFBHPB (ORCPT
+	Wed, 2 Jun 2004 03:17:45 -0400
+Received: from fw.osdl.org ([65.172.181.6]:19388 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265091AbUFBHRh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 03:15:01 -0400
-Date: Wed, 2 Jun 2004 03:14:49 -0400
-To: Netdev <netdev@oss.sgi.com>
-Cc: hostap@shmoo.com, prism54-devel@prism54.org,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Jean Tourrilhes <jt@bougret.hpl.hp.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Prism54 WPA Support - wpa_supplicant - Linux general wpa support
-Message-ID: <20040602071449.GJ10723@ruslug.rutgers.edu>
-Mail-Followup-To: Netdev <netdev@oss.sgi.com>, hostap@shmoo.com,
-	prism54-devel@prism54.org, Jeff Garzik <jgarzik@pobox.com>,
-	Jean Tourrilhes <jt@bougret.hpl.hp.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
+	Wed, 2 Jun 2004 03:17:37 -0400
+Date: Wed, 2 Jun 2004 00:16:53 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: rusty@rustcorp.com.au, jeremy@redfishsoftware.com.au,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [PATCH] Fix signal race during process exit
+Message-Id: <20040602001653.738887b2.akpm@osdl.org>
+In-Reply-To: <20040602000812.541ee72a.akpm@osdl.org>
+References: <200406021213.58305.jeremy@redfishsoftware.com.au>
+	<20040601225703.6c697bed.akpm@osdl.org>
+	<1086158988.29381.277.camel@bach>
+	<20040602000812.541ee72a.akpm@osdl.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="NU0Ex4SbNnrxsi6C"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Operating-System: 2.4.18-1-686
-Organization: Rutgers University Student Linux Users Group
-From: mcgrof@studorgs.rutgers.edu (Luis R. Rodriguez)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton <akpm@osdl.org> wrote:
+>
+> yes?
 
---NU0Ex4SbNnrxsi6C
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+no.  It needs tasklist_lock as well, to keep the other CPU (which is doing
+wait4) at bay.
 
 
-So WPA is now a priority for prism54 development. Here's where we're at.=20
-Long ago in January Jouni had added some wpa supplicant support into=20
-prism54. It's not until today when I started looking into
-wpa_supplicant.
 
-I'm glad wpa_supplicant exists :). Interacting with it *is* our missing
-link to getting full WPA support (great job Jouni). In wpa_supplicant=20
-cvs I see a base code for driver_prism54.c (empty routines, just providing =
-skeleton).
-Well I'll be diving in it now and see where I can get. If anyone else is
-interested in helping with WPA support for prism54, working with
-wpa_supplicant is the way to go.
 
-I'm curious though -- wpa_supplicant is pretty much userspace. This was
-done with good intentions from what I read but before we get dirty=20
-with wpa_supplicant I'm wondering if we should just integrate a lot of=20
-wpa_supplicant into kernel space (specifically wireless tools).
-Regardless, as Jouni points out, there is still a framework for WPA that ne=
-eds
-to be written for all linux wireless drivers, whether it's to assist
-wpa_supplicant framework or to integrate wpa_supplicant into kernel space.
+Fix a race identified by Jeremy Kerr <jeremy@redfishsoftware.com.au>: if
+update_process_times() decides to deliver a signal due to process timer
+expiry, it can race with __exit_sighand()'s freeing of task->sighand.
 
-What's the plan?
+Fix that by clearing the per-process timer state in exit_notify(), while under
+local_irq_disable() and under tasklist_lock.  tasklist_lock provides exclusion
+wrt release_task()'s freeing of task->sighand and local_irq_disable() provides
+exclusion wrt update_process_times()'s inspection of the per-process timer
+state.
 
-	Luis
 
---=20
-GnuPG Key fingerprint =3D 113F B290 C6D2 0251 4D84  A34A 6ADD 4937 E20A 525E
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
 
---NU0Ex4SbNnrxsi6C
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+ 25-akpm/kernel/exit.c |    7 +++++++
+ 1 files changed, 7 insertions(+)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+diff -puN kernel/exit.c~really-fix-signal-race-during-process-exit kernel/exit.c
+--- 25/kernel/exit.c~really-fix-signal-race-during-process-exit	2004-06-02 00:09:01.491659584 -0700
++++ 25-akpm/kernel/exit.c	2004-06-02 00:15:31.230410288 -0700
+@@ -737,6 +737,13 @@ static void exit_notify(struct task_stru
+ 	tsk->flags |= PF_DEAD;
+ 
+ 	/*
++	 * Clear these here so that update_process_times() won't try to deliver
++	 * itimer signals to this task while it is in late exit.
++	 */
++	tsk->it_virt_incr = 0;
++	tsk->it_prof_value = 0;
++
++	/*
+ 	 * In the preemption case it must be impossible for the task
+ 	 * to get runnable again, so use "_raw_" unlock to keep
+ 	 * preempt_count elevated until we schedule().
+_
 
-iD8DBQFAvX5pat1JN+IKUl4RAryQAJ4tsfPhMRmq85oWK85LGz5PE0XK1ACfSpIO
-S4LRkAtZVTbKdKpKb3oZ0e4=
-=XKLg
------END PGP SIGNATURE-----
-
---NU0Ex4SbNnrxsi6C--

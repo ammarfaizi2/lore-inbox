@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129053AbRBGS5x>; Wed, 7 Feb 2001 13:57:53 -0500
+	id <S129443AbRBGS5X>; Wed, 7 Feb 2001 13:57:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130004AbRBGS5o>; Wed, 7 Feb 2001 13:57:44 -0500
-Received: from [194.73.73.176] ([194.73.73.176]:40619 "EHLO protactinium")
-	by vger.kernel.org with ESMTP id <S129053AbRBGS5d>;
-	Wed, 7 Feb 2001 13:57:33 -0500
-Date: Wed, 7 Feb 2001 18:33:01 +0000 (GMT)
+	id <S129053AbRBGS5N>; Wed, 7 Feb 2001 13:57:13 -0500
+Received: from [194.73.73.138] ([194.73.73.138]:41166 "EHLO ruthenium")
+	by vger.kernel.org with ESMTP id <S129443AbRBGS5G>;
+	Wed, 7 Feb 2001 13:57:06 -0500
+Date: Wed, 7 Feb 2001 18:24:57 +0000 (GMT)
 From: <davej@suse.de>
 X-X-Sender: <davej@athlon.local>
 To: Alan Cox <alan@redhat.com>
-Subject: [PATCH] nvram driver 2.88mb floppy fix.
-Message-ID: <Pine.LNX.4.31.0102071831450.16839-100000@athlon.local>
+Subject: [PATCH] ne2k calling pci_enable twice.
+Message-ID: <Pine.LNX.4.31.0102071822360.16790-100000@athlon.local>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -19,8 +19,8 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 Hi Alan,
- Seems that 2.88mb drives can be type 5 or type 6
-(I found a Thinkpad with a type 6)
+ This looks odd to me, we're enabling the device twice.
+Patch against ac4.
 
 regards,
 
@@ -30,19 +30,19 @@ Dave.
 | Dave Jones.        http://www.suse.de/~davej
 | SuSE Labs
 
-diff -urN --exclude-from=/home/davej/.exclude linux/drivers/char/nvram.c linux-dj/drivers/char/nvram.c
---- linux/drivers/char/nvram.c	Thu Jan  4 20:50:17 2001
-+++ linux-dj/drivers/char/nvram.c	Sun Feb  4 20:36:45 2001
-@@ -481,7 +481,8 @@
- #ifdef CONFIG_PROC_FS
+diff -urN --exclude-from=/home/davej/.exclude linux/drivers/net/ne2k-pci.c linux-dj/drivers/net/ne2k-pci.c
+--- linux/drivers/net/ne2k-pci.c	Wed Feb  7 12:42:40 2001
++++ linux-dj/drivers/net/ne2k-pci.c	Wed Feb  7 18:18:38 2001
+@@ -213,9 +213,6 @@
+ 		return -ENODEV;
+ 	}
 
- static char *floppy_types[] = {
--	"none", "5.25'' 360k", "5.25'' 1.2M", "3.5'' 720k", "3.5'' 1.44M", "3.5'' 2.88M"
-+	"none", "5.25'' 360k", "5.25'' 1.2M", "3.5'' 720k", "3.5'' 1.44M",
-+	"3.5'' 2.88M", "3.5'' 2.88M"
- };
+-	i = pci_enable_device (pdev);
+-	if (i)
+-		return i;
+ 	irq = pdev->irq;
 
- static char *gfx_types[] = {
+ 	if (request_region (ioaddr, NE_IO_EXTENT, "ne2k-pci") == NULL) {
 
 
 -

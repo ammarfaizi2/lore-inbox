@@ -1,69 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261806AbVAYE0I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261810AbVAYEbG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261806AbVAYE0I (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 23:26:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261807AbVAYE0I
+	id S261810AbVAYEbG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 23:31:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261812AbVAYEbG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 23:26:08 -0500
-Received: from wproxy.gmail.com ([64.233.184.206]:14400 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261806AbVAYEZ6 (ORCPT
+	Mon, 24 Jan 2005 23:31:06 -0500
+Received: from mail.kroah.org ([69.55.234.183]:54448 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261810AbVAYEbC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 23:25:58 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=j1xtPADGP5ueFptgwrAhpiQkW1GlCJ8JQXkU3luwZ3vc72DRyTx6AujBpAv2xp5UGtvwVvyZSLXNp6u0m2gkzRMxYPmaeaIpBEGjDnsD131CrUzsc+/U7ENDsBSFzW63QqJZ8Q28DgL4loANNOl5HVjr1VMAErl+G1ooXqNeZq8=
-Message-ID: <51a933b50501242025645ef27a@mail.gmail.com>
-Date: Tue, 25 Jan 2005 09:55:55 +0530
-From: Saravanan s <saravanan.mainker@gmail.com>
-Reply-To: Saravanan s <saravanan.mainker@gmail.com>
-To: Keith Owens <kaos@sgi.com>
-Subject: Re: Announce: kdb v4.4 is available for kernel 2.6.10
-Cc: kdb@oss.sgi.com, linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-In-Reply-To: <14122.1106580892@ocs3.ocs.com.au>
+	Mon, 24 Jan 2005 23:31:02 -0500
+Date: Mon, 24 Jan 2005 20:24:59 -0800
+From: Greg KH <greg@kroah.com>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Jon Smirl <jonsmirl@gmail.com>,
+       Matthew Wilcox <matthew@wil.cx>, Jesse Barnes <jbarnes@sgi.com>,
+       linux-pci@atrey.karlin.mff.cuni.cz, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Fwd: Patch to control VGA bus routing and active VGA device.
+Message-ID: <20050125042459.GA32697@kroah.com>
+References: <9e47339105011719436a9e5038@mail.gmail.com> <41ED3BD2.1090105@pobox.com> <9e473391050122083822a7f81c@mail.gmail.com> <200501240847.51208.jbarnes@sgi.com> <20050124175131.GM31455@parcelfarce.linux.theplanet.co.uk> <9e473391050124111767a9c6b7@mail.gmail.com> <41F54FC1.6080207@pobox.com> <20050124195523.B5541@flint.arm.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <50C05B7AA7D6924FB5E384EF14BC647BC451EE@inba1mx2.corp.emc.com>
-	 <14122.1106580892@ocs3.ocs.com.au>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050124195523.B5541@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Keith,
-
-> I have no hardware to test on, so I have
-> to rely on HP to keep the USB patches in KDB up to date. 
-
-Does that mean that there is USB support for KDBv4.4 for kernel 2.6 
-for i386 machines? Or the patch for i386 also comes from the HP guys.
-
-Regards
-Saravanan S
-
-On Tue, 25 Jan 2005 02:34:52 +1100, Keith Owens <kaos@sgi.com> wrote:
-> On Mon, 24 Jan 2005 15:21:08 -0000,
-> gowda_avinash@emc.com wrote:
-> >All:
-> >I tried to get Kdb working on SuSe 9 ia64 box (kernel version
-> >2.6.5-7.111.19). Turns out that the keyboard/machine goes into a hang state.
-> >I have a usb keyboard!
-> >
-> >Googling around I found that Keith had disabled the USB keyboard support
-> >some time back due to changes in some APIs (kernel version
-> >linux-2.6.5-SLES9_SP1_BRANCH).
-> >
-> >Is this something that could be a cause for my problem? Should I think about
-> >upgrading my kernel to 2.6.10 (hoping that the issue's been fixed in this
-> >version)?
+On Mon, Jan 24, 2005 at 07:55:23PM +0000, Russell King wrote:
+> On Mon, Jan 24, 2005 at 02:42:57PM -0500, Jeff Garzik wrote:
+> > Jon Smirl wrote:
+> > > Is this a justification for doing device drivers for bridge chips? It
+> > > has been mentioned before but no one has done it.
+> > 
+> > 
+> > Yeah, people are usually slack and work around the problem.
+> > 
+> > A bridge driver is really wanted for several situations in today's 
+> > hardware...
 > 
-> The USB keyboard support in KDB was written by HP, because their
-> systems have USB keyboards.  I have no hardware to test on, so I have
-> to rely on HP to keep the USB patches in KDB up to date.  That has not
-> happened recently.
+> There's a very good reason not to have a bridge driver at the moment -
+> some PCI to PCI bridges need special drivers.  Currently, as the device
+> model stands today, we can only have ONE PCI to PCI bridge driver for
+> all P2P bridges, which is bad news if you need a specific driver for,
+> eg, a mobility docking station P2P bridge.
 > 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+> As I said back in 2002, the device model needs a way to have driver
+> priories - how well a driver matches the hardware.
+> 
+> My idea was for the bus match function to return the "goodness"
+> factor of the match.  For PCI, matching on just the class IDs would
+> be low goodness, but an exact match with both the vendor and device
+> IDs would yeild a good match.
+
+This can be done today in the bus specific match functions.  And because
+of that, I would argue that this belongs in the bus specific code, and
+not in the driver core, as it's up to the bus to know what the different
+types of "matches" that can happen, and what the priority is.
+
+And yes, I agree that this needs to be done, I've been talking with a
+few other people who are interested in it.  I think the lock-rework code
+needs to be finished before it can happen properly, so that we can do
+the "unbind from one driver and give it to another one" type logic
+properly.
+
+thanks,
+
+greg k-h

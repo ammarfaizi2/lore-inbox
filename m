@@ -1,41 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132128AbQLNKmp>; Thu, 14 Dec 2000 05:42:45 -0500
+	id <S132261AbQLNKnf>; Thu, 14 Dec 2000 05:43:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132261AbQLNKm1>; Thu, 14 Dec 2000 05:42:27 -0500
-Received: from quechua.inka.de ([212.227.14.2]:13110 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S132128AbQLNKmM>;
-	Thu, 14 Dec 2000 05:42:12 -0500
-From: Martin Bahlinger <inka-user@mb.inka.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: test12 lockups -- need feedback
-Message-Id: <E146VMY-0000J1-00@sites.inka.de>
-Date: Thu, 14 Dec 2000 11:11:46 +0100
+	id <S132307AbQLNKnZ>; Thu, 14 Dec 2000 05:43:25 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:11536 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S132261AbQLNKnS>; Thu, 14 Dec 2000 05:43:18 -0500
+Subject: Re: Adaptec AIC7XXX v 6.0.6 BETA Released
+To: gibbs@scsiguy.com (Justin T. Gibbs)
+Date: Thu, 14 Dec 2000 10:14:51 +0000 (GMT)
+Cc: shirsch@adelphia.net (Steven N. Hirsch), linux-kernel@vger.kernel.org
+In-Reply-To: <200012140356.eBE3u8s42047@aslan.scsiguy.com> from "Justin T. Gibbs" at Dec 13, 2000 08:56:08 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E146VPa-00044k-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3A3804CA.E07FDBB1@haque.net> you wrote:
-> At first I thought it was just me when I reported the lockups I was
-> having with test12 earlier this week. Now the reports are flooding. Of
-> course, now my machine isn't locking up anymore after recompiling from a
-> clean source tree (test5 w/ patches through test12)
+> I'll update my patch tomorrow to restore the definition of current.
+> I do fear, however, that this will perpetuate the polution of the
+> namespace should "current" ever get cleaned up.
 
-> Now, I'm trying to determine what the common element is.
+It can probably get cleaned up after 2.4 by making current() the actual 
+inline. For 2.2 it won't change. Consider it a feature.
 
-> Those of you who are having lockups, was test12 compiled from a patched
-> tree that you've previously compiled?
+It was done originally because the 2.0 code using #define based current
+generated better code than using inline functions. 2.2 upwards use a different
+(far nicer) method to find current.
 
-I compiled from a clean source tree test7 with patches through test12.
-My machine gets locked up directly after starting the xfree-3.3.6 mach64
-server. I'm running Debian2.3 woody here on a P90 w/ 32MB Ram.
+Note also that you cannot rely on 'get_current()'. The only way to find 
+current is to use current. get_current() the inline is an x86ism.
 
-> Those that are locking up in X. Do you have a second machine you can
-> hook up via serial port to grab Oops output?
+Alan
 
-If it's still necessary, contact me via email.
 
--- 
-Martin.Bahlinger@rz.uni-karlsruhe.de   (PGP-ID: 0x0506D9B7)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

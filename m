@@ -1,68 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130010AbQLDEa3>; Sun, 3 Dec 2000 23:30:29 -0500
+	id <S129710AbQLDFwR>; Mon, 4 Dec 2000 00:52:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129710AbQLDEaT>; Sun, 3 Dec 2000 23:30:19 -0500
-Received: from lantana.tenet.res.in ([206.103.12.154]:56585 "EHLO
-	lantana.iitm.ernet.in") by vger.kernel.org with ESMTP
-	id <S129465AbQLDEaO>; Sun, 3 Dec 2000 23:30:14 -0500
-Date: Mon, 4 Dec 2000 09:32:58 +0530 (IST)
-From: K Ratheesh <rathee@lantana.tenet.res.in>
-To: linux-kernel@vger.kernel.org
-Subject: Linux for local languages - patch 
-Message-ID: <Pine.LNX.4.10.10012040923020.29288-100000@lantana.iitm.ernet.in>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129908AbQLDFwH>; Mon, 4 Dec 2000 00:52:07 -0500
+Received: from asbestos.linuxcare.com.au ([203.17.0.30]:8702 "HELO
+	halfway.linuxcare.com.au") by vger.kernel.org with SMTP
+	id <S129710AbQLDFv5>; Mon, 4 Dec 2000 00:51:57 -0500
+From: Rusty Russell <rusty@linuxcare.com.au>
+To: "Johan Kullstam" <kullstam@ne.mediaone.net>, Roger Crandell <rwc@lanl.gov>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: multiprocessor kernel problem 
+In-Reply-To: Your message of "03 Dec 2000 19:22:21 CDT."
+             <m2elzp3uiq.fsf@euler.axel.nom> 
+Date: Mon, 04 Dec 2000 16:21:13 +1100
+Message-Id: <20001204052123.CE84281F0@halfway.linuxcare.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+In message <m2elzp3uiq.fsf@euler.axel.nom> you write:
+> yes, but is it a dual machine or is it an N-way SMP with N > 2?  the
+> other guy with iptables/SMP problems also has a quad box.  could this
+> perhaps be a problem only when you have more than two processors?
 
-I am Ratheesh , student of Indian Institute of Technology Madras. 
+Yes, hacked my machine to think it had 4 cpus, and boom.
 
-I am working on enabling Linux console for Local languages. As the current
-PSF format doesn't support variable width fonts , I have made a patch in
-the console driver so that it will load a user defined multi-glyph mapping
-table so that multiple glyphs can be displayed for a single character
-code. All editing operations will also be taken care of.
+There are two problems:
+(1) initialization of multiple tables was wrong, and
+(2) iterating through tables should not use cpu_number_map (doesn't
+    matter on X86 though).
 
-Further, for Indian languages, there are various consonant/vowel modifiers
-which result in complex character clusters. So I have extended the patch
-to load user defined context sensitive parse rules for glyphs /
-character codes as well. Again, all editing operations will behave
-according to the parse rule specifications.
+Please try attached patch.
 
-Even though the patch has been developed keeping Indian languages in mind,
-I feel it will be applicable to many other languages (for eg. Chinese)
-which require wider fonts on console or user defined parsing at I/O level.
-
-Currently I have developed the patch for Kernel versions 2.2.14 and and am
-in the process of making it for 2.2.16 and 2.2.17. I request people to
-try out this patch and give comments and suggestions to me. 
-
-Those who want to try out this patch can send mail to me in the address
-rathee@lantana.iitm.ernet.in or to indlinux-iitm@lantana.iitm.ernet.in 
-
-The package , containing the patch , some documentation ,utilities and
-sample files will come around 100 KB. 
-
-
-Thanking you,
-
-Ratheesh
-
----
-Ratheesh K 
-Res: 242 Tapti, IIT Madras , Chennai-36, India  Tel:+91-44-4459089
-Lab: Distributed Systems& Optical Networks Lab,IIT Madras Tel:+91-44-4458353
-www.ratheeshkvadhyar.com    ratheesh@rediffmail.com
-
-
-
-
-
-
-
+Thanks,
+Rusty,
+--
+Hacking time.
+--- working-2.4.0-test11-5/net/ipv4/netfilter/ip_tables.c.~1~	Sat Aug 12 00:23:40 2000
++++ working-2.4.0-test11-5/net/ipv4/netfilter/ip_tables.c	Mon Dec  4 16:12:44 2000
+@@ -89,10 +89,8 @@
+ 	unsigned int hook_entry[NF_IP_NUMHOOKS];
+ 	unsigned int underflow[NF_IP_NUMHOOKS];
+ 
+-	char padding[SMP_ALIGN((NF_IP_NUMHOOKS*2+2)*sizeof(unsigned int))];
+-
+ 	/* ipt_entry tables: one per CPU */
+-	char entries[0];
++	char entries[0] __attribute__((aligned(SMP_CACHE_BYTES)));
+ };
+ 
+ static LIST_HEAD(ipt_target);
+@@ -101,7 +99,7 @@
+ #define ADD_COUNTER(c,b,p) do { (c).bcnt += (b); (c).pcnt += (p); } while(0)
+ 
+ #ifdef CONFIG_SMP
+-#define TABLE_OFFSET(t,p) (SMP_ALIGN((t)->size)*cpu_number_map(p))
++#define TABLE_OFFSET(t,p) (SMP_ALIGN((t)->size)*(p))
+ #else
+ #define TABLE_OFFSET(t,p) 0
+ #endif
+@@ -283,7 +281,8 @@
+ 	read_lock_bh(&table->lock);
+ 	IP_NF_ASSERT(table->valid_hooks & (1 << hook));
+ 	table_base = (void *)table->private->entries
+-		+ TABLE_OFFSET(table->private, smp_processor_id());
++		+ TABLE_OFFSET(table->private,
++			       cpu_number_map(smp_processor_id()));
+ 	e = get_entry(table_base, table->private->hook_entry[hook]);
+ 
+ #ifdef CONFIG_NETFILTER_DEBUG
+@@ -860,7 +859,7 @@
+ 
+ 	/* And one copy for every other CPU */
+ 	for (i = 1; i < smp_num_cpus; i++) {
+-		memcpy(newinfo->entries + SMP_ALIGN(newinfo->size*i),
++		memcpy(newinfo->entries + SMP_ALIGN(newinfo->size)*i,
+ 		       newinfo->entries,
+ 		       SMP_ALIGN(newinfo->size));
+ 	}
+@@ -1359,7 +1358,7 @@
+ 	int ret;
+ 	struct ipt_table_info *newinfo;
+ 	static struct ipt_table_info bootstrap
+-		= { 0, 0, { 0 }, { 0 }, { }, { } };
++		= { 0, 0, { 0 }, { 0 }, { } };
+ 
+ 	MOD_INC_USE_COUNT;
+ 	newinfo = vmalloc(sizeof(struct ipt_table_info)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

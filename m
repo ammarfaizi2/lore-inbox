@@ -1,35 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292984AbSB0Xdi>; Wed, 27 Feb 2002 18:33:38 -0500
+	id <S292583AbSB0XdB>; Wed, 27 Feb 2002 18:33:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293061AbSB0XdE>; Wed, 27 Feb 2002 18:33:04 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:61458 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S293059AbSB0Xc0>; Wed, 27 Feb 2002 18:32:26 -0500
-Subject: Re: disk transfer speed problem
-To: wolfy@pcnet.ro (lonely wolf)
-Date: Wed, 27 Feb 2002 23:46:42 +0000 (GMT)
-Cc: hahn@physics.mcmaster.ca (Mark Hahn), linux-kernel@vger.kernel.org
-In-Reply-To: <3C7D632C.46CE687@pcnet.ro> from "lonely wolf" at Feb 28, 2002 12:52:28 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S293057AbSB0Xb1>; Wed, 27 Feb 2002 18:31:27 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:43913 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S293055AbSB0XbE>;
+	Wed, 27 Feb 2002 18:31:04 -0500
+Date: Wed, 27 Feb 2002 15:32:23 -0800
+From: Hanna Linder <hannal@us.ibm.com>
+To: Alexander Viro <viro@math.psu.edu>, Andrew Morton <akpm@zip.com.au>
+cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+        Hanna Linder <hannal@us.ibm.com>, linux-kernel@vger.kernel.org,
+        lse-tech@lists.sourceforge.net
+Subject: Re: [Lse-tech] lockmeter results comparing 2.4.17, 2.5.3, and 2.5.5
+Message-ID: <31490000.1014852743@w-hlinder.des>
+In-Reply-To: <Pine.GSO.4.21.0202271645560.12074-100000@weyl.math.psu.edu>
+In-Reply-To: <Pine.GSO.4.21.0202271645560.12074-100000@weyl.math.psu.edu>
+X-Mailer: Mulberry/2.1.0 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16gDmU-0006PG-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > >  Timing buffered disk reads:  64 MB in  3.24 seconds = 19.75 MB/sec
-> >
-> > well, 109 MB/s is pretty low for buffer-cache reads; this reflects
-> > the relative crippled-ness of your cpu/dram/chipset.
+
+
+--On Wednesday, February 27, 2002 16:48:07 -0500 Alexander Viro <viro@math.psu.edu> wrote:
+
 > 
-> well... i would't name a Celeron 900 MHz crippled. PC133 is the best the
-> board gets... and now the speed is lower then the previous server which was
-> an Athlon 600 pluggede in an Asus VIA KX133 based mobo.
+> ed mm/vmscan.c <<EOF
+> /shrink_icache_memory/s/priority/1/
+> w
+> q
+> EOF
+> 
+> and repeat the tests.  Unreferenced inodes == useless inodes.  Aging is
+> already taken care of in dcache and anything that had fallen through
+> is fair game.
+> 
 
-I get 25MB/sec off my i815 board. It is pretty starved - I seem stuck at
-about 25MB/sec total even doing hdparm across both controllers.
+FYI:
 
-Using an external video card might make a small difference
+The patch does this:
+
+*** vmscan.c.orig	Wed Feb 27 14:09:49 2002
+--- vmscan.c	Wed Feb 27 14:10:16 2002
+***************
+*** 578,584 ****
+  		return 0;
+  
+  	shrink_dcache_memory(priority, gfp_mask);
+! 	shrink_icache_memory(priority, gfp_mask);
+  #ifdef CONFIG_QUOTA
+  	shrink_dqcache_memory(DEF_PRIORITY, gfp_mask);
+  #endif
+--- 578,584 ----
+  		return 0;
+  
+  	shrink_dcache_memory(priority, gfp_mask);
+! 	shrink_icache_memory(1, gfp_mask);
+  #ifdef CONFIG_QUOTA
+  	shrink_dqcache_memory(DEF_PRIORITY, gfp_mask);
+  #endif
+

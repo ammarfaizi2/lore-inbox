@@ -1,44 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261405AbSJQP4R>; Thu, 17 Oct 2002 11:56:17 -0400
+	id <S261449AbSJQQPk>; Thu, 17 Oct 2002 12:15:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261449AbSJQP4Q>; Thu, 17 Oct 2002 11:56:16 -0400
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:37286 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S261405AbSJQP4Q>; Thu, 17 Oct 2002 11:56:16 -0400
-Date: Thu, 17 Oct 2002 11:02:14 -0500 (CDT)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: torvalds@transmeta.com, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Module loader preparation
-In-Reply-To: <20021017034634.8D6462C0EB@lists.samba.org>
-Message-ID: <Pine.LNX.4.44.0210171057210.6301-100000@chaos.physics.uiowa.edu>
+	id <S261519AbSJQQPk>; Thu, 17 Oct 2002 12:15:40 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:42768 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261449AbSJQQPj>;
+	Thu, 17 Oct 2002 12:15:39 -0400
+Message-ID: <3DAEE378.5050106@pobox.com>
+Date: Thu, 17 Oct 2002 12:21:12 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Christoph Hellwig <hch@infradead.org>
+CC: torvalds@transmeta.com, linux-kernel@vger.kernel.org, crispin@wirex.com
+Subject: Re: [PATCH] make LSM register functions GPLonly exports
+References: <20021017153505.A27998@infradead.org> <20021017150740.GA31056@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 Oct 2002, Rusty Russell wrote:
+On Thu, Oct 17, 2002 at 03:35:05PM +0100, Christoph Hellwig wrote:
+>These exports have the power to change the implementations of all
+>syscalls and I've seen people exploiting this "feature".
 
-> This patch fixes a couple of places using the old "I can just call my
-> function init_module() and it will be called at module init" and a
-> couple of modules without module_init() declarations.
-> 
-> These uses are obsolete with the in-kernel module loader, because the
-> module_init() is where we put the module name in the ".modulename"
-> section (we could have a "no_init_func()" thing, but it's fairly rare
-> and hardly intuitive).
 
-Converting things to module_init() is certainly a good thing, but having 
-to provide fake init functions for modules which don't need them doesn't 
-look so nice.
+Ug.  If people are already jumping on this, that might be a good reason 
+to revert the entire LSM feature, if EXPORT_SYMBOL_GPL is not acceptable 
+to all copyright holders...
 
-Did you consider just generating the info you need unconditionally in 
-include/linux/module.h and then removing duplicates for multi-part modules 
-using ld's link-once (I didn't try that yet, but it seems doable and would 
-also remove duplicated .modinfo.kernel_version strings and the like)
+Sigh, I hate legal crap.
 
---Kai
+	Jeff
+
 
 

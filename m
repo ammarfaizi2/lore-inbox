@@ -1,31 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130067AbRAATnK>; Mon, 1 Jan 2001 14:43:10 -0500
+	id <S129764AbRAATpK>; Mon, 1 Jan 2001 14:45:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130231AbRAATnA>; Mon, 1 Jan 2001 14:43:00 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:31247 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130067AbRAATmu>; Mon, 1 Jan 2001 14:42:50 -0500
-Subject: Re: Chipsets, DVD-RAM, and timeouts....
-To: andre@linux-ide.org (Andre Hedrick)
-Date: Mon, 1 Jan 2001 19:13:28 +0000 (GMT)
-Cc: torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10101011055260.22396-100000@master.linux-ide.org> from "Andre Hedrick" at Jan 01, 2001 11:06:08 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S129975AbRAATpA>; Mon, 1 Jan 2001 14:45:00 -0500
+Received: from hermes.mixx.net ([212.84.196.2]:42766 "HELO hermes.mixx.net")
+	by vger.kernel.org with SMTP id <S129764AbRAATos>;
+	Mon, 1 Jan 2001 14:44:48 -0500
+Message-ID: <3A50D688.EAFBD9BF@innominate.de>
+Date: Mon, 01 Jan 2001 20:12:08 +0100
+From: Daniel Phillips <phillips@innominate.de>
+Organization: innominate
+X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0-test10 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Happy new year^H^H^H^Hkernel..
+In-Reply-To: <Pine.LNX.4.10.10012311205020.1210-100000@penguin.transmeta.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14DAOg-0001Ce-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > as it apparently makes CONFIG_IDEDMA_IVB a complete no-op?
-> 
-> Exactly what it is designed to do, Ignore Validity Bits, because the whole
-> damn messedup the rules between ATA-4 and ATA-6
+Linus Torvalds wrote: 
+> Ok. I didn't make 2.4.0 in 2000. Tough. I tried, but we had some
+> last-minute stuff that needed fixing (ie the dirty page lists etc), and
+> the best I can do is make a prerelease.
 
-I think the question is more - so why not lose the ifdef
+It's even better this way.  Now we kick off the new millenium with a new
+kernel. :-)
+
+--
+Daniel
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

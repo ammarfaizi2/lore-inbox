@@ -1,87 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264330AbTL0Gvx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Dec 2003 01:51:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265333AbTL0Gvx
+	id S265334AbTL0G4n (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Dec 2003 01:56:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265335AbTL0G4n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Dec 2003 01:51:53 -0500
-Received: from [64.65.177.98] ([64.65.177.98]:17397 "EHLO mail.pacrimopen.com")
-	by vger.kernel.org with ESMTP id S264330AbTL0Gvv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Dec 2003 01:51:51 -0500
-Subject: Re: 2.7 (future kernel) wish
-From: Joshua Schmidlkofer <kernel@pacrimopen.com>
-To: "David B. Stevens" <dsteven3@maine.rr.com>
-Cc: Helge Hafting <helgehaf@aitel.hist.no>, Jos Hulzink <josh@stack.nl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3FECCAF9.7070209@maine.rr.com>
-References: <200312232342.17532.josh@stack.nl>
-	 <20031226233855.GA476@hh.idb.hist.no>  <3FECCAF9.7070209@maine.rr.com>
-Content-Type: text/plain
-Message-Id: <1072507896.27022.226.camel@menion.home>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 26 Dec 2003 22:51:36 -0800
+	Sat, 27 Dec 2003 01:56:43 -0500
+Received: from simmts12.bellnexxia.net ([206.47.199.141]:24201 "EHLO
+	simmts12-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S265334AbTL0G4m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Dec 2003 01:56:42 -0500
+Message-ID: <3FED2D41.5020604@sympatico.ca>
+Date: Sat, 27 Dec 2003 06:57:05 +0000
+From: Tyler Hall <tyler_hall@sympatico.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030313
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: sysfs classes
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-12-26 at 15:57, David B. Stevens wrote:
-> While I agree that the kernel should provide decent error handling and 
-> reporting I still have to ask questions about what is reasonable.
-> 
-> What does that other OS do when you pull a USB stick out?  What do you 
-> think the kernel should do?  Why don't the applications operating on the 
-> data take better care of handling error conditions?
-> 
-> I don't have one here to try, but at some point the (ab)user needs to 
-> take a bit of the heat for his or her action(s) or lack thereof.
-> 
-> After all you could just reach in your case and rip out the IDE or SCSI 
-> cables.  Bet that leads to all kinds of stuff (tm).
-> 
-> Cheers,
->   Dave
-> 
-> 
-> Helge Hafting wrote:
-> 
-> >On Tue, Dec 23, 2003 at 11:42:17PM +0100, Jos Hulzink wrote:
-> >  
-> >
-> >>Hi,
-> >>
-> >>First of all... Compliments about 2.6.0. It is a superb kernel, with very few 
-> >>serious bugs, and for me it runs stable like a rock from the very first 
-> >>moment.
-> >>
-> >>As an end user, Linux doesn't give me a good feeling on one particular item 
-> >>yet: Error handling. 
-> >>
-> >>What do I mean ? Well... for example: Pull out your USB stick with a mounted 
-> >>fs on it. 
-> >>    
-> >>
-> >
-> >You aren't supposed to do that.  If you want to pull devices like that,
-> >with no warning, access them in other ways than mounting.  
-> >mtools are nice when you don't want to mount/umount floppies - a
-> >similiar approach should work for usb sticks too.
-> >
-> >
-> >
-> >Helge Hafting
-> >-
-> >To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> >the body of a message to majordomo@vger.kernel.org
-> >More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> >Please read the FAQ at  http://www.tux.org/lkml/
-> >
+Can someone please explain the philosophy of the /sys heirarchy? I've searched through the mailing list archives but find very little about it.
 
-Sometimes Windows 2k or XP dump (BSOD), or maybe you just get an error. 
+I was expecting a directory layout according to different topologies: bus, hardware class, and generic "block" & "char". Bus/ would contain a sub-dir for each supported bus (kindof exists now, but they're sitting at /sys level, not in separate bus/ dir). Class/ would contain a sub-dir for each of the popular hardware _functionality_ classes, very similar to PCI/USB/PCMCIA classes (audio, harddisk, floppy, cdrom, printer, video, network, etc.) and subclasses. Each of those would contain instance subdirectories of that class (two sound cards look like audio/0 and audio/1). Class/ would actually look a bit like M$ Windows hardware class topology. Graphical linux tools already implement this locally, but I think since class/ already exists in sysfs and the kernel is the master of all hardware it should also provide the means of organizing the hardware in various ways, including functional classification (instead of, say, leaving this up to udev). Has this already been discussed b
+efore?
 
--- 
-VB programmers ask why no one takes them seriously, 
-it's somewhat akin to a McDonalds manager asking employees 
-why they don't take their 'career' seriously.
+For example, if I was writing a cd burner app and I wanted to have the user select a burner from a list, I could simply pull from something like /sys/class/cdrom/* rather than implement my own scanning algorithm like 'cdrecord' had to do (-scanbus switch). Or if for some reason I have a parallel port zip drive and an IDE zip drive I can refer to /sys/class/disk/zip/0/device and /sys/class/disk/zip/1/device. Or another example, I plug in my USB flash key, and assuming it's the only USB flash key in my system I could refer to it as /sys/class/disk/flash/0/device. I guess techinically you usually refer to partitions so it might really be /sys/class/disk/xxx/0/part/0 or something.
+
+I think a frontend for udev could benefit from this also. Say you plug in a USB laser printer for the first time. Once the device has been registered under the proper bus topology directory, it can fetch the class info from the device and set up another instance (or symlink) under something like /sys/class/printer/laser/0. Then it calls hotplug which could use dbus to alert the frontend app. The frontend app could spawn some printer configuration app, then modify the udev config file to permanently bind that class instance to a user-defined device name like /dev/printer.
+
+A window manager could quickly fetch class info from /sys/class to determine what kind of icons to show for various devices.
+
+Was this the original intent of the class sub-dir? I don't think bus topologies should go under class/, especially since some of the bus topologies are already pulled out from class/.
+
+Tyler
 

@@ -1,63 +1,123 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293458AbSCARux>; Fri, 1 Mar 2002 12:50:53 -0500
+	id <S293466AbSCAR6Z>; Fri, 1 Mar 2002 12:58:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293460AbSCARum>; Fri, 1 Mar 2002 12:50:42 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:15488 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S293458AbSCARue>; Fri, 1 Mar 2002 12:50:34 -0500
-Date: Fri, 1 Mar 2002 12:50:46 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-cc: Matthew Allum <mallum@xblox.net>, linux-kernel@vger.kernel.org
-Subject: Re: Multiple kernels OOPS at boot on Fujitsu pt510 ( AMD DX100 CPU ) - ksymoops output attached
-In-Reply-To: <Pine.LNX.4.44.0203011749480.11136-100000@netfinity.realnet.co.sz>
-Message-ID: <Pine.LNX.3.95.1020301123724.5515A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S293462AbSCAR6O>; Fri, 1 Mar 2002 12:58:14 -0500
+Received: from h24-67-15-4.cg.shawcable.net ([24.67.15.4]:7152 "EHLO
+	lynx.adilger.int") by vger.kernel.org with ESMTP id <S293460AbSCAR6E>;
+	Fri, 1 Mar 2002 12:58:04 -0500
+Date: Fri, 1 Mar 2002 10:57:53 -0700
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Tim Schmielau <tim@physik3.uni-rostock.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] enable uptime display > 497 days on 32 bit (1/2)
+Message-ID: <20020301105753.O22608@lynx.adilger.int>
+Mail-Followup-To: Tim Schmielau <tim@physik3.uni-rostock.de>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0203010339240.3946-100000@gans.physik3.uni-rostock.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0203010339240.3946-100000@gans.physik3.uni-rostock.de>; from tim@physik3.uni-rostock.de on Fri, Mar 01, 2002 at 03:55:25AM +0100
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 1 Mar 2002, Zwane Mwaikambo wrote:
-
-> On Fri, 1 Mar 2002, Richard B. Johnson wrote:
+On Mar 01, 2002  03:55 +0100, Tim Schmielau wrote:
+> rediffed to 2.4.19-pre2 and three micro-optimizations:
 > 
-> > Turn off CONFIG_X86_WP_WORKS_OK and CONFIG_X86_CMPXCHG. This allows
-> > booting using Linux Version 2.4.1.
+>   move jiffies_hi etc. to same cacheline as jiffies
+>     (suggested by George Anzinger)
+>   avoid turning off interrupts (suggested by Andreas Dilger)
+>   use unlikely() (suggested by Andreas Dilger)
 > 
-> I'm sure others have asked you before, why do you have an obsession
->  with 2.4.1?
-> 
-> Thanks,
-> 	Perplexed.
+> As no other comments turned up, this will go to Marcelo RSN.
+> (wondered why noone vetoed this as overkill...)
 
-Later versions, including the current 2.4.18 fail, to mount an initrd.
-Since I use the same kernel for everything (very small), with different
-modules as different machines may require, I need a working initrd.
+Minor nit - the indenting of #ifdefs is not really used in the kernel.
 
-This machine, and several others, require SCSI modules to be installed
-before the final root file-system is accessible. The last kernels I've
-tried, 2.2.17 and 2.2.18 find a compressed file-system for initrd, then
-promptly free it. I end up with a panic can't mount root on 1:0. This
-is /dev/ram0. I have tried /dev/ram1 (1:1) as well. The kernel recognizes
-what file-system it should mount, but doesn't. This has been reported
-on LK several times over the past year. I even provided a script that
-any interested person can execute to make an 'initrd floppy' to verify
-that a root file-system can be found and mounted. The only responses
-I got were things like; "You should use cramfs". I need an ext2
-file-system on the RAM Disk. I guess there's no longer any interest
-in that amongst kernel developers. 
+> +u64 get_jiffies64(void)
+> +{
+> +	unsigned long jiffies_tmp, jiffies_hi_tmp;
+> +
+> +	spin_lock(&jiffies64_lock);
+> +	jiffies_tmp = jiffies;   /* avoid races */
+> +	jiffies_hi_tmp = jiffies_hi;
+> +	if (unlikely(jiffies_tmp < jiffies_last))   /* We have a wrap */
+> +		jiffies_hi++;
+> +	jiffies_last = jiffies_tmp;
+> +	spin_unlock(&jiffies64_lock);
+> +
+> +	return (jiffies_tmp | ((u64)jiffies_hi_tmp) << BITS_PER_LONG);
+> +}
 
-Once somebody makes a kernel they has both a working loop device and
-a working initial RAM Disk, I will use that kernel. In the meantime,
-I'm stuck at 2.4.1.
+If jiffies_hi is incremented, then jiffies_hi_tmp will be wrong on return.
 
+> +static void check_jiffieswrap(unsigned long data)
+> +{
+> +	unsigned long jiffies_tmp;
+> +	mod_timer(&jiffieswrap_timer, jiffies + CHECK_JIFFIESWRAP_INTERVAL);
+> +
+> +	if (spin_trylock(&jiffies64_lock)) {
+> +		/* If we don't get the lock, we can just give up.
+> +		   The current holder of the lock will check for wraps */
+> +		jiffies_tmp = jiffies;   /* avoid races */
+> +		if (jiffies_tmp < jiffies_last)   /* We have a wrap */
+> +			jiffies_hi++;
+> +		jiffies_last = jiffies_tmp;
+> +		spin_unlock(&jiffies64_lock);
+> +	}                                                                  }
+note:----------------------------------------------------------------------^
 
-Cheers,
-Dick Johnson
+Since check_jiffieswrap() and get_jiffies64() are substantially the same,
+you may want to define a function _inc_jiffies64() which does:
 
-Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
++#ifdef NEEDS_JIFFIES64
++/* jiffies_hi and jiffies_last are protected by jiffies64_lock */
++static unsigned long jiffies_hi, jiffies_last;
++static spinlock_t jiffies64_lock = SPIN_LOCK_UNLOCKED;
++#endif
 
-        111,111,111 * 111,111,111 = 12,345,678,987,654,321
+static inline void _inc_jiffies64(unsigned long jiffies_tmp)
+{
+	jiffies_tmp = jiffies;   /* avoid races */
+	if (jiffies_tmp < jiffies_last)   /* We have a wrap */
+		jiffies_hi++;
+	jiffies_last = jiffies_tmp;
+}
+
+static void get_jiffies64()
+{
+	unsigned long jiffies_tmp, jiffies_hi_tmp;
+
+	spin_lock(&jiffies64_lock);
+	_inc_jiffies64(jiffies_tmp);
+	jiffies_hi_tmp = jiffies_hi;
+	spin_unlock(&jiffies64_lock);
+
+	return (jiffies_tmp | ((u64)jiffies_hi_tmp) << BITS_PER_LONG);
+}
+
+static void check_jiffieswrap(unsigned long data)
+{
+	unsigned long jiffies_tmp;
+	mod_timer(&jiffieswrap_timer, jiffies + CHECK_JIFFIESWRAP_INTERVAL);
+
+	/*
+	 * If we don't get the lock, we can just give up.
+	 * The current holder of the lock will check for wraps
+	 */
+	if (spin_trylock(&jiffies64_lock)) {
+		_inc_jiffies64(jiffies_tmp);
+		spin_unlock(&jiffies64_lock);
+	}
+}
+
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 

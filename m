@@ -1,73 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285850AbSADXrs>; Fri, 4 Jan 2002 18:47:48 -0500
+	id <S285940AbSADXvJ>; Fri, 4 Jan 2002 18:51:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285878AbSADXr3>; Fri, 4 Jan 2002 18:47:29 -0500
-Received: from fmfdns02.fm.intel.com ([132.233.247.11]:62912 "EHLO
-	thalia.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S285850AbSADXrV>; Fri, 4 Jan 2002 18:47:21 -0500
-Message-ID: <BD9B60A108C4D511AAA10002A50708F22C13CF@orsmsx118.jf.intel.com>
-From: "Leech, Christopher" <christopher.leech@intel.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: Error loading e1000.o - symbol not found
-Date: Fri, 4 Jan 2002 15:47:18 -0800 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="ISO-8859-1"
+	id <S285937AbSADXu7>; Fri, 4 Jan 2002 18:50:59 -0500
+Received: from asooo.flowerfire.com ([63.254.226.247]:15628 "EHLO
+	asooo.flowerfire.com") by vger.kernel.org with ESMTP
+	id <S285935AbSADXuy>; Fri, 4 Jan 2002 18:50:54 -0500
+Date: Fri, 4 Jan 2002 17:50:50 -0600
+From: Ken Brownfield <brownfld@irridia.com>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+Message-ID: <20020104175050.A3623@asooo.flowerfire.com>
+In-Reply-To: <20020103142301.C4759@asooo.flowerfire.com> <200201040019.BAA30736@webserver.ithnet.com> <20020103232601.B12884@asooo.flowerfire.com> <20020104140321.51cb8bf0.skraw@ithnet.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20020104140321.51cb8bf0.skraw@ithnet.com>; from skraw@ithnet.com on Fri, Jan 04, 2002 at 02:03:21PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Based on there being only one symbol mismatch, I think the correct headers
-are being used.  If you're worried about that, you can pass in the location
-of the kernel source when building e1000 with a KSRC variable (make
-KSRC=/usr/src/linux or wherever the kernel tree is).
+On Fri, Jan 04, 2002 at 02:03:21PM +0100, Stephan von Krawczynski wrote:
+[...]
+| Ok. It would be really nice to know if the -aa patches do any good at your
 
-Is it possible that some stale symbol version information was left from a
-previous kernel build, maybe from before a patch was applied?  In order to
-fully clean out the symbol versions I would try saving a copy of your
-.config, then do a "make mrproper" instead of "make clean", then move the
-.config back and run the normal make dep bzImage modules.
+I'd love to, but unfortunately my problems reproduce only in production,
+and -- nothing against Andrea -- I'm hesitant to deploy -aa live, since
+it hasn't received the widespread use that mainline has.  I may be
+forced to soon if the VM fixes don't get merged.
 
-It should be easy enough to see if this is the problem, just check the
-symbol version string for _mmx_memcpy in the kernel, the e1000 module, and
-in the kernel source tree.
+[...]
+| > Do they have *sustained* heavy hit/IRQ/IO load?  For example, sending
+| > 25Mbit and >1,000 connections/s of sustained small images traffic
+| > through khttpd will kill 2.4 (slow loss of timer and eventual total
+| > freeze) in a couple of hours.  Trivially reproducable for me on SMP with
+| > any amount of memory.  On HP, Tyan, Intel, Asus... etc.
+| 
+| Hm, I have about 24GB of NFS traffic every day, which may be too less. What
+| exactly are you seeing in this case (logfiles etc.)?
 
-  running kernel : grep _mmx_memcpy /proc/ksyms
-  kernel source  : grep _mmx_memcpy include/linux/modules/i386_ksyms.ver
-  e1000 module   : objdump -r e1000.o | grep _mmx_memcpy
+Well, the nature of the problem is that the timer "slows" and stops,
+causing the machine to get more and more sluggish until it falls of the
+net and stops dead.
 
-All three should match ... but I'm guessing that in your case they don't.
-If your kernel and the i386_ksyms.ver file don't agree on the symbol
-version, the "make mrproper" idea should help.  If e1000 is the odd man out,
-we'll have to keep looking for something else.
+I suspect that high IRQ rates cause the issue -- large sequential
+transfers are not necessarily culprits due the lowish overhead.
 
-I was able to build a kernel with your configuration, then build e1000
-against it and run depmod using System.map.  However, I didn't actually try
-running the kernel as I don't have any AMD systems.
+[...]
+| > It's not that the kernel is bad, it's that there are specific things
+| > that shouldn't be forgotten because of a "the kernel is good"
+| > evaluation.
+| 
+| Hopefully nobody does this here, I don't.
 
-- Chris Leech <christopher.leech@intel.com>
+I don't think it's intentional, and I realize that VM changes are hard
+to swallow in a stable kernel release.  I just hope that the severity
+and fairly wide negative effect is enough to make people more
+comfortable with accepting VM fixes that may be somewhat invasive.
 
-
-Roy Sigurd Karlsbakk wrote:
-
-> I know this might be the wrong place, as the e1000 driver is custom made
-> by Intel, but I hope there's an easy way to fix it.
-> 
-> After building a new 2.4.17 kernel with mjc1 and tux patches, I compile
-> the intel e1000 driver (downloaded from
->
-http://downloadfinder.intel.com//scripts-df/Detail_Desc.asp?ProductID=749&Dw
-nldID=2897 \
-> ).
-> 
-> When trying to insmod the driver, I get the following errors:
-> 
-> /lib/modules/2.4.17-srv3/kernel/drivers/net/e1000.o: unresolved symbol
-_mmx_memcpy
-> /lib/modules/2.4.17-srv3/kernel/drivers/net/e1000.o: insmod \
-> /lib/modules/2.4.17-srv3/kernel/drivers/net/e1000.o failed \
-> /lib/modules/2.4.17-srv3/kernel/drivers/net/e1000.o: insmod e1000 failed
-> 
-> What's this? Is _mmx_memcpy only valid on Intel architecture? Does Athlon
-> have any equivalent system call?
+Thanks,
+-- 
+Ken.
+brownfld@irridia.com

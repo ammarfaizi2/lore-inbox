@@ -1,68 +1,156 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315717AbSG1L1Y>; Sun, 28 Jul 2002 07:27:24 -0400
+	id <S315709AbSG1L0Z>; Sun, 28 Jul 2002 07:26:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315721AbSG1L1Y>; Sun, 28 Jul 2002 07:27:24 -0400
-Received: from imap.laposte.net ([213.30.181.7]:8368 "EHLO smtp.laposte.net")
-	by vger.kernel.org with ESMTP id <S315717AbSG1L1W>;
-	Sun, 28 Jul 2002 07:27:22 -0400
-Message-ID: <3D43C990.5030503@laposte.net>
-Date: Sun, 28 Jul 2002 13:38:08 +0300
-From: Johann Deneux <johann.deneux@laposte.net>
-Reply-To: johann.deneux@it.uu.se
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
-X-Accept-Language: en-us, en
+	id <S315721AbSG1L0Z>; Sun, 28 Jul 2002 07:26:25 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:39111 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S315709AbSG1L0Y>;
+	Sun, 28 Jul 2002 07:26:24 -0400
+Date: Sun, 28 Jul 2002 13:28:34 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org, Arjan van de Ven <arjanv@redhat.com>
+Subject: [patch] APM fixes, 2.5.29
+In-Reply-To: <Pine.LNX.4.44.0207281152430.12794-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0207281326150.21244-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: Brad Hards <bhards@bigpond.net.au>
-CC: Vojtech Pavlik <vojtech@suse.cz>, linuxconsole-dev@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: Event API changes - EVIOCGID
-References: <200207212050.56616.bhards@bigpond.net.au> <200207281745.37751.bhards@bigpond.net.au> <20020728102256.B12268@ucw.cz> <200207281842.18988.bhards@bigpond.net.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brad Hards wrote:
-> On Sun, 28 Jul 2002 18:22, Vojtech Pavlik wrote:
-> 
- > [...]
-> 
->>__u* is used extensively in the input API anyway, so you'd have to
->>explain it to userspace programmers nevertheless. So I prefer keeping
->>the input.h include use just one type of explicit sized types.
-> 
-> So do I, and it had better be a standard type.
-> 
-> Note that the input API does *NOT* use __u* extensively. In fact
-> if you take out the force feedback stuff (which Johannes already
 
-(Just a detail: my name is Johann)
+the attached patch fixes two things:
 
-> agreed to change:), this is the *only* _u* usage in any part of the 
-> input API.
-> 
+ - a TLS related bug noticed by Arjan van de Ven: apm_init() should set up 
+   all CPU's gdt entries - just in case some code happens to call in the
+   APM BIOS on the wrong CPU. This should also handle the case when some 
+   APM code gets triggered (by suspend or power button or something).
 
-I did this change in the past, but it was undone (not by me), as it 
-would break user-space applications. I definitely agree to use uint16_t.
+ - compilation problem
 
-> 
->>Sure, we can change them all to uint*_t, but then do it all at once and
->>provide a satisfactory explanation for it. ;)
-> 
-> I am doing it all. Johannes agreed to the change, and I did the only
-> other required entry. If Johannes agrees, I'll do the trivial changes
-> for force-feedback.
+	Ingo
 
-Ok with me.
-
-> The reason why I am not doing it all at once is to provide patches
-> that do one API change at a time. Or, depending on how you look
-> at it, I did the only change all-at-once, and you reverted it :)
-> 
-> Brad
-> 
-
--- 
-Johann Deneux
+--- linux/arch/i386/kernel/apm.c.orig	Sun Jul 28 11:58:55 2002
++++ linux/arch/i386/kernel/apm.c	Sun Jul 28 13:27:54 2002
+@@ -1589,7 +1589,7 @@
+ 
+ 	p = buf;
+ 
+-	if ((num_possible_cpus() == 1) &&
++	if ((num_online_cpus() == 1) &&
+ 	    !(error = apm_get_power_status(&bx, &cx, &dx))) {
+ 		ac_line_status = (bx >> 8) & 0xff;
+ 		battery_status = bx & 0xff;
+@@ -1720,7 +1720,7 @@
+ 		}
+ 	}
+ 
+-	if (debug && (num_possible_cpus() == 1)) {
++	if (debug && (num_online_cpus() == 1)) {
+ 		error = apm_get_power_status(&bx, &cx, &dx);
+ 		if (error)
+ 			printk(KERN_INFO "apm: power status not available\n");
+@@ -1764,7 +1764,7 @@
+ 		pm_power_off = apm_power_off;
+ 	register_sysrq_key('o', &sysrq_poweroff_op);
+ 
+-	if (num_possible_cpus() == 1) {
++	if (num_online_cpus() == 1) {
+ #if defined(CONFIG_APM_DISPLAY_BLANK) && defined(CONFIG_VT)
+ 		console_blank_hook = apm_console_blank;
+ #endif
+@@ -1853,6 +1853,7 @@
+ static int __init apm_init(void)
+ {
+ 	struct proc_dir_entry *apm_proc;
++	int i;
+ 
+ 	if (apm_info.bios.version == 0) {
+ 		printk(KERN_INFO "apm: BIOS not found.\n");
+@@ -1907,7 +1908,7 @@
+ 		printk(KERN_NOTICE "apm: disabled on user request.\n");
+ 		return -ENODEV;
+ 	}
+-	if ((num_possible_cpus() > 1) && !power_off) {
++	if ((num_online_cpus() > 1) && !power_off) {
+ 		printk(KERN_NOTICE "apm: disabled - APM is not SMP safe.\n");
+ 		return -ENODEV;
+ 	}
+@@ -1926,37 +1927,39 @@
+ 	 * NOTE: on SMP we call into the APM BIOS only on CPU#0, so it's
+ 	 * enough to modify CPU#0's GDT.
+ 	 */
+-	set_base(cpu_gdt_table[0][APM_40 >> 3],
+-		 __va((unsigned long)0x40 << 4));
+-	_set_limit((char *)&cpu_gdt_table[0][APM_40 >> 3], 4095 - (0x40 << 4));
+-
+-	apm_bios_entry.offset = apm_info.bios.offset;
+-	apm_bios_entry.segment = APM_CS;
+-	set_base(cpu_gdt_table[0][APM_CS >> 3],
+-		 __va((unsigned long)apm_info.bios.cseg << 4));
+-	set_base(cpu_gdt_table[0][APM_CS_16 >> 3],
+-		 __va((unsigned long)apm_info.bios.cseg_16 << 4));
+-	set_base(cpu_gdt_table[0][APM_DS >> 3],
+-		 __va((unsigned long)apm_info.bios.dseg << 4));
++	for (i = 0; i < NR_CPUS; i++) {
++		set_base(cpu_gdt_table[i][APM_40 >> 3],
++			 __va((unsigned long)0x40 << 4));
++		_set_limit((char *)&cpu_gdt_table[i][APM_40 >> 3], 4095 - (0x40 << 4));
++
++		apm_bios_entry.offset = apm_info.bios.offset;
++		apm_bios_entry.segment = APM_CS;
++		set_base(cpu_gdt_table[i][APM_CS >> 3],
++			 __va((unsigned long)apm_info.bios.cseg << 4));
++		set_base(cpu_gdt_table[i][APM_CS_16 >> 3],
++			 __va((unsigned long)apm_info.bios.cseg_16 << 4));
++		set_base(cpu_gdt_table[i][APM_DS >> 3],
++			 __va((unsigned long)apm_info.bios.dseg << 4));
+ #ifndef APM_RELAX_SEGMENTS
+-	if (apm_info.bios.version == 0x100) {
++		if (apm_info.bios.version == 0x100) {
+ #endif
+-		/* For ASUS motherboard, Award BIOS rev 110 (and others?) */
+-		_set_limit((char *)&cpu_gdt_table[0][APM_CS >> 3], 64 * 1024 - 1);
+-		/* For some unknown machine. */
+-		_set_limit((char *)&cpu_gdt_table[0][APM_CS_16 >> 3], 64 * 1024 - 1);
+-		/* For the DEC Hinote Ultra CT475 (and others?) */
+-		_set_limit((char *)&cpu_gdt_table[0][APM_DS >> 3], 64 * 1024 - 1);
++			/* For ASUS motherboard, Award BIOS rev 110 (and others?) */
++			_set_limit((char *)&cpu_gdt_table[i][APM_CS >> 3], 64 * 1024 - 1);
++			/* For some unknown machine. */
++			_set_limit((char *)&cpu_gdt_table[i][APM_CS_16 >> 3], 64 * 1024 - 1);
++			/* For the DEC Hinote Ultra CT475 (and others?) */
++			_set_limit((char *)&cpu_gdt_table[i][APM_DS >> 3], 64 * 1024 - 1);
+ #ifndef APM_RELAX_SEGMENTS
+-	} else {
+-		_set_limit((char *)&cpu_gdt_table[0][APM_CS >> 3],
+-			(apm_info.bios.cseg_len - 1) & 0xffff);
+-		_set_limit((char *)&cpu_gdt_table[0][APM_CS_16 >> 3],
+-			(apm_info.bios.cseg_16_len - 1) & 0xffff);
+-		_set_limit((char *)&cpu_gdt_table[0][APM_DS >> 3],
+-			(apm_info.bios.dseg_len - 1) & 0xffff);
+-	}
++		} else {
++			_set_limit((char *)&cpu_gdt_table[i][APM_CS >> 3],
++				(apm_info.bios.cseg_len - 1) & 0xffff);
++			_set_limit((char *)&cpu_gdt_table[i][APM_CS_16 >> 3],
++				(apm_info.bios.cseg_16_len - 1) & 0xffff);
++			_set_limit((char *)&cpu_gdt_table[i][APM_DS >> 3],
++				(apm_info.bios.dseg_len - 1) & 0xffff);
++		}
+ #endif
++	}
+ 
+ 	apm_proc = create_proc_info_entry("apm", 0, NULL, apm_get_info);
+ 	if (apm_proc)
+@@ -1964,7 +1967,7 @@
+ 
+ 	kernel_thread(apm, NULL, CLONE_FS | CLONE_FILES | CLONE_SIGHAND | SIGCHLD);
+ 
+-	if (num_possible_cpus() > 1) {
++	if (num_online_cpus() > 1) {
+ 		printk(KERN_NOTICE
+ 		   "apm: disabled - APM is not SMP safe (power off active).\n");
+ 		return 0;
 

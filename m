@@ -1,50 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129729AbRATT1j>; Sat, 20 Jan 2001 14:27:39 -0500
+	id <S129991AbRATTdt>; Sat, 20 Jan 2001 14:33:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129991AbRATT12>; Sat, 20 Jan 2001 14:27:28 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:63494 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129729AbRATT1S>; Sat, 20 Jan 2001 14:27:18 -0500
-Date: Sat, 20 Jan 2001 11:26:52 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
+	id <S130673AbRATTdj>; Sat, 20 Jan 2001 14:33:39 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:43353 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S129991AbRATTd1>; Sat, 20 Jan 2001 14:33:27 -0500
+Date: Sat, 20 Jan 2001 20:30:23 +0100
+From: Andrea Arcangeli <andrea@suse.de>
 To: kuznet@ms2.inr.ac.ru
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Is sendfile all that sexy?
-In-Reply-To: <200101201853.VAA05120@ms2.inr.ac.ru>
-Message-ID: <Pine.LNX.4.10.10101201124090.10317-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: mingo@elte.hu, torvalds@transmeta.com, raj@cup.hp.com,
+        linux-kernel@vger.kernel.org, davem@redhat.com
+Subject: Re: [Fwd: [Fwd: Is sendfile all that sexy? (fwd)]]
+Message-ID: <20010120203023.A5274@athlon.random>
+In-Reply-To: <20010120192320.J8717@athlon.random> <200101201905.WAA05165@ms2.inr.ac.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200101201905.WAA05165@ms2.inr.ac.ru>; from kuznet@ms2.inr.ac.ru on Sat, Jan 20, 2001 at 10:05:45PM +0300
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Jan 20, 2001 at 10:05:45PM +0300, kuznet@ms2.inr.ac.ru wrote:
+> It makes. One small packet is allowed to fly, not depending on packets_out.
 
+So this mean if I do:
 
-On Sat, 20 Jan 2001 kuznet@ms2.inr.ac.ru wrote:
-> > Actually, as long as there is no "struct page" there _are_ problems.
-> > This is why the NUMA stuff was brought up - it would require that there
-> > be a mem_map for the PCI pages.. (to do ref-counting etc).
-> 
-> I see.
-> 
-> Is this strong "no-no-no"? What is obstacle to allow "struct page"
-> to sit outside of mem_map (in some private table, or as full orphan)?
-> Only bloat of struct page with reference to some "page_ops" or something
-> more profound?
+	write(100000*MSS)
+	write(1)
+	write(1)
 
-There's no no-no here: you can even create the "struct page"s on demand,
-and create a dummy local zone that contains them that they all point back
-to. It should be trivial - nobody else cares about those pages or that
-zone anyway.
+2.4 can send 100000 packet with MSS large payload plus two packets with a
+payload of 1 byte even if during the two write(1) the previous packets were
+still out (not acknowledged yet). Classical nagle would send 100000 packet with
+MSS large payload plus 1 packet with a two bytes payload in the same
+scenario.
 
-This is very much how the MM layer in 2.4.x is set up to work.
-
-That said, nobody has actually done this in practice yet, so there may be
-details to work out, of course. I don't see any fundamental reasons it
-wouldn't easily work, but..
-
-		Linus
-
+Andre 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

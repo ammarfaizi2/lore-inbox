@@ -1,40 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261680AbULBQwO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261668AbULBQz5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261680AbULBQwO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 11:52:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261681AbULBQwO
+	id S261668AbULBQz5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 11:55:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261681AbULBQz5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 11:52:14 -0500
-Received: from mail.aknet.ru ([217.67.122.194]:40978 "EHLO mail.aknet.ru")
-	by vger.kernel.org with ESMTP id S261680AbULBQwL (ORCPT
+	Thu, 2 Dec 2004 11:55:57 -0500
+Received: from fw.osdl.org ([65.172.181.6]:46791 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261668AbULBQzw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 11:52:11 -0500
-Message-ID: <41AF483C.5040909@aknet.ru>
-Date: Thu, 02 Dec 2004 19:52:12 +0300
-From: Stas Sergeev <stsp@aknet.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: ru, en-us, en
-MIME-Version: 1.0
-To: Len Brown <len.brown@intel.com>
-Cc: Andrew Morton <akpm@osdl.org>, Linux kernel <linux-kernel@vger.kernel.org>,
-       ACPI Developers <acpi-devel@lists.sourceforge.net>,
-       Shaohua Li <shaohua.li@intel.com>
-Subject: Re: [ACPI] Re: Fw: ACPI bug causes cd-rom lock-ups (2.6.10-rc2)
-References: <41990138.7080008@aknet.ru> <1101190148.19999.394.camel@d845pe>	 <41A4CF1C.6090503@aknet.ru> <1101336267.20008.5326.camel@d845pe>	 <41A621DD.8060102@aknet.ru> <1101879708.8028.62.camel@d845pe>
-In-Reply-To: <1101879708.8028.62.camel@d845pe>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 2 Dec 2004 11:55:52 -0500
+Date: Thu, 2 Dec 2004 08:55:18 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: tglx@linutronix.de, marcelo.tosatti@cyclades.com,
+       linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au
+Subject: Re: [PATCH] oom killer (Core)
+Message-Id: <20041202085518.58e0e8eb.akpm@osdl.org>
+In-Reply-To: <20041202164725.GB32635@dualathlon.random>
+References: <20041201104820.1.patchmail@tglx>
+	<20041201211638.GB4530@dualathlon.random>
+	<1101938767.13353.62.camel@tglx.tec.linutronix.de>
+	<20041202033619.GA32635@dualathlon.random>
+	<1101985759.13353.102.camel@tglx.tec.linutronix.de>
+	<1101995280.13353.124.camel@tglx.tec.linutronix.de>
+	<20041202164725.GB32635@dualathlon.random>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+Andrea Arcangeli <andrea@suse.de> wrote:
+>
+> I believe the thing you're hiding with the callback, is some screwup in
+>  the VM. It shouldn't fire oom 300 times in a row.
 
-Len Brown wrote:
-> Please confirm that this patch make the problem go away in the 
-Confirmed, thanks!
+Well no ;)
 
-(Andrew, sorry for failing to reply to
-you query, and now you know the latest
-status anyway. I'll start posting the
--rc2-mm4 problems soon.)
+Thomas, could you please put together a description of how to reproduce
+this behaviour?
 

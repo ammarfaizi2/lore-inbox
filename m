@@ -1,64 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264831AbTE1TBY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 15:01:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264832AbTE1TBY
+	id S264837AbTE1TJF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 15:09:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264839AbTE1TJF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 15:01:24 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:46983 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S264831AbTE1TBX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 15:01:23 -0400
-Date: Wed, 28 May 2003 15:17:38 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Rob van Nieuwkerk <robn@verdi.et.tudelft.nl>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4 bug: fifo-write causes diskwrites to read-only fs ! 
-In-Reply-To: <200305281852.h4SIqWHJ015026@verdi.et.tudelft.nl>
-Message-ID: <Pine.LNX.4.53.0305281508140.13318@chaos>
-References: <200305281852.h4SIqWHJ015026@verdi.et.tudelft.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 28 May 2003 15:09:05 -0400
+Received: from devil.servak.biz ([209.124.81.2]:33172 "EHLO devil.servak.biz")
+	by vger.kernel.org with ESMTP id S264837AbTE1TJC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 May 2003 15:09:02 -0400
+Subject: 2.5.70 explodes when connecting to SBP2 (firewire) storage
+From: Torrey Hoffman <thoffman@arnor.net>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1054149723.1135.15.camel@torrey.et.myrio.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 28 May 2003 12:22:15 -0700
+Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - devil.servak.biz
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [0 0]
+X-AntiAbuse: Sender Address Domain - arnor.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 28 May 2003, Rob van Nieuwkerk wrote:
+This actually started happening sometime late in the 2.5.69-bk series, I
+haven't tracked down exactly which bk snapshot introduced the problem.
 
->
-> I wrote:
-> > It turns out that Linux is updating inode timestamps of fifos (named
-> > pipes) that are written to while residing on a read-only filesystem.
-> > It is not only updating in-ram info, but it will issue *physical*
-> > writes to the read-only fs on the disk !
-> 	.
-> 	.
-> 	.
-> > Sysinfo:
-> > --------
-> > - various 2.4 kernels including RH-2.4.20-13.9,
-> >   but also straight 2.4(ac) ones.
-> > - CompactFlash (= IDE disk)
-> > - Geode GX1 CPU (i586 compatible)
->
-> Forgot to mention: I use an ext2 fs, but maybe it's a generic,
-> fs-independant problem.
->
-> 	greetings,
-> 	Rob van Nieuwkerk
+Shortly after attempting to log into an SBP2 device, the system locks up
+and a very very long trace dumps on the screen.  It pauses for a while
+and then dumps more stack trace.
 
-How does it 'know' it's a R/O file-system? Have you mounted it
-R/O, mounted it noatime, or just taken whatever you get when
-you boot from a ramdisk?
+This happens either if SBP2 and firewire are compiled into the kernel or
+as modules.  It does not happen if there is no firewire drive attached,
+or the drive is powered down.  But in that case, plugging in or powering
+up the drive after boot will trigger the crash as well.
 
-FYI, I created a FIFO with mkfifo, remounted the file-system
-R/O, executed `cat` with it's input coming from the FIFO, and
-then waited for a few minutes. I then wrote to the FIFO.
-The atime did not change with 2.4.20.
+The system is a boring, ordinary Pentium III, non-SMP, non-preempt, most
+kernel debugging options turned on.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
+
+Nothing useful is saved in the system log. The last logged lines from my
+attempt to boot 2.5.70-bk2 are:
+
+May 28 11:26:00 torrey /sbin/hotplug: no runnable
+/etc/hotplug/scsi_host.agent is installed
+May 28 11:26:00 torrey /etc/hotplug/ieee1394.agent: ... no drivers for
+IEEE1394 product 0x000000/0x00609e/0x010483
+May 28 11:26:00 torrey kernel: scsi0 : SCSI emulation for IEEE-1394
+SBP-2 Devices
+May 28 11:26:00 torrey kernel: ieee1394: sbp2: Logged into SBP-2 device
+
+(kaboom!  and then I reboot. )
+
+Sorry I don't have a decoded oops.  I'll have to set up a serial console
+I guess.
+
+-- 
+Torrey Hoffman <thoffman@arnor.net>
 

@@ -1,66 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262180AbVAAC57@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262181AbVAADD3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262180AbVAAC57 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Dec 2004 21:57:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262181AbVAAC56
+	id S262181AbVAADD3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Dec 2004 22:03:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262182AbVAADD3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Dec 2004 21:57:58 -0500
-Received: from [195.23.16.24] ([195.23.16.24]:48263 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S262179AbVAAC5y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Dec 2004 21:57:54 -0500
-Message-ID: <1104548126.41d6111e3c47f@webmail.grupopie.com>
-Date: Sat,  1 Jan 2005 02:55:26 +0000
-From: "" <pmarques@grupopie.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Christoph Lameter <clameter@sgi.com>, "Luck, Tony" <tony.luck@intel.com>,
-       Robin Holt <holt@sgi.com>, Adam Litke <agl@us.ibm.com>,
-       "" <linux-ia64@vger.kernel.org>, "" <torvalds@osdl.org>,
-       "" <linux-mm@vger.kernel.org>, "" <linux-kernel@vger.kernel.org>
-Subject: Re: Increase page fault rate by prezeroing V1 [2/3]: zeroing and scrubd
-References: <B8E391BBE9FE384DAA4C5C003888BE6F02900FBD@scsmsx401.amr.corp.intel.com> <41C20E3E.3070209@yahoo.com.au> <Pine.LNX.4.58.0412211154100.1313@schroedinger.engr.sgi.com> <Pine.LNX.4.58.0412211156090.1313@schroedinger.engr.sgi.com> <41D6094C.3040908@yahoo.com.au>
-In-Reply-To: <41D6094C.3040908@yahoo.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.2
-X-Originating-IP: 82.154.89.203
+	Fri, 31 Dec 2004 22:03:29 -0500
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:42221 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S262181AbVAADD0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Dec 2004 22:03:26 -0500
+Date: Fri, 31 Dec 2004 22:03:21 -0500
+To: nobody <nobody@andromeda>
+Cc: linux lover <linux_lover2004@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: why there is different kernel versions from RedHat?
+Message-ID: <20050101030321.GA31952@andromeda>
+References: <20041231133525.47475.qmail@web52205.mail.yahoo.com> <41D5FDCE.2090905@tmr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41D5FDCE.2090905@tmr.com>
+User-Agent: Mutt/1.5.6+20040907i
+From: Justin Pryzby <justinpryzby@users.sourceforge.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Nick Piggin <nickpiggin@yahoo.com.au>:
-> [...]
-> Would you be better off to just have a driver->zero_me(...) call, with this
-> logic pushed into those like your BTE which need it? I'm thinking this would
-> help flexibility if you had say a BTE-thingy that did an interrupt on
-> completion, or if it was done synchronously by the CPU with cache bypassing
-> stores.
+If 2.6.5 is acceptible:
+http://packages.debian.org/unstable/devel/kernel-patch-redhat
 
-It seems that people in this discussion are assuming that PC's don't have
-hardware to do this at all.
+Unfortunately, it appears that this package is 'scheduled for
+removal'.
 
-While there is no _official_ hardware, a bt878 with the brightness setting all
-the way down, at 1024 pixels per line, 32 bits per pixel would be able to zero
-a full physical page in under 60 microseconds (PAL scanline). It could even
-zero a _list_ of pages passed to it and generate an interrupt in the end.
+Justin
 
-This is just an example, and there might be some problems in the implementation
-details that make it impossible to work, but there might also be more hardware
-out there that could perform similar functions (graphics cards?).
-
-This might not be worth the bother *at all*, but I can imagine some weird
-conversation between two sysadmins:
-  "My server is wasting a lot of time handling page faults"
-  "Why don't you install a video aquisition board with a bt878 chip? It did
-wonders on my server"
-  "Yes, I've also weard that a radeon graphics card can really accelerate kernel
-compiles"
-
-Well, just my 0.02 euro :)
-
---
-Paulo Marques - www.grupopie.com
-
-"A journey of a thousand miles begins with a single step."
-Lao-tzu, The Way of Lao-tzu
-
+On Fri, Dec 31, 2004 at 08:33:02PM -0500, Bill Davidsen wrote:
+> linux lover wrote:
+> >Hi all,
+> >Where can i get special pathces used by RedHat to
+> >original kernels from www.kernel.org?
+> 
+> Three step process
+> 1 - get the RH source RPM and unpack
+> 2 - get the kernel.org source of the same number
+> 3 - use diff to generate the patch.

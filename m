@@ -1,49 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262254AbTE2OFu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 May 2003 10:05:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262257AbTE2OFu
+	id S262259AbTE2OOF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 May 2003 10:14:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262261AbTE2OOF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 May 2003 10:05:50 -0400
-Received: from A17-250-248-97.apple.com ([17.250.248.97]:59611 "EHLO
-	smtpout.mac.com") by vger.kernel.org with ESMTP id S262254AbTE2OFt
+	Thu, 29 May 2003 10:14:05 -0400
+Received: from h-68-165-86-241.DLLATX37.covad.net ([68.165.86.241]:12334 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP id S262259AbTE2OOE
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 May 2003 10:05:49 -0400
-Date: Fri, 30 May 2003 00:19:05 +1000
-Subject: Re: buffer_head.b_bsize type
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Mime-Version: 1.0 (Apple Message framework v552)
-Cc: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org,
-       trivial@rustcorp.com.au
-To: viro@parcelfarce.linux.theplanet.co.uk
-From: Stewart Smith <stewartsmith@mac.com>
-In-Reply-To: <20030529111517.GP14138@parcelfarce.linux.theplanet.co.uk>
-Message-Id: <80FB28EB-91E0-11D7-9488-00039346F142@mac.com>
+	Thu, 29 May 2003 10:14:04 -0400
+Subject: [PATCH] 2.5.70 tty_register_driver
+From: Paul Fulghum <paulkf@microgate.com>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: Greg Kroah-Hartman <greg@kroah.com>,
+       "torvalds@transmeta.com" <torvalds@transmeta.com>
+In-Reply-To: <1054150058.2025.18.camel@diemos>
+References: <1054138158.2107.4.camel@diemos>
+	 <1054150058.2025.18.camel@diemos>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1054218448.2099.5.camel@diemos>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 29 May 2003 09:27:28 -0500
 Content-Transfer-Encoding: 7bit
-X-Mailer: Apple Mail (2.552)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, May 29, 2003, at 09:15  PM, 
-viro@parcelfarce.linux.theplanet.co.uk wrote:
->> Could we go the other way and make all users of b_size use unsigned?
->
-> Who the hell cares?  Size of buffer does not exceed the page size.
-> Unless you can show a platform with 2Gb pages...
+This patch corrects changes made in 2.5.70 to
+tty_register_device() which caused the device
+minor base specified by tty drivers using dynamically
+allocated device major number to be ignored.
 
-I would argue the same that the size of a buffer should never be able 
-to be negative and the structure says this but the rest of the code 
-does not. (Theoretically) if a negative size was asked for, then we'd 
-actually try to allocate a large amount of memory for the buffer, 
-possibly causing badness somewhere along the line.
+I have posted to lkml and to the originator of the
+2.5.70 patch, and have received no dissenting views.
 
-Any maybe we shouldn't make it too hard for archs with 2GB pages :) 
-It'll probably happen in 20 years. :)
+Please apply.
 
-------------------------------
-Stewart Smith
-stewartsmith@mac.com
-Ph: +61 4 3884 4332
-ICQ: 6734154
-http://www.flamingspork.com/       http://www.linux.org.au
+--- linux-2.5.70/drivers/char/tty_io.c	2003-05-29 09:14:30.000000000 -0500
++++ linux-2.5.70-mg/drivers/char/tty_io.c	2003-05-29 08:24:41.000000000 -0500
+@@ -2255,7 +2255,7 @@
+ 		return 0;
+ 
+ 	if (!driver->major) {
+-		error = alloc_chrdev_region(&dev, driver->num,
++		error = alloc_chrdev_region(&dev, driver->minor_start, driver->num,
+ 						(char*)driver->name);
+ 		if (!error) {
+ 			driver->major = MAJOR(dev);
+--- linux-2.5.70/include/linux/fs.h	2003-05-29 09:14:01.000000000 -0500
++++ linux-2.5.70-mg/include/linux/fs.h	2003-05-29 08:23:46.000000000 -0500
+@@ -1059,7 +1059,7 @@
+ extern void blk_run_queues(void);
+ 
+ /* fs/char_dev.c */
+-extern int alloc_chrdev_region(dev_t *, unsigned, char *);
++extern int alloc_chrdev_region(dev_t *, unsigned, unsigned, char *);
+ extern int register_chrdev_region(dev_t, unsigned, char *);
+ extern int register_chrdev(unsigned int, const char *,
+ 			   struct file_operations *);
+--- linux-2.5.70/fs/char_dev.c	2003-05-29 09:14:18.000000000 -0500
++++ linux-2.5.70-mg/fs/char_dev.c	2003-05-29 08:24:25.000000000 -0500
+@@ -177,10 +177,10 @@
+ 	return PTR_ERR(cd);
+ }
+ 
+-int alloc_chrdev_region(dev_t *dev, unsigned count, char *name)
++int alloc_chrdev_region(dev_t *dev, unsigned baseminor, unsigned count, char *name)
+ {
+ 	struct char_device_struct *cd;
+-	cd = __register_chrdev_region(0, 0, count, name);
++	cd = __register_chrdev_region(0, baseminor, count, name);
+ 	if (IS_ERR(cd))
+ 		return PTR_ERR(cd);
+ 	*dev = MKDEV(cd->major, cd->baseminor);
+
+
+
+
+-- 
+Paul Fulghum, paulkf@microgate.com
+Microgate Corporation, http://www.microgate.com
+
 

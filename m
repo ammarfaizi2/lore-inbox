@@ -1,42 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129528AbRBTMyN>; Tue, 20 Feb 2001 07:54:13 -0500
+	id <S130061AbRBTNBf>; Tue, 20 Feb 2001 08:01:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130262AbRBTMyD>; Tue, 20 Feb 2001 07:54:03 -0500
-Received: from mx1.otto.de ([194.25.18.215]:29194 "EHLO ntovmsw.otto.de")
-	by vger.kernel.org with ESMTP id <S129528AbRBTMxw>;
-	Tue, 20 Feb 2001 07:53:52 -0500
-Message-Id: <4B6025B1ABF9D211B5860008C75D57CC0271B905@NTOVMAIL04>
-From: "Butter, Frank" <Frank.Butter@otto.de>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: kernel params
-Date: Tue, 20 Feb 2001 13:54:04 +0100
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="ISO-8859-1"
+	id <S130164AbRBTNBQ>; Tue, 20 Feb 2001 08:01:16 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:11269 "EHLO
+	wire.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S130061AbRBTNBI>; Tue, 20 Feb 2001 08:01:08 -0500
+Date: Tue, 20 Feb 2001 07:00:41 -0600
+To: Martin Dalecki <dalecki@evision-ventures.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] new setprocuid syscall
+Message-ID: <20010220070041.A12011@cadcamlab.org>
+In-Reply-To: <Pine.A41.4.31.0102192312330.174604-100000@pandora.inf.elte.hu> <20010219230106.A23699@cadcamlab.org> <3A924CA1.10C913E7@evision-ventures.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <3A924CA1.10C913E7@evision-ventures.com>; from dalecki@evision-ventures.com on Tue, Feb 20, 2001 at 11:53:21AM +0100
+From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is there any possibility to set the values for IPC-ressources
-(SHM/SEM) other than by changing the headerfiles?
 
-A software we want to install wants us to have set the following
-values:
+  [Peter Samuelson]
+> > Race -- you need to make sure the task_struct doesn't disappear out
+> > from under you.
+> > 
+> > Anyway, why not use the interface 'chown uid /proc/pid'?  No new
+> > syscall, no arch-dependent part, no user-space tool, etc.
 
-SHM MAX 33554432
-SHM MIN 1
-    MNI 128
-    SEG 128
-SEM MNI 128
-SEM MNS 4096
-SEM MNU 4096
-SEM ONE 32
-    MSL 32
-    MAP 4096
+[Martin Dalecki]
+> Becouse of exactly the same race condition as above maybe?
 
-I know from HPUX that there is something like /etc/system for this kind of
-params...
+OK then, what is the right way to make sure a task doesn't disappear?
+I assumed 'read_lock (&tasklist_lock)' was enough, from reading other
+code.
 
-Frank
-
+Peter

@@ -1,96 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261296AbUC3UFz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 15:05:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261317AbUC3UFy
+	id S261221AbUC3UIG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 15:08:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261355AbUC3UIG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 15:05:54 -0500
-Received: from [194.67.69.111] ([194.67.69.111]:46474 "HELO yakov.inr.ac.ru")
-	by vger.kernel.org with SMTP id S261296AbUC3UF0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 15:05:26 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200403302005.AAA00466@yakov.inr.ac.ru>
-Subject: Re: route cache DoS testing and softirqs
-To: andrea@suse.de (Andrea Arcangeli)
-Date: Wed, 31 Mar 2004 00:05:05 +0400 (MSD)
-Cc: dipankar@in.ibm.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-       Robert.Olsson@data.slu.se, paulmck@us.ibm.com (Paul E. McKenney),
-       davem@redhat.com (Dave Miller), kuznet@ms2.inr.ac.ru (Alexey Kuznetsov),
-       akpm@osdl.org (Andrew Morton)
-In-Reply-To: <20040329222926.GF3808@dualathlon.random> from "Andrea Arcangeli" at  =?ISO-8859-1?Q?=20=ED?=
-	=?ISO-8859-1?Q?=C1=D2?= 30, 2004 12:29:26 
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Tue, 30 Mar 2004 15:08:06 -0500
+Received: from fmr06.intel.com ([134.134.136.7]:52172 "EHLO
+	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261358AbUC3UHE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Mar 2004 15:07:04 -0500
+Subject: Re: [ACPI] Re: Linux 2.4.26-rc1 (cmpxchg vs 80386 build)
+From: Len Brown <len.brown@intel.com>
+To: Arkadiusz Miskiewicz <arekm@pld-linux.org>
+Cc: Chris Friesen <cfriesen@nortelnetworks.com>,
+       Willy Tarreau <willy@w.ods.org>,
+       "Richard B. Johnson" <root@chaos.analogic.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ACPI Developers <acpi-devel@lists.sourceforge.net>
+In-Reply-To: <200403302030.26476.arekm@pld-linux.org>
+References: <A6974D8E5F98D511BB910002A50A6647615F6939@hdsmsx402.hd.intel.com>
+	 <4069A359.7040908@nortelnetworks.com> <1080668673.989.106.camel@dhcppc4>
+	 <200403302030.26476.arekm@pld-linux.org>
+Content-Type: text/plain; charset=iso-8859-2
+Organization: 
+Message-Id: <1080677134.980.166.camel@dhcppc4>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 30 Mar 2004 15:05:35 -0500
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+I can make sure that ACPI checks implicitly or explicitly
+that CMPXCHG is available -- but I can't make sure that
+some other random part of the kernel which may not have
+been written yet does.  So I'd rather that they not build,
+like ACPI didn't.
 
-> > Robert demonstrated to us sometime ago with a small
-> > timestamping user program to show that it can get starved for
-> > more than 6 seconds in his system. So userland starvation is an
-> > issue.
+BTW. CMPXCHG (486 and above) doesn't seem to be in CPUID,
+CMPXCHG8B is, but that starts with Pentium and above.
+Maybe simpler to rely on the implicit "check" that we
+did in previous releases...  Earliest known ACPI
+implementation as on Pentium-1.
+
+cheers,
+-Len
+
+On Tue, 2004-03-30 at 13:30, Arkadiusz Miskiewicz wrote:
+> Dnia Tuesday 30 of March 2004 19:44, Len Brown napisa³:
 > 
-> softirqs are already capable of being offloaded to scheduler-friendy
-> kernel threads to avoid starvation, if this wasn't the case NAPI would
-> have no way to work in the first place and everything else would fall
-> apart too, not just the rcu-route-cache. I don't think high latencies
-> and starvation are the same thing, starvation means for "indefinite
-> time" and you can't hang userspace for indefinite time using softirqs.
-> For sure the irq based load, and in turn softirqs too, can take a large
-> amount of cpu (though not 100%, this is why it cannot be called
-> starvation).
+> > Luming has already taking a swing at this patch here:
+> > http://bugzilla.kernel.org/show_bug.cgi?id=2391
+> Wouldn't be better to just remove #ifdef CONFIG_X86_CMPXCHG around __cmpxchg() 
+> and cmpxchg macro in ./include/asm-i386/system.h so cmpxchg() would be there 
+> always even on i386 but leave CONFIG_X86_CMPXCHG macro if anyone want's to 
+> check for it in some code. No code duplication and you get what you need.
 > 
-> the only real starvation you can claim is in presence of an _hard_irq
-> flood, not a softirq one.
+> It would be something like:
+> 
+> #ifdef CONFIG_X86_CMPXCHG
+> #define __HAVE_ARCH_CMPXCHG 1
+> #endif
+> static inline unsigned long __cmpxchg(volatile void *ptr, unsigned long old,
+>                                       unsigned long new, int size)
+> {
+> }
+> #define cmpxchg(ptr,o,n)\
+>         ((__typeof__(*(ptr)))__cmpxchg((ptr),(unsigned long)(o),\
+>                                         (unsigned long)(n),sizeof(*(ptr))))
+> 
+> instead of current:
+> 
+> #ifdef CONFIG_X86_CMPXCHG
+> #define __HAVE_ARCH_CMPXCHG 1
+> 
+> static inline unsigned long __cmpxchg(volatile void *ptr, unsigned long old,
+>                                       unsigned long new, int size)
+> {
+> }
+> #define cmpxchg(ptr,o,n)\
+>         ((__typeof__(*(ptr)))__cmpxchg((ptr),(unsigned long)(o),\
+>                                         (unsigned long)(n),sizeof(*(ptr))))
+> 
+> #else
+> /* Compiling for a 386 proper.  Is it worth implementing via cli/sti?  */
+> #endif
+> 
+> ?
+> 
+> > thanks,
+> > -Len
 
-There are no hardirqs in the case under investigation, remember?
-
-What's about the problem it really splits to two ones:
-
-1. The _new_ problem when bad latency of rcu hurts core
-   functionality. This is precise description:
-
-> to keep up with the softirq load.  This has never been the case so far,
-> and serving softirq as fast as possible is normally a good thing for
-> server/firewalls, the small unfariness (note unfariness != starvation)
-> it generates has never been an issue, because so far the softirq never
-> required the scheduler to work in order to do their work, rcu changed
-> this in the routing cache specific case.
-
-We had one full solution for this issue not changing anything
-in scheduler/softirq relationship: to run rcu task for the things
-sort of dst cache not from process context, but essentially as part
-of do_softirq(). Simple, stupid and apparently solves new problems
-which rcu created.
-
-Another solution is just to increase memory consumption limits
-to deal with current rcu latency. F.e. 300ms latency just requires
-additional space for pps*300ms objects, which are handled by RCU.
-The problem with this is that pps is the thing which increases
-when cpu power grows and that 300ms is not a mathematically established
-limit too.
-
-
-> So you're simply asking the ksoftirqd offloading to become more
-> aggressive,
-
-It is the second challenge.
-
-Andrea, it is experimenatl fact: this "small unfariness" stalls process
-contexts for >=6 seconds and gives them microscopic slices. We could live
-with this (provided RCU problem is solved in some way). Essentially,
-the only trouble for me was that we could use existing rcu bits to make
-offloading to ksoftirqd more smart (not aggressive, _smart_). The absense
-of RCU quiescent states looks too close to absence of forward progress
-in process contexts, it was anticipating similarity. The dumb throttling
-do_softirq made not from ksoftirqd context when starvation is detected
-which we tested the last summer is not only ugly, it really might hurt
-router performance, you are right here too. It is the challenge:
-or we proceed with this idea and invent something, or we just forget
-about this concentrating on RCU.
-
-Alexey

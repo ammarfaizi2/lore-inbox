@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263606AbUBRHZX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 02:25:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263607AbUBRHZX
+	id S263697AbUBRHo2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 02:44:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263793AbUBRHo2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 02:25:23 -0500
-Received: from outpost.ds9a.nl ([213.244.168.210]:40588 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id S263606AbUBRHZT (ORCPT
+	Wed, 18 Feb 2004 02:44:28 -0500
+Received: from s4.uklinux.net ([80.84.72.14]:61130 "EHLO mail2.uklinux.net")
+	by vger.kernel.org with ESMTP id S263697AbUBRHoX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 02:25:19 -0500
-Date: Wed, 18 Feb 2004 08:25:13 +0100
-From: bert hubert <ahu@ds9a.nl>
+	Wed, 18 Feb 2004 02:44:23 -0500
+Date: Wed, 18 Feb 2004 07:44:14 +0000
 To: linux-kernel@vger.kernel.org
-Subject: Re: UTF-8 practically vs. theoretically in the VFS API
-Message-ID: <20040218072513.GA10446@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	linux-kernel@vger.kernel.org
-References: <04Feb13.163954est.41760@gpu.utcc.utoronto.ca> <200402161948.i1GJmJi5000299@81-2-122-30.bradfords.org.uk> <Pine.LNX.4.58.0402161141140.30742@home.osdl.org> <20040216202142.GA5834@outpost.ds9a.nl> <c0ukd2$3uk$1@terminus.zytor.com>
+Subject: pnp missing proc entries?
+Message-ID: <20040218074414.GA11598@titan.home.hindley.uklinux.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <c0ukd2$3uk$1@terminus.zytor.com>
 User-Agent: Mutt/1.3.28i
+From: Mark Hindley <mark@hindley.uklinux.net>
+X-MailScanner-Titan: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 18, 2004 at 02:58:42AM +0000, H. Peter Anvin wrote:
+Hi,
 
-> Indeed.  The original name for the encoding was, in fact, "FSS-UTF",
-> for "filesystem safe Unicode transformation format."  
+I have just switched to 2.6 and am trying to resolve and irq conflict
+between a sound card and internal modem.
 
-That might explain a few things.
+Looking in Documentation/pnp.txt there should be files in
+proc/bus/isapnp/<node>/{id,resources,options}.
 
-> > F8 80 80 80 AE F8 80 80 80 AE 
-> > FC 80 80 80 80 AE FC 80 80 80 80 AE
-> 
-> No, they don't.
+However all I have is plain node at /proc/bnus/isapnp/<node> that dumps
+some binary data.
 
-Serves me right for trusting a random site, apologies. 
+Is the documentation out of date? I can see the calls to make the
+missing nodes in pnp_add_device() but can't find it called from
+anywhere. Is this a deliberate omission?
 
--- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+Thanks
+
+Mark
+

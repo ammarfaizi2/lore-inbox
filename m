@@ -1,67 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263646AbUACUcZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jan 2004 15:32:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263850AbUACUcZ
+	id S263963AbUACUvR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jan 2004 15:51:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263983AbUACUvR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jan 2004 15:32:25 -0500
-Received: from smtp2.fre.skanova.net ([195.67.227.95]:34503 "EHLO
-	smtp2.fre.skanova.net") by vger.kernel.org with ESMTP
-	id S263646AbUACUcX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jan 2004 15:32:23 -0500
-To: Pavel Machek <pavel@suse.cz>
-Cc: Jens Axboe <axboe@suse.de>, packet-writing <packet-writing@suse.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: ext2 on a CD-RW
-References: <Pine.LNX.4.44.0401020022060.2407-100000@telia.com>
-	<20040103191414.GE1080@elf.ucw.cz>
-From: Peter Osterlund <petero2@telia.com>
-Date: 03 Jan 2004 21:32:13 +0100
-In-Reply-To: <20040103191414.GE1080@elf.ucw.cz>
-Message-ID: <m2hdzc93jm.fsf@telia.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
+	Sat, 3 Jan 2004 15:51:17 -0500
+Received: from mail.kroah.org ([65.200.24.183]:62948 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263963AbUACUvQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jan 2004 15:51:16 -0500
+Date: Sat, 3 Jan 2004 12:51:20 -0800
+From: Greg KH <greg@kroah.com>
+To: Andrey Borzenkov <arvidjaar@mail.ru>
+Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: removable media revalidation - udev vs. devfs or static /dev
+Message-ID: <20040103205119.GA10802@kroah.com>
+References: <200401012333.04930.arvidjaar@mail.ru> <20040103055847.GC5306@kroah.com> <200401031151.02001.arvidjaar@mail.ru>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200401031151.02001.arvidjaar@mail.ru>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek <pavel@suse.cz> writes:
-
-> > --- linux/drivers/block/pktcdvd.c.old	2004-01-02 00:23:57.000000000 +0100
-> > +++ linux/drivers/block/pktcdvd.c	2004-01-02 00:24:01.000000000 +0100
-> > @@ -2164,6 +2164,7 @@
-> >  	request_queue_t *q = disks[pkt_get_minor(pd)]->queue;
-> >  
-> >  	blk_queue_make_request(q, pkt_make_request);
-> > +	blk_queue_hardsect_size(q, CD_FRAMESIZE);
-> >  	blk_queue_max_sectors(q, PACKET_MAX_SECTORS);
-> >  	blk_queue_merge_bvec(q, pkt_merge_bvec);
-> >  	q->queuedata = pd;
-> > 
+On Sat, Jan 03, 2004 at 11:51:33AM +0300, Andrey Borzenkov wrote:
+> > You could make a script that just creates 
+> > the device node in /tmp, runs dd on it, and then cleans it all up to
+> > force partition scanning.
+> >
 > 
-> Where do I get this file? It does not appear to be in 2.6.0.
+> You miss the point. When should this script be run? There is no event when you 
+> just insert Jaz disk; nor is there any way to trigger revalidation on access 
+> to non-existing device like is the case without udev.
 > 
-> [I have few partly-bad cd-rws, and putting ext2 on them would be
-> "cool" :-)]
+> what I aim at - udev needs to provide some extension mechanism to allow 
+> arbitrarily scripts to be run.
 
-Look here:
+It does provide that mechanism.  See the CALLOUT rule.  It can run any
+program or script when a new device is seen by the kernel.
 
-        http://w1.894.telia.com/~u89404340/packet.html
+thanks,
 
-Download here:
-
-        http://w1.894.telia.com/~u89404340/patches/packet/2.6/
-
-Note that this software is still beta quality at best. I'm not sure if
-you'll have any success with partly bad cd-rws, but it doesn't hurt to
-try I guess.
-
-I haven't made a new release with the two latest bug fixes, so if you
-plan to put ext2 on the disc, you need the quoted hardsect_size patch
-and the bio split patch from a few days ago.
-
-        http://marc.theaimsgroup.com/?l=linux-kernel&m=107306015810846&w=2
-
--- 
-Peter Osterlund - petero2@telia.com
-http://w1.894.telia.com/~u89404340
+greg k-h

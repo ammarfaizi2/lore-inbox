@@ -1,49 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266830AbRGLVy2>; Thu, 12 Jul 2001 17:54:28 -0400
+	id <S266795AbRGLVzq>; Thu, 12 Jul 2001 17:55:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266797AbRGLVyH>; Thu, 12 Jul 2001 17:54:07 -0400
-Received: from 213.237.80.78.adsl.kd.worldonline.dk ([213.237.80.78]:14642
-	"HELO binary.dyndns.dk") by vger.kernel.org with SMTP
-	id <S266795AbRGLVx7>; Thu, 12 Jul 2001 17:53:59 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Kenneth Vestergaard Schmidt <charon@debian.org>
-Organization: Debian
-To: linux-kernel@vger.kernel.org
-Subject: Re: Again: Linux 2.4.x and AMD Athlon
-Date: Thu, 12 Jul 2001 23:53:57 +0200
-X-Mailer: KMail [version 1.2.9]
+	id <S266797AbRGLVzi>; Thu, 12 Jul 2001 17:55:38 -0400
+Received: from merlin.giref.ulaval.ca ([132.203.7.100]:23690 "HELO
+	merlin.giref.ulaval.ca") by vger.kernel.org with SMTP
+	id <S266867AbRGLVz0>; Thu, 12 Jul 2001 17:55:26 -0400
+Message-ID: <3B4E1C83.D4E1E738@giref.ulaval.ca>
+Date: Thu, 12 Jul 2001 17:54:11 -0400
+From: Luc Lalonde <llalonde@giref.ulaval.ca>
+X-Mailer: Mozilla 4.76 [en] (X11; U; SunOS 5.8 sun4u)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010712215357.91B6DB6357@binary.dyndns.dk>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Adaptec SCSI driver lockups
+In-Reply-To: <200107122132.f6CLWRU61362@aslan.scsiguy.com>
+Content-Type: multipart/mixed;
+ boundary="------------F4FDB4151A64666408EB250B"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Foerster wrote:
-> Seems to be the problem with the AMD optimazion in the kernel.
+This is a multi-part message in MIME format.
+--------------F4FDB4151A64666408EB250B
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-Funny, I have only had one minor problem with my setup. It's the same 
-processor, only with one 512 meg PC133 block, and the ASUS A7V133 
-motherboard (which is equipped with the same chipset). My videocard is also 
-the same (ASUS V-7700), but my PSU is only 300Mhz.
+Hello Justin and Alan,
 
-The only instability I've experienced is when I was running KDM on both vt7 
-and vt8, and then logging out from X. Sometimes (entirely random) it would 
-freeze solid (something like once a week). I've had this setup since 2.4.1, 
-and the kernel has always been compiled with Athlon optimizations, and with 
-VIA 82CXXX chipset support.
+There was some garbage printed to the /var/log/messages before the
+lockup but it is unreadable.
 
-As a sidenote, Linux runs blazingly fast! I was a little worried about the 
-recent mucking about VIA-chipsets when I ordered my hardware, but those 
-worries has been put to shame... Or maybe I'm just lucky ;-)
+I'll have to read up on how to connect a serial console to this
+machine.  It's our main server (YPserver, mail, http, etc) so I don't
+want to use it as a test system.  If I use the append="aic7xxx=verbose"
+in my lilo.conf will it log extra messages in /var/log/messages?  If so,
+will it be useful enough to figure out what the problem is?
 
-Oh, yeah, my computer is turned on and using cycles some 5-10 hours per 
-day, right now running 2.4.6.
+Alan,
 
-If there's anything I can help with regarding this VIA-problem, please let 
-me know. I'm probably not worth anything as a kernel hacker, but I'm 
-willing to test kernel-patches to see if they cause/cure instability.
+Wasn't the old_aic7xxx the default driver up to 2.4.5?  If so I don't
+know how using the old driver would help since I had the same problems
+with 2.4.[2,3,4].  Unless there was some other stuff that has been fixed
+that would cause similar problems.
 
-Best Regards
+Cheers.
 
-Kenneth Vestergaard Schmidt
+
+"Justin T. Gibbs" wrote:
+> 
+> >Hello folks,
+> >
+> >I'm having trouble identifying wether I'm having hardware or software(
+> >OS ) problems.  For the past couple of Months I've been having system
+> >lockups every 10 days or so.
+> 
+> Are there any kernel messages printed prior to the lockup?
+> Please attach a serial cable to another machine, enable serial console
+> support, run with aic7xxx=verbose, and log all console activity remotely.
+> 
+> --
+> Justin
+
+-- 
+Luc Lalonde, Responsable du reseau GIREF
+
+Telephone: (418) 656-2131 poste 6623
+Courriel: llalonde@giref.ulaval.ca
+--------------F4FDB4151A64666408EB250B
+Content-Type: text/x-vcard; charset=us-ascii;
+ name="llalonde.vcf"
+Content-Transfer-Encoding: 7bit
+Content-Description: Card for Luc Lalonde
+Content-Disposition: attachment;
+ filename="llalonde.vcf"
+
+begin:vcard 
+n:Lalonde;Luc
+x-mozilla-html:FALSE
+org:Universite Laval;GIREF
+adr:;;;;;;
+version:2.1
+email;internet:llalonde@giref.ulaval.ca
+title:Administateur de reseau
+x-mozilla-cpt:;0
+fn:Luc Lalonde
+end:vcard
+
+--------------F4FDB4151A64666408EB250B--
+

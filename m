@@ -1,86 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263996AbUAYKip (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jan 2004 05:38:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264132AbUAYKip
+	id S263880AbUAYKub (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jan 2004 05:50:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263891AbUAYKub
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jan 2004 05:38:45 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:49311 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S263996AbUAYKin (ORCPT
+	Sun, 25 Jan 2004 05:50:31 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:6784 "EHLO midnight.ucw.cz")
+	by vger.kernel.org with ESMTP id S263880AbUAYKua (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jan 2004 05:38:43 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Sun, 25 Jan 2004 11:38:35 +0100 (MET)
-Message-Id: <UTC200401251038.i0PAcZS27912.aeb@smtp.cwi.nl>
-To: torvalds@osdl.org
-Subject: [uPATCH] add comments to sddr09.c
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+	Sun, 25 Jan 2004 05:50:30 -0500
+Date: Sun, 25 Jan 2004 11:50:39 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: "P. Christeas" <p_christ@hol.gr>
+Cc: acpi-devel@lists.sourceforge.net, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: FYI: ACPI 'sleep 1' resets atkbd keycodes
+Message-ID: <20040125105038.GA2014@ucw.cz>
+References: <200401251137.21646.p_christ@hol.gr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200401251137.21646.p_christ@hol.gr>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-People ask how to write the CIS on a SmartMedia card
-using an sddr09 reader/writer. The patch below documents
-the required command (but does not add the code).
+On Sun, Jan 25, 2004 at 11:37:19AM +0200, P. Christeas wrote:
+> This may be just a minor issue:
+> I had to use the setkeycodes utility to enable some extra keys (that weren't 
+> mapped by kernel's atkbd tables).
+> After waking from sleep 1, those keys were reset. That is, I had to use 
+> 'setkeycodes' again to customize the tables again.
+> 
+> IMHO the way kernel works now is correct. It should *not* have extra code just 
+> to handle that. Just make sure anybody that alters his kbd tables puts some 
+> extra script to recover the tables after an ACPI wake.
+> This should be more like a note to Linux distributors.
 
-Two years ago or so I used this to fix the CIS on a card
-that my camera no longer wanted to accept. A Linux utility
-to do this might be useful, but the problem always is that
-we do not really have a good mechanism.
+Hmm, I, on the other hand don't think it's correct. Because the kernel
+has extra code to delete the tables on wake, which is wrong. Thanks for
+noticing.
 
-How does one tell a driver that it has to do something special?
-Add yet another ioctl?
-
-Andries
-
---- /linux/2.6/linux-2.6.1/linux/drivers/usb/storage/sddr09.c	2004-01-11 14:20:50.000000000 +0100
-+++ sddr09.c	2004-01-25 11:26:19.000000000 +0100
-@@ -27,6 +27,20 @@
-  * 675 Mass Ave, Cambridge, MA 02139, USA.
-  */
- 
-+/*
-+ * Known vendor commands: 12 bytes, first byte is opcode
-+ *
-+ * E7: read scatter gather
-+ * E8: read
-+ * E9: write
-+ * EA: erase
-+ * EB: reset
-+ * EC: read status
-+ * ED: read ID
-+ * EE: write CIS (?)
-+ * EF: compute checksum (?)
-+ */
-+
- #include "transport.h"
- #include "protocol.h"
- #include "usb.h"
-@@ -461,6 +475,7 @@
-  * 
-  * Always precisely one block is erased; bytes 2-5 and 10-11 are ignored.
-  * The byte address being erased is 2*Eaddress.
-+ * The CIS cannot be erased.
-  */
- static int
- sddr09_erase(struct us_data *us, unsigned long Eaddress) {
-@@ -487,6 +502,20 @@
- }
- 
- /*
-+ * Write CIS Command: 12 bytes.
-+ * byte 0: opcode: EE
-+ * bytes 2-5: write address in shorts
-+ * bytes 10-11: sector count
-+ *
-+ * This writes at the indicated address. Don't know how it differs
-+ * from E9. Maybe it does not erase? However, it will also write to
-+ * the CIS.
-+ *
-+ * When two such commands on the same page follow each other directly,
-+ * the second one is not done.
-+ */
-+
-+/*
-  * Write Command: 12 bytes.
-  * byte 0: opcode: E9
-  * bytes 2-5: write address (big-endian, counting shorts, sector aligned).
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

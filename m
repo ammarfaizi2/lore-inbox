@@ -1,45 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319566AbSH3OJC>; Fri, 30 Aug 2002 10:09:02 -0400
+	id <S319571AbSH3OL3>; Fri, 30 Aug 2002 10:11:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319567AbSH3OJB>; Fri, 30 Aug 2002 10:09:01 -0400
-Received: from mail.pixelwings.com ([194.152.163.212]:56333 "EHLO
-	pixelwings.com") by vger.kernel.org with ESMTP id <S319566AbSH3OJB>;
-	Fri, 30 Aug 2002 10:09:01 -0400
-Date: Fri, 30 Aug 2002 16:13:18 +0200
-From: "Clemens 'Gullevek' Schwaighofer" <schwaigl@eunet.at>
-X-Mailer: The Bat! (v1.61) Personal
-Reply-To: "Clemens 'Gullevek' Schwaighofer" <schwaigl@eunet.at>
-Organization: Chaos is just another way of organisation
-X-Priority: 3 (Normal)
-Message-ID: <171543432754.20020830161318@eunet.at>
-To: Paul Mackerras <paulus@au1.ibm.com>
-CC: James Simmons <jsimmons@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: still ati fb errors with 2.5.31, thought patch applied
-In-Reply-To: <15725.20387.572658.456699@argo.ozlabs.ibm.com>
-References: <46344979984.20020828090546@eunet.at>
- <Pine.LNX.4.33.0208281114420.1459-100000@maxwell.earthlink.net>
- <15725.17098.681128.713398@argo.ozlabs.ibm.com>
- <15725.20387.572658.456699@argo.ozlabs.ibm.com>
+	id <S319572AbSH3OL3>; Fri, 30 Aug 2002 10:11:29 -0400
+Received: from web20503.mail.yahoo.com ([216.136.226.138]:57940 "HELO
+	web20503.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S319571AbSH3OL2>; Fri, 30 Aug 2002 10:11:28 -0400
+Message-ID: <20020830141552.77480.qmail@web20503.mail.yahoo.com>
+Date: Fri, 30 Aug 2002 16:15:52 +0200 (CEST)
+From: =?iso-8859-1?q?willy=20tarreau?= <wtarreau@yahoo.fr>
+Subject: Re: bonding quits working properly after a short time
+To: Sam James <sam.james@adelphia.com>, linux-kernel@vger.kernel.org
+Cc: willy@meta-x.org
+In-Reply-To: <69DCAE8DF2BFD411AACC0002A50A63F016BC7BAD@cdptex1.adelphiacom.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Paul, 
+> I have disabled the bonding for now.  This system 
+> has been working fine without bonding for quite 
+> some time with 2.4.14pre6 using eth0. 
+ 
+since you've disabled bonding, have you tried 
+both interfaces or only one of them ? eg: if 
+your system works fine on the tulip, it may be 
+the other one behaving badly. 
+  
+> also, in searching about this problem I read some 
+> old messages about bonding being non SMP safe, 
+> is that still true? this is a dual PPro 200 
+> system. 
+ 
+very old, it was one of the reasons I modified 
+the driver a few years ago, and should be OK 
+now. 
+  
+> P.S.  I didn't see anything in the MAINTAINERS 
+> file on bonding but Willy's name seems to be 
+> associated with the project so I cc'd him. 
+ 
+well, I don't have much time to spend on this 
+anymore, perhaps Chad Tindel has, but I doubt it. 
+that's the reason why I nearly didn't work on 
+the 2.4 port. But I still read reports, and 
+sometimes reply :-) 
+ 
+Cheers, 
+Willy 
 
-Thursday, August 29, 2002, 12:33:07 AM, Paul Mackerras wrote,
-and I answered on Freitag, 30. August 2002, 16:10:29 with this ...
 
-I can confirm too, that this kernel boots, with the fb patches
-applied, but now the font color is blue now.
-
-best regards, Clemens
--- 
-_________/\_____________________              ^_^             ()~()
-Clemens 'Gullevek' Schwaighofer \_______ @_@       ^_~       //@ @\\
-ICQ#: 9646646        I AM FROM AUSTRIA! \______________ °_° //\ ~ /\\
-http://www.animeundmanga.at | http://www.gullevek.org  \_____________
-
+___________________________________________________________
+Do You Yahoo!? -- Une adresse @yahoo.fr gratuite et en français !
+Yahoo! Mail : http://fr.mail.yahoo.com

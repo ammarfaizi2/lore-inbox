@@ -1,57 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262527AbUBXXT0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 18:19:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262528AbUBXXT0
+	id S262528AbUBXXVo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 18:21:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262525AbUBXXVo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 18:19:26 -0500
-Received: from 15.Red-80-33-233.pooles.rima-tde.net ([80.33.233.15]:56300 "EHLO
-	l0r0") by vger.kernel.org with ESMTP id S262527AbUBXXTU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 18:19:20 -0500
-Subject: ACPI fail in kernel 2.4.25 and 2.6.3
-From: Javier Gonzalez <javi@l0r0.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset=iso-8859-15
-Message-Id: <1077664167.909.19.camel@localhost>
+	Tue, 24 Feb 2004 18:21:44 -0500
+Received: from fed1mtao04.cox.net ([68.6.19.241]:15553 "EHLO
+	fed1mtao04.cox.net") by vger.kernel.org with ESMTP id S262528AbUBXXVk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Feb 2004 18:21:40 -0500
+Date: Tue, 24 Feb 2004 16:21:37 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: "Amit S. Kale" <amitkale@emsyssoft.com>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Split kgdb into "lite" and "normal" parts
+Message-ID: <20040224232137.GJ1052@smtp.west.cox.net>
+References: <20040218225010.GH321@elf.ucw.cz> <200402191322.52499.amitkale@emsyssoft.com> <20040224213908.GD1052@smtp.west.cox.net> <20040224221541.GA9145@elf.ucw.cz>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 25 Feb 2004 00:09:27 +0100
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040224221541.GA9145@elf.ucw.cz>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tue, Feb 24, 2004 at 11:15:41PM +0100, Pavel Machek wrote:
 
-Recently I have upgraded my kernel from 2.4.22-AlanCoxPatch. I have an
-Acer Travelmate 290LMi laptop (Centrino). All worked well with 2.4.22
-but i have problems with new kernels.
+> Hi!
+> 
+> > > Tested (core-lite.patch + i386-lite.patch + 8250.patch) combination.
+> > > Looks good.
+> > > 
+> > > Let's first check this in and then do more cleanups.
+> > > Tom, does it sound ok?
+> > 
+> > This sounds fine to me.  Pavel, I'm guessing you did this with quilt,
+> > could you provide some pointers on how to replicate this in the future?
+> 
+> Unfortunately, I done it by hand :-(. But if -lite parts are not
+> merged, soon, I'll be forced to start using quilt. Doing stuff by hand
+> is quite painfull...
 
-With 2.4.25 + cpufreq patch from
-ftp://ftp.linux.org.uk/pub/linux/cpufreq/ and a few minutes after boot
-(when i try to know battery state with acpi command) i get this "bucle"
-error:
-
-Feb 24 23:47:00 localhost kernel: acpi_battery-0195 [1619]
-acpi_battery_get_statu: Error evaluating _BST
-Feb 24 23:47:01 localhost kernel:  dswload-0279: *** Error: Looking up
-[PBST] in namespace, AE_ALREADY_EXISTS
-Feb 24 23:47:01 localhost kernel:  psparse-0588 [1626]
-ps_parse_loop         : During name lookup/catalog, AE_ALREADY_EXISTS
-Feb 24 23:47:01 localhost kernel:  psparse-1120: *** Error: Method
-execution failed [\_SB_.PCI0.LPC0.BAT1._BST] (Node c1562528),
-AE_ALREADY_EXISTS
-
-I tried with 2.6.3 and y get the same error :-( 
-
-I have twho friends with diferents laptops who have the same problem.
-
-Thank for your help.
+There's still a whole bunch of bogons in the -lite patch still, so I
+don't think it should be merged yet.
 
 -- 
-Un saludo:
-
-                            Javier González
-                   GNU/Linux registered user #302650
-
-
+Tom Rini
+http://gate.crashing.org/~trini/

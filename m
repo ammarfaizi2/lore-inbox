@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261359AbULERSE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261361AbULER3q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261359AbULERSE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Dec 2004 12:18:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261332AbULERFt
+	id S261361AbULER3q (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Dec 2004 12:29:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261360AbULER1O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Dec 2004 12:05:49 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:32010 "HELO
+	Sun, 5 Dec 2004 12:27:14 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:14348 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261333AbULERBi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Dec 2004 12:01:38 -0500
-Date: Sun, 5 Dec 2004 18:01:35 +0100
+	id S261364AbULERX2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Dec 2004 12:23:28 -0500
+Date: Sun, 5 Dec 2004 18:23:23 +0100
 From: Adrian Bunk <bunk@stusta.de>
 To: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/char/lp.c: make some code static
-Message-ID: <20041205170135.GQ2953@stusta.de>
+Subject: [2.6 patch] drivers/char/tty_io.c: misc cleanups
+Message-ID: <20041205172323.GC2953@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,52 +21,74 @@ User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below makes a struct and a function that both were needlessly 
-global static.
+The patch below contains the following cleanups:
+- remove the unused global function tty_push_data
+- make some needlessly global functions static
 
 
 diffstat output:
- drivers/char/lp.c  |    4 ++--
- include/linux/lp.h |    6 ------
- 2 files changed, 2 insertions(+), 8 deletions(-)
+ drivers/char/tty_io.c |   28 +++-------------------------
+ 1 files changed, 3 insertions(+), 25 deletions(-)
 
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
---- linux-2.6.10-rc1-mm3-full/include/linux/lp.h.old	2004-11-07 00:22:38.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/include/linux/lp.h	2004-11-07 00:22:51.000000000 +0100
-@@ -186,12 +186,6 @@
-  */
- #define LP_DELAY 	50
+--- linux-2.6.10-rc1-mm3-full/drivers/char/tty_io.c.old	2004-11-07 01:25:45.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/char/tty_io.c	2004-11-07 01:28:36.000000000 +0100
+@@ -327,7 +327,7 @@
+ 	
+ EXPORT_SYMBOL_GPL(tty_ldisc_put);
  
--/*
-- * function prototypes
+-void tty_ldisc_assign(struct tty_struct *tty, struct tty_ldisc *ld)
++static void tty_ldisc_assign(struct tty_struct *tty, struct tty_ldisc *ld)
+ {
+ 	tty->ldisc = *ld;
+ 	tty->ldisc.refcount = 0;
+@@ -583,7 +583,7 @@
+ /*
+  * This routine returns a tty driver structure, given a device number
+  */
+-struct tty_driver *get_tty_driver(dev_t device, int *index)
++static struct tty_driver *get_tty_driver(dev_t device, int *index)
+ {
+ 	struct tty_driver *p;
+ 
+@@ -744,7 +744,7 @@
+  * but doesn't hold any locks, so we need to make sure we have the appropriate
+  * locks for what we're doing..
+  */
+-void do_tty_hangup(void *data)
++static void do_tty_hangup(void *data)
+ {
+ 	struct tty_struct *tty = (struct tty_struct *) data;
+ 	struct file * cons_filp = NULL;
+@@ -2504,28 +2504,6 @@
+ }
+ 
+ /*
+- *	Call the ldisc flush directly from a driver. This function may
+- *	return an error and need retrying by the user.
 - */
 -
--extern int lp_init(void);
+-int tty_push_data(struct tty_struct *tty, unsigned char *cp, unsigned char *fp, int count)
+-{
+-	int ret = 0;
+-	struct tty_ldisc *disc;
+-	
+-	disc = tty_ldisc_ref(tty);
+-	if(test_bit(TTY_DONT_FLIP, &tty->flags))
+-		ret = -EAGAIN;
+-	else if(disc == NULL)
+-		ret = -EIO;
+-	else
+-		disc->receive_buf(tty, cp, fp, count);
+-	tty_ldisc_deref(disc);
+-	return ret;
+-	
+-}
 -
- #endif
- 
- #endif
---- linux-2.6.10-rc1-mm3-full/drivers/char/lp.c.old	2004-11-07 00:23:01.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/char/lp.c	2004-11-07 00:27:41.000000000 +0100
-@@ -142,7 +142,7 @@
- /* ROUND_UP macro from fs/select.c */
- #define ROUND_UP(x,y) (((x)+(y)-1)/(y))
- 
--struct lp_struct lp_table[LP_NO];
-+static struct lp_struct lp_table[LP_NO];
- 
- static unsigned int lp_count = 0;
- static struct class_simple *lp_class;
-@@ -867,7 +867,7 @@
- 	.detach = lp_detach,
- };
- 
--int __init lp_init (void)
-+static int __init lp_init (void)
- {
- 	int i, err = 0;
- 
-
+-/*
+  * Routine which returns the baud rate of the tty
+  *
+  * Note that the baud_table needs to be kept in sync with the
 

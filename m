@@ -1,67 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129523AbQLSVy5>; Tue, 19 Dec 2000 16:54:57 -0500
+	id <S129747AbQLSVzh>; Tue, 19 Dec 2000 16:55:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129747AbQLSVyr>; Tue, 19 Dec 2000 16:54:47 -0500
-Received: from [195.163.91.180] ([195.163.91.180]:56074 "EHLO frontpartner.com")
-	by vger.kernel.org with ESMTP id <S129523AbQLSVyj>;
-	Tue, 19 Dec 2000 16:54:39 -0500
-Message-ID: <3A3FD180.FB81D570@linux.se>
-Date: Tue, 19 Dec 2000 22:22:08 +0100
-From: Mathias Wiklander <eastbay@linux.se>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test12 i686)
-X-Accept-Language: en
+	id <S129886AbQLSVz2>; Tue, 19 Dec 2000 16:55:28 -0500
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:57607 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S129747AbQLSVzS>; Tue, 19 Dec 2000 16:55:18 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: "Michael J. Dikkema" <mjd@moot.ca>
+Date: Wed, 20 Dec 2000 08:24:32 +1100 (EST)
 MIME-Version: 1.0
-To: dougg@torque.net
-CC: linux-kernel@vger.kernel.org
-Subject: Re: aic7xxx
-In-Reply-To: <3A3C2116.46C60CDE@linux.se> <3A3C95B5.7A4D0696@haque.net> <3A3C9A23.553433CA@linux.se> <3A3D2CD3.F68BFC02@haque.net>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <14911.53776.854761.710519@notabene.cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.2.18 question (fh_lock_parent)
+In-Reply-To: message from Michael J. Dikkema on Tuesday December 19
+In-Reply-To: <Pine.LNX.4.21.0012190929280.637-100000@sliver.moot.ca>
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It didn't help me with this patch. The aic7xxx driver (module or
-kernelcompiled) just put this 4 rows:
-
-SCSI host 0 abort (pid 0) timed out - resetting
-SCSI bus is being reset for host 0 channel 0.
-SCSI host 0 channel 0 reset (pid 0) timed out - trying harder
-SCSI bus is being reset for host 0 channel 0.
-
-Anyone who knews what it means? 
-
-I need help.
-
-/Eastbay
-
-> There was a SCSI Makefile bug in test12 that caused
-> those unresoved symbols. This patch from Bob Tracy
-> fixes it.
+On Tuesday December 19, mjd@moot.ca wrote:
 > 
-> Doug Gilbert
+> I've been getting tonnes of these since I installed 2.2.18. Is this a
+> problem? Should I even worry about this? If I don't need to worry about
+> it, is there a way to stop displaying this message?
 > 
-> --- linux/drivers/scsi/Makefile Tue Dec 12 10:49:32 2000
-> +++ linux/drivers/scsi/Makefile.t12bt   Tue Dec 12 22:46:27 2000
-> @@ -30,7 +30,7 @@
->  CFLAGS_gdth.o    = # -DDEBUG_GDTH=2 -D__SERIAL__ -D__COM2__ -DGDTH_STATISTICS
->  CFLAGS_seagate.o =   -DARBITRATE -DPARITY -DSEAGATE_USE_ASM
->  
-> -obj-$(CONFIG_SCSI)             += scsi_mod.o
-> +obj-$(CONFIG_SCSI)             += scsi_mod.o scsi_syms.o
->  
->  obj-$(CONFIG_A4000T_SCSI)      += amiga7xx.o   53c7xx.o
->  obj-$(CONFIG_A4091_SCSI)       += amiga7xx.o   53c7xx.o
-> @@ -122,8 +122,7 @@
->  scsi_mod-objs  := scsi.o hosts.o scsi_ioctl.o constants.o \
->                         scsicam.o scsi_proc.o scsi_error.o \
->                         scsi_obsolete.o scsi_queue.o scsi_lib.o \
-> -                       scsi_merge.o scsi_dma.o scsi_scan.o \
-> -                       scsi_syms.o
-> +                       scsi_merge.o scsi_dma.o scsi_scan.o
->  
->  sr_mod-objs    := sr.o sr_ioctl.o sr_vendor.o
->  initio-objs    := ini9100u.o i91uscsi.o
+> fh_lock_parent: mqueue/xfBAA14279 parent changed or child unhashed
+> fh_lock_parent: mqueue/xfBAA16413 parent changed or child unhashed
+
+You are running sendmail on an NFS client with /var/spool mounted off
+the NFS server which is giving these message - right?
+
+These messages tend to indicate a race between two different NFS
+requests that try to do something to the one file - probably unlink
+it, though possibly rename it.
+
+If everything is configured properly (e.g. you don't have two
+different sendmails on two different clients trying to use the one
+shared spool area), then this would seem to imply that the server is
+responding more slowly that the client would like, and the client is
+resending the unlink (or whatever) request and so there are two
+identical requests being served by the NFS server and they race.
+
+So it is hard to be sure if you should worry about this.
+Maybe if you tell us what you are trying to do (i.e. confirm the
+configuration of sendmail, NFS mounts and the number of clients.
+Also, how frequent is this?  Would you be able to get a tcpdump of a
+few hundred packets either side of the message? If you do try this,
+make sure that you use a large snap-length for tcpdump (-s 1024) to
+get the whole nfs packet.
+
+NeilBrown
+
+> 
+> ,.;::
+> : Michael J. Dikkema
+> | Systems / Network Admin - Internet Solutions, Inc.
+> | http://www.moot.ca   Work: (204) 982-1060
+> ; mjd@moot.ca
+> ',.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

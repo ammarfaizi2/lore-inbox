@@ -1,74 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261852AbUCQSOm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Mar 2004 13:14:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261900AbUCQSOm
+	id S261899AbUCQSP7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Mar 2004 13:15:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261900AbUCQSP7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Mar 2004 13:14:42 -0500
-Received: from ztxmail04.ztx.compaq.com ([161.114.1.208]:64519 "EHLO
-	ztxmail04.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id S261852AbUCQSOe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Mar 2004 13:14:34 -0500
-Message-ID: <405893FC.4030209@hp.com>
-Date: Wed, 17 Mar 2004 13:07:56 -0500
-From: Robert Picco <Robert.Picco@hp.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
+	Wed, 17 Mar 2004 13:15:59 -0500
+Received: from web60709.mail.yahoo.com ([216.109.117.232]:64701 "HELO
+	web60709.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261899AbUCQSPh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Mar 2004 13:15:37 -0500
+Message-ID: <20040317181537.43286.qmail@web60709.mail.yahoo.com>
+Date: Wed, 17 Mar 2004 10:15:37 -0800 (PST)
+From: VINOD GOPAL <vinod_gopal74@yahoo.com>
+Subject: Re: arithmetic functions for linux driver
+To: John Bradford <john@grabjohn.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <200403171811.i2HIBA7o000386@81-2-122-30.bradfords.org.uk>
 MIME-Version: 1.0
-To: davidm@hpl.hp.com
-Cc: linux-kernel@vger.kernel.org, colpatch@us.ibm.com, mbligh@aracnet.com
-Subject: Re: boot time node and memory limit options
-References: <40573460.9090605@hp.com> <16471.48076.447058.132559@napali.hpl.hp.com>
-In-Reply-To: <16471.48076.447058.132559@napali.hpl.hp.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi David:
+The range of input is varying.
+Iam looking for floating point arithmetic functions
+like log10, pow , sin ,exp , cos etc.
 
-Well our IA64 "mem=" is used in efi_memmap_walk.  We could change the 
-name to "max_address=".  The X86 "mem=" takes effect before the bootmem 
-allocator is initialized.  My patch eliminates memory before
-mem_init frees all bootmap memory.  My proposed patch doesn't have the 
-same functionality as X86 "mem=".
+-vg
+--- John Bradford <john@grabjohn.com> wrote:
+> >  I need to use the arithmetic functions like sin,
+> cos,
+> > exp, log, etc in linux device driver.
+> > 
+> >  On search read , not to use libm from kernel
+> driver
+> > as it will harm the fpu registers.
+> >   
+> >   Do you have any insight how to support these
+> > functions in linux driver or any code that is
+> > available which I can make use of?
+> 
+> What exactly are you trying to do?  Why not simply
+> create a look up
+> table for the functions you need, if the expected
+> range of input
+> values is small?
+> 
+> John.
 
-thanks,
 
-Bob
-
-David Mosberger wrote:
-
->Hi Bob,
->
->  
->
->>>>>>On Tue, 16 Mar 2004 12:07:44 -0500, Robert Picco <Robert.Picco@hp.com> said:
->>>>>>            
->>>>>>
->
->  Bob> This patch supports three boot line options.  mem_limit limits
->  Bob> the amount of physical memory.  node_mem_limit limits the
->  Bob> amount of physical memory per node on a NUMA machine.
->  Bob> nodes_limit reduces the number of NUMA nodes to the value
->  Bob> specified.  On a NUMA machine an eliminated node's CPU(s) are
->  Bob> removed from the cpu_possible_map.
->
->  Bob> The patch has been tested on an IA64 NUMA machine and
->  Bob> uniprocessor X86 machine.
->
->Would it make sense to improve on the consistency of the "mem" option
->at the same time.  IIRC, "mem=N" on x86 means "limit amount of memory
->to N", whereas on ia64 it means "ignore memory above N".  In my
->opinion, it would make sense to change the ia64 "mem" to option to
->match the behavior on x86 and then to use "mem_limit=N" for the
->"ignore memory above N" case (which is very useful for testing
->addressing issues, such as I/O MMU issues).
->
->Thanks,
->
->	--david
->
->  
->
-
+__________________________________
+Do you Yahoo!?
+Yahoo! Mail - More reliable, more storage, less spam
+http://mail.yahoo.com

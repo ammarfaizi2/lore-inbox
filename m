@@ -1,52 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261565AbVCNQiL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261577AbVCNQid@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261565AbVCNQiL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 11:38:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261577AbVCNQiL
+	id S261577AbVCNQid (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 11:38:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261578AbVCNQid
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 11:38:11 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:19161 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261565AbVCNQiI (ORCPT
+	Mon, 14 Mar 2005 11:38:33 -0500
+Received: from hobbit.corpit.ru ([81.13.94.6]:46687 "EHLO hobbit.corpit.ru")
+	by vger.kernel.org with ESMTP id S261577AbVCNQiX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 11:38:08 -0500
-Date: Mon, 14 Mar 2005 17:37:52 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Rene Scharfe <rene.scharfe@lsrfire.ath.cx>
-Cc: Albert Cahalan <albert@users.sf.net>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, viro@parcelfarce.linux.theplanet.co.uk, pj@engr.sgi.com,
-       7eggert@gmx.de
-Subject: Re: [PATCH][RFC] Make /proc/<pid> chmod'able
-Message-ID: <20050314163749.GA5186@elf.ucw.cz>
-References: <1110771251.1967.84.camel@cube> <42355C78.1020307@lsrfire.ath.cx>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42355C78.1020307@lsrfire.ath.cx>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+	Mon, 14 Mar 2005 11:38:23 -0500
+Message-ID: <4235BDFD.1070505@tls.msk.ru>
+Date: Mon, 14 Mar 2005 19:38:21 +0300
+From: Michael Tokarev <mjt@tls.msk.ru>
+User-Agent: Debian Thunderbird 1.0 (X11/20050116)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: mouse&keyboard with 2.6.10+
+References: <4235683E.1020403@tls.msk.ru> <42357AE0.4050805@tls.msk.ru> <20050314142847.GA4001@ucw.cz> <4235B367.3000506@tls.msk.ru> <20050314162537.GA2716@ucw.cz>
+In-Reply-To: <20050314162537.GA2716@ucw.cz>
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> >This is a bad idea. Users should not be allowed to
-> >make this decision. This is rightly a decision for
-> >the admin to make.
+Vojtech Pavlik wrote:
+> On Mon, Mar 14, 2005 at 06:53:11PM +0300, Michael Tokarev wrote:
 > 
-> Why do you think users should not be allowed to chmod their processes' 
-> /proc directories?  Isn't it similar to being able to chmod their home 
-> directories?  They own both objects, after all (both conceptually and as 
-> attributed in the filesystem).
+>>Vojtech Pavlik wrote:
+>>
+>>>On Mon, Mar 14, 2005 at 02:52:00PM +0300, Michael Tokarev wrote:
+>>>
+>>>
+>>>
+>>>>After plugging in USB keyboard and loading uhci-hcd and
+>>>>usbhid, the keyboard un-freeze, but mouse still didn't
+>>>>work.  So I tried re-loading psmouse module, and
+>>>>surprizingly, mouse started working again, but now dmesg
+>>>>says:
+>>>>
+>>>>input: PS2++ Logitech Wheel Mouse on isa0060/serio1
+>>>>
+>>>>(normally it's
+>>>>input: ImPS/2 Generic Wheel Mouse on isa0060/serio1
+>>>>)
+>>>>
+>>>>and the mouse is moving very fast now.  Previously
+>>>>I either didn't able to make it work at all after such
+>>>>freeze, or it worked automatically after loading usbhid.
+>>>>
+>>>>BTW, it's 2.6.10, I can't made it work with 2.6.11 at all.
+>>>
+>>>
+>>>Can you try 'usb-handoff' on the kernel command line?
+>>
+>>The problem has nothing to do with USB per se, as far as
+>>I can see.  PS2 keyboard and mouse does not work when
+>>the USB subsystem (incl. usbcore) is not loaded.  And the
+>>problem is with PS2 keyboard/mouse, not with USB one which
+>>works just fine.
+>  
+> Of course. Nevertheless 'usb-handoff' tells the BIOS not to meddle with
+> the PS/2 interfaces, too. 
 
-As a co-admin of university server...
+Oh me bad, I should listen to whatever is being said, instead
+of doing my stupid guesses...  Just rebooted into 2.6.11.3
+with usb-handoff and both the keyboard and mouse are Just Works,
+and psmouse driver loads almost immediately too.
 
-Yes, I want users to see what each other user is doing. That way, if
-someone hacks one account, some other user can notice and tell me.
+Also, it works just fine after turning off USB Keyboard and
+Mouse support in BIOS and without usb-handoff kernel parameter.
 
-In some environments it may make sense not to allow users to chmod
-their $HOMEs (so that they can't hide mp3's etc), but we are not
-*that* stupid/paranoid ;-).
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+In 2.6.9 (it works just fine too, problem happens with 2.6.10
+and up only), there's no such parameter in drivers/pci/quirks.c.
+Hmm.
+
+So is this a bios/mobo problem, or can it be solved in kernel
+somehow?
+
+Thanks very much for your attention.
+
+/mjt

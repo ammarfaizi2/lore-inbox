@@ -1,52 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129875AbQLTP0g>; Wed, 20 Dec 2000 10:26:36 -0500
+	id <S129597AbQLTPb4>; Wed, 20 Dec 2000 10:31:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129873AbQLTP00>; Wed, 20 Dec 2000 10:26:26 -0500
-Received: from [200.43.18.234] ([200.43.18.234]:57100 "EHLO
-	radius.telpin.com.ar") by vger.kernel.org with ESMTP
-	id <S129784AbQLTP0Q>; Wed, 20 Dec 2000 10:26:16 -0500
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Weird vmstat reports in 2.2.18
-Message-ID: <977324137.3a40c869a394e@webmail.telpin.com.ar>
-Date: Wed, 20 Dec 2000 11:55:37 -0300 (ARST)
-From: albertogli@telpin.com.ar
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: IMP/PHP IMAP webmail program 2.2.1
+	id <S129781AbQLTPbq>; Wed, 20 Dec 2000 10:31:46 -0500
+Received: from p3EE3C909.dip.t-dialin.net ([62.227.201.9]:14853 "HELO
+	emma1.emma.line.org") by vger.kernel.org with SMTP
+	id <S129597AbQLTPbe>; Wed, 20 Dec 2000 10:31:34 -0500
+Date: Wed, 20 Dec 2000 16:01:04 +0100
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [2.2.18] VM: do_try_to_free_pages failed
+Message-ID: <20001220160104.C13539@emma1.emma.line.org>
+Mail-Followup-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20001220130259.A9659@emma1.emma.line.org> <E148j3b-0001WK-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E148j3b-0001WK-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Wed, Dec 20, 2000 at 13:13:22 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm getting some strange reports with vmstat on a dual iPPro running 2.2.18,
-it doesnt happen very frequently, but i see it a lot when compiling something 
-(kernel and mysql specially, not when compiling small stuff), though it doesnt 
-look like a high-load issue. When the machine is idle (ie. most of the time at 
-the moment) it doesnt show up.
+On Wed, 20 Dec 2000, Alan Cox wrote:
 
-The report is like this:
-#vmstat 1 60 | awk '{ print $16 }'
-id
-0
-0
-20452224
-1
-20452224
-0
-1
-20452224
-1
-0
-0
+> > How can I get rid of those do_try_to_free_pages lockups? That box
+> > exports root file systems for some SparcStation 2 that are used as X
+> > terminals, so it's pretty important I keep that box running.
+> > 
+> > Should I try the most recent 2.2.19-pre?
+> 
+> 2.2.19pre2 should resolve that problem
 
-I wasnt able to trigger it in a predictable way, it just pops up...
-BUT if i open two vmstats in different consoles.. the number doesnt show up in 
-both, just in one of them... so i'm not sure at all if this is a kernel bug, or 
-just another (vmstat?) feature =)
-I also found a reference to something similar in 
-http://www.uwsg.iu.edu/hypermail/linux/kernel/0009.3/0273.html
+I'll give that a try. Thanks to you and Ville Herva for replying.
 
-       Alberto
+-- 
+Matthias Andree
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

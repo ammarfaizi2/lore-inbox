@@ -1,71 +1,55 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315832AbSENQtd>; Tue, 14 May 2002 12:49:33 -0400
+	id <S315830AbSENQsj>; Tue, 14 May 2002 12:48:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315839AbSENQtb>; Tue, 14 May 2002 12:49:31 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:39412 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S315832AbSENQtZ>; Tue, 14 May 2002 12:49:25 -0400
-Subject: [PATCH] 2.4-ac resend: SMP compile fix for sched.c
-From: Robert Love <rml@tech9.net>
-To: alan@redhat.com
-Cc: linux-kernel@vger.kernel.org
-Content-Type: multipart/mixed; boundary="=-aMXaJT07RqPEUQwnEPXR"
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 14 May 2002 09:49:17 -0700
-Message-Id: <1021394957.823.42.camel@sinai>
-Mime-Version: 1.0
+	id <S315832AbSENQsi>; Tue, 14 May 2002 12:48:38 -0400
+Received: from gateway.ukaea.org.uk ([194.128.63.73]:14635 "EHLO
+	fuspcnjc.culham.ukaea.org.uk") by vger.kernel.org with ESMTP
+	id <S315830AbSENQsh>; Tue, 14 May 2002 12:48:37 -0400
+Message-ID: <3CE13F99.5BDED3DF@ukaea.org.uk>
+Date: Tue, 14 May 2002 17:47:21 +0100
+From: Neil Conway <nconway.list@ukaea.org.uk>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-31 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+CC: Martin Dalecki <dalecki@evision-ventures.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.15 IDE 61
+In-Reply-To: <E177dYp-00083c-00@the-village.bc.nu> <3CE11F90.5070701@evision-ventures.com> <3CE13943.FBD5B1D6@ukaea.org.uk> <20020514163241.GR17509@suse.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jens Axboe wrote:
+> On Tue, May 14 2002, Neil Conway wrote:
+> > that's all the actual spinlock buys you.  It does not IIUC mean that you
+> > can't get a call to request_fn of one queue while the other queue has
+> > lots of requests in it (which are potentially being serviced by DMA).
+> 
+> Bingo, this is exactly right and makes the point a hell of a lot better
+> than I did in my previous mail. Shared locks will only buy you that
+> noone fiddles with one list while the other is busy (ie nothing for us).
 
---=-aMXaJT07RqPEUQwnEPXR
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Cool, thanks ;-)  Now watch me blow all my cred with this post:
 
-Alan,
+> To really serialize operations the queue _must_ be shared with whoever
+> requires serialiation.
 
-Attached patch fixes the CONFIG_SMP compile error in kernel/sched.c due
-to my latest O(1) scheduler patches that went into -ac2.  I apologize
-for the slip - not sure how I missed the error.
+Why will this help?  The hardware can still be doing DMA on hda while
+the queue's request_fn is called quite legitimately for a hdb request -
+and the IDE code MUST impose the serialization here to avoid hitting the
+cable with commands destined for hdb. (For example, by waiting for
+!channel->busy.)
 
-Patch is against 2.4.19-pre8-ac3 - please apply.  Thanks,
+> If not, the problem will have to be solved at the IDE level, not the
+> block level. And that has not looked pretty in the past.
 
-	Robert Love
+I just can't see a way for the block level to remove the need for the
+busy flag.  I _think_ Alan just agreed with me.  I'm not sure but I get
+the impression that you are saying the IDE code doesn't need to do this
+serialization...
 
-
-
---=-aMXaJT07RqPEUQwnEPXR
-Content-Disposition: attachment; filename=sched-compile-fix-rml-2.4.19-pre8-ac3-1.patch
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/x-patch; name=sched-compile-fix-rml-2.4.19-pre8-ac3-1.patch;
-	charset=ISO-8859-1
-
-diff -urN linux-2.4.19-pre8-ac3/kernel/sched.c linux/kernel/sched.c
---- linux-2.4.19-pre8-ac3/kernel/sched.c	Tue May 14 09:40:05 2002
-+++ linux/kernel/sched.c	Tue May 14 09:46:56 2002
-@@ -1592,18 +1592,18 @@
- 		cpu_dest =3D __ffs(p->cpus_allowed);
- 		rq_dest =3D cpu_rq(cpu_dest);
- repeat:
--		cpu_src =3D p->thread_info->cpu;
-+		cpu_src =3D p->cpu;
- 		rq_src =3D cpu_rq(cpu_src);
-=20
- 		local_irq_save(flags);
- 		double_rq_lock(rq_src, rq_dest);
--		if (p->thread_info->cpu !=3D cpu_src) {
-+		if (p->cpu !=3D cpu_src) {
- 			double_rq_unlock(rq_src, rq_dest);
- 			local_irq_restore(flags);
- 			goto repeat;
- 		}
- 		if (rq_src =3D=3D rq) {
--			p->thread_info->cpu =3D cpu_dest;
-+			p->cpu =3D cpu_dest;
- 			if (p->array) {
- 				deactivate_task(p, rq_src);
- 				activate_task(p, rq_dest);
-
---=-aMXaJT07RqPEUQwnEPXR--
-
+I'm certainly learning, thanks guys.
+Neil

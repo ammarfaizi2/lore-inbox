@@ -1,188 +1,249 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266760AbTAIOnl>; Thu, 9 Jan 2003 09:43:41 -0500
+	id <S266777AbTAIOsA>; Thu, 9 Jan 2003 09:48:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266761AbTAIOnl>; Thu, 9 Jan 2003 09:43:41 -0500
-Received: from mail.t-intra.de ([62.156.147.75]:5565 "EHLO mailc0910.dte2k.de")
-	by vger.kernel.org with ESMTP id <S266760AbTAIOni>;
-	Thu, 9 Jan 2003 09:43:38 -0500
-Date: Thu, 9 Jan 2003 17:50:32 +0100 (CET)
-From: Chrissie <x.chrissie.x@t-online.de>
-To: mdharm-usb@one-eyed-alien.net, <linux-kernel@vger.kernel.org>,
-       <sjr@debian.org>, <eyesee@gmx.net>, <anti@webhome.de>,
-       <thomas.hechelhammer@t-online.de>
-Subject: Oops with usb-mass-storage
-Message-ID: <Pine.LNX.4.50.0301091702070.958-100000@balearen.x-tra-designs>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 09 Jan 2003 14:52:20.0318 (UTC) FILETIME=[B5FD6FE0:01C2B7EE]
+	id <S266794AbTAIOsA>; Thu, 9 Jan 2003 09:48:00 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:14023 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S266777AbTAIOr4>; Thu, 9 Jan 2003 09:47:56 -0500
+Date: Thu, 9 Jan 2003 15:56:33 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: bjornw@axis.com, dev-etrax@axis.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.5 patch] small cleanups for arch/cris/drivers/serial.c
+Message-ID: <20030109145633.GW6626@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+The patch below makes the following changes to 
+arch/cris/drivers/serial.c:
+- remove #if'd kernel 2.0 and 2.2 compatibility code
+- remove an unused #define MIN
 
-I bought the digital still camera Praktica DC21. It is one of the
-cheaper models with usb-storage emulation. Under win98, the camera works
-well and appears as an additional drive in explorer, after i had the
-drive-INF-file installed. The camera is a sony-based oem-version, i found
-out. You can look for addidional Informations of the camera at
-www.praktica.de.
-
-I thought, it should be possible to use every usb mass storage device with
-compact flash card under linux. But the first time i plugged in the camera
-onto the usb-port, i could not even think about mounting it.
-
-The device identifies as following:
-chrissie@balearen:~$ cat /proc/bus/usb/devices
-T:  Bus=01 Lev=00 Prnt=00 Port=00 Cnt=00 Dev#=  1 Spd=12  MxCh= 2
-B:  Alloc=  0/900 us ( 0%), #Int=  0, #Iso=  0
-D:  Ver= 1.00 Cls=09(hub  ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
-P:  Vendor=0000 ProdID=0000 Rev= 0.00
-S:  Product=USB UHCI Root Hub
-S:  SerialNumber=d400
-C:* #Ifs= 1 Cfg#= 1 Atr=40 MxPwr=  0mA
-I:  If#= 0 Alt= 0 #EPs= 1 Cls=09(hub  ) Sub=00 Prot=00 Driver=hub
-E:  Ad=81(I) Atr=03(Int.) MxPS=   8 Ivl=255ms
-T:  Bus=01 Lev=01 Prnt=01 Port=01 Cnt=01 Dev#=  4 Spd=12  MxCh= 0
-D:  Ver= 1.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
-P:  Vendor=084d ProdID=0011 Rev= 1.10
-S:  Manufacturer=
-S:  Product=DC2MEGA
-C:* #Ifs= 1 Cfg#= 1 Atr=80 MxPwr=500mA
-I:  If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=06 Prot=50 Driver=usb-storage
-E:  Ad=81(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-E:  Ad=05(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-
-I added the device in unusual_devs.h.
-
-// added by chrissie
-UNUSUAL_DEV (0x084d, 0x0011, 0x0001, 0x9999,
-                "Praktika D2MEGA",
-                "Digital Camera",
-                US_SC_SCSI, US_PR_BULK, NULL,
-                US_FL_MODE_XLATE ),
-
-Then i compiled and installed the modules.
-
-I am using Debian Linux 3.0r1, with an kernel 2.4.20, self-compiled.
-chrissie@balearen:~$ uname -a
-Linux balearen 2.4.20 #8 Thu Jan 9 15:55:10 CET 2003 i686 unknown
-
-Now, i get the following output in dmesg after switching the camera on:
-hub.c: connect-debounce failed, port 2 disabled
-hub.c: new USB device 00:07.2-2, assigned address 2
-scsi1 : SCSI emulation for USB Mass Storage devices
-  Vendor:           Model:                   Rev:
-  Type:   Direct-Access                      ANSI SCSI revision: 02
-WARNING: USB Mass Storage data integrity not assured
-USB Mass Storage device found at 2
-
-Looks quite good, i think.
-
-chrissie@balearen:~$ cat /proc/scsi/scsi
-Attached devices:
-Host: scsi0 Channel: 00 Id: 00 Lun: 00
-  Vendor: LITEON   Model: CD-ROM LTN301    Rev: ML35
-  Type:   CD-ROM                           ANSI SCSI revision: 02
-Host: scsi0 Channel: 00 Id: 01 Lun: 00
-  Vendor:          Model: CD-R/RW RW7120A  Rev: 1.10
-  Type:   CD-ROM                           ANSI SCSI revision: 02
-Host: scsi1 Channel: 00 Id: 00 Lun: 00
-  Vendor: DSC      Model: Card Reader      Rev:  .
-  Type:   Direct-Access                    ANSI SCSI revision: 02
-
-The device now seems to be recogniced, and the usb-storage-to-scsi seems
-to work as well.
-
-I was very happy so far. But when i enter the following:
-
-root@balearen:~# mount /dev/sda1 /mnt -t vfat
-
-i get an kernel oops after following additional output to the console
-
-usb-uhci: interrupt, status 3, frame #1976
-          interrupt, status 2, frame #1259
-
-a ps -ax at another console at this time tells me, that the sd_mod is in
-the state initializing.
-
-The console now hangs for a short time, and the following kernel oops is
-as follows:
-usb.c: usb disconnect on device 00:07.2-2 adress 3
-Unable to handle kernel NULL pointer dereference at virtual address
-0000000c
-printing eip
-c01261d8
-*pde=00000000
-Oops: 0000
-CPU: 0
-EIP: 0010:[<c01261d8>] Not tainted
-Eflags: 0001002
-eax: 00b00000 ebx: 00000093 ecx: 00000000 edx: c100001c
-esi: 00000000 edi: 00000206 ebp: ce13be00 esp: c9c39de0
-ds: 0018 es:0018 ss:0018
-
-Process usb.agent (pid:1010, stackpage=c9c39000)
-
-Stack 00000000 ce9348c0 00000000 ce13be00 c01d2b23 00000693 ce13be00
-ce9348c0
-      00000000 ce13be00 ce13be00 d0838e50 c1338860 ce13be00 c01d202c
-ce13be00
-      ce13be00 00000000 d083977c ce13be00 c133887c c1338860 00000000
-00000000
-
-Call trace: [<c01d2b23>] [<d0838e50>] [<c01d202c>] [<d0839852>]
-            [<c0107e8d>] [<c0107ff6>] [<c010a1d8>] [<c011f09b>]
-[<c010eb64>]
-            [<c010ea04>] [<c011992c>] [<c011a904>] [<c0106cc4>]
-
-Code: 2b 59 0c 89 d8 31 d2 f7 76 18 89 c3 86 41 14 89 44 99 18 89
-
-<0> Kernel panic: Aiee, killing interrupt handler!
-    In interrupt handler: not syncing
-
-Additionally, a LED at the keyboard is flashing.
-Now, the system is dead and i have to do a hardware-reset.
-
-Now, some additional system information:
-(if interesting for you)
-balearen:~# gcc --version
-2.95.4
-balearen:~# lspci
-00:00.0 Host bridge: VIA Technologies, Inc. VT82C693A/694x [Apollo
-PRO133x] (rev 44)
-00:01.0 PCI bridge: VIA Technologies, Inc. VT82C598/694x [Apollo
-MVP3/Pro133x AGP]
-00:07.0 ISA bridge: VIA Technologies, Inc. VT82C596 ISA [Mobile South]
-(rev 12)
-00:07.1 IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 06)
-00:07.2 USB Controller: VIA Technologies, Inc. UHCI USB (rev 08)
-00:07.3 Host bridge: VIA Technologies, Inc. VT82C596 Power Management (rev
-20)
-00:0a.0 VGA compatible controller: ATI Technologies Inc 3D Rage Pro (rev
-5c)
-00:0c.0 Ethernet controller: 3Com Corporation 3c900 Combo [Boomerang]
-00:0e.0 Ethernet controller: D-Link System Inc Sundance Ethernet
-00:10.0 Communication controller: Conexant HSF 56k Data/Fax/Voice Modem
-(rev 01)
-
-The processor i am using is a Celeron Coppermine 733 MHz overcloced to
-1100 MHz,
+cu
+Adrian
 
 
-Well, to come to an end:
-I am really interested to get this camera to work under Linux.
-
-Can you tell me, what to do any further? I am at the end from my sight, so
-far.
-
-
-Matthew Dharm: i can send the camera to you for a period of time, if you
-are interested.
-
-Thanks in advance for any help!
-
-Christian Braeunlich (chrissie)
-x.chrissie.x@t-online.de
-
-
+--- linux-2.5.55/arch/cris/drivers/serial.c.old	2003-01-09 15:42:43.000000000 +0100
++++ linux-2.5.55/arch/cris/drivers/serial.c	2003-01-09 15:53:52.000000000 +0100
+@@ -301,12 +301,8 @@
+ #include <linux/fcntl.h>
+ #include <linux/mm.h>
+ #include <linux/slab.h>
+-#if (LINUX_VERSION_CODE >= 131343)
+ #include <linux/init.h>
+-#endif
+-#if (LINUX_VERSION_CODE >= 131336)
+ #include <asm/uaccess.h>
+-#endif
+ #include <linux/kernel.h>
+ 
+ #include <asm/io.h>
+@@ -323,14 +319,6 @@
+ /* while we keep our own stuff (struct e100_serial) in a local .h file */
+ #include "serial.h"
+ 
+-/*
+- * All of the compatibilty code so we can compile serial.c against
+- * older kernels is hidden in serial_compat.h
+- */
+-#if defined(LOCAL_HEADERS) || (LINUX_VERSION_CODE < 0x020317) /* 2.3.23 */
+-#include "serial_compat.h"
+-#endif
+-
+ #define _INLINE_ inline
+ 
+ static DECLARE_TASK_QUEUE(tq_serial);
+@@ -639,10 +627,6 @@
+ #define E100_DSR_GET(info) ((*e100_modem_pins[(info)->line].port) & (1 << e100_modem_pins[(info)->line].dsr_bit))
+ 
+ 
+-#ifndef MIN
+-#define MIN(a,b)	((a) < (b) ? (a) : (b))
+-#endif
+-
+ /*
+  * tmp_buf is used as a temporary buffer by serial_write.  We need to
+  * lock it in case the memcpy_fromfs blocks while swapping in a page,
+@@ -1648,12 +1632,8 @@
+ 
+ 	restore_flags(flags);
+ 
+-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,1,66)
+ 	/* this includes a check for low-latency */
+ 	tty_flip_buffer_push(tty);
+-#else
+-	queue_task_irq_off(&tty->flip.tqueue, &tq_timer);
+-#endif
+ 
+ 	/* unthrottle if we have throttled */
+ 	if (E100_RTS_GET(info) &&
+@@ -2600,9 +2580,7 @@
+ 	info->type = new_serial.type;
+ 	info->close_delay = new_serial.close_delay;
+ 	info->closing_wait = new_serial.closing_wait;
+-#if (LINUX_VERSION_CODE > 0x20100)
+ 	info->tty->low_latency = (info->flags & ASYNC_LOW_LATENCY) ? 1 : 0;
+-#endif
+ 
+  check_and_exit:
+ 	if (info->flags & ASYNC_INITIALIZED) {
+@@ -2775,41 +2753,6 @@
+ /*
+  * This routine sends a break character out the serial port.
+  */
+-#if (LINUX_VERSION_CODE < 131394) /* Linux 2.1.66 */
+-static void 
+-send_break(struct e100_serial * info, int duration)
+-{
+-	unsigned long flags;	
+-
+-	if (!info->port)
+-		return;
+-
+-	current->state = TASK_INTERRUPTIBLE;
+-	current->timeout = jiffies + duration;
+-
+-	save_flags(flags);
+-	cli();
+-
+-	/* Go to manual mode and set the txd pin to 0 */
+-
+-	info->tx_ctrl &= 0x3F; /* Clear bit 7 (txd) and 6 (tr_enable) */
+-	info->port[REG_TR_CTRL] = info->tx_ctrl;
+-
+-	/* wait for "duration" jiffies */
+-
+-	schedule();
+-
+-	info->tx_ctrl |= (0x80 | 0x40); /* Set bit 7 (txd) and 6 (tr_enable) */
+-	info->port[REG_TR_CTRL] = info->tx_ctrl;
+-
+-	/* the DMA gets awfully confused if we toggle the tranceiver like this 
+-	 * so we need to reset it 
+-	 */
+-	*info->ocmdadr = 4;
+-
+-	restore_flags(flags);
+-}
+-#else
+ static void 
+ rs_break(struct tty_struct *tty, int break_state)
+ {
+@@ -2830,19 +2773,15 @@
+ 	info->port[REG_TR_CTRL] = info->tx_ctrl;
+ 	restore_flags(flags);
+ }
+-#endif
+ 
+ static int 
+ rs_ioctl(struct tty_struct *tty, struct file * file,
+ 	 unsigned int cmd, unsigned long arg)
+ {
+ 	struct e100_serial * info = (struct e100_serial *)tty->driver_data;
+-#if defined(CONFIG_ETRAX_RS485) || (LINUX_VERSION_CODE < 131394) /* Linux 2.1.66 */
++#if defined(CONFIG_ETRAX_RS485)
+ 	int error;
+ #endif
+-#if (LINUX_VERSION_CODE < 131394) /* Linux 2.1.66 */
+-	int retval;
+-#endif
+ 	
+ 	if ((cmd != TIOCGSERIAL) && (cmd != TIOCSSERIAL) &&
+ 	    (cmd != TIOCSERCONFIG) && (cmd != TIOCSERGWILD)  &&
+@@ -2852,45 +2791,6 @@
+ 	}
+ 	
+ 	switch (cmd) {
+-#if (LINUX_VERSION_CODE < 131394) /* Linux 2.1.66 */
+-	        case TCSBRK:	/* SVID version: non-zero arg --> no break */
+-			retval = tty_check_change(tty);
+-			if (retval)
+-				return retval;
+-			tty_wait_until_sent(tty, 0);
+-			if (signal_pending(current))
+-				return -EINTR;
+-			if (!arg) {
+-				send_break(info, HZ/4);	/* 1/4 second */
+-				if (signal_pending(current))
+-					return -EINTR;
+-			}
+-			return 0;
+-		case TCSBRKP:	/* support for POSIX tcsendbreak() */
+-			retval = tty_check_change(tty);
+-			if (retval)
+-				return retval;
+-			tty_wait_until_sent(tty, 0);
+-			if (signal_pending(current))
+-				return -EINTR;
+-			send_break(info, arg ? arg*(HZ/10) : HZ/4);
+-			if (signal_pending(current))
+-				return -EINTR;
+-			return 0;
+-		case TIOCGSOFTCAR:
+-			error = verify_area(VERIFY_WRITE, (void *) arg,sizeof(long));
+-			if (error)
+-				return error;
+-			put_fs_long(C_CLOCAL(tty) ? 1 : 0,
+-				    (unsigned long *) arg);
+-			return 0;
+-		case TIOCSSOFTCAR:
+-			arg = get_fs_long((unsigned long *) arg);
+-			tty->termios->c_cflag =
+-				((tty->termios->c_cflag & ~CLOCAL) |
+-				 (arg ? CLOCAL : 0));
+-			return 0;
+-#endif
+ 		case TIOCMGET:
+ 			return get_modem_info(info, (unsigned int *) arg);
+ 		case TIOCMBIS:
+@@ -3311,9 +3211,7 @@
+ 	tty->driver_data = info;
+ 	info->tty = tty;
+ 
+-#if (LINUX_VERSION_CODE > 0x20100)
+ 	info->tty->low_latency = (info->flags & ASYNC_LOW_LATENCY) ? 1 : 0;
+-#endif
+ 
+ 	if (!tmp_buf) {
+ 		page = get_zeroed_page(GFP_KERNEL);
+@@ -3497,9 +3395,7 @@
+   
+ 	memset(&serial_driver, 0, sizeof(struct tty_driver));
+ 	serial_driver.magic = TTY_DRIVER_MAGIC;
+-#if (LINUX_VERSION_CODE > 0x20100)
+ 	serial_driver.driver_name = "serial";
+-#endif
+ 	serial_driver.name = "ttyS";
+ 	serial_driver.major = TTY_MAJOR;
+ 	serial_driver.minor_start = 64;
+@@ -3530,14 +3426,10 @@
+ 	serial_driver.stop = rs_stop;
+ 	serial_driver.start = rs_start;
+ 	serial_driver.hangup = rs_hangup;
+-#if (LINUX_VERSION_CODE >= 131394) /* Linux 2.1.66 */
+ 	serial_driver.break_ctl = rs_break;
+-#endif
+-#if (LINUX_VERSION_CODE >= 131343)
+ 	serial_driver.send_xchar = rs_send_xchar;
+ 	serial_driver.wait_until_sent = rs_wait_until_sent;
+ 	serial_driver.read_proc = rs_read_proc;
+-#endif
+ 	  
+ 	/*
+ 	 * The callout device is just like normal device except for
+@@ -3547,10 +3439,8 @@
+ 	callout_driver.name = "cua";
+ 	callout_driver.major = TTYAUX_MAJOR;
+ 	callout_driver.subtype = SERIAL_TYPE_CALLOUT;
+-#if (LINUX_VERSION_CODE >= 131343)
+ 	callout_driver.read_proc = 0;
+ 	callout_driver.proc_entry = 0;
+-#endif
+   
+ 	if (tty_register_driver(&serial_driver))
+ 		panic("Couldn't register serial driver\n");

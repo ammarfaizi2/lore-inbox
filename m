@@ -1,43 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264856AbSKRV14>; Mon, 18 Nov 2002 16:27:56 -0500
+	id <S264822AbSKRVXm>; Mon, 18 Nov 2002 16:23:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264885AbSKRV14>; Mon, 18 Nov 2002 16:27:56 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:20491 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S264856AbSKRV1y>;
-	Mon, 18 Nov 2002 16:27:54 -0500
-Message-ID: <3DD95CD8.9000703@pobox.com>
-Date: Mon, 18 Nov 2002 16:34:16 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021018
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: Vergoz Michael <mvergoz@sysdoor.com>, Ducrot Bruno <poup@poupinou.org>,
+	id <S264839AbSKRVXm>; Mon, 18 Nov 2002 16:23:42 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:5767 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S264822AbSKRVXk>; Mon, 18 Nov 2002 16:23:40 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Mon, 18 Nov 2002 13:31:04 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Ulrich Drepper <drepper@redhat.com>
+cc: Mark Mielke <mark@mark.mielke.cc>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 8139too.c patch for kernel 2.4.19
-References: <028901c28ead$10dfbd20$76405b51@romain> <3DD89813.9050608@pobox.com> <003b01c28edf$9e2b1530$76405b51@romain> <20021118170447.GB27595@poup.poupinou.org> <3DD9227E.5030204@pobox.com> <001901c28f2b$2f3540a0$76405b51@romain> <3DD92DE8.7030501@pobox.com> <00c701c28f3d$b044a160$76405b51@romain> <3DD9588C.8090701@pobox.com>
-In-Reply-To: <028901c28ead$10dfbd20$76405b51@romain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: [rfc] epoll interface change and glibc bits ...
+In-Reply-To: <3DD946A2.7030501@redhat.com>
+Message-ID: <Pine.LNX.4.44.0211181324060.979-100000@blue1.dev.mcafeelabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
+On Mon, 18 Nov 2002, Ulrich Drepper wrote:
 
-> 8139C+ is a totally different chip, and thus gets a totally different
-> driver.
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+>
+> Davide Libenzi wrote:
+>
+> > epoll does hook f_op->poll() and hence uses the asm/poll.h bits.
+>
+> It does today.  We are talking about "you promise that this will be the
+> case ever after or we'll cut your head off".  I have no idea why you're
+> so reluctant since you don't have to maintain any of the user-level
+> bits.  And it is not you who has to deal with the fallout of a change
+> when it happens.
+>
+> If epoll is so different from poll (and this is what I've been told frmo
+> Davide) then there should be a clear separation of the interfaces and
+> all those arguing to unify the data types and constants better should
+> rethink there understanding.
+
+Ok, the message has been post and noone argued about your solution. Like
+it is used to say "speak now or forever hold your piece" :) So we will go
+with it, no problem for me. We will define a struct epollfd and all POLL*
+bits in EPOLL*
 
 
 
-Well, to correct myself before anyone calls me on it, 8139too and 8139cp 
-do share some phy code.
 
-However 8139cp phy code is obviously simplified from 8139too since it 
-does not support external phys in the driver like 8139too does with the 
-"8129" chip.
+- Davide
 
-	Jeff
 
 
 

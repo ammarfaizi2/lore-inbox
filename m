@@ -1,41 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261725AbULNWXF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261675AbULNW2k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261725AbULNWXF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 17:23:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261660AbULNWWk
+	id S261675AbULNW2k (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 17:28:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261697AbULNW1O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 17:22:40 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:43231 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S261675AbULNWUc (ORCPT
+	Tue, 14 Dec 2004 17:27:14 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:63151 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261660AbULNWYL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 17:20:32 -0500
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: Jon Smirl <jonsmirl@gmail.com>
-Subject: Re: [PATCH] fix ROM enable/disable in r128 and radeon fb drivers
-Date: Tue, 14 Dec 2004 14:20:12 -0800
-User-Agent: KMail/1.7.1
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-References: <200412141256.21143.jbarnes@engr.sgi.com> <9e4733910412141345380559da@mail.gmail.com>
-In-Reply-To: <9e4733910412141345380559da@mail.gmail.com>
+	Tue, 14 Dec 2004 17:24:11 -0500
+Date: Tue, 14 Dec 2004 14:23:49 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: Roland McGrath <roland@redhat.com>
+cc: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       Ulrich Drepper <drepper@redhat.com>, george@mvista.com
+Subject: Re: [PATCH 1/7] cpu-timers: high-resolution CPU clocks for POSIX
+ clock_* syscalls
+In-Reply-To: <200412142214.iBEMEvEI011636@magilla.sf.frob.com>
+Message-ID: <Pine.LNX.4.58.0412141420010.4769@schroedinger.engr.sgi.com>
+References: <200412142214.iBEMEvEI011636@magilla.sf.frob.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200412141420.12863.jbarnes@engr.sgi.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday, December 14, 2004 1:45 pm, Jon Smirl wrote:
-> These drivers should be using the new ROM API in the PCI driver
-> instead of manipulating the ROMs directly. Now that the ROM API is in
-> the kernel all direct use of PCI_ENABLE_ROM should be removed. There
-> are about thirty places in the kernel doing direct access. Kernel
-> janitors would probably be a good place to track removing
-> PCI_ENABLE_ROM.
+On Tue, 14 Dec 2004, Roland McGrath wrote:
 
-Sure... but in the meantime the drivers should probably be trivially fixed 
-like this so things don't break.
+> > It seems that this code does now support extra clocks like
+> > CLOCK_REALTIME_HR, CLOCK_MONOTONIC_HR and CLOCK_SGI_CYCLE right?
+>
+> Here I think you are talking about glibc, not kernel code.  If you mean
+> this about the kernel code, then please clarify (and I'm not sure what the
+> question means in that context).  If you are asking about the glibc code,
+> please take that to the libc mailing list and we won't bother the kernel
+> folks with that discussion.
 
-Thanks,
-Jesse
+The clock_id's are now passed through since you also have to pass your
+bitmapped performance clocks through. I think this may also satisfy
+George Anzinger's long standing request for the possibility of additional
+clock support in glibc. The clocks are now defined only in the
+kernel header files though.
+
+Could you make the three clocks also available in glibc header files?
+What do we do if additional clocks become available through the posix
+layer in Linux?
+

@@ -1,55 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281964AbRKUTxE>; Wed, 21 Nov 2001 14:53:04 -0500
+	id <S281957AbRKUTrV>; Wed, 21 Nov 2001 14:47:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281963AbRKUTwy>; Wed, 21 Nov 2001 14:52:54 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:6788 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S281961AbRKUTwj>; Wed, 21 Nov 2001 14:52:39 -0500
-Message-ID: <002101c172c5$f2040cc0$f5976dcf@nwfs>
-From: "Jeff Merkey" <jmerkey@timpanogas.org>
-To: "Doug Ledford" <dledford@redhat.com>
-Cc: <arjan@fenrus.demon.nl>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <E166S8l-0007hs-00@fenrus.demon.nl> <002401c172ba$b46bed20$f5976dcf@nwfs> <3BFBFB4F.8090403@redhat.com>
-Subject: Re: [VM/MEMORY-SICKNESS] 2.4.15-pre7 kmem_cache_create invalid opcode
-Date: Wed, 21 Nov 2001 12:51:43 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S281961AbRKUTrL>; Wed, 21 Nov 2001 14:47:11 -0500
+Received: from amsfep11-int.chello.nl ([213.46.243.19]:45840 "EHLO
+	amsfep11-int.chello.nl") by vger.kernel.org with ESMTP
+	id <S281960AbRKUTrG>; Wed, 21 Nov 2001 14:47:06 -0500
+Date: Wed, 21 Nov 2001 20:46:59 +0100
+From: Jeroen Vreeken <pe1rxq@amsat.org>
+To: linux-kernel@vger.kernel.org
+Cc: linux-hams <linux-hams@vger.kernel.org>, tomi.manninen@hut.fi,
+        dg2fef@afthd.tu-darmstadt.de
+Subject: Re: [PATCH] Using sock_orphan in ax25 and netrom
+Message-ID: <20011121204659.C1187@jeroen.pe1rxq.ampr.org>
+In-Reply-To: <20011120154610.A189@jeroen.pe1rxq.ampr.org> <20011121194223.A1187@jeroen.pe1rxq.ampr.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20011121194223.A1187@jeroen.pe1rxq.ampr.org>; from pe1rxq@amsat.org on Wed, Nov 21, 2001 at 19:42:23 +0100
+X-Mailer: Balsa 1.1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Doug,
+On 2001.11.21 19:42:23 +0100 Jeroen Vreeken wrote:
+> Appearantly my patch from yesterday was a bit premature...
+> 
+> It looks like the ax25 and netrom stack do some magic with the dead
+> sockets
+> that is not compatible with sock_orphan. I will try and see if I can
+> track
+> them down.
 
-I have seen some problems with the rpm build and default install of your
-kernel sources.
-NWFS and the SCI drivers will **NOT** build against it since you post in a
-linux and linux-up kernel for lilo during boot.  People using these drivers
-who email me always have to do a "make distclean" to get stuff to build.  I
-am very familiar with the kernel.h
-changes you guys put in that are different from stock kernels, but despite
-this, it's
-far from "plug and play" for a customer building third party kernel modules
-on your rpms.
-I am not saying this is bad or anything, but it does require that the
-customer A) have a
-Linux consultant to do the installation or B) be a competent Linux
-programmer.  Kind of
-tough this to expect a secretary to do without a little help.
+Found the cause in datagram_poll() in datagram.c:
 
-This is way off topic at this point.  This was originally related to BUG()
-getting called from builds against a virgin source tree.  Alan Cox has asked
-me to look into the code and determine just where the BUG() message is
-getting generated from.  I am pursuing this at present.
 
-Jeff
+        if (sock_writeable(sk))
+                mask |= POLLOUT | POLLWRNORM | POLLWRBAND;
+        else
+                set_bit(SOCK_ASYNC_NOSPACE, &sk->socket->flags);
 
-:-)
+Since our socket is dead its not writeable and the code tries to set
+sk->socket->flags
+However sk->socket has been set to NULL by sock_orphan()
+Adding a check for this solves the problem:
 
-Jeff
+        if (sock_writeable(sk))
+                mask |= POLLOUT | POLLWRNORM | POLLWRBAND;
+        else
+                if (sk->socket)
+                        set_bit(SOCK_ASYNC_NOSPACE, &sk->socket->flags);
+
+Is there a reason datagram_poll() should not check this? (Or another place
+to do it)
+If not I will make a new patch including this change.
+
+Jeroen
+
 

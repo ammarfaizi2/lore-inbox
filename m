@@ -1,46 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264619AbTIIVkq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 17:40:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264621AbTIIVkq
+	id S264625AbTIIVvy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 17:51:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264627AbTIIVvy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 17:40:46 -0400
-Received: from fw.osdl.org ([65.172.181.6]:51671 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264619AbTIIVjy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 17:39:54 -0400
-Date: Tue, 9 Sep 2003 14:46:36 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: mochel@cherise
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Power: call save_state on PCI devices along with suspend
-In-Reply-To: <1063141771.639.53.camel@gaston>
-Message-ID: <Pine.LNX.4.44.0309091444110.695-100000@cherise>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 9 Sep 2003 17:51:54 -0400
+Received: from [202.37.96.11] ([202.37.96.11]:27534 "EHLO
+	gatekeeper.tait.co.nz") by vger.kernel.org with ESMTP
+	id S264625AbTIIVvv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 17:51:51 -0400
+Date: Wed, 10 Sep 2003 09:54:20 +1200
+From: Dmytro Bablinyuk <dmytro.bablinyuk@tait.co.nz>
+Subject: Re: Problem with remap_page_range
+In-reply-to: <20030909100235.A20267@home.com>
+To: Matt Porter <mporter@kernel.crashing.org>
+Cc: linux-kernel@vger.kernel.org
+Message-id: <3F5E4C0C.1080303@tait.co.nz>
+Organization: Tait Electronics Ltd
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030313
+References: <3F5E7ACD.8040106@tait.co.nz> <20030909100235.A20267@home.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>
+>
+>>  if (remap_page_range(vma->vm_start,
+>>                       DSP_ADDR,
+>>                       size,
+>>                       vma->vm_page_prot
+>>                       ))
+>>    
+>>
+>
+>Your remap call isn't adding _PAGE_NO_CACHE and _PAGE_GUARDED flags
+>like ioremap_nocache()/ioremap() do on PPC.  You'll get bad results
+>because of the ordering and cache issues resulting from not using
+>these PTE flags.  In 2.6, these can be added using pgprot_noncached()
+>that is defined per-arch.
+>
+>  
+>
+Thank you Matt,
 
-> Well... that wouldn't help with off-tree drivers...
+Coud you please give me en example on how to add these flags to remap in 
+kernel 2.4.21 (powerpc).
+It seems I could not find these flags available in my kernel.
 
-But, we don't care about out-of-tree drivers, right? :)
-
-> What I mean here is that our PCI driver API defines save_state, we shall
-> either "support" it some way, or get rid of it completely... but then we
-> lose the ability to move a PCI driver back & forth with 2.4 ... (do we
-> care ?)
-
-I think the addition of the method was a mistake and it should be fixed 
-up. The fact there are only those 4 users should make it trivial in both 
-2.6 and 2.4 to do so. 
-
-> If you prefer just fixing those 4 ones, then let's get rid of the
-> save_state field in pci_driver completely...
-
-I completely agree. 
+Thank you very much
 
 
-	Pat
 

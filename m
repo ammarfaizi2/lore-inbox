@@ -1,63 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268788AbUHWXoP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268349AbUHWXWO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268788AbUHWXoP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 19:44:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268527AbUHWXgI
+	id S268349AbUHWXWO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 19:22:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268296AbUHWXQh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 19:36:08 -0400
-Received: from mail023.syd.optusnet.com.au ([211.29.132.101]:18141 "EHLO
-	mail023.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S268501AbUHWXel (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 19:34:41 -0400
-References: <412880BF.6050503@kolivas.org> <412A2398.8050702@asylumwear.com> <412A271F.3040802@gmx.de> <412A663D.2050104@kolivas.org>
-Message-ID: <cone.1093304064.895888.10766.502@pc.kolivas.org>
-X-Mailer: http://www.courier-mta.org/cone/
-From: Con Kolivas <kernel@kolivas.org>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: Prakash =?ISO-8859-1?B?Sy4=?= Cheemplavam <prakashkc@gmx.de>,
-       ck kernel mailing list <ck@vds.kolivas.org>,
-       Joshua Schmidlkofer <menion@asylumwear.com>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.8.1-ck4
-Date: Tue, 24 Aug 2004 09:34:24 +1000
+	Mon, 23 Aug 2004 19:16:37 -0400
+Received: from mail.kroah.org ([69.55.234.183]:9671 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S268272AbUHWXOf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Aug 2004 19:14:35 -0400
+Date: Mon, 23 Aug 2004 15:51:45 -0700
+From: Greg KH <greg@kroah.com>
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+Cc: Jon Smirl <jonsmirl@yahoo.com>, Martin Mares <mj@ucw.cz>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       linux-pci@atrey.karlin.mff.cuni.cz, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Petr Vandrovec <VANDROVE@vc.cvut.cz>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [PATCH] add PCI ROMs to sysfs
+Message-ID: <20040823225145.GK4694@kroah.com>
+References: <20040818181310.12047.qmail@web14927.mail.yahoo.com> <200408181437.06887.jbarnes@engr.sgi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; charset="US-ASCII"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <200408181437.06887.jbarnes@engr.sgi.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas writes:
-
-> Prakash K. Cheemplavam wrote:
->> Joshua Schmidlkofer wrote:
->> | I don't know what or why, but I am experiancing a nightmare with
->> | interactivity and heavy nfs use.   I am using Gentoo, and I have my
->> | portage tree exported from a central server.   Trying to do an emerge
->> | update world is taking forever.
->> 
->> [snip]
->> 
->> Yup I think I have a regression here, as well. I remember an older
->> version of ck exhibited this, but the last one for 2.6.7 did work well
->> (I think even the one for 2.8.6-rc4 was ok), IIRC. In my case, when
->> doing a (niced) compile in background, some windows react very slow, ie
->> Mozilla Thunderbird takes ages to switch trough mails or cliking on an
->> icon in kde to load up konsole takes about 10seconds or more (shoud come
->> up <1sec normally).
->> 
->> Using 2.8.6.1-ck4
->> 
->> HTH,
->> 
->> Prakash
+On Wed, Aug 18, 2004 at 02:37:06PM -0400, Jesse Barnes wrote:
+> On Wednesday, August 18, 2004 2:13 pm, Jon Smirl wrote:
+> > I haven't received any comments on pci-sysfs-rom-17.patch. Is everyone
+> > asleep or is it ready to be pushed upstream? I'm still not sure that
+> > anyone has tried it on a ppc machine.
+> >
+> > Since it's small I'll attach it again for your convenience.
 > 
-> For both of you this only happens with NFS? Can you reproduce the 
-> problem in flight and send me the output of 'top -n -n 1' while it's 
-> happening? Also if you have time can you confirm this happens with just 
-> the staircase patch and none of the other patches?
+> Works for me on ia64.  Greg, is this one ready for your queue?
 
-blah... I mean `top -b -n 1`
+There are a few minor coding style issues (the initial '{' for a
+function needs to be on a new line) and I need a "Signed-off-by:" line,
+and it probably will not apply right now due to the pci quirks changes
+(if you rediff it against the latest -mm tree, that should fix it.)
 
-Con
+Other than that, it looks good to me.
 
+thanks,
+
+greg k-h

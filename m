@@ -1,98 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292932AbSCDWPU>; Mon, 4 Mar 2002 17:15:20 -0500
+	id <S292937AbSCDWRk>; Mon, 4 Mar 2002 17:17:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292937AbSCDWPK>; Mon, 4 Mar 2002 17:15:10 -0500
-Received: from konza.flinthills.com ([64.39.200.1]:9970 "EHLO
-	konza.flinthills.com") by vger.kernel.org with ESMTP
-	id <S292932AbSCDWPG>; Mon, 4 Mar 2002 17:15:06 -0500
-Subject: [Fwd: Re: Waking up Non-acpi (and non-apm) compliant IDE devices]
-From: Derek James Witt <djw@flinthills.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 
-Date: 04 Mar 2002 16:13:00 -0600
-Message-Id: <1015279980.2413.4.camel@saiya-jin>
+	id <S292938AbSCDWRb>; Mon, 4 Mar 2002 17:17:31 -0500
+Received: from 64-166-72-137.ayrnetworks.com ([64.166.72.137]:17024 "EHLO 
+	ayrnetworks.com") by vger.kernel.org with ESMTP id <S292937AbSCDWRM>;
+	Mon, 4 Mar 2002 17:17:12 -0500
+Date: Mon, 4 Mar 2002 14:17:10 -0800
+From: William Jhun <wjhun@ayrnetworks.com>
+To: andre@linux-ide.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] ide_free_irq()
+Message-ID: <20020304141709.C1247@ayrnetworks.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------Forwarded Message-----
+Simple patch. The current drivers/ide/ide.c calls free_irq() instead of
+ide_free_irq(). We depend on these alternate routines to deal with our
+semi-broken hardware, but since ide-probe.c calls ide_reqest_irq(), it
+seems logical that this should also be ide_free_irq().
 
-> From: Derek James Witt <djw@flinthills.com>
-> To: Derek James Witt <djw@flinthills.com>
-> Subject: Re: Waking up Non-acpi (and non-apm) compliant IDE devices
-> Date: 04 Mar 2002 16:02:58 -0600
-> 
-> Ok, I found out that my drive is picky about which connector plug on the
-> cable it is using. In this case, it is now using the middle connector. I
-> can suspend and resume without disconnecting that drive. But at any
-> rate, I would like to know if resetting the IDE controller is feasible
-> (or is driverfs planning to do this anyway)?
-> 
-> 
-> On Mon, 2002-03-04 at 12:52, Derek James Witt wrote:
-> > Hey all. I just thought of something for this. I have an older Western
-> > Caviar 36400 hard drive that disconnects once the computer goes to
-> > sleep.  Currently, I disallow sleep mode for that very reason. But
-> > anyway,  I'm curious if it's safe to do a reset of  the IDE controller. 
-> > In my case, the drive is currently on primary slave. I moved it from
-> > secondary master.   
-> > 
-> > Right now, I fear if I hard-reset the IDE controller (a Via 686
-> > UDMA100), I might also disconnect the primary master (Quantum fireball
-> > 6.4SE). That will render my box useless until I hit the the reset
-> > button.  But, if I do a soft-reset, the caviar may not wake up. I know
-> > the quantum will wake up fine upon a soft-reset and upon resume of the
-> > system.  I'm going to try putting in interrupt 15 (secondary IDE) as a
-> > primary power event in my bios and see if that can wake up the drive.
-> > 
-> > 
-> > Oh, if you're curious, here is my fstab:
-> > 
-> > # /etc/fstab: static file system information.
-> > #
-> > # <file system>	<mount point>	<type>	<options>	<dump>	<pass>
-> > /dev/hda6	/		xfs	defaults	1	1
-> > /dev/hda5	/boot		xfs	defaults	1	1
-> > /dev/hda7	/home		xfs	defaults	1	1
-> > /dev/hdb3	/usr		xfs	defaults	1	1
-> > /dev/hda9	/usr/local	xfs	defaults	1	1
-> > 
-> > /dev/hda8	none		swap	sw		0	0
-> > /dev/hdb2	none		swap	sw		0	0
-> > 
-> > proc		/proc		proc	defaults	0	0
-> > 
-> > /dev/fd0	/floppy		auto	defaults,user,noauto	0	0
-> > 
-> > /dev/sr0	/cdrom		auto	defaults,ro,user,noauto	0	0
-> > /dev/sr1	/cdrw		auto	defaults,ro,user,noauto	0	0
-> > 
-> > tmpfs		/dev/shm	tmpfs	defaults	0		0
-> > 
-> > /dev/hda1	/win2k		ntfs	defaults,ro,user,uid=cappicard	0	0
-> > /dev/hdb1	/win2k-driveE	ntfs	defaults,ro,user,uid=cappicard	0	0
-> > 
-> > As you probably see, if my caviar (hdb) disconnects, I'm pretty-much SOL
-> > if  I try to run X or any programs from /usr/*. And I have to resort to
-> > SysRq to reboot the box (I hate finding a pen to hit the reset button). 
-> > 
-> > I'll let you know what I find out.
-> > 
-> > -- 
-> > **  Derek J Witt                                              **
-> > *   Email: mailto:djw@flinthills.com                           *
-> > *   Home Page: http://www.flinthills.com/~djw/                 *
-> > *** "...and on the eighth day, God met Bill Gates." - Unknown **
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> -- 
-> **  Derek J Witt                                              **
-> *   Email: mailto:djw@flinthills.com                           *
-> *   Home Page: http://www.flinthills.com/~djw/                 *
-> *** "...and on the eighth day, God met Bill Gates." - Unknown **
+Thanks,
+Will Jhun
+
+*** drivers/ide/ide.c.orig	Mon Feb 25 11:37:57 2002
+--- drivers/ide/ide.c	Mon Mar  4 14:05:41 2002
+***************
+*** 2115,2121 ****
+  		g = g->next;
+  	} while (g != hwgroup->hwif);
+  	if (irq_count == 1)
+! 		free_irq(hwif->irq, hwgroup);
+  
+  	/*
+  	 * Note that we only release the standard ports,
+--- 2115,2121 ----
+  		g = g->next;
+  	} while (g != hwgroup->hwif);
+  	if (irq_count == 1)
+! 		ide_free_irq(hwif->irq, hwgroup);
+  
+  	/*
+  	 * Note that we only release the standard ports,

@@ -1,41 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279581AbRJ2WcL>; Mon, 29 Oct 2001 17:32:11 -0500
+	id <S276534AbRJ2W5a>; Mon, 29 Oct 2001 17:57:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279582AbRJ2WcB>; Mon, 29 Oct 2001 17:32:01 -0500
-Received: from web20509.mail.yahoo.com ([216.136.226.144]:42713 "HELO
-	web20509.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S279581AbRJ2Wby>; Mon, 29 Oct 2001 17:31:54 -0500
-Message-ID: <20011029223230.69111.qmail@web20509.mail.yahoo.com>
-Date: Mon, 29 Oct 2001 23:32:30 +0100 (CET)
-From: =?iso-8859-1?q?willy=20tarreau?= <wtarreau@yahoo.fr>
-Subject: Re: Ethernet NIC dual homing
-To: Laurent Deniel <deniel@worldnet.fr>
-Cc: linux-kernel@vger.kernel.org, ctindel@users.sourceforge.net
-In-Reply-To: <3BDDD55C.56EDE4E0@worldnet.fr>
+	id <S279370AbRJ2W5V>; Mon, 29 Oct 2001 17:57:21 -0500
+Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:44459 "EHLO
+	zcars0m9.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id <S276534AbRJ2W5J>; Mon, 29 Oct 2001 17:57:09 -0500
+Message-ID: <3BDDDF6A.B823F5C3@nortelnetworks.com>
+Date: Mon, 29 Oct 2001 17:59:54 -0500
+X-Sybari-Space: 00000000 00000000 00000000
+From: "Christopher Friesen" <cfriesen@nortelnetworks.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-custom i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+To: willy tarreau <wtarreau@yahoo.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Ethernet NIC dual homing
+In-Reply-To: <20011029222609.81860.qmail@web20501.mail.yahoo.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Orig: <cfriesen@nortelnetworks.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hmm, it seems that a lot of good stuff (e.g. ARP
-> monitoring and
-> SIOCBONDCHANGEACTIVE ioctl) are implemented in the
-> bonding patch for 2.4.13.
-> Will it be included in the mainstream 2.4.x kernel
-> or is it a 2.5 thing ? 
+willy tarreau wrote:
 
-Personnaly, I don't know. Chad now maintains the
-project so he may have better opinions about this.
-But I'd like to see it in the 2.4 once well tested
-since it interests lots of people, and it allows us to
-put linux boxes in more critical environments.
+> the 2.4 driver provides a mode which sends ARP packets
+> to test the link (far more reliable than MII), and the
+> appropriate ioctl for the NIC switch-over you need. It
+> is available to user through ifenslave -c bond0 eth0
+> for example.
 
-Regards,
-Willy
+Are there issues with using MII to detect link state?  I thought it was fairly
+reliable...
 
+How are you using arp packets to detect if the link is up?  Sending it out to
+your own MAC address?
 
-___________________________________________________________
-Do You Yahoo!? -- Une adresse @yahoo.fr gratuite et en français !
-Yahoo! Courrier : http://courrier.yahoo.fr
+Chris
+
+-- 
+Chris Friesen                    | MailStop: 043/33/F10  
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com

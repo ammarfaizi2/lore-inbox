@@ -1,54 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314484AbSESPvh>; Sun, 19 May 2002 11:51:37 -0400
+	id <S314486AbSESPxy>; Sun, 19 May 2002 11:53:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314486AbSESPvg>; Sun, 19 May 2002 11:51:36 -0400
-Received: from servidor.unam.mx ([132.248.10.1]:35986 "EHLO servidor.unam.mx")
-	by vger.kernel.org with ESMTP id <S314484AbSESPvf>;
-	Sun, 19 May 2002 11:51:35 -0400
-Subject: Problem with swap partition.
-From: David Eduardo Gomez Noguera <davidgn@servidor.unam.mx>
-To: kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset=ISO-2022-JP
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 
-Date: 19 May 2002 11:04:57 -0500
-Message-Id: <1021824299.2430.7.camel@hikaru>
-Mime-Version: 1.0
+	id <S314491AbSESPxx>; Sun, 19 May 2002 11:53:53 -0400
+Received: from mail6.svr.pol.co.uk ([195.92.193.212]:32080 "EHLO
+	mail6.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S314486AbSESPxw>; Sun, 19 May 2002 11:53:52 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Will Newton <will@misconception.org.uk>
+To: linux-kernel@vger.kernel.org
+Subject: Kernel 2.4.18 and VIA USB
+Date: Sun, 19 May 2002 16:56:19 +0100
+X-Mailer: KMail [version 1.3.2]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E179T0J-0002gQ-00.2002-05-19-16-53-53@mail6.svr.pol.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
-I have just changed to a new hard disk:
 
-Disk /dev/hdc: 16 heads, 63 sectors, 77545 cylinders
+I have seen several posts in the archives that mention the following error on 
+VIA chipset (usually K7V Athlon boards):
 
-Nr AF  Hd Sec  Cyl  Hd Sec  Cyl    Start     Size ID
- 1 00   1   1    0  15  63   65       63    66465 83
- 2 00   0   1   66  15  63 1023    66528 77952672 83
- 3 00  15  63 1023  15  63 1023 78019200   146160 82
- 4 00   0   0    0   0   0    0        0        0 00
+hub.c: USB new device connect on bus1/2, assigned device number 7
+usb.c: USB device not accepting new address=7 (error=-110)
+hub.c: Cannot enable port 2 of hub 1, disabling port.
+hub.c: Maybe the USB cable is bad?
 
-The 3'rd partition is a Linux Swap,
-/dev/hdc3         77401     77545     73080   82  Linux swap
+If anyone could shed any light on this or recommend a test to find out more I 
+would be very grateful. It may or may not be related to my other USB problem.
 
-but swapon -a gives
-swapon: /dev/hdc5: Invalid argument
+I am seeing this error on attempting a bulk transfer to a USB camera:
 
-its a 40Gb hd seagate ultra ata.
+usbdevfs: USBDEVFS_BULK failed dev 8 ep 0x81 len 4096 ret -110
 
-Is there any issue with them? (dont think so, since the other partitions
-work ok). its a 2.4.17 .
+The thing that strikes me about this is that the endpoint in question is 
+specified thus:
 
-ps. I dont know if i might be missing some kernel module.
--- 
-ICQ: 15605359 Bicho
-                                  =^..^=
-First, they ignore you. Then they laugh at you. Then they fight you.
-Then you win. Mahatma Gandhi.
--------------------------------気検体の一致------------------------------------
-暑さ寒さも彼岸まで。
-恋にししょうなし。恋はしあんの他。
-アン アン アン とっても大好き
+			Endpoint Address: 81
+			Direction: in
+			Attribute: 2
+			Type: Bulk
+			Max Packet Size: 64
+			Interval:   0ms
 
+Max packet size of 64 would seem to indicate that packets of too large a size 
+are being sent to the endpoint. Is this a correct analysis?
 
+Any help with either of these problems would be much appreciated. Please CC 
+any replies. Thanks.

@@ -1,67 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131139AbRA2Scw>; Mon, 29 Jan 2001 13:32:52 -0500
+	id <S130573AbRA2Sem>; Mon, 29 Jan 2001 13:34:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132119AbRA2Scm>; Mon, 29 Jan 2001 13:32:42 -0500
-Received: from saturn.cs.uml.edu ([129.63.8.2]:48134 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S131139AbRA2Sc0>;
-	Mon, 29 Jan 2001 13:32:26 -0500
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200101291831.f0TIV7h484162@saturn.cs.uml.edu>
-Subject: Re: ECN: Clearing the air (fwd)
-To: davem@redhat.com (David S. Miller)
-Date: Mon, 29 Jan 2001 13:31:07 -0500 (EST)
-Cc: jas88@cam.ac.uk (James Sutherland),
-        miquels@traveler.cistron-office.nl (Miquel van Smoorenburg),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <14965.7321.926528.391631@pizda.ninka.net> from "David S. Miller" at Jan 28, 2001 11:32:41 PM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
+	id <S130140AbRA2Sed>; Mon, 29 Jan 2001 13:34:33 -0500
+Received: from pcep-jamie.cern.ch ([137.138.38.126]:16395 "EHLO
+	pcep-jamie.cern.ch") by vger.kernel.org with ESMTP
+	id <S129532AbRA2SeN>; Mon, 29 Jan 2001 13:34:13 -0500
+Date: Mon, 29 Jan 2001 19:31:36 +0100
+From: Jamie Lokier <ln@tantalophile.demon.co.uk>
+To: Andi Kleen <ak@muc.de>
+Cc: "Albert D. Cahalan" <acahalan@cs.uml.edu>, John Fremlin <vii@altern.org>,
+        linux-kernel@vger.kernel.org, netdev@oss.sgi.com, paulus@linuxcare.com,
+        linux-ppp@vger.kernel.org, linux-net@vger.kernel.org
+Subject: Re: [PATCH] dynamic IP support for 2.4.0 (SIOCKILLADDR)
+Message-ID: <20010129193136.A11035@pcep-jamie.cern.ch>
+In-Reply-To: <m2d7d838sj.fsf@boreas.yi.org.> <200101290245.f0T2j2Y438757@saturn.cs.uml.edu> <20010129135905.B1591@fred.local>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010129135905.B1591@fred.local>; from ak@muc.de on Mon, Jan 29, 2001 at 01:59:05PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller writes:
-> James Sutherland writes:
-
->> Except you can detect and deal with these "PMTU black holes". Just as you
->> should detect and deal with ECN black holes. Maybe an ideal Internet
->> wouldn't have them, but this one does. If you can find an ideal Internet,
->> go code for it: until then, stick with the real one. It's all we've got.
->
-> Guess what, Linux works not around PMTU black holes either for the
-> same exact reason we will not work around ECN.
->
-> I'm getting a bit tired of you, and I suppose others are as
-> well.  You are being nothing but a pompous ass.
-
-He is being practical. You are being idealistic.
-
-> Anyways, let me quote a comment from the Linux source code where
-> we would have done PMTU black hole detection:
+Andi Kleen wrote:
+> > I get the same IP about 2/3 of the time, so it is pretty important
+> > to avoid killing connections until after the new IP is known.
 > 
-> /* NOTE. draft-ietf-tcpimpl-pmtud-01.txt requires pmtu black
->   hole detection. :-(
->   It is place to make it. It is not made. I do not want
+> I prefer it when the IP is killed as soon as possible so that I can see
+> when the connection is lost (ssh sessions get killed etc.)
 
-So the Linux code is broken. ("requires")
+I like it when I get the same IP back and can continue an ssh session.
+My line drops regularly in mid session.
 
->    to make it. It is disguisting. It does not work in any
->    case. Let me to cite the same draft, which requires for
->    us to implement this:
-...
->    upper-layer protocols.  The safest web site in the world is worthless
->    if most TCP implementations cannot transfer data from it.  It would
->    be far nicer to have all of the black holes fixed rather than fixing
->    all of the TCP implementations."
+Unfortunately getting the same IP is rare now, so I've been toying with
+running a PPP tunnel through a fixed host out on the net.  The tunnel
+would be dropped and recreated with each new connection.  My local link
+IP would change, but the tunnel IP would not so connections to other
+places, ssh etc. would all be from the tunnel IP.
 
-The author is expressing his wish for an ideal world. Note that he
-also accepts reality. He accepts that PMTU black holes won't go
-away, even though we might like them to do so.
+The important thing is that the tunnel is destroyed and recreated (it
+has to be, it is over different underlying link addresses).  I do not
+want that to destroy the connections from the tunnelled address.
 
-Hell, I think I'm behind one. ICMP is/was blocked to/from/within
-the entire university. This was to stop ping flood attacks. :-)
+-- Jamie
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,84 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268102AbUH2QpM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268119AbUH2QsB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268102AbUH2QpM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 12:45:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268119AbUH2QpM
+	id S268119AbUH2QsB (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Aug 2004 12:48:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268132AbUH2QsB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Aug 2004 12:45:12 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:22401 "EHLO
+	Sun, 29 Aug 2004 12:48:01 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:24705 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S268102AbUH2Qo7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 12:44:59 -0400
-Subject: Re: pwc+pwcx is not illegal
+	id S268119AbUH2Qr6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Aug 2004 12:47:58 -0400
+Subject: Re: 1GB/2GB/3GB User Space Splitting Patch 2.6.8.1 (PSEUDO SPAM)
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Nemosoft Unv." <nemosoft@smcc.demon.nl>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Albert Cahalan <albert@users.sourceforge.net>,
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Roland Dreier <roland@topspin.com>, jmerkey@comcast.net,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       pmarques@grupopie.com, greg@kroah.com,
-       linux-usb-devel@lists.sourceforge.net
-In-Reply-To: <200408291833.37808@smcc.demon.nl>
-References: <1093634283.431.6370.camel@cube>
-	 <Pine.LNX.4.58.0408271226400.14196@ppc970.osdl.org>
-	 <1093788018.27901.35.camel@localhost.localdomain>
-	 <200408291833.37808@smcc.demon.nl>
+       jmerkey@drdos.com
+In-Reply-To: <20040829164239.GH5492@holomorphy.com>
+References: <082620040421.9849.412D655C000690BA000026792200735446970A059D0A0306@comcast.net>
+	 <20040826043318.GO2793@holomorphy.com> <52isb6bj64.fsf@topspin.com>
+	 <20040826044954.GP2793@holomorphy.com>
+	 <1093783694.27899.7.camel@localhost.localdomain>
+	 <20040829164239.GH5492@holomorphy.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1093794141.28139.5.camel@localhost.localdomain>
+Message-Id: <1093794337.28141.8.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sun, 29 Aug 2004 16:42:24 +0100
+Date: Sun, 29 Aug 2004 16:45:37 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2004-08-29 at 17:33, Nemosoft Unv. wrote:
-> That's one of the reasons I requested PWC to be removed. For me, it's also a 
-> matter of quality: what good is a half-baked driver in the kernel when you 
-> need to patch it first to get it working fully again? I don't want my name 
-> attached to that.
+On Sul, 2004-08-29 at 17:42, William Lee Irwin III wrote:
+> On Iau, 2004-08-26 at 05:49, William Lee Irwin III wrote:
+> The big nasty is that userspace has very little to go on here. We need
+> to report the limits of the address space somewhere for this kind of
+> affair and probably even hammer out our own addenda to ABI specs so
+> instead of SVR4 $ARCH/ELF ABI spec we have a Linux $ARCH/ELF ABI spec.
+> I see no one so motivated to make backward-incompatible ABI changes
+> that they are willing to do that kind of work.
 
-It works very well for some users without that code. The raw pass
-through for the compressed bitstreams solved the problems for the rest.
-You appear to be seeking to hurt your userbase for your own ends. Thats
-not pleasant behaviour.  I can more than understand
-"take my name off it, make it clear its nothing to do with me".
-
-> > Its also trivial to move the decompressor to user space 
-> > where it should be anyway. 
-> 
-> *sigh* As I have been saying a 100 times before, it is illogical, cumbersome 
-> for both users and developers, and will probably take a very long time to 
-> adopt (notwithstanding V4L2 [*]). 
-
-Video4linux has -always- specified decompressors in user space. This was
-pointed out ages ago. V4L2 rationalised it even more clearly.
-
-> *IF* there was a commonly accepted video "middle-layer", this would not pose 
-> much of a problem. But there is no such thing yet.
-> 
-> (maybe that's something for a 2.7 kernel...)
-
-No its for userspace. Just add it to the relevant video frameworks.
-
-> Seriously, this probably would not have happened if, back in 2001, the 
-> driver was rejected on the basis of this hook (you were there, Alan...) I 
-> never made a secret of it, it has been in the driver from day 1 and its 
-> purpose was clearly spelled out. If it had been rejected, I would probably 
-> have just switched to '3rd party module' mode and maintained it outside the 
-> kernel indefinetely. I would not have liked it, but it would have been 
-> acceptable.
-
-Back in 2001 I was saying that this was broken and it belonged in user
-space.
-
-> of thing in the kernel. However, since we're a bit late to react, we'll 
-> leave it in the 2.4 and 2.6 series, but versions beyond that (2.7-devel, 
-> etc) will not have PWC included in this form. In the mean time, we're 
-> asking you to think of a solution". Chances are the situation would have 
-> been fully resolved before that (and I mean fully *hint*).
-
-There isn't a plan to have a 2.7 development tree but to do gradual
-development until something major comes up. That makes the suggestion
-rather more tricky - as does the legal question.
-
+Ok so I can compile with a.out support. End of problem, that makes the
+patch useful and "spec compliant", although the spec compliance is
+irrelevant anyway. The spec doesn't determine what Linux is it's a
+useful reference for normality. Special cases are special cases and you
+harm the system by seeking to stop stuff that works purely for pieces of
+paper.
 

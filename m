@@ -1,48 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289886AbSAWRHt>; Wed, 23 Jan 2002 12:07:49 -0500
+	id <S289911AbSAWRKj>; Wed, 23 Jan 2002 12:10:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289919AbSAWRHj>; Wed, 23 Jan 2002 12:07:39 -0500
-Received: from dsl-213-023-038-076.arcor-ip.net ([213.23.38.76]:65433 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S289886AbSAWRHg>;
-	Wed, 23 Jan 2002 12:07:36 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: "Duraid Madina" <duraid@fl.net.au>, <linux-kernel@vger.kernel.org>
-Subject: Re: VM: Where do we stand?
-Date: Wed, 23 Jan 2002 18:12:26 +0100
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <000901c1a3f0$d2e44ba0$022a17ac@simplex>
-In-Reply-To: <000901c1a3f0$d2e44ba0$022a17ac@simplex>
+	id <S289916AbSAWRKa>; Wed, 23 Jan 2002 12:10:30 -0500
+Received: from saturn.cs.uml.edu ([129.63.8.2]:46853 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S289911AbSAWRKP>;
+	Wed, 23 Jan 2002 12:10:15 -0500
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200201231709.g0NH9em421753@saturn.cs.uml.edu>
+Subject: Re: Athlon/AGP issue update
+To: davem@redhat.com (David S. Miller)
+Date: Wed, 23 Jan 2002 12:09:40 -0500 (EST)
+Cc: wli@holomorphy.com, vda@port.imtp.ilyichevsk.odessa.ua,
+        linux-kernel@vger.kernel.org, andrea@suse.de, alan@redhat.com,
+        akpm@zip.com.au, vherva@niksula.hut.fi
+In-Reply-To: <20020123.034755.104030619.davem@redhat.com> from "David S. Miller" at Jan 23, 2002 03:47:55 AM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16TQwk-00020U-00@starship.berlin>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On January 23, 2002 10:32 am, Duraid Madina wrote:
-> >The paging queues ( determing the age of the page and whether to 
-> >free or clean it) need to be written... the algorithms being used
-> >are terrible.
-> >
-> > * For the nominal page scan, it is using a one-hand clock algorithm.  
-> >   All I can say is:  Oh my god!  Are they nuts?  That was abandoned
-> >   a decade ago.
+David S. Miller writes:
+>    From: William Lee Irwin III <wli@holomorphy.com>
 
-We don't use a one-hand clock now, we use an lru list coupled with a virtual 
-scan which sucks slightly less, but only slightly.
+>> as there is essentially no infrastructure
+>> for controlling the cacheable attribute(s) of user mappings now as
+>> I understand it.
+>   
+> Yes there most certainly are.  The driver's MMAP method can fully edit
+> the page protection attributes for that mmap area as it pleases.
 
-> > The priority mechanism they've implemented is nearly
-> >   useless.
+That doesn't help for MAP_ANON pages.
 
-There's a new priority mechanism now ;-)
+That doesn't help when there are multiple useful cache settings.
+It's not sane for every arch-independent driver to implement an
+ioctl() or alternate devices. For PPC, you'd need 12 devices.
 
-> > * To locate pages to swap out, it takes a pass through the task list. 
-> >   Ostensibly it locates the task with the largest RSS to then try to
-> >   swap pages out from rather then select pages that are not in use.
-> >   From my read of the code, it also botches this badly.
+To a limited extent, the PPC can handle conflicting settings in
+a useful manner. Not all 12 settings at once, but more than one.
+BTW, reverse mappings could be useful for conflicting settings.
 
-It now tries to select pages that are not in use.
+It is perfectly reasonable for a user to want non-coherent
+memory and memory with odd caching behavior. It is not entirely
+unreasonable to want large regions of memory to be BAT-mapped
+for somewhat dedicated (Beowulf compute cluster) systems.
 
---
-Daniel
+

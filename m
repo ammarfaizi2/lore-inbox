@@ -1,54 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267449AbUJRV6T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267502AbUJRWFA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267449AbUJRV6T (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Oct 2004 17:58:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267454AbUJRV6T
+	id S267502AbUJRWFA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Oct 2004 18:05:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267464AbUJRWE7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Oct 2004 17:58:19 -0400
-Received: from fw.osdl.org ([65.172.181.6]:38836 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267449AbUJRV6R (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Oct 2004 17:58:17 -0400
-Date: Mon, 18 Oct 2004 15:02:17 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu
-Subject: Re: [PATCH] add unschedule_delayed_work to the workqueue API
-Message-Id: <20041018150217.0fbf714f.akpm@osdl.org>
-In-Reply-To: <1098136049.2792.329.camel@mulgrave>
-References: <1098117067.2011.64.camel@mulgrave>
-	<20041018142524.5b81a09a.akpm@osdl.org>
-	<1098134824.2011.322.camel@mulgrave>
-	<1098134994.2792.325.camel@mulgrave>
-	<20041018144354.2118138f.akpm@osdl.org>
-	<1098136049.2792.329.camel@mulgrave>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 18 Oct 2004 18:04:59 -0400
+Received: from scl-ims.phoenix.com ([216.148.212.222]:19829 "EHLO
+	scl-ims.phoenix.com") by vger.kernel.org with ESMTP id S267502AbUJRWEL convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Oct 2004 18:04:11 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [BUG] in i386 semaphores.
+Date: Mon, 18 Oct 2004 15:04:10 -0700
+Message-ID: <5F106036E3D97448B673ED7AA8B2B6B3017FBF3E@scl-exch2k.phoenix.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [BUG] in i386 semaphores.
+Thread-Index: AcS1S5Uj6NL3OyPpTSqBPyVt0KlUHwADchBw
+From: "Aleksey Gorelov" <Aleksey_Gorelov@Phoenix.com>
+To: <root@chaos.analogic.com>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 18 Oct 2004 22:04:10.0631 (UTC) FILETIME=[656B7170:01C4B55E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bottomley <James.Bottomley@SteelEye.com> wrote:
+ 
+
+>-----Original Message-----
+>From: Richard B. Johnson [mailto:root@chaos.analogic.com] 
+>Sent: Monday, October 18, 2004 12:49 PM
+>__up is declared 'asmlinkage', which means that conventional
+>'C' calling convention is used, that eax and/or edx/eax pair
+>is used for return values and the input values are pushed on
+>  the stack. The last parameter passed is a pointer in %ecx.
+
+Can not disagree here, except that %ecx is the only parameter.
+eax/edx are just saved in the stack, and then restored (see comments
+before the assembly in semaphore.c).
 >
-> > > OK, found it in the headers, sorry .. it's not synchronous, so it can't
-> > > really be used in most of the cases where we use del_timer_sync().
-> > 
-> > cancel_delayed_work() will tell you whether it successfully cancelled the
-> > timer.  If it didn't, you should run flush_workqueue() to wait on the final
-> > handler.  The combination of the two is synchronous.
-> 
-> Right, but it potentially does too much work for my purposes.
+>Therefore, the called 'C' function, that 'knows' only about
+>the first parameter passed, will get the correct pointer value.
+>The 'C' function also never changes the value of that pointer,
+>only something that it points to.
 
-Are you sure?
+This is an assumption. AFAIK, according to C standard, formal parameters
+are
+COPIED from actual parameters. Formal parameters can not be used outside
+the function, and as far as they are not constant ones, C compiler
+is free to mofidy them after their last use, and use the memory for
+other purposes.
+>
+>Now, wake_up() gets a pointer to the variable sem->wait. wake_up()
+>never modifies 'sem', only sem->wait.
 
->  I want to
-> cancel the work if it's cancellable or wait for it if it's already
-> executing.  I don't want to have to wait for all the work in the queue
-> just because the timer fired and it got added to the workqueue schedule.
+Well, build the kernel with DEBUG_KERNEL disabled with gcc 3.2 for
+instance,
+objdump it and check __up() code. You'll be surprised. And this is NOT
+gcc issue.
+>>  As one can see, actual parameter in %ecx is not only being copied in
+>> formal parameter sem (which is correct), but also being 
+>restored from it
+>> after function call via %ecx (which is incorrect). Since formal
+>> parameter is not a constant one, it may be overwritten inside C
+>> function, or gcc may (and in fact does that in some cases) use it for
+>> something else.
+>> If we want to keep %ecx, correct behavior would be
+>>
+>
+>
+>> 	pushl %ecx
+>> 	pushl %ecx
+>> 	call _up
+>> 	add $4, %ecx
+              ^^^^
+              %esp
 
-The probability that the handler is running when you call
-cancel_delayed_work() is surely very low.  And the probability that there
-is more than one thing pending in the queue at that time is also low. 
-Multiplying them both together, then multiplying that by the relative
-expense of the handler makes me say "show me" ;)
+Sorry, there was a typo as specified above. Of cause, you still need
+push/pop eax & edx, that was ommited for brevity, cause it is not really
+relevant.
+
+>> 	popl %ecx
+>>
+>
+>Very wrong. In fact, it would unbalance the stack. The register
+>value, %ecx must be restored exactly as the code does it. One
+>can't assume that %ecx magically got changed and needs to be
+>'corrected'.
+>
+>Maybe you meant:
+>
+> 	pushl	%eax
+> 	pushl	%edx
+      pushl %ecx   # <- you still need to keep ecx 
+> 	pushl	%ecx
+> 	call	__up
+> 	addl	$0x04, %esp	# Bypass ecx on stack
+      popl  %ecx   # <- this one as well
+> 	popl	%edx
+> 	popl	%eax
+
+I meant as indicated above.
+
+Aleks.

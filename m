@@ -1,62 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263788AbUDVCvs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263786AbUDVCzQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263788AbUDVCvs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Apr 2004 22:51:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263790AbUDVCvs
+	id S263786AbUDVCzQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Apr 2004 22:55:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263792AbUDVCzP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Apr 2004 22:51:48 -0400
-Received: from fmr02.intel.com ([192.55.52.25]:42727 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id S263788AbUDVCvf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Apr 2004 22:51:35 -0400
-Subject: Re: ACPIKernel OOPS
-From: Len Brown <len.brown@intel.com>
-To: reddog83@charter
-Cc: reddog83@charter.net, linux-kernel@vger.kernel.org
-In-Reply-To: <A6974D8E5F98D511BB910002A50A6647615F9649@hdsmsx403.hd.intel.com>
-References: <A6974D8E5F98D511BB910002A50A6647615F9649@hdsmsx403.hd.intel.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1082602291.16333.145.camel@dhcppc4>
+	Wed, 21 Apr 2004 22:55:15 -0400
+Received: from hera.kernel.org ([63.209.29.2]:5592 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S263786AbUDVCzH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Apr 2004 22:55:07 -0400
+To: linux-kernel@vger.kernel.org
+From: hpa@zytor.com (H. Peter Anvin)
+Subject: Re: The missing RAID level
+Date: Thu, 22 Apr 2004 02:54:51 +0000 (UTC)
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <c67c5r$c0u$1@terminus.zytor.com>
+References: <045P8FJ12@server5.heliogroup.fr>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 21 Apr 2004 22:51:31 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: terminus.zytor.com 1082602491 12319 63.209.29.3 (22 Apr 2004 02:54:51 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Thu, 22 Apr 2004 02:54:51 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-04-21 at 03:52, Nathaniel Russell wrote:
-> Attached is my problem w/ ACPI. I can't figure it out on Linux
-> Kernel-2.4.26
+Followup to:  <045P8FJ12@server5.heliogroup.fr>
+By author:    Hubert Tonneau <hubert.tonneau@fullpliant.org>
+In newsgroup: linux.dev.kernel
+> 
+> So, one very interesting possibility would be to have an extra RAID level that
+> would do the following:
+> assuming that you connect 5+1 partitions, then you get 5 md partitions, not a
+> single one, with the following properties:
+> . any read to mdX goes straight forward to reading the underlying partition.
+> . any write goes staight forward to writting the underlying partition, but also
+>   updates the parity on the extra partition.
+> 
 
-ACPI: Subsystem revision 20040326
-...
-ACPI: Unable to load the System Description Tables
+You have just described RAID 4.
 
-This isn't an OOPS.
-This is ACPI choking on the DSDT in your BIOS
-and deciding to head for the exits.
-
-Did other versions of Linux run in ACPI mode on this box?
-
-I recommend that you file a bug so we can look at
-this failure in more detail.
-
-thanks,
--Len
----------
-
-How to file a bug against ACPI:
-
-http://bugzilla.kernel.org/enter_bug.cgi?product=ACPI
-Select component "AML Interpreter"
-
-Please attach dmesg -s40000 output (or serial console log if dmesg
-unavailable)
-Please attach copy of /proc/interrupts if possible
-
-Please attach the output from acpidmp, available in /usr/sbin/, or in
-pmtools:
-http://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/utils/
-
-
+	-hpa

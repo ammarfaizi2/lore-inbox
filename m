@@ -1,74 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268625AbTBZMsq>; Wed, 26 Feb 2003 07:48:46 -0500
+	id <S268736AbTBZMx5>; Wed, 26 Feb 2003 07:53:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268738AbTBZMsq>; Wed, 26 Feb 2003 07:48:46 -0500
-Received: from [195.214.178.133] ([195.214.178.133]:49010 "EHLO octopus")
-	by vger.kernel.org with ESMTP id <S268625AbTBZMsm>;
-	Wed, 26 Feb 2003 07:48:42 -0500
-Message-ID: <001d01c2dd96$eac076f0$3002a8c0@yigitcan>
-From: "Yigit Can" <yigit.can@karel.com.tr>
-To: "kernelnewbies" <kernelnewbies@nl.linux.org>,
-       "linux kernel" <linux-kernel@vger.kernel.org>,
-       "linux config" <linux-config@vger.kernel.org>,
-       "linux c programming" <linux-c-programming@vger.kernel.org>
-Subject: getprotobyname failure
-Date: Wed, 26 Feb 2003 14:59:28 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-9"
+	id <S268738AbTBZMx5>; Wed, 26 Feb 2003 07:53:57 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:45449
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S268736AbTBZMx4>; Wed, 26 Feb 2003 07:53:56 -0500
+Subject: Re: DTE 3181e
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Pablo B <pablob127@yahoo.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030226054404.85557.qmail@web40102.mail.yahoo.com>
+References: <20030226054404.85557.qmail@web40102.mail.yahoo.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2720.3000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Organization: 
+Message-Id: <1046268367.8948.13.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 26 Feb 2003 14:06:07 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Wed, 2003-02-26 at 05:44, Pablo B wrote:
+> I am trying to use an ancient DTC 3181e SCSI card with
+> the 2.4.20 kernel. However, whenever I load the
+> g_NCR5380 module with a SCSI device on, it inmediately
+> freezes the computer hard. The system gets completely
+> hung, needs a hard reset to restart (no Alt-SysRq
+> magic keys available).
+> I've been looking for information on the Net, but I
+> could not find anybody with similar problems.
 
-I have a problem with getprotobyname() function.
-
-I wrote a simple program that only uses getprotobyname function
-
-I can run this program on my development machine
-but when I try to run this program on my basic kernel it gives me the
-"memory fault" error.
-
-the "getprotobyname" function returns NULL and i don't know the reason,
-becouse i have the /etc/protocols file containing "tcp 6 TCP" line
-
-I'm using Denx embedded linux development kit with libc-2.2.5 with an cross
-compiler
-
-my development machine has celeron  type processor
-and my target board is TQM850L (powerpc 850)
-
-I've replaced my protocols and nsswitch.conf files with host machines (my
-protocols file contians "tcp 6 TCP" line)
-and that's made no difference.
-
-Why the getprotobyname function returns NULL?
-
-please help,
-
-
- my program :
-
-#include <netdb.h>
-#include <stdio.h>
-
- int main(void){
-
-    struct sockaddr_in addr;
-    struct protoent *protocol=NULL;
-    protocol=getprotobyname("tcp");
-    printf("\n RESULT : %02x \n",protocol->p_proto);
-
-    return 0;
-}
-
-Yigit CAN
-
-
+The driver is a bit cranky to say the least. It gets deeply
+upset if the bus locks for example. I did a lot of work on it
+in 2.5 and the 2.5 one seems to be stable and a lot better
+on my test box with a similar card (53c400a with no IRQ)
 

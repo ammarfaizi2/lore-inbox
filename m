@@ -1,39 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292354AbSBYW2g>; Mon, 25 Feb 2002 17:28:36 -0500
+	id <S292362AbSBYW2f>; Mon, 25 Feb 2002 17:28:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292350AbSBYW0w>; Mon, 25 Feb 2002 17:26:52 -0500
-Received: from air-2.osdl.org ([65.201.151.6]:13330 "EHLO osdlab.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S292334AbSBYW0Y>;
-	Mon, 25 Feb 2002 17:26:24 -0500
-Date: Mon, 25 Feb 2002 14:20:24 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Christer Weinigel <wingel@acolyte.hack.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [DRIVER][RFC] SC1200 Watchdog driver
-In-Reply-To: <20020222204823.235A6F5B@acolyte.hack.org>
-Message-ID: <Pine.LNX.4.33L2.0202251413100.11464-100000@dragon.pdx.osdl.net>
+	id <S292354AbSBYW0s>; Mon, 25 Feb 2002 17:26:48 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:37388 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S292350AbSBYW0I>; Mon, 25 Feb 2002 17:26:08 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Linux 2.4.18
+Date: 25 Feb 2002 14:25:39 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <a5edl3$sni$1@cesium.transmeta.com>
+In-Reply-To: <20020225200618.0FAE82069E@eos.telenet-ops.be> <Pine.LNX.4.21.0202251631170.31542-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Followup to:  <Pine.LNX.4.21.0202251631170.31542-100000@freak.distro.conectiva>
+By author:    Marcelo Tosatti <marcelo@conectiva.com.br>
+In newsgroup: linux.dev.kernel
+> > 
+> > Wouldn't it be easier just to make a new 2.4.18 with the patch applied?
+> > 
+> > Just to make all our lives a bit easier...
+> 
+> Having two 2.4.18's is a bit of a mess for the ftp.kernel.org mirroring
+> system.
+> 
 
-Hi Christer,
+Not really.  You can substitute a file and the mirror system should
+handle it fine, *AS LONG AS THE FILE DATE IS CHANGED*.
 
-Thanks for doing this "watchdog-api.txt".
-Will you add it to linux/Documentation/ also?
-Even with the FIXME's, it's valuable to have this information.
-
-Typo:  in the 3rd paragraph following "Introduction:",
-change "implent" to "implement".
-
-Questions:  At various places it refers to
-/proc/watchdog and/or /dev/watchdog special device files.
-Is /proc/watchdog actually used, or just /dev/watchdog?
-And is /proc/watchdog considered a special device file?
-
+	-hpa
 -- 
-~Randy
-
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

@@ -1,40 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264651AbSJTWVF>; Sun, 20 Oct 2002 18:21:05 -0400
+	id <S264647AbSJTW0E>; Sun, 20 Oct 2002 18:26:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264652AbSJTWVF>; Sun, 20 Oct 2002 18:21:05 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:41949 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S264651AbSJTWVE>;
-	Sun, 20 Oct 2002 18:21:04 -0400
-Date: Sun, 20 Oct 2002 15:19:10 -0700 (PDT)
-Message-Id: <20021020.151910.81693390.davem@redhat.com>
-To: bart.de.schuymer@pandora.be
-Cc: linux-kernel@vger.kernel.org, buytenh@gnu.org, coreteam@netfilter.org
-Subject: Re: [RFC] bridge-nf -- map IPv4 hooks onto bridge hooks, vs 2.5.44
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <200210210020.37097.bart.de.schuymer@pandora.be>
-References: <200209120836.52062.bart.de.schuymer@pandora.be>
-	<200210142005.06292.bart.de.schuymer@pandora.be>
-	<200210210020.37097.bart.de.schuymer@pandora.be>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S264649AbSJTW0D>; Sun, 20 Oct 2002 18:26:03 -0400
+Received: from starcraft.mweb.co.za ([196.2.45.78]:1454 "EHLO
+	starcraft.mweb.co.za") by vger.kernel.org with ESMTP
+	id <S264647AbSJTWZ7>; Sun, 20 Oct 2002 18:25:59 -0400
+From: Bongani <bhlope@mweb.co.za>
+To: kraxel@bytesex.org
+Subject: [PATCH RESEND] 2.5.44 bttv-driver.c
+Date: Mon, 21 Oct 2002 00:32:54 +0200
+User-Agent: KMail/1.4.7
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_W8ys9JejBMWvHrj"
+Message-Id: <200210210032.54080.bhlope@mweb.co.za>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Bart De Schuymer <bart.de.schuymer@pandora.be>
-   Date: Mon, 21 Oct 2002 00:20:37 +0200
 
-   This is a follow-up from the previous RFC for the bridge-nf patch.
-   The new patch adds one member to the skbuff, a pointer to a struct 
-   nf_bridge_info. There is still a need to change ip_output.c, but the change 
-   is the analogue as is done for the skbuff->nfct pointer field. So, for me 
-   this is a clean solution. The copy of the Ethernet header is no longer done 
-   in ip_fragment().
+--Boundary-00=_W8ys9JejBMWvHrj
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
 
-This definitely looks a lot better.
+Hi Gerd
 
-I still want the netfilter team to 'ACK' the core/ipv4 netfilter
-changes before I apply this. :-)
+Sorry it looks like Kmail broke the patch. I have attached it instead
+
+Cheers
+--Boundary-00=_W8ys9JejBMWvHrj
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="bttv.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="bttv.patch"
+
+--- linux-2.5/drivers/media/video/bttv-driver.c.old	2002-10-21 00:08:50.000000000 +0200
++++ linux-2.5/drivers/media/video/bttv-driver.c	2002-10-21 00:09:17.000000000 +0200
+@@ -813,7 +813,7 @@
+ 	i2c_mux = mux = (btv->audio & AUDIO_MUTE) ? AUDIO_OFF : btv->audio;
+ 	if (btv->opt_automute && !signal && !btv->radio_user)
+ 		mux = AUDIO_OFF;
+-	printk("bttv%d: amux: mode=%d audio=%d signal=%s mux=%d/%d irq=%s\n",
++	dprintk(KERN_DEBUG "bttv%d: amux: mode=%d audio=%d signal=%s mux=%d/%d irq=%s\n",
+ 	       btv->nr, mode, btv->audio, signal ? "yes" : "no",
+ 	       mux, i2c_mux, in_interrupt() ? "yes" : "no");
+ 
+
+--Boundary-00=_W8ys9JejBMWvHrj--
+

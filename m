@@ -1,46 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310178AbSCKQI6>; Mon, 11 Mar 2002 11:08:58 -0500
+	id <S310179AbSCKQJ6>; Mon, 11 Mar 2002 11:09:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310179AbSCKQIt>; Mon, 11 Mar 2002 11:08:49 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:50703 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S310178AbSCKQIl>; Mon, 11 Mar 2002 11:08:41 -0500
-Message-ID: <3C8CD687.5000608@namesys.com>
-Date: Mon, 11 Mar 2002 19:08:39 +0300
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: elenstev@mesatop.com
-CC: "Mark H. Wood" <mwood@IUPUI.Edu>, linux-kernel@vger.kernel.org
+	id <S310184AbSCKQJn>; Mon, 11 Mar 2002 11:09:43 -0500
+Received: from hq.fsmlabs.com ([209.155.42.197]:17680 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S310179AbSCKQJX>;
+	Mon, 11 Mar 2002 11:09:23 -0500
+Date: Mon, 11 Mar 2002 09:08:45 -0700
+From: yodaiken@fsmlabs.com
+To: Hans Reiser <reiser@namesys.com>
+Cc: yodaiken@fsmlabs.com, Alexander Viro <viro@math.psu.edu>,
+        Richard Gooch <rgooch@ras.ucalgary.ca>,
+        Itai Nahshon <itai@siftology.com>, Larry McVoy <lm@bitmover.com>,
+        Tom Lord <lord@regexps.com>, jaharkes@cs.cmu.edu,
+        linux-kernel@vger.kernel.org
 Subject: Re: linux-2.5.4-pre1 - bitkeeper testing
-In-Reply-To: <Pine.LNX.4.33.0203110508080.17717-100000@mhw.ULib.IUPUI.Edu> <3C8C95D8.2070601@namesys.com> <200203111444.HAA11416@tstac.esa.lanl.gov>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <20020311090845.A17785@hq.fsmlabs.com>
+In-Reply-To: <Pine.GSO.4.21.0203110051500.9713-100000@weyl.math.psu.edu> <3C8C4B8A.2070508@namesys.com> <20020311061341.A14809@hq.fsmlabs.com> <3C8CD274.1010603@namesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <3C8CD274.1010603@namesys.com>; from reiser@namesys.com on Mon, Mar 11, 2002 at 06:51:16PM +0300
+Organization: FSM Labs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven Cole wrote:
+On Mon, Mar 11, 2002 at 06:51:16PM +0300, Hans Reiser wrote:
+> yodaiken@fsmlabs.com wrote:
+> 
+> >On Mon, Mar 11, 2002 at 09:15:38AM +0300, Hans Reiser wrote:
+> >
+> >>>The problem is that it doesn't play well with other things.
+> >>>
+> >>Your statement is information free so far, but could be the intro to an 
+> >>informative statement....;-)
+> >>
+> >
+> >e.g. link, copy, remove.
+> >
+> In what respect do these not play well?
+> 
+> >
+> >
+> >
+> >Look at the Plan9 backup plan. That was much better thought out.
+> >
+> Also not enough said to be informative., but could be an introduction to 
+> an informative statement.
 
->
->Quoting from "VMS General User's Manual", section 2.1.1 Filenames, Types,
->and Versions, "You can control the number of versions of a file by specifying 
->the /VERSION_LIMIT qualifier to the DCL commands CREATE/DIRECTORY, SET DIRECTORY, 
->and SET FILE."
->
->It has been a while (about 12 years), but IIRC, you could set /VERSION_LIMIT=1 and
->effectively get rid of the annoying versions.  But some people, the Aunt Tillie
->types, were always tripping over their shoelaces and unintentially deleting files.
->For those people, the version feature probably seemed a blessing rather than a
->curse.
->
->Steven
->
->
-So with every command to create a directory you had to add an extra 
-parameter specifying that you didn't want extra versions or else you got 
-them?
+If you can't spend 10 seconds looking it up on Google, you must not 
+be interested.
 
-Hans
+> 
+> 
+
+-- 
+---------------------------------------------------------
+Victor Yodaiken 
+Finite State Machine Labs: The RTLinux Company.
+ www.fsmlabs.com  www.rtlinux.com
 

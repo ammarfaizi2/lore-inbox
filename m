@@ -1,69 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261667AbVAMUHI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261498AbVAMUOw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261667AbVAMUHI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 15:07:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261494AbVAMUDD
+	id S261498AbVAMUOw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 15:14:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261468AbVAMULk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 15:03:03 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:10981 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261496AbVAMT7u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 14:59:50 -0500
-Subject: Re: thoughts on kernel security issues
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Christoph Hellwig <hch@infradead.org>, Dave Jones <davej@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, marcelo.tosatti@cyclades.com,
-       Greg KH <greg@kroah.com>, chrisw@osdl.org,
+	Thu, 13 Jan 2005 15:11:40 -0500
+Received: from fw.osdl.org ([65.172.181.6]:46789 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261460AbVAMUK6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 15:10:58 -0500
+Date: Thu, 13 Jan 2005 12:10:33 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Dave Jones <davej@redhat.com>
+cc: Marek Habersack <grendel@caudium.net>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Greg KH <greg@kroah.com>, Chris Wright <chrisw@osdl.org>, akpm@osdl.org,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0501130926260.2310@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0501121002200.2310@ppc970.osdl.org>
-	 <20050112185133.GA10687@kroah.com>
-	 <Pine.LNX.4.58.0501121058120.2310@ppc970.osdl.org>
-	 <20050112161227.GF32024@logos.cnet>
-	 <Pine.LNX.4.58.0501121148240.2310@ppc970.osdl.org>
-	 <20050112205350.GM24518@redhat.com>
-	 <Pine.LNX.4.58.0501121750470.2310@ppc970.osdl.org>
-	 <20050112182838.2aa7eec2.akpm@osdl.org> <20050113033542.GC1212@redhat.com>
-	 <Pine.LNX.4.58.0501122025140.2310@ppc970.osdl.org>
-	 <20050113082320.GB18685@infradead.org>
-	 <Pine.LNX.4.58.0501130822280.2310@ppc970.osdl.org>
-	 <1105632757.4624.59.camel@localhost.localdomain>
-	 <Pine.LNX.4.58.0501130926260.2310@ppc970.osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1105642416.5193.77.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 13 Jan 2005 18:53:37 +0000
+Subject: Re: thoughts on kernel security issues
+In-Reply-To: <20050113200308.GC3555@redhat.com>
+Message-ID: <Pine.LNX.4.58.0501131206340.2310@ppc970.osdl.org>
+References: <20050112094807.K24171@build.pdx.osdl.net>
+ <Pine.LNX.4.58.0501121002200.2310@ppc970.osdl.org> <20050112185133.GA10687@kroah.com>
+ <Pine.LNX.4.58.0501121058120.2310@ppc970.osdl.org> <20050112161227.GF32024@logos.cnet>
+ <Pine.LNX.4.58.0501121148240.2310@ppc970.osdl.org> <20050112174203.GA691@logos.cnet>
+ <1105627541.4624.24.camel@localhost.localdomain> <20050113194246.GC24970@beowulf.thanes.org>
+ <20050113200308.GC3555@redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2005-01-13 at 17:33, Linus Torvalds wrote:
-> Scripts can only do what the interpreter does. And it's often a lot harder
-> to get the interpreter to do certain things. For example, you simply
-> _cannot_ get any thread race conditions with most scripts out there, nor 
-> can you generally use magic mmap patterns.
 
-And then perl was invented.
 
-> Am I claiming that disallowing self-written ELF binaries gets rid of all 
-> security holes? Obviously not. I'm claiming that there are things that 
-> people can do that make it harder, and that _real_ security is not about 
-> trusting one subsystem, but in making it hard enough in many independent 
-> ways that it's just too effort-intensive to attack.
+On Thu, 13 Jan 2005, Dave Jones wrote:
+> 
+> When issues get leaked, the incentive for a researcher to use the
+> same process again goes away, which hurts us.  Basically, trying
+> to keep them happy is in our best interests.
 
-It lasts until someone publishes the first perl ELF loader/executor on
-bugtraq, or ruby, or python, or java. Then everyone has it.
+Not so.
 
-> It's the same thing with passwords. Clearly any password protected system
-> can be broken into: you just have to guess the password. It then becomes a
-> matter of how hard it is to "guess" - at some point you say a password is
-> secure not because it is a password, but because it's too _expensive_ to
-> guess/break.
+_balancing_ their happiness with our needs is what's in our best
+interests. Yes, we should encourage them to tell us, but totally bending
+over backwards is definitely the wrong thing to do.
 
-Its more like breaking a password algorithm or everyone having the same
-password unfortunately. One perl ELF loader, game over. You can do this
-stuff with SELinux but even then it is very hard and you have to whack
-the interpreters.
+In fact, right now we seem to encourage even people who do _not_
+necessarily want the delay and secrecy to go over to vendor-sec, just
+because the vendor-sec people are clearly arguing even against
+alternatives.
 
+Which is something I do not understand. The _apologia_ for vendor-sec is 
+absolutely stunning. Even if there are people who want to only interface 
+with a fascist vendor-sec-style absolute secrecy list, THAT IS NOT AN 
+EXCUSE TO NOT HAVE OPEN LISTS IN _ADDITION_!
+
+In other words, I really don't understand this total subjugation by people 
+to the vendor-sec mentaliy. It's a disease, I tell you.
+
+			Linus

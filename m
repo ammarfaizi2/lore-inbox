@@ -1,46 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270656AbUJUBJV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270602AbUJUBK7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270656AbUJUBJV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 21:09:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270655AbUJUBJN
+	id S270602AbUJUBK7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 21:10:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270599AbUJUBKk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 21:09:13 -0400
-Received: from rproxy.gmail.com ([64.233.170.197]:39598 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S270520AbUJUBI7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 21:08:59 -0400
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=Kgtnf/YyhCohaunKWRz+Gubb5QCtrtniLMOmbUJMAVN7ywqUA4DGMjgVFAExpwAjrZsO9lG/dvOy5JzE64XV2ab0/t4DXZXQL24cXjfAmpNedaK3TjvmbploDEHRJDrZrHLBjdw23UGKf/be5nUEBYpLGAT0Xp6O5ksQEIBfSqA
-Message-ID: <9e4733910410201808c0796c8@mail.gmail.com>
-Date: Wed, 20 Oct 2004 21:08:57 -0400
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Timothy Miller <miller@techsource.com>
-Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <4176E08B.2050706@techsource.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 20 Oct 2004 21:10:40 -0400
+Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:24476 "HELO
+	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S270653AbUJUBJY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 21:09:24 -0400
+From: Srihari Vijayaraghavan <sriharivijayaraghavan@yahoo.com.au>
+To: Francois Romieu <romieu@fr.zoreil.com>
+Subject: r8169 - dac testing (was: [mini-RFT] r8169 and amd64)
+Date: Fri, 22 Oct 2004 11:12:18 +1000
+User-Agent: KMail/1.6.2
+Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-References: <4176E08B.2050706@techsource.com>
+Message-Id: <200410221112.18575.sriharivijayaraghavan@yahoo.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have heard a lot of complaints from embedded people about having few
-choices for graphics chips. Many of the low end chips from ATI/NVidia
-are no longer in production and you are forced into buying more chip
-than you want. You should ask about this on embedded developer lists.
+Hello Francois,
 
-For the new X servers you have to have hardware alpha blending.
-Another important feature is accelerated drawing to off-screen
-buffers. Also, DMA command queues help a lot with parallelizing
-drawing.
+I read your email with a subject "[mini-RFT] r8169 and amd64" at LKML 
+(archive). Since I am not subscribed to LKML I am unable to answer to that 
+thread. Sorry.
 
-If you implement VGA you will be able to boot and work in any x86
-system without writing any code other than the BIOS.
+Anyway, I have applied your patch at 
+http://www.fr.zoreil.com/people/francois/misc/20041020-2.6.9-r8169.c-test.patch 
+to vanilla 2.6.9, and tested it on my AMD64.
 
--- 
-Jon Smirl
-jonsmirl@gmail.com
+In its default configuration, ie, without use_dac=1 parameter, it works great. 
+But OTOH with that parameter kernel displays these messages:
+
+eth0: Identified chip type is 'RTL8169s/8110s'.
+eth0: RTL8169 at 0xffffff0000040000, 00:0d:61:15:23:e6, IRQ 18
+r8169: eth0: PCI error (cmd = 0x0017, status = 0x22b0).
+eth1: link up, 100Mbps, full-duplex, lpa 0x45E1
+
+And the network card does not work, as I cannot ping another host (DSL 
+modem/router) on the network.
+
+(Once I load the module with that parameter, unloading and reloading it 
+without that parameter does not bring the network card back to its working 
+configuration.)
+
+Thank you.
+Hari.

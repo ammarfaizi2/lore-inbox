@@ -1,57 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261877AbUBQHml (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 02:42:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262598AbUBQHml
+	id S262598AbUBQHoK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 02:44:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262745AbUBQHoK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 02:42:41 -0500
-Received: from mail-03.iinet.net.au ([203.59.3.35]:8417 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S261877AbUBQHmk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 02:42:40 -0500
-Message-ID: <4031C5E5.9050406@cyberone.com.au>
-Date: Tue, 17 Feb 2004 18:42:29 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Marc Lehmann <pcg@schmorp.de>
-CC: John Bradford <john@grabjohn.com>, Jeff Garzik <jgarzik@pobox.com>,
-       Linus Torvalds <torvalds@osdl.org>,
-       viro@parcelfarce.linux.theplanet.co.uk,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: UTF-8 practically vs. theoretically in the VFS API
-References: <04Feb13.163954est.41760@gpu.utcc.utoronto.ca> <200402150006.23177.robin.rosenberg.lists@dewire.com> <20040214232935.GK8858@parcelfarce.linux.theplanet.co.uk> <200402150107.26277.robin.rosenberg.lists@dewire.com> <Pine.LNX.4.58.0402141827200.14025@home.osdl.org> <20040216183616.GA16491@schmorp.de> <Pine.LNX.4.58.0402161040310.30742@home.osdl.org> <4031197C.1040909@pobox.com> <200402161948.i1GJmJi5000299@81-2-122-30.bradfords.org.uk> <20040216201610.GC17015@schmorp.de>
-In-Reply-To: <20040216201610.GC17015@schmorp.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 17 Feb 2004 02:44:10 -0500
+Received: from hera.kernel.org ([63.209.29.2]:5844 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S262598AbUBQHoE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 02:44:04 -0500
+To: linux-kernel@vger.kernel.org
+From: hpa@zytor.com (H. Peter Anvin)
+Subject: Re: UTF-8 and case-insensitivity
+Date: Tue, 17 Feb 2004 07:43:40 +0000 (UTC)
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <c0sgnc$ngo$1@terminus.zytor.com>
+References: <16433.38038.881005.468116@samba.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8bit
+X-Trace: terminus.zytor.com 1077003820 24089 63.209.29.3 (17 Feb 2004 07:43:40 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Tue, 17 Feb 2004 07:43:40 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Marc Lehmann wrote:
-
->On Mon, Feb 16, 2004 at 07:48:19PM +0000, John Bradford <john@grabjohn.com> wrote:
+Followup to:  <16433.38038.881005.468116@samba.org>
+By author:    tridge@samba.org
+In newsgroup: linux.dev.kernel
 >
->>Quote from Jeff Garzik <jgarzik@pobox.com>:
->>None of this is a real problem, if everything is set up correctly and
->>bug free.  Unfortunately the Just Works thing falls apart in the,
->>(frequent), instances that it's not :-(.
->>
->      
->And this is the whole point.
->
->BTW, to people trying to explain some properties of UTF-8 to me. I don't
->think ad-hominem attacks like assuming that I don't understand UTF-8
->(without any indication that this is so) are useful.
->
->The point here is that the kernel does, in a very narrow interpretation,
->not support the use of UTF-8, because proper support of UTF-8 means that
->no illegal byte sequences will be produced.
->
->
+> Given how much pain the "kernel is agnostic to charset encoding"
+> attitude has cost me in terms of programming pain, I thought I should
+> de-cloak from lurk mode and put my 2c into the UTF-8 issue.
+> 
+> Personally I think that eventually the Linux kernel will have to
+> embrace the interpretation of the byte streams that applications have
+> given it, despite the fact that this will be very painful and
+> potentially quite complex. The reason is that I think that eventually
+> the Linux kernel will need to efficiently support a userspace policy
+> of case-insensitivity and the only way to do case-insensitive filename
+> operations is to interpret those byte streams as a particular
+> encoding.
+> 
 
-So does the kernel support the English language? Does your
-email client?
+Realistically, the only sane way to do this is to set our foot down
+and say: UTF-8 is *the* encoding.  A good step in that direction would
+be to set utf-8 to be the default NLS in the kernel, but as long as
+people keep the whole sick idea that we can continue to use
+locale-dependent encoding we're in for a world of hurt.
 
+That's really the long and short of it.  Until people are willing to
+say "we support UTF-8, anything else and it's anyone's guess what
+happens" then nothing is going to happen.
+
+	-hpa
+-- 
+PGP public key available - finger hpa@zytor.com
+Key fingerprint: 2047/2A960705 BA 03 D3 2C 14 A8 A8 BD  1E DF FE 69 EE 35 BD 74
+"The earth is but one country, and mankind its citizens."  --  Bahá'u'lláh
+Just Say No to Morden * The Shadows were defeated -- Babylon 5 is renewed!!

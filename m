@@ -1,107 +1,167 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269709AbTGZPvi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jul 2003 11:51:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272557AbTGZPsn
+	id S272504AbTGZOlO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jul 2003 10:41:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272506AbTGZOe5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jul 2003 11:48:43 -0400
-Received: from cable98.usuarios.retecal.es ([212.22.32.98]:50654 "EHLO
-	hell.lnx.es") by vger.kernel.org with ESMTP id S270158AbTGZPoy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jul 2003 11:44:54 -0400
-Date: Sat, 26 Jul 2003 17:59:52 +0200
-From: Manuel Estrada Sainz <ranty@debian.org>
-To: Michael Hunold <hunold@convergence.de>
-Cc: LKML <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>,
-       John Alvord <jalvo@mbay.net>
-Subject: Re: [PATCH] request_firmware() private workqueue (was: Re: Using firmware_class with recent 2.6 kernels)
-Message-ID: <20030726155952.GA23335@ranty.pantax.net>
-Reply-To: ranty@debian.org
-References: <3F1BD157.4090509@convergence.de> <20030726101818.GA25104@ranty.pantax.net>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="nFreZHaLTZJo0R7j"
-Content-Disposition: inline
-In-Reply-To: <20030726101818.GA25104@ranty.pantax.net>
-User-Agent: Mutt/1.5.4i
+	Sat, 26 Jul 2003 10:34:57 -0400
+Received: from amsfep13-int.chello.nl ([213.46.243.24]:16690 "EHLO
+	amsfep13-int.chello.nl") by vger.kernel.org with ESMTP
+	id S272507AbTGZOcf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jul 2003 10:32:35 -0400
+Date: Sat, 26 Jul 2003 16:51:43 +0200
+Message-Id: <200307261451.h6QEphkx002340@callisto.of.borg>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linus Torvalds <torvalds@transmeta.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH] M68k IRQ API updates
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+M68k: A few missing updates to the new irq API:
+  - Q40/Q60 keyboard
+  - Q40/Q60 floppy
+  - Sun-3x floppy
 
---nFreZHaLTZJo0R7j
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Sat, Jul 26, 2003 at 12:18:18PM +0200, Manuel Estrada Sainz wrote:
-> On Mon, Jul 21, 2003 at 01:41:11PM +0200, Michael Hunold wrote:
-[snip]
->  About the attached patch:
->  
->  	- use a private workqueue so we can sleep without interfering
-> 	  with other subsystems.
-
- Oops, as usuall I forgot to attach the patch, It is attached now.
-
- Sorry
-
- 	Manuel
-
--- 
---- Manuel Estrada Sainz <ranty@debian.org>
-                         <ranty@bigfoot.com>
-			 <ranty@users.sourceforge.net>
------------------------- <manuel.estrada@hispalinux.es> -------------------
-Let us have the serenity to accept the things we cannot change, courage to
-change the things we can, and wisdom to know the difference.
-
---nFreZHaLTZJo0R7j
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="request_firmware_own-workqueue.diff"
-
-Index: firmware_class.c
-===================================================================
-RCS file: /home/cvs/linux-2.5/drivers/base/firmware_class.c,v
-retrieving revision 1.3
-diff -u -r1.3 firmware_class.c
---- firmware_class.c	4 Jul 2003 02:21:18 -0000	1.3
-+++ firmware_class.c	26 Jul 2003 08:38:07 -0000
-@@ -22,6 +22,8 @@
- MODULE_LICENSE("GPL");
+--- linux-2.6.x/drivers/input/serio/q40kbd.c	Sun Feb 16 12:16:24 2003
++++ linux-m68k-2.6.x/drivers/input/serio/q40kbd.c	Sun Jun  8 13:30:46 2003
+@@ -66,12 +66,14 @@
+ 	.close	= q40kbd_close,
+ };
  
- static int loading_timeout = 10;	/* In seconds */
-+static struct workqueue_struct *firmware_wq;
-+
- 
- struct firmware_priv {
- 	char fw_id[FIRMWARE_NAME_MAX];
-@@ -467,7 +469,7 @@
- 	};
- 	INIT_WORK(&fw_work->work, request_firmware_work_func, fw_work);
- 
--	schedule_work(&fw_work->work);
-+	queue_work(firmware_wq, &fw_work->work);
- 	return 0;
- }
- 
-@@ -485,12 +487,20 @@
- 		       __FUNCTION__);
- 		class_unregister(&firmware_class);
- 	}
-+	firmware_wq = create_workqueue("firmware");
-+	if (!firmware_wq) {
-+		printk(KERN_ERR "%s: create_workqueue failed\n", __FUNCTION__);
-+		class_remove_file(&firmware_class, &class_attr_timeout);
-+		class_unregister(&firmware_class);
-+		error = -EIO;
-+	}
- 	return error;
- 
- }
- static void __exit
- firmware_class_exit(void)
+-static void q40kbd_interrupt(int irq, void *dev_id, struct pt_regs *regs)
++static irqreturn_t q40kbd_interrupt(int irq, void *dev_id,
++				    struct pt_regs *regs)
  {
-+	destroy_workqueue(firmware_wq);
- 	class_remove_file(&firmware_class, &class_attr_timeout);
- 	class_unregister(&firmware_class);
+ 	if (Q40_IRQ_KEYB_MASK & master_inb(INTERRUPT_REG))
+ 		serio_interrupt(&q40kbd_port, master_inb(KEYCODE_REG), 0, regs);
+ 
+ 	master_outb(-1, KEYBOARD_UNLOCK_REG);
++	return IRQ_HANDLED;
  }
+ 
+ static int __init q40kbd_init(void)
+--- linux-2.6.x/include/asm-m68k/floppy.h	Sun Jun  8 10:15:21 2003
++++ linux-m68k-2.6.x/include/asm-m68k/floppy.h	Sun Jun  8 13:28:44 2003
+@@ -17,7 +17,8 @@
+ 
+ #include <linux/vmalloc.h>
+ 
+-asmlinkage void floppy_hardint(int irq, void *dev_id, struct pt_regs * regs);
++asmlinkage irqreturn_t floppy_hardint(int irq, void *dev_id,
++				      struct pt_regs *regs);
+ 
+ /* constants... */
+ 
+@@ -183,7 +184,8 @@
+ 
+ /* this is the only truly Q40 specific function */
+ 
+-asmlinkage void floppy_hardint(int irq, void *dev_id, struct pt_regs * regs)
++asmlinkage irqreturn_t floppy_hardint(int irq, void *dev_id,
++				      struct pt_regs *regs)
+ {
+ 	register unsigned char st;
+ 
+@@ -197,7 +199,7 @@
+ #endif
+ 	if(!doing_pdma) {
+ 		floppy_interrupt(irq, dev_id, regs);
+-		return;
++		return IRQ_HANDLED;
+ 	}
+ 
+ #ifdef TRACE_FLPY_INT
+@@ -232,7 +234,7 @@
+ 	calls++;
+ #endif
+ 	if(st == 0x20)
+-		return;
++		return IRQ_HANDLED;
+ 	if(!(st & 0x20)) {
+ 		virtual_dma_residue += virtual_dma_count;
+ 		virtual_dma_count=0;
+@@ -245,12 +247,13 @@
+ #endif
+ 		doing_pdma = 0;
+ 		floppy_interrupt(irq, dev_id, regs);
+-		return;
++		return IRQ_HANDLED;
+ 	}
+ #ifdef TRACE_FLPY_INT
+ 	if(!virtual_dma_count)
+ 		dma_wait++;
+ #endif
++	return IRQ_HANDLED;
+ }
+ 
+ #define EXTRA_FLOPPY_PARAMS
+--- linux-2.6.x/include/asm-m68k/sun3xflop.h	Sun Apr  7 10:56:27 2002
++++ linux-m68k-2.6.x/include/asm-m68k/sun3xflop.h	Sun Jun  8 13:27:25 2003
+@@ -113,7 +113,8 @@
+ }
+ 
+ 
+-asmlinkage void sun3xflop_hardint(int irq, void *dev_id, struct pt_regs * regs)
++asmlinkage irqreturn_t sun3xflop_hardint(int irq, void *dev_id,
++					 struct pt_regs * regs)
+ {
+ 	register unsigned char st;
+ 
+@@ -127,7 +128,7 @@
+ #endif
+ 	if(!doing_pdma) {
+ 		floppy_interrupt(irq, dev_id, regs);
+-		return;
++		return IRQ_HANDLED;
+ 	}
+ 
+ //	printk("doing pdma\n");// st %x\n", sun_fdc->status_82072);
+@@ -151,7 +152,7 @@
+ 			if((st & 0x80) == 0) {
+ 				virtual_dma_count = lcount;
+ 				virtual_dma_addr = lptr;
+-				return;
++				return IRQ_HANDLED;
+ 			}
+ 
+ 			if((st & 0x20) == 0)
+@@ -176,7 +177,7 @@
+ #endif
+ //	printk("st=%02x\n", st);
+ 	if(st == 0x20)
+-		return;
++		return IRQ_HANDLED;
+ 	if(!(st & 0x20)) {
+ 		virtual_dma_residue += virtual_dma_count;
+ 		virtual_dma_count=0;
+@@ -191,7 +192,7 @@
+ #endif
+ 
+ 		floppy_interrupt(irq, dev_id, regs);
+-		return;
++		return IRQ_HANDLED;
+ 	}
+ 
+ 	
+@@ -199,6 +200,7 @@
+ 	if(!virtual_dma_count)
+ 		dma_wait++;
+ #endif
++	return IRQ_HANDLED;
+ }
+ 
+ static int sun3xflop_request_irq(void)
 
---nFreZHaLTZJo0R7j--
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

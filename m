@@ -1,52 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130969AbRCFPh7>; Tue, 6 Mar 2001 10:37:59 -0500
+	id <S130971AbRCFPik>; Tue, 6 Mar 2001 10:38:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130971AbRCFPht>; Tue, 6 Mar 2001 10:37:49 -0500
-Received: from khan.acc.umu.se ([130.239.18.139]:31706 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id <S130969AbRCFPhf>;
-	Tue, 6 Mar 2001 10:37:35 -0500
-Date: Tue, 6 Mar 2001 16:37:11 +0100
-From: David Weinehall <tao@acc.umu.se>
-To: Sean Hunter <sean@dev.sportingbet.com>,
-        Laramie Leavitt <laramie.leavitt@btinternet.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: binfmt_script and ^M
-Message-ID: <20010306163711.A21941@khan.acc.umu.se>
-In-Reply-To: <3AA4D92D.CDDB764D@ftel.co.uk> <JKEGJJAJPOLNIFPAEDHLEEDGCJAA.laramie.leavitt@btinternet.com> <20010306151242.D31649@dev.sportingbet.com>
-Mime-Version: 1.0
+	id <S130977AbRCFPia>; Tue, 6 Mar 2001 10:38:30 -0500
+Received: from rhinocomputing.com ([161.58.241.147]:32271 "EHLO
+	rhinocomputing.com") by vger.kernel.org with ESMTP
+	id <S130971AbRCFPiQ>; Tue, 6 Mar 2001 10:38:16 -0500
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <20010306151242.D31649@dev.sportingbet.com>; from sean@dev.sportingbet.com on Tue, Mar 06, 2001 at 03:12:42PM +0000
+Content-Transfer-Encoding: 7bit
+Message-ID: <15013.1126.621871.683720@rhino.thrillseeker.net>
+Date: Tue, 6 Mar 2001 10:38:14 -0500
+From: Billy Harvey <Billy.Harvey@thrillseeker.net>
+To: Linux Kernel <linux-kernel@vger.kernel.org>,
+        linux-thinkpad@www.bm-soft.com
+Subject: -ac11 sound card, anacron, suspend errors on Thinkpad A20p
+X-Mailer: VM 6.89 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 06, 2001 at 03:12:42PM +0000, Sean Hunter wrote:
-> 
-> I propose
-> /proc/sys/kernel/im_too_lame_to_learn_how_to_use_the_most_basic_of_unix_tools_so_i_want_the_kernel_to_be_filled_with_crap_to_disguise_my_ineptitude
-> 
-> Any support?
+When using -ac11 (otherwise stable) I've noticed the following sound
+card messages when unplugging or plugging in my Thinkpad:
 
-<sarcasm>
-Hey, let's go even further! Let's add support in all programs for \r\n.
-And why not make all program use filenames that have an 8+3 char garbled
-equivalent where the last 3 are the indicators of the filetype. Oh, and
-let's do everything to make sure the user doesn't leave Gnome/KDE.
-And of course, let's add new features to all existing protocols and
-other standards to make them "superior" to other implementations.
-Oh, and of course, we must require an extra 64 MB of memory and
-500 MB of diskspace for each release, and a 200MHz faster processor.
-And let us do all system settings through a registry.
+Mar  6 09:53:17 localhost kernel: cs461x: AC'97 read problem (ACSTS_VSTS), reg = 0x1a
+Mar  6 09:53:17 localhost kernel: cs461x: AC'97 read problem (ACSTS_VSTS), reg = 0x1a
+Mar  6 09:53:18 localhost apmd[194]: Now using Battery Power
+Mar  6 09:53:18 localhost kernel: cs461x: AC'97 read problem (ACSTS_VSTS), reg = 0x1a
+Mar  6 09:53:32 localhost last message repeated 10 times
+Mar  6 09:53:32 localhost apmd[194]: Now using AC Power
+Mar  6 09:53:32 localhost apmd[194]: Charge: * * * (99% 1:59)
+Mar  6 09:53:32 localhost anacron[20263]: Anacron 2.3 started on 2001-03-06
+Mar  6 09:53:32 localhost anacron[20263]: Normal exit (0 jobs run)
+Mar  6 09:53:32 localhost kernel: cs461x: AC'97 read problem (ACSTS_VSTS), reg = 0x1a
+Mar  6 09:55:16 localhost last message repeated 64 times
+Mar  6 09:55:23 localhost last message repeated 17 times
+Mar  6 09:55:25 localhost apmd[194]: Now using Battery Power
+Mar  6 09:55:25 localhost apmd[194]: Battery: * * * (99% unknown)
+Mar  6 09:55:26 localhost kernel: cs461x: AC'97 read problem (ACSTS_VSTS), reg = 0x1a
+Mar  6 09:55:28 localhost last message repeated 5 times
+Mar  6 09:55:29 localhost apmd[194]: Now using AC Power
+Mar  6 09:55:29 localhost apmd[194]: Charge: * * * (99% unknown)
+Mar  6 09:55:29 localhost anacron[20333]: Anacron 2.3 started on 2001-03-06
+Mar  6 09:55:29 localhost anacron[20333]: Normal exit (0 jobs run)
+Mar  6 09:55:29 localhost kernel: cs461x: AC'97 read problem (ACSTS_VSTS), reg = 0x1a
 
-OH! Let's change the name of the operating-system to something more
-catchy. Hmmm. Let's see. Windows maybe...
-</sarcasm>
+The Anacron restart was curious, but I haven't noticed either of these
+messages previously.  The "buttons" on TKMixer would cycle as if being
+activated after this event too.  Restarting TKMixer solves both the
+cycling problem and the sound messages.  This is repeatable, and the
+AC'97 message doesn't occur if TKMixer isn't running.  The
+Anacron message occurs with or without TKMixer's involvment.
 
+Suspend has not worked for quite a while in the 2.4 kernel series (I
+can't remember when it last did, but it *did*).  Anyone have a
+APM/ACPI configuration for the 2.4 that seems to work?
 
-/David
-  _                                                                 _
- // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
-//  Project MCA Linux hacker        //  Dance across the winter sky //
-\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
+Billy

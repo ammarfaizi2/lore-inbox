@@ -1,63 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264501AbUGFUsd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264538AbUGFUwo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264501AbUGFUsd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jul 2004 16:48:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264540AbUGFUsW
+	id S264538AbUGFUwo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jul 2004 16:52:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264443AbUGFUwn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jul 2004 16:48:22 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:37773 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S264501AbUGFUrH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jul 2004 16:47:07 -0400
-Date: Tue, 6 Jul 2004 11:18:50 -0500
-From: linas@austin.ibm.com
-To: Paul Mackerras <paulus@samba.org>
-Cc: linuxppc64-dev@lists.linuxppc.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6 PPC64 EEH unbalanced dev_get/put calls
-Message-ID: <20040706111850.A21634@forte.austin.ibm.com>
-References: <20040702134539.W21634@forte.austin.ibm.com> <16614.16478.9599.463185@cargo.ozlabs.ibm.com>
+	Tue, 6 Jul 2004 16:52:43 -0400
+Received: from outmx017.isp.belgacom.be ([195.238.2.116]:7621 "EHLO
+	outmx017.isp.belgacom.be") by vger.kernel.org with ESMTP
+	id S264538AbUGFUvl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jul 2004 16:51:41 -0400
+Subject: Re: [OFFTOPIC] f_pos ?
+From: FabF <fabian.frederick@skynet.be>
+To: maneesh@in.ibm.com
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040706195816.GB3097@in.ibm.com>
+References: <1088968685.2429.1.camel@localhost.localdomain>
+	 <20040706195816.GB3097@in.ibm.com>
+Content-Type: text/plain
+Message-Id: <1089147084.3691.38.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <16614.16478.9599.463185@cargo.ozlabs.ibm.com>; from paulus@samba.org on Sat, Jul 03, 2004 at 03:13:02PM +1000
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 06 Jul 2004 22:51:24 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 03, 2004 at 03:13:02PM +1000, Paul Mackerras wrote:
-> Linas,
+On Tue, 2004-07-06 at 21:58, Maneesh Soni wrote:
+> On Sun, Jul 04, 2004 at 07:31:29PM +0000, FabF wrote:
+> > Hi,
+> > 	
+> > 	I try to understand how readdir process works and I can't understand
+> > f_pos management :
+> > 
+> >         Having in mind things work that way :
+> > 
+> >         user : ls
+> >         glibc : 
+> >                 open (->sys_open)
+> >                 getdentries64 (->sys_getdentries64)
+> >                 
+> >         kernel:
+> >                 sys_getdentries64
+> >                 ->vfs_readdir
+> >                         ->ext2_readdir
+> > 
+> > At that point, I don't understand why ext2_readdir is playing with
+> > filp->f_pos .... It should be 0 ...Why does it care about offset ?
+> > 
 > 
-> > This patch fixes some unbalanaced usage of pci_dev_get()/pci_dev_put() calls
-> > in the eeh code.  The old code had too many calls to dev_put, which could
-> > cause memory structs to be freed prematurely, possibly leading to bad
-> > bad pointer derefs in certain cases.
+> I think it may not be 0 all the time. A seekdir() could change could change
+> the offset to non-zero.
 > 
-> When I apply this I end up with one pci_dev_get() call in
-> __pci_addr_cache_insert_device and no pci_dev_put() calls.  That can't
-> be right, surely?  If it is it needs a big fat comment explaining why.
+btw, someone could tell why old ext2 readdir had "do the readahead"
+feature ; current ext3 as well but new ext2 implementation doesn't ???
 
+Regards,
+FabF
 
-No, that's right. The device is gotten for the length of time that 
-it is in the cache, and is put when it is removed from the cache.
-In this way, the device is not free()'ed as long as the cache holds 
-a reference to it.
-
-I can add a comment, but it seemed 'obvious' from the description of the
-cache that it would be holding a reference to the device for an indefinite 
-period of time.
-
-The patch was really to fix the result of a misunderstanding of what 
-the poorly-named routine "pci_get_device()" does:  yes, it does a get(), 
-but it also does a put(), which one wouldn't guess from the name :(
-
-A better name for this might be "pci_next_device()" or 
-"pci_obtain_device()" or something like that ...
-
-
-> > Cross-ref LTC bug 9283
-> Confused - that's the bug about not using ibm,fw-phb-id.
-
-Oops.
-
---linas
+> Thanks
+> Maneesh
 

@@ -1,80 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318503AbSHEOhc>; Mon, 5 Aug 2002 10:37:32 -0400
+	id <S318539AbSHEOpz>; Mon, 5 Aug 2002 10:45:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318505AbSHEOhb>; Mon, 5 Aug 2002 10:37:31 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:59862 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S318503AbSHEOh3>; Mon, 5 Aug 2002 10:37:29 -0400
-Date: Mon, 5 Aug 2002 16:41:00 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: David Woodhouse <dwmw2@infradead.org>
-cc: Dave Jones <davej@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
+	id <S318541AbSHEOpz>; Mon, 5 Aug 2002 10:45:55 -0400
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:16634 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S318539AbSHEOpz>; Mon, 5 Aug 2002 10:45:55 -0400
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <Pine.NEB.4.44.0208051638340.27501-100000@mimas.fachschaften.tu-muenchen.de> 
+References: <Pine.NEB.4.44.0208051638340.27501-100000@mimas.fachschaften.tu-muenchen.de> 
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Dave Jones <davej@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
 Subject: Re: 2.5.30-dj1 (sort of) 
-In-Reply-To: <25466.1028556923@redhat.com>
-Message-ID: <Pine.NEB.4.44.0208051638340.27501-100000@mimas.fachschaften.tu-muenchen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 05 Aug 2002 15:48:44 +0100
+Message-ID: <29481.1028558924@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 5 Aug 2002, David Woodhouse wrote:
 
-> bunk@fs.tum.de said:
-> >  the part of -dj1 below is obviously wrong (and it causes a compile
-> > error). After removing it the file compiles.
->
-> The -dj tree should have no changes to JFFS2. If there are any, they are
-> patches which have passed me by for some reason so please resend them to me.
+bunk@fs.tum.de said:
+>  Below is the output of
+>   filterdiff -z -i \*jffs2\* patch-2.5.30-dj1.diff.gz 
 
-Below is the output of
-  filterdiff -z -i \*jffs2\* patch-2.5.30-dj1.diff.gz
+Thanks.
 
-> dwmw2
+> --- linux-2.5.30/fs/jffs2/background.c	2002-08-01 22:16:02 +0100 
+> +++ linux-2.5/fs/jffs2/background.c	2002-08-02 15:50:33 +0100
 
-cu
-Adrian
+Applied. 
 
+> --- linux-2.5.30/fs/jffs2/dir.c	2002-08-01 22:16:15.000000000 +0100
+> +++ linux-2.5/fs/jffs2/dir.c	2002-08-02 15:50:33.000000000 +0100
 
+This is a duplicate -- it's already in Linus' tree. You noticed the line 
+which actually stopped it compiling; the other hunk is bogus too.
 
---- linux-2.5.30/fs/jffs2/background.c	2002-08-01 22:16:02.000000000 +0100
-+++ linux-2.5/fs/jffs2/background.c	2002-08-02 15:50:33.000000000 +0100
-@@ -83,7 +83,6 @@ static int jffs2_garbage_collect_thread(
- 	struct jffs2_sb_info *c = _c;
+--
+dwmw2
 
- 	daemonize();
--	current->tty = NULL;
- 	c->gc_task = current;
- 	up(&c->gc_thread_start);
-
---- linux-2.5.30/fs/jffs2/dir.c	2002-08-01 22:16:15.000000000 +0100
-+++ linux-2.5/fs/jffs2/dir.c	2002-08-02 15:50:33.000000000 +0100
-@@ -718,6 +718,7 @@ static int jffs2_rename (struct inode *o
- 	struct jffs2_sb_info *c = JFFS2_SB_INFO(old_dir_i->i_sb);
- 	struct jffs2_inode_info *victim_f = NULL;
- 	uint8_t type;
-+	struct jffs2_inode_info *victim_f = NULL;
-
- 	/* The VFS will check for us and prevent trying to rename a
- 	 * file over a directory and vice versa, but if it's a directory,
-@@ -775,6 +776,18 @@ static int jffs2_rename (struct inode *o
- 	if (S_ISDIR(old_dentry->d_inode->i_mode) && !victim_f)
- 		new_dir_i->i_nlink++;
-
-+	if (victim_f) {
-+		/* There was a victim. Kill it off nicely */
-+		new_dentry->d_inode->i_nlink--;
-+		/* Don't oops if the victim was a dirent pointing to an
-+		   inode which didn't exist. */
-+		if (victim_f->inocache) {
-+			down(&victim_f->sem);
-+			victim_f->inocache->nlink--;
-+			up(&victim_f->sem);
-+		}
-+	}
-+
- 	/* Unlink the original */
- 	ret = jffs2_do_unlink(c, JFFS2_INODE_INFO(old_dir_i),
- 		      old_dentry->d_name.name, old_dentry->d_name.len, NULL);
 

@@ -1,36 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267104AbTB0VhQ>; Thu, 27 Feb 2003 16:37:16 -0500
+	id <S267033AbTB0Vbu>; Thu, 27 Feb 2003 16:31:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267106AbTB0VhP>; Thu, 27 Feb 2003 16:37:15 -0500
-Received: from packet.digeo.com ([12.110.80.53]:8580 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S267104AbTB0VhP>;
-	Thu, 27 Feb 2003 16:37:15 -0500
-Date: Thu, 27 Feb 2003 13:44:03 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: Rising io_load results Re: 2.5.63-mm1
-Message-Id: <20030227134403.776bf2e3.akpm@digeo.com>
-In-Reply-To: <200302280822.09409.kernel@kolivas.org>
-References: <20030227025900.1205425a.akpm@digeo.com>
-	<200302280822.09409.kernel@kolivas.org>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id <S267023AbTB0Vbu>; Thu, 27 Feb 2003 16:31:50 -0500
+Received: from covert.black-ring.iadfw.net ([209.196.123.142]:47622 "EHLO
+	covert.brown-ring.iadfw.net") by vger.kernel.org with ESMTP
+	id <S267013AbTB0Vbs>; Thu, 27 Feb 2003 16:31:48 -0500
+Date: Thu, 27 Feb 2003 15:35:53 -0600
+From: Art Haas <ahaas@airmail.net>
+To: Jaroslav Kysela <perex@suse.cz>, linux-kernel@vger.kernel.org
+Cc: Linus Torvalds <torvalds@transmeta.com>
+Subject: [PATCH] C99 initializers for sound/pci/ac97/ac97_codec.c
+Message-ID: <20030227213553.GA8116@debian>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 27 Feb 2003 21:47:27.0026 (UTC) FILETIME=[D1C93920:01C2DEA9]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas <kernel@kolivas.org> wrote:
->
-> 
-> This started some time around 2.5.62-mm3 with the io_load results on contest 
-> benchmarking (http://contest.kolivas.org) rising with each run.
-> ...
-> Mapped:       4294923652 kB
+Hi.
 
-Well that's gotta hurt.  This metric is used in making writeback decisions. 
-Probably the objrmap patch.
+This patch converts the file to use C99 initializers.
 
+===== sound/pci/ac97/ac97_codec.c 1.29 vs edited =====
+--- 1.29/sound/pci/ac97/ac97_codec.c	Fri Feb 21 20:52:09 2003
++++ edited/sound/pci/ac97/ac97_codec.c	Thu Feb 27 15:30:24 2003
+@@ -1097,11 +1097,11 @@
+ 
+ static const snd_kcontrol_new_t snd_ac97_ymf753_controls_speaker =
+ {
+-	iface: SNDRV_CTL_ELEM_IFACE_MIXER,
+-	name: "3D Control - Speaker",
+-	info: snd_ac97_ymf753_info_speaker,
+-	get: snd_ac97_ymf753_get_speaker,
+-	put: snd_ac97_ymf753_put_speaker,
++	.iface	= SNDRV_CTL_ELEM_IFACE_MIXER,
++	.name	= "3D Control - Speaker",
++	.info	= snd_ac97_ymf753_info_speaker,
++	.get	= snd_ac97_ymf753_get_speaker,
++	.put	= snd_ac97_ymf753_put_speaker,
+ };
+ 
+ /* It is possible to indicate to the Yamaha YMF753 the source to direct to the S/PDIF output. */
+@@ -1182,18 +1182,18 @@
+ 
+ static const snd_kcontrol_new_t snd_ac97_ymf753_controls_spdif[3] = {
+ 	{
+-		iface: SNDRV_CTL_ELEM_IFACE_MIXER,
+-		name: SNDRV_CTL_NAME_IEC958("",PLAYBACK,NONE) "Source",
+-		info: snd_ac97_ymf753_spdif_source_info,
+-		get: snd_ac97_ymf753_spdif_source_get,
+-		put: snd_ac97_ymf753_spdif_source_put,
++		.iface	= SNDRV_CTL_ELEM_IFACE_MIXER,
++		.name	= SNDRV_CTL_NAME_IEC958("",PLAYBACK,NONE) "Source",
++		.info	= snd_ac97_ymf753_spdif_source_info,
++		.get	= snd_ac97_ymf753_spdif_source_get,
++		.put	= snd_ac97_ymf753_spdif_source_put,
+ 	},
+ 	{
+-		iface: SNDRV_CTL_ELEM_IFACE_MIXER,
+-		name: SNDRV_CTL_NAME_IEC958("",PLAYBACK,NONE) "Output Pin",
+-		info: snd_ac97_ymf753_spdif_output_pin_info,
+-		get: snd_ac97_ymf753_spdif_output_pin_get,
+-		put: snd_ac97_ymf753_spdif_output_pin_put,
++		.iface	= SNDRV_CTL_ELEM_IFACE_MIXER,
++		.name	= SNDRV_CTL_NAME_IEC958("",PLAYBACK,NONE) "Output Pin",
++		.info	= snd_ac97_ymf753_spdif_output_pin_info,
++		.get	= snd_ac97_ymf753_spdif_output_pin_get,
++		.put	= snd_ac97_ymf753_spdif_output_pin_put,
+ 	},
+ 	AC97_SINGLE(SNDRV_CTL_NAME_IEC958("",NONE,NONE) "Mute", AC97_YMF753_DIT_CTRL2, 2, 1, 1)
+ };
+-- 
+They that can give up essential liberty to obtain a little temporary safety
+deserve neither liberty nor safety.
+ -- Benjamin Franklin, Historical Review of Pennsylvania, 1759

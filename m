@@ -1,38 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269108AbUHXXWJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269111AbUHXX3B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269108AbUHXXWJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 19:22:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269106AbUHXXTU
+	id S269111AbUHXX3B (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 19:29:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269109AbUHXX21
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 19:19:20 -0400
-Received: from mail.kroah.org ([69.55.234.183]:40577 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S269111AbUHXXSd (ORCPT
+	Tue, 24 Aug 2004 19:28:27 -0400
+Received: from holomorphy.com ([207.189.100.168]:7815 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S269111AbUHXXY1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 19:18:33 -0400
-Date: Tue, 24 Aug 2004 16:16:28 -0700
-From: Greg KH <greg@kroah.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Add sysfs support for the i8259 PIC on x86_64
-Message-ID: <20040824231628.GC12613@kroah.com>
-References: <m13c2i8ani.fsf@ebiederm.dsl.xmission.com>
+	Tue, 24 Aug 2004 19:24:27 -0400
+Date: Tue, 24 Aug 2004 16:24:24 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Albert Cahalan <albert@users.sf.net>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: fix text reporting in O(1) proc_pid_statm()
+Message-ID: <20040824232424.GI2793@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Albert Cahalan <albert@users.sf.net>,
+	linux-kernel mailing list <linux-kernel@vger.kernel.org>
+References: <1093388816.434.355.camel@cube> <20040824231236.GG2793@holomorphy.com> <20040824231841.GH2793@holomorphy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <m13c2i8ani.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20040824231841.GH2793@holomorphy.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 20, 2004 at 02:40:49AM -0600, Eric W. Biederman wrote:
-> 
-> I got to looking at x86_64 and while it occasionally uses the i8259 legacy
-> pic it is not put in sysfs.
-> 
-> Here is the appropriate code ported code from i386.
+On Tue, Aug 24, 2004 at 04:12:36PM -0700, William Lee Irwin III wrote:
+>> This would not be difficult to perform additional accounting for.
+>> I'll follow up with that shortly.
 
-Hm, this doesn't apply at all.  Any chance of redoing it for 2.6.9-rc1?
+On Tue, Aug 24, 2004 at 04:18:41PM -0700, William Lee Irwin III wrote:
+> Account reserved memory properly as per acahalan's sepecified semantics.
 
-thanks,
+Unrelated fix. Unaccount VM_DONTCOPY vmas properly; the child inherits
+the whole of the parent's virtual accounting from the memcpy() in
+copy_mm(), but the VM_DONTCOPY check here is where a decision is made
+for the child not to inherit the vmas corresponding to some accounted
+memory usages. Hence, unaccount them when skipping over them here.
 
-greg k-h
+
+-- wli
+
+Index: mm4-2.6.8.1/kernel/fork.c
+===================================================================
+--- mm4-2.6.8.1.orig/kernel/fork.c	2004-08-23 16:19:50.000000000 -0700
++++ mm4-2.6.8.1/kernel/fork.c	2004-08-24 16:19:45.404121128 -0700
+@@ -391,8 +391,11 @@
+ 	for (mpnt = current->mm->mmap ; mpnt ; mpnt = mpnt->vm_next) {
+ 		struct file *file;
+ 
+-		if(mpnt->vm_flags & VM_DONTCOPY)
++		if (mpnt->vm_flags & VM_DONTCOPY) {
++			__vm_stat_account(mm, mpnt->vm_flags, mpnt->vm_file,
++							-vma_pages(mpnt));
+ 			continue;
++		}
+ 		charge = 0;
+ 		if (mpnt->vm_flags & VM_ACCOUNT) {
+ 			unsigned int len = (mpnt->vm_end - mpnt->vm_start) >> PAGE_SHIFT;

@@ -1,57 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261355AbUKBULU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261350AbUKBULk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261355AbUKBULU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 15:11:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261350AbUKBULT
+	id S261350AbUKBULk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 15:11:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261362AbUKBULi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 15:11:19 -0500
-Received: from unthought.net ([212.97.129.88]:16802 "EHLO unthought.net")
-	by vger.kernel.org with ESMTP id S262020AbUKBUJ0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 15:09:26 -0500
-Date: Tue, 2 Nov 2004 21:09:25 +0100
-From: Jakob Oestergaard <jakob@unthought.net>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Brad Campbell <brad@wasp.net.au>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: nfs stale filehandle issues with 2.6.10-rc1 in-kernel server
-Message-ID: <20041102200925.GA12752@unthought.net>
-Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
-	Jeff Garzik <jgarzik@pobox.com>,
-	Trond Myklebust <trond.myklebust@fys.uio.no>,
-	Brad Campbell <brad@wasp.net.au>, lkml <linux-kernel@vger.kernel.org>
-References: <41877751.502@wasp.net.au> <1099413424.7582.5.camel@lade.trondhjem.org> <4187E4E1.5080304@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4187E4E1.5080304@pobox.com>
-User-Agent: Mutt/1.3.28i
+	Tue, 2 Nov 2004 15:11:38 -0500
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:57233 "EHLO
+	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S261812AbUKBUIF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Nov 2004 15:08:05 -0500
+Message-ID: <4187E920.1070302@nortelnetworks.com>
+Date: Tue, 02 Nov 2004 14:08:00 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: question on common error-handling idiom
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 02, 2004 at 02:49:53PM -0500, Jeff Garzik wrote:
-> Trond Myklebust wrote:
-...
-> >  http://nfs.sourceforge.net/nfs-howto/server.html#CONFIG
-> 
-> 
-> I'm also seeing stale filehandle problems here in recent kernels.
-> 
-> Setup:  x86 or x86-64, TCP, NFSv4 compiled in to both server and client, 
-> but not specified in mount options.
-> 
-> This is readily reproducible with rsync -- I just boot to an earlier 
-> version of the kernel on the NFS client, and the stale filehandle 
-> problems go away.
 
-Hi Jeff,
+There's something I've been wondering about for a while.  There is a lot of code 
+in linux that looks something like this:
 
-Does running an 'ls' on the server in the exported directory that is
-stale on the client resolve the problem (temporarily)?
 
-(working with really weird stale handle theories here I admit...)
+err = -ERRORCODE
+if (error condition)
+	goto out;
 
--- 
 
- / jakob
+While nice to read, it would seem that it might be more efficient to do the 
+following:
 
+if (error condition) {
+	err = -ERRORCODE;
+	goto out;
+}
+
+
+Is there any particular reason why the former is preferred?  Is the compiler 
+smart enough to optimize away the additional write in the non-error path?
+
+Chris

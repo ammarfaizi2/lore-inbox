@@ -1,38 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262284AbTDAKsm>; Tue, 1 Apr 2003 05:48:42 -0500
+	id <S262276AbTDAK62>; Tue, 1 Apr 2003 05:58:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262292AbTDAKsm>; Tue, 1 Apr 2003 05:48:42 -0500
-Received: from AGrenoble-101-1-4-18.abo.wanadoo.fr ([217.128.202.18]:63685
-	"EHLO awak") by vger.kernel.org with ESMTP id <S262284AbTDAKsm>;
-	Tue, 1 Apr 2003 05:48:42 -0500
-Subject: Re: PATCH: allow percentile size of tmpfs (2.5.66 / 2.4.20-pre2)
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: CaT <cat@zip.com.au>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	id <S262292AbTDAK62>; Tue, 1 Apr 2003 05:58:28 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:32273 "EHLO
+	mtvmime01.veritas.com") by vger.kernel.org with ESMTP
+	id <S262276AbTDAK61>; Tue, 1 Apr 2003 05:58:27 -0500
+Date: Tue, 1 Apr 2003 12:11:46 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Xavier Bestel <xavier.bestel@free.fr>
+cc: CaT <cat@zip.com.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        Linus Torvalds <torvalds@transmeta.com>,
        Marcelo Tosatti <marcelo@conectiva.com.br>,
        Alan Cox <alan@lxorguk.ukuu.org.uk>
-In-Reply-To: <20030401081045.GD1394@zip.com.au>
-References: <20030401081045.GD1394@zip.com.au>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1049194788.22942.9.camel@bip.localdomain.fake>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 01 Apr 2003 12:59:49 +0200
-Content-Transfer-Encoding: 7bit
+Subject: Re: PATCH: allow percentile size of tmpfs (2.5.66 / 2.4.20-pre2)
+In-Reply-To: <1049194788.22942.9.camel@bip.localdomain.fake>
+Message-ID: <Pine.LNX.4.44.0304011207500.9723-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-                        size = memparse(value,&rest);
-+                       if (*rest == '%') {
-+                               struct sysinfo si;
-+                               si_meminfo(&si);
-+                               size = (si.totalram << PAGE_CACHE_SHIFT) / 100 * size;
+On 1 Apr 2003, Xavier Bestel wrote:
+>                         size = memparse(value,&rest);
+> +                       if (*rest == '%') {
+> +                               struct sysinfo si;
+> +                               si_meminfo(&si);
+> +                               size = (si.totalram << PAGE_CACHE_SHIFT) / 100 * size;
+> 
+> (si.totalram << PAGE_CACHE_SHIFT) * size / 100;
+> would have been better precision-wise.
 
-(si.totalram << PAGE_CACHE_SHIFT) * size / 100;
-would have been better precision-wise.
+Hardly, it'll overflow in even more cases
+than CaT's (si.totalram << PAGE_CACHE_SHIFT).
+I'll take a look at this later, not right now.
 
-	Xav
+Hugh
 

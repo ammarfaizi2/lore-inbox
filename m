@@ -1,59 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261749AbUL0F0s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261752AbUL0Fky@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261749AbUL0F0s (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Dec 2004 00:26:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261750AbUL0F0r
+	id S261752AbUL0Fky (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Dec 2004 00:40:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261750AbUL0Fky
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Dec 2004 00:26:47 -0500
-Received: from 181.Red-80-24-145.pooles.rima-tde.net ([80.24.145.181]:31616
-	"EHLO minibar") by vger.kernel.org with ESMTP id S261749AbUL0F0p
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Dec 2004 00:26:45 -0500
-From: David Martin <tasio@tasio.net>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] SCSI not showing tray status correctly
-Date: Mon, 27 Dec 2004 06:26:32 +0100
-User-Agent: KMail/1.7.1
+	Mon, 27 Dec 2004 00:40:54 -0500
+Received: from orcas.net ([66.92.223.130]:36259 "EHLO orcas.net")
+	by vger.kernel.org with ESMTP id S261752AbUL0Fkt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Dec 2004 00:40:49 -0500
+Date: Sun, 26 Dec 2004 21:32:24 -0800 (PST)
+From: Terry Hardie <terryh@orcas.net>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Asus P4C800-E Deluxe and Intel Pro/1000
+In-Reply-To: <200411112003.43598.Gregor.Jasny@epost.de>
+Message-ID: <Pine.LNX.4.58.0412262127510.3478@orcas.net>
+References: <6.1.1.1.0.20041108074026.01dead50@ptg1.spd.analog.com>
+ <200411112003.43598.Gregor.Jasny@epost.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200412270626.32643.tasio@tasio.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When trying to get the drive status via ioctl CDROM_DRIVE_STATUS, with no disk 
-it gives CDS_TRAY_OPEN even if the tray is closed.
+Well, this has been plauging me for months, and finally figured it out.
 
-ioctl works as expected with ide-cd driver. Here is the patch to get the same 
-behaviour on SCSI drives for kernel 2.6.10. 2.4 branch have same problem.
+Any 2.6 kernel on my board, would boot, then give errors (paraphrased,
+sorry) when I tried to bring up the ethernet:
+
+NETDEV WATCHDOG: eth0: transmit timed out
+IRQ #18: Nobody cared!
+
+And no ethernet conectivity.
+
+The Fix: Update bios from asus' website. I guess their ACPI was screwed
+up. This is the second time I've had to update this MB to fix
+incompatibilities with Linux. So, watch out with Asus boards on Linux.
+
+BTW - Linux 2.4's driver worked fine with the old bios. Only 2.6 didn't
+work.
 
 
-
---- linux-2.6.10-orig/drivers/scsi/sr_ioctl.c        2004-12-27 
-04:47:22.000000000 +0100
-+++ linux-2.6.10/drivers/scsi/sr_ioctl.c     2004-12-27 05:54:08.000000000 
-+0100
-@@ -216,14 +216,20 @@
-
- int sr_drive_status(struct cdrom_device_info *cdi, int slot)
- {
-+       struct media_event_desc med;
-+
-        if (CDSL_CURRENT != slot) {
-                /* we have no changer support */
-                return -EINVAL;
-        }
-+
-        if (0 == test_unit_ready(cdi->handle))
-                return CDS_DISC_OK;
-
--       return CDS_TRAY_OPEN;
-+       if (!cdrom_get_media_event(cdi, &med) && med.door_open)
-+               return CDS_TRAY_OPEN;
-+
-+       return CDS_NO_DISC;
- }
-
- int sr_disk_status(struct cdrom_device_info *cdi)
+---
+Terry Hardie					terry@net.com
+SHOUTip System Architect & Principal Engineer	ICQ#: 977679
+net.com, 6900 Paseo Padre Parkway
+Fremont, CA 94555, USA				V: +1-510-574-2366

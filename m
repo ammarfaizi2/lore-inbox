@@ -1,52 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267581AbTBXVqP>; Mon, 24 Feb 2003 16:46:15 -0500
+	id <S267577AbTBXV5O>; Mon, 24 Feb 2003 16:57:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267598AbTBXVqP>; Mon, 24 Feb 2003 16:46:15 -0500
-Received: from packet.digeo.com ([12.110.80.53]:34524 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S267581AbTBXVqN>;
-	Mon, 24 Feb 2003 16:46:13 -0500
-Date: Mon, 24 Feb 2003 13:53:23 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Patrick Mansfield <patmans@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.62-mm2 slow file system writes across multiple disks
-Message-Id: <20030224135323.28bb2018.akpm@digeo.com>
-In-Reply-To: <20030224120304.A29472@beaverton.ibm.com>
-References: <20030224120304.A29472@beaverton.ibm.com>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 24 Feb 2003 21:56:20.0240 (UTC) FILETIME=[905DF900:01C2DC4F]
+	id <S267599AbTBXV5O>; Mon, 24 Feb 2003 16:57:14 -0500
+Received: from ns.suse.de ([213.95.15.193]:8713 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S267577AbTBXV5N>;
+	Mon, 24 Feb 2003 16:57:13 -0500
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       "Richard B. Johnson" <root@chaos.analogic.com>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] s390 (7/13): gcc 3.3 adaptions.
+X-Yow: Don't worry, nobody really LISTENS to lectures in MOSCOW, either!
+ ..  FRENCH, HISTORY, ADVANCED CALCULUS, COMPUTER PROGRAMMING,
+ BLACK STUDIES, SOCIOBIOLOGY!..  Are there any QUESTIONS??
+From: Andreas Schwab <schwab@suse.de>
+Date: Mon, 24 Feb 2003 23:07:25 +0100
+In-Reply-To: <20030224215335.GA24975@gtf.org> (Jeff Garzik's message of
+ "Mon, 24 Feb 2003 16:53:35 -0500")
+Message-ID: <jeu1et5o4i.fsf@sykes.suse.de>
+User-Agent: Gnus/5.090015 (Oort Gnus v0.15) Emacs/21.3.50
+References: <Pine.LNX.4.44.0302241259320.13406-100000@penguin.transmeta.com>
+	<jeznol5plv.fsf@sykes.suse.de> <20030224215335.GA24975@gtf.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick Mansfield <patmans@us.ibm.com> wrote:
->
-> Hi -
-> 
-> Running 2.5.62-mm2, I was trying to get multiple commands queued to
-> different scsi disks via writes to multiple file systems (each fs
-> on its own disk), but got rather low performance.
-> 
-> Are there any config options or settings I should change to improve the
-> performance?
-> 
-> Is this expected behaviour for now?
-> 
-> I'm mounting 10 disks using ext2 with noatime, starting 10 dd's in
-> parallel, with if=/dev/zero bs=128k count=1000, then umount-ing after each
-> dd completes.
+Jeff Garzik <jgarzik@pobox.com> writes:
 
-Could be that concurrent umount isn't a good way of getting scalable
-writeout; I can't say that I've ever looked...
+|> On Mon, Feb 24, 2003 at 10:35:24PM +0100, Andreas Schwab wrote:
+|> > Linus Torvalds <torvalds@transmeta.com> writes:
+|> > 
+|> > |> Does gcc still warn about things like
+|> > |> 
+|> > |> 	#define COUNT (sizeof(array)/sizeof(element))
+|> > |> 
+|> > |> 	int i;
+|> > |> 	for (i = 0; i < COUNT; i++)
+|> > |> 		...
+|> > |> 
+|> > |> where COUNT is obviously unsigned (because sizeof is size_t and thus 
+|> > |> unsigned)?
+|> > |> 
+|> > |> Gcc used to complain about things like that, which is a FUCKING DISASTER. 
+|> > 
+|> > How can you distinguish that from other occurrences of (int)<(size_t)?
+|> 
+|> The bounds are obviously constant and unsigned at compile time.
 
-Could you try putting a `sync' in there somewhere?
+But that's not the point.  It's the runtime value of i that gets converted
+(to unsigned), not the compile time value of COUNT.  Thus if i ever gets
+negative you have a problem.
 
-Or even better, throw away dd and use write-and-fsync from ext3 CVS.  Give it
-the -f flag to force an fsync against each file as it is closed.
+Andreas.
 
-http://www.zip.com.au/~akpm/linux/ext3/
-
-
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux AG, Deutschherrnstr. 15-19, D-90429 Nürnberg
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

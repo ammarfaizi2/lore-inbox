@@ -1,47 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263039AbVCEGmD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261964AbVCEGun@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263039AbVCEGmD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Mar 2005 01:42:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263052AbVCEGfc
+	id S261964AbVCEGun (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Mar 2005 01:50:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262110AbVCEGun
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Mar 2005 01:35:32 -0500
-Received: from [139.30.44.16] ([139.30.44.16]:6379 "EHLO
-	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id S263232AbVCEGad (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Mar 2005 01:30:33 -0500
-Date: Sat, 5 Mar 2005 07:29:50 +0100 (CET)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
-cc: Jay Lan <jlan@sgi.com>, Andrew Morton <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Kaigai Kohei <kaigai@ak.jp.nec.com>, jbarnes@sgi.com
-Subject: Re: [PATCH 2.6.11-rc4-mm1] end-of-proces handling for acct-csa
-In-Reply-To: <1109749735.8422.104.camel@frecb000711.frec.bull.fr>
-Message-ID: <Pine.LNX.4.53.0503050726090.31083@gockel.physik3.uni-rostock.de>
-References: <421EA8FF.1050906@sgi.com>  <20050224204646.704680e9.akpm@osdl.org>
-  <1109314660.1738.206.camel@frecb000711.frec.bull.fr>  <42236979.5030702@sgi.com>
-  <1109662409.8594.50.camel@frecb000711.frec.bull.fr>  <4224AF3D.3010803@sgi.com>
- <1109749735.8422.104.camel@frecb000711.frec.bull.fr>
+	Sat, 5 Mar 2005 01:50:43 -0500
+Received: from bama.hardrock.org ([68.146.16.251]:23199 "EHLO
+	mail.hardrock.org") by vger.kernel.org with ESMTP id S261964AbVCEGu1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Mar 2005 01:50:27 -0500
+Date: Fri, 4 Mar 2005 23:50:22 -0700 (MST)
+From: James Bourne <jbourne@hardrock.org>
+X-X-Sender: jbourne@rio.clgy.hardrock.org
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Greg KH <greg@kroah.com>,
+       "David S. Miller" <davem@davemloft.net>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: RFD: Kernel release numbering
+In-Reply-To: <Pine.LNX.4.58.0503030750420.25732@ppc970.osdl.org>
+Message-ID: <Pine.LNX.4.58.0503042340080.7221@rio.clgy.hardrock.org>
+References: <42265A6F.8030609@pobox.com> <20050302165830.0a74b85c.davem@davemloft.net>
+ <422674A4.9080209@pobox.com> <Pine.LNX.4.58.0503021932530.25732@ppc970.osdl.org>
+ <42268749.4010504@pobox.com> <20050302200214.3e4f0015.davem@davemloft.net>
+ <42268F93.6060504@pobox.com> <4226969E.5020101@pobox.com>
+ <20050302205826.523b9144.davem@davemloft.net> <4226C235.1070609@pobox.com>
+ <20050303080459.GA29235@kroah.com> <4226CA7E.4090905@pobox.com>
+ <Pine.LNX.4.58.0503030750420.25732@ppc970.osdl.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 Mar 2005, Guillaume Thouvenin wrote:
+On Thu, 3 Mar 2005, Linus Torvalds wrote:
 
-> Is it possible to merge BSD and CSA? I mean with CSA, there is a part
-> that does per-process accounting. For exemple in the
-> linux-2.6.9.acct_mm.patch the two functions update_mem_hiwater() and
-> csa_update_integrals() update fields in the current (and parent)
-> process. So maybe you can improve the BSD per-process accounting or
-> maybe CSA can replace the BSD per-process accounting?
+> On Thu, 3 Mar 2005, Jeff Garzik wrote:
+> > 
+> > We have all these problems precisely because _nobody_ is saying "I'm 
+> > only going to accept bug fixes".  We _need_ some amount of release 
+> > engineering.  Right now we basically have none.
+> 
+> I agree that this is one of the main problems.
+> 
+> But look at how to solve it. The _logical_ solution is to have a third
+> line of defense: we have the -mm trees (wild and wacky patches), and we
+> have my tree (hopefully not wacky any more), and it would be good to have
+> a third level tree (which I'm just not interested in, because that one
+> doesn't do any development any more) which only takes the "so totally not
+> wild that it's really boring" patches.
+> 
+> In fact, if somebody maintained that kind of tree, especially in BK, it 
+> would be trivial for me to just pull from it every once in a while (like 
+> ever _day_ if necessary). But for that to work, then that tree would have 
+> to be about so _obviously_ not wild patches that it's a no-brainer.
 
-Yes, that was also my preferred direction - make CSA able to also write
-BSD acct format, and replace the existing BSD accounting with CSA.
-However it seems this will still increase the amount of kernel code quite 
-a bit.
+Sorry, I'm just on the end of this thread but I wanted to put in my 2 bits,
 
-Sorry for not going into any details, I have to leave right now and will 
-be offline for two weeks.
+I was maintaining this type of tree for 2.4 before.  It was well received by
+those who used it and it was stable (ssssh, I'm still running that puppy on
+a couple well hidden 7.2 servers).
 
-Tim
+The key then was to only put in patches that fixed issues.  If it was a hard
+factual solution to a problem then it went into the patch.  BTW, it was just
+that, a patch (or set of patches) not actually a seperate tree.  It was
+completely focused on stability as that's what I needed for work at the
+time.
+
+> So what's the problem with this approach? It would seem to make everybody
+> happy: it would reduce my load, it would give people the alternate "2.6.x
+> base kernel plus fixes only" parallell track, and it would _not_ have the 
+> testability issue (because I think a lot of people would be happy to test 
+> that tree, and if it was always based on the last 2.6.x release, there 
+> would be no issues.
+
+It was good for 2.4 and I think for 2.6, the legitimacy (coming from the top
+down) will be a good thing.  It wasn't as widely received in 2.4 due to it
+not being "officially sanctioned"...
+
+BTW, it's not actually that much work.  Watching the list and getting feed
+back on what works and what doesn't is all that it takes.  Naturally, there
+will be a couple "frell, where was I when I did that" patches but that's
+life in the semi-fast lane.
+
+This will be a good thing.
+
+Regards
+James
+
+
+-- 
+James Bourne                  | Email:            jbourne@hardrock.org          
+UNIX Systems Administration   | WWW:           http://www.hardrock.org
+Custom UNIX Programming       | Linux:  The choice of a GNU generation
+----------------------------------------------------------------------
+ "All you need's an occasional kick in the philosophy." Frank Herbert  

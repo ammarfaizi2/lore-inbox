@@ -1,20 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261770AbVB1WBO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261775AbVB1WDg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261770AbVB1WBO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 17:01:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261778AbVB1WBN
+	id S261775AbVB1WDg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 17:03:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261780AbVB1WDg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 17:01:13 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:9225 "HELO
+	Mon, 28 Feb 2005 17:03:36 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:11273 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261770AbVB1WAY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 17:00:24 -0500
-Date: Mon, 28 Feb 2005 23:00:20 +0100
+	id S261775AbVB1WB4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Feb 2005 17:01:56 -0500
+Date: Mon, 28 Feb 2005 23:01:55 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: James.Bottomley@SteelEye.com
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/scsi/scsi_transport_fc.c: #0 unused code
-Message-ID: <20050228220020.GR4021@stusta.de>
+To: matthew@wil.cx
+Cc: James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: [2.6 patch] drivers/scsi/sym53c8xx_2/sym_hipd.c: make a function static
+Message-ID: <20050228220155.GS4021@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,84 +23,35 @@ User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch #if 0's the following EXPORT_SYMBOL'ed but unused functions:
-- fc_target_block
-- fc_target_unblock
-- fc_host_block
-- fc_host_unblock
+This patch makes a needlessly global function static.
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
 
-If the inclusion of code using these functions into the kernel is 
-pending, please ignore my patch.
+ drivers/scsi/sym53c8xx_2/sym_hipd.c |    2 +-
+ drivers/scsi/sym53c8xx_2/sym_hipd.h |    1 -
+ 2 files changed, 1 insertion(+), 2 deletions(-)
 
- drivers/scsi/scsi_transport_fc.c |   10 ++++++++++
- include/scsi/scsi_transport_fc.h |    4 ----
- 2 files changed, 10 insertions(+), 4 deletions(-)
-
---- linux-2.6.11-rc4-mm1-full/include/scsi/scsi_transport_fc.h.old	2005-02-28 20:24:09.000000000 +0100
-+++ linux-2.6.11-rc4-mm1-full/include/scsi/scsi_transport_fc.h	2005-02-28 20:24:30.000000000 +0100
-@@ -316,9 +316,5 @@
- 
- struct scsi_transport_template *fc_attach_transport(struct fc_function_template *);
- void fc_release_transport(struct scsi_transport_template *);
--int fc_target_block(struct scsi_target *starget);
--void fc_target_unblock(struct scsi_target *starget);
--int fc_host_block(struct Scsi_Host *shost);
--void fc_host_unblock(struct Scsi_Host *shost);
- 
- #endif /* SCSI_TRANSPORT_FC_H */
---- linux-2.6.11-rc4-mm1-full/drivers/scsi/scsi_transport_fc.c.old	2005-02-28 20:24:39.000000000 +0100
-+++ linux-2.6.11-rc4-mm1-full/drivers/scsi/scsi_transport_fc.c	2005-02-28 20:40:02.000000000 +0100
-@@ -845,10 +845,12 @@
-  * @dev:	scsi device
-  * @data:	unused
-  **/
-+#if 0
- static void fc_device_block(struct scsi_device *sdev, void *data)
+--- linux-2.6.11-rc4-mm1-full/drivers/scsi/sym53c8xx_2/sym_hipd.h.old	2005-02-28 20:29:13.000000000 +0100
++++ linux-2.6.11-rc4-mm1-full/drivers/scsi/sym53c8xx_2/sym_hipd.h	2005-02-28 20:29:19.000000000 +0100
+@@ -1091,7 +1091,6 @@
+ lcb_p sym_alloc_lcb (struct sym_hcb *np, u_char tn, u_char ln);
+ int sym_queue_scsiio(struct sym_hcb *np, struct scsi_cmnd *csio, ccb_p cp);
+ int sym_abort_scsiio(struct sym_hcb *np, struct scsi_cmnd *ccb, int timed_out);
+-int sym_abort_ccb(struct sym_hcb *np, ccb_p cp, int timed_out);
+ int sym_reset_scsi_target(struct sym_hcb *np, int target);
+ void sym_hcb_free(struct sym_hcb *np);
+ int sym_hcb_attach(struct sym_hcb *np, struct sym_fw *fw, struct sym_nvram *nvram);
+--- linux-2.6.11-rc4-mm1-full/drivers/scsi/sym53c8xx_2/sym_hipd.c.old	2005-02-28 20:29:27.000000000 +0100
++++ linux-2.6.11-rc4-mm1-full/drivers/scsi/sym53c8xx_2/sym_hipd.c	2005-02-28 20:29:40.000000000 +0100
+@@ -5351,7 +5351,7 @@
+ /*
+  *  Abort a SCSI IO.
+  */
+-int sym_abort_ccb(struct sym_hcb *np, ccb_p cp, int timed_out)
++static int sym_abort_ccb(struct sym_hcb *np, ccb_p cp, int timed_out)
  {
- 	scsi_internal_device_block(sdev);
- }
-+#endif  /*  0  */
- 
- /**
-  * fc_device_unblock - called by target functions to unblock a scsi device
-@@ -880,6 +882,8 @@
- 	starget_for_each_device(starget, NULL, fc_device_unblock);
- }
- 
-+#if 0
-+
- /**
-  * fc_target_block - block a target by temporarily putting all its scsi devices
-  *		into the SDEV_BLOCK state.
-@@ -940,6 +944,8 @@
- }
- EXPORT_SYMBOL(fc_target_unblock);
- 
-+#endif  /*  0  */
-+
- /**
-  * fc_timeout_blocked_host - Timeout handler for blocked scsi hosts
-  *			 that fail to recover in the alloted time.
-@@ -964,6 +970,8 @@
- 	}
- }
- 
-+#if 0
-+
- /**
-  * fc_host_block - block all scsi devices managed by the calling host temporarily 
-  *		by putting each device in the SDEV_BLOCK state.
-@@ -1031,6 +1039,8 @@
- }
- EXPORT_SYMBOL(fc_host_unblock);
- 
-+#endif  /*  0  */
-+
- MODULE_AUTHOR("Martin Hicks");
- MODULE_DESCRIPTION("FC Transport Attributes");
- MODULE_LICENSE("GPL");
+ 	/*
+ 	 *  Check that the IO is active.
 

@@ -1,37 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280948AbRKGTl7>; Wed, 7 Nov 2001 14:41:59 -0500
+	id <S280941AbRKGTmh>; Wed, 7 Nov 2001 14:42:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280941AbRKGTli>; Wed, 7 Nov 2001 14:41:38 -0500
-Received: from f218.law9.hotmail.com ([64.4.9.218]:16659 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S280939AbRKGTlc>;
-	Wed, 7 Nov 2001 14:41:32 -0500
-X-Originating-IP: [128.2.152.69]
-From: "William Knop" <w_knop@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Yet another design for /proc. Or actually /kernel.
-Date: Wed, 07 Nov 2001 14:41:26 -0500
+	id <S280939AbRKGTm3>; Wed, 7 Nov 2001 14:42:29 -0500
+Received: from pop.digitalme.com ([193.97.97.75]:6169 "EHLO digitalme.com")
+	by vger.kernel.org with ESMTP id <S280941AbRKGTmK>;
+	Wed, 7 Nov 2001 14:42:10 -0500
+Subject: Re: ip_conntrack & timing out of connections
+From: "Trever L. Adams" <vichu@digitalme.com>
+To: kuznet@ms2.inr.ac.ru
+Cc: David Lang <david.lang@digitalinsight.COM>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200111071855.VAA07803@ms2.inr.ac.ru>
+In-Reply-To: <200111071855.VAA07803@ms2.inr.ac.ru>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.99.0+cvs.2001.11.06.15.04 (Preview Release)
+Date: 07 Nov 2001 14:41:36 -0500
+Message-Id: <1005162108.1222.1.camel@aurora>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F218Wqr2f9hYDkngMUJ00002181@hotmail.com>
-X-OriginalArrivalTime: 07 Nov 2001 19:41:27.0021 (UTC) FILETIME=[30A141D0:01C167C4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>Here's my go at a new design for /proc. I designed it from a userland
->>point of view and tried not to drown myself into details.
->
->Did you have to change the subject line. It makes it harder to kill >file 
->when people keep doing that
+On Wed, 2001-11-07 at 13:55, kuznet@ms2.inr.ac.ru wrote:
+> > > From: pcg@goof.com
+> ...
+> > > linux-2.4.13-ac5 (other versions untested) has this peculiar behaviour: If I
+> > > "killall -STOP thttpd", I, of course, still get connection requests which
+> > > usually time out:
+> > >
+> > > tcp      238      0 217.227.148.85:80       213.76.191.129:3120 CLOSE_WAIT
+> 
+> Blatant lie. Such connections cannot timeout. If they do, kernel really
+> have fatal bug.
+> 
 
-You really consider this discussion to be unimportant? Granted, the lack of 
-organization in /proc is not a bug, but keeping the kernel organized is part 
-of maintenence. Like cleaning my room-- it's not a showstopper if it is 
-messy, but it is nicer and easier to work in when neat.
+Then the kernel (iptables or what not) has a huge fatal bug.  I have
+seen this happen as well.  The firewall then catches all of these 'ACK
+FIN' etc.  This is getting more rare for me and usually takes a moderate
+to heavy load (for link capacity) before it starts happening, but it
+does happen.
 
-Will Knop
-w_knop@hotmail.com
+Trever
 
-_________________________________________________________________
-Get your FREE download of MSN Explorer at http://explorer.msn.com/intl.asp
 

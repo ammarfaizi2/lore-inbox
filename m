@@ -1,62 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266727AbUFYVXy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266855AbUFYVYa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266727AbUFYVXy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jun 2004 17:23:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266855AbUFYVXy
+	id S266855AbUFYVYa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jun 2004 17:24:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266856AbUFYVYa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jun 2004 17:23:54 -0400
-Received: from iris-63.mc.com ([63.96.239.5]:34295 "EHLO mc.com")
-	by vger.kernel.org with ESMTP id S266727AbUFYVXw (ORCPT
+	Fri, 25 Jun 2004 17:24:30 -0400
+Received: from ms1.usu.edu ([129.123.104.11]:25017 "EHLO ms1.usu.edu")
+	by vger.kernel.org with ESMTP id S266855AbUFYVY2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jun 2004 17:23:52 -0400
-Subject: DRAM and PCI devices at same physical address
-From: Matt Sexton <sexton@mc.com>
+	Fri, 25 Jun 2004 17:24:28 -0400
+X-WebMail-UserID: saiprathap
+Date: Fri, 25 Jun 2004 15:20:50 -0600
+From: saiprathap <saiprathap@cc.usu.edu>
 To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1088198580.29697.62.camel@dhcp_client-120-140>
+X-EXP32-SerialNo: 00002751
+Subject: TCP-RST Vulnerability - Doubt
+Message-ID: <40DC9B00@webster.usu.edu>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4-1.1mdk 
-Date: 25 Jun 2004 17:23:00 -0400
+Content-Type: text/plain; charset="ISO-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Mailer: WebMail (Hydra) SMTP v3.62
+X-USU-MailScanner-Information: Please contact the ISP for more information
+X-USU-MailScanner: Found to be clean
+X-MailScanner-From: saiprathap@cc.usu.edu
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a dual Xeon system with the Lindenhurst (E7710) chip set and 1 GB
-of memory.  In order to reserve a very large block of memory for a
-(user-space) device driver I am writing, I pass "mem=XX" to the kernel
-at boot time.  Unfortunately, /proc/pci shows two devices now appearing
-in the reserved upper memory range.  
+Hi,
 
-For instance, if I set "mem=768M", the following two entries appear in
-/proc/pci:
+I am a graduate research student majoring in the field of
+Computer Networking.As part of my research I have sorted out what FreeBSD has 
+done to overcome the TCP-RST vulnerability (by modifying the stack to accept 
+the RST packets only with the current + 1 sequence number and ignoring the 
+rest, even if their sequence numbers fall within the receiving window).
 
-  Bus  0, device   1, function  0:
-    System peripheral: PCI device 8086:3594 (Intel Corp.) (rev 4).
-      Non-prefetchable 32 bit memory at 0x30000000 [0x30000fff].
+Could you kindly share your views regarding what Linux has done to its stack 
+to overcome this vulnerability as it will be of great help to my research.
 
-  Bus  0, device  31, function  1:
-    IDE interface: Intel Corp. 82801EB Ultra ATA Storage Controller (rev
-2).
-      IRQ 18.
-      I/O at 0x14a0 [0x14af].
-      Non-prefetchable 32 bit memory at 0x30001000 [0x300013ff].
-
-
-The devices always appear right after the limit I specify on the kernel
-boot line.  If I specify "mem=512M", then the first device appears at
-0x20000000.  If I specify nothing, then it appears at 0x40000000.  All
-other PCI devices show up at addresses of 0xDD000000 and above.
-
-Is there any way to prevent these devices from showing up in the
-physical address range of my reserved memory?
-
-Should they be appearing there at all?  Does Linux make any guarantees
-when there is more physical memory than specified by "mem=" ?
-
-Please CC me on any responses.
-
-Thank you,
-Matt Sexton
-sexton@mc.com
-
+Thanks,
+Sai Prathap
 

@@ -1,56 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263238AbUJ2LLk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263240AbUJ2LMQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263238AbUJ2LLk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 07:11:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263240AbUJ2LLk
+	id S263240AbUJ2LMQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 07:12:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263241AbUJ2LMQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 07:11:40 -0400
-Received: from ribosome.natur.cuni.cz ([195.113.57.20]:18305 "EHLO
-	ribosome.natur.cuni.cz") by vger.kernel.org with ESMTP
-	id S263238AbUJ2LKy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 07:10:54 -0400
-Date: Fri, 29 Oct 2004 13:10:49 +0200
-From: mmokrejs@ribosome.natur.cuni.cz
-To: linux-kernel@vger.kernel.org
-Cc: nathans@sgi.com
-Subject: Re: Filesystem performance on 2.4.28-pre3 on hardware RAID5.
-Message-ID: <20041029111049.GA554@ribosome.natur.cuni.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+	Fri, 29 Oct 2004 07:12:16 -0400
+Received: from mailout07.sul.t-online.com ([194.25.134.83]:23769 "EHLO
+	mailout07.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S263240AbUJ2LMK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 07:12:10 -0400
+Message-ID: <41822535.2070409@t-online.de>
+Date: Fri, 29 Oct 2004 13:10:45 +0200
+From: "Harald Dunkel" <harald.dunkel@t-online.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Adrian Bunk <bunk@stusta.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc4-mm1: undefined reference to `hpet_alloc'
+References: <416E343C.70900@t-online.de> <20041027175727.GA2713@stusta.de>
+In-Reply-To: <20041027175727.GA2713@stusta.de>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ID: bpk25oZYwe7f0kv2ePA0o2es0dsw3pPRnbCp90j+O4lqeMsaPJ0ZkS
+X-TOI-MSGID: 57f483ea-f1b5-4f90-8c68-9b0fe41c71e3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Nathan, Marcello and others,
-  the collested meminfo, slabinfo, vmstat output are at
-http://www.natur.cuni.cz/~mmokrejs/crash/
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Those precrash-* files contain output since the machine
-was fresh, every second I appended current stats to each
-of them. I believe some data were not flushed into the disk
-before the problem.
+Adrian Bunk wrote:
+|
+| I tried to reproduce your problem in 2.6.10-rc1-mm1, but I didn't get
+| the link error.
+|
 
-I get on STDERR "fork: Cannot allocate memory"
+I can reproduce it using "make oldconfig" in the 2.6.10-rc1
+source tree. Just copy my 2.6.9 .config into the source dir,
+run oldconfig and accept the default for all questions.
 
-Using anothe ropen console session and doing df gives me:
+But my .config.gz is 13 KByte compressed. I will send it in a
+separate EMail to Adrian only. If anybody else is interested,
+please mail.
 
-start_pipeline: Too many open files in system
-fork: Cannot allocate memory
 
-I had fortunately xdm to kill, so I could then do
-sync and collect some stats (although some resources
-got freed by xdm/X11). Those files are named with
-prefix crash-*.
+Regards
 
-After that, I decided to put continue the suspended job,
-and those files collected are precrash2-* prefixed.
+Harri
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Debian - http://enigmail.mozdev.org
 
-There /var/log/messages included.
-
-If you tell what kind of memory/xfs debugging I should turn
-on adn *how*, I can do it immediately. I don't have access
-to the machine daily, and already had to be in production. :(
-
-Martin
-P.S: It is hardware raid5. I use mkfs.xfs version 2.6.13.
+iD8DBQFBgiU1UTlbRTxpHjcRAiULAJ4mXJjmiMAuIF6oJ//stTPsDyWjfwCfTFFW
+XSXQ1aRXlfdDLM+5C4PrGDw=
+=KMaU
+-----END PGP SIGNATURE-----

@@ -1,52 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313819AbSDZLSA>; Fri, 26 Apr 2002 07:18:00 -0400
+	id <S313826AbSDZL2s>; Fri, 26 Apr 2002 07:28:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313821AbSDZLR7>; Fri, 26 Apr 2002 07:17:59 -0400
-Received: from [193.231.212.86] ([193.231.212.86]:12298 "HELO fm.radiototal.ro")
-	by vger.kernel.org with SMTP id <S313819AbSDZLR6>;
-	Fri, 26 Apr 2002 07:17:58 -0400
-From: <RAV@fm.radiototal.ro>
-To: alex@radiototal.ro
-Cc: linux-kernel@vger.kernel.org
-Subject: RAV AntiVirus scan results
-Date: Fri, 26 Apr 2002 14:17:49 +0300
-Importance: high
-X-Priority: 1
-X-Mailer: ravmd/8.3.2
-Message-Id: <20020426111749.EEC2E145DC@fm.radiototal.ro>
+	id <S313827AbSDZL2r>; Fri, 26 Apr 2002 07:28:47 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:26768 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S313826AbSDZL2q>;
+	Fri, 26 Apr 2002 07:28:46 -0400
+Date: Fri, 26 Apr 2002 11:13:42 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Andrea Arcangeli <andrea@suse.de>, Brian Gerst <bgerst@didntduck.org>,
+        "H. Peter Anvin" <hpa@zytor.com>, ak@suse.de,
+        linux-kernel@vger.kernel.org, jh@suse.cz
+Subject: Re: [PATCH] Re: SSE related security hole
+Message-ID: <20020426091341.GA497@elf.ucw.cz>
+In-Reply-To: <20020424023249.B2756@dualathlon.random> <Pine.LNX.4.44.0204231909250.10866-100000@home.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-RAV AntiVirus for Linux i686 version: 8.3.2 (snapshot-20020108)
-Copyright (c) 1996-2001 GeCAD The Software Company. All rights reserved.
-58 more days to evaluate.
-Running on host: fm.radiototal.ro
+> >	  Basically they should only deal with the
+> > other operative systems now.
+> 
+> Yeah. And since the security hole is fairly small and insignificant in
+> comparison to some others, I suspect that the main "other operating
+> system" just won't care one way or the other.
 
------------------------
- RAV Antivirus results
------------------------
-
-The infected file was saved to quarantine with name: 1019819866-RAV11604.
-The file (part0001:value.exe) attached to mail (with subject:Undeliverable mail--"contextual navigation info ") sent by alex@radiototal.ro to linux-kernel@vger.kernel.org, 
-is infected with virus: Win32/Klez.H@mm.
-Cannot clean this file.
-The file was successfully deleted by RAV AntiVirus.
-------------------------
-this is a copy of the e-mail header:
-
-Received: from Ukdspifax (unknown [192.168.1.5])
-
-
-
-Scan engine 8.5 (Standard) for i386.
-Last update: Wed Apr 24 10:42:51 2002
-Scanning for 66310 malwares (viruses, trojans and worms).
-
-To get a free 60-days evaluation version of RAV AntiVirus v8
-(yet fully functional) please visit:
-
-   http://www.ravantivirus.com
-
-
+*If* the other system uses fpu unit for memcpy, well, it may get
+pretty big and significant.
+									Pavel
+-- 
+(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
+no longer is classifiable as a democracy, but rather as a plutocracy." --hpa

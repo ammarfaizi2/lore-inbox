@@ -1,41 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264953AbUFRBmH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264943AbUFRBmI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264953AbUFRBmH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 21:42:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264943AbUFRBj3
+	id S264943AbUFRBmI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 21:42:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264932AbUFRBjT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 21:39:29 -0400
-Received: from pimout6-ext.prodigy.net ([207.115.63.78]:2298 "EHLO
-	pimout6-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S264920AbUFRBfP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 21:35:15 -0400
-Message-ID: <40D20080.9040909@ameritech.net>
-Date: Thu, 17 Jun 2004 20:35:12 +0000
-From: water modem <lundby@ameritech.net>
-Organization: home
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030630
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: undefined reference to `acpi_processor_register_performance
-X-Enigmail-Version: 0.76.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 17 Jun 2004 21:39:19 -0400
+Received: from sophie.6s.nl ([82.192.75.250]:60361 "EHLO sophie.6s.nl")
+	by vger.kernel.org with ESMTP id S264928AbUFRBgu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jun 2004 21:36:50 -0400
+Subject: Re: Stop the Linux kernel madness
+From: Bastiaan Spandaw <lkml@becobaf.com>
+To: 4Front Technologies <dev@opensound.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <40D24163.5000006@opensound.com>
+References: <40D232AD.4020708@opensound.com>
+	 <77709e76040617180749cd1f09@mail.gmail.com>
+	 <40D24163.5000006@opensound.com>
+Content-Type: text/plain
+Message-Id: <1087522622.5475.30.camel@louise3.6s.nl>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 18 Jun 2004 03:37:02 +0200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.6.7 compile error
+On Fri, 2004-06-18 at 03:12, 4Front Technologies wrote:
 
-   LD      .tmp_vmlinux1
-arch/i386/kernel/built-in.o(.text+0xcfeb): In function 
-`powernow_acpi_init':
-: undefined reference to `acpi_processor_register_performance'
-arch/i386/kernel/built-in.o(.text+0xd01c): In function 
-`powernow_acpi_init':
-: undefined reference to `acpi_processor_unregister_performance'
-arch/i386/kernel/built-in.o(.exit.text+0x32): In function `powernow_exit':
-: undefined reference to `acpi_processor_unregister_performance'
-make: *** [.tmp_vmlinux1] Error 1
-[root@enlaptop linux-2.6.7]#
+> THe problem here is that SuSE has gone and changed all the kernel headers
+> so that now software doesn't compile. It does work if you were using
+> the stock kerne.org sources.
+
+The distributions you named earlier all patch the kernels they ship with
+their distribution.
+
+There's only a handfull that install a vanilla kernel by default (out of
+the >200 distributions available)
+
+debian, redhat & gentoo patch their kernels.
+
+
+Is your problem that a kernel is not the kernel.org vanilla version? (If
+so have a fit @ debian, redhat and gentoo as well )
+
+Or that Suse's does not work with your income generating product?
+
+Regards,
+
+Bastiaan
 

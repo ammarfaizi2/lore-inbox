@@ -1,36 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263415AbRFAIS0>; Fri, 1 Jun 2001 04:18:26 -0400
+	id <S263414AbRFAIVg>; Fri, 1 Jun 2001 04:21:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263414AbRFAISQ>; Fri, 1 Jun 2001 04:18:16 -0400
-Received: from f00f.stub.clear.net.nz ([203.167.224.51]:12549 "HELO
-	metastasis.f00f.org") by vger.kernel.org with SMTP
-	id <S263413AbRFAISA>; Fri, 1 Jun 2001 04:18:00 -0400
-Date: Fri, 1 Jun 2001 20:17:56 +1200
-From: Chris Wedgwood <cw@f00f.org>
-To: "H. Peter Anvin" <hpa@zytor.com>, Ralf Baechle <ralf@uni-koblenz.de>
+	id <S263413AbRFAIV0>; Fri, 1 Jun 2001 04:21:26 -0400
+Received: from se1.cogenit.fr ([195.68.53.173]:10248 "EHLO cogenit.fr")
+	by vger.kernel.org with ESMTP id <S263412AbRFAIVP>;
+	Fri, 1 Jun 2001 04:21:15 -0400
+Date: Fri, 1 Jun 2001 10:21:09 +0200
+From: Francois Romieu <romieu@cogenit.fr>
+To: Emmanuel Varagnat <varagnat@crm.mot.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: How to know HZ from userspace?
-Message-ID: <20010601201756.A12423@metastasis.f00f.org>
-In-Reply-To: <20010530203725.H27719@corellia.laforge.distro.conectiva> <9f41vq$our$1@cesium.transmeta.com> <20010601035739.A1630@bacchus.dhis.org> <9f74mg$1it$1@cesium.transmeta.com>
+Subject: Re: sk_buff question
+Message-ID: <20010601102109.A6400@se1.cogenit.fr>
+In-Reply-To: <3B166A44.F1A8B0A@crm.mot.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=unknown-8bit
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <9f74mg$1it$1@cesium.transmeta.com>; from hpa@zytor.com on Thu, May 31, 2001 at 09:12:00PM -0700
-X-No-Archive: Yes
+In-Reply-To: <3B166A44.F1A8B0A@crm.mot.com>; from varagnat@crm.mot.com on Thu, May 31, 2001 at 05:59:00PM +0200
+X-Organisation: Marie's fan club
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 31, 2001 at 09:12:00PM -0700, H. Peter Anvin wrote:
+Emmanuel Varagnat <varagnat@crm.mot.com> écrit :
+> I need to had a header to the data in the sk_buff.
+> But what to do if there is no enough space left at the head ?
 
-    Please do.
+I assume "alloc+copy" isn't the expected answer, is it ?
 
-Well, I was quite keen on this (I often run with HZ==2048 and have to
-have a hacked procps to accommodate) until someone pointed out we
-could essentially abolosh HZ altogether, which seems like a much nice
-solution to me.
+> I saw skb_copy_expand, but it gives me a new sk_buff. Is there
+> a way to expand the headroom and keep the pointer on the sk_buff ?
 
+pskb_expand_head maybe.
 
-
-  --cw
+-- 
+Ueimor 

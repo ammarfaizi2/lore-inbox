@@ -1,58 +1,118 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131138AbRALTEc>; Fri, 12 Jan 2001 14:04:32 -0500
+	id <S130599AbRALTFc>; Fri, 12 Jan 2001 14:05:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130599AbRALTEX>; Fri, 12 Jan 2001 14:04:23 -0500
-Received: from [213.253.36.78] ([213.253.36.78]:53255 "HELO
-	blackhole.uknet.spacesurfer.com") by vger.kernel.org with SMTP
-	id <S130072AbRALTEM>; Fri, 12 Jan 2001 14:04:12 -0500
-Message-ID: <3A5F55AF.9651CCF1@spacesurfer.com>
-Date: Fri, 12 Jan 2001 19:06:23 +0000
-From: Patrick <patrick@spacesurfer.com>
-Reply-To: pim@uknet.spacesurfer.com
-Organization: SpaceSurfer Ltd.
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-22 i686)
+	id <S131879AbRALTFW>; Fri, 12 Jan 2001 14:05:22 -0500
+Received: from colorfullife.com ([216.156.138.34]:38661 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S130599AbRALTFN>;
+	Fri, 12 Jan 2001 14:05:13 -0500
+Message-ID: <3A5F5538.57F3FDC5@colorfullife.com>
+Date: Fri, 12 Jan 2001 20:04:24 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-22 i586)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Kernel oops in tcp_ipv4.c
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+To: Frank de Lange <frank@unternet.org>
+CC: dwmw2@infradead.org, linux-kernel@vger.kernel.org, mingo@elte.hu,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, torvalds@transmeta.com
+Subject: Re: QUESTION: Network hangs with BP6 and 2.4.x kernels, hardware 
+ related?
+In-Reply-To: <3A5F3BF4.7C5567F8@colorfullife.com> <20010112183314.A24174@unternet.org> <3A5F4428.F3249D2@colorfullife.com> <20010112192500.A25057@unternet.org>
+Content-Type: multipart/mixed;
+ boundary="------------5DF33A7351A06D1D177B8D30"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am running a medium-high traffic web server on an SMP machine. I have
-always had problems with linux hanging (No syslog messages and no
-console response). I have tried kernel versions 2.2.12, 2.2.14 and
-2.2.16
-Recently I tried 2.2.17, this kernel was up for about a month, before
-there was a kernel oops. The syslog messages are:
+This is a multi-part message in MIME format.
+--------------5DF33A7351A06D1D177B8D30
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-Jan 11 21:10:06 ws2 kernel: tcp_v4_hash: bug, socket state is 1 
-Jan 11 21:10:06 ws2 kernel: Unable to handle kernel NULL pointer
-dereference at virtual address 00000000 
-Jan 11 21:10:06 ws2 kernel: current->tss.cr3 = 0ca7c000, %cr3 = 0ca7c000 
-Jan 11 21:10:06 ws2 kernel: *pde = 00000000 
-Jan 11 21:10:06 ws2 kernel: Oops: 0002 
-Jan 11 21:10:06 ws2 kernel: CPU:    0 
+Linus wrote:
+> Does this seem to happen mainly with drivers that use "disable_irq()" 
+> and "enable_irq()"? I know the ne drivers do (through the 8390 module), 
+> and some others do too (3c59x). 
 
-The code that outputs the first message is in tcp_ipv4.c, and was added
-in version 2.2.17. The code deliberately causes a kernel oops when it
-encounters this bug, presumably because the IP stack is unusable at this
-point.
+I removed the disable_irq lines from 8390.c, and that fixed the problem:
+no hang within 2 minutes - the test is still running.
 
-If this code was deliberately added then presumably someone knows what
-might cause the problem. Is there a patch somewhere that fixes this
-problem?
+Frank, could you double check it?
 
-regards,
-Patrick
+--
+	Manfred
+--------------5DF33A7351A06D1D177B8D30
+Content-Type: text/plain; charset=us-ascii;
+ name="patch-frank"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch-frank"
 
--- 
-Patrick Mackinlay                                patrick@spacesurfer.com
-ICQ: 59277981                                        tel: +44 7050699851
-                                                     fax: +44 7050699852
-SpaceSurfer Limited                          http://www.spacesurfer.com/
+// $Header$
+// Kernel Version:
+//  VERSION = 2
+//  PATCHLEVEL = 4
+//  SUBLEVEL = 0
+//  EXTRAVERSION =
+--- 2.4/drivers/net/8390.c	Thu Jan  4 22:00:55 2001
++++ build-2.4/drivers/net/8390.c	Fri Jan 12 19:53:47 2001
+@@ -242,15 +242,15 @@
+ 
+ 	/* Ugly but a reset can be slow, yet must be protected */
+ 		
+-	disable_irq_nosync(dev->irq);
+-	spin_lock(&ei_local->page_lock);
++/*	disable_irq_nosync(dev->irq);*/
++	spin_lock_irqsave(&ei_local->page_lock, flags);
+ 		
+ 	/* Try to restart the card.  Perhaps the user has fixed something. */
+ 	ei_reset_8390(dev);
+ 	NS8390_init(dev, 1);
+ 		
+-	spin_unlock(&ei_local->page_lock);
+-	enable_irq(dev->irq);
++	spin_unlock_irqrestore(&ei_local->page_lock, flags);
++/*	enable_irq(dev->irq); */
+ 	netif_wake_queue(dev);
+ }
+     
+@@ -285,9 +285,9 @@
+ 	 *	Slow phase with lock held.
+ 	 */
+ 	 
+-	disable_irq_nosync(dev->irq);
++/*	disable_irq_nosync(dev->irq);*/
+ 	
+-	spin_lock(&ei_local->page_lock);
++	spin_lock_irqsave(&ei_local->page_lock, flags);
+ 	
+ 	ei_local->irqlock = 1;
+ 
+@@ -327,8 +327,8 @@
+ 		ei_local->irqlock = 0;
+ 		netif_stop_queue(dev);
+ 		outb_p(ENISR_ALL, e8390_base + EN0_IMR);
+-		spin_unlock(&ei_local->page_lock);
+-		enable_irq(dev->irq);
++		spin_unlock_irqrestore(&ei_local->page_lock, flags);
++/*		enable_irq(dev->irq);*/
+ 		ei_local->stat.tx_errors++;
+ 		return 1;
+ 	}
+@@ -383,8 +383,8 @@
+ 	ei_local->irqlock = 0;
+ 	outb_p(ENISR_ALL, e8390_base + EN0_IMR);
+ 	
+-	spin_unlock(&ei_local->page_lock);
+-	enable_irq(dev->irq);
++	spin_unlock_irqrestore(&ei_local->page_lock, flags);
++/*	enable_irq(dev->irq); */
+ 
+ 	dev_kfree_skb (skb);
+ 	ei_local->stat.tx_bytes += send_length;
+
+--------------5DF33A7351A06D1D177B8D30--
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

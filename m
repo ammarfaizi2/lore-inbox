@@ -1,55 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269782AbUICUeO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269770AbUICUdx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269782AbUICUeO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 16:34:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269754AbUICUeN
+	id S269770AbUICUdx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 16:33:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269754AbUICUdw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 16:34:13 -0400
-Received: from smtp111.mail.sc5.yahoo.com ([66.163.170.9]:54097 "HELO
-	smtp111.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S269798AbUICUcS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 16:32:18 -0400
-Date: Fri, 3 Sep 2004 13:30:59 -0700
-From: "David S. Miller" <davem@davemloft.net>
-To: Roland Dreier <roland@topspin.com>
-Cc: Michael.Waychison@Sun.COM, plars@linuxtestproject.org,
-       Brian.Somers@Sun.COM, linux-kernel@vger.kernel.org
-Subject: Re: TG3 doesn't work in kernel 2.4.27 (David S. Miller)
-Message-Id: <20040903133059.483e98a0.davem@davemloft.net>
-In-Reply-To: <52acw7rtrw.fsf@topspin.com>
-References: <20040816110000.1120.31256.Mailman@lists.us.dell.com>
-	<200408162049.FFF09413.8592816B@anet.ne.jp>
-	<20040816143824.15238e42.davem@redhat.com>
-	<412CD101.4050406@sun.com>
-	<20040825120831.55a20c57.davem@redhat.com>
-	<412CF0E9.2010903@sun.com>
-	<20040825175805.6807014c.davem@redhat.com>
-	<412DC055.4070401@sun.com>
-	<20040830161126.585a6b62.davem@davemloft.net>
-	<1094238777.9913.278.camel@plars.austin.ibm.com>
-	<4138C3DD.1060005@sun.com>
-	<52acw7rtrw.fsf@topspin.com>
-Organization: DaveM Loft Enterprises
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+	Fri, 3 Sep 2004 16:33:52 -0400
+Received: from trantor.org.uk ([213.146.130.142]:63441 "EHLO trantor.org.uk")
+	by vger.kernel.org with ESMTP id S269782AbUICUbd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 16:31:33 -0400
+Subject: Re: Userspace framework (was: Re: silent semantic changes with
+	reiser4)
+From: Gianni Tedesco <gianni@scaramanga.co.uk>
+To: Luca Ferroni <fferroni@cs.unibo.it>
+Cc: linux-kernel@vger.kernel.org, miklos@szeredi.hu, renzo@cs.unibo.it,
+       frederik@a5.repetae.net
+In-Reply-To: <20040903112435.0d754fac.fferroni@cs.unibo.it>
+References: <rlrevell@joe-job.com>
+	 <1094079071.1343.25.camel@krustophenia.net>
+	 <200409021425.i82EPn9i005192@laptop11.inf.utfsm.cl>
+	 <1535878866.20040902214144@tnonline.net>
+	 <20040902194909.GA8653@atrey.karlin.mff.cuni.cz>
+	 <1094155277.11364.92.camel@krustophenia.net>
+	 <20040902204351.GE8653@atrey.karlin.mff.cuni.cz>
+	 <1094158060.1347.16.camel@krustophenia.net>
+	 <20040902205857.GF8653@atrey.karlin.mff.cuni.cz>
+	 <1094164385.6163.4.camel@localhost.localdomain>
+	 <1094181768.9282.27.camel@sherbert>
+	 <20040903112435.0d754fac.fferroni@cs.unibo.it>
+Content-Type: text/plain
+Date: Fri, 03 Sep 2004 21:31:22 +0100
+Message-Id: <1094243482.6632.66.camel@sherbert>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 1.5.9.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 03 Sep 2004 13:18:11 -0700
-Roland Dreier <roland@topspin.com> wrote:
-
->     Paul> I tried this patch alone on top of 2.6.9-rc1 and tg3 is
->     Paul> still broken for me on JS20 blades.  Was there another patch
->     Paul> I should have applied in conjunction with this?
+On Fri, 2004-09-03 at 11:24 +0200, Luca Ferroni wrote:
+> Il Fri, 03 Sep 2004 04:22:48 +0100,  Gianni Tedesco <gianni@scaramanga.co.uk> ha scritto:
 > 
-> Me too -- I copied the latest BK tg3.c/tg3.h to my 2.6.8.1 tree and
-> tried it on my JS20 and it didn't work.
+> > On Thu, 2004-09-02 at 23:33 +0100, Alan Cox wrote:
+> > > On Iau, 2004-09-02 at 21:58, Pavel Machek wrote:
+> > > > Uservfs.sf.net.
+> > > > 
+> > > > Unlike alan, I do not think that "do it all in library" is good
+> > > > idea. I put it in the userspace as "codafs" server, and let
+> > > > applications see it as a regular filesystem.
+> > > 
+> > > That works for me too, providing someone has fixed all the user mode fs
+> > > deadlocks with paging
+> > 
+> > Aren't the deadlock scenarios only applicable for read/write mounted
+> > filesystems ?
+> > 
+> 
+> AFAIK deadlock arises when kernel manages buffers:
+> it has to free a buffer ==> choose a dirty one ==> if cleaning
+> requires to make a call to
+> network server and this last is waiting for a buffer (cleaning
+> accomplished) ==>
+> ==> deadlock.
 
-What do you mean by "latest"?  If it doesn't indicate driver
-version 3.9 it is not the latest.
+so during page launder, we need to write to the filesystem, but if thats
+in userspace there is the possibility the page launder could have been
+caused in order that the filesystem daemon may run. AFAICS this problem
+only arises when file is being written.
 
-Please make sure you try current sources, I've had nothing
-but positive reports for IBM blades from people actually
-using the correct current 3.9 driver.
+The only deadlock I can think of for read-only filesystems is if the
+demon inadvertantly accesses one of the files that it is handling. That
+could be avoided quite simply by preventing the demon from doing that in
+the kernel.
+
+I'm sure I'm missing something, I'd just like to know what ;)
+
+-- 
+// Gianni Tedesco (gianni at scaramanga dot co dot uk)
+lynx --source www.scaramanga.co.uk/scaramanga.asc | gpg --import
+8646BE7D: 6D9F 2287 870E A2C9 8F60 3A3C 91B5 7669 8646 BE7D
+

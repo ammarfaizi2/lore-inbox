@@ -1,63 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263089AbUFBOpm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263093AbUFBOuY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263089AbUFBOpm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 10:45:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263093AbUFBOpm
+	id S263093AbUFBOuY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 10:50:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263095AbUFBOuY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 10:45:42 -0400
-Received: from fw.osdl.org ([65.172.181.6]:41115 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263089AbUFBOpl (ORCPT
+	Wed, 2 Jun 2004 10:50:24 -0400
+Received: from mail.kroah.org ([65.200.24.183]:26508 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263093AbUFBOuW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 10:45:41 -0400
-Date: Wed, 2 Jun 2004 07:45:10 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-cc: Horst von Brand <vonbrand@inf.utfsm.cl>, Pavel Machek <pavel@suse.cz>,
-       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@redhat.com>,
-       Ingo Molnar <mingo@elte.hu>, Andrea Arcangeli <andrea@suse.de>,
-       Rik van Riel <riel@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC PATCH] explicitly mark recursion count
-In-Reply-To: <20040602142748.GA25939@wohnheim.fh-wedel.de>
-Message-ID: <Pine.LNX.4.58.0406020743260.3403@ppc970.osdl.org>
-References: <200406011929.i51JTjGO006174@eeyore.valparaiso.cl>
- <Pine.LNX.4.58.0406011255070.14095@ppc970.osdl.org>
- <20040602131623.GA23017@wohnheim.fh-wedel.de> <Pine.LNX.4.58.0406020712180.3403@ppc970.osdl.org>
- <20040602142748.GA25939@wohnheim.fh-wedel.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	Wed, 2 Jun 2004 10:50:22 -0400
+Date: Wed, 2 Jun 2004 07:49:31 -0700
+From: Greg KH <greg@kroah.com>
+To: Manu Abraham <manu@kromtek.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Minor numbers under 2.6
+Message-ID: <20040602144931.GA25424@kroah.com>
+References: <200406021519.32128.manu@kromtek.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200406021519.32128.manu@kromtek.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Wed, 2 Jun 2004, Jörn Engel wrote:
+On Wed, Jun 02, 2004 at 03:19:32PM +0400, Manu Abraham wrote:
+> Hi,
+> 	Can somebody clarify a question that i have ?
 > 
-> Then you see something I don't see.  For example there are quite a few
-> recursions with some function like
+> 	Say under 2.4 kernel, char device drivers had a minor number of int. In the 
+> 2.6 kernels, this number was increased to 20 bits from 8 bits. Under 2.6 i 
+> could use "mknod -c major, minor". 
 > 
-> void foo(int depth)
-> {
-> 	if (!depth) {
-> 		bar(1);
-> 	}
-> 	...
-> }
-> 
-> bar will, maybe through several more functions call foo(1).
-> 
-> How can you say that foo will beak this recursion after two rounds
-> max?
+> 	How can i achieve something similar with 2.6 taking into consideration that i 
+> have to create more than 255 minors ?
 
-The programmer had _better_ know that there is some upper limit.
+The same way:
+	# mknod foo c 100 10000
+	# ls -l foo 
+	crw-r--r--  1 root root 100, 10000 Jun  2 07:48 foo
 
-> I claim:
-> There is no way to tell the depth of any recursion without looking at
-> all involved functions.
+Just make sure you have a up to date glibc.
 
-And I claim: recursion is illegal unless the programmer has some explicit 
-recursion limiter. And if he has that recursion limiter in one of the 
-functions, then he damn well better know it, and know the value it limits 
-recursion to.
+Hope this helps,
 
-		Linus
+greg k-h

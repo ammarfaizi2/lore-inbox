@@ -1,37 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271694AbRH0Knh>; Mon, 27 Aug 2001 06:43:37 -0400
+	id <S271697AbRH0Kwu>; Mon, 27 Aug 2001 06:52:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271696AbRH0Kn1>; Mon, 27 Aug 2001 06:43:27 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:3333 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S271694AbRH0KnS>; Mon, 27 Aug 2001 06:43:18 -0400
-Subject: Re: Slow system with K7
-To: ccosta@servidores.net (Carlos Costa Portela)
-Date: Mon, 27 Aug 2001 11:46:22 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0108271226250.1437-100000@merry.comarca.tm> from "Carlos Costa Portela" at Aug 27, 2001 12:30:51 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S271699AbRH0Kwl>; Mon, 27 Aug 2001 06:52:41 -0400
+Received: from iproxy1.ericsson.dk ([130.228.248.98]:9409 "EHLO
+	iproxy1.ericsson.dk") by vger.kernel.org with ESMTP
+	id <S271697AbRH0Kwb>; Mon, 27 Aug 2001 06:52:31 -0400
+Message-ID: <3B8A262C.82ED7793@ted.ericsson.dk>
+Date: Mon, 27 Aug 2001 12:51:24 +0200
+From: Fabbione <fabio.m.d.nitto@ted.ericsson.dk>
+Reply-To: fabbione@fabbione.net
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [Possibly OT] ipt_unclean.c on kernel-2.4.7-9
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15bJuQ-0003ge-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 	1. the system is more loaded than in the pentium epoch
-> 	2. sometimes, the system "stops" for small periods of time (< 1s).
-> 	I am using 2.4.9 kernel. Can you give me any tip to get the most
-         ^^^^^^^^^^^^^^^^^^^
+Hi gurus,
+	I've possibly found a bug in the iptables unclean match support
+but I was not able to find the email of the mantainer so I'm posting
+here....
 
-I suspect that bit is your actual problem. 
+the module is incorrectly matching ftp session. Ex:
 
-> from my system?. I'm recompiling all applications and, yes, if once
-> recompiled I can see that the system improves.
+iptables -j DROP -A INPUT --match unclean
+iptables -j ACCEPT -A INPUT -p tcp --dport 21
 
->From what I can measure Athlon specific code really only makes a difference
-when using prefetches, mmx or 3dnow. For most code streams Athlon's seem
-to extract good parallelism out of 586/686/k6/.. code.
+in this case all my packets directed to the ftp server where dropped by
+the
+"unclean" match and this make impossible to open ftp session.
 
-Alan
+It's obvious that you can swap the entry to make it working but I think
+it should work also in this way. I've also tested using different
+client.
+
+If people need more info jus ask please.
+
+Fabbione

@@ -1,90 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266345AbUHWRiC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266386AbUHWRlq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266345AbUHWRiC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 13:38:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266306AbUHWRh3
+	id S266386AbUHWRlq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 13:41:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266275AbUHWRjK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 13:37:29 -0400
-Received: from rudy.mif.pg.gda.pl ([153.19.42.16]:15625 "EHLO
-	rudy.mif.pg.gda.pl") by vger.kernel.org with ESMTP id S266289AbUHWRe2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 13:34:28 -0400
-Date: Mon, 23 Aug 2004 19:34:28 +0200 (CEST)
-From: =?ISO-8859-2?Q?Tomasz_K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Julien Oster <usenet-20040502@usenet.frodoid.org>,
-       Miles Lane <miles.lane@comcast.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: DTrace-like analysis possible with future Linux kernels?
-In-Reply-To: <1093200364.24866.5.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.60L.0408231925210.3003@rudy.mif.pg.gda.pl>
-References: <200408191822.48297.miles.lane@comcast.net> 
- <87hdqyogp4.fsf@killer.ninja.frodoid.org>  <Pine.LNX.4.60L.0408210520380.3003@rudy.mif.pg.gda.pl>
-  <1093174557.24319.55.camel@localhost.localdomain> 
- <Pine.LNX.4.60L.0408221845450.3003@rudy.mif.pg.gda.pl>
- <1093200364.24866.5.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-1069250240-1093282468=:3003"
+	Mon, 23 Aug 2004 13:39:10 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:2758 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S266352AbUHWRii (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Aug 2004 13:38:38 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.8.1-P7
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Florian Schmidt <mista.tapas@gmx.net>
+In-Reply-To: <1093160993.817.46.camel@krustophenia.net>
+References: <1092628493.810.3.camel@krustophenia.net>
+	 <20040816040515.GA13665@elte.hu> <1092654819.5057.18.camel@localhost>
+	 <20040816113131.GA30527@elte.hu> <20040816120933.GA4211@elte.hu>
+	 <1092716644.876.1.camel@krustophenia.net> <20040817080512.GA1649@elte.hu>
+	 <20040819073247.GA1798@elte.hu> <20040820133031.GA13105@elte.hu>
+	 <20040820195540.GA31798@elte.hu>  <20040821140501.GA4189@elte.hu>
+	 <1093160993.817.46.camel@krustophenia.net>
+Content-Type: text/plain
+Message-Id: <1093282713.826.13.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 23 Aug 2004 13:38:33 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+On Sun, 2004-08-22 at 03:49, Lee Revell wrote:
+> On Sat, 2004-08-21 at 10:05, Ingo Molnar wrote:
+> > i've uploaded the -P7 patch:
+> > 
+> >   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8.1-P7
+> 
+> Here's a pretty bad one, over 500 usecs in rt_garbage_collect:
+> 
 
---8323328-1069250240-1093282468=:3003
-Content-Type: TEXT/PLAIN; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 8BIT
+Grr, apt-get upgrade (debian unstable) broke php on my web server. 
+subsequent apt-get upgrades have not fixed it, and I have not had time
+to file a bug report.  Traces can be found here:
 
-On Sun, 22 Aug 2004, Alan Cox wrote:
+http://krustophenia.net/2.6.8.1-P7
 
-> On Sul, 2004-08-22 at 19:27, Tomasz K?oczko wrote:
->> Using yor thing path: KProbe/Dtrace is for development and yes it must
->> depend on DEBUG_KERNEL.
->> ptrace() is also for tracing and ver offen used by developers but it is
->> enabled by default and it is not only for developers. So .. ptrace() must
->> also depend on DEBUG_KERNEL.
->
-> ptrace is for debugging user space, as for example is oprofile. kprobes
-> is for debugging including kernel internal goings on
+Lee
 
-Yes. It *is* for debuging/tracing in kernel space but like DTrace is 
-*also* in user space.
-
->> compilation stage). In Solaris kernel exist few thousands avalaible probes
->> and IIRC only very small subset is "near zero effect" (uses nop
->> instructions).
->
-> Sounds like a kprobes clone 8).
-
-Look on some time stamps both projects.
-Seems KProbes is clone DTrace ..
-
->>> OProfile doesn't require this.
->>
->> As same as KProbe/DTrace. Can you use OProfile for something other tnan
->> profiling ? Probably yes and this answer opens: probably it will be good
->> prepare some common code for KProbe and Oprofile.
->
-> Oprofile lets you work on stuff like cache affinity, tuning array walks
-> and prefetches. Short of running the app under cachegrind its one of the
-> most detailed ways of getting all the profile register data from the x86
-> processors.
-
-The same is KProbes but you can combined with small programs associated 
-with called probes. Again: DTrace/KProbes is much more than traditional
-profiling/tracing/measuring tools.
-
->> So it will be good stop disscuss about "yes or no ?" and start about
->> "how and when in Linux ?" ..
->
-> When you send patches ?
-
-KProbes patches was annouced on lkml few times.
-
-kloczek
--- 
------------------------------------------------------------
-*Ludzie nie maj± problemów, tylko sobie sami je stwarzaj±*
------------------------------------------------------------
-Tomasz K³oczko, sys adm @zie.pg.gda.pl|*e-mail: kloczek@rudy.mif.pg.gda.pl*
---8323328-1069250240-1093282468=:3003--

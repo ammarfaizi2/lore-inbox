@@ -1,42 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261333AbSKMNVm>; Wed, 13 Nov 2002 08:21:42 -0500
+	id <S261339AbSKMNfT>; Wed, 13 Nov 2002 08:35:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261310AbSKMNVU>; Wed, 13 Nov 2002 08:21:20 -0500
-Received: from modemcable217.53-202-24.mtl.mc.videotron.ca ([24.202.53.217]:41494
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S261337AbSKMNVA>; Wed, 13 Nov 2002 08:21:00 -0500
-Date: Wed, 13 Nov 2002 08:22:28 -0500 (EST)
-From: Zwane Mwaikambo <zwane@holomorphy.com>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH][2.5] smp_init 'CPUS done' looks strange 
-In-Reply-To: <20021113093843.52D432C0B0@lists.samba.org>
-Message-ID: <Pine.LNX.4.44.0211130820410.24523-100000@montezuma.mastecende.com>
-X-Operating-System: Linux 2.4.19-pre5-ac3-zm4
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261365AbSKMNfT>; Wed, 13 Nov 2002 08:35:19 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:48908 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S261339AbSKMNfS>; Wed, 13 Nov 2002 08:35:18 -0500
+Date: Wed, 13 Nov 2002 14:42:08 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Alan Cox <alan@redhat.com>
+Cc: torvalds@transmeta.com, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Kill obsolete and  unused suspend/resume code from IDE
+Message-ID: <20021113134208.GD10168@atrey.karlin.mff.cuni.cz>
+References: <20021112175154.GA6881@elf.ucw.cz> <200211121801.gACI1ro25294@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200211121801.gACI1ro25294@devserv.devel.redhat.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Nov 2002, Rusty Russell wrote:
+Hi!
 
-> In message <Pine.LNX.4.44.0211122246540.24523-100000@montezuma.mastecende.com> 
-> you write:
-> > Also, it would make sense in the future if smp_cpus_done actually gets a 
-> > value denoting how many cpus are online.
+> > This code in ide is obsolete and unused. I have followup patch to
+> > integrate IDE into sysfs. Please apply,
 > 
-> No.  Drop the prink by all means, but smp_cpus_done() can call
-> num_online_cpus() itself.  It can't know how many cpus the user
-> specified, however.
+> The code is not obsolete, it is not unused.
 
-Doesn't that just encourage more (i = 0; i < NR_CPUS; i++) usage? If you 
-make max_cpus available to everyone, at least they'll have the correct cpu 
-count to check against. max_cpus is needed by more than bootup.
+Can you point out what uses it? I certainly could not find it and
+killing standby/etc produced no compilation errors.
 
-	Zwane
+As of obsolete... It is doing power managment outside of sysfs
+framework... Which is not how it should be done.
+
+> > +	do_idedisk_standby(drive);
+> >  	if ((drive->id->cfs_enable_2 & 0x3000) && drive->wcache)
+> >  		if (do_idedisk_flushcache(drive))
+> >  			printk (KERN_INFO "%s: Write Cache FAILED Flushing!\n",
+> 
+> What locking rules are you using here ?
+
+I did not change the code, it works exactly as it did before (ide disk
+is never ATAPI device). If it is broken then sorry (but it was broken
+before).
+
+> Linus please reject this patch. Its just getting in the way of actually
+> fixing the IDE code properly.
+
+Linus actually asked me for the patch, and discussion about it was
+public, then he silently droped it. This was "only" retransmit.
+
+								Pavel
 -- 
-function.linuxpower.ca
-
+Casualities in World Trade Center: ~3k dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

@@ -1,56 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267896AbUHEVi6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267972AbUHEVi7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267896AbUHEVi6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 17:38:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267984AbUHEViG
+	id S267972AbUHEVi7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 17:38:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267991AbUHEVhs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 17:38:06 -0400
-Received: from fw.osdl.org ([65.172.181.6]:33943 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267964AbUHEVfY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 17:35:24 -0400
-Date: Thu, 5 Aug 2004 14:38:48 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.8-rc3-mm1
-Message-Id: <20040805143848.1985deb2.akpm@osdl.org>
-In-Reply-To: <20040805130308.GC14358@holomorphy.com>
-References: <20040805031918.08790a82.akpm@osdl.org>
-	<20040805130308.GC14358@holomorphy.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 5 Aug 2004 17:37:48 -0400
+Received: from mail8.fw-bc.sony.com ([160.33.98.75]:54237 "EHLO
+	mail8.fw-bc.sony.com") by vger.kernel.org with ESMTP
+	id S267972AbUHEVfa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 17:35:30 -0400
+Message-ID: <4112A91B.6090508@am.sony.com>
+Date: Thu, 05 Aug 2004 14:39:39 -0700
+From: Tim Bird <tim.bird@am.sony.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Lee Revell <rlrevell@joe-job.com>,
+       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       Todd Poynor <tpoynor@mvista.com>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       dsingleton@mvista.com, lkml@rtr.ca
+Subject: Re: [PATCH] Configure IDE probe delays
+References: <20040730191100.GA22201@slurryseal.ddns.mvista.com>	 <1091226922.5083.13.camel@localhost.localdomain>	 <1091232770.1677.24.camel@mindpipe>	 <200407311434.59604.vda@port.imtp.ilyichevsk.odessa.ua>	 <1091297179.1677.290.camel@mindpipe> <1091302522.6910.4.camel@localhost.localdomain>
+In-Reply-To: <1091302522.6910.4.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III <wli@holomorphy.com> wrote:
->
-> On Thu, Aug 05, 2004 at 03:19:18AM -0700, Andrew Morton wrote:
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.8-rc3/2.6.8-rc3-mm1/
-> > - Added David Woodhouse's MTD tree to the "external trees" list
-> > - Dropped the staircase scheduler, mainly because the schedstats patch broke
-> >   it.
-> >   We learned quite a lot from having staircase in there.  Now it's time for
-> >   a new scheduler anyway.
+Alan Cox wrote:
+> If you want to speed this up then the two bits that the initial proposal
+> and Jeff have sensibly come up with are
 > 
-> One of these changes means we need to be able to dereference struct
-> device in include/asm-ia64/dma-mapping.h.
+> 1.	Are we doing too many probes
+
+By way of commentary, it *is* possible to reduce the number of probes
+using existing kernel command line options (hd<x>=noprobe and
+ide<x>=noprobe)  This helps on systems where interfaces or devices
+are known not to exist.  This is described in my OLS paper, and I
+plan to put up a wiki page with instructions for interested parties,
+real soon now... :-)
+
+However, further reducing the number of probes is still a worthy goal.
+We'll take a look at this when we get a chance.  Given some
+of the feedback on this thread, this sounds like it might be prone
+to worse breakage for legacy hardware than simply adjusting the delay
+duration.
+
+> 2.	Should we switch to proper reset polling
 > 
-> --- mm1-2.6.8-rc3/include/asm-ia64/dma-mapping.h.orig	2004-08-05 22:56:27.204548702 -0700
-> +++ mm1-2.6.8-rc3/include/asm-ia64/dma-mapping.h	2004-08-05 22:57:40.435993118 -0700
-> @@ -5,7 +5,8 @@
->   * Copyright (C) 2003-2004 Hewlett-Packard Co
->   *	David Mosberger-Tang <davidm@hpl.hp.com>
->   */
-> -
-> +#include <linux/config.h>
-> +#include <linux/device.h>
->  #include <asm/machvec.h>
->  
+> For certain cases (PPC spin up) we actually have switched to doing drive
+> spin up this way...
 
-Yes, I hit the same problem on x86_64.  But I have no patches touching
-that file.  Can you send the compiler output, help me work out which patch
-needs the patch?
+I'm not sure what this means.  Can someone tell me more about this
+or point me to some code?  (Sorry for my ignorance, I'm not an IDE
+expert by any means.)
 
+BTW - Any comments on Todd's new patch? (see message with title
+"IDE probe delay symbol")  This one doesn't make the value configurable,
+but does use a #define (preserving the traditional 50 ms value).  This
+at least removes a magic number, and it makes it easier to identify the
+msleeps that have historically been related.
+
+With this new patch, nothing changes for the legacy crowd, but it still
+makes it easier for RACER_BOYs ;-) to dink with the value.
+
+=============================
+Tim Bird
+Architecture Group Co-Chair, CE Linux Forum
+Senior Staff Engineer, Sony Electronics
+E-mail: tim.bird@am.sony.com
+=============================

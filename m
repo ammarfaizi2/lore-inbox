@@ -1,65 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268204AbUHTPU3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268203AbUHTPWN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268204AbUHTPU3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 11:20:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268203AbUHTPSK
+	id S268203AbUHTPWN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 11:22:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268183AbUHTPWN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 11:18:10 -0400
-Received: from herkules.viasys.com ([194.100.28.129]:29114 "HELO
-	mail.viasys.com") by vger.kernel.org with SMTP id S268230AbUHTPQ3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 11:16:29 -0400
-Date: Fri, 20 Aug 2004 18:16:22 +0300
-From: Ville Herva <vherva@viasys.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: petr@vandrovec.name, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.8.1-mm2 breaks vmware
-Message-ID: <20040820151621.GJ23741@viasys.com>
-Reply-To: vherva@viasys.com
-References: <20040820104230.GH23741@viasys.com> <20040820035142.3bcdb1cb.akpm@osdl.org> <20040820131825.GI23741@viasys.com> <20040820144304.GF8307@viasys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040820144304.GF8307@viasys.com>
-User-Agent: Mutt/1.4.1i
-X-Operating-System: Linux herkules.viasys.com 2.4.27
+	Fri, 20 Aug 2004 11:22:13 -0400
+Received: from 34.67-18-129.reverse.theplanet.com ([67.18.129.34]:12704 "EHLO
+	krish.dnshostnetwork.net") by vger.kernel.org with ESMTP
+	id S268236AbUHTPVi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 11:21:38 -0400
+Message-ID: <000901c486c9$40d92e60$6d59023d@dreammachine>
+From: "Pankaj Agarwal" <pankaj@pnpexports.com>
+To: "Andreas Schwab" <schwab@suse.de>
+Cc: <linux-kernel@vger.kernel.org>
+References: <001901c485cc$208c3a60$9159023d@dreammachine> <je657fzchp.fsf@sykes.suse.de>
+Subject: Re: how to identify filesystem type
+Date: Thu, 19 Aug 2004 19:33:22 +0530
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - krish.dnshostnetwork.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - pnpexports.com
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 20, 2004 at 05:43:04PM +0300, you [Ville Herva] wrote:
-> On Fri, Aug 20, 2004 at 04:18:25PM +0300, you [Ville Herva] wrote:
-> > 
-> > I just noticed I had missed get_user_pages-handle-VM_IO.patch - I'll try
-> > backing that out first. I'll report back if I find anything interesting 
-> > with different patch mixtures.
-> 
-> Well, I just tried 2.6.8.1-mm2 minus get_user_pages-handle-VM_IO.patch but
-> that didn't help with the "cannot allocate memory" problem. Curiously, I
-> didn't get the "get_user_pages() returns -EFAULT" warning with this kernel.
-> 
-> I just put get_user_pages-handle-VM_IO.patch back and reverted
-> dev-mem-restriction-patch.patch - I'll report back when it has compiled. 
+Hi Andreas,
 
-Ok, 2.6.8.1-mm2 minus dev-mem-restriction-patch.patch fixes the "cannot
-allocate memory" problem. 
+this is the output when you have a mounted block device.....you can only
+mount when you know the filesystem ....thats wat i wanna know...hoe to
+identify filesytems...on ablockdevice.
 
-With this kernel I still get the 
+thanks anyways, looking forward for more information on this
 
---8<-----------------------------------------------------------------------
-vmmon: Your kernel is br0ken. get_user_pages(current, current->mm, b7dd1000, 1, 1, 0, &page, NULL) returned -14.
-vmmon: I'll try accessing page tables directly, but you should know that your
-vmmon: kernel is br0ken and you should uninstall all additional patches you vmmon: have installed!
-vmmon: FYI, copy_from_user(b7dd1000) returns 0 (if not 0 maybe your kernel is not br0ken)
---8<-----------------------------------------------------------------------
-
-warning, but vmware appears to work now (well apart from altgr not working,
-but that has been broken since 2.4 -> 2.6 transition.)
-
-I'm still not 100% which of the patches causes that get_user_pages()
-warning.
+Pankaj
 
 
--- v -- 
+----- Original Message -----
+From: "Andreas Schwab" <schwab@suse.de>
+To: "Pankaj Agarwal" <pankaj@pnpexports.com>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Thursday, August 19, 2004 3:16 PM
+Subject: Re: how to identify filesystem type
 
-v@iki.fi
+
+"Pankaj Agarwal" <pankaj@pnpexports.com> writes:
+
+> I need your help, in understanding filesystems. Kindly let me know how to
+> identify the filesystem in an image file or block device.
+
+Use file:
+
+# file -s /dev/hda3
+/dev/hda3: ReiserFS V3.6 block size 4096 (mounted or unclean) num blocks
+9500285 r5 hash
+
+Andreas.
+
+--
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux AG, Maxfeldstraße 5, 90409 Nürnberg, Germany
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+
 

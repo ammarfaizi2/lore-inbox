@@ -1,51 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271129AbRHTITO>; Mon, 20 Aug 2001 04:19:14 -0400
+	id <S271130AbRHTI0Y>; Mon, 20 Aug 2001 04:26:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271126AbRHTITE>; Mon, 20 Aug 2001 04:19:04 -0400
-Received: from [62.46.87.251] ([62.46.87.251]:4503 "EHLO mannix")
-	by vger.kernel.org with ESMTP id <S271129AbRHTISr>;
-	Mon, 20 Aug 2001 04:18:47 -0400
-To: Joachim Backes <backes@rhrk.uni-kl.de>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel 2.4.9, esssolo soundcard, NTFS support
-In-Reply-To: <XFMail.20010820093559.backes@rhrk.uni-kl.de>
-In-Reply-To: <XFMail.20010820093559.backes@rhrk.uni-kl.de>
-Reply-To: tuxx@aon.at
-X-Signature-Color: black
-X-Registered-Linux-User: 174382
-X-Face: 5{SZ#3.-&)VX(Cd6yo<,A-?Lel6JM@c-c[X\P:m5FG>"vM9U/n`Git/~!)'YU;r"RZ")EKuX'gS9[:Oh)/rI*i1AS^g0xN'\/@UK?q|x^-KQ3!_N:;u7bul4|~iu^l-o_=_7$?v[i3`R?oanu}kpbR#X$M[HH)1\)X0p0X5N7OkG~&k&VhA<VZI=Loy/'BC?^{M=g@q'~uxsXtE)&6c={U*dq,N
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Message-Id: <E15YkGb-0002Q8-00@mannix>
-From: Alexander Griesser <tuxx@aon.at>
-Date: Mon, 20 Aug 2001 10:18:37 +0200
+	id <S271134AbRHTI0P>; Mon, 20 Aug 2001 04:26:15 -0400
+Received: from [203.161.228.202] ([203.161.228.202]:12294 "EHLO
+	spf1.hq.outblaze.com") by vger.kernel.org with ESMTP
+	id <S271135AbRHTIZ5>; Mon, 20 Aug 2001 04:25:57 -0400
+Date: 20 Aug 2001 08:36:30 -0000
+Message-ID: <20010820083630.16182.qmail@yusufg.portal2.com>
+From: Yusuf Goolamabbas <yusufg@outblaze.com>
+To: linux-kernel@vger.kernel.org
+Subject: aic7xxx errors with 2.4.8-ac7 on 440gx mobo
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Outlook Users may want to press <CTRL> + <F3> here.
-begin  followup on Joachim Backes:
->  having problems to build a 2.4.9 kernel with soundcard support (esssolo
->  for ex.). After having built the kernel with sound modules, depmod           >  complains about unresolved gameport_register_port and gameport_unregister_   +++port.
+Hi, 2.4.8 and 2.4.9 have no problems compiling and booting on a P3 500
+440GX mobo (APIC not compiled in the kernel)
 
-http://students.htblmo-klu.ac.at/tuxx/kernel-patches/es137x-2.4.6-ac2.diff
+With 2.4.8-ac7, I get SCSI errors and the kernel fails to boot. If I
+compile with APIC enabled and APIC on UP also enabled, it boots
+cleanly
 
-This is a workaround for your problem, should apply in 2.4.9 hopefully.
+booting with append="noapic", gives the same errors
 
->  What has gameport to do with the soundcard support?
 
-There are gameports an soundcards :)
+SCSI subsystem driver Revision: 1.00
+PCI: Assigned IRQ 11 for device 00:0c.0
+PCI: Sharing IRQ 11 with 00:0c.1
+PCI: Found IRQ 11 for device 00:0c.1
+PCI: Sharing IRQ 11 with 00:0c.0
 
->  Compiling the kernel with NTFS support fails during compilations of the
->  NTFS modules:
+scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.1
+        <Adaptec aic7896/97 Ultra2 SCSI adapter>
+        aic7896/97: Ultra2 Wide Channel A, SCSI Id=7, 32/255 SCBs
 
-Known issue, discussed quite often here.
-Do you people search the archives, before posting?
+scsi1 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.1
+        <Adaptec aic7896/97 Ultra2 SCSI adapter>
+        aic7896/97: Ultra2 Wide Channel B, SCSI Id=7, 32/255 SCBs
 
-regards, alexx
---
-|   .-.   | Alexander Griesser <tuxx@aon.at> -=- ICQ:63180135 |  .''`. |
-|   /v\   |  http://www.tuxx-home.at -=- Linux Version 2.4.9  | : :' : |
-| /(   )\ |  FAQ zu at.linux:  http://alfie.ist.org/LinuxFAQ  | `. `'  |
-|  ^^ ^^  `---------------------------------------------------´   `-   |
+scsi0:0:0:0: Attempting to queue an ABORT message
+scsi0:0:0:0: Command already completed
+aic7xxx_abort returns 8194
+scsi0:0:0:0: Attempting to queue an ABORT message
+scsi0:0:0:0: Device is active, asserting ATN
+Recovery code sleeping
+Recovery code awake
+Timer Expired
+aic7xxx_abort returns 8195
+scsi0:0:0:0: Attempting to queue a TARGET RESET message
+aic7xxx_dev_reset returns 8195
+Recovery SCB completes
+scsi0:0:0:0: Attempting to queue an ABORT message
+ahc_intr: HOST_MSG_LOOP bad phase 0x0
+scsi0:0:0:0: Cmd aborted from QINFIFO
+aic7xxx_abort returns 8194
+scsi: device set offline - not ready or command retry failed after bus reset: host 0 channel 0 id 0 lun 0
+scsi0:0:1:0: Attempting to queue an ABORT message
+scsi0:0:1:0: Command already completed
+aic7xxx_abort returns 8194
+scsi0:0:1:0: Attempting to queue an ABORT message
+scsi0:0:1:0: Command already completed
+aic7xxx_abort returns 8194
+scsi0:0:1:0: Attempting to queue a TARGET RESET message
+scsi0:0:1:0: Is not an active device
+scsi0:0:1:0: Attempting to queue an ABORT message
+scsi0:0:1:0: Command already completed
+aic7xxx_abort returns 8194
+
+Regards, Yusuf

@@ -1,46 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271829AbRIIAhY>; Sat, 8 Sep 2001 20:37:24 -0400
+	id <S271832AbRIIAqh>; Sat, 8 Sep 2001 20:46:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271831AbRIIAhO>; Sat, 8 Sep 2001 20:37:14 -0400
-Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:53264 "HELO
-	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with SMTP
-	id <S271829AbRIIAhE>; Sat, 8 Sep 2001 20:37:04 -0400
-Date: Sun, 9 Sep 2001 02:37:22 +0200
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: Kai Henningsen <kaih@khms.westfalen.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ioctl SIOCGIFNETMASK: ip alias bug 2.4.9 and 2.2.19
-Message-ID: <20010909023722.A1482@emma1.emma.line.org>
-Mail-Followup-To: Kai Henningsen <kaih@khms.westfalen.de>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <oupg0a1wi9x.fsf@pigdrop.muc.suse.de> <20010905152738.C5912BC06D@spike.porcupine.org.suse.lists.linux.kernel> <20010905182033.D3926@emma1.emma.line.org.suse.lists.linux.kernel> <oupg0a1wi9x.fsf@pigdrop.muc.suse.de> <20010906151113.A29583@ma <88VMRprXw-B@khms.westfalen.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <88VMRprXw-B@khms.westfalen.de>
-User-Agent: Mutt/1.3.22.1i
+	id <S271833AbRIIAq1>; Sat, 8 Sep 2001 20:46:27 -0400
+Received: from mailout6-1.nyroc.rr.com ([24.92.226.177]:19141 "EHLO
+	mailout6.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id <S271832AbRIIAqS>; Sat, 8 Sep 2001 20:46:18 -0400
+Message-ID: <3B9ABBF0.C6B9C3B7@rochester.rr.com>
+Date: Sat, 08 Sep 2001 20:46:40 -0400
+From: Mark Bratcher <mbratche@rochester.rr.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Plaguing ATAPI Tape drive errors in kernel 2.4.x
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kai Henningsen schrieb am Samstag, den 08. September 2001:
+Hello,
 
-[old Postfix versions consider network classes]
-> The WHAT?!
-> 
-> Classes have been dead since around 1993!
+I have been using a Seagate ST20000A (10GB/20GB) ATAPI tape drive since kernel
+2.2.x.
 
-In case you missed that from the paragraph below that you quoted,
-Postfix tries to look up the netmasks from the interfaces nowadays - and
-stumbles across incompatibilities that are the reason for this thread.
-You can always manually override this configuration.
+This tape drive worked flawlessly as an IDE tape drive in kernel 2.2.x (up to
+2.2.18).
 
-> > but there have been many complaints by people that this would
-> > get subnets wrong. A couple of months ago, Postfix has started to look
-> > up the netmasks as well.
+When I upgraded to kernel 2.4.4, it failed as an IDE tape drive. It was
+recommended to me that I use SCSI emulation to "fix" the problem. I did this and
+although I got profuse SCSI errors on the console during tape operations, the
+operations seemed to work anyway (perhaps the errors were non-fatal). I had
+posted these errors with no replies or suggestions.
 
+Now as I try kernel 2.4.9, nothing works. SCSI emulation no longer works. I get
+a failure as soon as it attempts to write the tape. I have had to go back to
+2.4.4 as a result. I did not attempt to go back and try IDE again on 2.4.9.
+
+I scanned the mailing list archive and found one other person who seems to have
+the same problem, but no solutions have been posted. Any ideas?
+
+Thanks.
 -- 
-Matthias Andree
-Outlook (Express) users: press Ctrl+F3 for the full source code of this post.
-begin  dont_click_this_virus.exe
-end
+Mark Bratcher
+---------------------------------------------------------
+Escape from Microsoft's proprietary tentacles: use Linux!

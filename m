@@ -1,60 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264498AbTEPRSb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 May 2003 13:18:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264500AbTEPRSb
+	id S263332AbTEPRjC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 May 2003 13:39:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263339AbTEPRjC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 May 2003 13:18:31 -0400
-Received: from [193.10.185.236] ([193.10.185.236]:4874 "HELO
-	smtp.dormnet.his.se") by vger.kernel.org with SMTP id S264498AbTEPRSa
+	Fri, 16 May 2003 13:39:02 -0400
+Received: from h-68-165-86-241.DLLATX37.covad.net ([68.165.86.241]:35899 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP id S263332AbTEPRjB
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 May 2003 13:18:30 -0400
-Date: Fri, 16 May 2003 19:28:34 +0200
-From: Andreas Henriksson <andreas@fjortis.info>
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.69-mm6
-Message-ID: <20030516172834.GA9774@foo>
-References: <20030516015407.2768b570.akpm@digeo.com>
+	Fri, 16 May 2003 13:39:01 -0400
+Subject: Re: Test Patch: 2.5.69 Interrupt Latency
+From: Paul Fulghum <paulkf@microgate.com>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       johannes@erdfelt.com,
+       USB development list <linux-usb-devel@lists.sourceforge.net>
+In-Reply-To: <Pine.LNX.4.44L0.0305161316380.1171-100000@ida.rowland.org>
+References: <Pine.LNX.4.44L0.0305161316380.1171-100000@ida.rowland.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1053107496.2606.25.camel@toshiba>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="yrj/dFKFPuw6o+aM"
-Content-Disposition: inline
-In-Reply-To: <20030516015407.2768b570.akpm@digeo.com>
-X-gpg-key: http://fjortis.info/andreas_henriksson.gpg
-X-gpg-fingerprint: C51F 9B43 4390 95BB A22E  16F2 00EF 6094 449E 0434
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 16 May 2003 12:51:36 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2003-05-16 at 12:20, Alan Stern wrote:
 
---yrj/dFKFPuw6o+aM
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+> Well, I have actually seen false indications.  Whether they are due to
+> noise is open to debate.  Since they occur just at the time when I turn
+> the power to my USB peripheral on or off, that's my best guess.  It might
+> even turn out that power on/off generates a temporary OC condition, so
+> fixing that might render the grace period unnecessary.  I haven't had a
+> chance try it yet.
 
-Hi!
+That sounds like a reasonable explanation.
 
-I had to remove "static" from the agp_init-function in
-drivers/char/agp/backend.c to get the kernel to link (when building
-Intel 810 Framebuffer into the kernel).
+-- 
+Paul Fulghum
+paulkf@microgate.com
 
-I also got unresolved symbols for two modules.
-arch/i386/kernel/suspend.ko: enable_sep_cpu, default_ldt, init_tss
-arch/i386/kernel/apm.ko: save_processor_state, restore_processor_state
-
-Regards,
-Andreas Henriksson
-
---yrj/dFKFPuw6o+aM
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE+xR/CAO9glESeBDQRApDYAJ9K8lh2ePhOyHuoxj4A1AEVjoVNpACguI+5
-YDr6+BtNJCcHBMu9bMfj1eQ=
-=bwlX
------END PGP SIGNATURE-----
-
---yrj/dFKFPuw6o+aM--

@@ -1,48 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265132AbUF1TPl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265134AbUF1TSx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265132AbUF1TPl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jun 2004 15:15:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265134AbUF1TPk
+	id S265134AbUF1TSx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jun 2004 15:18:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265137AbUF1TSx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jun 2004 15:15:40 -0400
-Received: from fw.osdl.org ([65.172.181.6]:34461 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265132AbUF1TPj (ORCPT
+	Mon, 28 Jun 2004 15:18:53 -0400
+Received: from mail.enyo.de ([212.9.189.167]:30474 "EHLO mail.enyo.de")
+	by vger.kernel.org with ESMTP id S265134AbUF1TSw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jun 2004 15:15:39 -0400
-Date: Mon, 28 Jun 2004 12:13:12 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Pat Gefre <pfg@sgi.com>
-Cc: erikj@subway.americas.sgi.com, rmk+lkml@arm.linux.org.uk, cw@f00f.org,
-       hch@infradead.org, jbarnes@engr.sgi.com, pfg@sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6] Altix serial driver
-Message-Id: <20040628121312.75ac9ed7.akpm@osdl.org>
-In-Reply-To: <Pine.SGI.3.96.1040628140341.36430F-100000@fsgi900.americas.sgi.com>
-References: <Pine.SGI.4.53.0406280719080.581376@subway.americas.sgi.com>
-	<Pine.SGI.3.96.1040628140341.36430F-100000@fsgi900.americas.sgi.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 28 Jun 2004 15:18:52 -0400
+To: Andre Tomt <andre@tomt.net>
+Cc: linux-kernel@vger.kernel.org, "David S. Miller" <davem@redhat.com>
+Subject: Re: TCP-RST Vulnerability - Doubt
+References: <40DC9B00@webster.usu.edu>
+	<20040625150532.1a6d6e60.davem@redhat.com> <40DCDDF4.7030509@tomt.net>
+From: Florian Weimer <fw@deneb.enyo.de>
+Date: Mon, 28 Jun 2004 21:18:48 +0200
+In-Reply-To: <40DCDDF4.7030509@tomt.net> (Andre Tomt's message of "Sat, 26
+ Jun 2004 04:22:44 +0200")
+Message-ID: <87zn6njxt3.fsf@deneb.enyo.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pat Gefre <pfg@sgi.com> wrote:
->
-> We think we should stick with the major/minor set we have proposed.  We
->  don't like hacking the 8250 code, dynamic allocation doesn't work (once
->  that works we will update our driver to use it), registering for our
->  own major/minor may not work (if we DO get one we will update the
->  driver to reflect it) but in the meantime we need to get something in
->  the community that works.
+* Andre Tomt:
 
-"we don't like" isn't a very strong argument ;)
+> I have not seen anything conclusive on this yet. How sensitive is
+> Linux to the attack?
 
-It does sound to me like some work is needed in the generic serial layer to
-teach it to get its sticky paws off the ttyS0 major/minor if there is no
-corresponding hardware.  AFAICT nobody has scoped out exactly what has to
-be done for a clean solution there - it may not be very complex.  So could
-we please explore that a little further?
+The original RST-based attack was against a mixed Cisco/Linux+Quagga
+environment, IIRC.  This combination is especially vulnerable if the
+BGP connection is established in the right direction.
 
-If that proves to be impractical for some reason then I'd be inclined to
-allocate a new misc minor, stick it in devices.txt and be done with it.
+However, nobody has probably bothered to replicate that attack in the
+lab.  As published, the attack just doesn't work against Cisco/Cisco
+peerings.  Unfortunately, there is another that *might* actually work,
+that's why there was so much fuss about it.
+
+If you have some window checking bugs (like the BSDs had), it can be
+quite worse, of course.  But such issues are usually way overrated.
+Most DoS potential remains unexploited anyway, and I don't think the
+disruption from people frantically enabling the TCP MD5 option payed
+off in the end.

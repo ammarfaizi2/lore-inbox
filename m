@@ -1,92 +1,111 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263747AbRFCTyR>; Sun, 3 Jun 2001 15:54:17 -0400
+	id <S263814AbRFCXzY>; Sun, 3 Jun 2001 19:55:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263748AbRFCTyH>; Sun, 3 Jun 2001 15:54:07 -0400
-Received: from front3m.grolier.fr ([195.36.216.53]:60125 "EHLO
-	front3m.grolier.fr") by vger.kernel.org with ESMTP
-	id <S263747AbRFCTxz> convert rfc822-to-8bit; Sun, 3 Jun 2001 15:53:55 -0400
-Date: Sun, 3 Jun 2001 18:38:27 +0200 (CEST)
-From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@club-internet.fr>
-To: Matthias Schniedermeyer <ms@citd.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: SCSI-CD-Writer don't show up
-In-Reply-To: <Pine.LNX.4.20.0106020917560.13579-100000@citd.owl.de>
-Message-ID: <Pine.LNX.4.10.10106031820370.1735-100000@linux.local>
+	id <S263811AbRFCXYQ>; Sun, 3 Jun 2001 19:24:16 -0400
+Received: from coffee.psychology.McMaster.CA ([130.113.218.59]:19260 "EHLO
+	coffee.psychology.mcmaster.ca") by vger.kernel.org with ESMTP
+	id <S263589AbRFCW43>; Sun, 3 Jun 2001 18:56:29 -0400
+Date: Sun, 3 Jun 2001 18:56:27 -0400 (EDT)
+From: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
+To: linux-kernel@vger.kernel.org
+Subject: Re: XMM: monitor Linux MM inactive/active lists graphically
+In-Reply-To: <87d78lolxs.fsf@atlas.iskon.hr>
+Message-ID: <Pine.LNX.4.10.10106031828390.7303-100000@coffee.psychology.mcmaster.ca>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> XMM is heavily modified XMEM utility that shows graphically size of
+> different Linux page lists: active, inactive_dirty, inactive_clean,
+> code, free and swap usage. It is better suited for the monitoring of
+> Linux 2.4 MM implementation than original (XMEM) utility.
+> 
+> Find it here:  <URL:http://linux.inet.hr/>
 
+interesting.  I prefer to collect data separately from viewing it,
+and use the following simple perl script to do so; obviously, 
+it generates a bunch of separate files, one for each metric,
+suitable for traditional filtering, gnuplot, etc.
 
-On Sat, 2 Jun 2001, Matthias Schniedermeyer wrote:
+#!/bin/perl
+use IO::Handle;
 
-> #Include <hallo.h>
-> 
-> 
-> 
-> I have 3 SCSI-CD-Writers. "Strange" is that the boot-process only finds
-> the first one (1 0 5 0), the other two i have to add with
-> 
-> echo "scsi add-single-device 2 0 4 0" > /proc/scsi/scsi
-> echo "scsi add-single-device 2 0 6 0" > /proc/scsi/scsi
-> 
-> to make them useable.
-> 
-> Here is the complete ist of my SCSI-Devices:
-> 
-> Host: scsi0 Channel: 00 Id: 06 Lun: 00
->   Vendor: IBM      Model: DDYS-T18350N     Rev: S93E
->   Type:   Direct-Access                    ANSI SCSI revision: 03
-> Host: scsi1 Channel: 00 Id: 00 Lun: 00
->   Vendor: PLEXTOR  Model: CD-ROM PX-32TS   Rev: 1.03
->   Type:   CD-ROM                           ANSI SCSI revision: 02
-> Host: scsi1 Channel: 00 Id: 01 Lun: 00
->   Vendor: PIONEER  Model: DVD-ROM DVD-303  Rev: 1.10
->   Type:   CD-ROM                           ANSI SCSI revision: 02
-> Host: scsi1 Channel: 00 Id: 05 Lun: 00
->   Vendor: TEAC     Model: CD-R58S          Rev: 1.0N
->   Type:   CD-ROM                           ANSI SCSI revision: 02
-> Host: scsi2 Channel: 00 Id: 02 Lun: 00
->   Vendor: PIONEER  Model: DVD-ROM DVD-304  Rev: 1.03
->   Type:   CD-ROM                           ANSI SCSI revision: 02
-> Host: scsi2 Channel: 00 Id: 03 Lun: 00
->   Vendor: PIONEER  Model: DVD-ROM DVD-304  Rev: 1.03
->   Type:   CD-ROM                           ANSI SCSI revision: 02
-> Host: scsi2 Channel: 00 Id: 04 Lun: 00
->   Vendor: TEAC     Model: CD-R58S          Rev: 1.0K
->   Type:   CD-ROM                           ANSI SCSI revision: 02
-> Host: scsi2 Channel: 00 Id: 06 Lun: 00
->   Vendor: TEAC     Model: CD-R58S          Rev: 1.0P
->   Type:   CD-ROM                           ANSI SCSI revision: 02
-> 
-> I have a "Symbios 53c1010 (Dual Channel Ultra 160)" and a "NCR 810a" The
-> two devices which are not found are connected through adapters onto the
-> second channel of the Symbios 53c1010.
-> 
-> Kernel is 2.4.4 or 2.4.5ac6. 
-> As host-adapter-driver i use the "SYM53C8XX"-driver
-> 
-> If other info is needed, no problem. :-)
+require 'sys/syscall.ph';
+sub gettimeofday {
+    $timeval = pack("LL", ());
+    syscall( &SYS_gettimeofday, $timeval, 0) != -1
+	or die "gettimeofday: $!";
+    ($sec,$usec) = unpack("LL", $timeval);
+    return $sec + 1e-6 * $usec;
+}
 
-You should check if your devices are enabled for SCAN in the NVRAM.
+open(S,"</proc/stat") || die("failed to open /proc/stat");
+open(M,"</proc/meminfo") || die("failed to open /proc/meminfo");
+open(B,"</proc/slabinfo") || die("failed to open /proc/slabinfo");
 
-Devices that aren't enabled for "SCAN AT BOOT" are forced by the driver to
-fail the initial SCSI scan. As a plus, the driver also applies the boot
-order for all Symbios HBAs that look Symbios-compatible regarding GPIO
-pins and NVRAM layout.
+open(PI,">pi.st"); 	PI->autoflush(1);
+open(PO,">po.st");	PO->autoflush(1);
+open(SI,">si.st");	SI->autoflush(1);
+open(SO,">so.st");	SO->autoflush(1);
+open(CX,">ctx.st");	CX->autoflush(1);
+open(MF,">free.st");	MF->autoflush(1);
+open(BF,">buf.st");	BF->autoflush(1);
+open(AC,">act.st");	AC->autoflush(1);
+open(ID,">id.st");	ID->autoflush(1);
+open(IC,">ic.st");	IC->autoflush(1);
+open(IT,">it.st");	IT->autoflush(1);
+open(SW,">swap.st");	SW->autoflush(1);
+open(BH,">bh.st");	BH->autoflush(1);
+open(IN,">inode.st");	IN->autoflush(1);
+open(DE,">dentry.st");	DE->autoflush(1);
 
-For such subset of SCSI BUSes, this allows to present SCSI devices to the
-kernel in the same order as BIOS saw them. On the other hand, this may
-speed-up the system boot process a lot. If you had numerous O/Ses
-installed on a single system, you would appreciate as useful it is. For
-example, I use to boot an O/S with only drive 80 seen by BIOS and sda seen
-by system, and then mount the other disks in the order I want.
+$c = 0;
+$first = gettimeofday();
+while (1) {
+      sleep(1);
+      $now = gettimeofday() - $first;
 
-  Gérard.
-
-PS: See README.ncr53c8xx for the way to disable this feature if it does
-    not fit your expectation. :)
+      seek(S,0,SEEK_SET);
+      while (<S>) {
+	  if (/^page\s+(\d+)\s+(\d+)$/) {
+	      if ($c) { print PI "$now ",4*($1 - $pi),"\n"; }
+	      if ($c) { print PO "$now ",4*($2 - $po),"\n"; }
+	      $pi = $1;
+	      $po = $2;
+	      next;
+	  }
+	  if (/^swap\s+(\d+)\s+(\d+)$/) {
+	      if ($c) { print SI "$now ",4*($1 - $si),"\n"; }
+	      if ($c) { print SO "$now ",4*($2 - $so),"\n"; }
+	      $si = $1;
+	      $so = $2;
+	      next;
+	  }
+	  if (/^ctxt\s+(\d+)$/) {
+	      if ($c) { print CX "$now ",$1 - $cx,"\n"; }
+	      $cx = $1;
+	      next;
+	  }
+      }
+      seek(M,0,SEEK_SET);
+      while (<M>) {
+	  if (/^MemFree:\s+(\d+) kB$/) {	print MF "$now ",$1,"\n"; next; }
+	  if (/^Buffers:\s+(\d+) kB$/) {	print BF "$now ",$1,"\n"; next; }
+	  if (/^Active:\s+(\d+) kB$/) {		print AC "$now ",$1,"\n"; next; }
+	  if (/^Inact_dirty:\s+(\d+) kB$/) {	print ID "$now ",$1,"\n"; next; }
+	  if (/^Inact_clean:\s+(\d+) kB$/) {	print IC "$now ",$1,"\n"; next; }
+	  if (/^Inact_target:\s+(\d+) kB$/) {	print IT "$now ",$1,"\n"; next; }
+	  if (/^Inact_target:\s+(\d+) kB$/) {	print IT "$now ",$1,"\n"; next; }
+	  if (/^Swap:\s+\d+\s+(\d+)/) 	{	print SW "$now ",$1,"\n"; next; }
+      }
+      seek(B,0,SEEK_SET);
+      while (<B>) {
+	  if (/^buffer_head\s+(\d+)\s+(\d+)\s+(\d+)/) {	print BH "$now ",$1*$3/1024,"\n"; next; }
+	  if (/^inode_cache\s+(\d+)\s+(\d+)\s+(\d+)/) {	print IN "$now ",$1*$3/1024,"\n"; next; }
+	  if (/^dentry_cache\s+(\d+)\s+(\d+)\s+(\d+)/) {print DE "$now ",$1*$3/1024,"\n"; next; }
+      }
+      $c++;
+}
 

@@ -1,67 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265306AbSLIMig>; Mon, 9 Dec 2002 07:38:36 -0500
+	id <S265382AbSLIM1F>; Mon, 9 Dec 2002 07:27:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265320AbSLIMig>; Mon, 9 Dec 2002 07:38:36 -0500
-Received: from f34.law11.hotmail.com ([64.4.17.34]:43017 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S265306AbSLIMif>;
-	Mon, 9 Dec 2002 07:38:35 -0500
-X-Originating-IP: [212.3.234.82]
-From: "lao nightwolf" <laonightwolf@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: irregular packet-loss with use of bonding on TG3
-Date: Mon, 09 Dec 2002 12:43:40 +0000
+	id <S265385AbSLIM1F>; Mon, 9 Dec 2002 07:27:05 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:42046 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S265382AbSLIM1E>; Mon, 9 Dec 2002 07:27:04 -0500
+Date: Mon, 9 Dec 2002 07:34:34 -0500
+From: Arjan van de Ven <arjanv@redhat.com>
+To: george anzinger <george@mvista.com>
+Cc: Arjan van de Ven <arjanv@redhat.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/3] High-res-timers part 1 (core) take 20
+Message-ID: <20021209073434.A24382@devserv.devel.redhat.com>
+References: <3DF2F8D9.6CA4DC85@mvista.com> <1039341009.1483.3.camel@laptop.fenrus.com> <3DF44031.58A12F66@mvista.com> <20021209035347.C12524@devserv.devel.redhat.com> <3DF48C4C.3F056661@mvista.com>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F34AI5RTHrS0WEc6emT00002afb@hotmail.com>
-X-OriginalArrivalTime: 09 Dec 2002 12:43:40.0593 (UTC) FILETIME=[99DEA210:01C29F80]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3DF48C4C.3F056661@mvista.com>; from george@mvista.com on Mon, Dec 09, 2002 at 04:27:56AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-We've been using bonding for the first time and are encountering packet-loss 
-using it.
-We have installed RH 7.2 on Compaq DL360's with the Broadcom Tigon3 network 
-cards.  We've tested the configuration internally and everything seemed to 
-work.  Now when the platform came live last week we have irregular 
-packet-loss on all servers with bonding enabled.  The servers were compiled 
-with kernel-2.4.19 patched with kernel-2.4.20pre11 patch (which contained 
-v1.1 of the tg3 drivers).
-As I saw updates for this driver in the 2.4.20 kernel (v1.2, dated 
-14/11/2002), I upgraded all servers to latest stable kernel.  But it didn't 
-fix our problem.
-The two network interfaces of each server (7 in total) are connencted to 2 
-AD3 Alteons Switches (one interface to alteon1, the other interface to 
-alteon2).
-We do NOT have any packet-loss to the alteons.  If we look at the health 
-check log of the alteon we can see that even the alteon isn't always able to 
-contact the servers with bonding enabled.
-Packet-loss to the servers differs from 1% to 50%.
+On Mon, Dec 09, 2002 at 04:27:56AM -0800, george anzinger wrote:
+> > 
+> > that's why spinlocks are effectively nops on UP.
+> > What you say is true of just about every spinlock user, and no
+> > they shouldn't all do some IF_SMP() thing; the spinlock itself should be
+> > (and is) zero on UP
+> 
+> But with preemption, they really are not nops on UP...
 
-Another curious thing:
+that doesn't justify fuglyfying the kernel code. If you can't live
+with the overhead of preemption, disable preemption. Simple. 
+We DON'T want
+spin_lock_nop_on_preempt()
+...
 
->From our location we monitor two ping windows to 2 servers from the 
-platform.  Ping times are constantly 18-19ms, with sometimes some 
-packet-loss.
+spin_unlock_nop_on_preempt()
 
-When we do logon onto these two servers and execute the 'ps waux' command 
-several times, we can see increase ping times drastically to 50-100ms!! It 
-also increases packet-loss!  As I can conclude from this is, when traffic 
-rises to the servers packet-loss to those servers is also rising.
-
-When we ping from the first to the second server (within the same platform) 
-we can see that packet-loss is also much higher, even 100% packet-loss for 
-some time (and connection loss to our SSH connection).
-
-Hope someone can point us in the right direction.  Could it have any affect 
-by enabling trunking on the alteon switches?  Or has it something to do with 
-the linux tg3 driver?
-
-Best Regards,
-Kevin
-
-_________________________________________________________________
-Help STOP SPAM with the new MSN 8 and get 2 months FREE*  
-http://join.msn.com/?page=features/junkmail
-
+really, I don't, and I can't see anyone else wanting that either

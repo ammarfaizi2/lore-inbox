@@ -1,88 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266550AbRGLXnX>; Thu, 12 Jul 2001 19:43:23 -0400
+	id <S266505AbRGLXlX>; Thu, 12 Jul 2001 19:41:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266897AbRGLXnN>; Thu, 12 Jul 2001 19:43:13 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:24334 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S266550AbRGLXnF>; Thu, 12 Jul 2001 19:43:05 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Pavel Machek <pavel@suse.cz>, Dan Maas <dmaas@dcine.com>
-Subject: Re: VM Requirement Document - v0.0
-Date: Fri, 13 Jul 2001 01:46:54 +0200
-X-Mailer: KMail [version 1.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <fa.jprli0v.qlofoc@ifi.uio.no> <002501c104f4/mnt/sendme701a8c0@morph> <20010709121736.B39@toy.ucw.cz>
-In-Reply-To: <20010709121736.B39@toy.ucw.cz>
-MIME-Version: 1.0
-Message-Id: <0107130146540H.00409@starship>
-Content-Transfer-Encoding: 7BIT
+	id <S266550AbRGLXlN>; Thu, 12 Jul 2001 19:41:13 -0400
+Received: from e22.nc.us.ibm.com ([32.97.136.228]:51336 "EHLO
+	e22.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S266505AbRGLXlA>; Thu, 12 Jul 2001 19:41:00 -0400
+Date: Thu, 12 Jul 2001 16:40:17 -0700
+From: Mike Kravetz <mkravetz@sequent.com>
+To: linux-kernel@vger.kernel.org
+Cc: Andi Kleen <ak@suse.de>, lse-tech@lists.sourceforge.net
+Subject: CPU affinity & IPI latency
+Message-ID: <20010712164017.C1150@w-mikek2.des.beaverton.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 09 July 2001 14:17, Pavel Machek wrote:
-> > Possibly stupid suggestion... Maybe the interactive/GUI programs
-> > should wake up once in a while and touch a couple of their pages?
-> > Go too far with this and you'll just get in the way of performance,
-> > but I don't think it would hurt to have processes waking up every
-> > couple of minutes and touching glibc, libqt, libgtk, etc so they
-> > stay hot in memory... A very slow incremental "caress" of the
-> > address space could eliminate the
-> > "I-just-logged-in-this-morning-and-dammit-everything-has-been-paged
-> >-out" problem.
->
-> Ugh... Ouch.... Ugly, indeed.
->
-> What you might want to do is
->
-> while true; do
-> cat /usr/lib/libc* > /dev/null; sleep 1m
-> cat /usr/lib/qt* > /dev/null; sleep 1m
-> ...
-> done
->
-> running on your system...
+This discussion was started on 'lse-tech@lists.sourceforge.net'.
+I'm widening the distribution in the hope of getting more input.
 
-90%+ of what you touch that way is likely to be outside your working 
-set, and only the libraries get pre-loaded, not the application code or 
-data.  An approach where the application 'touches itself' has more 
-chance of producing a genuine improvement in response, but is that 
-really what we want application programmers spending their time 
-writing?  Not to mention the extra code bloat and maintainance overhead.
+It started when Andi Kleen noticed that a single 'CPU Hog' task
+was being bounced back and forth between the 2 CPUs on his 2-way
+system.  I had seen similar behavior when running the context
+switching test of LMbench.  When running lat_ctx with only two
+threads on an 8 CPU system, one would ?expect? the two threads
+to be confined to two of the 8 CPUs in the system.  However, what
+I have observed is that the threads are effectively 'round
+robined' among all the CPUs and they all end up bearing
+an equivalent amount of the CPU load.  To more easily observe
+this, increase the number of 'TRIPS' in the benchmark to a really
+large number.
 
-Maybe there are a some applications out there - perhaps a database that 
-for some reason needs to minimize its latency - where the effort is 
-worth it, but they're few and far between.  IMHO, only a generic 
-facility in the operating system is going to result in anything that's 
-worth the effort to implement it.
+After a little investigation, I believe this 'situation' is caused
+by the latency of the reschedule IPI used by the scheduler.  Recall
+that in lat_ctx all threads are in a tight loop consisting of:
 
-What would be needed is some kind of memory of swapped out process 
-pages so that after one application terminates some pages of another, 
-possibly idle process could be read back in.  Naturally, this would 
-only be done if the system resources were otherwise unused.  This 
-optimization in the same category as readahead - it serves to reduce 
-latency - but it provides a benefit only in one specific circumstance.  
-On the other hand, the place where it does improve things is highly 
-visible, so I don't know, it might be worth trying some experiments 
-here.  Not now though, a mature, well-understood vm system is a 
-prerequisite.
+pipe_read()
+pipe_write()
 
-Well, I just thought of one relatively simple thing that could be done 
-in the desktop - redraw the screen after a big app exits and the system 
-is otherwise idle.  That at least would page some bitmaps back in and 
-touch some drawing methods.  The responsibility for detecting the 
-relevant condition would lie with the OS and there would be some 
-as-yet-undefined mechanism for notifying the desktop.
+Both threads 'start' on the same CPU and are sitting in pipe_read
+waiting for data.  A token is written to the pipe and one thread
+is awakened.  The awakened thread, then immediately writes the token
+back to the pipe which ultimately results in a call to reschedule_idle()
+that will 'initiate' the scheduling of the other thread.  In
+reschedule_idle() we can not take the 'fast path' because WE are
+currently executing on the other thread's preferred CPU.  Therefore,
+reschedule_idle() chooses the oldest idle CPU and sends the IPI.
+However, before the IPI is received (and schedule() run) on the
+remote CPU, the currently running thread calls pipe_read which
+blocks and calls schedule().  Since the other task has yet to be
+scheduled on the other CPU, it is scheduled to run on the current
+CPU.  Both tasks continue to execute on the one CPU until such time
+that an IPI induced schedule() on the other CPU hits a window where
+it finds one of the tasks to schedule.  We continue in this way,
+migrating the tasks to the oldest idle CPU and eventually cycling our
+way through all the CPUs.
 
-This is firmly in the flight-of-fancy category.  What would be real and 
-worth doing right now is for some application developers to profile 
-their wonderful creations and find out why they're touching so darn 
-much memory.  Who hasn't seen their system go into a frenzy as the 
-result of bringing up a simple configuration dialog in KDE?  Or 
-right-clicking one of the window buttons in Gnome?  It's uncalled for, 
-a little effort on that front would make the restart latency problem 
-mostly go away.
+Does this explanation sound reasonable?
 
---
-Daniel
+If so, it would then follow that booting with 'idle=poll' would
+help alleviate this situation.  However, that is not the case.  With
+idle=poll the CPU load is not as evenly distributed among the CPUs,
+but is still distributed among all of them.
+
+Does the behavior of the 'benchmark' mean anything?  Should one
+expect tasks to stay their preferred CPUs if possible?
+
+Thoughts/comments
+-- 
+Mike Kravetz                                 mkravetz@sequent.com
+IBM Linux Technology Center

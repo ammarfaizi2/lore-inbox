@@ -1,111 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264610AbRFPTHn>; Sat, 16 Jun 2001 15:07:43 -0400
+	id <S264647AbRFPTYr>; Sat, 16 Jun 2001 15:24:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264620AbRFPTHd>; Sat, 16 Jun 2001 15:07:33 -0400
-Received: from 513.holly-springs.nc.us ([216.27.31.173]:52489 "EHLO
-	513.holly-springs.nc.us") by vger.kernel.org with ESMTP
-	id <S264610AbRFPTHT>; Sat, 16 Jun 2001 15:07:19 -0400
-Subject: Re: threading question
-From: Michael Rothwell <rothwell@holly-springs.nc.us>
-To: Russell Leighton <russell.leighton@247media.com>
+	id <S264648AbRFPTYf>; Sat, 16 Jun 2001 15:24:35 -0400
+Received: from [209.250.53.182] ([209.250.53.182]:2564 "EHLO
+	hapablap.dyn.dhs.org") by vger.kernel.org with ESMTP
+	id <S264647AbRFPTYc>; Sat, 16 Jun 2001 15:24:32 -0400
+Date: Sat, 16 Jun 2001 13:32:43 -0500
+From: Steven Walter <srwalter@yahoo.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3B2BA68D.984A2808@247media.com>
-In-Reply-To: <E15BHrC-0008Ba-00@the-village.bc.nu> 
-	<3B2BA68D.984A2808@247media.com>
-Content-Type: text/plain
-X-Mailer: Evolution/0.10 (Preview Release)
-Date: 16 Jun 2001 15:06:44 -0400
-Message-Id: <992718405.913.0.camel@gromit>
+Subject: Re: [PATCH] fix warning in tdfxfb.c
+Message-ID: <20010616133243.A1610@hapablap.dyn.dhs.org>
+In-Reply-To: <20010616131237.A4378@hapablap.dyn.dhs.org> <E15BKmL-0008Q7-00@the-village.bc.nu>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E15BKmL-0008Q7-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sat, Jun 16, 2001 at 07:26:37PM +0100
+X-Uptime: 1:30pm  up 16 min,  1 user,  load average: 1.49, 1.70, 1.29
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Try this:
+I'm using 2.95.2; perhaps its fixed in 2.96/CVS?
 
-http://lecker.essen.de/~froese/coro/
+On Sat, Jun 16, 2001 at 07:26:37PM +0100, Alan Cox wrote:
+> > This patch is obviously correct.  It doesn't appear that tdfxfb has a
+> > maintainer, so I'm sending this patch to the list.  Nothing
+> 
+> > earth-shattering, it just removes a warning during build.
+> 
+> Yep.. Im actually suprised gcc couldnt work that one out itself.
 
--M
-
-On 16 Jun 2001 14:33:50 -0400, Russell Leighton wrote:
-> 
-> Is there a user-space implemenation (library?) for coroutines that would work from C?
-> 
-> 
-> Alan Cox wrote:
-> 
-> > > Can you provide any info and/or examples of co-routines? I'm curious to
-> > > see a good example of co-routines' "betterness."
-> >
-> > With co-routines you don't need
-> >
-> >         8K of kernel stack
-> >         Scheduler overhead
-> >         Fancy locking
-> >
-> > You don't get the automatic thread switching stuff though.
-> >
-> > So you might get code that reads like this (note that aio_ stuff works rather
-> > well combined with co-routines as it fixes a lack of asynchronicity in the
-> > unix disk I/O world)
-> >
-> >         select(....)
-> >
-> >         if(FD_ISSET(copier_fd))
-> >                 run_coroutine(&copier_state);
-> >
-> >         ...
-> >
-> > and the copier might be something like
-> >
-> >         while(1)
-> >         {
-> >                 // Yes 1 at a time is dumb but this is an example..
-> >                 // Yes Im ignoring EOF for this
-> >                 if(read(copier_fd, buf[bufptr], 1)==-1)
-> >                 {
-> >                         if(errno==-EWOULDBLOCK)
-> >                         {
-> >                                 coroutine_return();
-> >                                 continue;
-> >                         }
-> >                 }
-> >                 if(bufptr==255  || buf[bufptr]=='\n')
-> >                 {
-> >                         run_coroutine(run_command, buf);
-> >                         bufptr=0;
-> >                 }
-> >                 else
-> >                         bufptr++;
-> >         }
-> >
-> > it lets you express a state machine as a set of multiple such small state
-> > machines instead.  run_coroutine() will continue a routine where it last
-> > coroutine_return()'d from. Thus in the above case we are expressing read
-> > bytes until you see a new line cleanly - not mangled in with keeping state
-> > in global structures but by using natural C local variables and code flow
-> >
-> > Alan
-> >
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> --
-> ---------------------------------------------------
-> Russell Leighton    russell.leighton@247media.com
-> ---------------------------------------------------
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
---
-Michael Rothwell
-rothwell@holly-springs.nc.us
-
-
+-- 
+-Steven
+In a time of universal deceit, telling the truth is a revolutionary act.
+			-- George Orwell

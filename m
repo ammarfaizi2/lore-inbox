@@ -1,71 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262654AbVCCXCa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262657AbVCCXC1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262654AbVCCXCa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 18:02:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262649AbVCCXAe
+	id S262657AbVCCXC1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 18:02:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262656AbVCCXBe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 18:00:34 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:27888 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262691AbVCCW5s
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 17:57:48 -0500
-Date: Thu, 3 Mar 2005 16:55:42 -0600
-To: Paul Mackerras <paulus@samba.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Rene Rebe <rene@exactcode.de>,
-       torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       Greg KH <greg@kroah.com>, chrisw@osdl.org
-Subject: Re: [PATCH] trivial fix for 2.6.11 raid6 compilation on ppc w/ Altivec
-Message-ID: <20050303225542.GB16886@austin.ibm.com>
-References: <422751D9.2060603@exactcode.de> <422756DC.6000405@pobox.com> <16935.36862.137151.499468@cargo.ozlabs.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16935.36862.137151.499468@cargo.ozlabs.ibm.com>
-User-Agent: Mutt/1.5.6+20040523i
-From: olof@austin.ibm.com (Olof Johansson)
+	Thu, 3 Mar 2005 18:01:34 -0500
+Received: from fire.osdl.org ([65.172.181.4]:58805 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262662AbVCCWMc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 17:12:32 -0500
+Date: Thu, 3 Mar 2005 14:13:45 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Hua Zhong <hzhong@cisco.com>
+cc: "'Jeff Garzik'" <jgarzik@pobox.com>, "'Greg KH'" <greg@kroah.com>,
+       "'David S. Miller'" <davem@davemloft.net>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: RE: RFD: Kernel release numbering
+In-Reply-To: <200503032156.AWY71165@mira-sjc5-e.cisco.com>
+Message-ID: <Pine.LNX.4.58.0503031410280.25732@ppc970.osdl.org>
+References: <200503032156.AWY71165@mira-sjc5-e.cisco.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 04, 2005 at 09:30:22AM +1100, Paul Mackerras wrote:
-> > I nominate this as a candidate for linux-2.6.11 release branch.  :)
+
+
+On Thu, 3 Mar 2005, Hua Zhong wrote:
 > 
-> No.  Unfortunately if you fix ppc64 here you will break ppc, and vice
-> versa.  Yes, we are going to reconcile the cur_cpu_spec definitions
-> between ppc and ppc64. :)
+> Indeed. What I have in mind (and suggested in the past) is that we have a
+> real 2.6 stable release maintainer. The only difference is that he starts
+> from a random 2.6.x release he picks, and releases 2.6.x.y until he thinks
+> stable enough, and he moves on to another 2.6.z release and start the same
+> work.
 
-The proper fix is to get the cpu_has_feature patch merged up from -mm,
-but that's 99% cleanup and 1% bugfix. So here's a more appropriate fix
-for the 2.6.11 patch stream. This goes on top of the one that just got
-merged there.
+This is exactly how distributions work (or are at least supposed to). As 
+such, it's not something _I_ care about, except in the sense of "yes, 
+that's how you guys should do it". The reason I personally don't care any 
+more is that it has the back- and forward-port issues, so somebody will 
+have to do that, and it sure ain't me.
 
+Now, if you are arguing that it should be something where different 
+distributions do it together and don't waste engineers on their own tree, 
+I do kind of agree. "Kind of", because I think different distributions 
+have different issues (like timing), and that it may well just be too much 
+work to try to synchronize them and keep everybody happy.
 
--Olof
+At some point it's easier and cheaper to just "waste energy". I see my job
+as giving a base-line where somebody _can_ start doing the above, but at 
+some point it's out of my hands.
 
-
----
-
-
-Here's a patch that will work for both PPC and PPC64. The proper way to
-fix this in mainline is to merge -mm's cpu_has_feature patch, but for
-the stable 2.6.11-series, this much less intrusive (i.e. just the pure
-bugfix, not the cleanup part).
-
-Signed-off-by: Olof Johansson <olof@austin.ibm.com>
-
-
-Index: linux-2.5/drivers/md/raid6altivec.uc
-===================================================================
---- linux-2.5.orig/drivers/md/raid6altivec.uc	2005-03-03 16:46:47.000000000 -0600
-+++ linux-2.5/drivers/md/raid6altivec.uc	2005-03-03 16:48:03.000000000 -0600
-@@ -108,7 +108,11 @@ int raid6_have_altivec(void);
- int raid6_have_altivec(void)
- {
- 	/* This assumes either all CPUs have Altivec or none does */
-+#ifdef CONFIG_PPC64
-+	return cur_cpu_spec->cpu_features & CPU_FTR_ALTIVEC;
-+#else
- 	return cur_cpu_spec[0]->cpu_features & CPU_FTR_ALTIVEC;
-+#endif
- }
- #endif
- 
+		Linus

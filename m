@@ -1,49 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269413AbRINTQp>; Fri, 14 Sep 2001 15:16:45 -0400
+	id <S268145AbRINTaO>; Fri, 14 Sep 2001 15:30:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269326AbRINTQf>; Fri, 14 Sep 2001 15:16:35 -0400
-Received: from relay01.cablecom.net ([62.2.33.101]:7951 "EHLO
-	relay01.cablecom.net") by vger.kernel.org with ESMTP
-	id <S268702AbRINTQc>; Fri, 14 Sep 2001 15:16:32 -0400
-Message-ID: <3BA257A5.E74DDBAB@bluewin.ch>
-Date: Fri, 14 Sep 2001 21:16:53 +0200
-From: Otto Wyss <otto.wyss@bluewin.ch>
-Reply-To: otto.wyss@bluewin.ch
-X-Mailer: Mozilla 4.78 (Macintosh; U; PPC)
-X-Accept-Language: de,en
+	id <S268702AbRINTaE>; Fri, 14 Sep 2001 15:30:04 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:53265 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S268145AbRINT3x>; Fri, 14 Sep 2001 15:29:53 -0400
+Date: Fri, 14 Sep 2001 15:05:36 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Rik van Riel <riel@conectiva.com.br>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.10pre VM changes: Potential race condition on swap code
+In-Reply-To: <Pine.LNX.4.21.0109141229190.1372-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.21.0109141456410.4708-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: How errorproof is ext2 fs?
-In-Reply-To: <E15hebh-0007QK-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > This leaves me a bad taste of Linux in my mouth. Does ext2 fs really behave so
-> > worse in case of a crash? Okay Linux does not crash that often as MacOS does, so
-> 
-> That sounds like it behaved well. fsck didnt have enough info to safely
-> do all the fixup without asking you. Its not a reliability issue as such.
-> 
-Well it could also be the fact that almost no activity was going on on both
-systems. 
 
-> > it does not need a good  error proof fs. Still can't ext2 be made a little more
-> > error proof?
-> 
-> Ext3 is a journalled ext2. Its in the 2.4-ac kernel trees. Reiserfs in the
-> -ac tree also supports big endian boxes.
-> 
-At least ext2 and probably all the journalling fs lacks a feature the HFS+ from
-the Mac has (bad tongues might say "needs"), to keep open files without activity
-in a state where a crash has no effect. I don't know how it is done since I'm no
-fs expert but my experience with my Mac (resetting about once a month without
-loosing anything) shows that it's possible.
 
-I'd rather like to see this feature appear in one fs for Linux (preferable
-ext2). I think it's always better to not have error instead of fixing them afterwards.
+On Fri, 14 Sep 2001, Hugh Dickins wrote:
 
-O. Wyss
+> On Thu, 13 Sep 2001, Marcelo Tosatti wrote:
+> > > > 
+> > > > CPU0			CPU1			CPU2
+> > > > do_swap_page()		try_to_swap_out()	swapin_readahead()
+> .....
+> > > > BOOM.
+> > > > 
+> > > > Now, if we get additional references at valid_swaphandles() the above race
+> > > > is NOT possible: we're guaranteed that any get_swap_page() will not find
+> > > 
+> > > Err I mean _will_ find the swap map entry used and not use it, then.
+> > > 
+> > > > the swap map entry used. See?
+> 
+> Yes, I see it now: had trouble with the line wrap!
+> 
+> Sure, that's one of the scenarios we were talking about, and getting
+> additional references in valid_swaphandles will stop that particular
+> race.
+> 
+> It won't stop the race with "bare" read_swap_cache_async (which can
+> happen with swapoff, or with vm_swap_full deletion if multithreaded),
+
+Could you please make a diagram of such a race ? 
+
+> and won't stop the race when valid_swaphandles->swap_duplicate comes
+> all between try_to_swap_out's get_swap_page and add_to_swap_cache.
+
+Oh I see:
+
+CPU0			CPU1
+
+try_to_swap_out()	swapin readahead
+
+get_swap_page()
+			valid_swaphandles()
+			swapduplicate()
+add_to_swap_cache()
+			add_to_swap_cache()
+
+BOOM.
+
+Is that what you mean ?
+
+> The first of those is significantly less likely than swapin_readahead
+> instance.  The second requires interrupt at the wrong moment: can
+> certainly happen, but again less likely.
+> 
+> Adding back reference bumping in valid_swaphandles would reduce the
+> likelihood of malign read_swap_cache_async/try_to_swap_out races,
+> but please don't imagine it's the final fix.
+
+Right. Now I see that the diagram I just wrote (thanks for making me
+understand it :)) has been there forever. Ugh. 
+

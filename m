@@ -1,93 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261897AbVANEzW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261910AbVANE60@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261897AbVANEzW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 23:55:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261906AbVANEzV
+	id S261910AbVANE60 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 23:58:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261894AbVANE6Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 23:55:21 -0500
-Received: from smtp015.mail.yahoo.com ([216.136.173.59]:22712 "HELO
-	smtp015.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261897AbVANEzG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 23:55:06 -0500
-Subject: Re: page table lock patch V15 [0/7]: overview
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-To: Andi Kleen <ak@muc.de>
-Cc: Christoph Lameter <clameter@sgi.com>, Andrew Morton <akpm@osdl.org>,
-       torvalds@osdl.org, hugh@veritas.com, linux-mm@kvack.org,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
-       benh@kernel.crashing.org
-In-Reply-To: <20050114043944.GB41559@muc.de>
-References: <41E5AFE6.6000509@yahoo.com.au>
-	 <20050112153033.6e2e4c6e.akpm@osdl.org> <41E5B7AD.40304@yahoo.com.au>
-	 <Pine.LNX.4.58.0501121552170.12669@schroedinger.engr.sgi.com>
-	 <41E5BC60.3090309@yahoo.com.au>
-	 <Pine.LNX.4.58.0501121611590.12872@schroedinger.engr.sgi.com>
-	 <20050113031807.GA97340@muc.de>
-	 <Pine.LNX.4.58.0501130907050.18742@schroedinger.engr.sgi.com>
-	 <20050113180205.GA17600@muc.de>
-	 <Pine.LNX.4.58.0501131701150.21743@schroedinger.engr.sgi.com>
-	 <20050114043944.GB41559@muc.de>
-Content-Type: text/plain
-Date: Fri, 14 Jan 2005 15:54:59 +1100
-Message-Id: <1105678499.5402.105.camel@npiggin-nld.site>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
-Content-Transfer-Encoding: 7bit
+	Thu, 13 Jan 2005 23:58:25 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:63943 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261910AbVANE5b (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 23:57:31 -0500
+Message-ID: <41E7509E.4030802@redhat.com>
+Date: Thu, 13 Jan 2005 20:54:54 -0800
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla Thunderbird  (X11/20041216)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Theodore Ts'o" <tytso@mit.edu>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: short read from /dev/urandom
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigF7E5E94D398A6E70B65D6C7B"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-01-14 at 05:39 +0100, Andi Kleen wrote:
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigF7E5E94D398A6E70B65D6C7B
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-> As you can see cmpxchg is slightly faster for the cache hot case,
-> but incredibly slow for cache cold (probably because it does something
-> nasty on the bus). This is pretty consistent to Intel and AMD CPUs.
-> Given that page tables are likely more often cache cold than hot 
-> I would use the lazy variant. 
-> 
+The /dev/urandom device is advertised as always returning the requested 
+number of bytes.  Yet, it fails to do this under some situations. 
+Compile this
 
-I have a question about your trickery with the read_pte function ;)
-
-pte_t read_pte(volatile pte_t *pte)
+int main (void)
 {
-	pte_t n;
-	do {
-		n.pte_low = pte->pte_low;
-		rmb();
-		n.pte_high = pte->pte_high;
-		rmb();
-	} while (n.pte_low != pte->pte_low);
-	return pte;
+   alarm (100);
+   char buf[32];
+   int fd = open ("/dev/urandom", 0);
+   while (1)
+     if (read (fd, buf, sizeof buf) != sizeof (buf))
+       abort ();
 }
 
-Versus the existing set_pte function. Presumably the order here
-can't be changed otherwise you could set the present bit before
-the high bit, and race with the hardware MMU?
+with
 
-static inline void set_pte(pte_t *ptep, pte_t pte)
-{
-        ptep->pte_high = pte.pte_high;
-        smp_wmb();
-        ptep->pte_low = pte.pte_low;
-}
-
-Now take the following interleaving:
-CPU0 read_pte                        CPU1 set_pte
-n.pte_low = pte->pte_low;
-rmb();
-                                     ptep->pte_high = pte.pte_high;
-                                     smp_wmb();
-n.pte_high = pte->pte_high;
-rmb();
-while (n.pte_low != pte->pte_low);
-return pte;
-                                     ptep->pte_low = pte.pte_low;
-
-So I think you can get a non atomic result. Are you relying on
-assumptions about the value of pte_low not causing any problems
-in the page fault handler?
-
-Or am I missing something?
+   gcc -o r r.c -g -O2 -pg
 
 
-Find local movie times and trailers on Yahoo! Movies.
-http://au.movies.yahoo.com
+Note the -pg at the end to enable profiling.  Running this code fails 
+for me after less than a second.
+
+The relevant code in the kernel is this 
+(drivers/char/random.c:extract_entropy)
+
+         while (nbytes) {
+                 /*
+                  * Check if we need to break out or reschedule....
+                  */
+                 if ((flags & EXTRACT_ENTROPY_USER) && need_resched()) {
+                         if (signal_pending(current)) {
+                                 if (ret == 0)
+                                         ret = -ERESTARTSYS;
+                                 break;
+                         }
+
+
+Here the loop is left prematurely if a signal is pending.
+
+One solution is to redefine the /dev/urandom interface.  The problem is 
+that this will cause program to fail.  I know since I found this while 
+debugging such a program.
+
+-- 
+➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖
+
+--------------enigF7E5E94D398A6E70B65D6C7B
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFB51Ce2ijCOnn/RHQRAuZ2AJsFGJHItPGM/LaOsSRZLJgWrUDp5wCfY5bw
+rHu2V5NIhouXoXdmtW/bS04=
+=xStf
+-----END PGP SIGNATURE-----
+
+--------------enigF7E5E94D398A6E70B65D6C7B--

@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262759AbUCJT77 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 14:59:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262801AbUCJT7z
+	id S262799AbUCJUEV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 15:04:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262803AbUCJUEV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 14:59:55 -0500
-Received: from fw.osdl.org ([65.172.181.6]:42373 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262759AbUCJT7o (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 14:59:44 -0500
-Date: Wed, 10 Mar 2004 12:01:45 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Miquel van Smoorenburg <miquels@cistron.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: /dev/root: which approach ? [PATCH]
-Message-Id: <20040310120145.248ae62d.akpm@osdl.org>
-In-Reply-To: <20040310162003.GA25688@cistron.nl>
-References: <20040310162003.GA25688@cistron.nl>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 10 Mar 2004 15:04:21 -0500
+Received: from fmr04.intel.com ([143.183.121.6]:29906 "EHLO
+	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
+	id S262799AbUCJUER (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Mar 2004 15:04:17 -0500
+Message-Id: <200403102003.i2AK3qm16576@unix-os.sc.intel.com>
+From: "Kenneth Chen" <kenneth.w.chen@intel.com>
+To: "'Andrew Morton'" <akpm@osdl.org>, "Jens Axboe" <axboe@suse.de>
+Cc: <linux-kernel@vger.kernel.org>, <thornber@redhat.com>
+Subject: RE: [PATCH] backing dev unplugging
+Date: Wed, 10 Mar 2004 12:03:52 -0800
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+Thread-Index: AcQG2W8rodshR8XpS2iBDfBt64JimwAADDbg
+In-Reply-To: <20040310115545.16cb387f.akpm@osdl.org>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miquel van Smoorenburg <miquels@cistron.nl> wrote:
+Andrew Morton wrote on Wednesday, March 10, 2004 11:56 AM
+> Jens Axboe <axboe@suse.de> wrote:
+> >
+> > Here's a first cut at killing global plugging of block devices to reduce
+> > the nasty contention blk_plug_lock caused. This introduceds per-queue
+> > plugging, controlled by the backing_dev_info.
 >
-> Currently if you boot from a blockdevice with a dynamically
-> allocated major number (such as LVM or partitionable raid),
-> there is no way to check the root filesystem. The root
-> fs is still read-only, so you cannot create a device node
-> anywhere to point fsck at.
-> 
-> This was discussed on the linux-raid mailinglist, and I proposed
-> (as proof of concept) a simple check in bdget() to see if the
-> device is being opened is the /dev/root node and if so redirect
-> it to the current root device. This is a 8-line patch, the only
-> disadvantage I can think of is that for an open file, inode->i_rdev
-> is then different from blockdevice->bd_dev.
+> This is such an improvement over what we have now it isn't funny.
+>
+> Ken, the next -mm is starting to look like linux-3.1.0 so I think it
+> would be best if you could benchmark Jens's patch against 2.6.4-rc2-mm1.
 
-The /dev/root alias resolution looks nice to me, which probably means that
-it has a fatal flaw.
+I'm planning on couple experiments: one is just Jens's change on top of
+what we have so we can validate the backing dev unplug. Then we will run
+2.6.4-rc2-mm1 + Jens's patch.
 
-Is it not possible to create a device node on ramfs or ramdisk and point
-fsck at that?
+- Ken
+
 

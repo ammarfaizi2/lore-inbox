@@ -1,53 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262420AbUK3XSO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262440AbUK3X0Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262420AbUK3XSO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 18:18:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262432AbUK3XK1
+	id S262440AbUK3X0Y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 18:26:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262456AbUK3XWr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 18:10:27 -0500
-Received: from fw.osdl.org ([65.172.181.6]:8357 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262420AbUK3XGu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 18:06:50 -0500
-Date: Tue, 30 Nov 2004 15:05:43 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Mariusz Mazur <mmazur@kernel.pl>
-cc: Alexandre Oliva <aoliva@redhat.com>, David Howells <dhowells@redhat.com>,
-       Paul Mackerras <paulus@samba.org>, Greg KH <greg@kroah.com>,
-       David Woodhouse <dwmw2@infradead.org>, Matthew Wilcox <matthew@wil.cx>,
-       hch@infradead.org, linux-kernel@vger.kernel.org,
-       libc-hacker@sources.redhat.com
-Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
-In-Reply-To: <200411302352.51849.mmazur@kernel.pl>
-Message-ID: <Pine.LNX.4.58.0411301503470.22796@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0411290926160.22796@ppc970.osdl.org>
- <orekibrpmn.fsf@livre.redhat.lsd.ic.unicamp.br> <Pine.LNX.4.58.0411301423030.22796@ppc970.osdl.org>
- <200411302352.51849.mmazur@kernel.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 30 Nov 2004 18:22:47 -0500
+Received: from rev.193.226.233.139.euroweb.hu ([193.226.233.139]:22401 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S262459AbUK3XTo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Nov 2004 18:19:44 -0500
+To: avi@argo.co.il
+CC: alan@lxorguk.ukuu.org.uk, torvalds@osdl.org, hbryan@us.ibm.com,
+       akpm@osdl.org, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, pavel@ucw.cz
+In-reply-to: <41ACFAE7.2050002@argo.co.il> (message from Avi Kivity on Wed, 01
+	Dec 2004 00:57:43 +0200)
+Subject: Re: [PATCH] [Request for inclusion] Filesystem in Userspace
+References: <OF28252066.81A6726A-ON88256F50.005D917A-88256F50.005EA7D9@us.ibm.com>	 <E1CUq57-00043P-00@dorka.pomaz.szeredi.hu>	 <Pine.LNX.4.58.0411180959450.2222@ppc970.osdl.org> <1100798975.6018.26.camel@localhost.localdomain> <41A47B67.6070108@argo.co.il> <E1CWwqF-0007Ng-00@dorka.pomaz.szeredi.hu> <41ACBF87.4040206@argo.co.il> <E1CZDUf-0004jM-00@dorka.pomaz.szeredi.hu> <41ACD03C.9010300@argo.co.il> <E1CZFJP-0004uZ-00@dorka.pomaz.szeredi.hu> <41ACE816.50104@argo.co.il> <E1CZG1J-0004zW-00@dorka.pomaz.szeredi.hu> <41ACFAE7.2050002@argo.co.il>
+Message-Id: <E1CZHH7-0005Ev-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Wed, 01 Dec 2004 00:19:13 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+> If you plan on partitioning system memory into none-fuse and fuse 
+> memory, yes, that could work. but it's horribly inflexible - right now 
+> memory is balanced dynamically according to actual use. 
 
-On Tue, 30 Nov 2004, Mariusz Mazur wrote:
-> 
-> Userland? And who's using vanilla kernel headers in userland? Duplicates 
-> maintainers can always fix stuff independent of kernel (and I do).
+No partitioning is needed.  If fuse doesn't consume too much memory
+for dirty data buffers that memory is free to use for other purposes.
 
-Dammit, how hard is it for people to admit that they aren't the only ones 
-around?
+But fuse would be limited in the number of pages which it can use for
+dirty buffers exactly to prevent it from causing OOM.
 
-There are still people who use ancient setups, and upgrade the kernel. 
-They won't complain to _you_ or to redhat when their setup breaks, because 
-they aren't _using_ your setup. They complain to me.
+> you may also have a hard time with mmap.
 
-This is what statisticians call "self-selection". It means that you guys 
-only see the part of the world that uses your stuff, so you think that 
-there is nothing else. 
+What sort?  You can mmap a 4G file on a machine with 32M memory.  More
+memory can improve performance, of course, but otherwise the amount of
+memory doesn't matter.
 
-> I don't get your point.
+> my proposal (with the per-process allocation thredsholds) only reserves 
+> a small amount of memory to the fuse(s), with the rest allocated 
+> dynamically using the normal kernel policies, with no special 
+> restrictions on fuse.
 
-Very obviously. 
+Yes, but what you reserve (which may be large for some filesystems) is
+totally unusable memory except in the special case of helping writeout
+in low memory situation, while in my solution the rest of the system
+is not limited only the fuse filesystem.
 
-		Linus
+There's not that much difference between what we are saying, but as I
+said, I detest the thought, that the filesystem process has to be
+special, and I'm prepared to give up some flexibility and performance
+for this.
+
+Miklos

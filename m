@@ -1,97 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288071AbSACA2G>; Wed, 2 Jan 2002 19:28:06 -0500
+	id <S288038AbSACAvF>; Wed, 2 Jan 2002 19:51:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288055AbSACA0t>; Wed, 2 Jan 2002 19:26:49 -0500
-Received: from admin.nni.com ([216.107.0.51]:48391 "EHLO admin.nni.com")
-	by vger.kernel.org with ESMTP id <S288050AbSACAZy>;
-	Wed, 2 Jan 2002 19:25:54 -0500
-From: "Andrew Rodland" <arodland@noln.com>
-Subject: Re: CML2 funkiness
-To: "Eric S. Raymond" <esr@thyrsus.com>
-Cc: linux-kernel@vger.kernel.org, David Relson <relson@osagesoftware.com>
-X-Mailer: CommuniGate Pro Web Mailer v.3.5
-Date: Wed, 02 Jan 2002 19:25:54 -0500
-Message-ID: <web-54762824@admin.nni.com>
-In-Reply-To: <4.3.2.7.2.20020102100856.00e78f00@mail.osagesoftware.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	id <S288100AbSACAt3>; Wed, 2 Jan 2002 19:49:29 -0500
+Received: from NILE.GNAT.COM ([205.232.38.5]:3810 "HELO nile.gnat.com")
+	by vger.kernel.org with SMTP id <S288096AbSACAtQ>;
+	Wed, 2 Jan 2002 19:49:16 -0500
+From: dewar@gnat.com
+To: dewar@gnat.com, jtv@xs4all.nl
+Subject: Re: [PATCH] C undefined behavior fix
+Cc: gcc@gcc.gnu.org, jbuck@synopsys.COM, linux-kernel@vger.kernel.org,
+        linuxppc-dev@lists.linuxppc.org, paulus@samba.org,
+        trini@kernel.crashing.org, velco@fadata.bg
+Message-Id: <20020103004916.20ABCF2EC4@nile.gnat.com>
+Date: Wed,  2 Jan 2002 19:49:16 -0500 (EST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Actually, I had 1.9.16, but it looks like the same problem
- (and it seems like it's been around for a bit).
-I'm definitely seeing the same thing as David, except the
- symbols I'm seeing are:
+<<At the risk of going off topic, you can take the non-element's address but
+you can't actually touch it.  So provided your architecture supports
+pointer arithmetic beyond the end of the segment, your only remaining
+worries are (1) that you don't stumble into the NULL address (which need
+not be zero), and (2) that the address isn't reused as a valid element of
+something else.  I'm not so sure the latter is even a requirement.
+>>
 
-DANGEROUS: Prompt for features that can trash data.
- (DANGEROUS) [ ] (NEW)?:
-DEVELOPMENT: Configure a development or 2.5 kernel?
- (EXPERIMENTAL) [ ] (NEW)?:
-ISA_CARDS: Support for ISA-bus cards. [Y] (NEW)?:
-
-
-On Wed, 02 Jan 2002 10:10:42 -0500
- David Relson <relson@osagesoftware.com> wrote:
-> At 09:03 AM 1/2/02, Andrew Rodland wrote:
-> >First off, I'd like to apologize for lack of all the
-> > information I'd like to have, I'm at school, and
-> > temporarily semidisconnected at home.
-> >
-> >CML2 is definitely still not quite right for me
-> >(2.4.17 + kpreempt-rml, latest CML2 as of 3ish days
->  ago).
-> >
-> >Menuconfig and friends seem okay, as far as I can tell
->  (and
-> > they've apparently been tested pretty well), but
->  oldconfig
-> > is wacky...
-> >
-> >So, "mv config .config ; make mrproper ; mv config
->  .config
-> > ; make oldconfig" does odd things to my config, but
->  more
-> > in-your-face, on "make oldconfig ; make oldconfig" (ad
-> > inifinitum if you want), it will continue asking the
->  same
-> > questions, and never remember the answer.
-> 
-> Andrew,
-> 
-> I have just tested this, and have reproduced your
->  problem.  Using kernel-2.4.16 and cml2-1.2.20, i.e. my
->  current kernel and the latest CML2, I ran "make
->  oldconfig" three times.  The first time I answered "n"
->  to 21 queries.  The second and third times, I had to
->  answer "n" to 9 queries.  The 9 all appeared in the
->  first run and were exactly the same in the second and
->  third runs.
-> 
-> Here're the 9 queries from runs 2 and 3:
-> EXPERT: Prompt for expert choices (those with no help
->  attached) (EXPERIMENTAL) [ ] (NEW)?:
-> DEVELOPMENT: Configure a development or 2.5 kernel?
->  (EXPERIMENTAL) [ ] (NEW)?:
-> CD_NO_IDESCSI: Support CD-ROM drives that are not SCSI or
->  IDE/ATAPI [ ] (NEW)?:
-> IP_ADVANCED_ROUTER: Advanced router [ ] (NEW)?:
-> NET_VENDOR_SMC: Western Digital/SMC cards [ ] (NEW)?:
-> NET_VENDOR_RACAL: Racal-Interlan (Micom) NI cards [ ]
->  (NEW)?:
-> NET_POCKET: Pocket and portable adapters [ ] (NEW)?:
-> HAMRADIO: Amateur Radio support [ ] (NEW)?:
-> FBCON_FONTS: Select other compiled-in fonts [ ] (NEW)?:
-> 
-> From past testing of CML2 I know it uses file config.out
->  as its 
-> "memory".  Looking in it, I didn't see any CONFIG symbols
->  for these symbols.
-> 
-> There's definitely something here for Eric to fix!
-> 
-> David
-> 
-> 
-
+Ah! But you can compare it, and on a segmented architecture like the 286,
+the address just past the end of the array can wrap to zero if the array
+is allocated right up to the end of the segment. This is not theory, at
+least one C compiler on the 286 had this bug!

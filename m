@@ -1,50 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263129AbTCWR33>; Sun, 23 Mar 2003 12:29:29 -0500
+	id <S263087AbTCWR3Y>; Sun, 23 Mar 2003 12:29:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263130AbTCWR33>; Sun, 23 Mar 2003 12:29:29 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:47523
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S263129AbTCWR31>; Sun, 23 Mar 2003 12:29:27 -0500
+	id <S263129AbTCWR3Y>; Sun, 23 Mar 2003 12:29:24 -0500
+Received: from AMarseille-201-1-1-164.abo.wanadoo.fr ([193.252.38.164]:49193
+	"EHLO zion.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S263087AbTCWR3X>; Sun, 23 Mar 2003 12:29:23 -0500
 Subject: Re: Need help for pci driver on powerpc
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 To: Christian Jaeger <christian.jaeger@ethlife.ethz.ch>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: linux-kernel@vger.kernel.org
 In-Reply-To: <20030323171955Z263126-25575+35740@vger.kernel.org>
 References: <20030323171955Z263126-25575+35740@vger.kernel.org>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Organization: 
-Message-Id: <1048445586.10727.58.camel@irongate.swansea.linux.org.uk>
+Message-Id: <1048441282.582.5.camel@zion.wanadoo.fr>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 23 Mar 2003 18:53:08 +0000
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 23 Mar 2003 18:41:22 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-03-23 at 17:30, Christian Jaeger wrote:
-> - What does pci_resource_start return, a phys/virt/bus address?
+On Sun, 2003-03-23 at 18:30, Christian Jaeger wrote:
+> Hello
+> 
+> Somehow I can't access a PCI card on a PowerMac.  I once wrote a
+> driver for this card on MacOS8, but that does not seem to help me so
+> far.
+> 
+> It's a digital I/O card Computer Boards PCI-DIO96H showing this info
+> in lspci -vvn:
+> 
+> 00:0e.0 Class ffff: 1307:0017 (rev 02) (prog-if ff)
+>         Subsystem: 1307:0017
+>         Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+>         Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+>         Interrupt: pin A routed to IRQ 24
+>         Region 1: I/O ports at 0800 [disabled] [size=128]
+>         Region 2: I/O ports at 0880 [disabled] [size=16]
+> 
+> This is what I am doing (irrelevant parts stripped):
+>     error= pci_enable_device(mydevicep);
+>     mybase1_phys= pci_resource_start(dev, 2);
+>     mybase1length= pci_resource_len(dev,2);
+>     // gives: address 0x00000880, len 16
+>     error = pci_request_regions (dev, NAME);
+>     pci_set_master (dev);
+>     mybase1= (unsigned long)ioremap(mybase1_phys,mybase1length);
+>     // gives: 0, while the following is printed to the kernel log:
+>     // __ioremap(): phys addr 0 is RAM lr c0010c34
 
-Normally a pci bus address, but its really a cookie 
+According to lspci output, the resources for your card are of type
+"IO", not "memory". You use ioremap only for the later.
+If you are not sure about the resource type, look at the resource
+flags.
 
-> - What does ioremap expect?
+So instead of using ioremap along with {read,write}{b,w,l} accessors,
+use the output of pci_resource_start() directly with {in,out}{b,w,l}
+(and eventually {in,out}s{w,l} for non-byteswapped "stream" access).
 
-The same cookie
-
-> - do I need pci_set_master? Which other PCI calls are important?
-
-You need enable_device, and before you touch the others. That should
-ensure the hardware is in D0 (active) not powersaving or some other
-inconvenience
-
-
-Basically the logic goes
-
-Ask the pci layer for pci register values
-Feed values to ioremap
-Get a cookie for use with readb/readw/readl etc
-
-The return of ioremap may be a physical mapping, it might be the
-cpu view of the bus address, or something else. 
-
+Ben.
 

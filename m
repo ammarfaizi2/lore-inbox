@@ -1,46 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261615AbTJ2VU5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Oct 2003 16:20:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261684AbTJ2VU5
+	id S261684AbTJ2VZg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Oct 2003 16:25:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261699AbTJ2VZg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Oct 2003 16:20:57 -0500
-Received: from havoc.gtf.org ([63.247.75.124]:2434 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S261615AbTJ2VUz (ORCPT
+	Wed, 29 Oct 2003 16:25:36 -0500
+Received: from ns.suse.de ([195.135.220.2]:19842 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261684AbTJ2VZe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Oct 2003 16:20:55 -0500
-Date: Wed, 29 Oct 2003 16:20:54 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: [BK PATCHES] 2.4.x experimental net driver queue
-Message-ID: <20031029212054.GA6445@gtf.org>
+	Wed, 29 Oct 2003 16:25:34 -0500
+Date: Wed, 29 Oct 2003 22:24:54 +0100
+From: Andi Kleen <ak@suse.de>
+To: George Anzinger <george@mvista.com>
+Cc: jim.houston@ccur.com, linux-kernel@vger.kernel.org
+Subject: Re: Is there a kgdb for Opteron for linux-2.6?
+Message-Id: <20031029222454.7ec07a9e.ak@suse.de>
+In-Reply-To: <3FA02DCF.4080906@mvista.com>
+References: <1066678923.1007.164.camel@new.localdomain>
+	<20031024135112.GE2286@wotan.suse.de>
+	<3F9EF206.1040105@mvista.com>
+	<20031029002517.47d8f329.ak@suse.de>
+	<3FA02DCF.4080906@mvista.com>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 29 Oct 2003 13:14:55 -0800
+George Anzinger <george@mvista.com> wrote:
 
-BK users:
+> Andi Kleen wrote:
+> > On Tue, 28 Oct 2003 14:47:34 -0800
+> > George Anzinger <george@mvista.com> wrote:
+> > 
+> > 
+> > 
+> >>I see that Andrew has not picked up my latest kgdb.  In the latest version I 
+> >>have the dwarf2 stuff working in entry.S.  Just ask, off list.
+> > 
+> > 
+> > Do you use the .cfi* mnemonics in newer binutils? Without that it would get ugly.
+> 
+> I use asm mnemonics .uleb*, .sleb*, .byte and .long.  For operands I use the 
+> defines in dwarf2.h (after fixing them to work with asm).  These are, for the 
+> most part DW_CFA_* and other DW_* things.  I put this together to build macros 
+> (CCP) so that I can code things like:
 
-	bk pull bk://kernel.bkbits.net/jgarzik/net-drivers-2.4-exp
+The latest binutils has new .cfi_* mnemonics in gas that make writing such a table
+much cleaner and easier. My plan was to use that. It would require new binutils,
+but make future mainteance much easier. When people don't have the new binutils
+it can be defined away.
 
-Patch:
-ftp://ftp.kernel.org/pub/linux/kernel/people/jgarzik/patchkits/2.4/2.4.22-bk43-netdrvr-exp1.patch.bz2
+See http://www.logix.cz/~mic/devel/gas-cfi/
 
-This will update the following files:
+> 
+> Which allows "bt" through entry.S code.  I did not try to allow you to get the 
+> correct answer if you stop in the middle of the register save or restore code.
 
- drivers/net/8139too.c    |   51 +++++++++++++++--------
- drivers/net/Makefile.lib |    1 
- drivers/net/natsemi.c    |  101 +++++++++++++++--------------------------------
- 3 files changed, 68 insertions(+), 85 deletions(-)
+On x86-64 it is unfortunately more complicated because it has a separate interrupt
+or exception stack. The backtracker has to read the old stack pointer from the 
+frame. This can be expressed in dwarf2, but is a bit tricky.
 
-through these ChangeSets:
+-Andi
 
-<jgarzik@redhat.com> (03/10/14 1.1148.17.2)
-   [netdrvr natsemi] backport 2.6 fixes and cleanups
-
-<krishnakumar@naturesoft.net> (03/10/14 1.1148.17.1)
-   [netdrvr 8139too] support netif_msg_* interface
 

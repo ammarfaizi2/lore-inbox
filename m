@@ -1,55 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263837AbSKIBKN>; Fri, 8 Nov 2002 20:10:13 -0500
+	id <S263899AbSKIBMC>; Fri, 8 Nov 2002 20:12:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263899AbSKIBKN>; Fri, 8 Nov 2002 20:10:13 -0500
-Received: from rwcrmhc51.attbi.com ([204.127.198.38]:51878 "EHLO
-	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP
-	id <S263837AbSKIBKM>; Fri, 8 Nov 2002 20:10:12 -0500
-Date: Fri, 8 Nov 2002 17:02:13 -0500
-To: Pavel Machek <pavel@suse.cz>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: The return of the return of crunch time (2.5 merge candidate list 1.6)
-Message-ID: <20021108220213.GC16051@pimlott.net>
-Mail-Followup-To: Pavel Machek <pavel@suse.cz>, Andi Kleen <ak@suse.de>,
-	linux-kernel@vger.kernel.org
-References: <200210251557.55202.landley@trommello.org.suse.lists.linux.kernel> <p7365vptz49.fsf@oldwotan.suse.de> <20021026190906.GA20571@pimlott.net> <20021027080125.A14145@wotan.suse.de> <20021027152038.GA26297@pimlott.net> <20021028053004.C2558@wotan.suse.de> <20020115174416.GC2015@zaurus>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020115174416.GC2015@zaurus>
-User-Agent: Mutt/1.3.28i
-From: Andrew Pimlott <andrew@pimlott.net>
+	id <S263956AbSKIBMC>; Fri, 8 Nov 2002 20:12:02 -0500
+Received: from fed1mtao04.cox.net ([68.6.19.241]:61597 "EHLO
+	fed1mtao04.cox.net") by vger.kernel.org with ESMTP
+	id <S263899AbSKIBMB>; Fri, 8 Nov 2002 20:12:01 -0500
+Message-ID: <054801c2878d$dc425b70$0200a8c0@cirilium.com>
+From: "Mark Hamblin" <MarkHamblin@cox.net>
+To: "linux-kernel" <linux-kernel@vger.kernel.org>
+References: <3DCC5DA4.2010707@gmx.net>
+Subject: [QUESTION] Can't make 2.5.46 due to errors with llc_sap_open, etc
+Date: Fri, 8 Nov 2002 18:17:34 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 15, 2002 at 12:44:28PM -0500, Pavel Machek wrote:
-> > The point of my patchkit is to allow the file systems
-> > who support better resolution to handle it properly. Other filesystems
-> > are not worse than before when they flush inodes (and better off when
-> > they keep everything in ram for your build because then they will enjoy 
-> > full time resolution) 
-> 
-> What about always rounding down even when inode is
-> in memory? That is both simple and consistent.
+I have the 2.5.46 make working up to the errors below.  I am doing this so I
+can test with the new epoll features.  To get this far, all I had to do was
+apply a patch I found in the 2.5.45-ac1 tree (to address some errors in
+net/ipv4/ipmr.c).  Do I need to disable LLC?  Or enable something so LLC
+gets included in the make?  Is there a more stable release that includes the
+epoll support?  I am running RedHat 7.3.  Any help is greatly appreciated.
 
-I assume you mean, for filesystems that don't support high
-resolution.  That is what I think should be done as well.  People
-have gotten along with second resolution all these years, so it's no
-great tragedy to make them continue; plus, it seems like the common
-filesystems will support high resolution soon anyway.
+- Mark
 
-Paul Eggert listed lots of programs that could be broken if
-timestamps jump around.  They could all implement heuristic
-work-arounds, but that would be 1) a miracle and 2) a waste of
-effort.
+        ld -m elf_i386 -e stext -T arch/i386/vmlinux.lds.s
+arch/i386/kernel/head.o arch/i386/kernel/init_task.o
+ init/built-in.o --start-group  usr/built-in.o  arch/i386/kernel/built-in.o
+arch/i386/mm/built-in.o  arch/i386/mach-generic/built-in.o
+kernel/built-in.o  mm/built-in.o  fs/built-in.o  ipc/built-in.o
+security/built-in.o  crypto/built-in.o  lib/lib.a  arch/i386/lib/lib.a
+drivers/built-in.o  sound/built-in.o  arch/i386/pci/built-in.o
+net/built-in.o --end-group  -o .tmp_vmlinux1
+net/built-in.o: In function `p8022_request':
+net/built-in.o(.text+0xe56b): undefined reference to
+`llc_build_and_send_ui_pkt'
+net/built-in.o: In function `register_8022_client':
+net/built-in.o(.text+0xe5bd): undefined reference to `llc_sap_open'
+net/built-in.o: In function `unregister_8022_client':
+net/built-in.o(.text+0xe5ea): undefined reference to `llc_sap_close'
+net/built-in.o: In function `snap_request':
+net/built-in.o(.text+0xe736): undefined reference to
+`llc_build_and_send_ui_pkt'
+net/built-in.o: In function `snap_init':
+net/built-in.o(.init.text+0x55b): undefined reference to `llc_sap_open'
+make: *** [.tmp_vmlinux1] Error 1
 
-The only issue (as far as I can tell) is knowing when to round.
-Hard-coding a list of filesystems seems reasonable (though even that
-could be wrong if I load a newer filesystem module).  Ideally,
-though, you would add a simple hook into the filesystem that asks it
-to round the timestamp for you.  This would also accommodate
-filesystems that don't store seconds or nanoseconds, but some other
-resolution.
 
-Andrew

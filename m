@@ -1,42 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279556AbRLLMd3>; Wed, 12 Dec 2001 07:33:29 -0500
+	id <S279313AbRLLNSi>; Wed, 12 Dec 2001 08:18:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279768AbRLLMdT>; Wed, 12 Dec 2001 07:33:19 -0500
-Received: from wapwas2.cytanet.com.cy ([195.14.133.169]:22248 "EHLO
-	wapwas2.cytanet.com.cy") by vger.kernel.org with ESMTP
-	id <S279556AbRLLMdJ>; Wed, 12 Dec 2001 07:33:09 -0500
-From: Sinisa Milivojevic <sinisa@mysql.com>
+	id <S279778AbRLLNS2>; Wed, 12 Dec 2001 08:18:28 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:56844 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S279313AbRLLNSO>; Wed, 12 Dec 2001 08:18:14 -0500
+Subject: Re: [PATCH] /proc/net/dev counter fix, linux-2.5.0
+To: miipekk@ihme.org (Miika Pekkarinen)
+Date: Wed, 12 Dec 2001 13:27:18 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0112121210500.972-100000@ihme.org> from "Miika Pekkarinen" at Dec 12, 2001 12:12:31 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15383.20409.442113.164917@sinisa.nasamreza.org>
-Date: Wed, 12 Dec 2001 14:38:17 +0200
-To: alan@lxorguk.ukuu.org.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.16 and gcc 3.0.2
-In-Reply-To: <E16DvOt-0006wQ-00@the-village.bc.nu>
-In-Reply-To: <15382.8806.167316.426217@sinisa.nasamreza.org>
-	<E16DvOt-0006wQ-00@the-village.bc.nu>
-X-Mailer: VM 6.96 under 21.4 (patch 4) "Artificial Intelligence" XEmacs Lucid
-Reply-To: sinisa@mysql.com
+Message-Id: <E16E9Pq-00014Y-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox writes:
-> > I have built 2.4.16 with 3.0.2 and when kernel reboots, it gets
-> > segmentation violation at this command in init file:
-> 
-> Rebuild with 2.95 or 2.96
-> 
+> I have made a patch to fix the counter values in /proc/net/dev. The
+> problem was that the tx_bytes and rx_bytes will reset when ~4GB is
+> transferred. This patch has been tested to work with linux-2.5.0 but it
+> should work on all 2.4.* kernels. Also it should work with most of the
+> interface cards but not all yet.
 
-Thanks.
-
--- 
-Regards,
-   __  ___     ___ ____  __
-  /  |/  /_ __/ __/ __ \/ /    Mr. Sinisa Milivojevic <sinisa@mysql.com>
- / /|_/ / // /\ \/ /_/ / /__   MySQL AB, Fulltime Developer
-/_/  /_/\_, /___/\___\_\___/   Larnaca, Cyprus
-       <___/   www.mysql.com
-
+It's something we've always avoided doing. A long long is expensive to
+update and not an atomic type on things like the x86. The firewalling 
+facilities let you collect 64bit accounting data if you need it

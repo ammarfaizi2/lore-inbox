@@ -1,46 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267628AbUHTHRv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267597AbUHTHPP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267628AbUHTHRv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 03:17:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267620AbUHTHPm
+	id S267597AbUHTHPP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 03:15:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267620AbUHTHPO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 03:15:42 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:65258 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S267602AbUHTHPK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 03:15:10 -0400
-Subject: Re: [patch] voluntary-preempt-2.6.8.1-P4
-From: Lee Revell <rlrevell@joe-job.com>
-To: karl.vogel@seagha.com
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <m3brh6g8yi.fsf@seagha.com>
-References: <20040816033623.GA12157@elte.hu>
-	 <1092627691.867.150.camel@krustophenia.net>
-	 <20040816034618.GA13063@elte.hu> <1092628493.810.3.camel@krustophenia.net>
-	 <20040816040515.GA13665@elte.hu> <1092654819.5057.18.camel@localhost>
-	 <20040816113131.GA30527@elte.hu> <20040816120933.GA4211@elte.hu>
-	 <1092716644.876.1.camel@krustophenia.net> <20040817080512.GA1649@elte.hu>
-	 <20040819073247.GA1798@elte.hu> <m31xi3j901.fsf@seagha.com>
-	 <m3brh6g8yi.fsf@seagha.com>
-Content-Type: text/plain
-Message-Id: <1092986189.10063.54.camel@krustophenia.net>
+	Fri, 20 Aug 2004 03:15:14 -0400
+Received: from fw.osdl.org ([65.172.181.6]:64141 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267597AbUHTHNp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 03:13:45 -0400
+Date: Fri, 20 Aug 2004 00:11:54 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       viro@parcelfarce.linux.theplanet.co.uk, nickpiggin@yahoo.com.au
+Subject: Re: Possible dcache BUG
+Message-Id: <20040820001154.0a5cf331.akpm@osdl.org>
+In-Reply-To: <20040820000238.55e22081@laptop.delusion.de>
+References: <Pine.LNX.4.44.0408020911300.10100-100000@franklin.wrl.org>
+	<20040808113930.24ae0273.akpm@osdl.org>
+	<200408100012.08945.gene.heskett@verizon.net>
+	<200408102342.12792.gene.heskett@verizon.net>
+	<Pine.LNX.4.58.0408102044220.1839@ppc970.osdl.org>
+	<20040810211849.0d556af4@laptop.delusion.de>
+	<Pine.LNX.4.58.0408102201510.1839@ppc970.osdl.org>
+	<Pine.LNX.4.58.0408102213250.1839@ppc970.osdl.org>
+	<20040812180033.62b389db@laptop.delusion.de>
+	<Pine.LNX.4.58.0408121813190.1839@ppc970.osdl.org>
+	<20040820000238.55e22081@laptop.delusion.de>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 20 Aug 2004 03:16:29 -0400
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-08-19 at 16:37, karl.vogel@seagha.com wrote:
-> The following latency trace is generated each time the sound driver is opened
-> by an application on my box.
-> 
+"Udo A. Steinberg" <us15@os.inf.tu-dresden.de> wrote:
+>
+> I've tried to download 700 MB of data from a digital camera via USB using
+>  "gphoto2 --get-all-files" and I can repeatedly run my 128 MB box out of
+>  memory using either Linux 2.4.26 or 2.6.8.1 for that.
 
-This is a pretty big trace.  Please try to trim these, especially if a
-few lines repeat hundreds of times (common).
+whee.  How much swap is online?
 
-The comment seems to imply that the author didn't like the mdelay but it
-didn't work otherwise.  What happens if you get rid of the mdelay?
+Not that it matters - you seem to have a bunch of reclaimable pagecache
+just sitting there.  Very odd.
 
-Lee
-
+Could gphoto2 be using mlock?  Does it run as root?

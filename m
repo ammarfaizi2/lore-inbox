@@ -1,92 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262585AbUKLRv6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262586AbUKLRx2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262585AbUKLRv6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Nov 2004 12:51:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262586AbUKLRv6
+	id S262586AbUKLRx2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Nov 2004 12:53:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262588AbUKLRx2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Nov 2004 12:51:58 -0500
-Received: from mail.aei.ca ([206.123.6.14]:10184 "EHLO aeimail.aei.ca")
-	by vger.kernel.org with ESMTP id S262585AbUKLRvy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Nov 2004 12:51:54 -0500
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm3-V0.7.25-1
-From: Shane Shrybman <shrybman@aei.ca>
-To: "K.R. Foley" <kr@cybsft.com>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Mark_H_Johnson@Raytheon.com, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
-       Amit Shah <amit.shah@codito.com>
-In-Reply-To: <4194F294.4000908@cybsft.com>
-References: <20041022155048.GA16240@elte.hu> <20041022175633.GA1864@elte.hu>
-	 <20041025104023.GA1960@elte.hu> <20041027001542.GA29295@elte.hu>
-	 <20041103105840.GA3992@elte.hu> <20041106155720.GA14950@elte.hu>
-	 <20041108091619.GA9897@elte.hu> <20041108165718.GA7741@elte.hu>
-	 <20041109160544.GA28242@elte.hu> <20041111144414.GA8881@elte.hu>
-	 <20041111215122.GA5885@elte.hu> <1100269881.10971.6.camel@mars>
-	 <4194F294.4000908@cybsft.com>
-Content-Type: text/plain
-Message-Id: <1100281851.10971.15.camel@mars>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 12 Nov 2004 12:50:52 -0500
-Content-Transfer-Encoding: 7bit
+	Fri, 12 Nov 2004 12:53:28 -0500
+Received: from mms3.broadcom.com ([63.70.210.38]:4359 "EHLO mms3.broadcom.com")
+	by vger.kernel.org with ESMTP id S262586AbUKLRwe convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Nov 2004 12:52:34 -0500
+X-Server-Uuid: 062D48FB-9769-4139-967C-478C67B5F9C9
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Subject: RE: [PATCH] pci-mmconfig fix for 2.6.9
+Date: Fri, 12 Nov 2004 09:52:17 -0800
+Message-ID: <B1508D50A0692F42B217C22C02D84972020F3C99@NT-IRVA-0741.brcm.ad.broadcom.com>
+Thread-Topic: [PATCH] pci-mmconfig fix for 2.6.9
+Thread-Index: AcTHxD1dIvWKB170S7i0ZznDIcHSdAAR51xAADSs9bA=
+From: "Michael Chan" <mchan@broadcom.com>
+To: "Andi Kleen" <ak@suse.de>
+cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       akpm@osdl.org, greg@kroah.com,
+       "Durairaj, Sundarapandian" <sundarapandian.durairaj@intel.com>
+X-WSS-ID: 6D8A27D81TG2663811-01-01
+Content-Type: text/plain;
+ charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-11-12 at 12:27, K.R. Foley wrote:
-> Shane Shrybman wrote:
-> > On Thu, 2004-11-11 at 16:51, Ingo Molnar wrote:
-> > 
-> >>i have released the -V0.7.25-1 Real-Time Preemption patch, which can be
-> >>downloaded from the usual place:
-> >>
-> >>    http://redhat.com/~mingo/realtime-preempt/
-> >>
-> >>this is a fixes-only release that resolves a couple of bugs that slipped
-> >>into -V0.7.25-0:
-> >>
-> >> - lockup/deadlock fix: make debug_direct_keyboard default to 0. It is
-> >>   only a debug helper to be used for development, it was never intended
-> >>   to be enabled. This fix should resolve the bugs reported by Gunther
-> >>   Persoons and Mark H. Johnson.
-> > 
-> > 
-> > Ahh, that probably explains the problems I had with it!
-> > 
-> > V0.7.25-1 has been stable here with the ivtv driver for 11 hrs. No sign
-> > of the ide dma time out issue either. Out of curiosity, do we know what
-> > solved that problem?
-> > 
-> > Regards,
-> > 
-> > Shane
-> > 
-> 
-> What sort of errors did you get about the ide dma timeouts?
-> 
+On Wednesday, November 10, 2004 11:58 PM Andi Kleen wrote:
+> Where is it guaranteed that these writes are non posted?
 
-Typical example of the error message:
+Intel chipset engineer confirmed that they are non-posted. Here are
+excerpts from some email exchange with Intel. We reported the
+out-of-spec dummy read problem to Intel a while back.
 
-kernel: hde: dma_timer_expiry: dma status == 0x24
-kernel: ALSA sound/core/pcm_native.c:1424: playback drain error (DMA or IRQ trouble?)
-kernel: PDC202XX: Primary channel reset.
-kernel: hde: DMA interrupt recovery
-kernel: hde: lost interrupt
+Begin forwarded message:
 
-This was on a Promise TX2 133 ide card with one IDE disk. The problem
-would show itself if using the RT patches and APIC. But the problem seems
-to have been resolved now.
+Hi Michael,
 
-> kr
-> 
+I have checked our chipset engineer. He specified that the mmconfig is
+truly non posted and memory cycles will be completed only after the
+config write are finished.
 
-Regards,
+So I think flushing is not necessary and readl can be removed.
 
-Shane
+Thanks,
+Sundar
+
+-----Original Message-----
+From: Michael Chan [mailto:mchan@broadcom.com] 
+Sent: Friday, November 05, 2004 5:08 AM
+To: Durairaj, Sundarapandian
+Subject: RE: MMCONFIG Bug
+
+Hi Sundar,
+
+Thanks for the update. I agree that config cycles are non-posted and
+therefore flushing is unnecessary. However, since config cycles are not
+directly generated by the CPU, it is a bit more complicated. When the
+CPU issues the memory cycle (writel) to the chipset, the chipset will
+translate the memory cycle into a PCI Express config request on the
+appropriate PCI Express link. The target device will then return a
+completion.
+
+Is the memory cycle to the chipset posted or not? In other words, does
+the chipset complete the memory cycle before issuing the config cycle,
+or does it issue the config cycle and wait for completion before
+completing the memory cycle (writel) from the CPU? If the latter is
+true, then it is unnecessary to flush the writel as it is truly
+non-posted. If the former is true, I think flushing is still necessary.
+Just wanted to confirm this.
+
+Thanks,
+Michael
+
 

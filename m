@@ -1,119 +1,165 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265763AbUADR1Q (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jan 2004 12:27:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265768AbUADR1Q
+	id S265807AbUADRbf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jan 2004 12:31:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265801AbUADRbf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jan 2004 12:27:16 -0500
-Received: from mail.boo.net ([216.240.97.204]:37090 "EHLO mail.boo.net")
-	by vger.kernel.org with ESMTP id S265763AbUADR1K (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jan 2004 12:27:10 -0500
-Message-Id: <5.2.1.1.2.20040104120713.00a83500@boo.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
-Date: Sun, 04 Jan 2004 12:34:53 -0500
-To: linux-kernel@vger.kernel.org
-From: Jason Papadopoulos <jasonp@boo.net>
-Subject: [PATCH] page coloring for 2.4.23 kernel
+	Sun, 4 Jan 2004 12:31:35 -0500
+Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:42730 "EHLO
+	mail.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
+	id S265807AbUADRbG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jan 2004 12:31:06 -0500
+Subject: Re: Possibly wrong BIO usage in ide_multwrite
+From: Christophe Saout <christophe@saout.de>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <200401032302.32914.bzolnier@elka.pw.edu.pl>
+References: <1072977507.4170.14.camel@leto.cs.pocnet.net>
+	 <200401020127.50558.bzolnier@elka.pw.edu.pl>
+	 <1073013643.20163.51.camel@leto.cs.pocnet.net>
+	 <200401032302.32914.bzolnier@elka.pw.edu.pl>
+Content-Type: text/plain
+Message-Id: <1073237458.6069.31.camel@leto.cs.pocnet.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sun, 04 Jan 2004 18:30:59 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well, it's a new year, and time for another page coloring patch.
+Am Sa, den 03.01.2004 schrieb Bartlomiej Zolnierkiewicz um 23:02:
 
-www.boo.net/~jasonp/page_color-2.4.23-20040102.patch
+> > The way I would prefer is that when someone calls bio_endio the bi_idx
+> > and bv_offset just point where the processed data begins.
+> 
+> Are you aware that this will make partial completions illegal?
+> [ No problem for me. ]
 
-This version folds in most of the improvements and suggestions I've
-received over the years. mm_structs, inodes, and slab caches all have
-their own round-robin counters. The code is cleaned up a lot, and the
-page allocator engine also has a fallback path now if a specific color
-page cannot be found.
+Why that? __end_that_request_first already does this (when moving thw
+two lines updating bv_offset/bv_len after the call of the bi_end_io
+function).
 
-I've removed the cache-size autodetect code; page coloring is configured
-via "page_color=<kB in L2 cache>" boot argument. As before, the patch
-provides statistics through /proc/page_color.
+> > Can't another (some local) variable be used as bvec index instead of
+> > bi_idx in the original bio? (except from ide_map_buffer using exactly
+> > this index...)
+> 
+> see rq_map_buffer() in include/linux/blkdev.h
 
-I've included lmbench results comparing the patched kernel with stock
-2.4.23; some things are a little slower, other things are noticeably faster.
-Kernel compiles are about 2% faster. These timings are for a 466MHz Alpha
-with a 2MB direct-mapped L2 cache.
+Right. I've been going through ide-taskfile.c for the last hours.
 
-I'll be installing linux on a K7 system in the near future and rerunning
-these tests.
+The IDE_TASKFILE_IO gets things right (from my point of view) and is
+also much cleaner. (I would personally vote for dropping the non
+TASKFILE_IO code, it would make my problem go away :D - why is it still
+marked as experimental BTW? I've been using it since it was introduced,
+without any problems)
 
-In all honesty, there will probably not be a 2.6 version of this patch.
-The approach to allocating pages here is completely incompatible with the
-per-cpu quicklists in 2.6 that insulate processes from the buddy allocator.
-I can't think of a clever way to provide specific page colors through the
-per-cpu lists without making a mess. There is also the fact that people seem
-to (violently) want other solutions to improving cache behavior in linux.
+BTW: The taskfile code that is used when IDE_TASKFILE_IO is disabled
+might partially end requests without knowing the actual status, right?
 
-jasonp
+>      /*
+>       * FIXME :: We really can not legally get a new page/bh
+>       * regardless, if this is the end of our segment.
+>       * BH walking or segment can only be updated after we
+>       * have a good  hwif->INB(IDE_STATUS_REG); return.
+>       */
+>      if (!rq->current_nr_sectors) {
+>         if (!DRIVER(drive)->end_request(drive, 1, 0))
+>            if (!rq->bio)
+>               return ide_stopped;
+>      }
+>   } while (msect);
 
+Well, there's a FIXME so you know this is not legal, but to make sure.
+In ide-disk.c you're walking the segments yourself using the original
+bi_idx which avoids this problem but which is my original problem. And
+TASKFILE_IO gets things right (from my point of view) and doesn't do
+illegal things because it uses the "generic driver walking code" using
+cbio/process_that_request_first and co.
 
-                  L M B E N C H  3 . 0   S U M M A R Y
-                  ------------------------------------
-		 (Alpha software, do not distribute)
+So non TASKFILE_IO code has two multout codepaths (taskfile and not)
+that are both "awkward" while TASKFILE_IO merges both into a single and
+clean version.
 
-Processor, Processes - times in microseconds - smaller is better
-------------------------------------------------------------------------------
-Host                 OS  Mhz null null      open slct sig  sig  fork exec sh
-                              call  I/O stat clos TCP  inst hndl proc proc proc
---------- ------------- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
-ds10       Linux 2.4.23  462 0.32 0.64 3.27 4.37 39.2 1.15 3.34 517. 3894 11.K
-ds10       Linux 2.4.23  461 0.34 0.63 3.31 4.29 43.1 1.14 3.35 513. 3790 11.K
-ds10       Linux 2.4.23  462 0.32 0.64 3.43 4.37 39.9 1.16 3.38 544. 4125 12.K
-ds10      Linux 2.4.23a  462 0.34 0.66 3.80 4.67 43.9 1.16 3.24 572. 3892 12.K
-ds10      Linux 2.4.23a  462 0.35 0.65 3.68 4.72 39.3 1.07 3.31 548. 3857 11.K
-ds10      Linux 2.4.23a  462 0.34 0.66 3.68 4.61 39.4 1.10 3.43 564. 3861 12.K
+> > Still, I see, mcount could go to zero before the bio is finished and we
+> > would need to store the bvec index somewhere, I see the problem.
+> 
+> bvec index and offset
 
-Context switching - times in microseconds - smaller is better
--------------------------------------------------------------------------
-Host                 OS  2p/0K 2p/16K 2p/64K 8p/16K 8p/64K 16p/16K 16p/64K
-                          ctxsw  ctxsw  ctxsw ctxsw  ctxsw   ctxsw   ctxsw
---------- ------------- ------ ------ ------ ------ ------ ------- -------
-ds10       Linux 2.4.23 1.8500 1.5200   23.0 7.3300   36.0    10.7    47.3
-ds10       Linux 2.4.23 1.4600 2.2300   14.2 7.8000   40.1    10.6    56.7
-ds10       Linux 2.4.23 1.5700 1.9300   13.3 7.2400   43.9 7.87000    57.2
-ds10      Linux 2.4.23a 1.5400 1.1700   13.8 7.9800   34.6    11.3    37.2
-ds10      Linux 2.4.23a 2.1700 1.9300   13.7 8.4000   31.1    11.3    46.1
-ds10      Linux 2.4.23a 1.4600 1.5800   13.9 8.6300   18.2    11.7    47.3
+Exactly.
 
-*Local* Communication latencies in microseconds - smaller is better
----------------------------------------------------------------------
-Host                 OS 2p/0K  Pipe AF     UDP  RPC/   TCP  RPC/ TCP
-                         ctxsw       UNIX         UDP         TCP conn
---------- ------------- ----- ----- ---- ----- ----- ----- ----- ----
-ds10       Linux 2.4.23 1.850 8.237 17.6              42.6       169.
-ds10       Linux 2.4.23 1.460 8.644 16.8              41.2       171.
-ds10       Linux 2.4.23 1.570 8.717 18.8              41.0       176.
-ds10      Linux 2.4.23a 1.540 8.296 15.0              44.1       173.
-ds10      Linux 2.4.23a 2.170 8.116 15.2              45.5       175.
-ds10      Linux 2.4.23a 1.460 8.182 15.9              44.6       178.
+> > What about doing a partial bio completion in multwrite_intr? If there is
+> > data left you know you've finished multcount sectors, right?
+> 
+> Not always, ie. no. of sectors equal to no. of multicount sectors.
 
-File & VM system latencies in microseconds - smaller is better
--------------------------------------------------------------------------------
-Host                 OS   0K File      10K File     Mmap    Prot   Page   100fd
-                         Create Delete Create Delete Latency 
-Fault  Fault  selct
---------- ------------- ------ ------ ------ ------ ------- ----- ------- -----
-ds10       Linux 2.4.23   30.5   10.2  109.4   31.9   411.0 0.958 2.01450  34.7
-ds10       Linux 2.4.23   30.6   10.4  110.4   31.8   412.0 0.770 1.98610  37.9
-ds10       Linux 2.4.23   30.6   10.2  105.8   31.5  7143.0 1.020 2.66750  35.9
-ds10      Linux 2.4.23a   31.1   10.9  108.6   29.9  6745.0 0.584 2.69460  35.3
-ds10      Linux 2.4.23a   31.7   10.9  110.5   29.7  6978.0 0.899 2.64420  35.6
-ds10      Linux 2.4.23a   32.3   11.0  108.3   30.0  6924.0 0.894 2.63630  35.9
+Yes, I didn't think about this one.
 
-*Local* Communication bandwidths in MB/s - bigger is better
------------------------------------------------------------------------------
-Host                OS  Pipe AF    TCP  File   Mmap  Bcopy  Bcopy  Mem   Mem
-                              UNIX      reread reread (libc) (hand) read write
---------- ------------- ---- ---- ---- ------ ------ ------ ------ ---- -----
-ds10       Linux 2.4.23 378. 257. 121.  258.4  588.8  241.7  215.6 359. 320.8
-ds10       Linux 2.4.23 387. 234. 132.  241.0  589.0  243.4  217.1 359. 322.1
-ds10       Linux 2.4.23 362. 270. 128.  256.3  588.9  267.6  232.9 359. 334.4
-ds10      Linux 2.4.23a 394. 241. 114.  328.0  588.8  261.0  236.5 358. 334.5
-ds10      Linux 2.4.23a 390. 280. 119.  326.3  588.8  261.6  237.6 359. 334.9
-ds10      Linux 2.4.23a 399. 282. 114.  324.6  588.8  261.2  237.4 359. 335.1
+> > > There are 2 solutions for this problem:
+> > >
+> > > - Use separate bio lists (rq->cbio) and temporary data
+> > >   (rq->nr_cbio_segments and rq->nr_cbio_sectors) for
+> > > submission/completion.
+> >
+> > That would be somewhat similar to what I just proposed, right?
+> 
+> Right, rq->nr_cbio_segments holds number of bvecs still to be processed
+> (no need to change bio->bi_idx) and rq->nr_cbio_sectors number of sectors
+> in the bio still to be proccessed (so rq->current_nr_sectors can be number
+> of sectors still to do in the current bvec).
+> 
+> Please note that this method doesn't require copy of struct request
+> (using scratch request copy is quite expensive).
+
+Yes. There's a memcpy commented out (#if 0) in ide-taskfile.c which you
+don't ned because you "illegaly" let end_request (and so
+end_that_request_first) to walk the request for you.
+
+Using the cbio & co. mechanism you can let process_that_request_first
+walk the code for you ("legally") without needing the copy either.
+
+> > Would you be interested in a small patch (well, if I can come up with
+> > one)?
+> 
+> Sure, but I don't know what you want to change... :-)
+
+I'm not yet sure, either. I don't think that a too invasive version
+would be adequate though converting this mess to the cbio method would
+be nice. Or would you prefer to see that? I don't think it's worth
+starting on that since you said you'de like to see this part of the IDE
+layer die in 2.7 anyway. I would really like to see ide_map_buffer die
+in favor of rq_map_buffer though. Hmm.
+Perhaps I can think of something else. It's really tricky...
+
+> > >   Please look at process_that_request_first() and its usage in TASKFILE
+> > > code.
+> >
+> > I'll do. I already noticed that it used the other fields and obviously
+> > doesn't use bi_idx the same way.
+> >
+> > >   You are then required to do partial bio completion.
+> >
+> > Yes.
+> 
+> Actually no, my mistake... s/required/allowed/
+> IDE taskfile code doesn't use partial completions.
+
+Not partial completions of bios but partial completion of requests,
+right?
+
+Things like
+
+>   while (rq->bio != rq->cbio)
+>      if (!DRIVER(drive)->end_request(drive, 1, bio_sectors(rq->bio)))
+>         return ide_stopped;
+
+in the interrupt handlers if you know they suceedeed.
+
+Partial bio completions would probably also be possible, I see, but I
+don't need to or want to change that.
+
+Okay.
+
+I'm trying to figure something out to avoid my original ++bio->bi_idx
+problem.
+
 

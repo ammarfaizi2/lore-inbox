@@ -1,34 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269645AbRH0Wsu>; Mon, 27 Aug 2001 18:48:50 -0400
+	id <S269673AbRH0Wzd>; Mon, 27 Aug 2001 18:55:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269646AbRH0Wsk>; Mon, 27 Aug 2001 18:48:40 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:38784 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S269645AbRH0WsT>;
-	Mon, 27 Aug 2001 18:48:19 -0400
-Date: Mon, 27 Aug 2001 15:48:33 -0700 (PDT)
-Message-Id: <20010827.154833.95063071.davem@redhat.com>
-To: rth@twiddle.net
-Cc: linux-kernel@vger.kernel.org, jay.estabrook@compaq.com
-Subject: Re: [PATCH] PCI 64-bit API up for testing
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20010826132053.A8001@twiddle.net>
-In-Reply-To: <20010821.080953.66175161.davem@redhat.com>
-	<20010826132053.A8001@twiddle.net>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S269693AbRH0WzW>; Mon, 27 Aug 2001 18:55:22 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:53266 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S269673AbRH0WzM>; Mon, 27 Aug 2001 18:55:12 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Bosko Radivojevic <bole@falcon.etf.bg.ac.yu>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Oops with 2.4.9
+Date: Tue, 28 Aug 2001 01:00:45 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0108272357010.18996-100000@falcon.etf.bg.ac.yu>
+In-Reply-To: <Pine.LNX.4.33.0108272357010.18996-100000@falcon.etf.bg.ac.yu>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010827225408Z16102-32383+1801@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On August 27, 2001 11:58 pm, Bosko Radivojevic wrote:
+> Oops output is now a little bit different ;)
 
-Thanks tossing this together Richard.
+It would help a lot if you ran your oops through ksymoops.
 
-I might swizzle the API a little bit after listening to feedback I
-have gotten back so far, but I can easily munge your work into
-whatever I end up with.
-
-Later,
-David S. Miller
-davem@redhat.com
+--
+Daniel

@@ -1,62 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318099AbSIFGpx>; Fri, 6 Sep 2002 02:45:53 -0400
+	id <S318143AbSIFGyH>; Fri, 6 Sep 2002 02:54:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318143AbSIFGpx>; Fri, 6 Sep 2002 02:45:53 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:42485 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S318099AbSIFGpt>;
-	Fri, 6 Sep 2002 02:45:49 -0400
-Date: Thu, 05 Sep 2002 23:48:42 -0700
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: "David S. Miller" <davem@redhat.com>, hadi@cyberus.ca
-cc: tcw@tempest.prismnet.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-       Nivedita Singhvi <niv@us.ibm.com>
-Subject: Re: Early SPECWeb99 results on 2.5.33 with TSO on e1000
-Message-ID: <18563262.1031269721@[10.10.2.3]>
-In-Reply-To: <20020905.204721.49430679.davem@redhat.com>
-References: <20020905.204721.49430679.davem@redhat.com>
-X-Mailer: Mulberry/2.1.2 (Win32)
+	id <S318166AbSIFGyH>; Fri, 6 Sep 2002 02:54:07 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:49425 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S318143AbSIFGyG>; Fri, 6 Sep 2002 02:54:06 -0400
+Date: Thu, 5 Sep 2002 23:59:10 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Helge Hafting <helgehaf@aitel.hist.no>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: One more bio for for floppy users in 2.5.33..
+In-Reply-To: <3D784F8A.CE0CF1DB@aitel.hist.no>
+Message-ID: <Pine.LNX.4.44.0209052349070.15825-100000@home.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->    I would think shoving the data down the NIC
->    and avoid the fragmentation shouldnt give you that much significant
->    CPU savings.
+
+On Fri, 6 Sep 2002, Helge Hafting wrote:
 > 
-> It's the DMA bandwidth saved, most of the specweb runs on x86 hardware
-> is limited by the DMA throughput of the PCI host controller.  In
-> particular some controllers are limited to smaller DMA bursts to
-> work around hardware bugs.
+> I can think of one case where large readahead hurts for floppy, even
+> with partial completion:
 > 
-> Ie. the headers that don't need to go across the bus are the critical
-> resource saved by TSO.
+> 1. Grab a stack of floppies
+> 2. Try mounting (or mount+ls) one after another,
+>    in search of the right one.
 
-I'm not sure that's entirely true in this case - the Netfinity
-8500R is slightly unusual in that it has 3 or 4 PCI buses, and
-there's 4 - 8 gigabit ethernet cards in this beast spread around
-different buses (Troy - are we still just using 4? ... and what's
-the raw bandwidth of data we're pushing? ... it's not huge). 
+Note that the delay for motor on/off is _much_ larger than the actual 
+delay for seeking.
 
-I think we're CPU limited (there's no idle time on this machine), 
-which is odd for an 8 CPU 900MHz P3 Xeon, but still, this is Apache,
-not Tux. You mentioned CPU load as another advantage of TSO ... 
-anything we've done to reduce CPU load enables us to run more and 
-more connections (I think we started at about 260 or something, so 
-2900 ain't too bad ;-)).
+The seek itself is on the order of a few ms, with the head settle time 
+being in the tens (possibly even a few hundred) ms per track. So assuming 
+you end up reading 4 tracks or so due to readahead, that's still in the 
+range of about one second.
 
-Just to throw another firework into the fire whilst people are 
-awake, NAPI does not seem to scale to this sort of load, which
-was disappointing, as we were hoping it would solve some of 
-our interrupt load problems ... seems that half the machine goes
-idle, the number of simultaneous connections drop way down, and
-everything's blocked on ... something ... not sure what ;-)
-Any guesses at why, or ways to debug this?
+In contrast, the motor on/off time is something like 5 seconds if I
+remember correctly. Of course, you can certainly eject the floppy while
+the motor is still running, but I'd suggest against it.
 
-M.
+> So I think a smaller readahead might make sense for floppies,
+> unless people don't do this sort of search anymore.  I don't.
 
-PS. Anyone else running NAPI on SMP? (ideally at least 4-way?)
+I do agree that a 64kB readahead is likely to be excessive on a floppy, 
+I'm just saying that I doubt it will be all that noticeable in most cases. 
+
+The absolute worst case is when opening, reading a sector, and closing
+again several times in succession, at which point right now we'll end up
+serializing. But even at 64kB, that's going to be faster than most people
+can change floppies if they actually want to even glance at what the
+contents are.
+
+The reason I want the first sectors to be returned early is that I thought 
+it was quite noticeable to do just a simple "ls" on the floppy when I 
+tested. Of course, that may be just me: it's literally been several years 
+since I really used floppies, and maybe they really always were that slow. 
+But I thought the root directory was on track zero, so it _should_ return 
+it first thing. 
+
+Oh, well. I don't seem to be the only one who doesn't use the dang things 
+any more. The floppy driver has been broken in 2.5.x for half a year or 
+whatever, and there weren't _that_ many people who ever even mentioned it. 
+
+			Linus
+

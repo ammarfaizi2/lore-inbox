@@ -1,69 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267668AbUHRUjY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267657AbUHRUi5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267668AbUHRUjY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Aug 2004 16:39:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267650AbUHRUjX
+	id S267657AbUHRUi5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Aug 2004 16:38:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267447AbUHRUi4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Aug 2004 16:39:23 -0400
-Received: from moraine.clusterfs.com ([66.246.132.190]:27314 "EHLO
-	moraine.clusterfs.com") by vger.kernel.org with ESMTP
-	id S267646AbUHRUgT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Aug 2004 16:36:19 -0400
-Date: Wed, 18 Aug 2004 11:17:54 -0600
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Helge Hafting <helge.hafting@hist.no>
-Cc: Janusz Dziemidowicz <rraptorr@kursor.pl>,
-       Diego Calleja <diegocg@teleline.es>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] ext3 documentation (lack of)
-Message-ID: <20040818171754.GN8967@schnapps.adilger.int>
-Mail-Followup-To: Helge Hafting <helge.hafting@hist.no>,
-	Janusz Dziemidowicz <rraptorr@kursor.pl>,
-	Diego Calleja <diegocg@teleline.es>, linux-kernel@vger.kernel.org
-References: <20040818025951.63c4134e.diegocg@teleline.es> <200408172301.09350.ryan@spitfire.gotdns.org> <20040818133818.7b0582f3.diegocg@teleline.es> <Pine.LNX.4.61.0408181414450.18542@stacja.kursor.pl> <412352C9.7090006@hist.no>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="VSVNCtZB1QZ8vhj+"
-Content-Disposition: inline
-In-Reply-To: <412352C9.7090006@hist.no>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	Wed, 18 Aug 2004 16:38:56 -0400
+Received: from math.ut.ee ([193.40.5.125]:17591 "EHLO math.ut.ee")
+	by vger.kernel.org with ESMTP id S267650AbUHRUgn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Aug 2004 16:36:43 -0400
+Date: Wed, 18 Aug 2004 23:29:02 +0300 (EEST)
+From: Meelis Roos <mroos@linux.ee>
+To: Tom Rini <trini@kernel.crashing.org>
+cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: How to debug 2.6 PReP boot hang?
+In-Reply-To: <20040816145347.GD2377@smtp.west.cox.net>
+Message-ID: <Pine.GSO.4.44.0408181853430.23535-100000@math.ut.ee>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > It's the one that reorganizes boot code:
+> > PPC32: Kill off arch/ppc/boot/prep and rearrange some files.
+>
+> Sadly, that is what I expected.  Try narrowing down the differences
+> between prep/head.S and simple/head.S (or rather head.s via make
+> arch/ppc/boot/prep/head.s and simple/head.s to strip out comments, etc).
 
---VSVNCtZB1QZ8vhj+
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I replaced the whole head.S with old prep one. Works, so head.S is
+probably the culprit.
 
-On Aug 18, 2004  14:59 +0200, Helge Hafting wrote:
-> ACL's does not require use of the user_xattr mount option - I have tested
-> that acl's work on ext3 with only the "acl" option.  I guess user_xattr is
-> turned on automatically as needed - you can use the option if you want
-> posix extended attributes without acls.
+1. L1 cache disabling was moved. I moved it back to before cheking OF
+address (but after recording link register into r3 since I left the
+disabling a subroutine), it still hangs.
 
-Actually, user_xattr is entirely unrelated to acls.  The user_xattr option
-is used to enable arbitrary EAs that can be stored by the owner of the file
-with setfattr and read with getfattr (along with the syscalls for same).
-The acl support uses "in kernel" EAs that the user cannot modify.
+2. The address that the code is relocated to is computed differently.
+Old code relocates itself to hardcoded 8M (start), new code to
+max(load+size, end).
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://members.shaw.ca/adilger/             http://members.shaw.ca/golinux/
+3. Relocation loop is different (see ms to be memmove, not memcpy, at
+the first glance).
+
+I replaced the calculation and relocate with old unconditional relocate,
+it still hangs.
+
+Replaced head.S with first half of old head.S (relocate from old,
+start_ldr from new), still hangs.
+
+Put a couple of debugging traps around. Trap before load_kernel is
+executed, trap after load_kernel is never reached. So head.S changes
+cause load_kernel to hang.
+
+Some more changes and the only difference is load_kernel vs
+decompress_kernel. Changing load_kernel call in relocate.S to
+decompress_kernel makes the kernel boot. Oh, finally.
+
+BTW, the address of OF residual data bounces around in
+r3->r29->r4->r11->r6. The old code only did r3->r11->r6 but the new code
+uses r11 for cache disabling.
+
+This is the patch I'm using currently. I understand that this is
+probably not the right patch for inclusion :)
+
+===== arch/ppc/boot/simple/relocate.S 1.11 vs edited =====
+--- 1.11/arch/ppc/boot/simple/relocate.S	2004-04-03 06:13:47 +03:00
++++ edited/arch/ppc/boot/simple/relocate.S	2004-08-18 23:27:39 +03:00
+@@ -183,7 +183,7 @@
+ 	mr	r5,r6		/* Checksum */
+ 	mr	r6,r11		/* Residual data */
+ 	mr	r7,r25		/* Validated OFW interface */
+-	bl	load_kernel
++	bl	decompress_kernel
+
+ 	/*
+ 	 * Make sure the kernel knows we don't have things set in
+
+-- 
+Meelis Roos (mroos@linux.ee)
 
 
---VSVNCtZB1QZ8vhj+
-Content-Type: application/pgp-signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
 
-iD8DBQFBI49CpIg59Q01vtYRAkrSAJ9W3KTLNIlT7haP/WX9pKcEaOlmrACbBEXI
-xe9pWgUTojDp6IUBiZ7Q0Yc=
-=oDzB
------END PGP SIGNATURE-----
 
---VSVNCtZB1QZ8vhj+--
+
+
+
+

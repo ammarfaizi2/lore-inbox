@@ -1,48 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261801AbVCGWLQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261877AbVCGWVG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261801AbVCGWLQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 17:11:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261802AbVCGWFR
+	id S261877AbVCGWVG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 17:21:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261807AbVCGVZg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 17:05:17 -0500
-Received: from rproxy.gmail.com ([64.233.170.197]:53546 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261265AbVCGVgF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 16:36:05 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=lMydeRGEWUgMpEsXwSHyNfUHYypFncG1tiUMQGjI+l6R5p9g9FMrgLwmsqkokf2j/gRSUEZTVrmr/p1Fu/oHD3xbhc2/3b0Dqo6Rk2dplZeZp4kd85Um2PZ85GN7tJE7ETrzL+k1G9TnfN+r/KxUc062racl25RH4T/iRmTW/fc=
-Message-ID: <d120d50005030713366626691e@mail.gmail.com>
-Date: Mon, 7 Mar 2005 16:36:04 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Peter Osterlund <petero2@telia.com>
-Subject: Re: Touchpad "tapping" changes in 2.6.11?
-Cc: Henrik Persson <root@fulhack.info>, linux-kernel@vger.kernel.org
-In-Reply-To: <m37jkjdu15.fsf@telia.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 7 Mar 2005 16:25:36 -0500
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:43406 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S261557AbVCGUul (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Mar 2005 15:50:41 -0500
+Message-ID: <422CBE9F.1090906@acm.org>
+Date: Mon, 07 Mar 2005 14:50:39 -0600
+From: Corey Minyard <minyard@acm.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andi Kleen <ak@muc.de>
+Cc: lkml <linux-kernel@vger.kernel.org>, akpm@osdl.org
+Subject: Re: [PATCH] NMI/CMOS RTC race fix for x86-64
+References: <422CA1FA.1010903@acm.org> <m1ll8zmfzc.fsf@muc.de>
+In-Reply-To: <m1ll8zmfzc.fsf@muc.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-References: <422C539A.4040407@fulhack.info>
-	 <d120d500050307055522415fb3@mail.gmail.com>
-	 <422C7CF3.9080609@fulhack.info>
-	 <d120d50005030708365a4917c5@mail.gmail.com> <m37jkjdu15.fsf@telia.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 07 Mar 2005 22:29:26 +0100, Peter Osterlund <petero2@telia.com> wrote:
-> Dmitry Torokhov <dmitry.torokhov@gmail.com> writes:
-> > Still I think having Synaptics driver installed is the best way in the
-> > end simply because it has a lot of knobs so one can adjust tpouchpad's
-> > behavior to his/her liking. Maybe once distibutions start packaging
-> > and activating it by default it will be less of an issue.
-> 
-> Fedora Core 3 already does that if I remember correctly.
-> 
+Andi Kleen wrote:
 
-It does have synaptics driver packaged but if I remember correctly it
-is not automatically selected during installation.
+>Corey Minyard <minyard@acm.org> writes:
+>
+>  
+>
+>>This patch fixes a race between the CMOS clock setting and the NMI
+>>code.  The NMI code indiscriminatly sets index registers and values
+>>in the same place the CMOS clock is set.  If you are setting the
+>>CMOS clock and an NMI occurs, Bad values could be written to or
+>>read from the CMOS RAM, or the NMI operation might not occur
+>>correctly.
+>>
+>>    
+>>
+>
+>In general you should send all x86-64 patches to me. I would have
+>eventually merged it from i386 anyways if it was good.
+>
+>But in this case it isnt. Instead of all this complexity 
+>just remove the NMI reassert code from the NMI handler.
+>It is oudated and mostly useless on modern systems anyways.
+>  
+>
+"mostly useless" and "completely useless" are two different things.
 
--- 
-Dmitry
+If you run with nmi_watchdog=0, then this code actually does something
+useful, which is what I assume you mean by "mostly useless".  I'm all for
+removing useless code, so I'd be fine with just removing the code.  But
+something really needs to be done.
+
+Do you want me to submit a patch that simply removes this?
+
+-Corey
+
+>Since the NMI watchdog runs regularly even if an NMI is missed
+>it will be eventually handled. And even when it doesn't run
+>it doesn't matter much because NMI does nothing essential.
+>
+>-Andi
+>  
+>
+

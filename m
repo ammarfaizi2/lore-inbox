@@ -1,46 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279155AbRJWAm6>; Mon, 22 Oct 2001 20:42:58 -0400
+	id <S279156AbRJWAx3>; Mon, 22 Oct 2001 20:53:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279156AbRJWAmw>; Mon, 22 Oct 2001 20:42:52 -0400
-Received: from mta5.snfc21.pbi.net ([206.13.28.241]:55244 "EHLO snfc21.pbi.net")
-	by vger.kernel.org with ESMTP id <S279160AbRJWAlV>;
-	Mon, 22 Oct 2001 20:41:21 -0400
-Date: Mon, 22 Oct 2001 17:40:58 -0700
-From: Chris Gomez <parasyte@pacbell.net>
+	id <S279162AbRJWAxU>; Mon, 22 Oct 2001 20:53:20 -0400
+Received: from Expansa.sns.it ([192.167.206.189]:9234 "EHLO Expansa.sns.it")
+	by vger.kernel.org with ESMTP id <S279156AbRJWAxG>;
+	Mon, 22 Oct 2001 20:53:06 -0400
+Date: Tue, 23 Oct 2001 02:53:40 +0200 (CEST)
+From: Luigi Genoni <kernel@Expansa.sns.it>
+To: Craig Dickson <crdic@yahoo.com>
+cc: <linux-kernel@vger.kernel.org>
 Subject: Re: Linux 2.2.20pre10
-To: David Weinehall <tao@acc.umu.se>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <0ac201c15b5b$61fa4df0$0100a8c0@parasyte13>
-MIME-version: 1.0
-X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 7BIT
-X-Priority: 3
-X-MSMail-priority: Normal
-In-Reply-To: <86256AED.007BA960.00@smtpnotes.altec.com>
- <20011023015641.W25701@khan.acc.umu.se>
+In-Reply-To: <20011022163536.B19715@crdic.ath.cx>
+Message-ID: <Pine.LNX.4.33.0110230243470.31211-100000@Expansa.sns.it>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "David Weinehall" <tao@acc.umu.se>
-Sent: Monday, October 22, 2001 4:56 PM
-> On Mon, Oct 22, 2001 at 05:27:06PM -0500, Wayne.Brown@altec.com wrote:
-> > There just aren't enough of us.  But hey, you and the rest of the
-> > world will still have Linux, so who cares, right?  It's great to see
-> > such enthusiastic support for the principles of free software.
+
+
+On Mon, 22 Oct 2001, Craig Dickson wrote:
+
+> There have been a lot of messages from a number of different people
+> about this "censored changelogs" issue. Rather than reply to various
+> points separately, I just want to sum up my views in one message.
 >
-> I think few, if anyone, has said anything such.
+> I simply don't believe that Alan Cox is at any risk of prosecution, and
+> what's more, I don't believe that he believes it. He's just making a
+> dramatic political statement that will have no effect on the law, will
+> never even be noticed by American legislators, and serves only to annoy
+> US-based Linux users.
+your own opinion
+>
+> The words "Felten" and "Sklyarov" keep coming up in this discussion. The
+> parallel between Alan Cox's situation and those cases are simply not
+> valid.
+>
+> Felten conducted research on how to break DRM systems that were being
+> considered for commercial use (the proposed SDMI standards).
+>
+> Sklyarov developed (or helped develop) a product that breaks Adobe's
+> commercial DRM scheme for PDF files.
+>
+> Note that both Felten and Skyarov developed and publicized (or announced
+> an intent to publicize, in Felten's case) ways of compromising
+> commercial, third-party DRM systems, thus embarrassing and antagonizing
+> the wealthy corporations that had invested time, money, and prestige in
+> those DRM systems. This has no real similarity with Alan Cox's kernel
+> work.
+Ans so, if a company makes a vulnerable product, I am not free
+to publish the bug?
 
-Comments along the lines of "move somewhere else" certainly seem to imply
-such.
-Rik van Riel in particular has said many things along those lines; "That's
-tough, they're a democratic country, they can change the law if it hurts
-them too much." Of course, that statement is completely untrue. We are
-neither a democracy, nor do individuals without very much money have the
-power to change laws. Which also precludes moving to a different country.
+ahh, simply nonsense.
 
---Chris Gomez
+> All Alan is doing is fixing bugs in a system that he has every
+> right to work on, and has a long history of contributing to. He is _not_
+> reverse-engineering someone else's copyright-protection scheme and
+> publicizing how to circumvent it. And anyone who's ever actually _read_
+> his changelogs should know that they do not in any way amount to attack
+> recipes.
+>
+> What's more, nobody sued or prosecuted Felten. The RIAA made threatening
+> noises, but backed off the instant they were called on it, insisting
+> that they had never had any intention of suing anybody, and they fully
+> supported Felten's rights as an academic researcher, blah blah blah.
+Yes, Felten has the right to do what he did, period!
+and, by the way, Sklyarov had the right to write its code in Russia, and
+to seel it to a russian company. Then the company could do what it wants.
+USA has no right to do something against Sklyarov.
+
+Luigi
+
+
 
 

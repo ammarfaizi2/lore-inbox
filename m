@@ -1,72 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318341AbSHEIlf>; Mon, 5 Aug 2002 04:41:35 -0400
+	id <S318344AbSHEIy5>; Mon, 5 Aug 2002 04:54:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318342AbSHEIle>; Mon, 5 Aug 2002 04:41:34 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:21215 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S318341AbSHEIle>; Mon, 5 Aug 2002 04:41:34 -0400
-Date: Mon, 5 Aug 2002 10:45:06 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: jbradford@dial.pipex.com
-cc: linux-kernel@vger.kernel.org
-Subject: [patch] Re: 2.4.19 duplicate config entry
-In-Reply-To: <200208042057.g74KvS3X000703@darkstar.example.net>
-Message-ID: <Pine.NEB.4.44.0208051038140.27501-100000@mimas.fachschaften.tu-muenchen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318345AbSHEIy5>; Mon, 5 Aug 2002 04:54:57 -0400
+Received: from purple.csi.cam.ac.uk ([131.111.8.4]:21740 "EHLO
+	purple.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S318344AbSHEIy4>; Mon, 5 Aug 2002 04:54:56 -0400
+Message-Id: <5.1.0.14.2.20020805095452.0469cc40@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Mon, 05 Aug 2002 09:58:53 +0100
+To: Nico Schottelius <nico-mutt@schottelius.org>
+From: Anton Altaparmakov <aia21@cantab.net>
+Subject: Re: Bugs in 2.5.28 [scsi/framebuffer/devfs/floppy/ntfs/trident]
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020801115047.GB1577@schottelius.org>
+References: <5.1.0.14.2.20020730172158.02014160@pop.cus.cam.ac.uk>
+ <20020731175743.GB1249@schottelius.org>
+ <5.1.0.14.2.20020730172158.02014160@pop.cus.cam.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 4 Aug 2002 jbradford@dial.pipex.com wrote:
+At 12:50 01/08/02, Nico Schottelius wrote:
+>Anton Altaparmakov [Tue, Jul 30, 2002 at 05:28:05PM +0100]:
+> > At 18:57 31/07/02, Nico Schottelius wrote:
+> > >Just wanted to report of the following problems:
+> > >
+> > >Other bugs:
+> > >- ntfs sometimes crashes the system: working on a loopback file caused
+> > >  ntfs to report corruptions in the file system and this hangs system
+> > >  completly.
 
-> Hi,
+I don't think the hangs had anything to do with ntfs. The io errors, I was 
+able to reproduce on 2.4.19+ntfs but only when accessing compressed files. 
+I have fixed this in the latest ntfs, at least the errors I saw are gone.
 
-Hi John,
+Could you give it a try and let me know if it solves your problem, too?
 
-> I've just noticed in 2.4.19, that:
->
-> "Support for PCMCIA management for PC-style ports" appears twice in the configuration.
->
-> I didn't notice it in 2.4.19-RC2, (the last version I compiled), but I might have missed it.
->
-> By the way, I got a 2.4.18 tree, patched it to RC1, then used the incremental patches up to -final.
->
-> The second instance is greyed-out in xconfig, and neither allows y, m or n to be selected.
+You can download by pulling from bk://linux-ntfs.bkbits.net/ntfs-tng-2.5 or 
+by applying the patch I sent to LKML last night. I can forward it to you if 
+you need it...
 
-it's at no time possible that more than one choice is available which
-means it's harmless.
+btw. I think it was compiler problem, so out of interest, which compiler 
+are you using? I was using gcc-2.96-RH7.3-latest...
 
-But you are right, it doesn't look good. IMHO the following more simple
-(and semantically equivalent) solution should work and correct it:
+Thanks,
 
---- drivers/parport/Config.in.old	Mon Aug  5 10:32:28 2002
-+++ drivers/parport/Config.in	Mon Aug  5 10:40:03 2002
-@@ -24,12 +24,8 @@
-          bool '    Use FIFO/DMA if available (EXPERIMENTAL)' CONFIG_PARPORT_PC_FIFO
-          bool '    SuperIO chipset support (EXPERIMENTAL)' CONFIG_PARPORT_PC_SUPERIO
-       fi
--      if [ "$CONFIG_HOTPLUG" = "y" -a "$CONFIG_PCMCIA" != "n" ]; then
--         if [ "$CONFIG_PARPORT_PC" = "y" ]; then
--            dep_tristate '    Support for PCMCIA management for PC-style ports' CONFIG_PARPORT_PC_PCMCIA $CONFIG_PCMCIA
--         else
--            dep_tristate '    Support for PCMCIA management for PC-style ports' CONFIG_PARPORT_PC_PCMCIA $CONFIG_PARPORT_PC
--         fi
-+      if [ "$CONFIG_HOTPLUG" = "y" ]; then
-+         dep_tristate '    Support for PCMCIA management for PC-style ports' CONFIG_PARPORT_PC_PCMCIA $CONFIG_PCMCIA $CONFIG_PARPORT_PC
-       fi
-    fi
-    if [ "$CONFIG_ARM" = "y" ]; then
+         Anton
 
-> John.
-
-cu
-Adrian
 
 -- 
-
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
+Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
 

@@ -1,50 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262960AbUFBOSq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263085AbUFBOWH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262960AbUFBOSq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 10:18:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262972AbUFBOSq
+	id S263085AbUFBOWH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 10:22:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262974AbUFBOWH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 10:18:46 -0400
-Received: from fw.osdl.org ([65.172.181.6]:12936 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262960AbUFBOPp (ORCPT
+	Wed, 2 Jun 2004 10:22:07 -0400
+Received: from ns1.g-housing.de ([62.75.136.201]:11140 "EHLO mail.g-house.de")
+	by vger.kernel.org with ESMTP id S262972AbUFBOVk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 10:15:45 -0400
-Date: Wed, 2 Jun 2004 07:15:07 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-cc: Horst von Brand <vonbrand@inf.utfsm.cl>, Pavel Machek <pavel@suse.cz>,
-       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@redhat.com>,
-       Ingo Molnar <mingo@elte.hu>, Andrea Arcangeli <andrea@suse.de>,
-       Rik van Riel <riel@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC PATCH] explicitly mark recursion count
-In-Reply-To: <20040602131623.GA23017@wohnheim.fh-wedel.de>
-Message-ID: <Pine.LNX.4.58.0406020712180.3403@ppc970.osdl.org>
-References: <200406011929.i51JTjGO006174@eeyore.valparaiso.cl>
- <Pine.LNX.4.58.0406011255070.14095@ppc970.osdl.org>
- <20040602131623.GA23017@wohnheim.fh-wedel.de>
+	Wed, 2 Jun 2004 10:21:40 -0400
+Message-ID: <40BDE26A.1090708@g-house.de>
+Date: Wed, 02 Jun 2004 16:21:30 +0200
+From: Christian Kujau <evil@g-house.de>
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040528)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+To: linux-kernel@vger.kernel.org
+CC: Mikael Pettersson <mikpe@csd.uu.se>
+Subject: Re: unable to compile 2.4 with gcc-3.4.0
+References: <200405301314.i4UDEXW8005730@harpo.it.uu.se>
+In-Reply-To: <200405301314.i4UDEXW8005730@harpo.it.uu.se>
+X-Enigmail-Version: 0.83.6.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+Mikael Pettersson wrote:
+| On Sun, 30 May 2004 12:49:51 +0200, Christian Kujau wrote:
+|
+|>reading the thread "Recommended compiler version" i don't know if it
+|>states wether this is a known issue or not, so here, and for the record:
+|>
+|>i'm unable to compile a recent 2.4 kernel (BK) with gcc-3.4.0.
+|
+|
+| This has been discussed on LKML recently. Get
+|
+http://www.csd.uu.se/~mikpe/linux/patches/2.4/patch-gcc340-fixes-2.4.27-pre3
+| and try again.
+
+[ *really* sorry for the delay ]
+
+yes, it seems to be fixed now and it's copiling now.
 
 
-On Wed, 2 Jun 2004, Jörn Engel wrote:
-> 
-> For a->b->c->a type recursions, I also need to identify all involved
-> functions in the correct order, that's where my ugly format comes
-> from.
+Thank you,
+Christian.
+- --
+BOFH excuse #377:
 
-Why?
+Someone hooked the twisted pair wires into the answering machine.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-You really only need to know that _one_ of the entries break the 
-recursion, and you need to know what the break depth is for that one 
-entry.
-
-So for example, if "c" is annotated with "max recursion: 5", then you know 
-that the above loop will recurse at most 5 times.
-
-I don't see why you need any other information.
-
-			Linus
+iD8DBQFAveJq+A7rjkF8z0wRAgpoAKCW26P8wxHV/uZaggYsJC1U3FeLsQCgkGSR
+Deht/5OmJfJshzuUlwTE9aw=
+=1rsf
+-----END PGP SIGNATURE-----

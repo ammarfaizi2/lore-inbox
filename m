@@ -1,36 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129849AbQKIRmd>; Thu, 9 Nov 2000 12:42:33 -0500
+	id <S129825AbQKIR6T>; Thu, 9 Nov 2000 12:58:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129657AbQKIRmX>; Thu, 9 Nov 2000 12:42:23 -0500
-Received: from hvmta03-ext.us.psimail.psi.net ([38.202.36.27]:62657 "EHLO
-	hvmta03-stg.us.psimail.psi.net") by vger.kernel.org with ESMTP
-	id <S129595AbQKIRmE>; Thu, 9 Nov 2000 12:42:04 -0500
-From: "Chris Swiedler" <chris.swiedler@sevista.com>
-To: "Linux-Kernel" <linux-kernel@vger.kernel.org>
-Subject: getting a process name from task struct
-Date: Thu, 9 Nov 2000 12:45:36 -0500
-Message-ID: <NDBBIAJKLMMHOGKNMGFNCEEHCPAA.chris.swiedler@sevista.com>
+	id <S129595AbQKIR6K>; Thu, 9 Nov 2000 12:58:10 -0500
+Received: from mail-03-real.cdsnet.net ([63.163.68.110]:61196 "HELO
+	mail-03-real.cdsnet.net") by vger.kernel.org with SMTP
+	id <S129657AbQKIR5x>; Thu, 9 Nov 2000 12:57:53 -0500
+Message-ID: <3A0AE653.70D91891@mvista.com>
+Date: Thu, 09 Nov 2000 10:00:51 -0800
+From: George Anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.2.14-VPN i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Andi Kleen <ak@suse.de>
+CC: david <sector2@ihug.co.nz>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: fpu now a must in kernel
+In-Reply-To: <3A09E161.ACB11253@ihug.co.nz> <20001109153648.A21769@gruyere.muc.suse.de>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is it possible to get a process's name / full execution path (from
-kernelspace) given only a task struct? I can't find any pointers to this
-information in the task struct, and I don't know where else it might be. ps
-seems to be able to get the process name, but that's from userspace.
-Apologies in advance if this is a stupid question.
+Andi Kleen wrote:
+> 
+> On Thu, Nov 09, 2000 at 12:27:29PM +1300, david wrote:
+> >
+> > 2 . put the save / restore code in my code (NOT! GOOD! i do not wont to
+> > do it this way it is not the right way)
+> 
+> It is the right way because it only penalizes your code, not everybody else.
+> 
+This is a MAJOR drag on preemptability.  MUCH better to keep it out of
+the kernel.  Barring that, since context switch does not (and should
+not) save/restore fp state, the using code must be preemption locked. 
+Sound folks won't like this.  
 
-chris
+Maybe you could explain why you think you need this and the community
+here could suggest an alternative way to do the same or better.
 
+By the way, since the kernel is not yet preemptable, you could use empty
+macros to lock preemption.  This way, when preemption comes (2.5) your
+code will be easily found.
+
+George
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,51 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262944AbVAFTCh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262981AbVAFTDx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262944AbVAFTCh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 14:02:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262981AbVAFTCh
+	id S262981AbVAFTDx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 14:03:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262989AbVAFTDx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 14:02:37 -0500
-Received: from iPass.cambridge.arm.com ([193.131.176.58]:49333 "EHLO
-	cam-admin0.cambridge.arm.com") by vger.kernel.org with ESMTP
-	id S262944AbVAFTBw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 14:01:52 -0500
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Lee Revell <rlrevell@joe-job.com>, Andi Kleen <ak@suse.de>,
-       "Michael S. Tsirkin" <mst@mellanox.co.il>,
-       Andrew Morton <akpm@osdl.org>, Takashi Iwai <tiwai@suse.de>,
-       mingo@elte.hu, linux-kernel@vger.kernel.org, pavel@suse.cz,
-       discuss@x86-64.org, gordon.jin@intel.com, greg@kroah.com,
-       VANDROVE@vc.cvut.cz
-Subject: Re: [PATCH] macros to detect existance of unlocked_ioctl and
- ioctl_compat
-References: <20041217014345.GA11926@mellanox.co.il>
-	<20050103011113.6f6c8f44.akpm@osdl.org>
-	<20050105144043.GB19434@mellanox.co.il> <s5hd5wjybt8.wl@alsa2.suse.de>
-	<20050105133448.59345b04.akpm@osdl.org>
-	<20050106140636.GE25629@mellanox.co.il>
-	<20050106145356.GA18725@infradead.org>
-	<20050106150941.GE1830@wotan.suse.de>
-	<20050106151429.GA19155@infradead.org>
-	<1105024942.13396.4.camel@krustophenia.net>
-	<20050106153147.GB19324@infradead.org>
-From: Catalin Marinas <catalin.marinas@arm.com>
-Date: Thu, 06 Jan 2005 19:03:18 +0000
-In-Reply-To: <20050106153147.GB19324@infradead.org> (Christoph Hellwig's
- message of "Thu, 6 Jan 2005 15:31:47 +0000")
-Message-ID: <tnxr7kys7m1.fsf@arm.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 6 Jan 2005 14:03:53 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:58299 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S262981AbVAFTDm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 14:03:42 -0500
+Subject: Re: Open hardware wireless cards
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: "Luis R. Rodriguez" <mcgrof@studorgs.rutgers.edu>,
+       Norbert van Nobelen <norbert-kernel@edusupport.nl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       prism54-devel@prism54.org
+In-Reply-To: <1105033035.15352.0.camel@krustophenia.net>
+References: <20050105200526.GL5159@ruslug.rutgers.edu>
+	 <41DC4B43.7090109@imag.fr> <20050105202626.GN5159@ruslug.rutgers.edu>
+	 <200501060902.07502.norbert-kernel@edusupport.nl>
+	 <20050106172438.GT5159@ruslug.rutgers.edu>
+	 <1105033035.15352.0.camel@krustophenia.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1105034339.24896.228.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 06 Jan 2005 17:59:01 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig <hch@infradead.org> writes:
-> See the attached mail I got.  Btw, where are the current alsa-devel
-> archives?  I tried to look things up a few times lately, but all archives
-> linked off the websiste are either dead or totally outdated.
+On Iau, 2005-01-06 at 17:37, Lee Revell wrote:
+> Wireless?!?  How abour a freaking pro audio interface (aka "sound
+> card")?  Wireless is like rocket science by comparison.
 
-http://news.gmane.org/gmane.linux.alsa.devel/ (also available via
-NNTP).
-
-Catalin
+Audio is easy. Good audio is rocket science. You can roll yourself a USB
+audio interface with a microcontroller and a codec ic. Getting that to
+give you a really good signal/noise ratio is then rather trickier.
 

@@ -1,41 +1,94 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272708AbRHaOiW>; Fri, 31 Aug 2001 10:38:22 -0400
+	id <S272710AbRHaOkW>; Fri, 31 Aug 2001 10:40:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272707AbRHaOiM>; Fri, 31 Aug 2001 10:38:12 -0400
-Received: from wildsau.idv-edu.uni-linz.ac.at ([140.78.40.25]:40204 "EHLO
-	wildsau.idv-edu.uni-linz.ac.at") by vger.kernel.org with ESMTP
-	id <S272708AbRHaOh6>; Fri, 31 Aug 2001 10:37:58 -0400
-From: Herbert Rosmanith <herp@wildsau.idv-edu.uni-linz.ac.at>
-Message-Id: <200108311437.f7VEbUF24800@wildsau.idv-edu.uni-linz.ac.at>
+	id <S272713AbRHaOkM>; Fri, 31 Aug 2001 10:40:12 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:3087 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S272710AbRHaOkF>; Fri, 31 Aug 2001 10:40:05 -0400
+Date: Fri, 31 Aug 2001 06:54:13 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+cc: Ion Badulescu <ionut@cs.columbia.edu>, <linux-kernel@vger.kernel.org>
 Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
-In-Reply-To: <200108311428.f7VEStH24660@wildsau.idv-edu.uni-linz.ac.at> from Herbert Rosmanith at "Aug 31, 1 04:28:55 pm"
-To: herp@wildsau (none Herbert Rosmanith)
-Date: Fri, 31 Aug 2001 16:37:29 +0200 (MET DST)
-Cc: ptb@it.uc3m.es, zippel@linux-m68k.org, patl@cag.lcs.mit.edu,
-        linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL37 (25)]
+In-Reply-To: <20010831133750.A25128@thefinal.cern.ch>
+Message-ID: <Pine.LNX.4.33.0108310641320.15502-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> which compiles to:
-> 
->   :      movw $65535,-2(%ebp)
->   :      movb $-2,-3(%ebp)
->   :      xorl %eax,%eax
->   :      movw -2(%ebp),%ax
->   :      movsbl -3(%ebp),%edx
->   :      cmpl %edx,%eax
->   :      jle .L3
-> 
-> you see this? short and char get expanded to 32bit int (I have a x86),
-> and a signed comparison can be done without danger. "jle" jumps if
-> SF != OF, which accounts to "op1 < op2" in a signed compare. the
-> "unsigned short" quantum gets expanded to an "unsigned int", which
-                                               ^^^^^^^^^^^^^^
 
-yikes, this should really read "signed int".
+On Fri, 31 Aug 2001, Jamie Lokier wrote:
+>
+> While I agree with Linus that the above line is ugly, there is a problem
+> with the original line:
+>
+>     if (len <= sizeof(short) || len > sizeof(*sunaddr))
+>
+> The problem?  Thinking this is natural, suppose you decide you only need
+> to check len against sizeof(short), perhaps here, perhaps copying this
+> idea to another part of the program:
+>
+>     if (len <= sizeof(short))
+>
+> _This_ code has a bug.
+
+I agree.
+
+The difference is subtle, and maybe too subtle.
+
+The fact is, that _ranges_ are "stable" in different types. If a value "x"
+is in the range [a,b] in type A, then it will also be in range [a,b] in
+type B (assuming, of course, that 'a' and 'b' are valid values in both
+types).
+
+This is why range comparisons are different from normal comparisons.
+
+But C doesn't have the notion of a range, which is why you can't write
+(while lots of people have _tried_ to write, including in the kernel)
+
+	a < x < b
+or
+	x in [a,b]
+
+or similar. So you end up having to use a more "complex" setup, where the
+individual parts might not be safe even though the totality is safe.
+
+In fact, if gcc never becomes good enough to do that kind of range
+checking, I won't be _too_ unhappy. I selected a special example on bad
+grounds - it's not actually the most common case of range checking, and
+the most common case by far tends to be something like
+
+	if (len < 0)
+		return -EINVAL;
+
+	if (len > sizeof(buffer))
+		len = sizeof(buffer);
+
+	copy_from_user(buffer, ..., len);
+
+where the operation is safe for _another_ range check reason, namely the
+fact that we check that "len" is within the domain of the second check.
+
+Right now gcc will complain about the second comparison, exactly because
+gcc does not do range analysis.
+
+Now, the good news is that gcc people have already worked on range
+analysis, because it is very useful for other things too (not the least of
+which is optimization). So I bet gcc _will_ be able to do a much better
+job of this in the future, and if we have to help it by hand in only a few
+places, then that will be a good thing.
+
+However, right now gcc complains _way_ too much about perfectly valid and
+good code. If it was a few small cases, I'd be happy to fix them in the
+kernel. But last time I tried -Wsign-compare, the false positives were
+just too damn numerous.
+
+(Now, we may have fixed some of them anyway, and I haven't tried it in a
+_loong_ time. If somebody decides to try to see what happens if you try to
+clean them up, that would probably not be a bad idea per se. Proving me
+wrong is always a good sport ;)
+
+			Linus
 

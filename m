@@ -1,52 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262738AbTJDTpn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Oct 2003 15:45:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262726AbTJDTpm
+	id S262719AbTJDUDA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Oct 2003 16:03:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262721AbTJDUDA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Oct 2003 15:45:42 -0400
-Received: from 214.Red-217-125-43.pooles.rima-tde.net ([217.125.43.214]:29202
-	"HELO 214.Red-217-125-43.pooles.rima-tde.net") by vger.kernel.org
-	with SMTP id S262721AbTJDTpg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Oct 2003 15:45:36 -0400
-Message-ID: <tn62b95-lj--$c-4z9j@k953a24or>
-From: "Fredric Hess" <6cpn79xobn0@netscape.com>
-Reply-To: "Fredric Hess" <6cpn79xobn0@netscape.com>
-To: linux-kernel-owner@vger.kernel.org
-Subject: gxs fwy qr
-Date: Sun, 05 Oct 03 10:40:43 GMT
-X-Mailer: Microsoft Outlook, Build 10.0.2627
+	Sat, 4 Oct 2003 16:03:00 -0400
+Received: from mail13.speakeasy.net ([216.254.0.213]:44210 "EHLO
+	mail.speakeasy.net") by vger.kernel.org with ESMTP id S262719AbTJDUC7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Oct 2003 16:02:59 -0400
+Date: Sat, 4 Oct 2003 13:02:55 -0700
+Message-Id: <200310042002.h94K2tDi023290@magilla.sf.frob.com>
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="356_7B.9AACD_.9"
-X-Priority: 3
-X-MSMail-Priority: Normal
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+From: Roland McGrath <roland@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+X-Fcc: ~/Mail/linus
+Cc: Rhino <rhino9@terra.com.br>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test6-mm3
+In-Reply-To: Andrew Morton's message of  Saturday, 4 October 2003 09:49:13 -0700 <20031004094913.77d878ec.akpm@osdl.org>
+X-Zippy-Says: Is this the line for the latest whimsical YUGOSLAVIAN drama which
+   also makes you want to CRY and reconsider the VIETNAM WAR?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> I don't know why that was added actually; maybe it is just left-over
+> debugging code. 
 
---356_7B.9AACD_.9
-Content-Type: text/plain;
-Content-Transfer-Encoding: quoted-printable
-
-This Years hottest toy
-Mini Radio Controlled Twister Stunt Car
-
-http://www.noveltynet2003.biz/promo.php?id=3D93844
-
-
-
-
-
-
-
-
-
-Not Interested?  Click Here.
-http://www.noveltynet2003.biz/remove.php?id=3D93844hvr ha
-kekkynq d o pwtvl l glc
-k m mhl mufplw
-
---356_7B.9AACD_.9--
+Oops!  I thought I had removed all the printks before I made the patch.
+That was indeed just debugging code and never intended to go in.
 

@@ -1,59 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132547AbRD1PBL>; Sat, 28 Apr 2001 11:01:11 -0400
+	id <S132557AbRD1PDB>; Sat, 28 Apr 2001 11:03:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132557AbRD1PBB>; Sat, 28 Apr 2001 11:01:01 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:15516 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S132547AbRD1PAs>;
-	Sat, 28 Apr 2001 11:00:48 -0400
-Date: Sat, 28 Apr 2001 11:00:46 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cleanup for fixing get_super() races
-In-Reply-To: <3AEAD138.5B9D188F@evision-ventures.com>
-Message-ID: <Pine.GSO.4.21.0104281049350.23302-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132605AbRD1PCv>; Sat, 28 Apr 2001 11:02:51 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:27357 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S132557AbRD1PCm>;
+	Sat, 28 Apr 2001 11:02:42 -0400
+Date: Sat, 28 Apr 2001 17:02:21 +0200 (MET DST)
+From: Andries.Brouwer@cwi.nl
+Message-Id: <UTC200104281502.RAA26232.aeb@vlet.cwi.nl>
+To: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+        mailhot@enst.fr, markus@schlup.net
+Subject: Dane-Elec PhotoMate Combo
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I just got a Dane-Elec PhotoMate Combo SmartMedia/CompactFlash reader
+manufactured by SCM Microsystems. It is a USB device with ID 04e6:0005.
+
+The http://www.qbik.ch/usb/devices/ list of supported devices
+calls this thing unsupported, and mailhot@enst.fr writes:
+"I want this to work ! I'll help testing."
+
+I think the status can be changed to fully supported, at least
+it works fine in my first tests.
+
+Changes required:
+(i) in sd.c there is a peculiar code fragment that assumes
+that a removable disk is write protected in case the status is unknown;
+reversing this default allows writing to the flash card.
+
+                if (the_result) {
+-                       printk("%s: test WP failed, assume Write Protected\n", nbuff);
+-                       rscsi_disks[i].write_prot = 1;
++                       printk("%s: test WP failed, assume Write Enabled\n", nbuff);
+                } else {
+                        rscsi_disks[i].write_prot = ((buffer[2] & 0x80) != 0);
+
+(ii) this card needs usb/storage/dpcm.c which is compiled when
+CONFIG_USB_STORAGE_DPCM is set, but this variable is missing
+from usb/Config.in. Add it.
+
+(iii) add to unusual_devs.h:
+
+diff -u --recursive --new-file ../linux-2.4.3/linux/drivers/usb/storage/unusual_devs.h ./l\
+inux/drivers/usb/storage/unusual_devs.h
+--- ../linux-2.4.3/linux/drivers/usb/storage/unusual_devs.h     Sun Apr  1 20:44:19 2001
++++ ./linux/drivers/usb/storage/unusual_devs.h  Sat Apr 28 14:39:20 2001
+@@ -79,6 +79,12 @@
+                "CameraMate (DPCM_USB)",
+                US_SC_SCSI, US_PR_DPCM_USB, NULL,
+                US_FL_START_STOP ),
++
++UNUSUAL_DEV(  0x04e6, 0x0005, 0x0100, 0x0208,
++               "SCM Microsystems Inc",
++               "eUSB SmartMedia / CompactFlash Adapter",
++               US_SC_SCSI, US_PR_DPCM_USB, NULL,
++               US_FL_START_STOP ),
+ #endif
 
 
-On Sat, 28 Apr 2001, Martin Dalecki wrote:
+Maybe the device is slow, and I got read errors with a Compact Flash
+card in the reader at boot time. A "blockdev --rereadpt /dev/sdX" worked.
 
-> I think in the context you are inventig the proposed function, 
-> the drivers has allways an inode at hand. And contrary to what Linus
-
-Read the patch. Almost all cases are of the "loop over partitions of foo"
-kind.
-
-> says, drivers not just know about the devices they handle, they 
-> know about the data they should get - at least in the context
-> of block devices. And then you could as well pass the inode, which
-> is already containing a refference to the corresponding sb and
-> save the whole get_super linear array lookup 8-). I think
-
-No, you don't. Moreover, inode of device (even if you had it) _doesn't_
-contain a reference to sb of filesystem mounted from that device.
-
-> the less kdev_t the better! It's overused already anyway, like
-> for example in the whole SCSI code, where the functions in reality only
-> want to pass the minor number to differentiate they behaviour...
-> 
-> If you are gogin to flag the behaviour of the function,
-> then please use a bitpattern of well definded flags as a parameter,
-> in a similiar way like it's done for example in many GUI libraries
-> (GTK, Motif and so on). This would make it far more readabel.
-
-/me looks at From:
-OK, Albert, what have you done with real Martin?
-
-OK, whoever you are - no, "expandable" interfaces of that sort are
-rotten idea. What we really need is to replace sync_dev with fsync_dev -
-it _is_ correct in such context. That's it - 1 bit of information, no
-bitmaps needed.
-
-/me is still boggled by the idea of somebody refereing to GTK as an
-example of style...
+Andries
 

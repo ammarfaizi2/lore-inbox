@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132628AbRANMgM>; Sun, 14 Jan 2001 07:36:12 -0500
+	id <S132680AbRANM6a>; Sun, 14 Jan 2001 07:58:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132669AbRANMfw>; Sun, 14 Jan 2001 07:35:52 -0500
-Received: from chiara.elte.hu ([157.181.150.200]:51983 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S132628AbRANMfl>;
-	Sun, 14 Jan 2001 07:35:41 -0500
-Date: Sun, 14 Jan 2001 13:35:12 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: <junio@siamese.dhis.twinsun.com>
-Cc: Godfrey Livingstone <godfrey@hattaway-associates.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Ingo's RAID patch for 2.2.18 final?
-In-Reply-To: <7vk87y36x6.fsf@siamese.dhis.twinsun.com>
-Message-ID: <Pine.LNX.4.30.0101141334360.887-100000@e2>
+	id <S132702AbRANM6U>; Sun, 14 Jan 2001 07:58:20 -0500
+Received: from IP1A0086.ygt.mesh.ad.jp ([211.13.76.214]:57607 "EHLO
+	suika.yamamoto.gr.jp") by vger.kernel.org with ESMTP
+	id <S132680AbRANM6G>; Sun, 14 Jan 2001 07:58:06 -0500
+Message-Id: <200101141257.AA04366@karima.yamamoto.gr.jp>
+Date: Sun, 14 Jan 2001 21:57:41 +0900
+To: Andrew Morton <andrewm@uow.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Problems of at1700.c
+From: sawa <sawa@yamamoto.gr.jp>
+In-Reply-To: <3A6190EC.B881DD23@uow.edu.au>
+In-Reply-To: <200101141119.AA04362@karima.yamamoto.gr.jp>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: AL-Mail32 Version 1.11
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton wrote:
 
-On 13 Jan 2001 junio@siamese.dhis.twinsun.com wrote:
-
-> What is at <http://www.kernel.org/pub/linux/kernel/people/mingo/>
-> look official enough to me...
+>> [X.] Please include Tamiya's patch.
 >
->     raid-2.2.18-B0          12-Jan-2001 10:18   392k
+>I can't find this patch anywhere.  I suggest you
+>resend it to the linux-kernel mailing list.
 
-yep, it is the 'official' 2.2.18 RAID patch.
+   He sent his patches at 26 Jul, 2000. You can find it here for example.
+ 
+http://web.gnu.walfield.org/mail-archive/linux-kernel/2000-July/3897.html
 
-	Ingo
-
+I do not know why it has not been adopted yet. I tested it and observed 
+good results.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

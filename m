@@ -1,145 +1,119 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261651AbTEARah (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 May 2003 13:30:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261775AbTEARah
+	id S261524AbTEARfZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 May 2003 13:35:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261548AbTEARfZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 May 2003 13:30:37 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:52636 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261651AbTEARad convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 May 2003 13:30:33 -0400
-Content-Type: text/plain;
-  charset="utf-8"
-From: Hubertus Franke <frankeh@watson.ibm.com>
-Reply-To: frankeh@watson.ibm.com
-Organization: IBM Research
-To: Robert Love <rml@tech9.net>, Rick Lindsley <ricklind@us.ibm.com>
-Subject: Re: must-fix list for 2.6.0
-Date: Thu, 1 May 2003 12:50:20 -0400
-User-Agent: KMail/1.4.3
-Cc: Andrew Morton <akpm@digeo.com>, Maciej Soltysiak <solt@dns.toxicfilms.tv>,
-       linux-kernel@vger.kernel.org, frankeh@us.ibm.com
-References: <200304302311.h3UNB2H27134@owlet.beaverton.ibm.com> <1051746092.17629.25.camel@localhost>
-In-Reply-To: <1051746092.17629.25.camel@localhost>
+	Thu, 1 May 2003 13:35:25 -0400
+Received: from fep04-mail.bloor.is.net.cable.rogers.com ([66.185.86.74]:17590
+	"EHLO fep04-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
+	with ESMTP id S261524AbTEARfV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 May 2003 13:35:21 -0400
+Message-ID: <3EB15DBF.3060608@rogers.com>
+Date: Thu, 01 May 2003 13:47:43 -0400
+From: Jeff Muizelaar <muizelaar@rogers.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030327 Debian/1.3-4
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200305011250.20322.frankeh@watson.ibm.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH 4/4] NE2000 driver updates
+References: <3EB15127.2060409@rogers.com>
+In-Reply-To: <3EB15127.2060409@rogers.com>
+Content-Type: multipart/mixed;
+ boundary="------------060302050705010907090804"
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at fep04-mail.bloor.is.net.cable.rogers.com from [24.43.126.4] using ID <muizelaar@rogers.com> at Thu, 1 May 2003 13:47:44 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In good/bad I simply tried to identify what behavior will be observed. 
-Let's put OpenOffice to rest as sooner or later folks will get to use the 
-corrected version. 
-
-What is the semantics of yield?    (again) 
-Two things need to be considered. 
-(a) continuation of execution 
-(b) length of time slice at continuation 
-
-In the OLD version (a) would be run after all other tasks and (b) default 
-timeslice reset. 
-In the new version (a) would be on the same level and (b) would be no 
-changes to the current timeslice 
-
-To me both seems wrong. If you do the OLD version, one clearly limits the 
-forward progress of the task, namely by revoking its current timeslice and 
-deferring continuation for some time. 
-The new version does exactly the opposite. Defer execution for a short 
-time, but don't revoke any timeslice.
-
-So it boils down to the common use of sched_yield(). 
-(i) create some interactivity and allow all others to run based on some 
-app knowledge. 
-(ii) yielding based on locking and the potential lock hold time. 
-
-If (i) then the old version seems better. 
-If (ii) then it depends on the lock hold time and arrival rate and the 
-optimism that one wants to assume. 
-
-
-The conservative method is to move to expired, however the lock might have 
-been reacquired. 
-The aggressive method is to move the task one slot down in the active 
-queue.  The NEW method is somewhat in between but on the aggressive side
-
-Dropping the effective priority seems a reasonable medium ground, because 
-moving to the expired list is simply a bit worse then dropping the effective 
-priority to the lowest level. So why not drop the 
-effective priority based on sched_yield invocation frequency or recency. 
-This is a gradual step towards the "harsh" solution to move to the expired, 
-but at the same time avoids potential cpu hogging. 
-I am afraid there are simply contradictory situations and it will be 
-difficult to serve both perfectly. 
-
-Hubertus Franke,   IBM Research
-email: frankeh@us.ibm.com
+This is a multi-part message in MIME format.
+--------------060302050705010907090804
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
 
 
-On Wednesday 30 April 2003 19:41, Robert Love wrote:
-> On Wed, 2003-04-30 at 19:11, Rick Lindsley wrote:
-> >    OLD: when sched_yield() is called the task moves to expired,
-> > 	every other task in the active queue will run first before the
-> > 	yielding task will run again.
->
-> I really think this is the right way.
->
-> >    NEW: move the yielding task to the end of its current priority level,
-> > 	but keeps it active not expired.
->
-> This takes us back to the problem we saw in earlier sched_yield()
-> implementations.  A group of yielding threads just round-robin between
-> themselves, yielding over and over.  Worse, even a single task alone in
-> a priorty level will show up as a CPU hog if it keeps calling
-> sched_yield() in a loop.
->
-> It goes on.  Assume we have two runnable tasks, one that does whatever
-> it wants (hopefully something useful), and the other which does:
->
-> 	while(1)
-> 		sched_yield();
->
-> With the current sched_yield(), the second will receive much less
-> processor time than the first (nearly none vs. most of the processor).
-> With the sched_yield() mentioned above, they will receive identical
-> amounts of processor time.  That does not seem sane to me.
->
-> I think it is important that sched_yield() give processor time to all
-> tasks, and not just between multiple yielding tasks.
->
-> The current implementation does this.  If an application (*cough* Open
-> Office *cough*) calls sched_yield() over and over, what does it expect?
->
-> Now that we have futexes, sched_yield() no longer needs to be used as a
-> poor replacement for blocking, and it can have sane semantics, such as
-> _really_ yielding the processor.
->
-> > 	What else could be done?
-> > 	(a) drop the effective priority of the yielding task by a percentile,
-> > 	    but don't reduce the time slice!
->
-> This works, too.  We used to do this..
->
-> There are a couple bits that need to be added, though, to deal with
-> threads that call sched_yield() over and over (which are the ones where
-> we have problems).  We need to drop the task a priority level every time
-> it calls sched_yield().  Eventually it will reach the lowest priority
-> (or some earlier threshold we want to check for) and then we need to put
-> it on the expired list, like the current behavior.
->
-> So for the big offenders, I think this ends up being the same, no?
->
-> Also, this approach does not work for real-time tasks, for whom we must
-> not change their priority... so we end up just requeing them, too.
->
-> Just my thoughts...
->
-> 	Robert Love
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+--------------060302050705010907090804
+Content-Type: text/plain;
+ name="ne-bad.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ne-bad.patch"
+
+--- linux-2.5.66-nelist/drivers/net/ne.c	2003-05-01 11:05:56.000000000 -0400
++++ linux-2.5.66-nebad/drivers/net/ne.c	2003-05-01 11:18:19.000000000 -0400
+@@ -145,10 +145,10 @@
+ 
+ static int ne_legacy_probe(unsigned long base_addr, unsigned long irq, unsigned long bad);
+ 
+-static int ne_probe1(struct net_device *dev, int ioaddr);
++static int ne_probe1(struct net_device *dev, int ioaddr, int bad);
+ 
+ static int ne_create(struct net_device **ndev, unsigned long base_addr, 
+-		unsigned long irq, unsigned long bad);
++		unsigned long irq, int bad);
+ static void ne_remove(struct net_device *dev);
+ 
+ static int ne_open(struct net_device *dev);
+@@ -223,7 +223,7 @@
+ 	return err;
+ }
+ 
+-static int ne_create(struct net_device **ndev, unsigned long base_addr, unsigned long irq, unsigned long bad)
++static int ne_create(struct net_device **ndev, unsigned long base_addr, unsigned long irq, int bad)
+ {
+ 	int err;
+ 	
+@@ -237,7 +237,7 @@
+ 	(*ndev)->mem_end = bad;
+ 	SET_MODULE_OWNER(*ndev);
+ 	
+-	if (ne_probe1(*ndev, (*ndev)->base_addr) != 0) {	/* Shouldn't happen. */
++	if (ne_probe1(*ndev, (*ndev)->base_addr, bad) != 0) {	/* Shouldn't happen. */
+ 		printk(KERN_ERR "ne.c: Probe at %#lx failed\n", (*ndev)->base_addr);
+ 		err = -ENXIO;
+ 		goto probe_fail;
+@@ -268,14 +268,14 @@
+ 	}
+ }
+ 
+-static int __init ne_probe1(struct net_device *dev, int ioaddr)
++static int __init ne_probe1(struct net_device *dev, int ioaddr, int bad_card)
+ {
+ 	int i;
+ 	unsigned char SA_prom[32];
+ 	int wordlength = 2;
+ 	const char *name = NULL;
+ 	int start_page, stop_page;
+-	int neX000, ctron, copam, bad_card;
++	int neX000, ctron, copam;
+ 	int reg0, ret;
+ 	static unsigned version_printed;
+ 
+@@ -311,11 +311,8 @@
+ 
+ 	/* A user with a poor card that fails to ack the reset, or that
+ 	   does not have a valid 0x57,0x57 signature can still use this
+-	   without having to recompile. Specifying an i/o address along
+-	   with an otherwise unused dev->mem_end value of "0xBAD" will
+-	   cause the driver to skip these parts of the probe. */
+-
+-	bad_card = ((dev->base_addr != 0) && (dev->mem_end == 0xbad));
++	   without having to recompile. Specifying a bad card will cause 
++	   the driver to skip these parts of the probe. */
+ 
+ 	/* Reset card. Who knows what dain-bramaged state it was left in. */
+ 
+@@ -766,7 +763,7 @@
+ #define MAX_NE_CARDS	4	/* Max number of NE cards per module */
+ static int io[MAX_NE_CARDS];
+ static int irq[MAX_NE_CARDS];
+-static int bad[MAX_NE_CARDS];	/* 0xbad = bad sig or no reset ack */
++static int bad[MAX_NE_CARDS];	/* bad sig or no reset ack */
+ 
+ MODULE_PARM(io, "1-" __MODULE_STRING(MAX_NE_CARDS) "i");
+ MODULE_PARM(irq, "1-" __MODULE_STRING(MAX_NE_CARDS) "i");
+
+--------------060302050705010907090804--
 

@@ -1,74 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315517AbSFTUyT>; Thu, 20 Jun 2002 16:54:19 -0400
+	id <S315529AbSFTUzo>; Thu, 20 Jun 2002 16:55:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315525AbSFTUyT>; Thu, 20 Jun 2002 16:54:19 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:26890 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S315517AbSFTUyS>; Thu, 20 Jun 2002 16:54:18 -0400
-Date: Thu, 20 Jun 2002 13:53:57 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-cc: Cort Dougan <cort@fsmlabs.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Benjamin LaHaise <bcrl@redhat.com>,
-       Rusty Russell <rusty@rustcorp.com.au>, Robert Love <rml@tech9.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: latest linus-2.5 BK broken
-In-Reply-To: <3D123DB9.8090909@evision-ventures.com>
-Message-ID: <Pine.LNX.4.44.0206201344080.8225-100000@home.transmeta.com>
+	id <S315528AbSFTUzn>; Thu, 20 Jun 2002 16:55:43 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:62736 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S315525AbSFTUzl> convert rfc822-to-8bit; Thu, 20 Jun 2002 16:55:41 -0400
+Message-ID: <3D124149.6010901@evision-ventures.com>
+Date: Thu, 20 Jun 2002 22:55:37 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0.0) Gecko/20020611
+X-Accept-Language: pl, en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: James Bottomley <James.Bottomley@steeleye.com>,
+       Kurt Garloff <garloff@suse.de>,
+       Linux kernel list <linux-kernel@vger.kernel.org>,
+       Linux SCSI list <linux-scsi@vger.kernel.org>
+Subject: Re: [PATCH] /proc/scsi/map
+References: <Pine.LNX.4.44.0206201115460.8225-100000@home.transmeta.com>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+U¿ytkownik Linus Torvalds napisa³:
 
+> For example, to be useful, every driver that knows about disks should make
+> sure they show up with some standard name (the old "disk" vs "disc" war
+> ;), exactly so that you _should_ be able to do something like
+> 
+> 	find /devices -name disk*
 
-On Thu, 20 Jun 2002, Martin Dalecki wrote:
->
-> 2. See 1. even dual CPU machines are a rarity even *now*.
+Not good. find /devices -name "/sd@* -- will be unambigious.
+There are good reaons they do it like they do on the "other unix OS"...
 
-With stuff like HT, you may well not be able to _buy_ an intel desktop
-machine with just "one" CPU.
+> and be able to enumerate every disk in the whole system.
 
-Get with the flow. The old Windows codebase is dead as far as new machines
-are concerned, which means that there is no reason to hold back any more:
-all OS's support SMP.
+> 
+> 	/devices/disks/disk0 -> ../../pci0/00:02.0/02:1f.0/03:07.0/disk0
+                  ^^^^^^^^^^ You notice the redundancy in naming here :-).
 
-> 3. Nobody needs them for the usual tasks they are a *waste*
-> of resources and economics still applies.
+> 	               disk1 -> ../../pci0/00:02.3/usb_bus/001000/dev1
+> 
+> the same way that Pat already planned to do the mappings for network
+> devices in /devices/network/eth*.
 
-That's a load of bull.
+Boah the chierachies are already deep enough. /devices/net/eth@XX
+will cut it.
 
-For usual tasks, two CPU's give clearly better responsiveness than one. If
-only because one of them may be doing the computation, and the other may
-be doing GUI.
+> Is this done? No. But is it fundamentally hard? Nope. Useful? You be the
+> judge.  Imagine yourself as a installer searching for disks. Or imagine
+> yourself as a initrd program that runs at boot, setting up irq routings
+> etc before the "real boot".
 
-The number of people doing things like mp3 ripping is apparently quite
-high. And it's definitely CPU-intensive.
-
-Now, I suspect that past two CPU's you won't find much added oomph, but
-the load-balancing of just two is definitely noticeable on a personal
-scale. I just don't want to use UP machines any more unless they have
-other things going for them (ie really really small).
-
-> 4. SMP doesn't scale behind 4. Point. (64 hardly makes sense...)
-
-That's not true either.
-
-You can easily make _cheap_ hardware scale to 4, no problem. You may not
-want a shared bus, but hey, they's a small implementation detail. Most new
-CPU's have the interconnect hardware on-die (either now or planned).
-
-Intel made SMP cheap by putting all the glue logic on-chip and in the
-standard chipsets.
-
-And besides, you don't actually need to _scale_ well, if the actual
-incremental costs are low. That's the whole point with the P4-HT, of
-course. Intel claims 5% die area addition for a 30% scaling. They may be
-full of sh*t, of course, and it may be that the added complexity in the
-control logic hurts them in other areas (longer pipeline, whatever), but
-the point is that if it's cheap, the second CPU doesn't have to "scale".
-
-			Linus
+Yes but again the most content files found there are already inventing
+interfaces on the heap. /name /irq /resources /power this will end the same
+as similar attempts ended already - in a mess.
 

@@ -1,49 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266180AbUFWVpW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262356AbUFWVpX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266180AbUFWVpW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jun 2004 17:45:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262356AbUFWVi1
+	id S262356AbUFWVpX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jun 2004 17:45:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263126AbUFWVpV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jun 2004 17:38:27 -0400
-Received: from fw.osdl.org ([65.172.181.6]:64947 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266714AbUFWVfP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jun 2004 17:35:15 -0400
-Date: Wed, 23 Jun 2004 14:38:01 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Pat Gefre <pfg@sgi.com>
-Cc: linux-kernel@vger.kernel.org, erikj@sgi.com
-Subject: Re: [PATCH 2.6] Altix serial driver
-Message-Id: <20040623143801.74781235.akpm@osdl.org>
-In-Reply-To: <Pine.SGI.3.96.1040623094239.19458C-100000@fsgi900.americas.sgi.com>
-References: <Pine.SGI.3.96.1040623094239.19458C-100000@fsgi900.americas.sgi.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 23 Jun 2004 17:45:21 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:38528 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266180AbUFWVmQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jun 2004 17:42:16 -0400
+Message-ID: <40D9F925.2000304@pobox.com>
+Date: Wed, 23 Jun 2004 17:41:57 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Robert Picco <Robert.Picco@hp.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] HPET driver
+References: <200406181616.i5IGGECd003812@hera.kernel.org>	<40D35740.8070206@pobox.com> <20040618145531.015fbc12.akpm@osdl.org> <40D37090.20909@pobox.com> <40D9F74A.9090508@hp.com>
+In-Reply-To: <40D9F74A.9090508@hp.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pat Gefre <pfg@sgi.com> wrote:
->
-> 2.6 patch for our console driver. We converted the driver to use the
-> serial core functions. Also some changes to use sysfs/udev and a
-> different major number.
+Robert Picco wrote:
+> Hi Andrew:
+> 
+> I eliminated the request_irq brain damage, eliminated procfs support, 
+> made the check for FMODE_WRITE  in hpet_open and responded to a few 
+> other suggestions.
 
-This patch broke x86 `allmodconfig' and `allyesconfig'.  I fixed it with the
-below patch.  Probably the condition should be IA64_SGI_SN2, yes?
+Thanks!  I'll look over it too.
 
 
-diff -puN drivers/serial/Kconfig~altix-serial-driver-fix drivers/serial/Kconfig
---- 25/drivers/serial/Kconfig~altix-serial-driver-fix	Wed Jun 23 14:35:33 2004
-+++ 25-akpm/drivers/serial/Kconfig	Wed Jun 23 14:35:33 2004
-@@ -628,6 +628,7 @@ config SERIAL_LH7A40X_CONSOLE
- 
- config SERIAL_SGI_L1_CONSOLE
- 	bool "SGI Altix L1 serial console support"
-+	depends on IA64
- 	select SERIAL_CORE
- 	help
- 		If you have an SGI Altix and you would like to use the system
-_
+> I misinterpreted your desire to change HPET from using a major device 
+> number and moving to miscdevice.  I thought one objective was to avoid 
+> LANANA registration.  It obviously isn't and I have done LANANA 
+> registration but need a reply.  So it's possible the values for hpet in 
+> miscdevice.h and devices.txt will change.
+
+The LANANA stuff propagates to 2.4 and to vendors who update their /dev 
+packages.  You can't just pick an arbitrary number and use it.  If 
+LANANA hasn't replied, the driver should use dynamic miscdev minor, or 
+dynamic chrdev major, until a number is assigned.
+
+	Jeff
+
+
 

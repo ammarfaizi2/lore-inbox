@@ -1,78 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264286AbTDPKTO (for <rfc822;willy@w.ods.org>); Wed, 16 Apr 2003 06:19:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264288AbTDPKTO 
+	id S264288AbTDPKXX (for <rfc822;willy@w.ods.org>); Wed, 16 Apr 2003 06:23:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264289AbTDPKXX 
 	(for <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 06:19:14 -0400
-Received: from [195.167.170.152] ([195.167.170.152]:53918 "EHLO bowl.fysh.org")
-	by vger.kernel.org with ESMTP id S264286AbTDPKTM 
+	Wed, 16 Apr 2003 06:23:23 -0400
+Received: from sol.cc.u-szeged.hu ([160.114.8.24]:34954 "EHLO
+	sol.cc.u-szeged.hu") by vger.kernel.org with ESMTP id S264288AbTDPKXW 
 	(for <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 06:19:12 -0400
-Date: Wed, 16 Apr 2003 11:31:05 +0100
-From: Athanasius <link@gurus.tf>
-To: "Henning P. Schmiedehausen" <hps@intermeta.de>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [2.4.21-pre7-ac1] IDE Warning when booting
-Message-ID: <20030416103105.GC7135@miggy.org>
-Mail-Followup-To: Athanasius <link@gurus.tf>,
-	"Henning P. Schmiedehausen" <hps@intermeta.de>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <b7jahc$8f0$1@tangens.hometree.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ALfTUftag+2gvp1h"
-Content-Disposition: inline
-In-Reply-To: <b7jahc$8f0$1@tangens.hometree.net>
-User-Agent: Mutt/1.3.28i
-X-gpg-fingerprint: B34E4BC3
-X-gpg-key: http://www.fysh.org/~athan/gpg-key
+	Wed, 16 Apr 2003 06:23:22 -0400
+Date: Wed, 16 Apr 2003 12:35:15 +0200 (CEST)
+From: Geller Sandor <wildy@petra.hos.u-szeged.hu>
+To: Lukasz Trabinski <lukasz@wsisiz.edu.pl>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.21-pre7 - aic79xx
+In-Reply-To: <20030416102325.CAA47332670@oceanic.wsisiz.edu.pl>
+Message-ID: <Pine.LNX.4.44.0304161234100.14881-100000@petra.hos.u-szeged.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 16 Apr 2003, Lukasz Trabinski wrote:
 
---ALfTUftag+2gvp1h
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> In article <Pine.LNX.4.53.0304161212390.5122@oceanic.wsisiz.edu.pl> you wrote:
+> > Hello
+> >
+> > I have new machine with aic79xx scsi controler,
+>
+> exactly is Adaptec AIC7902 Ultra320
 
-On Wed, Apr 16, 2003 at 10:16:12AM +0000, Henning P. Schmiedehausen wrote:
-> !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-> vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-> hda: task_no_data_intr: status=3D0x51 { DriveReady SeekComplete Error }
-> hda: task_no_data_intr: error=3D0x04 { DriveStatusError }
-> ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Try the latest aic7xxx drivers:
+http://people.FreeBSD.org/~gibbs/linux/SRC/
 
-   Not the exact, byte-for-byte, same, but, from Configure.help:
+  Sandor Geller <wildy@petra.hos.u-szeged.hu>
 
-CONFIG_IDEDISK_MULTI_MODE
-  If you get this error, try to say Y here:
-
-  hda: set_multmode: status=3D0x51 { DriveReady SeekComplete Error }
-  hda: set_multmode: error=3D0x04 { DriveStatusError }
-
-  If in doubt, say N.
-
-Do you have that option enabled or not?
-
--Ath
---=20
-- Athanasius =3D Athanasius(at)miggy.org / http://www.miggy.org/
-                  Finger athan(at)fysh.org for PGP key
-	   "And it's me who is my enemy. Me who beats me up.
-Me who makes the monsters. Me who strips my confidence." Paula Cole - ME
-
---ALfTUftag+2gvp1h
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iEYEARECAAYFAj6dMOkACgkQIr2uvLNOS8PgXQCfftxVC+tzUL3lKq2Ky0+1M7AT
-5/8An0+52qDuLQstRJJdzVjus9to9YWN
-=aPzk
------END PGP SIGNATURE-----
-
---ALfTUftag+2gvp1h--

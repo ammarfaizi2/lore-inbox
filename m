@@ -1,126 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262303AbVCXBjx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262331AbVCXBqX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262303AbVCXBjx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 20:39:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262331AbVCXBjv
+	id S262331AbVCXBqX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 20:46:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262369AbVCXBqX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 20:39:51 -0500
-Received: from alt.aurema.com ([203.217.18.57]:33432 "EHLO smtp.sw.oz.au")
-	by vger.kernel.org with ESMTP id S262303AbVCXBjm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 20:39:42 -0500
-Date: Thu, 24 Mar 2005 12:29:48 +1100
-From: Kingsley Cheung <kingsley@aurema.com>
-To: Tom Zanussi <zanussi@us.ibm.com>
-Cc: Karim Yaghmour <karim@opersys.com>, linux-kernel@vger.kernel.org
-Subject: Re: read() on relayfs channel returns premature 0
-Message-ID: <20050324012948.GC25134@aurema.com>
-Mail-Followup-To: Tom Zanussi <zanussi@us.ibm.com>,
-	Karim Yaghmour <karim@opersys.com>, linux-kernel@vger.kernel.org
-References: <20050323090254.GA10630@aurema.com> <16961.35656.576684.890542@tut.ibm.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="Dxnq1zWXvFF0Q93v"
-Content-Disposition: inline
-In-Reply-To: <16961.35656.576684.890542@tut.ibm.com>
-User-Agent: Mutt/1.4.1i
+	Wed, 23 Mar 2005 20:46:23 -0500
+Received: from smtp-send.myrealbox.com ([192.108.102.143]:30182 "EHLO
+	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
+	id S262331AbVCXBqS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 20:46:18 -0500
+Subject: apm poweroff bug
+From: "Shawn Smith" <shawn.smith@myrealbox.com>
+To: linux-kernel@vger.kernel.org
+Date: Wed, 23 Mar 2005 17:46:14 -0800
+X-Mailer: NetMail ModWeb Module
+MIME-Version: 1.0
+Message-ID: <1111628774.8c93a03cshawn.smith@myrealbox.com>
+Content-Type: multipart/mixed;
+	boundary="------=_ModWebBOUNDARY_8c93a03c_1111628774"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
 
---Dxnq1zWXvFF0Q93v
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+--------=_ModWebBOUNDARY_8c93a03c_1111628774
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, Mar 23, 2005 at 09:29:12AM -0600, Tom Zanussi wrote:
-> kingsley@aurema.com writes:
->  > 
->  > Now I understand that this is not the latest release of relayfs (there
->  > are the redux patches, which I have yet to try).  Nonetheless I'd like
->  > to know whether this behaviour is deliberate.  Is it? 
-> 
-> Nope, looks like you've found a bug - thanks for the patch.  Any
-> chance you can send me your module so I can easily reproduce the
-> problem and test the fix?
-> 
-> Thanks,
-> 
-> Tom
-> 
+After giving a halt command, the system is normal until it gives the powerd=
+own message, and then there is a dump of error messages.  
 
-Tom,
+This is on a 'freek box' -- a rebuilt computer at free geek in Portland OR.
 
-Yes, well a cut down version of the kernel module anyway.  Its in the
-attached tar ball.  The kernel module requires pagg as well as relayfs
-to work.  Basically the module tracks kernel events - in this case
-process execs.  
+We believe that this problem has to do with a bug in power management.  
 
-I've tested it on 2.6.10 with the pagg and relayfs patches from
+We are using kernel 2.6.
 
-http://www.opersys.com/ftp/pub/relayfs/patch-relayfs-2.6.10-050113 
+The attached text file is a parital copy of the system messages that appear=
+ after the powerdown message after all other systems have been halted.
 
-and
 
-ftp://oss.sgi.com/projects/pagg/download/linux-2.6.10-pagg.patch-4
+Thank you for your time and efforts to maintain the kernel code.
 
-read() gives me a zero still once about a page of data has been read.
 
-Many thanks, 
---
-		Kingsley
+Sincerely,  
 
---Dxnq1zWXvFF0Q93v
-Content-Type: application/x-bzip2
-Content-Disposition: attachment; filename="RelayfsModule.tar.bz2"
-Content-Transfer-Encoding: base64
 
-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
+Shawn Smith
 
---Dxnq1zWXvFF0Q93v--
+
+
+
+--------=_ModWebBOUNDARY_8c93a03c_1111628774
+Content-Type: text/plain;
+	name="apm_kernel_report.txt"
+Content-Transfer-Encoding: BASE64
+Content-Disposition: attachment;
+	filename="apm_kernel_report.txt"
+
+OzsgVGhpcyBidWZmZXIgaXMgZm9yIG5vdGVzIHlvdSBkb24ndCB3YW50IHRvIHNhdmUsIGFuZCBm
+b3IgTGlzcCBldmFsdWF0aW9uLgo7OyBJZiB5b3Ugd2FudCB0byBjcmVhdGUgYSBmaWxlLCB2aXNp
+dCB0aGF0IGZpbGUgd2l0aCBDLXggQy1mLAo7OyB0aGVuIGVudGVyIHRoZSB0ZXh0IGluIHRoYXQg
+ZmlsZSdzIG93biBidWZmZXIuCgogICAgZ2VuZXJhbCBwcm90ZWN0aW9uIGZhdWx0OiAgZmRmOCBb
+IzFdCgogIFBSRUVNUFQKCk1vZHVsZXMgbGlua2VkIGluOiBhbXAgaXB2NiBscCBhdXRvZnM0IHRz
+ZGV2IG1vdXNlZGV2IHBzbW91c2UgcGFycG9ydF9wYyBwYXJwb3J0IGZsb3BweSBldmRldiBwY3Nr
+a3IgdWhjaV9oY2Qgb2hjaV9oY2QgZWhjaV9oY2QgdXNiY29yZSBzbmRfZW5zMTM3MSBzbmRfcmF3
+bWlkaSBzbmRfc2VxX2RldmljZSBzbmRfcGNtX29zcyBzbmRfbWl4ZXJfb3NzIHNuZF9wY20gc25k
+X3BhZ2VfYWxsb2Mgc25kX3RpbWVyIHNuZF9hYzk3X2NvZGVjIHNuZCBzb3VuZGNvcmUgZ2FtZXBv
+cnQgODEzOWNwIHBjaV9ob3RwbHVnIGFsaV9hZ3AgYWdwZ2FydCA4MTM5dG9vIG1paSBjYXBhYmls
+aXR5IGNvbW1vbmNhcCBpZGVfY2QgY2Ryb20gZ2VucnRjIGlzb2ZzIGV4dDMgamJkIGlkZV9nZW5l
+cmljIGlkZV9kaXNrIGFsaW0gMTV4MyBpZGVfY29yZSB1bmljIGZvbnQgdmVzYWZiIGNmYmNvcHlh
+cmVhIGNmYmltYmx0IGNmYmZpbGxyZWN0CgpDUFU6ICAwCkVJUDogIDAwYzA6IFs8MDAwMDg5M2Q+
+XSBub3QgdGFpbnRlZApFRkxBR1M6ICAwMDAxMDA0NiAgKDIuNi44LTItMzg2KQpFSVAgaXMgYXQg
+MHg4OTNkCmVheDowMDAwZmRmYSBlYng6MDAwMDAwMDEgZWN4OjAwMDAwMDAxIGVkeDowMDAwMDAw
+MCAKZXNpOmM4OWY4MDI2IGVkaTowMDAwMDIwMiBlcGI6Njc4OTAwMDAgZXNwOmM3NjAxZDk4CmRz
+OjAwYzggZXM6MDAwMCBzczowMDY4CgpQcm9jZXNzIGhhbHQgKHBpZDogMjU4MCwgdGhyZWFkaW5m
+bz1jNzYwMDAwMCB0YXNrPWM3NGRmNmYwCgpTdGFjazoKIDAwMDBmZGZhICAwMDAwMDIwMiAgYzg5
+ZjgwMjYgIDY3ODkwMDAwICBjNzYwMWRiYyAgMDAwMDAwMDEgIDAwMDAwMDAwICAwMDAwMDAwMQog
+MDAwMDUzODAgIDg4OGEwMDQ2ICA4MDI2MDIwMiAgMWRkMDAwMDAgIDAwMDAwMDAxICA1MzgwMDAw
+MyAgODIwMjgxZDkgIDgwMjYwMDAwCiAwMDAwYzg5ZiAgMWRmMjY3ODkgIDAwMDFjNzYwICAwMDAw
+MDAwMCAgMDAwMzAwMDAgIDUzMDcwMDAwICAwMDAwMDAwMCAgMDAwMDAwMDAKCkNhbGwgVHJhY2U6
+CgpbPGM4OWY0MTk0Pl0gYXBtX2Jpb3NfY2FsbF9zaW1wbGUrMHg3MjEvMHhjMyBbYXBtXQpbPGM4
+OWY0Mjk1Pl0gYXBtX3Bvd2VyX29mZisweDM0LzB4M2IgW2FwbV0KWzxjODlmNDJiND5dIHByaW50
+aysweGZiLzB4MTFiCls8YzAxMTIyMGI+XSBtYWNoaW5lX3Bvd2VyX29mZisweGIvMHhjCls8YzAx
+MjJhODY+XSBzeXNfcmVib290KzB4MTZhLzB4Mjk3Cls8YzAyNGQzY2Q+XSBzY2hlZHVsZSsweDIx
+Zi8weDNlNgpbPGMwMjRkNTQ4Pl0gc2NoZWR1bGUrMHgzYTQvMHgzZTYKWzxjMDI0ZDViMz5dIHBy
+ZWVtcHRfY2hlZHVsZSsweDI5LzB4NDEKWzxjMDEyMDhmZj5dIGtpbGxfcHJvY19pbmZvKzB4NDEv
+MHg0NgpbPGMwMTIxZDYzPl0gc3lzX2tpbGwrMHg0ZS8weDU1Cls8YzAxZGE3Mzc+XSBibGtkZXZf
+aW9jdGwrMHgzNDYvMHgzNWIKWzxjMDE1M2E3Yz5dIGJsb2NrX2lvY3RsKzB4MWEvMHgxZQpbPGMw
+MTUzYTQxPl0gc3lzX2lvY3RsKzB4MWNkLzB4MjE0Cls8YzAxNTNhN2M+XSBzeXNfaW9jdGwrMHgy
+MDgvMHgyMTQKWzxjMDEwNWY5Nz5dIHN5c2NhbGxfY2FsbCsweDcvMHhiCgpDb2RlOiAgQmFkIEVJ
+UCB2YWx1ZQogICA8Nj5ub3RlOiBoYWx0IFsyNTgwXSBleGl0ZWQgd2l0aCBwcmVlbXB0X2NvdW50
+IDIKICBiYWQgc2NoZWR1bGluZyB3aGlsZSBhdG9taWMhCgpbPGMwMjRkMWUwPl0gc2NoZWR1bGUr
+MHgzYy8weDNlNgpbPGMwMTM4MTkxPl0gdW5tYXBfdm1hcysweGUwLzB4MWNmCls8YzAxMzgyMTM+
+XSB1bm1hcF92bWFzKzB4MTYyLzB4MWNmCgo=
+
+--------=_ModWebBOUNDARY_8c93a03c_1111628774--
+

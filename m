@@ -1,39 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262934AbVAFRiu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262936AbVAFRqj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262934AbVAFRiu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 12:38:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262933AbVAFRfn
+	id S262936AbVAFRqj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 12:46:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262938AbVAFRnW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 12:35:43 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:43963 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S262930AbVAFRe7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 12:34:59 -0500
-Subject: Re: Questions about the CMD640 and RZ1000 bugfix support options
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andrey Melnikoff <temnota+news@kmv.ru>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <e0qta2-7jr.ln1@kenga.kmv.ru>
-References: <41D5D206.1040107@mathematica.scientia.net>
-	 <1104676209.15004.58.camel@localhost.localdomain>
-	 <e0qta2-7jr.ln1@kenga.kmv.ru>
+	Thu, 6 Jan 2005 12:43:22 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:54206 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S262943AbVAFRmd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 12:42:33 -0500
+Subject: Re: Open hardware wireless cards
+From: Lee Revell <rlrevell@joe-job.com>
+To: "Luis R. Rodriguez" <mcgrof@ruslug.rutgers.edu>
+Cc: "Luis R. Rodriguez" <mcgrof@studorgs.rutgers.edu>,
+       Norbert van Nobelen <norbert-kernel@edusupport.nl>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20050106173858.GV5159@ruslug.rutgers.edu>
+References: <20050105200526.GL5159@ruslug.rutgers.edu>
+	 <41DC4B43.7090109@imag.fr> <20050105202626.GN5159@ruslug.rutgers.edu>
+	 <200501060902.07502.norbert-kernel@edusupport.nl>
+	 <20050106172438.GT5159@ruslug.rutgers.edu>
+	 <1105033035.15352.0.camel@krustophenia.net>
+	 <20050106173858.GV5159@ruslug.rutgers.edu>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1105025417.17176.222.camel@localhost.localdomain>
+Date: Thu, 06 Jan 2005 12:42:29 -0500
+Message-Id: <1105033349.15352.5.camel@krustophenia.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 06 Jan 2005 16:30:41 +0000
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2005-01-05 at 18:58, Andrey Melnikoff wrote:
-> > > At least the second of those two seems to cause some little slowdown 
-> > > ("This may slow disk throughput by a few percent, but at least things 
-> > They only trigger for the affected chipsets
-> But enabled by default. Maybe disable it by default ? Or make depend with 
-> CONFIG_M586 || CONFIG_M586TSC || CONFIG_M586MMX ?
+[removed prism-54 devel as it's subscribers only]
 
-They should be enabled by default. That makes it safer for default
-compiles, and their code size is close to if not nil because it can all
-be __devinit or __init
+On Thu, 2005-01-06 at 12:38 -0500, Luis R. Rodriguez wrote:
+> On Thu, Jan 06, 2005 at 12:37:15PM -0500, Lee Revell wrote:
+> > On Thu, 2005-01-06 at 12:24 -0500, Luis R. Rodriguez wrote:
+> > > On Thu, Jan 06, 2005 at 09:02:07AM +0100, Norbert van Nobelen wrote:
+> > > > You don't have to buy a company. There are white label manufacturers which are 
+> > > > happy to produce any card you like 
+> > > 
+> > > Excellent
+> > 
+> > Wireless?!?  How abour a freaking pro audio interface (aka "sound
+> > card")?  Wireless is like rocket science by comparison.
+> 
+> So be it, let's shoot for friendly open sound card design manufacturing.
+> 
+
+It's been discussed on LAD and LAU.  Not sure what current status is.  I
+think if the open video card is viable then this certainly is.  Pro
+sound gear is not a commodity market to the same extent that computer
+hardware is.
+
+Please check out those lists if you're interested, I don't want to start
+an OT thread here...
+
+Lee
 

@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264126AbUAEKbX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 05:31:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264132AbUAEKbX
+	id S263953AbUAEKjm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 05:39:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264129AbUAEKjm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 05:31:23 -0500
-Received: from cibs9.sns.it ([192.167.206.29]:28686 "EHLO cibs9.sns.it")
-	by vger.kernel.org with ESMTP id S264126AbUAEKbV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 05:31:21 -0500
-Date: Mon, 5 Jan 2004 11:31:19 +0100 (CET)
-From: venom@sns.it
-To: Soeren Sonnenburg <kernel@nn7.de>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: xterm scrolling speed - scheduling weirdness in 2.6 ?!
-In-Reply-To: <1073211091.3261.4.camel@localhost>
-Message-ID: <Pine.LNX.4.43.0401051127080.32446-100000@cibs9.sns.it>
+	Mon, 5 Jan 2004 05:39:42 -0500
+Received: from web13910.mail.yahoo.com ([216.136.172.95]:46988 "HELO
+	web13910.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S263953AbUAEKjl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jan 2004 05:39:41 -0500
+Message-ID: <20040105103940.34389.qmail@web13910.mail.yahoo.com>
+X-RocketYMMF: knobi.rm
+Date: Mon, 5 Jan 2004 02:39:40 -0800 (PST)
+From: Martin Knoblauch <knobi@knobisoft.de>
+Reply-To: knobi@knobisoft.de
+Subject: Any changes in Multicast code between 2.4.20 and 2.4.22/23 ?
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+ besides wishing everybody a Happy new Year 2004, I have one question.
+Have there been any changes in the multicast handling between 2.4.20
+and 2.4.22/23? Maybe specific to the "tg3" driver?
 
+ Reason for my question is that the Ganglia monitoring toolkit stopped
+working with 2.4.22/23 kernels. Apparently mulicatst get sent, but
+nothing is received.
 
-On Sun, 4 Jan 2004, Soeren Sonnenburg wrote:
+ Any ideas?
 
-> > out of interest, have you tried to see how 2.4.xx compares when compiled
-> > with HZ set to 1000?
-> > (or conversely, 2.6 compiled with HZ set to 100)
->
-> assuming you mean changing the HZ value in include/param.h to 1000/100
-> yes 2.4 with HZ=1000 is fine and 2.6 with HZ=100 still #%$@$^&!!
->
-mmhhh! depends...
+Thanks
+Martin
 
-On a DB that has to write often big, long data streams HZ=100 on a 2.6.0 kernel
-allows a better performance instead of HZ=1000 (no kernel preemption).
-
-on a DB that has to read often small, short data streams HZ=1000 is better than
-HZ=100 with a 2.6.0 kernel.
-
-Luigi
-
-
-
+=====
+------------------------------------------------------
+Martin Knoblauch
+email: k n o b i AT knobisoft DOT de
+www:   http://www.knobisoft.de

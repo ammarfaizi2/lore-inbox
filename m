@@ -1,38 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132549AbQKSRYh>; Sun, 19 Nov 2000 12:24:37 -0500
+	id <S129152AbQKSRh7>; Sun, 19 Nov 2000 12:37:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132417AbQKSRY2>; Sun, 19 Nov 2000 12:24:28 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:24352 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129716AbQKSRYR>; Sun, 19 Nov 2000 12:24:17 -0500
-Subject: Re: BTTV detection broken in 2.4.0-test11-pre5
-To: goemon@anime.net (Dan Hollis)
-Date: Sun, 19 Nov 2000 16:53:32 +0000 (GMT)
-Cc: wingel@hog.ctrl-c.liu.se (Christer Weinigel), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0011190740290.13294-100000@anime.net> from "Dan Hollis" at Nov 19, 2000 07:50:39 AM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S129226AbQKSRht>; Sun, 19 Nov 2000 12:37:49 -0500
+Received: from altrade.nijmegen.inter.nl.net ([193.67.237.6]:54175 "EHLO
+	altrade.nijmegen.inter.nl.net") by vger.kernel.org with ESMTP
+	id <S129152AbQKSRho>; Sun, 19 Nov 2000 12:37:44 -0500
+Date: Sun, 19 Nov 2000 17:43:43 +0100
+From: Frank van Maarseveen <F.vanMaarseveen@inter.NL.net>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.0-test11-pre3: kernel: Attempt to read inode for relocated directory
+Message-ID: <20001119174342.A10255@iapetus.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E13xXig-0002ss-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Mutt 1.0i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > So change the CMOS-settings so that the BIOS changes the boot order
-> > from A, C, CD-ROM to C first instead.  *grin*  How long do you want
-> > to keep playing Tic-Tac-Toe?
-> 
-> Writeprotect the flashbios with the motherboard jumper, and remove the
-> cmos battery.
-> 
-> Checkmate. :-)
+2.4.0-test11-pre3 kernel said
 
-You can do a live Linux kernel swap without a bios level reboot. 
+Nov 19 17:40:25 iapetus kernel: Attempt to read inode for relocated directory 
+Nov 19 17:40:25 iapetus last message repeated 8 times
 
-Alan
+while doing a
 
+	mount -t iso9660 /dev/hdc /cdrom
+	cd /cdrom
+	find -depth |cpio -pdm /dst
+
+Is reproducable here, both by loopback mounting the iso9660
+image as by mounting the CD-RW where it has been written to.
+
+-- 
+Frank
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

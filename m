@@ -1,69 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261943AbVBFESe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S272173AbVBFEUS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261943AbVBFESe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Feb 2005 23:18:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264850AbVBFESe
+	id S272173AbVBFEUS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Feb 2005 23:20:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263706AbVBFEUR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Feb 2005 23:18:34 -0500
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:20659
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S261943AbVBFES2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Feb 2005 23:18:28 -0500
-Date: Sat, 5 Feb 2005 20:10:44 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: mirko.parthey@informatik.tu-chemnitz.de, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com, yoshfuji@linux-ipv6.org, shemminger@osdl.org
-Subject: Re: PROBLEM: 2.6.11-rc2 hangs on bridge shutdown (br0)
-Message-Id: <20050205201044.1b95f4e8.davem@davemloft.net>
-In-Reply-To: <20050205064643.GA29758@gondor.apana.org.au>
-References: <20050131162201.GA1000@stilzchen.informatik.tu-chemnitz.de>
-	<20050205052407.GA17266@gondor.apana.org.au>
-	<20050204213813.4bd642ad.davem@davemloft.net>
-	<20050205061110.GA18275@gondor.apana.org.au>
-	<20050204221344.247548cb.davem@davemloft.net>
-	<20050205064643.GA29758@gondor.apana.org.au>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Sat, 5 Feb 2005 23:20:17 -0500
+Received: from h80ad26a6.async.vt.edu ([128.173.38.166]:8460 "EHLO
+	h80ad26a6.async.vt.edu") by vger.kernel.org with ESMTP
+	id S264320AbVBFET5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Feb 2005 23:19:57 -0500
+Message-Id: <200502060419.j164JjCP027883@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.11-rc3-V0.7.38-01 
+In-Reply-To: Your message of "Fri, 04 Feb 2005 11:03:47 +0100."
+             <20050204100347.GA13186@elte.hu> 
+From: Valdis.Kletnieks@vt.edu
+References: <20050204100347.GA13186@elte.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: multipart/signed; boundary="==_Exmh_1107663585_3521P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Sat, 05 Feb 2005 23:19:45 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 5 Feb 2005 17:46:43 +1100
-Herbert Xu <herbert@gondor.apana.org.au> wrote:
+--==_Exmh_1107663585_3521P
+Content-Type: text/plain; charset="us-ascii"
+Content-Id: <27872.1107663584.1@turing-police.cc.vt.edu>
 
-> This doesn't work because net/core/dst.c can only search based
-> on dst->dev.  For the split device case, dst->dev is set to
-> loopback_dev while rt6i_idev is set to the real device.
+On Fri, 04 Feb 2005 11:03:47 +0100, Ingo Molnar said:
+> 
+> i have released the -V0.7.38-01 Real-Time Preemption patch, which can be
 
-Indeed.  I didn't catch that.
+Building with:
 
-> If we wanted to preserve the split device semantics, then we
-> can create a local GC list in IPv6 so that it can search based
-> on rt6i_idev as well as the other keys.
+# CONFIG_PREEMPT_NONE is not set
+# CONFIG_PREEMPT_VOLUNTARY is not set
+CONFIG_PREEMPT_DESKTOP=y
+# CONFIG_PREEMPT_RT is not set
 
-Ok, so this would entail changing each ipv6 dst_free() call
-into one to ip6_dst_free(), which would:
+  CC      kernel/sched.o
+kernel/sched.c:314:1: warning: "_finish_arch_switch" redefined
+kernel/sched.c:306:1: warning: this is the location of the previous definition
 
-	ip6_garbage_add(dst);
-	dst_free(dst);
+caused by this part of the patch:
 
-It would mean that dst_run_gc() would need to have some callback
-like dst->ops->gc_destroy() or similar, which would allow ipv6
-to delete the dst from it's local garbage list.
+@@ -288,12 +295,20 @@ static DEFINE_PER_CPU(struct runqueue, r
+ #define task_rq(p)             cpu_rq(task_cpu(p))
+ #define cpu_curr(cpu)          (cpu_rq(cpu)->curr)
+ 
++#ifdef CONFIG_PREEMPT_RT
++# ifdef prepare_arch_switch
++#   error FIXME
++# endif        
++#else  
++# define _finish_arch_switch finish_arch_switch
++#endif 
++       
+ /*     
+  * Default context-switch locking:
+  */    
+ #ifndef prepare_arch_switch
+ # define prepare_arch_switch(rq, next) do { } while (0)
+-# define finish_arch_switch(rq, next)  spin_unlock_irq(&(rq)->lock)
++# define _finish_arch_switch(rq, next) spin_unlock(&(rq)->lock)
+ # define task_running(rq, p)           ((rq)->curr == (p))
+ #endif
+  
 
-> Alternatively we can
-> remove the dst->dev == dev check in dst_dev_event and dst_ifdown
-> and move that test down to the individual ifdown functions.
+What was intended for non-RT builds?
 
-I think there is a hole in this idea.... maybe.
+--==_Exmh_1107663585_3521P
+Content-Type: application/pgp-signature
 
-If the idea is to scan dst_garbage_list down in ipv6 specific code,
-you can't do that since 'dst' objects from every pool in the kernel
-get put onto the dst_garbage_list.   It is generic.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-They have no identity, so it's illegal to treat any member of that
-list as an rt_entry, rt6_entry or any specific higher level dst
-type.
+iD8DBQFCBZrhcC3lWbTT17ARAuXKAKDZokwOwmB7YzNxSh8+pJKBV0dxVQCeJeLK
+GA5sSWsJ6bk8hkUx6S00QQg=
+=UGjb
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1107663585_3521P--

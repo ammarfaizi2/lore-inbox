@@ -1,45 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272213AbRHWEFq>; Thu, 23 Aug 2001 00:05:46 -0400
+	id <S272215AbRHWE2j>; Thu, 23 Aug 2001 00:28:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272212AbRHWEFg>; Thu, 23 Aug 2001 00:05:36 -0400
-Received: from femail27.sdc1.sfba.home.com ([24.254.60.17]:24279 "EHLO
-	femail27.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S272211AbRHWEFa>; Thu, 23 Aug 2001 00:05:30 -0400
-From: Josh McKinney <forming@home.com>
-Date: Wed, 22 Aug 2001 23:05:39 -0500
+	id <S272216AbRHWE2T>; Thu, 23 Aug 2001 00:28:19 -0400
+Received: from pD903C758.dip.t-dialin.net ([217.3.199.88]:22914 "EHLO
+	no-maam.dyndns.org") by vger.kernel.org with ESMTP
+	id <S272215AbRHWE2P>; Thu, 23 Aug 2001 00:28:15 -0400
+Date: Wed, 22 Aug 2001 16:43:14 +0200
 To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.9: GCC 3.0 problem in "acct.c"
-Message-ID: <20010822230539.A5013@home.com>
-Mail-Followup-To: josh, linux-kernel@vger.kernel.org
-In-Reply-To: <200108222251.BAA04797@ares.sot.com>
+Subject: Writing oops-messages to floppy or disk
+Message-ID: <20010822164314.B31151@no-maam.dyndns.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200108222251.BAA04797@ares.sot.com>
 User-Agent: Mutt/1.3.20i
+From: erik.tews@gmx.net (Erik Tews)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On approximately Thu, Aug 23, 2001 at 01:51:33AM +0300, Santeri Kannisto wrote:
-> Except that a similar problem with capi existed allready with gcc 3.0 +
-> kernels 2.4.*, and that problem was reported to gcc people multiple 
-> times. But it is still broken in gcc 3.0.1:
-> 
-> bp2.c:414: warning: `sbp2_host_info_lock' defined but not used
-> capi.c: In function `capi_ioctl':
-> capi.c:1031: Unrecognizable insn:
-> (insn/i 1675 3103 3100 (parallel[ capi.c:1031: Internal error: Segmentation fault
-> Please submit a full bug report,
-> with preprocessed source if appropriate.
-> See <URL:http://www.gnu.org/software/gcc/bugs.html> for instructions.
-> 
-> So, does anyone have any ideas? That problem is critical because
-> it makes ISDN (capi 2) unusable with kernels 2.4.* + gcc 3.0.* 
-> 
-> All other things seem to function pretty well with 2.4.9 + 3.0.1.
+Hi
 
-I get the same sort of Unrecognizable insn: error in signal.c with my setup.
-This is true today with the latest cvs gcc.
+Some days ago, I had the problem that the isdn-router in our school
+crashed (was a problem with mppp, I am currently talking with the
+isdn-guys). I had a oops-message on my screen. My kernel has had
+magic-sysrq-support. So I needed this message somewhere to give it so
+ksymoops. The only solution I had was typing it into my laptop by hand.
 
-Josh
+So I would like to know if there is a solution to tell the kernel to
+write the current screen (or the oops-message) to floppy (bypassing the
+filesystem, just raw write, reading it back with dd if=/dev/fd0, of=-)
+The only option I have with ksymoops is syncing my filesystems, but most
+time, the kernel freezes before syslogd is able to write it to the
+filesystem. Or an other solution to get the message to resistant memory.
+
+Typing the message by hand into my laptop is a bad thing, because it
+takes a lot of time, and during this time, the system is down.

@@ -1,63 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261888AbULGSiw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261882AbULGSlB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261888AbULGSiw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Dec 2004 13:38:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261889AbULGSiw
+	id S261882AbULGSlB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Dec 2004 13:41:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261884AbULGSlB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Dec 2004 13:38:52 -0500
-Received: from quickstop.soohrt.org ([81.2.155.147]:62923 "EHLO
-	quickstop.soohrt.org") by vger.kernel.org with ESMTP
-	id S261888AbULGSiu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Dec 2004 13:38:50 -0500
-Date: Tue, 7 Dec 2004 19:38:45 +0100
-From: Karsten Desler <kdesler@soohrt.org>
-To: Karsten Desler <kdesler@soohrt.org>
-Cc: P@draigBrady.com, "David S. Miller" <davem@davemloft.net>,
-       netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: _High_ CPU usage while routing (mostly) small UDP packets
-Message-ID: <20041207183845.GA2078@quickstop.soohrt.org>
-References: <20041206205305.GA11970@soohrt.org> <20041206134849.498bfc93.davem@davemloft.net> <20041206224107.GA8529@soohrt.org> <41B58A58.8010007@draigBrady.com> <20041207112139.GA3610@soohrt.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 7 Dec 2004 13:41:01 -0500
+Received: from out001pub.verizon.net ([206.46.170.140]:15077 "EHLO
+	out001.verizon.net") by vger.kernel.org with ESMTP id S261882AbULGSkp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Dec 2004 13:40:45 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.32-2
+Date: Tue, 7 Dec 2004 13:40:42 -0500
+User-Agent: KMail/1.7
+Cc: Ingo Molnar <mingo@elte.hu>, Eran Mann <emann@mrv.com>
+References: <OFD07DEEA4.7C243C76-ON86256F5F.007976EC@raytheon.com> <41B5C038.1090501@mrv.com> <20041207153720.GA20712@elte.hu>
+In-Reply-To: <20041207153720.GA20712@elte.hu>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 Content-Disposition: inline
-In-Reply-To: <20041207112139.GA3610@soohrt.org>
-User-Agent: Mutt/1.5.6+20040722i
+Message-Id: <200412071340.42731.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out001.verizon.net from [141.153.76.102] at Tue, 7 Dec 2004 12:40:43 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Karsten Desler <kdesler@soohrt.org> wrote:
-> > Also have a look at http://www.hipac.org/ as netfilter
-> > has silly scalability properties.
-> 
-> I did before, but I read on Harald Weltes' weblog that 2.4 gives
-> slightly worse pps results than 2.6, and since the cpu usage is as high
-> as it is, I didn't want to take any more performance hits.
-> I'll try to see what performance impact the netfilter rules have during
-> peak load.
+On Tuesday 07 December 2004 10:37, Ingo Molnar wrote:
+>* Eran Mann <emann@mrv.com> wrote:
+>> On my machine, disabling CONFIG_LATENCY_TRACE causes the kernel to
+>> stop reporting preempt latencies. After
+>>
+>> # echo 1 > /proc/sys/kernel/preempt_max_latency
+>>
+>> /proc/sys/kernel/preempt_max_latency always shows 1 no matter what
+>> load is on the machine. I´ve seen this behavior since the first
+>> time I tried to disable CONFIG_LATENCY_TRACE, around
+>> V0.7.31.something.
+>
+>indeed - there was a thinko in trace_stop_sched_switched() that
+> likely caused this problem. Does the -32-8 patch (freshly uploaded)
+> work better for you?
+>
+> Ingo
 
-using 2 CPUs
-System load: 61.4% || Free:  51.0%(0)  26.3%(1)
-System load: 59.6% || Free:  53.6%(0)  27.3%(1)
-System load: 59.6% || Free:  53.6%(0)  27.3%(1)
-System load: 59.7% || Free:  53.6%(0)  27.0%(1)
-System load: 60.3% || Free:  53.0%(0)  26.4%(1)
-System load: 51.9% || Free:  60.4%(0)  35.8%(1) <- iptables -F
-System load: 50.1% || Free:  62.1%(0)  37.7%(1)
-System load: 50.1% || Free:  62.0%(0)  37.8%(1)
-System load: 50.6% || Free:  61.6%(0)  37.2%(1)
-System load: 50.5% || Free:  61.7%(0)  37.3%(1)
+I'd like to report a slight improvement in the reports from tvtime
+while running 32-6 with full preemtion turned on, cfq scheduler:
 
+------
+Dec  7 13:29:39 coyote kernel: wow!  That was a 15 millisec bump
+Dec  7 13:29:39 coyote kernel: `IRQ 8'[838] is being piggy.
+need_resched=0, cpu=0
+Dec  7 13:29:39 coyote kernel: Read missed before next interrupt
+-----
+Each second of the log contains about 27 of these, so its pretty
+steady.  Picture looks pretty good though.
 
-> > I also notice that a lot of time is spent allocating
-> > and freeing the packet buffers (and possible hidden
-> > time due to cache misses due to allocating on one
-> > CPU and freeing on another?).
-> > How many [RT]xDescriptors do you have configured by the way?
-> 
-> 256. I increased them to 1024 shortly after the profiling run, but
-> didn't notice any change in the cpu usage (will try again with cyclesoak).
+Although, that particular snip was taken from the log while I was
+*not* on the same screen as tvtime.  Switching back it its screen
+returned the slip times to the 22 millisecond area.  And on quiting,
+this was output:
+-----------------
+Dec  7 13:29:47 coyote kernel: rtc latency histogram of {tvtime/4038,
+7565 samples}:
+Dec  7 13:29:47 coyote kernel: 3 401
+Dec  7 13:29:47 coyote kernel: 4 3348
+Dec  7 13:29:47 coyote kernel: 5 1104
+Dec  7 13:29:47 coyote kernel: 6 435
+Dec  7 13:29:47 coyote kernel: 7 294
+Dec  7 13:29:47 coyote kernel: 8 246
+Dec  7 13:29:47 coyote kernel: 9 236
+Dec  7 13:29:47 coyote kernel: 10 241
+Dec  7 13:29:47 coyote kernel: 11 301
+Dec  7 13:29:47 coyote kernel: 12 232
+Dec  7 13:29:47 coyote kernel: 13 146
+Dec  7 13:29:47 coyote kernel: 14 52
+Dec  7 13:29:47 coyote kernel: 15 9
+Dec  7 13:29:47 coyote kernel: 16 4
+Dec  7 13:29:47 coyote kernel: 17 2
+Dec  7 13:29:47 coyote kernel: 19 1
+Dec  7 13:29:47 coyote kernel: 20 1
+Dec  7 13:29:47 coyote kernel: 23 1
+Dec  7 13:29:47 coyote kernel: 24 1
+Dec  7 13:29:47 coyote kernel: 4545 1
+Dec  7 13:29:47 coyote kernel: 9999 509
 
-Again, no effect.
+So there not much real change after all. Heavy duty wishfull thinking
+I guess.  How can I decode the above output into english?
 
-Cheers,
- Karsten
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.30% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+

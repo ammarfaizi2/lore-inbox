@@ -1,28 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264717AbUHHVrl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263943AbUHHVug@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264717AbUHHVrl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Aug 2004 17:47:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263943AbUHHVrk
+	id S263943AbUHHVug (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Aug 2004 17:50:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265038AbUHHVug
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Aug 2004 17:47:40 -0400
-Received: from fw.osdl.org ([65.172.181.6]:20869 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265038AbUHHVrT (ORCPT
+	Sun, 8 Aug 2004 17:50:36 -0400
+Received: from fw.osdl.org ([65.172.181.6]:46728 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263943AbUHHVud (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Aug 2004 17:47:19 -0400
-Date: Sun, 8 Aug 2004 14:36:31 -0700
+	Sun, 8 Aug 2004 17:50:33 -0400
+Date: Sun, 8 Aug 2004 14:41:18 -0700
 From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Paul Jackson <pj@sgi.com>
-Cc: mbligh@aracnet.com, alex.williamson@hp.com, haveblue@us.ibm.com,
-       acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [ACPI] Re: [PATCH] cleanup ACPI numa warnings
-Message-Id: <20040808143631.7c18cae9.rddunlap@osdl.org>
-In-Reply-To: <20040807105729.6adea633.pj@sgi.com>
-References: <1091738798.22406.9.camel@tdi>
-	<1091739702.31490.245.camel@nighthawk>
-	<1091741142.22406.28.camel@tdi>
-	<249150000.1091763309@[10.10.2.4]>
-	<20040805205059.3fb67b71.rddunlap@osdl.org>
-	<20040807105729.6adea633.pj@sgi.com>
+To: Davy Durham <davy@networkstreaming.com>
+Cc: sebastien.yapo@e-neyret.com, linux-kernel@vger.kernel.org
+Subject: Re: disabling all video
+Message-Id: <20040808144118.01446910.rddunlap@osdl.org>
+In-Reply-To: <41152A64.6060405@networkstreaming.com>
+References: <4113E0FE.1040506@networkstreaming.com>
+	<200408070008.42519.sebastien.yapo@e-neyret.com>
+	<41152A64.6060405@networkstreaming.com>
 Organization: OSDL
 X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
@@ -31,28 +27,35 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 7 Aug 2004 10:57:29 -0700 Paul Jackson wrote:
+On Sat, 07 Aug 2004 14:15:48 -0500 Davy Durham wrote:
 
-| > And there's nothing in CodingStyle that agrees with you that I could find.
-| 
-| >From the file Documentation/SubmittingPatches:
-| 
-|         3) 'static inline' is better than a macro
-| 
-|         Static inline functions are greatly preferred over macros.
-|         They provide type safety, have no length limitations, no formatting
-|         limitations, and under gcc they are as cheap as macros.
-| 
-|         Macros should only be used for cases where a static inline is clearly
-|         suboptimal [there a few, isolated cases of this in fast paths],
-|         or where it is impossible to use a static inline function [such as
-|         string-izing].
+| Perhaps is there a way/trick to accomplish this by explicitly breaking 
+| (*at* runtime/kernel-parameter-time) the vga support that wouldn't cause 
+| a panic?
 
-Oops.  Thanks, Paul.
+Perhaps there could be a way (most likely there could be), but there
+isn't a way currently that I can find in source files or in
+Documentation/kernel-parameters.txt .
 
-I agree that the inline looks better than the macro (more readable,
-possibly more maintainable), but not that the multi-line macro
-is _evil_ (which is what Martin said).
+
+| Yapo Sebastien wrote:
+| 
+| >>Question: I would like the kernel not to use any of the video hardware
+| >>on the machine.  Is there any run-time kernel parameter I can pass to
+| >>disable all video?  (I tried console= to direct output to the serial
+| >>port, but ttys were still using the vga hardware.)  My video card is
+| >>built onto the mother board, and there is no way I see to disable it
+| >>from the BIOS.
+| >>
+| >>    
+| >>
+| >Remove "if EMBEDDED" in the VT and VT_CONSOLE section of drivers/char/Kconfig 
+| >then reconfigure your kernel.
+| >You should find the old VT options in Device Drivers  -> Character devices
+| >
+| >Regards
+| >
+| >Sebastien
 
 
 --

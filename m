@@ -1,36 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264462AbTH2Hly (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Aug 2003 03:41:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264471AbTH2Hly
+	id S264469AbTH2HiU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Aug 2003 03:38:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264471AbTH2HiU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Aug 2003 03:41:54 -0400
-Received: from fw.osdl.org ([65.172.181.6]:9358 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264462AbTH2Hlx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Aug 2003 03:41:53 -0400
-Date: Fri, 29 Aug 2003 00:45:17 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.6.0-test4-mm3
-Message-Id: <20030829004517.323737ba.akpm@osdl.org>
-In-Reply-To: <20030828235649.61074690.akpm@osdl.org>
-References: <20030828235649.61074690.akpm@osdl.org>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Fri, 29 Aug 2003 03:38:20 -0400
+Received: from h234n2fls24o900.bredband.comhem.se ([217.208.132.234]:23778
+	"EHLO oden.fish.net") by vger.kernel.org with ESMTP id S264469AbTH2HiT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Aug 2003 03:38:19 -0400
+Date: Fri, 29 Aug 2003 09:39:06 +0200
+From: Voluspa <lista1@comhem.se>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]O19int
+Message-Id: <20030829093906.29af7599.lista1@comhem.se>
+In-Reply-To: <200308291550.28159.kernel@kolivas.org>
+References: <200308291550.28159.kernel@kolivas.org>
+Organization: The Foggy One
+X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> wrote:
->
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test4/2.6.0-test4-mm3/
+On Fri, 29 Aug 2003 15:50:22 +1000
+Con Kolivas wrote:
 
-That rollup is missing some AIO patches.  And master.kernel.org has
-conveniently died.
+> Patch against 2.6.0-test4-mm2
 
-Please use
+Patched the -mm2 kernel and perceive/see no regression during my usual
+tests. In fact, I _believe_ the anti-starvation is even better now,
+compared to O18.1
 
-http://www.zip.com.au/~akpm/linux/patches/2.6.0-test4-mm3-1.gz
+The new Blender 2.28a could be thrown into a self-starvation by altering
+a few parameters in my test, resulting in the usual short freezes. And
+2.28 behaved the same, although a bit harder to make it happen.
 
+The altered test have no effect on either Blender with this O19int.
+
+Mvh
+Mats Johannesson

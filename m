@@ -1,40 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273896AbRJDMyH>; Thu, 4 Oct 2001 08:54:07 -0400
+	id <S273894AbRJDMu1>; Thu, 4 Oct 2001 08:50:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273912AbRJDMx6>; Thu, 4 Oct 2001 08:53:58 -0400
-Received: from gannet.scg.man.ac.uk ([130.88.94.110]:24337 "EHLO
-	gannet.scg.man.ac.uk") by vger.kernel.org with ESMTP
-	id <S273896AbRJDMxq>; Thu, 4 Oct 2001 08:53:46 -0400
-Date: Thu, 4 Oct 2001 13:54:12 +0100
-From: John Levon <moz@compsoc.man.ac.uk>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Security question: "Text file busy" overwriting executables but not shared libraries?
-Message-ID: <20011004135412.A22854@compsoc.man.ac.uk>
-In-Reply-To: <200110031249.HAA50103@tomcat.admin.navo.hpc.mil> <m1r8sk1tuq.fsf@frodo.biederman.org> <01100319203903.00728@localhost.localdomain> <9pgsk4$7ep$1@penguin.transmeta.com>
+	id <S273896AbRJDMuS>; Thu, 4 Oct 2001 08:50:18 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:49422 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S273894AbRJDMuM>;
+	Thu, 4 Oct 2001 08:50:12 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PATCH - gameport_{,un}register_port must be static when inline 
+In-Reply-To: Your message of "Thu, 04 Oct 2001 15:32:54 +1000."
+             <15291.62598.349815.333342@notabene.cse.unsw.edu.au> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9pgsk4$7ep$1@penguin.transmeta.com>
-User-Agent: Mutt/1.3.19i
-X-Url: http://www.movement.uklinux.net/
-X-Record: Truant - Neither Work Nor Leisure
-X-Toppers: N/A
+Date: Thu, 04 Oct 2001 22:50:28 +1000
+Message-ID: <30948.1002199828@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 04, 2001 at 05:38:12AM +0000, Linus Torvalds wrote:
+On Thu, 4 Oct 2001 15:32:54 +1000 (EST), 
+Neil Brown <neilb@cse.unsw.edu.au> wrote:
+># CONFIG_INPUT_GAMEPORT is not set
+>CONFIG_SOUND=y
+>CONFIG_SOUND_ESSSOLO1=y
+>CONFIG_SOUND_ES1370=y
 
-> The reason the kernel refuses to honour it, is that MAP_DENYWRITE is an
-> excellent DoS-vehicle - you just mmap("/etc/passwd") with MAP_DENYWRITE,
-> and even root cannot write to it.. Vary nasty.
+My apologies, the symptoms sounded like a bug I fixed in 2.4.5-ac but
+are actually different.  Your original patch was correct.
 
-why is MAP_EXECUTABLE dealt with in the same way then ?
-
-john
-
--- 
-" It is quite humbling to realize that the storage occupied by the longest line
-from a typical Usenet posting is sufficient to provide a state space so vast
-that all the computation power in the world can not conquer it."
-	- Dave Wallace

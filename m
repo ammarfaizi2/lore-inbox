@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266810AbUJFD1W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266821AbUJFDee@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266810AbUJFD1W (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 23:27:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266821AbUJFD1V
+	id S266821AbUJFDee (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 23:34:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266833AbUJFDee
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 23:27:21 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:5003 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S266810AbUJFD1U
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 23:27:20 -0400
-Message-ID: <4163660A.4010804@pobox.com>
-Date: Tue, 05 Oct 2004 23:27:06 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
+	Tue, 5 Oct 2004 23:34:34 -0400
+Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:30037 "HELO
+	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S266821AbUJFDeb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 23:34:31 -0400
+Message-ID: <416367BC.4090302@yahoo.com.au>
+Date: Wed, 06 Oct 2004 13:34:20 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
+X-Accept-Language: en
 MIME-Version: 1.0
 To: Andrea Arcangeli <andrea@novell.com>
-CC: Nick Piggin <nickpiggin@yahoo.com.au>, Robert Love <rml@novell.com>,
+CC: Jeff Garzik <jgarzik@pobox.com>, Robert Love <rml@novell.com>,
        Roland Dreier <roland@topspin.com>, linux-kernel@vger.kernel.org
 Subject: Re: Preempt? (was Re: Cannot enable DMA on SATA drive (SCSI-libsata,
  VIA SATA))
@@ -28,17 +28,36 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Andrea Arcangeli wrote:
-> So I disagree with your claim that preempt risks to hide inefficient
-> code, there are many other (probably easier) ways to detect inefficient
-> code than to check the latencies.
 
+> The one argument I've against preempt is that the claim that preempt
+> doesn't spread cond_resched all over the place is false. It can spread
+> even more of them as implicit ones. They're not visible to the developer
+> but they're visible to the cpu. So disabling preempt and putting
+> finegriend cond_resched should allow us to optimize the code better, and
+> actually _reduce_ the number of cond_resched (cond_resched as the ones
+> visible to the cpu, not the ones visible to the kernel developer).
+> 
 
-You're ignoring the argument :)
+You are right. Sort of :)
 
-If users and developers are presented with the _impression_ that long 
-latency code paths don't exist, then nobody is motivated to profile them 
-(with any tool), much less fix them.
+But 1, we *want* them to be less visible to the kernel developer,
+so this is still a plus.
 
-	Jeff
+2, delimiting critical sections with the checks (as preempt does)
+rigorously defines scheduling latency as the minimum possible (ie.
+critical section latency).
 
+3, all of the overhead is removed if you don't care about latency
+and thus turn off preempt.
 
+> I wonder if anybody ever counted the number of implicit cond_resched
+> placed by preempt and compared them to the number of explicit
+> cond_resched needed without preempt.
+> 
+
+There is no denying that there is a performance penalty with preempt
+Actually it has to pay double because the bkl means it can't optimise
+cond_resched away entirely (would be nice to kill the bkl one day).
+
+But I think that the impact is small enough so that nobody who wants
+sub-ms latency will care.

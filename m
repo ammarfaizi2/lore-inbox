@@ -1,41 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262454AbUDDQjG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Apr 2004 12:39:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262471AbUDDQjG
+	id S262476AbUDDQoi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Apr 2004 12:44:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262484AbUDDQoi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Apr 2004 12:39:06 -0400
-Received: from host4.imagelinkusa.net ([66.246.17.209]:48100 "EHLO
-	host4.imagelinkusa.net") by vger.kernel.org with ESMTP
-	id S262462AbUDDQjE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Apr 2004 12:39:04 -0400
-Subject: [usbfs] 2.6.3+ devmode?
-From: "Tony A. Lambley" <tal@vextech.net>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1081096740.2235.6.camel@bony>
+	Sun, 4 Apr 2004 12:44:38 -0400
+Received: from CPE000102d0fe24-CM0f1119830776.cpe.net.cable.rogers.com ([65.49.144.24]:4356
+	"EHLO thorin.norang.ca") by vger.kernel.org with ESMTP
+	id S262476AbUDDQog (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Apr 2004 12:44:36 -0400
+Date: Sun, 4 Apr 2004 12:44:34 -0400
+From: Bernt Hansen <bernt@norang.ca>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.4 & 2.6.5 breaks e100 support on my laptop
+Message-ID: <20040404164434.GB14734@norang.ca>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20040404153050.GC2691@norang.ca>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sun, 04 Apr 2004 12:39:00 -0400
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - host4.imagelinkusa.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - vextech.net
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040404153050.GC2691@norang.ca>
+Organization: Norang Consulting Inc
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, is my brain going yolky? I have perm problems with a scanner after
-each boot, and have to manually locate the scanner in /proc/bus/usb then
-chmod it.
+Nevermind.  I must have had some weird configuration SNAFU.
 
-My fstab has:
+It's working now :)  
 
-none /proc/bus/usb usbfs defaults,devmode=0666 0 0
+Bernt.
 
-It happens with 2.6.3 through to .5. Am I doing something wrong or is
-usbfs+devmode a bit under the weather?
+On Sun, Apr 04, 2004 at 11:30:50AM -0400, Bernt Hansen wrote:
+> Hi,
+> 
+> I have a Toshiba Tecra S1 laptop with a built-in ethernet card which
+> uses the e100 driver.  The ethernet works fine with linux kernel 2.6.3.
+> As of 2.6.4 (and 2.6.5) I get the following message at startup:
+> 
+> e100: Intel(R) PRO/100 Network Driver, 3.0.17
+> e100: Copyright(c) 1999-2004 Intel Corporation
+> PCI: Enabling device 0000:02:08.0 (0000 -> 0003)
+> PCI: Setting latency timer of device 0000:02:08.0 to 64
+> e100: eth%d: e100_eeprom_load: EEPROM corrupted
+> e100: probe of 0000:02:08.0 failed with error -11
+> 
+> and the ethernet no longer works.  (The 2nd last message eth%d is
+> probably missing the ethernet number as a parameter to this printk)
+> 
+> Please cc: me in replies since I am not subscribed to the list.
+> 
+> Let me know if there is anything I can do to help fix this problem.
+> 
+> Thanks,
+> Bernt.
+> -- 
+> Bernt Hansen     Norang Consulting Inc.
 
-Or maybe I shouldn't be using usbfs? Is it being depreciated?
-
+-- 
+Bernt Hansen     Norang Consulting Inc.

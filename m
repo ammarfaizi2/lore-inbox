@@ -1,64 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261202AbVAWEeD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261211AbVAWEei@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261202AbVAWEeD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Jan 2005 23:34:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261219AbVAWEa5
+	id S261211AbVAWEei (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Jan 2005 23:34:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261219AbVAWEeS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Jan 2005 23:30:57 -0500
-Received: from soundwarez.org ([217.160.171.123]:31371 "EHLO soundwarez.org")
-	by vger.kernel.org with ESMTP id S261210AbVAWE1Q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Jan 2005 23:27:16 -0500
-Date: Sun, 23 Jan 2005 05:27:10 +0100
-From: Kay Sievers <kay.sievers@vrfy.org>
-To: linux-kernel@vger.kernel.org
-Cc: Greg KH <greg@kroah.com>
-Subject: [PATCH 7/7] inifiniband: pass dev_t to class core
-Message-ID: <20050123042710.GC9256@vrfy.org>
+	Sat, 22 Jan 2005 23:34:18 -0500
+Received: from ORION.SAS.UPENN.EDU ([128.91.55.26]:21694 "EHLO
+	orion.sas.upenn.edu") by vger.kernel.org with ESMTP id S261211AbVAWEdt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Jan 2005 23:33:49 -0500
+Subject: Re: Trying to fix radeonfb suspending on IBM Thinkpad T41
+From: Volker Braun <vbraun@physics.upenn.edu>
+To: Antti Andreimann <Antti.Andreimann@mail.ee>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1106450704.10594.52.camel@localhost.localdomain>
+References: <1106450704.10594.52.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Sat, 22 Jan 2005 23:33:09 -0500
+Message-Id: <1106454789.8309.14.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Kay Sievers <kay.sievers@vrfy.org>
+I have no knowledge of the internals of the radeon family, but I am
+under the impression that they require some hacks to work around bugs in
+the silicon. There is a rather big patch coming, see
 
-===== drivers/infiniband/core/user_mad.c 1.2 vs edited =====
---- 1.2/drivers/infiniband/core/user_mad.c	2005-01-21 06:01:17 +01:00
-+++ edited/drivers/infiniband/core/user_mad.c	2005-01-22 15:34:10 +01:00
-@@ -518,15 +518,6 @@ static struct ib_client umad_client = {
- 	.remove = ib_umad_remove_one
- };
- 
--static ssize_t show_dev(struct class_device *class_dev, char *buf)
--{
--	struct ib_umad_port *port =
--		container_of(class_dev, struct ib_umad_port, class_dev);
--
--	return print_dev_t(buf, port->dev.dev);
--}
--static CLASS_DEVICE_ATTR(dev, S_IRUGO, show_dev, NULL);
--
- static ssize_t show_ibdev(struct class_device *class_dev, char *buf)
- {
- 	struct ib_umad_port *port =
-@@ -625,16 +616,13 @@ static void ib_umad_add_one(struct ib_de
- 			     umad_dev->port[i - s].devnum, 1))
- 			goto err;
- 
--		umad_dev->port[i - s].class_dev.class = &umad_class;
-+		umad_dev->port[i - s].class_dev.devt  = umad_dev->port[i - s].dev.dev;
- 		umad_dev->port[i - s].class_dev.dev   = device->dma_device;
- 		snprintf(umad_dev->port[i - s].class_dev.class_id,
- 			 BUS_ID_SIZE, "umad%d", umad_dev->port[i - s].devnum);
- 		if (class_device_register(&umad_dev->port[i - s].class_dev))
- 			goto err_class;
- 
--		if (class_device_create_file(&umad_dev->port[i - s].class_dev,
--					     &class_device_attr_dev))
--			goto err_class;
- 		if (class_device_create_file(&umad_dev->port[i - s].class_dev,
- 					     &class_device_attr_ibdev))
- 			goto err_class;
+http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11-
+rc1/2.6.11-rc1-mm2/broken-out/radeonfb-massive-update-of-pm-code.patch
+
+This patch also rewrites the questionable section in
+radeon_pm_setup_for_suspend. I just found it and have not yet built a
+new kernel, so I cannot comment on its effectiveness. 
+
+For reference, the power management issues of the T41 have their own
+bugzilla entry:
+
+http://bugme.osdl.org/show_bug.cgi?id=3022
+
+On a side note, since kernel 2.6.10 I have not been able to successfully
+resume from acpi S3 + radeonfb any more (T41 2379-DJU, radeon mobility
+M9) - works under 2.6.9 and 2.6.11-rc1 + vgaconsole. I'm still trying to
+isolate the problem/waiting for some of the pm code to settle.
+
+Best,
+Volker
+
 

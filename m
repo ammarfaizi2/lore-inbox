@@ -1,69 +1,65 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293457AbSD2Nfw>; Mon, 29 Apr 2002 09:35:52 -0400
+	id <S292730AbSD2Nhb>; Mon, 29 Apr 2002 09:37:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292730AbSD2Nfu>; Mon, 29 Apr 2002 09:35:50 -0400
-Received: from [195.223.140.120] ([195.223.140.120]:15888 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S312687AbSD2Net>; Mon, 29 Apr 2002 09:34:49 -0400
-Date: Mon, 29 Apr 2002 15:35:00 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Bug: Discontigmem virt_to_page() [Alpha,ARM,Mips64?]
-Message-ID: <20020429153500.B28887@dualathlon.random>
-In-Reply-To: <20020426192711.D18350@flint.arm.linux.org.uk> <E171aOa-0001Q6-00@starship>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S311483AbSD2Nh3>; Mon, 29 Apr 2002 09:37:29 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:48398 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S292730AbSD2NhV>; Mon, 29 Apr 2002 09:37:21 -0400
+Message-ID: <3CCD3DE7.3060100@evision-ventures.com>
+Date: Mon, 29 Apr 2002 14:34:47 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
+X-Accept-Language: en-us, pl
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: PATCH] 2.5.11 IDE 45
+Content-Type: multipart/mixed;
+ boundary="------------010304030008030004050803"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 28, 2002 at 12:10:20AM +0200, Daniel Phillips wrote:
-> On Friday 26 April 2002 20:27, Russell King wrote:
-> > Hi,
-> > 
-> > I've been looking at some of the ARM discontigmem implementations, and
-> > have come across a nasty bug.  To illustrate this, I'm going to take
-> > part of the generic kernel, and use the Alpha implementation to
-> > illustrate the problem we're facing on ARM.
-> > 
-> > I'm going to argue here that virt_to_page() can, in the discontigmem
-> > case, produce rather a nasty bug when used with non-direct mapped
-> > kernel memory arguments.
-> 
-> It's tough to follow, even when you know the code.  While cooking my
-> config_nonlinear patch I noticed the line you're concerned about and
-> regarded it with deep suspicion.  My patch does this:
-> 
-> -               page = virt_to_page(__va(phys_addr));
-> +               page = phys_to_page(phys_addr);
-> 
-> And of course took care that phys_to_page does the right thing in all
-> cases.
+This is a multi-part message in MIME format.
+--------------010304030008030004050803
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-The problem remains the same also going from phys to page, the problem
-is that it's not a contigous mem_map and it choked when the phys addr
-was above the max ram physaddr. The patch I posted a few days ago will
-fix it (modulo for ununused ram space, but attempting to map into the
-address space unused ram space is a bug in the first place).
+- Fix bogus set_multimode() change. I tough I had reverted it before diff-ing.
+   This was causing hangs of /dev/hdparm -m8 /dev/hda and similar commands.
 
-> 
-> <plug>
-> The new config_nonlinear was designed as a cleaner, more powerful
-> replacement for all non-numa uses of config_discontigmem.
-> </plug>
 
-I maybe wrong because I only had a short look at it so far, but the
-"non-numa" is what I noticed too and that's what renders it not a very
-interesting option IMHO. Most discontigmem needs numa too. If it cannot
-handle numa it doesn't worth to add the complexity there, with numa we
-must view those chunks differently, not linearly. Also there's nothing
-magic that says mem_map must have a magical meaning, doesn't worth to
-preserve the mem_map thing, virt_to_page is a much cleaner abstraction
-than doing mem_map + pfn by hand.
 
-Andrea
+--------------010304030008030004050803
+Content-Type: text/plain;
+ name="ide-clean-45.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ide-clean-45.diff"
+
+diff -urN linux-2.5.11/drivers/ide/ide-disk.c linux/drivers/ide/ide-disk.c
+--- linux-2.5.11/drivers/ide/ide-disk.c	2002-04-29 05:11:18.000000000 +0200
++++ linux/drivers/ide/ide-disk.c	2002-04-29 14:16:42.000000000 +0200
+@@ -562,17 +562,17 @@
+  */
+ static int set_multcount(ide_drive_t *drive, int arg)
+ {
+-	struct ata_taskfile args;
++	struct request rq;
+ 
+ 	if (drive->special_cmd & ATA_SPECIAL_MMODE)
+ 		return -EBUSY;
+ 
+-	memset(&args, 0, sizeof(args));
++	ide_init_drive_cmd(&rq);
+ 
+ 	drive->mult_req = arg;
+ 	drive->special_cmd |= ATA_SPECIAL_MMODE;
+ 
+-	ide_raw_taskfile(drive, &args, NULL);
++	ide_do_drive_cmd (drive, &rq, ide_wait);
+ 
+ 	return (drive->mult_count == arg) ? 0 : -EIO;
+ }
+
+--------------010304030008030004050803--
+

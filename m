@@ -1,53 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262138AbUE3Kt6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262215AbUE3Kw7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262138AbUE3Kt6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 May 2004 06:49:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262215AbUE3Kt6
+	id S262215AbUE3Kw7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 May 2004 06:52:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262114AbUE3Kw7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 May 2004 06:49:58 -0400
-Received: from ns1.g-housing.de ([62.75.136.201]:23237 "EHLO mail.g-house.de")
-	by vger.kernel.org with ESMTP id S262138AbUE3Kt4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 May 2004 06:49:56 -0400
-Message-ID: <40B9BC4F.8090201@g-house.de>
-Date: Sun, 30 May 2004 12:49:51 +0200
-From: Christian Kujau <evil@g-house.de>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040306)
-X-Accept-Language: de-de, de-at, de, en-us, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: unable to compile 2.4 with gcc-3.4.0 
-X-Enigmail-Version: 0.83.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 30 May 2004 06:52:59 -0400
+Received: from pfepa.post.tele.dk ([195.41.46.235]:10109 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S262215AbUE3Kw5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 May 2004 06:52:57 -0400
+Date: Sun, 30 May 2004 12:55:02 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Dan Kegel <dank@kegel.com>
+Cc: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
+Subject: Re: bringing back 'make symlinks'?
+Message-ID: <20040530105502.GA19882@mars.ravnborg.org>
+Mail-Followup-To: Dan Kegel <dank@kegel.com>,
+	Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
+References: <40B36A0E.5080509@kegel.com> <20040525214328.GA2675@mars.ravnborg.org> <40B41367.5070607@kegel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40B41367.5070607@kegel.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Tue, May 25, 2004 at 08:47:51PM -0700, Dan Kegel wrote:
+> 
+> The way things are now, I can build toolchains for everything
+> except the sh architecture (though my toolchain bootstrap script
+> is ugly as noted due to the lack of 'make symlinks').
 
-Hi,
+Does the following meet the needs of your cross-tool scripts?
 
-reading the thread "Recommended compiler version" i don't know if it
-states wether this is a known issue or not, so here, and for the record:
+	Sam
 
-i'm unable to compile a recent 2.4 kernel (BK) with gcc-3.4.0. details
-of compilerversion, binutils and make.log's are here:
-
-http://www.nerdbynature.de/bits/sheep/latest-kernel/
-
-Thanks,
-Christian.
-- --
-BOFH excuse #20:
-
-divide-by-zero error
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFAubxP+A7rjkF8z0wRApV3AKCnHaedzRC1xeIGQ5bb7SxLRNKoVwCeKMK2
-hSFRRj+Q6MW3uo7Jyt0x1FA=
-=rMh2
------END PGP SIGNATURE-----
+===== Makefile 1.492 vs edited =====
+--- 1.492/Makefile	2004-05-30 08:24:06 +02:00
++++ edited/Makefile	2004-05-30 12:52:36 +02:00
+@@ -632,6 +632,10 @@
+ # All the preparing..
+ prepare-all: prepare0 prepare
+ 
++# symlinks provided for compatibility with 2.4 - this allows boot-strapping
++# tool chains to be simpler
++symlinks: prepare-all
++
+ #	Leave this as default for preprocessing vmlinux.lds.S, which is now
+ #	done in arch/$(ARCH)/kernel/Makefile
+ 

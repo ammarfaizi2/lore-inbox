@@ -1,89 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266224AbUHBDMy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266236AbUHBDT6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266224AbUHBDMy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Aug 2004 23:12:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266243AbUHBDMy
+	id S266236AbUHBDT6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Aug 2004 23:19:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266237AbUHBDT5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Aug 2004 23:12:54 -0400
-Received: from mail024.syd.optusnet.com.au ([211.29.132.242]:41178 "EHLO
-	mail024.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S266224AbUHBDMu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Aug 2004 23:12:50 -0400
-Message-ID: <410DB11C.9000903@kolivas.org>
-Date: Mon, 02 Aug 2004 13:12:28 +1000
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
-X-Accept-Language: en-us, en
+	Sun, 1 Aug 2004 23:19:57 -0400
+Received: from digitalimplant.org ([64.62.235.95]:58325 "HELO
+	digitalimplant.org") by vger.kernel.org with SMTP id S266236AbUHBDTy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Aug 2004 23:19:54 -0400
+Date: Sun, 1 Aug 2004 20:19:44 -0700 (PDT)
+From: Patrick Mochel <mochel@digitalimplant.org>
+X-X-Sender: mochel@monsoon.he.net
+To: Pavel Machek <pavel@ucw.cz>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [6/25] Merge pmdisk and swsusp
+In-Reply-To: <20040718220954.GB31958@atrey.karlin.mff.cuni.cz>
+Message-ID: <Pine.LNX.4.50.0408012018370.30101-100000@monsoon.he.net>
+References: <Pine.LNX.4.50.0407171528280.22290-100000@monsoon.he.net>
+ <20040718220954.GB31958@atrey.karlin.mff.cuni.cz>
 MIME-Version: 1.0
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Anton Blanchard <anton@samba.org>
-Subject: [PATCH] adjust p4 per-cpu gain
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig32219D08CE79E1B2B9AD5A7C"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig32219D08CE79E1B2B9AD5A7C
-Content-Type: multipart/mixed;
- boundary="------------090902000205090604020509"
 
-This is a multi-part message in MIME format.
---------------090902000205090604020509
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Sorry about the delay; all the conferences are finally over (for now)
 
-The smt-nice handling patch is a little too aggressive by not estimating 
-the per cpu gain as high enough for pentium4 hyperthread. This patch 
-changes the per sibling cpu gain from 15% to 25%. The true per cpu gain 
-is entirely dependant on the workload but overall the 2 species of 
-Pentium4 that support hyperthreading have about 20-30% gain.
+On Mon, 19 Jul 2004, Pavel Machek wrote:
 
-Patch for 2.6.8-rc2-mm1 attached.
+> Hi!
+>
+> > +static void calc_order(void)
+> > +{
+> > +	int diff;
+> > +	int order;
+> > +
+> > +	order = get_bitmask_order(SUSPEND_PD_PAGES(nr_copy_pages));
+> > +	nr_copy_pages += 1 << order;
+> > +	do {
+> > +		diff = get_bitmask_order(SUSPEND_PD_PAGES(nr_copy_pages)) - order;
+> > +		if (diff) {
+> > +			order += diff;
+> > +			nr_copy_pages += 1 << diff;
+> > +		}
+> > +	} while(diff);
+> > +	pagedir_order = order;
+> > +}
+>
+> This code is "interesting". Perhaps at least comment would be good
+> here?
 
-Signed-off-by: Con Kolivas <kernel@kolivas.org>
+Sure, patch below.
 
-P.S: Anton - For the power processors that are now using this SMT nice 
-infrastructure it would be worth setting this value separately at 40%.
 
---------------090902000205090604020509
-Content-Type: text/plain;
- name="sched-adjust-p4gain"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="sched-adjust-p4gain"
 
-Index: linux-2.6.8-rc2-mm1/include/linux/sched.h
-===================================================================
---- linux-2.6.8-rc2-mm1.orig/include/linux/sched.h	2004-07-30 22:00:05.000000000 +1000
-+++ linux-2.6.8-rc2-mm1/include/linux/sched.h	2004-08-02 13:05:39.753964232 +1000
-@@ -636,7 +636,7 @@
- 	.imbalance_pct		= 110,			\
- 	.cache_hot_time		= 0,			\
- 	.cache_nice_tries	= 0,			\
--	.per_cpu_gain		= 15,			\
-+	.per_cpu_gain		= 25,			\
- 	.flags			= SD_BALANCE_NEWIDLE	\
- 				| SD_BALANCE_EXEC	\
- 				| SD_WAKE_AFFINE	\
+	Pat
 
---------------090902000205090604020509--
+diff -Nru a/kernel/power/swsusp.c b/kernel/power/swsusp.c
+--- a/kernel/power/swsusp.c	2004-08-01 20:18:35 -07:00
++++ b/kernel/power/swsusp.c	2004-08-01 20:18:35 -07:00
+@@ -659,13 +659,38 @@
+ }
 
---------------enig32219D08CE79E1B2B9AD5A7C
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
++/**
++ *	calc_order - Determine the order of allocation needed for pagedir_save.
++ *
++ *	This looks tricky, but is just subtle. Please fix it some time.
++ *	Since there are %nr_copy_pages worth of pages in the snapshot, we need
++ *	to allocate enough contiguous space to hold
++ *		(%nr_copy_pages * sizeof(struct pbe)),
++ *	which has the saved/orig locations of the page..
++ *
++ *	SUSPEND_PD_PAGES() tells us how many pages we need to hold those
++ *	structures, then we call get_bitmask_order(), which will tell us the
++ *	last bit set in the number, starting with 1. (If we need 30 pages, that
++ *	is 0x0000001e in hex. The last bit is the 5th, which is the order we
++ *	would use to allocate 32 contiguous pages).
++ *
++ *	Since we also need to save those pages, we add the number of pages that
++ *	we need to nr_copy_pages, and in case of an overflow, do the
++ *	calculation again to update the number of pages needed.
++ *
++ *	With this model, we will tend to waste a lot of memory if we just cross
++ *	an order boundary. Plus, the higher the order of allocation that we try
++ *	to do, the more likely we are to fail in a low-memory situtation
++ *	(though	we're unlikely to get this far in such a case, since swsusp
++ *	requires half of memory to be free anyway).
++ */
++
++
+ static void calc_order(void)
+ {
+-	int diff;
+-	int order;
++	int diff = 0;
++	int order = 0;
 
-iD8DBQFBDbEcZUg7+tp6mRURAm/MAJ9DKUF9vf4eYDpskjgQxI9p7NvleQCeIZLe
-r/FQAAXdS4tiaOstbCce8Uw=
-=5zxg
------END PGP SIGNATURE-----
-
---------------enig32219D08CE79E1B2B9AD5A7C--
+-	order = get_bitmask_order(SUSPEND_PD_PAGES(nr_copy_pages));
+-	nr_copy_pages += 1 << order;
+ 	do {
+ 		diff = get_bitmask_order(SUSPEND_PD_PAGES(nr_copy_pages)) - order;
+ 		if (diff) {
+@@ -687,7 +712,7 @@
+ static int alloc_pagedir(void)
+ {
+ 	calc_order();
+-	pagedir_save = (suspend_pagedir_t *)__get_free_pages(GFP_ATOMIC | __GFP_COLD,
++	pagedir_save = (suspend_pagedir_t *)__get_free_pages(GFP_ATOMIC | __GFP_COLD,
+ 							     pagedir_order);
+ 	if(!pagedir_save)
+ 		return -ENOMEM;

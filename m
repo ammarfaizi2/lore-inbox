@@ -1,96 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263358AbRFKCxM>; Sun, 10 Jun 2001 22:53:12 -0400
+	id <S263359AbRFKDEM>; Sun, 10 Jun 2001 23:04:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263359AbRFKCxC>; Sun, 10 Jun 2001 22:53:02 -0400
-Received: from nalserver.nal.go.jp ([202.26.95.66]:55503 "EHLO
-	nalserver.nal.go.jp") by vger.kernel.org with ESMTP
-	id <S263358AbRFKCws>; Sun, 10 Jun 2001 22:52:48 -0400
-Date: Mon, 11 Jun 2001 11:51:08 +0900 (JST)
-From: Aron Lentsch <lentsch@nal.go.jp>
-To: Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: IRQ problems on new Toshiba Libretto
-In-Reply-To: <200106091737.KAA26056@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.21.0106111107270.1065-100000@triton.nal.go.jp>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263370AbRFKDEC>; Sun, 10 Jun 2001 23:04:02 -0400
+Received: from [203.36.158.121] ([203.36.158.121]:29956 "EHLO
+	piro.kabuki.sfarc.net") by vger.kernel.org with ESMTP
+	id <S263359AbRFKDDw>; Sun, 10 Jun 2001 23:03:52 -0400
+Date: Mon, 11 Jun 2001 13:03:14 +1000
+From: Daniel Stone <daniel@kabuki.sfarc.net>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.6-pre2 page_launder() improvements
+Message-ID: <20010611130314.B964@kabuki.openfridge.net>
+Mail-Followup-To: Rik van Riel <riel@conectiva.com.br>, linux-mm@kvack.org,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0106100128100.4239-100000@duckman.distro.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0106100128100.4239-100000@duckman.distro.conectiva>
+User-Agent: Mutt/1.3.18i
+Organisation: Sadly lacking
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Dear Linus, Alan and Jeff,
-
-thank you very much for your replies. I though it is
-best, if I respond with one email so we have all in one
-place.
-
-
-On Sat, 9 Jun 2001, Linus Torvalds wrote:
-
-> Can you add the output of "dump_pirq" to your logs? 
-> ... 
-> together with "lspci -vvvxx" would be useful.
-
-dump_irq returns the following:
------------------------------------------------------------------------
-No PCI interrupt routing table was found.
-
-Interrupt router at 00:07.0: AcerLabs Aladdin M1533
-PCI-to-ISA bridge
-  INT1 (link 1): irq 11
-  INT2 (link 2): unrouted
-  INT3 (link 3): unrouted
-  INT4 (link 4): unrouted
-  INT5 (link 5): unrouted
-  INT6 (link 6): unrouted
-  INT7 (link 7): unrouted
-  INT8 (link 8): unrouted
-  Serial IRQ: [enabled] [continuous] [frame=21]
-[pulse=8]
------------------------------------------------------------------------
-
-The output of lspci -vvvxx is a bit longer, so I
-have put it in:
-http://launchers.tripod.com/linux/lspci_vvvxx.txt
-
-
-On Sat, 9 Jun 2001, Alan Cox wrote:
+On Sun, Jun 10, 2001 at 01:40:44AM -0300, Rik van Riel wrote:
+> [Request For Testers ... patch below]
 > 
-> Did you try the pci=biosirq boot option btw ?
+> Hi,
 > 
-
-Yes, I tried 'pci=biosirq' as well as
-'pci=irqmask=0xfff8', but unfortunately I couldn't see
-any change.
-
-
-On Sat, 9 Jun 2001, Jeff Garzik wrote:
-
-> I request two additional outputs:
->  
-> 1) lspci -vvvxxx
-
-The putput of lspci -vvvxxx is in:
-http://launchers.tripod.com/linux/lspci_vvvxxx.txt              
-
-> 2) Change arch/i386/kernel/pci-i386.h near the top to enable debugging:
-> -#undef DEBUG
-> +#define DEBUG 1
+> during my holidays I've written the following patch (forward-ported
+> to 2.4.6-pre2 and improved a tad today), which implements these
+> improvements to page_launder():
 > 
-> and then provide dmesg output as before.  
+> YMMV, please test it. If it works great for everybody I'd like
+> to get this improvement merged into the next -pre kernel.
 
-OK, I recompiled the kernel with this change and the
-output of 'dmesg' is in 
+I forgot about vmstat, but this is -ac12, anecdotal evidence - my system
+(weak) performs far better under heavy load (mpg123 nice'd to -20 + apt/dpkg
++ gcc), than with vanilla -ac12. To get it to compile on -ac, just hand-hack
+in the patch, and s/CAN_GET_IO/can_get_io_locks/ in vmscan.c.
 
-http://launchers.tripod.com/linux/dmesg.wDEBUG1.txt
+:) d
 
-
-Hope this helps to trace back my problem!
-Thank you very much again for your help!
-
-Aron
-
-
+-- 
+Daniel Stone		<daniel@kabuki.openfridge.net> <daniel@kabuki.sfarc.net>

@@ -1,58 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262045AbVADFxg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262051AbVADFzQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262045AbVADFxg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 00:53:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262051AbVADFxg
+	id S262051AbVADFzQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 00:55:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262059AbVADFzP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 00:53:36 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:21005 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S262045AbVADFxf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 00:53:35 -0500
-Date: Tue, 4 Jan 2005 06:44:58 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Cc: Felipe Alfaro Solana <lkml@mac.com>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
-       Rik van Riel <riel@redhat.com>,
-       Maciej Soltysiak <solt2@dns.toxicfilms.tv>,
-       Andries Brouwer <aebr@win.tue.nl>,
-       William Lee Irwin III <wli@debian.org>
-Subject: Re: starting with 2.7
-Message-ID: <20050104054458.GB7048@alpha.home.local>
-References: <6D2C0E07-5DAE-11D9-9FD3-000D9352858E@mac.com> <200501032059.j03KxOEB004666@laptop11.inf.utfsm.cl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200501032059.j03KxOEB004666@laptop11.inf.utfsm.cl>
-User-Agent: Mutt/1.4i
+	Tue, 4 Jan 2005 00:55:15 -0500
+Received: from fw.osdl.org ([65.172.181.6]:48321 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262051AbVADFzA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 00:55:00 -0500
+Date: Mon, 3 Jan 2005 21:54:33 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Vojtech Pavlik <vojtech@suse.cz>
+cc: Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, vojtech@ucw.cz
+Subject: Re: [bk patches] Long delayed input update
+In-Reply-To: <20050103131848.GH26949@ucw.cz>
+Message-ID: <Pine.LNX.4.58.0501032148210.2294@ppc970.osdl.org>
+References: <20041227142821.GA5309@ucw.cz> <200412271419.46143.dtor_core@ameritech.net>
+ <20050103131848.GH26949@ucw.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 03, 2005 at 05:59:24PM -0300, Horst von Brand wrote:
-> Felipe Alfaro Solana <lkml@mac.com> said:
-> 
-> [...]
-> 
-> > I would like to comment in that the issue is not exclusively targeted 
-> > to stability, but the ability to keep up with kernel development. For 
-> > example, it was pretty common for older versions of VMWare and NVidia 
-> > driver to break up whenever a new kernel version was released.
-> 
-> That is the price for closed-source drivers.
-> 
-> > I think it's a PITA for developers to rework some of the closed-source 
-> > code to adopt the new changes in the Linux kernel.
-> 
-> Open up the code. Most of the changes will then be done as a matter of
-> course by others.
 
-it will not solve the problem : if a driver or any glue logic breaks, it's
-because interface has changed again. When you will have 3000 open drivers,
-you'll have to find people to make the changes every week. The solution in
-the first place is to respect some code stability and not to break thinks
-every week.
 
-Willy
 
+I pulled and immediately unpulled again.
+
+Vojtech, stuff like this is unacceptable:
+
+	PS/2 driver library (SERIO_LIBPS2) [N/m/y/?] (NEW) ?
+
+	Say Y here if you are using a driver for device connected
+	to a PS/2 port, such as PS/2 mouse or standard AT keyboard.
+
+Stop messing with peoples minds. The default config should contain
+keyboard and mouse support, and unless the user asks for "Embedded" or the
+year 2010 comes along and you can't find computers with non-USB keyboards
+anyway, that's how it's going to remain.
+
+We had this _idiocy_ early in 2.5.x, and it caused untold silly problems. 
+We fixed it. We're not going to re-do that mistake.
+
+Please re-do your BK tree without this. Also, considering that every
+_single_ time we've messed with the legacy keyboard/mouse controller there
+have been compatibility problems, I want to know what the advantages are.  
+Does the work actually _fix_ anything, and has it in any way been tested
+on the millions of different versions of kbd controller clones out there?
+
+		Linus

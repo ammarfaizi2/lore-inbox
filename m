@@ -1,54 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129268AbRBCUVP>; Sat, 3 Feb 2001 15:21:15 -0500
+	id <S130017AbRBCUWF>; Sat, 3 Feb 2001 15:22:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129454AbRBCUVG>; Sat, 3 Feb 2001 15:21:06 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:13068 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129268AbRBCUUr>; Sat, 3 Feb 2001 15:20:47 -0500
-Date: Sat, 3 Feb 2001 12:20:32 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Jeff Garzik <jgarzik@mandrakesoft.mandrakesoft.com>
-cc: Martin Diehl <mdiehlcs@compuserve.de>, davej@suse.de, becker@scyld.com,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] minor ne2k-pci irq fix
-In-Reply-To: <Pine.LNX.3.96.1010201090450.26802C-100000@mandrakesoft.mandrakesoft.com>
-Message-ID: <Pine.LNX.4.10.10102031213540.8867-100000@penguin.transmeta.com>
+	id <S130140AbRBCUVq>; Sat, 3 Feb 2001 15:21:46 -0500
+Received: from mail11.jump.net ([206.196.91.11]:49302 "EHLO mail11.jump.net")
+	by vger.kernel.org with ESMTP id <S130016AbRBCUVh>;
+	Sat, 3 Feb 2001 15:21:37 -0500
+Message-ID: <3A7C686A.2B69D222@sgi.com>
+Date: Sat, 03 Feb 2001 14:22:02 -0600
+From: Eric Sandeen <sandeen@sgi.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-XFS i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: "kaweth" usb ethernet driver in 2.4?
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I'm wondering about the status of the "kaweth" Kawasaki LSI KL5KUSB100
+USB to Ethernet Controller driver for 2.4.  According to
+http://www.hiru.aoba.yokohama.jp/%7eura/USB/usbether.html, this chipset
+is used in the 3Com USB Network Adapter, Linksys USB10T, D-Link DSB-650,
+SMC 2102USB, Netgear EA101, and a few other USB ethernet adapters.
 
+The driver is included with the USB stuff for 2.2, but not in 2.4.
 
-On Thu, 1 Feb 2001, Jeff Garzik wrote:
-> 
-> > Probably I've missed this because the last time I hit such a thing was
-> > when my ob800 bios mapped the cardbus memory BAR's into bogus legacy
-> > 0xe0000 area. Hence there was good reason to read and correct this before
-> > trying to enable the device.
-> 
-> This is a PCI fixup, the driver shouldn't have to worry about this..
+It also doesn't seem to work in 2.2.  :)  The original development of
+this driver was going on at http://drivers.rd.ilan.net/kaweth/ but there
+have been no updates for quite some time.
 
-Actually, I'd rather see the _drivers_ do most of the fixups for their own
-chips, and leave the global PCI fixups for things like
+Donald Becker had a driver at one point as well, and there's still a
+link at http://www.scyld.com/usb/ethernet.html, but the link is broken
+now, and I don't have the code.
 
- - PCI/ISA/whatever bridges that affect drivers for _other_ chips. I hate
-   having some random PCI driver having to know about the fact that it
-   might be behind a bridge that needs special initialization. That kind
-   of "non-local" knowledge is that the PCI fixups are there for.
+I have one of these beasts, and I'd like to get it working - I haven't
+done any USB _or_ ethernet work for Linux, so it'll be an uphill climb
+fro me.  Anybody else have one, and have some time to collaborate?  :) 
+I have some of the chipset documentation, too, FWIW.
 
- - stuff that needs to be fixed up early in order to have a working system
-   and make sure that we don't have any resource clashes we can't fix up
-   later on.
-
-But if there is a BIOS/chip bug that affects only one driver, and that bug
-is local to that driver only and can't affect anything else, then I'd
-rather see the driver keep track of it. It's easy enough for a driver to
-do any required fixup before it actually calls "pci_enable_device()". 
-
-		Linus
-
+Thanks,
+-Eric
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

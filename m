@@ -1,35 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318027AbSHQR1V>; Sat, 17 Aug 2002 13:27:21 -0400
+	id <S318033AbSHQRnL>; Sat, 17 Aug 2002 13:43:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318031AbSHQR1V>; Sat, 17 Aug 2002 13:27:21 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:3957 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S318027AbSHQR1U>; Sat, 17 Aug 2002 13:27:20 -0400
-To: Benjamin LaHaise <bcrl@redhat.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] reduce stack usage of sanitize_e820_map
-References: <20020815174825.F29874@redhat.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 17 Aug 2002 11:18:11 -0600
-In-Reply-To: <20020815174825.F29874@redhat.com>
-Message-ID: <m11y8xqu98.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S318037AbSHQRnL>; Sat, 17 Aug 2002 13:43:11 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:36369
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S318033AbSHQRnL>; Sat, 17 Aug 2002 13:43:11 -0400
+Date: Sat, 17 Aug 2002 10:37:23 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Alexander Kellett <lypanov@kde.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: IDE?
+In-Reply-To: <20020817132201.GA3556@ezri.capsi>
+Message-ID: <Pine.LNX.4.10.10208171034330.23171-100000@master.linux-ide.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin LaHaise <bcrl@redhat.com> writes:
+On Sat, 17 Aug 2002, Alexander Kellett wrote:
 
-> Hello,
+> [shortening cc:'s as they are probably not interested in me :) ]
 > 
-> Currently, sanitize_e820_map uses 0x738 bytes of stack.  The patch below 
-> moves the arrays into __initdata, reducing stack usage to 0x34 bytes.
+> IMO this is not something that you can see a positive, or as a 
+> lesson learned. This to me just seems like a lot of hard work 
+> going down the drain.
 
-Can we keep the arrays in sanitize_e820_map and just mark then static
-and __initdata?  That would appear to be a cleaner solution.   
-Polluting the global kernel name space with these is not nice. 
+This one of my arguments against deleting Marcin work.
+There are things he did which are good and real cleanups.
 
-Eric
+> So, pleeease Bartlomiej/Alan/Jens, whoever. Someone step up
+> to get most/some of Marcin' cleanup patches into 2.5 again.
+
+I have addressed most of his work which was sane and did not violate
+transport protocols.
+
+Regards,
+
+Andre Hedrick
+LAD Storage Consulting Group
+

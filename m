@@ -1,46 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262579AbSI0UmC>; Fri, 27 Sep 2002 16:42:02 -0400
+	id <S261399AbSI0Uqf>; Fri, 27 Sep 2002 16:46:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262587AbSI0UmC>; Fri, 27 Sep 2002 16:42:02 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:63755
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S262579AbSI0UmC>; Fri, 27 Sep 2002 16:42:02 -0400
-Subject: Re: [ANNOUNCE] procps 2.0.8
-From: Robert Love <rml@tech9.net>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: procps-list@redhat.com, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44L.0209271657330.22735-100000@imladris.surriel.com>
-References: <Pine.LNX.4.44L.0209271657330.22735-100000@imladris.surriel.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1033159620.22056.14.camel@phantasy>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.1.1.99 (Preview Release)
-Date: 27 Sep 2002 16:47:00 -0400
-Content-Transfer-Encoding: 7bit
+	id <S261440AbSI0Uqf>; Fri, 27 Sep 2002 16:46:35 -0400
+Received: from pD9E239ED.dip.t-dialin.net ([217.226.57.237]:61570 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S261399AbSI0Uqf>; Fri, 27 Sep 2002 16:46:35 -0400
+Date: Fri, 27 Sep 2002 14:52:38 -0600 (MDT)
+From: Thunder from the hill <thunder@lightweight.ods.org>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Zach Brown <zab@zabbo.net>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][2.5] Single linked lists for Linux, overly complicated
+ v2
+In-Reply-To: <20020927163922.A13817@bitchcake.off.net>
+Message-ID: <Pine.LNX.4.44.0209271450580.7827-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf/Steudnitz; Germany
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-09-27 at 16:00, Rik van Riel wrote:
+Hi,
 
-> It appears Robert and I cleaned up stuff a bit too much
-> and procps lost it's VERSION string, so -V doesn't work
-> in the tarball I released earlier today.
+On Fri, 27 Sep 2002, Zach Brown wrote:
+> > That's adding to front. One should be aware of that. The other add is
+> > 
+> > #define slist_add(_new_in, _head_in)            \
+> > do {                                            \
+> >         typeof(_head_in) _head = (_head_in),    \
+> >                     _new = (_new_in);           \
+> >         _new->next = _head->next;               \
+> >         _head->next = _new;                     \
+> > } while (0)
 > 
-> Also, it appears the release has awoken some long sleeping
-> patches, which I'll read and (if they work) integrate into
-> procps.
+> which is a degenerate case of slist_add_pos(), which is more
+> complication than this trivial implementation needs.  have you looked at
+> other single linked list implementations?  like glib's?  do you really
+> think we need that in the kernel?
 
-<brown paper bag>
+Where is this complicated? I don't even have one more line than the other. 
+There are two positions relative to the head where we can put the list 
+members, one of which is before, the other is after.
 
-Whoops!  To make up for it, I just made tarballs and RPM packages of the
-latest CVS dump, which includes the version fixes and one or two other
-minor patches since 2.0.8.
-
-They are available at: http://tech9.net/rml/procps/
-
-</brown paper bag>
-
-	Robert Love
+			Thunder
+-- 
+assert(typeof((fool)->next) == typeof(fool));	/* wrong */
 

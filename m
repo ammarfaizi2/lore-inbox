@@ -1,37 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311756AbSCNU0M>; Thu, 14 Mar 2002 15:26:12 -0500
+	id <S311760AbSCNUfz>; Thu, 14 Mar 2002 15:35:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311757AbSCNUZw>; Thu, 14 Mar 2002 15:25:52 -0500
-Received: from ns.suse.de ([213.95.15.193]:36625 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S311756AbSCNUZn>;
-	Thu, 14 Mar 2002 15:25:43 -0500
-Date: Thu, 14 Mar 2002 21:25:40 +0100
-From: Dave Jones <davej@suse.de>
-To: M Sweger <mikesw@ns1.whiterose.net>
-Cc: linux-kernel@vger.kernel.org, alan@redhat.com
-Subject: Re: linux 2.2.21 pre3, pre4 and rc1 problems. (fwd)
-Message-ID: <20020314212540.A25217@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	M Sweger <mikesw@ns1.whiterose.net>, linux-kernel@vger.kernel.org,
-	alan@redhat.com
-In-Reply-To: <Pine.BSF.4.21.0203141518590.18036-100000@ns1.whiterose.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.BSF.4.21.0203141518590.18036-100000@ns1.whiterose.net>; from mikesw@ns1.whiterose.net on Thu, Mar 14, 2002 at 03:19:56PM -0500
+	id <S311761AbSCNUfq>; Thu, 14 Mar 2002 15:35:46 -0500
+Received: from squeaker.ratbox.org ([63.216.218.7]:7696 "EHLO
+	squeaker.ratbox.org") by vger.kernel.org with ESMTP
+	id <S311760AbSCNUfe>; Thu, 14 Mar 2002 15:35:34 -0500
+Date: Thu, 14 Mar 2002 15:43:14 -0500 (EST)
+From: Aaron Sethman <androsyn@ratbox.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: beezly@beezly.org.uk, <linux-kernel@vger.kernel.org>
+Subject: Re: Sun GEM card looses TX on x86 32bit PCI
+In-Reply-To: <20020312.093134.35196670.davem@redhat.com>
+Message-ID: <Pine.LNX.4.44.0203141542500.17641-100000@simon.ratbox.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 14, 2002 at 03:19:56PM -0500, M Sweger wrote:
- > v2.2.21rc1       Oops' on boot after the message "CPU: L2 cache = 512K
- >                  with a kernel panic. Note: I don't have any swap turned on.
- > >>EIP; c0297244 <init_intel+33c/34c>   <=====
+I am having the same problem on sparc.  I will try the patch myself and
+let you know if it helps.
 
- Fix posted to the list earlier. Add =NULL to the declaration
- of the variable p in arch/i386/kernel/setup.c:init_intel()
+Regards,
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Aaron
+
+On Tue, 12 Mar 2002, David S. Miller wrote:
+
+>    From: Beezly <beezly@beezly.org.uk>
+>    Date: 11 Mar 2002 22:51:42 +0000
+>
+>    Ok, I've been fiddling around with the driver tonight and have managed
+>    to get a little further by forcing the driver to do a full reset of the
+>    chip when the RX buffer over flows. I achieved this by sticking a return
+>    1; at the top of gem_rxmac_reset().
+>
+>    I'm guessing this isn't an "optimal" reset for the situation but so far
+>    it's having /reasonable/ results (i.e. I don't have to bring the
+>    interface up and down every 30 seconds!).
+>  ...
+>    Hope this helps,
+>
+> I'll follow up on this and figure out why my RX reset code
+> isn't working after I finish up some 2.5.x work.
+>
+> But looking quickly I think I see what is wrong.  Please give
+> this a try (and remember to remove your hacks before testing
+> this :-):
+>
+> --- drivers/net/sungem.c.~1~	Mon Mar 11 04:24:13 2002
+> +++ drivers/net/sungem.c	Tue Mar 12 09:30:38 2002
+> @@ -357,6 +357,7 @@ static int gem_rxmac_reset(struct gem *g
+>
+>  		rxd->status_word = cpu_to_le64(RXDCTRL_FRESH(gp));
+>  	}
+> +	gp->rx_new = gp->rx_old = 0;
+>
+>  	/* Now we must reprogram the rest of RX unit. */
+>  	desc_dma = (u64) gp->gblock_dvma;
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+

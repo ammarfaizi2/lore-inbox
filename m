@@ -1,56 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131894AbRCXXyB>; Sat, 24 Mar 2001 18:54:01 -0500
+	id <S131888AbRCYATH>; Sat, 24 Mar 2001 19:19:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131889AbRCXXxm>; Sat, 24 Mar 2001 18:53:42 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:36612 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S131887AbRCXXxi>;
-	Sat, 24 Mar 2001 18:53:38 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Pete Toscano <pete.lkml@toscano.org>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Constant Crash in scsi_eh_0 
-In-Reply-To: Your message of "Sat, 24 Mar 2001 15:06:23 EST."
-             <20010324150623.A27902@bubba.toscano.org> 
+	id <S131897AbRCYAS4>; Sat, 24 Mar 2001 19:18:56 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:6627 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S131888AbRCYASl>;
+	Sat, 24 Mar 2001 19:18:41 -0500
+Date: Sun, 25 Mar 2001 00:13:38 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Linus Torvalds <torvalds@transmeta.com>, Rik van Riel <riel@nl.linux.org>
+Cc: "Stephen C. Tweedie" <sct@redhat.com>, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Ben LaHaise <bcrl@redhat.com>, Christoph Rohland <cr@sap.com>
+Subject: Re: [PATCH] Fix races in 2.4.2-ac22 SysV shared memory
+Message-ID: <20010325001338.C11686@redhat.com>
+In-Reply-To: <20010323011331.J7756@redhat.com> <Pine.LNX.4.31.0103231157200.766-100000@penguin.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sun, 25 Mar 2001 09:52:52 +1000
-Message-ID: <323.985477972@ocs3.ocs-net>
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <Pine.LNX.4.31.0103231157200.766-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Fri, Mar 23, 2001 at 11:58:50AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 24 Mar 2001 15:06:23 -0500, 
-Pete Toscano <pete.lkml@toscano.org> wrote:
->[0]kdb> btp 862
->    EBP       EIP         Function(args)
->0xe2bdbf6c 0xc011526a schedule+0x41e (0xe2ce0960, 0xe2bda000)
->0xe2bdbf9c 0xc0107bb8 __down_interruptible+0x94
->0xe2bdbfac 0xc0107c96 __down_failed_interruptible+0xa (0x100, 0xe2c9dd14, 0xe2c9dd6c, 0xe2bdbfd8, 0x0)
->           0xeaf94d7f [scsi_mod].text.lock+0x1fb
->0xe2bdbfec 0xeaf90281 [scsi_mod]scsi_error_handler+0x101
->           0xc0107547 kernel_thread+0x23
+Hi,
 
-scsi_error_handler has tried to get a lock and somebody else has
-already got it and is not letting go.  It is not clear from the source
-of scsi_error_handler which lock is the problem.
+On Fri, Mar 23, 2001 at 11:58:50AM -0800, Linus Torvalds wrote:
 
-objdump -S --start-address=0xeaf90180 --end-address=0xeaf902f0 vmlinux
+> Ehh.. Sleeping with the spin-lock held? Sounds like a truly bad idea.
 
-will disassemble the scsi_error_handler routine, the object code will
-probably mean something to the scsi maintainers.
+Uggh --- the shmem code already does, see:
 
-The trick is to find out which routine is holding the lock.  It could
-be an active routine or it could be caused by code that failed to
-release a lock when it should.  To check for active routines, in kdb
+shmem_truncate->shmem_truncate_part->shmem_free_swp->
+lookup_swap_cache->find_lock_page
 
-set BTSECT=0
-bta
+It looks messy: lookup_swap_cache seems to be abusing the page lock
+gratuitously, but there are probably callers of it which rely on the
+assumption that it performs an implicit wait_on_page().
 
-that will do a backtrace on every process, without the section lines.
-Look for any other process with scsi code in its backtrace, it is
-suspect.
+Rik, do you think it is really necessary to take the page lock and
+release it inside lookup_swap_cache?  I may be overlooking something,
+but I can't see the benefit of it --- we can still race against
+page_launder, so the page may still get locked behind our backs after
+we get the reference from lookup_swap_cache (page_launder explicitly
+avoids taking the pagecache hash spinlock which might avoid this
+particular race).
 
-kdb can help diagnose the problem but the fix will have to come from
-the scsi maintainers.
-
+--Stephen

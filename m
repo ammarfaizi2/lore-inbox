@@ -1,58 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264894AbTLRBbw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Dec 2003 20:31:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264896AbTLRBbw
+	id S264892AbTLRBZa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Dec 2003 20:25:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264893AbTLRBZa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Dec 2003 20:31:52 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:51165 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S264894AbTLRBbt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Dec 2003 20:31:49 -0500
-Date: Thu, 18 Dec 2003 02:31:45 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Netdev <netdev@oss.sgi.com>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       linux.nics@intel.com
-Subject: Re: [BK PATCHES] 2.6.x experimental net driver updates
-Message-ID: <20031218013145.GG25717@fs.tum.de>
-References: <3FDEA6FA.4010906@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3FDEA6FA.4010906@pobox.com>
-User-Agent: Mutt/1.4.1i
+	Wed, 17 Dec 2003 20:25:30 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:42677 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S264892AbTLRBZZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Dec 2003 20:25:25 -0500
+Message-ID: <3FE10204.2030708@namesys.com>
+Date: Thu, 18 Dec 2003 04:25:24 +0300
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: jshankar <jshankar@CS.ColoState.EDU>
+CC: "Richard B. Johnson" <root@chaos.analogic.com>,
+       Mike Fedyk <mfedyk@matchmail.com>,
+       linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ext3 file system
+References: <3FF18FD8@webmail.colostate.edu>
+In-Reply-To: <3FF18FD8@webmail.colostate.edu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jeff,
+jshankar wrote:
 
-I got the following compile error when trying to compile e100 statically 
-into a kernel using gcc 2.95:
+>Hello,
+>
+>Please provide some more insight.
+>
+>Suppose a filesystem issues a write command to the disk with around 10 4K 
+>Blocks  to be written. SCSI device point of view i don't get what is the 
+>parallel I/O.
+>It has only 1 write command. If some other sends a write request it needs to 
+>be queued. But the next question arises how the write data would be handled. 
+>Does it mean the SCSI does not give a response for the block of data written. 
+>In otherwords does it mean that the response would be given after all the 
+>block of data is written for a single write request.
+> 
+>Thanks
+>Jay
+>
+>
+>
+>
+>  
+>
+>>===== Original Message From Mike Fedyk <mfedyk@matchmail.com> =====
+>>On Wed, Dec 17, 2003 at 05:25:49PM -0500, Richard B. Johnson wrote:
+>>    
+>>
+>>>to the physical media. There are special file-systems (journaling)
+>>>that guarantee that something, enough to recover the data, is
+>>>written at periodic intervals.
+>>>      
+>>>
+>>Most journaling filesystems make guarantees on the filesystem meta-data, but
+>>not on the data.  Some like ext3, and reiserfs (with suse's journaling
+>>patch) can journal the data, or order things so that the data is written
+>>before any pointers (ie meta-data) make it to the disk so it will be harder
+>>to loose data.
+>>-
+>>To unsubscribe from this list: send the line "unsubscribe linux-fsdevel" in
+>>the body of a message to majordomo@vger.kernel.org
+>>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>>    
+>>
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
+>  
+>
+Filesystems don't usually wait on the IO to complete before submitting 
+more IO in response to the next write() syscall.  They can do this by 
+batching a whole bunch of operations into one committed transaction.
 
-<--  snip  -->
-
-...
-  CC      drivers/net/e100.o
-drivers/net/e100.c:170: parse error before `int'
-drivers/net/e100.c:170: warning: type defaults to `int' in declaration 
-of `module_param'
-drivers/net/e100.c:170: warning: function declaration isn't a prototype
-drivers/net/e100.c:170: warning: data definition has no type or storage 
-class
-make[2]: *** [drivers/net/e100.o] Error 1
-make[1]: *** [drivers/net] Error 2
-make: *** [drivers] Error 2
-
-<--  snip  -->
-
-cu
-Adrian
+In reiser4 we do this more carefully than other filesystems such as 
+reiserfs v3, and as a result every fs operation is fully atomic.
 
 -- 
+Hans
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 

@@ -1,44 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266586AbRGQPf2>; Tue, 17 Jul 2001 11:35:28 -0400
+	id <S266603AbRGQPud>; Tue, 17 Jul 2001 11:50:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266587AbRGQPfS>; Tue, 17 Jul 2001 11:35:18 -0400
-Received: from c1473286-a.stcla1.sfba.home.com ([24.176.137.160]:28684 "HELO
-	ocean.lucon.org") by vger.kernel.org with SMTP id <S266586AbRGQPfM>;
-	Tue, 17 Jul 2001 11:35:12 -0400
-Date: Tue, 17 Jul 2001 08:35:14 -0700
-From: "H . J . Lu" <hjl@lucon.org>
-To: Shane Nay <shane@minirl.com>
-Cc: James Simmons <jsimmons@transvirtual.com>, Pavel Machek <pavel@suse.cz>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-mips@oss.sgi.com, linux-mips-kernel@lists.sourceforge.net
-Subject: Re: [Linux-mips-kernel] Re: [ANNOUNCE] Secondary mips tree.
-Message-ID: <20010717083514.A19836@lucon.org>
-In-Reply-To: <Pine.LNX.4.10.10107161226220.19188-100000@transvirtual.com> <0107170016150H.02677@compiler>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <0107170016150H.02677@compiler>; from shane@minirl.com on Tue, Jul 17, 2001 at 12:16:15AM -0700
+	id <S266600AbRGQPuY>; Tue, 17 Jul 2001 11:50:24 -0400
+Received: from mta8.srv.hcvlny.cv.net ([167.206.5.23]:726 "EHLO
+	mta8.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id <S266599AbRGQPuO>; Tue, 17 Jul 2001 11:50:14 -0400
+Date: Tue, 17 Jul 2001 11:50:06 -0400
+From: Alan Shutko <ats@acm.org>
+Subject: Re: [VERY OT] Re: 2.4.6-ac5 gives wrong cache info for Duron in
+ /proc/cpuinfo
+In-Reply-To: <OE207Offjcu1lObtvrw000044b6@hotmail.com>
+To: William Scott Lockwood III <scottlockwood@hotmail.com>
+Cc: David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org
+Message-id: <87u20b36g5.fsf@wesley.springies.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+User-Agent: Gnus/5.090004 (Oort Gnus v0.04) Emacs/21.0.104
+In-Reply-To: <OE17UirmJJgWha8vFnq000074b6@hotmail.com>
+ <Pine.LNX.4.33.0107171532450.1817-100000@ketil.np> <7721.995383087@redhat.com>
+ <OE207Offjcu1lObtvrw000044b6@hotmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 17, 2001 at 12:16:15AM -0700, Shane Nay wrote:
-> >   We have been having problems with toolchains as well. We plan to have a
-> > new toolchain ready by Wednesday.
-> 
-> Yes, there have been a lot of toolchain issues with MIPs.  The last time I 
-> went on a toolchain testing binge for MIPs was with GCC CVS in about April.  
-> I had really good results with that toolchain with both the kernel and 
-> userland.  I did some micro tests with 3.0 and they appeared solid, but I had 
-> updated to the latest non-CVS version of bintools and it was chocking out 
-> lots of assembler warnings when rebuilding glibc.  There are source and 
-> binary snaps of that toolchain on the agenda FTP site under snow.
-> 
+"William Scott Lockwood III" <thatlinuxguy@hotmail.com> writes:
 
-The toolchain in my RedHat 7.1 mips port is as good as the x86 version
-for RedHat 7.1. Since there is no mips maintainer for gcc, many
-mips patches aren't reviewed. But they are in my mips toolchain.
+> Today, I learned that multiples of 1024 is actually Ki.  
 
+It's a reasonably new standard that hasn't caught on, because many
+people think that "kibibyte" is stupid.
 
-H.J.
+-- 
+Alan Shutko <ats@acm.org> - In a variety of flavors!
+Tempt me with a spoon!

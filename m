@@ -1,153 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261396AbUEJTqW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261418AbUEJTs7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261396AbUEJTqW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 15:46:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261375AbUEJTqW
+	id S261418AbUEJTs7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 15:48:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261375AbUEJTs6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 15:46:22 -0400
-Received: from 015.atlasinternet.net ([212.9.93.15]:43360 "EHLO
-	ponti.gallimedina.net") by vger.kernel.org with ESMTP
-	id S261396AbUEJTqF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 15:46:05 -0400
-From: Ricardo Galli <gallir@atlas-iap.es>
-Organization: UIB
+	Mon, 10 May 2004 15:48:58 -0400
+Received: from mail.tmr.com ([216.238.38.203]:44306 "EHLO gatekeeper.tmr.com")
+	by vger.kernel.org with ESMTP id S261439AbUEJTsE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 May 2004 15:48:04 -0400
 To: linux-kernel@vger.kernel.org
-Subject: 2.6.6 doesn't boot with 4k stacks
-Date: Mon, 10 May 2004 21:46:01 +0200
-User-Agent: KMail/1.6.2
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-15"
+Path: not-for-mail
+From: Bill Davidsen <davidsen@tmr.com>
+Newsgroups: mail.linux-kernel
+Subject: Re: 2.6.6-rc3-mm2 (4KSTACK)
+Date: Mon, 10 May 2004 15:49:58 -0400
+Organization: TMR Associates, Inc
+Message-ID: <c7om3o$akd$1@gatekeeper.tmr.com>
+References: <200405061518.i46FIAY2016476@turing-police.cc.vt.edu> <1083858033.3844.6.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200405102146.01863.gallir@atlas-iap.es>
+X-Trace: gatekeeper.tmr.com 1084218296 10893 192.168.12.100 (10 May 2004 19:44:56 GMT)
+X-Complaints-To: abuse@tmr.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
+X-Accept-Language: en-us, en
+In-Reply-To: <1083858033.3844.6.camel@laptop.fenrus.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Perhaps I missed some readme, but just in case. One of my computer, P4HT[*]
-dies during booting. There is no log because nothing is still mounted, 
-but I took a photograph of the stack dump in the screen.
+Arjan van de Ven wrote:
+>>It's probably a Bad Idea to push this to Linus before the vendors that have
+>>significant market-impact issues (again - anybody other than NVidia here?)
+>>have gotten their stuff cleaned up...
+> 
+> 
+> Ok I don't want to start a flamewar but... Do we want to hold linux back
+> until all binary only module vendors have caught up ??
 
-http://mnm.uib.es/~gallir/tmp/hang1s.jpg
+My questions is, hold it back from what? Having the 4k option is fine, 
+it's just eliminating the current default which I think is undesirable. 
+I tried 4k stack, I couldn't measure any improvement in anything (as in 
+no visible speedup or saving in memory). For an embedded system, where 
+space is tight and the code paths well known, sure, but I haven't been 
+able to find or generate any objective improvement, other than some 
+posts saying smaller is always better. Nothing slows a system down like 
+a crash, even if it isn't followed by a restore from backup.
 
-The .config file:
-http://mnm.uib.es/~gallir/tmp/2.6.6-bad-config.txt
-
-I unchecked the 4K stack option and it's working nice.
-
-
-Regards,
-
-
-[*]
-$ cat /proc/cpuinfo
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 15
-model           : 2
-model name      : Intel(R) Pentium(R) 4 CPU 2.80GHz
-stepping        : 9
-cpu MHz         : 2799.439
-cache size      : 512 KB
-physical id     : 0
-siblings        : 2
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe cid
-bogomips        : 5554.17
-
-processor       : 1
-vendor_id       : GenuineIntel
-cpu family      : 15
-model           : 2
-model name      : Intel(R) Pentium(R) 4 CPU 2.80GHz
-stepping        : 9
-cpu MHz         : 2799.439
-cache size      : 512 KB
-physical id     : 0
-siblings        : 2
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe cid
-bogomips        : 5586.94
-
-$ lspci
-0000:00:00.0 Host bridge: Intel Corp. 82875P Memory Controller Hub (rev 02)
-0000:00:01.0 PCI bridge: Intel Corp. 82875P Processor to AGP Controller (rev 02)
-0000:00:1d.0 USB Controller: Intel Corp. 82801EB/ER (ICH5/ICH5R) USB UHCI #1 (rev 02)
-0000:00:1d.1 USB Controller: Intel Corp. 82801EB/ER (ICH5/ICH5R) USB UHCI #2 (rev 02)
-0000:00:1d.2 USB Controller: Intel Corp. 82801EB/ER (ICH5/ICH5R) USB UHCI #3 (rev 02)
-0000:00:1d.3 USB Controller: Intel Corp. 82801EB/ER (ICH5/ICH5R) USB UHCI #4 (rev 02)
-0000:00:1d.7 USB Controller: Intel Corp. 82801EB/ER (ICH5/ICH5R) USB2 EHCI Controller (rev 02)
-0000:00:1e.0 PCI bridge: Intel Corp. 82801BA/CA/DB/EB/ER Hub interface to PCI Bridge (rev c2)
-0000:00:1f.0 ISA bridge: Intel Corp. 82801EB/ER (ICH5/ICH5R) LPC Bridge (rev 02)
-0000:00:1f.1 IDE interface: Intel Corp. 82801EB/ER (ICH5/ICH5R) Ultra ATA 100 Storage Controller (rev 02)
-0000:00:1f.2 IDE interface: Intel Corp. 82801EB (ICH5) Serial ATA 150 Storage Controller (rev 02)
-0000:00:1f.3 SMBus: Intel Corp. 82801EB/ER (ICH5/ICH5R) SMBus Controller (rev 02)
-0000:00:1f.5 Multimedia audio controller: Intel Corp. 82801EB/ER (ICH5/ICH5R) AC'97 Audio Controller (rev 02)
-0000:01:00.0 VGA compatible controller: nVidia Corporation NV25 [GeForce4 Ti 4200] (rev a3)
-0000:02:03.0 FireWire (IEEE 1394): VIA Technologies, Inc. IEEE 1394 Host Controller (rev 80)
-0000:02:05.0 Ethernet controller: 3Com Corporation 3c940 10/100/1000Base-T [Marvell] (rev 12)
-0000:02:0c.0 Multimedia audio controller: Creative Labs SB Live! EMU10k1 (rev 07)
-0000:02:0c.1 Input device controller: Creative Labs SB Live! MIDI/Game Port (rev 07)
-0000:02:0d.0 Ethernet controller: 3Com Corporation 3c905C-TX/TX-M [Tornado] (rev 78)
-
- cat /proc/devices
-Character devices:
-  1 mem
-  2 pty
-  3 ttyp
-  4 /dev/vc/0
-  4 tty
-  4 ttyS
-  5 /dev/tty
-  5 /dev/console
-  5 /dev/ptmx
-  7 vcs
- 10 misc
- 13 input
- 14 sound
-116 alsa
-128 ptm
-136 pts
-171 ieee1394
-180 usb
-195 nvidia
-
-Block devices:
-  2 fd
-  3 ide0
-  8 sd
- 22 ide1
- 65 sd
- 66 sd
- 67 sd
- 68 sd
- 69 sd
- 70 sd
- 71 sd
-128 sd
-129 sd
-130 sd
-131 sd
-132 sd
-133 sd
-134 sd
-135 sd
+Feel free to point me at some results showing major improvement from 4k 
+stacks, I'm open to data.
 
 -- 
-  ricardo galli       GPG id C8114D34
-  http://mnm.uib.es/~gallir/
-  127.0.0.1 sweet 127.0.0.1
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

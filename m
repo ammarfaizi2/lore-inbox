@@ -1,44 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262408AbVCIVMU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261622AbVCIVQw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262408AbVCIVMU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 16:12:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261655AbVCIVLK
+	id S261622AbVCIVQw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 16:16:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262166AbVCIVQr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 16:11:10 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:3023 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262473AbVCIVJg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 16:09:36 -0500
-Date: Wed, 9 Mar 2005 22:09:26 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: current linus bk, error mounting root
-Message-ID: <20050309210926.GZ28855@suse.de>
-References: <9e47339105030909031486744f@mail.gmail.com> <422F2F7C.3010605@pobox.com> <9e4733910503091023474eb377@mail.gmail.com> <422F5D0E.7020004@pobox.com> <9e473391050309125118f2e979@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9e473391050309125118f2e979@mail.gmail.com>
+	Wed, 9 Mar 2005 16:16:47 -0500
+Received: from a34-mta02.direcpc.com ([66.82.4.91]:28075 "EHLO
+	a34-mta02.direcway.com") by vger.kernel.org with ESMTP
+	id S261622AbVCIVMt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 16:12:49 -0500
+Date: Wed, 09 Mar 2005 15:12:38 -0600
+From: DHollenbeck <dick@softplc.com>
+Subject: 2.6.x.y gatekeeper discipline
+To: linux-kernel@vger.kernel.org
+Message-id: <422F66C6.50208@softplc.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 09 2005, Jon Smirl wrote:
-> On Wed, 09 Mar 2005 15:31:10 -0500, Jeff Garzik <jgarzik@pobox.com> wrote:
-> > Well, there are no changes in libata from bk4 to present.  The only
-> > thing I see in the -bk4-bk5 increment diff that's immediately noticeable
-> > is the barrier stuff.
-> 
-> bk4 works
-> bk5 is broken
-> 
-> Where are these *.key files? Maybe I can do some more divide and
-> conquer in bitkeeper.
+I had hoped that the proper discipline in rejecting non-critical patches 
+would have pertained.  I remain unconvinced that the .y releases are 
+anything but noise that should have been kept elsewhere.  After reading 
+through a patch summary, I see this as typical:
 
-probably not worth the bother, looks like barrier problems. get the
-serial console running instead and send the full output, I'll take a
-look in the morning.
+
+----------------------
+
+
+      ChangeSet 2005/02/22 20:56:28-05:00, bunk @ stusta.de
+      <http://kernel.org/pub/linux/kernel/v2.6/testing/cset/cset-bunk@stusta.de%5Bjgarzik%5D%7CChangeSet%7C20050223015628%7C49266.txt>
+      [diffview]
+      <http://www.kernel.org/diff/diffview.cgi?file=/pub/linux/kernel/v2.5/testing/cset/cset-bunk@stusta.de%5Bjgarzik%5D%7CChangeSet%7C20050223015628%7C49266.txt>
+
+[PATCH] drivers/net/via-rhine.c: make a variable static const
+
+This patch makes a needlessly global variable static const.
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Signed-off-by: Jeff Garzik <jgarzik@pobox.com>
+
+----------------------------------
+
+It's possible I simply don't get it, but the above description of a 
+patch hardly seems like it would qualify for the intentions of the 
+2.6.x.y series.
+
+Is this typical, and is this in line with the intent of the x.y series?
+
+If this is going to achieve the objective, the gatekeeper has to be a 
+real stubborn, unpopular horse's ass it seems, with a sign on his 
+forehead that reads:  GO AWAY AND COME ANOTHER DAY!
+
+Somewhat disappointedly,
+
+Dick
 
 -- 
-Jens Axboe
+Please help fix the U.S. software industry before it is too late.
+Contact your U.S. representatives with this information:
+http://lpf.ai.mit.edu/Patents/industry-at-risk.html
+http://www.groklaw.net/article.php?story=20041003041632172
+
 

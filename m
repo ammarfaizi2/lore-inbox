@@ -1,38 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271736AbRHQWyU>; Fri, 17 Aug 2001 18:54:20 -0400
+	id <S271738AbRHQWtU>; Fri, 17 Aug 2001 18:49:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271742AbRHQWyK>; Fri, 17 Aug 2001 18:54:10 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:6273 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S271736AbRHQWxz>;
-	Fri, 17 Aug 2001 18:53:55 -0400
-Date: Fri, 17 Aug 2001 15:53:54 -0700 (PDT)
-Message-Id: <20010817.155354.85420212.davem@redhat.com>
-To: alex.buell@tahallah.demon.co.uk
-Cc: alan@lxorguk.ukuu.org.uk, andre.dahlqvist@telia.com,
-        linux-kernel@vger.kernel.org
+	id <S271736AbRHQWtL>; Fri, 17 Aug 2001 18:49:11 -0400
+Received: from tahallah.demon.co.uk ([158.152.175.193]:56558 "EHLO
+	tahallah.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S271738AbRHQWtB>; Fri, 17 Aug 2001 18:49:01 -0400
+Date: Fri, 17 Aug 2001 23:48:29 +0100 (BST)
+From: Alex Buell <alex.buell@tahallah.demon.co.uk>
+X-X-Sender: <alex@tahallah.demon.co.uk>
+Reply-To: <alex.buell@tahallah.demon.co.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: <alex.buell@tahallah.demon.co.uk>,
+        =?iso-8859-1?Q?Andr=E9?= Dahlqvist <andre.dahlqvist@telia.com>,
+        <linux-kernel@vger.kernel.org>
 Subject: Re: 'make dep' produces lots of errors with this .config
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.33.0108172344000.14197-100000@tahallah.demon.co.uk>
 In-Reply-To: <E15Xs2d-0008EK-00@the-village.bc.nu>
-	<Pine.LNX.4.33.0108172344000.14197-100000@tahallah.demon.co.uk>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-ID: <Pine.LNX.4.33.0108172344000.14197-100000@tahallah.demon.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Alex Buell <alex.buell@tahallah.demon.co.uk>
-   Date: Fri, 17 Aug 2001 23:48:29 +0100 (BST)
-   
-   That won't fix the PCI references which seems to get compiled in if
-   asm/keyboard.h is included. Taking a look at it, hmm. asm-sparc/keyboard.h
-   seems to be for the Ultra/PCI stuff, oughtn't this be in asm-sparc64, as
-   sparc32 doesn't use PCI at all, unless there's something I don't know.
+On Fri, 17 Aug 2001, Alan Cox wrote:
 
-Ummm, there are most definitely PCI sparc32 systems.
+> Actually thats one of my presents. The ports are expected to provide
+> their definition for struct kbd_repeat and a kbd_rate function. If the
+> facility is not available then it can be defined as NULL
+>
+> So the sparc asm/keyboard.h if it supports no keyboard rate stuff would be
+>
+>
+> /*
+>  *	Sparc32 lacks the standard keyboard rate ioctls
+>  */
+>
+> #define kbd_rate	NULL
+>
+> and it'll error out with -EINVAL
 
-Later,
-David S. Miller
-davem@redhat.com
+That won't fix the PCI references which seems to get compiled in if
+asm/keyboard.h is included. Taking a look at it, hmm. asm-sparc/keyboard.h
+seems to be for the Ultra/PCI stuff, oughtn't this be in asm-sparc64, as
+sparc32 doesn't use PCI at all, unless there's something I don't know.
+
+-- 
+A pancake! I've photocopied a pancake!
+
+http://www.tahallah.demon.co.uk
+

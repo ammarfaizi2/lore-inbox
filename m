@@ -1,40 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261484AbTHSVi3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 17:38:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261586AbTHSVi2
+	id S261644AbTHSVoK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 17:44:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261547AbTHSVlk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 17:38:28 -0400
-Received: from fw.osdl.org ([65.172.181.6]:2483 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261484AbTHSVha (ORCPT
+	Tue, 19 Aug 2003 17:41:40 -0400
+Received: from dodge.jordet.nu ([217.13.8.142]:57030 "EHLO dodge.hybel")
+	by vger.kernel.org with ESMTP id S261533AbTHSVe3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 17:37:30 -0400
-Date: Tue, 19 Aug 2003 14:22:34 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: jmorris@redhat.com, chris@wirex.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Call security hook from pid*_revalidate
-Message-Id: <20030819142234.64433bad.akpm@osdl.org>
-In-Reply-To: <1061327958.28439.62.camel@moss-spartans.epoch.ncsc.mil>
-References: <20030819013834.1fa487dc.akpm@osdl.org>
-	<1061327958.28439.62.camel@moss-spartans.epoch.ncsc.mil>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 19 Aug 2003 17:34:29 -0400
+Subject: Re: Can't read fan-speeds from i2c
+From: Stian Jordet <liste@jordet.nu>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20030819210223.GB6170@kroah.com>
+References: <1061324213.708.6.camel@chevrolet.hybel>
+	 <20030819205356.GA5968@kroah.com> <1061326633.611.8.camel@chevrolet.hybel>
+	 <20030819210223.GB6170@kroah.com>
+Content-Type: text/plain
+Message-Id: <1061328876.611.31.camel@chevrolet.hybel>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Tue, 19 Aug 2003 23:34:36 +0200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen Smalley <sds@epoch.ncsc.mil> wrote:
->
-> This patch against 2.6.0-test3-mm3 adds calls to the
-> security_task_to_inode hook to the pid*_revalidate functions to ensure
-> that the inode security field is also updated appropriately for
-> /proc/pid inodes.  This corresponds with the uid/gid update performed by
-> the proc-pid-setuid-ownership-fix.patch that is already in -mm3.
+tir, 19.08.2003 kl. 23.02 skrev Greg KH:
+> On Tue, Aug 19, 2003 at 10:57:13PM +0200, Stian Jordet wrote:
+> > tir, 19.08.2003 kl. 22.53 skrev Greg KH:
+> > > On Tue, Aug 19, 2003 at 10:16:53PM +0200, Stian Jordet wrote:
+> > > > Hi,
+> > > > 
+> > > > I have a Asus CUV266-DLS, which uses the as99127f chipset. Everything
+> > > > seems to work as it is supposed to, except for fan-speeds. They say 0.
+> > > > Is that supposed behaviour since the as99127f doesn't have any
+> > > > datasheets, or am I doing something wrong?
+> > > 
+> > > What kernel version are you using?
+> > 
+> > Latest bk-snapshot...
+> 
+> Does 2.4 work just fine for this chip and driver and 2.6 does not?  If
+> 2.4 also doesn't work, I would suggest bringing this up on the sensors
+> mailing list.
 
-wow, you're awake ;)
+Doesn't work with 2.4 neither. I'll try the list, but I don't have much
+hope for them doing anything. Quoting from the their webpage:
 
-I'm not sure that the /proc/fd ownership patch is the correct solution to
-that bug yet; we'll see.  I'll include your change, thanks.
+If you have problems, please lobby Asus to release a datasheet.
+Unfortunately several others have without success.
+Please do not send mail to us asking for better as99127f support.
+
+Which I do ofcourse understand. I just wondered if there was some voodoo
+I didnt' understand. Works fine with Motherboard Monitor 5 in Windows.
+
+Thanks :)
+
+Best regards,
+Stian
 

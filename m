@@ -1,53 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264972AbSJWNOf>; Wed, 23 Oct 2002 09:14:35 -0400
+	id <S264971AbSJWNLD>; Wed, 23 Oct 2002 09:11:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264973AbSJWNOf>; Wed, 23 Oct 2002 09:14:35 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:262 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S264972AbSJWNOe>;
-	Wed, 23 Oct 2002 09:14:34 -0400
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
-Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: One for the Security Guru's 
-In-reply-to: Your message of "Wed, 23 Oct 2002 09:02:51 -0400."
-             <20021023130251.GF25422@rdlg.net> 
+	id <S264972AbSJWNLD>; Wed, 23 Oct 2002 09:11:03 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:25349 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S264971AbSJWNLC>;
+	Wed, 23 Oct 2002 09:11:02 -0400
+Date: Wed, 23 Oct 2002 14:17:12 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Matthew Wilcox <willy@debian.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       mingo@redhat.com
+Subject: Re: [PATCH] use 1ULL instead of 1UL in kernel/signal.c
+Message-ID: <20021023141712.M27461@parcelfarce.linux.theplanet.co.uk>
+References: <20021022222719.H27461@parcelfarce.linux.theplanet.co.uk> <1035323879.329.185.camel@irongate.swansea.linux.org.uk> <20021022224853.I27461@parcelfarce.linux.theplanet.co.uk> <1035328632.329.187.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Wed, 23 Oct 2002 23:20:33 +1000
-Message-ID: <24321.1035379233@ocs3.intra.ocs.com.au>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1035328632.329.187.camel@irongate.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Wed, Oct 23, 2002 at 12:17:12AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Oct 2002 09:02:51 -0400, 
-"Robert L. Harris" <Robert.L.Harris@rdlg.net> wrote:
->  The consultants aparantly told the company admins that kernel modules
->were a massive security hole and extremely easy targets for root kits.
+On Wed, Oct 23, 2002 at 12:17:12AM +0100, Alan Cox wrote:
+> Care to move the define into include/asm-foo then ?
 
-Typical consultant rubbish.  Yes, LKMs can hide rooted systems, but the
-system has already been broken into by then.  You must be root to load
-a module or copy a module to /lib/modules, depmod ignores modules that
-are not owned by root.  IOW, if somebody can load a module then they
-already own your system!
+How about this instead?  All other arches define SIGRTMIN to be 32, so
+this only affects PA.
 
-Fingerprinting modules is a hardy perennial.  It cannot be done in user
-space (how do you fingerprint the loader, libc, insmod etc.?), it can
-only be done in kernel.  No kernel code exists to do that, although LSM
-may be getting there.  The stumbling block is - who creates the
-fingerprint?  Answer - root.  You are trying to identify the difference
-between a valid root user and a malicious root user, both of whom have
-exactly the same privileges.  It does not work!
+Index: kernel/signal.c
+===================================================================
+RCS file: /var/cvs/linux-2.5/kernel/signal.c,v
+retrieving revision 1.1.2.4
+diff -u -p -r1.1.2.4 signal.c
+--- kernel/signal.c	21 Oct 2002 03:07:20 -0000	1.1.2.4
++++ kernel/signal.c	23 Oct 2002 13:14:33 -0000
+@@ -96,7 +96,12 @@ int max_queued_signals = 1024;
+ #define M_SIGEMT	0
+ #endif
+ 
++#if SIGRTMIN > 32
++#define M(sig) (1ULL << (sig))
++#else
+ #define M(sig) (1UL << (sig))
++#endif
++#define T(sig, mask) (M(sig) & mask)
+ 
+ #define SIG_USER_SPECIFIC_MASK (\
+ 	M(SIGILL)    |  M(SIGTRAP)   |  M(SIGABRT)   |  M(SIGBUS)    | \
+@@ -130,9 +135,6 @@ int max_queued_signals = 1024;
+         M(SIGQUIT)   |  M(SIGILL)    |  M(SIGTRAP)   |  M(SIGABRT)   | \
+         M(SIGFPE)    |  M(SIGSEGV)   |  M(SIGBUS)    |  M(SIGSYS)    | \
+         M(SIGXCPU)   |  M(SIGXFSZ)   |  M_SIGEMT                     )
+-
+-#define T(sig, mask) \
+-	((1UL << (sig)) & mask)
+ 
+ #define sig_user_specific(sig) \
+ 		(((sig) < SIGRTMIN)  && T(sig, SIG_USER_SPECIFIC_MASK))
 
-LSM with its fine grained security model might help in this area, but
-don't hold your breath.  LSM has not been accepted into the kernel yet.
-
->As a result every machine has a 100% monolithic kernel
-
-There are techniques for getting the same effect as LKMs even when the
-kernel is not compiled with modules.  Phrack had a series of articles
-on this subject.  Turning off modules increases the effort of hiding
-the break in by 5-10%, it does not make the system any more secure.
-Remember, if somebody can load a module then they have already broken
-in.
-
+-- 
+Revolutions do not require corporate support.

@@ -1,77 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271319AbTGQQdM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 12:33:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271340AbTGQQcX
+	id S271468AbTGQQcJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 12:32:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271383AbTGQQ04
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 12:32:23 -0400
-Received: from isi-dsl-126-75.isis.de ([213.128.126.75]:51951 "EHLO
-	Dragon.192.168.1.1") by vger.kernel.org with ESMTP id S271319AbTGQQaI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 12:30:08 -0400
-Date: Thu, 17 Jul 2003 18:45:01 +0200
-From: Patrick Plattes <patrick@erdbeere.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: rivafb problem (2.6.0-test1)
-Message-ID: <20030717164501.GA1545@erdbeere.net>
-References: <20030717163326.GA333@erdbeere.net>
+	Thu, 17 Jul 2003 12:26:56 -0400
+Received: from d12lmsgate-5.de.ibm.com ([194.196.100.238]:59046 "EHLO
+	d12lmsgate-5.de.ibm.com") by vger.kernel.org with ESMTP
+	id S271340AbTGQQ0H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 12:26:07 -0400
+Date: Thu, 17 Jul 2003 18:39:55 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: [PATCH] s390 (6/6): siginfo_t for s390x.
+Message-ID: <20030717163955.GG2045@mschwid3.boeblingen.de.ibm.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="pf9I7BMVVzbSWLtt"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030717163326.GA333@erdbeere.net>
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Correct size of siginfo_t for s390x (from 136 to 128).
 
---pf9I7BMVVzbSWLtt
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+diffstat:
+ include/asm-s390/siginfo.h |    3 +++
+ 1 files changed, 3 insertions(+)
 
-i'm sorry, my card is a geforce ddr 32mb
-
-thanks,
-patrick
-
-On Thu, Jul 17, 2003 at 06:33:26PM +0200, Patrick Plattes wrote:
-> hello,
->=20
-> i have some problems with the rivafb. it compiles fine, but it displays
-> not correct. it is hard to describe - especially in english ;).=20
->=20
-> actually i have cursor - it looks like an underlined 'P'. if i try to
-> switch to an other hsync changed to 120hz. if i try to use x it works
-> fine (ok, i can't switch back to the console).
->=20
-> i don't have any interesting outputs in the messages log. you can find
-> my actual .config at www.erdbeere.net/.config . if you need any
-> screenshots i will try to find my digi-cam.
->=20
-> thanks,
-> patrick
-
-
-
---=20
-Das ggf. ang=E4ngende Attachment ist eine Signatur, erstellt mit GnuPG, die=
- es
-erm=F6glicht die Korrektheit des Absenders zu best=E4tigen (www.gnupg.org).
-Ich widerspreche der Nutzung oder =DCbermittling meiner Daten f=FCr Werbezw=
-ecke=20
-oder f=FCr die Markt- und Meinungsforschung. (=A728 Abs. 3 + 4 BDSG)
-
---pf9I7BMVVzbSWLtt
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE/FtKNQ7Xfys5M9aQRAodpAJwIR7YcA8cec7ZXgkbIqq54F+y1vACdGkFT
-2L+SbkXl5WitM7NkH9ficJU=
-=YeYD
------END PGP SIGNATURE-----
-
---pf9I7BMVVzbSWLtt--
+diff -urN linux-2.6.0-test1/include/asm-s390/siginfo.h linux-2.6.0-s390/include/asm-s390/siginfo.h
+--- linux-2.6.0-test1/include/asm-s390/siginfo.h	Mon Jul 14 05:37:33 2003
++++ linux-2.6.0-s390/include/asm-s390/siginfo.h	Thu Jul 17 17:27:34 2003
+@@ -10,6 +10,9 @@
+ #define _S390_SIGINFO_H
+ 
+ #define HAVE_ARCH_SI_CODES
++#ifdef __s390x__
++#define __ARCH_SI_PREAMBLE_SIZE (4 * sizeof(int))
++#endif
+ 
+ #include <asm-generic/siginfo.h>
+ 

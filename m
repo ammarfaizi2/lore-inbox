@@ -1,58 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289670AbSAJUyl>; Thu, 10 Jan 2002 15:54:41 -0500
+	id <S289677AbSAJVAL>; Thu, 10 Jan 2002 16:00:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289674AbSAJUy3>; Thu, 10 Jan 2002 15:54:29 -0500
-Received: from laibach.mweb.co.za ([196.2.53.177]:52394 "EHLO
-	laibach.mweb.co.za") by vger.kernel.org with ESMTP
-	id <S289405AbSAJUxv>; Thu, 10 Jan 2002 15:53:51 -0500
-Subject: [PATCH] Compilation error on 2.5.10 linux-2.5/drivers/ide/pdc4030.c
-From: Bongani Hlope <bonganilinux@mweb.co.za>
-To: LKM <linux-kernel@vger.kernel.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 10 Jan 2002 23:05:46 +0200
-Message-Id: <1010696751.5950.0.camel@localhost.localdomain>
+	id <S289679AbSAJVAD>; Thu, 10 Jan 2002 16:00:03 -0500
+Received: from [212.53.104.194] ([212.53.104.194]:47959 "EHLO
+	zhadum.bjavor.d2g.com") by vger.kernel.org with ESMTP
+	id <S289677AbSAJU7v>; Thu, 10 Jan 2002 15:59:51 -0500
+Date: Thu, 10 Jan 2002 21:59:46 +0100
+From: Balazs Javor <jb3@freemail.hu>
+To: linux-kernel@vger.kernel.org
+Subject: eth0: entered promiscuous mode
+Message-ID: <20020110205946.GB24838@zhadum.bjavor.d2g.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This fixes an error when compiling and removes a unused variable warning
-The following warning I'm not sure about though:
+Hi,
 
-pdc4030.c: In function `do_pdc4030_io':
-pdc4030.c:571: warning: control reaches end of non-void function
+Can somebody please tell me what the above message means?
 
-	-Bongani
+I very often encounter this in the syslog and sometimes
+also on the console.
 
---- /usr/src/linux-2.5/drivers/ide/pdc4030.c    Wed Jan  9 21:46:15 2002
-+++ /usr/src/linux-2.5-dev/drivers/ide/pdc4030.c        Thu Jan 10
-22:50:29 2002
-@@ -393,7 +393,6 @@
- {
-        ide_hwgroup_t *hwgroup = HWGROUP(drive);
-        struct request *rq = hwgroup->rq;
--       int i;
-
-        if (GET_STAT() & BUSY_STAT) {
-                if (time_before(jiffies, hwgroup->poll_timeout)) {
-@@ -498,6 +497,7 @@
- {
-        unsigned long timeout;
-        byte stat;
-+       ide_startstop_t startstop;
-
- /* Check that it's a regular command. If not, bomb out early. */
-        if (!(rq->flags & REQ_CMD)) {
-@@ -543,7 +543,6 @@
-                break;
-
-        case WRITE:
--               ide_startstop_t startstop;
-                OUT_BYTE(PROMISE_WRITE, IDE_COMMAND_REG);
- /*
-  * Strategy on write is:
-
-
+Many thanks for yout help in advance!
+best regards,
+Balazs

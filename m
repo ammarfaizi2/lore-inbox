@@ -1,75 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267725AbUIWQbk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268163AbUIWQhs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267725AbUIWQbk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 12:31:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266538AbUIWQbd
+	id S268163AbUIWQhs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 12:37:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267650AbUIWQhq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 12:31:33 -0400
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:41679 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S267650AbUIWQbG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 12:31:06 -0400
-Subject: __attribute__((always_inline)) fiasco
-From: Albert Cahalan <albert@users.sf.net>
-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Cc: rth@twiddle.net
-Content-Type: text/plain
-Organization: 
-Message-Id: <1095956778.4966.940.camel@cube>
+	Thu, 23 Sep 2004 12:37:46 -0400
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:33513 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S268117AbUIWQgL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Sep 2004 12:36:11 -0400
+Date: Fri, 24 Sep 2004 01:32:13 +0900
+From: Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>
+To: anil.s.keshavamurthy@intel.com
+Cc: len.brown@intel.com, acpi-devel@lists.sourceforge.net,
+       lhns-devel@lists.sourceforge.net, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org,
+       Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>
+Subject: [PATCH][2/4] Add arch_register_node() for ia64
+Message-Id: <20040924013213.00004a83.tokunaga.keiich@jp.fujitsu.com>
+In-Reply-To: <20040924012301.000007c6.tokunaga.keiich@jp.fujitsu.com>
+References: <20040920092520.A14208@unix-os.sc.intel.com>
+	<20040920094719.H14208@unix-os.sc.intel.com>
+	<20040924012301.000007c6.tokunaga.keiich@jp.fujitsu.com>
+Organization: FUJITSU LIMITED
+X-Mailer: Sylpheed version 0.8.7 (GTK+ 1.3.0; Win32)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 23 Sep 2004 12:26:18 -0400
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'm displeased with someone's workaround for decisions made by
-> the (rather weak) inliner in gcc 3.[123].  In particular, that
-> someone doesn't understand all of the implications of always_inline.
-...
-> In the Alpha port I have a number of places in which I have 
-> functions that I would like inlined when they are called directly,
-> but I also need to take their address so that they may be registered
-> as part of a dispatch vector for the specific machine model.
->
-> This scheme fails because my functions got marked always_inline
-> behind my back, which means they didn't get emitted in the right
-> place.
 
-If it hurts, don't do that. It looks like bloat anyway.
+Name: numa_hp_ia64.patch
+Status: Tested on 2.6.9-rc2
+Signed-off-by: Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>
+Description:
+Add arch_register_node() to arch/ia64/kernel/topology.c.  The
+topology.c has been introduced by Anil (Intel).
 
-Are benchmarks significantly affected if you remove the inline?
-If so, simply have a second function:
+Thanks,
+Keiichiro Tokunaga
+---
 
-extern void uninline_foo(void);
-...
-void uninline_foo(void)
-{
-        foo();
-}
+ linux-2.6.9-rc2-fix-kei/arch/ia64/kernel/acpi.c     |    1 +
+ linux-2.6.9-rc2-fix-kei/arch/ia64/kernel/topology.c |   18 +++++++++++++++---
+ linux-2.6.9-rc2-fix-kei/include/asm-ia64/numa.h     |    3 ++-
+ 3 files changed, 18 insertions(+), 4 deletions(-)
 
-> Rather than fight the unwinnable fight to remove this hack entirely,
-> may I ask that at least one of the different names for inline, e.g.
-> __inline__, be left un-touched so that it can be used by those that
-> understand what the keyword is supposed to mean?
->
-> Of course, there does not exist a variant that isn't used by all
-> sorts of random code, so presumably all existing occurences would
-> have to get renamed to plan "inline" in order to keep people happy..
+diff -puN arch/ia64/kernel/acpi.c~numa_hp_ia64 arch/ia64/kernel/acpi.c
+--- linux-2.6.9-rc2-fix/arch/ia64/kernel/acpi.c~numa_hp_ia64	2004-09-24 00:14:56.062297005 +0900
++++ linux-2.6.9-rc2-fix-kei/arch/ia64/kernel/acpi.c	2004-09-24 00:14:56.069132982 +0900
+@@ -362,6 +362,7 @@ int __devinitdata pxm_to_nid_map[MAX_PXM
+ int __initdata nid_to_pxm_map[MAX_NUMNODES];
+ static struct acpi_table_slit __initdata *slit_table;
+ 
++EXPORT_SYMBOL(pxm_to_nid_map);
+ /*
+  * ACPI 2.0 SLIT (System Locality Information Table)
+  * http://devresource.hp.com/devresource/Docs/TechPapers/IA64/slit.pdf
+diff -puN arch/ia64/kernel/topology.c~numa_hp_ia64 arch/ia64/kernel/topology.c
+--- linux-2.6.9-rc2-fix/arch/ia64/kernel/topology.c~numa_hp_ia64	2004-09-24 00:14:56.064250141 +0900
++++ linux-2.6.9-rc2-fix-kei/arch/ia64/kernel/topology.c	2004-09-24 00:14:56.070109550 +0900
+@@ -21,8 +21,9 @@
+ #include <asm/mmzone.h>
+ #include <asm/numa.h>
+ #include <asm/cpu.h>
+-
+ #ifdef CONFIG_NUMA
++#include <asm/numa.h>
++
+ static struct node *sysfs_nodes;
+ #endif
+ static struct ia64_cpu *sysfs_cpus;
+@@ -37,6 +38,18 @@ int arch_register_cpu(int num)
+ 
+ 	return register_cpu(&sysfs_cpus[num].cpu, num, parent);
+ }
++#ifdef CONFIG_NUMA
++int arch_register_node(int num) {
++	return register_node(&sysfs_nodes[num],num,0);
++}
++int arch_unregister_node(int num) {
++	unregister_node(&sysfs_nodes[num],0);
++	return 0;
++}
++
++EXPORT_SYMBOL(arch_register_node);
++EXPORT_SYMBOL(arch_unregister_node);
++#endif /*CONFIG_NUMA*/
+ 
+ #ifdef CONFIG_HOTPLUG_CPU
+ 
+@@ -69,7 +82,7 @@ static int __init topology_init(void)
+ 	memset(sysfs_nodes, 0, sizeof(struct node) * MAX_NUMNODES);
+ 
+ 	for (i = 0; i < numnodes; i++)
+-		if ((err = register_node(&sysfs_nodes[i], i, 0)))
++ 		if ((err = arch_register_node(i)))
+ 			goto out;
+ #endif
+ 
+@@ -86,5 +99,4 @@ static int __init topology_init(void)
+ out:
+ 	return err;
+ }
+-
+ __initcall(topology_init);
+diff -puN include/asm-ia64/numa.h~numa_hp_ia64 include/asm-ia64/numa.h
+--- linux-2.6.9-rc2-fix/include/asm-ia64/numa.h~numa_hp_ia64	2004-09-24 00:14:56.066203277 +0900
++++ linux-2.6.9-rc2-fix-kei/include/asm-ia64/numa.h	2004-09-24 00:14:56.070109550 +0900
+@@ -65,8 +65,9 @@ extern int paddr_to_nid(unsigned long pa
+ 
+ #define local_nodeid (cpu_to_node_map[smp_processor_id()])
+ 
++extern int arch_register_node(int num);
++extern int arch_unregister_node(int num);
+ #else /* !CONFIG_NUMA */
+-
+ #define paddr_to_nid(addr)	0
+ 
+ #endif /* CONFIG_NUMA */
 
-Hey, I argued for INLINE when the static/extern changes
-came along. That's the sanest, because one never knows
-what the next annoying compiler will demand. Then you
-can have one of:
-
-#define INLINE
-#define INLINE inline
-#define INLINE static inline  // an oxymoron
-#define INLINE extern inline  // an oxymoron
-#define INLINE __force_inline
-#define INLINE __attribute__((always_inline))
-#define INLINE _Pragma("inline")
-#define INLINE __inline_or_die_you_foul_compiler
-#define INLINE _Please inline
-
-
+_

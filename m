@@ -1,55 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263260AbTJUSVk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 14:21:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263269AbTJUSVk
+	id S263267AbTJUSTc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 14:19:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263270AbTJUSTc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 14:21:40 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:20630 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S263260AbTJUSVh
+	Tue, 21 Oct 2003 14:19:32 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:15123 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263267AbTJUSTR
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 14:21:37 -0400
-Date: Tue, 21 Oct 2003 11:20:57 -0700
-From: Patrick Mansfield <patmans@us.ibm.com>
-To: Chris Friesen <chris_friesen@sympatico.ca>
-Cc: dgilbert@interlog.com, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: Re: BUG REPORT: terminal hangs when I load the sd_mod module
-Message-ID: <20031021112057.A5014@beaverton.ibm.com>
-References: <3F94A869.9070607@sympatico.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3F94A869.9070607@sympatico.ca>; from chris_friesen@sympatico.ca on Mon, Oct 20, 2003 at 11:30:49PM -0400
+	Tue, 21 Oct 2003 14:19:17 -0400
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: Circular Convolution scheduler
+Date: 21 Oct 2003 18:09:15 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <bn3sob$ho6$1@gatekeeper.tmr.com>
+References: <20031006161733.24441.qmail@email.com> <1066120643.25020.121.camel@www.piet.net> <20031014094655.GC24812@mail.shareable.org> <3F8BCAB3.2070609@cyberone.com.au>
+X-Trace: gatekeeper.tmr.com 1066759755 18182 192.168.12.62 (21 Oct 2003 18:09:15 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 20, 2003 at 11:30:49PM -0400, Chris Friesen wrote:
+In article <3F8BCAB3.2070609@cyberone.com.au>,
+Nick Piggin  <piggin@cyberone.com.au> wrote:
 
-> When I try and load the sd_mod module, that terminal just simply freezes
-> and I can't break out.  Similarly, if I compile scsi disk support right
-> into the kernel, it sits forever at boot time.  I have the following
-> options set in my .config.
+| I don't know anything about it, but I don't see what exactly you'd be
+| trying to predict: the kernel's scheduler _dictates_ scheduling behaviour,
+| obviously. Also, "best use of system resources" wrt scheduling is a big
+| ask considering there isn't one ideal scheduling pattern for all but the
+| most trivial loads, even on a single processor computer (fairness, latency,
+| priority, thoughput, etc). Its difficult to even say one pattern is better
+| than another.
 
-> This problem has been present since at least -test6.  Any ideas what's 
-> going on?
+I suspect that you've gotten hold of the wrong end of this stick... I
+would assume that you start by stating which pattern is better, then use
+the analysis to determine which of the possible actions is most likely
+to make the pattern match the target. By pattern I mean response vs.
+throughput, and similar tradeoffs.
 
-Maybe the MODE SENSE page cache is causing problems (known problem with
-some USB storage devices), triggering the error (i.e. timeout) handler to
-run, leading to the command being retried forever.
+This assumes:
+ - that I understood what the o.p. meant
+ - that the past is a useful predictor of the future
 
-Turn on all scsi logging (you must be logging and booting over IDE, so
-the following won't cause infinite logging):
 
-sysctl -w dev.scsi.logging_level=0xffffffff
-
-Also get a trace of the hung process via sysrq.
-
-After you get that data, try removing sd_do_mode_sense() calls in sd.c to
-see if MODE SENSE commands are causing problems.
-
-You could also try using sg (sg_utils) to send a MODE SENSE page 8, and
-see what happens.
-
--- Patrick Mansfield
+In any case, I think this scheduler proposal is interesting, I'd love to
+see a working version.
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

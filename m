@@ -1,69 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262790AbUBZNxg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 08:53:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262794AbUBZNxg
+	id S262727AbUBZOZP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 09:25:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262800AbUBZOZP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 08:53:36 -0500
-Received: from unthought.net ([212.97.129.88]:32979 "EHLO unthought.net")
-	by vger.kernel.org with ESMTP id S262790AbUBZNxe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 08:53:34 -0500
-Date: Thu, 26 Feb 2004 14:53:33 +0100
-From: Jakob Oestergaard <jakob@unthought.net>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.25 - large inode_cache
-Message-ID: <20040226135333.GQ29776@unthought.net>
-Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
-	Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-	linux-kernel@vger.kernel.org
-References: <20040226013313.GN29776@unthought.net> <20040226111912.GB4554@core.home> <Pine.LNX.4.58L.0402261004310.5003@logos.cnet> <20040226130344.GP29776@unthought.net> <Pine.LNX.4.58L.0402261109190.5003@logos.cnet>
+	Thu, 26 Feb 2004 09:25:15 -0500
+Received: from mail504.nifty.com ([202.248.37.212]:39888 "EHLO
+	mail504.nifty.com") by vger.kernel.org with ESMTP id S262727AbUBZOZK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 09:25:10 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: How to emulate 'chroot /jail/ su httpd -c' ?
+From: Tetsuo Handa <a5497108@anet.ne.jp>
+Message-Id: <200402262324.CJF97413.289B5186@anet.ne.jp>
+X-Mailer: Winbiff [Version 2.43]
+X-Accept-Language: ja,en
+Date: Thu, 26 Feb 2004 23:24:46 +0900
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58L.0402261109190.5003@logos.cnet>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 26, 2004 at 11:23:46AM -0300, Marcelo Tosatti wrote:
-...
-> > Will a heap of busy knfsd processes doing reads or writes exert
-> > pressure?   Or is it only local userspace that can pressurize the VM (by
-> > either anonymously backed memory or file I/O).
+
+# Daily digest mail didn't arrive to me yesterday(2/25) and
+# today(2/26), may be something is wrong with my mail server.
+# Sorry for ignoring thread tree, this is a reply to
+http://www.ussg.iu.edu/hypermail/linux/kernel/0402.3/0848.html
+
+Ma*ns Rullga*rd wrote:
+> Tetsuo Handa <a5497108@xxxxxxxxxx> writes:
 > 
-> Any allocator will cause VM pressure.
-
-And I suppose that a busy knfsd qualifies as an "allocator"   :)
-
-...
-> > Any enlightenment or suggestions are greatly appreciated :)
+> > Hello,
+> >
+> > Sorry for querying userland program in this list.
+> >
+> > I have the following line in /etc/rc.d/init.d/httpd
+> >
+> > daemon chroot /jail/ su httpd -c $httpd $OPTIONS
+> >
+> > This needs /bin/su after /usr/sbin/chroot, but I don't
+> > want to place /bin/su (and related files) in the jail.
+> > So, I want to do this with one program.
 > 
-> What you can try is to increase the VM tunable vm_vfs_scan_ratio. This is
-> the proportion of VFS unused d/i caches that will try to be in one VM
-> freeing pass. The default is 6. Try 4 or 3.
-> 
-> /proc/sys/vm/vm_vfs_scan_ratio
+> If you remove the suid bit from the su program in the chroot it should
+> be rather harmless.
 
-Done!  Set to 3 now - I will let the box run with this setting until
-tomorrow, and report back how things look.
-
-> You can also play with
-> 
-> /proc/sys/vm/vm_cache_scan_ratio (which is the percentage of cache which
-> will be scanned in one go).
-
-I'm leaving this one be for now (one variable at a time). But let's see
-what tomorrow brings. 
-
-Judging from the code, it seems that it's the vm_vfs_scan_ratio that
-directly affects the icache/dcache and dquot - but I'm sure that there
-are subtle interactions far beyond what I can possibly hope to
-comprehend ;)
-
-Thanks a lot for your suggestions Marcelo!
-
- / jakob
-
-
+Oh! What a nice idea! 
+'chmod 500 /bin/su' is to the purpose.
+Thank you.

@@ -1,66 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262971AbUC2Pbb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 10:31:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262972AbUC2Pbb
+	id S262972AbUC2PhT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 10:37:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262974AbUC2PhT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 10:31:31 -0500
-Received: from auemail2.lucent.com ([192.11.223.163]:45558 "EHLO
-	auemail2.firewall.lucent.com") by vger.kernel.org with ESMTP
-	id S262971AbUC2Pb3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 10:31:29 -0500
+	Mon, 29 Mar 2004 10:37:19 -0500
+Received: from [62.248.102.66] ([62.248.102.66]:51146 "HELO
+	eposta.kablonet.com.tr") by vger.kernel.org with SMTP
+	id S262972AbUC2PhR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Mar 2004 10:37:17 -0500
+From: "Siseci" <siseci@postmark.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.6.x mount /dev/ram0 problem. 
+Date: Mon, 29 Mar 2004 18:34:01 +0300
+Message-ID: <BMEEKPMJDEAFABBKPBBNMELBCBAA.siseci@postmark.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-9"
 Content-Transfer-Encoding: 7bit
-Message-ID: <16488.14980.884442.349267@gargle.gargle.HOWL>
-Date: Mon, 29 Mar 2004 10:02:28 -0500
-From: "John Stoffel" <stoffel@lucent.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "John Stoffel" <stoffel@lucent.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.5-rc2-mm1 - swapoff dies with OOM, why?
-In-Reply-To: <20040328201259.1c8ee95c.akpm@osdl.org>
-References: <16487.35872.160526.477780@gargle.gargle.HOWL>
-	<20040328201259.1c8ee95c.akpm@osdl.org>
-X-Mailer: VM 7.14 under Emacs 20.6.1
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Andrew> Were you using rc2-mm1 at the time?  It had a memory leak in
-Andrew> ext3.  Lots of memroy was leaked, so swapoff cannot get
-Andrew> sufficient memory to do its thing.
+Hi.
+I have a problem about ramdisk.
+Kernel version: 2.6.3 and 2.6.4
 
-Yup, it looks like that might be the problem here.  I've now gotten
-control of the system again (since I also had a disk die, thankfully
-the data is all mirrored!) at the same time, and when badblocks runs
-away on your, it's a nasty thing.
+root@fen:~# dd if=/dev/zero of=/dev/ram0 bs=1024 count=2048
+2048+0 records in
+2048+0 records out
+root@fen:~# mke2fs /dev/ram0
+mke2fs 1.18, 11-Nov-1999 for EXT2 FS 0.5b, 95/08/09
+Filesystem label=
+....
 
-So yes, I was running 2.6.5-rc2-mm1, and I've now just rebooted the
-system into 2.6.5-rc2-mm4 (with -mm5 released as I type this... :-).
-Things are looking better now, time to load test this system and see
-how it handles again.
+root@fen:~# mount /dev/ram0 /mnt
+root@fen:~# ls -al /mnt
+total 17
+drwxr-xr-x   3 root     root         1024 Mar 29 20:28 ./
+drwxr-xr-x  22 root     root         4096 Dec 16 02:28 ../
+drwxr-xr-x   2 root     root        12288 Mar 29 20:28 lost+found/
 
-I'm still wondering why swapoff dies though.  Shouldn't it complete,
-or at least have some way *to* complete if needed?  I realize, with a
-memory leak in the filesystem, it's a hard thing to deal with.  
+root@fen:/mnt# echo test > /mnt/test
+root@fen:/mnt# ls -al /mnt
+total 18
+drwxr-xr-x   3 root     root         1024 Mar 29 20:29 ./
+drwxr-xr-x  22 root     root         4096 Dec 16 02:28 ../
+drwxr-xr-x   2 root     root        12288 Mar 29 20:28 lost+found/
+-rw-r--r--   1 root     root            5 Mar 29 20:29 test
+root@fen:~# umount /mnt
+root@fen:~# mount /dev/ram0 /mnt
+root@fen:~# ls -al /mnt
+total 17
+drwxr-xr-x   3 root     root         1024 Mar 29 20:28 ./
+drwxr-xr-x  22 root     root         4096 Dec 16 02:28 ../
+drwxr-xr-x   2 root     root        12288 Mar 29 20:28 lost+found/
 
-Anyway, thanks for the quick response, using -mm4 to compile -mm5 is
-looking much better.  Much lower cache size, decent buffer, and still
-some free memory.  Not to try a badblocks pass on my dead drive...
+My test file does not appear on /mnt.
+This was working with 2.4 kernels
+i think the problem is related with 2.6 kernels
+What is the problem?
 
-Here's some vmstat output (dual proc 550mhz Xeon, 768mb of RAM, -j3
-compile)
-
-procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
- r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
- 7  0      0 543328  17176 111344    0    0    12     0 1086   749 80 16  1  4
- 2  0      0 533408  17180 111408    0    0    16     0 1084   260 87 12  0  0
- 5  0      0 531552  17188 111468    0    0     4     0 1084   509 90 10  0  0
- 2  0      0 532448  17208 111652    0    0    48    56 1093   356 83 15  1  1
- 3  0      0 538912  17248 113924    0    0    80  1624 1152   329 72 17  7  3
- 3  0      0 522464  17256 113984    0    0     8   332 1146   330 84 10  6  0
- 2  0      0 540832  17276 114236    0    0    20     0 1087   524 81 17  0  2
- 2  0      0 539936  17292 114356    0    0    16     0 1087   388 85 15  0  0
-
-Thanks Andrew,
-John

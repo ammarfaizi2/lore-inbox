@@ -1,77 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266137AbUFUHTI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266153AbUFUHVQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266137AbUFUHTI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jun 2004 03:19:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266138AbUFUHTI
+	id S266153AbUFUHVQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jun 2004 03:21:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266138AbUFUHTM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jun 2004 03:19:08 -0400
-Received: from 10.69-93-172.reverse.theplanet.com ([69.93.172.10]:46232 "EHLO
-	gsf.ironcreek.net") by vger.kernel.org with ESMTP id S266137AbUFUHRd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jun 2004 03:17:33 -0400
-From: Andre Eisenbach <andre@eisenbach.com>
+	Mon, 21 Jun 2004 03:19:12 -0400
+Received: from smtpout.ev1.net ([207.44.129.133]:51462 "EHLO smtpout.ev1.net")
+	by vger.kernel.org with ESMTP id S266141AbUFUHSA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jun 2004 03:18:00 -0400
+Date: Mon, 21 Jun 2004 02:16:51 -0500
+From: Michael Langley <nwo@hacked.org>
 To: linux-kernel@vger.kernel.org
-Subject: [2.6.7-mm1] Firewire sbp2 problem
-Date: Mon, 21 Jun 2004 01:25:23 -0700
-User-Agent: KMail/1.6.2
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
+Subject: Problem with psmouse detecting generic ImExPS/2
+Message-Id: <20040621021651.4667bf43.nwo@hacked.org>
+X-Mailer: Sylpheed version 0.9.11 (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200406210125.23577.andre@eisenbach.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey there! 
- 
- I have a firewire hard drive which I have previously used with an earlier 
-kernel. However, after a recent OS reinstall, I cannot access the drive 
-anymore. 
- 
- Here is the related dmsg output: 
- 
-ieee1394: raw1394: /dev/raw1394 device initialized 
- ieee1394: Host added: ID:BUS[0-00:1023]  GUID[000bcd009e53243d] 
- ieee1394: Error parsing configrom for node 0-01:1023 
- ieee1394: The root node is not cycle master capable; selecting a new root 
-node and resetting... 
- ieee1394: Error parsing configrom for node 0-00:1023 
- ieee1394: Node changed: 0-00:1023 -> 0-01:1023 
- sbp2: $Rev: 1219 $ Ben Collins <bcollins@debian.org>
+I noticed this after upgrading 2.6.6->2.6.7
 
- Note that there is no further report from sbp2. Nothing happens. 
- 
- I'm using kernel 2.6.7-mm1. 
- 
- IEEE1394 related config options: 
+Even after building psmouse as a module, and specifying the protocol,
+all I get is an ImPS/2 Generic Wheel Mouse.
 
-# IEEE 1394 (FireWire) support 
- CONFIG_IEEE1394=y 
- # CONFIG_IEEE1394_VERBOSEDEBUG is not set 
- CONFIG_IEEE1394_OUI_DB=y 
- # CONFIG_IEEE1394_EXTRA_CONFIG_ROMS is not set 
- CONFIG_IEEE1394_PCILYNX=y 
- CONFIG_IEEE1394_OHCI1394=y 
- CONFIG_IEEE1394_VIDEO1394=y 
- CONFIG_IEEE1394_SBP2=m 
- # CONFIG_IEEE1394_SBP2_PHYS_DMA is not set 
- # CONFIG_IEEE1394_ETH1394 is not set 
- CONFIG_IEEE1394_DV1394=y 
- CONFIG_IEEE1394_RAWIO=y 
- # CONFIG_IEEE1394_CMP is not set
+[root@purgatory root]# modprobe psmouse proto=exps
+Jun 21 01:51:57 purgatory kernel: input: ImPS/2 Generic Wheel Mouse on
+isa0060/serio1
 
- 
- SCSI related: 
- 
-CONFIG_BLK_DEV_IDESCSI=y 
- CONFIG_SCSI=y 
- CONFIG_SCSI_PROC_FS=y 
- CONFIG_BLK_DEV_SD=y
+My ImExPS/2 was detected correctly in <=2.6.6 and after examining the
+current psmouse code, and the changes in patch-2.6.7, I can't figure out
+what's breaking it.  A little help?
 
- 
- Dont know what to do anymore  
- The firewire hard drive contains the backup of my previous gentoo 
-installation. I *need* that data . 
- 
- Thanks for your help...
+Kernel version: Linux version 2.6.7 (root@purgatory) (gcc version 3.3.3
+(Debian 20040422)) #1 Fri Jun 18 17:20:28 CDT 2004

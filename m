@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264879AbUEKQwA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264896AbUEKQv7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264879AbUEKQwA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 12:52:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264889AbUEKQuD
+	id S264896AbUEKQv7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 12:51:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264877AbUEKQux
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 12:50:03 -0400
-Received: from p060042.ppp.asahi-net.or.jp ([221.113.60.42]:63224 "EHLO
-	mitou.ysato.dip.jp") by vger.kernel.org with ESMTP id S264879AbUEKQgp
+	Tue, 11 May 2004 12:50:53 -0400
+Received: from p060042.ppp.asahi-net.or.jp ([221.113.60.42]:61432 "EHLO
+	mitou.ysato.dip.jp") by vger.kernel.org with ESMTP id S264873AbUEKQgS
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 12:36:45 -0400
-Date: Wed, 12 May 2004 01:36:43 +0900
-Message-ID: <m2y8nyrkdg.wl%ysato@users.sourceforge.jp>
+	Tue, 11 May 2004 12:36:18 -0400
+Date: Wed, 12 May 2004 01:36:15 +0900
+Message-ID: <m21xlqsyyo.wl%ysato@users.sourceforge.jp>
 From: Yoshinori Sato <ysato@users.sourceforge.jp>
 To: Linus Torvalds <torvalds@osdl.org>
 Cc: linux kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] H8/300 update (3/9) pic support
+Subject: [PATCH] H8/300 update (1/9) bitops.h add find_next_bit
 User-Agent: Wanderlust/2.11.24 (Wonderwall) SEMI/1.14.6 (Maruoka)
  LIMIT/1.14.7 (Fujiidera) APEL/10.6 Emacs/21.3 (i386-pc-linux-gnu)
  MULE/5.0 (SAKAKI)
@@ -23,159 +23,94 @@ Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-- add PIC binary support
+- add find_next_bit
 
 -- 
 Yoshinori Sato
 <ysato@users.sourceforge.jp>
 
-diff -Nru linux-2.6.6/arch/h8300/kernel/signal.c linux-2.6.6-h8300/arch/h8300/kernel/signal.c
---- linux-2.6.6/arch/h8300/kernel/signal.c	2004-05-11 14:30:09.000000000 +0900
-+++ linux-2.6.6-h8300/arch/h8300/kernel/signal.c	2004-05-11 23:04:06.000000000 +0900
-@@ -192,6 +192,7 @@
- 	regs->er1 = context.sc_er1;
- 	regs->er2 = context.sc_er2;
- 	regs->er3 = context.sc_er3;
-+	regs->er5 = context.sc_er5;
- 	regs->ccr = (regs->ccr & 0x10)|(context.sc_ccr & 0xef);
- 	regs->pc = context.sc_pc;
- 	regs->orig_er0 = -1;		/* disable syscall checks */
-@@ -308,6 +309,7 @@
- 	sc->sc_er1 = regs->er1;
- 	sc->sc_er2 = regs->er2;
- 	sc->sc_er3 = regs->er3;
-+	sc->sc_er5 = regs->er5;
- 	sc->sc_ccr = regs->ccr;
- 	sc->sc_pc = regs->pc;
- }
-@@ -384,6 +386,7 @@
- 			   ? current_thread_info()->exec_domain->signal_invmap[sig]
- 		          : sig);
- 	regs->er1 = (unsigned long)&(frame->sc);
-+	regs->er5 = current->mm->start_data;	/* GOT base */
+diff -Nru linux-2.6.6/include/asm-h8300/bitops.h linux-2.6.6-h8300/include/asm-h8300/bitops.h
+--- linux-2.6.6/include/asm-h8300/bitops.h	2004-05-11 14:30:27.000000000 +0900
++++ linux-2.6.6-h8300/include/asm-h8300/bitops.h	2004-05-11 21:28:11.000000000 +0900
+@@ -181,6 +181,23 @@
+ #define find_first_zero_bit(addr, size) \
+ 	find_next_zero_bit((addr), (size), 0)
  
- 	return;
- 
-@@ -435,7 +438,8 @@
- 		     : sig);
- 	regs->er1 = (unsigned long)&(frame->info);
- 	regs->er2 = (unsigned long)&frame->uc;
-+	regs->er5 = current->mm->start_data;	/* GOT base */
- 
- 	return;
- 
-diff -Nru linux-2.6.6/fs/bifmt_flat.c linux-2.6.6-h8300/fs/binfmt_flat.c
---- linux-2.6.6/fs/binfmt_flat.c	2004-05-11 14:30:12.000000000 +0900
-+++ linux-2.6.6-h8300/fs/binfmt_flat.c	2004-05-12 01:19:34.000000000 +0900
-@@ -723,7 +723,7 @@
- 				return -ENOEXEC;
- 
- 			/* Get the pointer's value.  */
--			addr = flat_get_addr_from_rp(rp, relval);
-+			addr = flat_get_addr_from_rp(rp, relval, flags);
- 			if (addr != 0) {
- 				/*
- 				 * Do the relocation.  PIC relocs in the data section are
-diff -Nru linux-2.6.6/include/asm-h8300/flat.h linux-2.6.6-h8300/include/asm-h8300/flat.h
---- linux-2.6.6/include/asm-h8300/flat.h	2004-01-09 15:59:02.000000000 +0900
-+++ linux-2.6.6-h8300/include/asm-h8300/flat.h	2004-05-11 23:03:42.000000000 +0900
-@@ -18,7 +18,8 @@
-  */
- 
- #define	flat_get_relocate_addr(rel)		(rel)
--#define flat_get_addr_from_rp(rp, relval)       (get_unaligned(rp) & 0x0ffffff)
-+#define flat_get_addr_from_rp(rp, relval, flags) \
-+        (get_unaligned(rp) & ((flags & FLAT_FLAG_GOTPIC) ? 0xffffffff: 0x00ffffff))
- #define flat_put_addr_at_rp(rp, addr, rel) \
- 	put_unaligned (((*(char *)(rp)) << 24) | ((addr) & 0x00ffffff), rp)
- 
-diff -Nru linux-2.6.6/include/asm-h8300/processor.h linux-2.6.6-h8300/include/asm-h8300/processor.h
---- linux-2.6.6/include/asm-h8300/processor.h	2004-05-11 14:30:47.000000000 +0900
-+++ linux-2.6.6-h8300/include/asm-h8300/processor.h	2004-05-11 23:03:42.000000000 +0900
-@@ -23,12 +23,12 @@
- #include <asm/ptrace.h>
- #include <asm/current.h>
- 
--extern inline unsigned long rdusp(void) {
-+static inline unsigned long rdusp(void) {
- 	extern unsigned int	sw_usp;
- 	return(sw_usp);
++static __inline__ unsigned long __ffs(unsigned long word)
++{
++	unsigned long result;
++
++	result = -1;
++	__asm__("1:\n\t"
++		"shlr.l %2\n\t"
++		"adds #1,%0\n\t"
++		"bcc 1b"
++		: "=r" (result)
++		: "0"(result),"r"(word));
++	return result;
++}
++
++#define ffs(x) generic_ffs(x)
++#define fls(x) generic_fls(x)
++
+ static __inline__ int find_next_zero_bit (void * addr, int size, int offset)
+ {
+ 	unsigned long *p = (unsigned long *)(((unsigned long)addr + (offset >> 3)) & ~3);
+@@ -217,22 +234,44 @@
+ 	return result + ffz(tmp);
  }
  
--extern inline void wrusp(unsigned long usp) {
-+static inline void wrusp(unsigned long usp) {
- 	extern unsigned int	sw_usp;
- 	sw_usp = usp;
- }
-@@ -61,9 +61,15 @@
- 	} breakinfo;
- };
+-static __inline__ unsigned long __ffs(unsigned long word)
++static __inline__ unsigned long find_next_bit(const unsigned long *addr,
++	unsigned long size, unsigned long offset)
+ {
+-	unsigned long result;
++	unsigned long *p = (unsigned long *)(((unsigned long)addr + (offset >> 3)) & ~3);
++	unsigned int result = offset & ~31UL;
++	unsigned int tmp;
  
--#define INIT_THREAD  { \
--	sizeof(init_stack) + (unsigned long) init_stack, 0, \
--	PS_S,  0, {(unsigned short *)-1, 0}, \
-+#define INIT_THREAD  {						\
-+	.ksp  = sizeof(init_stack) + (unsigned long)init_stack, \
-+	.usp  = 0,						\
-+	.ccr  = PS_S,						\
-+	.esp0 = 0,						\
-+	.breakinfo = {						\
-+		.addr = (unsigned short *)-1,			\
-+		.inst = 0					\
-+	}							\
- }
+-	result = -1;
+-	__asm__("1:\n\t"
+-		"shlr.l %2\n\t"
+-		"adds #1,%0\n\t"
+-		"bcc 1b"
+-		: "=r" (result)
+-		: "0"(result),"r"(word));
+-	return result;
+-}
++	if (offset >= size)
++		return size;
++	size -= result;
++	offset &= 31UL;
++	if (offset) {
++		tmp = *(p++);
++		tmp &= ~0UL << offset;
++		if (size < 32)
++			goto found_first;
++		if (tmp)
++			goto found_middle;
++		size -= 32;
++		result += 32;
++	}
++	while (size >= 32) {
++		if ((tmp = *p++) != 0)
++			goto found_middle;
++		result += 32;
++		size -= 32;
++	}
++	if (!size)
++		return result;
++	tmp = *p;
+ 
+-#define ffs(x) generic_ffs(x)
+-#define fls(x) generic_fls(x)
++found_first:
++	tmp &= ~0UL >> (32 - size);
++	if (tmp == 0UL)
++		return result + size;
++found_middle:
++	return result + __ffs(tmp);
++}
  
  /*
-@@ -78,6 +84,7 @@
- 	set_fs(USER_DS);           /* reads from user space */  \
-   	(_regs)->pc = (_pc);				        \
- 	(_regs)->ccr &= 0x00;	   /* clear kernel flag */      \
-+	(_regs)->er5 = current->mm->start_data;	/* GOT base */  \
- 	wrusp((unsigned long)(_usp) - sizeof(unsigned long)*3);	\
- } while(0)
- #endif
-@@ -88,6 +95,7 @@
- 	(_regs)->pc = (_pc);				        \
- 	(_regs)->ccr = 0x00;	   /* clear kernel flag */      \
- 	(_regs)->exr = 0x78;       /* enable all interrupts */  \
-+	(_regs)->er5 = current->mm->start_data;	/* GOT base */  \
- 	/* 14 = space for retaddr(4), vector(4), er0(4) and ext(2) on stack */ \
- 	wrusp(((unsigned long)(_usp)) - 14);                    \
- } while(0)
-diff -Nru linux-2.6.6/include/asm-m68knommu/flat.h linux-2.6.6-h8300/include/asm-m68knommu/flat.h
---- linux-2.6.6/include/asm-m68knommu/flat.h	2004-01-09 16:00:02.000000000 +0900
-+++ linux-2.6.6-h8300/include/asm-m68knommu/flat.h	2004-05-11 23:03:42.000000000 +0900
-@@ -9,7 +9,7 @@
- #define	flat_argvp_envp_on_stack()		1
- #define	flat_old_ram_flag(flags)		(flags)
- #define	flat_reloc_valid(reloc, size)		((reloc) <= (size))
--#define	flat_get_addr_from_rp(rp, relval)	get_unaligned(rp)
-+#define	flat_get_addr_from_rp(rp, relval, flags)	get_unaligned(rp)
- #define	flat_put_addr_at_rp(rp, val, relval)	put_unaligned(val,rp)
- #define	flat_get_relocate_addr(rel)		(rel)
- 
-diff -Nru linux-2.6.6/include/asm-sh/flat.h linux-2.6.6-h8300/include/asm-sh/flat.h
---- linux-2.6.6/include/asm-sh/flat.h	2004-05-11 14:29:41.000000000 +0900
-+++ linux-2.6.6-h8300/include/asm-sh/flat.h	2004-05-11 23:03:42.000000000 +0900
-@@ -16,7 +16,7 @@
- #define	flat_argvp_envp_on_stack()		1
- #define	flat_old_ram_flag(flags)		(flags)
- #define	flat_reloc_valid(reloc, size)		((reloc) <= (size))
--#define	flat_get_addr_from_rp(rp, relval)	get_unaligned(rp)
-+#define	flat_get_addr_from_rp(rp, relval, flags)	get_unaligned(rp)
- #define	flat_put_addr_at_rp(rp, val, relval)	put_unaligned(val,rp)
- #define	flat_get_relocate_addr(rel)		(rel)
- 
-diff -Nru linux-2.6.6/include/asm-v850/flat.h linux-2.6.6-h8300/include/asm-v850/flat.h
---- linux-2.6.6/include/asm-v850/flat.h	2004-01-09 15:59:19.000000000 +0900
-+++ linux-2.6.6-h8300/include/asm-v850/flat.h	2004-05-11 23:03:42.000000000 +0900
-@@ -45,7 +45,8 @@
-    RELVAL is the raw relocation-table entry from which RP is derived.
-    For the v850, RP should always be half-word aligned.  */
- static inline unsigned long flat_get_addr_from_rp (unsigned long *rp,
--						   unsigned long relval)
-+						   unsigned long relval,
-+						   unsigned long flags)
- {
- 	short *srp = (short *)rp;
- 
+  * Every architecture must define this function. It's the fastest

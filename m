@@ -1,74 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266038AbSKZCka>; Mon, 25 Nov 2002 21:40:30 -0500
+	id <S266064AbSKZDFg>; Mon, 25 Nov 2002 22:05:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266053AbSKZCka>; Mon, 25 Nov 2002 21:40:30 -0500
-Received: from thunk.org ([140.239.227.29]:53449 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id <S266038AbSKZCk3>;
-	Mon, 25 Nov 2002 21:40:29 -0500
-Date: Mon, 25 Nov 2002 21:47:39 -0500
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Clemmitt Sigler <siglercm@jrt.me.vt.edu>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>, Alan Cox <Alan.Cox@linux.org>
-Subject: Re: 2.4.20-rc3 ext3 fsck corruption -- tool update warning needed?
-Message-ID: <20021126024739.GA11903@think.thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Clemmitt Sigler <siglercm@jrt.me.vt.edu>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	lkml <linux-kernel@vger.kernel.org>, Alan Cox <Alan.Cox@linux.org>
-References: <Pine.LNX.4.33L2.0211242351001.2368-100000@jrt.me.vt.edu>
+	id <S266069AbSKZDFg>; Mon, 25 Nov 2002 22:05:36 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:272 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S266064AbSKZDFf>;
+	Mon, 25 Nov 2002 22:05:35 -0500
+Date: Mon, 25 Nov 2002 19:05:09 -0800
+From: Greg KH <greg@kroah.com>
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
+       "Adam J. Richter" <adam@freya.yggdrasil.com>
+Subject: Re: modutils for both redhat kernels and 2.5.x
+Message-ID: <20021126030509.GA27006@kroah.com>
+References: <Pine.GSO.4.33.0211251830050.6708-100000@sweetums.bluetronic.net> <20021126013330.93A962C365@lists.samba.org> <20021126021100.GB29814@bjl1.asuk.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33L2.0211242351001.2368-100000@jrt.me.vt.edu>
+In-Reply-To: <20021126021100.GB29814@bjl1.asuk.net>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 25, 2002 at 12:12:55AM -0500, Clemmitt Sigler wrote:
-> I'd been running 2.4.20-rc3 for two days.  While rebooting it tonight
-> fsck.ext3 corrupted my / partition during an automatic fsck of the
-> partition (caused by the maximal mount count being reached).  (I had
-> backups so I was able to recover :^)  The symptoms were that some files
-> like /etc/fstab and dirs like /etc/rc2.d disappeared -- not good.
+On Tue, Nov 26, 2002 at 02:11:00AM +0000, Jamie Lokier wrote:
 > 
-> My system is Debian Testing, with Debian e2fsprogs version
-> 1.29+1.30-WIP-0930-1.  I use ext3 partitions with all options set to
-> the defaults (ordered data mode).  This is an SMP system, in case
-> that matters.  Please e-mail me for any other details that might help.
+> Doesn't it?  When I upgraded from 2.5.45 to 2.5.48, and installed
+> module-init-tools-0.7, a whole bunch of modules failed to load
+> automatically, and I ended up with no pcmcia, no network, no
+> af_packet, no loopback device...  I had to load them all manually.
+> Also no USB, hence no USB keyboard and mouse, but I haven't tried
+> loading those manually.
 > 
-> I'm wondering if this change between -rc1 and -rc2 might be a factor ->
+> I thought it was depmod not working, but I must have been wrong.
 > 
->    <tytso@think.thunk.org>
->            HTREE backwards compatibility patch.
+> So what happened - is there a known problem with module auto-loading
+> at the moment?
 
-Nope; I really doubt it.  All the HTREE compatibility patch does is
-clear the INDEX_FL flag in a directory inode if the directory inode is
-modified.  It's a very, very innocuous patch.  
+Yes it is.  The hotplug package looks for the modules.*map files to
+determine which modules to load when the devices show up.  As these are
+not being generated anymore, that's why they are not getting loaded.
 
-> Upon rebooting to 2.4.19 (SMP kernel also), the system did another
-> auto-fsck.ext3, this time on /usr.  I held my breath, but all went fine.
-> This seems to me to narrow it down to a kernel/e2fsprogs incompatibility
-> (but I'm not an expert).
+thanks,
 
-Well, no; it could also be that some kind of filesystem corruption
-either made the directories disappear, or caused e2fsck to believe
-that the files needed to be removed or moved into lost+found.  There
-are a million possible explanations, including a bug in a device
-driver, the VM layer, or just pure coincidence.
-
-Without some clear indication of what e2fsck actually printed we'd
-only be speculating.
-
-> If this is indeed the case, please put a LOUD WARNING in the kernel
-> notes that some versions of e2fsprogs are incompatible.  HTH.
-
-No, there shouldn't be any kind of compatibility problems.  All of the
-various extensions to ext2/ext3 are all clearly marked with feature
-flags in the superblock, and need to be explicitly enabled before they
-take effect.
-
-Can you can duplicate the problem?
-
-						- Ted
+greg k-h

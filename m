@@ -1,73 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263270AbUJ3DGo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263457AbUJ3DIz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263270AbUJ3DGo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 23:06:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263429AbUJ3DGo
+	id S263457AbUJ3DIz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 23:08:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263460AbUJ3DIz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 23:06:44 -0400
-Received: from fw.osdl.org ([65.172.181.6]:9873 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263270AbUJ3DGm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 23:06:42 -0400
-Message-ID: <4183040B.3030201@osdl.org>
-Date: Fri, 29 Oct 2004 20:01:31 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
+	Fri, 29 Oct 2004 23:08:55 -0400
+Received: from zone3.gcu-squad.org ([217.19.50.74]:52747 "EHLO
+	zone3.gcu-squad.org") by vger.kernel.org with ESMTP id S263459AbUJ3DIp convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 23:08:45 -0400
+Date: Fri, 29 Oct 2004 09:34:12 +0200 (CEST)
+To: bunk@stusta.de, chrisg@0-in.com, greg@kroah.com
+Subject: Re: [2.6 patch] i2c it87.c: remove an unused function
+X-IlohaMail-Blah: khali@gcu.info
+X-IlohaMail-Method: mail() [mem]
+X-IlohaMail-Dummy: moo
+X-Mailer: IlohaMail/0.8.13 (On: webmail.gcu.info)
+Message-ID: <5qqD8rRk.1099035252.6524190.khali@gcu.info>
+In-Reply-To: <20041029001745.GI29142@stusta.de>
+From: "Jean Delvare" <khali@linux-fr.org>
+Bounce-To: "Jean Delvare" <khali@linux-fr.org>
+CC: sensors@Stimpy.netroedge.com, linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-CC: Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Andreas Dilger <adilger@clusterfs.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] reduce stack usage of NFS (was Re: How to safely reduce...)
-References: <200410290020.01400.vda@port.imtp.ilyichevsk.odessa.ua> <1099040501.2641.9.camel@laptop.fenrus.org> <1099059626.11099.10.camel@dh138.citi.umich.edu> <200410300059.06497.vda@port.imtp.ilyichevsk.odessa.ua>
-In-Reply-To: <200410300059.06497.vda@port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Denis Vlasenko wrote:
->>>>I can convert these into kmalloc'ed variants but hesitate to do so
->>>>because of possible 'need to kmalloc in order to free memory for kmalloc'
->>>>deadlocks.
->>>
->>>how about a memory pool?
->>>
->>>It's not THE solution but I suspect the depth of callchains of these isn't too deep so it would work
->>
->>I can't see that any of the callchains Denis listed can deadlock. None
->>of them appear to lie in the memory reclaim paths.
-> 
-> 
-> This patch reduces stack usage to below 100 bytes for
-> the following functions:
-> 
->                        stack usage in 2.6.9
-> nfs3_proc_create:             544
-> _nfs4_do_open:                516
-> nfs_readdir:                  412
-> nfs_symlink:                  368
-> _nfs4_open_delegation_recall: 368
-> nfs3_proc_rename:             364
-> _nfs4_open_reclaim:           364
-> nfs_mknod:                    352
-> nfs_mkdir:                    352
-> nfs_proc_create:              344
-> nfs3_proc_link:               328
-> nfs_lookup_revalidate:        312
-> nfs_lookup:                   292
-> 
-> (btw: in function nfs_readdir: local variable 'desc' seem to be
-> easily replaceable with &my_desc, or am I missing something?)
-> 
-> Compile tested only. I can't run test it until next Wednesday :(
-> 
-> Please review, especially for leaks on error paths.
 
-Hi Denis,
-I checked all of it.  Looks right & it builds.
+Hi Adrian & all,
 
--- 
-~Randy
+> The patch below removes an unused function from drivers/i2c/chips/it87.c
+> (...)
+> -static inline void
+> -superio_outb(int reg, int val)
+
+For information, this function was most likely there for the case we
+would implement the force_addr module parameter for this driver (see the
+w83627hf driver in the same directory for an example of that).
+
+That said, I have no objection to the removal of this function. We can
+still add it back later if we ever need it.
+
+Thanks,
+Jean

@@ -1,65 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264671AbUEXSWK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264358AbUEXSco@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264671AbUEXSWK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 May 2004 14:22:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264675AbUEXSWK
+	id S264358AbUEXSco (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 May 2004 14:32:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264432AbUEXSco
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 May 2004 14:22:10 -0400
-Received: from postfix3-2.free.fr ([213.228.0.169]:23168 "EHLO
-	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S264671AbUEXSWH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 May 2004 14:22:07 -0400
-Message-ID: <40B23D4A.4010708@free.fr>
-Date: Mon, 24 May 2004 20:22:02 +0200
-From: baptiste coudurier <baptiste.coudurier@free.fr>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040306)
-X-Accept-Language: en-us, en
+	Mon, 24 May 2004 14:32:44 -0400
+Received: from outbound3.mail.tds.net ([216.170.230.93]:58275 "EHLO
+	outbound3.mail.tds.net") by vger.kernel.org with ESMTP
+	id S264358AbUEXScj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 May 2004 14:32:39 -0400
+Date: Mon, 24 May 2004 14:31:56 -0400 (EDT)
+From: Jon Portnoy <portnoy@tellink.net>
+X-X-Sender: portnoy@cerberus.oppresses.us
+To: Rob Landley <rob@landley.net>
+cc: linux-kernel@vger.kernel.org, rock-user@rocklinux.org
+Subject: Re: Distributions vs kernel development
+In-Reply-To: <200405192059.47056.rob@landley.net>
+Message-ID: <Pine.LNX.4.58.0405241409460.5161@cerberus.oppresses.us>
+References: <409BB334.7080305@pobox.com> <200405121412.00068.rob@landley.net>
+ <200405190849.i4J8nqfb000280@81-2-122-30.bradfords.org.uk>
+ <200405192059.47056.rob@landley.net>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: MORE THAN 10 IDE CONTROLLERS
-X-Enigmail-Version: 0.83.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Wed, 19 May 2004, Rob Landley wrote:
 
-Hello
+> 
+> It's not really a distro.  It's an enormous HOWTO.  (Then again, so's Gentoo, 
+> but gentoo does claim to be a distro, which is where I get disappointed...)
+> 
 
-Im trying to use more than 10 ide controllers on a 2.4.26 kernel and i
-did not succeed.
+No less a distribution than, say, Debian. You just type 'emerge' rather 
+than 'apt-get' and get source tarballs rather than binary packages.
 
-i patched already according to several posts (Alan Cox) so now i get :
+> 
+> And then there's gentoo, which has a python script talk to a server out on the 
+> net to figure out what to build.  If you're going to even TRIGGER that, you 
+> need to be familiar with their packaging tool.  To take it apart and modify 
+> the build would take a lot of eyeballing.
+> 
 
-PDC20269: ROM enabled at 0xfdee0000
-~    idea: BM-DMA at 0xdf50-0xdf57, BIOS settings: hdu:pio, hdv:pio
-~    ideb: BM-DMA at 0xdf58-0xdf5f, BIOS settings: hdw:pio, hdx:pio
+Not quite; ebuilds are all on-disk. The only time you talk to a server is 
+to update the on-disk ebuild tree (via rsync) or download a source 
+tarball. Pretty much the same way BSD ports works. Taking apart and 
+modifying the build is pretty trivial thanks to the ebuild(1) tool and the 
+fact that ebuilds are in bash with Portage extensions.
 
-but unfortunately :
+> 
+> Suppose they don't select OpenSSL because they go "this is a desktop system, 
+> not a server", and then they realise later "oh, I need https:// support in 
+> Konqueror/Mozilla"...
+> 
 
-ide1 at 0x170-0x177,0x376 on irq 15
-ide3 at 0xdfa0-0xdfa7,0xdfaa on irq 23
-ideb: UNABLE TO GET MAJOR NUMBER 0
+Gentoo solves this problem with USE flags by providing a reasonable 
+default set and letting users fine-tune the support they want prior to 
+building the system.
 
-i guess i need to patch major and minor numbers for the devices as well
-but i did not reach to.
+> 
+> You keep saying that installing from source is better, but it seems to be from 
+> "gee, wouldn't it be nice if" land rather than due to actual experience.  You 
+> _can_ build and install an SRPM into a Red Hat system.  It's too much of a 
+> pain to be worth it to me, but it's been an option for years and years.
+> 
 
-i search into Documentation/devices.txt without sucess.
+The advantage, in my view, of compiling from source consistently is that 
+you (a) eliminate any potential bugs from the build system being 
+drastically different from the target system and (b) have the flexibility 
+of being able to fine-tune dependencies and build time configuration. 
+Where's the RPM package for Mozilla with encryption, without debugging, 
+with gtk2, with ipv6, without ldap, without the calendar, with mail, 
+without IRC, and without XFT? How about GCC with gcj, without f77, without 
+nls, with objc?
 
-Does anyone know what are major/minors for hdu, hdv, hdw, hdx ?
-
-Thks a lot for your help.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iQCVAwUBQLI9SQrJMlxcGrqqAQKpNwP/Q+YvqeK0VaRHsv+K54cQ8DXK3D2374x8
-KpUJ4Tp7Aj3hgPA9eepDP+fxlbiZ36ppl8Mu4L173uClRxQwI7nET9O8lpYIyZLz
-oDVSBJYfIUb+iRuBHgldJTt6x7FHboSiIw80MNgoGgF2/iVYOIack0xGUCSJBCji
-ilswRk1d874=
-=y89h
------END PGP SIGNATURE-----
+It's certainly not for everybody, but to me that's the most important 
+aspect of always compiling from source.

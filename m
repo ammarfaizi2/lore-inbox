@@ -1,46 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265831AbTFSQUJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 12:20:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265832AbTFSQUJ
+	id S265832AbTFSQXw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 12:23:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265834AbTFSQXw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 12:20:09 -0400
-Received: from news.cistron.nl ([62.216.30.38]:57614 "EHLO ncc1701.cistron.net")
-	by vger.kernel.org with ESMTP id S265831AbTFSQUH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 12:20:07 -0400
-From: miquels@cistron-office.nl (Miquel van Smoorenburg)
-Subject: Re: Sco vs. IBM
-Date: Thu, 19 Jun 2003 16:34:05 +0000 (UTC)
-Organization: Cistron Group
-Message-ID: <bcsolt$37m$2@news.cistron.nl>
-References: <063301c32c47$ddc792d0$3f00a8c0@witbe> <1056027789.3ef1b48d3ea2e@support.tuxbox.dk> <03061908145500.25179@tabby> <20030619141443.GR29247@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: ncc1701.cistron.net 1056040445 3318 62.216.29.200 (19 Jun 2003 16:34:05 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+	Thu, 19 Jun 2003 12:23:52 -0400
+Received: from [203.149.0.18] ([203.149.0.18]:33239 "EHLO
+	krungthong.samart.co.th") by vger.kernel.org with ESMTP
+	id S265832AbTFSQXu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jun 2003 12:23:50 -0400
+Message-ID: <3EF1E6CD.4040800@thai.com>
+Date: Thu, 19 Jun 2003 23:37:33 +0700
+From: Samphan Raruenrom <samphan@thai.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
+CC: Samphan Raruenrom <samphan@thai.com>
+Subject: Crusoe's persistent translation on linux?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20030619141443.GR29247@fs.tum.de>,
-Adrian Bunk  <bunk@fs.tum.de> wrote:
->There's no license reason today why there are two big desktop projects 
->(GNOME and KDE).
+Hi,
 
-There is. If you want to develop a commercial application under
-KDE you need to pay TrollTech for the Qt license. Basically
-TrollTech controls all commercial KDE applications.
+I'm using 2.4.21 kernel on TM5800 Crusoe in Compaq TC1000 Tablet PC.
+Currently the performance is not very good but the more I learn
+about its architecture the more I'm obessesed about it (just like
+the days when I use 68000 Amiga). Too bad that there are very little
+information about the chip so I can't do anything much to improve
+the performance myself (like enlarge the translation cache? how?).
 
-Which makes no sense. You're not at the mercy of Linus or the
-kernel developers, neither at that of the KDE developers, but
-TrollTech controls the KDE desktop wrt commercial apps.
+On later versions of CMS (Code Morphing Software), there's a piece
+of system software called "Persistent Translation service".
+It looks like the purpose of the service is to get the translations
+from the translation cache according to each user applications run
+during the session and save them as binary files using the same name
+with ".SYS.DB" appended, e.g. MOZILLA.EXE.SY.DB, NOTEPAD.EXE.SY.DB
 
-What if TrollTech decides to only license (or sell) Qt
-to, say, Microsoft? What does that mean for, say, the Kompany ?
+I guess they are the native TM5800 code "essenses (very small part
+that really get executed)" of those software. If my linux has the
+service, I imagine that after using the system for a week, my system
+will be filled by tranlated binaries and the processor will spend more
+time with native application code than with the CMS. And no one will ask
+for native crusoe compiler anymore. The best compiler is CMS.
 
-Mike.
+Is it possible to have persistent translation on linux?
+
+
+
+Regards,
+Samphan Rareunrom,
+National Electronics and Computer Technology Center,
+Thailand.
 

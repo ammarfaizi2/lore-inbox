@@ -1,45 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272509AbTHKLbq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 07:31:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272511AbTHKLbq
+	id S272504AbTHKLfQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 07:35:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272508AbTHKLfQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 07:31:46 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:37126 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S272509AbTHKLbp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 07:31:45 -0400
-Date: Mon, 11 Aug 2003 12:31:41 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0-test2: unable to suspend (APM)
-Message-ID: <20030811123141.A20951@flint.arm.linux.org.uk>
-Mail-Followup-To: Pavel Machek <pavel@ucw.cz>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-References: <20030806231519.H16116@flint.arm.linux.org.uk> <20030811101403.GA360@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030811101403.GA360@elf.ucw.cz>; from pavel@ucw.cz on Mon, Aug 11, 2003 at 12:14:03PM +0200
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+	Mon, 11 Aug 2003 07:35:16 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:33504 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S272504AbTHKLfI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 07:35:08 -0400
+Date: Mon, 11 Aug 2003 13:34:33 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Petr Vandrovec <vandrove@vc.cvut.cz>
+cc: <ak@suse.de>, <kwijibo@zianet.com>, Dave Jones <davej@redhat.com>,
+       <richard.brunner@amd.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Machine check expection panic
+In-Reply-To: <20030811101522.GA8080@vana.vc.cvut.cz>
+Message-ID: <Pine.SOL.4.30.0308111330550.11836-100000@mion.elka.pw.edu.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 11, 2003 at 12:14:03PM +0200, Pavel Machek wrote:
-> > I'm trying to test out APM on my laptop (in order to test some PCMCIA
-> > changes), but I'm hitting a brick wall.  I've added the device_suspend()
-> > calls for the SAVE_STATE, DISABLE and the corresponding device_resume()
-> > calls into apm's suspend() function.  (this is needed so that PCI
-> > devices receive their notifications.)
-> 
-> Can you verify that it is not device "vetoing" the suspend?
 
-Well, the pm_send_all(PM_SUSPEND) in suspend() doesn't trigger the "veto"
-messages, and I don't see any errors reported from device_suspend().
+Just "me too".
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+MCE: The hardware reports a non fatal, correctable incident occurred on
+CPU 0.
+Bank 0: 8000000000002140
+
+$ cat /proc/cpuinfo
+processor       : 0
+vendor_id       : AuthenticAMD
+cpu family      : 6
+model           : 8
+model name      : AMD Athlon(tm) XP 1700+
+stepping        : 1
+cpu MHz         : 1467.033
+cache size      : 256 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 1
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca
+cmov
+pat pse36 mmx fxsr sse syscall mmxext 3dnowext 3dnow
+bogomips        : 2883.58
+
+--bartlomiej
+
+On Mon, 11 Aug 2003, Petr Vandrovec wrote:
+
+> Out of curiosity, I never got MCE on my system at home (last kernel
+> before one below was 2.6.0-test2, and it did not complain for
+> different kernels at least since November 2001), yet after recent MCE
+> changes I got during fsck:
+>
+> MCE: The hardware reports a non fatal, correctable incident occurred on CPU 0.
+> Bank 0: f65980000000baff
 

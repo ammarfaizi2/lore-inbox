@@ -1,47 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263024AbUCSQCd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Mar 2004 11:02:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263031AbUCSQCd
+	id S263032AbUCSQNg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Mar 2004 11:13:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263034AbUCSQNg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Mar 2004 11:02:33 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:46794 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263024AbUCSQCb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Mar 2004 11:02:31 -0500
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Supphachoke Suntiwichaya <mrchoke@opentle.org>
-Subject: Re: [PATCH] ATI IXP IDE support 2.6.5-rc1 (modify)
-Date: Fri, 19 Mar 2004 17:10:06 +0100
-User-Agent: KMail/1.5.3
+	Fri, 19 Mar 2004 11:13:36 -0500
+Received: from fw.osdl.org ([65.172.181.6]:41887 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263032AbUCSQNd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Mar 2004 11:13:33 -0500
+Date: Fri, 19 Mar 2004 08:10:39 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: root@chaos.analogic.com
 Cc: linux-kernel@vger.kernel.org
-References: <405A77CC.50506@opentle.org>
-In-Reply-To: <405A77CC.50506@opentle.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Subject: Re: CDFS
+Message-Id: <20040319081039.74a827fe.rddunlap@osdl.org>
+In-Reply-To: <Pine.LNX.4.53.0403191100030.3154@chaos>
+References: <Pine.LNX.4.53.0403191100030.3154@chaos>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200403191710.06084.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 19 of March 2004 05:32, Supphachoke Suntiwichaya wrote:
-> Hi,
+On Fri, 19 Mar 2004 11:01:44 -0500 (EST) Richard B. Johnson wrote:
 
-Hi,
+| 
+| Just got a CD/ROM that 'works' on W$, but not Linux.
+| W$ `properties` call it 'CDFS'. Is there any such Linux
+| support?
 
-> I modified patch from
-> http://www.kernel.org/pub/linux/kernel/people/bart/atiixp_ide/atiixp_ide-2.
->6.3-2.patch
+You did try to search for it, right?
 
-You should have checked official Linus tree first,
-ATI IXP IDE support is already merged - 2.5.6-rc1-bk2 contains it. :-)
+http://www.elis.rug.ac.be/~ronsse/cdfs/
 
-http://www.kernel.org/pub/linux/kernel/v2.6/snapshots/
+<plug>
+Some other Linux fs-es:
+  http://www.xenotime.net/linux/linux-fs.html
+</plug>
 
-> for kernel 2.6.5-rc1. It work well for my box ASUS P4R800-VM.
-
-Thanks for testing,
-Bartlomiej
-
+--
+~Randy
+"You can't do anything without having to do something else first."
+-- Belefant's Law

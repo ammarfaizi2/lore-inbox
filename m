@@ -1,64 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129815AbQJ2Waz>; Sun, 29 Oct 2000 17:30:55 -0500
+	id <S129878AbQJ2Wrx>; Sun, 29 Oct 2000 17:47:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129902AbQJ2Waq>; Sun, 29 Oct 2000 17:30:46 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:32261 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S129815AbQJ2Wag>; Sun, 29 Oct 2000 17:30:36 -0500
-Message-ID: <39FCA428.F89746F3@timpanogas.org>
-Date: Sun, 29 Oct 2000 15:26:48 -0700
-From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
-Organization: TRG, Inc.
-X-Mailer: Mozilla 4.7 [en] (WinNT; I)
+	id <S129902AbQJ2Wrn>; Sun, 29 Oct 2000 17:47:43 -0500
+Received: from hermes.hrz.uni-giessen.de ([134.176.2.15]:56983 "EHLO
+	hermes.hrz.uni-giessen.de") by vger.kernel.org with ESMTP
+	id <S129878AbQJ2Wrc>; Sun, 29 Oct 2000 17:47:32 -0500
+Message-Id: <39FCA8EE.7414F4A6@informatik.med.uni-giessen.de>
+Date: Sun, 29 Oct 2000 23:47:10 +0100
+From: Roland Mainz <Roland.Mainz@informatik.med.uni-giessen.de>
+X-Mailer: Mozilla 4.7 [en] (X11; I; SunOS 5.7 sun4u)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Alexander Viro <viro@math.psu.edu>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Paul Mackerras <paulus@linuxcare.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: page->mapping == 0
-In-Reply-To: <E13pz7a-0006JY-00@the-village.bc.nu>
+To: Pavel Machek <pavel@suse.cz>
+CC: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Podfuk renamed to uservfs and moved to sourceforge
+In-Reply-To: <20001027174008.A5544@atrey.karlin.mff.cuni.cz>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Pavel Machek wrote:
 
+> Subject says it pretty much all. If you want to help with anything,
+> just get yourself sourceforge account and ask me ;-).
 
-Alan Cox wrote:
-> 
-> > I would expect problems with truncate, mmap, rename, POSIX locks, fasync,
-> > ptrace and mount go unnoticed for _long_. Ditto for parts of procfs
-> 
-> Well the ptrace one still has mysteriously breaks usermode linux against it
-> on my list here. Was that ever explained. It looked like the stack got corrupted
-> which is weird.
+podfuk V3.7 is on the way, I've created my sourceforge account
+("gisburn"). How can I upload it ?
 
-Do any of you guys have an SMP inverse assembler handy?  This bug is
-scary as shit, and someone needs to setup an SMP ICE and actually trace
-through the code (and set address breakpoints) to see just what is going
-on.  It really is sounding like a race condition of some kind, and I
-read everyone's "speculation" about what they think is happneing, but
-how about getting some hardware tools, and tracking is down.  It feels
-like an MMU bug of some type.  Who has access to Yellow Cover Intel
-Errata sheets?  It may be a hardware bug intel knows about but we don't
--- their MMU is so bug infested how do we know it's not one of these.  
+----
 
-I don't think you guys have a good handle on it yet.  Linus seems to
-think it's a coding problem with a race somewhere.  How about someone
-getting some hardware tools and nailing the puppy to the floor so 2.4
-can get out the door...
+Bye,
+Roland
 
-:-)
-
-Jeff
-
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+-- 
+  __ .  . __
+ (o.\ \/ /.o) Roland.Mainz@informatik.med.uni-giessen.de
+  \__\/\/__/  gisburn@informatik.med.uni-giessen.de
+  /O /==\ O\  MPEG specialist, C&&JAVA&&Sun&&Unix programmer
+ (;O/ \/ \O;) TEL +49 641 99-13193 FAX +49 641 99-41359
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

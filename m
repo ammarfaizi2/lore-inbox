@@ -1,38 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129464AbQLKRt3>; Mon, 11 Dec 2000 12:49:29 -0500
+	id <S129226AbQLKSPr>; Mon, 11 Dec 2000 13:15:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129584AbQLKRtT>; Mon, 11 Dec 2000 12:49:19 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:1674 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S129464AbQLKRtF>;
-	Mon, 11 Dec 2000 12:49:05 -0500
-Date: Mon, 11 Dec 2000 12:18:36 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-cc: Dietmar Kling <dietmar.kling@sam-net.de>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: ANNOUNCE: Linux Kernel ORB: kORBit
-In-Reply-To: <3A34D8EC.49C22DA1@evision-ventures.com>
-Message-ID: <Pine.GSO.4.21.0012111156490.7433-100000@weyl.math.psu.edu>
+	id <S129314AbQLKSPh>; Mon, 11 Dec 2000 13:15:37 -0500
+Received: from cambot.suite224.net ([209.176.64.2]:38926 "EHLO suite224.net")
+	by vger.kernel.org with ESMTP id <S129226AbQLKSPW>;
+	Mon, 11 Dec 2000 13:15:22 -0500
+Message-ID: <003101c0639a$9b7c4560$9f42b0d1@pittscomp.com>
+From: "Matthew D. Pitts" <mpitts@suite224.net>
+To: <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.GSO.4.21.0012092014550.896-100000@weyl.math.psu.edu> <3A32F169.3E99C976@sam-net.de> <3A34D8EC.49C22DA1@evision-ventures.com> <20001211144724.A1019@werewolf.able.es>
+Subject: Re: ANNOUNCE: Linux Kernel ORB: kORBit ( getting off topic)
+Date: Mon, 11 Dec 2000 12:48:20 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2615.200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2615.200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+----- Original Message -----
+From: J . A . Magallon <jamagallon@able.es>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Monday, December 11, 2000 8:47 AM
+Subject: Re: ANNOUNCE: Linux Kernel ORB: kORBit
 
-On Mon, 11 Dec 2000, Martin Dalecki wrote:
 
-> Please don't put KDE into the same bunch as gnome or
-> windows. KDE is in fact *well designed*! In esp. 2.0
+>
+> On Mon, 11 Dec 2000 14:38:52 Martin Dalecki wrote:
+> >
+> > Please don't put KDE into the same bunch as gnome or
+> > windows. KDE is in fact *well designed*! In esp. 2.0
+> >
+>
+> That is why you need a supercomputer to run KDE at acceptable interactive
+> speeds...
+umm, does a pentium 166Mhz with 32MB of RAM qualify as a supercomputer? KDE
+1.1.2 on Linux-Mandrake 7.1 here. I WILL try KDE 2.0.1 and let you know how
+it runs.
 
-<raised brows> 'Tis funny, you know, because ISTR that the bloody thing
-got the same problems with the program sizes, API bloat and lack of
-orthogonality. Last time I've looked at their codebase was ~6 months
-ago and it was rather vomit-inducing.
+Matthew D. Pitts
+mpitts@suite224.net
 
-The fact that there is a holy war doesn't mean that one of the sides
-doesn't suck - usually both do...
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

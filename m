@@ -1,41 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268031AbUJDLtj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268033AbUJDLvX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268031AbUJDLtj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 07:49:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268035AbUJDLti
+	id S268033AbUJDLvX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 07:51:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268035AbUJDLvX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 07:49:38 -0400
-Received: from build.arklinux.osuosl.org ([128.193.0.51]:44516 "EHLO
-	mail.arklinux.org") by vger.kernel.org with ESMTP id S268031AbUJDLtD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 07:49:03 -0400
-From: Bernhard Rosenkraenzer <bero@arklinux.org>
-Organization: LINUX4MEDIA GmbH
-To: mocm@mocm.de
-Subject: Re: Efficeon
-Date: Mon, 4 Oct 2004 13:45:27 +0200
-User-Agent: KMail/1.7
-Cc: linux-kernel@vger.kernel.org
-References: <16735.62032.169017.247720@mocm.de>
-In-Reply-To: <16735.62032.169017.247720@mocm.de>
+	Mon, 4 Oct 2004 07:51:23 -0400
+Received: from mato.luukku.com ([193.209.83.251]:21484 "EHLO mato.luukku.com")
+	by vger.kernel.org with ESMTP id S268033AbUJDLvP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Oct 2004 07:51:15 -0400
+Message-ID: <41613937.8BF0FE0D@users.sourceforge.net>
+Date: Mon, 04 Oct 2004 14:51:19 +0300
+From: Jari Ruusu <jariruusu@users.sourceforge.net>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.22aa1r7 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Andi Kleen <ak@muc.de>, Linus Torvalds <torvalds@osdl.org>
+Cc: Florian Bohrer <Florian.Bohrer@t-online.de>, linux-kernel@vger.kernel.org,
+       discuss@x86-64.org
+Subject: Re: [PATCH] AES x86-64-asm impl.
+References: <2KWl4-wq-25@gated-at.bofh.it> <m3acv4zz5f.fsf@averell.firstfloor.org>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200410041345.27682.bero@arklinux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 03 October 2004 14:36, Marcus Metzler wrote:
-> Hi,
->
-> I was just wondering which CPU options I should choose for compiling a
-> kernel for an Efficeon?
-> Crusoe seems to work fine.
+Andi Kleen wrote:
+> Florian.Bohrer@t-online.de (Florian Bohrer) writes:
+> > the asm-code is from Jari Ruusu (loop-aes).
+> > the org. glue-code is from Fruhwirth Clemens.
+> 
+> Thanks. I will add it to the x86-64 patchkit.
 
-Crusoe works, but doesn't give you all the features of the Efficeon CPU 
-(Crusoe doesn't have SSE and friends AFAIR). You may want to try Pentium4.
+Here we go again...
 
-LLaP
-bero
+Linus promised that he will not merge my code, and I am quite happy with my
+code not being anywhere near mainline linux cryptoapi.
+
+Linus, please consider dropping this.
+
+-- 
+Jari Ruusu  1024R/3A220F51 5B 4B F9 BB D3 3F 52 E9  DB 1D EB E3 24 0E A9 DD

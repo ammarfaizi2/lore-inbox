@@ -1,41 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261321AbSKKVJw>; Mon, 11 Nov 2002 16:09:52 -0500
+	id <S261330AbSKKVKC>; Mon, 11 Nov 2002 16:10:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261330AbSKKVJw>; Mon, 11 Nov 2002 16:09:52 -0500
-Received: from ns.rf0.com ([198.78.66.18]:29203 "EHLO freebsd.rf0.com")
-	by vger.kernel.org with ESMTP id <S261321AbSKKVJv>;
-	Mon, 11 Nov 2002 16:09:51 -0500
-Date: Mon, 11 Nov 2002 21:16:39 +0000 (GMT)
-From: Rus Foster <rghf@fsck.me.uk>
-X-X-Sender: rghf@freebsd.rf0.com
-To: linux-kernel@vger.kernel.org
-Subject: i810_audio
-Message-ID: <20021111210447.T90488-100000@freebsd.rf0.com>
+	id <S261349AbSKKVKC>; Mon, 11 Nov 2002 16:10:02 -0500
+Received: from mailhost.cotse.com ([216.112.42.58]:1295 "EHLO
+	mailhost.cotse.com") by vger.kernel.org with ESMTP
+	id <S261330AbSKKVKA>; Mon, 11 Nov 2002 16:10:00 -0500
+Message-ID: <YWxhbg==.563e560fc9743df6e2cd56ac2568e2c0@1037049066.cotse.net>
+Date: Mon, 11 Nov 2002 16:11:06 -0500 (EST)
+X-Abuse-To: abuse@cotse.com
+Subject: Re: [BENCHMARK] 2.5.46-mm1 with contest
+From: "Alan Willis" <alan@cotse.net>
+To: <akpm@digeo.com>
+In-Reply-To: <3DD01B32.4A113A71@digeo.com>
+References: <3DCC2ABE.5DDE9882@digeo.com>
+        <YWxhbg==.a11f3fbc6d68c50c7f190513c1d3bacf@1037045821.cotse.net>
+        <3DD01B32.4A113A71@digeo.com>
+X-Priority: 3
+Importance: Normal
+X-MSMail-Priority: Normal
+Cc: <alan@cotse.com>, <linux-kernel@vger.kernel.org>, <vs@namesys.com>
+Reply-To: alan@cotse.com
+X-Mailer: www.cotse.net
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-HI,
-I've just installed 2.4.20-rc1 to avoid i810 lockups on 2.4.19. However
-playing stuff with xmms I've just got
 
-Nov 12 21:03:12 duocity kernel: i810_audio: DMA overrun on write
-Nov 12 21:03:12 duocity kernel: i810_audio: CIV 9, LVI 6, hwptr 4808,
-count -5640
+> That's an awful lot of mapped memory.  Have you been altering
+> /proc/sys/vm/swappiness?  Has some application run berzerk
+> and used tons of memory?
+>
+> Slab:             7592 kB
+> Committed_AS:   423120 kB
+> PageTables:       1996 kB
+> ReverseMaps:     69425
+> HugePages_Total:    15
+> HugePages_Free:     15
+> Hugepagesize:     4096 kB
 
-Also whilst typing this the machine locked hard but nothing in the SYSLOG.
-I was moving quickly through my playlist which might of caused an
-overrun.  Also is there anyway around the 48Khz only playback as 24Khz
-mp3's obviously play to fast
-Rgds
+vm.swappiness was set to 0
 
-Rus
+>
+> You've lost 60 megabytes in hugepages!  Bill's patch (which is in .47)
+> changes the initial number of hugetlb pages to zero, which is rather
+> kinder.
+>
+> So I don't _think_ there's a leak here.  It could be that your
+> normal workload fits OK ito 256 megs, but thrashes when it is
+> squeezed into 196 megs.
+>
+> Suggest you do `echo 0 > /proc/sys/vm/nr_hugepages' and retest.
 
---
-http://www.fsck.me.uk - My blog
-http://shells.fsck.me.uk - Hosting how you want it.
+Done, vm.nr_hugepages = 0 # from 15
+
+I'll stick to 2.5.46 for a while yet I guess, to be sure.
+
+-alan
 
 
 

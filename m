@@ -1,62 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263412AbUJ2PrT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263404AbUJ2Pwl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263412AbUJ2PrT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 11:47:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263410AbUJ2Po6
+	id S263404AbUJ2Pwl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 11:52:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263410AbUJ2Prh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 11:44:58 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:4371 "EHLO
-	kinesis.swishmail.com") by vger.kernel.org with ESMTP
-	id S263374AbUJ2Pdp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 11:33:45 -0400
-Message-ID: <41826617.2010006@techsource.com>
-Date: Fri, 29 Oct 2004 11:47:35 -0400
-From: Timothy Miller <miller@techsource.com>
-MIME-Version: 1.0
-To: Daniel Phillips <phillips@istop.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Some discussion points open source friendly graphics [was: HARDWARE:
- Open-Source-Friendly Graphics Cards -- Viable?]
-References: <417D21C8.30709@techsource.com> <200410271438.30899.phillips@istop.com>
-In-Reply-To: <200410271438.30899.phillips@istop.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 29 Oct 2004 11:47:37 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:63400 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S263414AbUJ2Pqg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 11:46:36 -0400
+Subject: Re: [RFC] Linux 2.6.9.1-pre1 contents
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200410291107_MC3-1-8D7A-1644@compuserve.com>
+References: <200410291107_MC3-1-8D7A-1644@compuserve.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1099060999.13098.37.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Fri, 29 Oct 2004 15:43:19 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Gwe, 2004-10-29 at 16:04, Chuck Ebbert wrote:
+> > This is definitely wrong,
+>   It just went into mainline as rev 1.87 to ide-probe.c  :(
 
+Yes its still being discussed and revised. 
 
-Daniel Phillips wrote:
-> On Monday 25 October 2004 11:54, Timothy Miller wrote:
-> 
->>The reprogramability of the FPGA has many advantages, but
->>reprogramability is not its primary purpose.
-> 
-> 
-> But it might turn out to be a reason for it turning into a geek trophy, if the 
-> price is not enormously higher than closed-spec cards.  You could for 
-> example, program real-time sound effects processing into the FPGA and output 
-> the samples through a standard sound card.
-> 
-> The enthusiast market is a big market these days.
-> 
-> 
->>The picture I have in my head at this time expands on the idea of the
->>setup engine seen in most GPU's.  What I'm thinking is that the setup
->>engine will be general-purpose-ish CPU with special vector and matrix
->>instructions.  This way, the transformation stage will occur in
->>"software" executed by a specialized processor.  Additionally, the
->>lighting phase might be done here as well.
->>
->>The setup engine would produce triangle parameters which are fed to a
->>rasterizer which does Gouraud shading and texture-mapping.  That feeds
->>pixels into something that handles antialiasing and alpha blending, etc.
-> 
-> 
-> I hope you're planning to have a divider available to the rasterizer for 
-> perspective interpolation, particularly of textures.
+>   Your "Integrated Technology Express" addition is missing but I'm
+> going to add it here.
 
+You only need that if you have IT8212 support merged (that is in -ac5
+again and activated now). It requires the taskfile and ide-disk geometry
+changes but does not require all the ide locking stuff (the user
+probably does for other reasons but the ide code doesnt)
 
-My plans are not quite that specific at this time.  For instance, I'm 
-not entirely sure, yet, how perspective correction is done.
+Alan
 

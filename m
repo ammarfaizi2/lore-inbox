@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318168AbSH1ETu>; Wed, 28 Aug 2002 00:19:50 -0400
+	id <S318690AbSH1EQN>; Wed, 28 Aug 2002 00:16:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318696AbSH1ETu>; Wed, 28 Aug 2002 00:19:50 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:63249 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318168AbSH1ETh>;
-	Wed, 28 Aug 2002 00:19:37 -0400
-Message-ID: <3D6C5307.3AF15D66@zip.com.au>
-Date: Tue, 27 Aug 2002 21:35:19 -0700
+	id <S318693AbSH1EQN>; Wed, 28 Aug 2002 00:16:13 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:61969 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318690AbSH1EQK>;
+	Wed, 28 Aug 2002 00:16:10 -0400
+Message-ID: <3D6C5238.8EC212A@zip.com.au>
+Date: Tue, 27 Aug 2002 21:31:52 -0700
 From: Andrew Morton <akpm@zip.com.au>
 X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
 To: lkml <linux-kernel@vger.kernel.org>
-Subject: [patch] increased accuracy of dirty memory accounting
+Subject: [patch] write() throttling fix
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
@@ -21,388 +21,216 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-Some adjustments to global dirty page accounting.
+The patch fixes a few problems in the writer throttling code.  Mainly
+in the situation where a single large file is being written out.
 
-Previously, dirty page accounting counted all dirty pages.  Even dirty
-anonymous pages.  This has potential to upset the throttling logic in
-balance_dirty_pages().  Particularly as I suspect we should decrease
-the dirty memory writeback thresholds by a lot.
+That file could be parked on sb->locked_inodes due to pdflush
+writeback, and the writer throttling path coming out of
+balance_dirty_pages() forgot to look for inodes on ->locked_inodes.
 
-So this patch changes it so that we only account for dirty pagecache
-pages which have backing store.  Not anonymous pages, not swapcache,
-not in-memory filesystem pages.
+The net effect was that the amount of dirty memory was exceeding the
+limit set in /proc/sys/vm/dirty_async_ratio, possibly to the point
+where the system gets seriously choked.
 
-To support this, the `memory_backed' boolean has been added to struct
-backing_dev_info.  When an address space's backing device is marked as
-memory-backed, the core kernel knows to not include that mapping's
-pages in the dirty memory accounting.
+The patch removes sb->locked_inodes altogether and teaches the
+throttling code to look or inodes on sb->s_io as well as sb->s_dirty.
 
-For memory-backed mappings, dirtiness is a way of pinning the page, and
-there's nothing the kernel can to do clean the page to make it freeable.
-
-driverfs, tmpfs, and ranfs have been coverted to mark their mappings as
-memory-backed.
-
-The ramdisk driver hasn't been converted.  I have a separate patch for
-ramdisk, which fails to fix the longstanding problems in there :(
-
-With this patch, /bin/sync now sends /proc/meminfo:Dirty to zero, which
-is rather comforting.
+Also, just leave unwritten dirty pages on mapping->io_pages, and
+unwritten dirty inodes on sb->s_io.  Putting them back onto
+->dirty_pages and ->dirty_inodes was fairly pointless, given that both
+lists need to be looked at.
 
 
 
- fs/buffer.c                 |    2 -
- fs/driverfs/inode.c         |    7 ++++++
- fs/mpage.c                  |    2 -
- fs/ramfs/inode.c            |    9 +++++++-
- include/linux/backing-dev.h |    1 
- include/linux/page-flags.h  |   45 ++++++++++++--------------------------------
- mm/filemap.c                |    8 +++----
- mm/page-writeback.c         |   22 +++++++++++++++++++--
- mm/shmem.c                  |    7 ++++++
- mm/swap_state.c             |   29 +++++++++++++++++-----------
- 10 files changed, 80 insertions(+), 52 deletions(-)
+ fs/fs-writeback.c  |   42 +++++++++++++++---------------------------
+ fs/inode.c         |    6 ------
+ fs/mpage.c         |    3 +--
+ fs/super.c         |    1 -
+ include/linux/fs.h |    1 -
+ 5 files changed, 16 insertions(+), 37 deletions(-)
 
---- 2.5.32/include/linux/backing-dev.h~dirty-state-accounting	Tue Aug 27 21:32:04 2002
-+++ 2.5.32-akpm/include/linux/backing-dev.h	Tue Aug 27 21:32:05 2002
-@@ -19,6 +19,7 @@ enum bdi_state {
- struct backing_dev_info {
- 	unsigned long ra_pages;	/* max readahead in PAGE_CACHE_SIZE units */
- 	unsigned long state;	/* Always use atomic bitops on this */
-+	int memory_backed;	/* Cannot clean pages with writepage */
- };
+--- 2.5.32/fs/fs-writeback.c~throttling-fix	Tue Aug 27 21:30:51 2002
++++ 2.5.32-akpm/fs/fs-writeback.c	Tue Aug 27 21:30:51 2002
+@@ -134,8 +134,6 @@ static void __sync_single_inode(struct i
+ 	struct address_space *mapping = inode->i_mapping;
+ 	struct super_block *sb = inode->i_sb;
  
- extern struct backing_dev_info default_backing_dev_info;
---- 2.5.32/mm/page-writeback.c~dirty-state-accounting	Tue Aug 27 21:32:04 2002
-+++ 2.5.32-akpm/mm/page-writeback.c	Tue Aug 27 21:32:05 2002
-@@ -350,7 +350,7 @@ int generic_vm_writeback(struct page *pa
- #if 0
- 		if (!PageWriteback(page) && PageDirty(page)) {
- 			lock_page(page);
--			if (!PageWriteback(page) && TestClearPageDirty(page)) {
-+			if (!PageWriteback(page)&&test_clear_page_dirty(page)) {
- 				int ret;
+-	list_move(&inode->i_list, &sb->s_locked_inodes);
+-
+ 	BUG_ON(inode->i_state & I_LOCK);
  
- 				ret = page->mapping->a_ops->writepage(page);
-@@ -395,7 +395,7 @@ int write_one_page(struct page *page, in
- 
- 	write_lock(&mapping->page_lock);
- 	list_del(&page->list);
--	if (TestClearPageDirty(page)) {
-+	if (test_clear_page_dirty(page)) {
- 		list_add(&page->list, &mapping->locked_pages);
- 		page_cache_get(page);
- 		write_unlock(&mapping->page_lock);
-@@ -487,6 +487,8 @@ int __set_page_dirty_buffers(struct page
- 	if (!TestSetPageDirty(page)) {
- 		write_lock(&mapping->page_lock);
- 		if (page->mapping) {	/* Race with truncate? */
-+			if (!mapping->backing_dev_info->memory_backed)
-+				inc_page_state(nr_dirty);
- 			list_del(&page->list);
- 			list_add(&page->list, &mapping->dirty_pages);
- 		}
-@@ -523,6 +525,8 @@ int __set_page_dirty_nobuffers(struct pa
- 		if (mapping) {
- 			write_lock(&mapping->page_lock);
- 			if (page->mapping) {	/* Race with truncate? */
-+				if (!mapping->backing_dev_info->memory_backed)
-+					inc_page_state(nr_dirty);
- 				list_del(&page->list);
- 				list_add(&page->list, &mapping->dirty_pages);
- 			}
-@@ -534,4 +538,18 @@ int __set_page_dirty_nobuffers(struct pa
- }
- EXPORT_SYMBOL(__set_page_dirty_nobuffers);
- 
-+/*
-+ * Clear a page's dirty flag, while caring for dirty memory accounting. 
-+ * Returns true if the page was previously dirty.
-+ */
-+int test_clear_page_dirty(struct page *page)
-+{
-+	if (TestClearPageDirty(page)) {
-+		struct address_space *mapping = page->mapping;
- 
-+		if (mapping && !mapping->backing_dev_info->memory_backed)
-+			dec_page_state(nr_dirty);
-+		return 1;
-+	}
-+	return 0;
-+}
---- 2.5.32/include/linux/page-flags.h~dirty-state-accounting	Tue Aug 27 21:32:04 2002
-+++ 2.5.32-akpm/include/linux/page-flags.h	Tue Aug 27 21:32:05 2002
-@@ -52,7 +52,7 @@
- #define PG_referenced		 2
- #define PG_uptodate		 3
- 
--#define PG_dirty_dontuse	 4
-+#define PG_dirty	 	 4
- #define PG_lru			 5
- #define PG_active		 6
- #define PG_slab			 7	/* slab debug (Suparna wants this) */
-@@ -120,37 +120,11 @@ extern void get_page_state(struct page_s
- #define SetPageUptodate(page)	set_bit(PG_uptodate, &(page)->flags)
- #define ClearPageUptodate(page)	clear_bit(PG_uptodate, &(page)->flags)
- 
--#define PageDirty(page)		test_bit(PG_dirty_dontuse, &(page)->flags)
--#define SetPageDirty(page)						\
--	do {								\
--		if (!test_and_set_bit(PG_dirty_dontuse,			\
--					&(page)->flags))		\
--			inc_page_state(nr_dirty);			\
--	} while (0)
--#define TestSetPageDirty(page)						\
--	({								\
--		int ret;						\
--		ret = test_and_set_bit(PG_dirty_dontuse,		\
--				&(page)->flags);			\
--		if (!ret)						\
--			inc_page_state(nr_dirty);			\
--		ret;							\
--	})
--#define ClearPageDirty(page)						\
--	do {								\
--		if (test_and_clear_bit(PG_dirty_dontuse,		\
--				&(page)->flags))			\
--			dec_page_state(nr_dirty);			\
--	} while (0)
--#define TestClearPageDirty(page)					\
--	({								\
--		int ret;						\
--		ret = test_and_clear_bit(PG_dirty_dontuse,		\
--				&(page)->flags);			\
--		if (ret)						\
--			dec_page_state(nr_dirty);			\
--		ret;							\
--	})
-+#define PageDirty(page)		test_bit(PG_dirty, &(page)->flags)
-+#define SetPageDirty(page)	set_bit(PG_dirty, &(page)->flags)
-+#define TestSetPageDirty(page)	test_and_set_bit(PG_dirty, &(page)->flags)
-+#define ClearPageDirty(page)	clear_bit(PG_dirty, &(page)->flags)
-+#define TestClearPageDirty(page) test_and_clear_bit(PG_dirty, &(page)->flags)
- 
- #define SetPageLRU(page)	set_bit(PG_lru, &(page)->flags)
- #define PageLRU(page)		test_bit(PG_lru, &(page)->flags)
-@@ -265,4 +239,11 @@ static inline void pte_chain_unlock(stru
- extern struct address_space swapper_space;
- #define PageSwapCache(page) ((page)->mapping == &swapper_space)
- 
-+int test_clear_page_dirty(struct page *page);
-+
-+static inline void clear_page_dirty(struct page *page)
-+{
-+	test_clear_page_dirty(page);
-+}
-+
- #endif	/* PAGE_FLAGS_H */
---- 2.5.32/fs/ramfs/inode.c~dirty-state-accounting	Tue Aug 27 21:32:04 2002
-+++ 2.5.32-akpm/fs/ramfs/inode.c	Tue Aug 27 21:32:05 2002
-@@ -30,6 +30,7 @@
- #include <linux/init.h>
- #include <linux/string.h>
- #include <linux/smp_lock.h>
-+#include <linux/backing-dev.h>
- 
- #include <asm/uaccess.h>
- 
-@@ -41,6 +42,11 @@ static struct address_space_operations r
- static struct file_operations ramfs_file_operations;
- static struct inode_operations ramfs_dir_inode_operations;
- 
-+static struct backing_dev_info ramfs_backing_dev_info = {
-+	.ra_pages	= 0,	/* No readahead */
-+	.memory_backed	= 1,	/* Does not contribute to dirty memory */
-+};
-+
- /*
-  * Read a page. Again trivial. If it didn't already exist
-  * in the page cache, it is zero-filled.
-@@ -69,7 +75,7 @@ static int ramfs_prepare_write(struct fi
- 		kunmap_atomic(kaddr, KM_USER0);
- 		SetPageUptodate(page);
- 	}
--	SetPageDirty(page);
-+	set_page_dirty(page);
- 	return 0;
- }
- 
-@@ -95,6 +101,7 @@ struct inode *ramfs_get_inode(struct sup
- 		inode->i_blocks = 0;
- 		inode->i_rdev = NODEV;
- 		inode->i_mapping->a_ops = &ramfs_aops;
-+		inode->i_mapping->backing_dev_info = &ramfs_backing_dev_info;
- 		inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
- 		switch (mode & S_IFMT) {
- 		default:
---- 2.5.32/fs/buffer.c~dirty-state-accounting	Tue Aug 27 21:32:04 2002
-+++ 2.5.32-akpm/fs/buffer.c	Tue Aug 27 21:32:05 2002
-@@ -2513,7 +2513,7 @@ int try_to_free_buffers(struct page *pag
- 		 * This only applies in the rare case where try_to_free_buffers
- 		 * succeeds but the page is not freed.
- 		 */
--		ClearPageDirty(page);
-+		clear_page_dirty(page);
- 	}
- 	spin_unlock(&mapping->private_lock);
- out:
---- 2.5.32/fs/mpage.c~dirty-state-accounting	Tue Aug 27 21:32:05 2002
-+++ 2.5.32-akpm/fs/mpage.c	Tue Aug 27 21:32:05 2002
-@@ -571,7 +571,7 @@ mpage_writepages(struct address_space *m
- 			wait_on_page_writeback(page);
- 
- 		if (page->mapping && !PageWriteback(page) &&
--					TestClearPageDirty(page)) {
-+					test_clear_page_dirty(page)) {
- 			if (writepage) {
- 				ret = (*writepage)(page);
+ 	/* Set I_LOCK, reset I_DIRTY */
+@@ -163,12 +161,12 @@ static void __sync_single_inode(struct i
+ 		if (inode->i_state & I_DIRTY) {		/* Redirtied */
+ 			list_add(&inode->i_list, &sb->s_dirty);
+ 		} else {
+-			if (!list_empty(&mapping->dirty_pages)) {
++			if (!list_empty(&mapping->dirty_pages) ||
++					!list_empty(&mapping->io_pages)) {
+ 			 	/* Not a whole-file writeback */
+ 				mapping->dirtied_when = orig_dirtied_when;
+ 				inode->i_state |= I_DIRTY_PAGES;
+-				list_add_tail(&inode->i_list,
+-						&sb->s_dirty);
++				list_add_tail(&inode->i_list, &sb->s_dirty);
+ 			} else if (atomic_read(&inode->i_count)) {
+ 				list_add(&inode->i_list, &inode_in_use);
  			} else {
---- 2.5.32/mm/filemap.c~dirty-state-accounting	Tue Aug 27 21:32:05 2002
-+++ 2.5.32-akpm/mm/filemap.c	Tue Aug 27 21:32:05 2002
-@@ -181,7 +181,7 @@ static void truncate_complete_page(struc
- 	if (PagePrivate(page))
- 		do_invalidatepage(page, 0);
+@@ -205,7 +203,7 @@ __writeback_single_inode(struct inode *i
+  * If older_than_this is non-NULL, then only write out mappings which
+  * had their first dirtying at a time earlier than *older_than_this.
+  *
+- * If we're a pdlfush thread, then implement pdlfush collision avoidance
++ * If we're a pdlfush thread, then implement pdflush collision avoidance
+  * against the entire list.
+  *
+  * WB_SYNC_HOLD is a hack for sys_sync(): reattach the inode to sb->s_dirty so
+@@ -221,6 +219,11 @@ __writeback_single_inode(struct inode *i
+  * FIXME: this linear search could get expensive with many fileystems.  But
+  * how to fix?  We need to go from an address_space to all inodes which share
+  * a queue with that address_space.
++ *
++ * The inodes to be written are parked on sb->s_io.  They are moved back onto
++ * sb->s_dirty as they are selected for writing.  This way, none can be missed
++ * on the writer throttling path, and we get decent balancing between many
++ * thrlttled threads: we don't want them all piling up on __wait_on_inode.
+  */
+ static void
+ sync_sb_inodes(struct backing_dev_info *single_bdi, struct super_block *sb,
+@@ -241,7 +244,7 @@ sync_sb_inodes(struct backing_dev_info *
+ 		if (single_bdi && mapping->backing_dev_info != single_bdi) {
+ 			if (sb != blockdev_superblock)
+ 				break;		/* inappropriate superblock */
+-			list_move(&inode->i_list, &inode->i_sb->s_dirty);
++			list_move(&inode->i_list, &sb->s_dirty);
+ 			continue;		/* not this blockdev */
+ 		}
  
--	ClearPageDirty(page);
-+	clear_page_dirty(page);
- 	ClearPageUptodate(page);
- 	remove_from_page_cache(page);
- 	page_cache_release(page);
-@@ -280,7 +280,7 @@ static void clean_list_pages(struct addr
- 	for (curr = head->next; curr != head; curr = curr->next) {
- 		page = list_entry(curr, struct page, list);
- 		if (page->index > start)
--			ClearPageDirty(page);
-+			clear_page_dirty(page);
+@@ -263,10 +266,11 @@ sync_sb_inodes(struct backing_dev_info *
+ 
+ 		BUG_ON(inode->i_state & I_FREEING);
+ 		__iget(inode);
++		list_move(&inode->i_list, &sb->s_dirty);
+ 		__writeback_single_inode(inode, really_sync, nr_to_write);
+ 		if (sync_mode == WB_SYNC_HOLD) {
+ 			mapping->dirtied_when = jiffies;
+-			list_move(&inode->i_list, &inode->i_sb->s_dirty);
++			list_move(&inode->i_list, &sb->s_dirty);
+ 		}
+ 		if (current_is_pdflush())
+ 			writeback_release(bdi);
+@@ -278,9 +282,8 @@ sync_sb_inodes(struct backing_dev_info *
  	}
+ out:
+ 	/*
+-	 * Put the rest back, in the correct order.
++	 * Leave any unwritten inodes on s_io.
+ 	 */
+-	list_splice_init(&sb->s_io, sb->s_dirty.prev);
+ 	return;
  }
  
-@@ -348,7 +348,7 @@ static inline int invalidate_this_page2(
- 		} else
- 			unlocked = 0;
+@@ -302,7 +305,7 @@ __writeback_unlocked_inodes(struct backi
+ 	spin_lock(&sb_lock);
+ 	sb = sb_entry(super_blocks.prev);
+ 	for (; sb != sb_entry(&super_blocks); sb = sb_entry(sb->s_list.prev)) {
+-		if (!list_empty(&sb->s_dirty)) {
++		if (!list_empty(&sb->s_dirty) || !list_empty(&sb->s_io)) {
+ 			spin_unlock(&sb_lock);
+ 			sync_sb_inodes(bdi, sb, sync_mode, nr_to_write,
+ 					older_than_this);
+@@ -321,7 +324,7 @@ __writeback_unlocked_inodes(struct backi
+  * Note:
+  * We don't need to grab a reference to superblock here. If it has non-empty
+  * ->s_dirty it's hadn't been killed yet and kill_super() won't proceed
+- * past sync_inodes_sb() until both ->s_dirty and ->s_locked_inodes are
++ * past sync_inodes_sb() until both the ->s_dirty and ->s_io lists are
+  * empty. Since __sync_single_inode() regains inode_lock before it finally moves
+  * inode from superblock lists we are OK.
+  *
+@@ -352,19 +355,6 @@ void writeback_backing_dev(struct backin
+ 				sync_mode, older_than_this);
+ }
  
--		ClearPageDirty(page);
-+		clear_page_dirty(page);
- 		ClearPageUptodate(page);
+-static void __wait_on_locked(struct list_head *head)
+-{
+-	struct list_head * tmp;
+-	while ((tmp = head->prev) != head) {
+-		struct inode *inode = list_entry(tmp, struct inode, i_list);
+-		__iget(inode);
+-		spin_unlock(&inode_lock);
+-		__wait_on_inode(inode);
+-		iput(inode);
+-		spin_lock(&inode_lock);
+-	}
+-}
+-
+ /*
+  * writeback and wait upon the filesystem's dirty inodes.  The caller will
+  * do this in two passes - one to write, and one to wait.  WB_SYNC_HOLD is
+@@ -384,8 +374,6 @@ void sync_inodes_sb(struct super_block *
+ 	spin_lock(&inode_lock);
+ 	sync_sb_inodes(NULL, sb, wait ? WB_SYNC_ALL : WB_SYNC_HOLD,
+ 				&nr_to_write, NULL);
+-	if (wait)
+-		__wait_on_locked(&sb->s_locked_inodes);
+ 	spin_unlock(&inode_lock);
+ }
+ 
+--- 2.5.32/fs/mpage.c~throttling-fix	Tue Aug 27 21:30:51 2002
++++ 2.5.32-akpm/fs/mpage.c	Tue Aug 27 21:30:51 2002
+@@ -599,9 +599,8 @@ mpage_writepages(struct address_space *m
+ 		write_lock(&mapping->page_lock);
  	}
+ 	/*
+-	 * Put the rest back, in the correct order.
++	 * Leave any remaining dirty pages on ->io_pages
+ 	 */
+-	list_splice_init(&mapping->io_pages, mapping->dirty_pages.prev);
+ 	write_unlock(&mapping->page_lock);
+ 	pagevec_deactivate_inactive(&pvec);
+ 	if (bio)
+--- 2.5.32/include/linux/fs.h~throttling-fix	Tue Aug 27 21:30:51 2002
++++ 2.5.32-akpm/include/linux/fs.h	Tue Aug 27 21:30:51 2002
+@@ -655,7 +655,6 @@ struct super_block {
  
-@@ -557,8 +557,8 @@ int add_to_page_cache(struct page *page,
- 	error = radix_tree_insert(&mapping->page_tree, offset, page);
- 	if (!error) {
- 		SetPageLocked(page);
--		ClearPageDirty(page);
- 		___add_to_page_cache(page, mapping, offset);
-+		ClearPageDirty(page);
- 	} else {
- 		page_cache_release(page);
+ 	struct list_head	s_dirty;	/* dirty inodes */
+ 	struct list_head	s_io;		/* parked for writeback */
+-	struct list_head	s_locked_inodes;/* inodes being synced */
+ 	struct list_head	s_anon;		/* anonymous dentries for (nfs) exporting */
+ 	struct list_head	s_files;
+ 
+--- 2.5.32/fs/inode.c~throttling-fix	Tue Aug 27 21:30:51 2002
++++ 2.5.32-akpm/fs/inode.c	Tue Aug 27 21:30:51 2002
+@@ -323,7 +323,6 @@ int invalidate_inodes(struct super_block
+ 	busy |= invalidate_list(&inode_unused, sb, &throw_away);
+ 	busy |= invalidate_list(&sb->s_dirty, sb, &throw_away);
+ 	busy |= invalidate_list(&sb->s_io, sb, &throw_away);
+-	busy |= invalidate_list(&sb->s_locked_inodes, sb, &throw_away);
+ 	spin_unlock(&inode_lock);
+ 
+ 	dispose_list(&throw_away);
+@@ -1000,11 +999,6 @@ void remove_dquot_ref(struct super_block
+ 		inode = list_entry(act_head, struct inode, i_list);
+ 		if (IS_QUOTAINIT(inode))
+ 			remove_inode_dquot_ref(inode, type, &tofree_head);
+-	}
+-	list_for_each(act_head, &sb->s_locked_inodes) {
+-		inode = list_entry(act_head, struct inode, i_list);
+-		if (IS_QUOTAINIT(inode))
+-			remove_inode_dquot_ref(inode, type, &tofree_head);
  	}
---- 2.5.32/fs/driverfs/inode.c~dirty-state-accounting	Tue Aug 27 21:32:05 2002
-+++ 2.5.32-akpm/fs/driverfs/inode.c	Tue Aug 27 21:32:05 2002
-@@ -32,6 +32,7 @@
- #include <linux/namei.h>
- #include <linux/module.h>
- #include <linux/slab.h>
-+#include <linux/backing-dev.h>
- #include <linux/driverfs_fs.h>
- 
- #include <asm/uaccess.h>
-@@ -56,6 +57,11 @@ static struct vfsmount *driverfs_mount;
- static spinlock_t mount_lock = SPIN_LOCK_UNLOCKED;
- static int mount_count = 0;
- 
-+static struct backing_dev_info driverfs_backing_dev_info = {
-+	.ra_pages	= 0,	/* No readahead */
-+	.memory_backed	= 1,	/* Does not contribute to dirty memory */
-+};
-+
- static int driverfs_readpage(struct file *file, struct page * page)
- {
- 	if (!PageUptodate(page)) {
-@@ -108,6 +114,7 @@ struct inode *driverfs_get_inode(struct 
- 		inode->i_rdev = NODEV;
- 		inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
- 		inode->i_mapping->a_ops = &driverfs_aops;
-+		inode->i_mapping->backing_dev_info = &driverfs_backing_dev_info;
- 		switch (mode & S_IFMT) {
- 		default:
- 			init_special_inode(inode, mode, dev);
---- 2.5.32/mm/shmem.c~dirty-state-accounting	Tue Aug 27 21:32:05 2002
-+++ 2.5.32-akpm/mm/shmem.c	Tue Aug 27 21:32:05 2002
-@@ -29,6 +29,7 @@
- #include <linux/string.h>
- #include <linux/slab.h>
- #include <linux/smp_lock.h>
-+#include <linux/backing-dev.h>
- #include <linux/shmem_fs.h>
- 
- #include <asm/uaccess.h>
-@@ -56,6 +57,11 @@ static struct inode_operations shmem_ino
- static struct inode_operations shmem_dir_inode_operations;
- static struct vm_operations_struct shmem_vm_ops;
- 
-+static struct backing_dev_info shmem_backing_dev_info = {
-+	.ra_pages	= 0,	/* No readahead */
-+	.memory_backed	= 1,	/* Does not contribute to dirty memory */
-+};
-+
- LIST_HEAD (shmem_inodes);
- static spinlock_t shmem_ilock = SPIN_LOCK_UNLOCKED;
- atomic_t shmem_nrpages = ATOMIC_INIT(0); /* Not used right now */
-@@ -789,6 +795,7 @@ struct inode *shmem_get_inode(struct sup
- 		inode->i_blocks = 0;
- 		inode->i_rdev = NODEV;
- 		inode->i_mapping->a_ops = &shmem_aops;
-+		inode->i_mapping->backing_dev_info = &shmem_backing_dev_info;
- 		inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
- 		info = SHMEM_I(inode);
- 		spin_lock_init (&info->lock);
---- 2.5.32/mm/swap_state.c~dirty-state-accounting	Tue Aug 27 21:32:05 2002
-+++ 2.5.32-akpm/mm/swap_state.c	Tue Aug 27 21:32:05 2002
-@@ -13,6 +13,7 @@
- #include <linux/init.h>
- #include <linux/pagemap.h>
- #include <linux/smp_lock.h>
-+#include <linux/backing-dev.h>
- #include <linux/buffer_head.h>	/* block_sync_page() */
- 
- #include <asm/pgtable.h>
-@@ -25,20 +26,26 @@ static struct inode swapper_inode = {
- 	.i_mapping	= &swapper_space,
- };
- 
-+static struct backing_dev_info swap_backing_dev_info = {
-+	.ra_pages	= 0,	/* No readahead */
-+	.memory_backed	= 1,	/* Does not contribute to dirty memory */
-+};
-+
- extern struct address_space_operations swap_aops;
- 
- struct address_space swapper_space = {
--	.page_tree	= RADIX_TREE_INIT(GFP_ATOMIC),
--	.page_lock	= RW_LOCK_UNLOCKED,
--	.clean_pages	= LIST_HEAD_INIT(swapper_space.clean_pages),
--	.dirty_pages	= LIST_HEAD_INIT(swapper_space.dirty_pages),
--	.io_pages	= LIST_HEAD_INIT(swapper_space.io_pages),
--	.locked_pages	= LIST_HEAD_INIT(swapper_space.locked_pages),
--	.host		= &swapper_inode,
--	.a_ops		= &swap_aops,
--	.i_shared_lock	= SPIN_LOCK_UNLOCKED,
--	.private_lock	= SPIN_LOCK_UNLOCKED,
--	.private_list	= LIST_HEAD_INIT(swapper_space.private_list),
-+	.page_tree		= RADIX_TREE_INIT(GFP_ATOMIC),
-+	.page_lock		= RW_LOCK_UNLOCKED,
-+	.clean_pages		= LIST_HEAD_INIT(swapper_space.clean_pages),
-+	.dirty_pages		= LIST_HEAD_INIT(swapper_space.dirty_pages),
-+	.io_pages		= LIST_HEAD_INIT(swapper_space.io_pages),
-+	.locked_pages		= LIST_HEAD_INIT(swapper_space.locked_pages),
-+	.host			= &swapper_inode,
-+	.a_ops			= &swap_aops,
-+	.backing_dev_info	= &swap_backing_dev_info,
-+	.i_shared_lock		= SPIN_LOCK_UNLOCKED,
-+	.private_lock		= SPIN_LOCK_UNLOCKED,
-+	.private_list		= LIST_HEAD_INIT(swapper_space.private_list),
- };
- 
- #define INC_CACHE_INFO(x)	do { swap_cache_info.x++; } while (0)
+ 	spin_unlock(&inode_lock);
+ 	unlock_kernel();
+--- 2.5.32/fs/super.c~throttling-fix	Tue Aug 27 21:30:51 2002
++++ 2.5.32-akpm/fs/super.c	Tue Aug 27 21:30:51 2002
+@@ -58,7 +58,6 @@ static struct super_block *alloc_super(v
+ 		}
+ 		INIT_LIST_HEAD(&s->s_dirty);
+ 		INIT_LIST_HEAD(&s->s_io);
+-		INIT_LIST_HEAD(&s->s_locked_inodes);
+ 		INIT_LIST_HEAD(&s->s_files);
+ 		INIT_LIST_HEAD(&s->s_instances);
+ 		INIT_LIST_HEAD(&s->s_anon);
 
 .

@@ -1,73 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265083AbSJRMxQ>; Fri, 18 Oct 2002 08:53:16 -0400
+	id <S265102AbSJRM7l>; Fri, 18 Oct 2002 08:59:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265089AbSJRMxQ>; Fri, 18 Oct 2002 08:53:16 -0400
-Received: from postfix4-1.free.fr ([213.228.0.62]:59616 "EHLO
-	postfix4-1.free.fr") by vger.kernel.org with ESMTP
-	id <S265083AbSJRMxP>; Fri, 18 Oct 2002 08:53:15 -0400
-To: Joe Thornber <joe@fib011235813.fsnet.co.uk>
-Subject: Re: block allocators and LVMs
-Message-ID: <1034946264.3db006d87c82c@imp.free.fr>
-Date: Fri, 18 Oct 2002 15:04:24 +0200 (CEST)
-From: christophe.varoqui@free.fr
-Cc: linux-kernel@vger.kernel.org
-References: <3DA24B4A0064C333@mel-rta8.wanadoo.fr> <20021018112617.GA1942@fib011235813.fsnet.co.uk>
-In-Reply-To: <20021018112617.GA1942@fib011235813.fsnet.co.uk>
+	id <S265103AbSJRM7l>; Fri, 18 Oct 2002 08:59:41 -0400
+Received: from iris.mc.com ([192.233.16.119]:60113 "EHLO mc.com")
+	by vger.kernel.org with ESMTP id <S265102AbSJRM7k>;
+	Fri, 18 Oct 2002 08:59:40 -0400
+Message-Id: <200210181305.JAA28085@mc.com>
+Content-Type: text/plain; charset=US-ASCII
+From: mbs <mbs@mc.com>
+To: "Randy.Dunlap" <rddunlap@osdl.org>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH 2/3] High-res-timers part 2 (x86 platform code) take 5.1
+Date: Fri, 18 Oct 2002 09:11:21 -0400
+X-Mailer: KMail [version 1.3.2]
+Cc: george anzinger <george@mvista.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.33L2.0210171453050.2499-100000@dragon.pdx.osdl.net>
+In-Reply-To: <Pine.LNX.4.33L2.0210171453050.2499-100000@dragon.pdx.osdl.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
-User-Agent: IMP/PHP IMAP webmail program 2.2.6
-X-Originating-IP: 171.16.0.177
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-En réponse à Joe Thornber <joe@fib011235813.fsnet.co.uk>: 
- 
-> Christophe, 
-> > the role of intelligent block allocators and/or online FS 
-> > defragmentation could be replaced by a block remapper in the 
-> > LVM subsystem. 
->  
-> Crazy idea :) 
->  
-> I think this is best left to the fs to handle, mainly because the 
-> blocks that the fs deals with are so small.  You would end up with 
-> *huge* remapping tables.  Also you would need to spend a lot of time 
-> collecting the information neccessary calculate the remapping, to do 
-> it properly you'd need to record an ordering of data acccesses not 
-> just io counts (ie. so you could build a Markov chain). 
->  
- 
-I realize I didn't pick the right words (from my poor English 
-dictionnary) : I meant an extend remapper rather than a block remapper. 
- 
-As far as I can see, this task can be done entirely from userland : 
- 
-o per-extend IO counters exported from kernel-space can be turned into 
-  a list of extends sorted by activity 
- 
-o lvdisplay-like tool gives the mapping extend<->physical blocks 
- 
-o a scheduled job in user-space should be able to massage this info to 
-  decide where to move low-access-rate-extends to the border of the 
-  platter and pack high-access-rate-extends together ... all in one run 
-  that can be scheduled at low activity period (cron defrag way) 
- 
-The algorithm could be something along the line of : 
- 
-while top_user_queue_not_empty 
-do 
-  extend = dequeue_lowest_user_extend 
-  if extend_in_good_spot 
-  then 
-    move_extend_to_corner_destination 
-    find_highest_user_extend_in_bad_spot 
-    move_this_extend_to_freed_good_spot 
-  fi 
-done 
- 
- 
-This sort of extend reordering is done in some big Storage Arrays like 
-StorageWorks EVA110 (as far as I know : they are very secretive on the 
-subject). 
+On Thursday 17 October 2002 17:54, Randy.Dunlap wrote:
+> On Wed, 9 Oct 2002, Linus Torvalds wrote:
+> | On Wed, 9 Oct 2002, george anzinger wrote:
+> | > This patch, in conjunction with the "core" high-res-timers
+> | > patch implements high resolution timers on the i386
+> | > platforms.
+> |
+> | I really don't get the notion of partial ticks, and quite frankly, this
+> | isn't going into my tree until some major distribution kicks me in the
+> | head and explains to me why the hell we have partial ticks instead of
+> | just making the ticks shorter.
+> | -
+
+because just making ticks shorter/more frequent just increases timer overhead 
+all the time whether you are actually doing anything requiring it or not. 
+this is a big waste of cpu cycles.
+
+using the partial tick method put forward by george, you only pay the price 
+for higher resolution timers WHEN YOU WANT TO.
+
+most things that want say 1usec precision dont want to do something EVERY us, 
+just something every now and then with 1us precision.  things like programs 
+that want to block for a 350 usec. but waiting 10 or even 1 msec would be too 
+long. 
+
+the timer overhead using fixed interval timers (as you suggest) to support 
+that occaisional 350 usec block would eat too much cpu to be practical.
+
+increasing timer frequency penalizes ALL users/processes with increased timer 
+overhead all the time for the benefit of the small number of tasks that need 
+better resolution.  the sub-jiffie/partial tick model only pays that price 
+when there is an actual timed event that needs to occur at that higher 
+resolution and the rest of the time the timer overhead remains as it is today 
+(which to my mind is 10 times what it needs to be, but that is an argument 
+for another day)
+
+embedded systems in particular need higher resolution and these types of 
+systems are precisely the systems that can't afford to multiply their timer 
+overhead by a factor of 10 or more (as increasing HZ to 1000 does).
+
+

@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269903AbRHEB6V>; Sat, 4 Aug 2001 21:58:21 -0400
+	id <S269896AbRHECRs>; Sat, 4 Aug 2001 22:17:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269902AbRHEB6L>; Sat, 4 Aug 2001 21:58:11 -0400
-Received: from draco.cus.cam.ac.uk ([131.111.8.18]:54473 "EHLO
-	draco.cus.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S269896AbRHEB55>; Sat, 4 Aug 2001 21:57:57 -0400
-Message-Id: <5.1.0.14.2.20010805025526.03553ec0@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Sun, 05 Aug 2001 02:58:07 +0100
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: Error when compiling 2.4.7ac6
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        kiwiunixman@yahoo.co.nz (Matthew Gardiner),
-        linux-kernel@vger.kernel.org (Mr Kernel Dude)
-In-Reply-To: <E15TCxJ-0005mH-00@the-village.bc.nu>
-In-Reply-To: <no.id>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S269897AbRHECRi>; Sat, 4 Aug 2001 22:17:38 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:1806 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S269896AbRHECRb>;
+	Sat, 4 Aug 2001 22:17:31 -0400
+Date: Sat, 4 Aug 2001 23:17:26 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: /proc/<n>/maps getting _VERY_ long
+In-Reply-To: <20010805034312.A18996@weta.f00f.org>
+Message-ID: <Pine.LNX.4.33L.0108042316430.2526-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 02:43 05/08/2001, Alan Cox wrote:
-> > It's quite funny gcc-2.96 doesn't give these warnings. Perhaps it sees 
-> that
-> > the defines are identical and shuts up?
+On Sun, 5 Aug 2001, Chris Wedgwood wrote:
+
+> Some time ago, the logic for merging VMAs was changing (simplified).
+> I noticed a couple of applications, specifically things seemed a bit
+> sluggish when running things that either grow slowly or use lots of
+> shared libraries:
 >
->They are actually not identical - the bracketing varies
+> cw:tty5@tapu(cw)$ wc -l /proc/1368/maps
+>    5287 /proc/1368/maps
 
-Oh, ok. I didn't know they hadn't been copied verbatim...
+Ouch, what kind of application is this happening with ?
 
-Anton
+regards,
 
+Rik
+--
+IA64: a worthy successor to i860.
 
--- 
-   "Nothing succeeds like success." - Alexandre Dumas
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
 

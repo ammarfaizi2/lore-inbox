@@ -1,37 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275811AbRJFWmd>; Sat, 6 Oct 2001 18:42:33 -0400
+	id <S275798AbRJFWqn>; Sat, 6 Oct 2001 18:46:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275808AbRJFWmX>; Sat, 6 Oct 2001 18:42:23 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:53777 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S275798AbRJFWmO>; Sat, 6 Oct 2001 18:42:14 -0400
-Subject: Re: %u-order allocation failed
-To: mikulas@artax.karlin.mff.cuni.cz
-Date: Sat, 6 Oct 2001 23:42:18 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), anton@samba.org (Anton Blanchard),
-        riel@conectiva.com.br (Rik van Riel),
-        kszysiu@main.braxis.co.uk (Krzysztof Rusocki), linux-xfs@oss.sgi.com,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.3.96.1011007002406.18004A-100000@artax.karlin.mff.cuni.cz> from "Mikulas Patocka" at Oct 07, 2001 12:31:27 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S275808AbRJFWqf>; Sat, 6 Oct 2001 18:46:35 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:55542
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S275798AbRJFWqV>; Sat, 6 Oct 2001 18:46:21 -0400
+Date: Sat, 6 Oct 2001 15:46:46 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: low-latency patches
+Message-ID: <20011006154646.D2625@mikef-linux.matchmail.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20011006010519.A749@draal.physics.wisc.edu> <1002407812.1915.21.camel@phantasy>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15q09C-0002X7-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <1002407812.1915.21.camel@phantasy>
+User-Agent: Mutt/1.3.22i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Nothing dangeorus there. The -ac vm isnt triggering these cases.
+On Sat, Oct 06, 2001 at 06:36:49PM -0400, Robert Love wrote:
+> On Sat, 2001-10-06 at 02:05, Bob McElrath wrote:
+> > 3) Is there a possibility that either of these will make it to non-x86
+> >     platforms?  (for me: alpha)  The second patch looks like it would
+> >     straightforwardly work on any arch, but the config.in for it is only in
+> >     arch/i386.  Robert Love's patches would need some arch-specific asm...
 > 
-> Sorry, but it can be triggered by _ANY_ VM since buddy allocator was
-> introduced. You have no guarantee, that you find two or more consecutive
-> free pages. And if you don't, poll() fails. 
+> Andrew's patch should work fine on all platforms, although I think the
+> configure statement is in the processor section so you will need to move
+> it to arch/alpha/config.in
+> 
+> The preemption patch has a small amount of arch-independent code but we
+> are working on supporting all architectures.  2.5...
+> 
 
-The two page case isnt one you need to worry about. To all intents and
-purposes it does not happen, and if you do the maths it isnt going to fail
-in any interesting ways. Once you go to the 4 page set the odds get a lot
-longer and then rapidly get very bad indeed,
+If you decide to provide support for PPC32 I'd be happy to test it on top of
+a benh or bitkeeper kernel tree.
 
-Alan
+Mike

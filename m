@@ -1,77 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129143AbRA3Elm>; Mon, 29 Jan 2001 23:41:42 -0500
+	id <S129631AbRA3Evy>; Mon, 29 Jan 2001 23:51:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129274AbRA3Eld>; Mon, 29 Jan 2001 23:41:33 -0500
-Received: from mlx3.unm.edu ([129.24.8.189]:24434 "HELO mlx3.unm.edu")
-	by vger.kernel.org with SMTP id <S129143AbRA3ElX>;
-	Mon, 29 Jan 2001 23:41:23 -0500
-Date: Mon, 29 Jan 2001 21:41:21 -0700 (MST)
-From: Todd <todd@unm.edu>
-To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] Dolphin PCI-SCI RPM Drivers 1.1-4 released
-In-Reply-To: <20010129164953.A15219@vger.timpanogas.org>
-Message-ID: <Pine.A41.4.31.0101292123270.54650-100000@aix06.unm.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129398AbRA3Evn>; Mon, 29 Jan 2001 23:51:43 -0500
+Received: from dandelion.com ([198.186.200.3]:33033 "EHLO dandelion.com")
+	by vger.kernel.org with ESMTP id <S129274AbRA3Ev2>;
+	Mon, 29 Jan 2001 23:51:28 -0500
+Date: Mon, 29 Jan 2001 20:51:15 -0800
+Message-Id: <200101300451.f0U4pFB14761@dandelion.com>
+From: "Leonard N. Zubkoff" <lnz@dandelion.com>
+To: rasmus@jaquet.dk
+CC: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+In-Reply-To: <20010129224838.I603@jaquet.dk> (message from Rasmus Andersen on
+	Mon, 29 Jan 2001 22:48:38 +0100)
+Subject: Re: [PATCH] drivers/scsi/BusLogic.c: No resource probing before pci_enable_device (241p11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-folx,
+  Date: Mon, 29 Jan 2001 22:48:38 +0100
+  From: Rasmus Andersen <rasmus@jaquet.dk>
 
-i must be missing something here.  i'm not aware of a PCI bus that only
-supports 70 MBps but i am probably ignorant.  this is why i was confused
-by jeff's performance numbers.  33MHz 32-bit PCI busses should do around
-120MB/s (just do the math 33*32/8 allowing for some overhead of PCI bus
-negotiation), much greater than the numbers jeff is reporting.  66 MHz
-64bit busses should do on the order of 500MB/s.
+  The following patch makes drivers/scsi/BusLogic.c wait with probing
+  pdev->irq and pdev->resource[] until we call pci_enable_device. This
+  is recommended due to hot-plug considerations (according to Jeff Garzik).
 
-the performance numbers that jeff is reporting are not very impressive
-even for the slowest PCI bus.  we're seeing 993 Mbps (124MB/s) using the
-alteon acenic gig-e cards on 32-bit cards on a 66MHz bus.  i would expect
-to get somewhat slower on a 33MHz bus but not catastrophically so
-(certainly nothing as slow as 60MB/s or 480Mb/s).
+  It applies against ac12 and 241p11.
 
-what am i misunderstanding here?
+  Comments?
 
-todd
+At a quick glance it looks reasonable to me.
 
-On Mon, 29 Jan 2001, Jeff V. Merkey wrote:
-
-> Date: Mon, 29 Jan 2001 16:49:53 -0700
-> From: Jeff V. Merkey <jmerkey@vger.timpanogas.org>
-> To: linux-kernel@vger.kernel.org
-> Cc: jmerkey@timpanogas.org
-> Subject: Re: [ANNOUNCE] Dolphin PCI-SCI RPM Drivers 1.1-4 released
->
->
-> Relative to some performance questions folks have asked, the SCI
-> adapters are limited by PCI bus speeds.  If your system supports
-> 64-bit PCI you get much higher numbers.  If you have a system
-> that supports 100+ Megabyte/second PCI throughput, the SCI
-> adapters will exploit it.
->
-> This test was performed in on a 32-bit PCI system with a PCI bus
-> architecture that's limited to 70 MB/S.
->
-> Jeff
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
->
-
-=========================================================
-Todd Underwood, todd@unm.edu
-
-criticaltv.com
-news, analysis and criticism.  about tv.
-and other stuff.
-
-=========================================================
-
+		Leonard
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,33 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265317AbRF0RWr>; Wed, 27 Jun 2001 13:22:47 -0400
+	id <S264923AbRF0RiM>; Wed, 27 Jun 2001 13:38:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265319AbRF0RWh>; Wed, 27 Jun 2001 13:22:37 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:56580 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S265317AbRF0RWW>; Wed, 27 Jun 2001 13:22:22 -0400
-Subject: Re: Patch(2.4.5): Fix PCMCIA ATA/IDE freeze (w/ PCI add-in cards)
-To: andre@aslab.com (Andre Hedrick)
-Date: Wed, 27 Jun 2001 18:21:59 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        Gunther.Mayer@t-online.de (Gunther Mayer),
-        linux-kernel@vger.kernel.org, dhinds@zen.stanford.edu
-In-Reply-To: <Pine.LNX.4.04.10106270927070.21460-100000@mail.aslab.com> from "Andre Hedrick" at Jun 27, 2001 09:54:06 AM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+	id <S265136AbRF0RiC>; Wed, 27 Jun 2001 13:38:02 -0400
+Received: from adsl-65-69-43-155.dsl.stlsmo.swbell.net ([65.69.43.155]:4480
+	"HELO sbox.labfire.com") by vger.kernel.org with SMTP
+	id <S264923AbRF0Rhq>; Wed, 27 Jun 2001 13:37:46 -0400
+Date: Wed, 27 Jun 2001 12:37:35 -0500
+From: Ian Wehrman <ian@labfire.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.5-ac19 appletalk unresolved symbols
+Message-ID: <20010627123735.A1013@labfire.com>
+Reply-To: ian@labfire.com
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15FJ0p-0005XC-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> obsoleting ATA-2 did their attention at CFA become alarmed.  I agree that
-> there needs to be a fix, but not at the price of locking the rest of the
-> driver.  Since we now the identity of the device prior to assigned the
-> interrupt we can handle the execption, but you do not go around blanket
-> wacking the control register of all devices.
+2.4.5-ac series (i'm not sure exactly when it started) shows unresolved
+symbols for the appletalk module:
 
-I dont see why it locks up the driver ?
+($:~)-> modprobe appletalk
+/lib/modules/2.4.5-ac19/kernel/net/appletalk/appletalk.o: unresolved symbol
+unregister_snap_client_R9abefc50
+/lib/modules/2.4.5-ac19/kernel/net/appletalk/appletalk.o: unresolved symbol
+register_snap_client_R3addf9f1
+/lib/modules/2.4.5-ac19/kernel/net/appletalk/appletalk.o: insmod
+/lib/modules/2.4.5-ac19/kernel/net/appletalk/appletalk.o failed
+/lib/modules/2.4.5-ac19/kernel/net/appletalk/appletalk.o: insmod appletalk
+failed
 
+thanks,
+ian wehrman
 
+-- 
+Labfire, Inc.
+Seamless Technical Solutions
+http://labfire.com/

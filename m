@@ -1,51 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267474AbRGLLUo>; Thu, 12 Jul 2001 07:20:44 -0400
+	id <S267479AbRGLLgJ>; Thu, 12 Jul 2001 07:36:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267475AbRGLLUe>; Thu, 12 Jul 2001 07:20:34 -0400
-Received: from www.wen-online.de ([212.223.88.39]:17683 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S267474AbRGLLUZ>;
-	Thu, 12 Jul 2001 07:20:25 -0400
-Date: Thu, 12 Jul 2001 13:19:28 +0200 (CEST)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: Steffen Persvold <sp@scali.no>
-cc: Ho Chak Hung <hunghochak@netscape.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: __alloc_pages 4 order allocation failed
-In-Reply-To: <3B4D527B.786F7461@scali.no>
-Message-ID: <Pine.LNX.4.33.0107121233050.332-100000@mikeg.weiden.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267482AbRGLLf7>; Thu, 12 Jul 2001 07:35:59 -0400
+Received: from mehl.gfz-potsdam.de ([139.17.1.100]:59797 "EHLO
+	mehl.gfz-potsdam.de") by vger.kernel.org with ESMTP
+	id <S267479AbRGLLfs> convert rfc822-to-8bit; Thu, 12 Jul 2001 07:35:48 -0400
+Date: Thu, 12 Jul 2001 13:35:44 +0200
+From: Steffen Grunewald <steffen@gfz-potsdam.de>
+To: linux-kernel@vger.kernel.org
+Subject: reiserfs error message
+Message-ID: <20010712133544.R10669@dss19>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-Disclaimer: I don't speak for no one else. And vice versa
+X-Operating-System: SunOS
+Content-Transfer-Encoding: 8BIT
+X-MIME-Autoconverted: from 8bit to quoted-printable by dss19.gfz-potsdam.de id NAA11267
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 Jul 2001, Steffen Persvold wrote:
+Should I worry about
 
-> Mike Galbraith wrote:
-> >
-> > On Wed, 11 Jul 2001, Ho Chak Hung wrote:
-> >
-> > > Hi,
-> > > but there isn't any call in the module to allocate 4 order pages. There are only calls to allocate 0 order pages. alloc_pages(GFP_KERNEL, 0)is the only call to allocate page in the whole module.
-> >
-> > Then it's not your module :)
-> >
-> > Some driver may be asking for order 4, but settling for less when
-> > that fails.
-> >
-> Why did this get worse on the 2.4 kernel ?. On 2.2 I always seemed to get my high order
-> allocations  and GFP_ATOMIC seldom failed when there was available memory.
+kernel: vs-13048: reiserfs_iget: key in inode [62743 393750 0 0] and key
+	in entry [62444 393750 0 0] do not match
 
-If 2.2 manages to service high order allocations better than 2.4, I'd
-say it must be due to dumb luck more than anything else.  If you keep
-most of your ram allocated (both 2.2 and 2.4 do), and don't do active
-defragmentation (neither does), it's a roll of the dice whether you
-have a contiguous chunk of ram to dole out or not.
+? This is SuSE 7.1 kernel 2.2.18, with automatic FTP updates.
 
-wrt GFP_ATOMIC failing when memory is available, that doesn't happen
-unless they are high order allocations.  If you mean caches when you
-say 'available', cache pages are not necessarily reclaimable at all,
-much less instantly as would be required to service atomic allocations.
-
-	-Mike
-
+Steffen
+-- 
+ Steffen Grunewald | GFZ | PB 2.2 | Telegrafenberg E3 | D-14473 Potsdam
+ » email: steffen(at)gfz-potsdam.de | fax/fon: +49-331-288-1266/-1245 «
+     Some people are walking under the SUN and believing in ORACLE.

@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132943AbRAVWqn>; Mon, 22 Jan 2001 17:46:43 -0500
+	id <S135333AbRAVWtD>; Mon, 22 Jan 2001 17:49:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131355AbRAVWqe>; Mon, 22 Jan 2001 17:46:34 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:5136 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S130794AbRAVWqV>;
-	Mon, 22 Jan 2001 17:46:21 -0500
-From: Russell King <rmk@arm.linux.org.uk>
-Message-Id: <200101222242.WAA00893@raistlin.arm.linux.org.uk>
-Subject: Re: Partition IDs in the New World TM
-To: clausen@conectiva.com.br (Andrew Clausen)
-Date: Mon, 22 Jan 2001 22:42:06 +0000 (GMT)
-Cc: linux-fsdevel@vger.kernel.org, bug-parted@gnu.org,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <3A6CB49E.75B8937D@conectiva.com.br> from "Andrew Clausen" at Jan 22, 2001 08:30:54 PM
-X-Location: london.england.earth.mulky-way.universe
-X-Mailer: ELM [version 2.5 PL3]
+	id <S131355AbRAVWsx>; Mon, 22 Jan 2001 17:48:53 -0500
+Received: from purplecoder.com ([206.64.99.91]:14053 "EHLO
+	gateway.purplecoder.com") by vger.kernel.org with ESMTP
+	id <S130794AbRAVWso>; Mon, 22 Jan 2001 17:48:44 -0500
+Message-ID: <3A6C6F74.4A022E12@purplecoder.com>
+Date: Mon, 22 Jan 2001 12:35:48 -0500
+From: Mark I Manning IV <mark4@purplecoder.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
+Subject: Re: Partition IDs in the New World TM
+In-Reply-To: <UTC200101222242.XAA202146.aeb@vlet.cwi.nl>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Clausen writes:
-> Why is this necessary?  Can't the RAID drivers probe the device for
-> signatures, the same way file systems do?
 
-One possible problem I can see here is to do with removal of RAID.  Think
-of a RAID-1 array (2 or more disks containing identical data).  The
-partition can be validly identified as an ext2 filesystem.  But wait, it
-has a RAID superblock at the end.
+On a system with nothing but linux installed does partitioning slow
+things down?  
 
-How do we know if this superblock is current or not?  After all, a mke2fs
-on the device won't remove it.  Yes, you could fill the partition with
-zeros and start again, or you could just change the partition ID.
+I have...
 
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+/dev/hda1     93309     27520     60972  32% /
+/dev/hda3   2885812   1042304   1696916  39% /usr
+/dev/hda5   4806904   1989612   2573108  44% /home
+/dev/hda6   4806904    913044   3649676  21% /var
+/dev/hda7   4806904   1345696   3217024  30% /home/ftp
+/dev/hda8   4806904   2170136   2392584  48%
+/home/ftp/debian/dists/potato
+/dev/hda9   4806904   1352776   3209944  30%
+/home/ftp/debian/dists/woody
+/dev/hda10  2284880    904832   1263980  42% /home/ftp/debian/pool
+/dev/hdb1   3844584    721632   2927656  20% /home/shared
+/dev/hdb2   3844616      4092   3645224   1% /home/ftp/debian/dists/sid
 
+plus hdb3 not yet mounted anywhere
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

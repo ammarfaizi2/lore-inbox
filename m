@@ -1,50 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261469AbVB0R7j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261457AbVB0RyP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261469AbVB0R7j (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Feb 2005 12:59:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261466AbVB0R6n
+	id S261457AbVB0RyP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Feb 2005 12:54:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261466AbVB0RxK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Feb 2005 12:58:43 -0500
-Received: from mx2.mail.ru ([194.67.23.122]:41556 "EHLO mx2.mail.ru")
-	by vger.kernel.org with ESMTP id S261469AbVB0R5A (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Feb 2005 12:57:00 -0500
-From: Alexey Dobriyan <adobriyan@mail.ru>
-To: Adrian Bunk <bunk@stusta.de>
-Subject: Re: Build failure of drivers/usb/gadget/ether.c
-Date: Sun, 27 Feb 2005 20:57:08 +0200
-User-Agent: KMail/1.6.2
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-References: <200502272021.54173.adobriyan@mail.ru> <20050227173726.GE6148@stusta.de>
-In-Reply-To: <20050227173726.GE6148@stusta.de>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sun, 27 Feb 2005 12:53:10 -0500
+Received: from smtp-100-sunday.nerim.net ([62.4.16.100]:5132 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S261457AbVB0RsP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Feb 2005 12:48:15 -0500
+Date: Sun, 27 Feb 2005 18:48:37 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: Pasi =?ISO-8859-1?Q?K=E4rkk=E4inen?= <pasik@iki.fi>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       LM Sensors <sensors@stimpy.netroedge.com>
+Subject: Re: [RFT] Preliminary w83627ehf hardware monitoring driver
+Message-Id: <20050227184837.2563a454.khali@linux-fr.org>
+In-Reply-To: <20050227131027.GM25818@edu.joroinen.fi>
+References: <20050226191142.6288b2ef.khali@linux-fr.org>
+	<20050227131027.GM25818@edu.joroinen.fi>
+Reply-To: LM Sensors <sensors@stimpy.netroedge.com>,
+       LKML <linux-kernel@vger.kernel.org>
+X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200502272057.08122.adobriyan@mail.ru>
-X-Spam: Not detected
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 27 February 2005 19:37, Adrian Bunk wrote:
-> On Sun, Feb 27, 2005 at 08:21:54PM +0200, Alexey Dobriyan wrote:
-> 
-> > FYI, allyesconfig on sparc gives:
-> > 
-> >   CC      drivers/usb/gadget/ether.o
-> > drivers/usb/gadget/ether.c: In function `eth_bind':
-> > drivers/usb/gadget/ether.c:2418: error: `control_intf' undeclared (first use in this function)
-> > drivers/usb/gadget/ether.c:2418: error: (Each undeclared identifier is reported only once
-> > drivers/usb/gadget/ether.c:2418: error: for each function it appears in.)
-> > make[3]: *** [drivers/usb/gadget/ether.o] Error 1
-> 
-> You didn't mention which kernel version you are using and didn't send 
-> your .config .
-> 
-> But this looks like an issue already fixed in Greg's tree.
-> Can you confirm it's fixed in 2.6.11-rc4-mm1?
+Hi Pasi,
 
-Indeed fixed.
+> Do you know about driver for W83627THF watchdog? I'm using Supermicro
+> P8SCI motherboard, and I haven't found working driver for it..
 
-	Alexey
+Have you tried w83627hf_wdt? I took a quick look at the W83627HF and
+W83627THF datasheets and watchdog timer seems to work identically. Since
+the driver doesn't seem to identify the chip (it probably should, BTW),
+I'd expect it to work.
+
+Hope that helps,
+-- 
+Jean Delvare

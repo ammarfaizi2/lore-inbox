@@ -1,143 +1,184 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262226AbUDXMNT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262213AbUDXMTS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262226AbUDXMNT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Apr 2004 08:13:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262217AbUDXMNR
+	id S262213AbUDXMTS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Apr 2004 08:19:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262217AbUDXMTS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Apr 2004 08:13:17 -0400
-Received: from web10102.mail.yahoo.com ([216.136.130.52]:32276 "HELO
-	web10102.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262213AbUDXMNL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Apr 2004 08:13:11 -0400
-Message-ID: <20040424121310.83586.qmail@web10102.mail.yahoo.com>
-Date: Sat, 24 Apr 2004 05:13:10 -0700 (PDT)
-From: Oliver Heilmann <heilmano@yahoo.com>
-Subject: Re: [PATCH] SIS AGP clean up, blacklist and module options
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20040423225938.57650.qmail@web10105.mail.yahoo.com>
+	Sat, 24 Apr 2004 08:19:18 -0400
+Received: from cpc3-oxfd2-6-0-cust100.oxfd.cable.ntl.com ([81.103.193.100]:25606
+	"EHLO fluffy.bear-cave.org.uk") by vger.kernel.org with ESMTP
+	id S262213AbUDXMTM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Apr 2004 08:19:12 -0400
+Message-ID: <XFMail.20040424131904.jim.hague@acm.org>
+X-Mailer: XFMail 1.5.4 on Linux
+X-Priority: 3 (Normal)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="0-959363163-1082808790=:83545"
+In-Reply-To: <Pine.LNX.4.44.0404240006310.5826-100000@phoenix.infradead.org>
+Date: Sat, 24 Apr 2004 13:19:04 +0100 (BST)
+X-Face: #e_3/{lz7I8PY]c%cr|7\sfMTD|Ar*F0e~U%InA`aG0^}hG2hT`H9Lr=R?Nl,9-cP)_o}BN
+ DAB"m_&V"ntfjv%6q30^]Q\<YL5[mLMi"X_qm`eA^AA?-SC>NTny77`@0?P@FpO{b*dM409XvO$kmP
+ [~W=-Cm~|#49QE;@'K}LGK}??aD=>|x=B:n6"`}!9FIrtfOx%`hTC5#VFORluPrtN_#-_6b,Cu^NF|
+ :D=97AFz\(mw=K
+Organization: The Bear Cave
+From: Jim Hague <jim.hague@acm.org>
+To: James Simmons <jsimmons@infradead.org>
+Subject: Re: [PATCH]: Fix NULL-ptr dereference in pm2fb_probe
+Cc: linux-kernel@vger.kernel.org, Patrick McHardy <kaber@trash.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---0-959363163-1082808790=:83545
-Content-Type: text/plain; charset=us-ascii
-Content-Id: 
-Content-Disposition: inline
+On 23-Apr-2004 James Simmons wrote:
+> Okay I seen alot of patches going around. So the patch doesn't get lost 
+> can someone send me the final patch. I can then forward it to Andrew.
 
-Sorry, I'm not used to using yahoo webmail. It
-stupidly wrapped all the lines. Patch vs 2.6.5. is
-attached.
-
-Oliver
+This patch (against 2.6.6-rc1) please. It fixes the NULL pointer dereference
+and also a problem in pm2fb_blank().
 
 
-	
-		
-__________________________________
-Do you Yahoo!?
-Yahoo! Photos: High-quality 4x6 digital prints for 25¢
-http://photos.yahoo.com/ph/print_splash
---0-959363163-1082808790=:83545
-Content-Type: text/x-diff; name="sis-agp.patch"
-Content-Description: sis-agp.patch
-Content-Disposition: inline; filename="sis-agp.patch"
-
---- drivers/char/agp/sis-agp.c.orig	2004-04-23 23:14:35.000000000 +0100
-+++ drivers/char/agp/sis-agp.c	2004-04-23 19:51:46.000000000 +0100
-@@ -13,6 +13,8 @@
- #define SIS_TLBCNTRL	0x97
- #define SIS_TLBFLUSH	0x98
+===== pm2fb.c 1.25 vs 1.26 =====
+--- 1.25/drivers/video/pm2fb.c  Fri Apr 16 17:30:02 2004
++++ 1.26/drivers/video/pm2fb.c  Wed Apr 21 00:26:58 2004
+@@ -63,6 +63,16 @@
+ #endif
  
-+static int __devinitdata agp_sis_force_delay = 0;
-+static int __devinitdata agp_sis_agp_spec = -1;
- 
- static int sis_fetch_size(void)
- {
-@@ -67,7 +69,7 @@ static void sis_cleanup(void)
- 			      (previous_size->size_value & ~(0x03)));
+ /*
++ * The 2.4 driver calls reset_card() at init time, where it also sets the
++ * initial mode. I don't think the driver should touch the chip until
++ * the console sets a video mode. So I was calling this at the start
++ * of setting a mode. However, certainly on 1280x1024 depth 16 on my
++ * PCI Graphics Blaster Exxtreme this causes the display to smear
++ * slightly.  I don't know why. Guesses to jim.hague@acm.org.
++ */
++#undef RESET_CARD_ON_MODE_SET
++
++/*
+  * Driver data 
+  */
+ static char *mode __initdata = NULL;
+@@ -340,16 +350,7 @@
+        }
  }
  
--static void sis_648_enable(u32 mode)
-+static void sis_delayed_enable(u32 mode)
+-#if 0
+-/*
+- * FIXME:
+- * The 2.4 driver calls this at init time, where it also sets the
+- * initial mode. I don't think the driver should touch the chip
+- * until the console sets a video mode. So I was calling this
+- * at the start of setting a mode. However, certainly on 1280x1024
+- * depth 16 this causes the display to smear slightly.
+- * I don't know why. Guesses to jim.hague@acm.org.
+- */
++#ifdef RESET_CARD_ON_MODE_SET
+ static void reset_card(struct pm2fb_par* p)
  {
- 	struct pci_dev *device = NULL;
- 	u32 command;
-@@ -93,10 +95,13 @@ static void sis_648_enable(u32 mode)
+        if (p->type == PM2_TYPE_PERMEDIA2V)
+@@ -501,6 +502,8 @@
+        u32 vsync;
  
- 		pci_write_config_dword(device, agp + PCI_AGP_COMMAND, command);
- 
--		if(device->device == PCI_DEVICE_ID_SI_648) {
--			// weird: on 648 and 648fx chipsets any rate change in the target command register
--			// triggers a 5ms screwup during which the master cannot be configured
--			printk(KERN_INFO PFX "sis 648 agp fix - giving bridge time to recover\n");
-+		/*
-+		 * Weird: on some sis chipsets any rate change in the target
-+		 * command register triggers a 5ms screwup during which the master
-+		 * cannot be configured		 
-+		 */
-+		if (device->device == agp_bridge->dev->device) {
-+			printk(KERN_INFO PFX "SiS delay workaround: giving bridge time to recover.\n");
- 			set_current_state(TASK_UNINTERRUPTIBLE);
- 			schedule_timeout (1+(HZ*10)/1000);
- 		}
-@@ -219,21 +224,35 @@ static struct agp_device_ids sis_agp_dev
- };
- 
- 
-+// chipsets that require the 'delay hack'
-+static int sis_broken_chipsets[] __devinitdata = {
-+	PCI_DEVICE_ID_SI_648,
-+	PCI_DEVICE_ID_SI_746,
-+	0 // terminator
-+};
+        vsync = video;
 +
- static void __devinit sis_get_driver(struct agp_bridge_data *bridge)
- {
--	if (bridge->dev->device == PCI_DEVICE_ID_SI_648) {
--		if (agp_bridge->major_version == 3 && agp_bridge->minor_version < 5) {
--			sis_driver.agp_enable=sis_648_enable;
--		} else {
--			sis_driver.agp_enable			= sis_648_enable;
--			sis_driver.aperture_sizes		= agp3_generic_sizes;
--			sis_driver.size_type			= U16_APER_SIZE;
--			sis_driver.num_aperture_sizes	= AGP_GENERIC_SIZES_ENTRIES;
--			sis_driver.configure			= agp3_generic_configure;
--			sis_driver.fetch_size			= agp3_generic_fetch_size;
--			sis_driver.cleanup				= agp3_generic_cleanup;
--			sis_driver.tlb_flush			= agp3_generic_tlbflush;
--		}
-+	int i;
-+
-+	for(i=0; sis_broken_chipsets[i]!=0; ++i)
-+		if(bridge->dev->device==sis_broken_chipsets[i])
-+			break;
-+	
-+	if(sis_broken_chipsets[i] || agp_sis_force_delay)
-+		sis_driver.agp_enable=sis_delayed_enable;
-+
-+	// sis chipsets that indicate less than agp3.5
-+	// are not actually fully agp3 compliant
-+	if ((agp_bridge->major_version == 3 && agp_bridge->minor_version >= 5
-+	     && agp_sis_agp_spec!=0) || agp_sis_agp_spec==1) {
-+		sis_driver.aperture_sizes = agp3_generic_sizes;
-+		sis_driver.size_type = U16_APER_SIZE;
-+		sis_driver.num_aperture_sizes = AGP_GENERIC_SIZES_ENTRIES;
-+		sis_driver.configure = agp3_generic_configure;
-+		sis_driver.fetch_size = agp3_generic_fetch_size;
-+		sis_driver.cleanup = agp3_generic_cleanup;
-+		sis_driver.tlb_flush = agp3_generic_tlbflush;
- 	}
++       DPRINTK("video = 0x%x\n", video);
+        
+        /*
+         * The hardware cursor needs +vsync to recognise vert retrace.
+@@ -660,6 +663,9 @@
+        u32 xres;
+        int data64;
+ 
++#ifdef RESET_CARD_ON_MODE_SET
++       reset_card(par);
++#endif 
+        reset_config(par);
+        clear_palette(par);
+     
+@@ -721,8 +727,7 @@
+ 
+        info->fix.visual =
+                (depth == 8) ? FB_VISUAL_PSEUDOCOLOR : FB_VISUAL_TRUECOLOR;
+-       info->fix.line_length =
+-               info->var.xres * ((info->var.bits_per_pixel + 7) >> 3);
++       info->fix.line_length = info->var.xres * depth / 8;
+        info->cmap.len = 256;
+ 
+        /*
+@@ -803,6 +808,8 @@
+                break;
+        }
+        set_pixclock(par, pixclock);
++       DPRINTK("Setting graphics mode at %dx%d depth %d\n",
++               info->var.xres, info->var.yres, info->var.bits_per_pixel);
+        return 0;       
  }
  
-@@ -324,4 +343,8 @@ static void __exit agp_sis_cleanup(void)
- module_init(agp_sis_init);
- module_exit(agp_sis_cleanup);
+@@ -843,7 +850,8 @@
+         *   var->{color}.offset contains start of bitfield
+         *   var->{color}.length contains length of bitfield
+         *   {hardwarespecific} contains width of DAC
+-        *   cmap[X] is programmed to (X << red.offset) | (X << green.offset) | 
+(X << blue.offset)
++        *   cmap[X] is programmed to
++        *   (X << red.offset) | (X << green.offset) | (X << blue.offset)
+         *   RAMDAC[X] is programmed to (red, green, blue)
+         *
+         * Pseudocolor:
+@@ -856,8 +864,9 @@
+         *    does not use RAMDAC (usually has 3 of them).
+         *    var->{color}.offset contains start of bitfield
+         *    var->{color}.length contains length of bitfield
+-        *    cmap is programmed to (red << red.offset) | (green << green.offset
+) |
+-        *                      (blue << blue.offset) | (transp << transp.offset
+)
++        *    cmap is programmed to
++        *    (red << red.offset) | (green << green.offset) |
++        *    (blue << blue.offset) | (transp << transp.offset)
+         *    RAMDAC does not exist
+         */
+ #define CNVT_TOHW(val,width) ((((val)<<(width))+0x7FFF-(val))>>16)
+@@ -962,6 +971,11 @@
+        struct pm2fb_par *par = (struct pm2fb_par *) info->par;
+        u32 video = par->video;
  
-+MODULE_PARM(agp_sis_force_delay,"i");
-+MODULE_PARM_DESC(agp_sis_force_delay,"forces sis delay hack");
-+MODULE_PARM(agp_sis_agp_spec,"i");
-+MODULE_PARM_DESC(agp_sis_agp_spec,"0=force sis init, 1=force generic agp3 init, default: autodetect");
- MODULE_LICENSE("GPL and additional rights");
++       DPRINTK("blank_mode %d\n", blank_mode);
++
++       /* Turn everything on, then disable as requested. */
++       video |= (PM2F_VIDEO_ENABLE | PM2F_HSYNC_MASK | PM2F_VSYNC_MASK);
++
+        switch (blank_mode) {
+        case 0:         /* Screen: On; HSync: On, VSync: On */
+                break;
+@@ -1030,15 +1044,12 @@
+                return err;
+        }
+ 
+-       size = sizeof(struct fb_info) + sizeof(struct pm2fb_par) + 256 * sizeof(
+u32);
+-
++       size = sizeof(struct pm2fb_par) + 256 * sizeof(u32);
+        info = framebuffer_alloc(size, &pdev->dev);
+        if ( !info )
+                return -ENOMEM;
+-       memset(info, 0, size);
+-    
+-       default_par = info->par;
+- 
++       default_par = (struct pm2fb_par *) info->par;
++
+        switch (pdev->device) {
+        case  PCI_DEVICE_ID_TI_TVP4020:
+                strcpy(pm2fb_fix.id, "TVP4020");
+@@ -1112,7 +1123,6 @@
+ 
+        info->fbops             = &pm2fb_ops;
+        info->fix               = pm2fb_fix;    
+-       info->par               = default_par;
+        info->pseudo_palette    = (void *)(default_par + 1); 
+        info->flags             = FBINFO_FLAG_DEFAULT;
+ 
 
---0-959363163-1082808790=:83545--
+
+-- 
+Jim Hague - jim.hague@acm.org          Never trust a computer you can't lift.

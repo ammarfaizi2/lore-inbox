@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262838AbUACJHR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jan 2004 04:07:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262960AbUACJEy
+	id S265932AbUACJHS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jan 2004 04:07:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265937AbUACJFs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jan 2004 04:04:54 -0500
-Received: from smtp803.mail.sc5.yahoo.com ([66.163.168.182]:59246 "HELO
-	smtp803.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S265932AbUACJEM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jan 2004 04:04:12 -0500
+	Sat, 3 Jan 2004 04:05:48 -0500
+Received: from smtp814.mail.sc5.yahoo.com ([66.163.170.84]:41873 "HELO
+	smtp814.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S265939AbUACJEU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jan 2004 04:04:20 -0500
 From: Dmitry Torokhov <dtor_core@ameritech.net>
 To: Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: [PATCH 2/7] i8042 option parsing
-Date: Sat, 3 Jan 2004 03:57:43 -0500
+Subject: Re: [PATCH 4/7] atkbd option parsing
+Date: Sat, 3 Jan 2004 04:01:34 -0500
 User-Agent: KMail/1.5.4
 Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <200401030350.43437.dtor_core@ameritech.net> <200401030356.48071.dtor_core@ameritech.net>
-In-Reply-To: <200401030356.48071.dtor_core@ameritech.net>
+References: <200401030350.43437.dtor_core@ameritech.net> <200401030357.44852.dtor_core@ameritech.net> <200401030400.55755.dtor_core@ameritech.net>
+In-Reply-To: <200401030400.55755.dtor_core@ameritech.net>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200401030357.44852.dtor_core@ameritech.net>
+Message-Id: <200401030401.35798.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 ===================================================================
 
 
-ChangeSet@1.1572, 2004-01-02 02:46:43-05:00, dtor_core@ameritech.net
-  Input: With Vojtech's approval adjusted i8042 option names by
-         dropping i8042_ prefix.
-  
-         If i8042 is compiled as a module new option names are:
-         direct, dumbkbd, noaux, nomux, reset, unlock
-  
-         If i8042 is build in the kernel the prefix "i8042." is
-         required in front of an option, like "i8042.reset"
+ChangeSet@1.1574, 2004-01-03 02:45:27-05:00, dtor_core@ameritech.net
+  Input: converted atkbd to the new style of option parsing.
+         If compiled as a module new option names are:
+         set, softrepeat, reset.
+         If built into the kernel options must be prepended
+         with "atkbd." prefix, like "atkbd.softrepeat"
 
 
- Documentation/kernel-parameters.txt |   16 +++++++++-------
- drivers/input/serio/i8042.c         |   18 ++++++++++++------
- 2 files changed, 21 insertions(+), 13 deletions(-)
+ Documentation/kernel-parameters.txt |    7 +++---
+ drivers/input/keyboard/atkbd.c      |   40 ++++++++----------------------------
+ 2 files changed, 13 insertions(+), 34 deletions(-)
 
 
 ===================================================================
@@ -50,66 +47,93 @@ ChangeSet@1.1572, 2004-01-02 02:46:43-05:00, dtor_core@ameritech.net
 
 
 diff -Nru a/Documentation/kernel-parameters.txt b/Documentation/kernel-parameters.txt
---- a/Documentation/kernel-parameters.txt	Sat Jan  3 03:08:12 2004
-+++ b/Documentation/kernel-parameters.txt	Sat Jan  3 03:08:12 2004
-@@ -372,13 +372,15 @@
+--- a/Documentation/kernel-parameters.txt	Sat Jan  3 03:09:00 2004
++++ b/Documentation/kernel-parameters.txt	Sat Jan  3 03:09:00 2004
+@@ -153,10 +153,11 @@
  
- 	noirqbalance	[IA-32,SMP,KNL] Disable kernel irq balancing
+ 	atascsi=	[HW,SCSI] Atari SCSI
  
--	i8042_direct	[HW] Keyboard has been put into non-translated mode 
--			by BIOS
--	i8042_dumbkbd	[HW] Don't attempt to blink the leds
--	i8042_noaux	[HW] Don't check for auxiliary (== mouse) port
--	i8042_nomux
--	i8042_reset	[HW] Reset the controller during init and cleanup
--	i8042_unlock	[HW] Unlock (ignore) the keylock
-+	i8042.direct	[HW] Put keyboard port into non-translated mode 
-+	i8042.dumbkbd	[HW] Pretend that controlled can only read data from
-+			     keyboard and can not control its state
-+			     (Don't attempt to blink the leds)
-+	i8042.noaux	[HW] Don't check for auxiliary (== mouse) port
-+	i8042.nomux	[HW] Don't check presence of an active multiplexing
-+			     controller
-+	i8042.reset	[HW] Reset the controller during init and cleanup
-+	i8042.unlock	[HW] Unlock (ignore) the keylock
+-	atkbd_set=	[HW] Select keyboard code set
++	atkbd.set=	[HW] Select keyboard code set
+ 			Format: <int>
+-
+-	atkbd_reset	[HW] Reset keyboard during initialization
++	atkbd.softrepeat=
++			[HW] Use software keyboard repeat
++	atkbd.reset=	[HW] Reset keyboard during initialization
  
- 	i810=		[HW,DRM]
+ 	autotest	[IA64]
  
-diff -Nru a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
---- a/drivers/input/serio/i8042.c	Sat Jan  3 03:08:12 2004
-+++ b/drivers/input/serio/i8042.c	Sat Jan  3 03:08:12 2004
-@@ -29,22 +29,28 @@
+diff -Nru a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
+--- a/drivers/input/keyboard/atkbd.c	Sat Jan  3 03:09:00 2004
++++ b/drivers/input/keyboard/atkbd.c	Sat Jan  3 03:09:00 2004
+@@ -19,6 +19,7 @@
+ 
+ #include <linux/delay.h>
+ #include <linux/module.h>
++#include <linux/moduleparam.h>
+ #include <linux/slab.h>
+ #include <linux/interrupt.h>
+ #include <linux/init.h>
+@@ -29,18 +30,23 @@
+ 
+ MODULE_AUTHOR("Vojtech Pavlik <vojtech@suse.cz>");
+ MODULE_DESCRIPTION("AT and PS/2 keyboard driver");
+-MODULE_PARM(atkbd_set, "1i");
+-MODULE_PARM(atkbd_reset, "1i");
+-MODULE_PARM(atkbd_softrepeat, "1i");
  MODULE_LICENSE("GPL");
  
- static unsigned int i8042_noaux;
--module_param(i8042_noaux, bool, 0);
-+module_param_named(noaux, i8042_noaux, bool, 0);
-+MODULE_PARM_DESC(noaux, "Do not probe or use AUX (mouse) port.");
+ static int atkbd_set = 2;
++module_param_named(set, atkbd_set, int, 0);
++MODULE_PARM_DESC(set, "Select keyboard code set (2 = default, 3, 4)");
++
+ #if defined(__i386__) || defined (__x86_64__)
+ static int atkbd_reset;
+ #else
+ static int atkbd_reset = 1;
+ #endif
++module_param_named(reset, atkbd_reset, bool, 0);
++MODULE_PARM_DESC(reset, "Reset keyboard during initialization");
++
+ static int atkbd_softrepeat;
++module_param_named(softrepeat, atkbd_softrepeat, bool, 0);
++MODULE_PARM_DESC(softrepeat, "Use software keyboard repeat");
  
- static unsigned int i8042_nomux;
--module_param(i8042_nomux, bool, 0);
-+module_param_named(nomux, i8042_nomux, bool, 0);
-+MODULE_PARM_DESC(nomux, "Do not check whether an active multiplexing conrtoller is present.");
+ /*
+  * Scancode to keycode tables. These are just the default setting, and
+@@ -759,34 +765,6 @@
+ 	.disconnect =	atkbd_disconnect,
+ 	.cleanup =	atkbd_cleanup,
+ };
+-
+-#ifndef MODULE
+-static int __init atkbd_setup_set(char *str)
+-{
+-        int ints[4];
+-        str = get_options(str, ARRAY_SIZE(ints), ints);
+-        if (ints[0] > 0) atkbd_set = ints[1];
+-        return 1;
+-}
+-static int __init atkbd_setup_reset(char *str)
+-{
+-        int ints[4];
+-        str = get_options(str, ARRAY_SIZE(ints), ints);
+-        if (ints[0] > 0) atkbd_reset = ints[1];
+-        return 1;
+-}
+-static int __init atkbd_setup_softrepeat(char *str)
+-{
+-        int ints[4];
+-        str = get_options(str, ARRAY_SIZE(ints), ints);
+-        if (ints[0] > 0) atkbd_softrepeat = ints[1];
+-        return 1;
+-}
+-
+-__setup("atkbd_set=", atkbd_setup_set);
+-__setup("atkbd_reset", atkbd_setup_reset);
+-__setup("atkbd_softrepeat=", atkbd_setup_softrepeat);
+-#endif
  
- static unsigned int i8042_unlock;
--module_param(i8042_unlock, bool, 0);
-+module_param_named(unlock, i8042_unlock, bool, 0);
-+MODULE_PARM_DESC(unlock, "Ignore keyboard lock.");
- 
- static unsigned int i8042_reset;
--module_param(i8042_reset, bool, 0);
-+module_param_named(reset, i8042_reset, bool, 0);
-+MODULE_PARM_DESC(reset, "Reset controller during init and cleanup.");
- 
- static unsigned int i8042_direct;
--module_param(i8042_direct, bool, 0);
-+module_param_named(direct, i8042_direct, bool, 0);
-+MODULE_PARM_DESC(direct, "Put keyboard port into non-translated mode.");
- 
- static unsigned int i8042_dumbkbd;
--module_param(i8042_dumbkbd, bool, 0);
-+module_param_named(dumbkbd, i8042_dumbkbd, bool, 0);
-+MODULE_PARM_DESC(dumbkbd, "Pretend that controller can only read data from keyboard");
- 
- #undef DEBUG
- #include "i8042.h"
+ int __init atkbd_init(void)
+ {

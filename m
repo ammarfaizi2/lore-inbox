@@ -1,40 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129540AbRCBWAJ>; Fri, 2 Mar 2001 17:00:09 -0500
+	id <S129537AbRCBVxs>; Fri, 2 Mar 2001 16:53:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129546AbRCBV77>; Fri, 2 Mar 2001 16:59:59 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:33668 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S129540AbRCBV7z>;
-	Fri, 2 Mar 2001 16:59:55 -0500
-From: "David S. Miller" <davem@redhat.com>
+	id <S129540AbRCBVxj>; Fri, 2 Mar 2001 16:53:39 -0500
+Received: from [208.204.44.103] ([208.204.44.103]:54277 "EHLO
+	warpcore.provalue.net") by vger.kernel.org with ESMTP
+	id <S129537AbRCBVxX>; Fri, 2 Mar 2001 16:53:23 -0500
+Date: Fri, 2 Mar 2001 15:03:30 -0600 (CST)
+From: Collectively Unconscious <swarm@warpcore.provalue.net>
+To: linux-kernel@vger.kernel.org
+Subject: I/O problem with sustained writes
+In-Reply-To: <3AA00D5A.44FA21D0@mandrakesoft.com>
+Message-ID: <Pine.LNX.4.10.10103021455500.29369-100000@warpcore.provalue.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15008.6084.410042.53699@pizda.ninka.net>
-Date: Fri, 2 Mar 2001 13:59:32 -0800 (PST)
-To: Jim Woodward <jim@jim.southcom.com.au>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.2 TCP window shrinking
-In-Reply-To: <Pine.LNX.4.33.0103030426210.12977-100000@jim.southcom.com.au>
-In-Reply-To: <Pine.LNX.4.33.0103030426210.12977-100000@jim.southcom.com.au>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+We are having a problem with writes.
+They start at 14 M/s for the first hour and then drop to 2.5 M/s and stay
+that way. Reads do not seem effected and we've noticed this on the 2.2.16,
+2.2.17, 2.2.18 and now the 2.2.19pre11 kernels.
 
-Jim Woodward writes:
- > This has probably been covered but I saw this message in my logs and
- > wondered what it meant?
- > 
- > TCP: peer xxx.xxx.1.11:41154/80 shrinks window 2442047470:1072:2442050944.
- > Bad, what else can I say?
- > 
- > Is it potentially bad? - Ive only ever seen it twice with 2.4.x
+These are SMP P-IIIs from 450 to 800 MHz. Redhat 6.2
 
-We need desperately to know exactly what OS the xxx.xxx.1.14 machine
-is running.  Because you've commented out the first two octets, I
-cannot check this myself using nmap.
+Jay
 
-Later,
-David S. Miller
-davem@redhat.com

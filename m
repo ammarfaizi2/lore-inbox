@@ -1,106 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265982AbUAKUgi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jan 2004 15:36:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265983AbUAKUgi
+	id S265977AbUAKUfh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jan 2004 15:35:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265978AbUAKUfg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jan 2004 15:36:38 -0500
-Received: from smtp5.wanadoo.fr ([193.252.22.26]:23212 "EHLO
-	mwinf0503.wanadoo.fr") by vger.kernel.org with ESMTP
-	id S265982AbUAKUga (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jan 2004 15:36:30 -0500
-Date: Sun, 11 Jan 2004 21:30:37 +0100
-From: claude parisot <Claude.PARISOT@wanadoo.fr>
-To: linux-kernel@vger.kernel.org
-Cc: Claude.PARISOT@wanadoo.fr
-Subject: kernel-freeze by mounting  a cdrom
-Message-Id: <20040111213037.323edc24.Claude.PARISOT@wanadoo.fr>
-Reply-To: Claude.PARISOT@wanadoo.fr
-Organization: none
-X-Mailer: Sylpheed version 0.9.6claws (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 11 Jan 2004 15:35:36 -0500
+Received: from mail.bluebottle.com ([69.20.6.25]:53935 "EHLO mail.bluebottle")
+	by vger.kernel.org with ESMTP id S265977AbUAKUf1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jan 2004 15:35:27 -0500
+Date: Sun, 11 Jan 2004 18:35:21 -0200 (BRST)
+From: =?ISO-8859-1?Q?Fr=E9d=E9ric_L=2E_W=2E_Meunier?= <1@pervalidus.net>
+X-X-Sender: fredlwm@pervalidus.dyndns.org
+To: Murilo Pontes <murilo_pontes@yahoo.com.br>
+cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
+Subject: Re: BUG: The key "/ ?" on my abtn2 keyboard is dead with kernel
+ 2.6.1
+In-Reply-To: <200401111545.59290.murilo_pontes@yahoo.com.br>
+Message-ID: <Pine.LNX.4.58.0401111831070.342@pervalidus.dyndns.org>
+References: <200401111545.59290.murilo_pontes@yahoo.com.br>
+X-Archive: encrypt
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 11 Jan 2004, Murilo Pontes wrote:
 
+>
+> 15:34:36 [root@murilo:/MRX/drivers]#diff -urN linux-2.6.0/drivers/input/keyboard/atkbd.c linux-2.6.1/drivers/input/keyboard/atkbd.c > test.diff
+> 15:35:12 [root@murilo:/MRX/drivers]#wc -l test.diff
+>     387 test.diff
+> -------------> May be wrong?!
+>
+> 15:30:13 [root@murilo:/MRX/drivers]#dmesg | grep serio
+> serio: i8042 AUX port at 0x60,0x64 irq 12
+> input: ImPS/2 Generic Wheel Mouse on isa0060/serio1
+> serio: i8042 KBD port at 0x60,0x64 irq 1
+> input: AT Translated Set 2 keyboard on isa0060/serio0
+> atkbd.c: Unknown key released (translated set 2, code 0x7a on isa0060/serio0).
+> atkbd.c: Unknown key released (translated set 2, code 0x7a on isa0060/serio0).
+> ----------> Last two lines, is apper each startx startup!!!!
 
+Also reported by me - see
+http://marc.theaimsgroup.com/?l=linux-kernel&m=107376128814606&w=2
 
- Hello !
+showkey under 2.4: keycode  89
 
- Hope this is the right place for getting an answer, I have some
-problems with a brand new Plextor-drive, PX-W5224TA/T3B, I cannot
-mount any CD or burn a CDR or CD-RW, except if I disable DMA with
-following  command :# hdparm -d0 /dev/hdd , a little bit annoying, 
-isn't it ?
+But I didn't use startx, only the frame buffer. Maybe why I
+didn't get such "atkbd.c: Unknown key released (translated set
+2, code 0x7a on isa0060/serio0)." messages ?
 
-If I insert a cdrom in the drive the led doesn't go out, it flashes 
-as usual but it stays green.
+Vojtech: Does "[PATCH] Re: bad scancode for USB keyboard" -
+http://marc.theaimsgroup.com/?l=linux-kernel&m=107384731209938&w=2
+also fix it ?
 
-It seems to be a DMA-problem or a kernel-bug ???
-Its only a supposition, I am a Linux-newbie, and I am looking
-for an explanation and a solution ....
-
-By mounting a cdrom I get following error messages :
-
-  Jan 11 20:46:00 ishwara kernel: scsi : aborting command due to timeout
-: pid 102, scsi0, channel 0, id 1, lun 0 0x28 00 00 00 00 10 00 00 01 00
-Jan 11 20:46:00 ishwara kernel: hdd: error waiting for DMA
-Jan 11 20:46:00 ishwara kernel: hdd: dma timeout retry: status=0x7f {
-DriveReady DeviceFault SeekComplete DataRequest CorrectedError Index
-Error } Jan 11 20:46:00 ishwara kernel: hdd: dma timeout retry:
-error=0x7f Jan 11 20:46:00 ishwara kernel: hdd: DMA disabled
-Jan 11 20:46:00 ishwara kernel: hdd: ATAPI reset complete
-Jan 11 20:46:00 ishwara kernel: hdd: irq timeout: status=0x80 { Busy }
-Jan 11 20:46:00 ishwara kernel: hdd: ATAPI reset complete
-Jan 11 20:46:00 ishwara kernel: hdd: irq timeout: status=0x80 { Busy }
-Jan 11 20:46:00 ishwara kernel: hdd: ATAPI reset complete
-Jan 11 20:46:07 ishwara kernel: hdd: irq timeout: status=0x80 { Busy }
-Jan 11 20:46:07 ishwara kernel: scsi0 channel 0 : resetting for second
-half of retries. Jan 11 20:46:07 ishwara kernel: SCSI bus is being reset
-for host 0 channel 0. Jan 11 20:46:07 ishwara kernel: hdd: status
-timeout: status=0x80 { Busy } Jan 11 20:46:07 ishwara kernel: hdd: drive
-not ready for command Jan 11 20:46:07 ishwara kernel: hdd: ATAPI reset
-complete Jan 11 20:46:32 ishwara kernel: scsi : aborting command due to
-timeout : pid 103, scsi0, channel 0, id 1, lun 0 0x28 00 00 00 00 10 00
-rive not ready for command
-
-And then I have a freeze or at least a blocking of the sysem.
-I have to reboot.
-
-Could someone give me an explanation of what is happening and a way to
-solve the problem .... is this a kernel-bug ? Or an incompatibility
-between the motherboard and the drive ??
-
-If you choose to help me, please don't be to esoteric, as I already
-said, I am a newbie.
-
-Please, could you Cc all answers to the adress :
-
-Claude.PARISOT@wanadoo.fr
-
-My apologizes for my english ....
-
-
-Claude
-
-System : Pentium 2,8C
-         Asus P4P800 DeLuxe
-         Intel I865PE
-         
-       
-
-
-
-
-
-
-
-
-
-
-
-
-
-Claude 
+-- 
+http://www.pervalidus.net/contact.html

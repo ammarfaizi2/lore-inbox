@@ -1,28 +1,23 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262189AbUBXGxd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 01:53:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262132AbUBXGxd
+	id S262090AbUBXG5E (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 01:57:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262132AbUBXG5E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 01:53:33 -0500
-Received: from fw.osdl.org ([65.172.181.6]:10886 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262189AbUBXGxc (ORCPT
+	Tue, 24 Feb 2004 01:57:04 -0500
+Received: from fw.osdl.org ([65.172.181.6]:63112 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262090AbUBXG5B (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 01:53:32 -0500
-Date: Mon, 23 Feb 2004 22:53:37 -0800
+	Tue, 24 Feb 2004 01:57:01 -0500
+Date: Mon, 23 Feb 2004 22:56:59 -0800
 From: Andrew Morton <akpm@osdl.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: rathamahata@php4.ru, linux-kernel@vger.kernel.org, gluk@php4.ru,
-       anton@megashop.ru
-Subject: Re: 2.6.1 IO lockup on SMP systems
-Message-Id: <20040223225337.217447be.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.58L.0402240357350.6209@logos.cnet>
-References: <200401311940.28078.rathamahata@php4.ru>
-	<20040221113044.7deb60b9.akpm@osdl.org>
-	<200402222039.58702.gluk@php4.ru>
-	<200402232027.26958.rathamahata@php4.ru>
-	<20040223142626.48938d7c.akpm@osdl.org>
-	<Pine.LNX.4.58L.0402240357350.6209@logos.cnet>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: dsw@gelato.unsw.edu.au, linux-kernel@vger.kernel.org
+Subject: Re: [BUG] 2.6.3 Slab corruption: errors are triggered when memory
+ exceeds 2.5GB (correction)
+Message-Id: <20040223225659.4c58c880.akpm@osdl.org>
+In-Reply-To: <403AF155.1080305@colorfullife.com>
+References: <403AF155.1080305@colorfullife.com>
 X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -30,28 +25,27 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
+Manfred Spraul <manfred@colorfullife.com> wrote:
 >
->  > Also, run
->  >
->  > 	while true
->  > 	do
->  > 		cat /proc/meminfo
->  > 		sleep 10
->  > 	done
->  >
->  > and record the info which that leaves behind when the machine locks up.
->  > This should tell us whether it is an application or kernel memory leak.  If
->  > it is indeed a leak.
+>  From your logs:
 > 
->  Hi Andrew,
-> 
->  Care to explain me why should the kernel hang if due to an application
->  leak ?
+> >Feb 23 14:54:24 calypso kernel: Slab corruption: start=e00000017e84ea00, expend=e00000017e84f1ff, problemat=e00000017e84f020
+> >Feb 23 14:54:24 calypso kernel: Last user: [<a0000001003c9f30>](kfree_skbmem+0x30/0x80)
+> >Feb 23 14:54:24 calypso kernel: Data: ************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!
+**!
+> ***************************************
+> >Feb 23 14:54:28 calypso kernel: **************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************6A *************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!
+**!
+> ***************************************
+> >Feb 23 14:54:28 calypso kernel: ************************************************************A5 
+> >  
+> >
+> "6a" instead of 0x6b. One bit is wrong, this is often an indication of a 
+> hardware problem. Do you use ECC memory and is ECC enabled in the BIOS?
 
-It shouldn't - the oom killer should have done something.  But we'll
-address that once we've confirmed that something really is leaking.
+Actually, it's often caused by someone doing atomic_dec_and_test() against
+something which was already freed.  Or spin_lock().  One would need to work
+out what field is at that offset.  If it is an atomic_t or a spinlock_t,
+there you are.
 
->  The hang looks wrong even if the leak is in userspace app, yes?
 
-Probably, yes.

@@ -1,36 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265641AbRGCJBF>; Tue, 3 Jul 2001 05:01:05 -0400
+	id <S265647AbRGCJJz>; Tue, 3 Jul 2001 05:09:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265648AbRGCJAz>; Tue, 3 Jul 2001 05:00:55 -0400
-Received: from t2.redhat.com ([199.183.24.243]:13815 "HELO
-	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
-	id <S265641AbRGCJAi>; Tue, 3 Jul 2001 05:00:38 -0400
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: David Howells <dhowells@redhat.com>, Russell King <rmk@arm.linux.org.uk>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        David Woodhouse <dwmw2@infradead.org>, Jes Sorensen <jes@sunsite.dk>,
-        linux-kernel@vger.kernel.org, arjanv@redhat.com
-Subject: Re: [RFC] I/O Access Abstractions 
-In-Reply-To: Your message of "Tue, 03 Jul 2001 04:31:25 EDT."
-             <3B4182DD.FCDD8DDE@mandrakesoft.com> 
-Date: Tue, 03 Jul 2001 10:00:36 +0100
-Message-ID: <4047.994150836@warthog.cambridge.redhat.com>
-From: David Howells <dhowells@redhat.com>
+	id <S265655AbRGCJJp>; Tue, 3 Jul 2001 05:09:45 -0400
+Received: from [210.82.190.10] ([210.82.190.10]:28169 "HELO mx.linux.net.cn")
+	by vger.kernel.org with SMTP id <S265647AbRGCJJn>;
+	Tue, 3 Jul 2001 05:09:43 -0400
+Date: Tue, 3 Jul 2001 15:48:00 +0800
+From: Fang Han <dfbb@linux.net.cn>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: RFC: modules and 2.5
+Message-ID: <20010703154759.A1409@dfbbb.cn.mvd>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3B415489.77425364@mandrakesoft.com> <20010703075050.B15457@dev.sportingbet.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010703075050.B15457@dev.sportingbet.com>; from sean@dev.sportingbet.com on Tue, Jul 03, 2001 at 07:50:50AM +0100
+Organization: None
+X-Attribution: dfbb
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> If you build the drivers in, but forget to comment out the initrd line in
+> /etc/lilo.conf, the machine panics because it tries to load the module for
+> something that is already a builtin.
+> 
+The only way to solve it smothly need to modify the bootloader, When the 
+bootloader like lilo or grub ( it is more powerful ) can read the module from the root partition directly. Your problem will be sloved.
 
-> I also point out that using ioremap for PIO adds flexibility while
-> keeping most drivers relatively unchanged.  Everyone uses a base address
-> anyway, so whether its obtained directly (address from PCI BAR) or
-> indirectly (via ioremap), you already store it and use it.
+BTW: Is there any system or tools can patch kernel in binary level, It means
+     that user doesn't need download the whole kernel RPM or TGZ, It just need
+     an patch to patch the current kernel's binary. I think it is useful for
+     novice & end user.
 
-I see what you're getting at at last:-) I didn't quite pick up on the fact
-that you'd still have to go through readb/writeb and their ilk to access the
-code.
+Regards
 
-Of course, however, this still requires cookie decoding to be done in readb
-and writeb (even on the i386). So why not use resource struct?
+dfbb
 
-David

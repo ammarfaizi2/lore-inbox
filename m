@@ -1,56 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261332AbVALX6Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261363AbVALX6Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261332AbVALX6Y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 18:58:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261599AbVALX4L
+	id S261363AbVALX6Z (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 18:58:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261604AbVALXzw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 18:56:11 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:28114 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S261600AbVALXyt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 18:54:49 -0500
-Date: Wed, 12 Jan 2005 15:54:23 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org, ak@muc.de,
-       hugh@veritas.com, linux-mm@kvack.org, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, benh@kernel.crashing.org
-Subject: Re: page table lock patch V15 [0/7]: overview
-In-Reply-To: <41E5B7AD.40304@yahoo.com.au>
-Message-ID: <Pine.LNX.4.58.0501121552170.12669@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.44.0411221457240.2970-100000@localhost.localdomain>
- <Pine.LNX.4.58.0411221343410.22895@schroedinger.engr.sgi.com>
- <Pine.LNX.4.58.0411221419440.20993@ppc970.osdl.org>
- <Pine.LNX.4.58.0411221424580.22895@schroedinger.engr.sgi.com>
- <Pine.LNX.4.58.0411221429050.20993@ppc970.osdl.org>
- <Pine.LNX.4.58.0412011539170.5721@schroedinger.engr.sgi.com>
- <Pine.LNX.4.58.0412011545060.5721@schroedinger.engr.sgi.com>
- <Pine.LNX.4.58.0501041129030.805@schroedinger.engr.sgi.com>
- <Pine.LNX.4.58.0501041137410.805@schroedinger.engr.sgi.com> <m1652ddljp.fsf@muc.de>
- <Pine.LNX.4.58.0501110937450.32744@schroedinger.engr.sgi.com>
- <41E4BCBE.2010001@yahoo.com.au> <20050112014235.7095dcf4.akpm@osdl.org>
- <Pine.LNX.4.58.0501120833060.10380@schroedinger.engr.sgi.com>
- <20050112104326.69b99298.akpm@osdl.org> <41E5AFE6.6000509@yahoo.com.au>
- <20050112153033.6e2e4c6e.akpm@osdl.org> <41E5B7AD.40304@yahoo.com.au>
+	Wed, 12 Jan 2005 18:55:52 -0500
+Received: from numenor.qualcomm.com ([129.46.51.58]:21901 "EHLO
+	numenor.qualcomm.com") by vger.kernel.org with ESMTP
+	id S261599AbVALXvC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jan 2005 18:51:02 -0500
+Message-ID: <41E5B7DC.8020301@qualcomm.com>
+Date: Wed, 12 Jan 2005 15:50:52 -0800
+From: Max Krasnyansky <maxk@qualcomm.com>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [BK] TUN/TAP driver update and fixes for 2.6.BK
+References: <41E5A5DA.1010301@qualcomm.com> <41E5B077.8030300@pobox.com>
+In-Reply-To: <41E5B077.8030300@pobox.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 13 Jan 2005, Nick Piggin wrote:
+Jeff Garzik wrote:
+> Non-technical comments:
+> 
+> 1) Please send drivers/net patches to me and netdev@oss.sgi.com
+Ok
 
-> Note that this was with my ptl removal patches. I can't see why Christoph's
-> would have _any_ extra overhead as they are, but it looks to me like they're
-> lacking in atomic ops. So I'd expect something similar for Christoph's when
-> they're properly atomic.
+> 2) Consider using the bk-make-sum script (in Documentation/BK-usage/) to 
+> generate your summary.  This will add a "bk pull " prefix to your BK url 
+> particularly, making it even easier to cut-n-paste.
+I do use bk-make-sum. A bit hacked version though which does not add
+'bk pull' prefix. I'll put it back in if it's useful for folks.
 
-Pointer operations and word size operations are atomic. So this is mostly
-okay.
+> 3) Please include a patch in your submission so that list readers may 
+> review your changes, not just the BK users.
+Anybody can go to bkbits.net and review them. I'd rather not send
+patches along with BK stuff, unless that's a new rule or something :).
 
-The issue arises on architectures that have a large pte size than the
-wordsize. This is only on i386 PAE mode and S/390. S/390 falls back to
-the page table lock  for these operations. PAE mode should do the same and
-not use atomic ops if they cannot be made to work in a reasonable manner.
+> Technical comments:
+> 
+> 2) in your implementation of tun_get_drvinfo(), it may be nice to 
+> include the tun/tap interface number in info->bus_info, to differentiate 
+> between multiple tun interfaces or multiple tap interfaces.
+> 
+> 3) You might consider moving tun_set_msglevel() completely inside 
+> TUN_DEBUG ifdef.
+> 
+> 4) use of MODULE_VERSION() is recommended
+Good points.
 
+Thanks
+Max
 

@@ -1,66 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276112AbRI1PLI>; Fri, 28 Sep 2001 11:11:08 -0400
+	id <S276115AbRI1PO2>; Fri, 28 Sep 2001 11:14:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276109AbRI1PKt>; Fri, 28 Sep 2001 11:10:49 -0400
-Received: from mail.pha.ha-vel.cz ([195.39.72.3]:25866 "HELO
-	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
-	id <S276108AbRI1PKd>; Fri, 28 Sep 2001 11:10:33 -0400
-Date: Fri, 28 Sep 2001 14:54:48 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: clemens <therapy@endorphin.org>
-Cc: David Grant <davidgrant79@hotmail.com>,
-        Steven Joerger <steven@spock.2y.net>, linux-kernel@vger.kernel.org
-Subject: Re: ide drive problem?
-Message-ID: <20010928145448.A21526@suse.cz>
-In-Reply-To: <20010928041519.968EA4FA00@spock> <OE55yDnSI4nHp4PlNMu00004f47@hotmail.com> <20010928135222.A2722@ghanima.endorphin.org>
+	id <S276113AbRI1POJ>; Fri, 28 Sep 2001 11:14:09 -0400
+Received: from [195.223.140.107] ([195.223.140.107]:13556 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S276111AbRI1PN6>;
+	Fri, 28 Sep 2001 11:13:58 -0400
+Date: Fri, 28 Sep 2001 17:14:35 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Hubert Mantel <mantel@suse.de>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: bug report: linux-2.4.10.SuSE-0.tar.bz2
+Message-ID: <20010928171435.B24922@athlon.random>
+In-Reply-To: <20010926004612.A6621@spylog.ru> <20010926115449.L17951@suse.de> <20010926225958.A27526@spylog.ru> <20010927113145.H22554@suse.de> <20010928105919.B2517@spylog.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010928135222.A2722@ghanima.endorphin.org>; from therapy@endorphin.org on Fri, Sep 28, 2001 at 01:52:22PM +0200
+In-Reply-To: <20010928105919.B2517@spylog.ru>; from andy@spylog.ru on Fri, Sep 28, 2001 at 10:59:19AM +0400
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 28, 2001 at 01:52:22PM +0200, clemens wrote:
-> Hi David, Hi Steve
+On Fri, Sep 28, 2001 at 10:59:19AM +0400, Andrey Nekrasov wrote:
+> Trace; e013914e <_alloc_pages+16/18>
+> Trace; e01395da <__get_free_pages+a/18>
+> Trace; e0134cb1 <kmem_cache_grow+149/4a0>
+> Trace; e0135bbc <kmalloc+31c/348>
+> Trace; e024c26a <alloc_skb+102/1c8>
+> Trace; e02703f3 <tcp_send_ack+23/cc>
+> Trace; e0270dd4 <tcp_delack_timer+19c/228>
+> Trace; e0270c38 <tcp_delack_timer+0/228>
+> Trace; e012220d <timer_bh+301/3c4>
+> Trace; e01219fe <tqueue_bh+16/1c>
+> Trace; e011d604 <bh_action+50/108>
+> Trace; e011d4d9 <tasklet_hi_action+6d/a0>
+> Trace; e011d25f <do_softirq+6f/cc>
+> Trace; e0108f45 <do_IRQ+1b1/1c0>
+> Trace; e029fd68 <stext_lock+ec0/7a85>
+> Trace; e01147c7 <do_page_fault+2eb/904>
+> Trace; e01144dc <do_page_fault+0/904>
+> Trace; e0248e23 <sock_read+8b/98>
+> Trace; e015612d <do_fcntl+1f1/404>
+> Trace; e0116e98 <sys_sched_setscheduler+14/18>
+> Trace; e01075d4 <error_code+34/3c>
 > 
-> i get:
-> 
-> hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-> hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
-> 
-> on:
-> 
-> Linux version 2.4.9-ac7 (root@ghanima) (gcc version 2.95.4 20010902 (Debian
-> prerelease)) #1 SMP Wed Sep 26 14:39:37 CEST 2001
-> 
-> HPT370: IDE controller on PCI bus 00 dev 98
-> PCI: Found IRQ 15 for device 00:13.0
-> HPT370: chipset revision 3
-> HPT370: not 100% native mode: will probe irqs later
->     ide2: BM-DMA at 0xe800-0xe807, BIOS settings: hde:DMA, hdf:pio
->     ide3: BM-DMA at 0xe808-0xe80f, BIOS settings: hdg:pio, hdh:pio
-> hde: ST360021A, ATA DISK drive
-> 
-> even thou i have VT8363/8365 (=KT133) as north bridge, and VT82C686A as
-> southbridge, at least the south bridge could not be blamed for that, since
-> a. i don't even use it, hde is my hpt370 controller, and
-> b. it's the A revision and not the infamous 686B revision (see
-> http://www.viahardware.com/686bfaq.shtm for more infos on "the" 686B bug)
-> 
-> what kernel, harddisc do you both have?
-> 
-> clemens
-> 
-> p.s.: i don't know if "BadCRC" has anything to do with bad blocks, but
-> /sbin/badblocks doesn't even show a single bad block on my brand new seagate 
-> disc, so i guess, that's not the source of the troubles.
+> Trace; e013914e <_alloc_pages+16/18>
+> Trace; e01395da <__get_free_pages+a/18>
+> Trace; e0134cb1 <kmem_cache_grow+149/4a0>
+> Trace; e0135888 <kmem_cache_alloc+2e4/2fc>
+> Trace; e0121e1c <update_process_times+20/9c>
+> Trace; e012302c <send_signal+2c/100>
+> Trace; e012311d <deliver_signal+1d/fc>
+> Trace; e01232cf <send_sig_info+d3/128>
+> Trace; e0124331 <sys_rt_sigqueueinfo+119/130>
+> Trace; e01074e3 <system_call+33/38>
 
-It means that the drive detected a bad CRC on the UDMA transaction.
-Unless these are frequent, they are harmless, since the transaction
-will be retried..
+these are normal under network load. Of course they're harmless too.
 
--- 
-Vojtech Pavlik
-SuSE Labs
+Andrea

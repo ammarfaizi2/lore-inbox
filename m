@@ -1,43 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264151AbTKSVh5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Nov 2003 16:37:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264152AbTKSVh5
+	id S264156AbTKSWRK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Nov 2003 17:17:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264162AbTKSWRK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Nov 2003 16:37:57 -0500
-Received: from fw.osdl.org ([65.172.181.6]:51127 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264151AbTKSVhz (ORCPT
+	Wed, 19 Nov 2003 17:17:10 -0500
+Received: from mail.kroah.org ([65.200.24.183]:25231 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S264156AbTKSWRI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Nov 2003 16:37:55 -0500
-Date: Wed, 19 Nov 2003 13:38:14 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Gerardo Exequiel Pozzi <vmlinuz386@yahoo.com.ar>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test9-mm4 (only) and vmware
-Message-Id: <20031119133814.39dbd3b7.akpm@osdl.org>
-In-Reply-To: <20031119181518.0a43c673.vmlinuz386@yahoo.com.ar>
-References: <20031119181518.0a43c673.vmlinuz386@yahoo.com.ar>
-X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Wed, 19 Nov 2003 17:17:08 -0500
+Date: Wed, 19 Nov 2003 14:14:56 -0800
+From: Greg KH <greg@kroah.com>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] document that udev isn't yet ready (fwd)
+Message-ID: <20031119221456.GB22090@kroah.com>
+References: <20031119213237.GA16828@fs.tum.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031119213237.GA16828@fs.tum.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gerardo Exequiel Pozzi <vmlinuz386@yahoo.com.ar> wrote:
->
-> With the recent 2.6.0-test9-mm4 i can't start the vmware, it reports in vmware.log (debug ON):
-> 
-> Nov 19 17:27:40: vmx| WSSCAN: Not enough physical memory: req=49152 avail=0 over
-> head=4096 maxRespage=106496
-> Nov 19 17:27:40: vmx| WSSCAN: Not enough physical (in MB): nbVM=3 hostMem=512 ch
-> eckMemory=1
-> 
-> With linus tree from 2.6.0-test9-mm4/broken-out/linus.patch and 2.6.0-test3-mm3 don't have problem.
+On Wed, Nov 19, 2003 at 10:32:38PM +0100, Adrian Bunk wrote:
+> The trivial documentation patch forwarded below still applies (with a 
+> few lines offset) against 2.6.0-test9-mm4.
 
-hm, that's funny.
+Hm, with the 006 release, what do you find lacking in udev?
 
-> Any other test from broken-out to patch it?
+thanks,
 
-I can't immediately think what could have caused that.  Maybe if you were
-to strace vmware startup, see what is failing?
+greg k-h

@@ -1,30 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266755AbSL3GdR>; Mon, 30 Dec 2002 01:33:17 -0500
+	id <S266760AbSL3G3s>; Mon, 30 Dec 2002 01:29:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266761AbSL3GdR>; Mon, 30 Dec 2002 01:33:17 -0500
-Received: from supreme.pcug.org.au ([203.10.76.34]:50858 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S266755AbSL3GdP>;
-	Mon, 30 Dec 2002 01:33:15 -0500
-Date: Mon, 30 Dec 2002 17:41:27 +1100
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: schwidefsky@de.ibm.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH][COMPAT] Eliminate the rest of the __kernel_..._t32 typedefs
- 5/7 S390X
-Message-Id: <20021230174127.1cbb1f4c.sfr@canb.auug.org.au>
-In-Reply-To: <20021230173854.3374eb1f.sfr@canb.auug.org.au>
-References: <20021230171959.63ea2d5d.sfr@canb.auug.org.au>
-	<20021230173854.3374eb1f.sfr@canb.auug.org.au>
-X-Mailer: Sylpheed version 0.8.7 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S266761AbSL3G3s>; Mon, 30 Dec 2002 01:29:48 -0500
+Received: from packet.digeo.com ([12.110.80.53]:27900 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S266760AbSL3G3q>;
+	Mon, 30 Dec 2002 01:29:46 -0500
+Message-ID: <3E0FE9CA.89FCC748@digeo.com>
+Date: Sun, 29 Dec 2002 22:38:02 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.52 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Aniruddha M Marathe <aniruddha.marathe@wipro.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 53mm2 kernel panic during boot
+References: <94F20261551DC141B6B559DC49108672044437@blr-m3-msg.wipro.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 30 Dec 2002 06:38:02.0976 (UTC) FILETIME=[00B4AE00:01C2AFCE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Of course, I forgot to change the Subject on the S390X patch
--- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+Aniruddha M Marathe wrote:
+> 
+> I am getting kernel panic during boot-up after applying mm2 patch. I did the whole compilation again but the problem persisits.
+> 
+> Shared 3rd level pagetable on
+> 
+> Details
+> 
+> Call trace:
+> 
+>  ramfs_get_inode+0x7b/0x120
+> Sget+0x197/0x1b0
+>  ramfs_fill_super+0x2c/0x60
+> Get_sb_nodev+0x3a/0x70
+> Do_kern_mount+0x41/0xa0
+> Ramfs_fill_super+0x0/0x60
+> _stext+0x0/0x30
+> _stext+0x0/0x30
+> 
+
+Sorry, I can neither reproduce nor explain this.  Please send me a copy
+of your .config and I'll try to make it happen here.  Thanks.
+
+Are you using initrd or devfs?

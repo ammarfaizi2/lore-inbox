@@ -1,37 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263544AbTANPdE>; Tue, 14 Jan 2003 10:33:04 -0500
+	id <S264617AbTANPjL>; Tue, 14 Jan 2003 10:39:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263760AbTANPdE>; Tue, 14 Jan 2003 10:33:04 -0500
-Received: from host194.steeleye.com ([66.206.164.34]:65031 "EHLO
-	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
-	id <S263544AbTANPdD>; Tue, 14 Jan 2003 10:33:03 -0500
-Message-Id: <200301141541.h0EFfpA02417@localhost.localdomain>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: "David S. Miller" <davem@redhat.com>
-Cc: James.Bottomley@SteelEye.com, linux-kernel@vger.kernel.org
-Subject: Re: [BK-2.5] Update arm implementation of DMA API to include GFP_
+	id <S264614AbTANPjL>; Tue, 14 Jan 2003 10:39:11 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:15115 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id <S264010AbTANPjJ>;
+	Tue, 14 Jan 2003 10:39:09 -0500
+Date: Tue, 14 Jan 2003 09:48:00 -0600
+From: Tommy Reynolds <reynolds@redhat.com>
+To: rodrigobaroni@yahoo.com.br
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Docs to a beginner
+Message-Id: <20030114094800.325359fb.reynolds@redhat.com>
+In-Reply-To: <20030114150521.94386.qmail@web11102.mail.yahoo.com>
+References: <20030114150521.94386.qmail@web11102.mail.yahoo.com>
+Organization: Red Hat GLS
+X-Mailer: Sylpheed version 0.8.8cvs5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: Nr)Jjr<W18$]W/d|XHLW^SD-p`}1dn36lQW,d\ZWA<OQ/XI;UrUc3hmj)pX]@n%_4n{Zsg$
+ t1p@38D[d"JHj~~JSE_udbw@N4Bu/@w(cY^04u#JmXEUCd]l1$;K|zeo!c.#0In"/d.y*U~/_c7
+ lIl 5{0^<~0pk_ET.]:MP_Aq)D@1AIQf.juXKc2u[2pSqNSi3IpsmZc\ep9!XTmHwx
+X-Message-Flag: Outlook Virus Warning: Reboot within 12 seconds or risk loss
+ of all files and data!
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 14 Jan 2003 10:41:51 -0500
-From: James Bottomley <James.Bottomley@steeleye.com>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James.Bottomley@SteelEye.com said:
-> Is this really safe?  Maybe ARM needs to use GFP_ATOMIC all the time
-> for a specific reason, such as where and how it maps the cpu side
-> mappings of the memory? 
+Overcoming an impressive lethargy, "Rodrigo F. Baroni"
+<rodrigobaroni@yahoo.com.br> scribbled:
 
-According to Russell King, yes.
+>      I'm a computer science grad student, and I would
+>  like to know some suggestions about links, docs and
+>  books to start study the kernel linux, if wouldn't
+>  bother anyone.
 
-The PA-RISC one should also be correct.  Actually, to be honest, there's a 
-longstanding issue in the pa-risc code where we can potentially allocate a 
-page table using GFP_KERNEL in pci_alloc_consistent() when we obtain the 
-mapping resources.  I can argue that we never go down this path in practice, 
-but it does make GFP_ATOMIC allocations look unsafe on the platform.
+Start with Bovet and Cesati's "Understanding The Linux Kernel, 2nd Edition":
 
-James
+	http://www.oreilly.com/catalog/linuxkernel2/
 
-
+Cheers!

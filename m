@@ -1,90 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261254AbRE1L7J>; Mon, 28 May 2001 07:59:09 -0400
+	id <S261807AbRE1MLX>; Mon, 28 May 2001 08:11:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261297AbRE1L67>; Mon, 28 May 2001 07:58:59 -0400
-Received: from point41.gts.donpac.ru ([213.59.116.41]:52493 "EHLO orbita1.ru")
-	by vger.kernel.org with ESMTP id <S261254AbRE1L6p>;
-	Mon, 28 May 2001 07:58:45 -0400
-Date: Mon, 28 May 2001 15:58:41 +0400
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH][RFC][REPOST] __init_msg(x) and friends macro
-Message-ID: <20010528155841.A24736@orbita1.ru>
-Reply-To: pazke@orbita1.ru
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="wq9mPyueHGvFACwf"
-User-Agent: Mutt/1.0.1i
-X-Uptime: 3:24pm  up 2 days, 23:49,  3 users,  load average: 0.00, 0.00, 0.00
-From: <pazke@orbita1.ru>
+	id <S263034AbRE1MLE>; Mon, 28 May 2001 08:11:04 -0400
+Received: from tux.rsn.bth.se ([194.47.143.135]:49561 "EHLO tux.rsn.bth.se")
+	by vger.kernel.org with ESMTP id <S261807AbRE1MK5>;
+	Mon, 28 May 2001 08:10:57 -0400
+Date: Mon, 28 May 2001 14:10:27 +0200 (CEST)
+From: Martin Josefsson <gandalf@wlug.westbo.se>
+To: Andris Pavenis <pavenis@latnet.lv>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Danny ter Haar <dth@trinity.hoho.nl>,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.4.4-ac[356]: network (8139too) related crashes
+In-Reply-To: <200105280614.f4S6EE100410@hal.astr.lu.lv>
+Message-ID: <Pine.LNX.4.21.0105281403550.13673-100000@tux.rsn.bth.se>
+X-message-flag: Get yourself a real mail client! http://www.washington.edu/pine/
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 28 May 2001, Andris Pavenis wrote:
 
---wq9mPyueHGvFACwf
-Content-Type: multipart/mixed; boundary="bp/iNruPH9dso1Pn"
+> On Sunday 27 May 2001 02:34, Alan Cox wrote:
+[snip]
+> > Can you try 2.4.5 with the 8139too.c file from the 2.4.3-ac3 that works for
+> > you and report on that
+> 
+> Done. 
+> 
+> Seems that taking 8139too.o from 2.4.3-ac3 fixes the problem. 
+> 
+> Tortured it much more as it was required to get 2.4.4-ac[356] and 2.4.5. to 
+> freeze (FTP uploads and downloads totally more than 100Mb with speed about
+> 600Kb/s, for bad version of 8138too.c about 10Mb was usually more than enough
+> for freezing)
 
+I've also been having problems with 2.4.4 (and 2.4.4-ac10).
+But my problems havn't been very easy to trigger as sometimes it happens
+after a few hours and sometimes after 4 days.
 
---bp/iNruPH9dso1Pn
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: quoted-printable
+I have a 8139A card.
 
-Hi all,
+The machine ran 2.4.2-ac6 for a long time without any problems, and then I
+switched to 2.4.4 and it hung after 1 day. It was a silent deadlock, it
+didn't print anything on the screen and it didn't respond to anything.
 
-soryy for such ugly subject line, but I already sent this patch=20
-to LKML and didn't get any reply.
+Then I switched to the 8139too driver from 2.4.2-ac6 to see if it's
+stable. It has 2 days of uptime now so I'll have to wait some more until
+I can say if it's stable or not.
 
-Patch adds __init_msg (and friends) macro that places its argument=20
-(string constant) into corresponding .data.init section and returns
-pointer to it. The goal of this patch is to allow constructions like this:
+/Martin
 
-        static void __init foo(void)
-	{
-		printk(__init_msg(KERN_INFO "Some random long message "
-				  "going to .data.init and then to bit bucket\n"));
-	}
-
-I hope this patch can save some memory and will be usefull :))
-
-Best regards.
-
---=20
-Andrey Panin            | Embedded systems software engineer
-pazke@orbita1.ru        | PGP key: http://www.orbita1.ru/~pazke/AndreyPanin=
-.asc
---bp/iNruPH9dso1Pn
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=patch-__init_msg
-Content-Transfer-Encoding: quoted-printable
-
-diff -ur linux.vanilla/include/linux/init.h linux/include/linux/init.h
---- linux.vanilla/include/linux/init.h	Mon May 14 15:51:20 2001
-+++ linux/include/linux/init.h	Mon May 14 15:54:05 2001
-@@ -155,4 +155,9 @@
- #define __devexitdata __exitdata
- #endif
-=20
-+#define __init_msg(x) ({ static char msg[] __initdata =3D (x); msg; })
-+#define __exit_msg(x) ({ static char msg[] __exitdata =3D (x); msg; })
-+#define __devinit_msg(x) ({ static char msg[] __devinitdata =3D (x); msg; =
-})
-+#define __devexit_msg(x) ({ static char msg[] __devexitdata =3D (x); msg; =
-})
-+
- #endif /* _LINUX_INIT_H */
-
---bp/iNruPH9dso1Pn--
-
---wq9mPyueHGvFACwf
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE7Ej1xBm4rlNOo3YgRAgk9AKCD31y8TGPtgLl6TLnXs0n7PriyhQCgiFUp
-SqabDiYMl+HuxHZ7O+Ga+os=
-=VoaD
------END PGP SIGNATURE-----
-
---wq9mPyueHGvFACwf--

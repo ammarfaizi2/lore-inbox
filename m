@@ -1,76 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267593AbUBTAKA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 19:10:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267594AbUBTAKA
+	id S267600AbUBTAQ3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 19:16:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267598AbUBTAQ3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 19:10:00 -0500
-Received: from pacific.moreton.com.au ([203.143.235.130]:10765 "EHLO
-	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
-	id S267593AbUBTAJ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 19:09:58 -0500
-Message-ID: <40355080.8090008@snapgear.com>
-Date: Fri, 20 Feb 2004 10:10:40 +1000
-From: Greg Ungerer <gerg@snapgear.com>
-Organization: SnapGear
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, en
+	Thu, 19 Feb 2004 19:16:29 -0500
+Received: from fw.osdl.org ([65.172.181.6]:12766 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267608AbUBTAMh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Feb 2004 19:12:37 -0500
+Date: Thu, 19 Feb 2004 16:17:14 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jamie Lokier <jamie@shareable.org>
+cc: viro@parcelfarce.linux.theplanet.co.uk, Tridge <tridge@samba.org>,
+       "H. Peter Anvin" <hpa@zytor.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Eureka! (was Re: UTF-8 and case-insensitivity)
+In-Reply-To: <20040220000054.GA5590@mail.shareable.org>
+Message-ID: <Pine.LNX.4.58.0402191607490.2244@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0402190759550.1222@ppc970.osdl.org>
+ <20040219163838.GC2308@mail.shareable.org> <Pine.LNX.4.58.0402190853500.1222@ppc970.osdl.org>
+ <20040219182948.GA3414@mail.shareable.org> <Pine.LNX.4.58.0402191124080.1270@ppc970.osdl.org>
+ <20040219200554.GE31035@parcelfarce.linux.theplanet.co.uk>
+ <Pine.LNX.4.58.0402191217050.1439@ppc970.osdl.org>
+ <Pine.LNX.4.58.0402191226240.1439@ppc970.osdl.org> <20040219204853.GA4619@mail.shareable.org>
+ <Pine.LNX.4.58.0402191326490.1439@ppc970.osdl.org> <20040220000054.GA5590@mail.shareable.org>
 MIME-Version: 1.0
-To: David Weinehall <tao@acc.umu.se>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]: linux-2.6.3-uc0 (MMU-less fixups)
-References: <40342BD5.9080105@snapgear.com> <20040219103900.GH17140@khan.acc.umu.se> <4034B2E5.1090505@snapgear.com> <20040219131317.GI17140@khan.acc.umu.se>
-In-Reply-To: <20040219131317.GI17140@khan.acc.umu.se>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi David,
 
-David Weinehall wrote:
-> On Thu, Feb 19, 2004 at 10:58:13PM +1000, Greg Ungerer wrote:
->>David Weinehall wrote:
->>>On Thu, Feb 19, 2004 at 01:21:57PM +1000, Greg Ungerer wrote:
->>>
->>>>An update of the uClinux (MMU-less) fixups against 2.6.3.
->>>>Nothing much new, just redone against 2.6.3.
->>>>
->>>>http://www.uclinux.org/pub/uClinux/uClinux-2.6.x/linux-2.6.3-uc0.patch.gz
->>>
->>>Any plans for a 2.6-version of the ARM-support?
->>
->>Yes. There is some code available now, although it is not complete
->>and doesn't fully work yet. It really needs more cleaning up before
->>it will be interresting or useful to anyone.
+
+On Fri, 20 Feb 2004, Jamie Lokier wrote:
 > 
-> Dang.  I wish I still had some arm-hardware to play with (no, I'm not
-> gonna sacrifice my Tungsten E for uClinux-work...)
+> Will your proposal eliminate Samba's positive cache as well?
 
-You don't need real hardware :-)
+Samba has to work on different kernels, so they'll have to have their own 
+code anyway. Whether they want to turn it off or not if better 
+alternatives are found is up to them. Right now it appears that what 
+Tridge wants is a WNT dcache, and since he's not going to get it, I guess 
+the whole discussion is moot.
 
-The gdb/ARMulator makes a fine target for development.
-Quicker and easier to develop with. Heres a good place
-to get started with it if interrested:
+> What I like about my idea is that no windows_equivalent_strncasecmp()
+> needs to go into the kernel.  I.e. no need for a Samba-specific module.
+> 
+> The other thing I like is that DN_IGNORE_SELF would be useful for
+> other applications too.
 
-   http://www.uclinux.org/pub/uClinux/utilities/armulator/
+I agree. It might even be acceptable not as a new flag, but as a 
+modification to existing behaviour. I can't imagine that a file manager is 
+all that interested in seeing the changes it itself does be reported back 
+to it. And I don't really know of any other uses of dnotify.
 
+(That said, clearly it's better to just have a new flag, since that way 
+there is no possibility of anything breaking).
 
-> How's the status of the 2.0-port of uClinux, btw?  Is it unintrusive
-> enough to be considered for a 2.0-merge?
+On the other hand, even with a nice dnotify infrastructure, you simply
+_cannot_ get absolute atomicity guarantees. Because by the time you
+actually execute the "mv" operation, another process may create a new file
+with the "same" name (ie different name, but comparing the same ignoring
+case) on another CPU. By the time you get the dnotify, it's too late, and
+the move will have happened, and undoing the operation (and hiding it from
+the client) may well be impossible - possibly because another process
+creating a file with the old name.
 
-Hmm, probably not. It is no where near as clean as the 2.6
-merge. It could be cleaned up, but no one seems to interrested
-in doing the work.
+NOTE! Even an in-kernel implementation fundamentally cannot fix this race 
+on something like NFS. So the in-kernel version would only help for local 
+filesystems that the kernel has exclusive write access to.
 
-Regards
-Greg
-
-
-
-------------------------------------------------------------------------
-Greg Ungerer  --  Chief Software Dude       EMAIL:     gerg@snapgear.com
-SnapGear -- a CyberGuard Company            PHONE:       +61 7 3435 2888
-825 Stanley St,                             FAX:         +61 7 3891 3630
-Woolloongabba, QLD, 4102, Australia         WEB: http://www.SnapGear.com
-
+			Linus

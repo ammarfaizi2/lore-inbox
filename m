@@ -1,48 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261933AbUBWQFZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 11:05:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261941AbUBWQFY
+	id S261940AbUBWQIg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 11:08:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261942AbUBWQIf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 11:05:24 -0500
-Received: from bristol.phunnypharm.org ([65.207.35.130]:62124 "EHLO
-	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
-	id S261933AbUBWQFR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 11:05:17 -0500
-Date: Mon, 23 Feb 2004 10:45:49 -0500
-From: Ben Collins <bcollins@debian.org>
-To: Lucas Nussbaum <lucas@lucas-nussbaum.net>
-Cc: linux-kernel@vger.kernel.org, mathieu.castet@ensimag.imag.fr,
-       tester@tester.ca, alban.crequy@apinc.org
-Subject: Re: Linux 2.6.3 still doesn't boot on UltraSparc I
-Message-ID: <20040223154549.GF4407@phunnypharm.org>
-References: <20040210163232.GA2107@blop.info> <20040223133213.GA24179@blop.info> <20040223132502.GB4407@phunnypharm.org> <20040223150610.GA24673@blop.info>
+	Mon, 23 Feb 2004 11:08:35 -0500
+Received: from eri.interia.pl ([217.74.65.138]:9995 "EHLO eri.interia.pl")
+	by vger.kernel.org with ESMTP id S261940AbUBWQFs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Feb 2004 11:05:48 -0500
+Date: Mon, 23 Feb 2004 17:05:15 +0100
+From: Jakub Panachida <void@poczta.fm>
+To: linux-kernel@vger.kernel.org
+Subject: gcc-3.3.3 syntax changed
+Message-Id: <20040223170515.7e878ff0.void@poczta.fm>
+Organization: Battlefield
+X-Mailer: Sylpheed version 0.9.0claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040223150610.GA24673@blop.info>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 23, 2004 at 04:06:10PM +0100, Lucas Nussbaum wrote:
-> On Mon, Feb 23, 2004 at 08:25:02AM -0500, Ben Collins <bcollins@debian.org> wrote:
-> > So backing down to silo < 1.4.0 works with the new head.S on UltraSPARC
-> > I? I don't think the problem itself is in head.S. Changing that would
-> > force silo 1.4.x to not keep the kernel in high memory (would copy it
-> > back down to 0x4000 where the old silo would have put it). I am guessing
-> > the problem is elsewhere.
-> > 
-> > Try this, keep the new head.S and newer SILO, and edit head.S so that
-> > "HdrS version" is 0x202 instead of 0x300. See if that boots for you
-> > (would confirm my suspicion).
-> 
-> It boots correctly this way. What can we do to help now ?
+Summary:
+Incompability of linux-2.6.3 header files with gcc-3.3.3
 
-Can you enable CONFIG_DEBUG_BOOTMEM and boot with "linux -p"?
+Full Description:
+gcc-3.3.3 doesn't allow syntax used in files asm/byteorder.h and
+linux/byteorder/swab.h, which is included by the previous one.
+
+Keywords:
+gcc-3.3.3
+
+Environment:
+Linux xenon.pl 2.6.3-2 #1 Sun Feb 22 16:10:08 CET 2004 i686 unknown unknown
+GNU/Linux
+
+Gnu C                  3.3.3
+Gnu make               3.80
+util-linux             2.12
+mount                  2.12
+module-init-tools      3.0-pre10
+e2fsprogs              1.34
+Linux C Library        2.3.3
+Dynamic linker (ldd)   2.3.3
+Procps                 3.1.15
+Net-tools              1.60
+Kbd                    1.12
+Sh-utils               5.0
+Modules Loaded
+
+Kernel version:
+Linux version 2.6.3-2 (void@xenon.pl) (gcc version 3.3.3) #1 Sun Feb 22
+16:10:08 CET 2004
+
+Sample code:
+#include <asm/byteorder.h>
+
+Error Message:
+/usr/include/asm/byteorder.h:14: error: syntax error before "__u32"
+/usr/include/asm/byteorder.h:28: error: syntax error before "__u64"
+In file included from /usr/include/linux/byteorder/little_endian.h:11,
+                 from /usr/include/asm/byteorder.h:57,
+                 from k26.c:1:
+/usr/include/linux/byteorder/swab.h:133: error: syntax error before "__u16"
+/usr/include/linux/byteorder/swab.h:146: error: syntax error before "__u32"
+/usr/include/linux/byteorder/swab.h:160: error: syntax error before "__u64"
+
 
 -- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-WatchGuard - http://www.watchguard.com/
+Jakub Panachida
+

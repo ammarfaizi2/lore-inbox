@@ -1,56 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287577AbSAEHVK>; Sat, 5 Jan 2002 02:21:10 -0500
+	id <S287579AbSAEHfG>; Sat, 5 Jan 2002 02:35:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287579AbSAEHVA>; Sat, 5 Jan 2002 02:21:00 -0500
-Received: from 240.209-115-183-0.interbaun.com ([209.115.183.240]:44458 "EHLO
-	polarbear.homenet") by vger.kernel.org with ESMTP
-	id <S287577AbSAEHUt>; Sat, 5 Jan 2002 02:20:49 -0500
-Message-ID: <3C36A94F.A35D1A@phys.ualberta.ca>
-Date: Sat, 05 Jan 2002 00:20:47 -0700
-From: Dmitri Pogosyan <pogosyan@phys.ualberta.ca>
-Reply-To: pogosyan@phys.ualberta.ca
-Organization: Dept of Physics, University of Alberta
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.9-12 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: ASUS KT266A/VT8233 board and UDMA setting
-In-Reply-To: <Pine.GSO.4.33.0201021812560.28783-100000@sweetums.bluetronic.net> <Pine.LNX.4.33.0201022010340.10236-100000@coffee.psychology.mcmaster.ca> <20020104025424.GP28238@auctionwatch.com> <3C352FAA.3AB8C520@phys.ualberta.ca> <20020104102507.A20412@suse.cz>
-Content-Type: text/plain; charset=us-ascii
+	id <S287585AbSAEHe4>; Sat, 5 Jan 2002 02:34:56 -0500
+Received: from front1.mail.megapathdsl.net ([66.80.60.31]:9232 "EHLO
+	front1.mail.megapathdsl.net") by vger.kernel.org with ESMTP
+	id <S287579AbSAEHek>; Sat, 5 Jan 2002 02:34:40 -0500
+Subject: 2.5.2-pre8 -- compile error in ieee1394/highlevel.c, pcilynx.c
+From: Miles Lane <miles@megapathdsl.net>
+To: LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: 
+X-Mailer: Evolution/1.1.0.99 (Preview Release)
+Date: 04 Jan 2002 23:34:56 -0800
+Message-Id: <1010216097.12947.189.camel@stomata.megapathdsl.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik wrote:
 
-> > My new IBM 40GB   hard drive  on ide0  (alone,   master)  controller  is
-> > always get set at boot
-> >  to UDMA2 mode,  not UDMA5.
-> > The second identical drive on onboard promise controller is getting set
-> > to UDMA5
-> > and runs much faster.
-> >
-> > I looked in BIOS setup, and BIOS sets the first ide0 drive to UDMA5,
-> > which at least says that
-> > cable is the correct one, and that it is linux boot which changes the
-> > setting to udma2.
-> >
-> > Here are the related pieces of dmesg. As you see I use RH rawhide 2.4.16
-> > kernel,  which is
-> > something like 2.4.17-pre8,   I think
->
-> Some RH kernels (may include yours) deliberately disable UDMA3, 4 and 5
-> on any VIA IDE controller. I don't know why. Unpatch your kernel and
-> it'll likely work.
->
+Most of these are gcc 3.0.x-specific warnings:
 
-Thanks, where should I look in the code to see if this is applicable to my
-kernel version ?
-Also RH7.2 stock 2.4.7 kernel was totally unhappy with my configuration
-(VIA-IDE: chipset unknown - contact you) and DMA could not be set at all.
-This was main my reason to upgrade to 2.4.16
+gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=athlon     -c -o pcilynx.o pcilynx.c
+pcilynx.c: In function `get_phy_reg':
+pcilynx.c:164: warning: concatenation of string literals with __FUNCTION__ is deprecated.  This feature will be removed in future
+pcilynx.c:176: warning: concatenation of string literals with __FUNCTION__ is deprecated.  This feature will be removed in future
+pcilynx.c: In function `set_phy_reg':
+pcilynx.c:199: warning: concatenation of string literals with __FUNCTION__ is deprecated.  This feature will be removed in future
+pcilynx.c:205: warning: concatenation of string literals with __FUNCTION__ is deprecated.  This feature will be removed in future
+pcilynx.c: In function `sel_phy_reg_page':
+pcilynx.c:225: warning: concatenation of string literals with __FUNCTION__ is deprecated.  This feature will be removed in future
+pcilynx.c: In function `mem_open':
+pcilynx.c:797: invalid operands to binary &
+pcilynx.c: In function `mem_read':
+pcilynx.c:1013: warning: concatenation of string literals with __FUNCTION__ is deprecated.  This feature will be removed in future
+pcilynx.c: At top level:
+pcilynx.c:775: warning: `aux_ops' defined but not used
+make[3]: *** [pcilynx.o] Error 1
+make[3]: Leaving directory `/usr/src/linux/drivers/ieee1394'
 
-            Regards, Dmitri
+Other __FUNCTION__ usage warnings:
+
+gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=athlon     -c -o ieee1394_transactions.o ieee1394_transactions.c
+ieee1394_transactions.c: In function `hpsb_packet_success':
+ieee1394_transactions.c:249: warning: concatenation of string literals with __FUNCTION__ is deprecated.  This feature will be removed in future
+ieee1394_transactions.c:293: warning: concatenation of string literals with __FUNCTION__ is deprecated.  This feature will be removed in future
+
+gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=athlon     -c -o highlevel.o highlevel.c
+In file included from highlevel.c:14:
+ieee1394_types.h: In function `memcpy_le32':
+ieee1394_types.h:107: warning: implicit declaration of function `memcpy'
+highlevel.c: In function `hpsb_register_addrspace':
+highlevel.c:90: warning: concatenation of string literals with __FUNCTION__ is deprecated.  This feature will be removed in future
+highlevel.c: In function `hpsb_listen_channel':
+highlevel.c:134: warning: concatenation of string literals with __FUNCTION__ is deprecated.  This feature will be removed in future
+highlevel.c: In function `hpsb_unlisten_channel':
+highlevel.c:147: warning: concatenation of string literals with __FUNCTION__ is deprecated.  This feature will be removed in future
+
 
 

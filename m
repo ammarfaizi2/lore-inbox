@@ -1,63 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263930AbTFHVhH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jun 2003 17:37:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263949AbTFHVhH
+	id S263973AbTFHVir (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jun 2003 17:38:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263971AbTFHVir
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jun 2003 17:37:07 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:49424 "EHLO
-	www.home.local") by vger.kernel.org with ESMTP id S263930AbTFHVhF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jun 2003 17:37:05 -0400
-Date: Sun, 8 Jun 2003 23:47:11 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Clayton Weaver <cgweav@email.com>
-Cc: willy@w.ods.org, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.21-rc7
-Message-ID: <20030608214711.GA4584@alpha.home.local>
-References: <20030608201700.3850.qmail@email.com>
+	Sun, 8 Jun 2003 17:38:47 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:12814 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S263952AbTFHVim (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jun 2003 17:38:42 -0400
+Date: Sun, 8 Jun 2003 22:52:17 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Peter Westwood <peter.westwood@talk21.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linksys WRT54G and the GPL
+Message-ID: <20030608225217.F9520@flint.arm.linux.org.uk>
+Mail-Followup-To: Peter Westwood <peter.westwood@talk21.com>,
+	linux-kernel@vger.kernel.org
+References: <000501c32e00$85d4f670$8200a8c0@coolermaster>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030608201700.3850.qmail@email.com>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <000501c32e00$85d4f670$8200a8c0@coolermaster>; from peter.westwood@talk21.com on Sun, Jun 08, 2003 at 09:57:04PM +0100
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-> Note that "nodma" is unnecessary on this
-> same box running kernel 2.4.19-rc2. Why would
-> 2.4.21-rcX need it? To pin down whether the
-> problem is in the ide dma code or some other
-> part of the ide code?
+On Sun, Jun 08, 2003 at 09:57:04PM +0100, Peter Westwood wrote:
+> 2601/tcp   open        zebra
+> 2602/tcp   open        ripd
+> Remote operating system guess: Linux Kernel 2.4.0 - 2.5.20
+> Uptime 1.252 days (since Sat Jun 07 15:51:52 2003)
+> Nmap run completed -- 1 IP address (1 host up) scanned in 13 seconds
 
-exactly, because DMA needs more conditions than PIO to run at all
-and even more to run reliably. There are lots of cases where DMA
-doesn't work while PIO does.
- 
-> It does not die more easily with 2.4.19-rc2
-> (in my opinion). It dies in a threads context
-> but not in a forks context, where the threads
-> and the forks are doing the same i/o to/from
-> the same controller/disk (different versions
-> of same program).
->
-> I have also seen it freeze with an unlucky
-> mouse click in XFree86 4.0 under 2.4.19-rc2,
-> so I did not assume that the threads hang
-> was necessarily ide-relevant. Something
-> disk i/o intensive was merely what it
-> happened to be doing with those threads,
-> but that problem seemed to me more thread
-> related than ide related. (Guess I'll have
-> to spawn a bunch of threads doing some other
-> kind of i/o to test that assumption.)
+zebra accepts telnet connections, and displays its version number on
+connect.
 
-OK, but a freeze isn't acceptable anyway, whatever you were doing,
-because it always means a bug somewhere.
-
-Cheers,
-Willy
-
-PS: your lines were shorter this way :-)
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

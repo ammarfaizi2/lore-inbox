@@ -1,57 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315374AbSE2OIU>; Wed, 29 May 2002 10:08:20 -0400
+	id <S315372AbSE2OIp>; Wed, 29 May 2002 10:08:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315335AbSE2OIT>; Wed, 29 May 2002 10:08:19 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:39685 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S315374AbSE2OHB>; Wed, 29 May 2002 10:07:01 -0400
-Message-ID: <3CF4D19F.9080402@evision-ventures.com>
-Date: Wed, 29 May 2002 15:03:27 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc3) Gecko/20020523
-X-Accept-Language: en-us, pl
-MIME-Version: 1.0
-To: Gerald Champagne <gerald@io.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.18 IDE 73
-In-Reply-To: <1022680784.2945.24.camel@wiley>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S315335AbSE2OIY>; Wed, 29 May 2002 10:08:24 -0400
+Received: from ns.suse.de ([213.95.15.193]:33039 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S315372AbSE2OG6>;
+	Wed, 29 May 2002 10:06:58 -0400
+Date: Wed, 29 May 2002 16:06:58 +0200
+From: Dave Jones <davej@suse.de>
+To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+        "J.A. Magallon" <jamagallon@able.es>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Lista Linux-Kernel <linux-kernel@vger.kernel.org>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: [PATCH][RFC] PentiumPro/II split in x86 config
+Message-ID: <20020529160658.K27463@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	"J.A. Magallon" <jamagallon@able.es>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Lista Linux-Kernel <linux-kernel@vger.kernel.org>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>
+In-Reply-To: <20020527145420.GA6738@werewolf.able.es> <1022520676.11859.294.camel@irongate.swansea.linux.org.uk> <20020527215911.GC1848@werewolf.able.es> <20020528012925.GB20729@conectiva.com.br>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gerald Champagne wrote:
->>- ide_driveid_update is gone. We don't report the drive id through 
->>/proc/ide and we don't have to update it any longer on the fly. Still 
->>someone out there complaining that it went away!?
-> 
-> 
-> But the id information is still available through the ioctl interface. 
-> ide_driveid_update was used to update the dma_ultra, dma_mword, and
-> dma_lword fields in the id structure after changing the rate with an
-> ioctl command.  Won't these fields be wrong if the rate is changed after
-> initialization?  Won't "hdparm -i" show outdated and incorrect
-> information.
-> 
-> It's good to see the duplicate identify routine go away, but the ioctl
-> shouldn't return incorrect information.  Can the remaining identify
-> routine be modified and called directly from the ioctl that returns the
-> id information?
-> 
-> Gerald
+On Mon, May 27, 2002 at 10:29:25PM -0300, Arnaldo Carvalho de Melo wrote:
+ > 	Since you're working on this could I suggest that you use labeled
+ > elements, this gccism make the initialization above way more cleaner, safer and
+ > easy to read :-) This is being used in the kernel in places like the FSes, the
+ > TCP/IP stack and lots of other places.
 
-Dear Gerald please look closer. The hdparm -i is executing the
-drive id command directly and does *not* rely on the internally
-permanently dragged around id structure. So the change I did
-is entierly fine. Just go ahead and check whatever hdparm -i /dev/hdx
-reports the proper thing after changing some dma setting.
-It does - I did check it :-).
+Patrick Mochel already did it in his reworking of the arch/i386/kernel cruft
+It's already merged in my tree, and will hopefully turn up in Linus' tree
+sometime soon. So far, it's been dropped (probably because it rejected
+when someone else touched something there)
 
-BTW> The next thing to be gone is simple the fact that we drag
-around the id information permanently, where infact only
-some capabilitie fields are sucked out of it and the
-device identification string is only needed for reporting
-during boot-up.
+I'll push the resynced version later today
 
+    Dave.
 
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

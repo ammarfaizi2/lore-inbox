@@ -1,50 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293663AbSB1Ty7>; Thu, 28 Feb 2002 14:54:59 -0500
+	id <S310125AbSB1Vvi>; Thu, 28 Feb 2002 16:51:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293692AbSB1TxA>; Thu, 28 Feb 2002 14:53:00 -0500
-Received: from cnxt10002.conexant.com ([198.62.10.2]:58635 "EHLO
-	sophia-sousar2.nice.mindspeed.com") by vger.kernel.org with ESMTP
-	id <S293710AbSB1TvV>; Thu, 28 Feb 2002 14:51:21 -0500
-Date: Thu, 28 Feb 2002 20:50:20 +0100 (CET)
-From: Rui Sousa <rui.p.m.sousa@clix.pt>
-X-X-Sender: rsousa@sophia-sousar2.nice.mindspeed.com
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: German Gomez Garcia <german@piraos.com>,
-        =?ISO-8859-1?Q?Jos=E9?= Carlos Monteiro <jcm@netcabo.pt>,
-        <linux-kernel@vger.kernel.org>,
-        emu10k1-devel <emu10k1-devel@lists.sourceforge.net>,
-        Steve Stavropoulos <steve@math.upatras.gr>,
-        Daniel Bertrand <d.bertrand@ieee.org>, <dledford@redhat.com>
-Subject: Re: [Emu10k1-devel] Re: Emu10k1 SPDIF passthru doesn't work if
-In-Reply-To: <E16g6XY-0004v8-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.44.0202282042150.1215-100000@sophia-sousar2.nice.mindspeed.com>
+	id <S310134AbSB1Vtx>; Thu, 28 Feb 2002 16:49:53 -0500
+Received: from fmfdns02.fm.intel.com ([132.233.247.11]:46047 "EHLO
+	thalia.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S310126AbSB1Vrd> convert rfc822-to-8bit; Thu, 28 Feb 2002 16:47:33 -0500
+Message-ID: <BD9B60A108C4D511AAA10002A50708F22C144E@orsmsx118.jf.intel.com>
+From: "Leech, Christopher" <christopher.leech@intel.com>
+To: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+Subject: hardware VLAN acceleration (RE: [BETA-0.92] Third test release of
+	 Tigon3 driver)
+Date: Thu, 28 Feb 2002 13:47:25 -0800
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Feb 2002, Alan Cox wrote:
-
-It's true dma_addr_t does change from u32 to u64 and we do thinks like:
-
-(32 bit pci register) = cpu_to_le32(dma_handle)
-
-What is the correct way of doing this?
-
-(32 bit pci register) = cpu_to_le32((u32)dma_handle)
-?
-
-Rui Sousa
-
-> > The most bizzare is that in a machine with 192Mib of memory but with a=20
-> > kernel compiled with HIGHMEM support I see the same type of problems.
+> On Wed, 27 Feb 2002, David S. Miller wrote:
 > 
-> Change of size in a structure or type ?
+> > [FEATURE] Yay, real HW acceleration hooks in the 802.1q VLAN layer.
+> > 	  Tigon3 takes advantage of it.
+>
+> > Adding support to the Acenic driver should be pretty easy and I'll
+> > try to do that before catching some sleep.  Jeff could also probably
+> > cook up something quick for the e1000.
 > 
-> _______________________________________________
-> Emu10k1-devel mailing list
-> Emu10k1-devel@lists.sourceforge.net
-> https://lists.sourceforge.net/lists/listinfo/emu10k1-devel
+> That would be nice, a common way for hw-vlans is a good thing.
 > 
+> Intel has also their own (kludgy?) way of doing hw-vlans in 
+> the current driver?
+> 
+> - Pasi Kärkkäinen
 
+The version of e1000 that Jeff merged in has no hardware VLAN capabilities
+right now, the version distributed from Intel's web site has hooks for the
+binary only iANS teaming/VLAN product.
+
+That being said, I will add support to e1000 for a standard kernel interface
+(e100 too, but there are other things to fix first).  David's interface
+looks very nice to me, especially in it's clear advertisement of
+capabilities and simple transmit and receive design.  Intel's hardware will
+have no problem working with it.
+
+I did have some questions about the entry points.
+
+Is vlan_rx_kill_vid only there to ensure locking between vlan_hwaccel_rx and
+unregister_802_1Q_vlan_dev?  If so, could this be handled outside of the
+driver?
+
+Also, when a vlan dev is unregistered, does the driver need to know that the
+vlan_group passed in to vlan_rx_register is no longer valid?
+
+	Chris
+
+--
+Chris Leech <christopher.leech@intel.com>
+Network Software Engineer
+UNIX/Linux/Netware Development Group
+LAN Access Division, Intel

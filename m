@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264590AbTDPVPC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Apr 2003 17:15:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264594AbTDPVPC
+	id S264251AbTDPVXK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Apr 2003 17:23:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264424AbTDPVXK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 17:15:02 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:55186 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264590AbTDPVPA
+	Wed, 16 Apr 2003 17:23:10 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:5073 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S264251AbTDPVXJ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 17:15:00 -0400
-Date: Wed, 16 Apr 2003 22:26:51 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Matthew Wilcox <willy@debian.org>, ak@muc.de, davem@redhat.com,
-       linux-kernel@vger.kernel.org, anton@samba.org, schwidefsky@de.ibm.com,
-       davidm@hpl.hp.com, matthew@wil.cx, ralf@linux-mips.org, rth@redhat.com
-Subject: Re: Reduce struct page by 8 bytes on 64bit
-Message-ID: <20030416212651.GF1505@parcelfarce.linux.theplanet.co.uk>
-References: <20030415112430.GA21072@averell> <20030416.054521.26525548.davem@redhat.com> <20030416140715.GA2159@averell> <20030416.072638.65480350.davem@redhat.com> <20030416144312.GA2327@averell> <20030416145532.GA1505@parcelfarce.linux.theplanet.co.uk> <20030416150427.GA2496@averell> <20030416151112.GB1505@parcelfarce.linux.theplanet.co.uk> <20030416133539.0ac01968.akpm@digeo.com>
-Mime-Version: 1.0
+	Wed, 16 Apr 2003 17:23:09 -0400
+Date: Wed, 16 Apr 2003 14:35:01 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+Reply-To: LKML <linux-kernel@vger.kernel.org>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [Bug 593] New: fb.h has syntax errors
+Message-ID: <1490000.1050528901@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20030416133539.0ac01968.akpm@digeo.com>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 16, 2003 at 01:35:39PM -0700, Andrew Morton wrote:
-> Matthew Wilcox <willy@debian.org> wrote:
-> >
-> > Jacob's would break if we hashed to different spinlocks.  But we don't, we
-> > shift right by 8, so we get the same spinlock for atomic things that are on
-> > the same "cacheline" (i think PA cachelines are actually 64 or 128 bytes,
-> > depending on model).
-> > 
-> 
-> Are you prepared to cast this in stone?
 
-I think so.  It makes sense to me that we lock an entire cacheline for
-this kind of thing.  Indeed, locking a smaller amount would probably break
-other stuff.  Remember set_bit() et al take a pointer to an unsigned long...
-but can take a bit number > number of bits in an unsigned long.  If anything,
-we should maybe expand the range covered by a single lock to a larger amount
-than 256 bytes.  How big are ext2 bitmaps, for example?
+http://bugme.osdl.org/show_bug.cgi?id=593
 
--- 
-"It's not Hollywood.  War is real, war is primarily not about defeat or
-victory, it is about death.  I've seen thousands and thousands of dead bodies.
-Do you think I want to have an academic debate on this subject?" -- Robert Fisk
+           Summary: fb.h has syntax errors
+    Kernel Version: 2.5.67
+            Status: NEW
+          Severity: normal
+             Owner: bugme-janitors@lists.osdl.org
+         Submitter: btowe@gbis.com
+
+
+Distribution: Gentoo
+Hardware Environment:
+Software Environment:
+Problem Description: while trying to compile libsdl while using 2.5.67's
+kernel headers i encountered this problem i did trace it down info and
+patch can be found here: http://bugs.gentoo.org/show_bug.cgi?id=19307
+
+Steps to reproduce:
+

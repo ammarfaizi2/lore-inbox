@@ -1,77 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265900AbUFZDZc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265996AbUFZDcN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265900AbUFZDZc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jun 2004 23:25:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265996AbUFZDZc
+	id S265996AbUFZDcN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jun 2004 23:32:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266930AbUFZDcN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jun 2004 23:25:32 -0400
-Received: from bhhdoa.org.au ([216.17.101.199]:39944 "EHLO bhhdoa.org.au")
-	by vger.kernel.org with ESMTP id S265900AbUFZDZa (ORCPT
+	Fri, 25 Jun 2004 23:32:13 -0400
+Received: from bhhdoa.org.au ([216.17.101.199]:44808 "EHLO bhhdoa.org.au")
+	by vger.kernel.org with ESMTP id S265996AbUFZDbk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jun 2004 23:25:30 -0400
-Message-ID: <1088211932.40dccbdc48b45@vds.kolivas.org>
-Date: Sat, 26 Jun 2004 11:05:32 +1000
+	Fri, 25 Jun 2004 23:31:40 -0400
+Message-ID: <1088212304.40dccd5035660@vds.kolivas.org>
+Date: Sat, 26 Jun 2004 11:11:44 +1000
 From: kernel@kolivas.org
-To: Willy Tarreau <willy@w.ods.org>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Zwane Mwaikambo <zwane@linuxpower.ca>,
-       Pauli Virtanen <pauli.virtanen@hut.fi>
+To: Michael Buesch <mbuesch@freenet.de>
+Cc: Willy Tarreau <willy@w.ods.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] Staircase scheduler v7.4
-References: <40DC38D0.9070905@kolivas.org> <20040625222027.GJ29808@alpha.home.local>
-In-Reply-To: <20040625222027.GJ29808@alpha.home.local>
+References: <200406251840.46577.mbuesch@freenet.de> <200406252044.25843.mbuesch@freenet.de> <20040625190533.GI29808@alpha.home.local> <200406252148.37606.mbuesch@freenet.de>
+In-Reply-To: <200406252148.37606.mbuesch@freenet.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: multipart/mixed; boundary="-MOQ10882123034bc83167d86d0f855f880c74e10124f6"
 User-Agent: Internet Messaging Program (IMP) 3.2.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Willy Tarreau <willy@w.ods.org>:
+This message is in MIME format.
 
-> Hi Con,
-> 
-> although I was one of those who complained a lot about the 2.6 scheduler,
-> and still don't use it because of its sluggishness under X11, I'm impressed
-> by your work here. I've tried the good old test which was *very* sluggish
-> on a vanilla 2.6 :
+---MOQ10882123034bc83167d86d0f855f880c74e10124f6
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 
-Well I can take the blame for that since I tuned it. I tried very hard to do it
-without changing the overall design :\
+Quoting Michael Buesch <mbuesch@freenet.de>:
+> But as the load grows, the system is usable as with load 0.0.
+> And it really should be usable with 76.0% nice. ;) No problem here.
+> This really high load is not correct.
 
-> 
-> # for i in $(seq 1 20); do xterm -e sh -c "while :; do locate /;done" & done
-> 
-> It opens 20 xterms constantly listing my slocate database (vmstat shows
-> no I/O).
-> 
-> Under vanilla 2.6 (up to 2.6.4 at least), some of these xterms would freeze
-> for up to about 10 seconds IIRC during redrawing, with incomplete lines,
-> etc...
-> This still happens with your patch and /p/s/k/interactive=0, but to a lesser
-> extent it seems. But it does not happen anymore with interactive=1, hence
-> the
-> progress !
-> 
-> However, you warned us that the nice parameter was very sensible. Indeed,
-> it *is* ! When my window manager (ctwm, very light) is at 0, just like the
-> script above, the windows appear slowly and irregularly on the screen,
-> but this takes no more than 15s, during which windows get no title, then
-> suddenly they get everything right. If I renice the WM at +1, I see no
-> more than 5 windows on the screen with no decoration at all, and then I
-> cannot even change the focus to another one anymore. Then, as soon as I
-> change the WM's nice value to -1, suddenly all remaining windows appear
-> with their title. The same is true if I start the script with the WM at
-> -1 initially. It's just as if the nice value was directly used as the
-> priority in a queue.
-> 
-> Oh and BTW, this is an SMP box (dual athlon).
-> 
-> Well, I see there is some very good progress ! Please keep up the good
-> work !
-
-Thanks! I'll try my best.
+There was the one clear bug that Adrian Drzewiecki found (thanks!) that is easy
+to fix. Can you see if this has any effect before I go searching elsewhere?
 
 Con
 
+---MOQ10882123034bc83167d86d0f855f880c74e10124f6
+Content-Type: application/octet-stream; name="staircase7.4-1"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="staircase7.4-1"
 
+LS0tIGxpbnV4LTIuNi43L2tlcm5lbC9zY2hlZC5jCTIwMDQtMDYtMjYgMTM6Mjc6NDcuNjAxNDA5
+MDYyICsxMDAwCisrKyBsaW51eC0yLjYuNy1jazIva2VybmVsL3NjaGVkLmMJMjAwNC0wNi0yNiAx
+MzowODowNy4wMDAwMDAwMDAgKzEwMDAKQEAgLTIzMSw4ICsyMzEsOCBAQCBzdGF0aWMgdm9pZCBk
+ZXF1ZXVlX3Rhc2soc3RydWN0IHRhc2tfc3RyCiAKIHN0YXRpYyB2b2lkIGVucXVldWVfdGFzayhz
+dHJ1Y3QgdGFza19zdHJ1Y3QgKnAsIHJ1bnF1ZXVlX3QgKnJxKQogewotCWlmIChycS0+Y3Vyci0+
+ZmxhZ3MgJiBQRl9QUkVFTVBURUQpIHsKLQkJcnEtPmN1cnItPmZsYWdzICY9IH5QRl9QUkVFTVBU
+RUQ7CisJaWYgKHAtPmZsYWdzICYgUEZfUFJFRU1QVEVEKSB7CisJCXAtPmZsYWdzICY9IH5QRl9Q
+UkVFTVBURUQ7CiAJCWxpc3RfYWRkKCZwLT5ydW5fbGlzdCwgcnEtPnF1ZXVlICsgcC0+cHJpbyk7
+CiAJfSBlbHNlCiAJCWxpc3RfYWRkX3RhaWwoJnAtPnJ1bl9saXN0LCBycS0+cXVldWUgKyBwLT5w
+cmlvKTsK
+
+---MOQ10882123034bc83167d86d0f855f880c74e10124f6--

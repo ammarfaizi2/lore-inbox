@@ -1,53 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263370AbRFNQdW>; Thu, 14 Jun 2001 12:33:22 -0400
+	id <S263358AbRFNQkC>; Thu, 14 Jun 2001 12:40:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263365AbRFNQdN>; Thu, 14 Jun 2001 12:33:13 -0400
-Received: from ns.tasking.nl ([195.193.207.2]:33552 "EHLO ns.tasking.nl")
-	by vger.kernel.org with ESMTP id <S263359AbRFNQdB>;
-	Thu, 14 Jun 2001 12:33:01 -0400
-Date: Thu, 14 Jun 2001 18:31:35 +0200
-From: Frank van Maarseveen <fvm@tasking.nl>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.5: swap/VM strangeness
-Message-ID: <20010614183135.A16418@espoo.tasking.nl>
-Reply-To: frank_van_maarseveen@tasking.com
+	id <S263365AbRFNQjw>; Thu, 14 Jun 2001 12:39:52 -0400
+Received: from ohiper3-30.apex.net ([209.250.52.45]:27150 "EHLO
+	hapablap.dyn.dhs.org") by vger.kernel.org with ESMTP
+	id <S263358AbRFNQjr>; Thu, 14 Jun 2001 12:39:47 -0400
+Date: Thu, 14 Jun 2001 11:38:21 -0500
+From: Steven Walter <srwalter@yahoo.com>
+To: Jacek Pop?awski <jp@ulgo.koti.com.pl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PPP: VJ uncompressed error
+Message-ID: <20010614113820.A1170@hapablap.dyn.dhs.org>
+In-Reply-To: <20010614155521.A16551@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0i (Linux)
-Organization: TASKING, Inc.
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010614155521.A16551@localhost.localdomain>; from jp@ulgo.koti.com.pl on Thu, Jun 14, 2001 at 03:55:21PM +0200
+X-Uptime: 11:27am  up 1 day, 11:24,  1 user,  load average: 1.08, 1.31, 1.21
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A PIII with 96MB ram became extremely sluggish inside X11. I managed
-to terminate the X server, bringing the system in a useful state
-again. While the system was completely quiet (no X server) I noticed
-that a lot of both memory and swap was being used for no appearent reason:
+What kernel are you using??  I used to get it after I switced from a
+Linux-supported winmodem to a hardware modem, but the messages are now
+mysteriously absent from me logs.  If you're running something prior to
+2.4.5, I'd say it was fixed there.  Also, it could've been fixed in
+Alan's tree; I'm running 2.4.5-ac2
 
-# free 
-             total       used       free     shared    buffers     cached
-Mem:         93692      85164       8528          0       1404      75252
--/+ buffers/cache:       8508      85184
-Swap:       133048      54944      78104
-
-# swapoff -a
-	(took a minute)
-
-# free
-             total       used       free     shared    buffers     cached
-Mem:         93692      41760      51932          0       1420      24828
--/+ buffers/cache:      15512      78180
-Swap:            0          0          0
-
-# swapon -a
-# free
-             total       used       free     shared    buffers     cached
-Mem:         93692      41852      51840          0       1420      24848
--/+ buffers/cache:      15584      78108
-Swap:       133048          0     133048
-
-
-It looks as if the swap partition is being cached in main memory.
+On Thu, Jun 14, 2001 at 03:55:21PM +0200, Jacek Pop?awski wrote:
+> I see this message few times daily:
+> 
+> PPP: VJ uncompressed error
+> 
+> What does it mean? I searched news archives, HOWTOs, WWW, but only place I found that
+> string is kernel source.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
 -- 
-Frank
+-Steven
+In a time of universal deceit, telling the truth is a revolutionary act.
+			-- George Orwell

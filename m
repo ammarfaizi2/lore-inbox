@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263565AbTIHTqI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 15:46:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263566AbTIHTqI
+	id S263531AbTIHTe3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 15:34:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263552AbTIHTe3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 15:46:08 -0400
-Received: from dbl.q-ag.de ([80.146.160.66]:38117 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S263565AbTIHTqF (ORCPT
+	Mon, 8 Sep 2003 15:34:29 -0400
+Received: from fw.osdl.org ([65.172.181.6]:63936 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263531AbTIHTe2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 15:46:05 -0400
-Message-ID: <3F5CDC65.6060409@colorfullife.com>
-Date: Mon, 08 Sep 2003 21:45:41 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: Jamie Lokier <jamie@shareable.org>, Adrian Bunk <bunk@fs.tum.de>,
-       linux-kernel@vger.kernel.org, peter_daum@t-online.de
-Subject: Re: [2.4 patch] fix CONFIG_X86_L1_CACHE_SHIFT
-References: <3F5B96C3.1060706@colorfullife.com> <20030908142046.GA28062@fs.tum.de> <20030908170751.GB27097@mail.jlokier.co.uk> <20030908172416.GA21226@gtf.org>
-In-Reply-To: <20030908172416.GA21226@gtf.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 8 Sep 2003 15:34:28 -0400
+Date: Mon, 8 Sep 2003 12:28:53 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: torvalds@osdl.org, aebr@win.tue.nl, willy@debian.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] use size_t for the broken ioctl numbers
+Message-Id: <20030908122853.65bff9df.rddunlap@osdl.org>
+In-Reply-To: <20030908204023.A1060@pclin040.win.tue.nl>
+References: <20030908123846.GA15553@win.tue.nl>
+	<Pine.LNX.4.44.0309080812200.11840-100000@home.osdl.org>
+	<20030908204023.A1060@pclin040.win.tue.nl>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
+On Mon, 8 Sep 2003 20:40:23 +0200 Andries Brouwer <aebr@win.tue.nl> wrote:
 
->Yes; I've lost the specific context of the thread, but I have been
->working on MWI/cacheline size issues along with IvanK for a while.
->  
->
-Context: Peter experiences very bad network performance with 2.4.22 - it 
-looks like 99% packet drop or something like that. The packet drop 
-disappears if CONFIG_L1_CACHE_SHIFT is set to 7 (i.e. 128 byte cache 
-line size). 2.4.21 works.
-The network cards are some kind of atm cards. Several systems are 
-affected - at least Pentium II and PPro systems.
+| [That reminds me - you announced sparse, a source checker.
+| Is it available for non bk users? I haven't seen a URL.]
 
-Peter: what's the exact brand and nic driver that you use? Could you try 
-to figure out what exactly breaks? I'd use "ping -f -s 1500", perhaps 
-together with "tcpdump -s 1500 -x" on both ends.
+Dave Jones puts snapshots of it at
+http://www.codemonkey.org.uk/projects/sparse/
 
 --
-    Manfred
-
+~Randy

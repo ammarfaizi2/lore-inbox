@@ -1,62 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132540AbRDHLij>; Sun, 8 Apr 2001 07:38:39 -0400
+	id <S132541AbRDHLvX>; Sun, 8 Apr 2001 07:51:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132541AbRDHLi3>; Sun, 8 Apr 2001 07:38:29 -0400
-Received: from mlist.austria.eu.net ([193.81.83.3]:17382 "EHLO
-	hausmasta.austria.eu.net") by vger.kernel.org with ESMTP
-	id <S132540AbRDHLiO>; Sun, 8 Apr 2001 07:38:14 -0400
-Message-ID: <3AD04DA0.A1BC49B7@eunet.at>
-Date: Sun, 08 Apr 2001 13:38:08 +0200
-From: Michael Reinelt <reinelt@eunet.at>
-Organization: netWorks
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-CC: =?iso-8859-1?Q?G=E9rard?= Roudier <groudier@club-internet.fr>,
-        Tim Waugh <twaugh@redhat.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Multi-function PCI devices
-In-Reply-To: <Pine.LNX.4.10.10104071507230.1561-100000@linux.local> <3ACF5E15.2A6E4F3C@eunet.at> <3ACF5FFE.24ECA0CA@mandrakesoft.com>
+	id <S132546AbRDHLvN>; Sun, 8 Apr 2001 07:51:13 -0400
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:1494 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id <S132541AbRDHLvF>; Sun, 8 Apr 2001 07:51:05 -0400
+From: kumon@flab.fujitsu.co.jp
+Date: Sun, 8 Apr 2001 20:50:51 +0900
+Message-Id: <200104081150.UAA24135@asami.proc.flab.fujitsu.co.jp>
+To: Matti Aarnio <matti.aarnio@zmailer.org>
+Cc: kumon@flab.fujitsu.co.jp, Michael Peddemors <michael@linuxmagic.com>,
+        Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: Re: goodbye
+In-Reply-To: <20010408132205.O805@mea-ext.zmailer.org>
+In-Reply-To: <Pine.LNX.4.21.0104031800030.14090-100000@imladris.rielhome.conectiva>
+	<20010404012102Z131724-406+7418@vger.kernel.org>
+	<20010408023228.L805@mea-ext.zmailer.org>
+	<200104080510.OAA23675@asami.proc.flab.fujitsu.co.jp>
+	<20010408132205.O805@mea-ext.zmailer.org>
+Reply-To: kumon@flab.fujitsu.co.jp
+Cc: kumon@flab.fujitsu.co.jp
+X-Mailer: Handmade Mailer version 1.0
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-AntiVirus: OK (checked by AntiVir Version 6.6.0.12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> 
-> > Another (design) question: How will such a driver/module deal with
-> > autodetection and/or devfs? I don't like to specify 'alias /dev/tts/4
-> > netmos', because thats pure junk to me. What about pci hotplugging?
-> 
-> pci hotplugging happens pretty much transparently.  When a new device is
-> plugged in, your pci_driver::probe routine is called.  When a new device
-> is removed, your pci_driver::remove routine is called.
+Matti Aarnio writes:
+ > On Sun, Apr 08, 2001 at 02:10:52PM +0900, kumon@flab.fujitsu.co.jp wrote:
+ > > How about creating an additional ML,
+ > > the new ML (say LKML-DUL) is used to send mails from DUL to LKML, but
+ > > such mails are not sent to LMKL.
+ > 
+ > 	Layering and technology problem.
 
-Thats clear to me. But the probe and remove routine can only be called
-if the module is already loaded. My question was: who will load the
-module? (I'll call it 'netmos.o')
+It may or may not be possible using the current MTA implementation,
+but I know you are one of the authors of zmailer, it is possible for you.
 
-devfs in its standard configuration knows about loading serial.o or
-parport.o when /dev/tts/* or /dev/parport/* is accessed. Some other
-module loads are triggered by module dependancies (e.g. lp.o requires
-parport.o)
+Layering problem can be solved by using two different sendmail configuration
+files, one is for DUL and another is for non-DUL.
 
-If I do a 'modprobe serial', how should the serial driver know that the
-netmos.o should be loaded, too?
+I don't intend you to do, however I think it can be solved by
+technology.
 
-There is a file called 'modules.pcimap', which contains modules for
-specific PCI devices. That's how hotplugging could detect that there's a
-netmos card and that netmos.o should be loaded. That looks clean to me,
-but I'm not shure if this sort of PCI hotplugging is already
-implemented.
-
-bye, Michael
-
--- 
-netWorks       	                                  Vox: +43 316  692396
-Michael Reinelt                                   Fax: +43 316  692343
-Geisslergasse 4					  GSM: +43 676 3079941
-A-8045 Graz, Austria			      e-mail: reinelt@eunet.at
+--
+Computer Systems Laboratory, Fujitsu Labs.
+kumon@flab.fujitsu.co.jp

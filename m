@@ -1,54 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130958AbRCFGVw>; Tue, 6 Mar 2001 01:21:52 -0500
+	id <S129199AbRCFGjP>; Tue, 6 Mar 2001 01:39:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130962AbRCFGVd>; Tue, 6 Mar 2001 01:21:33 -0500
-Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:43791 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S130958AbRCFGV1>;
-	Tue, 6 Mar 2001 01:21:27 -0500
-Message-ID: <3AA4888F.77E3B422@candelatech.com>
-Date: Mon, 05 Mar 2001 23:49:51 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17-14 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Frédéric L. W. Meunier" <0@pervalidus.net>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.2 ext2 filesystem corruption ? (was 2.4.2: What happened ? (No 
- such file or directory))
-In-Reply-To: <20010305022117.C103@pervalidus>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S129191AbRCFGjF>; Tue, 6 Mar 2001 01:39:05 -0500
+Received: from [200.222.192.170] ([200.222.192.170]:58240 "EHLO
+	pervalidus.dyndns.org") by vger.kernel.org with ESMTP
+	id <S129190AbRCFGis>; Tue, 6 Mar 2001 01:38:48 -0500
+Date: Mon, 5 Mar 2001 03:37:35 -0300
+From: Frédéric L. W. Meunier <0@pervalidus.net>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.2 ext2 filesystem corruption ? (was 2.4.2: What happened ? (No such file or directory))
+Message-ID: <20010305033735.D103@pervalidus>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.16i
+X-Mailer: Mutt/1.3.16i - Linux 2.4.2
+X-URL: http://www.pervalidus.net/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-For what it's worth, I was able to completely screw up my root FS
-using redhat's Fisher beta kernel (2.2.18 + stuff).  I did this by
-running a bad hdparm command while running a full GNOME desktop:
-(This was not a good idea...and I know, and knew that...but....)
+Maybe I should give details about my hardware. The system was
+installed 5 months ago, and this is the first problem.
 
-hdparm -X34 -d1 -u1 /dev/hda
-(As found here: http://www.oreillynet.com/pub/a/linux/2000/06/29/hdparm.html?page=2
+I used 2.2.16 stock Kernel from Slackware 7.1
+2.2.17
+2.2.18
+2.4.0
+2.4.1
 
+And the only problem was with 2.4.2.
 
-HD is a 40GB 7200 RPM Western Digital drive. (ATA-100 I believe)
-that I just got from Fry's a few days ago...
+FYI, I'm not using hdparm or changing the BIOS to use UDMA 66.
+It'd fail with 2.4.1 and 2.4.2 (CRC errors), so the setting
+is AUTO and it's using UDMA 33.
 
-fdisk was sort of able to recover most of the file system by
-booting off of the CD in rescue mode and running fsck on /dev/hda, but
-many files were not what they said they were, ie /sbin/ifup was
-some other binary...  Some files turned into directories it
-seems....
+And please note that this machine is fine, but I actually only
+open 2 consoles and run GNU screen. No XFree86, and only a few
+applications running.
 
-Sorry for the lame bug report, but I'm scared to try it again, and
-I didn't realize the complexity of the problem when I simply powered
-down my machine with the HD light on solid...
-
-Thanks,
-Ben
+If needed, my /var/log/dmesg is at
+http://members.nbci.com/pervalidus/dmesg-2.4.2.txt
 
 -- 
-Ben Greear (greearb@candelatech.com)  http://www.candelatech.com
-Author of ScryMUD:  scry.wanfear.com 4444        (Released under GPL)
-http://scry.wanfear.com               http://scry.wanfear.com/~greear
+0@pervalidus.{net, {dyndns.}org} Tel: 55-21-717-2399 (Niterói-RJ BR)

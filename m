@@ -1,96 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261361AbVCCDzK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261337AbVCCEEX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261361AbVCCDzK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 22:55:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261323AbVCCDuS
+	id S261337AbVCCEEX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 23:04:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261342AbVCCED4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 22:50:18 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:59552 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261194AbVCCDrQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 22:47:16 -0500
-Date: Wed, 2 Mar 2005 22:47:04 -0500
-From: Dave Jones <davej@redhat.com>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
-       Russell King <rmk+lkml@arm.linux.org.uk>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Wed, 2 Mar 2005 23:03:56 -0500
+Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:60650
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S261337AbVCCECc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 23:02:32 -0500
+Date: Wed, 2 Mar 2005 20:02:14 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
 Subject: Re: RFD: Kernel release numbering
-Message-ID: <20050303034704.GA15771@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	"Randy.Dunlap" <rddunlap@osdl.org>,
-	Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
-	Russell King <rmk+lkml@arm.linux.org.uk>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org> <20050302230634.A29815@flint.arm.linux.org.uk> <42265023.20804@pobox.com> <Pine.LNX.4.58.0503021553140.25732@ppc970.osdl.org> <20050303002733.GH10124@redhat.com> <42268037.3040300@osdl.org>
+Message-Id: <20050302200214.3e4f0015.davem@davemloft.net>
+In-Reply-To: <42268749.4010504@pobox.com>
+References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org>
+	<42264F6C.8030508@pobox.com>
+	<20050302162312.06e22e70.akpm@osdl.org>
+	<42265A6F.8030609@pobox.com>
+	<20050302165830.0a74b85c.davem@davemloft.net>
+	<422674A4.9080209@pobox.com>
+	<Pine.LNX.4.58.0503021932530.25732@ppc970.osdl.org>
+	<42268749.4010504@pobox.com>
+X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42268037.3040300@osdl.org>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 02, 2005 at 07:10:47PM -0800, Randy.Dunlap wrote:
+On Wed, 02 Mar 2005 22:40:57 -0500
+Jeff Garzik <jgarzik@pobox.com> wrote:
 
- > >For it to truly be a stable kernel, the only patches I'd expect to
- > >drivers would be ones fixing blindingly obvious bugs. No cleanups.
- > >No new functionality. I'd even question new hardware support if it
- > >wasn't just a PCI ID addition.
- > 
- > Maybe I don't understand?  Is someone expecting distro
- > quality/stability from kernel.org kernels?
+> People don't test 2.6-rc releases because they know they are not 
+> "release candidate, with only bug fixes" releases, which is how the rest 
+> of the world interprets the phrase.
 
-My complaint is the charade of calling it 'stable' when it clearly
-wouldn't be anything of the sort, given that a majority of the bugs our
-users experienced on rebasing were driver related.
-The core itself may be rock-solid, but if we're continually pulling
-in random driver updates of questionable quality with limited
-testing, the result as a whole isn't stable.
-
- > I don't, but maybe I'm one of those minorities.
-
-Putting the onus on distributions to make things stable is no
-excuse for the ever-increasing number of regressions each release.
-
-This might sound over-dramatic, but it's the current state as far
-as I'm concerned.  The 2.6.8->2.6.9 update for Fedora users brought
-a bunch of carnage that took time to shake out. 2.6.9->2.6.10 I'm
-still picking up the pieces of.  If the 2.6.10->2.6.11 update that
-I'll do for Fedora in a week or two turns out to have less regressions
-than the previous releases, I'll be stunned. Really.
-
-Already I'm wondering how many userspace packages are going to randomly
-stop working as they have done in previous releases.  With the
-clear delineation of stable/development, we were able to say things
-like "we won't change a user visible interface in a stable series"
-Now, we don't have that. So we find things ranging from slabtop to
-alsa-lib completely break unless you update the userspace too.
-
-regressions like this is what I'm bitching about. There's nothing
-a vendor can do to make such things stable (other than dropping
-the various patches that introduce the breakage, but at ~4000 csets
-per release right now, there will be stuff that gets missed).
-Whilst the slabinfo example was a non-driver related regression,
-it's a good example of how little care we're taking these days
-to make sure existing userspace continues to work correctly.
-
-Some may suggest the close tracking of mainline is the problem.
-Maybe they're right. Maybe we should have stuck with a 2.6.5 kernel
-until Fedora Core 2 reached end of life, and gone with the old
-'have hundreds and hundreds of patches piling up' approach.
-
-But, as someone who has maintained vendor kernels that have tried
-both methods, the sticking close to mainline approach wins hands down.
-If something is broken, more often than not, I can bug the upstream
-developer and ask "hey, this is a wierd problem our fedora users hit,
-we don't have any patches against this code, can you take a look?"
-and developers have been very responsive, and helpful on many occasions,
-ultimatly leading bugs being fixed both in our kernel, and upstream.
-
-If I asked most upstream developers about a problem we've been facing
-with our 2.6.5 kernels, I'd get a much less helpful response.
-And rightly so. In their position I'd do exactly the same thing.
-
-		Dave
-
+That's not %100 true.  No matter what -rc* really is, people perceive
+it to be something based upon it's name and whether or not it is an
+official release.  As far as I can see it's %95 perception vs. reality.
+And IT IS part of the reason the -rc's are not as good as they could be.

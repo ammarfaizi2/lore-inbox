@@ -1,94 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268511AbUJDUvL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268537AbUJDVS6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268511AbUJDUvL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 16:51:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268503AbUJDUr7
+	id S268537AbUJDVS6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 17:18:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268575AbUJDVS6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 16:47:59 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:38352 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S268487AbUJDUpa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 16:45:30 -0400
-Date: Mon, 4 Oct 2004 22:42:15 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Borislav Petkov <petkov@uni-muenster.de>
-Cc: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>,
-       Andrew Morton <akpm@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Fw: Re: 2.6.9-rc2-mm4
-Message-ID: <20041004204214.GB9022@suse.de>
-References: <20040929214637.44e5882f.akpm@osdl.org> <200410041754.25677.petkov@uni-muenster.de> <20041004173620.GA5707@suse.de> <200410042212.32106.petkov@uni-muenster.de>
-Mime-Version: 1.0
+	Mon, 4 Oct 2004 17:18:58 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:40190 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S268537AbUJDVSy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Oct 2004 17:18:54 -0400
+Date: Mon, 04 Oct 2004 14:19:37 -0700
+From: Hanna Linder <hannal@us.ibm.com>
+To: linux-kernel@vger.kernel.org
+cc: kernel-janitors@lists.osdl.org, greg@kroah.com, hannal@us.ibm.com,
+       geert@linux-m68k.org, zippel@linux-m68k.org
+Subject: [PATCH 2.6] hades-pci.c: replace pci_find_device with pci_get_device
+Message-ID: <280230000.1096924777@w-hlinder.beaverton.ibm.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200410042212.32106.petkov@uni-muenster.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 04 2004, Borislav Petkov wrote:
-> On Monday 04 October 2004 19:36, Jens Axboe wrote:
-> > On Mon, Oct 04 2004, Borislav Petkov wrote:
-> > > Ok here we go,
-> > >
-> > > final results:
-> > >
-> > >  2.6.8-rc1: OK
-> > >  2.6.8-rc2: OK
-> > >  2.6.8-rc3: OK
-> > >  2.6.8-rc3-bk1: OK
-> > >  2.6.8-rc3-bk2: OK
-> > >  2.6.8-rc3-bk3: OK
-> > >  2.6.8-rc3-bk4: OK
-> > >  2.6.8-rc4: BUG!
-> > >
-> > > So, assuming that everything went fine during testing, the bug got
-> > > introduced in the transition between 2.6.8-rc3-bk4 and 2.6.8-rc4.
-> >
-> > That's some nice testing, thank you. Try backing out this hunk:
-> >
-> > diff -urp linux-2.6.8-rc3-bk4/drivers/block/scsi_ioctl.c
-> > linux-2.6.8-rc4/drivers/block/scsi_ioctl.c ---
-> > linux-2.6.8-rc3-bk4/drivers/block/scsi_ioctl.c 2004-08-03
-> > 23:28:51.000000000 +0200 +++
-> > linux-2.6.8-rc4/drivers/block/scsi_ioctl.c 2004-08-10 04:24:08.000000000
-> > +0200 @@ -90,7 +90,7 @@ static int sg_set_reserved_size(request_
-> >   if (size < 0)
-> >    return -EINVAL;
-> >   if (size > (q->max_sectors << 9))
-> > -  return -EINVAL;
-> > +  size = q->max_sectors << 9;
-> >
-> >   q->sg_reserved_size = size;
-> >   return 0;
-> >
-> > It's the only thing that sticks out, and it could easily explain it if
-> > your cd ripper starts issuing requests that are too big. Maybe even add
-> > a printk() here, so it will look like this in the kernel you test:
-> >
-> >  if (size > (q->sectors << 9)) {
-> >   printk("%u rejected\n", size);
-> >   return -EINVAL;
-> >  }
-> >
-> > to verify.
-> 
-> Yeah, that was it. Two lines in the log:
-> 
-> Oct 4 22:07:04 zmei kernel: 3145728 rejected
-> Oct 4 22:07:04 zmei kernel: 3145728 rejected
-> 
-> Hmm, so this means that my dvd drive is sending too big requests. What do we 
-> do: firmware upgrade?
 
-It actually means we have a little discrepancy between what programs
-expact of the api. What program are you using? They are supposed to read
-back what value has been set with SG_GET_RESERVED_SIZE, I guess this one
-does not.
+As pci_find_device is going away I have replaced this call with pci_get_device.
+If anyone has access to a Hades Atari clone to test this one I would appreciate it..
 
-What's a little extra strange is that this command apparently doesn't
-have ->dxfer_len set to the correct size, or it should be caught in
-sg_io() at issue time.
+Hanna Linder
+IBM Linux Technology Center
 
--- 
-Jens Axboe
+Signed-off-by: Hanna Linder <hannal@us.ibm.com>
+
+---
+diff -Nrup linux-2.6.9-rc3-mm2cln/arch/m68k/atari/hades-pci.c linux-2.6.9-rc3-mm2patch/arch/m68k/atari/hades-pci.c
+--- linux-2.6.9-rc3-mm2cln/arch/m68k/atari/hades-pci.c	2004-09-29 20:04:57.000000000 -0700
++++ linux-2.6.9-rc3-mm2patch/arch/m68k/atari/hades-pci.c	2004-10-04 13:30:44.120362824 -0700
+@@ -311,7 +311,7 @@ static void __init hades_fixup(int pci_m
+ 	 * Go through all devices, fixing up irqs as we see fit:
+ 	 */
+ 
+-	while ((dev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL)
++	while ((dev = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL)
+ 	{
+ 		if (dev->class >> 16 != PCI_BASE_CLASS_BRIDGE)
+ 		{
+
 

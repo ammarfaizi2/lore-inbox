@@ -1,60 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272739AbTHPK4Y (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Aug 2003 06:56:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272741AbTHPK4Y
+	id S272731AbTHPKyG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Aug 2003 06:54:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272739AbTHPKyG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Aug 2003 06:56:24 -0400
-Received: from Sina.Sharif.EDU ([81.31.160.35]:53646 "EHLO sina.sharif.edu")
-	by vger.kernel.org with ESMTP id S272739AbTHPK4W (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Aug 2003 06:56:22 -0400
-Date: Sat, 16 Aug 2003 15:31:40 +0430 (IRST)
-From: Behdad Esfahbod <behdad@bamdad.org>
-To: linux-kernel@vger.kernel.org
-Subject: devfs oops on module missing
-Message-ID: <Pine.LNX.4.44.0308161011570.30273-100000@gilas.bamdad.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 16 Aug 2003 06:54:06 -0400
+Received: from mail.cpt.sahara.co.za ([196.41.29.142]:6394 "EHLO
+	workshop.saharact.lan") by vger.kernel.org with ESMTP
+	id S272731AbTHPKyE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Aug 2003 06:54:04 -0400
+Subject: Re: increased verbosity in dmesg
+From: Martin Schlemmer <azarah@gentoo.org>
+To: gene.heskett@verizon.net
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <200308160438.59489.gene.heskett@verizon.net>
+References: <200308160438.59489.gene.heskett@verizon.net>
+Content-Type: text/plain
+Message-Id: <1061030883.13257.253.camel@workshop.saharacpt.lan>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 16 Aug 2003 12:48:05 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sat, 2003-08-16 at 10:38, Gene Heskett wrote:
+> Greetings;
+> 
+> The recently increased verbosity in the dmesg file is causeing the 
+> "ring buffer" to overflow, and I am not now seeing the first few 
+> pages of the reboot in the dmesg file.
+> 
 
-With 2.6.0-test3 and 2.6.0-test2, devfs mounting at boot time, 
-devfsd 1.3.25 installed, no floppy drive, so floppy,ko would 
-reject to load.  On boot time got this:
+> Is there any quick and dirty way to increase this to at least 32k, or 
+> maybe even to 64k?  With half a gig of memory, this shouldn't be a 
+> problem should it?
+> 
 
-modprobe: FATAL: Error inserting floppy 
-(/lib/modules/2.6.0-test3/kernel/drivers/block/floppy.ko): No such device
+ # dmesg -s 30000
 
-devfs_put(f7498780): poisoned pointer
-------------[ cut here ]------------
-kernel BUG at fs/devfs/base.c:922!
-invalid operand: 0000 [#1]
-CPU:    0
-EIP:    0060:[<c01a2c68>]
-EFLAGS: 00010286
-EIP is at devfs_put+0xf8/0x105
-eax: 0000000d   ebx: f7498780   ecx: c033c430   edx: 00000286
-esi: c03420c0   edi: f7498780   ebp: 00000000   esp: f78fbec8
-ds: 007b   es: 007b   ss: 0068
-Process devfsd (pid: 18, thredinfo=f78fa000 task=f79d0c80)
-Stack: c02fbac4 c02e6ece f7498780 00000000 c01a5772 f7498780 f7d0f41f 00000001
-       f7d0f000 f791d4c8 00000082 f78fa000 c03420e8 f78b0800 f7498780 00000021
-       00000000 00000021 00000000 000003ff 00000000 00000000 00000001 00000000
-Call Trace:
- [<c01a5772>] devfsd_read+0x31f/0x4c4
- [<c011f68c>] default_wake_function+0x0/0x2e
- [<c011f68c>] default_wake_function+0x0/0x2e
- [<c0158ebe>] vfs_read+0xbc/0x127
- [<c011f434>] schedule+0x1b6/ox3be
- [<c0159149>] sus_read+0x42/0x63
- [<c01091b9>] sysenter_past_esp+0x52/0x71
-
-Code: 0f 0b 9a 03 d2 ba 2f c0 e9 1b ff ff ff 55 57 56 53 83 ec 10
+Works here.
 
 
+-- 
+Martin Schlemmer
 
-Removing the floppy.ko, well, solved this problem.
 

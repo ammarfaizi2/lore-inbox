@@ -1,87 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262904AbVBCBOH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262577AbVBCBOK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262904AbVBCBOH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 20:14:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262895AbVBCBM6
+	id S262577AbVBCBOK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 20:14:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262686AbVBCBE5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 20:12:58 -0500
-Received: from multivac.one-eyed-alien.net ([64.169.228.101]:39849 "EHLO
-	multivac.one-eyed-alien.net") by vger.kernel.org with ESMTP
-	id S262850AbVBCBMd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 20:12:33 -0500
-Date: Wed, 2 Feb 2005 17:12:24 -0800
-From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-To: Aleksey Gorelov <Aleksey_Gorelov@Phoenix.com>
-Cc: stern@rowland.harvard.edu, linux-kernel@vger.kernel.org
-Subject: Re: your mail
-Message-ID: <20050203011224.GA29748@one-eyed-alien.net>
-Mail-Followup-To: Aleksey Gorelov <Aleksey_Gorelov@Phoenix.com>,
-	stern@rowland.harvard.edu, linux-kernel@vger.kernel.org
-References: <5F106036E3D97448B673ED7AA8B2B6B301B3CD73@scl-exch2k.phoenix.com>
+	Wed, 2 Feb 2005 20:04:57 -0500
+Received: from gate.crashing.org ([63.228.1.57]:59077 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S262542AbVBCAa0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Feb 2005 19:30:26 -0500
+Subject: Re: pci: Arch hook to determine config space size
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Brian King <brking@us.ibm.com>,
+       Linux Arch list <linux-arch@vger.kernel.org>,
+       Matthew Wilcox <matthew@wil.cx>, Greg KH <greg@kroah.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Christoph Hellwig <hch@infradead.org>,
+       Paul Mackerras <paulus@samba.org>,
+       linuxppc64-dev <linuxppc64-dev@ozlabs.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz
+In-Reply-To: <200502021105.42249.arnd@arndb.de>
+References: <200501281456.j0SEuI12020454@d01av01.pok.ibm.com>
+	 <41FF0B0D.8020003@us.ibm.com> <1107233864.5963.65.camel@gaston>
+	 <200502021105.42249.arnd@arndb.de>
+Content-Type: text/plain
+Date: Thu, 03 Feb 2005 11:23:35 +1100
+Message-Id: <1107390215.30709.88.camel@gaston>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="C7zPtVaVf+AK4Oqc"
-Content-Disposition: inline
-In-Reply-To: <5F106036E3D97448B673ED7AA8B2B6B301B3CD73@scl-exch2k.phoenix.com>
-User-Agent: Mutt/1.4.1i
-Organization: One Eyed Alien Networks
-X-Copyright: (C) 2005 Matthew Dharm, all rights reserved.
-X-Message-Flag: Get a real e-mail client.  http://www.mutt.org/
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2005-02-02 at 11:05 +0100, Arnd Bergmann wrote:
 
---C7zPtVaVf+AK4Oqc
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> How about something along the lines of this patch? Instead of adding a
+> pointer to the pci data from the device node, it embeds the node inside
+> a new struct pci_device_node. The patch is not complete and therefore
+> not expected to work as is, but maybe you want to reuse it.
+> 
+> The interesting part that is missing is creating and destroying 
+> pci_device_nodes in prom.c, maybe you have an idea how to do that.
+> 
+> I'm also not sure about eeh. Are the eeh functions known to be called
+> only for device_nodes of PCI devices? If not, eeh_mode and 
+> eeh_config_addr might have to stay inside of device_node.
 
-It's basically just like the code says.
+I'd rather not go that way for now. There are at least PCI and VIO
+devices concerned by this, and maybe more (depending on how I deal
+with macio devices for example). We also want, ultimately, to have
+the DMA routines be function pointers in this auxilliary structure.
 
-A lot of devices choke if you access them too quickly after enumeration.
-The 5 second delay seems to be enough for most devices.  But we made it
-adjustable exactly for people like you.
+Ben.
 
-Matt
 
-On Wed, Feb 02, 2005 at 04:17:13PM -0800, Aleksey Gorelov wrote:
-> Hi Matt, Alan,=20
->=20
->   Could you please tell me (link would do) why it makes default
-> delay_use=3D5=20
-> really necessary (from the patch below)?
-> https://lists.one-eyed-alien.net/pipermail/usb-storage/2004-August/00074
-> 7.html
->=20
-> It makes USB boot really painfull and slow :(
->=20
->   I understand there should be a good reason for it. I've tried to find
-> an answer in=20
-> archives, without much success though.
->=20
-> Thanks,
-> Aleks.
-
---=20
-Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
-net=20
-Maintainer, Linux USB Mass Storage Driver
-
-Now payink attention, please.  This is mouse.  Click-click. Easy to=20
-use, da? Now you try...
-					-- Pitr to Miranda
-User Friendly, 10/11/1998
-
---C7zPtVaVf+AK4Oqc
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQFCAXp4IjReC7bSPZARAqplAJ9WD9TRlryVc1ikb8L4QZFsq+ezyQCgrnAw
-qakC8xzTroMWe/o9zuY30Q4=
-=kQBj
------END PGP SIGNATURE-----
-
---C7zPtVaVf+AK4Oqc--

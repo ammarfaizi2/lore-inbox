@@ -1,75 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261396AbUCHXNZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Mar 2004 18:13:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261184AbUCHXNY
+	id S261184AbUCHXOT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Mar 2004 18:14:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261411AbUCHXOT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Mar 2004 18:13:24 -0500
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:6101 "EHLO
-	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id S261396AbUCHXMI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Mar 2004 18:12:08 -0500
-Date: Tue, 9 Mar 2004 00:11:38 +0100 (MET)
-From: Arjen Verweij <A.Verweij2@ewi.tudelft.nl>
-Reply-To: a.verweij@student.tudelft.nl
-To: Craig Bradney <cbradney@zip.com.au>
-cc: Ross Dickson <ross@datscreative.com.au>,
-       "Prakash K. Cheemplavam" <PrakashKC@gmx.de>,
-       <linux-kernel@vger.kernel.org>, Jamie Lokier <jamie@shareable.org>,
-       Ian Kumlien <pomac@vapor.com>, Jesse Allen <the3dfxdude@hotmail.com>,
-       Daniel Drake <dan@reactivated.net>
-Subject: Re: [PATCH] 2.6, 2.4, Nforce2, Experimental idle halt workaround
- instead of apic ack delay.
-In-Reply-To: <1078786761.9399.15.camel@athlonxp.bradney.info>
-Message-ID: <Pine.GHP.4.44.0403090007110.9764-100000@elektron.its.tudelft.nl>
+	Mon, 8 Mar 2004 18:14:19 -0500
+Received: from smtp04.web.de ([217.72.192.208]:34590 "EHLO smtp.web.de")
+	by vger.kernel.org with ESMTP id S261184AbUCHXOF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Mar 2004 18:14:05 -0500
+From: Thomas Schlichter <thomas.schlichter@web.de>
+To: linux-kernel@vger.kernel.org
+Subject: [2.6.4-rc2] bogus semicolon behind if()
+Date: Tue, 9 Mar 2004 00:14:01 +0100
+User-Agent: KMail/1.5.4
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200403090014.03282.thomas.schlichter@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes, but for me the temp diff in Celsius between idle and load for the CPU
-is almost 20 degrees. This has a dramatic impact on the case temperature
-when it is closed because I haven't added fans in the top of the case yet.
+Hi,
 
-So you see I value the disconnect quite a bit. Maybe when I get better
-cooling I will disable it altogether in the BIOS so this headache will
-disappear forever ;)
+recently I found a bogus semicolon an if statement. So I was searching for 
+other possible problems with following command:
 
-Arjen
+find linux-2.6.4-rc2 -name "*.c" -exec grep -Hn "\<if[[:space:]]*(\([^()]\|
+([^()]*)\)*)[[:space:]]*;" {} \;
 
-On Mon, 8 Mar 2004, Craig Bradney wrote:
+That found following possible problems:
 
-> Hi Arjen
->
-> <snip>
->
-> > So far I have seen this only once, and I don't know what causes it.
-> >
-> > Ross, I prefer using your old patch because it keeps my temperature within
-> > reasonable bounds when the case is closed. Sorry.
-> >
->
-> <snip>
->
-> I have put the idle=C1halt patch that Ross released a little while back
-> now into Gentoo-dev-sources-2.6.3 as I reported to the list yesterday. I
-> no longer use the old apic_tack=2 patch. I have been playing silly
-> buggers with hardware, but so far the PC has made it to 11 hours and now
-> 7 hours with no issues.
->
-> After those 11 hours I decided I'd change the PC setup in here and
-> disconnected a fan and a hard drive and moved my server s/w (apache etc)
-> to this PC so I only have one in here fpr now.
->
-> Right now, CPU is at 34C which is only 1-3C higher than with the other
-> patch, including having one less fan sucking air out the back of the
-> box. Motherboard is actually lower (27C) than before (29C). Ambient room
-> temp is normal.
->
-> After those 11 hours, I am quite sure that on normal use (ie not
-> compiling) the motherboard and cpu was 1-2C lower than with apic_tack=2.
->
-> regards
-> Craig
->
+linux-2.6.4-rc2/arch/um/kernel/tt/tracer.c:257:		if(WIFEXITED(status)) ;
+linux-2.6.4-rc2/arch/i386/kernel/io_apic.c:2200:				if (check_nmi_watchdog() < 
+0);
+linux-2.6.4-rc2/arch/i386/kernel/io_apic.c:2224:				if (check_nmi_watchdog() < 
+0);
+linux-2.6.4-rc2/drivers/atm/iphase.c:155:     if (!desc1) ;
+linux-2.6.4-rc2/drivers/net/wan/pc300_drv.c:3664:			if (card->chan[i].d.dev);
+linux-2.6.4-rc2/drivers/net/tokenring/ibmtr.c:613:	else if 
+(ti->shared_ram_paging == 0xf);  /* No paging in adapter */
+linux-2.6.4-rc2/drivers/usb/misc/speedtch.c:92:#define DEBUG_ON(x)	do { if 
+(x); } while (0)
+linux-2.6.4-rc2/drivers/usb/media/w9968cf.c:3374:		if (tuner.tuner != 0);
+linux-2.6.4-rc2/drivers/isdn/capi/capiutil.c:438:	else if (c <= 0x0f);
+linux-2.6.4-rc2/drivers/isdn/hisax/hfc_sx.c:385:	if (Read_hfc(cs, 
+HFCSX_INT_S1));
+linux-2.6.4-rc2/drivers/isdn/hisax/hfc_sx.c:415:	if (Read_hfc(cs, 
+HFCSX_INT_S2));
+linux-2.6.4-rc2/drivers/isdn/hisax/hfc_sx.c:1290:						if (Read_hfc(cs, 
+HFCSX_INT_S1));
+linux-2.6.4-rc2/drivers/isdn/hisax/hfc_pci.c:131:	if (Read_hfc(cs, 
+HFCPCI_INT_S1));
+linux-2.6.4-rc2/drivers/isdn/hisax/hfc_pci.c:161:	if (Read_hfc(cs, 
+HFCPCI_INT_S1));
+linux-2.6.4-rc2/drivers/isdn/hisax/hfc_pci.c:1543:						if (Read_hfc(cs, 
+HFCPCI_INT_S1));
+linux-2.6.4-rc2/drivers/s390/scsi/zfcp_erp.c:2057:		if (status == 
+ZFCP_ERP_SUCCEEDED) ;	/* no further action */
+linux-2.6.4-rc2/drivers/scsi/sg.c:356:	if (ppos != &filp->f_pos) ;	/* FIXME: 
+Hmm.  Seek to the right place, or fail?  */
+linux-2.6.4-rc2/drivers/scsi/sg.c:514:	if (ppos != &filp->f_pos) ;	/* FIXME: 
+Hmm.  Seek to the right place, or fail?  */
+
+Best regards
+   Thomas Schlichter
+
+P.S.: Wouldn't it be nice if gcc complained about these mistakes?
 

@@ -1,62 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263980AbUDQNrN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Apr 2004 09:47:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263982AbUDQNrN
+	id S263974AbUDQNqn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Apr 2004 09:46:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263980AbUDQNqn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Apr 2004 09:47:13 -0400
-Received: from mlf.linux.rulez.org ([192.188.244.13]:26890 "EHLO
-	mlf.linux.rulez.org") by vger.kernel.org with ESMTP id S263980AbUDQNrH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Apr 2004 09:47:07 -0400
-Date: Sat, 17 Apr 2004 15:47:04 +0200 (MEST)
-From: Szakacsits Szabolcs <szaka@sienet.hu>
-To: Dave Jones <davej@redhat.com>
-Cc: Anton Altaparmakov <aia21@cam.ac.uk>, linux-ntfs-dev@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: NTFS null dereference x2
-Message-ID: <Pine.LNX.4.21.0404171505580.30107-100000@mlf.linux.rulez.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 17 Apr 2004 09:46:43 -0400
+Received: from bristol.phunnypharm.org ([65.207.35.130]:57252 "EHLO
+	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
+	id S263974AbUDQNql (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Apr 2004 09:46:41 -0400
+Date: Sat, 17 Apr 2004 09:20:28 -0400
+From: Ben Collins <bcollins@debian.org>
+To: Marc Giger <gigerstyle@gmx.ch>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux on UltraSparcII E450
+Message-ID: <20040417132027.GE3647@phunnypharm.org>
+References: <20040417105303.7936e413@vaio.gigerstyle.ch>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040417105303.7936e413@vaio.gigerstyle.ch>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Apr 17, 2004 at 10:53:03AM +0200, Marc Giger wrote:
+> Hi All,
+> 
+> Last week I had the honor to install Linux on a E450 with 2 cpu's. All
+> went fine at first. Long compiling sessions were no problem for the
+> machine. Later we installed 16 additional SCSI disks and we built 
+> 4 x Soft-RAID5 groups with 4 disks each.
+> After some time during the sync processes the machine stops responding.
+> Simply dead. The same thing happens after every boot when the sync
+> process is in action.
+> 
+> My question now is: Is it a hardware or a kernel problem? I now it isn't
+> a simple question with the given infos.
+> Is it possible that the 4 parallel sync processes are to much for the
+> SCSI (standard LSI) controllers?
+> I assume that the kernel RAID5 code is stable on sparc?!
 
-Dave Jones <davej@redhat.com> wrote:
+Try enabling some debug, like spinlock debug and such. See if that spits
+out anything interesting.
 
-> if vol is NULL, everything falls apart..
-
-AFAIS, neither vol nor vol->sb can be NULL below. The !vol check, that
-fooled you or an automatic checker, is bogus and probably it slipped
-through the user space library, thanks.
-
-Please note, by the patch you would introduce a real bug when you
-dereference the now uninitialized sb to assign a value to block_size.
-
-	Szaka
-
-> --- linux-2.6.5/fs/ntfs/attrib.c~     2004-04-16 22:45:53.000000000 +0100
-> +++ linux-2.6.5/fs/ntfs/attrib.c      2004-04-16 22:46:47.000000000 +0100
-> @@ -1235,16 +1235,19 @@
->       u8 *al_end = al + initialized_size;
->       run_list_element *rl;
->       struct buffer_head *bh;
-> -     struct super_block *sb = vol->sb;
-> +     struct super_block *sb;
->       unsigned long block_size = sb->s_blocksize;
->       unsigned long block, max_block;
->       int err = 0;
-> -     unsigned char block_size_bits = sb->s_blocksize_bits;
-> +     unsigned char block_size_bits;
->
->       ntfs_debug("Entering.");
->       if (!vol || !run_list || !al || size <= 0 || initialized_size < 0 ||
->                       initialized_size > size)
->               return -EINVAL;
-> +     sb = vol->sb;
-> +     block_size_bits = sb->s_blocksize_bits;
-> +
->       if (!initialized_size) {
->               memset(al, 0, size);
->               return 0;
-
+-- 
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+WatchGuard - http://www.watchguard.com/

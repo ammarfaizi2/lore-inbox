@@ -1,55 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265841AbUAEBlv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jan 2004 20:41:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265842AbUAEBlv
+	id S265834AbUAEBi6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jan 2004 20:38:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265839AbUAEBi6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jan 2004 20:41:51 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:9683 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S265841AbUAEBls (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jan 2004 20:41:48 -0500
-Date: Mon, 5 Jan 2004 02:41:22 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Andi Kleen <ak@muc.de>
-Cc: Paul Jackson <pj@sgi.com>, linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] disable gcc warnings of sign/unsigned comparison
-Message-ID: <20040105014122.GW10569@fs.tum.de>
-References: <19ahq-7Rg-11@gated-at.bofh.it> <19eEs-5lC-15@gated-at.bofh.it> <19kgS-4HT-19@gated-at.bofh.it> <m3pte3i17t.fsf@averell.firstfloor.org>
+	Sun, 4 Jan 2004 20:38:58 -0500
+Received: from main.gmane.org ([80.91.224.249]:63959 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S265834AbUAEBi4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jan 2004 20:38:56 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: GCC 3.4 Heads-up
+Date: Mon, 05 Jan 2004 02:38:54 +0100
+Message-ID: <yw1xu13b2mz5.fsf@ford.guide>
+References: <bsgav5$4qh$1@cesium.transmeta.com> <Pine.LNX.4.58.0312252021540.14874@home.osdl.org>
+ <3FF5E952.70308@tmr.com> <m365fsu48n.fsf@defiant.pm.waw.pl>
+ <3FF7A910.40703@tmr.com> <Pine.LNX.4.58.0401041232440.2162@home.osdl.org>
+ <3FF8BDBB.4060708@tmr.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m3pte3i17t.fsf@averell.firstfloor.org>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:L+7pdF/35qCXsKO94EZmWPMQ7J8=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 02, 2004 at 02:33:10AM +0100, Andi Kleen wrote:
-> Paul Jackson <pj@sgi.com> writes:
-> 
-> > Right now, compiling a 2.6.0-mm1 (what I had handy) with the 3.3 gcc on
-> 
-> That was a bug in gcc 3.3.0. It had the -Wsign-compare warning 
-> enabled in -Wall by mistake. Update to gcc 3.3.1, which has this fixed.
+Bill Davidsen <davidsen@tmr.com> writes:
 
-Wrong.
+>> If you have local variables (register or not), the sane thing to do is
+>> 	if (a)
+>> 		b = d;
+>> 	else
+>> 		c = d;
+>> or variations on that. That's the readable code.
+>
+> But may lead to errors in maintenence. Your first example below avoids
+> that problem. Imagine instead of "d" you have a 40-50 character
+> RHS. Now imagine that the code needs to be changed. If you have the
+> long expression in two places then it invites the possiblility of
+> someone changing only one of them. You may never make mistakes, but
+> the rest of us do, and the conditional LHS avoids that.
 
-It was _not_ a bug in gcc 3.3 .
+What's wrong with
 
-It was a bug in some _prerelease_ versions of gcc 3.3 SuSE decided to 
-ship in a release of their distribution.
+	d = long_expression;
+ 	if (a)
+ 		b = d;
+ 	else
+ 		c = d;
 
-There is no officially released version of gcc with this problem.
-
-> -Andi
-
-cu
-Adrian
+Your long expression is still only in one place.
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Måns Rullgård
+mru@kth.se
 

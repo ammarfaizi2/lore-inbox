@@ -1,32 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281595AbRKPWeX>; Fri, 16 Nov 2001 17:34:23 -0500
+	id <S281594AbRKPWfn>; Fri, 16 Nov 2001 17:35:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281594AbRKPWeN>; Fri, 16 Nov 2001 17:34:13 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:23306 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S281592AbRKPWeB>; Fri, 16 Nov 2001 17:34:01 -0500
-Subject: Re: Totally Stumped
-To: Tony@TRLJC.COM (Tony Reed)
-Date: Fri, 16 Nov 2001 22:41:43 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20011116201702.1317C15B48@kubrick.trljc.com> from "Tony Reed" at Nov 16, 2001 03:17:02 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S281599AbRKPWfY>; Fri, 16 Nov 2001 17:35:24 -0500
+Received: from domino1.resilience.com ([209.245.157.33]:5838 "EHLO
+	intranet.resilience.com") by vger.kernel.org with ESMTP
+	id <S281597AbRKPWfL>; Fri, 16 Nov 2001 17:35:11 -0500
+Message-ID: <3BF5952E.E73BB648@resilience.com>
+Date: Fri, 16 Nov 2001 14:37:34 -0800
+From: Jeff Golds <jgolds@resilience.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.13 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Dave Jones <davej@suse.de>
+CC: Stefan Smietanowski <stesmi@stesmi.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] AMD SMP capability sanity checking.
+In-Reply-To: <Pine.LNX.4.30.0111162302160.22827-100000@Appserv.suse.de>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E164rg7-0005Mz-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> [1.0] Won't compile 8139too
+Dave Jones wrote:
+> 
+> On Fri, 16 Nov 2001, Stefan Smietanowski wrote:
+> 
+> > Would you mind writing what each of these actually is?
+> > Athlon 661 doesn't tell me much, neither does Duron 671.
+> > That's just an example, which is which?
+> 
+> The numbers translate to the family/model/stepping fields
+> of /proc/cpuinfo.
+> 
+> The only older models certified as safe for SMP are.
+> 
+>  Athlon model 6, stepping 0 CPUID = 660
+>  Athlon model 6, stepping 1 CPUID = 661
+>  Duron  model 7, stepping 0 CPUID = 670
+> 
+> The newer models..
+>  model 6 stepping 2 and above 662
+>  model 7 stepping 1 and above 671
+> 
+> have a cpuid flag that must be compared to find out if they
+> are capable or not. Note that these id's tally with XP's and MP's.
+> The capability bit is the only way to distinguish between these models.
+> 
 
-Please dont use gcc 3.x to compile kernels
+So the MP has the SMP capable bit set and the XP does not?
 
->     (nil)) 8139too.c:2432: Internal compiler error in
->     reload_cse_simplify_operands, at reload1.c:8355 Please submit a full
->     bug report, with preprocessed source if appropriate.  See
->     <URL:http://www.gnu.org/software/gcc/bugs.html> for instructions.
+If so, I'm not convinced this is the correct way to approach this
+issue.  My reasoning is based on the fact that AMD is not exactly a
+impartial source of information.  AMD wants to sell more MP chips, so
+they can say that only MP chips are SMP capable even if XP chips work
+just fine.
 
-But do report the data on the compiler failure to the URL above
+Now, with your patch, if people successfully use XP chips in an SMP
+configuration, you're giving the maintainers of the Linux kernel the
+opportunity to ignore oopses reported from these people and I think
+that's a bad thing.  If someone can show that XPs are truly not SMP
+capable, then, by all means, implement your patch as written.
+
+The way I'd prefer to see this handled is that things are assumed to
+work until proven otherwise.  Sort of like the SMP Celeron systems
+people have been using: Is there _any_ reason to believe that Celeron's
+can't do SMP?  Sure doesn't seem like it except for Intel's statement
+that Celerons aren't SMP capable.  And if you decide to taint oopses
+from people with such configurations, I think you'll be doing the Linux
+community a disservice.
+
+-Jeff
+
+P.S.  BTW, I don't know all the Athlon steppings, but it sure looks like
+_a lot_ of older Athlons/Durons are SMP capable.  Does it seem likely
+that this suddenly changed when AMD stamped XP or MP on the chip?
+
+-- 
+Jeff Golds
+Sr. Software Engineer
+jgolds@resilience.com

@@ -1,49 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264442AbTL0NWz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Dec 2003 08:22:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264443AbTL0NWz
+	id S264467AbTL0Oeg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Dec 2003 09:34:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264469AbTL0Oeg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Dec 2003 08:22:55 -0500
-Received: from louise.pinerecords.com ([213.168.176.16]:38827 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id S264442AbTL0NWy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Dec 2003 08:22:54 -0500
-Date: Sat, 27 Dec 2003 14:22:13 +0100
-From: Tomas Szepe <szepe@pinerecords.com>
-To: GCS <gcs@lsc.hu>
-Cc: Dmitry Torokhov <dtor_core@ameritech.net>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Peter Osterlund <petero2@telia.com>
-Subject: Re: Synaptics problems in -mm1
-Message-ID: <20031227132213.GB10491@louise.pinerecords.com>
-References: <20031224095921.GA8147@lsc.hu> <200312250411.55881.dtor_core@ameritech.net> <200312250413.32822.dtor_core@ameritech.net> <200312250414.58598.dtor_core@ameritech.net> <20031227113848.GA10491@louise.pinerecords.com> <20031227122417.GA20603@lsc.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031227122417.GA20603@lsc.hu>
-User-Agent: Mutt/1.4.1i
+	Sat, 27 Dec 2003 09:34:36 -0500
+Received: from dns13.mail.yahoo.co.jp ([210.81.151.173]:40323 "HELO
+	dns13.mail.yahoo.co.jp") by vger.kernel.org with SMTP
+	id S264467AbTL0Oef (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Dec 2003 09:34:35 -0500
+X-Apparently-From: <xxtsuchiyaxx@yahoo.co.jp>
+Mime-Version: 1.0 (Apple Message framework v609)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <E4E4EAA7-3879-11D8-8822-00039341E01A@ybb.ne.jp>
+Content-Transfer-Encoding: 7bit
+Cc: dlion2004@sina.com.cn
+From: Tsuchiya Yoshihiro <xxtsuchiyaxx@ybb.ne.jp>
+Subject: Re: filesystem bug?
+Date: Sat, 27 Dec 2003 23:35:18 +0900
+To: linux-kernel@vger.kernel.org
+X-Mailer: Apple Mail (2.609)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Dec-27 2003, Sat, 13:24 +0100
-GCS <gcs@lsc.hu> wrote:
 
-> On Sat, Dec 27, 2003 at 12:38:48PM +0100, Tomas Szepe <szepe@pinerecords.com> wrote:
->
-> > it seems one of the synaptics-related patches in 2.6.0-mm1 kills
-> > off the pointer stick on my T40p.  2.6.0 vanilla works just fine
-> > in that department.  Thought you might want to know.
->
-> I had the same problems, but Dmitry provided two additional patches,
-> which made my one working. Have you tried them? You can find them in the
-> thread.
+Hi,
 
-Unfortunately, the two patches from this thread don't solve
-the mm1 problem I'm seeing, the stick keeps on resting. :)
+ >1. some corrupted files is truncated to 0 bytes. Blockcount is 0.
+ >
+ >2. some corrupted files is truncated . the result is a shorter file.
+ >the new size is multiple of block size.
 
-> Ps:Somehow I know you, just don't know where - are you Hungarian?
+I have seen these things before, though
 
-Not really, it's just the name.
+ >3. maybe all corrupted files' mtime is exactly the same
+ >wrong value. Should be around 2003.12.26 21:30:00, but
+ >is 2002.05.12 12:00:48(hex value is 0x3cdde8f0) . ctime
+ >and atime is correct. The system's clock time is unchanged.
+ >
+ >4. it seems that the corrupted files tends to exist in the same
+ >directory.
 
--- 
-Tomas Szepe <szepe@pinerecords.com>
+I haven't been aware of these ones. Thank you.
+
+Yoshi
+---
+Yoshihiro Tsuchiya 
+

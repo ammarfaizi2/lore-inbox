@@ -1,52 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262360AbTLBQcY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Dec 2003 11:32:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262373AbTLBQcY
+	id S262288AbTLBQ2h (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Dec 2003 11:28:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262297AbTLBQ2h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Dec 2003 11:32:24 -0500
-Received: from dci.doncaster.on.ca ([66.11.168.194]:35812 "EHLO smtp.istop.com")
-	by vger.kernel.org with ESMTP id S262360AbTLBQcW (ORCPT
+	Tue, 2 Dec 2003 11:28:37 -0500
+Received: from havoc.gtf.org ([63.247.75.124]:13457 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S262288AbTLBQ2f (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Dec 2003 11:32:22 -0500
-To: Mike Fedyk <mfedyk@matchmail.com>
-Cc: Greg Stark <gsstark@mit.edu>, Erik Steffl <steffl@bigfoot.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: libata in 2.4.24?
-References: <Pine.LNX.4.44.0312010836130.13692-100000@logos.cnet>
-	<3FCB8312.3050703@rackable.com> <87fzg4ckej.fsf@stark.dyndns.tv>
-	<3FCBB15F.7050505@rackable.com> <3FCBB9F1.2080300@bigfoot.com>
-	<87n0abbx2k.fsf@stark.dyndns.tv>
-	<20031202055336.GO1566@mis-mike-wstn.matchmail.com>
-	<20031202055852.GP1566@mis-mike-wstn.matchmail.com>
-In-Reply-To: <20031202055852.GP1566@mis-mike-wstn.matchmail.com>
-From: Greg Stark <gsstark@mit.edu>
-Organization: The Emacs Conspiracy; member since 1992
-Date: 02 Dec 2003 11:31:45 -0500
-Message-ID: <87zneb9o5q.fsf@stark.dyndns.tv>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
+	Tue, 2 Dec 2003 11:28:35 -0500
+Date: Tue, 2 Dec 2003 11:28:08 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Darrell Michaud <dmichaud@wsi.com>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Russell Cattelan <cattelan@xfs.org>, Nathan Scott <nathans@sgi.com>,
+       linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: XFS for 2.4
+Message-ID: <20031202162808.GC22608@gtf.org>
+References: <Pine.LNX.4.44.0312021346530.13692-100000@logos.cnet> <1070381443.5316.260.camel@atherne>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1070381443.5316.260.camel@atherne>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Dec 02, 2003 at 11:10:43AM -0500, Darrell Michaud wrote:
+> As a user it would be very beneficial for me to have XFS support in the
+> official 2.4 kernel tree. XFS been stable and "2.4 integration-ready"
+> for a long time, and 2.4 is going to be used in certain environments for
+> a long time, if only because it's easier to upgrade a 2.4 kernel to a
+> newer 2.4 kernel than to upgrade to a 2.6 kernel. It seems like an easy
+> case to make.
+> 
+> I use other filesystems and some funky drivers as well.. and I'm always
+> very happy to see useful backports show up in the 2.4 tree. Thank you!
 
-Mike Fedyk <mfedyk@matchmail.com> writes:
+This can also be done in patch form, as it is done now :)
 
-> > Libata, uses the scsi system instead of the existing ide layer because many
-> > new sata controllers are using an interface that is very similair to scsi
-> > (much like atapi).
+There are several pieces of backported software that are
+integration-ready, but that doesn't imply they should go into an
+increasingly-frozen 2.4.x tree...
 
-Now I have a different question. Does the scsi-like SATA interface include tcq?
+	Jeff
 
-Because one of the long-standing issues with IDE drives and Postgres is the
-fact that even after issuing an fsync the data may be sitting in the drive's
-buffer. This doesn't happen with SCSI because the drives aren't forced to lie
-about the data being on disk in order to handle subsequent requests. Turning
-off write-caching on IDE drives absolutely destroys performance.
 
-Do the new SATA drives and controllers provide a solution to this?
-
--- 
-greg
 

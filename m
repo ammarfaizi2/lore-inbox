@@ -1,83 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262960AbTDNLKW (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 07:10:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262961AbTDNLKW (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 07:10:22 -0400
-Received: from fep01-mail.bloor.is.net.cable.rogers.com ([66.185.86.71]:46731
-	"EHLO fep01-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
-	with ESMTP id S262960AbTDNLKV 
-	(for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 07:10:21 -0400
-Subject: 2.5.67 pcmcia - insmod ds.ko hangs
-From: Sean Estabrooks <seanlkml@rogers.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: 
-Message-Id: <1050319324.31740.13.camel@linux1.classroom.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-3) 
-Date: 14 Apr 2003 07:22:04 -0400
+	id S262972AbTDNLZu (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 07:25:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262982AbTDNLZu (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 07:25:50 -0400
+Received: from [62.75.136.201] ([62.75.136.201]:35983 "EHLO mail.g-house.de")
+	by vger.kernel.org with ESMTP id S262972AbTDNLZa (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Apr 2003 07:25:30 -0400
+Message-ID: <3E9A9D70.9020909@g-house.de>
+Date: Mon, 14 Apr 2003 13:37:20 +0200
+From: Christian <evil@g-house.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.3) Gecko/20030312
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: nfs-kernel-server Oopses with 2.5.67
+References: <kirk-1030412154541.A0214377@hydra.colinet.de> <yw1xllyfv6yf.fsf@zaphod.guide>
+In-Reply-To: <yw1xllyfv6yf.fsf@zaphod.guide>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at fep01-mail.bloor.is.net.cable.rogers.com from [24.102.213.170] using ID <seanlkml@rogers.com> at Mon, 14 Apr 2003 07:22:04 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-# insmod pcmcia_core.ko
-# insmod yenta_socket.ko
-    PCI: Found IRQ 11 for device 00:0b.0
-    PCI: Sharing IRQ 11 with 01:00.0
-    Yenta IRQ list 04b0, PCI irq11
-    Socket status: 30000020
-    PCI: Found IRQ 11 for device 00:0b.1
-    PCI: Sharing IRQ 11 with 00:0c.0
-    Yenta IRQ list 04b0, PCI irq11
-    Socket status: 30000007
-# insmod ds.ko  
-    PCI: Enabling device 02:00.0 (0000 -> 0003)
-    [hang]
+coming from [Re: 2.5.67 alpha compile failure (solved but nfsd Oopses 
+now)] i think the subject line has to change, as i get another problem now:
 
-  And hangs here permanently, and i should mention it hangs 
-the same way when compiled into the kernel.  Changing to
-another virtual console and bringing up the network works
-without a hitch, but the insmod above never returns.
+after applying the cond_syscall patch on my Alpha, 2.5.67 compiled with 
+no errors. however the nfs-kernel-server Oopses now:
 
-  One interesting thing is that when ds.c is replaced with the 
-version prior to "Driver Services: socket add/remove abstraction" 
-patch, everything works fine.
+------------
 
-  Some printk's showed that pcmcia_bus_add_socket() in ds.c
-makes a call to pcmcia_register_client() that never returns.  
+lila:~# /etc/init.d/nfs-kernel-server start
+Apr 14 00:31:08 lila kernel: Unable to handle kernel paging request at
+virtual address 2834362d657a6973
+Apr 14 00:31:08 lila kernel: rpc.nfsd(22279): Oops 0
+Apr 14 00:31:08 lila kernel: pc = [<fffffc0000314748>]  ra =
+[<fffffc0000312ec0>]  ps = 0007    Not tainted
+Apr 14 00:31:08 lila kernel: v0 = 0000000000000000  t0 =
+0000000000000000  t1 = fffffc0000314744
+Apr 14 00:31:08 lila kernel: t2 = fffffc0000560848  t3 =
+fffffc000055fba0  t4 = 0000000000000001
+Apr 14 00:31:08 lila kernel: t5 = 2834362d657a6973  t6 =
+000000000000001c  t7 = fffffc00031f8000
+Apr 14 00:31:08 lila kernel: s0 = 0000000000000000  s1 =
+fffffc000034e0d0  s2 = 0000000000000000
+Apr 14 00:31:08 lila kernel: s3 = 000000011ffff3e4  s4 =
+0000000000000000  s5 = fffffc0003840000
+Apr 14 00:31:08 lila kernel: s6 = 0000000000000801
+Apr 14 00:31:08 lila kernel: a0 = 2834362d657a6973  a1 =
+0000000000000028  a2 = 0000000000000001
+Apr 14 00:31:08 lila kernel: a3 = 0000000000000028  a4 =
+0000000000000001  a5 = 0000000000000000
+Apr 14 00:31:08 lila kernel: t8 = 0000000000000000  t9 =
+fffffc0000540848  t10= fffffc0003ff31c8
+Apr 14 00:31:08 lila kernel: t11= fffffc00005c3010  pv =
+fffffc0000314300  at = fffffffc002e6b84
+Apr 14 00:31:08 lila kernel: gp = fffffc0000560848  sp = fffffc00031fbcd8
+Apr 14 00:31:08 lila kernel: Trace:fffffc0000312ec0 fffffc0000379408
+fffffc000034e050 fffffc0000379b78 fffffc000034e0d4 fffffc0000397e3c
+fffffc0000313134 fffffc0000313090
+Apr 14 00:31:08 lila kernel: Code: 3c900001  3cb00000  47f60401
+e43fff1d  c3ffff21  47ff0401 <2cb00000> 2cf00003
 
-  I've tried compiling the kernel turning off power management,
-preempt, etc with no change.  Thought i'd ask if anyone can 
-offer a bit of guidance.
+Starting NFS kernel daemon: nfsd/etc/init.d/nfs-kernel-server: line 79:
+22279 Segmentation fault      start-stop-daemon --start --quiet --exec
+$PREFIX/sbin/rpc.nfsd -- $RPCNFSDCOUNT
+  mountd.
+lila:~#
 
-Cheers,
-Sean
+--------------
+(could be that the order is a bit messed up, i copied the kernel oops
+from /var/log/messages between "start" and "segfault".)
 
-PS. Toshiba Satellite laptop with Xircom Cardbus Ethernet card.
+the nfs-kernel-server is from nfs-utils_1.0.3-1 (Debian testing), 
+working without problems under 2.5.65. the nfs-user-server does *not* oops.
 
-# lspci
-    00:00.0 Host bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX Host
-bridge (rev 03)
-    00:01.0 PCI bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX AGP
-bridge (rev 03)
-    00:05.0 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ISA (rev 02)
-    00:05.1 IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev 01)
-    00:05.2 USB Controller: Intel Corp. 82371AB/EB/MB PIIX4 USB (rev 01)
-    00:05.3 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ACPI (rev 03)
-    00:07.0 Communication controller: Lucent Microelectronics 56k
-WinModem (rev 01)
-    00:09.0 IRDA controller: Toshiba America Info Systems FIR Port
-Type-DO
-    00:0b.0 CardBus bridge: Toshiba America Info Systems ToPIC95 PCI to
-Cardbus Bridge with ZV Support (rev 20)
-    00:0b.1 CardBus bridge: Toshiba America Info Systems ToPIC95 PCI to
-Cardbus Bridge with ZV Support (rev 20)
-    00:0c.0 Multimedia audio controller: Yamaha Corporation YMF-744B
-[DS-1S Audio Controller] (rev 02)
-    01:00.0 VGA compatible controller: S3 Inc. 86C270-294 Savage/IX-MV
-(rev 11)
-    14:00.0 Ethernet controller: Xircom Cardbus Ethernet 10/100 (rev 03)
+kernel 2.5.67, compiled with gcc (GCC) 3.2.3 20030309, machine is an 
+Alpha EV45/Avtanti.
 
-
+Thank you,
+Christian.
 

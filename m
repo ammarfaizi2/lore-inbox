@@ -1,57 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261879AbTKXVZ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Nov 2003 16:25:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261882AbTKXVZ2
+	id S261774AbTKXVPH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Nov 2003 16:15:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261776AbTKXVPH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Nov 2003 16:25:28 -0500
-Received: from CPE000102d0fe24-CM0f1119830776.cpe.net.cable.rogers.com ([65.49.144.24]:43525
-	"EHLO thorin.norang.ca") by vger.kernel.org with ESMTP
-	id S261879AbTKXVZ0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Nov 2003 16:25:26 -0500
-Date: Mon, 24 Nov 2003 16:25:10 -0500
-From: Bernt Hansen <bernt@norang.ca>
-To: "Nakajima, Jun" <jun.nakajima@intel.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ACPI Developers <acpi-devel@lists.sourceforge.net>,
-       "Brown, Len" <len.brown@intel.com>
-Subject: Re: Toshiba ACPI battery status - ACPI errors
-Message-ID: <20031124212510.GA9628@norang.ca>
-Mail-Followup-To: "Nakajima, Jun" <jun.nakajima@intel.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	ACPI Developers <acpi-devel@lists.sourceforge.net>,
-	"Brown, Len" <len.brown@intel.com>
-References: <7F740D512C7C1046AB53446D37200173618752@scsmsx402.sc.intel.com>
-Mime-Version: 1.0
+	Mon, 24 Nov 2003 16:15:07 -0500
+Received: from web41307.mail.yahoo.com ([66.218.93.56]:47958 "HELO
+	web41307.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261774AbTKXVPC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Nov 2003 16:15:02 -0500
+Message-ID: <20031124211500.20861.qmail@web41307.mail.yahoo.com>
+Date: Mon, 24 Nov 2003 13:15:00 -0800 (PST)
+From: Jing Xu <xujing_cn2001@yahoo.com>
+Subject: pci=irqmask= doesn't work
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <7F740D512C7C1046AB53446D37200173618752@scsmsx402.sc.intel.com>
-Organization: Norang Consulting Inc
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jun,
+Hello, 
 
-I'd be happy to provide any data to get this problem fixed... how do I
-generate an ACPI dump?  I've never done that before.
+I'm having some trouble to mask PCI IRQs with
+pci=irqmask= and I was hoping someone here could help.
 
-Bernt
 
-On Mon, Nov 24, 2003 at 01:04:22PM -0800, Nakajima, Jun wrote:
-> I suspect this is a known issue with AML code from Toshiba. Their _STA
-> does not return a value explicitly, but (wrongly) expects the AML
-> interpreter to get the return value returned by the function _STA is
-> calling, like
-> 	Method (_STA, ....) {
-> 		AAA(...)
-> 	}
-> Instead of 
-> 	Method (_STA, ....) {
-> 		Return (AAA(...))
-> 	}
-> 
-> If you can provide ACPI dump data of the machine, that would be helpful
-> when identifying the cause. Copy the ACPI mailing list and Len.
--- 
-Bernt Hansen     Norang Consulting Inc.
+I'm running linux 2.4.20 and rtai 24.1.11. My linux
+kernel module needs to use IRQ 9 10 11 for AGP graphic
+card, sound card and PCI-Dio24 IO card. These irqs are
+also shared by USB controllers. My module hangs when
+it tries to request the above irqs used by USB
+devices. I figured it would be a good idea to remove
+this apparent conflict. I have scoured the web and
+found that I can reserve these IRQs by specifying
+pci=irqmask= on the kernel boot line.
+
+I have tried to set "pci=irqmask=0x0e10" to reserve
+Irq 9 10 11 4 from my driver, and it hasn't had any
+effect - those irqs are still used by usb controllers
+on initialization. 
+
+Why did this not work? How do I change these IRQ's? 
+Is there some other configuration file I haven't
+found? If anyone can provide any insight into this, I
+would appreciate it greatly. If there is something I'm
+missing let me know and I'll get it...
+
+Thanks in advance,
+
+jing 
+
+
+
+__________________________________
+Do you Yahoo!?
+Free Pop-Up Blocker - Get it now
+http://companion.yahoo.com/

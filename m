@@ -1,48 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262328AbUKWI2I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262330AbUKWIdM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262328AbUKWI2I (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 03:28:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262330AbUKWI2I
+	id S262330AbUKWIdM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 03:33:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262329AbUKWIdL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 03:28:08 -0500
-Received: from apollo.nbase.co.il ([194.90.137.2]:54543 "EHLO
-	apollo.nbase.co.il") by vger.kernel.org with ESMTP id S262328AbUKWI2F
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 03:28:05 -0500
-Message-ID: <41A2F3C0.90400@mrv.com>
-Date: Tue, 23 Nov 2004 10:24:32 +0200
-From: emann@mrv.com (Eran Mann)
+	Tue, 23 Nov 2004 03:33:11 -0500
+Received: from mail27.syd.optusnet.com.au ([211.29.133.168]:43716 "EHLO
+	mail27.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S262330AbUKWIcY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Nov 2004 03:32:24 -0500
+Message-ID: <41A2F565.6050002@kolivas.org>
+Date: Tue, 23 Nov 2004 19:31:33 +1100
+From: Con Kolivas <kernel@kolivas.org>
 User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.30-2
-References: <20041116125402.GA9258@elte.hu> <20041116130946.GA11053@elte.hu> <20041116134027.GA13360@elte.hu> <20041117124234.GA25956@elte.hu> <20041118123521.GA29091@elte.hu> <20041118164612.GA17040@elte.hu> <20041122005411.GA19363@elte.hu> <41A1A6E6.5090807@mrv.com> <20041122100140.GD6817@elte.hu> <41A1EAE0.9080504@mrv.com> <20041122144248.GB28211@elte.hu>
-In-Reply-To: <20041122144248.GB28211@elte.hu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+To: linux <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>, Matt Mackall <mpm@selenic.com>,
+       netdev@oss.sgi.com, Michael Buesch <mbuesch@freenet.de>
+Subject: [PATCH 1/1] net: Netconsole poll support for 3c509
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig5EAAA427D3226A5F397F451C"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * Eran Mann <emann@mrv.com> wrote:
-> 
->>Right on.
->>After hdparm -d0 I see maximum latency of 35 us after a full kernel 
->>build with a few GUI apps in the background. I´ll try to find a 
->>reasonable compromise.
-> 
-> it might make sense to report this to the hw vendor as well, as these
-> latencies dont occur at _every_ IDE DMA, it might be some sort of
-> chipset (or BIOS) bug they might want to see resolved as well (if this
-> isnt a ship-and-forget vendor). 2 msec stalls are not nice to a fair
-> number of applications.
-> 
-> 	Ingo
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig5EAAA427D3226A5F397F451C
+Content-Type: multipart/mixed;
+ boundary="------------040009050600080605070202"
 
-It´s a rather old white-box machine with a noname VIA-based motherboard, 
-So I don´t really have whom to report the problem to. On the other hand 
-with udma2 I see latencies < 170 us which seems reasonable.
-Thanks for the advice.
-   Eran.
+This is a multi-part message in MIME format.
+--------------040009050600080605070202
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+
+This patch provides poll support to allow netconsole to work with 3c509 
+network cards.
+
+Status: Compiled, debugged and tested working by Michael Buesch.
+
+Signed-off-by: Con Kolivas <kernel@kolivas.org>
+
+
+--------------040009050600080605070202
+Content-Type: text/x-patch;
+ name="net_3c509_poll.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="net_3c509_poll.diff"
+
+diff -urNX /home/mb/dontdiff linux-2.6.10-rc2-mm2.orig/drivers/net/3c509.c linux-2.6.10-rc2-mm2/drivers/net/3c509.c
+--- linux-2.6.10-rc2-mm2.orig/drivers/net/3c509.c	2004-11-21 15:10:18.799455108 +0100
++++ linux-2.6.10-rc2-mm2/drivers/net/3c509.c	2004-11-21 15:12:01.677918665 +0100
+@@ -209,6 +209,9 @@
+ #if defined(CONFIG_EISA) || defined(CONFIG_MCA)
+ static int el3_device_remove (struct device *device);
+ #endif
++#ifdef CONFIG_NET_POLL_CONTROLLER
++static void el3_poll_controller(struct net_device *dev);
++#endif
+ 
+ #ifdef CONFIG_EISA
+ struct eisa_device_id el3_eisa_ids[] = {
+@@ -321,6 +324,9 @@
+ 	dev->set_multicast_list = &set_multicast_list;
+ 	dev->tx_timeout = el3_tx_timeout;
+ 	dev->watchdog_timeo = TX_TIMEOUT;
++#ifdef CONFIG_NET_POLL_CONTROLLER
++	dev->poll_controller = el3_poll_controller;
++#endif
+ 	SET_ETHTOOL_OPS(dev, &ethtool_ops);
+ 
+ 	err = register_netdev(dev);
+@@ -999,6 +1005,19 @@
+ }
+ 
+ 
++#ifdef CONFIG_NET_POLL_CONTROLLER
++/*
++ * Polling receive - used by netconsole and other diagnostic tools
++ * to allow network i/o with interrupts disabled.
++ */
++static void el3_poll_controller(struct net_device *dev)
++{
++	disable_irq(dev->irq);
++	el3_interrupt(dev->irq, dev, NULL);
++	enable_irq(dev->irq);
++}
++#endif
++
+ static struct net_device_stats *
+ el3_get_stats(struct net_device *dev)
+ {
+
+--------------040009050600080605070202--
+
+--------------enig5EAAA427D3226A5F397F451C
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFBovVnZUg7+tp6mRURAs36AJ9xBfYfeulNlFMbIw60M6seZc+U9wCfWpvo
+ubPhh3vYjUTkIAtu80U+ymQ=
+=pFPk
+-----END PGP SIGNATURE-----
+
+--------------enig5EAAA427D3226A5F397F451C--

@@ -1,67 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262850AbTFEUrl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jun 2003 16:47:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265129AbTFEUqt
+	id S265176AbTFEVTK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jun 2003 17:19:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265179AbTFEVTK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jun 2003 16:46:49 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:18356 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S265127AbTFEUqJ
+	Thu, 5 Jun 2003 17:19:10 -0400
+Received: from fmr01.intel.com ([192.55.52.18]:43472 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id S265176AbTFEVTI convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jun 2003 16:46:09 -0400
-Date: Thu, 5 Jun 2003 14:00:13 -0700
-From: Greg KH <greg@kroah.com>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [BK PATCH] More PCI fixes for 2.5.70
-Message-ID: <20030605210013.GA6917@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Thu, 5 Jun 2003 17:19:08 -0400
+Message-ID: <A46BBDB345A7D5118EC90002A5072C780D6F13E8@orsmsx116.jf.intel.com>
+From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+To: "'lkml (linux-kernel@vger.kernel.org)'" 
+	<linux-kernel@vger.kernel.org>
+Subject: How to initialize complex per-cpu variables?
+Date: Thu, 5 Jun 2003 14:32:26 -0700 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="ISO-8859-1"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-Here's some more PCI changes against the latest 2.5.70 bk tree.  They contain
-the following:
-	- fix up the fusion driver due to errors from my last round of
-	  pci patches.
-	- remove last direct accesses of the pci_devices variable.
-Now the pci_devices variable is not exported for drivers to touch
-directly.  Only the pci core and arch specific pci code should access
-this variable.
+Hi All
 
-Please pull from:
-	bk://kernel.bkbits.net/gregkh/linux/pci-2.5
+I am having this issue I don't know how to solve (digged
+the source, it didn't clarify)
 
-thanks,
+I have this kind of half complex data structure that 
+needs to be per-cpu and I need to initialize them. 
 
-greg k-h
+The problem is it contains an array of list_heads 
+and I cannot initialize that with an static initializer, 
+AFAIK:
 
-p.s. I'll send these as patches in response to this email to lkml for
-those who want to see them.
+#define NUMBER_OF_QUEUES 256
 
+struct rtf_h {
+	spinlock_t lock;
+	struct list_head queues[NUMBER_OF_QUEUES];
+}
 
- arch/m68k/atari/hades-pci.c           |    4 +--
- drivers/ide/setup-pci.c               |    2 -
- drivers/macintosh/via-pmu68k.c        |   11 +++++----
- drivers/message/fusion/linux_compat.h |    7 +----
- drivers/message/fusion/mptbase.c      |    2 -
- drivers/pci/probe.c                   |    1 
- drivers/pci/search.c                  |   40 ++++++++++++++++++++++++++++++++++
- include/linux/pci.h                   |   20 +++++++----------
- 8 files changed, 61 insertions(+), 26 deletions(-)
------
+static DEFINE_PER_CPU (struct rtf_h, rtf_lh);
 
-Greg Kroah-Hartman:
-  o PCI: remove EXPORT_SYMBOL(pci_devices)
-  o PCI: move pci_present() into drivers/pci/search.c
-  o PCI: remove pci_for_each_dev_reverse() now that all users of it are gone
-  o PCI: remove usage of pci_for_each_dev_reverse() in
-  o PCI: add pci_find_device_reverse() for users of pci_find_each_dev_reverse() to use
-  o PCI: fix up previous fusion driver pci changes
-  o PCI: remove direct access of pci_devices from drivers/macintosh/via-pmu68k.c
-  o PCI: remove direct access of pci_devices from arch/m68k/atari/hades-pci.c
+So I want to initialize those - I cannot use the variable
+initializing because (a) it is very dirty to add a huge 
+number of INIT_LIST_HEAD and (b) it would break the
+DEFINE_PER_CPU() semantics, as I assume they are copied
+and thus the values would be broken.
 
+So I can have it initialized except the list_heads (only
+the locks) and then manually initialize the list_heads 
+with some rth_h_init() function;
+
+Now the question is: how do I walk each structure that is
+associated to each CPU - I mean, something like:
+
+struct rtf_h *h;
+for_each_cpu (h, rtf_lh) {
+	rtf_h_init (h);
+}
+
+TIA
+
+Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own
+(and my fault)

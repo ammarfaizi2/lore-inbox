@@ -1,57 +1,74 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314671AbSEBRqv>; Thu, 2 May 2002 13:46:51 -0400
+	id <S314672AbSEBR4M>; Thu, 2 May 2002 13:56:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314672AbSEBRqv>; Thu, 2 May 2002 13:46:51 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:58045 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S314671AbSEBRqu>;
-	Thu, 2 May 2002 13:46:50 -0400
-Message-ID: <3CD16CFA.B103817D@vnet.ibm.com>
-Date: Thu, 02 May 2002 11:44:42 -0500
-From: Dave Engebretsen <engebret@vnet.ibm.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9-12 i686)
-X-Accept-Language: en
+	id <S314686AbSEBR4L>; Thu, 2 May 2002 13:56:11 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:21263 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S314672AbSEBR4K>; Thu, 2 May 2002 13:56:10 -0400
+Message-ID: <3CD16F03.9090900@evision-ventures.com>
+Date: Thu, 02 May 2002 18:53:23 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-To: Daniel Phillips <phillips@bonn-fries.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Bug: Discontigmem virt_to_page() [Alpha,ARM,Mips64?]
-In-Reply-To: <20020426192711.D18350@flint.arm.linux.org.uk> <20020502152825.GE10495@krispykreme> <3CD1624C.92FCE62A@vnet.ibm.com> <E172xqA-00025U-00@starship>
-X-MIMETrack: Itemize by SMTP Server on d27ml101/27/M/IBM(Release 5.0.10 |March 22, 2002) at
- 05/02/2002 12:46:11 PM,
-	Serialize by Router on d27ml101/27/M/IBM(Release 5.0.10 |March 22, 2002) at
- 05/02/2002 12:46:13 PM,
-	Serialize complete at 05/02/2002 12:46:13 PM
+To: Arjan van de Ven <arjanv@redhat.com>
+CC: Richard Gooch <rgooch@ras.ucalgary.ca>, linux-kernel@vger.kernel.org
+Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel
+In-Reply-To: <E173HX6-00041D-00@the-village.bc.nu> <3CD13FF3.5020406@evision-ventures.com> <3CD15996.8EB1699F@redhat.com> <200205021559.g42Fxud19755@vindaloo.ras.ucalgary.ca> <3CD15CFA.1090208@evision-ventures.com> <20020502132552.G8073@devserv.devel.redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Uz.ytkownik Arjan van de Ven napisa?:
 
-> And it is left up to the arch in my patch, I've simply imposed a little more
-> order on what, up till now, has been a pretty chaotic corner of the kernel,
-> and provided a template that satisfies a wider variety of needs than the old
-> one.
-
-Yep, got that - just reenforcing the point.
-
-> It sounds like the table translation you're doing in the hypervisor is
-> exactly what I've implemented in the kernel.  One advantage of going with
-> the kernel's implementation is that you get the benefit of improvements
-> made to it, for example, the proposed hashing scheme to handle extremely
-> fragmented physical memory maps.
+> 
+>>It just DOES NOT BELONG in to the kernel-space.
+> 
+> 
+> That's why it's done by modutils.
 > 
 
-I should clarify a bit -- we run on two different hypervisor
-interfaces.  The iSeries interface leaves this translation work to the
-OS.  In that case Linux has an array translation lookup which is
-analogous to your patch.  We just managed to hide everything in
-arch/ppc64 by doing this lookup when inserting hashed page table and I/O
-table mappings.  Other than at that low level, the remappings are
-transparent to Linux -- it just sees a nice big flat physical address
-space.
+Last time I checked on Linux:
 
-On pSeries, the hypervisor does the translation work under the covers,
-but as you point out, Linux doesn't get the chance to play with
-different mapping schemes.  Then again, that does simplify my life ...
+[root@kozaczek j2me]# ls -l /proc/ksyms
+-r--r--r--    1 root     root            0 Mai  2 19:42 /proc/ksyms
 
-Dave.
+Compare this with the following on Solaris:
+
+www01:/kernel/drv# ls sy sy.conf
+sy       sy.conf
+www01:/kernel/drv# file sy
+sy:             ELF 32-bit MSB relocatable SPARC Version 1
+www01:/kernel/drv# cat sy.conf
+#
+# Copyright (c) 1992, by Sun Microsystems, Inc.
+#
+#ident  "@(#)sy.conf    1.4     93/06/03 SMI"
+
+name="sy" parent="pseudo" instance=0;
+www01:/kernel/drv#
+www01:/kernel/drv# nm sy
+0000000000000014 T _fini
+0000000000000028 T _info
+0000000000000000 T _init
+                  U cdev_ioctl
+                  U cdev_poll
+                  U cdev_read
+                  U cdev_write
+  ....
+0000000000000278 T syclose
+0000000000000488 T syioctl
+0000000000000140 T syopen
+00000000000005b0 T sypoll
+0000000000000280 T syread
+0000000000000384 T sywrite
+www01:/kernel/drv# strings sy
+Indirect driver for tty 'sy'
+www01:/kernel/drv#
+
+And then think about the fact that they are able to even *patch*
+running kernels. There is no way I can be convinced that the whole
+versioning stuff is neccessary or a good design for any purpose.
+

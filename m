@@ -1,52 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261453AbVCHR4e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261457AbVCHR7m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261453AbVCHR4e (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 12:56:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261327AbVCHR4e
+	id S261457AbVCHR7m (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 12:59:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261455AbVCHR7m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 12:56:34 -0500
-Received: from rproxy.gmail.com ([64.233.170.201]:27233 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261453AbVCHR42 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 12:56:28 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:mime-version:content-type:content-transfer-encoding;
-        b=F+nl13+0vmiwbXvDjB6ShHCg7i+QqET1DcgpqJoUB3tTt7EL7k4vKd6AQJABnmRyMwviJnD+GmDZ+NhYBxemwniO1iKOKnHzs1WrJATIaLAhLCyZx7NmffjsXac+uwCVe11l7Fx9kIw5KCapxnAfLLQa4b9wL+Hg7v5MnqPg3xY=
-Message-ID: <2cd57c9005030809564ee1d487@mail.gmail.com>
-Date: Wed, 9 Mar 2005 01:56:27 +0800
-From: Coywolf Qi Hunt <coywolf@gmail.com>
-Reply-To: Coywolf Qi Hunt <coywolf@gmail.com>
-To: akpm@osdl.org
-Subject: [patch] remove barrier() in software_resume()
-Cc: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 8 Mar 2005 12:59:42 -0500
+Received: from alog0177.analogic.com ([208.224.220.192]:28032 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261457AbVCHR7c
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Mar 2005 12:59:32 -0500
+Date: Tue, 8 Mar 2005 12:57:23 -0500 (EST)
+From: linux-os <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Imanpreet Arora <imanpreet@gmail.com>
+cc: Robert Love <rml@novell.com>, linux-kernel@vger.kernel.org
+Subject: Re: Question regarding thread_struct
+In-Reply-To: <c26b959205030809271b8a5886@mail.gmail.com>
+Message-ID: <Pine.LNX.4.61.0503081244390.12076@chaos.analogic.com>
+References: <c26b959205030809044364b923@mail.gmail.com> 
+ <1110302000.23923.14.camel@betsy.boston.ximian.com> <c26b959205030809271b8a5886@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Tue, 8 Mar 2005, Imanpreet Arora wrote:
 
-This patch removes the redundant compiler barrier. As Linus ever said 
-"The mb() should make sure that gcc cannot move things around...".
+> On Tue, 08 Mar 2005 12:13:20 -0500, Robert Love <rml@novell.com> wrote:
+>> On Tue, 2005-03-08 at 22:34 +0530, Imanpreet Arora wrote:
+>>
+>>>       I am wondering if someone could provide information as to how
+>>> thread_struct is kept in memory. Robert Love mentions that it is kept
+>>> at the "lowest"  kernel address in case of x86 based platform. Could
+>>> anyone answer these questions.
+>>
+>> Kernel _stack_ address for the given process.
+>>
+>>> a)    When a stack is resized, is the thread_struct structure copied onto
+>>> a new place?
+>>
+>> This is the kernel stack, not any potential user-space stack.  Kernel
+>> stacks are not resized.
+>
+> This has been a doubt for a couple of days, and I am wondering if this
+> one could also be cleared. When you say kernel stack, can't be resized
+>
 
---coywolf
+Every task (process) has its own stack which can be as large as
+necessary. It grows down towards the user data.
 
-Signed-off-by: Coywolf Qi Hunt <coywolf@gmail.com>
+When a user calls the kernel, the kernel code switches to
+a 'kernel stack' which is a separate stack and there is a
+different one for each and every task on the system. Since,
+with thousands of tasks, there will be thousands of kernel stacks,
+it is essential to make the kernel stack as small as possible.
+In the ix86, this has meant either 1 or two pages of PAGE_SIZE
+length (0x1000 currently).
 
-diff -Nrup 2.6.11/kernel/power/disk.c 2.6.11-cy/kernel/power/disk.c
---- 2.6.11/kernel/power/disk.c	2005-03-03 17:12:17.000000000 +0800
-+++ 2.6.11-cy/kernel/power/disk.c	2005-03-09 01:47:10.000000000 +0800
-@@ -233,7 +233,6 @@ static int software_resume(void)
- 	if ((error = prepare()))
- 		goto Free;
- 
--	barrier();
- 	mb();
- 
- 	pr_debug("PM: Restoring saved image.\n");
+>
+> a)       Does it mean that the _whole_ of the kernel is restricted to
+> that 8K or 16K of memory?
+>
 
--- 
-Coywolf Qi Hunt
-Homepage http://sosdg.org/~coywolf/
+All code that executes in the kernel must use the stack that has
+already been allocated for it. If you have code that cares about
+the size of the kernel stack, the code is broken. If you have
+an array, allocated in the kernel, that's longer than a few
+hundred bytes, you use kmalloc() or other kernel allocators
+for that array.
+
+> b)        Or does it mean that a particular stack for a particular
+> process, can't be resized?
+>
+
+Stacks are never resized and, in fact, this isn't a Unix/Linux
+thing, it's just never done because it's stupid and, if necessary,
+is used to cover up something equally stupid, like excessive
+recursion.
+
+> c)         And for that matter how exactly do we define a kernel stack?
+>
+
+You don't.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

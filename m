@@ -1,40 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262418AbUFGJM1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264346AbUFGJMq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262418AbUFGJM1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jun 2004 05:12:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264352AbUFGJM1
+	id S264346AbUFGJMq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jun 2004 05:12:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264352AbUFGJMq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jun 2004 05:12:27 -0400
-Received: from delerium.kernelslacker.org ([81.187.208.145]:17033 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S262418AbUFGJM0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jun 2004 05:12:26 -0400
-Date: Mon, 7 Jun 2004 10:12:06 +0100
-From: Dave Jones <davej@redhat.com>
-To: Timothy Webster <timothyw@outblaze.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Porting cpqhealth to v2.6
-Message-ID: <20040607091206.GA3040@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Timothy Webster <timothyw@outblaze.com>,
-	linux-kernel@vger.kernel.org
-References: <20040607083809.14677.qmail@team.outblaze.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 7 Jun 2004 05:12:46 -0400
+Received: from spy10.spymac.net ([213.218.8.210]:54435 "EHLO spy10.spymac.net")
+	by vger.kernel.org with ESMTP id S264346AbUFGJMo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jun 2004 05:12:44 -0400
 Content-Disposition: inline
-In-Reply-To: <20040607083809.14677.qmail@team.outblaze.com>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: binary
+Mime-Version: 1.0
+From: <ckkashyap@spymac.com>
+To: linux-kernel@vger.kernel.org, James Buchanan <buchanan@iinet.net.au>
+Subject: Re:Re: Re: building MINIX on LINUX using gcc
+Reply-To: ckkashyap@spymac.com
+Content-Type: text/plain
+X-Mailer: AtMail Corp 3.64 - http://webbasedemail.com/
+X-Origin: 203.145.179.173
+Message-Id: <20040607091243.1034C4C0CD@spy10.spymac.net>
+Date: Mon,  7 Jun 2004 03:12:43 -0600 (MDT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 07, 2004 at 04:38:09PM +0800, Timothy Webster wrote:
+> I suggest using GRUB to chainload instead. You put the Minix bootsector
+> and boot program into the Minix partition and GRUB can chainload from
+> there. No modification of sources needed for that.
+Thanks James...this sounds great!
 
- > The driver source is available from 
- > ftp.compaq.com/pub/products/servers/supportsoftware/linux/ 
- > hpasm-7.1.0-xx.xxx.i386.rpm 
 
-This isn't driver source, but a binary object + wrapper.
-You could port the wrapper, but who knows if it'll work or not..
+regards,
+Kashyap
 
-		Dave
 
+
+
+---- Msg sent via Spymac Mail - http://www.spymac.com

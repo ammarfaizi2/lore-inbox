@@ -1,58 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311271AbSC1BKj>; Wed, 27 Mar 2002 20:10:39 -0500
+	id <S310182AbSC1B2D>; Wed, 27 Mar 2002 20:28:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311273AbSC1BK3>; Wed, 27 Mar 2002 20:10:29 -0500
-Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:24582 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S311271AbSC1BKU>;
-	Wed, 27 Mar 2002 20:10:20 -0500
-Date: Wed, 27 Mar 2002 17:10:19 -0800
-From: Greg KH <greg@kroah.com>
-To: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.5.7-gregkh-1  (USB stuff)
-Message-ID: <20020328011019.GD5878@kroah.com>
-Mime-Version: 1.0
+	id <S311288AbSC1B1y>; Wed, 27 Mar 2002 20:27:54 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:31496 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S310182AbSC1B1q>; Wed, 27 Mar 2002 20:27:46 -0500
+Subject: Re: Compile error in kernel 2.2.21-rc2
+To: pceric@holly.colostate.edu (Eric H)
+Date: Thu, 28 Mar 2002 01:00:55 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org, pceric@holly.colostate.edu
+In-Reply-To: <3CA26678.2000204@holly.colostate.edu> from "Eric H" at Mar 27, 2002 05:40:24 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.26i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Wed, 27 Feb 2002 22:10:21 -0800
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16qOHf-0006bQ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There have been a lot of different USB patches that have gone into my
-tree since 2.5.7 came out, so here's a big patch with all of them for
-people to play with, and resync against.
+> I receive the following error while trying to compile kernel 2.2.21-rc2 
+> using gcc 2.96 (RedHat 7.2)
+> ...
+> drivers/scsi/scsi.a(aic7xxx.o): In function `aic7xxx_load_seeprom':
+> aic7xxx.o(.text+0x1166f): undefined reference to `memcpy'
+> make: *** [vmlinux] Error 1
 
-It's available at:
-  http://www.kernel.org/pub/linux/kernel/people/gregkh/usb/linux-2.5.7-gregkh-1.patch.bz2
-
-and contains the following changes:
-
- - USB Serial console support			(me and Randy Dunlap)
- - USB core sanity check			(David Brownell)
- - ohci-hcd driver update			(David Brownell)
- - uhci bugfixes				(Johannes Erdfelt)
- - added Palm i705 support to visor driver	(me)
- - hiddev cleanup and documentation update	(Paul Stewart)
- - rtl8150 USB ethernet driver added		(Petko Manolov)
- - pegasus driver bugfixes			(Petko Manolov)
- - USB serial core logic changes		(me)
- - USB serial driver changes for last change	(me)
- - added Palm m130 support to visor driver	(me)
- - changed hub startup check interval to play
-   nicer with some devices			(Itai Nahshon)
- - hpusbscsi driver updates			(Oliver Neukum)
- - usbfs periodic endpoing/bandwidth reporting
-   fixes					(David Brownell)
- - ipaq driver updates				(Ganesh Varadarajan)
- - proc_usb_info.txt update			(David Brownell)
- - ehci-hcd driver update			(David Brownell)
- - hcd bugfix					(David Brownell)
- - added more printers to the quirks list	(David Paschal)
-
-If anyone has any problems with this patch, please let me know.
-
-thanks,
-
-greg k-h
+Please don't use gcc 2.96/gcc 3.0/3.1 snapshots to build 2.2 kernels. The
+kernel tree contains some assumptions that dont work with the newer compilers

@@ -1,41 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264765AbTCCMHW>; Mon, 3 Mar 2003 07:07:22 -0500
+	id <S264711AbTCCMFS>; Mon, 3 Mar 2003 07:05:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264777AbTCCMHV>; Mon, 3 Mar 2003 07:07:21 -0500
-Received: from mail5.bluewin.ch ([195.186.1.207]:56972 "EHLO mail5.bluewin.ch")
-	by vger.kernel.org with ESMTP id <S264765AbTCCMHU>;
-	Mon, 3 Mar 2003 07:07:20 -0500
-Date: Mon, 3 Mar 2003 13:17:28 +0100
-From: Roger Luethi <rl@hellgate.ch>
-To: bert hubert <ahu@ds9a.nl>, Nigel Cunningham <ncunningham@clear.net.nz>,
-       Pavel Machek <pavel@ucw.cz>, Andrew Grover <andrew.grover@intel.com>,
-       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [ACPI] Re: S4bios support for 2.5.63
-Message-ID: <20030303121728.GA4048@k3.hellgate.ch>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Nigel Cunningham <ncunningham@clear.net.nz>,
-	Pavel Machek <pavel@ucw.cz>, Andrew Grover <andrew.grover@intel.com>,
-	ACPI mailing list <acpi-devel@lists.sourceforge.net>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20030226211347.GA14903@elf.ucw.cz> <20030302133138.GA27031@outpost.ds9a.nl> <1046630641.3610.13.camel@laptop-linux.cunninghams> <20030302202118.GA2201@outpost.ds9a.nl> <20030303003940.GA13036@k3.hellgate.ch> <1046657290.8668.33.camel@laptop-linux.cunninghams> <20030303113153.GA18563@outpost.ds9a.nl>
+	id <S264729AbTCCMFS>; Mon, 3 Mar 2003 07:05:18 -0500
+Received: from jurassic.park.msu.ru ([195.208.223.243]:36105 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id <S264711AbTCCMFR>; Mon, 3 Mar 2003 07:05:17 -0500
+Date: Mon, 3 Mar 2003 15:14:12 +0300
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: jamal <hadi@cyberus.ca>
+Cc: Greg KH <greg@kroah.com>, Linus Torvalds <torvalds@transmeta.com>,
+       Jeff Garzik <jgarzik@pobox.com>, kuznet@ms2.inr.ac.ru,
+       david.knierim@tekelec.com, Robert Olsson <Robert.Olsson@data.slu.se>,
+       Donald Becker <becker@scyld.com>, linux-kernel@vger.kernel.org,
+       alexander@netintact.se
+Subject: Re: PCI init issues
+Message-ID: <20030303151412.A15195@jurassic.park.msu.ru>
+References: <20030302121050.F61365@shell.cyberus.ca>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030303113153.GA18563@outpost.ds9a.nl>
-User-Agent: Mutt/1.3.27i
-X-Operating-System: Linux 2.5.63 on i686
-X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
-X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20030302121050.F61365@shell.cyberus.ca>; from hadi@cyberus.ca on Sun, Mar 02, 2003 at 12:44:06PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 03 Mar 2003 12:31:53 +0100, bert hubert wrote:
-> I now use gcc 3.2.2 for compiling though. I've tried suspending a few times
-> with 2.5.63bk5 and I get the BUG every time, so it appears to be
-> deterministic and not racey.
+On Sun, Mar 02, 2003 at 12:44:06PM -0500, jamal wrote:
+> Interupt routing as can be seen above is really messed for that device.
 
-Yep. It's not the compiler, though. I'm using 2.95.3.
+Indeed. Quad tulip cards usually have irq pin A of each chip routed
+to pins A-D on the connector, so they cannot have the same irq unless
+all four irq pins are shared in the parent slot, which is unlikely in
+this case.
 
-Roger
+> Q1: How do we resolve this other than moving around boards?
+
+Here's [completely untested] patch that attempts to validate BIOS irq
+assignments. This may break "good" irqs for other devices, but it's
+interesting to see if it changes something.
+
+> Q2: Should we really be dependent on bios this bad?
+
+We certainly shouldn't wrt PCI IO and MMIO allocations, but irq routing
+appears to be so horribly overcomplexed on x86 that dependence on
+BIOS seems almost unavoidable here...
+Other architectures don't have such kind of problems, BTW.
+
+Ivan.
+
+--- 2.4/arch/i386/kernel/pci-irq.c	Fri Feb 28 16:46:28 2003
++++ linux/arch/i386/kernel/pci-irq.c	Mon Mar  3 13:42:04 2003
+@@ -730,7 +730,7 @@ void __init pcibios_fixup_irqs(void)
+ 		 */
+ 		if (io_apic_assign_pci_irqs)
+ 		{
+-			int irq;
++			int irq, irq1 = -1;
+ 
+ 			if (pin) {
+ 				pin--;		/* interrupt pins are numbered starting from 1 */
+@@ -741,15 +741,19 @@ void __init pcibios_fixup_irqs(void)
+ 	 * parent slot, and pin number. The SMP code detects such bridged
+ 	 * busses itself so we should get into this branch reliably.
+ 	 */
+-				if (irq < 0 && dev->bus->parent) { /* go back to the bridge */
++				if (dev->bus->parent) { /* go back to the bridge */
+ 					struct pci_dev * bridge = dev->bus->self;
+ 
+ 					pin = (pin + PCI_SLOT(dev->devfn)) % 4;
+-					irq = IO_APIC_get_PCI_irq_vector(bridge->bus->number, 
++					irq1 = IO_APIC_get_PCI_irq_vector(bridge->bus->number, 
+ 							PCI_SLOT(bridge->devfn), pin);
+-					if (irq >= 0)
+-						printk(KERN_WARNING "PCI: using PPB(B%d,I%d,P%d) to get irq %d\n", 
+-							bridge->bus->number, PCI_SLOT(bridge->devfn), pin, irq);
++				}
++				if (irq1 >= 0 && irq1 != irq) {
++					/* IRQ listed in MP-table doesn't match one for parent slot.
++					   Use that we've found instead. */
++					irq = irq1;
++					printk(KERN_WARNING "PCI: using PPB(B%d,I%d,P%d) to get irq %d\n", 
++						bridge->bus->number, PCI_SLOT(bridge->devfn), pin, irq);
+ 				}
+ 				if (irq >= 0) {
+ 					printk(KERN_INFO "PCI->APIC IRQ transform: (B%d,I%d,P%d) -> %d\n",

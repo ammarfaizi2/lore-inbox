@@ -1,21 +1,21 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275384AbTHSGch (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 02:32:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275386AbTHSGcg
+	id S275486AbTHSGe3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 02:34:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275492AbTHSGe3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 02:32:36 -0400
-Received: from nessie.weebeastie.net ([61.8.7.205]:64493 "EHLO
+	Tue, 19 Aug 2003 02:34:29 -0400
+Received: from nessie.weebeastie.net ([61.8.7.205]:9198 "EHLO
 	nessie.weebeastie.net") by vger.kernel.org with ESMTP
-	id S275384AbTHSGcd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 02:32:33 -0400
-Date: Tue, 19 Aug 2003 16:33:47 +1000
+	id S275486AbTHSGeH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 02:34:07 -0400
+Date: Tue, 19 Aug 2003 16:35:20 +1000
 From: CaT <cat@zip.com.au>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH 1/10] 2.6.0-t3: struct C99 initialiser conversion
-Message-ID: <20030819063347.GG643@zip.com.au>
+Subject: [PATCH 3/10] 2.6.0-t3: struct C99 initialiser conversion
+Message-ID: <20030819063520.GI643@zip.com.au>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="rS8CxjVDS/+yyDmU"
+Content-Type: multipart/mixed; boundary="C1iGAkRnbeBonpVg"
 Content-Disposition: inline
 User-Agent: Mutt/1.3.28i
 Organisation: Furball Inc.
@@ -23,70 +23,181 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---rS8CxjVDS/+yyDmU
+--C1iGAkRnbeBonpVg
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-linux/Documentation/ patch
+linux/arch/mips patch
 
 -- 
 "How can I not love the Americans? They helped me with a flat tire the
 other day," he said.
 	- http://tinyurl.com/h6fo
 
---rS8CxjVDS/+yyDmU
+--C1iGAkRnbeBonpVg
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="2.6.0-t3.c99.Documentation.patch"
+Content-Disposition: attachment; filename="2.6.0-t3.c99.arch.mips.patch"
 
-diff -aur linux.backup/Documentation/DocBook/writing_usb_driver.tmpl linux/Documentation/DocBook/writing_usb_driver.tmpl
---- linux.backup/Documentation/DocBook/writing_usb_driver.tmpl	Thu Oct 31 11:42:55 2002
-+++ linux/Documentation/DocBook/writing_usb_driver.tmpl	Sat Aug 16 15:45:01 2003
-@@ -111,12 +111,12 @@
-   </para>
-   <programlisting>
- static struct usb_driver skel_driver = {
--        name:        "skeleton",
--        probe:       skel_probe,
--        disconnect:  skel_disconnect,
--        fops:        &amp;skel_fops,
--        minor:       USB_SKEL_MINOR_BASE,
--        id_table:    skel_table,
-+        .name        = "skeleton",
-+        .probe       = skel_probe,
-+        .disconnect  = skel_disconnect,
-+        .fops        = &amp;skel_fops,
-+        .minor       = USB_SKEL_MINOR_BASE,
-+        .id_table    = skel_table,
+diff -aur linux.backup/arch/mips/au1000/common/dma.c linux/arch/mips/au1000/common/dma.c
+--- linux.backup/arch/mips/au1000/common/dma.c	Mon Jul 21 23:34:51 2003
++++ linux/arch/mips/au1000/common/dma.c	Sat Aug 16 17:59:18 2003
+@@ -62,14 +62,14 @@
+ spinlock_t au1000_dma_spin_lock = SPIN_LOCK_UNLOCKED;
+ 
+ struct dma_chan au1000_dma_table[NUM_AU1000_DMA_CHANNELS] = {
+-      {dev_id:-1,},
+-      {dev_id:-1,},
+-      {dev_id:-1,},
+-      {dev_id:-1,},
+-      {dev_id:-1,},
+-      {dev_id:-1,},
+-      {dev_id:-1,},
+-      {dev_id:-1,}
++      {.dev_id = -1,},
++      {.dev_id = -1,},
++      {.dev_id = -1,},
++      {.dev_id = -1,},
++      {.dev_id = -1,},
++      {.dev_id = -1,},
++      {.dev_id = -1,},
++      {.dev_id = -1,}
  };
-   </programlisting>
-   <para>
-diff -aur linux.backup/Documentation/usb/hotplug.txt linux/Documentation/usb/hotplug.txt
---- linux.backup/Documentation/usb/hotplug.txt	Mon Jan 27 13:43:40 2003
-+++ linux/Documentation/usb/hotplug.txt	Sat Aug 16 15:45:01 2003
-@@ -122,17 +122,17 @@
- something like this:
  
-     static struct usb_driver mydriver = {
--	name:		"mydriver",
--	id_table:	mydriver_id_table,
--	probe:		my_probe,
--	disconnect:	my_disconnect,
-+	.name		= "mydriver",
-+	.id_table	= mydriver_id_table,
-+	.probe		= my_probe,
-+	.disconnect	= my_disconnect,
+ // Device FIFO addresses and default DMA modes
+diff -aur linux.backup/arch/mips/sibyte/cfe/console.c linux/arch/mips/sibyte/cfe/console.c
+--- linux.backup/arch/mips/sibyte/cfe/console.c	Sat Aug 16 15:02:40 2003
++++ linux/arch/mips/sibyte/cfe/console.c	Sat Aug 16 15:44:59 2003
+@@ -74,12 +74,12 @@
+ }
  
- 	/*
- 	if using the usb chardev framework:
--	    minor:		MY_USB_MINOR_START,
--	    fops:		my_file_ops,
-+	    .minor		= MY_USB_MINOR_START,
-+	    .fops		= my_file_ops,
- 	if exposing any operations through usbdevfs:
--	    ioctl:		my_ioctl,
-+	    .ioctl		= my_ioctl,
- 	*/
-     }
+ static struct console sb1250_cfe_cons = {
+-	name:		"cfe",
+-	write:		cfe_console_write,
+-	device:		cfe_console_device,
+-	setup:		cfe_console_setup,
+-	flags:		CON_PRINTBUFFER,
+-	index:		-1,
++	.name		= "cfe",
++	.write		= cfe_console_write,
++	.device		= cfe_console_device,
++	.setup		= cfe_console_setup,
++	.flags		= CON_PRINTBUFFER,
++	.index		= -1,
+ };
  
+ static int __init sb1250_cfe_console_init(void)
+diff -aur linux.backup/arch/mips/tx4927/common/tx4927_irq.c linux/arch/mips/tx4927/common/tx4927_irq.c
+--- linux.backup/arch/mips/tx4927/common/tx4927_irq.c	Mon Jul 21 23:34:53 2003
++++ linux/arch/mips/tx4927/common/tx4927_irq.c	Sat Aug 16 17:59:57 2003
+@@ -149,26 +149,26 @@
+ 
+ #define TX4927_CP0_NAME "TX4927-CP0"
+ static struct hw_interrupt_type tx4927_irq_cp0_type = {
+-	typename:	TX4927_CP0_NAME,
+-	startup:	tx4927_irq_cp0_startup,
+-	shutdown:	tx4927_irq_cp0_shutdown,
+-	enable:		tx4927_irq_cp0_enable,
+-	disable:	tx4927_irq_cp0_disable,
+-	ack:		tx4927_irq_cp0_mask_and_ack,
+-	end:		tx4927_irq_cp0_end,
+-	set_affinity:	NULL
++	.typename	= TX4927_CP0_NAME,
++	.startup	= tx4927_irq_cp0_startup,
++	.shutdown	= tx4927_irq_cp0_shutdown,
++	.enable		= tx4927_irq_cp0_enable,
++	.disable	= tx4927_irq_cp0_disable,
++	.ack		= tx4927_irq_cp0_mask_and_ack,
++	.end		= tx4927_irq_cp0_end,
++	.set_affinity	= NULL
+ };
+ 
+ #define TX4927_PIC_NAME "TX4927-PIC"
+ static struct hw_interrupt_type tx4927_irq_pic_type = {
+-	typename:	TX4927_PIC_NAME,
+-	startup:	tx4927_irq_pic_startup,
+-	shutdown:	tx4927_irq_pic_shutdown,
+-	enable:		tx4927_irq_pic_enable,
+-	disable:	tx4927_irq_pic_disable,
+-	ack:		tx4927_irq_pic_mask_and_ack,
+-	end:		tx4927_irq_pic_end,
+-	set_affinity:	NULL
++	.typename	= TX4927_PIC_NAME,
++	.startup	= tx4927_irq_pic_startup,
++	.shutdown	= tx4927_irq_pic_shutdown,
++	.enable		= tx4927_irq_pic_enable,
++	.disable	= tx4927_irq_pic_disable,
++	.ack		= tx4927_irq_pic_mask_and_ack,
++	.end		= tx4927_irq_pic_end,
++	.set_affinity	= NULL
+ };
+ 
+ #define TX4927_PIC_ACTION(s) { no_action, 0, 0, s, NULL, NULL }
+diff -aur linux.backup/arch/mips/tx4927/toshiba_rbtx4927/toshiba_rbtx4927_irq.c linux/arch/mips/tx4927/toshiba_rbtx4927/toshiba_rbtx4927_irq.c
+--- linux.backup/arch/mips/tx4927/toshiba_rbtx4927/toshiba_rbtx4927_irq.c	Sat Aug 16 15:02:17 2003
++++ linux/arch/mips/tx4927/toshiba_rbtx4927/toshiba_rbtx4927_irq.c	Sat Aug 16 18:02:56 2003
+@@ -255,14 +255,14 @@
+ 
+ #define TOSHIBA_RBTX4927_IOC_NAME "RBTX4927-IOC"
+ static struct hw_interrupt_type toshiba_rbtx4927_irq_ioc_type = {
+-	typename:TOSHIBA_RBTX4927_IOC_NAME,
+-	startup:toshiba_rbtx4927_irq_ioc_startup,
+-	shutdown:toshiba_rbtx4927_irq_ioc_shutdown,
+-	enable:toshiba_rbtx4927_irq_ioc_enable,
+-	disable:toshiba_rbtx4927_irq_ioc_disable,
+-	ack:toshiba_rbtx4927_irq_ioc_mask_and_ack,
+-	end:toshiba_rbtx4927_irq_ioc_end,
+-	set_affinity:NULL
++	.typename = TOSHIBA_RBTX4927_IOC_NAME,
++	.startup = toshiba_rbtx4927_irq_ioc_startup,
++	.shutdown = toshiba_rbtx4927_irq_ioc_shutdown,
++	.enable = toshiba_rbtx4927_irq_ioc_enable,
++	.disable = toshiba_rbtx4927_irq_ioc_disable,
++	.ack = toshiba_rbtx4927_irq_ioc_mask_and_ack,
++	.end = toshiba_rbtx4927_irq_ioc_end,
++	.set_affinity = NULL
+ };
+ #define TOSHIBA_RBTX4927_IOC_INTR_ENAB 0xbc002000
+ #define TOSHIBA_RBTX4927_IOC_INTR_STAT 0xbc002006
+@@ -271,14 +271,14 @@
+ #ifdef CONFIG_TOSHIBA_FPCIB0
+ #define TOSHIBA_RBTX4927_ISA_NAME "RBTX4927-ISA"
+ static struct hw_interrupt_type toshiba_rbtx4927_irq_isa_type = {
+-	typename:TOSHIBA_RBTX4927_ISA_NAME,
+-	startup:toshiba_rbtx4927_irq_isa_startup,
+-	shutdown:toshiba_rbtx4927_irq_isa_shutdown,
+-	enable:toshiba_rbtx4927_irq_isa_enable,
+-	disable:toshiba_rbtx4927_irq_isa_disable,
+-	ack:toshiba_rbtx4927_irq_isa_mask_and_ack,
+-	end:toshiba_rbtx4927_irq_isa_end,
+-	set_affinity:NULL
++	.typename = TOSHIBA_RBTX4927_ISA_NAME,
++	.startup = toshiba_rbtx4927_irq_isa_startup,
++	.shutdown = toshiba_rbtx4927_irq_isa_shutdown,
++	.enable = toshiba_rbtx4927_irq_isa_enable,
++	.disable = toshiba_rbtx4927_irq_isa_disable,
++	.ack = toshiba_rbtx4927_irq_isa_mask_and_ack,
++	.end = toshiba_rbtx4927_irq_isa_end,
++	.set_affinity = NULL
+ };
+ #endif
+ 
+diff -aur linux.backup/arch/mips/vr41xx/common/vrc4173.c linux/arch/mips/vr41xx/common/vrc4173.c
+--- linux.backup/arch/mips/vr41xx/common/vrc4173.c	Sat Aug 16 15:02:40 2003
++++ linux/arch/mips/vr41xx/common/vrc4173.c	Sat Aug 16 18:03:18 2003
+@@ -250,10 +250,10 @@
+ }
+ 
+ static struct pci_driver vrc4173_driver = {
+-	name:		"NEC VRC4173",
+-	probe:		vrc4173_probe,
+-	remove:		NULL,
+-	id_table:	vrc4173_table,
++	.name		= "NEC VRC4173",
++	.probe		= vrc4173_probe,
++	.remove		= NULL,
++	.id_table	= vrc4173_table,
+ };
+ 
+ static int __devinit vrc4173_init(void)
 
---rS8CxjVDS/+yyDmU--
+--C1iGAkRnbeBonpVg--

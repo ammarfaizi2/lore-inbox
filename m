@@ -1,56 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261640AbUCBOQf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Mar 2004 09:16:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261641AbUCBOQf
+	id S261651AbUCBOXw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Mar 2004 09:23:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261655AbUCBOXw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Mar 2004 09:16:35 -0500
-Received: from tuxhome.net ([217.160.179.19]:23433 "EHLO tuxhome.net")
-	by vger.kernel.org with ESMTP id S261640AbUCBOQe (ORCPT
+	Tue, 2 Mar 2004 09:23:52 -0500
+Received: from stan.yoobay.net ([62.111.67.220]:10505 "EHLO mail.authmail.net")
+	by vger.kernel.org with ESMTP id S261651AbUCBOXu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Mar 2004 09:16:34 -0500
-From: Markus Hofmann <markus@gofurther.de>
-Organization: gofurther.de
-To: john stultz <johnstul@us.ibm.com>
-Subject: Re: 2.6.2 - System clock runs too fast
-Date: Tue, 2 Mar 2004 15:15:25 +0100
-User-Agent: KMail/1.6.1
-Cc: lkml <linux-kernel@vger.kernel.org>
-References: <200402101332.26552.markus@gofurther.de> <200402231413.27757.markus@gofurther.de> <1077568263.19860.85.camel@cog.beaverton.ibm.com>
-In-Reply-To: <1077568263.19860.85.camel@cog.beaverton.ibm.com>
-MIME-Version: 1.0
+	Tue, 2 Mar 2004 09:23:50 -0500
+Date: Tue, 2 Mar 2004 16:14:44 +0100
+From: Daniel Mack <daniel@zonque.org>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] 2.6 series: fixed strange behaviour of scripts/modpost
+Message-ID: <20040302151444.GA8217@zonque.dyndns.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200403021515.25751.markus@gofurther.de>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello John
+Hi,
 
-Now I've had time to check and test the things you told me.
+as I found out this morning, it's impossible to use the build-chain
+tool modpost of the 2.6 kernel series from within a directory that
+contains the character sequence '.o'. Weird things happen if you
+try to do so.
 
-- DMA was enabled for the disk.
-- cpu freq was disabled in the BIOS.
-- and I think it depends on the laptop's power state. once the clock runs 
-normal with power supply and ac. But now I can't relicate this.
+With a directory structure like on my system here, building the
+current DVB driver in '/home/daniel/cvs.linuxtv.org/dvb-kernel/build-2.6'
+generates a file called '/home/daniel/cvs.linuxtv.mod.c' since modpost
+cuts every filename string at the first occurence of '.o'.
+Funny enough that obviously nobody ever renamed a kernel tree to
+something like 'linux-2.6.2.orig' and tried to remake it afterwards ;)
 
-regards
-Markus
+Here's the patch that fixes it:
 
-Am Montag, 23. Februar 2004 21:31 schrieb john stultz:
-> On Mon, 2004-02-23 at 05:13, Markus Hofmann wrote:
-> > After a recompiling kernel my system clock runs now again too slow. Your
-> > patch helps with a fast running clock but not with a slow clock. Do you
-> > have an idea what to do now?!?
->
-> Things to check:
-> o Is DMA enabled for the disks on your system
-> 	run "/sbin/hdparm /dev/hdX" to see
-> o Does the problem show up depending on the laptop's power state?
-> 	(ie: does plugging it in or unplugging it change the issue)
-> o Does disabling cpu freq change in the BIOS affect anything?
->
-> thanks
-> -john
+--- modpost.orig.c      2004-02-18 04:57:17.000000000 +0100
++++ modpost.c   2004-03-02 14:43:42.000000000 +0100
+@@ -63,12 +63,12 @@
+ new_module(char *modname)
+ {
+        struct module *mod;
+-       char *p;
++       int len;
+ 
+        /* strip trailing .o */
+-       p = strstr(modname, ".o");
+-       if (p)
+-               *p = 0;
++       len = strlen (modname);
++       if (len > 2 && modname[len-2] == '.' && modname[len-1] == 'o')
++               modname[len-2] = 0;
+ 
+        mod = NOFAIL(malloc(sizeof(*mod)));
+        memset(mod, 0, sizeof(*mod));
+
+
+Daniel

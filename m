@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289306AbSBSTYN>; Tue, 19 Feb 2002 14:24:13 -0500
+	id <S289328AbSBST0e>; Tue, 19 Feb 2002 14:26:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289240AbSBSTYE>; Tue, 19 Feb 2002 14:24:04 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:47369 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S289074AbSBSTXr>; Tue, 19 Feb 2002 14:23:47 -0500
-Date: Tue, 19 Feb 2002 11:21:34 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
-Subject: Re: [PATCH *] new struct page shrinkage
-In-Reply-To: <Pine.LNX.4.33L.0202191131050.1930-100000@imladris.surriel.com>
-Message-ID: <Pine.LNX.4.33.0202191116470.27806-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S289347AbSBST0Y>; Tue, 19 Feb 2002 14:26:24 -0500
+Received: from ns.suse.de ([213.95.15.193]:51214 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S289328AbSBST0P>;
+	Tue, 19 Feb 2002 14:26:15 -0500
+Date: Tue, 19 Feb 2002 20:26:11 +0100
+From: Dave Jones <davej@suse.de>
+To: John Hughes <johughes@shaw.ca>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.5 NVidia driver compile fails
+Message-ID: <20020219202611.D11133@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	John Hughes <johughes@shaw.ca>, linux-kernel@vger.kernel.org
+In-Reply-To: <0GRS001V4NKSMU@l-daemon>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <0GRS001V4NKSMU@l-daemon>; from johughes@shaw.ca on Tue, Feb 19, 2002 at 01:07:13PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Feb 19, 2002 at 01:07:13PM -0600, John Hughes wrote:
+ > nv.c:1438: incompatible type for argument 4 of `remap_page_range_Reb32c755'
+ > nv.c:1438: too few arguments to function `remap_page_range_Reb32c755'
+ > make[2]: *** [nv.o] Error 1
 
+ Assuming you get lucky, and manage to fix up all the compile
+ errors in the source you have, chances are that the same
+ interface changes will break the binary only part too.
+ So it'll compile, link, and likely explode as soon as you
+ try to use it.
 
-On Tue, 19 Feb 2002, Rik van Riel wrote:
->
-> The patch has been changed like you wanted, with page->zone
-> shoved into page->flags. I've also pulled the thing up to
-> your latest changes from linux.bkbits.net so you should be
-> able to just pull it into your tree from:
->
-> bk://linuxvm.bkbits.net/linux-2.5-struct_page
+ It's likely that only nvidia can help you here.
+ Same goes for any other binary only module during a devel series.
 
-Btw, _please_ don't do things like changing the bitkeeper etc/config file.
-Right now your very first changesets is something that I definitely do not
-want in my tree.
-
-Sure, I can do "bk cset -x" on the damn thing, but the fact is, I don't
-want to have totally unnecessary undo's in my tree on things like this.
-That's just stupid, and only makes the revision history look even less
-readable than it already is..
-
-		Linus
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

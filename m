@@ -1,44 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261340AbVALTRQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261293AbVALTM5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261340AbVALTRQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 14:17:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261332AbVALTNR
+	id S261293AbVALTM5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 14:12:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261330AbVALTJz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 14:13:17 -0500
-Received: from lucidpixels.com ([66.45.37.187]:1154 "HELO lucidpixels.com")
-	by vger.kernel.org with SMTP id S261325AbVALTMR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 14:12:17 -0500
-Date: Wed, 12 Jan 2005 14:12:14 -0500 (EST)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p500
-To: linux-kernel@vger.kernel.org
-Subject: Question regarding ERR in /proc/interrupts.
-Message-ID: <Pine.LNX.4.61.0501121410360.11524@p500>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 12 Jan 2005 14:09:55 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:44701 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261326AbVALTGZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jan 2005 14:06:25 -0500
+Date: Wed, 12 Jan 2005 11:03:19 -0800
+From: Greg KH <greg@kroah.com>
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel conector. Reincarnation #1.
+Message-ID: <20050112190319.GA10885@kroah.com>
+References: <1101286481.18807.66.camel@uganda> <1101287606.18807.75.camel@uganda> <20041124222857.GG3584@kroah.com> <1102504677.3363.55.camel@uganda> <20041221204101.GA9831@kroah.com> <1103707272.3432.6.camel@uganda>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1103707272.3432.6.camel@uganda>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is there anyway to log each ERR to a file or way to find out what caused 
-each ERR?
+On Wed, Dec 22, 2004 at 12:21:12PM +0300, Evgeniy Polyakov wrote:
+> Hello, Greg, developers.
+> 
+> This is first public resending of connector patch after several private
+> discussions.
+> Noone objected before, so if there are no complaints, Greg, please
+> apply.
 
-For example, I know this is the cause of a few of them:
-spurious 8259A interrupt: IRQ7.
+one minor issue:
 
-But not all 20, is there any available option to do this?
+> +#include "../connector/connector.h"
 
-$ cat /proc/interrupts
-            CPU0
-   0:  887759057          XT-PIC  timer
-   1:       3138          XT-PIC  i8042
-   2:          0          XT-PIC  cascade
-   5:       5811          XT-PIC  Crystal audio controller
-   9:  265081861          XT-PIC  ide4, eth1, eth2
-  10:    9087912          XT-PIC  ide6, ide7
-  11:     837707          XT-PIC  ide2, ide3
-  12:      13854          XT-PIC  i8042
-  14:   63373075          XT-PIC  eth0
-NMI:          0
-ERR:         20
+Shouldn't connector.h go into include/linux so that everyone can use it
+within the kernel?  If so, then it's dependancy on cn_queue.h needs to
+be fixed up too (why not just merge them both together)?
 
+> +#include "../connector/cn_queue.h"
+
+This can just be:
+	#include "cn_queue.h"
+if you end up still needing it.
+
+
+Sorry for taking so long to get back to this, was on vacation.
+
+thanks,
+
+greg k-h

@@ -1,48 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266010AbUAQLSa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jan 2004 06:18:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266027AbUAQLSa
+	id S265603AbUAQMFL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jan 2004 07:05:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265903AbUAQMFK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jan 2004 06:18:30 -0500
-Received: from h196n1fls22o974.bredband.comhem.se ([213.64.79.196]:39087 "EHLO
-	latitude.mynet.no-ip.org") by vger.kernel.org with ESMTP
-	id S266010AbUAQLS3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Jan 2004 06:18:29 -0500
-X-Mailer: exmh version 2.6.3 04/02/2003 with nmh-1.0.4
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: "Richard B. Johnson" <root@chaos.analogic.com>, robert@schwebel.de,
-       cliff white <cliffw@osdl.org>, piggin@cyberone.com.au, mpm@selenic.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [1/4] better i386 CPU selection 
-In-Reply-To: Message from Adrian Bunk <bunk@fs.tum.de> 
-   of "Sat, 17 Jan 2004 03:15:32 +0100." <20040117021532.GH12027@fs.tum.de> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sat, 17 Jan 2004 11:01:22 +0100
-From: aeriksson@fastmail.fm
-Message-Id: <20040117100122.4C7B53F60@latitude.mynet.no-ip.org>
+	Sat, 17 Jan 2004 07:05:10 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:59901 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S265603AbUAQMFF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Jan 2004 07:05:05 -0500
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: backblue <backblue@netcabo.pt>
+Subject: Re: a7n8x-x
+Date: Sat, 17 Jan 2004 13:08:48 +0100
+User-Agent: KMail/1.5.3
+References: <20040117102229.4747e7f8.backblue@netcabo.pt>
+In-Reply-To: <20040117102229.4747e7f8.backblue@netcabo.pt>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200401171308.48641.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > NO! NO!  This prevents development of an AMD embeded system on an
-> > "ordinary" machine like this one (Pentium IV). The fact that the
-> > timer runs at a different speed means nothing, one just sets the
-> > workstation time every day. Please do NOT do this. It prevents
-> > important usage.
-> 
-> What problems exacly are you referring to?
-> 
-> Besides the AMD Elan cpufreq driver I see nothing where CONFIG_MELAN
-> gave you any real difference (except your highest goal is to avoid a
-> recompilation when switching from the Pentium 4 to the AMD Elan - but I
-> doubt the really "prevents development").
-> 
-> But I'm not religious about this issue. Let Robert decide, the Elan 
-> support is his child.
-> 
+On Saturday 17 of January 2004 11:22, backblue wrote:
+> Hello,
 
-I guess some code to dynamically check for AMD ELAN would make the time drift problem go away, right? I did notice a description of how to detect an elan in one of the elan manuals. That stuff does not seem to have made its way into the kernel, has it? Should it?
+Hi,
 
-/A
+> For ppl with problems with a7n8x-x with chipset nforce2, that have problems
+> with ide driver, and the machines hangs up, the solution it's upgrade the
+
+People with SCSI also reported lockups.
+
+> bios for the last release from the asus ftpd, i'm using version 1007, with
+> 1005, that it's the default version, if we disable the suport in the
+> kernel, for Nvidia id chipset, the machine works, but we dont have dma
+> enable, and becomes impossible to work, and if we enable it, the machine
+
+This only makes problem less frequent (as reported by other people).
+
+> hangs up every time, in 2.4 series it crashes less, but in 2.6.1, if i just
+> compile anything the machine goes down, just upgrade the bios to this
+> version, if not resolve, try to disable the APIC suporte on bios. -
+
+If BIOS upgrade helped please send 'lspci -vvv -xxx' output from system
+after/before BIOS upgrade, so we can try to catch the problem and add a fix
+to kernel (there is no BIOS update for some motherboards).
+
+Thanks!
+
+--bart
 

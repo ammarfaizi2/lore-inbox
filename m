@@ -1,58 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262897AbVCWJaY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261182AbVCWJiq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262897AbVCWJaY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 04:30:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262904AbVCWJaY
+	id S261182AbVCWJiq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 04:38:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261220AbVCWJiq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 04:30:24 -0500
-Received: from dslsmtp.struer.net ([62.242.36.21]:23557 "EHLO
-	dslsmtp.struer.net") by vger.kernel.org with ESMTP id S262897AbVCWJaP
+	Wed, 23 Mar 2005 04:38:46 -0500
+Received: from 213-239-234-136.clients.your-server.de ([213.239.234.136]:50606
+	"EHLO suckfuell.net") by vger.kernel.org with ESMTP id S261182AbVCWJio
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 04:30:15 -0500
-Message-ID: <4636.194.237.142.10.1111570214.squirrel@194.237.142.10>
-In-Reply-To: <Pine.LNX.4.60.0503231042480.21050@lantana.cs.iitm.ernet.in>
-References: <Pine.LNX.4.60.0503231042480.21050@lantana.cs.iitm.ernet.in>
-Date: Wed, 23 Mar 2005 10:30:14 +0100 (CET)
-Subject: Re: segmentation fault while loading modules
-From: "Sam Ravnborg" <sam@ravnborg.org>
-To: "Payasam Manohar" <pmanohar@lantana.cs.iitm.ernet.in>
+	Wed, 23 Mar 2005 04:38:44 -0500
+Date: Wed, 23 Mar 2005 10:38:44 +0100
+From: Jochen Suckfuell <jo-lkml@suckfuell.net>
+To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.3a
-X-Mailer: SquirrelMail/1.4.3a
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+Subject: Re: 2.6.11 bug: unbacked private shared memory segments missing in core dump
+Message-ID: <20050323093844.GA6962@ds217-115-141-141.dedicated.hosteurope.de>
+Mail-Followup-To: Jochen Suckfuell <jo-lkml@suckfuell.net>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20050301170614.GA6121@ds217-115-141-141.dedicated.hosteurope.de> <20050308134332.GA2356@ds217-115-141-141.dedicated.hosteurope.de> <20050321152948.475676f4.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050321152948.475676f4.akpm@osdl.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> my makefile is:
->
-> TARGET  := signal4
-> WARN    := -W -Wall -Wstrict-prototypes -Wmissing-prototypes
-> INCLUDE := -isystem /lib/modules/2.4.20-8feb9.1/build/include
-> CFLAGS  := -O2 -DMODULE -D__KERNEL__ ${WARN} ${INCLUDE}
-> CC      := gcc
->
-> ${TARGET}.o: ${TARGET}.c
->
-> .PHONY: clean
->
->
-> Any suggestions are welcome.
 
-It may be due to inconsistency in gcc flags.
+On Mon, Mar 21, 2005 at 03:29:48PM -0800, Andrew Morton wrote:
+> Jochen Suckfuell <jo-lkml@suckfuell.net> wrote:
+> >
+> > Hello!
+> > 
+> > Since 2.6.10, unbacked private shared memory allocated via shmget is not
+> > included in core dumps.
+> 
+> Can you please confirm that 2.6.12-rc1 fixed this?
 
-Plase try with a simpler Makefile:
-Makefile:
-obj-m := signal4.o
+Yes, it's fixed. 
 
-And compile with:
-make -C /lib/modules/2.4.20-8feb9.1/build SUBDIRS=`pwd` modules
+Thanks to everyone involved.
 
-This will make sure you use correct gcc flags.
 
-    Sam
-
+Bye
+Jochen Suckfuell
 

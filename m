@@ -1,43 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265994AbUFUDgH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265999AbUFUDhC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265994AbUFUDgH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jun 2004 23:36:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265997AbUFUDgH
+	id S265999AbUFUDhC (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jun 2004 23:37:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265997AbUFUDhC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jun 2004 23:36:07 -0400
-Received: from sweetums.bluetronic.net ([24.199.150.42]:1256 "EHLO
-	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
-	id S265994AbUFUDgE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jun 2004 23:36:04 -0400
-Date: Sun, 20 Jun 2004 23:29:04 -0400 (EDT)
-From: Ricky Beam <jfbeam@bluetronic.net>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.7-bk way too fast
-In-Reply-To: <40D64DF7.5040601@pobox.com>
-Message-ID: <Pine.GSO.4.33.0406202320020.25702-100000@sweetums.bluetronic.net>
+	Sun, 20 Jun 2004 23:37:02 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:3763 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266002AbUFUDgy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jun 2004 23:36:54 -0400
+Message-ID: <40D657B7.8040807@pobox.com>
+Date: Sun, 20 Jun 2004 23:36:23 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; FORMAT=flowed
-Content-ID: <Pine.GSO.4.33.0406202320022.25702@sweetums.bluetronic.net>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+CC: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.7-bk way too fast
+References: <40D64DF7.5040601@pobox.com>
+In-Reply-To: <40D64DF7.5040601@pobox.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 20 Jun 2004, Jeff Garzik wrote:
->Something is definitely screwy with the latest -bk.
+Jeff Garzik wrote:
+> 
+> Something is definitely screwy with the latest -bk.  I updated from a 
+> kernel ~1 week ago, and all timer-related stuff is moving at a vastly 
+> increased rate.  My guess is twice as fast.  Most annoying is the system 
+> clock advances at twice normal rate, and keyboard repeat is so sensitive 
+> I am spending quite a bit of time typing this message, what with having 
+> to delettte (<== example) extra characters.  Double-clicking is also 
+> broken :(
 
-I'm not seeing any troubles...
+Looks like disabling CONFIG_ACPI fixes things.  Narrowing down cset now...
 
-[root:pts/11{4}]spork:~/[11:26 PM]:uname -a
-Linux spork.troz.com 2.6.7-SMP+BK@1.1400 #15 SMP BK[20040618194307] Fri Jun 18 15:56:38 EDT 2004 x86_64 x86_64 x86_64 GNU/Linux
-
-time.c: Using 1.193182 MHz PIT timer.
-
->My guess would be someone broke HPET, but maybe not judging from other
->lkml reports.
-
-It could be.  All my systems have an HPET enabled kernel, but none of them
-are actually reporting HPET as a timing source.
-
---Ricky
+	Jeff
 
 

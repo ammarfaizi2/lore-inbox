@@ -1,54 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285671AbRLTAKh>; Wed, 19 Dec 2001 19:10:37 -0500
+	id <S285663AbRLTAOh>; Wed, 19 Dec 2001 19:14:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285669AbRLTAK1>; Wed, 19 Dec 2001 19:10:27 -0500
-Received: from duteinh.et.tudelft.nl ([130.161.42.1]:25613 "EHLO
-	duteinh.et.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S285663AbRLTAKU>; Wed, 19 Dec 2001 19:10:20 -0500
-Date: Thu, 20 Dec 2001 01:10:09 +0100
-From: Erik Mouw <J.A.K.Mouw@its.tudelft.nl>
-To: Robert Love <rml@tech9.net>
-Cc: Martin Devera <devik@cdi.cz>, Chris Meadors <clubneon@hereintown.net>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: gcc 3.0.2/kernel details (-O issue)
-Message-ID: <20011220001006.GA18071@arthur.ubicom.tudelft.nl>
-In-Reply-To: <Pine.LNX.4.10.10112192037490.3265-100000@luxik.cdi.cz> <1008792213.806.36.camel@phantasy>
+	id <S285668AbRLTAO2>; Wed, 19 Dec 2001 19:14:28 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:20352 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S285663AbRLTAOS>;
+	Wed, 19 Dec 2001 19:14:18 -0500
+Date: Wed, 19 Dec 2001 16:13:59 -0800 (PST)
+Message-Id: <20011219.161359.71089731.davem@redhat.com>
+To: bcrl@redhat.com
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org, linux-aio@kvack.org
+Subject: Re: aio
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20011219135708.A12608@devserv.devel.redhat.com>
+In-Reply-To: <E16Gjuw-0000UT-00@starship.berlin>
+	<Pine.LNX.4.33.0112190859050.1872-100000@penguin.transmeta.com>
+	<20011219135708.A12608@devserv.devel.redhat.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1008792213.806.36.camel@phantasy>
-User-Agent: Mutt/1.3.24i
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 19, 2001 at 03:03:30PM -0500, Robert Love wrote:
-> On Wed, 2001-12-19 at 14:39, Martin Devera wrote:
-> > It is interesting that 2.2 can be done with -O. Also I'd expect
-> > errors during compilation and not silent crash...
-> 
-> Well, you certainly won't get errors, because compiler optimizations
-> shouldn't change expected syntax.
+   From: Ben LaHaise <bcrl@redhat.com>
+   Date: Wed, 19 Dec 2001 13:57:08 -0500
+   
+   Thanks for the useful feedback on the userland interface then.  Evidently 
+   nobody cares within the community about improving functionality on a 
+   reasonable timescale.  If this doesn't change soon, Linux is doomed.
 
-It doesn't change syntax, but anything lower than -O1 simply doesn't
-inline functions with an "inline" attribute. The result is that the
-inline functions in header files won't get inlined and the compiler
-will complain about missing functions at link time (or module insert
-time).
+Maybe it's because the majority of people don't care nor would ever
+need to use AIO.  Are you willing to accept this possibly? :-) Linux
+is anything but doomed, because you will notice that the things that
+actually matter for most people are in fact improved and worked on
+within a reasonable timescale.
 
-I'm actually surprised that 2.2 can be compiled with -O, AFAIK
-linux-2.2 also has a lot of inline functions in headers. I know from
-experience that -Os works for 2.4 kernels on ARM, I haven't tested it
-with 2.2 or x86.
+Only very specialized applications can even benefit from AIO.  This
+doesn't make it useless, but it does decrease the amount of interest
+(and priority) anyone in the community will have in working on it.
 
+Now, if these few and far between people who are actually interested
+in AIO are willing to throw money at the problem to get it worked on,
+that is how the "reasonable timescale" will be arrived at.  And if
+they aren't willing to toss money at the problem, how important can it
+really be to them? :-)
 
-Erik
+Maybe, just maybe, most people simply do not care one iota about AIO.
 
--- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Faculty
-of Information Technology and Systems, Delft University of Technology,
-PO BOX 5031, 2600 GA Delft, The Netherlands  Phone: +31-15-2783635
-Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/
+Linux caters to the general concerns not the nooks and cranies, that
+is why it is anything but doomed.

@@ -1,69 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268502AbTGIT35 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 15:29:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268536AbTGIT35
+	id S268564AbTGIThg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 15:37:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268566AbTGIThg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 15:29:57 -0400
-Received: from pop018pub.verizon.net ([206.46.170.212]:35205 "EHLO
-	pop018.verizon.net") by vger.kernel.org with ESMTP id S268502AbTGIT3z
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 15:29:55 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-To: linux-kernel@vger.kernel.org
-Subject: Old problem, can anything be done?
-Date: Wed, 9 Jul 2003 15:44:31 -0400
-User-Agent: KMail/1.5.1
+	Wed, 9 Jul 2003 15:37:36 -0400
+Received: from pat.uio.no ([129.240.130.16]:38533 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S268564AbTGIThe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jul 2003 15:37:34 -0400
 MIME-Version: 1.0
-Content-Disposition: inline
-Organization: None that appears to be detectable by casual observers
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <200307091544.31783.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at pop018.verizon.net from [151.205.62.27] at Wed, 9 Jul 2003 14:44:33 -0500
+Message-ID: <16140.29271.365874.304823@charged.uio.no>
+Date: Wed, 9 Jul 2003 21:51:51 +0200
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Marc-Christian Petersen <m.c.p@wolk-project.de>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: ->direct_IO API change in current 2.4 BK
+In-Reply-To: <20030709191739.GH15293@gtf.org>
+References: <20030709133109.A23587@infradead.org>
+	<Pine.LNX.4.55L.0307091506180.27004@freak.distro.conectiva>
+	<16140.24595.438954.609504@charged.uio.no>
+	<200307092041.42608.m.c.p@wolk-project.de>
+	<16140.25619.963866.474510@charged.uio.no>
+	<20030709190531.GF15293@gtf.org>
+	<16140.26693.72927.451259@charged.uio.no>
+	<20030709191739.GH15293@gtf.org>
+X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
+X-UiO-MailScanner: No virus found
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello lkml;
+>>>>> " " == Jeff Garzik <jgarzik@pobox.com> writes:
 
-One thing thats quit working sometime back in the 2.4.17 or 18 area, 
-is the bulldog monitor and its upsd for watching my Belkin Regulator 
-Pro 1400 va ups.
+     > Having the stable API change, conditional on a define, is
+     > really nasty and IMO will create maintenance and support
+     > headaches down the line.  I do not recall Linux VFS _ever_
+     > having a hook's definition conditional.  We should not start
+     > now...
 
-As near as I can determine, the daemon is no longer talking to the ups 
-via its seriel port.  It got intermittent as the kernel versions 
-advanced, often requiring a restart of the upsd daemon after the 
-monitoring gui was started, and finally quit altogether at about the 
-time frame of kernel 2.4.20.
+direct_IO() was precisely such a conditional hook definition. It
+appeared in 2.4.15, and anybody who does not check for
+KERNEL_HAS_O_DIRECT is not backward compatible.
 
-This is Belkins own linux drivers, which while built in the fall of 
-2002, were actually built on a RH5.2 system.  I've not succeeded in 
-convincing Belkin they really should update their install, and I have 
-yelped at them at least 3 times over this.  I've also requested the 
-src's to see if I could fix them but the lawyers won't let that 
-happen.  Even if I sign an NDA.
+To comment further: There is at least one example I can think of which
+was exactly equivalent to the proposed change, namely the redefinition
+of the filldir_t type in 2.4.9. It was admittedly not documented using
+a define...
 
-Is there anything that can be done from my end to restore whatever was 
-changed in the way these modules talk to each other and to the seriel 
-port?
+Note: We could at the same time replace the name direct_IO() with
+direct_IO2() (that has several precedents).  There are currently only
+a small number of filesystems that provide O_DIRECT, and converting
+them all is (as has been pointed out before) trivial...
 
-The traceing tools I've run here seem to indicate that the 
-daemon is getting data from the ups, but its the "keep the circuit 
-alive" data only, no queries from the daemon appear to be getting 
-*to* the ups to elicit responses in the form of the data requested.
+The problem with read_inode2() was rather that it overloaded the the
+existing iget4() interface...
 
-I am not subscribed as the discussions usually go way over my head.  I 
-know just enough C to be dangerous.
-
--- 
-Cheers, Gene
-AMD K6-III@500mhz 320M
-Athlon1600XP@1400mhz  512M
-99.26% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attornies please note, additions to this message
-by Gene Heskett are:
-Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
+Cheers,
+  Trond
 
 

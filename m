@@ -1,40 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263100AbVCKCEc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263098AbVCKCE0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263100AbVCKCEc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 21:04:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263090AbVCKCEb
+	id S263098AbVCKCE0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 21:04:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263090AbVCKCE0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 21:04:31 -0500
-Received: from fire.osdl.org ([65.172.181.4]:31156 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S263113AbVCKCDJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 21:03:09 -0500
-Date: Thu, 10 Mar 2005 18:04:53 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Paul Mackerras <paulus@samba.org>
-cc: davej@redhat.com, benh@kernel.crashing.org, linux-kernel@vger.kernel.org
-Subject: Re: AGP bogosities
-In-Reply-To: <16944.62310.967444.786526@cargo.ozlabs.ibm.com>
-Message-ID: <Pine.LNX.4.58.0503101802090.2530@ppc970.osdl.org>
-References: <16944.62310.967444.786526@cargo.ozlabs.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 10 Mar 2005 21:04:26 -0500
+Received: from vms040pub.verizon.net ([206.46.252.40]:42146 "EHLO
+	vms040pub.verizon.net") by vger.kernel.org with ESMTP
+	id S263257AbVCKCCp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 21:02:45 -0500
+Date: Thu, 10 Mar 2005 21:02:44 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: 2.6.11 low latency audio test results
+In-reply-to: <1110491577.14297.19.camel@mindpipe>
+To: linux-kernel@vger.kernel.org
+Reply-to: gene.heskett@verizon.net
+Message-id: <200503102102.44479.gene.heskett@verizon.net>
+Organization: None, usuallly detectable by casual observers
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <1110324852.6510.11.camel@mindpipe> <422F07C2.7080900@cybsft.com>
+ <1110491577.14297.19.camel@mindpipe>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday 10 March 2005 16:52, Lee Revell wrote:
+>On Wed, 2005-03-09 at 08:27 -0600, K.R. Foley wrote:
+>> Lee Revell wrote:
+>> > Of course all of the above settings provide flawless xrun-free
+>> > performance with 2.6.11-rc4 + PREEMPT_RT.
+>>
+>> The above mentioned patch will apply (and build and run) just fine
+>> to 2.6.11 if you fix the EXTRAVERSION portion of the patch to not
+>> expect -rc4.
+>
+>Right, it sure does.  No rejects except the Makefile.
+>
+>Looks like the release candidate process is getting tighter.
+>
+>Lee
+>
+Maybe Lee, maybe.  It kills tvtime, I built that into 2.6.11.2 
+yesterday to test.  So I'm back in 2.6.11.2 with only the 
+bk-ieee1394.patch applied over the .1 and .2 patches.
+>-
+>To unsubscribe from this list: send the line "unsubscribe
+> linux-kernel" in the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
 
-
-On Fri, 11 Mar 2005, Paul Mackerras wrote:
-> 
-> Oh, and by the way, I have 3D working relatively well on my G5 with a
-> 64-bit kernel (and 32-bit X server and clients), which is why I care
-> about AGP 3.0 support. :)
-
-Ok, I can't even compile it on my G5, so you're obviously withholding some 
-patches you shouldn't ;)
-
-Anyway, I fixed up the AGP discovery differently from your patch, so you 
-should check that my version works for you. DaveJ, please give it a 
-once-over too, since my G5 doesn't do the AGP thing yet.
-
-		Linus
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.34% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.

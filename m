@@ -1,52 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130661AbRAaEGm>; Tue, 30 Jan 2001 23:06:42 -0500
+	id <S130107AbRAaEX2>; Tue, 30 Jan 2001 23:23:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130763AbRAaEGd>; Tue, 30 Jan 2001 23:06:33 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:5380 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S130661AbRAaEGY>; Tue, 30 Jan 2001 23:06:24 -0500
-Date: Wed, 31 Jan 2001 00:16:43 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Linus Torvalds <torvalds@transmeta.com>, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.4.1 find_page_nolock fixes
-In-Reply-To: <Pine.LNX.4.21.0101301728520.1321-100000@duckman.distro.conectiva>
-Message-ID: <Pine.LNX.4.21.0101310015290.16164-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130454AbRAaEXS>; Tue, 30 Jan 2001 23:23:18 -0500
+Received: from quechua.inka.de ([212.227.14.2]:21354 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S130107AbRAaEXG>;
+	Tue, 30 Jan 2001 23:23:06 -0500
+Date: Wed, 31 Jan 2001 05:23:05 +0100
+To: linux-kernel@vger.kernel.org
+Subject: [2.4.1] mkreiserfs on loopdevice freezes kernel
+Message-ID: <20010131052305.A828@lina.inka.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+From: Bernd Eckenfels <ecki@lina.inka.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-On Tue, 30 Jan 2001, Rik van Riel wrote:
+if I run mkreiserfs on a 32megablocks /dev/loop0 it will lock up while
+generating the journaling information. Sometimes at 20% sometimes at 60%.
+Since mkreiserfs is not using the kernel module i guess this is a loop
+device problem in 2.4.1 kernels.
 
-> Hi Linus,
-> 
-> the patch below contains 3 small changes to mm/filemap.c:
-> 
-> 1. replace the aging in __find_page_nolock() with setting
->    PageReferenced(), otherwise a large number of small
->    reads from (or writes to) a page can drive up the page
->    age unfairly
-> 
-> 2. remove the wakeup of kswapd from __find_page_nolock(),
->    the wakeup condition is complex and leaving out the
->    wakeup has no influence on any workload I tested in
->    the last few weeks
-> 
-> 3. add a __find_page_simple(), which is like __find_page_nolock()
->    but only needs 2 arguments and doesn't touch the page ... this
->    can be used by IO clustering and other things that really don't
->    want to influence page aging, removing the 3rd argument also
->    keeps things simple
+There is no dmesg message at the lookup. mkreiserfs is in state 'D'. The
+system issomewhat useable (X) but some programs just lock in syscalls (no su
+or login possible).
 
-The swapin readahead still makes the page referenced bit set, and it
-should not as we discussed previously.
+If I run losetup -d /dev/loop0 on that device i will get a message that it
+is busy, but the program will not return enymore. It is in 'D' also.
 
+This is an unecncrypted loop device on a ext2 filesystem on a AIC-7861. Loop
+is autoloaded as a module.
 
+Wanted to try reiserfs with some verbose debugging for some time. Well,
+perhaps md is my friend...
 
+Greetings
+Bernd
+-- 
+  (OO)      -- Bernd_Eckenfels@Wendelinusstrasse39.76646Bruchsal.de --
+ ( .. )  ecki@{inka.de,linux.de,debian.org} http://home.pages.de/~eckes/
+  o--o     *plush*  2048/93600EFD  eckes@irc  +497257930613  BE5-RIPE
+(O____O)  When cryptography is outlawed, bayl bhgynjf jvyy unir cevinpl!
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,60 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261168AbVCMMHv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261181AbVCMMWu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261168AbVCMMHv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Mar 2005 07:07:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261170AbVCMMHv
+	id S261181AbVCMMWu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Mar 2005 07:22:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261186AbVCMMWu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Mar 2005 07:07:51 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:37608 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S261168AbVCMMHo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Mar 2005 07:07:44 -0500
-Message-ID: <42343C61.6A1210C0@tv-sign.ru>
-Date: Sun, 13 Mar 2005 16:13:05 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
+	Sun, 13 Mar 2005 07:22:50 -0500
+Received: from mail.parknet.co.jp ([210.171.160.6]:50961 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S261181AbVCMMWr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Mar 2005 07:22:47 -0500
+To: Junfeng Yang <yjf@stanford.edu>
+Cc: chaffee@bmrc.berkeley.edu, <mc@cs.Stanford.EDU>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [CHECKER] sync doesn't flush everything out (msdos and vfat,
+ 2.6.11)
+References: <Pine.GSO.4.44.0503122205270.4831-100000@elaine24.Stanford.EDU>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Sun, 13 Mar 2005 21:22:29 +0900
+In-Reply-To: <Pine.GSO.4.44.0503122205270.4831-100000@elaine24.Stanford.EDU> (Junfeng
+ Yang's message of "Sat, 12 Mar 2005 22:07:30 -0800 (PST)")
+Message-ID: <877jkb3fcq.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, Shai Fultheim <Shai@Scalex86.org>,
-       Christoph Lameter <christoph@lameter.com>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: [patch] del_timer_sync scalability patch
-References: <4231E959.141F7D85@tv-sign.ru>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I suspect that del_timer_sync() in its current form is racy.
+Junfeng Yang <yjf@stanford.edu> writes:
 
-CPU 0						CPU 1
+> /å004  and
+> /0005
+>   share clusters.
+>   Truncating second to 0 bytes.
+> /0005
+>   File size is 4 bytes, cluster chain length is 0 bytes.
+>   Truncating file to 0 bytes.
+> Performing changes.
+> /dev/sbd0: 5 files, 4/8167 clusters
+>
+> This causes file /0005 to be truncated to 0.
 
-__run_timers() sets timer->base = NULL
+The 0004 seems to be already deleted directory actually, because first
+char is 0xE5 (0xE5 is deleted mark).
 
-						del_timer_sync() starts, calls del_timer(), it returns
-						because timer->base == NULL.
-
-						waits until the run is complete:
-							while (base->running_timer == timer)
-								preempt_check_resched();
-						
-						calls schedule(), or long interrupt happens.
-
-timer reschedules itself, __run_timers()
-exits.
-
-						base->running_timer == NULL, end of loop.
-
-next timer interrupt, __run_timers() picks
-this timer again, sets timer->base = NULL
-
-						if (timer_pending(timer))	// no, timer->base == NULL
-							goto del_again;		// not taken
-
-						del_timer_sync() returns
-
-timer runs.
-
-No?
-
-Oleg.
+Please download fixed dosfsck
+   http://user.parknet.co.jp/hirofumi/tmp/fatfsprogs.tar.bz2
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

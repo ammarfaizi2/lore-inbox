@@ -1,52 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272121AbTG1CnM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jul 2003 22:43:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272315AbTG1CnM
+	id S272404AbTG1C7x (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jul 2003 22:59:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271007AbTG1C7x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jul 2003 22:43:12 -0400
-Received: from [129.187.202.12] ([129.187.202.12]:18939 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S272121AbTG1CnK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jul 2003 22:43:10 -0400
-Date: Mon, 28 Jul 2003 04:58:12 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: dm@uk.sistina.com
-Cc: linux-lvm@sistina.com, linux-kernel@vger.kernel.org,
-       trivial@rustcorp.com.au
-Subject: [2.6 patch] remove #include blk.h in dm-ioctl-v{1,4}.c
-Message-ID: <20030728025811.GI22218@fs.tum.de>
+	Sun, 27 Jul 2003 22:59:53 -0400
+Received: from dhcp024-209-039-102.neo.rr.com ([24.209.39.102]:12673 "EHLO
+	neo.rr.com") by vger.kernel.org with ESMTP id S272404AbTG1C7v (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jul 2003 22:59:51 -0400
+Date: Sun, 27 Jul 2003 22:43:57 +0000
+From: Adam Belay <ambx1@neo.rr.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Chris Ruvolo <chris@ruvolo.net>, linux-kernel@vger.kernel.org,
+       alsa-devel@lists.sourceforge.net, Jaroslav Kysela <perex@suse.cz>
+Subject: Re: 2.6.0-t1 garbage in /proc/ioports and oops
+Message-ID: <20030727224357.GA27040@neo.rr.com>
+Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
+	Andrew Morton <akpm@osdl.org>, Chris Ruvolo <chris@ruvolo.net>,
+	linux-kernel@vger.kernel.org, alsa-devel@lists.sourceforge.net,
+	Jaroslav Kysela <perex@suse.cz>
+References: <20030718011101.GD15716@ruvolo.net> <20030717211533.77c0f943.akpm@osdl.org> <20030718150429.GE15716@ruvolo.net> <20030727163812.75b98b02.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20030727163812.75b98b02.akpm@osdl.org>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below removed two #include's of the obsolete blk.h.
+On Sun, Jul 27, 2003 at 04:38:12PM -0700, Andrew Morton wrote:
+> Chris Ruvolo <chris@ruvolo.net> wrote:
+> >
+> > (adding alsa-devel)
+> > 
+> > On Thu, Jul 17, 2003 at 09:15:33PM -0700, Andrew Morton wrote:
+> > > You could load all those modules one at a time, doing a `cat /proc/ioports'
+> > > after each one.  One sneaky way of doing that would be to make your
+> > > modprobe executable be:
+> > 
+> > Ok, this let me track it down to the ALSA snd-sbawe module.  I did not have
+> > isapnp compiled into the kernel and was relying on the userspace isapnp to
+> > configure the device (carried over from 2.4).  Apparently the module didn't
+> > like this.
+> 
+> OK, thanks for that.
+> 
+> >From my reading, snd_sb16_probe() is, in the case of !CONFIG_PNP, doing:
+> 
+> 	/* block the 0x388 port to avoid PnP conflicts */
+> 	acard->fm_res = request_region(0x388, 4, "SoundBlaster FM");
+> 
+> but this reservation is never undone.  So later, after the module is
+> unloaded, a read of /proc/ioports is oopsing when trying to access that
+> string "SoundBlaster FM".  Because it now resides in vfree'd memory.
+> 
+> The fix would be to run release_region() either at the end of
+> snd_sb16_probe() or on module unload.
+> 
+> Adam or Jaroslav, could you please take care of this?
+> 
+> Thanks.
 
-I've tested the compilation with 2.6.0-test2.
+I believe this will fix it.  Testing would be appreciated.
 
-Please apply
-Adrian
+Thanks,
+Adam
 
---- linux-2.6.0-test2-full-no-smp/drivers/md/dm-ioctl-v1.c.tmp	2003-07-28 04:50:45.000000000 +0200
-+++ linux-2.6.0-test2-full-no-smp/drivers/md/dm-ioctl-v1.c	2003-07-28 04:51:13.000000000 +0200
-@@ -12,7 +12,6 @@
- #include <linux/dm-ioctl.h>
- #include <linux/init.h>
- #include <linux/wait.h>
--#include <linux/blk.h>
- #include <linux/slab.h>
- #include <linux/devfs_fs_kernel.h>
+--- a/sound/isa/sb/sb16.c	2003-07-14 03:37:15.000000000 +0000
++++ b/sound/isa/sb/sb16.c	2003-07-27 22:33:22.000000000 +0000
+@@ -350,6 +350,18 @@
  
---- linux-2.6.0-test2-full-no-smp/drivers/md/dm-ioctl-v4.c.tmp	2003-07-28 04:51:20.000000000 +0200
-+++ linux-2.6.0-test2-full-no-smp/drivers/md/dm-ioctl-v4.c	2003-07-28 04:51:30.000000000 +0200
-@@ -11,7 +11,6 @@
- #include <linux/miscdevice.h>
- #include <linux/init.h>
- #include <linux/wait.h>
--#include <linux/blk.h>
- #include <linux/slab.h>
- #include <linux/devfs_fs_kernel.h>
+ #endif /* CONFIG_PNP */
  
++static void snd_sb16_free(snd_card_t *card)
++{
++	struct snd_card_sb16 *acard = (struct snd_card_sb16 *) card->private_data;
++
++	if (acard == NULL)
++		return;
++	if (acard->fm_res) {
++		release_resource(acard->fm_res);
++		kfree_nocheck(acard->fm_res);
++	}
++}
++
+ static int __init snd_sb16_probe(int dev,
+ 				 struct pnp_card_link *pcard,
+ 				 const struct pnp_card_device_id *pid)
+@@ -374,6 +386,7 @@
+ 	if (card == NULL)
+ 		return -ENOMEM;
+ 	acard = (struct snd_card_sb16 *) card->private_data;
++	card->private_free = snd_sb16_free;
+ #ifdef CONFIG_PNP
+ 	if (isapnp[dev]) {
+ 		if ((err = snd_card_sb16_pnp(dev, acard, pcard, pid))) {

@@ -1,34 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130487AbRDEAaC>; Wed, 4 Apr 2001 20:30:02 -0400
+	id <S132038AbRDEAcM>; Wed, 4 Apr 2001 20:32:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132037AbRDEA3o>; Wed, 4 Apr 2001 20:29:44 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:9233 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130487AbRDEA3l>; Wed, 4 Apr 2001 20:29:41 -0400
-Subject: Re: MPEG-2 decoding driver for Trident Cyberblade i7
-To: mshiloh@mediabolic.com (Michael Shiloh)
-Date: Thu, 5 Apr 2001 01:31:28 +0100 (BST)
+	id <S132042AbRDEAcC>; Wed, 4 Apr 2001 20:32:02 -0400
+Received: from vp175062.reshsg.uci.edu ([128.195.175.62]:3082 "EHLO
+	moisil.dev.hydraweb.com") by vger.kernel.org with ESMTP
+	id <S132038AbRDEAbp>; Wed, 4 Apr 2001 20:31:45 -0400
+Date: Wed, 4 Apr 2001 17:30:52 -0700
+Message-Id: <200104050030.f350UqG20859@moisil.dev.hydraweb.com>
+From: Ion Badulescu <ionut@moisil.cs.columbia.edu>
+To: Andre Hedrick <andre@linux-ide.org>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0104041710540.943-100000@michael.channeldot.com> from "Michael Shiloh" at Apr 04, 2001 05:15:57 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14kxgR-00035x-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: 2.2.19 borks am-utils building :-(
+In-Reply-To: <Pine.LNX.4.10.10104041642250.366-100000@master.linux-ide.org>
+User-Agent: tin/1.5.7-20001104 ("Paradise Regained") (UNIX) (Linux/2.2.19 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Searching on the web, I see a few question but no answers
-> to the question of whether a driver exists that can utilize
-> the MPEG-2 hardware assist feature of the Trident
-> Cyberblade i7.
-> 
-> Any pointers?
+On Wed, 4 Apr 2001 16:43:14 -0700 (PDT), Andre Hedrick <andre@linux-ide.org> wrote:
 
-That would be part of the XFree 4 server if supported on that card yet. The
-hardware scalers/YUV for several cards are supported by XFree 4.0 and the
-xv extension. Players such as xine wil use that if present. 
+> The subject says it all
 
-So its an XFree question..
+Use the latest snapshot of am-utils (6.0.6s1), which fixes the problem.
+
+Ion
+am-utils co-maintainer
+
+-- 
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.

@@ -1,58 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262692AbSLBMTa>; Mon, 2 Dec 2002 07:19:30 -0500
+	id <S262806AbSLBMcj>; Mon, 2 Dec 2002 07:32:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262780AbSLBMTa>; Mon, 2 Dec 2002 07:19:30 -0500
-Received: from c17928.thoms1.vic.optusnet.com.au ([210.49.249.29]:39809 "EHLO
-	laptop.localdomain") by vger.kernel.org with ESMTP
-	id <S262692AbSLBMT3> convert rfc822-to-8bit; Mon, 2 Dec 2002 07:19:29 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Con Kolivas <conman@kolivas.net>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: 2.4.20-ck1
-Date: Mon, 2 Dec 2002 23:29:16 +1100
-User-Agent: KMail/1.4.3
+	id <S262808AbSLBMcj>; Mon, 2 Dec 2002 07:32:39 -0500
+Received: from 5-106.ctame701-1.telepar.net.br ([200.193.163.106]:29065 "EHLO
+	5-106.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S262806AbSLBMci>; Mon, 2 Dec 2002 07:32:38 -0500
+Date: Mon, 2 Dec 2002 10:38:40 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Jens Axboe <axboe@suse.de>
+cc: Andrew Morton <akpm@digeo.com>,
+       Marc-Christian Petersen <m.c.p@wolk-project.de>,
+       <linux-kernel@vger.kernel.org>, Con Kolivas <conman@kolivas.net>
+Subject: Re: [PATCH] 2.4.20-rmap15a
+In-Reply-To: <20021202085610.GU16942@suse.de>
+Message-ID: <Pine.LNX.4.44L.0212021035130.15981-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200212022329.23006.conman@kolivas.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Mon, 2 Dec 2002, Jens Axboe wrote:
+> On Mon, Dec 02 2002, Andrew Morton wrote:
 
-I've updated my patchset to resync with 2.4.20
+> > So rather than just keeping on calling it a "hack" could you please
+> > describe what is actually wrong with the idea?
+>
+> I've never said that the idea is wrong, it's the solution that is an
+> ugly hack.
 
-Included:
-O(1)
-Preemptible
-Low Latency
-AA VM addons
-ALSA
-Supermount
-XFS
-ACPI
+OK, do you have a better idea on how to implement this thing ?
 
-optional rmap
+I could be your code monkey if you don't have the time to
+implement something yourself.
 
-and an ugly low latency disk hack (can be turned off during config)
+regards,
 
-In a slight departure from the direction I started taking towards the end of 
-the 2.4.19 patchset I am only including patches that are known to be safe and 
-reasonably well tested.
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+http://www.surriel.com/		http://guru.conectiva.com/
+Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
 
-A split out patchset is available.
-
-Get it here:
-http://kernel.kolivas.net
-
-Cheers,
-Con
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
-
-iD8DBQE961IfF6dfvkL3i1gRAg2wAJ9PrWHTdBO1HXfzbfA2KDy6luPgggCfW4Vt
-48c8kJNGTmFOWqiTXEPVaIA=
-=J9G4
------END PGP SIGNATURE-----

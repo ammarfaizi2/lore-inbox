@@ -1,89 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269115AbUHYBYq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269087AbUHYBaa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269115AbUHYBYq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 21:24:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269087AbUHYBYp
+	id S269087AbUHYBaa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 21:30:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269090AbUHYBaa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 21:24:45 -0400
-Received: from out011pub.verizon.net ([206.46.170.135]:2486 "EHLO
-	out011.verizon.net") by vger.kernel.org with ESMTP id S269120AbUHYBY0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 21:24:26 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
+	Tue, 24 Aug 2004 21:30:30 -0400
+Received: from main.gmane.org ([80.91.224.249]:26255 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S269087AbUHYBa1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Aug 2004 21:30:27 -0400
+X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
-Subject: Re: NForce 2 support
-Date: Tue, 24 Aug 2004 21:24:22 -0400
-User-Agent: KMail/1.6.82
-Cc: chakkerz_dev@optusnet.com.au, Dr NoName <spamacct11@yahoo.com>
-References: <200408250102.i7P12Bp08783@mail019.syd.optusnet.com.au>
-In-Reply-To: <200408250102.i7P12Bp08783@mail019.syd.optusnet.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200408242124.22798.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out011.verizon.net from [151.205.62.54] at Tue, 24 Aug 2004 20:24:24 -0500
+From: fraga@abusar.org ( =?ISO-8859-1?Q?D=E2niel?= Fraga)
+Subject: Re: Linux 2.6.9-rc1
+Date: Tue, 24 Aug 2004 22:11:31 -0300
+Organization: http://www.turbonerd.hpg.ig.com.br
+Message-ID: <3j5tv1-ec2.ln1@tux.abusar.org>
+References: <Pine.LNX.4.58.0408240031560.17766@ppc970.osdl.org>
+    <20040824184245.GE5414@waste.org>
+    <Pine.LNX.4.58.0408241221390.17766@ppc970.osdl.org>
+    <cggjvs$bv9$1@sea.gmane.org> <412BDC86.8000608@sover.net>
+Reply-To: fraga@abusar.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 200-207-206-233.dsl.telesp.net.br
+X-Newsreader: knews 1.0c.0
+X-Leafnode-Warning: administrator allowed illegal use of 8-bit data in header.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 24 August 2004 21:02, chakkerz_dev@optusnet.com.au wrote:
->Heya
->
->Not a kernel hacker but and nforce2 user
->
->nforce 2 works sweet with the exception of sound which has been
-> broken in 2.6.7 and 2.6.8.1 causing system crashes. If you have a
-> soundcard not to worry, if you are gonna run onboard ... wait and
-> see with 2.6.9 brings
->
-My biostar M7NCD Pro intel8x0 sound works right well here on an 
-otherwise nforce2 board.
+In article <412BDC86.8000608@sover.net>,
+	Stephen Wille Padnos <spadnos@sover.net> writes:
 
->> Dr NoName <spamacct11@yahoo.com> wrote:
->>
->> Hello kernel hackers,
->>
->> I have a quick question: what is the current state of
->> support for NVidia NForce 2 chipset? I am planning to
->> get a new Athlon XP rig and just wondering if NForce
->> (specifically Abit NF7-S) is a good choice. I can
->> compile a custom kernel and don't mind installing
->> nvidia drivers separately but I do want everything to
->> work and be rock-solid (ide, agp, sound, network,
->> etc.). So will NForce work or should I stick with VIA?
->>
->> thanks in advance,
->>
->> Eugene
->>
->>
->>
->> _______________________________
->> Do you Yahoo!?
->> Win 1 of 4,000 free domain names from Yahoo! Enter now.
->> http://promotions.yahoo.com/goldrush
->> -
->> To unsubscribe from this list: send the line "unsubscribe
->> linux-kernel" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->> Please read the FAQ at  http://www.tux.org/lkml/
->
->-
->To unsubscribe from this list: send the line "unsubscribe
-> linux-kernel" in the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
+> You wouldn't have to.  The patch method from 2.6.8.x to 2.6.8.x+1 would 
+> be this:
+> unpatch 2.6.8.x
+> patch 2.6.8.x+1
+> Actually, going from any patch sublevel to any other is the same two 
+> steps: remove the last patch level, patch to the new level.
+
+	Ok, I got it. So we have to do this:
+    
+1) If I have 2.6.8 and I want upgrade it to 2.6.8.1, I apply the
+2.6.8.1 patch
+
+2) If I have 2.6.8.1 and I want upgrade it to 2.6.8.2, I have to remove
+2.6.8.1, so it can go back to 2.6.8 and I can apply the 2.6.8.2
+directly on the 2.6.8 kernel. This is valid for any 2.6.8.x version for
+instance...
+
+3) Finally, if I have 2.6.8.x kernel and I want upgrade it to 2.6.9, I
+can just remove the 2.6.8.x patch and apply 2.6.9 on 2.6.8 as I'm used
+to do.
+
+	Ok, it seems reasonable now. Thank you very much.
 
 -- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.24% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+http://Processo.tk (1001 dias)
+http://U-br.tk
+Linux 2.6.7
+São Paulo - SP
+

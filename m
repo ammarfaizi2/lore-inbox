@@ -1,56 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268564AbRGYM5q>; Wed, 25 Jul 2001 08:57:46 -0400
+	id <S268567AbRGYNPJ>; Wed, 25 Jul 2001 09:15:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268565AbRGYM5g>; Wed, 25 Jul 2001 08:57:36 -0400
-Received: from inway98.cdi.cz ([213.151.81.98]:5621 "EHLO luxik.cdi.cz")
-	by vger.kernel.org with ESMTP id <S268564AbRGYM5X>;
-	Wed, 25 Jul 2001 08:57:23 -0400
-Posted-Date: Wed, 25 Jul 2001 14:57:27 +0200
-Date: Wed, 25 Jul 2001 14:57:27 +0200 (CEST)
-From: Martin Devera <devik@cdi.cz>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Optimization for use-once pages
-In-Reply-To: <E15PJuY-0000A3-00@wintermute>
-Message-ID: <Pine.LNX.4.10.10107251426540.4963-100000@luxik.cdi.cz>
+	id <S268568AbRGYNO7>; Wed, 25 Jul 2001 09:14:59 -0400
+Received: from mx1.nameplanet.com ([62.70.3.31]:54797 "HELO mx1.nameplanet.com")
+	by vger.kernel.org with SMTP id <S268567AbRGYNOs>;
+	Wed, 25 Jul 2001 09:14:48 -0400
+Date: Wed, 25 Jul 2001 15:53:34 +0200 (CEST)
+From: Ketil Froyn <ketil@froyn.com>
+To: "M. Tavasti" <tawz@nic.fi>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Select with device and stdin not working
+In-Reply-To: <m266chnqyd.fsf@akvavitix.vuovasti.com>
+Message-ID: <Pine.LNX.4.30.0107251550370.20050-100000@pccn3.uio.no>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hello,
+On 25 Jul 2001, M. Tavasti wrote:
 
-I read whole this thread and it started to interest me.
+> Here program where I get problems:
+>
+> int fd;
+> fd_set rfds;
+>
+> fd = open("/dev/random", O_RDWR );
+>
+> while(1) {
+>         FD_ZERO(&rfds);
+>         FD_SET(fd,&rfds);
+>         FD_SET(fileno(stdin),&rfds);
+>         if( select(fd+1, &rfds, NULL, NULL, NULL  ) > 0) {
+>                 fprintf(stderr,"Select\n");
+>                 fflush(stderr);
+>                 if(FD_ISSET(fd,&rfds)) {
+>                  .......
+>                 } else if(FD_ISSET(fileno(stdin),&rfds) ) {
+>                  ......
+>                 }
+>         }
+> }
 
-If I understood the code correctly, the used bit on ptes
-is tested once per 64 second (for particular page) from
-kswapd or more often under mem pressure and only for
-pages on active list. Correct ?
+It looks like you are sending the original fd_set to select. Remember that
+it is modified in place. What is probably happening is that select returns
+at once when it gets something from /dev/random, and rfds is now modified
+to only contain this. The next time select runs, it will only be checking
+for input from /dev/random. You have to make a copy of rfds that is set
+every time, and send that instead.
 
-Would it be possible to do cost-based eviction of pages ?
-Like to compute cost for each page periodically (with variable
-period - resort page to finner-period list when u bit was set for 
-too long) and resort page into hash bucket with key equal to 
-the cost (cost would be in moderate integer range).
-
-Then you can simply evict pages from lowest hash bucket list
-and move them to free list (after cleaning them).
-
-It would allow developers to modify and test various cost
-schemas including LRU,LRU/2,aging ... with simple change
-of cost function.
-
-I tried to create statistical model of page eviction and after
-some simplify it seems that cost c = (Tw-t)^2+(Tr-t)^2
-where Tr/w is expected time of next page reference/dirtying
-based on EWMA averaging could minimize disc activity during
-page eviction.
-
-I wanted to try it but I'd like to know opinions of others.
-Probably someone have got similar idea ..
-Maybe it would be so expensive ..
-fill other "maybe" here .. :-)
-
-devik
+Ketil
 

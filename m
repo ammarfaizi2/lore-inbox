@@ -1,60 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318207AbSHZS7Z>; Mon, 26 Aug 2002 14:59:25 -0400
+	id <S318222AbSHZTCh>; Mon, 26 Aug 2002 15:02:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318216AbSHZS7Z>; Mon, 26 Aug 2002 14:59:25 -0400
-Received: from stargazer.compendium-tech.com ([64.156.208.76]:10756 "EHLO
-	stargazer.compendium.us") by vger.kernel.org with ESMTP
-	id <S318207AbSHZS7X>; Mon, 26 Aug 2002 14:59:23 -0400
-Date: Mon, 26 Aug 2002 12:00:35 -0700 (PDT)
-From: Kelsey Hudson <khudson@compendium.us>
-X-X-Sender: khudson@betelgeuse.compendium-tech.com
-To: Banai Zoltan <bazooka@emitel.hu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Hyperthreading
-In-Reply-To: <20020821215503.GC1669@bazooka.saturnus.vein.hu>
-Message-ID: <Pine.LNX.4.44.0208261157200.6621-100000@betelgeuse.compendium-tech.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318252AbSHZTCg>; Mon, 26 Aug 2002 15:02:36 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:6910 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S318222AbSHZTBu>; Mon, 26 Aug 2002 15:01:50 -0400
+Subject: Re: Linux 2.4.20-pre4-ac2
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Daniel Egger <degger@fhm.edu>, Alan Cox <alan@redhat.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20020826200623.1556@192.168.4.1>
+References: <1030379037.17690.8.camel@sonja.de.interearth.com> 
+	<20020826200623.1556@192.168.4.1>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
+Date: 26 Aug 2002 20:06:28 +0100
+Message-Id: <1030388788.2797.13.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 21 Aug 2002, Banai Zoltan wrote:
+On Mon, 2002-08-26 at 21:06, Benjamin Herrenschmidt wrote:
+> >What are your plans to visualise the gmac removal in the config?
+> >At the moment it's not exactly obvious that sungem will work
+> >in place for gmac.
+> 
+> Not too sure about that, though Tom Rini sent me a patch that
+> will "upgrade" an existing config, I may just merge that and
+> remove the visible option.
 
-> If this is correct, and there is not destop P4 capable of ht,
-> then what does mean the ht flag in cpuinfo?
-
-That's a good question. I'm not sure.
-
-> $cat /proc/cpuinfo 
-> processor       : 0
-> vendor_id       : GenuineIntel
-> cpu family      : 15
-> model           : 1
-> model name      : Intel(R) Pentium(R) 4 CPU 1.70GHz
-> stepping        : 2
-> cpu MHz         : 1694.907
-> cache size      : 256 KB
-> fdiv_bug        : no
-> hlt_bug         : no
-> f00f_bug        : no
-> coma_bug        : no
-> fpu             : yes
-> fpu_exception   : yes
-> cpuid level     : 2
-> wp              : yes
-> flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
-> mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm
-> bogomips        : 3381.65
->                                                          ^^
-
-You could always compile an SMP kernel and turn on ACPI System support... 
-If your machine boots up and shows two CPUs, it's hyperthread-capable. 
-Note that your BIOS also must support this feature...
-
--- 
- Kelsey Hudson                                       khudson@compendium.us
- Software Engineer/UNIX Systems Administrator
- Compendium Technologies, Inc                               (619) 725-0771
----------------------------------------------------------------------------
+If it was x86 I'd say "keep it for 2.4, delete it in 2.5, in the 2.4 one
+add a printk advising people to switch driver". I don't know how the ppc
+world is accustomed to handling this though
 

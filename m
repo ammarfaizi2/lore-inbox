@@ -1,41 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272278AbTHIIPc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Aug 2003 04:15:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272284AbTHIIPc
+	id S272276AbTHIIJm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Aug 2003 04:09:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272277AbTHIIJl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Aug 2003 04:15:32 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:42254 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S272278AbTHIIP3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Aug 2003 04:15:29 -0400
-Date: Sat, 9 Aug 2003 09:15:24 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Greg KH <greg@kroah.com>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCH] More PCI fixes for 2.6.0-test2
-Message-ID: <20030809091524.A13885@flint.arm.linux.org.uk>
-Mail-Followup-To: Greg KH <greg@kroah.com>, torvalds@osdl.org,
-	linux-kernel@vger.kernel.org
-References: <20030809003036.GA3163@kroah.com>
+	Sat, 9 Aug 2003 04:09:41 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:58020 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S272276AbTHIIJk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Aug 2003 04:09:40 -0400
+Date: Sat, 9 Aug 2003 01:04:18 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Matt Mackall <mpm@selenic.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, jmorris@intercode.com.au
+Subject: Re: [RFC][PATCH] Make cryptoapi non-optional?
+Message-Id: <20030809010418.3b01b2eb.davem@redhat.com>
+In-Reply-To: <20030809074459.GQ31810@waste.org>
+References: <20030809074459.GQ31810@waste.org>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030809003036.GA3163@kroah.com>; from greg@kroah.com on Fri, Aug 08, 2003 at 05:30:36PM -0700
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 08, 2003 at 05:30:36PM -0700, Greg KH wrote:
-> Here are a few more fixes for the PCI core code for 2.6.0-test2-bk.
-> I've removed all of the struct device.name usages as that field is about
-> to go away, and there is a fix from Ivan in here too.
+On Sat, 9 Aug 2003 02:44:59 -0500
+Matt Mackall <mpm@selenic.com> wrote:
 
-When was that decided?  I don't remember seeing any discussion, and since
-it affects more than PCI... Seems like a backwards step to me.
+> The attached (lightly tested) patch gets rid of the SHA in the
+> /dev/random code and replaces it with cryptoapi, leaving us with just
+> one SHA implementation.
+ ...
+>  __u32 secure_tcp_syn_cookie(__u32 saddr, __u32 daddr, __u16 sport,
+>  		__u16 dport, __u32 sseq, __u32 count, __u32 data)
+ ...
+> +	tfm = crypto_alloc_tfm("sha1", 0);
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+secure_tcp_syn_cookie() is called from software interrupt
+context, therefore it may not sleep.
 
+So you cannot call crypto_alloc_tfm() here, which can sleep.
+
+Not to mention that calling crypto_alloc_tfm() for every TCP
+connection creation is absurdly expensive.
+
+Same thing in check_tcp_syn_cookie().
+
+Also, same problem exists with extract_entropy() which also must be
+callable from software interrupt context, and thus the
+crypto_alloc_tfm() alloc calls you added there are illegal too.
+
+This patch needs tons of work.

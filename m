@@ -1,45 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261699AbVBHXx7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261701AbVBHXyN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261699AbVBHXx7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Feb 2005 18:53:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261700AbVBHXx7
+	id S261701AbVBHXyN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Feb 2005 18:54:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261703AbVBHXyN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Feb 2005 18:53:59 -0500
-Received: from irulan.endorphin.org ([80.68.90.107]:10245 "EHLO
-	irulan.endorphin.org") by vger.kernel.org with ESMTP
-	id S261699AbVBHXx5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Feb 2005 18:53:57 -0500
-Subject: Re: [PATCH 01/04] Adding cipher mode context information to
-	crypto_tfm
-From: Fruhwirth Clemens <clemens@endorphin.org>
-To: James Morris <jmorris@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       michal@logix.cz, "David S. Miller" <davem@davemloft.net>,
-       "Adam J. Richter" <adam@yggdrasil.com>
-In-Reply-To: <Xine.LNX.4.44.0502081821180.1670-100000@thoron.boston.redhat.com>
-References: <Xine.LNX.4.44.0502081821180.1670-100000@thoron.boston.redhat.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 09 Feb 2005 00:53:56 +0100
-Message-Id: <1107906836.15942.131.camel@ghanima>
+	Tue, 8 Feb 2005 18:54:13 -0500
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:57809
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S261701AbVBHXyK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Feb 2005 18:54:10 -0500
+Date: Tue, 8 Feb 2005 15:47:35 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: jt@hpl.hp.com
+Cc: marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.4] SIOCSIFNAME wildcard support (resend)
+Message-Id: <20050208154735.23d9ea5e.davem@davemloft.net>
+In-Reply-To: <20050208223715.GA5739@bougret.hpl.hp.com>
+References: <20050208181436.GA29717@bougret.hpl.hp.com>
+	<20050208180445.GB10695@logos.cnet>
+	<20050208142422.019e2b01.davem@davemloft.net>
+	<20050208223715.GA5739@bougret.hpl.hp.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-02-08 at 18:30 -0500, James Morris wrote:
-> On Tue, 8 Feb 2005, Fruhwirth Clemens wrote:
-> 
-> > I shot out the last patch too quickly. Having reviewed the mapping one
-> > more time I noticed, that there as the possibility of "off-by-one"
-> > unmapping, and instead of doing doubtful guesses, if that's the case, I
-> > added a base pointer to scatter_walk, which is the pointer returned by
-> > kmap. Exactly this pointer will be unmapped again, so the vaddr
-> > comparison in crypto_kunmap doesn't have to do any masking.
-> 
-> You can't call kmap() in softirq context (why was it even trying?):
+On Tue, 8 Feb 2005 14:37:15 -0800
+Jean Tourrilhes <jt@hpl.hp.com> wrote:
 
-Why not? What's the alternative, then?
+> 	It was sent to netdev :
+> http://marc.theaimsgroup.com/?l=linux-netdev&m=110747857226852&w=2
 
--- 
-Fruhwirth Clemens <clemens@endorphin.org>  http://clemens.endorphin.org
+Resend it to netdev instead, please.
+
+If nobody responds, it means the networking maintainers simply
+are backlogged and don't have time to review and integrate your
+patch at this time.

@@ -1,43 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264946AbSJPH0N>; Wed, 16 Oct 2002 03:26:13 -0400
+	id <S264941AbSJPHs2>; Wed, 16 Oct 2002 03:48:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264949AbSJPH0N>; Wed, 16 Oct 2002 03:26:13 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:20133 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S264946AbSJPH0L>;
-	Wed, 16 Oct 2002 03:26:11 -0400
-Date: Wed, 16 Oct 2002 09:31:55 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.5.43
-Message-ID: <20021016073154.GF4827@suse.de>
-References: <Pine.LNX.4.44.0210152040540.1708-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0210152040540.1708-100000@penguin.transmeta.com>
+	id <S264945AbSJPHs2>; Wed, 16 Oct 2002 03:48:28 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:34513 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S264941AbSJPHs1>;
+	Wed, 16 Oct 2002 03:48:27 -0400
+Date: Wed, 16 Oct 2002 10:03:52 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Andi Kleen <ak@muc.de>
+Cc: Andrew Morton <akpm@digeo.com>, Linus Torvalds <torvalds@transmeta.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] mmap-speedup-2.5.42-C3
+In-Reply-To: <m3bs5vl79h.fsf@averell.firstfloor.org>
+Message-ID: <Pine.LNX.4.44.0210160957150.4018-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 15 2002, Linus Torvalds wrote:
-> 
-> A huge merging frenzy for the feature freeze, although I also spent a few
-> days getting rid of the need for ide-scsi.c and the SCSI layer to burn
-> CD-ROM's with the IDE driver (it still needs an update to cdrecord, I sent 
-> those off to the maintainer).
 
-I put cdrecord rpms up here:
+On 15 Oct 2002, Andi Kleen wrote:
 
-*.kernel.org/pub/linux/kernel/people/axboe/tools
+> When you oprofile KDE startup you notice that a lot of time is spent in
+> get_unmapped_area too. The reason is that every KDE process links with
+> 10-20 libraries and ends up with a 40-50 entry /proc/<pid>/maps.
 
-The binary rpms are built on SuSE 8.1, there's a source rpm there too
-though. This is 1.11a37 with Linus patch that allows you do to
+actually, library mappings alone should not cause a slowdown, since we
+start the search at MAP_UNMAPPED_BASE and most library mappings are below
+1GB. But if those libraries use mmap()-ed anonymous RAM that has different
+protections then the anonymous areas do not get merged and the scanning
+overhead goes up.
 
-	cdrecord -dev=/dev/hdc -data -....
+> Optimizing this case would be likely useful too, although I suspect
+> Ingo's last hit cache would already help somewhat.
 
-and burn without die-scsi.
+well, could you check how much of an impact it has on KDE's kernel
+profile? For the threaded test it's was a more than 10x application
+speedup, and in the kernel profile get_unmapped_area() was like 90% of the
+hits - after the change it was like 1% of the hits. (but, this test is the
+best-case for the search cache, so ...)
 
--- 
-Jens Axboe
+if this simpler approach solves two different problem categories
+sufficiently then i cannot see any reason to go for the much more complex
+(and still not 100% scanning-less) approach.
+
+	Ingo
+
 

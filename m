@@ -1,48 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261984AbTI2WOx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 18:14:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262098AbTI2WOx
+	id S262456AbTI2WPn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 18:15:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262987AbTI2WPn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 18:14:53 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:21125 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S261984AbTI2WOv
+	Mon, 29 Sep 2003 18:15:43 -0400
+Received: from docsis152-38.menta.net ([62.57.152.38]:40321 "EHLO
+	pau.newtral.org") by vger.kernel.org with ESMTP id S262456AbTI2WPk
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 18:14:51 -0400
-Date: Mon, 29 Sep 2003 23:13:46 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Andi Kleen <ak@colin2.muc.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Athlon Prefetch workaround for 2.6.0test6
-Message-ID: <20030929221346.GA25171@mail.jlokier.co.uk>
-References: <20030929125629.GA1746@averell> <20030929170323.GC21798@mail.jlokier.co.uk> <20030929174910.GA90905@colin2.muc.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030929174910.GA90905@colin2.muc.de>
-User-Agent: Mutt/1.4.1i
+	Mon, 29 Sep 2003 18:15:40 -0400
+Date: Tue, 30 Sep 2003 00:15:37 +0200 (CEST)
+From: Pau Aliagas <linuxnow@newtral.org>
+X-X-Sender: pau@pau.intranet.ct
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: Erik Andersen <andersen@codepoet.org>, Rob Landley <rob@landley.net>,
+       <public@mikl.as>, Rik van Riel <riel@redhat.com>,
+       <license-violation@fsf.org>, David Turner <novalis@fsf.org>
+Subject: Re: Linksys WRT54G: Part 2
+In-Reply-To: <Pine.LNX.4.44.0309291624040.5758-100000@chimarrao.boston.redhat.com>
+Message-ID: <Pine.LNX.4.44.0309300007370.2315-100000@pau.intranet.ct>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> I guess they should be added to the AMD64 version too. It ignores
-> all bases, but I'm not sure if the CPU catches the case where the linear
-> address computation wraps.
+On Mon, 29 Sep 2003, Rik van Riel wrote:
 
-The linear address is _allowed_ to wrap on x86, and there are real
-DOS-era programs which take advantage of this.  It is used to create
-the illusion of access to high addresses, by making them wrap to low
-ones which can be mapped.
+> On Mon, 29 Sep 2003, Erik Andersen wrote:
+> 
+> >     "the Linksys technical folks are digging into your questions -
+> >     all the the software in question is from Linksys' suppliers
+> >     (Linksys doesn't have the source code to this software), so we
+> >     have to work with these suppliers to address any concerns."
+> > 
+> > but that was July 15 and I have heard nothing substantive from
+> > them since that time.
 
-Some DOS extenders did this so that 32-bit programs could access BIOS
-and video memory in the same DS segment as normal code, despite having
-a large segment base address so that null pointers would be trapped by
-page protection.
+> Hmmm, guess I _should_ mail the FSF as one of the
+> copyright holders, just so I'm in the group and can
+> argue for a friendly approach ;)
 
-Of course no linux programs do this :)
-(Well, maybe some do under DOSEMU?)
+Buffalo (buffalotech.com) have also a bunch of products, MIPS based
+wireless routers and bridges, running Linux. I could not find the driver
+of the wireless cards -based on Broadcom 4306 chips- in the kernel bundle
+they distribute in their website:
 
-So it seems quite likely that the AMD64 CPU simply allows wrapping in
-the linear address calculation.
+http://www.buffalotech.com/wireless/support/faq/index.php)
+http://www.buffalotech.com/wireless/support/faq/GPL_linux_source.zip
 
--- Jamie
+Maybe I oversaw them.
+
+Nor they provide drivers for the wireless cardbus. I wrote them 
+about it but received no answer.
+
+Pau
+
+
+

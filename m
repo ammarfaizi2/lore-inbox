@@ -1,40 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261234AbUCKPPv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 10:15:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261395AbUCKPPv
+	id S261370AbUCKPLb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 10:11:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261395AbUCKPLb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 10:15:51 -0500
-Received: from smtp-out1.blueyonder.co.uk ([195.188.213.4]:12945 "EHLO
-	smtp-out1.blueyonder.co.uk") by vger.kernel.org with ESMTP
-	id S261234AbUCKPPr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 10:15:47 -0500
-Message-ID: <405082A2.5040304@blueyonder.co.uk>
-Date: Thu, 11 Mar 2004 15:15:46 +0000
-From: Sid Boyce <sboyce@blueyonder.co.uk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
-X-Accept-Language: en-us, en
+	Thu, 11 Mar 2004 10:11:31 -0500
+Received: from furon.ujf-grenoble.fr ([152.77.2.202]:16558 "EHLO
+	furon.ujf-grenoble.fr") by vger.kernel.org with ESMTP
+	id S261370AbUCKPLG convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Mar 2004 10:11:06 -0500
+From: Mickael Marchand <marchand@kde.org>
+To: Andi Kleen <ak@muc.de>
+Subject: Re: 2.6.4-mm1
+Date: Thu, 11 Mar 2004 16:10:02 +0100
+User-Agent: KMail/1.6.1
+Cc: linux-kernel@vger.kernel.org, dm@uk.sistina.com
+References: <1ysXv-wm-11@gated-at.bofh.it> <200403111445.35075.marchand@kde.org> <20040311144829.GA22284@colin2.muc.de>
+In-Reply-To: <20040311144829.GA22284@colin2.muc.de>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: RE: NVIDIA and 2.6.4?
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 11 Mar 2004 15:15:46.0474 (UTC) FILETIME=[BA8310A0:01C4077B]
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200403111610.02128.marchand@kde.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I tried 5336 with 2.6.4-rc2-mm1 and it locks the box up completely after 
-switching to kdm. It worked with 2.6.3-mm4 previously, now even that 
-kernel gets a lock up. I've done a reiserfsck --rebuild-tree which 
-repaired some files and left 10 files in /lost+found and I can't 
-determine what they are.
-I am currently using 2.6.4-rc2-mm1 with the standard SuSE 9.0  Driver "nv".
-I also went back to the minion.de release and still got a lockup, I 
-guess it's down to some of those files in lost+found that are missing.
-Regards
-Sid.
+just the ioctl cmd failed I reported in my first mail.
+then dmsetup just stops...
 
--- 
-Sid Boyce .... Hamradio G3VBV and keen Flyer
-Linux Only Shop.
+Cheers,
+Mik
+
+Le jeudi 11 Mars 2004 15:48, Andi Kleen a écrit :
+> > hmm right now, dm/lvm absolutely does not work on amd64/32 bits. all
+> > ioctls calls are failling...
+>
+> With no messages in the log?
+>
+> Maybe they have broken data structures again, most likely
+> because of different long long alignment. A lot of people
+> who attempt to design data structures that don't need translation
+> get that wrong unfortunately.
+>
+> Emulating that stuff would be hard unfortunately because it has an rather
+> over complicated ioctl structure that would be hard to write sane
+> emulation code for.
+>
+> Complain to the DM maintainers.
+already did.
+
 

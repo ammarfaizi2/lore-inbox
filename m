@@ -1,55 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263519AbTDDRos (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 12:44:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263509AbTDDRoI (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 12:44:08 -0500
-Received: from ip67-93-141-189.z141-93-67.customer.algx.net ([67.93.141.189]:40690
-	"EHLO datapower.ducksong.com") by vger.kernel.org with ESMTP
-	id S263850AbTDDQvA (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 4 Apr 2003 11:51:00 -0500
-Date: Fri, 4 Apr 2003 12:02:14 -0500
-From: "Patrick R. McManus" <mcmanus@ducksong.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Justin Cormack <justin@street-vision.com>, Paul Rolland <rol@as2917.net>,
-       "'Michael Knigge'" <Michael.Knigge@set-software.de>,
-       Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Strange e1000
-Message-ID: <20030404170214.GA1457@ducksong.com>
-References: <043501c2faaf$da061e10$3f00a8c0@witbe> <1049467531.2676.87.camel@lotte> <20030404154842.GA10607@gtf.org>
+	id S263714AbTDDOit (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 09:38:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263724AbTDDOiO (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 09:38:14 -0500
+Received: from [61.11.16.46] ([61.11.16.46]:15372 "EHLO mailpune.cygnet.co.in")
+	by vger.kernel.org with ESMTP id S263714AbTDDOaK (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Apr 2003 09:30:10 -0500
+Subject: Re: Deactivating TCP checksumming
+From: Abhishek Agrawal <abhishek@abhishek.agrawal.name>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <3E8C9DDD.3080205@pobox.com>
+References: <F91mkXMUIhAumscmKC00000f517@hotmail.com>
+	<20030401122824.GY29167@mea-ext.zmailer.org> <b6fda2$oec$1@main.gmane.org>
+	<20030402203653.GA2503@gtf.org> <b6fi8m$j4g$1@main.gmane.org>
+	<20030402205855.GA4125@gtf.org> <b6i5t1$h0t$1@main.gmane.org>
+	<3E8C9DDD.3080205@pobox.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10)
+Date: 04 Apr 2003 19:38:12 +0530
+Message-Id: <1049465292.3352.31.camel@abhilinux.cygnet.co.in>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030404154842.GA10607@gtf.org>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Jeff Garzik: Apr 04 10:48]
-> On Fri, Apr 04, 2003 at 03:45:25PM +0100, Justin Cormack wrote:
-> > On Fri, 2003-04-04 at 14:41, Paul Rolland wrote:
-> > > Hello,
-> > > 
-> > > > when I load the e1000 module, my NIC is recognized. Then, "pump -i 
-> > > > eth0" is called (DHCP-Client), the message "e1000: eth0 NIC 
-> > > > Link is Up 
-> > > > 1000 Mbps Full Duplex" appears and after some time I get the message 
-> > > > "operation failed".
-> > > > 
-> > > > When I sleep some time (currently 20 seconds) before doing 
-> > > > the "pump", 
-> > > > everything works as expected.
-> > > > 
-[..]
+On Fri, 2003-04-04 at 02:17, Jeff Garzik wrote:
 
-> > It is probably something like this. For some reason the managed Netgear
-> > switches take a very long time to do anything. Log into the switch and
-> > watch the port status while this happens to confirm. I actually can't
-> > netboot off these switches because if this. Hopefully Netgear will come
-> > up with a fix.
-> 
-> In another thread, Scott Feldman (one of the e1000 team) asked if
-> spanning trees were enabled on the switch.  That could be a potential
-> cause.
+>
+> CHECKSUM_HW is for receive, not transmit.  Read the comments at the top
+> of include/linux/skbuff.h.
+>
+Actually CHECKSUM_HW can be set at either of the "producer" ends. At
+least this is what I gather from  tcp_output.c
 
-I can confirm this is isolated to the managed netgear switches.. I
-started the other thread jeff mentions and, just this morning, cobbled
-together a network without them and had no problems. I'll see if I can
-create a setup without spanning tree to test that explicitly.
+// tcp_output.c:454
+if (!skb_shinfo(skb)->nr_frags && skb->ip_summed != CHECKSUM_HW) {
+  //...
+        }
+else {
+                skb->ip_summed = CHECKSUM_HW;
+                skb_split(skb, buff, len);
+     }
+
+AND
+
+//1014 dev.c:dev_queue_xmit()
+        /* If packet is not checksummed and device does not support
+         * checksumming for this protocol, complete checksumming here.
+         */
+        if (skb->ip_summed == CHECKSUM_HW &&
+            (!(dev->features&(NETIF_F_HW_CSUM|NETIF_F_NO_CSUM)) &&
+             (!(dev->features&NETIF_F_IP_CSUM) ||
+              skb->protocol != htons(ETH_P_IP)))) {
+                if ((skb = skb_checksum_help(skb)) == NULL)
+                        return -ENOMEM;
+        }
+
+
+

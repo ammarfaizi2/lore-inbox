@@ -1,46 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264380AbTEPI0z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 May 2003 04:26:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264381AbTEPI0z
+	id S264381AbTEPI2A (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 May 2003 04:28:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264382AbTEPI17
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 May 2003 04:26:55 -0400
-Received: from pa186.opole.sdi.tpnet.pl ([213.76.204.186]:5623 "EHLO
-	uran.deimos.one.pl") by vger.kernel.org with ESMTP id S264380AbTEPI0y
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 May 2003 04:26:54 -0400
-Date: Fri, 16 May 2003 10:39:39 +0200
-From: Damian =?iso-8859-2?Q?Ko=B3kowski?= <deimos@deimos.one.pl>
-To: Elimar Riesebieter <riesebie@lxtec.de>
+	Fri, 16 May 2003 04:27:59 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:64507 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id S264381AbTEPI1h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 May 2003 04:27:37 -0400
+Date: Fri, 16 May 2003 01:40:26 -0700
+Message-Id: <200305160840.h4G8eQb01924@magilla.sf.frob.com>
+From: Roland McGrath <roland@redhat.com>
+To: Linus Torvalds <torvalds@transmeta.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: radeonfb and high mem
-Message-ID: <20030516083939.GB1687@deimos.one.pl>
-References: <20030515194118.GA696@gandalf.home.lxtec.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030515194118.GA696@gandalf.home.lxtec.de>
-User-Agent: Mutt/1.4.1i
-X-Age: 23 (1980.09.27 - libra)
-X-Girl: 1 will be enough!
-X-GG: 88988
-X-ICQ: 59367544
-X-JID: deimos@jabber.gda.pl
-X-Operating-System: Slackware GNU/Linux, kernel 2.4.21-rc2-ac1, up  1:05
+Subject: [PATCH] fix vsyscall page core dump segment size
+X-Fcc: ~/Mail/linus
+X-Zippy-Says: Look into my eyes and try to forget that you have a Macy's charge card!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 15, 2003 at 09:41:18PM +0200, Elimar Riesebieter wrote:
-> I am running 2.4.21.rc2-ac2 with 1 GB RAM. The radeonfb can't map
-> FB. If I boot with mem=840MB the framebuffer runs. I thought it will
-> be fixed with the vesa_highmem fix but isn't with vesafb at all. The
-> same happens with noacpi ;-) The RAM is tested as good with memtest!
+My change to core dumps that was included with the vsyscall DSO
+implementation had a bug (braino on my part).  Core dumps don't include the
+full page of the vsyscall DSO, and so don't accurately represent the whole
+memory image of the process.  This patch fixes it.
 
-Use that:
-	http://gate.crashing.org/~ajoshi/radeonfb-0.1.8.diff.gz
+arch/x86_64/ia32/ia32_binfmt.c's copy of this code needs the corresponding
+update as well.  I don't include a patch since that code is not in the main
+tree.
 
-P.S. It's for 2.4.21-rc1
 
--- 
-# Damian *dEiMoS* Ko³kowski # http://deimos.one.pl/ #
+Thanks,
+Roland
+
+
+--- linux-2.5.69/include/asm-i386/elf.h.~1~	Sun May  4 16:53:35 2003
++++ linux-2.5.69/include/asm-i386/elf.h	Thu May 15 23:39:22 2003
+@@ -149,7 +149,10 @@ do {									      \
+ 	for (i = 0; i < VSYSCALL_EHDR->e_phnum; ++i) {			      \
+ 		struct elf_phdr phdr = vsyscall_phdrs[i];		      \
+ 		if (phdr.p_type == PT_LOAD) {				      \
++			BUG_ON(ofs != 0);				      \
+ 			ofs = phdr.p_offset = offset;			      \
++			phdr.p_filesz = PAGE_ALIGN(phdr.p_filesz);	      \
++			phdr.p_memsz = PAGE_ALIGN(phdr.p_memsz);	      \
+ 			offset += phdr.p_filesz;			      \
+ 		}							      \
+ 		else							      \
+@@ -167,7 +170,7 @@ do {									      \
+ 	for (i = 0; i < VSYSCALL_EHDR->e_phnum; ++i) {			      \
+ 		if (vsyscall_phdrs[i].p_type == PT_LOAD)		      \
+ 			DUMP_WRITE((void *) vsyscall_phdrs[i].p_vaddr,	      \
+-				   vsyscall_phdrs[i].p_filesz);		      \
++				   PAGE_ALIGN(vsyscall_phdrs[i].p_filesz));   \
+ 	}								      \
+ } while (0)
+ 

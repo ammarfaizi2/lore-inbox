@@ -1,60 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129698AbQKHDk6>; Tue, 7 Nov 2000 22:40:58 -0500
+	id <S129414AbQKHDoI>; Tue, 7 Nov 2000 22:44:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129559AbQKHDks>; Tue, 7 Nov 2000 22:40:48 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:1288 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S129414AbQKHDkf>; Tue, 7 Nov 2000 22:40:35 -0500
-Date: Tue, 7 Nov 2000 21:36:42 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: davej@suse.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Installing kernel 2.4
-Message-ID: <20001107213642.A8542@vger.timpanogas.org>
-In-Reply-To: <3A089254.397115FE@timpanogas.org> <Pine.LNX.4.21.0011080322350.8632-100000@neo.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.4.21.0011080322350.8632-100000@neo.local>; from davej@suse.de on Wed, Nov 08, 2000 at 03:25:56AM +0000
+	id <S129544AbQKHDn6>; Tue, 7 Nov 2000 22:43:58 -0500
+Received: from neodymium.btinternet.com ([194.73.73.83]:49552 "EHLO
+	neodymium.btinternet.com") by vger.kernel.org with ESMTP
+	id <S129414AbQKHDnv>; Tue, 7 Nov 2000 22:43:51 -0500
+From: davej@suse.de
+Date: Wed, 8 Nov 2000 03:43:34 +0000 (GMT)
+To: Marty Fouts <marty@dotcast.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        jmerkey@timpanogas.org
+Subject: RE: Installing kernel 2.4
+In-Reply-To: <52C41B218DE28244B071A1B96DD474F6280154@DC-SRVR1.dotcast.com>
+Message-ID: <Pine.LNX.4.21.0011080340060.8632-100000@neo.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 08, 2000 at 03:25:56AM +0000, davej@suse.de wrote:
-> On Tue, 7 Nov 2000, Jeff V. Merkey wrote:
-> 
-> > If the compiler always aligned all functions and data on 16 byte
-> > boundries (NetWare)  for all i386 code, it would run a lot faster.
-> 
-> Except on architectures where 16 byte alignment isn't optimal.
-> 
-> > Cache line alignment could be an option in the loader .... after all,
-> > it's hte loader that locates data in memory.  If Linux were PE based,
-> > relocation logic would be a snap with this model (like NT).
-> 
-> Are you suggesting multiple files of differing alignments packed into
-> a single kernel image, and have the loader select the correct one at
-> runtime ? I really hope I've misinterpreted your intention.
+On Tue, 7 Nov 2000, Marty Fouts wrote:
 
-Or more practically, a smart loader than could select a kernel image
-based on arch and auto-detect to load the correct image. I don't really
-think it matters much what mechanism is used.   
+> There's been a bunch of related work done at the Oregon Graduate Institute
+> by Calton Pu and others.  See
+> http://www.cse.ogi.edu/DISC/projects/synthetix/publications.html for a list
+> of papers.
 
-What makes more sense is to pack multiple segments for different 
-processor architecures into a single executable package, and have the 
-loader pick the right one (the NT model).  It could be used for 
-SMP and non-SMP images, though, as well as i386, i586, i686, etc.  
+The only paper that immediately caught my eye of relevance was the one
+on dynamic optimization techniques, which is what I assume you
+were referring to.
 
-Jeff
+It's interesting stuff, but I think it'd be a cold day in hell before
+Linus accepts a dynamic recompiler in kernel space. :)
 
-> 
-> regards,
-> 
-> Davej.
-> 
-> -- 
-> | Dave Jones <davej@suse.de>  http://www.suse.de/~davej
-> | SuSE Labs
+regards,
+
+davej.
+
+-- 
+| Dave Jones <davej@suse.de>  http://www.suse.de/~davej
+| SuSE Labs
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,28 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266181AbUJRKIa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266163AbUJRJog@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266181AbUJRKIa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Oct 2004 06:08:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265996AbUJRKI3
+	id S266163AbUJRJog (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Oct 2004 05:44:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266115AbUJRJnH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Oct 2004 06:08:29 -0400
-Received: from [218.80.221.187] ([218.80.221.187]:30908 "EHLO
-	s-0002.secom.com.cn") by vger.kernel.org with ESMTP id S266181AbUJRKGP
+	Mon, 18 Oct 2004 05:43:07 -0400
+Received: from out003pub.verizon.net ([206.46.170.103]:41698 "EHLO
+	out003.verizon.net") by vger.kernel.org with ESMTP id S266048AbUJRJmg
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Oct 2004 06:06:15 -0400
-From: "Sazedur Clugston" <ethnologybona@webtv.net>
-To: linux-kernel@vger.kernel.org
-Subject: 100% AlI| NATURA| PEN1lIS EN|ARGEMENT P|1lS
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <S-0002oWl5bZW7PjvEG00022e96@s-0002.secom.com.cn>
-X-OriginalArrivalTime: 18 Oct 2004 10:03:16.0250 (UTC) FILETIME=[AFCCAFA0:01C4B4F9]
-Date: 18 Oct 2004 18:03:16 +0800
+	Mon, 18 Oct 2004 05:42:36 -0400
+Message-ID: <41739007.2010908@verizon.net>
+Date: Mon, 18 Oct 2004 05:42:31 -0400
+From: Jim Nelson <james4765@verizon.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: More patches to arch/sparc/Kconfig [5 of 5]
+Content-Type: multipart/mixed;
+ boundary="------------000401000708050803020705"
+X-Authentication-Info: Submitted using SMTP AUTH at out003.verizon.net from [209.158.211.53] at Mon, 18 Oct 2004 04:42:31 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://C0O0O0delne_Xana|x.......and___m00O0Ore
-http://C000O0de|ne_XanaIx_VaI1um.......and___mO000Ore
-http://C0O000delne_Xana|x_Va||um_CIa|1is.......and___mO0O00re
+This is a multi-part message in MIME format.
+--------------000401000708050803020705
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-PlEASE CI1CK HERE http://screenplay.wemdss.com./as#bonfire
+Fixes x86-specific bootloader help in printer config.
+
+Apply against 2.6.9-rc4.
+
+diff -u  arch/sparc/Kconfig.orig arch/sparc/Kconfig
+
+
+--------------000401000708050803020705
+Content-Type: text/x-patch;
+ name="arch_sparc_kconfig-fix-printer-help.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="arch_sparc_kconfig-fix-printer-help.patch"
+
+--- ./arch/sparc/Kconfig.orig	2004-10-16 09:53:49.626021592 -0400
++++ ./arch/sparc/Kconfig	2004-10-16 10:15:30.184460399 -0400
+@@ -281,9 +281,9 @@
+ 
+ 	  If you have several parallel ports, you can specify which ports to
+ 	  use with the "lp" kernel command line option.  (Try "man bootparam"
+-	  or see the documentation of your boot loader (lilo or loadlin) about
+-	  how to pass options to the kernel at boot time.)  The syntax of the
+-	  "lp" command line option can be found in <file:drivers/char/lp.c>.
++	  or see the documentation of your boot loader (silo) about how to pass
++	  options to the kernel at boot time.)  The syntax of the "lp" command
++	  line option can be found in <file:drivers/char/lp.c>.
+ 
+ 	  If you have more than 8 printers, you need to increase the LP_NO
+ 	  macro in lp.c and the PARPORT_MAX macro in parport.h.
+
+
+--------------000401000708050803020705--

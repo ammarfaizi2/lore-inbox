@@ -1,52 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292592AbSBPXA7>; Sat, 16 Feb 2002 18:00:59 -0500
+	id <S293328AbSBQT3B>; Sun, 17 Feb 2002 14:29:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292593AbSBPXAt>; Sat, 16 Feb 2002 18:00:49 -0500
-Received: from zero.tech9.net ([209.61.188.187]:7941 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S292592AbSBPXAd>;
-	Sat, 16 Feb 2002 18:00:33 -0500
-Subject: [PATCH] Re: 2.5: further llseek cleanup (3/3)
-From: Robert Love <rml@tech9.net>
-To: Manfred Spraul <manfred@colorfullife.com>, torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3C6EDDCA.DAB884BD@colorfullife.com>
-In-Reply-To: <3C6EDDCA.DAB884BD@colorfullife.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 
-Date: 16 Feb 2002 18:00:28 -0500
-Message-Id: <1013900429.855.3.camel@phantasy>
-Mime-Version: 1.0
+	id <S293333AbSBQT2w>; Sun, 17 Feb 2002 14:28:52 -0500
+Received: from gans.physik3.uni-rostock.de ([139.30.44.2]:44559 "EHLO
+	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id <S293328AbSBQT2e>; Sun, 17 Feb 2002 14:28:34 -0500
+Date: Sun, 17 Feb 2002 20:28:27 +0100 (CET)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [patch][looking for maintainers] jiffies compare fixups 
+In-Reply-To: <200202110735.g1B7Z7LJ002187@tigger.cs.uni-dortmund.de>
+Message-ID: <Pine.LNX.4.33.0202172017220.3075-100000@gans.physik3.uni-rostock.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-02-16 at 17:31, Manfred Spraul wrote:
-> Hi Robert,
+On Mon, 11 Feb 2002, Horst von Brand wrote:
+
+> Tim Schmielau <tim@physik3.uni-rostock.de> said:
+> > At the end of December, I made a patch to fix comparisons of the jiffies
+> > counter that would break at jiffies wraparound.
 > 
-> I think the pcilynx change is wrong:
+> I think you should just forward the remaining bits to Marcelo directly.
+> 
 
-Indeed.  Thank you, Manfred.
+Yes, I think I'll do so for 2.4.19pre.
 
-Linus, patch against 2.5.5-pre1 is attached.  Please, apply.
+[...]
+> > -	if (led_active && jiffies > led_next_time) {
+> > +	if (led_active && jiffies > time_after(jiffies, led_next_time)) {
+[...]
+> This hunk is surely wrong.
 
-	Robert Love
+Thank you for spotting this. Obviously there are times at night when it is 
+even too late for simple search&replace like changes.
 
-diff -urN linux-2.5.5-pre1/drivers/ieee1394/pcilynx.c linux/drivers/ieee1394/pcilynx.c
---- linux-2.5.5-pre1/drivers/ieee1394/pcilynx.c	Wed Feb 13 18:18:46 2002
-+++ linux/drivers/ieee1394/pcilynx.c	Sat Feb 16 17:58:47 2002
-@@ -748,10 +748,11 @@
-         }
- 
-         if (newoffs < 0 || newoffs > PCILYNX_MAX_MEMORY + 1) {
--                lock_kernel();
-+                unlock_kernel();
-                 return -EINVAL;
-         }
- 
-+        unlock_kernel();
-         file->f_pos = newoffs;
-         return newoffs;
- }
+Also thanks for your comments on the busy-waiting loops. I stumbled 
+across them, too, but decided to first do the uncontroversial time_before/
+time_after fix. I think I'll do another run on this low-latency
+(well, less-horrendous latency:-) stuff later.
+
+Tim
 
 

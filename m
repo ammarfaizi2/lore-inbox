@@ -1,119 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266193AbUG0ART@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266195AbUG0Ajj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266193AbUG0ART (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jul 2004 20:17:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266195AbUG0ART
+	id S266195AbUG0Ajj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jul 2004 20:39:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266196AbUG0Ajj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jul 2004 20:17:19 -0400
-Received: from posti6.jyu.fi ([130.234.4.43]:7625 "EHLO posti6.jyu.fi")
-	by vger.kernel.org with ESMTP id S266193AbUG0ARL (ORCPT
+	Mon, 26 Jul 2004 20:39:39 -0400
+Received: from fw.osdl.org ([65.172.181.6]:16576 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266195AbUG0Ajf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jul 2004 20:17:11 -0400
-Date: Tue, 27 Jul 2004 03:16:50 +0300 (EEST)
-From: Pasi Sjoholm <ptsjohol@cc.jyu.fi>
-X-X-Sender: ptsjohol@silmu.st.jyu.fi
-To: Robert Olsson <Robert.Olsson@data.slu.se>
-cc: Francois Romieu <romieu@fr.zoreil.com>,
-       H?ctor Mart?n <hector@marcansoft.com>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>, <akpm@osdl.org>,
-       <netdev@oss.sgi.com>, <brad@brad-x.com>, <shemminger@osdl.org>
-Subject: Re: ksoftirqd uses 99% CPU triggered by network traffic (maybe
- RLT-8139 related)
-In-Reply-To: <16645.34772.760879.146784@robur.slu.se>
-Message-ID: <Pine.LNX.4.44.0407270304570.11416-100000@silmu.st.jyu.fi>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Spam-Checked: by miltrassassin
-	at posti6.jyu.fi; Tue, 27 Jul 2004 03:16:53 +0300
+	Mon, 26 Jul 2004 20:39:35 -0400
+Date: Mon, 26 Jul 2004 17:38:06 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Andrew Chew" <achew@nvidia.com>
+Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com
+Subject: Re: [PATCH 2.6.8-rc2] intel8x0.c to include CK804 audio support
+Message-Id: <20040726173806.7cc0e9d5.akpm@osdl.org>
+In-Reply-To: <DBFABB80F7FD3143A911F9E6CFD477B03F95DD@hqemmail02.nvidia.com>
+References: <DBFABB80F7FD3143A911F9E6CFD477B03F95DD@hqemmail02.nvidia.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Jul 2004, Robert Olsson wrote:
+"Andrew Chew" <achew@nvidia.com> wrote:
+>
+> This patch updates include/linux/pci_ids.h with the CK804 audio
+>  controller ID, and adds the CK804 audio controller to the
+>  sound/pci/intel8x0.c audio driver.
 
->>>  In summary: High softirq loads can totally kill userland. The reason is that 
->>>  do_softirq() is run from many places hard interrupts, local_bh_enable etc 
->>>  and bypasses the ksoftirqd protection. It just been discussed at OLS with
->>>  Andrea and Dipankar and others. Current RCU suffers from this problem as well.
->> Ok, this explanation makes sense and my point of view I think this is 
->> quite critical problem if you can "crash" linux kernel just sending enough 
->> packets to network interface for an example.
-> 
->  Well the packets also has to create hard softirq loads in practice this means route
->  lookup or something else for normal traffic the RX_SOFIRQ is very well behaved
->  and schedules itself to give other softirq's a chance to run also I'll guess you 
->  have softirq's not only from the network. If you decrease your load a bit you come
->  to more nomal operation?
+I'm getting many workwrapped and tab-replaced patches nowadays.  Could
+people pleeeeze ensure that their email clients are sending unmangled
+patches?
 
-The system will be more responsive but won't ever come back to normal 
-operation and if I use my computer just for some chatting/writing/browsing 
-the ksoftirqd-problem won't ever happen. 
+I fixed this one up.  I usually do :(
 
-It is also very hard to reproduce with only high network load. I ran some 
-test with 100Mbps load (RX and TX both) for 24hours without any problems 
-but soon as I started to compile some stuff or doing something 
-cpu-intensive the system would do crash-boom-bang.
 
->> I would be more than glad to help you in testing if you want to publish 
->> some patches. 
->  Well maybe we should start to verify that this problem. Alexey did a litte program 
->  doing gettimeofday to run to see how long user mode could be starved. Also note we 
->  add new source of softirq's. 
+>  --- linux-2.6.8-rc2/include/linux/pci_ids.h	2004-07-21
+>  15:22:57.000000000 -0700
+>  +++ linux/include/linux/pci_ids.h	2004-07-20 18:49:22.000000000
+>  -0700
+>  @@ -1071,6 +1071,7 @@
+>   #define PCI_DEVICE_ID_NVIDIA_NFORCE_CK804_SATA2	0x0055
+>   #define PCI_DEVICE_ID_NVIDIA_NVENET_8		0x0056
+>   #define PCI_DEVICE_ID_NVIDIA_NVENET_9		0x0057
+>  +#define PCI_DEVICE_ID_NVIDIA_CK804_AUDIO	0x0059
+>   #define PCI_DEVICE_ID_NVIDIA_NFORCE2_IDE	0x0065
+>   #define PCI_DEVICE_ID_NVIDIA_NVENET_2		0x0066
+>   #define PCI_DEVICE_ID_NVIDIA_MCP2_AUDIO		0x006a
+>  --- linux-2.6.8-rc2/sound/pci/intel8x0.c	2004-07-21
+>  15:22:59.000000000 -0700
+>  +++ linux/sound/pci/intel8x0.c	2004-07-20 18:52:07.000000000 -0700
+>  @@ -155,6 +155,9 @@
+>   #ifndef PCI_DEVICE_ID_NVIDIA_CK8S_AUDIO
+>   #define PCI_DEVICE_ID_NVIDIA_CK8S_AUDIO	0x00ea
+>   #endif
+>  +#ifndef PCI_DEVICE_ID_NVIDIA_CK804_AUDIO
+>  +#define PCI_DEVICE_ID_NVIDIA_CK804_AUDIO 0x0059
+>  +#endif
+>   
 
-First run:
-
---
-timestamp diff = 1, maxlat = 50963
-timestamp diff = 0, maxlat = 50963
-timestamp diff = 0, maxlat = 50963
-timestamp diff = 1, maxlat = 50963
-timestamp diff = 0, maxlat = 50963
-timestamp diff = 0, maxlat = 50963
-new maxlat = 124428
-new maxlat = 511817
-timestamp diff = 1, maxlat = 511817
-new maxlat = 749913
-new maxlat = 775142
-**4581159
-new maxlat = 4581159
-**1704065
-**1464153
-timestamp diff = 1, maxlat = 4581159
-**1448939
-**1464013
-**1021339
-**1568588
-**1861657
-timestamp diff = 0, maxlat = 4581159
---
-
-Second run:
-
---
-timestamp diff = 0, maxlat = 832003
-timestamp diff = 1, maxlat = 832003
-timestamp diff = 0, maxlat = 832003
-timestamp diff = 0, maxlat = 832003
-timestamp diff = 0, maxlat = 832003
-timestamp diff = 1, maxlat = 832003
-**1793951
-new maxlat = 1793951
-timestamp diff = 0, maxlat = 1793951
-**2579893
-new maxlat = 2579893
-timestamp diff = 0, maxlat = 2579893
-timestamp diff = 0, maxlat = 2579893
-timestamp diff = 0, maxlat = 2579893
-**1004449
-**3199625
-new maxlat = 3199625
-timestamp diff = 0, maxlat = 3199625
-timestamp diff = 1, maxlat = 3199625
---
-
-When the system has gone to this state you will have to wait quite a long 
-time to receive a new line.
-
---
-Pasi Sjöholm 
-
+Why does the driver need this ifdef?  We just added the ID to pci_ids.h?

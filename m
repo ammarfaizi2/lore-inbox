@@ -1,54 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268217AbUHKU3h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268199AbUHKUgt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268217AbUHKU3h (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 16:29:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268219AbUHKU3Z
+	id S268199AbUHKUgt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 16:36:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268244AbUHKUfF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 16:29:25 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:57785 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S268217AbUHKU3T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 16:29:19 -0400
-Date: Wed, 11 Aug 2004 22:19:45 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Nathan Bryant <nbryant@optonline.net>
-Cc: Pavel Machek <pavel@ucw.cz>,
-       "'James Bottomley'" <James.Bottomley@steeleye.com>,
-       Linux SCSI Reflector <linux-scsi@vger.kernel.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>, jgarzik@pobox.com
-Subject: Re: [PATCH] SCSI midlayer power management
-Message-ID: <20040811201944.GA1550@openzaurus.ucw.cz>
-References: <4119611D.60401@optonline.net> <20040811080935.GA26098@elf.ucw.cz> <411A1B72.1010302@optonline.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 11 Aug 2004 16:35:05 -0400
+Received: from atlrel6.hp.com ([156.153.255.205]:34774 "EHLO atlrel6.hp.com")
+	by vger.kernel.org with ESMTP id S268232AbUHKUdx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 16:33:53 -0400
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Adrian Bunk <bunk@fs.tum.de>
+Subject: Re: 2.6.8-rc4-mm1 doesn't boot
+Date: Wed, 11 Aug 2004 14:33:50 -0600
+User-Agent: KMail/1.6.2
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20040810002110.4fd8de07.akpm@osdl.org> <200408101646.57542.bjorn.helgaas@hp.com> <20040810235621.GZ26174@fs.tum.de>
+In-Reply-To: <20040810235621.GZ26174@fs.tum.de>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <411A1B72.1010302@optonline.net>
-User-Agent: Mutt/1.3.27i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408111433.50641.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> >swsusp will then resume disk and write the image, that should not be 
-> >a
-> >problem. Is it guaranteed that after generic_scsi_suspend() no DMA is
-> >going on?
+On Tuesday 10 August 2004 5:56 pm, Adrian Bunk wrote:
+> On Tue, Aug 10, 2004 at 04:46:57PM -0600, Bjorn Helgaas wrote:
+> > On Tuesday 10 August 2004 11:32 am, Adrian Bunk wrote:
+> > > On Tue, Aug 10, 2004 at 09:59:18AM -0600, Bjorn Helgaas wrote:
+> > > > On Tuesday 10 August 2004 9:09 am, Adrian Bunk wrote:
+> > > > > 2.6.8-rc3-mm1 boots fine on my computer.
+> > > > > 2.6.8-rc4-mm1 doesn't boot.
+> > > > > 2.6.8-rc4-mm1 with pci=routeirq boots.
 > > 
-> >
-> No. Remember that DMA works differently under SCSI than it does under 
-> IDE. SCSI DMA is a host controller feature, whereas under IDE it is 
-> enabled/disabled at the drive level and the drives have special 
-> knowledge of DMA. Since generic_scsi_suspend() is the device level 
-> suspend routine, it is called before the host controller's suspend 
-> routine, (due to depth first traversal of device tree), which is 
-> responsible for disabling the PCI slot. Only after the host 
-> controller is suspended will there be no DMA, but if your real 
-> question is "can I generically control a SCSI disk with PIO for 
-> software suspend" then the answer is NO. For purposes of not 
+> It happens before the
+>   floppy0: no floppy controllers found
+> line.
+> 
+> Could there be a problem because the floppy driver doesn't find 
+> anything (there's currently no floppy drive in my computer)?
 
-No, I do not need PIO. I'll probably need host
-controller support, too, but even w/o it it should
-work acceptably. Thanks for the answers.
--- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+Not only is your machine floppy drive-less, but the driver thinks you
+don't even have a floppy *controller*, which I assume is separate
+from the actual drive.
 
+What mainboard do you have?  Does it boot without "pci=routeirq"
+if you turn CONFIG_BLK_DEV_FD off?
+
+The code in the floppy_init() -> user_reset_fdc() -> WAIT() ->
+wait_til_done() -> reset_fdc() path looks pretty scary if there
+really is no controller out there.  I'd feel much better if
+we at least tried to use ACPI to figure out whether we have
+a controller before we try to talk to it.
+
+All that aside, I still don't see how the pci=routeirq change
+would affect the floppy driver.  It does request_irq(6, ...),
+and it is interesting that you have this:
+
+    ACPI: PCI Interrupt Link [LNKD] enabled at IRQ 6
+    ACPI: PCI interrupt 0000:00:04.0[A] -> GSI 6 (level, low) -> IRQ 6
+
+which is for your NIC.  But the floppy controller isn't a PCI
+device, so the LNKD enable shouldn't matter to it.
+
+Let's see... you're using the PIC model.  Maybe the floppy driver
+depends on the ACPI_IRQ_MODEL_PIC stuff in acpi_register_gsi()?
+Can you post the contents of /proc/interrupts with the floppy
+driver and "pci=routeirq"?  It seems weird to have the floppy
+and the NIC share an IRQ, but it looks like that's what should
+be happening.
+
+Bjorn

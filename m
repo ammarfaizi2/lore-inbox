@@ -1,183 +1,153 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267471AbTASOtQ>; Sun, 19 Jan 2003 09:49:16 -0500
+	id <S267468AbTASOok>; Sun, 19 Jan 2003 09:44:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267474AbTASOtQ>; Sun, 19 Jan 2003 09:49:16 -0500
-Received: from vsmtp2.tin.it ([212.216.176.222]:32757 "EHLO smtp2.cp.tin.it")
-	by vger.kernel.org with ESMTP id <S267471AbTASOtO>;
-	Sun, 19 Jan 2003 09:49:14 -0500
-Message-ID: <3E2ABCE5.3090600@tin.it>
-Date: Sun, 19 Jan 2003 15:57:41 +0100
-From: AnonimoVeneziano <voloterreno@tin.it>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
-X-Accept-Language: en
+	id <S267471AbTASOok>; Sun, 19 Jan 2003 09:44:40 -0500
+Received: from jdi.jdimedia.nl ([212.204.192.51]:40880 "EHLO jdi.jdimedia.nl")
+	by vger.kernel.org with ESMTP id <S267468AbTASOoi>;
+	Sun, 19 Jan 2003 09:44:38 -0500
+Date: Sun, 19 Jan 2003 15:53:39 +0100 (CET)
+From: Igmar Palsenberg <i.palsenberg@jdimedia.nl>
+X-X-Sender: igmar@jdi.jdimedia.nl
+To: linux-kernel@vger.kernel.org
+Subject: [OOPS] vmscan.c:358
+Message-ID: <Pine.LNX.4.44.0301191540270.28865-100000@jdi.jdimedia.nl>
 MIME-Version: 1.0
-To: Vojtech Pavlik <vojtech@suse.cz>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Andre Hedrick <andre@linux-ide.org>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       LMKL <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] Fix for ATAPI CD/DVD-ROMs and burners with vt8235 (and
- other chipsets)
-References: <20021227111116.A2614@ucw.cz>
-In-Reply-To: <20021227111116.A2614@ucw.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik wrote:
 
->Hi!
->
->Attached are two patches, one for recent 2.4 and one for 2.5, which
->enlarge the address setup timing for ATAPI devices. This is needed for
->several CD/DVD-ROMs and burners that won't work with standard timings.
->So far problems were reported only on vt8233a and vt8235, but I suppose
->other chipsets where the drivers actually program the address setup
->timing according to the spec can be affected.
->
->Please apply, thanks.
->
->  
->
->------------------------------------------------------------------------
->
->You can import this changeset into BK by piping this whole message to:
->'| bk receive [path to repository]' or apply the patch as usual.
->
->===================================================================
->
->
->ChangeSet@1.897, 2002-12-27 10:59:52+01:00, vojtech@suse.cz
->   Workaround (ide-timing.h) for many ATAPI CD/DVD-ROMs and burners.
->   They need extended (beyond spec) address setup timing, and as such
->   don't work on recent VIA chipsets.
->
->
-> ide-timing.h |    8 ++++++++
-> 1 files changed, 8 insertions(+)
->
->
->diff -Nru a/drivers/ide/ide-timing.h b/drivers/ide/ide-timing.h
->--- a/drivers/ide/ide-timing.h	Fri Dec 27 11:00:15 2002
->+++ b/drivers/ide/ide-timing.h	Fri Dec 27 11:00:15 2002
->@@ -245,6 +245,14 @@
-> 	}
-> 
-> /*
->+ * If the drive is an ATAPI device it may need slower address setup timing,
->+ * so we stay on the safe side.
->+ */
->+
->+	if (drive->media != ide_disk)
->+		p.setup = 120;
->+
->+/*
->  * Convert the timing to bus clock counts.
->  */
-> 
->
->===================================================================
->
->
->This BitKeeper patch contains the following changesets:
->+
->## Wrapped with gzip_uu ##
->
->
->begin 664 bkpatch2571
->M'XL(`*\D##X``^V476_3,!2&K^M?<=`NV`=-;.>S19U66@05H%5E&S=(R+-/
->ME]`FKF*WI2@_'J>MMFG:D(;@CB1*8N?X]3GO>90#N#18=5LK_=VBS,@!O-?&
->M=EMF:="3/]UXHK4;^YDNT-]'^=<SOQ"5Q+DF+F(LK,Q@A97IMI@7W,[8S0*[
->MK<G;=Y<?^Q-">CT89**\P<]HH=<C5E<K,5?F3-ALKDO/5J(T!5KA25W4MZ$U
->MIY2[,V))0*.X9C$-DUHRQ9@(&2K*PS0.2;:\R<Y<#KD5YA$!QGE">9#0J':/
->M(")#8%[:28!RGW&?)\!H-^IT(WY"69=2V)=ZMC<"3ABT*7D#?S?K`9$`7W0U
->M$Y5>E@H.<X5MFQ=Y>>-E1S#5%12BW$#_HC\>P6#H#Z^&[<GY)P/"15\OJ]*Y
->M[C4B%QENH$14@#\LELJ]'%[C1KLPLT!Y!$*I"HT!@W:Y@-T>K[8RPDTN7>^=
->MBM+E2PMKEQ#H$BJ46%JX&O5!9OG"K71[?0`>A`$9WS63M)]Y$$(%):>P:#!Y
->MW$A5Y0U0OO/#O^_)/5^C@"=NF,91':L8(Q&QSE3%`1?R8?=^+[=EHQ-UPK@.
->MXB1E6U2?6M&0^\_R)L_*FP:\P](PX&GMR`Z2+=/!0Z+#^"FBT_]$[XG>M?T<
->MVM5Z>SE$QT\2\`>XCWB80$K@&$93L!GNM"%OBMX[H7"52S=EG3W[LLU<K[%Z
->MO,Q&RVA8(QCKXEUIC:P14W=SR7KNNT^^DE8^A</M9NW3`E4NX$4/W/=O*C>S
->H(])J+;R=;`\8IZ_="O_X[I<N,Y0SLRQZBH5*1E-!?@&ZOKMG+P8`````
->`
->end
->  
->
->------------------------------------------------------------------------
->
->You can import this changeset into BK by piping this whole message to:
->'| bk receive [path to repository]' or apply the patch as usual.
->
->===================================================================
->
->
->ChangeSet@1.957, 2002-12-27 10:46:29+01:00, vojtech@suse.cz
->  Workaround (ide-timing.h) for many ATAPI CD/DVD-ROMs and burners.
->  They need extended (beyond spec) address setup timing, and as such
->  don't work on recent VIA chipsets.
->
->
-> ide-timing.h |    8 ++++++++
-> 1 files changed, 8 insertions(+)
->
->
->diff -Nru a/drivers/ide/ide-timing.h b/drivers/ide/ide-timing.h
->--- a/drivers/ide/ide-timing.h	Fri Dec 27 10:47:10 2002
->+++ b/drivers/ide/ide-timing.h	Fri Dec 27 10:47:10 2002
->@@ -245,6 +245,14 @@
-> 	}
-> 
-> /*
->+ * If the drive is an ATAPI device it may need slower address setup timing,
->+ * so we stay on the safe side.
->+ */
->+
->+	if (drive->media != ide_disk)
->+		p.setup = 120;
->+
->+/*
->  * Convert the timing to bus clock counts.
->  */
-> 
->
->===================================================================
->
->
->This BitKeeper patch contains the following changesets:
->+
->## Wrapped with gzip_uu ##
->
->
->begin 664 bkpatch1702
->M'XL(`)XA##X``[V46V_3,!3'G^M/<=`>V(4F=JY-4*>.%4$%:%79Q@L2<FUW
->M"6WC*G;:%>7#<])6&XP-,6Y)%,4^Y_Q]+C]E#RZ,*M/64G^V2F1D#UYK8].6
->MJ8QRQ!=<C[3&M9OIN7)W7NYXZL[RHC($[4-N109+59JTQ1S_9L>N%RIMC5Z^
->MNGA[,B*DVX73C!=7ZKVRT.T2J\LEGTG3XS:;Z<*Q)2_,7%GN"#VO;UQKCU(/
->M[Y#%/@VCFD4TB&O!)&,\8$I2+^A$`5GPI9KU*K'"G.\$,\^+6$(CG]9^%"<>
->MZ0-SDC`&ZKG,<[T8&$V#*/62(\I22F%79&_7`CABT*;D!?S=C$^)@`^ZG/)2
->M5X6$_5RJMLWG>7'E9`<PT27,>;&&D_.3X0!.^V[_LM\>G;TSP-%[7)4%-MQ!
->MC?-,K:%02H*ZMJJ0^+$_5FN-7F:AQ`%P*4ME#!AEJP5LCWBV4>&X6>',!4A=
->M/+6PPG1`%U`JH0H+EX,3$%F^P$`\Z0WX8=P)R/!VC*3]R(L0RBDY!GX]UJK7
->M%&&<ABMGJK">F2.GM2SS!B47V^%^VY)M5SLL8AZ-65B'":6T[HQID(1C7XQC
->MGD@QN3N[G\LA&3%-@C!(&C(Z;`/I0Q$-L_\L[S]7CFK/C_UX`[?W/=IA&CR(
->M=N<_H/V++-]#,NH\DN5[24:9'UC>S/L,VN5J\R";PP='_QN<#[P@A@Z!0QA,
->MP&9JJPUY4_*N#U(M<X%;%INSJ]O,]$J5]U?9:!D-*P7&HC\6U\@:/L$7)NN@
->MW24?22N?P/[FL/;Q7,F<PY,NH/V3S,WT@+1:"V<KVP7DYCE&N(>W?W&1*3$U
->2U;PKPTXH/"[)5_MR+Q\@!@``
->`
->end
->  
->
-Mmmm, Why for me this two patches don't work?I've tried to apply 
-manually (as I've done for vt8235-atapi that works) and in automatic 
-way, but this doesn't work , are you sure that there isn't something 
-wrong? I've tried to increase the setup timing from 120 up to 400 but 
-this doesn't work too. It compiles but doesn't work.
+Hi,
 
-Bye
+This OOPS is one I've seen on a number of different systems. The first one 
+is a decoded one fished out of /var/log/messages, the second one I typed 
+over from the console and decoded by hand.
 
-Marcello
+In the second case, the system is still alive, but all new processes 
+created create the same oops again, with a slightly different stack, and 
+the process is the OOPS is the process that was just created.
+
+I've also seen similair OOPS'ses on usenet, with a similair call trace.
+
+Sysinfo for the two OOPS'ses below :
+
+[root@igmar igmar]# uname -a
+Linux igmar.base.jdimedia.local 2.4.20 #1 Tue Dec 24 21:42:30 CET 2002 
+i586 unknown
+[root@igmar igmar]# cat /proc/modules
+vfat                    9696   3 (autoclean)
+fat                    30496   0 (autoclean) [vfat]
+
+System is a AMD K6-2.
+
+
+Please contact me directly if more info is needed.
+
+
+
+	Regards,
+
+
+		Igmar
+
+
+
+
+kernel BUG at vmscan.c:358!
+invalid operand: 0000
+CPU:    0
+EIP:    0010:[shrink_cache+174/848]    Not tainted
+EIP:    0010:[<c0128bae>]    Not tainted
+EFLAGS: 00010202
+eax: 00000040   ebx: 00000200   ecx: c1193d2c   edx: c197e000
+esi: c1193d10   edi: 00000020   ebp: 000016fc   esp: c197fe18
+ds: 0018   es: 0018   ss: 0018
+Process updatedb (pid: 17963, stackpage=c197f000)
+Stack: 0001800b c197e000 00000200 000001d2 c0281a30 c11c8168 c0124cd2 d7ffb3b4 
+       00000000 00000020 000001d2 00000006 00000020 c0128fa6 00000006 00000017 
+       c0281a30 00000006 000001d2 c0281a30 00000000 c0129010 00000020 c197e000 
+Call Trace:    [read_cache_page+66/320] [shrink_caches+86/144] [try_to_free_pages_zone+48/80] [balance_classzone+84/496] [__alloc_pages+283/384]
+Call Trace:    [<c0124cd2>] [<c0128fa6>] [<c0129010>] [<c0129a64>] [<c0129d1b>]
+[read_cache_page+97/320] [link_path_walk+1964/2256] [ext2_get_page+32/128] [ext2_readpage+0/32] [real_lookup+77/192] [ext2_readdir+237/576]
+[<c0124cf1>] [<c0138e4c>] [<c0163e40>] [<c0165d70>] [<c013852d>] [<c0163f8d>]
+[vfs_readdir+88/128] [filldir64+0/320] [sys_getdents64+79/177] [filldir64+0/320] [sys_fchdir+189/208] [system_call+51/64]
+[<c013c5b8>] [<c013cb80>] [<c013cd0f>] [<c013cb80>] [<c012eaed>] [<c0106e73>]
+
+Code: 0f 0b 66 01 fc fb 23 c0 8b 41 fc a9 80 00 00 00 74 08 0f 0b 
+
+---------------------------------------------------------------------------
+ksymoops 2.4.0 on i586 2.4.20.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.20/ (default)
+     -m /boot/System.map (specified)
+
+kernel BUG at vmscan.c:358
+invalid operand: 0000
+CPU:    0
+EIP:    0010:[<c0128bae>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010202
+eax: 00000040   ebx: 00000200   ecx: c1193d2c   edx: d7cf2000
+esi: c1193d10   edi: 00000020   ebp: 00001704   esp: d7cf3ddc
+ds: 0018   es: 0018   ss: 0018
+Stack: 00000000 d7cf2000 00000200 000001d2 c0281a30 c1427348 c4fa0080 c1427204
+       00000001 00000020 000001d2 00000006 00000020 c0128fa6 00000006 00000017
+       c0281a30 00000006 000001d2 c0281a30 00000000 c0129010 00000020 d7cf2000
+Call Trace:    [<c0128fa6>] [<c0129010>] [<c0129a64>] [<c0129d1b>] [<c0120308>]
+  [<c01203e0>] [<c01205a8>] [<c012106a>] [<c010f0fb>] [<c013983d>] [<c010bbdd>]
+  [<c012ef22>] [<c013825e>] [<c010ef80>] [<c0106f84>] 
+Code: 0f 0b 66 01 fc fb 23 c0 8b 41 fc a9 80 00 00 00 74 08 0f 0b
+
+>>EIP; c0128bae <shrink_cache+ae/350>   <=====
+Trace; c0128fa6 <shrink_caches+56/90>
+Trace; c0129010 <try_to_free_pages_zone+30/50>
+Trace; c0129a64 <balance_classzone+54/1f0>
+Trace; c0129d1b <__alloc_pages+11b/180>
+Trace; c0120308 <do_anonymous_page+38/e0>
+Trace; c01203e0 <do_no_page+30/1a0>
+Trace; c01205a8 <handle_mm_fault+58/c0>
+Trace; c012106a <do_mmap_pgoff+4aa/560>
+Trace; c010f0fb <do_page_fault+17b/4cb>
+Trace; c013983d <open_namei+3ed/580>
+Trace; c010bbdd <old_mmap+ed/130>
+Trace; c012ef22 <filp_open+32/50>
+Trace; c013825e <getname+5e/b0>
+Trace; c010ef80 <do_page_fault+0/4cb>
+Trace; c0106f84 <error_code+34/40>
+Code;  c0128bae <shrink_cache+ae/350>
+00000000 <_EIP>:
+Code;  c0128bae <shrink_cache+ae/350>   <=====
+   0:   0f 0b                     ud2a      <=====
+Code;  c0128bb0 <shrink_cache+b0/350>
+   2:   66 01 fc                  add    %di,%sp
+Code;  c0128bb3 <shrink_cache+b3/350>
+   5:   fb                        sti    
+Code;  c0128bb4 <shrink_cache+b4/350>
+   6:   23 c0                     and    %eax,%eax
+Code;  c0128bb6 <shrink_cache+b6/350>
+   8:   8b 41 fc                  mov    0xfffffffc(%ecx),%eax
+Code;  c0128bb9 <shrink_cache+b9/350>
+   b:   a9 80 00 00 00            test   $0x80,%eax
+Code;  c0128bbe <shrink_cache+be/350>
+  10:   74 08                     je     1a <_EIP+0x1a> c0128bc8 <shrink_cache+c8/350>
+Code;  c0128bc0 <shrink_cache+c0/350>
+  12:   0f 0b                     ud2a   
+
+
+-- 
+
+Igmar Palsenberg
+JDI Media Solutions
+
+Helhoek 30
+6923PE Groessen
+Tel: +31 (0)316 - 596695
+Fax: +31 (0)316 - 596699
+The Netherlands
+
+mailto: i.palsenberg@jdimedia.nl
+PGP/GPG key : http://www.jdimedia.nl/formulier/pgp/igmar
 

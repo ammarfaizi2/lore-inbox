@@ -1,67 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262114AbTJKOHJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Oct 2003 10:07:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263308AbTJKOHJ
+	id S263288AbTJKOAF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Oct 2003 10:00:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263307AbTJKOAF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Oct 2003 10:07:09 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:22534 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S262114AbTJKOHG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Oct 2003 10:07:06 -0400
-Date: Sat, 11 Oct 2003 09:57:15 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [Fastboot] kexec update (2.6.0-test7)
-In-Reply-To: <20031009183346.3ae74277.rddunlap@osdl.org>
-Message-ID: <Pine.LNX.3.96.1031011095434.17208B-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 11 Oct 2003 10:00:05 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:5800 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S263288AbTJKOAC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Oct 2003 10:00:02 -0400
+Date: Sat, 11 Oct 2003 15:59:43 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Dave Jones <davej@redhat.com>, Jeff Garzik <jgarzik@pobox.com>,
+       marcelo.tosatti@cyclades.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] laptop mode
+Message-ID: <20031011135943.GB1107@suse.de>
+References: <200310091103.h99B31ug014566@hera.kernel.org> <3F856A7E.2010607@pobox.com> <20031009140547.GD1232@suse.de> <20031009141734.GB23545@redhat.com> <20031009142632.GI1232@suse.de> <20031011114913.GA516@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031011114913.GA516@elf.ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 9 Oct 2003, Randy.Dunlap wrote:
+On Sat, Oct 11 2003, Pavel Machek wrote:
+> Hi!
+> 
+> > > Right now laptopmode/aam is just a suspect. There are still 1-2 other
+> > > small patches against IDE which could be the reason.  We've dropped
+> > > laptopmode/aam for the time being to see if the folks seeing repeatable
+> > > corruption suddenly start behaving again.
+> > 
+> > aam patch is far more risky, it's a far more likely suspect. That patch
+> > never reall did go out of beta. Dropping laptop-mode and aam at the same
+> > time is bad engineering practice :).
+> > 
+> > laptop-mode cannot cause corruption that cannot show otherwise.
+> 
+> Well, if fireballs have data-corrupting that happens just after spinup
+> (for example), I can see how laptop-mode affects that. W/o
+> laptop-mode, disk is spinning all the time so sleep bugs can not
+> manifest themselves. You add laptop-mode, and...
 
-> On 9 Oct 2003 21:27:35 GMT davidsen@tmr.com (bill davidsen) wrote:
-> 
-> | In article <m1y8vufe5l.fsf@ebiederm.dsl.xmission.com>,
-> | Eric W. Biederman <ebiederm@xmission.com> wrote:
-> | | Cherry George Mathew <cherry@sdf.lonestar.org> writes:
-> | | 
-> | | > On Wed, 8 Oct 2003, Randy.Dunlap wrote:
-> | | > 
-> | | > > You'll need to update the kexec-syscall.c file for the correct
-> | | > > kexec syscall number (274).
-> | | > 
-> | | > Is there a consensus about what the syscall number will finally be ? We've
-> | | > jumped from 256 to 274 over the 2.5.x+  series kernels. Or is it the law
-> | | > the Jungle ?
-> | | 
-> | | So far the law of the jungle.  Regardless of the rest it looks like it
-> | | is time to submit a place keeping patch.
-> | 
-> | Forgive me if the politics of this have changed, but will a place
-> | keeping patch be accepted for a feature which has not? 
-> 
-> Like the one recently added for "vserver" ??
-> 
-> #define __NR_vserver            273
-> 
-> and
-> 
-> 	.long sys_ni_syscall	/* sys_vserver */
-> (ni == not implemented)
-> 
-> But I don't think that it's quite time for a placeholder syscall number
-> (IMO of course).  Eric can submit one though.
-
-No, I wasn't clear. The question was if (a) Linus is still opposed to the
-implementation, and (b) if any new feature will make it into 2.6, given
-the "only fix bugs" edict recently.
+Not very likely, imho. People have been using spin down with hdparm for
+years (in Linux and elsewhere), while acoustic management is a bit more
+esoteric.
 
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Jens Axboe
 

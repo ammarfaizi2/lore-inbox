@@ -1,59 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283287AbRK2Pt6>; Thu, 29 Nov 2001 10:49:58 -0500
+	id <S283283AbRK2Pvu>; Thu, 29 Nov 2001 10:51:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283286AbRK2Pts>; Thu, 29 Nov 2001 10:49:48 -0500
-Received: from [64.42.30.110] ([64.42.30.110]:23561 "HELO mail.clouddancer.com")
-	by vger.kernel.org with SMTP id <S283282AbRK2Ptk>;
-	Thu, 29 Nov 2001 10:49:40 -0500
-To: irajasek@in.ibm.com, linux-kernel@vger.kernel.org
-Message-Id: <20011129154451.BF6667843A@phoenix.clouddancer.com>
-Date: Thu, 29 Nov 2001 07:44:51 -0800 (PST)
-From: klink@clouddancer.com (Colonel)
+	id <S283291AbRK2Pvj>; Thu, 29 Nov 2001 10:51:39 -0500
+Received: from ns.conwaycorp.net ([24.144.1.3]:50870 "HELO mail.conwaycorp.net")
+	by vger.kernel.org with SMTP id <S283286AbRK2Pv2>;
+	Thu, 29 Nov 2001 10:51:28 -0500
+Date: Thu, 29 Nov 2001 09:51:07 -0600
+From: Nathan Poznick <poznick@conwaycorp.net>
+To: Sven Heinicke <sven@research.nj.nec.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.16 freezed up with eepro100 module
+Message-ID: <20011129095107.A17457@conwaycorp.net>
+In-Reply-To: <15366.21354.879039.718967@abasin.nj.nec.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <15366.21354.879039.718967@abasin.nj.nec.com>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Colonel <klink@clouddancer.com>
-To: irajasek@in.ibm.com
-CC: linux-kernel@vger.kernel.org
-In-reply-to: <OF8DFA00F6.3DAC22D2-ON65256B31.003CB38A@in.ibm.com>
-	(irajasek@in.ibm.com)
-Subject: Re: Routing table problems
-Reply-to: klink@clouddancer.com
-In-Reply-To:  <OF8DFA00F6.3DAC22D2-ON65256B31.003CB38A@in.ibm.com>
+Thus spake Sven Heinicke:
+> 
+> The 2.4.16 kernel finally makes my clients happy with memory
+> management.  The systems that froz up is a Dell of some sort or other
+> with two 1Ghz Pentium IIIs and 4G of memory.  But, now I seems to be
+> having ethernet problems.  With and eepro100 card:
 
-   From: "Rajasekhar Inguva" <irajasek@in.ibm.com>
-   Date:	Sat, 29 Dec 2001 17:17:48 +0530
+I've encountered the same problem, with the same hardware setup (I
+believe it's a Dell 2400, or something like that), on 2.4.14+xfs.  For
+me it didn't lock up the entire machine however, it only seemed to
+kill the network - I was able to reboot the machine cleanly once I got
+to the console. (message from yesterday with the subject 'failed
+assertion in tcp.c')  I too, am open to suggestions :-)
 
-   I am facing a problem ( ???, maybe it works that way, but i really dont
-   know ) with regards to routing table behavior when using ifconfig on a
-   network interface.
+-- 
+Nathan Poznick <poznick@conwaycorp.net>
+PGP Key: http://drunkmonkey.org/pgpkey.txt
 
-   1) netstat -nr      Shows my default gateway for network 0.0.0.0
-
-   2) ifconfig eth0 down
-
-   3) netstat -nr      No entry for the default gateway is shown (
-   understandable )
-
-   4) ifconfig eth0 up
-
-   After the the 4'th command, my interface is up and has it's IP address set
-   correctly. But .....
-
-   netstat -nr  does not show my default gateway for network 0.0.0.0 !!.
-   Pinging any IP outside of my subnet, results in "Network is unreachable"
-   error.
-
-
-While the linux kernel is certainly omnipotent, it's crystal ball is
-sometimes hazy.  How would it know what the default gateway should
-be???  Typically after the interface is configured, you command:
-
-/sbin/route add default gw $GATEWAY netmask 0.0.0.0 metric 1
-
-Some routing daemons will handle that for you, but even they need
-appropriate configuration.
-
-
-
+Curiosity has its own reason for existing.
+-- Albert Einstein

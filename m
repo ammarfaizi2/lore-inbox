@@ -1,81 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261966AbTJIK3c (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Oct 2003 06:29:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261967AbTJIK3b
+	id S261535AbTJIKd7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Oct 2003 06:33:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261695AbTJIKd7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Oct 2003 06:29:31 -0400
-Received: from M947P005.adsl.highway.telekom.at ([62.47.150.69]:59008 "EHLO
-	stallburg.dyndns.org") by vger.kernel.org with ESMTP
-	id S261966AbTJIK3a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Oct 2003 06:29:30 -0400
-Date: Thu, 9 Oct 2003 12:29:29 +0200
-From: maximilian attems <janitor@sternwelten.at>
+	Thu, 9 Oct 2003 06:33:59 -0400
+Received: from vwisb7.vkw.tu-dresden.de ([141.30.51.183]:51369 "EHLO
+	vwisb7.vkw.tu-dresden.de") by vger.kernel.org with ESMTP
+	id S261535AbTJIKd4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Oct 2003 06:33:56 -0400
+Date: Thu, 9 Oct 2003 12:33:55 +0200
+From: Torsten Werner <email@twerner42.de>
 To: linux-kernel@vger.kernel.org
-Cc: Trivial Patch Monkey <trivial@rustcorp.com.au>,
-       Tim Waugh <twaugh@redhat.com>, SamRavnborg <sam@ravnborg.org>
-Subject: [patch 2.6] add warning DocBook/Makefile
-Message-ID: <20031009102929.GA1138@mail.sternwelten.at>
+Subject: Re: NFS speed problem when appending data to existing files
+Message-ID: <20031009103355.GA23290@vwisb7.vkw.tu-dresden.de>
+Mail-Followup-To: Torsten Werner <email@twerner42.de>,
+	linux-kernel@vger.kernel.org
+References: <200310090008.14366.bernd-schubert@web.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="x+6KMIRAuhnl3hBn"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <200310090008.14366.bernd-schubert@web.de>
+X-Operating-System: Linux 2.4.21 i686
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello Bernd,
 
---x+6KMIRAuhnl3hBn
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On 2003-10-09, Bernd Schubert wrote:
+> 2.4.22 has a client-side nfs-bug causing this. I'm not sure if this is
+> already fixed in 2.4.23-pre6, so I suggest you downgrade to 2.4.21.
 
-fixes the following error message,
-when transfig - utilities for converting XFig figure files -
-is not installed:
+Thanks, that does avoid the error messages in the kernel log but it does
+not solve the problem. You can download a strace log from
+http://twerner.debian.net/strace.out.bz2 . You will see a programm that
+repeatedly opens a file in append mode, writes some data and closes the
+file. Sometimes the close need overs half a second which is far to much.
+(Please just 'grep close strace.out' to see it clearly.)
 
-/bin/sh: fig2dev: command not found
-make[1]: *** [Documentation/DocBook/parport-share.eps] Error 127
-make: *** [pdfdocs] Error 2
+It did work with some older kernel that I have already deinstalled. :-(
 
+Regards,
+Torsten
 
-please apply
-ma(ks|x(imilian)?)
+-- 
+Torsten Werner                         Dresden University of Technology
+email@twerner42.de                   +49 351 46336711 / +49 162 3123004
+http://www.twerner42.de/                      telefax: +49 351 46336809
 
-
---- linux-2.6.0-test7/Documentation/DocBook/Makefile	2003-10-08 21:24:05.00=
-0000000 +0200
-+++ linux/Documentation/DocBook/Makefile	2003-10-09 11:41:27.000000000 +0200
-@@ -149,12 +149,18 @@
-       cmd_fig2eps =3D fig2dev -Leps $< $@
-=20
- %.eps: %.fig
-+	@(which fig2dev > /dev/null 2>&1) || \
-+	 (echo "*** You need to install transfig ***"; \
-+	  exit 1)
- 	$(call cmd,fig2eps)
-=20
- quiet_cmd_fig2png =3D FIG2PNG $@
-       cmd_fig2png =3D fig2dev -Lpng $< $@
-=20
- %.png: %.fig
-+	@(which fig2dev > /dev/null 2>&1) || \
-+	 (echo "*** You need to install transfig ***"; \
-+	  exit 1)
- 	$(call cmd,fig2png)
-=20
- ###
-
---x+6KMIRAuhnl3hBn
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQE/hTiJ6//kSTNjoX0RAldkAJ0UsLK1INSd8rOVzNoyQxfg2+5MzACdEY47
-gFMqGCrIlRT5kd/WeeUrFVo=
-=OEZo
------END PGP SIGNATURE-----
-
---x+6KMIRAuhnl3hBn--

@@ -1,31 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261651AbSJFQKu>; Sun, 6 Oct 2002 12:10:50 -0400
+	id <S261657AbSJFQM5>; Sun, 6 Oct 2002 12:12:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261515AbSJFQKu>; Sun, 6 Oct 2002 12:10:50 -0400
-Received: from pc1-cwma1-5-cust51.swa.cable.ntl.com ([80.5.120.51]:20465 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261651AbSJFQKu>; Sun, 6 Oct 2002 12:10:50 -0400
-Subject: Re: Hangs in 2.4.19 and 2.4.20-pre5 (IDE-related?)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jan-Hinnerk Reichert <jan-hinnerk_reichert@hamburg.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200210061608.51459.jan-hinnerk_reichert@hamburg.de>
-References: <200210061608.51459.jan-hinnerk_reichert@hamburg.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 06 Oct 2002 17:25:40 +0100
-Message-Id: <1033921540.21282.2.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S261659AbSJFQM5>; Sun, 6 Oct 2002 12:12:57 -0400
+Received: from p0288.as-l043.contactel.cz ([194.108.243.34]:37107 "EHLO
+	SnowWhite.SuSE.cz") by vger.kernel.org with ESMTP
+	id <S261657AbSJFQM4> convert rfc822-to-8bit; Sun, 6 Oct 2002 12:12:56 -0400
+To: linux-kernel@vger.kernel.org
+Subject: BitKeeper license problems?
+From: Pavel@Janik.cz (Pavel =?iso-8859-2?q?Jan=EDk?=)
+X-Face: $"d&^B_IKlTHX!y2d,3;grhwjOBqOli]LV`6d]58%5'x/kBd7.MO&n3bJ@Zkf&RfBu|^qL+
+ ?/Re{MpTqanXS2'~Qp'J2p^M7uM:zp[1Xq#{|C!*'&NvCC[9!|=>#qHqIhroq_S"MH8nSH+d^9*BF:
+ iHiAs(t(~b#1.{w.d[=Z
+Date: Sun, 06 Oct 2002 18:21:13 +0200
+Message-ID: <m3u1jzczd2.fsf@Janik.cz>
+User-Agent: Gnus/5.090008 (Oort Gnus v0.08) Emacs/21.3.50
+ (i386-suse-linux-gnu)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-10-06 at 15:08, Jan-Hinnerk Reichert wrote:
-> I have 2.4.19 without any patches, three ide harddrives, no CD-ROM.
-> I quite like the data on my machine, so I won't install an 2.4.20-pre on it 
-> ;-(
+Hi,
 
-2.4.20pre has the same IDE code as 2.4.19, plus some PCI layer not IDE
-layer changes to support i845 systems
+why are you all spending your time on issues like license of some non-free
+product? Why don't you sit down and work on free software? Do you want to
+learn some really complex software and then want to be punished by using it
+in some different project?
 
+Linus have chosen his way. It is perfectly OK for him. It is his
+decision. It is his bad decision. You do not have to follow him. He is
+smart enough to admit it and change its decision in the future. Please stop
+this completely useless thread and invest your (and other's too) time in an
+intelligent way.
+-- 
+Pavel Janík
+
+UNIX is basically a simple operating system, but you have to be a genius to
+understand the simplicity.
+                  -- Dennis Ritchie

@@ -1,66 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311739AbSCaRCV>; Sun, 31 Mar 2002 12:02:21 -0500
+	id <S312136AbSCaRyY>; Sun, 31 Mar 2002 12:54:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312136AbSCaRCL>; Sun, 31 Mar 2002 12:02:11 -0500
-Received: from smtp011.mail.yahoo.com ([216.136.173.31]:13318 "HELO
-	smtp011.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S311739AbSCaRCG>; Sun, 31 Mar 2002 12:02:06 -0500
-Subject: [PATCH] 2.4.19-pre5 mwave driver fix
-From: Thomas Hood <jdthood@yahoo.co.uk>
-To: Paul B Schroeder <paulsch@haywired.net>
-Cc: linux-kernel@vger.kernel.org, wes schreiner <wes@infosink.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-hMqUnzQUgRJM7upVgapB"
-X-Mailer: Evolution/1.0.2 
-Date: 31 Mar 2002 12:03:25 -0500
-Message-Id: <1017594213.7257.807.camel@thanatos>
+	id <S312148AbSCaRyP>; Sun, 31 Mar 2002 12:54:15 -0500
+Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:29967 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S312136AbSCaRx7>;
+	Sun, 31 Mar 2002 12:53:59 -0500
+Date: Sun, 31 Mar 2002 09:53:11 -0800
+From: Greg KH <greg@kroah.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Eyal Lebedinsky <eyal@eyal.emu.id.au>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.19-pre5: hotplug config
+Message-ID: <20020331175311.GB26801@kroah.com>
+In-Reply-To: <3CA65AAE.4917313E@eyal.emu.id.au> <E16rfuv-0006gt-00@the-village.bc.nu>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Sun, 03 Mar 2002 15:11:40 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Mar 31, 2002 at 03:02:45PM +0100, Alan Cox wrote:
+> > -dep_tristate '  IBM PCI Hotplug driver' CONFIG_HOTPLUG_PCI_IBM $CONFIG_HOTPLUG_PCI $CONFIG_X86_IO_APIC $CONFIG_X86
+> > +if [ "$CONFIG_X86_IO_APIC" = "y" ]; then
+> > +   dep_tristate '  IBM PCI Hotplug driver' CONFIG_HOTPLUG_PCI_IBM $CONFIG_HOTPLUG_PCI $CONFIG_X86
+> > +fi
+> 
+> What if I want hot plug and no apic??
 
---=-hMqUnzQUgRJM7upVgapB
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+No, the IBM driver will not work without apic.  Or at least that's what
+the original authors of the driver told me :)
 
-Paul:  This patch is required to restore the kernel configuration
-menu option for the Mwave driver to 2.4.19-pre5.  Somewhere along
-the line it got lost.  Please submit to Marcelo.
+I thought the 'dep_tristate' rule would have caught this, but it looks
+like this is the correct fix.
 
-Thanks to wes schreiner.         =20
---
-Thomas Hood
+> See the fix in the 2.4.19-ac tree, that one ought to have been sufficient
 
---- linux-2.4.19-pre5/drivers/char/Config.in.orig	Fri Mar 29 21:03:52 2002
-+++ linux-2.4.19-pre5/drivers/char/Config.in	Sun Mar 31 11:46:02 2002
-@@ -277,4 +277,8 @@
- if [ "$CONFIG_MIPS_ITE8172" =3D "y" ]; then
-   tristate ' ITE GPIO' CONFIG_ITE_GPIO
- fi
-+
-+if [ "$CONFIG_X86" =3D "y" ]; then
-+   tristate 'ACP Modem (Mwave) support' CONFIG_MWAVE
-+fi
- endmenu
+I don't see a fix for this in your tree.  I only see the static->global
+variable fix there.  Am I missing something?
 
---=-hMqUnzQUgRJM7upVgapB
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+thanks,
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQA8p0FdJnAhHStZL6ERAvdGAJkB0wSaK1mrKT3Y9PQw7YDN1mE5XgCfZV2j
-fspt/ueUTtuPCx/8dbTIl8U=
-=QndC
------END PGP SIGNATURE-----
-
---=-hMqUnzQUgRJM7upVgapB--
-
-
-_________________________________________________________
-Do You Yahoo!?
-Get your free @yahoo.com address at http://mail.yahoo.com
-
+greg k-h

@@ -1,129 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262211AbUKQEjB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262050AbUKQEzG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262211AbUKQEjB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 23:39:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262210AbUKQEhF
+	id S262050AbUKQEzG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 23:55:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262167AbUKQEzG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 23:37:05 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:52747 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262211AbUKQEem (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 23:34:42 -0500
-Date: Wed, 17 Nov 2004 05:32:21 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] small char/generic_serial.c cleanup (fwd)
-Message-ID: <20041117043221.GE4943@stusta.de>
-Mime-Version: 1.0
+	Tue, 16 Nov 2004 23:55:06 -0500
+Received: from umhlanga.stratnet.net ([12.162.17.40]:29706 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S262050AbUKQEzB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Nov 2004 23:55:01 -0500
+To: akpm@osdl.org, linux-kernel@vger.kernel.org
+X-Message-Flag: Warning: May contain useful information
+From: Roland Dreier <roland@topspin.com>
+Date: Tue, 16 Nov 2004 20:54:54 -0800
+Message-ID: <52fz39f529.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+MIME-Version: 1.0
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: roland@topspin.com
+Subject: [PATCH] linux/mount.h: add atomic.h and spinlock.h #includes
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
+X-SA-Exim-Scanned: Yes (on eddore)
+X-OriginalArrivalTime: 17 Nov 2004 04:55:00.0069 (UTC) FILETIME=[979BF150:01C4CC61]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I'm not sure what the current policy is on include files being
+self-sufficient, so feel free to drop this if we don't want to do this
+sort of cleanup...
 
-The patch below still applies and compiles against 2.6.10-rc2-mm1.
+<linux/mount.h> uses atomic_t and spinlock_t, but doesn't include
+either <asm/atomic.h> or <linux/spinlock.h>, which means that any
+users of <linux/mount.h> have to include them.  This patch adds the
+necessary #includes to avoid this.
 
-Please apply.
+Signed-off-by: Roland Dreier <roland@topspin.com>
 
-
------ Forwarded message from Adrian Bunk <bunk@stusta.de> -----
-
-Date:	Sat, 6 Nov 2004 23:31:25 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] small char/generic_serial.c cleanup
-
-The patch below does the following changes to 
-drivers/char/generic_serial.c :
-- make two needlessly global functions static
-- remove the completely unused EXPORT_SYMBOL'ed function gs_do_softint
-
-AFAIR the latter should be safe, since drivers are moving away from 
-generic_serial.c .
-
-
-diffstat output:
- drivers/char/generic_serial.c  |   26 ++------------------------
- include/linux/generic_serial.h |    1 -
- 2 files changed, 2 insertions(+), 25 deletions(-)
-
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.10-rc1-mm3-full/include/linux/generic_serial.h.old	2004-11-06 22:05:36.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/include/linux/generic_serial.h	2004-11-06 22:05:43.000000000 +0100
-@@ -82,7 +82,6 @@
- void gs_stop(struct tty_struct *tty);
- void gs_start(struct tty_struct *tty);
- void gs_hangup(struct tty_struct *tty);
--void gs_do_softint(void *private_);
- int  gs_block_til_ready(void *port, struct file *filp);
- void gs_close(struct tty_struct *tty, struct file *filp);
- void gs_set_termios (struct tty_struct * tty, 
---- linux-2.6.10-rc1-mm3-full/drivers/char/generic_serial.c.old	2004-11-06 22:04:43.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/char/generic_serial.c	2004-11-06 22:05:20.000000000 +0100
-@@ -279,7 +279,7 @@
- }
+Index: linux-bk/include/linux/mount.h
+===================================================================
+--- linux-bk.orig/include/linux/mount.h	2004-11-16 20:50:34.000000000 -0800
++++ linux-bk/include/linux/mount.h	2004-11-16 20:51:30.000000000 -0800
+@@ -13,6 +13,8 @@
+ #ifdef __KERNEL__
  
+ #include <linux/list.h>
++#include <linux/spinlock.h>
++#include <asm/atomic.h>
  
--int gs_real_chars_in_buffer(struct tty_struct *tty)
-+static int gs_real_chars_in_buffer(struct tty_struct *tty)
- {
- 	struct gs_port *port;
- 	func_enter ();
-@@ -457,7 +457,7 @@
- }
- 
- 
--void gs_shutdown_port (struct gs_port *port)
-+static void gs_shutdown_port (struct gs_port *port)
- {
- 	unsigned long flags;
- 
-@@ -511,27 +511,6 @@
- }
- 
- 
--void gs_do_softint(void *private_)
--{
--	struct gs_port *port = private_;
--	struct tty_struct *tty;
--
--	func_enter ();
--
--	if (!port) return;
--
--	tty = port->tty;
--
--	if (!tty) return;
--
--	if (test_and_clear_bit(RS_EVENT_WRITE_WAKEUP, &port->event)) {
--		tty_wakeup(tty);
--		wake_up_interruptible(&tty->write_wait);
--	}
--	func_exit ();
--}
--
--
- int gs_block_til_ready(void *port_, struct file * filp)
- {
- 	struct gs_port *port = port_;
-@@ -996,7 +975,6 @@
- EXPORT_SYMBOL(gs_stop);
- EXPORT_SYMBOL(gs_start);
- EXPORT_SYMBOL(gs_hangup);
--EXPORT_SYMBOL(gs_do_softint);
- EXPORT_SYMBOL(gs_block_til_ready);
- EXPORT_SYMBOL(gs_close);
- EXPORT_SYMBOL(gs_set_termios);
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
------ End forwarded message -----
-
+ #define MNT_NOSUID	1
+ #define MNT_NODEV	2

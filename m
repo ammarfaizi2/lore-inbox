@@ -1,59 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265207AbUFRPGS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261405AbUFRPJ5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265207AbUFRPGS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 11:06:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265214AbUFRPGP
+	id S261405AbUFRPJ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 11:09:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265214AbUFRPJ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 11:06:15 -0400
-Received: from hostmaster.org ([212.186.110.32]:54918 "HELO hostmaster.org")
-	by vger.kernel.org with SMTP id S265207AbUFRPGG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 11:06:06 -0400
-Subject: Re: 2.6.7 ACPI OOPS (random dereferrencing)
-From: Thomas Zehetbauer <thomasz@hostmaster.org>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.60.0406180957470.977@hosting.rdsbv.ro>
-References: <Pine.LNX.4.60.0406180957470.977@hosting.rdsbv.ro>
-Content-Type: text/plain
-Message-Id: <1087571167.22483.20.camel@forum-beta.geizhals.at>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Fri, 18 Jun 2004 17:06:07 +0200
+	Fri, 18 Jun 2004 11:09:57 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:36016 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261405AbUFRPJz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 11:09:55 -0400
+Message-ID: <40D305B4.4030009@pobox.com>
+Date: Fri, 18 Jun 2004 11:09:40 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+CC: Andrew Morton <akpm@osdl.org>, Linus <torvalds@osdl.org>,
+       linuxppc64-dev@lists.linuxppc.org, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] PPC64 iSeries viodasd proc file
+References: <20040618165436.193d5d35.sfr@canb.auug.org.au>
+In-Reply-To: <20040618165436.193d5d35.sfr@canb.auug.org.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Since at least 2.6.7-rc2 several people have hit this bug and posted
-here. Unfortunately I have not seen a single follow-up from the ACPI
-guys and somehow I doubt that they even read this list.
+Stephen Rothwell wrote:
+> Hi Andrew,
+> 
+> This patch adds a proc file for viodasd so to make it
+> easier to enumerate the available disks.  It is in a
+> (somewhat) strange format to try for a simple level of
+> compatability with the old viodasd code (that was in a
+> couple of vendor's kernels).
 
-From: 	Thomas Zehetbauer <thomasz@hostmaster.org>
-Subject: 	Re: Linux 2.6.7 - ACPI still broken
-Date: 	Wed, 16 Jun 2004 19:42:57 +0200
+Exporting redundant information from procfs is a step backwards, since 
+we have sysfs.
 
-From: 	Kevin P. Fleming <kpfleming@backtobasicsmgmt.com>
-Subject: 	Re: Linux 2.6.7 - ACPI still broken
-Date: 	Wed, 16 Jun 2004 21:15:05 -0700
+I would prefer not to apply this.  Upstream is for 'getting it right', 
+not for dragging every little vendor kernel hack along.
 
-From: 	Grzegorz Kulewski <kangur@polcom.net>
-Subject: 	2.6.7-rc3-mm1 problems (ACPI and others)
-Date: 	Thu, 10 Jun 2004 21:57:58 +0200 (CEST)
+	Jeff
 
-From: 	Pozsar Balazs <pozsy@uhulinux.hu>
-Subject: 	Re: 2.6.7-rc3-mm1 problems (ACPI and others)
-Date: 	Fri, 11 Jun 2004 01:10:34 +0200
-
-From: 	Thomas Zehetbauer <thomasz@hostmaster.org>
-Subject: 	Re: Linux 2.6.7-rc3 / ACPI broken
-Date: 	Mon, 07 Jun 2004 23:37:01 +0200
-
-From: 	Grzegorz Kulewski <kangur@polcom.net>
-Subject: 	modprobing ACPI(?) module gives oops (2.6.7-rc2-mm2)
-Date: 	Sat, 5 Jun 2004 23:33:57 +0200 (CEST)
-
-From: 	Sebastian Ley <ley@debian.org>
-Subject: 	modprobe acpi segfaults
-Date: 	Sat, 05 Jun 2004 02:18:09 +0200
-
-Tom
 

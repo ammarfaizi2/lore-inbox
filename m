@@ -1,48 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318015AbSGWMeg>; Tue, 23 Jul 2002 08:34:36 -0400
+	id <S317911AbSGWMnd>; Tue, 23 Jul 2002 08:43:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318031AbSGWMeg>; Tue, 23 Jul 2002 08:34:36 -0400
-Received: from ns.suse.de ([213.95.15.193]:19473 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S318015AbSGWMef>;
-	Tue, 23 Jul 2002 08:34:35 -0400
-Date: Tue, 23 Jul 2002 14:37:44 +0200
-From: Dave Jones <davej@suse.de>
-To: Christopher Hoover <ch@hpl.hp.com>
-Cc: linux-kernel@vger.kernel.org, ch@murgatroid.com
-Subject: Re: [PATCH] 2.5.24+ fix needed for non-modular video build
-Message-ID: <20020723143744.C14323@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Christopher Hoover <ch@hpl.hp.com>, linux-kernel@vger.kernel.org,
-	ch@murgatroid.com
-References: <20020722134514.B11556@friction.hpl.hp.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020722134514.B11556@friction.hpl.hp.com>; from ch@hpl.hp.com on Mon, Jul 22, 2002 at 01:45:14PM -0700
+	id <S318049AbSGWMnd>; Tue, 23 Jul 2002 08:43:33 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:1811 "EHLO mail.stock-world.de")
+	by vger.kernel.org with ESMTP id <S317911AbSGWMnc>;
+	Tue, 23 Jul 2002 08:43:32 -0400
+Message-ID: <3D3D4EE5.6040104@evision.ag>
+Date: Tue, 23 Jul 2002 14:41:09 +0200
+From: Marcin Dalecki <dalecki@evision.ag>
+Reply-To: martin@dalecki.de
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020625
+X-Accept-Language: en-us, en, pl, ru
+MIME-Version: 1.0
+To: Dave Jones <davej@suse.de>
+CC: Benjamin LaHaise <bcrl@redhat.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.27 enum
+References: <Pine.LNX.4.44.0207201218390.1230-100000@home.transmeta.com> <3D3BE421.3040800@evision.ag> <20020722160118.G6428@redhat.com> <20020723142704.B14323@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 22, 2002 at 01:45:14PM -0700, Christopher Hoover wrote:
+Dave Jones wrote:
+> On Mon, Jul 22, 2002 at 04:01:18PM -0400, Benjamin LaHaise wrote:
+>  > On Mon, Jul 22, 2002 at 12:53:21PM +0200, Marcin Dalecki wrote:
+>  > > - Fix a bunch of places where there are trailing "," at the
+>  > >    end of enum declarations.
+>  > 
+>  > Please don't apply this.  By leaving the trailing "," on enums, additional 
+>  > values can be added by merely inserting an additional + line in a patch, 
+>  > otherwise there are excess conflicts when multiple patches add values to 
+>  > the enum.
+> 
+> Gratuitous 'cleanups' with no real redeeming feature also have another
+> downside which a lot of people seem to overlook.  They completely screws
+> over anyone who also has a pending patch in that area if Linus applies it.
+> 
+> For most people this is five minutes work as they fix up by hand
+> the single reject in one or two places.  For people like myself keeping
+> a large patchset, this is a lot of extra work for absolutely no gain.
+> Two kernels later, someone adds a new sysctl which re-adds the , at
+> the end anyway.
+> 
+> We have much bigger problems to fix than silly[1] things like this.
 
- > -#ifdef MODULE
- > -#if defined(CONFIG_PROC_FS) && defined(CONFIG_VIDEO_PROC_FS)
- >  static void videodev_proc_destroy(void)
- >  {
- >  	if (video_dev_proc_entry != NULL)
- > @@ -298,8 +296,6 @@
- >  	if (video_proc_entry != NULL)
- >  		remove_proc_entry("video", &proc_root);
- >  }
- > -#endif
- > -#endif
+Enabling -pedantic spotted me at least immediately at the
+bug in readv/writev fixed in the same series of kernel without
+resorting to LSB testing as Alan explained how he came across this
+botch. So it's not entierly futile.
 
-Why are you removing the inner ifdef too ? This looks like it
-makes sense (to me at least)
+But for the enum case I agree that GCC is hossed and simply shouldn't
+warn about it if in C99 mode. Personally I was just still thinking at 
+C89 level. Well after all I already fixed this in the GCC I use.
 
-        Dave
+And no matter what - there is not much working in the sysctl area and
+non sized array forward declarations are not a nice thing both: to read 
+and to the compiler. Same applies to the gratitious macro or ({ }) 
+overusages in the other patches. Inlined functions how the advantage of
+1. stricter type checking.
+2. Possibly faster compilation(if only included by files which really 
+use them of course)
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+
+

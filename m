@@ -1,93 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269786AbUICUpV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269767AbUICUpW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269786AbUICUpV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 16:45:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269767AbUICUnk
+	id S269767AbUICUpW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 16:45:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269788AbUICUnZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 16:43:40 -0400
-Received: from mta8.srv.hcvlny.cv.net ([167.206.5.75]:3698 "EHLO
-	mta8.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id S269818AbUICUkq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 16:40:46 -0400
-Date: Fri, 03 Sep 2004 16:40:30 -0400
-From: "Josef 'Jeff' Sipek" <jeffpc@optonline.net>
-Subject: Re: [PATCH 2.6] watch64: generic variable monitoring system
-In-reply-to: <200409031618.47521.jeffpc@optonline.net>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Message-id: <200409031640.30731.jeffpc@optonline.net>
-MIME-version: 1.0
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-User-Agent: KMail/1.6.2
-References: <200409031307.01240.jeffpc@optonline.net>
- <20040903121657.355a6a8b@dell_ss3.pdx.osdl.net>
- <200409031618.47521.jeffpc@optonline.net>
+	Fri, 3 Sep 2004 16:43:25 -0400
+Received: from fw.osdl.org ([65.172.181.6]:16789 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269767AbUICUfa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 16:35:30 -0400
+Date: Fri, 3 Sep 2004 13:33:36 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Andre Eisenbach <int2str@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc1-mm3
+Message-Id: <20040903133336.6d3b86b8.akpm@osdl.org>
+In-Reply-To: <7f800d9f04090310562cb7015@mail.gmail.com>
+References: <20040903014811.6247d47d.akpm@osdl.org>
+	<7f800d9f04090310562cb7015@mail.gmail.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following fixes watch64 patch previously submitted to follow CodingStyle
-guidelines. BK repo is up to date as well
+Andre Eisenbach <int2str@gmail.com> wrote:
+>
+> I get the following error during compilation. .config available upon request.
+> 
+>    CC      drivers/input/serio/i8042.o
+>  drivers/input/serio/i8042.c: In function `acpi_i8042_kbd_add':
+>  drivers/input/serio/i8042.c:1133: error: `i8042_data_reg' undeclared
+>  (first use in thisfunction)
 
-Jeff.
+Yeah.  You'll need to do:
 
-Signed-off-by: Josef "Jeff" Sipek <jeffpc@optonline.net>
-
-
---- 1.7/kernel/watch64.c 2004-07-14 16:41:26 -04:00
-+++ edited/watch64.c 2004-09-03 16:12:39 -04:00
-@@ -110,7 +110,8 @@
-   return;
-  }
-  
-- printk(KERN_WARNING "watch64: 2003/08/22 Josef 'Jeff' Sipek <jeffpc@optonline.net>\n");
-+ printk(KERN_WARNING "watch64: 2003/08/22 Josef 'Jeff' Sipek "
-+     "<jeffpc@optonline.net>\n");
-  printk(KERN_WARNING "watch64: Enabling Watch64 extensions...");
- 
-  init_timer(&watch64_timer);
-@@ -139,19 +140,21 @@
-  rcu_read_lock();
-  list_for_each_rcu(entry, &watch64_head) {
-   watch_struct = list_entry(entry, struct watch64, list);
--  if (*watch_struct->ptr != watch_struct->oldval) {
--   tmp = *watch_struct->ptr;
--   if (tmp > watch_struct->oldval) {
--    write_seqlock(&watch_struct->lock);
--    watch_struct->total += tmp - watch_struct->oldval;
--    write_sequnlock(&watch_struct->lock);
--   } else if (tmp < watch_struct->oldval) {
--    write_seqlock(&watch_struct->lock);
--    watch_struct->total += ((u_int64_t) 1<<BITS_PER_LONG) - watch_struct->oldval + tmp;
--    write_sequnlock(&watch_struct->lock);
--   }
--   watch_struct->oldval = tmp;
-+  if (*watch_struct->ptr == watch_struct->oldval)
-+   continue;
-+  
-+  tmp = *watch_struct->ptr;
-+  if (tmp > watch_struct->oldval) {
-+   write_seqlock(&watch_struct->lock);
-+   watch_struct->total += tmp - watch_struct->oldval;
-+   write_sequnlock(&watch_struct->lock);
-+  } else if (tmp < watch_struct->oldval) {
-+   write_seqlock(&watch_struct->lock);
-+   watch_struct->total += ((u_int64_t) 1<<BITS_PER_LONG)
-+      - watch_struct->oldval + tmp;
-+   write_sequnlock(&watch_struct->lock);
-   }
-+  watch_struct->oldval = tmp;
-  }
-  rcu_read_unlock();
-  
-@@ -181,7 +184,8 @@
-   temp->interval = WATCH64_INTERVAL;
-  else if (interval<WATCH64_MINIMUM) {
-   temp->interval = WATCH64_MINIMUM;
--  printk("watch64: attempted to add new watch with interval below %d jiffies",WATCH64_MINIMUM);
-+  printk("watch64: attempted to add new watch with "
-+    "interval below %d jiffies",WATCH64_MINIMUM);
-  } else
-   temp->interval = interval;
- 
+wget ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc1/2.6.9-rc1-mm3/broken-out/acpi-based-i8042-keyboard-aux-controller-enumeration.patch
+patch -R -p1 -i acpi-based-i8042-keyboard-aux-controller-enumeration.patch

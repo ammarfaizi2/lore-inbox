@@ -1,52 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261198AbTEESaT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 14:30:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261202AbTEESaT
+	id S261204AbTEESdG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 14:33:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261214AbTEESdG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 14:30:19 -0400
-Received: from windsormachine.com ([206.48.122.28]:33545 "EHLO
-	router.windsormachine.com") by vger.kernel.org with ESMTP
-	id S261198AbTEESaS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 14:30:18 -0400
-Date: Mon, 5 May 2003 14:42:47 -0400 (EDT)
-From: Mike Dresser <mdresser_l@windsormachine.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: ABIT IC7-G
-In-Reply-To: <Pine.LNX.4.53.0305051355490.1391@chaos>
-Message-ID: <Pine.LNX.4.33.0305051400090.26862-100000@router.windsormachine.com>
+	Mon, 5 May 2003 14:33:06 -0400
+Received: from k1.dinoex.de ([80.237.200.94]:43279 "EHLO k1.dinoex.de")
+	by vger.kernel.org with ESMTP id S261204AbTEESdC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 May 2003 14:33:02 -0400
+To: Michael Buesch <fsdeveloper@yahoo.de>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [Bug 663] New: "make modules" causes an error in mwavedd.h.
+X-Face: ""xJff<P[R~C67]V?J|X^Dr`YigXK|;1wX<rt^>%{>hr-{:QXl"Xk2O@@(+F]e{"%EYQiW@mUuvEsL>=mx96j12qW[%m;|:B^n{J8k?Mz[K1_+H;$v,nYx^1o_=4M,L+]FIU~[[`-w~~xsy-BX,?tAF_.8u&0y*@aCv;a}Y'{w@#*@iwAl?oZpvvv
+X-Message-Flag: This space is intentionally left blank
+X-Noad: Please don't send me ad's by mail.  I'm bored by this type of mail.
+X-Note: sending SPAM is a violation of both german and US law and will
+	at least trigger a complaint at your provider's postmaster.
+X-GPG: 1024D/77D4FC9B 2000-08-12 Jochen Hein (28 Jun 1967, Kassel, Germany) 
+     Key fingerprint = F5C5 1C20 1DFC DEC3 3107  54A4 2332 ADFC 77D4 FC9B
+X-BND-Spook: RAF Taliban BND BKA Bombe Waffen Terror AES GPG
+References: <10610000.1052152626@[10.10.2.4]>
+	<200305051938.12086.fsdeveloper@yahoo.de>
+From: Jochen Hein <jochen@jochen.org>
+X-No-Archive: yes
+Date: Mon, 05 May 2003 20:19:19 +0200
+In-Reply-To: <200305051938.12086.fsdeveloper@yahoo.de> (Michael Buesch's
+ message of "Mon, 5 May 2003 19:37:58 +0200")
+Message-ID: <87wuh5w920.fsf@echidna.jochen.org>
+User-Agent: Gnus/5.1001 (Gnus v5.10.1) Emacs/21.2 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 5 May 2003, Richard B. Johnson wrote:
+Michael Buesch <fsdeveloper@yahoo.de> writes:
 
-> ABIT IC7-G Main Boards and Linux
->
-> Warning! These boards are being shipped without the On-board
-> Intel CSA Gigabit LAN that is clearly specified in the user-
-> manual, and in the advertisement on the Web-Page.
+>> http://bugme.osdl.org/show_bug.cgi?id=663
+>>
+>>            Summary: "make modules" causes an error in mwavedd.h.
+>>     Kernel Version: 2.5.69
 
-I see in the picture they have that they put the network connector in a
-nonstandard place.
+> This patch fixes it:
 
-What is it shipping with instead?
+Care to look at http://bugzilla.kernel.org/show_bug.cgi?id=185 too?
+It would be nice to have a usable mwave for 2.6.
 
-> Yes, I got ripped off. Also, the AGP slot will not work properly
-> with the normal AGP video boards like NVIDA GForce, etc. You need
-> special 1.5V or 0.8V AGP cards (page 2-15 in the manual). The 3.3V
-> AGP cards will seem to work, but the machine will just STOP, for
-> no apparent reason at all.
+Jochen
 
-Indeed, the 845/850/875/7205? are all .8/1.5v only.  It's been that way
-for a number of years.  Wouldn't be surprised to find out other chipsets
-are like that either, 3.3V is rather old.
-
-Don't use a 3.3V card, this violates the chipset specs, and you're lucky
-you didn't burn out the card and/or board.  ASUS puts a red warning led
-on the motherboard.  I'm surprised your 3.3V card fit, most are keyed so
-you can't put them in the wrong slot.
-
-Mike
-
+-- 
+#include <~/.signature>: permission denied

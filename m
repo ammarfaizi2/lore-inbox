@@ -1,214 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274603AbRJNHF0>; Sun, 14 Oct 2001 03:05:26 -0400
+	id <S274611AbRJNHNS>; Sun, 14 Oct 2001 03:13:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274653AbRJNHFR>; Sun, 14 Oct 2001 03:05:17 -0400
-Received: from cs181088.pp.htv.fi ([213.243.181.88]:19328 "EHLO
-	cs181088.pp.htv.fi") by vger.kernel.org with ESMTP
-	id <S274611AbRJNHFI>; Sun, 14 Oct 2001 03:05:08 -0400
-Message-ID: <3BC9393D.765A156@welho.com>
-Date: Sun, 14 Oct 2001 10:05:33 +0300
-From: Mika Liljeberg <Mika.Liljeberg@welho.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10-ac10 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: TCP acking too fast
-In-Reply-To: <3BC8DAF0.3D16A546@welho.com> <20011013.234016.104032175.davem@redhat.com>
-Content-Type: multipart/mixed;
- boundary="------------2C8777A16CC1A407BCFAE559"
+	id <S274653AbRJNHNJ>; Sun, 14 Oct 2001 03:13:09 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:11783 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S274611AbRJNHND>;
+	Sun, 14 Oct 2001 03:13:03 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Recursive deadlock on die_lock 
+In-Reply-To: Your message of "Sat, 13 Oct 2001 23:42:51 MST."
+             <3BC933EA.4636D57C@zip.com.au> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 14 Oct 2001 17:13:16 +1000
+Message-ID: <28465.1003043596@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------2C8777A16CC1A407BCFAE559
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+On Sat, 13 Oct 2001 23:42:51 -0700, 
+Andrew Morton <akpm@zip.com.au> wrote:
+>Keith Owens wrote:
+>> 
+>> ...
+>> If show_registers() fails (which it does far too often on IA64) then
+>> the system deadlocks trying to recursively obtain die_lock.  Also
+>> die_lock is never used outside die(), it should be proc local.
+>> Suggested fix:
+>> 
+>
+>Looks to me like it'll work.  But why does ia64 show_registers()
+>die so easily?  Can it be taught to validate addresses before
+>dereferencing them somehow?
 
-"David S. Miller" wrote:
-> 
-> You need to post for us a tcpdump trace of a connection you feel
-> exhibits bad behavior.
-> 
-> Otherwise we can do nothing but guess, effectively your statistics
-> aren't helpful at all if we have no idea what is happening on the
-> wire.
+Unwind code.  It is impossible to obtain IA64 saved registers or back
+trace the calling sequence without using the unwind API.  That API
+relies on decent unwind data being associated with each function
+prologue, stack adjustment, save of return registers etc.  Not an issue
+for C code, it is for Assembler where the unwind info has to be hand
+coded to match what the asm is doing.  IA64 also has PAL code which is
+called directly by the kernel, that PAL code has no unwind data so
+failures in PAL code result in bad or incomplete back traces.
 
-Fair enough, chalk it down to lack of sleep addling my brain. I also
-forgot to mention my kernel version, which is 2.4.10-ac10.
-
-I've attached a fragment of tcpdump output from the middle of steady
-state transfer. Looking at the dump, it seems that most arriving
-segments have the PSH bit set. This leads me to believe that the
-transfer is mostly application limited at the sender side.
-
-For some reason, this causes the receiver to ack every segment
-immediately (which is not suggested by the spec as far as I know). I'm
-guessing that this is some kind of optimization for HTTP (i.e., avoid
-Nagle on the last runt segment by acking pushed segments immediately).
-However, this seems to produce less than desirable behaviour on sender
-limited bulk transfers.
-
-However, despite appearances, I can't seem to find the bit of code that
-tests the PSH flag for immediate ack. Still sleepy, I guess.
-
-Regards,
-
-	MikaL
---------------2C8777A16CC1A407BCFAE559
-Content-Type: application/x-gzip;
- name="tcpdump.txt.gz"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="tcpdump.txt.gz"
-
-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
-9hPrjWtM+DqhB2vEcYf1V67x/wBIMehF2mIBAA==
---------------2C8777A16CC1A407BCFAE559--
+Unwind is not supposed to fail, it should detect bad input data and
+avoid errors.  Alas, sometimes it does fail.
 

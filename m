@@ -1,44 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130329AbQLKXoG>; Mon, 11 Dec 2000 18:44:06 -0500
+	id <S131164AbQLKXoh>; Mon, 11 Dec 2000 18:44:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130147AbQLKXn4>; Mon, 11 Dec 2000 18:43:56 -0500
-Received: from APh-Aug-101-1-1-87.abo.wanadoo.fr ([193.251.41.87]:7940 "EHLO
-	sawtooth.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S129908AbQLKXnq>; Mon, 11 Dec 2000 18:43:46 -0500
-From: Benjamin Herrenschmidt <bh40@calva.net>
-To: James Simmons <jsimmons@suse.com>,
-        FrameBuffer List <linux-fbdev@vuser.vu.union.edu>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.2.X patches for fbcon
-Date: Tue, 12 Dec 2000 00:12:42 +0100
-Message-Id: <19341105164426.29128@192.168.1.10>
-In-Reply-To: <Pine.LNX.4.21.0012111416050.296-100000@euclid.oak.suse.com>
-In-Reply-To: <Pine.LNX.4.21.0012111416050.296-100000@euclid.oak.suse.com>
-X-Mailer: CTM PowerMail 3.0.6 <http://www.ctmdev.com>
+	id <S130147AbQLKXoa>; Mon, 11 Dec 2000 18:44:30 -0500
+Received: from h50s48a140n47.user.nortelnetworks.com ([47.140.48.50]:5035 "EHLO
+	zrtps06s.us.nortel.com") by vger.kernel.org with ESMTP
+	id <S129908AbQLKXoC>; Mon, 11 Dec 2000 18:44:02 -0500
+Message-ID: <3A355E29.36A57B4C@asiapacificm01.nt.com>
+Date: Mon, 11 Dec 2000 23:07:21 +0000
+From: "Andrew Morton" <morton@nortelnetworks.com>
+Organization: Nortel Networks, Wollongong Australia
+X-Mailer: Mozilla 4.61 [en] (X11; I; Linux 2.4.0-test12-pre7 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+To: "Mohammad A. Haque" <mhaque@haque.net>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Miles Lane <miles@megapathdsl.net>,
+        Frank Davis <fdavis112@juno.com>, linux-kernel@vger.kernel.org
+Subject: Re: INIT_LIST_HEAD marco audit
+In-Reply-To: <E145SRT-0007sM-00@the-village.bc.nu> <3A34D455.7208BE2F@haque.net>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-Orig: <morton@asiapacificm01.nt.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->--- atyfb.c	Mon Dec 11 14:28:19 2000
->+++ atyfb.c.orig	Wed Oct  4 22:22:28 2000
->@@ -2796,7 +2796,7 @@
->      * works on iMacs as well as the G3 powerbooks. - paulus
->      */
->     if (default_vmode == VMODE_CHOOSE) {
->-	if ((Gx == LG_CHIP_ID)||(Gx == LI_CHIP_ID)||(Gx == LP_CHIP_ID))
->+	if (Gx == LG_CHIP_ID)
-> 	    /* G3 PowerBook with 1024x768 LCD */
-> 	    default_vmode = VMODE_1024_768_60;
+"Mohammad A. Haque" wrote:
+> 
+> Thinko.
+> 
+> Question is... Adam Richter posted a patch for i2o_lan.c that does
+> this...
+> 
+> static struct tq_struct i2o_post_buckets_task = {
+>         list: LIST_HEAD_INIT(i2o_post_buckets_task.list),
+>         sync: 0,
+>         routine: (void (*)(void *))i2o_lan_receive_post,
+>         data: (void *) 0
+> };
+> 
 
-That one is wrong. The machine type must be probed differently. Also, some
-wallstreet's have a different screen (passive matrix) which is 800x600. I'm
-trying to find a way to probe for it and will come up with a patch for this
-In the meantime, passing the vmode is the correct solution.
+Will someone pleeeeze compile, test, use and submit this?
 
-Ben.
+--- linux-2.4.0-test12-pre7/include/linux/tqueue.h	Mon Dec 11 13:21:04 2000
++++ linux/include/linux/tqueue.h	Tue Dec 12 10:03:51 2000
+@@ -47,6 +47,16 @@
+ #define DECLARE_TASK_QUEUE(q)	LIST_HEAD(q)
+ #define TQ_ACTIVE(q)		(!list_empty(&q))
+ 
++#define INIT_TQ_STRUCT(routine, data)				\
++	{	list: LIST_HEAD_INIT(*(struct list_head *)0),	\
++		sync: 0,					\
++		routine: (routine),				\
++		data: (data),					\
++	}
++
++#define DECLARE_TQ_STRUCT(name, routine, data)			\
++	struct tq_struct name = INIT_TQ_STRUCT(routine, data)
++
+ extern task_queue tq_timer, tq_immediate, tq_disk;
+ 
+ /*
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,38 +1,117 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262689AbSJLJIQ>; Sat, 12 Oct 2002 05:08:16 -0400
+	id <S262413AbSJLJGE>; Sat, 12 Oct 2002 05:06:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262842AbSJLJIQ>; Sat, 12 Oct 2002 05:08:16 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:48515 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S262689AbSJLJIP>;
-	Sat, 12 Oct 2002 05:08:15 -0400
-Date: Sat, 12 Oct 2002 02:07:14 -0700 (PDT)
-Message-Id: <20021012.020714.31750647.davem@redhat.com>
-To: rmk@arm.linux.org.uk
-Cc: dilinger@mp3revolution.net, torvalds@transmeta.com,
-       linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
-Subject: Re: [PATCH] sparc64 makefile dep fix for uart_console_init
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20021012095348.A12955@flint.arm.linux.org.uk>
-References: <20021012082405.GB10000@chunk.voxel.net>
-	<20021012.013507.27779687.davem@redhat.com>
-	<20021012095348.A12955@flint.arm.linux.org.uk>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S262430AbSJLJGE>; Sat, 12 Oct 2002 05:06:04 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:12488 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S262413AbSJLJGC>; Sat, 12 Oct 2002 05:06:02 -0400
+Date: Sat, 12 Oct 2002 11:11:47 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Linus Torvalds <torvalds@transmeta.com>,
+       Christoph Hellwig <hch@infradead.org>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Mitchell Blank Jr <mitch@sfgoth.com>
+Subject: Re: Linux v2.5.42
+In-Reply-To: <Pine.LNX.4.44.0210112134160.7166-100000@penguin.transmeta.com>
+Message-ID: <Pine.NEB.4.44.0210121104590.8340-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Russell King <rmk@arm.linux.org.uk>
-   Date: Sat, 12 Oct 2002 09:53:48 +0100
+On Fri, 11 Oct 2002, Linus Torvalds wrote:
 
-   On Sat, Oct 12, 2002 at 01:35:07AM -0700, David S. Miller wrote:
-   > Probably a fix could be to add CONFIG_SERIAL_SUNCORE to the
-   > checks that set CONFIG_SERIAL_CORE, I think that's how I'll
-   > fix this.
-   
-   Agreed.  Do you want me to make the change?
+>...
+> Summary of changes from v2.5.41 to v2.5.42
+> ============================================
+>...
+> Christoph Hellwig <hch@lst.de>:
+>   o initcalls for ATM
+>...
 
-Yes, please do.
+This broke the compilation of drivers/atm/iphase.c:
+
+<--  snip  -->
+
+...
+  gcc -Wp,-MD,drivers/atm/.iphase.o.d -D__KERNEL__ -Iinclude -Wall
+-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
+-fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
+-march=k6 -Iarch/i386/mach-generic -nostdinc -iwithprefix include  -g
+-DKBUILD_BASENAME=iphase   -c -o drivers/atm/iphase.o drivers/atm/iphase.c
+drivers/atm/iphase.c: In function `rx_pkt':
+drivers/atm/iphase.c:1167: warning: implicit declaration of function
+`atm_pdu2truesize'
+drivers/atm/iphase.c:1172: structure has no member named `rx_quota'
+make[2]: *** [drivers/atm/iphase.o] Error 1
+
+<--  snip  -->
+
+
+The following part of the 2.5.42 patch to iphase.c shows the cause of this
+problem:
+
+
+<--  snip  -->
+
+@@ -1162,10 +1157,7 @@
+           goto out_free_desc;
+         }
+
+-#if LINUX_VERSION_CODE >= 0x20312
+         if (!(skb = atm_alloc_charge(vcc, len, GFP_ATOMIC))) {
+-#else
+-        if (atm_charge(vcc, atm_pdu2truesize(len))) {
+           /* lets allocate an skb for now */
+           skb = alloc_skb(len, GFP_ATOMIC);
+           if (!skb)
+@@ -1178,7 +1170,6 @@
+         }
+         else {
+            IF_EVENT(printk("IA: Rx over the rx_quota %ld\n", vcc->rx_quota);)
+-#endif
+            if (vcc->vci < 32)
+               printk("Drop control packets\n");
+              goto out_free_desc;
+
+<--  snip  -->
+
+
+Therefore the fix it simple:
+
+--- linux-2.5.42-full/drivers/atm/iphase.c.old	2002-10-12 11:02:31.000000000 +0200
++++ linux-2.5.42-full/drivers/atm/iphase.c	2002-10-12 11:09:15.000000000 +0200
+@@ -1158,18 +1158,6 @@
+         }
+
+         if (!(skb = atm_alloc_charge(vcc, len, GFP_ATOMIC))) {
+-	   /* lets allocate an skb for now */
+-	   skb = alloc_skb(len, GFP_ATOMIC);
+-	   if (!skb)
+-	   {
+-              IF_ERR(printk("can't allocate memory for recv, drop pkt!\n");)
+-              atomic_inc(&vcc->stats->rx_drop);
+-              atm_return(vcc, atm_pdu2truesize(len));
+-	      goto out_free_desc;
+-	   }
+-        }
+-        else {
+-           IF_EVENT(printk("IA: Rx over the rx_quota %ld\n", vcc->rx_quota);)
+            if (vcc->vci < 32)
+               printk("Drop control packets\n");
+ 	      goto out_free_desc;
+
+
+cu
+Adrian
+
+-- 
+
+"Is there not promise of rain?" Ling Tan asked suddenly out
+of the darkness. There had been need of rain for many days.
+"Only a promise," Lao Er said.
+                                Pearl S. Buck - Dragon Seed
+
+

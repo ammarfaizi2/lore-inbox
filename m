@@ -1,53 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265931AbUHDODg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266014AbUHDOSV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265931AbUHDODg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 10:03:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265947AbUHDODg
+	id S266014AbUHDOSV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 10:18:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266034AbUHDOSV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 10:03:36 -0400
-Received: from s124.mittwaldmedien.de ([62.216.178.24]:62118 "EHLO
-	s124.mittwaldmedien.de") by vger.kernel.org with ESMTP
-	id S265931AbUHDODe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 10:03:34 -0400
-Message-ID: <4110ECBF.9070000@vcd-berlin.de>
-Date: Wed, 04 Aug 2004 16:03:43 +0200
-From: Elmar Hinz <elmar.hinz@vcd-berlin.de>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040306)
-X-Accept-Language: en-us, en
+	Wed, 4 Aug 2004 10:18:21 -0400
+Received: from mail.parknet.co.jp ([210.171.160.6]:56848 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S266014AbUHDOSU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Aug 2004 10:18:20 -0400
+To: Erik Mouw <erik@harddisk-recovery.com>, aia21@cantab.net
+Cc: walt <wa1ter@myrealbox.com>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6.8-rc2-bk] New read/write bug in FAT fs
+References: <4110CF29.8060401@myrealbox.com>
+	<87657zkp21.fsf@devron.myhome.or.jp>
+	<20040804134549.GD25969@harddisk-recovery.com>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Wed, 04 Aug 2004 23:17:28 +0900
+In-Reply-To: <20040804134549.GD25969@harddisk-recovery.com>
+Message-ID: <87oelrj8cn.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3.50
 MIME-Version: 1.0
-To: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: PATCH: Add support for IT8212 IDE controllers
-References: <2obsK-5Ni-13@gated-at.bofh.it>
-In-Reply-To: <2obsK-5Ni-13@gated-at.bofh.it>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Erik Mouw <erik@harddisk-recovery.com> writes:
 
-here some personel observations. Maybe they are result of little 
-experience of mine. Maybe they are of use for others.
+> To minimise confusion, is it an idea that NTFS and FAT use the same
+> mount options? Right now NTFS uses "nls" and VFAT "iocharset".
 
-I use rev11 of it/ite8212 Dual Channel ATA RAID controller. On each 
-master there is a 80GB harddisk.
-
-When I set in the bios RAID 1 there comes an message similar
-INVALID GEOMETRY: 0 PHYSICAL HEADS?
-and booting stops.
-
-When I set NORMAL, I get IRQ-timeouts for both disks. (IRQ 10)
-
-but booting continous and I can use the disks.
-
-hdparm => 15.70 MB/sec
-
-Elmar
-
-
-
-
-
-
-
-
+"nls" option is used by only NTFS. Other filesystems is using "iocharset".
+Umm.. Why was "iocharset" option deprecated?
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

@@ -1,44 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292634AbSBVQif>; Fri, 22 Feb 2002 11:38:35 -0500
+	id <S292926AbSBVQn1>; Fri, 22 Feb 2002 11:43:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292655AbSBVQi0>; Fri, 22 Feb 2002 11:38:26 -0500
-Received: from trained-monkey.org ([209.217.122.11]:3080 "EHLO
-	trained-monkey.org") by vger.kernel.org with ESMTP
-	id <S292634AbSBVQiR>; Fri, 22 Feb 2002 11:38:17 -0500
-From: Jes Sorensen <jes@trained-monkey.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15478.29686.862941.196746@trained-monkey.org>
-Date: Fri, 22 Feb 2002 11:38:14 -0500
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Ben Greear <greearb@candelatech.com>, Petro <petro@auctionwatch.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Eepro100 driver.
-In-Reply-To: <3C767359.44CD415E@mandrakesoft.com>
-In-Reply-To: <20020213211639.GB2742@auctionwatch.com>
-	<3C6B2277.CA9A0BF8@mandrakesoft.com>
-	<3C6B406E.1010706@candelatech.com>
-	<3C6B4B20.FE4AE960@mandrakesoft.com>
-	<d3sn7ttrcb.fsf@lxplus050.cern.ch>
-	<3C767359.44CD415E@mandrakesoft.com>
-X-Mailer: VM 6.90 under Emacs 20.7.1
+	id <S292925AbSBVQnQ>; Fri, 22 Feb 2002 11:43:16 -0500
+Received: from ncc1701.cistron.net ([195.64.68.38]:5898 "EHLO
+	ncc1701.cistron.net") by vger.kernel.org with ESMTP
+	id <S292655AbSBVQnG>; Fri, 22 Feb 2002 11:43:06 -0500
+From: "Miquel van Smoorenburg" <miquels@cistron.nl>
+Subject: Re: Problem? 802.1q kernel 2.4.18-rc1-rmap12f
+Date: Fri, 22 Feb 2002 16:43:02 +0000 (UTC)
+Organization: Cistron Internet Services B.V.
+Message-ID: <a55sem$425$2@ncc1701.cistron.net>
+In-Reply-To: <Pine.LNX.4.31.0202221815590.28962-100000@linux.kappa.ro>
+Content-Type: text/plain; charset=iso8859-15
+X-Trace: ncc1701.cistron.net 1014396182 4165 195.64.65.67 (22 Feb 2002 16:43:02 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: miquels@cistron.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Jeff" == Jeff Garzik <jgarzik@mandrakesoft.com> writes:
+In article <Pine.LNX.4.31.0202221815590.28962-100000@linux.kappa.ro>,
+Teodor Iacob  <Teodor.Iacob@astral.kappa.ro> wrote:
+>I want to use the eth0 as 2 subinterfaces with 802.1q with vlan IDs 3 and
+>5, so this is how I set the whole thing up:
+>
+>/sbin/ifconfig eth0 up # This to make the link of the interface up
+>vconfig add eth0 5
+>vconfig add eth0 3
+>
+>/sbin/ifconfig eth0.5 inet ..etc..
+>/sbin/ifconfig eth0.3 inet ...etc..
+>
+>and I have also the default gateway through the eth0.5 vlan.
+>
+>Now after a fresh start, I can ping whatever I want, but I cannot start a
+>file transfer, it just locks up after first 1024 bytes ( as seen with tick
+>in simple ftp command ).
 
-Jeff> Jes Sorensen wrote:
->> Would be a lot nicer to see someone spending the time pulling the
->> useful bits out of e100 and putting it into eepro100. e100 is ugly
->> and bloated for no reason.
+Did you patch the ethernet driver so that it supports the bigger
+MTUs needed for VLAN support ? It's all described in the VLAN patch docs.
 
-Jeff> When it passes my review, it will not be.
+Mike.
+-- 
+Computers are useless, they only give answers. --Pablo Picasso
 
-Jeff> e100 + my desired changes == eepro100 + my desired changes
-
-Guess I just prefer to build bottom up with a basic clean code base
-rather than a gross messy and bloated base.
-
-Jes

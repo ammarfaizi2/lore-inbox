@@ -1,63 +1,92 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289344AbSAJFk1>; Thu, 10 Jan 2002 00:40:27 -0500
+	id <S289347AbSAJFu7>; Thu, 10 Jan 2002 00:50:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289345AbSAJFkR>; Thu, 10 Jan 2002 00:40:17 -0500
-Received: from rj.SGI.COM ([204.94.215.100]:33464 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S289344AbSAJFkK>;
-	Thu, 10 Jan 2002 00:40:10 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Corey Minyard <minyard@acm.org>
+	id <S289348AbSAJFut>; Thu, 10 Jan 2002 00:50:49 -0500
+Received: from [202.135.142.196] ([202.135.142.196]:22540 "EHLO
+	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
+	id <S289347AbSAJFul>; Thu, 10 Jan 2002 00:50:41 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: mingo@elte.hu
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Moving zlib so that others may use it 
-In-Reply-To: Your message of "Wed, 09 Jan 2002 23:13:28 MDT."
-             <3C3D22F8.1080201@acm.org> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 10 Jan 2002 16:40:00 +1100
-Message-ID: <24675.1010641200@kao2.melbourne.sgi.com>
+Subject: Re: [PATCH] minor sched-E1 tweaks and questions 
+In-Reply-To: Your message of "Wed, 09 Jan 2002 11:41:19 BST."
+             <Pine.LNX.4.33.0201091126520.2276-100000@localhost.localdomain> 
+Date: Thu, 10 Jan 2002 14:48:42 +1100
+Message-Id: <E16OWCo-0000YO-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 09 Jan 2002 23:13:28 -0600, 
-Corey Minyard <minyard@acm.org> wrote:
->Hmm.  It worked fine for me.  I made it a module, and it put it into 
->kernel/lib in
->/lib/modules/2.4.17 and it did not put it in lib/lib.a  I make it a 
->non-module, and
->it gets included in lib/lib.a. My diff was the same as yours for the 
->Makefile.
+In message <Pine.LNX.4.33.0201091126520.2276-100000@localhost.localdomain> you 
+write:
+> > Q. How can this happen in expire_task():
+> > 	if (p->array != rq->active) {
+> > 		p->need_resched = 1;
+> > 		return;
+> > 	}
+> 
+> if a task gets delayed by some really heavy IRQ load and the timer
+> interrupt hits the task twice.
 
-Worked for me this time as well.  I had a typo the first time then did
-an ugly fix to a non-existent problem :(
+Hmm... still don't see it.  update_process_times() surely doesn't
+re-enter?  And another CPU cannot load_balance() p (== current) away
+from us.
 
->I don't know about the bootloaders.  I'm not sure you can make the 
->requirement
->to have them compiled the same as the kernel, since they may have different
->compilation requirements in the boot loader.
+Another question:
 
-Probably true, but I don't want to rule it out completely.  In any case
-it is easily catered for in lib/Makefile.
+	if (likely(prev != next)) {
+		rq->nr_switches++;
+		rq->curr = next;
+		next->cpu = prev->cpu;
+		context_switch(prev, next);
+		/*
+		 * The runqueue pointer might be from another CPU
+		 * if the new task was last running on a different
+		 * CPU - thus re-load it.
+		 */
+		barrier();
+		rq = this_rq();
+	}
+	spin_unlock_irq(&rq->lock);
 
-obj-$(CONFIG_JFFS2_FS) += zlib.o
-obj-$(CONFIG_PPP_DEFLATE) += zlib.o
-# Uncomment these if ppc bootloader can use the common zlib
-# ifeq ($(ARCH),ppc)
-#   obj-y += zlib.o
-# endif
+I do not understand this comment.  How can rq (ie. smp_processor_id())
+change?  Nothing sleeps here, and if it DID change, the
+spin_unlock_irq() would be wrong...
 
->The problem is that if you come along later and compile a new module that
->needs it, it won't work.  That's a fairly common thing I do, I expect 
->other kernel
->developers do the same.  And the dummy ref thing is a little ugly.
+> i've taken your fixes, please double-check the next patch whether all of
+> them are correctly applied.
 
-Any new module that requires zlib requires a change to the zlib
-selection.  Whether you do it in the top level Makefile, in
-lib/Config.in or lib/Makefile is irrelevant, zlib has to be selected
-somewhere and the criteria must be updated for new modules.
+Um, missed one:
 
-Since lib/zlib.c works for both built in and modules, there is no need
-to change the top level Makefile.  AFAICT the above lines in
-lib/Makefile are the minimal change.
+ static struct runqueue {
+-	int cpu;
+ 	spinlock_t lock;
+-	unsigned long nr_running, nr_switches, last_rt_event;
++	unsigned long nr_running, nr_switches;
+ 	task_t *curr, *idle;
+ 	prio_array_t *active, *expired, arrays[2];
+-	char __pad [SMP_CACHE_BYTES];
++	int prev_nr_running[NR_CPUS];
+ } runqueues [NR_CPUS] __cacheline_aligned;
 
+You want each entry in the array to be aligned, not the whole array!
+You need to define the struct runqueue to be the cacheline aligned
+(using ____cacheline_aligned since it's a type), THEN put the
+__cacheline_aligned after the array declaration so it gets put in the
+aligned section:
+
+ struct runqueue {
+ 	spinlock_t lock;
+	unsigned long nr_running, nr_switches;
+ 	task_t *curr, *idle;
+ 	prio_array_t *active, *expired, arrays[2];
+	int prev_nr_running[NR_CPUS];
+ } ____cacheline_aligned;
+
+ static struct runqueue runqueues [NR_CPUS] __cacheline_aligned;
+
+This is why my __per_cpu patch was invented 8)
+Cheers,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,57 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267388AbUHVPIW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267393AbUHVPJp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267388AbUHVPIW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Aug 2004 11:08:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267393AbUHVPIO
+	id S267393AbUHVPJp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Aug 2004 11:09:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267407AbUHVPJo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Aug 2004 11:08:14 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:2776 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S267388AbUHVPH7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Aug 2004 11:07:59 -0400
-Date: Sun, 22 Aug 2004 17:07:47 +0200
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-Cc: Ville Herva <vherva@viasys.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.8.1-mm2 breaks vmware
-Message-ID: <20040822150747.GB13131@devserv.devel.redhat.com>
-References: <20040820035142.3bcdb1cb.akpm@osdl.org> <20040820131825.GI23741@viasys.com> <20040820144304.GF8307@viasys.com> <20040820151621.GJ23741@viasys.com> <20040820114518.49a65b69.akpm@osdl.org> <20040821062927.GM23741@viasys.com> <20040821134918.GA1585@devserv.devel.redhat.com> <20040821190027.GQ3024@viasys.com> <20040821190730.GA25932@devserv.devel.redhat.com> <20040822143112.GB24092@vana.vc.cvut.cz>
+	Sun, 22 Aug 2004 11:09:44 -0400
+Received: from kludge.physics.uiowa.edu ([128.255.33.129]:2575 "EHLO
+	kludge.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id S267393AbUHVPJa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Aug 2004 11:09:30 -0400
+Date: Sun, 22 Aug 2004 10:08:55 -0500
+From: Joseph Pingenot <trelane@digitasaru.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux Incompatibility List
+Message-ID: <20040822150855.GC7622@digitasaru.net>
+Reply-To: trelane@digitasaru.net
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <87r7q0th2n.fsf@dedasys.com> <1093173291.24341.40.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="hQiwHBbRI9kgIhsi"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040822143112.GB24092@vana.vc.cvut.cz>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <1093173291.24341.40.camel@localhost.localdomain>
+X-School: University of Iowa
+X-vi-or-emacs: vi *and* emacs!
+X-MSMail-Priority: High
+X-Priority: 1 (Highest)
+X-MS-TNEF-Correlator: <AFJAUFHRUOGRESULWAOIHFEAUIOFBVHSHNRAIU.monkey@spamcentral.invalid>
+X-MimeOLE: Not Produced By Microsoft MimeOLE V5.50.4522.1200
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>From Alan Cox on Sunday, 22 August, 2004:
+>On Sad, 2004-08-21 at 20:41, David N. Welton wrote:
+>I think the "compatibility list" side is the more important. Trying to
+>punish non helpful products/vendors isn't as productive as helping stuff
+>that is Linux friendly.
 
---hQiwHBbRI9kgIhsi
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Definitely.  It's great to know that Linux works with a device, since
+  I know that I can buy it and actually *use* it.  Double points if
+  the *device* works with *linux*!
+That said, there are lots of devices out there that aren't listed in the
+  compatibility list.  I'd be nice to know if they *don't* work, since I
+  won't feel tempted (if the price is right) to take it home and try it
+  out.  Although, as another point, it'd be nice to bring all of the
+  various device compatibility lists together in one place, esp. for the
+  HAL/D-BUS/Utopia system, so that they could potentially query the list
+  over the net.  Bonus points for a downloadable version for the distros!
+Also, a known-helpful vendor list would be great, as I would be much more
+  inclined to buy stuff from vendors who support Linux (as opposed to
+  Linux supporting them).  It's important to me, and I like to put my
+  money where my mouth is.  :)
+In short, we should definitely work on maintaining a big device and vendor
+  compatibility list ([butter]flies, honey, vinegar), but a known-bad/hostile
+  list is also a nice thing to have, so that we can know to take our
+  dollars elsewhere.
 
-On Sun, Aug 22, 2004 at 04:31:12PM +0200, Petr Vandrovec wrote:
-> Whole situation (with originally released vmmon) looked like that vmware binary
-> issued ioctl() to allocate memory, marked that page PG_RESERVED, and returned
-> physical page number to userspace. Userspace then opened /dev/mem, and mapped
-> that page to the process.  On cleanup /dev/mem was unmapped, PG_RESERVED bit
-> was cleared, and page released (in my updates PG_RESERVED setting/clearing is
-> removed, as it badly intereferes with page's refcounting).
+-Joseph
 
-I've sent andrew a patch that allows such mmaps again for PG_RESERVED pages.
-The approach vmware did is rather questionable (as you say) and thankfully
-fixed later, but breaking it is not entirely required.
---hQiwHBbRI9kgIhsi
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQFBKLbDxULwo51rQBIRAgdVAKChC6mVrzvzpPcXZhMkuGJXR3OkGgCeLKb3
-agfDz1PEg9gO5qk1OKvHdfY=
-=mXSv
------END PGP SIGNATURE-----
-
---hQiwHBbRI9kgIhsi--
+-- 
+Joseph===============================================trelane@digitasaru.net
+      Graduate Student in Physics, Freelance Free Software Developer

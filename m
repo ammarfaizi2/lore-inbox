@@ -1,90 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319068AbSH2CG5>; Wed, 28 Aug 2002 22:06:57 -0400
+	id <S319069AbSH2CGB>; Wed, 28 Aug 2002 22:06:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319070AbSH2CG5>; Wed, 28 Aug 2002 22:06:57 -0400
-Received: from supreme.pcug.org.au ([203.10.76.34]:18353 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S319068AbSH2CGz>;
-	Wed, 28 Aug 2002 22:06:55 -0400
-Date: Thu, 29 Aug 2002 12:11:03 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Frank.Otto@tc.pci.uni-heidelberg.de
-Cc: linux-kernel@vger.kernel.org, mdheffner@yahoo.com
-Subject: Re: PROBLEM:  conflict between apm and system clock on Inspiron 8100
-Message-Id: <20020829121103.48b5920d.sfr@canb.auug.org.au>
-In-Reply-To: <200208281504.g7SF4Xl04292@goedel.pci.uni-heidelberg.de>
-References: <20020826170037.69164.qmail@web40210.mail.yahoo.com>
-	<1030381725.1750.10.camel@irongate.swansea.linux.org.uk>
-	<200208281504.g7SF4Xl04292@goedel.pci.uni-heidelberg.de>
-X-Mailer: Sylpheed version 0.8.1 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S319068AbSH2CGB>; Wed, 28 Aug 2002 22:06:01 -0400
+Received: from 2-210.ctame701-1.telepar.net.br ([200.193.160.210]:51687 "EHLO
+	2-210.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S319069AbSH2CGA>; Wed, 28 Aug 2002 22:06:00 -0400
+Date: Wed, 28 Aug 2002 23:10:01 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Andrew Morton <akpm@zip.com.au>
+cc: William Lee Irwin III <wli@holomorphy.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] adjustments to dirty memory thresholds
+In-Reply-To: <3D6D82A3.A3A0C7F0@zip.com.au>
+Message-ID: <Pine.LNX.4.44L.0208282306110.1857-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Frank,
-
-On Wed, 28 Aug 2002 17:04:33 +0200 Frank.Otto@tc.pci.uni-heidelberg.de wrote:
+On Wed, 28 Aug 2002, Andrew Morton wrote:
+> Rik van Riel wrote:
+> >
+> > On Wed, 28 Aug 2002, Andrew Morton wrote:
+> >
+> > > But sigh.  Pointlessly scanning zillions of dirty pages and doing
+> > > nothing with them is dumb.  So much better to go for a FIFO snooze on a
+> > > per-zone waitqueue, be woken when some memory has been cleansed.
+> >
+> > But not per-zone, since many (most?) allocations can be satisfied
+> > from multiple zones.  Guess what 2.4-rmap has had for ages ?
 >
-> Alan Cox wrote:
-> > On Mon, 2002-08-26 at 18:00, mike heffner wrote:
-> > > Well, isn't that a nice feature.  Is there a
-> > > workaround for this hardware?
-> >  
-> >  A thinkpad ;)
-> 
-> Unfortunately, that's not true -- I just got an IBM Thinkpad R32
-> which exhibits the same behaviour as Mike's Dell Inspiron 8100,
-> it's only a tad worse. When I have the battstat_applet running (which
-> checks the battery every second), kernel time runs about 3% slow
-> compared to the RTC (which seems to be half-way accurate on my machine).
+> Per-classzone ;)
 
-Don't do that then.  Why would you need to check the battery status
-every second?  Check every 30 seconds.  Does your battery even update its
-status more often than that?
+I pull the NUMA-fallback card ;)
 
-> The cause seems to be definitely APM. If I shut off battstat_applet
-> and apmd, kernel time and RTC are in sync. With only apmd, I lose about
-> 15 seconds per hour. With battstat_applet, I lose 2 minutes per hour.
-> With
->   while true; do cat /proc/apm >/dev/null; done
-> the system runs at about 1/4 of the right speed. Using a kernel with ACPI
-> eliminates the problem (of course, you lose almost all power management
-> functionality too).
+But serious, having one waitqueue for this case should be
+fine. If the system is not under lots of VM pressure with
+tons of dirty pages, kswapd will free pages as fast as
+they get allocated.
 
-Interesting ... Howlong does "cat /proc/apm" take?
-On my Thinkpad T22 I get:
+If the system can't keep up and we have to wait for dirty
+page writeout to finish before we can allocate more, it
+shouldn't really matter how many waitqueues we have.
+Except for the fact that having a more complex system can
+introduce more opportunities for unfairness and starvation.
 
-# time cat /proc/apm
-1.16 1.2 0x03 0x01 0x00 0x01 99% -1 ?
+> > Interested in a port for 2.5 on top of 2.5.32-mm2 ? ;)
+> >
+> > [I'll mercilessly increase your patch queue since it doesn't show
+> > any sign of ever shrinking anyway]
+>
+> Lack of patches is not a huge problem at present ;).  It's getting them
+> tested for performance, stability and general does-good-thingsness
+> which is the rate limiting step.
 
-real	0m0.009s
-user	0m0.000s
-sys	0m0.010s
+Yup, but if I were to wait for your queue to shrink I'd never get
+any patches merged ;)
 
-while ...
+> But yes, I'm interested in a port of the code, and in the description
+> of the problems which it solves, and how it solves them.
 
-# time ./tppow
-Battery 0 present power units mW[h] design capacity 38880 last full charge capacity 29260
-status 0x0 rate 0 cap 29172 voltage 12485
+I'll introduce this stuff in 2 or 3 steps, with descriptions.
 
-real	0m0.311s
-user	0m0.100s
-sys	0m0.000s
+> But what is even more valuable than the code is a report of its
+> before-and-after effectiveness under a broad range of loads on a broad
+> range of hardware.  That's the most time-consuming part...
 
-tppow is a C implementation of the disassembled APCI method for reading the
-battery status. It does not disable interrupts but does talk to the
-embedded controller in the Thinkpad.
+Eeeks ;)   I don't even have a broad range of hardware...
 
-> BTW, I have set CONFIG_APM_ALLOW_INT, and on startup the kernel even says
-> "IBM machine detected. Enabling interrupts during APM calls." Doesn't
-> seem to help, though.
+regards,
 
-This just means that we enter the BIOS with interrupts enabled, it doesn't
-stop the BIOS from disabling interrupts ...
-
+Rik
 -- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+Bravely reimplemented by the knights who say "NIH".
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

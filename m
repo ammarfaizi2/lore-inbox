@@ -1,90 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261174AbULJLW3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261180AbULJLde@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261174AbULJLW3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Dec 2004 06:22:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261179AbULJLW2
+	id S261180AbULJLde (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Dec 2004 06:33:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261183AbULJLdd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Dec 2004 06:22:28 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:11916 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261174AbULJLWW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Dec 2004 06:22:22 -0500
-Date: Fri, 10 Dec 2004 12:22:10 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: "K.R. Foley" <kr@cybsft.com>
-Cc: Mark_H_Johnson@raytheon.com, Amit Shah <amit.shah@codito.com>,
-       Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, emann@mrv.com,
-       Gunther Persoons <gunther_persoons@spymac.com>,
-       linux-kernel@vger.kernel.org, Florian Schmidt <mista.tapas@gmx.net>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Shane Shrybman <shrybman@aei.ca>, Esben Nielsen <simlo@phys.au.dk>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.32-6
-Message-ID: <20041210112210.GC6855@elte.hu>
-References: <OFADAD8EC1.8BCE1EC6-ON86256F65.005EFFA6@raytheon.com> <20041209173136.GE7975@elte.hu> <41B8B6C4.60200@cybsft.com> <20041209220632.GE14194@elte.hu> <41B92588.4060106@cybsft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41B92588.4060106@cybsft.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Fri, 10 Dec 2004 06:33:33 -0500
+Received: from i-194-106-33-239.freedom2surf.net ([194.106.33.239]:15294 "EHLO
+	webmail.freedom2surf.net") by vger.kernel.org with ESMTP
+	id S261180AbULJLdb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Dec 2004 06:33:31 -0500
+Message-ID: <1102678410.41b9898a485ad@webmail.freedom2surf.net>
+Date: Fri, 10 Dec 2004 11:33:30 +0000
+From: bugzilla@emiller.f2s.com
+To: linux-kernel@vger.kernel.org
+Subject: ACPI and APIC on nforce2 with 2.4 kernel - is there hope?
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.3
+X-Originating-IP: 81.171.131.10
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Is there any hope of seeing the acpi_skip_timer_override patch in the 2.4
+branch? It has been in the 2.6 branch since around 2.6.5-rcfoo. This patch
+addresses a problem specific to nforce2 motherboards that results in an XT-PIC
+timer on ACPI and APIC enabled 2.4.x kernels.
 
-* K.R. Foley <kr@cybsft.com> wrote:
+I really don't know how much of a Bad Thing (TM) this is but my anxieties are
+due to: 1) The fact that I see clock gain of about one minute per week; 2) The
+fact that nforce2 has suffered from notorious instability and I just want to
+feel comfort that all known problems are going to get ironed out. I acknowledge
+that this problem is: 1) a hardware problem; 2) fixed in the latest stable
+branch (as of the 2.6.6 release).
 
-> >here's the code:
-> >
-> >+static inline void trace_start_sched_wakeup(task_t *p, runqueue_t *rq)
-> >+{
-> >+       if (TASK_PREEMPTS_CURR(p, rq) && (p != rq->curr) && 
-> >_need_resched())
-> >+               __trace_start_sched_wakeup(p);
-> >+}
-> >
-> >indeed this only triggers if the woken up task has a higher priority
-> >than the waker... hm. Could you try to reverse the priorities of 
-> >realfeel and IRQ8, does that produce traces?
-> 
-> I guess I really am slow. You laid it all out for me above and I still
-> didn't get it until I looked at again. I still haven't been able to
-> capture an actual trace from any of these programs, but thanks to your
-> addition of logging all of the max latencies in 32-14 I can see that
-> the traces were there until another trace pushes them out.
+If the answer to my question is no, I would appreciate guidance on: 1) whether
+this issue could cause me problems (is it likely to result in clock gain; could
+it cause general instability or other problems); 2) what people recommend as a
+2.4.x kernel configuration for nforce2 motherboards (mine is Abit NF7-S Rev2)
+in terms of ACPI, IOAPIC and LAPIC parameters.
 
-wakeup tracing can only work reliably if it's a higher-prio task that is
-being woken up (to which the currently executing task is obliged to
-preempt). Otherwise the currently executing task (the one which wakes up
-the other task) could continue to execute indefinitely, making the
-wakeup latency trace much less useful. Hence the priority check and the
-need_resched() check: 'is the wakee higher-prio', and 'does the current
-task really have to preempt right now'.
+To demonstrate, with an ACPI and APIC enabled 2.4.26 Debianised kernel, I see:
 
-(hm, i think the _need_resched() check is in fact buggy, especially on
-SMP systems: if there's a cross-CPU wakeup then _need_resched() wont be
-set for the current task! Is this perhaps what you wanted to point out? 
-I've uploaded the -32-17 kernel which has the _need_resched() check
-removed.)
+cat /proc/interrupts
+           CPU0
+  0:    1180749          XT-PIC  timer
+  1:       1834    IO-APIC-edge  keyboard
+  2:          0          XT-PIC  cascade
+  8:          4    IO-APIC-edge  rtc
+  9:          0   IO-APIC-level  acpi
+ 12:     234451    IO-APIC-edge  PS/2 Mouse
+ 14:      20449    IO-APIC-edge  ide0
+ 15:         23    IO-APIC-edge  ide1
+ 19:          0   IO-APIC-level  mgacore
+ 20:    1192269   IO-APIC-level  usb-ohci, eth0
+ 21:        443   IO-APIC-level  ehci_hcd, NVidia nForce2
+ 22:          3   IO-APIC-level  ohci1394, usb-ohci
+NMI:          0
+LOC:    1180732
+ERR:          0
+MIS:          0
 
-unfortunately this issue seems to hit realfeel/rtc_wakeup too: there the
-common wakeup is done from the IRQ thread, which is higher-prio than
-realfeel/rtc_wakeup! So wakeup tracing/timing doesnt get activated at
-all for those types of wakeups.
+N.B. I understand that the separate issue of the non-availability of IRQ2
+because of the spurious reservation by cascade has now been patched, as of
+2.4.27-pre2 (and 2.6.6).
 
-a solution/workaround to this would be to 'reverse' the priorities of
-the tasks: i.e. to make the IRQ thread prio 80, and to make realfeel
-prio 90, and to look at the results. In theory realfeel shouldnt be
-running when the next IRQ arrives, so this should produce meaningful
-traces.
+See also http://bugzilla.kernel.org/show_bug.cgi?id=1203
 
-	Ingo
+Please cc me as I am not subscribed to this list.
+

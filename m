@@ -1,53 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263422AbTJBShY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Oct 2003 14:37:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263444AbTJBShY
+	id S263448AbTJBSjZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Oct 2003 14:39:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263464AbTJBSjZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Oct 2003 14:37:24 -0400
-Received: from mrout1.yahoo.com ([216.145.54.171]:37127 "EHLO mrout1.yahoo.com")
-	by vger.kernel.org with ESMTP id S263422AbTJBShX (ORCPT
+	Thu, 2 Oct 2003 14:39:25 -0400
+Received: from opersys.com ([64.40.108.71]:56077 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S263448AbTJBSjI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Oct 2003 14:37:23 -0400
-Message-ID: <3F7C7051.2000003@bigfoot.com>
-Date: Thu, 02 Oct 2003 11:37:05 -0700
-From: Erik Steffl <steffl@bigfoot.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i386; en-US; rv:1.3) Gecko/20030312
-X-Accept-Language: en-us, en
+	Thu, 2 Oct 2003 14:39:08 -0400
+Message-ID: <3F7C7180.2020404@opersys.com>
+Date: Thu, 02 Oct 2003 14:42:08 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Can't X be elemenated?
-References: <Law11-F67ATnLE7P95L00001388@hotmail.com> <3F7BE886.8070401@aitel.hist.no>
-In-Reply-To: <3F7BE886.8070401@aitel.hist.no>
+To: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
+CC: "Theodore Ts'o" <tytso@mit.edu>, xen-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, Jacques Gelinas <jack@solucorp.qc.ca>
+Subject: Re: [Xen-devel] Re: [ANNOUNCE] Xen high-performance x86 virtualization
+References: <E1A57B6-0007y9-00@wisbech.cl.cam.ac.uk>
+In-Reply-To: <E1A57B6-0007y9-00@wisbech.cl.cam.ac.uk>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Helge Hafting wrote:
-> kartikey bhatt wrote:
-> 
->> hey everyone who have joined this thread, my fundamental question have 
->> got
->> out of scope. I mean to say
->>
->> 1. Kernel level support for graphics device drivers.
->> 2. On top of that, one can develop complete lightweight GUI.
->> 3. Maybe kernel can provide support for event handling.
->>
->> and I still stick to my opinion that graphics card is a computer resource
->> that needs to be managed by OS   rather than 3rd party developers.
-> 
-> 
-> The card is managed by the os - X has to ask the kernel nicely to get it.
-> (Try starting another X server inside an xterm and see how
-> that is refused.)
 
-   that has nothing to do with kernel. If you are running display 0 and 
-start another X (without specifying display, it default to 0) it doesn't 
-work since there cannot be two servers on same machine both being 0. You 
-can start another X server with different number (e.g. startx -- :1 or 
-whatever number is not used yet).
+Keir Fraser wrote:
+> Full recursion needs full virtualization. Our approach offers much
+> better performance in the situations where full virtualization isn't
+> required -- i.e., where it's feasible to distribute a ported OS.
 
-	erik
+I noticed that the SOSP Xen paper briefly mentions Jacques Gelinas' work
+on VServers (http://www.solucorp.qc.ca/miscprj/s_context.hc). While
+Jacques' work hasn't attracted as much public attention as other Linux
+virtualization efforts, I've personally found the approach and concepts
+quite fascinating. Among other things, most of the code implementing the
+contexts is architecture-independent (save for a few syscalls added to
+arch/*/kernel/entry.S). So, thinking aloud here, I'm wondering in what
+circumstances I'd prefer using something as architecture specific as
+Xen over something as architecture independent as Jacques' VServers?
+(Granted VServers can't run Windows, but I'm asking this from the angle
+of people looking for resource isolation in the Linux context.) Among
+other things, VServers are already in use by many ISPs to provide
+simultaneous hosting of many "virtual machines" on the same box while
+maintaining strict separation between machines and still providing a
+secure environment.
+
+Karim
+
+P.S.:
+For those who aren't familiar with Jacques' stuff, have a look at this
+document here:
+http://www.solucorp.qc.ca/miscprj/s_context.hc?prjstate=1&nodoc=0
+The actual concepts implemented in VServers are here:
+http://www.solucorp.qc.ca/miscprj/s_context.hc?s1=2&s2=0&s3=0&s4=0&full=0&prjstate=1&nodoc=0
+-- 
+Author, Speaker, Developer, Consultant
+Pushing Embedded and Real-Time Linux Systems Beyond the Limits
+http://www.opersys.com || karim@opersys.com || 514-812-4145
 

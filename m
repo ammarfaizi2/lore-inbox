@@ -1,64 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268199AbRHCJ5y>; Fri, 3 Aug 2001 05:57:54 -0400
+	id <S267615AbRHCJ6e>; Fri, 3 Aug 2001 05:58:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268129AbRHCJ5o>; Fri, 3 Aug 2001 05:57:44 -0400
-Received: from [210.77.38.126] ([210.77.38.126]:47377 "EHLO
-	ns.turbolinux.com.cn") by vger.kernel.org with ESMTP
-	id <S268079AbRHCJ5b>; Fri, 3 Aug 2001 05:57:31 -0400
-Date: Fri, 3 Aug 2001 17:58:03 +0800
-From: michael chen <michaelc@turbolinux.com.cn>
-X-Mailer: The Bat! (v1.49) UNREG / CD5BF9353B3B7091
-Reply-To: michaelc <michaelc@turbolinux.com.cn>
-X-Priority: 3 (Normal)
-Message-ID: <3823096796.20010803175803@turbolinux.com.cn>
-To: rtviado <root@iligan.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: load balancing on more than 1 default routes
-In-Reply-To: <Pine.LNX.4.33.0108031752040.907-100000@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.33.0108031752040.907-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S268079AbRHCJ6P>; Fri, 3 Aug 2001 05:58:15 -0400
+Received: from ns.caldera.de ([212.34.180.1]:28893 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S267615AbRHCJ6D>;
+	Fri, 3 Aug 2001 05:58:03 -0400
+Date: Fri, 3 Aug 2001 11:57:59 +0200
+Message-Id: <200108030957.f739vx322738@ns.caldera.de>
+From: Christoph Hellwig <hch@ns.caldera.de>
+To: matthias.andree@stud.uni-dortmund.de (Matthias Andree)
+Cc: Matthias Andree <matthias.andree@stud.uni-dortmund.de>,
+        Paul Jakma <paul@clubi.ie>, linux-kernel@vger.kernel.org,
+        "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: intermediate summary of ext3-2.4-0.9.4 thread
+X-Newsgroups: caldera.lists.linux.kernel
+In-Reply-To: <20010803103954.A11584@emma1.emma.line.org>
+User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.2 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi rtviado,
+In article <20010803103954.A11584@emma1.emma.line.org> you wrote:
+> They'd just drop Linux from the list of supported OS's, Linux will
+> disappoint people who trusted it, nothing is gained. Deliberate breakage
+> will not happen, because it would not help anyone except people with
+> twisted minds.
 
-Friday, August 03, 2001, 6:02:48 PM, you wrote:
+Who cares?  There are more than enough sane mailer around..
 
+> NO-ONE, including you, has come up with SERIOUS objections against a
+> dirsync option, except "is it really so much slower than chattr +S? show
+> figures" -- ext3 is being tuned to be fast in spite of chattr +S.
 
+Talk is cheap.  Code up a non-invasive dirsync option and submit it to
+Linus.  I don't see any reason why it won't be accepted..
 
-r> Hello,
-
-r>         I just want to ask if there is a facility in the kernel that load
-r> balance to different default routes, since i'm using this routes for
-r> uplink purposes only (my downlink is via satellite, it doesn't matter
-r> where i send my packets uplink as long as it reaches the internet
-r> backbone).
-
-r> for example
-
-r>         in my box, I have routes as describe below
-
-r>         destination     gateway         netmask
-r>         default         isp1            0.0.0.0
-r>         default         isp2            0.0.0.0
-
-r> Want i want is for the kernel to load balance (e.g round robin) uplink
-r> packets to isp1 and isp2. If this in is not possible in the current
-r> kernel, where in the kernel source files can i start hacking to make this
-r> possible?
-
-
-r> TIA
-    As i know, there is a networking driver called bonding ,which can
-    load balance sending packets through several ethernet
-    connections, both 2.2.X and 2.4.X kernel have this driver.
-
+	Christoph
 
 -- 
-Best regards,
-Michael Chen                           mailto:michaelc@turbolinux.com.cn
-
-
+Of course it doesn't work. We've performed a software upgrade.

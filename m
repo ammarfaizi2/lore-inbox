@@ -1,57 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261489AbVAXK4a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261491AbVAXLRT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261489AbVAXK4a (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 05:56:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261490AbVAXK4a
+	id S261491AbVAXLRT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 06:17:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261492AbVAXLRT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 05:56:30 -0500
-Received: from bbned23-32-100.dsl.hccnet.nl ([80.100.32.23]:33750 "EHLO
-	fw-loc.vanvergehaald.nl") by vger.kernel.org with ESMTP
-	id S261489AbVAXK42 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 05:56:28 -0500
-Date: Mon, 24 Jan 2005 11:56:10 +0100
-From: Toon van der Pas <toon@hout.vanvergehaald.nl>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: Alessandro Sappia <a.sappia@ngi.it>, linux-kernel@vger.kernel.org
-Subject: Re: chvt issue
-Message-ID: <20050124105610.GA20644@hout.vanvergehaald.nl>
-References: <41F442B0.80900@ngi.it> <20050124081449.GA2650@pclin040.win.tue.nl>
+	Mon, 24 Jan 2005 06:17:19 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:37385 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261491AbVAXLRP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 06:17:15 -0500
+Date: Mon, 24 Jan 2005 12:17:13 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, Gerd Knorr <kraxel@bytesex.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.6.11-rc2-mm1: v4l-saa7134-module compile error
+Message-ID: <20050124111713.GF3515@stusta.de>
+References: <20050124021516.5d1ee686.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050124081449.GA2650@pclin040.win.tue.nl>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20050124021516.5d1ee686.akpm@osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 24, 2005 at 09:14:49AM +0100, Andries Brouwer wrote:
-> On Mon, Jan 24, 2005 at 01:34:56AM +0100, Alessandro Sappia wrote:
+On Mon, Jan 24, 2005 at 02:15:16AM -0800, Andrew Morton wrote:
+>...
+> Changes since 2.6.11-rc1-mm2:
+>...
+> +v4l-saa7134-module.patch
 > 
-> > I was reading vt driver
-> > and I saw
-> >         /*
-> >          * To have permissions to do most of the vt ioctls, we either have
-> >          * to be the owner of the tty, or have CAP_SYS_TTY_CONFIG.
-> >          */
-> >         perm = 0;
-> >         if (current->signal->tty == tty || capable(CAP_SYS_TTY_CONFIG))
-> >                 perm = 1;
-> > 
-> > (lines 382-388 - drivers/char/vt_ioctl.c)
-> > 
-> > After reading the comment I thinked I can change vt
-> > from one of my own to another one of mine.
-> 
-> Yes, the comment. But you should read the code instead.
+>  v4l updates.
+>...
 
-In general, a comment reflects the intention of the programmer, whereas
-the code reflects what he in fact ended up doing (the implementation).
-So if the two don't match, the code is probably buggy.
-This is why comments can be important; they reflect the intention of
-the programmer at the time he wrote the code.
+This patch broke compilation with CONFIG_MODULES=n:
 
-Toon.
+<--  snip  -->
+
+...
+  CC      drivers/media/video/saa7134/saa7134-core.o
+drivers/media/video/saa7134/saa7134-core.c: In function `pending_call':
+drivers/media/video/saa7134/saa7134-core.c:234: error: `MODULE_STATE_LIVE' undeclared (first use in this function)
+drivers/media/video/saa7134/saa7134-core.c:234: error: (Each undeclared identifier is reported only once
+drivers/media/video/saa7134/saa7134-core.c:234: error: for each function it appears in.)
+drivers/media/video/saa7134/saa7134-core.c: In function `request_module_depend':
+drivers/media/video/saa7134/saa7134-core.c:251: error: dereferencing pointer to incomplete type
+drivers/media/video/saa7134/saa7134-core.c:252: error: `MODULE_STATE_COMING' undeclared (first use in this function)
+drivers/media/video/saa7134/saa7134-core.c:259: error: `MODULE_STATE_LIVE' undeclared (first use in this function)
+make[4]: *** [drivers/media/video/saa7134/saa7134-core.o] Error 1
+
+<--  snip  -->
+
+cu
+Adrian
+
 -- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

@@ -1,59 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262038AbVBJHkH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262039AbVBJHwx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262038AbVBJHkH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Feb 2005 02:40:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262039AbVBJHkG
+	id S262039AbVBJHwx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Feb 2005 02:52:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262040AbVBJHwx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Feb 2005 02:40:06 -0500
-Received: from ip213-185-37-13.laajakaista.mtv3.fi ([213.185.37.13]:6418 "EHLO
-	three.holviala.com") by vger.kernel.org with ESMTP id S262038AbVBJHkA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Feb 2005 02:40:00 -0500
-Message-ID: <420B0FCD.4000801@holviala.com>
-Date: Thu, 10 Feb 2005 09:39:57 +0200
-From: Kim Holviala <kim@holviala.com>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Spontaneous reboot with 2.6.10 and NFSD
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 10 Feb 2005 02:52:53 -0500
+Received: from wproxy.gmail.com ([64.233.184.200]:41093 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262039AbVBJHwv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Feb 2005 02:52:51 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=NmdncoTABzOTe2AbbbLOs3TPDZXX1ZKaL9+6xZ6Ck2J37v68Vh+6Y20ggoTFO/aJSGQryaMCR4diKieUI95j020ZvwB3L7e3NBTvs9GlwD5FTq8vno1Pd+FV5fiZhuNFVk3TCSQVz2wIoeGj1UutZxQVCPUh+5W1O+Q4zxc3dZ4=
+Message-ID: <84144f020502092352682a732f@mail.gmail.com>
+Date: Thu, 10 Feb 2005 09:52:50 +0200
+From: Pekka Enberg <penberg@gmail.com>
+Reply-To: Pekka Enberg <penberg@gmail.com>
+To: Tom Zanussi <zanussi@us.ibm.com>
+Subject: Re: [PATCH] relayfs redux, part 4
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>,
+       Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>,
+       Roman Zippel <zippel@linux-m68k.org>,
+       Robert Wisniewski <bob@watson.ibm.com>, Tim Bird <tim.bird@am.sony.com>,
+       Christoph Hellwig <hch@infradead.org>, karim@opersys.com,
+       penberg@cs.helsinki.fi
+In-Reply-To: <16906.52160.870346.806462@tut.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <16906.52160.870346.806462@tut.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I hit an obscure bug last night when trying to copy files from an nfs 
-client to my nfs server. The server is a P3/800 with three IDE disks in 
-software RAID5 running vanilla 2.6.10 and Debian Sarge. The network is 
-local 100Mbit/s switched ethernet. The server exports a 220 gig 
-partition which contains a lot of data.
+On Wed, 9 Feb 2005 20:49:36 -0600, Tom Zanussi <zanussi@us.ibm.com> wrote:
+> +static int relayfs_create_entry(const char *name, struct dentry *parent,
+> +                               int mode, struct rchan *chan,
+> +                               struct dentry **dentry)
+> +{
+> +       struct qstr qname;
+> +       struct dentry *d;
+> +       struct inode *inode;
+> +       int error = 0;
+> +
+> +       BUG_ON(!(S_ISREG(mode) || S_ISDIR(mode)));
+> +
+> +       error = simple_pin_fs("relayfs", &relayfs_mount, &relayfs_mount_count);
+> +       if (error) {
+> +               printk(KERN_ERR "Couldn't mount relayfs: errcode %d\n", error);
+> +               return error;
+> +       }
+> +
+> +       qname.name = name;
+> +       qname.len = strlen(name);
+> +       qname.hash = full_name_hash(name, qname.len);
+> +
+> +       if (!parent)
+> +               if (relayfs_mount && relayfs_mount->mnt_sb)
+> +                       parent = relayfs_mount->mnt_sb->s_root;
 
-Oh, kernel configs and stuff from the server can be found from:
-http://www.holviala.com/~kimmy/crash/
+Please move the nested if statement to the parent expression. The
+!parent part is always evaluated first.
 
-Anyway, I mount the export to a Linux client (tried with a few with 
-different 2.6 kernels and distros) and then start copying files from 
-clients CDROM to the server through NFS. After copying a few small 
-files, the first big one reboots the server. There are no log entries, 
-and the server has no local console so I don't know what happens. This 
-is reproduceable 100% of the time.
+> +static struct inode *relayfs_alloc_inode(struct super_block *sb)
+> +{
+> +       struct relayfs_inode_info *p;
+> +       p = (struct relayfs_inode_info *)kmem_cache_alloc(relayfs_inode_cachep,
+> +                                                         SLAB_KERNEL);
 
-To narrow down the problem, I've tried the following:
+Please drop the spurious cast from void *.
 
-- copied files from a different client running Gentoo: reboot
-- exported a non-raided partition (hdc9) and tried that: reboot
-- switched 2.6.10 to 2.6.11-rc3: reboot, but it took longer
-
-I hope it's just something that I've done, but this server has been in 
-use for a long time now without any problems, and I haven't touched it 
-for a while.
-
-So, if anyone knows what's wrong, or can tell me a way to debug the 
-situation more I'd be grateful. The server is in a place where it's 
-nearly impossible to have a local console - I could probably use a 
-serial one if necessary for debugging.
-
-
-
-Kim
-
+                         Pekka

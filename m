@@ -1,50 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317809AbSHUEdn>; Wed, 21 Aug 2002 00:33:43 -0400
+	id <S317836AbSHUEmP>; Wed, 21 Aug 2002 00:42:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317836AbSHUEdn>; Wed, 21 Aug 2002 00:33:43 -0400
-Received: from dp.samba.org ([66.70.73.150]:17093 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S317809AbSHUEdm>;
-	Wed, 21 Aug 2002 00:33:42 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Luca Barbieri <ldb@ldb.ods.org>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Linux-Kernel ML <linux-kernel@vger.kernel.org>,
-       "Vamsi Krishna S ." <vamsi@in.ibm.com>
-Subject: Re: [PATCH] (re-xmit): kprobes for i386 
-In-reply-to: Your message of "21 Aug 2002 03:29:37 +0200."
-             <1029893377.24300.162.camel@ldb> 
-Date: Wed, 21 Aug 2002 14:21:30 +1000
-Message-Id: <20020820233813.559CD2C0A8@lists.samba.org>
+	id <S317845AbSHUEmP>; Wed, 21 Aug 2002 00:42:15 -0400
+Received: from mail.gmx.net ([213.165.64.20]:50391 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S317836AbSHUEmP>;
+	Wed, 21 Aug 2002 00:42:15 -0400
+Message-Id: <5.1.0.14.2.20020821063744.00b89b78@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Wed, 21 Aug 2002 06:43:46 +0200
+To: root@chaos.analogic.com, Bhavana Nagendra <Bhavana.Nagendra@3dlabs.com>
+From: Mike Galbraith <efault@gmx.de>
+Subject: RE: Alloc and lock down large amounts of memory
+Cc: Gilad Ben-Yossef <gilad@benyossef.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.3.95.1020820163301.27264A-100000@chaos.analogic.c
+ om>
+References: <23B25974812ED411B48200D0B774071701248C6A@exchusa03.intense3d.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <1029893377.24300.162.camel@ldb> you write:
-> 
-> --=-UkzkmpwPZ3tahG697mpi
-> Content-Type: text/plain
-> Content-Transfer-Encoding: 7bit
-> 
-> > > > +	if (kprobe_running() && kprobe_fault_handler(regs, trapnr))
-> > > > +		return;
-> > > >  	if (!(regs->xcs & 3))
-> > > >  		goto kernel_trap;
-> > > The kprobe check should be after the kernel_trap label.
-> > 
-> > No.  The entire *point* of being able to register a kprobe fault
-> > handler is to be able to handle any kernel faults yourself if you want
-> > to.
-> It seems you have misunderstood my point.
-> My idea is that since kprobes are only used for kernel mode address, we
-> should move the kprobe check in the code that executes after we check
-> that the fault is happening in kernel mode.
+At 04:47 PM 8/20/2002 -0400, Richard B. Johnson wrote:
+>On Tue, 20 Aug 2002, Bhavana Nagendra wrote:
+>
+> > >
+> > > Curiosity:  why do you want to do device DMA buffer
+> > > allocation from userland?
+> >
+> > I need 256M memory for a graphics operation.  It's a requiremment,
+> > can't change it. There will be other reasonably sized allocs in kernel
+> > space, this is a special case that will be done from userland. As
+> > discussed earlier in this thread, there's no good way of alloc()ing
+> > and pinning that much in DMA memory space, is there?
+> >
+> > Gilad, I looked at mm/memory.c and map_user_kiobuf() lets me
+> > map user memory into kernel memory and pins it down.  A scatter
+> > gatter mapping (say, pci_map_sg()) will create a seemingly
+> > contiguous buffer for DMA purposes.  Does that sound right to you?
+> >
+> > Bhavana
+>
+>You have to cheat. You can tell the kernel that you only have, say
+>128 Meg of RAM.
 
-Ah, I see.  That's true at the moment, but there's an (future)
-extension that covers userspace traps as well, which is why it was
-done this way.
+Why not just use early allocation?  (if he has eg a 16G box, chopping
+it down enough to get at 256M of DMA ram just ain't gonna work:)
 
-Hope that clarifies,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+         -Mike
+

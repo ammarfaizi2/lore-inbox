@@ -1,46 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130324AbQKBACQ>; Wed, 1 Nov 2000 19:02:16 -0500
+	id <S130658AbQKBAEq>; Wed, 1 Nov 2000 19:04:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130658AbQKBACG>; Wed, 1 Nov 2000 19:02:06 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:14348 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S130649AbQKBABw>; Wed, 1 Nov 2000 19:01:52 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: working userspace nfs v3 for linux?
-Date: 1 Nov 2000 16:01:29 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <8tqasp$d1k$1@cesium.transmeta.com>
-In-Reply-To: <linux.kernel.3A008510.FAE271A1@holly-springs.nc.us> <slrn9015t8.u5t.wnoise@barter.ugcs.caltech.edu> <3A00A84E.F3A1C585@holly-springs.nc.us>
+	id <S131891AbQKBAEg>; Wed, 1 Nov 2000 19:04:36 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:15371 "EHLO
+	havoc.gtf.org") by vger.kernel.org with ESMTP id <S130658AbQKBAEa>;
+	Wed, 1 Nov 2000 19:04:30 -0500
+Message-ID: <3A00AF60.37DBB956@mandrakesoft.com>
+Date: Wed, 01 Nov 2000 19:03:44 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18pre18 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
+To: Andi Kleen <ak@suse.de>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        kuznet@ms2.inr.ac.ru
+Subject: Re: Linux-2.4.0-test10
+In-Reply-To: <Pine.LNX.4.10.10010311237430.22165-100000@penguin.transmeta.com> <E13qiR9-0008FT-00@the-village.bc.nu> <20001101093839.A16274@gruyere.muc.suse.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <3A00A84E.F3A1C585@holly-springs.nc.us>
-By author:    Michael Rothwell <rothwell@holly-springs.nc.us>
-In newsgroup: linux.dev.kernel
->
-> Aaron Denney wrote:
-> > I am not aware of any userspace NFSv3 server.  Your best bet would
-> > probably to take the v2 server and mutate it.  Why do you want this beast?
-> 
-> So I can use Linux rather than Solaris 7 and the Solstice Disk Suite,
-> which performs like crap thanks to UFS, and the Linux NFS v2
-> implementation.
-> 
+Andi Kleen wrote:
+> On Tue, Oct 31, 2000 at 08:55:13PM +0000, Alan Cox wrote:
+> >       What about the fact anyone can crash a box using ioctls on net
+> >       devices and waiting for an unload - was this fixed ?
 
-The point is, why not use knfsd.
+> The ioctls of network devices are generally unsafe on SMP, because
+> they run with kernel lock dropped now but are mostly not safe to do so.
 
-	-hpa
+Wrong.  The BLK is dropped in sock_ioctl, but struct netdevice::do_ioctl
+is called with rtnl_lock held:
+
+	net/core/dev.c:
+		rtnl_lock();
+		ret = dev_ifsioc(&ifr, cmd);
+		rtnl_unlock();
+
+Therefore for 2.4.x, our concern is whether a particular net driver
+needs further SMP protection internally, or if rtnl_lock (a semaphore,
+not a spinlock) is sufficient.
+
+	Jeff
+
+
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+Jeff Garzik             | "Mind if I drive?"  -Sam
+Building 1024           | "Not if you don't mind me clawing at the
+MandrakeSoft            |  dash and shrieking like a cheerleader."
+                        |                     -Max
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

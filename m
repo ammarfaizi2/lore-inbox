@@ -1,42 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262715AbSI1FNE>; Sat, 28 Sep 2002 01:13:04 -0400
+	id <S262717AbSI1FSs>; Sat, 28 Sep 2002 01:18:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262716AbSI1FNE>; Sat, 28 Sep 2002 01:13:04 -0400
-Received: from yue.hongo.wide.ad.jp ([203.178.139.94]:64269 "EHLO
-	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
-	id <S262715AbSI1FND>; Sat, 28 Sep 2002 01:13:03 -0400
-Date: Sat, 28 Sep 2002 14:14:07 +0900 (JST)
-Message-Id: <20020928.141407.110833680.yoshfuji@linux-ipv6.org>
-To: usagi@linux-ipv6.org, kuznet@ms2.inr.ac.ru
-Cc: davem@redhat.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [PATCH] IPv6: Improvement of Source Address Selection
-From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-In-Reply-To: <200209280444.IAA02959@sex.inr.ac.ru>
-References: <20020928.133019.38287529.yoshfuji@linux-ipv6.org>
-	<200209280444.IAA02959@sex.inr.ac.ru>
-Organization: USAGI Project
-X-URL: http://www.yoshifuji.org/%7Ehideaki/
-X-Fingerprint: 90 22 65 EB 1E CF 3A D1 0B DF 80 D8 48 07 F8 94 E0 62 0E EA
-X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
+	id <S262718AbSI1FSs>; Sat, 28 Sep 2002 01:18:48 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:22780 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S262717AbSI1FSs>; Sat, 28 Sep 2002 01:18:48 -0400
+Date: Sat, 28 Sep 2002 10:59:40 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+Cc: William Lee Irwin III <wli@holomorphy.com>, Andrew Morton <akpm@digeo.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       "linux-mm@kvack.org" <linux-mm@kvack.org>
+Subject: Re: 2.5.38-mm3
+Message-ID: <20020928105940.A32125@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <20020928043655.GU3530@holomorphy.com> <Pine.LNX.4.44.0209280053590.32347-100000@montezuma.mastecende.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0209280053590.32347-100000@montezuma.mastecende.com>; from zwane@linuxpower.ca on Sat, Sep 28, 2002 at 12:54:39AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <200209280444.IAA02959@sex.inr.ac.ru> (at Sat, 28 Sep 2002 08:44:29 +0400 (MSD)), kuznet@ms2.inr.ac.ru says:
+On Sat, Sep 28, 2002 at 12:54:39AM -0400, Zwane Mwaikambo wrote:
+> On Fri, 27 Sep 2002, William Lee Irwin III wrote:
+> 
+> > On Sat, Sep 28, 2002 at 12:35:30AM -0400, Zwane Mwaikambo wrote:
+> > > Mine is a UP box not an SMP kernel, although preempt is enabled;
+> > > 0xc013d370 <fget>:      push   %ebx
+> > > 0xc013d371 <fget+1>:    mov    %eax,%ecx
+> > > 0xc013d373 <fget+3>:    mov    $0xffffe000,%edx
+> > > 0xc013d378 <fget+8>:    and    %esp,%edx
+> > > 0xc013d37a <fget+10>:   incl   0x4(%edx)
+> > 
+> > Do you have instruction-level profiles to show where the cost is on UP?
+> 
+> Unfortunately no, i was lucky to remember to even be running profile=n on 
+> this box.
 
-> I am not sure that it is really interesting though. Just now I cannot
-> imagine what user can invent which is not covered by system-wide rules,
-> bind() and IP{V6}_PKTINFO. Well, if you think more hairy scheme is interesting,
-> feel free to implement this.
+That is sufficient to get instruction level profile. Just use 
+the hacked readprofile by tridge (it's available somewhere in his
+samba.org webpage).
 
-we need per application (per socket) interface
-for privacy extension (public address vs temporary address) and 
-mobile ip (home address vs care-of address).
+I suspect that inlining fget() will help, not sure whether that is
+clean code-wise.
 
---
-yoshfuji
+Thanks
+-- 
+Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
+Linux Technology Center, IBM Software Lab, Bangalore, India.

@@ -1,33 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261664AbSLHViK>; Sun, 8 Dec 2002 16:38:10 -0500
+	id <S261733AbSLHW1W>; Sun, 8 Dec 2002 17:27:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261693AbSLHViK>; Sun, 8 Dec 2002 16:38:10 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:7940 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S261664AbSLHViJ>;
-	Sun, 8 Dec 2002 16:38:09 -0500
-Date: Fri, 6 Dec 2002 09:17:21 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Shawn Starr <shawn.starr@datawire.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.5.50, ACPI] link error
-Message-ID: <20021206081721.GA1865@zaurus>
-References: <200212041605.11935.shawn.starr@datawire.net>
+	id <S261742AbSLHW1W>; Sun, 8 Dec 2002 17:27:22 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:13193 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S261733AbSLHW1V>;
+	Sun, 8 Dec 2002 17:27:21 -0500
+Date: Sun, 08 Dec 2002 14:31:26 -0800 (PST)
+Message-Id: <20021208.143126.19133692.davem@redhat.com>
+To: jmorris@intercode.com.au
+Cc: adam@yggdrasil.com, linux-kernel@vger.kernel.org
+Subject: Re: Patch(2.5.50): Simplify crypto memory allocation
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Mutt.LNX.4.44.0212082149400.23807-100000@blackbird.intercode.com.au>
+References: <20021208012727.A24577@baldur.yggdrasil.com>
+	<Mutt.LNX.4.44.0212082149400.23807-100000@blackbird.intercode.com.au>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200212041605.11935.shawn.starr@datawire.net>
-User-Agent: Mutt/1.3.27i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Thats what I thought until Pavel told me SOFTWARE_SUSPEND requires ACPI_SLEEP 
-> and ACPI_SLEEP should not be unchecked if SOFTWARE_SUSPEND is disabled.
+   From: James Morris <jmorris@intercode.com.au>
+   Date: Sun, 8 Dec 2002 21:55:15 +1100 (EST)
 
-Did I say that? That is wrong, sorry. acpi_sleep 
-should require swsusp but not the other way
-round.
--- 
-				Pavel
-Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...
+   On Sun, 8 Dec 2002, Adam J. Richter wrote:
+   
+   > 	Anyhow, if this patch turns out to work and looks OK, then
+   > please integrate, queue it for Linus, etc., or let me know if you
+   > would prefer that you or I follow some other course of action.
+   
+   Looks good and tests ok.  Thanks.  
+   
+I'll apply this, thanks Adam.
 
+   (The work_block field and associated management code should have
+   disappeared long ago, not sure why it was still there).
+
+We just didn't do this part when the conversion was made :-)

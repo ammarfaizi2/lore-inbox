@@ -1,26 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132737AbRDDCkW>; Tue, 3 Apr 2001 22:40:22 -0400
+	id <S132747AbRDDEOU>; Wed, 4 Apr 2001 00:14:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132738AbRDDCkM>; Tue, 3 Apr 2001 22:40:12 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:31499 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S132737AbRDDCkC>; Tue, 3 Apr 2001 22:40:02 -0400
-Subject: Re: 2.4.3 freeze under heavy writing + open rxvt
-To: sim@netnation.com (Simon Kirby)
-Date: Wed, 4 Apr 2001 03:41:50 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010403223222.A669@netnation.com> from "Simon Kirby" at Apr 03, 2001 10:32:23 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S132746AbRDDEOL>; Wed, 4 Apr 2001 00:14:11 -0400
+Received: from saarinen.org ([203.79.82.14]:32427 "EHLO vimfuego.saarinen.org")
+	by vger.kernel.org with ESMTP id <S132693AbRDDEN6>;
+	Wed, 4 Apr 2001 00:13:58 -0400
+From: "Juha Saarinen" <juha@saarinen.org>
+To: "Amir Hardon" <a_hardon@netvision.net.il>, <linux-kernel@vger.kernel.org>
+Subject: RE: Can't boot with the 2.4.3 kernel.
+Date: Wed, 4 Apr 2001 16:13:00 +1200
+Message-ID: <KPECIILENDDLPCNIMLOFOEEGCAAA.juha@saarinen.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14kdF2-00013Z-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <3ACA9E89.2ECC89A0@netvision.net.il>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Three times now I've had 2.4.3 freeze on my dual CPU box while doing a
-> "dd if=/dev/zero of=/dev/hdc bs=1024k" (a drive to be RMA'd :)).  I got
+:: I configured and build it, and all looked OK.
 
-Does it happen if you boot with < 900Mb of ram ?
+
+Did you select the right CPU type in the configuration?
+
+-- Juha

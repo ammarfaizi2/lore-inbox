@@ -1,51 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262114AbVAOCKh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262136AbVAOCMX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262114AbVAOCKh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 21:10:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262115AbVAOCKh
+	id S262136AbVAOCMX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 21:12:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262115AbVAOCMW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 21:10:37 -0500
-Received: from [81.2.110.250] ([81.2.110.250]:234 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S262114AbVAOCKd (ORCPT
+	Fri, 14 Jan 2005 21:12:22 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:31402 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S262136AbVAOCMH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 21:10:33 -0500
-Subject: Re: [PATCH 1/1] pci: Block config access during BIST (resend)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andi Kleen <ak@muc.de>
-Cc: brking@us.ibm.com, paulus@samba.org, benh@kernel.crashing.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050115014440.GA1308@muc.de>
-References: <41E3086D.90506@us.ibm.com>
-	 <1105454259.15794.7.camel@localhost.localdomain>
-	 <20050111173332.GA17077@muc.de>
-	 <1105626399.4664.7.camel@localhost.localdomain>
-	 <20050113180347.GB17600@muc.de>
-	 <1105641991.4664.73.camel@localhost.localdomain>
-	 <20050113202354.GA67143@muc.de>
-	 <1105645491.4624.114.camel@localhost.localdomain>
-	 <20050113215044.GA1504@muc.de>
-	 <1105743914.9222.31.camel@localhost.localdomain>
-	 <20050115014440.GA1308@muc.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1105750898.9222.101.camel@localhost.localdomain>
+	Fri, 14 Jan 2005 21:12:07 -0500
+Date: Sat, 15 Jan 2005 13:09:08 +1100
+From: Nathan Scott <nathans@sgi.com>
+To: Jakob Oestergaard <jakob@unthought.net>,
+       David Greaves <david@dgreaves.com>,
+       Christoph Hellwig <hch@infradead.org>, Jan Kasprzak <kas@fi.muni.cz>,
+       linux-kernel@vger.kernel.org, kruty@fi.muni.cz
+Subject: Re: XFS: inode with st_mode == 0
+Message-ID: <20050115130908.A1336757@wobbly.melbourne.sgi.com>
+References: <20041209125918.GO9994@fi.muni.cz> <20041209135322.GK347@unthought.net> <20041209215414.GA21503@infradead.org> <20041221184304.GF16913@fi.muni.cz> <20041222084158.GG347@unthought.net> <20041222182344.GB14586@infradead.org> <41E80C1F.3070905@dgreaves.com> <20050114182308.GE347@unthought.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sat, 15 Jan 2005 01:01:39 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20050114182308.GE347@unthought.net>; from jakob@unthought.net on Fri, Jan 14, 2005 at 07:23:09PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sad, 2005-01-15 at 01:44, Andi Kleen wrote:
-> Then it won't work with this BIST hardware anyways - if it tries
-> to read config space of a device that is currently in BIST 
-> it will just get a bus abort and no useful information.
+On Fri, Jan 14, 2005 at 07:23:09PM +0100, Jakob Oestergaard wrote:
+> > Is there a 2.6.10 patch that I could apply? Or do you have any other 
+> > suggestions.
+> 
+> AFAIK the best you can do is to get the most recent XFS kernel from
+> SGI's CVS (this one is based on 2.6.10).
 
-So it should wait to preseve a sane API at least for a short while and
-if the user hasn't specified O_NDELAY. Its a compatibility consideration
+The -mm tree also has these fixes; we'll get them merged into
+mainline soon.
 
-> The only point of this whole patch exercise is to avoid the bus abort
-> to satisfy the more strict hardware error checking on PPC64. On PCs
-> it really won't make any difference.
+> If you run that kernel, then most of the former problems will be gone;
+> *) I only have one undeletable directory on my system - so it seems that
+> this error is no longer common   ;)
 
-I thought Ben wanted to do this for other PPC stuff ?
+You may need to run xfs_repair to clean that up..?  Or does
+the problem persist after a repair?
 
+cheers.
+
+-- 
+Nathan

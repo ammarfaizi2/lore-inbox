@@ -1,140 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267485AbTA3LI0>; Thu, 30 Jan 2003 06:08:26 -0500
+	id <S267492AbTA3LMh>; Thu, 30 Jan 2003 06:12:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267492AbTA3LI0>; Thu, 30 Jan 2003 06:08:26 -0500
-Received: from phoenix.mvhi.com ([195.224.96.167]:7183 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S267485AbTA3LIW>; Thu, 30 Jan 2003 06:08:22 -0500
-Date: Thu, 30 Jan 2003 11:16:34 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       John Fremlin <vii@users.sourceforge.net>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>, cw@f00f.org, bcrl@redhat.com
-Subject: Re: sys_sendfile64 not in Linux 2.4.21-pre4
-Message-ID: <20030130111634.A24454@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Marc-Christian Petersen <m.c.p@wolk-project.de>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	John Fremlin <vii@users.sourceforge.net>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	lkml <linux-kernel@vger.kernel.org>, cw@f00f.org, bcrl@redhat.com
-References: <Pine.LNX.4.53L.0301290143350.27119@freak.distro.conectiva> <20030130082922.A22879@infradead.org> <1043926388.28133.16.camel@irongate.swansea.linux.org.uk> <200301301202.01897.m.c.p@wolk-project.de>
-Mime-Version: 1.0
+	id <S267493AbTA3LMh>; Thu, 30 Jan 2003 06:12:37 -0500
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:27846 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S267492AbTA3LMg>; Thu, 30 Jan 2003 06:12:36 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Date: Thu, 30 Jan 2003 22:21:48 +1100
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200301301202.01897.m.c.p@wolk-project.de>; from m.c.p@wolk-project.de on Thu, Jan 30, 2003 at 12:02:01PM +0100
+Content-Transfer-Encoding: 7bit
+Message-ID: <15929.2764.932711.81506@notabene.cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.59 NFS server keeps local fs live after being stopped
+In-Reply-To: message from Mikael Pettersson on Wednesday January 29
+References: <15927.56648.966141.528675@harpo.it.uu.se>
+	<15928.16811.851512.105997@notabene.cse.unsw.edu.au>
+	<15928.20117.266542.506842@harpo.it.uu.se>
+X-Mailer: VM 7.07 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 30, 2003 at 12:02:01PM +0100, Marc-Christian Petersen wrote:
-> > > > Why isn't sendfile64 included in 2.4.21-pre4? glibc 2.3 already
-> > > > expects it, so programs with 64-bit off_t will not be able to use
-> > > > sendfile otherwise. And the patch is IIUC very small . . .
-> > >
-> > > I sent patches to Marcelo a few times, but they got silently ignored..
-> >
-> > Can you forward me a copy ?
-> to me too please :)
+On Wednesday January 29, mikpe@csd.uu.se wrote:
+> Neil Brown writes:
+>  > On Wednesday January 29, mikpe@csd.uu.se wrote:
+>  > > Kernel 2.5.59. A local ext2 file system is mounted at $MNTPNT
+>  > > and exported through NFS V3. A client mounts and unmounts it,
+>  > > w/o any I/O in between. The NFS server is shut down. Nothing in
+>  > > user-space refers to $MNTPNT.
+>  > > 
+>  > > The bug is that $MNTPNT now can't be unmounted. umount fails with
+>  > > "device is busy". A forced umount at shutdown fails with "device
+>  > > or resource busy" and "illegal seek", and leaves the underlying
+>  > > fs marked dirty.
+>  > > 
+>  > > I can't say exactly when this began, but the problem is present
+>  > > in 2.5.59 and 2.5.55. 2.4.21-pre4 does not have this problem.
+>  > 
+>  > How do you shut down the nfs server?
+> 
+> /etc/rc.d/init.d/nfs stop
+> which basically does a kill on rpc.mountd, nfsd, and rpc.quotad
+> (standard RH8.0 user-space)
+> 
+> I've checked that all *nfs* processes are gone.
+> 
+>  > Is anything in /proc/fs/nfs/export after the shutdown?
+> 
+> Except for the two header lines, it's empty.
 
+Ok, it defaintely sounds like a leak.  I'll be back at my desk on
+Monday and I will try to reproduce it and explore the situation then.
 
---- linux-2.4.18/arch/i386/kernel/entry.S~	Sun Jun  9 13:39:14 2002
-+++ linux-2.4.18/arch/i386/kernel/entry.S	Sun Jun  9 13:44:45 2002
-@@ -645,7 +645,7 @@
- 	.long SYMBOL_NAME(sys_ni_syscall)	/* reserved for lremovexattr */
- 	.long SYMBOL_NAME(sys_ni_syscall)	/* reserved for fremovexattr */
-  	.long SYMBOL_NAME(sys_tkill)
--	.long SYMBOL_NAME(sys_ni_syscall)	/* reserved for sendfile64 */
-+	.long SYMBOL_NAME(sys_sendfile64)
- 	.long SYMBOL_NAME(sys_ni_syscall)	/* 240 reserved for futex */
- 	.long SYMBOL_NAME(sys_ni_syscall)	/* reserved for sched_setaffinity */
- 	.long SYMBOL_NAME(sys_ni_syscall)	/* reserved for sched_getaffinity */
---- linux-2.4.18/mm/filemap.c~	Sun Jun  9 13:39:21 2002
-+++ linux-2.4.18/mm/filemap.c	Sun Jun  9 13:48:38 2002
-@@ -1889,7 +1889,7 @@
- 	return written;
- }
- 
--asmlinkage ssize_t sys_sendfile(int out_fd, int in_fd, off_t *offset, size_t count)
-+static ssize_t common_sendfile(int out_fd, int in_fd, loff_t *offset, size_t count)
- {
- 	ssize_t retval;
- 	struct file * in_file, * out_file;
-@@ -1934,27 +1934,19 @@
- 	retval = 0;
- 	if (count) {
- 		read_descriptor_t desc;
--		loff_t pos = 0, *ppos;
--
--		retval = -EFAULT;
--		ppos = &in_file->f_pos;
--		if (offset) {
--			if (get_user(pos, offset))
--				goto fput_out;
--			ppos = &pos;
--		}
-+		
-+		if (!offset)
-+			offset = &in_file->f_pos;
- 
- 		desc.written = 0;
- 		desc.count = count;
- 		desc.buf = (char *) out_file;
- 		desc.error = 0;
--		do_generic_file_read(in_file, ppos, &desc, file_send_actor);
-+		do_generic_file_read(in_file, offset, &desc, file_send_actor);
- 
- 		retval = desc.written;
- 		if (!retval)
- 			retval = desc.error;
--		if (offset)
--			put_user(pos, offset);
- 	}
- 
- fput_out:
-@@ -1965,6 +1957,42 @@
- 	return retval;
- }
- 
-+asmlinkage ssize_t sys_sendfile(int out_fd, int in_fd, off_t *offset, size_t count)
-+{
-+	loff_t pos, *ppos = NULL;
-+	ssize_t ret;
-+
-+	if (offset) {
-+		off_t off;
-+		if (unlikely(get_user(off, offset)))
-+			return -EFAULT;
-+		pos = off;
-+		ppos = &pos;
-+	}
-+
-+	ret = common_sendfile(out_fd, in_fd, ppos, count);
-+	if (offset)
-+		put_user((off_t)pos, offset);
-+	return ret;
-+}
-+
-+asmlinkage ssize_t sys_sendfile64(int out_fd, int in_fd, loff_t *offset, size_t count)
-+{
-+	loff_t pos, *ppos = NULL;
-+	ssize_t ret;
-+
-+	if (offset) {
-+		if (unlikely(copy_from_user(&pos, offset, sizeof(loff_t))))
-+			return -EFAULT;
-+		ppos = &pos;
-+	}
-+
-+	ret = common_sendfile(out_fd, in_fd, ppos, count);
-+	if (offset)
-+		put_user(pos, offset);
-+	return ret;
-+}
-+
- static ssize_t do_readahead(struct file *file, unsigned long index, unsigned long nr)
- {
- 	struct address_space *mapping = file->f_dentry->d_inode->i_mapping;
+NeilBrown

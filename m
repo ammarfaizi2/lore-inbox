@@ -1,78 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262636AbVAVTEw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262687AbVAVTnA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262636AbVAVTEw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Jan 2005 14:04:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262687AbVAVTEw
+	id S262687AbVAVTnA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Jan 2005 14:43:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262697AbVAVTnA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Jan 2005 14:04:52 -0500
-Received: from rproxy.gmail.com ([64.233.170.207]:37990 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262637AbVAVTEi (ORCPT
+	Sat, 22 Jan 2005 14:43:00 -0500
+Received: from gprs214-39.eurotel.cz ([160.218.214.39]:46755 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262687AbVAVTm6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Jan 2005 14:04:38 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=oiN5VzSutmYCRz5WM94y7gDvvN0emPPqamDzWcM7fnanltMcw4pxMdS2EpW2NGIarQ1wUOoRnHooyW8KI6BHfWaxDOFeg8bFZjOYACjXTLyub05eMMgJM2Z63A6Gr5xTi4DnUsEVEundz3xlsJjO6TV1wlwEOEEdbjYC3bAJkxU=
-Message-ID: <9e473391050122110463d62b5d@mail.gmail.com>
-Date: Sat, 22 Jan 2005 14:04:36 -0500
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Subject: Re: Patch to control VGA bus routing and active VGA device.
-Cc: "H.Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <200501181306.03635.jbarnes@engr.sgi.com>
+	Sat, 22 Jan 2005 14:42:58 -0500
+Date: Sat, 22 Jan 2005 20:42:42 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Andrea Arcangeli <andrea@cpushare.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Chris Wright <chrisw@osdl.org>,
+       Rik van Riel <riel@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: seccomp for 2.6.11-rc1-bk8
+Message-ID: <20050122194242.GB21719@elf.ucw.cz>
+References: <20050121100606.GB8042@dualathlon.random> <20050121120325.GA2934@elte.hu> <20050121093902.O469@build.pdx.osdl.net> <Pine.LNX.4.61.0501211338190.15744@chimarrao.boston.redhat.com> <20050121105001.A24171@build.pdx.osdl.net> <20050121195522.GA14982@elte.hu> <20050121203425.GB11112@dualathlon.random> <20050122103242.GC9357@elf.ucw.cz> <20050122172542.GF7587@dualathlon.random>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <9e47339105011719436a9e5038@mail.gmail.com>
-	 <200501180946.47026.jbarnes@engr.sgi.com>
-	 <csjok4$gn3$1@terminus.zytor.com>
-	 <200501181306.03635.jbarnes@engr.sgi.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050122172542.GF7587@dualathlon.random>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 Jan 2005 13:06:03 -0800, Jesse Barnes <jbarnes@engr.sgi.com> wrote:
-> On Tuesday, January 18, 2005 11:38 am, H. Peter Anvin wrote:
-> > > On Monday, January 17, 2005 7:43 pm, Jon Smirl wrote:
-> > > > Attached is a patch to control VGA bus routing and the active VGA
-> > > > device. It works by adding sysfs attributes to bridge and VGA devices.
-> > > > The bridge attribute is read only and indicates if the bridge is
-> > > > routing VGA. The attribute on the device has four values:
-> > >
-> > > How is it supposed to work?  Is VGA routing determined by the chipset?
-> > > Is it separate from other legacy I/O and memory addresses?
-> >
-> > Yes, there are special control bits in any PCI bridge header for the
-> > VGA ports.
+Hi!
+
+> > Well, seccomp is also getting very little testing, when ptrace gets a
+> > lot of testing; I know that seccomp is simple, but I believe testing
+> > coverage still make ptrace better choice.
 > 
-> Well, not all of them, which is why I asked.  Though obviously this patch will
-> need some very platform specific bits at any rate.
+> It's not testing that makes code more secure. Testing verifys the code
+> works in production, but testing almost never helps to find security
+> issues, and often not even hidden subtle race conditions. Check how many
+> security bugs have been found with testing.  Just go to bugtraq count
+> them. I simply cannot relay on testing for the security part. I will
+> relay on testing for everything else but not for this.
 
-What is a case of where the VGA forwarding bit isn't in the bridge
-control? It's part of the PCI spec to have it.
-
-There are two components to this, bus routing and card control. When
-each VGA device is on it's own bus the card specific control code
-isn't required. Instead you can control the active VGA by shutting
-down the bus routing. It's only when you have multiple cards on the
-same bus that you need the card specific control.
-
-But the point of this code is to allow reset of secondary cards. After
-resetting a secondary card it will be left as the active VGA device
-instead of the boot one. This moves your console from screen to
-screen. Instead I want to remember the active device, run reset, and
-then restore the original console.
-
-In my machine I have one PCI and one AGP card. Bus routing is
-sufficient to choose between the two. Opteron systems with AGP cards
-on local buses can also use this code.  Another example is where the
-primary VGA device is on AGP and there are multiple PCI cards. You
-just want all of the PCI VGA devices turned off.
-
-We ultimately need both pieces of code, VGA bus routing, and card
-specific VGA enabling code. Even without the card specific code the
-routing code is still useful.
-
+Well, then you can help auditing ptrace()... It is probably also true
+that more people audited ptrace() than seccomp :-).
+								Pavel
 -- 
-Jon Smirl
-jonsmirl@gmail.com
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

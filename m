@@ -1,42 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267050AbSLDTxg>; Wed, 4 Dec 2002 14:53:36 -0500
+	id <S267049AbSLDUB3>; Wed, 4 Dec 2002 15:01:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267052AbSLDTxg>; Wed, 4 Dec 2002 14:53:36 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:35597 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267050AbSLDTxf>; Wed, 4 Dec 2002 14:53:35 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [PATCH] Re: #! incompatible -- binfmt_script.c broken?
-Date: 4 Dec 2002 12:00:53 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <aslmtl$im$1@cesium.transmeta.com>
-References: <9633612287A@vcnet.vc.cvut.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+	id <S267057AbSLDUB3>; Wed, 4 Dec 2002 15:01:29 -0500
+Received: from ns.suse.de ([213.95.15.193]:19987 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S267049AbSLDUB2>;
+	Wed, 4 Dec 2002 15:01:28 -0500
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] NMI notifiers for 2.5
+References: <1039027142.20387.11.camel@dell_ss3.pdx.osdl.net.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 04 Dec 2002 21:08:59 +0100
+In-Reply-To: Stephen Hemminger's message of "4 Dec 2002 19:46:37 +0100"
+Message-ID: <p731y4xtulg.fsf@oldwotan.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <9633612287A@vcnet.vc.cvut.cz>
-By author:    "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-In newsgroup: linux.dev.kernel
-> 
-> And because of I was not able to find anything in POSIX which would say
-> that we should do split on spaces (not that I found that we should not), 
-> I vote for leaving current behavior in Linux, and fixing perl manpage 
-> (and eventually FreeBSD, if anyone is interested) instead.
-> 
+Stephen Hemminger <shemminger@osdl.org> writes:
 
-Classic catch-22: POSIX won't standardize it because of lack of
-consistency between UNIX implementations, although everyone pretty
-much agrees it would be a desirable feature to add to the standard.
+> The following generalizes the NMI callback's needed by things like crash
+> dump and debuggers in the same way that panic has notifiers. 
+> 
+> Please apply this since it makes writing and maintaining RAS extensions
+> easier. Since there is already a panic_notifier callback, this follows
+> the same model. 
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+> +			
+> +			notifier_call_chain(&nmi_notifier_list, 0, regs);
+> +
+
+Most debuggers/crash dumpers etc. need a way to veto normal processing of NMIs 
+and other exceptions. For NMI the usual case is to turn off the nmi watchdog 
+while you do something slow with interrupts disabled, that requires
+doing the hook very early. Without veta NMI notification is not very useful.
+
+You want something like:
+
+	if (notifier_call_chain(&nmi_notifier_list, 0, regs) == NOTIFY_BAD)
+		goto ignore;
+
+For a more comprehensive variant see include/asm-x86_64/kdebug.h	
+The x86-64 variant cannot be 1:1 copied because it's still incomplete
+and e.g. does not implement veto for all places where it's needed.
+
+
+-Andi

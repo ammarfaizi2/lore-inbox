@@ -1,57 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262363AbTE2RCD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 May 2003 13:02:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262402AbTE2RCC
+	id S262409AbTE2RMN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 May 2003 13:12:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262422AbTE2RMN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 May 2003 13:02:02 -0400
-Received: from mail-in-01.arcor-online.net ([151.189.21.41]:54433 "EHLO
-	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
-	id S262363AbTE2RCB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 May 2003 13:02:01 -0400
-From: Daniel Phillips <phillips@arcor.de>
-To: Hugh Dickins <hugh@veritas.com>, "Paul E. McKenney" <paulmck@us.ibm.com>
-Subject: Re: [RFC][PATCH] Avoid vmtruncate/mmap-page-fault race
-Date: Thu, 29 May 2003 19:15:22 +0200
-User-Agent: KMail/1.5.1
-Cc: <akpm@digeo.com>, <hch@infradead.org>, <linux-mm@kvack.org>,
-       <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0305291723310.1800-100000@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.44.0305291723310.1800-100000@localhost.localdomain>
+	Thu, 29 May 2003 13:12:13 -0400
+Received: from smtp1.wanadoo.es ([62.37.236.135]:14788 "EHLO smtp.wanadoo.es")
+	by vger.kernel.org with ESMTP id S262409AbTE2RMM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 May 2003 13:12:12 -0400
+Message-ID: <3ED6426F.6010807@wanadoo.es>
+Date: Thu, 29 May 2003 19:25:03 +0200
+From: Xose Vazquez Perez <xose@wanadoo.es>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: gl, es, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: linux-kernel <linux-kernel@vger.kernel.org>, miquels@cistron-office.nl
+Subject: Re: [announce] procps 2.0.13 with NPTL enhancements
+X-Enigmail-Version: 0.63.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200305291915.22235.phillips@arcor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 29 May 2003 18:33, you wrote:
-> On Thu, 29 May 2003, Paul E. McKenney wrote:
-> > On Fri, May 23, 2003 at 11:42:02AM -0700, Paul E. McKenney wrote:
-> > > Exactly -- allows a ->nopage() to drop some lock to avoid races
-> > > between pagefault and either vmtruncate() or invalidate_mmap_range().
-> > > This race (from the cross-host mmap viewpoint) is described in:
-> > >
-> > >     http://marc.theaimsgroup.com/?l=linux-kernel&m=105286345316249&w=2
-> >
-> > Rediffed for 2.5.70-mm1.
->
-> Me?  I much preferred your original, much sparer, nopagedone patch
-> (labelled "uglyh as hell" by hch).
+Miquel van Smoorenburg wrote:
 
-"me too".
+>In article <1054138948.783.179.camel@localhost>, Robert Love <rml@tech9.net> wrote:
+>>On Wed, 2003-05-28 at 23:19, Phil Oester wrote:
+>>
+>>> Any comment on the procps v3.1.8 located here:
+>>>
+>>> http://procps.sourceforge.net/
+>>>
+>>> Seems it is actively maintained...
+>>
+>>It is a fork of the original procps tree.
 
-The fat patch that hits every fs to get rid of two lines and .5 cycles per 
-no_page fault could be an epilogue (if/when it passes muster) to the little 
-one that does the job and has already been thoroughly tested.
+>Well, you could also argue that the current 2.0 tree is a
+>retroactive fork of an older version of procps.
 
-I see both sides of the argument.  The third side, not yet discussed, is the 
-value of doing things incrementally, with widespread testing of the system at 
-each step.
+>I don't understand why you don't work together.
 
-Regards,
+--from the http://procps.sourceforge.net/faq.html --
+Why are there so many procps projects?
 
-Daniel
+The original maintainer seems to have had little time for procps.
+Whatever his reasons, the project didn't get maintained. Starting
+in 1997, Albert Cahalan wrote a new ps program for the package.
+For the next few years, Albert quietly helped the Debian package
+maintainer fix bugs. In 2001, Rik van Riel decided to do something
+about what appeared to be the lack of a maintainer. He picked up
+the buggy old code in Red Hat's CVS and started adding patches.
+Meanwhile, other people have patched procps in a great many ways.
+In 2002, Albert moved procps to this site. This was done to ensure
+that years of testing and bug fixes would not be lost. The major
+version number was changed to 3, partly to avoid confusing users
+and partly because the top program has been redone.
+--end--
+
+I think too that is to waste the time&resources to have two,
+and to do a little  different some LiNUX distributions in a basic
+and important package
+
+but if both have freetime... ;-)
+
+regards,
+-- 
+Software is like sex, it's better when it's bug free.
 

@@ -1,37 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263837AbUDFN6N (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 09:58:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263813AbUDFN5u
+	id S263825AbUDFOBy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 10:01:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263826AbUDFOBy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 09:57:50 -0400
-Received: from delerium.kernelslacker.org ([81.187.208.145]:28848 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S263826AbUDFN5Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 09:57:25 -0400
-Date: Tue, 6 Apr 2004 14:54:41 +0100
-From: Dave Jones <davej@redhat.com>
-To: Jan Killius <jkillius@arcor.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Oops with cpufreq on 2.6.5-mm1
-Message-ID: <20040406135441.GC32405@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Jan Killius <jkillius@arcor.de>, linux-kernel@vger.kernel.org
-References: <20040406101609.GA25248@gate.unimatrix>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040406101609.GA25248@gate.unimatrix>
-User-Agent: Mutt/1.4.1i
+	Tue, 6 Apr 2004 10:01:54 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:33264 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S263825AbUDFOB3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Apr 2004 10:01:29 -0400
+Date: Tue, 6 Apr 2004 16:01:25 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Arjan van de Ven <arjanv@redhat.com>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [Fwd: [PATCH] jiffies must be unsigned long]
+In-Reply-To: <1081254194.4680.3.camel@laptop.fenrus.com>
+Message-ID: <Pine.GSO.4.58.0404061600540.4158@waterleaf.sonytel.be>
+References: <1081254194.4680.3.camel@laptop.fenrus.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 06, 2004 at 12:16:09PM +0200, Jan Killius wrote:
- > The patch have fixed the problem. thx
- 
-Can you try out the fully merged patch at
-http://www.codemonkey.org.uk/projects/bitkeeper/cpufreq
-too please ?
+On Tue, 6 Apr 2004, Arjan van de Ven wrote:
+>
+> > -			for(i=jiffies+HZ/100;time_before(jiffies, i););
+> > +			for(t=jiffies+HZ/100;time_before(jiffies, t););
+>
+> how nice... but ehm... if you fix it why not really fix it ???
 
-		Dave
+Because I just want to get rid of all the annoying warnings when trying to
+compile as many drivers as possible on m68k.
 
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

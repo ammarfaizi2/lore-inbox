@@ -1,92 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267821AbTAHPay>; Wed, 8 Jan 2003 10:30:54 -0500
+	id <S267828AbTAHPg2>; Wed, 8 Jan 2003 10:36:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267823AbTAHPay>; Wed, 8 Jan 2003 10:30:54 -0500
-Received: from pusa.informat.uv.es ([147.156.10.98]:29420 "EHLO
-	pusa.informat.uv.es") by vger.kernel.org with ESMTP
-	id <S267821AbTAHPaw>; Wed, 8 Jan 2003 10:30:52 -0500
-Date: Wed, 8 Jan 2003 16:39:11 +0100
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: aic7xxx broken in 2.5.53/54 ?
-Message-ID: <20030108153911.GA30385@pusa.informat.uv.es>
-References: <20030103101618.GB8582@in.ibm.com> <596830816.1041606846@aslan.scsiguy.com> <20030106073204.GA1875@in.ibm.com> <274040000.1041869813@aslan.scsiguy.com> <20030108024107.GA1127@louise.pinerecords.com> <703940000.1041999784@aslan.btc.adaptec.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <703940000.1041999784@aslan.btc.adaptec.com>
-User-Agent: Mutt/1.3.28i
-From: uaca@alumni.uv.es
+	id <S267829AbTAHPg2>; Wed, 8 Jan 2003 10:36:28 -0500
+Received: from cpe-66-1-218-52.fl.sprintbbd.net ([66.1.218.52]:48910 "EHLO
+	daytona.compro.net") by vger.kernel.org with ESMTP
+	id <S267828AbTAHPg1>; Wed, 8 Jan 2003 10:36:27 -0500
+Message-ID: <3E1C47F3.C59B1FFC@compro.net>
+Date: Wed, 08 Jan 2003 10:46:59 -0500
+From: Mark Hounschell <markh@compro.net>
+Reply-To: markh@compro.net
+Organization: Compro Computer Svcs.
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.20-ert i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
+References: <Pine.LNX.4.10.10301022110580.421-100000@master.linux-ide.org> <3E1BF82B.E55C84EE@aitel.hist.no> <3E1C1971.2A2FD368@compro.net> <200301080933.42461.pollard@admin.navo.hpc.mil>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 07, 2003 at 09:23:04PM -0700, Justin T. Gibbs wrote:
-> >> [gibbs@scsiguy.com]
-> >> 
-> >> These reads are actually more expensive than just using PIO.  Neither of
-> >> these older drivers included a test to try and catch fishy behavior.
-> > 
-> > Justin, are you quite sure that these tests actually work?
-> > I too have just run into
+Jesse Pollard wrote:
 > 
-> See my recent post to the SCSI list.  The tests don't work on
-> certain older controllers that lack a feature I was using.  The
-> latest csets submitted to Linus correct this problem (as verified
-> on a dusty dual P-90 PCI/EISA box just added to our regression cluster).
+> On Wednesday 08 January 2003 06:28 am, Mark Hounschell wrote:
+> > Helge Hafting wrote:
+> > > Valdis.Kletnieks@vt.edu wrote:
+> > > > On Tue, 07 Jan 2003 10:08:00 +0100, Helge Hafting
+> <helgehaf@aitel.hist.no>  said:
+> > > > > loss.  Giving away driver code (or at least programming specs)
+> > > > > wouldn't be a loss to nvidia though - because users would still
+> > > > > need to buy those cards.
+> > > >
+> > > > It would be a major loss to nvidia *AND* its customers if it were
+> > > > bankrupted in a lawsuit because it open-sourced code or specs that
+> > > > contained intellectual property that belonged to somebody else.
+> > >
+> > > Perhaps their driver contains some IP.  But I seriously doubt the
+> > > programming specs for their chips contains such secrets.  It is
+> > > not as if we need the entire chip layout - it is basically
+> > > things like:
+> > >
+> > > "To achieve effect X, write command code 0x3477 into register 5
+> > > and the new coordinates into registers 75-78.  Then wait 2.03ms before
+> > > attempting to access the chip again..."
+> > >
+> > > Something is very wrong if they _can't_ release that sort of
+> > > information.
+> > > Several other manufacturers have no problem with this.
+> >
+> > Aren't nvidias' chipsets really owned by SGI. It think there is some deal
+> > nvidia has with SGI that prohibits nvidia from opening up their driver and
+> > chip set info. It's looking like SGI might be gone soon. Maybe if they
+> > disappear, nvidia can do what they want???
+> 
+> Think they sold it to Microsoft....
 
-It also seems to work for me:
+I think what they sold to MS was some part of "OPENGL" software not anything
+hardware
+related.
 
-
-scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.26
-        <Adaptec aic7896/97 Ultra2 SCSI adapter>
-        aic7896/97: Ultra2 Wide Channel A, SCSI Id=7, 32/253 SCBs
-
-(scsi0:A:0): 80.000MB/s transfers (40.000MHz, offset 63, 16bit)
-  Vendor: QUANTUM   Model: ATLAS_V_36_WLS    Rev: 0230
-  Type:   Direct-Access                      ANSI SCSI revision: 03
-scsi0:A:0:0: Tagged Queuing enabled.  Depth 64
-scsi1 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.26
-        <Adaptec aic7896/97 Ultra2 SCSI adapter>
-        aic7896/97: Ultra2 Wide Channel B, SCSI Id=7, 32/253 SCBs
-
-SCSI device sda: drive cache: write back
-SCSI device sda: 71722776 512-byte hdwr sectors (36722 MB)
- sda: sda1 sda2 sda3 sda4 < sda5 sda6 sda7 sda8 >
-Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
-
-
-Theses are the controllers:
-
-00:0c.0 SCSI storage controller: Adaptec 7896
-        Subsystem: Adaptec: Unknown device 0053
-        Flags: bus master, medium devsel, latency 64, IRQ 19
-        BIST result: 00
-        I/O ports at 2000 [disabled] [size=256]
-        Memory at f4300000 (64-bit, non-prefetchable) [size=4K]
-        Expansion ROM at <unassigned> [disabled] [size=128K]
-        Capabilities: <available only to root>
-
-00:0c.1 SCSI storage controller: Adaptec 7896
-        Subsystem: Adaptec: Unknown device 0053
-        Flags: bus master, medium devsel, latency 64, IRQ 19
-        BIST result: 00
-        I/O ports at 2400 [disabled] [size=256]
-        Memory at f4301000 (64-bit, non-prefetchable) [size=4K]
-        Capabilities: <available only to root>
-
-
-
-Thanks
-
-
-	Ulisses
-
-                Debian GNU/Linux: a dream come true
------------------------------------------------------------------------------
-"Computers are useless. They can only give answers."            Pablo Picasso
-
---->	Visita http://www.valux.org/ para saber acerca de la	<---
---->	Asociación Valenciana de Usuarios de Linux		<---
- 
+Mark

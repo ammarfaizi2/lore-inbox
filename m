@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310383AbSCGQI4>; Thu, 7 Mar 2002 11:08:56 -0500
+	id <S310381AbSCGQO4>; Thu, 7 Mar 2002 11:14:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310381AbSCGQIh>; Thu, 7 Mar 2002 11:08:37 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:3344 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S310376AbSCGQIY>; Thu, 7 Mar 2002 11:08:24 -0500
-Subject: Re: [OOPS] Linux 2.2.21pre[23]
-To: luca.montecchiani@teamfab.it (Luca Montecchiani)
-Date: Thu, 7 Mar 2002 16:23:10 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org,
-        davej@suse.de (Dave Jones)
-In-Reply-To: <3C878FC8.86FCC3@teamfab.it> from "Luca Montecchiani" at Mar 07, 2002 05:05:28 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S310387AbSCGQOr>; Thu, 7 Mar 2002 11:14:47 -0500
+Received: from adsl-67-36-120-14.dsl.klmzmi.ameritech.net ([67.36.120.14]:10384
+	"HELO tabris.net") by vger.kernel.org with SMTP id <S310381AbSCGQO3>;
+	Thu, 7 Mar 2002 11:14:29 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Adam Schrotenboer <adam@tabris.net>
+Organization: Dome-S-Isle Data
+To: linux-kernel@vger.kernel.org
+Subject: Re: Unresolved symbols 2.4.18-pre9-mjc2
+Date: Thu, 7 Mar 2002 11:14:07 -0500
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <20020307072233.D19A5FB913@tabris.net>
+In-Reply-To: <20020307072233.D19A5FB913@tabris.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16j0fe-0002m9-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020307161412.0E085FB914@tabris.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I have a fully reproducible oops on boot with 2.2.21pre2 and 2.2.21pre3.
-> Kernels 2.2.19, 2.2.21pre1 and 2.4.18rc2 works great.
+Well, found the solution (in the archives) is to add 
+EXPORT_SYMBOL(blkdev_varyio) to ksyms. 
 
-Fun.
-
-> CPU serial number disabled.
-> Unable to handle kernel paging request at virtual address 756e654f
-
-Thats not good. We tried to use a piece of ascii text as a pointer 8)
-
-> EIP:    0010:[<c0278bc1>]
-> EFLAGS: 00010246
-> 
-> just tel me if I must hand copy the rest of the screen :(
-
-You want EIP and the call trace. Then look those up in System.map
-
-
-> my 0.2 euro on: [Backport a lot of x86 setup] ;)
-
-Ditto - especially the MCE changes.
+--
+tabris
+On Thursday 07 March 2002 02:22, Adam Schrotenboer wrote:
+> Been a bit busy lately, but after the power went off last night, I
+> decided to finish my compile of the latest (afaict) mjc kernel.
+>
+> Already commented out a function (it was several days ago, I can't
+> remember it.) that was obsoleted by the radix tree patch. Now, I come
+> up w/ this error in modules_install .
+>
+> Ideas?
+>
+> depmod: *** Unresolved symbols in
+> /lib/modules/2.4.18-pre9-mjc2/kernel/drivers/scsi/sd_mod.o
+> depmod: 	blkdev_varyio
+>
+> TIA

@@ -1,46 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283723AbRLISSc>; Sun, 9 Dec 2001 13:18:32 -0500
+	id <S283733AbRLISf7>; Sun, 9 Dec 2001 13:35:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283724AbRLISSW>; Sun, 9 Dec 2001 13:18:22 -0500
-Received: from outpost.ds9a.nl ([213.244.168.210]:46765 "HELO
-	outpost.powerdns.com") by vger.kernel.org with SMTP
-	id <S283723AbRLISSL>; Sun, 9 Dec 2001 13:18:11 -0500
-Date: Sun, 9 Dec 2001 19:18:05 +0100
-From: bert hubert <ahu@ds9a.nl>
-To: kuznet@ms2.inr.ac.ru
-Cc: jamal <hadi@cyberus.ca>, lartc@mailman.ds9a.nl,
-        linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: CBQ and all other qdiscs now REALLY completely documented
-Message-ID: <20011209191805.A18271@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>, kuznet@ms2.inr.ac.ru,
-	jamal <hadi@cyberus.ca>, lartc@mailman.ds9a.nl,
-	linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-In-Reply-To: <Pine.GSO.4.30.0112081841050.4764-100000@shell.cyberus.ca> <200112091814.VAA00499@ms2.inr.ac.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200112091814.VAA00499@ms2.inr.ac.ru>; from kuznet@ms2.inr.ac.ru on Sun, Dec 09, 2001 at 09:14:46PM +0300
+	id <S283740AbRLISft>; Sun, 9 Dec 2001 13:35:49 -0500
+Received: from mifgate.mif.pg.gda.pl ([153.19.42.120]:10702 "EHLO
+	mifgate.mif.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S283733AbRLISff>; Sun, 9 Dec 2001 13:35:35 -0500
+Date: Sun, 9 Dec 2001 19:08:37 +0100 (CET)
+From: Andrzej Krzysztofowicz <ankry@mifgate.mif.pg.gda.pl>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: "Adam J. Richter" <adam@yggdrasil.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: linux-2.5.1-pre7/drivers/block/xd.c compilation fix
+ (version 2)
+In-Reply-To: <Pine.LNX.4.33.0112082057540.9037-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.33.0112091849340.7194-100000@mifgate.mif.pg.gda.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 09, 2001 at 09:14:46PM +0300, kuznet@ms2.inr.ac.ru wrote:
+On Sat, 8 Dec 2001, Linus Torvalds wrote:
+> On Sat, 8 Dec 2001, Adam J. Richter wrote:
+> >
+> > 	Linus, if nobody says otherwise, I recommend that you apply
+> > this patch.
+>
+> Btw, do you actually _have_ a machine that uses the xd driver, or was this
+> patch done just out of some perverse joy in theoretical retrocomputing?
 
-> > > But to do this, you would need to be able to set skb->priority to a 32bit
-> > > number:
-> > Cant think of a straight way to do this .... Alexey would know,
-> 
-> SO_PRIORITY. Or I did not follow you?
+I have somewhere a machine that used to work with such hardware, but
+have never tested it with anything newer than 2.2.x kernel and have no
+time to perform such tests in the near future (Maybe I'll find some after
+Christmas).
 
-Ah yes, thanks, that sets sk->priority which later sets skb->priority.
+AFAIR the hardware works fine with 386/486 with clock up to 66 MHz.
+Faster machines have problems with BIOS initialization, probably due to
+very slow EPROM chips or badly designed timing calculations in their
+BIOSes. They *might* work with BIOS disabled/romoved, but all hardware I
+have has the BIOS chips integrated.
 
-Regards,
-
-bert
+Most hardwate supports drives up to 40 MB (I have only 20s) and the
+transfer rates about 20-40 kB/s. Faster (with memory mapped I/O) boards
+are not supported by the driver.
 
 -- 
-http://www.PowerDNS.com          Versatile DNS Software & Services
-Trilab                                 The Technology People
-Netherlabs BV / Rent-a-Nerd.nl           - Nerd Available -
-'SYN! .. SYN|ACK! .. ACK!' - the mating call of the internet
+=======================================================================
+  Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
+  tel.  (0-58) 347 14 61
+Wydz.Fizyki Technicznej i Matematyki Stosowanej Politechniki Gdanskiej
+

@@ -1,43 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265983AbUEUWci@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266093AbUEUWc3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265983AbUEUWci (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 May 2004 18:32:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265950AbUEUWci
+	id S266093AbUEUWc3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 May 2004 18:32:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266003AbUEUWc3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 May 2004 18:32:38 -0400
-Received: from mail002.syd.optusnet.com.au ([211.29.132.32]:1437 "EHLO
-	mail002.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S266054AbUEUWcf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 May 2004 18:32:35 -0400
-MIME-Version: 1.0
+	Fri, 21 May 2004 18:32:29 -0400
+Received: from mail.kroah.org ([65.200.24.183]:20416 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266093AbUEUWc1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 May 2004 18:32:27 -0400
+Date: Fri, 21 May 2004 15:30:24 -0700
+From: Greg KH <greg@kroah.com>
+To: nardelli <jnardelli@infosciences.com>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: Re: [linux-usb-devel] [PATCH] visor: Fix Oops on disconnect
+Message-ID: <20040521223024.GA7399@kroah.com>
+References: <40AD3A88.2000002@infosciences.com> <20040521043032.GA31113@kroah.com> <40AE5DBB.6030003@infosciences.com> <20040521204430.GA5875@kroah.com> <40AE7829.9060105@infosciences.com> <40AE7CFE.5060805@infosciences.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16555.58996.710139.844507@wombat.chubb.wattle.id.au>
-Date: Thu, 20 May 2004 08:57:56 +1000
-From: Peter Chubb <peterc@gelato.unsw.edu.au>
-To: Justin Pryzby <justinpryzby@users.sourceforge.net>
-Cc: Peter Chubb <peter@chubb.wattle.id.au>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.5, 2.6.6-rc2 sluggish interrupts
-In-Reply-To: <20040519212149.GA1075@andromeda>
-References: <E1BJOXM-0007zu-6H@andromeda>
-	<20040519191900.GA1052@andromeda>
-	<20040519192414.GA1210@andromeda>
-	<20040519212149.GA1075@andromeda>
-X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
+Content-Disposition: inline
+In-Reply-To: <40AE7CFE.5060805@infosciences.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Justin" == Justin Pryzby <justinpryzby@users.sourceforge.net> writes:
+On Fri, May 21, 2004 at 06:04:46PM -0400, nardelli wrote:
+> 
+> Maybe I spoke too soon here.  We have 1 bulk in, 2 bulk out, and 1 interrupt
+> in endpoint, which by the logic in usb-serial, translates to 2 ports.  Only
+> one of those ports can have a read_urb associated with it, unless we want to
+> do some really fancy juggling.  This means that we're going to have a port
+> that does not have a valid read_urb associated with it, even after open().
 
-Justin> Found a solution: disable cpufreq.  
-The alternative may be to use a more stable timesource than the TSC
-(which varies in rate when cpufreq is enabled)
+But the call to open() fails, which prevents any of the other tty calls
+from happening on that port.  That's why we don't need to make that
+check anywhere else.
 
---
-Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
-The technical we do immediately,  the political takes *forever*
+> I'm at a loss why this device has an uneven number of bulk in and bulk out
+> endpoints.
 
+Stupid hardware engineers?  Who really knows...
+
+thanks,
+
+greg k-h

@@ -1,162 +1,108 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265918AbUA1MPt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jan 2004 07:15:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265924AbUA1MPt
+	id S265942AbUA1MXh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jan 2004 07:23:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265944AbUA1MXg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jan 2004 07:15:49 -0500
-Received: from mail0.epfl.ch ([128.178.50.57]:55050 "HELO mail0.epfl.ch")
-	by vger.kernel.org with SMTP id S265918AbUA1MPo convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jan 2004 07:15:44 -0500
-Date: Wed, 28 Jan 2004 13:15:37 +0100
-From: Gregoire Favre <Gregoire.Favre@freesurf.ch>
+	Wed, 28 Jan 2004 07:23:36 -0500
+Received: from grassmarket.ucs.ed.ac.uk ([129.215.166.64]:46264 "EHLO
+	grassmarket.ucs.ed.ac.uk") by vger.kernel.org with ESMTP
+	id S265942AbUA1MXa convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jan 2004 07:23:30 -0500
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+Reply-To: s0348365@sms.ed.ac.uk
+Organization: University of Edinburgh
 To: linux-kernel@vger.kernel.org
-Subject: 2.6.2-rc1-mm3 lots of Call Trace (IDE)
-Message-ID: <20040128121537.GA23385@magma.epfl.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Subject: Re: 2.6.2-rc2-mm1 (Breakage?)
+Date: Wed, 28 Jan 2004 12:25:37 +0000
+User-Agent: KMail/1.5.94
+Cc: David =?iso-8859-1?q?Mart=EDnez_Moreno?= <ender@debian.org>,
+       Andrew Morton <akpm@osdl.org>, linux-mm@kvack.org
+References: <20040127233402.6f5d3497.akpm@osdl.org> <200401281313.03790.ender@debian.org>
+In-Reply-To: <200401281313.03790.ender@debian.org>
+MIME-Version: 1.0
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 8BIT
+Message-Id: <200401281225.37234.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Wednesday 28 January 2004 12:13, David Martínez Moreno wrote:
+> El Miércoles, 28 de Enero de 2004 08:34, Andrew Morton escribió:
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.2-rc2/2
+> >.6 .2-rc2-mm1/
+> >
+> >
+> > - From now on, -mm kernels will contain the latest contents of:
+> >
+> > 	Linus's tree:		linus.patch
+> > 	The ACPI tree:		acpi.patch
+> > 	Vojtech's tree:		input.patch
+> > 	Jeff's tree:		netdev.patch
+> > 	The ALSA tree:		alsa.patch
+> >
+> >   If anyone has any more external trees which need similar treatment,
+> >   please let me know.
+> >
+> > - Various fixes.  Nothing stands out.
+>
+> 	Hello, Andrew, I've switched from 2.6.2-rc1-mm1 to 2.6.2-rc1-mm1, and I've
+> encountered this:
+>
+[snip]
 
-When I boots 2.6.2-rc1-mm3 I got this (before this kernel I used 2.6.1-mm5
-without those):
+Decided to build my first kernel with preempt since the early 2.5 days. I'm 
+seeing the same warnings in 2.6.2-rc2-mm1.
 
-Jan 28 13:01:32 greg kernel: Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-Jan 28 13:01:32 greg kernel: ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-Jan 28 13:01:32 greg kernel: ICH4: IDE controller at PCI slot 0000:00:1f.1
-Jan 28 13:01:32 greg kernel: ICH4: chipset revision 1
-Jan 28 13:01:32 greg kernel: ICH4: not 100%% native mode: will probe irqs later
-Jan 28 13:01:32 greg kernel:     ide0: BM-DMA at 0xfc00-0xfc07, BIOS settings: hda:pio, hdb:pio
-Jan 28 13:01:32 greg kernel:     ide1: BM-DMA at 0xfc08-0xfc0f, BIOS settings: hdc:DMA, hdd:pio
-Jan 28 13:01:32 greg kernel: hda: IOMEGA ZIP 250 ATAPI, ATAPI FLOPPY drive
-Jan 28 13:01:32 greg kernel: Using anticipatory io scheduler
-Jan 28 13:01:32 greg kernel: ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-Jan 28 13:01:32 greg kernel: hdc: SONY DVD RW DRU-500A, ATAPI CD/DVD-ROM drive
-Jan 28 13:01:32 greg kernel: ide1 at 0x170-0x177,0x376 on irq 15
-Jan 28 13:01:32 greg kernel: PDC20276: IDE controller at PCI slot 0000:03:0e.0
-Jan 28 13:01:32 greg kernel: PDC20276: chipset revision 1
-Jan 28 13:01:32 greg kernel: PDC20276: 100%% native mode on irq 22
-Jan 28 13:01:32 greg kernel:     ide2: BM-DMA at 0xb800-0xb807, BIOS settings: hde:pio, hdf:pio
-Jan 28 13:01:32 greg kernel:     ide3: BM-DMA at 0xb808-0xb80f, BIOS settings: hdg:pio, hdh:pio
-Jan 28 13:01:32 greg kernel: hdg: IC35L120AVVA07-0, ATA DISK drive
-Jan 28 13:01:32 greg kernel: ide3 at 0xc000-0xc007,0xbc02 on irq 22
-Jan 28 13:01:32 greg kernel: hdg: max request size: 128KiB
-Jan 28 13:01:32 greg kernel: Badness in interruptible_sleep_on at kernel/sched.c:2242
-Jan 28 13:01:32 greg kernel: Call Trace:
-Jan 28 13:01:32 greg kernel:  [<c011b824>] interruptible_sleep_on+0xeb/0x118
-Jan 28 13:01:32 greg kernel:  [<c011b1f9>] default_wake_function+0x0/0x15
-Jan 28 13:01:32 greg kernel:  [<c01fa840>] pagebuf_daemon+0x0/0x272
-Jan 28 13:01:32 greg kernel:  [<c01fa9c9>] pagebuf_daemon+0x189/0x272
-Jan 28 13:01:32 greg kernel:  [<c03a162e>] ret_from_fork+0x6/0x14
-Jan 28 13:01:32 greg kernel:  [<c01f9962>] pagebuf_daemon_wakeup+0x0/0x2a
-Jan 28 13:01:32 greg kernel:  [<c01fa840>] pagebuf_daemon+0x0/0x272
-Jan 28 13:01:32 greg kernel:  [<c0107b65>] kernel_thread_helper+0x5/0xb
-Jan 28 13:01:32 greg kernel: 
-Jan 28 13:01:32 greg kernel: hdg: 241254720 sectors (123522 MB) w/1863KiB Cache, CHS=65535/16/63, UDMA(100)
-Jan 28 13:01:32 greg kernel:  hdg: hdg1 hdg2 hdg3 hdg4
-Jan 28 13:01:32 greg kernel: scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.36
-Jan 28 13:01:32 greg kernel:         <Adaptec 29160B Ultra160 SCSI adapter>
-Jan 28 13:01:32 greg kernel:         aic7892: Ultra160 Wide Channel A, SCSI Id=7, 32/253 SCBs
-Jan 28 13:01:32 greg kernel: 
-Jan 28 13:01:32 greg kernel: Badness in interruptible_sleep_on at kernel/sched.c:2242
-Jan 28 13:01:32 greg kernel: Call Trace:
-Jan 28 13:01:32 greg kernel:  [<c011b824>] interruptible_sleep_on+0xeb/0x118
-Jan 28 13:01:32 greg kernel:  [<c011b1f9>] default_wake_function+0x0/0x15
-Jan 28 13:01:32 greg kernel:  [<c01fa9c9>] pagebuf_daemon+0x189/0x272
-Jan 28 13:01:32 greg kernel:  [<c03a162e>] ret_from_fork+0x6/0x14
-Jan 28 13:01:32 greg kernel:  [<c01f9962>] pagebuf_daemon_wakeup+0x0/0x2a
-Jan 28 13:01:32 greg kernel:  [<c01fa840>] pagebuf_daemon+0x0/0x272
-Jan 28 13:01:32 greg kernel:  [<c0107b65>] kernel_thread_helper+0x5/0xb
-Jan 28 13:01:32 greg kernel: 
-Jan 28 13:01:32 greg kernel: Badness in interruptible_sleep_on at kernel/sched.c:2242
-Jan 28 13:01:32 greg kernel: Call Trace:
-Jan 28 13:01:32 greg kernel:  [<c011b824>] interruptible_sleep_on+0xeb/0x118
-Jan 28 13:01:32 greg kernel:  [<c011b1f9>] default_wake_function+0x0/0x15
-Jan 28 13:01:32 greg kernel:  [<c01fa9c9>] pagebuf_daemon+0x189/0x272
-Jan 28 13:01:32 greg kernel:  [<c03a162e>] ret_from_fork+0x6/0x14
-Jan 28 13:01:32 greg kernel:  [<c01f9962>] pagebuf_daemon_wakeup+0x0/0x2a
-Jan 28 13:01:32 greg kernel:  [<c01fa840>] pagebuf_daemon+0x0/0x272
-Jan 28 13:01:32 greg kernel:  [<c0107b65>] kernel_thread_helper+0x5/0xb
-Jan 28 13:01:32 greg kernel: 
-Jan 28 13:01:32 greg kernel: Badness in interruptible_sleep_on at kernel/sched.c:2242
-Jan 28 13:01:32 greg kernel: Call Trace:
-Jan 28 13:01:32 greg kernel:  [<c011b824>] interruptible_sleep_on+0xeb/0x118
-Jan 28 13:01:32 greg kernel:  [<c011b1f9>] default_wake_function+0x0/0x15
-Jan 28 13:01:32 greg kernel:  [<c01fa9c9>] pagebuf_daemon+0x189/0x272
-Jan 28 13:01:32 greg kernel:  [<c03a162e>] ret_from_fork+0x6/0x14
-Jan 28 13:01:32 greg kernel:  [<c01f9962>] pagebuf_daemon_wakeup+0x0/0x2a
-Jan 28 13:01:32 greg kernel:  [<c01fa840>] pagebuf_daemon+0x0/0x272
-Jan 28 13:01:32 greg kernel:  [<c0107b65>] kernel_thread_helper+0x5/0xb
-Jan 28 13:01:32 greg kernel: 
-Jan 28 13:01:32 greg kernel: Badness in interruptible_sleep_on at kernel/sched.c:2242
-Jan 28 13:01:32 greg kernel: Call Trace:
-Jan 28 13:01:32 greg kernel:  [<c011b824>] interruptible_sleep_on+0xeb/0x118
-Jan 28 13:01:32 greg kernel:  [<c011b1f9>] default_wake_function+0x0/0x15
-Jan 28 13:01:32 greg kernel:  [<c01fa9c9>] pagebuf_daemon+0x189/0x272
-Jan 28 13:01:32 greg kernel:  [<c03a162e>] ret_from_fork+0x6/0x14
-Jan 28 13:01:32 greg kernel:  [<c01f9962>] pagebuf_daemon_wakeup+0x0/0x2a
-Jan 28 13:01:32 greg kernel:  [<c01fa840>] pagebuf_daemon+0x0/0x272
-Jan 28 13:01:32 greg kernel:  [<c0107b65>] kernel_thread_helper+0x5/0xb
-Jan 28 13:01:32 greg kernel: 
-Jan 28 13:01:32 greg kernel: Badness in interruptible_sleep_on at kernel/sched.c:2242
-Jan 28 13:01:32 greg kernel: Call Trace:
-Jan 28 13:01:32 greg kernel:  [<c011b824>] interruptible_sleep_on+0xeb/0x118
-Jan 28 13:01:32 greg kernel:  [<c011b1f9>] default_wake_function+0x0/0x15
-Jan 28 13:01:32 greg kernel:  [<c01fa9c9>] pagebuf_daemon+0x189/0x272
-Jan 28 13:01:32 greg kernel:  [<c03a162e>] ret_from_fork+0x6/0x14
-Jan 28 13:01:32 greg kernel:  [<c01f9962>] pagebuf_daemon_wakeup+0x0/0x2a
-Jan 28 13:01:32 greg kernel:  [<c01fa840>] pagebuf_daemon+0x0/0x272
-Jan 28 13:01:32 greg kernel:  [<c0107b65>] kernel_thread_helper+0x5/0xb
-Jan 28 13:01:32 greg kernel: 
-Jan 28 13:01:32 greg kernel: Badness in interruptible_sleep_on at kernel/sched.c:2242
-Jan 28 13:01:32 greg kernel: Call Trace:
-Jan 28 13:01:32 greg kernel:  [<c011b824>] interruptible_sleep_on+0xeb/0x118
-Jan 28 13:01:32 greg kernel:  [<c011b1f9>] default_wake_function+0x0/0x15
-Jan 28 13:01:32 greg kernel:  [<c01fa9c9>] pagebuf_daemon+0x189/0x272
-Jan 28 13:01:32 greg kernel:  [<c03a162e>] ret_from_fork+0x6/0x14
-Jan 28 13:01:32 greg kernel:  [<c01f9962>] pagebuf_daemon_wakeup+0x0/0x2a
-Jan 28 13:01:32 greg kernel:  [<c01fa840>] pagebuf_daemon+0x0/0x272
-Jan 28 13:01:32 greg kernel:  [<c0107b65>] kernel_thread_helper+0x5/0xb
-Jan 28 13:01:32 greg kernel: 
-Jan 28 13:01:32 greg kernel: Badness in interruptible_sleep_on at kernel/sched.c:2242
-Jan 28 13:01:32 greg kernel: Call Trace:
-Jan 28 13:01:32 greg kernel:  [<c011b824>] interruptible_sleep_on+0xeb/0x118
-Jan 28 13:01:32 greg kernel:  [<c011b1f9>] default_wake_function+0x0/0x15
-Jan 28 13:01:32 greg kernel:  [<c01fa9c9>] pagebuf_daemon+0x189/0x272
-Jan 28 13:01:32 greg kernel:  [<c03a162e>] ret_from_fork+0x6/0x14
-Jan 28 13:01:32 greg kernel:  [<c01f9962>] pagebuf_daemon_wakeup+0x0/0x2a
-Jan 28 13:01:32 greg kernel:  [<c01fa840>] pagebuf_daemon+0x0/0x272
-Jan 28 13:01:32 greg kernel:  [<c0107b65>] kernel_thread_helper+0x5/0xb
-Jan 28 13:01:32 greg kernel: 
-Jan 28 13:01:32 greg kernel: Badness in interruptible_sleep_on at kernel/sched.c:2242
-Jan 28 13:01:32 greg kernel: Call Trace:
-Jan 28 13:01:32 greg kernel:  [<c011b824>] interruptible_sleep_on+0xeb/0x118
-Jan 28 13:01:32 greg kernel:  [<c011b1f9>] default_wake_function+0x0/0x15
-Jan 28 13:01:32 greg kernel:  [<c01fa9c9>] pagebuf_daemon+0x189/0x272
-Jan 28 13:01:32 greg kernel:  [<c03a162e>] ret_from_fork+0x6/0x14
-Jan 28 13:01:32 greg kernel:  [<c01f9962>] pagebuf_daemon_wakeup+0x0/0x2a
-Jan 28 13:01:32 greg kernel:  [<c01fa840>] pagebuf_daemon+0x0/0x272
-Jan 28 13:01:32 greg kernel:  [<c0107b65>] kernel_thread_helper+0x5/0xb
-Jan 28 13:01:32 greg kernel: 
-Jan 28 13:01:32 greg kernel: Badness in interruptible_sleep_on at kernel/sched.c:2242
-Jan 28 13:01:32 greg kernel: Call Trace:
-Jan 28 13:01:32 greg kernel:  [<c011b824>] interruptible_sleep_on+0xeb/0x118
-Jan 28 13:01:32 greg kernel:  [<c011b1f9>] default_wake_function+0x0/0x15
-Jan 28 13:01:32 greg kernel:  [<c01fa9c9>] pagebuf_daemon+0x189/0x272
-Jan 28 13:01:32 greg kernel:  [<c03a162e>] ret_from_fork+0x6/0x14
-Jan 28 13:01:32 greg kernel:  [<c01f9962>] pagebuf_daemon_wakeup+0x0/0x2a
-Jan 28 13:01:32 greg kernel:  [<c01fa840>] pagebuf_daemon+0x0/0x272
-Jan 28 13:01:32 greg kernel:  [<c0107b65>] kernel_thread_helper+0x5/0xb
+gkrellm 0 waking gkrellm: 897 1485
+Badness in try_to_wake_up at kernel/sched.c:722
+Call Trace:
+ [<c011a6a7>] try_to_wake_up+0x97/0x1d0
+ [<c011b0b0>] __wake_up_common+0x30/0x60
+ [<c011b109>] __wake_up+0x29/0x50
+ [<c0131f1b>] wake_futex+0x2b/0x70
+ [<c013259a>] do_futex+0x3fa/0x6e0
+ [<c011d9d0>] copy_process+0x7b0/0x10a0
+ [<c011e3a9>] do_fork+0xe9/0x179
+ [<c011a142>] schedule+0x1d2/0x640
+ [<c0132988>] sys_futex+0x108/0x130
+ [<c03e1b9e>] sysenter_past_esp+0x43/0x65
 
-I have an MSI-Max2-BLR motherboard and would be happy to provide any other
-info when needed (please CC to me as I am not on this ml) ;-)
+Every five seconds. This is when it reads the sensor information from /sys, I 
+think. And during boot, similar messages to those already reported (from 
+kern.log this time).
 
-	Grégoire
-________________________________________________________________________
-http://magma.epfl.ch/greg ICQ:16624071 mailto:Gregoire.Favre@freesurf.ch
+Badness in interruptible_sleep_on at kernel/sched.c:2239
+Call Trace:
+ [interruptible_sleep_on+233/288] interruptible_sleep_on+0xe9/0x120
+ [default_wake_function+0/32] default_wake_function+0x0/0x20
+ [pagebuf_daemon+0/656] pagebuf_daemon+0x0/0x290
+ [pagebuf_daemon+597/656] pagebuf_daemon+0x255/0x290
+ [ret_from_fork+6/20] ret_from_fork+0x6/0x14
+ [pagebuf_daemon_wakeup+0/48] pagebuf_daemon_wakeup+0x0/0x30
+ [pagebuf_daemon+0/656] pagebuf_daemon+0x0/0x290
+ [kernel_thread_helper+5/16] kernel_thread_helper+0x5/0x10
+
+Badness in interruptible_sleep_on at kernel/sched.c:2239
+Call Trace:
+ [interruptible_sleep_on+233/288] interruptible_sleep_on+0xe9/0x120
+ [default_wake_function+0/32] default_wake_function+0x0/0x20
+ [msp3400c_setbass+144/176] msp3400c_setbass+0x90/0xb0
+ [msp3410d_thread+162/1600] msp3410d_thread+0xa2/0x640
+ [msp3410d_thread+0/1600] msp3410d_thread+0x0/0x640
+ [kernel_thread_helper+5/16] kernel_thread_helper+0x5/0x10
+
+Etc.
+
+-- 
+Cheers,
+Alistair.
+
+personal:   alistair()devzero!co!uk
+university: s0348365()sms!ed!ac!uk
+student:    CS/AI Undergraduate
+contact:    7/10 Darroch Court,
+            University of Edinburgh.

@@ -1,32 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282013AbRKVCci>; Wed, 21 Nov 2001 21:32:38 -0500
+	id <S282014AbRKVCfi>; Wed, 21 Nov 2001 21:35:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282014AbRKVCc3>; Wed, 21 Nov 2001 21:32:29 -0500
-Received: from c0mailgw.prontomail.com ([216.163.180.10]:41777 "EHLO
-	c0mailgw06.prontomail.com") by vger.kernel.org with ESMTP
-	id <S282013AbRKVCcM>; Wed, 21 Nov 2001 21:32:12 -0500
-Message-ID: <3BFC6387.10BFEAB4@starband.net>
-Date: Wed, 21 Nov 2001 21:31:35 -0500
-From: war <war@starband.net>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.14 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Joel Jaeggli <joelja@darkwing.uoregon.edu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Swap vs No Swap.
-In-Reply-To: <Pine.LNX.4.33.0111211813160.20514-100000@twin.uoregon.edu>
+	id <S282015AbRKVCf2>; Wed, 21 Nov 2001 21:35:28 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:49927 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S282014AbRKVCfW>;
+	Wed, 21 Nov 2001 21:35:22 -0500
+Date: Thu, 22 Nov 2001 00:34:28 -0200
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: "Jeff Merkey" <jmerkey@timpanogas.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] NetWare File System NWFS 2.4.15-pre8 Kernel Patch
+Message-ID: <20011122003428.B2216@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	"Jeff Merkey" <jmerkey@timpanogas.org>,
+	<linux-kernel@vger.kernel.org>
+In-Reply-To: <000d01c172fc$cde53440$f5976dcf@nwfs>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <000d01c172fc$cde53440$f5976dcf@nwfs>
+User-Agent: Mutt/1.3.23i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes, I have.
+Em Wed, Nov 21, 2001 at 07:24:25PM -0700, Jeff Merkey escreveu:
+> 
+> A Kernel patch that integrate the NetWare File System (NWFS) into the
+> 2.4.15-pre8 kernel has been posted at
+> ftp.timpanogas.org:/nwfs/nwfs-2.4.15-pre8-1.bz2 and
+> ftp.utah-nac.org:/nwfs/nwfs-2.4.15-pre8-1.bz2
+> 
+> This patch includes support for the 3Ware RAID Adapter and Linux Software
+> RAID.
 
-I have 1024MB of ram.
+Why don't you release three separate patches? One for NWFS, another for the
+3Ware controle and another for the Soft RAID? And please send it to the
+respective maintainers. I'm assuming that the two later patches are not
+related to NWFS, if not, please apologize.
 
-When running every X application I have as user + root + etc, I still only use
-600MB out of the 1024MB of ram.
-
-
-
+- Arnaldo

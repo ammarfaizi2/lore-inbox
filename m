@@ -1,45 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263467AbTDSUmn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Apr 2003 16:42:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263468AbTDSUmm
+	id S263466AbTDSUno (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Apr 2003 16:43:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263464AbTDSUno
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Apr 2003 16:42:42 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:12813 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP id S263467AbTDSUml
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Apr 2003 16:42:41 -0400
-Date: Sat, 19 Apr 2003 22:56:21 +0200
-To: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Are linux-fs's drive-fault-tolerant by concept?
-Message-ID: <20030419205621.GA15577@hh.idb.hist.no>
-References: <20030419180421.0f59e75b.skraw@ithnet.com> <87lly6flrz.fsf@deneb.enyo.de> <20030419200712.3c48a791.skraw@ithnet.com> <20030419184120.GH669@gallifrey>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030419184120.GH669@gallifrey>
-User-Agent: Mutt/1.5.3i
-From: Helge Hafting <helgehaf@aitel.hist.no>
+	Sat, 19 Apr 2003 16:43:44 -0400
+Received: from mta01-svc.ntlworld.com ([62.253.162.41]:53237 "EHLO
+	mta01-svc.ntlworld.com") by vger.kernel.org with ESMTP
+	id S263466AbTDSUnl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Apr 2003 16:43:41 -0400
+Message-ID: <006101c306b6$2a52f480$6b7ba8c0@max>
+From: "Max Linux" <max.linux@ntlworld.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Kernel compile and speakup
+Date: Sat, 19 Apr 2003 21:56:35 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 19, 2003 at 07:41:20PM +0100, Dr. David Alan Gilbert wrote:
-> 	4) It is OK saying return the drive and get a new one - but many of
-> 	   us can't do this in a commercial environment where the contents of
-> 		 the drive are confidential - leading to stacks of dead drives
-> 		 (often many inside their now short warranty periods).
+Hi
 
-There are commercially available programs that guarantees to
-wipe your drive clean - including hidden areas and remapped
-sectors.  You should then be able to send drives
-back for warranty replacement.
+As a Linux newbie, I have been trying to compile a new Linux kernel to give
+me raid support.
 
-There are also bulk erasers that reset every bit magnetically,
-but those will probably void the warranty too.  (You'll
-need a low-level reformat to recreate sector addresses on the
-suddenly blank surface.)
+This was easy the first time, but has failed the second time round, for a
+reason I cannot understand.
 
+Using the procedure:
 
-Helge Hafting  		 
+bash# make mrproper
+bash# make xconfig
+
+< select all the options I want (including raid support) >
+
+bash# make dep
+bash# make clean
+bash# make bzImage
+
+The make fails, with the following errors:
+
+In file included from console.c:110:
+/usr/src/linux-2.4.18-27.7.x/include/linux/speakup.h:186:25: operator '('
+has no left operand
+make[3]: *** [console.o] Error 1
+make[3]: Leaving directory '/usr/src/linux-2.4.18-27.7.x/drivers/char'
+make[2]: *** [first_rule] Error 2
+make[2]: Leaving directory '/usr/src/linux-2.4.18-27.7.x/drivers/char'
+make[1]: *** [_subdir_char] Error 2
+make[1]: Leaving directory '/usr/src/linux-2.4.18-27.7.x/drivers'
+make: *** [_dir_drivers] Error 2
+
+As far as I can see, there is no reason for speakup.h to be included in the
+make. However, since it is there, there is no reason for this error to
+occur.
+NOTE: The left bracket in the quotes is what is reported, although the
+character in speakup.h is <.
+
+speakup is specifically not requested in xconfig, as the vga console.
+
+Please tell me what I have done wrong. As I said before, the previous
+compilation went fine. Something has since broken.
+
+Thanks in advance.
+
+Max Booker
+max.linux@ntlworld.com
 

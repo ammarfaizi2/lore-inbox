@@ -1,71 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264527AbUFRXJC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265736AbUFRXSj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264527AbUFRXJC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 19:09:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265317AbUFRXH5
+	id S265736AbUFRXSj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 19:18:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264957AbUFRXLR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 19:07:57 -0400
-Received: from mailout10.sul.t-online.com ([194.25.134.21]:6583 "EHLO
-	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S264965AbUFRW73 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 18:59:29 -0400
-From: "Thomas Gleixner" <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-Organization: linutronix
-To: 4Front Technologies <dev@opensound.com>
-Subject: Re: Stop the Linux kernel madness
-Date: Sat, 19 Jun 2004 00:53:40 +0200
-User-Agent: KMail/1.5.4
-References: <40D232AD.4020708@opensound.com> <200406180406.50997.tglx@linutronix.de> <40D259DD.6020604@opensound.com>
-In-Reply-To: <40D259DD.6020604@opensound.com>
-MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200406190052.39067.tglx@linutronix.de>
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Seen: false
-X-ID: S+bt1oZQYelaf4q5bqBnACCW68mk4sKTek6E9It3dWTySiRW4KLC0R@t-dialin.net
+	Fri, 18 Jun 2004 19:11:17 -0400
+Received: from stat1.steeleye.com ([65.114.3.130]:36812 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S265541AbUFRXHp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 19:07:45 -0400
+Subject: Re: DMA API issues
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: David Brownell <david-b@pacbell.net>
+Cc: Ian Molton <spyro@f2s.com>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       greg@kroah.com, tony@atomide.com, jamey.hicks@hp.com,
+       joshua@joshuawise.com
+In-Reply-To: <40D36EDE.2080803@pacbell.net>
+References: <1087582845.1752.107.camel@mulgrave>	<20040618193544.48b88771.spyro@f2s.com>
+			<1087584769.2134.119.camel@mulgrave>	<20040618195721.0cf43ec2.spyro@f2s.co
+	m	> <40D34078.5060909@pacbell.net>
+		<20040618204438.35278560.spyro@f2s.com>	<1087588627.2134.155.camel@mulgrave
+	>  <40D359BB.3090106@pacbell.net> <1087593282.2135.176.camel@mulgrave> 
+	<40D36EDE.2080803@pacbell.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 18 Jun 2004 18:07:30 -0500
+Message-Id: <1087600052.2135.197.camel@mulgrave>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 18 June 2004 04:56, 4Front Technologies wrote:
->
-> Problem fixed!. it's SuSE's fault!. They didn't symlink
-> /lib/modules/<kernel ver>/build to the correct source tree.
+On Fri, 2004-06-18 at 17:38, David Brownell wrote:
+> James Bottomley wrote:
+> > The statement was "That's dma_alloc_coherent at its core ... it should
+> > allocate from that 32K region." and what I was pointing out is that not
+> > all platforms can treat an on-chip memory region as a real memory area. 
+> 
+> But this one can, and it sure seems like the appropriate
+> solution.  For reasons like the one not quoted above:  it's
+> a good way to eliminate what would otherwise be a case
+> where a dmabounce is needed.  And hey wow, it even uses
+> the API designed to reduce such DMA "mapping" costs, and
+> there are drivers already using it for such purposes.
 
-And therefor you whine here ?
+Well, yes, but the problem: chips have onboard memory is generic.  The
+proposed solution in the DMA API can't only work on certain platforms.
 
-> >>What's with you guys?. Would you really like to see Linux forking?
-> >
-> > I'm impressed of your altruistic solicitousness about the future of Linux
->
-> Thanks, we're trying to make Linux better for everybody.
+> 
+> > That's why we have the iomem accessor functions.
+> 
+> You mentioned ioremap(), which doesn't help here since
+> the need is for a block of memory, not just address space,
+> and also memcpy_toio(), which just another tool to implement
+> the dma bouncing (which is on the "strongly avoid!" list).
+> 
+> As I said, those still don't make dma_alloc_coherent() work.
 
-You make Linux better ? By providing closed source drivers and complaining 
-that they wont compile everywhere ? HEHEHE
+Right, that's rather the point.  The memory you get by doing an ioremap
+on this chip area may have to be treated differently from real memory on
+some platforms.
 
-This statement reveals your deep unawareness of the social contract behind 
-this community and the reality of forking since it started. 
+That's the fundamental problem of trying to treat it as memory obtained
+from dma_alloc_coherent().
 
-Your swollen-headed self-pleasing nature makes you even resistant to sarcasm.
+James
 
-Thanks for providing a nice flame topic and now I have to go back and maintain 
-some diverging non mainline kernel trees.
-
-Hint: Maybe you should adjust your tie. See below.
-
--- 
-Thomas
-_____________________________________________________________________
->From slash dot org
-"When customers are visiting, engineers are not allowed to wear ties. 
-That way the customer can tell who is the engineer and who is the 
-salesman (and therefore whom to believe.). Ties cut off blood flow 
-to the brain, making it easier for the salesmen to do their jobs." 
-_____________________________________________________________________
-linutronix - competence in embedded & realtime linux
-http://www.linutronix.de
-mail: tglx@linutronix.de
 

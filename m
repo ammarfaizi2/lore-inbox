@@ -1,39 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273305AbRJDK1X>; Thu, 4 Oct 2001 06:27:23 -0400
+	id <S273349AbRJDK1M>; Thu, 4 Oct 2001 06:27:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273345AbRJDK1N>; Thu, 4 Oct 2001 06:27:13 -0400
-Received: from chiara.elte.hu ([157.181.150.200]:46601 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S273305AbRJDK1F>;
-	Thu, 4 Oct 2001 06:27:05 -0400
-Date: Thu, 4 Oct 2001 12:25:13 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: BALBIR SINGH <balbir.singh@wipro.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
-In-Reply-To: <3BBC30B6.1030203@wipro.com>
-Message-ID: <Pine.LNX.4.33.0110041221330.6256-100000@localhost.localdomain>
+	id <S273345AbRJDK1C>; Thu, 4 Oct 2001 06:27:02 -0400
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:53467 "EHLO
+	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S273305AbRJDK0y>; Thu, 4 Oct 2001 06:26:54 -0400
+From: Christoph Rohland <cr@sap.com>
+To: Paul Menage <pmenage@ensim.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][RFC] Pollable /proc/<pid>/ - avoid SIGCHLD/poll() races
+In-Reply-To: <E15p4qy-0000yf-00@pmenage-dt.ensim.com>
+Organisation: SAP LinuxLab
+In-Reply-To: <E15p4qy-0000yf-00@pmenage-dt.ensim.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
+Message-ID: <m3snczogal.fsf@linux.local>
+Date: 04 Oct 2001 12:25:36 +0200
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+X-SAP: out
+X-SAP: out
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Paul,
 
-On Thu, 4 Oct 2001, BALBIR SINGH wrote:
+On Thu, 04 Oct 2001, Paul Menage wrote:
+>>> The only real user-space solution to this is to have the SIGCHLD
+>>> handler somehow cause the select() to return immediately
+>>
+>>... or implement pselect:
+>>http://mesh.eecs.umich.edu/cgi-bin/man2html/usr/share/man/man2/select.2.gz
+> 
+> Agreed, althought that's not a user-space solution. Is there any
+> fundamental reason why no-one's implemented pselect()/ppoll() for
+> Linux yet?
 
-> Shouldn't the interrupt mitigation be on a per CPU basis? [...]
+Missing knowledge and/or demand? It should be pretty easy to
+implement.
 
-this was done by an earlier version of the patch, but it's wrong. An IRQ
-cannot arrive to multiple CPUs at once (well, normal device interrupts at
-least) - it will arrive either to some random CPU, or can be bound via
-/proc/irq/N/smp_affinity. (there are architectures that do
-soft-distribution of interrupts, but that can be considered pseudo-random)
+>>or use sigsetjmp/siglongjmp
+> 
+> Yes, that would probably solve the situation in question, provided
+> that siglongjmp() is portably safe. (A comment on LKML in the past
+> suggested that it's not safe on cygwin, for example.)
 
-But in both cases, it's the actual, per-irq IRQ load that matters. If one
-CPU is hogged by IRQ handlers that is not an issue - other CPUs can still
-take over the work. If *all* CPUs are hogged then the patch detects the
-overload.
+It should be at least portable between different U*X versions. I never
+used cygwin though.
 
-	Ingo
+Greetings
+		Christoph
+
 

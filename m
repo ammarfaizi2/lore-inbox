@@ -1,64 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262397AbUKWKQg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262375AbUKWKUf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262397AbUKWKQg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 05:16:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262164AbUKWKOj
+	id S262375AbUKWKUf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 05:20:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262130AbUKWKUe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 05:14:39 -0500
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:22229 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S262130AbUKWKOH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 05:14:07 -0500
-Subject: RE: [PATCH 2.6.9] fork: add a hook in do_fork()
-From: Guillaume Thouvenin <Guillaume.Thouvenin@Bull.net>
-To: hzhong@cisco.com
-Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <200411230959.AUF58392@mira-sjc5-e.cisco.com>
-References: <200411230959.AUF58392@mira-sjc5-e.cisco.com>
-Date: Tue, 23 Nov 2004 11:14:03 +0100
-Message-Id: <1101204843.6210.100.camel@frecb000711.frec.bull.fr>
+	Tue, 23 Nov 2004 05:20:34 -0500
+Received: from rproxy.gmail.com ([64.233.170.193]:57698 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262444AbUKWKU0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Nov 2004 05:20:26 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=DijH6Yd5ZZuPmAVLpkcDWa0jhwYYI0yPPAGd/0O9oxT9QHTWYuebHQeAyh31KivBA4dmc306VwOdsLhdkgzkksuXz6Cs1U2Ngu5UdmFuWoRC6gF/usk3RgfYHhqqvP4seZPv2tq6KeHdybIDjsFttCRiq3RkiwaZOguWKy9vDrI=
+Message-ID: <fcb9aa29041123022027c1ec06@mail.gmail.com>
+Date: Tue, 23 Nov 2004 12:20:24 +0200
+From: Ilya Pashkovsky <ilya.pashkovsky@gmail.com>
+Reply-To: Ilya Pashkovsky <ilya.pashkovsky@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: tcp port reuse checking TCP_LISTEN state
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 23/11/2004 11:21:08,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 23/11/2004 11:21:09,
-	Serialize complete at 23/11/2004 11:21:09
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-11-23 at 01:59 -0800, Hua Zhong wrote:
-> > +	static int fork_hook_id = 0;
-> > +
-> > +	/* We can set the hook if it's not already used */
-> > +	if ((func != NULL) && (fork_hook_id == 0)) {
-> > +		fork_hook = func;
-> > +		fork_hook_id = id;
-> > +		return 0;
-> > +	}
-> 
-> What happens if two modules are calling the same function at the same time?
+Hello, fellow developers.
 
-You are right there is a problem. I need to add a lock.
- 
-> > +
-> > +	if (fork_hook != NULL)
-> > +		fork_hook(current->pid, pid);
-> > +
-> >  	return pid;
-> 
-> What happens if the module is unloaded between the test and the call to
-> fork_hook?
+While BSD (and thus, MacOS X) has the SO_REUSEPORT socket option, and
+Windows has SO_REUSEADDR socket option that integrates the port reuse
+functionality, linux tends to differ.
+Though the socket matching should be made using the tuple consisting
+of both source address+port and destination address+port, there's a
+check in the tcp implementation of linux kernel for TCP_LISTEN state,
+which inhibits port reuse. While its logical to allow only one
+listener on a socket, this can be accomplished by checking for the
+socket state during the call to listen(). The current behavior breaks
+applications that want to both listen on an port and initiate outgoing
+connections from it (same port).
+Can anyone please explain the logic behind the TCP_LISTEN check being
+done on bind() calls and not listen() calls ?
 
-Again you are right and I need to protect that. 
-
-In fact, Greg suggests to use LSM hook and it seams that it does what I
-need. So my patch is obsolete now. 
-
-Thank you to everybody for your help,
-Best Regards,
-
-Guillaume
-
+--
+ ilya

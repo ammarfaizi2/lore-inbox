@@ -1,47 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131386AbQLPUts>; Sat, 16 Dec 2000 15:49:48 -0500
+	id <S131878AbQLPU73>; Sat, 16 Dec 2000 15:59:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131878AbQLPUti>; Sat, 16 Dec 2000 15:49:38 -0500
-Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:12374
-	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
-	id <S131386AbQLPUtd>; Sat, 16 Dec 2000 15:49:33 -0500
-Date: Sat, 16 Dec 2000 21:19:00 +0100
-From: Rasmus Andersen <rasmus@jaquet.dk>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org, fritz@isdn4linux.de
-Subject: [PATCH] makefile patch for drivers/isdn/sc/Makefile (240t13p2)
-Message-ID: <20001216211900.B609@jaquet.dk>
+	id <S132255AbQLPU7U>; Sat, 16 Dec 2000 15:59:20 -0500
+Received: from smtp03.mrf.mail.rcn.net ([207.172.4.62]:57802 "EHLO
+	smtp03.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
+	id <S131878AbQLPU7B>; Sat, 16 Dec 2000 15:59:01 -0500
+Date: Sat, 16 Dec 2000 15:28:33 -0500
+From: Tom Vier <thomassr@erols.com>
+To: Chad Schwartz <cwslist@main.cornernet.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Dropping chars on 16550
+Message-ID: <20001216152833.A7536@zero>
+In-Reply-To: <Pine.LNX.4.21.0012141529580.2159-100000@server.serve.me.nl> <Pine.LNX.4.30.0012140833520.14206-100000@main.cornernet.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
+User-Agent: Mutt/1.0.1i
+In-Reply-To: <Pine.LNX.4.30.0012140833520.14206-100000@main.cornernet.com>; from cwslist@main.cornernet.com on Thu, Dec 14, 2000 at 08:51:42AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Thu, Dec 14, 2000 at 08:51:42AM -0600, Chad Schwartz wrote:
+> And what kind of serial ports do you find on your Alpha?  16550's!  Your
+> PowerPC?  16550's!  Your PA-RISC box? 16550's!  Hey! Even RS/6000's use
+> 16550's!
 
-This patch fixes a trivial makefile problem i drivers/isdn/sc.
-
-
---- linux-240-t13-pre2-clean/drivers/isdn/sc/Makefile	Sat Dec 16 20:40:56 2000
-+++ linux/drivers/isdn/sc/Makefile	Sat Dec 16 21:14:57 2000
-@@ -2,7 +2,7 @@
- 
- # The target object and module list name.
- 
--O_TARGET	:= sc_drv
-+O_TARGET	:= sc_drv.o
- 
- # Objects that export symbols.
- 
+macs and sun machines use z85c30 chips, so there are some non-16550 boxes
+out there.
 
 -- 
-Regards,
-        Rasmus(rasmus@jaquet.dk)
-
-"God prevent we should ever be twenty years without a revolution." 
-  -- Thomas Jefferson
+Tom Vier <thomassr@erols.com>
+DSA Key id 0x27371A2C
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

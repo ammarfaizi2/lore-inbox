@@ -1,95 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262103AbVBUTs2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262058AbVBUUAn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262103AbVBUTs2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Feb 2005 14:48:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262100AbVBUTrz
+	id S262058AbVBUUAn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Feb 2005 15:00:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262081AbVBUUAn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Feb 2005 14:47:55 -0500
-Received: from deventer.factotum.nl ([195.18.123.2]:23018 "EHLO
-	kiev.dev.factotummedia.nl") by vger.kernel.org with ESMTP
-	id S262082AbVBUTq4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Feb 2005 14:46:56 -0500
-Date: Mon, 21 Feb 2005 20:45:57 +0100
-From: zander@kde.org
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: darcs-users@darcs.net, lm@bitmover.com, linux-kernel@vger.kernel.org
-Subject: Re: [darcs-users] Re: [BK] upgrade will be needed
-Message-ID: <20050221194557.GA23251@factotummedia.nl>
-Mail-Followup-To: zander@kde.org, Andrea Arcangeli <andrea@suse.de>,
-	darcs-users@darcs.net, lm@bitmover.com,
-	linux-kernel@vger.kernel.org
-References: <20050214020802.GA3047@bitmover.com> <200502172105.25677.pmcfarland@downeast.net> <421551F5.5090005@tupshin.com> <20050218090900.GA2071@opteron.random> <bc647aafb53842b58dd0279161fb48e0@spy.net> <buosm3q5v5y.fsf@mctpc71.ucom.lsi.nec.co.jp> <20050221155306.GU7247@opteron.random>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="82I3+IH0IqGh5yIs"
-Content-Disposition: inline
-In-Reply-To: <20050221155306.GU7247@opteron.random>
+	Mon, 21 Feb 2005 15:00:43 -0500
+Received: from fire.osdl.org ([65.172.181.4]:13283 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262058AbVBUUAe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Feb 2005 15:00:34 -0500
+Date: Mon, 21 Feb 2005 12:00:48 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Pete Zaitcev <zaitcev@redhat.com>
+cc: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: Merging fails reading /dev/uba1
+In-Reply-To: <20050221102431.64de6c6c@localhost.localdomain>
+Message-ID: <Pine.LNX.4.58.0502211152330.2378@ppc970.osdl.org>
+References: <20050220200059.53db7b1e@localhost.localdomain>
+ <20050221075131.GT4056@suse.de> <20050221102431.64de6c6c@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---82I3+IH0IqGh5yIs
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Mon, Feb 21, 2005 at 04:53:06PM +0100, Andrea Arcangeli wrote:
-> Hello Miles,
->=20
-> On Mon, Feb 21, 2005 at 02:39:05PM +0900, Miles Bader wrote:
-> > Yeah, the basic way arch organizes its repository seems _far_ more sane
-> > than the crazy way CVS (or BK) does, for a variety of reasons[*].  No
-> > doubt there are certain usage patterns which stress it, but I think it
-> > makes a lot more sense to use a layer of caching to take care of those,
-> > rather than screwing up the underlying organization.
-> >=20
-> > [*] (a) Immutability of repository files (_massively_ good idea)
->=20
-> what is so important about never modifying the repo? Note that only the
-> global changeset database and a few ,v files will be modified for each
-> changeset, it's not like we're going to touch all the ,v files for each
-> checkin. Touching the "modified" ,v files sounds a very minor overhead.
->=20
-> And you can incremental backup the stuff with recursive diffing the
-> repo too.
->=20
-> AFIK all other SCM except arch and darcs always modify the repo, I never
-> heard complains about it, as long as incremental backups are possible
-> and they definitely are possible.
+On Mon, 21 Feb 2005, Pete Zaitcev wrote:
+> 
+> Contiguous pages have nothing to do with it either. I forgot to mention
+> that in the first case (whole device), all reads are done with length of
+> 4KB, while in the second case (partition), all reads are 512 bytes long.
 
-Well, as you seem to have never been bitten by that bug; let me assure you
-the problem is very real.  Each file (,v file) can live in the repo for
-many years and has to servive any spurious writes to be usable.  The
-curruption of such files (in my experience) only shows itself if you try
-to access its history; which may be weeks after the corruption started,
-and you can't use a backup for that since you will overwrite new versions
-added since.
+That's because your partition isn't a full 4kB in size.
 
-Think about it this way;  nfs servers are known to corrupt things;
-reboots can corrupt files, different clients will try to write to
-the file at the same time quite often during the lifetime of the file, cvs
-clients get killed during writes or network drops the connection during a
-session.
-Considering that the ,v files have a lifetime of years, with many
-modifications during that time, I think its amazing corruption does not
-happen more often.
+So the kernel falls back to 512-byte reads, just because they are the only 
+kind that _can_ read the last sector.
 
-CVS was pretty good at keeping files sane, but I'll go for a solution that
-completely sidesteps said problem any day.
+> Disk /dev/uba: 1048 MB, 1048576000 bytes
 
---=20
-Thomas Zander
+Note: this is a nice multiple of 4kB.
 
---82I3+IH0IqGh5yIs
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+> 64 heads, 32 sectors/track, 1000 cylinders
+> Units = cylinders of 2048 * 512 = 1048576 bytes
+> 
+>    Device Boot      Start         End      Blocks   Id  System
+> /dev/uba1   *           1        1000     1023983+   6  FAT16
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
+And note how this is _not_ (see the "+" at the end), you've got a 
+1023983.5 kB partition.
 
-iD8DBQFCGjp1CojCW6H2z/QRAh/EAKCMSnWwbsy7dzLYsR/P7wOWgdx8VQCfbVIJ
-6AQj3kuzArKklnYdX8q1vFs=
-=Ti5S
------END PGP SIGNATURE-----
+> It does not look to me as if the partition started from an odd number
+> of sectors. In fact, it starts from a full number of pages.
 
---82I3+IH0IqGh5yIs--
+But it seems to end in an odd number of sectors.
+
+That said, I'm surprised that the difference in performance is _that_ 
+large. Regardless of whether the disk blocksize is 512 bytes or 4096 
+bytes, you should be getting IO merging - it might use more CPU time, but 
+the actual IO should still be done in much larger blocks.
+
+You should be able to try the BLKBSZSET ioctl to set the blocksize by hand 
+if you want to try it out:
+
+	int size = 4096;
+	ioctl(fd, BLKBSZSET, &size);
+
+or similar. Of course, mounting a filesystem on the device tends to do 
+that (or undo it) for you, ie it will set the blocksize to whatever 
+blocksize the filesystem wants.
+
+		Linus

@@ -1,43 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273102AbRIIXv4>; Sun, 9 Sep 2001 19:51:56 -0400
+	id <S273109AbRIIX5G>; Sun, 9 Sep 2001 19:57:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273101AbRIIXvq>; Sun, 9 Sep 2001 19:51:46 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:46087 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S273106AbRIIXvl>; Sun, 9 Sep 2001 19:51:41 -0400
+	id <S273108AbRIIX45>; Sun, 9 Sep 2001 19:56:57 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:47880 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S273107AbRIIX4n>; Sun, 9 Sep 2001 19:56:43 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        torvalds@transmeta.com (Linus Torvalds)
 Subject: Re: linux-2.4.10-pre5
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Mon, 10 Sep 2001 00:54:26 +0100 (BST)
-Cc: phillips@bonn-fries.net (Daniel Phillips),
-        adilger@turbolabs.com (Andreas Dilger),
-        andrea@suse.de (Andrea Arcangeli),
+Date: Mon, 10 Sep 2001 02:04:19 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: adilger@turbolabs.com (Andreas Dilger), andrea@suse.de (Andrea Arcangeli),
         linux-kernel@vger.kernel.org (Kernel Mailing List)
-In-Reply-To: <Pine.LNX.4.33.0109091615570.22033-100000@penguin.transmeta.com> from "Linus Torvalds" at Sep 09, 2001 04:24:24 PM
-X-Mailer: ELM [version 2.5 PL6]
+In-Reply-To: <E15gEPC-00084T-00@the-village.bc.nu>
+In-Reply-To: <E15gEPC-00084T-00@the-village.bc.nu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15gEPC-00084T-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010909235703Z16150-26183+678@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-How do you plan to handle the situation where we have multiple instances
-of the same 4K disk block each of which contains 1K of data in the
-start of the page copy and 3K of zeroes.
+On September 10, 2001 01:54 am, Alan Cox wrote:
+> How do you plan to handle the situation where we have multiple instances
+> of the same 4K disk block each of which contains 1K of data in the
+> start of the page copy and 3K of zeroes.
+> 
+> This isnt idle speculation - thing about BSD UFS fragments.
 
-This isnt idle speculation - thing about BSD UFS fragments.
+This is handled the same way ReiserFS handles tail merging now - by 
+instantiating multiple pages in the respective inode mappings with copies
+of the respective parts of the shared block, which stays in the physical
+block cashe (aka buffer cache).
 
-> anyway, I very much doubt it has any good properties to make software more
-> complex by having that kind of readahead in sw.
+The dirty work is done by xxx_get_block.
 
-Even the complex stuff like the i2o raid controllers seems to benefit
-primarily from file level not physical readahead, that gives it enough to 
-do intelligent scheduling and to keep the drive firmware busy making good
-decisions (hopefully)
-
-Even with software raid the physical readahead decisions belong in the raid
-code as they are tied to strip alignment and sizes not high level policy
-
-Alan
+--
+Daniel

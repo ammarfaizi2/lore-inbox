@@ -1,71 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265351AbTBOWsm>; Sat, 15 Feb 2003 17:48:42 -0500
+	id <S265355AbTBOW5f>; Sat, 15 Feb 2003 17:57:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265355AbTBOWsm>; Sat, 15 Feb 2003 17:48:42 -0500
-Received: from natsmtp01.webmailer.de ([192.67.198.81]:39327 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S265351AbTBOWsl>; Sat, 15 Feb 2003 17:48:41 -0500
-Date: Sat, 15 Feb 2003 23:57:38 +0100
-From: Dominik Brodowski <linux@brodo.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: davej@suse.de, linux-kernel@vger.kernel.org, cpufreq@www.linux.org.uk
-Subject: [PATCH] cpufreq: fix compilation of ACPI if !CPU_FREQ [Was: Re: [PATCH UPDATED] cpufreq: move frequency table helpers to extra module]
-Message-ID: <20030215225738.GA1363@brodo.de>
-References: <20030213111406.GA23909@brodo.de> <Pine.LNX.4.44.0302151252110.21697-100000@home.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S265378AbTBOW5f>; Sat, 15 Feb 2003 17:57:35 -0500
+Received: from c16639.thoms1.vic.optusnet.com.au ([210.49.244.5]:55426 "EHLO
+	mail.kolivas.org") by vger.kernel.org with ESMTP id <S265355AbTBOW5e>;
+	Sat, 15 Feb 2003 17:57:34 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: tbench as a load - DDOS attack?
+Date: Sun, 16 Feb 2003 10:07:25 +1100
+User-Agent: KMail/1.5
+Cc: Andrew Morton <akpm@digeo.com>, zwane@holomorphy.com
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0302151252110.21697-100000@home.transmeta.com>
-User-Agent: Mutt/1.4i
+Message-Id: <200302161007.25149.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 15, 2003 at 12:53:56PM -0800, Linus Torvalds wrote:
-> 
-> Dominic,
->  this broke ACPI. 
-> 
-> 	In file included from drivers/acpi/processor.c:49:
-> 	include/acpi/processor.h:78: field `freq_table' has incomplete type
-> 
-> AGAIN.
-> 
-> For about the 15th time. 
-> 
-> You guys need to talk more. A LOT more. Or y ou need to start checking who 
-> is actually _using_ the frequency code, and when you make changes to the 
-> interfaces you need to _update_ the users, instead of just causing kernel 
-> compiles to fail every frigging time you make a change.
-> 
-> 		Linus
 
-Linus,
+Zwane M suggested using tbench as a load to test one of his recent patches and 
+gave me the idea to try using tbench_load in contest. Here are the first set 
+of results I got while running tbench 4 continuously (uniprocessor machine):
 
-here's the compile fix for this breakage which only appears if
-CONFIG_ACPI && !(CONFIG_CPU_FREQ_TABLE || CONFIG_CPU_FREQ_TABLE_MODULE)
-Unfortunately, I forgot to test-compile this combination. Sorry about
-that.
+tbench_load:
+Kernel         [runs]   Time    CPU%    
+test2420            1   180     38.9    
+test2561            1   970     7.7   
 
-	Dominik
+This is a massive difference. Sure tbench was giving better numbers on 2.5.61 
+but it caused a massive slowdown. I wondered whether this translates into 
+being more susceptible to ping floods or DDOS attacks? You should have seen 
+tbench 16 - 3546 seconds!
 
-diff -u linux-original/include/linux/cpufreq.h linux/include/linux/cpufreq.h
---- linux-original/include/linux/cpufreq.h	2003-02-15 23:35:14.000000000 +0100
-+++ linux/include/linux/cpufreq.h	2003-02-15 23:28:32.000000000 +0100
-@@ -299,7 +299,7 @@
- 
- #endif /* CONFIG_CPU_FREQ_24_API */
- 
--#if defined(CONFIG_CPU_FREQ_TABLE) || defined(CONFIG_CPU_FREQ_TABLE_MODULE)
-+
- /*********************************************************************
-  *                     FREQUENCY TABLE HELPERS                       *
-  *********************************************************************/
-@@ -313,6 +313,7 @@
- 				    * order */
- };
- 
-+#if defined(CONFIG_CPU_FREQ_TABLE) || defined(CONFIG_CPU_FREQ_TABLE_MODULE)
- int cpufreq_frequency_table_cpuinfo(struct cpufreq_policy *policy,
- 				    struct cpufreq_frequency_table *table);
- 
+comments?
+Con

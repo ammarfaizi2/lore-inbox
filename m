@@ -1,56 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274678AbRITW3V>; Thu, 20 Sep 2001 18:29:21 -0400
+	id <S274679AbRITWcb>; Thu, 20 Sep 2001 18:32:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274679AbRITW3L>; Thu, 20 Sep 2001 18:29:11 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:38537 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S274678AbRITW25>;
-	Thu, 20 Sep 2001 18:28:57 -0400
-Date: Thu, 20 Sep 2001 15:29:19 -0700 (PDT)
-Message-Id: <20010920.152919.35356833.davem@redhat.com>
-To: andrea@suse.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: flush_tlb_all in vmalloc_area_pages
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20010921002547.G729@athlon.random>
-In-Reply-To: <20010907165612.T11329@athlon.random>
-	<20010920.142638.68040129.davem@redhat.com>
-	<20010921002547.G729@athlon.random>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S274680AbRITWcW>; Thu, 20 Sep 2001 18:32:22 -0400
+Received: from [209.202.108.240] ([209.202.108.240]:56588 "EHLO
+	terbidium.openservices.net") by vger.kernel.org with ESMTP
+	id <S274679AbRITWcN>; Thu, 20 Sep 2001 18:32:13 -0400
+Date: Thu, 20 Sep 2001 18:32:22 -0400 (EDT)
+From: Ignacio Vazquez-Abrams <ignacio@openservices.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: Lockup with 2.4.9-ac10 on Athlon
+In-Reply-To: <200109202208.f8KM8o902962@deathstar.prodigy.com>
+Message-ID: <Pine.LNX.4.33.0109201830590.26328-100000@terbidium.openservices.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-scanner: scanned by Inflex 1.0.7 - (http://pldaniels.com/inflex/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Andrea Arcangeli <andrea@suse.de>
-   Date: Fri, 21 Sep 2001 00:25:47 +0200
+On Thu, 20 Sep 2001, bill davidsen wrote:
 
-   The only question I'd like to get a answer is "what is actually the
-   data that can be virtually indexed) in the vmalloc range at the time we
-   run vmalloc?" Where does it cames from?
-   
->From the the direct PAGE_OFFSET mappings.
+> In article <Pine.LNX.4.33.0109100015360.22080-100000@terbidium.openservices.net> you write:
+> | On Sun, 9 Sep 2001, Ignacio Vazquez-Abrams wrote:
+> |
+> | > On Sun, 9 Sep 2001, Ignacio Vazquez-Abrams wrote:
+> | >
+> | > I have solved the problem. It had to do with the setting of
+> | > CONFIG_APM_REAL_MODE_POWER_OFF. It has to be on in my case.
+> | >
+> | > Is there any time when this option _has_ to be off?
+> |
+> | Sigh. I apologize. This did _not_ work. Does anyone else have any hoops for me
+> | to jump through?
+>
+> Look for BIOS updates. I have a BP6 (dual Celeron) system, and I am
+> really disappointed that the only way I can power it down under software
+> control is to boot to another o/s. You may be able to get a BIOS which
+> works.
 
-   Furthmore I recall on sparc you cannot flush the cache if you don't have
-   a mapping in place,
+Well, I've updated the BIOS from 1007 to 1008, so we'll see if that helps.
+Somebody else has reported the same problem though, so we'll see.
 
-This is only true of Hypersparc sparc32 chips for page based flushes,
-not whole flushes.
+> Note: if you have SMP and the kernel insists on disabling power off
+> (like it's not thread safe or something?) you can use "lilo -R" to boot
+> a uni kernel and then shut down.
 
-   If anybody is using at boot time the vmalloc range for whatever purpuse
-   it should be its own business to flush the cache before dropping the
-   mappings from there.
-   
-That isn't the problem, it's dirty cache lines left over from the
-usual access addresses for physical memory (ie. via PAGE_OFFSET linear
-mappings).
+Nope. UP here all the way.
 
-Please, I would heavily suggest leaving this area until 2.5.x there
-are already a traumatic amount of changes going on in 2.4.x
+-- 
+Ignacio Vazquez-Abrams  <ignacio@openservices.net>
 
-Later,
-David S. Miller
-davem@redhat.com
-
-   

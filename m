@@ -1,38 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266827AbUHISNU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266832AbUHISQv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266827AbUHISNU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 14:13:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266819AbUHISNA
+	id S266832AbUHISQv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 14:16:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266816AbUHISOE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 14:13:00 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:20142 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S266816AbUHISLh (ORCPT
+	Mon, 9 Aug 2004 14:14:04 -0400
+Received: from fw.osdl.org ([65.172.181.6]:36584 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266815AbUHISNC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 14:11:37 -0400
-Date: Mon, 9 Aug 2004 20:11:33 +0200
-From: Jens Axboe <axboe@suse.de>
-To: brking@us.ibm.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] blk_resize_tags_fix
-Message-ID: <20040809181133.GD28171@suse.de>
-References: <200408091551.i79FpAeQ063458@northrelay04.pok.ibm.com>
+	Mon, 9 Aug 2004 14:13:02 -0400
+Date: Mon, 9 Aug 2004 10:51:13 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Hollis Blanchard <hollisb@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, viro@parcelfarce.linux.theplanet.co.uk
+Subject: Re: [RFC] Host Virtual Serial Interface driver
+Message-Id: <20040809105113.4923342d.rddunlap@osdl.org>
+In-Reply-To: <1091827384.31867.21.camel@localhost>
+References: <1091827384.31867.21.camel@localhost>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200408091551.i79FpAeQ063458@northrelay04.pok.ibm.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 09 2004, brking@us.ibm.com wrote:
-> 
-> init_tag_map should not initialize the busy_list, refcnt, or busy fields
-> in the tag map since blk_queue_resize_tags can call it while requests are
-> active. Patch moves this initialization into blk_queue_init_tags.
-> 
-> Signed-off-by: Brian King <brking@us.ibm.com>
+On Fri, 06 Aug 2004 16:23:05 -0500 Hollis Blanchard wrote:
 
-Thanks Brian, applied.
+| Hi, I have a new char driver I'd like to get comments on. It is specific
+| to IBM's p5 server line; I've included a description from the comments
+| here:
+...
+| I've included the whole file below; it's pretty much self-contained. All
+| comments welcome.
+| 
+| -- 
+|  
+| #include <linux/init.h>
+| #include <linux/module.h>
+| #include <linux/console.h>
+| #include <linux/major.h>
+| #include <linux/kernel.h>
+| #include <linux/sysrq.h>
+| #include <linux/tty.h>
+| #include <linux/tty_flip.h>
+| #include <linux/sched.h>
+| #include <linux/kbd_kern.h>
+| #include <linux/spinlock.h>
+| #include <linux/ctype.h>
+| #include <linux/interrupt.h>
+| #include <linux/delay.h>
 
--- 
-Jens Axboe
+To the extent possible, we like to put the linux/* files in alpha
+order, and same with the asm/* files.  Separately, as you have them.
 
+| #include <asm/uaccess.h>
+| #include <asm/hvconsole.h>
+| #include <asm/prom.h>
+| #include <asm/hvcall.h>
+| #include <asm/vio.h>
+| 
+| #define __ALIGNED__	__attribute__((__aligned__(sizeof(long))))
+
+You should explain this bit (__ALIGNED__).
+
+| static inline int hdrlen(const uint8_t *packet)
+| {
+| 	const int lengths[] = { 4, 6, 6, 8, };
+| 	struct hvsi_header *header = (struct hvsi_header *)packet;
+| 
+| 	return lengths[VS_DATA_PACKET_HEADER - header->type];
+| }
+
+Any chance of bad data (value) in header->type ?
+
+| 		if (hangup) {
+| 			tty_hangup(hangup);
+| 		}
+
+extra braces (style); maybe in a few other places also.
+
+--
+~Randy

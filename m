@@ -1,43 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269257AbUHZRdF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269256AbUHZRi1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269257AbUHZRdF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 13:33:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269147AbUHZRYQ
+	id S269256AbUHZRi1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 13:38:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269249AbUHZRe2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 13:24:16 -0400
-Received: from mail.dynextechnologies.com ([65.120.73.98]:42867 "EHLO
-	mail.dynextechnologies.com") by vger.kernel.org with ESMTP
-	id S269271AbUHZRVw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 13:21:52 -0400
-Message-ID: <412E1B5F.607@capitalgenomix.com>
-Date: Thu, 26 Aug 2004 13:18:23 -0400
-From: "Fao, Sean" <Sean.Fao@capitalgenomix.com>
-User-Agent: Mozilla Thunderbird 0.7.3 (Windows/20040803)
-X-Accept-Language: en-us, en
+	Thu, 26 Aug 2004 13:34:28 -0400
+Received: from fw.osdl.org ([65.172.181.6]:5080 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269256AbUHZRZD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 13:25:03 -0400
+Date: Thu, 26 Aug 2004 10:20:36 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Rik van Riel <riel@redhat.com>
+cc: Diego Calleja <diegocg@teleline.es>, jamie@shareable.org,
+       christophe@saout.de, vda@port.imtp.ilyichevsk.odessa.ua,
+       christer@weinigel.se, spam@tnonline.net, akpm@osdl.org,
+       wichert@wiggy.net, jra@samba.org, reiser@namesys.com, hch@lst.de,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       flx@namesys.com, reiserfs-list@namesys.com
+Subject: Re: silent semantic changes with reiser4
+In-Reply-To: <Pine.LNX.4.44.0408261315240.27909-100000@chimarrao.boston.redhat.com>
+Message-ID: <Pine.LNX.4.58.0408261019580.2304@ppc970.osdl.org>
+References: <Pine.LNX.4.44.0408261315240.27909-100000@chimarrao.boston.redhat.com>
 MIME-Version: 1.0
-To: Rodrigo FGV <rodrigof@bifgv.com.br>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Reiser 4
-References: <006601c48bad$00c4b130$0700a8c0@ti10>
-In-Reply-To: <006601c48bad$00c4b130$0700a8c0@ti10>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 26 Aug 2004 17:21:51.0567 (UTC) FILETIME=[2D0EA5F0:01C48B91]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rodrigo FGV wrote:
 
->how i convert reiser3.6 to reiser4. this update is safe???
->the reiser4 have any critical bug?? anyone recommend this update??
+
+On Thu, 26 Aug 2004, Rik van Riel wrote:
 >
+> On Thu, 26 Aug 2004, Diego Calleja wrote:
+> 
+> > All this looks like reinventing the file/directory concept wheel.
+> > Instead of adding support for streams and "use files as directories",
+> > why not orientate it to "use directories as files? Streams could very
+> > well be provided by directories containing files,
+> 
+> So all I need to do is "cat /bin | gzip -9 > /path/to/backup.tar.gz" ?
 
-Have you read the documents at http://www.namesys.com/ yet?  It makes 
-for great reading as everything is quite detailed.  They also have a 
-mailing list you might want to subscribe to if you're worried about 
-bugs.  As far as critical bugs, I don't know of any right now.
+No no. The stream you get from a directory is totally _independent_ of the 
+contents of the directory. Anything else would be pointless.
 
-Hope that helps,
-
--- 
-Sean
+		Linus

@@ -1,146 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270206AbUJTEQQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269425AbUJTE0R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270206AbUJTEQQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 00:16:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265477AbUJTELN
+	id S269425AbUJTE0R (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 00:26:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270157AbUJSXg4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 00:11:13 -0400
-Received: from smtp808.mail.sc5.yahoo.com ([66.163.168.187]:36799 "HELO
-	smtp808.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S270351AbUJTEFg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 00:05:36 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: forcing PS/2 USB emulation off
-Date: Tue, 19 Oct 2004 23:05:32 -0500
-User-Agent: KMail/1.6.2
-Cc: Greg KH <greg@kroah.com>, Alexandre Oliva <aoliva@redhat.com>,
-       linux-kernel@vger.kernel.org
-References: <orzn2lyw8k.fsf@livre.redhat.lsd.ic.unicamp.br> <20041019063057.GA3057@ucw.cz> <200410190148.30386.dtor_core@ameritech.net>
-In-Reply-To: <200410190148.30386.dtor_core@ameritech.net>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200410192305.32681.dtor_core@ameritech.net>
+	Tue, 19 Oct 2004 19:36:56 -0400
+Received: from mail.kroah.org ([69.55.234.183]:10378 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S270131AbUJSWqe convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 18:46:34 -0400
+X-Fake: the user-agent is fake
+Subject: Re: [PATCH] PCI fixes for 2.6.9
+User-Agent: Mutt/1.5.6i
+In-Reply-To: <1098225734848@kroah.com>
+Date: Tue, 19 Oct 2004 15:42:14 -0700
+Message-Id: <1098225734438@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 19 October 2004 01:48 am, Dmitry Torokhov wrote:
-> On Tuesday 19 October 2004 01:30 am, Vojtech Pavlik wrote:
-> > On Mon, Oct 18, 2004 at 09:45:39AM -0700, Greg KH wrote:
-> > 
-> > > I'm a little leary of changing the way the kernel grabs the USB hardware
-> > > from the way we have been doing it for the past 6 years.  So by
-> > > providing the option for people who have broken machines like these, we
-> > > will let them work properly, and it should not affect any of the zillion
-> > > other people out there with working hardware.
-> > > 
-> > > Or, if we can determine a specific model of hardware that really needs
-> > > this option enabled, we can do that automatically.  If you look at the
-> > > patch, we do that for some specific IBM machines for this very reason.
-> > > 
-> > > Is there any consistancy with the type of hardware that you see being
-> > > reported for this issue?
-> >  
-> > Like 30% of all notebooks? ;) They do boot without the USB handoff, the
-> > PS/2 mouse works, but only as a PS/2 mouse, no extended capabilities
-> > detection is possible due to the BIOS interference.
-> > 
-> 
-> I will send a list of examples tomorrow but so far it includes IBM
-> Thinkpads, Dells, Sonys, Compaqs, Fujitsus, Toshibas, Supermicro-based
-> boards and nonames. 
-> 
-> We risk growing that DMI list pretty big ;)
-> 
+ChangeSet 1.1997.37.17, 2004/10/06 11:54:36-07:00, janitor@sternwelten.at
 
-OK, here are the different cases that I was able to find:
+[PATCH] PCI list_for_each: arch-alpha-kernel-pci.c
 
-http://www.ussg.iu.edu/hypermail/linux/kernel/0401.3/0484.html
-Sony Vaio GR7/K - PhoenixBIOS 4.0 Release 6.0 - R0208C0.
-... Anyway I solved this problem loading uhci_hcd + hid before
-psmouse in /etc/modules
+Change for loops with list_for_each().
 
-http://mike2k.de/cgi-bin/t40.cgi
-Thinkpad T40p
-... When booting a 2.6.2 kernel with apm enabled, the synaptics
-touchpad is not recognized by the Kernel if a USB Mouse is plugged
-in at boottime and thus only the usb mouse is usable.
+Signed-off-by: Domen Puncer <domen@coderock.org>
+Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
-http://lkml.org/lkml/2004/7/6/32
-Unknown
-> > input: SynPS/2 Synaptics TouchPad on isa0060/serio1
-> 
-> Try making psmouse modular as well and load it _after_ all USB stuff is
-> loaded - you may be having issues with USB Legacy emulation.
 
-Ok, this has fixed it. At least the other way round: compiling in the
-basic usb stuff and psmouse did the trick in -mm6, too.
+ arch/alpha/kernel/pci.c |   16 +++++-----------
+ 1 files changed, 5 insertions(+), 11 deletions(-)
 
-http://www.redhat.com/archives/fedora-test-list/2004-June/msg00168.html
-Supermicro boards seem to have problems
-... As far as people can currently tell that is down to supermicro bios bugs.
-Compiling the HCD in hides this by turning off USB legacy emulation before
-the bios can get involved - so the kernel ends up talking to the real
-PS/2 hardware.
 
-http://seclists.org/lists/linux-kernel/2004/Mar/0348.html
-Model: unknown
-> On Tuesday 02 March 2004 05:03 am, Emiliano 'AlberT' Gabrielli wrote: 
-> > Hi all, 
-> > I have a strange behaviour on my laptop: touchpad is not probed by the 
-> > kernel (2.6.3) *if* and only if at boot time the USB mouse is plugged in 
-> > ... 
-> 
-> It is usually caused by USB Legacy emulation - BIOS makes a USB mouse look 
-> like a PS/2 mouse. Look in your BIOS setup if there is an option to turn it 
-> off. Otherwise you will have to load ehci/uhci_hcd and hid modules before 
-> loading psmouse module as loading full-blown USB support disables that 
-> emulation. 
-perfect, now all works fine 
-thank you so much
+diff -Nru a/arch/alpha/kernel/pci.c b/arch/alpha/kernel/pci.c
+--- a/arch/alpha/kernel/pci.c	2004-10-19 15:26:19 -07:00
++++ b/arch/alpha/kernel/pci.c	2004-10-19 15:26:19 -07:00
+@@ -280,7 +280,6 @@
+ 	/* Propagate hose info into the subordinate devices.  */
+ 
+ 	struct pci_controller *hose = bus->sysdata;
+-	struct list_head *ln;
+ 	struct pci_dev *dev = bus->self;
+ 
+ 	if (!dev) {
+@@ -304,9 +303,7 @@
+  		pcibios_fixup_device_resources(dev, bus);
+ 	} 
+ 
+-	for (ln = bus->devices.next; ln != &bus->devices; ln = ln->next) {
+-		struct pci_dev *dev = pci_dev_b(ln);
+-
++	list_for_each_entry(dev, &bus->devices, bus_list) {
+ 		pdev_save_srm_config(dev);
+ 		if ((dev->class >> 8) != PCI_CLASS_BRIDGE_PCI)
+ 			pcibios_fixup_device_resources(dev, bus);
+@@ -403,11 +400,10 @@
+ static void __init
+ pcibios_claim_one_bus(struct pci_bus *b)
+ {
+-	struct list_head *ld;
++	struct pci_dev *dev;
+ 	struct pci_bus *child_bus;
+ 
+-	for (ld = b->devices.next; ld != &b->devices; ld = ld->next) {
+-		struct pci_dev *dev = pci_dev_b(ld);
++	list_for_each_entry(dev, &b->devices, bus_list) {
+ 		int i;
+ 
+ 		for (i = 0; i < PCI_NUM_RESOURCES; i++) {
+@@ -426,12 +422,10 @@
+ static void __init
+ pcibios_claim_console_setup(void)
+ {
+-	struct list_head *lb;
++	struct pci_bus *b;
+ 
+-	for(lb = pci_root_buses.next; lb != &pci_root_buses; lb = lb->next) {
+-		struct pci_bus *b = pci_bus_b(lb);
++	list_for_each_entry(b, &pci_root_buses, node)
+ 		pcibios_claim_one_bus(b);
+-	}
+ }
+ 
+ void __init
 
-http://forums.gentoo.org/viewtopic.php?t=169145
-sony vaio PCG-R600HFPD
-(handoff did not seem to help in this case though)
-
-http://forums.gentoo.org/viewtopic.php?t=178056&highlight=
-Vaio PCG-GRX650.
-Result unknown
-
-http://forums.gentoo.org/viewtopic.php?t=215876&highlight=
-Model: unknown
-... it works like a charm when compiled psmouse as a module.
-
-http://forums.gentoo.org/viewtopic.php?t=223819&highlight=
-Premio 6010N (czech made in ATComputers)
-
-http://www.ussg.iu.edu/hypermail/linux/kernel/0409.0/1930.html
-Fujitsu S7010
-May help.
-
-http://www.fedoraforum.org/forum/archive/index.php/t-21097.html
-... I have a Toshiba A70, and needed to disable 'legacy USB support'
-in the bios. As soon as I did that, the touchpad (minus wheel
-functionality) began working.
-
-http://forums.gentoo.org/viewtopic.php?p=1665865#1665865
-Keyboard does not work unless usb-handoff is used.
-
-http://bugme.osdl.org/show_bug.cgi?id=1882
-IBM T40
-
-There is also issue of IBMs reporting presence of an active multiplexing
-controller unless USB is activated before i8042.
-
-J.A. Magallon has complained that his mouse is jerky unless legacy
-emulation is disabled.
-
-Note that only staring with 2.6 PS/2 initialization happens before
-USB because before GPM/X was doing it way after USB has been activated
-event if USB was compiled as modules.
-
--- 
-Dmitry

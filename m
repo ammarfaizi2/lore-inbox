@@ -1,90 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261661AbUKJJ6s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261645AbUKJJ6R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261661AbUKJJ6s (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 04:58:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261656AbUKJJ6r
+	id S261645AbUKJJ6R (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 04:58:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261672AbUKJJ6R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 04:58:47 -0500
-Received: from mail05.syd.optusnet.com.au ([211.29.132.186]:54419 "EHLO
-	mail05.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261663AbUKJJ6D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 04:58:03 -0500
-Message-ID: <4191E605.1050401@kolivas.org>
-Date: Wed, 10 Nov 2004 20:57:25 +1100
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Herbert Poetzl <herbert@13thfloor.at>
-Cc: Patrick Mau <mau@oscar.ping.de>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Workaround for wrapping loadaverage
-References: <20041108001932.GA16641@oscar.prima.de> <20041108012707.1e141772.akpm@osdl.org> <20041108102553.GA31980@oscar.prima.de> <20041108155051.53c11fff.akpm@osdl.org> <20041109004335.GA1822@oscar.prima.de> <20041109185103.GE29661@mail.13thfloor.at> <41913B75.1050500@kolivas.org> <20041110062059.GA20467@mail.13thfloor.at>
-In-Reply-To: <20041110062059.GA20467@mail.13thfloor.at>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigC0A5A615FC1862030AD499CC"
+	Wed, 10 Nov 2004 04:58:17 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:3517 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261645AbUKJJ5y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Nov 2004 04:57:54 -0500
+Date: Wed, 10 Nov 2004 11:59:51 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Thomas Hood <jdthood@yahoo.co.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Documentation/preempt-locking.txt clarification
+Message-ID: <20041110105951.GA3714@elte.hu>
+References: <1073302283.1903.85.camel@thanatos.hubertnet> <1074561880.26456.26.camel@localhost> <1100074907.3654.780.camel@thanatos> <20041110005742.35828d2b.akpm@osdl.org> <1100078840.3654.822.camel@thanatos> <20041110014543.143b8ff3.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041110014543.143b8ff3.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigC0A5A615FC1862030AD499CC
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Herbert Poetzl wrote:
-> On Wed, Nov 10, 2004 at 08:49:41AM +1100, Con Kolivas wrote:
+* Andrew Morton <akpm@osdl.org> wrote:
+
+> I think the statement is in fact false.  Ingo, what's your take on
+> this paragraph, from preempt-locking.txt?
 > 
->>Herbert Poetzl wrote:
->>
->>>but I agree that a higher resolution would be a good
->>>idea ... also doing the calculation when the number
->>>of running/uninterruptible processes has changed would
->>>be a good idea ...
->>
->>This could get very expensive. A modern cpu can do about 700,000 context 
->>switches per second of a real task with the current linux kernel so I'd 
->>suggest not doing this.
-> 
-> 
-> hmm, right it can, do you have any stats about the
-> 'typical' workload behaviour? 
+>   An additional concern is proper usage of local_irq_disable and
+>   local_irq_save.  These may be used to protect from preemption,
+>   however, on exit, if preemption may be enabled, a test to see if
+>   preemption is required should be done.  If these are called from the
+>   spin_lock and read/write lock macros, the right thing is done.  They
+>   may also be called within a spin-lock protected region, however, if
+>   they are ever called outside of this context, a test for preemption
+>   should be made.  Do note that calls from interrupt context or bottom
+>   half/ tasklets are also protected by preemption locks and so may use
+>   the versions which do not check preemption.
 
-How long is a piece of string? It depends entirely on your workload. On 
-a desktop machine just switching applications pushes it to 10,000. 
-Basically you end up making it an O(n) calculation by increasing the 
-overhead of it (albeit small) proportionately to the context switch load 
-which is usually significantly higher than the system load.
+seems mostly correct. The issue is that if a wakeup is done from within
+an irqs-off critical section (perfectly possible - a simple printk can
+trigger a wakeup) then the current task may be marked for rescheduling
+but cannot do it just yet. So when interrupts are re-enabled again
+(outside of a critical section) a manual preempt_check_resched() is
+necessary in the generic case, or else we miss the reschedule.
 
-> do you know the average time between changes of 
-> nr_running and nr_uninterruptible?
+In special cases, if no wakeup may happen from within the irqs-off
+section then the manual preemption can be skipped, because asynchronous
+reschedules (e.g. on SMP) always come in the form of interrupts. I'd
+wager that in fact these 'special cases' are in the majority, but
+there's no guarantee.
 
-Same answer. Depends entirely on the workload and to whether your 
-running tasks sleep at all or not (hint - most do). While it will be a 
-lower number than the number of context switches, it potentially can be 
-as high with just the right sort of threads (think server, network type 
-stuff).
-
-> TIA,
-> Herbert
-
-Cheers,
-Con
-
---------------enigC0A5A615FC1862030AD499CC
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBkeYHZUg7+tp6mRURAvDyAJ9/Gmgmi6czPqSJIjLQS8kbnLsmcgCeN+lg
-ehflh+5EG27ejMOaXNMnz7U=
-=Nu/I
------END PGP SIGNATURE-----
-
---------------enigC0A5A615FC1862030AD499CC--
+	Ingo

@@ -1,73 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268173AbTBNDrT>; Thu, 13 Feb 2003 22:47:19 -0500
+	id <S268176AbTBND5W>; Thu, 13 Feb 2003 22:57:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268174AbTBNDrT>; Thu, 13 Feb 2003 22:47:19 -0500
-Received: from impact.colo.mv.net ([199.125.75.20]:21725 "EHLO
-	impact.colo.mv.net") by vger.kernel.org with ESMTP
-	id <S268173AbTBNDrS>; Thu, 13 Feb 2003 22:47:18 -0500
-Message-ID: <3E4C68F5.8070208@bogonomicon.net>
-Date: Thu, 13 Feb 2003 21:56:37 -0600
-From: Bryan Andersen <bryan@bogonomicon.net>
-Organization: Bogonomicon
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.21-pre4-ac4 make xconfig fails
-References: <3E4C6314.4070105@bellini.mit.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S268177AbTBND5W>; Thu, 13 Feb 2003 22:57:22 -0500
+Received: from tenor.CodeGen.COM ([204.62.145.147]:57100 "EHLO
+	tenor.codegen.com") by vger.kernel.org with ESMTP
+	id <S268176AbTBND5U>; Thu, 13 Feb 2003 22:57:20 -0500
+Message-Id: <200302140407.h1E477oP041875@tenor.codegen.com>
+To: Peter Tattam <peter@jazz-1.trumpet.com.au>
+cc: linux-kernel@vger.kernel.org, discuss@x86-64.org
+Subject: Re: [discuss] Re: [Bug 350] New: i386 context switch very slow compared to 2.4 due to wrmsr (performance) 
+Organization: CodeGen, Inc., San Francisco, CA
+In-reply-to: Your message of Fri, 14 Feb 2003 13:01:30 +1100.
+             <Pine.BSF.3.96.1030214125805.16984A-100000@jazz-1.trumpet.com.au> 
+Date: Thu, 13 Feb 2003 20:07:07 -0800
+From: "Thomas J. Merritt" <tjm@codegen.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I also see this, Debian testing based system, but I usually menuconfig 
-myself.
+|<><><><><> Original message from Peter Tattam  <><><><><>
+|On Thu, 13 Feb 2003, Eric Northup wrote:
+|
+|> On Thursday 13 February 2003 07:14 pm, Peter Tattam wrote:
+|> > On Thu, 13 Feb 2003, Andi Kleen wrote:
+|> > > [Hmm, this is becomming a FAQ]
+|> > >
+|> > > > Switching in and out of long mode is evil enough that I don't think it
+|> > > > is worth it.  And encouraging people to write good JIT compiling
+|> > >
+|> > > Forget it. It is completely undefined in the architecture what happens
+|> > > then. You'll lose interrupts and everything. Nothing for an operating
+|> > > system intended to be stable.
+|> > >
+|> > > I have no plans at all to even think about it for Linux/x86-64.
+|> [snip]
+|> >
+|> > The only other unknown quantity is the time it takes for the CPU to
+|> > enable/disable long mode, but with modern CPU speeds, the interrupt latency
+|> > may only be mildy affect by such a process, unless the CPU is broken in
+|> > some way. I see no discussion in the AMD manuals regarding the cost of the
+|> > mode switch, only what AMD engineers have hinted at.
+|> 
+|> I think the real issue is that AMD neither recommends nor supports this 
+|> strategy.  ( http://www.x86-64.org/lists/discuss/msg02964.html ... there were
+| 
+|> better posts but I couldn't find them)  People with real hardware can't talk 
+|> about it right now, but it seems to me this is just begging to get hit by 
+|> errata -- how much effore do you think team Hammer spent testing a subtle 
+|> mode transition which is marked "Don't do that!" ?
+|> 
+|
+|well, I guess AMD need to come out & explicitly state this somewhere other than
+|on a mailing list.   I wouldn't be only one tempted to see if it can be done,
+|and if it becomes "necessary" for some OSes, AMD will get locked into a
+|backward compatibility minefield.  Anyone know what Windows 64 does about this
+|issue?  If Microsoft considers that it is sufficient to warp the CPU for v86
+|emulation, it may just be a done deal.
 
-Looks like a parameter was forgotten.  I see a number of dep_tristate 
-lines with three parameters and the one it is choking on has only two.
+The only way to get from long-mode back to legacy-mode is to reset the
+processor.  It can be done in software but you will likely lose interrupts.
+Attempting to switch out of long-mode by modifying EFER will just get you a #GP
+fault.  You might want to read Volume 2 section 14.6.2.
 
-dep_tristate '  ATI Radeon' CONFIG_DRM_RADEON     <<< chokes this line
-dep_tristate '  Intel I810' CONFIG_DRM_I810 $CONFIG_AGP
-
-
-ghugh Song wrote:
-> This is what I get on SuSE-8.1 box:
-> 
-> # make xconfig
-> rm -f include/asm
-> ( cd include ; ln -sf asm-i386 asm)
-> make -C scripts kconfig.tk
-> make[1]: Entering directory `/usr/src/linux-2.4.21-pre4-ac4/scripts'
-> gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -c -o tkparse.o 
-> tkparse.c
-> gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -c -o tkcond.o 
-> tkcond.c
-> gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -c -o tkgen.o 
-> tkgen.c
-> gcc -o tkparse tkparse.o tkcond.o tkgen.o
-> cat header.tk >> ./kconfig.tk
-> ./tkparse < ../arch/i386/config.in >> kconfig.tk
-> drivers/char/drm/Config.in: 11: can't handle 
-> dep_bool/dep_mbool/dep_tristate condition
-> make[1]: *** [kconfig.tk] Error 1
-> make[1]: Leaving directory `/usr/src/linux-2.4.21-pre4-ac4/scripts'
-> make: *** [xconfig] Error 2
-> 
-> 
-> 
-> Apparently, some people successfully went throught this procedure.
-> 
-> Best regards,
-> 
-> G. Hugh Song
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
-
+TJ Merritt
+tjm@codegen.com
+1-925-462-4300 x115

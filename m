@@ -1,59 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270755AbTHOTeY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 15:34:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270765AbTHOTeY
+	id S270806AbTHOTjr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 15:39:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270808AbTHOTjr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 15:34:24 -0400
-Received: from fw.osdl.org ([65.172.181.6]:59041 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S270755AbTHOTeX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 15:34:23 -0400
-Date: Fri, 15 Aug 2003 12:30:53 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Dave Jones <davej@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Debug: sleeping function called from invalid context
-Message-Id: <20030815123053.2f81ec0a.rddunlap@osdl.org>
-In-Reply-To: <20030815173246.GB9681@redhat.com>
-References: <20030815101856.3eb1e15a.rddunlap@osdl.org>
-	<20030815173246.GB9681@redhat.com>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Fri, 15 Aug 2003 15:39:47 -0400
+Received: from lakshmi.addtoit.com ([198.99.130.6]:3078 "EHLO
+	lakshmi.solana.com") by vger.kernel.org with ESMTP id S270806AbTHOTjO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Aug 2003 15:39:14 -0400
+Message-Id: <200308151945.h7FJj1IW003586@ccure.karaya.com>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.1-RC1
+To: steven james <pyro@linuxlabs.com>
+cc: Henrik Nordstrom <hno@marasystems.com>, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [uml-devel] uml-patch-2.6.0-test1 
+In-Reply-To: Your message of "Sun, 27 Jul 2003 15:26:30 EDT."
+             <Pine.LNX.4.21.0307271522230.12132-100000@ucontrol.mobiledns.com> 
+References: <Pine.LNX.4.21.0307271522230.12132-100000@ucontrol.mobiledns.com> 
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 15 Aug 2003 15:45:01 -0400
+From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 15 Aug 2003 18:32:47 +0100 Dave Jones <davej@redhat.com> wrote:
+pyro@linuxlabs.com said:
+> I got networking going (at least for the switch daemon) by commenting
+> out  dev->hard_header = uml_net_hard_header; 
 
-| On Fri, Aug 15, 2003 at 10:18:56AM -0700, Randy.Dunlap wrote:
-| 
-|  > Debug: sleeping function called from invalid context at include/asm/uaccess.h:473
-|  > Call Trace:
-|  >  [<c0120d94>] __might_sleep+0x54/0x5b
-|  >  [<c010d001>] save_v86_state+0x71/0x1f0
-|  >  [<c010dbd5>] handle_vm86_fault+0xc5/0xa90
-|  >  [<c019cab8>] ext3_file_write+0x28/0xc0
-|  >  [<c011cd96>] __change_page_attr+0x26/0x220
-|  >  [<c010b310>] do_general_protection+0x0/0x90
-|  >  [<c010a69d>] error_code+0x2d/0x40
-|  >  [<c0109657>] syscall_call+0x7/0xb
-| 
-| That's one really wierd looking backtrace. What else was that
-| machine up to at the time ?
+I also got rid of the other do-nothing procedures in that chunk of code.
+The 2.6 UML will have a working network in the next release.
 
-Some parts of it are explainable (to me), some not.
-I don't know what caused a GP fault or why ext3 shows up.
+				Jeff
 
-But I can follow from do_general_protection() to handle_vm86_fault()
-to [inline] return_to_32bit() to save_v86_state() to __might_sleep().
-
-And __might_sleep() is correct if change_page_attr() was called,
-since it takes a spinlock.  I just can't connect quite all of the dots.
-
---
-~Randy

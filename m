@@ -1,64 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262098AbULaPAT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262104AbULaPLE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262098AbULaPAT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Dec 2004 10:00:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262103AbULaPAT
+	id S262104AbULaPLE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Dec 2004 10:11:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262105AbULaPLE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Dec 2004 10:00:19 -0500
-Received: from 6.143.111.62.revers.nsm.pl ([62.111.143.6]:35974 "HELO
-	mother.localdomain") by vger.kernel.org with SMTP id S262098AbULaO6h
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Dec 2004 09:58:37 -0500
-Date: Sun, 21 Nov 2004 20:35:46 +0100
-From: Tomasz Torcz <zdzichu@irc.pl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: posix timer test program / glibc patch to make glibc posix compliant
-Message-ID: <20041121193546.GA11338@irc.pl>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.58.0411181616590.418@schroedinger.engr.sgi.com>
+	Fri, 31 Dec 2004 10:11:04 -0500
+Received: from nevyn.them.org ([66.93.172.17]:18892 "EHLO nevyn.them.org")
+	by vger.kernel.org with ESMTP id S262104AbULaPLA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Dec 2004 10:11:00 -0500
+Date: Fri, 31 Dec 2004 10:10:45 -0500
+From: Daniel Jacobowitz <dan@debian.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Jesse Allen <the3dfxdude@gmail.com>,
+       Davide Libenzi <davidel@xmailserver.org>,
+       Mike Hearn <mh@codeweavers.com>, Thomas Sailer <sailer@scs.ch>,
+       Eric Pouech <pouech-eric@wanadoo.fr>,
+       Roland McGrath <roland@redhat.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, wine-devel <wine-devel@winehq.com>
+Subject: Re: ptrace single-stepping change breaks Wine
+Message-ID: <20041231151045.GA3405@nevyn.them.org>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	Jesse Allen <the3dfxdude@gmail.com>,
+	Davide Libenzi <davidel@xmailserver.org>,
+	Mike Hearn <mh@codeweavers.com>, Thomas Sailer <sailer@scs.ch>,
+	Eric Pouech <pouech-eric@wanadoo.fr>,
+	Roland McGrath <roland@redhat.com>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@osdl.org>, wine-devel <wine-devel@winehq.com>
+References: <Pine.LNX.4.58.0412292106400.454@bigblue.dev.mdolabs.com> <Pine.LNX.4.58.0412292256350.22893@ppc970.osdl.org> <Pine.LNX.4.58.0412300953470.2193@bigblue.dev.mdolabs.com> <53046857041230112742acccbe@mail.gmail.com> <Pine.LNX.4.58.0412301130540.22893@ppc970.osdl.org> <Pine.LNX.4.58.0412301436330.22893@ppc970.osdl.org> <20041230230046.GA14843@nevyn.them.org> <Pine.LNX.4.58.0412301513200.22893@ppc970.osdl.org> <20041231053618.GA25850@nevyn.them.org> <Pine.LNX.4.58.0412302141320.2280@ppc970.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0411181616590.418@schroedinger.engr.sgi.com>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <Pine.LNX.4.58.0412302141320.2280@ppc970.osdl.org>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 18, 2004 at 04:26:07PM -0800, Christoph Lameter wrote:
-> 2. the source code of the program
+On Thu, Dec 30, 2004 at 09:47:42PM -0800, Linus Torvalds wrote:
+> So I looked at just sharing the code with the debug trap handler, and the
+> result is appended. strace works, as does all the TF tests I've thrown at
+> it, and the code actually looks better anyway (the old do_debug code looks
+> like it got the EIP wrong in VM86 mode, for example, this just cleans 
+> that up too). Just use a common "send_sigtrap()" routine.
+> 
+> Does this look saner?
 
- How to compile your program? I'm getting linker errors:
-
-zdzichu@mother:/mnt/ram% gcc -lpthread ct.c
-/tmp/ccHn66Ii.o(.text+0x19): In function `t_clock_getres':
-: undefined reference to `clock_getres'
-/tmp/ccHn66Ii.o(.text+0x5c): In function `t_clock_gettime':
-: undefined reference to `clock_gettime'
-/tmp/ccHn66Ii.o(.text+0x9f): In function `t_clock_settime':
-: undefined reference to `clock_settime'
-/tmp/ccHn66Ii.o(.text+0xe2): In function `t_clock_getcpuclockid':
-: undefined reference to `clock_getcpuclockid'
-/tmp/ccHn66Ii.o(.text+0x13b): In function `t_timer_create':
-: undefined reference to `timer_create'
-/tmp/ccHn66Ii.o(.text+0x17e): In function `t_timer_gettime':
-: undefined reference to `timer_gettime'
-/tmp/ccHn66Ii.o(.text+0x1c4): In function `t_timer_settime':
-: undefined reference to `timer_settime'
-/tmp/ccHn66Ii.o(.text+0x20a): In function `t_timer_delete':
-: undefined reference to `timer_delete'
-/tmp/ccHn66Ii.o(.text+0x247): In function `t_timer_getoverrun':
-: undefined reference to `timer_getoverrun'
-/tmp/ccHn66Ii.o(.text+0xdb6): In function `clock_scan':
-: undefined reference to `clock_gettime'
-/tmp/ccHn66Ii.o(.text+0xdd8): In function `clock_scan':
-: undefined reference to `clock_gettime'
-collect2: ld returned 1 exit status
-zdzichu@mother:/mnt/ram% fg
-
- (-lpthread is needed to get rid of 'undefined reference to pthread_*'
-errors). I have glibc-2.3.3-200410112214.
+Lots, I like it.  The syscall trap will always be delivered before the
+single-step trap, right, because signal delivery won't run until we
+return to userspace?
 
 -- 
-Tomasz Torcz                 "God, root, what's the difference?"
-zdzichu@irc.-nie.spam-.pl         "God is more forgiving."
-
+Daniel Jacobowitz

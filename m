@@ -1,37 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313074AbSDDA6C>; Wed, 3 Apr 2002 19:58:02 -0500
+	id <S313035AbSDDAyc>; Wed, 3 Apr 2002 19:54:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313077AbSDDA5x>; Wed, 3 Apr 2002 19:57:53 -0500
-Received: from huitzilopochtli.presidencia.gob.mx ([200.57.34.35]:15028 "EHLO
+	id <S313048AbSDDAyX>; Wed, 3 Apr 2002 19:54:23 -0500
+Received: from huitzilopochtli.presidencia.gob.mx ([200.57.34.35]:27059 "EHLO
 	huitzilopochtli.presidencia.gob.mx") by vger.kernel.org with ESMTP
-	id <S313074AbSDDA5l>; Wed, 3 Apr 2002 19:57:41 -0500
-Message-ID: <3CABA4FE.2835A5A8@sandino.net>
-Date: Wed, 03 Apr 2002 18:57:34 -0600
+	id <S313035AbSDDAyM>; Wed, 3 Apr 2002 19:54:12 -0500
+Message-ID: <3CABA3EB.E8ED7D04@sandino.net>
+Date: Wed, 03 Apr 2002 18:52:59 -0600
 From: Sandino Araico =?iso-8859-1?Q?S=E1nchez?= <sandino@sandino.net>
 X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.18 i686)
 X-Accept-Language: es-MX, es, es-ES, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.18 mount.smbfs oops
+To: Juan Quintela <quintela@mandrakesoft.com>
+CC: Greg KH <greg@kroah.com>, Richard Gooch <rgooch@ras.ucalgary.ca>,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.4.17,2.4.18 ide-scsi+usb-storage+devfs Oops
+In-Reply-To: <3C7EA7CB.C36D0211@sandino.net> <20020302075847.GE20536@kroah.com>
+		<3C84294C.AE1E8CE9@sandino.net>
+		<200203060528.g265Sh502430@vindaloo.ras.ucalgary.ca>
+		<20020306053355.GA13072@kroah.com>
+		<200203060545.g265jwL02756@vindaloo.ras.ucalgary.ca>
+		<20020306181956.GC16003@kroah.com> <3C868302.31C7BBC4@sandino.net> <m2ofhsij2z.fsf@trasno.mitica>
 Content-Type: multipart/mixed;
- boundary="------------C83A58821EC712E310DC5FDD"
+ boundary="------------9F0F8C3A2A08FFD46F088118"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------C83A58821EC712E310DC5FDD
+--------------9F0F8C3A2A08FFD46F088118
 Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 8bit
 
-1. mount -t smbfs -o uid=500,gid=500 //blue/shared-dir /mnt/smb
-    The smbmount asked me for a password, I pressed enter
-2. df
-    Nothing strange happens
-3. ls /mnt/smb
-    The Oops happens.
+Juan Quintela wrote:
 
-The Windows machine is Windows Xp, the ksymoops output attached.
+> >>>>> "sandino" == Sandino Araico Sánchez <sandino@sandino.net> writes:
+>
+> sandino> I had to copy the Oops trace by hand to a paper. Gpm is not working correctly
+> sandino> on my machine. Is there another way to send the Oops trace to a file?
+>
+> dmesg > file
+>
+
+Sorry about being so late, but I have another ksymoops.
+
+This time the Oops was reproduced as follows:
+
+1. I ran this script
+#!/bin/sh
+killall -9 wmcdplay
+rmmod sr_mod
+rmmod ide-scsi
+modprobe ide-cd
+ls -la /dev/cdroms/cdrom0
+/etc/rc.d/init.d/usbmgr start
+
+2. I ran this script
+#!/bin/sh
+/etc/rc.d/init.d/usbmgr stop
+killall -9 wmcdplay
+rmmod ide-cd
+modprobe ide-scsi
+modprobe sr_mod
+ls -la /dev/cdroms/cdrom0
+
+lr-xr-xr-x    1 root     root           34 dic 31  1969 /dev/cdroms/cdrom0 ->
+../scsi/host2/bus0/target0/lun0/cd
+
+3. I mounted the cdrom
+mount  /dev/scsi/host2/bus0/target0/lun0/cd /mnt/cdrom
+
+4. I started the usbmgr
+
+5. I inserted the zip drive in the usb port
+
+6. I don't remember when the Oops happened, when I unmounted the CD or after unmounting
+it when I ran eject.
+
+
+This time I'm sure the ksymoops is correct because I did dmesg > file and after rebooting
+ksymoops < file > file.ksymoops.
 
 --
 Sandino Araico Sánchez
@@ -41,12 +89,12 @@ OK, 135454265363565609860398636678346496 rows affected.
 
 
 
---------------C83A58821EC712E310DC5FDD
+--------------9F0F8C3A2A08FFD46F088118
 Content-Type: text/plain; charset=us-ascii;
- name="Oops-2002-04-03-smbfs.ksymoops"
+ name="Oops-2002-04-03-cdrom.ksymoops"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="Oops-2002-04-03-smbfs.ksymoops"
+ filename="Oops-2002-04-03-cdrom.ksymoops"
 
 ksymoops 2.3.4 on i686 2.4.18.  Options used
      -V (default)
@@ -64,64 +112,54 @@ map, modules, ksyms etc.  ksymoops -h explains the options.
 
 Warning (compare_maps): ksyms_base symbol acpi_fadt_R__ver_acpi_fadt not found in System.map.  Ignoring ksyms_base entry
 Warning (compare_maps): ksyms_base symbol acpi_gbl_FADT_R__ver_acpi_gbl_FADT not found in System.map.  Ignoring ksyms_base entry
-Unable to handle kernel paging request at virtual address e0000000
-e0de895c
+Unable to handle kernel paging request at virtual address 0120000c
+c01575bb
 *pde = 00000000
-Oops: 0000
+Oops: 0002
 CPU:    0
-EIP:    0010:[<e0de895c>]    Not tainted
+EIP:    0010:[<c01575bb>]    Not tainted
 Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010282
-eax: 7848f5e4   ebx: e0000000   ecx: f2ebe3fd   edx: 180e9794
-esi: 08a0835c   edi: d8199e30   ebp: d8199ec8   esp: d8199de0
+EFLAGS: 00010206
+eax: 0120000c   ebx: d40dd8e0   ecx: c1846d60   edx: 00000000
+esi: d0820a14   edi: d9e5bbe0   ebp: bfffe4ec   esp: da36ff3c
 ds: 0018   es: 0018   ss: 0018
-Process ls (pid: 1445, stackpage=d8199000)
-Stack: c0143914 d8199e98 e0df913c 00000000 00000000 00000000 00000000 cfbe0280 
-       d1a921e0 00000000 0ecad52d 00000000 00000000 00000000 ce54b000 00000022 
-       00000000 00000000 00000001 00000024 e0de71c9 d089c7a0 d8199fb0 c0143914 
-Call Trace: [<c0143914>] [<e0de71c9>] [<c0143914>] [<c0143914>] [<e0de7258>] 
-   [<c0143914>] [<e0de80fb>] [<c0143914>] [<c0143546>] [<c0143914>] [<c0143abf>] 
-   [<c0143914>] [<c0126377>] [<c0106e23>] 
-Code: 0f b6 03 43 89 c2 c1 e2 04 01 f2 c1 e8 04 01 c2 8d 04 92 8d 
+Process rmmod (pid: 3239, stackpage=da36f000)
+Stack: d0820a14 e08e4362 d40dd8e0 d0820a00 00000000 e08f13be d0820a14 00000b00 
+       00000000 d9e5bbe0 df0ff720 e08f2a80 c01c544a d9e5bbe0 e08f0000 fffffff0 
+       e08f0000 c01c555e e08f2a80 e08f1424 00000004 e08f2a80 c011980f e08f0000 
+Call Trace: [<e08e4362>] [<e08f13be>] [<e08f2a80>] [<c01c544a>] [<c01c555e>] 
+   [<e08f2a80>] [<e08f1424>] [<e08f2a80>] [<c011980f>] [<c0118b12>] [<c0106e23>] 
+Code: f0 81 28 00 00 00 01 0f 85 72 22 00 00 53 8b 43 20 50 e8 46 
 
->>EIP; e0de895c <END_OF_CODE+1bc15d/????>   <=====
-Trace; c0143914 <filldir64+0/15c>
-Trace; e0de71c9 <END_OF_CODE+1ba9ca/????>
-Trace; c0143914 <filldir64+0/15c>
-Trace; c0143914 <filldir64+0/15c>
-Trace; e0de7258 <END_OF_CODE+1baa59/????>
-Trace; c0143914 <filldir64+0/15c>
-Trace; e0de80fb <END_OF_CODE+1bb8fc/????>
-Trace; c0143914 <filldir64+0/15c>
-Trace; c0143546 <vfs_readdir+8e/d4>
-Trace; c0143914 <filldir64+0/15c>
-Trace; c0143abf <sys_getdents64+4f/103>
-Trace; c0143914 <filldir64+0/15c>
-Trace; c0126377 <sys_brk+bf/ec>
+>>EIP; c01575bb <devfs_unregister+13/38>   <=====
+Trace; e08e4362 <[cdrom]unregister_cdrom+8a/bc>
+Trace; e08f13be <[ide-cd]cdrom_analyze_sense_data+2c2/31c>
+Trace; e08f2a80 <[ide-cd]cdrom_lockdoor+1c/e0>
+Trace; c01c544a <scsi_unregister_device+52/d4>
+Trace; c01c555e <scsi_unregister_module+36/3c>
+Trace; e08f2a80 <[ide-cd]cdrom_lockdoor+1c/e0>
+Trace; e08f1424 <[ide-cd]cdrom_queue_request_sense+c/90>
+Trace; e08f2a80 <[ide-cd]cdrom_lockdoor+1c/e0>
+Trace; c011980f <free_module+17/b4>
+Trace; c0118b12 <sys_delete_module+126/234>
 Trace; c0106e23 <system_call+33/38>
-Code;  e0de895c <END_OF_CODE+1bc15d/????>
+Code;  c01575bb <devfs_unregister+13/38>
 00000000 <_EIP>:
-Code;  e0de895c <END_OF_CODE+1bc15d/????>   <=====
-   0:   0f b6 03                  movzbl (%ebx),%eax   <=====
-Code;  e0de895f <END_OF_CODE+1bc160/????>
-   3:   43                        inc    %ebx
-Code;  e0de8960 <END_OF_CODE+1bc161/????>
-   4:   89 c2                     mov    %eax,%edx
-Code;  e0de8962 <END_OF_CODE+1bc163/????>
-   6:   c1 e2 04                  shl    $0x4,%edx
-Code;  e0de8965 <END_OF_CODE+1bc166/????>
-   9:   01 f2                     add    %esi,%edx
-Code;  e0de8967 <END_OF_CODE+1bc168/????>
-   b:   c1 e8 04                  shr    $0x4,%eax
-Code;  e0de896a <END_OF_CODE+1bc16b/????>
-   e:   01 c2                     add    %eax,%edx
-Code;  e0de896c <END_OF_CODE+1bc16d/????>
-  10:   8d 04 92                  lea    (%edx,%edx,4),%eax
-Code;  e0de896f <END_OF_CODE+1bc170/????>
-  13:   8d 00                     lea    (%eax),%eax
+Code;  c01575bb <devfs_unregister+13/38>   <=====
+   0:   f0 81 28 00 00 00 01      lock subl $0x1000000,(%eax)   <=====
+Code;  c01575c2 <devfs_unregister+1a/38>
+   7:   0f 85 72 22 00 00         jne    227f <_EIP+0x227f> c015983a <_text_lock_base+75/12f>
+Code;  c01575c8 <devfs_unregister+20/38>
+   d:   53                        push   %ebx
+Code;  c01575c9 <devfs_unregister+21/38>
+   e:   8b 43 20                  mov    0x20(%ebx),%eax
+Code;  c01575cc <devfs_unregister+24/38>
+  11:   50                        push   %eax
+Code;  c01575cd <devfs_unregister+25/38>
+  12:   e8 46 00 00 00            call   5d <_EIP+0x5d> c0157618 <devfs_do_symlink+38/17c>
 
 
 3 warnings issued.  Results may not be reliable.
 
---------------C83A58821EC712E310DC5FDD--
+--------------9F0F8C3A2A08FFD46F088118--
 

@@ -1,37 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262062AbTCZUXm>; Wed, 26 Mar 2003 15:23:42 -0500
+	id <S262053AbTCZUbE>; Wed, 26 Mar 2003 15:31:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262096AbTCZUXm>; Wed, 26 Mar 2003 15:23:42 -0500
-Received: from deviant.impure.org.uk ([195.82.120.238]:63651 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id <S262062AbTCZUXl>; Wed, 26 Mar 2003 15:23:41 -0500
-Date: Wed, 26 Mar 2003 20:34:35 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] bug 508: ipmi compile fix
-Message-ID: <20030326203435.GA31557@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	"Randy.Dunlap" <rddunlap@osdl.org>, Robert Love <rml@tech9.net>,
-	linux-kernel@vger.kernel.org
-References: <1441850000.1048704979@flay> <1048706090.748.7.camel@localhost> <20030326121942.74df8bf6.rddunlap@osdl.org>
-Mime-Version: 1.0
+	id <S262067AbTCZUbE>; Wed, 26 Mar 2003 15:31:04 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:6413 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262053AbTCZUbB>; Wed, 26 Mar 2003 15:31:01 -0500
+Message-ID: <3E82107F.1060204@zytor.com>
+Date: Wed, 26 Mar 2003 12:41:35 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+Organization: Zytor Communications
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030211
+X-Accept-Language: en, sv
+MIME-Version: 1.0
+To: Dave Jones <davej@codemonkey.org.uk>
+CC: Pavel Machek <pavel@ucw.cz>, J?rn Engel <joern@wohnheim.fh-wedel.de>,
+       James Bourne <jbourne@hardrock.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Ptrace hole / Linux 2.2.25
+References: <3E7E4C63.908@gmx.de> <Pine.LNX.4.44.0303231717390.19670-100000@cafe.hardrock.org> <20030324003946.GA11081@wohnheim.fh-wedel.de> <3E7E736D.4020200@zytor.com> <20030324144219.GC29637@suse.de> <20030327074727.GA3021@zaurus.ucw.cz> <20030326203042.GA31359@suse.de>
+In-Reply-To: <20030326203042.GA31359@suse.de>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030326121942.74df8bf6.rddunlap@osdl.org>
-User-Agent: Mutt/1.5.4i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 26, 2003 at 12:19:42PM -0800, Randy.Dunlap wrote:
+Dave Jones wrote:
+> On Thu, Mar 27, 2003 at 08:47:27AM +0100, Pavel Machek wrote:
+> 
+>  > > and have it wget patches from k.o, verify signatures and auto-apply them,
+>  > > which removes the "admin didnt even know there were patches
+>  > > that needed to be applied" possibility.
+>  > 
+>  > That looks like ugly can of worms to me.
+>  > "what kernel do you have?"
+>  > "2.4.25 and it did two downloads; I was
+>  > compiling it on the friday night"
+> 
+> So make one of the patches change extra-version to -errataN or the like.
+> 
 
- > | Sheesh, diffing the solution is certainly quicker than filling out the
- > | bugzilla entry...
- > | Patch is against 2.5.66.  Linus, please apply.
- > Exactly what I said before I saw your patch.  :)
+Basically what we're talking about now is someone to maintain an "errata
+tree" -- someone to maintain sub-point releases (2.4.25.1, .2, etc.) and
+to decide what those are.
 
-Then again, trivial one liners do get forgotten..
+The other option would be to have it called something like
+2.4.25-ep36-ep42-ep96 if errata patches 36, 42 and 96 were applied.
 
-		Dave
+I think sub-point releases are better, since it at least cuts down the
+number of possible combinations.
+
+	-hpa
+
 

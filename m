@@ -1,39 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132114AbRAJWmB>; Wed, 10 Jan 2001 17:42:01 -0500
+	id <S130008AbRAJWlh>; Wed, 10 Jan 2001 17:41:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135949AbRAJWlt>; Wed, 10 Jan 2001 17:41:49 -0500
-Received: from host156.207-175-42.redhat.com ([207.175.42.156]:13834 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S132114AbRAJWli>; Wed, 10 Jan 2001 17:41:38 -0500
-Date: Wed, 10 Jan 2001 17:41:06 -0500 (EST)
-From: Ingo Molnar <mingo@redhat.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Keith Owens <kaos@ocs.com.au>, Nathan Walp <faceprint@faceprint.com>,
-        Hans Grobler <grobh@sun.ac.za>, <linux-kernel@vger.kernel.org>
-Subject: Re: Oops in 2.4.0-ac5
-In-Reply-To: <E14GTro-00019E-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.30.0101101737240.30973-100000@devserv.devel.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132114AbRAJWl1>; Wed, 10 Jan 2001 17:41:27 -0500
+Received: from e56090.upc-e.chello.nl ([213.93.56.90]:47624 "EHLO unternet.org")
+	by vger.kernel.org with ESMTP id <S130008AbRAJWlL>;
+	Wed, 10 Jan 2001 17:41:11 -0500
+Date: Wed, 10 Jan 2001 23:40:56 +0100
+From: Frank de Lange <frank@unternet.org>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: QUESTION: Network hangs with BP6 and 2.4.x kernels, hardware related?
+Message-ID: <20010110234056.C20535@unternet.org>
+In-Reply-To: <20010110223015.B18085@unternet.org> <3A5CE07D.BD36D71C@colorfullife.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3A5CE07D.BD36D71C@colorfullife.com>; from manfred@colorfullife.com on Wed, Jan 10, 2001 at 11:21:49PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jan 10, 2001 at 11:21:49PM +0100, Manfred Spraul wrote:
+> > which should work, they are
+> > NON-busmastering cards after all...),
+> third line in w840_probe1():
+> 
+> 	pci_set_master().
+> 
+> And the documentation begins with
+> W89C840F
+> 	PCI Bus Master Fast Ethernet LAN Controller.
 
-On Wed, 10 Jan 2001, Alan Cox wrote:
+...in addition to my previous reply, your cards use the Winbond 840 series,
+while my cards use the 940 series. Higher number, but a less capabpe chipset or
+so it seems...
 
-> > it.  I could never persuade Ingo to use wrmsr_eio() and check the
-> > return code, maybe this will change his mind.  Extract from kdb v1.7.
->
-> I have a patch from Ingo to fix this one properly. Its just getting tested
+Hm, but that reminds me not to get 840's to solve my problems :-)
 
-i prefer clear oopses and bug reports instead of ignoring them. A failed
-MSR write is not something to be taken easily. MSR writes if fail mean
-that there is a serious kernel bug - we want to stop the kernel and
-complain ASAP. And correct code will be much more readable that way.
-
-	Ingo
-
+Cheers//Frank
+-- 
+  WWWWW      _______________________
+ ## o o\    /     Frank de Lange     \
+ }#   \|   /                          \
+  ##---# _/     <Hacker for Hire>      \
+   ####   \      +31-320-252965        /
+           \    frank@unternet.org    /
+            -------------------------
+ [ "Omnis enim res, quae dando non deficit, dum habetur
+    et non datur, nondum habetur, quomodo habenda est."  ]
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,78 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261593AbVADNAc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261554AbVADNEv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261593AbVADNAc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 08:00:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261599AbVADNAc
+	id S261554AbVADNEv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 08:04:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261599AbVADNEv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 08:00:32 -0500
-Received: from smtpout.mac.com ([17.250.248.45]:55753 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S261593AbVADNAX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 08:00:23 -0500
-In-Reply-To: <Pine.LNX.4.61.0501040735410.25392@chimarrao.boston.redhat.com>
-References: <200501032059.j03KxOEB004666@laptop11.inf.utfsm.cl> <0F9DCB4E-5DD1-11D9-892B-000D9352858E@mac.com> <Pine.LNX.4.61.0501031648300.25392@chimarrao.boston.redhat.com> <5B2E0ED4-5DD3-11D9-892B-000D9352858E@mac.com> <20050103221441.GA26732@infradead.org> <20050104054649.GC7048@alpha.home.local> <20050104063622.GB26051@parcelfarce.linux.theplanet.co.uk> <9F909072-5E3A-11D9-A816-000D9352858E@mac.com> <Pine.LNX.4.61.0501040735410.25392@chimarrao.boston.redhat.com>
-Mime-Version: 1.0 (Apple Message framework v619)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <85546E06-5E50-11D9-A816-000D9352858E@mac.com>
-Content-Transfer-Encoding: 7bit
-Cc: Adrian Bunk <bunk@stusta.de>, Willy Tarreau <willy@w.ods.org>,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       William Lee Irwin III <wli@debian.org>, linux-kernel@vger.kernel.org,
-       Christoph Hellwig <hch@infradead.org>,
-       Andries Brouwer <aebr@win.tue.nl>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Maciej Soltysiak <solt2@dns.toxicfilms.tv>
-From: Felipe Alfaro Solana <lkml@mac.com>
-Subject: Re: starting with 2.7
-Date: Tue, 4 Jan 2005 13:59:51 +0100
-To: Rik van Riel <riel@redhat.com>
-X-Mailer: Apple Mail (2.619)
+	Tue, 4 Jan 2005 08:04:51 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:51723 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261554AbVADNEu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 08:04:50 -0500
+Date: Tue, 4 Jan 2005 13:04:42 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>,
+       Andrew Morton <akpm@zip.com.au>
+Subject: Re: mark older power managment as deprecated
+Message-ID: <20050104130442.A18550@flint.arm.linux.org.uk>
+Mail-Followup-To: Pavel Machek <pavel@ucw.cz>,
+	kernel list <linux-kernel@vger.kernel.org>,
+	Linux-pm mailing list <linux-pm@lists.osdl.org>,
+	Andrew Morton <akpm@zip.com.au>
+References: <20050104124659.GA22256@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050104124659.GA22256@elf.ucw.cz>; from pavel@ucw.cz on Tue, Jan 04, 2005 at 01:46:59PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4 Jan 2005, at 13:36, Rik van Riel wrote:
+On Tue, Jan 04, 2005 at 01:46:59PM +0100, Pavel Machek wrote:
+> +typedef int __bitwise pm_dev_t;
+>  
+> -typedef int pm_dev_t;
+> +#define PM_UNKNOWN_DEV	((__force pm_request_t) 0)	/* generic */
+> +#define PM_SYS_DEV	((__force pm_request_t) 1)	/* system device (fan, KB controller, ...) */
+> +#define PM_PCI_DEV	((__force pm_request_t) 2)	/* PCI device */
+> +#define PM_USB_DEV	((__force pm_request_t) 3)	/* USB device */
+> +#define PM_SCSI_DEV	((__force pm_request_t) 4)	/* SCSI device */
+> +#define PM_ISA_DEV	((__force pm_request_t) 5)	/* ISA device */
+> +#define	PM_MTD_DEV	((__force pm_request_t) 6)	/* Memory Technology Device */
 
-> On Tue, 4 Jan 2005, Felipe Alfaro Solana wrote:
->
->> I don't pretend that kernel interfaces stay written in stone, for 
->> ages. What I would like is that, at least, those interfaces were 
->> stable enough, let's say for a few months for a stable kernel series, 
->> so I don't have to keep bothering my propietary VMWare vendor to fix 
->> the problems for me, since the
->
-> How much work are you willing to do to make this happen ? ;)
+Shouldn't these beeeeeeeeeeeeeeeeeeeeeeee pm_dev_t?
 
-As much as needed :-)
-
-> It would be easy enough for you to take 2.6.9 and add only
-> security fixes and critical bugfixes to it for the next 6
-> months - that would give your binary vendors a stable
-> source base to work with...
-
-I would... if it was easy enough to find some form of a security 
-patches pool. It's usually difficult to find a site where I can 
-download security patches for older versions of vanilla kernels. I have 
-the feeling that this security fixes go mainstream onto the latest 
-kernel versions, leaving users in hands of their distribution (either 
-to upgrade to a new distribution kernel, or waiting for the 
-distribution vendor to backport).
-
-Thus, sometimes people are forced to upgrade to a new kernel version as 
-such security patches either don't exist for older kernel versions, are 
-difficult to find, or need backporting (and I'm not knowledgeable 
-enough to backport nearly half of them), and since the new kernel 
-version introduces new features -- which sometimes do break existing 
-propietary software -- users starts complaining.
-
-However, it's true that distributions, like Red Hat or Fedora, try at 
-its best to keep the kernel as stable as possible. For example, FC3 
-seems to sport something like a 2.6.9 kernel, but sometimes those 
-kernels are so heavily patched that some closed-source software doesn't 
-work.
-
-I know I can choose open software and hardware vendors compatible with 
-Linux, but sometimes I cannot. I like VMware, and I use it a lot. I'm 
-not willing to sacrifice it, and that's the reason I think 2.6 must 
-fork as soon as possible into 2.7.
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

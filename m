@@ -1,82 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265794AbUGDUwy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265776AbUGDU7w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265794AbUGDUwy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jul 2004 16:52:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265799AbUGDUwy
+	id S265776AbUGDU7w (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jul 2004 16:59:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265777AbUGDU7w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jul 2004 16:52:54 -0400
-Received: from ausc60pc101.us.dell.com ([143.166.85.206]:33910 "EHLO
-	ausc60pc101.us.dell.com") by vger.kernel.org with ESMTP
-	id S265794AbUGDUwv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jul 2004 16:52:51 -0400
-X-Ironport-AV: i="3.81R,146,1083560400"; 
-   d="scan'208"; a="52507701:sNHT25000856"
-Date: Sun, 4 Jul 2004 15:52:51 -0500 (CDT)
-From: Matt Domsch <Matt_Domsch@dell.com>
-X-X-Sender: mdomsch@humbolt.us.dell.com
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Pavel Machek <pavel@suse.cz>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
-       David Balazic <david.balazic@hermes.si>
-Subject: Re: Weird:  30 sec delay during early boot
-In-Reply-To: <40E83F53.3050006@pobox.com>
-Message-ID: <Pine.LNX.4.44.0407041536040.19105-100000@humbolt.us.dell.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 4 Jul 2004 16:59:52 -0400
+Received: from fw.osdl.org ([65.172.181.6]:50561 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265776AbUGDU7v (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jul 2004 16:59:51 -0400
+Date: Sun, 4 Jul 2004 13:58:42 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Peter Osterlund <petero2@telia.com>
+Cc: greg@kroah.com, viro@parcelfarce.linux.theplanet.co.uk,
+       linux-kernel@vger.kernel.org, axboe@suse.de
+Subject: Re: [PATCH] CDRW packet writing support for 2.6.7-bk13
+Message-Id: <20040704135842.48a32219.akpm@osdl.org>
+In-Reply-To: <m2fz88ugrw.fsf@telia.com>
+References: <m2lli36ec9.fsf@telia.com>
+	<m2u0wqqdpl.fsf@telia.com>
+	<20040702150819.646b6103.akpm@osdl.org>
+	<20040702224720.GA7969@kroah.com>
+	<20040702155945.5c375bd2.akpm@osdl.org>
+	<m27jtm0z7q.fsf@telia.com>
+	<20040702165132.575cba5b.akpm@osdl.org>
+	<m2fz88ugrw.fsf@telia.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This 30-second pause only appeared recently on my x86-64 box (VIA-based 
-> Athlon64), so I'll bsearch changesets when I get a free moment (sometime 
-> this week).
+Peter Osterlund <petero2@telia.com> wrote:
+>
+> But anyway, if __bdevname() leaks a module reference it should get
+>  fixed, right?
 
-It's definitely the EDD code that causes the delay, though I believe
-it's a BIOS problem.
+Yes.  The questions is, where's the bug?  Who should be undoing the
+module_get() which happened via
 
-I've got one report
-http://marc.theaimsgroup.com/?l=linux-kernel&m=108797825504429&w=2
-from David Balazic with his  Gigabyte GA-7 VAXP Ultra motherboard.
- BIOS version is F6.
- Disks :
-  - Quantum lct20 20 GB
-  - IBM Deskstar 120GXP 60 GB
- Both on the Promise PDC 20276 on-board controller, each on its own
- channel(cable).
+	__bdevname
+	->get_gendisk
+	  ->kobj_lookup
+	    ->ata_probe
+	      ->get_disk
+	        ->try_module_get
 
-where there was a delay, which was variable based on stuff he put on
-the kernel command line. Likewise, downgrading to BIOS F4 did not
-exhibit any delay.
-
-I've got another report with this board with a different BIOS 
-where this BIOS version on that board:
-Motherboard:  Gigabyte GA-7IXE4
-BIOS version: FAd  (that's a beta version)
-Kernel:       2.6.2-mm1
-
-worked without the delay.
-
-Yours is the first x86-64 BIOS I've heard with a problem.  Please
-provide the disk controller type and BIOS version.
-
-> I wonder, even, if it is related to the bootsetup.h fix from Matt that I 
-> forwarded recently.
-
-Only that it's now probing more than just the first disk, but the
-first 16 possible BIOS disks.  If the BIOS behaves badly to an int13
-READ_SECTORS command, that'd be good to know...
-
-I'm open to suggestions on how to know, from real mode, if a BIOS will
-misbehave...
-
-FWIW, I'm on vacation this week, with limited email access, but will
-respond when I can.
-
-Thanks,
-Matt
-
--- 
-Matt Domsch
-Sr. Software Engineer, Lead Engineer
-Dell Linux Solutions linux.dell.com & www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
-
+?

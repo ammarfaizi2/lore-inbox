@@ -1,96 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274627AbRJAGZ3>; Mon, 1 Oct 2001 02:25:29 -0400
+	id <S274631AbRJAGpZ>; Mon, 1 Oct 2001 02:45:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274628AbRJAGZU>; Mon, 1 Oct 2001 02:25:20 -0400
-Received: from cs666814-197.austin.rr.com ([66.68.14.197]:58867 "EHLO
-	kinison.puremagic.com") by vger.kernel.org with ESMTP
-	id <S274627AbRJAGZR> convert rfc822-to-8bit; Mon, 1 Oct 2001 02:25:17 -0400
-Date: Mon, 1 Oct 2001 01:25:42 -0500 (CDT)
-From: Evan Harris <eharris@puremagic.com>
-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
-cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: RAID5: mkraid --force /dev/md0 doesn't work properly
-In-Reply-To: <20011001055619.B24589@unthought.net>
-Message-ID: <Pine.LNX.4.33.0110010113420.2459-100000@kinison.puremagic.com>
+	id <S274633AbRJAGpP>; Mon, 1 Oct 2001 02:45:15 -0400
+Received: from nick.dcs.qmul.ac.uk ([138.37.88.61]:49058 "EHLO
+	nick.dcs.qmul.ac.uk") by vger.kernel.org with ESMTP
+	id <S274631AbRJAGo7>; Mon, 1 Oct 2001 02:44:59 -0400
+Date: Mon, 1 Oct 2001 07:45:26 +0100 (BST)
+From: Matt Bernstein <matt@theBachChoir.org.uk>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: (VM?) oops in 2.4.9-ac10
+In-Reply-To: <Pine.GSO.4.33.0109300952580.24574-100000@scorpio.gold.ac.uk>
+Message-ID: <Pine.LNX.4.33.0110010742490.24399-100000@nick.dcs.qmul.ac.uk>
+X-URL: http://www.theBachChoir.org.uk/
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sep 30 Matt Bernstein wrote:
 
-Ok, thanks.  I did that and it worked.  But I have (unfortunately) one more
-question about how raid disks are used.  I've now remade the restarted the
-raid, having left the oldest drive (/dev/sde1) as a failed-disk.  I do a
-raidhotadd /dev/md0 /dev/sde1, and this starts the raid parity rebuild and
-gives this status in /proc/mdstat:
-
-md0 : active raid5 sde1[6] sdi1[5] sdh1[4] sdg1[3] sdf1[2] sdd1[0]
-      179203840 blocks level 5, 256k chunk, algorithm 0 [6/5] [U_UUUU]
-      [=>...................]  recovery =  8.4% (3023688/35840768)
-finish=88.9min speed=6148K/sec
-
-Now, my question is: the hotadd seems to have reordered the disks, so when
-the rebuild is completed, do I need to reorder my raidtab to reflect this?
-Like this?
-
-        device                  /dev/sdd1
-        raid-disk               0
-        device                  /dev/sdf1
-        raid-disk               1
-        device                  /dev/sdg1
-        raid-disk               2
-        device                  /dev/sdh1
-        raid-disk               3
-        device                  /dev/sdi1
-        raid-disk               4
-        device                  /dev/sde1
-        raid-disk               5
-
-Or does the kernel still keep the drives in order as the raidtab already is,
-even though they seem to be out of order in the syslog and /proc/mdstat?  If
-I have to force the recreation of the superblocks at some later point, which
-way will keep the data from being lost?
-
-Thanks.  Evan
-
--- 
-| Evan Harris - Consultant, Harris Enterprises - eharris@puremagic.com
-|
-| Custom Solutions for your Software, Networking, and Telephony Needs
-
-On Mon, 1 Oct 2001, Jakob Østergaard wrote:
-
-> On Sun, Sep 30, 2001 at 07:51:25PM -0500, Evan Harris wrote:
-> >
-> > Thanks for the fast reply!
-> >
-> > I'm not sure I understand why drive 5 should be failed.  It is one of the
-> > four disks with the most recently correct superblocks.  The disk with the
-> > oldest superblock is #1.  Can you point me to documentation which explains
-> > this better?  I'm a little afraid of doing that without reading more on it,
-> > since it seems to mark yet another of the 4 remaining "good" drives as
-> > "bad".
+>Hi, this occurred on our main fileserver overnight.
 >
-> Oh, sorry,   of course the oldest disk should be marked as failed.
->
-> But the way you mark a disk failed is to replace "raid-disk" with "failed-disk".
->
-> What you did in your configuration was to say that sde1 was disk 1, and sdi1 was
-> disk 5 *AND* disk 1 *AND* it was failed.
->
-> Replace "raid-disk" with "failed-disk" for the device that you want to mark
-> as failed.  Don't touch the numbers.
->
-> Cheers,
->
-> --
-> ................................................................
-> :   jakob@unthought.net   : And I see the elder races,         :
-> :.........................: putrid forms of man                :
-> :   Jakob Østergaard      : See him rise and claim the earth,  :
-> :        OZ9ABN           : his downfall is at hand.           :
-> :.........................:............{Konkhra}...............:
->
+>SMP PIII Coppermine; Debian "potato" + bunk 2.4 debs; 2.4.9-ac10 + ext3
+>0.9.9 + ext3 speedup + ext3 "experimental VM patch" + jfs-1.0.4; gdth;
+>acenic; everything modular; gcc 2.96-85
+
+Oh no, this occurred on our student fileserver *last* night (same kernel,
+but compiled for PII). System stability is not looking good. I forgot to
+mention I have HIGHMEM = 4GB.
+
+In the absence of any better suggestion, I'll try 2.4.9-ac18.
+
+ksymoops 2.4.1 on i686 2.4.9-ac10-jfs.  Options used
+     -V (default)
+     -K (specified)
+     -L (specified)
+     -o /lib/modules/2.4.9-ac10-jfs/ (default)
+     -m /boot/System.map-2.4.9-ac10-jfs (default)
+
+No modules in ksyms, skipping objects
+kernel BUG at slab.c:1419!
+invalid operand: 0000
+CPU:    1
+EIP:    0010:[<c013662e>]
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010082
+eax: 0000001b   ebx: 00fac080   ecx: c022af80   edx: 0000712d
+esi: f7b90000   edi: f7a87140   ebp: f7b90994   esp: f7ee1f7c
+ds: 0018   es: 0018   ss: 0018
+Process kswapd (pid: 5, stackpage=f7ee1000)
+Stack: c01fe9cd 0000058b c0231a80 00000006 f7eec600 f7eec400 00000006 00000000
+       00000000 00000000 c221b0c0 000000c0 0000000f c0231a80 0008e000 c01391d1
+       000000c0 f7ee0000 ffffffff c013924e 000000c0 00000000 c0105000 0008e000
+Call Trace: [<c01391d1>] [<c013924e>] [<c0105000>] [<c0105000>] [<c0105926>]
+   [<c01391e0>]
+Code: 0f 0b 5f 58 8b 44 24 20 89 ea 8b 58 18 b8 71 f0 2c 5a 01 da
+
+>>EIP; c013662e <kmem_cache_reap+be/600>   <=====
+Trace; c01391d1 <inactive_shortage+1/a0>
+Trace; c013924e <inactive_shortage+7e/a0>
+Trace; c0105000 <_stext+0/0>
+Trace; c0105000 <_stext+0/0>
+Trace; c0105926 <kernel_thread+26/30>
+Trace; c01391e0 <inactive_shortage+10/a0>
+Code;  c013662e <kmem_cache_reap+be/600>
+00000000 <_EIP>:
+Code;  c013662e <kmem_cache_reap+be/600>   <=====
+   0:   0f 0b                     ud2a      <=====
+Code;  c0136630 <kmem_cache_reap+c0/600>
+   2:   5f                        pop    %edi
+Code;  c0136631 <kmem_cache_reap+c1/600>
+   3:   58                        pop    %eax
+Code;  c0136632 <kmem_cache_reap+c2/600>
+   4:   8b 44 24 20               mov    0x20(%esp,1),%eax
+Code;  c0136636 <kmem_cache_reap+c6/600>
+   8:   89 ea                     mov    %ebp,%edx
+Code;  c0136638 <kmem_cache_reap+c8/600>
+   a:   8b 58 18                  mov    0x18(%eax),%ebx
+Code;  c013663b <kmem_cache_reap+cb/600>
+   d:   b8 71 f0 2c 5a            mov    $0x5a2cf071,%eax
+Code;  c0136640 <kmem_cache_reap+d0/600>
+  12:   01 da                     add    %ebx,%edx
 

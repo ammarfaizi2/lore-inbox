@@ -1,57 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267451AbUIUNsM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267335AbUIUNyu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267451AbUIUNsM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Sep 2004 09:48:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267223AbUIUNsM
+	id S267335AbUIUNyu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Sep 2004 09:54:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267592AbUIUNyq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Sep 2004 09:48:12 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:4481 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S267451AbUIUNr6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Sep 2004 09:47:58 -0400
-Date: Tue, 21 Sep 2004 09:47:20 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Peter Seiderer <ps.report@gmx.net>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG][2.6.8.1] Nevver dump core while /dev/men is mmaped
-In-Reply-To: <11831.1095772794@www24.gmx.net>
-Message-ID: <Pine.LNX.4.53.0409210944320.3495@chaos.analogic.com>
-References: <11831.1095772794@www24.gmx.net>
+	Tue, 21 Sep 2004 09:54:46 -0400
+Received: from cecom6.monmouth.army.mil ([134.80.0.9]:65172 "EHLO
+	cecom6.monmouth.army.mil") by vger.kernel.org with ESMTP
+	id S267223AbUIUNyi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Sep 2004 09:54:38 -0400
+Message-ID: <E3E30069B061524E90BCEE4417E30661138533@monm207.monmouth.army.mil>
+From: "Huber, George K RDECOM CERDEC STCD SRI" <George.K.Huber@us.army.mil>
+To: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
+       linux-c-programming@vger.kernel.org, linux-admin@vger.kernel.org,
+       linux-newbie@vger.kernel.org
+Subject: RE: Network Statistics Collection
+Date: Tue, 21 Sep 2004 09:54:23 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2657.72)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Sep 2004, Peter Seiderer wrote:
+Tejas wondered:
 
-> Hello,
-> the following short program stops my computer immediately (no more
-> input, telnet etc. possible):
->
-> --- begin ---
-> #include <stdio.h>
-> #include <sys/types.h>
-> #include <sys/stat.h>
-> #include <fcntl.h>
-> #include <sys/mman.h>
-> #include <assert.h>
->
-> int main(int argc, char *argv[]) {
-> 	int fd;
-> 	assert((fd = open("/dev/mem", O_RDWR)) != (-1));
->
-> 	size_t s = 67108864;
-> 	void *m;
-> 	assert((m = mmap(NULL, s, PROT_READ|PROT_WRITE, MAP_SHARED, fd,
-> 0xd0000000)) != NULL);
-         ^^^^^^^^^^^^^^^
- Incorrect. mmap() returns MAP_FAILED, (void *)-1, when it fails, not
-NULL, (void *)0.
+>I am working on a company project and as a part of it - I have to
+>collect and show some network information on the Monitoring utility.
+>Please help to find out that how can I collect these information from
+>a Linux Machine.
 
+>1. Number of active TCP connection
+>2. Information of Active connections (Source and Dest IP, Source and Dest
+Port)
+>3. Retransmitted packets due to Duplicate ACK and SACK
+>4. Connection Duration and RTT
+>5. Transmission Troughput (in KB/Sec)
+>6. Number of Newly Created TCP Connections
+>7. Closed TCP Connections
+>8. Total Data transmitted (in byte)
+>9. Total Data Retransmitted (in byte)
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
-            Note 96.31% of all statistics are fiction.
+Take a look at iptraf - it does most (if not all of what you want).  Through
+a
+study of its source code you should be able to figure out how to do what you
+want.
 
+George

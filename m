@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265643AbSKKHhH>; Mon, 11 Nov 2002 02:37:07 -0500
+	id <S265647AbSKKHjA>; Mon, 11 Nov 2002 02:39:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265646AbSKKHhH>; Mon, 11 Nov 2002 02:37:07 -0500
-Received: from holomorphy.com ([66.224.33.161]:62388 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S265643AbSKKHhH>;
-	Mon, 11 Nov 2002 02:37:07 -0500
-Date: Sun, 10 Nov 2002 23:41:29 -0800
+	id <S265649AbSKKHjA>; Mon, 11 Nov 2002 02:39:00 -0500
+Received: from holomorphy.com ([66.224.33.161]:65460 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S265647AbSKKHi7>;
+	Mon, 11 Nov 2002 02:38:59 -0500
+Date: Sun, 10 Nov 2002 23:43:17 -0800
 From: William Lee Irwin III <wli@holomorphy.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: Andrew Morton <akpm@digeo.com>, lkml <linux-kernel@vger.kernel.org>,
-       linux-mm@kvack.org
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Cc: akpm@digeo.com, linux-kernel@vger.kernel.org
 Subject: Re: 2.5.46-mm2
-Message-ID: <20021111074129.GK23425@holomorphy.com>
+Message-ID: <20021111074317.GL23425@holomorphy.com>
 Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Jens Axboe <axboe@suse.de>, Andrew Morton <akpm@digeo.com>,
-	lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
-References: <3DCDD9AC.C3FB30D9@digeo.com> <20021110143208.GJ31134@suse.de> <20021110145203.GH23425@holomorphy.com> <20021110145757.GK31134@suse.de> <20021110150626.GI23425@holomorphy.com> <20021110155851.GL31134@suse.de> <3DCEB5E7.5147A449@digeo.com> <20021111070400.GP31134@suse.de>
+	"Albert D. Cahalan" <acahalan@cs.uml.edu>, akpm@digeo.com,
+	linux-kernel@vger.kernel.org
+References: <200211110437.gAB4bPl390685@saturn.cs.uml.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021111070400.GP31134@suse.de>
+In-Reply-To: <200211110437.gAB4bPl390685@saturn.cs.uml.edu>
 User-Agent: Mutt/1.3.25i
 Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 11, 2002 at 08:04:00AM +0100, Jens Axboe wrote:
-> I've already done exactly this (mempool per queue, global slab). I'll
-> share it later today.
-> But yes, lets see some numbers on huge queues first. Otherwise we can
-> just fall back to using a decent 128/512 split for reads/writes, or
-> whatever is a good split.
+On Sun, Nov 10, 2002 at 08:58:28AM -0800, Andrew Morton wrote:
+>> It could be the procps thing?  `tiobench --threads 256' shows
+>> up as a single process in top and ps due to the new thread
+>> consolidation feature. If you run `ps auxm' or hit 'H' in top,
+>> all is revealed.  Not my fave feature that.
 
-This just got real hard real fast and we'll be waiting at least a week
-for "real" results from me.
+On Sun, Nov 10, 2002 at 11:37:25PM -0500, Albert D. Cahalan wrote:
+> The feature is both buggy (both false consolidation and failure
+> to consolidate) and slow. While I do eventually need to add the
+> feature, I'm not doing so until it can be implemented properly.
+> So go ahead and enjoy procps-3.1.0 without it:
 
-Sorry, I can't fix vendor drivers on-demand. Recent SCSI changes broke
-the out-of-tree crap and I don't have the driver and/or in-kernel SCSI/FC
-expertise to deal with it.
+This is not caused by userspace. This is a direct consequence of the
+quadratic get_pid_list().
 
 
 Bill

@@ -1,22 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266454AbUHFD4P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267337AbUHFECL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266454AbUHFD4P (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 23:56:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266493AbUHFD4P
+	id S267337AbUHFECL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 00:02:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267647AbUHFECL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 23:56:15 -0400
-Received: from fw.osdl.org ([65.172.181.6]:27084 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266454AbUHFD4M (ORCPT
+	Fri, 6 Aug 2004 00:02:11 -0400
+Received: from fw.osdl.org ([65.172.181.6]:56783 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267337AbUHFECE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 23:56:12 -0400
-Date: Thu, 5 Aug 2004 20:47:16 -0700
+	Fri, 6 Aug 2004 00:02:04 -0400
+Date: Thu, 5 Aug 2004 20:50:59 -0700
 From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: WHarms@bfs.de
-Subject: Re: patch: linux-2.6.4/lib/int_sqrt.c long aware
-Message-Id: <20040805204716.38caeb88.rddunlap@osdl.org>
-In-Reply-To: <20040805173023.175a77f8.rddunlap@osdl.org>
-References: <20040805173023.175a77f8.rddunlap@osdl.org>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: alex.williamson@hp.com, haveblue@us.ibm.com,
+       acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [ACPI] Re: [PATCH] cleanup ACPI numa warnings
+Message-Id: <20040805205059.3fb67b71.rddunlap@osdl.org>
+In-Reply-To: <249150000.1091763309@[10.10.2.4]>
+References: <1091738798.22406.9.camel@tdi>
+	<1091739702.31490.245.camel@nighthawk>
+	<1091741142.22406.28.camel@tdi>
+	<249150000.1091763309@[10.10.2.4]>
 Organization: OSDL
 X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
@@ -25,57 +29,48 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-| From: <> (Walter Harms)
-| 
-| hi list,
-| this patch make int_sqrt() handle long properly. i tested it
-| on my alpha and i386. also some comparision again an alternativ int_sqrt() code.
-| The placement (and using) of 'tmp' is a bit odd but faster (on alpha, no matter on i386).
-| 
-| happy hacking,
-| walter
-| 
-| ps: i must use c&p so be aware of possible tab->space translations
-| 
-| 
-| --- linux-2.6.4/lib/int_sqrt.c.org	2004-03-21 12:58:55.783035928 +0100
-| +++ linux-2.6.4/lib/int_sqrt.c	2004-03-21 13:16:20.999138928 +0100
-| @@ -10,22 +10,23 @@
-|   */
-|  unsigned long int_sqrt(unsigned long x)
-|  {
-| -	unsigned long op, res, one;
-| +	unsigned long op, res, one,tmp;
-|  
-|  	op = x;
-|  	res = 0;
-|  
-| -	one = 1 << 30;
-| +	one = 1UL << (BITS_PER_LONG-2);
-|  	while (one > op)
-|  		one >>= 2;
-|  
-|  	while (one != 0) {
-| +		tmp=res + one;
-|  		if (op >= res + one) {
-| -			op = op - (res + one);
-| -			res = res +  2 * one;
-| +			op = op - tmp;
-| +			res = tmp + one;
-|  		}
-| -		res /= 2;
-| -		one /= 4;
-| +		res >>= 1;
-| +		one >>= 2;
-|  	}
-|  	return res;
-|  }
+On Thu, 05 Aug 2004 20:35:10 -0700 Martin J. Bligh wrote:
 
-Hi Walter,
+| --Alex Williamson <alex.williamson@hp.com> wrote (on Thursday, August 05, 2004 15:25:42 -0600):
+| 
+| > On Thu, 2004-08-05 at 14:01 -0700, Dave Hansen wrote:
+| >> On Thu, 2004-08-05 at 13:46, Alex Williamson wrote:
+| >> > +#ifdef ACPI_DEBUG_OUTPUT
+| >> > +#define acpi_print_srat_processor_affinity(header) { \
+| >> > +	struct acpi_table_processor_affinity *p = \
+| >> > +	                      (struct acpi_table_processor_affinity*) header; \
+| >> > +	ACPI_DEBUG_PRINT((ACPI_DB_INFO, "SRAT Processor (id[0x%02x] " \
+| >> > +	                 "eid[0x%02x]) in proximity domain %d %s\n", \
+| >> > +	                 p->apic_id, p->lsapic_eid, p->proximity_domain, \
+| >> > +	                 p->flags.enabled?"enabled":"disabled")); }
+| >> > +
+| >> > +#define acpi_print_srat_memory_affinity(header) { \
+| >> > +	struct acpi_table_memory_affinity *p = \
+| >> > +	                         (struct acpi_table_memory_affinity*) header; \
+| >> > +	ACPI_DEBUG_PRINT((ACPI_DB_INFO, "SRAT Memory (0x%08x%08x length " \
+| >> > +	                 "0x%08x%08x type 0x%x) in proximity domain %d %s%s\n",\
+| >> > +	                 p->base_addr_hi, p->base_addr_lo, p->length_hi, \
+| >> > +	                 p->length_lo, p->memory_type, p->proximity_domain, \
+| >> > +	                 p->flags.enabled ? "enabled" : "disabled", \
+| >> > +	                 p->flags.hot_pluggable ? " hot-pluggable" : "")); }
+| >> 
+| >> Is there a reason that this can't be a normal function instead of a
+| >> 9-line #define?
+| > 
+| >    Well, it's 9 lines, but it boils down to one printk.  I'm not sure
+| > putting it in a function would make it any more readable, long printks
+| > are ugly by design.  Either way would work.
+| 
+| Multi-line #defines are inherently eeeeevil ;-) I'd agree with Dave - static 
+| inlines are the normal way to do this.
 
-I found a little time to play with this.  I only tested it on
-a P4 UP machine (via userspace app).
-It does indeed speed up integer sqrt typically by around 3% for me.
+That's surely just an opinion, right?  8;)
+
+If they are more than a single function (like printk), I might agree,
+but the Linux kernel has plenty of them already.
+
+Using a macro for a big printk() seems to makes sense.
+And there's nothing in CodingStyle that agrees with you that I could find.
 
 --
 ~Randy

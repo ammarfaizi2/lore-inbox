@@ -1,51 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262066AbUKJXx2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262068AbUKKABp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262066AbUKJXx2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 18:53:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262147AbUKJXx1
+	id S262068AbUKKABp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 19:01:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262147AbUKKABp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 18:53:27 -0500
-Received: from ylpvm01-ext.prodigy.net ([207.115.57.32]:42199 "EHLO
-	ylpvm01.prodigy.net") by vger.kernel.org with ESMTP id S262066AbUKJXxV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 18:53:21 -0500
-From: David Brownell <david-b@pacbell.net>
-To: linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] 2.6.10-rc1-mm4: USB storage not working on AMD64
-Date: Wed, 10 Nov 2004 07:52:09 -0800
-User-Agent: KMail/1.7.1
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-References: <200411101154.05304.rjw@sisk.pl> <200411100736.08055.david-b@pacbell.net> <200411110042.25440.rjw@sisk.pl>
-In-Reply-To: <200411110042.25440.rjw@sisk.pl>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Wed, 10 Nov 2004 19:01:45 -0500
+Received: from ozlabs.org ([203.10.76.45]:48279 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S262068AbUKKABn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Nov 2004 19:01:43 -0500
+Date: Thu, 11 Nov 2004 10:48:05 +1100
+From: David Gibson <hermes@gibson.dropbear.id.au>
+To: Bryan Batten <BryanBatten@compuserve.com>
+Cc: Pavel Roskin <proski@gnu.org>,
+       Trivial Patch Monkey <trivial@rustcorp.com.au>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Warning Fix drivers/net/wireless in Kernel 2.6.9
+Message-ID: <20041110234805.GB12725@zax>
+Mail-Followup-To: David Gibson <hermes@gibson.dropbear.id.au>,
+	Bryan Batten <BryanBatten@compuserve.com>,
+	Pavel Roskin <proski@gnu.org>,
+	Trivial Patch Monkey <trivial@rustcorp.com.au>,
+	linux-kernel@vger.kernel.org
+References: <41927F5F.4080204@compuserve.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200411100752.09531.david-b@pacbell.net>
+In-Reply-To: <41927F5F.4080204@compuserve.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 10 November 2004 15:42, Rafael J. Wysocki wrote:
-> On Wednesday 10 of November 2004 16:36, David Brownell wrote:
-> > On Wednesday 10 November 2004 06:57, Rafael J. Wysocki wrote:
-> > > On Wednesday 10 of November 2004 14:58, David Brownell wrote:
-> > 
-> > > > I recently posted several USB PM fixes that make things work better
-> > > > in my testing, and it sounds like they'd probably help here too.
-> > > 
-> > > Are they available as stand-alone patches?  I'd like to test ...
-> > 
-> > Yes, check the linux-usb-devel archives from Sunday evening.
+On Wed, Nov 10, 2004 at 12:51:43PM -0800, Bryan Batten wrote:
+> The patch removes the "makes pointer from integer without a cast"
+> warnings in orinoco code by casting the appropriate parameter to
+> readw, writew as (void *) in the header file hermes.h.
 > 
-> Thanks a lot.  These patches evidently fix the problem described in this 
-> thread (verified on two different AMD64-based configurations).
+> The underlying problem is that readw/writes boil down to low level
+> calls that take a pointer, while inw/outw boil down (eventually) to
+> low level calls that take an int. So the choice was to either cast
+> inw, outw parameters as (int)'s, or cast readw, writew parameters as
+> (void *). I chose the latter.
+> 
+> I suspect the truly "best" fix would be to change the underlying
+> inx/outx definitions to accept a pointer, so's to be consistent
+> with the definitions of readx/writex, but that would probably break
+> other stuff.
 
-Good -- many thanks for the confirmation!  So I've seen
-it work on EHCI+OHCI controllers from NVidia (NF2, NF3),
-ALI, and SiS ... I'll hope Greg merges those into his
-BK tree for 2.6.10 soonish.
+That's what the new ioread*() and iowrite*() functions are for.  Al
+Viro has already made a fix to use these, and it is in the netdev bk
+tree.
 
-- Dave
-
+-- 
+David Gibson			| I'll have my music baroque, and my code
+david AT gibson.dropbear.id.au	| minimalist.  NOT _the_ _other_ _way_
+				| _around_!
+http://www.ozlabs.org/people/dgibson

@@ -1,70 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292163AbSBOViG>; Fri, 15 Feb 2002 16:38:06 -0500
+	id <S292167AbSBOVje>; Fri, 15 Feb 2002 16:39:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289790AbSBOVhw>; Fri, 15 Feb 2002 16:37:52 -0500
-Received: from altus.drgw.net ([209.234.73.40]:63749 "EHLO altus.drgw.net")
-	by vger.kernel.org with ESMTP id <S289768AbSBOVhf>;
-	Fri, 15 Feb 2002 16:37:35 -0500
-Date: Fri, 15 Feb 2002 15:37:17 -0600
-From: Troy Benjegerdes <hozer@drgw.net>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "David S. Miller" <davem@redhat.com>,
-        linux-kernel@vger.kernel.org, ralf@uni-koblenz.de
-Subject: Re: [patch] printk and dma_addr_t
-Message-ID: <20020215153717.F1211@altus.drgw.net>
-In-Reply-To: <20020213.013557.74564240.davem@redhat.com> <E16awZq-0004s4-00@the-village.bc.nu> <3C6A3F66.75D57124@zip.com.au>
+	id <S292168AbSBOVjW>; Fri, 15 Feb 2002 16:39:22 -0500
+Received: from cpe.atm4-0-118125.0x3ef2066b.hrnxx4.customer.tele.dk ([62.242.6.107]:26856
+	"EHLO mars.ravnborg.org") by vger.kernel.org with ESMTP
+	id <S292161AbSBOVjI>; Fri, 15 Feb 2002 16:39:08 -0500
+Date: Fri, 15 Feb 2002 22:42:35 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: kbuild-devel@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [kbuild-devel] Your opinion on CML2 and kbuild-2.5
+Message-ID: <20020215224235.A1292@mars.ravnborg.org>
+Mail-Followup-To: kbuild-devel@lists.sourceforge.net,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <200202150057.g1F0v8P23914@golux.thyrsus.com> <3C6CE148.5020804@dplanet.ch>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3C6A3F66.75D57124@zip.com.au>; from akpm@zip.com.au on Wed, Feb 13, 2002 at 02:26:46AM -0800
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3C6CE148.5020804@dplanet.ch>; from cate@dplanet.ch on Fri, Feb 15, 2002 at 11:22:00AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 13, 2002 at 02:26:46AM -0800, Andrew Morton wrote:
-> Alan Cox wrote:
-> > 
-> > So how do they modify the printf format rules in gcc ?
+On Fri, Feb 15, 2002 at 11:22:00AM +0100, Giacomo Catenazzi wrote:
+[Not a single word about the battle ongoing at LKLM...]
+> kbuild-2.5:
 > 
-> Good question.  It'd be nice for NIPQUAD and such.
-> 
-> Here's an alternative fix.  Less vomitous?
-> 
-> Sorry about sticking a prototype in types.h.  It needs to be
-> somewhere where all dma_addr_t users will see it, and where
-> dma_addr_t is already in scope.  Maybe there's a better place?
+> It does the right things! And this should be enought to tell you that
+> it should be included in the next kernels.
+When Keith brought up the inclusion of kbuild-2.5 last time the general
+statement was that kbuild-2.5 had one fundamental error - speed.
+I have tested it a while back, and my result was not as bad as the
+roumours said about kbuild-2.5.
+Light .config, Pentium 266 with 64 MB RAM.
+kbuild-2.4 make dep + make bzImage ~55 minutes
+kbuild-2.5 make installable        ~60 minutes
 
-Personally, I like this less.. I don't think the previous #define 
-DMA_ADDR_T_FMT (or whatever it was) is that bad, considering the options.
+Then I added one more driver.
+kbuild-2.4 make dep + make bzImage ~7 minutes
+kbuild-2.5 make installable        ~2 minutes
 
-Once we set the precedent of having little 'char 
-* form_some_random_type()' functions, they will show up all over the 
-place.
+So my conclusion was that one single change where *I* had to run
+make dep made it worthwhile to shift to kbuild-2.5.
+I know that *I* have to run make dep far more often than
+all the kernel hackes - they know what they are doing in contrast.
 
-I need something like this for the MTD patch I've got that supports 64 
-bit buswidths on 32 bit machines and needs to printk the data on error.
+With respect to kbuild-2.5 inclusion, I would vote for the distributed
+configuration scheme that Linus et al. suggested a while ago.
+[driver.conf that included makefile.in, configure.help etc.]
 
-I found that #define CFI_FMT '%lx' or whatever to be more 
-straightforward, and easier to understand.
+When kbuild-2.5 has been extended to support it, and the link-order
+have been solved then it is due time for inclusion.
+Jeff Garzik & Keith O. had some discussion about the link-order
+problem a while ago, but at that point in time Keith stopped the
+discussion whith the statement that he did not care about 2.5,
+with reference to the refusual from Linus to accept among others
+the LINK_FIRST - LINK_LAST patch.
+I dunno what the conclusion on the link-order issue was.
 
-> + */
-> +char *form_dma_addr_t(char *buf, dma_addr_t a)
-> +{
-> +	char *fmt;	/* Funny code to prevent a printf warning */
-> +
-> +	if (sizeof(dma_addr_t) == sizeof(long))
-> +		fmt = "%lx";
-> +	else
-> +		fmt = "%Lx";
-> +
-> +	sprintf(buf, fmt, a);
-> +	return buf;
-> +}
+What I read between the lines is that kbuild-2.5 should not only fix
+the kbuild-2.4 bugs[*], but should also address the scalability issues
+that Linus raised - before he accepts it.
 
--- 
-Troy Benjegerdes | master of mispeeling | 'da hozer' |  hozer@drgw.net
------"If this message isn't misspelled, I didn't write it" -- Me -----
-"Why do musicians compose symphonies and poets write poems? They do it
-because life wouldn't have any meaning for them if they didn't. That's 
-why I draw cartoons. It's my life." -- Charles Schulz
+[*] Bugs that I see, but kernel hackers are not hit by - because
+they know what they are doing.
+
+Personal I would like to see kbuild-2.5 included ASAP. Among other stuff
+I like the compressed output during compilation.
+
+	Sam

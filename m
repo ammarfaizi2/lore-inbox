@@ -1,68 +1,34 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316973AbSEWSHE>; Thu, 23 May 2002 14:07:04 -0400
+	id <S316974AbSEWSKW>; Thu, 23 May 2002 14:10:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316974AbSEWSHD>; Thu, 23 May 2002 14:07:03 -0400
-Received: from freeside.toyota.com ([63.87.74.7]:44552 "EHLO
-	freeside.toyota.com") by vger.kernel.org with ESMTP
-	id <S316973AbSEWSHD>; Thu, 23 May 2002 14:07:03 -0400
-Message-ID: <3CED2FB2.9080804@lexus.com>
-Date: Thu, 23 May 2002 11:06:42 -0700
-From: J Sloan <jjs@lexus.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020522
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Bill Davidsen <davidsen@tmr.com>
-CC: "Mohammad A. Haque" <mhaque@haque.net>, linux-kernel@vger.kernel.org
-Subject: Re: ip alias and default outgoing interface
-In-Reply-To: <Pine.LNX.3.96.1020523101028.11249B-100000@gatekeeper.tmr.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S316975AbSEWSKV>; Thu, 23 May 2002 14:10:21 -0400
+Received: from smtp.intrex.net ([209.42.192.250]:24586 "EHLO intrex.net")
+	by vger.kernel.org with ESMTP id <S316974AbSEWSKV>;
+	Thu, 23 May 2002 14:10:21 -0400
+Date: Thu, 23 May 2002 14:12:43 -0400
+From: jlnance@intrex.net
+To: roy@karlsbakk.net, linux-kernel@vger.kernel.org
+Subject: Re: [BUG] 2.4 VM sucks. Again
+Message-ID: <20020523141243.A1178@tricia.dyndns.org>
+In-Reply-To: <200205231311.g4NDBO613726@mail.pronto.tv>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm seeing also - this is with 2.4.19-pre3aa2 -
-and I know I saw it with earlier 2.4 kernels.
-I just checked and I'm seeing it on my
-workstation here, running 2.4.19-pre8-ac5.
+On Thu, May 23, 2002 at 03:11:24PM +0200, Roy Sigurd Karlsbakk wrote:
 
-I'd have a working ethernet interface, with
-a functional default route - now if I bring up
-a virtual address on the same ethernet
-device, all outgoing traffic from that point
-on emanates from the IP of the new virtual
-interface - which created some problems
-if there are firewall rules based on IP addr.
+> Starting up 30 downloads from a custom HTTP server (or Tux - or Apache - 
+> doesn't matter), file size is 3-6GB, download speed = ~4.5Mbps. After some 
+> time the kernel (a) goes bOOM (out of memory) if not having any swap, or (b) 
+> goes gong swapping out anything it can.
 
-I know there is some way to fix this with the
-advanced routing features, but I hadn't time
-to look into it until now - and the above does
-seem to be the default behavior.
+Does this work if the client and the server are on the same machine?  It
+would make reproducing this a lot easier if it only required 1 machine.
 
-Joe
+Thanks,
 
-Bill Davidsen wrote:
-
->On Wed, 22 May 2002, Mohammad A. Haque wrote:
->
->  
->
->>I've got a setup where I have one ethernet card and multiple ips 
->>assigned using ip alias.
->>
->>i've noticed that sometimes out going traffic goes out using the ip of 
->>the last interface I brought up.
->>
->>Is this supposed to happen? How do I make it so that the default gw 
->>interface is used?
->>    
->>
->
->Time to tell us which kernel you run. I haven't seen this with 2.4.recent,
->but most of the connections are either incoming or explicitly SNET'd.
->
->  
->
-
-
-
+Jim

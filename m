@@ -1,62 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262540AbTKNN3n (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Nov 2003 08:29:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262564AbTKNN3c
+	id S262569AbTKNNdF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Nov 2003 08:33:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262570AbTKNNdF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Nov 2003 08:29:32 -0500
-Received: from node-d-1fcf.a2000.nl ([62.195.31.207]:30083 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP id S262540AbTKNN3a
+	Fri, 14 Nov 2003 08:33:05 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:57028 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S262569AbTKNNdC
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Nov 2003 08:29:30 -0500
-Subject: Re: ptrace + ioctl( LOOP_SET_FD ) brokeness.
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Bernhard Kaindl <bernhard.kaindl@gmx.de>
-Cc: "Erik A. Hendriks" <hendriks@lanl.gov>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.56.0311141243030.19155@wotan.suse.de>
-References: <20031113215506.GO23534@lanl.gov>
-	 <Pine.LNX.4.56.0311141243030.19155@wotan.suse.de>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-EPDyZBvukffOaZqJ2Isv"
-Organization: Red Hat, Inc.
-Message-Id: <1068816558.5206.0.camel@laptop.fenrus.com>
+	Fri, 14 Nov 2003 08:33:02 -0500
+Date: Fri, 14 Nov 2003 16:32:59 +0300
+From: Alex Zarochentsev <zam@namesys.com>
+To: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
+Cc: Gianni Tedesco <gianni@scaramanga.co.uk>, linux-kernel@vger.kernel.org,
+       reiserfs-list@namesys.com
+Subject: Re: new reiser4 snapshot is available
+Message-ID: <20031114133258.GL1278@backtop.namesys.com>
+References: <20031113143438.GD1278@backtop.namesys.com> <20031114094217.GH1278@backtop.namesys.com> <1068807864.2883.1520.camel@lemsip> <20031114112027.GJ1278@backtop.namesys.com> <20031114131637.GK1278@backtop.namesys.com> <3FB4D841.5000700@gmx.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Fri, 14 Nov 2003 14:29:18 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3FB4D841.5000700@gmx.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Nov 14, 2003 at 02:27:29PM +0100, Carl-Daniel Hailfinger wrote:
+> Alex Zarochentsev wrote:
+> > I made a cleanup for reiser4 patches (by removing UML-specific changes),
+> > you can see result here: 
+> > 
+> > http://namesys.com/snapshots/2003.11.17/cleaned-up/
+> 
+> That directory doesn't exist.
 
---=-EPDyZBvukffOaZqJ2Isv
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+http://namesys.com/snapshots/2003.11.12/cleaned-up/
 
-On Fri, 2003-11-14 at 14:09, Bernhard Kaindl wrote:
+> 
+> 
+> Carl-Daniel
+> 
 
-> The reason for the process hang seems to be the way loop_set_fd calls cal=
-ls
-> kernel_thread():
->=20
->         kernel_thread(loop_thread, lo, CLONE_FS | CLONE_FILES | CLONE_SIG=
-HAND);
->         down(&lo->lo_sem); <- This seems to wait for loop_thread()
->=20
-> Since kernel_thread can fail at the moment, all places where it is
-> called would need to be checked and error handling added.
-
-kernel_thread could fail even before, after all it allocates memory.
-So this code has always been buggy just harder to trigger
-
---=-EPDyZBvukffOaZqJ2Isv
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/tNiuxULwo51rQBIRAmNyAKCcS/ZLA6z+nALBvIGtzoSRZn1MHACfcOpu
-VWScq+7z4dp+17sQdT42ELA=
-=T3gS
------END PGP SIGNATURE-----
-
---=-EPDyZBvukffOaZqJ2Isv--
+-- 
+Alex.

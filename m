@@ -1,45 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268733AbUJEAuY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268590AbUJEBR3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268733AbUJEAuY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 20:50:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268730AbUJEAuX
+	id S268590AbUJEBR3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 21:17:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268602AbUJEBR3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 20:50:23 -0400
-Received: from main.gmane.org ([80.91.229.2]:17607 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S268733AbUJEAuM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 20:50:12 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Andrew Rodland <arodland@entermail.net>
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc3-mm1-S9
-Date: Mon, 04 Oct 2004 20:38:57 -0400
-Message-ID: <cjsqjq$8un$2@sea.gmane.org>
-References: <20040919122618.GA24982@elte.hu> <414F8CFB.3030901@cybsft.com> <20040921071854.GA7604@elte.hu> <20040921074426.GA10477@elte.hu> <20040922103340.GA9683@elte.hu> <20040923122838.GA9252@elte.hu> <20040923211206.GA2366@elte.hu> <20040924074416.GA17924@elte.hu> <20040928000516.GA3096@elte.hu> <20041003210926.GA1267@elte.hu> <20041004215315.GA17707@elte.hu>
+	Mon, 4 Oct 2004 21:17:29 -0400
+Received: from mail.renesas.com ([202.234.163.13]:37346 "EHLO
+	mail01.idc.renesas.com") by vger.kernel.org with ESMTP
+	id S268590AbUJEBR2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Oct 2004 21:17:28 -0400
+Date: Tue, 05 Oct 2004 10:16:51 +0900 (JST)
+Message-Id: <20041005.101651.336469738.takata.hirokazu@renesas.com>
+To: hch@lst.de
+Cc: takata@linux-m32r.org, linux-kernel@vger.kernel.org
+Subject: Re: remaining m32r issues
+From: Hirokazu Takata <takata@linux-m32r.org>
+In-Reply-To: <20041002160036.GA18784@lst.de>
+References: <20041002160036.GA18784@lst.de>
+X-Mailer: Mew version 3.3 on XEmacs 21.4.15 (Security Through Obscurity)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: port146.public4.resnet.ucf.edu
-User-Agent: KNode/0.8.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-
+From: Christoph Hellwig <hch@lst.de>
+Date: Sat, 2 Oct 2004 18:00:36 +0200
+> We're getting close to 2.6.9, aka the first release with official m32r
+> support.  So could you please remove the obsolete syscalls from the
+> default config so we don't have to support them forever?
 > 
-> i've released the -S9 VP patch:
-> 
->  
-http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc3-mm2-S9
+> Also there's still arch/m32r/drivers, and it adds new MOD_INC_USE_COUNT
+> users - but that one has been completely removed in -mm already
 
+Sorry for my late reply. I was offline in these three days.
+I'am trying to deal with them now.
 
-The swapspace layout part of this is incompatible with swsusp, causing a
-compile error and I don't understand the changes well enough to fix it.
-Could you please provide a fix or at least provide a note, so that people
-like me who depend on it know not use this patch?
-
-Cheers
-hobbs
-
-
+-- Takata

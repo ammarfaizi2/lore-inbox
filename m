@@ -1,49 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272610AbTHEJTl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 05:19:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272599AbTHEJTk
+	id S272608AbTHEJl3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 05:41:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272609AbTHEJl3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 05:19:40 -0400
-Received: from smtp-out2.iol.cz ([194.228.2.87]:3997 "EHLO smtp-out2.iol.cz")
-	by vger.kernel.org with ESMTP id S272610AbTHEJSI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 05:18:08 -0400
-Date: Tue, 5 Aug 2003 11:17:34 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Patrick Mochel <mochel@osdl.org>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PM] save/restore screen support for ACPI S3 sleep
-Message-ID: <20030805091734.GE388@elf.ucw.cz>
-References: <20030726225646.GA519@elf.ucw.cz> <Pine.LNX.4.44.0308041800461.23977-100000@cherise>
+	Tue, 5 Aug 2003 05:41:29 -0400
+Received: from mail3.ithnet.com ([217.64.64.7]:48774 "HELO
+	heather-ng.ithnet.com") by vger.kernel.org with SMTP
+	id S272608AbTHEJl2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Aug 2003 05:41:28 -0400
+X-Sender-Authentification: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
+Date: Tue, 5 Aug 2003 11:41:25 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Cc: muizelaar@rogers.com, linux-kernel@vger.kernel.org,
+       mru@users.sourceforge.net
+Subject: Re: FS: hardlinks on directories
+Message-Id: <20030805114125.30a12916.skraw@ithnet.com>
+In-Reply-To: <16175.6729.962817.135747@gargle.gargle.HOWL>
+References: <20030804141548.5060b9db.skraw@ithnet.com>
+	<yw1xsmohioah.fsf@users.sourceforge.net>
+	<20030804152226.60204b61.skraw@ithnet.com>
+	<3F2E7C63.2000203@rogers.com>
+	<20030804181500.074aec51.skraw@ithnet.com>
+	<16175.6729.962817.135747@gargle.gargle.HOWL>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0308041800461.23977-100000@cherise>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tue, 5 Aug 2003 12:45:29 +1000
+Neil Brown <neilb@cse.unsw.edu.au> wrote:
 
-> > This way console should be correctly restored after S3...
+> On Monday August 4, skraw@ithnet.com wrote:
+> > On Mon, 04 Aug 2003 11:31:47 -0400
+> > Jeff Muizelaar <muizelaar@rogers.com> wrote:
 > > 
-> > [Prototype should be added to include/linux/suspend.h].
+> > > Stephan von Krawczynski wrote:
+> > > 
+> > > >
+> > > >I guess this is not really an option if talking about hundreds or
+> > > >thousands of"links", is it?
+> > > >  
+> > > >
+> > > actually hundreds or thounds still should be ok. See...
 > > 
-> > kernel/suspend.c part only moves code out of "SWSUSP_ONLY"
-> > section.
+> > Hm, and I just found out that re-exporting "mount --bind" volumes does not
+> > work over nfs...
+> > 
+> > Is this correct, Neil?
 > 
-> I moved this code to kernel/power/console.c and made it dependent on 
-> CONFIG_PM only. I also fixed up the breakage Andrew reported earlier and 
-> added prototypes to include/linux/suspend.h. Patch below for review (not 
-> directly applicable, as it's relative to the series).
+> Yes, though there is a reasonable chance that it can be made to work
+> with linux-2.6.0 and nfs-utils-1.1.0 (neither of which have been
+> released yet:-)
 
-Patch looks good, except that you should put some comment at begining
-of console.c. (GPL+copyrights+one line what this file is about). I
-guess that's trivial to fix up incrementally.
-								Pavel
+Is this a complex issue? Can you imagine a not-too-big sized patch can make it
+work in 2.4? What is the basic reason it does in fact not work?
 
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Regards,
+Stephan
+

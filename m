@@ -1,117 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262178AbSJ2Uro>; Tue, 29 Oct 2002 15:47:44 -0500
+	id <S262302AbSJ2VJD>; Tue, 29 Oct 2002 16:09:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262184AbSJ2Uro>; Tue, 29 Oct 2002 15:47:44 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:62096 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S262178AbSJ2Urn>; Tue, 29 Oct 2002 15:47:43 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Tue, 29 Oct 2002 13:03:34 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: John Gardiner Myers <jgmyers@netscape.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       <linux-aio@kvack.org>, <lse-tech@lists.sourceforge.net>
-Subject: Re: and nicer too - Re: [PATCH] epoll more scalable than poll
-In-Reply-To: <3DBEE645.3020808@netscape.com>
-Message-ID: <Pine.LNX.4.44.0210291237240.1457-100000@blue1.dev.mcafeelabs.com>
+	id <S262310AbSJ2VJD>; Tue, 29 Oct 2002 16:09:03 -0500
+Received: from albatross.mail.pas.earthlink.net ([207.217.120.120]:5845 "EHLO
+	albatross.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S262302AbSJ2VJC>; Tue, 29 Oct 2002 16:09:02 -0500
+Date: Tue, 29 Oct 2002 14:08:37 -0800 (PST)
+From: James Simmons <jsimmons@infradead.org>
+X-X-Sender: <jsimmons@maxwell.earthlink.net>
+To: Christoph Hellwig <hch@infradead.org>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: [BK updates] fbdev changes updates.
+In-Reply-To: <20021029205529.A2145@infradead.org>
+Message-ID: <Pine.LNX.4.33.0210291408110.1363-100000@maxwell.earthlink.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 29 Oct 2002, John Gardiner Myers wrote:
 
-> >I bet Davide knows best.
+> On Tue, Oct 29, 2002 at 12:46:16PM -0800, James Simmons wrote:
 > >
-> Nope, he doesn't.
-
-It is very easy for me to remain calm here. You're a funny guy. You're in
-the computer science by many many years and still you're not able to
-understand how edge triggered events works. And look, this apply to every
-field, form ee to cs. Book suggestions would be requested here, but since
-I believe grasping inside a technical library to be pretty fun, I'll leave
-you this pleasure.
-
-
-
-> >An easy solution is to have sys_epoll_ctl check if there is there is data
-> >ready and make sure there is an edge to report in that case to the next call
-> >of sys_epoll_ctl().
+> > OOps. Forgot the link.
 > >
-> >
-> This is the very solution I am proposing.
+> > bk://fbdev.bkbits.net/fbdev-2.5
+>
+> Does it still contain the random file movearounds?
 
-This is an example snippet code that can be used with the current API :
+The reason I did this was to prevent adding another chuck of agp code. The
+current work around for AGP fbdev drivers to have there OWN AGP code. So
+we can leave the agp drivers where they are at or the framebuffer layer
+can have its own AGP code for itself. Which way do you think it should be
+done?
 
-for(;;) {
-        nfds = sys_epoll_wait(kdpfd, &pfds, -1);
+1) Fbdev layer has it own AGP layer
 
-        for(n = 0; n < nfds; ++n) {
-                if(fd = pfds[n].fd) == s) {
-                        client = accept(s, (struct sockaddr*)&local, &addrlen);
-                        if(client < 0){
-                                perror("accept");
-                                continue;
-                        }
-                        if (sys_epoll_ctl(kdpfd, EP_CTL_ADD, client, POLLIN | POLLOUT) < 0) {
-                                fprintf(stderr, "sys_epoll set insertion error: fd=%d\n", client);
-                                return -1;
-                        }
-                        fd = client;
-                }
-                do_use_fd(fd);
-        }
-}
-
-This is what will be used in case of your
-failing-to-understand-edge-triggered-api method :
-
-for(;;) {
-        nfds = sys_epoll_wait(kdpfd, &pfds, -1);
-
-        for(n = 0; n < nfds; ++n) {
-                if(fd = pfds[n].fd) == s) {
-                        client = accept(s, (struct sockaddr*)&local, &addrlen);
-                        if(client < 0){
-                                perror("accept");
-                                continue;
-                        }
-                        if (sys_epoll_ctl(kdpfd, EP_CTL_ADD, client, POLLIN | POLLOUT) < 0) {
-                                fprintf(stderr, "sys_epoll set insertion error: fd=%d\n", client);
-                                return -1;
-                        }
-                } else
-                        do_use_fd(fd);
-        }
-}
-
-Why the heck ( and this for the 100th time ) do you want to go to wait for
-an event on the newly born fd if :
-
-1) On connect() you have the _full_ write I/O space available
-2) On accept() it's very likely the you'll find something more than a SYN
-	in the first packet
-
-Besides, the first code is even more cleaner and simmetric, while adopting
-your half *ss solution might suggest the user that he can go waiting for
-events any time he wants. Like going to sleep the the wait queue of IDE
-disk w/out having issued any command. Now to bring this 101, consider :
-
-1) "issuing a command to an IDE disk" == "using read/write until EAGAIN"
-
-2) "adding yourself on the IDE disk wait queue" == "calling sys_epoll_wait()"
-
-
-PS: since my time is not infinite, and since I'm working on the changes we
-agreed with Andrew I would suggest you either to take another look at the
-code suggesting us new changes ( like you did yesterday ) or to go
-shopping for books.
-
-
-
-- Davide
-
-
+2) Use already existing AGP layer code.
 

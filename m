@@ -1,56 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262377AbRENTDa>; Mon, 14 May 2001 15:03:30 -0400
+	id <S262388AbRENTEk>; Mon, 14 May 2001 15:04:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262388AbRENTDU>; Mon, 14 May 2001 15:03:20 -0400
-Received: from c1473286-a.stcla1.sfba.home.com ([24.176.137.160]:24068 "HELO
-	ocean.lucon.org") by vger.kernel.org with SMTP id <S262377AbRENTDI>;
-	Mon, 14 May 2001 15:03:08 -0400
-Date: Mon, 14 May 2001 12:02:48 -0700
-From: "H . J . Lu" <hjl@lucon.org>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: =?iso-8859-1?Q?Mads_Martin_J=F8rgensen?= <mmj@suse.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Manfred Spraul <manfred@colorfullife.com>,
-        Yann Dupont <Yann.Dupont@IPv6.univ-nantes.fr>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: PATCH 2.4.4.ac9: Tulip net driver fixes
-Message-ID: <20010514120248.A26094@lucon.org>
-In-Reply-To: <3AFD8E2E.302F1AB5@mandrakesoft.com> <20010514112216.A25436@lucon.org> <20010514112407.E781@suse.com> <3B002595.76399CE4@mandrakesoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3B002595.76399CE4@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Mon, May 14, 2001 at 02:36:05PM -0400
+	id <S262389AbRENTEa>; Mon, 14 May 2001 15:04:30 -0400
+Received: from intranet.resilience.com ([209.245.157.33]:44522 "EHLO
+	intranet.resilience.com") by vger.kernel.org with ESMTP
+	id <S262388AbRENTEV>; Mon, 14 May 2001 15:04:21 -0400
+Message-ID: <3B002D61.191C03C@resilience.com>
+Date: Mon, 14 May 2001 12:09:21 -0700
+From: Jeff Golds <jgolds@resilience.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.4 kernel reports wrong amount of physical memory
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 14, 2001 at 02:36:05PM -0400, Jeff Garzik wrote:
-> Mads Martin Jørgensen wrote:
-> > 
-> > * H . J . Lu <hjl@lucon.org> [May 14. 2001 11:22]:
-> > > On Sat, May 12, 2001 at 03:25:34PM -0400, Jeff Garzik wrote:
-> > > > Attached is a patch against 2.4.4-ac8 which includes several fixes to
-> > > > the Tulip driver.  This should fix the reported PNIC problems, as well
-> > > > as problems with forcing media on MII phys and several other bugs.
-> > >
-> > > Your patch doesn't apply to 2.4.4-ac8 cleanly:
-> > 
-> > No, I noticed that too. But the 1.1.6 from
-> > http://sourceforge.net/projects/tulip/ works fine here.
-> 
-> Attached is a patch against 2.4.4-ac9 which includes the changes found
-> in tulip-devel 1.1.6...   (tulip-devel is sort of a misnomer; right now
-> it's really just a staging and testing point for fixes which go straight
-> into the tulip-stable series)
-> 
+Hi folks,
 
-THANKS. It works!
+I installed the 2.4.4 kernel on a dual P3-733 system with 1 GB of ECC RAM and found that /proc/meminfo reports back only 899MB of RAM.  The 2.4.2 kernel (with RedHat patches from the 7.1 release) worked fine as did the 2.4.0 kernel (with RedHat patches from the 7.0 release).
 
-BTW, I cannot select both CONFIG_IP_PNP_DHCP and CONFIG_IP_PNP_BOOTP.
-BOOTP doesn' work even if I pass "ip=bootp" to kernel. I will take
-a look.
+Anyone know what is going on with 2.4.4?  At POST, the BIOS reports 1024MB.
 
+-Jeff
 
-H.J.
+-- 
+Jeff Golds
+jgolds@resilience.com

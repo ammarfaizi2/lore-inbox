@@ -1,53 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270038AbUJHPxB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270049AbUJHP5O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270038AbUJHPxB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 11:53:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270033AbUJHPw7
+	id S270049AbUJHP5O (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 11:57:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270055AbUJHP4f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 11:52:59 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:45250 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S270042AbUJHPr4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 11:47:56 -0400
-Subject: Re: [PATCH] QStor SATA/RAID driver for 2.6.9-rc3
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Mark Lord <lkml@rtr.ca>
-Cc: Christoph Hellwig <hch@infradead.org>, Jeff Garzik <jgarzik@pobox.com>,
-       Mark Lord <lsml@rtr.ca>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-In-Reply-To: <4166B48E.3020006@rtr.ca>
-References: <4161A06D.8010601@rtr.ca>	<416547B6.5080505@rtr.ca>	<20041007150709.B12688@i
-	nfradead.org>	<4165624C.5060405@rtr.ca>	<416565DB.4050006@pobox.com>	<4165A4
-	5D.2090200@rtr.ca>	<4165A766.1040104@pobox.com>	<4165A85D.7080704@rtr.ca>	<4
-	165AB1B.8000204@pobox.com>	<4165ACF8.8060208@rtr.ca>
-		<20041007221537.A17712@infradead.org>	<1097241583.2412.15.camel@mulgrave> 
-	<4166AF2F.6070904@rtr.ca> <1097249266.1678.40.camel@mulgrave> 
-	<4166B48E.3020006@rtr.ca>
-Content-Type: text/plain
+	Fri, 8 Oct 2004 11:56:35 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:12262 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S270053AbUJHPwL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 11:52:11 -0400
+Message-ID: <4166B75A.1020002@watson.ibm.com>
+Date: Fri, 08 Oct 2004 11:50:50 -0400
+From: Hubertus Franke <frankeh@watson.ibm.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5b) Gecko/20030901 Thunderbird/0.2
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+CC: Erich Focht <efocht@hpce.nec.com>, lse-tech@lists.sourceforge.net,
+       colpatch@us.ibm.com, Paul Jackson <pj@sgi.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@osdl.org>,
+       ckrm-tech@lists.sourceforge.net, LKML <linux-kernel@vger.kernel.org>,
+       simon.derr@bull.net
+Subject: Re: [ckrm-tech] Re: [Lse-tech] [RFC PATCH] scheduler: Dynamic sched_domains
+References: <1097110266.4907.187.camel@arrakis> <200410081214.20907.efocht@hpce.nec.com> <41666E90.2000208@yahoo.com.au>
+In-Reply-To: <41666E90.2000208@yahoo.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 08 Oct 2004 10:47:40 -0500
-Message-Id: <1097250465.2412.49.camel@mulgrave>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-10-08 at 10:38, Mark Lord wrote:
-> Can deadlock occur here, since qstor.c is already using schedule_work()
-> as part of it's internal bottom-half handling for abnormal conditions?
+
+
+Nick Piggin wrote:
+
+> Erich Focht wrote:
 > 
-> Eg.  hotplug event -> schedule_work -> mid-layer -> queuecommand
->        --> sleep  :: interrupt -> schedule_work -> deadlock?
+>> more flexibility in building the sched_domains is badly needed, so
+>> your effort towards providing this is the right step. I'm not sure
+>> yet whether your big change is really (and already) a simplification,
+>> but what you described sounded for me like getting the chance to
+>> configure the sched_domains at runtime, dynamically, from user
+>> space. I didn't notice any user interface in your patch, or overlooked
+>> it. Could you please describe the API you had in mind for that?
+>>
+> 
+> OK, what we have in -mm is already close to what we need to do
+> dynamic building. But let's explore the other topic. User interface.
+> 
+> First of all, I think it may be easiest to allow the user to specify
+> which cpus belong to which exclusive domains, and have them otherwise
+> built in the shape of the underlying topology. So for example if your
+> domains look like this (excuse the crappy ascii art):
+> 
+> 0 1  2 3  4 5  6 7
+> ---  ---  ---  ---  <- domain 0
+>  |    |    |    |
+>  ------    ------   <- domain 1
+>     |        |
+>     ----------      <- domain 2 (global)
+> 
+> And so you want to make a partition with CPUs {0,1,2,4,5}, and {3,6,7}
+> for some crazy reason, the new domains would look like this:
+> 
+> 0 1  2  4 5    3  6 7
+> ---  -  ---    -  ---  <- 0
+>  |   |   |     |   |
+>  -----   -     -   -   <- 1
+>    |     |     |   |
+>    -------     -----   <- 2 (global, partitioned)
+> 
+> Agreed? You don't need to get fancier than that, do you?
+> 
+> Then how to input the partitions... you could have a sysfs entry that
+> takes the complete partition info in the form:
+> 
+> 0,1,2,3 4,5,6 7,8 ...
+> 
+> Pretty dumb and simple.
 > 
 
-Since you wouldn't go straight from schedule_work->mid-layer, I assume
-you mean that when the workqueue thread runs the work?
+Agreed, what we are thinking is that the CKRM API can be used for that.
+Each domain is a class build of resources (cpus,mem).
+You use the config interface of CKRM to specify which cpu/mem belongs
+to the class. The underlying controller verifies it.
 
-With that assumption, this is legal and won't deadlock.
+For a first approximation, classes that have config constraints 
+specified this way will not be allowed to set shares. In sched_domain
+terms it would mean that if the sched_domain is not balancable with its
+siblings then it forms an exclusive domain. Under the exclusive
+class one can continue with the hierarchy that will allow share settings.
 
-However, I assume you know you can't sleep in queuecommand since it may
-be run from the scsi tasklet?
-
-James
+So from an API issue this certainly looks feasible, maybe even clean.
 
 

@@ -1,77 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265528AbUBAV7x (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Feb 2004 16:59:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265529AbUBAV7w
+	id S265506AbUBAVyJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Feb 2004 16:54:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265507AbUBAVyJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Feb 2004 16:59:52 -0500
-Received: from s4.uklinux.net ([80.84.72.14]:30673 "EHLO mail2.uklinux.net")
-	by vger.kernel.org with ESMTP id S265528AbUBAV7r (ORCPT
+	Sun, 1 Feb 2004 16:54:09 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:11648 "EHLO midnight.ucw.cz")
+	by vger.kernel.org with ESMTP id S265506AbUBAVxm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Feb 2004 16:59:47 -0500
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.1 slower than 2.4, smp/scsi/sw-raid/reiserfs
-From: Philip Martin <philip@codematters.co.uk>
-Date: Sun, 01 Feb 2004 21:34:06 +0000
-Message-ID: <87oesieb75.fsf@codematters.co.uk>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Common Lisp, linux)
-MIME-Version: 1.0
+	Sun, 1 Feb 2004 16:53:42 -0500
+Date: Sun, 1 Feb 2004 22:54:00 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Andreas Jellinghaus <aj@dungeon.inka.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6 input drivers FAQ
+Message-ID: <20040201215400.GA16155@ucw.cz>
+References: <20040201100644.GA2201@ucw.cz> <pan.2004.02.01.15.25.39.951190@dungeon.inka.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <pan.2004.02.01.15.25.39.951190@dungeon.inka.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The machine is a dual P3 450MHz, 512MB, aic7xxx, 2 disk RAID-0 and
-ReiserFS.  It's a few years old and has always run Linux, most
-recently 2.4.24.  I decided to try 2.6.1 and the performance is
-disappointing.
+On Sun, Feb 01, 2004 at 04:25:41PM +0100, Andreas Jellinghaus wrote:
+> And what about dell latitude laptops (synaptics touchpad - works fine -
+> plus that mouse stick - no reaction at all?
+> 
+> Usualy I'm fine with the touchpad, but some people prefer to use
+> the stick or both. Any idea?
+> 
+> devices: (plus pcspeaker and keyboard):
+> I: Bus=0011 Vendor=0002 Product=0007 Version=0000
+> N: Name="SynPS/2 Synaptics TouchPad"
+> P: Phys=isa0060/serio1/input0
+> H: Handlers=mouse0 event1 
+> B: EV=b 
+> B: KEY=6420 0 670000 0 0 0 0 0 0 0 0 
+> B: ABS=11000003 
+> 
+> I: Bus=0011 Vendor=0002 Product=0001 Version=0000
+> N: Name="PS/2 Generic Mouse"
+> P: Phys=synaptics-pt/serio0/input0
+> H: Handlers=mouse1 event2 
+> B: EV=7 
+> B: KEY=70000 0 0 0 0 0 0 0 0 
+> B: REL=3 
 
-My test is a software build of about 200 source files (written in C)
-that I usually build using "nice make -j4".  Timing the build on
-2.4.24 I typically get something like
+This means both the touchpad and the touchpoint were found correctly.
+Can you supply your 'dmesg'? Best contact Dmitry Torokhov about this -
+he's the Synaptics expert.
 
-242.27user 81.06system 2:44.18elapsed 196%CPU (0avgtext+0avgdata 0maxresident)k
-0inputs+0outputs (1742270major+1942279minor)pagefaults 0swaps
-
-and on 2.6.1 I get
-
-244.08user 116.33system 3:27.40elapsed 173%CPU (0avgtext+0avgdata 0maxresident)k
-0inputs+0outputs (0major+3763670minor)pagefaults 0swaps
-
-The results are repeatable.  The user CPU is about the same for the
-two kernels, but on 2.6.1 the elapsed time is much greater, as is the
-system CPU.  I note a big difference in the pagefaults between 2.4 and
-2.6 but I don't know what to make of it.
-
-Comparing /proc/scsi/aic7xxx/0 before and after the build I see
-another difference, the "Commands Queued" to the RAID disks are much
-greater for 2.6 than 2.4
-
-          disk0   disk2
-2.4
-before:    8459    4766
-after:    13798    7351
-
-2.6
-before:   21287    8555
-after:    40491   15995
-
-(The root partition is also on disk0 and that's not part of the RAID
-array; I guess that's why disk0 has higher numbers than disk2.)
-
-The machine has another disk that is not part of the RAID array, it's
-a slower disk but I think the build is CPU bound anyway.  I put an
-ext2 filesystem on this extra disk, and then used that for my trial
-build with the rest of the system, gcc, as, ld, etc. still coming from
-RAID array.  On 2.4 the time for the ext2 build is essentially the
-same as for the RAID build, the difference is within the normal
-variation between builds.  On 2.6 the ext2 build takes
-
-244.43user 111.75system 3:16.42elapsed 181%CPU (0avgtext+0avgdata 0maxresident)k
-0inputs+0outputs (0major+3757151minor)pagefaults 0swaps
-
-Although the CPU used is about the same as the RAID build the elapsed
-time is less, so there is some improvement but it is still worse than
-2.4.24.
+> 
+> XF86Config:
+> Section "InputDevice"
+>         Identifier  "Mouse0"
+>         Driver      "mouse"
+>         Option      "Protocol" "ExplorerPS/2"
+>         Option      "Device" "/dev/input/mouse0"
+>         Option      "Emulate3Buttons" "on"
+> EndSection
+> 
+> config:
+> CONFIG_INPUT=y
+> CONFIG_INPUT_MOUSEDEV=y
+> CONFIG_INPUT_MOUSEDEV_PSAUX=y
+> CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+> CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+> CONFIG_INPUT_EVDEV=y
+> CONFIG_SOUND_GAMEPORT=y
+> CONFIG_SERIO=y
+> CONFIG_SERIO_I8042=y
+> CONFIG_SERIO_SERPORT=y
+> CONFIG_INPUT_KEYBOARD=y
+> CONFIG_KEYBOARD_ATKBD=y
+> CONFIG_INPUT_MOUSE=y
+> CONFIG_MOUSE_PS2=y
+> CONFIG_INPUT_MISC=y
+> CONFIG_INPUT_PCSPKR=y
+> CONFIG_INPUT_UINPUT=y
+> 
+> Andreas
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
 -- 
-Philip Martin
+Vojtech Pavlik
+SuSE Labs, SuSE CR

@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261474AbTC0Wmu>; Thu, 27 Mar 2003 17:42:50 -0500
+	id <S261476AbTC0WnF>; Thu, 27 Mar 2003 17:43:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261476AbTC0Wmu>; Thu, 27 Mar 2003 17:42:50 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:49736 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S261474AbTC0Wmt>; Thu, 27 Mar 2003 17:42:49 -0500
-Date: Thu, 27 Mar 2003 17:54:04 -0500
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: linux-kernel@vger.kernel.org
-Subject: CONFIG_KALLSYMS on 64-bitters
-Message-ID: <20030327175404.A4396@devserv.devel.redhat.com>
+	id <S261468AbTC0WnE>; Thu, 27 Mar 2003 17:43:04 -0500
+Received: from [81.2.110.254] ([81.2.110.254]:60152 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id <S261476AbTC0WnD>;
+	Thu, 27 Mar 2003 17:43:03 -0500
+Subject: Re: 64-bit kdev_t - just for playing
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Andries.Brouwer@cwi.nl,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0303272245490.5042-100000@serv>
+References: <UTC200303272027.h2RKRbf27546.aeb@smtp.cwi.nl>
+	 <Pine.LNX.4.44.0303272245490.5042-100000@serv>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1048805732.3953.1.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 27 Mar 2003 22:55:33 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Guys,
+On Thu, 2003-03-27 at 22:12, Roman Zippel wrote:
+> How are these disks registered and how will the dev_t number look like?
 
-the kallsyms program aborts for me when trying to build s390x
-kernel while running a 31-bit kernel. It takes the target
-from the environment variable, which actually is relevant
-to the build host, and not the target. So, what do you think
-about the attached patchlet?
+Al Viro's work so far makes those issues you can defer nicely. 
 
--- Pete
+> How will the user know about these numbers?
 
---- linux-2.4.20-2.1.24.z2/Makefile	2003-03-27 12:29:51.000000000 -0500
-+++ linux-2.4.20-2.1.15.z.1/Makefile	2003-03-21 19:01:26.000000000 -0500
-@@ -45,7 +46,7 @@
- MAKEFILES	= $(TOPDIR)/.config
- GENKSYMS	= /sbin/genksyms
- DEPMOD		= /sbin/depmod
--KALLSYMS	= /sbin/kallsyms
-+KALLSYMS	= UNAME_MACHINE=$(ARCH) /sbin/kallsyms
- MODFLAGS	= -DMODULE
- CFLAGS_KERNEL	=
- CFLAGS_KGDB	=
+Devices.txt or dynamic assignment
+
+> Who creates these device entries (user or daemon)?
+
+Who cares 8)  Thats just the devfs argument all over again 8)
+
+> SCSI has multiple majors, disks 0-15 are at major 8, disks 16-31 are at 
+> 65, ...., disks 112-127 are at major 71. Will this stay the same? Where 
+> are the disk 128-xxx?
+> Can I have now more than 15 partitions?
+
+It becomes possible, more importantly we can begin to support
+partitioned CD-ROM both for multisession and for real partition
+tables on CD (eg Macintrash)
+

@@ -1,53 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129512AbRBFOfR>; Tue, 6 Feb 2001 09:35:17 -0500
+	id <S129538AbRBFOfI>; Tue, 6 Feb 2001 09:35:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129537AbRBFOfJ>; Tue, 6 Feb 2001 09:35:09 -0500
-Received: from winds.org ([207.48.83.9]:51972 "EHLO winds.org")
-	by vger.kernel.org with ESMTP id <S129512AbRBFOe7>;
-	Tue, 6 Feb 2001 09:34:59 -0500
-Date: Tue, 6 Feb 2001 09:33:22 -0500 (EST)
-From: Byron Stanoszek <gandalf@winds.org>
-To: neilb@cse.unsw.edu.au
-cc: linux-kernel@vger.kernel.org
-Subject: Re: NFS stop/start problems (related to datagram shutdown bug?)
-Message-ID: <Pine.LNX.4.21.0102060925260.1065-100000@winds.org>
+	id <S129537AbRBFOe5>; Tue, 6 Feb 2001 09:34:57 -0500
+Received: from zikova.cvut.cz ([147.32.235.100]:6161 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S129512AbRBFOev>;
+	Tue, 6 Feb 2001 09:34:51 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>
+Date: Tue, 6 Feb 2001 15:31:08 MET-1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: VIA silent disk corruption - bad news
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+X-mailer: Pegasus Mail v3.40
+Message-ID: <14B6B12B6E92@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> There does seem to be a possible problem with sk_inuse not being
-> updated atomically, so a race between an increment and a decrement
-> could lose one of them.
-> svc_sock_release seems to often be called with no more protection than
-> the BKL, and it decrements sk_inuse.
->
-> svc_sock_enqueue, on the other hand increments sk_inuse, and is
-> protected by sv_lock, but not, I think, by the BKL, as it is called by
-> a networking layer callback. So there might be a possibility for a
-> race here.
->
-> The attached patch might fix it, so if you are having reproducable
-> problems, it might be worth applying this patch.
->
-> NeilBrown
+On  6 Feb 01 at 15:24, Udo A. Steinberg wrote:
+> Petr Vandrovec wrote:
+> > On  5 Feb 01 at 23:08, Udo A. Steinberg wrote:
+> > 
+> > > 00:00.0 Host bridge: VIA Technologies, Inc.: Unknown device 0305 (rev 02)
+> > >         Subsystem: Asustek Computer, Inc.: Unknown device 8033
+> > >         Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+> > >         Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium
+> >                   >TAbort- <TAbort- <MAbort+ >SERR- <PERR+
+> >                                                     ^^^^^^
+> > I tried all different settings in BIOS, and I even programmed values
+> > from your lspci to my VIA (except for SDRAM timmings) - and although
+> > it is a bit better, it is not still perfect.
+> 
+> > So for today I'm back on [UMS]DMA disabled. I'll try downgrading BIOS
+> > today, but it looks to me like that something is severely broken here.
+> 
+> Are your drives connected to the VIA or the Promise controller? Mine
+> are both connected to the PDC20265 and running in UDMA-100 mode. There
+> have been several threads on lkml about corruption on disks connected
+> to Via chipset IDE controllers, although I didn't follow them in great
+> detail. Maybe your problem is not related to the host bridge, but to
+> the IDE controller?
 
-I applied the patch and the problem seems to have gone away, where it was
-fairly reproducable beforehand. It waits a little longer (about 4 seconds)
-during the NFS daemon shutdown before [  OK  ] pops up, but it could be my
-imagination because I was doing it on the 166 and I was used to the 866's.
-
-But what matters is that I can stop and restart NFS just fine now whereas
-before I couldn't. Thanks for the patch.
-
- -Byron
-
--- 
-Byron Stanoszek                         Ph: (330) 644-3059
-Systems Programmer                      Fax: (330) 644-8110
-Commercial Timesharing Inc.             Email: byron@comtime.com
-
+They are connected to Promise, I reserved VIA for CDROM drive.
+One HDD runs in UDMA5 mode, another in UDMA2. Corruption is often
+when I run md5sum in parallel on both HDDs - in that case almost
+no file generates same checksum which was generated using PIO4.
+When I run md5sum on only one HDD, there are about 4 checksum errors
+in 6GB of data. But I'm more and more inclined to throw this A7V away,
+as it is impossible to get datasheet from Promise, and for VIA host
+bridge I was just able to slow down normal system operation by factor
+of 3... but still with same corruption :-( Just if page could have
+4092 and not 4096 bytes ;-)
+                                                Petr
+                                                
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,37 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311575AbSCXFjA>; Sun, 24 Mar 2002 00:39:00 -0500
+	id <S311582AbSCXFja>; Sun, 24 Mar 2002 00:39:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311577AbSCXFil>; Sun, 24 Mar 2002 00:38:41 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:54290 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S311575AbSCXFid>;
-	Sun, 24 Mar 2002 00:38:33 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Boris Bezlaj <boris@kista.gajba.net>
-Cc: kernel-janitor-discuss 
-	<kernel-janitor-discuss@lists.sourceforge.net>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: mdacon.c minor cleanups 
-In-Reply-To: Your message of "Sat, 23 Mar 2002 16:42:20 BST."
-             <20020323164220.742414d2.boris@kista.gajba.net> 
+	id <S311579AbSCXFjV>; Sun, 24 Mar 2002 00:39:21 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:16208 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S311577AbSCXFjE>; Sun, 24 Mar 2002 00:39:04 -0500
+Date: Sun, 24 Mar 2002 00:38:58 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Douglas Gilbert <dougg@torque.net>
+Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-scsi@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: Patch to split kmalloc in sd.c in 2.4.18+
+Message-ID: <20020324003858.A27380@devserv.devel.redhat.com>
+In-Reply-To: <20020322215809.A17173@devserv.devel.redhat.com> <3C9CB643.FC33C0AF@torque.net> <20020323143753.A1011@devserv.devel.redhat.com> <3C9D5219.1403288B@torque.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sun, 24 Mar 2002 16:38:16 +1100
-Message-ID: <24384.1016948296@ocs3.intra.ocs.com.au>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 23 Mar 2002 16:42:20 +0100, 
-Boris Bezlaj <boris@kista.gajba.net> wrote:
->+#ifdef MODULE
->+MODULE_LICENSE("GPL");
->+MODULE_DESCRIPTION("MDA console driver. Default console allocation: vc/13 - vc/16");
->+module_init(mda_console_init);
->+module_exit(mda_console_exit);
-> #endif
+> Your patch worked ok for me. I have a couple of real
+> disks and 120 simulated ones with scsi_debug. My last disk
+> was /dev/sddq and I was able to fdisk, mke2fs, mount
+> and copy files to it ok.
 
-Do not wrap #ifdef MODULE around those lines.  All the module_* macros
-behave correctly when the code is built in, module_init even changes
-its behaviour for built in code.
+Great many thanks. I'll give it some time to settle and will ask
+Alan or Marcelo to take it. BTW, the real test is not being able
+to load modules and do stuff. The bad part is what happens when
+you do a string of rmmod/modprobe in random order and with varying
+parameters for scsi_debug (scsi_debug_num_devs=NN). Then it's going
+to show if memory leaks or get corrupted. I certainly hope that
+I did it right, but I was known to make mistakes before.
 
+Another side note: towards the end of the patch, there is a reminder
+about an entirely different issue that noted when doing the patch:
+
++               for (i = 0; i < N_USED_SD_MAJORS; i++) {
++#if 0 /* XXX aren't we forgetting to deallocate something? */
++                       kfree(sd_gendisks[i].de_arr);
++                       kfree(sd_gendisks[i].flags);
++#endif
++                       kfree(sd_gendisks[i].part);
++               }
+        }
+        for (i = 0; i < N_USED_SD_MAJORS; i++) {
+                del_gendisk(&sd_gendisks[i]);
+-               blk_size[SD_MAJOR(i)] = NULL;
++               blk_size[SD_MAJOR(i)] = NULL;   /* XXX blksize_size actually? */                hardsect_size[SD_MAJOR(i)] = NULL; 
+                read_ahead[SD_MAJOR(i)] = 0;
+        }
+
+E.g. I do not see a place where .flags and .de_arr are freed; also,
+I am not sure why we assign blksize_size[], but we zero blk_size[].
+I do not want to mix this up with the split-allocation patch, but
+it is curious. I think we leak memory on sd_mod unload here.
+
+-- Pete

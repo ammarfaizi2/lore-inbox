@@ -1,30 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286264AbRLJNhH>; Mon, 10 Dec 2001 08:37:07 -0500
+	id <S286263AbRLJNj1>; Mon, 10 Dec 2001 08:39:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286266AbRLJNg6>; Mon, 10 Dec 2001 08:36:58 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:63751 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S286264AbRLJNgu>; Mon, 10 Dec 2001 08:36:50 -0500
-Subject: Re: mm question
-To: volodya@mindspring.com
-Date: Mon, 10 Dec 2001 13:46:13 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.20.0112100820570.16878-100000@node2.localnet.net> from "volodya@mindspring.com" at Dec 10, 2001 08:25:39 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S286235AbRLJNjR>; Mon, 10 Dec 2001 08:39:17 -0500
+Received: from [213.156.59.6] ([213.156.59.6]:27667 "HELO
+	smail2.dmz1.icn.siemens.it") by vger.kernel.org with SMTP
+	id <S286261AbRLJNjL>; Mon, 10 Dec 2001 08:39:11 -0500
+Message-ID: <000901c18180$01bac960$11b41d8d@icn.siemens.it>
+From: "Lanfranco Salinari" <lanfranco.salinari@icn.siemens.it>
+To: "Abraham vd Merwe" <abraham@2d3d.co.za>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <3BEC87A2@webmail> <20011210100918.E1502@crystal.2d3d.co.za>
+Subject: Re: Question about sniffers and linux
+Date: Mon, 10 Dec 2001 14:38:36 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16DQl3-00023R-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2314.1300
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  How does one do the following task: obtain a bunch of free pages (around
-> 300K) with physical addresses between certain bounds (more then
-> 0x4000000, but it is likely this is not constant) reserver them and map to
-> kernel space so that the driver can access them directly ?
 
-We support allocating pages below 16Mb, below 4Gb, or anywhere within RAM
-on x86. If you want to within a range or your 300K must be a single 300K
-block then you need to allocate it at boot time
+----- Original Message -----
+From: Abraham vd Merwe <abraham@2d3d.co.za>
+To: salinarl <Lanfranco.Salinari@icn.siemens.it>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Sent: Monday, December 10, 2001 9:09 AM
+Subject: Re: Question about sniffers and linux
+
+>Hi salinarl!
+>
+>You don't need to write a kernel module to do this.
+>
+>Use RAW sockets. (See man 2 socket). If you're not interested in the link
+>layer, you can also use DGRAM sockets to get everything from layer 3 and up
+>(ip, arp, etc.)
+>
+
+Thank you for your answer, Abraham!
+Perhaps I did not explain myself very well: I know about RAW sockets, but
+the problem is that, for example, PPP headers are not passed to packet
+sockets (for outgoing packets), because they are added inside the PPP driver
+after the call to dev_queue_xmit_nit().
+I don't know if this problem is typical of PPP, but it seems quite general,
+to me. I think Ethernet headers are a special case, because they are taken
+from a
+cache and added in the IP layer, so they are visible to packet sockets.
+Can someone please tell me if I'm wrong?
+Best regards,
+
+Lanfranco
+
+
+
+
+
+

@@ -1,30 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263162AbREaTFq>; Thu, 31 May 2001 15:05:46 -0400
+	id <S263177AbREaT3U>; Thu, 31 May 2001 15:29:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263169AbREaTFg>; Thu, 31 May 2001 15:05:36 -0400
-Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:30471 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S263162AbREaTFV>;
-	Thu, 31 May 2001 15:05:21 -0400
-Date: Thu, 31 May 2001 11:06:42 -0700
-From: Greg KH <greg@kroah.com>
-To: thunder7@xs4all.nl
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: interrupt problem with MPS 1.4 / not with MPS 1.1 ?
-Message-ID: <20010531110642.A12797@kroah.com>
-In-Reply-To: <20010531203908.A23936@middle.of.nowhere>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010531203908.A23936@middle.of.nowhere>; from thunder7@xs4all.nl on Thu, May 31, 2001 at 08:39:08PM +0200
-X-Operating-System: Linux 2.2.19 (i586)
+	id <S263187AbREaT3K>; Thu, 31 May 2001 15:29:10 -0400
+Received: from mail2.netcabo.pt ([212.113.161.137]:47372 "EHLO netcabo.pt")
+	by vger.kernel.org with ESMTP id <S263177AbREaT26>;
+	Thu, 31 May 2001 15:28:58 -0400
+Message-ID: <3B169C06.1010507@europe.com>
+Date: Thu, 31 May 2001 20:31:18 +0100
+From: Vasco Figueira <figueira@europe.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.5 i686; en-US; rv:0.9+) Gecko/20010530
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] reclaim dirty dead swapcache pages
+In-Reply-To: <Pine.LNX.4.21.0105301729080.5231-100000@freak.distro.conectiva> <3B168B59.70906@europe.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 31, 2001 at 08:39:08PM +0200, thunder7@xs4all.nl wrote:
-> What information would be necessary to debug this?
+Hi again,
 
-Which kernel version?
+Vasco Figueira wrote:
 
-greg k-h
+ >I've opened x, gnome, mozilla, mozilla -mail, 3 gnome-terminals, pan, 
+ >xmms, some files and javac. Swap was totally filled up and it didn't 
+ >froze (good!). However suddently it came very busy (i thougth it was 
+ >going to freeze again), the music stopped, and came back to normal 
+ >again. It had killed xmms, I noticed after.
+
+ >Is it intentional to kill processes? Well, it does reolve the problem, 
+ >but kills some processes, probably the most eager ones. I will keep 
+ >using this patch and report again if something relevant is found.
+
+ >So far, so good, this is better tha having to swapoff & swapon all the 
+ >time. Nice work Marcelo.
+
+Continuing the saga of testing this patch, some more things:
+
+* Swap gets *really* filled up. I don't remember having swap totally 
+filled with 2.2. and this has 20M more (doesn't have to do with this 
+patch, I think)
+
+* kernel appears to try to free pages only when they are desperatly 
+needed, i.e., when swap is full and a big process is needing mem. As an 
+example, i was calm editing some text files (swap was full), and called 
+javac. System went down to his knees, music stopped, mouse had repent 
+stops and javac outputed:"Killed". I assume it was killed :-)
+
+javac was called again and then ran more smootly. Perhaps because his 
+pages were already there, no?
+
+It may be better to try to free pages before we get into heavy load. If 
+not, we get a pseudo-freeze and a killed process. Wich is not... wonderful.
+
+Comments?
+-- 
+Regards,
+                             Vasco Figueira
+
+http://students.fct.unl.pt/users/vaf12086/
+

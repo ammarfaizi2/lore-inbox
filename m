@@ -1,53 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265388AbTLRXVY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Dec 2003 18:21:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265395AbTLRXVX
+	id S265410AbTLRXbH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Dec 2003 18:31:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265411AbTLRXbH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Dec 2003 18:21:23 -0500
-Received: from 64-60-248-67.cust.telepacific.net ([64.60.248.67]:52213 "EHLO
-	mx.rackable.com") by vger.kernel.org with ESMTP id S265388AbTLRXVW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Dec 2003 18:21:22 -0500
-Message-ID: <3FE2363F.70708@rackable.com>
-Date: Thu, 18 Dec 2003 15:20:31 -0800
-From: Samuel Flory <sflory@rackable.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, en
+	Thu, 18 Dec 2003 18:31:07 -0500
+Received: from opersys.com ([64.40.108.71]:47374 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S265410AbTLRXbC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Dec 2003 18:31:02 -0500
+Message-ID: <3FE23966.7060001@opersys.com>
+Date: Thu, 18 Dec 2003 18:33:58 -0500
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
 MIME-Version: 1.0
-To: "Chandler, Neville" <chandler@ibiquity.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: non-SMP kernels fail to compile
-References: <E3C9701D2F6B57468EBB36C053176EEF0172198F@mail.ibiquity.com>
-In-Reply-To: <E3C9701D2F6B57468EBB36C053176EEF0172198F@mail.ibiquity.com>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+CC: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Updating real-time and nanokernel maintainers
+References: <3FE234E4.8020500@opersys.com> <Pine.LNX.4.58.0312181821270.19491@montezuma.fsmlabs.com>
+In-Reply-To: <Pine.LNX.4.58.0312181821270.19491@montezuma.fsmlabs.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 18 Dec 2003 23:21:21.0479 (UTC) FILETIME=[A5A10570:01C3C5BD]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chandler, Neville wrote:
-> Hello,
->  
-> I'm having problems compiling Non-SMP versions of the linux kernel. 
-> linux-2.4.23 and linux-2.4.24-pre1 fail to compile with SMP disabled.
-> However, they do compile cleanly when SMP is enabled. Any help would be
-> appreciated.
-> 
-> Thanks.
-> 
-> System: Redhat 9
-> GCC:    3.3.2
-> 
-> 
 
+Zwane Mwaikambo wrote:
+> On Thu, 18 Dec 2003, Karim Yaghmour wrote:
+> I'd say take them both out, neither have code in the kernel.
 
-   I've compiled a number of up kernel for 2.4.23 with no issue.  What 
-sort of compile errors are you getting?  Can we get you config file.
+RTLinux has never had code in the kernel, but it still had
+a mention in the maintainers file for quite a number of years.
+I think that these entries are really pointers for those who
+are interested in this area of Linux's use. As such, RTAI is
+the only real free software real-time Linux extension and I
+think it deserves mention. Nowadays, rtlinux.org is only an
+alias for fsmlabs.com, which I think pretty much sums up the
+situation.
 
+Karim
 -- 
-There is no such thing as obsolete hardware.
-Merely hardware that other people don't want.
-(The Second Rule of Hardware Acquisition)
-Sam Flory  <sflory@rackable.com>
+Author, Speaker, Developer, Consultant
+Pushing Embedded and Real-Time Linux Systems Beyond the Limits
+http://www.opersys.com || karim@opersys.com || 514-812-4145
 

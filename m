@@ -1,37 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292336AbSBULRh>; Thu, 21 Feb 2002 06:17:37 -0500
+	id <S292338AbSBULTh>; Thu, 21 Feb 2002 06:19:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292337AbSBULRT>; Thu, 21 Feb 2002 06:17:19 -0500
-Received: from mta07-svc.ntlworld.com ([62.253.162.47]:50104 "EHLO
-	mta07-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id <S292336AbSBULRC>; Thu, 21 Feb 2002 06:17:02 -0500
-Date: Thu, 21 Feb 2002 11:16:58 +0000
-From: Peter Christy <christy@attglobal.net>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: via686/AD1886/Soundmax drivers
-Message-Id: <20020221111658.7cf6cadc.christy@attglobal.net>
-In-Reply-To: <20020221111553.C472@suse.cz>
-In-Reply-To: <20020219090303.4d5ef5f3.christy@attglobal.net>
-	<20020219132500.A18055@suse.cz>
-	<20020221095653.02b0edf8.christy@attglobal.net>
-	<20020221111553.C472@suse.cz>
-X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S292339AbSBULT1>; Thu, 21 Feb 2002 06:19:27 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:52497
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S292338AbSBULTQ>; Thu, 21 Feb 2002 06:19:16 -0500
+Date: Thu, 21 Feb 2002 03:06:46 -0800 (PST)
+From: Andre Hedrick <andre@linuxdiskcert.org>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: Martin Dalecki <dalecki@evision-ventures.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.5 IDE cleanup 11
+In-Reply-To: <3C74D18D.FCCFEA83@mandrakesoft.com>
+Message-ID: <Pine.LNX.4.10.10202210304360.29990-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Feb 2002 11:15:53 +0100
-Vojtech Pavlik <vojtech@suse.cz> wrote:
+On Thu, 21 Feb 2002, Jeff Garzik wrote:
 
-> Look up the ASCII codes for the letters A D and S, they'll be the same
-> as the hex numbers of the codec ID ...
+> > @@ -2929,7 +2928,6 @@
+> >         capacity:               ide_cdrom_capacity,
+> >         special:                NULL,
+> >         proc:                   NULL,
+> > -       driver_init:            ide_cdrom_init,
+> >         driver_reinit:          ide_cdrom_reinit,
+> >  };
+> >  
+> > @@ -2967,7 +2965,7 @@
+> >         DRIVER(drive)->busy--;
+> >         failed--;
+> >  
+> > -       ide_register_module(&ide_cdrom_driver);
+> > +       revalidate_drives();
+> >         MOD_DEC_USE_COUNT;
+> >         return 0;
+> >  }
+> 
+> hum, I'm not sure that removing ->driver_init is a good idea.
+> 
+> Seems like a loss of flexibility to me, not a cleanup, and I wonder if
+> you have thought through all the paths that wind up calling
+> ->driver_init.
 
-OK, that makes sense! Many Thanks...
+Nah, go ahead add it.
 
---
-Pete
-christy@attglobal.net
+I have been meaning to start another driver from scratch that is fully
+threaded IO and can deal with register core operations independent of the
+how the arch calls the transport.
+
+Cheers,
+
+Andre Hedrick
+Linux Disk Certification Project                Linux ATA Development
+

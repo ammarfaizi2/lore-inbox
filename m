@@ -1,42 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267595AbTALXIx>; Sun, 12 Jan 2003 18:08:53 -0500
+	id <S267628AbTALXGf>; Sun, 12 Jan 2003 18:06:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267616AbTALXIf>; Sun, 12 Jan 2003 18:08:35 -0500
-Received: from mailout04.sul.t-online.com ([194.25.134.18]:33231 "EHLO
-	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S267595AbTALXHx> convert rfc822-to-8bit; Sun, 12 Jan 2003 18:07:53 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Oliver Neukum <oliver@neukum.name>
-To: robw@optonline.net
-Subject: Re: any chance of 2.6.0-test*?
-Date: Mon, 13 Jan 2003 00:16:20 +0100
-User-Agent: KMail/1.4.3
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0301121100380.14031-100000@home.transmeta.com> <200301122343.41150.oliver@neukum.name> <1042411916.1209.181.camel@RobsPC.RobertWilkens.com>
-In-Reply-To: <1042411916.1209.181.camel@RobsPC.RobertWilkens.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200301130016.20595.oliver@neukum.name>
+	id <S267634AbTALXGf>; Sun, 12 Jan 2003 18:06:35 -0500
+Received: from h80ad2762.async.vt.edu ([128.173.39.98]:11136 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id <S267628AbTALXFM>; Sun, 12 Jan 2003 18:05:12 -0500
+Message-Id: <200301122313.h0CNDCkr003745@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4+dev
+To: linus@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.5.56 - missing EXPORT_SYMBOL in fs/devfs/base.c
+From: Valdis.Kletnieks@vt.edu
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_-1721785525P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Sun, 12 Jan 2003 18:13:12 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Sonntag, 12. Januar 2003 23:51 schrieb Rob Wilkens:
-> On Sun, 2003-01-12 at 17:43, Oliver Neukum wrote:
-> > It's code that causes added hardship for anybody checking the locking.
->
-> I can certainly see where it would seem "easier" to match "one lock" to
-> "one unlock" if your troubleshooting a locking issue.
->
-> "easier" is the motivation behind using goto.. Laziness.. that's all it
-> is.
+--==_Exmh_-1721785525P
+Content-Type: text/plain; charset=us-ascii
 
-Yes, exactly. Lazyness is good. Any second spend on hitting Ctrl+F
-and typing in the name of a cleanup function is lost. Any time
-you overlook something because the cleanup and the code are
-not on the same screen is a bug that is overlooked.
-Any time one of the cleanup functions is overlooked can cause
-hours lost in debugging after a change.
+Tripped over this while trying to build arch/i386/kernel/microcode.c as
+a module.
 
-	Oliver
+This apparently got removed by accident in 2.5.53 while cleaning up
+the devfs_{get,set} stuff.
 
+*** fs/devfs/base.c.dist	2003-01-12 18:06:51.000000000 -0500
+--- fs/devfs/base.c	2003-01-12 18:07:41.000000000 -0500
+***************
+*** 1954,1959 ****
+--- 1954,1960 ----
+  EXPORT_SYMBOL(devfs_remove);
+  EXPORT_SYMBOL(devfs_generate_path);
+  EXPORT_SYMBOL(devfs_only);
++ EXPORT_SYMBOL(devfs_set_file_size);
+  
+  
+  /**
+
+
+
+--==_Exmh_-1721785525P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE+IfaHcC3lWbTT17ARAkFxAKDv99ZCy6smUyz48YOnzVVhgzc0YQCfcprL
+BXEUHOr+nxgmjxSRUFtLN54=
+=2rmg
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-1721785525P--

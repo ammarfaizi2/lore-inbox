@@ -1,29 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318842AbSIIULf>; Mon, 9 Sep 2002 16:11:35 -0400
+	id <S318856AbSIIUQI>; Mon, 9 Sep 2002 16:16:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318851AbSIIULf>; Mon, 9 Sep 2002 16:11:35 -0400
-Received: from louise.pinerecords.com ([212.71.160.16]:41743 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S318842AbSIIULe>; Mon, 9 Sep 2002 16:11:34 -0400
-Date: Mon, 9 Sep 2002 22:16:14 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Wade <darthwaderr@netscape.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: XFS?
-Message-ID: <20020909201614.GO26075@louise.pinerecords.com>
-References: <20020909193820.GA2007@lnuxlab.ath.cx> <3D7CFEE5.3030600@netscape.net> <3D7CFFA6.5080700@netscape.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3D7CFFA6.5080700@netscape.net>
-User-Agent: Mutt/1.4i
-X-OS: GNU/Linux 2.4.20-pre1/sparc SMP
-X-Uptime: 14 days, 8:35
+	id <S318857AbSIIUQI>; Mon, 9 Sep 2002 16:16:08 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:11678 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S318856AbSIIUQH>;
+	Mon, 9 Sep 2002 16:16:07 -0400
+Date: Mon, 9 Sep 2002 22:25:13 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Daniel Jacobowitz <dan@debian.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: do_syslog/__down_trylock lockup in current BK
+In-Reply-To: <20020909201516.GA7465@nevyn.them.org>
+Message-ID: <Pine.LNX.4.44.0209092224580.16423-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I've noticed this too. And I must say, ITS QUITE FUCKING RUDE OF LINUS.
 
-Fix your capslock and be so kind as to refrain from posting more comments
-of such immense value here thankyou.
+On Mon, 9 Sep 2002, Daniel Jacobowitz wrote:
+
+> How do you reproduce this?  It's probably my fault, if it's stuck in
+> zap_thread... but that's a pretty suspicious looking trace to me, if it
+> goes from schedule_timeout to do_exit.
+
+(i think i found it - patch in a few minutes.)
+
+	Ingo
+

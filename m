@@ -1,63 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129232AbRBZXaD>; Mon, 26 Feb 2001 18:30:03 -0500
+	id <S129249AbRBZXaP>; Mon, 26 Feb 2001 18:30:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129250AbRBZX3s>; Mon, 26 Feb 2001 18:29:48 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:18847 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S129232AbRBZX3j>;
-	Mon, 26 Feb 2001 18:29:39 -0500
-From: "David S. Miller" <davem@redhat.com>
-MIME-Version: 1.0
+	id <S129268AbRBZXaE>; Mon, 26 Feb 2001 18:30:04 -0500
+Received: from mail.valinux.com ([198.186.202.175]:29452 "EHLO
+	mail.valinux.com") by vger.kernel.org with ESMTP id <S129242AbRBZX3n>;
+	Mon, 26 Feb 2001 18:29:43 -0500
+Date: Mon, 26 Feb 2001 15:28:26 -0800
+From: "H . J . Lu" <hjl@valinux.com>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: NFS maillist <nfs@lists.sourceforge.net>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [NFS] Updated patch for the [2.4.x] NFS 'missing directory entry a.k.a. IRIX server' problem...
+Message-ID: <20010226152826.A20653@valinux.com>
+In-Reply-To: <14997.9938.106305.635202@charged.uio.no>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15002.58854.215318.882641@pizda.ninka.net>
-Date: Mon, 26 Feb 2001 15:25:26 -0800 (PST)
-To: michael@linuxmagic.com
-Cc: Jan Rekorajski <baggins@sith.mimuw.edu.pl>, Chris Wedgwood <cw@f00f.org>,
-        linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-        waltje@uWalt.NL.Mugnet.ORG
-Subject: Re: [UPDATE] zerocopy.. While working on ip.h stuff
-In-Reply-To: <0102261546570H.02007@mistress>
-In-Reply-To: <14998.2628.144784.585248@pizda.ninka.net>
-	<20010225163836.A12173@metastasis.f00f.org>
-	<20010225045420.B10281@sith.mimuw.edu.pl>
-	<0102261546570H.02007@mistress>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <14997.9938.106305.635202@charged.uio.no>; from trond.myklebust@fys.uio.no on Thu, Feb 22, 2001 at 03:48:50PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Feb 22, 2001 at 03:48:50PM +0100, Trond Myklebust wrote:
+> 
+> Hi,
+> 
+>   After having tried to thrash out what exactly is the kernel
+> interface for telldir/seekdir w.r.t. the existence of negative offsets
+> with the glibc people, I've finally found a way to work within the
+> current scheme.
+> 
+>   The problem at hand is that we currently would like to support the
+> existence of directory cookies that take unsigned 32-bit values in
+> NFSv2, unsigned 64-bit values in NFSv3.
+> 
+>   Given that most NFSv3 servers can/do use 32-bit cookies for
+> compatibility with 32-bit systems, we would like to be able to pass
+> this type of cookie back up to userland for use by the 32-bit
+> interface.
+>   However the interface chosen both in glibc and partly in the kernel
+> itself assumes all cookies are 32-bit signed values. Thus you have to
+> find a way to cope with the kernel and glibc sign extending (almost)
+> all cookies which have bit 31 set.
+> 
+>   The following patch therefore does 3 things:
+> 
+>    - Patch linux/fs/readdir.c so that file->f_pos is copied into the
+>      dirent64 structure with sign extension. This is for consistency
+>      with the behaviour of filldir64.
+> 
+>    - Patch NFSv2 xdr routines so that 32-bit cookies get extended to
+>      take 64-bit signed values (as opposed to unsigned values) for
+>      consistency with the fact that (l|)off_t are both signed.
+> 
+>    - Patch NFSv3 xdr routines with a hack that mimics sign extension
+>      on those cookies which are truly 32-bit unsigned.
+>      To do this we use the transformation
+> 
+>         (cookie & 0x80000000) ? cookie ^ 0xFFFFFFFF00000000 : cookie;
+> 
+>      Note that this a transformation has no effect on true 64-bit
+>      cookies because it is reversible.
+> 
+>    - Make a special version of 'lseek()' for NFS directories that
+>      returns 0 if the offset used was negative (rather than returning
+>      the offset itself). This avoids userland misinterpreting the
+>      return value as an error.
+> 
+> The above fixes should ensure that all cookies taking values between 0
+> and (2^32-1) on the NFS server are preserved through the 32-bit VFS
+> interface, and are accepted by glibc as valid entries. It should also
+> work fine with existing 64-bit architectures.
+> 
+> Please could people give this a try, and report if it fixes the
+> problems.
+> 
 
-Michael Peddemors writes:
- > A few things.. why is ip.h not part of the linux/include/net rather than 
- > linux/include/linux hierachy?
+I don't know how it will work with real 64bit cookies on a 32bit
+host for NFS V3 since you truncate it into 32bit during sign
+extension.
 
-Exported to older userlands...
 
- > Defined items that are not used anywhere in the source..
- > Can any of them be deleted now?
- > <see below>
-
-So what, userland makes use of them :-)
-
- > Also, I was looking into some RFC 1812 stuff. (Thanks for nothing Dave :) and 
- > was looking at 4.2.2.6 where it mentions that a router MUST implement the End 
- > of Option List option..  Havent' figured out where that is implememented yet..
-
-egrep "IPOPT_END" net/ipv4/ip_options.c
-
-You just aren't looking hard enough.
-
- > Also was trying to figure out some things. 
- > I want to create a new ip_option for use in some DOS protection experiments.
- > I have a whole 40 bytes (+/-) to share...  Now although I don't see anything 
- > explicitly prohibiting the use of unused IP Header option space, I know that 
- > it really was designed for use by the sending parties, and not routers in 
- > between.. Has anyone seen any RFC that explicitly says I MUST NOT?
-
-Not to my knowledge.  Routers already change the time to live field,
-so I see no reason why they can't do smart things with special IP
-options either (besides efficiency concerns :-).
-
-Later,
-David S. Miller
-davem@redhat.com
+H.J.

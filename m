@@ -1,98 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269735AbRHDBBw>; Fri, 3 Aug 2001 21:01:52 -0400
+	id <S269739AbRHDBSi>; Fri, 3 Aug 2001 21:18:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269733AbRHDBBn>; Fri, 3 Aug 2001 21:01:43 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:50192 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S269731AbRHDBB1>; Fri, 3 Aug 2001 21:01:27 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: "Mike Black" <mblack@csihq.com>, "Rik van Riel" <riel@conectiva.com.br>,
-        "David Ford" <david@blue-labs.org>
-Subject: [PATCH] Disable kswapd through proc (was Ongoing 2.4 VM suckage)
-Date: Sat, 4 Aug 2001 01:58:57 +0200
-X-Mailer: KMail [version 1.2]
-Cc: "Jeffrey W. Baker" <jwbaker@acm.org>,
-        "Richard B. Johnson" <root@chaos.analogic.com>,
-        <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33L.0108031751590.11893-100000@imladris.rielhome.conectiva> <007801c11c67$87d55980$b6562341@cfl.rr.com>
-In-Reply-To: <007801c11c67$87d55980$b6562341@cfl.rr.com>
-MIME-Version: 1.0
-Message-Id: <0108040158570K.01827@starship>
-Content-Transfer-Encoding: 7BIT
+	id <S269740AbRHDBS1>; Fri, 3 Aug 2001 21:18:27 -0400
+Received: from weta.f00f.org ([203.167.249.89]:13968 "HELO weta.f00f.org")
+	by vger.kernel.org with SMTP id <S269739AbRHDBSQ>;
+	Fri, 3 Aug 2001 21:18:16 -0400
+Date: Sat, 4 Aug 2001 13:19:04 +1200
+From: Chris Wedgwood <cw@f00f.org>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Chris Mason <mason@suse.com>
+Subject: Re: [PATCH] 2.4.8-pre3 fsync entire path (+reiserfs fsync semantic change patch)
+Message-ID: <20010804131904.E18108@weta.f00f.org>
+In-Reply-To: <01080315090600.01827@starship> <Pine.GSO.4.21.0108031400590.3272-100000@weyl.math.psu.edu> <9keqr6$egl$1@penguin.transmeta.com>, <9keqr6$egl$1@penguin.transmeta.com> <20010804100143.A17774@weta.f00f.org> <3B6B4B21.B68F4F87@zip.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3B6B4B21.B68F4F87@zip.com.au>
+User-Agent: Mutt/1.3.20i
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 03 August 2001 23:59, Mike Black wrote:
-> I floated this idea a while ago but didn't receive any comments (or
-> flames)...
-> Couldn't kswapd just gracefully back-off when it doesn't make any progress?
->
-> In my case (with ext3/raid5 and a tiobench test) kswapd NEVER actually
-> swaps anything out.
-> It just chews CPU time.
-> So...if kswapd just said "didn't make any progress...*2 last sleep" so it
-> would degrade itself.
-> Doesn't sound like a major rewrite to me.
+On Fri, Aug 03, 2001 at 06:08:49PM -0700, Andrew Morton wrote:
 
-See attached patch, it lets you disable kswapd yourself through proc:
+    Ow.  You just crippled ext3.
 
-  echo 1 >/proc/sys/kernel/disable_kswapd
+How so? The Flush all transactions on fsync behaviour that resierfs
+did/does have at present too?  (There are 'fixes' to reiserfs for
+this).
 
-You can find out for yourself if it actually helps.
+    I don't think an ext2 problem (which I don't think is a problem at
+    all) should be "fixed" at the VFS layer when other filesystems are
+    perfectly happy without it, no?
 
---- ../2.4.7.clean/include/linux/swap.h	Fri Jul 20 21:52:18 2001
-+++ ./include/linux/swap.h	Wed Aug  1 19:35:27 2001
-@@ -78,6 +78,7 @@
- 	int next;			/* next entry on swap list */
- };
- 
-+extern int disable_kswapd;
- extern int nr_swap_pages;
- extern unsigned int nr_free_pages(void);
- extern unsigned int nr_inactive_clean_pages(void);
---- ../2.4.7.clean/include/linux/sysctl.h	Fri Jul 20 21:52:18 2001
-+++ ./include/linux/sysctl.h	Wed Aug  1 19:35:28 2001
-@@ -118,7 +118,8 @@
- 	KERN_SHMPATH=48,	/* string: path to shm fs */
- 	KERN_HOTPLUG=49,	/* string: path to hotplug policy agent */
- 	KERN_IEEE_EMULATION_WARNINGS=50, /* int: unimplemented ieee instructions */
--	KERN_S390_USER_DEBUG_LOGGING=51  /* int: dumps of user faults */
-+	KERN_S390_USER_DEBUG_LOGGING=51, /* int: dumps of user faults */
-+	KERN_DISABLE_KSWAPD=52,	/* int: disable kswapd for testing */
- };
- 
- 
---- ../2.4.7.clean/kernel/sysctl.c	Thu Apr 12 21:20:31 2001
-+++ ./kernel/sysctl.c	Wed Aug  1 19:35:28 2001
-@@ -249,6 +249,8 @@
- 	{KERN_S390_USER_DEBUG_LOGGING,"userprocess_debug",
- 	 &sysctl_userprocess_debug,sizeof(int),0644,NULL,&proc_dointvec},
- #endif
-+	{KERN_DISABLE_KSWAPD, "disable_kswapd", &disable_kswapd, sizeof (int),
-+	 0644, NULL, &proc_dointvec},
- 	{0}
- };
- 
---- ../2.4.7.clean/mm/vmscan.c	Mon Jul  9 19:18:50 2001
-+++ ./mm/vmscan.c	Wed Aug  1 19:35:28 2001
-@@ -875,6 +875,8 @@
- DECLARE_WAIT_QUEUE_HEAD(kswapd_wait);
- DECLARE_WAIT_QUEUE_HEAD(kswapd_done);
- 
-+int disable_kswapd /* = 0 */;
-+
- /*
-  * The background pageout daemon, started as a kernel thread
-  * from the init process. 
-@@ -915,6 +917,9 @@
- 	 */
- 	for (;;) {
- 		static long recalc = 0;
-+
-+		while (disable_kswapd)
-+			interruptible_sleep_on_timeout(&kswapd_wait, HZ/10);
- 
- 		/* If needed, try to free some memory. */
- 		if (inactive_shortage() || free_shortage()) 
+If you want to be sure that when you fsync a file, that, silly bugger
+rename games further up the path aside, the entire path is also on
+disk, the VFS is the only place to do it with the current fs API.
+
+really, there is _some_ merit in the argument that
+
+        open
+        fsync
+        close
+<crash>
+
+shouldn't loose the file...
+
+    This whole thread, talking about "linux this" and "linux that" is
+    off-base.  It's ext2 we're talking about.  This MTA requirement is
+    a highly unusual and specialised thing - I don't see why the
+    general-purpose ext2 should bear the burden of supporting it when
+    other filesystems such as reiserfs (I think?) and ext3 support it
+    naturally and better than ext2 ever will.
+
+Well, since it will only sync dirty blocks, it will hardly hurt ext2
+that much at all --- and it will only force the dirty blocks in path
+components to be written when you fsync the file, thats probably only
+a single block anyhow.
+
+FWIW, I don't think it's unreasonable we do this, nor does it fix all
+the potential MTA problems :)
+
+
+
+Anyhow, that patch was bogus.  As soon as I get some more clues, I'll
+send another one (trying to get more clueful now, not having much
+success!).
+
+
+
+
+  --cw

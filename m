@@ -1,81 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265071AbUBECGy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 21:06:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265111AbUBECGy
+	id S265059AbUBECEu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 21:04:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265071AbUBECEu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 21:06:54 -0500
-Received: from fw.osdl.org ([65.172.181.6]:14777 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265071AbUBECGs (ORCPT
+	Wed, 4 Feb 2004 21:04:50 -0500
+Received: from fw.osdl.org ([65.172.181.6]:35254 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265059AbUBECEr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 21:06:48 -0500
-Date: Wed, 4 Feb 2004 18:07:54 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Daniel McNeil <daniel@osdl.org>
-Cc: janetmor@us.ibm.com, pbadari@us.ibm.com, linux-aio@kvack.org,
-       linux-kernel@vger.kernel.org, suparna@in.ibm.com
-Subject: Re: [PATCH 2.6.2-rc3-mm1] DIO read race fix
-Message-Id: <20040204180754.28801410.akpm@osdl.org>
-In-Reply-To: <1075945198.7182.46.camel@ibm-c.pdx.osdl.net>
-References: <3FCD4B66.8090905@us.ibm.com>
-	<1070674185.1929.9.camel@ibm-c.pdx.osdl.net>
-	<1070907814.707.2.camel@ibm-c.pdx.osdl.net>
-	<1071190292.1937.13.camel@ibm-c.pdx.osdl.net>
-	<20031230045334.GA3484@in.ibm.com>
-	<1072830557.712.49.camel@ibm-c.pdx.osdl.net>
-	<20031231060956.GB3285@in.ibm.com>
-	<1073606144.1831.9.camel@ibm-c.pdx.osdl.net>
-	<20040109035510.GA3279@in.ibm.com>
-	<1075945198.7182.46.camel@ibm-c.pdx.osdl.net>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 4 Feb 2004 21:04:47 -0500
+Date: Wed, 4 Feb 2004 18:04:42 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Keith Mannthey <kmannth@us.ibm.com>
+cc: Andrew Morton <akpm@osdl.org>, "Martin J. Bligh" <mbligh@aracnet.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       linux-mm@kvack.org
+Subject: Re: [Bugme-new] [Bug 2019] New: Bug from the mm subsystem involving
+ X  (fwd)
+In-Reply-To: <1075946211.13163.18962.camel@dyn318004bld.beaverton.ibm.com>
+Message-ID: <Pine.LNX.4.58.0402041800320.2086@home.osdl.org>
+References: <51080000.1075936626@flay> <Pine.LNX.4.58.0402041539470.2086@home.osdl.org>
+ <60330000.1075939958@flay> <64260000.1075941399@flay>
+ <Pine.LNX.4.58.0402041639420.2086@home.osdl.org> <20040204165620.3d608798.akpm@osdl.org>
+  <Pine.LNX.4.58.0402041719300.2086@home.osdl.org>
+ <1075946211.13163.18962.camel@dyn318004bld.beaverton.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel McNeil <daniel@osdl.org> wrote:
->
-> I have found (finally) the problem causing DIO reads racing with
-> buffered writes to see uninitialized data on ext3 file systems 
-> (which is what I have been testing on).
 
-What kernel?  If -mm, is this the only remaining buffered-vs-direct
-problem?
 
-> The problem is caused by the changes to __block_write_page_full()
-> and a race with journaling:
+On Wed, 4 Feb 2004, Keith Mannthey wrote:
 > 
-> journal_commit_transaction() -> ll_rw_block() -> submit_bh()
-> 	
-> ll_rw_block() locks the buffer, clears buffer dirty and calls
-> submit_bh()
-> 
-> A racing __block_write_full_page() (from ext3_ordered_writepage())
-> 
-> 	would see that buffer_dirty() is not set because the i/o
->         is still in flight, so it would not do a bh_submit()
-> 
-> 	It would SetPageWriteback() and unlock_page() and then
-> 	see that no i/o was submitted and call end_page_writeback()
-> 	(with the i/o still in flight).
-> 
-> This would allow the DIO code to issue the DIO read while buffer writes
-> are still in flight.  The i/o can be reordered by i/o scheduling and
-> the DIO can complete BEFORE the writebacks complete.  Thus the DIO
-> sees the old uninitialized data.
+> Martin sent me a patch that fixed the X panics (NUMA and DISCONTIG
+> enabled).  (Thanks Martin!) I don't have the same X panics and issues I
+> had before. I don't know if this will work for the generic case. It
+> compiles with a simple memory situation just fine but I didn't boot it. 
 
-ow.  How'd you work this out?
+Looks ok, but the thing should be made a function (possibly inline, 
+depending on how big the code generated ends up being). As it is, it now 
+uses its arguments several times, and while I don't see anything where 
+that could screw up, it's just a tad scary.
 
-> Here is a quick hack that fixes it, but I am not sure if this the
-> proper long term fix.
+Also, related to this whole mess, what the _heck_ is this in mm/rmap.c:
 
-The problem is that ext3 and the VFS are using different paradigms.  VFS is
-all page-based, but ext3 is all block-based.  One or the other needs to do
-something nasty.
+        if (!pfn_valid(page_to_pfn(page)) || PageReserved(page))
+                return pte_chain;
 
-One approach would be to change the JBD write_out_data_locked loop to use
-block_write_full_page(bh->b_page) instead of buffer_head operations.  But
-that could get hairy with blocksize < PAGE_SIZE.
+that "pfn_valid(page_to_pfn(page))" just looks totally nonsensical. Can
+somebody really pass in random page pointers to this thing, and if so, are
+they guaranteed to be "not-random enough" to not cause bogus behaviour
+when the "page_to_pfn()" happens to be valid..
 
-Thanks for working this out.  Let me ponder it for a bit.
+If VM_IO gets rid of this, then we should immediately apply the patch.
+
+			Linus

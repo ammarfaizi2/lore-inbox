@@ -1,44 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132227AbRAHToG>; Mon, 8 Jan 2001 14:44:06 -0500
+	id <S135302AbRAGCOs>; Sat, 6 Jan 2001 21:14:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132947AbRAHTn4>; Mon, 8 Jan 2001 14:43:56 -0500
-Received: from [194.213.32.137] ([194.213.32.137]:6148 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S132945AbRAHTno>;
-	Mon, 8 Jan 2001 14:43:44 -0500
-Message-ID: <20010105230950.B301@bug.ucw.cz>
-Date: Fri, 5 Jan 2001 23:09:50 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: David Lang <david.lang@digitalinsight.com>,
-        David Woodhouse <dwmw2@infradead.org>
-Cc: Daniel Phillips <phillips@innominate.de>,
-        Helge Hafting <helgehaf@idb.hist.no>, linux-kernel@vger.kernel.org
-Subject: Re: Journaling: Surviving or allowing unclean shutdown?
-In-Reply-To: <10290.978630745@redhat.com> <Pine.LNX.4.31.0101040954040.10387-100000@dlang.diginsite.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <Pine.LNX.4.31.0101040954040.10387-100000@dlang.diginsite.com>; from David Lang on Thu, Jan 04, 2001 at 10:00:01AM -0800
+	id <S135515AbRAGCOi>; Sat, 6 Jan 2001 21:14:38 -0500
+Received: from ANancy-101-1-1-133.abo.wanadoo.fr ([193.251.70.133]:48116 "HELO
+	the-babel-tower.nobis.phear.org") by vger.kernel.org with SMTP
+	id <S135302AbRAGCO2>; Sat, 6 Jan 2001 21:14:28 -0500
+Date: Sun, 14 Jan 2001 03:20:52 +0100 (CET)
+From: Nicolas Noble <Pixel@the-babel-tower.nobis.phear.org>
+To: "Linux-kernel's Mailing list" <linux-kernel@vger.kernel.org>
+Subject: Little question about modules...
+Message-ID: <Pine.LNX.4.21.0101140318240.5780-100000@the-babel-tower.nobis.phear.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> 1. setup the power switch so it doesn't actually turn things off (it
-> issues the shutdown command instead)
+Just a question:
 
-Evil. Devices that are powered off should stay powered off, and there
-should be big mechanical switch to do that, so that no EMI or power
-glitch can make them power up.
+Why do I have used by -1 for the module ipv6 onto my system?
 
-Also thing about cases where powerplant fails, or when electricity in
-the house fails. I've seen places where electricity failed 5 times a
-day, because someone put 10A fuse and we were using just about 2kW...
+extract of the /proc/modules:
 
-								Pavel
--- 
-I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
-Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
+ip6table_filter         1988   0 (unused)
+ip6t_mark                688   0 (unused)
+ip6t_limit              1016   0 (unused)
+ip6_tables             13044   3 [ip6table_filter ip6t_mark ip6t_limit]
+ipv6                  117992  -1
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

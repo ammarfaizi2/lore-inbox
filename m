@@ -1,62 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286348AbRLJS1T>; Mon, 10 Dec 2001 13:27:19 -0500
+	id <S286355AbRLJSa6>; Mon, 10 Dec 2001 13:30:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286357AbRLJS1J>; Mon, 10 Dec 2001 13:27:09 -0500
-Received: from borderworlds.dk ([193.162.142.101]:23812 "HELO
-	klingon.borderworlds.dk") by vger.kernel.org with SMTP
-	id <S286348AbRLJS06>; Mon, 10 Dec 2001 13:26:58 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: NULL pointer dereference in moxa driver
-In-Reply-To: <m3zo4rm05v.fsf@borg.borderworlds.dk>
-From: Christian Laursen <xi@borderworlds.dk>
-Date: 10 Dec 2001 19:26:52 +0100
-In-Reply-To: <m3zo4rm05v.fsf@borg.borderworlds.dk>
-Message-ID: <m3vgfflymr.fsf@borg.borderworlds.dk>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S286349AbRLJSas>; Mon, 10 Dec 2001 13:30:48 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:55557 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S286355AbRLJSam>; Mon, 10 Dec 2001 13:30:42 -0500
+Date: Mon, 10 Dec 2001 15:13:57 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Robert Love <rml@tech9.net>
+Cc: Nicolas Aspert <Nicolas.Aspert@epfl.ch>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Patches in 2.4.17-pre2 that aren't in 2.5.1-pre8
+In-Reply-To: <1008008332.1235.42.camel@phantasy>
+Message-ID: <Pine.LNX.4.21.0112101513490.25133-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christian Laursen <xi@borderworlds.dk> writes:
 
-> I have a problem when trying to use two of the serial cards known as
-> MOXA C104H/PCI.
+
+On 10 Dec 2001, Robert Love wrote:
+
+> On Mon, 2001-12-10 at 10:53, Marcelo Tosatti wrote:
 > 
-> When only using one, everything works like a charm, but when
-> an attempt is made to access a serial port on the second card,
-> I get a NULL pointer dereference.
+> > Who is the maintainer of the driver ?
+> > 
+> > Try to think from my side: I may have no hardware or time to test all
+> > patches which come to me.
+> > 
+> > Please, people, send this kind of driver changes to the people who know
+> > all hardware specific details.
+> > 
+> > If there is no maintainer for i810, I'll be glad to apply it on 2.4.18pre
+> > and wait for reports. Not going to be on 2.4.17, though.
 > 
+> The maintainer is MIA.  I have been doing recent work on the driver.  I
+> can confirm Nicolas patch is correct.
 
-I forgot information about my versions of things in the other post,
-here we go:
+Lets wait 2.4.18pre for this one, OK ? 
 
-[xi@borg /usr/src/linux/scripts]$ ./ver_linux                                                                    [19:22]
-If some fields are empty or look unusual you may have an old version.
-Compare to the current minimal requirements in Documentation/Changes.
- 
-Linux borg 2.4.16 #1 SMP Thu Dec 6 22:23:25 CET 2001 i686 unknown
- 
-Gnu C                  2.95.3
-Gnu make               3.79.1
-binutils               2.11.90.0.29
-util-linux             2.11i
-mount                  2.11i
-modutils               2.4.8
-e2fsprogs              1.24a
-reiserfsprogs          3.x.0k-pre9
-pcmcia-cs              3.1.28
-PPP                    2.4.1
-isdn4k-utils           3.1pre2
-Linux C Library        x    1 root     root      1384168 Sep 20 05:52 /lib/libc.so.6
-Dynamic linker (ldd)   2.2.4
-Procps                 2.0.7
-Net-tools              1.60
-Kbd                    1.04
-Sh-utils               2.0
-Modules Loaded         nfsd lockd sunrpc 3c59x
-
--- 
-Med venlig hilsen
-    Christian Laursen

@@ -1,59 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279059AbRJVXEa>; Mon, 22 Oct 2001 19:04:30 -0400
+	id <S279051AbRJVXFU>; Mon, 22 Oct 2001 19:05:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279053AbRJVXEO>; Mon, 22 Oct 2001 19:04:14 -0400
-Received: from zero.tech9.net ([209.61.188.187]:41738 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S279051AbRJVXC5>;
-	Mon, 22 Oct 2001 19:02:57 -0400
-Subject: Re: [PATCH] updated preempt-kernel
-From: Robert Love <rml@tech9.net>
-To: szonyi calin <caszonyi@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20011022144601.55173.qmail@web13103.mail.yahoo.com>
-In-Reply-To: <20011022144601.55173.qmail@web13103.mail.yahoo.com>
-Content-Type: text/plain
+	id <S279053AbRJVXFL>; Mon, 22 Oct 2001 19:05:11 -0400
+Received: from mailhost.idcomm.com ([207.40.196.14]:26547 "EHLO
+	mailhost.idcomm.com") by vger.kernel.org with ESMTP
+	id <S279051AbRJVXE4>; Mon, 22 Oct 2001 19:04:56 -0400
+Message-ID: <3BD4A663.BEE1DA88@idcomm.com>
+Date: Mon, 22 Oct 2001 17:06:11 -0600
+From: "D. Stimits" <stimits@idcomm.com>
+Reply-To: stimits@idcomm.com
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre1-xfs-4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.2.20pre10
+In-Reply-To: <3BD4AE58.9DDDB74E@kuckuk.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.16.99+cvs.2001.10.18.15.19 (Preview Release)
-Date: 22 Oct 2001 19:03:35 -0400
-Message-Id: <1003791816.1712.55.camel@phantasy>
-Mime-Version: 1.0
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2001-10-22 at 10:46, szonyi calin wrote:
-> Hi 
-> I'm using the preemptible kernel patch since 2.4.10 
-> (no 2.4.11). And it makes a big difference on 486 with
-> 12Megs of ram. 
-> I can't send you benchmarks (i don't have time for
-> this but if you really want one ... it can be arranged
-> :-)). 
-> But:
+Carsten Kuckuk wrote:
 > 
-> When I run a configure script I can actually see it
-> running (without this patch it is very slow).
-> 
-> The coolest thing was that I could run Gnome and KDE
-> (with loadavg of 4 and waiting 2 to 4 minutes for an
-> application to start (because of ram I think))
-> something not possible without the preemtible kernel.
-> I don't swear after them anyway.( I prefer fvwm)
-> 
-> Compilation is much faster (i'll make a benchmark
-> compiling linux kernel -- i promise :-)) ).
+> By the same line of reasoning, using passwd as root on a different user
+> would be a possible circumvention of a copyright protection mechanism
+> and thus turn passwd into illegal software under the DMCA. Are all *nix
+> manufacturers and Linux distributors aware of this? All Linux distros
+> and all Unix operating systems are illegal under DMCA...
 
-I am very glad to here this -- thank you :)
-I'm glad it works so good.
+Perhaps you missed the part in SSSCA where there was a clause that gave
+certain parties back doors into all machines (by law) to test if you
+violate copyright rules? I think that part got washed out already, but
+what you properly consider via sarcasm, some Senator has at least
+proposed as law.
 
-> The system is stable with high system loads.
-> Now is kernel 2.4.12 and no problems at all.
-> 
-> Any chance to be in the main stable kernel ?
+D. Stimits, stimits@idcomm.com
 
-Hopefully for 2.5.
-
-> Bye 
-
-	Robert Love
-
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

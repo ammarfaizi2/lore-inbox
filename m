@@ -1,36 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129828AbQL1XUs>; Thu, 28 Dec 2000 18:20:48 -0500
+	id <S131547AbQL1XYT>; Thu, 28 Dec 2000 18:24:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131547AbQL1XUj>; Thu, 28 Dec 2000 18:20:39 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:20864 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S129828AbQL1XUL>;
-	Thu, 28 Dec 2000 18:20:11 -0500
-Date: Thu, 28 Dec 2000 14:33:07 -0800
-Message-Id: <200012282233.OAA01433@pizda.ninka.net>
-From: "David S. Miller" <davem@redhat.com>
-To: ak@suse.de
-CC: torvalds@transmeta.com, marcelo@conectiva.com.br,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20001228231722.A24875@gruyere.muc.suse.de> (message from Andi
-	Kleen on Thu, 28 Dec 2000 23:17:22 +0100)
-Subject: Re: test13-pre5
-In-Reply-To: <Pine.LNX.4.21.0012281637200.12364-100000@freak.distro.conectiva> <Pine.LNX.4.10.10012281243010.788-100000@penguin.transmeta.com> <20001228231722.A24875@gruyere.muc.suse.de>
+	id <S132642AbQL1XYJ>; Thu, 28 Dec 2000 18:24:09 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:6895 "EHLO
+	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S131547AbQL1XX5>; Thu, 28 Dec 2000 18:23:57 -0500
+Date: Thu, 28 Dec 2000 20:53:16 -0200 (BRDT)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Wakko Warner <wakko@animx.eu.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: USB web cam
+In-Reply-To: <20001228173214.B26419@animx.eu.org>
+Message-ID: <Pine.LNX.4.21.0012282052300.1403-100000@duckman.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   Date: 	Thu, 28 Dec 2000 23:17:22 +0100
-   From: Andi Kleen <ak@suse.de>
+On Thu, 28 Dec 2000, Wakko Warner wrote:
 
-   Would you consider patches for any of these points? 
+> I really hate to ask on the list, but if I was to buy a usb web
+> cam, what would be a good choice?
 
-To me it seems just as important to make sure struct page is
-a power of 2 in size, with the waitq debugging turned off this
-is true for both 32-bit and 64-bit hosts last time I checked.
+The ov511-based cameras seem to work really nicely.
 
-Later,
-David S. Miller
-davem@redhat.com
+(this is a cheap chip, used in lots of different cameras)
+
+And while we're on the topic of webcams:
+http://distro.conectiva.com.br/webcam/  ;)
+
+regards,
+
+Rik
+--
+Hollywood goes for world dumbination,
+	Trailer at 11.
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

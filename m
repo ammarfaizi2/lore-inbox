@@ -1,64 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264732AbUEUX5x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264877AbUEVBOW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264732AbUEUX5x (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 May 2004 19:57:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264692AbUEUXyI
+	id S264877AbUEVBOW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 May 2004 21:14:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264804AbUEVBLi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 May 2004 19:54:08 -0400
-Received: from turing-police.cirt.vt.edu ([128.173.54.129]:4484 "EHLO
-	turing-police.cirt.vt.edu") by vger.kernel.org with ESMTP
-	id S265181AbUEUXgS (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Fri, 21 May 2004 19:36:18 -0400
-Message-Id: <200405212336.i4LNa5lJ015312@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Jirka Kosina <jikos@jikos.cz>
-Cc: linux-kernel@vger.kernel.org, pekkas@netcore.fi, davem@redhat.com
-Subject: Re: [PATCH] IPv6 can't be built as module additionally 
-In-Reply-To: Your message of "Fri, 21 May 2004 00:16:06 +0200."
-             <Pine.LNX.4.58.0405210007240.25914@twin.jikos.cz> 
-From: Valdis.Kletnieks@vt.edu
-References: <Pine.LNX.4.58.0405210007240.25914@twin.jikos.cz>
+	Fri, 21 May 2004 21:11:38 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:33216 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S264798AbUEVBJL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 May 2004 21:09:11 -0400
+Date: Thu, 20 May 2004 11:02:18 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Andreas Hartmann <andihartmann@01019freenet.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.6-mm4
+Message-ID: <20040520090218.GH24287@fs.tum.de>
+References: <fa.h0r5q8q.k6meb8@ifi.uio.no> <c8hgk0$336$1@p3EE062C3.dip0.t-ipconnect.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_669016182P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Fri, 21 May 2004 19:36:05 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <c8hgk0$336$1@p3EE062C3.dip0.t-ipconnect.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_669016182P
-Content-Type: text/plain; charset=us-ascii
+On Thu, May 20, 2004 at 07:44:32AM +0200, Andreas Hartmann wrote:
+> Hello!
+> 
+> I got a compile error compiling the following:
+> 
+>   LD      .tmp_vmlinux1
+> arch/i386/kernel/built-in.o(.text+0x1247f): In function 
+> `hpet_rtc_interrupt':
+> : undefined reference to `rtc_interrupt'
+> arch/i386/kernel/built-in.o(.text+0x124aa): In function 
+> `hpet_rtc_interrupt':
+> : undefined reference to `rtc_get_rtc_time'
+> make: *** [.tmp_vmlinux1] Error 1
+> 
+> I switched on 'HPET Timer Support' and 'Provide RTC interrupt'
+> It works fine without 'Provide RTC interrupt'.
+>...
 
-On Fri, 21 May 2004 00:16:06 +0200, Jirka Kosina said:
+Please send your complete .config .
 
-> It is not possible to build ipv6 for already compiled and running kernel, 
-> recompilation of whole kernel, even if building as a module, is typically 
-> a must. This is because ipv6-specific functions in drivers/char/random.c 
-> are inside #ifdefs, and as random.c is almost always built directly into 
-> kernel, recompilation of whole kernel can't be avoided.
+> Regards,
+> Andreas Hartmann
 
-What you're getting bit by is the fact that some heavily-used kernel structures
-get their size changed when you define CONFIG_IPV6, and *that* forces
-the rebuild.
+TIA
+Adrian
 
-Rebuilding random.o should be relatively fast - that's 1 CC, then a few LD's
-to rebuild drivers/char/built-in.o, then drivers/build-in.o, then increment the
-kernel build version, and rebuild vmlinux.  Shouldn't be more than 30-40 lines of
-output, total.  
+-- 
 
-In addition, the proposed removal of the ifdef's causes bloat in random.c for
-those systems that don't configure it.  So it's a bad fix for the wrong problem...
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
---==_Exmh_669016182P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFArpJlcC3lWbTT17ARAkXfAKCvZrojKyIQpLvjgoZARoVg49AJYACgw4Uu
-DnU640LdCKCJ6Ki6qPJUjOs=
-=eHGC
------END PGP SIGNATURE-----
-
---==_Exmh_669016182P--

@@ -1,66 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262342AbUCCDqR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Mar 2004 22:46:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262343AbUCCDqR
+	id S261615AbUCCDot (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Mar 2004 22:44:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261678AbUCCDot
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Mar 2004 22:46:17 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:32969 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262342AbUCCDqL (ORCPT
+	Tue, 2 Mar 2004 22:44:49 -0500
+Received: from mtvcafw.SGI.COM ([192.48.171.6]:63875 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id S261615AbUCCDos (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Mar 2004 22:46:11 -0500
-Date: Tue, 2 Mar 2004 19:46:08 -0800
-From: "David S. Miller" <davem@redhat.com>
-To: "Wojciech 'Sas' Cieciwa" <cieciwa@alpha.zarz.agh.edu.pl>
-Cc: linux-kernel@vger.kernel.org, wesolows@foobazco.org
-Subject: Re: [SPARC][patch] sys_ioperm
-Message-Id: <20040302194608.3c0445d6.davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.58L.0403021316370.7737@alpha.zarz.agh.edu.pl>
-References: <Pine.LNX.4.58L.0403021316370.7737@alpha.zarz.agh.edu.pl>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Tue, 2 Mar 2004 22:44:48 -0500
+Date: Tue, 2 Mar 2004 19:44:32 -0800
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: per-cpu blk_plug_list
+Message-ID: <20040303034432.GA31277@sgi.com>
+Mail-Followup-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+	linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+References: <B05667366EE6204181EABE9C1B1C0EB501F2AB4C@scsmsx401.sc.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <B05667366EE6204181EABE9C1B1C0EB501F2AB4C@scsmsx401.sc.intel.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+From: jbarnes@sgi.com (Jesse Barnes)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2 Mar 2004 13:24:03 +0100 (CET)
-Wojciech 'Sas' Cieciwa <cieciwa@alpha.zarz.agh.edu.pl> wrote:
+On Mon, Mar 01, 2004 at 01:18:40PM -0800, Chen, Kenneth W wrote:
+> blk_plug_list/blk_plug_lock manages plug/unplug action.  When you have
+> lots of cpu simultaneously submits I/O, there are lots of movement with
+> the device queue on and off that global list.  Our measurement showed
+> that blk_plug_lock contention prevents linux-2.6.3 kernel to scale pass
+> beyond 40 thousand I/O per second in the I/O submit path.
 
-> I try to build linux-2.6.4-rc1 with cset-20040302_0009 on SPARC.
-> And I got error:
-> 
-> In file included from include/linux/unistd.h:9,
->                  from init/main.c:21:
-> include/asm/unistd.h:464: error: conflicting types for `sys_ioperm'
-> include/linux/syscalls.h:291: error: previous declaration of `sys_ioperm'
-> make[1]: *** [init/main.o] Error 1
-> make: *** [init] Error 2
-> 
-> Fixed this (?) by this patch: 
+This helped out our machines quite a bit too.  Without the patch, we
+weren't able to scale above 80000 IOPS, but now we exceed 110000 (and
+parity with our internal XSCSI based tree).
 
-We can just remove that line entirely from unistd.h, and that is the
-change I have added to my tree.
+Maybe the plug lists and locks should be per-device though, rather than
+per-cpu?  That would make the migration case easier I think.  Is that
+possible?
 
-# This is a BitKeeper generated diff -Nru style patch.
-#
-# ChangeSet
-#   2004/03/02 19:40:14-08:00 davem@nuts.davemloft.net 
-#   [SPARC]: Kill sys_ioperm decl from unistd.h
-# 
-# include/asm-sparc/unistd.h
-#   2004/03/02 19:37:09-08:00 davem@nuts.davemloft.net +0 -1
-#   [SPARC]: Kill sys_ioperm decl from unistd.h
-# 
-diff -Nru a/include/asm-sparc/unistd.h b/include/asm-sparc/unistd.h
---- a/include/asm-sparc/unistd.h	Tue Mar  2 19:43:19 2004
-+++ b/include/asm-sparc/unistd.h	Tue Mar  2 19:43:19 2004
-@@ -461,7 +461,6 @@
- 				unsigned long addr, unsigned long len,
- 				unsigned long prot, unsigned long flags,
- 				unsigned long fd, unsigned long pgoff);
--asmlinkage int sys_ioperm(unsigned long from, unsigned long num, int on);
- struct sigaction;
- asmlinkage long sys_rt_sigaction(int sig,
- 				const struct sigaction __user *act,
+Thanks,
+Jesse

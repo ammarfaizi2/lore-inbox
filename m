@@ -1,34 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313026AbSDJMyB>; Wed, 10 Apr 2002 08:54:01 -0400
+	id <S312998AbSDJMxE>; Wed, 10 Apr 2002 08:53:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313038AbSDJMyA>; Wed, 10 Apr 2002 08:54:00 -0400
-Received: from smtp-out-6.wanadoo.fr ([193.252.19.25]:54687 "EHLO
-	mel-rto6.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S313026AbSDJMx6>; Wed, 10 Apr 2002 08:53:58 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Duncan Sands <duncan.sands@math.u-psud.fr>
-To: Kernel List <linux-kernel@vger.kernel.org>
-Subject: 2.5.8-pre2: preempt: exits with preempt_count 1
-Date: Wed, 10 Apr 2002 14:53:36 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: rml@tech9.net
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16vHbV-0000M5-00@baldrick>
+	id <S313026AbSDJMxD>; Wed, 10 Apr 2002 08:53:03 -0400
+Received: from [62.221.7.202] ([62.221.7.202]:26506 "EHLO
+	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
+	id <S312998AbSDJMxD>; Wed, 10 Apr 2002 08:53:03 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [brokenpatch] page accounting 
+In-Reply-To: Your message of "Wed, 10 Apr 2002 04:01:59 MST."
+             <3CB41BA7.DAC3A785@zip.com.au> 
+Date: Wed, 10 Apr 2002 22:56:04 +1000
+Message-Id: <E16vHdt-0001QU-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My system (x86 K6 UP running 2.5.8-pre2 with preemption) on powering down
-gave:
+In message <3CB41BA7.DAC3A785@zip.com.au> you write:
+> Problem is, I just converted it to use the new per-CPU code
+> and it broke.  The numbers aren't correct.  It worked fine
+> with open-coded per-CPU accumulators.  Rusty, can you spot
+> the error?
 
-...
-Power down.
-error: halt[411] exited with preempt_count 1
+Can't see it.  Dump each one (0 ... NR_CPUS-1) and see where the
+counters are actually going?
 
-This was after about 24 hours of up time.  What can I do to help
-track down this locking problem?
-
-All the best,
-
-Duncan.
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

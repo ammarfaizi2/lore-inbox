@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263237AbSJCLOS>; Thu, 3 Oct 2002 07:14:18 -0400
+	id <S261158AbSJCLZ2>; Thu, 3 Oct 2002 07:25:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263238AbSJCLOR>; Thu, 3 Oct 2002 07:14:17 -0400
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:2834 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S263237AbSJCLOO>; Thu, 3 Oct 2002 07:14:14 -0400
-Date: Thu, 3 Oct 2002 13:17:30 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-cc: Sam Ravnborg <sam@ravnborg.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       kbuild-devel <kbuild-devel@lists.sourceforge.net>
-Subject: Re: [kbuild-devel] linux kernel conf 0.6
-In-Reply-To: <Pine.LNX.4.44.0209221727290.11808-100000@chaos.physics.uiowa.edu>
-Message-ID: <Pine.LNX.4.44.0210031259120.338-100000@serv>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263238AbSJCLZ2>; Thu, 3 Oct 2002 07:25:28 -0400
+Received: from 212.68.254.82.brutele.be ([212.68.254.82]:20484 "EHLO debian")
+	by vger.kernel.org with ESMTP id <S261158AbSJCLZ1>;
+	Thu, 3 Oct 2002 07:25:27 -0400
+Date: Thu, 3 Oct 2002 13:29:57 +0200
+From: Stephane Wirtel <stephane.wirtel@belgacom.net>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: problem with cpufreq
+Message-ID: <20021003112957.GA1126@debian>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Operating-System: GNU/Linux
+X-LUG: Linux Users Group Mons ( Linux-Mons )
+X-URL: http://www.linux-mons.be
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+hi !
 
-(I almost forgot to reply to this one, sorry for the delay.)
+i have a problem with my computer, 
+on the description of my CPU, it's a Pentium 3 Coppermine 650Mhz,
+when i do a "cat /proc/cpuinfo", the frequence is not 650, but 333Mhz.
+this computer is a portable Toshiba Satellite Pro 4300
+could you help me ?
 
-On Sun, 22 Sep 2002, Kai Germaschewski wrote:
+thanks, 
 
-> I'm not particularly fond of these md5sum hacks. I don't think it's all
-> that annoying for the developer, either, it's basically just a
-> alias make="make LKC_GENPARSER=1"
->
-> (Of course, you'll have to update the _shipped files eventually, but there
-> isn't really any way around that either way)
+Best regards, 
 
-Where's the problem with md5sum? If the rules are usually not visible
-anyway, why do we use the _shipped postfix at all? The depencies are
-hidden this way as well, so make won't even try to regenerate the file.
-The developer has to remember that extra argument to get the file
-regenerated, what is IMO more hacky than using md5sum.
 
-bye, Roman
+Stephane Wirtel
 
+-- 
+Stephane Wirtel <stephane.wirtel@belgacom.net>
+Web : www.linux-mons.be	 "Linux Is Not UniX !!!"
+OS3B : Club OpenSoftware Carolo : www.os3b.org

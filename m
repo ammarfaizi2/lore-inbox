@@ -1,49 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266342AbUFQBSS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266347AbUFQBTz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266342AbUFQBSS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 21:18:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266343AbUFQBSR
+	id S266347AbUFQBTz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 21:19:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266345AbUFQBTy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 21:18:17 -0400
-Received: from lakermmtao04.cox.net ([68.230.240.35]:46560 "EHLO
-	lakermmtao04.cox.net") by vger.kernel.org with ESMTP
-	id S266342AbUFQBSI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 21:18:08 -0400
-In-Reply-To: <A06801158AE07847B27A52C1A074BC1D04C910B4@fmsmsx404.amr.corp.intel.com>
-References: <A06801158AE07847B27A52C1A074BC1D04C910B4@fmsmsx404.amr.corp.intel.com>
-Mime-Version: 1.0 (Apple Message framework v618)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <2F53409E-BFFC-11D8-8574-000393ACC76E@mac.com>
-Content-Transfer-Encoding: 7bit
-Cc: eric@cisu.net, davids@webmaster.com, linux-kernel@vger.kernel.org,
-       Erik Harrison <erikharrison@gmail.com>
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: more files with licenses that aren't GPL-compatible
-Date: Wed, 16 Jun 2004 21:18:05 -0400
-To: "Wichmann, Mats D" <mats.d.wichmann@intel.com>
-X-Mailer: Apple Mail (2.618)
+	Wed, 16 Jun 2004 21:19:54 -0400
+Received: from hqemgate00.nvidia.com ([216.228.112.144]:34830 "EHLO
+	hqemgate00.nvidia.com") by vger.kernel.org with ESMTP
+	id S266343AbUFQBTq convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jun 2004 21:19:46 -0400
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Subject: RE: [PATCH 2.6.7] new NVIDIA libata SATA driver
+Date: Wed, 16 Jun 2004 18:19:34 -0700
+Message-ID: <DCB9B7AA2CAB7F418919D7B59EE45BAF043984B4@mail-sc-6-bk.nvidia.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH 2.6.7] new NVIDIA libata SATA driver
+Thread-Index: AcRUB5Ro31nuEuwwTFC+euoNSnfsPAAAGg5g
+From: "Andrew Chew" <achew@nvidia.com>
+To: "Bartlomiej Zolnierkiewicz" <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       <jgarzik@pobox.com>
+Cc: <linux-kernel@vger.kernel.org>, <linux-ide@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jun 16, 2004, at 19:47, Wichmann, Mats D wrote:
-> Please keep distinct "ship with" in the sense of /inside/ the
-> kernel and "ship with" in the sense of on the same distribution
-> media.  The GPL also has explicit wording for the latter
-> (you've already been quoted the words on the former):
+> From: Bartlomiej Zolnierkiewicz 
 
-Well the firmware is compiled to bytes within the _same_file_ as
-the rest of the kernel.  That would match the usage of "inside" the
-kernel.  Even if it's just a file with firmware bytes distributed in the
-same tar file it's still very iffy.
+> Is there any reason why this driver doesn't support 
+> CK804-SATA[2] and  MCP04-SATA[2]?
 
-> "In addition, mere aggregation of another work not based on the
-> Program with the Program (or with a work based on the Program)
-> on a volume of a storage or distribution medium does not bring
-> the other work under the scope of this License. "
+These will be supported by this driver eventually.  We probably can
+change it now, but silicon isn't available for these yet so I wasn't
+able to test the driver.
 
-But we're not talking about an instance of aggregation here, this
-is a derivative work.
+> Removing IDs from amd74xx.c is a bad idea,
+> it breaks boot on systems already using these IDs.
 
-Cheers,
-Kyle Moffett
-
+I assume these systems will be able to boot using the libata subsystem.
+Is that a bad assumption?

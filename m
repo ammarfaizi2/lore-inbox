@@ -1,39 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261255AbVCEUJ6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261252AbVCEUUo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261255AbVCEUJ6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Mar 2005 15:09:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261264AbVCEUI6
+	id S261252AbVCEUUo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Mar 2005 15:20:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261191AbVCEUSS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Mar 2005 15:08:58 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:33673 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261211AbVCETOV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Mar 2005 14:14:21 -0500
-Date: Sat, 5 Mar 2005 20:14:05 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: kernel list <linux-kernel@vger.kernel.org>,
-       ACPI mailing list <acpi-devel@lists.sourceforge.net>, seife@suse.de,
-       Len Brown <len.brown@intel.com>
-Subject: s4bios: does anyone use it?
-Message-ID: <20050305191405.GA1463@elf.ucw.cz>
+	Sat, 5 Mar 2005 15:18:18 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:21689 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261237AbVCEUFk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Mar 2005 15:05:40 -0500
+Subject: Unsupported PM cap regs version 1
+From: Lee Revell <rlrevell@joe-job.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Sat, 05 Mar 2005 15:05:35 -0500
+Message-Id: <1110053135.12513.7.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Every time I load the driver for my SBLive Platinum I get this log
+message:
 
-Is there single user of s4bios? It used to work for me 4 notebooks
-ago, but I never really used it. I think I'm the only person that ever
-seen it working, but I could be wrong. Is there anyone using s4bios in
-2.6.11?
+PCI: 0000:00:0f.0 has unsupported PM cap regs version (1)
 
-If not, I guess we should remove that code from kernel. It is not
-usefull, and it is likely broken.
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+even though CONFIG_PM is not set.
+
+I see that this issue came up in January on LKML but there was no
+resolution.
+
+First, why don't we support PM cap regs versions other than 2?  Second,
+why is this printk() necessary?  If we really don't support older
+versions for a good reason, do we really need to constantly remind the
+user about it?  Especially if power management is disabled?
+
+The overall effect is to give the user the impression that the hardware
+is somehow broken.
+
+Lee
+

@@ -1,75 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275439AbTHJA3m (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Aug 2003 20:29:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275440AbTHJA3m
+	id S275443AbTHJBBk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Aug 2003 21:01:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275444AbTHJBBk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Aug 2003 20:29:42 -0400
-Received: from out006pub.verizon.net ([206.46.170.106]:17306 "EHLO
-	out006.verizon.net") by vger.kernel.org with ESMTP id S275439AbTHJA3k
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Aug 2003 20:29:40 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: None that appears to be detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: nvidia gforce2 MMX 32meg failure
-Date: Sat, 9 Aug 2003 20:29:39 -0400
-User-Agent: KMail/1.5.1
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Sat, 9 Aug 2003 21:01:40 -0400
+Received: from fed1mtao06.cox.net ([68.6.19.125]:6857 "EHLO fed1mtao06.cox.net")
+	by vger.kernel.org with ESMTP id S275443AbTHJBBi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Aug 2003 21:01:38 -0400
+Date: Sat, 9 Aug 2003 18:01:36 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>, zippel@linux-m68k.org,
+       vojtech@suse.cz
+Subject: Re: 2.6.0-test3 issue
+Message-ID: <20030810010136.GA807@ip68-0-152-218.tc.ph.cox.net>
+References: <20030809191326.GC8475@ip68-0-152-218.tc.ph.cox.net> <20030809223358.GA3496@finwe.eu.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="lrZ03NoBR/3+SXJZ"
 Content-Disposition: inline
-Message-Id: <200308092029.39597.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out006.verizon.net from [151.205.63.55] at Sat, 9 Aug 2003 19:29:39 -0500
+In-Reply-To: <20030809223358.GA3496@finwe.eu.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greets;
 
-I just tried to boot 2.6.0-test3, without the advansys driver in the 
-kernel, intending to test it, but then recalled that the patches 
-applied to the unpacked 
-	NVIDIA-Linux-x86-1.0-4496-pkg2
-src tree, the 
-	NVIDIA_kernel-1.0-4496-2.5.diff,
-hadn't made it work for test2, so I tried that first.
+--lrZ03NoBR/3+SXJZ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-This script was executed to build the nvidia install, as per the 
-instructions in the patch:
-------------------
-#!/bin/bash
-cd usr/src/nv
-make
-cd ../../..
-make install
-------------------
-Which appears to build as expected.
+On Sun, Aug 10, 2003 at 12:33:58AM +0200, Jacek Kawa wrote:
+> Tom Rini wrote:
+>=20
+> > Hello.  I just tried to compile up 2.6.0-test3 for my x86 box, and I
+> > noticed that the following set of options will no longer work:
+> > CONFIG_EMBEDDED=3Dn
+> > CONFIG_SERIO=3Dm
+> > CONFIG_INPUT_KEYBOARD=3Dy
+> > CONFIG_KEYBOARD_ATKBD=3Dy
+> >=20
+> > The problem is that unless I set CONFIG_EMBEDDED, INPUT_KEYBOARD and
+> > KEYBOAD_ATKBD both get set to 'Y', regardless of the other dependancies
+> > (such as SERIO being 'm').
+>=20
+> I think it's:
+>=20
+> ...
+> Alan Cox:
+> ...
+>   o mouse and keyboard by default if not embedded
+> ... =20
+>=20
+> change.
+>=20
+> (I was wandering what I had done wrong, that mousedev.ko
+> disappeared  8)
 
-That still fails during startx, at about the point where the nvidia 
-splash screen should be seen, requireing a hardware reset to recover.  
-I've saved the XFree86.0.log, so what list do I send it for a 
-pathology report and a new prescription/patch?
+Yes, but now the kernel will happily give you a non-linking kernel
+because SERIO=3Dm and ATKBD=3Dy is 'valid'.  I don't know if this is a
+Kconfig problem, ATKBD defauling to the wrong value, or both.  Or if
+it's just a bad change. :)
 
-Obviously, back on a 2.4.22-rc2 kernel boot.  I'll try the advansys 
-modprobe next.
+>=20
+> jk
+>=20
+> --=20
+> Jacek Kawa
 
-Side comment:  When I shutdown x, and then reboot after sending this 
-msg, the fact that I've been running a 2.6 kernel will probably be 
-confirmed by the shutdown scripts being unable to unmount my /usr on 
-/dev/hda8, and this will be the case until such time as I let e2fsk 
-scan it, reporting no problems when it does.
+--=20
+Tom Rini
+http://gate.crashing.org/~trini/
 
-To me, that says there is still something a bit fubar with the ide 
-stuffs yet.
+--lrZ03NoBR/3+SXJZ
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
--- 
-Cheers, Gene
-AMD K6-III@500mhz 320M
-Athlon1600XP@1400mhz  512M
-99.27% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attornies please note, additions to this message
-by Gene Heskett are:
-Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
+iD8DBQE/NZlwdZngf2G4WwMRAiMbAKCAoU8l0FQvkSCe11bv6zC7DySCNgCfY5rd
+Ccg7dn5pYVKk21pOh9hj7lU=
+=miCY
+-----END PGP SIGNATURE-----
+
+--lrZ03NoBR/3+SXJZ--

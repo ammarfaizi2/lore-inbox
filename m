@@ -1,46 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275003AbRJYPZA>; Thu, 25 Oct 2001 11:25:00 -0400
+	id <S274964AbRJYPZv>; Thu, 25 Oct 2001 11:25:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274964AbRJYPYu>; Thu, 25 Oct 2001 11:24:50 -0400
-Received: from news.cistron.nl ([195.64.68.38]:26377 "EHLO ncc1701.cistron.net")
-	by vger.kernel.org with ESMTP id <S275067AbRJYPYa>;
-	Thu, 25 Oct 2001 11:24:30 -0400
-From: "Rob Turk" <r.turk@chello.nl>
-Subject: Re: [RFC] New Driver Model for 2.5
-Date: Thu, 25 Oct 2001 17:22:18 +0200
-Organization: Cistron Internet Services B.V.
-Message-ID: <9r9asg$7jr$1@ncc1701.cistron.net>
-In-Reply-To: <9r8icv$ukh$1@ncc1701.cistron.net> <20011025082001.B764@hq2>
-X-Trace: ncc1701.cistron.net 1004023505 7803 213.46.44.164 (25 Oct 2001 15:25:05 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Newsreader: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
-To: linux-kernel@vger.kernel.org
+	id <S275012AbRJYPZl>; Thu, 25 Oct 2001 11:25:41 -0400
+Received: from mail.microtecsecurite.com ([199.84.138.3]:33804 "EHLO
+	microtecsecurite.com") by vger.kernel.org with ESMTP
+	id <S274964AbRJYPZb>; Thu, 25 Oct 2001 11:25:31 -0400
+Date: Thu, 25 Oct 2001 11:32:45 -0400
+From: Patrick Ouellet <patrick.ouellet@microtecsecurite.com>
+X-Mailer: The Bat! (v1.53d)
+Reply-To: Patrick Ouellet <patrick.ouellet@microtecsecurite.com>
+Organization: Microtec Technologies Inc.
+X-Priority: 3 (Normal)
+Message-ID: <56261134684.20011025113245@microtecsecurite.com>
+To: Kernel Mailing lists <linux-kernel@vger.kernel.org>
+Subject: In great need
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-"Victor Yodaiken" <yodaiken@fsmlabs.com> wrote in message
-news:cistron.20011025082001.B764@hq2...
-> On Thu, Oct 25, 2001 at 10:27:11AM +0200, Rob Turk wrote:
-> > > The act of "suspend" should basically be: shut off the SCSI controller,
-> > > screw all devices, reset the bus on resume.
-> > >
-> >
-> > Doing so will create havoc on sequential devices, such as tape drives. If
->
-> I'm failing  to imagine a good case for suspending a system that has a
-> tape drive on it.
->
+Hi to you all great Linux Kernel maintainers.
 
-Well, maybe the tape example wasn't all that good. The state information
-(wide/sync negotiation) still needs to be retained for all SCSI devices though.
+As a follower of linux for a couple of years now
+I wanted to go deeper into the madness,
+so I said to myself, why no go as deep as you
+can and get yourself into the Kernel.
 
-Rob
+My simple question is this:
 
+Were should I start.
+I would like to have a nice overview of the kernel
+something that would help me understand all the part
+of the kernel and how they work toghether.
 
+If anyone could tell me where I could get
+such information.. I would be pleased.
 
+Thanx to you all and keep up the good work.
+
+-- 
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Patrick Ouellet - Programmeur Sénior
+patrick.ouellet@microtecsecurite.com
+Recherche & Devloppement
+Les Entreprise Microtec inc.
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+"First they ignore you. Then they laugh at you.
+Then they fight you. Then you win."
+-Mohandas Gandhi
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+All source code included (if any ) is
+copyright Microtec Technologies Inc. 2001
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 

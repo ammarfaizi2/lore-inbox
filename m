@@ -1,62 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262945AbTDIJPf (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 05:15:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262947AbTDIJPd (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 05:15:33 -0400
-Received: from [12.47.58.221] ([12.47.58.221]:33053 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S262945AbTDIJP3 (for <rfc822;linux-kernel@vger.kernel.org>); Wed, 9 Apr 2003 05:15:29 -0400
-Date: Wed, 9 Apr 2003 02:27:26 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: keitha@edp.fastfreenet.com, linux-kernel@vger.kernel.org, axboe@suse.de
-Subject: Re: bdflush flushing memory mapped pages.
-Message-Id: <20030409022726.1ec93a0f.akpm@digeo.com>
-In-Reply-To: <Pine.LNX.4.10.10304090209440.12558-100000@master.linux-ide.org>
-References: <007601c2fecd$12209070$230110ac@kaws>
-	<Pine.LNX.4.10.10304090209440.12558-100000@master.linux-ide.org>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 09 Apr 2003 09:27:01.0514 (UTC) FILETIME=[2D0DCEA0:01C2FE7A]
+	id S262949AbTDIJSJ (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 05:18:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262951AbTDIJSJ (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 05:18:09 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:25094
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id S262949AbTDIJSH (for <rfc822;linux-kernel@vger.kernel.org>); Wed, 9 Apr 2003 05:18:07 -0400
+Date: Wed, 9 Apr 2003 02:29:09 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Soeren Sonnenburg <kernel@nn7.de>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.21pre6 (__ide_dma_test_irq) called while not waiting
+In-Reply-To: <1049879881.2774.40.camel@fortknox>
+Message-ID: <Pine.LNX.4.10.10304090227490.12558-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andre Hedrick <andre@linux-ide.org> wrote:
->
+
+Does the broadcom driver have a test for who owns the intq?
+If it is eating the hpt370's interrupt, well you already see the picture.
+
+Andre Hedrick
+LAD Storage Consulting Group
+
+On 9 Apr 2003, Soeren Sonnenburg wrote:
+
+> I have a hpt370 based controller which shares an irq with a broadcom
+> bcm4401 network adaptor.
 > 
-> Funny you mention this point!
+> when transferring stuff over the network the ide controller drops the
+> dma for all disks on the controller repeatedly... so it is not a
+> cable/disk problem but a problem in the nic's driver/the hpt driver.
 > 
-> I just spent 30-45 minutes on the phone talking to Jens about this very
-> issue.  Jens states he can map the model in to 2.5. and will give it a
-> fling in a bit.  This issue is a must; however, I had given up on the idea
-> until 2.7.  However, the issues he and I addressed, in combination to your
-> request jive in sync.
-
-noooo.....   This isn't going to happen.  There are many reasons.
-
-Firstly, how can bdflush even know what pages to write?  The dirtiness of
-these pages is recorded *only* in some processor's hardware pte cache and/or
-the software pagetables.  Someone needs to go tell all the CPUs to writeback
-their pte caches into the pagetables and then someone needs to walk the
-pagetables propagating the pte dirty bit into the pageframes before we can
-even start the I/O.
-
-That's what msync does, in filemap_sync().
-
-
-And even if bdflush did this automagically, it's the wrong thing to do
-because the application could very well be repeatedly dirtying the pages. 
-Very probably.  So we've just gone and done a ton of pointless I/O, over and
-over.
-
-You can view MAP_SHARED as an IPC mechanism which uses the filesystem
-namespace for naming.  No way do these people want bdflush pointlessly
-hammering the disk.
-
-You can also view MAP_SHARED as a (strange) way of writing files out.  If you
-want to do that then fine, but you need to tell the kernel when you've
-finished, just like write() does.   You do that with msync.
-
-
+> however this stuff only happens when I put high load on the nic. the
+> drives form a software raid and reconstructing it does not cause any
+> trouble...
+> 
+> here is my setup:
+> 7:   28328328          XT-PIC  ide4, ide5, eth0
+> 
+> 
+> hdi: 4 bytes in FIFO
+> hdi: timeout waiting for DMA
+> hdi: (__ide_dma_test_irq) called while not waiting
+> hdi: dma_intr: status=0x58 { DriveReady SeekComplete DataRequest }
+> 
+> hdk: dma_intr: status=0x58 { DriveReady SeekComplete DataRequest }
+> 
+> hdk: status timeout: status=0xd0 { Busy }
+> 
+> hdk: DMA disabled
+> hdk: drive not ready for command
+> ide4: reset: success
+> ide5: reset: success
+> 
+> Thanks,
+> Soeren.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

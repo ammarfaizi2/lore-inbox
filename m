@@ -1,39 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135212AbRDLQBN>; Thu, 12 Apr 2001 12:01:13 -0400
+	id <S135216AbRDLQIo>; Thu, 12 Apr 2001 12:08:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135214AbRDLQBE>; Thu, 12 Apr 2001 12:01:04 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:48389 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S135212AbRDLQAw>; Thu, 12 Apr 2001 12:00:52 -0400
-Subject: Re: scheduler went mad?
-To: hugh@veritas.com (Hugh Dickins)
-Date: Thu, 12 Apr 2001 17:02:52 +0100 (BST)
-Cc: Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0104121622520.1638-100000@localhost.localdomain> from "Hugh Dickins" at Apr 12, 2001 04:43:10 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S135217AbRDLQIe>; Thu, 12 Apr 2001 12:08:34 -0400
+Received: from [212.199.50.10] ([212.199.50.10]:26563 "EHLO
+	specialk.benyossef.com") by vger.kernel.org with ESMTP
+	id <S135216AbRDLQIR>; Thu, 12 Apr 2001 12:08:17 -0400
+Message-ID: <3AD5C626.2050507@benyossef.com>
+Date: Thu, 12 Apr 2001 18:13:42 +0300
+From: Gilad Ben-Yossef <gilad@benyossef.com>
+Organization: Great Illuminated Seers of Bavaria
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.12-20 i686; en-US; m18) Gecko/20001107 Netscape6/6.0
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: cpu load calculation
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14njYc-0000vA-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 2.4.3-pre6 quietly made a very significant change there:
-> it used to say "if (!order) goto try_again;" and now just
-> says "goto try_again;".  Which seems very sensible since
-> __GFP_WAIT is set, but I do wonder if it was a safe change.
-> We have mechanisms for freeing pages (order 0), but whether
-> any higher orders come out of that is a matter of chance.
+Hi there,
 
-The fundamental problem is that it should say
+We think we might have encountered a problem with the cpu load 
+calculation in Linux (2.2.x). The current calculation is based on 
+dividing the jiffies to user, system and idle jiffies according to the 
+process the timer hardware interrupt interrupts.
 
-	wait_for_mm_progress();
-	goto try_again;
+In our case the timer interrupt generates some kernel processing in the 
+bottom half. After that finishes, the idle process takes over.
 
-and we dont have that facility right now. At that point the looping on
-failed allocations problem is ok as we will allow someone to make progress.
-That leaves the bounce buffers for > 800Mb RAM which currently are seriously
-horked and will loop and may even stack overflow by inspection
+The system therefore seems completely idle while in actuality if the 
+kernel processing takes 50% of a jiffie the system is 50% loaded (with 
+system processing).
+
+The problem obviously results from synchronization of processing with 
+the timer interrupt used to calculate the load.
+
+- Did anybody encounter this problem?
+- Know any solutions?
+- Recommend any specific solution?
+
+Many thanks,
+Gilad.
+
+-- 
+Gilad Ben-Yossef <gilad@benyossef.com>
+http://benyossef.com :: +972(54)756701
+"Anything that can go wrong, will go wrong, while interrupts are disabled. "
+	-- Murphey's law of kernel programing.
 

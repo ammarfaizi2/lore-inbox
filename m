@@ -1,62 +1,151 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262799AbTJ0Nwk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Oct 2003 08:52:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263069AbTJ0Nwk
+	id S262868AbTJ0Nz3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Oct 2003 08:55:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263064AbTJ0Nz3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Oct 2003 08:52:40 -0500
-Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:13193 "EHLO
-	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S262799AbTJ0Nwj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Oct 2003 08:52:39 -0500
-Subject: Re: 2.6.0-test9 and sleeping function called from invalid context
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Andrew Morton <akpm@osdl.org>
-Cc: arekm@pld-linux.org, lkml <linux-kernel@vger.kernel.org>,
-       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       James Morris <jmorris@redhat.com>,
-       Manfred Spraul <manfred@colorfullife.com>
-In-Reply-To: <20031025224950.001b4055.akpm@osdl.org>
-References: <200310260045.52094.arekm@pld-linux.org>
-	 <20031025185055.4d9273ae.akpm@osdl.org>
-	 <20031025224950.001b4055.akpm@osdl.org>
-Content-Type: text/plain
-Organization: National Security Agency
-Message-Id: <1067262721.18818.24.camel@moss-spartans.epoch.ncsc.mil>
+	Mon, 27 Oct 2003 08:55:29 -0500
+Received: from krusty.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:15565 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S262868AbTJ0NzT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Oct 2003 08:55:19 -0500
+Date: Mon, 27 Oct 2003 14:55:15 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: torvalds@osdl.org
+Subject: [BK PATCH] TRIVIAL 2.6 patch to fix /proc/tty/driver/serial for non-CAP_SYS_ADMIN user
+Message-ID: <20031027135515.GA28577@merlin.emma.line.org>
+Mail-Followup-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>,
+	torvalds@osdl.org
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 27 Oct 2003 08:52:01 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="Nq2Wo0NMKNjxTN9z"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-10-26 at 01:49, Andrew Morton wrote:
-> Andrew Morton <akpm@osdl.org> wrote:
-> >
-> > but the wider question would be: is the SELinux
-> >  d_instantiate callout allowed to sleep?  A quick audit seems to indicate
-> >  that it's OK, but only by luck I think.
-> 
-> proc_pid_lookup() calls d_add->d_instantiate under task->proc_lock, so
-> inode_doinit_with_dentry() is called under spinlock on this path as well.
-> 
-> Manfred, is there any particular reason why proc_pid_lookup()'s d_add is
-> inside the lock?
 
-This shouldn't be a problem for SELinux, because the /proc/pid inodes
-are initialized by proc_pid_make_inode via the security_task_to_inode
-hook (=> selinux_task_to_inode), so inode_doinit_with_dentry will bail
-immediately on the first test of isec->initialized prior to any blocking
-calls.
+--Nq2Wo0NMKNjxTN9z
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-I asked Al Viro about this issue back when the proc locking change was
-introduced (circa 2.5.70), and he seemed to agree that the SELinux code
-is safe in this case.  He was concerned about the change in behavior for
-d_instantiate, but d_instantiate seems to be the more general location
-to perform inode security initialization for the majority of filesystem
-types; hooking in iget() would only handle a subset of filesystems.
+Linus,
+
+I have a patch that touches drivers/serial/serial_core.c to fix a
+problem with /proc/tty/driver/serial that affects users without
+CAP_SYS_ADMIN capability (unprivileged users):
+
+DIFFSTAT:
+
+# serial_core.c |    3 +++
+# 1 files changed, 3 insertions(+)
+
+example broken output:
+
+serinfo:1.0 driver revision:
+0: uart:16550A port:000003F8 irq:41: uart:16550A port:000002F8 irq:32:
+uart:unknown port:000003E8 irq:4
+3: uart:unknown port:000002E8 irq:3
+...
+
+Lines for 0 and 1 are run together.
+
+The attached BK patch below fixes this to:
+
+0: uart:16550A port:000003F8 irq:4
+1: uart:16550A port:000002F8 irq:3
+2: uart:unknown port:000003E8 irq:4
+3: uart:unknown port:000002E8 irq:3
+...
+
+"Root mode" is unaffected.
+
+PULL FROM bk://129.217.163.1/linux-2.5/
+
+ATTACHED is "bk send -" output SUITABLE FOR: bk receive
+
+GNU PATCH (do not apply, use the BK stuff instead)
+
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.1359  -> 1.1359.1.1
+#	drivers/serial/serial_core.c	1.72    -> 1.73   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 03/10/27	matthias.andree@gmx.de	1.1359.1.1
+# Properly terminate /proc/tty/driver/serial output lines of known UARTS
+# when the caller has no CAP_SYS_ADMIN capability.
+# --------------------------------------------
+#
+diff -Nru a/drivers/serial/serial_core.c b/drivers/serial/serial_core.c
+--- a/drivers/serial/serial_core.c	Mon Oct 27 14:51:11 2003
++++ b/drivers/serial/serial_core.c	Mon Oct 27 14:51:11 2003
+@@ -1707,6 +1707,9 @@
+ 		strcat(stat_buf, "\n");
+ 	
+ 		ret += sprintf(buf + ret, stat_buf);
++	} else {
++		strcat(buf, "\n");
++		ret++;
+ 	}
+ #undef STATBIT
+ #undef INFOBIT
 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+Matthias Andree
 
+Encrypt your mail: my GnuPG key ID is 0x052E7D95
+
+--Nq2Wo0NMKNjxTN9z
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=fix-serial
+
+This BitKeeper patch contains the following changesets:
+1.1359.1.1
+
+# User:	matthias.andree
+# Host:	gmx.de
+# Root:	/suse/kernel/BK/linux-2.5
+
+# Patch vers:	1.3
+# Patch type:	REGULAR
+
+== ChangeSet ==
+torvalds@athlon.transmeta.com|ChangeSet|20020205173056|16047|c1d11a41ed024864
+tausq@debian.org[torvalds]|ChangeSet|20031026222704|00647
+D 1.1359.1.1 03/10/27 06:29:34+01:00 matthias.andree@gmx.de +1 -0
+B torvalds@athlon.transmeta.com|ChangeSet|20020205173056|16047|c1d11a41ed024864
+C
+c Properly terminate /proc/tty/driver/serial output lines of known UARTS
+c when the caller has no CAP_SYS_ADMIN capability.
+K 24
+P ChangeSet
+------------------------------------------------
+
+0a0
+> rmk@arm.linux.org.uk|drivers/serial/serial_core.c|20020721233929|00111|3231cf8b6efd7067 matthias.andree@gmx.de|drivers/serial/serial_core.c|20031027050655|19065
+
+== drivers/serial/serial_core.c ==
+rmk@arm.linux.org.uk|drivers/serial/serial_core.c|20020721233929|00111|3231cf8b6efd7067
+rddunlap@osdl.org[torvalds]|drivers/serial/serial_core.c|20031006052957|16317
+D 1.73 03/10/27 06:06:55+01:00 matthias.andree@gmx.de +3 -0
+B torvalds@athlon.transmeta.com|ChangeSet|20020205173056|16047|c1d11a41ed024864
+C
+c Properly terminate /proc/tty/driver/serial output lines of known UARTS
+c when the caller has no CAP_SYS_ADMIN capability.
+K 19065
+O -rw-rw-r--
+P drivers/serial/serial_core.c
+------------------------------------------------
+
+I1709 3
+	} else {
+		strcat(buf, "\n");
+		ret++;
+
+# Patch checksum=054a94a0
+
+--Nq2Wo0NMKNjxTN9z--

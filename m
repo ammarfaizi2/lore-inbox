@@ -1,53 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265980AbUAKVBO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jan 2004 16:01:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265983AbUAKVBO
+	id S265978AbUAKUzR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jan 2004 15:55:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265980AbUAKUzR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jan 2004 16:01:14 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:37536 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265980AbUAKVBN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jan 2004 16:01:13 -0500
-Message-ID: <4001B979.1080600@pobox.com>
-Date: Sun, 11 Jan 2004 16:00:41 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Herbert Xu <herbert@gondor.apana.org.au>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [I810_AUDIO] 1/x: Fix wait queue race in drain_dac
-References: <20031122070931.GA27231@gondor.apana.org.au>
-In-Reply-To: <20031122070931.GA27231@gondor.apana.org.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 11 Jan 2004 15:55:17 -0500
+Received: from pcp05127596pcs.sanarb01.mi.comcast.net ([68.42.103.198]:58514
+	"EHLO nidelv.trondhjem.org") by vger.kernel.org with ESMTP
+	id S265978AbUAKUzO convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jan 2004 15:55:14 -0500
+Subject: Re: 2.6.1: data corrupton when recieving files > 1GB over network
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: yoann <informatique@mistur.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <btsaum$g7f$1@sea.gmane.org>
+References: <5.1.0.14.2.20040111161640.014ad6c0@localhost>
+	 <btsaum$g7f$1@sea.gmane.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+Message-Id: <1073854512.4967.18.camel@nidelv.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sun, 11 Jan 2004 15:55:12 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Herbert Xu wrote:
-> Hi:
+På su , 11/01/2004 klokka 15:16, skreiv yoann:
+> same file : /mnt/multimedia/iso
 > 
-> This is the first of a number of patches to fix DMA bugs in the
-> OSS i810_audio driver.
+> - mistur local (ext3) 2.4.18-1-686 :
+>    ca679b3b8e28be00b98b007611384958  /mnt/multimedia/iso/woody-cd1.iso
 > 
-> This particular one fixes a textbook race condition in drain_dac
-> that causes it to timeout when it shouldn't.
+> - vaka remote (nfs) 2.4.18-bf2.4 :
+>    ea34f974bdcfb2a678a97afb1fb4077d  /mnt/multimedia/iso/woody-cd1.iso
+> 
+> - vaka remote (nfs) 2.6.1-mm2 :
+>    ca679b3b8e28be00b98b007611384958  /mnt/multimedia/iso/woody-cd1.iso
+>    2798b3e2b97ca8082049c9207c291ebb  /mnt/multimedia/iso/woody-cd1.iso
 
-Herbert,
+Have you tried running memtest86 on these machines?
 
-Thanks much for these i810_audio patches.  I've been meaning to review 
-them in-depth for some time.
+Also, is all this being done using the same 2.4.18-1 server on 'mistur',
+or are you also using a server on 'vaka'? If the former, have you tried
+changing servers? (BTW: is this the kernel server, or are you using the
+userland nfs-server daemon).
 
-Could you be kind and "spell out" the patch-1 race for me?
-
-Also, it seems to me that you would want to check for signal_pending()
-(a) just after the schedule_timeout(), and
-(b) -after- testing the 'signals_allowed' variable  ;-)
-
-Comments?
-
-	Jeff
-
-
-
+Cheers,
+  Trond

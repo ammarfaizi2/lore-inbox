@@ -1,51 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264364AbTKUOZu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Nov 2003 09:25:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264365AbTKUOZu
+	id S264274AbTKUOY1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Nov 2003 09:24:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264363AbTKUOY1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Nov 2003 09:25:50 -0500
-Received: from out007pub.verizon.net ([206.46.170.107]:27545 "EHLO
-	out007.verizon.net") by vger.kernel.org with ESMTP id S264364AbTKUOZs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Nov 2003 09:25:48 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-To: gene.heskett@verizon.net, Andrew Morton <akpm@osdl.org>
-Subject: Re: O_DIRECT leaks memory on linux-2.6.0-test9
-Date: Fri, 21 Nov 2003 09:25:45 -0500
-User-Agent: KMail/1.5.1
-Cc: iwamoto@valinux.co.jp, linux-kernel@vger.kernel.org
-References: <20031121061806.6A65F7007C@sv1.valinux.co.jp> <20031121004054.0d688bff.akpm@osdl.org> <200311210902.50445.gene.heskett@verizon.net>
-In-Reply-To: <200311210902.50445.gene.heskett@verizon.net>
-Organization: None that appears to be detectable by casual observers
+	Fri, 21 Nov 2003 09:24:27 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:19601 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264274AbTKUOY0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Nov 2003 09:24:26 -0500
+Date: Fri, 21 Nov 2003 09:24:16 -0500 (EST)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Steven Davy <sdavy@tssg.org>
+cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: IPsec AH failure over IPv6
+In-Reply-To: <200311210909.51836.sdavy@tssg.org>
+Message-ID: <Xine.LNX.4.44.0311210923500.18045-100000@thoron.boston.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200311210925.45366.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out007.verizon.net from [151.205.54.127] at Fri, 21 Nov 2003 08:25:46 -0600
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 21 November 2003 09:02, Gene Heskett wrote:
-[...]
->>I had a patch for that.  Maybe it got merged.  You should hunt down
->> the upstream source and try it out.
->
->The srcs for xosview?  I did a freshmeat search, and what I found
->hadn't been touched in over a year.  I didn't bother grabbing it as
->it was the same version number as the copy I have.
+On Fri, 21 Nov 2003, Steven Davy wrote:
 
-I must have followed the wrong link, 1.8.1 is building now.
+> Im running performance tests using netperf (patched for ip6) across two 
+> machines, ESP works great but AH works really bad, practally all the packets 
+> are droped. Tcpdump reads the packets but they are not passed on to netperf. 
+> Read somewhere the IPsec Ah doesent like fragmentation over tcp, but im not 
+> sure. Im using manual keying, and the 2.5.75 kernel. Is there a kernel patch 
+> to fix this!!
 
+Please try a more recent kernel (like 2.6.0-test9).
+
+
+- James
 -- 
-Cheers, Gene
-AMD K6-III@500mhz 320M
-Athlon1600XP@1400mhz  512M
-99.27% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attornies please note, additions to this message
-by Gene Heskett are:
-Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
+James Morris
+<jmorris@redhat.com>
+
 

@@ -1,69 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263179AbUJ2AT7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263181AbUJ2AWl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263179AbUJ2AT7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 20:19:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263197AbUJ2AT4
+	id S263181AbUJ2AWl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 20:22:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263200AbUJ2AUW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 20:19:56 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:50693 "HELO
+	Thu, 28 Oct 2004 20:20:22 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:55045 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S263153AbUJ2ANx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 20:13:53 -0400
-Date: Fri, 29 Oct 2004 02:13:19 +0200
+	id S263167AbUJ2AOg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 20:14:36 -0400
+Date: Fri, 29 Oct 2004 02:14:04 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: bcrl@redhat.com
-Cc: linux-aio@kvack.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] aio: remove an unused function
-Message-ID: <20041029001319.GA29142@stusta.de>
-References: <20041028220659.GG3207@stusta.de>
+To: perex@suse.cz
+Cc: alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] ALSA: remove unused functions
+Message-ID: <20041029001403.GB29142@stusta.de>
+References: <20041028220853.GH3207@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041028220659.GG3207@stusta.de>
+In-Reply-To: <20041028220853.GH3207@stusta.de>
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[ this time without the problems due to a signature... ]
+[ this time without the problems due to a digital signature... ]
 
-The patch below removes an unsed function from fs/aio.c
+The patch below removes two unused ALSA functions.
 
 
 diffstat output:
- fs/aio.c |   18 +-----------------
- 1 files changed, 1 insertion(+), 17 deletions(-)
+ sound/pci/cmipci.c             |    7 +------
+ sound/pci/ymfpci/ymfpci_main.c |    5 -----
+ 2 files changed, 1 insertion(+), 11 deletions(-)
 
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
---- linux-2.6.10-rc1-mm1-full/fs/aio.c.old	2004-10-28 22:36:18.000000000 +0200
-+++ linux-2.6.10-rc1-mm1-full/fs/aio.c	2004-10-28 22:39:38.000000000 +0200
-@@ -816,27 +816,11 @@
+--- linux-2.6.10-rc1-mm1-full/sound/pci/cmipci.c.old	2004-10-28 23:48:17.000000000 +0200
++++ linux-2.6.10-rc1-mm1-full/sound/pci/cmipci.c	2004-10-28 23:48:38.000000000 +0200
+@@ -499,17 +499,12 @@
+ 	return inw(cm->iobase + cmd);
+ }
  
+-/* read/write operations for byte register */
++/* write operations for byte register */
+ inline static void snd_cmipci_write_b(cmipci_t *cm, unsigned int cmd, unsigned char data)
+ {
+ 	outb(data, cm->iobase + cmd);
+ }
  
- /*
-- * aio_run_iocbs:
-  * 	Process all pending retries queued on the ioctx
-  * 	run list.
-  * Assumes it is operating within the aio issuer's mm
-  * context.
-- */
--static inline void aio_run_iocbs(struct kioctx *ctx)
+-inline static unsigned char snd_cmipci_read_b(cmipci_t *cm, unsigned int cmd)
 -{
--	int requeue;
--
--	spin_lock_irq(&ctx->ctx_lock);
--
--	requeue = __aio_run_iocbs(ctx);
--	spin_unlock_irq(&ctx->ctx_lock);
--	if (requeue)
--		aio_queue_work(ctx);
+-	return inb(cm->iobase + cmd);
 -}
 -
--/*
-- * just like aio_run_iocbs, but keeps running them until
-- * the list stays empty
-+ * It keeps running them until the list stays empty.
-  */
- static inline void aio_run_all_iocbs(struct kioctx *ctx)
+ /* bit operations for dword register */
+ static void snd_cmipci_set_bit(cmipci_t *cm, unsigned int cmd, unsigned int flag)
  {
+--- linux-2.6.10-rc1-mm1-full/sound/pci/ymfpci/ymfpci_main.c.old	2004-10-28 23:49:00.000000000 +0200
++++ linux-2.6.10-rc1-mm1-full/sound/pci/ymfpci/ymfpci_main.c	2004-10-28 23:49:11.000000000 +0200
+@@ -52,11 +52,6 @@
+ 
+ static void snd_ymfpci_irq_wait(ymfpci_t *chip);
+ 
+-static inline u8 snd_ymfpci_readb(ymfpci_t *chip, u32 offset)
+-{
+-	return readb(chip->reg_area_virt + offset);
+-}
+-
+ static inline void snd_ymfpci_writeb(ymfpci_t *chip, u32 offset, u8 val)
+ {
+ 	writeb(val, chip->reg_area_virt + offset);

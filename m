@@ -1,56 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261398AbVAGM7y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261399AbVAGNCA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261398AbVAGM7y (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 07:59:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261399AbVAGM7y
+	id S261399AbVAGNCA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 08:02:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261401AbVAGNCA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 07:59:54 -0500
-Received: from one.firstfloor.org ([213.235.205.2]:12220 "EHLO
-	one.firstfloor.org") by vger.kernel.org with ESMTP id S261398AbVAGM7w
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 07:59:52 -0500
-To: prasanna@in.ibm.com
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       maneesh@in.ibm.com, stsp@aknet.ru
-Subject: Re: [patch] kprobes: dont steal interrupts from vm86
-References: <20041109130407.6d7faf10.akpm@osdl.org>
-	<20041110104914.GA3825@in.ibm.com> <4192638C.6040007@aknet.ru>
-	<20041117131552.GA11053@in.ibm.com> <41B1FD4B.9000208@aknet.ru>
-	<20041207055348.GA1305@in.ibm.com> <41B5FA1B.9090507@aknet.ru>
-	<20041209124738.GB5528@in.ibm.com> <41B8A759.80806@aknet.ru>
-	<20050107113732.GB16906@in.ibm.com>
-From: Andi Kleen <ak@muc.de>
-Date: Fri, 07 Jan 2005 13:59:51 +0100
-In-Reply-To: <20050107113732.GB16906@in.ibm.com> (Prasanna S. Panchamukhi's
- message of "Fri, 7 Jan 2005 17:07:32 +0530")
-Message-ID: <m1ekgxv1h4.fsf@muc.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 7 Jan 2005 08:02:00 -0500
+Received: from prosun.first.fraunhofer.de ([194.95.168.2]:2509 "EHLO
+	prosun.first.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S261399AbVAGNBm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 08:01:42 -0500
+Subject: Re: [BUG] 2.6.10-rc3 snd-powermac crash
+From: Soeren Sonnenburg <kernel@nn7.de>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: Andreas Schwab <schwab@suse.de>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <s5hr7kxwit8.wl@alsa2.suse.de>
+References: <1103389648.5967.7.camel@gaston>
+	 <pan.2004.12.21.07.53.37.708238@nn7.de> <jezmzuo5jc.fsf@sykes.suse.de>
+	 <s5hr7kxwit8.wl@alsa2.suse.de>
+Content-Type: text/plain
+Date: Fri, 07 Jan 2005 14:00:44 +0100
+Message-Id: <1105102844.6721.27.camel@localhost>
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Prasanna S Panchamukhi <prasanna@in.ibm.com> writes:
+On Fri, 2005-01-07 at 13:00 +0100, Takashi Iwai wrote:
+> At Fri, 31 Dec 2004 16:23:35 +0100,
+> Andreas Schwab wrote:
+> > 
+> > Soeren Sonnenburg <kernel@nn7.de> writes:
+> > 
+> > > I also get the very same oops - though very rarely - with pbbuttons and
+> > > kernel 2.6.9 on my 1GHz-pbook 15"
+> > 
+> > I have been using ALSA on my G3 iBook already for a long time and never
+> > saw this.  I didn't try 2.6.10 yet, though.
+> 
+> Isn't it the bug which was fixed in 2.6.10-final?
+> 
+> ================================================================
+> ChangeSet@1.1938.423.42, 2004-12-22 10:46:54-08:00, tiwai@suse.de
+>   [PATCH] alsa: fix oops with ALSA OSS emulation on PPC
+> ================================================================
 
+well yes, that is what at least I thought...
 
-> +	/* Check if the application is using LDT entry for its code segment and
-> +	 * calculate the address by reading the base address from the LDT entry.
-> +	 */
-> +	if ((regs->xcs & 4) && (current->mm)) {
-> +		lp = (unsigned long *) ((unsigned long)((regs->xcs >> 3) * 8)
-> +					+ (char *) current->mm->context.ldt);
-> +		addr = (kprobe_opcode_t *) ((((*lp) >> 16 &  0x0000ffff)
-> +				| (*(lp +1) & 0xff000000)
-> +				| ((*(lp +1) << 16) & 0x00ff0000))
-> +				+ regs->eip - sizeof(kprobe_opcode_t));
-> +	} else {
-> +		addr = (kprobe_opcode_t *)(regs->eip - sizeof(kprobe_opcode_t));
-> +	}
+Soeren
+-- 
+Sometimes, there's a moment as you're waking, when you become aware of
+the real world around you, but you're still dreaming.
 
-With that patch we would have LDT reading code three times in the kernel
-now (ptrace, prefetch workaround and now this). How about you factor
-this out into a common helper function? This stuff is tricky enough
-that there are likely bugs in there anyways and it would be best 
-to only fix them at one place then.
-
--Andi

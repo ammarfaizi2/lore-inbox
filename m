@@ -1,99 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129956AbRAQDDP>; Tue, 16 Jan 2001 22:03:15 -0500
+	id <S129825AbRAQD1p>; Tue, 16 Jan 2001 22:27:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130017AbRAQDDG>; Tue, 16 Jan 2001 22:03:06 -0500
-Received: from adsl-63-206-97-82.dsl.snfc21.pacbell.net ([63.206.97.82]:23800
-	"EHLO mail.corp124.com") by vger.kernel.org with ESMTP
-	id <S129956AbRAQDCt>; Tue, 16 Jan 2001 22:02:49 -0500
-Message-ID: <3A650B5B.EE1CCB07@corp124.com>
-Date: Tue, 16 Jan 2001 19:02:52 -0800
-From: Kostas Nikoloudakis <kostas@corp124.com>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i686)
-X-Accept-Language: en
+	id <S129875AbRAQD1f>; Tue, 16 Jan 2001 22:27:35 -0500
+Received: from tomts7.bellnexxia.net ([209.226.175.40]:62933 "EHLO
+	tomts7-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S129825AbRAQD1a>; Tue, 16 Jan 2001 22:27:30 -0500
+Date: Tue, 16 Jan 2001 22:27:14 -0500 (EST)
+From: Shane Shrybman <shane@zeke.yi.org>
+To: "Rodney M. Jokerst" <rmjokers@gnwy29.wuh.wustl.edu>
+cc: Nathan Thompson <nate@thebog.net>, linux-kernel@vger.kernel.org
+Subject: Re: Problem:  Blank screen in X after heavy disk access (2.4 only)
+In-Reply-To: <Pine.LNX.4.21.0101161600000.24100-100000@gnwy29.wuh.wustl.edu>
+Message-ID: <Pine.LNX.4.21.0101162216560.2165-100000@zeke.goatskin.org>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: eepro100 error messages
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Message from syslogd@zeus at Tue Jan 16 00:17:29 2001 ...
-zeus kernel: 0000000000000000000000000000000000 to4  0 0  0 00100001001.
+On Tue, 16 Jan 2001, Rodney M. Jokerst wrote:
 
-Message from syslogd@zeus at Tue Jan 16 00:26:38 2001 ...
-zeus kernel: 0:0: 0:0:0: 0: 0:0: 0:0: 0:0: 0:0:0:  0:0:0: 0:0: 0:0: 0
-ind.
+> Yes, I have the same motherboard / chipset.  Thanks for your help!
+> 
+> Rodney M. Jokerst
+> 
+> On Tue, 16 Jan 2001, Nathan Thompson wrote:
+> 
+> > On Tue, Jan 16, 2001 at 03:11:01PM -0600, Rodney M. Jokerst wrote:
+> > > This action causes my screen to go blank in X and remain blank
+> > > unless I move the mouse or type on the keyboard.  The second I stop doing
+> > > one of these activities, it goes blank again.  While it is blank, it seems
+> > > to be flashing every second, as if it is recieving blank screen commands
+> > > repeatedly.  This behavior continues until I restart the machine.  If I
+> > > switch to a console, everything is fine.  If I restart the X server, the
+> > > behavior continues.
+> > 
+> > Is this a VIA chipset based motherboard?
+> > 
+> > If so someone (Vojtech Pavlik ?) has a patch that helps this... 
+> > It is a hardware error.
+> > 
+> > For what it's worth I have seen this exact same behavior on my machine
+> > in 2.2.x.
 
-Message from syslogd@zeus at Tue Jan 16 00:49:15 2001 ...
-zeus kernel: 00001.000000000.000000.000001 ether 1HY i0 >tePHY index 1
-register 5 is 41e1.
-Hello,
-Does anybody know what the exact cause for the following messages is:
-Jan 16 00:49:04 cd20 kernel: eth0: card reports no resources. 
-Jan 16 00:49:06 cd20 kernel: eth0: can't fill rx buffer (force 0)! 
-Jan 16 00:49:06 cd20 kernel: eth0: restart the receiver after a possible
-hang. 
-Jan 16 00:49:06 cd20 kernel: eth0: can't fill rx buffer (force 1)! 
-Jan 16 00:49:06 cd20 kernel: eth0: can't fill rx buffer (force 0)! 
-Jan 16 00:49:06 cd20 kernel: eth0: card reports no resources. 
-Jan 16 00:49:08 cd20 kernel: eth0: can't fill rx buffer (force 0)! 
-Jan 16 00:49:08 cd20 kernel: eth0: restart the receiver after a possible
-hang. 
-Jan 16 00:49:09 cd20 kernel: eth0: can't fill rx buffer (force 0)! 
-Jan 16 00:49:09 cd20 kernel: eth0: can't fill rx buffer (force 1)! 
-Jan 16 00:49:09 cd20 kernel: eth0: card reports no resources. 
-Jan 16 00:49:09 cd20 kernel: eth0: can't fill rx buffer (force 0)! 
-Jan 16 00:49:09 cd20 kernel: eth0: restart the receiver after a possible
-hang. 
-Jan 16 00:49:09 cd20 kernel: eth0: can't fill rx buffer (force 0)! 
-Jan 16 00:49:09 cd20 kernel: eth0: card reports no resources. 
-Jan 16 00:49:12 cd20 kernel:  000ca000. 
-Jan 16 00:49:12 cd20 kernel: eth0: can't fill rx buffer (force 1)! 
-Jan 16 00:49:12 cd20 last message repeated 6 times
-Jan 16 00:49:12 cd20 kernel: eth0: can't fill rx buffer (force 0)! 
-Jan 16 00:49:12 cd20 kernel: eth0: can't fill rx buffer (force 1)! 
-Jan 16 00:49:13 cd20 last message repeated 15 times
-Jan 16 00:49:13 cd20 kernel: eth0: can't fill rx buffer (force 0)! 
-Jan 16 00:49:13 cd20 kernel: eth0: can't fill rx buffer (force 1)! 
-Jan 16 00:49:13 cd20 last message repeated 7 times
-Jan 16 00:49:13 cd20 kernel: eth0: card reports no resources. 
-Jan 16 00:49:13 cd20 kernel: eth0: can't fill rx buffer (force 1)! 
-Jan 16 00:49:13 cd20 last message repeated 7 times
-Jan 16 00:49:13 cd20 kernel:  000ca000. 
-Jan 16 00:49:13 cd20 kernel: eth0: can't fill rx buffer (force 1)! 
+I think the work around patch was included in 2.2.19pre2, does it still
+occur with that or later 2.2 kernels?
 
+> > 
+> > I have an abit ka7 motherboard, via kx133 chipset.
 
-Hello there,
-Does anyone know the cause and a potential fix for the following
-error messages reported in syslogd by my eepro100 card?
+I have the same board. Can someone point me to the patch for 2.4?
 
-The machine is running under heavy CPU + memory + network load.
-It seems that the card has problems finding the required resources.
-Is there a way to "guarantee" that the card will have the necessary
-resources even at high loads?
+This is a problem for me because it requires a reboot to fix and who 
+likes rebooting? :)
 
-I'm using kernel version 2.2.14.
+btw: I have received several private emails from people having this
+problem, (so it is biting people). Just a polite beg that it might
+be included in 2.4.
 
-Thank you,
-Sincerely
-Kostas Nikoloudakis
+Cheers,
 
-Jan 16 00:49:13 cd20 kernel: eth0: card reports no resources. 
-Jan 16 00:49:15 cd20 kernel: eth0: can't fill rx buffer (force 0)! 
-Jan 16 00:49:15 cd20 kernel: eth0: restart the receiver after a possible
-hang. 
-Jan 16 00:49:15 cd20 kernel: eth0: can't fill rx buffer (force 0)! 
-Jan 16 00:49:15 cd20 kernel: eth0: can't fill rx buffer (force 1)! 
-Jan 16 00:49:15 cd20 last message repeated 6 times
-Jan 16 00:49:15 cd20 kernel:  000ca000. 
-Jan 16 00:49:15 cd20 kernel: eth0: can't fill rx buffer (force 1)! 
-Jan 16 00:49:15 cd20 last message repeated 16 times
-Jan 16 00:49:15 cd20 kernel: 00000 t4     
-000000000000000020.0020.020002020. 
-Jan 16 00:49:15 cd20 kernel: 00001.000000000.000000.000001 ether 1HY i0
->tePHY index 1 register 5 is 41e1.
+shane
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

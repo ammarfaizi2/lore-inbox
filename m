@@ -1,78 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268420AbUIWM0S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268421AbUIWM0z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268420AbUIWM0S (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 08:26:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268421AbUIWM0S
+	id S268421AbUIWM0z (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 08:26:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268425AbUIWM0z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 08:26:18 -0400
-Received: from pauli.thundrix.ch ([213.239.201.101]:55009 "EHLO
-	pauli.thundrix.ch") by vger.kernel.org with ESMTP id S268420AbUIWM0P
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 08:26:15 -0400
-Date: Thu, 23 Sep 2004 14:24:28 +0200
-From: Tonnerre <tonnerre@thundrix.ch>
-To: Thomas Habets <thomas@habets.pp.se>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] oom_pardon, aka don't kill my xlock
-Message-ID: <20040923122428.GA8816@thundrix.ch>
-References: <200409230123.30858.thomas@habets.pp.se> <20040923044549.GE6889@thundrix.ch> <200409230857.57145.thomas@habets.pp.se>
+	Thu, 23 Sep 2004 08:26:55 -0400
+Received: from scanner1.mail.elte.hu ([157.181.1.137]:42181 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S268421AbUIWM0w (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Sep 2004 08:26:52 -0400
+Date: Thu, 23 Sep 2004 14:28:38 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: linux-kernel@vger.kernel.org
+Cc: Lee Revell <rlrevell@joe-job.com>, Mark_H_Johnson@Raytheon.com,
+       "K.R. Foley" <kr@cybsft.com>, Rui Nuno Capela <rncbc@rncbc.org>
+Subject: [patch] voluntary-preempt-2.6.9-rc2-mm1-S4
+Message-ID: <20040923122838.GA9252@elte.hu>
+References: <20040907115722.GA10373@elte.hu> <1094597988.16954.212.camel@krustophenia.net> <20040908082050.GA680@elte.hu> <1094683020.1362.219.camel@krustophenia.net> <20040909061729.GH1362@elte.hu> <20040919122618.GA24982@elte.hu> <414F8CFB.3030901@cybsft.com> <20040921071854.GA7604@elte.hu> <20040921074426.GA10477@elte.hu> <20040922103340.GA9683@elte.hu>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="EVF5PPMfhYS0aIcm"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200409230857.57145.thomas@habets.pp.se>
-X-GPG-KeyID: 0x8BE1C38D
-X-GPG-Fingerprint: 1AB0 9AD6 D0C8 B9D5 C5C9  9C2A FF86 CBEE 8BE1 C38D
-X-GPG-KeyURL: http://users.thundrix.ch/~tonnerre/tonnerre.asc
-User-Agent: Mutt/1.5.6+20040803i
+In-Reply-To: <20040922103340.GA9683@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---EVF5PPMfhYS0aIcm
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+i've released the -S4 VP patch:
 
-Salut,
+   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc2-mm2-S4
 
-On Thu, Sep 23, 2004 at 08:57:50AM +0200, Thomas Habets wrote:
-> Yup. What would be a good interface for setting that flag per-process?=20
-> prctl()?
-> Personally, I'd prefer it without userspace having to write code for it.
+-S4 fixes a softirq latency processing bug introduced in -S3. The
+symptoms of this bug can be erratic mouse/keyboard behavior, higher
+networking latencies, and similar things. (If CONFIG_PREEMPT is disabled
+then another effect of this bug can lead to crashes.)
 
-Well, either  via a  new syscall/ioctl, or  via some exported  file in
-/proc or /sys. I guess the second approach (file) will be prefered.
+-S4 is also a merge to 2.6.9-rc2-mm2.
 
-> Also, it should be able to protect against a DoS where a user launches N=
-=20
-> un-OOM-killable processes.
+To get a 2.6.9-rc2-mm2-VP-S4 kernel, the patching order is:
 
-You can still  do that. Maybe kill those processes  first who got less
-criterias matching the OOM gracefulness, so you can protect httpd more
-strongly than xlock.
+   http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.8.tar.bz2
+ + http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.9-rc2.bz2
+ + http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc2/2.6.9-rc2-mm2/2.6.9-rc2-mm2.bz2
+ + http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc2-mm2-S4
 
-Also remember to set per-user limits of processes. :)
-
-> > What about programs with spaces in its names?
->=20
-> I thought "screw 'em". :-)
-
-Now that's what I call policy!
-
-			    Tonnerre
-
---EVF5PPMfhYS0aIcm
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.9.2 (GNU/Linux)
-
-iD8DBQFBUsB7/4bL7ovhw40RAicGAJ0cEpGMltVpghrCH/HtwkzlwuYmxgCeLQQZ
-Y5mPaRI/s3mPLJqPpjdkRMk=
-=hWca
------END PGP SIGNATURE-----
-
---EVF5PPMfhYS0aIcm--
+	Ingo

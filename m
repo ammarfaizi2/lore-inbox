@@ -1,36 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272638AbRIMAjK>; Wed, 12 Sep 2001 20:39:10 -0400
+	id <S272650AbRIMBGG>; Wed, 12 Sep 2001 21:06:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272650AbRIMAiu>; Wed, 12 Sep 2001 20:38:50 -0400
-Received: from 63-151-64-156.hsacorp.net ([63.151.64.156]:59653 "EHLO
-	boojiboy.eorbit.net") by vger.kernel.org with ESMTP
-	id <S272638AbRIMAif>; Wed, 12 Sep 2001 20:38:35 -0400
-From: chris@boojiboy.eorbit.net
-Message-Id: <200109130135.SAA23309@boojiboy.eorbit.net>
-Subject: Re: 2.4.9-ac9 APM w/Compaq 16xx laptop...
-To: linux-kernel@vger.kernel.org
-Date: Wed, 12 Sep 2001 18:35:18 -0700 (PDT)
-In-Reply-To: <200109130124.SAA22845@boojiboy.eorbit.net> from "chris@boojiboy.eorbit.net" at Sep 12, 2001 06:24:18 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S272651AbRIMBF4>; Wed, 12 Sep 2001 21:05:56 -0400
+Received: from [212.94.174.5] ([212.94.174.5]:2564 "HELO pridamix.molteni.net")
+	by vger.kernel.org with SMTP id <S272650AbRIMBFh>;
+	Wed, 12 Sep 2001 21:05:37 -0400
+Message-ID: <3BA00671.358F1633@molteni.net>
+Date: Thu, 13 Sep 2001 03:05:53 +0200
+From: Olivier Molteni <olivier@molteni.net>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.16 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: nfs client oops, all 2.4 kernels
+In-Reply-To: <20010910100202.A14106@www.creditminders.com>
+		<15261.53031.349271.425562@charged.uio.no> <shsitep7ts9.fsf@charged.uio.no>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> With 2.4.9-ac9 'shutdown -r' does not work.  The
-> halt '-h' flag does work.  '-r' hangs at "Restarting System."
+Trond Myklebust wrote:
 
-> Here is the pertinent dmesg stuff:
-> 
-> Compaq 12XL125 machine detected. Enabling interrupts during APM calls.
+> >>>>> " " == Trond Myklebust <trond.myklebust@fys.uio.no> writes:
+>
+>      > Could you check if the appended patch works?
+>
+
+Hi,
+
+I have just finished to test with 4 PCs doing intensive lock/unlock on several NFS
+files for 3 hours... it seems to work !
+I will now test with the initial mail application, but if I will post again only if the
+test fails...
+
+Thank's a lot again !!
+
+Cheers,
+Olivier.
 
 
-Another thing is this ID 'Compaq 12XL125'. This another
-model of laptop.  The my Compaq Presario 1685 is another
-beast altogether.  
-
-What are the consequence of this mis-detection?
-
---Chris

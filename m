@@ -1,64 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263475AbUFNRPN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263609AbUFNRVu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263475AbUFNRPN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jun 2004 13:15:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263663AbUFNRPN
+	id S263609AbUFNRVu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jun 2004 13:21:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263665AbUFNRVu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jun 2004 13:15:13 -0400
-Received: from [218.107.199.104] ([218.107.199.104]:47371 "HELO
-	usre-2s3z81m5xn") by vger.kernel.org with SMTP id S263475AbUFNRPE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jun 2004 13:15:04 -0400
-Message-ID: <ZUhbyv9deS3v@tcts.seed.net.tw>
-From: qiaoxiaol@126.com
-To: DMailer@vger.kernel.org
-Subject: flexible printed circuits products
-X-Mailer: zNWkwxJGBFJLkK4rOb
-Content-Type: text/plain;
-X-Priority: 3
-X-MSMail-Priority: Normal
-Date: Mon, 14 Jun 2004 13:15:04 -0400
+	Mon, 14 Jun 2004 13:21:50 -0400
+Received: from mail3.bluewin.ch ([195.186.1.75]:2486 "EHLO mail3.bluewin.ch")
+	by vger.kernel.org with ESMTP id S263609AbUFNRVt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jun 2004 13:21:49 -0400
+Date: Mon, 14 Jun 2004 19:21:37 +0200
+From: Roger Luethi <rl@hellgate.ch>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Greg Kroah-Hartman <greg@kroah.com>, linux-kernel@vger.kernel.org
+Subject: [PATCH 2.6] Fix PME bits in pci.txt
+Message-ID: <20040614172137.GA22012@k3.hellgate.ch>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	Greg Kroah-Hartman <greg@kroah.com>, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Operating-System: Linux 2.6.7-rc3-bk6 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 8bit
-X-MIME-Autoconverted: from Quoted-Printable to 8bit by alpha.home.local id i5EHEHaU013737
 
+Signed-off-by: Roger Luethi <rl@hellgate.ch>
 
+--- linux-2.6.7-rc3-bk6/Documentation/power/pci.txt.orig	2004-06-14 18:54:24.793573267 +0200
++++ linux-2.6.7-rc3-bk6/Documentation/power/pci.txt	2004-06-14 18:54:40.962133902 +0200
+@@ -286,11 +286,11 @@
+ +------------------+
+ |  Bit  |  State   |
+ +------------------+
+-|  15   |   D0     |
+-|  14   |   D1     |
++|  11   |   D0     |
++|  12   |   D1     |
+ |  13   |   D2     |
+-|  12   |   D3hot  |
+-|  11   |   D3cold |
++|  14   |   D3hot  |
++|  15   |   D3cold |
+ +------------------+
  
-
-
-
-Dear sir,
-    Wish you have good business!
-    We are glad to   introduce   a  flexible printed circuit (FPC) factory. we use
-the latest technology make flexible printed circuits (FPC) for use in any
-electronic products.The FACTURE is ISO9001:2000  confirmed and IPC
-criteria.
-    THE MAIN CAPACITY:
-1,WE CAN MAKE RIGID-FLEX PRINTED CIRCUITS. 
-2,WE ALSO CAN PRODUCE 3 LAYERS,4 LAYERS,5 LAYERS,6 LAYERS FPC AND MAKE DOUBLE SIDED WITH MIN 0.06MM TRACE WIDTH. THE SQUARE HOLE OF THE
-COVERLAYER CAN BE  MIN 0.4 MM.
-3,PRODUCTS HAVE EXPORTED TO USA,CANADA,JAPAN,UK,GERMANY,FRANCE,AUSTRALIA ETC
-MORE THEN 20 COUNTRIES.
-4,MAIN CUSTOMER ARE NOKIA,PANASONIC,SONY,DELL,TDK ,PHILIP ETC.
-
-We would welcome you to visit our factory.
-
-Please e-mail your circuit design by Gerber file, Auto Cad, protel files and
-advise us of:
-FPC size, and number of layers.  We can make samples for your approval, with
-factory direct pricing.
-
-If you donot want us to send you again, you can use the latest outlook2003
-soft,to enter this e-mail address as reject e-mail address.you can solve all the
-worry.
-Or send an email with: " Remove" in the subject .we'll delete it from our
-list.
-hank you for your support!
-
-Best regards!
-
-Bai zhan yuan
-qiaoxiaol@126.com
-
+ A device can use this to enable wake events:
 

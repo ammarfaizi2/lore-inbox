@@ -1,90 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263032AbRFJBkJ>; Sat, 9 Jun 2001 21:40:09 -0400
+	id <S263034AbRFJCE4>; Sat, 9 Jun 2001 22:04:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263033AbRFJBkA>; Sat, 9 Jun 2001 21:40:00 -0400
-Received: from horus.its.uow.edu.au ([130.130.68.25]:28070 "EHLO
-	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S263032AbRFJBju>; Sat, 9 Jun 2001 21:39:50 -0400
-Message-ID: <3B22CDFA.2BC46385@uow.edu.au>
-Date: Sun, 10 Jun 2001 11:31:38 +1000
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5-pre4 i686)
-X-Accept-Language: en
+	id <S263043AbRFJCEq>; Sat, 9 Jun 2001 22:04:46 -0400
+Received: from csl.Stanford.EDU ([171.64.66.149]:12164 "EHLO csl.Stanford.EDU")
+	by vger.kernel.org with ESMTP id <S263034AbRFJCEb>;
+	Sat, 9 Jun 2001 22:04:31 -0400
+From: Dawson Engler <engler@csl.Stanford.EDU>
+Message-Id: <200106100204.TAA18733@csl.Stanford.EDU>
+Subject: Re: checker suggestion
+To: acahalan@cs.uml.edu (Albert D. Cahalan)
+Date: Sat, 9 Jun 2001 19:04:28 -0700 (PDT)
+Cc: linux-kernel@vger.kernel.org, mc@CS.Stanford.EDU
+In-Reply-To: <200106090811.f598BBB505292@saturn.cs.uml.edu> from "Albert D. Cahalan" at Jun 09, 2001 04:11:11 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-To: Daniel Phillips <phillips@bonn-fries.net>
-CC: Alexander Viro <viro@math.psu.edu>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] truncate_inode_pages
-In-Reply-To: <Pine.GSO.4.21.0106091331120.19361-100000@weyl.math.psu.edu>,
-		<Pine.GSO.4.21.0106091331120.19361-100000@weyl.math.psu.edu> <01061000533601.03897@starship>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips wrote:
+> Struct padding is a problem. Really, there shouldn't be any
+> implicit padding. This causes:
 > 
-> This is easy, just set the list head to the page about to be truncated.
+> 1. security leaks when such structs are copied to userspace
+>    (the implicit padding is uninitialized, and so may contain
+>    a chunk of somebody's private key or password)
+> 
+> 2. bloat, when struct members could be reordered to eliminate
+>    the need for padding
 
-Works for me.
+(1) is a great point.   One of the first extensions in our first system
+automatically reordered structure fields to minimize padding (your second
+point), but we'd totally missed the security point.
 
---- linux-2.4.5/mm/filemap.c	Mon May 28 13:31:49 2001
-+++ linux-akpm/mm/filemap.c	Sun Jun 10 11:29:19 2001
-@@ -235,12 +235,13 @@
- 
- 		/* Is one of the pages to truncate? */
- 		if ((offset >= start) || (*partial && (offset + 1) == start)) {
-+			list_del(head);
-+			list_add_tail(head, curr);
- 			if (TryLockPage(page)) {
- 				page_cache_get(page);
- 				spin_unlock(&pagecache_lock);
- 				wait_on_page(page);
--				page_cache_release(page);
--				return 1;
-+				goto out_restart;
- 			}
- 			page_cache_get(page);
- 			spin_unlock(&pagecache_lock);
-@@ -252,11 +253,14 @@
- 				truncate_complete_page(page);
- 
- 			UnlockPage(page);
--			page_cache_release(page);
--			return 1;
-+			goto out_restart;
- 		}
- 	}
- 	return 0;
-+out_restart:
-+	page_cache_release(page);
-+	spin_lock(&pagecache_lock);
-+	return 1;
- }
- 
- 
-@@ -273,15 +277,18 @@
- {
- 	unsigned long start = (lstart + PAGE_CACHE_SIZE - 1) >> PAGE_CACHE_SHIFT;
- 	unsigned partial = lstart & (PAGE_CACHE_SIZE - 1);
-+	int complete;
- 
--repeat:
- 	spin_lock(&pagecache_lock);
--	if (truncate_list_pages(&mapping->clean_pages, start, &partial))
--		goto repeat;
--	if (truncate_list_pages(&mapping->dirty_pages, start, &partial))
--		goto repeat;
--	if (truncate_list_pages(&mapping->locked_pages, start, &partial))
--		goto repeat;
-+	do {
-+		complete = 1;
-+		while (truncate_list_pages(&mapping->clean_pages, start, &partial))
-+			complete = 0;
-+		while (truncate_list_pages(&mapping->dirty_pages, start, &partial))
-+			complete = 0;
-+		while (truncate_list_pages(&mapping->locked_pages, start, &partial))
-+			complete = 0;
-+	} while (!complete);
- 	spin_unlock(&pagecache_lock);
- }
+Thanks!

@@ -1,53 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261487AbSIYXuS>; Wed, 25 Sep 2002 19:50:18 -0400
+	id <S261584AbSIYXxl>; Wed, 25 Sep 2002 19:53:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261584AbSIYXuS>; Wed, 25 Sep 2002 19:50:18 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:42116 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S261487AbSIYXuR>;
-	Wed, 25 Sep 2002 19:50:17 -0400
-Message-ID: <3D924D70.5060403@snapgear.com>
-Date: Thu, 26 Sep 2002 09:57:36 +1000
-From: Greg Ungerer <gerg@snapgear.com>
-Organization: SnapGear
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]: 2.5.38uc1 (MMU-less support)
-References: <3D913223.6060801@snapgear.com> <20020925154511.GG30339@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S261619AbSIYXxl>; Wed, 25 Sep 2002 19:53:41 -0400
+Received: from holomorphy.com ([66.224.33.161]:26018 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S261584AbSIYXxk>;
+	Wed, 25 Sep 2002 19:53:40 -0400
+Date: Wed, 25 Sep 2002 16:57:54 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Theurer <habanero@us.ibm.com>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@digeo.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.5.38-mm2 dbench $N times
+Message-ID: <20020925235754.GH3530@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Theurer <habanero@us.ibm.com>,
+	"Martin J. Bligh" <mbligh@aracnet.com>,
+	Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
+References: <3D9103EB.FC13A744@digeo.com> <297318451.1032908628@[10.10.2.3]> <200209251351.58355.habanero@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+In-Reply-To: <200209251351.58355.habanero@us.ibm.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg,
+On Wednesday 25 September 2002 1:03 am, Martin J. Bligh wrote:
+>> Does dbench have any sort of CPU locality between who read it
+>> into pagecache, and who read it out again? If not, you stand
+>> 7/8 chance of being on the wrong node, and getting 1/20 of the
+>> mem bandwidth ....
 
-Greg KH wrote:
-> The driver patches look good, and I didn't see anything wrong with the
-> exception of what Matthew already said.
-> 
-> But I did have a small question about the font:
-> 
-> 
->>. Motorola 68328 framebuffer
->>http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.38uc1-fb.patch.gz
-> 
-> 
-> The % and & characters are the same.  Is this intentional?
+On Wed, Sep 25, 2002 at 01:51:58PM -0500, Andrew Theurer wrote:
+> Pretty sure each dbench child does it's own write/read to only it's
+> own data. There is no sharing that I am aware of between the processes.
+> How about running in tmpfs to avoid any disk IO at all?  
 
-No :-)
-Yank bug. Fixed now.
-
-Regards
-Greg
+tmpfs needs some fixes before it can be used for that. Hugh's working
+on it.
 
 
-
-------------------------------------------------------------------------
-Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
-SnapGear Pty Ltd                               PHONE:    +61 7 3435 2888
-825 Stanley St,                                  FAX:    +61 7 3891 3630
-Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
-
+Cheers,
+Bill

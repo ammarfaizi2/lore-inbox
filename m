@@ -1,28 +1,31 @@
+Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262629AbTHaQBj (ORCPT <rfc822;akpm@zip.com.au>);
-	Sun, 31 Aug 2003 12:01:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262630AbTHaQBi
+	id S262078AbTIAEHI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Sep 2003 00:07:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262091AbTIAEHI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Aug 2003 12:01:38 -0400
-Received: from 200-63-141-243.speedy.com.ar ([200.63.141.243]:27402 "HELO
-	speedy.com.ar") by vger.kernel.org with SMTP id S262629AbTHaQBh convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Aug 2003 12:01:37 -0400
-From: "Romi" <romina81@gmx.at>
-To: "linux-kernel" <linux-kernel@vger.kernel.org>
-Subject: .
-Date: Sun, 31 Aug 2003 13:02:06 -0300
-MIME-Version: 1.0
-X-Priority: 3
-X-MSMail-Priority: Normal
-Message-ID: <620849267483644@gmx.at>
-Reply-To: "Romi" <romina81@gmx.at>
-X-Mailer: Internet Mail Service
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Mon, 1 Sep 2003 00:07:08 -0400
+Received: from mail15c.boca15-verio.com ([207.201.145.89]:58263 "HELO
+	mail15c.boca15-verio.com") by vger.kernel.org with SMTP
+	id S262078AbTIAEHH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Sep 2003 00:07:07 -0400
+X-Auto: jobs@synergynetsol.com
+X-Loop-Detect: 1
+To: linux-kernel@vger.kernel.org
+From: jobs@synergynetsol.com
+Reply-To: synergy@synergynetsol.com
+Message-Id: <S262078AbTIAEHH/20030901040707Z+208789@vger.kernel.org>
+Date: Mon, 1 Sep 2003 00:07:07 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-.
+Thank you for your interest in Synergy Network Solution's employment
+opportunities.  As a courtesy, we are notifying you via this auto response
+that your resume has been forwarded to our recruiting staff.  Your
+qualifications will be considered for our employment opportunities.  A
+Synergy Network Solutions representative will contact you as soon as
+possible should your qualifications match our job descriptions.  We will do
+our best to assist you and we wish you the best of luck in your job search.
+Thank you for your interest in Synergy Network Solutions.
 
 

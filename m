@@ -1,21 +1,18 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314803AbSDVVVd>; Mon, 22 Apr 2002 17:21:33 -0400
+	id <S314802AbSDVVZo>; Mon, 22 Apr 2002 17:25:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314805AbSDVVVc>; Mon, 22 Apr 2002 17:21:32 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:17173 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S314803AbSDVVVa>; Mon, 22 Apr 2002 17:21:30 -0400
-Date: Mon, 22 Apr 2002 17:21:30 -0400
-From: Doug Ledford <dledford@redhat.com>
+	id <S314798AbSDVVZn>; Mon, 22 Apr 2002 17:25:43 -0400
+Received: from panic.tn.gatech.edu ([130.207.137.62]:19921 "HELO gtf.org")
+	by vger.kernel.org with SMTP id <S314797AbSDVVZl>;
+	Mon, 22 Apr 2002 17:25:41 -0400
+Date: Mon, 22 Apr 2002 17:25:37 -0400
+From: Jeff Garzik <garzik@havoc.gtf.org>
 To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Larry McVoy <lm@bitmover.com>, Ian Molton <spyro@armlinux.org>,
-        linux-kernel@vger.kernel.org
+Cc: Doug Ledford <dledford@redhat.com>, Larry McVoy <lm@bitmover.com>,
+        Ian Molton <spyro@armlinux.org>, linux-kernel@vger.kernel.org
 Subject: Re: BK, deltas, snapshots and fate of -pre...
-Message-ID: <20020422172130.C914@redhat.com>
-Mail-Followup-To: Daniel Phillips <phillips@bonn-fries.net>,
-	Larry McVoy <lm@bitmover.com>, Ian Molton <spyro@armlinux.org>,
-	linux-kernel@vger.kernel.org
+Message-ID: <20020422172537.A13585@havoc.gtf.org>
 In-Reply-To: <Pine.LNX.4.44.0204202108410.10137-100000@home.transmeta.com> <E16zNxY-0001Ld-00@starship> <20020422165327.A914@redhat.com> <E16zOWH-0001MF-00@starship>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -25,68 +22,35 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 On Sun, Apr 21, 2002 at 11:05:11PM +0200, Daniel Phillips wrote:
-> Would everybody with no mouse on their system please stand up, and leave
-> the room.
-> 
-> Seriously, you're trolling.
-
-No more so than your bandwidth argument...pot->kettle.
-
-> > I put my docs on my web site because that's what I owned/controlled and it 
-> > was relevant to people already coming to my web site.  That in no way 
-> > indicates that your position is correct, especially since you ignored to 
-> > truly relevant item in my email:
-> 
-> I'm actually trying to do a little work as well as handle all the input
-> from the Bitkeeper moonies, thankyou.
-> 
-> Err, did I say moonies, sorry I meant advocates, err, apologists, umm.
-
-Right, nice personal attack to deflect the arguments I actually wrote.  If 
-you aren't going to answer the arguments, then why do you even bother to 
-reply?  If you are falling behind due to the load of incoming mail then it 
-seems bass-ackwards to make non-sense replies and arguments that are 
-unnecessary instead of actually responding to the real arguments made.
-
-BTW, I've never used BK.  I've never actually even gone to the BK web 
-site.  That's probably why I haven't bothered to read the submitting 
-patches using BK *HOWTO* doc in the kernel doc area.
-
-> Sorry, I just meant I've been getting a lot of email lately, some of it
-> is too long to read every word.  Unless you are a spectacularly good
-> writer, expect some of your deathless prose to drop through the cracks.
-
-Wow, more personal attack whilst cutting the actual arguments out.  That's 
-always a good way to win an argument.  <imagine the sarcastic tone of 
-voice>  Of course, that's why I repeated the two points, one of which you 
-again cut.
-
-> > > > information so that the whole picture, from start to finish, was all 
-> > > > described in one easy to access place.
+> On Monday 22 April 2002 22:53, Doug Ledford wrote:
+> > On Sun, Apr 21, 2002 at 10:29:19PM +0200, Daniel Phillips wrote:
+> > > You haven't read the thread closely, this was described before.  There are
+> > > one documentation file and three scripts.  The documentation file is about
+> > > half general description of Bitkeeper - which is quite unabashedly
+> > > promotional and the author does describe it as an adverisement - and half
+> > > how to use for submitting kernel patches.
 > > 
-> > One place for relevant information, from start to finish.
+> > Now, now Daniel, let's not put words into people's mouths.  Jeff has said 
+> > he does like BitKeeper, and he said he could *see how you think his 
+> > description is an advertisement* but that he *didn't write it as an 
+> > advertisement*.
 > 
-> Right.  bitkeeper.com, any argument?
-
-Yeah.  I'll go to bitkeeper.com to learn about how to use bitkeeper.  I 
-don't expect nor want to go there to learn about how to send a patch to 
-Linus.  It's not the appropriate venue for that information.
-
 > He agreed it was an advertisement.
-> 
-> -- 
-> Daniel
 
-Hmmm....Daniel stopped his reply before he even got to the really
-important arguments in my email.  Guess that just means I win those points
-by default which should pretty much settle this entire issue.  All BK 
-advocacy docs need to be transferred to bitkeeper.com.  All valid HOWTO 
-docs relating to kernel patch submission (whether via diff+email or via 
-BK) should report to the kernel doc directory where they belong.
+To clear things up:
 
--- 
-  Doug Ledford <dledford@redhat.com>     919-754-3700 x44233
-         Red Hat, Inc. 
-         1801 Varsity Dr.
-         Raleigh, NC 27606
-  
+* The intent of the doc is to help kernel developers
+* The intent was NOT to advertise BK
+* An unavoidable side effect of the doc's presence is implicit advertisement
+* I certainly promote the use of BitKeeper
+
+Please keep these things separate...
+
+To imply that the BK doc is an intentioned advertisement is silly.
+It's in the kernel source tree to help people with, like it or not, what
+is a part of kernel development.  An _optional_ part.
+
+	Jeff
+
+
+

@@ -1,31 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289588AbSAKLmu>; Fri, 11 Jan 2002 06:42:50 -0500
+	id <S289349AbSAKLlj>; Fri, 11 Jan 2002 06:41:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289685AbSAKLma>; Fri, 11 Jan 2002 06:42:30 -0500
-Received: from ns.suse.de ([213.95.15.193]:44297 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S289588AbSAKLmV>;
-	Fri, 11 Jan 2002 06:42:21 -0500
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] O(1) scheduler, -H5
-In-Reply-To: <Pine.LNX.4.33.0201110130290.11478-100000@localhost.localdomain.suse.lists.linux.kernel> <20020111113131.C30756@flint.arm.linux.org.uk.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 11 Jan 2002 12:42:14 +0100
-In-Reply-To: Russell King's message of "11 Jan 2002 12:37:44 +0100"
-Message-ID: <p73zo3lnmg9.fsf@oldwotan.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.6
+	id <S289588AbSAKLla>; Fri, 11 Jan 2002 06:41:30 -0500
+Received: from sphinx.mythic-beasts.com ([195.82.107.246]:21005 "EHLO
+	sphinx.mythic-beasts.com") by vger.kernel.org with ESMTP
+	id <S289349AbSAKLlS>; Fri, 11 Jan 2002 06:41:18 -0500
+Date: Fri, 11 Jan 2002 11:40:47 +0000 (GMT)
+From: Matthew Kirkwood <matthew@hairy.beasts.org>
+X-X-Sender: <matthew@sphinx.mythic-beasts.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][RFC] Lightweight user-level semaphores
+In-Reply-To: <20020111165516.61ede3f8.rusty@rustcorp.com.au>
+Message-ID: <Pine.LNX.4.33.0201111114250.24025-100000@sphinx.mythic-beasts.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King <rmk@arm.linux.org.uk> writes:
-> 
-> The serial driver (old or new) open/close functions are one of the worst
-> offenders of the global-cli-and-hold-kernel-lock-and-schedule problem.
-> I'm currently working on fixing this in the new serial driver.
+On Fri, 11 Jan 2002, Rusty Russell wrote:
 
-When they hold the kernel lock in addition to the global cli() before
-schedule() it should be ok. Only the behaviour of code not holding
-kernel lock but global cli and calling schedule() has changed.
+> > Both user and kernel bits are, of course, improvable, but
+> > this should at least show that the approach works.
 
--Andi
+> 	Prefer the "char device" approach myself.  open = create, read =
+> down, write = up.  Following (completely untested) patch stole your
+> work to implement "/dev/usem". Added bonus is the ability to mmap the
+> fd to map in the shared page, which means the fd carries a shared
+> region with it (hey, it was 14 more lines).
+
+Nice hack.  I'm not particularly attached to my implementation
+but:
+ * Dedicating a whole page per semaphore seems rather
+   expensive for a "lightweight" primitive.
+ * Possibly ditto even file descriptors.  I may want
+   several thousand of these.
+ * Are there any numbers for the VFS overheads?  There
+   are quite a few lock acquires in there, even if the
+   paths are fairly short.
+ * It would be nice to keep the userspace structure
+   opaque (except for the counter) and able to share
+   it transparently between processes.
+
+Actually, the more I look at Linus's original idea, the more
+sense it seems to make (and the more I regret scrapping my
+almost-complete implementation of it for the fd idea :)
+
+(Oh, and you forgot:
+
+> +static struct file_operations usem_fops = {
+> +	read:		read_usem,
+> +	write:		write_usem,
+> +	open:		open_usem,
+> +	release:	release_usem,
+	mmap:		mmap_usem,
+> +};
+
+)
+
+Cheers,
+Matthew.
+

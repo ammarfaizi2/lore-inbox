@@ -1,79 +1,61 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313032AbSD3C6o>; Mon, 29 Apr 2002 22:58:44 -0400
+	id <S313038AbSD3DAu>; Mon, 29 Apr 2002 23:00:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313038AbSD3C6n>; Mon, 29 Apr 2002 22:58:43 -0400
-Received: from wind.he.net ([216.218.129.2]:30212 "EHLO wind.he.net")
-	by vger.kernel.org with ESMTP id <S313032AbSD3C6n>;
-	Mon, 29 Apr 2002 22:58:43 -0400
-Date: Mon, 29 Apr 2002 19:55:21 -0700
-Subject: Re: 2.5.9,2.5.10 kernel compile, +SMP?
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Mime-Version: 1.0 (Apple Message framework v481)
-From: "Ron Pagani / San Francisco / San Jose, CA" <lists@ronpagani.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Content-Transfer-Encoding: 7bit
-In-Reply-To: <0C1F6097-5BE5-11D6-A995-0030657B7B46@ronpagani.com>
-Message-Id: <B606F2B4-5BE5-11D6-A995-0030657B7B46@ronpagani.com>
-X-Mailer: Apple Mail (2.481)
+	id <S313041AbSD3DAt>; Mon, 29 Apr 2002 23:00:49 -0400
+Received: from bstnma1-ar1-4-64-205-250.bstnma1.elnk.dsl.genuity.net ([4.64.205.250]:28670
+	"EHLO mail.spoofed.org") by vger.kernel.org with ESMTP
+	id <S313038AbSD3DAs>; Mon, 29 Apr 2002 23:00:48 -0400
+Date: Mon, 29 Apr 2002 23:04:18 -0400
+From: warchild@spoofed.org
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: remote memory reading using arp?
+Message-ID: <20020430030418.GB6179@spoofed.org>
+In-Reply-To: <p73znzom2kv.fsf@oldwotan.suse.de> <Pine.LNX.4.33L2.0204291121420.26604-100000@rtlab.med.cornell.edu> <20020429173144.A4044@wotan.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-BTW, does anyone else have this issue?  We need to make sure it's not in 
-later versions.
+Greetings again,
 
+I took the time today to gather as much arp traffic as my eyes could handle and
+enough to shed some valuable light on this issue.
 
-On Monday, April 29, 2002, at 07:50 PM, Ron Pagani / San Francisco / San 
-Jose, CA wrote:
+While it doesn't show who/what is at fault, it may possibly prove that I'm
+missing something entirely or the problem is more widespread that was
+thought.
 
-> Hrmm...  Well, I commented out my funky lines
->
-> [ init/main.c -- 2.5.9 ]     <<SNIP>>
-> #ifndef CONFIG_SMP
->
-> #ifdef CONFIG_X86_LOCAL_APIC
-> static void __init smp_init(void)
-> {
->         APIC_init_uniprocessor();
-> }
-> #else
-> #define smp_init()      do { } while (0)
-> #endif
-> /*
-> ** funkiness
-> */
-> //static inline void setup_per_cpu_areas(void)
-> //{
-> //}
->
-> static inline void setup_per_cpu_areas(void)
-> {
-> }
->
-> #else
->
-> #ifdef __GENERIC_PER_CPU
->
-> <<SNIP>>
->
->
-> On Monday, April 29, 2002, at 07:11 PM, Ron Pagani / San Francisco / 
-> San Jose, CA wrote:
->
->> Make mrproper worked at first (cleaning up after 2.5.10); now when 
->> building 2.5.9, I get this failure regardless, even after untarring a 
->> fresh source bundle!!
->>
->>
->> [ make bzImage // 2.5.9 ]
->>
->> gcc -D__KERNEL__ -I/usr/src/redhat/SOURCES/linux-2.5.9/include -Wall 
->> -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer 
->> -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 
->> -march=i686   -DKBUILD_BASENAME=main -c -o init/main.o init/main.c
->> init/main.c:279: redefinition of `setup_per_cpu_areas'
->> init/main.c:275: `setup_per_cpu_areas' previously defined here
->> make: *** [init/main.o] Error 1
->>
->
+Anyway, here goes.   
 
+For test 1, I gathered ~1.5M of arp traffic from a monitoring port that
+sustains 4-5Mb/s traffic in a mixed solaris/linux/win2k environment of
+approximately 400 machines in an educational setting.
+
+For test 2, I gathered ~.5M of arp traffic from a single interface of a
+RedHat machine located in a "Small Business" environment consisting of
+approximately 25 machines (linux/winXP).  
+
+That much arp data is pretty unruly, so I used grep to see if anything
+stuck out.  
+
+I grepped for our domain name (ccs.neu.edu) and found this string 15 times in
+test 1, and grepped for 'http' in test 2 and found that string 62 times.
+
+Upon digging into the traffic a bit further, I saw an interesting trends.
+All of the arp packets that contained interesting data contained it in the
+last 18 bytes of the 60 byte arp packet.  After googling and browsing the
+rfcs, I've seen these last 18 bytes referred to as both 'trailers' and
+'padding'.  It is not clear to me what purpose they serve, but seems clear
+that they can contain some potentially sensitive data.  
+
+I know this may be getting a bit off topic, but I figured I share my
+findings with the lists.  If I am incorrect in any of my statements, please
+correct me.
+
+thanks,
+
+-jon 

@@ -1,83 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131408AbRAADtr>; Sun, 31 Dec 2000 22:49:47 -0500
+	id <S130747AbRAAEJ4>; Sun, 31 Dec 2000 23:09:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131478AbRAADti>; Sun, 31 Dec 2000 22:49:38 -0500
-Received: from [139.102.15.42] ([139.102.15.42]:57241 "EHLO
-	online.indstate.edu") by vger.kernel.org with ESMTP
-	id <S131461AbRAADtc>; Sun, 31 Dec 2000 22:49:32 -0500
-From: "Rich Baum" <baumr1@coral.indstate.edu>
-To: linux-kernel@vger.kernel.org
-Date: Sun, 31 Dec 2000 22:16:25 -0500
+	id <S131397AbRAAEJq>; Sun, 31 Dec 2000 23:09:46 -0500
+Received: from mailframe.cabinet.net ([213.169.1.9]:53262 "HELO
+	mailframe.cabinet.net") by vger.kernel.org with SMTP
+	id <S130747AbRAAEJg>; Sun, 31 Dec 2000 23:09:36 -0500
+Date: Mon, 1 Jan 2001 05:39:08 +0200 (EET)
+From: Jussi Hamalainen <count@theblah.org>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: path MTU bug still there?
+In-Reply-To: <4.3.2.7.2.20010101114105.02922ef0@omega.cisco.com>
+Message-ID: <Pine.LNX.4.30.0101010533390.12962-100000@shodan.irccrew.org>
 MIME-Version: 1.0
-Content-type: Multipart/Mixed; boundary=Message-Boundary-9043
-Subject: [PATCH] fix for ACPI compile warnings in 2.4.0prerelease
-Reply-to: richbaum@acm.org
-CC: torvalds@transmeta.com, andy_henroid@yahoo.com
-Message-ID: <3A4FB039.13836.114540@localhost>
-X-mailer: Pegasus Mail for Win32 (v3.12c)
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 1 Jan 2001, Lincoln Dale wrote:
 
---Message-Boundary-9043
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
+> i know that you've said previously that you've increased your MTU beyond
+> 1500, but can you validate that it is actually working?
 
-	When I compile 2.4.0-prerelease with the 200012252 gcc 
-snapshot I get the following warnings:
+Yup. At least 1500 byte ICMP echo packets get through the tunnel
+OK.
 
-make[3]: Entering directory `/usr/src/linux/drivers/acpi/hardware'
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-
-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe -
-mpreferred-stack-boundary=2 -march=k6  -I../include -D_LINUX  -c -
-o hwcpu32.o hwcpu32.c
-hwcpu32.c:711:1: warning: no newline at end of file
-make[3]: Leaving directory `/usr/src/linux/drivers/acpi/hardware'
-make[3]: Entering directory `/usr/src/linux/drivers/acpi/namespace'
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-
-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe -
-mpreferred-stack-boundary=2 -march=k6  -I../include -D_LINUX  -c -
-o nsxfobj.o nsxfobj.c
-nsxfobj.c:697:1: warning: no newline at end of file
-make[3]: Leaving directory `/usr/src/linux/drivers/acpi/namespace'
+> alternatively, ensure that your application is capable of enforcing a MSS
+> <1460 if this is shown to not be the case ..
 
-Attached is a patch that removes these warnings.  Please consider 
-this patch for the final release.
+I found a way to work around this problem. I had to tell _ALL_
+the hosts on my local network to use an MSS of 576 for the default
+route (the GRE tunnel). Thus the packets always fit through without
+fragmentation and the problem is gone (but not solved). If someone
+has a more elegant solution, please tell me. This one seems to be
+poison for the Windows boxes on my network. :I
 
-Rich
+-- 
+-=[ Count Zero / TBH - Jussi Hämäläinen - email count@theblah.org ]=-
 
-
---Message-Boundary-9043
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Text from file 'acpi.patch'
-
-diff -urN linux/drivers/acpi/hardware/hwcpu32.c rb/drivers/acpi/hardware/hwcpu32.c
---- linux/drivers/acpi/hardware/hwcpu32.c	Sun Dec 31 19:19:05 2000
-+++ rb/drivers/acpi/hardware/hwcpu32.c	Sun Dec 31 20:44:11 2000
-@@ -708,4 +708,4 @@
- 	return;
- }
- 
-- 
-\ No newline at end of file
-+
-diff -urN linux/drivers/acpi/namespace/nsxfobj.c rb/drivers/acpi/namespace/nsxfobj.c
---- linux/drivers/acpi/namespace/nsxfobj.c	Sun Dec 31 19:19:05 2000
-+++ rb/drivers/acpi/namespace/nsxfobj.c	Sun Dec 31 20:44:51 2000
-@@ -694,4 +694,5 @@
- 	acpi_cm_release_mutex (ACPI_MTX_NAMESPACE);
- 
- 	return (status);
--}
-\ No newline at end of file
-+}
-+
-
-
---Message-Boundary-9043--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

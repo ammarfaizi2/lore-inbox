@@ -1,28 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315285AbSHKJf3>; Sun, 11 Aug 2002 05:35:29 -0400
+	id <S318269AbSHKJhJ>; Sun, 11 Aug 2002 05:37:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317355AbSHKJf3>; Sun, 11 Aug 2002 05:35:29 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:38666 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315285AbSHKJf1>;
-	Sun, 11 Aug 2002 05:35:27 -0400
-Message-ID: <3D563313.718CB02B@zip.com.au>
-Date: Sun, 11 Aug 2002 02:49:07 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Simon Kirby <sim@netnation.com>, linux-kernel@vger.kernel.org
-Subject: Re: [patch 6/12] hold atomic kmaps across generic_file_read
-References: <20020810201027.E306@kushida.apsleyroad.org> <Pine.LNX.4.44.0208101529490.2401-100000@home.transmeta.com> <20020811031705.GA13878@netnation.com> <3D55FF30.6164040D@zip.com.au> <20020811084652.GB22497@netnation.com> <3D563035.C6BA9F51@zip.com.au>
+	id <S318270AbSHKJhI>; Sun, 11 Aug 2002 05:37:08 -0400
+Received: from codepoet.org ([166.70.99.138]:57053 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id <S318269AbSHKJhH>;
+	Sun, 11 Aug 2002 05:37:07 -0400
+Date: Sun, 11 Aug 2002 03:40:54 -0600
+From: Erik Andersen <andersen@codepoet.org>
+To: Christoph Hellwig <hch@infradead.org>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.20-pre1
+Message-ID: <20020811094054.GA18298@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	Christoph Hellwig <hch@infradead.org>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>,
+	lkml <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0208051938380.6811-100000@freak.distro.conectiva> <20020811085717.GA17738@codepoet.org> <20020811101617.A2215@infradead.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20020811101617.A2215@infradead.org>
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux 2.4.18-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+On Sun Aug 11, 2002 at 10:16:17AM +0100, Christoph Hellwig wrote:
+> On Sun, Aug 11, 2002 at 02:57:17AM -0600, Erik Andersen wrote:
+> > > 	[PATCH] namespace.c - compiler warning
+> > 
+> > This patch is wrong....
 > 
-> ...
-> So if you use something with known geometry, like /dev/fd0h1440, it works!
+> Why?
 
-No it doesn't.  You can run mke2fs, but the result is a wreck.
+Because it adds function prototype that doesn't match the
+actual function....  
+
+ -Erik
+
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

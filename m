@@ -1,40 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268535AbUIFThn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268476AbUIFTiM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268535AbUIFThn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Sep 2004 15:37:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268504AbUIFThm
+	id S268476AbUIFTiM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Sep 2004 15:38:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268484AbUIFTiM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Sep 2004 15:37:42 -0400
-Received: from delerium.kernelslacker.org ([81.187.208.145]:6285 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S268565AbUIFThG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Sep 2004 15:37:06 -0400
-Date: Mon, 6 Sep 2004 20:36:07 +0100
-From: Dave Jones <davej@redhat.com>
-To: Steffen Zieger <lkml@steffenspage.de>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Problems with Centrino CPU
-Message-ID: <20040906193607.GA23681@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Steffen Zieger <lkml@steffenspage.de>,
-	lkml <linux-kernel@vger.kernel.org>
-References: <200409061159.54539.lkml@steffenspage.de>
+	Mon, 6 Sep 2004 15:38:12 -0400
+Received: from fw.osdl.org ([65.172.181.6]:62338 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268476AbUIFTiJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Sep 2004 15:38:09 -0400
+Date: Mon, 6 Sep 2004 12:35:34 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Kirill Korotaev <dev@sw.ru>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: Q: bugs in generic_forget_inode()?
+Message-Id: <20040906123534.3487839e.akpm@osdl.org>
+In-Reply-To: <413C52E2.10809@sw.ru>
+References: <413C52E2.10809@sw.ru>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200409061159.54539.lkml@steffenspage.de>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 06, 2004 at 11:59:52AM +0200, Steffen Zieger wrote:
- > Hello list,
- > 
- > after updating the kernel to 2.6.8.1 I've a problem with my Centrino CPU.
- > The Cache of the CPU is 1024kb, but if I did a cat /proc/cpuinfo I see,
- > that the cache is only 64kb.
+Kirill Korotaev <dev@sw.ru> wrote:
+>
+> Hello,
+> 
+> 1. I found that generic_forget_inode() calls write_inode_now() dropping 
+> inode_lock and destroys inode after that. The problem is that 
+> write_inode_now() can sleep and during this sleep someone can find inode 
+> in the hash, w/o I_FREEING state and with i_count = 0.
 
-Should be fixed in 2.6.9rc1.
+The filesystem is in the process of being unmounted (!MS_ACTIVE).  So the
+question is: who is doing inode lookups against a soon-to-be-defunct
+filesystem?
 
-		Dave
 

@@ -1,74 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129274AbRBWWem>; Fri, 23 Feb 2001 17:34:42 -0500
+	id <S129510AbRBWWid>; Fri, 23 Feb 2001 17:38:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129822AbRBWWed>; Fri, 23 Feb 2001 17:34:33 -0500
-Received: from [63.140.126.166] ([63.140.126.166]:7940 "EHLO helium.inexs.com")
-	by vger.kernel.org with ESMTP id <S129485AbRBWWeX>;
-	Fri, 23 Feb 2001 17:34:23 -0500
-Date: Fri, 23 Feb 2001 16:34:14 -0600
-From: Chuck Campbell <campbell@neosoft.com>
-To: linux-kernel@vger.kernel.org
-Cc: campbell@neosoft.com
-Subject: 2.4.2-ac1 and ide questions/problems
-Message-ID: <20010223163414.A1096@helium.inexs.com>
-Reply-To: campbell@neosoft.com
-Mail-Followup-To: linux-kernel@vger.kernel.org, campbell@neosoft.com
-Mime-Version: 1.0
+	id <S129822AbRBWWiY>; Fri, 23 Feb 2001 17:38:24 -0500
+Received: from m154-mp1-cvx1a.col.ntl.com ([213.104.68.154]:32260 "EHLO
+	[213.104.68.154]") by vger.kernel.org with ESMTP id <S129653AbRBWWiL>;
+	Fri, 23 Feb 2001 17:38:11 -0500
+To: bradley mclain <bradley_kernel@yahoo.com>
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: APM suspend system lockup under 2.4.2 and 2.4.2ac1
+In-Reply-To: <20010223031521.93782.qmail@web9205.mail.yahoo.com>
+From: John Fremlin <chief@bandits.org>
+Date: 23 Feb 2001 22:37:36 +0000
+In-Reply-To: bradley mclain's message of "Thu, 22 Feb 2001 19:15:21 -0800 (PST)"
+Message-ID: <m2snl53u1b.fsf@boreas.yi.org.>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (GTK)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This machine started as a Redhat linux 6.1 install some time ago, with lots 
-of updates since then.
+Unfortunately, the APM maintainer, Stephen Rothwell, seems to have
+gone into hibernation (pun) and is not responding to emails.
 
-Prior to the kernel upgrade, I upgraded binutils to binutils-2.9.5.0.31-1,
-modutils to modutils-2.4.2-1, e2fsprogs to e2fsprogs-1.19-0.
+bradley mclain <bradley_kernel@yahoo.com> writes:
 
-I've just installed kernel 2.4.2-ac1 from a clean build and I'm seeing the 
-following at boot time:
+> apm --suspend causes my system to hang under 2.4.2 and 2.4.2ac1.  it
+> was working fine under 2.4.1ac19. looking at syslog it appears that
+> the driver for my xircom pcmcia card may be involved -- it was the
+> last entry on two of three occasions.  the latest lockup (under
+> 2.4.1ac1) left no trace in syslog.
 
-hda: WDC AC31600H, ATA DISK drive
-hdb: Maxtor 91303D6, ATA DISK drive
-hdc: ST36450A, ATA DISK drive
-hdd: CDA66801I, ATAPI CD/DVD-ROM drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
-hda: Disabling (U)DMA for WDC AC31600H
-hda: 3173184 sectors (1625 MB) w/128KiB Cache, CHS=787/64/63
-hdb: 25450992 sectors (13031 MB) w/512KiB Cache, CHS=25249/16/63, (U)DMA
-hdc: 12594960 sectors (6449 MB) w/448KiB Cache, CHS=13328/15/63, DMA
-hdd: ATAPI 6X CD-ROM drive, 240kB Cache
-Uniform CD-ROM driver Revision: 3.12
-Partition check:
- hda: hda1 hda2 hda3
- hdb:hdb: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hdb: dma_intr: error=0x04 { DriveStatusError }
- hdb1 hdb2 hdb3 hdb4
- hdc: hdc1 hdc2 hdc3 hdc4
+Are all kernel messages dumped to syslog? See syslog.conf(5).
 
+> upon issuing the command the screen shuts down, but the rest of the
+> machine (drive, etc.) fails to, and i cannot get control back.
 
-What does the disabling of DMA for the WDC drive mean, and can I re-enable it
-with hdparm in a trouble free fashion?
+If the screen shutdown, all the PM enabled drivers OK'd the suspend
+and the APM state was changed.
 
-What does this error during partition check mean and is it worriesome, or can 
-I ignore it?
-  
-hdb:hdb: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hdb: dma_intr: error=0x04 { DriveStatusError }
+Perhaps the particular driver you used bungled things somehow. You
+could try again with the driver/card unloaded, which would help narrow
+the cause of the problem down.
 
-thanks,
--chuck
-
-
+[...]
 
 -- 
-ACCEL Services, Inc.| Specialists in Gravity, Magnetics |  1(713)993-0671 ph.
-1980 Post Oak Blvd. |   and Integrated Interpretation   |  1(713)960-1157 fax
-    Suite 2050      |                                   |
- Houston, TX, 77056 |          Chuck Campbell           | campbell@neosoft.com
-                    |  President & Senior Geoscientist  |
 
-     "Integration means more than having all the maps at the same scale!"
+	http://www.penguinpowered.com/~vii

@@ -1,50 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261969AbUKJCVp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261999AbUKJCZo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261969AbUKJCVp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 21:21:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261975AbUKJCVp
+	id S261999AbUKJCZo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 21:25:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262000AbUKJCZo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 21:21:45 -0500
-Received: from fw.osdl.org ([65.172.181.6]:7829 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261969AbUKJCVn (ORCPT
+	Tue, 9 Nov 2004 21:25:44 -0500
+Received: from soundwarez.org ([217.160.171.123]:40077 "EHLO soundwarez.org")
+	by vger.kernel.org with ESMTP id S261999AbUKJCZd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 21:21:43 -0500
-Date: Tue, 9 Nov 2004 18:21:29 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Stefan Schmidt <zaphodb@zaphods.net>
-Cc: marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org,
-       piggin@cyberone.com.au, netdev@oss.sgi.com
-Subject: Re: 2.6.10-rc1-mm4 -1 EAGAIN after allocation failure was: Re:
- Kernel 2.6.9 Multiple Page Allocation Failures
-Message-Id: <20041109182129.22a4e9a3.akpm@osdl.org>
-In-Reply-To: <20041110020327.GE20754@zaphods.net>
-References: <20041103222447.GD28163@zaphods.net>
-	<20041104121722.GB8537@logos.cnet>
-	<20041104181856.GE28163@zaphods.net>
-	<20041109164113.GD7632@logos.cnet>
-	<20041109223558.GR1309@mail.muni.cz>
-	<20041109144607.2950a41a.akpm@osdl.org>
-	<20041109235201.GC20754@zaphods.net>
-	<20041110012733.GD20754@zaphods.net>
-	<20041109173920.08746dbd.akpm@osdl.org>
-	<20041110020327.GE20754@zaphods.net>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Tue, 9 Nov 2004 21:25:33 -0500
+Date: Wed, 10 Nov 2004 03:25:35 +0100
+From: Kay Sievers <kay.sievers@vrfy.org>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: /sys/devices/system/timer registered twice
+Message-ID: <20041110022535.GA10011@vrfy.org>
+References: <20041109193043.GA8767@vrfy.org> <20041109193947.GA5758@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041109193947.GA5758@kroah.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stefan Schmidt <zaphodb@zaphods.net> wrote:
->
-> > As for the application collapse: dunno.  Maybe networking broke.  It would
->  > be interesting to test Linus's current tree, at
->  > ftp://ftp.kernel.org/pub/linux/kernel/v2.6/snapshots/patch-2.6.10-rc1-bk19.gz
->  Will try that tomorrow. Would you suggest printing out show_free_areas();
->  there too? I don't know what kind of an overhead that will generate on
->  subsequent stack traces.
+On Tue, Nov 09, 2004 at 11:39:47AM -0800, Greg KH wrote:
+> On Tue, Nov 09, 2004 at 08:30:43PM +0100, Kay Sievers wrote:
+> > Hi,
+> > I got this on a Centrino box with the latest bk:
+> > 
+> >   [kay@pim linux.kay]$ ls -l /sys/devices/system/
+> >   total 0
+> >   drwxr-xr-x  7 root root 0 Nov  8 15:12 .
+> >   drwxr-xr-x  5 root root 0 Nov  8 15:12 ..
+> >   drwxr-xr-x  3 root root 0 Nov  8 15:12 cpu
+> >   drwxr-xr-x  3 root root 0 Nov  8 15:12 i8259
+> >   drwxr-xr-x  2 root root 0 Nov  8 15:12 ioapic
+> >   drwxr-xr-x  3 root root 0 Nov  8 15:12 irqrouter
+> >   ?---------  ? ?    ?    ?            ? timer
+> > 
+> > 
+> > It is caused by registering two devices with the name "timer" from:
+> > 
+> >   arch/i386/kernel/time.c
+> >   arch/i386/kernel/timers/timer_pit.c
+> > 
+> > If I change one of the names, I get two correct looking sysfs entries.
+> > 
+> > Greg, shouldn't the driver core prevent the corruption of the first
+> > device if another one tries to register with the same name?
+> 
+> Yes, we should handle this.  Can you try the patch below?  I just sent
+> it to Linus, as it fixes a bug that was recently introduced.
+> 
+> The second registration should fail, and this patch will make it fail,
+> and recover properly.
 
-I don't think it'd help much - we know what's happening.
+Yes, the registration fails. But it seems that the second call to
+create_dir(kobj) with a kobject with the same name and parent corrupts
+the dentry from the first call.
 
-It would be interesting to keep increasing min_free_kbytes, see if you can
-characterise the system's response to this setting.
+To test it, I just called create_dir(kobj) a second time for my video
+driver and the sysfs entry of the successful registered kobject was
+corrupted:
+
+  [kay@pim ~]$ ls -la /sys/class/video4linux/
+  total 0
+  drwxr-xr-x   3 root root 0 Nov 10 02:53 .
+  drwxr-xr-x  18 root root 0 Nov 10 02:53 ..
+  ?---------   ? ?    ?    ?            ? video0
+
+Thanks,
+Kay

@@ -1,45 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261560AbVCXVdZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261467AbVCXVje@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261560AbVCXVdZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 16:33:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261714AbVCXVdZ
+	id S261467AbVCXVje (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 16:39:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261716AbVCXVje
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 16:33:25 -0500
-Received: from fire.osdl.org ([65.172.181.4]:46314 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261560AbVCXVdV (ORCPT
+	Thu, 24 Mar 2005 16:39:34 -0500
+Received: from rproxy.gmail.com ([64.233.170.194]:20569 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261467AbVCXVjb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 16:33:21 -0500
-Date: Thu, 24 Mar 2005 13:33:02 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: Chris Wright <chrisw@osdl.org>, Jan Kara <jack@suse.cz>,
-       Mark Wong <markw@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>,
-       stable@kernel.org
-Subject: Re: ext3 journalling BUG on full filesystem
-Message-ID: <20050324213302.GJ28536@shell0.pdx.osdl.net>
-References: <20050323202130.GA30844@osdl.org> <20050323221753.GA6334@cse.unsw.EDU.AU> <20050324103945.GF19394@atrey.karlin.mff.cuni.cz> <1111691379.1995.91.camel@sisko.sctweedie.blueyonder.co.uk> <20050324193834.GH28536@shell0.pdx.osdl.net> <1111699467.1995.94.camel@sisko.sctweedie.blueyonder.co.uk>
+	Thu, 24 Mar 2005 16:39:31 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=Or+edyheBwXwrTSKWElPGHe4ltV6xS5Hq/uIhO+dsL4zweAP3SgPk66sDIsg6wRB3TSPxyQi5c7ExyDU+yAq119qwO/ta47Ie/jQCrn9Id0E1iHRKYDqaEFG0ypWv9v0GfNjijzD4iMXD8MR0qDBJhHpodnmbikVPR9u0ehyJJU=
+Message-ID: <d120d5000503241339b0b5312@mail.gmail.com>
+Date: Thu, 24 Mar 2005 16:39:31 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Adrian Bunk <bunk@stusta.de>
+Subject: Re: [2.6 patch] drivers/input/serio/libps2.c: ps2_command: add a missing check
+Cc: linux-input@atrey.karlin.mff.cuni.cz, vojtech@suse.cz,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20050324212602.GD3966@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1111699467.1995.94.camel@sisko.sctweedie.blueyonder.co.uk>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+References: <20050324031447.GY1948@stusta.de>
+	 <200503240013.16573.dtor_core@ameritech.net>
+	 <20050324212602.GD3966@stusta.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Stephen C. Tweedie (sct@redhat.com) wrote:
-> On Thu, 2005-03-24 at 19:38, Chris Wright wrote:
+On Thu, 24 Mar 2005 22:26:02 +0100, Adrian Bunk <bunk@stusta.de> wrote:
+> On Thu, Mar 24, 2005 at 12:13:16AM -0500, Dmitry Torokhov wrote:
+> > On Wednesday 23 March 2005 22:14, Adrian Bunk wrote:
+> > > The Coverity checker noted that while all other uses of param in
+> > > ps2_command() were guarded by a NULL check, this one wasn't.
+> > >
+> > > Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> > >
+> > > --- linux-2.6.12-rc1-mm1-full/drivers/input/serio/libps2.c.old      2005-03-24 02:37:08.000000000 +0100
+> > > +++ linux-2.6.12-rc1-mm1-full/drivers/input/serio/libps2.c  2005-03-24 02:38:28.000000000 +0100
+> > > @@ -106,9 +106,10 @@ int ps2_command(struct ps2dev *ps2dev, u
+> > >                     command == PS2_CMD_RESET_BAT ? 1000 : 200))
+> > >                     goto out;
+> > >
+> > > -   for (i = 0; i < send; i++)
+> > > -           if (ps2_sendbyte(ps2dev, param[i], 200))
+> > > -                   goto out;
+> > > +   if (param)
+> > > +           for (i = 0; i < send; i++)
+> > > +                   if (ps2_sendbyte(ps2dev, param[i], 200))
+> > > +                           goto out;
+> > >
+> >
+> > I somewhat disagree on this one. If caller specified that command requires
+> > arguments to be sent and it does not provide them I'd rather had it OOPS on
+> > the spot. With receiving, however, caller does not really have control over
+> > number of characters coming from the device so specifying NULL allows just
+> > ignore whatever response there is.
 > 
-> > OK, good to know.  When I last checked you were working on a higher risk
-> > yet more complete fix, and I thought we'd wait for that one to stabilize.
-> > Looks like the one Jan attached is the better -stable candidate?
+> Understood.
 > 
-> Definitely; it's the one I gave akpm.  The lock reworking is going to
-> remove one layer of locks, so it's worthwhile from that point of view;
-> but it's longer-term, and I don't know for sure of any paths to chaos
-> with that simpler journal_unmap_buffer() fix in place.  (It's just very
-> hard to _prove_ all cases are correct without the locking rework.)
+> Could this be handled with a BUG_ON?
+>
 
-Great, I'll add to -stable queue.  Thanks Stephen.
--chris
+Yes, if it will make the checker happy. Although I (and this is
+probably just me) use BUG_ON only if kernel would not OOPS otherwise,
+to avoid scribbling over random memory and such.
+
 -- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+Dmitry

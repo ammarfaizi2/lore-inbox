@@ -1,51 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265701AbSJTADt>; Sat, 19 Oct 2002 20:03:49 -0400
+	id <S265704AbSJTAIF>; Sat, 19 Oct 2002 20:08:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265704AbSJTADt>; Sat, 19 Oct 2002 20:03:49 -0400
-Received: from orion.netbank.com.br ([200.203.199.90]:39689 "EHLO
-	orion.netbank.com.br") by vger.kernel.org with ESMTP
-	id <S265701AbSJTADt>; Sat, 19 Oct 2002 20:03:49 -0400
-Date: Sat, 19 Oct 2002 21:09:43 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ipv4: only produce one record in fib_seq_show
-Message-ID: <20021020000943.GL14009@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	"David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-References: <20021019233236.GI14009@conectiva.com.br> <20021019.165451.110952098.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021019.165451.110952098.davem@redhat.com>
-User-Agent: Mutt/1.4i
-X-Url: http://advogato.org/person/acme
+	id <S265707AbSJTAIF>; Sat, 19 Oct 2002 20:08:05 -0400
+Received: from rwcrmhc53.attbi.com ([204.127.198.39]:64916 "EHLO
+	rwcrmhc53.attbi.com") by vger.kernel.org with ESMTP
+	id <S265704AbSJTAIE>; Sat, 19 Oct 2002 20:08:04 -0400
+Message-ID: <3DB1F55E.2060501@quark.didntduck.org>
+Date: Sat, 19 Oct 2002 20:14:22 -0400
+From: Brian Gerst <bgerst@quark.didntduck.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andre Hedrick <andre@linux-ide.org>
+CC: Christian Borntraeger <linux@borntraeger.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: ide-related kernel panic in 2.4.19 and 2.4.20-pre11
+References: <Pine.LNX.4.10.10210191627090.24031-100000@master.linux-ide.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Sat, Oct 19, 2002 at 04:54:51PM -0700, David S. Miller escreveu:
-> This change is problematic, the FIB etc. lookup engine internal
-> structure must be entirely private to the implementation.
+Andre Hedrick wrote:
+>>Copy-protected discs abuse the CD standards to the point where CDROM
+>>drives consider them defective and can't/won't read them, while less
+>>intelligent devices can.  Trying to read one of these discs should only
+>>cause the kernel to return an error, never an oops.
 > 
-> That allows it to be changed arbitrarily and the rest of the
-> kernel will not notice.
 > 
-> You should probably move the seq_file handling here directly back into
-> the routing code.
-> 
-> Really, we should not be exporting all of these lookup tables merely
-> for the sake of ip_proc.c, in fact move all this seq_file stuff back
-> into the arp/udp/fib/etc. places they came from.  Exporting these
-> tables just for this makes no sense the more I think about it.
+> You admit that older dumber devices just work.
+> So much for new and improved, go find the old and lousy that works.
 
-Humm, OKey chief, but the rest of the kernel in this case would be just
-ip_proc, but I see, having it exported may well lead to someone to use it for
-other purposes, ok, ok, back to work.
+Audio-only CD players are cheap and dumb.  The standard audio CD format 
+is not complex, and certain parts of the disc that are needed for data 
+CDs are ignored by audio players.  This is where the copy-protected 
+discs use false data to confuse CDROM drives.
 
-I'll start with fib, as it was not merged yet and its a fix that has to get in.
+> Asking me to make it so you or anyone else can bypass
+> copy-content-protection is out of the question.  If you do not ask the
+> device to do bad things, then it will not do bad things back at you.
 
-What about the CONFIG_IP_PROC_FS idea? Does it sounds reasonable or is it utter
-crap? :-)
+Nobody asked you to bypass the protection, only to sanely error out when 
+it is found.  Refusing to read the disk is ok, but allowing the system 
+to crash is not.
 
-- Arnaldo
+--
+				Brian Gerst
+

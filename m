@@ -1,45 +1,122 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317036AbSGSVhE>; Fri, 19 Jul 2002 17:37:04 -0400
+	id <S317056AbSGSVoN>; Fri, 19 Jul 2002 17:44:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317037AbSGSVhE>; Fri, 19 Jul 2002 17:37:04 -0400
-Received: from sccrmhc02.attbi.com ([204.127.202.62]:51913 "EHLO
-	sccrmhc02.attbi.com") by vger.kernel.org with ESMTP
-	id <S317036AbSGSVhE>; Fri, 19 Jul 2002 17:37:04 -0400
-Message-ID: <3D388479.1060908@namesys.com>
-Date: Sat, 20 Jul 2002 01:28:25 +0400
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
-X-Accept-Language: en-us, en
+	id <S317072AbSGSVoN>; Fri, 19 Jul 2002 17:44:13 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:65038 "HELO
+	garrincha.netbank.com.br") by vger.kernel.org with SMTP
+	id <S317056AbSGSVoF>; Fri, 19 Jul 2002 17:44:05 -0400
+Date: Fri, 19 Jul 2002 18:46:52 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Andrew Morton <akpm@zip.com.au>, <linux-kernel@vger.kernel.org>,
+       <linux-mm@kvack.org>, Ed Tomlinson <tomlins@cam.org>
+Subject: [PATCH] return values shrink_dcache_memory etc
+Message-ID: <Pine.LNX.4.44L.0207191842080.12241-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-To: Michael Hohnbaum <hohnbaum@us.ibm.com>
-CC: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-       Guillaume Boissiere <boissiere@adiglobal.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6] Most likely to be merged by Halloween... THE LIST]
-References: <3D3875D4.3090102@us.ibm.com> <1027111243.1269.94.camel@dyn9-47-17-90.beaverton.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Forgive a silly question due to the odd phrasing of the subject line of 
-this thread:
+Hi,
 
-Is Halloween the deadline for submission of patches, or the deadline for 
-inclusion?  If I send in reiser4 on Halloween day according to some 
-timezone;-), have I made the deadline for inclusion into 2.6 even if it 
-takes Linus a few months to reach my place in the queue of patches sent 
-to him on Halloween day?
+this patch, against current 2.5 BK, builds on the patch that let
+kmem_cache_shrink return the number of pages freed. This value
+is used as the return value for shrink_dcache_memory and friends.
 
-I understand that earlier is better, and I will send it earlier if I 
-can, but even if we do get the reiser4 core (that which does all that V3 
-does but faster and on top of a plugin infrastructure) done before 
-Halloween, we will inevitably add a few features and tweaks after doing 
-the core, and we will want to send those in at the last minute.
+This is useful not just for more accurate OOM detection, but also as
+a preparation for putting these reclaimable slab pages on the LRU list.
+This change was originally done by Ed Tomlinson.
 
+please apply,
+thank you,
+
+Rik
 -- 
-Hans
+Bravely reimplemented by the knights who say "NIH".
 
+ fs/dcache.c |    3 +--
+ fs/dquot.c  |    3 +--
+ fs/inode.c  |    3 +--
+ mm/vmscan.c |    6 +++---
+ 4 files changed, 6 insertions(+), 9 deletions(-)
 
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.660   -> 1.661
+#	         fs/dcache.c	1.29    -> 1.30
+#	          fs/dquot.c	1.43    -> 1.44
+#	         mm/vmscan.c	1.85    -> 1.86
+#	          fs/inode.c	1.66    -> 1.67
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 02/07/19	riel@imladris.surriel.com	1.661
+# use the return values from shrink_dcache_memory, shrink_icache_memory
+# and shrink_dqcache_memory (thanks to Ed Tomlinson)
+# --------------------------------------------
+#
+diff -Nru a/fs/dcache.c b/fs/dcache.c
+--- a/fs/dcache.c	Fri Jul 19 18:22:35 2002
++++ b/fs/dcache.c	Fri Jul 19 18:22:35 2002
+@@ -603,8 +603,7 @@
+ 	count = dentry_stat.nr_unused / priority;
+
+ 	prune_dcache(count);
+-	kmem_cache_shrink(dentry_cache);
+-	return 0;
++	return kmem_cache_shrink(dentry_cache);
+ }
+
+ #define NAME_ALLOC_LEN(len)	((len+16) & ~15)
+diff -Nru a/fs/dquot.c b/fs/dquot.c
+--- a/fs/dquot.c	Fri Jul 19 18:22:35 2002
++++ b/fs/dquot.c	Fri Jul 19 18:22:35 2002
+@@ -498,8 +498,7 @@
+ 	count = dqstats.free_dquots / priority;
+ 	prune_dqcache(count);
+ 	unlock_kernel();
+-	kmem_cache_shrink(dquot_cachep);
+-	return 0;
++	return kmem_cache_shrink(dquot_cachep);
+ }
+
+ /*
+diff -Nru a/fs/inode.c b/fs/inode.c
+--- a/fs/inode.c	Fri Jul 19 18:22:35 2002
++++ b/fs/inode.c	Fri Jul 19 18:22:35 2002
+@@ -431,8 +431,7 @@
+ 	count = inodes_stat.nr_unused / priority;
+
+ 	prune_icache(count);
+-	kmem_cache_shrink(inode_cachep);
+-	return 0;
++	return kmem_cache_shrink(inode_cachep);
+ }
+
+ /*
+diff -Nru a/mm/vmscan.c b/mm/vmscan.c
+--- a/mm/vmscan.c	Fri Jul 19 18:22:35 2002
++++ b/mm/vmscan.c	Fri Jul 19 18:22:35 2002
+@@ -389,12 +389,12 @@
+
+ 	wakeup_bdflush();
+
+-	shrink_dcache_memory(priority, gfp_mask);
++	nr_pages += shrink_dcache_memory(priority, gfp_mask);
+
+ 	/* After shrinking the dcache, get rid of unused inodes too .. */
+-	shrink_icache_memory(1, gfp_mask);
++	nr_pages += shrink_icache_memory(1, gfp_mask);
+ #ifdef CONFIG_QUOTA
+-	shrink_dqcache_memory(DEF_PRIORITY, gfp_mask);
++	nr_pages += shrink_dqcache_memory(DEF_PRIORITY, gfp_mask);
+ #endif
+
+ 	return nr_pages;
 

@@ -1,47 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262709AbTKYPJb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Nov 2003 10:09:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262731AbTKYPJb
+	id S262738AbTKYPXS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Nov 2003 10:23:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262740AbTKYPXS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Nov 2003 10:09:31 -0500
-Received: from bristol.phunnypharm.org ([65.207.35.130]:10886 "EHLO
-	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
-	id S262709AbTKYPJa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Nov 2003 10:09:30 -0500
-Date: Tue, 25 Nov 2003 10:00:25 -0500
-From: Ben Collins <bcollins@debian.org>
-To: Larry McVoy <lm@bitmover.com>
-Cc: linux-kernel@vger.kernel.org, hpa@zytor.com
-Subject: Re: data from kernel.bkbits.net
-Message-ID: <20031125150025.GT1090@phunnypharm.org>
-References: <20031124051910.GA2766@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031124051910.GA2766@work.bitmover.com>
+	Tue, 25 Nov 2003 10:23:18 -0500
+Received: from natsmtp00.rzone.de ([81.169.145.165]:26840 "EHLO
+	natsmtp00.webmailer.de") by vger.kernel.org with ESMTP
+	id S262738AbTKYPXO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Nov 2003 10:23:14 -0500
+Message-ID: <3FC373DE.9090507@softhome.net>
+Date: Tue, 25 Nov 2003 16:23:10 +0100
+From: "Ihar 'Philips' Filipau" <filia@softhome.net>
+Organization: Home Sweet Home
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20030927
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: arjanv@redhat.com
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.2/2.4/2.6 VMs: do malloc() ever return NULL?
+References: <VLAm.2g1.9@gated-at.bofh.it> <VM3n.3jY.9@gated-at.bofh.it>
+In-Reply-To: <VM3n.3jY.9@gated-at.bofh.it>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 23, 2003 at 09:19:10PM -0800, Larry McVoy wrote:
+Arjan van de Ven wrote:
 > 
-> I've been trying to get all the data off the drives on the machine which
-> was broken into.  I have a feeling that whoever this was was hiding stuff
-> in the file system because both drives will not fsck clean nor will they
-> completely read.
+> that is due to the overcommit policy that your admin has set. 
+> You can set it to disabled and then malloc will return NULL in userspace
 > 
-> I've managed to get most of the data off but not all.  Given that I've put
-> about 3 days into this I'm pretty much done.  If someone else wants to look
-> at the drives I can make them available, let me know.  But just reading the
-> main drive makes the kernel (Fedora 1) kill the tar process as below (it
-> also managed to wack the system enough that it overwrote the NVRAM with
-> garbage).  It hasn't been a fun weekend.
 
-FYI, you can ignore the large SVN repos. They are easily rebuilt. I just
-need the bkcvs2svn script in my home directory.
+    Target (patched by mvista) system works as expected in case of 
+memory being touch.
+    But in case of "for(;;) malloc(N)" it still gets 1.8GB memory 
+allocated. (this is ppc32 - looks like 2/2 memory split) So it doesn't 
+look like working at all. So basicly pool allocation used in carrier 
+grade systems goes south: even with overcommit_memory=-1 && malloc()!=0 
+you can not be sure that memory is really allocated. Not good.
+
+    Vanilla 2.4.22 (this is x86) (with HZ=1024, if it does matter).
+
+    after '# echo -1 >/proc/sys/vm/overcommit_memory'
+    1. test app with memory touch still gets killed by oom_killer. (so 
+no malloc() == NULL)
+    2. test app w/o memory touch still can happily allocate 2.8GB of 
+memory (x86 - looks like 3/1 memory split) and only then gets NULL 
+pointer - oom_killer is silent.
+
+    But thanks for pointers in any way...
 
 -- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-WatchGuard - http://www.watchguard.com/
+Ihar 'Philips' Filipau  / with best regards from Saarbruecken.
+--                                                           _ _ _
+  Because the kernel depends on it existing. "init"          |_|*|_|
+  literally _is_ special from a kernel standpoint,           |_|_|*|
+  because its' the "reaper of zombies" (and, may I add,      |*|*|*|
+  that would be a great name for a rock band).
+                                 -- Linus Torvalds
+

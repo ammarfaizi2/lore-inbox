@@ -1,58 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264586AbUADDCW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jan 2004 22:02:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264927AbUADDCW
+	id S264927AbUADDE2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jan 2004 22:04:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264933AbUADDE2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jan 2004 22:02:22 -0500
-Received: from vladimir.pegasys.ws ([64.220.160.58]:52232 "EHLO
-	vladimir.pegasys.ws") by vger.kernel.org with ESMTP id S264586AbUADDCV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jan 2004 22:02:21 -0500
-Date: Sat, 3 Jan 2004 19:02:16 -0800
-From: jw schultz <jw@pegasys.ws>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Strange IDE performance change in 2.6.1-rc1 (again)
-Message-ID: <20040104030216.GB7758@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
-	linux-kernel@vger.kernel.org
-References: <200401021658.41384.ornati@lycos.it> <3FF5B3AB.5020309@wmich.edu> <200401022200.22917.ornati@lycos.it> <20040103033327.GA413@melchior.yamamaya.is-a-geek.org> <200401030415.i034FJoc006230@turing-police.cc.vt.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200401030415.i034FJoc006230@turing-police.cc.vt.edu>
-User-Agent: Mutt/1.3.27i
-X-Message-Flag: This message may contain content unsuitable for young readers.  Parental guidance is suggested.
+	Sat, 3 Jan 2004 22:04:28 -0500
+Received: from fw.osdl.org ([65.172.181.6]:13795 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264927AbUADDE0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jan 2004 22:04:26 -0500
+Date: Sat, 3 Jan 2004 19:04:17 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andries Brouwer <aebr@win.tue.nl>
+cc: Rob Love <rml@ximian.com>, rob@landley.net,
+       Pascal Schmidt <der.eremit@email.de>, linux-kernel@vger.kernel.org,
+       Greg KH <greg@kroah.com>
+Subject: Re: udev and devfs - The final word
+In-Reply-To: <20040104034934.A3669@pclin040.win.tue.nl>
+Message-ID: <Pine.LNX.4.58.0401031856130.2162@home.osdl.org>
+References: <1072970573.3975.3.camel@fur> <20040101164831.A2431@pclin040.win.tue.nl>
+ <1072972440.3975.29.camel@fur> <Pine.LNX.4.58.0401021238510.5282@home.osdl.org>
+ <20040103040013.A3100@pclin040.win.tue.nl> <Pine.LNX.4.58.0401022033010.10561@home.osdl.org>
+ <20040103141029.B3393@pclin040.win.tue.nl> <Pine.LNX.4.58.0401031423180.2162@home.osdl.org>
+ <20040104000840.A3625@pclin040.win.tue.nl> <Pine.LNX.4.58.0401031802420.2162@home.osdl.org>
+ <20040104034934.A3669@pclin040.win.tue.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 02, 2004 at 11:15:18PM -0500, Valdis.Kletnieks@vt.edu wrote:
-> On Sat, 03 Jan 2004 04:33:28 +0100, Tobias Diedrich <ranma@gmx.at>  said:
+
+
+On Sun, 4 Jan 2004, Andries Brouwer wrote:
 > 
-> > Very interesting tidbit:
-> > 
-> > with 2.6.1-rc1 and "dd if=/dev/hda of=/dev/null" I get stable 28 MB/s,
-> > but with "cat < /dev/hda > /dev/null" I get 48 MB/s according to "vmstat
-> > 5".
-> 
-> 'cat' is probably doing a stat() on stdout and seeing it's connected to /dev/null
-> and not even bothering to do the write() call.  I've seen similar behavior in other
-> GNU utilities.  
+> You write long stories - but it really is desirable to have
+> stable device numbers.
 
-That is unlikely.
+And I write the long stories because you do not seem to _get_ the point.
 
-However, i have seen some versions of cat check the input
-file and if it is mappable mmap it instead of read.  Given
-that a write to /dev/null returns count without
-copy_from_user the mapped page never faults so there is no
-disk io.
+The point is that we will most likely ON PURPOSE break those stable device 
+numbers, for debugging reasons. Because it is _not_ desirable to have 
+people _believe_ that they can depend on stable device numbers.
 
+> I don't see why that would be relevant. One identifies
+> things by their UUID. Order is never important.
 
+And this is exactly how it should be. However, it requires that user code 
+actually does the right thing.
 
+And to _verify_ that user code properly identifies devices by other things 
+than device numbers, we should during 2.7.x explicitly _break_ all 
+dependencies on stable device numbers.
 
--- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
+And UUID's are _not_ "device numbers". They fundamentally _cannot_ be 
+that, because the kernel just doesn't have any information on how to 
+generate a unique identifier that is actually stable.
 
-		Remember Cernan and Schmitt
+The kernel doesn't know what it can depend on - should it look at the UUID
+in the boot sector of the disk, or should it look up the UUID using IP
+number reverse lookup, or what? 
+
+The only thing that can generate a UUID is literally user mode. Which is 
+_exactly_ why things like udev exists.
+
+So device numbers are _not_ UUID's. Device numbers are needed before the 
+UUID's have been identified. 
+
+And that has been my point all along: device numbers do not have any
+meaning. They are neither unique nor stable across reboots. They have no
+information AT ALL associated with them. Anybody who thinks that they are
+is fundamentally _wrong_ about it.
+
+I agree that for a stable kernel we should then go back to "best effort" 
+mode, where for simple politeness reasons we should try to keep device 
+numbers as stable as we can. 
+
+		Linus

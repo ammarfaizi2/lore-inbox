@@ -1,82 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129501AbQKSTR3>; Sun, 19 Nov 2000 14:17:29 -0500
+	id <S129404AbQKSTvF>; Sun, 19 Nov 2000 14:51:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129404AbQKSTRU>; Sun, 19 Nov 2000 14:17:20 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:56837 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129501AbQKSTRK>; Sun, 19 Nov 2000 14:17:10 -0500
-Date: Sun, 19 Nov 2000 10:46:35 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andrew Morton <andrewm@uow.edu.au>
-cc: Christoph Rohland <cr@sap.com>, David Mansfield <lkml@dm.ultramaster.com>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] semaphore fairness patch against test11-pre6
-In-Reply-To: <3A17CCB4.19416026@uow.edu.au>
-Message-ID: <Pine.LNX.4.10.10011191008150.1934-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129501AbQKSTu4>; Sun, 19 Nov 2000 14:50:56 -0500
+Received: from jabberwock.ucw.cz ([62.168.0.131]:26890 "EHLO jabberwock.ucw.cz")
+	by vger.kernel.org with ESMTP id <S129404AbQKSTuk>;
+	Sun, 19 Nov 2000 14:50:40 -0500
+Date: Sun, 19 Nov 2000 20:20:33 +0100
+From: Martin Mares <mj@suse.cz>
+To: Steven Walter <srwalter@hapablap.dyn.dhs.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: "No IRQ known for interrupt pin A..." error message
+Message-ID: <20001119202033.A272@albireo.ucw.cz>
+In-Reply-To: <20001118181110.A424@hapablap.dyn.dhs.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20001118181110.A424@hapablap.dyn.dhs.org>; from srwalter@hapablap.dyn.dhs.org on Sat, Nov 18, 2000 at 06:11:10PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello!
 
-
-On Sun, 19 Nov 2000, Andrew Morton wrote:
+> During boot, I get the message:
 > 
-> I don't see a path where David's patch can cause a lost wakeup in the
-> way you describe.
+> PCI: No IRQ known for interrupt pin A of device 00:00.1. Please try
+> using pci=biosirq.
 
-Basically, if there are two up() calls, they might end up waking up only
-one process, because the same process goes to sleep twice. That's wrong.
-It should wake up two processes.
-
-However, thinking about it more, that's obviously possible only for
-semaphores that are used for more than just mutual exclusion, and
-basically nobody does that anyway. 
-
-> Next step is to move the waitqueue and wakeup operations so they're
-> inside the spinlock.  Nope.  That doesn't work either.
-> 
-> Next step is to throw away the semaphore_lock and use the sem->wait
-> lock instead.  That _does_ work.  This is probably just a
-> fluke - it synchronises the waker with the sleepers and we get lucky.
-
-Yes, especially on a two-cpu machine that kind of synchronization can
-basically end up hiding real bugs.
-
-I'll think about this some more. One thing I noticed is that the
-"wake_up(&sem->wait);" at the end of __down() is kind of bogus: we don't
-actually want to wake anybody up at that point at all, it's just that if
-we don't wake anybody up we'll end up having "sem = 0, sleeper = 0", and
-when we unlock the semaphore the "__up()" logic won't trigger, and we
-won't ever wake anybody up. That's just incredibly bogus.
-
-Instead of the "wake_up()" at the end of __down(), we should have
-something like this at the end of __down() instead:
-
-			... for-loop ...
-		}
-		tsk->state = TASK_RUNNING;
-		remove_wait_queue(&sem->wait, &wait);
-
-		/* If there are others, mark the semaphore active */
-		if (wait_queue_active(&sem_wait)) {
-			atomic_dec(&sem->count);
-			sem->sleepers = 1;
-		}
-		spin_unlock_irq(&semaphore_lock);
-	}
-
-which would avoid an unnecessary reschedule, and cause the wakeup to
-happen at the proper point, namely "__up()" when we release the
-semaphore.
-
-I suspect this may be part of the trouble with the "sleepers" count
-playing: we had these magic rules that I know I thought about when the
-code was written, but that aren't really part of the "real" rules.
-
-		Linus
-
+Can you send me 'lspci -vvx' output, please?
+ 
+				Have a nice fortnight
+-- 
+Martin `MJ' Mares <mj@ucw.cz> <mj@suse.cz> http://atrey.karlin.mff.cuni.cz/~mj/
+"System going down at 1:45 for disk crashing."
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

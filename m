@@ -1,76 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265681AbUGCA4X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265749AbUGCBIc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265681AbUGCA4X (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jul 2004 20:56:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265692AbUGCA4X
+	id S265749AbUGCBIc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jul 2004 21:08:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265772AbUGCBIc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jul 2004 20:56:23 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:54716 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S265681AbUGCA4V (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jul 2004 20:56:21 -0400
-Date: Sat, 3 Jul 2004 02:56:03 +0200
-From: Andries Brouwer <Andries.Brouwer@cwi.nl>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Szakacsits Szabolcs <szaka@sienet.hu>,
-       "Patrick J. LoPresti" <patl@users.sourceforge.net>,
-       Anton Altaparmakov <aia21@cam.ac.uk>,
-       Andries Brouwer <Andries.Brouwer@cwi.nl>, bug-parted@gnu.org,
-       "K.G." <k_guillaume@libertysurf.fr>,
-       Steffen Winterfeldt <snwint@suse.de>, Thomas Fehr <fehr@suse.de>,
-       linux-kernel@vger.kernel.org, clausen@gnu.org, buytenh@gnu.org,
-       msw@redhat.com
-Subject: Re: [RFC] Restoring HDIO_GETGEO semantics (was: Re: workaround for BIOS / CHS stuff)
-Message-ID: <20040703005555.GA20808@apps.cwi.nl>
-References: <Pine.LNX.4.21.0407030201520.30622-100000@mlf.linux.rulez.org> <200407030242.39075.bzolnier@elka.pw.edu.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200407030242.39075.bzolnier@elka.pw.edu.pl>
-User-Agent: Mutt/1.4i
+	Fri, 2 Jul 2004 21:08:32 -0400
+Received: from mlf.linux.rulez.org ([192.188.244.13]:4369 "EHLO
+	mlf.linux.rulez.org") by vger.kernel.org with ESMTP id S265749AbUGCBIb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jul 2004 21:08:31 -0400
+Date: Sat, 3 Jul 2004 03:08:29 +0200 (MEST)
+From: Szakacsits Szabolcs <szaka@sienet.hu>
+To: Anthony Ewell <aewell@gbis.com>
+Cc: bug-parted@gnu.org, linux-kernel@vger.kernel.org, Andries.Brouwer@cwi.nl
+Subject: Re: [RFC] Restoring HDIO_GETGEO semantics
+In-Reply-To: <40E5FFD2.7040804@gbis.com>
+Message-ID: <Pine.LNX.4.21.0407030259460.19875-100000@mlf.linux.rulez.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(i) Szaka wrote stuff that I interpreted as stating (a) that parted
-is seriously broken, and (b) that parted is unmaintained.
 
-Now that I look, I find parted-1.6.11 with a Changelog with last change,
-Andrew Clausen 2004-04-25. That is not long ago.
+On Fri, 2 Jul 2004, Anthony Ewell wrote:
+> 
+>     By any chance is the the same bug that is causing FC2's installer
+> to trash dual booting to Windows?
+> 
+>         https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=115980
+> 
+>     If it is, it is causing an ever living nightmare out in the FC2
+> world.   The above link has zillions of painfully documented
+> technical experiences, with work-a-rounds, that may help in
+> troubleshooting this problem.  I personally am holding off on
+> upgrading to FC2 until bug 115980 is fixed: I can not afford to
+> get my Windows partitions trashed (I know, the partition are okay,
+> I just can not boot to them).
+> 
+>     If not, maybe bug 115980 will have something else of help.
 
-Upon looking further, I find that Andrew Clausen answered on the
-parted mailing list on 2004-06-26, not long ago at all.
+Yes, Fedora, SUSE, Mandrake, new Debian install, etc virtually everybody
+has this problem but since there are many bugs in parted it manifests
+different way so it's indeed pretty confusing (people look for _the_ bug
+but there are many).
 
-So, any suggestions (maybe misunderstood by me) about parted being
-unmaintained, are completely incorrect.
+http://portal.suse.com/sdb/en/2004/05/fhassel_windows_not_booting91.html
+https://qa.mandrakesoft.com/show_bug.cgi?id=7959
 
-Concerning the "seriously broken" part, looking at the various available
-sources I find that indeed parted has always been seriously broken,
-but now Andrew has added stuff in an attempt to fix things.
-His added stuff is broken as well, but clearly work is being done,
-so instead of shouting on the kernel list it seems more productive
-to tell Andrew precisely in what ways his stuff is broken.
-I would expect that very soon parted is fine.
+	Szaka
 
-
-(ii) Various people talk about moving disks between machines.
-Such people have not understood the main fact here:
-the geometry is not a property of the disk but of the BIOS.
-It is futile to hope for a construction that will work across
-different machines with different BIOSes.
-
-
-(iii) Bartlomiej writes:
-
-> I now think that Andries should have removed HDIO_GETGEO from
-> IDE driver _completely_ instead of only removing ide-geometry.c.
-
-The main reason that it still exists is that it provides some
-information not (easily) available elsewhere, namely the starting
-offset.
-
-But it is true, returning 0 in all other fields would have made
-it more clear that there is no attempt to return the BIOS geometry.
-It might be a good idea to do that.
-
-
-Andries

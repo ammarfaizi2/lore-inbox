@@ -1,49 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277387AbRJJT7f>; Wed, 10 Oct 2001 15:59:35 -0400
+	id <S277392AbRJJUBf>; Wed, 10 Oct 2001 16:01:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277389AbRJJT7Z>; Wed, 10 Oct 2001 15:59:25 -0400
-Received: from asterix.hrz.tu-chemnitz.de ([134.109.132.84]:51657 "EHLO
-	asterix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S277387AbRJJT7P>; Wed, 10 Oct 2001 15:59:15 -0400
-Subject: Re: APM on a HP Omnibook XE3
-Date: 10 Oct 2001 21:59:41 +0200
-Organization: Chemnitz University of Technology
-Message-ID: <87ofnfb70y.fsf@kosh.ultra.csn.tu-chemnitz.de>
-In-Reply-To: <200108301443355.SM00167@there> <m2elobn7a3.fsf@anano.mitica> <m3sncrh9u8.fsf@giants.mandrakesoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Artificial Intelligence)
-To: linux-kernel@vger.kernel.org
-From: Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
+	id <S277390AbRJJUB1>; Wed, 10 Oct 2001 16:01:27 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:50954 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S277389AbRJJUBP>; Wed, 10 Oct 2001 16:01:15 -0400
+From: Linus Torvalds <torvalds@transmeta.com>
+Date: Wed, 10 Oct 2001 13:00:29 -0700
+Message-Id: <200110102000.f9AK0SU02765@penguin.transmeta.com>
+To: eduard.epi@t-online.de
+Subject: Re: Invalid operand with 2.4.11
+Newsgroups: linux.dev.kernel
+In-Reply-To: <Pine.LNX.4.33.0110102109460.1363-100000@eduard.t-online.de>
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-chmouel@mandrakesoft.com (Chmouel Boudjnah) writes:
+In article <Pine.LNX.4.33.0110102109460.1363-100000@eduard.t-online.de> you write:
+>
+>I am using a SuSE 7.2 distro. When I'm starting their yast2, it crashes
+>reliably and leaves this message in the log (run through ksymoops):
 
-> > robert> I have a HP Omnibook XE3 with SuSE Linux 7.2 installed.
-> > robert> Everything works fine except suspend-to-disk.
-> > [...]
-> > robert> Any ideas what I could do?
-> > 
-> > For me Fn+F12 works.
-> > apm -s & apm -S fails.
-> 
-> works only if you have a suspend-on-disk partition.
+I'd absolutely _love_ it if you can pinpoint this to a particular
+pre-release.  Something like "it doesn't happen with pre5, but it does
+happen with pre6".  Or "pre6 was fine, but the final 2.4.11 breaks". 
 
-lphdisk can create such a partition for you (or the tool coming on the
-HP CD deleting the entire drive).
+Mind doing that? Together with a full config file, and I'll have a much
+better idea of what broke..
 
+The oops itself _seems_ to because the slab debugging (which you had
+enabled: good for you!) catches on CHECK_PAGE() when freeing the name
+slab at the end of open_namei():
 
-I have made the experience that hibernation stops to work when GRUB was
-installed into the bootsector. When installing it into the MBR all
-things are fine and Fn+F12 suspends to disk. (I have heard reports
-about a Dell Inspiron 4000, where the opposite situation is the case)
+    # define CHECK_PAGE(page)                                       \
+        do {                                                    \
+                CHECK_NR(page);                                 \
+                if (!PageSlab(page)) {                          \
+                        printk(KERN_ERR "kfree: bad ptr %lxh.\n", \  
+                                (unsigned long)objp);           \
+                        BUG();                                  \
+                }                                               \
+        } while (0)
 
-If you have installed the bootloader on hdaX already, you can try to
-overwrite the first 512 byte with \0 (yes; it's a dangerous operation).
+but it's a bit hard sometimes to debug these things remotely. Did you
+see that "kfree: bad ptr" message?
 
+Anyway, I do have one (possibly bad) suspicion: one thing you can try
+with plain 2.4.11 is to remove the "FASTCALL()" macro in <linux/fs.h>
+around the __user_walk/path_init/path_walk/link_path_walk declarations.
+Those FASTCALL's are new, and I wonder if gcc has register pressure
+problems with them, which could cause corruption, which in turn would
+explain how "open_namei()" would to try to free a bad pointer.
 
+[ Yeah, that's it, blame it on the compiler.. ]
 
-Enrico
-
+		Linus

@@ -1,64 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262464AbVBXUKg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262465AbVBXUK7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262464AbVBXUKg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 15:10:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262465AbVBXUKg
+	id S262465AbVBXUK7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 15:10:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262466AbVBXUK6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 15:10:36 -0500
-Received: from relay1.tiscali.de ([62.26.116.129]:33731 "EHLO
-	webmail.tiscali.de") by vger.kernel.org with ESMTP id S262464AbVBXUK1
+	Thu, 24 Feb 2005 15:10:58 -0500
+Received: from one.firstfloor.org ([213.235.205.2]:60567 "EHLO
+	one.firstfloor.org") by vger.kernel.org with ESMTP id S262465AbVBXUKv
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 15:10:27 -0500
-Message-ID: <421E34B1.9050803@tiscali.de>
-Date: Thu, 24 Feb 2005 21:10:25 +0100
-From: Matthias-Christian Ott <matthias.christian@tiscali.de>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050108)
-X-Accept-Language: en-us, en
+	Thu, 24 Feb 2005 15:10:51 -0500
+To: Gerrit Huizenga <gh@us.ibm.com>
+Cc: ckrm-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] CKRM [2/8] More accurate account for CPU & IO
+ scheduling
+References: <E1D4FNo-0006vw-00@w-gerrit.beaverton.ibm.com>
+From: Andi Kleen <ak@muc.de>
+Date: Thu, 24 Feb 2005 21:10:49 +0100
+In-Reply-To: <E1D4FNo-0006vw-00@w-gerrit.beaverton.ibm.com> (Gerrit
+ Huizenga's message of "Thu, 24 Feb 2005 01:34:08 -0800")
+Message-ID: <m1is4hhg6u.fsf@muc.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Lukas Hejtmanek <xhejtman@mail.muni.cz>, linux-kernel@vger.kernel.org
-Subject: Re: USB 2.0 Mass storage device
-References: <20050224175918.GA7627@mail.muni.cz> <20050224181347.GA10847@kroah.com> <20050224182300.GA7778@mail.muni.cz> <20050224184928.GA11490@kroah.com> <20050224190548.GA7978@mail.muni.cz> <20050224191243.GD11806@kroah.com> <20050224191809.GB7978@mail.muni.cz> <20050224192207.GB12018@kroah.com>
-In-Reply-To: <20050224192207.GB12018@kroah.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
+Gerrit Huizenga <gh@us.ibm.com> writes:
 
->On Thu, Feb 24, 2005 at 08:18:09PM +0100, Lukas Hejtmanek wrote:
+> --- linux-2.6.11-rc5.orig/kernel/sched.c	2005-02-23 20:03:10.000000000 -0800
+> +++ linux-2.6.11-rc5/kernel/sched.c	2005-02-24 00:54:56.572070756 -0800
+> @@ -288,6 +288,8 @@
+> @@ -2806,6 +2809,8 @@
 >  
->
->>On Thu, Feb 24, 2005 at 11:12:43AM -0800, Greg KH wrote:
->>    
->>
->>>>When connected through uhci-hcd:
->>>>T:  Bus=04 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  2 Spd=12  MxCh= 0
->>>>        
->>>>
->>>Your device is only reporting that it can go at 12Mbit (full speed, not
->>>480Mbit, which is high speed.)
->>>      
->>>
->>Is this independent of used driver?
->>    
->>
->
->Yes, this is read from the descriptor of the device.
->
->thanks,
->
->greg k-h
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
-But why does the usb mass storage give this information to the usb 
-driver? Shouldn't it report that it works with 480Mbit too?
+>  	sched_info_switch(prev, next);
+>  	if (likely(prev != next)) {
+> +		add_delay_ts(next, waitcpu_total, next->timestamp, now);
+> +		inc_delay(next, runs);
 
-Matthias-Christian Ott
+This is an extremly hot path. I think it needs far more justification
+why you really need this. In general we try to keep the context
+switch as fast as possible; I don't think it's a good idea to add 
+accounting like this.
+
+How about you investigate ways to do this using samples 
+from the regular statistics timers?  If it's good enough for all
+other CPU accounting, it should be good enough for this relatively
+obscure metric too.
+  
+-Andi

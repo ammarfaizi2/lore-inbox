@@ -1,45 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261894AbVCHJJv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261918AbVCHJMY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261894AbVCHJJv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 04:09:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261898AbVCHJJv
+	id S261918AbVCHJMY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 04:12:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261898AbVCHJMY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 04:09:51 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:36364 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261894AbVCHJJt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 04:09:49 -0500
-Date: Tue, 8 Mar 2005 09:09:43 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Christoph Hellwig <hch@infradead.org>, Hugh Dickins <hugh@veritas.com>,
-       Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] mm/swap_state.c: unexport swapper_space
-Message-ID: <20050308090943.A26847@flint.arm.linux.org.uk>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Hugh Dickins <hugh@veritas.com>, Adrian Bunk <bunk@stusta.de>,
-	linux-kernel@vger.kernel.org
-References: <20050306144758.GJ5070@stusta.de> <Pine.LNX.4.61.0503061515200.19898@goblin.wat.veritas.com> <20050306224912.GE5827@infradead.org>
+	Tue, 8 Mar 2005 04:12:24 -0500
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:30392 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S261918AbVCHJML (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Mar 2005 04:12:11 -0500
+Date: Tue, 8 Mar 2005 12:37:14 +0300
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: James Morris <jmorris@redhat.com>, linux-kernel@vger.kernel.org,
+       cryptoapi@lists.logix.cz, David Miller <davem@davemloft.net>,
+       Herbert Xu <herbert@gondor.apana.org.au>, Andrew Morton <akpm@osdl.org>,
+       Fruhwirth Clemens <clemens@endorphin.org>
+Subject: Re: [0/many] Acrypto - asynchronous crypto layer for linux kernel
+ 2.6
+Message-ID: <20050308123714.07d68b90@zanzibar.2ka.mipt.ru>
+In-Reply-To: <1FA9E37C-8F90-11D9-A2CF-000393ACC76E@mac.com>
+References: <11102278521318@2ka.mipt.ru>
+	<1FA9E37C-8F90-11D9-A2CF-000393ACC76E@mac.com>
+Reply-To: johnpol@2ka.mipt.ru
+Organization: MIPT
+X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050306224912.GE5827@infradead.org>; from hch@infradead.org on Sun, Mar 06, 2005 at 10:49:12PM +0000
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [194.85.82.65]); Tue, 08 Mar 2005 12:11:13 +0300 (MSK)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 06, 2005 at 10:49:12PM +0000, Christoph Hellwig wrote:
-> I disagree.  swapper_state is far too much of an internal detail to be
-> exported.  I argued that way when page_mapping was changed to use it and
-> that's why the architectures moved their helpers out of line.
-> Looks like the exported unfortunately got added anyway although we settled
-> that discussion.
+On Tue, 8 Mar 2005 00:08:35 -0500
+Kyle Moffett <mrmacman_g4@mac.com> wrote:
 
-Well, since ARM's usage of page_mapping() is out of line (which is
-where it'll now stay) I think Christoph is correct.  Maybe this is
-something which should be aired on linux-arch for the other arch
-maintainers?
+> On Mar 07, 2005, at 15:37, Evgeniy Polyakov wrote:
+> > I'm pleased to announce asynchronous crypto layer for Linux kernel 2.6.
+> > It supports following features:
+> > - multiple asynchronous crypto device queues
+> > - crypto session routing
+> > - crypto session binding
+> > - modular load balancing
+> > - crypto session batching genetically implemented by design
+> > - crypto session priority
+> > - different kinds of crypto operation(RNG, asymmetrical crypto, HMAC 
+> > and
+> > any other)
+> 
+> Did you include support for the new key/keyring infrastructure 
+> introduced
+> a couple versions ago by David Howells?  It allows userspace to create 
+> and
+> manage various sorts of "keys" in kernelspace.  If you create and 
+> register
+> a few keytypes for various symmetric and asymmetric ciphers, you could 
+> then
+> take advantage of its support for securely passing keys around in and 
+> out
+> of userspace.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+As far as I know, it has different destination - 
+for example asynchronous block device, which uses acrypto in one of it's 
+filters, may use it.
+ 
+> Cheers,
+> Kyle Moffett
+> 
+> -----BEGIN GEEK CODE BLOCK-----
+> Version: 3.12
+> GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
+> L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
+> PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
+> !y?(-)
+> ------END GEEK CODE BLOCK------
+> 
+
+
+	Evgeniy Polyakov
+
+Only failure makes us experts. -- Theo de Raadt

@@ -1,50 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266706AbRGQQUj>; Tue, 17 Jul 2001 12:20:39 -0400
+	id <S266691AbRGQQWT>; Tue, 17 Jul 2001 12:22:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266691AbRGQQU3>; Tue, 17 Jul 2001 12:20:29 -0400
-Received: from oe20.law10.hotmail.com ([64.4.14.124]:3589 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S266706AbRGQQUR>;
-	Tue, 17 Jul 2001 12:20:17 -0400
-X-Originating-IP: [64.108.12.20]
-From: "William Scott Lockwood III" <Scottlockwood@hotmail.com>
-To: "Alan Shutko" <ats@acm.org>, "David Woodhouse" <dwmw2@infradead.org>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <OE17UirmJJgWha8vFnq000074b6@hotmail.com> <Pine.LNX.4.33.0107171532450.1817-100000@ketil.np> <7721.995383087@redhat.com> <OE207Offjcu1lObtvrw000044b6@hotmail.com> <87u20b36g5.fsf@wesley.springies.com>
-Subject: Re: [VERY OT] Re: 2.4.6-ac5 gives wrong cache info for Duron in /proc/cpuinfo
-Date: Tue, 17 Jul 2001 11:25:10 -0500
+	id <S266725AbRGQQWJ>; Tue, 17 Jul 2001 12:22:09 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:11239 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S266691AbRGQQUy>;
+	Tue, 17 Jul 2001 12:20:54 -0400
+Message-ID: <3B546603.7ABCB96D@mandrakesoft.com>
+Date: Tue, 17 Jul 2001 12:21:23 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7-pre5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;	charset="iso-8859-1"
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
-Message-ID: <OE2098Bi89QtpfTYSl10000082b@hotmail.com>
-X-OriginalArrivalTime: 17 Jul 2001 16:20:16.0431 (UTC) FILETIME=[5D51A3F0:01C10EDC]
+To: daniel sheltraw <l5gibson@hotmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PCI and ioports question
+In-Reply-To: <F1137cu85K9kINc0VUy00019f37@hotmail.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 8bit
-X-MIME-Autoconverted: from base64 to 8bit by leeloo.zip.com.au id CAA26832
 
-Well, it does sound stupid but hey - they have to call it something right?  I have always been a bit peeved that I get a 30 gig drive, take it home and plug it in only to find that it is actually much less than 30 gig.  :-)
+daniel sheltraw wrote:
+> I have a question about ioports on PCI devices but first: If
+> there is a better mailing list for asking these types of questions
+> would you kindly direct me there.
+> 
+> The question is this. When do I need to use ioremap for ioports
+> on a PCI device (PC architecture)? Is the answer: always except
+> when the physical address is within the 64K - 1M ISA region (legacy
+> ports).
 
------ Original Message ----- 
-From: "Alan Shutko" <ats@acm.org>
-To: "William Scott Lockwood III" <scottlockwood@hotmail.com>
-Cc: "David Woodhouse" <dwmw2@infradead.org>; <linux-kernel@vger.kernel.org>
-Sent: Tuesday, July 17, 2001 10:50 AM
-Subject: Re: [VERY OT] Re: 2.4.6-ac5 gives wrong cache info for Duron in /proc/cpuinfo
+For I/O ports, which have values between 0x0000 and 0xFFFF, you use
+inb/inw/inl and outb/outw/outl, and do not use ioremap.
 
+For ISA and PCI memory regions (which are completely different from I/O
+ports), you always use ioremap, and talk to the regions use
+readb/readw/readl and writeb/writew/writel.
 
-| "William Scott Lockwood III" <thatlinuxguy@hotmail.com> writes:
-| 
-| > Today, I learned that multiples of 1024 is actually Ki.
-| 
-| It's a reasonably new standard that hasn't caught on, because many
-| people think that "kibibyte" is stupid.
-| 
-| --
-| Alan Shutko <ats@acm.org> - In a variety of flavors!
-| Tempt me with a spoon!
-| 
-ı:.Ë›±Êâmçë¢kaŠÉb²ßìzwm…ébïîË›±Êâmébìÿ‘êçz_âØ^n‡r¡ö¦zËëh™¨è­Ú&£ûàz¿äz¹Ş—ú+€Ê+zf£¢·hšˆ§~†­†Ûiÿÿïêÿ‘êçz_è®æj:+v‰¨ş)ß£ømšSåy«­æ¶…­†ÛiÿÿğÃí»è®å’i
+There exist isa_xxx functions but do not use these:  these are only for
+outdated drivers which have not yet been converted to use ioremap.
+
+-- 
+Jeff Garzik      | "I wouldn't be so judgemental
+Building 1024    |  if you weren't such a sick freak."
+MandrakeSoft     |             -- goats.com

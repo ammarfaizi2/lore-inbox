@@ -1,47 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262223AbSJASxJ>; Tue, 1 Oct 2002 14:53:09 -0400
+	id <S262229AbSJASqo>; Tue, 1 Oct 2002 14:46:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262218AbSJASxI>; Tue, 1 Oct 2002 14:53:08 -0400
-Received: from smtp05.wxs.nl ([195.121.6.57]:43955 "EHLO smtp05.wxs.nl")
-	by vger.kernel.org with ESMTP id <S262204AbSJASwd>;
-	Tue, 1 Oct 2002 14:52:33 -0400
-Message-ID: <3D99EF09.7070609@wxs.nl>
-Date: Tue, 01 Oct 2002 20:52:57 +0200
-From: Gert Vervoort <Gert.Vervoort@wxs.nl>
-Organization: Planet Internet
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.5.40 ppa.c compile fix
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S262228AbSJASqo>; Tue, 1 Oct 2002 14:46:44 -0400
+Received: from babyruth.hotpop.com ([204.57.55.14]:41664 "EHLO
+	babyruth.hotpop.com") by vger.kernel.org with ESMTP
+	id <S261380AbSJASqn>; Tue, 1 Oct 2002 14:46:43 -0400
+From: "immortal1015" <immortal1015@hotpop.com>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: compiling errors
+X-mailer: Foxmail 4.2 [cn]
+Date: Wed, 2 Oct 2002 2:53:26 +0800
+Message-Id: <20021001185127.AA2C21B85AA@smtp-2.hotpop.com>
+X-HotPOP: -----------------------------------------------
+                   Sent By HotPOP.com FREE Email
+             Get your FREE POP email at www.HotPOP.com
+          -----------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- linux/drivers/scsi/ppa.c.1	Tue Oct  1 20:44:42 2002
-+++ linux/drivers/scsi/ppa.c	Tue Oct  1 20:48:27 2002
-@@ -801,7 +801,7 @@
-      if (ppa_engine(tmp, cmd)) {
-  	tmp->ppa_tq.data = (void *) tmp;
-  	tmp->ppa_tq.sync = 0;
-- 
-queue_task(&tmp->ppa_tq, &tq_timer);
-+ 
-schedule_task(&tmp->ppa_tq);
-  	return;
-      }
-      /* Command must of completed hence it is safe to let go... */
-@@ -986,8 +986,7 @@
+I tried to compile the very simple kernel module code as following.
+I compile this code using gcc -c hello.c, but gcc tell me:
+ /usr/include/linux	/module.h:60 parse error before 'atomic_t'
 
-      ppa_hosts[host_no].ppa_tq.data = ppa_hosts + host_no;
-      ppa_hosts[host_no].ppa_tq.sync = 0;
--    queue_task(&ppa_hosts[host_no].ppa_tq, &tq_immediate);
--    mark_bh(IMMEDIATE_BH);
-+    schedule_task(&ppa_hosts[host_no].ppa_tq);
+What is the error? My gcc version is 2.96 and Redhat Linux 7.3
 
-      return 0;
-  }
+
+//////////////////////////////////////////////////////////////////////////////
+#ifndef __KERNEL__
+#  define __KERNEL__
+#endif
+#ifndef MODULE
+#  define MODULE
+#endif
+#include <linux/version.h>
+#include <linux/config.h>
+#include <linux/module.h>
+
+#include <linux/kernel.h> /* printk */
+
+int init_module(void)
+{
+	printk("<1>Hello the world\n");
+	return 0;
+}
+
+void cleanup_module(void)
+{
+	printk("<1>Goodbye the world\n");	
+}
+/////////////////////////////////////////////////////////////////
+
+
+Best regards
+yours Brucie
+
 
 

@@ -1,41 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262453AbTHUFgF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Aug 2003 01:36:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262463AbTHUFgF
+	id S262436AbTHUFbQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Aug 2003 01:31:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262443AbTHUFbQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Aug 2003 01:36:05 -0400
-Received: from smtp012.mail.yahoo.com ([216.136.173.32]:4105 "HELO
-	smtp012.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262453AbTHUFgE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Aug 2003 01:36:04 -0400
-Date: Thu, 21 Aug 2003 02:35:24 -0300
-From: Gerardo Exequiel Pozzi <vmlinuz386@yahoo.com.ar>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: [PATCH] 4/10 2.4.22-rc2 fix __FUNCTION__ warnings
- drivers/media/video
-Message-Id: <20030821023524.56cd45f6.vmlinuz386@yahoo.com.ar>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i486-slackware-linux-gnu)
+	Thu, 21 Aug 2003 01:31:16 -0400
+Received: from mail.gmx.de ([213.165.64.20]:38104 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262436AbTHUFbP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Aug 2003 01:31:15 -0400
+Date: Thu, 21 Aug 2003 11:00:41 +0530
+From: Apurva Mehta <apurva@gmx.net>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] O17int
+Message-ID: <20030821053041.GB1324@home.woodlands>
+Mail-Followup-To: Con Kolivas <kernel@kolivas.org>,
+	linux kernel mailing list <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@osdl.org>
+References: <200308200102.04155.kernel@kolivas.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200308200102.04155.kernel@kolivas.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- cpia.h |    8 ++++----
- 1 files changed, 4 insertions(+), 4 deletions(-)
+* Con Kolivas <kernel@kolivas.org> [19-08-2003 21:26]:
+> Food for the starving masses.
+[snip]
 
-http://www.vmlinuz.com.ar/slackware/patch/kernel/drivers.media.video.patch
-http://www.vmlinuz.com.ar/slackware/patch/kernel/drivers.media.video.patch.asc
+Yesterday, I got a major lockup with this patch. The system just
+completely froze for more than 10 seconds. There was no mouse
+movement, I could not switch workspaces.. nothing..
 
-chau,
- djgera
+There was quite a bit of load. There were about 180 processes (up from
+the normal 40-50) due to a number of procmail/sendmail pairs. I run
+spamassassin so each of those processes was testing for spam apart
+from my other tests. I was also actively browsing the web and
+playing music. Thats about all that was going on. 
 
+Unfortunately I could not get the numbers. Once it passed, everything
+was perfectly back to normal. I have not been able to reproduce the
+freeze because I have not got enough emails at one go to reproduce
+that kind of load. If will try to capture the numbers next time round.
 
--- 
-Gerardo Exequiel Pozzi ( djgera )
-http://www.vmlinuz.com.ar http://www.djgera.com.ar
-KeyID: 0x1B8C330D
-Key fingerprint = 0CAA D5D4 CD85 4434 A219  76ED 39AB 221B 1B8C 330D
+	- Apurva
+
+--
+Engineers motto: cheap, good, fast: choose any two

@@ -1,58 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261196AbTIJJsY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 05:48:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261214AbTIJJsX
+	id S261273AbTIJJoU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 05:44:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261277AbTIJJoU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 05:48:23 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:7808 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S261196AbTIJJsW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 05:48:22 -0400
-Date: Wed, 10 Sep 2003 11:01:36 +0100
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200309101001.h8AA1amm000407@81-2-122-30.bradfords.org.uk>
-To: davidsen@tmr.com
-Subject: Re: Scaling noise
-Cc: linux-kernel@vger.kernel.org
+	Wed, 10 Sep 2003 05:44:20 -0400
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:55009 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S261273AbTIJJoT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Sep 2003 05:44:19 -0400
+Date: Wed, 10 Sep 2003 11:44:15 +0200
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Luca Veraldi <luca.veraldi@katamail.com>
+Cc: arjanv@redhat.com, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Efficient IPC mechanism on Linux
+Message-ID: <20030910114414.B14352@devserv.devel.redhat.com>
+References: <00f201c376f8$231d5e00$beae7450@wssupremo> <20030909175821.GL16080@Synopsys.COM> <001d01c37703$8edc10e0$36af7450@wssupremo> <20030910064508.GA25795@Synopsys.COM> <015601c3777c$8c63b2e0$5aaf7450@wssupremo> <1063185795.5021.4.camel@laptop.fenrus.com> <01c601c3777f$97c92680$5aaf7450@wssupremo>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <01c601c3777f$97c92680$5aaf7450@wssupremo>; from luca.veraldi@katamail.com on Wed, Sep 10, 2003 at 11:40:33AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> | Once the option of running a firewall, a hot spare firewall, a
-> | customer webserver, a hot spare customer webserver, mail server,
-> | backup mail server, and a few virtual machines for customers, all on a
-> | 1U box, why are you going to want to pay for seven or more Us in a
-> | datacentre, plus extra network hardware?
->
-> If you plan to run anything else on your firewall, and use the same
-> machine as a hot spare for itself, I don't want you as my ISP.
-> Reliability is expensive, and what you describe is known as a single
-> point of failure.
+On Wed, Sep 10, 2003 at 11:40:33AM +0200, Luca Veraldi wrote:
+> To set the accessed or dirty bit you use
+> 
+> 38         __asm__ __volatile__( LOCK_PREFIX
+> 39                 "btsl %1,%0"
+> 40                 :"=m" (ADDR)
+> 41                 :"Ir" (nr));
+> 
+> which is a ***SINGLE CLOCK CYCLE*** of cpu.
+> I don't think really that on any machine Firmware 
+> a btsl will require 4000 cycles.
+> Neither on Intel x86.
 
-Of course, you would be right if we were talking about current
-microcomputer architectures.  I was talking about the possibility of
-current mainframe technologies being implemented in future
-microcomputer architectures.
+For fun do the measurement on a pIV cpu. You'll be surprised.
+The microcode "mark dirty" (which is NOT a btsl, it gets done when you do a write
+memory access to the page content) result will be in the 2000 to 4000 range I
+predict. There are things like SMP synchronisation to do, but also
+if the cpu marks a page dirty in the page table, that means the page table
+changes which means the pagetable needs to be marked in the
+PMD. Which means the PMD changes, which means the PGD needs the PMD marked
+dirty. Etc Etc. It's microcode. It'll take several 1000 cycles.
 
-Today, it is perfectly acceptable, normal, and commonplace to run hot
-spares of various images on a single Z/Series box.  Infact, the
-ability to do that is often a large factor in budgeting for the
-initial investment.
 
-The hardware is fault tollerant by design.  Only extreme events like a
-fire or flood at the datacentre are likely to cause downtime of the
-whole machine.  I don't consider that any less secure than a rack of
-small servers.
 
-Different images running in their own LPARs, or under Z/Vm are
-separated from each other.  Assessments of their isolation have been
-done, and ratings are available.
+> > Changing pagetable content is even more because all the
+> > tlb's and internal cpu state will need to be flushed... which is also a
+> > microcode operation for the cpu. 
+> 
+> Good. The same overhead you will find accessing a message 
+> after a read form a pipe. There will occur many TLB faults.
+> And the same apply copying the message to the pipe.
+> Many many TLB faults.
 
-You absolutely _can_ use the same physical hardware to run a hot
-spare, and protect yourself against software failiures.  A process can
-monitor the virtual machine, and switch to the hot spare if it fails.
+A TLB fault in the normal case is about 7 cycles. But that's for a TLB not
+being present. For TLB that IS present being written to means going to
+microcode.
 
-Add to that the fact that physical LAN cabling is reduced.  The amount
-of network hardware is also reduced.  That adds to reliability.
+> 
+> > And it's deadly in an SMP environment.
+> 
+> You say "tlb's and internal cpu state will need to be flushed".
+> The other cpus in an SMP environment can continue to work, indipendently.
+> TLBs and cpu state registers are ***PER-CPU*** resorces.
 
-John.
+if you change a page table, you need to flush the TLB on all other cpus
+that have that same page table mapped, like a thread app running
+on all cpu's at once with the same pagetables.
+
+> Probably, it is worse the case of copying a memory page,
+> because you have to hold some global lock all the time.
+
+why would you need a global lock for copying memory ?
+

@@ -1,47 +1,77 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317117AbSEXJ5E>; Fri, 24 May 2002 05:57:04 -0400
+	id <S317080AbSEXJ4m>; Fri, 24 May 2002 05:56:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317118AbSEXJ5E>; Fri, 24 May 2002 05:57:04 -0400
-Received: from imladris.infradead.org ([194.205.184.45]:17670 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S317117AbSEXJ5C>; Fri, 24 May 2002 05:57:02 -0400
-Date: Fri, 24 May 2002 10:56:32 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Andries.Brouwer@cwi.nl, Alan Cox <alan@lxorguk.ukuu.org.uk>, hpa@zytor.com,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: IO stats in /proc/partitions
-Message-ID: <20020524105632.A7658@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>, Andries.Brouwer@cwi.nl,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, hpa@zytor.com,
-	lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020516085022.B14643@infradead.org> <Pine.LNX.4.21.0205231723450.3295-100000@freak.distro.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S317117AbSEXJ4l>; Fri, 24 May 2002 05:56:41 -0400
+Received: from [212.234.221.113] ([212.234.221.113]:51661 "EHLO
+	mail.cev-sa.com") by vger.kernel.org with ESMTP id <S317080AbSEXJ4l>;
+	Fri, 24 May 2002 05:56:41 -0400
+Message-ID: <004001c20309$2832c4c0$6601a8c0@stlo.cevsa.com>
+From: =?ISO-8859-1?Q? "Fran=E7ois?= Leblanc" 
+	<francois.leblanc@cev-sa.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: [PATCH] kernel 2.4.18 endianness logical mistakes correction on fbcon-cfb2.c and fbcon-cfb4.c
+Date: Fri, 24 May 2002 11:55:38 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2615.200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2615.200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 23, 2002 at 05:27:13PM -0300, Marcelo Tosatti wrote:
-> > I rather send a complete backout patch for mainline instead.  This format
-> > has been used by the vendor (Red Hat, SuSE, etc..) kernels since 2.2 ages
-> > and is used (if present) by the stock performance tools for linux
-> > (i.e. syststat package, iostats
-> 
-> Look, I just do not want to break some apps which read /proc/partitions.
-> Thats it.
+DESCRIPTIONS:
 
-Umm, thos apps would have broken on any stock Red Hat/SuSE/Mandrake
-installation of the last years!
+2 small patchs to apply to:
 
-> Look, changing the userlevel apps to at least know about the new format is
-> not hard. And you can do that over time.
+drivers\video\fbcon-cfb2.c
+drivers\video\fbcon-cf4.c o
 
-Well, the stock sysstat util works with this format now with the vendor
-kernels, recent -ac and 2.4.19-pre.  If you don't want this I can send
-a backout patch - again only people using vendor kernel or maybe -ac
-will have that feature.  No big point.
+This patchs correct the endianness logical of nibbletab, the first table is
+u_char mades so no endian needed and the second swap correctly bytes in
+LITTLE_ENDIAN. (old version swap half bytes instead of bytes).
+
+ --- fbcon-cfb2.c.orig Fri May 24 10:24:17 2002
++++ fbcon-cfb2.c Fri May 24 10:29:30 2002
+@@ -32,19 +32,10 @@
+      */
+
+ static u_char nibbletab_cfb2[]={
+-#if defined(__BIG_ENDIAN)
+  0x00,0x03,0x0c,0x0f,
+  0x30,0x33,0x3c,0x3f,
+  0xc0,0xc3,0xcc,0xcf,
+  0xf0,0xf3,0xfc,0xff
+-#elif defined(__LITTLE_ENDIAN)
+- 0x00,0xc0,0x30,0xf0,
+- 0x0c,0xcc,0x3c,0xfc,
+- 0x03,0xc3,0x33,0xf3,
+- 0x0f,0xcf,0x3f,0xff
+-#else
+-#error FIXME: No endianness??
+-#endif
+ };
+
+
+--- fbcon-cfb4.c.orig Fri May 24 10:24:27 2002
++++ fbcon-cfb4.c Fri May 24 10:25:43 2002
+@@ -38,10 +38,10 @@
+     0xf000,0xf00f,0xf0f0,0xf0ff,
+     0xff00,0xff0f,0xfff0,0xffff
+ #elif defined(__LITTLE_ENDIAN)
+-    0x0000,0xf000,0x0f00,0xff00,
+-    0x00f0,0xf0f0,0x0ff0,0xfff0,
+-    0x000f,0xf00f,0x0f0f,0xff0f,
+-    0x00ff,0xf0ff,0x0fff,0xffff
++    0x0000,0x0f00,0xf000,0xff00,
++    0x000f,0x0f0f,0xf00f,0xff0f,
++    0x00f0,0x0ff0,0xf0f0,0xfff0,
++    0x00ff,0x0fff,0xf0ff,0xffff
+ #else
+ #error FIXME: No endianness??
+ #endif
+
 

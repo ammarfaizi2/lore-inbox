@@ -1,57 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265098AbUGIRFM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265101AbUGIRFv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265098AbUGIRFM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jul 2004 13:05:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265101AbUGIRFM
+	id S265101AbUGIRFv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jul 2004 13:05:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265104AbUGIRFv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jul 2004 13:05:12 -0400
-Received: from dns.toxicfilms.tv ([150.254.37.24]:39318 "EHLO
-	dns.toxicfilms.tv") by vger.kernel.org with ESMTP id S265098AbUGIRFG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jul 2004 13:05:06 -0400
-X-Qmail-Scanner-Mail-From: solt@dns.toxicfilms.tv via dns
-X-Qmail-Scanner-Rcpt-To: linux-kernel@vger.kernel.org
-X-Qmail-Scanner: 1.22 (Clear:RC:0(150.254.37.14):SA:0(0.0/5.0):. Processed in 3.333739 secs)
-Date: Fri, 9 Jul 2004 19:05:02 +0200
-From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-X-Mailer: SecureBat! Lite (v2.10.02) UNREG / CD5BF9353B3B7091
-Reply-To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-X-Priority: 3 (Normal)
-Message-ID: <76430384.20040709190502@dns.toxicfilms.tv>
-To: linux-kernel@vger.kernel.org
-Subject: TCP BIC problems - make it off by default ?
-MIME-Version: 1.0
+	Fri, 9 Jul 2004 13:05:51 -0400
+Received: from delerium.kernelslacker.org ([81.187.208.145]:8847 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S265101AbUGIRFs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jul 2004 13:05:48 -0400
+Date: Fri, 9 Jul 2004 18:04:54 +0100
+From: Dave Jones <davej@redhat.com>
+To: jmerkey@comcast.net
+Cc: Andreas Dilger <adilger@clusterfs.com>, linux-kernel@vger.kernel.org
+Subject: Re: Ext3 File System "Too many files" with snort
+Message-ID: <20040709170454.GB3891@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>, jmerkey@comcast.net,
+	Andreas Dilger <adilger@clusterfs.com>,
+	linux-kernel@vger.kernel.org
+References: <070920041636.14668.40EEC97D000D82330000394C2200748184970A059D0A0306@comcast.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <070920041636.14668.40EEC97D000D82330000394C2200748184970A059D0A0306@comcast.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, Jul 09, 2004 at 04:36:14PM +0000, jmerkey@comcast.net wrote:
 
-Since 2.6.7 I have had problems with my server downloading and people
-uploading to the server. The throughput was never higher than 4kB/s
+ > > Do you create a subdirectory for every user?  
+ > Yes.  Snort creates a subdirectory for each IP address identified as generation an attack
+ > or alert.  This number can get very large, BTW.
 
-I have found that when /proc/sys/net/ipv4/tcp_bic is 1 (which is the
-default) I am experiencing this behaviour. When I switch it off.
-It's back to normal again.
+The last time I looked at snort it created a tcpdump capture file of the
+days activity.  I remember seeing the behaviour you describe in an earlier
+release, so either you have an old version (which you should probably
+update given snort's sketchy security hole history), or theres a configuration
+option that you might be able to fiddle with to get it to work in capture-file
+mode.
 
-I have read that BIC is for super high speed, long distance links,
-which are not the most common links in the wild, so maybe it would
-be better to turn tcp_bic to 0 by default so as not to ruin the links
-of innocent upgraders.
+Either way, it's got to be easier than hacking ext3 code 8)
 
-I am no guru, but BIC maybe failing at my end because, my LAN is 100Mb
-ethernet, the Internet link is an old 10Mb fddi half duplex, and the
-links on the MAN ring are (i think) 155Mb ATM links.
-
-Maybe that's a very bad combination, or some devices on my network,
-especially the firewall (checkpoint) may react weird.
-
-Anyway, because of that tcp_bic may cause problems and because it is
-use will not be common anyway, maybe it would be better to mark it off
-by default.
-
-Regards,
-Maciej
-
+		Dave
 

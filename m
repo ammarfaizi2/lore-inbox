@@ -1,62 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282838AbRLGMNh>; Fri, 7 Dec 2001 07:13:37 -0500
+	id <S282839AbRLGMPh>; Fri, 7 Dec 2001 07:15:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282839AbRLGMN2>; Fri, 7 Dec 2001 07:13:28 -0500
-Received: from atm42.mobile.de ([212.12.52.53]:61194 "EHLO ATM42.mobile.de")
-	by vger.kernel.org with ESMTP id <S282838AbRLGMNK> convert rfc822-to-8bit;
-	Fri, 7 Dec 2001 07:13:10 -0500
-Subject: Re: 2.5.1-pre6 compilation errors
-From: Falk Stern <f.stern@mobile.de>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.NEB.4.43.0112071237020.726-100000@mimas.fachschaften.tu-muenchen.de>
-In-Reply-To: <Pine.NEB.4.43.0112071237020.726-100000@mimas.fachschaften.tu-muenchen.de>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Evolution/0.99.2 (Preview Release)
-Date: 07 Dec 2001 12:59:57 +0100
-Message-Id: <1007726397.16834.2.camel@ridcully>
+	id <S282848AbRLGMP1>; Fri, 7 Dec 2001 07:15:27 -0500
+Received: from green.csi.cam.ac.uk ([131.111.8.57]:56822 "EHLO
+	green.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S282839AbRLGMPK>; Fri, 7 Dec 2001 07:15:10 -0500
+Message-Id: <5.1.0.14.2.20011207120516.025daa50@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Fri, 07 Dec 2001 12:14:08 +0000
+To: Ishan Oshadi Jayawardena <ioshadi@sltnet.lk>
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: Fs's affected by smart atime updates
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <3C115125.E70E0674@sltnet.lk>
 Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2001-12-07 at 12:40, Adrian Bunk wrote:
-> On 7 Dec 2001, Falk Stern wrote:
-> > Just tried to compile a vanilla 2.5.1-pre6 and got following errors:
-> > (while doing "make dep clean bzImage modules modules_install" )
-> >...
-> > drivers/char/char.o(.data+0x46b4): undefined reference to `local symbols
-> > in discarded section .text.exit'
-> > drivers/net/net.o(.data+0xd4): undefined reference to `local symbols in
-> > discarded section .text.exit'
-> > make: *** [vmlinux] Error 1
-> >...
-> > # ld -V
-> > GNU ld version 2.11.92.0.12.3 20011121 Debian/GNU Linux
-> >...
-> 
-> this is a known bug in the kernel that shows up with the latest binutils
-> packages in Debian unstable. As a workaround you can downgrade your
-> binutils to the 2.11.92.0.10-4 package in Debian testing (you can
-> download it from [1] if don't have it any more).
+At 23:30 07/12/01, Ishan Oshadi Jayawardena wrote:
+>         I've found out that NTFS and FAT are not affected
+>adversely by the atime update patch by Andrew Morton.
 
-ok, "apt-get install binutils=2.11.92.0.10-4" did the job.
+"adversely"? The patch is an improvement, not something that makes things 
+worse...
 
-Thanks a lot
+>(atime resolution in NTFS is 1 hour and in FAT, well,
+>1 day!). I'd be thankful if anyone could point out
+>which filesystems, if any, are _adversely_ affected by this.
 
-Falk
+Huh? Atime updates in the old NTFS driver do not happen at all unless I 
+have missed something.
+
+Otherwise, the time resolution itself is down to 100ns intervals which in 
+Linux obviously isn't possible, so the Linux atime resolution will be used 
+instead.
+
+The new NTFS TNG driver will be doing the atime updates properly once write 
+support is implemented.
+
+Best regards,
+
+Anton
+
 
 -- 
-Mit freundlichen Grüßen
-Ihr mobile.de Team
-
-Falk Stern
-Technik - Systemadministration
-
-mobile.de GmbH
-Bueschstr. 7 - D-20354 Hamburg
-Tel.: +49 (0) 40/879 77-414
-Fax:  +49 (0) 40/43 18 23-55
-Web: http://www.mobile.de
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 

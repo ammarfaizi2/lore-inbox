@@ -1,71 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261828AbVADR00@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261860AbVADR16@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261828AbVADR00 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 12:26:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261788AbVADRXu
+	id S261860AbVADR16 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 12:27:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261856AbVADR1s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 12:23:50 -0500
-Received: from rproxy.gmail.com ([64.233.170.194]:22803 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261756AbVADRWR (ORCPT
+	Tue, 4 Jan 2005 12:27:48 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:57839 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S261847AbVADR0k (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 12:22:17 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=rVExBemb0QxSNgo5iOH9v3NV17iHKlmP1IXhCu/ZuoRj1xGQD6KrM1gjs14x1NCPFIOBRGgOPnMMD5J16nkb4cwJ1fl+ifRxeTeIhSzs4UjlXk1ADAP7SFHPoEq/LWO2oednqlFPk9OtmOLCUX7uvpp1CsHUZG2MeVeu05o8Yuc=
-Message-ID: <d120d50005010409223df70973@mail.gmail.com>
-Date: Tue, 4 Jan 2005 12:22:17 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: [bk patches] Long delayed input update
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-In-Reply-To: <20050104164025.GA13240@ucw.cz>
+	Tue, 4 Jan 2005 12:26:40 -0500
+Date: Tue, 4 Jan 2005 18:26:14 +0100
+From: Andries Brouwer <Andries.Brouwer@cwi.nl>
+To: Nikita Danilov <nikita@clusterfs.com>, torvalds@osdl.org
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Andries.Brouwer@cwi.nl
+Subject: [PATCH] remove duplicated patch fragment
+Message-ID: <20050104172614.GB12861@apps.cwi.nl>
+References: <200501040611.j046BHoq005158@hera.kernel.org> <m14qhxmkw4.fsf@clusterfs.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20041227142821.GA5309@ucw.cz>
-	 <200412271419.46143.dtor_core@ameritech.net>
-	 <20050103131848.GH26949@ucw.cz>
-	 <Pine.LNX.4.58.0501032148210.2294@ppc970.osdl.org>
-	 <20050104135859.GA9167@ucw.cz>
-	 <Pine.LNX.4.58.0501040756230.2294@ppc970.osdl.org>
-	 <20050104160830.GA13125@ucw.cz>
-	 <Pine.LNX.4.58.0501040812420.2294@ppc970.osdl.org>
-	 <20050104164025.GA13240@ucw.cz>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m14qhxmkw4.fsf@clusterfs.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 4 Jan 2005 17:40:25 +0100, Vojtech Pavlik <vojtech@suse.cz> wrote:
-> On Tue, Jan 04, 2005 at 08:14:52AM -0800, Linus Torvalds wrote:
+On Tue, Jan 04, 2005 at 03:36:11PM +0300, Nikita Danilov wrote:
+
+> 	/*
+> 	 * Leave the last 3% for root
+> 	 */
+> 	if (!capable(CAP_SYS_ADMIN))
+> 		allowed -= allowed / 32;
 > 
-> > Ok. I'll re-pull and make it embedded to make that irritating question go
-> > away.
+> 	/* Leave the last 3% for root */
+> 	if (current->euid)
+> 		allowed -= allowed / 32;
 > 
-> Thanks.
-> 
+> in security/commoncaps.c (and similarly in security/dummy.c). Why
+> "super-user" reservation is handled twice, and with that antiquated
+> current->euid check instead of capabilities? Broken merge?
 
-Ok, now only couple of things were left out:
+Yes - sorry. The first of these two semi-identical fragments
+is from Alan and appeared in patch-2.6.9, two weeks after
+the patch under discussion was made. So, the second half
+can be dropped. Below a patch.
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=110430679525030&w=2
-08-atkbd-keycode-size.patch
-	Fix keycode table size initialization that got broken by my changes
-	that exported 'set' and other settings via sysfs.
-	setkeycodes should work again now.
+> On another account, shouldn't capable(CAP_SYS_ADMIN) checks in
+> cap_vm_enough_memory() be replaced with capable(CAP_SYS_RESOURCE):
+> (CAP_SYS_RESOURCE is used by file systems to control reserved disk
+> blocks)?
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=110430749420252&w=2
-06-ps2pp-mouse-name.patch
-	Set mouse name to "Mouse" instead of leaving it NULL when using
-	PS2++ protocol and don't have any other information (Wheel, Touchpad)
-	about the mouse.
+The use of current->euid comes from the use of current->euid in dummy.c
+a few lines higher up in the same routine.
+The use of CAP_SYS_ADMIN comes from the use of CAP_SYS_ADMIN in
+commoncap.c a few lines higher up in the same routine.
 
-06 is not too critical but without 08 setkeycodes will not work.
+I have no strong opinion about what is best.
 
-In any case I'd like the following patches (01-08, see
-http://marc.theaimsgroup.com/?l=linux-kernel&m=110430597110513&w=2) to
-be moved forward as they were also staged in -mm tree for over a month
-and work fine on my 3 boxes.
+Andries
 
--- 
-Dmitry
+diff -uprN -X /linux/dontdiff a/security/commoncap.c b/security/commoncap.c
+--- a/security/commoncap.c	2005-01-04 18:33:40.000000000 +0100
++++ b/security/commoncap.c	2005-01-04 18:35:49.000000000 +0100
+@@ -386,10 +386,6 @@ int cap_vm_enough_memory(long pages)
+ 		allowed -= allowed / 32;
+ 	allowed += total_swap_pages;
+ 
+-	/* Leave the last 3% for root */
+-	if (current->euid)
+-		allowed -= allowed / 32;
+-
+ 	/* Don't let a single process grow too big:
+ 	   leave 3% of the size of this process for other processes */
+ 	allowed -= current->mm->total_vm / 32;
+
+

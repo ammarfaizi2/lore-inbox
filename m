@@ -1,38 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316728AbSHOLD2>; Thu, 15 Aug 2002 07:03:28 -0400
+	id <S316753AbSHOLHm>; Thu, 15 Aug 2002 07:07:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316753AbSHOLD2>; Thu, 15 Aug 2002 07:03:28 -0400
-Received: from slimnet.xs4all.nl ([194.109.194.192]:33427 "EHLO
-	gatekeeper.slim") by vger.kernel.org with ESMTP id <S316728AbSHOLD1>;
-	Thu, 15 Aug 2002 07:03:27 -0400
-Subject: sound choking with trident driver (SiS 7018)
-From: Jurgen Kramer <gtm.kramer@inter.nl.net>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-2) 
-Date: 15 Aug 2002 13:11:49 +0200
-Message-Id: <1029409909.1121.17.camel@paragon.slim>
-Mime-Version: 1.0
+	id <S316768AbSHOLHm>; Thu, 15 Aug 2002 07:07:42 -0400
+Received: from mail-fe71.tele2.ee ([212.107.32.235]:61893 "HELO everyday.com")
+	by vger.kernel.org with SMTP id <S316753AbSHOLHl> convert rfc822-to-8bit;
+	Thu, 15 Aug 2002 07:07:41 -0400
+Date: Thu, 15 Aug 2002 13:11:33 +0200
+Message-Id: <200208151111.NAA01608@eday-fe3.tele2.ee>
+From: "Thomas Munck Steenholdt" <tmus@get2net.dk>
+Cc: linux-kernel@vger.kernel.org
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Subject: Re: promise ultra 133 tx2 lets system standby during use...?
+MIME-Version: 1.0
+X-EdMessageId: 004d170a1b544f505c4b5553571c5a415e135e1f5d515b5c14114c54525962565d74
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> On Thu, 2002-08-15 at 11:21, Thomas Munck Steenholdt wrote:
+> > I've been having a lot of problems with my Ultra 133 TX2 controller,
+> > that if I boot my system a just doesn't touch it for a while, the
+> system
+> > suspends to complete standby, even though the ext3 data is committed
+> > every 5 secs. causing disk activity and thus should disallow standby
+> > behaviour (at least that's the way it works on my onboard controller).
+> 
+> Lots of BIOSes are not bright enough to monitor a second IDE controller.
+> You should be able to frob in the APM/ACPI bios and add its IRQ line to
+> the monitor list
 
-I have a laptop with a SiS 7018 soundchip. While playing music
-the sound chokes every few seconds (2.4.19 kernel). I am not sure where
-the problem lies. With the ALSA drivers under kernel 2.5 the problem is
-not there.
+That would be in the BIOS right (or could it be done from linux) ?
 
-Is there a newer driver for the SiS 7018 (trident.c). The current driver
-in 2.4 is dated October 2001.
+Like i mentioned, my system is an IBM, which means tailored for users, 
+which means that it(this particular system) won't let me add IRQ's to
+monitor, at least not from within the BIOS setup.
+I can select to monitor "Hard Disks" "Serial Ports" that kind
+of granularity... But at least, what you are telling me, suggests to me
+that actually this is probably a problem in my BIOS rather than the kernel.
 
-
-Greetings,
-
-Jurgen
+Would apm=off bypass this kind of thing?
 
 
-
+-- Send gratis SMS og brug gratis e-mail på Everyday.com -- 
 

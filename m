@@ -1,47 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261446AbULFAyG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261458AbULFAyH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261446AbULFAyG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Dec 2004 19:54:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261451AbULFAvw
+	id S261458AbULFAyH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Dec 2004 19:54:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261440AbULFAmV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Dec 2004 19:51:52 -0500
-Received: from palrel10.hp.com ([156.153.255.245]:17874 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S261444AbULFAre (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Dec 2004 19:47:34 -0500
-Date: Mon, 6 Dec 2004 11:47:22 +1100
-From: Martin Pool <mbp@sourcefrog.net>
-To: Andries.Brouwer@cwi.nl
+	Sun, 5 Dec 2004 19:42:21 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:22027 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261444AbULFAle (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Dec 2004 19:41:34 -0500
+Date: Mon, 6 Dec 2004 01:41:30 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Tomasz K?oczko <kloczek@rudy.mif.pg.gda.pl>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: rescan partitions returns EIO since 2.6.8
-Message-ID: <20041206004722.GD26060@hp.com>
-Mail-Followup-To: Martin Pool <mbp@sourcefrog.net>,
-	Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
-References: <200412051403.iB5E3EJ01749@apps.cwi.nl>
+Subject: [2.6 patch] drivers/char/moxa.c: #if 0 an unused function
+Message-ID: <20041206004130.GI2953@stusta.de>
+References: <20041205170247.GR2953@stusta.de> <Pine.LNX.4.61L.0412052112080.11466@rudy.mif.pg.gda.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200412051403.iB5E3EJ01749@apps.cwi.nl>
-User-Agent: Mutt/1.5.6+20040722i
+In-Reply-To: <Pine.LNX.4.61L.0412052112080.11466@rudy.mif.pg.gda.pl>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On  5 Dec 2004, Andries.Brouwer@cwi.nl wrote:
-> Martin Pool changed the behaviour of the BLKRRPART ioctl in 2.6.8.
-> The effect is that one now gets an I/O error when first
-> partitioning an empty disk:
+On Sun, Dec 05, 2004 at 09:14:08PM +0100, Tomasz K?oczko wrote:
+>...
+> >- *	5.  MoxaPortGetCurBaud(int port);				     
+> >*
+> > *	6.  MoxaPortSetBaud(int port, long baud);			     
+> > *
+> > *	7.  MoxaPortSetMode(int port, int databit, int stopbit, int parity); 
+> > *
+> > *	8.  MoxaPortSetTermio(int port, unsigned char *termio); 	     
+> > *
+> [..]
+> 
+> Prabaly it will be good renumber this or make unnumbered (and all other 
+> comments with "Function <num>:" :)
 
-> # sfdisk /dev/sda
-> Checking that no-one is using this disk right now ...
-> BLKRRPART: Input/output error
 
-To me it seems more correct that a request to read the partition table
-should fail if the partition table can't be read.  I had some code
-that did care to know the difference, but if you really want to roll
-it back I won't object.
+Perhaps the following patch is the best solution:
 
-fdisk, cfdisk and parted all just give a warning in this case.  You
-can tell sfdisk to ignore the error with --no-reread.
 
--- 
-Martin 
+diffstat output:
+ drivers/char/moxa.c |    2 ++
+ 1 files changed, 2 insertions(+)
+
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.10-rc2-mm4-full/drivers/char/moxa.c.old	2004-12-06 01:30:18.000000000 +0100
++++ linux-2.6.10-rc2-mm4-full/drivers/char/moxa.c	2004-12-06 01:30:39.000000000 +0100
+@@ -3090,6 +3090,7 @@
+ 	return (0);
+ }
+ 
++#if 0
+ long MoxaPortGetCurBaud(int port)
+ {
+ 
+@@ -3097,6 +3098,7 @@
+ 		return (0);
+ 	return (moxaCurBaud[port]);
+ }
++#endif  /*  0  */
+ 
+ static void MoxaSetFifo(int port, int enable)
+ {
+
+
+

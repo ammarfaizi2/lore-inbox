@@ -1,48 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261312AbSLSNJc>; Thu, 19 Dec 2002 08:09:32 -0500
+	id <S264647AbSLSNLz>; Thu, 19 Dec 2002 08:11:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261446AbSLSNJc>; Thu, 19 Dec 2002 08:09:32 -0500
-Received: from fluent2.pyramid.net ([206.100.220.213]:29061 "EHLO
-	fluent2.pyramid.net") by vger.kernel.org with ESMTP
-	id <S261312AbSLSNJb>; Thu, 19 Dec 2002 08:09:31 -0500
-Message-Id: <5.2.0.9.0.20021219051449.01e5c7c0@fluent2.pyramid.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
-Date: Thu, 19 Dec 2002 05:17:30 -0800
-To: Larry McVoy <lm@bitmover.com>
-From: Stephen Satchell <list@fluent2.pyramid.net>
-Subject: Re: Freezing.. (was Re: Intel P6 vs P7 system call performance)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20021218140845.L7976@work.bitmover.com>
-References: <200212182039.gBIKdCqL000183@darkstar.example.net>
- <20021218114512.J7976@work.bitmover.com>
- <200212182039.gBIKdCqL000183@darkstar.example.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S264686AbSLSNLy>; Thu, 19 Dec 2002 08:11:54 -0500
+Received: from pullyou.nist.gov ([129.6.16.93]:64910 "EHLO postmark.nist.gov")
+	by vger.kernel.org with ESMTP id <S264647AbSLSNLx>;
+	Thu, 19 Dec 2002 08:11:53 -0500
+To: linux-kernel@vger.kernel.org
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Trident/ALi 5451 problem, 2.4.20-ac2
+References: <9cf4r9btpk8.fsf@rogue.ncsl.nist.gov>
+From: Ian Soboroff <ian.soboroff@nist.gov>
+Date: Thu, 19 Dec 2002 08:19:25 -0500
+In-Reply-To: <9cf4r9btpk8.fsf@rogue.ncsl.nist.gov> (Ian Soboroff's message
+ of "Wed, 18 Dec 2002 08:38:31 -0500")
+Message-ID: <9cfisxqi1sy.fsf@rogue.ncsl.nist.gov>
+User-Agent: Gnus/5.090007 (Oort Gnus v0.07) Emacs/21.2 (i686-pc-linux-gnu)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 02:08 PM 12/18/02 -0800, Larry McVoy wrote:
->I don't understand why BK is part of the conversation.  It has nothing to
->do with it.  If every time I post to this list the assumption is that it's
->"time to beat larry up about BK" then it's time for me to get off the list.
+Ian Soboroff <ian.soboroff@nist.gov> writes:
+
+> Just tried 2.4.20-ac2 on my Fujitsu P-2040, and it seems to have a
+> problem initializing the sound:
 >
->I can understand it when we're discussing BK; other than that, it's pretty
->friggin lame.  If that's what was behind your posts, Alan, there is an
->easy procmail fix for that.
+> (from dmesg)
+>
+> Trident 4DWave/SiS 7018/ALi 5451,Tvia CyberPro 5050 PCI Audio, version 0.14.10h,
+>  17:35:49 Dec 16 2002
+> PCI: Found IRQ 9 for device 00:04.0
+> trident: ALi Audio Accelerator found at IO 0x1000, IRQ 9
+> ALi 5451 did not come out of reset.
+> trident_ac97_init: error resetting 5451.
 
-Boy, talk about humor-impaired.  When was the last time you got out and had 
-some fun not related to computer, Larry?
+Took a bit of a look... the trident.c part of the patch is pretty
+short:
 
-I don't read more than 95 percent of this mailing list and I got the joke.
+--- linux.vanilla/drivers/sound/trident.c       2002-11-29 21:27:19.000000000 +0
+000
++++ linux.20-ac2/drivers/sound/trident.c        2002-11-14 15:24:35.000000000 +0
+000
+@@ -3936,9 +3936,11 @@
+                wReg = ali_ac97_get(card, 0, AC97_POWER_CONTROL);
+                if((wReg & 0x000f) == 0x000f)
+                        return 0;
+-               udelay(500);
++               udelay(5000);
+        }
+-       return 0;
++
++       printk(KERN_ERR "ALi 5451 did not come out of reset.\n");
++       return 1;
+ }
 
-Lighten up, and take a hint from the nearest cat: see the toy in everything.
+ /* AC97 codec initialisation. */
 
-Satch, another relative nobody.
+I guess the loop (which the patch only shows the bottom of) is trying
+to reset the AC97, and check the reset witht he ali_ac97_get() call.
+The old 2.4.20 code just returned 0 in any case, whether the reset
+succeeded or not.  On my laptop, if I change this routine back to
+return 0 in all cases, sound works fine.  With this patch, this
+routine returns 1, and the trident.c init aborts.
 
+Perhaps the loop check for reset success isn't right?  Or not all ALi
+5451's play nice?  I've reached the end of my clue.
 
--- 
-The human mind treats a new idea the way the body treats a strange
-protein:  it rejects it.  -- P. Medawar
-This posting is for entertainment purposes only; it is not a legal opinion.
+Ian
 

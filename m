@@ -1,101 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261624AbSJFOlQ>; Sun, 6 Oct 2002 10:41:16 -0400
+	id <S261631AbSJFOqj>; Sun, 6 Oct 2002 10:46:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261628AbSJFOlQ>; Sun, 6 Oct 2002 10:41:16 -0400
-Received: from jurassic.park.msu.ru ([195.208.223.243]:23048 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id <S261624AbSJFOlO>; Sun, 6 Oct 2002 10:41:14 -0400
-Date: Sun, 6 Oct 2002 18:46:15 +0400
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch 2.5.40] read-only PCI BARs, try #2
-Message-ID: <20021006184615.A12895@jurassic.park.msu.ru>
+	id <S261635AbSJFOqj>; Sun, 6 Oct 2002 10:46:39 -0400
+Received: from due.stud.ntnu.no ([129.241.56.71]:45795 "EHLO due.stud.ntnu.no")
+	by vger.kernel.org with ESMTP id <S261631AbSJFOqi>;
+	Sun, 6 Oct 2002 10:46:38 -0400
+Date: Sun, 6 Oct 2002 16:36:36 +0200
+From: Thomas =?iso-8859-1?Q?Lang=E5s?= <tlan@stud.ntnu.no>
+To: jw schultz <jw@pegasys.ws>, linux-kernel@vger.kernel.org
+Subject: Re: Unable to kill processes in D-state
+Message-ID: <20021006143636.GA30441@stud.ntnu.no>
+Reply-To: linux-kernel@vger.kernel.org
+References: <20021005090705.GA18475@stud.ntnu.no> <1033841462.1247.3716.camel@phantasy> <20021005182740.GC16200@vagabond> <20021005235614.GC25827@stud.ntnu.no> <20021006021802.GA31878@pegasys.ws> <1033871869.1247.4397.camel@phantasy> <20021006024902.GB31878@pegasys.ws> <20021006105917.GB13046@stud.ntnu.no> <20021006122415.GE31878@pegasys.ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+In-Reply-To: <20021006122415.GE31878@pegasys.ws>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
-here is a non-destructive version of the previous patch.
-It's a bit more complex as we have to handle
-the 'old_value == probed_value' case correctly without
-extra write(0) probe.
+jw schultz:
+> Are all those processes hanging because of NFS?  If so, i'd
+> start by looking at the mount options as i said before.  I'd
+> also look into the network and fileserver because something
+> is wrong.  In my experience Solaris behaved the same way.
 
-Ivan.
+They're hanging because I killed of the autofs-processes, and
+started it again. (And then every NFS-share is remounted).
+So, basically, they're all hanging there, and will keep 
+hanging there 'till I boot the machine. 
 
---- 2.5.40/drivers/pci/probe.c	Sat Sep 21 12:54:53 2002
-+++ linux/drivers/pci/probe.c	Sun Oct  6 01:59:31 2002
-@@ -34,13 +34,20 @@ static inline unsigned int pci_calc_reso
- }
- 
- /*
-- * Find the extent of a PCI decode..
-+ * Find the extent of a PCI decode, do sanity checks.
-  */
--static u32 pci_size(u32 base, unsigned long mask)
-+static u32 pci_size(u32 base, u32 maxbase, unsigned long mask)
- {
--	u32 size = mask & base;		/* Find the significant bits */
-+	u32 size = mask & maxbase;	/* Find the significant bits */
-+	if (!size)
-+		return 0;
- 	size = size & ~(size-1);	/* Get the lowest of them to find the decode size */
--	return size-1;			/* extent = size - 1 */
-+	size -= 1;			/* extent = size - 1 */
-+	if (base == maxbase && ((base | size) & mask) != mask)
-+		return 0;		/* base == maxbase can be valid only
-+					   if the BAR has been already
-+					   programmed with all 1s */
-+	return size;
- }
- 
- static void pci_read_bases(struct pci_dev *dev, unsigned int howmany, int rom)
-@@ -63,13 +70,17 @@ static void pci_read_bases(struct pci_de
- 		if (l == 0xffffffff)
- 			l = 0;
- 		if ((l & PCI_BASE_ADDRESS_SPACE) == PCI_BASE_ADDRESS_SPACE_MEMORY) {
-+			sz = pci_size(l, sz, PCI_BASE_ADDRESS_MEM_MASK);
-+			if (!sz)
-+				continue;
- 			res->start = l & PCI_BASE_ADDRESS_MEM_MASK;
- 			res->flags |= l & ~PCI_BASE_ADDRESS_MEM_MASK;
--			sz = pci_size(sz, PCI_BASE_ADDRESS_MEM_MASK);
- 		} else {
-+			sz = pci_size(l, sz, PCI_BASE_ADDRESS_IO_MASK & 0xffff);
-+			if (!sz)
-+				continue;
- 			res->start = l & PCI_BASE_ADDRESS_IO_MASK;
- 			res->flags |= l & ~PCI_BASE_ADDRESS_IO_MASK;
--			sz = pci_size(sz, PCI_BASE_ADDRESS_IO_MASK & 0xffff);
- 		}
- 		res->end = res->start + (unsigned long) sz;
- 		res->flags |= pci_calc_resource_flags(l);
-@@ -99,6 +110,7 @@ static void pci_read_bases(struct pci_de
- 	if (rom) {
- 		dev->rom_base_reg = rom;
- 		res = &dev->resource[PCI_ROM_RESOURCE];
-+		res->name = dev->name;
- 		pci_read_config_dword(dev, rom, &l);
- 		pci_write_config_dword(dev, rom, ~PCI_ROM_ADDRESS_ENABLE);
- 		pci_read_config_dword(dev, rom, &sz);
-@@ -106,13 +118,14 @@ static void pci_read_bases(struct pci_de
- 		if (l == 0xffffffff)
- 			l = 0;
- 		if (sz && sz != 0xffffffff) {
-+			sz = pci_size(l, sz, PCI_ROM_ADDRESS_MASK);
-+			if (!sz)
-+				return;
- 			res->flags = (l & PCI_ROM_ADDRESS_ENABLE) |
- 			  IORESOURCE_MEM | IORESOURCE_PREFETCH | IORESOURCE_READONLY | IORESOURCE_CACHEABLE;
- 			res->start = l & PCI_ROM_ADDRESS_MASK;
--			sz = pci_size(sz, PCI_ROM_ADDRESS_MASK);
- 			res->end = res->start + (unsigned long) sz;
- 		}
--		res->name = dev->name;
- 	}
- }
- 
+-- 
+Thomas

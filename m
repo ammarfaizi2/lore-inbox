@@ -1,56 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261297AbUKHXVA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261299AbUKHX17@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261297AbUKHXVA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 18:21:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261299AbUKHXVA
+	id S261299AbUKHX17 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 18:27:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261301AbUKHX17
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 18:21:00 -0500
-Received: from hirsch.in-berlin.de ([192.109.42.6]:17123 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S261297AbUKHXUw
+	Mon, 8 Nov 2004 18:27:59 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:2537 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261299AbUKHX15
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 18:20:52 -0500
-X-Envelope-From: kraxel@bytesex.org
-Date: Tue, 9 Nov 2004 00:00:40 +0100
-From: Gerd Knorr <kraxel@bytesex.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, hunold@linuxtv.org
-Subject: Re: [patch 1/6] v4l: yet another video-buf interface update
-Message-ID: <20041108230040.GA5312@bytesex>
-References: <20041108085116.GA19146@bytesex> <20041108135222.5edde9f9.akpm@osdl.org>
+	Mon, 8 Nov 2004 18:27:57 -0500
+Date: Mon, 8 Nov 2004 18:07:03 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: Andries Brouwer <Andries.Brouwer@cwi.nl>, torvalds@osdl.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ext2 docs
+Message-ID: <20041108200703.GA3505@logos.cnet>
+References: <20041108135541.GA23052@apps.cwi.nl> <20041108173007.GB2900@logos.cnet> <20041108210751.GA2946@pclin040.win.tue.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041108135222.5edde9f9.akpm@osdl.org>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20041108210751.GA2946@pclin040.win.tue.nl>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 08, 2004 at 01:52:22PM -0800, Andrew Morton wrote:
-> Gerd Knorr <kraxel@bytesex.org> wrote:
-> >
-> > This is one more interface fix for the video-buf.c module, the first
-> > attempt on that wasn't that clever.  Instead of passing the driver
-> > private data through all function calls I've just made that an element
-> > of the videobuf_queue struct which is passed around everythere _anyway_.
+On Mon, Nov 08, 2004 at 10:07:51PM +0100, Andries Brouwer wrote:
+> On Mon, Nov 08, 2004 at 03:30:07PM -0200, Marcelo Tosatti wrote:
 > 
-> This patch throws a reject in videobuf_vm_close() because it's expecting
+> > > +oldalloc			Enable the old block allocator. Orlov should
+> > > +				have better performance, we'd like to get some
+> > > +				feedback if it's the contrary for you.
+> > > +orlov			(*)	Use the Orlov block allocator.
+> > > +				(See http://lwn.net/Articles/14633/ and
+> > > +				http://lwn.net/Articles/14446/.)
+> > 
+> > Did you really mean to use the second link "14446" ? 
+> > 
+> > It points to a patch from Ted fixing a memory leak into the Orlov allocator,
+> > which is not very useful. 
+> > 
+> > You probably meant http://lwn.net/Articles/14447/, which contains the full
+> > Orlov ext3 patch?
 > 
-> 	map->q->ops->buf_release(vma->vm_file,map->q->bufs[i]);
-> and not
-> 	map->q->ops->buf_release(vma->vm_file->private_data,map->q->bufs[i]);
-> 
-> I'll fix things up, but please check that.
+> No, not at all. I am a collector of information, and 14447 has nothing
+> at all, but 14446 documents the EXT2_TOPDIR_FL flag that is undocumented
+> in the kernel source. The flag can be set using chattr +T.
 
-Someone (Peter Osterlund IIRC) mailed a patch with the "vma->vm_file" =>
-"vma->vm_file->private_data" fix to lkml.  Thats actually the place I
-forgot on the first attempt and which causes the tvtime crashes
-mentioned in the changelog.
+OK dokie.
 
-My patches are built against a fresh linus bk tree, not against -mm, so
-its probably just that patch being merged into -mm which causes the
-rejects.  No problem, my patch obsoletes this one-liner fix.
-
-  Gerd
-
--- 
-#define printk(args...) fprintf(stderr, ## args)
+PS: Maybe the flag should be documented? Its pretty important one.

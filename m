@@ -1,226 +1,177 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261720AbVBDCyL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263053AbVBDC7n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261720AbVBDCyL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 21:54:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263014AbVBDCvK
+	id S263053AbVBDC7n (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 21:59:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263021AbVBDC4T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 21:51:10 -0500
-Received: from higgs.elka.pw.edu.pl ([194.29.160.5]:52915 "EHLO
+	Thu, 3 Feb 2005 21:56:19 -0500
+Received: from higgs.elka.pw.edu.pl ([194.29.160.5]:37812 "EHLO
 	higgs.elka.pw.edu.pl") by vger.kernel.org with ESMTP
-	id S261831AbVBDCnV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 21:43:21 -0500
-Date: Fri, 4 Feb 2005 03:41:13 +0100 (CET)
+	id S263230AbVBDCx7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 21:53:59 -0500
+Date: Fri, 4 Feb 2005 03:50:56 +0100 (CET)
 From: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
 To: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [patch 1/9] ide-tape: fix character device ->open() vs ->cleanup()
- race 
-Message-ID: <Pine.GSO.4.58.0502040339260.2469@mion.elka.pw.edu.pl>
+Subject: [patch 5/9] add ide_{un}register_region()
+Message-ID: <Pine.GSO.4.58.0502040350060.4393@mion.elka.pw.edu.pl>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Similar to the same race but for the block device.
+Add ide_{un}register_region() and fix ide-{tape,scsi}.c to register
+block device number ranges.  In ata_probe() only probe for modules.
 
-* store pointer to struct ide_tape_obj in idetape_chrdevs[]
-* rename idetape_chrdevs[] to idetape_devs[] and kill idetape_chrdev_t
-* add ide_tape_chrdev_get() for getting reference to the tape
-* store tape pointer in file->private_data and fix all users of it
-* fix idetape_chrdev_{open,release}() to get/put reference to the tape
+Behavior is unchanged because:
+* if driver is already loaded and attached to drive ata_probe()
+  is not called et all
+* if driver is loaded by ata_probe() it will register new number range
+  for a drive and this range will be found by kobj_lookup()
 
-diff -Nru a/drivers/ide/ide-tape.c b/drivers/ide/ide-tape.c
---- a/drivers/ide/ide-tape.c	2005-02-04 03:30:44 +01:00
-+++ b/drivers/ide/ide-tape.c	2005-02-04 03:30:44 +01:00
-@@ -1122,15 +1122,6 @@
- #define	IDETAPE_ERROR_EOD		103
+If this is not clear please read http://lwn.net/Articles/25711/
+and see drivers/base/map.c.
 
- /*
-- *	idetape_chrdev_t provides the link between out character device
-- *	interface and our block device interface and the corresponding
-- *	ide_drive_t structure.
-- */
--typedef struct {
--	ide_drive_t *drive;
--} idetape_chrdev_t;
+This patch makes it possible to move drive->disk allocation from
+ide-probe.c to device drivers.
+
+diff -Nru a/drivers/ide/ide-probe.c b/drivers/ide/ide-probe.c
+--- a/drivers/ide/ide-probe.c	2005-02-04 03:31:35 +01:00
++++ b/drivers/ide/ide-probe.c	2005-02-04 03:31:35 +01:00
+@@ -1214,8 +1214,6 @@
+ 	return 0;
+ }
+
+-extern ide_driver_t idedefault_driver;
 -
--/*
-  *	The following is used to format the general configuration word of
-  *	the ATAPI IDENTIFY DEVICE command.
-  */
-@@ -1286,7 +1277,21 @@
-  *	The variables below are used for the character device interface.
-  *	Additional state variables are defined in our ide_drive_t structure.
-  */
--static idetape_chrdev_t idetape_chrdevs[MAX_HWIFS * MAX_DRIVES];
-+static struct ide_tape_obj * idetape_devs[MAX_HWIFS * MAX_DRIVES];
+ static struct kobject *ata_probe(dev_t dev, int *part, void *data)
+ {
+ 	ide_hwif_t *hwif = data;
+@@ -1223,23 +1221,52 @@
+ 	ide_drive_t *drive = &hwif->drives[unit];
+ 	if (!drive->present)
+ 		return NULL;
+-	if (drive->driver == &idedefault_driver) {
+-		if (drive->media == ide_disk)
+-			(void) request_module("ide-disk");
+-		if (drive->scsi)
+-			(void) request_module("ide-scsi");
+-		if (drive->media == ide_cdrom || drive->media == ide_optical)
+-			(void) request_module("ide-cd");
+-		if (drive->media == ide_tape)
+-			(void) request_module("ide-tape");
+-		if (drive->media == ide_floppy)
+-			(void) request_module("ide-floppy");
+-	}
+-	if (drive->driver == &idedefault_driver)
+-		return NULL;
 +
-+#define ide_tape_f(file) ((file)->private_data)
++	if (drive->media == ide_disk)
++		request_module("ide-disk");
++	if (drive->scsi)
++		request_module("ide-scsi");
++	if (drive->media == ide_cdrom || drive->media == ide_optical)
++		request_module("ide-cd");
++	if (drive->media == ide_tape)
++		request_module("ide-tape");
++	if (drive->media == ide_floppy)
++		request_module("ide-floppy");
 +
-+static struct ide_tape_obj *ide_tape_chrdev_get(unsigned int i)
-+{
-+	struct ide_tape_obj *tape = NULL;
-+
-+	down(&idetape_ref_sem);
-+	tape = idetape_devs[i];
-+	if (tape)
-+		kref_get(&tape->kref);
-+	up(&idetape_ref_sem);
-+	return tape;
++	return NULL;
 +}
-
- /*
-  *      Function declarations
-@@ -3697,8 +3702,8 @@
- static ssize_t idetape_chrdev_read (struct file *file, char __user *buf,
- 				    size_t count, loff_t *ppos)
- {
--	ide_drive_t *drive = file->private_data;
--	idetape_tape_t *tape = drive->driver_data;
-+	struct ide_tape_obj *tape = ide_tape_f(file);
-+	ide_drive_t *drive = tape->drive;
- 	ssize_t bytes_read,temp, actually_read = 0, rc;
-
- #if IDETAPE_DEBUG_LOG
-@@ -3756,8 +3761,8 @@
- static ssize_t idetape_chrdev_write (struct file *file, const char __user *buf,
- 				     size_t count, loff_t *ppos)
- {
--	ide_drive_t *drive = file->private_data;
--	idetape_tape_t *tape = drive->driver_data;
-+	struct ide_tape_obj *tape = ide_tape_f(file);
-+	ide_drive_t *drive = tape->drive;
- 	ssize_t retval, actually_written = 0;
-
- 	/* The drive is write protected. */
-@@ -4059,8 +4064,8 @@
-  */
- static int idetape_chrdev_ioctl (struct inode *inode, struct file *file, unsigned int cmd, unsigned long arg)
- {
--	ide_drive_t *drive = file->private_data;
--	idetape_tape_t *tape = drive->driver_data;
-+	struct ide_tape_obj *tape = ide_tape_f(file);
-+	ide_drive_t *drive = tape->drive;
- 	struct mtop mtop;
- 	struct mtget mtget;
- 	struct mtpos mtpos;
-@@ -4131,17 +4136,24 @@
-
- 	if (i >= MAX_HWIFS * MAX_DRIVES)
- 		return -ENXIO;
--	drive = idetape_chrdevs[i].drive;
--	tape = drive->driver_data;
--	filp->private_data = drive;
-
--	if (test_and_set_bit(IDETAPE_BUSY, &tape->flags))
--		return -EBUSY;
-+	if (!(tape = ide_tape_chrdev_get(i)))
-+		return -ENXIO;
 +
-+	drive = tape->drive;
-+
-+	filp->private_data = tape;
-+
-+	if (test_and_set_bit(IDETAPE_BUSY, &tape->flags)) {
-+		retval = -EBUSY;
-+		goto out_put_tape;
-+	}
-+
- 	retval = idetape_wait_ready(drive, 60 * HZ);
- 	if (retval) {
- 		clear_bit(IDETAPE_BUSY, &tape->flags);
- 		printk(KERN_ERR "ide-tape: %s: drive not ready\n", tape->name);
--		return retval;
-+		goto out_put_tape;
- 	}
-
- 	idetape_read_position(drive);
-@@ -4165,7 +4177,8 @@
- 		if ((filp->f_flags & O_ACCMODE) == O_WRONLY ||
- 		    (filp->f_flags & O_ACCMODE) == O_RDWR) {
- 			clear_bit(IDETAPE_BUSY, &tape->flags);
--			return -EROFS;
-+			retval = -EROFS;
-+			goto out_put_tape;
- 		}
- 	}
-
-@@ -4183,6 +4196,10 @@
- 	idetape_restart_speed_control(drive);
- 	tape->restart_speed_control_req = 0;
- 	return 0;
-+
-+out_put_tape:
-+	ide_tape_put(tape);
-+	return retval;
++static struct kobject *exact_match(dev_t dev, int *part, void *data)
++{
++	struct gendisk *p = data;
+ 	*part &= (1 << PARTN_BITS) - 1;
+-	return get_disk(drive->disk);
++	return &p->kobj;
  }
-
- static void idetape_write_release (ide_drive_t *drive, unsigned int minor)
-@@ -4206,8 +4223,8 @@
-  */
- static int idetape_chrdev_release (struct inode *inode, struct file *filp)
- {
--	ide_drive_t *drive = filp->private_data;
--	idetape_tape_t *tape;
-+	struct ide_tape_obj *tape = ide_tape_f(filp);
-+	ide_drive_t *drive = tape->drive;
- 	idetape_pc_t pc;
- 	unsigned int minor = iminor(inode);
-
-@@ -4241,6 +4258,7 @@
- 		}
- 	}
- 	clear_bit(IDETAPE_BUSY, &tape->flags);
-+	ide_tape_put(tape);
- 	unlock_kernel();
- 	return 0;
- }
-@@ -4649,7 +4667,6 @@
- static int idetape_cleanup (ide_drive_t *drive)
- {
- 	idetape_tape_t *tape = drive->driver_data;
--	int minor = tape->minor;
- 	unsigned long flags;
-
- 	spin_lock_irqsave(&ide_lock, flags);
-@@ -4658,7 +4675,7 @@
- 		spin_unlock_irqrestore(&ide_lock, flags);
- 		return 1;
- 	}
--	idetape_chrdevs[minor].drive = NULL;
 +
- 	spin_unlock_irqrestore(&ide_lock, flags);
++static int exact_lock(dev_t dev, void *data)
++{
++	struct gendisk *p = data;
++
++	if (!get_disk(p))
++		return -1;
++	return 0;
++}
++
++void ide_register_region(struct gendisk *disk)
++{
++	blk_register_region(MKDEV(disk->major, disk->first_minor),
++			    disk->minors, NULL, exact_match, exact_lock, disk);
++}
++
++EXPORT_SYMBOL_GPL(ide_register_region);
++
++void ide_unregister_region(struct gendisk *disk)
++{
++	blk_unregister_region(MKDEV(disk->major, disk->first_minor),
++			      disk->minors);
++}
++
++EXPORT_SYMBOL_GPL(ide_unregister_region);
+
+ static int alloc_disks(ide_hwif_t *hwif)
+ {
+diff -Nru a/drivers/ide/ide-tape.c b/drivers/ide/ide-tape.c
+--- a/drivers/ide/ide-tape.c	2005-02-04 03:31:35 +01:00
++++ b/drivers/ide/ide-tape.c	2005-02-04 03:31:35 +01:00
+@@ -4680,6 +4680,8 @@
  	DRIVER(drive)->busy = 0;
  	(void) ide_unregister_subdriver(drive);
-@@ -4678,6 +4695,7 @@
- 	devfs_remove("%s/mt", drive->devfs_name);
- 	devfs_remove("%s/mtn", drive->devfs_name);
- 	devfs_unregister_tape(g->number);
-+	idetape_devs[tape->minor] = NULL;
- 	g->private_data = NULL;
- 	g->fops = ide_fops;
- 	kfree(tape);
-@@ -4825,8 +4843,6 @@
- 		kfree(tape);
- 		goto failed;
- 	}
--	for (minor = 0; idetape_chrdevs[minor].drive != NULL; minor++)
--		;
 
- 	memset(tape, 0, sizeof(*tape));
-
-@@ -4836,8 +4852,13 @@
-
- 	drive->driver_data = tape;
-
-+	down(&idetape_ref_sem);
-+	for (minor = 0; idetape_devs[minor]; minor++)
-+		;
-+	idetape_devs[minor] = tape;
-+	up(&idetape_ref_sem);
++	ide_unregister_region(drive->disk);
 +
- 	idetape_setup(drive, tape, minor);
--	idetape_chrdevs[minor].drive = drive;
+ 	ide_tape_put(tape);
 
- 	devfs_mk_cdev(MKDEV(HWIF(drive)->major, minor),
- 			S_IFCHR | S_IRUGO | S_IWUGO,
+ 	return 0;
+@@ -4871,6 +4873,7 @@
+ 	g->number = devfs_register_tape(drive->devfs_name);
+ 	g->fops = &idetape_block_ops;
+ 	g->private_data = tape;
++	ide_register_region(g);
+
+ 	return 0;
+ failed:
+diff -Nru a/drivers/scsi/ide-scsi.c b/drivers/scsi/ide-scsi.c
+--- a/drivers/scsi/ide-scsi.c	2005-02-04 03:31:35 +01:00
++++ b/drivers/scsi/ide-scsi.c	2005-02-04 03:31:35 +01:00
+@@ -723,6 +723,8 @@
+ 	if (ide_unregister_subdriver(drive))
+ 		return 1;
+
++	ide_unregister_region(g);
++
+ 	/* FIXME: drive->driver_data shouldn't be used */
+ 	drive->driver_data = NULL;
+ 	/* FIXME: add driver's private struct gendisk */
+@@ -1122,12 +1124,14 @@
+ 		idescsi_setup (drive, idescsi);
+ 		g->fops = &idescsi_ops;
+ 		g->private_data = idescsi;
++		ide_register_region(g);
+ 		err = scsi_add_host(host, &drive->gendev);
+ 		if (!err) {
+ 			scsi_scan_host(host);
+ 			return 0;
+ 		}
+ 		/* fall through on error */
++		ide_unregister_region(g);
+ 		ide_unregister_subdriver(drive);
+ 	}
+
+diff -Nru a/include/linux/ide.h b/include/linux/ide.h
+--- a/include/linux/ide.h	2005-02-04 03:31:35 +01:00
++++ b/include/linux/ide.h	2005-02-04 03:31:35 +01:00
+@@ -1456,6 +1456,9 @@
+ extern void ide_hwif_release_regions(ide_hwif_t* hwif);
+ extern void ide_unregister (unsigned int index);
+
++void ide_register_region(struct gendisk *);
++void ide_unregister_region(struct gendisk *);
++
+ void ide_undecoded_slave(ide_hwif_t *);
+
+ int probe_hwif_init_with_fixup(ide_hwif_t *, void (*)(ide_hwif_t *));

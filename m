@@ -1,48 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263370AbTKFF4E (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Nov 2003 00:56:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263373AbTKFF4E
+	id S263375AbTKFG1H (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Nov 2003 01:27:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263378AbTKFG1H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Nov 2003 00:56:04 -0500
-Received: from web21505.mail.yahoo.com ([66.163.169.16]:57693 "HELO
-	web21505.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S263370AbTKFF4C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Nov 2003 00:56:02 -0500
-Message-ID: <20031106055601.75420.qmail@web21505.mail.yahoo.com>
-Date: Wed, 5 Nov 2003 21:56:01 -0800 (PST)
-From: Robert Gyazig <juliarobertz_fan@yahoo.com>
-Subject: undo an mke2fs !!
-To: tytso@mit.edu, linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 6 Nov 2003 01:27:07 -0500
+Received: from boo-mda02.boo.net ([216.200.67.22]:14568 "EHLO kaneda.boo.net")
+	by vger.kernel.org with ESMTP id S263375AbTKFG1G (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Nov 2003 01:27:06 -0500
+Message-Id: <5.2.1.1.2.20031106012936.00a9b030@boo.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
+Date: Thu, 06 Nov 2003 01:34:35 -0500
+To: linux-kernel@vger.kernel.org
+From: Jason Papadopoulos <jasonp@boo.net>
+Subject: Alpha: ALi 15x3 DMA completely broken now
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ted and others,
 
-I created a new partition on my disk, and without
-noticing the change in the hdaX of the partition i did
-an  mke2fs /dev/hdaX. :(
+Hello. 2.4.21-rc could not start DMA at boot time on
+my system, but hdparm could turn it on afterwards. Now
+with 2.4.22, nothing will turn on DMA; using hdparm
+locks the machine immediately.
 
-Unfortunately it was my /home partition and was an
-ext3 partition earlier. Can anyone please advice on
-how to
-retrieve the old data.
+The machine in question is an DS10 Alphaserver, Ali
+M5229 rev c0 IDE controller. Has 2.4.23-pre made any
+fixes for this device?
 
-I read that mke2fs nukes all the meta information, so
-does that mean all inodes are destroyed and there is
-no hope for me ?!?!?
+Thanks in advance,
+jasonp
 
-i did a cat /dev/hdaX > /dev/hdaY, which was an empty
-partition earlier so that I can play around a bit. I
-tried couple of things with debugfs but coudn't go
-much far.
-
-thanks
-john
-
-__________________________________
-Do you Yahoo!?
-Protect your identity with Yahoo! Mail AddressGuard
-http://antispam.yahoo.com/whatsnewfree

@@ -1,61 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130033AbQKHWFM>; Wed, 8 Nov 2000 17:05:12 -0500
+	id <S129854AbQKHWGc>; Wed, 8 Nov 2000 17:06:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129938AbQKHWEw>; Wed, 8 Nov 2000 17:04:52 -0500
-Received: from puce.csi.cam.ac.uk ([131.111.8.40]:6811 "EHLO
-	puce.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S129118AbQKHWET>; Wed, 8 Nov 2000 17:04:19 -0500
-From: "James A. Sutherland" <jas88@cam.ac.uk>
-To: George Anzinger <george@mvista.com>
-Subject: Re: Installing kernel 2.4
-Date: Wed, 8 Nov 2000 22:01:41 +0000
-X-Mailer: KMail [version 1.0.28]
-Content-Type: text/plain; charset=US-ASCII
-Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
-        "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <200011081205.eA8C5ui27838@pincoya.inf.utfsm.cl> <00110819463200.01915@dax.joh.cam.ac.uk> <3A09B856.EC897A92@mvista.com>
-In-Reply-To: <3A09B856.EC897A92@mvista.com>
+	id <S130067AbQKHWGW>; Wed, 8 Nov 2000 17:06:22 -0500
+Received: from denise.shiny.it ([194.20.232.1]:62222 "EHLO denise.shiny.it")
+	by vger.kernel.org with ESMTP id <S129854AbQKHWGM>;
+	Wed, 8 Nov 2000 17:06:12 -0500
+Message-ID: <3A0A2141.E3EC14FF@denise.shiny.it>
+Date: Wed, 08 Nov 2000 23:00:01 -0500
+From: Giuliano Pochini <pochini@denise.shiny.it>
+X-Mailer: Mozilla 4.6 [en] (X11; I; Linux 2.2.18pre19 ppc)
+X-Accept-Language: en
 MIME-Version: 1.0
-Message-Id: <00110822033500.04252@dax.joh.cam.ac.uk>
-Content-Transfer-Encoding: 7BIT
+To: linux-kernel@vger.kernel.org
+Subject: Ethernet stops working in NFS
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 08 Nov 2000, George Anzinger wrote:
-> "James A. Sutherland" wrote:
-> > 
-> > On Wed, 08 Nov 2000, George Anzinger wrote:
-> > > But, here the customer did run the configure code (he said he did not
-> > > change anything).  Isn't this where the machine should be diagnosed and
-> > > the right options chosen?  Need a way to say it is a cross build, but
-> > > that shouldn't be too hard.
-> > 
-> > Why default to incompatibility?! If the user explicitly says "I really do want
-> > a kernel which only works on this specific machine as it is now, and I want it
-> > to break otherwise", fine. Don't make it a default!
-> 
-> I could go along with this.  The user, however, had the default break,
-> and, to my knowledge, there are no tools to diagnose the current (or any
-> other) machine anywhere in the kernel.  Maybe it is time to do such a
-> tool with exports that the configure programs could use as defaults.  My
-> thought is that the tool could run independently on the target system
-> (be it local or otherwise) with the results fed back to configure.
 
-I think a default whereby the kernel built will run on any Linux-capable
-machine of that architecture would be sensible - so if I grab the 2.4.0t10
-tarball and build it now, with no changes, I'll be able to boot the kernel on
-any x86 machine.
+I have a Mac and a PC with a 3com 595 ethernet card. The Mac is the
+nfs server. When I transfer from the PC to the Mac it's all right.
+When I transfer a large file (50-100MB) from the Mac to the PC often
+the connection breaks completely. I can't ping the other machine
+anymore. Looking at ifconfig I see that the PC receives the pings
+but it does not answer. I have to bring the PC's eth0 down and up
+to get it working again. Large ping floods don't trigger the
+problem.
+And is it normal that I transfer at only ~5MB/s over a 100Mbps
+ethernet ?
 
-> (Oops, corollary to the rule that "The squeaking wheel gets the grease."
-> is "S/he who complains most about the squeaking gets to do the
-> greasing."  I better keep quiet :)
+The PC runs 2.2.17 and the Mac 2.2.18pre19.
 
-I'm still not convinced the wheel IS squeaking - anyone got those benchmarks??
+Bye.
 
 
-James.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

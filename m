@@ -1,200 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265775AbUFXWWr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265837AbUFXWRt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265775AbUFXWWr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jun 2004 18:22:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265879AbUFXWWB
+	id S265837AbUFXWRt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jun 2004 18:17:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265793AbUFXWPt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jun 2004 18:22:01 -0400
-Received: from fujitsu1.fujitsu.com ([192.240.0.1]:16779 "EHLO
-	fujitsu1.fujitsu.com") by vger.kernel.org with ESMTP
-	id S265875AbUFXWUH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jun 2004 18:20:07 -0400
-Date: Thu, 24 Jun 2004 15:19:30 -0700
-From: Yasunori Goto <ygoto@us.fujitsu.com>
-To: Dave Hansen <haveblue@us.ibm.com>
-Subject: Re: [Lhms-devel] Re: [Lhns-devel] Merging Nonlinear and Numa style memory hotplug
-Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>,
-       Linux Hotplug Memory Support 
-	<lhms-devel@lists.sourceforge.net>,
-       Linux-Node-Hotplug <lhns-devel@lists.sourceforge.net>,
-       linux-mm <linux-mm@kvack.org>,
-       "BRADLEY CHRISTIANSEN [imap]" <bradc1@us.ibm.com>
-In-Reply-To: <1088083724.3918.390.camel@nighthawk>
-References: <20040623184303.25D9.YGOTO@us.fujitsu.com> <1088083724.3918.390.camel@nighthawk>
-Message-Id: <20040624135838.F009.YGOTO@us.fujitsu.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.07.02
+	Thu, 24 Jun 2004 18:15:49 -0400
+Received: from gprs214-211.eurotel.cz ([160.218.214.211]:56449 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S265828AbUFXWDe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jun 2004 18:03:34 -0400
+Date: Fri, 25 Jun 2004 00:03:18 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: alan <alan@clueserver.org>
+Cc: "Fao, Sean" <Sean.Fao@dynextechnologies.com>, linux-kernel@vger.kernel.org,
+       Amit Gud <gud@eth.net>
+Subject: Re: Elastic Quota File System (EQFS)
+Message-ID: <20040624220318.GE20649@elf.ucw.cz>
+References: <20040624213041.GA20649@elf.ucw.cz> <Pine.LNX.4.44.0406241347560.18047-100000@www.fnordora.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0406241347560.18047-100000@www.fnordora.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-Dave-san.
+> > On one school server, theres 10MB quota. (Okay, its admins are
+> > BOFHs^H^H^H^H^HSISAL). Everyone tries to run mozilla there (because
+> > its installed as default!), and immediately fills his/her quota with
+> > cache files, leading to failed login next time (gnome just will not
+> > start if it can't write to ~).
+> > 
+> > Imagine mozilla automatically marking cache files "elastic".
+> > 
+> > That would solve the problem -- mozilla caches would go away when disk
+> > space was demanded, still mozilla's on-disk caching would be effective
+> > when there is enough disk space.
+> 
+> How does Mozilla (or any process) react when its files are deleted from 
+> under it?  Would the file remain until all the open processes close the 
+> file or would it just "disappear"? 
 
-Probably, all of your advices are right.
-I was confused between my emulation environment and true NUMA machine.
-I will modify them. Thanks a lot.
+Of course, if mozilla marked them "elastic" it should better be
+prepared for they disappearance. I'd disappear them with simple
+unlink(), so they'd physically survive as long as someone held them
+open.
 
-BTW, I have a question about nonlinear patch.
-It is about difference between phys_section[] and mem_section[]
-I suppose that phys_section[] looks like no-meaning now.
-If it isn't necessary, __va() and __pa() translation can be more simple.
-What is the purpose of phys_section[]. Is it for ppc64?
+>  Would it delete entire directories or 
+> just some of the files?  How does it choose?  (First up against the delete 
+> when the drive space fills...)
 
-Bye.
+Probably just some of the files... Or you could delete directory, too,
+if it was marked "elastic". What to delete first... probably file with
+oldest access time? Or random file, with chance of being selected
+proportional to file size?
 
-> Some more comments on the first patch:
-> 
-> +#ifdef CONFIG_HOTPLUG_MEMORY_OF_NODE
-> +               if (node_online(nid)) {
-> +                       allocate_pgdat(nid);
-> +                       printk ("node %d will remap to vaddr %08lx\n", nid,
-> +                               (ulong) node_remap_start_vaddr[nid]);
-> +               }else
-> +                       NODE_DATA(nid)=NULL;
-> +#else
->                 allocate_pgdat(nid);
->                 printk ("node %d will remap to vaddr %08lx - %08lx\n", nid,
->                         (ulong) node_remap_start_vaddr[nid],
->                         (ulong) pfn_to_kaddr(highstart_pfn
->                             - node_remap_offset[nid] + node_remap_size[nid]));
-> +#endif
-> 
-> I don't think this chunk is very necessary.  The 'NODE_DATA(nid)=NULL;'
-> is superfluous because the node_data[] is zeroed at boot:
-> 
-> NUMA:
-> #define NODE_DATA(nid) (node_data[nid])
-> non-NUMA:
-> #define NODE_DATA(nid) (&contig_page_data)
-> 
-> Why not just make it:
-> 
-> +               if (!node_online(nid))
-> +			continue;
-> 
-> That should at least get rid of the ifdef.
-> 
-> -       bootmap_size = init_bootmem_node(NODE_DATA(0), min_low_pfn, 0, system_max_low_pfn);
-> +       bootmap_size = init_bootmem_node(NODE_DATA(0), min_low_pfn, 0,
-> +           (system_max_low_pfn > node_end_pfn[0]) ?
-> +           node_end_pfn[0] : system_max_low_pfn);
-> 
-> -       register_bootmem_low_pages(system_max_low_pfn);
-> +       register_bootmem_low_pages((system_max_low_pfn > node_end_pfn[0]) ?
-> +           node_end_pfn[0] : system_max_low_pfn);
-> 
-> How about using a temp variable here instead of those nasty conditionals?
-> 
-> +
-> +#ifdef CONFIG_HOTPLUG_MEMORY_OF_NODE
-> +               if (node_online(nid)){
-> +                       if (nid)
-> +                               memset(NODE_DATA(nid), 0, sizeof(pg_data_t));
-> +                       NODE_DATA(nid)->pgdat_next = pgdat_list;
-> +                       pgdat_list = NODE_DATA(nid);
-> +                       NODE_DATA(nid)->enabled = 1;
-> +               }
-> +#else
->                 if (nid)
->                         memset(NODE_DATA(nid), 0, sizeof(pg_data_t));
->                 NODE_DATA(nid)->pgdat_next = pgdat_list;
->                 pgdat_list = NODE_DATA(nid);
-> +#endif
-> 
-> I'd just take the ifdef out.  Wouldn't this work instead?
-> 
-> -               if (nid)
-> -                       memset(NODE_DATA(nid), 0, sizeof(pg_data_t));
-> -               NODE_DATA(nid)->pgdat_next = pgdat_list;
-> -               pgdat_list = NODE_DATA(nid);
-> +               if (node_online(nid)){
-> +                       if (nid)
-> +                               memset(NODE_DATA(nid), 0, sizeof(pg_data_t));
-> +                       NODE_DATA(nid)->pgdat_next = pgdat_list;
-> +                       pgdat_list = NODE_DATA(nid);
-> +                       NODE_DATA(nid)->enabled = 1;
-> +               }
-> 
-> +void set_max_mapnr_init(void)
-> +{
-> ...
-> +       struct page *hsp=0;
-> 
-> Should just be 'struct page *hsp = NULL;'
-> 
-> +       for(i = 0; i < numnodes; i++) {
-> +               if (!NODE_DATA(i))
-> +                       continue;
-> +               pgdat = NODE_DATA(i);
-> +               size = pgdat->node_zones[ZONE_HIGHMEM].present_pages;
-> +               if (!size)
-> +                       continue;
-> +               hsp = pgdat->node_zones[ZONE_HIGHMEM].zone_mem_map;
-> +               if (hsp)
-> +                       break;
-> +       }
-> 
-> Doesn't this just find the lowest-numbered node's highmem?  Are you sure
-> that no NUMA systems have memory at lower physical addresses on
-> higher-numbered nodes?  I'm not sure that this is true.
-> 
-> +       if (hsp)
-> +               highmem_start_page = hsp;
-> +       else
-> +               highmem_start_page = (struct page *)-1;
-> 
-> By not just BUG() here?  Do you check for 'highmem_start_page == -1' somewhere?
-> 
-> @@ -478,12 +482,35 @@ void __init mem_init(void)
->         totalram_pages += __free_all_bootmem();
-> 
->         reservedpages = 0;
-> +
-> +#ifdef CONFIG_HOTPLUG_MEMORY_OF_NODE
-> +       for (nid = 0; nid < numnodes; nid++){
-> +               int start, end;
-> +
-> +               if ( !node_online(nid))
-> +                       continue;
-> +               if ( node_start_pfn[nid] >= max_low_pfn )
-> +                       break;
-> +
-> +               start = node_start_pfn[nid];
-> +               end = ( node_end_pfn[nid] < max_low_pfn) ?
-> +                       node_end_pfn[nid] : max_low_pfn;
-> +
-> +               for ( tmp = start; tmp < end; tmp++)
-> +                       /*
-> +                        * Only count reserved RAM pages
-> +                        */
-> +                       if (page_is_ram(tmp) && PageReserved(pfn_to_page(tmp)))
-> +                               reservedpages++;
-> +       }
-> +#else
-> 
-> Again, I don't see what this loop is used for.  You appear to be trying
-> to detect which nodes have lowmem.  Is there currently any x86 NUMA
-> architecture that has lowmem on any node but node 0?
-> 
-> 
-> 
-> -- Dave
-> 
-> 
-> 
-> -------------------------------------------------------
-> This SF.Net email sponsored by Black Hat Briefings & Training.
-> Attend Black Hat Briefings & Training, Las Vegas July 24-29 - 
-> digital self defense, top technical experts, no vendor pitches, 
-> unmatched networking opportunities. Visit www.blackhat.com
-> _______________________________________________
-> Lhns-devel mailing list
-> Lhns-devel@lists.sourceforge.net
-> https://lists.sourceforge.net/lists/listinfo/lhns-devel
-
+I'm not implementing it, I'm just arguing that it is usefull.
+								Pavel
 -- 
-Yasunori Goto <ygoto at us.fujitsu.com>
-
-
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

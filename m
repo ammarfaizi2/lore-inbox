@@ -1,33 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265923AbUAVFMi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jan 2004 00:12:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264364AbUAVFMi
+	id S265817AbUAVFLb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jan 2004 00:11:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265854AbUAVFLb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jan 2004 00:12:38 -0500
-Received: from dp.samba.org ([66.70.73.150]:47038 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S265923AbUAVFMg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jan 2004 00:12:36 -0500
-Date: Thu, 22 Jan 2004 16:07:39 +1100
-From: Anton Blanchard <anton@samba.org>
-To: dick morales <gelstat_mystery@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: typo in cset 1.1490.4.170
-Message-ID: <20040122050739.GB11236@krispykreme>
-References: <BAY13-F3gTIFprhMOgR00000786@hotmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <BAY13-F3gTIFprhMOgR00000786@hotmail.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Thu, 22 Jan 2004 00:11:31 -0500
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:44249 "EHLO
+	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
+	id S265817AbUAVFL3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jan 2004 00:11:29 -0500
+Date: Thu, 22 Jan 2004 00:11:28 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Jes Sorensen <jes@wildopensource.com>
+cc: Dave Jones <davej@redhat.com>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: List 'linux-dvb' closed to public posts
+In-Reply-To: <yq01xpt2cyz.fsf@wildopensource.com>
+Message-ID: <Pine.LNX.4.44.0401220011020.15146-100000@chimarrao.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 21 Jan 2004, Jes Sorensen wrote:
 
-> s/parintk_ratelimit/printk_ratelimit
-> thx for attention
+> Honestly, can a list be considered a contact point at all if you can't
+> post to it? If they are so afraid of outside posters, they can setup a
+> specific list for bug reporting only thats open or something. IMHO
+> allowing closed lists to be listed in the MAINTAINERS file is
+> to support the stupidity.
 
-Sorry, that was my parthetic spelling.
+Agreed, we should remove all addresses from MAINTAINERS
+where bug reports by email aren't welcome.
 
-Anton
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
+

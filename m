@@ -1,42 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262114AbUD1UxP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261389AbUD1Uq4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262114AbUD1UxP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 16:53:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261443AbUD1UCw
+	id S261389AbUD1Uq4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 16:46:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262009AbUD1UDA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 16:02:52 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:52143 "EHLO
+	Wed, 28 Apr 2004 16:03:00 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:51887 "EHLO
 	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261418AbUD1TRM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S261389AbUD1TRM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 28 Apr 2004 15:17:12 -0400
-Date: Tue, 27 Apr 2004 20:58:01 +0200
+Date: Tue, 27 Apr 2004 16:14:54 +0200
 From: Pavel Machek <pavel@suse.cz>
-To: Paulo Marques <pmarques@grupopie.com>
-Cc: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>,
-       Jan-Benedict Glaw <jbglaw@lug-owl.de>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
-Message-ID: <20040427185800.GS2595@openzaurus.ucw.cz>
-References: <408DC0E0.7090500@gmx.net> <Pine.LNX.4.58.0404262116510.19703@ppc970.osdl.org> <1083045844.2150.105.camel@bach> <20040427092159.GC29503@lug-owl.de> <408E37D9.7030804@gmx.net> <408E5944.8090807@grupopie.com>
+To: tj <999alfred@comcast.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: mmc/sd drivers
+Message-ID: <20040427141453.GQ2595@openzaurus.ucw.cz>
+References: <408D3DC0.8080700@comcast.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <408E5944.8090807@grupopie.com>
+In-Reply-To: <408D3DC0.8080700@comcast.net>
 User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> The way I see it, they know a C string ends with a '\0'. This is like 
-> saying that a English sentence ends with a dot. If they wrote "GPL\0" 
-> they are effectively saying that the license *is* GPL period.
+> Where can the latest mmc drivers in the kernel source be located? I 
+> am not talking about mass-storage usb or pcmcia drivers. I downloaded 
+> 2.2.26 and there is no drivers/mmc directory. Where can the mmc 
+> drivers be located from their original distribution point?
+> 
 
-If you use modinfo, license probably will be displayed as GPL.
-I'd guess that sending bunch of lawyers their way is right solution.
-				Pavel
+2.2 is old.
+
+MMC is supported for example on sharp zaurus, look
+there for sources. SD requires binary-only module. Avoid it.
+
 -- 
 64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
 

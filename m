@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316778AbSFUUNQ>; Fri, 21 Jun 2002 16:13:16 -0400
+	id <S316780AbSFUUXT>; Fri, 21 Jun 2002 16:23:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316780AbSFUUNP>; Fri, 21 Jun 2002 16:13:15 -0400
-Received: from [213.23.20.221] ([213.23.20.221]:2735 "EHLO starship")
-	by vger.kernel.org with ESMTP id <S316778AbSFUUNO>;
-	Fri, 21 Jun 2002 16:13:14 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Nathan Straz <nstraz@sgi.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.2 and 2.4 performance issues
-Date: Fri, 21 Jun 2002 22:13:09 +0200
-X-Mailer: KMail [version 1.3.2]
-References: <1024678560.879.27.camel@lpinto> <20020621171058.GA27100@sgi.com>
-In-Reply-To: <20020621171058.GA27100@sgi.com>
+	id <S316782AbSFUUXS>; Fri, 21 Jun 2002 16:23:18 -0400
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:13031 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S316780AbSFUUXR>; Fri, 21 Jun 2002 16:23:17 -0400
+Date: Fri, 21 Jun 2002 15:23:13 -0500 (CDT)
+From: Kai Germaschewski <kai-germaschewski@uiowa.edu>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: Erik McKee <camhanaich99@yahoo.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [BUGREPORT] kernel BUG in page_alloc.c:141!
+In-Reply-To: <20020621200613.GB22961@holomorphy.com>
+Message-ID: <Pine.LNX.4.44.0206211521130.14251-100000@chaos.physics.uiowa.edu>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17LUmL-0001wL-00@starship>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 21 June 2002 19:10, Nathan Straz wrote:
-> On Fri, Jun 21, 2002 at 05:55:55PM +0100, Luis Pedro de Moura Ribeiro Pinto wrote:
-> > I was asked (i'm a company freshman) to perform some tests between
-> > kernel versions 2.2 and 2.4, and after awhile searching i found a good
-> > set of benchmarking tools (aim7) from Caldera linux. 
+On Fri, 21 Jun 2002, William Lee Irwin III wrote:
+
+> On Fri, Jun 21, 2002 at 12:15:28PM -0700, Erik McKee wrote:
+> > Booted 2.5.24, and it ran fine for sometime, before it dead(live) locked,
+> > causing a reboot.  Attempts to reboot were met with the following bug
+> > immediatly after calibrating delay loop, which equates out to an
+> > if(bad_range(buddy1,zone)) BUG; in __free_pages_ok:
 > 
-> Benchmarks are evil.  Sure they are useful at times, but for the most
-> part they get misused.
+> This looks odd. Can you by any chance disassemble the parts before this?
+> Or better yet, reproduce it with a kernel compiled with -g and objdump
+> --source --disassemble vmlinux to get the disassembly of __free_pages_ok()?
 
-There's no sense denying evidence that 2.2 outperforms 2.4 under certain
-workloads.  Instead we should just be more determined to root out all
-those problems and deal with them.  There is no inherent design reason
-why 2.4 should be slower than 2.2 in any area at all, however, some
-practical issues, such as IO scheduling still remain and are being
-actively worked on.  Expect backports from 2.5 later in the 2.4 series.
-For now, the one thing we must not do is risk instability in 2.4, now
-that most users have switched over to it.
+"make mm/page_alloc.lst" may simplify this task. However, the usage of the
+various macros seems to confuse gcc -g / objdump somewhat, so the output
+isn't as clear as it could be.
 
--- 
-Daniel
+--Kai
+
+

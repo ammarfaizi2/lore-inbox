@@ -1,54 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262262AbTJIPlT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Oct 2003 11:41:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262279AbTJIPlT
+	id S262253AbTJIPpc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Oct 2003 11:45:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262241AbTJIPpc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Oct 2003 11:41:19 -0400
-Received: from fw.osdl.org ([65.172.181.6]:42198 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262262AbTJIPlS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Oct 2003 11:41:18 -0400
-Date: Thu, 9 Oct 2003 08:40:09 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andi Kleen <ak@muc.de>
-cc: Andi Kleen <ak@colin2.muc.de>, <akpm@osdl.org>,
-       <linux-kernel@vger.kernel.org>, <bos@serpentine.com>
-Subject: Re: [PATCH] Fix mlockall for PROT_NONE mappings
-In-Reply-To: <20031009153317.GA3096@averell>
-Message-ID: <Pine.LNX.4.44.0310090837490.10041-100000@home.osdl.org>
+	Thu, 9 Oct 2003 11:45:32 -0400
+Received: from smtp14.eresmas.com ([62.81.235.114]:52897 "EHLO
+	smtp14.eresmas.com") by vger.kernel.org with ESMTP id S262187AbTJIPp3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Oct 2003 11:45:29 -0400
+Message-ID: <3F858274.5030001@wanadoo.es>
+Date: Thu, 09 Oct 2003 17:44:52 +0200
+From: Xose Vazquez Perez <xose@wanadoo.es>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: gl, es, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Erik Mouw <erik@harddisk-recovery.com>
+CC: Matthew Wilcox <willy@debian.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-scsi <linux-scsi@vger.kernel.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: two sym53c8xx.o modules
+References: <3F84AF3C.9050408@wanadoo.es> <Pine.LNX.4.44.0310090826290.2569-100000@logos.cnet> <20031009122428.GF11525@bitwizard.nl> <20031009123857.GC27861@parcelfarce.linux.theplanet.co.uk> <20031009131152.GG11525@bitwizard.nl> <20031009132141.GF27861@parcelfarce.linux.theplanet.co.uk> <20031009140430.GI11525@bitwizard.nl>
+X-Enigmail-Version: 0.63.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Erik Mouw wrote:
 
-On Thu, 9 Oct 2003, Andi Kleen wrote:
-> 
-> Ok, here's a new version.
+> I know (I think you even told me). The fact that I only recently
+> figured out about this bug proves my point: in linux-2.4 the sym53cxx_2
+> driver didn't get as much testing as it should have had. Apply my
+> patch, and the driver might even get real use.
 
-Still won't work.
+What's best approach ? to replace sym53c8xx_2/sym53c8xx.o with
+sym53c8xx_2/sym53c8xx_2.o or sym53c8xx.o with sym53c8xx_old.o
 
-You need to call mlock_fixup() to split the vma properly (it might not 
-cover the whole vma, and we _do_ want to keep track of the VM_LOCKED flag 
-correctly.
-
-I _think_ the proper fix is something trivial like this, but it's 
-obviously untested. Please verify
-
-		Linus
-
-----
---- 1.6/mm/mlock.c	Sun Sep 21 14:50:36 2003
-+++ edited/mm/mlock.c	Thu Oct  9 08:39:25 2003
-@@ -43,7 +43,8 @@
- 	pages = (end - start) >> PAGE_SHIFT;
- 	if (newflags & VM_LOCKED) {
- 		pages = -pages;
--		ret = make_pages_present(start, end);
-+		if (newflags & VM_READ)
-+			ret = make_pages_present(start, end);
- 	}
- 
- 	vma->vm_mm->locked_vm -= pages;
+:-?
 

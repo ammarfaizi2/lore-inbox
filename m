@@ -1,33 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289850AbSAKHJP>; Fri, 11 Jan 2002 02:09:15 -0500
+	id <S287751AbSAKHas>; Fri, 11 Jan 2002 02:30:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289851AbSAKHJG>; Fri, 11 Jan 2002 02:09:06 -0500
-Received: from adsl-63-199-104-197.dsl.lsan03.pacbell.net ([63.199.104.197]:19976
-	"HELO mail.theoesters.com") by vger.kernel.org with SMTP
-	id <S289850AbSAKHIx>; Fri, 11 Jan 2002 02:08:53 -0500
-Date: Thu, 10 Jan 2002 23:08:52 -0800
-From: Phil Oester <kernel@theoesters.com>
-To: Mike <m.mohr@laposte.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.5.[0&1]
-Message-ID: <20020110230852.A29895@ns1.theoesters.com>
-In-Reply-To: <3C3E8D2A.66C96E37@laposte.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3C3E8D2A.66C96E37@laposte.net>; from m.mohr@laposte.net on Thu, Jan 10, 2002 at 10:58:51PM -0800
+	id <S289888AbSAKHai>; Fri, 11 Jan 2002 02:30:38 -0500
+Received: from blueberrysolutions.com ([195.165.170.195]:7297 "EHLO
+	blueberrysolutions.com") by vger.kernel.org with ESMTP
+	id <S287751AbSAKHa2>; Fri, 11 Jan 2002 02:30:28 -0500
+Date: Fri, 11 Jan 2002 09:30:18 +0200 (EET)
+From: Tony Glader <Tony.Glader@blueberrysolutions.com>
+X-X-Sender: <teg@blueberrysolutions.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.17 Kernel Oops
+In-Reply-To: <Pine.LNX.4.21.0201101831200.22287-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.33.0201110926380.8489-100000@blueberrysolutions.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Based upon this information, I'd recommend sticking with the 2.4.x kernel series.  2.5 is the development series.
+On Thu, 10 Jan 2002, Marcelo Tosatti wrote:
 
--Phil Oester
+> Looks like memory corruption... 
 
-On Thu, Jan 10, 2002 at 10:58:51PM -0800, Mike wrote:
-> Good evening everyone.
-> 
-> I'm new to this list.  After using Linux off and on for about 1 year, I
-> have learned just enough to get around and do very basic system
-> maintenance.  I am at the point where I need to recompile my kernel.  I
+Hardware-problem was my first idea also. So I changed memory - didn't 
+help, changed processor - didn't help, changed mainboard - didn't help, 
+changed even harddisk (because seems that the problem is with ide i/o - 
+high harddisk i/o will cause lot of oopses) - didn't help.
+
+> Mind running memtest86 ? 
+
+I ran. It didn't found any errors.
+

@@ -1,48 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263916AbRFNS53>; Thu, 14 Jun 2001 14:57:29 -0400
+	id <S263960AbRFNTD3>; Thu, 14 Jun 2001 15:03:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263924AbRFNS5U>; Thu, 14 Jun 2001 14:57:20 -0400
-Received: from femail3.rdc1.on.home.com ([24.2.9.90]:30858 "EHLO
-	femail3.rdc1.on.home.com") by vger.kernel.org with ESMTP
-	id <S263916AbRFNS5J>; Thu, 14 Jun 2001 14:57:09 -0400
-Date: Thu, 14 Jun 2001 14:57:01 -0400 (EDT)
-From: "Mike A. Harris" <mharris@opensourceadvocate.org>
-X-X-Sender: <mharris@asdf.capslock.lan>
-To: Daniel <ddickman@nyc.rr.com>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: obsolete code must die
-In-Reply-To: <01a401c0f46b$20b932e0$480e6c42@almlba4sy7xn6x>
-Message-ID: <Pine.LNX.4.33.0106141454430.26171-100000@asdf.capslock.lan>
-X-Unexpected-Header: The Spanish Inquisition
-X-Spam-To: uce@ftc.gov
-Copyright: Copyright 2001 by Mike A. Harris - All rights reserved
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263927AbRFNTDT>; Thu, 14 Jun 2001 15:03:19 -0400
+Received: from 20dyn128.com21.casema.net ([213.17.90.128]:1540 "HELO
+	home.ds9a.nl") by vger.kernel.org with SMTP id <S263924AbRFNTDM>;
+	Thu, 14 Jun 2001 15:03:12 -0400
+Date: Thu, 14 Jun 2001 21:01:38 +0200
+From: bert hubert <ahu@ds9a.nl>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Kip Macy <kmacy@netapp.com>, ognen@gene.pbi.nrc.ca,
+        linux-kernel@vger.kernel.org
+Subject: Re: threading question
+Message-ID: <20010614210138.A15912@home.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, Kip Macy <kmacy@netapp.com>,
+	ognen@gene.pbi.nrc.ca, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GSO.4.10.10106121200330.20809-100000@orbit-fe.eng.netapp.com> <E15Abr6-00057R-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E15Abr6-00057R-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, Jun 14, 2001 at 07:28:32PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Jun 2001, Daniel wrote:
+On Thu, Jun 14, 2001 at 07:28:32PM +0100, Alan Cox wrote:
 
->i386, i486
->The Pentium processor has been around since 1995. Support for these older
->processors should go so we can focus on optimizations for the pentium and
->better processors.
-[SNIP]
+> There are really only two reasons for threaded programming. 
+> 
+> - Poor programmer skills/language expression of event handling
 
-Boy, if this isn't a troll, I don't know what is.  Obviously
-someone doesn't grok the kernel development processes very well.
-Newbie here?
+The converse is that pthreads are:
 
-One needn't even *be* a kernel hacker to understand why all of
-the stuff stated is totally not going to happen, and there would
-be no benefit to doing so.
+ - Very easy to use from C at a reasonable runtime overhead
 
+It is very convenient for a userspace coder to be able to just start a
+function in a different thread. Now it might be so that a kernel is not
+there to provide ease of use for userspace coders but it is a factor.
 
-----------------------------------------------------------------------
-    Mike A. Harris  -  Linux advocate  -  Open Source advocate
-       Opinions and viewpoints expressed are solely my own.
-----------------------------------------------------------------------
-Foot and mouth disease is believed by experts to be the first virus
-that is unable to spread via Microsoft Outlook.
+I see lots of people only using:
+	pthread_create()/pthread_join()
+	mutex_lock/unlock
+	sem_post/sem_wait
+	no signals
+	
+My gut feeling is that you could implement this subset in a way that is both
+fast and right - although it would not be 'pthreads compliant'. Can anybody
+confirm this feeling?
 
+Regards,
+
+bert
+
+-- 
+http://www.PowerDNS.com      Versatile DNS Services  
+Trilab                       The Technology People   
+'SYN! .. SYN|ACK! .. ACK!' - the mating call of the internet

@@ -1,35 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135906AbRD3VJr>; Mon, 30 Apr 2001 17:09:47 -0400
+	id <S133097AbRD3VRJ>; Mon, 30 Apr 2001 17:17:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136522AbRD3VJh>; Mon, 30 Apr 2001 17:09:37 -0400
-Received: from cmailg5.svr.pol.co.uk ([195.92.195.175]:34112 "EHLO
-	cmailg5.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S135906AbRD3VJ0>; Mon, 30 Apr 2001 17:09:26 -0400
-Date: Mon, 30 Apr 2001 22:12:21 +0100 (BST)
-From: Will Newton <will@misconception.org.uk>
-X-X-Sender: <will@dogfox.localdomain>
-To: <linux-kernel@vger.kernel.org>
-Subject: AC97/es1371 detection problem
-Message-ID: <Pine.LNX.4.33.0104302208340.3207-100000@dogfox.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135909AbRD3VQ6>; Mon, 30 Apr 2001 17:16:58 -0400
+Received: from ucu-105-116.ucu.uu.nl ([131.211.105.116]:2380 "EHLO
+	ronald.bitfreak.net") by vger.kernel.org with ESMTP
+	id <S133097AbRD3VQu>; Mon, 30 Apr 2001 17:16:50 -0400
+Date: Mon, 30 Apr 2001 23:15:51 +0200
+From: Ronald Bultje <rbultje@ronald.bitfreak.net>
+To: "Mohammad A . Haque" <mhaque@haque.net>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, jinbo21@hananet.net,
+        linux-kernel@vger.kernel.org
+Subject: Re: buz.c of 2.4.4
+Message-ID: <20010430231551.A11965@tux.bitfreak.net>
+In-Reply-To: <E14uI6W-0008Kl-00@the-village.bc.nu> <Pine.LNX.4.33.0104301436280.29480-100000@viper.haque.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <Pine.LNX.4.33.0104301436280.29480-100000@viper.haque.net>; from mhaque@haque.net on Mon, Apr 30, 2001 at 20:37:39 +0200
+X-Mailer: Balsa 1.0.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Linux won't detect my AC97 (Cirrus Logic, er something I forget exactly)
-soundcard from a cold start. Reset the machine and it loads up fine.
+On 2001.04.30 20:37:39 +0200 Mohammad A. Haque wrote:
+> On Mon, 30 Apr 2001, Alan Cox wrote:
+> 
+> > Buz.c doesnt work build or anything. Once the zoran merge is done it
+> will
+> > go away, until then I simply dont care.  At least its obviously broken
+> right
+> > now
+> 
+> Can't we just remove it then?
+> 
+> Come to think of it .. then we'd start getting "buz drivers missing"
+> reports.
 
-Ideas?
+So what?
+Refer them to mjpeg-users@lists.sourceforge.net and we'll explain them how
+to use the new zoran driver until it's in the official kernel...
+I mean, it be worse if they _used_ the old buz-thing, they'd start bugging
+you with "how do I fix it?"
 
-VIA KX133 motherboard BTW.
+A broken driver in the kernel basically means a broken kernel - so it'd be
+better to just remove it I guess... What do you think, Alan?
 
-mtrr: 0xe0000000,0x2000000 overlaps existing 0xe0000000,0x1000000
-es1371: version v0.30 time 14:11:05 Apr 28 2001
-es1371: found chip, vendor id 0x1274 device id 0x1371 revision 0x08
-PCI: Found IRQ 10 for device 00:0b.0
-es1371: found es1371 rev 8 at io 0xa400 irq 10
-es1371: features: joystick 0x0
-ac97_codec: AC97  codec, id: 0x0000:0x0000 (Unknown)
+--
+Ronald Bultje
 

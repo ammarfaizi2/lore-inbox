@@ -1,66 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263137AbTBORes>; Sat, 15 Feb 2003 12:34:48 -0500
+	id <S262871AbTBORtU>; Sat, 15 Feb 2003 12:49:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264631AbTBORes>; Sat, 15 Feb 2003 12:34:48 -0500
-Received: from modemcable166.48-200-24.mtl.mc.videotron.ca ([24.200.48.166]:17345
-	"EHLO xanadu.home") by vger.kernel.org with ESMTP
-	id <S263137AbTBORer>; Sat, 15 Feb 2003 12:34:47 -0500
-Date: Sat, 15 Feb 2003 12:44:34 -0500 (EST)
-From: Nicolas Pitre <nico@cam.org>
-X-X-Sender: nico@xanadu.home
-To: Larry McVoy <lm@bitmover.com>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: openbkweb-0.0
-In-Reply-To: <20030214235724.GA24139@work.bitmover.com>
-Message-ID: <Pine.LNX.4.44.0302151207390.13273-100000@xanadu.home>
+	id <S264665AbTBORtU>; Sat, 15 Feb 2003 12:49:20 -0500
+Received: from ns.suse.de ([213.95.15.193]:33540 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S262871AbTBORtT> convert rfc822-to-8bit;
+	Sat, 15 Feb 2003 12:49:19 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Andreas Gruenbacher <agruen@suse.de>
+Organization: SuSE Labs, SuSE Linux AG
+To: Christoph Hellwig <hch@infradead.org>
+Subject: Re: [PATCH] Extended attribute fixes, etc.
+Date: Sat, 15 Feb 2003 18:59:11 +0100
+User-Agent: KMail/1.4.3
+Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
+       "Theodore T'so" <tytso@mit.edu>
+References: <200302112018.58862.agruen@suse.de> <20030215110732.A17564@infradead.org>
+In-Reply-To: <20030215110732.A17564@infradead.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200302151859.11370.agruen@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 14 Feb 2003, Larry McVoy wrote:
+On Saturday 15 February 2003 12:07, Christoph Hellwig wrote:
+> On Tue, Feb 11, 2003 at 08:18:58PM +0100, Andreas Gruenbacher wrote:
+> > The third to fifth are all steps towards trusted extended
+> > attributes, which are useful for privileged processes (mostly
+> > daemons). One use for this is Hierarchical Storage Management, in
+> > which a user space daemon stores online/offline information for
+> > files in trusted EA's, and the kernel communicates requests to
+> > bring files online to that daemon. This class of EA's will also
+> > find its way into XFS and ReiserFS, and expectedly also into JFS in
+> > this form. (Trusted EAs are included in the 2.4.19/2.4.20 patches
+> > as well.)
+>
+> Please don't do the ugly flags stuff.  We have fsuids and fsgids for
+> exactly that reason (and because we're still lacking a credentials
+> cache..).
 
-> As with many things in life, you can choose to behave well or poorly and
-> the people you help or hurt will act according.
+The XATTR_KERNEL_CONTEXT flag cannot be substituted by a uid/gid change; 
+it is unrelated to that; that's the whole point of it. It would be 
+possible to raise some other flag (such as a capability, etc.) instead 
+of passing an explicit flag, but that seems uglier and more 
+problematic/error prone to me.
 
-Larry,
-
-Aren't you tired of all this shit people are making of BK?
-
-You will always have people bitching at you just like people are bitching at
-Microsoft Word, whether those people are morons or great hackers is
-irrelevant.
-
-Be smart and put a Linux CVS repository on bkbits.net even if it costs you
-some bandwidth money at first, oh and have the CVS repo to be always in sync
-with the bk repo of course.  This way you'll be able to tune the process,
-make sure it can be fully automated, then everybody will be happy and you'll
-sleep in peace for a while.
-
-Then, to handle the bandwidth/money issue, you just need to put bandwidth
-limiting on the CVS port (Linux can do that so well - just ask for help if
-you can't achieve it) and issue a call for mirror sites where bkbits.net
-could commit CVS changes to.  Right now BitKeeper might have solved the
-Linux development process scalability issue (from the community toward
-Linus), but for the process to be perfect you also need to address the
-opposite path i.e. the broadcasting of changes that Linus applied toward
-the community, and this has to happen in real time as well.
-
-We can agree that BitKeeper is so superior to CVS just like M$ Word format
-is way more powerful than plain text [1].  The reality is that plain text
-files are just so portable and universally readable that they are preferable
-to the Word format, even if M$ is giving Word viewers away for free.
-
-You can't change the Free Software world that you are so faithfully trying
-to help.  You still can make them happy, and for that a real-time gateway
-from the Linux bk to CVS repos is the only way for the present time.  CVS is
-still the lowest common denominator SCM among this world and you can't 
-ignore it for broadcasting changes back to the community.
-
-
-Nicolas
-
-
-[1] this doesn't mean that I personally endorse M$ Word in any way.
+-- Andreas.
 

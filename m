@@ -1,17 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273255AbRIYTmc>; Tue, 25 Sep 2001 15:42:32 -0400
+	id <S273302AbRIYTpC>; Tue, 25 Sep 2001 15:45:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273302AbRIYTmV>; Tue, 25 Sep 2001 15:42:21 -0400
-Received: from [194.213.32.137] ([194.213.32.137]:4356 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S273143AbRIYTkf>;
-	Tue, 25 Sep 2001 15:40:35 -0400
-Message-ID: <20010924172910.A178@bug.ucw.cz>
-Date: Mon, 24 Sep 2001 17:29:10 +0200
+	id <S273294AbRIYTos>; Tue, 25 Sep 2001 15:44:48 -0400
+Received: from [194.213.32.137] ([194.213.32.137]:5892 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S273302AbRIYTod>;
+	Tue, 25 Sep 2001 15:44:33 -0400
+Message-ID: <20010924175054.A2330@bug.ucw.cz>
+Date: Mon, 24 Sep 2001 17:50:54 +0200
 From: Pavel Machek <pavel@suse.cz>
-To: kernel list <linux-kernel@vger.kernel.org>,
+To: Andrew Grover <andrew.grover@intel.com>,
+        kernel list <linux-kernel@vger.kernel.org>,
         ACPI mailing list <acpi@phobos.fachschaften.tu-muenchen.de>
-Subject: Workaround for ACPI sleep problems
+Subject: Fix acpi sleeps on mvp3 and toshiba
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 0.93i
@@ -20,17 +21,11 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-Some machines have bad problems with acpi... Toshiba will kill
-interrupts and mvp3 gives totally incorrect table, meaning that sleeps
-just will not work.
-
-I figured part of table, but I *know* there's working S1 somewhere out
-there, so if someone has the correct value to use, please let me
-know. [If you replace number near /* HERE */ with correct value in
-0-15 range, you'll get working S1. It's only 15 tries ;-).]
-
-This fixes acpi on toshiba, and provides at least working poweroff on
-MVP3.
+This fixes machine-specific glitches. S1 and S5 now works on athlon
+and toshiba and S4 has at least chance to work... Please tell me what
+to modify so that you can apply [Looks like that can be quite
+problematic: are you going to port dmi stuff to NT, and *BSD? Also,
+how to wrap this nicely?]
 								Pavel
 
 --- clean/include/asm-i386/system.h	Sun Sep 23 23:07:00 2001
@@ -116,7 +111,7 @@ MVP3.
  };
  	
 --- clean/drivers/acpi/hardware/hwregs.c	Sun Sep 23 23:05:16 2001
-+++ linux/drivers/acpi/hardware/hwregs.c	Mon Sep 24 17:15:58 2001
++++ linux/drivers/acpi/hardware/hwregs.c	Mon Sep 24 17:47:20 2001
 @@ -29,6 +29,7 @@
  #include "acpi.h"
  #include "achware.h"
@@ -125,7 +120,7 @@ MVP3.
  
  #define _COMPONENT          ACPI_HARDWARE
  	 MODULE_NAME         ("hwregs")
-@@ -162,6 +163,22 @@
+@@ -162,6 +163,24 @@
  	if ((sleep_state > ACPI_S_STATES_MAX) ||
  		!slp_typ_a || !slp_typ_b) {
  		return_ACPI_STATUS (AE_BAD_PARAMETER);
@@ -134,14 +129,16 @@ MVP3.
 +	if (dmi_broken & BROKEN_ACPI_Sx) {
 +		printk("Attempted to enter %d\n", sleep_state);
 +		switch (sleep_state) {
-+			/* 0,3,4,6,7,11 is nop */
++			/* 0,3,4,6,7,8,11,15 is nop */
 +			/* 5 is nop, too? No. 5 is some valid state, just not S1 nor S3 (strange). */
 +			/* 13 is lockup when used in S1 or S3 context */
 +			/* 14 is "keep monitor on and than all goes off when power is pressed in S1 context */
-+		case 1:	*slp_typ_a = *slp_typ_b =12 /* HERE */; return_ACPI_STATUS (status);
-+		case 3:	*slp_typ_a = *slp_typ_b =14; return_ACPI_STATUS (status);
-+		case 4:	*slp_typ_a = *slp_typ_b = 1; return_ACPI_STATUS (status);	/* Seems ok, but it times somehow long to wakeup. Is it possible this is S3? */
-+		case 5:	*slp_typ_a = *slp_typ_b =10; return_ACPI_STATUS (status);	/* Seems ok */
++			/* 1,2,10,9,14 are known working */
++			/* 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15 */
++		case 1:	*slp_typ_a = *slp_typ_b =12; return_ACPI_STATUS (status);	/* Hey, seems okay! */
++		case 3:	*slp_typ_a = *slp_typ_b =15; return_ACPI_STATUS (status);	/* Not known, yet */
++		case 4:	*slp_typ_a = *slp_typ_b = 1; return_ACPI_STATUS (status);	/* Seems ok, but it times somehow long to wakeup. Is it possible this is S3? (same as 9) */
++		case 5:	*slp_typ_a = *slp_typ_b =10; return_ACPI_STATUS (status);	/* Seems ok, (same as 2) */
 +		default: return_ACPI_STATUS (AE_BAD_PARAMETER)
 +		}
 +		
@@ -162,7 +159,9 @@ MVP3.
  	return status;
  }
  
-  
+
+
+
 -- 
 I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
 Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org

@@ -1,209 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265163AbSKES6i>; Tue, 5 Nov 2002 13:58:38 -0500
+	id <S265087AbSKETVK>; Tue, 5 Nov 2002 14:21:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265165AbSKES6i>; Tue, 5 Nov 2002 13:58:38 -0500
-Received: from fmr02.intel.com ([192.55.52.25]:47054 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S265163AbSKES6f>; Tue, 5 Nov 2002 13:58:35 -0500
-Message-ID: <004801c284fe$425ee4b0$77d40a0a@amr.corp.intel.com>
-From: "Rusty Lynch" <rusty@linux.co.intel.com>
-To: "Rusty Lynch" <rusty@linux.co.intel.com>,
-       "Stephanie Glass" <sglass@us.ibm.com>
-Cc: "Dan Kegel" <dkegel@ixiacom.com>,
-       "Geoff Gustafson" <geoff@linux.co.intel.com>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-References: <OF6C3388E1.FE6DBF03-ON86256C68.006400A7@pok.ibm.com>
-Subject: Re: [ANNOUNCE] Open POSIX Test Suite
-Date: Tue, 5 Nov 2002 11:05:08 -0800
+	id <S265089AbSKETVK>; Tue, 5 Nov 2002 14:21:10 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:11529 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S265087AbSKETVI>; Tue, 5 Nov 2002 14:21:08 -0500
+Date: Tue, 5 Nov 2002 14:26:08 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Tom Rini <trini@kernel.crashing.org>
+cc: Rob Landley <landley@trommello.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: CONFIG_TINY
+In-Reply-To: <20021104195144.GC27298@opus.bloom.county>
+Message-ID: <Pine.LNX.3.96.1021105141149.17410L-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We started with a few areas like message queues and signals, but it is just
-a starting point.
+On Mon, 4 Nov 2002, Tom Rini wrote:
 
-    -rusty (hmm... guess rusty is already taken in this domain.  maybe I
-should sign rustyl :->)
+> On Mon, Nov 04, 2002 at 02:13:48AM +0000, Rob Landley wrote:
 
------ Original Message -----
-From: "Stephanie Glass" <sglass@us.ibm.com>
-To: "Rusty Lynch" <rusty@linux.co.intel.com>
-Cc: "Dan Kegel" <dkegel@ixiacom.com>; "Geoff Gustafson"
-<geoff@linux.co.intel.com>; "Linux Kernel Mailing List"
-<linux-kernel@vger.kernel.org>
-Sent: Tuesday, November 05, 2002 10:24 AM
-Subject: Re: [ANNOUNCE] Open POSIX Test Suite
+> > I've used -Os.  I've compiled dozens and dozens of packages with -Os.  It has 
+> > always saved at least a few bytes, I have yet to see it make something 
+> > larger.  And in the benchmarks I've done, the smaller code actually runs 
+> > slightly faster.  More of it fits in cache, you know.
+> 
+> Then we don't we always use -Os?
 
+1 - I'm not sure all versions of gcc support it, as in "it generates
+correct code."
 
->
-> Rusty,
-> We will take them.  We may set them up not to run with our runall portion
-> but as a separate run.  This is how we do several areas, such as
-> networking.   Just let us know when you are ready to start contributing.
-> It doesn't have to be all at once, we will take in stages also.  We put
-out
-> a new version almost every month so we can get them out there quickly.
->
-> Don't most of these test cases deal with things like POSIX timers,
-> semaphores, threads, etc.?  Or are these other types of tests?
->
-> Thanks
->
-> Stephanie
->
-> Linux Technology Center
->  IBM, 11400 Burnet Road, Austin, TX  78758
->  Phone: (512) 838-9284   T/L: 678-9284  Fax: (512) 838-3882
->  E-Mail: sglass@us.ibm.com
->
->
->
->                       "Rusty Lynch"
->                       <rusty@linux.co.i        To:       "Geoff Gustafson"
-<geoff@linux.co.intel.com>, Stephanie
->                       ntel.com>                 Glass/Austin/IBM@IBMUS
->                                                cc:       "Dan Kegel"
-<dkegel@ixiacom.com>, "Linux Kernel Mailing List"
->                       11/05/2002 10:43
-<linux-kernel@vger.kernel.org>
->                       AM                       Subject:  Re: [ANNOUNCE]
-Open POSIX Test Suite
->
->
->
->
->
->
-> Stephanie,
->
-> All test are GPL, so anyone can do anything they want with them.  We would
-> be happy to donate test to any project.
->
-> The truth is that we modeled test cases after LTP, meaning that a test
-case
-> is
-> a simple executable that returns 0 for success and anything else to
-> indicate
-> failure, so copying a test from posixtest to LTP should be very easy.
->
-> I was under the impression that LTP did not want to accept a bunch of test
-> cases that did not currently have an associated implementation in Linux.
-> It sounds like this is not exactly correct.  How about test cases that
-will
-> probably
-> always be implemented in user space?  Isn't LTP specific to kernel
-testing?
->
->     -rusty
->
-> ----- Original Message -----
-> From: "Stephanie Glass" <sglass@us.ibm.com>
-> To: "Geoff Gustafson" <geoff@linux.co.intel.com>
-> Cc: "Dan Kegel" <dkegel@ixiacom.com>; "Linux Kernel Mailing List"
-> <linux-kernel@vger.kernel.org>
-> Sent: Tuesday, November 05, 2002 7:49 AM
-> Subject: Re: [ANNOUNCE] Open POSIX Test Suite
->
->
-> >
-> > Geoff,
-> > The LTP would be happy to have anyone in the Linux community donate test
-> > cases.  This includes any POSIX tests.
-> > The LTP would not be advertised as a POSIX compliance test, that would
-be
-> > up to LSB to handle.  These tests
-> > would only increase the overall LTP api coverages.
-> >
-> > Does your group own these tests?  Do you want to donate them to the LTP?
-> >
-> > Stephanie
-> >
-> > Linux Technology Center
-> >  IBM, 11400 Burnet Road, Austin, TX  78758
-> >  Phone: (512) 838-9284   T/L: 678-9284  Fax: (512) 838-3882
-> >  E-Mail: sglass@us.ibm.com
-> >
-> >
-> >
-> >                       "Geoff Gustafson"
-> >                       <geoff@linux.co.i        To:       "Dan Kegel"
-> <dkegel@ixiacom.com>, "Linux Kernel Mailing List"
-> >                       ntel.com>
-> <linux-kernel@vger.kernel.
-> org>
-> >                                                cc:       Stephanie
-> Glass/Austin/IBM@IBMUS
-> >                       11/04/2002 06:04         Subject:  Re: [ANNOUNCE]
-> Open POSIX Test Suite
-> >                       PM
-> >
-> >
-> >
-> >
-> >
-> > > You are about to duplicate http://ltp.sf.net
-> >
-> > My understanding is that LTP is focused on current mainline kernel
-> testing,
-> > while this project's initial concern is areas that are not currently in
-> > Linux
-> > like POSIX message queues, semaphores, and full support for POSIX
-> threads.
-> > I see
-> > this as being used to evaluate different implementations that are being
-> > considered for inclusion in the kernel, glibc, etc.
-> >
-> > This project is concerned with the POSIX APIs regardless of where they
-> are
-> > implemented (kernel, glibc, etc.). Thus it can focus on POSIX,
-> independent
-> > of
-> > implementation. This project will be more concerned with traceability
-> back
-> > to
-> > the POSIX specification, and completeness of coverage, than I would
-> expect
-> > from
-> > LTP.
-> >
-> > That said, there is some overlap, and an exchange of test cases between
-> the
-> > projects may be very useful.
-> >
-> > I've copied Stephanie from LTP to get her reaction.
-> >
-> > -- Geoff Gustafson
-> >
-> > These are my views and not necessarily those of my employer.
-> >
-> >
-> >
-> >
-> >
-> >
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-> in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
->
->
->
->
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+2 - I'm not sure how (if) it works on non-Intel systems.
+
+3 - The performance gain is related to cache size and performance. The
+obvious case is unrolling loops, you win if they fit in cache. If you have
+a Celeron, P-III with 256k, P-4 with HT on, all have different cache
+behaviour. And SMP or memory speed changes the penalty for a cache miss to
+main memory.
+
+4 - inertia, minimal gain and experience. Maybe no one sees enough gain to
+justify the chance that some version of gcc is really broken.
+
+5 - placebo effect. People just think it's faster because it's different.
+
+6 - quantum effects, like Schroedinger's (sp?) cat it's only faster or
+slower if you measure it.
+
+Pick one or more of these as pleases you. My mind say 4, my heart says 
+5+6.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

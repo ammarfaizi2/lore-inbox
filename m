@@ -1,49 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315627AbSECKnB>; Fri, 3 May 2002 06:43:01 -0400
+	id <S315626AbSECKme>; Fri, 3 May 2002 06:42:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315628AbSECKnA>; Fri, 3 May 2002 06:43:00 -0400
-Received: from pat.uio.no ([129.240.130.16]:38904 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S315627AbSECKm7>;
-	Fri, 3 May 2002 06:42:59 -0400
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: 2.5.13: link failure
-In-Reply-To: <20020503111617.B4319@flint.arm.linux.org.uk>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 03 May 2002 12:42:43 +0200
-Message-ID: <shsd6wdjyvw.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
-MIME-Version: 1.0
+	id <S315627AbSECKmd>; Fri, 3 May 2002 06:42:33 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:57865 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S315626AbSECKmd>;
+	Fri, 3 May 2002 06:42:33 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel 
+In-Reply-To: Your message of "03 May 2002 10:06:04 GMT."
+             <slrnad4o8c.hbt.kraxel@bytesex.org> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Date: Fri, 03 May 2002 20:42:04 +1000
+Message-ID: <11028.1020422524@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Russell King <rmk@arm.linux.org.uk> writes:
+On 3 May 2002 10:06:04 GMT, 
+Gerd Knorr <kraxel@bytesex.org> wrote:
+>>  Do it with NO_MAKEFILE_GEN=1 for much, much! faster builds.
+>
+>What exactly is the reason for this hack, i.e. why kbuild wants to
+>rebuild the Makefiles every time?  Isn't it enougth to do that only
+>if .config has been touched?
 
-     > 2.5.13 with root nfs enabled doesn't link:
-     > fs/fs.o: In function `root_nfs_getport':
-     > fs/fs.o(.text.init+0x187c): undefined reference to `in_ntoa'
+Or any of the Makefile.in files have changed.  Or any of the command
+line options have changed.  Or various environment variables have
+changed.  Or a target file has been altered outside kbuild control.
+Or the compiler has changed.  Or ... the list goes on.
 
-     > I haven't looked into this one yet.
-
-Nothing serious. Whoever it was that did that global replace missed a
-spot is all...
-
-Cheers,
-  Trond
-
---- linux-2.5.13/fs/nfs/nfsroot.c.orig	Fri May  3 02:22:55 2002
-+++ linux-2.5.13/fs/nfs/nfsroot.c	Fri May  3 12:39:18 2002
-@@ -374,8 +374,8 @@
- {
- 	struct sockaddr_in sin;
- 
--	printk(KERN_NOTICE "Looking up port of RPC %d/%d on %s\n",
--		program, version, in_ntoa(servaddr));
-+	printk(KERN_NOTICE "Looking up port of RPC %d/%d on %u.%u.%u.%u\n",
-+		program, version, NIPQUAD(servaddr));
- 	set_sockaddr(&sin, servaddr, 0);
- 	return rpc_getport_external(&sin, program, version, proto);
- }
+Coding a special case to work out if the existing global makefile can
+be reused is horribly error prone.  And it would take just as long as
+rebuilding the global makefile from scratch.
 

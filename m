@@ -1,85 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263850AbTKKXyQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Nov 2003 18:54:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263851AbTKKXyQ
+	id S263812AbTKLADl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Nov 2003 19:03:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263821AbTKLADk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Nov 2003 18:54:16 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:36749 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S263850AbTKKXyL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Nov 2003 18:54:11 -0500
-Date: Wed, 12 Nov 2003 00:53:54 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <ncunningham@clear.net.nz>,
-       Patrick Mochel <mochel@osdl.org>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: swsusp patch..
-Message-ID: <20031111235354.GB543@elf.ucw.cz>
-References: <Pine.LNX.4.44.0311042243170.730-100000@localhost.localdomain> <1068059491.4179.14.camel@laptop-linux>
-Mime-Version: 1.0
+	Tue, 11 Nov 2003 19:03:40 -0500
+Received: from smtp12.eresmas.com ([62.81.235.112]:4825 "EHLO
+	smtp12.eresmas.com") by vger.kernel.org with ESMTP id S263812AbTKLADj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Nov 2003 19:03:39 -0500
+Message-ID: <3FB17853.9010004@wanadoo.es>
+Date: Wed, 12 Nov 2003 01:01:23 +0100
+From: Xose Vazquez Perez <xose@wanadoo.es>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: gl, es, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: RE: 2 TB partition support
+X-Enigmail-Version: 0.63.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1068059491.4179.14.camel@laptop-linux>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Joseph Shamash wrote:
 
-> Hi. Here's the first reply I sent to Patrick.
+> I have searched without success for this driver.
+> Qlogic tech support doesn't seem to know about it. 
+> Can you lead me to a link or provide this driver?
 
-[Sorry for long delay; cc-ing patrick and l-k so that this discussion
-is archived somewhere; hope you don't mind.]
+2.6 driver http://sourceforge.net/projects/linux-qla2xxx/
+2.4 driver http://download.qlogic.com/drivers/14612/qla2x00-v6.06.10-dist.tgz
+--
+HTML mails are going to trash automagically
 
-> Secondly, regarding the freezer hooks, they're the result of a long
-> period of working on the problem. You see, the freezer in your tree at
-> the moment isn't robust. If you try to initiate a suspend at the wrong
-> time, particularly where there's heavy I/O, it will sometimes deadlock
-> (particularly in journalling filesystem code if I remember correctly -
-> it's been a while since I had the problem) or at least take a long time
-> (try initiating a suspend during dd if=/dev/zero of=testfile bs=4096
-> count=100000). Another problem is that you will be writing dirty data to
-> swap. This freezer implementation overcomes those issues. It
-> provides a
-
-Well, writing dirty data to swap does not look like too bad
-problem. If it simplifies things, I'm happy with dirty data in swap.
-
-> of others. (Remember that in my version, I use activelist & inactivelist
-> pages for the atomic copy of the rest of the data as well as any free
-> memory, thereby overcoming the half-of-memory limitation). If
-> someone
-
-...introducing another "half-of-kernelmemory" limitation. [Did you see
-people hitting half-of-memory problem in practice?].
-
-How is it possible that copying into activelist & inactivelist helps?
-If memorymanagment is working correctly then those lists should be
-empty...
-
-I know you are not freeing memory agresively.. But perhaps you have
-exactly same "half-of-memory" problem as 2.6.0-test9 implementation
-has?
-
-> comes up with a better way to do this, I'll be more than happy to
-> listen, as always. I've spent a long time looking at the issue though,
-> and doubt that will happen. I'm sure the macros could be made to look
-> nicer or perhaps written in assembly to improve speed, but I can't see
-
-No assembly, please. Nicer macros would be welcome, through. No macros
-would be best ;-).
-
-Deadlocks... any user process stopped with sigstop should not block
-anything in-kernel, right? That means that perhaps we need to be more
-clever about kernel threads, but we should be able to get away without
-hooks in paths such as "sys_read()". If killall -SIGSTOP can stop the
-processes safely without additional hooks, we should be able to do
-that, too...
-
-								Pavel
-
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]

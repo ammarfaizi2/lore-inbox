@@ -1,70 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130865AbRASVB6>; Fri, 19 Jan 2001 16:01:58 -0500
+	id <S132867AbRASVRF>; Fri, 19 Jan 2001 16:17:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132867AbRASVBr>; Fri, 19 Jan 2001 16:01:47 -0500
-Received: from cmn2.cmn.net ([206.168.145.10]:16448 "EHLO cmn2.cmn.net")
-	by vger.kernel.org with ESMTP id <S130865AbRASVB2>;
-	Fri, 19 Jan 2001 16:01:28 -0500
-Message-ID: <3A68AAEC.7@valinux.com>
-Date: Fri, 19 Jan 2001 14:00:28 -0700
-From: Jeff Hartmann <jhartmann@valinux.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.12-20smp i686; en-US; m18) Gecko/20001107 Netscape6/6.0
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Leslie Donaldson <donaldlf@hermes.cs.rose-hulman.edu>
-CC: "Justin T. Gibbs" <gibbs@scsiguy.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Patch for aic7xxx 2.4.0 test12 hang
-In-Reply-To: <200101191756.f0JHuns30179@aslan.scsiguy.com> <3A6881F9.17F7B9F6@mailhost.cs.rose-hulman.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S136275AbRASVQz>; Fri, 19 Jan 2001 16:16:55 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:15200 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S132867AbRASVQt>; Fri, 19 Jan 2001 16:16:49 -0500
+Date: Fri, 19 Jan 2001 22:13:27 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: kuznet@ms2.inr.ac.ru
+Cc: mingo@elte.hu, torvalds@transmeta.com, raj@cup.hp.com,
+        linux-kernel@vger.kernel.org, davem@redhat.com
+Subject: Re: [Fwd: [Fwd: Is sendfile all that sexy? (fwd)]]
+Message-ID: <20010119221327.C8717@athlon.random>
+In-Reply-To: <20010119162552.D3447@athlon.random> <200101191818.VAA24360@ms2.inr.ac.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200101191818.VAA24360@ms2.inr.ac.ru>; from kuznet@ms2.inr.ac.ru on Fri, Jan 19, 2001 at 09:18:04PM +0300
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
->> There is also a known issue with U160 modes and the currently
->> embedded aic7xxx driver.  
+On Fri, Jan 19, 2001 at 09:18:04PM +0300, kuznet@ms2.inr.ac.ru wrote:
+> Hello!
 > 
+> > The "uncork" won't push the last skb on the wire if there is not acknowledged
+> > data in the write_queue and the payload of the last skb in the write_queue
+> > isn't large MSS. This because the `uncork' will only re-evaluate the
+> > write_queue in function of the _nagle_ algorithm, quite correctly because the
+> > "uncork" will move frok "cork" to "nagle" (not from "cork" to "nodelay").
 > 
-> That's true the problem is the TCQ command seems to be sequencing wrong.
-> 
-> 
->> You might want to try the Adaptec
->> supported driver from here:
->> 
->> http://people.FreeBSD.org/~gibbs/linux/
->> 
->> 6.09 BETA should be released later today.
+> At least for your own implementation of SIOCPUSH has "1" among
+> arguments of push_pending_frames, so that this does not happen. 8)8)
 
-Just a little FYI, I wanted to point out that 6.08 BETA fixed a problem 
-I've been having since the 2.4.0-test series on a machine with the 
-following adaptec integrated controller:
-   Bus  4, device   7, function  0:
-     SCSI storage controller: Adaptec 7899P (rev 1).
-       IRQ 19.
-       Master Capable.  Latency=64.  Min Gnt=40.Max Lat=25.
-       I/O at 0x5000 [0x50ff].
-       Non-prefetchable 64 bit memory at 0xf7e00000 [0xf7e00fff].
-   Bus  4, device   7, function  1:
-     SCSI storage controller: Adaptec 7899P (#2) (rev 1).
-       IRQ 16.
-       Master Capable.  Latency=64.  Min Gnt=40.Max Lat=25.
-       I/O at 0x5400 [0x54ff].
-       Non-prefetchable 64 bit memory at 0xf7f00000 [0xf7f00fff].
+I wasn't talking about SIOCPUSH but only about uncorking, I carefully made sure
+that SIOCPUSH was interpreting the write_queue from a "nodelay" point of view
+(but I didn't noticed the uncorking wasn't doing that ;).
 
-This is an Ultra160 controller I believe (or at least thats what it says 
-during bootup.)
+> The second thing, which makes argument above wrong is that
+> both classic Nagle and linux-2.4 Nagle (extended by Minshall),
+> do not have this problem. Your argument applies to buggy flavor
+> of nagling specific to 2.2.
 
-Before I applied this patch it would print garbage for the 
-Vendor/Rev/Type/ANSI SCSI revision of my hard disk.  With this patch it 
-does not.
+My argument applies to 2.4. The uncork _won't_ push on the wire the last
+not mss-sized fragment until it's the last one in the write queue even once
+cwnd and receiver window allows that. I think if there would be no problem you
+wouldn't be setting nonalge unconditionally to 1 in
+2.4/include/net/tcp.h.__tcp_push_pending_frames:
 
-I unfortunately know very little about SCSI drivers, so I can't say 
-exactly what causes this problem with the stock 2.4.0 adaptec driver.
+		if (!tcp_skb_is_last(sk, skb))
+			nonagle = 1;
+		if (!tcp_snd_test(tp, skb, cur_mss, nonagle) ||
+		    tcp_write_xmit(sk))
+			tcp_check_probe_timer(sk, tp);
 
--Jeff
+> However, SIOCPUSH really affects latency badly in some curcumstances.
 
+Not using SIOCPUSH can only increase latency, and using it can only decrease
+latency. Obviously because it allows the last little fragment to be sent before
+waiting it to be the last one in the write queue so reducing the time the last
+fragment is received from the other end and so in turn reducing the latency of
+the reply from the other end. There are no other differences in the behaviour.
+
+It tells to the stack one information that the stack can't know otherwise and
+that only the programmer writing the application knows. Knowing that
+information can only allow the stack to do a _better_ choice.
+
+What my SIOCPUSH implementation was missing is to keep considering the
+write_queue in tp->nonagle=1 mode until somebody writes to the socket (so that
+as soon as one acknowledgemnt for the previous data increases the reciver
+window and our send window increases as well we can send the last fragment
+immediatly without waiting it to be the last one). The first write to the
+socket will clear tp->push.
+
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,69 +1,84 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315218AbSESUu0>; Sun, 19 May 2002 16:50:26 -0400
+	id <S315120AbSESVRl>; Sun, 19 May 2002 17:17:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315210AbSESUuZ>; Sun, 19 May 2002 16:50:25 -0400
-Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:25614 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S315207AbSESUuY>; Sun, 19 May 2002 16:50:24 -0400
-Date: Sun, 19 May 2002 22:50:15 +0200
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4/2.5 SCSI considerably slower than FreeBSD
-Message-ID: <20020519205015.GC3008@merlin.emma.line.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <3CE5D4FC.DB2CC47E@torque.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.99i
+	id <S315210AbSESVRl>; Sun, 19 May 2002 17:17:41 -0400
+Received: from [204.130.252.205] ([204.130.252.205]:64393 "EHLO
+	www.JAMMConsulting.com") by vger.kernel.org with ESMTP
+	id <S315120AbSESVRk>; Sun, 19 May 2002 17:17:40 -0400
+From: "Neil Aggarwal" <neil@JAMMConsulting.com>
+To: "Linux Kernel" <linux-kernel@vger.kernel.org>
+Subject: Kernel bug in RedHat 7.3 -- Assertion failure in journal_commit_transaction() at commit.c:535: "buffer_jdirty(bh)"
+Date: Sun, 19 May 2002 16:18:25 -0500
+Message-ID: <ENEBKGGOKDOEALIKAJMBOEIPCGAA.neil@JAMMConsulting.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 18 May 2002, Douglas Gilbert wrote:
+Hello:
 
-> $ time sg_dd if=/dev/sg1 of=/dev/null bs=512 count=2m time=1
-> time to transfer data was 18.786448 secs, 57.16 MB/sec
-> 2097152+0 records in
-> 2097152+0 records out
-> real 0m18.799s  user 0m0.030s  sys 0m3.010s
+My RedHat 7.3 machine just locked up and I could not reboot it.  I had
+to punch the reset button.
 
-In a live system (actually, it's idle, but every 5 s, there is a short
-burst of disk activity -- reiserfs and ext3fs in use here, something is
-going on there), sg_dd is not really better than plain dd:
+Here is what I found in the /var/log/messages file:
+May 19 12:50:16 server1 kernel: Assertion failure in
+journal_commit_transaction() at commit.c:535: "buffer_jdirty(bh)"
+May 19 12:50:16 server1 kernel: ------------[ cut here ]------------
+May 19 12:50:16 server1 kernel: kernel BUG at commit.c:535!
+May 19 12:50:16 server1 kernel: invalid operand: 0000
+May 19 12:50:16 server1 kernel: ipt_LOG ipt_state ip_conntrack
+iptable_filter ip_tables autofs eepro100 usb-oh
+May 19 12:50:16 server1 kernel: CPU:    1
+May 19 12:50:16 server1 kernel: EIP:    0010:[<f88560e4>]    Not tainted
+May 19 12:50:16 server1 kernel: EFLAGS: 00010286
+May 19 12:50:16 server1 kernel:
+May 19 12:50:16 server1 kernel: EIP is at journal_commit_transaction [jbd]
+0xb04 (2.4.18-3smp)
+May 19 12:50:16 server1 kernel: eax: 0000001c   ebx: 0000000a   ecx:
+c02eee60   edx: 001830f4
+May 19 12:50:16 server1 kernel: esi: f442edf0   edi: f54d0ec0   ebp:
+f5fc6000   esp: f5fc7e78
+May 19 12:50:16 server1 kernel: ds: 0018   es: 0018   ss: 0018
+May 19 12:50:16 server1 kernel: Process kjournald (pid: 194,
+stackpage=f5fc7000)
+May 19 12:50:16 server1 kernel: Stack: f885ceee 00000217 f54d1000 00000000
+00000fd4 f008d02c 00000000 f1cdf540
+May 19 12:50:16 server1 kernel:        f442ef70 00002125 80000000 00000001
+0000002c f54d1164 f00b5a40 e061d9e0
+May 19 12:50:16 server1 kernel:        e061d5c0 e061d440 e0c80380 e03c73e0
+e0bde320 e0c285c0 e08dcc00 e08dcba0
+May 19 12:50:16 server1 kernel: Call Trace: [<f885ceee>] .rodata.str1.1
+[jbd] 0x26e
+May 19 12:50:16 server1 kernel: [<c0124eb5>] update_process_times [kernel]
+0x25
+May 19 12:50:16 server1 kernel: [<c0116049>] smp_apic_timer_interrupt
+[kernel] 0xa9
+May 19 12:50:16 server1 kernel: [<c010a77f>] do_IRQ [kernel] 0xdf
+May 19 12:50:16 server1 kernel: [<c010758d>] __switch_to [kernel] 0x3d
+May 19 12:50:16 server1 kernel: [<c0119048>] schedule [kernel] 0x348
+May 19 12:50:16 server1 kernel: [<f88587d6>] kjournald [jbd] 0x136
+May 19 12:50:17 server1 kernel: [<f8858680>] commit_timeout [jbd] 0x0
+May 19 12:50:17 server1 kernel: [<c0107286>] kernel_thread [kernel] 0x26
+May 19 12:50:17 server1 kernel: [<f88586a0>] kjournald [jbd] 0x0
+May 19 12:50:17 server1 kernel:
+May 19 12:50:17 server1 kernel:
+May 19 12:50:17 server1 kernel: Code: 0f 0b 5a 59 6a 04 8b 44 24 18 50 56 e8
+4b f1 ff ff 8d 47 48
 
-> time sg_dd if=/dev/sg0 of=/dev/null count=1310720
-> Assume default 'bs' (block size) of 512 bytes
-> 1310720+0 records in
-> 1310720+0 records out
->
-> real    0m24.348s
+Has anyone seen this?  Is there a way to fix it?
 
-gives: 27,56 MB/s. A little better than dd, but still much less than FreeBSD's.
+Thanks,
+	Neil.
+--
+Neil Aggarwal
+JAMM Consulting, Inc.    (972) 612-6056, http://www.JAMMConsulting.com
+Custom Internet Development    Websites, Ecommerce, Java, databases
 
-> >From memory, dd's performance in the lk 2.4 series was considerably
-> lower than sg_dd. No doubt FreeBSD would also perform well but I
-> doubt it could beat linux (2.5) by the type of margin your measurements
-> indicate. [For sequential reads, tagged queueing will not have a
-
-It does. I trust my last figures. I don't trust the above too much
-because of the bogus 5 s interval write burst. Not sure where it comes
-from, ext3fs or reiserfs, I'd pretty much like something like an inverse
-strace: "who is writing to my disk?"
-
-> significant impact.] It is also worth noting that the new aic7xxx
-> and sym53c8xx_2 drivers are essentially the same on Linux and
-> FreeBSD (i.e. same code base, same maintainers).
-
-I know that, and I assume it's not the fault of the drivers themselves
-(that's because the "far from theoretical optimum" holds on either
-hardware).
-
-Looks like either you're lucky or like Linux has some bad VM interaction
-or Linux has issues with U160-drives on UWSCSI adapters (yours does
-U160, ours don't) that FreeBSD doesn't have. (FreeBSD's IDE driver is
-not as good as the Linux 2.5 IDE driver, so in the end, FreeBSD and
-Linux are even again ;-)
-
--- 
-Matthias Andree

@@ -1,44 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261857AbSKTWCL>; Wed, 20 Nov 2002 17:02:11 -0500
+	id <S261973AbSKTWG5>; Wed, 20 Nov 2002 17:06:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261855AbSKTWBM>; Wed, 20 Nov 2002 17:01:12 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:10116 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S262859AbSKTWBE>; Wed, 20 Nov 2002 17:01:04 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Wed, 20 Nov 2002 14:08:43 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [rfc] epoll interface change and glibc bits ...
-In-Reply-To: <20021120220426.GB11879@bjl1.asuk.net>
-Message-ID: <Pine.LNX.4.44.0211201406110.1989-100000@blue1.dev.mcafeelabs.com>
+	id <S261963AbSKTWFt>; Wed, 20 Nov 2002 17:05:49 -0500
+Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:2194 "EHLO
+	myware.akkadia.org") by vger.kernel.org with ESMTP
+	id <S261693AbSKTWFA>; Wed, 20 Nov 2002 17:05:00 -0500
+Message-ID: <3DDC08AF.7020107@redhat.com>
+Date: Wed, 20 Nov 2002 14:11:59 -0800
+From: Ulrich Drepper <drepper@redhat.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021118
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+CC: Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@transmeta.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] threading enhancements, tid-2.5.47-C0
+References: <Pine.LNX.4.44.0211181303240.1639-100000@localhost.localdomain> <3DDAE822.1040400@redhat.com> <20021120033747.GB9007@bjl1.asuk.net> <3DDB09C2.3070100@redhat.com> <20021120215540.GA11879@bjl1.asuk.net>
+In-Reply-To: <20021120215540.GA11879@bjl1.asuk.net>
+X-Enigmail-Version: 0.65.4.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 20 Nov 2002, Jamie Lokier wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> Davide Libenzi wrote:
-> > And the lower size of the structure will help to reduce the amount of
-> > memory transfered to userspace. I just saw that adding the extra "obj"
-> > member lowered performance of about 15% with crazy tests like Ben's
-> > pipetest. This because it creates, on my machine, more than 400000 events
-> > per second, and saving memory bandwidth on such conditions is a must. With
-> > the "more human" http test performance are about the same.
->
-> I'd be quite surprised if 400,000 word/sec of memory bandwidth can
-> explain a 15% time difference, especially considering all the other
-> things that are done to communicate over a pipe (wakeups etc).
+Jamie Lokier wrote:
 
-Jamie, they were 16 bytes * 400000, and the token passed through the pipe
-was 12 bytes.
+> I don't buy this argument.  You block signals, do something, unblock
+> signals.  There may be a _tiny_ delay in delivering the signal
+
+Tiny?  You said yourself that fork can be expensive.
 
 
+> - of
+> the order of a single system call time, i.e. not significant.  (That
+> delay is much shorter than signal delivery time itself).  No signals
+> are actually _lost_,
 
-- Davide
+Of course they can get lost.  Normal Unix signals are not queued.
 
+
+- -- 
+- --------------.                        ,-.            444 Castro Street
+Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
+Red Hat         `--' drepper at redhat.com `---------------------------
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE93Aiv2ijCOnn/RHQRAippAKCnwjE420nRHMJpGSm86CxNhkgtXwCgjAA3
+gqpLLi1ytAanQWzIq+0+sWE=
+=TRHu
+-----END PGP SIGNATURE-----
 

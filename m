@@ -1,87 +1,135 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263542AbTFYCIq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 22:08:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263610AbTFYCIq
+	id S263459AbTFYCNh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 22:13:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263493AbTFYCNh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 22:08:46 -0400
-Received: from h80ad25f0.async.vt.edu ([128.173.37.240]:6528 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S263542AbTFYCIo (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 22:08:44 -0400
-Message-Id: <200306250222.h5P2MiM9019201@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Undo aic7xxx changes (now rc7+aic20030603) 
-In-Reply-To: Your message of "Tue, 24 Jun 2003 23:26:09 +0200."
-             <20030624232609.5887c159.skraw@ithnet.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <20030509150207.3ff9cd64.skraw@ithnet.com> <41560000.1055306361@caspian.scsiguy.com> <20030611222346.0a26729e.skraw@ithnet.com> <16103.39056.810025.975744@gargle.gargle.HOWL> <20030613114531.2b7235e7.skraw@ithnet.com> <20030624174331.GA31650@alpha.home.local>
-            <20030624232609.5887c159.skraw@ithnet.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-2053201648P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Tue, 24 Jun 2003 22:22:44 -0400
+	Tue, 24 Jun 2003 22:13:37 -0400
+Received: from user-vc8fdp3.biz.mindspring.com ([216.135.183.35]:27655 "EHLO
+	mail.nateng.com") by vger.kernel.org with ESMTP id S263459AbTFYCNf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jun 2003 22:13:35 -0400
+X-RAV-AntiVirus: This e-mail has been scanned for viruses on host: mail.nateng.com
+Date: Tue, 24 Jun 2003 19:27:14 -0700 (PDT)
+From: Sir Ace <chandler@nateng.com>
+X-X-Sender: chandler@jordan.eng.nateng.com
+To: linux-kernel@vger.kernel.org
+Subject: Re: i2c fix?
+In-Reply-To: <Pine.LNX.4.53.0306241855410.596@jordan.eng.nateng.com>
+Message-ID: <Pine.LNX.4.53.0306241926100.596@jordan.eng.nateng.com>
+References: <Pine.LNX.4.53.0306241821230.596@jordan.eng.nateng.com>
+ <Pine.LNX.4.53.0306241836510.596@jordan.eng.nateng.com>
+ <Pine.LNX.4.53.0306241843570.596@jordan.eng.nateng.com>
+ <Pine.LNX.4.53.0306241850070.596@jordan.eng.nateng.com>
+ <Pine.LNX.4.53.0306241855410.596@jordan.eng.nateng.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-2053201648P
-Content-Type: text/plain; charset=us-ascii
 
-On Tue, 24 Jun 2003 23:26:09 +0200, Stephan von Krawczynski said:
+I doubled the original lines to this:
+#define I2C_ALGO_MAX    8               /* control memory consumption   */
+#define I2C_ADAP_MAX    32
+#define I2C_DRIVER_MAX  32
+#define I2C_CLIENT_MAX  64
+#define I2C_DUMMY_MAX 8
 
-> sorry, you probably misunderstood my flaky explanation. What I meant was not 
-a
-> cached block from the _tape_ (obviously indeed a char-type device) but from t
-he
-> 3ware disk (i.e. the other side of the verification). Consider the tape
-> completely working, but the disk data corrupt (possibly not from real reading
-> but from corrupted cache).
+and it did not fix my problem....  This is starting to appear
+non-trivial..
 
-Don't rule out odder explanations either.  True story follows.. ;)
+Help?
 
-I once had the misfortune of being the admin for a Gould PN/9080. UTX/32 1.2
-came out, and since it changed the inode format on disk, it's dump/mkfs/restore
-time.  So I take the last 3 full backups, and do 2 more complete dumps besides.
-I checked, and *NO* I/O errors had been reported (and then I checked THAT by
-giving it a known bad tape and seeing errors WERE reported).
+  -- Sir Ace
 
-Do the upgrade... and *every single* tape was 'not in dump/restore format'.
+On Tue, 24 Jun 2003, Sir Ace wrote:
 
-Finally traced it down (this was the days when oscilloscopes were still useful)
-to a bad 7400 series chip on the tape controller.  The backplane was a 32-bit
-bus, the tape was an 8-bit device - so there was a 4-to-1 mux that had a bad
-chip.  Bit 3 would be correct for 4 bits, inverted for 4 bits, correct for
-4, etc..  Tape drive *NEVER* complained, because what came over the *cable*
-was correct, parity and all..
-
-Oh, and I got the data back something like this:
-
-cat > mangle.c
-main() {
-int muck[2];
-  while (read(0,muck,8) == 8) {
-	muck[1] ^= 0x20202020;
-        write(1,muck,8);
-  }
-}
-^D
-cc -o mangle mangle.c
-dd if=/dev/rmt0 bs=32k | ./mangle | restore -f -
-
-
---==_Exmh_-2053201648P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE++Qd0cC3lWbTT17ARAj2tAKDiTC5PVUdnnstN8jiMkyFOgzHjOACfYLLq
-Zhiwbs3jNxhooUvd9EQ/Ec0=
-=E93W
------END PGP SIGNATURE-----
-
---==_Exmh_-2053201648P--
+>
+> Ok, wrong again, the line directly above it:
+> #define I2C_ALGO_MAX    4               /* control memory consumption   */
+>
+> That is my problem, so is it safe to up that value.
+>   {Yes my final answer}
+>
+> {grin}
+>
+>   -- Sir Ace
+>
+> On Tue, 24 Jun 2003, Sir Ace wrote:
+>
+> >
+> > Man how many times can I reply to my own post?
+> > Anyway I found this:
+> >
+> > linux/i2c.h:#define I2C_ADAP_MAX        16
+> >
+> > Is there a danger is setting it to say 32?
+> > {or 31 if there is a high bit problem}?
+> >
+> >
+> >
+> > On Tue, 24 Jun 2003, Sir Ace wrote:
+> >
+> > >
+> > > Nope sory, that was wrong... I should have read the rest of the code...
+> > > Any ideas yet? {grin}
+> > >
+> > > On Tue, 24 Jun 2003, Sir Ace wrote:
+> > >
+> > > >
+> > > > It looks like the offending code might be in:
+> > > > i2c-algo-bit.c
+> > > >
+> > > > in function:
+> > > > static int test_bus(struct i2c_algo_bit_data *adap, char* name) {
+> > > >
+> > > >
+> > > > I'm no coder but it looks like it is limited to 4 devices as a hardcode?
+> > > > anyone know of a way to do it so that it does:
+> > > >
+> > > > for x := {n devices} do
+> > > >   crap
+> > > >
+> > > > On Tue, 24 Jun 2003, Sir Ace wrote:
+> > > >
+> > > > >
+> > > > > I have 5 vidcapture cards, all of which show up in /proc/pci
+> > > > > Only the first 4 show up in /proc/bus/i2c*
+> > > > >
+> > > > > I tried this on 2 completely unidentical systems, and both 2.4.21, and
+> > > > > 2.4.20
+> > > > >
+> > > > > I verified that all 5 cards are actually good... {before people start
+> > > > > pointing fingers}
+> > > > >
+> > > > > Where do I need to start looking to fix it?
+> > > > > -
+> > > > > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > > > > the body of a message to majordomo@vger.kernel.org
+> > > > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > > > > Please read the FAQ at  http://www.tux.org/lkml/
+> > > > >
+> > > > -
+> > > > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > > > the body of a message to majordomo@vger.kernel.org
+> > > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > > > Please read the FAQ at  http://www.tux.org/lkml/
+> > > >
+> > > -
+> > > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > > the body of a message to majordomo@vger.kernel.org
+> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > > Please read the FAQ at  http://www.tux.org/lkml/
+> > >
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> >
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

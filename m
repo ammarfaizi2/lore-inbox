@@ -1,51 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277581AbRJLIaz>; Fri, 12 Oct 2001 04:30:55 -0400
+	id <S277585AbRJLIez>; Fri, 12 Oct 2001 04:34:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277585AbRJLIaq>; Fri, 12 Oct 2001 04:30:46 -0400
-Received: from energy.pdb.sbs.de ([192.109.2.19]:36837 "EHLO nixpbe.pdb.sbs.de")
-	by vger.kernel.org with ESMTP id <S277581AbRJLIai>;
-	Fri, 12 Oct 2001 04:30:38 -0400
-Date: Fri, 12 Oct 2001 10:31:08 +0200 (CEST)
-From: Martin Wilck <Martin.Wilck@fujitsu-siemens.com>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-cc: Matt Domsch <mdomsch@Dell.com>,
-        Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] EFI GUID Partition Tables
-In-Reply-To: <200110091725.f99HPZ530405@vindaloo.ras.ucalgary.ca>
-Message-ID: <Pine.LNX.4.33.0110121026430.9327-100000@biker.pdb.fsc.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S277588AbRJLIes>; Fri, 12 Oct 2001 04:34:48 -0400
+Received: from smtp.alcove.fr ([212.155.209.139]:56328 "EHLO smtp.alcove.fr")
+	by vger.kernel.org with ESMTP id <S277585AbRJLIed>;
+	Fri, 12 Oct 2001 04:34:33 -0400
+Date: Fri, 12 Oct 2001 10:34:33 +0200
+From: Stelian Pop <stelian.pop@fr.alcove.com>
+To: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.13-pre1: sonypi.c compile error
+Message-ID: <20011012103433.A2137@come.alcove-fr>
+Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
+In-Reply-To: <3BC62542.CDEAAE@eyal.emu.id.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <3BC62542.CDEAAE@eyal.emu.id.au>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard,
+On Fri, Oct 12, 2001 at 09:03:30AM +1000, Eyal Lebedinsky wrote:
 
-> You've put the devfs_unregister_slave() inside an #ifdef. Yuk! It
-> shouldn't be conditional.
+> gcc -D__KERNEL__ -I/data2/usr/local/src/linux-2.4-pre/include -Wall
+> -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
+> -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
+> -march=i686 -malign-functions=4  -DMODULE -DMODVERSIONS -include
+> /data2/usr/local/src/linux-2.4-pre/include/linux/modversions.h  
+> -DEXPORT_SYMTAB -c sonypi.c
+> sonypi.c: In function `sonypi_init_module':
+> sonypi.c:702: `is_sony_vaio_laptop_R7462d5e4' undeclared (first use in
+> this function)
 
-I did that because I didn't want to pollute your code. The function
-was only needed for the UUID patch.
+Just add a
+	extern int is_sony_vaio_laptop; /* set in DMI table parse routines */
+line somewhere at the beginning of the file drivers/char/sonypi.c
 
-> And I'm not really sure that I like this
-> function in the first place, but that's not something I want to get
-> into right now.
+Looks like the driver sync between Linus and Alan was incomplete
+this time (Linus took the sonypi driver changes but not the dmi_scan
+routine changes).
 
-I did not see a possibility to cleanly remove a slave that was registered
-before. Did I oversee something? Do you thing that functionality is
-superfluous?
+I won't submit a patch to Linus for now, I'm pretty sure that
+Alan will take care of this for -pre2.
 
-Regards,
-Martin
-
+Stelian.
 -- 
-Martin Wilck                Phone: +49 5251 8 15113
-Fujitsu Siemens Computers   Fax:   +49 5251 8 20409
-Heinz-Nixdorf-Ring 1	    mailto:Martin.Wilck@Fujitsu-Siemens.com
-D-33106 Paderborn           http://www.fujitsu-siemens.com/primergy
-
-
-
-
-
-
+Stelian Pop <stelian.pop@fr.alcove.com>
+|---------------- Free Software Engineer -----------------|
+| Alcôve - http://www.alcove.com - Tel: +33 1 49 22 68 00 |
+|------------- Alcôve, liberating software ---------------|

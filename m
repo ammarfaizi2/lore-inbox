@@ -1,38 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265294AbTLRTpy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Dec 2003 14:45:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265295AbTLRTpy
+	id S265299AbTLRTu4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Dec 2003 14:50:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265304AbTLRTu4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Dec 2003 14:45:54 -0500
-Received: from mta4.rcsntx.swbell.net ([151.164.30.28]:52190 "EHLO
-	mta4.rcsntx.swbell.net") by vger.kernel.org with ESMTP
-	id S265294AbTLRTpx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Dec 2003 14:45:53 -0500
-Date: Thu, 18 Dec 2003 11:45:37 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Andrew Morton <akpm@osdl.org>
+	Thu, 18 Dec 2003 14:50:56 -0500
+Received: from vena.lwn.net ([206.168.112.25]:11191 "HELO lwn.net")
+	by vger.kernel.org with SMTP id S265299AbTLRTuz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Dec 2003 14:50:55 -0500
+Message-ID: <20031218195054.32042.qmail@lwn.net>
+To: Kendrick Hamilton <hamilton@sedsystems.ca>
 Cc: linux-kernel@vger.kernel.org
-Subject: MD Raid fixed? was: Linux 2.6.0
-Message-ID: <20031218194537.GF6438@matchmail.com>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.58.0312171951030.5789@home.osdl.org> <20031217211516.2c578bab.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031217211516.2c578bab.akpm@osdl.org>
-User-Agent: Mutt/1.5.4i
+Subject: Re: Linux Device Drivers 3rd Edition 
+From: corbet@lwn.net (Jonathan Corbet)
+In-reply-to: Your message of "Thu, 18 Dec 2003 12:42:30 CST."
+             <3FE1F516.8070100@sedsystems.ca> 
+Date: Thu, 18 Dec 2003 12:50:54 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 17, 2003 at 09:15:16PM -0800, Andrew Morton wrote:
-> - There are significant changes in the module subsystem, the LVM (Device
->   Mapper) and RAID subsystems.  Details about these and many other kernel
+> Does anybody know if there will be a third edition of Linux Device 
+> Drivers covering the 2.6 Kernel, or are the differences for a character 
+> device small enough that it is not needed?
 
-There was a thread against 2.6.test11 about some issues with MD & DM.  Also
-there was one report of problems with ext3+MD.
+There will, but don't hold your breath - it's proceeding more slowly than
+we would like.
 
-I don't use LVM or DM, so I'm interested in the second case.
+Meanwhile, see http://lwn.net/Articles/driver-porting/ for the info you
+need.
 
-Thanks
+jon
+
+Jonathan Corbet
+Executive editor, LWN.net
+corbet@lwn.net

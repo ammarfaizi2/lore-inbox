@@ -1,59 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261878AbULaM2r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261945AbULaMfs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261878AbULaM2r (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Dec 2004 07:28:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261945AbULaM2r
+	id S261945AbULaMfs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Dec 2004 07:35:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261989AbULaMfs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Dec 2004 07:28:47 -0500
-Received: from mail-in-01.arcor-online.net ([151.189.21.41]:30693 "EHLO
-	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
-	id S261878AbULaM2p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Dec 2004 07:28:45 -0500
-From: Bodo Eggert <7eggert@gmx.de>
-Subject: Re: waiting 10s before mounting root filesystem?
-To: Jesper Juhl <juhl-lkml@dif.dk>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org, Jesper Juhl <juhl-lkml@dif.dk>,
-       Andrew Morton <akpm@osdl.org>
-Reply-To: 7eggert@gmx.de
-Date: Fri, 31 Dec 2004 13:33:01 +0100
-References: <fa.nc4oh06.1j1872e@ifi.uio.no> <fa.nalafoa.1ih25aa@ifi.uio.no>
-User-Agent: KNode/0.7.7
-MIME-Version: 1.0
+	Fri, 31 Dec 2004 07:35:48 -0500
+Received: from colin2.muc.de ([193.149.48.15]:36356 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S261945AbULaMfj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Dec 2004 07:35:39 -0500
+Date: 31 Dec 2004 13:35:38 +0100
+Date: Fri, 31 Dec 2004 13:35:38 +0100
+From: Andi Kleen <ak@muc.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Davide Libenzi <davidel@xmailserver.org>, Mike Hearn <mh@codeweavers.com>,
+       Thomas Sailer <sailer@scs.ch>, Eric Pouech <pouech-eric@wanadoo.fr>,
+       Daniel Jacobowitz <dan@debian.org>, Roland McGrath <roland@redhat.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, wine-devel <wine-devel@winehq.com>
+Subject: Re: ptrace single-stepping change breaks Wine
+Message-ID: <20041231123538.GA18209@muc.de>
+References: <Pine.LNX.4.58.0412292050550.22893@ppc970.osdl.org> <Pine.LNX.4.58.0412292055540.22893@ppc970.osdl.org> <Pine.LNX.4.58.0412292106400.454@bigblue.dev.mdolabs.com> <Pine.LNX.4.58.0412292256350.22893@ppc970.osdl.org> <Pine.LNX.4.58.0412300953470.2193@bigblue.dev.mdolabs.com> <53046857041230112742acccbe@mail.gmail.com> <Pine.LNX.4.58.0412301130540.22893@ppc970.osdl.org> <Pine.LNX.4.58.0412301436330.22893@ppc970.osdl.org> <m1mzvvjs3k.fsf@muc.de> <Pine.LNX.4.58.0412301628580.2280@ppc970.osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-Message-Id: <E1CkLxl-0000XG-00@be1.7eggert.dyndns.org>
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0412301628580.2280@ppc970.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesper Juhl wrote:
+On Thu, Dec 30, 2004 at 04:38:21PM -0800, Linus Torvalds wrote:
+> > Can someone repeat again what was wrong with the old ptrace
+> > semantics before the initial change that caused all these complex
+> > changes?  It seemed to work well for years. How about we just
+> > go back to the old state, revert all the recent ptrace changes 
+> > and skip all that?
+> 
+> Let me count the ways that were wrong before the changes:
+>  - you couldn't debug any code that set TF. Really. ptrace would totally 
+>    destroy the TF state in the controlled process, so it would do 
+>    something totally different when debugged.
 
-> I agree with you that reducing screen clutter is a good thing. How about
-> something like this that waits for 10+ seconds so even slow devices have a
-> chance to get up but also does some primitive ratelimiting on the messages
-> by only printing one every 3 seconds (but still attempting to mount every
-> 1 sec) ?
+Well, tough. I assume people who play with TF themselves know
+how to handle it without debuggers.  Really adding instruction
+parsing for such a corner case seems like extreme overkill to me.
 
-a) Print every 4 seconds, this will replace one division by a bit-test:
-... int retries = 32 ...
-... if (! (retries & 0x3)) /* is a multiple of 4 */ ...
+I agree it is not nice, but is it really worth all that complexity
+to hide it?
 
-I choose 32 because I saw SCSI controlers taking an enormous amount of time
-until detecting all devices. Maybe it's still too low for bus 7 id 15, but
-I'd wait for someone to complain.
+>  - you couldn't even debug signal handlers, because they were _really_ 
+>    hard to get into unless you knew where they were and put a breakpoint 
+>    on them.
 
-b) I saw no benefit from using 'short' instead of 'int' when I did a small
-test (with uudecoding on i386) some time ago, but I could make the
-resulting code be smaller and use less memory accesses by introducing some
-temporary ints to hold the chars I was operating upon. Are there contrary
-experiences that lead to using 'short' here?
+Ok I see this as being a problem. But I bet it could be fixed
+much simpler without doing all this complicated and likely-to-be-buggy
+popf parsing you added.
 
-c) This patch will sleep for a second after the last try before it
-continues to panic. It's OK for me, but maybe there is a better way of
-doing this.
+>  - you couldn't see the instruction after a system call.
 
-@ Andrew Morton:
+Are you sure? 
 
-The patch with a timeout is needed because the machine might be on a
-remote location and rebooted using lilo's once-only feature. An automatic
-reset after the panic will bring it back.
+>  - ptrace returned bogus TF state after a single-step
+
+I am sure all debuggers in existence deal with that (and they will
+need to continue doing so because there are so many old kernels around) 
+
+> descriptors, and we actually do that (badly) in another place: the AMD
+> "prefetch" check does exactly the same thing except it seems to get a few
+> details wrong (looks like it cannot handle 16-bit code), and only works
+> for the current process.
+
+Yes, it was intentional to simplify it. 16bit code is not supposed
+to use prefetches (and even if they do the probability of faulting
+is pretty small) Also we needed several iterations
+to get all the subtle bugs out (and I bet there are some issues left)
+
+-Andi

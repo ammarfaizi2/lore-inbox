@@ -1,49 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130514AbRBTUBm>; Tue, 20 Feb 2001 15:01:42 -0500
+	id <S130537AbRBTUFl>; Tue, 20 Feb 2001 15:05:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130308AbRBTUBb>; Tue, 20 Feb 2001 15:01:31 -0500
-Received: from burdell.cc.gatech.edu ([130.207.3.207]:32778 "EHLO
-	burdell.cc.gatech.edu") by vger.kernel.org with ESMTP
-	id <S130514AbRBTUBS>; Tue, 20 Feb 2001 15:01:18 -0500
-Message-ID: <3A92CD06.F19F7C4B@cc.gatech.edu>
-Date: Tue, 20 Feb 2001 15:01:10 -0500
-From: Josh Fryman <fryman@cc.gatech.edu>
-Organization: CoC, GaTech
-X-Mailer: Mozilla 4.76 [en] (X11; U; SunOS 5.7 sun4u)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: query: IP over PCI?
+	id <S130308AbRBTUFY>; Tue, 20 Feb 2001 15:05:24 -0500
+Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:56845 "EHLO
+	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S130588AbRBTUFJ>; Tue, 20 Feb 2001 15:05:09 -0500
+Date: Tue, 20 Feb 2001 21:04:37 +0100
+From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+To: hiren_mehta@agilent.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: can somebody explain barrier() macro ?
+Message-ID: <20010220210437.A20058@arthur.ubicom.tudelft.nl>
+In-Reply-To: <FEEBE78C8360D411ACFD00D0B74779718809AB@xsj02.sjs.agilent.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <FEEBE78C8360D411ACFD00D0B74779718809AB@xsj02.sjs.agilent.com>; from hiren_mehta@agilent.com on Tue, Feb 20, 2001 at 12:50:54PM -0700
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Feb 20, 2001 at 12:50:54PM -0700, hiren_mehta@agilent.com wrote:
+> barrier() is defined in kernel.h as follows :
+> 
+> #define barrier() __asm__ __volatile__("": : :"memory")
+> 
+> what does this mean ? is this like "nop" ?
 
-hi,
+It's a write barrier. It prevents the compiler from optimising writes
+to memory: all outstanding writes should be done before the program
+flow crosses the barrier().
 
-sorry if this is the wrong place... but:
 
-there have been many references in the past (notably in the beowulf
-community) about TCP/IP over PCI -- that was way back with kernel
-2.2.9 and thereabouts (1999).  at that time, there were some patches
-available to implement this...
+Erik
 
-i've done some recursive greps and what not through the 2.4.x trees, 
-and searched all the various online sources of knowledge, but keep 
-coming up blank today ...
-
-can anyone inform me of the status for this?  we've got some
-embedded PCI-card ARM boards that we'd like to run linux on, using
-IP-over-PCI to tftp their kernel and NFS mount their filesystems...
-as well as many other interesting things.  (these boards are in
-regular x86 PC Linux hosts.  the actual boards are Intel IXP1200
-units.)
-
-any pointers, or FAQs, or <insert reference here> would be vastly
-appreciated.
-
-thanks,
-
-josh fryman
+-- 
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
+of Electrical Engineering, Faculty of Information Technology and Systems,
+Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
+Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/

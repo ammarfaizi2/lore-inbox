@@ -1,41 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131386AbREFC1J>; Sat, 5 May 2001 22:27:09 -0400
+	id <S131481AbREFCaT>; Sat, 5 May 2001 22:30:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131481AbREFC1B>; Sat, 5 May 2001 22:27:01 -0400
-Received: from f00f.stub.clear.net.nz ([203.167.224.51]:49936 "HELO
-	metastasis.f00f.org") by vger.kernel.org with SMTP
-	id <S131386AbREFCZv>; Sat, 5 May 2001 22:25:51 -0400
-Date: Sun, 6 May 2001 14:25:48 +1200
-From: Chris Wedgwood <cw@f00f.org>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Peter Rival <frival@zk3.dec.com>, Anton Blanchard <anton@samba.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] CPU hot swap for 2.4.3 + s390 support
-Message-ID: <20010506142548.D31269@metastasis.f00f.org>
-In-Reply-To: <20010506033746.A30690@metastasis.f00f.org> <Pine.LNX.4.21.0105052317080.582-100000@imladris.rielhome.conectiva>
+	id <S131497AbREFCaJ>; Sat, 5 May 2001 22:30:09 -0400
+Received: from ppp0.ocs.com.au ([203.34.97.3]:60433 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S131481AbREFC3x>;
+	Sat, 5 May 2001 22:29:53 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Daniel Podlejski <underley@underley.eu.org>
+cc: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
+Subject: Re: XFS and Alan kernel tree 
+In-Reply-To: Your message of "Sat, 05 May 2001 23:08:16 +0200."
+             <20010505230816.A31544@witch.underley.eu.org> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.21.0105052317080.582-100000@imladris.rielhome.conectiva>; from riel@conectiva.com.br on Sat, May 05, 2001 at 11:19:09PM -0300
-X-No-Archive: Yes
+Date: Sun, 06 May 2001 12:29:46 +1000
+Message-ID: <21978.989116186@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 05, 2001 at 11:19:09PM -0300, Rik van Riel wrote:
+On Sat, 5 May 2001 23:08:16 +0200, 
+Daniel Podlejski <underley@underley.eu.org> wrote:
+>I merge XFS witch Alan tree (2.4.4-ac5). It's seems to be stable.
+>Patch against Alan tree is avaliable at:
+>
+>http://www.underley.eu.org/linux/patch.ac-xfs.diff.bz2
+>
+>It's 1.0 SGI release. Only XFS, pagebuf and POSIX ACLs code, without KDB.
 
-    This only leaves two issues, the first is device drivers and the
-    second is the question whether we'd want the overhead needed to
-    implement the (fairly easy) memory relocation.
+linux-xfs added to cc: list.  Could you try adding
+ftp://oss.sgi.com/projects/kdb/download/ix86/kdb-v1.8-2.4.4-ac5.gz
+to your patch?
 
-How do you relocate
-
-  -- pages which are mlocked without violating RT contraints?
-
-  -- pages which contain kernel pointers and might be accessed from
-     interrupt context?
-
-
-
-  --cw

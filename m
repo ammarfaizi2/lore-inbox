@@ -1,83 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287244AbSALSSB>; Sat, 12 Jan 2002 13:18:01 -0500
+	id <S287253AbSALSTL>; Sat, 12 Jan 2002 13:19:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287253AbSALSRy>; Sat, 12 Jan 2002 13:17:54 -0500
-Received: from sphere.open-net.org ([64.53.98.77]:58241 "HELO pbx.open-net.org")
-	by vger.kernel.org with SMTP id <S287244AbSALSRl>;
-	Sat, 12 Jan 2002 13:17:41 -0500
-Date: Sat, 12 Jan 2002 13:16:25 -0500
-From: Robert Jameson <rj@open-net.org>
-To: Anuradha Ratnaweera <anuradha@gnu.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] KernelConf - menuconfig and help works
-Message-Id: <20020112131625.1c2fb4f9.rj@open-net.org>
-In-Reply-To: <20020112204633.A833@lklug.pdn.ac.lk>
-In-Reply-To: <20020112114855.A8005@lklug.pdn.ac.lk>
-	<20020112204633.A833@lklug.pdn.ac.lk>
-X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S287274AbSALSTD>; Sat, 12 Jan 2002 13:19:03 -0500
+Received: from mk-smarthost-1.mail.uk.tiscali.com ([212.74.112.71]:1036 "EHLO
+	mk-smarthost-1.mail.uk.tiscali.com") by vger.kernel.org with ESMTP
+	id <S287253AbSALSSs>; Sat, 12 Jan 2002 13:18:48 -0500
+Date: Sat, 12 Jan 2002 18:15:33 +0000
+From: Jonathan Hudson <jonathan@daria.co.uk>
+To: linux-kernel@vger.kernel.org
+Cc: marcelo@conectiva.com.br, torvalds@transmeta.com, vshebordaev@mail.ru
+Subject: [PATCH] Gemtek FM Radio PCI driver enhancement.
+Message-ID: <20020112181533.GA3363@trespassersw.daria.co.uk>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- boundary="=.IGRlZ3'2R4+io,"
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+User-Agent: Mutt/1.3.24i
+X-Operating-System: Linux 2.4.17 i686
+Organisation: The Dead Letter Drop
+X-PGP-KeyServer: http://wwwkeys.pgp.net:11371/pks/lookup?op=get&search=0x721FAABE
+X-PGP-Key: 1024/DSA 0x721FAABE
+X-PGP-Fingerprint: 7746 1FEE 02F4 0AD4 267C 2B55 03EF 19EC 721F AABE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.IGRlZ3'2R4+io,
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
 
-On Sat, 12 Jan 2002 20:46:33 +0600
-Anuradha Ratnaweera <anuradha@gnu.org> wrote:
+This small patch enables the Gemtek FM Radio PCI driver to report the audio
+mode (mono or stereo) of the Gemtek FM Radio PCI card. Applies to
+2.4.17/2.5.2-pre11.
 
-Awsome! keep up the great work ;)
-
-> On Sat, Jan 12, 2002 at 11:48:55AM +0600, Anuradha Ratnaweera wrote:
-> > 
-> > This time it is a working tarball ;)
-> > 
-> > Highlights: menuconfig, help
-> >
-> > [...]
-> 
-> Forgot to mention the download URL.  Here it is:
-> 
->     http://www.bee.lk/people/anuradha/kernelconf/
->     http://www.lklug.pdn.ac.lk/~anuradha/kernelconf/
-> 
-> Cheers,
-> 
-> Anuradha
-> 
-> -- 
-> 
-> Debian GNU/Linux (kernel 2.4.16-xfs)
-> 
-> Noise proves nothing.  Often a hen who has merely laid an egg cackles
-> as if she laid an asteroid.
-> 		-- Mark Twain
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
-
--- 
-
- "That vulnerability is completly TheoRaadtical."
-  -Microsoft
-
---=.IGRlZ3'2R4+io,
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-
-iD8DBQE8QH18yWZRCCLwK/cRAp++AJ4yGCCltXwhJr/dM8HLiQQF8oo91QCfZWCc
-MudKhUrvAfA+dRCDK5k5ZNM=
-=ixSC
------END PGP SIGNATURE-----
-
---=.IGRlZ3'2R4+io,--
-
+--- linux/drivers/media/radio/radio-gemtek-pci.c.orig	Sat Jan 12 17:16:03 2002
++++ linux/drivers/media/radio/radio-gemtek-pci.c	Sat Jan 12 17:19:51 2002
+@@ -221,6 +221,7 @@
+ 		case VIDIOCGTUNER:
+ 		{
+ 			struct video_tuner t;
++                        int signal;
+ 
+ 			if ( copy_from_user( &t, arg, sizeof( struct video_tuner ) ) )
+ 				return -EFAULT;
+@@ -228,11 +229,12 @@
+ 			if ( t.tuner ) 
+ 				return -EINVAL;
+ 
++                        signal = gemtek_pci_getsignal( card );
+ 			t.rangelow = GEMTEK_PCI_RANGE_LOW;
+ 			t.rangehigh = GEMTEK_PCI_RANGE_HIGH;
+-			t.flags = VIDEO_TUNER_LOW;
++			t.flags = VIDEO_TUNER_LOW | (7 << signal) ;
+ 			t.mode = VIDEO_MODE_AUTO;
+-			t.signal = 0xFFFF * gemtek_pci_getsignal( card );
++			t.signal = 0xFFFF * signal;
+ 			strcpy( t.name, "FM" );
+ 
+ 			if ( copy_to_user( arg, &t, sizeof( struct video_tuner ) ) )
+@@ -282,6 +284,7 @@
+ 			a.flags |= VIDEO_AUDIO_MUTABLE;
+ 			a.volume = 1;
+ 			a.step = 65535;
++                        a.mode = (1 << gemtek_pci_getsignal( card ));
+ 			strcpy( a.name, "Radio" );
+ 
+ 			if ( copy_to_user( arg, &a, sizeof( struct video_audio ) ) )

@@ -1,72 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269979AbUICXZj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269797AbUICXg4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269979AbUICXZj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 19:25:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269980AbUICXZj
+	id S269797AbUICXg4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 19:36:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269973AbUICXg4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 19:25:39 -0400
-Received: from umhlanga.stratnet.net ([12.162.17.40]:6003 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S269979AbUICXZV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 19:25:21 -0400
-To: "David S. Miller" <davem@davemloft.net>
-Cc: Michael.Waychison@Sun.COM, plars@linuxtestproject.org,
-       Brian.Somers@Sun.COM, linux-kernel@vger.kernel.org
-Subject: Re: TG3 doesn't work in kernel 2.4.27 (David S. Miller)
-X-Message-Flag: Warning: May contain useful information
-References: <20040816110000.1120.31256.Mailman@lists.us.dell.com>
-	<200408162049.FFF09413.8592816B@anet.ne.jp>
-	<20040816143824.15238e42.davem@redhat.com> <412CD101.4050406@sun.com>
-	<20040825120831.55a20c57.davem@redhat.com> <412CF0E9.2010903@sun.com>
-	<20040825175805.6807014c.davem@redhat.com> <412DC055.4070401@sun.com>
-	<20040830161126.585a6b62.davem@davemloft.net>
-	<1094238777.9913.278.camel@plars.austin.ibm.com>
-	<4138C3DD.1060005@sun.com> <52acw7rtrw.fsf@topspin.com>
-	<20040903133059.483e98a0.davem@davemloft.net>
-From: Roland Dreier <roland@topspin.com>
-Date: Fri, 03 Sep 2004 16:24:25 -0700
-In-Reply-To: <20040903133059.483e98a0.davem@davemloft.net> (David S.
- Miller's message of "Fri, 3 Sep 2004 13:30:59 -0700")
-Message-ID: <52ekljq6l2.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 03 Sep 2004 23:24:25.0436 (UTC) FILETIME=[26ADA1C0:01C4920D]
+	Fri, 3 Sep 2004 19:36:56 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:12698 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S269797AbUICXgw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 19:36:52 -0400
+Subject: Re: [RFC][PATCH] new timeofday core subsystem (v.A0)
+From: john stultz <johnstul@us.ibm.com>
+To: george anzinger <george@mvista.com>
+Cc: Albert Cahalan <albert@users.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>, tim@physik3.uni-rostock.de,
+       Ulrich.Windl@rz.uni-regensburg.de, clameter@sgi.com,
+       Len Brown <len.brown@intel.com>, linux@dominikbrodowski.de,
+       David Mosberger <davidm@hpl.hp.com>, Andi Kleen <ak@suse.de>,
+       paulus@samba.org, schwidefsky@de.ibm.com, jimix@us.ibm.com,
+       keith maanthey <kmannth@us.ibm.com>, greg kh <greg@kroah.com>,
+       Patricia Gaughen <gone@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>
+In-Reply-To: <4138EBE5.2080205@mvista.com>
+References: <1094159238.14662.318.camel@cog.beaverton.ibm.com>
+	 <1094159379.14662.322.camel@cog.beaverton.ibm.com>
+	 <4137CB3E.4060205@mvista.com> <1094193731.434.7232.camel@cube>
+	 <41381C2D.7080207@mvista.com>
+	 <1094239673.14662.510.camel@cog.beaverton.ibm.com>
+	 <4138EBE5.2080205@mvista.com>
+Content-Type: text/plain
+Message-Id: <1094254342.29408.64.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Fri, 03 Sep 2004 16:32:22 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    David> Please make sure you try current sources, I've had nothing
-    David> but positive reports for IBM blades from people actually
-    David> using the correct current 3.9 driver.
+Really quick: I'm off on vacation until Weds. Hopefully I've addressed
+in some way everyone's comments and my email box won't be stuffed when I
+return. I might peek in every once in awhile, though. 
 
-I tried it with a full build of a BK tree pulled last night, and it
-definitely didn't work.  Some relevant output:
+Just one last response...
 
-    tg3.c:v3.9 (August 30, 2004)
-    eth0: Tigon3 [partno(none) rev 2003 PHY(serdes)] (PCIX:133MHz:64-bit) 10/100/1000BaseT Ethernet 00:0d:60:1e:88:56
-    eth0: HostTXDS[1] RXcsums[1] LinkChgREG[0] MIirq[0] ASF[1] Split[0] WireSpeed[1] TSOcap[0]
-    eth1: Tigon3 [partno(none) rev 2003 PHY(serdes)] (PCIX:133MHz:64-bit) 10/100/1000BaseT Ethernet 00:0d:60:1e:88:57
-    eth1: HostTXDS[1] RXcsums[1] LinkChgREG[0] MIirq[0] ASF[0] Split[0] WireSpeed[1] TSOcap[1]
+On Fri, 2004-09-03 at 15:10, George Anzinger wrote:
+> john stultz wrote:
+> > I feel trying to keep two notions of time, one in the timeofday code and
+> > one in the timer code is the real issue. Trying to better keep them
+> > synced will just lead to madness. Instead the timer subsystem needs to
+> > move to using monotonic_clock(), or get_lowres_timestamp() instead of
+> > using jiffies for its notion of time. Jiffies is just an interrupt
+> > counter. 
+> 
+> Well, there may be a better way.  Suppose we change all the accounting code to 
+> work with nanoseconds.  That way when we do an accounting pass we would just add 
+> what has elapsed since the last pass.  
 
-and then as soon as the init scripts try to bring up the interface:
+Yep, that'd work too. 
 
-    Setting up network interfaces:
-        lo
-        lo        IP address: 127.0.0.1/8                                 done
-        dummy0
-        dummy0    No configuration found for dummy0                       unused
-        eth0      device: Broadcom Corporation NetXtreme BCM5
-    system>
-    system> console -T system:blade[11]
-    SOL is not ready
+> Still need some way to do user timers that are tightly pegged to the clock.
 
-(the last three lines are the management console taking over again
-after the serial-over-LAN has died)
+I see that as just a problem of programming the timer interrupt
+generator. If you have a nanosecond (or as high as the best timesource
+on your system provides) resolution notion of time, then there is
+nothing to peg or tie the timer with. You simply just program it to go
+off every X nanoseconds. Should it be so inaccurate that it does not go
+off right at X nanoseconds, then you've hit a limit of the hardware.
+Pick a more accurate interval length, dynamically change your interval,
+or live with it.  If the soft-timers use monotonic-clock() to determine
+when they expire, then you won't get accumulating drift (as
+monotonic-clock()is NTP frequency adjusted), only the minor jitter
+caused latency caused by the interrupt programming.
 
-Just to be clear, I'm running a ppc64 kernel on a JS20 blade (dual PPC
-970) with BCM5704S.  The HS20 blade (dual Xeon) also has a BCM5703X
-but I haven't tried the latest driver on one of those yet.
+> A thought I had along these lines was to program a timer for each tick.  The PIT 
+> is much too slow for this, but the APIC timers seem to be rather easy to 
+> program.  I am not sure how fast the access is but it can not be anything like 
+> the PIT.  Under this scheme we would use the monotonic clock to figure out just 
+> how far out the next tick should be and program that.
 
-Thanks,
-  Roland
+Yep, tickless systems also start being possible. We just have interrupts
+for scheduled events. 
+
+> This could be modified to use repeating hardware if it is available.  (What does 
+> the HPET provide?  Does it interrupt?)  Since the APIC clock is not the 
+> reference clock (the PIT & pm timer clock is) we would have to correct these 
+> from time to time but that is rather easy (I do it today in HRT code).
+
+Don't know the details of interrupt generation, so I can't tell ya. I'm
+not sure I followed the correction bit?
+
+> This brings up another issue.  We know what the PIT clock frequency is but not 
+> what the TSC clock frequency.  Currently we do a calibration run at boot to 
+> figure this but I can easily show that this run consistently gives the wrong 
+> answer (I am sure this has to do with the I/O access delays).  If we are going 
+> to use the TSC (or any other "clock" that is not derived from the PITs 
+> 14.3181818MHZ ital) we need both a way to get the correct value AND a way to 
+> adjust it for drift over time.  (Possibly this is the same thing.)  Of course 
+> this is all just x86 stuff.  Other archs will have their own issues.
+
+Again, monotonic_clock() and friends are NTP adjusted, so drift caused
+by inaccurate calibration shouldn't be a problem the interval timer code
+should need to worry about (outside of maybe adjusting its interval time
+if its always arriving late/early). If possible the timesource
+calibration code should be improved, but that's icing on the cake and
+isn't critical.
+
+Again, thanks to everyone for the great feedback and discussion!
+-john
+

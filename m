@@ -1,97 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288050AbSACA2H>; Wed, 2 Jan 2002 19:28:07 -0500
+	id <S288063AbSACAch>; Wed, 2 Jan 2002 19:32:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288057AbSACA07>; Wed, 2 Jan 2002 19:26:59 -0500
-Received: from admin.nni.com ([216.107.0.51]:50183 "EHLO admin.nni.com")
-	by vger.kernel.org with ESMTP id <S288051AbSACA0A>;
-	Wed, 2 Jan 2002 19:26:00 -0500
-From: "Andrew Rodland" <arodland@noln.com>
-Subject: Re: CML2 funkiness
-To: "Eric S. Raymond" <esr@thyrsus.com>
-Cc: linux-kernel@vger.kernel.org, David Relson <relson@osagesoftware.com>
-X-Mailer: CommuniGate Pro Web Mailer v.3.5
-Date: Wed, 02 Jan 2002 19:26:00 -0500
-Message-ID: <web-54762827@admin.nni.com>
-In-Reply-To: <4.3.2.7.2.20020102100856.00e78f00@mail.osagesoftware.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	id <S288082AbSACAbN>; Wed, 2 Jan 2002 19:31:13 -0500
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:645 "EHLO
+	opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S288067AbSACA3m>; Wed, 2 Jan 2002 19:29:42 -0500
+Date: Wed, 2 Jan 2002 17:29:35 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: jtv <jtv@xs4all.nl>
+Cc: Momchil Velikov <velco@fadata.bg>, paulus@samba.org,
+        linux-kernel@vger.kernel.org, gcc@gcc.gnu.org,
+        linuxppc-dev@lists.linuxppc.org,
+        Franz Sirl <Franz.Sirl-kernel@lauterbach.com>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Corey Minyard <minyard@acm.org>
+Subject: Re: [PATCH] C undefined behavior fix
+Message-ID: <20020103002935.GT1803@cpe-24-221-152-185.az.sprintbbd.net>
+In-Reply-To: <87g05py8qq.fsf@fadata.bg> <20020102190910.GG1803@cpe-24-221-152-185.az.sprintbbd.net> <15411.37817.753683.914033@argo.ozlabs.ibm.com> <877kr0uyc5.fsf@fadata.bg> <20020102233452.GQ1803@cpe-24-221-152-185.az.sprintbbd.net> <20020103011905.D19933@xs4all.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020103011905.D19933@xs4all.nl>
+User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Actually, I had 1.9.16, but it looks like the same problem
- (and it seems like it's been around for a bit).
-I'm definitely seeing the same thing as David, except the
- symbols I'm seeing are:
+On Thu, Jan 03, 2002 at 01:19:05AM +0100, jtv wrote:
+> On Wed, Jan 02, 2002 at 04:34:52PM -0700, Tom Rini wrote:
+> > On Thu, Jan 03, 2002 at 01:28:42AM +0200, Momchil Velikov wrote:
+> > > 
+> > > GCC thinks exactly what the function does.
+> > 
+> > And then optimizes it to something that fails to work in this particular
+> > case.
+> 
+> Which it may do with another function *or expression* as well, because
+> the real bug has already happened before the function call comes into
+> the issue.
 
-DANGEROUS: Prompt for features that can trash data.
- (DANGEROUS) [ ] (NEW)?:
-DEVELOPMENT: Configure a development or 2.5 kernel?
- (EXPERIMENTAL) [ ] (NEW)?:
-ISA_CARDS: Support for ISA-bus cards. [Y] (NEW)?:
+What's the bug?  The 'funny' arithmetic?
 
+> As far as I'm concerned the options are: fix RELOC;
 
-On Wed, 02 Jan 2002 10:10:42 -0500
- David Relson <relson@osagesoftware.com> wrote:
-> At 09:03 AM 1/2/02, Andrew Rodland wrote:
-> >First off, I'd like to apologize for lack of all the
-> > information I'd like to have, I'm at school, and
-> > temporarily semidisconnected at home.
-> >
-> >CML2 is definitely still not quite right for me
-> >(2.4.17 + kpreempt-rml, latest CML2 as of 3ish days
->  ago).
-> >
-> >Menuconfig and friends seem okay, as far as I can tell
->  (and
-> > they've apparently been tested pretty well), but
->  oldconfig
-> > is wacky...
-> >
-> >So, "mv config .config ; make mrproper ; mv config
->  .config
-> > ; make oldconfig" does odd things to my config, but
->  more
-> > in-your-face, on "make oldconfig ; make oldconfig" (ad
-> > inifinitum if you want), it will continue asking the
->  same
-> > questions, and never remember the answer.
-> 
-> Andrew,
-> 
-> I have just tested this, and have reproduced your
->  problem.  Using kernel-2.4.16 and cml2-1.2.20, i.e. my
->  current kernel and the latest CML2, I ran "make
->  oldconfig" three times.  The first time I answered "n"
->  to 21 queries.  The second and third times, I had to
->  answer "n" to 9 queries.  The 9 all appeared in the
->  first run and were exactly the same in the second and
->  third runs.
-> 
-> Here're the 9 queries from runs 2 and 3:
-> EXPERT: Prompt for expert choices (those with no help
->  attached) (EXPERIMENTAL) [ ] (NEW)?:
-> DEVELOPMENT: Configure a development or 2.5 kernel?
->  (EXPERIMENTAL) [ ] (NEW)?:
-> CD_NO_IDESCSI: Support CD-ROM drives that are not SCSI or
->  IDE/ATAPI [ ] (NEW)?:
-> IP_ADVANCED_ROUTER: Advanced router [ ] (NEW)?:
-> NET_VENDOR_SMC: Western Digital/SMC cards [ ] (NEW)?:
-> NET_VENDOR_RACAL: Racal-Interlan (Micom) NI cards [ ]
->  (NEW)?:
-> NET_POCKET: Pocket and portable adapters [ ] (NEW)?:
-> HAMRADIO: Amateur Radio support [ ] (NEW)?:
-> FBCON_FONTS: Select other compiled-in fonts [ ] (NEW)?:
-> 
-> From past testing of CML2 I know it uses file config.out
->  as its 
-> "memory".  Looking in it, I didn't see any CONFIG symbols
->  for these symbols.
-> 
-> There's definitely something here for Eric to fix!
-> 
-> David
-> 
-> 
+How?
 
+> obviate RELOC; use
+> an appropriate gcc option if available (-fPIC might be it, -ffreestanding
+> certainly isn't--see above);
+
+Maybe for 2.5.  Too invasive for 2.4.x (initially at least).
+
+> *extend* (not fix, extend) gcc; or work
+> around all individual cases.  In rough descending order of preference.
+
+Er, say what?
+
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

@@ -1,44 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270489AbTHGP0n (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 11:26:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269981AbTHGPZI
+	id S270328AbTHGPXr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 11:23:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270359AbTHGPXr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 11:25:08 -0400
-Received: from ns2.uk.superh.com ([193.128.105.170]:50411 "EHLO
-	ns2.uk.superh.com") by vger.kernel.org with ESMTP id S270386AbTHGPYU
+	Thu, 7 Aug 2003 11:23:47 -0400
+Received: from marblerye.cs.uga.edu ([128.192.101.172]:25731 "HELO
+	marblerye.cs.uga.edu") by vger.kernel.org with SMTP id S270328AbTHGPXg
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 11:24:20 -0400
-Date: Thu, 7 Aug 2003 16:24:18 +0100
-From: Richard Curnow <Richard.Curnow@superh.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Interactivity improvements
-Message-ID: <20030807152418.GA509@malvern.uk.w2k.superh.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <3F3261A2.9000405@cs.ubishops.ca>
-Mime-Version: 1.0
+	Thu, 7 Aug 2003 11:23:36 -0400
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: trivial <trivial@rustcorp.com.au>
+Subject: [TRIVIAL][PATCH] document unused pte bits on i386
+From: Ed L Cashin <ecashin@uga.edu>
+Date: Thu, 07 Aug 2003 11:23:34 -0400
+Message-ID: <87n0elwky1.fsf@uga.edu>
+User-Agent: Gnus/5.090014 (Oort Gnus v0.14) Emacs/21.2
+ (i386-debian-linux-gnu)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F3261A2.9000405@cs.ubishops.ca>
-X-OS: Linux 2.6.0-test2-mm4 i686
-User-Agent: Mutt/1.5.4i
-X-OriginalArrivalTime: 07 Aug 2003 15:24:59.0038 (UTC) FILETIME=[1039E3E0:01C35CF8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Patrick McLean <pmclean@cs.ubishops.ca> [2003-08-07]:
-> Another point is compilers, they tend to do a lot of disk I/O then 
-> become major CPU hogs, could we have some sort or heuristic that reduces 
-> the bonuses for sleeping on block I/O rather than other kinds of I/O 
-> (say pipes and network I/O in the case of X).
+Hi.  This small patch documents that bits 9, 10, and 11 are unused by
+the Linux kernel.  The IA-32 Intel Architecture Software Developer's
+Manual says that these bits are available for programmer use.
 
-What about compilers chewing on source files coming in over NFS rather
-than resident on local block devices?  The network waits need to be
-broken out into NFS versus other, or UDP versus TCP or something.  e.g.
-waits due to the user not having typed anything yet, or moved the mouse,
-are going to be on TCP connections.
+I checked and couldn't see any use of these bits in the Linux kernel.
+If I'm wrong and these bits *are* being used by the linux kernel, a
+comment in include/asm-i386/pgtable.h would be helpful.  If they are
+not, this patch confirms for developers that the kernel isn't using
+these bits.
+
+
+--- linux-2.6.0-test2/include/asm-i386/pgtable.h~	Sun Jul 27 13:06:27 2003
++++ linux-2.6.0-test2/include/asm-i386/pgtable.h	Thu Aug  7 11:16:36 2003
+@@ -118,6 +118,9 @@
+ #define _PAGE_DIRTY	0x040
+ #define _PAGE_PSE	0x080	/* 4 MB (or 2MB) page, Pentium+, if present.. */
+ #define _PAGE_GLOBAL	0x100	/* Global TLB entry PPro+ */
++#define _PAGE_UNUSED1	0x200	/* available for programmer */
++#define _PAGE_UNUSED2	0x400
++#define _PAGE_UNUSED3	0x800
+ 
+ #define _PAGE_FILE	0x040	/* set:pagecache unset:swap */
+ #define _PAGE_PROTNONE	0x080	/* If not present */
+
 
 -- 
-Richard \\\ SuperH Core+Debug Architect /// .. At home ..
-  P.    /// richard.curnow@superh.com  ///  rc@rc0.org.uk
-Curnow  \\\ http://www.superh.com/    ///  www.rc0.org.uk
+--Ed L Cashin            |   PGP public key:
+  ecashin@uga.edu        |   http://noserose.net/e/pgp/
+

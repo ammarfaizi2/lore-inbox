@@ -1,50 +1,36 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317203AbSFHCmE>; Fri, 7 Jun 2002 22:42:04 -0400
+	id <S317299AbSFHDTD>; Fri, 7 Jun 2002 23:19:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317299AbSFHCmD>; Fri, 7 Jun 2002 22:42:03 -0400
-Received: from sproxy.gmx.net ([213.165.64.20]:29744 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S317203AbSFHCmC>;
-	Fri, 7 Jun 2002 22:42:02 -0400
-Date: Sat, 8 Jun 2002 05:40:30 +0300
-From: Dan Aloni <da-x@gmx.net>
-To: Brian Gerst <bgerst@didntduck.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] More list_del_init cleanups
-Message-ID: <20020608024030.GA18037@callisto.yi.org>
-In-Reply-To: <3CFEDE73.80202@didntduck.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	id <S317375AbSFHDTC>; Fri, 7 Jun 2002 23:19:02 -0400
+Received: from mail.scsiguy.com ([63.229.232.106]:43276 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP
+	id <S317299AbSFHDTB>; Fri, 7 Jun 2002 23:19:01 -0400
+Message-Id: <200206080315.g583Fj957513@aslan.scsiguy.com>
+To: Patrick Mansfield <patmans@us.ibm.com>
+cc: linux-kernel@vger.kernel.org, Shane Walton <dsrelist@yahoo.com>
+Subject: Re: Stream Lined Booting - SCSI Hold Up 
+In-Reply-To: Your message of "Fri, 07 Jun 2002 15:55:31 PDT."
+             <20020607155531.A13335@eng2.beaverton.ibm.com> 
+Date: Fri, 07 Jun 2002 21:15:45 -0600
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 06, 2002 at 12:00:51AM -0400, Brian Gerst wrote:
-> Clean up some other instances of list_del + INIT_LIST_HEAD.
-> 
-> --
-> 				Brian Gerst
-[snip]
-> -		        list_del(&entry->hash);
-> -			INIT_LIST_HEAD(&entry->hash);
-> +		        list_del_init(&entry->hash);
->  			list_del(&entry->list);
->  			list_add(&entry->list, dispose);
->  			continue;
+>On Thu, Jun 06, 2002 at 01:44:19PM -0700, Patrick Mansfield wrote:
+>
+>> On my system, it saves me about 10 seconds to boot with:
+>> 
+>> lilo: linux-1 aic7xxx=no_reset aic7xxx=seltime:3
+>> 
+>
+>BTW, the above results in an infinite loop on shutdown, as the aic
+>driver adds a reboot callback for each "aic7xxx=" option, pointing
+>to static data, and ends up getting linked on a list pointing to
+>itself.
 
+You're using an old version of the driver then.  6.2.8 is the
+latest.
 
-If we are at it, how about replacing:
-
-	list_del(&entry->list);
-	list_add(&entry->list, dispose);
-	
-with something like:
-
-	list_del_add(&entry->list, dispose);
-	
-	
--- 
-Dan Aloni
-da-x@gmx.net
+--
+Justin

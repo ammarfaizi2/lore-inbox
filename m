@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261797AbTD2VGu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Apr 2003 17:06:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261827AbTD2VGu
+	id S261827AbTD2VOI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Apr 2003 17:14:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261843AbTD2VOI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Apr 2003 17:06:50 -0400
-Received: from Mail1.KONTENT.De ([81.88.34.36]:22732 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S261797AbTD2VGs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Apr 2003 17:06:48 -0400
-From: Oliver Neukum <oliver@neukum.org>
-Reply-To: oliver@neukum.name
-To: harry@smsworldplus.com, <linux-kernel@vger.kernel.org>
-Subject: Re: Broadcom BCM4306/BCM2050  support
-Date: Tue, 29 Apr 2003 23:19:04 +0200
-User-Agent: KMail/1.5
-References: <200304291658.h3TGwJj26464@smsworldplus.com>
-In-Reply-To: <200304291658.h3TGwJj26464@smsworldplus.com>
+	Tue, 29 Apr 2003 17:14:08 -0400
+Received: from mta4.rcsntx.swbell.net ([151.164.30.28]:22173 "EHLO
+	mta4.rcsntx.swbell.net") by vger.kernel.org with ESMTP
+	id S261827AbTD2VOH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Apr 2003 17:14:07 -0400
+Message-ID: <3EAEF11B.4070000@pacbell.net>
+Date: Tue, 29 Apr 2003 14:39:39 -0700
+From: David Brownell <david-b@pacbell.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
+X-Accept-Language: en-us, en, fr
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Max Krasnyansky <maxk@qualcomm.com>
+CC: Greg KH <greg@kroah.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: [linux-usb-devel] Re: [Bluetooth] HCI USB driver update. Support
+ for SCO over HCI USB.
+References: <200304290317.h3T3HOdA027579@hera.kernel.org> <200304290317.h3T3HOdA027579@hera.kernel.org> <5.1.0.14.2.20030429131303.10d7f330@unixmail.qualcomm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200304292319.04070.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Dienstag, 29. April 2003 18:58 schrieb harry:
-> A Penguin wrote:
-> >In the UK, for instance, one has to purchase a license to
-> >use a receiver (you know, some Sony Walkman). This is, in my
-> >opinion, extremely repressive. It would be nice for somebody
-> >to start suing the BBC (and others) to recover damages for
-> >the criminal trespass of "their" radio signals onto private
-> >property. After a few such lawsuits, the ownership of such
-> >broadcast signals would revert to the public, just like in
-> >the US.
->
-> You need a licence to drive a car and a licence to operate a
-> computer - now that's really repressive !
 
-That is the point. You need a license to operate a car on public
-roads. Ownership or operation on your own property is only
-your business.
+ > I was actually going to ask you guys if you'd be interested
+ > in generalizing this _urb_queue() stuff that I have for
+ > other drivers. Current URB api does not provide any interface
+ > for queueing/linking/etc of URBs in the _driver_ itself.
 
-	Regards
-		Oliver
+I only saw fragments of the original patch -- could you be just
+a bit more specific?
+
+If you're suggesting adding some "struct list_head" into
+"struct urb" for exclusive use of the interface's driver
+(instead of urb_list, which is for usbcore/hcd) ... I'd
+agree that'd be a good thing.
+
+In fact I recently got around to adding that to the
+"gadget side" analogue of an URB.  For much the same
+kind of reasons as you mentioned.
+
+- Dave
+
 

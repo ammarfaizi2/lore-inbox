@@ -1,81 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264091AbTGBQ6H (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jul 2003 12:58:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264082AbTGBQ6H
+	id S263428AbTGBQ4E (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jul 2003 12:56:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264104AbTGBQ4D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jul 2003 12:58:07 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:49378
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S264091AbTGBQ6C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jul 2003 12:58:02 -0400
-Date: Wed, 2 Jul 2003 19:11:59 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Mel Gorman <mel@csn.ul.ie>
-Cc: Linux Memory Management List <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: What to expect with the 2.6 VM
-Message-ID: <20030702171159.GG23578@dualathlon.random>
-References: <Pine.LNX.4.53.0307010238210.22576@skynet> <20030701022516.GL3040@dualathlon.random> <Pine.LNX.4.53.0307021641560.11264@skynet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53.0307021641560.11264@skynet>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+	Wed, 2 Jul 2003 12:56:03 -0400
+Received: from [65.248.4.67] ([65.248.4.67]:8379 "EHLO verdesmares.com")
+	by vger.kernel.org with ESMTP id S263428AbTGBQ4A (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jul 2003 12:56:00 -0400
+Message-ID: <001801c340bc$a8f0f9a0$19dfa7c8@bsb.virtua.com.br>
+From: "Breno" <brenosp@brasilsec.com.br>
+To: "Kernel List" <linux-kernel@vger.kernel.org>
+References: <000701c340bb$e48b43e0$19dfa7c8@bsb.virtua.com.br>
+Subject: Re: about send task[txt]
+Date: Wed, 2 Jul 2003 14:09:10 -0300
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----=_NextPart_000_0013_01C340A3.82233C20"
+X-XTmail: http://www.verdesmares.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 02, 2003 at 04:57:27PM +0100, Mel Gorman wrote:
->    The second reason is avoiding the poor linear search algorithm used by
->    get_unmapped_area() when looking for a large free virtual area. With a
->    large number of mappings, this search is very expensive. It has been
+This is a multi-part message in MIME format.
 
-this is true too. however get_unmapped_area never need to find a new
-place for the granular usages since mmap is always called with MAP_FIXED for
-those.
+------=_NextPart_000_0013_01C340A3.82233C20
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 
->    proposed to alter the function to perform a tree based search. This could
->    be a tree of free areas ordered by size for example but none has yet been
+Sorry , the body of this mail was not good
 
-it can't be trivially a tree of free areas or (if naturally indexed with
-the size of the hole) it would return the smallest-fitting hole, not the
-leftmost-smallest-fitting-hole ;). A better solution is possible. Then
-everybody will benefit w/o need of userspace changes. It's still pretty
-orthogonal with remap_file_pages though.
+please , see the .txt file
 
->    implemented. In the meantime, non-linear mappings are being used to bypass
->    the VM.
-> 
->    The third reason is related to frequent page faults associated with linear
->    mappings. A non-linear mapping is able to prefault in all pages that are
->    required by the mapping as it is presumed they will be needed very soon.
->    To some extent, this can be addressed by specifying the MAP_POPULATE when
->    calling mmap() for a normal mapping.
 
-mlock already does it too.
+thanks
 
->    This feature has a very serious drawback. The system calls truncate() and
->    mincore() are broken with respect to non-linear mappings. Both calls
->    depend on vm_area_struct>vm_pgoff, which is the offset within
->    the mapped file, but the field is meaningless within a non-linear mapping.
->    This means that truncated files will still have mapped pages that no
->    longer have a physical backing. A number of possible solutions, such as
->    allowing the pages to exist but be anonymous and private to the process,
->    have been suggested but none implemented.
+------=_NextPart_000_0013_01C340A3.82233C20
+Content-Type: text/plain;
+	name="process_migration.txt"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment;
+	filename="process_migration.txt"
 
-the major reason you didn't mention for remap_file_pages is the rmap
-avoidance. There's no rmap backing the remap_file_pages regions, so the
-overhead per task is reduced greatly and the box stops running oom
-(actually deadlocking for mainline thanks to the oom killer and NOFAIL
-default behaviour). since there's no rmap, this in turn means either
-this nonlinear vma will swap badly, or it means rmap is totally useless
-to swap well. Which in short means either rmap has to go in its current
-form (and the usefulness of remap_file_pages would be greatly reduced),
-or nonlinear mappings would better stay pinned in ram since they'd
-better not be used for the emaulator with 63G of highmem into swap on a
-1G host anyways (the sysctl would fix the security detail in pinning
-into ram like we're doing today with the largepages in 2.4).
+the idea to transfer a simples task is:
 
-Andrea
+
+
+Thread1 in NODE A    <-------TCP CONN----------->   Thread2 in NODE B
+__________________				     __________________
+
+- select task by pid			              -verify the availability  of these =
+virtual addresses.
+						      if it busy , free the memory of these virtual addresses.
+- get structs mm , vma , task , zone , page					     =20
+  and copy all buffers existing in the =09
+  memory.	    				       -alloc all the buffer of task.
+ 		      				=09
+						=09
+- send all buffers to thread2			     -re-build structs =
+(alloc_task_struct,page_zone,pte_page...)
+ 					    =20
+						     -INIT_LIST_HEAD()
+						    =20
+						     -wake_up_process()
+-send all virtual addresses to thread2
+
+
+
+Breno
+------=_NextPart_000_0013_01C340A3.82233C20--
+

@@ -1,89 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268298AbUIWHKa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268310AbUIWHSB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268298AbUIWHKa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 03:10:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268301AbUIWHKa
+	id S268310AbUIWHSB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 03:18:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268305AbUIWHSB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 03:10:30 -0400
-Received: from mail.convergence.de ([212.227.36.84]:14243 "EHLO
-	email.convergence2.de") by vger.kernel.org with ESMTP
-	id S268298AbUIWHKR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 03:10:17 -0400
-Message-ID: <41527696.5060002@linuxtv.org>
-Date: Thu, 23 Sep 2004 09:09:10 +0200
-From: Michael Hunold <hunold@linuxtv.org>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
+	Thu, 23 Sep 2004 03:18:01 -0400
+Received: from smtp-roam.Stanford.EDU ([171.64.10.152]:11669 "EHLO
+	smtp-roam.Stanford.EDU") by vger.kernel.org with ESMTP
+	id S268303AbUIWHR4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Sep 2004 03:17:56 -0400
+Message-ID: <41527885.8020402@myrealbox.com>
+Date: Thu, 23 Sep 2004 00:17:25 -0700
+From: Andy Lutomirski <luto@myrealbox.com>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040918)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Adrian Cox <adrian@humboldt.co.uk>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       sensors@Stimpy.netroedge.com, Jon Smirl <jonsmirl@gmail.com>,
-       Greg KH <greg@kroah.com>
-Subject: Re: [PATCH][2.6] Add command function to struct i2c_adapter
-References: <414F111C.9030809@linuxtv.org>	 <20040921154111.GA13028@kroah.com>	 <41506099.8000307@web.de>	 <41506D78.6030106@web.de> <1095843365.18365.48.camel@localhost>	 <20040922102938.M15856@linux-fr.org> <1095854048.18365.75.camel@localhost>
-In-Reply-To: <1095854048.18365.75.camel@localhost>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Andi Kleen <ak@suse.de>
+CC: Christoph Lameter <clameter@sgi.com>, akpm@osdl.org,
+       "David S. Miller" <davem@davemloft.net>, benh@kernel.crashing.org,
+       wli@holomorphy.com, davem@redhat.com, raybry@sgi.com, ak@muc.de,
+       manfred@colorfullife.com, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org, vrajesh@umich.edu, hugh@veritas.com
+Subject: Re: page fault scalability patch V8: [4/7] universally available
+ cmpxchg on i386
+References: <Pine.LNX.4.58.0408150630560.324@schroedinger.engr.sgi.com> <Pine.LNX.4.58.0409201348070.4628@schroedinger.engr.sgi.com> <20040920205752.GH4242@wotan.suse.de> <200409211841.25507.vda@port.imtp.ilyichevsk.odessa.ua> <20040921154542.GB12132@wotan.suse.de>
+In-Reply-To: <20040921154542.GB12132@wotan.suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Andi Kleen wrote:
+> On Tue, Sep 21, 2004 at 06:41:25PM +0300, Denis Vlasenko wrote:
+> 
+>>On Monday 20 September 2004 23:57, Andi Kleen wrote:
+>>
+>>>On Mon, Sep 20, 2004 at 01:49:20PM -0700, Christoph Lameter wrote:
+>>>
+>>>>On Mon, 20 Sep 2004, Denis Vlasenko wrote:
+>>>>
+>>>>
+>>>>>I think it shouldn't be this way.
+>>>>>
+>>>>>OTOH for !CONFIG_386 case it makes perfect sense to have it inlined.
+>>>>
+>>>>Would the following revised patch be acceptable?
+>>>
+>>>You would need an EXPORT_SYMBOL at least. But to be honest your
+>>>original patch was much simpler and nicer and cmpxchg is not called
+>>>that often that it really matters. I would just ignore Denis' 
+>>>suggestion and stay with the old patch.
+>>
+>>A bit faster approach (for CONFIG_386 case) would be using
+> 
+> 
+> It's actually slower. Many x86 CPUs cannot predict indirect jumps
+> and those that do cannot predict them as well as a test and jump.
 
-On 22.09.2004 13:54, Adrian Cox wrote:
-> Not in the current Linux DVB code. A frontend driver registers itself
-> onto a list, and whenever a DVB card registers its I2C adapter the
-> available frontends are probed. My solution would throw away all the
-> list handling in dvb_i2c.c entirely.
+Wouldn't alternative_input() choosing between a cmpxchg and a call be 
+the way to go here?  Or is the overhead too high in an inline function?
 
-Kernels including 2.6.9-rc2-mm1 have the proprietary dvb_i2c 
-implementation inside, ie. no kernel i2c at all. I have recently sent a 
-patch to Andrew that converts all dvb drivers and frontends to fully use 
-kernel i2c. The current discussion is completely about the 
-not-yet-officially-released dvb subsystem using kernel-i2c.
+(No patch included since I don't pretend to understand gcc's asm syntax 
+at all.)
 
->>All in all I don't see how we can solve the problem without either a "do not
->>probe" flag in the adapter structure or a class bitfield in both the adapter
->>and the client structures. I would be fine with either option unless someone
->>explains how one is better than the other in any particular case.
-
-> What I want is a way for a card driver to create a private I2C adapter,
-> and private instances of I2C clients, for purposes of code reuse. The
-> card driver would be responsible for attaching those clients to the bus
-> and cleaning up the objects on removal. The bus wouldn't be visible in
-> sysfs, or accessible from user-mode.
-
-We're having a similar discussion on the linux-dvb mailing list and I 
-have made a similar suggestion. There shouldn't be such a thing as a 
-generic i2c bus at all - at least not for specific PCI or AGP cards 
-having an i2c bus, because you really now what's there.
-
-The adapters should be able to create a specific i2c bus. This bus then 
-should have a well-defined client<->adapter interface. The adapter 
-provides an interface clients can use for example to query h/w dependent 
-informations, like "Is it possible to have chipset XY on your bus?". For 
-DVB this question can be answered using pci subvendor/subdevice 
-informations. This avoids the need to add a command() function to struct 
-i2c_adapter.
-
-If the adapter wants a client to join the bus and the client is really 
-found, then the client must provide a well-defined set of functions as 
-well. The adapter can then control the device in a type-safe manner and 
-doesn't have to control it using the current ioctl interface.
-
-> - Adrian Cox
-> Humboldt Solutions Ltd.
-
-We need to keep in mind, that the adapter interface must be a per-client 
-interface. On PCI devices it's simple: you have a i2c bus bound to a dvb 
-card and know which chipsets can be there. The bus is dvb specific.
-
-On embedded platforms, however, you usually have one one i2c bus, where 
-everything is present: dvb frontends, audio/video multiplexers, 
-digital/analog audio converters, stuff like that.
-
-So if you create *the* i2c bus and invite i2c client to participate at 
-the party, you need to provide different interfaces to the different 
-chipsets.
-
-CU
-Michael.
+--Andy

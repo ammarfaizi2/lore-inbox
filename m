@@ -1,57 +1,141 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262517AbVCCVYm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262585AbVCCVXh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262517AbVCCVYm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 16:24:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262159AbVCCVPY
+	id S262585AbVCCVXh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 16:23:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262379AbVCCVQh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 16:15:24 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:44461 "EHLO
+	Thu, 3 Mar 2005 16:16:37 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:40109 "EHLO
 	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S262398AbVCCVHc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 16:07:32 -0500
-Message-ID: <42277C81.4010302@pobox.com>
-Date: Thu, 03 Mar 2005 16:07:13 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: tglx@linutronix.de
-CC: Linus Torvalds <torvalds@osdl.org>, Adrian Bunk <bunk@stusta.de>,
-       Greg KH <greg@kroah.com>, "David S. Miller" <davem@davemloft.net>,
-       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: RFD: Kernel release numbering
-References: <Pine.LNX.4.58.0503021932530.25732@ppc970.osdl.org>	 <42268749.4010504@pobox.com> <20050302200214.3e4f0015.davem@davemloft.net>	 <42268F93.6060504@pobox.com> <4226969E.5020101@pobox.com>	 <20050302205826.523b9144.davem@davemloft.net> <4226C235.1070609@pobox.com>	 <20050303080459.GA29235@kroah.com> <4226CA7E.4090905@pobox.com>	 <Pine.LNX.4.58.0503030750420.25732@ppc970.osdl.org>	 <20050303170808.GG4608@stusta.de>	 <1109877336.4032.47.camel@tglx.tec.linutronix.de>	 <Pine.LNX.4.58.0503031135190.25732@ppc970.osdl.org>	 <42276AF5.3080603@pobox.com> <1109882043.4032.79.camel@tglx.tec.linutronix.de>
-In-Reply-To: <1109882043.4032.79.camel@tglx.tec.linutronix.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id S262421AbVCCVHT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 16:07:19 -0500
+Date: Thu, 3 Mar 2005 13:27:37 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: mikpe@csd.uu.se, len.brown@intel.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [thomas_cj_chang@wistron.com.tw: Kernel 2.4.28 can't boot into OS without noapic]
+Message-ID: <20050303162736.GC7935@logos.cnet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As a further elaboration...
+Hi Thomas,
 
-The problem with the current 2.6-rc setup is a _human_ _communications_ 
-problem.
+I'm forwarding your message to Mikael and Len, who have knowledge
+on the IOAPIC infrastructure. 
 
-Users have been trained in a metaphor that is applied uniformly across 
-all software projects that use the metaphor:
+----- Forwarded message from thomas_cj_chang@wistron.com.tw -----
 
-	test release:		a useful merge/testing point
-	release candidate:	bugfixes only, test test test
+From: thomas_cj_chang@wistron.com.tw
+Date: Wed, 2 Mar 2005 13:37:03 +0800
+To: marcelo.tosatti@cyclades.com
+Subject: Kernel 2.4.28 can't boot into OS without noapic
 
-Linux does it differently.
+Hi,
 
-It's hard enough to get users to test...   now we have raised the 
-barrier even higher by abusing a common metaphor.  A metaphor that is 
-used _succesfully_ elsewhere to get users to test.
+Sorry to interrupt you. I'm BIOS engineer from Taiwan. I found an kernel IO-APIC
+bug in my current project.
+The BUS id report in MPTable was miss interpreter by kernel. For more detail
+information please reference below description.
 
-"release candidate" is a promise to users that the current tree is close 
-to what the release will look like, and only major fixes will appear 
-between -rc and -final.
+System architecture
 
-We broke that promise.  In human interface terms, this is like 
-redefining the "garbage can" icon to mean "save your work."  ;-)
+      +-----------+    HT LINK    +-------+  HT LINK  +-------+
+      |  nvidia   +---------------+ CPU0  +-----------+  CPU1 |
+      |   CK804   | (bus 80)      +---+---+           +-------+
+      +-----------+                   | (HT LINK)
+                                 +---+------+
+                                 | AMD 8131 | (bus 0)
+                                 +---+------+
+                                      |
+                                 +---+------+
+                                 | AMD 8111 | (bus 1)
+                                 +----------+
 
-	Jeff
+
+Kernel 2.4.xx will parsing MPTable and contruct a table as below.
+It is ok for signal PCI bus system. But in Multiple PCI bus system BIOS
+will using actual PCI bus number as the bus ID. In this case bus number
+and array index not equivalent. There is no problem to create this array.
+ But when boot with SMP kernel IO-APIC code 'pin_2_irq' will using bus ID
+as the array index to reference 'mp_bus_id_to_type' array. It will
+get incorrect bus type thus irq pin will not programming and system may go
+suspend by peripheral driver never get it interrupt signal.
+This problem can easily solve by increase 'MAX_MP_BUSSES' but it will waste
+kernel memory size. Or we can correct 'smp_read_mpc' to support
+multiple PCI bus ID assignment.
 
 
+        +---------------+
+        |               |
+        +---------------+
+        |               |
+        :               :
+        |               |
+        +---------------+  <- mp_bus_id_to_type, bus_data
+        |  bus0         |
+        |  bus1         |
+        |  bus2         |  ? mp_bus_id_to_type[80]
+        |  bus3         |
+        |  bus80        |
+        |  bus81        |
+        +---------------+  <- mp_bus_id_to_node
+        |               |
+        |               |
+        |               |
+        +---------------+  <- mp_bus_id_to_local
+        |               |
+        |               |
+        |               |
+        +---------------+  <- mp_bus_id_to_pci_bus
+        |               |
+        |               |
+        |               |
+        +---------------+  <- mp_irqs
+        |               |
+        |               |
+        |               |
+        +---------------+
 
+
+Here is MP spec about multiple PCI bus section.
+D.2 Bus Entries in Systems with More Than One PCI Bus
+To accommodate systems with more than one PCI bus within the confines of version
+ 1.1 of this
+specification, construction of the bus entries on the MP configuration table
+must be handled in a
+very particular sequence:
+1. Begin with bus entries for the PCI buses. Start at bus zero, using the actual
+ PCI bus number as
+the bus ID for the bus entry.
+2. Add entries for other buses. These entries can use bus ID numbers left vacant
+ by the PCI bus
+entries.
+This sequence implies that bus ID numbers do not have to increase sequentially
+by increments of
+one; the requirement is that they must appear in ascending order by bus ID
+number. This specific
+interpretation of the information presented in Table 4-7 ensures consistency
+between the
+information in the MP configuration table and the model for systems with
+multiple PCI buses that
+is presented in the formal PCI specification, which allows for more flexibility
+in bus numbering.
+This numbering scheme requires bus entries in the MP configuration table to be
+sorted
+appropriately. For example, bus entries should appear in the order PCI (0), EISA
+ (1), and PCI(4)
+in a system with three buses, two PCI buses numbered 0 and 4, and a single EISA
+bus numbered
+as 1.
+
+
+Best Regard
+Thomas CJ Chang
+  Office - 8691-2319
+  Mobile - 0933825636
+
+----- End forwarded message -----

@@ -1,48 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264668AbUJETag@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264503AbUJET3y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264668AbUJETag (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 15:30:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265395AbUJETag
+	id S264503AbUJET3y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 15:29:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264443AbUJET3y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 15:30:36 -0400
-Received: from batleth.sapienti-sat.org ([83.137.98.96]:211 "EHLO
-	batleth.sapienti-sat.org") by vger.kernel.org with ESMTP
-	id S264668AbUJETaV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 15:30:21 -0400
-Message-ID: <4162F643.4000800@koschikode.com>
-Date: Tue, 05 Oct 2004 21:30:11 +0200
-From: Juri Haberland <juri@koschikode.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: de-de, en-us, en, de
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       axboe@suse.de
-Subject: Re: [PATCH] ide-dma blacklist behaviour broken
-References: <20041005142001.GR2433@suse.de> <20041005163730.A19554@infradead.org>
-In-Reply-To: <20041005163730.A19554@infradead.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Tue, 5 Oct 2004 15:29:54 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:33979 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264386AbUJET3c (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 15:29:32 -0400
+Subject: Re: Linux-2.6.5-1.358 and Fedora
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Cc: "Johnson, Richard" <rjohnson@analogic.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0410052100110.2913@dragon.hygekrogen.localhost>
+References: <Pine.LNX.4.53.0410051413520.3024@quark.analogic.com>
+	 <Pine.LNX.4.61.0410052100110.2913@dragon.hygekrogen.localhost>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-5mk8A8hGYCZ5ENTfpEPB"
+Organization: Red Hat UK
+Message-Id: <1097004565.9975.25.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 05 Oct 2004 21:29:26 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
-> On Tue, Oct 05, 2004 at 04:20:01PM +0200, Jens Axboe wrote:
->> Hi,
->> 
->> The blacklist stuff is broken. When set_using_dma() calls into
->> ide_dma_check(), it returns ide_dma_off() for a blacklisted drive. This
->> of course succeeds, returning success to the caller of ide_dma_check().
->> Not so good... It then uncondtionally calls ide_dma_on(), which turns on
->> dma for the drive.
->> 
->> This moves the check to ide_dma_on() so we also catch the buggy
->> ->ide_dma_check() defined by various chipset drivers.
-> 
-> Is this a bug introduced in the 2.6.9ish IDE changes or has it been there
-> for a longer time? 
 
-Looks like it is also in 2.4.27.
+--=-5mk8A8hGYCZ5ENTfpEPB
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Juri
+On Tue, 2004-10-05 at 21:15, Jesper Juhl wrote:
+> On Tue, 5 Oct 2004, Johnson, Richard wrote:
+
+> Only do that if you are sure your systems bootloader configuration is abl=
+e=20
+> to deal with it. Maybe Fedora is configured so that "make install" can=20
+> work, I wouldn't know I'm a Slackware user myself.
+
+on Fedora, make install will do the bootloader thing automatically
+
+
+> Could it be you accidentally installed your new modules in the same=20
+> location as the old ones or that your initrd holds modules compiled for a=
+=20
+> different kernel than the one you just build - did you remember to update=
+=20
+> your initrd?
+
+it can't be an accident; the kernel source that ship in Fedora have a
+special "custom" added to the EXTRAVERSION to prevent accidents where
+people who are learning and follow a kernel building howto overwrite the
+"known good" kernel, but instead things get installed in a parallel dir
+with a different EXTRAVERSION.
+
+If Richard overwrote his modules anyway he must have hacked the Makefile
+himself to deliberately cause this, at which point... well saw wind
+harvest storm ;)
+
+
+
+--=-5mk8A8hGYCZ5ENTfpEPB
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBBYvYVpv2rCoFn+CIRAgqRAJ0UVVCueCmClB+m7SLCSGzMeLeOAwCgkmUR
+5pzgGU24gzjVOsfCHH3SS9Y=
+=pmWK
+-----END PGP SIGNATURE-----
+
+--=-5mk8A8hGYCZ5ENTfpEPB--
+

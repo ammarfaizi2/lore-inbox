@@ -1,90 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268839AbUHUDnZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268840AbUHUDo1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268839AbUHUDnZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 23:43:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268840AbUHUDnZ
+	id S268840AbUHUDo1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 23:44:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268841AbUHUDo1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 23:43:25 -0400
-Received: from main.gmane.org ([80.91.224.249]:12425 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S268839AbUHUDnW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 23:43:22 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Kalin KOZHUHAROV <kalin@thinrope.net>
-Subject: Re: Audio volume poor in Linux, OK in Win2K
-Date: Sat, 21 Aug 2004 12:43:17 +0900
-Message-ID: <cg6gcm$52r$1@sea.gmane.org>
-References: <200408201532.41296.swsnyder@insightbb.com>
+	Fri, 20 Aug 2004 23:44:27 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:28873 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S268840AbUHUDn7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 23:43:59 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.8.1-P6
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Thomas Charbonnel <thomas@undata.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       Mark_H_Johnson@raytheon.com
+In-Reply-To: <20040820195540.GA31798@elte.hu>
+References: <20040816034618.GA13063@elte.hu>
+	 <1092628493.810.3.camel@krustophenia.net> <20040816040515.GA13665@elte.hu>
+	 <1092654819.5057.18.camel@localhost> <20040816113131.GA30527@elte.hu>
+	 <20040816120933.GA4211@elte.hu> <1092716644.876.1.camel@krustophenia.net>
+	 <20040817080512.GA1649@elte.hu> <20040819073247.GA1798@elte.hu>
+	 <20040820133031.GA13105@elte.hu>  <20040820195540.GA31798@elte.hu>
+Content-Type: text/plain
+Message-Id: <1093059838.854.11.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 20 Aug 2004 23:43:59 -0400
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: j110113.ppp.asahi-net.or.jp
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040627
-X-Accept-Language: bg, en, ja, ru, de
-In-Reply-To: <200408201532.41296.swsnyder@insightbb.com>
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steve Snyder wrote:
-> I can't seem to get much volume out of my audio controller.
+On Fri, 2004-08-20 at 15:55, Ingo Molnar wrote:
+> i've uploaded the -P6 patch:
 > 
-> I have a dual-boot system, Win2K/SP4 and Fedora Core 2 (FC2), both with 
-> all updates applied.  The volume is fine in Win2K.  In FC2, even with the 
-> volume turned up to 100%, audio output is barely loud enough for voices 
-> to be understood.  This is true whether using the built-in speakers or 
-> with headphones.  The lack of volume is *not* application dependant.
+>   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8.1-P6
 > 
-> Prior to installing FC2, I ran RedHat Linux v9 with the most recent 2.4.x 
-> kernel available at that time.  The audio volume was also inadaquate in 
-> this environment, yet was still fine in Win2K.
-> 
-> I see no errors or warning in my system logs that might indicate any 
-> problems with the audio driver in use.
-> 
-> My hardware is a HP Presario 2570us notebook, which has an integrated ALi 
-> M5451 audio controller.  More detail:
-> 
-> 00:06.0 Multimedia audio controller: ALi Corporation M5451 PCI AC-Link 
-> Controller Audio Device (rev 02)
->         Subsystem: Hewlett-Packard Company: Unknown device 0850
->         Flags: bus master, medium devsel, latency 64, IRQ 5
->         I/O ports at 1000
->         Memory at d4000000 (32-bit, non-prefetchable) [size=4K]
->         Capabilities: [dc] Power Management version 2
-> 
-> These are the audio-related (kernel v2.6.8) modules seen with lsmod:
-> 
->  snd_ali5451            18888  0
->  snd_ac97_codec         58500  1 snd_ali5451
->  snd_pcm                75912  1 snd_ali5451
->  snd_page_alloc          8584  1 snd_pcm
->  snd_timer              18692  1 snd_pcm
->  snd                    42596  4   
-> snd_ali5451,snd_ac97_codec,snd_pcm,snd_timer
->  soundcore               6624  1 snd
-> 
-> It seems that the Linux audio subsystem is incapable of producing the 
-> audio volume that I get in Win2K, at least with this hardware.  Is there 
-> anything I can do to get more volume in Linux?
 
-Yes, play with alsamixer and bump everything to 100% (and unmute it).
-Mainly I guess you forgot the PCM control.
-Some devicecs have "External Amplifier" switch, try that too.
+Here's a 171 usec latency from ext3_free_blocks:
 
-If you are still with problems, please do:
+preemption latency trace v1.0.1
+-------------------------------
+ latency: 171 us, entries: 2 (2)
+    -----------------
+    | task: evolution/863, uid:1000 nice:0 policy:0 rt_prio:0
+    -----------------
+ => started at: ext3_free_blocks+0x1d0/0x4b0
+ => ended at:   ext3_free_blocks+0x229/0x4b0
+=======>
+00000001 0.000ms (+0.000ms): ext3_free_blocks (ext3_free_data)
+00000001 0.167ms (+0.167ms): sub_preempt_count (ext3_free_blocks)
 
-$ alsactl -f current.conf store
+Also I have noticed a pattern with the XFree86 schedule() latencies,
+they all have a section like this:
 
-and attach current.conf
+04000002 0.003ms (+0.000ms): effective_prio (recalc_task_prio)
+04000002 0.003ms (+0.000ms): enqueue_task (schedule)
+00000002 0.006ms (+0.003ms): __switch_to (schedule)
+00000002 0.088ms (+0.082ms): finish_task_switch (schedule)
+00010002 0.090ms (+0.001ms): do_IRQ (finish_task_switch)
+00010003 0.091ms (+0.000ms): mask_and_ack_8259A (do_IRQ)
 
-Kalin.
+04000002 0.002ms (+0.000ms): effective_prio (recalc_task_prio)
+04000002 0.002ms (+0.000ms): enqueue_task (schedule)
+00000002 0.005ms (+0.002ms): __switch_to (schedule)
+00000002 0.067ms (+0.062ms): finish_task_switch (schedule)
+00010002 0.068ms (+0.001ms): do_IRQ (finish_task_switch)
+00010003 0.069ms (+0.000ms): mask_and_ack_8259A (do_IRQ)
 
--- 
- || ~~~~~~~~~~~~~~~~~~~~~~ ||
-(  ) http://ThinRope.net/ (  )
- || ______________________ ||
+I presume the 04000002 -> 00000002 is some interrupt being unmasked (or
+interrupts being globally enabled), then there's a 60-80 usec latency in
+schedule().
+
+Lee
+
 

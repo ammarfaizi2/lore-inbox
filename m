@@ -1,44 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261202AbUBTOH7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 09:07:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261235AbUBTOEM
+	id S261205AbUBTOQX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 09:16:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261208AbUBTOQX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 09:04:12 -0500
-Received: from natsmtp01.rzone.de ([81.169.145.166]:5022 "EHLO
-	natsmtp01.rzone.de") by vger.kernel.org with ESMTP id S261202AbUBTOBA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 09:01:00 -0500
-From: Arnd Bergmann <arnd@arndb.de>
-To: Krzysztof Benedyczak <golbi@mat.uni.torun.pl>
-Subject: Re: [RFC][PATCH] 2/6 POSIX message queues
-Date: Fri, 20 Feb 2004 14:55:25 +0100
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org
+	Fri, 20 Feb 2004 09:16:23 -0500
+Received: from twin.uoregon.edu ([128.223.214.27]:22667 "EHLO twin.uoregon.edu")
+	by vger.kernel.org with ESMTP id S261205AbUBTOQV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Feb 2004 09:16:21 -0500
+Date: Fri, 20 Feb 2004 06:16:20 -0800 (PST)
+From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
+X-X-Sender: joelja@twin.uoregon.edu
+To: Andrew Walrond <andrew@walrond.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: OT Intel to release Centrino drivers
+In-Reply-To: <200402201357.36706.andrew@walrond.org>
+Message-ID: <Pine.LNX.4.44.0402200610570.27532-100000@twin.uoregon.edu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200402201455.25782.arnd@arndb.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Krzysztof Benedyczak wrote:
+On Fri, 20 Feb 2004, Andrew Walrond wrote:
 
-> +
-> +struct mq_attr {
-> +	long	mq_flags;	/* message queue flags			*/
-> +	long	mq_maxmsg;	/* maximum number of messages		*/
-> +	long	mq_msgsize;	/* maximum message size			*/
-> +	long	mq_curmsgs;	/* number of messages currently queued	*/
-> +};
-> +
+> Perhaps they've been listening to my and other rants after all. About fscking 
+> time is all I have to say
 
-Does POSIX mandate that these have to be 'long'? If you can change them
-all to any of 'int', '__s32' or '__s64', the handlers for 32 bit system
-call emulation on 64 bit machines will get a lot simpler because the
-32 bit user structures are then identical to the 64 bit ones.
+Running code in the hands of the people who need it is the only litmus 
+test for success. To date it isn't available... I can have drivers for a 
+10Gb/s ethernet card that costs $5000 a pop but for a $30 mini-pci wirelss 
+card go fish.
 
-	Arnd <><
+joelja
+ 
+> http://news.zdnet.co.uk/business/0,39020645,39146677,00.htm
+> 
+> With Intel trailing in AMD's 64bit wake, and Linus using ppc64, perhaps the 
+> age of complacency is over...
+> 
+> Andrew Walrond
+> [Off to the next witch hunt. Do you believe and trust in Linux? No? Burn 
+> heretic, burn!]
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+-- 
+-------------------------------------------------------------------------- 
+Joel Jaeggli  	       Unix Consulting 	       joelja@darkwing.uoregon.edu    
+GPG Key Fingerprint:     5C6E 0104 BAF0 40B0 5BD3 C38B F000 35AB B67F 56B2
+
 

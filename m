@@ -1,55 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267876AbUI1PYF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267923AbUI1P3n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267876AbUI1PYF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Sep 2004 11:24:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267918AbUI1PX5
+	id S267923AbUI1P3n (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Sep 2004 11:29:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267974AbUI1P3m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Sep 2004 11:23:57 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:62376 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S267876AbUI1PXy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Sep 2004 11:23:54 -0400
-Date: Tue, 28 Sep 2004 17:21:23 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Jay Lan <jlan@engr.sgi.com>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.6.9-rc2 1/2] enhanced I/O accounting data collection
-Message-ID: <20040928152123.GD2385@suse.de>
-Mime-Version: 1.0
+	Tue, 28 Sep 2004 11:29:42 -0400
+Received: from umhlanga.stratnet.net ([12.162.17.40]:51092 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S267936AbUI1P3k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Sep 2004 11:29:40 -0400
+To: Paul Jackson <pj@sgi.com>
+Cc: greg@kroah.com, linux-kernel@vger.kernel.org
+X-Message-Flag: Warning: May contain useful information
+References: <1096302710971@topspin.com> <10963027102899@topspin.com>
+	<20040927131014.695b8212.pj@sgi.com> <52fz53e526.fsf@topspin.com>
+	<20040927234333.7cceff47.pj@sgi.com>
+From: Roland Dreier <roland@topspin.com>
+Date: Tue, 28 Sep 2004 08:29:39 -0700
+In-Reply-To: <20040927234333.7cceff47.pj@sgi.com> (Paul Jackson's message of
+ "Mon, 27 Sep 2004 23:43:33 -0700")
+Message-ID: <52mzzacsyk.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+MIME-Version: 1.0
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: roland@topspin.com
+Subject: Re: [PATCH][1/2] [RESEND] kobject: add HOTPLUG_ENV_VAR
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
+X-SA-Exim-Scanned: Yes (on eddore)
+X-OriginalArrivalTime: 28 Sep 2004 15:29:39.0861 (UTC) FILETIME=[F8479450:01C4A56F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Your patch is buggy:
 
-> Index: linux/drivers/block/ll_rw_blk.c
-> ===================================================================
-> --- linux.orig/drivers/block/ll_rw_blk.c	2004-09-12 22:31:31.000000000 -0700
-> +++ linux/drivers/block/ll_rw_blk.c	2004-09-27 12:37:04.374234677 -0700
-> @@ -1741,6 +1741,7 @@
-> {
-> 	DEFINE_WAIT(wait);
-> 	struct request *rq;
->+	unsigned long start_wait = jiffies;
-> 
-> 	generic_unplug_device(q);
-> 	do {
->@@ -1769,6 +1770,7 @@
-> 		finish_wait(&rl->wait[rw], &wait);
-> 	} while (!rq);
-> 
->+	current->bwtime += (unsigned long) jiffies - start_wait;
-> 	return rq;
-> }
++	length += snprintf (buffer + length, max(buffer_size - length, 0),
+ 			    "DEVICE=/proc/bus/usb/%03d/%03d",
+ 			    usb_dev->bus->busnum, usb_dev->devnum);
 
-What is the purpose of this hunk alone as block io accounting? It
-doesn't make any sense to me - you are accounting the time a process
-spends sleeping on a congested queue, it has nothing to do with the
-bandwidth time it used. Which, btw, isn't so easy to account on queueing
-hardware.
+snprintf() returns the number of characters that would be written not
+counting the trailing NUL.  So the next env var is going to be
+concatenated with this one.
 
-Just curious on what you are trying to achieve here.
- 
--- 
-Jens Axboe
+It's precisely this sort of easy-to-make off-by-one bug that convinces
+me the hotplug environment variable handling needs to be wrapped up in
+a helper macro or function.
 
+Thanks,
+  Roland

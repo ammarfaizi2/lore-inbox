@@ -1,77 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261309AbUKSIph@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261298AbUKSItk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261309AbUKSIph (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 03:45:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261308AbUKSIpg
+	id S261298AbUKSItk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 03:49:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261307AbUKSItk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 03:45:36 -0500
-Received: from armagnac.ifi.unizh.ch ([130.60.75.72]:49842 "EHLO
-	albatross.madduck.net") by vger.kernel.org with ESMTP
-	id S261307AbUKSIpN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 03:45:13 -0500
-Date: Fri, 19 Nov 2004 09:44:58 +0100
-From: martin f krafft <madduck@madduck.net>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.9 nfsd crashing often
-Message-ID: <20041119084458.GA1191@cirrus.madduck.net>
-Mail-Followup-To: Neil Brown <neilb@cse.unsw.edu.au>,
-	linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <20041118173504.GA24187@cirrus.madduck.net> <16797.31183.853387.514386@cse.unsw.edu.au>
+	Fri, 19 Nov 2004 03:49:40 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:15289 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261298AbUKSIti (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Nov 2004 03:49:38 -0500
+Date: Fri, 19 Nov 2004 10:51:22 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Robert Love <rml@novell.com>
+Cc: Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: [patch] no need to recalculate rq
+Message-ID: <20041119095122.GB27642@elte.hu>
+References: <1100837616.4051.17.camel@localhost.localdomain> <1100839146.20622.22.camel@localhost>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="5vNYLRcllDrimb99"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <16797.31183.853387.514386@cse.unsw.edu.au>
-X-OS: Debian GNU/Linux 3.1 kernel 2.6.8-cirrus i686
-X-Mailer: Mutt 1.5.6+20040907i (CVS)
-X-Motto: Keep the good times rollin'
-X-Subliminal-Message: debian/rules!
-X-Spamtrap: madduck.bogus@madduck.net
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <1100839146.20622.22.camel@localhost>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---5vNYLRcllDrimb99
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+* Robert Love <rml@novell.com> wrote:
 
-also sprach Neil Brown <neilb@cse.unsw.edu.au> [2004.11.19.0542 +0100]:
-> >   Call Trace:
-> >   [<c0166197>] __lookup_hash+0xa7/0xe0
->=20
-> Looks like i_op->lookup =3D=3D NULL, and I don't think nfsd could do that.
->=20
-> What filesystem are you using?
+> -		deactivate_task(p, task_rq(p));
+> +		deactivate_task(p, rq);
+>  	retval = 0;
+>  	oldprio = p->prio;
+>  	__setscheduler(p, policy, lp.sched_priority);
+>  	if (array) {
+> -		__activate_task(p, task_rq(p));
+> +		__activate_task(p, rq);
 
-XFS.
+Acked-by: Ingo Molnar <mingo@elte.hu>
 
-Thanks for following up!
-
---=20
-martin;              (greetings from the heart of the sun.)
-  \____ echo mailto: !#^."<*>"|tr "<*> mailto:" net@madduck
-=20
-invalid/expired pgp subkeys? use subkeys.pgp.net as keyserver!
-spamtraps: madduck.bogus@madduck.net
-=20
-"moderation is a fatal thing. enough is as bad as a meal. more than
- enough is as good as a feast."
-                                                        -- oscar wilde
-
---5vNYLRcllDrimb99
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFBnbKKIgvIgzMMSnURApAvAJ4hXrJ+7VvIFLqdffZphVqNl5IAlACfU0Nh
-4xqGDp3dtaOwoXnnipA0bCM=
-=6tdo
------END PGP SIGNATURE-----
-
---5vNYLRcllDrimb99--
+	Ingo

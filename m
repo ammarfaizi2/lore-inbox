@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267306AbTA3C4b>; Wed, 29 Jan 2003 21:56:31 -0500
+	id <S267374AbTA3DAj>; Wed, 29 Jan 2003 22:00:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267348AbTA3C4b>; Wed, 29 Jan 2003 21:56:31 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:41226 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S267306AbTA3C4a>; Wed, 29 Jan 2003 21:56:30 -0500
-Date: Wed, 29 Jan 2003 22:03:04 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [RFC] Change sendfile header
-Message-ID: <Pine.LNX.3.96.1030129215509.7114C-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267383AbTA3DAj>; Wed, 29 Jan 2003 22:00:39 -0500
+Received: from dhcp024-209-039-102.neo.rr.com ([24.209.39.102]:48516 "EHLO
+	neo.rr.com") by vger.kernel.org with ESMTP id <S267374AbTA3DAi>;
+	Wed, 29 Jan 2003 22:00:38 -0500
+Date: Wed, 29 Jan 2003 22:12:34 +0000
+From: Adam Belay <ambx1@neo.rr.com>
+To: Jaroslav Kysela <perex@perex.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [alsa, pnp] more on opl3sa2 (fwd)
+Message-ID: <20030129221234.GC2246@neo.rr.com>
+Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
+	Jaroslav Kysela <perex@perex.cz>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0301271534210.2937-100000@pnote.perex-int.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0301271534210.2937-100000@pnote.perex-int.cz>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I suggest that the header holding the prototype for sendfile should not be
-in unistd.h because:
+On Mon, Jan 27, 2003 at 03:36:41PM +0100, Jaroslav Kysela wrote:
+>
+> Any notes?
 
-1 - sendfile is not in SuS, an is extremely non-standard
-2 - there is a sendfile in BSD and it's totally different
-3 - there is no man page for sendfile in Solaris, but there is a
-    definition in one of the libraries which is not Linux compatible
-4 - just putting the "not portable" warning in the man page to counteract
-    the impression given by the <unistd.h> is not enough, programmers
-    usually only read the man page  to get the args right.
+Actually I was wondering if you could provide some further information about the 
+nature of these multidevice sound cards so I can better understand the 
+situation.
 
-Since Linux sendfile is totally applicable only to Linux, it would seem
-that a better name for the header file, like linux/sendfile.h, would be
-better. This has the advantage of not breaking executables, and requiring
-use of a header file which makes it much harder to overlook the
-portability issue.
+1.)  How are the componets of a typical card divided among the sub-devices. (ex: 
+control, mpu, wave table, etc)
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+2.)  Are all the devices required for the card to properly function, in other 
+words, must the card always have possession of all of the sound related 
+sub-devices in order to function at a minimal level.
 
+3.)  Are there any other isapnp cards that depend on multiple devices per 
+driver, to my knowledge only a limited set of sound cards do.
+
+Thanks,
+Adam

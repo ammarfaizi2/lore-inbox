@@ -1,42 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267191AbSLaHtI>; Tue, 31 Dec 2002 02:49:08 -0500
+	id <S267192AbSLaHuA>; Tue, 31 Dec 2002 02:50:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267188AbSLaHtH>; Tue, 31 Dec 2002 02:49:07 -0500
-Received: from dp.samba.org ([66.70.73.150]:33933 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S267191AbSLaHtG>;
-	Tue, 31 Dec 2002 02:49:06 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Dave Jones <davej@codemonkey.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Overzealous permenant mark removed 
-In-reply-to: Your message of "Mon, 30 Dec 2002 23:17:41 -0800."
-             <Pine.LNX.4.44.0212302313370.2043-100000@home.transmeta.com> 
-Date: Tue, 31 Dec 2002 18:56:49 +1100
-Message-Id: <20021231075731.CE8A02C11D@lists.samba.org>
+	id <S267193AbSLaHuA>; Tue, 31 Dec 2002 02:50:00 -0500
+Received: from meg.hrz.tu-chemnitz.de ([134.109.132.57]:46029 "EHLO
+	meg.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S267192AbSLaHtz>; Tue, 31 Dec 2002 02:49:55 -0500
+Date: Mon, 30 Dec 2002 23:43:49 +0100
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Enable compilation of fs/readdir.c for gcc 2.95.2
+Message-ID: <20021230234349.F628@nightmaster.csn.tu-chemnitz.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+X-Spam-Score: -1.7 (-)
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *18THI3-0006mC-00*jP4R/m9JoUc*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <Pine.LNX.4.44.0212302313370.2043-100000@home.transmeta.com> you wri
-te:
-> And if somebody wants to create an un-unloadable driver, he should just 
-> increment the module count and be done with it. No magic rules (maybe you 
-> can make /proc/modules print out "<permanent>" if the count is over some 
-> number, and then people who want permanent modules just initialize the 
-> count past that).
+Hi there,
 
-OTOH, your approach left us with stuff that wasn't modular at all
-(like IPv4) because people felt it was somehow "wrong" to make it
-non-unloadable.
+if you also have problems compiling 2.5.5x, then your compiler is
+too old as is mine.
 
-I guess it depends on numbers.  If we see lots of drivers which
-initialize things and don't really need to clean up, you're right.
+Anyway, since I don't like to upgrade now, I hacked the offending
+file fs/readdir.c and can compile a kernel again ;-)
 
-If we see far more "I didn't implement unloading" drivers, it's
-easiest to do the safe thing: require the author DO SOMETHING to make
-the module unloadable, not vice versa.
+Have fun!
 
-But the change is trivial,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Ingo Oeser
+
+diff -Naur linux-2.5.53-mm2/fs/readdir.c linux-2.5.53-mm2-ioe/fs/readdir.c
+--- linux-2.5.53-mm2/fs/readdir.c	Fri Dec 27 13:49:53 2002
++++ linux-2.5.53-mm2-ioe/fs/readdir.c	Mon Dec 30 21:51:53 2002
+@@ -134,18 +134,18 @@
+ 		return -EINVAL;
+ 	dirent = buf->previous;
+ 	if (dirent) {
+-		if (__put_user(offset, &dirent->d_off))
++		if (put_user(offset, &dirent->d_off))
+ 			goto efault;
+ 	}
+ 	dirent = buf->current_dir;
+ 	buf->previous = dirent;
+-	if (__put_user(ino, &dirent->d_ino))
++	if (put_user(ino, &dirent->d_ino))
+ 		goto efault;
+-	if (__put_user(reclen, &dirent->d_reclen))
++	if (put_user(reclen, &dirent->d_reclen))
+ 		goto efault;
+ 	if (copy_to_user(dirent->d_name, name, namlen))
+ 		goto efault;
+-	if (__put_user(0, dirent->d_name + namlen))
++	if (put_user(0, dirent->d_name + namlen))
+ 		goto efault;
+ 	((char *) dirent) += reclen;
+ 	buf->current_dir = dirent;
+@@ -226,22 +226,22 @@
+ 		return -EINVAL;
+ 	dirent = buf->previous;
+ 	if (dirent) {
+-		if (__put_user(offset, &dirent->d_off))
++		if (put_user(offset, &dirent->d_off))
+ 			goto efault;
+ 	}
+ 	dirent = buf->current_dir;
+ 	buf->previous = dirent;
+-	if (__put_user(ino, &dirent->d_ino))
++	if (put_user(ino, &dirent->d_ino))
+ 		goto efault;
+-	if (__put_user(0, &dirent->d_off))
++	if (put_user(0, &dirent->d_off))
+ 		goto efault;
+-	if (__put_user(reclen, &dirent->d_reclen))
++	if (put_user(reclen, &dirent->d_reclen))
+ 		goto efault;
+-	if (__put_user(d_type, &dirent->d_type))
++	if (put_user(d_type, &dirent->d_type))
+ 		goto efault;
+ 	if (copy_to_user(dirent->d_name, name, namlen))
+ 		goto efault;
+-	if (__put_user(0, dirent->d_name + namlen))
++	if (put_user(0, dirent->d_name + namlen))
+ 		goto efault;
+ 	((char *) dirent) += reclen;
+ 	buf->current_dir = dirent;
+@@ -280,7 +280,9 @@
+ 	if (lastdirent) {
+ 		struct linux_dirent64 d;
+ 		d.d_off = file->f_pos;
+-		__put_user(d.d_off, &lastdirent->d_off);
++		error = -EFAULT;
++		if (put_user(d.d_off, &lastdirent->d_off))
++			goto out;
+ 		error = count - buf.count;
+ 	}
+ 
+
+-- 
+Science is what we can tell a computer. Art is everything else. --- D.E.Knuth

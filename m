@@ -1,60 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132724AbREAOdH>; Tue, 1 May 2001 10:33:07 -0400
+	id <S136702AbREAT2t>; Tue, 1 May 2001 15:28:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135363AbREAOc6>; Tue, 1 May 2001 10:32:58 -0400
-Received: from www.topmail.de ([212.255.16.226]:3227 "HELO www.topmail.de")
-	by vger.kernel.org with SMTP id <S132724AbREAOcu>;
-	Tue, 1 May 2001 10:32:50 -0400
-Message-ID: <000001c0d24b$9864d8e0$de00a8c0@homeip.net>
-From: "mirabilos" <eccesys@topmail.de>
-To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-In-Reply-To: <p05100300b712a75c31b2@[207.213.214.37]>
-Subject: Re: deregister?
-Date: Mon, 30 Apr 2001 11:39:28 -0000
-Organization: eccesys.net Linux development
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2462.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000
+	id <S136701AbREAT2j>; Tue, 1 May 2001 15:28:39 -0400
+Received: from [200.181.138.209] ([200.181.138.209]:10995 "HELO
+	brinquedo.distro.conectiva") by vger.kernel.org with SMTP
+	id <S136700AbREAT2d>; Tue, 1 May 2001 15:28:33 -0400
+Date: Tue, 1 May 2001 01:32:19 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: mike_phillips@urscorp.com
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: isa_read/write not available on ppc - solution suggestions ??
+Message-ID: <20010501013219.F2339@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	mike_phillips@urscorp.com, linux-kernel@vger.kernel.org,
+	netdev@oss.sgi.com
+In-Reply-To: <OFED368CB7.D5C74726-ON85256A3F.004547C6@urscorp.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <OFED368CB7.D5C74726-ON85256A3F.004547C6@urscorp.com>; from mike_phillips@urscorp.com on Tue, May 01, 2001 at 09:52:30AM -0400
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >>Not to mention in various comments and documentation.  Deregister,
-> >>according to www.m-w.com (and many other dictionaries), is not a
-word.
-> >>Is there some sort of historical significance to this being used, in
-> >>place of "unregister"?
+Em Tue, May 01, 2001 at 09:52:30AM -0400, mike_phillips@urscorp.com escreveu:
+> Personally I'd rather not have arch dependent macros in the driver, but I 
+> know there is a good reason why the isa_read/write functions were 
+> introduced in the first place. 
 
-> At 10:03 PM -0400 2001-04-29, Andres Salomon wrote:
-> >Americans can spell?  Since when?
->
-> OED 2nd Ed:
->
-> deregister. v. trans. To remove from a register. Hence
-> deregistration. (first citation 1925)
->
-> unregistered. ppl. a. Not entered in a register; unrecorded. (first
-> citation 1604)
->
-> The OED has no entry for "unregister".
+I did that because I was lazy to use ioremap in my driver, but I found time
+and fixed it properly eventually, too late, lots of other drivers started
+using it, now its in the janitor's TODO list to get rid of that and use
+ioremap, then we'll be able to get rid of that hack 8)
 
-My DCE here has no opposite word, just register, but because
-register comes from Latin registrare, and due to the DCE's
-explanation of how to build opposite words, I'd rather
-prefer deregister over disregister over unregister.
-
-
-A message of love and openness: translate linux into Latin!
-
-It has strict grammar, no such problems, and a single
-person on top - the pope, actually. We could replace
-his function by Linus ;-) or Alan... dunno
-
--mirabilos
-
-
+- Arnaldo

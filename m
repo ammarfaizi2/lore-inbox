@@ -1,53 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262351AbUKDTEm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262354AbUKDTEt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262351AbUKDTEm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 14:04:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262337AbUKDTEm
+	id S262354AbUKDTEt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 14:04:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262360AbUKDTEs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 14:04:42 -0500
-Received: from soundwarez.org ([217.160.171.123]:52401 "EHLO soundwarez.org")
-	by vger.kernel.org with ESMTP id S262351AbUKDTDX (ORCPT
+	Thu, 4 Nov 2004 14:04:48 -0500
+Received: from mail.kroah.org ([69.55.234.183]:25287 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262354AbUKDTDX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 4 Nov 2004 14:03:23 -0500
-Subject: Re: [patch] kobject_uevent: fix init ordering
-From: Kay Sievers <kay.sievers@vrfy.org>
-To: Robert Love <rml@novell.com>
-Cc: Greg KH <greg@kroah.com>, Anton Blanchard <anton@samba.org>,
-       linux-kernel@vger.kernel.org, davem@redhat.com,
-       herbert@gondor.apana.org.au
-In-Reply-To: <1099592851.31022.145.camel@betsy.boston.ximian.com>
-References: <20041104154317.GA1268@krispykreme.ozlabs.ibm.com>
-	 <20041104180550.GA16744@kroah.com>
-	 <1099592851.31022.145.camel@betsy.boston.ximian.com>
-Content-Type: text/plain
-Date: Thu, 04 Nov 2004 20:04:02 +0100
-Message-Id: <1099595042.8249.23.camel@localhost.localdomain>
+Date: Thu, 4 Nov 2004 10:59:31 -0800
+From: Greg KH <greg@kroah.com>
+To: Tejun Heo <tj@home-tj.org>
+Cc: mochel@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.10-rc1 3/5] driver-model: sysfs_release() dangling pointer reference fix
+Message-ID: <20041104185931.GB17756@kroah.com>
+References: <20041104070134.GA25567@home-tj.org> <20041104070337.GD25567@home-tj.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041104070337.GD25567@home-tj.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-11-04 at 13:27 -0500, Robert Love wrote:
-> Greg!
+On Thu, Nov 04, 2004 at 04:03:37PM +0900, Tejun Heo wrote:
+>  df_03_sysfs_release_fix.patch
 > 
-> Looks like kobject_uevent_init is executed before netlink_proto_init and
-> consequently always fails.  Not cool.
+>  Some attributes are allocated dynamically (e.g. module and device
+> parameters) and are usually deallocated when the assoicated kobject is
+> released.  So, it's not safe to access attr after putting the kobject.
 > 
-> Attached patch switches the initialization over from core_initcall (init
-> level 1) to postcore_initcall (init level 2).  Netlink's initialization
-> is done in core_initcall, so this should fix the problem.  We should be
-> fine waiting until postcore_initcall.
+> 
+> Signed-off-by: Tejun Heo <tj@home-tj.org>
 
-Looks good. Don't know why this never failed on any kernel I used.
-Does the failure happens on a SMP kernel?
+Applied, thanks.
 
->  static int send_uevent(const char *signal, const char *obj, const void *buf,
-> -			int buflen, int gfp_mask)
-> +		       int buflen, int gfp_mask)
-                         ^^^^^^^^^^
-This has changed and will not apply.
-
-Best,
-Kay
-
+greg k-h

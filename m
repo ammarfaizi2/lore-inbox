@@ -1,53 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263366AbTJ0Rh0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Oct 2003 12:37:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263420AbTJ0Rh0
+	id S263447AbTJ0RnL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Oct 2003 12:43:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263452AbTJ0RnK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Oct 2003 12:37:26 -0500
-Received: from mail.broadpark.no ([217.13.4.2]:11406 "EHLO mail.broadpark.no")
-	by vger.kernel.org with ESMTP id S263366AbTJ0RhZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Oct 2003 12:37:25 -0500
-Date: Mon, 27 Oct 2003 18:36:37 +0100
-To: linux-kernel@vger.kernel.org
-Subject: Re: kernel 2.6t9 SATA slower than 2.4.20
-References: <3F9D402F.9050509@savages.net> <20031027165916.GE19711@gtf.org>
-From: Arve Knudsen <aknuds-1@broadpark.no>
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
+	Mon, 27 Oct 2003 12:43:10 -0500
+Received: from mcomail04.maxtor.com ([134.6.76.13]:53258 "EHLO
+	mcomail04.maxtor.com") by vger.kernel.org with ESMTP
+	id S263447AbTJ0RnI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Oct 2003 12:43:08 -0500
+Message-ID: <785F348679A4D5119A0C009027DE33C105CDB3B0@mcoexc04.mlm.maxtor.com>
+From: "Mudama, Eric" <eric_mudama@Maxtor.com>
+To: "'Norman Diamond'" <ndiamond@wta.att.ne.jp>,
+       "'Hans Reiser '" <reiser@namesys.com>,
+       "'Wes Janzen '" <superchkn@sbcglobal.net>,
+       "'Rogier Wolff '" <R.E.Wolff@BitWizard.nl>,
+       "'John Bradford '" <john@grabjohn.com>, linux-kernel@vger.kernel.org,
+       nikita@namesys.com, "'Pavel Machek '" <pavel@ucw.cz>,
+       "'Justin Cormack '" <justin@street-vision.com>,
+       "'Vitaly Fertman '" <vitaly@namesys.com>,
+       "'Krzysztof Halasa '" <khc@pm.waw.pl>
+Subject: RE: Blockbusting news, results get worse
+Date: Mon, 27 Oct 2003 10:43:07 -0700
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-ID: <oprxppvbgvq1sf88@mail.broadpark.no>
-In-Reply-To: <20031027165916.GE19711@gtf.org>
-User-Agent: Opera7.21/Linux M2 build 480
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 27 Oct 2003 11:59:17 -0500, Jeff Garzik <jgarzik@pobox.com> wrote:
 
-> On Mon, Oct 27, 2003 at 07:56:31AM -0800, Shaun Savage wrote:
->>
->>
->> >Are you using CONFIG_SCSI_SATA in 2.6?
->>
->> No, but I am trying now.
->> GREAT is works,
->> but the disk went from hda back to hde
->
-> hmmm, with CONFIG_SCSI_SATA your SATA drives should show up as
->  /dev/sda not /dev/hde ...
->
-> So, you're still using the drivers/ide driver, it appears.
->
-> Regardless, it's most important to use what works for you ;-)
->
-Excuse me, there's probably something I'm missing, but how do I use the 
-SCSI_SATA driver for SiI 3112? I see the source file for it in the kernel 
-tree (test9), but no option for it in menuconfig (I've enabled SATA under 
-SCSI). Enabling the SiI SATA driver under ATA/ATAPI... compiles in the old 
-driver am I right?
 
-Thanks
+> -----Original Message-----
+> Yeah, I need to deliberately damage one block in order to 
+> test the firmware, but I don't want to damage multiple
+> blocks and use up the reallocation space.  I am a home
+> user, even if I also do programming at work, even if I
+> also volunteer one day each weekend to test Linux.  How can I 
+> arrange to damage one block on a disk?
 
-Arve Knudsen
+Um... you can do that by shorting various pins on the PCBA if you have
+access to an oscilloscope, or put it under heavy write workload and remove
+power.
+
+A modern drive has many thousands of reassign sectors available, so I don't
+think either of these events will cause a permanent issue.
+
+I'd also suggest reading older ATA specs, since some vendors still support
+older commands that were capable of various wierdness that might be useful.
+
+--eric
+

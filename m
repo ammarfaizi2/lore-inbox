@@ -1,42 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262982AbUKRVn2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263024AbUKRVrs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262982AbUKRVn2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 16:43:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263006AbUKRVlA
+	id S263024AbUKRVrs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 16:47:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261181AbUKRVpp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 16:41:00 -0500
-Received: from stat16.steeleye.com ([209.192.50.48]:36023 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S263015AbUKRVjh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 16:39:37 -0500
-Subject: Re: Linux 2.6.10-rc2 OOPS on boot with 3ware + reiserfs
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: "Vladimir B. Savkin" <master@sectorb.msk.ru>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041118213246.GH2009@suse.de>
-References: <Pine.LNX.4.58.0411141835150.2222@ppc970.osdl.org>
-	<20041117165851.GA18044@tentacle.sectorb.msk.ru>
-	<Pine.LNX.4.58.0411170935040.2222@ppc970.osdl.org>
-	<20041118103526.GC26240@suse.de>
-	<20041118160248.GA5922@tentacle.sectorb.msk.ru>
-	<20041118183920.GL26240@suse.de> <20041118191002.GO26240@suse.de>
-	<1100805744.1574.3.camel@mulgrave>  <20041118213246.GH2009@suse.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 18 Nov 2004 15:39:28 -0600
-Message-Id: <1100813973.1574.29.camel@mulgrave>
+	Thu, 18 Nov 2004 16:45:45 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:51338 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S263009AbUKRVol (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Nov 2004 16:44:41 -0500
+Date: Thu, 18 Nov 2004 16:44:31 -0500
+From: Dave Jones <davej@redhat.com>
+To: Magnus Damm <magnus.damm@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: e820 and shared VGA memory problem
+Message-ID: <20041118214431.GC1347@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Magnus Damm <magnus.damm@gmail.com>, linux-kernel@vger.kernel.org
+References: <aec7e5c304111813202f74a139@mail.gmail.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <aec7e5c304111813202f74a139@mail.gmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-11-18 at 15:32, Jens Axboe wrote:
-> It's clearly not the only one, the first 3 I looked at all did it.
-> That's the big mess. I'll do an audit.
+On Thu, Nov 18, 2004 at 10:20:48PM +0100, Magnus Damm wrote:
 
-Thanks ... I'll owe you a beverage of your choice...
+ > So, the CMOS setup, the BIOS changelog, the e820 data all seem to
+ > think that 16 MiB are used as VGA RAM. But I suspect that the extreme
+ > slowdowns are because 32 MiB VGA RAM is used.  Any ideas? Is the BIOS
+ > funky, or are we doing something wrong in the kernel?
 
-James
+In the past such problems have been attributed to BIOS's not
+setting up MTRRs correctly, or in extreme situations, running
+out of available MTRRS.  How does /proc/mtrr look ?
 
-
+		Dave

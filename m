@@ -1,60 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130389AbRAOKaL>; Mon, 15 Jan 2001 05:30:11 -0500
+	id <S130235AbRAOKnN>; Mon, 15 Jan 2001 05:43:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130400AbRAOKaB>; Mon, 15 Jan 2001 05:30:01 -0500
-Received: from big-relay-1.ftel.co.uk ([192.65.220.123]:9867 "EHLO
-	old-callisto.ftel.co.uk") by vger.kernel.org with ESMTP
-	id <S130389AbRAOK3n>; Mon, 15 Jan 2001 05:29:43 -0500
-Date: Mon, 15 Jan 2001 10:29:18 GMT
-Message-Id: <200101151029.f0FATI714630@old-callisto.ftel.co.uk>
-From: Paul Flinders <P.Flinders@ftel.co.uk>
-To: "David D.W. Downey" <pgpkeys@hislinuxbox.com>
-Cc: Tony Parsons <mpsons@cix.compulink.co.uk>, linux-kernel@vger.kernel.org
-Subject: Re: ide.2.4.1-p3.01112001.patch
-In-Reply-To: <Pine.LNX.4.21.0101140010470.17798-100000@ns-01.hislinuxbox.com>
+	id <S130400AbRAOKnD>; Mon, 15 Jan 2001 05:43:03 -0500
+Received: from shaker.worfie.net ([203.8.161.33]:53000 "HELO mail.worfie.net")
+	by vger.kernel.org with SMTP id <S130235AbRAOKmn>;
+	Mon, 15 Jan 2001 05:42:43 -0500
+Date: Mon, 15 Jan 2001 18:42:40 +0800 (WST)
+From: "J.Brown (Ender/Amigo)" <ender@enderboi.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.4.0 kernel oops from apt-get (dcache.h)
+Message-ID: <Pine.LNX.4.30.0101151836360.12306-100000@shaker.worfie.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+After manually deleting the apt-get cache in Debian Linux (2.2), apt-get
+consistantly causes a kernel Oops/BUG when installing new packages.
 
-"David D.W. Downey" <pgpkeys@hislinuxbox.com> writes:
+This happens in 2.4.0 (With a few basic patches to fix compilation errors)
+and also with the latest PPC bitkeeper tree based off 2.4.1pre1. Dump
+below is with the newer kernel, because it's totally stable at the moment
+(whereas 2.4.0 final still suffers from other unrelated crashes and
+instabilities).
 
-> Good! I'm not the only ome getting this error! Mine is also a VT82C686
-> though mine is a VT82C686A (352 BGA). This is on an MSI Model 694D Pro
-> motherboard running dual PIII-733 FC-PGA 133MHz Coppermines. RAM is 4
-> 256MB PC133 unbuffered 7ns non mixed-cell DIMMs. I bring up the RAM and
-> CPU info because this board is also giving me random SIG11 errors even
-> though all equipment passes lab testing.
->
-> ..... 
->
-> Anyone else out there with troubles with either of these 3 items?
+Transcript:
 
-I've got two 694D Pro's (the AIR variant) and at the moment I'm not
-especially happy with them - whether it's Linux, the boards or a
-combination of both I don't know. Problems so far have been
+sharky:~# apt-get install libqt2-dev
+Reading Package Lists... Done
+Building Dependency Tree... Done
+The following NEW packages will be installed:
+  libqt2-dev
+0 packages upgraded, 1 newly installed, 0 to remove and 39 not upgraded.
+1 packages not fully installed or removed.
+Need to get 3228kB of archives. After unpacking 10.2MB will be used.
+Err ftp://mirror.aarnet.edu.au potato/main libqt2-dev 1:2.0.2-1.1
+  Something wicked happend resolving 'mirror.aarnet.edu.au/ftp'
+Get:1 ftp://mirror.aarnet.edu.au testing/main libqt2-dev 1:2.0.2-1.1 [3228kB]
+99% [1 libqt2-dev 3211264/3228kB 99%]                                                                               52.7kB/s 0s
+kernel BUG at /usr/src/linuxppc_2_4/include/linux/dcache.h:237!
+Oops: Exception in kernel mode, sig: 4
+NIP: C007D930 XER: 00000000 LR: C007D930 SP: C12D1D40 REGS: c12d1c90 TRAP: 0700
+MSR: 00089032 EE: 1 PR: 0 FP: 0 ME: 1 IR/DR: 11
+TASK = c12d0000[274] 'apt-get' Last syscall: 38
+last math c12d0000 last altivec 00000000
+GPR00: C007D930 C12D1D40 C12D0000 00000040 00001032 00000001 FFFFFFFF 00000000
+GPR08: 00000000 C01E0000 0000001F C12D1C80 22224442 10035E5C 00000001 00000000
+GPR16: 00000000 10030000 10030000 00000000 00000000 C0A91E00 00000000 C0A91820
+GPR24: C0A91A00 C1948E20 C0A91A2C C100C9A0 C01A0000 C1948DA0 C0A91A24 C0A8BE40
+Call backtrace:
+C007D930 C004B38C C004B468 C004B6D0 C000417C 00000000 0FFA5180
+0FFAA928 0FFADC6C 0FF97BFC 0FF97DC4 100090F4 1000DCE0 0FF61C8C
+10016130 0FD22BC8 00000000
+Illegal instruction
+sharky:~#
 
-  - With disks on the Promise controller I have to disable the
-    M/B sound or Linux (everything from 2.2.14(RH 6.2) up to
-    2.4.0-ac4) hangs when probing the IDE interfaces. The sound
-    shares the PCI IRO line with the Promise.
 
-    With no disks on the Promise I can leave the sound enabled
+I now have a zombie apt-get process I can't even kill -9..
 
-  - I get the same CRC errors when I move the disks (Maxtor 33073H3's)
-    to the VIA interfaces (ATA/66).
+Also if I try and ls in the /var/cache/apt/archives directory, ls freezes
+likewise (no error message, just an unkillable console-attached zombie).
 
-  - 2.4.0-ac8 gives errors on /dev/md1 (S/W RAID-1 pair) on boot (and
-    then panics as /dev/md1 is the root fs), 2.2.x is happy with the 
-    mirror. I'm not sure whether this is a 2.4.0 problem, one
-    introduced by Alan or hardware because I'm lucky to get a kernel
-    compile without the thing OOPSing on me.
+I'm not sure if this is a filesystem or memory management issue - but FYI
+anyway, and hoping someone else has encounted a similar problem.
 
-My set-up is similar to David's except that I have 2x866 PIII FC-PGAs,
-If I can figure out whether some of the problems are hardware (we have
-4 of these boards two were to have Linux, one one of the BSDs and one
-W2k so we should be able to spot problems that are common to all the
-OSes) I'll send some better bug reports.
+
+
+Regards,
+	 Ender
+ _________________________ ______________________________
+|   James 'Ender' Brown   | "Where are we going, and why |
+| http://www.enderboi.com |  am I in this handbasket?!?" |
++-------------------------+------------------------------+
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

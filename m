@@ -1,37 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265262AbUFRQFR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265325AbUFRQJn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265262AbUFRQFR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 12:05:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265254AbUFRQDg
+	id S265325AbUFRQJn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 12:09:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265258AbUFRQIH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 12:03:36 -0400
-Received: from bay4-f14.bay4.hotmail.com ([65.54.171.14]:27913 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S265302AbUFRQCH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 12:02:07 -0400
-X-Originating-IP: [80.119.5.232]
-X-Originating-Email: [denisdupeyron@msn.com]
-From: "Denis Dupeyron" <denisdupeyron@msn.com>
-To: linux-kernel@vger.kernel.org
-Subject: Patch to add reiser4 to 2.6.7-ck1
-Date: Fri, 18 Jun 2004 16:02:06 +0000
+	Fri, 18 Jun 2004 12:08:07 -0400
+Received: from mail.fh-wedel.de ([213.39.232.194]:7140 "EHLO mail.fh-wedel.de")
+	by vger.kernel.org with ESMTP id S265250AbUFRQHU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 12:07:20 -0400
+Date: Fri, 18 Jun 2004 18:06:04 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Finn Thain <fthain@telegraphics.com.au>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
+       Linux/m68k <linux-m68k@lists.linux-m68k.org>,
+       Matt Mackall <mpm@selenic.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: Subject: Re: make checkstack on m68k
+Message-ID: <20040618160604.GA29579@wohnheim.fh-wedel.de>
+References: <200406161930.VAA16618@pfultra.phil.uni-sb.de> <Pine.LNX.4.58.0406171812440.8197@bonkers.disegno.com.au> <20040617183616.GC29029@wohnheim.fh-wedel.de> <Pine.GSO.4.58.0406172127150.1495@waterleaf.sonytel.be> <20040618121813.GB18258@wohnheim.fh-wedel.de> <Pine.GSO.4.58.0406181537210.11779@waterleaf.sonytel.be> <20040618134313.GG18258@wohnheim.fh-wedel.de> <Pine.LNX.4.58.0406190137400.31712@bonkers.disegno.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <BAY4-F14cx3Vp20N39x0001f6d4@hotmail.com>
-X-OriginalArrivalTime: 18 Jun 2004 16:02:06.0690 (UTC) FILETIME=[9A8B9C20:01C4554D]
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.58.0406190137400.31712@bonkers.disegno.com.au>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sat, 19 June 2004 01:59:27 +1000, Finn Thain wrote:
+> 
+> Jörn, the best thing about my hack was that it didn't interfere with the
+> regexes for the other archs. Andreas better solved that problem by
+> providing the result in $1, by using some foreknowlegde of the objdump
+> output format.
+> 
+> I whole-heartedly endorse the signed-off-by-Geert and provided-by-Andreas
+> patch on the basis of even less interference with the existing code. i.e.
+> 
+>     http://lkml.org/lkml/2004/6/18/104
 
-I have made a small patch to add reiser4 to kernel 2.6.7-ck1. In case you're 
-interested I posted it on the gentoo forums, here:
+Hmm, convinced.  My perl skills were simply not good enough to see
+through all the tricks.  Patch is accepted, I'll integrate and forward
+after the weekend.
 
-http://forums.gentoo.org/viewtopic.php?t=187237
+Jörn
 
-Denis.
-
-_________________________________________________________________
-MSN Toolbar provides one-click access to Hotmail from any Web page – FREE 
-download! http://toolbar.msn.click-url.com/go/onm00200413ave/direct/01/
-
+-- 
+"Error protection by error detection and correction."
+-- from a university class

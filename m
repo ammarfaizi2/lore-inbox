@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262210AbSLOR0i>; Sun, 15 Dec 2002 12:26:38 -0500
+	id <S262215AbSLORcD>; Sun, 15 Dec 2002 12:32:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262215AbSLOR0i>; Sun, 15 Dec 2002 12:26:38 -0500
-Received: from port48.ds1-vbr.adsl.cybercity.dk ([212.242.58.113]:12114 "EHLO
-	brian.localnet") by vger.kernel.org with ESMTP id <S262210AbSLOR0h>;
-	Sun, 15 Dec 2002 12:26:37 -0500
-To: rmk@arm.linux.org.uk
-Subject: [PATCH 2.5] Titan pci serial card recognition fix
+	id <S262224AbSLORcD>; Sun, 15 Dec 2002 12:32:03 -0500
+Received: from port48.ds1-vbr.adsl.cybercity.dk ([212.242.58.113]:18002 "EHLO
+	brian.localnet") by vger.kernel.org with ESMTP id <S262215AbSLORcB>;
+	Sun, 15 Dec 2002 12:32:01 -0500
+To: alan@redhat.com, linus@transmeta.com
+Subject: [PATCH 2.4] Titan pci serial card recognition fix
 Cc: linux-kernel@vger.kernel.org
-Message-Id: <E18Nceo-00014o-00@brian.localnet>
+Message-Id: <E18Ncjo-000152-00@brian.localnet>
 From: Brian Murphy <brm@murphy.dk>
-Date: Sun, 15 Dec 2002 18:34:26 +0100
+Date: Sun, 15 Dec 2002 18:39:36 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -19,10 +19,12 @@ This patch fixes an error in the pci recognition table which
 means that otherwise supportes Titan pci serial cards fail to
 work.
 
+This is the same as I just posted for the 2.5 kernel.
+
 /Brian
 
---- linux-2.5.44/drivers/serial/8250_pci.c	2002-12-15 18:21:15.000000000 +0100
-+++ linux-2.5.44-mine/drivers/serial/8250_pci.c	2002-12-15 17:00:41.000000000 +0100
+--- drivers/char/serial.c	2002-12-15 18:21:15.000000000 +0100
++++ drivers/char/serial.c	2002-12-15 17:00:41.000000000 +0100
 @@ -473,6 +473,7 @@
  	pbn_b1_4_115200,
  	pbn_b1_8_115200,

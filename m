@@ -1,37 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261274AbVA1LQE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261285AbVA1LW2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261274AbVA1LQE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 06:16:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261285AbVA1LQD
+	id S261285AbVA1LW2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 06:22:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261297AbVA1LW1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 06:16:03 -0500
-Received: from faui03.informatik.uni-erlangen.de ([131.188.30.103]:50407 "EHLO
-	faui03.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id S261274AbVA1LQC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 06:16:02 -0500
-Date: Fri, 28 Jan 2005 12:15:57 +0100
-From: Michael Gernoth <simigern@stud.uni-erlangen.de>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: AT-Keyboard probing too strict in current bk?
-Message-ID: <20050128111557.GA14265@cip.informatik.uni-erlangen.de>
-Mail-Followup-To: Dmitry Torokhov <dtor_core@ameritech.net>,
-	linux-kernel@vger.kernel.org
-References: <20050127164734.GA12899@cip.informatik.uni-erlangen.de> <200501272259.21091.dtor_core@ameritech.net>
+	Fri, 28 Jan 2005 06:22:27 -0500
+Received: from styx.suse.cz ([82.119.242.94]:23205 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S261285AbVA1LWZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jan 2005 06:22:25 -0500
+Date: Fri, 28 Jan 2005 12:10:05 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Andries Brouwer <aebr@win.tue.nl>, linux-kernel@vger.kernel.org
+Subject: Re: Possible bug in keyboard.c (2.6.10)
+Message-ID: <20050128111005.GA9232@ucw.cz>
+References: <Pine.LNX.4.61.0501270318290.4545@82.117.197.34> <20050127125637.GA6010@pclin040.win.tue.nl> <Pine.LNX.4.61.0501272248380.6118@scrub.home>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200501272259.21091.dtor_core@ameritech.net>
+In-Reply-To: <Pine.LNX.4.61.0501272248380.6118@scrub.home>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 27, 2005 at 10:59:20PM -0500, Dmitry Torokhov wrote:
-> Thanks for noticing this. The following patch should fix timeout
-> handling in libps2 and restore previous behavior:
+On Fri, Jan 28, 2005 at 01:39:08AM +0100, Roman Zippel wrote:
 
-This fixes it for me. I tested it with an unmodified atkbd.c and
-the old firmware for my keyboard converter.
+> On Thu, 27 Jan 2005, Andries Brouwer wrote:
+> 
+> > In short - raw mode in 2.6 is badly broken.
+ 
+And, btw, raw mode in 2.6 is not badly broken. It works as it is
+intended to. If you want the 2.4 behavior on x86, you just need to
+specify "atkbd.softraw=0" on the kernel command line.
 
-Thanks,
-  Michael
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

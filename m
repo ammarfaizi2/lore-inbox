@@ -1,48 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130037AbRBTLE3>; Tue, 20 Feb 2001 06:04:29 -0500
+	id <S130156AbRBTLVP>; Tue, 20 Feb 2001 06:21:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130046AbRBTLEU>; Tue, 20 Feb 2001 06:04:20 -0500
-Received: from service.sh.cvut.cz ([147.32.127.214]:27147 "EHLO
-	service.sh.cvut.cz") by vger.kernel.org with ESMTP
-	id <S130037AbRBTLEE>; Tue, 20 Feb 2001 06:04:04 -0500
-Date: Tue, 20 Feb 2001 12:03:58 +0100
-From: Michal Vitecek <M.Vitecek@sh.cvut.cz>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4: maximum process size on i386?
-Message-ID: <20010220120358.A8211@fuf.sh.cvut.cz>
+	id <S130154AbRBTLVG>; Tue, 20 Feb 2001 06:21:06 -0500
+Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:13839 "EHLO
+	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S130156AbRBTLU5>; Tue, 20 Feb 2001 06:20:57 -0500
+Date: Tue, 20 Feb 2001 12:19:09 +0100
+From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+To: Srinivas Surabhi <srinivas.surabhi@wipro.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: parameters passing problem in driver module
+Message-ID: <20010220121909.E8042@arthur.ubicom.tudelft.nl>
+In-Reply-To: <77452C3AEA9.AAA40DE@vindhya.mail.wipro.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <77452C3AEA9.AAA40DE@vindhya.mail.wipro.com>; from srinivas.surabhi@wipro.com on Tue, Feb 20, 2001 at 04:07:55PM +0530
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- hello list,
+On Tue, Feb 20, 2001 at 04:07:55PM +0530, Srinivas Surabhi wrote:
+> In application program ,code for call to write system call is given
+> below...
+>       #include<fcntl.h>
+>     main()
+> 	 { 
+> 	  int count,fd;
+> 	 fd=open("/dev/pseudo",O_RDWR);
+> 	  write(fd,buff,5);
+> 	  }
+> 	  
+> In driver module code for getting the buffer and count 
+> 
+>     #include<all related header files...>
+>      
+>     int psuedo_write(struct inode*in,struct file*fp,char *buf,int count)
 
-   i apologize if this is way off-topic but noone i asked in my
- whereabounds would help: what is the maximum task size for 2.4.x on a
- i386 box and how do i change it (if possible)?
-   i have processes that have to be really over 1gb (database engines) but
- unfortnately, when one reaches over 900mb kswapd starts eating 50+% of 1
- cpu and the whole thing gets slower.
-   so i tried to decrease __PAGE_OFFSET in include/asm-i386/page.h to
- 0x80000000 which as i learned should increase the task limit to ~2gb, but
- the kernel _won't even boot_ (halts right after lilo loads it, no output
- is written).
-   the machine is 8xp3 xeon, 4gb ram, kernel 2.4.1-ac10, CONFIG_HIGHMEM
- and CONFIG_HIGHMEM4G are set.
+This should read:
 
-    thank you for any help on this,
+static ssize_t pseudo_write(struct file* file, 
+                            const char *buf, 
+                            size_t count,
+                            loff_t* ppos);
+
+>     {
+>       kprintf("<1>pseudo_write routine called \n");
+>       kprintf("<1>count=%d \n",count);
+>       kprintf("<1>buffer=%s \n",buff);
+>       return 0;
+>     } 
+> /******so here after inserting the module into the kernel using insmod 
+> pseudo.o and executing the application cc -c pseudo_app.c, the o/p on
+> console is *****/
+> 
+> "pseudo_write routine called" 
+> "count=9988345352" /*garbage*/
+> "buffer=@#%h" .   /*garbage*/
+> 
+> /*** but neither the  buffer is carried from user space to kernel space nor
+> the count, why?***/Please help me
+> out.
+
+Not strange at all, you're using the wrong parameters so you get what
+you asked for: garbage in, garbage out.
+
+You get the source for all other drivers for free. Use it.
+
+
+Erik
+
 -- 
-			    Michal Vitecek
-
-
------------------------------- na IRC -------------------------------------
- BillGates [bgates@www.microsoft.com] has joined #LINUX
- ...
- mode/#linux [+b BillGates!*@*] by DoDad
- BillGates was kicked off #linux by DoDad (banned: We see enough of Bill
-          Gates already.)
- 
-
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
+of Electrical Engineering, Faculty of Information Technology and Systems,
+Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
+Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/

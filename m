@@ -1,50 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291862AbSBTOLz>; Wed, 20 Feb 2002 09:11:55 -0500
+	id <S291869AbSBTOMp>; Wed, 20 Feb 2002 09:12:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291859AbSBTOLp>; Wed, 20 Feb 2002 09:11:45 -0500
-Received: from smtp3.cern.ch ([137.138.131.164]:26244 "EHLO smtp3.cern.ch")
-	by vger.kernel.org with ESMTP id <S291862AbSBTOLe>;
-	Wed, 20 Feb 2002 09:11:34 -0500
-To: "Torrey Hoffman" <Torrey.Hoffman@myrio.com>
-Cc: "Stevie O" <stevie@qrpff.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.2.20: pci-scan+natsemi & Device or resource busy
-In-Reply-To: <D52B19A7284D32459CF20D579C4B0C0211CB45@mail0.myrio.com>
-From: Jes Sorensen <jes@sunsite.dk>
-Date: 20 Feb 2002 15:10:23 +0100
-In-Reply-To: "Torrey Hoffman"'s message of "Mon, 28 Jan 2002 10:22:22 -0800"
-Message-ID: <d3vgcs6y7k.fsf@lxplus050.cern.ch>
-User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S291863AbSBTOM0>; Wed, 20 Feb 2002 09:12:26 -0500
+Received: from mailout6-0.nyroc.rr.com ([24.92.226.125]:45820 "EHLO
+	mailout6.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id <S291859AbSBTOMU>; Wed, 20 Feb 2002 09:12:20 -0500
+Subject: Re: Problems with Radeon Framebuffer
+From: James D Strandboge <jstrand1@rochester.rr.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020220123931.281e070a.hanno@gmx.de>
+In-Reply-To: <20020219234939.0d8597fb.hanno@gmx.de>
+	<DF415341-25A3-11D6-B291-000393843900@metaparadigm.com> 
+	<20020220123931.281e070a.hanno@gmx.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 20 Feb 2002 09:12:15 -0500
+Message-Id: <1014214335.11442.58.camel@hedwig.strandboge.cxm>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Torrey Hoffman" <Torrey.Hoffman@myrio.com> writes:
-
-> You have probably learned this by now, but I haven't seen anyone
-> say it on the list, so I'll summarize...
+On Wed, 2002-02-20 at 06:39, Hanno Boeck wrote:
+> > Did you have vesafb compiled in also (can tell by looking at the entire 
+> > dmesg)? This would explain why radeonfb can't map the framebuffer 
+> > memory. If so, try again without vesafb compiled in.
 > 
-> The 2.2.x kernels did not come with drivers for the natsemi.  The 
-> Donald Becker / Scyld add-on drivers were much better than nothing, 
-> and we were grateful to have them, but they don't work reliably for 
-> our hardware.  We are using motherboards with a soldered-on natsemi
-> chip, not the Netgear FA-311.  We did hack up a version of the 
-> driver that worked for us under 2.2.19, and you can get it from 
-> www.myrio.com/opensource if you are interested.
+> If I do that, my console is completely black!
+> I don't have a console any more. I can only run Xfree.
 > 
-> However, the 2.4.x kernels come with much improved natsemi drivers. 
-> These are Donald Becker's drivers, still copyright by him, but have 
-> been updated a lot for 2.4 with new PCI code and lots of bugfixes.
+> So that doesn't help either.
+> 
+> Btw, this is what lspci -v says about my graphics card:
+> 
+> 01:00.0 VGA compatible controller: ATI Technologies Inc Radeon Mobility M6 LY (prog-if 00 [VGA])
+> 	Subsystem: Sony Corporation: Unknown device 80e7
+> 	Flags: stepping, fast Back2Back, 66Mhz, medium devsel, IRQ 9
+> 	Memory at d8000000 (32-bit, prefetchable) [size=128M]
+> 	I/O ports at 3000 [size=256]
+> 	Memory at d0100000 (32-bit, non-prefetchable) [size=64K]
+> 	Expansion ROM at <unassigned> [disabled] [size=128K]
+> 	Capabilities: [58] AGP version 2.0
+> 	Capabilities: [50] Power Management version 2
 
-I ran into the same problem with the natsemi driver in 2.2.x (and
-rtl8139 as well). I gave up trying to fix the 2.2 drivers and instead
-ended up backporting the 2.4.x drivers to 2.2.x which seems to behave
-much better.
+Not this this answers your question, but I can say that this card works
+with vesafb by passing 'vga=834' to the kernel-- I do that on a laptop
+with the same chip.  But if I enable the frame buffer using this method,
+I can't use the radeon driver in XFree86.  But, the radeon driver isn't
+stable enough for me so I don't mind not using it.  Haven't tried
+XFree86 4.2 yet though (or radeonfb for that matter).
 
-You can find the backported drivers at
-http://www.wildopensource.com/proj/download/SG_drivers.html if you
-find they may be useful to you.
+Jamie Strandboge
+-- 
+Email:        jstrand1@rochester.rr.com
+GPG/PGP ID:   26384A3A
+Fingerprint:  D9FF DF4A 2D46 A353 A289  E8F5 AA75 DCBE 2638 4A3A
 
-Cheers,
-Jes

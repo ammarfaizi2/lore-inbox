@@ -1,53 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261285AbVBGVLB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261317AbVBGVT4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261285AbVBGVLB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 16:11:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261328AbVBGVLB
+	id S261317AbVBGVT4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 16:19:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261328AbVBGVT4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 16:11:01 -0500
-Received: from relay.muni.cz ([147.251.4.35]:48556 "EHLO tirith.ics.muni.cz")
-	by vger.kernel.org with ESMTP id S261285AbVBGVKy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 16:10:54 -0500
-Date: Mon, 7 Feb 2005 22:10:17 +0100
-From: Jan Kasprzak <kas@fi.muni.cz>
-To: axboe@home.kernel.dk
-Cc: Linus Torvalds <torvalds@osdl.org>, Jens Axboe <axboe@suse.de>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Memory leak in 2.6.11-rc1?
-Message-ID: <20050207211017.GA19896@fi.muni.cz>
-References: <20050121161959.GO3922@fi.muni.cz> <20050207110030.GI24513@fi.muni.cz> <Pine.LNX.4.58.0502070728280.2165@ppc970.osdl.org> <20050207155202.GY24513@fi.muni.cz> <56189.130.226.172.129.1107794295.squirrel@webmail.axboe.dk> <20050207173543.GD24513@fi.muni.cz>
-Mime-Version: 1.0
+	Mon, 7 Feb 2005 16:19:56 -0500
+Received: from agminet03.oracle.com ([141.146.126.230]:42666 "EHLO
+	agminet03.oracle.com") by vger.kernel.org with ESMTP
+	id S261317AbVBGVTy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Feb 2005 16:19:54 -0500
+Message-ID: <4207DB68.2050406@oracle.com>
+Date: Mon, 07 Feb 2005 13:19:36 -0800
+From: Zach Brown <zach.brown@oracle.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [Patch] invalidate range of pages after direct IO write
+References: <20050129011906.29569.18736.24335@volauvent.pdx.zabbo.net>	<20050203161927.0090655c.akpm@osdl.org>	<4202D55E.5030900@oracle.com>	<20050203182854.0b36fb4d.akpm@osdl.org>	<42040176.1030703@oracle.com> <20050204153530.0409744b.akpm@osdl.org>
+In-Reply-To: <20050204153530.0409744b.akpm@osdl.org>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050207173543.GD24513@fi.muni.cz>
-User-Agent: Mutt/1.4.1i
-X-Muni-Envelope-From: kas@fi.muni.cz
-X-Muni-Virus-Test: Clean
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Kasprzak wrote:
-: 	I think I have been running 2.6.10-rc3 before. I've copied
-: the fs/bio.c from 2.6.10-rc3 to my 2.6.11-rc2 sources and booted the
-: resulting kernel. I hope it will not eat my filesystems :-) I will send
-: my /proc/slabinfo in a few days.
+>> But this won't happen if next
+>>started as 0 and we didn't update it.  I don't know if retrying is the
+>>intended behaviour or if we care that the start == 0 case doesn't do it.
+> 
+> 
+> Good point.  Let's make it explicit?
 
-	Hmm, after 3h35min of uptime I have
+Looks great.  I briefly had visions of some bitfield to pack the three
+boolean ints we have and then quickly came to my senses. :)
 
-biovec-1           92157  92250     16  225    1 : tunables  120   60    8 : slabdata    410    410     60
-bio                92163  92163    128   31    1 : tunables  120   60    8 : slabdata   2973   2973     60
+I threw together those other two patches that work with ranges around
+direct IO.  (unmaping before r/w and writing and waiting before reads).
+ rc3-mm1 is angry with my test machine so they're actually against
+current -bk with this first invalidation patch applied.  I hope that
+doesn't make life harder than it needs to be.  I'll send them under
+seperate cover.
 
-so it is probably still leaking - about half an hour ago it was
-
-biovec-1           77685  77850     16  225    1 : tunables  120   60    8 : slabdata    346    346      0
-bio                77841  77841    128   31    1 : tunables  120   60    8 : slabdata   2511   2511    180
-
--Yenya
-
--- 
-| Jan "Yenya" Kasprzak  <kas at {fi.muni.cz - work | yenya.net - private}> |
-| GPG: ID 1024/D3498839      Fingerprint 0D99A7FB206605D7 8B35FCDE05B18A5E |
-| http://www.fi.muni.cz/~kas/   Czech Linux Homepage: http://www.linux.cz/ |
-> Whatever the Java applications and desktop dances may lead to, Unix will <
-> still be pushing the packets around for a quite a while.      --Rob Pike <
+- z

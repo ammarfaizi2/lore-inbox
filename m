@@ -1,56 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131583AbRCQKzg>; Sat, 17 Mar 2001 05:55:36 -0500
+	id <S131599AbRCQLRA>; Sat, 17 Mar 2001 06:17:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131584AbRCQKz0>; Sat, 17 Mar 2001 05:55:26 -0500
-Received: from www.wen-online.de ([212.223.88.39]:6161 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S131583AbRCQKzO>;
-	Sat, 17 Mar 2001 05:55:14 -0500
-Date: Sat, 17 Mar 2001 11:54:34 +0100 (CET)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: Bernd Eckenfels <W1012@lina.inka.de>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: pivot_root & linuxrc problem
-In-Reply-To: <E14e3if-0002od-00@sites.inka.de>
-Message-ID: <Pine.LNX.4.33.0103171129340.2961-100000@mikeg.weiden.de>
+	id <S131601AbRCQLQv>; Sat, 17 Mar 2001 06:16:51 -0500
+Received: from isis.its.uow.edu.au ([130.130.68.21]:22201 "EHLO
+	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S131599AbRCQLQi>; Sat, 17 Mar 2001 06:16:38 -0500
+Message-ID: <3AB347C0.FC73CC80@uow.edu.au>
+Date: Sat, 17 Mar 2001 22:17:20 +1100
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.3-pre3 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: John R Lenton <john@grulic.org.ar>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: oops in 2.4.2-ac20
+In-Reply-To: <20010317015326.A650@grulic.org.ar>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 17 Mar 2001, Bernd Eckenfels wrote:
+John R Lenton wrote:
+> 
+> What the subject says.
+> 
+> I copied the oops by hand, but the output of ksymoops doesn't
+> seem too totally wrong, so I guess I didn't botch it :)
+> 
 
-> In article <Pine.LNX.4.33.0103160822350.1057-100000@mikeg.weiden.de> you wrote:
-> > Aha.. so that's it.  I've never been able to get /linuxrc to execute
-> > automagically.  I wonder why /linuxrc executes on Art's system, but
-> > not on mine.  I can call it whatever I want and it doesn't run unless
-> > I explicitly start it with init=whatever.
->
-> linuxrc is executed iff:
->
-> CONFIG_BLK_DEV_INITRD is defined
-> you actually have a initrd mounted
-> /dev/console can be found and opened
-> a executable "/linuxrc" is in the ramdisk
+The trace dosn't look right, but you've probably hit
+the con_flush_chars-called-from-interrupt problem.
 
-<g> There's one more important condition to add to this iff list.
+Please add these two lines, let me know if it recurs.
 
-ROOT_DEV as set at kbuild or boot time may not be identical with
-the device used as a container for the initrd image.
-
-Greetings from bash.  My pid is 8
-  PID TTY STAT TIME COMMAND
-    1  ?  SW   0:05 (swapper)
-    2  ?  SW   0:00 (keventd)
-    3  ?  SW   0:00 (kapm-idled)
-    4  ?  SW   0:00 (kswapd)
-    5  ?  SW   0:00 (kreclaimd)
-    6  ?  SW   0:00 (bdflush)
-    7  ?  SW   0:00 (kupdate)
-    8  ?  S    0:00 /bin/sh /linuxrc
-   11  ?  R    0:00 /bin/ps ax
-/dev/root / ext2 rw 0 0
-/dev/hda5 /test ext2 rw 0 0
-none /proc proc rw 0 0
-
+--- linux-2.4.2-ac20/drivers/char/console.c	Tue Mar 13 20:29:21 2001
++++ ac/drivers/char/console.c	Sat Mar 17 22:16:14 2001
+@@ -2304,6 +2335,9 @@
+ static void con_flush_chars(struct tty_struct *tty)
+ {
+ 	struct vt_struct *vt = (struct vt_struct *)tty->driver_data;
++
++	if (in_interrupt())	/* from flush_to_ldisc */
++		return;
+ 
+ 	pm_access(pm_con);
+ 	acquire_console_sem();

@@ -1,40 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266360AbRGJOMb>; Tue, 10 Jul 2001 10:12:31 -0400
+	id <S266377AbRGJOQB>; Tue, 10 Jul 2001 10:16:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266361AbRGJOMV>; Tue, 10 Jul 2001 10:12:21 -0400
-Received: from ns.caldera.de ([212.34.180.1]:16840 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S266360AbRGJOMR>;
-	Tue, 10 Jul 2001 10:12:17 -0400
-Date: Tue, 10 Jul 2001 16:12:00 +0200
-Message-Id: <200107101412.f6AEC0W06951@ns.caldera.de>
-From: Christoph Hellwig <hch@ns.caldera.de>
-To: cw@f00f.org (Chris Wedgwood)
-Cc: linux-kernel@vger.kernel.org, hpa@zytor.com
-Subject: Re: How many pentium-3 processors does SMP support?
-X-Newsgroups: caldera.lists.linux.kernel
-In-Reply-To: <20010711015128.E31799@weta.f00f.org>
-User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.2 (i686))
+	id <S266378AbRGJOPv>; Tue, 10 Jul 2001 10:15:51 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:348 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S266377AbRGJOPh>; Tue, 10 Jul 2001 10:15:37 -0400
+Date: Tue, 10 Jul 2001 16:15:33 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Andrew Morton <andrewm@uow.edu.au>
+Cc: Chris Wedgwood <cw@f00f.org>,
+        Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: msync() bug
+Message-ID: <20010710161533.T1594@athlon.random>
+In-Reply-To: <20010709170835.J1594@athlon.random> <20010711012524.A31799@weta.f00f.org> <3B4B0B1F.92EC5C0E@uow.edu.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3B4B0B1F.92EC5C0E@uow.edu.au>; from andrewm@uow.edu.au on Wed, Jul 11, 2001 at 12:03:11AM +1000
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20010711015128.E31799@weta.f00f.org> you wrote:
-> On Mon, Jul 09, 2001 at 10:34:24PM -0700, H. Peter Anvin wrote:
->
->     It supports up to 32, if you can find a machine that has that
->     many.
->
-> I think 8-way is about as high as anything common goes to, maybe
-> 16. The cpu array is declared 32 long, maybe this should be changed to
-> 8 by default?
+On Wed, Jul 11, 2001 at 12:03:11AM +1000, Andrew Morton wrote:
+> Linus included the test for non-null page->mapping
+> as well.  I wonder why.
 
-Why limit the user?  There are more than enough Linux system that have
-more than 32 CPUs (SGI, DEC, Sun).
+I think it is because if you try hard you can map a dma page via
+/dev/mem and then the driver can release the dma page (at rmmod for
+example) before you munmap /dev/mem, and then the page goes in the
+freelist and it is allocated as pagecache.
 
-Making it a per-architecture value or even a config option make a lot
-more sense.
-
-	Christoph
-
--- 
-Of course it doesn't work. We've performed a software upgrade.
+Andrea

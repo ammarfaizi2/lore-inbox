@@ -1,230 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131489AbRDBMoA>; Mon, 2 Apr 2001 08:44:00 -0400
+	id <S131498AbRDBMoU>; Mon, 2 Apr 2001 08:44:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132328AbRDBMnv>; Mon, 2 Apr 2001 08:43:51 -0400
-Received: from tomts7.bellnexxia.net ([209.226.175.40]:36515 "EHLO
-	tomts7-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S131489AbRDBMnj>; Mon, 2 Apr 2001 08:43:39 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Ed Tomlinson <tomlins@cam.org>
-Organization: me
-To: linux-mm@kvack.org
-Subject: [PATCH][RFC] appling preasure to icache and dcache
-Date: Mon, 2 Apr 2001 08:42:55 -0400
-X-Mailer: KMail [version 1.2]
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Message-Id: <01040208425501.20592@oscar>
-Content-Transfer-Encoding: 7BIT
+	id <S132328AbRDBMoK>; Mon, 2 Apr 2001 08:44:10 -0400
+Received: from smtp1.cern.ch ([137.138.128.38]:47119 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S131498AbRDBMnv>;
+	Mon, 2 Apr 2001 08:43:51 -0400
+Date: Mon, 2 Apr 2001 14:42:41 +0200
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: "Rafael E. Herrera" <raffo@neuronet.pitt.edu>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>,
+   Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+   Linux Frame Buffer Device Development 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+   Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: Recent problems with APM and XFree86-4.0.1
+Message-ID: <20010402144241.B17319@pcep-jamie.cern.ch>
+In-Reply-To: <20010331021514.A6784@pcep-jamie.cern.ch> <200103310537.f2V5bDO06729@pcug.org.au> <20010331162513.C7946@pcep-jamie.cern.ch> <20010401234156.B15813@pcep-jamie.cern.ch> <3AC7AC2F.D390C923@neuronet.pitt.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3AC7AC2F.D390C923@neuronet.pitt.edu>; from raffo@neuronet.pitt.edu on Sun, Apr 01, 2001 at 06:31:11PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Rafael E. Herrera wrote:
+> > I've noticed other changes in suspend/resume.  I'm running Gnome now,
+> > and it insists on running xscreensaver whenever I close the lid.
+> > Somehow it is noticing the APM event, because this is very consistent.
+> > Does anyone know how to disable this?  The setting "No screensaver"
+> > under the list of screensavers didn't help -- it just runs a blank
+> > screensaver which is even more confusing, because the computer appears
+> > not to have resumed (when it's just a black screensaver).
+> 
+> Look at the s option in the man pages for xset, that may help.
 
-This patch does two things.  One it applies pressure to the icache
-and dcache, from kswapd, when they grow or possibly become shrinkable.
-The idea being not to let them grow to the point that they start being
-the source of vm pressure - this seems to be happening with the current
-algorithm.
+That is about when to blank/power down the display isn't it?
 
-It also limits bg aging restricting it to the page inactivation rate.
-This perserves aging info longer preventing paging spikes after periods
-of low activity.
+I know that xscreensaver watches for that (according to the man page),
+and doesn't draw anything while the monitor's powered down.
 
-The try_shrinking_[i|d]cache functions would become much simpler if 
-the slab cache tracked the number of pages freeable in a cache.  I do
-not think this is a trivial task though.  I have also tried to avoid
-making the patch depend on 'magic numbers'.  As it stands DEF_PRIORITY
-is used but could be eliminated if the shrink_[i|d]cache_memory calls
-took the number of pages to free and returned the number of pages 
-actually released.  In ac28 refill_inactive_scan is already ignoring 
-DEF_PRIORITY.
+But how do I stop xscreensaver from being started in the first place?
 
-Variants of this patch have been running here, on top of ac28, over the 
-for the last couple of days as I optimised the try_shrinking functions.  
-Reports on how well this works under differing loads would be interesting.
-
-Comments on style, and suggestions on how to improve this code are 
-very welcome.
-
-TIA
-Ed Tomlinson <tomlins@cam.org> 
-
----
-diff -u -r --exclude-from=ex.txt linux.ac28/mm/page_alloc.c linux/mm/page_alloc.c
---- linux.ac28/mm/page_alloc.c	Sun Apr  1 18:52:22 2001
-+++ linux/mm/page_alloc.c	Mon Apr  2 07:54:05 2001
-@@ -138,11 +138,9 @@
- 
- 	/*
- 	 * We don't want to protect this variable from race conditions
--	 * since it's nothing important, but we do want to make sure
--	 * it never gets negative.
-+	 * since it's nothing important.
- 	 */
--	if (memory_pressure > NR_CPUS)
--		memory_pressure--;
-+	inactivate_pressure++;
- }
- 
- #define MARK_USED(index, order, area) \
-diff -u -r --exclude-from=ex.txt linux.ac28/mm/swap.c linux/mm/swap.c
---- linux.ac28/mm/swap.c	Mon Jan 22 16:30:21 2001
-+++ linux/mm/swap.c	Thu Mar 29 11:37:47 2001
-@@ -47,10 +47,12 @@
-  * many inactive pages we should have.
-  *
-  * In reclaim_page and __alloc_pages: memory_pressure++
-- * In __free_pages_ok: memory_pressure--
-+ * In __free_pages_ok: inactivate_pressure++
-+ * In invalidate_pages_scan: inactivate_pressure++
-  * In recalculate_vm_stats the value is decayed (once a second)
-  */
- int memory_pressure;
-+int inactivate_pressure;
- 
- /* We track the number of pages currently being asynchronously swapped
-    out, so that we don't try to swap TOO many pages out at once */
-@@ -287,6 +289,7 @@
- 	 * memory_pressure.
- 	 */
- 	memory_pressure -= (memory_pressure >> INACTIVE_SHIFT);
-+	inactivate_pressure -= (inactivate_pressure >> INACTIVE_SHIFT);
- }
- 
- /*
-diff -u -r --exclude-from=ex.txt linux.ac28/mm/vmscan.c linux/mm/vmscan.c
---- linux.ac28/mm/vmscan.c	Sun Apr  1 18:52:22 2001
-+++ linux/mm/vmscan.c	Mon Apr  2 07:42:55 2001
-@@ -759,6 +791,8 @@
- 	}
- 	spin_unlock(&pagemap_lru_lock);
- 
-+	inactivate_pressure += nr_deactivated;
-+
- 	return nr_deactivated;
- }
- 
-@@ -937,6 +971,76 @@
- 	return ret;
- }
- 
-+/*
-+ * Try to shrink the dcache if either its size or free space
-+ * has grown, and it looks like we might get the required pages.
-+ * This function would simplify if the caches tracked how
-+ * many _pages_ were freeable.
-+ */
-+int try_shrinking_dcache(int goal, unsigned int gfp_mask)
-+{
-+
-+	/* base - projects the threshold above which we can free pages */
-+	
-+	static int base, free = 0;
-+	int pages, old, ret;
-+
-+	old = free;			/* save old free space size */
-+
-+	pages = (dentry_stat.nr_dentry * sizeof(struct dentry)) >> PAGE_SHIFT;
-+	free = (dentry_stat.nr_unused * sizeof(struct dentry)) >> PAGE_SHIFT;
-+
-+	if (base > pages)	/* If the cache shrunk reset base,  The cache
-+		base = pages;	 * growing applies preasure as does expanding
-+	if (free > old)		 * free space - even if later shrinks */
-+		base -= (base>free-old) ? free-old : base;
-+
-+	/* try free pages...  Note that the using inactive_pressure _is_
-+	 * racy.  It does not matter, a bad guess will not hurt us.
-+	 * Testing free here does not work effectivily.
-+	 */
-+	
-+	if (pages-base >= goal) { 
-+		ret = inactivate_pressure;
-+       		shrink_dcache_memory(DEF_PRIORITY, gfp_mask);
-+		ret = inactivate_pressure - ret; 
-+		base += (!ret) ? pages-base : (ret>goal) ? ret : goal; 
-+	} else
-+		ret = 0;
-+
-+	return ret;
-+}
-+
-+/*
-+ * Same logic as above but for the icache.
-+ */
-+int try_shrinking_icache(int goal, unsigned int gfp_mask)
-+{
-+	static int base, free = 0;
-+	int pages, old, ret;
-+	
-+	old = free;
-+
-+	pages = (inodes_stat.nr_inodes * sizeof(struct inode)) >> PAGE_SHIFT;
-+	free = (inodes_stat.nr_unused * sizeof(struct inode)) >> PAGE_SHIFT;
-+	
-+	if (base > pages)
-+		base = pages;
-+	if (free > old)
-+		base -= (base>free-old) ? free-old : base;
-+
-+	if (pages-base >= goal) { 
-+		ret = inactivate_pressure;
-+       		shrink_icache_memory(DEF_PRIORITY, gfp_mask);
-+		ret = inactivate_pressure - ret; 
-+		base += (!ret) ? pages-base : (ret>goal) ? ret : goal; 
-+	} else
-+		ret = 0;
-+
-+	return ret;
-+}
-+
-+
- DECLARE_WAIT_QUEUE_HEAD(kswapd_wait);
- DECLARE_WAIT_QUEUE_HEAD(kswapd_done);
- struct task_struct *kswapd_task;
-@@ -984,18 +1088,28 @@
- 	 */
- 	for (;;) {
- 		static int recalc = 0;
-+		int delta = 0;
- 
- 		/* If needed, try to free some memory. */
- 		if (inactive_shortage() || free_shortage()) 
- 			do_try_to_free_pages(GFP_KSWAPD, 0);
- 
- 		/*
--		 * Do some (very minimal) background scanning. This
--		 * will scan all pages on the active list once
--		 * every minute. This clears old referenced bits
--		 * and moves unused pages to the inactive list.
-+		 * Try to keep the rate of pages inactivations 
-+		 * similar to the rate of pages allocations.  This
-+		 * also perform background page aging, but only
-+		 * when there is preasure on the vm.  We get the
-+		 * pages from the dcache and icache if its likely
-+		 * there are enought freeable pages there.
- 		 */
--		refill_inactive_scan(DEF_PRIORITY, 0);
-+		delta = (memory_pressure >> INACTIVE_SHIFT) \
-+			- (inactivate_pressure >> INACTIVE_SHIFT);
-+		if (delta > 0)
-+			delta -= try_shrinking_dcache(delta,GFP_KSWAPD);
-+		if (delta > 0)
-+			delta -= try_shrinking_icache(delta,GFP_KSWAPD);
-+		if (delta > 0)
-+			refill_inactive_scan(DEF_PRIORITY, delta);
---- linux.ac28/include/linux/swap.h     Sun Apr  1 18:52:22 2001
-+++ linux/include/linux/swap.h  Thu Mar 29 11:31:09 2001
-@@ -102,6 +102,7 @@
- 
- /* linux/mm/swap.c */
- extern int memory_pressure;
-+extern int inactivate_pressure;
- extern void age_page_up(struct page *);
- extern void age_page_up_nolock(struct page *);
- extern void age_page_down(struct page *);
- 		/* Once a second, recalculate some VM stats. */
- 		if (time_after(jiffies, recalc + HZ)) {
----
+-- Jamie
 

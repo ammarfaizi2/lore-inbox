@@ -1,64 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265651AbUFCQj4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265649AbUFCQrH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265651AbUFCQj4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 12:39:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265649AbUFCQj4
+	id S265649AbUFCQrH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 12:47:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265660AbUFCQrH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 12:39:56 -0400
-Received: from gockel.physik3.uni-rostock.de ([139.30.44.16]:11735 "EHLO
-	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id S265652AbUFCQjx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 12:39:53 -0400
-Date: Thu, 3 Jun 2004 18:39:45 +0200 (CEST)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.7-rc2-mm2
-In-Reply-To: <20040603015356.709813e9.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.53.0406031826410.7969@gockel.physik3.uni-rostock.de>
-References: <20040603015356.709813e9.akpm@osdl.org>
+	Thu, 3 Jun 2004 12:47:07 -0400
+Received: from c7ns3.center7.com ([216.250.142.14]:7654 "EHLO
+	smtp.slc03.viawest.net") by vger.kernel.org with ESMTP
+	id S265649AbUFCQqh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jun 2004 12:46:37 -0400
+Message-ID: <40BF8E1F.1060009@drdos.com>
+Date: Thu, 03 Jun 2004 14:46:23 -0600
+From: "Jeff V. Merkey" <jmerkey@drdos.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: submit_bh leaves interrupts on upon return
+References: <40BE93DC.6040501@drdos.com> <20040603085002.GG28915@suse.de>
+In-Reply-To: <20040603085002.GG28915@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> +bsd-acct-warning-fix.patch
-> 
->  Fix warning in the BSD accounting patch
+Jens Axboe wrote:
 
-Thanks for educating me one this.
+>On Wed, Jun 02 2004, Jeff V. Merkey wrote:
+>  
+>
+>>Any reason why submit_bh should turn on interrupts after being called by 
+>>a process with ints off in 2.4.20?  I see it's possible to sleep during 
+>>elevatoring, but why does it need to leave interrupts on if the calling 
+>>state was with ints off.  
+>>    
+>>
+>
+>It's illegal to call it with interrupts off, so... __make_request()
+>doesn't save interrupt state, so you will always leave with interrupts
+>enabled.
+>
+>  
+>
+Jens
 
-I vaguely remember someone wrote on lkml that defining variables in blocks
-was bad because some gcc version wouldn't deal well with it. This was just
-at the time I wrote these lines, so I refrained from it in spite of the
-warning. OTOH, this is so very basic C that I cannot imagine gcc getting
-it wrong.
+I noticed in the code it does not check for this when make_request is 
+called, so I altered the calling sequence to call with ints on. I don't 
+see much of a performance difference either way, so calling with ints on 
+was easy to instrument. I am posting about 80,000+ buffer heads per 
+second in with what I am doing, so filling out buffer_head structures 
+and submitting them ad hoc was causing some interrupt windows where the 
+chains were getting corrupted. I altered the calling sequence and added 
+atomic counters so I can submit and call with ints on to avoid the 
+corruption. One of the troublesome aspects of the manner in which 
+make_request is implemented in always needing a context of a thread for 
+sleeping to submit asynch I/O limits the ability to gang schedule large 
+disk I/O from the b_end_io callback. Would make performance a lot more 
+spectacular if it worked this way, but I am seeing good enough 
+performance with it left the way it is. 3Ware's 66Mhz ATA adapter in 
+this implementation is reaching almost 400 MB/S throughput on 2.4.20. I 
+have not tried this on 2.6 yet, but will later this month.
+
+Also, I ported the kernel debugger from MANOS to Linux and made a lot of 
+significant enhancements and www.devicelogics.com is distributing it 
+from their website. If anyone wants a more pleasant debugger for the 
+kernel to work with, they are allowing downloads of the modules with a 
+patch. Not free (what is in this world) but very nice to work with.
+
+Thanks for the response. Sorry I was out of touch for about a year. I 
+was going through a very nasty divorce with my wife of 24 years and I 
+discovered when something like that is happening in your life, you don't 
+have much attention for much else.
+
+Jeff
 
 
-There is one other mistake in the BSD accounting patch, fixed below 
-(thanks to Peter Lundkvist for reporting).
-
-Then there's the thing with units of time not exactly corresponding to
-USER_HZ anymore.
-
-And it seems this didn't get much outside testing yet, since I've only 
-recently seen the first download of the userspace tools. Well, BSD 
-accounting isn't too exciting these days...
-
-
-I'll probably roll up another version before this can hit mainline.
-
-Tim
-
-
---- linux-2.6.7-rc2-acct1/include/linux/acct.h	2004-06-03 18:21:47.000000000 +0200
-+++ linux-2.6.7-rc2-acct2/include/linux/acct.h	2004-06-03 18:21:55.000000000 +0200
-@@ -165,7 +165,7 @@ static inline u64 jiffies_64_to_AHZ(u64 
- {
- #if HZ == AHZ
- 	/* do nothing */
--#elseif (HZ % AHZ)==0
-+#elif (HZ % AHZ)==0
- 	do_div(x, HZ / AHZ);
- #else
- 	x *= AHZ;

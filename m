@@ -1,49 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264975AbUD2Vdq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264871AbUD2VeD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264975AbUD2Vdq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 17:33:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264874AbUD2Vdq
+	id S264871AbUD2VeD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 17:34:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264989AbUD2VeC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 17:33:46 -0400
-Received: from wirefire.bureaudepost.com ([66.38.187.209]:64140 "EHLO
-	oasis.linuxant.com") by vger.kernel.org with ESMTP id S264975AbUD2Vct
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 17:32:49 -0400
-Date: Thu, 29 Apr 2004 17:32:46 -0400
-From: Marc Boucher <marc@linuxant.com>
-To: Timothy Miller <miller@techsource.com>
-Cc: Rik van Riel <riel@redhat.com>, Marc Boucher <marc@linuxant.com>,
+	Thu, 29 Apr 2004 17:34:02 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:27921 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S264871AbUD2VcZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Apr 2004 17:32:25 -0400
+Message-ID: <4091757B.3090209@techsource.com>
+Date: Thu, 29 Apr 2004 17:36:59 -0400
+From: Timothy Miller <miller@techsource.com>
+MIME-Version: 1.0
+To: Paul Wagland <paul@wagland.net>
+CC: Rik van Riel <riel@redhat.com>,
        lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
        Rusty Russell <rusty@rustcorp.com.au>,
-       David Gibson <david@gibson.dropbear.id.au>
+       David Gibson <david@gibson.dropbear.id.au>,
+       Marc Boucher <marc@linuxant.com>
 Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
-Message-ID: <20040429213246.GA15988@valve.mbsi.ca>
-References: <Pine.LNX.4.44.0404281958310.19633-100000@chimarrao.boston.redhat.com> <40911C01.80609@techsource.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40916495.1060805@techsource.com>
-User-Agent: Mutt/1.3.25i
+References: <Pine.LNX.4.44.0404291114150.9152-100000@chimarrao.boston.redhat.com> <4FE43C97-9A20-11D8-B804-000A95CD704C@wagland.net>
+In-Reply-To: <4FE43C97-9A20-11D8-B804-000A95CD704C@wagland.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Giuliano Colla wrote:
-> Can you honestly tell apart the two cases, if you don't make a it a case of
-> "religion war"?
 
-On Thu, Apr 29, 2004 at 11:15:13AM -0400, Timothy Miller answered:
->
-> Firmware downloaded into a piece of hardware can't corrupt the kernel in the
-> host.
+
+Paul Wagland wrote:
 > 
-> (Unless it's a bus master which writes to random memory, which might be
-> possible, but there is hardware you can buy to watch PCI transactions.)
+> On Apr 29, 2004, at 17:14, Rik van Riel wrote:
+> 
+>> On Thu, 29 Apr 2004, Timothy Miller wrote:
+>>
+>>>> "Due to $MOD_FOO's license ($BLAH), the Linux kernel community
+>>>> cannot resolve problems you may encounter. Please contact
+>>>> $MODULE_VENDOR for support issues."
+>>>
+>>>
+>>> Sounds very "politically correct", but certainly more descriptive and
+>>> less alarming.
+>>
+>>
+>> More importantly, it directs the support burden to where
+>> it, IMHO, belongs.
+> 
+> 
+> Just to throw in my two cents at the end of this long debate... :-)
+> 
+> I heartily endorse (for what little that is worth ;-) the change in 
+> text. It adds clarity, it provides more information as to where to go 
+> for information. It is hard to misconstrue as a message of impending 
+> doom, consider that a good synonym for tainted is corrupted, and a 
+> corrupted kernel is a bad thing :-).
+> 
+> Cheers,
+> Paul
 
-and unless it's a card with binary-only, proprietary BIOS code called at
-runtime by the kernel, for example by the vesafb.c video driver,
-which despite this has a MODULE_LICENSE("GPL").
 
-Could someone explain why such execution of evil proprietary binary-only
-code on the host CPU should not also "taint" the kernel? ;-)
+While we're on all of this, are we going to change "tained" to some 
+other less alarmist word?  Say there is a /proc file or some report that 
+you can generate about the kernel that simply wants to indicate that the 
+kernel contains closed-source modules, and we want to use a short, 
+concise word like "tainted" for this.  "An untrusted module has been 
+loaded into this kernel" would be just a bit too long to qualify.
 
-Marc
+Hmmm... how about "untrusted"?  Not sure...
+

@@ -1,34 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129996AbRAELok>; Fri, 5 Jan 2001 06:44:40 -0500
+	id <S129873AbRAELsA>; Fri, 5 Jan 2001 06:48:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129983AbRAELoa>; Fri, 5 Jan 2001 06:44:30 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:2544 "EHLO
+	id <S129983AbRAELru>; Fri, 5 Jan 2001 06:47:50 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:26608 "EHLO
 	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S129996AbRAELoT>; Fri, 5 Jan 2001 06:44:19 -0500
-Date: Fri, 5 Jan 2001 09:42:47 -0200 (BRDT)
+	id <S129873AbRAELrh>; Fri, 5 Jan 2001 06:47:37 -0500
+Date: Fri, 5 Jan 2001 09:46:46 -0200 (BRDT)
 From: Rik van Riel <riel@conectiva.com.br>
-To: Evan Thompson <evaner@bigfoot.com>
+To: Nicholas Knight <tegeran@home.com>
 cc: linux-kernel@vger.kernel.org
-Subject: Re: Can I submit a bug report on this mailing list?
-In-Reply-To: <20010104200409.A23766@evaner.penguinpowered.com>
-Message-ID: <Pine.LNX.4.21.0101050942230.1295-100000@duckman.distro.conectiva>
+Subject: Re: Change of policy for future 2.2 driver submissions
+In-Reply-To: <002201c076c7$76cab720$8d19b018@c779218a>
+Message-ID: <Pine.LNX.4.21.0101050944450.1295-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Jan 2001, Evan Thompson wrote:
+On Thu, 4 Jan 2001, Nicholas Knight wrote:
 
-> I hear about the 2.4.0 release.  I have, in my mailbox, many
-> messages titled "Re: And oh, btw...", BUT NO ORIGINAL MESSAGE!  
-> What happened? Is my stupid mailserver selective or something?
-> 
-> Anyways.  My bug report is: "linux-kernel@vger.kernel.org does
-> not send me important mails that are important and that should
-> be sent due to their high importancy."
+> While I understand the reasoning behind this, and might do the
+> same thing if I was in your position, I feel it may be a
+> mistake. I personaly do not trust the 2.4.x kernel entirely yet,
+> and would prefer to wait for 2.4.1 or 2.4.2 before upgrading
+> from 2.2.18 to ensure last-minute wrinkles have been completely
+> ironed out,
 
-Says the guy who reads his linux-kernel email on bigfoot.com  ;)
+This is *exactly* why Alan's policy change makes sense.
+
+If somebody submits a driver bugfix or update for 2.2,
+but not for 2.4, it'll take FOREVER for 2.4 to become
+as "trustable" as 2.2...
+
+This change, however, will make sure that 2.4 will be
+as reliable as 2.2 much faster. Unlike 2.2, the core
+kernel of 2.4 is reliable ... only the peripheral stuff
+like drivers may be out of date or missing.
+
+regards,
 
 Rik
 --

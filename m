@@ -1,53 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263818AbUJLOL5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264085AbUJLOPy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263818AbUJLOL5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 10:11:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264085AbUJLOL5
+	id S264085AbUJLOPy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 10:15:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264113AbUJLOPy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 10:11:57 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:30987 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S263818AbUJLOLz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 10:11:55 -0400
-Date: Tue, 12 Oct 2004 16:11:23 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Stephan <support@bbi.co.bw>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Problem compiling linux-2.6.8.1......
-Message-ID: <20041012141123.GA18579@stusta.de>
-References: <006901c4b05a$3dddd570$0200060a@STEPHANFCN56VN>
+	Tue, 12 Oct 2004 10:15:54 -0400
+Received: from phoenix.infradead.org ([81.187.226.98]:5 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S264085AbUJLOPx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Oct 2004 10:15:53 -0400
+Date: Tue, 12 Oct 2004 15:15:46 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [patch 2/3] lsm: add bsdjail module
+Message-ID: <20041012141546.GA19360@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	"Serge E. Hallyn" <serue@us.ibm.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+References: <1097094103.6939.5.camel@serge.austin.ibm.com> <1097094270.6939.9.camel@serge.austin.ibm.com> <20041006162620.4c378320.akpm@osdl.org> <20041007190157.GA3892@IBM-BWN8ZTBWA01.austin.ibm.com> <20041010104113.GC28456@infradead.org> <1097502444.31259.19.camel@localhost.localdomain> <20041012131124.GA2484@IBM-BWN8ZTBWA01.austin.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <006901c4b05a$3dddd570$0200060a@STEPHANFCN56VN>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <20041012131124.GA2484@IBM-BWN8ZTBWA01.austin.ibm.com>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 12, 2004 at 02:51:20PM +0200, Stephan wrote:
-
-> I'm trying to compile linux-2.6.8.1 but I'm getting the following error 
-> when doing a make.
+On Tue, Oct 12, 2004 at 08:11:24AM -0500, Serge E. Hallyn wrote:
+> > That however requires a co-operator outside the chroot so doesn't seem
+> > to be a problem. I like the CLONE approach, its a lot cleaner.
 > 
->  LD      .tmp_vmlinux1
-> ld: cannot open kernel/built-in.o: No such file or directory
-> make: *** [.tmp_vmlinux1] Error 1
+> The attached patch (against -rc4-mm1) moves the responsibility for
+> filesystem containment entirely to userspace.  The Documentation/bsdjail.txt
+> file reflects the new usage.  It also incorporates Christoph's cleanups.
 > 
-> Any ideas would be apreciated.
+> I still need to see about generalizing the networking confinement.  I
+> certainly like the concept (as I understand it at least) behind the new
+> vserver networking, but am not sure it can be done without patching.
 
-This shouldn't be the first error.
-
-Did you observe any other errors before?
-
-> Kind Regards
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Please remember that linux kernel work is not about "not needing patching".
+If a concept makes sense changing code is a good thing.

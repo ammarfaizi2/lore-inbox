@@ -1,50 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313416AbSE2O7H>; Wed, 29 May 2002 10:59:07 -0400
+	id <S313477AbSE2PFQ>; Wed, 29 May 2002 11:05:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313505AbSE2O7G>; Wed, 29 May 2002 10:59:06 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:9990 "EHLO mail.stock-world.de")
-	by vger.kernel.org with ESMTP id <S313416AbSE2O7F>;
-	Wed, 29 May 2002 10:59:05 -0400
-Message-ID: <3CF4DDD0.8090806@evision-ventures.com>
-Date: Wed, 29 May 2002 15:55:28 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc3) Gecko/20020523
-X-Accept-Language: en-us, pl
-MIME-Version: 1.0
-To: Jan Kara <jack@suse.cz>
-CC: torvalds@transmeta.com, Nathan Scott <nathans@wobbly.melbourne.sgi.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2/3 Quota changes ported to 2.5.18
-In-Reply-To: <20020529144510.GB9503@atrey.karlin.mff.cuni.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S313508AbSE2PFP>; Wed, 29 May 2002 11:05:15 -0400
+Received: from stingr.net ([212.193.32.15]:60593 "EHLO hq.stingr.net")
+	by vger.kernel.org with ESMTP id <S313477AbSE2PFO>;
+	Wed, 29 May 2002 11:05:14 -0400
+Date: Wed, 29 May 2002 19:05:14 +0400
+From: Paul P Komkoff Jr <i@stingr.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: anything happening with kbuild 2.5?
+Message-ID: <20020529150514.GL422@stingr.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <3CF4E4BB.7D475747@nortelnetworks.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+User-Agent: Agent Darien Fawkes
+X-Mailer: Intel Ultra ATA Storage Driver
+X-RealName: Stingray Greatest Jr
+Organization: Department of Fish & Wildlife
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Kara wrote:
->   This second patch changes sysctl interface to use reasonable names in
-> /proc/sys/fs/quota/
-> 
-> 								Honza
-> 
+Replying to Chris Friesen:
+> I'm just wondering if anything is happening with kbuild 2.5, since I think it
+> makes sense to put it in.
 
-Please note that the _dquots suffix for the alocated and
-free entires of struct dqstats is:
+Yes it's happening.
+I just almost completed integrating it into my next hope-so-release
+(2.4.19-pre8-ac5-s1)
 
-1. Entierly redundant. (dqstats.allocated counts dquots what else?)
+What is amazing - that it builds. Yeah.
 
-2. Orthogonal to the leak of it for the other fields.
+*sigh* "If silly Stingray did it, powerful Linus of course able to do it !"
 
-  static inline void put_inuse(struct dquot *dquot)
-@@ -238,12 +238,12 @@
-  	/* We add to the back of inuse list so we don't have to restart
-  	 * when traversing this list and we block */
-  	list_add(&dquot->dq_inuse, inuse_list.prev);
-- 
-++dqstats_array[DQSTATS_ALLOCATED];
-+ 
-dqstats.allocated_dquots++;
-  }
+(If all things were so simple ...)
 
-
+-- 
+Paul P 'Stingray' Komkoff 'Greatest' Jr /// (icq)23200764 /// (http)stingr.net
+  When you're invisible, the only one really watching you is you (my keychain)

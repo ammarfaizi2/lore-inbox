@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265828AbSLNTNC>; Sat, 14 Dec 2002 14:13:02 -0500
+	id <S265830AbSLNT2w>; Sat, 14 Dec 2002 14:28:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265830AbSLNTNC>; Sat, 14 Dec 2002 14:13:02 -0500
-Received: from angband.namesys.com ([212.16.7.85]:5505 "HELO
-	angband.namesys.com") by vger.kernel.org with SMTP
-	id <S265828AbSLNTNB>; Sat, 14 Dec 2002 14:13:01 -0500
-Date: Sat, 14 Dec 2002 22:20:53 +0300
-From: Oleg Drokin <green@namesys.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Hans Reiser <reiser@namesys.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [BK][PATCH] ReiserFS CPU and memory bandwidth efficient large writes
-Message-ID: <20021214222053.A10506@namesys.com>
-References: <3DFA2D4F.3010301@namesys.com> <3DFA53DA.DE6788C1@digeo.com> <20021214162108.A3452@namesys.com> <3DFB7B9E.FC404B6B@digeo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+	id <S265843AbSLNT2w>; Sat, 14 Dec 2002 14:28:52 -0500
+Received: from 205-158-62-131.outblaze.com ([205.158.62.131]:50048 "HELO
+	ws5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id <S265830AbSLNT2v>; Sat, 14 Dec 2002 14:28:51 -0500
+Message-ID: <20021214193638.32177.qmail@operamail.com>
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Disposition: inline
-In-Reply-To: <3DFB7B9E.FC404B6B@digeo.com>
-User-Agent: Mutt/1.3.22.1i
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Matthew Bell" <mwsb@operamail.com>
+To: Philip.Blundell@pobox.com, linux-parport@torque.net,
+       marcelo@connectiva.com.br, linux-kernel@vger.kernel.org
+Date: Sun, 15 Dec 2002 03:36:38 +0800
+Subject: [PATCH] Obvious: parport_serial depends on PCI.
+X-Originating-Ip: 195.10.122.134
+X-Originating-Server: ws5-1.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+This is valid for 2.4.20 and earlier at the least; just annoying and pedantic really...
+--- linux.orig/drivers/parport/Config.in        2001-12-21 17:41:55.000000000 +0000
++++ linux/drivers/parport/Config.in     2002-08-06 18:52:21.000000000 +0100
+@@ -17,7 +17,7 @@
+       else
+          define_tristate CONFIG_PARPORT_PC_CML1 $CONFIG_PARPORT_PC
+       fi
+-      dep_tristate '    Multi-IO cards (parallel and serial)' CONFIG_PARPORT_SERIAL $CONFIG_PARPORT_PC_CML1
++      dep_tristate '    Multi-IO cards (parallel and serial)' CONFIG_PARPORT_SERIAL $CONFIG_PARPORT_PC_CML1 $CONFIG_PCI
+    fi
+    if [ "$CONFIG_PARPORT_PC" != "n" ]; then
+       if [ "$CONFIG_EXPERIMENTAL" = "y" ]; then
 
-On Sat, Dec 14, 2002 at 10:42:38AM -0800, Andrew Morton wrote:
-> > Find below the patch that address all the issues you've brought.
-> > It is on top of previous one.
-> > Do you think it is ok now?
-> I addresses the things I noticed and raised, thanks.  Except for the
-> stack-space use.  People are waving around 4k-stack patches, and we
-> do need to be careful there.
+-- 
+_______________________________________________
+Get your free email from http://mymail.operamail.com
 
-Well, 450 bytes is way below 4k (~7 times less if we'd take task struct
-into account) ;)
-I can replace that on-stack array with kmalloc, but that probably
-would be a lot of overhead for no benefit.
-What do you think is safe stack usage limit for a function?
-(and btw you have not even seen reiser4 stack usage ;) )
-
-Bye,
-    Oleg
+Powered by Outblaze

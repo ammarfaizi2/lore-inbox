@@ -1,36 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261416AbSLCOEM>; Tue, 3 Dec 2002 09:04:12 -0500
+	id <S261427AbSLCOHX>; Tue, 3 Dec 2002 09:07:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261427AbSLCOEM>; Tue, 3 Dec 2002 09:04:12 -0500
-Received: from [217.167.51.129] ([217.167.51.129]:29913 "EHLO zion.wanadoo.fr")
-	by vger.kernel.org with ESMTP id <S261416AbSLCOEM>;
-	Tue, 3 Dec 2002 09:04:12 -0500
-Subject: Re: what is the url for the linux-ppc kernel development?
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Abraham vd Merwe <abraham@2d3d.co.za>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021203153615.A24416@crystal.2d3d.co.za>
-References: <20021203153615.A24416@crystal.2d3d.co.za>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 03 Dec 2002 15:18:19 +0100
-Message-Id: <1038925099.14066.55.camel@zion>
-Mime-Version: 1.0
+	id <S261446AbSLCOHX>; Tue, 3 Dec 2002 09:07:23 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:15365 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S261427AbSLCOHW>; Tue, 3 Dec 2002 09:07:22 -0500
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: lkml, bugme.osdl.org?
+Date: 3 Dec 2002 14:13:33 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <asie6d$5dr$1@gatekeeper.tmr.com>
+References: <200212030724.gB37O4DL001318@turing-police.cc.vt.edu> <20021203121521.GB30431@suse.de>
+X-Trace: gatekeeper.tmr.com 1038924813 5563 192.168.12.62 (3 Dec 2002 14:13:33 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-12-03 at 14:36, Abraham vd Merwe wrote:
-> Hi!
-> 
-> Could somebody please mail me the instructions/url to subscribe to the
-> currently most active PowerPC kernel development mailinglists.
-> 
-> I've send a message to the linuxppc-dev list over at lists.linuxppc.orig,
-> but that seems to be dead.
+In article <20021203121521.GB30431@suse.de>,
+Dave Jones  <davej@codemonkey.org.uk> wrote:
 
-No, linuxppc-dev isn't dead (lists.linuxppc.org)
+| "xxx doesn't work in 2.5.47", then Rusty's module rewrite happened,
+| and the tester didn't (or couldn't) see if it got fixed in subsequent
+| kernels. I'll send out pings to such reports when they get to something
+| like 5 kernels old. If the problem then doesn't get re-ACKed, I'll
+| close it. Any objections?
 
-Ben.
+  Since you are doing the work, you should set your own policy. I might
+suggest that if we revert the module stuff to something working in
+fewer than five versions you might ping then, and you might wait to
+drop stuff of the "xxx fails in 2.5.47 as a module" until modules work
+again or we officially go to a monolythic kernel.
 
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

@@ -1,67 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265768AbUGDUHt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265794AbUGDUwy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265768AbUGDUHt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jul 2004 16:07:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265774AbUGDUHt
+	id S265794AbUGDUwy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jul 2004 16:52:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265799AbUGDUwy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jul 2004 16:07:49 -0400
-Received: from rproxy.gmail.com ([64.233.170.193]:42990 "HELO mproxy.gmail.com")
-	by vger.kernel.org with SMTP id S265768AbUGDUHr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jul 2004 16:07:47 -0400
-Message-ID: <a728f9f904070413077d6a2966@mail.gmail.com>
-Date: Sun, 4 Jul 2004 16:07:14 -0400
-From: Alex Deucher <alexdeucher@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Weird problems on ibm thinkpad x24 with 2.6.5-1.358 kernel, FC2
-Cc: acpi-devel@lists.sf.net
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 4 Jul 2004 16:52:54 -0400
+Received: from ausc60pc101.us.dell.com ([143.166.85.206]:33910 "EHLO
+	ausc60pc101.us.dell.com") by vger.kernel.org with ESMTP
+	id S265794AbUGDUwv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jul 2004 16:52:51 -0400
+X-Ironport-AV: i="3.81R,146,1083560400"; 
+   d="scan'208"; a="52507701:sNHT25000856"
+Date: Sun, 4 Jul 2004 15:52:51 -0500 (CDT)
+From: Matt Domsch <Matt_Domsch@dell.com>
+X-X-Sender: mdomsch@humbolt.us.dell.com
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: Pavel Machek <pavel@suse.cz>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
+       David Balazic <david.balazic@hermes.si>
+Subject: Re: Weird:  30 sec delay during early boot
+In-Reply-To: <40E83F53.3050006@pobox.com>
+Message-ID: <Pine.LNX.4.44.0407041536040.19105-100000@humbolt.us.dell.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I recently did a fresh install of fedora core 2 on my thinkpad x24. 
-It had previously been running redhat 9 just fine.  For the most part,
-the new 2.6 kernel is awesome.  battery power is significantly
-improved and all devices and pc cards I have work fine.  The problem
-is that, occasionally, more often on battery power, but also on AC,
-the hard drive will start grinding away and the computer will get
-slower and slower until it becomes unuseable and I have to power it
-off.  Also, once or twice, my X session disappeared and it looked like
-I had been switched to a console, however the font was different
-(looked more like a graphical console than vga) and error messages of
-some sort were being printed.  I was able to get it back to my X
-session, but I don't recall how off hand.  I also don't remember what
-the error message said and I haven't been able to reproduce it again. 
-I suspect it may be acpi related.
+> This 30-second pause only appeared recently on my x86-64 box (VIA-based 
+> Athlon64), so I'll bsearch changesets when I get a free moment (sometime 
+> this week).
 
-dmesg:
-http://www.botchco.com/alex/x24/dmesg.txt
+It's definitely the EDD code that causes the delay, though I believe
+it's a BIOS problem.
 
-when ACPI loads there seems to be a problem with the ECDT:
+I've got one report
+http://marc.theaimsgroup.com/?l=linux-kernel&m=108797825504429&w=2
+from David Balazic with his  Gigabyte GA-7 VAXP Ultra motherboard.
+ BIOS version is F6.
+ Disks :
+  - Quantum lct20 20 GB
+  - IBM Deskstar 120GXP 60 GB
+ Both on the Promise PDC 20276 on-board controller, each on its own
+ channel(cable).
 
-ACPI: Subsystem revision 20040326
-ACPI: IRQ9 SCI: Edge set to Level Trigger.
-ACPI: Found ECDT
-ACPI: Could not use ECDT
-    ACPI-1133: *** Error: Method execution failed
-[\_SB_.PCI0.LPC_.EC__._INI] (Node 11eb5a9c), AE_NOT_EXIST
-ACPI: Interpreter enabled
+where there was a delay, which was variable based on stuff he put on
+the kernel command line. Likewise, downgrading to BIOS F4 did not
+exhibit any delay.
 
-I found this page:
-http://www.poupinou.org/acpi/ibm_ecdt.html
-regarding broken ECDT tables on thinkpads, but it seems pretty old. 
-Is this something I should do, or is there already a fix for this in
-the acpi code?
+I've got another report with this board with a different BIOS 
+where this BIOS version on that board:
+Motherboard:  Gigabyte GA-7IXE4
+BIOS version: FAd  (that's a beta version)
+Kernel:       2.6.2-mm1
 
-contents of /proc/acpi:
-http://www.botchco.com/alex/x24/proc-acpi.txt
+worked without the delay.
 
+Yours is the first x86-64 BIOS I've heard with a problem.  Please
+provide the disk controller type and BIOS version.
 
-Any advice would be much appreciated.  let me know if you need any
-other information.
+> I wonder, even, if it is related to the bootsetup.h fix from Matt that I 
+> forwarded recently.
+
+Only that it's now probing more than just the first disk, but the
+first 16 possible BIOS disks.  If the BIOS behaves badly to an int13
+READ_SECTORS command, that'd be good to know...
+
+I'm open to suggestions on how to know, from real mode, if a BIOS will
+misbehave...
+
+FWIW, I'm on vacation this week, with limited email access, but will
+respond when I can.
 
 Thanks,
+Matt
 
-Alex
+-- 
+Matt Domsch
+Sr. Software Engineer, Lead Engineer
+Dell Linux Solutions linux.dell.com & www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com
+

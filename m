@@ -1,99 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317505AbSGOQHq>; Mon, 15 Jul 2002 12:07:46 -0400
+	id <S317504AbSGOQG4>; Mon, 15 Jul 2002 12:06:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317508AbSGOQHp>; Mon, 15 Jul 2002 12:07:45 -0400
-Received: from lockupnat.curl.com ([216.230.83.254]:59384 "EHLO
-	egghead.curl.com") by vger.kernel.org with ESMTP id <S317505AbSGOQHm>;
-	Mon, 15 Jul 2002 12:07:42 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.4.19-rc1/2.5.25 provide dummy fsync() routine for directories on NFS mounts
-References: <20020715075221.GC21470@uncarved.com> <Pine.LNX.3.95.1020715084232.22834A-100000@chaos.analogic.com> <20020715133507.GF32155@merlin.emma.line.org> <s5gwurxt59x.fsf@egghead.curl.com> <20020715151833.GA22828@merlin.emma.line.org>
-From: "Patrick J. LoPresti" <patl@curl.com>
-Date: 15 Jul 2002 12:10:37 -0400
-In-Reply-To: <mit.lcs.mail.linux-kernel/20020715151833.GA22828@merlin.emma.line.org>
-Message-ID: <s5g4rf1t1j6.fsf@egghead.curl.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
+	id <S317505AbSGOQGz>; Mon, 15 Jul 2002 12:06:55 -0400
+Received: from host194.steeleye.com ([216.33.1.194]:37646 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S317504AbSGOQGw>; Mon, 15 Jul 2002 12:06:52 -0400
+Message-Id: <200207151109.g6FB9bK02279@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: Joerg Schilling <schilling@fokus.gmd.de>
+cc: linux-kernel@vger.kernel.org, James.Bottomley@SteelEye.com
+Subject: Re: IDE/ATAPI in 2.5
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Date: Mon, 15 Jul 2002 06:09:37 -0500
+From: James Bottomley <James.Bottomley@steeleye.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthias Andree <matthias.andree@stud.uni-dortmund.de> writes:
+James.Bottomley@SteelEye.com said:
+> As my textual description has not been read, here comes a acsii art of
+> the proposal for a driver structure:
 
-> The data= mode was not part of the past discussion, that's why I
-> brought this up now. However, reiserfs or ext3fs with data=writeback
-> only journal the fsync() metadata involved, not the order of data
-> (file contents) versus directory contents, so you can end up with a
-> "crash - journal replay - file with bogus contents" scenario.
+Actually, the diagram is very similar to what we possess internally today.
 
-This should not happen with a properly written application.  fsync()
-flushes a bunch of stuff to disk, but it normally makes no promise
-about the ORDER in which that stuff goes out.  fsync() itself is how
-application authors can enforce an ordering on disk operations.
+This represents where I think the SCSI stack is going:
 
-For example, a typical MTA might follow this paradigm:
+                   User Level
+--------------------------------------------------------------
 
-    write temp file
-    fsync()
-    rename temp file to destination
-    fsync()
-    report success
+ +----------------+   +---------------------+
+ | Block Interface|   | Character Interface |
+ +----------------+   +---------------------+
+         |                        |
+         |   +--------------------+
+         |   |
+ +---------------------+
+ | Block Layer         |     +----------------------+
+ | provides queueing   |     | Device Prep Functions|
+ | and elevator if     |     | st, sd, sg, etc.     |
+ | necessary.          |-----| Does transport       |
+ | Also provides all   |     | translation          |
+ | support functions   |     +----------------------+
+ | that may be shared  |                |
+ | across transports.  |     +----------------------+
+ |                     |     | Stackable error      |
+ |                     |-----| handling (not well   |
+ |                     |     | thought out yet)     |
+ |                     |     +----------------------+
+ |                     |
+ |                     |         +--------------------+
+ |                     |         | Transport helper   |
+ |                     |         | Contains all fns   |
+ |                     |         | not shareable by   |
+ |                     |         | other transports   |
+ +---------------------+         +--------------------+
+                   |                  |
+                   |                  |
+                 +-------------------------+
+                 | Card driver (deals with |
+                 | attached transport      |
+                 | translation             |
+                 +-------------------------+
 
-(Yes, I know, "link/unlink" is more common in practice than rename().
-But the principle is the same.)
 
-Or, in the case of Postfix:
+As you can see, I plan to leverage the generic block layer to build the 
+transport stack.  The upper layer drivers become mere request_prep_fns whose 
+job is to translate the request to a transport specific command.
 
-    write message file
-    fsync()
-    chmod +x message file
-    fsync()
-    report success
+The struct request will go all the way down to the card driver, but the card 
+driver may choose to deal only with the transport translation if it wants.
 
-The first paradigm uses the presence of a directory entry to represent
-"committed" data.  The second uses a mode bit on the file.
+The driving vision for this is to move into the generic block layer as much of 
+the individual transport stack as makes sense (i.e. if other transports can 
+make use of the functions), so, for example, Tag command queueing is already 
+in there and shared between IDE and SCSI.
 
-Both of these paradigms work fine with data=writeback.  Yes, they
-require calling fsync() twice, but that is exactly what you need to
-enforce the ordering constraints!
+The ultimate end point will be when the correct balance between what belongs 
+in the generic block layer and what belongs in the transport helpers is 
+achieved.  I speculate that, for CDROMS, this will lead to two small request 
+prep modules sharing quite a large helper library (The helper library would do 
+SCSI command translation, and probably the IDE prep module would fix up the 
+transport command for the specific device).  However, I don't rule out that it 
+would lead to a single prep module for both IDE and SCSI.
 
-An MTA has two ordering constraints:
+The device naming issues are totally separate from the above.  I intend that 
+driverfs will cope with them.  Internally, the block layer just thinks of the 
+stack as a series of entry points for physical devices.  Driverfs gives the 
+card driver freedom to provide a hierarchical ascii device name as it sees 
+fit.  Hopefully this will finesse the so called persistent binding issues that 
+plague solaris.
 
-  1) Data must be flushed to disk before it is marked on disk as
-     "committed".  This is to ensure that, after a crash, the MTA does
-     not read a corrupted mail file.
+Ultimately, this means that host and channel is subsumed into the card 
+identification scheme, target ID may no longer be a number and even LUN may 
+end up being a LUN hierarchy representation.  As we do this, we'll move to 
+exposing persistent names, so the user shouldn't necessarily care about this.
 
-  2) Data must be marked on disk as "committed" before a success code
-     is reported to the remote MTA.  This is to ensure that no mail is
-     lost.
+James Bottomley
 
-The ext3 data=ordered mode enforces the first constraint for mailers
-using the "rename" paradigm, eliminating the need for the first
-fsync() call.  But any MTA which relies on data=ordered semantics is
-not only Linux-specific, but ext3/reiserfs specific!
 
-Synchronous directory updates, a la FFS, enforce the second constraint
-(again for the "rename" paradigm), eliminating the need for the second
-fsync().
-
-But to be robust across platforms and file systems, a mailer needs
-both fsync() calls.  (On Linux, you actually need to fsync() the
-*directory*, not the file, for the "rename" paradigm.  It would be
-nice if we could convince MTA authors to do this.)
-
-> I don't think so. They'd rather declare ReiserFS unsupported and go with
-> chattr +S. Seen that.
-> 
-> New implementations (Courier's maildrop) still rely on BSD FFS
-> "synchronous directory" semantics.
-
-Are you sure?  Because that is ridiculous...  Modern BSDs like to use
-"soft updates", which need that second fsync() to commit the metadata.
-So as long as fsync() commits the journal, either paradigm above
-should work fine under any journaling mode.
-
-Summary: *All* MTAs should call fsync() twice.  The only issue is what
-descriptors they should call it on, exactly :-).
-
- - Pat

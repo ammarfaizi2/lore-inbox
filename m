@@ -1,49 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264938AbTBKTVl>; Tue, 11 Feb 2003 14:21:41 -0500
+	id <S265102AbTBKTaO>; Tue, 11 Feb 2003 14:30:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265058AbTBKTVl>; Tue, 11 Feb 2003 14:21:41 -0500
-Received: from mail3.bluewin.ch ([195.186.1.75]:18071 "EHLO mail3.bluewin.ch")
-	by vger.kernel.org with ESMTP id <S264938AbTBKTVl>;
-	Tue, 11 Feb 2003 14:21:41 -0500
-Date: Tue, 11 Feb 2003 20:31:27 +0100
-From: Roger Luethi <rl@hellgate.ch>
-To: Henrik Persson <nix@socialism.nu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: via rhine bug? (timeouts and resets)
-Message-ID: <20030211193126.GA3136@k3.hellgate.ch>
-Mail-Followup-To: Henrik Persson <nix@socialism.nu>,
-	linux-kernel@vger.kernel.org
-References: <200302111344.h1BDiMPY067070@sirius.nix.badanka.com> <20030211154449.GA2252@k3.hellgate.ch> <200302111652.h1BGq0PY067795@sirius.nix.badanka.com> <20030211171736.GA1359@k3.hellgate.ch> <200302111745.h1BHjdPY067992@sirius.nix.badanka.com> <20030211183943.GA2443@k3.hellgate.ch> <200302111855.h1BItiPY068299@sirius.nix.badanka.com>
+	id <S265081AbTBKTaO>; Tue, 11 Feb 2003 14:30:14 -0500
+Received: from mail.webmaster.com ([216.152.64.131]:15760 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S265058AbTBKTaN> convert rfc822-to-8bit; Tue, 11 Feb 2003 14:30:13 -0500
+From: David Schwartz <davids@webmaster.com>
+To: <brand@jupiter.cs.uni-dortmund.de>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+X-Mailer: PocoMail 2.63 (1077) - Licensed Version
+Date: Tue, 11 Feb 2003 11:39:57 -0800
+In-Reply-To: <200302110742.h1B7gQqE011999@eeyore.valparaiso.cl>
+Subject: Re: Monta Vista software license terms
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200302111855.h1BItiPY068299@sirius.nix.badanka.com>
-User-Agent: Mutt/1.3.27i
-X-Operating-System: Linux 2.5.60 on i686
-X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
-X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-ID: <20030211193959.AAA14852@shell.webmaster.com@whenever>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 11 Feb 2003 19:55:07 +0100, Henrik Persson wrote:
-> Something was strange.. Now I get the errors.. But the funny thing is:
-> when downloading the file there's no problem at all. Uploading the same
+On Tue, 11 Feb 2003 08:42:26 +0100, Horst von Brand wrote:
 
-It's the Rhine Tx engine that's been giving us headaches all along. There's
-at least one bug in the Rx path, too, but it's masked by the Tx problems.
+>>On Mon, 10 Feb 2003 11:42:45 -0600, Oliver Xymoron wrote:
 
-Try this, log again. This will show whether I'm suspecting the right bug.
+>>>I certainly agree, but the problem is the NDA puts the shoe on the
+>>>other foot and now it's the customer that has to consult a lawyer
+>>>or
+>>>risk a nuisance suit before proceeding. So while it may not
+>>>forbid, >it
+>>>certainly discourages and impedes. Let me point out that I never
+>>>saw
+>>>the NDA in question but said coworker was sufficiently intimidated
+>>>>by
+>>>it that he was unwilling to give me a copy of the kernel and gcc
+>>>sources because of it.
 
-@@ -1290,6 +1290,9 @@ static void via_rhine_interrupt(int irq,
- 	while ((intr_status = readw(ioaddr + IntrStatus))) {
- 		/* Acknowledge all of the current interrupt sources ASAP. */
- 		writew(intr_status & 0xffff, ioaddr + IntrStatus);
-+		if (readb(ioaddr+0x84) & 0x08)
-+			printk(KERN_DEBUG "Gotcha: %#x %#x %#x\n", intr_status,
-+				readb(ioaddr+0x84), readb(ioaddr+0x86));
- 
- 		if (debug > 4)
- 			printk(KERN_DEBUG "%s: Interrupt, status %4.4x.\n",
+>>    I believe such a provision would, unfortunately, by considered
+>>legally enforceable. The rationale would be that the rights you
+>>(the
+>>recipient of the derived work) have under the GPL would only apply
+>>if
+>>the distributor were bound by the GPL. The only way the distributor
+>>
+>>could be bound by the GPL was if he or she did something that he
+>>didn't have the right to do without the GPL to give him or her such
+>>a
+>>right.
 
-Roger
+>The GPL gives me the right to distribute modified versions _only if 
+>I
+>comply with the GPL_. And GPL forbids further restrictions when
+>distributing.
+
+	I realize that. But that has nothing to do with what I said, which 
+analyzes only those rights you have without agreeing to the GPL by 
+virtue of the fact that you possess the work and were not subject to 
+any restrictions in the process of acquiring and using it.
+
+>If your bizarre interpretation was right, no software licence at all
+>would
+>have any validity. In particular, I'd be more than very surprised if
+>the
+>GPL was so sloppily written. It was written with the input of 
+>eminent lawyers, after all.
+
+	Your generalization doesn't apply because of several major 
+differences between most software licenses and the GPL:
+
+	1) Most software licenses do not grant everyone the right to use the 
+work covered.
+
+	2) Most software licenses do not grant anyone the right to create 
+derived works.
+
+	3) Most software licenses require your assent before you can use the 
+covered work, in fact, most require your assent before you have the 
+right to possess the covered work.
+
+	However, one sticky point is that the GPL talks about 'modifying' a 
+work. You can create derived works without modifying the original 
+work and the GPL is unclear in this respect. However, I would argue 
+that linking to a library file is using it and including a header 
+file in your C code is using it. After all, there is nothing else you 
+can do with such files.
+
+	DS
+
+

@@ -1,47 +1,126 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317176AbSGSWrA>; Fri, 19 Jul 2002 18:47:00 -0400
+	id <S317148AbSGSWq7>; Fri, 19 Jul 2002 18:46:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317152AbSGSWrA>; Fri, 19 Jul 2002 18:47:00 -0400
-Received: from w089.z209220022.nyc-ny.dsl.cnc.net ([209.220.22.89]:56968 "HELO
-	yucs.org") by vger.kernel.org with SMTP id <S317181AbSGSWpe>;
-	Fri, 19 Jul 2002 18:45:34 -0400
-Subject: Re: more thoughts on a new jail() system call
-From: Shaya Potter <spotter@cs.columbia.edu>
-To: David Wagner <daw@mozart.cs.berkeley.edu>
+	id <S317152AbSGSWq7>; Fri, 19 Jul 2002 18:46:59 -0400
+Received: from meg.hrz.tu-chemnitz.de ([134.109.132.57]:50185 "EHLO
+	meg.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S317148AbSGSWpZ>; Fri, 19 Jul 2002 18:45:25 -0400
+Date: Sat, 20 Jul 2002 00:39:18 +0200
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: William D Waddington <csbwaddington@att.net>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <ah7m2r$3cr$1@abraham.cs.berkeley.edu>
-References: <1026959170.14737.102.camel@zaphod> 
-	<ah7m2r$3cr$1@abraham.cs.berkeley.edu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.7 
-Date: 19 Jul 2002 18:48:35 -0400
-Message-Id: <1027118916.2635.132.camel@zaphod>
+Subject: Re: [never mind] kiobufs and highmem
+Message-ID: <20020720003918.G758@nightmaster.csn.tu-chemnitz.de>
+References: <ic9gju44p7ukriuv4etl0tdc5f6uf5s08m@4ax.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <ic9gju44p7ukriuv4etl0tdc5f6uf5s08m@4ax.com>; from csbwaddington@att.net on Fri, Jul 19, 2002 at 08:00:00AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-07-18 at 20:21, David Wagner wrote:
-> Shaya Potter  wrote:
-> >sys_mknod) J - Need FIFO ability, everything else not.
-> 
-> Beware the ability to pass file descriptors across Unix
-> domain sockets.  This should probably be restricted somehow.
-> Along similar lines, you didn't mention sendmsg() and
-> recvmsg(), but the fd-passing parts should probably be
-> restricted.
+On Fri, Jul 19, 2002 at 08:00:00AM -0700, William D Waddington wrote:
+> I haven't yet figured out how to allocate a (possibly) non-contiguous
+> buffer, since vmalloc is frowned on, or how to populate the kiobuf
+> with its pages.
 
-not sure there has to be anything restricted, more so than the
-filesystem restrictions already.  As from what I can tell from Stevens
-there are 2 ways to pass a fd over an AF_UNIX socket.  either socketpair
-(parent/child relationship i.e. both in jail) or a named socket, which
-then its constrained to the jailed FS, and therefore only processes in
-that particular jail have access to it.
+Don't use the kiobuf, since it is bloated.
 
-or am I wrong?
+Try this instead:
 
-thanks,
 
-shaya potter
+/* Pin down user pages and put them into a scatter gather list */
+int sg_map_user_pages(struct scatterlist *sgl, const unsigned int max_pages, 
+		unsigned long uaddr, size_t count, int rw) {
+	int res, i;
+	unsigned int nr_pages=((uaddr & ~PAGE_MASK) + count - 1 + ~PAGE_MASK) >> PAGE_SHIFT;
+	struct page *pages[max_pages];
 
+	/* User attempted Overflow! */
+	if ((uaddr + count) < uaddr)
+		return -EINVAL;
+
+	/* To big */
+	if (nr_pages > max_pages)
+		return -ENOMEM;
+
+	/* Hmm? */
+	if (count == 0)
+		return 0;
+
+	/* Not enough SGL entries provided! */
+	BUG_ON((((uaddr & ~PAGE_MASK) + count + ~PAGE_MASK) >> PAGE_SHIFT) > max_pages );
+
+	down_read(&current->mm->mmap_sem);
+	res = get_user_pages(
+			current,
+			current->mm,
+			uaddr,
+			nr_pages,
+			rw == READ, /* logic is perversed^Wreversed here :-( */
+			0, /* don't force */
+			&pages[0],
+			NULL);
+	up_read(&current->mm->mmap_sem);
+
+	/* Errors and no page mapped should return here */
+	if (res <= 0) return res;
+
+	memset(sgl, 0, sizeof(*sgl) * nr_pages);
+
+	sgl[0].page = pages[0];	
+	sgl[0].offset = uaddr & PAGE_MASK;
+	
+	/* Page crossing transfers need these adjustments */
+	if (res > 1) {
+		for (i=1; i < res ; i++) {
+			sgl[i].offset = 0;
+			sgl[i].page = pages[i];	
+			sgl[i].length = PAGE_SIZE;
+		}
+		sgl[0].length = PAGE_SIZE - sgl[0].offset;
+		count -= sgl[0].length;
+		count -= (res - 2) * PAGE_SIZE;
+	}
+
+	sgl[res - 1].length = count;
+
+	return res;
+}
+
+/* And unmap them... */
+int sg_unmap_user_pages(struct scatterlist *sgl, const unsigned int nr_pages) {
+	int i;
+
+	for (i=0; i < nr_pages; i++)
+		page_cache_release(sgl[i].page);
+
+	return 0;
+}
+
+
+That will give you nearly the same. You just have to lock_page()
+the pages and UnlockPage() yourself.
+
+Don't give to high values for max_pages, because this might
+overflow your stack.
+
+Do the pci_map_sg() after sg_map_user_pages() and pci_unmap_sg()
+before sg_unmap_user_pages().
+
+This should work. If you have highmem pages and your device can't
+handle >32-bit physical addresses, then kmap() them
+before pci_map_sg()ing them and kunmap() them after
+pci_unmap_sg()ing.
+
+kiobufs are (next to) useless for character io devices.
+
+Hope that helps
+
+Regards
+
+Ingo Oeser
+-- 
+Science is what we can tell a computer. Art is everything else. --- D.E.Knuth

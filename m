@@ -1,48 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267356AbTBPTuk>; Sun, 16 Feb 2003 14:50:40 -0500
+	id <S267357AbTBPTze>; Sun, 16 Feb 2003 14:55:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267357AbTBPTuk>; Sun, 16 Feb 2003 14:50:40 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:27142 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S267356AbTBPTuj>;
-	Sun, 16 Feb 2003 14:50:39 -0500
-Date: Sun, 16 Feb 2003 21:00:36 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: "Alvaro Barbosa G." <alvaro.barbosa-g@ntlworld.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: > > make: *** No rule to make target `2'.  Stop. when make bzImage
-Message-ID: <20030216200036.GA26590@mars.ravnborg.org>
-Mail-Followup-To: "Alvaro Barbosa G." <alvaro.barbosa-g@ntlworld.com>,
-	linux-kernel@vger.kernel.org
-References: <200302161939.21889.alvaro.barbosa-g@ntlworld.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200302161939.21889.alvaro.barbosa-g@ntlworld.com>
-User-Agent: Mutt/1.4i
+	id <S267362AbTBPTzd>; Sun, 16 Feb 2003 14:55:33 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:21765 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S267357AbTBPTzd>; Sun, 16 Feb 2003 14:55:33 -0500
+Date: Sun, 16 Feb 2003 12:01:46 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Manfred Spraul <manfred@colorfullife.com>
+cc: "Martin J. Bligh" <mbligh@aracnet.com>, Anton Blanchard <anton@samba.org>,
+       Andrew Morton <akpm@digeo.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Zwane Mwaikambo <zwane@holomorphy.com>
+Subject: Re: more signal locking bugs?
+In-Reply-To: <Pine.LNX.4.44.0302161139530.2952-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0302161151160.2952-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 16, 2003 at 07:39:21PM +0000, Alvaro Barbosa G. wrote:
-> Sorry for the lack of info:
+
+On Sun, 16 Feb 2003, Linus Torvalds wrote:
 > 
-> Errors happen during: 
-> make bzImage 
-> will add the error file bzI_err
-> the architecture is for i686
-> this happen also with phoebe kernel-2.4.20-2.48, i had this problem a few
-> days ago, so i upgraded gcc, cpp, glibc, rpm to the latest rawhide rpms 
-> 15.2.03, but get the same error 'make No rule to make target '2''
+> See? ABBA _does_ happen with the task lock, it's just that the magic 
+> required to do so is fairly unlikely thanks to the added requirement for 
+> the irq to happen at just the right moment (ie there are no static 
+> code-paths that can cause it).
 
-You did not provide the exact command you are using..
-The attached log of the output looks OK. And I did not find the
-offending error.
+Note: to clarify, this isn't in any way a new situation. As far as I can 
+tell, this deadlock exists in 2.4.x too. And it's almost certainly pretty 
+much impossible to trigger in practice, and as such we shouldn't need to 
+be deeply worried about it. 
 
-I suspect that the syntax you use to divert output to a file is wrong,
-because the above error happens when you execute:
-make 2
+But it should make us think about the _design_ of locking in this region. 
+Clearly we got it wrong, and clearly we never noticed for several years.
 
-Try to doublecheck how you invoke make, and check any relevant environment
-variables.
+The simple fix is to make the task-lock be IRQ-safe. That fixes it, and
+that's probably the right minimal solution for for 2.4.x (unless the "fix"  
+for 2.4.x is to just ignore it since it's possible to trigger mostly in a
+theoretical sense).
 
-	Sam
+But assuming you accept that making the task-lock be irq-safe is the right
+solution, then making it solve the signal handling and /proc scalability
+issues is likely to be the right solution: since it's irq-safe, there's no 
+real reason not to use it to protect task->{sighand | signal | parent} 
+too.
+
+			Linus
+

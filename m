@@ -1,51 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129523AbQLYBgX>; Sun, 24 Dec 2000 20:36:23 -0500
+	id <S129228AbQLYBrY>; Sun, 24 Dec 2000 20:47:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129903AbQLYBgN>; Sun, 24 Dec 2000 20:36:13 -0500
-Received: from smtp01.mrf.mail.rcn.net ([207.172.4.60]:32689 "EHLO
-	smtp01.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
-	id <S129523AbQLYBgD>; Sun, 24 Dec 2000 20:36:03 -0500
-Message-ID: <3A469D5F.69655346@haque.net>
-Date: Sun, 24 Dec 2000 20:05:35 -0500
-From: "Mohammad A. Haque" <mhaque@haque.net>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test13-pre4 i686)
-X-Accept-Language: en
+	id <S129370AbQLYBrP>; Sun, 24 Dec 2000 20:47:15 -0500
+Received: from oracle.clara.net ([195.8.69.94]:12300 "EHLO oracle.clara.net")
+	by vger.kernel.org with ESMTP id <S129228AbQLYBrJ>;
+	Sun, 24 Dec 2000 20:47:09 -0500
+Date: Mon, 25 Dec 2000 01:13:41 +0000 (GMT)
+From: Dave Gilbert <gilbertd@treblig.org>
+To: linux-kernel@vger.kernel.org
+Subject: shmat returning NULL with 0 sized segment
+Message-ID: <Pine.LNX.4.10.10012250109450.666-100000@tardis.home.dave>
 MIME-Version: 1.0
-To: Dave Gilbert <gilbertd@treblig.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: css hang; somewhere between test12 and test13pre4ac2
-In-Reply-To: <Pine.LNX.4.10.10012242340530.666-100000@tardis.home.dave>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Actually... I just remembered that I have my kernel patched to bring it
-up-to-date with udf cvs.
+Hi,
+  I'm trying to debug a weird problem with Xine - its screwing up its use
+of shared memory for regions I haven't sussed yet.  One odd consequence is
+that it has apparently successfully managed to allocate a 0 byte chunk of
+shared memory; shmat is then called with shmaddr=0 and shmflg=0; the
+result of shmat is 0
 
-Dave Gilbert wrote:
-> 
-> Hi,
->   Somewhere between test12 and test13pre4ac2 (sheesh the version
-> numbers.....) CSS on ATAPI DVD ROM drives has stopped working.
-> 
-> Playing a CSS disc (using xine) causes a complete system hang (machine
-> doesn't ping - sysrq-b still works) on test13pre4ac2.  On test12 it is
-> still OK.
-> 
-> This is on an Alpha LX164.
+  Is this what shmat is supposed to do in this (admittedly odd)
+circumstance? The error behaviour is defined in the man page as returning
+-1 on error.
+
+(Linux/Alpha 2.4.0-test8)
+
+Back to trying to find out why it decided to allocate a  0 byte chunk....
+
+Dave
+
 
 -- 
+ ---------------- Have a happy GNU millennium! ----------------------   
+/ Dr. David Alan Gilbert      | Running GNU/Linux on       |  Happy  \ 
+\   gro.gilbert @ treblig.org |  Alpha, x86, ARM and SPARC |  In Hex /
+ \ ___________________________|___ http://www.treblig.org  |________/
 
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/ 
-                                               mhaque@haque.net
 
-  "Alcohol and calculus don't mix.             Project Lead
-   Don't drink and derive." --Unknown          http://wm.themes.org/
-                                               batmanppc@themes.org
-=====================================================================
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

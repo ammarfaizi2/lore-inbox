@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316437AbSGGSzo>; Sun, 7 Jul 2002 14:55:44 -0400
+	id <S316446AbSGGS6v>; Sun, 7 Jul 2002 14:58:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316446AbSGGSzn>; Sun, 7 Jul 2002 14:55:43 -0400
-Received: from pat.uio.no ([129.240.130.16]:37781 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S316437AbSGGSzj>;
-	Sun, 7 Jul 2002 14:55:39 -0400
+	id <S316465AbSGGS6u>; Sun, 7 Jul 2002 14:58:50 -0400
+Received: from mons.uio.no ([129.240.130.14]:49877 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S316446AbSGGS6s>;
+	Sun, 7 Jul 2002 14:58:48 -0400
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15656.36665.925483.877526@charged.uio.no>
-Date: Sun, 7 Jul 2002 20:58:01 +0200
+Message-ID: <15656.36854.346705.165994@charged.uio.no>
+Date: Sun, 7 Jul 2002 21:01:10 +0200
 To: Linus Torvalds <torvalds@transmeta.com>
 Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 2.5.25 Clean up RPC receive code
+Subject: [PATCH] 2.5.25 Clean up RPC receive code [part 2]
 X-Mailer: VM 7.00 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
 Reply-To: trond.myklebust@fys.uio.no
 From: Trond Myklebust <trond.myklebust@fys.uio.no>
@@ -21,283 +21,151 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-  Divorces task xid<->request slot mapping from the internals of the
-rpc_waitqueue xprt->pending. Instead xprt_lookup_rqst() is made to
-search a dedicated list (xprt->recv) on which the request slot is
-placed immediately after being allocated to a task. The new queue is
-protected using the spinlock xprt->sock_lock rather than the generic
-RPC task lock.
-
-  Both udp_data_ready() and tcp_data_ready() (well tcp_read_request()
-actually) now need to protect against the request being removed from
-the xprt->recv list while they copy the RPC reply data from the skb.
-On the other hand, they no longer need to worry about the task
-disappearing from xprt->pending. This means that rpc_lock_task() hack
-can be replaced by the spinlock xprt->sock_lock.
+  After getting rid of rpc_lock_task() from net/sunrpc/xprt.c (see the
+previous patch), we can now remove it from the generic RPC queue
+handling code.
 
 Cheers,
   Trond
 
-diff -u --recursive --new-file linux-2.5.25-fix_refresh/include/linux/sunrpc/xprt.h linux-2.5.25-rpc_rep/include/linux/sunrpc/xprt.h
---- linux-2.5.25-fix_refresh/include/linux/sunrpc/xprt.h	Sat May 25 21:26:12 2002
-+++ linux-2.5.25-rpc_rep/include/linux/sunrpc/xprt.h	Sun Jul  7 17:43:16 2002
-@@ -83,7 +83,9 @@
- 	struct rpc_task *	rq_task;	/* RPC task data */
- 	__u32			rq_xid;		/* request XID */
- 	struct rpc_rqst *	rq_next;	/* free list */
--	volatile unsigned char	rq_received : 1;/* receive completed */
-+	int			rq_received;	/* receive completed */
-+
-+	struct list_head	rq_list;
- 
- 	/*
- 	 * For authentication (e.g. auth_des)
-@@ -149,6 +151,8 @@
- 	spinlock_t		xprt_lock;	/* lock xprt info */
- 	struct rpc_task *	snd_task;	/* Task blocked in send */
- 
-+	struct list_head	recv;
-+
- 
- 	void			(*old_data_ready)(struct sock *, int);
- 	void			(*old_state_change)(struct sock *);
-Binary files linux-2.5.25-fix_refresh/net/sunrpc/.xprt.c.swp and linux-2.5.25-rpc_rep/net/sunrpc/.xprt.c.swp differ
-diff -u --recursive --new-file linux-2.5.25-fix_refresh/net/sunrpc/clnt.c linux-2.5.25-rpc_rep/net/sunrpc/clnt.c
---- linux-2.5.25-fix_refresh/net/sunrpc/clnt.c	Thu May 23 16:34:52 2002
-+++ linux-2.5.25-rpc_rep/net/sunrpc/clnt.c	Sun Jul  7 17:43:16 2002
-@@ -595,13 +595,16 @@
- 	dprintk("RPC: %4d call_status (status %d)\n", 
- 				task->tk_pid, task->tk_status);
- 
-+	req = task->tk_rqstp;
-+	if (req->rq_received != 0)
-+		status = req->rq_received;
- 	if (status >= 0) {
-+		req->rq_received = 0;
- 		task->tk_action = call_decode;
- 		return;
- 	}
- 
- 	task->tk_status = 0;
--	req = task->tk_rqstp;
- 	switch(status) {
- 	case -ETIMEDOUT:
- 		task->tk_action = call_timeout;
-diff -u --recursive --new-file linux-2.5.25-fix_refresh/net/sunrpc/xprt.c linux-2.5.25-rpc_rep/net/sunrpc/xprt.c
---- linux-2.5.25-fix_refresh/net/sunrpc/xprt.c	Fri May 24 13:32:02 2002
-+++ linux-2.5.25-rpc_rep/net/sunrpc/xprt.c	Sun Jul  7 17:57:26 2002
-@@ -68,8 +68,6 @@
- 
- #include <asm/uaccess.h>
- 
--extern spinlock_t rpc_queue_lock;
--
- /*
-  * Local variables
+diff -u --recursive --new-file linux-2.5.25-rpc_rep/include/linux/sunrpc/sched.h linux-2.5.25-rpc_cleanup/include/linux/sunrpc/sched.h
+--- linux-2.5.25-rpc_rep/include/linux/sunrpc/sched.h	Tue Feb 26 22:56:28 2002
++++ linux-2.5.25-rpc_cleanup/include/linux/sunrpc/sched.h	Sun Jul  7 17:48:20 2002
+@@ -75,9 +75,7 @@
+ 	wait_queue_head_t	tk_wait;	/* sync: sleep on this q */
+ 	unsigned long		tk_timeout;	/* timeout for rpc_sleep() */
+ 	unsigned short		tk_flags;	/* misc flags */
+-	unsigned short		tk_lock;	/* Task lock counter */
+-	unsigned char		tk_active   : 1,/* Task has been activated */
+-				tk_wakeup   : 1;/* Task waiting to wake up */
++	unsigned char		tk_active   : 1;/* Task has been activated */
+ 	unsigned long		tk_runstate;	/* Task run status */
+ #ifdef RPC_DEBUG
+ 	unsigned short		tk_pid;		/* debugging aid */
+@@ -181,15 +179,11 @@
+ void		rpc_remove_wait_queue(struct rpc_task *);
+ void		rpc_sleep_on(struct rpc_wait_queue *, struct rpc_task *,
+ 					rpc_action action, rpc_action timer);
+-void		rpc_sleep_locked(struct rpc_wait_queue *, struct rpc_task *,
+-				 rpc_action action, rpc_action timer);
+ void		rpc_add_timer(struct rpc_task *, rpc_action);
+ void		rpc_wake_up_task(struct rpc_task *);
+ void		rpc_wake_up(struct rpc_wait_queue *);
+ struct rpc_task *rpc_wake_up_next(struct rpc_wait_queue *);
+ void		rpc_wake_up_status(struct rpc_wait_queue *, int);
+-int		__rpc_lock_task(struct rpc_task *);
+-void		rpc_unlock_task(struct rpc_task *);
+ void		rpc_delay(struct rpc_task *, unsigned long);
+ void *		rpc_allocate(unsigned int flags, unsigned int);
+ void		rpc_free(void *);
+diff -u --recursive --new-file linux-2.5.25-rpc_rep/net/sunrpc/sched.c linux-2.5.25-rpc_cleanup/net/sunrpc/sched.c
+--- linux-2.5.25-rpc_rep/net/sunrpc/sched.c	Sat May  4 03:52:12 2002
++++ linux-2.5.25-rpc_cleanup/net/sunrpc/sched.c	Sun Jul  7 17:50:03 2002
+@@ -73,7 +73,7 @@
+  * Spinlock for wait queues. Access to the latter also has to be
+  * interrupt-safe in order to allow timers to wake up sleeping tasks.
   */
-@@ -465,20 +463,16 @@
- static inline struct rpc_rqst *
- xprt_lookup_rqst(struct rpc_xprt *xprt, u32 xid)
- {
--	struct rpc_rqst	*req;
--	struct list_head *le;
--	struct rpc_task *task;
-+	struct list_head *pos;
-+	struct rpc_rqst	*req = NULL;
- 
--	spin_lock_bh(&rpc_queue_lock);
--	task_for_each(task, le, &xprt->pending.tasks)
--		if ((req = task->tk_rqstp) && req->rq_xid == xid)
--			goto out;
--	dprintk("RPC:      unknown XID %08x in reply.\n", xid);
--	req = NULL;
-- out:
--	if (req && !__rpc_lock_task(req->rq_task))
--		req = NULL;
--	spin_unlock_bh(&rpc_queue_lock);
-+	list_for_each(pos, &xprt->recv) {
-+		struct rpc_rqst *entry = list_entry(pos, struct rpc_rqst, rq_list);
-+		if (entry->rq_xid == xid) {
-+			req = entry;
-+			break;
-+		}
-+	}
- 	return req;
- }
- 
-@@ -515,7 +509,7 @@
- 
- 	dprintk("RPC: %4d has input (%d bytes)\n", task->tk_pid, copied);
- 	task->tk_status = copied;
--	req->rq_received = 1;
-+	req->rq_received = copied;
- 
- 	/* ... and wake up the process. */
- 	rpc_wake_up_task(task);
-@@ -613,9 +607,10 @@
- 	}
- 
- 	/* Look up and lock the request corresponding to the given XID */
-+	spin_lock(&xprt->sock_lock);
- 	rovr = xprt_lookup_rqst(xprt, *(u32 *) (skb->h.raw + sizeof(struct udphdr)));
- 	if (!rovr)
--		goto dropit;
-+		goto out_unlock;
- 	task = rovr->rq_task;
- 
- 	dprintk("RPC: %4d received reply\n", task->tk_pid);
-@@ -635,8 +630,7 @@
- 	xprt_complete_rqst(xprt, rovr, copied);
- 
-  out_unlock:
--	rpc_unlock_task(task);
--
-+	spin_unlock(&xprt->sock_lock);
-  dropit:
- 	skb_free_datagram(sk, skb);
-  out:
-@@ -738,11 +732,13 @@
- 	size_t len;
- 
- 	/* Find and lock the request corresponding to this xid */
-+	spin_lock(&xprt->sock_lock);
- 	req = xprt_lookup_rqst(xprt, xprt->tcp_xid);
- 	if (!req) {
- 		xprt->tcp_flags &= ~XPRT_COPY_DATA;
- 		dprintk("RPC:      XID %08x request not found!\n",
- 				xprt->tcp_xid);
-+		spin_unlock(&xprt->sock_lock);
- 		return;
- 	}
- 
-@@ -776,7 +772,7 @@
- 				req->rq_task->tk_pid);
- 		xprt_complete_rqst(xprt, req, xprt->tcp_copied);
- 	}
--	rpc_unlock_task(req->rq_task); 
-+	spin_unlock(&xprt->sock_lock);
- 	tcp_check_recm(xprt);
- }
- 
-@@ -933,16 +929,21 @@
- xprt_timer(struct rpc_task *task)
- {
- 	struct rpc_rqst	*req = task->tk_rqstp;
-+	struct rpc_xprt *xprt = req->rq_xprt;
- 
--	if (req)
--		xprt_adjust_cwnd(task->tk_xprt, -ETIMEDOUT);
-+	spin_lock(&xprt->sock_lock);
-+	if (req->rq_received)
-+		goto out;
-+	xprt_adjust_cwnd(xprt, -ETIMEDOUT);
- 
- 	dprintk("RPC: %4d xprt_timer (%s request)\n",
- 		task->tk_pid, req ? "pending" : "backlogged");
- 
- 	task->tk_status  = -ETIMEDOUT;
-+out:
- 	task->tk_timeout = 0;
- 	rpc_wake_up_task(task);
-+	spin_unlock(&xprt->sock_lock);
- }
- 
+-spinlock_t rpc_queue_lock = SPIN_LOCK_UNLOCKED;
++static spinlock_t rpc_queue_lock = SPIN_LOCK_UNLOCKED;
  /*
-@@ -995,14 +996,6 @@
- 	int status, retry = 0;
- 
- 
--	/* For fast networks/servers we have to put the request on
--	 * the pending list now:
--	 * Note that we don't want the task timing out during the
--	 * call to xprt_sendmsg(), so we initially disable the timeout,
--	 * and then reset it later...
--	 */
--	xprt_receive(task);
--
- 	/* Continue transmitting the packet/record. We must be careful
- 	 * to cope with writespace callbacks arriving _after_ we have
- 	 * called xprt_sendmsg().
-@@ -1034,15 +1027,11 @@
- 		if (retry++ > 50)
- 			break;
- 	}
--	rpc_unlock_task(task);
- 
- 	/* Note: at this point, task->tk_sleeping has not yet been set,
- 	 *	 hence there is no danger of the waking up task being put on
- 	 *	 schedq, and being picked up by a parallel run of rpciod().
- 	 */
--	rpc_wake_up_task(task);
--	if (!RPC_IS_RUNNING(task))
--		goto out_release;
- 	if (req->rq_received)
- 		goto out_release;
- 
-@@ -1077,31 +1066,15 @@
- 	dprintk("RPC: %4d xmit complete\n", task->tk_pid);
- 	/* Set the task's receive timeout value */
- 	task->tk_timeout = req->rq_timeout.to_current;
--	rpc_add_timer(task, xprt_timer);
--	rpc_unlock_task(task);
-+	spin_lock_bh(&xprt->sock_lock);
-+	if (!req->rq_received)
-+		rpc_sleep_on(&xprt->pending, task, NULL, xprt_timer);
-+	spin_unlock_bh(&xprt->sock_lock);
-  out_release:
- 	xprt_release_write(xprt, task);
+  * Spinlock for other critical sections of code.
+  */
+@@ -157,7 +157,7 @@
+ void rpc_add_timer(struct rpc_task *task, rpc_action timer)
+ {
+ 	spin_lock_bh(&rpc_queue_lock);
+-	if (!(RPC_IS_RUNNING(task) || task->tk_wakeup))
++	if (!RPC_IS_RUNNING(task))
+ 		__rpc_add_timer(task, timer);
+ 	spin_unlock_bh(&rpc_queue_lock);
+ }
+@@ -358,27 +358,10 @@
+ 	spin_unlock_bh(&rpc_queue_lock);
  }
  
- /*
-- * Queue the task for a reply to our call.
-- * When the callback is invoked, the congestion window should have
-- * been updated already.
-- */
 -void
--xprt_receive(struct rpc_task *task)
+-rpc_sleep_locked(struct rpc_wait_queue *q, struct rpc_task *task,
+-		 rpc_action action, rpc_action timer)
 -{
--	struct rpc_rqst	*req = task->tk_rqstp;
--	struct rpc_xprt	*xprt = req->rq_xprt;
+-	/*
+-	 * Protect the queue operations.
+-	 */
+-	spin_lock_bh(&rpc_queue_lock);
+-	__rpc_sleep_on(q, task, action, timer);
+-	__rpc_lock_task(task);
+-	spin_unlock_bh(&rpc_queue_lock);
+-}
 -
--	dprintk("RPC: %4d xprt_receive\n", task->tk_pid);
+ /**
+  * __rpc_wake_up_task - wake up a single rpc_task
+  * @task: task to be woken up
+  *
+- * If the task is locked, it is merely removed from the queue, and
+- * 'task->tk_wakeup' is set. rpc_unlock_task() will then ensure
+- * that it is woken up as soon as the lock count goes to zero.
+- *
+  * Caller must hold rpc_queue_lock
+  */
+ static void
+@@ -407,14 +390,6 @@
+ 	if (task->tk_rpcwait != &schedq)
+ 		__rpc_remove_wait_queue(task);
+ 
+-	/* If the task has been locked, then set tk_wakeup so that
+-	 * rpc_unlock_task() wakes us up... */
+-	if (task->tk_lock) {
+-		task->tk_wakeup = 1;
+-		return;
+-	} else
+-		task->tk_wakeup = 0;
 -
--	req->rq_received = 0;
--	task->tk_timeout = 0;
--	rpc_sleep_locked(&xprt->pending, task, NULL, NULL);
+ 	rpc_make_runnable(task);
+ 
+ 	dprintk("RPC:      __rpc_wake_up_task done\n");
+@@ -502,30 +477,6 @@
+ }
+ 
+ /*
+- * Lock down a sleeping task to prevent it from waking up
+- * and disappearing from beneath us.
+- *
+- * This function should always be called with the
+- * rpc_queue_lock held.
+- */
+-int
+-__rpc_lock_task(struct rpc_task *task)
+-{
+-	if (!RPC_IS_RUNNING(task))
+-		return ++task->tk_lock;
+-	return 0;
+-}
+-
+-void
+-rpc_unlock_task(struct rpc_task *task)
+-{
+-	spin_lock_bh(&rpc_queue_lock);
+-	if (task->tk_lock && !--task->tk_lock && task->tk_wakeup)
+-		__rpc_wake_up_task(task);
+-	spin_unlock_bh(&rpc_queue_lock);
 -}
 -
 -/*
-  * Reserve an RPC call slot.
+  * Run a task at a later time
   */
- int
-@@ -1188,6 +1161,10 @@
- 	req->rq_xid     = xid++;
- 	if (!xid)
- 		xid++;
-+	INIT_LIST_HEAD(&req->rq_list);
-+	spin_lock_bh(&xprt->sock_lock);
-+	list_add_tail(&req->rq_list, &xprt->recv);
-+	spin_unlock_bh(&xprt->sock_lock);
- }
+ static void	__rpc_atrun(struct rpc_task *);
+@@ -707,15 +658,6 @@
+ 		spin_lock_bh(&rpc_queue_lock);
  
- /*
-@@ -1206,6 +1183,10 @@
- 	}
- 	if (!(req = task->tk_rqstp))
- 		return;
-+	spin_lock_bh(&xprt->sock_lock);
-+	if (!list_empty(&req->rq_list))
-+		list_del(&req->rq_list);
-+	spin_unlock_bh(&xprt->sock_lock);
- 	task->tk_rqstp = NULL;
- 	memset(req, 0, sizeof(*req));	/* mark unused */
+ 		task_for_first(task, &schedq.tasks) {
+-			if (task->tk_lock) {
+-				spin_unlock_bh(&rpc_queue_lock);
+-				printk(KERN_ERR "RPC: Locked task was scheduled !!!!\n");
+-#ifdef RPC_DEBUG			
+-				rpc_debug = ~0;
+-				rpc_show_tasks();
+-#endif			
+-				break;
+-			}
+ 			__rpc_remove_wait_queue(task);
+ 			spin_unlock_bh(&rpc_queue_lock);
  
-@@ -1280,6 +1261,8 @@
- 	spin_lock_init(&xprt->xprt_lock);
- 	init_waitqueue_head(&xprt->cong_wait);
- 
-+	INIT_LIST_HEAD(&xprt->recv);
-+
- 	/* Set timeout parameters */
- 	if (to) {
- 		xprt->timeout = *to;

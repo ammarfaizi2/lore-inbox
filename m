@@ -1,46 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267187AbSKMMCH>; Wed, 13 Nov 2002 07:02:07 -0500
+	id <S267190AbSKMMGM>; Wed, 13 Nov 2002 07:06:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267188AbSKMMCH>; Wed, 13 Nov 2002 07:02:07 -0500
-Received: from graze.net ([65.207.24.2]:62345 "EHLO graze.net")
-	by vger.kernel.org with ESMTP id <S267187AbSKMMCG>;
-	Wed, 13 Nov 2002 07:02:06 -0500
-Subject: Re: i810 audio
-From: "Brian C. Huffman" <sheep@oveja.graze.net>
+	id <S267191AbSKMMGM>; Wed, 13 Nov 2002 07:06:12 -0500
+Received: from [195.110.114.159] ([195.110.114.159]:28199 "EHLO trinityteam.it")
+	by vger.kernel.org with ESMTP id <S267190AbSKMMGL>;
+	Wed, 13 Nov 2002 07:06:11 -0500
+Date: Wed, 13 Nov 2002 13:19:11 +0100 (CET)
+From: <ricci@esentar.trinityteam.it>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Peter Kundrat <kundrat@kundrat.sk>, linux-kernel@vger.kernel.org
-In-Reply-To: <1037148199.10029.30.camel@irongate.swansea.linux.org.uk>
-References: <Pine.LNX.4.44.0211121802540.27793-100000@graze.net>
-	<1037144284.10029.0.camel@irongate.swansea.linux.org.uk>
-	<20021112184349.A11757@redhat.com>  <20021113000449.GB7015@napri.sk> 
-	<1037148199.10029.30.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 13 Nov 2002 07:08:49 -0500
-Message-Id: <1037189332.1846.2.camel@oveja.graze.net>
-Mime-Version: 1.0
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: PDC20276 Linux driver
+In-Reply-To: <1037117166.8313.61.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.21.0211131306010.10691-100000@esentar.trinityteam.it>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At least for mine, here's what I get out of /var/log/messages:
-
-Nov 13 00:37:17 xxxxx kernel: i810_audio: Connection 0 with codec id 2
-Nov 13 00:37:17 xxxxx kernel: ac97_codec: AC97 Audio codec, id:
-ADS114(Unknown)
-Nov 13 00:37:17 xxxxx kernel: i810_audio: AC'97 codec 2 supports AMAP,
-total channels = 2
 
 
-On Tue, 2002-11-12 at 19:43, Alan Cox wrote:
+On 12 Nov 2002, Alan Cox wrote:
 
-> The kernel knows which AC'97 chip is attached so it could be given a
-> table to specify chips where "volume" should either not be presented or
-> should be remapped. Do you know what AC97 chip is on your board (Linux
-> will print the info in the i810 load, windows and the manual probably
-> claim that you have that as your sound chip (typically "Analog
-> something" or "Crystal something").
+> On Tue, 2002-11-12 at 15:43, ricci@trinityteam.it wrote:
+> > During Slackware installation (whith kernel compiled by myself), after
+> > about half a gigabyte written in the disk/disks all process
+> > reading/writeing from/to the disks stop running, I cannot kill them, ps
+> > show me them with the 'D' flag, I cannot umount the disk/disks.
+> 
+> What drives, exactly what messages are logged (dmesg) ?
 > 
 
+I made many tryes, and I taken for u 6 (I hope) significant tests
+2.4.19 whith pdc drivers with and without softwer raid
+2.5.46 whith pdc drivers with and without softwer raid
+2.4.19 whith ataraid drivers with and without pdc drivers
+all these tests issue the same problem.
+For each try I have kernel config file and dmesg output and they are very
+much text, so I think it isn't a good thig send all to u, tell me in
+which u are interested and I'll send them.
+
+If u think I can make a more usefull test, tell me about it.
+
+Thank you again,
+Daniele.
 

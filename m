@@ -1,55 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316822AbSFVBXi>; Fri, 21 Jun 2002 21:23:38 -0400
+	id <S316683AbSFVA35>; Fri, 21 Jun 2002 20:29:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316823AbSFVBXh>; Fri, 21 Jun 2002 21:23:37 -0400
-Received: from bitmover.com ([192.132.92.2]:4323 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S316822AbSFVBXg>;
-	Fri, 21 Jun 2002 21:23:36 -0400
-Date: Fri, 21 Jun 2002 18:23:37 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
-Cc: Daniel Phillips <phillips@arcor.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux, the microkernel (was Re: latest linus-2.5 BK broken)
-Message-ID: <20020621182337.T23670@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Horst von Brand <vonbrand@sleipnir.valparaiso.cl>,
-	Daniel Phillips <phillips@arcor.de>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <E17LUyA-0001wU-00@starship> <200206220107.g5M17AXp028825@sleipnir.valparaiso.cl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200206220107.g5M17AXp028825@sleipnir.valparaiso.cl>; from vonbrand@sleipnir.valparaiso.cl on Fri, Jun 21, 2002 at 09:07:10PM -0400
+	id <S316821AbSFVA34>; Fri, 21 Jun 2002 20:29:56 -0400
+Received: from [66.89.142.11] ([66.89.142.11]:17517 "EHLO exalane.intransa.com")
+	by vger.kernel.org with ESMTP id <S316683AbSFVA34>;
+	Fri, 21 Jun 2002 20:29:56 -0400
+Message-ID: <3D13C4FE.8020601@candelatech.com>
+Date: Fri, 21 Jun 2002 17:29:50 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: andersen@codepoet.org
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Anyone get Linux on a Shuttle SpaceWalker SS40?
+References: <3D13BE09.40608@candelatech.com> <20020622001659.GA4339@codepoet.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 22 Jun 2002 00:29:52.0311 (UTC) FILETIME=[ECBE7470:01C21983]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 21, 2002 at 09:07:10PM -0400, Horst von Brand wrote:
-> Right. If they had designed it for 4/8 CPUs from the start, they would
-> surely have gotten it dead wrong. Just to find out how wrong around now...
+Erik Andersen wrote:
+> On Fri Jun 21, 2002 at 05:00:09PM -0700, Ben Greear wrote:
+> 
+>>I got a cute (and very quiet) SS40 bare-bones system.  I put an
+>>Athlon 1.8 and 256MB DDR (Generic, Samsung chips), and a cheap Maxtor 20GB 
+>>HD.
+> 
+> 
+> Perhaps the "very quiet" is a clue...  No fan?
+> 
+>  -Erik
 
-I couldn't disagree more.  The reason that all the SMP threaded OS's start
-to suck is that managers say "Yeah, one CPU is good but how about 2?"  Then
-a year goes by and then they say "Yeah, 2 CPUs are good but how about 4?".
-Etc.  So the system is never designed, it is hacked.  It's no wonder they
-suck.
+Give me a little credit :)
 
-My point has always been that if you were told up front that you needed to
-hit 2 orders of magnitude more CPUs than you have today, the design you'd
-end up with would be very different than the "just hack it some more to get
-2x more CPUs".  
+The bios has a temperature controlled fan, and I explicitly
+tested that the fan comes on high when it gets warmer..and spins
+slower when it's cool.
 
-The interesting thing is to look at the ways you'd deal with a 1024 processors
-and then work backwards to see how you scale it down to 1.  There is NO WAY
-to scale a fine grain threaded system which works on a 1024 system down to
-a 1 CPU system, those are profoundly different.  
+The bios reported temperature was about 47degres C, well within
+spec for an Athlon.
 
-I think you could take the OS cluster idea and scale it up as well as down.
-Scaling down is really important, Linux works well in the embedded space,
-that is probably the greatest financial success story that Linux has, let's
-not screw it up.
+Ben
+
 -- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+
+

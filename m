@@ -1,43 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315553AbSEMEKj>; Mon, 13 May 2002 00:10:39 -0400
+	id <S315734AbSEMEW7>; Mon, 13 May 2002 00:22:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315558AbSEMEKi>; Mon, 13 May 2002 00:10:38 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:47023 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S315553AbSEMEKi>;
-	Mon, 13 May 2002 00:10:38 -0400
-Date: Mon, 13 May 2002 00:10:37 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] devfs v212 available
-In-Reply-To: <200205130236.g4D2aPX13250@vindaloo.ras.ucalgary.ca>
-Message-ID: <Pine.GSO.4.21.0205130006570.27629-100000@weyl.math.psu.edu>
+	id <S315594AbSEMEW6>; Mon, 13 May 2002 00:22:58 -0400
+Received: from daimi.au.dk ([130.225.16.1]:4728 "EHLO daimi.au.dk")
+	by vger.kernel.org with ESMTP id <S315734AbSEMEW5>;
+	Mon, 13 May 2002 00:22:57 -0400
+Message-ID: <3CDF3F92.B3C3A18A@daimi.au.dk>
+Date: Mon, 13 May 2002 06:22:42 +0200
+From: Kasper Dupont <kasperd@daimi.au.dk>
+Organization: daimi.au.dk
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.9-12smp i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alexander Viro <viro@math.psu.edu>
+CC: Peter Chubb <peter@chubb.wattle.id.au>, Elladan <elladan@eskimo.com>,
+        " Jakob =?iso-8859-1?Q?=D8stergaard?=" <jakob@unthought.net>,
+        Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] ext2 and ext3 block reservations can be bypassed
+In-Reply-To: <Pine.GSO.4.21.0205121848080.27629-100000@weyl.math.psu.edu>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sun, 12 May 2002, Richard Gooch wrote:
-
-> OK, I've had a look. There is indeed a race there. While it is safe
-> against module unloading, it isn't safe against removal of entries
-> from the directory. I'm considering some different options to fix this
-> (one is simple and obvious, the other will be a little more
-> efficient).
+Alexander Viro wrote:
 > 
-> Question: can invalidate_device() and the bdops methods
-> check_media_change() and revalidate() be called with a lock held?
+> On Mon, 13 May 2002, Peter Chubb wrote:
+> 
+> > This is why in SVr4, struct cred is cloned at open time, and passed
+> > down to each VFS operation.
+> 
+> That doesn't work for shared mappings over holes.  Unfortunately.
+> Yes, credentials cache a-la 4.4BSD would help in many cases, but
+> we have no reasonably credentials when kswapd writes a dirty page
+> on disk.  It _can_ cause allocations.  And many processes might've
+> touched that page until it finally got written out - which credentials
+> would you use?
 
-Erm...  Depends on the nature of lock.  Spinlocks are out of question,
-obviously (at the very least we reread partition table if disk had been
-changed and you can't make that nonblocking ;-).  Semaphore might work,
-but I would be very careful with deadlocks - the same rereading partition
-table could add or remove devfs entries.
+I'd rather have the check done when the page gets dirty in the
+first place. Refuse the CoW if there is not diskspace to write
+it back. Right now we can go beyond the diskspace we are allowed
+to use and we will silently loose data if we go beyond the
+available diskspace.
 
-Could you describe what are you trying to achieve in the callers of
-check_disc_changed()?  I'd been unable to deduce that from code and
-some comments would be very welcome.
-
+-- 
+Kasper Dupont -- der bruger for meget tid på usenet.
+For sending spam use mailto:razor-report@daimi.au.dk

@@ -1,77 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265818AbTGIJHI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 05:07:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265879AbTGIJHH
+	id S265870AbTGIJEA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 05:04:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265871AbTGIJD7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 05:07:07 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:36534 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265818AbTGIJGw (ORCPT
+	Wed, 9 Jul 2003 05:03:59 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:34483 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265870AbTGIJD6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 05:06:52 -0400
-Message-ID: <33125.4.4.25.4.1057742478.squirrel@www.osdl.org>
-Date: Wed, 9 Jul 2003 02:21:18 -0700 (PDT)
-Subject: [announce] patch-2.5.74-kj1
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: <linux-kernel@vger.kernel.org>
-X-Priority: 3
-Importance: Normal
-Cc: <kernel-janitor-discuss@lists.sourceforge.net>
-X-Mailer: SquirrelMail (version 1.2.11)
-MIME-Version: 1.0
+	Wed, 9 Jul 2003 05:03:58 -0400
+Date: Wed, 9 Jul 2003 02:18:49 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Thomas Schlichter <schlicht@uni-mannheim.de>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.5.74-mm3
+Message-Id: <20030709021849.31eb3aec.akpm@osdl.org>
+In-Reply-To: <200307091106.00781.schlicht@uni-mannheim.de>
+References: <20030708223548.791247f5.akpm@osdl.org>
+	<200307091106.00781.schlicht@uni-mannheim.de>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Thomas Schlichter <schlicht@uni-mannheim.de> wrote:
+>
+> This gives following compile error when compiling the kernel with APM support 
+>  for UP:
+> 
+>  arch/i386/kernel/apm.c: In function `apm_bios_call':
+>  arch/i386/kernel/apm.c:600: error: incompatible types in assignment
+>  arch/i386/kernel/apm.c: In function `apm_bios_call_simple':
+>  arch/i386/kernel/apm.c:643: error: incompatible types in assignment
+> 
+>  The attached patch fixes this...
 
-I'm working off the (vacation) backlog, but still plenty to go.
-
-Please let me know if you use/test this.
-
-
-patch is at:
-http://developer.osdl.org/rddunlap/kj-patches/2.5.74/patch-2.5.74-kj1.bz2
-
-changes since patch-2.5.73-kj1:
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-add/    unused_var_drivers_serial_8250_cs.patch
-        Daniele Bellucci <bellucda@tiscali.it>
-
-add/    unchkd_return_copy_from_user_net_core_pktgen.c
-        Steffen Klassert <klassert@mathematik.tu-chemnitz.de>
-
-add/    pci_name_diff.txt
-        "Warren A. Layton" <zeevon@debian.org>
-
-add/    typo-usb-serial-kconfig.patch
-        Francois Romieu <romieu@fr.zoreil.com>
-
-add/    uninit_static_misc.patch
-        uninit_static_sound.patch
-        uninit_static_fs.patch
-        uninit_static_net.patch
-        Leann Ogasawara
-
-changes since patch-2.5.70-bk13-kj:
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-drop/   je_cpqarray_fix_stack_usage.patch
-        Jorn Engel and Randy Dunlap
-        merged by akpm on 2003-06-10 (in 2.5.71)
-
-keep/   je_wanrouter_fix_stack_usage.patch
-        Jorn Engel and Randy Dunlap
-
-add/    unchecked_copytouser.patch
-        in fs/proc_misc.c: Daniele Belluci
-
-add/    busmouse_retcode_memleak.patch
-        Flavio B. Leitner
-
-###
-
-~Randy
+Seems complex.  I just have this:
 
 
+diff -puN arch/i386/kernel/apm.c~cpumask-apm-fix-2 arch/i386/kernel/apm.c
+--- 25/arch/i386/kernel/apm.c~cpumask-apm-fix-2	2003-07-08 23:09:23.000000000 -0700
++++ 25-akpm/arch/i386/kernel/apm.c	2003-07-08 23:28:50.000000000 -0700
+@@ -528,7 +528,7 @@ static inline void apm_restore_cpus(cpum
+  *	No CPU lockdown needed on a uniprocessor
+  */
+  
+-#define apm_save_cpus()	0
++#define apm_save_cpus()		CPU_MASK_NONE
+ #define apm_restore_cpus(x)	(void)(x)
+ 
+ #endif
+
+_
 

@@ -1,44 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263448AbUEKT3b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263475AbUEKTa5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263448AbUEKT3b (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 15:29:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263460AbUEKT3b
+	id S263475AbUEKTa5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 15:30:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263472AbUEKTa4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 15:29:31 -0400
-Received: from fw.osdl.org ([65.172.181.6]:13782 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263448AbUEKT33 (ORCPT
+	Tue, 11 May 2004 15:30:56 -0400
+Received: from pop.gmx.net ([213.165.64.20]:28817 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263460AbUEKTan (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 15:29:29 -0400
-Date: Tue, 11 May 2004 12:28:59 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Cc: geoff@linux.jf.intel.com, linux-kernel@vger.kernel.org, mingo@elte.hu
-Subject: Re: [RFC] [PATCH] Performance of del_timer_sync
-Message-Id: <20040511122859.33c763ef.akpm@osdl.org>
-In-Reply-To: <200405111923.i4BJN6F17770@unix-os.sc.intel.com>
-References: <20040511121126.73f5fdeb.akpm@osdl.org>
-	<200405111923.i4BJN6F17770@unix-os.sc.intel.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 11 May 2004 15:30:43 -0400
+X-Authenticated: #20450766
+Date: Tue, 11 May 2004 21:29:47 +0200 (CEST)
+From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+To: James Bottomley <James.Bottomley@steeleye.com>
+cc: SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [BK PATCH] SCSI updates for 2.6.6
+In-Reply-To: <1084229974.1763.512.camel@mulgrave>
+Message-ID: <Pine.LNX.4.44.0405112125150.3836-100000@poirot.grange>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Chen, Kenneth W" <kenneth.w.chen@intel.com> wrote:
->
-> >  del_again:
->  >  	ret += del_timer(timer);
->  > +	if (!ret)
->  > +		return 0;
->  >
->  >  	for_each_cpu(i) {
->  >  		base = &per_cpu(tvec_bases, i);
-> 
-> 
->  Hehe ... , first thing we tried :-). But has problem that if timeout
->  function is running while del_timer_sync() is called, it returns
->  without waiting.
+Hi
 
-eh?  If del_timer() returns non-zero, that means that the timer was
-successfully deleted before it triggered.
+(Removed Linus and Andrew from CC: not to bother them with such a "minor"
+issue:-))
+
+On 10 May 2004, James Bottomley wrote:
+
+> This is the latest set of assorted fixes, plus one new driver: the IBM
+> Power Raid (ipr).
+>
+> The patch can be pulled from:
+>
+> bk://linux-scsi.bkbits.net/scsi-for-linus-2.6
+>
+> The short changelog is:
+
+I hoped the tmscsim 64-bit bugfix would somehow find its way into the
+mainstream after 2.6. Does it still have a chance?
+
+Thanks
+Guennadi
+---
+Guennadi Liakhovetski
+
+

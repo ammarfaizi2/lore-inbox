@@ -1,60 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131899AbRDTV0C>; Fri, 20 Apr 2001 17:26:02 -0400
+	id <S131973AbRDTV0C>; Fri, 20 Apr 2001 17:26:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131973AbRDTVZp>; Fri, 20 Apr 2001 17:25:45 -0400
-Received: from snark.tuxedo.org ([207.106.50.26]:48401 "EHLO snark.thyrsus.com")
-	by vger.kernel.org with ESMTP id <S131949AbRDTVZc>;
-	Fri, 20 Apr 2001 17:25:32 -0400
-Date: Fri, 20 Apr 2001 17:24:35 -0400
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Nicolas Pitre <nico@cam.org>, Tom Rini <trini@kernel.crashing.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	id <S131949AbRDTVZr>; Fri, 20 Apr 2001 17:25:47 -0400
+Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:50415 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S131899AbRDTVZa>; Fri, 20 Apr 2001 17:25:30 -0400
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200104202123.f3KLNWSm031572@webber.adilger.int>
+Subject: Re: [parisc-linux] Re: OK, let's try cleaning up another nit. Is anyone
+ paying attention?
+In-Reply-To: <20010420195004.A5510@flint.arm.linux.org.uk> "from Russell King
+ at Apr 20, 2001 07:50:04 pm"
+To: Russell King <rmk@arm.linux.org.uk>
+Date: Fri, 20 Apr 2001 15:23:32 -0600 (MDT)
+CC: "Eric S. Raymond" <esr@thyrsus.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
         "Albert D. Cahalan" <acahalan@cs.uml.edu>,
         Matthew Wilcox <willy@ldl.fc.hp.com>,
-        james rich <james.rich@m.cc.utah.edu>,
-        lkml <linux-kernel@vger.kernel.org>, parisc-linux@parisc-linux.org
-Subject: Re: [parisc-linux] Re: OK, let's try cleaning up another nit. Is anyone paying attention?
-Message-ID: <20010420172435.A21252@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	David Woodhouse <dwmw2@infradead.org>, Nicolas Pitre <nico@cam.org>,
-	Tom Rini <trini@kernel.crashing.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	"Albert D. Cahalan" <acahalan@cs.uml.edu>,
-	Matthew Wilcox <willy@ldl.fc.hp.com>,
-	james rich <james.rich@m.cc.utah.edu>,
-	lkml <linux-kernel@vger.kernel.org>, parisc-linux@parisc-linux.org
-In-Reply-To: <Pine.LNX.4.33.0104201440580.12186-100000@xanadu.home> <6817.987801548@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <6817.987801548@redhat.com>; from dwmw2@infradead.org on Fri, Apr 20, 2001 at 10:19:08PM +0100
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+        james rich <james.rich@m.cc.utah.edu>, linux-kernel@vger.kernel.org,
+        parisc-linux@parisc-linux.org
+X-Mailer: ELM [version 2.4ME+ PL87 (25)]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Woodhouse <dwmw2@infradead.org>:
-> > Otherwise how can you distinguish between dead wood which must be
-> > removed and potentially valid symbols referring to code existing only
-> > in a remote tree?
-> 
-> By periodically publishing a list of the potentially-obsolete symbols as ESR
-> has done, and _not_ removing the ones which people speak up about. It's not
-> as if this is something which needs to be done more than about once a year.
+Russell King writes:
+> - Secondly, its very easy to miss stuff in the lkml hunk of email each
+>   day when you have less than 4 hours to read it and think about it.
+>   (note that architecture maintainers have to read mail from their
+>   side which may not be on lkml, think about that, think about bug fixes,
+>   possible impacts of fixes on other machines, etc etc).  Therefore,
+>   copying their email address registered in the MAINTAINER file means
+>   that they should not overlook your patch.
 
-Not good enough.  In a year, the pile of false positives would get high enough
-to make it too hard to spot real bugs like the Aironet mismatch.  The whole 
-point of the cleanup is to be able to mechanize the consistency checks so they
-require a minimum of human judgment.
+One of the issues for contacting each MAINTAINER is that this information
+is out-of-line from the actual kernel tree.  The other is that the
+description of what a maintainer is actually controlling is somewhat
+vague.
+
+How about the following:
+- each directory has a MAINTAINERS file which lists parties with a
+  vested interest in files in that directory (format is mostly the
+  same as current)
+- subdirectories which don't have a MAINTAINERS file use the MAINTAINERS
+  file of the parent (or grandparent) directory
+- each maintainer entry explicitly lists each file/directory that this
+  person is interested in, maybe "F: {file | directory} ...".
+
+I'm sure Eric can come up with a simple program to parse the MAINTAINER
+file/tree.  If the program takes a kernel-tree relative filename and
+spit out the name/email of the relevant maintainer (subsystem and port
+specific mailing lists should also be included), that would make the 
+job of finding out who to send patches to a whole lot easier.
+
+My one gripe about the MAINTAINERS file is that it still lists Remy
+Card as EXT2 maintainer, so we would probably need to do a find on
+the whole kernel tree, email each address a list of files that they
+"maintain" and wait until they complain, agree, or time out.  Once
+the database is up-to-date, it simplifies the job of keeping maintainers
+(and other interested parties) in the loop.
+
+Cheers, Andreas
 -- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
-
-"This country, with its institutions, belongs to the people who
-inhabit it. Whenever they shall grow weary of the existing government,
-they can exercise their constitutional right of amending it or their
-revolutionary right to dismember it or overthrow it."
-	-- Abraham Lincoln, 4 April 1861
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert

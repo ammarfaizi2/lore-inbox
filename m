@@ -1,67 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266590AbUGPW1i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266613AbUGPW3S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266590AbUGPW1i (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jul 2004 18:27:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266627AbUGPW1i
+	id S266613AbUGPW3S (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jul 2004 18:29:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266627AbUGPW3S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jul 2004 18:27:38 -0400
-Received: from fw.osdl.org ([65.172.181.6]:40906 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266590AbUGPW1g (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jul 2004 18:27:36 -0400
-Date: Fri, 16 Jul 2004 15:27:33 -0700 (PDT)
-From: Bryce Harrington <bryce@osdl.org>
-To: Paul Larson <plars@linuxtestproject.org>
-cc: <ltp-list@lists.sourceforge.net>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [LTP] LTP Results - July 15, 2004
-In-Reply-To: <1089990640.3151.108.camel@plars.austin.ibm.com>
-Message-ID: <Pine.LNX.4.33.0407161507340.15956-100000@osdlab.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 16 Jul 2004 18:29:18 -0400
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:23001 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S266613AbUGPW3A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jul 2004 18:29:00 -0400
+Date: Fri, 16 Jul 2004 15:28:59 -0700
+From: Deepak Saxena <dsaxena@plexity.net>
+To: "Amit D. Chaudhary" <amit_c@comcast.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: MAX_DMA_ADDRESS in include/asm/asm-i386/dma.h (2.6.x and 2.4.x)
+Message-ID: <20040716222859.GA21647@plexity.net>
+Reply-To: dsaxena@plexity.net
+References: <40F84A87.5050403@comcast.net> <20040716214721.GA20741@plexity.net> <40F852AE.8060703@comcast.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40F852AE.8060703@comcast.net>
+Organization: Plexity Networks
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 16 Jul 2004, Paul Larson wrote:
+On Jul 16 2004, at 15:11, Amit D. Chaudhary was caught saying:
+> Deepak,
+> 
+> I am missing what you are directing me to.
+> 
+> If it is,
+> pci_alloc_consistent(), linux-2.4.25/arch/i386/kernel/pci-dma.c
+> dma_alloc_coherent(), linux-2.6.8-rc1/arch/i386/kernel/pci-dma.c
+> 
+> They internally seem to __get_free_pages()
 
-> On Thu, 2004-07-15 at 22:42, Bryce Harrington wrote:
-> > (Sorry, this time _with_ a subject line)
-> >
-> > LTP version LTP-20040506:
-> >
-> > Patch Name           TestReq#     CPU  PASS  FAIL  WARN  BROK  RunTime
-> > ----------------------------------------------------------------------
-> > 2.6.7-mm7              294831  2-way  7184    45     3     6    44.0
-> These are clearly not valid failures.  How are you running ltp?  Any
-> chance you are running out of disk space in /tmp?
+Correct, but take a second look at the code (2.6):
 
-Daniel McNeil and Mark Haverkamp investigated it and found it to be a
-valid failure:
+        void *ret;
+        /* ignore region specifiers */
+        gfp &= ~(__GFP_DMA | __GFP_HIGHMEM);
 
-    http://lkml.org/lkml/2004/7/12/227
+        if (dev == NULL || (dev->coherent_dma_mask < 0xffffffff))
+                gfp |= GFP_DMA;
 
-We were able to reliably recreate it both in and out of the STP
-framework, on a variety of systems, with both the May and July versions
-of LTP.  We were able to trace it to a specific patch that was
-introduced via 2.6.7-mm1 and that began affecting the bk tree as of
-2.6.7-bk-11 a week later.
+        ret = (void *)__get_free_pages(gfp, get_order(size));
 
-Further, I've just learned that Daniel has developed a patch which fixes
-this issue:
+It uses GFP_DMA iff your coherent_dma_mask is != 0xffffffff.  Assuming
+your device can address a the full 32-bit PCI address space, you
+need to set the coherent_dma_mask appropriately and you will get
+buffers from all addressable lowmem. I don't do much x86, so not
+sure how you go about allocating highmem DMA buffers.
 
-    http://www.osdl.org/plm-cgi/plm?module=patch_info&patch_id=3168
+> The memory need not be page size, as a matter of fact, using a large 
+> consecutive block, for example using alloc_bootmem_low() during kernel 
+> bootup, will simplify the data transfer and result in no internal 
+> fragmentation, it does introduce inflexibility in changing the size and 
+> other issues.
 
-Here is the test result showing in the test framework demonstrating
-that the patch fixes the issue:
+If you are using alloc_bootmem_low(), all you should have to do after
+allocating the memory is call pci_dma_map_single()/map_sg() to get PCI-DMA 
+addresses. You still should have no reason to touch MAX_DMA_ADDRESS.
 
-    Summary of Test Results Total Tests Executed: 7242
-    Number Tests Passed: 7230
-    Number Tests Failed: 3
-    Number Tests Warnings: 3
-    Number Tests Broken: 6
+~Deepak
 
-    http://khack.osdl.org/stp/295150/
+-- 
+Deepak Saxena - dsaxena at plexity dot net - http://www.plexity.net/
 
-Thanks,
-Bryce
-
-
+"Unlike me, many of you have accepted the situation of your imprisonment and
+ will die here like rotten cabbages." - Number 6

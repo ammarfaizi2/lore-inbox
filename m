@@ -1,47 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266057AbTGIQdV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 12:33:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266063AbTGIQdV
+	id S266066AbTGIQlb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 12:41:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268408AbTGIQlb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 12:33:21 -0400
-Received: from x35.xmailserver.org ([208.129.208.51]:20099 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S266057AbTGIQdU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 12:33:20 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Wed, 9 Jul 2003 09:40:24 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mcafeelabs.com
-To: Daniel <daniel@hawton.org>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: ACPI status in 2.5.x/2.6.0
-In-Reply-To: <3F0BD5D1.2010801@hawton.org>
-Message-ID: <Pine.LNX.4.55.0307090938160.4625@bigblue.dev.mcafeelabs.com>
-References: <3F0BD5D1.2010801@hawton.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 9 Jul 2003 12:41:31 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:27825
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S266066AbTGIQla (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jul 2003 12:41:30 -0400
+Subject: Re: [PATCH] Readd BUG for SMP TLB IPI
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Andi Kleen <ak@suse.de>
+Cc: torvalds@osdl.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030709134109.65efa245.ak@suse.de>
+References: <20030709124915.3d98054b.ak@suse.de>
+	 <1057750022.6255.41.camel@dhcp22.swansea.linux.org.uk>
+	 <20030709134109.65efa245.ak@suse.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1057769607.6262.63.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 09 Jul 2003 17:53:28 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 9 Jul 2003, Daniel wrote:
+On Mer, 2003-07-09 at 12:41, Andi Kleen wrote:
+> > We have recorded retransmitted IPI's on some boards (notably the
+> > infamous BP6). They do happen. Early 2.4 had a fix for handling the
+> > replay case too, but someone lost it and BP6 boards no longer work as
+> > reliably.
+> 
+> Ok, all non broken hardware.
 
-> I have a Compaq Laptop (*shiver*) and present distro versions featuring
-> the 2.4.x kernel seem to panic or lock on bootup on my laptop.  I was
-> wondering if ACPI was better supported in the 2.5.x kernel branch/2.6.0
-> pre-kernel.  Any advice would be greatly appreciated.
->
-> It would lock when attempting to read my partition table on device 'hda'
-> (my hard disk), or would panic when attempting to initalize the USB device.
+It can happen to any PII/PIII box, its just very very rare on others, so
+rare I guess such crashes are in the noise.
 
-If it uses a SiS650 chipset you can try this :
+> I don't believe it. It would cause an immediate hang because the goto out
+> does not ack the IPI.  Surely such hangs would have been reported?
 
-http://www.xmailserver.org/linux-patches/misc.html#SiSRt
+See - trawling bug data is *useful* 8)
 
-Even if I am not much confident about success in your case. Also, I
-believe Alan was working of fixing ACPI for SiS. You might want to check.
+For 2.4.x crashes relating to IPI replay bugs are reported very occasionally, for
+2.5 I've no idea at all
 
-
-
-- Davide
 

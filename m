@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316789AbSEUXgB>; Tue, 21 May 2002 19:36:01 -0400
+	id <S316783AbSEUXjm>; Tue, 21 May 2002 19:39:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316786AbSEUXf5>; Tue, 21 May 2002 19:35:57 -0400
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:525 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S316792AbSEUXfQ>; Tue, 21 May 2002 19:35:16 -0400
-Message-ID: <3CEAD9AF.9F6FD0FC@linux-m68k.org>
-Date: Wed, 22 May 2002 01:35:11 +0200
-From: Roman Zippel <zippel@linux-m68k.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.5.17
-In-Reply-To: <Pine.LNX.4.33.0205211144180.3073-100000@penguin.transmeta.com>
+	id <S316787AbSEUXjl>; Tue, 21 May 2002 19:39:41 -0400
+Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:42502 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S316783AbSEUXjj>;
+	Tue, 21 May 2002 19:39:39 -0400
+Date: Tue, 21 May 2002 16:38:35 -0700
+From: Greg KH <greg@kroah.com>
+To: "Svein E. Seldal" <Svein.Seldal@edcom.no>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Custom kernel version and depmod
+Message-ID: <20020521233835.GB4221@kroah.com>
+In-Reply-To: <20020521180515.GF1295@kroah.com> <KKEHJJLHENOALGODMOGLAECICBAA.Svein.Seldal@edcom.no>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Tue, 23 Apr 2002 21:58:24 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, May 22, 2002 at 01:30:36AM +0200, Svein E. Seldal wrote:
+> 
+> 
+> > From: Greg KH
+> >
+> > A bit off-topic, but any reason why you can not just submit your driver
+> > for inclusion in the main kernel tree?  The USB developers are usually
+> > quite easy to convince to take new drivers :)
+> 
+> Well I know, but the problem here is that the design is to a development
+> card. It has not been assigned a VID/PID and neither will it. I dont think
+> we should clutter the kernel with such drivers, do we?
 
-Linus Torvalds wrote:
+Hasn't stopped us in the past :)
 
-> If you care, the reason we need to do this on x86 is that the TLB walker
-> is speculative and almost totally asynchronous wrt the rest of the CPU
-> core, so we may have a CPU "TLB lookup thread" goin on in parallel with
-> the TLB cleaning - and that TLB lookup may have looked up the pmd contents
-> already but not resolved the entry yet. Which is why we have to
-> synchronize the PMD freeing with the TLB flush - the same way we already
-> have to do it for the regular data pages.
+> Anyway, my question was focused on depmod and kernel module version system
+> and not the driver itself.
 
-Alternative suggestion: remove the present bit from the pgd/pmd entry.
-After you flushed the tlb, you can clean up the page tables without a
-hurry. That will work on any sane system and you don't have to force
-data and table pages into the same interface.
+True, hence my message started with "A bit off-topic..."
 
-bye, Roman
+thanks,
+
+greg k-h

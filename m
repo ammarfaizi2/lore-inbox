@@ -1,33 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315167AbSGUWEc>; Sun, 21 Jul 2002 18:04:32 -0400
+	id <S314811AbSGUWRE>; Sun, 21 Jul 2002 18:17:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315200AbSGUWEc>; Sun, 21 Jul 2002 18:04:32 -0400
-Received: from slarti.muc.de ([193.149.48.10]:26123 "HELO slarti.muc.de")
-	by vger.kernel.org with SMTP id <S315167AbSGUWEb> convert rfc822-to-8bit;
-	Sun, 21 Jul 2002 18:04:31 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Stephan Maciej <stephan@maciej.muc.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 'ne nette Idee zum programmieren...
-Date: Mon, 22 Jul 2002 00:05:25 +0200
-X-Mailer: KMail [version 1.4]
-References: <200207211723.02135.stephan@maciej.muc.de>
-In-Reply-To: <200207211723.02135.stephan@maciej.muc.de>
+	id <S315119AbSGUWRE>; Sun, 21 Jul 2002 18:17:04 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:45723 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S314811AbSGUWRD>;
+	Sun, 21 Jul 2002 18:17:03 -0400
+Date: Mon, 22 Jul 2002 00:19:05 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Robert Love <rml@tech9.net>
+Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] "big IRQ lock" removal, 2.5.27-A1
+In-Reply-To: <1027280334.1086.1027.camel@sinai>
+Message-ID: <Pine.LNX.4.44.0207220018430.31713-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200207220005.25614.stephan@maciej.muc.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 21 July 2002 17:23, Stephan Maciej wrote:
-> Servus,
 
-D'oh, sorry, wrong mail address...
+On 21 Jul 2002, Robert Love wrote:
 
-Stephan
+> Ingo, looking over the FIXMEs in the tty layer I think they are
+> definitely _broke_.  At least some of these paths have no global
+> synchronization now.  Someone really needs to go through this cruft and
+> clean it up and do some proper locking.
 
--- 
-"That's interesting.  Can it be disabled?" -- someone on LKML, after being 
-told about the PIV hyperthreading features
+sure, feel free.
+
+	Ingo
 

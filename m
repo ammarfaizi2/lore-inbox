@@ -1,58 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261640AbSJAOW4>; Tue, 1 Oct 2002 10:22:56 -0400
+	id <S261628AbSJAOWU>; Tue, 1 Oct 2002 10:22:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261643AbSJAOWz>; Tue, 1 Oct 2002 10:22:55 -0400
-Received: from mailrelay1.lanl.gov ([128.165.4.101]:18840 "EHLO
-	mailrelay1.lanl.gov") by vger.kernel.org with ESMTP
-	id <S261640AbSJAOWu>; Tue, 1 Oct 2002 10:22:50 -0400
-Subject: Re: 2.5.39 Oops on boot (device_attach+0x3a)
-From: Steven Cole <elenstev@mesatop.com>
-To: Greg KH <greg@kroah.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Thomas Molina <tmolina@cox.net>
-In-Reply-To: <20021001053957.GA5177@kroah.com>
-References: <1033434784.3100.10.camel@localhost.localdomain> 
-	<20021001053957.GA5177@kroah.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2-5mdk 
-Date: 01 Oct 2002 08:24:00 -0600
-Message-Id: <1033482240.32404.116.camel@spc9.esa.lanl.gov>
+	id <S261640AbSJAOWU>; Tue, 1 Oct 2002 10:22:20 -0400
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:57839 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S261628AbSJAOWT>; Tue, 1 Oct 2002 10:22:19 -0400
+X-Mailer: exmh version 2.5 13/07/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <E17wNm5-0005tm-00@starship> 
+References: <E17wNm5-0005tm-00@starship>  <E17qyrb-0000Jv-00@starship> <20020916120022.22FFC2C12A@lists.samba.org> <11627.1032215467@redhat.com> 
+To: Daniel Phillips <phillips@arcor.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Understanding the Principles of Argumentation #3 
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 01 Oct 2002 15:27:43 +0100
+Message-ID: <3829.1033482463@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-09-30 at 23:39, Greg KH wrote:
-> On Mon, Sep 30, 2002 at 07:13:02PM -0600, Steven Cole wrote:
-> > I tried to boot 2.5.39 on my home machine and got the
-> > following oops on boot with CONFIG_KALLSYMS=y (thanks Ingo!).
-> 
-> Do you have CONFIG_ISAPNP enabled?  If so, search the archives for the
-> fix for this.  If not, please post your whole .config.
 
-Although I don't have that test box in front of me now, I'm almost
-certain that I do have CONFIG_ISAPNP enabled.  Searching the archives
-turned up a fix similar to the one below which is part of 2.5.40, (which
-I haven't been able to download yet).  I won't be able to test this
-until tonight, but perhaps Thomas can see if this fixes the same oops
-for him in the meantime.
+phillips@arcor.de said:
+> > It is my understanding that the ad hominem fallacy takes the form "you 
+> > are a patronising little shit, therefore what you say cannot be true". 
+> >
+> > Rusty's comment seemed to be only that you were a patronising little 
+> > shit, and not that this proved you to be incorrect -- hence it doesn't
+> > appear to be a particularly fine example of 'ad hominem' at all.
 
-Thanks,
-Steven
+>  You are entirely incorrect.  The issue raised was "given two
+> interfaces with the same functionality, choose the simpler of them".
+> Instead of addressing that issue, the author was attacked.  Perfect
+> example, as I said. 
 
---- 1.13/drivers/pnp/isapnp.c	Fri Sep 27 04:10:46 2002
-+++ 1.14/drivers/pnp/isapnp.c	Sun Sep 29 18:19:31 2002
-@@ -2281,7 +2281,9 @@
- EXPORT_SYMBOL(isapnp_register_driver);
- EXPORT_SYMBOL(isapnp_unregister_driver);
- 
--static struct device_driver isapnp_device_driver = {};
-+static struct device_driver isapnp_device_driver = {
-+	.devices = LIST_HEAD_INIT(isapnp_device_driver.devices),
-+};
-static inline int isapnp_init_device_tree(void)
- {
+No, Daniel. Do try to pay attention. 
 
+The ad hominem fallacy take the form "You are a patronising little shit, 
+therefore what you say cannot be true.". Rusty's mail contained only the 
+first half of that 'logic', and hence was not an example of ad hominem at 
+all.
+
+Stating that you are a patronising little shit was a digression and was 
+irrelevant to the argument.
+
+Stating that _because_ you are a patronising little shit your claims 
+must therefore be wrong, would be an example of the ad hominem fallacy.
+
+But as I said -- Rusty didn't do that; he only did the former.
+
+See http://www.nizkor.org/features/fallacies/ad-hominem.html
+
+Note the words "Second, this attack is taken to be evidence against the
+claim or argument the person in question is making (or presenting)."
+
+--
+dwmw2
 
 

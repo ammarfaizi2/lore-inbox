@@ -1,50 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316408AbSILWQv>; Thu, 12 Sep 2002 18:16:51 -0400
+	id <S317264AbSILWXp>; Thu, 12 Sep 2002 18:23:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316788AbSILWQv>; Thu, 12 Sep 2002 18:16:51 -0400
-Received: from packet.digeo.com ([12.110.80.53]:5065 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S316408AbSILWQu>;
-	Thu, 12 Sep 2002 18:16:50 -0400
-Message-ID: <3D811363.70ABB50C@digeo.com>
-Date: Thu, 12 Sep 2002 15:21:23 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
+	id <S316860AbSILWXp>; Thu, 12 Sep 2002 18:23:45 -0400
+Received: from fungus.teststation.com ([212.32.186.211]:18444 "EHLO
+	fungus.teststation.com") by vger.kernel.org with ESMTP
+	id <S317264AbSILWXo>; Thu, 12 Sep 2002 18:23:44 -0400
+Date: Fri, 13 Sep 2002 00:27:35 +0200 (CEST)
+From: Urban Widmark <urban@teststation.com>
+X-X-Sender: puw@cola.enlightnet.local
+To: Joel Votaw <jovotaw@cs.nmsu.edu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Oops, maybe smbfs on SMP system?  Kernel is RedHat's 2.4.18-10smp
+In-Reply-To: <Pine.LNX.4.44.0209120935300.29531-100000@quito>
+Message-ID: <Pine.LNX.4.44.0209130007040.20947-100000@cola.enlightnet.local>
 MIME-Version: 1.0
-To: Urban Widmark <urban@teststation.com>
-CC: Chuck Lever <cel@citi.umich.edu>, Daniel Phillips <phillips@arcor.de>,
-       Rik van Riel <riel@conectiva.com.br>, trond.myklebust@fys.uio.no,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: invalidate_inode_pages in 2.5.32/3
-References: <Pine.BSO.4.33.0209101036040.5887-100000@citi.umich.edu> <Pine.LNX.4.44.0209111044120.6219-100000@cola.enlightnet.local>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 12 Sep 2002 22:21:26.0583 (UTC) FILETIME=[BC0EEC70:01C25AAA]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Urban Widmark wrote:
-> 
-> ...
-> If I understood Andrew right with the inode flag that won't purge anything
-> until the next userspace access. I don't think that is what smbfs wants
-> since the response to the oplock break should happen fairly soon ...
+On Thu, 12 Sep 2002, Joel Votaw wrote:
 
-Well the lazy invalidation would be OK - defer that to the next
-userspace access, or just let the pages die a natural VM death,
-maybe poke `ksmbinvalidated'.
+> smb_retry: no connection process
 
-But if you want to perform writeback within the local IO daemon
-then hm.  That's a problem which NFS seems to not have?  I guess
-you'd have to leave i_sem held and poke `ksmbwritebackd'.  Or teach
-pdflush about queued work items (a tq_struct would do it).
+This means that your smbmount process has terminated (crashed?). You could
+try some things with that, eg upgrading samba to the latest 2.2.x, running
+it with a higher debug level (4, check your smbmount.log), add more debug 
+printouts to the smbmount main loop, getting a core dump from it.
 
-But it's the same story: the requirements of
+The mount should become unusble at this point because smbfs no longer has 
+a connection and it can't contact it's smbmount daemon to get a new one.
 
-a) non blocking local IO daemon and
+> last message repeated 2 times
+> smb_delete_inode: could not close inode 2
 
-b) assured pagecache takedown
+I believe this is at umount time. And if smb_delete_inode wants to 
+actually close something and smb_retry is failing it won't be able to.
 
-are conflicting.  You need at least one more thread, and locking
-against userspace activity.
+I need to find out if/why that would cause the busy message. When the 
+connection closes any open files are closed, so closing shouldn't be a 
+problem.
+
+Did you get either of these the second time?
+
+> VFS: Busy inodes after unmount. Self-destruct in 5 seconds.  Have a nice
+> day...
+
+Kabooom!
+
+/Urban
+

@@ -1,36 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265661AbTATM1y>; Mon, 20 Jan 2003 07:27:54 -0500
+	id <S265708AbTATMpP>; Mon, 20 Jan 2003 07:45:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265667AbTATM1y>; Mon, 20 Jan 2003 07:27:54 -0500
-Received: from inet-mail4.oracle.com ([148.87.2.204]:51449 "EHLO
-	inet-mail4.oracle.com") by vger.kernel.org with ESMTP
-	id <S265661AbTATM1x>; Mon, 20 Jan 2003 07:27:53 -0500
-Message-ID: <7346727.1043065918456.JavaMail.nobody@web11.us.oracle.com>
-Date: Mon, 20 Jan 2003 04:31:58 -0800 (GMT-08:00)
-From: Alessandro Suardi <ALESSANDRO.SUARDI@oracle.com>
-To: linux-kernel@vger.kernel.org
-Subject: "Latitude with broken BIOS" ?
+	id <S265736AbTATMpO>; Mon, 20 Jan 2003 07:45:14 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:8390 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S265708AbTATMoh>;
+	Mon, 20 Jan 2003 07:44:37 -0500
+Date: Mon, 20 Jan 2003 12:51:00 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Wolfgang Fritz <wolfgang.fritz@gmx.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: swsuspend: possible with VIA Eden processor? Or alternatives?
+Message-ID: <20030120125100.GA27330@codemonkey.org.uk>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Wolfgang Fritz <wolfgang.fritz@gmx.net>,
+	linux-kernel@vger.kernel.org
+References: <b0c20t$rt$1@fritz38552.news.dfncis.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-Mailer: Oracle Webmail Client
+Content-Disposition: inline
+In-Reply-To: <b0c20t$rt$1@fritz38552.news.dfncis.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sat, Jan 18, 2003 at 06:14:04PM +0100, Wolfgang Fritz wrote:
+ > Hi,
+ > 
+ > the swsuspend mini howto says that a processor with pse/pse36 feature is 
+ > required for swsupend in 2.4.
+ > 
+ > So I am obviously out of luck with 2.4 kernels, but what about 2.5 (the 
+ > mini-howto is silent here)?
 
-  I was hoping to use HT on my new Latitude C640 (P4 @ 1.8Ghz) but at boot
-  both 2.4.21-pre3 and 2.5.59 (obviously with a SMP kernel) tell me
+>From include/asm-i386/suspend.h
 
- "Dell Latitude with broken BIOS detected. Refusing to enable the local APIC."
+static inline void
+arch_prepare_suspend(void)
+{
+    if (!cpu_has_pse)
+        panic("pse required");
+}
 
- Is this anything that can be played with ? I google'd a bit but was unable to
-  turn up anything interesting. I flashed BIOS A05 (which is the latest on Dell
-  support sites), but I still get the above kernel message.
+There's really no requirement that you *need* PSE to be able to
+do suspend, but it seems no-one has stepped forward to write the
+necessary code to support non-PSE afaics.
 
+		Dave
 
-Thanks in advance for any insight,
-
---alessandro
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

@@ -1,70 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262267AbVBKQSs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262268AbVBKQTb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262267AbVBKQSs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Feb 2005 11:18:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262268AbVBKQSs
+	id S262268AbVBKQTb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Feb 2005 11:19:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262269AbVBKQTb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Feb 2005 11:18:48 -0500
-Received: from ipcop.bitmover.com ([192.132.92.15]:33951 "EHLO
-	mail.bitmover.com") by vger.kernel.org with ESMTP id S262267AbVBKQSp
+	Fri, 11 Feb 2005 11:19:31 -0500
+Received: from mtagate4.de.ibm.com ([195.212.29.153]:43146 "EHLO
+	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S262268AbVBKQT0
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Feb 2005 11:18:45 -0500
-Date: Fri, 11 Feb 2005 08:18:44 -0800
-To: Alexandre Oliva <aoliva@redhat.com>, Stelian Pop <stelian@popies.net>,
-       Francois Romieu <romieu@fr.zoreil.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Linux Kernel Subversion Howto
-Message-ID: <20050211161844.GA17175@bitmover.com>
-Mail-Followup-To: lm@bitmover.com,
-	Alexandre Oliva <aoliva@redhat.com>,
-	Stelian Pop <stelian@popies.net>,
-	Francois Romieu <romieu@fr.zoreil.com>, linux-kernel@vger.kernel.org
-References: <20050205193848.GH5028@deep-space-9.dsnet> <20050205233841.GA20875@bitmover.com> <20050208154343.GH3537@crusoe.alcove-fr> <20050208155845.GB14505@bitmover.com> <ord5vatdph.fsf@livre.redhat.lsd.ic.unicamp.br> <20050209155113.GA10659@bitmover.com> <or7jlgpxio.fsf@livre.redhat.lsd.ic.unicamp.br> <20050210211700.GA26361@bitmover.com> <or1xbn6rn5.fsf@livre.redhat.lsd.ic.unicamp.br> <20050211154842.GA16507@bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 11 Feb 2005 11:19:26 -0500
+From: Christian =?iso-8859-15?q?Borntr=E4ger?= 
+	<christian@borntraeger.net>
+To: Greg KH <gregkh@suse.de>
+Subject: Re: [ANNOUNCE] hotplug-ng 001 release
+Date: Fri, 11 Feb 2005 17:19:22 +0100
+User-Agent: KMail/1.7.1
+Cc: Bill Nottingham <notting@redhat.com>,
+       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+References: <20050211004033.GA26624@suse.de> <20050211031823.GE29375@nostromo.devel.redhat.com> <1108104417.32129.7.camel@localhost.localdomain>
+In-Reply-To: <1108104417.32129.7.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20050211154842.GA16507@bitmover.com>
-User-Agent: Mutt/1.5.6+20040907i
-From: lm@bitmover.com (Larry McVoy)
+Message-Id: <200502111719.23163.christian@borntraeger.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The mails have started flowing in saying "I don't agree with Alexandre
-and please don't pull the plug" so a point of clarification.  We have
-no intention of shutting down the BK free product.  We are aware that
-there are 10's of thousands of developers in the open source world
-who do not agree with Alexandre's narrow view of things.  You're fine,
-we're not taking BK away.  I only trying to get Alexandre to see that
-his definition of "help" is somewhat narrow-minded.
+On Friday 11 February 2005 07:46, Greg KH wrote:
+> And finally, even if you do use udevstart to manager /sbin/hotplug
+> events, you still need a module autoloader program.  This package
+> provides executables for that problem, if you don't want to (or you
+> can't) use the existing linux-hotplug scripts.  udev will never do the
+> module loading logic, so there's no duplication in this case.
 
-Cheers,
+Greg,
+the pci module autoloader is a real agent, which means it depends on having a 
+hotplug event. Are you planning to support a scan for already present 
+devices, like the pci.rc file in current hotplug solutions?
 
---lm
+cheers
 
-On Fri, Feb 11, 2005 at 07:48:42AM -0800, lm wrote:
-> On Fri, Feb 11, 2005 at 01:30:22PM -0200, Alexandre Oliva wrote:
-> > > Can you offer any plausible explanation other than a good faith desire
-> > > to help the open source community, albeit in a non-traditional way?
-> > 
-> > I don't see what you've done as helping the open source community.  
-> 
-> So in your mind, aiding the open source community is done only through
-> creating more open source.  Directly.  The fact that open source projects
-> which use BK are more productive than if they were not using BK is
-> irrelevant and of no value, correct?  The fact that they are creating
-> more open source more quickly because of their use of BK is irrelevant
-> and of no value, correct?
-> 
-> In that case, get the free BK users to agree with you and we'll pull the
-> plug on free BK.  The point of giving away BK for free is to help you.
-> If you have consensus that it isn't helping then we'll shut it down.
-> 
-> On the other hand, if you can't achieve that consensus then perhaps you
-> might consider broadening your definition of "help" to include something
-> other than "more GPLed source".
-> -- 
-> ---
-> Larry McVoy                lm at bitmover.com           http://www.bitkeeper.com
-
--- 
----
-Larry McVoy                lm at bitmover.com           http://www.bitkeeper.com
+Christian

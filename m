@@ -1,77 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131219AbRCWQYJ>; Fri, 23 Mar 2001 11:24:09 -0500
+	id <S131205AbRCWQSt>; Fri, 23 Mar 2001 11:18:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131224AbRCWQX7>; Fri, 23 Mar 2001 11:23:59 -0500
-Received: from lowell.missioncriticallinux.com ([208.51.139.16]:2738 "EHLO
-	jerrell.lowell.mclinux.com") by vger.kernel.org with ESMTP
-	id <S131219AbRCWQXr>; Fri, 23 Mar 2001 11:23:47 -0500
-Date: Fri, 23 Mar 2001 11:32:41 -0500 (EST)
-From: Richard Jerrell <jerrell@missioncriticallinux.com>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] mm/memory.c, 2.4.1 : memory leak with swap cache (updated)
-In-Reply-To: <Pine.LNX.4.33.0103222014510.24040-100000@duckman.distro.conectiva>
-Message-ID: <Pine.LNX.4.21.0103231042380.20061-200000@jerrell.lowell.mclinux.com>
+	id <S131221AbRCWQSk>; Fri, 23 Mar 2001 11:18:40 -0500
+Received: from mg03.austin.ibm.com ([192.35.232.20]:64975 "EHLO
+	mg03.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S131205AbRCWQSY>; Fri, 23 Mar 2001 11:18:24 -0500
+Message-ID: <3ABB76A5.2031C1D4@austin.ibm.com>
+Date: Fri, 23 Mar 2001 10:15:33 -0600
+From: Dave Kleikamp <shaggy@austin.ibm.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="17458952-220300107-985365014=:20061"
-Content-ID: <Pine.LNX.4.21.0103231130160.20061@jerrell.lowell.mclinux.com>
+To: Alexander Viro <viro@math.psu.edu>
+CC: Linus Torvalds <torvalds@transmeta.com>, linux-fsdevel@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Andreas Dilger <adilger@turbolinux.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: [RFC] sane access to per-fs metadata (was Re: 
+ [PATCH]Documentation/ioctl-number.txt)
+In-Reply-To: <Pine.GSO.4.21.0103221720250.5619-100000@weyl.math.psu.edu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+Al,
+I didn't know that creating file system ioctl's was such a hot topic. 
+Since the functions I want to implement are for a very specific purpose
+(I don't expect anything except the JFS utilities to invoke them), I
+would expect an ioctl to be an appropriate vehicle.
 
---17458952-220300107-985365014=:20061
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-ID: <Pine.LNX.4.21.0103231130161.20061@jerrell.lowell.mclinux.com>
+If not ioctl's, why not procfs?  Your proposal is that each filesystem
+implements its own mini-procfs.  What's the advantage of that?
 
-> Your idea is nice, but the patch lacks a few things:
+My intentions so far are to use ioctl's for specific operations required
+by the JFS utilities, and procfs for debugging output, tuning, and
+anything else that make sense.
+
+Alexander Viro wrote:
+> That may look like an overkill, however
+>         * You can get rid of any need to register ioctls, etc.
+
+This is a one-time thing
+
+>         * You can add debugging/whatever at any moment with no need to
+>           update any utilities - everything is available from plain shell
+
+We can do this with procfs right now.
+
+>         * You can conveniently view whatever metadata you want - no need to
+>           shove everything into ioctls on one object.
+
+Again, why re-invent procfs?  We could put this under
+/proc/fs/jfs/metadata.
+
+>         * You can use normal permissions control - just set appropriate
+>           permission bits for objects on jfsmeta
 > 
-> - SMP locking, what if some other process faults in this page
->   between the atomic_read of the page count and the test later?
+> IOW, you can get normal filesystem view (meaning that you have all usual
+> UNIX toolkit available) for per-fs control stuff. And keep the ability to
+> do proper locking - it's the same driver that handles the main fs and you
+> have access to superblock. No need to change the API - everything is already
+> there...
 
-It can't happen.  free_pte is called with the page_table_lock held in 
-addition to having the mmap_sem downed.
-
-> - testing if our process is the _only_ user of this swap page,
->   for eg. apache you'll have lots of COW-shared pages .. it would
->   be good to keep the page in memory for our siblings
-
-This is already done in free_page_and_swap_cache.
-
-There is a problem with a possible kernel panic in that
-try_to_free_buffers is called with a wait of 1 (thanks to Andrew Morton
-for pointing that out) and we might reschedule while we wait on io.  So,
-to fix it, here is an even newer (and simpler) patch.  Everything is
-handled in free_page_and_swap_cache, so we just call that if we can
-successfully look up the entry.
-
-Rich
+I'm not sure how a utility would make atomic changes to several pieces
+of metadata.  The underlying fs code would protect the integrity of
+every metadata "file", but changes to more than one of these "files"
+would not be done as a group without some additional locking that would
+have to be coordinated between the utility and the fs.  This kind of
+thing could be handled by writing some special command to a
+"command-processor" type file, but why is this better than an ioctl?
 
 
---17458952-220300107-985365014=:20061
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="2.4.1-paging-fix-23.03.01.patch"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.21.0103231130140.20061@jerrell.lowell.mclinux.com>
-Content-Description: 
-Content-Disposition: ATTACHMENT; FILENAME="2.4.1-paging-fix-23.03.01.patch"
-
-ZGlmZiAtLXJlY3Vyc2l2ZSAtdSAtTiBsaW51eC0yLjQuMS9tbS9tZW1vcnku
-YyBsaW51eC0yLjQuMS1wYWdpbmctZml4L21tL21lbW9yeS5jDQotLS0gbGlu
-dXgtMi40LjEvbW0vbWVtb3J5LmMJU2F0IEphbiAyNyAyMjoxMjozNSAyMDAx
-DQorKysgbGludXgtMi40LjEtcGFnaW5nLWZpeC9tbS9tZW1vcnkuYwlUaHUg
-RmViIDE1IDEzOjM2OjA2IDIwMDENCkBAIC0yODEsNyArMjgxLDE2IEBADQog
-CQlyZXR1cm4gMTsNCiAJfQ0KIAlzd2FwX2ZyZWUocHRlX3RvX3N3cF9lbnRy
-eShwdGUpKTsNCi0JcmV0dXJuIDA7DQorCXsNCisJCXN0cnVjdCBwYWdlICpw
-YWdlID0gbG9va3VwX3N3YXBfY2FjaGUocHRlX3RvX3N3cF9lbnRyeShwdGUp
-KTsNCisJCS8qIHJldHVybnMgdGhlIHBhZ2UgYW5kIHRha2VzIGEgcmVmZXJl
-bmNlICovDQorDQorCQlpZiAoIXBhZ2UgfHwgKCFWQUxJRF9QQUdFKHBhZ2Up
-KSB8fCBQYWdlUmVzZXJ2ZWQocGFnZSkpDQorCQlyZXR1cm4gMDsNCisNCisJ
-CWZyZWVfcGFnZV9hbmRfc3dhcF9jYWNoZShwYWdlKTsgLyogRXhwZWN0cyB0
-aGUgcGFnZSB0byBiZSBtYXBwZWQsIHNvIHdpbGwgKi8NCisJCXJldHVybiAx
-OyAgICAgICAgICAgICAgICAgICAgICAgLyogYWNjb3VudCBmb3IgdGhlIHJl
-ZmVyZW5jZSB3ZSBoYXZlICAgICAgKi8NCisJfQ0KIH0NCiANCiBzdGF0aWMg
-aW5saW5lIHZvaWQgZm9yZ2V0X3B0ZShwdGVfdCBwYWdlKQ0K
---17458952-220300107-985365014=:20061--
+-- 
+David Kleikamp
+IBM Linux Technology Center

@@ -1,62 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291348AbSBME3Y>; Tue, 12 Feb 2002 23:29:24 -0500
+	id <S291346AbSBMEbE>; Tue, 12 Feb 2002 23:31:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291346AbSBME3O>; Tue, 12 Feb 2002 23:29:14 -0500
-Received: from 216-99-213-120.dsl.aracnet.com ([216.99.213.120]:64012 "EHLO
-	clueserver.org") by vger.kernel.org with ESMTP id <S291348AbSBME25>;
-	Tue, 12 Feb 2002 23:28:57 -0500
-Message-Id: <200202130544.g1D5i4L22169@clueserver.org>
-Content-Type: text/plain; charset=US-ASCII
-From: Alan <alan@clueserver.org>
-Reply-To: alan@clueserver.org
-To: Albert Cranford <ac9410@bellsouth.net>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.4 sound module problem
-Date: Tue, 12 Feb 2002 19:10:08 -0800
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <3C69E2C7.3E749061@bellsouth.net>
-In-Reply-To: <3C69E2C7.3E749061@bellsouth.net>
+	id <S291349AbSBMEap>; Tue, 12 Feb 2002 23:30:45 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:3344 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S291346AbSBMEaf>;
+	Tue, 12 Feb 2002 23:30:35 -0500
+Message-ID: <3C69EBB7.24EA9C05@zip.com.au>
+Date: Tue, 12 Feb 2002 20:29:43 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre9-ac2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+To: Bill Davidsen <davidsen@tmr.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] sys_sync livelock fix
+In-Reply-To: <3C69B5D7.CFF9E8EA@zip.com.au> <Pine.LNX.3.96.1020212224341.8017C-100000@gatekeeper.tmr.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 12 February 2002 19:51, Albert Cranford wrote:
-> Not sure if this was the same message I received. but here
-> is the patch I used to get around my sound problem in
-> 2.5.4.
+Bill Davidsen wrote:
+> 
+> Alan and/or Linus:
+> 
+>   Am I misreading this or is the Linux implementation of sync() based on
+> making the shutdown scripts pause until disk i/o is done? Because I don't
+> think commercial unices work that way, I think they work as SuS
+> specifies. More reason to rethink this in 2.4 as well as 2.5 and get the
+> possible live lock out of the kernel.
+> 
 
-Are you sure this is correct?  include/asm/io.h seems to indicate that i/o 
-addresses for PCI may not map correctly.  The sound card I am using is PCI, 
-not ISA.
+IMO, the SuS definition sucks.  We really do want to do our best to
+ensure that pending writes are committed to disk before sys_sync()
+returns.  As long as that doesn't involve waiting until mid-August.
 
-Documentation/DMA-mapping.txt says that virt_to_bus is completly depreciated 
-and nothing should be using it.  Well, grepping the kernel source shows that 
-quite a bit still uses it.
+For example, ext3 users get to enjoy rebooting with `sync ; reboot -f'
+to get around all those silly shutdown scripts.  This very much relies
+upon the sync waiting upon the I/O.
 
-What it looks like, on first glance, is that virt_to_bus  was changed for pci 
-devices to give this error message.  (Since that symbol goes nowhere.)  That 
-effects a number of things, not just sound. (A whole bunch of cardbus drivers 
-I would guess...)
 
-When was this change made? It appears as if they missed a few bits.
+I mean, according to SUS, our sys_sync() implementation could be
 
-Comment: 2.5.4 has been more than a bit rough.  Rarely do i see more than one 
-patch needed just to get it to compile. Not trying to be bitchy about it. 
-Just a wee bit frustrated...
+asmlinkage void sys_sync(void)
+{
+	return;
+}
 
-> Linus, please apply to 2.5.5 pre1
-> Later,
-> Albert
-> --- linux/drivers/sound/dmabuf.c.orig   Tue Feb 12 10:12:59 2002
-> +++ linux/drivers/sound/dmabuf.c        Tue Feb 12 10:15:06 2002
-> @@ -113,7 +113,7 @@
->                 }
->         }
->         dmap->raw_buf = start_addr;
-> -       dmap->raw_buf_phys = virt_to_bus(start_addr);
-> +       dmap->raw_buf_phys = isa_virt_to_bus(start_addr);
->
->         for (page = virt_to_page(start_addr); page <=
-> virt_to_page(end_addr); page++) mem_map_reserve(page);
+Because all I/O is already scheduled, thanks to kupdate.
+
+
+
+But we want sync to be useful.
+
+
+> 
+>   If this were only a performance issue I wouldn't push for prompt
+> implementation, but anything which can hang the system, particularly in
+> shutdown, is bad.
+> 
+
+If shutdown hangs, it's probably due to something else.
+
+-

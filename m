@@ -1,50 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267468AbSLFAqI>; Thu, 5 Dec 2002 19:46:08 -0500
+	id <S267471AbSLFAzi>; Thu, 5 Dec 2002 19:55:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267471AbSLFAqI>; Thu, 5 Dec 2002 19:46:08 -0500
-Received: from phoenix.mvhi.com ([195.224.96.167]:56837 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S267468AbSLFAqH>; Thu, 5 Dec 2002 19:46:07 -0500
-Date: Fri, 6 Dec 2002 00:53:41 +0000 (GMT)
-From: James Simmons <jsimmons@infradead.org>
-To: Antonino Daplas <adaplas@pol.net>
-cc: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-fbdev-devel] [PATCH 1/3: FBDEV: VGA State Save/Restore
- module
-In-Reply-To: <1039135574.1032.17.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0212060051080.31967-100000@phoenix.infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267476AbSLFAzh>; Thu, 5 Dec 2002 19:55:37 -0500
+Received: from ip68-4-86-174.oc.oc.cox.net ([68.4.86.174]:20468 "EHLO
+	ip68-4-86-174.oc.oc.cox.net") by vger.kernel.org with ESMTP
+	id <S267471AbSLFAzh>; Thu, 5 Dec 2002 19:55:37 -0500
+Date: Thu, 5 Dec 2002 17:03:12 -0800
+From: "Barry K. Nathan" <barryn@pobox.com>
+To: Robert Love <rml@tech9.net>
+Cc: akpm@digeo.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.5: ext3 bug or dying drive?
+Message-ID: <20021206010312.GC17498@ip68-4-86-174.oc.oc.cox.net>
+References: <1039123660.1433.12.camel@phantasy>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1039123660.1433.12.camel@phantasy>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Dec 05, 2002 at 04:27:40PM -0500, Robert Love wrote:
+> IBM U2W drive on a 2940U2W if it matters.  UP kernel.
 
-> > One thing I like to suggest. I like to move the vga code in fb.h to vga.h. 
-> > Alot of fbdev devices don't have a VGA core. 
-> > 
-> > 
-> 
-> Only the structure definition of fb_vgastate is in fb.h.  For drivers
-> without a vga core, they'll just won't link to it and it won't be
-> compiled.  Plus, vga.h is not a common header (not located in
-> include/asm or include/linux) and it contains a lot of declarations and
-> definitions which are irrelevant to most drivers or are already
-> duplicated.  This will be messier, I think.  
+http://www.storage.ibm.com/hdd/support/download.htm
 
-I like to move vga.h to include/video. And yes I like to clean it up. The 
-reason is I like to implement the function in vga.h and some in vgastate 
-into vgacon.c. It would be nice if vgacon could support different hardware 
-states per VC instead of changing every virtual console for everything. 
-The other dream is I like to see vgacon become firmware independent. 
+Download the Drive Fitness Test "Linux disk creator" (which isn't
+actually a "disk creator" like the Windows version, but simply a file
+you dd onto a 1.44MB floppy), then boot off that and try the Quick test.
+If that doesn't show anything wrong, try the Advanced test or whatever
+the longer one is called.
 
-> Maybe we can just enclose it in a macro, something like:
-> 
-> #ifdef FBDEV_HAS_VGACORE
-> ...
-> #endif
- 
-Yuck :-(
+If DFT doesn't fail outright and instead offers to erase part of the
+drive for you to "repair" it, that means there are bad sectors.
+Conversely, if the Advanced test shows Disposition Code 00, that means
+the drive is probably OK. (I think another way of interpreting the
+results is that OK results are text on a green background, and failures
+are text on red.) Anyway, this stuff will seem more obvious once you try
+it.
 
+-Barry K. Nathan <barryn@pobox.com>

@@ -1,111 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271034AbTHGWOI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 18:14:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271026AbTHGWOI
+	id S271033AbTHGWL1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 18:11:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271037AbTHGWL1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 18:14:08 -0400
-Received: from mail.kroah.org ([65.200.24.183]:60909 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S271034AbTHGWOC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 18:14:02 -0400
-Date: Thu, 7 Aug 2003 15:14:12 -0700
-From: Greg KH <greg@kroah.com>
-To: long <tlnguyen@snoqualmie.dp.intel.com>
-Cc: linux-kernel@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net,
-       jun.nakajima@intel.com, tom.l.nguyen@intel.com
-Subject: Re: Updated MSI Patches
-Message-ID: <20030807221411.GA13363@kroah.com>
-References: <200308072125.h77LPKUN024461@snoqualmie.dp.intel.com>
-Mime-Version: 1.0
+	Thu, 7 Aug 2003 18:11:27 -0400
+Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:24525 "EHLO
+	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
+	id S271033AbTHGWL0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 18:11:26 -0400
+To: Andries.Brouwer@cwi.nl
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Add identify decoding 4/4
+References: <UTC200308062144.h76LiLm16781.aeb@smtp.cwi.nl>
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
+Date: 07 Aug 2003 18:11:03 -0400
+In-Reply-To: <UTC200308062144.h76LiLm16781.aeb@smtp.cwi.nl>
+Message-ID: <m1n0eljeyw.fsf@pincoya.inf.utfsm.cl>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200308072125.h77LPKUN024461@snoqualmie.dp.intel.com>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-pcihpd-discuss?  Don't you mean the linux-pci mailing list instead?
+Andries.Brouwer@cwi.nl writes:
+> > I know full well _why_ the big function is in the header;
+> > that doesn't address my point:  we don't need to be putting
+> > big functions in header files.  That's why libraries were invented
+> 
+> Well. I chose the most elegant solution I saw.
+> 
+> If you see a better solution, I would like to see it.
+> Note that local symbols in several files determine
+> whether this function should be compiled or not.
 
-A few initial comments on your patch:
- - Is there any way to dynamically detect if hardware can support MSI?
- - If you enable this option, will boxes that do not support it stop
-   working?
+Then the proposed solution won't work either...
 
-A driver has to be modified to use this option, right?  Do you have any
-drivers that have been modified?  Without that, I don't think we can
-test this patch out, right?
+Just do an xyz.h:
 
+#ifdef NEED_BIG_UGLY_FUNC
+/* Prototype, gets pulled in when called */
+void big_ugly_func(int this, void *that);
+#else
+/* Inline definition, gets nuked */
+static inline void big_ugly_func(int this, void *that) {}
+#endif
 
-> diff -X excludes -urN linux-2.6.0-test2/arch/i386/kernel/io_apic.c linux-2.6.0-test2-create-vectorbase/arch/i386/kernel/io_apic.c
-> --- linux-2.6.0-test2/arch/i386/kernel/io_apic.c	2003-07-27 13:00:21.000000000 -0400
-> +++ linux-2.6.0-test2-create-vectorbase/arch/i386/kernel/io_apic.c	2003-08-05 09:25:54.000000000 -0400
+while xyz.c goes into a library (*.a) with the full definition. Gets
+compiled, but not linked in.
 
-You are cluttering up this file with a lot of #ifdefs.  Is there any way
-you can not do this?
-
-Does this break the summit and/or NUMA builds?
-
-> diff -X excludes -urN linux-2.6.0-test2/include/asm-i386/mach-default/irq_vectors.h linux-2.6.0-test2-create-vectorbase/include/asm-i386/mach-default/irq_vectors.h
-> --- linux-2.6.0-test2/include/asm-i386/mach-default/irq_vectors.h	2003-07-27 12:58:54.000000000 -0400
-> +++ linux-2.6.0-test2-create-vectorbase/include/asm-i386/mach-default/irq_vectors.h	2003-08-05 09:25:54.000000000 -0400
-> @@ -76,9 +76,14 @@
->   * Since vectors 0x00-0x1f are used/reserved for the CPU,
->   * the usable vector space is 0x20-0xff (224 vectors)
->   */
-> +#define NR_VECTORS 256
-
-Will this _always_ be the value?  Can boxes have bigger numbers (I
-haven't seen the spec, so I don't know...)
-
-Care to add a comment about this value?
-
-> diff -X excludes -urN linux-2.6.0-test2-create-vectorbase/arch/i386/kernel/i386_ksyms.c linux-2.6.0-test2-create-msi/arch/i386/kernel/i386_ksyms.c
-> --- linux-2.6.0-test2-create-vectorbase/arch/i386/kernel/i386_ksyms.c	2003-07-27 13:11:42.000000000 -0400
-> +++ linux-2.6.0-test2-create-msi/arch/i386/kernel/i386_ksyms.c	2003-08-05 09:45:25.000000000 -0400
-> @@ -166,6 +166,11 @@
->  EXPORT_SYMBOL(IO_APIC_get_PCI_irq_vector);
->  #endif
->  
-> +#ifdef CONFIG_PCI_MSI
-> +EXPORT_SYMBOL(msix_alloc_vectors);
-> +EXPORT_SYMBOL(msix_free_vectors);
-> +#endif
-> +
->  #ifdef CONFIG_MCA
->  EXPORT_SYMBOL(machine_id);
->  #endif
-
-Put the EXPORT_SYMBOL in the files that have the functions.  Don't
-clutter up the ksyms.c files anymore.
-
-
-
-> +u32 device_nomsi_list[DRIVER_NOMSI_MAX] = {0, };
-
-Shouldn't this be static?
-
-> +u32 device_msi_list[DRIVER_NOMSI_MAX] = {0, };
-
-Same with this one?
-
-
-> +	base = (u32*)ioremap_nocache(phys_addr,
-> +		dev_msi_cap*PCI_MSIX_ENTRY_SIZE*sizeof(u32));
-> +	if (base == NULL) 
-> +		goto free_region; 
-
-...
-
-> +	*base = address.lo_address.value;
-> +	*(base + 1) = address.hi_address;
-> +	*(base + 2) = *((u32*)&data);
-
-Don't do direct writes to memory, use the proper function calls.  You do
-this in a few other places too.
-
-That's enough to get the conversation started :)
-
-thanks,
-
-greg k-h
+What is wrong with that?
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

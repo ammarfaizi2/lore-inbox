@@ -1,57 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264641AbSIQVyf>; Tue, 17 Sep 2002 17:54:35 -0400
+	id <S264583AbSIQWAK>; Tue, 17 Sep 2002 18:00:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264642AbSIQVye>; Tue, 17 Sep 2002 17:54:34 -0400
-Received: from packet.digeo.com ([12.110.80.53]:38871 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S264641AbSIQVx6>;
-	Tue, 17 Sep 2002 17:53:58 -0400
-Message-ID: <3D87A59C.410FFE3E@digeo.com>
-Date: Tue, 17 Sep 2002 14:58:52 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
+	id <S264625AbSIQWAJ>; Tue, 17 Sep 2002 18:00:09 -0400
+Received: from ns1.cypress.com ([157.95.67.4]:58796 "EHLO ns1.cypress.com")
+	by vger.kernel.org with ESMTP id <S264583AbSIQWAJ>;
+	Tue, 17 Sep 2002 18:00:09 -0400
+Message-ID: <3D87A6E3.5090407@cypress.com>
+Date: Tue, 17 Sep 2002 17:04:19 -0500
+From: Thomas Dodd <ted@cypress.com>
+User-Agent: Mozilla/5.0 (X11; U; SunOS sun4u; en-US; rv:1.1) Gecko/20020827
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: manfred@colorfullife.com, netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: Info: NAPI performance at "low" loads
-References: <3D87A264.8D5F3AD2@digeo.com> <20020917.143947.07361352.davem@redhat.com>
-Content-Type: text/plain; charset=us-ascii
+To: Rogier Wolff <R.E.Wolff@bitwizard.nl>
+CC: linux-kernel@vger.kernel.org, linux-usb-users@lists.sourceforge.net
+Subject: Re: Problems accessing USB Mass Storage
+References: <1032261937.1170.13.camel@stimpy.angelnet.internal> <20020917151816.GB2144@kroah.com> <3D876861.9000601@cypress.com> <20020917174631.GD2569@kroah.com> <20020917234302.A26741@bitwizard.nl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 17 Sep 2002 21:58:52.0581 (UTC) FILETIME=[69135D50:01C25E95]
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" wrote:
-> 
->    From: Andrew Morton <akpm@digeo.com>
->    Date: Tue, 17 Sep 2002 14:45:08 -0700
-> 
->    "David S. Miller" wrote:
->    > Well, it is due to the same problems manfred saw initially,
->    > namely just a crappy or buggy NAPI driver implementation. :-)
-> 
->    It was due to additional inl()'s and outl()'s in the driver fastpath.
-> 
-> How many?  Did the implementation cache the register value in a
-> software state word or did it read the register each time to write
-> the IRQ masking bits back?
-> 
 
-Looks like it cached it:
 
--    outw(SetIntrEnb | (inw(ioaddr + 10) & ~StatsFull), ioaddr + EL3_CMD);
-     vp->intr_enable &= ~StatsFull;
-+    outw(vp->intr_enable, ioaddr + EL3_CMD);
-
-> It is issues like this that make me say "crappy or buggy NAPI
-> implementation"
+Rogier Wolff wrote:
+> On Tue, Sep 17, 2002 at 10:46:31AM -0700, Greg KH wrote:
 > 
-> Any driver should be able to get the NAPI overhead to max out at
-> 2 PIOs per packet.
+>>On Tue, Sep 17, 2002 at 12:37:37PM -0500, Thomas Dodd wrote:
+>>
+>>>I get the feeling it's not a true mass storage device.
+>>
+>>Sounds like it.
 > 
-> And if the performance is really concerning, perhaps add an option to
-> use MEM space in the 3c59x driver too, IO instructions are constant
-> cost regardless of how fast the PCI bus being used is :-)
+> 
+> Nope. Sure does sound like it's a mass storage device. And it works
+> too. 
+> 
+> The kernel managed to read the partition table off it, and got
+> one valid partition: sda1. 
 
-Yup.  But deltas are interesting.
+Accept that you cannot read data from the device. At all.
+Even dd fails. And the windows drivers work (using XP
+in vmware it think it was) correctly on this same device.
+
+	-Thomas
+

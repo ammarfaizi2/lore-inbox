@@ -1,70 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266292AbUHaCXO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266287AbUHaC37@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266292AbUHaCXO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 22:23:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266291AbUHaCXO
+	id S266287AbUHaC37 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 22:29:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266291AbUHaC37
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 22:23:14 -0400
-Received: from smtp01.mrf.mail.rcn.net ([207.172.4.60]:60834 "EHLO
-	smtp01.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
-	id S266245AbUHaCXH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 22:23:07 -0400
-Message-ID: <4133E109.5040301@pobox.com>
-Date: Mon, 30 Aug 2004 22:23:05 -0400
-From: Will Dyson <will_dyson@pobox.com>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040819)
-X-Accept-Language: en-us, en
+	Mon, 30 Aug 2004 22:29:59 -0400
+Received: from fw.osdl.org ([65.172.181.6]:61877 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266287AbUHaC35 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Aug 2004 22:29:57 -0400
+Date: Mon, 30 Aug 2004 19:29:53 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Tim Fairchild <tim@bcs4me.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: K3b and 2.6.9?
+In-Reply-To: <200408311151.25854.tim@bcs4me.com>
+Message-ID: <Pine.LNX.4.58.0408301917360.2295@ppc970.osdl.org>
+References: <200408301047.06780.tim@bcs4me.com> <1093871277.30082.7.camel@localhost.localdomain>
+ <200408311151.25854.tim@bcs4me.com>
 MIME-Version: 1.0
-To: "Burnes, James" <james.burnes@gwl.com>
-Cc: Hans Reiser <reiser@namesys.com>, Andrew Morton <akpm@osdl.org>,
-       hch@lst.de, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       flx@namesys.com, torvalds@osdl.org, reiserfs-list@namesys.com
-Subject: Re: reiser4 semantics / BeFS Architect(s) Query Resolution
-References: <3DF9165145FACB4C96977FF650C1E9040C46A3D1@its-mail1.its.corp.gwl.com>
-In-Reply-To: <3DF9165145FACB4C96977FF650C1E9040C46A3D1@its-mail1.its.corp.gwl.com>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Burnes, James wrote:
-> (comments below)
+
+
+On Tue, 31 Aug 2004, Tim Fairchild wrote:
 > 
+> Thanks. Yes I realize that and understand why this is a good idea to
+> have. But most of the verify_command list seems fine and I find the
+> following works, but don't know if this is any 'safer' or not... This is
+> the particular test that makes the difference to k3b/cdrecord, but I
+> don't know enough to work out what it actually does... (this is with
+> 2.6.9-rc1-bk6)
 > 
->>-----Original Message-----
->>From: Hans Reiser [mailto:reiser@namesys.com]
->>Sent: Saturday, August 28, 2004 3:55 AM
->>To: Will Dyson
->>Cc: Andrew Morton; hch@lst.de; linux-fsdevel@vger.kernel.org; linux-
->>kernel@vger.kernel.org; flx@namesys.com; torvalds@osdl.org; reiserfs-
->>list@namesys.com
->>Subject: Re: silent semantic changes with reiser4
->>
->>I think there are two ways to analyze the code boundary issue.  One is
->>"does it belong in the kernel?"  Another is, "does it belong in the
->>filesystem. and if so should name resolution in a filesystem be split
->>into two parts, one in kernel, and one in user space."  In ten years I
->>might have the knowledge needed to make such a split, but I know for
->>sure that I don't know how to do it today without regretting it
->>tomorrow, and I don't really have confidence that I will ever be able
->>to do it without losing performance.
->>
->>Glad that BeFS finds the new model better.:)
->>
+> --- a/drivers/block/scsi_ioctl.c.original  2004-08-30 23:50:16.000000000 +1000
+> +++ b/drivers/block/scsi_ioctl.c  2004-08-31 08:37:56.000000000 +1000
+> @@ -192,7 +192,7 @@
 > 
-> (glad that BeFS supposedly solved it)
+>         /* Write-safe commands just require a writable open.. */
+>         if (type & CMD_WRITE_SAFE) {
+> -               if (file->f_mode & FMODE_WRITE)
+> +/*              if (file->f_mode & FMODE_WRITE)      */
+>                         return 0;
+>         }
 
-Solved what, exactly? I'm already having a hard time understanding what 
-Hans is talking about.
+Ehh.. This seems to imply that K3b opens the device for _reading_ when it 
+wants to burn a CD-ROM. It also implies that K3b only uses the commands 
+that are already marked as being "safe for writing", so the kernel command 
+list is apparently fine. 
 
-> BTW: I get paid during the day to do security engineering work.
-> Wouldn't parsing the query in the kernel make the kernel susceptible to
-> buffer overflows?  Bad place to have an overflow.
+Which implies that the only way to fix it sanely is literally to have K3b 
+open the device for writing, and then everything will be happy.
 
+As far as I can tell, the fix should be a simple one-liner: make sure that 
+K3b opens the device with O_RDWR | O_NONBLOCK instead of using O_RDONLY | 
+O_NONBLOCK. The fix looks trivial, it's in
 
+   src/device/k3bdevice.cpp:
+	int K3bCdDevice::openDevice( const char* name );
 
--- 
-Will Dyson
-"Back off man, I'm a scientist!" -Dr. Peter Venkman
+(two places).
+
+That "kind of" makes sense anyway - if you want to write to the disk, you 
+damn well should open the disk for writing, no? So clearly K3b right now 
+is doing something pretty nonsensical.
+
+Can somebody who is active in the K3b community check with the K3b 
+authors, and please try to get that fixed?
+
+			Linus

@@ -1,54 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262221AbSJASBW>; Tue, 1 Oct 2002 14:01:22 -0400
+	id <S262186AbSJAS4d>; Tue, 1 Oct 2002 14:56:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262499AbSJASBW>; Tue, 1 Oct 2002 14:01:22 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:10254 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S262221AbSJAR7z>;
-	Tue, 1 Oct 2002 13:59:55 -0400
-Message-ID: <3D99E3C0.5010604@pobox.com>
-Date: Tue, 01 Oct 2002 14:04:48 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] Workqueue Abstraction, 2.5.40-H7
-References: <Pine.LNX.4.44.0210011653370.28821-102000@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S262184AbSJAS4c>; Tue, 1 Oct 2002 14:56:32 -0400
+Received: from carisma.slowglass.com ([195.224.96.167]:50959 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S262224AbSJAS4W>; Tue, 1 Oct 2002 14:56:22 -0400
+Date: Tue, 1 Oct 2002 20:01:43 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Petr Vandrovec <VANDROVE@vc.cvut.cz>, Andrew Morton <akpm@digeo.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Re: Shared memory shmat/dt not working well in
+Message-ID: <20021001200142.A31614@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Hugh Dickins <hugh@veritas.com>,
+	Petr Vandrovec <VANDROVE@vc.cvut.cz>,
+	Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
+References: <35FD2132190@vcnet.vc.cvut.cz> <Pine.LNX.4.44.0210011804001.1783-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0210011804001.1783-100000@localhost.localdomain>; from hugh@veritas.com on Tue, Oct 01, 2002 at 06:14:04PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo,
+On Tue, Oct 01, 2002 at 06:14:04PM +0100, Hugh Dickins wrote:
+> And looks to me like mprotect_fixup, in the merge case, may be passing
+> an already freed vma to change_protection.  I'm not as confident about
+> this patch as the earlier one, but I believe it's correct: please
+> give it a try, and maybe Christoph will confirm or deny it.
 
-Looking real good.
-
-I still think that schedule_work() should have void* cookie passed to it 
-directly, instead of at INIT_WORK time [and possibly changing it by hand 
-in the driver, immediately before schedule_work() is called]
-
-For drivers that pass an interface pointer like struct net_device*, 
-INIT_WORK-time, the current scheme is fine, but when the cookie 
-fluctuates more, it makes a lot more sense to pass void* to 
-schedule_work() itself.
-
-Further, schedule_work(wq,data) is conceptually very close to 
-my_work_func(data) and makes the code easier to trace through: it 
-becomes more obvious what is the value of the my_work_func arg, at the 
-place in the code where schedule_work() is called.  I see passing the 
-void* cookie as covering one common case, while adding void* arg to 
-schedule_work() would cover all cases...
-
-[IMO the same argument can be applied to the existing timer API as well, 
-but timers are less often one-shot in kernel code, so it matter less...]
-
-That said, I don't feel strongly about this, so can be convinced 
-otherwise fairly easily :)  I would not complain if Linus applied your 
-patch as-is.
-
-	Jeff
-
-
+Looks good.  My intial patch didn't do the the change_protection at all,
+and it looks like the fix someone (akpm?) submitted wasn't exactly correct.
 

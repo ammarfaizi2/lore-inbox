@@ -1,56 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129998AbRBBUEr>; Fri, 2 Feb 2001 15:04:47 -0500
+	id <S129232AbRBBUPI>; Fri, 2 Feb 2001 15:15:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129232AbRBBUEh>; Fri, 2 Feb 2001 15:04:37 -0500
-Received: from relais.videotron.ca ([24.201.245.36]:15341 "EHLO
-	VL-MS-MR002.sc1.videotron.ca") by vger.kernel.org with ESMTP
-	id <S129996AbRBBUEX>; Fri, 2 Feb 2001 15:04:23 -0500
-Message-ID: <3A7B1129.2ED4CCE4@dmi.usherb.ca>
-Date: Fri, 02 Feb 2001 14:57:29 -0500
-From: Delta <birtl00@dmi.usherb.ca>
-X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.4.0 i686)
-X-Accept-Language: en
+	id <S129487AbRBBUO7>; Fri, 2 Feb 2001 15:14:59 -0500
+Received: from [216.151.155.116] ([216.151.155.116]:61965 "EHLO
+	belphigor.mcnaught.org") by vger.kernel.org with ESMTP
+	id <S129232AbRBBUOv>; Fri, 2 Feb 2001 15:14:51 -0500
+To: Delta <birtl00@dmi.usherb.ca>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: System unresponsitive when copying HD/HD
+In-Reply-To: <3A7B1129.2ED4CCE4@dmi.usherb.ca>
+From: Doug McNaught <doug@wireboard.com>
+Date: 02 Feb 2001 15:13:07 -0500
+In-Reply-To: Delta's message of "Fri, 02 Feb 2001 14:57:29 -0500"
+Message-ID: <m3vgqsetd8.fsf@belphigor.mcnaught.org>
+User-Agent: Gnus/5.0806 (Gnus v5.8.6) XEmacs/21.1 (20 Minutes to Nikko)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: System unresponsitive when copying HD/HD
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 8bit
-X-MIME-Autoconverted: from base64 to 8bit by leeloo.zip.com.au id HAA26707
 
-Hi,
+Delta <birtl00@dmi.usherb.ca> writes:
 
-I backup my linux partition once a month from my second IDE drive to an
-empty partition
-on the first IDE disk. I have about 2.8 Gig to copy, and I use <cp -ax /
-/mnt/hd> to do the copy.
+> While cp is copying from the second hard disk to the first hard disk,
+> I find my system performance
+> drop VERY sharply.  X is sloppy, even bash takes many seconds to
+> respond.  I using two
+> recent IDE disk (Fudjisu 13 gig, Maxtor 20 Gig), so I'm wondering why
+> the system is so slow?  My mobo is a FIC SD11 and I have an athlon
+> 550 Mhz.
 
-While cp is copying from the second hard disk to the first hard disk,
-I find my system performance
-drop VERY sharply.  X is sloppy, even bash takes many seconds to
-respond.  I using two
-recent IDE disk (Fudjisu 13 gig, Maxtor 20 Gig), so I'm wondering why
-the system is so slow?  My mobo is a FIC SD11 and I have an athlon
-550 Mhz.
+You don't say what kernel you're running.  Some versions (2.2.16ish)
+have very bad interactive response under I/O load.  2.2.18 is supposed
+to be better, or try 2.2.19pre.
 
-I tried renicing the process priority to 20, but I don't see any
-improvement on system usability.
-Hard disk activity is still frenzy, even if there are other task
-runnable (X, g++ jobs).
-Note that I'm running as root when I'm doing the copy.
+Also 'hdparm -u' may help, and turning on DMA if you're not using it.
 
-So I'd like to know why the linux kernel can't schedule the task less
-often?
-I guess that copying file doesn't eat too many CPU cycles, but is
-running almost all the time
-in kernel mode doing I/O... Is there a way to prevent a process from
-"hogging" the hard disk like that?
-It's pretty annoying when the system is sluggish like that.
-
-Thanks a lot,
-Laurent Birtz <birtl00@dmi.usherb.ca>
-
-If you wish to reply, I'm not on the list so reply directly to me..
-ı:.Ë›±Êâmçë¢kaŠÉb²ßìzwm…ébïîË›±Êâmébìÿ‘êçz_âØ^n‡r¡ö¦zËëh™¨è­Ú&£ûàz¿äz¹Ş—ú+€ù^jÇ«y§m…á@A«a¶Úÿÿü0ÃûnÇú+ƒùd
+-Doug
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+Please read the FAQ at http://www.tux.org/lkml/

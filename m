@@ -1,43 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131056AbRBXBCa>; Fri, 23 Feb 2001 20:02:30 -0500
+	id <S131069AbRBXBHB>; Fri, 23 Feb 2001 20:07:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131057AbRBXBCV>; Fri, 23 Feb 2001 20:02:21 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:11784 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S131056AbRBXBCE>; Fri, 23 Feb 2001 20:02:04 -0500
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
+	id <S131065AbRBXBGv>; Fri, 23 Feb 2001 20:06:51 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:63758 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131069AbRBXBGl>; Fri, 23 Feb 2001 20:06:41 -0500
 Subject: Re: RFC: vmalloc improvements
-Date: 23 Feb 2001 17:01:35 -0800
-Organization: Transmeta Corporation
-Message-ID: <97715f$sj1$1@penguin.transmeta.com>
-In-Reply-To: <200102240026.QAA09446@k2.llnl.gov>
+To: baettig@scs.ch
+Date: Sat, 24 Feb 2001 01:09:28 +0000 (GMT)
+Cc: linux-mm@kvack.org (MM Linux), linux-kernel@vger.kernel.org (Kernel Linux),
+        frey@scs.ch (Martin Frey)
+In-Reply-To: <200102240026.QAA09446@k2.llnl.gov> from "Reto Baettig" at Feb 23, 2001 04:26:56 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14WTDH-0007UQ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <200102240026.QAA09446@k2.llnl.gov>,
-Reto Baettig  <baettig@k2.llnl.gov> wrote:
->
->We would volounteer to improve vmalloc if there is any chance of
->getting it into the main kernel tree. We also have an idea how we
->Could do that (quite similar to the process address space management):
->
->1.      Create a generic avl-tree headerfile (similar to list.h)
-....
+> We have an application that makes extensive use of vmalloc (we need
+> lots of large virtual contiguous buffers. The buffers don't have to be
+> physically contiguous).
 
-No thanks.
+So you could actually code around that. If you have them virtually contiguous
+for mmap for example then you can actually mmap arbitary page arrays
 
-Just use the process address space management as-is, and make the
-vmalloc address list be the same as any other address list: it would just
-be the "native" address list for "init_mm".
+> We would volounteer to improve vmalloc if there is any chance of
+> getting it into the main kernel tree. We also have an idea how we
+> Could do that (quite similar to the process address space management):
 
-You could probably even use "insert_vm_struct()" directly, and have that
-do the AVL tree stuff for you, no changes needed.
-
->Is this something that makes sense to do and that could make it
->into the 2.4 or the 2.5 kernel?
-
-It's definitely not a 2.4.x thing.
-
-		Linus
+Im not the one to call the shots, but it seems if you need an AVL for the
+vmalloc tables then vmalloc is possibly being overused, or people are not
+allocating buffers just occasionally as anticipated

@@ -1,55 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288985AbSA3I3n>; Wed, 30 Jan 2002 03:29:43 -0500
+	id <S288978AbSA3Idd>; Wed, 30 Jan 2002 03:33:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288956AbSA3I3d>; Wed, 30 Jan 2002 03:29:33 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:40910 "HELO gtf.org")
-	by vger.kernel.org with SMTP id <S288579AbSA3I3W>;
-	Wed, 30 Jan 2002 03:29:22 -0500
-Date: Wed, 30 Jan 2002 03:29:20 -0500
-From: Jeff Garzik <garzik@havoc.gtf.org>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: Dave Jones <davej@suse.de>, linux-kernel@vger.kernel.org
+	id <S288579AbSA3IdX>; Wed, 30 Jan 2002 03:33:23 -0500
+Received: from dsl-213-023-038-145.arcor-ip.net ([213.23.38.145]:52366 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S288987AbSA3IdG>;
+	Wed, 30 Jan 2002 03:33:06 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Linus Torvalds <torvalds@transmeta.com>,
+        Alexander Viro <viro@math.psu.edu>
 Subject: Re: A modest proposal -- We need a patch penguin
-Message-ID: <20020130032920.H32317@havoc.gtf.org>
-In-Reply-To: <200201290446.g0T4kZU31923@snark.thyrsus.com> <8Ho-eVfXw-B@khms.westfalen.de> <20020130034637.J16379@suse.de> <200201300757.g0U7v1t07728@Port.imtp.ilyichevsk.odessa.ua>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200201300757.g0U7v1t07728@Port.imtp.ilyichevsk.odessa.ua>; from vda@port.imtp.ilyichevsk.odessa.ua on Wed, Jan 30, 2002 at 09:57:02AM -0200
+Date: Wed, 30 Jan 2002 09:36:49 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: <mingo@elte.hu>, Rob Landley <landley@trommello.org>,
+        <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0201300002170.1542-100000@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.33.0201300002170.1542-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16VqEc-0000D1-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 30, 2002 at 09:57:02AM -0200, Denis Vlasenko wrote:
-> On 30 January 2002 00:46, Dave Jones wrote:
-> > On Tue, Jan 29, 2002 at 09:51:00PM +0200, Kai Henningsen wrote:
-> >  > >   - cleanliness
-> >  > >   - concept
-> >  > >   - timing
-> >  > >   - testing
-> >  >
-> >  > IIRC, the number 33 referred to esr's Configure.help patch. Which of
-> >  > these did he violate?
+On January 30, 2002 09:09 am, Linus Torvalds wrote:
+> On Wed, 30 Jan 2002, Alexander Viro wrote:
+> > On Wed, 30 Jan 2002, Daniel Phillips wrote:
+> > > Linus just called you the ext2 maintainer.
 > >
-> >  Timing.  Linus was busy focusing on the block layer.
+> > Message-ID, please?
 > 
-> Sounds alarming. Linus didn't take documentation updates from designated 
-> maintainer? For many months? I can't believe in argument that updates were 
-> able to break _anything_, it's only documentation, right? I could understand 
-> this if these updates were sent by little known person, but Eric?!
-> 
-> Clearly a scalability problem here :-)
+> I called you the VFS maintainer ("whether you like it or not" I think I
+> said. Although I can't find the message right now).
 
-Oh-my-lord.  Please re-read this thread, and especially Linus's
-2.5.3-pre5 changelog announcement.
+Correct, I was wrong to say that, in fact, I should have posted the whole 
+email to 'drafts' as I normally do with such non-constructive tripe.  I don't 
+know what got into me.  Al, please accept my apologies.
 
-Configure.help needed to be split up.  Eric?! was told this repeatedly,
-but he did not listen.  Hopefully he will listen to feedback regarding
-CML2...  He has even been told repeatedly that he does not
-listen to feedback ;-)
-
-	Jeff, chuckling
-
-
-
+-- 
+Daniel

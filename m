@@ -1,63 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264410AbTICT50 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 15:57:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264234AbTICTze
+	id S264315AbTICVZo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 17:25:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264307AbTICVZo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 15:55:34 -0400
-Received: from adicia.telenet-ops.be ([195.130.132.56]:449 "EHLO
-	adicia.telenet-ops.be") by vger.kernel.org with ESMTP
-	id S264410AbTICTzL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 15:55:11 -0400
-Date: Wed, 3 Sep 2003 21:54:10 +0200
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Justin Cormack <justin@street-vision.com>
-Cc: torvalds@osdl.org, Kernel mailing list <linux-kernel@vger.kernel.org>,
-       Rob Radez <rob@osinvestor.com>
-Subject: Re: [PATCH] 2.6.0-test4 - Watchdog patches
-Message-ID: <20030903215410.F8811@infomag.infomag.iguana.be>
-References: <20030831225236.A6938@infomag.infomag.iguana.be> <1062364509.30543.155.camel@lotte.street-vision.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1062364509.30543.155.camel@lotte.street-vision.com>; from justin@street-vision.com on Sun, Aug 31, 2003 at 10:15:09PM +0100
+	Wed, 3 Sep 2003 17:25:44 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:6016 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S264256AbTICVZm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 17:25:42 -0400
+Date: Wed, 3 Sep 2003 17:25:36 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
+cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: nmi errors?
+In-Reply-To: <20030903212038.GQ7353@rdlg.net>
+Message-ID: <Pine.LNX.4.53.0309031724470.362@chaos>
+References: <20030903212038.GQ7353@rdlg.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Justin,
+On Wed, 3 Sep 2003, Robert L. Harris wrote:
 
-> There is *no point* making these module parameters. There is no other
-> watchdog that works in exactly the same way but using different io
-> ports. If there was this still wouldnt be the sensible way to do it. 
+>
+>
+> Can anyone tell me what this is?
+>
+> 16:00:09 mailserver kernel: Uhhuh. NMI received for unknown reason 31.
+> 16:00:09 mailserver kernel: Dazed and confused, but trying to continue
+> 16:00:09 mailserver kernel: Do you have a strange power saving mode enabled?
+> 16:00:34 mailserver kernel: Uhhuh. NMI received for unknown reason 21.
+> 16:00:34 mailserver kernel: Dazed and confused, but trying to continue
+>
+> A coworker put a script on a server which loads up quite afew arrays
+> with pre-set values and then compares the values against arrays.  As soon as he
+> kicked off the script I got alot of these in my log files.  Not much longer and the
+> machine crashed hard.
+>
 
-Since I copied this part of Rob's watchdog-patch, I'll let Rob answer this one.
+Possible bad RAM.
 
-> > +	if (timeout < 1 || timeout > 63) {
-> > +		timeout = WD_TIMO;
-> > +		printk (KERN_INFO PFX "timeout value must be 1<=x<=255, using %d\n",
-> > +			timeout);
-> 
-> where did that 63 come from? should be 255.
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.22 on an i686 machine (794.73 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
-Thanks, I'll fix this (And I'll take out the module_param's for wdt_start and wdt_stop 
-also).
-
-> Also, generally, please cc authors when you send patches. And making the comments the
-> same in the watchdog drivers is a complete  waste of time. If you want to reduce
-> the amount of duplicated code in the drivers you could make a watchdog_ops interface
-> for almost all of them.
-
-Sorry Justin, I normally cc the authors, but this time I indeed overlooked it. Sorry 
-for that. Concerning the duplicated code: this is done intentionally; Rob and myself
-won't to get the watchdog-drivers all at the same level so that we can then remove the
-duplicate code and have some generic watchdog code that can be used (I allready have 
-code for it, but I'm redoing the temperature stuff). After that we plan to foresee sysfs
-interfacing for the drivers (can be done easily if you use the generic watchdog code).
-the generic code indeed uses a watchdog_ops like interface. Hope this clarifies things 
-a bit more. (So I try to do everything via a "phased" approach rather then go directly 
-for the generic watchdog model code).
-
-Greetings,
-Wim.
 

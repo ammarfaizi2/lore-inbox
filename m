@@ -1,62 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265325AbUAFVCh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jan 2004 16:02:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265334AbUAFVCh
+	id S265362AbUAFVGX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jan 2004 16:06:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265346AbUAFVGX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jan 2004 16:02:37 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:12307 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S265325AbUAFVCg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jan 2004 16:02:36 -0500
-Message-ID: <3FFB223A.8000606@zytor.com>
-Date: Tue, 06 Jan 2004 13:01:46 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-Organization: Zytor Communications
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031030
-X-Accept-Language: en, sv
+	Tue, 6 Jan 2004 16:06:23 -0500
+Received: from adsl-66-127-195-58.dsl.snfc21.pacbell.net ([66.127.195.58]:16775
+	"EHLO panda.mostang.com") by vger.kernel.org with ESMTP
+	id S265334AbUAFVGV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jan 2004 16:06:21 -0500
+To: torvalds@osdl.org
+Cc: rth@redhat.com, davidm@mostang.com, linux-kernel@vger.kernel.org
+Subject: Re: GCC 3.4 Heads-up
+References: <16PqK-8eK-1@gated-at.bofh.it> <16RiU-2kO-1@gated-at.bofh.it> <16S5h-3no-5@gated-at.bofh.it>
+From: David Mosberger-Tang <David.Mosberger@acm.org>
+Date: 06 Jan 2004 13:06:19 -0800
+In-Reply-To: <16S5h-3no-5@gated-at.bofh.it>
+Message-ID: <ug3casyegk.fsf@panda.mostang.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-To: Mike Waychison <Michael.Waychison@Sun.COM>
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       autofs mailing list <autofs@linux.kernel.org>
-Subject: Re: [autofs] [RFC] Towards a Modern Autofs
-References: <3FFB12AD.6010000@sun.com>
-In-Reply-To: <3FFB12AD.6010000@sun.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Waychison wrote:
-> 
-> The attached paper was written an attempt to design an automount system
-> with complete Solaris-style autofs functionality.  This includes
-> browsing, direct maps and lazy mounting of multimounts.  The paper can
-> also be found online at:
->                                                                               
+>>>>> On Fri, 26 Dec 2003 05:50:07 +0100, Linus Torvalds <torvalds@osdl.org> said:
+  Linus> The cast/conditional expression as lvalue are _particularly_
+  Linus> ugly extensions, since there is absolutely zero point to
+  Linus> them.
 
-Sorry to sound like sour grapes, but this is a requirements document,
-not a proposed implementation.  Furthermore, as I have expressed before,
-I think your claim that expiry should be done in the VFS to be incorrect.
+I'd love to agree with that...
 
-I think you're on the completely wrong track, because you're starting
-with the wrong problem.  The implementation needs to start with the VFS
-implementation and derive from that.
+  Linus> They are very much against what C is all about, and writing
+  Linus> something like this:
 
-Finally, throwing out the daemon is a huge step backwards.  Most of the
-problems with autofs v3 (and to a lesser extent v4) are due to the
-*lack* of state in userspace (the current daemon is mostly stateless);
-putting additional state in userspace would be a benefit in my experience.
+  Linus> 	a ? b : c = d;
 
-Pardon me for sounding harsh, but I'm seriously sick of the oft-repeated
-idiocy that effectively boils down to "the daemon can die and would lose
-its state, so let's put it all in the kernel."  A dead daemon is a
-painful recovery, admitted.  It is also a THIS SHOULD NOT HAPPEN
-condition.  By cramming it into the kernel, you're in fact making the
-system less stable, not more, because the kernel being tainted with
-faulty code is a total system malfunction; a crashed userspace daemon is
-"merely" a messy cleanup.  In practice, the autofs daemon does not die
-unless a careless system administrator kills it.  It is a non-problem.
+  Linus> is something that only a high-level language person could
+  Linus> have come up with. The _real_ way to do this in C is to just
+  Linus> do
 
-	-hpa
+  Linus> 	*(a ? &b : &c) = d;
 
+  Linus> which is portable C, does the same thing, and has no strange
+  Linus> semantics.
+
+This works provided you can take the address of the lvalue, which
+ain't true for bitfields.  Example:
+
+ #define bit_field(var, bit, width) \
+	(((struct { long : bit; long _f : width; } *) &(var))->_f)
+
+ long l;
+
+ bit_field(l, 0, 4) = 13;
+ bit_field(l, 8, 12) = 42;
+
+I wish I was making this up, but I know of at least one legacy app
+where disabling GCC's ability to treat statement-expressions as
+l-values will cause a major headache.
+
+I'd love to know a way of doing this in ANSI C99 without requiring
+changes to to uses of this kind of (atrocious) macro...
+
+	--david
+
+--
+David Mosberger; 35706 Runckel Lane; Fremont, CA 94536; David.Mosberger@acm.org

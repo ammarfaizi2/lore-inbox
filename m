@@ -1,55 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266154AbUGESGM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266158AbUGESGs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266154AbUGESGM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jul 2004 14:06:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266158AbUGESGL
+	id S266158AbUGESGs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jul 2004 14:06:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266160AbUGESGs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jul 2004 14:06:11 -0400
-Received: from postfix3-2.free.fr ([213.228.0.169]:17291 "EHLO
-	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S266154AbUGESF4
+	Mon, 5 Jul 2004 14:06:48 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:64678 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266158AbUGESGp
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jul 2004 14:05:56 -0400
-Subject: getting /dev/<DEVICE> from (MAJOR, minor)
-From: =?ISO-8859-1?Q?Beno=EEt?= Dejean <TazForEver@free.fr>
-Reply-To: TazForEver@free.fr
-To: LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Date: Mon, 05 Jul 2004 20:05:50 +0200
-Message-Id: <1089050750.20203.12.camel@athlon>
-Mime-Version: 1.0
-X-Mailer: Evolution 1.5.9.2 
-Content-Transfer-Encoding: 8bit
+	Mon, 5 Jul 2004 14:06:45 -0400
+Message-ID: <40E998A7.3060907@pobox.com>
+Date: Mon, 05 Jul 2004 14:06:31 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Matt Domsch <Matt_Domsch@dell.com>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: EDD results (was Re: Weird:  30 sec delay during early boot)
+References: <Pine.LNX.4.44.0407050827200.30783-100000@humbolt.us.dell.com> <40E99815.6080609@pobox.com>
+In-Reply-To: <40E99815.6080609@pobox.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(sorry for my english)
-(sorry if this is not the good place to ask, but i didn't get any anwser
-on comp.os.linux.development.system)
+Jeff Garzik wrote:
+> Second report, the one with the 30-second delay:
+> MSI whitebox, VIA-based, Athlon64
+> Promise 203xx SATA (boot drive)
+> VIA SATA
 
-	Hi, i'd like to retrieve iostats from /sys in a userspace program. My
-library has a function fsusage(mount_point) which is implemented using
-statvfs(), etc. I'd like to extend it to provide information described
-in linux/documentation/iostats.txt : read/write sectors (? the
-documentation doesn't say what is a sector, am i wrong if i assume it's
-512B on every arch and filesystem ?).
+This box also has VIA PATA, but I have disabled the controller in BIOS. 
+  Also, nothing is connected to the PATA controller.
 
-	So i need to know the device name to browse /sys/block to the 'stat'
-file. I would like to avoid getmntent() (retrieving the device name from
-the mount table). I was thinking about retrieving the (major, minor)
-with stat() in order to get the devname. But i didn't find any quick way
-to get it (readdir()-ing /dev is stupid, i'd better use getmntent()).
-
-How can i retrieve the devname with its (M, m) ?
-
-	I want to avoid getmntent, not for performance issue (should not be
-critical) but for internal reasons. Btw, even if i finally read the
-mnttab, i'm interested in the answer.
-
-thank you.
-
--- 
-Benoît Dejean
-JID: TazForEver@jabber.org
-http://gdesklets.gnomedesktop.org
-http://www.paulla.asso.fr
+(I'm guessing this detail may be related to the delay)
 

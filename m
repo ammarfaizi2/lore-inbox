@@ -1,71 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277851AbRJLTzn>; Fri, 12 Oct 2001 15:55:43 -0400
+	id <S277847AbRJLT4D>; Fri, 12 Oct 2001 15:56:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277849AbRJLTzd>; Fri, 12 Oct 2001 15:55:33 -0400
-Received: from math.uci.edu ([128.200.174.70]:19190 "EHLO math.uci.edu")
-	by vger.kernel.org with ESMTP id <S277844AbRJLTz2>;
-	Fri, 12 Oct 2001 15:55:28 -0400
-From: Eric Olson <ejolson@math.uci.edu>
-Message-Id: <200110121954.MAA27243@math.uci.edu>
-Subject: reiserfs performance loss
-To: linux-kernel@vger.kernel.org
-Date: Fri, 12 Oct 2001 12:54:47 -0700 (PDT)
-Reply-To: ejolson@math.uci.edu
+	id <S277849AbRJLTzo>; Fri, 12 Oct 2001 15:55:44 -0400
+Received: from zero.aec.at ([195.3.98.22]:29456 "HELO zero.aec.at")
+	by vger.kernel.org with SMTP id <S277847AbRJLTzc>;
+	Fri, 12 Oct 2001 15:55:32 -0400
+To: Simon Kirby <sim@netnation.com>
+cc: linux-kernel@vger.kernel.org, kuznet@ms2.inr.ac.ru
+Subject: Re: Really slow netstat and /proc/net/tcp in 2.4
+In-Reply-To: <20011011114736.A13722@netnation.com> <200110111930.XAA28404@ms2.inr.ac.ru> <20011011125538.C10868@netnation.com>
+From: Andi Kleen <andi@firstfloor.org>
+Date: 12 Oct 2001 21:56:01 +0200
+In-Reply-To: Simon Kirby's message of "Thu, 11 Oct 2001 12:55:38 -0700"
+Message-ID: <k2sncok4z2.fsf@zero.aec.at>
+User-Agent: Gnus/5.0700000000000003 (Pterodactyl Gnus v0.83) Emacs/20.2
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Hans and linux-kernel,
+In article <20011011125538.C10868@netnation.com>,
+Simon Kirby <sim@netnation.com> writes:
+> On Thu, Oct 11, 2001 at 11:30:25PM +0400, kuznet@ms2.inr.ac.ru wrote:
+>> Hello!
+>> 
+>> > Is there something that changed from 2.2 -> 2.4 with regards to the
+>> > speed of netstat and /proc/net/tcp?
+>> 
+>> Incredibly high size of hash table, I think.
+>> At least here size is ~1MB. And all this is read each 1K of data read
+>> via /proc/ :-)
 
-I am experiencing read performance loss of between 5 to 20 times 
-due to what I think is data fragmentation in big files.
+> So it's walking the hash table per block read, and the hash table is very
+> large?  Hmm.  I notice it's a bit faster if I use dd if=/proc/net/tcp
+> of=/dev/null bs=1024k, but not much.
 
-I am using linux-2.4.4 with the linux-2.4.4-knfsd-6.g.patch on a
-dual processor VIA694 motherboard system with a 40GB Maxtor drive
-on the builtin IDE controller DMA enabled and 512MB main memory.
+> Is it possible to fix this?  Was the 2.2 hash table just that much
+> smaller?
 
-The reiserfs partition is 31GB and about 60-70% full.  Also, tail-
-packing has not been disabled.
+The hash table is likely to big anyways; eating cache and not helping that
+much. If you're interested in some testing
+I can send you patches to change it by hand and collect statistics for
+average hash queue length. Then you can figure out a good size for your
+workload with some work. Longer time I think the table sizing heuristics
+are far too aggressive and need to be throttled back; but that needs more
+data from real servers.
 
-My application consists of 8 programs tied together using MPI.
-Each program opens a separate output file and periodically writes 
-about 200k of data every 10-40 minutes.  Some programs run on 
-remote machines and use the kernel nfsd to write their files on 
-the server; other programs run directly on the server.  It is
-possible all 8 programs write at the same time.
+-Andi
 
-In this way 8 data files of about 500MB each are created.
-
-For backup these data files are copied to a second server using 
-rsync.  The second server is identical to the main server in both 
-hardware and software.  Running hdparm -t gives about 20 MB/sec 
-for each machine.  However,
-
-	time cat *.dat >/dev/null
-
-reads the data locally on the secondary server 5 to 20 times faster
-than reading them locally on the main server.
-
-Main server timings are
-
-	real    6m26.789s
-	user    0m0.210s
-	sys     0m9.630s
-
-and secondary server timings are
-
-	real    0m34.358s
-	user    0m0.250s
-	sys     0m9.830s
-
-This is 11 times speed difference.  I think the original copies of 
-the files are quite fragmented.  However, I would have expected at 
-most a two fold decrease in actual performace.  Is this reasonable?
-
-I have experienced no other difficulties with reiserfs and like it 
-very much.
-
-All the best, Eric

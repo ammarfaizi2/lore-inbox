@@ -1,34 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133004AbRDUWuC>; Sat, 21 Apr 2001 18:50:02 -0400
+	id <S133013AbRDUXHy>; Sat, 21 Apr 2001 19:07:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133007AbRDUWtw>; Sat, 21 Apr 2001 18:49:52 -0400
-Received: from anime.net ([63.172.78.150]:29198 "EHLO anime.net")
-	by vger.kernel.org with ESMTP id <S133004AbRDUWtm>;
-	Sat, 21 Apr 2001 18:49:42 -0400
-Date: Sat, 21 Apr 2001 15:49:22 -0700 (PDT)
-From: Dan Hollis <goemon@anime.net>
-To: Peter Makholm <peter@makholm.net>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Idea: Encryption plugin architecture for file-systems
-In-Reply-To: <8766fyt5x3.fsf@xyzzy.adsl.dk>
-Message-ID: <Pine.LNX.4.30.0104211547470.21994-100000@anime.net>
+	id <S133019AbRDUXHf>; Sat, 21 Apr 2001 19:07:35 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:32781 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S133013AbRDUXH3>; Sat, 21 Apr 2001 19:07:29 -0400
+Subject: Re: Request for comment -- a better attribution system
+To: esr@thyrsus.com
+Date: Sun, 22 Apr 2001 00:09:05 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org (CML2), kbuild-devel@lists.sourceforge.net
+In-Reply-To: <20010421114942.A26415@thyrsus.com> from "Eric S. Raymond" at Apr 21, 2001 11:49:42 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14r6V4-0004XB-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 21 Apr 2001, Peter Makholm wrote:
-> nagytam@rerecognition.com ("Tamas Nagy") writes:
-> > Idea:
-> > extend the current file-system with an optional plug-in system, which allows
-> > for file-system level encryption instead of file-level.
-> That's is one of the things the loop device offers. For better
-> encryption than XOR you need the patches from kerneli.org.
+> any given piece of code to identify the responsible maintainer.  The motivation
+> for this proposal is that the present system, a single top-level MAINTAINERS
+> file, doesn't seem to be scaling well.
 
-I think he wants to avoid the *!!SEVERE!!* performance problems in
-loopback crypto. A crypto plugin directly to filesystems would certainly
-avoid most of it.
+It scales perfectly. Most of the people you annoyed are _in_ the maintainers
+and credits file. The fundamental problem is identical regardless of what
+you change - people forget to update things unless there is motivation [1]
 
--Dan
+Alan
+[1] as proof of this claim count the number of CREDIT file updates made shortly
+after the RH share offering..
 

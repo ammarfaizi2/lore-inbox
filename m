@@ -1,92 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262182AbTJSTYo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Oct 2003 15:24:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262186AbTJSTYo
+	id S262064AbTJST1v (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Oct 2003 15:27:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262066AbTJST1v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Oct 2003 15:24:44 -0400
-Received: from 66.Red-80-38-104.pooles.rima-tde.net ([80.38.104.66]:48257 "HELO
-	fulanito.nisupu.com") by vger.kernel.org with SMTP id S262182AbTJSTYm
+	Sun, 19 Oct 2003 15:27:51 -0400
+Received: from ncircle.nullnet.fi ([62.236.96.207]:23231 "EHLO
+	ncircle.nullnet.fi") by vger.kernel.org with ESMTP id S262064AbTJST1p
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Oct 2003 15:24:42 -0400
-Message-ID: <013801c39677$035e1d40$0514a8c0@HUSH>
-From: "Carlos Fernandez Sanz" <cfs-lk@nisupu.com>
-To: "Tomi Orava" <Tomi.Orava@ncircle.nullnet.fi>,
-       =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@users.sourceforge.net>
-Cc: <linux-kernel@vger.kernel.org>
-References: <00b801c3955c$7e623100$0514a8c0@HUSH>    <1066579176.7363.3.camel@milo.comcast.net><41102.192.168.9.10.1066584247.squirrel@ncircle.nullnet.fi>    <yw1x3cdpgm46.fsf@users.sourceforge.net> <48232.192.168.9.10.1066590873.squirrel@ncircle.nullnet.fi>
+	Sun, 19 Oct 2003 15:27:45 -0400
+Message-ID: <48981.192.168.9.10.1066591663.squirrel@ncircle.nullnet.fi>
+In-Reply-To: <006b01c39667$f32211c0$0514a8c0@HUSH>
+References: <00b801c3955c$7e623100$0514a8c0@HUSH>   
+    <48236.192.168.9.10.1066565636.squirrel@ncircle.nullnet.fi>   
+    <006501c39660$cf306cf0$0514a8c0@HUSH>
+    <40464.192.168.9.10.1066583818.squirrel@ncircle.nullnet.fi>
+    <006b01c39667$f32211c0$0514a8c0@HUSH>
+Date: Sun, 19 Oct 2003 22:27:43 +0300 (EEST)
 Subject: Re: HighPoint 374
-Date: Sun, 19 Oct 2003 21:27:19 +0200
+From: "Tomi Orava" <Tomi.Orava@ncircle.nullnet.fi>
+To: "Carlos Fernandez Sanz" <cfs-lk@nisupu.com>
+Cc: linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.2
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tomy,
 
-The
+>>
+>> Very interesting. The other type of errors I have received (the last
+>> time
+>> with 2.4.23-pre4) were:
+>>
+>> Sep 14 14:29:49 alderan kernel: hde: set_drive_speed_status: status=0xff
+>> {
+>> Busy }
+>> Sep 14 14:29:49 alderan kernel: blk: queue c0492188, I/O limit 4095Mb
+>> (mask 0xffffffff)
+>
+> Same here.
+>
+>> Currently my disk-drivers are made by 2*samsung (SV8004H) and
+>> 2*Samsung(SV1604N), in case that changes anything.
+>
+> I'm using two seagates (different models), one Samsung and one Maxtor,
+> this happens in all 4.
+> I'm not using any kind of RAID.
 
-hdparm -m0 device
+Hmm, if I checked correctly, your motherboard (Asus CUSL2) doesn't seem to
+include a HPT374 based (integrated) IDE-controller. Are you using some
+add-on PCI-card for IDE ? If yes, are you using older style Parallel-ATA
+or newer Serial-ATA interface ?
 
-seems to have fixed the problem for me. I'll try increasing the number in
-the following days and run extensive tests, but for now, it's quite enough.
+>>
+>> And have you tried with ACPI on/off and io-apic on/off ?
+>
+> No, to be honest I didn't even think of this. You think it could make a
+> difference? Given the fact that the card works correctly with the HPT
+> drivers, pretty much everything that does not relate directly to the IDE
+> drivers seems ruled out as the cause...
 
-BTW your email server doesn't seem to like my address and refuses to deliver
-any mail, if you aren't running it maybe you should tell the admin that he's
-blocking Spain's largest ISP for some reason?
+Based on previous questions and answers on this list, those settings
+might very well affect you, as they affect the way interrupts are handled
+in your system. Unfortunately, they haven't fixed my problems no matter
+what I combination I have tried.
 
+Regards,
+Tomi Orava
 
------ Original Message ----- 
-From: "Tomi Orava" <Tomi.Orava@ncircle.nullnet.fi>
-To: "Måns Rullgård" <mru@users.sourceforge.net>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Sunday, October 19, 2003 21:14
-Subject: Re: HighPoint 374
-
-
->
-> > "Tomi Orava" <Tomi.Orava@ncircle.nullnet.fi> writes:
-> >
-> >>> In 2.4.21 and 2.4.22 it's working great for me.  I'm using the
-> >>> "experimental" IDE Raid with two disks on a HPT 374 controller with
-the
-> >>> drivers that come with the kernel.
-> >>
-> >> I have tried these versions in the past as well without success.
-> >> However, I don't use HPT-raid features at all ie. I'm using the
-> >> disks as JBOD. What hardware do you have and have you enabled
-> >> ACPI/local-apic/io-apic ? What brand & model of disk-drives you
-> >> are using with HPT374 controller ? And finally what does
-> >> the /proc/interrupts show for you ?
-> >
-> > I'm using a RocketRAID 1540 SATA card (hpt374 based) in an Alpha
-> > system.  It has no such thing as ACPI.  The disks are four Seagate
-> > Barracuda 7200.7 running software raid5.  My /proc/interrupts:
->
-> Ok, that might be one reason why it's working for you but not for me.
-> If I've understood correctly, people who have problems with HPT374
-> are using the integrated Parallel-ATA interface instead of SATA.
->
-> I'd be really interested to hear if anyone has a working system
-> with kernel included drivers & HPT374-controller integrated in
-> motherboard and using PATA-drives ?
->
-> Regards,
-> Tomi Orava
->
->
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
+-- 
+Tomi.Orava@ncircle.nullnet.fi

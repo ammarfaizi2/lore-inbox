@@ -1,60 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262244AbUCPOrD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Mar 2004 09:47:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261891AbUCPOqN
+	id S262238AbUCPPW5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Mar 2004 10:22:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263025AbUCPPW4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 09:46:13 -0500
-Received: from mail.convergence.de ([212.84.236.4]:64674 "EHLO
-	mail.convergence.de") by vger.kernel.org with ESMTP id S261995AbUCPOX5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Mar 2004 09:23:57 -0500
-Message-ID: <40570DF1.7090605@convergence.de>
-Date: Tue, 16 Mar 2004 15:23:45 +0100
-From: Michael Hunold <hunold@convergence.de>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Adrian Cox <adrian@humboldt.co.uk>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC][2.6] Additional i2c adapter flags for i2c client	isolation
-References: <4056C805.8090004@convergence.de> <1079443611.1677.194.camel@newt>
-In-Reply-To: <1079443611.1677.194.camel@newt>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 16 Mar 2004 10:22:56 -0500
+Received: from mail.renesas.com ([202.234.163.13]:39866 "EHLO
+	mail02.idc.renesas.com") by vger.kernel.org with ESMTP
+	id S262238AbUCPPWb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Mar 2004 10:22:31 -0500
+Date: Wed, 17 Mar 2004 00:22:23 +0900 (JST)
+Message-Id: <20040317.002223.1049904223.takata.hirokazu@renesas.com>
+To: linux-kernel@vger.kernel.org
+Cc: takata@linux-m32r.org
+Subject: [PATCH] m32r - patch for v2.6.0 kernel
+From: Hirokazu Takata <takata@linux-m32r.org>
+X-Mailer: Mew version 3.3 on XEmacs 21.4.15 (Security Through Obscurity)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Adrian,
+Hello, Linus and folks,
 
-On 16.03.2004 14:26, Adrian Cox wrote:
-> On Tue, 2004-03-16 at 09:25, Michael Hunold wrote:
+> And what about a 2.6 port? :-)
+Yes!  Here is an m32r patch to the 2.6.0 stock kernel. :-)
 
->>What I'd like to have is that client can specify some sort of "class",
->>too, and that i2c adapters can tell the core that only clients where the
->>class is matching are allowed to probe their existence.
+The patch information is slight bigger, so I placed it on our 
+Linux/M32R homepage as well as the previous v2.4.19 patch.
+- m32r architecture dependent portions
+  http://www.linux-m32r.org/public/linux-2.6.0_m32r_20040316.arch-m32r.patch
+- architecture independent portions for the m32r
+  http://www.linux-m32r.org/public/linux-2.6.0_m32r_20040316.patch
+
+> Also, please merge/move arch/m32r/drivers with/to drivers/.
+Sorry, I have not done yet...
+
+Best Regards,
+--
+Hirokazu Takata
+
+
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH] m32r - New architecure port to Renesas M32R processor 
+Date: Tue, 2 Mar 2004 10:30:12 +0100 (MET)
+> On Tue, 2 Mar 2004, Hirokazu Takata wrote:
+> > We have ported Linux to the M32R processor, which is a 32-bit RISC embedded
+> > microprocessor of Renesas Technology.
+> >
+> > I would like to release a patch information for this m32r port.
 > 
+> Nice!
 > 
-> How about a general "never probe" flag combined with a function to
-> connect an adapter to a client? High level drivers like DVB or BTTV
-> could then do something like:
-> 	adapter = i2c_bit_add_bus(&my_card_ops);
-> 	i2c_connect_client(adapter, &client_ops, address);
+> > Would you merge them to the stock kernel?
+> > # Unfortunately, I have linux-2.4.19 based kernel, not latest one.
 > 
-> This problem comes up a lot, and i2c probing is only necessary for
-> finding motherboard sensors. For add-in cards and embedded systems the
-> driver developer normally knows exactly what is wired to what.
+> However, I think you best upgrade to 2.4.25 first.
+> Also, please merge/move arch/m32r/drivers with/to drivers/.
+> 
+> And what about a 2.6 port? :-)
+> 
+> > This new architecture port has already reported at OLS2003.
+> > http://www.linux-m32r.org/cmn/m32r/ols2003_presentation.pdf
+> > http://archive.linuxsymposium.org/ols2003/Proceedings/All-Reprints/Reprint-Takata-OLS2003.pdf
+> 
+> I attended that one, and it looked quite nice!
+> 
+> Gr{oetje,eeting}s,
+> 
+> 						Geert
 
-This is true for most devices (i2c eeprom, video decoder, ...), but not 
-for all. All DVB cards have a device called "frontend" (basically a 
-tuner with some additional stuff) connected via i2c.
-
-Sometimes different frontends are used for the same revisons of one 
-card, so we need the probe functionality at least for these kinds of 
-devices.
-
-> - Adrian Cox
-> http://www.humboldt.co.uk/
-
-CU
-Michael.

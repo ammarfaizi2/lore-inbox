@@ -1,46 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129523AbRAPR0Z>; Tue, 16 Jan 2001 12:26:25 -0500
+	id <S129406AbRAPRb4>; Tue, 16 Jan 2001 12:31:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131234AbRAPR0H>; Tue, 16 Jan 2001 12:26:07 -0500
-Received: from aragorn.ics.muni.cz ([147.251.4.33]:43921 "EHLO
-	aragorn.ics.muni.cz") by vger.kernel.org with ESMTP
-	id <S129523AbRAPR0A>; Tue, 16 Jan 2001 12:26:00 -0500
-Newsgroups: cz.muni.redir.linux-kernel
-Path: adelton
-From: adelton@fi.muni.cz (Honza Pazdziora)
-Subject: Re: Linux not adhering to BIOS Drive boot order?
-User-Agent: slrn/0.9.6.2 (IRIX)
-Message-ID: <G79MBA.BID@news.muni.cz>
-Date: Tue, 16 Jan 2001 17:09:10 GMT
-X-Nntp-Posting-Host: nemesis.fi.muni.cz
-Reply-To: adelton@informatics.muni.cz
-In-Reply-To: <1355693A51C0D211B55A00105ACCFE64E95193@ATL_MS1>
-Organization: Faculty of Informatics, Masaryk University, Brno
-To: unlisted-recipients:; (no To-header on input)@pop.zip.com.au
+	id <S130454AbRAPRbq>; Tue, 16 Jan 2001 12:31:46 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:22456 "EHLO
+	e31.bld.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S129406AbRAPRbe>; Tue, 16 Jan 2001 12:31:34 -0500
+Importance: Normal
+To: linux-kernel@vger.kernel.org, Venkatesh Ramamurthy <Venkateshr@ami.com>
+Subject: RE: Linux not adhering to BIOS Drive boot order?
+X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
+Message-ID: <OF0BCB3D0B.CD3301DB-ON872569D6.005E41A3@LocalDomain>
+From: "Bryan Henderson" <hbryan@us.ibm.com>
+Date: Tue, 16 Jan 2001 09:30:55 -0800
+X-MIMETrack: Serialize by Router on D03NM088/03/M/IBM(Release 5.0.4a |July 24, 2000) at
+ 01/16/2001 10:31:30 AM,
+	Serialize complete at 01/16/2001 10:31:30 AM
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 Jan 2001 16:51:38 GMT, Venkatesh Ramamurthy <Venkateshr@ami.com> wrote:
-> 	[Venkatesh Ramamurthy]  Just think an end-user fuguring out this!!!!
-> Asking him to change PCI slots and trying it out. My point is the end user
-> should not worry about all this. All he does is plugs a new different/ same
-> type of card, and gets it going. Why should the linux kernel force the user
-> to change the PCI slots. Will this not make it more user - unfriendly
+>If we can truly go for label based mounting
+>and lilo'ing this would solve the problem.
 
-And so what you suggest ... is?
-
-If the system allows variable order of initialization and you want
-fixed order, they you have to enter some information to fixate it.
-
-Is plugging new SCSI card and "end user task"?
-
--- 
-------------------------------------------------------------------------
- Honza Pazdziora | adelton@fi.muni.cz | http://www.fi.muni.cz/~adelton/
-   .project: Perl, DBI, Oracle, MySQL, auth. WWW servers, MTB, Spain.
-Petition for a Software Patent Free Europe http://petition.eurolinux.org
-------------------------------------------------------------------------
+>From a layering point of view, it makes a lot more sense to
+me for the label (or signature or whatever) for this purpose 
+to be in the partition table than inside the filesystem.  The 
+parts of the system that assign devices their identities already 
+know about that part of the disk.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,68 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266088AbUALJEN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 04:04:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266096AbUALJEN
+	id S266093AbUALJJn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 04:09:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266094AbUALJJm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 04:04:13 -0500
-Received: from smtp09.auna.com ([62.81.186.19]:57229 "EHLO smtp09.retemail.es")
-	by vger.kernel.org with ESMTP id S266088AbUALJEG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 04:04:06 -0500
-Date: Mon, 12 Jan 2004 10:04:04 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: /proc/kcore size
-Message-ID: <20040112090404.GA2588@werewolf.able.es>
+	Mon, 12 Jan 2004 04:09:42 -0500
+Received: from node-d-1fcf.a2000.nl ([62.195.31.207]:33152 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP id S266089AbUALJJg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jan 2004 04:09:36 -0500
+Subject: Re: smp dead lock of io_request_lock/queue_lock patch
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Peter Yao <peter@exavio.com.cn>
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+In-Reply-To: <4002CC23.6000105@exavio.com.cn>
+References: <4002CC23.6000105@exavio.com.cn>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-wc9YurIkDirWCxgweQwB"
+Organization: Red Hat, Inc.
+Message-Id: <1073898527.4428.1.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 2.0.15
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Mon, 12 Jan 2004 10:08:47 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all...
 
-To the request of one of my users, I installed the 'hinv' program (1.4pre1) by
-Larry McVoy.
+--=-wc9YurIkDirWCxgweQwB
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Problem: it detects the memory amount in the box by stat'ing /proc/kcore.
-Thats not the problem, but that the box has 1Gb of memory, and kcore is just
-896Mb big.
+On Mon, 2004-01-12 at 17:32, Peter Yao wrote:
+> Hi,
+> I found a smp dead lock in io_request_lock/queue_lock patch in redhat's
+> 2.4.18-4 kernel.=20
 
-Kernel is built with 4Gb support:
+1) Bugs in vendor kernels are best reported to the vendor, in this case
+in http://bugzilla.redhat.com
+2) 2.4.18-4 is really old and has been superceeded by updates a few
+dozen times
+3) 2.4.18-4 has both remote and local security issues and datacorruption
+issues
 
-annwn:/proc# free
-             total       used       free     shared    buffers     cached
-Mem:       1033172    1017772      15400          0     164792     556416
--/+ buffers/cache:     296564     736608
-Swap:      1951856          8    1951848
 
-annwn:/proc# hinv
-Main memory size: 896 Mbytes
-...
 
-annwn:/proc# ll /proc/kcore
--r--------    1 root     root     939528192 Jan 12 10:02 /proc/kcore
 
-Exactly the same as a box that has _really_ 896 Mb:
+--=-wc9YurIkDirWCxgweQwB
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-werewolf:/proc# ll kcore
--r--------    1 root     root     939528192 Jan 12 10:02 kcore
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
-werewolf:/proc# free
-             total       used       free     shared    buffers     cached
-Mem:        905012     276008     629004          0      27268     109344
--/+ buffers/cache:     139396     765616
-Swap:       345356          0     345356
+iD8DBQBAAmQfxULwo51rQBIRAne7AJ9JhyNDJlW8NUReMuG03LZfgwdoSgCginAV
+f2O6uwqx/BDTX1OzBU90+KY=
+=sVej
+-----END PGP SIGNATURE-----
 
-BUG ?
-
-TIA
-
--- 
-J.A. Magallon <jamagallon()able!es>     \                 Software is like sex:
-werewolf!able!es                         \           It's better when it's free
-Mandrake Linux release 10.0 (Cooker) for i586
-Linux 2.6.1-jam2 (gcc 3.3.2 (Mandrake Linux 10.0 3.3.2-4mdk))
+--=-wc9YurIkDirWCxgweQwB--

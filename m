@@ -1,76 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264505AbUAIXQG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jan 2004 18:16:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264508AbUAIXQG
+	id S264494AbUAIXMZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jan 2004 18:12:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264498AbUAIXMZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jan 2004 18:16:06 -0500
-Received: from mtvcafw.SGI.COM ([192.48.171.6]:28491 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id S264505AbUAIXQC (ORCPT
+	Fri, 9 Jan 2004 18:12:25 -0500
+Received: from user-119ahgg.biz.mindspring.com ([66.149.70.16]:17636 "EHLO
+	mail.home") by vger.kernel.org with ESMTP id S264494AbUAIXMX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jan 2004 18:16:02 -0500
-Date: Fri, 9 Jan 2004 15:15:46 -0800
-To: Jeremy Higdon <jeremy@sgi.com>, Grant Grundler <grundler@parisc-linux.org>,
-       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       James.Bottomley@steeleye.com, Christoph Hellwig <hch@verein.lst.de>,
-       ralf@oss.sgi.com
-Subject: Re: [RFC] Relaxed PIO read vs. DMA write ordering
-Message-ID: <20040109231546.GA1359@sgi.com>
-Mail-Followup-To: Jeremy Higdon <jeremy@sgi.com>,
-	Grant Grundler <grundler@parisc-linux.org>,
-	linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-	James.Bottomley@steeleye.com, Christoph Hellwig <hch@verein.lst.de>,
-	ralf@oss.sgi.com
-References: <20040107175801.GA4642@sgi.com> <20040107190206.GK17182@parcelfarce.linux.theplanet.co.uk> <20040107222142.GB14951@colo.lackof.org> <20040107230712.GB6837@sgi.com> <20040108063829.GC22317@colo.lackof.org> <20040108173655.GA11168@sgi.com> <20040108184406.GA29210@colo.lackof.org> <20040109071347.GB343099@sgi.com> <20040109195147.GA32690@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 9 Jan 2004 18:12:23 -0500
+From: Eric <eric@cisu.net>
+To: lkml@nitwit.de, linux-kernel@vger.kernel.org
+Subject: Re: 2.6: The hardware reports a non fatal, correctable incident occured on CPU 0.
+Date: Fri, 9 Jan 2004 17:12:02 -0600
+User-Agent: KMail/1.5.94
+References: <200401091748.10859.lkml@nitwit.de>
+In-Reply-To: <200401091748.10859.lkml@nitwit.de>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040109195147.GA32690@sgi.com>
-User-Agent: Mutt/1.5.4i
-From: jbarnes@sgi.com (Jesse Barnes)
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200401091712.02802.eric@cisu.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 09, 2004 at 11:51:47AM -0800, Jesse Barnes wrote:
-> On Thu, Jan 08, 2004 at 11:13:47PM -0800, Jeremy Higdon wrote:
-> > In theory, such a distinction would be useful for any platform that
-> > uses separate paths for PIO read responses and DMA writes.  Perhaps
-> > there is only one platform that has that feature?
+On Friday 09 January 2004 10:48 am, lkml@nitwit.de wrote:
+> Hi!
+>
+> I did have some very scary issues today playing with 2.6. The system was
+> booted and ran several times today, the longtest uptime was approximately
+> about an hour.
+>
+> But then shortly after having booted 2.6 I got syslog messages:
+>
+> The hardware reports a non fatal, correctable incident occured on CPU 0.
+>
+> I shut down the machine. After this my Athlon XP 2200+ showed up as 1050MHz
+> in BIOS an indeed the bus frequency was set to 100 instead of 133 MHz (how
+> can an OS change the BIOS?!) - nevertheless the CPU should have shown up as
+> 1500MHz. I set it back to 133 MHz - which resulted in the machine did not
+> even reach the BIOS no more but was rebooting automatically prior to it. I
+> turned off the machine for some seconds - no change. I turned it off for a
+> few minutes and the BIOS showed up again - with 1050MHz. So I had to set
+> the freq back to 133 MHz a second time. I booted my 2.4.21 kernel which
+> seems to run.
+	Check your hardware CPU/MOBO/RAM. Overheating? Bad Ram? Cheap mobo?
+MCE should not be triggered under any circumstances unless it is a kernel 
+bug(RARE, I believe the MCE code is simple) or you REALLY have a hardware 
+problem. As said before, the bios is resetting your fsb to 100 as a fail-safe 
+because something bad happened.
+	BTW, check your setup, an AMD 2200+ should run at 1.8ghz i believe. If you 
+are setting your FSB or multiplier too low, that might also be triggering a 
+problem. A quick google lists amd xp2200+ as 1800mhz
 
-Let me clarify this a bit more (and remember to Cc Ralf and Christoph
-this time): there are two types of ordering we're worried about here,
-DMA vs. other DMA ordering and DMA vs. PIO ordering.
-
-Some platforms allow DMA buffers to arrive at their destination out of
-order when a barrier bit is unset.  SGI machines using Bridge (or Bridge
-variant like sn2 or Origin) chips are implemented this way, so if a DMA
-transaction from a device to system memory doesn't have the barrier bit
-set it's allowed to pass other non-barriered DMA.
-
-PIOs are another matter.  SGI machines using the above chips enforce
-_no_ ordering whatsoever between DMA and PIO traffic.  That is, a PIO
-read response can 'pass' a DMA write (even a barriered one) and get to
-the requesting CPU before the DMA is in the coherence domain.  So in
-effect, all PIOs on SGI boxes are 'relaxed' by default.  For sn2, we've
-implemented a special sn_dma_flush() function that we use following a
-PIO read in our read() and in() routines so that the driver can be
-assured that any DMA that it thinks is done actually is.  I'm not sure
-this workaround is possible on Origin machines, so certain devices may
-be open to data corruption depending on how they interact with the host
-system.  Our next I/O chip will implement PIO vs. DMA ordering as a
-seperate address space.
-
-Given the above, a new read_relaxed() routine or an ioremap_relaxed()
-routine seem like the best solution for us.  Neither is invasive at all
-for current drivers (i.e. existing stuff will 'just work'), but it does
-add complexity to the API.  Adding a pci_enable_relaxed() routine is a
-completely seperate issue since it will be a noop on our platform (and
-it probably silly to implement until we have real hardware that needs
-it).
-
-Anyway, thanks for your patience.  I probably made a mistake trying to
-tie this proposal to the PCI-X spec since I'm only guessing at how such
-hardware might behave...
-
-Thanks,
-Jesse
+> What the fuck is going on here?? As far as I figured out this has something
+> to do with MCE (CONFIG_X86_MCE=y, CONFIG_X86_MCE_NONFATAL=y) (?).
+	Leave it enabled, its a good thing to tell you when you have bad hardware. 
+Its not a kernel problem, but a feature.
+-------------------------
+Eric Bambach
+Eric at cisu dot net
+-------------------------

@@ -1,98 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262625AbUCEPlI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Mar 2004 10:41:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262627AbUCEPlI
+	id S262650AbUCEPvS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Mar 2004 10:51:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262651AbUCEPvS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Mar 2004 10:41:08 -0500
-Received: from pD9E14F87.dip.t-dialin.net ([217.225.79.135]:14731 "EHLO
-	laura.nettrade.de") by vger.kernel.org with ESMTP id S262625AbUCEPlC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Mar 2004 10:41:02 -0500
-Date: Fri, 5 Mar 2004 16:40:59 +0100 (MET)
-From: Matthias Jim Knopf <jim@users.de>
-Reply-To: jim999@gmx.net
-To: linux-kernel@vger.kernel.org
-Subject: Problems with WLAN orinoco_pci
-In-Reply-To: <200403050144.17622.dtor_core@ameritech.net>
-Message-ID: <Pine.LNX.4.21.0403051606520.1685-100000@laura.nettrade.de>
+	Fri, 5 Mar 2004 10:51:18 -0500
+Received: from ns.suse.de ([195.135.220.2]:12003 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262650AbUCEPvQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Mar 2004 10:51:16 -0500
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andrea Arcangeli <andrea@suse.de>, Peter Zaitsev <peter@mysql.com>,
+       Andrew Morton <akpm@osdl.org>, riel@redhat.com, mbligh@aracnet.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.4.23aa2 (bugfixes and important VM improvements for the high end)
+References: <20040228072926.GR8834@dualathlon.random>
+	<Pine.LNX.4.44.0402280950500.1747-100000@chimarrao.boston.redhat.com>
+	<20040229014357.GW8834@dualathlon.random>
+	<1078370073.3403.759.camel@abyss.local>
+	<20040303193343.52226603.akpm@osdl.org>
+	<1078371876.3403.810.camel@abyss.local>
+	<20040305103308.GA5092@elte.hu>
+	<20040305141504.GY4922@dualathlon.random>
+	<20040305143425.GA11604@elte.hu>
+	<20040305145947.GA4922@dualathlon.random>
+	<20040305150225.GA13237@elte.hu>
+From: Andi Kleen <ak@suse.de>
+Date: 05 Mar 2004 16:51:15 +0100
+In-Reply-To: <20040305150225.GA13237@elte.hu.suse.lists.linux.kernel>
+Message-ID: <p73ad2v47ik.fsf@brahms.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Ingo Molnar <mingo@elte.hu> writes:
 
-My WLAN net goes down from time to time. I cannot ping the wlan/dsl-router
-(T-Sinus 111) and the only thing that helps is re-load the kernel-driver
-(ifconfig eth1 down; modprobe -r orinoco_pci;
- sleep 8; ifconfig eth1 up; iwconfig ...)
+> * Andrea Arcangeli <andrea@suse.de> wrote:
+> 
+> > I thought time() wouldn't be called more than 1 per second anyways,
+> > why would anyone call time more than 1 per second?
+> 
+> if mysql in fact calls time() frequently, then it should rather start a
+> worker thread that updates a global time variable every second.
 
-Changing speed (down to 1 Mb/s) does no better
+I just fixed the x86-64 vsyscall vtime() to only read the user mapped
+__xtime.tv_sec.  This should be equivalent. Only drawback is that if a
+timer tick is delayed for too long it won't fix that, but I guess
+that's reasonable for a 1s resolution.
 
-Bisides this, I have annother problem: This f***ing router mentioned
-above cannot handle at least one connection per second in the long run
-(>30 minutes) and crashes in the way, that it still may be pinged, but
-I cannot access the router's web-interface, nor can I get to the internet
-and have to power-cyle it (official advice from the company selling it!)
-I tried hard to see these problems as one, but it seems, they ARE
-two (see logs)
-
-
-Here is, what I can offer you as info:
-WLAN is a Netgear PCI MA311 (using hermes, orinoco)
-
-# iwconfig
-eth1      IEEE 802.11-DS  ESSID:"WLAN"  Nickname:"jim"
-          Mode:Managed  Frequency:2.437GHz  Access Point: 00:30:F1:xx:xx:xx
-          Bit Rate:11Mb/s   Tx-Power=15 dBm   Sensitivity:1/3
-          Retry min limit:8   RTS thr:off   Fragment thr:off
-          Encryption key:xxxx-xxxx-xx   Security mode:open
-          Power Management:off
-          Link Quality:20/92  Signal level:-76 dBm  Noise level:-136 dBm
-          Rx invalid nwid:0  Rx invalid crypt:0  Rx invalid frag:1
-          Tx excessive retries:2  Invalid misc:0   Missed beacon:0
-
-# ping -c 5 router
-PING wlan-router (192.168.2.1): 56 data bytes
---- wlan-router ping statistics ---
-5 packets transmitted, 0 packets received, 100% packet loss
-
-# uname -a
-Linux laura 2.4.22 #2 Sun Dec 21 17:14:01 MET 2003 i686 unknown
-
-# lsmod
-Module                  Size  Used by
-orinoco_pci             3056   1  (autoclean)
-orinoco                31808   0  (autoclean) [orinoco_pci]
-hermes                  5232   0  (autoclean) [orinoco_pci orinoco]
-[...]
-
----{ /var/log/warn }----------------------------------------------------------------------------
-Mar  5 15:41:43 laura kernel: eth1: Error -110 writing Tx descriptor to BAP
-Mar  5 15:42:15 laura last message repeated 59 times
-Mar  5 15:42:22 laura last message repeated 12 times
-[...]
-Mar  5 15:44:34 laura kernel: eth1: error -110 reading info frame. Frame dropped.
-Mar  5 15:44:34 laura kernel: eth1: Error -110 writing Tx descriptor to BAP
-Mar  5 15:44:41 laura last message repeated 14 times
-Mar  5 15:45:33 laura kernel: .....<7>orinoco_lock() called with hw_unavailable (dev=e3c82800)
-Mar  5 15:45:33 laura kernel: ......<7>orinoco_lock() called with hw_unavailable (dev=e3c82800)
-Mar  5 15:45:33 laura last message repeated 4 times
-Mar  5 15:45:33 laura kernel: .....<7>orinoco_lock() called with hw_unavailable (dev=e3c82800)
-Mar  5 15:45:33 laura kernel: ......<7>orinoco_lock() called with hw_unavailable (dev=e3c82800)
-Mar  5 15:45:33 laura last message repeated 4 times
-Mar  5 15:45:34 laura kernel: .........;
-[...]
-------------------------------------------------------------------------------------------------
-
-
-Thanks in advance for any help you can give me!
-
-Matthias
-
-
--- 
-EOF
-
-
+-Andi
+ 

@@ -1,68 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262851AbUB0NO1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 08:14:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262853AbUB0NO1
+	id S262859AbUB0NP4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 08:15:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262863AbUB0NP4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 08:14:27 -0500
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:3268 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S262851AbUB0NOT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 08:14:19 -0500
-Date: Fri, 27 Feb 2004 08:14:08 -0500 (EST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Bob Dobbs <bob_dobbs@linuxmail.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Mobile Intel Pentium(R) 4 - M CPU 2.60GHz - kernel 2.6.3
-In-Reply-To: <20040227004631.31D663982E7@ws5-1.us4.outblaze.com>
-Message-ID: <Pine.LNX.4.58.0402270724530.17504@montezuma.fsmlabs.com>
-References: <20040227004631.31D663982E7@ws5-1.us4.outblaze.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 27 Feb 2004 08:15:56 -0500
+Received: from fw.osdl.org ([65.172.181.6]:17877 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262859AbUB0NPu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Feb 2004 08:15:50 -0500
+Date: Fri, 27 Feb 2004 05:15:48 -0800
+From: John Cherry <cherry@osdl.org>
+Message-Id: <200402271315.i1RDFmEf026199@cherrypit.pdx.osdl.net>
+To: linux-kernel@vger.kernel.org
+Subject: IA32 (2.6.3 - 2004-02-26.22.30) - 1 New warnings (gcc 3.2.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 27 Feb 2004, Bob Dobbs wrote:
-
-> I am currently running kernel 2.6.3 on my Dell Inspiron 8500 laptop.
-> I disabled all the ACPI and APM options in the kernel.
->
-> I have upgraded my bios
-> I have tried from kernel 2.4.23 up to mm and love-sources and my current kernel 2.6.3.
->
-> What happens is during heavy loads my cpu drops from 2.60GHz down to
-> 1.20GHz, this happens for a few minutes, say 5 - 10 at the most. But
-> performance while running a game, puts the game into slow motion. (Which
-> is weird because 1.20GHz should be more than enough to run all of the
-> games I currently have). I have read up on the documentation in
-> /usr/src/linux/Documentation, under the "power" and "cpu-freq" but after
-> disabling ACPI and such, those options do not seem to work anymore.
-
-Just to clarify, the cpu-freq driver does not operate normally when ACPI
-is disabled? Which cpu-freq driver are you using?
-
-> I have also tried running a program called "cpufreqd" which launches at
-> boot time, but once again without ACPI enabled in the kernel this seems
-> not to work either. Also /sys/devices/system/cpu/cpu0/cpufreq/ has the
-> following files.
-
-Out of interest do you have CONFIG_X86_MCE_P4THERMAL enabled?
-
-> cpuinfo_min_freq
-> cpuinfo_max_freq
-> scaling_min_freq
-> scaling_max_freq
->
-> I even tried to echo the options at bootup:
->
-> echo 2600000 > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq &
-> echo 2000000 > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq &
->
-> I tried to make those files set at: 2.00GHz min and 2.60GHz max, but
-> something changes them right back to 1.20GHZ no matter what I do.
->
-> I am sure I am missing something, but atm I am totally lost.. and I
-> could surely be doing everything wrong to begin with... that is why I am
-> asking for help.
->
-> Is there a patch or anything to force the cpu to run at 2.60GHz all the time?
+drivers/media/dvb/frontends/stv0299.c:356: warning: unused variable `i'

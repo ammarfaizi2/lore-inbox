@@ -1,66 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265334AbUEZHaW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265337AbUEZHf7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265334AbUEZHaW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 May 2004 03:30:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265335AbUEZHaW
+	id S265337AbUEZHf7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 May 2004 03:35:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265338AbUEZHf7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 May 2004 03:30:22 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:52950 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S265334AbUEZHaO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 May 2004 03:30:14 -0400
-X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
-From: Keith Owens <kaos@sgi.com>
-To: Zwane Mwaikambo <zwane@fsmlabs.com>
-Cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][2.6-mm] i386: enable interrupts on contention in spin_lock_irq 
-In-reply-to: Your message of "Wed, 26 May 2004 03:11:07 -0400."
-             <Pine.LNX.4.58.0405260250310.1794@montezuma.fsmlabs.com> 
+	Wed, 26 May 2004 03:35:59 -0400
+Received: from fmr11.intel.com ([192.55.52.31]:41950 "EHLO
+	fmsfmr004.fm.intel.com") by vger.kernel.org with ESMTP
+	id S265337AbUEZHf5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 May 2004 03:35:57 -0400
+Subject: ACPI & 2.4 (Re: [BK PATCH] PCI Express patches for 2.4.27-pre3)
+From: Len Brown <len.brown@intel.com>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Matthew Wilcox <willy@debian.org>, Greg KH <greg@kroah.com>,
+       Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org,
+       "linux-pci@atrey.karlin.mff.cuni.cz" 
+	<linux-pci@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <A6974D8E5F98D511BB910002A50A6647615FC676@hdsmsx403.hd.intel.com>
+References: <A6974D8E5F98D511BB910002A50A6647615FC676@hdsmsx403.hd.intel.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1085556934.26254.132.camel@dhcppc4>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 26 May 2004 17:29:46 +1000
-Message-ID: <14280.1085556586@kao2.melbourne.sgi.com>
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 26 May 2004 03:35:34 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 26 May 2004 03:11:07 -0400 (EDT), 
-Zwane Mwaikambo <zwane@fsmlabs.com> wrote:
->This little bit was missing from the previous patch. It will enable
->interrupts whilst a cpu is spinning on a lock in spin_lock_irq as well as
->spin_lock_irqsave. UP/SMP compile and runtime/stress tested on i386,
->UP/SMP compile tested on amd64.
->
->+#define _raw_spin_lock_irq(lock)	_raw_spin_lock_flags(lock, X86_EFLAGS_IF)
+Yes, the ACPI part to enable MMconfig was pretty small.
+We parse a table in the standard way and set a global variable --
+that's about it.
 
-You are assuming that all uses of spin_lock_irq() are done when
-interrupts are already enabled.  This _should_ be true, because the
-matching spin_unlock_irq() will unconditionally reenable interrupts.
-However I have seen buggy code where spin_lock_irq() was issued with
-interrupts disabled.  By unconditionally passing X86_EFLAGS_IF, that
-buggy code can now run in one of two states :-
+I submitted it to 2.4 for the sole purpose
+to enable Greg to enable native PCIExpress.
 
-state 1
-Enter with interrupts disabled
-Do some work
-spin_lock_irq()
-No lock contention, do not enable interrupts
-Do some more work
-spin_unlock_irq()
+I expect demand for this in 2.4 as the major distros'
+enterprise releases are still 2.4 based and the hardware has
+arrived...  Your call, Marcelo, if this is something to
+solve in upstream 2.4 or something the distros need
+to solve for themselves.  I recommend leaving the
+small ACPI piece of the puzzle intact in either case.
 
-state 2
-Enter with interrupts disabled
-Do some work
-spin_lock_irq()
-Lock contention, enable interrupts, get lock, disable interrupts
-Do some more work
-spin_unlock_irq()
+On Tue, 2004-05-25 at 08:54, Marcelo Tosatti wrote:
+> I've humbly asked Len to stop doing big updates
+> whenever possible on the 
+> v2.4 ACPI code, and do bugfixes only instead. Is that a pain in the
+> ass for you, Len?    
+> 
+> I asked that because it is common to see new bugs introduced by an
+> ACPI update, and you know that more than I do.
 
-Your patch opens a window where data that was protected by the disabled
-interrupt on entry becomes unprotected while waiting for the lock and
-can therefore change.
+At one point I released to 2.4 first because that is where
+the useful testing feedback was; and then released to 2.5
+to make sure it didn't fall behind.
 
-It could be that I am worrying unnecessarily, after all any code that
-calls spin_lock_irq() with interrupts already disabled is probably
-wrong to start off with.  But it does need to be considered as a
-possible failure mode.
+Then I released to 2.4 and 2.6 simultaneously b/c
+I got quick feeback from both camps.
+
+Now we're into the era where the release-early
+release-often matra applies to 26 only (or maybe more 2.6-mm)
+and 2.4 is in maintenance mode.
+
+I would still like to send some significant ACPI patches to 24.
+Yes, they're 100% bugfixes -- sometimes bugfixes touch
+lots of files too...  But I'll do so only after the same
+fix has been proven in 2.6 for a spell.
+
+With some parts of ACPI, such as the ACPICA core interpreter
+this is actually pretty low risk, because that part of
+the kernel is identical between 2.4 and 2.6.  So if 2.6 works,
+so will 2.4.
+
+Of course this also depends on if 2.4 will be accepting anything.
+I recall talk back about 2.4.25 about the end of the 2.4 line.
+I generally only have time to read LKML messages directed to me
+or if the word "ACPI" appears in the message, so I may have missed
+the word 2.4.  What is the word?
+
+thanks,
+-Len
+
 

@@ -1,38 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317056AbSFAUWb>; Sat, 1 Jun 2002 16:22:31 -0400
+	id <S317058AbSFAUlX>; Sat, 1 Jun 2002 16:41:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317057AbSFAUWa>; Sat, 1 Jun 2002 16:22:30 -0400
-Received: from panic.tn.gatech.edu ([130.207.137.62]:41908 "HELO gtf.org")
-	by vger.kernel.org with SMTP id <S317056AbSFAUW3>;
-	Sat, 1 Jun 2002 16:22:29 -0400
-Date: Sat, 1 Jun 2002 16:22:30 -0400
-From: Jeff Garzik <garzik@gtf.org>
-To: Nikolaus Filus <NFilus@gmx.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: de4x5 driver: driver freezes system
-Message-ID: <20020601162230.B4535@gtf.org>
-In-Reply-To: <20020531233651.B595@nfilus.dyndns.org> <3CF7F60F.40802@mandrakesoft.com> <20020601103403.A750@nfilus.dyndns.org>
+	id <S317059AbSFAUlW>; Sat, 1 Jun 2002 16:41:22 -0400
+Received: from hq.fsmlabs.com ([209.155.42.197]:13587 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S317058AbSFAUlW>;
+	Sat, 1 Jun 2002 16:41:22 -0400
+Date: Sat, 1 Jun 2002 14:37:49 -0600
+From: Michael Barabanov <baraban@fsmlabs.com>
+To: Karim Yaghmour <karim@opersys.com>
+Cc: yodaiken@fsmlabs.com, linux-kernel@vger.kernel.org
+Subject: Re: A reply on the RTLinux discussion.
+Message-ID: <20020601143749.A29938@hq.fsmlabs.com>
+In-Reply-To: <57.c083d0f.2a237c49@aol.com> <20020527123643.9297A11973@denx.denx.de> <20020528060406.A18344@hq.fsmlabs.com> <3CF3A009.E7320E98@opersys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+User-Agent: Mutt/1.2i
+Organization: FSMLabs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 01, 2002 at 10:34:03AM +0200, Nikolaus Filus wrote:
-> On Fri, May 31, 2002 at 06:15:43PM -0400, Jeff Garzik wrote:
-> >Does the tulip driver not work for you?
+Karim Yaghmour (karim@opersys.com) wrote:
+> > Q: Various questions implying shabby treatment of Michael Barabanov.
+> > A: Karym has been "asking" such "questions" for years. In all that time
+> >    he has refused to take my suggestion that he ask Michael whether Michael
+> >    appreciates this effort.
 > 
-> It's not a problem of working or not working, but this driver freezes a
-> system when compiled into the kernel and no such card is present. That
-> shouldn't happen. There isn't even any hint during booting, that would point
-> to the driver, when something goes wrong.
+> Hmm... If I disagree with something you're doing, I usually tell you
+> without you asking. If Michael dislikes what I'm doing, he's got my
+> email address.
 
-"de4x5" != "tulip"
+1. I do dislike what you're doing, however I don't want to waste my
+time arguing.
+2. Just to let you know: I still work on RTLinux, and doing fine, thanks.
 
-Does the tulip driver work for you?  You were talking about de4x5.
-
-	Jeff
-
+Michael.
 

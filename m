@@ -1,168 +1,198 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261861AbTJ2E5i (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Oct 2003 23:57:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261842AbTJ2E5h
+	id S261842AbTJ2E5y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Oct 2003 23:57:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261889AbTJ2E5y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Oct 2003 23:57:37 -0500
-Received: from auth22.inet.co.th ([203.150.14.104]:20237 "EHLO
-	auth22.inet.co.th") by vger.kernel.org with ESMTP id S261861AbTJ2E5d
+	Tue, 28 Oct 2003 23:57:54 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:55462 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261842AbTJ2E5m
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Oct 2003 23:57:33 -0500
-From: Michael Frank <mhf@linuxmail.org>
-To: Nick Piggin <piggin@cyberone.com.au>, Dave Olien <dmo@osdl.org>
-Subject: Re: 2.6.0-test8/test9 io scheduler needs tuning?
-Date: Wed, 29 Oct 2003 12:56:17 +0800
-User-Agent: KMail/1.5.2
-Cc: cliff white <cliffw@osdl.org>, linux-kernel@vger.kernel.org
-References: <200310261201.14719.mhf@linuxmail.org> <20031028211844.GA8285@osdl.org> <3F9F28B8.9030807@cyberone.com.au>
-In-Reply-To: <3F9F28B8.9030807@cyberone.com.au>
-X-OS: KDE 3 on GNU/Linux
-MIME-Version: 1.0
+	Tue, 28 Oct 2003 23:57:42 -0500
+Date: Wed, 29 Oct 2003 04:57:41 +0000
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Ernst Herzberg <earny@net4u.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test9 can't kill process in stat 'R'
+Message-ID: <20031029045741.GA7665@parcelfarce.linux.theplanet.co.uk>
+References: <200310290508.41096.earny@net4u.de> <200310290537.02548.earny@net4u.de> <20031029044129.GZ7665@parcelfarce.linux.theplanet.co.uk> <200310290547.13047.earny@net4u.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200310291256.17904.mhf@linuxmail.org>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200310290547.13047.earny@net4u.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 29 October 2003 10:40, Nick Piggin wrote:
+On Wed, Oct 29, 2003 at 05:47:13AM +0100, Ernst Herzberg wrote:
+> On Mittwoch, 29. Oktober 2003 05:41, you wrote:
 > 
-> Dave Olien wrote:
+> > a) ssh into the box and check the logs
+> > (a) is obviously preferable.
 > 
-> >Yes, it seems Nick's latest patch from 10/27, has helped reaim
-> >considerably.
-> >
-> >The dbt2 workload still has a problem though.  Mary ran this patch today,
-> >with deadline and with as-iosched:
-> >
-> >2.6.0-test9, elevator=deadline			1644 NOTPM 
-> >2.6.0-test9, unpatched as-iosched		 977 NOTPM
-> >2.6.0-test9, as-iosched with as-fix.patch	 980 NOTPM
-> >
-> >Higher NOTPM numbers are better.
-> >
+> *schäm* 
 > 
-> OK, how does 2.6.0-test5 go on these tests?
 > 
+> Attached :-)
 
--test5 looks good with 4 dd loops 4K x 5000. The disk is busy as expected.
+Hmm...  Looks like 3661 is spinning somewhere in ACPI code and so does
+ksoftirqd/0...  Relevant parts of the trace are
 
-   procs                      memory      swap          io     system      cpu
- r  b  w   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id
- 3  2  3      0 114488  11816 165872    0    0     0 39352 1116  1047 34 66  0
- 0  4  1      0 114616  11848 165872    0    0     0   932 1162  1495 49 51  0
- 0  4  2      0 114848  11852 165872    0    0     0 25300 1283 11355 59 41  0
- 0  4  1      0 115168  11860 165872    0    0     0 14364 1328  1286 79 21  0
- 1  4  2      0 114464  11912 165872    0    0     4 12196 1424  1488 38 62  0
- 0  4  1      0 113968  11912 150412    0    0     0 31460 1316  1308 72 28  0
- 0  4  2      0  93424  11936 165872    0    0     0 25148 1249  1374 61 39  0
- 6  2  3      0 118704  11936 140748    0    0     0 19972 1156  1061 82 18  0
- 4  4  3      0 102128  11960 157672    0    0     0 16324 1217   655 43 57  0
- 0  4  2      0  93568  11980 165872    0    0     0 35948 1230  1199 50 50  0
- 0  4  4      0  95680  12056 148552    0    0     4 28840 1148  1443 42 58  0
- 0  4  2      0  75456  12068 165872    0    0     0 23936 1145  1354 61 39  0
- 1  3  4      0  95488  12076 146204    0    0     0 30080 1197  1410 60 40  0
- 0  4  4      0  75904  12120 165872    0    0     0 23476 1171  1338 48 52  0
- 0  4  4      0  76032  12120 165872    0    0     0  9312 1259  1169 83 17  0
- 1  4  4      0  76160  12120 165872    0    0     0  9008 1282  1324 83 17  0
- 5  2  4      0  84608  12120 150592    0    0     0 17116 1357   892 42 58  0
-   procs                      memory      swap          io     system      cpu
- r  b  w   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id
- 4  4  4      0  69312  12152 165872    0    0     0 12016 1437   892 39 61  0
- 0  4  4      0  68608  12152 165872    0    0     0 45376 1302  1236 67 33  0
- 1  4  4      0  71936  12160 155532    0    0     0 21628 1127  1233 72 28  0
- 4  0  0      0 128000  12176 100984    0    0     0    68 1160  1790 67 33  0
- 4  0  0      0  98752  12200 129524    0    0     0 31108 1216  1493 53 47  0
- 2  2  1      0 114048  12236 111252    0    0     0 49072 1103  1540 44 56  0
- 6  1  1      0 103424  12264 122360    0    0     0 22928 1089  1078 39 61  0
- 0  4  4      0  58752  12288 165872    0    0     0 20816 1208  1014 42 58  0
- 0  4  4      0  65216  12288 157616    0    0     0 12664 1279  1199 83 17  0
- 0  4  4      0  70016  12288 151924    0    0     0 10912 1466  1535 78 22  0
- 2  4  4      0  54144  12320 165872    0    0     0 33336 1367  1505 39 61  0
- 0  4  1      0  63296  12344 156824    0    0     0 35460 1239  1142 34 66  0
- 0  4  1      0  68480  12344 146736    0    0     0 12992 1087  1336 79 21  0
- 0  4  1      0  48192  12356 165872    0    0     0 27260 1226  1303 63 38  0
- 4  3  1      0  48448  12404 165872    0    0     0 20204 1118  1224 41 59  0
- 0  4  2      0  47872  12444 165872    0    0     0 15636 1260  1036 29 71  0
- 0  4  1      0  47360  12444 165872    0    0     0 39544 1550  1137 73 27  0
-   procs                      memory      swap          io     system      cpu
- r  b  w   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id
- 1  4  2      0  66176  12444 131464    0    0     0  7744 1154  1235 83 17  0
- 0  4  2      0  15248  12468 158968    0    0     0 38432 1330  1354 42 58  0
- 5  0  1      0  21096  12500 153784    0    0     0 10516 1173  1391 66 34  0
- 0  4  2      0   8288  12524 165872    0    0     0 43688 1167  1205 56 44  0
- 6  2  1      0  15208  12524 158452    0    0     0 24712 1150  1052 77 23  0
- 5  4  2      0  20896  12544 153536    0    0     0 23460 1109  2717 24 76  0
- 3  1  3      0   9088  12568 148068    0    0     0 10012 1182  1287 45 55  0
- 0  4  3      0   4736  11600 152360    0    0    76 41456 1290  1353 59 41  0
- 2  2  3      0   4884  11632 152228    0    0     0 21648 1116  1253 61 39  0
- 0  4  3      0   5096  11656 152360    0    0     0 13516 1180  1511 61 39  0
- 1  3  3      0   5192  11656 152360    0    0     0 30244 1187  1303 58 42  0
- 0  4  3      0  18728  11656 134228    0    0     0 13896 1188  1331 79 21  0
- 0  4  3      0   4720  11464 148240    0    0     0 25356 1363  1452 58 42  0
- 9  0  1      0  44384  11504 109656    0    0     0  1168 1202   493 37 63  0
- 0  4  3      0   4336  11564 148240    0    0     0 21092 1150  1169 38 62  0
- 0  4  1      0   4264  11564 137308    0    0     0 25324 1372  1298 76 24  0
- 1  3  3      0   6832   9220 119764    0    0     4 22976 1333  1546 48 52  0
-   procs                      memory      swap          io     system      cpu
- r  b  w   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id
- 2  3  4      0   9904   9244 108500    0    0    12 45416 1280  1561 53 47  0
- 0  4  2      0  13360   8880 111916    0    0     0 22484 1171  1421 58 42  0
- 1  3  4      0  14704   8928 116296    0    0     0  6052 1103  1480 48 52  0
- 0  4  1      0  15972   8924 114916    0    0     0 59612 1182   763 52 48  0
- 1  4  2      0   4772   8948 126216    0    0     0 20096 1092  1297 59 41  0
- 7  1  2      0  11684   8964 119392    0    0     0  9436 1113  1314 33 67  0
- 0  4  3      0   5096   8984 126216    0    0     0 17428 1300   963 54 46  0
- 1  4  3      0   4776   8984 126216    0    0     0 19224 1219  1356 79 21  0
- 0  4  3      0   4972   8984 126216    0    0     0 14704 1288  1173 83 17  0
- 0  4  3      0  26868   9020  94336    0    0     0 20624 1277  1462 55 45  0
- 0  4  3      0   5296   9036 126216    0    0     0  9892 1487  1434 54 46  0
- 0  4  3      0   4976   9036 126216    0    0     0 32264 1266  1285 75 25  0
- 0  4  1      0   5360   9036 126216    0    0     0 17008 1186  1358 80 20  0
- 6  2  1      0  42800   9064  89960    0    0     0 14196 1267   559 35 65  0
- 0  4  1      0  26224   9092 106216    0    0     0 20112 1178  1187 56 44  0
- 0  4  2      0  45940   9128  86220    0    0     0 40196 1179  1425 42 58  0
- 0  4  4      0   9840   8908 118928    0    0     0 28412 1195  9048 36 64  0
-   procs                      memory      swap          io     system      cpu
- r  b  w   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id
- 1  4  3      0   4432   8940 126160    0    0     0 46816 1290  1413 53 47  0
- 1  4  4      0   4624   8944 126112    0    0     0  5276 1224  1175 83 17  0
- 8  0  4      0   5144   8752 126068    0    0     0  2352 1258  1171 42 58  0
- 2  4  4      0   4828   8752 126068    0    0     0 33200 1308   975 70 30  0
- 0  4  1      0   5212   8760 126068    0    0     0 24304 1270   775 72 28  0
- 1  4  4      0  25316   8840 105672    0    0     0 29824 1209  1467 35 65  0
- 1  4  5      0   4964   8848 126068    0    0     0 14264 1271  1438 57 43  0
- 1  4  5      0   4900   8848 126068    0    0     0 31776 1197  1246 73 27  0
- 1  4  1      0   4964   8856 126068    0    0     0 16076 1173  1328 83 17  0
- 9  1  5      0   4260   8892 126068    0    0     0 23992 1252  2280 37 63  0
- 2  4  6      0   5284   8916 126068    0    0     0 12236 1250   846 40 60  0
- 1  4  6      0   5412   8916 126068    0    0     0 26204 1403  1263 75 25  0
- 2  3  6      0  11876   8916 119992    0    0     0 18996 1308  1281 60 40  0
- 4  1  3      0  36132   8960  95756    0    0     0 22516 1194  1658 49 51  0
- 1  4  6      0   4900   8988 126068    0    0     0 22708 1266  1446 44 56  0
- 4  4  4      0   9380   8988 115648    0    0     0 21944 1337  1489 72 28  0
- 6  2  4      0   4840   8988 126088    0    0    20 22176 1259   997 75 25  0
-   procs                      memory      swap          io     system      cpu
- r  b  w   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id
- 1  4  1      0   5096   8992 126088    0    0     0 12632 1269  1905 90 10  0
- 0  4  1      0  23592   9000 107920    0    0     0 18484 1397  1605 74 26  0
- 1  3  3      0   5224   9072 126088    0    0     4 20816 1464  1603 39 61  0
+Oct 29 05:34:54 lidl kernel: kdeinit       R current      0  3661      1          3664  3634 (NOTLB)
+Oct 29 05:34:54 lidl kernel: db0fbc90 db0fa000 c02bcfd0 db0fbc90 db0fbc90 db0d007b 0000007b ffffff01 
+Oct 29 05:34:54 lidl kernel:        c012754f 00000060 00000203 c04a7d60 c04a8568 00000008 db0fbc90 db0fbc90 
+Oct 29 05:34:54 lidl kernel:        db0fbc90 c03e007b 00000001 c04a7ae8 0000000a 00000046 c0123105 c04a7ae8 
+Oct 29 05:34:54 lidl kernel: Call Trace:
+Oct 29 05:34:54 lidl kernel:  [rh_report_status+0/304] rh_report_status+0x0/0x130
+Oct 29 05:34:54 lidl kernel:  [<c02bcfd0>] rh_report_status+0x0/0x130
+Oct 29 05:34:54 lidl kernel:  [run_timer_softirq+191/448] run_timer_softirq+0xbf/0x1c0
+Oct 29 05:34:54 lidl kernel:  [<c012754f>] run_timer_softirq+0xbf/0x1c0
+Oct 29 05:34:54 lidl kernel:  [do_softirq+149/160] do_softirq+0x95/0xa0
+Oct 29 05:34:54 lidl kernel:  [<c0123105>] do_softirq+0x95/0xa0
+Oct 29 05:34:54 lidl kernel:  [do_IRQ+251/304] do_IRQ+0xfb/0x130
+Oct 29 05:34:54 lidl kernel:  [<c010baab>] do_IRQ+0xfb/0x130
+Oct 29 05:34:54 lidl kernel:  [common_interrupt+24/32] common_interrupt+0x18/0x20
+Oct 29 05:34:54 lidl kernel:  [<c0109d98>] common_interrupt+0x18/0x20
+Oct 29 05:34:54 lidl kernel:  [acpi_ut_release_to_cache+70/138] acpi_ut_release_to_cache+0x46/0x8a
+Oct 29 05:34:54 lidl kernel:  [<c0234dae>] acpi_ut_release_to_cache+0x46/0x8a
+Oct 29 05:34:54 lidl kernel:  [acpi_ds_delete_walk_state+150/154] acpi_ds_delete_walk_state+0x96/0x9a
+Oct 29 05:34:54 lidl kernel:  [<c0225483>] acpi_ds_delete_walk_state+0x96/0x9a
+Oct 29 05:34:54 lidl kernel:  [acpi_ps_parse_loop+1349/2083] acpi_ps_parse_loop+0x545/0x823
+Oct 29 05:34:54 lidl kernel:  [<c0230806>] acpi_ps_parse_loop+0x545/0x823
+Oct 29 05:34:54 lidl kernel:  [acpi_ut_acquire_mutex+92/114] acpi_ut_acquire_mutex+0x5c/0x72
+Oct 29 05:34:54 lidl kernel:  [<c0235c86>] acpi_ut_acquire_mutex+0x5c/0x72
+Oct 29 05:34:54 lidl kernel:  [acpi_ut_release_to_cache+49/138] acpi_ut_release_to_cache+0x31/0x8a
+Oct 29 05:34:54 lidl kernel:  [<c0234d99>] acpi_ut_release_to_cache+0x31/0x8a
+Oct 29 05:34:54 lidl kernel:  [acpi_ut_release_mutex+103/108] acpi_ut_release_mutex+0x67/0x6c
+Oct 29 05:34:54 lidl kernel:  [<c0235d03>] acpi_ut_release_mutex+0x67/0x6c
+Oct 29 05:34:54 lidl kernel:  [acpi_ut_delete_generic_state+11/14] acpi_ut_delete_generic_state+0xb/0xe
+Oct 29 05:34:54 lidl kernel:  [<c0235e35>] acpi_ut_delete_generic_state+0xb/0xe
+Oct 29 05:34:54 lidl kernel:  [acpi_ut_update_object_reference+464/526] acpi_ut_update_object_reference+0x1d0/0x20e
+Oct 29 05:34:54 lidl kernel:  [<c0236b37>] acpi_ut_update_object_reference+0x1d0/0x20e
+Oct 29 05:34:54 lidl kernel:  [acpi_ut_remove_reference+33/39] acpi_ut_remove_reference+0x21/0x27
+Oct 29 05:34:54 lidl kernel:  [acpi_ds_call_control_method+326/385] acpi_ds_call_control_method+0x146/0x181
+Oct 29 05:34:54 lidl kernel:  [<c0223eab>] acpi_ds_call_control_method+0x146/0x181
+Oct 29 05:34:54 lidl kernel:  [acpi_ps_parse_aml+78/380] acpi_ps_parse_aml+0x4e/0x17c
+Oct 29 05:34:54 lidl kernel:  [<c0230b32>] acpi_ps_parse_aml+0x4e/0x17c
+Oct 29 05:34:54 lidl kernel:  [acpi_psx_execute+341/416] acpi_psx_execute+0x155/0x1a0
+Oct 29 05:34:54 lidl kernel:  [<c02313e1>] acpi_psx_execute+0x155/0x1a0
+Oct 29 05:34:54 lidl kernel:  [acpi_ns_execute_control_method+67/82] acpi_ns_execute_control_method+0x43/0x52
+Oct 29 05:34:54 lidl kernel:  [<c022e771>] acpi_ns_execute_control_method+0x43/0x52
+Oct 29 05:34:54 lidl kernel:  [acpi_ns_evaluate_by_handle+111/147] acpi_ns_evaluate_by_handle+0x6f/0x93
+Oct 29 05:34:54 lidl kernel:  [<c022e70a>] acpi_ns_evaluate_by_handle+0x6f/0x93
+Oct 29 05:34:54 lidl kernel:  [acpi_ns_evaluate_relative+157/180] acpi_ns_evaluate_relative+0x9d/0xb4
+Oct 29 05:34:54 lidl kernel:  [<c022e5fd>] acpi_ns_evaluate_relative+0x9d/0xb4
+Oct 29 05:34:54 lidl kernel:  [proc_lookup+188/288] proc_lookup+0xbc/0x120
+Oct 29 05:34:54 lidl kernel:  [<c0180a2c>] proc_lookup+0xbc/0x120
+Oct 29 05:34:54 lidl kernel:  [acpi_evaluate_object+271/446] acpi_evaluate_object+0x10f/0x1be
+Oct 29 05:34:54 lidl kernel:  [<c022defc>] acpi_evaluate_object+0x10f/0x1be
+Oct 29 05:34:54 lidl kernel:  [acpi_battery_get_status+100/277] acpi_battery_get_status+0x64/0x115
+Oct 29 05:34:54 lidl kernel:  [<c0238a15>] acpi_battery_get_status+0x64/0x115
+Oct 29 05:34:54 lidl kernel:  [acpi_battery_read_state+130/594] acpi_battery_read_state+0x82/0x252
+Oct 29 05:34:54 lidl kernel:  [<c0238f66>] acpi_battery_read_state+0x82/0x252
+Oct 29 05:34:54 lidl kernel:  [proc_file_read+195/640] proc_file_read+0xc3/0x280
+Oct 29 05:34:54 lidl kernel:  [<c0180493>] proc_file_read+0xc3/0x280
+Oct 29 05:34:54 lidl kernel:  [vfs_read+184/304] vfs_read+0xb8/0x130
+Oct 29 05:34:54 lidl kernel:  [<c01537e8>] vfs_read+0xb8/0x130
+Oct 29 05:34:54 lidl kernel:  [sys_read+66/112] sys_read+0x42/0x70
+Oct 29 05:34:54 lidl kernel:  [<c0153a92>] sys_read+0x42/0x70
+Oct 29 05:34:54 lidl kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
+Oct 29 05:34:54 lidl kernel:  [<c010942b>] syscall_call+0x7/0xb
 
-Back to -test9
-
-Also used only noop. Does not make much of a difference as i do not wish to claim it is better ;)
-
-Request queue size above 128 does not make a significant difference either.
-
-I'd say going down to 4 still works about as well in terms of total throughput.
-
-And it is still bloody impossible to make the disk LED stay on.
-
-I'll be back with "measurements" by weekend.
-
-Regards
-Michael
-	
-
+Oct 29 05:34:55 lidl kernel: ksoftirqd/0   S 0000210A  7880     2      1             3       (L-TLB)
+Oct 29 05:34:55 lidl kernel: dfeedfd4 00000046 c012f3e6 0000210a 00000000 c012f483 dfeedfa4 dfeedfa4 
+Oct 29 05:34:55 lidl kernel:        dba78740 00000000 c04a7b08 d87b1940 d87b1960 00000138 e9f49584 0001a2af 
+Oct 29 05:34:55 lidl kernel:        dfeec000 dfeec000 ffffe000 00000000 c01234fb dfeef2a0 00000013 c0123450 
+Oct 29 05:34:55 lidl kernel: Call Trace:
+Oct 29 05:34:55 lidl kernel:  [rcu_check_quiescent_state+118/144] rcu_check_quiescent_state+0x76/0x90
+Oct 29 05:34:55 lidl kernel:  [<c012f3e6>] rcu_check_quiescent_state+0x76/0x90
+Oct 29 05:34:55 lidl kernel:  [rcu_process_callbacks+131/256] rcu_process_callbacks+0x83/0x100
+Oct 29 05:34:55 lidl kernel:  [<c012f483>] rcu_process_callbacks+0x83/0x100
+Oct 29 05:34:55 lidl kernel:  [ksoftirqd+171/192] ksoftirqd+0xab/0xc0
+Oct 29 05:34:55 lidl kernel:  [<c01234fb>] ksoftirqd+0xab/0xc0
+Oct 29 05:34:55 lidl kernel:  [ksoftirqd+0/192] ksoftirqd+0x0/0xc0
+Oct 29 05:34:55 lidl kernel:  [<c0123450>] ksoftirqd+0x0/0xc0
+Oct 29 05:34:55 lidl kernel:  [kernel_thread_helper+5/16] kernel_thread_helper+0x5/0x10
+Oct 29 05:34:55 lidl kernel:  [<c01072a5>] kernel_thread_helper+0x5/0x10
+Oct 29 05:34:55 lidl kernel: 
+Oct 29 05:34:55 lidl kernel: events/0      D 6CF2C8B6  6576     3      1             4     2 (L-TLB)
+Oct 29 05:34:55 lidl kernel: dfeebcb8 00000046 d93972a0 6cf2c8b6 000165b4 c022dc4d 0000006c 00000003 
+Oct 29 05:34:55 lidl kernel:        00000000 6cf2c8b6 000165b4 d93972a0 d93972c0 000a7202 6cf2c8b6 000165b4 
+Oct 29 05:34:55 lidl kernel:        dfed66c0 00000286 dfeea000 dfeeec80 c0108175 dfed66c8 00000001 dfeeec80 
+Oct 29 05:34:55 lidl kernel: Call Trace:
+Oct 29 05:34:55 lidl kernel:  [acpi_ns_search_parent_tree+61/94] acpi_ns_search_parent_tree+0x3d/0x5e
+Oct 29 05:34:55 lidl kernel:  [<c022dc4d>] acpi_ns_search_parent_tree+0x3d/0x5e
+Oct 29 05:34:55 lidl kernel:  [__down+149/272] __down+0x95/0x110
+Oct 29 05:34:55 lidl kernel:  [<c0108175>] __down+0x95/0x110
+Oct 29 05:34:55 lidl kernel:  [default_wake_function+0/48] default_wake_function+0x0/0x30
+Oct 29 05:34:55 lidl kernel:  [<c011bdb0>] default_wake_function+0x0/0x30
+Oct 29 05:34:55 lidl kernel:  [__down_failed+8/12] __down_failed+0x8/0xc
+Oct 29 05:34:55 lidl kernel:  [<c010839c>] __down_failed+0x8/0xc
+Oct 29 05:34:55 lidl kernel:  [.text.lock.osl+15/50] .text.lock.osl+0xf/0x32
+Oct 29 05:34:55 lidl kernel:  [<c02223e5>] .text.lock.osl+0xf/0x32
+Oct 29 05:34:55 lidl kernel:  [acpi_ex_system_wait_semaphore+52/72] acpi_ex_system_wait_semaphore+0x34/0x48
+Oct 29 05:34:55 lidl kernel:  [<c022a720>] acpi_ex_system_wait_semaphore+0x34/0x48
+Oct 29 05:34:55 lidl kernel:  [acpi_ex_acquire_mutex+172/226] acpi_ex_acquire_mutex+0xac/0xe2
+Oct 29 05:34:55 lidl kernel:  [<c022bfe2>] acpi_ex_acquire_mutex+0xac/0xe2
+Oct 29 05:34:55 lidl kernel:  [acpi_ex_opcode_2A_0T_1R+107/264] acpi_ex_opcode_2A_0T_1R+0x6b/0x108
+Oct 29 05:34:55 lidl kernel:  [<c022b713>] acpi_ex_opcode_2A_0T_1R+0x6b/0x108
+Oct 29 05:34:55 lidl kernel:  [acpi_ds_exec_end_op+162/552] acpi_ds_exec_end_op+0xa2/0x228
+Oct 29 05:34:55 lidl kernel:  [<c02239c6>] acpi_ds_exec_end_op+0xa2/0x228
+Oct 29 05:34:55 lidl kernel:  [acpi_ps_parse_loop+1304/2083] acpi_ps_parse_loop+0x518/0x823
+Oct 29 05:34:55 lidl kernel:  [<c02307d9>] acpi_ps_parse_loop+0x518/0x823
+Oct 29 05:34:55 lidl kernel:  [acpi_ut_acquire_mutex+92/114] acpi_ut_acquire_mutex+0x5c/0x72
+Oct 29 05:34:55 lidl kernel:  [<c0235c86>] acpi_ut_acquire_mutex+0x5c/0x72
+Oct 29 05:34:55 lidl kernel:  [acpi_ut_release_to_cache+49/138] acpi_ut_release_to_cache+0x31/0x8a
+Oct 29 05:34:55 lidl kernel:  [<c0234d99>] acpi_ut_release_to_cache+0x31/0x8a
+Oct 29 05:34:55 lidl kernel:  [acpi_ut_release_mutex+103/108] acpi_ut_release_mutex+0x67/0x6c
+Oct 29 05:34:55 lidl kernel:  [<c0235d03>] acpi_ut_release_mutex+0x67/0x6c
+Oct 29 05:34:55 lidl kernel:  [acpi_ut_delete_generic_state+11/14] acpi_ut_delete_generic_state+0xb/0xe
+Oct 29 05:34:55 lidl kernel:  [acpi_ut_update_object_reference+464/526] acpi_ut_update_object_reference+0x1d0/0x20e
+Oct 29 05:34:55 lidl kernel:  [<c0236b37>] acpi_ut_update_object_reference+0x1d0/0x20e
+Oct 29 05:34:55 lidl kernel:  [acpi_ut_remove_reference+33/39] acpi_ut_remove_reference+0x21/0x27
+Oct 29 05:34:55 lidl kernel:  [<c0236bb2>] acpi_ut_remove_reference+0x21/0x27
+Oct 29 05:34:55 lidl kernel:  [acpi_ds_call_control_method+326/385] acpi_ds_call_control_method+0x146/0x181
+Oct 29 05:34:55 lidl kernel:  [<c0223eab>] acpi_ds_call_control_method+0x146/0x181
+Oct 29 05:34:55 lidl kernel:  [acpi_ps_parse_aml+78/380] acpi_ps_parse_aml+0x4e/0x17c
+Oct 29 05:34:55 lidl kernel:  [<c0230b32>] acpi_ps_parse_aml+0x4e/0x17c
+Oct 29 05:34:55 lidl kernel:  [acpi_psx_execute+341/416] acpi_psx_execute+0x155/0x1a0
+Oct 29 05:34:55 lidl kernel:  [<c02313e1>] acpi_psx_execute+0x155/0x1a0
+Oct 29 05:34:55 lidl kernel:  [acpi_ns_execute_control_method+67/82] acpi_ns_execute_control_method+0x43/0x52
+Oct 29 05:34:55 lidl kernel:  [<c022e771>] acpi_ns_execute_control_method+0x43/0x52
+Oct 29 05:34:55 lidl kernel:  [acpi_ns_evaluate_by_handle+111/147] acpi_ns_evaluate_by_handle+0x6f/0x93
+Oct 29 05:34:55 lidl kernel:  [<c022e70a>] acpi_ns_evaluate_by_handle+0x6f/0x93
+Oct 29 05:34:55 lidl kernel:  [acpi_ns_evaluate_relative+157/180] acpi_ns_evaluate_relative+0x9d/0xb4
+Oct 29 05:34:55 lidl kernel:  [<c022e5fd>] acpi_ns_evaluate_relative+0x9d/0xb4
+Oct 29 05:34:55 lidl kernel:  [acpi_ut_delete_object_desc+17/20] acpi_ut_delete_object_desc+0x11/0x14
+Oct 29 05:34:55 lidl kernel:  [<c0237344>] acpi_ut_delete_object_desc+0x11/0x14
+Oct 29 05:34:55 lidl kernel:  [acpi_ut_update_object_reference+464/526] acpi_ut_update_object_reference+0x1d0/0x20e
+Oct 29 05:34:55 lidl kernel:  [<c0236b37>] acpi_ut_update_object_reference+0x1d0/0x20e
+Oct 29 05:34:55 lidl kernel:  [acpi_ut_acquire_mutex+92/114] acpi_ut_acquire_mutex+0x5c/0x72
+Oct 29 05:34:55 lidl kernel:  [<c0235c86>] acpi_ut_acquire_mutex+0x5c/0x72
+Oct 29 05:34:55 lidl kernel:  [acpi_evaluate_object+271/446] acpi_evaluate_object+0x10f/0x1be
+Oct 29 05:34:55 lidl kernel:  [<c022defc>] acpi_evaluate_object+0x10f/0x1be
+Oct 29 05:34:55 lidl kernel:  [acpi_evaluate_integer+52/86] acpi_evaluate_integer+0x34/0x56
+Oct 29 05:34:55 lidl kernel:  [<c02226a0>] acpi_evaluate_integer+0x34/0x56
+Oct 29 05:34:55 lidl kernel:  [schedule+761/1456] schedule+0x2f9/0x5b0
+Oct 29 05:34:55 lidl kernel:  [<c011baa9>] schedule+0x2f9/0x5b0
+Oct 29 05:34:55 lidl kernel:  [acpi_thermal_get_temperature+37/58] acpi_thermal_get_temperature+0x25/0x3a
+Oct 29 05:34:55 lidl kernel:  [<c023d3c9>] acpi_thermal_get_temperature+0x25/0x3a
+Oct 29 05:34:55 lidl kernel:  [acpi_thermal_check+35/567] acpi_thermal_check+0x23/0x237
+Oct 29 05:34:55 lidl kernel:  [<c023d97a>] acpi_thermal_check+0x23/0x237
+Oct 29 05:34:55 lidl kernel:  [acpi_os_execute_deferred+14/27] acpi_os_execute_deferred+0xe/0x1b
+Oct 29 05:34:55 lidl kernel:  [<c022211f>] acpi_os_execute_deferred+0xe/0x1b
+Oct 29 05:34:55 lidl kernel:  [worker_thread+477/704] worker_thread+0x1dd/0x2c0
+Oct 29 05:34:55 lidl kernel:  [<c012e76d>] worker_thread+0x1dd/0x2c0
+Oct 29 05:34:55 lidl kernel:  [acpi_os_execute_deferred+0/27] acpi_os_execute_deferred+0x0/0x1b
+Oct 29 05:34:55 lidl kernel:  [<c0222111>] acpi_os_execute_deferred+0x0/0x1b
+Oct 29 05:34:55 lidl kernel:  [default_wake_function+0/48] default_wake_function+0x0/0x30
+Oct 29 05:34:55 lidl kernel:  [<c011bdb0>] default_wake_function+0x0/0x30
+Oct 29 05:34:55 lidl kernel:  [ret_from_fork+6/20] ret_from_fork+0x6/0x14
+Oct 29 05:34:55 lidl kernel:  [<c0109302>] ret_from_fork+0x6/0x14
+Oct 29 05:34:55 lidl kernel:  [default_wake_function+0/48] default_wake_function+0x0/0x30
+Oct 29 05:34:55 lidl kernel:  [<c011bdb0>] default_wake_function+0x0/0x30
+Oct 29 05:34:55 lidl kernel:  [worker_thread+0/704] worker_thread+0x0/0x2c0
+Oct 29 05:34:55 lidl kernel:  [<c012e590>] worker_thread+0x0/0x2c0
+Oct 29 05:34:55 lidl kernel:  [kernel_thread_helper+5/16] kernel_thread_helper+0x5/0x10
+Oct 29 05:34:55 lidl kernel:  [<c01072a5>] kernel_thread_helper+0x5/0x10

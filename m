@@ -1,53 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261296AbUCHWFw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Mar 2004 17:05:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261300AbUCHWFv
+	id S261364AbUCHWI2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Mar 2004 17:08:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261366AbUCHWI2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Mar 2004 17:05:51 -0500
-Received: from atlrel9.hp.com ([156.153.255.214]:39851 "EHLO atlrel9.hp.com")
-	by vger.kernel.org with ESMTP id S261296AbUCHWFe (ORCPT
+	Mon, 8 Mar 2004 17:08:28 -0500
+Received: from ns.suse.de ([195.135.220.2]:945 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261364AbUCHWIQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Mar 2004 17:05:34 -0500
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: Russell King <rmk+lkml@arm.linux.org.uk>, davidm@hpl.hp.com
-Subject: Re: [PATCH] fix PCI interrupt setting for ia64
-Date: Mon, 8 Mar 2004 15:05:21 -0700
-User-Agent: KMail/1.5.4
-Cc: Takayoshi Kochi <t-kochi@bq.jp.nec.com>, benjamin.liu@intel.com,
-       iod00d@hp.com, kaneshige.kenji@jp.fujitsu.com,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <3ACA40606221794F80A5670F0AF15F8401B1A017@PDSMSX403.ccr.corp.intel.com> <16460.59685.452893.22564@napali.hpl.hp.com> <20040308215448.I21938@flint.arm.linux.org.uk>
-In-Reply-To: <20040308215448.I21938@flint.arm.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 8 Mar 2004 17:08:16 -0500
+Date: Mon, 8 Mar 2004 23:08:14 +0100
+From: Olaf Hering <olh@suse.de>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: linux-kernel@vger.kernel.org, jejb <james.bottomley@steeleye.com>,
+       gibbs@scsiguy.com
+Subject: Re: 2.6.3 CONFIG_SCSI_AIC7 X X X Kconfig bug
+Message-ID: <20040308220814.GA19147@suse.de>
+References: <20040207162054.GA25651@suse.de> <20040209085817.055e1419.rddunlap@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-Message-Id: <200403081505.21644.bjorn.helgaas@hp.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040209085817.055e1419.rddunlap@osdl.org>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 08 March 2004 2:54 pm, Russell King wrote:
-> OTOH, if you know "this port is absolutely definitely using this IRQ"
-> then you don't want to use IRQ probing.
+ On Mon, Feb 09, Randy.Dunlap wrote:
+
+
+This one is still not applied.
+
 > 
-> As long as ACPI positively knows the correct IRQ, so we really shouldn't
-> be using IRQ probing here.  The only thing which causes me concern is...
-> what about ACPI table/BIOS bugs?
+> product_versions: linux-262-pv
+> description:	make Adaptec AIC7xyx drivers depend on SCSI tristate
+> 
+> diffstat:=
+>  drivers/scsi/aic7xxx/Kconfig.aic79xx |    2 +-
+>  drivers/scsi/aic7xxx/Kconfig.aic7xxx |    2 +-
+>  2 files changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff -Naurp ./drivers/scsi/aic7xxx/Kconfig.aic7xxx~depends ./drivers/scsi/aic7xxx/Kconfig.aic7xxx
+> --- ./drivers/scsi/aic7xxx/Kconfig.aic7xxx~depends	2004-02-03 19:43:42.000000000 -0800
+> +++ ./drivers/scsi/aic7xxx/Kconfig.aic7xxx	2004-02-09 09:04:01.000000000 -0800
+> @@ -4,7 +4,7 @@
+>  #
+>  config SCSI_AIC7XXX
+>  	tristate "Adaptec AIC7xxx Fast -> U160 support (New Driver)"
+> -	depends on PCI || EISA
+> +	depends on (PCI || EISA) && SCSI
+>  	---help---
+>  	This driver supports all of Adaptec's Fast through Ultra 160 PCI
+>  	based SCSI controllers as well as the aic7770 based EISA and VLB
+> diff -Naurp ./drivers/scsi/aic7xxx/Kconfig.aic79xx~depends ./drivers/scsi/aic7xxx/Kconfig.aic79xx
+> --- ./drivers/scsi/aic7xxx/Kconfig.aic79xx~depends	2004-02-03 19:43:43.000000000 -0800
+> +++ ./drivers/scsi/aic7xxx/Kconfig.aic79xx	2004-02-09 09:03:52.000000000 -0800
+> @@ -4,7 +4,7 @@
+>  #
+>  config SCSI_AIC79XX
+>  	tristate "Adaptec AIC79xx U320 support"
+> -	depends on PCI
+> +	depends on PCI && SCSI
+>  	help
+>  	This driver supports all of Adaptec's Ultra 320 PCI-X
+>  	based SCSI controllers.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-I suspect (not being expert in the serial innards) that with the old
-code things would "just work", and the ACPI table bug would never
-be noticed.
+-- 
+USB is for mice, FireWire is for men!
 
-With the new code, my guess is that the device just wouldn't work
-(we think it has an interrupt, but it's not hooked up correctly).
-
-My inclination is that it's better to help find ACPI bugs, and
-if broken tables turn out to be a problem, we can add some kind
-of command-line switch or blacklist to deal with it.  But I
-guess we should really get David's opinion, since this is a
-potential issue for 2.6 distributions.
-
-Bjorn
-
+sUse lINUX ag, nÜRNBERG

@@ -1,49 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267924AbUHUVO3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267940AbUHUVTD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267924AbUHUVO3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Aug 2004 17:14:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267847AbUHUVOA
+	id S267940AbUHUVTD (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Aug 2004 17:19:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267919AbUHUVNo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Aug 2004 17:14:00 -0400
-Received: from ebiz-gw.wintek.com ([206.230.1.186]:12928 "EHLO
-	dust.ebiz-gw.wintek.com") by vger.kernel.org with ESMTP
-	id S267931AbUHUVLL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Aug 2004 17:11:11 -0400
-Date: Sat, 21 Aug 2004 16:11:41 -0500 (EST)
-From: Alex Goddard <agoddard@purdue.edu>
-To: Lei Yang <leiyang@nec-labs.com>
-Cc: Sam Ravnborg <sam@ravnborg.org>,
-       Kernel Newbies Mailing List <kernelnewbies@nl.linux.org>,
+	Sat, 21 Aug 2004 17:13:44 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:32475 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S267847AbUHUVLR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Aug 2004 17:11:17 -0400
+Subject: Re: Linux Incompatibility List
+From: Lee Revell <rlrevell@joe-job.com>
+To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+Cc: Wakko Warner <wakko@animx.eu.org>,
        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Problems compiling kernel modules
-In-Reply-To: <4127B49A.6080305@nec-labs.com>
-Message-ID: <Pine.LNX.4.61.0408211609170.6808@dust.ebiz-gw.wintek.com>
-References: <4127A15C.1010905@nec-labs.com> <20040821214402.GA7266@mars.ravnborg.org>
- <4127A662.2090708@nec-labs.com> <20040821215055.GB7266@mars.ravnborg.org>
- <4127B49A.6080305@nec-labs.com>
-X-GPG-PUBLIC_KEY: N/a
-X-GPG-FINGERPRINT: BCBC 0868 DB78 22F3 A657 785D 6E3B 7ACB 584E B835
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+In-Reply-To: <20040821210606.GA18334@lug-owl.de>
+References: <87r7q0th2n.fsf@dedasys.com>
+	 <20040821201632.GA7622@digitasaru.net> <20040821202058.GA9218@animx.eu.org>
+	 <1093120274.854.145.camel@krustophenia.net>
+	 <20040821205157.GA9300@animx.eu.org>  <20040821210606.GA18334@lug-owl.de>
+Content-Type: text/plain
+Message-Id: <1093122679.854.170.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 21 Aug 2004 17:11:19 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 21 Aug 2004, Lei Yang wrote:
+On Sat, 2004-08-21 at 17:06, Jan-Benedict Glaw wrote:
+> On Sat, 2004-08-21 16:51:57 -0400, Wakko Warner <wakko@animx.eu.org>
+> wrote in message <20040821205157.GA9300@animx.eu.org>:
+> > > Nvidia.  AFAIK all nvidia Linux drivers are either binary-only or
+> > > reverse-engineered.
+> > 
+> > True, however, their video cards *DO* work on linux (even though it is
+> > binary-only).  I have a laptop that has the chip.  Does any broadcom
+> > wireless chip work on linux (ndis wrapper or that piece of junk from
+> > linuxant doesn't count)
+> 
+> Right, binary-only drivers and/or GPLed/OSS drivers should be counted
+> separately. Think about AVM's ISDN cards (very popular over here in
+> Germany, but the newer products require a CAPI-only binary-only
+> driver:-(
+> 
 
-> What about multi-file module?
->
-> Say test.c doesn't include stdio.h, while there is some other .c file which 
-> is to be compiled and linked into test.ko, include stdio?
->
-> Would that work?
->
-> TIA!
-> Lei
+Are there still vendors who release 'open source' drivers, but with
+preprocessed, obfuscated source code?  If so then there should be a
+category for this.
 
-You can't use userspace headers in the kernel.  That's why the kernel has 
-its own set with things like printk(), etc, etc.  What is it that you're 
-trying to do and why does it need file i/o?
+Lee
 
--- 
-Alex Goddard
-agoddard at purdue dot edu

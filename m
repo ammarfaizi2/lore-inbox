@@ -1,48 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292087AbSCDHfX>; Mon, 4 Mar 2002 02:35:23 -0500
+	id <S292108AbSCDH4M>; Mon, 4 Mar 2002 02:56:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292092AbSCDHfN>; Mon, 4 Mar 2002 02:35:13 -0500
-Received: from basfegw1.basf-ag.de ([141.6.1.21]:57832 "EHLO
-	basfegw1.basf-ag.de") by vger.kernel.org with ESMTP
-	id <S292087AbSCDHfA>; Mon, 4 Mar 2002 02:35:00 -0500
-Subject: Antwort: Re: Kernel Hangs 2.4.16 on heay io Oracle and Tivolie TSM
-To: Alessandro Suardi <alessandro.suardi@oracle.com>, use-oracle@suse.com,
-        suse-linux-e@suse.com, mason@suse.com, linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Version 5.0 (Intl)   14. April 1999
-Message-ID: <OFE7517866.AA039B23-ONC1256B72.0027B52F@bcs.de>
-From: Oliver.Schersand@BASF-IT-Services.com
-Date: Mon, 4 Mar 2002 08:35:36 +0100
-X-MIMETrack: Serialize by Router on EUROPE-Gw03/EUROPE/BASF(Release 5.0.8 |June 18, 2001) at
- 04/03/2002 08:34:52
+	id <S292122AbSCDH4D>; Mon, 4 Mar 2002 02:56:03 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:37899 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S292108AbSCDHzp>;
+	Mon, 4 Mar 2002 02:55:45 -0500
+Message-ID: <3C83280A.A8CF7CC8@zip.com.au>
+Date: Sun, 03 Mar 2002 23:53:46 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+To: Andreas Dilger <adilger@clusterfs.com>
+CC: Daniel Phillips <phillips@bonn-fries.net>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] delayed disk block allocation
+In-Reply-To: <3C7F3B4A.41DB7754@zip.com.au> <E16hhuI-0000S6-00@starship.berlin> <20020304050450.GF353@matchmail.com>,
+		<20020304050450.GF353@matchmail.com>; from mfedyk@matchmail.com on Sun, Mar 03, 2002 at 09:04:50PM -0800 <20020303223103.J4188@lynx.adilger.int>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Andreas Dilger wrote:
+> 
+> Actually, there are a whole bunch of performance issues with 1kB block
+> ext2 filesystems.
 
-on saturday a had a nice day with 16 houre to find a workaround to bring
-linux stable.
-I had moved the server from reiserfs to ext2 for all datafile areas. The
-move with tar
-runs without any crash. I had an about 60 to 75 MB/second transfer ( read +
-write) on the
-move of the oracle datafiles.
+I don't see any new problems with file tails here.  They're catered for
+OK.  What I have not catered for is file holes.    With the delalloc
+patches, whole pages are always written out (except for at eof).  So
+if your file has lots of very small non-holes in it, these will become
+larger non-holes.
 
-After startup of oracle and backup the open datafiles ( i know this is
-nonsens but its a good stress test)
-i get a crash. On a reiserfs this would crash immediately. On ext2 crash
-happend after about 2.5houres of backup ( about 80GB datafiles).
-After this i switched backup to kernel version 2.2.19. ---> The system runs
-now without crash.
-On other server without oracle but which are have tsm backup we had no
-problems with 2.4.16 ( at the moment  only about 15 Servers)
+If we're serious about 64k PAGE_CACHE_SIZE then this becomes more of
+a problem.  In the worst case, a file which used to consist of
 
-Its seems that you are right an we have a serious vm bug. This bug is only
-viewable if you user oracle and tsm (tivoli storage manager) .... Strange.
+4k block | (1 meg - 4k) hole | 4k block | (1 meg - 4k) hole | ...
 
-Kinds regards
+will become:
 
-Oliver Schersand
+64k block | (1 meg - 64k) hole | 64k block | (1 meg - 64k hole) | ...
 
+Which is a *lot* more disk space.  It'll happen right now, if the
+file is written via mmap.  But with no-buffer-head delayed allocate,
+it'll happen with write(2) as well.
+
+Is such space wastage on sparse files a showstopper?    Maybe,
+but probably not if there is always at least one filesystem
+which handles this scenario well, because it _is_ a specialised
+scenario.
+
+-

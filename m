@@ -1,65 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261318AbVCEW7N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261317AbVCEW7M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261318AbVCEW7N (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Mar 2005 17:59:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261321AbVCEWyF
+	id S261317AbVCEW7M (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Mar 2005 17:59:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261305AbVCEW4h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Mar 2005 17:54:05 -0500
-Received: from coderock.org ([193.77.147.115]:60069 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S261320AbVCEWno (ORCPT
+	Sat, 5 Mar 2005 17:56:37 -0500
+Received: from kweetal.tue.nl ([131.155.3.6]:55047 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S261324AbVCEWoY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Mar 2005 17:43:44 -0500
-Subject: [patch 12/15] 9/34: block/swim_iop: replace interruptible_sleep_on() with wait_event_interruptible()
-To: axboe@suse.de
-Cc: linux-kernel@vger.kernel.org, domen@coderock.org, nacc@us.ibm.com
-From: domen@coderock.org
-Date: Sat, 05 Mar 2005 23:43:19 +0100
-Message-Id: <20050305224320.324321F203@trashy.coderock.org>
+	Sat, 5 Mar 2005 17:44:24 -0500
+Date: Sat, 5 Mar 2005 23:44:15 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Alexander Nyberg <alexn@dsv.su.se>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: dm-crypt vs. cryptoloop reminder
+Message-ID: <20050305224415.GA8837@pclin040.win.tue.nl>
+References: <1110058524.13821.17.camel@boxen>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1110058524.13821.17.camel@boxen>
+User-Agent: Mutt/1.4.2i
+X-Spam-DCC: CollegeOfNewCaledonia: kweetal.tue.nl 1189; Body=1 Fuz1=1 Fuz2=1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Mar 05, 2005 at 10:35:24PM +0100, Alexander Nyberg wrote:
 
+> 2.6.3-mm1 'dm-crypt vs. cryptoloop' discussion was some time ago, it is
+> time to bring this up again:
+> http://kerneltrap.org/node/2433
 
-Use wait_event_interruptible() instead of the deprecated
-interruptible_sleep_on(). The change is pretty straight-forward, as the current
-sleep is conditional.
+Are you a troll?
 
-Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
-Signed-off-by: Domen Puncer <domen@coderock.org>
----
+This is not something to be quoted by anybody serious.
 
+Andrew referred to "well-known weaknesses" in cryptoloop,
+and when I inquired it turned out that what he referred to
+were properties of cryptoloop and dm-crypt alike, so that
+his remarks that started that discussion were misguided.
 
- kj-domen/drivers/block/swim_iop.c |   13 ++++++-------
- 1 files changed, 6 insertions(+), 7 deletions(-)
+Of course people may prefer dm-crypt or cryptoloop or loop-aes,
+just like people prefer ide-cd or ide-scsi.
 
-diff -puN drivers/block/swim_iop.c~wait_event_int-drivers_block_swim_iop drivers/block/swim_iop.c
---- kj/drivers/block/swim_iop.c~wait_event_int-drivers_block_swim_iop	2005-03-05 16:11:56.000000000 +0100
-+++ kj-domen/drivers/block/swim_iop.c	2005-03-05 16:11:56.000000000 +0100
-@@ -32,6 +32,7 @@
- #include <linux/fd.h>
- #include <linux/ioctl.h>
- #include <linux/blkdev.h>
-+#include <linux/wait.h>
- #include <asm/io.h>
- #include <asm/uaccess.h>
- #include <asm/mac_iop.h>
-@@ -431,13 +432,11 @@ static int grab_drive(struct floppy_stat
- 	local_irq_save(flags);
- 	if (fs->state != idle) {
- 		++fs->wanted;
--		while (fs->state != available) {
--			if (interruptible && signal_pending(current)) {
--				--fs->wanted;
--				local_irq_restore(flags);
--				return -EINTR;
--			}
--			interruptible_sleep_on(&fs->wait);
-+		wait_event_interruptible(fs->wait, (fs->state == available));
-+		if (interruptible && signal_pending(current)) {
-+			--fs->wanted;
-+			local_irq_restore(flags);
-+			return -EINTR;
- 		}
- 		--fs->wanted;
- 	}
-_
+I have not yet seen a valid reason to deprecate one of these three
+very soon.
+
+Andries

@@ -1,55 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276429AbRJKO22>; Thu, 11 Oct 2001 10:28:28 -0400
+	id <S276474AbRJKOc6>; Thu, 11 Oct 2001 10:32:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276451AbRJKO2T>; Thu, 11 Oct 2001 10:28:19 -0400
-Received: from [202.135.142.195] ([202.135.142.195]:42763 "EHLO
-	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
-	id <S276429AbRJKO2A>; Thu, 11 Oct 2001 10:28:00 -0400
-Date: Thu, 11 Oct 2001 16:50:19 +1000
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: paulus@samba.org, linux-kernel@vger.kernel.org
-Subject: Re: [Lse-tech] Re: RFC: patch to allow lock-free traversal of lists with insertion
-Message-Id: <20011011165019.66294c59.rusty@rustcorp.com.au>
-In-Reply-To: <Pine.LNX.4.33.0110100230170.1518-100000@penguin.transmeta.com>
-In-Reply-To: <20011010182730.0077454b.rusty@rustcorp.com.au>
-	<Pine.LNX.4.33.0110100230170.1518-100000@penguin.transmeta.com>
-X-Mailer: Sylpheed version 0.5.3 (GTK+ 1.2.10; powerpc-unknown-linux-gnu)
+	id <S276384AbRJKOct>; Thu, 11 Oct 2001 10:32:49 -0400
+Received: from cp26357-a.gelen1.lb.nl.home.com ([213.51.0.86]:42542 "HELO
+	lunchbox.oisec.net") by vger.kernel.org with SMTP
+	id <S276381AbRJKOcn>; Thu, 11 Oct 2001 10:32:43 -0400
+Date: Thu, 11 Oct 2001 16:32:54 +0200
+From: Cliff Albert <cliff@oisec.net>
+To: Cristian CONSTANTIN <constantin@fokus.gmd.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: scsi/hdd problem...
+Message-ID: <20011011163254.B18508@oisec.net>
+Mail-Followup-To: Cristian CONSTANTIN <constantin@fokus.gmd.de>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20011011160628.D29704@terix.fokus.gmd.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011011160628.D29704@terix.fokus.gmd.de>
+User-Agent: Mutt/1.3.22i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Oct 2001 02:36:13 -0700 (PDT)
-Linus Torvalds <torvalds@transmeta.com> wrote:
+On Thu, Oct 11, 2001 at 04:06:28PM +0200, Cristian CONSTANTIN wrote:
 
+Same problem appeared here, seems to be a faulty firmware of my Quantum drive. As you have a IBM drive look for firmware upgrades, maybe it helps :) Also try a boot with aic7xxx=verbose as a kernel-parameter.
+
+
+> scsi gurus please help! today my kernel barked like:
 > 
-> On Wed, 10 Oct 2001, Rusty Russell wrote:
-> >
-> > If noone *holds* a reference, you can remove it "sometime later",
-> > where "sometime later" is (for example) after every CPU has scheduled.
+> Oct 11 15:05:07 terix kernel: Recovery code sleeping
+> Oct 11 15:05:07 terix kernel: (scsi0:A:3:0): Abort Tag Message Sent
+> Oct 11 15:05:07 terix kernel: (scsi0:A:3:0): SCB 116 - Abort Tag Completed.
+> Oct 11 15:05:07 terix kernel: Recovery SCB completes
+> Oct 11 15:05:07 terix kernel: Recovery code awake
+> Oct 11 15:05:07 terix kernel: aic7xxx_abort returns 8194
+> Oct 11 15:05:07 terix kernel: scsi0:0:3:0: Attempting to queue an ABORT message
+> Oct 11 15:05:07 terix kernel: (scsi0:A:3:0): Queuing a recovery SCB
+> Oct 11 15:05:07 terix kernel: scsi0:0:3:0: Device is disconnected, re-queuing SCB
+> Oct 11 15:05:07 terix kernel: Recovery code sleeping
+> Oct 11 15:05:07 terix kernel: (scsi0:A:3:0): Abort Tag Message Sent
+> Oct 11 15:05:07 terix kernel: (scsi0:A:3:0): SCB 107 - Abort Tag Completed.
+> Oct 11 15:05:07 terix kernel: Recovery SCB completes
+> Oct 11 15:05:07 terix kernel: Recovery code awake
+> Oct 11 15:05:07 terix kernel: aic7xxx_abort returns 8194
+> Oct 11 15:05:07 terix kernel: scsi0:0:3:0: Attempting to queue an ABORT message
+> Oct 11 15:05:07 terix kernel: (scsi0:A:3:0): Queuing a recovery SCB
+> Oct 11 15:05:07 terix kernel: scsi0:0:3:0: Device is disconnected, re-queuing SCB
 > 
-> Ehh.. One of those readers can hold on to the thing while waiting for
-> something else to happen.
+> and the machine froze for a couple of minutes. in short I have
+> a Tyan motherbaord with Athlon SMP support and ADAPTEC SCSI onboard, 
+> kernel version :
 > 
-> Looking up a data structure and copying it to user space or similar is
-> _the_ most common operation for any lookup.
+> 2.4.10-xfs #1 SMP Wed Sep 26 09:44:28 CEST 2001 i686 unknown
 
-Woah!  So now we're abandoning spinlocks for semaphores, given your
-enlightened reasoning?  What are you going to call your new OS?
+<-- BIG SNIP -->
 
-If you needed reference counts before, you need them still.  But you can
-frequently get rid of the spinlock/rwlock protecting the list as a whole.
-
-No, it's not possible everywhere.  But naive profiling doesn't show the
-damage from grabbing a read lock, since the penalty is paid by other CPUs
-(running unrelated code) as well as the one dirtying the cache, so the
-penalty gets smeared across the profile.
-
-As Dave says: the cost is not spinning for the lock, it's the cacheline,
-and that's the same with a rwlock as a spinlock, and it's going to get
-*worse* with new architectures.
-
-Rusty.
+-- 
+Cliff Albert		| RIPE:	     CA3348-RIPE | www.oisec.net
+cliff@oisec.net		| 6BONE:     CA2-6BONE	 | icq 18461740

@@ -1,87 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261884AbUCDO3M (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Mar 2004 09:29:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261889AbUCDO3M
+	id S261889AbUCDOh5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Mar 2004 09:37:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261911AbUCDOh4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Mar 2004 09:29:12 -0500
-Received: from hq.pm.waw.pl ([195.116.170.10]:30095 "EHLO hq.pm.waw.pl")
-	by vger.kernel.org with ESMTP id S261884AbUCDO3J (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Mar 2004 09:29:09 -0500
-To: Mariusz Mazur <mmazur@kernel.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] linux-libc-headers 2.6.3.0
-References: <200402291942.45392.mmazur@kernel.pl>
-	<40434BD7.9060301@nortelnetworks.com>
-	<m37jy4cuaw.fsf@defiant.pm.waw.pl>
-	<200403031829.41394.mmazur@kernel.pl>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Thu, 04 Mar 2004 15:13:20 +0100
-In-Reply-To: <200403031829.41394.mmazur@kernel.pl> (Mariusz Mazur's message
- of "Wed, 3 Mar 2004 19:08:41 +0100")
-Message-ID: <m3brnc8zun.fsf@defiant.pm.waw.pl>
+	Thu, 4 Mar 2004 09:37:56 -0500
+Received: from guanin.uni-konstanz.de ([134.34.240.60]:952 "EHLO
+	guanin.uni-konstanz.de") by vger.kernel.org with ESMTP
+	id S261889AbUCDOhu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Mar 2004 09:37:50 -0500
+Message-ID: <1078411067.40473f3b6b835@webmail.uni-konstanz.de>
+Date: Thu,  4 Mar 2004 15:37:47 +0100
+From: Pascal Gienger <pascal.gienger@uni-konstanz.de>
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Cc: Robin Rosenberg <robin.rosenberg.lists@dewire.com>,
+       David Weinehall <david@southpole.se>,
+       Andrew Ho <andrewho@animezone.org>, Dax Kelson <dax@gurulabs.com>,
+       Peter Nelson <pnelson@andrew.cmu.edu>, Hans Reiser <reiser@namesys.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       ext2-devel@lists.sourceforge.net, ext3-users@redhat.com,
+       jfs-discussion@oss.software.ibm.com, reiserfs-list@namesys.com,
+       linux-xfs@oss.sgi.com
+Subject: Re: [Jfs-discussion] Re: Desktop Filesystem Benchmarks in 2.6.3
+References: <4044119D.6050502@andrew.cmu.edu>  <40453538.8050103@animezone.org> <20040303014115.GP19111@khan.acc.umu.se>  <200403030700.57164.robin.rosenberg.lists@dewire.com> <1078307033.904.1.camel@teapot.felipe-alfaro.com>
+In-Reply-To: <1078307033.904.1.camel@teapot.felipe-alfaro.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.2
+X-Originating-IP: 193.96.192.155
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mariusz Mazur <mmazur@kernel.pl> writes:
+Quoting Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>:
 
-> We do. Abi changes are rather rare so keeping them as a separate tree
-> wouldn't 
-> add too much work for subsystem maintainers, and it would be a Good Thing 
-> (tm) to have one place where the whole current abi can be seen.
+> But XFS easily breaks down due to media defects. Once ago I used
+> XFS,
+> but I lost all data on one of my volumes due to a bad block on my
+> hard
+> disk. XFS was unable to recover from the error, and the XFS recovery
+> tools were unable to deal with the error.
 
-Sure. One place, yes. But separate header sets are IMHO too much crazy.
+1. How long ago is "Once ago"? Did you report that to the xfs
+developers?
+2. Speaking for servers, we live in a RAID and/or SAN-world. The media
+error issue is a non-issue.
 
-> One thing to 
-> note is that linux headers duplicate many structures and definitions that 
-> should be (and are) provided by glibc. This causes collisions. My current 
-> practice is to clear offending linux headers of their content, and simply 
-> include appropriate libc headers (with a nice warning) from them.
+Just my $0.02,
 
-Is it the kernel which is based on glibc, or is it glibc (and the rest of
-the userland as glibc isn't that special) using the kernel interface?
-
-The kernel doesn't need glibc at all, I don't know why do you want it
-to require some external headers to compile.
-Should the kernel behave differently when compiled with different glibc
-header sets? :-)
-
-IMHO all the defines should be in the kernel tree. Glibc can and should
-use them, as it uses the ABI.
-
-> I can say that about 60-80% of current linux headers do not have proper 
-> separation of kernel only code (counting in headers that are kernel only,
-> but 
-> have no visible signs of that fact)
-
-No doubt.
-
-> and adding that separation would take a 
-> while. And even if successfull, it would add significant maintainer burden
-> to 
-> keep the whole thing working (it would probably look like crap too).
-
-Don't think so. Anyway, there is no other acceptable option. The kernel
-must compile without glibc headers (without any external headers, to
-be precise) - as it doesn't need any external software to work.
-
-The open question (of much less importance) is if we want to keep
-the existing include/ layout or to move public parts to include/linux-abi
-etc. It still has to reside in the kernel tree, though. I'd go with the
-former for now as it requires less work. OTOH the latter might be
-cleaner.
-
-> And we have to remember 2.4 compatibilities (which linux-libc-headers
-> have) - 
-> is 2.6 kernel a place for them?
-
-Examples?
-If they are part of kernel API/ABI, then of course they are still used
-by 2.6 kernel and they need to be there. If they aren't used by the
-kernel (old #define names for instance) they should go to glibc headers
-(#ifndef xxx #define xxx etc.).
--- 
-Krzysztof Halasa, B*FH
+Pascal

@@ -1,57 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261944AbUL0Sjx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261942AbUL0TSE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261944AbUL0Sjx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Dec 2004 13:39:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261946AbUL0Sjx
+	id S261942AbUL0TSE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Dec 2004 14:18:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261949AbUL0TSE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Dec 2004 13:39:53 -0500
-Received: from smtprelay04.ispgateway.de ([80.67.18.16]:16588 "EHLO
-	smtprelay04.ispgateway.de") by vger.kernel.org with ESMTP
-	id S261944AbUL0Sjv convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Dec 2004 13:39:51 -0500
-From: Ingo Oeser <ioe-lkml@rameria.de>
+	Mon, 27 Dec 2004 14:18:04 -0500
+Received: from rproxy.gmail.com ([64.233.170.192]:38679 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261942AbUL0TSB convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Dec 2004 14:18:01 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=iQX7H51vdyOJBD3dNg0YEo7jAlBhuwf7OYefmfPqNBuKcYGYgAHVJxoqv/an6TJsbMl3ORWVWmBCOqWBzG9+TPH5AJGcR/0xzbbaswouYSIWOd/+c9LpgC1LLyGcwiRdiy2MXuyzA6+BJBQAmjl5CuWOYwkP09LrhOf8crgD5DM=
+Message-ID: <d5a95e6d04122711183596d0c8@mail.gmail.com>
+Date: Mon, 27 Dec 2004 16:18:00 -0300
+From: Diego <foxdemon@gmail.com>
+Reply-To: Diego <foxdemon@gmail.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: cache and buffer usage with kernel 2.6.10
-Date: Mon, 27 Dec 2004 19:08:29 +0100
-User-Agent: KMail/1.6.2
-References: <BAY15-F419E77AD01BC2D2F7A1149B2990@phx.gbl>
-In-Reply-To: <BAY15-F419E77AD01BC2D2F7A1149B2990@phx.gbl>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: Text/Plain;
-  charset="big5"
+Subject: About NFS4 in kernel 2.6.9
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 8BIT
-Message-Id: <200412271908.31269.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hello,
+ I have recompile fedora core 3 to kernel 2.6.9 and tried to user NFS,
+I configure but when i have some problems:
+ root@c-57-137-05 ~]# service nfs restart
+Desligando o NFS mountd:                                   [FALHOU]
+Desligando o servidor NFS:                                 [FALHOU]
+Desligando o NFS quotas:                                   [FALHOU]
+Desligando serviços NFS:                                   [  OK  ]
+Iniciando os serviços NFS:                                 [  OK  ]
+Iniciando as quatas do NFS:                                [  OK  ]
+Iniciando servidor NFS:                                    [FALHOU]
+Iniciando o NFS mountd:                                    [  OK  ]
+Iniciando NFS4 idmapd: FATAL: Module sunrpc not found.
+FATAL: Error running install command for sunrpc
 
-On Monday 27 December 2004 17:33, M Benz wrote:
-> Is there any change with memory management btw the two kernels? Also, what 
-> is the different btw "cache" and "buffer"? Why don't kernel 2.6.10 use all 
-> the memory but leave around 200MB free?
-
-These metrics have been useless from the very beginning and are
-not very descriptive. If you like to get some meaning in
-your statistice, use vmstat. This is more costly, but actually shows
-something about the performance of your system.
-
-Maybe we could concentrate on exporting these metrics instead buffer/cache
-and provide dummy metrics for them. At least "buffer" can be made to
-sth. like "shared" does now.
-
-Regards
-
-Ingo Oeser
+I dont know what is the problem, whem i recompile the kernel, i
+compile support to NFSv4. Somebody help me, please.
+Thanks for your help.
 
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFB0E+dU56oYWuOrkARAssXAKDEPxGEE+r162ZGRcYTarl7qofvGgCfX2Yt
-6IdeNnYV+lZvbgT0trg9xtc=
-=+6ii
------END PGP SIGNATURE-----
+Diego.

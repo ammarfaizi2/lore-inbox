@@ -1,44 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129231AbQKURdL>; Tue, 21 Nov 2000 12:33:11 -0500
+	id <S129735AbQKUReL>; Tue, 21 Nov 2000 12:34:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129735AbQKURdB>; Tue, 21 Nov 2000 12:33:01 -0500
-Received: from emmi.physik.TU-Berlin.DE ([130.149.160.103]:31502 "EHLO
-	emmi.physik.TU-Berlin.DE") by vger.kernel.org with ESMTP
-	id <S129231AbQKURcl>; Tue, 21 Nov 2000 12:32:41 -0500
-Date: Tue, 21 Nov 2000 18:02:38 +0100 (CET)
-From: Vitali Lieder <vitali@physik.TU-Berlin.DE>
+	id <S130036AbQKUReB>; Tue, 21 Nov 2000 12:34:01 -0500
+Received: from isolaweb.it ([213.82.132.2]:40202 "EHLO web.isolaweb.it")
+	by vger.kernel.org with ESMTP id <S129735AbQKURdv>;
+	Tue, 21 Nov 2000 12:33:51 -0500
+Message-Id: <4.3.2.7.2.20001121174403.00d3e450@mail.tekno-soft.it>
+X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
+Date: Tue, 21 Nov 2000 17:58:58 +0100
 To: linux-kernel@vger.kernel.org
-Subject: NVdriver-problem with 2.4.0-test11
-Message-ID: <Pine.BSF.4.05.10011211750470.8952-100000@rosa.physik.TU-Berlin.DE>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Roberto Fichera <kernel@tekno-soft.it>
+Subject: Ext2 & Performances
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi All,
 
-Hallo!
+I need to know if there are some differences, in performances, between
+a ext2 filesystem in a 10Gb partition and another that reside in a 130Gb,
+each one have 4Kb block size.
 
-With new 2.4.0-test11 kernel i have the problem with NVdriver-0.95:
-
-depmod: *** unresolved symbols in /lib/modules/2.4.0-test11/video/NVdriver
-
-/lib/modules/2.4.0-test11/video/Nvdriver:unresolved symbol in put_module_symbol
-/lib/modules/2.4.0-test11/video/NVdriver:unresolved symbol in get_module_symbol
-
-Please, could you explain me, how i can find in patch the #define's lines
-with this symbols, that was cleaned from kernel, so that i can place that
-lines by myself in future.
-
-Thank you !
-
-vitali@physik.tu-berlin.de 
-                           or
-lieder.cs.tu-berlin.de
+I'm configuring a Compaq ML350 2x800PIII, 1Gb RAM, 5x36Gb UWS3 RAID 5
+with Smart Array 4300, as database SQL server. So I need to chose between a 
+single
+partition of 130Gb or multiple small partitions, depending by the performances.
 
 Thanks.
-
-  
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

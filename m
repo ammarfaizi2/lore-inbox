@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129415AbRAIKq2>; Tue, 9 Jan 2001 05:46:28 -0500
+	id <S129383AbRAIKsl>; Tue, 9 Jan 2001 05:48:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129413AbRAIKqT>; Tue, 9 Jan 2001 05:46:19 -0500
-Received: from horus.its.uow.edu.au ([130.130.68.25]:3308 "EHLO
-	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S129183AbRAIKqG>; Tue, 9 Jan 2001 05:46:06 -0500
-Message-ID: <3A5AED76.B2F60F8D@uow.edu.au>
-Date: Tue, 09 Jan 2001 21:52:38 +1100
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: John Fremlin <vii@penguinpowered.com>
-CC: linux-kernel@vger.kernel.org,
-        linux-power@phobos.fachschaften.tu-muenchen.de,
-        Andy Henroid <andy_henroid@yahoo.com>, apm@linuxcare.com.au,
-        linux-laptop@vger.kernel.org
-Subject: Re: Unified power management userspace policy
-In-Reply-To: <m2lmsld4rk.fsf@boreas.yi.org.>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S129413AbRAIKsb>; Tue, 9 Jan 2001 05:48:31 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:35968 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S129383AbRAIKsT>;
+	Tue, 9 Jan 2001 05:48:19 -0500
+Date: Tue, 9 Jan 2001 02:31:13 -0800
+Message-Id: <200101091031.CAA01242@pizda.ninka.net>
+From: "David S. Miller" <davem@redhat.com>
+To: hch@caldera.de
+CC: mingo@elte.hu, riel@conectiva.com.br, netdev@oss.sgi.com,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20010109113145.A28758@caldera.de> (message from Christoph
+	Hellwig on Tue, 9 Jan 2001 11:31:45 +0100)
+Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
+In-Reply-To: <Pine.LNX.4.21.0101081603080.21675-100000@duckman.distro.conectiva> <Pine.LNX.4.30.0101091051460.1159-100000@e2> <20010109113145.A28758@caldera.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Fremlin wrote:
-> 
-> Hi all!
-> 
-> At the moment there are two power management drivers in the linux
-> kernel (AFAIK). They each have different userspace interfaces --
-> /proc/apm and /dev/apmctl and /proc/sys/acpi/events or something. This
-> is not altogether bad, but as they do the same thing, it might be nice
-> to unify (part) of the interface. In fact this is already done for the
-> in kernel interface with pm_send_all.
->
+   Date: Tue, 9 Jan 2001 11:31:45 +0100
+   From: Christoph Hellwig <hch@caldera.de>
 
-John,
+   Yuck.  A new file_opo just to get a few benchmarks right ...  I
+   hope the writepages stuff will not be merged in Linus tree (but I
+   wish the code behind it!)
 
-Could you please use call_usermodehelper() in this patch
-rather than exec_usermodehelper()?  I want to kill
-exec_usermodehelper() sometime.
+It's a "I know how to send a page somewhere via this filedescriptor
+all by myself" operation.  I don't see why people need to take
+painkillers over this for 2.4.x.  I think f_op->write is stupid, such
+a special case file operation just to get a few benchmarks right.
+This is the kind of argument I am hearing.
 
-Plus your code will be simpler - no need to create
-your own kernel thread.
+Orthogonal to f_op->write being for specifying a low-level
+implementation of sys_write, f_op->writepage is for specifying a
+low-level implementation of sys_sendfile.  Can you grok that?
+
+Linus has already seen this.  Originally he had a gripe because in an
+older revision of the code used to allow multiple pages to be passed
+in an array to the writepage(s) operation.  He didn't like that, so I
+made it take only one page as he requested.  He had no other major
+objections to the infrastructure.
+
+Later,
+David S. Miller
+davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

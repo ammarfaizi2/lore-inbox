@@ -1,45 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262635AbVAPWQs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262629AbVAPWSp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262635AbVAPWQs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jan 2005 17:16:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262633AbVAPWQr
+	id S262629AbVAPWSp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jan 2005 17:18:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262636AbVAPWRv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jan 2005 17:16:47 -0500
-Received: from hermine.aitel.hist.no ([158.38.50.15]:49937 "HELO
-	hermine.aitel.hist.no") by vger.kernel.org with SMTP
-	id S262635AbVAPWQI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jan 2005 17:16:08 -0500
-Date: Sun, 16 Jan 2005 23:24:28 +0100
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Dave Airlie <airlied@gmail.com>, covici@ccs.covici.com,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.10 dies when X tries to initialize PCI radeon 9200 SE
-Message-ID: <20050116222428.GA20189@hh.idb.hist.no>
-References: <41E64DAB.1010808@hist.no> <16870.21720.866418.326325@ccs.covici.com> <21d7e997050113130659da39c9@mail.gmail.com> <20050115185712.GA17372@hh.idb.hist.no> <21d7e997050116020859687c4a@mail.gmail.com> <20050116105011.GA5882@hh.idb.hist.no> <9e4733910501160304642f7882@mail.gmail.com> <20050116121823.GA7734@hh.idb.hist.no> <9e4733910501161408710bbbe2@mail.gmail.com>
+	Sun, 16 Jan 2005 17:17:51 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:44677 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S262629AbVAPWPW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Jan 2005 17:15:22 -0500
+Subject: Re: [PATCH 0/13] remove cli()/sti() in drivers/char/*
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: James Nelson <james4765@cwazy.co.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       kernel-janitors@lists.osdl.org
+In-Reply-To: <20050116130452.10fabe52.akpm@osdl.org>
+References: <20050116135223.30109.26479.55757@localhost.localdomain>
+	 <20050116130452.10fabe52.akpm@osdl.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1105908079.12201.6.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9e4733910501161408710bbbe2@mail.gmail.com>
-User-Agent: Mutt/1.5.6+20040907i
-From: Helge Hafting <helgehaf@aitel.hist.no>
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sun, 16 Jan 2005 21:10:53 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 16, 2005 at 05:08:12PM -0500, Jon Smirl wrote:
-> On Sun, 16 Jan 2005 13:18:23 +0100, Helge Hafting
-> <helgehaf@aitel.hist.no> wrote:
-> > On Sun, Jan 16, 2005 at 06:04:32AM -0500, Jon Smirl wrote:
-> > > you need to check the output from "modprobe drm debug=1" "modprobe
-> > > radeon" and see if drm is misidentifying the board as AGP. We don't
-> > > want to fix something if it isn't broken.
-> > > 
-> > Stupid question - how do I get a modular drm?
+On Sul, 2005-01-16 at 21:04, Andrew Morton wrote:
+> James Nelson <james4765@cwazy.co.uk> wrote:
+> >
+> > This series of patches removes the last cli()/sti()/save_flags()/restore_flags()
+> >  function calls in drivers/char.
 > 
-> For older radeon drivers "modprobe radeon debug=1" should work. I also
-> think you can do it for compiled in ones by adding the kernel
-> parameter radeon.debug=1
+> I don't see much point in this, really.  Those cli() calls are a big fat
+> sign saying "broken on smp" and they now generate compile-time warnings
+> emphasising that.  These drivers still need to be fixed up - we may las
+> well leave them as-is until someone gets onto doing that.
 
-I tried that - and got a message from the radeon module that "debug" 
-was an unknown parameter.
+Please drop all the serial ones. I'm slowly working through the serial
+drivers that are relevant to any kind of users and fixing them up or
+importing fixes from vendor branches as appropriate.
 
-Helge Hafting
+Simple substitions don't work here, and in some cases even simple tty
+device locks because many cards are chip level interfaces not port
+level.
+
+Alan
+

@@ -1,85 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129965AbQLXVTi>; Sun, 24 Dec 2000 16:19:38 -0500
+	id <S131390AbQLXVVR>; Sun, 24 Dec 2000 16:21:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130255AbQLXVT1>; Sun, 24 Dec 2000 16:19:27 -0500
-Received: from web1002.mail.yahoo.com ([128.11.23.92]:14088 "HELO
-	web1002.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S129965AbQLXVTL>; Sun, 24 Dec 2000 16:19:11 -0500
-Message-ID: <20001224204844.3587.qmail@web1002.mail.yahoo.com>
-Date: Sun, 24 Dec 2000 12:48:44 -0800 (PST)
-From: Ron Calderon <ronnnyc@yahoo.com>
-Subject: Re: sparc 10 w/512 megs hangs during boot
-To: jbglaw@lug-owl.de, linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	id <S130255AbQLXVVH>; Sun, 24 Dec 2000 16:21:07 -0500
+Received: from monza.monza.org ([209.102.105.34]:49674 "EHLO monza.monza.org")
+	by vger.kernel.org with ESMTP id <S131414AbQLXVU5>;
+	Sun, 24 Dec 2000 16:20:57 -0500
+Date: Sun, 24 Dec 2000 12:50:23 -0800
+From: Tim Wright <timw@splhi.com>
+To: Kai Henningsen <kaih@khms.westfalen.de>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: About Celeron processor memory barrier problem
+Message-ID: <20001224125023.A1900@scutter.internal.splhi.com>
+Reply-To: timw@splhi.com
+Mail-Followup-To: Kai Henningsen <kaih@khms.westfalen.de>,
+	torvalds@transmeta.com, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.10.10012230920330.2066-100000@penguin.transmeta.com> <7sSHLPCmw-B@khms.westfalen.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <7sSHLPCmw-B@khms.westfalen.de>; from kaih@khms.westfalen.de on Sun, Dec 24, 2000 at 11:36:00AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just finished compiling 2.4.0-test5 and that worked
-fine with 512M ram. I'll start going thru the other
-kernels. It'll take me sometime since compileing takes
-a long time.
-
-
-ron
---- Jan-Benedict Glaw <jbglaw@lug-owl.de> wrote:
-> On Sat, Dec 23, 2000 at 11:57:21PM -0800, Ron
-> Calderon wrote:
-> > My sparc 10 seems to hang with any 2.4.0-test12+
-> > kernel
+On Sun, Dec 24, 2000 at 11:36:00AM +0200, Kai Henningsen wrote:
+> torvalds@transmeta.com (Linus Torvalds)  wrote on 23.12.00 in <Pine.LNX.4.10.10012230920330.2066-100000@penguin.transmeta.com>:
 > 
-> ...but 2.4.0-test11-X kernels are fine? Well, good
-> info;)
+> > On Thu, 23 Dec 1999, michael chen wrote:
+> > >         I found that when I compiled the 2.4 kernel with the option
+> > >     of Pentium III or Pentium 4 on a Celeron's PC, it could cause  the
+> > >     system hang at very beginning boot stage, and I found the problem
+> > >     is cause by the fact that Intel Celeron doesn't have a real memory
+> > >     barrier,but when you choose the Pentium III option, the kernel
+> > >     assume the processor has a real memory barrier.
+> > >     Here is a patch to fix it:
+> >
+> > No.
+> >
+> > The fix is to not lie to the configurator.
+> >
+> > A Celeron isn't a PIII, and you shouldn't tell the configure that it is.
+> >
+> > The whole point of being able to choose the CPU to optimize for is that we
+> > can optimize things at compile-time.
 > 
-> > if I add mem=128M it boots fine, but anything
-> above
-> > 128M wont boot it just hangs. Is there something
-> I've
-> > missed? here is screen output.
+> Which is all fine, but maybe the kernel really ought to detect that  
+> problem and complain at boot time?
 > 
-> I see this as well (SS10 dual with 128MB RAM).
-> However, if
-> slightly older kernel are okay, then it's quite easy
-> to look
-> through the patches. Which is your
-> last-known-to-be-good kernel?
-> 
-> > Uncompressing image...
-> > PROMLIB: obio_ranges 5
-> > bootmem_init: Scan sp_banks, 
-> > init_bootmem(spfn[1c9],bpfn[1c9],mlpfn[c000])
-> > free_bootmem: base[0] size[c000000]
-> > reserve_bootmem: base[0] size[1c9000]
-> > reserve_bootmem: base[1c9000] size[1800]
-> > 
-> > then it just hangs here....
-> 
-> I additionally get "Unexpected Level 15 Interrupt"
-> und "Program
-> terminated" ;-)
-> 
-> MfG, JBG
-> 
-> -- 
-> Fehler eingestehen, Größe zeigen: Nehmt die
-> Rechtschreibreform zurück!!!
-> /* Jan-Benedict Glaw <jbglaw@lug-owl.de> --
-> +49-177-5601720 */
-> keyID=0x8399E1BB fingerprint=250D 3BCF 7127 0D8C
-> A444 A961 1DBD 5E75 8399 E1BB
->      "insmod vi.o and there we go..." (Alexander
-> Viro on linux-kernel)
+> Or does that happen already?
 > 
 
-> ATTACHMENT part 2 application/pgp-signature 
+There was a similar thread to this recently. The issue is that if you
+choose the wrong processor type, you may not even be able to complain.
+This is a user issue. All the distributions of which I am aware boot happily
+on any x86 machine, because they build the kernel for the lowest common
+denominator. Some detect the CPU type and install an appropriate kernel
+subsequently. So... the only way you can get into this mess is if you build
+a kernel yourself and choose the wrong options. There are many ways of
+producing a non-bootable kernel. The expectation is that if you want to go
+off and build your own kernel, you need to know what you're doing :-)
 
+Tim
 
-
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Shopping - Thousands of Stores. Millions of Products.
-http://shopping.yahoo.com/
+-- 
+Tim Wright - timw@splhi.com or timw@aracnet.com or twright@us.ibm.com
+IBM Linux Technology Center, Beaverton, Oregon
+"Nobody ever said I was charming, they said "Rimmer, you're a git!"" RD VI
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

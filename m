@@ -1,25 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261913AbVDESw7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261874AbVDETYu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261913AbVDESw7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 14:52:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261892AbVDESvV
+	id S261874AbVDETYu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 15:24:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261954AbVDETVY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 14:51:21 -0400
-Received: from hammer.engin.umich.edu ([141.213.40.79]:60126 "EHLO
-	hammer.engin.umich.edu") by vger.kernel.org with ESMTP
-	id S261916AbVDEStO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 14:49:14 -0400
-Date: Tue, 5 Apr 2005 14:49:07 -0400 (EDT)
-From: Christopher Allen Wing <wingc@engin.umich.edu>
-To: Andi Kleen <ak@muc.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: clock runs at double speed on x86_64 system w/ATI RS200 chipset
-In-Reply-To: <20050405183141.GA27195@muc.de>
-Message-ID: <Pine.LNX.4.58.0504051444240.13242@hammer.engin.umich.edu>
-References: <200504031231.j33CVtHp021214@harpo.it.uu.se>
- <Pine.LNX.4.58.0504041050250.32159@hammer.engin.umich.edu> <m18y3x16rj.fsf@muc.de>
- <Pine.LNX.4.58.0504051351200.13242@hammer.engin.umich.edu>
- <20050405183141.GA27195@muc.de>
+	Tue, 5 Apr 2005 15:21:24 -0400
+Received: from fire.osdl.org ([65.172.181.4]:18366 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261898AbVDETSA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 15:18:00 -0400
+Date: Tue, 5 Apr 2005 12:19:50 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Stas Sergeev <stsp@aknet.ru>
+cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: crash in entry.S restore_all, 2.6.12-rc2, x86, PAGEALLOC
+In-Reply-To: <4252E2C9.9040809@aknet.ru>
+Message-ID: <Pine.LNX.4.58.0504051217180.2215@ppc970.osdl.org>
+References: <20050405065544.GA21360@elte.hu> <4252E2C9.9040809@aknet.ru>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -27,19 +25,20 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Tue, 5 Apr 2005, Andi Kleen wrote:
+On Tue, 5 Apr 2005, Stas Sergeev wrote:
+> 
+> Attached is a quick fix, which I'll be
+> testing to death tomorrow at work.
 
-> Some more debugging first might be good. Perhaps it is the same issue
-> many Nvidia boards have with the APIC timer override being wrong;
-> although in this case it should more not tick at all, but might
-> be still worth a try.
-> Try booting with acpi_skip_timer_override
+This one can pass through vm86 mode stuff without the high-16-bit fixup, 
+as far as I can tell.
 
-That doesn't work on x86_64, because unfortunately I think
-arch/x86_64/kernel/setup.c is missing the code to parse for that option.
+Also, I think your optimization to optimistically load SS is valid per se,
+but we need to find out how some kernel thread gets zero stack associated
+with it. They should all have the full "struct pt_reg" as far as I could
+see, which means that we should never be _so_ high up the stack that 
+SS/ESP would be on the next page.
 
+So I'd actually prefer to get that mystery explained..
 
-I'll add in the code from arch/i386/kernel/setup.c, rebuild the kernel and
-see what happens.
-
--Chris
+		Linus

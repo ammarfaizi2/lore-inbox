@@ -1,42 +1,55 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317556AbSFIHuW>; Sun, 9 Jun 2002 03:50:22 -0400
+	id <S317403AbSFIIMB>; Sun, 9 Jun 2002 04:12:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317572AbSFIHuV>; Sun, 9 Jun 2002 03:50:21 -0400
-Received: from mail.parknet.co.jp ([210.134.213.6]:52493 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP
-	id <S317556AbSFIHuV>; Sun, 9 Jun 2002 03:50:21 -0400
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Cc: linux-kernel@vger.kernel.org, chaffee@cs.berkeley.edu
-Subject: Re: [patch] fat/msdos/vfat crud removal
-In-Reply-To: <200206090709.g5979iK439624@saturn.cs.uml.edu>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Sun, 09 Jun 2002 16:49:54 +0900
-Message-ID: <87fzzwdh7h.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	id <S317444AbSFIIMA>; Sun, 9 Jun 2002 04:12:00 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:16910
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S317403AbSFIIMA>; Sun, 9 Jun 2002 04:12:00 -0400
+Date: Sun, 9 Jun 2002 01:08:38 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Samium Gromoff <_deepfire@mail.ru>
+cc: roy@karlsbakk.net, linux-kernel@vger.kernel.org
+Subject: Re: CMD-649 support? (in a hurry - please help)
+In-Reply-To: <E17GJ5i-000MBg-00@f5.mail.ru>
+Message-ID: <Pine.LNX.4.10.10206090107120.2492-100000@master.linux-ide.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Albert D. Cahalan" <acahalan@cs.uml.edu> writes:
 
-> Long ago, it was considered OK to use the kernel headers
-> in app code. This is the case with Linux 2.0 and libc 5.
-> (it used to be OK to symlink /usr/include/linux into an
-> unmodified copy of the Linux kernel source)
-> 
-> There has been a weak effort to avoid breaking libc 5.
-> 
-> Using __KERNEL__ might make it easier to provide cleaned
-> headers for user code.
-> 
-> There has been talk of removing __KERNEL__ usage from
-> some of the header files.
+You need to be aware that many drives now under report performance on seek
+to lba0 and read on the whole device.  I suggest you retry on a partition.
 
-So, are you going to remove __KERNEL__ stuff, although the program for
-linux uses it? And are you going to fix program using it?
+On Fri, 7 Jun 2002, Samium Gromoff wrote:
 
-I don't want to do.
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+> > > Yeah the Linux driver supports them, but CMD chips in general are
+> > > pretty buggy...
+> 
+> > oh. anyone around with any experience with the 649?
+>  --
+> > Roy Sigurd Karlsbakk, Datavaktmester
+> 
+>  i have one. 2.4.19-pre3, 1x IBM 60GXP - 1 month
+> or so of a stable usage.
+>  also it runs faster on udma66 than on udma100, but thats beyond me... ;)
+>  p166, 40M
+>          mwdma2 - 11 MB/s
+>          udma4 - 13.5 MB/s
+>          udma5 - 11.5 MB/s
+> 
+> ---
+> cheers,
+>    Samium Gromoff
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+Andre Hedrick
+LAD Storage Consulting Group
+

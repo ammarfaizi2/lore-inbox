@@ -1,77 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261844AbTJFMo1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 08:44:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261868AbTJFMo1
+	id S261824AbTJFMfM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 08:35:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261844AbTJFMfM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 08:44:27 -0400
-Received: from jack.stev.org ([217.79.103.51]:54290 "EHLO jack.stev.org")
-	by vger.kernel.org with ESMTP id S261844AbTJFMoZ (ORCPT
+	Mon, 6 Oct 2003 08:35:12 -0400
+Received: from d12lmsgate.de.ibm.com ([194.196.100.234]:64445 "EHLO
+	d12lmsgate.de.ibm.com") by vger.kernel.org with ESMTP
+	id S261824AbTJFMfE convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 08:44:25 -0400
-Date: Mon, 6 Oct 2003 13:47:43 +0100 (BST)
-From: James Stevenson <james@stev.org>
-X-X-Sender: james@Beast.ez-dsp.com
-To: Takashi Iwai <tiwai@suse.de>
-cc: Kees Bakker <kees.bakker@xs4all.nl>, <linux-kernel@vger.kernel.org>,
-       James Stevenson <james@ez-dsp.com>
-Subject: Re: [2.6.0-test6] Scratchy sound with via82xx (VT8233)
-In-Reply-To: <s5hllryo86f.wl@alsa2.suse.de>
-Message-ID: <Pine.LNX.4.44.0310061344010.7448-100000@Beast.ez-dsp.com>
+	Mon, 6 Oct 2003 08:35:04 -0400
+Importance: Normal
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Sensitivity: 
+To: Maneesh Soni <maneesh@in.ibm.com>
+Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Patrick Mochel <mochel@osdl.org>, Greg KH <gregkh@us.ibm.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC 0/6] Backing Store for sysfs
+X-Mailer: Lotus Notes Release 5.0.12   February 13, 2003
+From: "Christian Borntraeger" <CBORNTRA@de.ibm.com>
+Message-ID: <OFA1638426.A058DCAD-ONC1256DB7.0042BE32-C1256DB7.0045176B@de.ibm.com>
+Date: Mon, 6 Oct 2003 14:34:39 +0200
+X-MIMETrack: Serialize by Router on D12ML020/12/M/IBM(Release 5.0.9a |January 7, 2002) at
+ 06/10/2003 14:34:41,
+	Serialize complete at 06/10/2003 14:34:41
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 6 Oct 2003, Takashi Iwai wrote:
-
-> At Thu, 2 Oct 2003 21:05:59 +0100 (IST),
-> James Stevenson wrote:
-> > 
-> > > > 
-> > > > I saw the note about dxs_support, but I have the driver built-in. How do I set
-> > > > dxs_support from the /proc/cmdline?
-> > > 
-> > > pass via boot parameter:
-> > > 
-> > >   snd-via82xx=1,0,,-1,48000,XXX
-> > > 
-> > > where XXX is the value from 0 to 3 for dxs_support.
-> > > see the comment in sound/via82xx.c.
-> > 
-> > 
-> > will this work for a 2.4.x kernel as well ?
+> Hi,
 > 
-> only if the driver is built in the kernel...
+> The following patch set(mailed separately) provides a prototype for a 
+backing 
+> store mechanism for sysfs. Currently sysfs pins all its dentries and 
+inodes in 
+> memory there by wasting kernel lowmem even when it is not mounted. 
+> 
+> With this patch set we create sysfs dentry whenever it is required like 
+> other real filesystems and, age and free it as per the dcache rules. We
+> now save significant amount of Lowmem by avoiding un-necessary pinning. 
 
-Actually i found a different solution to my problem.
-This patch against 2.4.22 seems to sort out my troubles.
+A more mature patch could be a possible solution of some problems we faced 
+with sysfs.
+I have s390 test system with ~ 20000 devices. Memory consumption _without_ 
+this
+patch is horribly high.
+Slab uses 346028 kB of memory, most of it is dentry and inode cache. 
+I tried the patch, its boots, memory usage is much better,  but it is 
+somewhat 
+broken with our ccw devices as I cannot bring up our ccwgroup network 
+devices. 
+Therefore I dont have reliable memory results.
+Almost nobody would use 20000 devices on a S390, but with some shared 
+OSA-card
+100 or 200 devices is realistic. Even in this case, memory consumption is 
+much higher
+than with 2.4.
 
-Was running this on saturday for around 6/7 hours didnt
-skip once. From a problem that used to badly effect me
-everytime large windows were redrawn in X like a X virtual
-screen switch.
+I still have to look closer on this patch, if there are some deeper 
+problems. 
+Until I find something, I think this patch could be really helpful for 
+computers with lots of devices.
 
+-- 
+Mit freundlichen Grüßen / Best Regards
 
---- via82cxxx_audio.c	1 Sep 2003 10:50:01 -0000	1.1.1.16
-+++ via82cxxx_audio.c	4 Oct 2003 10:58:44 -0000
-@@ -79,14 +79,14 @@
- #define VIA_COUNTER_LIMIT	100000
- 
- /* size of DMA buffers */
--#define VIA_MAX_BUFFER_DMA_PAGES	32
-+#define VIA_MAX_BUFFER_DMA_PAGES	128
- 
- /* buffering default values in ms */
- #define VIA_DEFAULT_FRAG_TIME		20
--#define VIA_DEFAULT_BUFFER_TIME		500
-+#define VIA_DEFAULT_BUFFER_TIME		100
- 
- /* the hardware has a 256 fragment limit */
--#define VIA_MIN_FRAG_NUMBER		2
-+#define VIA_MIN_FRAG_NUMBER		16
- #define VIA_MAX_FRAG_NUMBER		128
- 
- #define VIA_MAX_FRAG_SIZE		PAGE_SIZE
-
+Christian Bornträger
+IBM Deutschland Entwicklung GmbH
+eServer SW  System Evaluation + Test
+email: CBORNTRA@de.ibm.com
+Tel +49  7031 16 1975
 

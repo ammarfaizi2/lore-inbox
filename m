@@ -1,88 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318798AbSHBJ7F>; Fri, 2 Aug 2002 05:59:05 -0400
+	id <S318772AbSHBKCM>; Fri, 2 Aug 2002 06:02:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318799AbSHBJ7E>; Fri, 2 Aug 2002 05:59:04 -0400
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:25617 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S318798AbSHBJ7E>; Fri, 2 Aug 2002 05:59:04 -0400
-Date: Fri, 2 Aug 2002 12:02:22 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: David Woodhouse <dwmw2@infradead.org>, David Howells <dhowells@redhat.com>,
-       <alan@redhat.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: manipulating sigmask from filesystems and drivers 
-In-Reply-To: <Pine.LNX.4.33.0208011613440.1315-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0208021118120.28515-100000@serv>
+	id <S318774AbSHBKCM>; Fri, 2 Aug 2002 06:02:12 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:46597 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S318772AbSHBKCL>; Fri, 2 Aug 2002 06:02:11 -0400
+Message-ID: <3D4A5820.6010802@evision.ag>
+Date: Fri, 02 Aug 2002 12:00:00 +0200
+From: Marcin Dalecki <dalecki@evision.ag>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.1b) Gecko/20020722
+X-Accept-Language: en-us, en, pl, ru
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: davidm@hpl.hp.com
+CC: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+       "David S. Miller" <davem@redhat.com>, gh@us.ibm.com,
+       riel@conectiva.com.br, akpm@zip.com.au, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, rohit.seth@intel.com, sunil.saxena@intel.com,
+       asit.k.mallick@intel.com
+Subject: Re: large page patch
+References: <15690.9727.831144.67179@napali.hpl.hp.com>	<868823061.1028244804@[10.10.2.3]> <15690.10852.935317.603783@napali.hpl.hp.com>
+Content-Type: text/plain; charset=US-ASCII;
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Uz.ytkownik David Mosberger napisa?:
+>>>>>>On Thu, 01 Aug 2002 23:33:26 -0700, "Martin J. Bligh" <Martin.Bligh@us.ibm.com> said:
+>>>>>
+> 
+>   DaveM> In my opinion the proposed large-page patch addresses a
+>   DaveM> relatively pressing need for databases (primarily).
+>   >>
+>   DaveM> Databases want large pages with IPC_SHM, how can this special
+>   DaveM> syscal hack address that?
+> 
+>   >>  I believe the interface is OK in that regard.  AFAIK, Oracle is
+>   >> happy with it.
+> 
+>   Martin> Is Oracle now the world's only database? I think not.
+> 
+> I didn't say such a thing.  I just don't know what other db vendors/authors
+> think of the proposed interface.  I'm sure their feedback would be welcome.
 
-I slept over it and I thought about a bit more, but I think it just starts
-to get interresting, so I hope your co-workers had a chance to snatch that
-chainsaw away. :-)
+You better don't ask DB people and in esp. the Oracle people
+about opinnions on interface design. Unless you wan't something
+fscking ugly internally looking like FORTRAN/COBOL coding.
+They will always scrap portability/usability use undocumented behaviour 
+and so on in the case they can presumably increase theyr pet benchmark
+values.
+One of the reasons Solaris is *feeling* so slow is that they asked
+Oracle people too frequent about oppinions apparently. In esp. they did 
+forgett that there are other uses then DB servers ;-).
 
-On Thu, 1 Aug 2002, Linus Torvalds wrote:
-
-> There are cases where you absolutely _have_ to rely on this documented
-> UNIX behaviour. One example is using a log-file (yes, a _file_, not a
-> socket or a pipe) that you explicitly opened with O_APPEND, just so that
-> you can guarantee _atomic_ writes that do not get lost or partially
-> re-ordered in your log.
->
-> And yes, these logging programs are mission-critical, and they do have
-> signals going on, and they rely on well-defined and documented interfaces
-> that say that doing a write() to a filesystem is _not_ going to return in
-> the middle just because a signal came in.
-
-If these programs are so mission-critical, they better do some error
-checking. Your atomic write will fail on a full disk and if the
-information is that important, the program has to handle that.
-
-> These programs know what they are doing. They are explicitly _not_ using
-> "stdio" to write the log-file, exactly because they cannot afford to have
-> the write broken up into many parts (and they do not want to have it
-> buffered either, since getting the logging out in a timely fashion can be
-> important).
->
-> The only, and the _portable_ way to do this under UNIX is to create one
-> single buffer, and write it out with one single write() call. Anything
-> else is likely to cause the file to be interspersed by random
-> log-fragments, instead of being a nice consecutive list of full log
-> entries.
-
-I looked around a bit and it doesn't look that portable. UNIX systems seem
-to have this behaviour, but not all POSIX systems. Letting multiple
-programs log to the same file is insane (there must be a reason why syslog
-was invented). Signals are your least worry, that's easy to deal with:
-
-	sigfillset(&s);
-	sigprocmask(SIG_SETMASK, &s, &os);
-	write(...);
-	sigprocmask(SIG_SETMASK, &os, NULL);
-
-But that doesn't deal with an almost full disk.
-
-> If people cannot find this in SuS, then I simply don't _care_. I care
-> about not having a crap OS, and I also care about not having to repeat
-> myself and give a million examples of why the current behaviour is
-> _required_, and why we're not getting rid of it.
-
-I'm not asking for removing for this, I simply don't agree with the
-reason. I still consider any program relying on this behaviour buggy. Your
-"atomic" write is an illusion, the os can certainly try, but in the end
-it's the applications responsibility to get this right.
-I know that we can't remove this behaviour, but the only reason is to
-keep buggy programs working and let them instead fail in other more subtle
-ways.
-
-> [ Did profanity help explain the situation?
-
-Not really. :) I'm not that easily impressed.
-
-bye, Roman
+PS. I just got too much in touch with Oracle to not hate it...
 

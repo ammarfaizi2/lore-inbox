@@ -1,35 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290018AbSAWUOe>; Wed, 23 Jan 2002 15:14:34 -0500
+	id <S290017AbSAWUNO>; Wed, 23 Jan 2002 15:13:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290020AbSAWUOY>; Wed, 23 Jan 2002 15:14:24 -0500
-Received: from mailout04.sul.t-online.com ([194.25.134.18]:8130 "EHLO
-	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S290018AbSAWUON>; Wed, 23 Jan 2002 15:14:13 -0500
-To: linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE][PATCH] accessfs v0.3
-From: Olaf Dietsche <olaf.dietsche--list.linux-kernel@exmail.de>
-Date: 23 Jan 2002 21:12:19 +0100
-Message-ID: <87lmeosu70.fsf@tigram.bogus.local>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Artificial Intelligence)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S290018AbSAWUMy>; Wed, 23 Jan 2002 15:12:54 -0500
+Received: from gw.wmich.edu ([141.218.1.100]:15570 "EHLO gw.wmich.edu")
+	by vger.kernel.org with ESMTP id <S290017AbSAWUMn>;
+	Wed, 23 Jan 2002 15:12:43 -0500
+Subject: Re: hot IDE change
+From: Ed Sweetman <ed.sweetman@wmich.edu>
+To: ertzog <ertzog@bk.ru>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0201232301090.1053-100000@dial-up-2.energonet.ru>
+In-Reply-To: <Pine.LNX.4.21.0201232301090.1053-100000@dial-up-2.energonet.ru>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.1 
+Date: 23 Jan 2002 15:12:35 -0500
+Message-Id: <1011816760.22707.0.camel@psuedomode>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 2002-01-23 at 18:05, ertzog wrote:
+> This question is more about hardware, but is also related to Linux.
+> If I have a harddisk, plugged into the motherboard (IDE cable and power),
+> can I turn it off, plugging out first power cable, then IDE cable.
+> Can it harm harddisk or motherboard?
+> If I can do it, then will Linux detect it back, if I make this 
+> operation back: i.e. plug IDE cable, then power cable.
+> 
+> Best regards.
 
-following Changes are in the new version of accessfs:
 
-- default mount point /proc/access (Ben Clifford)
-- Documentation/Configure.help cleanup (Ben Clifford)
-- ipv4 raw socket support (used by e.g. ping, traceroute)
+it's possible, yes.  and yes linux will do what you need to do.  The
+question is can you do it without breaking anything.   
 
-The patch is available at:
-<http://home.t-online.de/home/olaf.dietsche/linux/accessfs-2.4.14-0.3.patch.gz>
-<http://home.t-online.de/home/olaf.dietsche/linux/accessfs-2.4.17-0.3.patch.gz>
-<http://home.t-online.de/home/olaf.dietsche/linux/accessfs-2.5.2-0.3.patch.gz>
-
-I didn't test 2.4.17 and 2.5.2.
-
-Regards, Olaf.

@@ -1,45 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263912AbTCVWRB>; Sat, 22 Mar 2003 17:17:01 -0500
+	id <S263914AbTCVWWS>; Sat, 22 Mar 2003 17:22:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263915AbTCVWRB>; Sat, 22 Mar 2003 17:17:01 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:2820 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S263912AbTCVWQw>;
-	Sat, 22 Mar 2003 17:16:52 -0500
-Date: Fri, 21 Mar 2003 22:17:08 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Tomas Szepe <szepe@pinerecords.com>, Arjan van de Ven <arjanv@redhat.com>,
-       Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Ptrace hole / Linux 2.2.25
-Message-ID: <20030321211708.GC12211@zaurus.ucw.cz>
-References: <200303171604.h2HG4Zc30291@devserv.devel.redhat.com> <1047923841.1600.3.camel@laptop.fenrus.com> <20030317182040.GA2145@louise.pinerecords.com> <20030317182709.GA27116@gtf.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030317182709.GA27116@gtf.org>
-User-Agent: Mutt/1.3.27i
+	id <S263915AbTCVWWR>; Sat, 22 Mar 2003 17:22:17 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:33015 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
+	id <S263914AbTCVWWR>; Sat, 22 Mar 2003 17:22:17 -0500
+Date: Sat, 22 Mar 2003 23:33:06 +0100 (MET)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Dominik Brodowski <linux@brodo.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Re: 2.5.65-ac2 -- hda/ide trouble on ICH4
+In-Reply-To: <1048375677.9219.42.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.SOL.4.30.0303222324390.29717-100000@mion.elka.pw.edu.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > Would it make sense to repackage 2.4.20 into something like 2.4.20-p1
-> > or 2.4.20.1 with only the critical stuff applied?
-> 
-> There shouldn't be a huge need to rush 2.4.21 as-is, really.  If you
-> want an immediate update, get the fix from your vendor.
+On 22 Mar 2003, Alan Cox wrote:
 
-Many people are using self-compiled
-kernels and it would be better to have
-2.4.21 out than having each person
-apply slightly different patch...
+> On Sat, 2003-03-22 at 22:03, Bartlomiej Zolnierkiewicz wrote:
+> > Previously callers called it with masked_irq=0 and disabling/enabling
+> > hwif->irq code wasn't executed, now ide_do_request() is called with
+> > masked_irq=IDE_NO_IRQ=-1 so this code is executed for sure.
+>
+> You are right - I botched the simplification of that. The logic is actually
+> cleaner than I did with a bit more thought - IDE_NO_IRQ can go away and
+> we should be using hwif->irq as the argument.
 
-> Plus, it's a local root hole, and there are still tons of those left
-> out there to squash.
+I think so.
 
-Really? Care to name a few?
--- 
-				Pavel
-Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...
+--
+Bartlomiej
 

@@ -1,33 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131602AbQKZPsT>; Sun, 26 Nov 2000 10:48:19 -0500
+        id <S131997AbQKZQBF>; Sun, 26 Nov 2000 11:01:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131997AbQKZPsK>; Sun, 26 Nov 2000 10:48:10 -0500
-Received: from dryline-fw.wireless-sys.com ([216.126.67.45]:27257 "EHLO
-        dryline-fw.wireless-sys.com") by vger.kernel.org with ESMTP
-        id <S131602AbQKZPr7>; Sun, 26 Nov 2000 10:47:59 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14881.10731.751006.428391@somanetworks.com>
-Date: Sun, 26 Nov 2000 10:19:07 -0500 (EST)
-From: "Georg Nikodym" <georgn@home.com>
+        id <S132032AbQKZQAy>; Sun, 26 Nov 2000 11:00:54 -0500
+Received: from [209.249.10.20] ([209.249.10.20]:10120 "EHLO
+        freya.yggdrasil.com") by vger.kernel.org with ESMTP
+        id <S131997AbQKZQAq>; Sun, 26 Nov 2000 11:00:46 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Sun, 26 Nov 2000 07:30:44 -0800
+Message-Id: <200011261530.HAA09799@baldur.yggdrasil.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] removal of "static foo = 0"
-In-Reply-To: <E13ztNR-0001ew-00@the-village.bc.nu>
-In-Reply-To: <14880.29022.261932.284497@somanetworks.com>
-        <E13ztNR-0001ew-00@the-village.bc.nu>
-X-Mailer: VM 6.75 under 21.2  (beta37) "Pan" XEmacs Lucid
-Reply-To: georgn@home.com
+Subject: initdata for modules?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "AC" == Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+	In reading include/linux/init.h, I was surprised to discover
+that __init{,data} expands to nothing when compiling a module.
+I was wondering if anyone is contemplating adding support for
+__init{,data} in module loading, to reduce the memory footprints
+of modules after they have been loaded.
 
- AC> Sure it generates the same code
-
-If you accept that code == .text, as do I, then there is no code
-generated for either of the forms being argued.
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

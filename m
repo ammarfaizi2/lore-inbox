@@ -1,64 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129602AbQLLVYS>; Tue, 12 Dec 2000 16:24:18 -0500
+	id <S129460AbQLLVix>; Tue, 12 Dec 2000 16:38:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129849AbQLLVYJ>; Tue, 12 Dec 2000 16:24:09 -0500
-Received: from smtp.lax.megapath.net ([216.34.237.2]:21253 "EHLO
-	smtp.lax.megapath.net") by vger.kernel.org with ESMTP
-	id <S129602AbQLLVXv>; Tue, 12 Dec 2000 16:23:51 -0500
-Message-ID: <3A368FE2.1050205@megapathdsl.net>
-Date: Tue, 12 Dec 2000 12:51:46 -0800
-From: Miles Lane <miles@megapathdsl.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0-test12 i686; en-US; m18) Gecko/20001208
+	id <S129631AbQLLVim>; Tue, 12 Dec 2000 16:38:42 -0500
+Received: from mail2.rdc3.on.home.com ([24.2.9.41]:41433 "EHLO
+	mail2.rdc3.on.home.com") by vger.kernel.org with ESMTP
+	id <S129460AbQLLVid>; Tue, 12 Dec 2000 16:38:33 -0500
+Message-ID: <3A3693A8.E0BA83B7@home.com>
+Date: Tue, 12 Dec 2000 16:07:52 -0500
+From: John Cavan <johncavan@home.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test12 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: "Mohammad A. Haque" <mhaque@haque.net>
-CC: Greg KH <greg@wirex.com>, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: how to capture long oops w/o having second machine
-In-Reply-To: <Pine.LNX.4.30.0012121536510.1461-100000@viper.haque.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
+CC: " Paul C. Nendick" <pauly@enteract.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.2.16 SMP: mtrr errors
+In-Reply-To: <F7C565F7C41@vcnet.vc.cvut.cz>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Try reading:
-
-	http://www.linuxhq.com/kernel/v2.3/doc/oops-tracing.txt.html
-
-It mentions:
-
-     Patch the kernel with one of the crash dump patches.  These save
-     data to a floppy disk or video rom or a swap partition.  None of
-     these are standard kernel patches so you have to find and apply
-     them yourself.  Search kernel archives for kmsgdump, lkcd and
-     oops+smram.
-
-I don't know if the "dump to floppy" patch is maintained for the
-2.4.0 series.
-
-	Miles
-
-Mohammad A. Haque wrote:
-
-> Nope, this didn't fly. Would have been neat if it did work. Maybe it can
-> be made to work for future use?
+Petr Vandrovec wrote:
+> > kernel: mtrr: base(0xd4000000) is not aligned on a size(0x1800000) boundary
+> > last message repeated 2 times
 > 
-> On Tue, 12 Dec 2000, Greg KH wrote:
-> 
-> 
->> I don't know if /dev/ttyUSBX would work, but I think it would.  People
->> have successfully run consoles through the usb-serial drivers, but I'm
->> not sure if the oops main console requires something different (like
->> registering itself actually as a console?)
->> 
->> And then there's the nice problem of the fact that if the oops comes
->> from the USB code, you will not see it come out the usb-serial driver :)
->> 
->> Let me know if you try this, and have any success (or find that it
->> doesn't work.)
+> For some strange reason X thinks that you have 24MB of memory on the G450.
+> You can either create 32MB write-combining region at 0xd4000000, or
+> teach X that your device occupies 32MB and not 24 (you should do it anyway,
+> region size can be only power of two)...
 
+Petr, the Matrox card splits the memory between the two video screens
+when running in a multi-head configuration and "pretends" that it is two
+distinct cards. Thus, a 32 mb card will register an mtrr for 24mb and
+for 8mb seperately when in this mode.
 
+At line 1190 in arch/i386/kernel/mtrr.c the switch on Intel falls
+through hitting the error message for Centaur. I know the comment says
+to fall through, but is this correct? I've inserted a break at the end
+of the Intel switch before and have not had problems, but I left it out
+in the latest couple of kernels because of all the mtrr work being done,
+waiting to see if there was resolution.
+
+John
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

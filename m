@@ -1,61 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284548AbRLNWhT>; Fri, 14 Dec 2001 17:37:19 -0500
+	id <S285556AbRLNWiK>; Fri, 14 Dec 2001 17:38:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284553AbRLNWhK>; Fri, 14 Dec 2001 17:37:10 -0500
-Received: from mailout01.sul.t-online.com ([194.25.134.80]:43400 "EHLO
-	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S284548AbRLNWgz>; Fri, 14 Dec 2001 17:36:55 -0500
-Date: Fri, 14 Dec 2001 23:26:22 +0100 (CET)
-From: eduard.epi@t-online.de (Peter Bornemann)
-To: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
-cc: Jens Axboe <axboe@suse.de>, Kirk Alexander <kirkalx@yahoo.co.nz>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: your mail
-In-Reply-To: <20011214183721.H1878-100000@gerard>
-Message-ID: <Pine.LNX.4.33.0112142248290.4722-100000@eduard.t-online.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-15
+	id <S285558AbRLNWiA>; Fri, 14 Dec 2001 17:38:00 -0500
+Received: from AMontpellier-201-1-5-9.abo.wanadoo.fr ([193.251.15.9]:39177
+	"EHLO awak") by vger.kernel.org with ESMTP id <S285556AbRLNWhq> convert rfc822-to-8bit;
+	Fri, 14 Dec 2001 17:37:46 -0500
+Subject: Re: freeze (2.4.17-pre/rc + Promise 20265)
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Francois Romieu <romieu@cogenit.fr>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20011214231932.A2949@se1.cogenit.fr>
+In-Reply-To: <20011214231932.A2949@se1.cogenit.fr>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 8BIT
+X-Mailer: Evolution/1.0.0.99+cvs.2001.12.14.09.00 (Preview Release)
+Date: 14 Dec 2001 23:30:44 +0100
+Message-Id: <1008369045.1793.46.camel@nomade>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 14 Dec 2001, [ISO-8859-1] Gérard Roudier wrote:
-> By the way, for now, I haven't received any report about sym-2 failing
-> when sym-1 or ncr succeeds, and my feeling is that this could well be very
-> unlikely.
->
+le ven 14-12-2001 à 23:19, Francois Romieu a écrit :
+> As soon as a disk is present in the first slot of the Promise adapter the 
+> kernel locks during boot as shown below (no sysrq, no led, nothing)
+> [...]
+> ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+> VP_IDE: IDE controller on PCI bus 00 dev 39
+> VP_IDE: chipset revision 6
+> VP_IDE: not 100% native mode: will probe irqs later
+> VP_IDE: VIA vt82c686b (rev 40) IDE UDMA100 controller on pci00:07.1
+>     ide0: BM-DMA at 0xb000-0xb007, BIOS settings: hda:DMA, hdb:DMA
+>     ide1: BM-DMA at 0xb008-0xb00f, BIOS settings: hdc:DMA, hdd:pio
+> PDC20265: IDE controller on PCI bus 00 dev 60
+> PDC20265: chipset revision 2
+> ide: Found promise 20265 in RAID mode.
+> PDC20265: not 100% native mode: will probe irqs later
+> PDC20265: (U)DMA Burst Bit ENABLED Primary MASTER Mode Secondary MASTER Mode.
+>     ide2: BM-DMA at 0xdc00-0xdc07, BIOS settings: hde:pio, hdf:pio
+>     ide3: BM-DMA at 0xdc08-0xdc0f, BIOS settings: hdg:pio, hdh:pio <- appears
+> [insert guru meditation here]
 
-Ahemm -- well,
-maybe I'm the first one. I have a symbios card, which is recognized by
-lspci:  SCSI storage controller: LSI Logic Corp. / Symbios Logic Inc.
-(formerly NCR) 53c810 (rev 23).
+Click left mouse button to restart and disable ACPI
 
-This card goes into an endless loop during parity-checking. So tried to
-disable it for the new sym53cxx in modules.conf:
-options sym53c8xx mpar:n spar:n
-This did not help in this case, however.
-
-There have been so far three ways to solve  this problem:
-1. Use the very old ncr53c7,8 or so driver. This is working rather
-unreliable for me.
-2. Use the ncr53c8xx, which works usually well
-3. Use sym53c8xx(old) compiled with parity disabled
-
-Probably there is a way around that, but somebody trying to install Linux
-from a SCSI-CDROM with this card for the first time will very likely not
-succeed. I have seen this with (for instance) Corel-Linux and FreeBSD
-(same driver).
-NB Parity checking for me is not really all that important as there is no
-hardrive connected to that card. Only CD and scanner.
-
-Peter B
-
-          .         .
-          |\_-^^^-_/|
-          / (|)_(|) \
-         ( === X === )
-          \  ._|_.  /
-           ^-_   _-^
-              °°°
+	Xav
 

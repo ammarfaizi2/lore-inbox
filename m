@@ -1,89 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263871AbTDVVrY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 17:47:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263876AbTDVVrY
+	id S263881AbTDVVzf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 17:55:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263884AbTDVVze
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 17:47:24 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:57106 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263871AbTDVVrX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 17:47:23 -0400
-Date: Tue, 22 Apr 2003 17:54:33 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-cc: kpfleming@cox.net, arjanv@redhat.com
-Subject: Re: irq balancing; kernel vs. userspace
-Message-ID: <Pine.LNX.3.96.1030422173857.31749A-100000@gatekeeper.tmr.com>
+	Tue, 22 Apr 2003 17:55:34 -0400
+Received: from dsl254-126-114.nyc1.dsl.speakeasy.net ([216.254.126.114]:25034
+	"EHLO Chumak.ny.ranok.com") by vger.kernel.org with ESMTP
+	id S263881AbTDVVzd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Apr 2003 17:55:33 -0400
+Message-ID: <3EA5BD28.6EC9EEE6@ranok.com>
+Date: Tue, 22 Apr 2003 18:07:36 -0400
+From: Vagn Scott <vagn@ranok.com>
+Organization: vDL
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.20 i586)
+X-Accept-Language: en, no, uk
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+CC: Petr Vandrovec <VANDROVE@vc.cvut.cz>
+Subject: Re: [2.5.68] no console messages after switch to FB (matrox
+References: <14D3CAA578B@vcnet.vc.cvut.cz>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
----------- Forwarded message ----------
-Subject: Re: irq balancing; kernel vs. userspace
-From: "Kevin P. Fleming" <kpfleming@cox.net>
-Date: Sun, 20 Apr 2003 11:37:00 -0700
-To: linux-kernel@vger.kernel.org
-
-Arjan van de Ven wrote:
-
-> On Sun, 2003-04-20 at 15:23, Sean Neakums wrote:
+Petr Vandrovec wrote:
 > 
->>I thought I'd play with the userspace IRQ-balancer, but booting with
->>noirqbalance seems not to not balance.  Possibly I misunderstand how
->>this all fits together.
+> > CONFIG_FB=y
+> > CONFIG_FB_VESA=y
+> > CONFIG_VIDEO_SELECT=y
+> > CONFIG_FB_MATROX=y
 > 
+> Are you sure that your boot messages are directed to the matroxfb and
+> not to the vesa?
 > 
-> this looks like you haven't started the userspace daemon (yet)
+> In the past keyword for selecting matroxfb options was 'video=matrox:...',
+> while now it is 'video=matroxfb:...', so you may have to modify your
+> lilo.conf line (and do not ask me why these two letters were added if
+> we have video= prefix... I do not know).
 
-I thought the same thing reading his original message, then I looked 
-closer. He booted using "noirqbalance", did not start the userspace 
-balancer, and yet his IRQs are still being balanced.
+Adding video=matroxfb did the trick.  Thanks for the tip.
 
----------- Forwarded message ----------
-Subject: Re: irq balancing; kernel vs. userspace
-From: Arjan van de Ven <arjanv@redhat.com>
-Date: 20 Apr 2003 21:10:18 +0200
-To: "Kevin P. Fleming" <kpfleming@cox.net>
-Cc: linux-kernel@vger.kernel.org
+I still don't understand the logic of it, though.
+If the kernel can find the resources to present the logo,
+why can't it just keep using those resources for the rest
+of the boot?
 
-On Sun, 2003-04-20 at 20:37, Kevin P. Fleming wrote:
+char *foo = find_a_home_for_tux();
+if(foo) {
+	logo_logo_logo(foo);
+	keep_on_booting_baby(foo);
+}
+else {
+	boot_or_die_trying("blinkenlights_n_beeperen");
+}
 
-> I thought the same thing reading his original message, then I looked 
-> closer. He booted using "noirqbalance", did not start the userspace 
-> balancer, and yet his IRQs are still being balanced.
 
-if you don't do a thing, pIII cpu based machines will balance by
-themselves while pIV cpu based machines will redirect everything to CPU
-0. 
-
-It would seem that there might be four commonly desirable modes of
-operation:
- 1 - All IRQ on CPU0
- 2 - Spread IRQ between all processors evenly
- 3 - Bind ints to CPUs to get about the same int count per CPU
- 4 - Fancy other stuff controlled by user app
-
-Now (1) is what you get if you disable apic, Alan Cox recommends this on
-the smp list from time to time, and in most cases it works fine. Mode (2)
-is what happens on Pentium-III unless you prevent it. It has more cache
-overhead for some loads, but it's preferabe to trying to explain anything
-else to certain managers. Note the total lack of a smiley on that
-statement.
-
-Now if that user program (4) could give me (2), and maybe even (1) with
-apic enabled for the really odd load and testing, I suspect that (3) is
-pretty much going to be included.
-
-Think we could support a few other modes in the user tool and have the
-kernel default to either (1) or whatever the apic wants to do? And how
-does this map on non-Intel hardware?
+what's next, rootname=/?
 
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
-
+         _~|__
+   >@   (vagn(     /
+    \`-ooooooooo-'/
+  ^^^^^^^^^^^^^^^^^^^^^^ The best pearls come from happy oysters. ^^^^^

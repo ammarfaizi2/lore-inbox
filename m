@@ -1,66 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262547AbTIUTvJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Sep 2003 15:51:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262551AbTIUTvI
+	id S262550AbTIUTvQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Sep 2003 15:51:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262551AbTIUTvQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Sun, 21 Sep 2003 15:51:16 -0400
+Received: from coruscant.franken.de ([193.174.159.226]:13029 "EHLO
+	coruscant.gnumonks.org") by vger.kernel.org with ESMTP
+	id S262550AbTIUTvI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Sun, 21 Sep 2003 15:51:08 -0400
-Received: from main.gmane.org ([80.91.224.249]:19427 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S262547AbTIUTvE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Sep 2003 15:51:04 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Shash Chatterjee <sasvata@badfw.org>
-Subject: RH-9 boot hangs from floppy bootdisk
-Date: Sun, 21 Sep 2003 14:48:43 -0500
-Message-ID: <bkkvb0$so3$1@sea.gmane.org>
+Date: Sun, 21 Sep 2003 16:40:13 +0200
+From: Harald Welte <laforge@netfilter.org>
+To: David Miller <davem@redhat.com>
+Cc: Netfilter Development Mailinglist 
+	<netfilter-devel@lists.netfilter.org>,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH 2.4] fix ipt_REJECT when used in OUTPUT
+Message-ID: <20030921144013.GA22223@sunbeam.de.gnumonks.org>
+Mail-Followup-To: Harald Welte <laforge@netfilter.org>,
+	David Miller <davem@redhat.com>,
+	Netfilter Development Mailinglist <netfilter-devel@lists.netfilter.org>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5b) Gecko/20030827
-X-Accept-Language: en-us, en
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="GRPZ8SYKNexpdSJ7"
+Content-Disposition: inline
+X-Operating-system: Linux sunbeam 2.6.0-test1-nftest
+X-Date: Today is Prickle-Prickle, the 45th day of Bureaucracy in the YOLD 3169
+User-Agent: Mutt/1.5.4i
+X-Spam-Score: -4.7 (----)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I have just installed RH-9 from ISO images I downloaded yesterday.
-This system used to run RH-7.3 until this morning. The RH install CD ran 
-and installed just fine, and I created a boot disk on floppy.  I 
-installed GRUB on the first partition of my RH drive, but not on the MBR.
-
-I have 2 hard-drives, with Win-XP Pro on the first one (C:, /dev/hda) 
-and RH (D:, /dev/hdb) on the second.  I also have a DVD-ROM (E:, 
-/dev/hdc) and a CD-RW drive (F: /dev/hdd).
-
-When booting from floppy, it loads the kernel/ramdisk from floppy, then 
-recognizes the HW and then hangs with the following message (at the 
-bottom).  Hitting any key causes a single "keyboard: unknown keysequence 
-0e .." and then I have to hard-reset to recover.
-
-Any help would be most appreciated.  Here's the console output:
-.....
-PIIX4: IDE controller at PCI slot 00:07.1
-PIIX4: chipset revision 1
-PIIX4: not 100% native mode, will probe irqs later
-	ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:dma, hdb:dma
-	ide1: BM-DMA at oxf008-0xf00f, BIOS settings: hdc:dma, hdd:dma
-HPT370: IDE controller at PCI slot 00:0e.1
-HPT370: chipset revision 3
-HPT370: not 100% native mode, will probe irqs later
-	ide2: BM-DMA at 0xb400-0xb407, BIOS settings: hde:pio, hdf:pio
-	ide3: BM-DMA at oxb408-0xb40f, BIOS settings: hdg:pio, hdh:pio
-hda: IC35L080AWA07-0, ATA disk drive
-hdb: WDC WD200EB-00BHF0, ATA disk drive
-blk: queue c03c9f40, I/O limit 4095Mb (mask 0cffffffff)
-blk: queue c03c9084, I/O limit 4095Mb (mask 0cffffffff)
-hdc: CREATIVEDVD1240E, ATAPI CD/DVD-ROM drive
-hdd: YAMAHA CRW2200E, ATAPI CD/DVD-ROM drive
-<hangs right here>
-
-Thanks,
-Shash
+--GRPZ8SYKNexpdSJ7
+Content-Type: multipart/mixed; boundary="Qxx1br4bt0+wmkIi"
+Content-Disposition: inline
 
 
+--Qxx1br4bt0+wmkIi
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Hi Dave!
+
+Some people use REJECT in the OUTPUT chain (rejecting locally generated
+packets).  This didn't work anymore starting with some fixes we did in 2.4.=
+22.=20
+A dst_entry for a local source doesn't contain pmtu information - and
+thus the newly-created packet would instantly be dropped again.
+
+I'll send you a 2.6.x merge for this later.
+
+Please apply the following fix, thanks
+
+--=20
+- Harald Welte <laforge@netfilter.org>             http://www.netfilter.org/
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D
+  "Fragmentation is like classful addressing -- an interesting early
+   architectural error that shows how much experimentation was going
+   on while IP was being designed."                    -- Paul Vixie
+
+--Qxx1br4bt0+wmkIi
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="75_REJECT_localpmtu-fix.patch"
+Content-Transfer-Encoding: quoted-printable
+
+diff -Nru --exclude .depend --exclude '*.o' --exclude '*.ko' --exclude '*.v=
+er' --exclude '.*.flags' --exclude '*.orig' --exclude '*.rej' --exclude '*.=
+cmd' --exclude '*.mod.c' --exclude '*~' linux-2.4.22/net/ipv4/netfilter/ipt=
+_REJECT.c linux-2.4.22-rejectfix/net/ipv4/netfilter/ipt_REJECT.c
+--- linux-2.4.22/net/ipv4/netfilter/ipt_REJECT.c	2003-08-25 13:44:44.000000=
+000 +0200
++++ linux-2.4.22-rejectfix/net/ipv4/netfilter/ipt_REJECT.c	2003-09-21 16:39=
+:25.000000000 +0200
+@@ -186,8 +186,8 @@
+ 	nskb->nh.iph->check =3D ip_fast_csum((unsigned char *)nskb->nh.iph,=20
+ 					   nskb->nh.iph->ihl);
+=20
+-	/* "Never happens" */
+-	if (nskb->len > nskb->dst->pmtu)
++	/* dst->pmtu can be zero because it is not set for local dst's */
++	if (nskb->dst->pmtu && nskb->len > nskb->dst->pmtu)
+ 		goto free_nskb;
+=20
+ 	connection_attach(nskb, oldskb->nfct);
+
+--Qxx1br4bt0+wmkIi--
+
+--GRPZ8SYKNexpdSJ7
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE/bbhNXaXGVTD0i/8RAuPuAJsGfP+lOdTF+9ICL/PwrcmDrigkOgCfZ29b
+WfgGMCdz+seLGbiCJngkcfY=
+=pHjS
+-----END PGP SIGNATURE-----
+
+--GRPZ8SYKNexpdSJ7--

@@ -1,40 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129854AbRCMJ1t>; Tue, 13 Mar 2001 04:27:49 -0500
+	id <S129529AbRCMJll>; Tue, 13 Mar 2001 04:41:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130214AbRCMJ1j>; Tue, 13 Mar 2001 04:27:39 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:58809 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S129854AbRCMJ1W>;
-	Tue, 13 Mar 2001 04:27:22 -0500
-Date: Tue, 13 Mar 2001 04:26:29 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: named pipe writes on readonly filesystems
-In-Reply-To: <20010313102224.A17224@nightmaster.csn.tu-chemnitz.de>
-Message-ID: <Pine.GSO.4.21.0103130424240.28460-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130214AbRCMJlb>; Tue, 13 Mar 2001 04:41:31 -0500
+Received: from smtp1.cern.ch ([137.138.128.38]:45064 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S129529AbRCMJlV>;
+	Tue, 13 Mar 2001 04:41:21 -0500
+Date: Tue, 13 Mar 2001 10:40:47 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Adrian Cox <adrian@humboldt.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: static scheduling - SCHED_IDLE?
+Message-ID: <20010313104047.A23780@pcep-jamie.cern.ch>
+In-Reply-To: <Pine.LNX.4.33.0103081747010.1314-100000@duckman.distro.conectiva> <3AA93124.EC22CC8A@mvista.com> <3AA93ABE.7000707@humboldt.co.uk> <20010312190527.A23065@pcep-jamie.cern.ch> <3AAD2592.4060109@humboldt.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3AAD2592.4060109@humboldt.co.uk>; from adrian@humboldt.co.uk on Mon, Mar 12, 2001 at 07:37:54PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 13 Mar 2001, Ingo Oeser wrote:
-
-> On Mon, Mar 12, 2001 at 09:15:33PM -0500, Alexander Viro wrote:
-> > On Mon, 12 Mar 2001, Chris Mason wrote:
-> > > Since fs/pipe.c:pipe_write() calls mark_inode_dirty, and it is legal to
-> > > write to a named pipe on a readonly filesystem, we can end up writing an
-> > > inode on a readonly FS.
-> > 
-> > I would check that in pipe_write()...
+Adrian Cox wrote:
+> >> Jamie Lokier's suggestion of raising priority when in the kernel doesn't 
+> >> help. You need to raise the priority of the task which is currently in 
+> >> userspace and will call up() next time it enters the kernel. You don't 
+> >> know which task that is.
 > 
-> So atime and mtime of a named pipe are meaningless in general?
-> That would make sense, since you cannot access the data anymore,
-> once they are through the pipe.
+> > Dear oh dear.  I was under the impression that kernel semaphores are
+> > supposed to be used as mutexes only -- there are other mechanisms for
+> > signalling between processes.
+> 
+> I think most of the kernel semaphores are used as mutexes, with 
+> occasional producer/consumer semaphores. I think the core kernel code is 
+> fine, the risk mostly comes from miscellaneous character devices. I've 
+> written code that does this for a specialised device driver. I wanted 
+> only one process to have the device open at once, and for others to 
+> block on open. Using semaphores meant that multiple shells could do "cat 
+>  > /dev/mywidget" and be serialised.
 
-Huh? They are meaningless if fs is read-only. Can't change inode in
-such situation... For normal filesystems it's "how long ago somebody
-did <type of access> with this FIFO".
+Oh, it's you :-)
 
+In this case we don't care if process A is blocked waiting for idle
+process B to release the device, do we?
+
+> Locking up users of this strange piece of hardware doesn't bring down 
+> the system, so your suggestion could work. We need a big fat warning in 
+> semaphore.h, and a careful examination of the current code.
+
+If it weren't for the weight of history, they could be called `struct
+mutex' just to rub it in.
+
+-- Jamie

@@ -1,80 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262468AbUEFPSj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262503AbUEFPX6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262468AbUEFPSj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 May 2004 11:18:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262503AbUEFPSj
+	id S262503AbUEFPX6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 May 2004 11:23:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262585AbUEFPX6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 May 2004 11:18:39 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:1667 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S262468AbUEFPSg (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Thu, 6 May 2004 11:18:36 -0400
-Message-Id: <200405061518.i46FIAY2016476@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: Dominik Karall <dominik.karall@gmx.net>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.6-rc3-mm2 (4KSTACK) 
-In-Reply-To: Your message of "Wed, 05 May 2004 23:51:36 +0200."
-             <20040505215136.GA8070@wohnheim.fh-wedel.de> 
-From: Valdis.Kletnieks@vt.edu
-References: <20040505013135.7689e38d.akpm@osdl.org> <200405051312.30626.dominik.karall@gmx.net> <200405051822.i45IM2uT018573@turing-police.cc.vt.edu>
-            <20040505215136.GA8070@wohnheim.fh-wedel.de>
+	Thu, 6 May 2004 11:23:58 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:54941 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S262503AbUEFPX4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 May 2004 11:23:56 -0400
+Date: Thu, 6 May 2004 17:23:50 +0200
+From: Andries Brouwer <Andries.Brouwer@cwi.nl>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Andries Brouwer <Andries.Brouwer@cwi.nl>, akpm@osdl.org, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] report size of printk buffer
+Message-ID: <20040506152350.GD14714@apps.cwi.nl>
+References: <20040506133639.GB14714@apps.cwi.nl> <Pine.LNX.4.44.0405061708170.765-100000@serv.local>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_943711326P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Thu, 06 May 2004 11:18:10 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0405061708170.765-100000@serv.local>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_943711326P
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
+On Thu, May 06, 2004 at 05:11:26PM +0200, Roman Zippel wrote:
 
-On Wed, 05 May 2004 23:51:36 +0200, =3D?iso-8859-1?Q?J=3DF6rn?=3D Engel s=
-aid:
+> > If one asks for count bytes, one gets the last count bytes of output,
+> > not the first.
+> 
+> That doesn't answer the question, why don't you just clear the data that
+> was read?
 
-> I disagree.  -mm is the testing ground for -linus.  If this patch
-> would only break the nvidia module, I couldn't care less.
-
-OK.. I need to clarify - I'm OK on the patch being *in -mm* precisely *be=
-cause*
-it's a testing ground.  Anybody who's running a -mm kernel should have th=
-e
-technical savvy to deal with the issue by reverting the one patch in ques=
-tion,
-and to recover if it eats their file system (Yes, I'm running 2.6.6-rc3-m=
-m2 and
-the NVidia driver as I type.  No, making it work wasn't a problem.  Yes, =
-I spin
-everything needed to rebuild out to CD/RW at least once a week, just beca=
-use it
-*is* a -mm kernel. ;)
-
-It's a Good Idea to do this in -mm, to flush out all the binary modules t=
-hat
-are known to have issues with this (have we identified anybody other than=
- NVidia
-that actually *has* a problem)?
-
-It's probably a Bad Idea to push this to Linus before the vendors that ha=
-ve
-significant market-impact issues (again - anybody other than NVidia here?=
-)
-have gotten their stuff cleaned up...
+Think about it.
+The buffer is 131072 bytes. We read the final 16384 bytes.
+Now what?
 
 
---==_Exmh_943711326P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFAmlcycC3lWbTT17ARArasAJ0cdJ8NvrwgekXH99ESWndfp/4foACg/E2Y
-F9P6W+VnS6yBZ8ZCGvqKA/Y=
-=3qqH
------END PGP SIGNATURE-----
-
---==_Exmh_943711326P--
+[There are other problems as well, but I do not want to start a complicated
+conversation for a triviality.]

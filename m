@@ -1,38 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264078AbTDJPtu (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 11:49:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264081AbTDJPtu (for <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Apr 2003 11:49:50 -0400
-Received: from [218.27.126.177] ([218.27.126.177]:24238 "EHLO mta2.mail.jl.cn")
-	by vger.kernel.org with ESMTP id S264078AbTDJPtp (for <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Apr 2003 11:49:45 -0400
-Date: Fri, 11 Apr 2003 00:07:47 +0800
-From: Canny <tlsoft@public.bc.jl.cn>
-Subject: help ! somethin wrong in 2.4.20's Ide driver or ds.c or cdrom driver.
-To: linux-kernel@vger.kernel.org
-Message-id: <002401c2ff7b$54f26ff0$da03a8c0@xalan>
-MIME-version: 1.0
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-Content-type: text/plain; charset=gb2312
-Content-transfer-encoding: 7BIT
-X-Priority: 3
-X-MSMail-priority: Normal
+	id S264089AbTDJPzj (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 11:55:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264090AbTDJPzj (for <rfc822;linux-kernel-outgoing>);
+	Thu, 10 Apr 2003 11:55:39 -0400
+Received: from smtp03.web.de ([217.72.192.158]:35080 "EHLO smtp.web.de")
+	by vger.kernel.org with ESMTP id S264089AbTDJPzh (for <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Apr 2003 11:55:37 -0400
+From: Michael Buesch <freesoftwaredeveloper@web.de>
+To: bboett@adlp.org
+Subject: Re: 2.5.67 compile problem...
+Date: Thu, 10 Apr 2003 18:06:59 +0200
+User-Agent: KMail/1.5
+References: <20030408180604.GA3709@adlp.org> <200304082056.12305.freesoftwaredeveloper@web.de> <20030410142506.GM29225@adlp.org>
+In-Reply-To: <20030410142506.GM29225@adlp.org>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200304101806.59241.freesoftwaredeveloper@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+On Thursday 10 April 2003 16:25, Bruno Boettcher wrote:
+> On Tue, Apr 08, 2003 at 08:56:12PM +0200, Michael Buesch wrote:
+> > This may fix it. (It's not tested)
+>
+> partly :D
+oops. :) Give this one a try:
+(patch against 2.5.67)
 
-    I run 2.4.20 kernel on four boxes(VIA, ServerWorks etc). when I insert one cd into driver and
-try to mount it. system no responses. then remove some options in kernel configs
-and reinstall kernel. it could not find root to mount. when i remove ds.c from kernel. it can boot
-to login.
-    something wrong in ide driver or ds.c or cdrom driver ?
+--- drivers/block/ps2esdi.c.orig	2003-04-10 17:44:57.000000000 +0200
++++ drivers/block/ps2esdi.c	2003-04-10 18:01:48.000000000 +0200
+@@ -107,7 +107,7 @@
+ static int ps2esdi_slot = -1;
+ static int tp720esdi = 0;	/* Is it Integrated ESDI of ThinkPad-720? */
+ static int intg_esdi = 0;       /* If integrated adapter */
+-struct ps2esdi_i_struct {
++struct ps2_esdi_i_struct {
+ 	unsigned int head, sect, cyl, wpcom, lzone, ctl;
+ };
+ static spinlock_t ps2esdi_lock = SPIN_LOCK_UNLOCKED;
+@@ -165,7 +165,6 @@
+ 	return 0;
+ }				/* ps2esdi_init */
+ 
+-module_init(ps2esdi_init);
+ 
+ #ifdef MODULE
+ 
+@@ -200,6 +199,8 @@
+ 
+ void
+ cleanup_module(void) {
++	int i;
++
+ 	if(ps2esdi_slot) {
+ 		mca_mark_as_unused(ps2esdi_slot);
+ 		mca_set_adapter_procfn(ps2esdi_slot, NULL, NULL);
+@@ -214,6 +215,8 @@
+ 		put_disk(ps2esdi_gendisk[i]);
+ 	}
+ }
++#else /* MODULE */
++module_init(ps2esdi_init);
+ #endif /* MODULE */
+ 
+ /* handles boot time command line parameters */
 
-    Who can tell me ?
-
-    thanks.
 
 
-canny
-  
+Regards
+Michael Buesch.
+
+-- 
+My homepage: http://www.8ung.at/tuxsoft
+fighting for peace is like fu**ing for virginity
+

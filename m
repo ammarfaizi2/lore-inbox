@@ -1,63 +1,131 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262865AbTCKIuF>; Tue, 11 Mar 2003 03:50:05 -0500
+	id <S262870AbTCKJAx>; Tue, 11 Mar 2003 04:00:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262866AbTCKIuF>; Tue, 11 Mar 2003 03:50:05 -0500
-Received: from mailrelay2.lrz-muenchen.de ([129.187.254.102]:62943 "EHLO
-	mailrelay2.lrz-muenchen.de") by vger.kernel.org with ESMTP
-	id <S262865AbTCKIuE> convert rfc822-to-8bit; Tue, 11 Mar 2003 03:50:04 -0500
-From: Oliver Neukum <oliver@neukum.name>
-To: Greg KH <greg@kroah.com>, Roman Zippel <zippel@linux-m68k.org>
-Subject: Re: PCI driver module unload race?
-Date: Tue, 11 Mar 2003 10:00:40 +0100
-User-Agent: KMail/1.5
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Patrick Mochel <mochel@osdl.org>,
-       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-       Jeff Garzik <jgarzik@pobox.com>, Rusty Russell <rusty@rustcorp.com.au>
-References: <20030308104749.A29145@flint.arm.linux.org.uk> <Pine.LNX.4.44.0303110147390.32518-100000@serv> <20030311011532.GH13145@kroah.com>
-In-Reply-To: <20030311011532.GH13145@kroah.com>
+	id <S262872AbTCKJAx>; Tue, 11 Mar 2003 04:00:53 -0500
+Received: from vs-dmz.germanparcel.de ([193.155.135.231]:9387 "EHLO
+	vs-dmz.germanparcel.de") by vger.kernel.org with ESMTP
+	id <S262870AbTCKJAo> convert rfc822-to-8bit; Tue, 11 Mar 2003 04:00:44 -0500
+To: Andries.Brouwer@cwi.nl, davidsen@tmr.com, andre@linux-ide.org,
+       harald.schaefer@gls-germany.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ide-problem still with 2.4.21-pre5-ac1
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+X-Mailer: Lotus Notes Release 5.0.10  March 22, 2002
+Message-ID: <OFA849C5DE.9CB4AE6F-ONC1256CE6.003026CC-C1256CE6.00319038@LocalDomain>
+From: Thomas.Mieslinger@gls-germany.com
+Date: Tue, 11 Mar 2003 10:03:22 +0100
+X-MIMETrack: Serialize by Router on deln001/europa(Release 5.0.9a |January 7, 2002) at
+ 03/11/2003 10:03:28 AM,
+	Serialize complete at 03/11/2003 10:03:28 AM
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200303111000.40387.oliver@neukum.name>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Dienstag, 11. März 2003 02:15 schrieb Greg KH:
-> On Tue, Mar 11, 2003 at 02:04:20AM +0100, Roman Zippel wrote:
-> > On Mon, 10 Mar 2003, Greg KH wrote:
-> > > > It seems that the semaphore in bus_add_device() makes this
-> > > > unnecessary.
-> > >
-> > > Hm, yes.  I think you are correct.
-> > >
-> > > So this patch is not needed, and the struct module * can be ripped out
-> > > of struct usb_driver too :)
-> >
-> > I think it's not easy. I haven't studied the code completely yet, but
-> > e.g. when you attach a device to a driver you also have to get a
-> > reference to the driver.
->
-> You get a link to the driver, but you can't increment the module count
-> of the driver at that time, as we have to be able to remove a module
-> somehow :)
+Hello again,
 
-That is simple. Export a generic way to disconnect a driver from a device.
+sorry for my late answer but I was not in my office yesterday.
 
-> > I think there are more interesting races, e.g. when you create a sysfs
-> > symlink, that symlink might also have references to a module.
->
-> Yeah, I still think there are some nasty issues with regards to being in
-> a sysfs directory, with a open file handle, and the module is removed.
-> But I haven't checked stuff like that in a while.
->
-> CONFIG_MODULE_UNLOAD, just say no.
+First I'd like to explain why we need the correct bios-translation within 
+linux:
+We install our Windows-boxes with a linux bootdisk like the project http://unattended.sourceforge.net
+After creating and formatting the partitions with linux and dosemu we boot 
+dos from hd, and run the windows setup-script. It is running fine on any 
+hardware with kernel 2.2.22 and the patched 2.4.21-pre5.
 
-That is taking the easy way out.
+These are our problems:
+- We cannot read the mapping from the partition-table because in most 
+cases there are no partitions before booting linux!
+- We also cannot supply a fixed mapping in the kernel append-line because 
+this would require an extra bootdisk for each hd.
 
-	Regards
-		Oliver
+Why not extend the append-parameter?
+current:
+give a fixed mapping to the kernel                      hda=1050,32,64
 
+this may be a possible solution:
+give a fixed mapping to the kernel                      hda=1050,32,64
+use bios-supplied mapping:                              hda=bios-lba
+read mapping from newer disk:                           hda=disk-lba
+force a mapping with 255 heads like current kernel:     hda=*,255,*
+
+I think the kernel 2.2.22 was "more lucky" finding the correct mapping 
+because the very new disk-devices which cause the problem are only in use 
+since we have switched to kernel 2.4 ;-)
+The problem only appears with the following parameters:
+- very new hd (maxtor 4D040H2 from dec-2001 was running fine, but maxtor 
+6E040L0 manufactured oct-2002 does not. both disk are of the same size of 
+40GB)
+- computer has a bios which uses 240-head mapping by default with this 
+disk. This applies to about the half of our pc-types, about 800 computers 
+alltogether. These are the desktops Compaq Evo 510 and HP Vectra Vli-8 and 
+the notebooks Compaq Evo N610c and HP Omnibook 6000. It will also hit the 
+HP Omnibook 6100 and the older HP Omnibook 4150 after installing a newer 
+hd.
+I think that many brand-computers will get this problem with newer drives 
+attached and using dual-boot Linux-windows on the disk. This may cause 
+data-loss on the windows-partition, i fear.
+
+
+hdparm output with kernel 2.2.22:
+# cat /proc/version
+Linux version 2.2.22 (root@fm) (gcc version 2.95.3 20010315 (SuSE)) #3 Sat 
+Oct 26 17:11:59 CEST 2002
+
+# hdparm -i /dev/hda                    Maxtor 6E040L0, "bad disk"
+/dev/hda:
+ Model=Maxtor 6E040L0, FwRev=NAR61590, SerialNo=E11G00EE
+ Config={ Fixed }
+ RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=57
+ BuffType=3(DualPortCache), BuffSize=2048kB, MaxMultSect=16, MultSect=off
+ DblWordIO=no, maxPIO=2(fast), DMA=yes, maxDMA=0(slow)
+ CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=78165360
+ tDMA={min:120,rec:120}, DMA modes: mword0 mword1 mword2
+ IORDY=on/off, tPIO={min:120,w/IORDY:120}, PIO modes: mode3 mode4
+
+# hdparm -I /dev/hda
+/dev/hda:
+ Model=aMtxro6 0E040L                          , FwRev=AN6R5109, 
+SerialNo=1EG100EE
+ Config={ Fixed }
+ RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=57
+ BuffType=3(DualPortCache), BuffSize=2048kB, MaxMultSect=16, MultSect=off
+ DblWordIO=no, maxPIO=2(fast), DMA=yes, maxDMA=0(slow)
+ CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=78165360
+ tDMA={min:120,rec:120}, DMA modes: mword0 mword1 mword2
+ IORDY=on/off, tPIO={min:120,w/IORDY:120}, PIO modes: mode3 mode4
+
+
+# hdparm -i /dev/hda                    Maxtor 4D040H2, good disk
+/dev/hda:
+ Model=Maxtor 4D040H2, FwRev=DAH017K0, SerialNo=D22AKNYE
+ Config={ Fixed }
+ RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=57
+ BuffType=3(DualPortCache), BuffSize=2048kB, MaxMultSect=16, MultSect=off
+ DblWordIO=no, maxPIO=2(fast), DMA=yes, maxDMA=0(slow)
+ CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=80043264
+ tDMA={min:120,rec:120}, DMA modes: mword0 mword1 mword2
+ IORDY=on/off, tPIO={min:120,w/IORDY:120}, PIO modes: mode3 mode4
+
+# hdparm -I /dev/hda
+/dev/hda:
+ Model=aMtxro4 0D042H                          , FwRev=AD0H710K, 
+SerialNo=2DA2NKEY
+ Config={ Fixed }
+ RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=57
+ BuffType=3(DualPortCache), BuffSize=2048kB, MaxMultSect=16, MultSect=off
+ DblWordIO=no, maxPIO=2(fast), DMA=yes, maxDMA=0(slow)
+ CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=80043264
+ tDMA={min:120,rec:120}, DMA modes: mword0 mword1 mword2
+ IORDY=on/off, tPIO={min:120,w/IORDY:120}, PIO modes: mode3 mode4
+
+Regards
+
+Harald Schäfer
+-- 
+General Logistics Systems
+Thomas Mieslinger
+German-Parcel-Str. 1-7     fon: +49 6677 17 463
+36286 Neuenstein            fax: +49 6677 17 111
+Germany                           eMail: thomas.mieslinger@gls-germany.com

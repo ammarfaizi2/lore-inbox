@@ -1,52 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264984AbRFZPZ4>; Tue, 26 Jun 2001 11:25:56 -0400
+	id <S264989AbRFZPar>; Tue, 26 Jun 2001 11:30:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264988AbRFZPZq>; Tue, 26 Jun 2001 11:25:46 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:1294 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S264984AbRFZPZe>; Tue, 26 Jun 2001 11:25:34 -0400
-Date: Tue, 26 Jun 2001 10:52:16 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: John Fremlin <vii@users.sourceforge.net>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: VM tuning through fault trace gathering [with actual code]
-In-Reply-To: <m2n16vcsft.fsf@boreas.yi.org.>
-Message-ID: <Pine.LNX.4.21.0106261031150.850-100000@freak.distro.conectiva>
+	id <S264993AbRFZPah>; Tue, 26 Jun 2001 11:30:37 -0400
+Received: from cmr0.ash.ops.us.uu.net ([198.5.241.38]:60818 "EHLO
+	cmr0.ash.ops.us.uu.net") by vger.kernel.org with ESMTP
+	id <S264989AbRFZPaX>; Tue, 26 Jun 2001 11:30:23 -0400
+Message-ID: <3B38A988.A576028B@uu.net>
+Date: Tue, 26 Jun 2001 11:26:00 -0400
+From: Alex Deucher <adeucher@UU.NET>
+Organization: UUNET
+X-Mailer: Mozilla 4.74 [en] (WinNT; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: joeja@mindspring.com, linux-kernel@vger.kernel.org
+Subject: Re: AMD thunderbird oops
+In-Reply-To: <E15EuQn-0003eT-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+What's weird though is that it is rock solid as long as I don't use
+athlon optimizations.  I'm not sure how much of a speed improvement they
+provide, but everything's fine with i686, so I can't complain, besides I
+doubt I can return the board at this point anyway.  BTW, which would be
+better with an athlon, k6 or i686 optimization?  I've heard i686 is
+faster, but I've never really looked into it too much myself.
 
+Thanks,
 
-On 26 Jun 2001, John Fremlin wrote:
+Alex
 
-> Marcelo Tosatti <marcelo@conectiva.com.br> writes:
+Alan Cox wrote:
 > 
-> > On 25 Jun 2001, John Fremlin wrote:
-> > 
-> > > 
-> > > Last year I had the idea of tracing the memory accesses of the system
-> > > to improve the VM - the traces could be used to test algorithms in
-> > > userspace. The difficulty is of course making all memory accesses
-> > > fault without destroying system performance.
+> > I get oopses too when I use kernels compiled for athlon on my redhat
+> > 7.1, athlon 850 system.  runs rock solid when I compile for i686.  I
+> > assumed the athlon optimizations in the kernel were broken, or gcc's
+> > athlon optimization was, as I seem to recall some discussion of this a
+> > while back on the LKML.
 > 
-> [...]
+> Most IWILL K266 people report this. Those who swapped them for other boards
+> mostly report the problem then going away. Yes it could be a bug we trigger
+> that by chance the IWILL boards show up more than others but I'm sceptical
 > 
-> > Linux Trace Toolkit (http://www.opersys.com/LTT) does that. 
-> 
-> I dld the ltt-usenix paper and skim read it. It didn't seem to talk
-> about page faults much. Where should I look?
-
-Grab the source and try it out?
-
-Example page fault trace: 
-
-####################################################################
-Event     	          Time                   PID     Length Description
-####################################################################
-
-Trap entry              991,299,585,597,016     678     12      TRAP: page fault; EIP : 0x40067785
-
-
+> Alan

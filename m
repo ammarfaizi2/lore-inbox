@@ -1,49 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261270AbTJ0HQN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Oct 2003 02:16:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261276AbTJ0HQN
+	id S261305AbTJ0Hyt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Oct 2003 02:54:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261298AbTJ0Hyt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Oct 2003 02:16:13 -0500
-Received: from [134.29.1.12] ([134.29.1.12]:43992 "EHLO mail.mnsu.edu")
-	by vger.kernel.org with ESMTP id S261270AbTJ0HQM (ORCPT
+	Mon, 27 Oct 2003 02:54:49 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:11198 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S261297AbTJ0Hyr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Oct 2003 02:16:12 -0500
-Message-ID: <3F9CC622.3000809@hundstad.net>
-Date: Mon, 27 Oct 2003 01:15:46 -0600
-From: "Jeffrey E. Hundstad" <jeffrey@hundstad.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20030925
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Nick Piggin <piggin@cyberone.com.au>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [long] linux-2.6.0-test9, XFree86 4.2.1.1, ATI ATI Radeon VE
- QY, screen hangs on 3d apps
-References: <3F9B8A6B.6030102@hundstad.net> <3F9B9BEB.5060908@cyberone.com.au> <3F9B9032.8090804@hundstad.net> <3F9BA173.60705@cyberone.com.au>
-In-Reply-To: <3F9BA173.60705@cyberone.com.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 27 Oct 2003 02:54:47 -0500
+Date: Sun, 26 Oct 2003 23:48:28 -0800
+From: "David S. Miller" <davem@redhat.com>
+To: Andi Kleen <ak@muc.de>
+Cc: simon.roscic@chello.at, linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: [2.6.0-test8/9] ethertap oops
+Message-Id: <20031026234828.2cb1f746.davem@redhat.com>
+In-Reply-To: <m3ekwz7h3z.fsf@averell.firstfloor.org>
+References: <L1fo.3gb.9@gated-at.bofh.it>
+	<m3ekwz7h3z.fsf@averell.firstfloor.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 26 Oct 2003 23:45:52 +0100
+Andi Kleen <ak@muc.de> wrote:
 
+> diff -u linux-2.6.0test7mm1-averell/drivers/net/ethertap.c-o linux-2.6.0test7mm1-averell/drivers/net/ethertap.c
+> --- linux-2.6.0test7mm1-averell/drivers/net/ethertap.c-o	2003-09-11 04:12:33.000000000 +0200
+> +++ linux-2.6.0test7mm1-averell/drivers/net/ethertap.c	2003-10-26 23:41:17.000000000 +0100
 
-Nick Piggin wrote:
+This part looks good, applied.
 
->
->> The priority was set at -10.
->>
->> After setting the priority to 0 as you suggest nothing changes.
->>
->> $glxgears
->>
->> frame appears,
->> screen hangs.
->> I can move the cursor around, but this gets boring fast ;-)
->>
->
-> Oh sorry, you said you can't get the screen back without a reboot.
-> Can you ssh into the hung box?
->
-Yes, I can.  Do you have any suggestions to what I can look for?
+> diff -u linux-2.6.0test7mm1-averell/net/netlink/af_netlink.c-o linux-2.6.0test7mm1-averell/net/netlink/af_netlink.c
+> --- linux-2.6.0test7mm1-averell/net/netlink/af_netlink.c-o	2003-10-09 00:29:02.000000000 +0200
+> +++ linux-2.6.0test7mm1-averell/net/netlink/af_netlink.c	2003-10-26 23:42:44.000000000 +0100
+> @@ -777,6 +777,7 @@
+>  	if (input)
+>  		nlk_sk(sk)->data_ready = input;
+>  
+> +	sk->sk_protocol = unit;
+>  	netlink_insert(sk, 0);
+>  	return sk;
+>  }
 
+This part is not needed, netlink_create() does this for us :-)
+
+Thanks Andi.

@@ -1,45 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263888AbTI2RXg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 13:23:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263885AbTI2RXN
+	id S263903AbTI2R3R (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 13:29:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263873AbTI2RXG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 13:23:13 -0400
-Received: from fw.osdl.org ([65.172.181.6]:63888 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263880AbTI2RWr (ORCPT
+	Mon, 29 Sep 2003 13:23:06 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:8198 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S263883AbTI2RWv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 13:22:47 -0400
-Date: Mon, 29 Sep 2003 10:14:53 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: cijoml@volny.cz
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 3C59x module doesn't work in 2.6.0-test6
-Message-Id: <20030929101453.18c804dd.rddunlap@osdl.org>
-In-Reply-To: <200309281502.38370.cijoml@volny.cz>
-References: <200309281502.38370.cijoml@volny.cz>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Mon, 29 Sep 2003 13:22:51 -0400
+Date: Mon, 29 Sep 2003 19:22:49 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Smurf <smurf@play.smurf.noris.de>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] No forced rebuilding of ikconfig.h
+Message-ID: <20030929172249.GA1815@mars.ravnborg.org>
+Mail-Followup-To: Smurf <smurf@play.smurf.noris.de>,
+	torvalds@osdl.org, linux-kernel@vger.kernel.org
+References: <20030929153815.GA16685@play.smurf.noris.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030929153815.GA16685@play.smurf.noris.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 28 Sep 2003 15:02:38 +0200 "Michal Semler (volny.cz)" <cijoml@volny.cz> wrote:
+On Mon, Sep 29, 2003 at 05:38:15PM +0200, Smurf wrote:
+> Why does ikconfig.h require forced rebuilding?
+> I can't think of a reason...
 
-| Hi,
-| 
-| I compiled 2.6.0-test6, but my ethernet card doesn't work:
-| 
-| modprobe 3c59x tells this:
-| Sep 28 10:06:58 tata kernel: 3c59x: Unknown parameter `3c509x'
+Check Documentation/kbuild/makefiles.txt, search for if_changed.
 
-So 3c59x complains about '3c509x' ??
-
-Did you use any module parameters, either on the modprobe command
-or in the /etc/modprobe.conf file?
-
---
-~Randy
+	Sam

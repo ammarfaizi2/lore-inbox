@@ -1,56 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132511AbREENxd>; Sat, 5 May 2001 09:53:33 -0400
+	id <S132503AbREENtv>; Sat, 5 May 2001 09:49:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132516AbREENxY>; Sat, 5 May 2001 09:53:24 -0400
-Received: from 4dyn183.delft.casema.net ([195.96.105.183]:27404 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S132511AbREENxV>; Sat, 5 May 2001 09:53:21 -0400
-Message-Id: <200105051352.PAA14913@cave.bitwizard.nl>
-Subject: Re: [PATCH] SMP race in ext2 - metadata corruption.
-In-Reply-To: <200105041820.f44IKec11204@vindaloo.ras.ucalgary.ca> from Richard
- Gooch at "May 4, 2001 12:20:40 pm"
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-Date: Sat, 5 May 2001 15:52:46 +0200 (MEST)
-CC: Linus Torvalds <torvalds@transmeta.com>,
-        Rogier Wolff <R.E.Wolff@BitWizard.nl>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, volodya@mindspring.com,
-        Alexander Viro <viro@math.psu.edu>, Andrea Arcangeli <andrea@suse.de>,
-        linux-kernel@vger.kernel.org
-From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S132511AbREENtb>; Sat, 5 May 2001 09:49:31 -0400
+Received: from smtp1.cern.ch ([137.138.128.38]:22034 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S132503AbREENt3>;
+	Sat, 5 May 2001 09:49:29 -0400
+Date: Sat, 5 May 2001 15:49:20 +0200
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Chris Mason <mason@suse.com>
+Cc: Andreas Dilger <adilger@turbolinux.com>,
+        Linux kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: Maximum files per Directory
+Message-ID: <20010505154920.A4571@pcep-jamie.cern.ch>
+In-Reply-To: <200105041915.f44JFNeM024068@webber.adilger.int> <392230000.989006902@tiny>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <392230000.989006902@tiny>; from mason@suse.com on Fri, May 04, 2001 at 04:08:22PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Gooch wrote:
+Chris Mason wrote:
+> > Is there a reason that
+> > reiserfs chose to have "large number of directories" represented by "1"
+> > and not "LINK_MAX+1"?
 > 
-> - next boot, init(8) checks the file, and if it exists, opens the root
->   FS block device and reads in each block listed in the file. The
->   effect is to warm the buffer cache extremely quickly. The head will
->   move in one direction, grabbing data as it flys by. I expect this
->   will take around 1 second
+> find and a few others consider a link count of 1 to mean there is no link
+> count tracking being done.
 
-FYI: 
+Indeed, and thank you for getting this right!
 
-Around 1992 or 1993, I rewrote Minix-fsck to do this instead of
-seeking all over the place.
+Btw, is it possible to add dirent->d_type information to reiserfs, and
+would there be any performance gain in doing so?
 
-Cut the total time to fsck my filesystem from around 30 to 28
-seconds. (remember the days of small filesystems?)
+I have code to add d_type for every other filesystem that can support it
+without additional disk reads, but I couldn't figure out whether
+reiserfs can do it or whether stat() following readdir() is cheap anyway.
 
-That's when I decided that this was NOT an interesting project: there
-was very little to be gained.
-
-The explanation is: A seek over a few tracks isn't much slower than a
-seek over hundreds of tracks. Almost any "skip" in linear access
-incurs the average 6ms rotational latency anyway.
-
-			Roger. 
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* There are old pilots, and there are bold pilots. 
-* There are also old, bald pilots. 
+-- Jamie (who has written a find-like program)

@@ -1,49 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129914AbQJ0N3v>; Fri, 27 Oct 2000 09:29:51 -0400
+	id <S129029AbQJ0Ncw>; Fri, 27 Oct 2000 09:32:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129288AbQJ0N3l>; Fri, 27 Oct 2000 09:29:41 -0400
-Received: from dyna252.cygnus.co.uk ([194.130.39.252]:31993 "EHLO
-	passion.cygnus") by vger.kernel.org with ESMTP id <S129914AbQJ0N3a>;
-	Fri, 27 Oct 2000 09:29:30 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <20001027005500.A11447@suse.cz> 
-In-Reply-To: <20001027005500.A11447@suse.cz>  <20001019102722.B9057@suse.cz> <200010262221.e9QMLfC32276@devserv.devel.redhat.com> 
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Alan Cox <alan@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        John Levon <moz@compsoc.man.ac.uk>,
-        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-        faith@valinux.com, jhartmann@precisioninsight.com
-Subject: Re: [PATCH] Make agpsupport work with modversions 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 27 Oct 2000 14:25:48 +0100
-Message-ID: <20075.972653148@redhat.com>
+	id <S129032AbQJ0Ncm>; Fri, 27 Oct 2000 09:32:42 -0400
+Received: from brutus.conectiva.com.br ([200.250.58.146]:55537 "EHLO
+	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S129029AbQJ0Nch>; Fri, 27 Oct 2000 09:32:37 -0400
+Date: Fri, 27 Oct 2000 11:32:06 -0200 (BRDT)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: mauelshagen@sistina.com, linux-kernel@vger.kernel.org
+Subject: Re: LVM snapshotting broken?
+In-Reply-To: <20001027004404.A1282@athlon.random>
+Message-ID: <Pine.LNX.4.21.0010271131020.25174-100000@duckman.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 27 Oct 2000, Andrea Arcangeli wrote:
 
-vojtech@suse.cz said:
-> > But that module then depends on both of the others unless you keep
-> > recompiling it
+> For some irrelevant reason I always test snapshotting on a LV with minor
+> number > 1 and the kernel side definitely works with 2.2.18pre17aa1:
+> 
+> laser:/home/andrea # ls -l /dev/vg1/lv*
+> brw-r-----   1 root     root      58,   0 Oct 27  2000 /dev/vg1/lv0
+> brw-r-----   1 root     root      58,   1 Oct 27  2000 /dev/vg1/lv1
+> laser:/home/andrea # lvcreate -s -n lv1-snap /dev/vg1/lv1 -L 400M
+> lvcreate -- INFO: using default snapshot chunk size of 64 KB
+> lvcreate -- doing automatic backup of "vg1"
+> lvcreate -- logical volume "/dev/vg1/lv1-snap" successfully created
+> 
+> laser:/home/andrea # lvremove -f /dev/vg1/lv1-snap 
+> lvremove -- doing automatic backup of volume group "vg1"
+> lvremove -- logical volume "/dev/vg1/lv1-snap" successfully removed
 
-> Not really, see for example ns558.c and adi.c plus their third module
-> gameport.c, all in drivers/char/joystick. 
+Have you checked if the CONTENT of the snapshot is indeed
+the right LV and not the other one?
 
-But in the case where there _aren't_ any functions which could usefully be 
-shared between the modules, you've got a whole extra gratuitous module 
-(What's that, 32KiB on some ARM boxen?) just to hold the registration 
-functions, which aren't needed if you just use get_module_symbol().
+(I get the same "success" messages as what you cut'n'pasted
+above, but find that the wrong LV has been snapshotted when
+I look at the actual snapshot)
 
-Provide generic code for registering such stuff and it might be acceptable. 
-Otherwise, get_module_symbol is better. There's no fundamental flaw with 
-get_module_symbol() - just one or two of the current usages of it.
+regards,
 
+Rik
 --
-dwmw2
+"What you're running that piece of shit Gnome?!?!"
+       -- Miguel de Icaza, UKUUG 2000
 
+http://www.conectiva.com/		http://www.surriel.com/
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

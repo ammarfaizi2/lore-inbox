@@ -1,56 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318046AbSHLN5K>; Mon, 12 Aug 2002 09:57:10 -0400
+	id <S318040AbSHLORk>; Mon, 12 Aug 2002 10:17:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318044AbSHLN43>; Mon, 12 Aug 2002 09:56:29 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:21457 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S318040AbSHLNzN>;
-	Mon, 12 Aug 2002 09:55:13 -0400
-Date: Mon, 12 Aug 2002 17:57:33 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Luca Barbieri <ldb@ldb.ods.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Linux-Kernel ML <linux-kernel@vger.kernel.org>,
-       Alexandre Julliard <julliard@winehq.com>
-Subject: Re: [patch] tls-2.5.31-C3
-In-Reply-To: <1029159781.4713.52.camel@ldb>
-Message-ID: <Pine.LNX.4.44.0208121754250.20225-100000@localhost.localdomain>
+	id <S318045AbSHLORk>; Mon, 12 Aug 2002 10:17:40 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:10761 "HELO
+	garrincha.netbank.com.br") by vger.kernel.org with SMTP
+	id <S318040AbSHLORj>; Mon, 12 Aug 2002 10:17:39 -0400
+Date: Mon, 12 Aug 2002 11:21:16 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Christian Ehrhardt <ehrhardt@mathematik.uni-ulm.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: pte_chain leak in rmap code (2.5.31)
+In-Reply-To: <20020812134527.18720.qmail@thales.mathematik.uni-ulm.de>
+Message-ID: <Pine.LNX.4.44L.0208121119270.23404-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 12 Aug 2002, Christian Ehrhardt wrote:
 
-On 12 Aug 2002, Luca Barbieri wrote:
+> Note the strange use of continue and break which both achieve the same!
+> What was meant to happen (judging from rmap-13c) is that we break
+> out of the for-Loop once SWAP_FAIL or SWAP_ERROR is returned from
+> try_to_unmap_one. However, this doesn't happen and a subsequent call
+> to pte_chain_free will use the wrong value for prev_pc.
 
-> > > Numbers:
-> > > unconditional copy of 2 tls descs: 5 cycles
-> > > this patch with 1 tls desc: 26 cycles
-> > > this patch with 8 tls descs: 52 cycles
-> > 
-> > [ 0 tls descs: 2 cycles. ]
-> Yes but common multithreaded applications will have at least 1 for
-> pthreads.
+Excellent hunting!   Thank you!
 
-i would not say 'common' and 'multithreaded' in the same sentence. It
-might be so in the future, but it isnt today.
+Your fix should work too, although in my opinion it's a
+little bit too subtle, so I've changed it into:
 
-> > how did you calculate this?
-> ((26 - 5) / 2000) * 100 ~= 1
-> Benchmarks done in kernel mode (2.4.18) with interrupts disabled on a
-> Pentium3 running the rdtsc timed benchmark in a loop 1 million times
-> with 8 unbenchmarked iterations to warm up caches and with the time to
-> execute an empty benchmark subtracted.
+	                                case SWAP_FAIL:
+                                        ret = SWAP_FAIL;
+                                        goto give_up;
+                                case SWAP_ERROR:
+                                        ret = SWAP_ERROR;
+                                        goto give_up;
+                        }
+                }
+give_up:
 
-old libpthreads or new one?
+This is going into 2.4-rmap and 2.5 right now.
 
-> > glibc multithreaded applications can avoid the
-> > lldt via using the TLS, and thus it's a net win.
-> Surely, this patch is better than the old LDT method but much worse than
-> the 2-TLS one.
+thanks,
 
-people asked for a 3rd TLS already.
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
 
-	Ingo
+http://www.surriel.com/		http://distro.conectiva.com/
 

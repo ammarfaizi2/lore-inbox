@@ -1,102 +1,85 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316876AbSE1SL6>; Tue, 28 May 2002 14:11:58 -0400
+	id <S316877AbSE1S3G>; Tue, 28 May 2002 14:29:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316877AbSE1SL5>; Tue, 28 May 2002 14:11:57 -0400
-Received: from mout0.freenet.de ([194.97.50.131]:12511 "EHLO mout0.freenet.de")
-	by vger.kernel.org with ESMTP id <S316876AbSE1SLz>;
-	Tue, 28 May 2002 14:11:55 -0400
-Message-ID: <3CF3C8F4.8040400@athlon.maya.org>
-Date: Tue, 28 May 2002 20:14:12 +0200
-From: Andreas Hartmann <andihartmann@freenet.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020523
-X-Accept-Language: de, en-us, en
+	id <S316878AbSE1S3F>; Tue, 28 May 2002 14:29:05 -0400
+Received: from funnybee.ntlp.com ([198.51.93.4]:49164 "EHLO funnybee.ntlp.com")
+	by vger.kernel.org with ESMTP id <S316877AbSE1S3E>;
+	Tue, 28 May 2002 14:29:04 -0400
+Date: Tue, 28 May 2002 12:28:58 -0600 (MDT)
+From: James Yonan <jim@ntlp.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux crypto?
+Message-ID: <Pine.LNX.4.44.0205281209440.26292-100000@funnybee.ntlp.com>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Memory management in Kernel 2.4.x
-In-Reply-To: <fa.n12rl6v.9644rg@ifi.uio.no> <fa.jd9c9pv.190gl8n@ifi.uio.no> 	<acv5bj$m6$1@ID-44327.news.dfncis.de> <1022586561.4124.39.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Tue, 2002-05-28 at 06:42, Andreas Hartmann wrote:
-> 
->>>Well, if you can't fork a new process because that would push you into
->>>overcommit, then you usually can't actually do anything useful on the
->>>machine.
->>
->>>From my experience with mode 2:
->>
->>you can't do _anything_, if the overcommitment range has been reached. Even 
->>running programms are crashing if they want to have some more memory. So, 
->>new processes cannot be started and old processes cannot run and are 
->>crashing as far as they want to have more memory. At last, there will be 
->>only one user-process on the machine running - the bad programm, eating up 
->>all the memory.
-> 
-> 
-> Are you sure you have it properly configured. Programs will only crash
-> if they demand more memory and don't properly handle out of memory
-> errors.
+> On Fri, 24 May 2002, Alan Cox wrote:
 
-I don't know, if they properly handle out of memory errors. It have been 
-X-programms.
-Logon wasn't able either with login nor with ssh from remote (sshd 
-couldn't fork).
+> > > On Wed, 22 May 2002, Alan Cox wrote:
+> > > 
+> > > > What of it do you actually need in kernel space - encrypted file 
+systems
+> > > > certainly ought to be there but are not very well handled in Linux 
+proper
+> > > > right now - but anything else ?
+> > > 
+> > > IPsec.
+> > 
+> > At the moment there doesn't appear to be an IPsec stack we can merge 
+however
 
-> No OOM kills occur.
+> what about freeswan - with some cleanups?
 
-That's definitly right.
+I'd like to propose that network crypto can be handled well in user-space.
 
-> I've run simulated sets with large databases
-> and I don't see the problem you are reporting. There is a not quite
-> theoretical case where everything continues running but nothing quits
-> because it all has the memory it wants and there is not enough more. 
+There are quite a few user-space options now for secure tunneling of IP or 
+ethernet.  I am personally a developer on the OpenVPN project, but there 
+are quite a few others including VTun, cipe, and tinc.  I know that 
+OpenVPN and VTun take advantage of the Universal TUN/TAP driver which has 
+been in the official kernel since 2.4.6 or so, which lets user-space 
+programs control a virtual point-to-point IP link or virtual ethernet 
+adapter.  While not explicitly a crypto-enabler, the TUN/TAP driver nicely 
+imposes a modularization on secure tunneling daemons -- the bulk of the 
+code including crypto lives in user-space and the kernel component is 
+reduced to a small virtual network driver that talks to user-space rather 
+than hardware -- and which hopefully is sufficiently generic that it 
+doesn't fall into the class of crypto-enabling infrastructure with respect 
+to export-control regulations.  Running in userspace confers a number of 
+other benefits such as:
 
-A process which doesn't need any more memory is running well. In 
-consoles, on which I have been logged in, I could roll through the last 
-commands without any problem - but I couldn't start a new process.
+1. the daemon is easily portable beyond Linux to any platform that 
+supports a tun driver (such as OpenBSD, FreeBSD, Mac OS X, and Solaris).  
+IPSec implementations tend to be OS-specific,
 
-> Also if an old program crashes, it frees memory so you have room for a
-> new one.
+2. the daemon can use portable user-space libraries such as OpenSSL to 
+handle the crypto, taking advantage of the SSL/TLS protocol and the X509 
+PKI,
 
-The memory wich has been freed is eaten up from the malicious program. 
-It's very easy to reproduce it with the program I linked to in my first 
-posting.
+3. the daemon can tunnel over UDP (IPSec uses IP protocols 50 and 51 which 
+are often blocked by broadband ISPs),
 
-> With your fork bomb there is a likelyhood that a new fork will
-> beat others to the memory. 
+4. the daemon can tunnel through NAT gateways (IPSec doesn't like NAT), 
+and
 
-That's it. And if there is a program running with such a malfunction the 
-machine can't do anything more. If a hacker wants to block your machine, 
-he can do it without beeing root.
+5. the daemon can transparently tunnel or bridge non-IP protocols or any 
+protocol which can be represented as an ethernet frame.
 
-> Ultimately something has to die off or give back resources when it finds
-> it can't get any. There is a finite resource, you used it all. Going
-> beyond the current stuff to doing definable chargable subgroups with per
-> subgroup resource billing and optional overcommit rules is doable (thats
-> beancounter stuff again) but does require we add setluid/getluid
-> syscalls, tweak the PAM code in user space and merge the beancounter
-> stuff. At that point you can do really *cool* stuff like
-> 
-> 	Staff have a guaranteed 75% of memory
-> 	Students have a guaranteed 25% of memory but can take 50 if its	there
-> 
-> And sit contented in the sure knowledge that if you fire up emacs on a
-> giant file as a staff member you'll only kick students off the box
+The downside of course is that a user-space implementation will be slower.  
+It's also difficult to achieve IPSec compliance, because user-space 
+tunneling daemons want to use an application-level protocol over UDP -- 
+user-space is not the right place to implement a protocol stack.
 
-I think, that's what would be best. Ressources are given to groups and 
-they must work with. There isn't any more for them - the rest is for 
-sysadmins to ensure that they always can successfully control the 
-machine and can kill malicious processes. No external reachable daemon 
-must be running in the sysadmin ressource-group.
-
-I think it's something like ressource-management on IBM's S390.
+But the upside is that the secure tunneling daemons are available now, 
+the better ones are robust, secure, and portable, they don't require 
+embedding any crypto or crypto hooks in the kernel, and they work
+with most out-of-the-box 2.4 distributions without needing any external
+kernel modules.
 
 
-Regards,
-Andreas Hartmann
+James Yonan
+OpenVPN Developer
+http://openvpn.sourceforge.net/
 

@@ -1,45 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269035AbTBXAve>; Sun, 23 Feb 2003 19:51:34 -0500
+	id <S269036AbTBXA4S>; Sun, 23 Feb 2003 19:56:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269036AbTBXAve>; Sun, 23 Feb 2003 19:51:34 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:40197 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S269035AbTBXAvd>; Sun, 23 Feb 2003 19:51:33 -0500
-Date: Sun, 23 Feb 2003 16:59:03 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Russell King <rmk@arm.linux.org.uk>
-cc: Scott Murray <scottm@somanetworks.com>, <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@pobox.com>, Greg KH <greg@kroah.com>
-Subject: Re: [PATCH] Make hot unplugging of PCI buses work
-In-Reply-To: <20030223212432.J20405@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0302231654370.1690-100000@home.transmeta.com>
+	id <S269037AbTBXA4S>; Sun, 23 Feb 2003 19:56:18 -0500
+Received: from twinlark.arctic.org ([208.44.199.239]:23249 "EHLO
+	twinlark.arctic.org") by vger.kernel.org with ESMTP
+	id <S269036AbTBXA4R>; Sun, 23 Feb 2003 19:56:17 -0500
+Date: Sun, 23 Feb 2003 17:06:29 -0800 (PST)
+From: dean gaudet <dean-list-linux-kernel@arctic.org>
+To: davidm@hpl.hp.com
+cc: David Lang <david.lang@digitalinsight.com>,
+       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: Minutes from Feb 21 LSE Call
+In-Reply-To: <15961.20756.474745.44896@napali.hpl.hp.com>
+Message-ID: <Pine.LNX.4.53.0302231704310.23231@twinlark.arctic.org>
+References: <15961.19948.882374.766245@napali.hpl.hp.com>
+ <Pine.LNX.4.44.0302231444490.8609-100000@dlang.diginsite.com>
+ <15961.20756.474745.44896@napali.hpl.hp.com>
+X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 23 Feb 2003, David Mosberger wrote:
 
-On Sun, 23 Feb 2003, Russell King wrote:
-> 
-> However, whether x86 PCs will survive bus renumbering or not remains to
-> be seen.  We currently try to leave as much of the configuration intact
-> from the BIOS.
+> >>>>> On Sun, 23 Feb 2003 14:48:48 -0800 (PST), David Lang <david.lang@digitalinsight.com> said:
+>
+>   David.L> I would call a 15% lead over the ia64 pretty substantial.
+>
+> Huh?  Did you misread my mail?
+>
+>    2 GHz Xeon:		701 SPECint
+>    1 GHz Itanium 2:	810 SPECint
+>
+> That is, Itanium 2 is 15% faster.
 
-Note that I made cardbus bus numbering _ignore_ the BIOS-setup numbering 
-even on PC's, exactly because of issues like this - trying to keep the 
-original BIOS numbering just won't work if the BIOS sets the wrong numbers 
-(I saw a BIOS that had happily assigned the _same_ PCI bus number to both 
-cardbus functions, whee).
+according to pricewatch i could buy ten 2GHz Xeons for about the cost of
+one Itanium 2 900MHz.
 
-I think we can (and should) make all hotpluggable PCI bridges use that 
-same cardbus logic.
+that's not even considering the cost of the motherboards i'd need to plug
+those into.
 
-The real problematic case I see is if there are transparent hotplug
-bridges, with some devices just magically appear and disappear from a part 
-of a bus because of some invisible bridge. I don't know if such things 
-exist or even _can_ exist, but the perverse nature of PC hardware makes me 
-suspect they do.
-
-			Linus
-
+-dean

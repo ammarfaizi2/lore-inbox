@@ -1,55 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262397AbVC3S7x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262401AbVC3S5J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262397AbVC3S7x (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 13:59:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262392AbVC3S5X
+	id S262401AbVC3S5J (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 13:57:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262400AbVC3S45
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 13:57:23 -0500
-Received: from dspnet.fr.eu.org ([213.186.44.138]:56334 "EHLO dspnet.fr.eu.org")
-	by vger.kernel.org with ESMTP id S262397AbVC3Sze (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 13:55:34 -0500
-Date: Wed, 30 Mar 2005 20:55:31 +0200
-From: Olivier Galibert <galibert@pobox.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Do not misuse Coverity please
-Message-ID: <20050330185531.GA6210@dspnet.fr.eu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	linux-kernel@vger.kernel.org
-References: <200503300125.j2U1PFQ9005082@laptop11.inf.utfsm.cl> <OofSaT76.1112169183.7124470.khali@localhost> <d2er4p$qp$1@sea.gmane.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <d2er4p$qp$1@sea.gmane.org>
-User-Agent: Mutt/1.4.2.1i
+	Wed, 30 Mar 2005 13:56:57 -0500
+Received: from mail-relay-2.tiscali.it ([213.205.33.42]:33233 "EHLO
+	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
+	id S262401AbVC3Svl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 13:51:41 -0500
+Subject: [patch 2/8] uml: gprof depends on !TT
+To: torvalds@osdl.org
+Cc: akpm@osdl.org, jdike@addtoit.com, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net, blaisorblade@yahoo.it
+From: blaisorblade@yahoo.it
+Date: Wed, 30 Mar 2005 19:33:43 +0200
+Message-Id: <20050330173343.DBE8EEFED5@zion>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 30, 2005 at 10:29:43AM -0800, Shankar Unni wrote:
-> Jean Delvare wrote:
-> 
-> >    v = p->field;
-> >    if (!p) return;
-> >
-> >can be seen as equivalent to
-> >
-> >    if (!p) return;
-> >    v = p->field;
-> 
-> Heck, no.
-> 
-> You're missing the side-effect of a null pointer dereference crash (for 
-> p->field) (even though v is unused before the return). The optimizer is 
-> not allowed to make exceptions go away as a result of the hoisting.
 
-Actually it is.  Dereferencing a null pointer is either undefined or
-implementation-dependant in the standard (don't remember which), and
-as such the compiler can do whatever it wants, be it starting nethack
-or not doing the dereference in the first place.
+CONFIG_GPROF depends on the fact that TT mode is disabled. I just verified
+this, and this dependency already exists in UML/2.4.
 
-The principle of least surprise makes doing such an "optimisation" not
-so smart in practice.  A compiler capable of detecting that situation
-would be better off spitting a warning in red blinking letter.
+Depends on "uml-add-kconfig-debug-deps" in -mm.
 
-  OG.
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+---
 
+ linux-2.6.11-paolo/arch/um/Kconfig.debug |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+diff -puN arch/um/Kconfig.debug~uml-gprof-depends-on-not-tt arch/um/Kconfig.debug
+--- linux-2.6.11/arch/um/Kconfig.debug~uml-gprof-depends-on-not-tt	2005-03-24 11:37:54.000000000 +0100
++++ linux-2.6.11-paolo/arch/um/Kconfig.debug	2005-03-24 11:37:54.000000000 +0100
+@@ -16,7 +16,7 @@ config PT_PROXY
+ 
+ config GPROF
+ 	bool "Enable gprof support"
+-	depends on DEBUG_INFO && MODE_SKAS
++	depends on DEBUG_INFO && MODE_SKAS && !MODE_TT
+ 	help
+         This allows profiling of a User-Mode Linux kernel with the gprof
+         utility.
+_

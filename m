@@ -1,85 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271262AbUJVMTz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271251AbUJVMWa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271262AbUJVMTz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 08:19:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271256AbUJVMTD
+	id S271251AbUJVMWa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 08:22:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271263AbUJVMW3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 08:19:03 -0400
-Received: from 13.2-host.augustakom.net ([80.81.2.13]:48574 "EHLO phoebee.mail")
-	by vger.kernel.org with ESMTP id S271251AbUJVMS5 (ORCPT
+	Fri, 22 Oct 2004 08:22:29 -0400
+Received: from vsmtp2alice.tin.it ([212.216.176.142]:54480 "EHLO vsmtp2.tin.it")
+	by vger.kernel.org with ESMTP id S271251AbUJVMVv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 08:18:57 -0400
-Date: Fri, 22 Oct 2004 14:18:56 +0200
-From: Martin Zwickel <martin.zwickel@technotrend.de>
-To: Justin Piszcz <jpiszcz@lucidpixels.com>
-Cc: linux-kernel@vger.kernel.org, apiszcz@lucidpixels.com
-Subject: Re: Kernel 2.6.x: nfs warning: mount version older than kernel
-Message-ID: <20041022141856.50d2b1a6@phoebee>
-In-Reply-To: <Pine.LNX.4.61.0410220727120.514@p500>
-References: <Pine.LNX.4.61.0410220727120.514@p500>
-X-Mailer: Sylpheed-Claws 0.9.12cvs53 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Operating-System: Linux Phoebee 2.6.7-rc2-mm2 i686 Intel(R) Pentium(R) 4
- CPU 2.40GHz
-X-Face: $rTNP}#i,cVI9h"0NVvD.}[fsnGqI%3=N'~,}hzs<FnWK/T]rvIb6hyiSGL[L8S,Fj`u1t.
- ?J0GVZ4&
-Organization: Technotrend AG
+	Fri, 22 Oct 2004 08:21:51 -0400
+Date: Fri, 22 Oct 2004 14:30:36 +0200
+From: Luca Risolia <luca.risolia@studio.unibo.it>
+To: Luc Saillard <luc@saillard.org>
+Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk, akpm@osdl.org
+Subject: Re: Linux 2.6.9-ac3
+Message-Id: <20041022143036.462742ca.luca.risolia@studio.unibo.it>
+In-Reply-To: <20041022092102.GA16963@sd291.sivit.org>
+References: <20041022101335.6dcf247a.luca.risolia@studio.unibo.it>
+	<20041022092102.GA16963@sd291.sivit.org>
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1";
- boundary="Signature=_Fri__22_Oct_2004_14_18_56_+0200_JvHo1j.w6lYsbkuw"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Fri__22_Oct_2004_14_18_56_+0200_JvHo1j.w6lYsbkuw
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+On Fri, 22 Oct 2004 11:21:02 +0200
+Luc Saillard <luc@saillard.org> wrote:
 
-On Fri, 22 Oct 2004 07:29:46 -0400 (EDT)
-Justin Piszcz <jpiszcz@lucidpixels.com> bubbled:
-
-> # mount -a
-> # dmesg | tail -n 5
-> nfs warning: mount version older than kernel
-> nfs warning: mount version older than kernel
-> nfs warning: mount version older than kernel
-> nfs warning: mount version older than kernel
-> nfs warning: mount version older than kernel
-> # mount --version
-> mount: mount-2.12h
-> #
+> On Fri, Oct 22, 2004 at 10:13:35AM +0200, Luca Risolia wrote:
+> > > o       Restore PWC driver                              (Luc Saillard)
+> > 
+> > This driver does decompression in kernel space, which is not
+> > allowed. That part has to be removed from the driver before
+> > asking for the inclusion in the mainline kernel.
 > 
-> I am using the latest util-linux from the developers site, so I am 
-> curious, why do I get this warning in dmesg/ring-buffer?
+> I know this problem, but without a user API like ALSA, each driver need to
+> implement the decompression module. When the driver will support v4l2, we can
+> return the compressed stream to the user land. I want a v4l3, which is
+> designed as ALSA does for soundcard, with a API for userland and kernelland.
+> In the meantime, i can put a module option, if the user want the
+> decompression in the kernel mode.
+
+Either port the driver to V4L2, which handles decompression stuff well,
+or provide a separate downloadble GPL'ed module. Other drivers in the
+mainline kernel observe this rule; the pwc case is not an exception.
+Also, this matter has been already discussed many times in the v4l
+mailing list: no video decompression at all in kernel space, even if
+*optional* through an *indipendent* module. I doubt Morton or Linus will
+ever accept this version of pwc driver, since they did accept a patch disabling
+colorspace conversion from a driver recently.
+
+> Just for your information, many other part in the kernel use
+> decompression/compression like PPP, video, ... Have you look about the
+> algorithm use in decompression ?, it's just a lookup table with some
+> pre-calculated values. Ok you lost ~60Kbytes of kernel memory. I you look into
+> the logitech windows drivers, you will a see a big fat library name openvc
+> (apt-cache search opencv). I don't want to include all operations but if we
+> haven't a good userland library, our webcam is useless on Linux. 
+> Please, if you can provide some help to put this in userland (provides
+> patches for mplayer, xawtv, kame, gnomeeting, ...), i'll be glad to remove
+> the offending code.
+
+It sounds logic that none would help to fix user applications, if
+we kept including things like decompression in each module in the kernel.
+
+If it ever happens that this driver is accepted, be also prepared to
+accept patches adding decompression and colorspace conversions for
+every video driver I am aware of, starting from the ones I have already
+written to the ones I'll submit in the future.
+
+Regards,
+	Luca Risolia
+
 > 
-> # ftp://ftp.win.tue.nl/pub/linux-local/utils/util-linux/
-> -
-> To unsubscribe from this list: send the line "unsubscribe
-> linux-kernel" in the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
-I think it's about the nfs server/client versions, not the version
-of mount.
-
--- 
-MyExcuse:
-We only support a 28000 bps connection.
-
-Martin Zwickel <martin.zwickel@technotrend.de>
-Research & Development
-
-TechnoTrend AG <http://www.technotrend.de>
-
---Signature=_Fri__22_Oct_2004_14_18_56_+0200_JvHo1j.w6lYsbkuw
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQFBePqwmjLYGS7fcG0RAub3AJ4l/YljL25U5blhEs8Gy9DFFF2dhgCdEtgH
-B6Vy0NjDtWTqUKOllDFgEUE=
-=Rsbx
------END PGP SIGNATURE-----
-
---Signature=_Fri__22_Oct_2004_14_18_56_+0200_JvHo1j.w6lYsbkuw--
+> Luc
+> 
+> opencv:
+>  The Open Computer Vision Library is a collection of algorithms and sample
+>  code for various computer vision problems. The library is compatible with
+>  IPL (Intel's Image Processing Library) and, if available, can use IPP
+>  (Intel's Integrated Performance Primitives) for better performance.
+>  .
+>  OpenCV provides low level portable data types and operators, and a set
+>  of high level functionalities for video acquisition, image processing and
+>  analysis, structural analysis, motion analysis and object tracking, object
+>  recognition, camera calibration and 3D reconstruction.
+> (taken from apt-cache show libopencv-doc)
+> 

@@ -1,41 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263425AbTJQOQd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Oct 2003 10:16:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263430AbTJQOQd
+	id S263430AbTJQOSF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Oct 2003 10:18:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263476AbTJQOSF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Oct 2003 10:16:33 -0400
-Received: from havoc.gtf.org ([63.247.75.124]:21421 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S263425AbTJQOQc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Oct 2003 10:16:32 -0400
-Date: Fri, 17 Oct 2003 10:16:29 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: jlnance@unity.ncsu.edu
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Transparent compression in the FS
-Message-ID: <20031017141629.GB8412@gtf.org>
-References: <1066163449.4286.4.camel@Borogove> <20031015133305.GF24799@bitwizard.nl> <3F8D6417.8050409@pobox.com> <20031016162926.GF1663@velociraptor.random> <20031016172930.GA5653@work.bitmover.com> <20031016174927.GB25836@speare5-1-14> <20031016230448.GA29279@pegasys.ws> <20031017013245.GA6053@ncsu.edu> <1066355235.3f8f4a2395fa0@horde.sandall.us> <20031017130729.GB2794@ncsu.edu>
+	Fri, 17 Oct 2003 10:18:05 -0400
+Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:56450 "EHLO
+	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S263430AbTJQOSC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Oct 2003 10:18:02 -0400
+Date: Fri, 17 Oct 2003 16:18:01 +0200
+From: Christoph Pleger <Christoph.Pleger@uni-dortmund.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: LVM Snapshots
+Message-Id: <20031017161801.140b8368.Christoph.Pleger@uni-dortmund.de>
+In-Reply-To: <Pine.LNX.4.44.0310170910120.7586-100000@logos.cnet>
+References: <200310151751.23103.m.c.p@wolk-project.de>
+	<Pine.LNX.4.44.0310170910120.7586-100000@logos.cnet>
+Organization: Universitaet Dortmund
+X-Mailer: Sylpheed version 0.8.5 (GTK+ 1.2.10; sparc-sun-solaris2.6)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031017130729.GB2794@ncsu.edu>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 17, 2003 at 09:07:29AM -0400, jlnance@unity.ncsu.edu wrote:
-> On Thu, Oct 16, 2003 at 06:47:15PM -0700, Eric Sandall wrote:
-> 
-> > It doesn't really matter that the hash collision is /less/ likely to ruin data
-> > than something in hardware as it adds an /extra/ layer of possible corruption,
-> > so you have a net gain in the possible corruption of your data.  Now, if you
-> > could write it so that there was /no/ possibility of data corruption, than it
-> > would be much more acceptable as it wouldn't add any extra likeliness of
-> > corruption than already exists.
-> 
-> This assumes that the probability of there being a bug in the code which
-> checks for identical blocks is less than the probability of a hash collision.
-> I am not sure that is a good assumption.
+ello,
 
-The complexity of a memcmp() is pretty low...
+On Fri, 17 Oct 2003 09:12:30 -0200 (BRST)
+Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
+
+
+> > > I am using a 2.4.22 kernel from www.kernel.org together with an
+> > > XFS patch from SGI. I want to use LVM for creating snapshots for
+> > > backups, but I found out that I cannot mount the snapshots of
+> > > journalling filesystems (EXT3, XFS, Reiser). Only JFS snapshots
+> > > can be mounted. My research on internet gave the result that a
+> > > kernel-patch must be used to solve that problem, but I could not
+> > > find such a patch for Linux 2.4.22, so where can I get it?
+> > 
+> > Marcelo decided not to apply that needed patch. Here it is for you
+> > to play with :) ... It'll apply with offsets to 2.4.23-pre7.
+> 
+> Because the patch touches generic fs code.
+> 
+> Dont use LVM with XFS for now.
+
+I have used them together. The only thing that made problems at first
+after applying the LVM-patch was that I did not know that the special
+option "nouuid" is needed when mounting an XFS-Snapshot. But afterwards
+I had no problem so far. 
+
+So why do you think that I should not use XFS on a logical volume?
+
+Christoph

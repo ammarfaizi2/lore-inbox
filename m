@@ -1,46 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289140AbSA3Ohe>; Wed, 30 Jan 2002 09:37:34 -0500
+	id <S289056AbSA3OlY>; Wed, 30 Jan 2002 09:41:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289148AbSA3OhY>; Wed, 30 Jan 2002 09:37:24 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:12813 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S289140AbSA3OhR>; Wed, 30 Jan 2002 09:37:17 -0500
-Date: Wed, 30 Jan 2002 17:37:15 +0300
-From: Oleg Drokin <green@namesys.com>
-To: Sebastian Dr?ge <sebastian.droege@gmx.de>
-Cc: davej@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: Current Reiserfs Update / 2.5.2-dj7 Oops
-Message-ID: <20020130173715.B2179@namesys.com>
-In-Reply-To: <20020130151420.40e81aef.sebastian.droege@gmx.de>
+	id <S289148AbSA3OlP>; Wed, 30 Jan 2002 09:41:15 -0500
+Received: from e23.nc.us.ibm.com ([32.97.136.229]:9892 "EHLO e23.esmtp.ibm.com")
+	by vger.kernel.org with ESMTP id <S289056AbSA3OlE>;
+	Wed, 30 Jan 2002 09:41:04 -0500
+Date: Wed, 30 Jan 2002 20:13:04 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+To: Benjamin LaHaise <bcrl@redhat.com>, ak@suse.de, viro@math.psu.edu,
+        jgmyers@netscape.com
+Cc: linux-aio@kvack.org, linux-kernel@vger.kernel.org,
+        lse-tech@lists.sourceforge.net
+Subject: Writeup on AIO design (uploaded)
+Message-ID: <20020130201304.A1859@in.ibm.com>
+Reply-To: suparna@in.ibm.com
+In-Reply-To: <20020129205620.A1886@in.ibm.com> <20020129225600.A10775@redhat.com> <20020130143215.B1378@in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020130151420.40e81aef.sebastian.droege@gmx.de>
-User-Agent: Mutt/1.3.22.1i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020130143215.B1378@in.ibm.com>; from suparna@in.ibm.com on Wed, Jan 30, 2002 at 02:32:15PM +0530
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Hello,
 
-  Can you please feed this entire oops to a ksymoops?
-  Just 2 first entries are not enough.
-  Thank you.
-  BTW, you are running on a IDE system, right?
+I have just uploaded the aio design notes to:
+ http://lse.sourcefourge.net/io/aionotes.txt
 
-Bye,
-    Oleg
-On Wed, Jan 30, 2002 at 03:14:20PM +0100, Sebastian Dr?ge wrote:
-> CPU: 0
-> EIP: 0010:[<c0191005>] Not tainted
-> EFLAGS: 60010282
-> eax: 0000005b ebx: c02b9640 ecx: 00000001 edx: 00000001
-> esi: x15a6800 edi: c15a6800 ebp: cdd95e80 esp: cdd95c30
-> ds: 0018 es: 0018 ss: 0018
-> Process syslogd (pid: 92, stackpage=cdd950000)
-> Stack: c02b819a  c0351ba0  c02b9640  cdd95c54  00000000  00000000  c0198065  c15a6800
-> 	  c02b9640  cdd95e80  ceece980  00000003  ffffffff  00000001  00001000  00000000
-> 	  cdd95ed8  cdd95ed8  000028a3  cdd95c9c  cdd95c98  00000ff8  00000001 00000ff8
-> Call Trace: [<c0198065>] [<c0198649>] [<c01893fb>] [<c018a65b>] [<c01335748>] [<c0132378>] [<c010864b>]
-> Code: 0f 0b 68 a0 1b 35 c0 b8 a0 81 2b c0 8d 96 cc 00 00 00 85 fb
+Thanks to all those who helped with inputs and reviews of the interim 
+drafts.
+
+The writeup attempts to bring out some of the interesting design issues 
+and discuss the solutions to those issues and the approach taken in 
+Ben's design, and touches on the ideas for addressing some of the pending 
+issues, todo items and potential enhancements. It also looks at some of
+these aspects in the context of other implementations that exist or have 
+been attempted on Linux (SGI kaio, Univ of Winsconsin-Madison's BAIO, 
+Andi Kleen's early prototype), and the AIO related interfaces available 
+on other OS's (POSIX aio, NT IOCPs, BSD kqueues), and also the DAFS api 
+specifications. 
+
+This was written with the intention of triggering discussions (though
+this writeup wouldn't have been possible without all the discusions we've
+already had :)). 
+
+So please do share your insights, perspectives and comments. 
+
+All the more so, if you already have a good understanding the aio 
+design ! 
+
+For those who are new to aio:
+The focus here is only the in-kernel aio design, so you won't find much 
+about actually using aio (Dan Kegel's page might be a better
+place to start on that). There should, however, be some insights,
+and pointers to the in-kernel primitives introduced as part of aio,
+say, if you intend to implement your own async state machine (for some 
+reason !). However, the writeup does not get into low level details and 
+is not intended to be a substitute for looking at the code :). 
+It should help you follow the code more easily though (I hope).
+
+Regards
+Suparna
 

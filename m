@@ -1,69 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288622AbSBDHE3>; Mon, 4 Feb 2002 02:04:29 -0500
+	id <S288623AbSBDHF3>; Mon, 4 Feb 2002 02:05:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288623AbSBDHEU>; Mon, 4 Feb 2002 02:04:20 -0500
-Received: from codepoet.org ([166.70.14.212]:30919 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id <S288622AbSBDHEK>;
-	Mon, 4 Feb 2002 02:04:10 -0500
-Date: Mon, 4 Feb 2002 00:04:14 -0700
-From: Erik Andersen <andersen@codepoet.org>
-To: "Calin A. Culianu" <calin@ajvar.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Asynchronous CDROM Events in Userland
-Message-ID: <20020204070414.GA19268@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	"Calin A. Culianu" <calin@ajvar.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0202032333200.1158-100000@rtlab.med.cornell.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.30.0202032333200.1158-100000@rtlab.med.cornell.edu>
-User-Agent: Mutt/1.3.25i
-X-Operating-System: Linux 2.4.16-rmk1, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
+	id <S288639AbSBDHFK>; Mon, 4 Feb 2002 02:05:10 -0500
+Received: from rtlab.med.cornell.edu ([140.251.145.175]:16259 "HELO
+	openlab.rtlab.org") by vger.kernel.org with SMTP id <S288623AbSBDHE7>;
+	Mon, 4 Feb 2002 02:04:59 -0500
+Date: Mon, 4 Feb 2002 02:04:58 -0500 (EST)
+From: "Calin A. Culianu" <calin@ajvar.org>
+To: <linux-kernel@vger.kernel.org>
+Subject: [PATCH] 2.4.18-pre7 Fixed typo that made compiling impossible in
+ /net/ipv4/netfilter/ipfwadm_core.c
+Message-ID: <Pine.LNX.4.30.0202040155370.1740-200000@rtlab.med.cornell.edu>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="-74666095-1288806725-1012806094=:1740"
+Content-ID: <Pine.LNX.4.30.0202040204220.1740@rtlab.med.cornell.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun Feb 03, 2002 at 11:41:47PM -0500, Calin A. Culianu wrote:
-> 
-> Is there any way, other than by polling, to have a user process be
-> notified of a change in status on a cdrom drive?  (Such as if the drive
-> opens, closes, gets new media, etc)?
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-Nope.  It would be nice, but the current crop of hardware simply
-doesn't support it.  From the Mt. Fuji spec (SFF8090i) 11.5 Get
-Event/Status Notification:
+---74666095-1288806725-1012806094=:1740
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-ID: <Pine.LNX.4.30.0202040204221.1740@rtlab.med.cornell.edu>
 
-    The GET EVENT/STATUS NOTIFICATION Command requests the Logical Unit to
-    report event(s) and status as specified in the Notification
-    ClassNotification Class Request field and provides asynchronous
-    notification. Two modes of operation are defined here. They are
-    polling and asynchronous modes.
 
-    In polling mode, the Host will issue GET EVENT/STATUS NOTIFICATION
-    Commands at periodic intervals with an immediate (Immed) bit of 1 set.
-    The Logical Unit shall complete this Command with the most recently
-    available event status requested. The Logical Unit shall support
-    polling mode.
+/net/ipv4/netfilter/ipfwadm_core.c has a typo.  The MOD_*_USE_COUNT macros
+are being used incorrectly.  Compiling was impossible as a result.
 
-    In asynchronous mode, the Host will issue a single GET EVENT/STATUS
-    NOTIFICATION Command with an Immed (immediate) bit of 0 requested. If
-    the Logical Unit supports Asynchronous event status notification
-    (through tagged queuing) the model outlined here shall be used. If the
-    Logical Unit does not support Asynchronous Mode, the Command shall
-    fail as an illegal request. If the Host requests Asynchronous Mode
-    using a non-queable or non-overlappable request, the Command shall
-    fail with CHECK CONDITION Status, 5/24/00 INVALID FIELD IN CDB.
+I fixed the typos.  It's trivial, but I figured I'd submit this just to
+make it easier for marcello to fix this...?  (this may have been submitted
+by someone else already.. but my quick scan of the mailing list didn't
+reveal anyone having patched this).
 
-Jens Axboe and I wrote a little test app a year or two ago to check
-for whether drives supported asynchronous mode.  We found it to be
-unsupported on 100% of the drives we tested (and we tested quite a
-few)...
+-Calin
 
- -Erik
+---74666095-1288806725-1012806094=:1740
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="2.4.18-pre7_ipfwadm_core_typo_fix.patch"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.30.0202040201340.1740@rtlab.med.cornell.edu>
+Content-Description: 
+Content-Disposition: ATTACHMENT; FILENAME="2.4.18-pre7_ipfwadm_core_typo_fix.patch"
 
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+LS0tIHZhbmlsbGEtMi40LjE4LXByZTcvbmV0L2lwdjQvbmV0ZmlsdGVyL2lw
+ZndhZG1fY29yZS5jCU1vbiBGZWIgIDQgMDE6NDk6MTQgMjAwMg0KKysrIHBh
+dGNoZWQvbmV0L2lwdjQvbmV0ZmlsdGVyL2lwZndhZG1fY29yZS5jCU1vbiBG
+ZWIgIDQgMDA6NTg6NTYgMjAwMg0KQEAgLTY4OCw3ICs2ODgsNyBAQA0KIAkJ
+ZnRtcCA9ICpjaGFpbnB0cjsNCiAJCSpjaGFpbnB0ciA9IGZ0bXAtPmZ3X25l
+eHQ7DQogCQlrZnJlZShmdG1wKTsNCi0JCU1PRF9ERUNfVVNFX0NPVU5UKCk7
+DQorCQlNT0RfREVDX1VTRV9DT1VOVDsNCiAJfQ0KIAlyZXN0b3JlX2ZsYWdz
+KGZsYWdzKTsNCiB9DQpAQCAtNzMyLDcgKzczMiw3IEBADQogCWZ0bXAtPmZ3
+X25leHQgPSAqY2hhaW5wdHI7DQogICAgICAgIAkqY2hhaW5wdHI9ZnRtcDsN
+CiAJcmVzdG9yZV9mbGFncyhmbGFncyk7DQotCU1PRF9JTkNfVVNFX0NPVU5U
+KCk7DQorCU1PRF9JTkNfVVNFX0NPVU5UOw0KIAlyZXR1cm4oMCk7DQogfQ0K
+IA0KQEAgLTc4Myw3ICs3ODMsNyBAQA0KIAllbHNlDQogICAgICAgICAJKmNo
+YWlucHRyPWZ0bXA7DQogCXJlc3RvcmVfZmxhZ3MoZmxhZ3MpOw0KLQlNT0Rf
+SU5DX1VTRV9DT1VOVCgpOw0KKwlNT0RfSU5DX1VTRV9DT1VOVDsNCiAJcmV0
+dXJuKDApOw0KIH0NCiANCkBAIC04NTgsNyArODU4LDcgQEANCiAJfQ0KIAly
+ZXN0b3JlX2ZsYWdzKGZsYWdzKTsNCiAJaWYgKHdhc19mb3VuZCkgew0KLQkJ
+TU9EX0RFQ19VU0VfQ09VTlQoKTsNCisJCU1PRF9ERUNfVVNFX0NPVU5UOw0K
+IAkJcmV0dXJuIDA7DQogCX0gZWxzZQ0KIAkJcmV0dXJuKEVJTlZBTCk7DQo=
+---74666095-1288806725-1012806094=:1740--

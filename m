@@ -1,47 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267793AbUIUQmS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267799AbUIUQo3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267793AbUIUQmS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Sep 2004 12:42:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267799AbUIUQmS
+	id S267799AbUIUQo3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Sep 2004 12:44:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267808AbUIUQo3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Sep 2004 12:42:18 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:9151 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S267793AbUIUQmQ
+	Tue, 21 Sep 2004 12:44:29 -0400
+Received: from tarjoilu.luukku.com ([194.215.205.232]:44465 "EHLO
+	tarjoilu.luukku.com") by vger.kernel.org with ESMTP id S267799AbUIUQo2
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Sep 2004 12:42:16 -0400
-Message-ID: <415059DA.2060409@pobox.com>
-Date: Tue, 21 Sep 2004 12:42:02 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
+	Tue, 21 Sep 2004 12:44:28 -0400
+Message-ID: <41505AA1.A51DEE50@users.sourceforge.net>
+Date: Tue, 21 Sep 2004 19:45:21 +0300
+From: Jari Ruusu <jariruusu@users.sourceforge.net>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.22aa1r7 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: "Shine on this Life That's Burnin' Out" <hopeless@islug.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [sata] ALI M5281
-References: <Pine.LNX.4.58.0409210340520.2842@inconnu.isu.edu>
-In-Reply-To: <Pine.LNX.4.58.0409210340520.2842@inconnu.isu.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Andries.Brouwer@cwi.nl
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: OOM & [OT] util-linux-2.12e
+References: <UTC200409192205.i8JM52C25370.aeb@smtp.cwi.nl>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shine on this Life That's Burnin' Out wrote:
-> (blatant disregard of FAQ which suggests newsgroups, don't LART me please)
-> 
-> Has anyone been able to wrestle specs out of ALI for this device? It's 
-> starting to become somewhat popular from a number of mobo manufacturers 
-> (like Soyo). =/ It seems to be the 4th most prevalent PCI-bus based 
-> controller after Silicon Image, Highpoint, and Promise. =/
-> 
-> Even some sort of semi-functional code would be nice. (Reminds me of 
-> my attempts to forward-port old korean package for Aralion UltimaRAID 
-> systems. Works in later 2.4's but dies on 2.6 =( )
-> 
-> Was ALI good about specs for their old M15x3 series?
+Andries.Brouwer@cwi.nl wrote:
+> People have asked repeatedly for a way to mark lines in /etc/fstab
+> so as to make clear that such lines are managed by some GUI or other
+> external program. Labels like "kudzu".
+> In this release I added a comment convention for /etc/fstab: options
+> can have a part starting with \; - that part is ignored by mount
+> but can be used by other programs managing fstab.
 
-lemme dig through my mail, I think ALi emailed me.
+How about implementing /etc/fstab option parsing code that is compatible
+with existing libc /etc/fstab parsing code:
 
-	Jeff
+defaults,noauto,comment=kudzu,rw
+                ^^^^^^^^^^^^^
 
-
-
+-- 
+Jari Ruusu  1024R/3A220F51 5B 4B F9 BB D3 3F 52 E9  DB 1D EB E3 24 0E A9 DD

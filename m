@@ -1,42 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263487AbTJQOz4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Oct 2003 10:55:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263490AbTJQOz4
+	id S263477AbTJQOqm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Oct 2003 10:46:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263478AbTJQOqm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Oct 2003 10:55:56 -0400
-Received: from usstp09.itcs.purdue.edu ([128.210.5.248]:37011 "EHLO
-	usstp09.itcs.purdue.edu") by vger.kernel.org with ESMTP
-	id S263487AbTJQOzy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Oct 2003 10:55:54 -0400
-Message-ID: <3F9002FA.6030709@purdue.edu>
-Date: Fri, 17 Oct 2003 09:55:54 -0500
-From: Peter Romba <promba@purdue.edu>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Help a newbie:  "make modules_install" causes depmod errors for EVERY
- module on EVERY kernel I try?
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 17 Oct 2003 10:46:42 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:6272 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S263477AbTJQOql (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Oct 2003 10:46:41 -0400
+Message-Id: <200310171446.h9HEkbbN005736@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: /proc reliability & performance 
+In-Reply-To: Your message of "Fri, 17 Oct 2003 02:10:40 PDT."
+             <20031017021040.4964309a.davem@redhat.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <1066356438.15931.125.camel@cube> <20031017023437.GB28158@work.bitmover.com> <01e601c39484$f3fa31c0$890010ac@edumazet>
+            <20031017021040.4964309a.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1734452520P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Fri, 17 Oct 2003 10:46:37 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-For some reason I can't compile a kernel anymore.  I recently installed 
-gnome 2.4 from source (the only major system change I can think of). 
-Now when I try to compile 2.4.21, make modules_install gives depmod 
-errors for EVERY module, even dummy.o in the case of an out-of-the-box 
-kernel configuration.  This behavior happens on every kernel that I've 
-tried.  This is using the typical make mrproper, make menuconfig, make 
-dep, make clean, make bzImage, make modules, make modules_install 
-sequence of stuff.
+--==_Exmh_1734452520P
+Content-Type: text/plain; charset=us-ascii
 
-In the process of building gnome I had to update ld from an RPM 
-(couldn't install it from source, e-mail me if you want details on that).
+On Fri, 17 Oct 2003 02:10:40 PDT, "David S. Miller" said:
 
-Any help would be greatly appreciated :)...  I'm at a loss about what to do.
+> > tools like "netstat" or "lsof", (even with -n flag) are just unusable.
+> 
+> Because they don't use the netlink TCP socket dumping
+> facility which is made to handle such things much better
+> than procfs ever can.
 
-	--Peter
-	  promba@purdue.edu
+The netlink TCP socked dumping facility will also provide the
+"open files" list of *non* sockets that lsof wants?
 
+Not all the world's a TCP connection....
+
+--==_Exmh_1734452520P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE/kADNcC3lWbTT17ARAg22AKD9Qdt/RpltBAuovL7pKPlHh4EwegCgq/Ud
+laXp5eh4gEW+VCJV8XVFQJg=
+=jSd+
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1734452520P--

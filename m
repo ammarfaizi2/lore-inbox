@@ -1,79 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317576AbSHCOIM>; Sat, 3 Aug 2002 10:08:12 -0400
+	id <S317572AbSHCOXX>; Sat, 3 Aug 2002 10:23:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317578AbSHCOIM>; Sat, 3 Aug 2002 10:08:12 -0400
-Received: from dialin-145-254-144-235.arcor-ip.net ([145.254.144.235]:18670
-	"HELO schottelius.org") by vger.kernel.org with SMTP
-	id <S317576AbSHCOIL>; Sat, 3 Aug 2002 10:08:11 -0400
-Date: Sat, 3 Aug 2002 07:06:34 +0200
-From: Nico Schottelius <nico-mutt@schottelius.org>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: 2.5.29 / 2.5.31 floppy/apm support
-Message-ID: <20020803050633.GA459@schottelius.org>
+	id <S317578AbSHCOXX>; Sat, 3 Aug 2002 10:23:23 -0400
+Received: from mnh-1-16.mv.com ([207.22.10.48]:34564 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S317572AbSHCOXW>;
+	Sat, 3 Aug 2002 10:23:22 -0400
+Message-Id: <200208031529.KAA01655@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: Alan Cox <alan@redhat.com>, mingo@elte.hu
+Cc: rz@linux-m68k.org (Richard Zidlicky), linux-kernel@vger.kernel.org
+Subject: Re: context switch vs. signal delivery [was: Re: Accelerating user mode 
+In-Reply-To: Your message of "Sat, 03 Aug 2002 08:33:30 -0400."
+             <200208031233.g73CXUB02612@devserv.devel.redhat.com> 
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="RnlQjJ0d97Da+TV1"
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-MSMail-Priority: Is not really needed
-X-Mailer: Yam on Linux ?
-X-Operating-System: Linux flapp 2.5.29
+Content-Type: text/plain; charset=us-ascii
+Date: Sat, 03 Aug 2002 10:29:42 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+alan@redhat.com said:
+> Which would argue UML ought to have a positively microkernel view of
+> syscalls - sending a message ? 
 
---RnlQjJ0d97Da+TV1
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Indeed.  Ingo's mail got me thinking that
 
-Hello guys!
+alan@redhat.com said:
+> the alternatives like a seperate process and ptrace are not pretty either
 
-Just a small question, perhaps it's dump, but I am having big problems=20
-currently:
+might not be so bad after all.
 
-I want to setup a router-only host, which boots from two floppy drives
-and has 3 network devices.
+All I would need to make this work is for one process to be able to change
+the mm of another.
 
-So far no problem, but when trying to access the ramdisk on the floppy,
-the old problem exists that the floppy driver does not work with current
-VFS.
+Then, the current UML tracing thread would handle the kernel side of things
+and sit in its own address space nicely protected from its processes.
 
-Then I tried to shutdown the host via network, which fails because of apm
-module cannot be included in kernel in 2.5.29.
+				Jeff
 
-So I just wanted to ask, whether someone is working on the floppy and apm
-problem or if it is / will be solved in 2.5.31 ?
-
-Nico
-
-/* a bit frustrated, because the wifi card only works correct in 2.5 series,
-   which let 2.5 the only choice.
-   Perhaps I am gonna use 2.5.24, which was pretty stable and still had apm=
- and
-   floppy support...
-*/
-  =20
-
---=20
-Changing mail address: please forget all known @pcsystems.de addresses.
-
-Please send your messages pgp-signed and/or pgp-encrypted (don't encrypt ma=
-ils
-to mailing list!). If you don't know what pgp is visit www.gnupg.org.
-(public pgp key: ftp.schottelius.org/pub/familiy/nico/pgp-key)
-
---RnlQjJ0d97Da+TV1
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE9S2TZtnlUggLJsX0RAi4xAJ4wX1FPhJ3o2Om/91u8G3lu5wtzmwCfbjST
-z+J3dk1G2kSSBU9mjXeu0i8=
-=qk5A
------END PGP SIGNATURE-----
-
---RnlQjJ0d97Da+TV1--

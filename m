@@ -1,33 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267021AbSLKFEa>; Wed, 11 Dec 2002 00:04:30 -0500
+	id <S267016AbSLKFIA>; Wed, 11 Dec 2002 00:08:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267022AbSLKFEa>; Wed, 11 Dec 2002 00:04:30 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:21774 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S267021AbSLKFE3>;
-	Wed, 11 Dec 2002 00:04:29 -0500
-Date: Tue, 10 Dec 2002 21:11:00 -0800
+	id <S267019AbSLKFIA>; Wed, 11 Dec 2002 00:08:00 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:23054 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S267016AbSLKFH7>;
+	Wed, 11 Dec 2002 00:07:59 -0500
+Date: Tue, 10 Dec 2002 21:14:26 -0800
 From: Greg KH <greg@kroah.com>
-To: Wil Reichert <wilreichert@yahoo.com>
-Cc: Andrew Morton <akpm@digeo.com>, Jens Axboe <axboe@suse.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: "bio too big" error
-Message-ID: <20021211051100.GA13718@kroah.com>
-References: <1039572597.459.82.camel@darwin> <3DF6A673.D406BC7F@digeo.com> <1039577938.388.9.camel@darwin>
+To: Ed Tomlinson <tomlins@cam.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: problems build usb-serial as a module in 2.5.51
+Message-ID: <20021211051426.GB13718@kroah.com>
+References: <200212102109.18143.tomlins@cam.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1039577938.388.9.camel@darwin>
+In-Reply-To: <200212102109.18143.tomlins@cam.org>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 10, 2002 at 10:38:58PM -0500, Wil Reichert wrote:
+On Tue, Dec 10, 2002 at 09:09:18PM -0500, Ed Tomlinson wrote:
+> I get this building 2.5.51
 > 
-> I'm guessing its perhaps a 2.5 / lvm issue?  Here's 'vgdisplay -v' in
-> case:
+> make -f scripts/Makefile.build obj=drivers/usb/serial
+>   gcc -Wp,-MD,drivers/usb/serial/.usb-serial.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=k6 -Iarch/i386/mach-generic -nostdinc -iwithprefix include -DMODULE   -DKBUILD_BASENAME=usb_serial -DKBUILD_MODNAME=usbserial -DEXPORT_SYMTAB  -c -o drivers/usb/serial/usb-serial.o drivers/usb/serial/usb-serial.c
+> {standard input}: Assembler messages:
+> {standard input}:2592: Error: value of -129 too large for field of 1 bytes at 5820
 
-Did you try the dm patches that were just posted to lkml today?
+What version of gcc and what is your .config for the CONFIG_USB_SERIAL_*
+options?
 
 thanks,
 

@@ -1,60 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261993AbUBZP1P (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 10:27:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262074AbUBZP1O
+	id S261981AbUBZPal (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 10:30:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262169AbUBZPak
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 10:27:14 -0500
-Received: from netline-mail1.netline.ch ([195.141.226.27]:16393 "EHLO
-	netline-mail1.netline.ch") by vger.kernel.org with ESMTP
-	id S261993AbUBZP1B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 10:27:01 -0500
-Subject: Re: [Linux-fbdev-devel] fbdv/fbcon pending problems
-From: Michel =?ISO-8859-1?Q?D=E4nzer?= <michel@daenzer.net>
-To: Otto Solares <solca@guug.org>
-Cc: James Simmons <jsimmons@infradead.org>,
-       Geert Uytterhoeven <geert@linux-m68k.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040225031553.GC17390@guug.org>
-References: <20040224214106.GA17390@guug.org>
-	 <Pine.LNX.4.44.0402250118210.24952-100000@phoenix.infradead.org>
-	 <20040225031553.GC17390@guug.org>
-Content-Type: text/plain; charset=UTF-8
-Message-Id: <1077809216.2681.107.camel@thor.asgaard.local>
+	Thu, 26 Feb 2004 10:30:40 -0500
+Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:2715 "EHLO
+	mail.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
+	id S261981AbUBZPai (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 10:30:38 -0500
+Subject: Re: [PATCH] fix small highmem bio bounce bvec handling glitch
+From: Christophe Saout <christophe@saout.de>
+To: Jens Axboe <axboe@suse.de>
+Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20040226151026.GQ7580@suse.de>
+References: <1077807966.10397.2.camel@leto.cs.pocnet.net>
+	 <20040226151026.GQ7580@suse.de>
+Content-Type: text/plain
+Message-Id: <1077809433.10397.11.camel@leto.cs.pocnet.net>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 26 Feb 2004 16:26:57 +0100
-Content-Transfer-Encoding: 8bit
+Date: Thu, 26 Feb 2004 16:30:33 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-02-25 at 04:15, Otto Solares wrote: 
+Am Do, den 26.02.2004 schrieb Jens Axboe um 16:10:
+
+> > --- linux.orig/mm/highmem.c	2004-01-21 19:08:45.000000000 +0100
+> > +++ linux/mm/highmem.c	2004-02-26 15:47:14.574722576 +0100
+> > @@ -294,7 +294,12 @@
+> >  		if (tovec->bv_page == fromvec->bv_page)
+> >  			continue;
+> >  
+> > -		vfrom = page_address(fromvec->bv_page) + fromvec->bv_offset;
+> > +		/*
+> > +		 * fromvec->bv_offset and fromvec->bv_len might have been
+> > +		 * modified by the block layer, so use the original copy,
+> > +		 * bounce_copy_vec already uses tovec->bv_len
+> > +		 */
+> > +		vfrom = page_address(fromvec->bv_page) + tovec->bv_offset;
+> >  
+> >  		bounce_copy_vec(tovec, vfrom);
 > 
-> 4. Memory mappings.
-> 	We can currently map the vmem and io regions in userspace.  It
-> 	current exists problems with highmem but in short it simply works
-> 	for dumb chips or programable chips so specialized libs (like
-> 	mesa-solo) can do a decent job.
+> Irk yes, that's is pretty nasty, I really wish we could avoid screwing
+> with vec entries
 
-I hope Mesa-solo doesn't bang the chip directly, does it? That would
-mean root only.
+What about a bio->bi_bvec_done field?
 
-And while we're brainstorming... :)
+> (it's pretty obscure for bio clones, too)...
 
-I'm not sure being able to map the whole video RAM is a good idea in the
-long run either; at some point we probably need a centralized memory
-manager, and I think ideally it should map the allocated regions
-separately (which could allow for moving them between video RAM, GART
-and system RAM transparently, e.g.) and only allow to use them for
-acceleration by opaque handles (via the DRM or whatever). This would be
-quite a lot of stuff in the kernel, but I'm not sure it can be done
-safely in user space...
+Yes, I noticed that dm-crypt also does the same mistake for reads. I'm
+going to change it too (easily accomplished).
 
-
--- 
-Earthling Michel Dänzer      |     Debian (powerpc), X and DRI developer
-Libre software enthusiast    |   http://svcs.affero.net/rm.php?r=daenzer
 

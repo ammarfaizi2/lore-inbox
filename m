@@ -1,58 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262742AbTC0Ob0>; Thu, 27 Mar 2003 09:31:26 -0500
+	id <S262949AbTC0Og3>; Thu, 27 Mar 2003 09:36:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262947AbTC0Ob0>; Thu, 27 Mar 2003 09:31:26 -0500
-Received: from 64-238-252-21.arpa.kmcmail.net ([64.238.252.21]:53698 "EHLO
-	kermit.unets.com") by vger.kernel.org with ESMTP id <S262742AbTC0ObW>;
-	Thu, 27 Mar 2003 09:31:22 -0500
-Subject: Kernel Itself Reports Bug, Continuous OOPS's, and Phantom NIC Card
-From: Adam Voigt <adam@cryptocomm.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 27 Mar 2003 09:42:57 -0500
-Message-Id: <1048776183.1873.2.camel@beowulf.cryptocomm.com>
-Mime-Version: 1.0
-X-OriginalArrivalTime: 27 Mar 2003 14:42:36.0639 (UTC) FILETIME=[1BE5D6F0:01C2F46F]
+	id <S262951AbTC0Og3>; Thu, 27 Mar 2003 09:36:29 -0500
+Received: from [216.239.30.242] ([216.239.30.242]:31748 "EHLO
+	wind.enjellic.com") by vger.kernel.org with ESMTP
+	id <S262949AbTC0Og1>; Thu, 27 Mar 2003 09:36:27 -0500
+Message-Id: <200303271447.h2RElSa1006173@wind.enjellic.com>
+From: greg@wind.enjellic.com (Dr. Greg Wettstein)
+Date: Thu, 27 Mar 2003 08:47:28 -0600
+In-Reply-To: jlnance@unity.ncsu.edu
+       "Re: Ptrace hole / Linux 2.2.25" (Mar 24, 10:33am)
+Reply-To: greg@enjellic.com
+X-Mailer: Mail User's Shell (7.2.5 10/14/92)
+To: jlnance@unity.ncsu.edu, linux-kernel@vger.kernel.org
+Subject: Re: Ptrace hole / Linux 2.2.25
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Distro: Redhat 8.0
-Kernel: Redhat 2.4.18-27.8.0 (Latest)
-Mobo: Aptron P4VXAD
-CPU: 2.4 GHZ Intel Pentium 4
-RAM: 512 MB
-Kernel Params: ide=nodma, pci=biosirq (the dmesg suggested it =))
+On Mar 24, 10:33am, jlnance@unity.ncsu.edu wrote:
+} Subject: Re: Ptrace hole / Linux 2.2.25
 
-Leaving the computer running all night, with only a CPU
-intensive task (i.e., seti@home), produced the attached
-message log, of what appear to be almost on-the-clock
-hourly OOPS's. This ofcourse led me to believe it was something
-in my cron schedule, only problem is, it's empty, so it's
-either syslogd or a built in system hourly task (no problems
-on 8 other machines with this same kernel, distro, and config).
+Good morning to everyone.
 
-Behavior with the OOPS's, is sporatic, I can turn the machine
-on, wait ten minutes, and log in, and do a "ls" and it will
-OOPS, other times it will be hours before I see them.
+> On Sun, Mar 23, 2003 at 08:44:23PM +0100, Martin Mares wrote:
+> 
+> > Do you really think that "People should either use vendor kernels or
+> > read LKML and be able to gather the fixes from there themselves" is a
+> > good strategy?
 
-One other problem, probably unrelated, the BIOS and the Kernel
-both report seeing a "Realtek 8139" NIC on the computer, though
-no such card exists and it is not built onto the mobo, only a
-3COM 3c59x (PCI Card).
+> Hi Martin,
+>     I must say that I think it is an excellent strategy.  I will admit
+> though, that I have voiced this opinion several times in the past and
+> it seems that most people disagree with me.
+>     I think we do a disservice to people by encouraging them to believe
+> that the kernels they download from kernel.org can be depended on to
+> work.  Kernel.org kernels are effectivly a way for people to participate
+> in the development process and to help with QA.  If you dont want to
+> be involved with these activities, you really do not want to use those
+> kernels.
+>     We could try and make that guarantee if we wanted to, but it would
+> be a lot of work and the vendors are already doing it.  So why not
+> leverage their work?
 
-Included in the messages the kernel seemed to want me to
-report to the list two bug reports =), seeing as how it even
-has "cut here" in the messages file. Attached, is the full
-/var/log/message, at the end of the file, the machine just quit,
-as when I came in, no display would come up. I've also attached
-the output from dmesg, lsmod, and lspci, if you need anything else,
-or have any ideas, PLEASE don't hesitate to tell me.
+Let me state clearly that I don't have any problems with money being
+made off free software.  I also understand the importance of Linux
+vendors.
 
--- 
-Adam Voigt (adam@cryptocomm.com)
-The Cryptocomm Group
-My GPG Key: http://64.238.252.49:8080/adam_at_cryptocomm.asc
+That being said the reason not to leverage their work is that the
+reality of capitalism implies an imperative on the vendor to make
+decisions which make 'their' kernel more appealing from a marketing
+perspective.  Unfortunately the history of the software industry has
+pretty effectively demonstrated that making software appealing from a
+marketing perspective is at direct odds to producing a quality
+product.
 
+I personally have seen too many cases of vendor kernels exploding or
+having problems in environments where I run stock statically compiled
+kernels without problems.  That isn't meant as an indictment but an
+observational fact.
+
+I think the strategy of having a 'hot-list' of security or critical
+performance patches for the current release kernel makes the most
+amount of sense.  Those people that are comfortable with rolling their
+own kernels can grab the patches and have at it.  The presence of
+those patches shouldn't affect the steady progression of maintenance
+on the 'stable' kernel.
+
+> Jim
+
+}-- End of excerpt from jlnance@unity.ncsu.edu
+
+As always,
+Dr. G.W. Wettstein, Ph.D.   Enjellic Systems Development, LLC.
+4206 N. 19th Ave.           Specializing in information infra-structure
+Fargo, ND  58102            development.
+PH: 701-281-4950            WWW: http://www.enjellic.com
+FAX: 701-281-3949           EMAIL: greg@enjellic.com
+------------------------------------------------------------------------------
+"Intel engineering seem to have misheard Intel marketing strategy.  The
+phrase was 'Divide and conquer' not 'Divide and cock up'".
+                                -- Alan Cox

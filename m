@@ -1,44 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264750AbSJPA73>; Tue, 15 Oct 2002 20:59:29 -0400
+	id <S264643AbSJPBIV>; Tue, 15 Oct 2002 21:08:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264763AbSJPA73>; Tue, 15 Oct 2002 20:59:29 -0400
-Received: from [203.117.131.12] ([203.117.131.12]:42394 "EHLO
-	gort.metaparadigm.com") by vger.kernel.org with ESMTP
-	id <S264750AbSJPA72>; Tue, 15 Oct 2002 20:59:28 -0400
-Message-ID: <3DACBB4E.8090708@metaparadigm.com>
-Date: Wed, 16 Oct 2002 09:05:18 +0800
-From: Michael Clark <michael@metaparadigm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020913 Debian/1.1-1
+	id <S264671AbSJPBIU>; Tue, 15 Oct 2002 21:08:20 -0400
+Received: from mg03.austin.ibm.com ([192.35.232.20]:55951 "EHLO
+	mg03.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S264643AbSJPBIU>; Tue, 15 Oct 2002 21:08:20 -0400
+Message-ID: <3DACBD58.AAD8F0A@austin.ibm.com>
+Date: Tue, 15 Oct 2002 20:14:00 -0500
+From: Saurabh Desai <sdesai@austin.ibm.com>
+Organization: IBM Corporation
+X-Mailer: Mozilla 4.7 [en] (X11; U; AIX 4.3)
+X-Accept-Language: en-US,en-GB
 MIME-Version: 1.0
-To: Steven Dake <sdake@mvista.com>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] [PATCHES] Advanced TCA Hotswap Support in Linux Kernel
-References: <3DAB1007.6040400@mvista.com> <20021015052916.GA11190@kroah.com> <3DAC52A7.907@mvista.com> <3DAC685B.9070102@metaparadigm.com> <3DAC6C7B.1080205@mvista.com> <20021015203423.GI15864@kroah.com> <3DAC7EAA.5020408@mvista.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Ingo Molnar <mingo@elte.hu>
+CC: Linus Torvalds <torvalds@transmeta.com>, Andrew Morton <akpm@zip.com.au>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       NPT library mailing list <phil-list@redhat.com>
+Subject: Re: [patch] mmap-speedup-2.5.42-C3
+References: <Pine.LNX.4.44.0210151438440.10496-100000@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/16/02 04:46, Steven Dake wrote:
-> The data/telecoms I've talked to require disk hotswap times of less then 
-> 20 msec from notification of hotwap to blue led (a light used to 
-> indicate the device can be removed).  They would like 10 msec if it 
-> could be done.  This is because of how long it takes on a surprise 
-> extraction for the hardware to send the signal vs the user to disconnect 
-> the hardware.
+Ingo Molnar wrote:
+> 
+> the attached patch (against BK-curr) adds three new, threading related
+> improvements to the VM.
+> 
+> the first one is an mmap inefficiency that was reported by Saurabh Desai.
+> The test_str02 NPTL test-utility does the following: it tests the maximum
+> number of threads by creating a new thread, which thread creates a new
+> thread itself, etc. It basically creates thousands of parallel threads,
+> which means thousands of thread stacks.
 
-I'm just surprised that the SAF-TE processers will respond this quickly.
+  Like to point out, test_str02 is a NGPT test program not NPTL.
 
-> For legacy systems such as SAFTE hotswap, polling through sg at 10 msec 
-> intervals would be extremely painful because of all the context 
-> switches.  A timer scheduled every 10 msec to send out a SCSI message 
-> and handle a response if there is a hotswap event is a much better course.
+ 
+> the patch was tested on x86 SMP and UP. Saurabh, can you confirm that this
+> patch fixes the performance problem you saw in test_str02?
+> 
 
-100 context switchs a second isn't that much is it?
-
-I'll adjust safte-monitor from its default 2 second polling down
-to 10msec and see what the result is.
-
-~mc
-
+  Yes, the test_str02 performance improved a lot using NPTL.
+  However, on a side effect, I noticed that randomly my current telnet session
+  was logged out after running this test. Not sure, why?  
+  I applied your patch on 2.5.42 kernel and running glibc-2.3.1pre2.

@@ -1,46 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266250AbUJHXyS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266252AbUJIAEm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266250AbUJHXyS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 19:54:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266252AbUJHXyS
+	id S266252AbUJIAEm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 20:04:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266275AbUJIAEm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 19:54:18 -0400
-Received: from smtp202.mail.sc5.yahoo.com ([216.136.129.92]:63666 "HELO
-	smtp202.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S266250AbUJHXyG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 19:54:06 -0400
-Message-ID: <416727C6.5000000@yahoo.com.au>
-Date: Sat, 09 Oct 2004 09:50:30 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
-X-Accept-Language: en
+	Fri, 8 Oct 2004 20:04:42 -0400
+Received: from smtp003.mail.ukl.yahoo.com ([217.12.11.34]:8083 "HELO
+	smtp003.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S266252AbUJIAEk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 20:04:40 -0400
+From: BlaisorBlade <blaisorblade_spam@yahoo.it>
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: [patch 1/1] dm: fix printk warnings about whether %lu/%Lu is right for sector_t
+Date: Sat, 9 Oct 2004 02:04:46 +0200
+User-Agent: KMail/1.6.1
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Neil Brown <neilb@cse.unsw.edu.au>
+References: <20041008144034.EB891B557@zion.localdomain> <200410082245.39119.blaisorblade_personal@yahoo.it> <Pine.LNX.4.60.0410082221340.26699@hermes-1.csi.cam.ac.uk>
+In-Reply-To: <Pine.LNX.4.60.0410082221340.26699@hermes-1.csi.cam.ac.uk>
 MIME-Version: 1.0
-To: Erich Focht <efocht@hpce.nec.com>
-CC: colpatch@us.ibm.com, LSE Tech <lse-tech@lists.sourceforge.net>,
-       Paul Jackson <pj@sgi.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
-       Andrew Morton <akpm@osdl.org>, ckrm-tech@lists.sourceforge.net,
-       LKML <linux-kernel@vger.kernel.org>, simon.derr@bull.net,
-       frankeh@watson.ibm.com
-Subject: Re: [Lse-tech] [RFC PATCH] scheduler: Dynamic sched_domains
-References: <1097110266.4907.187.camel@arrakis> <41666E90.2000208@yahoo.com.au> <1097261691.5650.23.camel@arrakis> <200410090113.40589.efocht@hpce.nec.com>
-In-Reply-To: <200410090113.40589.efocht@hpce.nec.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200410090204.46720.blaisorblade_spam@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erich Focht wrote:
+On Friday 08 October 2004 23:57, Anton Altaparmakov wrote:
+> On Fri, 8 Oct 2004, Paolo Giarrusso wrote:
+> > On Friday 08 October 2004 22:11, Anton Altaparmakov wrote:
+> > > On Fri, 8 Oct 2004, Andrew Morton wrote:
+> > > > blaisorblade_spam@yahoo.it wrote:
 
->>I personally like the hierarchical idea.  Machine topologies tend to
->>look tree-like, and every useful sched_domain layout I've ever seen has
->>been tree-like.  I think our interface should match that.
-> 
-> 
-> I like the hierarchical idea, too. The natural way to build it would
-> be by starting from the cpus and going up. This tree stands on its
-> leafs... and I'm not sure how to express that in a filesystem.
-> 
+> Yes I know in the kernel and on i386 it makes no difference, I said that
+> already.  But on some systems it does make a difference.  I have seen it
+> myself and I have had it reported. 
 
-Why would you ever want to play around with the internals of the
-thing though? Provided you have a way to create exclusive sets of
-CPUs, when would you care about doing more?
+> Thinking about it when I said 
+> architectures I possibly meant to say "other Unix flavours", I think one
+> of the *BSDs was the one where I saw the difference between %L and %ll
+> manifest itself.
+Ok, I thought hardware archs - for other Unixes you're right.
+
+Sorry for this and thanks for the lesson. Bye
+> Sorry, it is not.  I find it somewhat strange that you choose gcc and
+> glibc to say what is correct...  Ever heard of standards?!?
+Yes, I heard them, I just never bought ISO standards.
+
+-- 
+Paolo Giarrusso, aka Blaisorblade
+Linux registered user n. 292729

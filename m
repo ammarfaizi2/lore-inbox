@@ -1,47 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261184AbUG1SBT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261239AbUG1SGZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261184AbUG1SBT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 14:01:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261239AbUG1SBS
+	id S261239AbUG1SGZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 14:06:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261426AbUG1SGZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 14:01:18 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:64695 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S261184AbUG1SBR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 14:01:17 -0400
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Cc: Andrew Morton <akpm@osdl.org>, Keith Owens <kaos@sgi.com>,
-       linux-kernel@vger.kernel.org, Suparna Bhattacharya <suparna@in.ibm.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, fastboot@osdl.org
-Subject: Re: Announce: dumpfs v0.01 - common RAS output API
-References: <16734.1090513167@ocs3.ocs.com.au>
-	<20040725235705.57b804cc.akpm@osdl.org>
-	<m1r7qw7v9e.fsf@ebiederm.dsl.xmission.com>
-	<200407280903.37860.jbarnes@engr.sgi.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 28 Jul 2004 12:00:31 -0600
-In-Reply-To: <200407280903.37860.jbarnes@engr.sgi.com>
-Message-ID: <m1bri06mgw.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+	Wed, 28 Jul 2004 14:06:25 -0400
+Received: from host85.200-117-133.telecom.net.ar ([200.117.133.85]:51657 "EHLO
+	smtp.bensa.ar") by vger.kernel.org with ESMTP id S261239AbUG1SGX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 14:06:23 -0400
+From: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>
+To: linux-kernel@vger.kernel.org
+Subject: reiser4, kallsyms_lookup, 2.6.7-mm7
+Date: Wed, 28 Jul 2004 15:06:12 -0300
+User-Agent: KMail/1.6.82
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200407281506.12876.norberto+linux-kernel@bensa.ath.cx>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesse Barnes <jbarnes@engr.sgi.com> writes:
+Hello everyone,
 
-> On Tuesday, July 27, 2004 6:53 pm, Eric W. Biederman wrote:
-> > Hmm.  I think this will require one of the kernels to run at a
-> > non-default address in physical memory.
-> 
-> Right, and some platforms already support this, fortunately.
-> 
-> > Which will largely depend on the quality of it's device drivers...
-> 
-> I think this could end up being a good thing.  It gives more people a stake in 
-> making sure that driver shutdown() routines work well.
+well, just out of curiosity (I wanted to play with reiser4) I've patched my 
+2.6.7-mm7 tree; no rejects. But I get this:
 
-Which actually is one of the items open for discussion currently.
-For kexec on panic do we want to run the shutdown() routines?
+*** Warning: "kallsyms_lookup" [fs/reiser4/reiser4.ko] undefined!
 
-Eric
+How do I get around that warning?
+
+The patch was 
+http://www.namesys.com/auto-snapshots/reiser4-2004.07.27-19.37-linux-2.6.7-mm7.diff.gz
+
+
+Thanks in advance,
+Norberto

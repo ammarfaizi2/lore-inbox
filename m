@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262605AbTCIUVC>; Sun, 9 Mar 2003 15:21:02 -0500
+	id <S262606AbTCIUVL>; Sun, 9 Mar 2003 15:21:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262606AbTCIUVC>; Sun, 9 Mar 2003 15:21:02 -0500
-Received: from home.linuxhacker.ru ([194.67.236.68]:41367 "EHLO linuxhacker.ru")
-	by vger.kernel.org with ESMTP id <S262605AbTCIUU7>;
-	Sun, 9 Mar 2003 15:20:59 -0500
-Date: Sun, 9 Mar 2003 23:30:48 +0300
-From: Oleg Drokin <green@linuxhacker.ru>
-To: alan@redhat.com, linux-kernel@vger.kernel.org
-Cc: torvalds@transmeta.com
-Subject: NCPFS memleak/crazyness?
-Message-ID: <20030309203048.GA31393@linuxhacker.ru>
+	id <S262607AbTCIUVK>; Sun, 9 Mar 2003 15:21:10 -0500
+Received: from mailhost.tue.nl ([131.155.2.4]:53255 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id <S262606AbTCIUVH>;
+	Sun, 9 Mar 2003 15:21:07 -0500
+Date: Sun, 9 Mar 2003 21:31:44 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Christoph Hellwig <hch@infradead.org>,
+       Dave Jones <davej@codemonkey.org.uk>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Fwd: struct inode size reduction.
+Message-ID: <20030309203144.GA3814@win.tue.nl>
+References: <20030309135402.GB32107@suse.de> <20030309171314.GA3783@win.tue.nl> <20030309203359.GA7276@suse.de> <20030309195555.A22226@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
+In-Reply-To: <20030309195555.A22226@infradead.org>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Sun, Mar 09, 2003 at 07:55:55PM +0000, Christoph Hellwig wrote:
+> On Sun, Mar 09, 2003 at 07:33:59PM -0100, Dave Jones wrote:
+> > There still seems to be some users of that, so I'll
+> > leave that to a follow up patch, (or someone else who
+> > really knows whats going on there).
+> 
+> No, there are no users yet.  But as people seem to be eager to make
+> dev_t bigger we'll need when we tackle the "CIDR" thing for character
+> devices, too.
 
-   Looking at fs/ncpfs/ioctl.c (latest 2.4 bk tree), I seem to see a place
-   where we use userspace-pointers directly (And eventually doing kfree on
-   these). In NCP_IOC_SETOBJECTNAME handler, we allocated space (newname
-   pointer), copy stuff from userspace to there and then assign userspace
-   pointer to our internal structure, whoops! Or am I missing something?
+No, I already wrote "CIDR" for character devices.
+(Will submit it when 2.5.65 appears.)
 
-   Seems that following patch is needed. (Same problem is present in 2.5
-   and same patch should apply)
+There is no use for i_cdev or struct char_device today,
+and I will not use it for character device registration.
+So unless you or someone else decides to start using it,
+it can just be thrown out.
 
-   Found with help of smatch + enhanced unfree script.
+Andries
 
-Bye,
-    Oleg
 
-===== fs/ncpfs/ioctl.c 1.3 vs edited =====
---- 1.3/fs/ncpfs/ioctl.c	Mon Sep  9 22:36:07 2002
-+++ edited/fs/ncpfs/ioctl.c	Sun Mar  9 23:23:12 2003
-@@ -434,7 +434,7 @@
- 			oldprivatelen = server->priv.len;
- 			server->auth.auth_type = user.auth_type;
- 			server->auth.object_name_len = user.object_name_len;
--			server->auth.object_name = user.object_name;
-+			server->auth.object_name = newname;
- 			server->priv.len = 0;
- 			server->priv.data = NULL;
- 			/* leave critical section */
+[I already submitted the patch throwing it out, but someone,
+maybe it was Roman Zippel, complained that that was going
+in the wrong direction. In the very long run that may be true
+(or not), but for 2.6 I do not see the point of this dead code.]
+

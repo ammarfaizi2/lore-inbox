@@ -1,50 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269996AbRHETau>; Sun, 5 Aug 2001 15:30:50 -0400
+	id <S270003AbRHETly>; Sun, 5 Aug 2001 15:41:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269997AbRHETak>; Sun, 5 Aug 2001 15:30:40 -0400
-Received: from falcon.mail.pas.earthlink.net ([207.217.120.74]:14315 "EHLO
-	falcon.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S269996AbRHETab>; Sun, 5 Aug 2001 15:30:31 -0400
-Date: Sun, 5 Aug 2001 15:30:37 -0400
-Message-Id: <200108051930.f75JUbb11611@moisil.badula.org>
-From: Ion Badulescu <ionut@moisil.cs.columbia.edu>
-To: Manolis Perakakis <perakakis@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: RBEM56G-100 card
-In-Reply-To: <20010803180844.56139.qmail@web12908.mail.yahoo.com>
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.6-ac5 (i586))
+	id <S269824AbRHETlp>; Sun, 5 Aug 2001 15:41:45 -0400
+Received: from ppp0.ocs.com.au ([203.34.97.3]:2822 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S269999AbRHETln>;
+	Sun, 5 Aug 2001 15:41:43 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: kaih@khms.westfalen.de (Kai Henningsen)
+cc: linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org
+Subject: Re: PPC? (Was: Re: [RFC] /proc/ksyms change for IA64) 
+In-Reply-To: Your message of "05 Aug 2001 11:29:00 +0200."
+             <86HgALWHw-B@khms.westfalen.de> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 06 Aug 2001 05:41:47 +1000
+Message-ID: <29464.997040507@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 Aug 2001 11:08:44 -0700 (PDT), Manolis Perakakis <perakakis@yahoo.com> wrote:
+On 05 Aug 2001 11:29:00 +0200, 
+kaih@khms.westfalen.de (Kai Henningsen) wrote:
+>kaos@ocs.com.au (Keith Owens)  wrote on 02.08.01 in <22165.996722560@kao2.melbourne.sgi.com>:
+>
+>> The IA64 use of descriptors for function pointers has bitten ksymoops.
+>> For those not familiar with IA64, &func points to a descriptor
+>> containing { &code, &data_context }.
+>
+>That sounds suspiciously like what I remember from PPC. How is this solved  
+>on the PPC side?
 
-> see :
-> http://pcmcia-cs.sourceforge.net/ftp/SUPPORTED.CARDS
->        [ Not recommended: support is experimental and
-> unreliable ]
->        IBM EtherJet CardBus with 56K Modem
->        Xircom RBEM56G-100BTX, CBEM56G-100BTX, R2BEM56G-100
-> 
-> The same is stated at Xircom's Linux Page
-> http://www.xircom.com/cda/page/0,1298,0-0-1_20-476,00.html
-> 
-> So, would you still recomend the purchase of such a
-> card? (I wouldn't hesitate for REM56G-100BTX but 
-> laptop comes with RBEM56G allready!)
+Best guess, without access to a PPC box, is that it is not solved.  Any
+arch where function pointers go via a descriptor will have this
+problem.
 
-Not really. The card works all right with my latest development
-driver (not yet in 2.4.x), but *only* in half-duplex mode. We 
-don't have enough information to make full-duplex work correctly.
+PPC users, does /proc/ksyms contain the address of the function code or
+the address of a descriptor which points to the code?  It is easy to
+tell, if function entries in /proc/ksyms are close together (8-128
+bytes apart) and do not match the addresses in System.map then PPC has
+the same problem as IA64.  If this is true, what is the layout of a PPC
+function descriptor so I can handle that case as well?
 
-The card also has a rather suboptimal design. It accepts only
-32-bit aligned buffers for Tx, which forces the driver to memcpy
-all the Tx packets into new (and properly aligned) buffers.
-
-So, basically, avoid this card if you have a choice.
-
-Ion
-
--- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.

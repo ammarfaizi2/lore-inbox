@@ -1,57 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264790AbTAWB12>; Wed, 22 Jan 2003 20:27:28 -0500
+	id <S264797AbTAWBkH>; Wed, 22 Jan 2003 20:40:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264797AbTAWB12>; Wed, 22 Jan 2003 20:27:28 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:43753 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S264790AbTAWB11>;
-	Wed, 22 Jan 2003 20:27:27 -0500
-Date: Wed, 22 Jan 2003 17:31:01 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: <high-res-timers-discourse@lists.sourceforge.net>,
-       <linux-kernel@vger.kernel.org>
-cc: <jim.houston@attbi.com>
-Subject: alternate high-res-timers patch comments (II)
-Message-ID: <Pine.LNX.4.33L2.0301221712200.3511-100000@dragon.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264815AbTAWBkH>; Wed, 22 Jan 2003 20:40:07 -0500
+Received: from rj.SGI.COM ([192.82.208.96]:7091 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S264797AbTAWBkG>;
+	Wed, 22 Jan 2003 20:40:06 -0500
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@sgi.com>
+To: kdb@oss.sgi.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Announce: kdb v2.5 is available for kernel 2.4.20 
+In-Reply-To: Your message of "Fri, 29 Nov 2002 13:20:22 +1100."
+             <4644.1038536422@kao2.melbourne.sgi.com> 
+Date: Thu, 23 Jan 2003 12:47:51 +1100
+Message-ID: <3566.1043286471@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Hi,
+Content-Type: text/plain; charset=us-ascii
 
-Here are more comments/questions on Jim's alternate high-res-timers
-patch.  Some of this is just to understand the code.
+On Fri, 29 Nov 2002 13:20:22 +1100, 
+Keith Owens <kaos@sgi.com> wrote:
+>ftp://oss.sgi.com/projects/kdb/download/v2.5/
+>
+>  kdb-v2.5-2.4.20-common-1.bz2
+>  kdb-v2.5-2.4.20-i386-1.bz2
+>  No kdb ia64-2.4.20 patch yet, waiting for base 2.4.20-ia64 patch.
 
+kdb-v2.5-2.4.20-ia64-021210-1.bz2 is now available.
 
-a.  Why return here and skip profiling?
-    Is this an intermediate (high-res) timer interrupt that shouldn't be
-    used for profiling?
+I am working on kdb v3.0 which will include lots of patches from the
+kdb backlog, including breakpoint serialization, command editing,
+assorted bugfixes etc.  kdb v3.0 should be out within 9 days.
 
- inline void smp_local_timer_interrupt(struct pt_regs * regs)
- {
-   	int cpu = smp_processor_id();
-+
-+	if (!run_posix_timers((void *)regs))
-+		return;
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: Exmh version 2.1.1 10/15/1999
 
-  	x86_do_profile(regs);
-
-
-b.  In kernel/id2ptr.c,
-
-<id_free_cnt>:  change cnt to count; just a style thing.
-Linux doesn't use many abbreviations, which makes it easier on
-everyone not having to remember "what is the abbreviation that code
-uses for <whatever>?".
-
-sub_alloc() is recursive.  How bounded is it?  32 calls max?
-I'm not totally against recursion, but it needs to be *well-bounded*.
-
-Same for sub_remove().
-
--- 
-~Randy
+iD8DBQE+L0nFi4UHNye0ZOoRApzwAKDKrj1/5hyyCWtaG6bvUuZTxoWJIACeMyAY
+wB6XpdkXgZDqVycNcQQ/qzA=
+=JQN+
+-----END PGP SIGNATURE-----
 

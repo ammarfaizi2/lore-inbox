@@ -1,53 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317817AbSG2UPP>; Mon, 29 Jul 2002 16:15:15 -0400
+	id <S318065AbSG2UQm>; Mon, 29 Jul 2002 16:16:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318064AbSG2UPP>; Mon, 29 Jul 2002 16:15:15 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:56841 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S317817AbSG2UPO>; Mon, 29 Jul 2002 16:15:14 -0400
-Date: Mon, 29 Jul 2002 21:18:29 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Remco Treffkorn <remco@rvt.com>
-Cc: Dan Malek <dan@embeddededge.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Tom Rini <trini@kernel.crashing.org>, linux-kernel@vger.kernel.org,
-       linuxppc-dev@lists.linuxppc.org
-Subject: Re: 3 Serial issues up for discussion (was: Re: Serial core problems on embedded PPC)
-Message-ID: <20020729211829.F25451@flint.arm.linux.org.uk>
-References: <20020729174341.GA12964@opus.bloom.county> <20020729181352.27999@192.168.4.1> <3D4592D3.50505@embeddededge.com> <200207291246.43134.remco@rvt.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200207291246.43134.remco@rvt.com>; from remco@rvt.com on Mon, Jul 29, 2002 at 12:46:42PM -0700
+	id <S318069AbSG2UQl>; Mon, 29 Jul 2002 16:16:41 -0400
+Received: from h-64-105-136-34.SNVACAID.covad.net ([64.105.136.34]:10954 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S318065AbSG2UPe>; Mon, 29 Jul 2002 16:15:34 -0400
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Mon, 29 Jul 2002 13:18:37 -0700
+Message-Id: <200207292018.NAA05025@adam.yggdrasil.com>
+To: alan@lxorguk.ukuu.org.uk, martin@dalecki.de
+Subject: Re: cli/sti removal from linux-2.5.29/drivers/ide?
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 29, 2002 at 12:46:42PM -0700, Remco Treffkorn wrote:
-> On Monday 29 July 2002 12:09, Dan Malek wrote:
-> > or a mix of both.  The problems to solve are drivers fighting over minor
-> > device numbers and assumptions about the system console.
-> >
-> 
-> Drivers need not fight about minor numbers. That can be simply handled:
-> 
-> int get_new_serial_minor()
-> {
->     static int minor;
-> 
->     return minor++;
-> }
-> 
-> Any serial driver can call this when it initializes a new uart.
-> Hot pluggable drivers have to hang on to their minors, and
-> re-use.
+>> 	With this change, I believe I can remove all of the
+>> cli()...restore_flags() pairs from the channel->tuneproc functions of
+>> each IDE driver.  I have also removed what appear to be some
 
-It's a possible solution, if we get the ability for drivers to hang
-on to their minors.  However, I get the feeling that this isn't going
-to happen before 2.6.
+>Some tuning locks are needed because an interrupt during the magic
+>tuning sequence will break stuff
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+	Let me make sure I understand your statement properly.
 
+	Under my patch, ch->tuneproc is called with interrupts disabled and
+ch->lock held, except when when channel_probe in drivers/ide/probe.c
+is initially trying to detect IDE hardware.  The IO ports are already
+reserved at that time, so nothing else should poke at those registers,
+but interrupts are enabled.
+
+	If I understand you correctly, you are saying that an
+interrupt that does something completely unrelated can screw up the
+ch->tuneproc function, even though the effect is just to introduce a
+delay and cause a bunch of unrelated system bus activity.  Is this
+really true?  Is it some kind of timing sensitivity?
+
+	Anyhow, if it is a problem, then it should be sufficient for
+me to bracket the ch->tuneproc call in channel_probe with
+local_irq_save()...local_irq_restore().  Nothing else will actually
+touch the IO ports at that stage (they have been reserved, but the IDE
+devices have not been registered, so nothing will try to access them).
+
+	That said, I think all the "lock group" logic in drivers/ide
+may be useless, and it would be pretty straightforward to delete all
+that code, have ata_channel->lock be a lock rather than a pointer to one,
+and have it be initialized before that first call to ch->tuneproc, in
+which case we could just have interrupts off and ch->lock held in all
+cases when ch->tuneproc is called.  I did not want to do this in my patch,
+because I wanted to keep my patch as small as possible, but perhaps it
+would be worth doing now just to simplify the rules for calling ch->tuneproc.
+
+
+>g is ready, program the new timings
+>>  	 */
+>> -	spin_lock(&cmd640_lock, flags);
+>> +	spin_lock_irqsave(&cmd640_lock, flags);
+>>  	/*
+
+>For the CMD640 please see the patch I posted. It has to use pci_lock and
+>it needs other 2.4 fixes forward porting which I did
+
+	I had looked at it.  It looked mostly indepenent of what I was
+doing, I thought that perhaps Martin [M: do you prefer Marcin?] might
+have already integrated it and it would just cause confusion for me to
+merge the patch in, but I would be happy to include your cmd640 changes
+in my patch.
+
+
+>> -	save_flags(flags);
+>> -	cli();	/* all CPUs (there should only be one CPU with this chipset) */
+>> +	local_irq_save(flags); /* There should only be one CPU with this
+>> +				  chipset. */
+
+>Not needed that I can see. It also wants to use the proper master/mwi
+>functions. I've got a diff for this I can post.
+
+	Now that you've made me learn what "memory write invalidate enable"
+PCI transactions are, yes, please post or send me your diff.  If you think
+I should try to integrate.  Martin, if you have a strong preference on
+whether you want this stuff as a series of small diffs or if its OK to
+merge them into a one diff, please let me know.
+
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."

@@ -1,54 +1,127 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273236AbRINAir>; Thu, 13 Sep 2001 20:38:47 -0400
+	id <S273238AbRINAt7>; Thu, 13 Sep 2001 20:49:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273238AbRINAih>; Thu, 13 Sep 2001 20:38:37 -0400
-Received: from virgo.cus.cam.ac.uk ([131.111.8.20]:27264 "EHLO
-	virgo.cus.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S273236AbRINAiW>; Thu, 13 Sep 2001 20:38:22 -0400
-Date: Fri, 14 Sep 2001 01:38:44 +0100 (BST)
-From: Anton Altaparmakov <aia21@cus.cam.ac.uk>
-To: linux-kernel@vger.kernel.org
-Subject: Athlon problems fixed tweaking BIOS memory settings
-Message-ID: <Pine.SOL.3.96.1010914012859.21012B-100000@virgo.cus.cam.ac.uk>
+	id <S273239AbRINAtu>; Thu, 13 Sep 2001 20:49:50 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:54289 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S273238AbRINAtl>; Thu, 13 Sep 2001 20:49:41 -0400
+Date: Thu, 13 Sep 2001 17:49:34 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: linux 2.4.10-pre9
+Message-ID: <Pine.LNX.4.33.0109131748370.22275-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
 
-I had a few random crashes on my Athlon EPOX 8KTA3 mobo Athlon 1.33GHz
-(BIOS from 06/14/2001) and Alan Cox suggested to run memtest as the oops
-apparently looked like memory corruption. Sure enough memtest showed
-problems above 256MiB but swapping the chips around still showed problems
-above 256MiB which meant it couldn't be the chips at fault (failing tests
-were 5 and 8 in memtest86 supplied with SuSE 7.2). 
+More merging with Alan, and IrDA update (and various smaller things, see
+log)
 
-Playing with the memory settings I found that using the "DRAM
-Timing by SPD" option was unstable but setting it to manual and using the
-settings: 133MHz, CL2, Bank interleave disabled as well as Pre charge to
-active 3T, active to precharge 6T, active to cmd 3T. Makes it fully
-stable even with Page-Mode enabled.
+		Linus
 
-Changing the precharge/act/cmd value to faster caused increasing amounts
-of errors in memtest to appear and enabling Timing by SPD did the same.
-Memory now running at 23.1 MiB/sec according to memtest86 compared to 26
-MiB/sec at previous, faster but unstable settings.
+-----
+pre9:
+ - Greg KH: start migration to new "min()/max()"
+ - Roman Zippel: move affs over to "min()/max()".
+ - Vojtech Pavlik: VIA update (make sure not to IRQ-unmask a vt82c576)
+ - Jan Kara: quota bug-fix (don't decrement quota for non-counted inode)
+ - Anton Altaparmakov: more NTFS updates
+ - Al Viro: make nosuid/noexec/nodev be per-mount flags, not per-filesystem
+ - Alan Cox: merge input/joystick layer differences, driver and alpha merge
+ - Keith Owens: scsi Makefile cleanup
+ - Trond Myklebust: fix oopsable race in locking code
+ - Jean Tourrilhes: IrDA update
 
-It seems there is some kind of problem with the "Timing by SPD" option. 
-Also no matter what the settings are the system is always error free below
-256MiB, which means that might explain why some people are having problems
-and some are not... Until I upgraded the 256 to 768MiB I didn't have any
-problems.
+pre8:
+ - Christoph Hellwig: clean up personality handling a bit
+ - Robert Love: update sysctl/vm documentation
+ - make the three-argument (that everybody hates) "min()" be "min_t()",
+   and introduce a type-anal "min()" that complains about arguments of
+   different types.
 
-Just a datapoint...
+pre7:
+ - Alan Cox: big driver/mips sync
+ - Andries Brouwer, Christoph Hellwig: more gendisk fixups
+ - Tobias Ringstrom: tulip driver workaround for DC21143 erratum
 
-Best regards,
+pre6:
+ - Jens Axboe: remove trivially dead io_request_lock usage
+ - Andrea Arcangeli: softirq cleanup and ARM fixes. Slab cleanups
+ - Christoph Hellwig: gendisk handling helper functions/cleanups
+ - Nikita Danilov: reiserfs dead code pruning
+ - Anton Altaparmakov: NTFS update to 1.1.18
+ - firestream network driver: patch reverted on authors request
+ - NIIBE Yutaka: SH architecture update
+ - Paul Mackerras: PPC cleanups, PPC8xx update.
+ - me: reverse broken bootdata allocation patch that went into pre5
 
-	Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+pre5:
+ - Merge with Alan
+ - Trond Myklebust: NFS fixes - kmap and root inode special case
+ - Al Viro: more superblock cleanups, inode leak in rd.c, minix
+   directories in page cache
+ - Paul Mackerras: clean up rubbish from sl82c105.c
+ - Neil Brown: md/raid cleanups, NFS filehandles
+ - Johannes Erdfelt: USB update (usb-2.0 support, visor fix, Clie fix,
+   pl2303 driver update)
+ - David Miller: sparc and net update
+ - Eric Biederman: simplify and correct bootdata allocation - don't
+   overwrite ramdisks
+ - Tim Waugh: support multiple SuperIO devices, parport doc updates
+
+pre4:
+ - Hugh Dickins: swapoff cleanups and speedups
+ - Matthew Dharm: USB storage update
+ - Keith Owens: Makefile fixes
+ - Tom Rini: MPC8xx build fix
+ - Nikita Danilov: reiserfs update
+ - Jakub Jelinek: ELF loader fix for ET_DYN
+ - Andrew Morton: reparent_to_init() for kernel threads
+ - Christoph Hellwig: VxFS and SysV updates, vfs_permission fix
+
+pre3:
+ - Johannes Erdfelt, Oliver Neukum: USB printer driver race fix
+ - John Byrne: fix stupid i386-SMP irq stack layout bug
+ - Andreas Bombe, me: yenta IO window fix
+ - Neil Brown: raid1 buffer state fix
+ - David Miller, Paul Mackerras: fix up sparc and ppc respectively for kmap/kbd_rate
+ - Matija Nalis: umsdos fixes, and make it possible to boot up with umsdos
+ - Francois Romieu: fix bugs in dscc4 driver
+ - Andy Grover: new PCI config space access functions (eventually for ACPI)
+ - Albert Cranford: fix incorrect e2fsprog data from ver_linux script
+ - Dave Jones: re-sync x86 setup code, fix macsonic kmalloc use
+ - Johannes Erdfelt: remove obsolete plusb USB driver
+ - Andries Brouwer: fix USB compact flash version info, add blksize ioctls
+
+pre2:
+ - Al Viro: block device cleanups
+ - Marcelo Tosatti: make bounce buffer allocations more robust (it's ok
+   for them to do IO, just not cause recursive bounce IO. So allow them)
+ - Anton Altaparmakov: NTFS update (1.1.17)
+ - Paul Mackerras: PPC update (big re-org)
+ - Petko Manolov: USB pegasus driver fixes
+ - David Miller: networking and sparc updates
+ - Trond Myklebust: Export atomic_dec_and_lock
+ - OGAWA Hirofumi: find and fix umsdos "filldir" users that were broken
+   by the 64-bit-cleanups. Fix msdos warnings.
+ - Al Viro: superblock handling cleanups and race fixes
+ - Johannes Erdfelt++: USB updates
+
+pre1:
+ - Jeff Hartmann: DRM AGP/alpha cleanups
+ - Ben LaHaise: highmem user pagecopy/clear optimization
+ - Vojtech Pavlik: VIA IDE driver update
+ - Herbert Xu: make cramfs work with HIGHMEM pages
+ - David Fennell: awe32 ram size detection improvement
+ - Istvan Varadi: umsdos EMD filename bug fix
+ - Keith Owens: make min/max work for pointers too
+ - Jan Kara: quota initialization fix
+ - Brad Hards: Kaweth USB driver update (enable, and fix endianness)
+ - Ralf Baechle: MIPS updates
+ - David Gibson: airport driver update
+ - Rogier Wolff: firestream ATM driver multi-phy support
+ - Daniel Phillips: swap read page referenced set - avoid swap thrashing
 

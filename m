@@ -1,41 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264956AbTBOTm6>; Sat, 15 Feb 2003 14:42:58 -0500
+	id <S264919AbTBOTmJ>; Sat, 15 Feb 2003 14:42:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264969AbTBOTm6>; Sat, 15 Feb 2003 14:42:58 -0500
-Received: from [66.51.205.17] ([66.51.205.17]:30343 "EHLO co1.dslextreme.com")
-	by vger.kernel.org with ESMTP id <S264956AbTBOTm4>;
-	Sat, 15 Feb 2003 14:42:56 -0500
-Date: Sat, 15 Feb 2003 11:53:55 -0800
-From: Paul Laufer <paul@laufernet.com>
-To: Shawn Starr <spstarr@sh0n.net>
-Cc: Paul Laufer <paul@laufernet.com>, linux-kernel@vger.kernel.org
-Subject: Re: OSS Sound Blaster sb_card.c rewrite (PnP, module options, etc) - UPDATE
-Message-ID: <20030215195355.GA13570@hal9000.laufernet.com>
-Mail-Followup-To: Paul Laufer <paul@laufernet.com>,
-	Shawn Starr <spstarr@sh0n.net>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0302121043260.167-100000@coredump.sh0n.net> <Pine.LNX.4.44.0302130004470.247-100000@coredump.sh0n.net>
+	id <S264956AbTBOTmI>; Sat, 15 Feb 2003 14:42:08 -0500
+Received: from quechua.inka.de ([193.197.184.2]:27778 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S264919AbTBOTmH>;
+	Sat, 15 Feb 2003 14:42:07 -0500
+X-Mailbox-Line: From aj@dungeon.inka.de  Sat Feb 15 20:51:59 2003
+Subject: 2.5.61/usb: poll does not time out
+From: Andreas Jellinghaus <aj@dungeon.inka.de>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: 
+Message-Id: <1045338900.486.20.camel@simulacron>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0302130004470.247-100000@coredump.sh0n.net>
-User-Agent: Mutt/1.5.3i
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 15 Feb 2003 20:55:01 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thats good news Shawn. Keep us updated.
+Hi,
 
-Thanks,
-Paul
+poll() should return as soon as there is some event.
+unplugging a usb device will cause poll to set
+revents to POLLERR|POLLHUP.
 
-On Thu, Feb 13, 2003 at 12:06:54AM -0500 or thereabouts, Shawn Starr wrote:
-> 
-> With Adam's new PnP changes, and the disabling of the OS PnP BIOS on the
-> IBM. I can say that your sb_card.c/h changes (with some small
-> modifications with the new PnP structure changes) works!
-> 
-> I suppose, this weekend I could see if I can get the AWE itself detected
-> on 2.5.60 now :-)
-> 
-> Shawn.
-> 
+But the poll() syscall is not returned, instead
+the kernel waits for the timeout to count down /
+in the case poll with a negative value to wait
+forever. This way an application will never
+notice that the usb device has been removed.
+
+here is a strace on a test app.
+the kernel waits full 10 seconds (the timeout used),
+even though the usb device was removed in the first
+five seconds.
+
+send(4, "<15>Feb 15 20:47:52 usbtoken[947"..., 52, 0) = 52
+rt_sigaction(SIGPIPE, {SIG_DFL}, NULL, 8) = 0
+poll([{fd=3, events=POLLIN|POLLPRI|POLLOUT|POLLERR,
+revents=POLLERR|POLLHUP}], 1, 10000) = 1
+time([1045338482])                      = 1045338482
+getpid()                                = 9477
+writev(2, [{"usbtoken[9477]: device removed. "..., 41}],
+1usbtoken[9477]: device removed. exiting.
+) = 41
+rt_sigaction(SIGPIPE, {0x400edf48, [], 0x4000000}, {SIG_DFL}, 8) = 0
+send(4, "<15>Feb 15 20:48:02 usbtoken[947"..., 61, 0) = 61
+
+was it meant to be that way?
+
+if so: how can i work around this (in a nice way) ?
+
+i could:
+a) use short timeouts and a permanent loop (not nice)
+b) use the hotplug script when it is called with "remove"
+   to find the app with which has the device still open
+   and kill the process / send some signal. also not nice.
+
+Andreas
+
+
+

@@ -1,72 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261506AbUKSRS7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261510AbUKSRQy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261506AbUKSRS7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 12:18:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261511AbUKSRRf
+	id S261510AbUKSRQy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 12:16:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261511AbUKSROb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 12:17:35 -0500
-Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:60094 "EHLO
-	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S261503AbUKSROb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 19 Nov 2004 12:14:31 -0500
-Subject: [PATCH][SELINUX] Map Unix seqpacket sockets to appropriate
-	security class
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: National Security Agency
-Message-Id: <1100884202.15944.173.camel@moss-spartans.epoch.ncsc.mil>
+Received: from janus2.sad.it ([192.106.213.194]:41677 "HELO sad.it")
+	by vger.kernel.org with SMTP id S261491AbUKSRMt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Nov 2004 12:12:49 -0500
+Date: Fri, 19 Nov 2004 18:12:44 +0100
+From: Fabrizio Tivano <fabrizio@sad.it>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Random freeze on CS 5530
+Message-Id: <20041119181244.6e878f6f.fabrizio@sad.it>
+In-Reply-To: <1100878902.8133.14.camel@localhost.localdomain>
+References: <20041118103222.044722e8.fabrizio@sad.it>
+	<1100797521.6005.22.camel@localhost.localdomain>
+	<20041119102441.7933c72b.fabrizio@sad.it>
+	<1100864979.8135.7.camel@localhost.localdomain>
+	<20041119155451.79342c54.fabrizio@sad.it>
+	<1100878902.8133.14.camel@localhost.localdomain>
+Organization: SAD Trasporto Locale s.p.a.
+X-Mailer: Sylpheed version 0.8.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Fri, 19 Nov 2004 12:10:02 -0500
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch for SELinux (applies to 2.6.10-rc2 or 2.6.10-rc2-mm2) fixes a
-bug in the mapping of socket types to security classes and ensures that
-Unix seqpacket sockets are mapped to an appropriate security class.  The
-Unix stream security class is re-used in this case as it has the same
-permission checking applied as for seqpacket.  Please apply.
+On Fri, 19 Nov 2004 15:41:43 +0000
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
 
-Signed-off-by:  Stephen Smalley <sds@epoch.ncsc.mil>
-Signed-off-by:  James Morris <jmorris@redhat.com>
+> On Gwe, 2004-11-19 at 14:54, Fabrizio Tivano wrote:
+> > > Does the problem go away when the disk is changed and return when the 
+> > > old disk is put back  ?
+> > > 
+> > 
+> > When i change the disk, with new one,
+> >  the problem seems to be apparently 
+> > solved, but after some (random) time it reappears . 
+> 
+> Not what I actually asked - does the problem return if the old disk is
+> put
+> back.
+> 
 
+yes, after some random time.
 
- security/selinux/hooks.c |    3 +++
- 1 files changed, 3 insertions(+)
-
-Index: linux-2.6/security/selinux/hooks.c
-===================================================================
-RCS file: /nfshome/pal/CVS/linux-2.6/security/selinux/hooks.c,v
-retrieving revision 1.132
-diff -u -p -r1.132 hooks.c
---- linux-2.6/security/selinux/hooks.c	25 Oct 2004 12:51:44 -0000	1.132
-+++ linux-2.6/security/selinux/hooks.c	19 Nov 2004 14:12:40 -0000
-@@ -630,10 +630,12 @@ static inline u16 socket_type_to_securit
- 	case PF_UNIX:
- 		switch (type) {
- 		case SOCK_STREAM:
-+		case SOCK_SEQPACKET:
- 			return SECCLASS_UNIX_STREAM_SOCKET;
- 		case SOCK_DGRAM:
- 			return SECCLASS_UNIX_DGRAM_SOCKET;
- 		}
-+		break;
- 	case PF_INET:
- 	case PF_INET6:
- 		switch (type) {
-@@ -644,6 +646,7 @@ static inline u16 socket_type_to_securit
- 		case SOCK_RAW:
- 			return SECCLASS_RAWIP_SOCKET;
- 		}
-+		break;
- 	case PF_NETLINK:
- 		switch (protocol) {
- 		case NETLINK_ROUTE:
-
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
-
+i've tryed all kind of config/setup but cant exit
+from this hole!

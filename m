@@ -1,38 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263884AbTJEV43 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Oct 2003 17:56:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263885AbTJEV43
+	id S263870AbTJEVsc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Oct 2003 17:48:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263873AbTJEVsc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Oct 2003 17:56:29 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:18707
+	Sun, 5 Oct 2003 17:48:32 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:64530
 	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S263884AbTJEV42 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Oct 2003 17:56:28 -0400
-Date: Sun, 5 Oct 2003 14:56:27 -0700
+	id S263870AbTJEVsb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Oct 2003 17:48:31 -0400
+Date: Sun, 5 Oct 2003 14:48:33 -0700
 From: Mike Fedyk <mfedyk@matchmail.com>
-To: Hacksaw <hacksaw@hacksaw.org>
-Cc: Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: swap and 2.4.20
-Message-ID: <20031005215627.GE1205@matchmail.com>
-Mail-Followup-To: Hacksaw <hacksaw@hacksaw.org>,
-	Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net>,
+To: Justin Hibbits <jrh29@po.cwru.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: BUG in 2.4.xx
+Message-ID: <20031005214833.GD1205@matchmail.com>
+Mail-Followup-To: Justin Hibbits <jrh29@po.cwru.edu>,
 	linux-kernel@vger.kernel.org
-References: <E1A6DVX-0007dB-00@calista.inka.de> <200310052007.h95K7X6M007980@habitrail.home.fools-errant.com>
+References: <83C51710-F764-11D7-BAB4-000A95841F44@po.cwru.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200310052007.h95K7X6M007980@habitrail.home.fools-errant.com>
+In-Reply-To: <83C51710-F764-11D7-BAB4-000A95841F44@po.cwru.edu>
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 05, 2003 at 04:07:33PM -0400, Hacksaw wrote:
-> Does this mean that you could replace a library out from under a running but 
-> largely paged out app, and have it suddenly switch to the new library?
+On Sun, Oct 05, 2003 at 02:48:31PM -0400, Justin Hibbits wrote:
+> (panic from 2.4.22, but panics also in 2.4.21)
+> 
+> This is what I get when I have high memory support and preempt enabled 
+> in any 2.4 kernel.  High mem set to 4GB.  If I disable preempt, all 
+> works just fine.  If you need more help, I'll keep this kernel around.
 
-Technically yes, but realistically no.
-
-You'd more likely crash the app since maybe only a few pages of the new code
-were paged in, and nothing says that it's the update of the code you wanted...
+What exact kernel versions, with what prempt patch versions, and you didn't
+run it through ksymoops, also mention those exact versions that this oops is
+from.

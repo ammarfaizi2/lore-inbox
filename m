@@ -1,47 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136427AbRD3BLR>; Sun, 29 Apr 2001 21:11:17 -0400
+	id <S136429AbRD3Bgp>; Sun, 29 Apr 2001 21:36:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136425AbRD3BK6>; Sun, 29 Apr 2001 21:10:58 -0400
-Received: from saloma.stu.rpi.edu ([128.113.199.230]:6404 "EHLO incandescent")
-	by vger.kernel.org with ESMTP id <S136427AbRD3BKz>;
-	Sun, 29 Apr 2001 21:10:55 -0400
-Date: Sun, 29 Apr 2001 21:10:49 -0400
-From: Andres Salomon <dilinger@mp3revolution.net>
-To: linux-kernel@vger.kernel.org
-Subject: deregister?
-Message-ID: <20010429211049.A17111@mp3revolution.net>
+	id <S136428AbRD3Bgg>; Sun, 29 Apr 2001 21:36:36 -0400
+Received: from virgo.cus.cam.ac.uk ([131.111.8.20]:62402 "EHLO
+	virgo.cus.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S136433AbRD3BgT>; Sun, 29 Apr 2001 21:36:19 -0400
+Message-Id: <5.0.2.1.2.20010430023154.03cd52b0@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
+Date: Mon, 30 Apr 2001 02:36:17 +0100
+To: esr@thyrsus.com
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: CML2 1.3.1, aka "I stick my neck out a mile..."
+Cc: John Stoffel <stoffel@casc.com>, CML2 <linux-kernel@vger.kernel.org>,
+        kbuild-devel@lists.sourceforge.net
+In-Reply-To: <20010429183526.B32748@thyrsus.com>
+In-Reply-To: <15084.12152.956561.490805@gargle.gargle.HOWL>
+ <20010427193501.A9805@thyrsus.com>
+ <15084.12152.956561.490805@gargle.gargle.HOWL>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-X-Operating-System: Linux incandescent 2.4.3 
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm kind of curious; "deregister" is used quite often in the kernel:
+At 23:35 29/04/2001, Eric S. Raymond wrote:
+>John Stoffel <stoffel@casc.com>:
+> > Also, the buttons on the right hand side for HELP, are wider when they
+> > have text in them, but slightly narrower when they are blank.  They
+> > should be the same width no matter what.  It looks ragged and ugly.
+>
+>I know.  Sadly, I couldn't find a way to coerce Tcl into doing this right.
 
-pcmcia_deregister_client
-pcmcia_deregister_erase_queue
-misc_deregister
-atm_dev_deregister
-atm_proc_dev_deregister
-usb_deregister_bus
-usb_deregister
-usb_serial_deregister
-scsi_deregister_blocked_host
-matroxfb_dh_deregisterfb
+I don't know about whether this is possible with Tcl but have you tried A) 
+invisible text and/or B) white space character text (e.g. one or more 
+spaces)? That's the kind of thing I usually try in this situation... Just 
+an idea...
 
-Not to mention in various comments and documentation.  Deregister,
-according to www.m-w.com (and many other dictionaries), is not a word.
-Is there some sort of historical significance to this being used, in
-place of "unregister"?
+Best regards,
+
+         Anton
 
 
 -- 
-"... being a Linux user is sort of like living in a house inhabited
-by a large family of carpenters and architects. Every morning when
-you wake up, the house is a little different. Maybe there is a new
-turret, or some walls have moved. Or perhaps someone has temporarily
-removed the floor under your bed." - Unix for Dummies, 2nd Edition
-        -- found in the .sig of Rob Riggs, rriggs@tesser.com
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://sourceforge.net/projects/linux-ntfs/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+

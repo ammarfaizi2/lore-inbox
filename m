@@ -1,81 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262741AbUJ1Dlh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262742AbUJ1DqS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262741AbUJ1Dlh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 23:41:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262742AbUJ1Dle
+	id S262742AbUJ1DqS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 23:46:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262743AbUJ1DqS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 23:41:34 -0400
-Received: from delta.ece.northwestern.edu ([129.105.5.125]:14469 "EHLO
-	delta.ece.northwestern.edu") by vger.kernel.org with ESMTP
-	id S262741AbUJ1Dkn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 23:40:43 -0400
-Message-ID: <41806A99.7060807@ece.northwestern.edu>
-Date: Wed, 27 Oct 2004 22:42:17 -0500
-From: Lei Yang <lya755@ece.northwestern.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040921
-X-Accept-Language: en-us, en
+	Wed, 27 Oct 2004 23:46:18 -0400
+Received: from out002pub.verizon.net ([206.46.170.141]:16539 "EHLO
+	out002.verizon.net") by vger.kernel.org with ESMTP id S262742AbUJ1DqO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 23:46:14 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: Re: Intel also needs convincing on firmware licensing.
+Date: Wed, 27 Oct 2004 23:46:12 -0400
+User-Agent: KMail/1.7
+Cc: Han Boetes <han@mijncomputer.nl>
+References: <20041028022532.GX26130@boetes.org>
+In-Reply-To: <20041028022532.GX26130@boetes.org>
 MIME-Version: 1.0
-To: Bijoy Thomas <bijoyjth@gwu.edu>
-Cc: linux-kernel@vger.kernel.org, kernelnewbies <kernelnewbies@nl.linux.org>
-Subject: Re: set blksize of block device
-References: <55dddd455db643.55db64355dddd4@gwu.edu>
-In-Reply-To: <55dddd455db643.55db64355dddd4@gwu.edu>
-X-Enigmail-Version: 0.76.8.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200410272346.12283.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out002.verizon.net from [141.153.91.102] at Wed, 27 Oct 2004 22:46:13 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thank you very much for your reply!
-
-The problem is, I want to do all these stuff in kernel space. More 
-specifically,  I want to use them in a newbie kernel module. In this 
-module, I wanna do something with a raw block device (with no 
-filesystem).  Below are some more questions regarding to your comments.  
-Really appreciate your help!
-
-Lei
-
-
-Bijoy Thomas wrote:
-
->You set the blocksize for block device when you format it. For e.g, when you format a device with mkfs.ext2, you specify what block size you wish to use. This gets recorded in the superblock of the device. You can see what blocksize a device is using by running the tune2fs command with the deivce as an argument.
->  
+On Wednesday 27 October 2004 22:25, Han Boetes wrote:
+>Hi,
 >
-What if I don'w want to format the device with a filesystem?
+>The people from the OpenBSD project are currently lobbying to get
+> the firmware for Intel wireless chipsets under a license suitable
+> for Open Source.
+>
+>Since this will not only benefit BSD but also the Linux Project (and
+>even Intel) I would like to mention the URL here for people who want
+> to help writing to Intel.
+>
+>  http://undeadly.org/cgi?action=article&sid=20041027193425
+>
+Please be aware that for the so-called "software radios" 
+chips/chipsets, the FCC, and other similar regulating bodies in other 
+countries has made access to the data quite restrictive in an attempt 
+to keep the less ruly among us from putting them on frequencies they 
+aren't authorized to use, or to set the power levels above whats 
+allowed.  These restrictions can vary from governing body to 
+governing body so the software is generally supplied according to 
+where the chipset is being shipped.  The potential for mischief, and 
+legal/monetary reprecussions is sufficiently great that I have 
+serious doubts that Intel will budge from their current position 
+unless we can prove, beyond any doubt, that the regulatory 
+limitations imposed will not be violated.
 
->Reading and writing a block on a device in userspace is as simple as opening the device, lseeking to the block in question and doing a read or write. Keep in mind that the filesystem blocksize has nothing to do with the blocksize for the device. The sector size for most block devices is 512 bytes. This means that the unit in which we can communicate with the device is 512bytes. However, the filesystem driver will have it own unit i.e, the blocksize. Hence, usually many sectors will fall in a block. The blocks are held in the buffer cache.The filesystem block size should be a power of 2 and less than the pagesize.
->
->In kernel space, reads and writes to blocks on the device are done through the function bread and block_read. Both functions are used to read blocks from a device. If you modify a block, you can set the buffer as dirty and the kernel will later write it to disk.
->  
->
-Isn't there a bwrite similar to bread?
+Since open source, where anyone who can read the code can see exactly 
+what the limits are, and 'adjust to suit', virtually guarantees 
+miss-use, sooner if not later, for no other reason than its human 
+nature to experiment, Intel/moto/etc therefore has very good reasons 
+to treat its chip<->software interface as highly secret & 
+proprietary.
 
->Regards,
->Bijoy.
->
->
->----- Original Message -----
->From: Lei Yang <lya755@ece.northwestern.edu>
->Date: Wednesday, October 27, 2004 10:25 pm
->Subject: Re: set blksize of block device
->
->  
->
->>Or in other words, is there generic routines for block devices such 
->>that 
->>we could:
->>
->>get (set) block size of a block device;
->>read an existing block (e.g. block 4);
->>write an existing block (e.g. block 5);
->>
->>Please help!!!!
->>
->>TIA
->>Lei
->>    
->>
+Thats not saying that they may at some point furnish a 'filter' that 
+presents the rest of the world with a usable API to control it, but 
+the filter will see to it that attempted illegal settings are 
+ignored.  The only way I can see that actually working is to actually 
+put that filter inside the chip, customized for the locale its being 
+shipped to.  The radio control portion of the chip itself wouldn't 
+even be bonded out to external world pins or bga contacts, just the 
+port of the filter that the outside world talks to.
 
+I'd rather doubt they want to make 20 to 40 different filtered 
+versions of the same chipset just to satisfy TPTB in some 3rd world 
+country thats less than 1% of the total sales.  Even the relatively 
+dense market where Han lives is probably less than 5% of the total 
+for a popular chipset. 
 
+I'm a broadcast engineer who has been dealing at times with the FCC 
+for over 40 years, so you could say I'm biased.  But thats not real 
+bias, its just from being fairly familiar with the regulatory 
+territory.
+
+I'd like to see an open source solution to this problem myself, but 
+just because its open source we are asking for, with the attendent 
+liabilities that implies, I would not hold my breath till it happens. 
+
+If you do, you'll probably be talking to the rest of the world through 
+a Ouija board.
+
+># Han
+
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.28% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

@@ -1,40 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266568AbUHINq5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266569AbUHINsG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266568AbUHINq5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 09:46:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266569AbUHINq5
+	id S266569AbUHINsG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 09:48:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266561AbUHINsG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 09:46:57 -0400
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:39592 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S266568AbUHINqz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 09:46:55 -0400
-Date: Mon, 9 Aug 2004 15:46:13 +0200 (CEST)
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Message-Id: <200408091346.i79DkDRi010405@burner.fokus.fraunhofer.de>
-To: schilling@fokus.fraunhofer.de, skraw@ithnet.com
-Cc: James.Bottomley@steeleye.com, axboe@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+	Mon, 9 Aug 2004 09:48:06 -0400
+Received: from astra.telenet-ops.be ([195.130.132.58]:35560 "EHLO
+	astra.telenet-ops.be") by vger.kernel.org with ESMTP
+	id S266569AbUHINr7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 09:47:59 -0400
+Subject: AES assembler optimizations
+From: Bob Deblier <bob.deblier@telenet.be>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1092059277.4332.8.camel@orion>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 09 Aug 2004 15:47:57 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From: Stephan von Krawczynski <skraw@ithnet.com>
+Just picked up on KernelTrap that there were some problems with
+optimized AES code; if you wish, I can provide my own LGPL licensed (or
+I can relicense them for you under GPL), as included in the BeeCrypt
+Cryptography Library.
 
->Understand this: _nobody_ expects you to know everything about 25 different
->OS's, the only thing that can be expected is that you simply listen to the
->different parties knowing the different platforms and _take their advice_,
->really not more.
+I have generic i586 code and SSE-optimized code available in GNU
+assembler format. Latest version is always available on SourceForge
+(http://sourceforge.net/cvs/?group_id=8924).
 
-While this works for most if not all OS, it does not work for Linux.
+Please cc: me for responses, as I'm not a list subscriber.
 
-For Linux, the percentage of things that are reported incorrect to me is higher
-than 80%, so I need to use my own extertise. If I would not, cdrecord would be
-unusable.
+Sincerely,
 
-Jörg
+Bob Deblier
 
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
-       schilling@fokus.fraunhofer.de	(work) chars I am J"org Schilling
- URL:  http://www.fokus.fraunhofer.de/usr/schilling ftp://ftp.berlios.de/pub/schily

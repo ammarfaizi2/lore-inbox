@@ -1,47 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130148AbRBCRly>; Sat, 3 Feb 2001 12:41:54 -0500
+	id <S129066AbRBCRse>; Sat, 3 Feb 2001 12:48:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130320AbRBCRlo>; Sat, 3 Feb 2001 12:41:44 -0500
-Received: from femail3.rdc1.on.home.com ([24.2.9.90]:49860 "EHLO
-	femail3.rdc1.on.home.com") by vger.kernel.org with ESMTP
-	id <S130148AbRBCRld>; Sat, 3 Feb 2001 12:41:33 -0500
-Message-ID: <3A7C4291.6029AB7@home.com>
-Date: Sat, 03 Feb 2001 12:40:33 -0500
-From: John Cavan <johncavan@home.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.1 i686)
-X-Accept-Language: en
+	id <S129114AbRBCRs0>; Sat, 3 Feb 2001 12:48:26 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:22281 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129066AbRBCRsI>; Sat, 3 Feb 2001 12:48:08 -0500
+Date: Sat, 3 Feb 2001 09:47:44 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+cc: "Robert H. de Vries" <rhdv@rhdv.cistron.nl>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] POSIX timers for 2.4.1
+In-Reply-To: <20010203153310.B30376@pcep-jamie.cern.ch>
+Message-ID: <Pine.LNX.4.10.10102030922030.8824-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Odd behaviour on / filesystem and SCSI removable media
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I noticed an odd thing about my / file system:
 
-du -hx reports 74mb used
-df -h . reports 236mb used
+On Sat, 3 Feb 2001, Jamie Lokier wrote:
 
-The same behaviour does not show on other mounted filesystems... I'm not
-sure which to believe...
+> Robert H. de Vries wrote:
+> > Hi Linus,
+> > c. setitimer() can be used only once in a given process, you can have
+> >    up to 32 (configurable) POSIX timers at the same time in your process.
+> 
+> Why is there a limit?  With such a small limit, any library that wants
+> to use its own private timers is going to have to agree a way to
+> multiplex with other libraries, and you're back to setitimer().
 
-I've seen this with 2.4.1 and 2.4.1-ac1, the filesystem is ReiserFS and
-the kernel was compiled with egcs-1.1.2 (egcs-2.91.66).
+There's a limit, simply because the thing is implemented as an array. Ugh.
 
-Also, I've seen some interesting behaviour with an Iomega Jaz drive.
-Basically, if I boot without a disk in the drive, the device is listed
-as 1gb assumed so that when I insert a 2gb disk in the drive, it gets
-messed up, unable to read the partition table. Same behaviour with the
-Zip drive, picked up as a default 1gb (no Zip disk I'm aware of is this
-large!) and can't deal with a 100 mb disk. Makes disk swapping with
-removable media rather clunky since modules need to be removed and
-reloaded to detect properly.
+It also doesn't handle the old itimers with the new ones, so you end up
+having _both_ the three hardcoded timers _and_ the new timers. Which I
+think is rather ugly.
 
-John
+Quite frankly, I'd much rather have the current real/prof/virt itimers
+expanded to lists instead (ie _three_ lists: the behaviour of
+real/prof/virt timers are very different, and trying to mix them on one
+list would be horrible), with the magic timer ID value of zero being the
+one that the old itimer() functions work on.
+
+That way, CLONE_ITIMERS would also do something sane (which it doesn't do
+with the current POSIX timer patch - it will clone the posix itimers but
+not the old itimers).
+
+Also note that the POSIX itimer patch with CLONE_ITIMERS seems to be
+horribly buggy: it will save off "timer->it_process", but the process may
+not actually EXIST any more by the time the timer is called: exiting only
+decrements the usage count, which may be elevated due to clone's etc.
+
+In short, there's not a way in hell I will apply this patch any time soon.
+It has real implementation bugs that will cause oopses and
+possible lockups (sending signals to non-existent tasks), and I think it
+has design problems too.
+
+			Linus
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

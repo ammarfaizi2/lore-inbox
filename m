@@ -1,68 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264875AbTB0MsK>; Thu, 27 Feb 2003 07:48:10 -0500
+	id <S264908AbTB0NBO>; Thu, 27 Feb 2003 08:01:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264877AbTB0MsK>; Thu, 27 Feb 2003 07:48:10 -0500
-Received: from 169.imtp.Ilyichevsk.Odessa.UA ([195.66.192.169]:26130 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S264875AbTB0MsJ>; Thu, 27 Feb 2003 07:48:09 -0500
-Message-Id: <200302271251.h1RCpas29798@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: jw schultz <jw@pegasys.ws>, Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: About /etc/mtab and /proc/mounts
-Date: Thu, 27 Feb 2003 14:48:33 +0200
-X-Mailer: KMail [version 1.3.2]
-References: <20030219112111.GD130@DervishD> <buo65r6ru6h.fsf@mcspd15.ucom.lsi.nec.co.jp> <20030227092121.GG15254@pegasys.ws>
-In-Reply-To: <20030227092121.GG15254@pegasys.ws>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S264915AbTB0NBO>; Thu, 27 Feb 2003 08:01:14 -0500
+Received: from tom.hrz.tu-chemnitz.de ([134.109.132.38]:21964 "EHLO
+	tom.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S264908AbTB0NBN>; Thu, 27 Feb 2003 08:01:13 -0500
+Date: Thu, 27 Feb 2003 13:14:06 +0100
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: Jonathan Lundell <linux@lundell-bros.com>
+Cc: Alan Cox <alan@redhat.com>, Kimball Brown <kimball@serverworks.com>,
+       davej@codemonkey.org.uk, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Tighten up serverworks workaround.
+Message-ID: <20030227131406.Q629@nightmaster.csn.tu-chemnitz.de>
+References: <200302261803.h1QI3BT24020@devserv.devel.redhat.com> <p05210508ba82bc0ea504@[207.213.214.37]>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <p05210508ba82bc0ea504@[207.213.214.37]>; from linux@lundell-bros.com on Wed, Feb 26, 2003 at 10:47:52AM -0800
+X-Spam-Score: -32.5 (--------------------------------)
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *18oNox-0007Oj-00*7roVodneW4A*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 27 February 2003 11:21, jw schultz wrote:
-> On Thu, Feb 27, 2003 at 05:42:30PM +0900, Miles Bader wrote:
-> > Kasper Dupont <kasperd@daimi.au.dk> writes:
-> > > > Yes.  On some systems, /var and /tmp are the _only_ read-write
-> > > > filesystems.
-> > >
-> > > OK, but then on such a system with my approach it would be
-> > > possible to make /mtab.d a symlink pointing to somewhere under
-> > > /var.
-> >
-> > ... you could do the same with /etc/mtab.
-> >
-> > In fact since /etc is almost guaranteed to be on the same
-> > filesystem as /, it seems like "/mtab.d" offers zero advantages
-> > over just /etc/mtab -- the case where /etc/mtab is the most
-> > annoying is when /etc is R/O, but this almost always means that /
-> > will be R/O, making /mtab.d useless too.
->
-> If you netboot /etc as its own filesystem make sense.  Why
-> duplicate the rest of root just for /etc.  /etc, /var and
-> /tmp are the only filesystems that have much reason to be
-> unique to a system; all others are easily sharable and most
-> others read-only.
+Hello there,
 
-This is my netboot root fs, it is shared across all workstations
-(NB: .local is "mount --bind"ed to workstation-private directory):
+On Wed, Feb 26, 2003 at 10:47:52AM -0800, Jonathan Lundell wrote:
+> At 1:03pm -0500 2/26/03, Alan Cox wrote:
+> >  > How can e help?  Please give me a configuration and how the bug manifests
+> >>  inself.
+> >
+> >OSB4 chipset system, some memory areas marked write combining with the
+> >processor memory type range registers. A long time ago Dell (I
+> >think) reported corruption from this and submitted changes to block the
+> >use of write combining on OSB4. The question has arisen as to whether
+> >thats a known thing, and if so which release of the chipset fixed it so that
+> >people can only apply such a restriction to problem cases not all OSB4.
+> 
+> Presumably we're talking about CNB30 (the north bridge) rather than 
+> OSB4 (the south bridge).
 
-# ls -la /
-drwxr-xr-x   6 root     root         4096 Mar 12  2002 .local
-drwxr-xr-x  15 root     root         4096 Feb 14 11:12 .share
-dr-xr-xr-x   2 root     root         4096 Jan 16 14:29 bin
-dr-xr-xr-x  20 root     root         1024 Feb  4 13:23 boot
-drwxr-xr-x   1 root     root            0 Jan  1  1970 dev
-drwxr-xr-x   3 root     root         4096 Jan 16 14:29 lib
-dr-xr-xr-x  68 root     root            0 Feb 27 15:42 proc
-lrwxrwxrwx   1 root     root            3 Oct 24 15:20 sbin -> bin
-lrwxrwxrwx   1 root     root           12 Nov 12  2001 root -> /.share/root
-lrwxrwxrwx   1 root     root           12 Nov 12  2001 home -> /.share/home
-lrwxrwxrwx   1 root     root           11 Nov 12  2001 usr -> /.share/usr
-lrwxrwxrwx   1 root     root           11 Nov 12  2001 mnt -> /.local/mnt
-lrwxrwxrwx   1 root     root           11 Jun  7  2002 etc -> /.local/etc
-lrwxrwxrwx   1 root     root           11 Nov 12  2001 tmp -> /.local/tmp
-lrwxrwxrwx   1 root     root           11 Nov 12  2001 var -> /.local/var
---
-vda
+No it's about CNB20LE. I'm one of the low performance victims.
+And this is an ASUS board (CUR-DLS) (which proved not worth its
+prices recently).
+
+Regards
+
+Ingo Oeser
+-- 
+Science is what we can tell a computer. Art is everything else. --- D.E.Knuth

@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263139AbTDMDiB (for <rfc822;willy@w.ods.org>); Sat, 12 Apr 2003 23:38:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263140AbTDMDiB (for <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Apr 2003 23:38:01 -0400
-Received: from sith.maoz.com ([205.167.76.10]:51618 "EHLO sith.maoz.com")
-	by vger.kernel.org with ESMTP id S263139AbTDMDiA (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Apr 2003 23:38:00 -0400
-From: Jeremy Hall <jhall@maoz.com>
-Message-Id: <200304130350.h3D3o8pn031108@sith.maoz.com>
-Subject: Re: 2.5.67-mm2
-In-Reply-To: <20030413031440.GA14357@holomorphy.com> from William Lee Irwin III
- at "Apr 12, 2003 08:14:40 pm"
-To: William Lee Irwin III <wli@holomorphy.com>
-Date: Sat, 12 Apr 2003 23:50:08 -0400 (EDT)
-CC: Jeremy Hall <jhall@maoz.com>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       Andrew Morton <akpm@digeo.com>, LKML <linux-kernel@vger.kernel.org>,
-       linux-mm@kvack.org
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+	id S263140AbTDMDke (for <rfc822;willy@w.ods.org>); Sat, 12 Apr 2003 23:40:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263144AbTDMDke (for <rfc822;linux-kernel-outgoing>);
+	Sat, 12 Apr 2003 23:40:34 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:18092 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S263140AbTDMDkd (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Apr 2003 23:40:33 -0400
+Date: Sat, 12 Apr 2003 20:52:11 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: "Shaheed R. Haque" <srhaque@iee.org>, linux-kernel@vger.kernel.org
+cc: thockin@isunix.it.ilstu.edu
+Subject: Re: Re: Processor sets (pset) for linux kernel 2.5/2.6?
+Message-ID: <241480000.1050205930@[10.10.2.4]>
+In-Reply-To: <1050177383.3e986f67b7f68@netmail.pipex.net>
+References: <1050146434.3e97f68300fff@netmail.pipex.net> <1050177383.3e986f67b7f68@netmail.pipex.net>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-well I guess I could step through one thing at a time, n, because I DO get 
-an initial trap it comes as soon as cpus are brought up
+> Hmmm, AFAICS, sched_getaffinity() and sched_setaffinity() 
+> allow the calling process to be bound to the nominated CPU(s), but that is not 
+> the same as giving them exclusive access, is it? In other words, other 
+> processes which have no particualr affinity needs can presumably still be 
+> scheduled to run on the same processor. 
+> 
+> I am looking for something more akin to the patch I referred to...or did I miss 
+> something in the effect of set_cpus_allowed()?
 
-but that would take a long time and I'm sure there's LOTS of code.
+The NUMA scheduler work can trivially be converted into arbitrary
+scheduler pools - they are not designed for dynamic modification
+at the moment, but could be without too much effort I think.
 
-_J
+Around 2.5.59 or so I posted a patch to rename them to pools, though
+we had a few other things to sort out at the time. I might revive it
+at some point - it's pretty simple.
 
-In the new year, William Lee Irwin III wrote:
-> On Sat, Apr 12, 2003 at 11:03:46PM -0400, Jeremy Hall wrote:
-> > I dunno about that, but mm2 locks in the boot process and doesn't display 
-> > anything to me through gdb even though it is supposed to.  I have gdb 
-> > console=gdb but that doesn't make the messages flow.
-> 
-> An early printk patch (any of the several going around) may give you an
-> idea of where it's barfing.
-> 
-> 
-> -- wli
-> 
+M.
 

@@ -1,60 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265660AbUEZOft@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265703AbUEZOgM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265660AbUEZOft (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 May 2004 10:35:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265703AbUEZOft
+	id S265703AbUEZOgM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 May 2004 10:36:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265704AbUEZOgM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 May 2004 10:35:49 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:27140 "EHLO
-	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S265660AbUEZOfr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 May 2004 10:35:47 -0400
-Subject: swsusp fails short on memory
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1085582116.1785.6.camel@teapot.felipe-alfaro.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-1) 
-Date: Wed, 26 May 2004 16:35:35 +0200
+	Wed, 26 May 2004 10:36:12 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:59817 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S265703AbUEZOgC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 May 2004 10:36:02 -0400
+Date: Wed, 26 May 2004 07:35:48 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+cc: bug-kernel@leroutier.net
+Subject: [Bug 2773] New: kernel panic under medium load
+Message-ID: <390810000.1085582148@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+http://bugme.osdl.org/show_bug.cgi?id=2773
 
-I'm somewhat ignorant on the inner workings of swsusp. I have a 256MB
-laptop machine running 2.6.7-rc1-bk2 + ACPI + swsusp two swap
-partitions, a 256MB swap partition on /dev/hda4 plus another 256MB swap
-on /dev/hda5. When trying to hibernate to disk, swsusp fails with the
-following error message:
+           Summary: kernel panic under medium load
+    Kernel Version: 2.6.6 unpatched
+            Status: NEW
+          Severity: normal
+             Owner: akpm@digeo.com
+         Submitter: bug-kernel@leroutier.net
 
-PCMCIA: socket cf71302c: *** DANGER *** unable to remove socket power
-Stopping tasks:
-====================================================================|
-Freeing memory: ..|
-/critical section: counting pages to copy.[nosave pfn
-0x2f2]...............................................................
-(pages needed: 46305+512=46817 free: 19214)
-Suspend Machine: Couldn't get enough free pages, on 27603 pages short
-Suspend Machine: Suspend failed, trying to recover...
-Fixing swap signatures... ok
-Restarting tasks...<4>atkbd.c: Unknown key released (translated set 2,
-code 0x7a on isa0060/serio0).
-atkbd.c: This is an XFree86 bug. It shouldn't access hardware directly.
- done
 
-What I can't unserstand is how swsusp fails with "couldn't get enough
-free pages". cat /proc/swaps tells:
+Distribution:
+Gentoo x86
 
-Filename                  Type            Size    Used    Priority
-/dev/hda4                 partition       281128  0       0
-/dev/hda5                 partition       281096  192     1
+Hardware Environment:
+P4 Celeron
+0000:00:00.0 Host bridge: VIA Technologies, Inc. P4M266 Host Bridge
+0000:00:01.0 PCI bridge: VIA Technologies, Inc. VT8633 [Apollo Pro266 AGP]
+0000:00:05.0 Ethernet controller: D-Link System Inc RTL8139 Ethernet (rev 10)
+0000:00:10.0 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1
+Controller (rev 80)
+0000:00:10.1 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1
+Controller (rev 80)
+0000:00:10.2 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1
+Controller (rev 80)
+0000:00:10.3 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 82)
+0000:00:11.0 ISA bridge: VIA Technologies, Inc. VT8235 ISA Bridge
+0000:00:11.1 IDE interface: VIA Technologies, Inc.
+VT82C586A/B/VT82C686/A/B/VT823x/A/C PIPC Bus Master IDE (rev 06)
+0000:00:11.5 Multimedia audio controller: VIA Technologies, Inc.
+VT8233/A/8235/8237 AC97 Audio Controller (rev 50)
+0000:00:12.0 Ethernet controller: VIA Technologies, Inc. VT6102 [Rhine-II] (rev 74)
+0000:01:00.0 VGA compatible controller: S3 Inc. VT8375 [ProSavage8 KM266/KL266]
 
-What going on here? Why does swsusp fail when there is plenty of free
-swap space?
+Software Environment:
+mldonkey 2.5.21 (the app that triggers the bug at each time)
 
-NOTE: The same happens while only using a big, 512MB swap partition.
+Problem Description:
 
-Thanks.
+Unable to handle kernel paging request at virtual address 00004018
+ printing eip:
+c012c41c
+*pde = 00000000
+Oops: 0002 [#1]
+CPU:    0
+EIP:    0060:[<c012c41c>]    Not tainted
+EFLAGS: 00010206   (2.6.6)
+EIP is at __alloc_pages+0x5e/0x2d4
+eax: 00004000   ebx: 00000000   ecx: 00000153   edx: c02ed5e4
+esi: 00000001   edi: c02ed84c   ebp: c6e93d6c   esp: c6e93d38
+ds: 007b   es: 007b   ss: 0068
+Process mlnet (pid: 16251, threadinfo=c6e92000 task=ddd1d6b0)
+Stack: c6e93d6c c015615c d261120c bfffc684 00000001 ddd1d6b0 00000010 00000000
+       000000d2 00006006 00000000 00006006 00000000 c6e93e54 c012a4a8 d26112a4
+       00006006 00000000 00000000 0001c26f c6e93d88 00000001 cfb344c8 00000020
+Call Trace:
+ [<c015615c>] inode_update_time+0x9c/0xd0
+ [<c012a4a8>] generic_file_aio_write_nolock+0x2bf/0xaa6
+ [<c012e785>] page_cache_readahead+0x1a2/0x1fd
+ [<c012924a>] file_read_actor+0x0/0xda
+ [<c01294b3>] __generic_file_aio_read+0x18f/0x1be
+ [<c012924a>] file_read_actor+0x0/0xda
+ [<c012ad8b>] generic_file_aio_write+0x6b/0x88
+ [<c0170457>] ext3_file_write+0x3f/0xb8
+ [<c01409cd>] do_sync_write+0x89/0xb4
+ [<c011b0e1>] update_wall_time+0xf/0x3a
+ [<c0111a05>] scheduler_tick+0x1f/0x506
+ [<c0117cae>] __do_softirq+0x82/0x84
+ [<c011b263>] update_process_times+0x46/0x50
+ [<c011b0e1>] update_wall_time+0xf/0x3a
+ [<c011b4df>] do_timer+0xdf/0xe4
+ [<c0140944>] do_sync_write+0x0/0xb4
+ [<c0140a99>] vfs_write+0xa1/0x10c
+ [<c0140ba0>] sys_write+0x3f/0x5d
+ [<c0103cf3>] syscall_call+0x7/0xb
+
+Code: 83 78 18 63 7f 07 8b 42 08 d1 e8 29 c1 8b 02 39 c8 73 0c 8b
+
+Steps to reproduce:
+
+run mlnet (multi-network exe of mldonkey, a P2P app) with a load > 1MB/s (in & out)
+
+preempt is off
+
+would attach .config on request
+
 

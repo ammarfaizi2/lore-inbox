@@ -1,70 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317399AbSGXQqS>; Wed, 24 Jul 2002 12:46:18 -0400
+	id <S317402AbSGXQsF>; Wed, 24 Jul 2002 12:48:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317400AbSGXQqS>; Wed, 24 Jul 2002 12:46:18 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:1020 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S317399AbSGXQqR>; Wed, 24 Jul 2002 12:46:17 -0400
-Subject: Re: [patch] irqlock patch -G3. [was Re: odd memory
-	corruptionin2.5.27?]
-From: Robert Love <rml@tech9.net>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Andrew Morton <akpm@zip.com.au>, Ingo Molnar <mingo@elte.hu>,
-       george anzinger <george@mvista.com>,
-       Zwane Mwaikambo <zwane@linuxpower.ca>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0207240927370.15114-100000@home.transmeta.com>
-References: <Pine.LNX.4.44.0207240927370.15114-100000@home.transmeta.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 24 Jul 2002 09:49:20 -0700
-Message-Id: <1027529360.3581.1213.camel@sinai>
-Mime-Version: 1.0
+	id <S317404AbSGXQsE>; Wed, 24 Jul 2002 12:48:04 -0400
+Received: from pD9E23DCB.dip.t-dialin.net ([217.226.61.203]:19072 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S317402AbSGXQsC>; Wed, 24 Jul 2002 12:48:02 -0400
+Date: Wed, 24 Jul 2002 10:51:01 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: jbradford@dial.pipex.com
+cc: Geert Uytterhoeven <geert@linux-m68k.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] penguin logo code
+In-Reply-To: <200207241649.g6OGnH5u000371@darkstar.example.net>
+Message-ID: <Pine.LNX.4.44.0207241049450.3347-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf; Germany
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-07-24 at 09:40, Linus Torvalds wrote:
+Hi,
 
-> Just as an example, in the not too distant future what _will_ happen is
-> that
-> 
-> 	spin_lock_irqsave()
-> 	..
-> 	spin_unlock_irqrestore()
-> 
-> will not necessarily increment the preemtion count. Why should they?
-> They've disabled local interrupts, so there's no preemption to protect
-> against. That's just an _obvious_ optimization.
+On Wed, 24 Jul 2002 jbradford@dial.pipex.com wrote:
+> Just an idea, (and slightly off-topic), but would it be possible, (I.E.
+> not a copyright infringement, and not liable to mess up any checksums
+> anywhere), to replace the logo that typically occurs in X86 BIOSen and
+> fades away at boot, with a penguin?
 
-So obvious it is even in my queue :)
+I think the LinuxBios project made very clear that it is. What's shown on 
+boot time is quite arbitrary, the main thing is what happens. But would 
+you really want to _fade_away_ a penguin?
 
-I do not think we are ready yet - there is just way too much code that
-does not pair up as you mention... but I have played with the patch and
-some debugging to see just how feasible it is.  Fairly soon.
-
-Note that other preemptible kernels (IRIX and BeOS, for example) do not
-even have a preemption count -- all spinlocks also disable interrupts. 
-Not that I am suggesting that, I am very fond of our preempt_count
-mechanism, but its a point to consider even if it were feasible (e.g. we
-did not have spinlocks held for hundreds of milliseconds).
-
-> We can easily add a debugging check to spin_unlock() that says:
-> 
-> 	/* Somebody messed up, doesn't hold any other preemption thing
-> 	 * than this lock that is now getting released, and has interrupts
-> 	 * disabled
-> 	 */
-> 	BUG_ON(preempt_count() == 1 && interrupts_enabled())
-> 
-> No?
-
-Pretty similar to the debugging I played with... as long as it goes away
-eventually (who wants this in their unlock path?) we certainly should
-add it at some point.
-
-	Robert Love
-
+							Regards,
+							Thunder
+-- 
+(Use http://www.ebb.org/ungeek if you can't decode)
+------BEGIN GEEK CODE BLOCK------
+Version: 3.12
+GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+e++++ h* r--- y- 
+------END GEEK CODE BLOCK------
 

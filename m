@@ -1,43 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268313AbUIWTea@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268225AbUIWTlS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268313AbUIWTea (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 15:34:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268306AbUIWTea
+	id S268225AbUIWTlS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 15:41:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268306AbUIWTlS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 15:34:30 -0400
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:51864
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S268334AbUIWTeC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 15:34:02 -0400
-Date: Thu, 23 Sep 2004 12:32:50 -0700
-From: "David S. Miller" <davem@davemloft.net>
-To: Andi Kleen <ak@muc.de>
-Cc: prasanna@in.ibm.com, linux-kernel@vger.kernel.org, torvalds@osdl.org,
-       akpm@osdl.org, suparna@in.ibm.com, trini@kernel.crashing.org,
-       kgdb-bugreport@lists.sourceforge.net
-Subject: Re: [Patch] kprobes exception notifier fix 2.6.9-rc2
-Message-Id: <20040923123250.5e62f547.davem@davemloft.net>
-In-Reply-To: <20040923080627.GA89752@muc.de>
-References: <20040923053029.GB1291@in.ibm.com>
-	<20040923080627.GA89752@muc.de>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Thu, 23 Sep 2004 15:41:18 -0400
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:34725 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S268225AbUIWTlR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Sep 2004 15:41:17 -0400
+Subject: Re: [PATCH] Warn people that ipchains and ipfwadm are going away.
+From: Albert Cahalan <albert@users.sf.net>
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+Cc: Albert Cahalan <albert@users.sourceforge.net>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>, ak@muc.de,
+       gandalf@wlug.westbo.se
+In-Reply-To: <41532504.3000005@nortelnetworks.com>
+References: <1095962839.4974.965.camel@cube>
+	 <41532504.3000005@nortelnetworks.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1095968193.4969.980.camel@cube>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 23 Sep 2004 15:36:34 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 23 Sep 2004 10:06:28 +0200
-Andi Kleen <ak@muc.de> wrote:
-
-> On Thu, Sep 23, 2004 at 11:00:29AM +0530, Prasanna S Panchamukhi wrote:
-> > In order to make other debuggers use exception notifiers, kprobes 
-> > notifier return values are required to be modified. This patch modifies the
-> > return values of kprobes notifier return values in a clean way.
+On Thu, 2004-09-23 at 15:33, Chris Friesen wrote:
+> Albert Cahalan wrote:
 > 
-> It's incompatible to x86-64. If you change anything in exception
-> notifiers change both.
+> > Who is doing a 32-bit userland on x86-64, and WTF for?
+> > Why do they not also run a 32-bit kernel?
+> 
+> Backwards compatibility?  Desire to run binary-only 32-bit software as well as 
+> 64-bit software on the same kernel?
 
-And please change sparc64 as well, as it has the same exception
-notification implemented there as well.
+Nope. For that, you run 99% 64-bit, including iptables.
+That's what is typically done. So you'd have a 32-bit
+OpenOffice maybe, and everything else is 64-bit.
+
+I'm still not seeing a need to run an x86-64 kernel
+with an i386 iptables.
+
+

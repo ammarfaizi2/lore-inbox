@@ -1,60 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317090AbSEXFw1>; Fri, 24 May 2002 01:52:27 -0400
+	id <S317091AbSEXF4g>; Fri, 24 May 2002 01:56:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317091AbSEXFw0>; Fri, 24 May 2002 01:52:26 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:26591 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S317090AbSEXFwZ>;
-	Fri, 24 May 2002 01:52:25 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15597.54530.985761.952723@gargle.gargle.HOWL>
-Date: Fri, 24 May 2002 15:52:02 +1000
-From: Christopher Yeoh <cyeoh@samba.org>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-Subject: [PATCH] SUSv2 semctl compliance
-X-Mailer: VM 7.05 under Emacs 21.2.1
+	id <S317092AbSEXF4f>; Fri, 24 May 2002 01:56:35 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:19110 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S317091AbSEXF4f>;
+	Fri, 24 May 2002 01:56:35 -0400
+Date: Fri, 24 May 2002 07:56:34 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [reiserfs-dev] Re: IDE problem: linux-2.5.17
+Message-ID: <20020524075634.A28157@ucw.cz>
+In-Reply-To: <3CECF59B.D471F505@namesys.botik.ru> <3CECFC5B.3030701@evision-ventures.com> <20020523193959.A2613@namesys.com> <3CED004A.6000109@evision-ventures.com> <20020523234720.A7495@bouton.inet6-interne.fr> <20020524005525.H27005@ucw.cz> <20020524022351.A8230@bouton.inet6-interne.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, May 24, 2002 at 02:23:51AM +0200, Lionel Bouton wrote:
+> On Fri, May 24, 2002 at 12:55:25AM +0200, Vojtech Pavlik wrote:
+> > 
+> > If you rewrite the whole drive with zeros (or the original data) sector
+> > by sector, the uncorrectable errors will go away. I've done this to my
+> > 307030 and it works fine again. (Fortunately for me the errors were only
+> > in my swap partition).
+> > 
+> 
+> Don't know for the whole drive yet (currently running) but when I did a mkraid
+> on a raid5 array using 4 partitions on the same drive the sync thread ended
+> and left the array in degraded mode after a bunch of :
+> May 24 02:05:06 twins kernel: hdd: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+> May 24 02:05:06 twins kernel: hdd: dma_intr: error=0x40 { UncorrectableError }, LBA sect=2097375, sector=2097298
+> May 24 02:05:06 twins kernel: end_request: I/O error, dev 16:41 (hdd), sector 2097298
+> 
+> Then I tried to zero the offending sectors with a slight margin :
+> [root@twins root]# dd if=/dev/zero of=/dev/hdd1 count=200 bs=512 seek=2097200
+> dd: writing /dev/hdd1': Erreur d'entrée/sortie
+> 113+0 enregistrements lus.
+> 112+0 enregistrements écrits.
+> 
+> Same error each time, seems sector 2097312 is not my friend.
+> 
+> dd if=/dev/zero of=/dev/hdd bs=<cylinder_size> running.
+> 
+> Too bad lsof doesn't show offsets...
+> I can't tell if dd passed the offending sector :-|
 
-The semctl call with SETVAL currently does not set sempid (at the
-moment sempid is only set during a successful semop call). An
-explanation from Geoff Clare of the Open Group regarding why sempid
-should be set during the semctl call:
+Well, if writing failed, it means the drive has ran out of relocatable
+sectors. That's too bad ... best to send it in for replacement.
 
-"The spec isn't very clear, but there is a statement on the semget()
-page which I think justifies the assumption made by the test.  It says
-that upon creation, the data structure associated with each semaphore
-in the set is not initialised, and that the semctl() function with
-SETVAL or SETALL can be used to initialise each semaphore.
-
-Therefore semctl() with SETVAL has to set sempid to *something*, and
-since sempid contains the "process ID of the last operation", setting
-it to anything other than the pid of the calling process would mean
-that sempid contained misleading information.  It could be argued that
-setting it to zero would not be misleading, but zero cannot be the
-process ID of a process, and so is not a valid value for sempid anyway."
-
-The following patch changes semctl so when called with SETVAL
-sempid is set to the pid of the calling process:
-
---- ipc/sem.c.orig	Fri May 24 15:32:44 2002
-+++ ipc/sem.c	Fri May 24 15:22:44 2002
-@@ -643,6 +643,7 @@
- 		for (un = sma->undo; un; un = un->id_next)
- 			un->semadj[semnum] = 0;
- 		curr->semval = val;
-+		curr->sempid = current->pid;
- 		sma->sem_ctime = CURRENT_TIME;
- 		/* maybe some queued-up processes were waiting for this */
- 		update_queue(sma);
-
-Chris
 -- 
-cyeoh@au.ibm.com
-IBM OzLabs Linux Development Group
-Canberra, Australia
+Vojtech Pavlik
+SuSE Labs

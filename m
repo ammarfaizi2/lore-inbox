@@ -1,36 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284972AbRLQB7B>; Sun, 16 Dec 2001 20:59:01 -0500
+	id <S284970AbRLQCQC>; Sun, 16 Dec 2001 21:16:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284970AbRLQB6p>; Sun, 16 Dec 2001 20:58:45 -0500
-Received: from ns.suse.de ([213.95.15.193]:61966 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S284965AbRLQB6H>;
-	Sun, 16 Dec 2001 20:58:07 -0500
-Date: Mon, 17 Dec 2001 02:50:20 +0100 (CET)
-From: Dave Jones <davej@suse.de>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: More fun with fsx.
-In-Reply-To: <15389.20155.378980.692209@charged.uio.no>
-Message-ID: <Pine.LNX.4.33.0112170249450.29678-100000@Appserv.suse.de>
+	id <S284969AbRLQCPw>; Sun, 16 Dec 2001 21:15:52 -0500
+Received: from [203.94.130.164] ([203.94.130.164]:7945 "EHLO bad-sports.com")
+	by vger.kernel.org with ESMTP id <S284968AbRLQCPk>;
+	Sun, 16 Dec 2001 21:15:40 -0500
+Date: Mon, 17 Dec 2001 13:21:46 +1100 (EST)
+From: brett@bad-sports.com
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.1 - fix qlogic pcmcia scsi
+Message-ID: <Pine.LNX.4.40.0112171318090.30472-100000@bad-sports.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 Dec 2001, Trond Myklebust wrote:
 
-> Are the timestamps correct? If the server is replying with a 'garbage'
-> message, then certainly that will result in an EIO. However I didn't
-> see anything like that in your tcpdump, and the juxtaposed
-> 'nfs_get_root' error rather points to that as being a mount error.
+Hey,
 
-Timestamps match on client and server, and are the correct times.
+Small patch to fix compilation for my pcmcia scsi card, as broken by the 
+bio changes.
 
-regards,
-Dave.
+thanks,
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+	/ Brett
+
+--- drivers/scsi/qlogicfas.c.bak	Mon Dec 17 12:54:48 2001
++++ drivers/scsi/qlogicfas.c	Mon Dec 17 12:55:24 2001
+@@ -467,10 +467,11 @@
+ static void	    do_ql_ihandl(int irq, void *dev_id, struct pt_regs * 
+regs)
+ {
+ 	unsigned long flags;
++	struct Scsi_Host *host = dev_id;
+ 
+-	spin_lock_irqsave(&io_request_lock, flags);
++	spin_lock_irqsave(&host->host_lock, flags);
+ 	ql_ihandl(irq, dev_id, regs);
+-	spin_unlock_irqrestore(&io_request_lock, flags);
++	spin_unlock_irqrestore(&host->host_lock, flags);
+ }
+ #endif
+ 
+
 

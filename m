@@ -1,64 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269411AbUJLDDr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269438AbUJLDHy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269411AbUJLDDr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 23:03:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269418AbUJLDDr
+	id S269438AbUJLDHy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 23:07:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269435AbUJLDHC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 23:03:47 -0400
-Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:65421 "EHLO
-	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP id S269411AbUJLDDk
+	Mon, 11 Oct 2004 23:07:02 -0400
+Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:41870 "EHLO
+	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP id S269418AbUJLDDz
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 23:03:40 -0400
+	Mon, 11 Oct 2004 23:03:55 -0400
 From: David Brownell <david-b@pacbell.net>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Stefan Seyfried <seife@suse.de>
 Subject: Re: Totally broken PCI PM calls
-Date: Mon, 11 Oct 2004 20:00:53 -0700
+Date: Mon, 11 Oct 2004 19:59:53 -0700
 User-Agent: KMail/1.6.2
-Cc: Dmitry Torokhov <dtor_core@ameritech.net>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Paul Mackerras <paulus@samba.org>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Pavel Machek <pavel@ucw.cz>
-References: <1097455528.25489.9.camel@gaston> <200410111758.48441.dtor_core@ameritech.net> <1097536131.13795.40.camel@gaston>
-In-Reply-To: <1097536131.13795.40.camel@gaston>
+Cc: Paul Mackerras <paulus@samba.org>, Linus Torvalds <torvalds@osdl.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Pavel Machek <pavel@ucw.cz>,
+       ncunningham@linuxmail.org
+References: <1097455528.25489.9.camel@gaston> <200410111437.17898.david-b@pacbell.net> <416B0557.40407@suse.de>
+In-Reply-To: <416B0557.40407@suse.de>
 MIME-Version: 1.0
 Content-Disposition: inline
-Message-Id: <200410112000.53814.david-b@pacbell.net>
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_pi0aBfU9EowZJno"
+Message-Id: <200410111959.53048.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 11 October 2004 4:08 pm, Benjamin Herrenschmidt wrote:
-> On Tue, 2004-10-12 at 08:58, Dmitry Torokhov wrote:
+
+--Boundary-00=_pi0aBfU9EowZJno
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+On Monday 11 October 2004 3:12 pm, Stefan Seyfried wrote:
+> David Brownell wrote:
 > 
-> > Yes, I think that devices that failed to resume (and all their children)
-> > have to be moved by the core resume function into a separate list and
-> > then destroyed (again by the driver core). 
-
-OHCI has to do this when the controller loses power during suspend;
-which includes many suspend-to-disk cases.  It marks the devices dead,
-kills the I/O queues, and then makes khubd do all the work.
-
-
-> > For that we might need to add 
-> > bus_type->remove_device() handler as it seems that all buses do alot
-> > of work outside of driver->remove handlers. The remove_device should
-> > accept additional argument - something like dead_device that would
-> > suggest that driver should not be alarmed by any errors during unbind/
-> > removal process as the device (or rather usually its parent) is simply
-> > not there anynore.
+> > The machines I've tested with relatively generic 2.6.9-rc kernels
+> > don't use BIOS support for S4 when I call swsusp.
 > 
-> They already do... think USB...
+> first do either
+> echo platform > /sys/power/disk     # for S4
+> echo shutdown > /sys/power/disk     # for poweroff
+> 
+> then do
+> echo disk > /sys/power/state
 
-USB decided against the extra argument; drivers don't much care
-at that point.  And anyway, they can tell the device is gone by looking
-at status codes returned by URB completion or submission.
+Oddly enough, neither of them work lately for me.
+They each resume immediately after writing the
+image to disk.
 
 - Dave
 
+p.s. I find the /sys/power/disk file mildly cryptic, maybe
+    other folk will find the attached patch slightly more
+    informative about what this interface can do.
 
-> Ben.
-> 
-> 
-> 
+
+
+
+--Boundary-00=_pi0aBfU9EowZJno
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="disk.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="disk.patch"
+
+--- 1.19/kernel/power/disk.c	Thu Sep  9 08:45:13 2004
++++ edited/kernel/power/disk.c	Fri Oct  1 11:01:41 2004
+@@ -282,7 +282,14 @@
+ 
+ static ssize_t disk_show(struct subsystem * subsys, char * buf)
+ {
+-	return sprintf(buf,"%s\n",pm_disk_modes[pm_disk_mode]);
++	return sprintf(buf,"%s%s %s%s %s%s\n",
++		(pm_disk_mode == pm_ops->pm_disk_mode) ? "*" : "",
++			pm_disk_modes[pm_ops->pm_disk_mode],
++		(pm_disk_mode == PM_DISK_SHUTDOWN) ? "*" : "",
++			pm_disk_modes[PM_DISK_SHUTDOWN],
++		(pm_disk_mode == PM_DISK_REBOOT) ? "*" : "",
++			pm_disk_modes[PM_DISK_REBOOT]
++		);
+ }
+ 
+ 
+
+--Boundary-00=_pi0aBfU9EowZJno--

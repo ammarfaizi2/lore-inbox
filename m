@@ -1,124 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274958AbTHAVrb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Aug 2003 17:47:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274957AbTHAVpn
+	id S274972AbTHAV4f (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Aug 2003 17:56:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274976AbTHAV4f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Aug 2003 17:45:43 -0400
-Received: from hueytecuilhuitl.mtu.ru ([195.34.32.123]:3338 "EHLO
-	hueymiccailhuitl.mtu.ru") by vger.kernel.org with ESMTP
-	id S274955AbTHAVpG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Aug 2003 17:45:06 -0400
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-To: linux-hotplug-devel@lists.sourceforge.net
-Subject: [PATCH] input hotplug support
-Date: Sat, 2 Aug 2003 01:39:37 +0400
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
+	Fri, 1 Aug 2003 17:56:35 -0400
+Received: from mail0.lsil.com ([147.145.40.20]:10998 "EHLO mail0.lsil.com")
+	by vger.kernel.org with ESMTP id S274972AbTHAV4c (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Aug 2003 17:56:32 -0400
+Message-Id: <0E3FA95632D6D047BA649F95DAB60E570185F3DF@EXA-ATLANTA.se.lsil.com>
+From: "Mukker, Atul" <atulm@lsil.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>
+Cc: "'linux-megaraid-devel@dell.com'" <linux-megaraid-devel@dell.com>
+Subject: [ANNOUNCE] megaraid linux driver version 2.00.7
+Date: Fri, 1 Aug 2003 17:56:16 -0400 
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_Z4tK/s99vm44s0i"
-Message-Id: <200308020139.37446.arvidjaar@mail.ru>
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+MegaRAID driver version 2.00.7 is released and can be download from
 
---Boundary-00=_Z4tK/s99vm44s0i
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+ftp://ftp.lsil.com/pub/linux-megaraid/drivers/version-2.00.7/
 
-this adds input agent and coldplug rc script. It relies on patch for 
-module-init-tools that gnerates input handlers map table being posted to lkml 
-as well.
+Changes from 2.00.6:
 
-input agent loads input handler in respond to input subsystem request. It is 
-currently purely table-driven, no attempt to provide for any static list or 
-like was done, it needs some operational experience.
+i.	Adapter lock re-definition so that patch for kernels w/o per host
+lock
+	is less intrusive - Jens Axboe <axboe@suse.de>
 
-static coldplug rc script is intended to load input handlers for any built-in 
-input drivers, like e.g. psmouse (if you built it in). Currently it does it 
-by parsing /proc/bus/input/devices, I'd like to use sysfs but apparently 
-support for it in input susbsystem is incomplete at best.
+ii.	While in abort and reset handling, check for non-empty pending list
+is
+	invalid. The intent is to wait for pending commands in FW to
+complete,
+	not the pending commands with the driver - Atul Mukker
+<atulm@lsil.com>
 
-It also modifies usb.agent to not consult usb.handmap on 2.6, as it is not 
-needed anymore.
 
-Patch is against 2003_05_01 version of hotplug. Comments appreciated.
-
--andrey
---Boundary-00=_Z4tK/s99vm44s0i
-Content-Type: application/x-bzip2;
-  name="hotplug-2003_05_01-input.patch.bz2"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="hotplug-2003_05_01-input.patch.bz2"
-
-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
-yRxER9NNeMiv3NDqE55f/F3JFOFCQM3AU6w=
-
---Boundary-00=_Z4tK/s99vm44s0i--
-
+Atul Mukker
+Storage Systems
+LSI Logic Corporation

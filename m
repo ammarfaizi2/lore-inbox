@@ -1,57 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264187AbTDPB1w (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 21:27:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264189AbTDPB1w 
+	id S264189AbTDPBh5 (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 21:37:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264190AbTDPBh5 
 	(for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 21:27:52 -0400
-Received: from adsl-67-121-155-183.dsl.pltn13.pacbell.net ([67.121.155.183]:8416
-	"EHLO triplehelix.org") by vger.kernel.org with ESMTP
-	id S264187AbTDPB1v (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 15 Apr 2003 21:27:51 -0400
-Date: Tue, 15 Apr 2003 18:39:42 -0700
-To: kernel@kolivas.org
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [2.4.20-ck6] Rmap15f patch fails in vmscan.c
-Message-ID: <20030416013942.GA31943@triplehelix.org>
+	Tue, 15 Apr 2003 21:37:57 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:35593
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id S264189AbTDPBh4 
+	(for <rfc822;linux-kernel@vger.kernel.org>); Tue, 15 Apr 2003 21:37:56 -0400
+Subject: Re: SoundBlaster Live! with kernel 2.5.x
+From: Robert Love <rml@tech9.net>
+To: Udo Hoerhold <maillists@goodontoast.com>
+Cc: Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200304152001.35975.maillists@goodontoast.com>
+References: <200304152001.35975.maillists@goodontoast.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1050457791.3664.188.camel@localhost>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Qxx1br4bt0+wmkIi"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
-From: Joshua Kwan <joshk@triplehelix.org>
+X-Mailer: Ximian Evolution 1.2.4 (1.2.4-2) 
+Date: 15 Apr 2003 21:49:52 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2003-04-15 at 20:01, Udo Hoerhold wrote:
 
---Qxx1br4bt0+wmkIi
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> I've been running Debian woody with 2.4.20 kernel.  I'm trying to switch to 
+> 2.5.  I built 2.5.67 with emu10k driver in the kernel (same as I had with 
+> 2.4.20), but I get only a lot of popping sounds from the sound card.  I also 
+> tried 2.5.50 and 2.5.67-mm3, with the same result.  I googled for emu10k and 
+> soundblaster with 2.5, but I haven't seen anyone else with the same problem.  
+> Does anyone know what this problem is?
 
-The subject says it all. Extracted a clean 2.4.20 tree, patched it with
-the full -ck6 patch, then applied the rmap15f patch, and it fails in
-mm/vmscan.c. Give it a try for yourself... :)
+Not sure.  It seems to work fine here.
 
-(The reason why I haven't just fixed it myself is because the rejects
-file is really big, and it seems to me like something you can easily
-correct with your sources, by rediffing against the right version of the
-file or something.)
+Are you using ALSA or OSS?  Best bet is ALSA.  You want something like:
+        
+        CONFIG_SND=y
+        CONFIG_SND_SEQUENCER=y
+        CONFIG_SND_OSSEMUL=y
+        CONFIG_SND_MIXER_OSS=y
+        CONFIG_SND_PCM_OSS=y
+        CONFIG_SND_SEQUENCER_OSS=y
+        CONFIG_SND_EMU10K1=y
 
-Regards
-Josh
+And then do not include any of the OSS stuff.
 
---=20
-New PGP public key: 0x27AFC3EE
+Then a normal audio playback on /dev/audio or whatever should work fine.
 
---Qxx1br4bt0+wmkIi
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+If not, do you see any errors during boot?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+	Robert Love
 
-iD8DBQE+nLReT2bz5yevw+4RAuNYAJ47PB4BBE+NH4JtWQFZthIvt3zlOQCgs01v
-2TlrzFAo9LOjv/Y3PIUP3rE=
-=TCTz
------END PGP SIGNATURE-----
 
---Qxx1br4bt0+wmkIi--

@@ -1,84 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261641AbVBSGx3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261648AbVBSHxq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261641AbVBSGx3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Feb 2005 01:53:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261648AbVBSGx3
+	id S261648AbVBSHxq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Feb 2005 02:53:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261649AbVBSHxq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Feb 2005 01:53:29 -0500
-Received: from smtp803.mail.sc5.yahoo.com ([66.163.168.182]:3504 "HELO
-	smtp803.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261641AbVBSGxP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Feb 2005 01:53:15 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: ncunningham@cyclades.com
-Subject: Re: 2.6: drivers/input/power.c is never built
-Date: Sat, 19 Feb 2005 01:53:11 -0500
-User-Agent: KMail/1.7.2
-Cc: Pavel Machek <pavel@suse.cz>, Vojtech Pavlik <vojtech@suse.cz>,
-       Oliver Neukum <oliver@neukum.org>, Richard Purdie <rpurdie@rpsys.net>,
-       James Simmons <jsimmons@pentafluge.infradead.org>,
-       Adrian Bunk <bunk@stusta.de>,
-       Linux Input Devices <linux-input@atrey.karlin.mff.cuni.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <047401c515bb$437b5130$0f01a8c0@max> <200502182158.34910.dtor_core@ameritech.net> <1108794519.4098.24.camel@desktop.cunningham.myip.net.au>
-In-Reply-To: <1108794519.4098.24.camel@desktop.cunningham.myip.net.au>
+	Sat, 19 Feb 2005 02:53:46 -0500
+Received: from ppsw-8.csi.cam.ac.uk ([131.111.8.138]:28296 "EHLO
+	ppsw-8.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S261648AbVBSHxn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Feb 2005 02:53:43 -0500
+Date: Sat, 19 Feb 2005 07:53:16 +0000 (GMT)
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: dtor_core@ameritech.net
+cc: Vojtech Pavlik <vojtech@suse.cz>, "d.c" <aradorlinux@yahoo.es>,
+       "David S. Miller" <davem@davemloft.net>, seanlkml@sympatico.ca,
+       tytso@mit.edu, vonbrand@inf.utfsm.cl, cfriesen@nortel.com,
+       cs@tequila.co.jp, galibert@pobox.com, kernel@crazytrain.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [BK] upgrade will be needed
+In-Reply-To: <d120d500050218143572af23dd@mail.gmail.com>
+Message-ID: <Pine.LNX.4.60.0502190750500.21429@hermes-1.csi.cam.ac.uk>
+References: <seanlkml@sympatico.ca>  <4912.10.10.10.24.1108675441.squirrel@linux1>
+  <200502180142.j1I1gJXC007648@laptop11.inf.utfsm.cl> 
+ <1451.10.10.10.24.1108713140.squirrel@linux1>  <20050218162729.GA5839@thunk.org>
+  <4075.10.10.10.24.1108751663.squirrel@linux1>  <20050218214555.1f71c2e4.aradorlinux@yahoo.es>
+  <20050218131326.650c77ad.davem@davemloft.net> 
+ <Pine.LNX.4.60.0502182133490.30371@hermes-1.csi.cam.ac.uk> 
+ <20050218221819.GA3864@ucw.cz> <d120d500050218143572af23dd@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200502190153.12535.dtor_core@ameritech.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+X-Cam-AntiVirus: No virus found
+X-Cam-SpamDetails: Not scanned
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Nigel,
-
-On Saturday 19 February 2005 01:28, Nigel Cunningham wrote:
-> Hi.
+On Fri, 18 Feb 2005, Dmitry Torokhov wrote:
+> On Fri, 18 Feb 2005 23:18:19 +0100, Vojtech Pavlik <vojtech@suse.cz> wrote:
+> > On Fri, Feb 18, 2005 at 09:34:47PM +0000, Anton Altaparmakov wrote:
+> > > On Fri, 18 Feb 2005, David S. Miller wrote:
+> > > > On Fri, 18 Feb 2005 21:45:55 +0100
+> > > > "d.c" <aradorlinux@yahoo.es> wrote:
+> > > >
+> > > > > 2) And more important, *nobody* works against "linus' bk head".
+> > > >
+> > > > I do, %100 exclusively, for all the networking and sparc
+> > > > development.
+> > > >
+> > > > I never work against the -mm tree.
+> > >
+> > > Dito.  All my kernel development happens against Linus' bk head and I
+> > > almost never work against -mm tree.
+> > 
+> > Same here, I work on Linus's bk head and all the changes go to -mm for
+> > testing first, then to Linus for inclusion.
 > 
-> On Sat, 2005-02-19 at 13:58, Dmitry Torokhov wrote: 
-> > On Friday 18 February 2005 18:31, Pavel Machek wrote:
-> > > I believe power and suspend keys should definitely go through
-> > > input. I'm not that sure about battery... Lid is somewhere in
-> > > between...
-> > I think we need a generic way of delivering system status changes to
-> > userspace. Something like acpid but bigger than that, something not
-> > so heavily oriented on ACPI. I wonder if that kernel connector patch
-> > should be looked at.
-> 
-> Absolutely. I've been thinking about this too, but haven't yet found the
-> time to put it down on paper/email yet.
-> 
-> I think we need a very generic system by which changes in anything 
-> remotely impacting on power management (kernelspace or userspace,
-> including ACPI, UPS drivers, keyboard handlers, devices etc) can notify
-> events to a userspace daemon. This daemon can act in accordance with
-> user specified policies (changeable on the fly) to implement system
-> level state changes (suspend to ram/disk, shutdown etc), run time power
-> management
+> I guess there is a perception that developers/maintainers are working
+> against -mm because all maintainers trees are automatically pulled by
+> Andrew. And when someone doing stuff on somewhat regular basis he/she
+> tends to do it against maintainer's tree thus making patches suitable
+> for -mm as well.
 
-Yep.
+Ah yes, that is possible.  However at least for me I work against Linus' 
+BK head, but my developmental NTFS tree is pulled by Andrew for -mm.  When 
+I consider a release ready I request inclusion into Linus' tree.  For 
+non-ntfs stuff I generally send to Andrew for -mm (like the loop driver 
+fallback to file write patch I sent him a few days ago) and he can merge 
+it into mainline later.
 
-> (shutdown a USB hub that just signalled the removal of its 
-> last client), logging and so on.
+I imagine it is simillar for most maintainers trees.
 
-This last example - I don't think the daemon should micro-manage, I think
-USB bus should shutdown the hub automatically without involving userspace.
+Best regards,
 
-> In some cases, it might set policy but 
-> not be actively informed of the details of the application of that
-> policy (we don't feedback loops with a process leaving C3 to notify that
-> it's entering C3!).
-> 
-> This implies, of course, not just a generic way of notifying changes,
-> but a generic way of implementing policy.
-> 
-> Sound too ambitious, or am I thinking your thoughts after you?
-> 
-
-Well, at this moment I only care about delivering the data to userspace,
-the rest (daemon, policies) is although interesting is out of scope for
-me.
-
+	Anton
 -- 
-Dmitry
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/

@@ -1,58 +1,197 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264422AbTEPMEn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 May 2003 08:04:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264424AbTEPMEn
+	id S264426AbTEPM0o (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 May 2003 08:26:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264427AbTEPM0o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 May 2003 08:04:43 -0400
-Received: from smtp017.mail.yahoo.com ([216.136.174.114]:15116 "HELO
-	smtp017.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S264422AbTEPMEl convert rfc822-to-8bit (ORCPT
+	Fri, 16 May 2003 08:26:44 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:55963 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S264426AbTEPM0k (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 May 2003 08:04:41 -0400
-From: Michael Buesch <fsdeveloper@yahoo.de>
-To: eweiss@sbcglobal.net
-Subject: Re: [ANNOUNCE] submount: another removeable media handler
-Date: Fri, 16 May 2003 14:16:53 +0200
-User-Agent: KMail/1.5.1
-References: <200305160106.37274.eweiss@sbcglobal.net>
-In-Reply-To: <200305160106.37274.eweiss@sbcglobal.net>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Description: clearsigned data
+	Fri, 16 May 2003 08:26:40 -0400
+Date: Fri, 16 May 2003 14:39:14 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: alan@lxorguk.ukuu.org.uk, marcelo@conectiva.com.br, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org
+Subject: [patch] Fix incorrect enablebits for all AMD IDE chips, 2.4 and 2.5
+Message-ID: <20030516143914.A17611@ucw.cz>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="YiEDa0DAkWCtVeE4"
 Content-Disposition: inline
-Message-Id: <200305161417.05928.fsdeveloper@yahoo.de>
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-On Friday 16 May 2003 07:06, Eugene Weiss wrote:
-> Submount:  Yet another attempt at solving the removeable media problem.
->
-> It has been tested only on 2.5.66 and 2.5.69 so far, but should work on
-> many earlier 2.5.x kernels as well.  I would greatly appreciate feedback
-> from anyone who would like to check it out.  It is available at
-> http://sourceforge.net/projects/submount/
-[SNIP]
+--YiEDa0DAkWCtVeE4
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-I'm not able to download version 0.1 from any of the sourceforge servers:
-"The requested URL /sourceforge/submount/submount-0.1.tar.gz was not found on this server."
+Hi!
 
-- -- 
-Regards Michael Büsch
-http://www.8ung.at/tuxsoft
- 14:15:12 up 45 min,  2 users,  load average: 1.26, 1.24, 1.20
+For ages the enable bits for primary and secondary devices of AMD IDE
+chips were swapped. This fixes that.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR
 
-iD8DBQE+xNbBoxoigfggmSgRArZJAJ0Y/TADeiqRVJqoG5lASZ2oGbipUQCeJfMn
-muC06834+wVEXYD3BmuedTs=
-=y9iE
------END PGP SIGNATURE-----
+--YiEDa0DAkWCtVeE4
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="amd74xx-2.4.diff"
 
+ChangeSet@1.1212, 2003-05-16 14:36:08+02:00, vojtech@suse.cz
+  Fix incorrect enablebits for all AMD IDE chips.
+
+
+ amd74xx.h |   14 +++++++-------
+ 1 files changed, 7 insertions(+), 7 deletions(-)
+
+
+diff -Nru a/drivers/ide/pci/amd74xx.h b/drivers/ide/pci/amd74xx.h
+--- a/drivers/ide/pci/amd74xx.h	Fri May 16 14:36:27 2003
++++ b/drivers/ide/pci/amd74xx.h	Fri May 16 14:36:27 2003
+@@ -40,7 +40,7 @@
+ 		.init_dma	= init_dma_amd74xx,
+ 		.channels	= 2,
+ 		.autodma	= AUTODMA,
+-		.enablebits	= {{0x40,0x01,0x01}, {0x40,0x02,0x02}},
++		.enablebits	= {{0x40,0x02,0x02}, {0x40,0x01,0x01}},
+ 		.bootable	= ON_BOARD,
+ 		.extra		= 0
+ 	},{	/* 1 */
+@@ -53,7 +53,7 @@
+ 		.init_dma	= init_dma_amd74xx,
+ 		.channels	= 2,
+ 		.autodma	= AUTODMA,
+-		.enablebits	= {{0x40,0x01,0x01}, {0x40,0x02,0x02}},
++		.enablebits	= {{0x40,0x02,0x02}, {0x40,0x01,0x01}},
+ 		.bootable	= ON_BOARD,
+ 		.extra		= 0
+ 	},{	/* 2 */
+@@ -66,7 +66,7 @@
+ 		.init_dma	= init_dma_amd74xx,
+ 		.channels	= 2,
+ 		.autodma	= AUTODMA,
+-		.enablebits	= {{0x40,0x01,0x01}, {0x40,0x02,0x02}},
++		.enablebits	= {{0x40,0x02,0x02}, {0x40,0x01,0x01}},
+ 		.bootable	= ON_BOARD,
+ 		.extra		= 0
+ 	},{	/* 3 */
+@@ -79,7 +79,7 @@
+ 		.init_dma	= init_dma_amd74xx,
+ 		.channels	= 2,
+ 		.autodma	= AUTODMA,
+-		.enablebits	= {{0x40,0x01,0x01}, {0x40,0x02,0x02}},
++		.enablebits	= {{0x40,0x02,0x02}, {0x40,0x01,0x01}},
+ 		.bootable	= ON_BOARD,
+ 		.extra		= 0
+ 	},{	/* 4 */
+@@ -92,7 +92,7 @@
+ 		.init_dma	= init_dma_amd74xx,
+ 		.autodma	= AUTODMA,
+ 		.channels	= 2,
+-		.enablebits	= {{0x40,0x01,0x01}, {0x40,0x02,0x02}},
++		.enablebits	= {{0x40,0x02,0x02}, {0x40,0x01,0x01}},
+ 		.bootable	= ON_BOARD,
+ 		.extra		= 0
+ 	},
+@@ -106,7 +106,7 @@
+ 		.init_dma	= init_dma_amd74xx,
+ 		.channels	= 2,
+ 		.autodma	= AUTODMA,
+-		.enablebits	= {{0x50,0x01,0x01}, {0x50,0x02,0x02}},
++		.enablebits	= {{0x50,0x02,0x02}, {0x50,0x01,0x01}},
+ 		.bootable	= ON_BOARD,
+ 		.extra		= 0,
+ 	},
+@@ -120,7 +120,7 @@
+ 		.init_dma	= init_dma_amd74xx,
+ 		.channels	= 2,
+ 		.autodma	= AUTODMA,
+-		.enablebits	= {{0x50,0x01,0x01}, {0x50,0x02,0x02}},
++		.enablebits	= {{0x50,0x02,0x02}, {0x50,0x01,0x01}},
+ 		.bootable	= ON_BOARD,
+ 		.extra		= 0,
+ 	},
+
+--YiEDa0DAkWCtVeE4
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="amd74xx-2.5.diff"
+
+ChangeSet@1.1150, 2003-05-16 14:37:11+02:00, vojtech@suse.cz
+  Fix incorrect enablebits for all AMD IDE chips.
+
+
+ amd74xx.h |   14 +++++++-------
+ 1 files changed, 7 insertions(+), 7 deletions(-)
+
+
+diff -Nru a/drivers/ide/pci/amd74xx.h b/drivers/ide/pci/amd74xx.h
+--- a/drivers/ide/pci/amd74xx.h	Fri May 16 14:37:41 2003
++++ b/drivers/ide/pci/amd74xx.h	Fri May 16 14:37:41 2003
+@@ -40,7 +40,7 @@
+ 		.init_dma	= init_dma_amd74xx,
+ 		.channels	= 2,
+ 		.autodma	= AUTODMA,
+-		.enablebits	= {{0x40,0x01,0x01}, {0x40,0x02,0x02}},
++		.enablebits	= {{0x40,0x02,0x02}, {0x40,0x01,0x01}},
+ 		.bootable	= ON_BOARD,
+ 		.extra		= 0
+ 	},{	/* 1 */
+@@ -53,7 +53,7 @@
+ 		.init_dma	= init_dma_amd74xx,
+ 		.channels	= 2,
+ 		.autodma	= AUTODMA,
+-		.enablebits	= {{0x40,0x01,0x01}, {0x40,0x02,0x02}},
++		.enablebits	= {{0x40,0x02,0x02}, {0x40,0x01,0x01}},
+ 		.bootable	= ON_BOARD,
+ 		.extra		= 0
+ 	},{	/* 2 */
+@@ -66,7 +66,7 @@
+ 		.init_dma	= init_dma_amd74xx,
+ 		.channels	= 2,
+ 		.autodma	= AUTODMA,
+-		.enablebits	= {{0x40,0x01,0x01}, {0x40,0x02,0x02}},
++		.enablebits	= {{0x40,0x02,0x02}, {0x40,0x01,0x01}},
+ 		.bootable	= ON_BOARD,
+ 		.extra		= 0
+ 	},{	/* 3 */
+@@ -79,7 +79,7 @@
+ 		.init_dma	= init_dma_amd74xx,
+ 		.channels	= 2,
+ 		.autodma	= AUTODMA,
+-		.enablebits	= {{0x40,0x01,0x01}, {0x40,0x02,0x02}},
++		.enablebits	= {{0x40,0x02,0x02}, {0x40,0x01,0x01}},
+ 		.bootable	= ON_BOARD,
+ 		.extra		= 0
+ 	},{	/* 4 */
+@@ -92,7 +92,7 @@
+ 		.init_dma	= init_dma_amd74xx,
+ 		.autodma	= AUTODMA,
+ 		.channels	= 2,
+-		.enablebits	= {{0x40,0x01,0x01}, {0x40,0x02,0x02}},
++		.enablebits	= {{0x40,0x02,0x02}, {0x40,0x01,0x01}},
+ 		.bootable	= ON_BOARD,
+ 		.extra		= 0
+ 	},
+@@ -106,7 +106,7 @@
+ 		.init_dma	= init_dma_amd74xx,
+ 		.channels	= 2,
+ 		.autodma	= AUTODMA,
+-		.enablebits	= {{0x50,0x01,0x01}, {0x50,0x02,0x02}},
++		.enablebits	= {{0x50,0x02,0x02}, {0x50,0x01,0x01}},
+ 		.bootable	= ON_BOARD,
+ 		.extra		= 0,
+ 	},
+@@ -120,7 +120,7 @@
+ 		.init_dma	= init_dma_amd74xx,
+ 		.channels	= 2,
+ 		.autodma	= AUTODMA,
+-		.enablebits	= {{0x50,0x01,0x01}, {0x50,0x02,0x02}},
++		.enablebits	= {{0x50,0x02,0x02}, {0x50,0x01,0x01}},
+ 		.bootable	= ON_BOARD,
+ 		.extra		= 0,
+ 	},
+
+--YiEDa0DAkWCtVeE4--

@@ -1,76 +1,456 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129589AbQJ0LMI>; Fri, 27 Oct 2000 07:12:08 -0400
+	id <S129733AbQJ0LPS>; Fri, 27 Oct 2000 07:15:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129733AbQJ0LL6>; Fri, 27 Oct 2000 07:11:58 -0400
-Received: from office.mandrakesoft.com ([195.68.114.34]:38131 "HELO
-	test1.mandrakesoft.com") by vger.kernel.org with SMTP
-	id <S129589AbQJ0LLl>; Fri, 27 Oct 2000 07:11:41 -0400
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Martin Mares <mj@suse.cz>, "Richard B. Johnson" <root@chaos.analogic.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Possible critical VIA vt82c686a chip bug (private question)
-In-Reply-To: <m3d7gnd31m.fsf@test1.mandrakesoft.com>
-	<Pine.LNX.3.95.1001026115039.12337A-100000@chaos.analogic.com>
-	<20001026190309.A372@suse.cz>
-	<20001027120220.A5741@atrey.karlin.mff.cuni.cz>
-	<20001027124947.A476@suse.cz> <m38zrablff.fsf@test1.mandrakesoft.com>
-	<20001027130151.A607@suse.cz>
-From: Yoann Vandoorselaere <yoann@mandrakesoft.com>
-Date: 27 Oct 2000 13:16:34 +0200
-In-Reply-To: Vojtech Pavlik's message of "Fri, 27 Oct 2000 13:01:51 +0200"
-Message-ID: <m3y9zaa60d.fsf@test1.mandrakesoft.com>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) Emacs/20.6
+	id <S129963AbQJ0LPI>; Fri, 27 Oct 2000 07:15:08 -0400
+Received: from chiark.greenend.org.uk ([195.224.76.132]:8722 "EHLO
+	chiark.greenend.org.uk") by vger.kernel.org with ESMTP
+	id <S129733AbQJ0LO7>; Fri, 27 Oct 2000 07:14:59 -0400
+From: Ian Jackson <ijackson@chiark.greenend.org.uk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <14841.25520.562811.894899@chiark.greenend.org.uk>
+Date: Fri, 27 Oct 2000 12:14:56 +0100 (BST)
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: linux 2.2.18pre17 + VM-global -7 = `Negative d_count' oops
+In-Reply-To: <20001027010539.B1282@athlon.random>
+In-Reply-To: <39F4AB91.72F2C300@transmeta.com>
+	<20001025050631.A6817@athlon.random>
+	<14840.27617.448792.438567@chiark.greenend.org.uk>
+	<20001027010539.B1282@athlon.random>
+X-Mailer: VM 6.75 under Emacs 19.34.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik <vojtech@suse.cz> writes:
-
-> On Fri, Oct 27, 2000 at 12:58:12PM +0200, Yoann Vandoorselaere wrote:
-> 
-> > > > > So this is not our problem here. Anyway I guess it's time to hunt for
-> > > > > i8259 accesses in the kernel that lack the necessary spinlock, even when
-> > > > > they're not probably the cause of the problem we see here.
-> > > > 
-> > > > BTW what about trying to modify your work-around code to make it
-> > > > attempt to read the timer again? This way we could test whether it was
-> > > > a race condition during timer read or really timer jumping to a bogus
-> > > > value.
-> > > 
-> > > Actually if I don't reprogram the timer (and just ignore the value for
-> > > example), the work-around code keeps being called again and again very
-> > > often (between 1x/minute to 100x/second) after the first failure, even
-> > > when the system is idle.
-> > > 
-> > > When reprogramming, next failure happens only after stressing the system
-> > > again.
-> > > 
-> > > So it's not just a race, the impact of the failure on the chip is
-> > > permanent and stays till it's reprogrammed.
+Andrea Arcangeli writes ("Re: linux 2.2.18pre17 + VM-global -7 = `Negative d_count' oops"):
+> On Thu, Oct 26, 2000 at 06:37:37PM +0100, Ian Jackson wrote:
+> >  Negative d_count (-805538369) for [binary garbage]/<NULL>
 > > 
-> > Are you sure there is not an error in the way the 
-> > chipset is programmed ?
+> > followed by an oops.  Kernel logfile extract below, uuencoded.
 > 
-> Which part of the chipset you mean? The PIT (programmable interrupt
-> timer)? That one is standard since XT times. The rest of the ISA bridge?
-> Maybe, but that's mostly BIOS work and shouldn't impact the PIT
-> under sane conditions.
+> Thanks for the feedback.
+> 
+> The oops is forced by the kernel after it sees then wrong negative d_count.
+> 
+> I'd say it's memory corruption, but it doesn't look like a memory bitflip.
+> 
+> I'm almost certain that it's not caused by the VM-global patch.
+> 
+> Which device driver and compiler are you using?
 
-What is strange is that a number of persons seem to be hit by this
-problem... And if VIA didn't corrected it it's probably because
-they are not aware of it...
+chiark:~> gcc -v
+Reading specs from /usr/lib/gcc-lib/i386-linux/2.95.2/specs
+gcc version 2.95.2 20000220 (Debian GNU/Linux)
+chiark:~> dpkg -l gcc
+Desired=Unknown/Install/Remove/Purge/Hold
+| Status=Not/Installed/Config-files/Unpacked/Failed-config/Half-installed
+|/ Err?=(none)/Hold/Reinst-required/X=both-problems (Status,Err:uppercase=bad)
+||/ Name           Version        Description
++++-==============-==============-============================================
+ii  gcc            2.95.2-13      The GNU C compiler.
+chiark:~>
 
-I think that if such problem occured under windows 
-(thinking to the windows user base), VIA would be already in touch.
+I've enclosed a copy of `.config' from the 2.2.18pre17+VM-global.
 
--- 
-		-- Yoann http://www.mandrakesoft.com/~yoann/
-Tiniest "mesures unities?"
-- lenght : millimeter
-- volume : milliliter
-- intelligence : military man
+I forgot to mention, and it might be relevant (given that the oops is
+in `hung_up_tty_read'), that I'm using a VPN system of my own devising
+which gets packets in and out of the kernel by using `slattach' on
+pty's; it has no nonstandard kernel component, but probably has some
+unusual pty handling behaviour.  If you really want to look at what it
+does, the source is on ftp.chiark.greenend.org.uk in ipif/service.c
+inside /users/ian/userv/userv-utils-0.2.0.tar.gz.
+
+Ian.
+
+#
+# Automatically generated by make menuconfig: don't edit
+#
+
+#
+# Code maturity level options
+#
+# CONFIG_EXPERIMENTAL is not set
+
+#
+# Processor type and features
+#
+# CONFIG_M386 is not set
+# CONFIG_M486 is not set
+# CONFIG_M586 is not set
+CONFIG_M586TSC=y
+# CONFIG_M686 is not set
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_X86_TSC=y
+# CONFIG_MICROCODE is not set
+# CONFIG_X86_MSR is not set
+# CONFIG_X86_CPUID is not set
+CONFIG_1GB=y
+# CONFIG_2GB is not set
+# CONFIG_MATH_EMULATION is not set
+# CONFIG_MTRR is not set
+# CONFIG_SMP is not set
+
+#
+# Loadable module support
+#
+# CONFIG_MODULES is not set
+
+#
+# General setup
+#
+CONFIG_NET=y
+CONFIG_PCI=y
+# CONFIG_PCI_GOBIOS is not set
+# CONFIG_PCI_GODIRECT is not set
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_QUIRKS=y
+CONFIG_PCI_OLD_PROC=y
+# CONFIG_MCA is not set
+# CONFIG_VISWS is not set
+CONFIG_SYSVIPC=y
+CONFIG_BSD_PROCESS_ACCT=y
+CONFIG_SYSCTL=y
+CONFIG_BINFMT_AOUT=y
+CONFIG_BINFMT_ELF=y
+# CONFIG_BINFMT_MISC is not set
+# CONFIG_PARPORT is not set
+# CONFIG_APM is not set
+# CONFIG_TOSHIBA is not set
+
+#
+# Plug and Play support
+#
+# CONFIG_PNP is not set
+
+#
+# Block devices
+#
+CONFIG_BLK_DEV_FD=y
+# CONFIG_BLK_DEV_IDE is not set
+# CONFIG_BLK_DEV_HD_ONLY is not set
+# CONFIG_BLK_DEV_LOOP is not set
+# CONFIG_BLK_DEV_NBD is not set
+CONFIG_BLK_DEV_MD=y
+# CONFIG_MD_LINEAR is not set
+CONFIG_MD_STRIPED=y
+# CONFIG_MD_MIRRORING is not set
+# CONFIG_MD_RAID5 is not set
+# CONFIG_MD_BOOT is not set
+CONFIG_BLK_DEV_RAM=y
+CONFIG_BLK_DEV_RAM_SIZE=4096
+# CONFIG_BLK_DEV_INITRD is not set
+# CONFIG_BLK_DEV_XD is not set
+# CONFIG_BLK_DEV_DAC960 is not set
+CONFIG_PARIDE_PARPORT=y
+# CONFIG_PARIDE is not set
+# CONFIG_BLK_CPQ_DA is not set
+# CONFIG_BLK_CPQ_CISS_DA is not set
+# CONFIG_BLK_DEV_HD is not set
+
+#
+# Networking options
+#
+CONFIG_PACKET=y
+CONFIG_NETLINK=y
+CONFIG_RTNETLINK=y
+CONFIG_NETLINK_DEV=y
+CONFIG_FIREWALL=y
+CONFIG_FILTER=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+# CONFIG_IP_MULTICAST is not set
+CONFIG_IP_ADVANCED_ROUTER=y
+CONFIG_RTNETLINK=y
+CONFIG_NETLINK=y
+# CONFIG_IP_MULTIPLE_TABLES is not set
+# CONFIG_IP_ROUTE_MULTIPATH is not set
+# CONFIG_IP_ROUTE_TOS is not set
+CONFIG_IP_ROUTE_VERBOSE=y
+# CONFIG_IP_ROUTE_LARGE_TABLES is not set
+# CONFIG_IP_PNP is not set
+CONFIG_IP_FIREWALL=y
+CONFIG_IP_FIREWALL_NETLINK=y
+CONFIG_NETLINK_DEV=y
+# CONFIG_IP_TRANSPARENT_PROXY is not set
+# CONFIG_IP_MASQUERADE is not set
+# CONFIG_IP_ROUTER is not set
+# CONFIG_NET_IPIP is not set
+# CONFIG_NET_IPGRE is not set
+CONFIG_IP_ALIAS=y
+CONFIG_SYN_COOKIES=y
+# CONFIG_INET_RARP is not set
+CONFIG_SKB_LARGE=y
+# CONFIG_IPX is not set
+# CONFIG_ATALK is not set
+
+#
+# Telephony Support
+#
+# CONFIG_PHONE is not set
+# CONFIG_PHONE_IXJ is not set
+
+#
+# SCSI support
+#
+CONFIG_SCSI=y
+CONFIG_BLK_DEV_SD=y
+CONFIG_CHR_DEV_ST=y
+# CONFIG_BLK_DEV_SR is not set
+# CONFIG_CHR_DEV_SG is not set
+# CONFIG_SCSI_MULTI_LUN is not set
+CONFIG_SCSI_CONSTANTS=y
+CONFIG_SCSI_LOGGING=y
+
+#
+# SCSI low-level drivers
+#
+# CONFIG_SCSI_7000FASST is not set
+# CONFIG_SCSI_ACARD is not set
+# CONFIG_SCSI_AHA152X is not set
+# CONFIG_SCSI_AHA1542 is not set
+# CONFIG_SCSI_AHA1740 is not set
+# CONFIG_SCSI_AIC7XXX is not set
+# CONFIG_SCSI_IPS is not set
+# CONFIG_SCSI_ADVANSYS is not set
+# CONFIG_SCSI_IN2000 is not set
+# CONFIG_SCSI_AM53C974 is not set
+# CONFIG_SCSI_MEGARAID is not set
+# CONFIG_SCSI_BUSLOGIC is not set
+# CONFIG_SCSI_CPQFCTS is not set
+# CONFIG_SCSI_DTC3280 is not set
+# CONFIG_SCSI_EATA is not set
+# CONFIG_SCSI_EATA_DMA is not set
+# CONFIG_SCSI_EATA_PIO is not set
+# CONFIG_SCSI_FUTURE_DOMAIN is not set
+# CONFIG_SCSI_GDTH is not set
+# CONFIG_SCSI_GENERIC_NCR5380 is not set
+# CONFIG_SCSI_INITIO is not set
+# CONFIG_SCSI_INIA100 is not set
+# CONFIG_SCSI_NCR53C406A is not set
+# CONFIG_SCSI_SYM53C416 is not set
+# CONFIG_SCSI_SIM710 is not set
+# CONFIG_SCSI_NCR53C7xx is not set
+CONFIG_SCSI_NCR53C8XX=y
+CONFIG_SCSI_SYM53C8XX=y
+CONFIG_SCSI_NCR53C8XX_DEFAULT_TAGS=8
+CONFIG_SCSI_NCR53C8XX_MAX_TAGS=32
+CONFIG_SCSI_NCR53C8XX_SYNC=40
+# CONFIG_SCSI_NCR53C8XX_IOMAPPED is not set
+# CONFIG_SCSI_NCR53C8XX_PQS_PDS is not set
+# CONFIG_SCSI_PAS16 is not set
+# CONFIG_SCSI_PCI2000 is not set
+# CONFIG_SCSI_PCI2220I is not set
+# CONFIG_SCSI_PSI240I is not set
+# CONFIG_SCSI_QLOGIC_FAS is not set
+# CONFIG_SCSI_QLOGIC_ISP is not set
+# CONFIG_SCSI_QLOGIC_FC is not set
+# CONFIG_SCSI_SEAGATE is not set
+# CONFIG_SCSI_DC390T is not set
+# CONFIG_SCSI_T128 is not set
+# CONFIG_SCSI_U14_34F is not set
+# CONFIG_SCSI_ULTRASTOR is not set
+
+#
+# I2O device support
+#
+# CONFIG_I2O is not set
+# CONFIG_I2O_PCI is not set
+# CONFIG_I2O_BLOCK is not set
+# CONFIG_I2O_SCSI is not set
+
+#
+# Network device support
+#
+CONFIG_NETDEVICES=y
+
+#
+# ARCnet devices
+#
+# CONFIG_ARCNET is not set
+# CONFIG_DUMMY is not set
+# CONFIG_BONDING is not set
+# CONFIG_EQUALIZER is not set
+# CONFIG_NET_SB1000 is not set
+
+#
+# Ethernet (10 or 100Mbit)
+#
+CONFIG_NET_ETHERNET=y
+# CONFIG_NET_VENDOR_3COM is not set
+# CONFIG_LANCE is not set
+# CONFIG_NET_VENDOR_SMC is not set
+# CONFIG_NET_VENDOR_RACAL is not set
+CONFIG_NET_ISA=y
+# CONFIG_AT1700 is not set
+# CONFIG_E2100 is not set
+# CONFIG_DEPCA is not set
+# CONFIG_EWRK3 is not set
+# CONFIG_EEXPRESS is not set
+# CONFIG_EEXPRESS_PRO is not set
+# CONFIG_FMV18X is not set
+# CONFIG_HPLAN_PLUS is not set
+# CONFIG_HPLAN is not set
+# CONFIG_HP100 is not set
+CONFIG_NE2000=y
+# CONFIG_SK_G16 is not set
+# CONFIG_NET_EISA is not set
+# CONFIG_NET_POCKET is not set
+
+#
+# Ethernet (1000 Mbit)
+#
+# CONFIG_SK98LIN is not set
+# CONFIG_FDDI is not set
+# CONFIG_PPP is not set
+CONFIG_SLIP=y
+CONFIG_SLIP_COMPRESSED=y
+# CONFIG_SLIP_SMART is not set
+# CONFIG_SLIP_MODE_SLIP6 is not set
+# CONFIG_NET_RADIO is not set
+
+#
+# Token ring devices
+#
+# CONFIG_TR is not set
+# CONFIG_NET_FC is not set
+
+#
+# Wan interfaces
+#
+# CONFIG_HOSTESS_SV11 is not set
+# CONFIG_COSA is not set
+# CONFIG_SEALEVEL_4021 is not set
+# CONFIG_SYNCLINK_SYNCPPP is not set
+# CONFIG_LANMEDIA is not set
+# CONFIG_COMX is not set
+# CONFIG_DLCI is not set
+# CONFIG_WAN_DRIVERS is not set
+# CONFIG_XPEED is not set
+# CONFIG_SBNI is not set
+
+#
+# Amateur Radio support
+#
+# CONFIG_HAMRADIO is not set
+
+#
+# IrDA (infrared) support
+#
+# CONFIG_IRDA is not set
+
+#
+# ISDN subsystem
+#
+# CONFIG_ISDN is not set
+
+#
+# Old CD-ROM drivers (not SCSI, not IDE)
+#
+# CONFIG_CD_NO_IDESCSI is not set
+
+#
+# Character devices
+#
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+# CONFIG_SERIAL is not set
+# CONFIG_SERIAL_EXTENDED is not set
+# CONFIG_SERIAL_NONSTANDARD is not set
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX98_PTY_COUNT=1024
+# CONFIG_MOUSE is not set
+
+#
+# Joysticks
+#
+# CONFIG_JOYSTICK is not set
+# CONFIG_QIC02_TAPE is not set
+# CONFIG_WATCHDOG is not set
+# CONFIG_NVRAM is not set
+# CONFIG_RTC is not set
+# CONFIG_INTEL_RNG is not set
+
+#
+# Video For Linux
+#
+# CONFIG_VIDEO_DEV is not set
+# CONFIG_DTLK is not set
+
+#
+# Ftape, the floppy tape device driver
+#
+# CONFIG_FTAPE is not set
+
+#
+# USB support
+#
+# CONFIG_USB is not set
+
+#
+# Filesystems
+#
+# CONFIG_QUOTA is not set
+# CONFIG_AUTOFS_FS is not set
+# CONFIG_AFFS_FS is not set
+# CONFIG_HFS_FS is not set
+# CONFIG_FAT_FS is not set
+# CONFIG_MSDOS_FS is not set
+# CONFIG_UMSDOS_FS is not set
+# CONFIG_VFAT_FS is not set
+# CONFIG_ISO9660_FS is not set
+# CONFIG_JOLIET is not set
+CONFIG_MINIX_FS=y
+# CONFIG_NTFS_FS is not set
+# CONFIG_HPFS_FS is not set
+CONFIG_PROC_FS=y
+CONFIG_DEVPTS_FS=y
+# CONFIG_ROMFS_FS is not set
+CONFIG_EXT2_FS=y
+# CONFIG_SYSV_FS is not set
+# CONFIG_UFS_FS is not set
+
+#
+# Network File Systems
+#
+# CONFIG_CODA_FS is not set
+# CONFIG_NFS_FS is not set
+# CONFIG_NFSD is not set
+# CONFIG_SUNRPC is not set
+# CONFIG_LOCKD is not set
+# CONFIG_SMB_FS is not set
+# CONFIG_NCP_FS is not set
+
+#
+# Partition Types
+#
+# CONFIG_BSD_DISKLABEL is not set
+# CONFIG_MAC_PARTITION is not set
+# CONFIG_SMD_DISKLABEL is not set
+# CONFIG_SOLARIS_X86_PARTITION is not set
+# CONFIG_NLS is not set
+
+#
+# Console drivers
+#
+CONFIG_VGA_CONSOLE=y
+# CONFIG_VIDEO_SELECT is not set
+
+#
+# Sound
+#
+# CONFIG_SOUND is not set
+
+#
+# Kernel hacking
+#
+# CONFIG_MAGIC_SYSRQ is not set
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,45 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316609AbSFGCyS>; Thu, 6 Jun 2002 22:54:18 -0400
+	id <S316601AbSFGDDq>; Thu, 6 Jun 2002 23:03:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316610AbSFGCyR>; Thu, 6 Jun 2002 22:54:17 -0400
-Received: from mark.mielke.cc ([216.209.85.42]:61447 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id <S316609AbSFGCyQ>;
-	Thu, 6 Jun 2002 22:54:16 -0400
-Date: Thu, 6 Jun 2002 22:48:26 -0400
-From: Mark Mielke <mark@mark.mielke.cc>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Pavel Machek <pavel@ucw.cz>, Oliver Xymoron <oxymoron@waste.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] Adeos nanokernel for Linux kernel
-Message-ID: <20020606224826.C3551@mark.mielke.cc>
-In-Reply-To: <Pine.LNX.4.44.0206042132450.2614-100000@waste.org> <20020606212100.GA1113@elf.ucw.cz> <20020606213551.A3551@mark.mielke.cc> <E17G9hi-0002Qh-00@starship>
+	id <S316614AbSFGDDp>; Thu, 6 Jun 2002 23:03:45 -0400
+Received: from rj.SGI.COM ([192.82.208.96]:32226 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S316601AbSFGDDo>;
+	Thu, 6 Jun 2002 23:03:44 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: "Kevin P. Fleming" <kpfleming@cox.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kbuild-2.5 on 2.4.19-pre10-ac2 build error when modular support turned off 
+In-Reply-To: Your message of "Thu, 06 Jun 2002 18:48:53 MST."
+             <000d01c20dc5$7a5b08e0$66aca8c0@kpfhome> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Date: Fri, 07 Jun 2002 13:03:37 +1000
+Message-ID: <11283.1023419017@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 07, 2002 at 04:42:18AM +0200, Daniel Phillips wrote:
-> I'll go further and say we need realtime processing in our desktops, not
-> only for signal processing but for more mundane things like moving the mouse
-> cursor smoothly (yes, this is another item that sucks in Linux).  Sorry, I'm
-> a perfectionist, and I like precision.  If you're not and you don't, just
-> say so, and we'll understand each other perfectly.
+On Thu, 6 Jun 2002 18:48:53 -0700, 
+"Kevin P. Fleming" <kpfleming@cox.net> wrote:
+>I had a kernel built and working fine with module support turned on, only a
+>single driver (ide-floppy) compiled as a module. I then did "make -f
+>Makefile-2.5 menuconfig" and turned off loadable module support, kmod and
+>double-checked that ide-floppy changed to built-in (it did).
+>
+>I then did "make -f Makefile-2.5 -j2 installable", and kbuild rebuilt very
+>little, and the final link died with failed references to "request_module".
+>It appears that kbuild did not rebuild the entire kernel, even though would
+>have been necessary.
 
-It's called a hardware cursor... :-)
-
-mark
-
--- 
-mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
-
-  One ring to rule them all, one ring to find them, one ring to bring them all
-                       and in the darkness bind them...
-
-                           http://mark.mielke.cc/
+It is a bug in standardizing dependency names when using common source
+and object trees, I will correct it and roll core-18 this afternoon.
+Separate source and object work fine for this case.
 

@@ -1,53 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131612AbQLVCrf>; Thu, 21 Dec 2000 21:47:35 -0500
+	id <S131274AbQLVCw0>; Thu, 21 Dec 2000 21:52:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131714AbQLVCrY>; Thu, 21 Dec 2000 21:47:24 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:62850 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S131612AbQLVCrL>;
-	Thu, 21 Dec 2000 21:47:11 -0500
-Date: Thu, 21 Dec 2000 18:00:15 -0800
-Message-Id: <200012220200.SAA05057@pizda.ninka.net>
-From: "David S. Miller" <davem@redhat.com>
-To: kernel@pineview.net
-CC: linux-kernel@vger.kernel.org
-In-Reply-To: <977453684.3a42c2744fbb7@ppro.pineview.net> (message from Mike
-	OConnor on Fri, 22 Dec 2000 13:24:44 +1100 (CST))
-Subject: Re: No more DoS
-In-Reply-To: <977453684.3a42c2744fbb7@ppro.pineview.net>
+	id <S131786AbQLVCwG>; Thu, 21 Dec 2000 21:52:06 -0500
+Received: from h24-65-192-120.cg.shawcable.net ([24.65.192.120]:27387 "EHLO
+	webber.adilger.net") by vger.kernel.org with ESMTP
+	id <S131274AbQLVCwB>; Thu, 21 Dec 2000 21:52:01 -0500
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200012220220.eBM2Kpj19962@webber.adilger.net>
+Subject: Re: [RFC] changes to buffer.c (was Test12 ll_rw_block error)
+In-Reply-To: <Pine.LNX.4.21.0012212133380.2533-100000@freak.distro.conectiva>
+ "from Marcelo Tosatti at Dec 21, 2000 10:19:20 pm"
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Date: Thu, 21 Dec 2000 19:20:50 -0700 (MST)
+CC: Chris Mason <mason@suse.com>, "Stephen C. Tweedie" <sct@redhat.com>,
+        Alexander Viro <viro@math.psu.edu>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Russell Cattelan <cattelan@thebarn.com>, linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL73 (25)]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   Date: 	Fri, 22 Dec 2000 13:24:44 +1100 (CST)
-   From: Mike OConnor <kernel@pineview.net>
+Marcelo Tosatti writes:
+> It seems your code has a problem with bh flush time.
+> 
+> In flush_dirty_buffers(), a buffer may (if being called from kupdate) only
+> be written in case its old enough. (bh->b_flushtime)
+> 
+> If the flush happens for an anonymous buffer, you'll end up writing all
+> buffers which are sitting on the same page (with block_write_anon_page),
+> but these other buffers are not necessarily old enough to be flushed.
 
-   I would like to point who ever is in charge of the TCP stack for
-   the linux kernel at a site which claims to have a method of
-   eliminate denial of service (DoS) attacks
+This isn't really a "problem" however.  The page is the _maximum_ age of
+the buffer before it needs to be written.  If we can efficiently write it
+out with another buffer (essentially for free if they are on the same
+spot on disk), then there is less work for us to do later.
 
-   http://grc.com/r&d/nomoredos.htm
-
-   With my limited unstanding of TCP and DoS attacks this would seem
-   to be the answer, instead of a work around.
-
-These people claim that no connection state needs to be saved for the
-beginning of the negotiation, and I claim this is unworkable because
-it ignores TCP timestamps entirely.
-
-Furthermore, it also cannot work because it makes retransmissions
-of the SYN/ACK very non-workable.  I suppose his TCP stack just hacks
-around this by just waiting for the original client SYN to get
-retransmitted or something like this.  I question whether that can
-even work reliably.
-
-I think not holding onto any state for an incoming SYN is nothing but
-a dream in any serious modern TCP implementation.  It can be reduced,
-but not eliminated.  The former is what most modern stacks have done
-to fight these problems.
-
-Later,
-David S. Miller
-davem@redhat.com
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

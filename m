@@ -1,41 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266712AbSKUPHI>; Thu, 21 Nov 2002 10:07:08 -0500
+	id <S266730AbSKUPQz>; Thu, 21 Nov 2002 10:16:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266716AbSKUPHI>; Thu, 21 Nov 2002 10:07:08 -0500
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:14597 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S266712AbSKUPHH>; Thu, 21 Nov 2002 10:07:07 -0500
-Message-Id: <200211211508.gALF8Mp26459@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Aaron Lehmann <aaronl@vitelus.com>, Con Kolivas <conman@kolivas.net>
-Subject: Re: [BENCHMARK] 2.5.47{-mm1} with contest
-Date: Thu, 21 Nov 2002 17:59:13 -0200
-X-Mailer: KMail [version 1.3.2]
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@digeo.com>
-References: <1037057498.3dd03dda5a8b9@kolivas.net> <20021112030453.GB15812@vitelus.com>
-In-Reply-To: <20021112030453.GB15812@vitelus.com>
+	id <S266723AbSKUPQz>; Thu, 21 Nov 2002 10:16:55 -0500
+Received: from ihemail2.lucent.com ([192.11.222.163]:31206 "EHLO
+	ihemail2.firewall.lucent.com") by vger.kernel.org with ESMTP
+	id <S266721AbSKUPQx>; Thu, 21 Nov 2002 10:16:53 -0500
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15836.64140.186693.238318@gargle.gargle.HOWL>
+Date: Thu, 21 Nov 2002 10:23:56 -0500
+From: "John Stoffel" <stoffel@lucent.com>
+To: Steven Dake <sdake@mvista.com>
+Cc: Neil Brown <neilb@cse.unsw.edu.au>, linux-kernel@vger.kernel.org,
+       linux-raid@vger.kernel.org
+Subject: Re: RFC - new raid superblock layout for md driver
+In-Reply-To: <3DDC28E2.30404@mvista.com>
+References: <15835.2798.613940.614361@notabene.cse.unsw.edu.au>
+	<3DDBC0D9.5030904@mvista.com>
+	<15836.8031.649441.843857@notabene.cse.unsw.edu.au>
+	<3DDC28E2.30404@mvista.com>
+X-Mailer: VM 7.07 under Emacs 20.6.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12 November 2002 01:04, Aaron Lehmann wrote:
-> On Tue, Nov 12, 2002 at 10:31:38AM +1100, Con Kolivas wrote:
-> > Here are the latest contest (http://contest.kolivas.net) benchmarks
-> > up to and including 2.5.47.
->
-> This is just great to see. Most previous contest runs made me cringe
-> when I saw how -mm and recent 2.5 kernels were faring, but it looks
-> like Andrew has done something right in 2.5.47-mm1. I hope the
-> appropriate get merged so that 2.6.0 has stunning performance across
-> the board.
 
-Con, your test is extremely useful. Thank you.
+Steven> This is useful, atleast in the current raid implementation,
+Steven> because md_import can be changed to return an error if the
+Steven> device's unique identifier doesn't match the host identifier.
+Steven> In this way, each device of a RAID volume is individually
+Steven> locked to the specific host, and rejection occurs at import of
+Steven> the device time.
 
-(I think I have to say this aloud intead of just reading lkml)
---
-vda
+This is a key issue on SANs as well.  I think that having the hosts'
+UUID in the RAID superblock will allow rejection to happen
+gracefully.  If needed, the user-land tools can have a --force
+option. 
+
+Steven> Perhaps locking using the name field would work except that
+Steven> other userspace applications may reuse that name field for
+Steven> some other purpose, not providing any kind of uniqueness.
+
+I think the there needs to be two fields, a UUID field for the host
+owning the RAID superblocks, and then a name field so that the host,
+along with any other systems which can *view* the RAID superblock, can
+know the user defined name.
+
+John
+   John Stoffel - Senior Unix Systems Administrator - Lucent Technologies
+	 stoffel@lucent.com - http://www.lucent.com - 978-399-0479

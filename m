@@ -1,49 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261738AbREQNsG>; Thu, 17 May 2001 09:48:06 -0400
+	id <S261747AbREQNu0>; Thu, 17 May 2001 09:50:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261747AbREQNr4>; Thu, 17 May 2001 09:47:56 -0400
-Received: from inet.connecttech.com ([206.130.75.2]:22464 "EHLO
-	inet.connecttech.com") by vger.kernel.org with ESMTP
-	id <S261738AbREQNrn>; Thu, 17 May 2001 09:47:43 -0400
-Message-ID: <043a01c0ded8$274f8940$294b82ce@connecttech.com>
-From: "Stuart MacDonald" <stuartm@connecttech.com>
-To: "Val Henson" <val@nmt.edu>
-Cc: "Theodore Tso" <tytso@valinux.com>, <linux-kernel@vger.kernel.org>,
-        "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-In-Reply-To: <20010511182723.M18959@boardwalk> <033101c0dcaf$10557f40$294b82ce@connecttech.com> <20010514162010.G5060@boardwalk> <010001c0dd46$38fc9360$294b82ce@connecttech.com> <20010516161245.O6892@boardwalk>
-Subject: Re: [PATCH] drivers/char/serial.c bug in ST16C654 detection
-Date: Thu, 17 May 2001 09:49:11 -0400
-Organization: Connect Tech Inc.
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+	id <S261749AbREQNuQ>; Thu, 17 May 2001 09:50:16 -0400
+Received: from web13307.mail.yahoo.com ([216.136.175.43]:61198 "HELO
+	web13307.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S261747AbREQNuH>; Thu, 17 May 2001 09:50:07 -0400
+Message-ID: <20010517135006.879.qmail@web13307.mail.yahoo.com>
+Date: Thu, 17 May 2001 06:50:05 -0700 (PDT)
+From: Michael Reed <michaelreed@yahoo.com>
+Subject: com20020-pci IRQ problem
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Val Henson" <val@nmt.edu>
-> Anyone know where Ted Tso is?  He hasn't posted in several weeks.
+Hello,
 
-Haven't heard from him in a while. I've got a patch or two pending
-as well, one of which modifies this code to check for 16c2850s.
-Usually he just says he's really busy.
+I have a Contemporary Controls PCI20 card and am trying to use the latest
+arcnet drivers under Mandrake 8.0 with a 2.4.4 kernel.  
 
-> > Kernel version? Distribution? Are you using a serial console?
-> 2.4.5-pre1 (see patch).
+I do the following:
+insmod arcnet
+insmod arc-rawmode
+insmod com20020
 
-Are you using the serial console though? That seems to be
-implied by your problem, but I just want to check.
+which all load just fine.  However, when I do:
 
-> Because the comment was ambiguous.  I don't have the data sheet for
-> the 85x family so I just wrote the code according to the comment.
-> I'll change the comment to make it clear.
+insmod com20020-pci
 
-Hm. I didn't really read the comment, since I know what the
-code is doing. :-) I can send you an 864 sheet if you'd like;
-we most likely have the other 85x sheets around somewhere;
-all pdf format.
+I get the following errors:
+init_module: No such device
+Hint: insmod errors can be caused by incorrect module parameters,
+including invalid IO or IRQ parameters
 
-..Stu
+In syslog I get:
+
+May 17 09:39:08 collector kernel: arcnet: COM20020 PCI support
+May 17 09:39:08 collector kernel: PCI: Found IRQ 10 for device 00:04.0
 
 
+/proc/pci reports the following for the PCI20:
+
+Bus  0, device   5, function  0:
+   Network controller: Contemporary Controls CCSI PCI20-CXB ARCnet (rev
+1).
+     IRQ 10.
+     Non-prefetchable 32 bit memory at 0x41000000 [0x4100007f].
+     I/O at 0x2080 [0x20ff].
+     I/O at 0x2400 [0x240f].
+
+/proc/ioports reports for the PCI20:
+
+2080-20ff : Contemporary Controls CCSI PCI20-CXB ARCnet
+2400-240f : Contemporary Controls CCSI PCI20-CXB ARCnet
+  2400-2408 : arcnet (COM20020)
+
+/proc/interrupts registers nothing for 10 (but I assume this is normal because
+the driver never correctly loads?)
+
+I would appreciate any help in getting this module loaded.   There are no  irq
+conflicts for IRQ 10, and I tried putting the card in different slots and on
+other IRQs to no avail.
+
+Thanks,
+Mike
+
+__________________________________________________
+Do You Yahoo!?
+Yahoo! Auctions - buy the things you want at great prices
+http://auctions.yahoo.com/

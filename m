@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270072AbUJSXfo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270115AbUJSXmS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270072AbUJSXfo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 19:35:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270073AbUJSXee
+	id S270115AbUJSXmS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 19:42:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270212AbUJSXjb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 19:34:34 -0400
-Received: from mail.kroah.org ([69.55.234.183]:9610 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S270072AbUJSWqd convert rfc822-to-8bit
+	Tue, 19 Oct 2004 19:39:31 -0400
+Received: from mail.kroah.org ([69.55.234.183]:9098 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S270115AbUJSWqc convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 18:46:33 -0400
+	Tue, 19 Oct 2004 18:46:32 -0400
 X-Fake: the user-agent is fake
 Subject: Re: [PATCH] PCI fixes for 2.6.9
 User-Agent: Mutt/1.5.6i
-In-Reply-To: <10982257321712@kroah.com>
-Date: Tue, 19 Oct 2004 15:42:12 -0700
-Message-Id: <10982257321259@kroah.com>
+In-Reply-To: <10982257333598@kroah.com>
+Date: Tue, 19 Oct 2004 15:42:13 -0700
+Message-Id: <10982257332170@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org
@@ -23,47 +23,72 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1997.37.4, 2004/10/06 11:18:48-07:00, greg@kroah.com
+ChangeSet 1.1997.37.8, 2004/10/06 11:21:11-07:00, greg@kroah.com
 
-[PATCH] PCI: update the pci.txt documentation about pci_find_device and pci_find_subsys going away
+[PATCH] PCI: remove pci_find_class() usage from arch specific files.
 
 Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
 
- Documentation/pci.txt |    8 ++++----
- 1 files changed, 4 insertions(+), 4 deletions(-)
+ arch/alpha/kernel/console.c      |    2 +-
+ arch/i386/kernel/cpu/mtrr/main.c |    8 +++++---
+ arch/ppc64/kernel/pci.c          |    2 +-
+ 3 files changed, 7 insertions(+), 5 deletions(-)
 
 
-diff -Nru a/Documentation/pci.txt b/Documentation/pci.txt
---- a/Documentation/pci.txt	2004-10-19 15:27:37 -07:00
-+++ b/Documentation/pci.txt	2004-10-19 15:27:37 -07:00
-@@ -141,7 +141,7 @@
- Searching by vendor and device ID:
+diff -Nru a/arch/alpha/kernel/console.c b/arch/alpha/kernel/console.c
+--- a/arch/alpha/kernel/console.c	2004-10-19 15:27:16 -07:00
++++ b/arch/alpha/kernel/console.c	2004-10-19 15:27:16 -07:00
+@@ -47,7 +47,7 @@
  
- 	struct pci_dev *dev = NULL;
--	while (dev = pci_find_device(VENDOR_ID, DEVICE_ID, dev))
-+	while (dev = pci_get_device(VENDOR_ID, DEVICE_ID, dev))
- 		configure_device(dev);
+ 	if (!sel_func) sel_func = (void *)default_vga_hose_select;
  
- Searching by class ID (iterate in a similar way):
-@@ -150,7 +150,7 @@
+-	for(dev=NULL; (dev=pci_find_class(PCI_CLASS_DISPLAY_VGA << 8, dev));) {
++	for(dev=NULL; (dev=pci_get_class(PCI_CLASS_DISPLAY_VGA << 8, dev));) {
+ 		if (!hose) hose = dev->sysdata;
+ 		else hose = sel_func(hose, dev->sysdata);
+ 	}
+diff -Nru a/arch/i386/kernel/cpu/mtrr/main.c b/arch/i386/kernel/cpu/mtrr/main.c
+--- a/arch/i386/kernel/cpu/mtrr/main.c	2004-10-19 15:27:16 -07:00
++++ b/arch/i386/kernel/cpu/mtrr/main.c	2004-10-19 15:27:16 -07:00
+@@ -77,22 +77,24 @@
+ {
+ 	struct pci_dev *dev;
+ 	
+-	if ((dev = pci_find_class(PCI_CLASS_BRIDGE_HOST << 8, NULL)) != NULL) {
++	if ((dev = pci_get_class(PCI_CLASS_BRIDGE_HOST << 8, NULL)) != NULL) {
+ 		/* ServerWorks LE chipsets have problems with write-combining 
+ 		   Don't allow it and leave room for other chipsets to be tagged */
+ 		if (dev->vendor == PCI_VENDOR_ID_SERVERWORKS &&
+ 		    dev->device == PCI_DEVICE_ID_SERVERWORKS_LE) {
+ 			printk(KERN_INFO "mtrr: Serverworks LE detected. Write-combining disabled.\n");
++			pci_dev_put(dev);
+ 			return 0;
+ 		}
+ 		/* Intel 450NX errata # 23. Non ascending cachline evictions to
+ 		   write combining memory may resulting in data corruption */
+ 		if (dev->vendor == PCI_VENDOR_ID_INTEL &&
+-		    dev->device == PCI_DEVICE_ID_INTEL_82451NX)
+-		{
++		    dev->device == PCI_DEVICE_ID_INTEL_82451NX) {
+ 			printk(KERN_INFO "mtrr: Intel 450NX MMC detected. Write-combining disabled.\n");
++			pci_dev_put(dev);
+ 			return 0;
+ 		}
++		pci_dev_put(dev);
+ 	}		
+ 	return (mtrr_if->have_wrcomb ? mtrr_if->have_wrcomb() : 0);
+ }
+diff -Nru a/arch/ppc64/kernel/pci.c b/arch/ppc64/kernel/pci.c
+--- a/arch/ppc64/kernel/pci.c	2004-10-19 15:27:16 -07:00
++++ b/arch/ppc64/kernel/pci.c	2004-10-19 15:27:16 -07:00
+@@ -303,7 +303,7 @@
+ 		ppc_md.pcibios_fixup();
  
- Searching by both vendor/device and subsystem vendor/device ID:
+ 	/* Cache the location of the ISA bridge (if we have one) */
+-	ppc64_isabridge_dev = pci_find_class(PCI_CLASS_BRIDGE_ISA << 8, NULL);
++	ppc64_isabridge_dev = pci_get_class(PCI_CLASS_BRIDGE_ISA << 8, NULL);
+ 	if (ppc64_isabridge_dev != NULL)
+ 		printk("ISA bridge at %s\n", pci_name(ppc64_isabridge_dev));
  
--	pci_find_subsys(VENDOR_ID, DEVICE_ID, SUBSYS_VENDOR_ID, SUBSYS_DEVICE_ID, dev).
-+	pci_get_subsys(VENDOR_ID, DEVICE_ID, SUBSYS_VENDOR_ID, SUBSYS_DEVICE_ID, dev).
- 
-    You can use the constant PCI_ANY_ID as a wildcard replacement for
- VENDOR_ID or DEVICE_ID.  This allows searching for any device from a
-@@ -275,8 +275,8 @@
- 				devices just return NULL.
- pcibios_(read|write)_*		Superseded by their pci_(read|write)_*
- 				counterparts.
--pcibios_find_*			Superseded by their pci_find_* counterparts.
--pci_for_each_dev()		Superseded by pci_find_device()
-+pcibios_find_*			Superseded by their pci_get_* counterparts.
-+pci_for_each_dev()		Superseded by pci_get_device()
- pci_for_each_dev_reverse()	Superseded by pci_find_device_reverse()
- pci_for_each_bus()		Superseded by pci_find_next_bus()
- pci_find_device()		Superseded by pci_get_device()
 

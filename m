@@ -1,48 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261193AbVCWHN3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262837AbVCWHQk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261193AbVCWHN3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 02:13:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262837AbVCWHN3
+	id S262837AbVCWHQk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 02:16:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262838AbVCWHQk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 02:13:29 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:4521 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S261193AbVCWHN0 (ORCPT
+	Wed, 23 Mar 2005 02:16:40 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:15824 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262837AbVCWHQf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 02:13:26 -0500
-Date: Wed, 23 Mar 2005 08:13:16 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: linux-os <linux-os@analogic.com>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: lseek on /proc/kmsg
-In-Reply-To: <Pine.LNX.4.61.0503221633230.7421@chaos.analogic.com>
-Message-ID: <Pine.LNX.4.61.0503230811020.21578@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.61.0503221320090.5551@chaos.analogic.com>
- <Pine.LNX.4.61.0503222020470.32461@yvahk01.tjqt.qr>
- <Pine.LNX.4.61.0503221423560.6369@chaos.analogic.com>
- <Pine.LNX.4.61.0503222215310.19826@yvahk01.tjqt.qr>
- <Pine.LNX.4.61.0503221633230.7421@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 23 Mar 2005 02:16:35 -0500
+Date: Wed, 23 Mar 2005 08:16:04 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: "Paul E. McKenney" <paulmck@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, Esben Nielsen <simlo@phys.au.dk>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.41-07
+Message-ID: <20050323071604.GA32712@elte.hu>
+References: <20050321090122.GA8066@elte.hu> <20050321090622.GA8430@elte.hu> <20050322054345.GB1296@us.ibm.com> <20050322072413.GA6149@elte.hu> <20050322092331.GA21465@elte.hu> <20050322093201.GA21945@elte.hu> <20050322100153.GA23143@elte.hu> <20050322112856.GA25129@elte.hu> <20050323061601.GE1294@us.ibm.com> <20050323063317.GB31626@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050323063317.GB31626@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-1> Sure, read() needs to be modified to respect the file-position
-1> set by kmsg_seek(). I don't think you can get away with the
-1> call back into do_syslog.
+* Ingo Molnar <mingo@elte.hu> wrote:
 
-2>I'm not sure that seek makes any sense on that, since it is more like a 
-2>pipe than a normal file..
+> That callback will be queued on CPU#2 - while the task still keeps
+> current->rcu_data of CPU#1. It also means that CPU#2's read counter
+> did _not_ get increased - and a too short grace period may occur.
+> 
+> it seems to me that that only safe method is to pick an 'RCU CPU' when
+> first entering the read section, and then sticking to it, no matter
+> where the task gets migrated to. Or to 'migrate' the +1 read count
+> from one CPU to the other, within the scheduler.
 
-Well, seek(fd, 0, SEEK_END) could be used to flush a pipe's buffers.
+i think the 'migrate read-count' method is not adequate either, because
+all callbacks queued within an RCU read section must be called after the
+lock has been dropped - while with the migration method CPU#1 would be
+free to process callbacks queued in the RCU read section still active on
+CPU#2.
 
-0>> +static loff_t kmsg_seek(struct file *filp, loff_t offset, int origin) {
-0>> +    if(origin != 2 /* SEEK_END */ || offset < 0) { return -ESPIPE; }
-3> "Allow" seeking past the end of the buffer?
+i'm wondering how much of a problem this is though. Can there be stale
+pointers at that point? Yes in theory, because code like:
 
-Well, what does lseek(fd, >0, SEEK_END) do on normal files?
+	rcu_read_lock();
+	call_rcu(&dentry->d_rcu, d_callback);
+	func(dentry->whatever);
+	rcu_read_unlock();
 
+would be unsafe because the pointer is still accessed within the RCU
+read section, and if we get migrated from CPU#1 to CPU#2 after call_rcu
+but before dentry->whatever dereference, the callback may be processed
+early by CPU#1, making the dentry->whatever read operation unsafe.
 
+the question is, does this occur in practice? Does existing RCU-using
+code use pointers it has queued for freeing, relying on the fact that
+the callback wont be processed until we drop the RCU read lock?
 
-Jan Engelhardt
--- 
+	Ingo

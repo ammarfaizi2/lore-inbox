@@ -1,47 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268816AbUILTXn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268819AbUILTZy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268816AbUILTXn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Sep 2004 15:23:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268812AbUILTXn
+	id S268819AbUILTZy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Sep 2004 15:25:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268824AbUILTZy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Sep 2004 15:23:43 -0400
-Received: from bbned23-32-100.dsl.hccnet.nl ([80.100.32.23]:55964 "EHLO
-	fw-loc.vanvergehaald.nl") by vger.kernel.org with ESMTP
-	id S268816AbUILTXk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Sep 2004 15:23:40 -0400
-Date: Sun, 12 Sep 2004 21:23:31 +0200
-From: Toon van der Pas <toon@hout.vanvergehaald.nl>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Wolfpaw - Dale Corse <admin@wolfpaw.net>, kaukasoi@elektroni.ee.tut.fi,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.27 SECURITY BUG - TCP Local and REMOTE(verified) Denial of Service Attack
-Message-ID: <20040912192331.GB8436@hout.vanvergehaald.nl>
-References: <002301c498ee$1e81d4c0$0200a8c0@wolf> <1095008692.11736.11.camel@localhost.localdomain>
+	Sun, 12 Sep 2004 15:25:54 -0400
+Received: from pimout2-ext.prodigy.net ([207.115.63.101]:13441 "EHLO
+	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S268819AbUILTZw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Sep 2004 15:25:52 -0400
+Date: Sun, 12 Sep 2004 12:25:15 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Arjan van de Ven <arjanv@redhat.com>, Andrea Arcangeli <andrea@novell.com>,
+       Hugh Dickins <hugh@veritas.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
+       Andrea Arcangeli <andrea@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@elte.hu>
+Subject: Re: [PATCH 1/3] Separate IRQ-stacks from 4K-stacks option
+Message-ID: <20040912192515.GA8165@taniwha.stupidest.org>
+References: <593560000.1094826651@[10.10.2.4]> <Pine.LNX.4.44.0409101555510.16784-100000@localhost.localdomain> <20040910151538.GA24434@devserv.devel.redhat.com> <20040910152852.GC15643@x30.random> <20040910153421.GD24434@devserv.devel.redhat.com> <1095016687.1306.667.camel@krustophenia.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1095008692.11736.11.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <1095016687.1306.667.camel@krustophenia.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 12, 2004 at 06:04:53PM +0100, Alan Cox wrote:
-> 
-> This is not a TCP flaw, its a combination of poor design by certain
-> vendors, poor BGP implementation and a lack of understanding of what TCP
-> does and does not do. See IPSec. TCP gets stuff from A to B in order and
-> knowing to a resonable degree what arrived. TCP does not proide a
-> security service.
-> 
-> (The core of this problem arises because certain people treat TCP
-> connection down on the peering session as link down)
+On Sun, Sep 12, 2004 at 03:18:07PM -0400, Lee Revell wrote:
 
-Alan, could you please elaborate on this last statement?
-I don't understand what you mean, and am very interested.
+> The glaring exception is the IDE io completion, which can run for
+> 2000+ usec even with a modern chipset and drive.
 
-Thanks,
-Toon.
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+does un-masking irqs help?

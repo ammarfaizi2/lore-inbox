@@ -1,60 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267490AbUIJQPM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267549AbUIJQPM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267490AbUIJQPM (ORCPT <rfc822;willy@w.ods.org>);
+	id S267549AbUIJQPM (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 10 Sep 2004 12:15:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267540AbUIJQMT
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267558AbUIJQMk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 12:12:19 -0400
-Received: from dsl017-059-236.wdc2.dsl.speakeasy.net ([69.17.59.236]:36046
-	"EHLO marta.kurtwerks.com") by vger.kernel.org with ESMTP
-	id S267490AbUIJQKZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 12:10:25 -0400
-Date: Fri, 10 Sep 2004 12:14:32 -0400
-From: Kurt Wall <kwall@kurtwerks.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Latest microcode data from Intel.
-Message-ID: <20040910161432.GF10104@kurtwerks.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <4141CAAB.4020708@tmr.com> <Pine.LNX.4.44.0409101641220.1294-100000@einstein.homenet>
+	Fri, 10 Sep 2004 12:12:40 -0400
+Received: from [217.132.60.104] ([217.132.60.104]:39298 "EHLO localhost")
+	by vger.kernel.org with ESMTP id S267527AbUIJPsY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 11:48:24 -0400
+Date: Fri, 10 Sep 2004 19:51:04 +0300
+From: SashaK <sashak@smlink.com>
+To: "Theodore Ts'o" <tytso@mit.edu>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: GPL source code for Smart USB 56 modem (includes ALSA AC97 
+ patch)
+Message-ID: <20040910195104.49abd61b@localhost>
+In-Reply-To: <2CAhw-4dR-3@gated-at.bofh.it>
+References: <2CvrA-Fv-11@gated-at.bofh.it>
+	<2CAhw-4dR-3@gated-at.bofh.it>
+X-Mailer: Sylpheed-Claws 0.9.12a (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0409101641220.1294-100000@einstein.homenet>
-User-Agent: Mutt/1.4.2.1i
-X-Operating-System: Linux 2.4.26
-X-Woot: Woot!
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In a 1.5K blaze of typing glory, Tigran Aivazian wrote:
-> On Fri, 10 Sep 2004, Bill Davidsen wrote:
-> 
-> > Tigran Aivazian wrote:
-> > > Hello,
-> > > 
-> > > I have received and tested the latest microcode data file from Intel, The
-> > > file is dated 2nd September 2004. You can download it both as standalone
-> > > (bzip2-ed) text file and bundled with microcode_ctl utility from the
-> > > Download section of the website:
-> > > 
-> > > http://urbanmyth.org/microcode/
-> > > 
-> > > Please let me know if you find any problems with this data file or with
-> > > the Linux microcode driver. Thank you.
-> > 
-> > Why are you using /dev/cpu/microcode instead of /dev/cpu/N/microcode for 
-> > each CPU? Today they are all the same device, but for the future I would 
-> > think this was an obvious CYA.
-> 
-> I have two questions:
-> 
-> 1. What does "CYA" mean?
+On Thu, 09 Sep 2004 18:50:06 +0200
+Theodore Ts'o <tytso@mit.edu> wrote:
 
-Cover Your Ass.
+> The good news is that there a completely GPL'ed, source-complete
+> driver already in the 2.6 kernel, sound/pci/intel8x0m.c, which will
+> work with  the user-mode daemon found in the smlink.com distribution.
+> This driver doesn't have all of the functionality of slamr driver
+> (which requires the propietary, binary-only object file) --- most
+> notably, ATM1 doesn't work when using the completely open-source
+> intl8x0m driver.
 
-[snippage]
+Those functionality limitations in open source modem drivers are just
+"unimplemented yet" stuff. The final goal is to replace proprietary
+slamr driver completely.
 
-Kurt
--- 
-Green light in a.m. for new projects.  Red light in P.M. for traffic
-tickets.
+Best Regards,
+Sasha.

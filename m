@@ -1,64 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267417AbUJNTsv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267400AbUJNTsy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267417AbUJNTsv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 15:48:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267353AbUJNTrF
+	id S267400AbUJNTsy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 15:48:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267396AbUJNTqj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 15:47:05 -0400
-Received: from fmr11.intel.com ([192.55.52.31]:19595 "EHLO
-	fmsfmr004.fm.intel.com") by vger.kernel.org with ESMTP
-	id S267397AbUJNTlW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 15:41:22 -0400
-Subject: Re: ACPI hangs at boot  w/ nForce motherboard
-From: Len Brown <len.brown@intel.com>
-To: john stultz <johnstul@us.ibm.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <1097777194.20778.8.camel@cog.beaverton.ibm.com>
-References: <1097777194.20778.8.camel@cog.beaverton.ibm.com>
+	Thu, 14 Oct 2004 15:46:39 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:17915 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S267417AbUJNTmE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Oct 2004 15:42:04 -0400
+Subject: Re: [patch] Real-Time Preemption, -VP-2.6.9-rc4-mm1-U1
+From: Daniel Walker <dwalker@mvista.com>
+Reply-To: dwalker@mvista.com
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20041014143131.GA20258@elte.hu>
+References: <OF29AF5CB7.227D041F-ON86256F2A.0062D210@raytheon.com>
+	 <20041011215909.GA20686@elte.hu> <20041012091501.GA18562@elte.hu>
+	 <20041012123318.GA2102@elte.hu> <20041012195424.GA3961@elte.hu>
+	 <20041013061518.GA1083@elte.hu> <20041014002433.GA19399@elte.hu>
+	 <20041014143131.GA20258@elte.hu>
 Content-Type: text/plain
-Organization: 
-Message-Id: <1097782870.29329.34.camel@d845pe>
+Organization: MontaVista
+Message-Id: <1097782921.5310.10.camel@dhcp153.mvista.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 14 Oct 2004 15:41:10 -0400
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 14 Oct 2004 12:42:01 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-10-14 at 14:06, john stultz wrote:
-> Hey Len,
->         Sorry for the lack of details here, but I figured I should at
-> least let you know. On my box at home (nForce1 motherboard w/ voodoo3
-> video) 2.6.9-rcX kernels hang on boot. Since its my personal system, I
-> haven't had much time to debug or look into the issue, however I have
-> found that acpi=off allows me to boot.
-> 
-> There are no strange error messages, the system just hangs (the
-> framebuffer console looks to be locked at well - no blinking cursor).
-> 
-> Any suggestions?  I plan to try the standard acpi=noirq, and
-> pci=noacpi, but I feel like I tried them awhile ago to no effect.
+
+This was during NFS startup in init.
 
 
-Hi John,
-Did this break recently, or did a previous ACPI-mode kernel work
-properly?
 
-With ACPI enabled, try "acpi_skip_timer_override"
-With ACPI enabled, try "noapic"
-With ACPI enabled, try "nolapic"
-
-If you can send me a serial console capture with "debug" for the failure
-case, that would help.  With any successful boot, the dmesg might be
-helpful, and the output from lspci -vv and acpidmp is also helpful.
-acpidmp is in /usr/sbin or in pmtools here:
-http://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/utils/
-
-You can send this to me, and/or attach them into a bug report here:
-http://bugzilla.kernel.org/enter_bug.cgi?product=ACPI
-and assign it to me.
-
-thanks,
--Len
+using smp_processor_id() in preemptible [00000001] code:
+rpc.rquotad/2158
+caller is ipt_do_table+0x7b/0x3a0
+ [<c011aa15>] smp_processor_id+0x95/0xa0
+ [<c038cbfb>] ipt_do_table+0x7b/0x3a0
+ [<c038aa8b>] ip_ct_refresh_acct+0xb/0x80
+ [<c038f1d4>] ipt_local_hook+0x74/0xc0
+ [<c034d73a>] nf_iterate+0x5a/0xa0
+ [<c035af00>] dst_output+0x0/0x40
+ [<c034da3c>] nf_hook_slow+0x5c/0x100
+ [<c035af00>] dst_output+0x0/0x40
+ [<c035aaf4>] ip_push_pending_frames+0x414/0x480
+ [<c035af00>] dst_output+0x0/0x40
+ [<c0377c88>] udp_push_pending_frames+0x148/0x260
+ [<c0378178>] udp_sendmsg+0x378/0x6e0
+ [<c0134c73>] __mcount+0x13/0x20
+ [<c037f7bc>] inet_sendmsg+0x3c/0x60
+ [<c03397d8>] sock_sendmsg+0xb8/0xe0
+ [<c0134c73>] __mcount+0x13/0x20
+ [<c0134c73>] __mcount+0x13/0x20
+ [<c0113d30>] mcount+0x14/0x18
+ [<c020172a>] __copy_from_user_ll+0xa/0x40
+ [<c0133d00>] autoremove_wake_function+0x0/0x60
+ [<c03391ef>] move_addr_to_kernel+0x2f/0x60
+ [<c033ab36>] sys_sendto+0xd6/0x100
+ [<c033d144>] sock_common_setsockopt+0x24/0x40
+ [<c0134c73>] __mcount+0x13/0x20
+ [<c020172a>] __copy_from_user_ll+0xa/0x40
+ [<c0201803>] copy_from_user+0x43/0x80
+ [<c0113d30>] mcount+0x14/0x18
+ [<c020172a>] __copy_from_user_ll+0xa/0x40
+ [<c033b297>] sys_socketcall+0xf7/0x180
+ [<c01176a0>] do_page_fault+0x0/0x62a
+ [<c0105357>] syscall_call+0x7/0xb
 
 

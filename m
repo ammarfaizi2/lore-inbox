@@ -1,55 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130733AbRCPXFT>; Fri, 16 Mar 2001 18:05:19 -0500
+	id <S131419AbRCPXeQ>; Fri, 16 Mar 2001 18:34:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131424AbRCPXFK>; Fri, 16 Mar 2001 18:05:10 -0500
-Received: from gadolinium.btinternet.com ([194.73.73.111]:64923 "EHLO
-	gadolinium.btinternet.com") by vger.kernel.org with ESMTP
-	id <S130733AbRCPXEu>; Fri, 16 Mar 2001 18:04:50 -0500
-Reply-To: <lar@cs.york.ac.uk>
-From: "Laramie Leavitt" <laramie.leavitt@btinternet.com>
-To: "Sane, Purushottam" <Sane_Purushottam@emc.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: fork and pthreads
-Date: Fri, 16 Mar 2001 23:11:14 -0000
-Message-ID: <JKEGJJAJPOLNIFPAEDHLGEBJCKAA.laramie.leavitt@btinternet.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-In-Reply-To: <93F527C91A6ED411AFE10050040665D0560667@corpusmx1.us.dg.com>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+	id <S131424AbRCPXeG>; Fri, 16 Mar 2001 18:34:06 -0500
+Received: from quechua.inka.de ([212.227.14.2]:17994 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S131419AbRCPXd5>;
+	Fri, 16 Mar 2001 18:33:57 -0500
+From: Bernd Eckenfels <W1012@lina.inka.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: pivot_root & linuxrc problem
+In-Reply-To: <Pine.LNX.4.33.0103160822350.1057-100000@mikeg.weiden.de>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.0.36 (i686))
+Message-Id: <E14e3if-0002od-00@sites.inka.de>
+Date: Sat, 17 Mar 2001 00:33:17 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Nitin Sane Wrote:
-> > On Fri, Mar 16, 2001 at 06:52:26PM +0100, Richard Guenther wrote:
-> > > Well, using pthreads and forking in them seems to trigger libc
-> > > bugs (read: SIGSEGvs) here under certain conditions (happens,
-> > > after I introduced signal handlers and using pthread_sigmask,
-> > > I think), so hangs should be definitely possible, too...
-> > 
-> > You must pretty much avoid using signal handlers with pthreads.
-> > In stead, you need to carefully setup things such that most signals
-> > are blocked in most threads and a single thread (or selected set
-> > of threads) does a sigwait for signals of interest.  Most good
-> > pthreads books talk about this issue, as does the DCE documentation.
-> 
-> I am not using any signals. All the signals are blocked with SIG_IGN
-> 
+In article <Pine.LNX.4.33.0103160822350.1057-100000@mikeg.weiden.de> you wrote:
+> Aha.. so that's it.  I've never been able to get /linuxrc to execute
+> automagically.  I wonder why /linuxrc executes on Art's system, but
+> not on mine.  I can call it whatever I want and it doesn't run unless
+> I explicitly start it with init=whatever.
 
-You know, I have been running into that exact same problem, except that
-I don't fork at all.  I start up my process and nearly immediately try
-and spawn a few threads.  The calling thread blocks indefinately in
-a __sigsuspend(), but is apparently delivered an unknown signal.
-The spawned thread executes normally.
+linuxrc is executed iff:
 
-It appears to be fixed when I compile with -D_REENTRANT, but I am not
-certain...
+CONFIG_BLK_DEV_INITRD is defined
+you actually have a initrd mounted
+/dev/console can be found and opened
+a executable "/linuxrc" is in the ramdisk
 
-Laramie
+Note: initramdisks need to be set up and prepared by your boot loader or with
+the right structure on your boot media. You also need to have a filesystem on
+the initrd which the kernel can detect without modules. But kernel does not
+need to be able to read from the boot device since the image is read by
+bootloader (e.g. boot-prom or 16bit bios).
 
+Greetings
+Bernd

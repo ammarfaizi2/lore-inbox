@@ -1,195 +1,106 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132577AbQKSQbH>; Sun, 19 Nov 2000 11:31:07 -0500
+	id <S132559AbQKSQdH>; Sun, 19 Nov 2000 11:33:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132569AbQKSQar>; Sun, 19 Nov 2000 11:30:47 -0500
-Received: from magrathea.systime-solutions.de ([212.66.133.138]:62737 "HELO
-	magrathea.systime-solutions.de") by vger.kernel.org with SMTP
-	id <S132556AbQKSQah>; Sun, 19 Nov 2000 11:30:37 -0500
-Message-ID: <3A1807BB.FDA91DD2@evision-ventures.com>
-Date: Sun, 19 Nov 2000 18:02:51 +0100
-From: dalecki <dalecki@evision-ventures.com>
-Reply-To: dalecki@evision-ventures.com
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10 i686)
+	id <S132556AbQKSQcr>; Sun, 19 Nov 2000 11:32:47 -0500
+Received: from nifty.blue-labs.org ([208.179.0.193]:10024 "EHLO
+	nifty.Blue-Labs.org") by vger.kernel.org with ESMTP
+	id <S132626AbQKSQcn>; Sun, 19 Nov 2000 11:32:43 -0500
+Message-ID: <3A17F994.99EB8F8F@linux.com>
+Date: Sun, 19 Nov 2000 08:02:28 -0800
+From: David Ford <david@linux.com>
+Organization: Blue Labs
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] megaraid driver update for 2.4.0-test10
-In-Reply-To: <3A170A06.934405FC@evision-ventures.com> <3A170254.97AFD2A3@mandrakesoft.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+To: Gerd Knorr <kraxel@bytesex.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: BTTV detection broken in 2.4.0-test11-pre5
+In-Reply-To: <20001117013157.A21329@almesberger.net> <slrn91b42n.fs.kraxel@bogomips.masq.in-berlin.de> <20001118141426.B23033@almesberger.net> <slrn91f3hr.jt.kraxel@bogomips.masq.in-berlin.de> <3A17AF88.F1319C2C@linux.com> <slrn91fjfh.dta.kraxel@bogomips.masq.in-berlin.de>
+Content-Type: multipart/mixed;
+ boundary="------------523D952EC95F597556D7534F"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> 
-> dalecki wrote:
-> > -#if LINUX_VERSION_CODE > 0x020024
-> >  #include <asm/uaccess.h>
-> > -#endif
-> 
-> *cheer*
+This is a multi-part message in MIME format.
+--------------523D952EC95F597556D7534F
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-I missd this point...
-> 
-> > -u32 RDINDOOR (mega_host_config * megaCfg)
-> > +ulong RDINDOOR (mega_host_config * megaCfg)
-> > -void WRINDOOR (mega_host_config * megaCfg, u32 value)
-> > +void WRINDOOR (mega_host_config * megaCfg, ulong value)
-> > -u32 RDOUTDOOR (mega_host_config * megaCfg)
-> > +ulong RDOUTDOOR (mega_host_config * megaCfg)
-> > -void WROUTDOOR (mega_host_config * megaCfg, u32 value)
-> > +void WROUTDOOR (mega_host_config * megaCfg, ulong value)
-> 
-> [unless there is a prototype not seen in the patch...] this looks like
-> namespace pollution.  Can you mark these 'static' ?
+> Why not?  /me has nearly everything compiled as modules.
 
-Agreed.
+Some people have extensive sh, awk and sed scripts to manage their systems, some
+have compiled programs.
 
-> > +#define IO_LOCK_T unsigned long io_flags;
-> >  #define IO_LOCK spin_lock_irqsave(&io_request_lock,io_flags);
-> >  #define IO_UNLOCK spin_unlock_irqrestore(&io_request_lock,io_flags);
-> 
-> hmmm, I'm not sure if its a good idea to hide this stuff in macros.
 
-It certainly  isn't a good idea. Agreed. I wanted to get this puppy
-up and running first before such cleanup, since I don't have access
-to all the contoller variants out there.
+> > There is an introduced security weakness by using kernels.
+>
+> ???  Guess you mean "by using modules"?  Which weakness?  Other than
+> bugs?  I don't see bugs like the recent modprobe oops as major problem.
+> They happen (everythere), they get fixed.
 
-> 
-> > +#ifndef PCI_DEVICE_ID_INTEL_80960_RP
-> > +#define PCI_DEVICE_ID_INTEL_80960_RP 0x1960
-> > +#endif
-> 
-> please update include/linux/pci_ids.h too when PCI ids are missing from
-> there.  PCI_DEVICE_ID_INTEL_80960_RP at least is not listed there.
+If your server has a kernel that doesn't support modules, then a trojan hiding
+module can't be used.  Modules are easily tampered with and you no more the wise.
 
-Agreed.
 
-> > -static spinlock_t serial_lock = SPIN_LOCK_UNLOCKED;
-> > +volatile static spinlock_t serial_lock;
-> 
-> Why do you need to mark this volatile??
-> 
-> BUG:  You still need the SPIN_LOCK_UNLOCKED because I don't see an
-> associated spin_lock_init in your path.
 
-OK.
- 
-> > +static int mega_driver_ioctl (mega_host_config * megaCfg, Scsi_Cmnd * SCpnt)
-> > +{
-> > +  unsigned char *data = (unsigned char *)SCpnt->request_buffer;
-> 
-> cast not necessary.  request_buffer is a void.
+> > So..what is the point in making it modular?
+>
+> It's much more flexible.
+>
+> You can reconfigure/update the driver without recompiling the kernel
+> and without rebooting.  If the driver needs some tweaks to make it
+> work with your hardware you can update /etc/modules.conf and reload
+> the modules with the new options.  If you have found a working
+> configuration, you can simply leave it as is.
 
-Agreed.
- 
-> > @@ -820,7 +925,7 @@
-> >    mailbox = (mega_mailbox *) & pScb->mboxData;
-> >    memset (mailbox, 0, sizeof (pScb->mboxData));
-> >
-> > -  if (data[0] == 0x03) {       /* passthrough command */
-> > + if (data[0] == 0x03) {        /* passthrough command */
-> >      unsigned char cdblen = data[2];
-> >      pthru = &pScb->pthru;
-> >      memset (pthru, 0, sizeof (mega_passthru));
-> 
-> this file is beginning to look like it needs a CodingStyle reformat.
-> -after- the fixes and such have been applied, you might consider running
-> 'indent' on this puppy.
+Modules are fantastic for workstations, testbeds, machines that change a lot.
+Servers are normally a static configuration.  I won't ship a blackbox device to a
+customer that allows them to twiddle with things, their curiosity becomes a
+maintenance hassle.  I have a product in the lab that uses bttv and I'd really
+love to be able to compile it into the kernel.
 
-Agreed - it needs it really badly. Apparently it was originally written
-by someone who does ts=2 or some other such mess...
 
-> 
-> > +      switch (data[0])
-> > +      {
-> > +       case FW_FIRE_WRITE:
-> > +       case FW_FIRE_FLASH:
-> > +        printk("megaraid:Write/ Flash called\n");
-> > +        if ((ulong)user_area & (PAGE_SIZE - 1)) {
-> > +          printk("megaraid:user address not aligned on 4K boundary.Error.\n");
-> > +          SCpnt->result = (DID_ERROR << 16);
-> > +          callDone (SCpnt);
-> > +          return NULL;
-> > +        }
-> > +        break;
-> > +       case DCMD_FC_CMD:
-> > +        mega_build_user_sg(user_area, xfer_size, pScb, mbox);
-> > +        break;
-> >        }
-> > -      copy_from_user(kern_area,user_area,xfer_size);
-> > -      pScb->kern_area = kern_area;
-> 
-> What happened to copy_from_user?  mega_build_user_sg is called with
-> user_area as an arg, and it never calls copy_from_user or similar
-> functions.
-> 
-> (I understand if this is a bug fix to remove copy_from_user, but I just
-> want to make sure it is intentional...)
-> 
-> > +      TRACE (("ISR called reentrantly!!\n"));
-> > +      printk ("ISR called reentrantly!!\n");
-> 
-> All printks need KERN_xxx prefix
+>  * rmmod ide-cd; modprobe ide-scsi; modprobe sr_mod (for burning CD's)
+>  * /etc/rc.d/init.d/network stop; rmmod de4x5; modprobe tulip;
+>    /etc/rc.d/init.d/network start (tulip manages it to drive the card
+>    full-duplex, de4x5 doesn't).
 
-Agreed.
+Tulip works dandy for me, I have no need of changing it and on a remote server
+it's not intelligent to remove your networking support and reload it.  The
+process may fail and that leaves you dead.
 
-> 
-> >        else {
-> > -        printk(KERN_ERR "megaraid: wrong cmd id completed from firmware:id=%x\n",sIdx);
-> > +        printk("megaraid: wrong cmd id completed from firmware:id=%x\n",sIdx);
-> 
-> hmmm........
-> 
-> >    /* Copy mailbox data into host structure */
-> >    megaCfg->mbox64->xferSegment = 0;
-> > -  memcpy (mbox, mboxData, 16);
-> > +  memcpy ((char *)mbox, mboxData, 16);
-> 
-> wrong.  memcpy takes a void* as its first arg, so no need for a cast.
 
-OK...
+> Please turn this off.
 
-> > +     while (mbox->numstatus == 0xFF);
-> > +     while (mbox->status == 0xFF);
-> > +     while (mbox->mraid_poll != 0x77);
-> 
-> don't you need barriers or something here?
-> 
-> >    megaCfg->mbox = &megaCfg->mailbox64.mailbox;
-> > -  megaCfg->mbox = (mega_mailbox *) ((((u32) megaCfg->mbox) + 16) & 0xfffffff0);
-> > +#ifdef __LP64__
-> > +  megaCfg->mbox = (mega_mailbox *) ((((u64) megaCfg->mbox) + 16) & ( (ulong)(-1) ^ 0x0F)  );
-> >    megaCfg->mbox64 = (mega_mailbox64 *) (megaCfg->mbox - 4);
-> > -  paddr = (paddr + 4 + 16) & 0xfffffff0;
-> > +  paddr = (paddr + 4 + 16) & ( (u64)(-1) ^ 0x0F );
-> > +#else
-> > +  megaCfg->mbox = (mega_mailbox *) ((((u32) megaCfg->mbox) + 16) & 0xFFFFFFF0);
-> > +  megaCfg->mbox64 = (mega_mailbox64 *) (megaCfg->mbox - 4);
-> > +  paddr = (paddr + 4 + 16) & 0xFFFFFFF0;
-> > +#endif
-> 
-> heh
-> 
-> > +                       pci_read_config_word (pdev,
-> > +                                                PCI_SUBSYSTEM_VENDOR_ID,
-> > +                                                &subsysvid);
-> > +                       pci_read_config_word (pdev,
-> > +                                               PCI_SUBSYSTEM_ID,
-> > +                                                &subsysid);
-> 
-> wrong.  get these out of struct pci_dev.
-> pci_dev::subsystem_{vendor,device}.
+My vcard size is the same or smaller than the average signature.  Using mime, you
+have the option of easily filtering vcards.  Signatures aren't as easily
+identified for filtering.
 
-OK I will look into it.
+-d
 
-...
 
-Many thank's Jeff for the very helpfull comments!
-I will try to look into the issues you have pointed out.
+--------------523D952EC95F597556D7534F
+Content-Type: text/x-vcard; charset=us-ascii;
+ name="david.vcf"
+Content-Transfer-Encoding: 7bit
+Content-Description: Card for David Ford
+Content-Disposition: attachment;
+ filename="david.vcf"
+
+begin:vcard 
+n:Ford;David
+x-mozilla-html:TRUE
+adr:;;;;;;
+version:2.1
+email;internet:david@kalifornia.com
+title:Blue Labs Developer
+x-mozilla-cpt:;14688
+fn:David Ford
+end:vcard
+
+--------------523D952EC95F597556D7534F--
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

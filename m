@@ -1,49 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264559AbTLVXEQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Dec 2003 18:04:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264568AbTLVXEP
+	id S264542AbTLVXKg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Dec 2003 18:10:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264545AbTLVXKg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Dec 2003 18:04:15 -0500
-Received: from [193.138.115.2] ([193.138.115.2]:58372 "HELO
-	diftmgw.backbone.dif.dk") by vger.kernel.org with SMTP
-	id S264559AbTLVXEM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Dec 2003 18:04:12 -0500
-Date: Tue, 23 Dec 2003 00:01:46 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: linux-kernel@vger.kernel.org
-Subject: Re: SCO's infringing files list
-In-Reply-To: <1072125736.1286.170.camel@duergar>
-Message-ID: <Pine.LNX.4.56.0312222353310.27724@jju_lnx.backbone.dif.dk>
-References: <1072125736.1286.170.camel@duergar>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 22 Dec 2003 18:10:36 -0500
+Received: from outpost.ds9a.nl ([213.244.168.210]:65472 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S264542AbTLVXKd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Dec 2003 18:10:33 -0500
+Date: Tue, 23 Dec 2003 00:10:31 +0100
+From: bert hubert <ahu@ds9a.nl>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: John Dee <antitux@antitux.net>, linux-kernel@vger.kernel.org
+Subject: Re: hmm..
+Message-ID: <20031222231031.GA10244@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	Linus Torvalds <torvalds@osdl.org>, John Dee <antitux@antitux.net>,
+	linux-kernel@vger.kernel.org
+References: <3FE74FD3.8040807@antitux.net> <Pine.LNX.4.58.0312221316090.6868@home.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0312221316090.6868@home.osdl.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Dec 22, 2003 at 01:31:51PM -0800, Linus Torvalds wrote:
 
-One thing I noticed.
+>  - yes, Linux obviously has the same signal names and error number names 
+>    that UNIX has (so the files certainly have a lot of the same 
+>    identifiers)
 
-I'm looking at include/signal.h from linux-0.01 and the definition of the
-signal() function, the prototype in include/signal.h is
+Even windows errno numbers often match the unix ones, btw.
 
-void (*signal(int _sig, void (*_func)(int)))(int);
-
-I then take a look in my copy of UNIX Network Programming by W. Richard
-Stevens from 1990, and notice that he on page 46 says this :
-
-"...
-A process specifies how it wants a signal handled by calling the signal
-system call.
-
-#include <signal.h>
-
-int (*signal (int sig, void (*func)(int)))(int);
-
-..."
-
-
-The return type here is "int" while Linus originally made the return type
-"void". If Linus had copied signal.h from UNIX the return type would have
-been "int"...
-
+-- 
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

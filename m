@@ -1,59 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261570AbVALXe4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261560AbVALXe4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261570AbVALXe4 (ORCPT <rfc822;willy@w.ods.org>);
+	id S261560AbVALXe4 (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 12 Jan 2005 18:34:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261560AbVALXeu
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261577AbVALX3e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 18:34:50 -0500
-Received: from gprs214-252.eurotel.cz ([160.218.214.252]:17555 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S261570AbVALXdz (ORCPT
+	Wed, 12 Jan 2005 18:29:34 -0500
+Received: from mail.kroah.org ([69.55.234.183]:51343 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261593AbVALX3R (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 18:33:55 -0500
-Date: Thu, 13 Jan 2005 00:33:40 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: hugang@soulinfo.com, linux-kernel@vger.kernel.org
-Subject: Re: PATCH swsusp: page rellocation speed up (fwd)
-Message-ID: <20050112233340.GR1408@elf.ucw.cz>
-References: <20050112194446.GC1464@openzaurus.ucw.cz>
+	Wed, 12 Jan 2005 18:29:17 -0500
+Date: Wed, 12 Jan 2005 15:28:02 -0800
+From: Greg KH <greg@kroah.com>
+To: Kylene Hall <kjhall@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, sailer@watson.ibm.com,
+       leendert@watson.ibm.com, emilyr@us.ibm.com, toml@us.ibm.com,
+       tpmdd-devel@lists.sourceforge.net
+Subject: Re: [PATCH 1/1] driver: Tpm hardware enablement --updated version
+Message-ID: <20050112232801.GA15332@kroah.com>
+References: <Pine.LNX.4.58.0412081546470.24510@jo.austin.ibm.com> <Pine.LNX.4.58.0412161632200.4219@jo.austin.ibm.com> <Pine.LNX.4.58.0412171642570.9229@jo.austin.ibm.com> <Pine.LNX.4.58.0412201146060.10943@jo.austin.ibm.com> <29495f1d041221085144b08901@mail.gmail.com> <Pine.LNX.4.58.0412211209410.14092@jo.austin.ibm.com> <Pine.LNX.4.58.0501121236180.2453@jo.austin.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050112194446.GC1464@openzaurus.ucw.cz>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <Pine.LNX.4.58.0501121236180.2453@jo.austin.ibm.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Wed, Jan 12, 2005 at 12:45:23PM -0600, Kylene Hall wrote:
+> This patch is a device driver to enable new hardware.  The new hardware is
+> the TPM chip as described by specifications at 
+> <http://www.trustedcomputinggroup.org>.  The TPM chip will enable you to
+> use hardware to securely store and protect your keys and personal data.
+> To use the chip according to the specification, you will need the Trusted
+> Software Stack (TSS) of which an implementation for Linux is available at:
+> <http://sourceforge.net/projects/trousers>.
 
-> > attached patch should speed up page rellocation at time of resume. Please test.
-> > The diff is against 2.6.10-bk8
-> > 
-> ....
-> 
-> really cool, Passed in my x86 and ppc.
-> 
-> Here is a patch to make pagedir using non-continuity page, 
->  2.6.10 -> mm1 -> this patch -> my patch
-> 
-> I temporary split pbe function to pbe.h, useful merge. 
+I've added this to my bk trees, and it should show up in the next -mm
+release.  Lets see how that works out.
 
-I do not know, but introducing new file will not help the merge.
+thanks,
 
-								Pavel
-
-> --- 2.6.10-mm1-one-pbe/kernel/power/pbe.h	1970-01-01 07:00:00.000000000 +0700
-> +++ 2.6.10-mm1-one-pbe-hg/kernel/power/pbe.h	2005-01-12 20:42:17.000000000 +0800
-> @@ -0,0 +1,380 @@
-> +static int mod_progress = 1;
-> +
-> +static void inline mod_printk_progress(int i)
-> +{
-> +	if (mod_progress == 0) mod_progress = 1;
-> +	if (!(i%100))
-> +		printk( "\b\b\b\b%3d%%", i / mod_progress );
-> +}
-
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+greg k-h

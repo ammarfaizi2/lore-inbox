@@ -1,50 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130737AbQKHCQl>; Tue, 7 Nov 2000 21:16:41 -0500
+	id <S130687AbQKHCSl>; Tue, 7 Nov 2000 21:18:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130687AbQKHCQb>; Tue, 7 Nov 2000 21:16:31 -0500
-Received: from 513.holly-springs.nc.us ([216.27.31.173]:34565 "EHLO
-	513.holly-springs.nc.us") by vger.kernel.org with ESMTP
-	id <S130737AbQKHCQT>; Tue, 7 Nov 2000 21:16:19 -0500
-Message-ID: <3A08B759.1C36A9C0@holly-springs.nc.us>
-Date: Tue, 07 Nov 2000 21:15:53 -0500
-From: Michael Rothwell <rothwell@holly-springs.nc.us>
-X-Mailer: Mozilla 4.74 [en] (X11; U; Linux 2.2.16 i686)
-X-Accept-Language: en
+	id <S130899AbQKHCSb>; Tue, 7 Nov 2000 21:18:31 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:38157 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S130687AbQKHCSP>; Tue, 7 Nov 2000 21:18:15 -0500
+Message-ID: <3A08B7E1.604191BB@transmeta.com>
+Date: Tue, 07 Nov 2000 18:18:09 -0800
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Organization: Transmeta Corporation
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10-pre3 i686)
+X-Accept-Language: en, sv, no, da, es, fr, ja
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: David Weinehall <tao@acc.umu.se>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.2.18pre20
-In-Reply-To: <E13tKjj-00085w-00@the-village.bc.nu>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+CC: "Jeff V. Merkey" <jmerkey@timpanogas.org>, kernel@kvack.org,
+        Tigran Aivazian <tigran@veritas.com>, linux-kernel@vger.kernel.org
+Subject: Re: Installing kernel 2.4
+In-Reply-To: <Pine.LNX.3.96.1001107175009.1482C-100000@kanga.kvack.org> <3A088C02.4528F66B@timpanogas.org> <3A0896F3.AB36C3EE@mandrakesoft.com> <3A0897F5.563552AD@timpanogas.org> <3A089A01.ECAEABBD@mandrakesoft.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+Jeff Garzik wrote:
 > 
-> > On Tue, Nov 07, 2000 at 09:02:36PM -0500, Michael Rothwell wrote:
-> > > 64-bit printk.
+> "Jeff V. Merkey" wrote:
+> > We need a format that allow multiple executable segments to be combined
+> > in a single executable and the loader have enough smarts to grab the
+> > right one based on architecture.  two options:
 > >
-> > Please consider this one Alan, if not for v2.2.18, then at least for
-> > v2.2.19pre1.
+> > 1.  extend gcc to support this or rearragne linux into segments based on
+> > code type
+> > 2.  Use PE.
 > 
-> Nobody has explained why we even need it.
-
-Alan Cox wrote:
+> The kernel isn't going non-ELF.  Too painful, for dubious advantages,
+> namely:
 > 
-> Why do we need it ?
+> The current gcc toolchain already supports what you suggest.
+> 
+> I understand that some people have even put some thought into a
+> bootloader that dynamically links your kernel on bootup, so this idea
+> isn't new.  It's a good idea though.
+> 
 
-To print 64-bit debugging output on 32-bit machines. I personally need
-it to aid with development of a 64-bit filesystem. We're maintaining our
-own 2.2.17 patched kernel here, but I figure that other people can make
-use of 64-bit printk in their efforts as well.
+Yes, I have been working on it on and off for a while ("off" due to
+various professional and personal issues taking higher priority for some
+time...)
 
-Perhaps a better question would be, why reject it? 2.4 supports 64-bit
-printk, right? It would be nice to have it on 2.2 as well, as it may be
-a while before 2.4 is widely used in production machines.
+	-hpa
 
--M
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

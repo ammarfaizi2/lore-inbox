@@ -1,41 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262656AbTFDC7B (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 22:59:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262671AbTFDC7B
+	id S262610AbTFDDMp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 23:12:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262627AbTFDDMp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 22:59:01 -0400
-Received: from c16805.randw1.nsw.optusnet.com.au ([210.49.26.171]:18848 "EHLO
-	mail.chubb.wattle.id.au") by vger.kernel.org with ESMTP
-	id S262656AbTFDC66 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 22:58:58 -0400
-From: Peter Chubb <peter@chubb.wattle.id.au>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 3 Jun 2003 23:12:45 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:19156 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S262610AbTFDDMp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jun 2003 23:12:45 -0400
+Date: Tue, 03 Jun 2003 20:23:20 -0700 (PDT)
+Message-Id: <20030603.202320.59680883.davem@redhat.com>
+To: niv@us.ibm.com
+Cc: kuznet@ms2.inr.ac.ru, jmorris@intercode.com.au, davidm@hpl.hp.com,
+       gandalf@wlug.westbo.se, linux-kernel@vger.kernel.org,
+       linux-ia64@linuxia64.org, netdev@oss.sgi.com, akpm@digeo.com
+Subject: Re: fix TCP roundtrip time update code
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <3EDD52F5.8090706@us.ibm.com>
+References: <200306040043.EAA24505@dub.inr.ac.ru>
+	<3EDD52F5.8090706@us.ibm.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <16093.25484.865498.467734@wombat.chubb.wattle.id.au>
-Date: Wed, 4 Jun 2003 13:12:12 +1000
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>, akpm@digeo.com,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH] fat-fs printk arg. fix
-In-Reply-To: <174530962@toto.iv>
-X-Mailer: VM 7.07 under 21.4 (patch 12) "Portable Code" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Randy" == Randy Dunlap <Randy.Dunlap> writes:
+   From: Nivedita Singhvi <niv@us.ibm.com>
+   Date: Tue, 03 Jun 2003 19:01:25 -0700
+   
+   But, FYI, DaveM and Alexey, we tried
+   reproducing the stalls we (Dave Hansen, Troy Wilson) had
+   seen during SpecWeb99 runs and couldn't reproduce them on
+   2.5.69. (Same config, etc). So its possible our hang/stalls
+   were some other issue that got silently fixed (or more
+   likely, possibly the same thing but other changes minimized
+   us running into the problem).
+   
+I think this means nothing, and that you can infer nothing from such
+results.
 
-Randy> Hi, A recent fatfs patch for large partitions upset printk.
+My understanding is that the problem case triggers only when a timeout
+based retransmit occurs.  On LAN this tends to be extremely rare.
+Although under enough traffic load it can occur.
 
-Please cast to unsigned long long, not to u64, or the 64-bit
-architectures (where u64 is unsigned long, not unsigned long long)
-will see warnings.
-
-
-
-PeterC
+So if your old SpecWEB99 lab tended more to trigger timeout based
+retransmits on LAN, and your new test network does not, then your new
+test network will tend to not reproduce the bug regardless of whether
+the bug is present in the kernel or not :-)

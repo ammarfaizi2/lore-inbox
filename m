@@ -1,65 +1,145 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268029AbUIPMfJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268043AbUIPMfI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268029AbUIPMfJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 08:35:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268039AbUIPMc2
+	id S268043AbUIPMfI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 08:35:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268029AbUIPMdl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 08:32:28 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:26381 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S268043AbUIPMbi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 08:31:38 -0400
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: top hogs CPU in 2.6: kallsyms_lookup is very slow
-Date: Thu, 16 Sep 2004 15:31:26 +0300
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org
-References: <200409161428.27425.vda@port.imtp.ilyichevsk.odessa.ua> <200409161457.08544.vda@port.imtp.ilyichevsk.odessa.ua> <20040916121747.GQ9106@holomorphy.com>
-In-Reply-To: <20040916121747.GQ9106@holomorphy.com>
+	Thu, 16 Sep 2004 08:33:41 -0400
+Received: from relay.felk.cvut.cz ([147.32.80.7]:11 "EHLO relay.felk.cvut.cz")
+	by vger.kernel.org with ESMTP id S268048AbUIPMbv convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Sep 2004 08:31:51 -0400
+From: "Bc. Michal Semler" <cijoml@volny.cz>
+Reply-To: cijoml@volny.cz
+To: Jens Axboe <axboe@suse.de>
+Subject: Re: CD-ROM can't be ejected
+Date: Thu, 16 Sep 2004 14:31:40 +0200
+User-Agent: KMail/1.6.2
+CC: linux-kernel@vger.kernel.org
+References: <200409160025.35961.cijoml@volny.cz>
+            <200409161419.38264.cijoml@volny.cz> <20040916122400.GB3544@suse.de>
+In-Reply-To: <20040916122400.GB3544@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200409161531.26311.vda@port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset="iso-8859-2"
+Content-Transfer-Encoding: 8BIT
+Message-ID: <200409161431.40185.cijoml@volny.cz>
+X-MailScanner-felk: Found to be clean
+X-MailScanner-SpamCheck-felk: not spam, SpamAssassin (score=-4.9, required 5,
+	BAYES_00 -4.90)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 16 September 2004 15:17, William Lee Irwin III wrote:
-> At some point in the past, I wrote:
-> >> As for all syscalls/etc. being slower by 50%-100%, I suggest toning
+Dne èt 16. záøí 2004 14:24 Jens Axboe napsal(a):
+> On Thu, Sep 16 2004, Bc. Michal Semler wrote:
+> > Dne ?t 16. zá?í 2004 12:22 Jens Axboe napsal(a):
+> > > On Thu, Sep 16 2004, Bc. Michal Semler wrote:
+> > > > > > > On Thu, Sep 16 2004, Bc. Michal Semler wrote:
+> > > > > > > > notas:/home/cijoml# mount /cdrom/
+> > > > > > > > notas:/home/cijoml# umount /cdrom/
+> > > > > > > > notas:/home/cijoml# strace -o eject /dev/hdc
+> > > > > > > > eject: unable to eject, last error: Nep?ípustný argument
+> > > > > > > >
+> > > > > > > > As you can see, I dont't enter to directory...
+> > > > > > > >
+> > > > > > > > And output is included
+> > > > > > > >
+> > > > > > > > ioctl(3, CDROMEJECT, 0xbffffac8)        = -1 EIO
+> > > > > > > > (Input/output error)
+> > > > > > >
+> > > > > > > That's the important bit, the reason you get EINVAL passed back
+> > > > > > > is because eject tries the floppy eject as well and decides to
+> > > > > > > print the warning from that. It really should just stop of it
+> > > > > > > sees -EIO, only continue if EINVAL/ENOTTY is passed back.
+> > > > > > >
+> > > > > > > Try this little c program and report back what it tells you.
+> > > > > > > Compile with
+> > > > > > >
+> > > > > > > gcc -Wall -o eject eject.c
+> > > > > > >
+> > > > > > > and run without arguments.
+> > > > > > >
+> > > > > > > #include <stdio.h>
+> > > > > > > #include <stdlib.h>
+> > > > > > > #include <fcntl.h>
+> > > > > > > #include <string.h>
+> > > > > > > #include <sys/ioctl.h>
+> > > > > > > #include <linux/cdrom.h>
+> > > > > > >
+> > > > > > > int main(int argc, char *argv[])
+> > > > > > > {
+> > > > > > > 	int fd = open("/dev/hdc", O_RDONLY | O_NONBLOCK);
+> > > > > > > 	struct cdrom_generic_command cgc;
+> > > > > > > 	struct request_sense sense;
+> > > > > > >
+> > > > > > > 	memset(&cgc, 0, sizeof(cgc));
+> > > > > > > 	memset(&sense, 0, sizeof(sense));
+> > > > > > >
+> > > > > > > 	cgc.cmd[0] = 0x1b;
+> > > > > > > 	cgc.cmd[4] = 0x02;
+> > > > > > > 	cgc.sense = &sense;
+> > > > > > > 	cgc.data_direction = CGC_DATA_NONE;
+> > > > > > >
+> > > > > > > 	if (ioctl(fd, CDROM_SEND_PACKET, &cgc) == 0) {
+> > > > > > > 		printf("eject worked\n");
+> > > > > > > 		return 0;
+> > > > > > > 	}
+> > > > > > >
+> > > > > > > 	printf("command failed - sense %x/%x/%x\n", sense.sense_key,
+> > > > > > > sense.asc, sense.ascq); return 1;
+> > > > > > > }
+> > > > > >
+> > > > > > 2.4.27-mh1
+> > > > > > notas:~# /home/cijoml/eject
+> > > > > > ATAPI device hdc:
+> > > > > >   Error: Not ready -- (Sense key=0x02)
+> > > > > >   (reserved error code) -- (asc=0x53, ascq=0x02)
+> > > > > >   The failed "Start/Stop Unit" packet command was:
+> > > > > >   "1b 00 00 00 02 00 00 00 00 00 00 00 "
+> > > > > > command failed - sense 2/53/2
+> > > > >
+> > > > > Your tray is still locked, are you sure it isn't mounted?
+> > > >
+> > > > Yes I am. This is written into console and I am logged only into this
+> > > > console and I copied whole commands from login to eject... :(
+> > >
+> > > For the third time, don't trim the cc list! group reply please.
+> > >
+> > > Something else must be keeping your drive locked. What else do you have
+> > > running in the system? It's enough if one app is just holding the drive
+> > > open, the drive wont get unlocked on umount then.
+> >
+> > only thing which access cdrom is cpudynd and it access harddrive too....
+> >
+> > notas:~# fuser /dev/hdc
+> > /dev/hdc:             8102
+> > notas:~# ps aux|grep 8102
+> > root      8102  0.0  0.1  1536  456 ?        SNs  13:49
+> > 0:00 /usr/sbin/cpudynd -i 1 -p 0.5 0.9 -l 7 -t 120 -h /dev/hda,/dev/hdc
 >
-> On Thu, Sep 16, 2004 at 02:57:08PM +0300, Denis Vlasenko wrote:
-> > s/all/many/:
-> > uname <0.000142> ? ? ? ? ? ? ? uname <0.000217>		25% slower
-> > brk <0.000176> ? ? ? ? ? ? ? ? brk <0.000174>		no change
-> > open <0.000218> ? ? ? ? ? ? ? ?open <0.000335>		33% slower
-> > fstat64 <0.000104> ? ? ? ? ? ? fstat64 <0.000191>	90% slower
-> > or maybe strace simply isn't very accurate and adds signinficant
-> > noise to the measured delta?
->
-> Could you try to estimate the resolution of whatever timer strace uses?
->
-> At some point in the past, I wrote:
-> >> down HZ (we desperately need to go tickless) and seeing if it persists.
-> >> Also please check that time isn't twice as fast as it should be in 2.6.
->
-> On Thu, Sep 16, 2004 at 02:57:08PM +0300, Denis Vlasenko wrote:
-> > I recompiled 2.6 with HZ=100. It's not it.
-> > Time is running normally too.
->
-> Did the kallsyms patches reduce the cpu overhead from get_wchan()? I take
+> well there you go, that is what is keeping the drive locked. cdrom
+> cannot know which process locked it or not, all it knows is that the
+> usage count is non-zero on umount, so it doesn't unlock the tray.
 
-I am applying them right now...
+This is written on cpudyn website:
+Disk Standby
 
-> this to mean reducing HZ to 100 did not alleviate the syscall problems?
+Tired of playing with hdparm and /etc/apm to save battery in your laptop or to 
+make your desktop more quiet? Don't waste more time, you've found the 
+solution :-)
 
-Yes, it didn't help.
+Since version 0.2.0, the program is also able to put the computer disks in 
+standby mode, if a given period has passed without any I/O operation.
 
-> How do microbenchmarks fare, e.g. lmbench?
+It works very well even with Journaled File Systems such as Ext3, XFS and 
+ReiserFS.
 
-I did not run them (yet).
---
-vda
+Options "-t timeout" and "-h dev0[,dev1]..." control this behaviour. It is 
+__not__ activated by default, -t _or_ -h activated. Please check the usage 
+and edit /etc/init.d/cpudyn if you need to activate it at startup time.
 
+This feature works also with Linux 2.4.X and 2.5.X since version 0.30
+
+Example:
+
+     cpudynd -i 1 -t 60 -h /dev/hda,/dev/hdc

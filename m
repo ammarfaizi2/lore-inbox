@@ -1,42 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317835AbSGKNfc>; Thu, 11 Jul 2002 09:35:32 -0400
+	id <S317836AbSGKNj5>; Thu, 11 Jul 2002 09:39:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317836AbSGKNfb>; Thu, 11 Jul 2002 09:35:31 -0400
-Received: from daimi.au.dk ([130.225.16.1]:64884 "EHLO daimi.au.dk")
-	by vger.kernel.org with ESMTP id <S317835AbSGKNfb>;
-	Thu, 11 Jul 2002 09:35:31 -0400
-Message-ID: <3D2D8A35.30F460F3@daimi.au.dk>
-Date: Thu, 11 Jul 2002 15:37:57 +0200
-From: Kasper Dupont <kasperd@daimi.au.dk>
-Organization: daimi.au.dk
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.9-31smp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Lincoln Dale <ltd@cisco.com>, Linux <linux-kernel@vger.kernel.org>
-Subject: Re: HZ, preferably as small as possible
-References: <E17Sd5D-0000lz-00@the-village.bc.nu>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S317837AbSGKNj5>; Thu, 11 Jul 2002 09:39:57 -0400
+Received: from mark.mielke.cc ([216.209.85.42]:53769 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id <S317836AbSGKNj4>;
+	Thu, 11 Jul 2002 09:39:56 -0400
+Date: Thu, 11 Jul 2002 09:36:20 -0400
+From: Mark Mielke <mark@mark.mielke.cc>
+To: Linux <linux-kernel@vger.kernel.org>
+Subject: Whoa... (was: Re: HZ, preferably as small as possible)
+Message-ID: <20020711093620.A19422@mark.mielke.cc>
+References: <3D2CA6E3.CB5BC420@zip.com.au> <Pine.LNX.4.44.0207101559460.5067-100000@hawkeye.luckynet.adm> <20020710160921.H32168@host110.fsmlabs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020710160921.H32168@host110.fsmlabs.com>; from cort@fsmlabs.com on Wed, Jul 10, 2002 at 04:09:21PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> > I'd like to see oneshot timer interrupts as a compile time
-> > option on any architecture that is capable of doing it. But of
-> > course it is not easy.
-> >
-> > Have I missed something somewhere?
-> 
-> The APIC on modern systems has decent timers. There may also be ACPI timers
-> we can use on ACPI capable systems.
+On Wed, Jul 10, 2002 at 04:09:21PM -0600, Cort Dougan wrote:
+> Yes, please do make it a config option.  10x interrupt overhead makes me
+> worry.  It lets users tailor the kernel to their expected load.
 
-In what units do they meassure time? It would be nice if
-they were garanteed to match the TSC frequency or some
-other of the units already being used.
+All this talk is getting to me.
+
+I thought we recently (1 month ago? 2 months ago?) concluded that
+increases in interrupt frequency only affects performance by a very
+small amount, but generates an increase in responsiveness. The only
+real argument against that I have seen, is the 'power conservation'
+argument. The idea was, that the scheduler itself did not execute
+on most interrupts. The clock is updated, and that is about all.
+
+I can invent a reason as to why throughput increases, from user space.
+The hard drive sends data to the kernel, the kernel handles the
+hardware interrupt, grabs the buffer, and returns control to the
+active process/thread. It may be some time until the process/thread
+that is *reading* the data gets scheduled. Any reduction in the
+average time a process/thread will be scheduled to execute, results in
+increased throughput.
+
+mark
 
 -- 
-Kasper Dupont -- der bruger for meget tid på usenet.
-For sending spam use mailto:razor-report@daimi.au.dk
+mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
+
+  One ring to rule them all, one ring to find them, one ring to bring them all
+                       and in the darkness bind them...
+
+                           http://mark.mielke.cc/
+

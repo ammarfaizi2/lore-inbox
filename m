@@ -1,50 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263626AbUEKUpv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263640AbUEKUqq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263626AbUEKUpv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 16:45:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263628AbUEKUpv
+	id S263640AbUEKUqq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 16:46:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263628AbUEKUqp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 16:45:51 -0400
-Received: from fmr03.intel.com ([143.183.121.5]:55728 "EHLO
-	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S263626AbUEKUps
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 16:45:48 -0400
-Message-Id: <200405112045.i4BKjcF18930@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Andrew Morton'" <akpm@osdl.org>
-Cc: <mingo@elte.hu>, <geoff@linux.jf.intel.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: RE: [RFC] [PATCH] Performance of del_timer_sync
-Date: Tue, 11 May 2004 13:45:40 -0700
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-Thread-Index: AcQ3luvTHFs4npLbTueDZAAp9kW2lQAAPRSQ
-In-Reply-To: <20040511133053.62960b69.akpm@osdl.org>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+	Tue, 11 May 2004 16:46:45 -0400
+Received: from mail.kroah.org ([65.200.24.183]:23951 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263645AbUEKUqX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 May 2004 16:46:23 -0400
+Date: Tue, 11 May 2004 13:44:16 -0700
+From: Greg KH <greg@kroah.com>
+To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
+Cc: Michael Hunold <hunold@convergence.de>
+Subject: Re: [PATCH 2.6] Rename hardware monitoring I2C class
+Message-ID: <20040511204415.GA23991@kroah.com>
+References: <409923F7.7050101@convergence.de> <20040506213455.29154c51.khali@linux-fr.org> <20040509174820.5bc47686.khali@linux-fr.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040509174820.5bc47686.khali@linux-fr.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> Andrew Morton wrote on Tuesday, May 11, 2004 1:31 PM
-> > > +int del_single_shot_timer(struct timer_struct *timer)
-> > > +{
-> > > +	if (del_timer(timer))
-> > > +		del_timer_sync(timer);
-> > > +}
-> > >  #endif
-> >
-> > I'm confused, isn't the polarity of del_timer() need to be reversed?
->
-> Hey, I didn't compile it, let alone test it!
->
-> > Also propagate the return value of del_timer_sync()?
->
-> yup.
->
-> If it looks OK, please fix it up, kerneldocify the function and prepare
-> a real patch?
+On Sun, May 09, 2004 at 05:48:20PM +0200, Jean Delvare wrote:
+> Hi Greg, all,
+> 
+> Quoting myself:
+> 
+> > Mmm, I once proposed that I2C_ADAP_CLASS_SMBUS would be better renamed
+> > I2C_ADAP_CLASS_SENSORS (so I2C_CLASS_SENSORS now). What about that? I
+> > think it would be great to embed that change into your patch, so that
+> > the name changes only once.
+> > 
+> > BTW, if HWMON is prefered to SENSORS, this is fine with me too, I
+> > have no strong preference.
+> 
+> Below is a patch that does that. I finally went for HWMON. Yes, it's
+> big, but it's actually nothing more than
+> s/I2C_CLASS_SMBUS/I2C_CLASS_HWMON/ (thanks perl -wip :)).
+> 
+> Greg, can you please apply it on top of Michael's patch?
 
-Looks wonderful, much better than what we had before.  We will consolidate
-the comments, run through our test setup and re-post.  Thanks!
+Applied, thanks.
 
-- Ken
-
-
+greg k-h

@@ -1,57 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261225AbUCHVoP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Mar 2004 16:44:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261218AbUCHVoP
+	id S261262AbUCHVvP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Mar 2004 16:51:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261269AbUCHVvP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Mar 2004 16:44:15 -0500
-Received: from palrel10.hp.com ([156.153.255.245]:2778 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S261224AbUCHVoK (ORCPT
+	Mon, 8 Mar 2004 16:51:15 -0500
+Received: from mtaw6.prodigy.net ([64.164.98.56]:18598 "EHLO mtaw6.prodigy.net")
+	by vger.kernel.org with ESMTP id S261262AbUCHVvL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Mar 2004 16:44:10 -0500
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	Mon, 8 Mar 2004 16:51:11 -0500
+Message-ID: <404CEABA.4040701@matchmail.com>
+Date: Mon, 08 Mar 2004 13:50:50 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040304)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Danny ter Haar <dth@ncc1701.cistron.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: server migration
+References: <20040305181322.GA32114@the-penguin.otak.com> <c2agg7$9hf$1@news.cistron.nl>
+In-Reply-To: <c2agg7$9hf$1@news.cistron.nl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <16460.59685.452893.22564@napali.hpl.hp.com>
-Date: Mon, 8 Mar 2004 13:44:05 -0800
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-Cc: Takayoshi Kochi <t-kochi@bq.jp.nec.com>, benjamin.liu@intel.com,
-       Russell King <rmk@arm.linux.org.uk>, iod00d@hp.com,
-       kaneshige.kenji@jp.fujitsu.com, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix PCI interrupt setting for ia64
-In-Reply-To: <200403081213.22095.bjorn.helgaas@hp.com>
-References: <3ACA40606221794F80A5670F0AF15F8401B1A017@PDSMSX403.ccr.corp.intel.com>
-	<20040308.182552.55855095.t-kochi@bq.jp.nec.com>
-	<200403081213.22095.bjorn.helgaas@hp.com>
-X-Mailer: VM 7.18 under Emacs 21.3.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Mon, 8 Mar 2004 12:13:22 -0700, Bjorn Helgaas <bjorn.helgaas@hp.com> said:
+Danny ter Haar wrote:
+> Lawrence Walton  <lawrence@the-penguin.otak.com> wrote:
+> 
+>>I'd like to take another shot at it with 2.6.3,
+> 
+> 
+> Don't!
+> 
+> <personal experience, ymmv!>
+> Problems after sync, difficulties in the blocklayer/queuing/plugging.
+> Our newsgateway has gone back to 2.6.0-test11 since that's the
+> only one that seems to survive "hard-work".
+> 
+> 2.6.4-rc1(-mm1) crashed hard on me, doing single-user stuff.
+> _i_ would wait a while if i were in your position.
 
-  Bjorn> Strictly speaking, since ACPI tells us about IRQs, we
-  Bjorn> shouldn't need probe_irq_on() on ia64, should we?
+I have everything except for my GW/Firewall running 2.6.3 + two NFS 
+patches and everything is working great.
 
-  Bjorn> I don't see any ACPI smarts in the IDE driver, but I think
-  Bjorn> the serial driver needs only the attached patch to make it
-  Bjorn> avoid the use of probe_irq_on().  I tested this on i2k and
-  Bjorn> various HP zx1 boxes, and it works fine.
+Maybe you should find out which driver is giving you trouble, and help 
+debug that.
 
-  Bjorn> Russell, if you agree, would you mind applying this?
+Did you enable the NMI watchdog?
+What about sysrq, did that still respond during your "hang"?
 
-  Bjorn> ACPI and HCDP tell us what IRQ the serial port uses, so
-  Bjorn> there's no need to have the driver probe for the IRQ.
-
-The patch looks good to me and I certainly agree that probe_irq_on()
-should be avoided.  However, as long as this interface is part of the
-Linux kernel, we should support it on ia64 since we can't know for
-sure when there are no drivers left using that interface.  (And there
-is no reason this interface is limited to ISA, though that certainly
-is the bus that generally had to use it, for lack of explicit irq
-info.)
-
-	--david
+Mike

@@ -1,74 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267173AbSKMLjj>; Wed, 13 Nov 2002 06:39:39 -0500
+	id <S267171AbSKMLgp>; Wed, 13 Nov 2002 06:36:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267174AbSKMLjj>; Wed, 13 Nov 2002 06:39:39 -0500
-Received: from gate.in-addr.de ([212.8.193.158]:28168 "HELO mx.in-addr.de")
-	by vger.kernel.org with SMTP id <S267173AbSKMLjh>;
-	Wed, 13 Nov 2002 06:39:37 -0500
-Date: Wed, 13 Nov 2002 12:46:41 +0100
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: Brian Jackson <brian-kernel-list@mdrx.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: md on shared storage
-Message-ID: <20021113114641.GI19811@marowsky-bree.de>
-References: <20021113002529.7413.qmail@escalade.vistahp.com>
+	id <S267172AbSKMLgp>; Wed, 13 Nov 2002 06:36:45 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:57810 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S267171AbSKMLgo>;
+	Wed, 13 Nov 2002 06:36:44 -0500
+Date: Wed, 13 Nov 2002 12:43:23 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: TCQ in 2.5.46 when sharing channel with non-TCQ drive
+Message-ID: <20021113114323.GF832@suse.de>
+References: <733078326E0@vcnet.vc.cvut.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20021113002529.7413.qmail@escalade.vistahp.com>
-User-Agent: Mutt/1.4i
-X-Ctuhulu: HASTUR
+In-Reply-To: <733078326E0@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2002-11-12T18:25:29,
-   Brian Jackson <brian-kernel-list@mdrx.com> said:
+On Mon, Nov 11 2002, Petr Vandrovec wrote:
+> Hi Jens,
+>   just FYI: I just plugged IBM's IBM-DTLA-307045 as slave to the 
+> WDC1200JB-00CRA0, and because of I have enabled TCQ in kernel, it 
+> started using TCQ on IBM (WDC is not TCQ aware). During bootup it reported
+> 'bad special flag: 0x03' on IBM, and later during 'rm -rf /mnt2' (where
+> /mnt2 is contents of IBM's disk) I got:
+> 
+> Linux version 2.5.46-c985 (root@vana) (gcc version 2.95.4 20011002 (Debian prerelease)) #3 SMP Fri Nov 8 22:47:13 CET 2002
+> ...
+> ICH2: IDE controller at PCI slot 00:1f.1
+> ICH2: chipset revision 5
+> ICH2: not 100% native mode: will probe irqs later
+>     ide0: BM-DMA at 0xffa0-0xffa7, BIOS settings: hda:DMA, hdb:DMA
+>     ide1: BM-DMA at 0xffa8-0xffaf, BIOS settings: hdc:DMA, hdd:pio
+> hda: WDC WD1200JB-00CRA0, ATA DISK drive
+> hdb: IBM-DTLA-307045, ATA DISK drive
+> hdb: bad special flag: 0x03
+> hdb: tagged command queueing enabled, command queue depth 8
+> ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+> hdc: TOSHIBA MK6409MAV, ATA DISK drive
+> ide1 at 0x170-0x177,0x376 on irq 15
+> hda: host protected area => 1
+> hda: 234441648 sectors (120034 MB) w/8192KiB Cache, CHS=14593/255/63, UDMA(100)
+>  /dev/ide/host0/bus0/target0/lun0: p1 p2 p3
+> hdb: host protected area => 1
+> hdb: 90069840 sectors (46116 MB) w/1916KiB Cache, CHS=5606/255/63, UDMA(100)
+>  /dev/ide/host0/bus0/target1/lun0: p1 p2
+> hdc: host protected area => 1
+> hdc: 12685680 sectors (6495 MB), CHS=13424/15/63, UDMA(33)
+>  /dev/ide/host0/bus1/target0/lun0: p1
+> ...
+> ide_tcq_intr_timeout: timeout waiting for service interrupt
+> ide_tcq_intr_timeout: missing isr!
+> hdb: invalidating tag queue (0 commands)
+> hdb: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
+> hdb: drive_cmd: error=0x04 { DriveStatusError }
+> ide_tcq_intr_timeout: timeout waiting for service interrupt
+> ide_tcq_intr_timeout: missing isr!
+> hdb: invalidating tag queue (0 commands)
+> hdb: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
+> hdb: drive_cmd: error=0x04 { DriveStatusError }
+> ide_tcq_intr_timeout: timeout waiting for service interrupt
+> ide_tcq_intr_timeout: missing isr!
+> hdb: invalidating tag queue (0 commands)
+> hdb: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
+> hdb: drive_cmd: error=0x04 { DriveStatusError }
+> ide_tcq_intr_timeout: timeout waiting for service interrupt
+> ide_tcq_intr_timeout: missing isr!
+> hdb: invalidating tag queue (0 commands)
+> hdb: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
+> hdb: drive_cmd: error=0x04 { DriveStatusError }
+> 
+> Machine is still alive, and seems happy.
 
-> Does the MD driver work with shared storage? I would also be interested to 
-> know if the new DM driver works with shared storage(though I must admit I 
-> didn't really try to answer this one myself, just hoping somebody will 
-> know). 
-
-The short answer is "Not sanely", as far as I know.
-
-RAID0 might be okay, however RAID1/5 get into issues if two nodes update the
-same data in parallel; they do not coordinate the writes, and thus might stomp
-over each other.
-
-In theory, given a RAID1 with disks {d1,d2}, node n1 might write in order
-(d2,d1) while n2 writes as (d1,d2), resulting in inconsistent mirrors. This
-becomes a bigger race window for RAID5, obviously, because more disks are
-involved.
-
-The "multiple nodes beginning to reconstruct the same md device" is also a
-problem; but even if that was solved that only one node does the recovery, the
-others would be blocked from doing any IO on that drive for the time being.
-
-Another issue that any node will want to update the md superblock regularly.
-
-LVM is fine, MD doesn't seem to be.
-
-With the MD patches I posted weeks ago, at least MD multipathing should work
-appropriately; even if the ugliness of multiple nodes scribbling over the
-superblock remains, it shouldn't matter because the autodetection is based
-only on the UUID for m-p.
-
-In short, you can do "MD", if you don't use it as "shared"; have only one node
-have a given md device active at any point in time. Thus, no autostart, but
-manual activation. This rules out "GFS over md", basically.
-
-If you want to fix that, it would be cool; it will just require a DLM,
-membership and communication services in the kernel. ;-)
-
-
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
+Thanks for the raport Petr, I will take a look at it! From the looks of
+it, we are not clearing the tcq handler when switching from that drive.
 
 -- 
-Principal Squirrel 
-SuSE Labs - Research & Development, SuSE Linux AG
-  
-"If anything can go wrong, it will." "Chance favors the prepared (mind)."
-  -- Capt. Edward A. Murphy            -- Louis Pasteur
+Jens Axboe
+

@@ -1,42 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265037AbSKRWMU>; Mon, 18 Nov 2002 17:12:20 -0500
+	id <S265843AbSKRWgV>; Mon, 18 Nov 2002 17:36:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265033AbSKRWMU>; Mon, 18 Nov 2002 17:12:20 -0500
-Received: from mail2.sonytel.be ([195.0.45.172]:33250 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S265037AbSKRWMS>;
-	Mon, 18 Nov 2002 17:12:18 -0500
-Date: Mon, 18 Nov 2002 23:19:14 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: [PATCH] More missing includes [3/4]
-Message-ID: <Pine.GSO.4.21.0211182318110.16079-100000@vervain.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265863AbSKRWgV>; Mon, 18 Nov 2002 17:36:21 -0500
+Received: from rth.ninka.net ([216.101.162.244]:61057 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id <S265843AbSKRWgU>;
+	Mon, 18 Nov 2002 17:36:20 -0500
+Subject: Re: [PATCH] llc & 2.5.48
+From: "David S. Miller" <davem@redhat.com>
+To: Petr Vandrovec <vandrove@vc.cvut.cz>
+Cc: acme@conectiva.com.br, linux-kernel@vger.kernel.org
+In-Reply-To: <20021118141437.GB10815@vana>
+References: <20021118141437.GB10815@vana>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 18 Nov 2002 15:02:28 -0800
+Message-Id: <1037660548.5783.0.camel@rth.ninka.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2002-11-18 at 06:14, Petr Vandrovec wrote:
+>    patch below fixes couple of compilation warnings in llc.
+> Please apply.
 
-Add missing #include <linux/sched.h>
-
---- linux-2.5.48/drivers/parport/ieee1284.c	Tue Jan 29 10:14:00 2002
-+++ linux-m68k-2.5.48/drivers/parport/ieee1284.c	Mon Nov 18 14:06:27 2002
-@@ -22,6 +22,7 @@
- #include <linux/delay.h>
- #include <linux/kernel.h>
- #include <linux/interrupt.h>
-+#include <linux/sched.h>
- 
- #undef DEBUG /* undef me for production */
- 
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+Applied, thanks.
 

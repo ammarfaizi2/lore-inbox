@@ -1,74 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293719AbSCES4X>; Tue, 5 Mar 2002 13:56:23 -0500
+	id <S293720AbSCETAD>; Tue, 5 Mar 2002 14:00:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293720AbSCES4R>; Tue, 5 Mar 2002 13:56:17 -0500
-Received: from adsl-66-127-87-238.dsl.sntc01.pacbell.net ([66.127.87.238]:45457
-	"HELO Mail.ChaoticDreams.ORG") by vger.kernel.org with SMTP
-	id <S293719AbSCES4K>; Tue, 5 Mar 2002 13:56:10 -0500
-Date: Tue, 5 Mar 2002 10:55:39 -0800
-From: Paul Mundt <lethal@ChaoticDreams.ORG>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19-pre2: <M> SGI HAL2 sound (EXPERIMENTAL) results in compile error
-Message-ID: <20020305105539.A10872@ChaoticDreams.ORG>
-In-Reply-To: <200203051440.g25Eeoq18818@Port.imtp.ilyichevsk.odessa.ua>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="T4sUOijqQbZv57TR"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.16i
-In-Reply-To: <200203051440.g25Eeoq18818@Port.imtp.ilyichevsk.odessa.ua>; from vda@port.imtp.ilyichevsk.odessa.ua on Tue, Mar 05, 2002 at 04:40:04PM -0200
-Organization: Chaotic Dreams Development Team
+	id <S293734AbSCES7x>; Tue, 5 Mar 2002 13:59:53 -0500
+Received: from pc3-camc5-0-cust13.cam.cable.ntl.com ([80.4.125.13]:55465 "EHLO
+	fenrus.demon.nl") by vger.kernel.org with ESMTP id <S293720AbSCES7l>;
+	Tue, 5 Mar 2002 13:59:41 -0500
+Date: Tue, 5 Mar 2002 18:57:47 GMT
+Message-Id: <200203051857.g25Ivl627158@fenrus.demon.nl>
+From: arjan@fenrus.demon.nl
+To: Brian S Queen <bqueen@nas.nasa.gov>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: dnotify for kernel 2.2
+In-Reply-To: <200203051845.KAA16326@marcy.nas.nasa.gov>
+X-Newsgroups: fenrus.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.9-21 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <200203051845.KAA16326@marcy.nas.nasa.gov> you wrote:
+> I have been going through the trouble of adding dnotify to our 2.2
+> kernel because we don't want to switch to 2.4 yet. I wonder:
+> 
+> How many folks are interested in dnotify for 2.2?
+> 
+> Is it a really bad idea?
 
---T4sUOijqQbZv57TR
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Tue, Mar 05, 2002 at 04:40:04PM -0200, Denis Vlasenko wrote:
-> 2.4.19-pre2:
->=20
-> <M> SGI HAL2 sound (EXPERIMENTAL) results in:
-> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> gcc -D__KERNEL__ -I/.share/usr/src/linux-2.4.19-pre2/include -Wall=20
-> -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer=20
-> -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=3D2=20
-> -march=3Di386 -DMODULE -DMODVERSIONS -include=20
-  ^^^^^^^^^^^
-> /.share/usr/src/linux-2.4.19-pre2/include/linux/modversions.h =20
-> -DKBUILD_BASENAME=3Dhal2  -c -o hal2.o hal2.c
->=20
-> hal2.c:36:29: asm/sgi/sgint23.h: No such file or directory
-> In file included from hal2.c:38:
-> hal2.h:24:27: asm/addrspace.h: No such file or directory
-> hal2.h:25:28: asm/sgi/sgihpc.h: No such file or directory
-
-These are mips64 things, and don't reside in include/asm-i386. Try building=
- it
-again with ARCH=3Dmips64.
-
-Regards,
-
---=20
-Paul Mundt <lethal@chaoticdreams.org>
-
-
---T4sUOijqQbZv57TR
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iEYEARECAAYFAjyFFKoACgkQYLvqhoOEA4FubgCbBAWsbIOrYnlbiVEAqquAAmpe
-9ZgAnA178lcscsz1U+gOcWPDv2Z/iG0u
-=WTeD
------END PGP SIGNATURE-----
-
---T4sUOijqQbZv57TR--
+Does the 2.4 version actually work ?

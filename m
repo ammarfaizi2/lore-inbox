@@ -1,55 +1,130 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261326AbULESVK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261334AbULES1j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261326AbULESVK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Dec 2004 13:21:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261334AbULESVK
+	id S261334AbULES1j (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Dec 2004 13:27:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261346AbULES1j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Dec 2004 13:21:10 -0500
-Received: from main.gmane.org ([80.91.229.2]:29871 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261326AbULESVF (ORCPT
+	Sun, 5 Dec 2004 13:27:39 -0500
+Received: from mgw-x4.nokia.com ([131.228.20.27]:48816 "EHLO mgw-x4.nokia.com")
+	by vger.kernel.org with ESMTP id S261334AbULES1b (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Dec 2004 13:21:05 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Jon Masters <jonathan@jonmasters.org>
-Subject: Re: Booting 2.6.10-rc3
-Date: Sun, 05 Dec 2004 18:10:38 +0000
-Organization: World Organi[sz]ation Of Broken Dreams
-Message-ID: <coviuv$adu$1@sea.gmane.org>
-References: <1102256916.29858.210104494@webmail.messagingengine.com>
+	Sun, 5 Dec 2004 13:27:31 -0500
+X-Scanned: Sun, 5 Dec 2004 20:27:02 +0200 Nokia Message Protector V1.3.31 2004060815 - RELEASE
+Date: Sun, 5 Dec 2004 20:25:54 +0200
+From: Paul Mundt <paul.mundt@nokia.com>
+To: akpm@osdl.org, anton@samba.org, richard.curnow@st.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] ARCH_SLAB_MINALIGN for 2.6.10-rc3
+Message-ID: <20041205182554.GB21383@pointless.research.nokia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: apogee.jonmasters.org
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040918)
-X-Accept-Language: en-us, en
-In-Reply-To: <1102256916.29858.210104494@webmail.messagingengine.com>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Cc: kernelnewbies@nl.linux.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="r5Pyd7+fXNt84Ff3"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
+X-OriginalArrivalTime: 05 Dec 2004 18:26:59.0022 (UTC) FILETIME=[01CDB6E0:01C4DAF8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anandraj wrote:
 
-> Red Hat nash version 3.5.22 starting 
-> mount: error 6 mounting ext3
-> pivotroot: pivo_root(/sysroot,/sysroot/initrd) failed : 2
-> umount /initrd/proc failed: 2
-> Kenel panic - not syncing: No init found. Try Passing init=option to
-> kernel.
+--r5Pyd7+fXNt84Ff3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> Can somebody help me on this !! ??
+Some time ago Anton introduced a patch that removed cacheline alignment
+for the slab caches, falling back on BYTES_PER_WORD instead. While this
+is fine in the general sense, on sh64 it is the source of considerable
+unaligned accesses.
 
-You need to read the build instructions for a Fedora Core distribution. 
-Briefly however, modern distros rely upon an initial RAMdisk which sets 
-up various hardware drivers before changing the root filesystem with the 
-pivot_root utility and booting the main system proper.
+For sh64, sizeof(void *) gives 4 bytes, whereas we actually want 8 byte
+alignment (pretty much the same behaviour as what we had prior to Anton's
+patch, and what we already do for ARCH_KMALLOC_MINALIGN).
 
-There's probably a missing mkinitrd et al. in there.
+Richard was the first to note this:
 
-Cheers,
+	One new issue is that there are a lot of new unaligned fixups
+	occurring.  I know where too - it's loads and stores to 8-byte fields
+	in inodes.  The root cause is the patch by Anton Blanchard : "remove
+	cacheline alignment from inode slabs".  I think before that forcing
+	the inodes to cacheline-alignment guaranteed 8-byte alignment, but now
+	that's been removed, we only get sizeof(void *) alignment.  The
+	problem is that pretty much every call to kmem_cache_create, except
+	for the ones that create the kmalloc pool, specifies zero as the 3rd
+	arg (=3Dalign).  (The ones that create the kmalloc pools specify
+	ARCH_KMALLOC_MINALIGN which I fixed a while back to 8 for sh64.)
+	Ideally we're going to have to come up with a fix for this one, since
+	the performance overhead of fixing up loads of inode accesses will be
+	pretty high.  It's not obvious to me how to do this unobtrusively - we
+	need to either modify kmem_cache_create or modify every file that
+	calls it (and import the ARCH_KMALLOC_MINALIGN stuff into each one.)
+	I suspect that the KMALLOC alignment wants to be kept conceptually
+	separate from the alignment used to create slabs.  So perhaps we could
+	propose a new ARCH_SLAB_MINALIGN or some such; if this is defined, the
+	maximum of this and the 'align' argument to kmem_cache_create is used
+	as the alignment for the slab created.
 
-Jon.
+We have been using the attached ARCH_SLAB_MINALIGN patch for sh64 and this
+seems like the least intrusive solution. Thoughts?
 
+Signed-off-by: Paul Mundt <paul.mundt@nokia.com>
+
+ include/asm-sh64/uaccess.h |    6 ++++++
+ mm/slab.c                  |    6 +++++-
+ 2 files changed, 11 insertions(+), 1 deletion(-)
+
+--- orig/include/asm-sh64/uaccess.h
++++ mod/include/asm-sh64/uaccess.h
+@@ -313,6 +313,12 @@
+    sh64 at the moment). */
+ #define ARCH_KMALLOC_MINALIGN 8
+=20
++/*
++ * We want 8-byte alignment for the slab caches as well, otherwise we have
++ * the same BYTES_PER_WORD (sizeof(void *)) min align in kmem_cache_create=
+().
++ */
++#define ARCH_SLAB_MINALIGN 8
++
+ /* Returns 0 if exception not found and fixup.unit otherwise.  */
+ extern unsigned long search_exception_table(unsigned long addr);
+ extern const struct exception_table_entry *search_exception_tables (unsign=
+ed long addr);
+
+
+--- orig/mm/slab.c
++++ mod/mm/slab.c
+@@ -135,6 +135,10 @@
+ #define ARCH_KMALLOC_FLAGS SLAB_HWCACHE_ALIGN
+ #endif
+=20
++#ifndef ARCH_SLAB_MINALIGN
++#define ARCH_SLAB_MINALIGN	BYTES_PER_WORD
++#endif
++
+ /* Legal flag mask for kmem_cache_create(). */
+ #if DEBUG
+ # define CREATE_MASK	(SLAB_DEBUG_INITIAL | SLAB_RED_ZONE | \
+@@ -1237,7 +1241,7 @@
+ 			while (size <=3D align/2)
+ 				align /=3D 2;
+ 		} else {
+-			align =3D BYTES_PER_WORD;
++			align =3D ARCH_SLAB_MINALIGN;
+ 		}
+ 	}
+=20
+
+
+--r5Pyd7+fXNt84Ff3
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQFBs1Kyvfgmmv+NIDsRAniQAKCDGUe0fr0TjvwoeBtWWBEdWSTeLACglxXU
+luasJOSfjRZf4ga9CVxRjek=
+=l+HJ
+-----END PGP SIGNATURE-----
+
+--r5Pyd7+fXNt84Ff3--

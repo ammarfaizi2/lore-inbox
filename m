@@ -1,63 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290587AbSCGCZn>; Wed, 6 Mar 2002 21:25:43 -0500
+	id <S290797AbSCGCdd>; Wed, 6 Mar 2002 21:33:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290767AbSCGCZY>; Wed, 6 Mar 2002 21:25:24 -0500
-Received: from 1Cust22.tnt15.sfo3.da.uu.net ([67.218.75.22]:18694 "EHLO
-	morrowfield.home") by vger.kernel.org with ESMTP id <S290713AbSCGCZS>;
-	Wed, 6 Mar 2002 21:25:18 -0500
-Date: Thu, 7 Mar 2002 06:25:12 -0800 (PST)
-Message-Id: <200203071425.GAA06679@morrowfield.home>
-From: Tom Lord <lord@regexps.com>
-To: linux-kernel@vger.kernel.org
-cc: davej@suse.de
-Subject: Why not an arch mirror for the kernel?
+	id <S290818AbSCGCdX>; Wed, 6 Mar 2002 21:33:23 -0500
+Received: from ns0.auctionwatch.com ([66.7.130.2]:4619 "EHLO
+	whitestar.auctionwatch.com") by vger.kernel.org with ESMTP
+	id <S290797AbSCGCdH>; Wed, 6 Mar 2002 21:33:07 -0500
+Date: Wed, 6 Mar 2002 18:33:02 -0800
+From: Petro <petro@auctionwatch.com>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [opensource] Re: Petition Against Official Endorsement of BitKeeper by Linux Maintainers
+Message-ID: <20020307023302.GG32504@auctionwatch.com>
+In-Reply-To: <Pine.LNX.4.44L.0203062233220.2181-100000@imladris.surriel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44L.0203062233220.2181-100000@imladris.surriel.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Mar 06, 2002 at 10:34:46PM -0300, Rik van Riel wrote:
+> On Wed, 6 Mar 2002, David Schwartz wrote:
+> > On Tue, 5 Mar 2002 18:36:08 -0500, Michael Bernstein wrote:
+> > >However, when a whole movement based
+> > >on the idea of creating non-proprietary software decides to utilize
+> > >proprietary software in order to better create free software, I feel that
+> > >there is some hypocrisy going on.
+> > 	What?! It's really this simple, you use the best tool for the job.
+> > Why can't we advocate the tools that really do work best.
+> I'm in it for quality software, not specifically for the ideology
+> of free software.
+> > Why do we have to be a movement based upon an inflexible ideology?
+> Not to mention, why should we have to conform to the ideology of
+> the "free software" crowd ?
 
+    'Cause you can't be a rebel if you don't wear the right boots. 
 
-While I won't take a position on the petition, the post quoted below
-has some practical implications, and some others have been raised that
-I'll answer:
-
-	Dave Jones observes:
-
-	Something I've not yet worked out is why none of the
-	proponents of arch, subversion etc are offering to run a
-	mirror of Linus' bitkeeper tree for those who don't want to
-	use bk, but "must have 0-day kernels".
-
-In my case (I'm the author arch) it's entirely a resource problem.
-I simply can't afford it at the moment.  Otherwise, it would likely be
-a high priority.
-
-Let me share some news for people who might be interested in
-alternatives to BK:
-
-At least one kernel contributor has a private arch repository for
-kernel work, so it seems to be at least marginally doable.  I am
-certain that further testing, performance improvements, better
-documentation, and some touch-ups to existing functionality are
-necessary before I would say "arch is so good that you have no excuse
-for not using it for kernel work."  Nevertheless, it's interesting
-that someone is already experimenting with it and the kernel.
-
-I am working on some tools that will help to implement automatic,
-incremental, bidirectional gateways between arch, Subversion, and Bk.
-
-I've written a document that describes the state of arch and the
-options that I think exist for getting from its current state to a
-state where it is unambiguously the best choice.  See:
-
-	http://www.regexps.com/survey.html
-
-I would like to hear (off-list) from people who are interested in
-eventually using arch for kernel work, but who aren't yet "early
-adopters".  What milestones or features are needed, in your opinion?
-Please be sure to mention in your email if I may quote you or not (the
-default presumption will be that I may not, though I may anonymously
-paraphrase interesting messages and report aggregate results.)
-
-Thanks,
--t
+-- 
+Share and Enjoy. 

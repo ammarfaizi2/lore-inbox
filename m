@@ -1,42 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316855AbSGWXtE>; Tue, 23 Jul 2002 19:49:04 -0400
+	id <S315631AbSGWXwg>; Tue, 23 Jul 2002 19:52:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318277AbSGWXtE>; Tue, 23 Jul 2002 19:49:04 -0400
-Received: from [195.223.140.120] ([195.223.140.120]:12106 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S316855AbSGWXtA>; Tue, 23 Jul 2002 19:49:00 -0400
-Date: Wed, 24 Jul 2002 01:52:54 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Austin Gonyou <austin@digitalroadkill.net>,
-       Johannes Erdfelt <johannes@erdfelt.com>,
-       David Rees <dbr@greenhydrant.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19rc2aa1 VM too aggressive?
-Message-ID: <20020723235254.GB1117@dualathlon.random>
-References: <1027117945.7776.11.camel@UberGeek> <Pine.LNX.4.44L.0207192105160.12241-100000@imladris.surriel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L.0207192105160.12241-100000@imladris.surriel.com>
-User-Agent: Mutt/1.3.27i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S315988AbSGWXwf>; Tue, 23 Jul 2002 19:52:35 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:56584 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S315631AbSGWXwd>; Tue, 23 Jul 2002 19:52:33 -0400
+Date: Tue, 23 Jul 2002 16:56:48 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Ingo Molnar <mingo@elte.hu>
+cc: george anzinger <george@mvista.com>, Zwane Mwaikambo <zwane@linuxpower.ca>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] irqlock patch -G3. [was Re: odd memory corruption in
+ 2.5.27?]
+In-Reply-To: <Pine.LNX.4.44.0207240100150.2732-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0207231650200.6537-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 19, 2002 at 09:07:07PM -0300, Rik van Riel wrote:
-> On 19 Jul 2002, Austin Gonyou wrote:
-> 
-> > Notice you're memory utilization jumps here as your free is given to
-> > cache.
-> 
-> Swinging back and forth 150 MB per second seems a bit excessive
-> for that, especially considering that the previously cached
-> memory seems to end up on the free list and the fact that there
-> is between 350 and 500 MB free memory.
 
-if the app allocates and frees 150MB of shm per second that's what the
-kernel has to show you.
 
-Andrea
+On Wed, 24 Jul 2002, Ingo Molnar wrote:
+>
+>  - slab.c needs to spin_unlock_no_resched(), instead of spin_unlock(). (It
+>    also has to check for preemption in the right spot.) This should fix
+>    the memory corruption.
+
+That cannot be right.
+
+If we want to drop a spinlock but remain non-preemptible, we should
+comment that a _lot_, and not just say "xxxx_no_resched()".
+
+In fact, I personally think that every "spin_unlock_no_resched()" is an
+outright BUG. Either the spin_unlock() makes us preemptible (in which case
+it doesn't matter from a correctness point whether we schedule
+immediately, or whether something else like a vmalloc fault might force us
+to schedule soon afterwards), or the spin_unlock is doing something
+magical, and we depend on the preemptability to not change.
+
+In the latter case (which should be very very rare indeed), we should just
+use
+
+	/* BIG comment about what we're doing. */
+	/* We're dropping the spinlock, but we remain non-preemptable */
+	__raw_spin_unlock(..);
+
+and then later on, when preemptability is over, we do
+
+	local_irq_enable();
+	preempt_enable();
+
+so that we _clearly_ mark out the region where we must not re-schedule.
+
+It is simply not acceptable to just play games with disabling interrupts,
+and magically "knowing" that we're not preemptable without making that
+clear some way.
+
+Please get rid of spin_unlock_no_schedule() and friends, ok?
+
+			Linus
+

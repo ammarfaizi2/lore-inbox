@@ -1,79 +1,215 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131631AbRDSRwT>; Thu, 19 Apr 2001 13:52:19 -0400
+	id <S131498AbRDSR5U>; Thu, 19 Apr 2001 13:57:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131498AbRDSRwK>; Thu, 19 Apr 2001 13:52:10 -0400
-Received: from smtp1.cern.ch ([137.138.128.38]:20234 "EHLO smtp1.cern.ch")
-	by vger.kernel.org with ESMTP id <S131631AbRDSRwB>;
-	Thu, 19 Apr 2001 13:52:01 -0400
-To: linux-kernel@vger.kernel.org
-Subject: [repost] Announce: Linux-OpenLVM mailing list
-From: Jes Sorensen <jes@linuxcare.com>
-Date: 19 Apr 2001 19:51:52 +0200
-Message-ID: <d37l0gvkuf.fsf@lxplus015.cern.ch>
-User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
+	id <S131644AbRDSR5K>; Thu, 19 Apr 2001 13:57:10 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:43783 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S131498AbRDSR5A>; Thu, 19 Apr 2001 13:57:00 -0400
+Date: Thu, 19 Apr 2001 13:15:55 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, Rik van Riel <riel@conectiva.com.br>,
+        Daniel Phillips <phillips@innominate.de>
+Message-ID: <Pine.LNX.4.21.0104191314090.1988-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-=-="
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-=-=
+Hi Linus, 
 
-Hi
+The following patch fixes the OOM deadlock condition caused by
+prune_icache(), and also improves its performance significantly.
 
-For some reason this one didn't make it through in the first try ;-(
+The OOM deadlock can happen because prune_icache() tries to sync _all_
+dirty inodes (under PF_MEMALLOC) on the system before trying to free a
+portion of the clean unused inodes.
 
-Jes
+The patch also changes prune_icache() to free clean inodes first, and then
+sync _unused_ ones if needed. In case (nr_free_pages < freepages.low) the
+code writes one inode synchronously and returns (to avoid the OOM
+deadlock).
+
+Could you please include this patch in your tree?
+
+Thanks 
 
 
---=-=-=
-Content-Type: message/rfc822
-Content-Disposition: inline
-
-From: Jes Sorensen <jes@linuxcare.com>
-To: linux-kernel@vger.kernel.org
-CC: linux-openlvm@nl.linux.org, Arjan van de Ven <arjanv@redhat.com>,
-   Jens Axboe <axboe@suse.de>, Martin Kasper Petersen <mkp@linuxcare.com>,
-   riel@conectiva.com.br
-Subject: Announce: Linux-OpenLVM mailing list
-Sender: owner-linux-openlvm@nl.linux.org
-Precedence: bulk
-MIME-Version: 1.0
-
-Hi
-
-I would like to announce the creation of the openlvm mailing list for
-discussion about maintenance and further development of the Linux
-Logical Volume Manager (LVM).
-
-The new mailing list is named linux-openlvm and hosted at
-nl.linux.org, you can subscribe to the list by posting to
-majordomo@nl.linux.org and postings should go to
-linux-openlvm@nl.linux.org. The list is unmoderated and open to
-postings from individuals who are not subscribed to the list as it is
-good practice for all open development lists.
-
-We have found it necessary to create the new list as the current LVM
-development proces is closed and does not take input from the
-community. We have experienced numerous incidents of postings to the
-old mailing list with patches, on topic questions and comments about
-the LVM code that have been rejected by the list moderator. We find
-this completely unacceptable just as it is hindering development that
-a development mailing list is being so mismoderated.
-
-Please welcome the new list and join in on the development and
-discussions.
-
-Sincerly,
-Jens Axboe
-Arjan van de Ven
-Martin Petersen
-Rik van Riel
-Jes Sorensen
+--- fs/inode.c~	Thu Apr 12 21:16:35 2001
++++ fs/inode.c	Thu Apr 12 21:49:56 2001
+@@ -13,6 +13,8 @@
+ #include <linux/quotaops.h>
+ #include <linux/slab.h>
+ #include <linux/cache.h>
++#include <linux/swap.h>
++#include <linux/swapctl.h>
+ 
+ /*
+  * New inode.c implementation.
+@@ -197,6 +199,34 @@
+ 	inodes_stat.nr_unused--;
+ }
+ 
++static inline void __sync_one(struct inode *inode, int sync)
++{
++	unsigned dirty;
++
++	list_del(&inode->i_list);
++	list_add(&inode->i_list, atomic_read(&inode->i_count)
++						? &inode_in_use
++						: &inode_unused);
++
++	/* Set I_LOCK, reset I_DIRTY */
++	dirty = inode->i_state & I_DIRTY;
++	inode->i_state |= I_LOCK;
++	inode->i_state &= ~I_DIRTY;
++	spin_unlock(&inode_lock);
++
++	filemap_fdatasync(inode->i_mapping);
++
++	/* Don't write the inode if only I_DIRTY_PAGES was set */
++	if (dirty & (I_DIRTY_SYNC | I_DIRTY_DATASYNC))
++		write_inode(inode, sync);
++
++	filemap_fdatawait(inode->i_mapping);
++
++	spin_lock(&inode_lock);
++	inode->i_state &= ~I_LOCK;
++	wake_up(&inode->i_wait);
++}
++
+ static inline void sync_one(struct inode *inode, int sync)
+ {
+ 	if (inode->i_state & I_LOCK) {
+@@ -206,29 +236,7 @@
+ 		iput(inode);
+ 		spin_lock(&inode_lock);
+ 	} else {
+-		unsigned dirty;
 -
-Linux-openlvm: open list for LVM on Linux
-Archive:       http://mail.nl.linux.org/linux-openlvm/
+-		list_del(&inode->i_list);
+-		list_add(&inode->i_list, atomic_read(&inode->i_count)
+-							? &inode_in_use
+-							: &inode_unused);
+-		/* Set I_LOCK, reset I_DIRTY */
+-		dirty = inode->i_state & I_DIRTY;
+-		inode->i_state |= I_LOCK;
+-		inode->i_state &= ~I_DIRTY;
+-		spin_unlock(&inode_lock);
+-
+-		filemap_fdatasync(inode->i_mapping);
+-
+-		/* Don't write the inode if only I_DIRTY_PAGES was set */
+-		if (dirty & (I_DIRTY_SYNC | I_DIRTY_DATASYNC))
+-			write_inode(inode, sync);
+-
+-		filemap_fdatawait(inode->i_mapping);
+-
+-		spin_lock(&inode_lock);
+-		inode->i_state &= ~I_LOCK;
+-		wake_up(&inode->i_wait);
++		__sync_one(inode, sync);
+ 	}
+ }
+ 
+@@ -236,10 +244,42 @@
+ {
+ 	struct list_head * tmp;
+ 
+-	while ((tmp = head->prev) != head)
++	while ((tmp = head->prev) != head) 
+ 		sync_one(list_entry(tmp, struct inode, i_list), 0);
+ }
+ 
++static inline int try_to_sync_unused_list(struct list_head *head)
++{
++	struct list_head *tmp = head;
++	struct inode *inode;
++
++	while ((tmp = tmp->prev) != head) {
++		inode = list_entry(tmp, struct inode, i_list);
++
++		if (!(inode->i_state & I_LOCK) 
++				&& !atomic_read(&inode->i_count)) {
++			/* 
++			 * We're under PF_MEMALLOC here, and syncing the 
++			 * inode may have to allocate memory. To avoid
++			 * running into a OOM deadlock, we write one 
++			 * inode synchronously and stop syncing in case 
++			 * we're under freepages.low
++			 */
++
++			int sync = nr_free_pages() < freepages.low;
++			__sync_one(inode, sync);
++			if (sync) 
++				return 0;
++			/* 
++			 * __sync_one moved the inode to another list,
++			 * so we have to start looking from the list head.
++			 */
++			tmp = head;
++		}
++	}
++	return 1;
++}
++
+ /**
+  *	sync_inodes
+  *	@dev: device to sync the inodes from.
+@@ -273,13 +313,14 @@
+ /*
+  * Called with the spinlock already held..
+  */
+-static void sync_all_inodes(void)
++static void try_to_sync_unused_inodes(void)
+ {
+ 	struct super_block * sb = sb_entry(super_blocks.next);
+ 	for (; sb != sb_entry(&super_blocks); sb = sb_entry(sb->s_list.next)) {
+ 		if (!sb->s_dev)
+ 			continue;
+-		sync_list(&sb->s_dirty);
++		if (!try_to_sync_unused_list(&sb->s_dirty))
++			break;
+ 	}
+ }
+ 
+@@ -506,13 +547,12 @@
+ {
+ 	LIST_HEAD(list);
+ 	struct list_head *entry, *freeable = &list;
+-	int count = 0;
++	int count = 0, synced = 0;
+ 	struct inode * inode;
+ 
+ 	spin_lock(&inode_lock);
+-	/* go simple and safe syncing everything before starting */
+-	sync_all_inodes();
+ 
++free_unused:
+ 	entry = inode_unused.prev;
+ 	while (entry != &inode_unused)
+ 	{
+@@ -539,6 +579,20 @@
+ 	spin_unlock(&inode_lock);
+ 
+ 	dispose_list(freeable);
++
++	/* 
++	 * If we freed enough clean inodes, avoid writing 
++	 * dirty ones. Also giveup if we already tried to
++	 * sync dirty inodes.
++	 */
++	if (!goal || synced)
++		return;
++	
++	synced = 1;
++
++	spin_lock(&inode_lock);
++	try_to_sync_unused_inodes();
++	goto free_unused;
+ }
+ 
+ void shrink_icache_memory(int priority, int gfp_mask)
 
-
---=-=-=--

@@ -1,72 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269370AbUICIWc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269390AbUICI2D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269370AbUICIWc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 04:22:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269393AbUICITG
+	id S269390AbUICI2D (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 04:28:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269363AbUICIXO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 04:19:06 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:26117 "EHLO
+	Fri, 3 Sep 2004 04:23:14 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:27141 "EHLO
 	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S269374AbUICIRj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 04:17:39 -0400
-Date: Fri, 3 Sep 2004 09:13:52 +0100
+	id S269394AbUICITc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 04:19:32 -0400
+Date: Fri, 3 Sep 2004 09:19:26 +0100
 From: Christoph Hellwig <hch@infradead.org>
-To: David Masover <ninja@slaphack.com>
-Cc: Oliver Neukum <oliver@neukum.org>, Spam <spam@tnonline.net>,
-       Hans Reiser <reiser@namesys.com>, Linus Torvalds <torvalds@osdl.org>,
-       Jamie Lokier <jamie@shareable.org>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
-       viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: The argument for fs assistance in handling archives
-Message-ID: <20040903091352.A2288@infradead.org>
+To: Amit Gud <amitgud@gmail.com>
+Cc: Chris Wedgwood <cw@f00f.org>, linux-kernel@vger.kernel.org, gud@eth.net
+Subject: Re: Using filesystem blocks
+Message-ID: <20040903091926.B2288@infradead.org>
 Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	David Masover <ninja@slaphack.com>,
-	Oliver Neukum <oliver@neukum.org>, Spam <spam@tnonline.net>,
-	Hans Reiser <reiser@namesys.com>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Jamie Lokier <jamie@shareable.org>,
-	Horst von Brand <vonbrand@inf.utfsm.cl>,
-	Adrian Bunk <bunk@fs.tum.de>,
-	viro@parcelfarce.linux.theplanet.co.uk,
-	Christoph Hellwig <hch@lst.de>, linux-fsdevel@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Alexander Lyamin aka FLX <flx@namesys.com>,
-	ReiserFS List <reiserfs-list@namesys.com>
-References: <20040826150202.GE5733@mail.shareable.org> <4136E0B6.4000705@namesys.com> <1117111836.20040902115249@tnonline.net> <200409021309.04780.oliver@neukum.org> <4137BE36.5020504@slaphack.com>
+	Amit Gud <amitgud@gmail.com>, Chris Wedgwood <cw@f00f.org>,
+	linux-kernel@vger.kernel.org, gud@eth.net
+References: <2c6b3ab004090212293b394b41@mail.gmail.com> <20040902200743.GB6875@taniwha.stupidest.org> <2c6b3ab0040902215656704680@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <4137BE36.5020504@slaphack.com>; from ninja@slaphack.com on Thu, Sep 02, 2004 at 07:43:34PM -0500
+In-Reply-To: <2c6b3ab0040902215656704680@mail.gmail.com>; from amitgud@gmail.com on Fri, Sep 03, 2004 at 10:26:23AM +0530
 X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
 	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 02, 2004 at 07:43:34PM -0500, David Masover wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
+On Fri, Sep 03, 2004 at 10:26:23AM +0530, Amit Gud wrote:
+> > 
+> > > Is it wise enough to abstract away the usage of blocks for storing
+> > > extended attributes?
+> > 
+> > No.  Some fs' will store xattr data in the inodes if it fits.
+> > 
 > 
-> Oliver Neukum wrote:
-> | Am Donnerstag, 2. September 2004 11:52 schrieb Spam:
-> |
-> |>  Btw, version control for ordinary files would be a great feature. I
-> |>  think something like it is available through Windows 2000/3 server.
-> |>  Isn't it called "Shadow Copies". It works over network shares. :)
-> |>
-> |>  It allows you to restore previous versions of the file even if you
-> |>  delete or overwrite it.
-> |
-> |
-> | There's no need to do that in kernel, unless you want to be able
-> | to force it unto users.
-> 
-> And on apps.  Should I teach OpenOffice.org to do version control?
-> Seems a lot easier to just do it in the kernel, and teach everything to
-> do version control in one fell swoop.
+> First up, why is mbcache code is written at VFS layer than being
+> filesystem specific? Neccessarily to take away the coding overheads of
+> maintaining block cache that any filesystem uses, even though given
+> that only ext2 and ext3 uses it. It facilitates code reuse.
 
-Just add a post-save trigger that can check it into any SCM you want.
-
+It is not written at the VFS level.  It's a library ontop of the buffercache
+than can be reused by filesystems.

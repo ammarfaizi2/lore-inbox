@@ -1,62 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262947AbVAKXma@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262902AbVAKXqs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262947AbVAKXma (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 18:42:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262941AbVAKXl7
+	id S262902AbVAKXqs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 18:46:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262953AbVAKXn4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 18:41:59 -0500
-Received: from coderock.org ([193.77.147.115]:8902 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S262949AbVAKXfU (ORCPT
+	Tue, 11 Jan 2005 18:43:56 -0500
+Received: from coderock.org ([193.77.147.115]:11717 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S262902AbVAKXRp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 18:35:20 -0500
-Subject: [patch 07/11] tc/zs: replace schedule_timeout() with msleep_interruptible()
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, domen@coderock.org, nacc@us.ibm.com,
-       janitor@sternwelten.at
+	Tue, 11 Jan 2005 18:17:45 -0500
+Subject: [patch 1/3] Re: MIN/MAX in ide-timing.h
+To: B.Zolnierkiewicz@elka.pw.edu.pl
+Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
+       domen@coderock.org, drizzd@aon.at, janitor@sternwelten.at
 From: domen@coderock.org
-Date: Wed, 12 Jan 2005 00:35:11 +0100
-Message-Id: <20050111233511.B68811F22A@trashy.coderock.org>
+Date: Wed, 12 Jan 2005 00:17:36 +0100
+Message-Id: <20050111231737.4AB061F225@trashy.coderock.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
+I replaced the custom MIN/MAX macros with the type safe min/max macros
+from linux/kernel.h.
 
-Any comments would be appreciated.
+On Sat, Jul 10, 2004 at 04:03:37PM +0200, Vojtech Pavlik wrote:
+> How about if you used the "min_t" and "max_t" macros inside FIT? That
+> could help get rid of the casts completely (assuming the second and
+> third parameters to FIT are expected to be constants).
 
-Description: Use msleep_interruptible() instead of schedule_timeout() to
-guarantee the task delays as expected.
+Yes, that's better. It reduces the necessary changes to a minimum.
 
-Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
 Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
 Signed-off-by: Domen Puncer <domen@coderock.org>
 ---
 
 
- kj-domen/drivers/tc/zs.c |    6 ++----
- 1 files changed, 2 insertions(+), 4 deletions(-)
+ kj-domen/drivers/ide/ide-timing.h |   25 ++++++++++++-------------
+ 1 files changed, 12 insertions(+), 13 deletions(-)
 
-diff -puN drivers/tc/zs.c~msleep_interruptible-drivers_tc_zs drivers/tc/zs.c
---- kj/drivers/tc/zs.c~msleep_interruptible-drivers_tc_zs	2005-01-10 18:00:13.000000000 +0100
-+++ kj-domen/drivers/tc/zs.c	2005-01-10 18:00:13.000000000 +0100
-@@ -1395,8 +1395,7 @@ static void rs_close(struct tty_struct *
- 	info->tty = 0;
- 	if (info->blocked_open) {
- 		if (info->close_delay) {
--			current->state = TASK_INTERRUPTIBLE;
--			schedule_timeout(info->close_delay);
-+			msleep_interruptible(jiffies_to_msecs(info->close_delay));
- 		}
- 		wake_up_interruptible(&info->open_wait);
- 	}
-@@ -1429,8 +1428,7 @@ static void rs_wait_until_sent(struct tt
- 	if (timeout)
- 		char_time = min_t(unsigned long, char_time, timeout);
- 	while ((read_zsreg(info->zs_channel, 1) & Tx_BUF_EMP) == 0) {
--		current->state = TASK_INTERRUPTIBLE;
--		schedule_timeout(char_time);
-+		msleep_interruptible(jiffies_to_msecs(char_time));
- 		if (signal_pending(current))
- 			break;
- 		if (timeout && time_after(jiffies, orig_jiffies + timeout))
+diff -puN drivers/ide/ide-timing.h~min-max-ide_ide-timing.h drivers/ide/ide-timing.h
+--- kj/drivers/ide/ide-timing.h~min-max-ide_ide-timing.h	2005-01-10 17:59:41.000000000 +0100
++++ kj-domen/drivers/ide/ide-timing.h	2005-01-10 17:59:41.000000000 +0100
+@@ -27,6 +27,7 @@
+  * Vojtech Pavlik, Simunkova 1594, Prague 8, 182 00 Czech Republic
+  */
+ 
++#include <linux/kernel.h>
+ #include <linux/hdreg.h>
+ 
+ #define XFER_PIO_5		0x0d
+@@ -96,11 +97,9 @@ static struct ide_timing ide_timing[] = 
+ #define IDE_TIMING_UDMA		0x80
+ #define IDE_TIMING_ALL		0xff
+ 
+-#define MIN(a,b)	((a)<(b)?(a):(b))
+-#define MAX(a,b)	((a)>(b)?(a):(b))
+-#define FIT(v,min,max)	MAX(MIN(v,max),min)
+-#define ENOUGH(v,unit)	(((v)-1)/(unit)+1)
+-#define EZ(v,unit)	((v)?ENOUGH(v,unit):0)
++#define FIT(v,vmin,vmax)	max_t(short,min_t(short,v,vmax),vmin)
++#define ENOUGH(v,unit)		(((v)-1)/(unit)+1)
++#define EZ(v,unit)		((v)?ENOUGH(v,unit):0)
+ 
+ #define XFER_MODE	0xf0
+ #define XFER_UDMA_133	0x48
+@@ -188,14 +187,14 @@ static void ide_timing_quantize(struct i
+ 
+ static void ide_timing_merge(struct ide_timing *a, struct ide_timing *b, struct ide_timing *m, unsigned int what)
+ {
+-	if (what & IDE_TIMING_SETUP  ) m->setup   = MAX(a->setup,   b->setup);
+-	if (what & IDE_TIMING_ACT8B  ) m->act8b   = MAX(a->act8b,   b->act8b);
+-	if (what & IDE_TIMING_REC8B  ) m->rec8b   = MAX(a->rec8b,   b->rec8b);
+-	if (what & IDE_TIMING_CYC8B  ) m->cyc8b   = MAX(a->cyc8b,   b->cyc8b);
+-	if (what & IDE_TIMING_ACTIVE ) m->active  = MAX(a->active,  b->active);
+-	if (what & IDE_TIMING_RECOVER) m->recover = MAX(a->recover, b->recover);
+-	if (what & IDE_TIMING_CYCLE  ) m->cycle   = MAX(a->cycle,   b->cycle);
+-	if (what & IDE_TIMING_UDMA   ) m->udma    = MAX(a->udma,    b->udma);
++	if (what & IDE_TIMING_SETUP  ) m->setup   = max(a->setup,   b->setup);
++	if (what & IDE_TIMING_ACT8B  ) m->act8b   = max(a->act8b,   b->act8b);
++	if (what & IDE_TIMING_REC8B  ) m->rec8b   = max(a->rec8b,   b->rec8b);
++	if (what & IDE_TIMING_CYC8B  ) m->cyc8b   = max(a->cyc8b,   b->cyc8b);
++	if (what & IDE_TIMING_ACTIVE ) m->active  = max(a->active,  b->active);
++	if (what & IDE_TIMING_RECOVER) m->recover = max(a->recover, b->recover);
++	if (what & IDE_TIMING_CYCLE  ) m->cycle   = max(a->cycle,   b->cycle);
++	if (what & IDE_TIMING_UDMA   ) m->udma    = max(a->udma,    b->udma);
+ }
+ 
+ static struct ide_timing* ide_timing_find_mode(short speed)
 _

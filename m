@@ -1,42 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262692AbULQAkG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262346AbULQAjW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262692AbULQAkG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 19:40:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262431AbULQAjc
+	id S262346AbULQAjW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 19:39:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262692AbULQAjV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 19:39:32 -0500
-Received: from fw.osdl.org ([65.172.181.6]:9431 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262673AbULQAhX (ORCPT
+	Thu, 16 Dec 2004 19:39:21 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:14514 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S262346AbULQAg6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 19:37:23 -0500
-Date: Thu, 16 Dec 2004 16:41:30 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: lista4@comhem.se
-Cc: mr@ramendik.ru, nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.10-rc3: kswapd eats CPU on start of memory-eating task
-Message-Id: <20041216164130.2088fbd9.akpm@osdl.org>
-In-Reply-To: <3284684.1103119330673.JavaMail.tomcat@pne-ps1-sn1>
-References: <3284684.1103119330673.JavaMail.tomcat@pne-ps1-sn1>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 16 Dec 2004 19:36:58 -0500
+Date: Fri, 17 Dec 2004 01:36:49 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Dave Hansen <haveblue@us.ibm.com>
+cc: linux-kernel@vger.kernel.org, geert@linux-m68k.org, ralf@linux-mips.org,
+       linux-mm@kvack.org
+Subject: Re: [patch] [RFC] make WANT_PAGE_VIRTUAL a config option
+In-Reply-To: <E1Cf3bP-0002el-00@kernel.beaverton.ibm.com>
+Message-ID: <Pine.LNX.4.61.0412170133560.793@scrub.home>
+References: <E1Cf3bP-0002el-00@kernel.beaverton.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Voluspa <lista4@comhem.se> wrote:
->
-> I've now booted all -rc kernels from 2.6.8 to 2.6.10-rc3 and examined the 
-> behaviour of a heavy session with the 3D program Blender with regards to 
-> screen freezes and mouse unresponsiveness during memory swap.
+Hi,
 
-Can you identify the kernel release which caused the problem to start?
+On Thu, 16 Dec 2004, Dave Hansen wrote:
 
-> I find no problem when blender is the sole (large) application, but when a 
-> distributed computing client is running in the background the reported problems 
-> surface. I use http://folding.stanford.edu for protein folding.  It runs 
-> with a default of nice 19 and sucks up every free CPU cycle.
+> I'm working on breaking out the struct page definition into its
+> own file.  There seem to be a ton of header dependencies that
+> crop up around struct page, and I'd like to start getting rid
+> of thise.
 
-What sucks up all the CPU?  The application?  kswapd?
+Why do you want to move struct page into a separate file?
 
-How much RAM, how much swap?
+bye, Roman

@@ -1,138 +1,111 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261978AbUBWRwe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 12:52:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261979AbUBWRwe
+	id S261975AbUBWSJX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 13:09:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261979AbUBWSJX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 12:52:34 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:58304 "EHLO
-	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S261978AbUBWRwZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 12:52:25 -0500
-Date: Mon, 23 Feb 2004 09:52:23 -0800 (PST)
-From: Tigran Aivazian <tigran@veritas.com>
-To: "Giacomo A. Catenazzi" <cate@debian.org>
-cc: Ryan Underwood <nemesis@icequake.net>, <224355@bugs.debian.org>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: [patch-2.4.25] microcode.c fix (wasRe: microcode, devfs: Wrong
-    interface change in 2.4.25
-In-Reply-To: <Pine.GSO.4.44.0402230725590.8603-100000@south.veritas.com>
-Message-ID: <Pine.GSO.4.44.0402230948190.6162-100000@south.veritas.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	Mon, 23 Feb 2004 13:09:23 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:2788 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S261975AbUBWSJT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Feb 2004 13:09:19 -0500
+Date: Mon, 23 Feb 2004 19:09:12 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Andrew Morton <akpm@osdl.org>, perex@suse.cz, alsa@digigram.com
+Cc: linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org
+Subject: [patch] 2.6.3-mm3: ALSA miXart driver doesn't compile
+Message-ID: <20040223180911.GL5499@fs.tum.de>
+References: <20040222172200.1d6bdfae.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040222172200.1d6bdfae.akpm@osdl.org>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Giacomo,
+On Sun, Feb 22, 2004 at 05:22:00PM -0800, Andrew Morton wrote:
+>...
+> Changes since 2.6.3-mm2:
+>...
+>  bk-alsa.patch
+>...
+>  Latest versions of external trees
+>...
 
-Yes, you are right. I have now looked at the driver in 2.4.25 and see that
-the latest change did break the compatibility inadvertently (because of
-wrongly backporting the changes from 2.6 --- can't remember who did it
-now, but it doesn't matter).
+I got four compile errors like the following in the miXart driver:
 
-Please test the attached patch. I have tested it on 2.4.25 but only
-without devfs compiled into the kernel.
+<--  snip  -->
 
-Kind regards
-Tigran
+...
+  CC      sound/pci/mixart/mixart.o
+In file included from sound/pci/mixart/mixart.c:33:
+sound/pci/mixart/mixart.h:95: field `msg_taskq' has incomplete type
+In file included from sound/pci/mixart/mixart.c:35:
+sound/pci/mixart/mixart_core.h:602: parse error before 
+`snd_mixart_interrupt'
+sound/pci/mixart/mixart_core.h:602: warning: type defaults to `int' in 
+declaration of `snd_mixart_interrupt'
+sound/pci/mixart/mixart_core.h:602: warning: data definition has no type 
+or storage class
+sound/pci/mixart/mixart.c: In function `snd_mixart_hw_params':
+sound/pci/mixart/mixart.c:604: warning: unsigned int format, different 
+type arg (arg 5)
+sound/pci/mixart/mixart.c: In function `snd_mixart_free':
+sound/pci/mixart/mixart.c:1043: warning: implicit declaration of 
+function `free_irq'
+sound/pci/mixart/mixart.c: In function `snd_mixart_probe':
+sound/pci/mixart/mixart.c:1301: warning: implicit declaration of 
+function `request_irq'
+sound/pci/mixart/mixart.c:1325: warning: implicit declaration of 
+function `tasklet_init'
+make[3]: *** [sound/pci/mixart/mixart.o] Error 1
 
-PS.Notice that I also added your earlier suggestion to do compile-time
-merging of strings instead of runtime.
+<--  snip  -->
 
---- linux-2.4.25-orig/arch/i386/kernel/microcode.c	2004-02-18 13:36:30.000000000 +0000
-+++ linux-2.4.25/arch/i386/kernel/microcode.c	2004-02-23 18:07:41.000000000 +0000
-@@ -1,7 +1,7 @@
- /*
-  *	Intel CPU Microcode Update driver for Linux
-  *
-- *	Copyright (C) 2000 Tigran Aivazian
-+ *	Copyright (C) 2000-2004 Tigran Aivazian
-  *
-  *	This driver allows to upgrade microcode on Intel processors
-  *	belonging to IA-32 family - PentiumPro, Pentium II,
-@@ -64,6 +64,10 @@
-  *		Removed ->read() method and obsoleted MICROCODE_IOCFREE ioctl
-  *		because we no longer hold a copy of applied microcode
-  *		in kernel memory.
-+ *	1.14	23 Feb 2004 Tigran Aivazian <tigran@veritas.com>
-+ *		Restored devfs regular file entry point which was
-+ *		accidentally removed when back-porting changes from the 2.6
-+ *		version of the driver.
+The patch below fixes these issues for me.
+
+cu
+Adrian
+
+
+--- linux-2.6.3-mm3/sound/pci/mixart/mixart.c.old	2004-02-23 18:28:08.000000000 +0100
++++ linux-2.6.3-mm3/sound/pci/mixart/mixart.c	2004-02-23 18:28:27.000000000 +0100
+@@ -23,6 +23,7 @@
+ 
+ #include <sound/driver.h>
+ #include <linux/init.h>
++#include <linux/interrupt.h>
+ #include <sound/core.h>
+ #define SNDRV_GET_ID
+ #include <sound/initval.h>
+--- linux-2.6.3-mm3/sound/pci/mixart/mixart_core.c.old	2004-02-23 18:30:18.000000000 +0100
++++ linux-2.6.3-mm3/sound/pci/mixart/mixart_core.c	2004-02-23 18:30:38.000000000 +0100
+@@ -20,6 +20,7 @@
+  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
   */
-
-
-@@ -73,6 +77,7 @@
- #include <linux/slab.h>
- #include <linux/vmalloc.h>
- #include <linux/miscdevice.h>
-+#include <linux/devfs_fs_kernel.h>
- #include <linux/spinlock.h>
- #include <linux/mm.h>
-
-@@ -84,8 +89,8 @@
- MODULE_AUTHOR("Tigran Aivazian <tigran@veritas.com>");
- MODULE_LICENSE("GPL");
-
--#define MICROCODE_VERSION 	"1.13"
--#define MICRO_DEBUG 		1
-+#define MICROCODE_VERSION 	"1.14"
-+#define MICRO_DEBUG 		0
- #if MICRO_DEBUG
- #define dprintk(x...) printk(KERN_INFO x)
- #else
-@@ -470,6 +475,7 @@
- 	return -EINVAL;
- }
-
-+/* shared between misc device and devfs regular file */
- static struct file_operations microcode_fops = {
- 	.owner		= THIS_MODULE,
- 	.write		= microcode_write,
-@@ -483,29 +489,38 @@
- 	.fops		= &microcode_fops,
- };
-
-+static devfs_handle_t devfs_handle;
-+
- static int __init microcode_init (void)
- {
- 	int error;
-
- 	error = misc_register(&microcode_dev);
--	if (error) {
-+	if (error)
- 		printk(KERN_ERR
- 			"microcode: can't misc_register on minor=%d\n",
- 			MICROCODE_MINOR);
--		return error;
-+	devfs_handle = devfs_register(NULL, "cpu/microcode",
-+			DEVFS_FL_DEFAULT, 0, 0, S_IFREG | S_IRUSR | S_IWUSR,
-+			&microcode_fops, NULL);
-+	if (devfs_handle == NULL && error) {
-+		printk(KERN_ERR "microcode: failed to devfs_register()\n");
-+		goto out;
- 	}
--
-+	error = 0;
- 	printk(KERN_INFO
--		"IA-32 Microcode Update Driver: v%s <tigran@veritas.com>\n",
--		MICROCODE_VERSION);
--	return 0;
-+		"IA-32 Microcode Update Driver: v"
-+		MICROCODE_VERSION " <tigran@veritas.com>\n");
-+out:
-+	return error;
- }
-
- static void __exit microcode_exit (void)
- {
- 	misc_deregister(&microcode_dev);
--	printk(KERN_INFO "IA-32 Microcode Update Driver v%s unregistered\n",
--			MICROCODE_VERSION);
-+	devfs_unregister(devfs_handle);
-+	printk(KERN_INFO "IA-32 Microcode Update Driver v"
-+		MICROCODE_VERSION " unregistered\n");
- }
-
- module_init(microcode_init)
-
+ 
++#include <linux/interrupt.h>
+ #include <sound/driver.h>
+ #include <sound/core.h>
+ #include "mixart.h"
+--- linux-2.6.3-mm3/sound/pci/mixart/mixart_hwdep.c.old	2004-02-23 18:32:49.000000000 +0100
++++ linux-2.6.3-mm3/sound/pci/mixart/mixart_hwdep.c	2004-02-23 18:33:01.000000000 +0100
+@@ -20,6 +20,7 @@
+  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+  */
+ 
++#include <linux/interrupt.h>
+ #include <sound/driver.h>
+ #include <sound/core.h>
+ #include "mixart.h"
+--- linux-2.6.3-mm3/sound/pci/mixart/mixart_mixer.c.old	2004-02-23 18:34:42.000000000 +0100
++++ linux-2.6.3-mm3/sound/pci/mixart/mixart_mixer.c	2004-02-23 18:34:57.000000000 +0100
+@@ -23,6 +23,7 @@
+ #include <sound/driver.h>
+ #include <linux/time.h>
+ #include <linux/init.h>
++#include <linux/interrupt.h>
+ #include <sound/core.h>
+ #include "mixart.h"
+ #include "mixart_core.h"

@@ -1,52 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129946AbRBJGCP>; Sat, 10 Feb 2001 01:02:15 -0500
+	id <S130624AbRBJGIQ>; Sat, 10 Feb 2001 01:08:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130624AbRBJGCG>; Sat, 10 Feb 2001 01:02:06 -0500
-Received: from Mail.ubishops.ca ([192.197.190.5]:19725 "EHLO Mail.ubishops.ca")
-	by vger.kernel.org with ESMTP id <S129946AbRBJGCA>;
-	Sat, 10 Feb 2001 01:02:00 -0500
-Message-ID: <3A84D950.899549B4@yahoo.co.uk>
-Date: Sat, 10 Feb 2001 01:01:52 -0500
-From: Thomas Hood <jdthoodREMOVETHIS@yahoo.co.uk>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-pre2 i686)
-X-Accept-Language: en
+	id <S130958AbRBJGIH>; Sat, 10 Feb 2001 01:08:07 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:37894
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S130624AbRBJGH7>; Sat, 10 Feb 2001 01:07:59 -0500
+Date: Fri, 9 Feb 2001 22:06:39 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
+cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org,
+        gandalf@winds.org
+Subject: Re: [preview] VIA IDE 4.0 and AMD IDE 2.0 with automatic PC
+In-Reply-To: <1500B3C52526@vcnet.vc.cvut.cz>
+Message-ID: <Pine.LNX.4.10.10102092206130.7400-100000@master.linux-ide.org>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: kuznet@ms2.inr.ac.ru
-Subject: Re: [PATCH] to deal with bad dev->refcnt in unregister_netdevice()
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Here is a patch which may not solve the underlying 
+On Fri, 9 Feb 2001, Petr Vandrovec wrote:
+
+> On  9 Feb 01 at 16:58, Vojtech Pavlik wrote:
 > 
-> This does not. refcnt cannot be <1 at this point. 
-
-The refcnt shouldn't be less than 1, but it is in fact
-less than 1.  (As I'm sure you understand.)
-
-> > assuming that the latter messages aren't serious? 
+> > Unfortunately the PCI speed measuring code needs help from the chipset
+> > itself, so it isn't possible to implement in generic code. Maybe a
+> > callback could be added to the chipset-specific drivers, though ...
+> > 
+> > I do have some plans with ide-pci.c, so ...
 > 
-> They are fatal. Machine must be rebooted after them. 
+> Is not PCI speed determined by host-bridge setting (and not by IDE 
+> interface)? In that case we should determine bus speed on PCI bus scan 
+> using chipset specific drivers. Other non IDE devices, such as matroxfb, 
+> may be interested in PCI speed too.
 
-True.  I found that with testing---lots of ifups and ifdowns,
-etc.---the kernel becomes unstable.
+that file will most likely go away in 2.5
 
-> > I hope the networking gurus can find the real bugs here. 
-> 
-> Well, someone forgets to grab refcnt or makes redundant dev_put. 
-> Try to catch this, f.e. adding BUG() to the places where fatal 
-> messages are generated to get backtraces. 
-> Alexey
 
-I think that the ipx driver makes an inappropriate dev_put
-in its notifier callback.  However that is for people better
-acquainted with the come than I to judge.  Removing the ipx
-driver does work around the problem though.
+Andre Hedrick
+Linux ATA Development
+ASL Kernel Development
+-----------------------------------------------------------------------------
+ASL, Inc.                                     Toll free: 1-877-ASL-3535
+1757 Houret Court                             Fax: 1-408-941-2071
+Milpitas, CA 95035                            Web: www.aslab.com
 
-Thomas
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

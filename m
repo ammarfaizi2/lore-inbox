@@ -1,63 +1,132 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266680AbUHONOh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266679AbUHONZ5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266680AbUHONOh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Aug 2004 09:14:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266679AbUHONOh
+	id S266679AbUHONZ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Aug 2004 09:25:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266686AbUHONZ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Aug 2004 09:14:37 -0400
-Received: from smtp-vbr14.xs4all.nl ([194.109.24.34]:3089 "EHLO
-	smtp-vbr14.xs4all.nl") by vger.kernel.org with ESMTP
-	id S266680AbUHONOf convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Aug 2004 09:14:35 -0400
-From: Sebastian =?iso-8859-1?q?K=FCgler?= <sebas@vizZzion.org>
-To: linux-kernel@vger.kernel.org
-Subject: =?iso-8859-1?q?=0ARe=3A_=5BPATCH=5D_Compile_fixes_for_various_fb?= drivers
-Date: Sun, 15 Aug 2004 10:06:48 +0200
-User-Agent: KMail/1.6.2
-MIME-Version: 1.0
+	Sun, 15 Aug 2004 09:25:57 -0400
+Received: from baikonur.stro.at ([213.239.196.228]:56734 "EHLO
+	baikonur.stro.at") by vger.kernel.org with ESMTP id S266679AbUHONZw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Aug 2004 09:25:52 -0400
+Date: Sun, 15 Aug 2004 15:25:48 +0200
+From: maximilian attems <janitor@sternwelten.at>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       kj <kernel-janitors@osdl.org>
+Subject: Re: Add msleep_interruptible() function to kernel/timer.c
+Message-ID: <20040815132548.GF1799@stro.at>
+References: <20040815121805.GA15111@stro.at> <1092570891.17605.1.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200408151006.48632.sebas@vizZzion.org>
+In-Reply-To: <1092570891.17605.1.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 15, 2004 at 09:54, you wrote:
-> On Sun, Aug 15, 2004 at 01:49:13AM +0200, Sebastian Kügler wrote:
-> > fb_copy_cmap has changed in 2.6.8.1 but the change is not reflected in all
-> > drivers, this updates the respective framebuffer drivers.
+On Sun, 15 Aug 2004, Alan Cox wrote:
 
-> NAK.
+> On Sul, 2004-08-15 at 13:18, maximilian attems wrote:
+> > + * msleep_interruptible - sleep waiting for waitqueue interruptions
+> > + * @msecs: Time in milliseconds to sleep for
+> > + */
+> > +void msleep_interruptible(unsigned int msecs)
+> > +{
+> > +	unsigned long timeout = msecs_to_jiffies(msecs);
+> > +
+> > +	while (timeout) {
 > 
-> First of all, that compile fix isn't - try to compile these drivers and see
-> if any got fixed by that.
+> You want to have while(timeout && !signal_pending(current))
 > 
-> While we are at it, if they would compile, you would have broken them.
-> Question: what do you think the argument in question was controlling
-> and why would "drop it silently" be a correct fix?
+> A signal will wake the timeout which will then loop. It might also
+> be good to add
+> 
+> > +		set_current_state(TASK_INTERRUPTIBLE);
+> > +		timeout = schedule_timeout(timeout);
+> > +	}
+> 
+> return timeout;
+> 
+> so that the caller knows more about how long the timer ran for before
+> the interrupt and if it was interrupted.
 
-I thought that fb_copy_cmap would figure that out itself now, making the 
-respective call in the driver less complicated, since the calls all looked 
-the same which was a wrong assumption from my side.
+belows patches returns timeout in msecs 
+as the function is also called with that unit, 
+added definition in include/linux/delay.h
 
-> And finally, the reason why these drivers would fail to compile for quite
-> a while has a lot in common with the reason why they call fb_copy_cmap()
-> in the first place - they are trying to provide a method that doesn't exist
-> anymore and calls in question are from the instances of that method.  Fixing
-> that is going to remove these calls anyway.
 
-Hm, *a little* more complicated than I expected in the first place. I should 
-have had a look at how other drivers handle that, the mere fact that the 
-driver I am using myself was not in the list should've made me alert.
 
-Anyway, sorry for the noise and thanks for having a look at it.
--- 
-sebas
-- - - - - - - - - - -
-http://vizZzion.org
-======================
-Honest disagreement is often a good sign of progress. - Mahatma Gandhi 
-(1869-1948)
+this function is equivalent to:
+	current->state = TASK_INTERRUPTIBLE;
+	schedule_timeout(timeout);
 
+idea from Ingo Molnar:
+well, aboves is not 100% equivalent because msleep() is uninterruptible so
+stoppage of the md thread (upon shutdown) will occur with only a 250 msec
+delay. Someone should add a msleep_interruptible() function to kernel/timer.c.
+
+Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
+
+
+
+---
+
+ linux-2.6.8-max/kernel/timer.c |   17 +++++++++++++++++
+ 1 files changed, 17 insertions(+)
+
+
+this function is equivalent to:
+	current->state = TASK_INTERRUPTIBLE;
+	schedule_timeout(timeout);
+
+idea from Ingo Molnar:
+well, aboves is not 100% equivalent because msleep() is uninterruptible so
+stoppage of the md thread (upon shutdown) will occur with only a 250 msec
+delay. Someone should add a msleep_interruptible() function to kernel/timer.c.
+
+Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
+
+
+
+---
+
+ linux-2.6.8-max/include/linux/delay.h |    1 +
+ linux-2.6.8-max/kernel/timer.c        |   16 ++++++++++++++++
+ 2 files changed, 17 insertions(+)
+
+diff -puN kernel/timer.c~add-msleep_interruptible kernel/timer.c
+--- linux-2.6.8/kernel/timer.c~add-msleep_interruptible	2004-08-15 15:15:01.000000000 +0200
++++ linux-2.6.8-max/kernel/timer.c	2004-08-15 15:18:56.000000000 +0200
+@@ -1503,3 +1503,19 @@ void msleep(unsigned int msecs)
+ 
+ EXPORT_SYMBOL(msleep);
+ 
++/**
++ * msleep_interruptible - sleep waiting for waitqueue interruptions
++ * @msecs: Time in milliseconds to sleep for
++ */
++unsigned int msleep_interruptible(unsigned int msecs)
++{
++       unsigned long timeout = msecs_to_jiffies(msecs);
++
++       while (timeout && !signal_pending(current)) {
++               set_current_state(TASK_INTERRUPTIBLE);
++               timeout = schedule_timeout(timeout);
++       }
++       return jiffies_to_msecs(timeout);
++}
++
++EXPORT_SYMBOL(msleep_interruptible);
+diff -puN include/linux/delay.h~add-msleep_interruptible include/linux/delay.h
+--- linux-2.6.8/include/linux/delay.h~add-msleep_interruptible	2004-08-15 15:15:01.000000000 +0200
++++ linux-2.6.8-max/include/linux/delay.h	2004-08-15 15:17:56.000000000 +0200
+@@ -39,5 +39,6 @@ extern unsigned long loops_per_jiffy;
+ #endif
+ 
+ void msleep(unsigned int msecs);
++unsigned int msleep_interruptible(unsigned int msecs);
+ 
+ #endif /* defined(_LINUX_DELAY_H) */
+
+_

@@ -1,55 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265047AbUFRILR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265037AbUFRIMp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265047AbUFRILR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 04:11:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265044AbUFRILR
+	id S265037AbUFRIMp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 04:12:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265044AbUFRIMp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 04:11:17 -0400
-Received: from smtp2.cwidc.net ([154.33.63.112]:30718 "EHLO smtp2.cwidc.net")
-	by vger.kernel.org with ESMTP id S265047AbUFRILP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 04:11:15 -0400
-Message-ID: <40D2A393.4060005@tequila.co.jp>
-Date: Fri, 18 Jun 2004 17:10:59 +0900
-From: Clemens Schwaighofer <cs@tequila.co.jp>
-Organization: TEQUILA\ Japan
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040308
-X-Accept-Language: en-us, en, ja
-MIME-Version: 1.0
+	Fri, 18 Jun 2004 04:12:45 -0400
+Received: from postfix4-1.free.fr ([213.228.0.62]:20159 "EHLO
+	postfix4-1.free.fr") by vger.kernel.org with ESMTP id S265037AbUFRIMj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 04:12:39 -0400
+From: Duncan Sands <baldrick@free.fr>
 To: 4Front Technologies <dev@opensound.com>
-CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: Stop the Linux kernel madness
-References: <40D232AD.4020708@opensound.com>
-In-Reply-To: <40D232AD.4020708@opensound.com>
-X-Enigmail-Version: 0.83.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Subject: Re: Stop the linux kernel madness - SOLVED!
+Date: Fri, 18 Jun 2004 10:12:29 +0200
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org
+References: <40D25477.1050006@opensound.com>
+In-Reply-To: <40D25477.1050006@opensound.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200406181012.29538.baldrick@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+> Here's the solution we have found:
+> 
+> With the latest SuSE 2.6.5-7.75 kernel sources:
+> 
+> The problem is that /lib/modules/2.6.5-7.75/build points to
+> /usr/src/linux-2.6.5-7.75-obj which is some kind of wierd directory
+> that has:
+> 
+> .  ..  bigsmp  debug  default  out  smp
+> 
+> So simply removing this symlink and putting back a link to
+> /usr/src/linux-2.6.5-7.75 fixes our problems.
+> 
+> So the question is who is at fault here?. We used KBUILD to
+> build our modules and obviously the build link in /lib/modules/<kernel>/build
+> isn't pointing to the correct source tree.
 
-4Front Technologies wrote:
-| Hi Folks,
+I don't know if this is the solution to your problem, but /usr/src/linux/README.SUSE
+says
 
-file a bug against suse 9.1 and work with them. Its not the Kernels
-Developers fault or problem what kind of patches distributions use.
+  (3)  Compile the module(s) by changing into the module source directory
+       and typing ``make -C /usr/src/linux
+          O=/usr/src/linux-obj/$ARCH/$FLAVOR M=`pwd` modules''.
+          Substitute $ARCH and $FLAVOR with the architecture and flavor
+          for which to build the module(s).
 
-please stop your whining.
+I hope this helps,
 
-- --
-Clemens Schwaighofer - IT Engineer & System Administration
-==========================================================
-TEQUILA\Japan, 6-17-2 Ginza Chuo-ku, Tokyo 104-8167, JAPAN
-Tel: +81-(0)3-3545-7703            Fax: +81-(0)3-3545-7343
-http://www.tequila.co.jp
-==========================================================
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFA0qOTjBz/yQjBxz8RApKPAJ9mkZqZYqOeYWZA8qlq1IvBEQ4kvwCgsB++
-D/atmDIOkhXgAn8wgwp8Pxo=
-=+/zK
------END PGP SIGNATURE-----
+Duncan.

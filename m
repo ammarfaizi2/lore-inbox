@@ -1,55 +1,130 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274815AbRIZDd0>; Tue, 25 Sep 2001 23:33:26 -0400
+	id <S274813AbRIZDd4>; Tue, 25 Sep 2001 23:33:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274816AbRIZDdQ>; Tue, 25 Sep 2001 23:33:16 -0400
-Received: from mnh-1-10.mv.com ([207.22.10.42]:48136 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S274815AbRIZDdG>;
-	Tue, 25 Sep 2001 23:33:06 -0400
-Message-Id: <200109260451.XAA04821@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: user-mode-linux-user@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: user-mode port 0.47-2.4.10
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 25 Sep 2001 23:51:09 -0500
-From: Jeff Dike <jdike@karaya.com>
+	id <S274816AbRIZDdt>; Tue, 25 Sep 2001 23:33:49 -0400
+Received: from sushi.toad.net ([162.33.130.105]:14000 "EHLO sushi.toad.net")
+	by vger.kernel.org with ESMTP id <S274813AbRIZDdd>;
+	Tue, 25 Sep 2001 23:33:33 -0400
+Message-ID: <3BB14C82.609166A9@yahoo.co.uk>
+Date: Tue, 25 Sep 2001 23:33:22 -0400
+From: Thomas Hood <jdthoodREMOVETHIS@yahoo.co.uk>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9-ac13 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] parport_pc.c PnP BIOS handling code
+Content-Type: multipart/mixed;
+ boundary="------------D22C1C6EF743DB7D876DF977"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The user-mode port of 2.4.10 is available.
+This is a multi-part message in MIME format.
+--------------D22C1C6EF743DB7D876DF977
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-The highlights:
+Attached is a patch which, although independent of the
+PnP BIOS patch I posted earlier, is the companion of
+that patch.  This patch modifies init_pnp040x() so
+that it checks for the IORESOURCE_UNSET bit which
+the PnP BIOS driver uses to indicate that a given
+"struct resource" is vacuous.
 
-UML can now communicate with the host networking via TUN/TAP.
+The parport driver's mysterious rejection of dma==0,
+which I asked about before, I now suspect to have been a
+workaround for bugs in pnpbios which resulted in pnpbios 
+reporting dma=0 when in fact the PnP BIOS had reported
+no dma resource at all or else dma disabled.  Now that
+those bugs are getting fixed, it seems okay to allow
+the use of DMA0, and the patch does so.
 
-libc's allocation routines (malloc, calloc, free) are intercepted and 
-converted into kmalloc whenever possible.  This fixes problems with gprof
-and gcov, and closes a potential security hole.
+--
+Thomas Hood
+--------------D22C1C6EF743DB7D876DF977
+Content-Type: text/plain; charset=us-ascii;
+ name="parport_pc-patch-20010925-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="parport_pc-patch-20010925-1"
 
-UML loads itself into the top of the address space (0xa0000000-0xc0000000 on
-1G/3G hosts), giving its processes everything below that.  This fixes a bug
-which caused nasty-looking complaints when UML was given 256M of physical 
-memory or more.  I've run it with up to 464M.  This also fixes the hang
-caused by mlockall.
+--- linux-2.4.9-ac13-mwave/drivers/parport/parport_pc.c_ORIG	Fri Sep 21 15:23:19 2001
++++ linux-2.4.9-ac13-mwave/drivers/parport/parport_pc.c	Tue Sep 25 23:10:17 2001
+@@ -2797,26 +2797,66 @@
+ 	return count;
+ }
+ 
+ #if defined (CONFIG_PNPBIOS) || defined (CONFIG_PNPBIOS_MODULE)
+ 
++#define UNSET(res)   ((res).flags & IORESOURCE_UNSET)
++
+ int init_pnp040x(struct pci_dev *dev)
+-{	int io,iohi,irq,dma;
++{
++	int io,iohi,irq,dma;
++
++	printk(KERN_INFO
++		"parport: PnP BIOS reports device %s %s (node number 0x%x) is ",
++		dev->name, dev->slot_name, dev->devfn
++	);
++
++	if ( UNSET(dev->resource[0]) ) {
++		printk("not configured.\n");
++		return 0;
++	}
++	io  = dev->resource[0].start;
++	printk("configured to use io 0x%04x",io);
++	if ( UNSET(dev->resource[1]) ) {
++		iohi = 0;
++	} else {
++		iohi = dev->resource[1].start;
++		printk(", io 0x%04x",iohi);
++	}
+ 
+-	io=dev->resource[0].start;
+-	iohi=dev->resource[1].start;
+-	irq=dev->irq_resource[0].start;
+-	dma=dev->dma_resource[0].start;
++	if ( UNSET(dev->irq_resource[0]) ) {
++		irq = PARPORT_IRQ_NONE;
++	} else {
++		if ( dev->irq_resource[0].start == -1 ) {
++			irq = PARPORT_IRQ_NONE;
++			printk(", irq disabled");
++		} else {
++			irq = dev->irq_resource[0].start;
++			printk(", irq %d",irq);
++		}
++	}
+ 
+-	if(dma==0) dma=-1;
++	if ( UNSET(dev->dma_resource[0]) ) {
++		dma = PARPORT_DMA_NONE;
++	} else {
++		if ( dev->dma_resource[0].start == -1 ) {
++			dma = PARPORT_DMA_NONE;
++			printk(", dma disabled");
++		} else {
++			dma = dev->dma_resource[0].start;
++			printk(", dma %d",irq);
++		}
++	}
++
++	printk("\n");
+ 
+-	printk(KERN_INFO "PnPBIOS: Parport found %s %s at io=%04x,%04x irq=%d dma=%d\n",
+-		dev->name,dev->slot_name,io,iohi,irq,dma);
+ 	if (parport_pc_probe_port(io,iohi,irq,dma,NULL))
+ 		return 1;
++
+ 	return 0;
+ }
++#undef UNSET
+ 
+ #endif 
+ 
+ /* This function is called by parport_pc_init if the user didn't
+  * specify any ports to probe.  Its job is to find some ports.  Order
 
-The mconsole client has been enhanced, so it now had command history and
-command recall, it can control multiple UMLs, and can attached to a UML by
-its name rather than the full filename of its control socket.
-
-uml_net does complete setup of TUN/TAP interfaces.  It also insmods netlink_dev
-for the benefit of ethertap.
-
-The ubd COW header now has room for MAXPATHLEN-sized filenames, it contains
-absolute paths only, and is in network byte order.  The ubd driver handles
-IO errors better now, and should be 64-bit clean.
-
-The process segfaults seen on a swapping system are gone.
-
-The project's home page is http://user-mode-linux.sourceforge.net
-
-Downloads are available at 
-	http://user-mode-linux.sourceforge.net/dl-sf.html
-
-				Jeff
+--------------D22C1C6EF743DB7D876DF977--
 

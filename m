@@ -1,72 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132883AbRDUU11>; Sat, 21 Apr 2001 16:27:27 -0400
+	id <S132890AbRDUU3i>; Sat, 21 Apr 2001 16:29:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132889AbRDUU1R>; Sat, 21 Apr 2001 16:27:17 -0400
-Received: from cm.med.3284844210.kabelnet.net ([195.202.190.178]:35080 "EHLO
-	phobos.hvrlab.org") by vger.kernel.org with ESMTP
-	id <S132883AbRDUU1C>; Sat, 21 Apr 2001 16:27:02 -0400
-Date: Sat, 21 Apr 2001 22:26:58 +0200 (CEST)
-From: Herbert Valerio Riedel <hvr@hvrlab.org>
-X-X-Sender: <hvr@janus.txd.hvrlab.org>
-To: Andi Kleen <ak@suse.de>
-cc: Peter Makholm <peter@makholm.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: Idea: Encryption plugin architecture for file-systems
-In-Reply-To: <20010421213751.A13395@gruyere.muc.suse.de>
-Message-ID: <Pine.LNX.4.33.0104212200170.3728-100000@janus.txd.hvrlab.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132900AbRDUU32>; Sat, 21 Apr 2001 16:29:28 -0400
+Received: from snark.tuxedo.org ([207.106.50.26]:15123 "EHLO snark.thyrsus.com")
+	by vger.kernel.org with ESMTP id <S132890AbRDUU3M>;
+	Sat, 21 Apr 2001 16:29:12 -0400
+Date: Sat, 21 Apr 2001 16:29:47 -0400
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Cc: CML2 <linux-kernel@vger.kernel.org>, kbuild-devel@lists.sourceforge.net
+Subject: Re: Request for comment -- a better attribution system
+Message-ID: <20010421162947.A4490@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	"Albert D. Cahalan" <acahalan@cs.uml.edu>,
+	CML2 <linux-kernel@vger.kernel.org>,
+	kbuild-devel@lists.sourceforge.net
+In-Reply-To: <20010421114942.A26415@thyrsus.com> <200104212023.f3LKN7P188973@saturn.cs.uml.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200104212023.f3LKN7P188973@saturn.cs.uml.edu>; from acahalan@cs.uml.edu on Sat, Apr 21, 2001 at 04:23:06PM -0400
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 21 Apr 2001, Andi Kleen wrote:
-> On Sat, Apr 21, 2001 at 09:21:44PM +0200, Peter Makholm wrote:
-> > nagytam@rerecognition.com ("Tamas Nagy") writes:
-> > > Idea:
-> > > extend the current file-system with an optional plug-in system, which allows
-> > > for file-system level encryption instead of file-level.
-> >
-> > That's is one of the things the loop device offers. For better
-> > encryption than XOR you need the patches from kerneli.org.
-> No, you don't. The standard kernel loop device supports loading of external
-> crypto filters just fine; no patching at all required.
+Albert D. Cahalan <acahalan@cs.uml.edu>:
+> Eric S. Raymond writes:
+> 
+> > This is a proposal for an attribution metadata system in the Linux
+> > kernel sources.  The goal of the system is to make it easy for
+> > people reading any given piece of code to identify the responsible
+> > maintainer.  The motivation for this proposal is that the present
+> > system, a single top-level MAINTAINERS file, doesn't seem to be
+> > scaling well.
+> 
+> It is nice to have a single file for grep. With the proposed
+> changes one would sometimes need to grep every file.
 
-you're right, by using...
+The right way to handle that is to have a report generator that does the
+grep for you, or if you like simply returns the concatenation of all the
+map blocks so you can grep that.
 
-int loop_register_transfer(struct loop_func_table *funcs);
-int loop_unregister_transfer(int number);
-
-...one can register new transfer functions, but they rely on 'magic
-numbers' for identifying the given crypto cipher, some of which are
-defined in linux/loop.h; with the highest magic number being MAX_LO_CRYPT
-(so patching is required nevertheless, if you want to have more than 20
-ciphers by that scheme...)
-
-#define LO_CRYPT_NONE     0
-#define LO_CRYPT_XOR      1
-#define LO_CRYPT_DES      2
-#define LO_CRYPT_FISH2    3    /* Brand new Twofish encryption */
-#define LO_CRYPT_BLOW     4
-#define LO_CRYPT_CAST128  5
-#define LO_CRYPT_IDEA     6
-#define LO_CRYPT_DUMMY    9
-#define LO_CRYPT_SKIPJACK 10
-#define MAX_LO_CRYPT    20
-
-well.... the only thing I don't really like about this is, that its a
-static allocation of cipher id's, instead of a dynamic lookup by name
-and I'm not sure how well module autoloading works by this scheme...
-(the international crypto api offers string lookup for ciphers, and
-registers itself as one of those numeric cipher ids as far as loop
-device usage is concerned)
-
-btw, there's still an issue with with the IV value being calculated on
-varying blocksizes, which I pointed out some time ago (instead of being
-calculated on 512 byte sectors, which I assume to be the smallest possible
-blocksize settable on a device)
-
-greetings,
+The point of distributing them is so they're close to the work units they
+describe, and are thus (a) easy to find, and (b) more likely to stay up to
+date.
 -- 
-Herbert Valerio Riedel      /     Finger hvr@gnu.org for GnuPG Public Key
-GnuPG Key Fingerprint: 7BB9 2D6C D485 CE64 4748  5F65 4981 E064 883F 4142
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
+Never could an increase of comfort or security be a sufficient good to be
+bought at the price of liberty.
+	-- Hillaire Belloc

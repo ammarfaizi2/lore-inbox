@@ -1,42 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261646AbUKGQYJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261249AbUKGQj7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261646AbUKGQYJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Nov 2004 11:24:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261648AbUKGQYJ
+	id S261249AbUKGQj7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Nov 2004 11:39:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261648AbUKGQj7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Nov 2004 11:24:09 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:60899 "EHLO
-	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S261646AbUKGQYF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Nov 2004 11:24:05 -0500
-Date: Sun, 7 Nov 2004 16:23:37 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Andrew Morton <akpm@osdl.org>, <ishikawa@yk.rim.or.jp>, <anton@samba.org>,
-       <linux-kernel@vger.kernel.org>
-Subject: [PATCH] mount no tmpfs confusion
-Message-ID: <Pine.LNX.4.44.0411071619590.21300-100000@localhost.localdomain>
+	Sun, 7 Nov 2004 11:39:59 -0500
+Received: from [62.206.217.67] ([62.206.217.67]:45205 "EHLO kaber.coreworks.de")
+	by vger.kernel.org with ESMTP id S261249AbUKGQj5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Nov 2004 11:39:57 -0500
+Message-ID: <418E4FCF.5090601@trash.net>
+Date: Sun, 07 Nov 2004 17:39:43 +0100
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.3) Gecko/20041008 Debian/1.7.3-5
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+To: Matthias Andree <matthias.andree@gmx.de>
+CC: linux-net@vger.kernel.org, netfilter-devel@lists.netfilter.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCH] Fix ip_conntrack_amanda data corruption bug that breaks
+ amanda dumps
+References: <20041104121522.GA16547@merlin.emma.line.org> <418A7B0B.7040803@trash.net> <20041104231734.GA30029@merlin.emma.line.org> <418AC0F2.7020508@trash.net> <418BE156.4020400@eurodev.net> <418BFC5C.20201@trash.net> <20041107121637.GC29510@merlin.emma.line.org>
+In-Reply-To: <20041107121637.GC29510@merlin.emma.line.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My tmpfs superblock changes in 2.6.9 messed up mount -t tmpfs when
-CONFIG_TMPFS is not enabled: it wrongly claimed to succeed, and left
-the directory unusable, giving "Not a directory" errors thereafter.
+Matthias Andree wrote:
 
-Signed-off-by: Hugh Dickins <hugh@veritas.com>
+>IMNSHO, str* functions have no business in arbitrary data. I have a
+>simple memstr() function in bogofilter that is GPL'd and can be imported
+>into the kernel, I believe:
+>
+>  
+>
+It's not only strstr, it also uses simple_strtoul.
+If you don't like it, send a patch.
 
---- 2.6.10-rc1/mm/shmem.c	2004-10-23 12:44:13.000000000 +0100
-+++ linux/mm/shmem.c	2004-11-07 11:50:53.894426456 +0000
-@@ -1930,6 +1930,8 @@ static int shmem_fill_super(struct super
- 		sbinfo->free_inodes = inodes;
- 	}
- 	sb->s_xattr = shmem_xattr_handlers;
-+#else
-+	sb->s_flags |= MS_NOUSER;
- #endif
- 
- 	sb->s_maxbytes = SHMEM_MAX_BYTES;
 

@@ -1,81 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130767AbQKTE4j>; Sun, 19 Nov 2000 23:56:39 -0500
+	id <S130899AbQKTFGL>; Mon, 20 Nov 2000 00:06:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130471AbQKTE4V>; Sun, 19 Nov 2000 23:56:21 -0500
-Received: from rmx441-mta.mail.com ([165.251.48.44]:44286 "EHLO
-	rmx441-mta.mail.com") by vger.kernel.org with ESMTP
-	id <S129977AbQKTEre>; Sun, 19 Nov 2000 23:47:34 -0500
-Message-ID: <383392987.974693853627.JavaMail.root@web694-wra.mail.com>
-Date: Sun, 19 Nov 2000 23:17:30 -0500 (EST)
-From: Frank Davis <fdavis112@juno.com>
-To: Ari Pollak <compwiz@bigfoot.com>
-Subject: RE: videodev.c won't compile in test11-pre6/pre7/final
+	id <S130537AbQKTFGB>; Mon, 20 Nov 2000 00:06:01 -0500
+Received: from nifty.blue-labs.org ([208.179.0.193]:29735 "EHLO
+	nifty.Blue-Labs.org") by vger.kernel.org with ESMTP
+	id <S130471AbQKTFFv>; Mon, 20 Nov 2000 00:05:51 -0500
+Message-ID: <3A18AA1F.FAC00978@linux.com>
+Date: Sun, 19 Nov 2000 20:35:43 -0800
+From: David Ford <david@linux.com>
+Organization: Blue Labs
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "M.H.VanLeeuwen" <vanl@megsinet.net>
 CC: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Mailer: mail.com
-X-Originating-IP: 151.201.246.147
+Subject: Re: run level 1, login takes too long, 2.4.X vs. 2.2.X
+In-Reply-To: <3A18573B.E65CA88A@megsinet.net>
+Content-Type: multipart/mixed;
+ boundary="------------B7081790DBE90D7DE0CCF525"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-  The undeclared variables are defined in include/linux/videodev.h , which is included in videodev.c .
+This is a multi-part message in MIME format.
+--------------B7081790DBE90D7DE0CCF525
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-...
-#define VID_TYPE_SUBCAPTURE 512
-#define VID_TYPE_MPEG_DECODER 1024
-#define VID_TYPE_MPEG_ENCODER 2048
-#define VID_TYPE_MJPEG_DECODER 4096
-#define VID_TYPE_MJPEG_ENCODER 8192
-...
+rpc.portmap isn't running, your login configuration/nss requires yp or something provided ans an RPC.
 
-Regards,
-Frank
+-d
 
---On Sunday, November 19, 2000 9:43 PM -0500 Ari Pollak <compwiz@bigfoot.com> wrote:
+"M.H.VanLeeuwen" wrote:
 
-> I was going to report this back in pre6, but I thought someone had
-> caught it already.. When the bttv driver is enbabled as a module in
-> test11, make modules fails with:
-> 
-> videodev.c: In function `videodev_proc_read':
-> videodev.c:283: `VID_TYPE_MPEG_DECODER' undeclared (first use in this
-> function)
-> videodev.c:283: (Each undeclared identifier is reported only once
-> videodev.c:283: for each function it appears in.)
-> videodev.c:284: `VID_TYPE_MPEG_ENCODER' undeclared (first use in this
-> function)
-> videodev.c:285: `VID_TYPE_MJPEG_DECODER' undeclared (first use in this
-> function)videodev.c:286: `VID_TYPE_MJPEG_ENCODER' undeclared (first use
-> in this function)videodev.c: In function
-> `video_register_device_Re1d5d9de':
-> videodev.c:475: structure has no member named `devfs_handle'
-> videodev.c:476: warning: implicit declaration of function
-> `devfs_register_R346f2926'
-> videodev.c:476: `DEVFS_FL_DEFAULT' undeclared (first use in this
-> function)
-> videodev.c: In function `video_unregister_device_R0e30839e':
-> videodev.c:510: warning: implicit declaration of function
-> `devfs_unregister_Rb8aa48ae'
-> videodev.c:510: structure has no member named `devfs_handle'
-> videodev.c: In function `videodev_init':
-> videodev.c:538: warning: implicit declaration of function
-> `devfs_register_chrdev_R46ccf2d8'
-> videodev.c: In function `cleanup_module':
-> videodev.c:572: warning: implicit declaration of function
-> `devfs_unregister_chrdev_R77f3e0ce'
-> {standard input}: Assembler messages:
-> {standard input}:8: Warning: Ignoring changed section attributes for
-> .modinfo
-> make[3]: *** [videodev.o] Error 1
-> make[3]: Leaving directory `/usr/src/linux/drivers/media/video'
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+> I had occasion to "telinit 1" today and found that it took a long time
+> to login after root passwd was entered.  this doesn't happen with 2.2.X
+> kernels.
+>
+> Is this to be expected with the 2.4 series kernels? or a bug?
+>
+> Martin
 
+--------------B7081790DBE90D7DE0CCF525
+Content-Type: text/x-vcard; charset=us-ascii;
+ name="david.vcf"
+Content-Transfer-Encoding: 7bit
+Content-Description: Card for David Ford
+Content-Disposition: attachment;
+ filename="david.vcf"
+
+begin:vcard 
+n:Ford;David
+x-mozilla-html:TRUE
+adr:;;;;;;
+version:2.1
+email;internet:david@kalifornia.com
+title:Blue Labs Developer
+x-mozilla-cpt:;14688
+fn:David Ford
+end:vcard
+
+--------------B7081790DBE90D7DE0CCF525--
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

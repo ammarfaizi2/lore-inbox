@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132709AbRC2Lfy>; Thu, 29 Mar 2001 06:35:54 -0500
+	id <S132718AbRC2LqE>; Thu, 29 Mar 2001 06:46:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132708AbRC2Lfo>; Thu, 29 Mar 2001 06:35:44 -0500
-Received: from ghost.btnet.cz ([62.80.85.74]:4 "HELO ghost.btnet.cz")
-	by vger.kernel.org with SMTP id <S132709AbRC2Lfb>;
-	Thu, 29 Mar 2001 06:35:31 -0500
-Date: Thu, 29 Mar 2001 12:38:31 +0200
-From: clock@ghost.btnet.cz
-To: linux-kernel@vger.kernel.org
-Subject: diskette change problems
-Message-ID: <20010329123831.A156@ghost.btnet.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S132720AbRC2Lp5>; Thu, 29 Mar 2001 06:45:57 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:58848 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S132718AbRC2LpW>;
+	Thu, 29 Mar 2001 06:45:22 -0500
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: RFC: configuring net interfaces
+In-Reply-To: <m3itkuq6xt.fsf@intrepid.pm.waw.pl>
+	<20010328182729.A16067@se1.cogenit.fr>
+	<m34rwd8pj2.fsf@intrepid.pm.waw.pl>
+	<20010329112547.A23947@se1.cogenit.fr>
+Content-Type: text/plain; charset=US-ASCII
+From: Krzysztof Halasa <khc@intrepid.pm.waw.pl>
+Date: 29 Mar 2001 13:07:58 +0200
+In-Reply-To: Francois Romieu's message of "Thu, 29 Mar 2001 11:25:47 +0200"
+Message-ID: <m33dbw7rzl.fsf@intrepid.pm.waw.pl>
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I put a write-protected diskette into fd0
-cat /dev/zero > /dev/fd0: readonly filesystem
-then removed dikette, switched the plastic nibble
-reinserted diskette
-cat /dev/zero > /dev/fd0 : readonly filesystem
-removed the diskette
-cat /dev/zero: a bunch of garbage, then kernel spasms about sectors not found and
-commands not performed
-reinserted the diskette
-cat /dev/zero > /dev/fd0: readonly filesystem
-rebooted the machine
-cat /dev/zero > /dev/fd0: run OK.
+Francois Romieu <romieu@cogenit.fr> writes:
 
-morale: if you are not able to write on a write-permitted diskette, reboot the kernel
+> Parameters for retransmission of a trame specified in Q922. t200 is the
+> timeout value and n200 the maximal number of retransmissions. They can
+> be negocied and default to t200=1,5s, n200=3.
 
+Hmm... I've taken a look at it, but it seems to me that they are only
+used with "acknowledged multiple frame operation". Isn't it for ISDN only?
+With Frame Relay, we rather use unacknowledged transfers and UI frames.
+
+Of course, if we have an implementation using t200, n200 or other
+parameters, they should be added to the structure.
 -- 
-Karel Kulhavy                     http://atrey.karlin.mff.cuni.cz/~clock
+Krzysztof Halasa
+Network Administrator

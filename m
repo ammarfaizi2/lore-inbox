@@ -1,55 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262816AbVAKQMH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262810AbVAKQQK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262816AbVAKQMH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 11:12:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262817AbVAKQMG
+	id S262810AbVAKQQK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 11:16:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262804AbVAKQQJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 11:12:06 -0500
-Received: from fw.osdl.org ([65.172.181.6]:11653 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262816AbVAKQLi (ORCPT
+	Tue, 11 Jan 2005 11:16:09 -0500
+Received: from mail.dif.dk ([193.138.115.101]:34234 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S262805AbVAKQPu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 11:11:38 -0500
-Date: Tue, 11 Jan 2005 08:10:52 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Bastian Blank <bastian@waldi.eu.org>
-cc: Christoph Hellwig <hch@infradead.org>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Richard Henderson <rth@twiddle.net>
-Subject: Re: removing bcopy... because it's half broken
-In-Reply-To: <20050111101010.GB27768@wavehammer.waldi.eu.org>
-Message-ID: <Pine.LNX.4.58.0501110805560.2373@ppc970.osdl.org>
-References: <20050109192305.GA7476@infradead.org> <Pine.LNX.4.58.0501091213000.2339@ppc970.osdl.org>
- <20050109203459.GA28788@infradead.org> <Pine.LNX.4.58.0501091240550.2339@ppc970.osdl.org>
- <20050111101010.GB27768@wavehammer.waldi.eu.org>
+	Tue, 11 Jan 2005 11:15:50 -0500
+Date: Tue, 11 Jan 2005 17:18:22 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Jesper Juhl <juhl-lkml@dif.dk>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-net <linux-net@vger.kernel.org>, netdev <netdev@oss.sgi.com>
+Subject: Re: [PATCH] remove unused variables in net/sunrpc/auth.c
+In-Reply-To: <20050110221651.GA29578@stusta.de>
+Message-ID: <Pine.LNX.4.61.0501111716580.3368@dragon.hygekrogen.localhost>
+References: <Pine.LNX.4.61.0501102239000.2987@dragon.hygekrogen.localhost>
+ <20050110221651.GA29578@stusta.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 10 Jan 2005, Adrian Bunk wrote:
 
-
-On Tue, 11 Jan 2005, Bastian Blank wrote:
+> On Mon, Jan 10, 2005 at 10:50:34PM +0100, Jesper Juhl wrote:
+> > 
+> > We have a few unused variables in net/sunrpc/auth.c:320:
+> > 
+> > net/sunrpc/auth.c:320: warning: unused variable `auth'
+> > net/sunrpc/auth.c:333: warning: unused variable `auth'
+> > net/sunrpc/auth.c:345: warning: unused variable `auth'
+> > net/sunrpc/auth.c:385: warning: unused variable `auth'
+> > 
+> > As far as I can see, the patch that caused them to become unused is this 
+> > one (which btw is ~36 months old) :
+> > http://linux.bkbits.net:8080/linux-2.6/diffs/net/sunrpc/auth.c@1.4?nav=index.html|src/|src/net|src/net/sunrpc|hist/net/sunrpc/auth.c
+> > 
+> > Here is a patch to get rid of them (compile tested only).
+> >...
 > 
-> Yes. This means IMHO that the image and every module needs to link
-> against libgcc to include the required symbols. It is rather annoying to
-> see modules asking for libgcc symbols.
+> Doesn't this break with CONFIG_SYSCTL=y?
+> 
+Yes, yes it does. I didn't see the CONFIG_SYSCTL connection and thus 
+didn't test that :(   
+Please disregard the patch, it's wrong.
 
-Some architectures do that. Not all. My argument has always been that we
-don't _want_ any code that gcc cannot generate.
+-- 
+Jesper Juhl
 
-The kernel very much on purpose does not trust gcc. There have been some 
-total braindamages over time, like having exception handling turned on by 
-default by gcc by default in plain C, and one of the reasons we noticed 
-was that the link wouldn't work - libgcc has the exception support, and 
-the kernel simply doesn't WANT that kind of crap.
 
-It's also been useful (although at times a bit painful) to find cases
-where people did stuff that simply shouldn't be done in the kernel. Things
-like FP conversions, or - more commonly - 64-bit divides on hardware where
-that is very slow.
-
-It does mean that we have to know about some gcc internals ourselves, and
-have our own libgcc versions for the stuff we _do_ want.
-
-			Linus

@@ -1,50 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265808AbSKAW7q>; Fri, 1 Nov 2002 17:59:46 -0500
+	id <S265809AbSKAXGY>; Fri, 1 Nov 2002 18:06:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265809AbSKAW7q>; Fri, 1 Nov 2002 17:59:46 -0500
-Received: from nameservices.net ([208.234.25.16]:42349 "EHLO opersys.com")
-	by vger.kernel.org with ESMTP id <S265808AbSKAW7p>;
-	Fri, 1 Nov 2002 17:59:45 -0500
-Message-ID: <3DC309D1.CF6659FB@opersys.com>
-Date: Fri, 01 Nov 2002 18:10:09 -0500
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Werner Almesberger <wa@almesberger.net>
-CC: David Lang <david.lang@digitalinsight.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       lkcd-general@lists.sourceforge.net, lkcd-devel@lists.sourceforge.net
-Subject: Re: What's left over.
-References: <Pine.LNX.4.44.0211011107470.4673-100000@penguin.transmeta.com> <Pine.LNX.4.44.0211011218560.26353-100000@dlang.diginsite.com> <20021101192545.F2599@almesberger.net> <3DC30370.46637A01@opersys.com> <20021101195410.G2599@almesberger.net>
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 7bit
+	id <S265810AbSKAXGY>; Fri, 1 Nov 2002 18:06:24 -0500
+Received: from ithilien.qualcomm.com ([129.46.51.59]:35741 "EHLO
+	ithilien.qualcomm.com") by vger.kernel.org with ESMTP
+	id <S265809AbSKAXGX>; Fri, 1 Nov 2002 18:06:23 -0500
+Message-Id: <5.1.0.14.2.20021101145232.0810d608@mail1.qualcomm.com>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Fri, 01 Nov 2002 15:12:47 -0800
+To: linux-kernel@vger.kernel.org
+From: Max Krasnyansky <maxk@qualcomm.com>
+Subject: Initialize seq->private before seq_start()
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Folks,
 
-Werner Almesberger wrote:
-> Karim Yaghmour wrote:
-> > Why not just have a simple backup stripped-down "hardened" copy of Linux
-> > lying around in a physical RAM region not used by the copy of Linux
-> > actually running.
-> 
-> Congratulations, you've just re-invented MCORE :-) That's exactly
-> what they do on systems where rebooting through the firmware
-> doesn't preserve RAM.
+Currently seq_file API doesn't provide any way to initialize seq->private before
+seq_start() is called. In most cases seq_start() uses global tables and 
+stuff and therefor doesn't need seq->private. However there are cases like
+        proc/something/0/table
+        ...
+        proc/something/N/table
+and seq_start() has to know where to look for table N.
 
-Oh well, can't have a freshmeat db in my head I guess ;) That said,
-I like this approach since you don't need to care about new drivers
-and so on ... but since it's already out there I guess it's
-advantages have been covered elsewhere ...
+So, how about something like:
 
-Karim
+#define seq_open(file, op) __seq_open(file, op, NULL)
 
-===================================================
-                 Karim Yaghmour
-               karim@opersys.com
-      Embedded and Real-Time Linux Expert
-===================================================
+int __seq_open(struct file *file, struct seq_operations *op, void *priv)
+{
+        struct seq_file *p = kmalloc(sizeof(*p), GFP_KERNEL);
+        if (!p)
+                return -ENOMEM;
+        memset(p, 0, sizeof(*p));
+        sema_init(&p->sem, 1);
+        p->op = op;
+         p->private = priv;
+        file->private_data = p;
+        return 0;
+}
+
+Those who need seq->private in seq_start() (that'd be me :)) will use __seq_open().
+
+Currently I have 
+static int hci_seq_open(struct file *file, struct seq_operations *op, void *priv)
+{
+        struct seq_file *seq;
+
+        if (seq_open(file, op))
+                return -ENOMEM;
+
+        seq = file->private_data;
+        seq->private = priv;
+        return 0;
+}
+and it'd be nice if I could get rid of that function and use __seq_file instead.
+
+
+Max
+
+http://bluez.sf.net
+http://vtun.sf.net
+

@@ -1,56 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269305AbRGaPPe>; Tue, 31 Jul 2001 11:15:34 -0400
+	id <S269207AbRGaPSp>; Tue, 31 Jul 2001 11:18:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269207AbRGaPPY>; Tue, 31 Jul 2001 11:15:24 -0400
-Received: from weta.f00f.org ([203.167.249.89]:39302 "HELO weta.f00f.org")
-	by vger.kernel.org with SMTP id <S269305AbRGaPPO>;
-	Tue, 31 Jul 2001 11:15:14 -0400
-Date: Wed, 1 Aug 2001 03:15:54 +1200
-From: Chris Wedgwood <cw@f00f.org>
-To: Chris Mason <mason@suse.com>
-Cc: Hans Reiser <reiser@namesys.com>, Rik van Riel <riel@conectiva.com.br>,
-        Christoph Hellwig <hch@caldera.de>, linux-kernel@vger.kernel.org
-Subject: Re: ReiserFS / 2.4.6 / Data Corruption
-Message-ID: <20010801031554.B7728@weta.f00f.org>
-In-Reply-To: <687650000.996586885@tiny>
-Mime-Version: 1.0
+	id <S269312AbRGaPSe>; Tue, 31 Jul 2001 11:18:34 -0400
+Received: from mercury.rus.uni-stuttgart.de ([129.69.1.226]:29459 "EHLO
+	mercury.rus.uni-stuttgart.de") by vger.kernel.org with ESMTP
+	id <S269207AbRGaPSR>; Tue, 31 Jul 2001 11:18:17 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: binary modules (was Re: ReiserFS / 2.4.6 / Data Corruption)
+In-Reply-To: <no.id> <E15QZSA-00083U-00@the-village.bc.nu>
+	<200107290705.f6T756j02316@mobilix.ras.ucalgary.ca>
+	<20010729220041.A3694@weta.f00f.org>
+From: Florian Weimer <Florian.Weimer@RUS.Uni-Stuttgart.DE>
+Date: 31 Jul 2001 17:18:11 +0200
+In-Reply-To: <20010729220041.A3694@weta.f00f.org> (Chris Wedgwood's message of "Sun, 29 Jul 2001 22:00:41 +1200")
+Message-ID: <tgae1lm8jw.fsf@mercury.rus.uni-stuttgart.de>
+User-Agent: Gnus/5.090001 (Oort Gnus v0.01) Emacs/20.7
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <687650000.996586885@tiny>
-User-Agent: Mutt/1.3.18i
-X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Tue, Jul 31, 2001 at 09:41:25AM -0400, Chris Mason wrote:
+Chris Wedgwood <cw@f00f.org> writes:
 
-    if (some_error) {
-    #ifdef CONFIG_REISERFS_CHECK
-        panic("some_error") ;
-    #else
-        gracefully_recover
-    #endif
+> People all need to appreciate sometimes vendors cannot released open
+> source drivers even if they wanted too.  Sometimes vendors have the
+> ability to released binary only drivers which are derived in part from
+> source-code which they license --- but cannot share.
 
-What a terrible construct... if would be much more elegant as:
+That's particularly true if there is no other documentation for the
+hardware other than this reference source code.  This seems to be a
+common situation, even with hardware which has good specs, technically
+speaking.
 
-        if(some_error) {
-                _namesys_internal_foo("some_error");
-                recover_bar();
-        }
-
-where _namesys_internal_foo is compiled differently and may not return
-depending on CONFIG_REISERFS_CHECK and maybe also the error type.
-
-That way we don't end up with even more #ifdef BLAH / #endif cruft
-which obfuscates what is already hard to read code in places!
-
-Flames welcome :)
-
-
-
-
-
-  --cw
-
+-- 
+Florian Weimer 	                  Florian.Weimer@RUS.Uni-Stuttgart.DE
+University of Stuttgart           http://cert.uni-stuttgart.de/
+RUS-CERT                          +49-711-685-5973/fax +49-711-685-5898

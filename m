@@ -1,39 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262254AbRENHCM>; Mon, 14 May 2001 03:02:12 -0400
+	id <S261925AbRENHf1>; Mon, 14 May 2001 03:35:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262257AbRENHCC>; Mon, 14 May 2001 03:02:02 -0400
-Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:3203 "EHLO
-	mirai.cx") by vger.kernel.org with ESMTP id <S262254AbRENHB5>;
-	Mon, 14 May 2001 03:01:57 -0400
-Message-ID: <3AFF82DE.54CE69D2@mirai.cx>
-Date: Mon, 14 May 2001 00:01:50 -0700
-From: J Sloan <jjs@mirai.cx>
-Organization: Mirai Consulting
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-ac9 i686)
-X-Accept-Language: en
+	id <S261840AbRENHfR>; Mon, 14 May 2001 03:35:17 -0400
+Received: from mailout01.sul.t-online.com ([194.25.134.80]:12303 "EHLO
+	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S261507AbRENHfA>; Mon, 14 May 2001 03:35:00 -0400
+Date: 14 May 2001 09:42:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: linux-kernel@vger.kernel.org
+Message-ID: <80qQqUQ1w-B@khms.westfalen.de>
+In-Reply-To: <15103.18224.265350.877968@pizda.ninka.net>
+Subject: Re: IPv6: the same address can be added multiple times
+X-Mailer: CrossPoint v3.12d.kh6 R/C435
 MIME-Version: 1.0
-To: Blesson Paul <blessonpaul@usa.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Inodes
-In-Reply-To: <20010514065650.11112.qmail@nw176.netaddress.usa.net>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Organization: Organisation? Me?! Are you kidding?
+In-Reply-To: <Pine.LNX.4.33.0105132319120.3026-100000@netcore.fi> <200105131759.VAA27768@ms2.inr.ac.ru> <Pine.LNX.4.33.0105132319120.3026-100000@netcore.fi> <15103.18224.265350.877968@pizda.ninka.net>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Blesson Paul wrote:
+davem@redhat.com (David S. Miller)  wrote on 13.05.01 in <15103.18224.265350.877968@pizda.ninka.net>:
 
-> Hi
->                     This is an another doubt related to VFS. I want to know
-> wheather all files are assigned their inode number at the mounting time itself
-> or inodes are assigned to files upon accessing only
+> Pekka Savola writes:
+>  > But it still looks dirty.  Also, it's easier to add it many times by
+>  > mistake; IPv4 addresses do not allow this.  And as you have to remove
+>  > them N times too, this may create even more confusion.
+>
+> There is this growing (think growing as in "fungus") set of thinking
+> that just because something can be misused, this is an argument
+> against it even existing.
 
-er..
+But that does not seem to be the argument here. Rather, it is "I can  
+certainly see where this can cause harm, but I cannot see where it is  
+useful for anything at all, so why do we have it?".
 
-inode numbers are assigned at file creation time.
+> I think this is wrong.  I'm seeing it a lot, especially on this list,
+> and it's becomming a real concern at least to me.
+>
+> Most of the time the argument goes like:
+>
+> 1: "Well, we allow this because you can do usefull things X Y and
+>     Z as a result."
 
-cu
+What is X, Y and Z in this particular case? Nobody seems to have said  
+that.
 
-jjs
+Incidentally, this thread is *very* similar to the "mount the exact same  
+FS several times on the exact same mountpoint" thing. I'd expect to get a  
+similar resolution (i.e., *don't* allow that).
 
+MfG Kai

@@ -1,67 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261405AbUIZSBe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261426AbUIZSFg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261405AbUIZSBe (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Sep 2004 14:01:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261451AbUIZSBe
+	id S261426AbUIZSFg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Sep 2004 14:05:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261451AbUIZSFg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Sep 2004 14:01:34 -0400
-Received: from mail.aknet.ru ([217.67.122.194]:64785 "EHLO mail.aknet.ru")
-	by vger.kernel.org with ESMTP id S261405AbUIZSB0 (ORCPT
+	Sun, 26 Sep 2004 14:05:36 -0400
+Received: from rproxy.gmail.com ([64.233.170.204]:40003 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261426AbUIZSFR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Sep 2004 14:01:26 -0400
-Message-ID: <415704C7.60704@aknet.ru>
-Date: Sun, 26 Sep 2004 22:04:55 +0400
-From: Stas Sergeev <stsp@aknet.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: ru, en-us, en
-MIME-Version: 1.0
-To: Gabriel Paubert <paubert@iram.es>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ESP corruption bug - what CPUs are affected?
-References: <4151C949.1080807@aknet.ru> <20040922200228.GB11017@vana.vc.cvut.cz> <41530326.2050900@aknet.ru> <20040923180607.GA20678@vana.vc.cvut.cz> <4154853F.6070105@aknet.ru> <20040924214330.GD8151@vana.vc.cvut.cz> <20040925080426.GB12901@iram.es> <415563C7.8000701@aknet.ru> <20040925191808.GA5901@iram.es> <4155D7D2.8000705@aknet.ru> <20040925234214.GA10603@iram.es>
-In-Reply-To: <20040925234214.GA10603@iram.es>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sun, 26 Sep 2004 14:05:17 -0400
+Message-ID: <416f0858040926110562b430fb@mail.gmail.com>
+Date: Sun, 26 Sep 2004 21:05:16 +0300
+From: =?UTF-8?B?0JrQuNGA0LjQuyDQmdC+0LLRh9C10LI=?= <jovchev@gmail.com>
+Reply-To: =?UTF-8?B?0JrQuNGA0LjQuyDQmdC+0LLRh9C10LI=?= <jovchev@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Patch for Creative WebCam Go mini
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-AV-Checked: ClamAV using ClamSMTP
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Hi,
 
-Gabriel Paubert wrote:
->> the 32bit code. For 16bit code (PM or V86) it just
->> doesn't really matter I think (I don't think using
->> prefixes for ESP is sane).
-> Well, thrashing a register at any time under the user
-> just because an interrupt happened is even less sane ;-)
-OK, I agree, so I tested that: wrote some value
-to the higher word of ESP in the struct that
-dosemu passes to vm86() syscall, let the prog
-to run for a while, and the value was still there.
-It is not 100% reliable test because I can't
-guarantee the vm86() was interrupted during the
-period I was waiting (because vm86() is executed
-for the short durations, then exits on fault or
-signal), but it looks OK and why not to beleive
-Petr that v86 is not affected.
+I have Creative WebCam Go mini.
+(http://www.qbik.ch/usb/devices/showdev.php?id=2868)
+This camera has inside STV0680B chip and I have modified one of the
+kernel drivers (drivers/usb/media/stv680)
 
->> http://www.tenberry.com/dos4g/watcom/rn4gw.html
->> ---
->> B ** Fixed the mouse32 handler to ignore a Microsoft Windows DOS box bug
->>     which mangles the high word of ESP.
-> But if the bug is also affects Windows DOS box, it means that
-> V86 is affected too, no? 
-No. This URL is about dos4gw, so that's about a
-prot. mode either.
+So I have made this camera supported.
 
-> I'd like to know what OS/2 did.
-AFAIK also WinNT is not affected. Not sure though.
+Here are the patches for files stv680.h and stv680.c
 
-> The DOS boxes and 16 bit mode
-> DPMI applications ran very well and it was very stable, despite
-Hey. It is not about 16bit DPMI mode, it is
-about the 32bit DPMI mode. That's the whole
-problem. Be it only about the 16bit DPMI mode,
-the problem may not ever harm anything at all.
-But for 32bit mode that's quite a problem.
+//----------------------------------------------------------
 
+--- stv680.h.orig.2.6.8 2004-09-26 20:31:23.000000000 +0300
++++ stv680.h    2004-09-26 20:50:40.000000000 +0300
+@@ -39,14 +39,20 @@
+ /* number of decoding errors before kicking the camera */
+ #define STV680_MAX_ERRORS      100
+
++
+ #define USB_PENCAM_VENDOR_ID   0x0553
+ #define USB_PENCAM_PRODUCT_ID  0x0202
++
++#define USB_CREATIVEGOMINI_VENDOR_ID   0x041e
++#define USB_CREATIVEGOMINI_PRODUCT_ID  0x4007
++
+ #define PENCAM_TIMEOUT          1000
+ /* fmt 4 */
+ #define STV_VIDEO_PALETTE       VIDEO_PALETTE_RGB24
+
+ static struct usb_device_id device_table[] = {
+        {USB_DEVICE (USB_PENCAM_VENDOR_ID, USB_PENCAM_PRODUCT_ID)},
++       {USB_DEVICE (USB_CREATIVEGOMINI_VENDOR_ID,
+USB_CREATIVEGOMINI_PRODUCT_ID)},
+        {}
+ };
+ MODULE_DEVICE_TABLE (usb, device_table);
+
+//----------------------------------------------------------
+
+--- stv680.c.orig.2.6.8 2004-09-26 20:34:00.000000000 +0300
++++ stv680.c    2004-09-26 20:42:34.000000000 +0300
+@@ -1,4 +1,7 @@
+ /*
++ *  Creative WebCam Go Mini Driver, modified by Kiril Jovchev
++ *  (jovchev@gmail.com)
++ *
+  *  STV0680 USB Camera Driver, by Kevin Sisson (kjsisson@bellsouth.net)
+  *
+  * Thanks to STMicroelectronics for information on the usb commands, and
+@@ -56,6 +59,13 @@
+  *                        to set to a non-supported size. This allowed
+  *                        gnomemeeting to work.
+  *                        Fixed proc entry removal bug.
++ *
++ * ver 0.26 Sep, 2004 (kjv)
++ *                         Added support for Creative WebCam Go mini.
++ *                         Camera is based on same chip.
++ *
++ *
++ *
+  */
+
+ #include <linux/config.h>
+@@ -1395,9 +1405,12 @@
+        if ((dev->descriptor.idVendor == USB_PENCAM_VENDOR_ID) &&
+(dev->descriptor.idProduct == USB_PENCAM_PRODUCT_ID)) {
+                camera_name = "STV0680";
+                PDEBUG (0, "STV(i): STV0680 camera found.");
++       } else if ((dev->descriptor.idVendor ==
+USB_CREATIVEGOMINI_VENDOR_ID) && (dev->descriptor.idProduct ==
+USB_CREATIVEGOMINI_PRODUCT_ID)) {
++               camera_name = "Creative WebCam Go Mini";
++               PDEBUG (0, "STV(i): Creative WebCam Go Mini found.");
+        } else {
+-               PDEBUG (0, "STV(e): Vendor/Product ID do not match
+STV0680 values.");
+-               PDEBUG (0, "STV(e): Check that the STV0680 camera is
+connected to the computer.");
++               PDEBUG (0, "STV(e): Vendor/Product ID do not match
+STV0680 or Creative WebCam Go Mini values.");
++               PDEBUG (0, "STV(e): Check that the STV0680 or Creative
+WebCam Go Mini camera is connected to the computer.");
+                retval = -ENODEV;
+                goto error;
+        }
+
+
+//----------------------------------------------------------
+
+Best Regards
+Kiril Jovchev

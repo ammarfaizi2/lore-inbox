@@ -1,35 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264045AbUEHCMw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263881AbUEHCQB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264045AbUEHCMw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 May 2004 22:12:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264054AbUEHCMw
+	id S263881AbUEHCQB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 May 2004 22:16:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264056AbUEHCQB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 May 2004 22:12:52 -0400
-Received: from mail1-115.ewetel.de ([212.6.122.115]:56449 "EHLO
-	mail1.ewetel.de") by vger.kernel.org with ESMTP id S264045AbUEHCMw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 May 2004 22:12:52 -0400
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Distributions vs kernel development
-In-Reply-To: <1TfVQ-4T4-21@gated-at.bofh.it>
-References: <1TfVQ-4T4-21@gated-at.bofh.it>
-Date: Fri, 7 May 2004 21:41:13 +0200
-Message-Id: <E1BMBDd-0000GZ-1k@localhost>
-From: Pascal Schmidt <der.eremit@email.de>
-X-CheckCompat: OK
+	Fri, 7 May 2004 22:16:01 -0400
+Received: from fw.osdl.org ([65.172.181.6]:53390 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263881AbUEHCP7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 May 2004 22:15:59 -0400
+Date: Fri, 7 May 2004 19:15:53 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Tim Bird <tim.bird@am.sony.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: get_cmos_time() takes up to a second on boot
+In-Reply-To: <409C2CBA.8040709@am.sony.com>
+Message-ID: <Pine.LNX.4.58.0405071908060.3271@ppc970.osdl.org>
+References: <409C2CBA.8040709@am.sony.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 07 May 2004 18:00:22 +0200, you wrote in linux.kernel:
-> After having being burned twice: first by Mandrake and supermount, and second
-> by SuSe and reiserfs attributes; are any of the distributions committed to
-> making sure that their distribution will run the standard kernel? (ie. 2.6.X from
-> kernel.org).
 
-Slackware, both -current and 9.1. Don't expect fancy initscripts
-handling every possible thing you could boot off for you, though.
 
--- 
-Ciao,
-Pascal
+On Fri, 7 May 2004, Tim Bird wrote:
+> 
+> What is the downside of disabling this
+> synchronization with the clock edge?
+
+It might not matter any more, but if I remember correctly, the real 
+problem was that we used to always write back the time to the CMOS clock 
+too, and then booting a few times and consistently getting the time wrong 
+the same way made the clock drift quite noticeably.
+
+These days, I think we do the write-back only if we use an external clock 
+(NTP), so we probably _could_ just remove the synchronization at 
+read-time (removing it at write-time doesn't sound like a good idea).
+
+Does anybody remember better?
+
+> 1 second of variability is unnacceptable
+> when you're requirement is to boot in
+> .5 seconds.  :)
+
+Heh. And yes, it could be handled other ways (you could check the cmos
+time in the timer interrupt during boot, and correct it there rather than
+busy-waiting).
+
+> Would it be bad to disable this synchronization
+> completely?  How about just during boot?
+
+I don't think we should necessarily disable the synchronization, but we
+could certainly make it optional for cases that don't care about it. We
+might even make the default be "don't care about the read
+synchronization".
+
+		Linus

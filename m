@@ -1,53 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262055AbTKYGwu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Nov 2003 01:52:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262061AbTKYGwu
+	id S261936AbTKYG6t (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Nov 2003 01:58:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262063AbTKYG6t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Nov 2003 01:52:50 -0500
-Received: from amsfep16-int.chello.nl ([213.46.243.26]:33820 "EHLO
-	amsfep16-int.chello.nl") by vger.kernel.org with ESMTP
-	id S262055AbTKYGwt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Nov 2003 01:52:49 -0500
-From: Jos Hulzink <josh@stack.nl>
-To: Linus Torvalds <torvalds@osdl.org>,
-       Bradley Chapman <kakadu_croc@yahoo.com>
-Subject: Re: What exactly are the issues with 2.6.0-test10 preempt?
-Date: Tue, 25 Nov 2003 07:55:07 +0000
-User-Agent: KMail/1.5.3
-Cc: linux-kernel@vger.kernel.org
-References: <20031124222652.16351.qmail@web40910.mail.yahoo.com> <Pine.LNX.4.58.0311241429330.15101@home.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0311241429330.15101@home.osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 25 Nov 2003 01:58:49 -0500
+Received: from blr-dsmaster.blr.novell.com ([164.99.147.9]:18278 "EHLO
+	BLR-DSMASTER.BLR.NOVELL.COM") by vger.kernel.org with ESMTP
+	id S261936AbTKYG6r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Nov 2003 01:58:47 -0500
+Subject: Re: Fix for "MT2032 Fatal Error: PLLs didn't lock"
+From: "Subbu K. K." <kksubramaniam@novell.com>
+To: Gerd Knorr <kraxel@bytesex.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20031124114620.GA29771@bytesex.org>
+References: <20031124004835.3abbb4cf.akpm@osdl.org>
+	 <20031124114620.GA29771@bytesex.org>
+Content-Type: text/plain
+Message-Id: <1069743507.1270.2.camel@dog.blr.novell.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 25 Nov 2003 12:28:28 +0530
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200311250755.07577.josh@stack.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 24 Nov 2003 22:32, Linus Torvalds wrote:
-> Basically, there's something strange going on, which _seems_ to be memory
-> corruption, and seems to correlate reasonable well (but not 100%) with
-> CONFIG_PREEMPT.
->
-> It's actually unlikely to be preemption itself that is broken: it's much
-> more likely that some driver or other subsystem is broken, and preempt is
-> just better at triggering it by making some race conditions much easier to
-> see due to bigger windows for them to happen.
->
-> The problem is finding enough of a pattern to the reports to make sense of
-> what seems to be the common thread. A lot of people use preemption without
-> any trouble.
+On Mon, 2003-11-24 at 17:16, Gerd Knorr wrote: 
+> > I saw others report same issues but didnt see any
+> > fixes/patches/solutions. With the debug option on for bttv and tuner in
+> > /etc/modules.conf and the TV frequency set to 133.25MHz and then
+> > 140.25MHz, the sign extension defect pops up in rfin value below. This
+> > is because 133.25MHz is 0x7F13BD0 and 140.25MHz is 0x85C0B90. The high
+> > bit gets sign extended in as 0xFFFFFFFFF85C0B90 (-128185456)
+> 
+> Huh?  I can't see where a sign extension happens.  0x85C0B90 has the bit
+> #27 set to one, not #31 ...
+I know this sounds weird, but sign extension is happening between
+invocation of set_tv_freq and the dprintk in mt2032_set_tv_freq.
 
-Maybe brute force is the best way to deal with this nasty one ? I'm thinking: 
-It must be rather easy to make a tool that takes a .config file and an 
-argument "This kernel seems in trouble Yes / No". If an option is enabled, 
-and this kernel config crashes, you increase the likelihood of that option 
-(i.e. you increment a counter). If an option is enabled, and this kernel 
-doesn't crash. you decrement a counter. In the end, you'll end with 
-statistics about which kernel option is likely to cause problems.
+> Beside that the values are passed around as unsigned values everythere.
+> Can you please explain in more detail what is going on?
+Except in one place where there is an implicit conversion to signed ints
+in line 746:
 
-Jos
+746         mt2032_set_if_freq(c, freq*62500 /* freq*1000*1000/16 */, 
+> > Nov 16 21:45:56 localhost kernel: tuner: tv freq set to 133.25
+> > Nov 16 21:45:56 localhost kernel: mt2032_set_if_freq rfin=133250000
+> > if1=1090000000 if2=38900000 from=32900000 to=39900000
+> 
+> > Nov 16 21:45:58 localhost kernel: tuner: tv freq set to 140.25
+> > Nov 16 21:45:58 localhost kernel: mt2032_set_if_freq rfin=-128185456
+> > if1=1090000000 if2=38900000 from=32900000 to=39900000
+> 
+> Works fine here:
+> 
+> tuner: tv freq set to 140.25
+> mt2032_set_if_freq rfin=140250000 if1=1090000000 if2=38900000 from=32900000 to=39900000
+Thanks for the clue. Perhaps the problem is gcc/athlon related?
+
+> >  	case VIDIOCSFREQ:
+> >  	{
+> > -		unsigned long *v = arg;
+> > +		unsigned int *v = arg;
+> 
+> Wrong, VIDIOCSFREQ is "_IOW('v',15, unsigned long)".  Beside that I'm
+> very surprised that this actually makes a difference.  What architecture
+> is that?  And what size int/long have there?
+I agree that the change is rather kludgy. I was using stock Mandrake
+9.1/gcc3.2.2 on AMD Athlon 1.4GHz. I have seen the error pop up on the
+Knoppix (2.4.18..2.4.20 kernels) also on the same box so it doesnt seem
+to be distro-specific. I dont have a Intel system to check if the
+problem is related to the cpu. Clues anyone?
+
+Let me poke around in the assembly code tonight to find out why the sign
+change happens on my box. I suspect this could be due to gcc/athlon
+combo.
+
+Subbu K. K.
 

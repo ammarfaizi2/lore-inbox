@@ -1,45 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266933AbTATV2D>; Mon, 20 Jan 2003 16:28:03 -0500
+	id <S267005AbTATVdW>; Mon, 20 Jan 2003 16:33:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266962AbTATV2D>; Mon, 20 Jan 2003 16:28:03 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:19211 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S266933AbTATV2C>;
-	Mon, 20 Jan 2003 16:28:02 -0500
-Date: Mon, 20 Jan 2003 22:37:05 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: David Schwartz <davids@webmaster.com>, david.lang@digitalinsight.com,
-       dana.lacoste@peregrine.com, linux-kernel@vger.kernel.org
+	id <S266991AbTATVdW>; Mon, 20 Jan 2003 16:33:22 -0500
+Received: from 5-116.ctame701-1.telepar.net.br ([200.193.163.116]:36996 "EHLO
+	5-116.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S267005AbTATVdV>; Mon, 20 Jan 2003 16:33:21 -0500
+Date: Mon, 20 Jan 2003 19:41:58 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: David Schwartz <davids@webmaster.com>
+cc: david.lang@digitalinsight.com, "" <dana.lacoste@peregrine.com>,
+       "" <linux-kernel@vger.kernel.org>
 Subject: Re: Is the BitKeeper network protocol documented?
-Message-ID: <20030120213705.GA2086@mars.ravnborg.org>
-Mail-Followup-To: David Schwartz <davids@webmaster.com>,
-	david.lang@digitalinsight.com, dana.lacoste@peregrine.com,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0301201129510.6894-100000@dlang.diginsite.com> <20030120134831.Q1594@schatzie.adilger.int>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030120134831.Q1594@schatzie.adilger.int>
-User-Agent: Mutt/1.4i
+In-Reply-To: <20030120201904.AAA25148@shell.webmaster.com@whenever>
+Message-ID: <Pine.LNX.4.50L.0301201940200.18171-100000@imladris.surriel.com>
+References: <20030120201904.AAA25148@shell.webmaster.com@whenever>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The fact that BK is used creates information which WOULD NOT HAVE EXISTED
-> had BK not existed.  In fact, until BK was in use by Linus, not even basic
-> CVS checkin comments existed, so the metadata was in a format called
-> linux-kernel mbox (if that).  So, the use of a tool like BK makes more data
-> available, but people cannot be worse off than when the kernel was shipped
-> as a tarball and periodic patches.  For the sake of those people who don't
-> or can't use BK, just pretend BK doesn't exist and they will not be any
-> worse off than a year ago.
+On Mon, 20 Jan 2003, David Schwartz wrote:
 
-linux.bkbits.net:8080/linux-2.5 is accessible for all, even people
-developing another SCM. All incremental changes can be found there
-again without any licensing issues.
+> 	I submit that it is impossible to comply with the GPL and
+> distribute binaries if the preferred form of a work for the purposes of
+> making modifications to it is in a proprietary file format. This is
+> tantamount to encrypting the source.
 
-And btw. no-one forces people to use BK to develop the kernel.
-And the kernel is available as patches on kernel.org.
+You'll have to find another project to prove your idea, though.
 
-So what is the point of this thread?
+Bitkeeper is using the AT&T SCCS format (plus compression) to
+store its data and metadata.  People are working on scripts to
+extract the source from a bitkeeper tree without using the
+bitkeeper software.
 
-	Sam
+cheers,
+
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+http://www.surriel.com/		http://guru.conectiva.com/
+Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>

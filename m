@@ -1,62 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264886AbRFTPAy>; Wed, 20 Jun 2001 11:00:54 -0400
+	id <S264894AbRFTPNF>; Wed, 20 Jun 2001 11:13:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264887AbRFTPAo>; Wed, 20 Jun 2001 11:00:44 -0400
-Received: from relay.dera.gov.uk ([192.5.29.49]:28934 "HELO relay.dera.gov.uk")
-	by vger.kernel.org with SMTP id <S264886AbRFTPAd>;
-	Wed, 20 Jun 2001 11:00:33 -0400
-Subject: Re: [UPDATE] Directory index for ext2
-From: Tony Gale <gale@syntax.dera.gov.uk>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
-        Alexander Viro <viro@math.psu.edu>,
-        Andreas Dilger <adilger@turbolinux.com>
-In-Reply-To: <0105311813431J.06233@starship>
-In-Reply-To: <0105311813431J.06233@starship>
-Content-Type: text/plain
+	id <S264895AbRFTPMz>; Wed, 20 Jun 2001 11:12:55 -0400
+Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:50123 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S264894AbRFTPMj>;
+	Wed, 20 Jun 2001 11:12:39 -0400
+Message-ID: <3B30BD5D.153A5FE9@candelatech.com>
+Date: Wed, 20 Jun 2001 08:12:29 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Aaron Lehmann <aaronl@vitelus.com>
+CC: hps@intermeta.de, linux-kernel@vger.kernel.org
+Subject: Re: [OT] Threads, inelegance, and Java
+In-Reply-To: <20010620042544.E24183@vitelus.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.10.99 (Preview Release)
-Date: 20 Jun 2001 15:59:58 +0100
-Message-Id: <993049198.3089.2.camel@syntax.dera.gov.uk>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-The main problem I have with this is that e2fsck doesn't know how to
-deal with it - at least I haven't found a version that will. This makes
-it rather difficult to use, especially for your root fs.
-
-And, since I used it, and have since stopped using it, I have a problem
-in what all my disk free space disappears over a couple of days - I have
-to run fsck to recover it, were it appears as deleted inodes with zero
-dtime. I can't say for sure that the dir index stuff is at fault though.
-I am currently using 2.4.6-pre3 without the dir patch installed. I am
-using the grsecurity patch though.
-
-I have just upgraded to e2fsprogs-1.21 in the hope of sorting it out. If
-that fails I'll revert to a clean 2.4.6-pre kernel. Other ideas welcome.
-
--tony
-
-
-
-On 31 May 2001 18:13:43 +0200, Daniel Phillips wrote:
-> Changes:
+Aaron Lehmann wrote:
 > 
->   - Freshen to 2.4.5
->   - EXT2_FEATURE_COMPAT_DIR_INDEX flag finalized
->   - Break up ext2_add_entry for aesthetic reasons (Al Viro)
->   - Handle more than 64K directories per directory (Andreas Dilger)
->   - Bug fix: new inode no longer inherits index flag (Andreas Dilger)
->   - Bug fix: correct handling of error on index create (Al Viro)
+> On Wed, Jun 20, 2001 at 09:00:47AM +0000, Henning P. Schmiedehausen wrote:
+> > Just the fact that some people use Java (or any other language) does
+> > not mean, that they don't care about "performance, system-design or
+> > any elegance whatsoever" [2].
 > 
-> To-Do:
-> 
->   - More factoring of ext2_add_entry
->   - Fall back to linear search in case of corrupted index
->   - Finalize hash function
-> 
+> However, the very concept of Java encourages not caring about
+> "performance, system-design or any elegance whatsoever". If you cared
 
+System-design and elegance are easy to get
+in Java, and in fact are independent of language.  Good c code will beat
+Java in most cases, performance wise, but lately the difference has become
+small enough not to matter for most applications.  Speed is not the most
+important feature in a great many programs, otherwise we'd all be using
+assembly still.
 
+> about any of those things you would compile to native code (it exists
+> for a reason). Need run-anywhere support? Distribute sources instead.
+
+When was the last time you wrote a large cross-platform GUI that just
+worked on other platforms, without any additional tweaking, after you
+developed it on your Linux machine?
+
+-- 
+Ben Greear <greearb@candelatech.com>          <Ben_Greear@excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear

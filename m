@@ -1,58 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266741AbUJIMRc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266756AbUJIMer@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266741AbUJIMRc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Oct 2004 08:17:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266748AbUJIMRc
+	id S266756AbUJIMer (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Oct 2004 08:34:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266758AbUJIMer
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Oct 2004 08:17:32 -0400
-Received: from spc2-brig1-3-0-cust232.asfd.broadband.ntl.com ([82.1.142.232]:34474
-	"EHLO ppgpenguin.kenmoffat.uklinux.net") by vger.kernel.org with ESMTP
-	id S266741AbUJIMRa convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Oct 2004 08:17:30 -0400
-Date: Sat, 9 Oct 2004 13:17:24 +0100 (BST)
-From: Ken Moffat <ken@kenmoffat.uklinux.net>
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Problem with ide=nodma
-In-Reply-To: <58cb370e04100817508fe62d0@mail.gmail.com>
-Message-ID: <Pine.LNX.4.58.0410091307550.29011@ppg_penguin.kenmoffat.uklinux.net>
-References: <Pine.LNX.4.58.0410090019150.26458@ppg_penguin.kenmoffat.uklinux.net>
-  <58cb370e04100817353254b8cd@mail.gmail.com> 
- <Pine.LNX.4.58.0410090140020.26639@ppg_penguin.kenmoffat.uklinux.net>
- <58cb370e04100817508fe62d0@mail.gmail.com>
+	Sat, 9 Oct 2004 08:34:47 -0400
+Received: from natnoddy.rzone.de ([81.169.145.166]:12014 "EHLO
+	natnoddy.rzone.de") by vger.kernel.org with ESMTP id S266756AbUJIMep
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Oct 2004 08:34:45 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: "Jin, Gordon" <gordon.jin@intel.com>
+Subject: Re: [PATCH x86_64]: Add TCSBRKP ioctl translation for arch/x86_64/ia32
+Date: Sat, 9 Oct 2004 14:31:45 +0200
+User-Agent: KMail/1.6.2
+Cc: <discuss@x86-64.org>, <linux-kernel@vger.kernel.org>
+References: <8126E4F969BA254AB43EA03C59F44E848AF8D0@pdsmsx404>
+In-Reply-To: <8126E4F969BA254AB43EA03C59F44E848AF8D0@pdsmsx404>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+Content-Type: multipart/signed;
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1;
+  boundary="Boundary-02=_0o9ZBG5cp91L27R";
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200410091431.48915.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 9 Oct 2004, Bartlomiej Zolnierkiewicz wrote:
 
-> > > Is it possible that you are reading it wrong?
-> >
-> >  I don't think so, and the box is a lot more responsive.  dmesg shows
-> >
-> > ide_setup: ide=nodmaIDE: Prevented DMA
->
-> This is misleading as drivers are free to override this setting.
->
+--Boundary-02=_0o9ZBG5cp91L27R
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
- Bart, thanks for putting me straight.  Indeed, siimage.c doesn't have
-'if (!autodma)' to wrap 'hwif->autodma = 1;' like some of the others
-(e.g. hpt366).  Easy enough for me to add it, but for reasons I'm too
-dumb to understand that turns off dma even without ide=nodma in the
-bootargs, and it then does a series of time out / resets if I try to
-enable dma with hdparm :-(
+On S=FCnnavend 09 Oktober 2004 11:47, Jin, Gordon wrote:
+> --- linux-2.6.8/arch/x86_64/ia32/ia32_ioctl.c.orig=A0=A0=A0=A0=A0=A02004-=
+09-23 09:21:20.000000000 -0700
+> +++ linux-2.6.8/arch/x86_64/ia32/ia32_ioctl.c=A0=A0=A02004-09-23 09:22:31=
+=2E000000000 -0700
+> @@ -189,6 +189,7 @@ COMPATIBLE_IOCTL(RTC_SET_TIME)
+> =A0COMPATIBLE_IOCTL(RTC_WKALM_SET)
+> =A0COMPATIBLE_IOCTL(RTC_WKALM_RD)
+> =A0COMPATIBLE_IOCTL(FIOQSIZE)
+> +COMPATIBLE_IOCTL(TCSBRKP)
+> =A0
+> =A0/* And these ioctls need translation */
+> =A0HANDLE_IOCTL(TIOCGDEV, tiocgdev)
 
- Obviously, the sensible thing for me to do is to not touch siimage.c
-and to turn dma off with hdparm until I'm ready to do extended dma
-tests.  It's not as if any sane platforms really want to add extra ide
-controllers and then cripple them.
+This is not the optimal solution, for two reasons:
 
- Thanks anyway.
+=2D If it is needed on all architectures, you should instead remove it
+  from the ones that currently define it and put it in
+  include/linux/compat_ioctl.h.
 
-Ken
--- 
- das eine Mal als Tragödie, das andere Mal als Farce
+=2D It is not actually COMPATIBLE_IOCTL, but rather ULONG_IOCTL,
+  as far as I can tell. Yes, I made the same mistake in
+  arch/s390/kernel/compat_ioctl.c, but you can fix it now
+  that you are touching it anyway.
 
+	Arnd <><
+
+--Boundary-02=_0o9ZBG5cp91L27R
+Content-Type: application/pgp-signature
+Content-Description: signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBBZ9o05t5GS2LDRf4RAhNfAKCbRwd1AGd7NJ4RVRoJ3wz9VXxx6wCeOvzw
+x7W6wwGCbqIEZGFJmwTGCJM=
+=zpdZ
+-----END PGP SIGNATURE-----
+
+--Boundary-02=_0o9ZBG5cp91L27R--

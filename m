@@ -1,63 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266033AbUALDZW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jan 2004 22:25:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266037AbUALDZV
+	id S266037AbUALDig (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jan 2004 22:38:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266038AbUALDig
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jan 2004 22:25:21 -0500
-Received: from fw.osdl.org ([65.172.181.6]:38124 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266033AbUALDZU (ORCPT
+	Sun, 11 Jan 2004 22:38:36 -0500
+Received: from adsl-68-78-203-130.dsl.klmzmi.ameritech.net ([68.78.203.130]:22025
+	"EHLO mail.domedata.com") by vger.kernel.org with ESMTP
+	id S266037AbUALDie convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jan 2004 22:25:20 -0500
-Date: Sun, 11 Jan 2004 18:58:22 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Thomas Winischhofer <thomas@winischhofer.net>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       jsimmons@infradead.org
-Subject: Re: 2.6.1-mm1: drivers/video/sis/sis_main.c link error
-In-Reply-To: <3FFF79E5.5010401@winischhofer.net>
-Message-ID: <Pine.LNX.4.58.0401111502380.1825@evo.osdl.org>
-References: <20040109014003.3d925e54.akpm@osdl.org> <20040109233714.GL1440@fs.tum.de>
- <3FFF79E5.5010401@winischhofer.net>
+	Sun, 11 Jan 2004 22:38:34 -0500
+From: tabris <tabris@tabris.net>
+To: "Stephen D. Williams" <sdw@lig.net>
+Subject: Re: High Quality Random sources, was: Re: SecuriKey
+Date: Sun, 11 Jan 2004 22:38:30 -0500
+User-Agent: KMail/1.5.3
+Cc: "Hunt, Adam" <ahunt@solvone.com>, linux-kernel@vger.kernel.org
+References: <5117BFF0551DD64884B32EE8CA57D3DB01548A3F@revere.nwpump.com> <200401111446.27403.tabris@tabris.net> <4001ECBE.1020009@lig.net>
+In-Reply-To: <4001ECBE.1020009@lig.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200401112238.32117.tabris@tabris.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
+On Sunday 11 January 2004 7:39 pm, Stephen D. Williams wrote:
+> Impossible?  I think not.  Some "mechanical" devices do exhibit true
+> random capability, especially when enhanced by algorithmic means.
+> To wit:  http://www.lavarand.org/
+>
+> Let me know if you can prove their methods don't provide a true "high
+> quality" random source.
+>
+> I'd like to see their code as a module with an automatic test to make
+> sure that the random source is high quality.  In this case, that would
+> mean making sure that the cap was not off the camera.
+>
+> sdw
+	just because it passes tests of entropy and probability doesn't make it 
+random. it just gets really really close. [hence pseudo-random]
+Everybody knows that /dev/random isn't truly random (it's still a state 
+machine, dependent on a hash algorithm [chosen b/c they can take a 
+non-random source and make it 'LOOK' random], and you feed it with data 
+that is not totally predictable. BUT, there are still enough ways to 
+exploit it if you can control/influence the input). it just can pass 
+enough tests so that it can be used.
 
-On Sat, 10 Jan 2004, Thomas Winischhofer wrote:
-> 
-> The whole framebuffer stuff in 2.6 is ancient. (Look at the file dates.)
+	and that still doesn't answer the question of how one would use [such a 
+device] to 'generate a one time pad'. a one time pad must be possessed by 
+both parties that are communicating. and if you have a secure channel to 
+transmit an OTP, then you have one that can carry a message as well (most 
+commonly, an OTP is used with a time delay. there is a single time when a 
+secure channel is available. one [or both] of the parties brings it with 
+him/her when he/she travels.
 
-Note that the fb stuff is ancient because it's basically not maintained as 
-far as I'm concerned.
+	so i'd believe that mebbe this Securikey could hold one... but, any USB 
+key-fob type device can.
 
-I occasionally get huge drops from James, and they invariably break stuff. 
-Which means that I often decide (espcially when trying to stabilize 
-things) that I just can't _afford_ to apply the fr*gging patches. Because 
-by past experience applying one of the big "everything changes" patches 
-tends to break more things that it fixes.
+	I'm sure that someone else can be more knowledgeable on this than I, but 
+the general theory holds fast.
 
-I'm sorry, but this i show it is.  The fbcon people have been changing 
-interfaces faster than they have been fixing bugs in the code. Together 
-with the fact that most of the development seems to happen in outside 
-trees, and nobody ever sends me fixes relative to the released tree, this 
-makes for a pretty bad situation.
+- --
+tabris
+- -
+optimist, n.:
+	A proponent of the belief that black is white.
 
-I really think that development should happen in the regular tree, or at 
-least be synched up in reasonable chunks THAT DO NOT BREAK everything.
+	A pessimist asked God for relief.
+	"Ah, you wish me to restore your hope and cheerfulness," said God.
+	"No," replied the petitioner, "I wish you to create something that
+would justify them."
+	"The world is all created," said God, "but you have overlooked
+something -- the mortality of the optimist."
+		-- Ambrose Bierce, "The Devil's Dictionary"
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
-I realize that some fb developers seem to disagree with me, but the fact 
-is, the way things are done now, fb will _always_ be broken. Most people 
-for whom the standard kernel works will never test the fb development 
-trees, so those trees will never get any amount of reasonable testing. As 
-a result, they WILL be buggy, and synching with them WILL be painful as 
-hell.
+iD8DBQFAAha21U5ZaPMbKQcRAi75AJwJQumzquOuyt0FY7BSlSDL80/szgCfVvWC
+myboGReQJjI3hy+lvQcIRAU=
+=ll/K
+-----END PGP SIGNATURE-----
 
-There is a d*mn good reason for why development should happen
-incrementally, and in the standard trees, and not in some outside tree. 
-For one: testing. For another: figuring out when things break in a timely 
-manner.
-
-		Linus

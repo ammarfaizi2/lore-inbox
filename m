@@ -1,71 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135585AbRAQTJ7>; Wed, 17 Jan 2001 14:09:59 -0500
+	id <S135583AbRAQTKt>; Wed, 17 Jan 2001 14:10:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135584AbRAQTJt>; Wed, 17 Jan 2001 14:09:49 -0500
-Received: from mirasta.antefacto.net ([193.120.245.10]:50954 "EHLO
-	nt1.antefacto.com") by vger.kernel.org with ESMTP
-	id <S135551AbRAQTJd>; Wed, 17 Jan 2001 14:09:33 -0500
-Message-ID: <3A65EDE2.4030204@AnteFacto.com>
-Date: Wed, 17 Jan 2001 19:09:22 +0000
-From: Padraig Brady <Padraig@AnteFacto.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0-ac4 i686; en-US; 0.7) Gecko/20010105
+	id <S135632AbRAQTKa>; Wed, 17 Jan 2001 14:10:30 -0500
+Received: from femail3.rdc1.on.home.com ([24.2.9.90]:35302 "EHLO
+	femail3.rdc1.on.home.com") by vger.kernel.org with ESMTP
+	id <S135583AbRAQTKP>; Wed, 17 Jan 2001 14:10:15 -0500
+Message-ID: <3A65EDB9.722C06A1@Home.net>
+Date: Wed, 17 Jan 2001 14:08:42 -0500
+From: Shawn Starr <Shawn.Starr@Home.net>
+Organization: Visualnet
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i586)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Xuan Baldauf <xuan--lkml@baldauf.org>, linux-kernel@vger.kernel.org
-Subject: Re: Relative CPU time limit
-In-Reply-To: <3A65E573.D004302B@baldauf.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+To: Jes Sorensen <jes@linuxcare.com>, linux-kernel@vger.kernel.org
+Subject: Re: Compiling 2.4.1-preX series - Confirmed - PGCC sucks
+In-Reply-To: <3A64F6E0.778F5734@Home.net> <d3bst6kjml.fsf@lxplus015.cern.ch> <3A650198.8523D94F@Home.net>
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-man setrlimit (or ulimit)
-This is per user though, and only related
-to user accounting really as you can only
-set a limit on the number of CPU seconds
-used.
+Yes, it appears the PGCC patches *BREAK* GCC (go figure). 2.4.1-pre7 compiled
+fine. JUST as pre8 was released *sigh*
+oh well, at least now I wont have to worry about any compiler bugs (unless
+some are discovered with 2.95.2) ;)
 
-I would also really like the ability
-to throttle any processes back to a certain
-% of CPU, and extending this to throttling
-users to certain CPU limits which would be
-useful also.
+Shawn.
 
-Obviously you would set it up so that all
-available CPU is used, for e.g. if you
-had 2 CPU bound processes running and you
-allocated 1 to 40% and the other 60%, when
-either terminates the other should increase
-to the available CPU (I can't see any reason
-why you would forceably limit a process' CPU
-usage if there was free CPU).
 
-Could the current scheduling logic that uses
-the nice value of a process, do this, and all
-I would have to do is have a % specifying wrapper
-around this?
+Shawn Starr wrote:
 
-Any other ideas or will I get hacking..
-
-Padraig.
-
-Xuan Baldauf wrote:
-
-> Hello, (maybe a FAQ, but could not find this question)
-> 
-> is it possible with linux2.4 to limit the relative CPU time
-> per process or per UID? I saw something like this about 5
-> years ago on solaris machines, but I have not access to
-> solaris machines anymore. I do not mean limiting the
-> absolute CPU time (e.g. "the process should run 20minutes at
-> maximum and shall be killed after that time), but the
-> relative CPU time (e.g. "apache should consume at most 80%
-> of my servers CPU time and shall be throttled if it was to
-> consume more").
-> 
-> Thanx,
-> Xuân. :-)
+> Fair enough, but something in bugs.h changed from 2.4.0 to 2.4.1-preX and
+> broke my GCC, I shall recompile GCC with no PGCC patches however if this
+> happens still then there's a problem somewhere.
+>
+> I dont know what FXSR is but there was no problem in 2.4.0 with this.
+>
+>  diff include/asm-i386/bugs.h ../linux/include/asm-i386/bugs.h  |
+> more78a79
+> > #if defined(CONFIG_X86_FXSR) || defined(CONFIG_X86_RUNTIME_FXSR)
+> 82,85c83,85
+> <  if (offsetof(struct task_struct, thread.i387.fxsave) & 15) {
+> <   extern void __buggy_fxsr_alignment(void);
+> <   __buggy_fxsr_alignment();
+> <  }
+> ---
+> >  if (offsetof(struct task_struct, thread.i387.fxsave) & 15)
+> >   panic("Kernel compiled for PII/PIII+ with FXSR, data not 16-byte
+> aligned!");
+> >
+> 90a91,92
+>
+> Jes Sorensen wrote:
+>
+> > >>>>> "Shawn" == Shawn Starr <Shawn.Starr@Home.net> writes:
+> >
+> > Shawn> Which compiler will compile the 2.4.1-preX series? Since 2.4.0,
+> > Shawn> my GCC 2.95.2 patched with PGCC 2.95.3 (which creates
+> > Shawn> pgcc-2.95.2) refuses to compile any versions after this. Which
+> > Shawn> is the next stable and binary compatable compiler?
+> >
+> > Shawn> Anyone have any suggestions? I dont wish to use the development
+> > Shawn> GCC 2.96/2.97 because they will break my binary compatability
+> > Shawn> with pgcc-2.95.2/3.
+> >
+> > Yes, it's simple you want the real gcc 2.96/2.97 or egcs-1.1.2. pgcc
+> > is not supported.
+> >
+> > Jes
+>
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org

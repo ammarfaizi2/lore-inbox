@@ -1,58 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265213AbTLaR0n (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Dec 2003 12:26:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265214AbTLaR0n
+	id S265215AbTLaRkp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Dec 2003 12:40:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265216AbTLaRko
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Dec 2003 12:26:43 -0500
-Received: from www.jubileegroup.co.uk ([212.22.195.7]:24528 "EHLO
-	www2.jubileegroup.co.uk") by vger.kernel.org with ESMTP
-	id S265213AbTLaR0m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Dec 2003 12:26:42 -0500
-Date: Wed, 31 Dec 2003 17:26:26 +0000 (GMT)
-From: Ged Haywood <ged@www2.jubileegroup.co.uk>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-cc: rddunlap@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: All filesystems hang under long periods of heavy load (read and
- write) on a filesystem
-In-Reply-To: <Pine.LNX.4.58L.0312281816140.15034@logos.cnet>
-Message-ID: <Pine.LNX.4.21.0312292153150.405-100000@www2.jubileegroup.co.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 31 Dec 2003 12:40:44 -0500
+Received: from 80-169-17-66.mesanetworks.net ([66.17.169.80]:28387 "EHLO
+	mail.bounceswoosh.org") by vger.kernel.org with ESMTP
+	id S265215AbTLaRkn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Dec 2003 12:40:43 -0500
+Date: Wed, 31 Dec 2003 10:42:06 -0700
+From: "Eric D. Mudama" <edmudama@mail.bounceswoosh.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.6.0 - Watchdog patches (BK consistency checks)
+Message-ID: <20031231174206.GA14338@bounceswoosh.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20030906125136.A9266@infomag.infomag.iguana.be> <200312300836.16559.edt@aei.ca> <20031230131350.A32120@hexapodia.org> <200312311001.48154.edt@aei.ca>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <200312311001.48154.edt@aei.ca>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo,
+On Wed, Dec 31 at 10:01, Ed Tomlinson wrote:
+>I am not saying I do not want do have consistency checks done.  I do want
+>to control _when_ and how often they run
 
-On Mon, 29 Dec 2003, Marcelo Tosatti wrote:
+I don't see how it would be valid to not do a consistency check after
+every network operation, which is what it does now...
 
-> > there is certainly something nasty in the released 2.4.23 IDE code...
-> 
-> The attached patch from Daniel Lux should fix it. Its has just been
-> applied to the 2.4 BK tree.
-> 
-> Please try it.
+Every time you are modifying your archive from a remote source, the
+consistency check makes sure you don't have corruption in the transfer
+that was previously undetected, or corruption in the underlying
+archive which is about to accept the changes.  Since you can only do
+network updates at a time when your own archive is in a "checked-in"
+state, if the network update fails or detects corruption, you can
+clone what you'd already checked in to a new location and recover
+trivially.  The most work you can lose is the delta between your last
+changeset and the current one, assuming you keep some sort of backups
+around.
 
-Thanks very much for the patch, I can see how that piece of code could
-well be causing the problem.
+What exactly would you do if you'd been working "offline" for 3 weeks,
+went to sync, and it said that your archive was corrupted?  Or should
+it try to merge into a corrupt archive anyway?  Should that archive
+that was corrupt, and then had possibly good changes layered on top of
+it, be valid for attempting a clone?
 
-Between my message and your reply, someone else came up with another
-clue for me and I found that enabling DMA for the drive appears if not
-to fix the problem at least to avoid it fairly well.  I think using
-DMA for most of the transfers makes it less likely that the lockup
-will be triggered.  At least this gets me out of the immediate bind.
+I think that limiting the consistency checking could be like opening a
+*very big* can of worms.
 
-It's a busy machine and it's a little painful to keep rebooting it.
-I'm going to put an identical one together for testing.  When I've
-done that I'll test the patch to destruction.
 
-It will be a couple of weeks before I can get to the bench to do it,
-but then it should only take a few hours to be sure it's a good fix.
-I'll certainly get back to you with the results.
 
-Thanks again for the pointer.
 
-73,
-Ged.
-
+-- 
+Eric D. Mudama
+edmudama@mail.bounceswoosh.org
 

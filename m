@@ -1,43 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261365AbTEHLwW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 May 2003 07:52:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261367AbTEHLwW
+	id S261387AbTEHLuI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 May 2003 07:50:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261392AbTEHLuI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 May 2003 07:52:22 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:65255 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261365AbTEHLwU (ORCPT
+	Thu, 8 May 2003 07:50:08 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:34953 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S261387AbTEHLuG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 May 2003 07:52:20 -0400
-Date: Thu, 8 May 2003 14:04:50 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-       "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, akpm@digeo.com
-Subject: Re: 2.5.69-mm2 Kernel panic, possibly network related
-Message-ID: <20030508120450.GT823@suse.de>
-References: <3EB8E4CC.8010409@aitel.hist.no> <20030507.025626.10317747.davem@redhat.com> <20030507144100.GD8978@holomorphy.com> <20030507.064010.42794250.davem@redhat.com> <20030507215430.GA1109@hh.idb.hist.no> <20030508013854.GW8931@holomorphy.com> <20030508065440.GA1890@hh.idb.hist.no> <20030508080135.GK8978@holomorphy.com> <20030508100717.GN8978@holomorphy.com> <3EBA4529.7050507@aitel.hist.no>
+	Thu, 8 May 2003 07:50:06 -0400
+Date: Thu, 08 May 2003 03:54:42 -0700 (PDT)
+Message-Id: <20030508.035442.85387749.davem@redhat.com>
+To: hch@infradead.org
+Cc: romieu@fr.zoreil.com, chas@locutus.cmf.nrl.navy.mil,
+       linux-kernel@vger.kernel.org
+Subject: Re: [ATM] [PATCH] unbalanced exit path in Forerunner HE
+ he_init_one()
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20030508060640.A24325@infradead.org>
+References: <200305071813.h47IDpc9010906@hera.kernel.org>
+	<20030508010146.A20715@electric-eye.fr.zoreil.com>
+	<20030508060640.A24325@infradead.org>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3EBA4529.7050507@aitel.hist.no>
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 08 2003, Helge Hafting wrote:
-> William Lee Irwin III wrote:
-> 
-> >2.5.69-mm3 should suffice to test things now. If you can try that when
-> >you get back I'd be much obliged.
-> 
-> 2.5.69-mm3 died in exactly the same way - the oops was identical.
-> I'm back to running mm2 without netfilter, to see how
-> stable it is.
+   From: Christoph Hellwig <hch@infradead.org>
+   Date: Thu, 8 May 2003 06:06:40 +0100
+   
+   Who reviewed this driver before inclusion?
 
-See my mail to rusty, I'm seeing the same thing. Back out the changeset
-that wli pasted here too, and it will work.
-
--- 
-Jens Axboe
-
+This one goes all the way back to when Werner still maintained
+the ATM layer, and frankly back then we didn't give a crap
+about these issues as much as we do now.

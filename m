@@ -1,50 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261817AbUK3Bwe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261819AbUK3B5Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261817AbUK3Bwe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 20:52:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261819AbUK3Bwe
+	id S261819AbUK3B5Y (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 20:57:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261823AbUK3B5X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 20:52:34 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:32779 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261817AbUK3BwZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 20:52:25 -0500
-Date: Tue, 30 Nov 2004 02:52:22 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] move OSS ac97_codec.h to sound/oss/
-Message-ID: <20041130015221.GD19821@stusta.de>
-References: <20041130013139.GC19821@stusta.de> <20041130013750.GQ26051@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041130013750.GQ26051@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.5.6+20040907i
+	Mon, 29 Nov 2004 20:57:23 -0500
+Received: from baikonur.stro.at ([213.239.196.228]:59289 "EHLO
+	baikonur.stro.at") by vger.kernel.org with ESMTP id S261819AbUK3B5Q
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Nov 2004 20:57:16 -0500
+Subject: [patch 02/11] Subject: ifdef typos: arch_ppc_platforms_prep_setup.c -another one
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, janitor@sternwelten.at, domen@coderock.org,
+       rddunlap@osdl.org
+From: janitor@sternwelten.at
+Date: Tue, 30 Nov 2004 02:57:13 +0100
+Message-ID: <E1CYxGU-0002hi-4R@sputnik>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 30, 2004 at 01:37:51AM +0000, Al Viro wrote:
-> On Tue, Nov 30, 2004 at 02:31:39AM +0100, Adrian Bunk wrote:
-> > As far as I can see, there's no good reason why the OSS ac97_codec.h 
-> > lives in include/linux/ .
-> 
-> Except for a bunch of constants defined there.  Are you sure that they
-> are not exposed to userland?
 
-A userspace program that has OSS ac97 specific code?
-I didn't find one.
 
-cu
-Adrian
+Found another typo in the same file :-)
 
-BTW: OSS and ALSA managed to give different names to several of these
-     constants...
+Obvious typo, FB_VGA16 is from Kconfig.
 
--- 
+Signed-off-by: Domen Puncer <domen@coderock.org>
+Acked-by: Randy Dunlap <rddunlap@osdl.org>
+Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+---
 
+ linux-2.6.10-rc2-bk13-max/arch/ppc/platforms/prep_setup.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+diff -puN arch/ppc/platforms/prep_setup.c~ifdef-arch_ppc_platforms_prep_setup2 arch/ppc/platforms/prep_setup.c
+--- linux-2.6.10-rc2-bk13/arch/ppc/platforms/prep_setup.c~ifdef-arch_ppc_platforms_prep_setup2	2004-11-30 02:41:31.000000000 +0100
++++ linux-2.6.10-rc2-bk13-max/arch/ppc/platforms/prep_setup.c	2004-11-30 02:41:31.000000000 +0100
+@@ -645,7 +645,7 @@ static void __init prep_init_sound(void)
+ static void __init
+ prep_init_vesa(void)
+ {
+-#if     (defined(CONFIG_FB_VGA16) || defined(CONFIG_FB_VGA_16_MODULE) || \
++#if     (defined(CONFIG_FB_VGA16) || defined(CONFIG_FB_VGA16_MODULE) || \
+ 	 defined(CONFIG_FB_VESA))
+ 	PPC_DEVICE *vgadev = NULL;
+ 
+_

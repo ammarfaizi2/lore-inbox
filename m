@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276279AbRI1Tyk>; Fri, 28 Sep 2001 15:54:40 -0400
+	id <S276271AbRI1UCL>; Fri, 28 Sep 2001 16:02:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276278AbRI1Tya>; Fri, 28 Sep 2001 15:54:30 -0400
-Received: from zeke.inet.com ([199.171.211.198]:38351 "EHLO zeke.inet.com")
-	by vger.kernel.org with ESMTP id <S276280AbRI1TyT>;
-	Fri, 28 Sep 2001 15:54:19 -0400
-Message-ID: <3BB4D57A.C8E06654@inet.com>
-Date: Fri, 28 Sep 2001 14:54:34 -0500
-From: Eli Carter <eli.carter@inet.com>
-Organization: Inet Technologies, Inc.
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.19-6.2.7 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: n0ano@indstorage.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] core file naming option
-In-Reply-To: <E15mHSd-0000mh-00@the-village.bc.nu> <3BB20F26.5575897B@inet.com> <20010928123453.A892@tlaloc.indstorage.com>
+	id <S276280AbRI1UCC>; Fri, 28 Sep 2001 16:02:02 -0400
+Received: from [194.213.32.137] ([194.213.32.137]:2308 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S276271AbRI1UB4>;
+	Fri, 28 Sep 2001 16:01:56 -0400
+Message-ID: <20010926223814.A169@bug.ucw.cz>
+Date: Wed, 26 Sep 2001 22:38:14 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Magic SysRq +# in 2.4.9-ac/2.4.10-pre12
+In-Reply-To: <3BA8C01D.79FBD7C3@osdlab.org> <20010921162949.H8188@mueller.datastacks.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 0.93i
+In-Reply-To: <20010921162949.H8188@mueller.datastacks.com>; from Crutcher Dunnavant on Fri, Sep 21, 2001 at 04:29:49PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-n0ano@indstorage.com wrote:
-> Having the 2.2.x series create `core.pid' is like a 2 line change
-> to `fs/binfmt_elf.c', just increase the size of the array that holds
-> the file name and `sprintf' the pid into it.  I've got a patch for
-> the 2.2.x series that dumps core for all threads and puts them in
-> `core.pid' files.
+Hi!
 
-Well, when I asked Alan about it, he said "Doing it in 2.2 is incredibly
-hard for internal locking reasons"... I'm not ready to tackle that.
-If you have a patch that does it correctly, submit it to Alan.
-I'd still like to have the option I submitted as part of 2.2 *shrug*...
-it's just bringing back functionality that was in earlier versions of
-Linux as a compile option.  (From what I understand, this is similar to
-something done in the BSDs at some time in the past... but being a young
-whippersnapper, I don't really know.)
+> > 2.  I'd really prefer to see callers use
+> > register_sysrq_key() and unregister_sysrq_key() so that they
+> > can get/use return values, and not the lower-level functions
+> > "__sysrq*" functions that are EXPORTed in sysrq.c.
+> > I don't see a good reason to EXPORT all of these functions.
+> 
+> So would I, however, the lower interface is there so that modules can
+> restructure the table in more complex ways, allowing for sub-menus.
 
-Eli
---------------------.     Real Users find the one combination of bizarre
-Eli Carter           \ input values that shuts down the system for days.
-eli.carter(a)inet.com `-------------------------------------------------
+This is kernel, and sysrq was designed to be debug tool. It turned out
+to be more successfull than expected...
+
+Just keep in mind its a debug tool. If you need hierarchical submenus,
+then you are probably not using it as debug tool, right?
+								Pavel
+-- 
+I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
+Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org

@@ -1,55 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267382AbTBJMqU>; Mon, 10 Feb 2003 07:46:20 -0500
+	id <S267826AbTBJMs3>; Mon, 10 Feb 2003 07:48:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267826AbTBJMqU>; Mon, 10 Feb 2003 07:46:20 -0500
-Received: from dial-ctb04112.webone.com.au ([210.9.244.112]:60423 "EHLO
-	chimp.local.net") by vger.kernel.org with ESMTP id <S267382AbTBJMqT>;
-	Mon, 10 Feb 2003 07:46:19 -0500
-Message-ID: <3E47A14D.2090102@cyberone.com.au>
-Date: Mon, 10 Feb 2003 23:55:41 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020913 Debian/1.1-1
+	id <S267829AbTBJMs3>; Mon, 10 Feb 2003 07:48:29 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:39114 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S267826AbTBJMs2>; Mon, 10 Feb 2003 07:48:28 -0500
+Message-ID: <3E47A1E5.6020902@namesys.com>
+Date: Mon, 10 Feb 2003 15:58:13 +0300
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021212
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: Andrea Arcangeli <andrea@suse.de>
-CC: Andrew Morton <akpm@digeo.com>, reiser@namesys.com, jakob@unthought.net,
-       david.lang@digitalinsight.com, riel@conectiva.com.br,
-       ckolivas@yahoo.com.au, linux-kernel@vger.kernel.org, axboe@suse.de
+CC: Andrew Morton <akpm@digeo.com>, piggin@cyberone.com.au,
+       jakob@unthought.net, david.lang@digitalinsight.com,
+       riel@conectiva.com.br, ckolivas@yahoo.com.au,
+       linux-kernel@vger.kernel.org, axboe@suse.de
 Subject: Re: stochastic fair queueing in the elevator [Re: [BENCHMARK] 2.4.20-ck3
  / aa / rmap with contest]
-References: <3E4781A2.8070608@cyberone.com.au> <20030210111017.GV31401@dualathlon.random> <3E478C09.6060508@cyberone.com.au> <20030210113923.GY31401@dualathlon.random> <20030210034808.7441d611.akpm@digeo.com> <3E4792B7.5030108@cyberone.com.au> <20030210041245.68665ff6.akpm@digeo.com> <3E479AA1.3050308@cyberone.com.au> <20030210123006.GK31401@dualathlon.random> <3E479C43.4050206@cyberone.com.au> <20030210124303.GM31401@dualathlon.random>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+References: <20030210001921.3a0a5247.akpm@digeo.com> <20030210085649.GO31401@dualathlon.random> <20030210010937.57607249.akpm@digeo.com> <3E4779DD.7080402@namesys.com> <20030210101539.GS31401@dualathlon.random> <3E4781A2.8070608@cyberone.com.au> <20030210111017.GV31401@dualathlon.random> <3E478C09.6060508@cyberone.com.au> <20030210113923.GY31401@dualathlon.random> <20030210034808.7441d611.akpm@digeo.com> <20030210120916.GD31401@dualathlon.random>
+In-Reply-To: <20030210120916.GD31401@dualathlon.random>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli wrote:
+Is the following a fair summary?
 
->On Mon, Feb 10, 2003 at 11:34:11PM +1100, Nick Piggin wrote:
->  
->
->>Andrea Arcangeli wrote:
->>
->>    
->>
->>>On Mon, Feb 10, 2003 at 11:27:13PM +1100, Nick Piggin wrote:
->>>
->>>      
->>>
->>>>Is there a magic number above which you see the improvement,
->>>>Andrea? Or does it steadily climb?
->>>>
->>>>        
->>>>
->>>I recall more than 512k wasn't worthwhile anymore
->>>
->>>      
->>>
->>Behaviour between 128 and 512 would be interesting then
->>    
->>
->
->this is exactly what is shown by Randy's bonnie ;)
->
-I don't see it... I mean eg 192, 256, 320...
+There is a certain minimum size required for the IOs to be cost 
+effective.  This can be determined by single reader benchmarking.  Only 
+readahead and not anticipatory scheduling addresses that.
+
+Anticipatory scheduling does not address the application that spends one 
+minute processing every read that it makes.  Readahead does.
+
+Anticipatory scheduling does address the application that reads multiple 
+files that are near each other (because they are in the same directory), 
+and current readahead implementations (excepting reiser4 in progress 
+vaporware) do not.
+
+Anticipatory scheduling can do a better job of avoiding unnecessary 
+reads for workloads with small time gaps between reads than readahead 
+(it is potentially more accurate for some workloads).
+
+Is this a fair summary?
+
+-- 
+Hans
+
 

@@ -1,50 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262041AbUABAnY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jan 2004 19:43:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262050AbUABAnY
+	id S261928AbUABAg6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jan 2004 19:36:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261953AbUABAg6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jan 2004 19:43:24 -0500
-Received: from fw.osdl.org ([65.172.181.6]:2773 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262041AbUABAnW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jan 2004 19:43:22 -0500
-Date: Thu, 1 Jan 2004 16:43:59 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Mike Fedyk <mfedyk@matchmail.com>
-Cc: mulix@mulix.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [CFT/PATCH] give sound/oss/trident a holiday cleanup for 2.6
-Message-Id: <20040101164359.3656f0f7.akpm@osdl.org>
-In-Reply-To: <20040102003950.GF1882@matchmail.com>
-References: <20031229183846.GI13481@actcom.co.il>
-	<Pine.LNX.4.58.0312291049020.2113@home.osdl.org>
-	<20040101235147.GC1718@actcom.co.il>
-	<20040101160420.6a326d0a.akpm@osdl.org>
-	<20040102001203.GD1718@actcom.co.il>
-	<20040101162643.579af2bf.akpm@osdl.org>
-	<20040102003950.GF1882@matchmail.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Thu, 1 Jan 2004 19:36:58 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:29331 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261928AbUABAg5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jan 2004 19:36:57 -0500
+Date: Fri, 2 Jan 2004 00:36:52 +0000
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Hollis Blanchard <hollisb@us.ibm.com>
+Cc: Tommi Virtanen <tv@tv.debian.net>, Rob Love <rml@ximian.com>,
+       Nathan Conrad <lk@bungled.net>, Pascal Schmidt <der.eremit@email.de>,
+       linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
+Subject: Re: udev and devfs - The final word
+Message-ID: <20040102003651.GT4176@parcelfarce.linux.theplanet.co.uk>
+References: <3FF34522.8060106@tv.debian.net> <15B77182-3CB9-11D8-A498-000A95A0560C@us.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <15B77182-3CB9-11D8-A498-000A95A0560C@us.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Fedyk <mfedyk@matchmail.com> wrote:
->
-> > Nah, leave it as is.  I'm just having a little whine.  I added a nifty
->  > trailing-whitespace-detector to patch-scripts a while back and it's telling
->  > me that a *lot* of people use broken editors.
->  > 
+On Thu, Jan 01, 2004 at 06:17:43PM -0600, Hollis Blanchard wrote:
+> "console=" takes driver-supplied names which usually happen to match 
+> /dev node names. For example, drivers/serial/8250.c names itself 
+> "ttyS", so "console=ttyS0" will end up going to that driver, regardless 
+> of the state of /dev.
 > 
->  And if their editor changed the whitespace you'd get a lot more patches with
->  shitespace cleanups mixed in, and they'd have to clean up thhose patches... ;)
+> I'm not saying that's good or bad, but what's the alternative? 
+> "console=class/tty/ttyS0"?
 
-That's different.  I refer to patches which *add* trailing
-whitespace: ^+.*[ ]$
+Console code will need serious work anyway; note that current names
+do _not_ refer to tty devices - there is some overlap, but right now
+we have
+	* console drivers
+	* some of them being connected with tty drivers; those can tell
+which tty driver corresponds to them
+	* console ouput code maintaining chain of console drivers; output
+is sent to them, attempt to open() /dev/console ends up picking the first
+console driver that has corresponding tty one (== has console->device())
+and opening the tty device in question
+	* unholy mess with redirects.
 
-I usually strip it out for them.  This has the potential to irritate people
-because it can cause rejects for followup patches, but nobody has yet
-mentioned it.
-
-
+There's no device nodes for console drivers.  So names in console=... are
+something very odd, indeed.

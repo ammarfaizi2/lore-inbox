@@ -1,41 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278172AbRJRWbH>; Thu, 18 Oct 2001 18:31:07 -0400
+	id <S278181AbRJRWg2>; Thu, 18 Oct 2001 18:36:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278181AbRJRWa5>; Thu, 18 Oct 2001 18:30:57 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:39925
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S278172AbRJRWau>; Thu, 18 Oct 2001 18:30:50 -0400
-Date: Thu, 18 Oct 2001 15:31:17 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: CIARROCCHI Paolo <Paolo.CIARROCCHI@omnitelvodafone.it>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: preemptive patch
-Message-ID: <20011018153117.A2467@mikef-linux.matchmail.com>
-Mail-Followup-To: CIARROCCHI Paolo <Paolo.CIARROCCHI@omnitelvodafone.it>,
-	"'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-In-Reply-To: <232715C2AB04D311B4620008C7732E2D094DA368@oivmexo03.omnitel.it>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <232715C2AB04D311B4620008C7732E2D094DA368@oivmexo03.omnitel.it>
-User-Agent: Mutt/1.3.23i
+	id <S278187AbRJRWgS>; Thu, 18 Oct 2001 18:36:18 -0400
+Received: from caracal.noc.ucla.edu ([169.232.10.11]:55509 "EHLO
+	caracal.noc.ucla.edu") by vger.kernel.org with ESMTP
+	id <S278181AbRJRWgD>; Thu, 18 Oct 2001 18:36:03 -0400
+Message-ID: <3BCF5973.8020705@ucla.edu>
+Date: Thu, 18 Oct 2001 15:36:35 -0700
+From: Benjamin Redelings I <bredelin@ucla.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5+) Gecko/20011015
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 2.3.13-pre4 rather unstable?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 18, 2001 at 12:44:38PM +0200, CIARROCCHI Paolo wrote:
-> This patch will be insert in ac or linus tree?
->
+	Hi, I was using 2.3.14-pre4 here, but I had to reboot twice although I 
+didn't get an OOPS, so I reverted to 2.4.11-pre6.
+	1) first, my login to kde got stuck.  I had a lot of unkillable "kdeinit: 
+" processes, which were waiting in (I think) lockp and pipe_write, or 
+maybe pipe_way or something.
+	2) I rebooted and it seems to be OK.  However, when installing stuff 
+using dpkg one of the scripts hung.  My open konsole windows turned 
+unresponsive.  I tried to log in text mode, but it hung after printing 
+the motd.  Then I tried to log in as root - same thing!  Then the whole 
+system hung.  I couldn't get back into X on vt7...
 
-AFAICS, the preempt patch is planned to be merged into 2.5 when it splits
-out of 2.4 sometime soon.
+	The only modifications that I made were to
+	a) called mark_page_accessed if pte_young is true in do_try_to_free_pages 
+in vmscan.c
+	b) add 'if (PageActive(page)) return 0;' to the same function.
+	These modifications haven't caused any problem in previous kernels, and 
+seem to work fine.
 
-There are patches for both -ac ane Linus kernels.  Using the latest patch
-against the latest kernel is your best bet.
+	One thing which may be relevant is that home dirs are on nfs.  Any ideas? 
+  Anyone else have similar problems?
 
-I've been using it for a few weeks now with no problems on -ac kernels.
+-BenRI
 
-> Please CC'
-> 
+128MB RAM, IDE, Intel PIII, ethernet rltk8139
+-- 
+"At this time Frodo was still in his 'tweens', as the hobbits called
+the irresponsible twenties between childhood and coming-of-age at
+thirty three" - The Fellowship of the Ring, J.R.R. Tolkein
+Benjamin Redelings I      <><     http://www.bol.ucla.edu/~bredelin/
 
-Done

@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284242AbRLPE5F>; Sat, 15 Dec 2001 23:57:05 -0500
+	id <S284244AbRLPFbZ>; Sun, 16 Dec 2001 00:31:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284243AbRLPE4y>; Sat, 15 Dec 2001 23:56:54 -0500
-Received: from dsl-213-023-043-217.arcor-ip.net ([213.23.43.217]:23045 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S284242AbRLPE4n>;
-	Sat, 15 Dec 2001 23:56:43 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.17-rc1
-Date: Sun, 16 Dec 2001 05:59:28 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Ken Brownfield <brownfld@irridia.com>
-In-Reply-To: <Pine.LNX.4.21.0112131841080.28446-100000@freak.distro.conectiva>
-In-Reply-To: <Pine.LNX.4.21.0112131841080.28446-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16FTOd-00007M-00@starship.berlin>
+	id <S284248AbRLPFbP>; Sun, 16 Dec 2001 00:31:15 -0500
+Received: from ns01.netrox.net ([64.118.231.130]:11663 "EHLO smtp01.netrox.net")
+	by vger.kernel.org with ESMTP id <S284246AbRLPFbB>;
+	Sun, 16 Dec 2001 00:31:01 -0500
+Subject: Re: use shmfs
+From: Robert Love <rml@tech9.net>
+To: Hua Zhong <hzhong@cisco.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <00c801c185c8$466ebb60$5900a8c0@cisco.com>
+In-Reply-To: <00c801c185c8$466ebb60$5900a8c0@cisco.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.0.99+cvs.2001.12.10.08.57 (Preview Release)
+Date: 16 Dec 2001 00:31:25 -0500
+Message-Id: <1008480693.4514.0.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On December 13, 2001 09:44 pm, Marcelo Tosatti wrote:
-> rc1: 
+On Sat, 2001-12-15 at 19:26, Hua Zhong wrote:
+
+> Currently I'm using shmfs as a volatile storage. I am using Monta Vista's
+> kernel (2.4.2). I added the following line in /etc/fstab:
 > 
-> - Finish MODULE_LICENSE fixups for fs/nls 	(Mark Hymers)
-> - Console race fix				(Andrew Morton/Robert Love)
-> - Configure.help update				(Eric S. Raymond)
-> - Correctly fix Direct IO bug			(Linus Benedict Torvalds)
-> - Turn off aacraid debugging			(Alan Cox)
-> - Added missing spinlocking in do_loopback()	(Alexander Viro)
-> - Added missing __devexit_p() in i82092 
->   pcmcia driver					(Keith Owens)
-> - ns83820 zerocopy bugfix			(Benjamin LaHaise)
-> - Fix VM problems where cache/buffers didn't get
->   freed						(me)
+> tmpfs                   /dev/shm                shm     defaults        0 0
+> <snip>
+> I cannot write to the filesystem. write returns EINVAL. I can create an
+> empty file, however.
 
-Will there be a rc2?
+It is confusing: tmpfs is used both for abstracting POSIX shared memory
+(shm) and for a page-cache-based dynamic RAM disk.  The line above, that
+you are adding, is for the shm support.  You need to add another line to
+create the tmpfs filesystem at a given mount point.  Example:
 
---
-Daniel
+tmpfs		/var/cheese	tmpfs	defaults,size=4m	0 0
+
+Would create a tmpfs at /var/cheese.  The (optional) size parameter
+specifies a maximum fs size of 4MB.
+
+See Documentation/filesystems/tmpfs.txt for more information.
+
+	Robert Love
+

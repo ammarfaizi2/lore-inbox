@@ -1,55 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265769AbUA0Udx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 15:33:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265783AbUA0Udx
+	id S265715AbUA0U34 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 15:29:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265752AbUA0U34
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 15:33:53 -0500
-Received: from ns.suse.de ([195.135.220.2]:32488 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S265769AbUA0Udt (ORCPT
+	Tue, 27 Jan 2004 15:29:56 -0500
+Received: from mail.kroah.org ([65.200.24.183]:31457 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265715AbUA0U3z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 15:33:49 -0500
-Date: Tue, 27 Jan 2004 21:28:53 +0100
-From: Karsten Keil <kkeil@suse.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: ISDN CAPI (avm b1pci) doesn't work, occasionally freezes Kernel (2.6.1)
-Message-ID: <20040127202853.GA20425@pingi3.kke.suse.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <200401181746.i0IHkO2G002776@reason.gnu-hamburg> <1074468927.2722.2.camel@server> <m3r7xwqjue.fsf@reason.gnu-hamburg> <1074531587.1833.5.camel@server> <m3oet0dkti.fsf@reason.gnu-hamburg>
+	Tue, 27 Jan 2004 15:29:55 -0500
+Date: Tue, 27 Jan 2004 12:28:10 -0800
+From: Greg KH <greg@kroah.com>
+To: Roman Zippel <zippel@linux-m68k.org>, Linus Torvalds <torvalds@osdl.org>,
+       Alan Stern <stern@rowland.harvard.edu>,
+       Kernel development list <linux-kernel@vger.kernel.org>,
+       Patrick Mochel <mochel@digitalimplant.org>
+Subject: Re: PATCH: (as177)  Add class_device_unregister_wait() and platform_device_unregister_wait() to the driver model core
+Message-ID: <20040127202810.GD27240@kroah.com>
+References: <Pine.LNX.4.44L0.0401251224530.947-100000@ida.rowland.org> <Pine.LNX.4.58.0401251054340.18932@home.osdl.org> <Pine.LNX.4.58.0401261435160.7855@serv> <20040127193227.A30224@flint.arm.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <m3oet0dkti.fsf@reason.gnu-hamburg>
+In-Reply-To: <20040127193227.A30224@flint.arm.linux.org.uk>
 User-Agent: Mutt/1.4.1i
-Organization: SuSE Linux AG
-X-Operating-System: Linux 2.4.21-166-default i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 19, 2004 at 04:23:05PM +0100, Georg C. F. Greve wrote:
->  || On Mon, 19 Jan 2004 14:59:48 -0200
->  || fcp <fcp@pop.co.za> wrote: 
+On Tue, Jan 27, 2004 at 07:32:28PM +0000, Russell King wrote:
 > 
->  f> He advised me this morning that the latest i4l cvs branch kernel26
->  f> version (old isdn system) fixes the problems we are having with
->  f> the 2.6.1 kernel. Haven't had a chance to test this yet.
-> 
-> Ah, so 2.6.2 should fix the problem? Good.
-> 
+> (and yes, pci_module_init() is buggy as it currently stands, and I
+> believe GregKH has a patch in his queue from the stability freeze
+> from yours truely to fix it.)
 
-I sent a big patch to Linus (against 2.6.2-rc2), you will find the patch at
-ftp://ftp.isdn4linux.de/pub/isdn4linux/kernel/v2.6.
-It fix some small problems with the CAPI2.0 implementation/AVM active cards
-and is a new I4L/HiSax implementation based on the stable 2.4 code base. 
-It's successfull tested by a handfull people and I run it with all cards
-I own (~40 different types) without outstanding problems so far.
+Yes I still have it, I need to dig that out and send it onward...  Sorry
+about the delay.
 
-Currently untested:
-Teles PCMCIA
-Elsa PCMCIA
-some old ISA cards
-
--- 
-Karsten Keil
-SuSE Labs
-ISDN development
+greg k-h

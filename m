@@ -1,103 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266069AbSKFTxY>; Wed, 6 Nov 2002 14:53:24 -0500
+	id <S266051AbSKFTXu>; Wed, 6 Nov 2002 14:23:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266074AbSKFTxY>; Wed, 6 Nov 2002 14:53:24 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:15623 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S266069AbSKFTxT>; Wed, 6 Nov 2002 14:53:19 -0500
-Message-ID: <3DC97497.1070809@namesys.com>
-Date: Wed, 06 Nov 2002 22:59:19 +0300
-From: Yury Umanets <umka@namesys.com>
-Organization: NAMESYS
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021016
-X-Accept-Language: en-us, en, ru
+	id <S266056AbSKFTXu>; Wed, 6 Nov 2002 14:23:50 -0500
+Received: from packet.digeo.com ([12.110.80.53]:29637 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S266051AbSKFTXt>;
+	Wed, 6 Nov 2002 14:23:49 -0500
+Message-ID: <3DC96DCC.A7094AEC@digeo.com>
+Date: Wed, 06 Nov 2002 11:30:20 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Cliff White <cliffw@osdl.org>
-CC: reiserfs-dev@namesys.com, Linux-Kernel@vger.kernel.org
-Subject: Re: [reiserfs-dev] build failure: reiser4progs-0.1.0
-References: <200211061956.gA6Ju8B12346@mail.osdl.org>
-In-Reply-To: <200211061956.gA6Ju8B12346@mail.osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Kent Yoder <key@austin.ibm.com>
+CC: linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.46: sleeping function called from illegal context at 
+ mm/slab.c:1305
+References: <Pine.LNX.4.44.0211061308510.14931-100000@ennui.austin.ibm.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 06 Nov 2002 19:30:21.0092 (UTC) FILETIME=[F2118E40:01C285CA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cliff White wrote:
+Kent Yoder wrote:
+> 
+>   Seen on boot from 2.5.46-bk pulled earlier today.  This is a UP pentium 3
+> w/ 256 MB RAM. For some reason this sounds like a duplicate but I didn't see
+> anything...
+> 
+> Kent
+> 
+> slab: reap timer started for cpu 0
+> Starting kswapd
+> aio_setup: sizeof(struct page) = 40
+> [cfea2020] eventpoll: driver installed.
+> Debug: sleeping function called from illegal context at mm/slab.c:1305
+> Call Trace:
+>  [<c0143367>] kmem_flagcheck+0x67/0x70
+>  [<c0143d47>] kmalloc+0x67/0xc0
+>  [<c01461bf>] set_shrinker+0x1f/0xa0
+>  [<c0188a10>] mb_cache_create+0x1f0/0x2d0
+>  [<c0188640>] mb_cache_shrink_fn+0x0/0x1e0
+>  [<c0160299>] do_kern_mount+0xa9/0xe0
+>  [<c01050c3>] init+0x83/0x1b0
+>  [<c0105040>] init+0x0/0x1b0
+>  [<c010730d>] kernel_thread_helper+0x5/0x18
 
->>Cliff White wrote:
->>
->>    
->>
->>>Attempting to test reiser4, kernel 2.5.46, using the 2002.11.05 snapshot.
->>>--------------------------------------------------
->>>gcc -DHAVE_CONFIG_H -I. -I. -I../.. -I../../include -g -O2 -D_REENTRANT 
->>>-D_FILE_OFFSET_BITS=64 -g -W -Wall -Wno-unused -Werror 
->>>-DPLUGIN_DIR=\"/usr/local/lib/reiser4\" -c alloc40.c -MT alloc40.lo -MD -MP 
->>>-MF .deps/alloc40.TPlo  -fPIC -DPIC -o .libs/alloc40.lo
->>>cc1: warnings being treated as errors
->>>alloc40.c: In function `callback_fetch_bitmap':
->>>alloc40.c:50: warning: signed and unsigned type in conditional expression
->>>alloc40.c: In function `callback_flush_bitmap':
->>>alloc40.c:209: warning: signed and unsigned type in conditional expression
->>>alloc40.c: In function `callback_check_bitmap':
->>>alloc40.c:376: warning: signed and unsigned type in conditional expression
->>>make[3]: *** [alloc40.lo] Error 1
->>>make[3]: Leaving directory `/root/cgl/kern/reiser/reiser4progs-0.1.0/plugin/all
->>>oc40'
->>>make[2]: *** [all-recursive] Error 1
->>>make[2]: Leaving directory `/root/cgl/kern/reiser/reiser4progs-0.1.0/plugin'
->>>make[1]: *** [all-recursive] Error 1
->>>make[1]: Leaving directory `/root/cgl/kern/reiser/reiser4progs-0.1.0'
->>>make: *** [all] Error 2
->>>-------------------------------------
->>>cliffw
->>>
->>>
->>>
->>>
->>> 
->>>
->>>      
->>>
->>You are probably using gcc-3.2. Okay, fixed. Thanks a lot for report.
->>    
->>
->
->No, i am not using gcc-3.2
->]# gcc -v
->Reading specs from /usr/lib/gcc-lib/i386-redhat-linux/2.96/specs
->gcc version 2.96 20000731 (Red Hat Linux 7.1 2.96-81)
->I have replicated the problem on two machines
->cliffw
->
->  
->
->>-- 
->>Yury Umanets
->>
->>
->>-
->>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->>the body of a message to majordomo@vger.kernel.org
->>More majordomo info at  http://vger.kernel.org/majordomo-info.html
->>Please read the FAQ at  http://www.tux.org/lkml/
->>
->>    
->>
->
->
->
->
->  
->
-Sorry, I sent you not correct suggestion. Try
-
-./configure --enable-Werror=no
-
-Thank you for your efforts
-
--- 
-Yury Umanets
-
-
+Yup, thanks.  Andreas has prepared a patch which fixes this up.

@@ -1,35 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263194AbTCSWSC>; Wed, 19 Mar 2003 17:18:02 -0500
+	id <S263234AbTCSWWR>; Wed, 19 Mar 2003 17:22:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263196AbTCSWSB>; Wed, 19 Mar 2003 17:18:01 -0500
-Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:12808 "EHLO
-	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S263194AbTCSWR5>; Wed, 19 Mar 2003 17:17:57 -0500
-Date: Wed, 19 Mar 2003 23:28:44 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Greg KH <greg@kroah.com>
-cc: Andries.Brouwer@cwi.nl, <akpm@digeo.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] dev_t [1/3]
-In-Reply-To: <20030319220151.GA16947@kroah.com>
-Message-ID: <Pine.LNX.4.44.0303192323120.12110-100000@serv>
-References: <UTC200303182145.h2ILjEB29313.aeb@smtp.cwi.nl>
- <20030319220151.GA16947@kroah.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263208AbTCSWUg>; Wed, 19 Mar 2003 17:20:36 -0500
+Received: from kura.mail.jippii.net ([195.197.172.113]:64655 "HELO
+	kura.mail.jippii.net") by vger.kernel.org with SMTP
+	id <S263202AbTCSWSj>; Wed, 19 Mar 2003 17:18:39 -0500
+Message-ID: <3617283.1048112940351.JavaMail.flexy@nic.fi>
+Date: Thu, 20 Mar 2003 00:29:00 +0200 (EET)
+From: flexy@nic.fi
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.21-pre5 kernel Oops, USB related (and some other problems)
+Cc: flexy@nic.fi
+Mime-Version: 1.0
+Content-Type: text/plain; Charset=utf-8; Format=Flowed
+Content-Transfer-Encoding: 7bit
+X-Mailer: Saunalahti webmail - http://www.saunalahti.fi
+X-Originating-IP: 213.139.183.246
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-On Wed, 19 Mar 2003, Greg KH wrote:
+First, this seems to be a reproducible oops. Second, the kernel oops 
+messages, ksymoops outputs and some other stuff I thought might be of 
+use, can be found at
 
-> I've been beating on these three patches and don't seem to have any
-> problems.  And I see Andrew has put them in his -mm tree too.
+http://stekt.oulu.fi/~flexy/Oops.tar
 
-I disagree, give me a bit more time and I have an alternative patch. 
-Alternatively I'd prefer to see an explicit ack from Al.
+Then, about my hardware,
 
-bye, Roman
+Epox M762A SMP board with AMD-760MPX chipset
+2*MP1600+, NOT overclocked
+512MB Crucial ECC memory, Correct+Scrub set on@bios
+Intel PRO/1000MT 1Gb NIC
+Intel build in 100Mb NIC
+S3 PCI display adapter
+Adaptec ATA RAID 2400A, with 4 disks at raid5
+HP PSC750 (USB)
+
+In the Oops.tar, there is two directories, 1 and 2. In directory 1, 
+there is a Oops with this hardware and in 2, there is Oops with onboard 
+USB hub disabled from bios and PCI USB adapter in use. I don't know the 
+exact type of the adapter, but it came with MSI K7 Master-L motherboard, 
+allmost the same motherboard as this Epox. And it seems to use the same 
+driver.
+
+OK, this was the main thing.
+
+Then I have two issues, that I can't get logs, or alike of. First, I 
+have a 4x4 cd changer, which kernel reports as: ALPS ELECTRIC CO.,LTD. 
+DC544C, ATAPI CD/DVD-ROM drive. I use ide-scsi on it. Almost every time 
+I use it, the kernel hangs totally, nothing on the logs, no ssh 
+connections etc, Magic SysReQ does not work. This worked fine with old 
+P150 machine, but has not worked with this new hardware... Second, on 
+boot, sometimes the boot starts over from the bios screen. I can see it 
+when it is gonna happen, cause does not go fast to the Adaptec raid card 
+recognision, but stops for a moment at something about processors... I 
+know this is a bit vague, but if somebody has had the same problem, or 
+would like to examine it more, I could try to capture it with 
+camcorder... And finally, these both things happen with both Epox and 
+MSI motherboards.
+
+
+Thanks in advance,
+Flexy
+
+P.S. I am much more of a HW person, so I propably missed something... 
+I'm happy to provide any more information to help to solve any of these 
+problems. Just let me know what. :)
+
+P.P.S. When responding to this mail in any way, please don't drop me out 
+of the loop, put flexy@nic.fi to CC: list :)
 

@@ -1,41 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281471AbRKPSf1>; Fri, 16 Nov 2001 13:35:27 -0500
+	id <S281475AbRKPSp2>; Fri, 16 Nov 2001 13:45:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281473AbRKPSfR>; Fri, 16 Nov 2001 13:35:17 -0500
-Received: from grunt.ksu.ksu.edu ([129.130.12.17]:42472 "EHLO
-	mailhub.cns.ksu.edu") by vger.kernel.org with ESMTP
-	id <S281471AbRKPSfE>; Fri, 16 Nov 2001 13:35:04 -0500
-Date: Fri, 16 Nov 2001 12:35:00 -0600
-From: Joseph Pingenot <jap3003@ksu.edu>
-To: linux-kernel@vger.kernel.org
-Subject: CacheFS for Linux?
-Message-ID: <20011116123500.A12988@ksu.edu>
-Reply-To: jap3003+response@ksu.edu
-Mail-Followup-To: linux-kernel@vger.kernel.org.
+	id <S281480AbRKPSpR>; Fri, 16 Nov 2001 13:45:17 -0500
+Received: from chunnel.redhat.com ([199.183.24.220]:46585 "EHLO
+	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
+	id <S281479AbRKPSo6>; Fri, 16 Nov 2001 13:44:58 -0500
+Date: Fri, 16 Nov 2001 18:44:52 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Ben Collins <bcollins@debian.org>, Andrew Morton <akpm@zip.com.au>,
+        linux-kernel@vger.kernel.org
+Cc: Stephen Tweedie <sct@redhat.com>
+Subject: Re: Bug in ext3
+Message-ID: <20011116184452.E6626@redhat.com>
+In-Reply-To: <20011115092452.Z329@visi.net> <3BF3F9ED.17D55B35@zip.com.au>, <3BF3F9ED.17D55B35@zip.com.au> <20011115153442.A329@visi.net> <3BF42A1A.5AE96A78@zip.com.au> <20011115160232.H329@visi.net> <20011115145803.R5739@lynx.no> <20011115170628.J329@visi.net> <20011115162149.U5739@lynx.no> <20011116183837.D6626@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
-X-School: Kansas State University
-X-vi-or-emacs: vi
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011116183837.D6626@redhat.com>; from sct@redhat.com on Fri, Nov 16, 2001 at 06:38:37PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+Hi,
 
-Has any work been done on creating a sort of CacheFS for Linux
-  (local NFS caching)?  If so, where can I go to get more info
-  on getting it up and running?  Or is it already implemented
-  somewhere?
-Thanks!
+On Fri, Nov 16, 2001 at 06:38:37PM +0000, Stephen C. Tweedie wrote:
+> Looks OK.  I've done a slightly better version which catches a couple
+> of extra cases but it's basically the same solution.  I've also added
+> a tiny patch to prevent a failed journal_wipe() from being followed by
+> a journal_load() attempt, so we don't get the same error twice.
 
-                              -Joseph
--- 
-Joseph======================================================jap3003@ksu.edu
-"In addition to MozCalander(sic), and MozOffice, the Mozilla Organization
-  has announced MozSink, an Open Source replacement for the Kitchen
-  Sink(tm).  It is believed that this could revolutionize Open Source
-  development."  -- www.slashdot.org (/.), brunes69
-"I wondered when Emacs would get embedded in Mozilla ;-)" -- /., tjwhaynes,
-  responding to the above comment
+This definitely fixes that error path: I just get one, clean error
+now, and no corruption of the file that was masquerading as the
+journal.  It doesn't properly release the journal inode, though, so we
+oops on a later ext2 mount as we think we already have the (ext3)
+inode in cache.  Fix to follow.
+
+Ben, thanks for this --- this level of corrupt journal is something
+that hasn't been tested in this way before.
+
+--Stephen

@@ -1,51 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264939AbTAWOo7>; Thu, 23 Jan 2003 09:44:59 -0500
+	id <S265277AbTAWOrM>; Thu, 23 Jan 2003 09:47:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264962AbTAWOo7>; Thu, 23 Jan 2003 09:44:59 -0500
-Received: from anor.ics.muni.cz ([147.251.4.35]:936 "EHLO anor.ics.muni.cz")
-	by vger.kernel.org with ESMTP id <S264939AbTAWOo6>;
-	Thu, 23 Jan 2003 09:44:58 -0500
-Newsgroups: cz.muni.redir.linux-kernel
-Path: rubisko.ascs.muni.cz!xkaminsk
-From: Zdenek SUTR Kaminski <xkaminsk@rubisko.ascs.muni.cz>
-Subject: Re: 2.4.21pre3-ac4 ide trouble (HPT370 and IBM DTLA-30745)
-Message-ID: <Pine.LNX.4.44.0301231550410.23594-100000@rubisko.ascs.muni.cz>
-In-Reply-To: <20030123121527.GA29958@middle.of.nowhere>
-Date: Thu, 23 Jan 2003 14:54:04 GMT
-To: Jurriaan <thunder7@xs4all.nl>
-X-Nntp-Posting-Host: rubisko.ascs.muni.cz
-Reply-To: xkaminsk@fi.muni.cz
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-References: <20030123121527.GA29958@middle.of.nowhere>
-Mime-Version: 1.0
-Organization: unknown
-X-Muni-Virus-Test: Clean
+	id <S265285AbTAWOrM>; Thu, 23 Jan 2003 09:47:12 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:50076 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S265277AbTAWOrL>; Thu, 23 Jan 2003 09:47:11 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Arnd Bergmann <arndb@de.ibm.com>
+Reply-To: arnd@bergmann-dalldorf.de
+To: linux-kernel@vger.kernel.org
+Subject: [patch] gcc-3.3 warns about 2.5.59 EXPORT_SYMBOL
+Date: Thu, 23 Jan 2003 15:37:04 +0100
+User-Agent: KMail/1.4.3
+Organization: IBM Deutschland Entwicklung GmbH
+Cc: Rusty Russell <rusty@rustcorp.com.au>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <200301231537.04168.arndb@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+When building linux-2.5.59 with gcc-3.3 (on s390, if that matters),
+I get a warning like "warning: `__ksymtab___foo' defined but 
+not used" each time that EXPORT_SYMBOL is used.
+The patch below fixes this.
 
-> hde: IBM-DTLA-307045, ATA DISK drive
+	Arnd <><
 
-
-in drivers/ide/hpt366.c I see:
-
-const char *bad_ata100_5[] = {
-...
-    "IBM-DTLA-307045",
-...
-}
-
-I had a same problem and I solved it with other disk...
-
-
-
--- 
-Bc. Zdenek Kaminski <xkaminsk at fi.muni.cz>
-
-homepage: http://www.fi.muni.cz/~xkaminsk/
-IPv6 router homepage: http://www.openrouter.net/
-Key: 0xD7315488
-Key fingerprint: 3CB0 8108 CB76 446E 2895 AF33 9B3A 851B D731 5488
+--- ./include/linux/module.h	17 Jan 2003 13:46:37 -0000	1.15
++++ ./include/linux/module.h	23 Jan 2003 14:53:06 -0000
+@@ -145,7 +145,7 @@
+ 	__attribute__((section("__ksymtab_strings")))		\
+ 	= MODULE_SYMBOL_PREFIX #sym;                    	\
+ 	static const struct kernel_symbol __ksymtab_##sym	\
+-	__attribute__((section("__ksymtab")))			\
++	__attribute__((section("__ksymtab"),unused))		\
+ 	= { (unsigned long)&sym, __kstrtab_##sym }
+ 
+ #define EXPORT_SYMBOL_NOVERS(sym) EXPORT_SYMBOL(sym)
+@@ -155,7 +155,7 @@
+ 	__attribute__((section("__ksymtab_strings")))		\
+ 	= MODULE_SYMBOL_PREFIX #sym;                    	\
+ 	static const struct kernel_symbol __ksymtab_##sym	\
+-	__attribute__((section("__gpl_ksymtab")))		\
++	__attribute__((section("__gpl_ksymtab"),unused))	\
+ 	= { (unsigned long)&sym, __kstrtab_##sym }
+ 
+ struct module_ref
 

@@ -1,63 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261424AbSJMJYQ>; Sun, 13 Oct 2002 05:24:16 -0400
+	id <S261477AbSJMJju>; Sun, 13 Oct 2002 05:39:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261476AbSJMJYP>; Sun, 13 Oct 2002 05:24:15 -0400
-Received: from holomorphy.com ([66.224.33.161]:1673 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S261424AbSJMJYP>;
-	Sun, 13 Oct 2002 05:24:15 -0400
-Date: Sun, 13 Oct 2002 02:26:02 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Anton Blanchard <anton@samba.org>
-Cc: "Joseph D. Wagner" <wagnerjd@prodigy.net>,
-       "'Rob Mueller'" <robm@fastmail.fm>,
-       "'Mark Hahn'" <hahn@physics.mcmaster.ca>, linux-kernel@vger.kernel.org,
-       "'Jeremy Howard'" <jhoward@fastmail.fm>
-Subject: Re: Strange load spikes on 2.4.19 kernel
-Message-ID: <20021013092602.GB27878@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Anton Blanchard <anton@samba.org>,
-	"Joseph D. Wagner" <wagnerjd@prodigy.net>,
-	'Rob Mueller' <robm@fastmail.fm>,
-	'Mark Hahn' <hahn@physics.mcmaster.ca>,
-	linux-kernel@vger.kernel.org, 'Jeremy Howard' <jhoward@fastmail.fm>
-References: <113001c27282$93955eb0$1900a8c0@lifebook> <000001c27286$6ab6bc60$7443f4d1@joe> <20021013085938.GA23575@krispykreme>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021013085938.GA23575@krispykreme>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S261478AbSJMJjt>; Sun, 13 Oct 2002 05:39:49 -0400
+Received: from ep09.kernel.pl ([212.87.11.162]:37664 "EHLO ep09.kernel.pl")
+	by vger.kernel.org with ESMTP id <S261477AbSJMJjt>;
+	Sun, 13 Oct 2002 05:39:49 -0400
+Date: Sun, 13 Oct 2002 11:45:38 +0200 (CEST)
+From: Witek Krecicki <adasi@kernel.pl>
+To: linux-kernel@vger.kernel.org
+Subject: Is initrd working?
+Message-ID: <Pine.LNX.4.44L.0210131143240.27096-100000@ep09.kernel.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 13, 2002 at 06:59:38PM +1000, Anton Blanchard wrote:
-> My 24 way SMP disagrees with your analysis:
-> http://samba.org/~anton/linux/2.5.40/dbench/
-> Thats just ext2. dbench is a filesystem benchmark that is heavy on
-> inode/block allocation.
-> Please show us your profiles which show linux filesystems do not
-> utilise SMP.
+I was trying to run initrd on 2.5.41, 2.5.42, 2.5.42-mm{1,2}, 2.5.42-ac1 
+and it is not working in any case (oopsing just after RAMDISK: Compressed 
+image found...). I've sent decoded oops some time ago, without any 
+response. I cannot even try modular IDE because of that :/
+Please help
 
-Low-level fs driver block allocation etc. does appear to be an issue in
-the fs-intensive benchmarks I run. In fact, the it's the only remaining
-serious lock contention issue besides the dcache_lock, and that's
-solved in akpm's tree. I have assurances work is being done on block
-allocation and am not too concerned about it.
+-- 
+* Witek Krecicki   adasi@pld.org.pl adasi@kernel.pl  GG346981 +48502117580 *
+* "None but ourselves can free our minds"  -  Bob Marley,  Redemption Song *
+* http://www.risingsun.org  http://www.kernel.org    http://www.pld.org.pl *
+* http://risingsun.eu.org    http://www.6bone.pl    http://www.amnesty.org *
 
-The rest of the trouble I see is lock contention in the page allocator
-(solved in akpm's tree), stability (%$#*!), scheduler/VM/vfs/block I/O
-data structure space consumption, and raw cpu cost of various
-algorithms. pmd's are particularly pernicious (dmc had something for
-this), followed by buffer_heads, task_structs, names_cache (mostly an
-artifact of the benchmarks, but worth fixing), and inodes.
-
-Last, but not least, when OOM does occur, the algorithm for OOM
-recovery does not degrade well in the presence of many tasks. There is
-also an issue with the arrival rate to out_of_memory() being O(cpus)
-and the OOM killer being based on arrival rates, but not scaling its
-threshholds appropriately. The former means that the OOM killer is
-triggered falsely, and the latter means the box is unresponsive for so
-long in OOM kill sprees it is dead period.
-
-Bill

@@ -1,38 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279824AbRJ0O1I>; Sat, 27 Oct 2001 10:27:08 -0400
+	id <S271741AbRJ0Oqt>; Sat, 27 Oct 2001 10:46:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279833AbRJ0O06>; Sat, 27 Oct 2001 10:26:58 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:60247 "EHLO
-	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S279831AbRJ0O0v>; Sat, 27 Oct 2001 10:26:51 -0400
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Any stable 2.4 kernel?
-In-Reply-To: <Pine.LNX.4.33L.0110270755550.32445-100000@imladris.surriel.com>
-	<3BDA8665.88DA22E1@mandrakesoft.com>
-From: ebiederman@uswest.net (Eric W. Biederman)
-Date: 27 Oct 2001 08:16:37 -0600
-In-Reply-To: <3BDA8665.88DA22E1@mandrakesoft.com>
-Message-ID: <m1bsitmam2.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
-MIME-Version: 1.0
+	id <S270619AbRJ0Oqj>; Sat, 27 Oct 2001 10:46:39 -0400
+Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:55047 "EHLO
+	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S271741AbRJ0Oq1>; Sat, 27 Oct 2001 10:46:27 -0400
+Date: Sat, 27 Oct 2001 16:39:43 +0200
+From: Jurriaan <thunder7@xs4all.nl>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.13ac2: small patch to arch/alpha/kernel/time.c needed for compilation
+Message-ID: <20011027163943.A1334@middle.of.nowhere>
+Reply-To: thunder7@xs4all.nl
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik <jgarzik@mandrakesoft.com> writes:
+--- linux-2.4.13ac2/arch/alpha/kernel/time.c    Sat Oct 27 14:52:30 2001
++++ linux-2.4.13ac2-new/arch/alpha/kernel/time.c        Sat Oct 27 14:47:37 2001
+@@ -209,7 +209,7 @@
+                return cc;
 
+        if (cc < (cpu_hz[index].min - FREQ_DEVIATION)
+-           || cc > (cpu_hz[index].max + FREQ_DEVIATION)
++           || cc > (cpu_hz[index].max + FREQ_DEVIATION))
+                return 0;
 
-> And while you're at it ask for Intel SpeedStep docs, too...
+        return cc;
 
-SpeedStep isn't totally undocumented.  The IO Controller Hub 2
-documentation has documentation on how to switch the processor into
-speed step mode.  
+It really speaks for itself.
 
-And I believe the Pentium 4 version is documented.
-
-I haven't looked in detail at this point, so it may be only partially
-documented. 
-
-Eric
+Good luck,
+Jurriaan
+-- 
+If all is not lost, then where is it?
+	Anonymous
+GNU/Linux 2.4.13-ac2 SMP/ReiserFS 2x1402 bogomips load av: 0.41 0.15 0.05

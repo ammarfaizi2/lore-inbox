@@ -1,37 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269038AbRG3RiS>; Mon, 30 Jul 2001 13:38:18 -0400
+	id <S269039AbRG3Rh5>; Mon, 30 Jul 2001 13:37:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269037AbRG3RiI>; Mon, 30 Jul 2001 13:38:08 -0400
-Received: from ns3.keyaccesstech.com ([209.47.245.85]:20487 "EHLO
-	terbidium.openservices.net") by vger.kernel.org with ESMTP
-	id <S269038AbRG3Rhy>; Mon, 30 Jul 2001 13:37:54 -0400
-Date: Mon, 30 Jul 2001 13:38:02 -0400 (EDT)
-From: Ignacio Vazquez-Abrams <ignacio@openservices.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: Test mail
-In-Reply-To: <200107301722.f6UHM3A205344@saturn.cs.uml.edu>
-Message-ID: <Pine.LNX.4.33.0107301334390.27931-100000@terbidium.openservices.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-scanner: scanned by Inflex 1.0.7 - (http://pldaniels.com/inflex/)
+	id <S269037AbRG3Rhh>; Mon, 30 Jul 2001 13:37:37 -0400
+Received: from weta.f00f.org ([203.167.249.89]:26502 "HELO weta.f00f.org")
+	by vger.kernel.org with SMTP id <S269030AbRG3Rhe>;
+	Mon, 30 Jul 2001 13:37:34 -0400
+Date: Tue, 31 Jul 2001 05:38:13 +1200
+From: Chris Wedgwood <cw@f00f.org>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Lawrence Greenfield <leg+@andrew.cmu.edu>,
+        "Patrick J. LoPresti" <patl@cag.lcs.mit.edu>,
+        linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Chris Mason <mason@suse.com>
+Subject: Re: ext3-2.4-0.9.4
+Message-ID: <20010731053813.A5961@weta.f00f.org>
+In-Reply-To: <Pine.LNX.4.33L.0107301422120.5582-100000@duckman.distro.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33L.0107301422120.5582-100000@duckman.distro.conectiva>
+User-Agent: Mutt/1.3.18i
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Mon, 30 Jul 2001, Albert D. Cahalan wrote:
+On Mon, Jul 30, 2001 at 02:25:51PM -0300, Rik van Riel wrote:
 
-> Banning Outlook isn't so bad. Assuming you are stuck with Windows,
-> you still have many choices. Netscape/Mozilla and Eudora would be
-> the obvious choices. I think you can get pine. Emacs has been
-> ported to Windows, so you have the rmail/gnus stuff. Surely you
-> can tolerate at least one of these many choices.
+    Note that this is very different from the "link() should be
+    synchronous()" mantra we've been hearing over the last days.
+    
+    These fsync() semantics make lots of sense to me, I'm all
+    for it.
 
-The problem is that in plenty of large companies not only are you stuck with
-Windows, but you're also stuck with either Outlook or Notes because of
-corporate decisions (i.e., Exchange or Domino). Trust me; been there, done
-that.
+And what if the file has hundreds or thousands of links? How do we
+cleanly keep track of all those?
 
--- 
-Ignacio Vazquez-Abrams  <ignacio@openservices.net>
+
+
+  --cw
 

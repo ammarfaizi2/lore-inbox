@@ -1,92 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267957AbUIPLia@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267998AbUIPLhl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267957AbUIPLia (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 07:38:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268000AbUIPLi3
+	id S267998AbUIPLhl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 07:37:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267994AbUIPLhk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 07:38:29 -0400
-Received: from 147.32.220.203.comindico.com.au ([203.220.32.147]:39317 "EHLO
-	relay01.mail-hub.kbs.net.au") by vger.kernel.org with ESMTP
-	id S267957AbUIPLeQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 07:34:16 -0400
-Subject: Re: Suspend2 Merge: e820 table support.
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Andrew Morton <akpm@digeo.com>,
+	Thu, 16 Sep 2004 07:37:40 -0400
+Received: from gprs214-194.eurotel.cz ([160.218.214.194]:24706 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S267961AbUIPLcZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Sep 2004 07:32:25 -0400
+Date: Thu, 16 Sep 2004 13:32:05 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+Cc: Andrew Morton <akpm@digeo.com>, Patrick Mochel <mochel@digitalimplant.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040916112711.GD5467@elf.ucw.cz>
-References: <1095332590.3324.166.camel@laptop.cunninghams>
-	 <20040916111438.GB5467@elf.ucw.cz>
-	 <1095333881.4932.194.camel@laptop.cunninghams>
-	 <20040916112711.GD5467@elf.ucw.cz>
-Content-Type: text/plain
-Message-Id: <1095334545.4932.206.camel@laptop.cunninghams>
+Subject: Re: [PATCH] Suspend2 Merge: Driver model patches 0/2
+Message-ID: <20040916113205.GF5467@elf.ucw.cz>
+References: <1095332314.3855.157.camel@laptop.cunninghams> <20040916111852.GC5467@elf.ucw.cz> <1095334173.3324.200.camel@laptop.cunninghams>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Thu, 16 Sep 2004 21:35:46 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1095334173.3324.200.camel@laptop.cunninghams>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Hi!
 
-On Thu, 2004-09-16 at 21:27, Pavel Machek wrote:
-> Hmm, it also contains (saveable()):
+> > > Here are two patches for the driver model, which have been in use in
+> > > suspend2 for around a month.
+> > > 
+> > > The first provides support for keeping part of the device tree alive
+> > > while suspending the remainder. This is accomplished by abstracting the
+> > > dpm_active, dpm_off and dpm_irq lists into a new struct partial device
+> > 
+> > I believe this is wrong approach.
+> > 
+> > For atomic snapshot to work, all devices need to be stopped. If your
+> > video card does DMA, it needs to be stopped. So all drivers need to
+> > know, you can not just exclude part of tree.
 > 
->         BUG_ON(PageReserved(page) && PageNosave(page));
-
-How do you cover those HighMem pages that get marked Reserved and are
-unusable? (That's what the e820 logic was for, iirc. Think it was done
-about February!). Not handling them resulted in MCEs when trying to do
-the atomic copy or when restoring (seemed random).
-
-> ..but that should be easy to kill. I'd be worried about this function:
+> Sorry. Perhaps I wasn't clear enough. I do suspend these devices. But I
+> do it later:
 > 
-> static void free_suspend_pagedir_zone(struct zone *zone, unsigned long
-> pagedir)
-> {
->         unsigned long zone_pfn, pagedir_end, pagedir_pfn,
-> pagedir_end_pfn;
->         pagedir_end = pagedir + (PAGE_SIZE << pagedir_order);
->         pagedir_pfn = __pa(pagedir) >> PAGE_SHIFT;
->         pagedir_end_pfn = __pa(pagedir_end) >> PAGE_SHIFT;
->         for (zone_pfn = 0; zone_pfn < zone->spanned_pages; ++zone_pfn)
-> {
->                 struct page *page;
->                 unsigned long pfn = zone_pfn + zone->zone_start_pfn;
->                 if (!pfn_valid(pfn))
->                         continue;
->                 page = pfn_to_page(pfn);
+> Suspend all other drivers.
+> Write pageset 2 (page cache).
+> Suspend used drivers.
+> Make atomic copy.
+> Resume used drivers.
+> Write pageset 1 (atomic copy)
+> Suspend used drivers.
+> Power down all.
 
-Mmm. I should get around to using pfn_to_page. That's necessary for
-discontig support, right? Haven't looked at that yet. (Yes, swsusp has
-functionality suspend2 doesn't!) :>.
+What is problem with:
 
->                 if (!TestClearPageNosave(page))
->                         continue;
->                 else if (pfn >= pagedir_pfn && pfn < pagedir_end_pfn)
->                         continue;
->                 __free_page(page);
->         }
-> }
+Write pageset 2
+Suspend all drivers (avoiding slow operations)
+Make atomic copy
+Resume all drivers (avoiding slow operations)
+Write pageset 1
+Suspend all drivers
+Power down all.
 
-Wow. This function is really hard to understand. Or maybe I'm really
-ignorant :>. 
+?
 
-> I posted diff to get rid of it, but it did not get enough testing so
-> it is not in mainline.
-> 								Pavel
+> > Now, you probably do not want disks to spin down and you want your
+> > screen unblanked (as an optimalization/speedup). Patch for keeping
+> > disk up is allready in -mm. Patch for keeping radeonfb up looks like
+> > this, and is pending, too.
+> 
+> Mm. Don't forget i8xx and the gazillion other drivers there :>. I see
+> this is using the SYSTEM_SNAPSHOT value. Do those changes look like
+> being merged to Linus soon?
 
-Regards,
+I still hope so. Patrick is back, so it could be merged by the end of
+week... if we are lucky.
+								Pavel
 
-Nigel
 -- 
-Nigel Cunningham
-Pastoral Worker
-Christian Reformed Church of Tuggeranong
-PO Box 1004, Tuggeranong, ACT 2901
-
-Many today claim to be tolerant. True tolerance, however, can cope with others
-being intolerant.
-
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

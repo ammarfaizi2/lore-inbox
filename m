@@ -1,62 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263524AbSITUpE>; Fri, 20 Sep 2002 16:45:04 -0400
+	id <S263503AbSITUmK>; Fri, 20 Sep 2002 16:42:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263527AbSITUpE>; Fri, 20 Sep 2002 16:45:04 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:60363 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S263524AbSITUpD>; Fri, 20 Sep 2002 16:45:03 -0400
-Date: Sat, 21 Sep 2002 02:24:23 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Hanna Linder <hannal@us.ibm.com>
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-       Maneesh Soni <maneesh@in.ibm.com>, Andrew Morton <akpm@digeo.com>,
-       linux-kernel@vger.kernel.org, viro@math.psu.edu
-Subject: Re: 2.5.36-mm1 dbench 512 profiles
-Message-ID: <20020921022423.B5267@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20020919223007.GP28202@holomorphy.com> <68630000.1032477517@w-hlinder> <3D8A5FE6.4C5DE189@digeo.com> <20020920000815.GC3530@holomorphy.com> <200209200747.g8K7la9B174532@northrelay01.pok.ibm.com> <20020920080628.GK3530@holomorphy.com> <20020920120358.GV28202@holomorphy.com> <61200000.1032547873@w-hlinder> <69960000.1032553974@w-hlinder>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <69960000.1032553974@w-hlinder>; from hannal@us.ibm.com on Fri, Sep 20, 2002 at 08:32:48PM +0000
+	id <S263511AbSITUmJ>; Fri, 20 Sep 2002 16:42:09 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:49566 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S263503AbSITUmI>; Fri, 20 Sep 2002 16:42:08 -0400
+Message-ID: <3D8B878C.8070503@watson.ibm.com>
+Date: Fri, 20 Sep 2002 16:39:40 -0400
+From: Shailabh Nagar <nagar@watson.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020408
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ben LaHaise <bcrl@redhat.com>
+Cc: Andrew Morton <akpm@digeo.com>, Alexander Viro <viro@math.psu.edu>,
+       linux-aio <linux-aio@kvack.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       lse-tech <lse-tech@lists.sourceforge.net>
+Subject: [RFC] adding aio_readv/writev
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 20, 2002 at 08:32:48PM +0000, Hanna Linder wrote:
-> --On Friday, September 20, 2002 11:51:13 -0700 Hanna Linder <hannal@us.ibm.com> wrote:
-> 
-> > 
-> > 	Perhaps it is time to reconsider replacing fastwalk with dcache_rcu. 
-> 
-> These patches were written by Maneesh Soni. Since the Read-Copy Update
-> infrastructure has not been accepted into the mainline kernel yet (although
-> there were murmurings of it being acceptable) you will need to apply
-> those first. Here they are, apply in this order. Too big to post
-> inline text though. These are provided against 2.5.36-mm1.
-> 
-> 
-> http://prdownloads.sourceforge.net/lse/rcu_ltimer-2.5.36-mm1
-> 
-> http://prdownloads.sourceforge.net/lse/read_barrier_depends-2.5.36-mm1
-> 
-> http://prdownloads.sourceforge.net/lse/dcache_rcu-12-2.5.36-mm1
-> 
-> There has been quite a bit of testing done on this and it has proven
-> quite stable. If anyone wants to do any additional testing that would
-> be great.
+Ben,
 
-Thanks for the vote of confidence :)
+Currently there is no way to initiate an aio readv/writev in 2.5. There 
+were no aio_readv/writev calls in 2.4 either - I'm wondering if there 
+was any particular reason for excluding readv/writev operations from aio ?
 
-Now for some results (out of date, but also has results with backported code 
-from 2.5) see http://lse.sf.net/locking/dcache/dcache.html.
+The read/readv paths have anyway been merged for raw/O_DIRECT and 
+regular file read/writes. So why not expose the vector read/write to the 
+user by adding the IOCB_CMD_PREADV/IOCB_CMD_READV and 
+IOCB_CMD_PWRITEV/IOCB_CMD_WRITEV commands to the aio set. Without that, 
+raw/O_DIRECT readv users would need to unnecessarily cycle through their 
+iovecs at a library level submitting them individually.
+For larger iovecs, user/library code would needlessly deal with multiple 
+completions. While I'm not sure of the performance impact of the absence 
+of aio_readv/writev, it seems easy enough to provide.
+Most of the functions are already in place. We would only
+need a way to pass the iovec through the iocb.
 
-Preliminary profiling of webserver benchmarks in 2.5.3X show similar potential
-for dcache_rcu. I will have actual results published when we can
-get formal runs done.
+I was thinking of something like this:
 
-Thanks
--- 
-Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
-Linux Technology Center, IBM Software Lab, Bangalore, India.
+struct iocb {
+
++union {
+        __u64	aio_buf
++      __u64	aio_iovp
++}
++union {
+        __u64	aio_nbytes
++      __u64	aio_nsegs
++}
+
+allowing the iovec * & nsegs to be passed into sys_io_submit. Some code 
+would be added (within case handling of IOCB_CMD_READV within 
+io_submit_one) to copy & verify the iovec pointers and then call 
+aio_readv/aio_writev (if its defined for the fs).
+
+What do you think ? I wanted to get some feedback before trying to code 
+this up.
+
+While we are on the topic of expanding aio operations, what about 
+providing IOCB_CMD_READ/WRITE, distinct from their pread/pwrite 
+counterparts ? Do you think thats needed ?
+
+- Shailabh
+	
+

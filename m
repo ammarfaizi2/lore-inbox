@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281083AbRKDSbC>; Sun, 4 Nov 2001 13:31:02 -0500
+	id <S277330AbRKDScX>; Sun, 4 Nov 2001 13:32:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281069AbRKDSaw>; Sun, 4 Nov 2001 13:30:52 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:51420 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S281082AbRKDSaj>;
-	Sun, 4 Nov 2001 13:30:39 -0500
-Date: Sun, 4 Nov 2001 13:30:38 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Tim Jansen <tim@tjansen.de>
-cc: Daniel Phillips <phillips@bonn-fries.net>,
-        Jakob =?iso-8859-1?q?=D8stergaard=20?= <jakob@unthought.net>,
-        linux-kernel@vger.kernel.org
-Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
-In-Reply-To: <160Rpw-0rLDCyC@fmrl05.sul.t-online.com>
-Message-ID: <Pine.GSO.4.21.0111041321300.21449-100000@weyl.math.psu.edu>
+	id <S281080AbRKDScP>; Sun, 4 Nov 2001 13:32:15 -0500
+Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:39942 "EHLO
+	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S281072AbRKDSbx>; Sun, 4 Nov 2001 13:31:53 -0500
+Path: Home.Lunix!not-for-mail
+Subject: Re: [Patch] Re: Nasty suprise with uptime
+Date: Sun, 4 Nov 2001 18:31:33 +0000 (UTC)
+Organization: lunix confusion services
+In-Reply-To: <Pine.LNX.4.30.0110311902410.29481-100000@gans.physik3.uni-rostock.de>
+    <3BE08108.91067996@mvista.com>
+NNTP-Posting-Host: kali.eth
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+X-Trace: quasar.home.lunix 1004898693 8629 10.253.0.3 (4 Nov 2001 18:31:33
+    GMT)
+X-Complaints-To: abuse-0@ton.iguana.be
+NNTP-Posting-Date: Sun, 4 Nov 2001 18:31:33 +0000 (UTC)
+X-Newsreader: knews 1.0b.0
+Xref: Home.Lunix mail.linux.kernel:122756
+X-Mailer: Perl5 Mail::Internet v1.33
+Message-Id: <9s41i5$8dl$1@post.home.lunix>
+From: linux-kernel@ton.iguana.be (Ton Hospel)
+To: linux-kernel@vger.kernel.org
+Reply-To: linux-kernel@ton.iguana.be (Ton Hospel)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Another way is to have jiffies still be a normal 32-bit counter, and have
+another 32 bit value (high_jiffy) whose low bit is supposed to be equal to
+the hight bit of the jiffy value. Set up a timer to repeatedly but rarely
+check the high bit of jiffy and if it's different from the low bit of
+high_jiffy, increase high_jiffy by one. In the rare cases you need to read
+the full 64-bit (or rather, 63-bit) value, do the same test and combine the
+two parts dropping one bit in the middle. (high_jiffy access would be locked)
 
-
-On Sun, 4 Nov 2001, Tim Jansen wrote:
-
-> So if only some programs use the 'dot-files' and the other still use the 
-> crappy text interface we still have the old problem for scripts, only with a 
-> much larger effort.
-
-Folks, could we please deep-six the "ASCII is tough" mentality?  Idea of
-native-endian data is so broken that it's not even funny.  Exercise:
-try to export such thing over the network.  Another one: try to use
-that in a shell script.  One more: try to do it portably in Perl script.
-
-It had been tried.  Many times.  It had backfired 100 times out 100.
-We have the same idiocy to thank for fun trying to move a disk with UFS
-volume from Solaris sparc to Solaris x86.  We have the same idiocy to
-thank for a lot of ugliness in X.
-
-At the very least, use canonical bytesex and field sizes.  Anything less
-is just begging for trouble.  And in case of procfs or its equivalents,
-_use_ the_ _damn_ _ASCII_ _representations_.  scanf(3) is there for
-purpose.
-
+This makes 63-bit read slow, but lets normal jiffy ops proceed at
+normal speed. in fact, this method can be used to make any 32-bit counter
+into a big counter without real speed loss if full length reads are rare

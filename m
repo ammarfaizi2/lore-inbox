@@ -1,40 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278805AbRKFJXx>; Tue, 6 Nov 2001 04:23:53 -0500
+	id <S278879AbRKFJWd>; Tue, 6 Nov 2001 04:22:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278701AbRKFJXo>; Tue, 6 Nov 2001 04:23:44 -0500
-Received: from proxy1.braun.de ([193.17.96.34]:50389 "EHLO relay-ext.braun.de")
-	by vger.kernel.org with ESMTP id <S278805AbRKFJXc>;
-	Tue, 6 Nov 2001 04:23:32 -0500
-Message-ID: <3BE7AC0F.6090804@gmx.de>
-Date: Tue, 06 Nov 2001 10:23:27 +0100
-From: Daniel =?ISO-8859-1?Q?Schr=F6ter?= <d.schroeter@gmx.de>
-User-Agent: Mozilla/5.0 (Windows; U; Win95; en-US; rv:0.9.5+) Gecko/20011030
-X-Accept-Language: en-us
-MIME-Version: 1.0
+	id <S278709AbRKFJWX>; Tue, 6 Nov 2001 04:22:23 -0500
+Received: from mail005.syd.optusnet.com.au ([203.2.75.229]:58861 "EHLO
+	mail005.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id <S278714AbRKFJWT>; Tue, 6 Nov 2001 04:22:19 -0500
+Date: Tue, 6 Nov 2001 20:22:12 +1100
 To: linux-kernel@vger.kernel.org
-Subject: Unresolved Symbol in 2.4.14 @block.o
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Cc: riel@conectiva.com.br
+Subject: Re: Scheduling of low-priority background processes
+Message-ID: <20011106202212.A28518@beernut.flames.org.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011106190757.A28090@beernut.flames.org.au>
+From: Kevin Easton <s3159795@student.anu.edu.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I get:
 
-drivers/block/block.o: In function `lo_send':
-drivers/block/block.o(.text+0xa58f): undefined reference to 
-`deactivate_page'
-drivers/block/block.o(.text+0xa5f4): undefined reference to 
-`deactivate_page'
-make: *** [vmlinux] Error 1
+I foolishly muttered:
 
-Is it the same Bug as the
-[PATCH] Unresolved symbols in 2.4.14
-from Craig Kulesa?
+> What if the SCHED_IDLE behaviour only applies when the process 
+> is in userspace? Couldn't scheduler compare the process's 
+> instruction pointer against the kernel/user break point, and 
+> if the process is in the kernel, then just treat it like a 
+> normal process? 
 
-Where can I find the Patch? I didn't find in the kernel-archive the 
-original posting from him. Just the answer from Linus Torwalds without 
-the patch:-(
-CU
+...eek.   I clearly wasn't thinking straight with that one.  There
+isn't a (non-disgusting) way of determining in the scheduler if a
+process is executing a syscall apart from sys_sched_yield, is there.
+
+Carry on...
+
+   - Kevin.
 

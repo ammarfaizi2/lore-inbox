@@ -1,75 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261210AbUKVWxn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261184AbUKVWvS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261210AbUKVWxn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 17:53:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261177AbUKVWwN
+	id S261184AbUKVWvS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 17:51:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261179AbUKVWs7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 17:52:13 -0500
-Received: from sj-iport-3-in.cisco.com ([171.71.176.72]:26143 "EHLO
-	sj-iport-3.cisco.com") by vger.kernel.org with ESMTP
-	id S261194AbUKVWvQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 17:51:16 -0500
-X-BrightmailFiltered: true
-X-Brightmail-Tracker: AAAAAA==
-Message-Id: <5.1.0.14.2.20041123094109.04003720@171.71.163.14>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Tue, 23 Nov 2004 09:50:36 +1100
-To: "Jeff V. Merkey" <jmerkey@devicelogics.com>
-From: Lincoln Dale <ltd@cisco.com>
-Subject: Re: Linux 2.6.9 pktgen module causes INIT process respawning 
-  and sickness
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <41A21C82.3060105@devicelogics.com>
-References: <5.1.0.14.2.20041122144144.04e3d9f0@171.71.163.14>
- <419E6B44.8050505@devicelogics.com>
- <419E6B44.8050505@devicelogics.com>
- <5.1.0.14.2.20041122144144.04e3d9f0@171.71.163.14>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	Mon, 22 Nov 2004 17:48:59 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:450 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261177AbUKVWsg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Nov 2004 17:48:36 -0500
+Date: Mon, 22 Nov 2004 14:48:22 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: Andrew Morton <akpm@osdl.org>
+cc: hugh@veritas.com, torvalds@osdl.org, benh@kernel.crashing.org,
+       nickpiggin@yahoo.com.au, linux-mm@kvack.org, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: deferred rss update instead of sloppy rss
+In-Reply-To: <20041122144507.484a7627.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0411221444410.22895@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.44.0411221457240.2970-100000@localhost.localdomain>
+ <Pine.LNX.4.58.0411221343410.22895@schroedinger.engr.sgi.com>
+ <20041122141148.1e6ef125.akpm@osdl.org> <Pine.LNX.4.58.0411221408540.22895@schroedinger.engr.sgi.com>
+ <20041122144507.484a7627.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff,
+On Mon, 22 Nov 2004, Andrew Morton wrote:
 
-At 04:06 AM 23/11/2004, Jeff V. Merkey wrote:
->I've studied these types of problems for years, and I think it's possible 
->even for Linux.
+> > The page fault code only increments rss. For larger transactions that
+> > increase / decrease rss significantly the page_table_lock is taken and
+> > mm->rss is updated directly. So no
+> > gross inaccuracies can result.
+>
+> Sure.  Take a million successive pagefaults and mm->rss is grossly
+> inaccurate.  Hence my suggestion that it be spilled into mm->rss
+> periodically.
 
-so you have the source code --if its such a big deal for you, how about you 
-contribute the work to make this possible ?
+It is spilled into mm->rss periodically. That is the whole point of the
+patch.
 
-the fact is, large-packet-per-second generation fits into two categories:
-  (a) script kiddies / haxors who are interested in building DoS tools
-  (b) folks that spend too much time benchmarking.
-
-for the (b) case, typically the PPS-generation is only part of it.  getting 
-meaningful statistics on reordering (if any) as well as accurate latency 
-and ideally real-world traffic flows is important.  there are specialized 
-tools out there to do this: Spirent, Ixia, Agilent et al make them.
-
->[..]
->I see no other way for OS to sustain high packet loading about 500,000 
->packets per second on Linux
->or even come close to dealing with small packets or full 10 gigabite 
->ethernet without such a model.
-
-10GbE NICs are an entirely different beast from 1GbE.
-as you pointed out, with real-world packet sizes today, one can sustain 
-wire-rate 1GbE today (same holds true for 2Gbps Fibre Channel also).
-
-i wouldn't call pushing minimum-packet-size @ 1GbE (which is 46 payload, 72 
-bytes on the wire btw) "real world".  and its 1.488M packets/second.
-
->The bus speeds are actually fine for dealing with this on current hardware.
-
-its fine when you have meaningful interrupt coalescing going on & large 
-packets to DMA.
-it fails when you have inefficient DMA (small) with the overhead of setting 
-up & tearing down the DMA and associated arbitration overhead.
-
-
-
-cheers,
-
-lincoln.
-
+The timer tick occurs every 1 ms. The maximum pagefault frequency that I
+have  seen is 500000 faults /second. The max deviation is therefore
+less than 500 (could be greater if page table lock / mmap_sem always held
+when the tick occurs).

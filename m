@@ -1,66 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267378AbUIJMPH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267382AbUIJMQ4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267378AbUIJMPH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 08:15:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267380AbUIJMPF
+	id S267382AbUIJMQ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 08:16:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267381AbUIJMQ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 08:15:05 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:38574 "EHLO
-	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S267378AbUIJMOb (ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 08:14:31 -0400
-Date: Fri, 10 Sep 2004 13:14:15 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Nikita Danilov <nikita@clusterfs.com>
-cc: Linux Kernel Mailing List <Linux-Kernel@Vger.Kernel.ORG>
-Subject: Re: 2.6.9-rc1: page_referenced_one() CPU consumption
-In-Reply-To: <16705.34633.433179.600565@gargle.gargle.HOWL>
-Message-ID: <Pine.LNX.4.44.0409101304570.16614-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	Fri, 10 Sep 2004 08:16:56 -0400
+Received: from holomorphy.com ([207.189.100.168]:53379 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S267382AbUIJMQs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 08:16:48 -0400
+Date: Fri, 10 Sep 2004 05:16:39 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Anton Blanchard <anton@samba.org>, Linus Torvalds <torvalds@osdl.org>,
+       Paul Mackerras <paulus@samba.org>,
+       Zwane Mwaikambo <zwane@linuxpower.ca>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Matt Mackall <mpm@selenic.com>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>
+Subject: Re: [PATCH][5/8] Arch agnostic completely out of line locks / ppc64
+Message-ID: <20040910121639.GD2616@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Ingo Molnar <mingo@elte.hu>, Anton Blanchard <anton@samba.org>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Paul Mackerras <paulus@samba.org>,
+	Zwane Mwaikambo <zwane@linuxpower.ca>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@osdl.org>, Matt Mackall <mpm@selenic.com>,
+	"Nakajima, Jun" <jun.nakajima@intel.com>
+References: <20040909220040.GM3106@holomorphy.com> <16704.59668.899674.868174@cargo.ozlabs.ibm.com> <20040910000903.GS3106@holomorphy.com> <Pine.LNX.4.58.0409091712270.5912@ppc970.osdl.org> <20040910003505.GG11358@krispykreme> <Pine.LNX.4.58.0409091750300.5912@ppc970.osdl.org> <20040910014228.GH11358@krispykreme> <20040910015040.GI11358@krispykreme> <20040910022204.GA2616@holomorphy.com> <20040910074033.GA27722@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040910074033.GA27722@elte.hu>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 10 Sep 2004, Nikita Danilov wrote:
-> 
-> in 2.6.9-rc1 page_referenced_one() is among top CPU consumers (which
-> wasn't a case for 2.6.8-rc2) in the host kernel when running heavily
-> loaded UML. readprofile -b shows that time is spent in
-> spin_lock(&mm->page_table_lock), so, I reckon, recent "rmaplock: kill
-> page_map_lock" changes are probably not completely unrelated.
-> 
-> Without any deep investigation, one possible scenario is that multiple
-> threads are doing (as part of direct reclaim),
-> 
->    refill_inactive_zone()
->        page_referenced()
->            page_referenced_file() /* (1) mapping->i_mmap_lock doesn't
->                                      serialize them */
->                page_referenced_one()
->                    spin_lock(&mm->page_table_lock) /* (2) everybody is
->                                                      serialized here */
-> 
-> (1) and (2) will be true if we have one huge address space with a lot of
-> VMAs, which seems to be exactly what UML does:
-> 
-> $ wc /proc/<UML-host-pid>/maps
-> 4134 28931 561916
-> 
-> This didn't happen before, because page_referenced_one() used to
-> try-lock.
+* William Lee Irwin III <wli@holomorphy.com> wrote:
+>> Well, there are patches that do this along with other more useful
+>> things in the works (my spin on this is en route shortly, sorry the
+>> response was delayed due to a power failure).
 
-I'd be very surprised if you're wrong.
+On Fri, Sep 10, 2004 at 09:40:34AM +0200, Ingo Molnar wrote:
+> i already sent the full solution that primarily solves the SMP &&
+> PREEMPT latency problems but also solves the section issue, two days
+> ago:
+>    http://lkml.org/lkml/2004/9/8/97
 
-I remarked on that in the ChangeLog comment: "Though I suppose
-it's possible that we'll find that vmscan makes better progress with
-trylocks than spinning - we're free to choose trylocks again if so."
+When I noticed there was work to do along the lines of creating
+read_trylock() primitives I dropped the ->break_lock -less variant I
+had brewed up and directed Linus to your patch.
 
-I'm quite content to go back to a trylock in page_referenced_one - and
-in try_to_unmap_one?  But yours is the first report of an issue there,
-so I'm inclined to wait for more reports (which should come flooding in
-now you mention it!), and input from those with a better grasp than I
-of how vmscan pans out in practice (Andrew, Nick, Con spring to mind).
 
-Hugh
-
+-- wli

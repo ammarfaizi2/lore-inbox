@@ -1,52 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274505AbRI1AIU>; Thu, 27 Sep 2001 20:08:20 -0400
+	id <S274164AbRI1ALU>; Thu, 27 Sep 2001 20:11:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274517AbRI1AIL>; Thu, 27 Sep 2001 20:08:11 -0400
-Received: from itvu-63-210-168-13.intervu.net ([63.210.168.13]:10370 "EHLO
-	pga.intervu.net") by vger.kernel.org with ESMTP id <S274505AbRI1AH6>;
-	Thu, 27 Sep 2001 20:07:58 -0400
-Message-ID: <3BB3C0AA.BB05422B@randomlogic.com>
-Date: Thu, 27 Sep 2001 17:13:30 -0700
-From: "Paul G. Allen" <pgallen@randomlogic.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Josh Wyatt <jdwyatt@bellsouth.net>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "kplug-list@kernel-panic.org" <kplug-list@kernel-panic.org>,
-        sysadmin@akamai.com
-Subject: Re: [ANNOUNCE] Kernel 2.4.10 Metrics
-In-Reply-To: <3BB3AEB9.B2C63EF7@randomlogic.com> <3BB3BCDC.30BA3AF3@bellsouth.net>
+	id <S274900AbRI1ALK>; Thu, 27 Sep 2001 20:11:10 -0400
+Received: from [195.223.140.107] ([195.223.140.107]:32252 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S274164AbRI1AK7>;
+	Thu, 27 Sep 2001 20:10:59 -0400
+Date: Fri, 28 Sep 2001 02:11:15 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Robert Macaulay <robert_macaulay@dell.com>,
+        Rik van Riel <riel@conectiva.com.br>,
+        Craig Kulesa <ckulesa@as.arizona.edu>, linux-kernel@vger.kernel.org,
+        Bob Matthews <bmatthews@redhat.com>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: highmem deadlock fix [was Re: VM in 2.4.10(+tweaks) vs. 2.4.9-ac14/15(+stuff)]
+Message-ID: <20010928021115.D14277@athlon.random>
+In-Reply-To: <20010928014720.Z14277@athlon.random> <Pine.LNX.4.33.0109271700001.32086-100000@penguin.transmeta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0109271700001.32086-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Thu, Sep 27, 2001 at 05:03:49PM -0700
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It's on the same server: http://www2.randomlogic.com/linux_html.tar.gz
-
-It's ~270MB.
-
-What can I say. I'm lazy and I haven't updated the links on the main RL web site yet. (I do know someone else on one of these mailing lists that has admin.
-access to the server though, hint, hint. ;-)
-
-PGA
-
-Josh Wyatt wrote:
+On Thu, Sep 27, 2001 at 05:03:49PM -0700, Linus Torvalds wrote:
 > 
-> "Paul G. Allen" wrote:
+> On Fri, 28 Sep 2001, Andrea Arcangeli wrote:
 > >
-> > Linux kernel 2.4.10 source code documentation and metrics now available at http://www2.randomlogic.com or follow the link at http://www.randomlogic.com
+> > Moving clear_bit just above submit_bh will fix it (please Robert make
+> > this change before testing it), because if we block in submit_bh in the
+> > bounce, then we won't deadlock on ourself because of the pagehighmem
+> > check
 > 
-> Hi Paul,
-> Got a tgz for my (Raleigh) mirror?
-> Thanks,
-> Josh
+> We won't block on _ourselves_, but we can block on _two_ people doing it,
 
--- 
-Paul G. Allen
-UNIX Admin II/Programmer
-Akamai Technologies, Inc.
-www.akamai.com
-Work: (858)909-3630
-Cell: (858)395-5043
+If other people waits for us it's ok (if they waits it means they're not
+using GFP_NOIO and they're also not using GFP_NOHIGHIO).
+
+We cannot wait on other two people doing it since they would be highmem
+pages and the pagehighmem check forbids that.
+
+> and blocking on each others requests that are blocked waiting on a bounce
+> buffer. Both will have one locked buffer, both will be waiting for the
+> other person unlocking that buffer, and neither will ever make progress.
+> 
+> You could clear that bit _after_ the bounce buffer allocation, I suspect.
+
+I don't think it's necessary.
+
+> But I also suspect that it doesn't matter much, and as I can imagine
+> similar problems with GFP_NOIO and loopback etc (do you see any reason why
+> loopback couldn't deadlock on waiting for itself?), I think the GFP_XXX
+> thing is the proper fix.
+
+GFP_NOIO is a no brainer, it cannot go wrong see the other email.
+
+Andrea

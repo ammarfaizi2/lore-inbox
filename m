@@ -1,56 +1,108 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264147AbUBDT6s (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 14:58:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264229AbUBDT6s
+	id S264229AbUBDT7c (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 14:59:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264233AbUBDT7c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 14:58:48 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:4483 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S264147AbUBDT6r (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 14:58:47 -0500
-Message-Id: <200402041958.i14JwiMt010304@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: "Randazzo, Michael" <RANDAZZO@ddc-web.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel 2.x POSIX Compliance/Conformance... 
-In-Reply-To: Your message of "Wed, 04 Feb 2004 14:44:00 EST."
-             <89760D3F308BD41183B000508BAFAC4104B16F34@DDCNYNTD> 
-From: Valdis.Kletnieks@vt.edu
-References: <89760D3F308BD41183B000508BAFAC4104B16F34@DDCNYNTD>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1157068353P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Wed, 04 Feb 2004 14:58:44 -0500
+	Wed, 4 Feb 2004 14:59:32 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:11392 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S264229AbUBDT7W
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Feb 2004 14:59:22 -0500
+Date: Wed, 4 Feb 2004 14:59:35 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Timothy Miller <miller@techsource.com>
+cc: Alok Mooley <rangdi@yahoo.com>, Dave Hansen <haveblue@us.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-mm <linux-mm@kvack.org>
+Subject: Re: Active Memory Defragmentation: Our implementation & problems
+In-Reply-To: <40214A11.3060007@techsource.com>
+Message-ID: <Pine.LNX.4.53.0402041436030.2965@chaos>
+References: <20040204185446.91810.qmail@web9705.mail.yahoo.com>
+ <Pine.LNX.4.53.0402041402310.2722@chaos> <40214A11.3060007@techsource.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1157068353P
-Content-Type: text/plain; charset=us-ascii
+On Wed, 4 Feb 2004, Timothy Miller wrote:
 
-On Wed, 04 Feb 2004 14:44:00 EST, "Randazzo, Michael" said:
-> I was using at sem_close(), sem_destroy90, sem_open() ...
-> 
-> according to Posix.4, these are defined in semaphore.h - but
-> are not defined in /lib/modules/<uname -r>/build/include/semaphore.h
-> 
-> Are Posix.4 calls only for userspace?
+>
+>
+> Richard B. Johnson wrote:
+>
+> > If this is an Intel x86 machine, it is impossible for pages
+> > to get fragmented in the first place. The hardware allows any
+> > page, from anywhere in memory, to be concatenated into linear
+> > virtual address space. Even the kernel address space is virtual.
+> > The only time you need physically-adjacent pages is if you
+> > are doing DMA that is more than a page-length at a time. The
+> > kernel keeps a bunch of those pages around for just that
+> > purpose.
+> >
+> > So, if you are making a "memory defragmenter", it is a CPU time-sink.
+> > That's all.
+>
+> Would memory fragmentation have any appreciable impact on L2 cache line
+> collisions?
+>
+> Would defragmenting it help?
+>
+> In the case of the Opteron, there is a 1M cache that is (I forget) N-way
+> set associative, and it's physically indexed.  If a bunch of pages were
+> located such that there were a disproportionately large number of lines
+> which hit the same tag, you could be thrashing the cache.
+>
+> There are two ways to deal with this:  (1) intelligently locates pages
+> in physical memory; (2) hope that natural entropy keeps things random
+> enough that it doesn't matter.
+>
+>
 
-System calls in general are for userspace.  Often, there exist alternate
-entry points for kernel services, or other ways to do it (for instance,
-the kernel has its own code for locks and semaphores).
+Certainly anybody can figure out some special case where a
+cache-line might get flushed or whatever. Eventually you
+get to the fact that even contiguous physical RAM doesn't
+have to be contiguous and, in fact, with modern controllers
+it's quite unlikely that it is. It's a sack of bits that
+are uniquely addressable.
 
---==_Exmh_1157068353P
-Content-Type: application/pgp-signature
+The rest of the hardware makes this look like a bunch of RAM
+"pages", seldom the size of CPU pages, and the controller
+makes these pages look like contiguous RAM sitting in linear
+address-space. There is lots of wasted RAM in the Intel/IBM/PC
+architecture because the stuff that would be where the screen
+regen buffer is, where the graphics aperture exists, where
+the screen BIOS ROM is, where the BIOS ROM is (unless shadowed),
+all that space is occupied by RAM that can't even be addressed.
+So there are address-holes that are never accessed. This means
+that there are few nice clean cache-line fills for physical RAM
+below 1 megabyte.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+Fortunately most accesses are above 1 megabytes. The locality-of-
+action helps reduce the amount of paging required in that memory
+accesses remain with a very short distance of each other in real
+programs. Of course, again, you can make a memory-corrupting
+program that thrashes the swap-file, but if you design to reduce
+that, you destroy interactivity.
 
-iD8DBQFAIU7zcC3lWbTT17ARAiijAKCPLBGRtbI29JFIzeVgwXIUppcL+QCeNVoE
-UjXgmM82H4umIYKW3D05BJk=
-=/TWs
------END PGP SIGNATURE-----
+Since the days of VAXen people have been trying to improve memory
+managers. So far, every improvement in special cases hurts the
+general case. I remember the controvesy at DEC when it was decided
+to keep some zero-filled pages around (demand-zero paging). These
+would be allocated as "readable". It's only when somebody would
+attempt to write to them, that a real page needed to be allocated.
+My question was; "Why a bunch of pages?". You only need one. As
+a customer, I was told that I didn't understand. So, DEC is out-
+of-business and nobody does demand-zero paging because it's dumb,
+damn stupid.
 
---==_Exmh_1157068353P--
+The same is true of "memory defragmentation".
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
+
+

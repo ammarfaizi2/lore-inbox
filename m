@@ -1,20 +1,21 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312460AbSCYRHv>; Mon, 25 Mar 2002 12:07:51 -0500
+	id <S312463AbSCYRIB>; Mon, 25 Mar 2002 12:08:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312466AbSCYRHm>; Mon, 25 Mar 2002 12:07:42 -0500
-Received: from rwcrmhc54.attbi.com ([216.148.227.87]:12783 "EHLO
-	rwcrmhc54.attbi.com") by vger.kernel.org with ESMTP
-	id <S312460AbSCYRH2>; Mon, 25 Mar 2002 12:07:28 -0500
-Date: Mon, 25 Mar 2002 09:07:17 -0800
-From: "H . J . Lu" <hjl@lucon.org>
-To: Peter Hartley <PDHartley@sonicblue.com>
-Cc: Andrew Morton <akpm@zip.com.au>, tytso@thunk.org, linux-mips@oss.sgi.com,
-        linux kernel <linux-kernel@vger.kernel.org>,
-        GNU C Library <libc-alpha@sources.redhat.com>
-Subject: Re: Does e2fsprogs-1.26 work on mips?
-Message-ID: <20020325090717.A13707@lucon.org>
-In-Reply-To: <37D1208A1C9BD511855B00D0B772242C011C7F13@corpmail1.sc.sonicblue.com>
+	id <S312462AbSCYRHv>; Mon, 25 Mar 2002 12:07:51 -0500
+Received: from ns.caldera.de ([212.34.180.1]:3015 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S312463AbSCYRHk>;
+	Mon, 25 Mar 2002 12:07:40 -0500
+Date: Mon, 25 Mar 2002 18:06:49 +0100
+From: Christoph Hellwig <hch@caldera.de>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+Cc: viro@math.psu.edu, linux-kernel@vger.kernel.org
+Subject: Re: devfs mounted twice in linux 2.4.19-pre3
+Message-ID: <20020325180649.A26703@caldera.de>
+Mail-Followup-To: Christoph Hellwig <hch@caldera.de>,
+	Richard Gooch <rgooch@ras.ucalgary.ca>, viro@math.psu.edu,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <200203250008.g2P08hr18250@vindaloo.ras.ucalgary.ca> <200203250852.g2P8qr503025@ns.caldera.de> <200203251658.g2PGwf228854@vindaloo.ras.ucalgary.ca>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,25 +23,10 @@ User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 25, 2002 at 02:52:24AM -0800, Peter Hartley wrote:
-> H J Lu wrote:
-> > I look at the glibc code. It uses a constant RLIM_INFINITY for a given
-> > arch. The user always passes (~0UL) to glibc on x86. glibc will check
-> > if the kernel supports the new getrlimit at the run time. If it
-> > doesn't, glibc will adjust the RLIM_INFINITY for setrlimit. I 
-> > don't see
-> > how glibc 2.2.5 compiled under kernel 2.2 will fail under 2.4 due to
-> > this unless glibc is misconfigureed or miscompiled.
-> 
-> It's not a question of which kernel glibc is compiled under, it's a question
-> of which version of the kernel headers (/usr/include/{linux,asm}) glibc is
-> compiled against.
-> 
+On Mon, Mar 25, 2002 at 09:58:41AM -0700, Richard Gooch wrote:
+> This is not a problem with mount(8). It's a kernel problem. When
+> sys_umount(..., MNT_DETACH) is called from kernel space, it doesn't
+> clean up /proc/mounts.
 
-What are you talking about? It doesn't matter which kernel header
-is used. glibc doesn't even use /usr/include/asm/resource.h nor
-should any user space applications.
+Oh - I though about /etc/mtab, sorry for misreading..
 
-
-
-H.J.

@@ -1,32 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131244AbRDJLAd>; Tue, 10 Apr 2001 07:00:33 -0400
+	id <S131254AbRDJLCw>; Tue, 10 Apr 2001 07:02:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131408AbRDJLAX>; Tue, 10 Apr 2001 07:00:23 -0400
-Received: from kamov.deltanet.ro ([193.226.175.59]:16902 "HELO
-	kamov.deltanet.ro") by vger.kernel.org with SMTP id <S131244AbRDJLAG>;
-	Tue, 10 Apr 2001 07:00:06 -0400
-Date: Tue, 10 Apr 2001 13:59:47 +0300
-To: Jakub Jelinek <jakub@redhat.com>
-Cc: Dawson Engler <engler@csl.Stanford.EDU>, linux-kernel@vger.kernel.org
-Subject: Re: [CHECKER] amusing copy_from_user bug
-Message-ID: <20010410135947.I3497@ppetru.net>
-In-Reply-To: <200104101011.DAA29579@csl.Stanford.EDU> <20010410064128.C1169@devserv.devel.redhat.com>
-Mime-Version: 1.0
+	id <S131382AbRDJLCm>; Tue, 10 Apr 2001 07:02:42 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:38404 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131254AbRDJLCb>; Tue, 10 Apr 2001 07:02:31 -0400
+Subject: Re: Compaq proliant ML-350 - IDE & SCSI
+To: axl@light.kappa.ro (Alexandru Barloiu Nicolae)
+Date: Tue, 10 Apr 2001 12:00:07 +0100 (BST)
+Cc: hahn@coffee.psychology.mcmaster.ca (Mark Hahn),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <001901c0c15a$a47bfb60$e8c6e7c1@hybrid> from "Alexandru Barloiu Nicolae" at Apr 10, 2001 03:07:01 AM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <20010410064128.C1169@devserv.devel.redhat.com>; from jakub@redhat.com on Tue, Apr 10, 2001 at 06:41:28AM -0400
-From: ppetru@ppetru.net (Petru Paler)
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14mvsY-0003zS-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 10, 2001 at 06:41:28AM -0400, Jakub Jelinek wrote:
-> some architectures don't care at all, because verify_area is a noop
-> (sparc64).
+> 2.4.4-p1 is the kernel version that i've tried now. no succes with 2.4.3 and
+> below.
 
-Why (and how) is this?
-
---
-Petru Paler, mailto:ppetru@ppetru.net
-http://www.ppetru.net - ICQ: 41817235
+Please see if the 2.4.3-ac version of osb4 works on your box. I need to get
+more results on this to know if I got it right

@@ -1,67 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264248AbTEOURn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 May 2003 16:17:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264249AbTEOURn
+	id S264207AbTEOUF3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 May 2003 16:05:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264212AbTEOUF2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 May 2003 16:17:43 -0400
-Received: from holomorphy.com ([66.224.33.161]:20177 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S264248AbTEOURl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 May 2003 16:17:41 -0400
-Date: Thu, 15 May 2003 13:26:31 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: David Howells <dhowells@redhat.com>, linux-kernel@vger.kernel.org,
-       akpm@digeo.com
-Subject: Re: 2.5 kernels fail to start second CPU
-Message-ID: <20030515202631.GU8978@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Bill Davidsen <davidsen@tmr.com>,
-	David Howells <dhowells@redhat.com>, linux-kernel@vger.kernel.org,
-	akpm@digeo.com
-References: <20030515184445.GQ8978@holomorphy.com> <Pine.LNX.3.96.1030515151950.30986A-100000@gatekeeper.tmr.com>
+	Thu, 15 May 2003 16:05:28 -0400
+Received: from 136.231.118.64.mia-ftl.netrox.net ([64.118.231.136]:41921 "EHLO
+	smtp.netrox.net") by vger.kernel.org with ESMTP id S264207AbTEOUFE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 May 2003 16:05:04 -0400
+Subject: Re: 2.6 must-fix list, v2
+From: Robert Love <rml@tech9.net>
+To: shaheed <srhaque@iee.org>
+Cc: Felipe Alfaro Solana <yo@felipe-alfaro.com>,
+       Andrew Morton <akpm@digeo.com>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <200305152107.17419.srhaque@iee.org>
+References: <1050146434.3e97f68300fff@netmail.pipex.net>
+	 <1052990397.3ec35bbd5e008@netmail.pipex.net> <1053012743.899.5.camel@icbm>
+	 <200305152107.17419.srhaque@iee.org>
+Content-Type: text/plain
+Message-Id: <1053030010.899.24.camel@icbm>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.3.96.1030515151950.30986A-100000@gatekeeper.tmr.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.3.3 (1.3.3-2) (Preview Release)
+Date: 15 May 2003 16:20:11 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 15 May 2003, William Lee Irwin III wrote:
->> What on earth are you getting on about?
+On Thu, 2003-05-15 at 16:07, shaheed wrote:
 
-On Thu, May 15, 2003 at 03:26:36PM -0400, Bill Davidsen wrote:
-> I want to benchmark the box using one or two CPUs, with and without
-> hyperthreading, as listed in the configurations above. To do this I want
-> to use the boot options also listed in the original post above. I can
-> reboot the box remotely but I can't physically remove a cpu to get the
-> single cpu+ht config, so I'm looking for boot line options to provide
-> that.
+> I have no idea with whom to persue this path, and as I say, I feel that 
+> solving this once for each distro is crazy IMHO.
 
-Please describe the following:
-(1) what options you passed (.config if it differs between boots)
-(2) how many cpus you expected
-(3) how many cpus you got
+It does not have to be done for each distribution. Modify the SysVinit
+package directly to support this feature. All init needs to do is bind
+itself to the allowed processors prior to its first fork(). This can be
+done as part of the core init package, and thus all distributions
+automatically reap the benefits.
 
-for whatever you're doing that appears to go wrong.
+If init is not modified, then it can be done in rc.d or wherever by
+hand.
 
+> I'm sorry to appear foolish, but as explained above, I genuinely don't 
+> understand why this does not belong in the kernel. I would be grateful for 
+> elaboration. If I really am being thick, then just ignore me and I'll just 
+> solve this for myself using route 4.
 
-On Thu, 15 May 2003, William Lee Irwin III wrote:
->> ia32 is utter crap with respect to power management, virtualization,
->> and generalized firmware.
->> If you don't have remote power management, buy it in whatever form
->> possible.
+Things which can be done in user-space should be done in user-space.
+There is absolutely zero reason to do this in the kernel.  init can do
+it.
 
-On Thu, May 15, 2003 at 03:26:36PM -0400, Bill Davidsen wrote:
-> I'm not trying to manage the power, it's not a laptop, I'm trying to run
-> benchmarks as noted in the first sentence of my question. I don't see
-> how you got from there to virtualization from how to start (or not) cpus.
+Submit a patch to the init maintainer to have it bind itself on boot to
+a given command line value. Maybe I will do this if I find the time...
 
-It sounded like what you were talking about. Maybe I get too many
-people pushing feature requests as bugs.
+	Robert Love
 
-
--- wli

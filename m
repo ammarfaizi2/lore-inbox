@@ -1,45 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286743AbRLVJ2T>; Sat, 22 Dec 2001 04:28:19 -0500
+	id <S286746AbRLVJd0>; Sat, 22 Dec 2001 04:33:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286745AbRLVJ2G>; Sat, 22 Dec 2001 04:28:06 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:30377 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S286743AbRLVJ2A>;
-	Sat, 22 Dec 2001 04:28:00 -0500
-Date: Sat, 22 Dec 2001 12:25:33 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Ashok Raj <ashokr2@attbi.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: affinity and tasklets...
-In-Reply-To: <PPENJLMFIMGBGDDHEPBBMEAHCAAA.ashokr2@attbi.com>
-Message-ID: <Pine.LNX.4.33.0112221222020.4780-100000@localhost.localdomain>
+	id <S286748AbRLVJdR>; Sat, 22 Dec 2001 04:33:17 -0500
+Received: from mgw-x2.nokia.com ([131.228.20.22]:59783 "EHLO mgw-x2.nokia.com")
+	by vger.kernel.org with ESMTP id <S286746AbRLVJdH>;
+	Sat, 22 Dec 2001 04:33:07 -0500
+Message-ID: <3C2452FF.4070108@nokia.com>
+Date: Sat, 22 Dec 2001 11:31:43 +0200
+From: Dmitri Kassatkine <dmitri.kassatkine@nokia.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011023
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Affix support <affix-support@lists.sourceforge.net>,
+        affix-devel@lists.sourceforge.net,
+        Bluetooth-Drivers-for-Linux 
+	<Bluetooth-Drivers-for-Linux@research.nokia.com>,
+        linux-net <linux-net@vger.kernel.org>, linux-kernel@vger.kernel.org
+Subject: New release: Affix-0_9pre7
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all,
 
-On Mon, 17 Dec 2001, Ashok Raj wrote:
+Find new Affix release Affix-0_9pre7 on http://affix.sourceforge.net
 
-> In a MP case, we would like 2 separate processors taking the
-> completion processing. But running tasklets dont seem to suit this
-> since it basically queues on the same CPU that is currently running,
-> and this means both get queued to the same tasklet_vec[cpu]. But i
-> want each to run on a separate CPU. is using softirq the right method?
-> or could i have cpu affinity for tasklets? (i know there is afficinity
-> for interrupts, but iam not aware of this for tasklets.)
+- *pragma pack* changed to __attribute__ ((packed)) everywhere
+  tested on Compaq iPAC
+- Added dynamic buffer/credit management in RFCOMM
+- Added support for multiple flags in /etc/bluetooth/services
+  added *std* flag. When set connects socket/bty to stdin/stdout
+- Added /etc/bluetooth/serial
+- Fixed RFCOMM_SetType. If set to RFCOMM_BTY, transmission
+  disabled on /dev/bty until it will be opened
+- PF_BLUETOOTH changed to PF_AFFIX to prevent mixing with BlueZ
+- Fixed CID allocation. Prevented active CID allocation.
+- SDP: Added functions that convert UUID to a string
+  as a protocol, service class, profile descriptor,
+  and as an hexadecimal number.
+- Some other minor coding and fixes in the SDP (client side).
+- sdp/drivers: finished and fixed the browse program.
+  Creation of two other programs (channels and service)
+  and put a README.txt that explains what do they do.
 
-you'll get a natural affinity of tasklets: they will run on the processor
-where the tasklet got activated. Tasklets are just a special form of
-softirqs, they have no context in the classic task sense, the only
-difference they have to softirqs is that the tasklet code guarantees
-single-threadedness of the function executed.
 
-if you are going to rely on tasklets for good SMP scalability then i'd
-suggest using a separate tasklet for every device IRQ. Then bind hardirqs
-to a particular CPU - thus both the hardirq, the softirq/tasklet will run
-on the same processor.
 
-	Ingo
+
+Merry Christmas and Happy New Year 2002!
+
+br, Dmitri
+
+-- 
+ Dmitri Kassatkine
+ Nokia Research Center / Helsinki
+ Mobile: +358 50 4836365
+ E-Mail: dmitri.kassatkine@nokia.com
+
 

@@ -1,47 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268177AbTB1VQh>; Fri, 28 Feb 2003 16:16:37 -0500
+	id <S263204AbTB1VMp>; Fri, 28 Feb 2003 16:12:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268179AbTB1VQh>; Fri, 28 Feb 2003 16:16:37 -0500
-Received: from packet.digeo.com ([12.110.80.53]:64937 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S268177AbTB1VQe>;
-	Fri, 28 Feb 2003 16:16:34 -0500
-Date: Fri, 28 Feb 2003 13:23:22 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-Cc: linux-kernel@vger.kernel.org, Hugh Dickins <hugh@veritas.com>
-Subject: Re: Memory modified after freeing in 2.5.63?
-Message-Id: <20030228132322.1ec5689a.akpm@digeo.com>
-In-Reply-To: <20030228150447.GA3862@vana.vc.cvut.cz>
-References: <20030228150447.GA3862@vana.vc.cvut.cz>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id <S263333AbTB1VMp>; Fri, 28 Feb 2003 16:12:45 -0500
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:39183
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S263204AbTB1VMo>; Fri, 28 Feb 2003 16:12:44 -0500
+Subject: Re: [patch] "HT scheduler", sched-2.5.63-B3
+From: Robert Love <rml@tech9.net>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       torvalds@transmeta.com
+In-Reply-To: <20030228131206.22fc077c.akpm@digeo.com>
+References: <Pine.LNX.4.44.0302281040190.8167-100000@localhost.localdomain>
+	 <20030228131206.22fc077c.akpm@digeo.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1046467381.1346.261.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-1) 
+Date: 28 Feb 2003 16:23:01 -0500
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 28 Feb 2003 21:26:49.0208 (UTC) FILETIME=[1A66EF80:01C2DF70]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Petr Vandrovec <vandrove@vc.cvut.cz> wrote:
->
-> Hi,
->   for some time I'm using patch attached at the end of this email, 
-> which modifies check_poison function to not only verify that
-> last byte is POISON_END, but also that all preceeding bytes are
-> either POISON_BEFORE or POISON_AFTER bytes. 
+On Fri, 2003-02-28 at 16:12, Andrew Morton wrote:
 
-Nice patch.
+> - The longstanding problem wherein a kernel build makes my X desktop
+>   unusable is 90% fixed - it is still possible to trigger stalls, but
+>   they are less severe, and you actually have to work at it a bit to
+>   make them happen.
 
->   And now when I returned from my month vacation and upgraded 
-> from 2.5.52 to 2.5.63, when dselect/apt updates dozens of packages, 
-> I'm getting memory corruption reports as shown below - 22nd byte 
-> in vm_area_struct - which looks like that VM_ACCOUNT in vm_flags 
-> is set after vma is freeed...  Any clue? Setting VM_ACCOUNT
-> in mremap.c:move_vma after calling do_unmap() looks suspicious
-> to me, but as I know almost nothing about MM...
+That is odd, because I do not see any changes in here that would improve
+interactivity.  This looks to be pretty much purely the HT stuff.
 
-Ha!  I've been harrassing Hugh over this ;)
+Andrew, if you drop this patch, your X desktop usability drops?
 
-Thanks.
+Ingo, is there something in here that I am missing?
 
+	Robert Love
 

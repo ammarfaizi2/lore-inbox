@@ -1,39 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262587AbTDHXTr (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 19:19:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262594AbTDHXTr (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 19:19:47 -0400
-Received: from [12.47.58.221] ([12.47.58.221]:39148 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S262587AbTDHXTq (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 8 Apr 2003 19:19:46 -0400
-Date: Tue, 8 Apr 2003 15:29:56 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: "Tomasz Torcz, BG" <zdzichu@irc.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.5.67] buffer layer error at fs/buffer.c:127; problems with
- via686a sensor
-Message-Id: <20030408152956.21b09f3a.akpm@digeo.com>
-In-Reply-To: <20030408162118.GA10209@irc.pl>
-References: <20030408162118.GA10209@irc.pl>
-X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id S262569AbTDHXQu (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 19:16:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262577AbTDHXQu (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 19:16:50 -0400
+Received: from nat9.steeleye.com ([65.114.3.137]:52229 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S262569AbTDHXQs (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 8 Apr 2003 19:16:48 -0400
+Subject: Re: [PATCH] aic7* claims all checked EISA io ranges
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <3688420000.1049843559@aslan.btc.adaptec.com>
+References: <1049843229.2107.46.camel@mulgrave> 
+	<3688420000.1049843559@aslan.btc.adaptec.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 08 Apr 2003 23:31:19.0235 (UTC) FILETIME=[F4FED930:01C2FE26]
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 08 Apr 2003 18:28:12 -0500
+Message-Id: <1049844494.1788.61.camel@mulgrave>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Tomasz Torcz, BG" <zdzichu@irc.pl> wrote:
->
-> Hi,
+On Tue, 2003-04-08 at 18:12, Justin T. Gibbs wrote:
+> > I take it 2.5 is up to date, right?  Because otherwise we should have
+> > seen an update notice go across linux-scsi@vger.kernel.org.
 > 
-> infos about my system is here: http://fordon.pl.eu.org/~zdzichu/my_setup/
-> (lspci, output of some files from /proc, dmesg and .config).
-> 
-> I've got some unexplained Call Traces in dmesg:
-> 
-> buffer layer error at fs/buffer.c:127
+> In the past, I have sent mail directly to Linus which has worked for 2.5.
+> Unfortunately, it looks like he has not applied the last bundle I posted
+> to him on 2003/03/25.  This is the same bk output as posted on my website.
 
-That's not a bug.  It is errant debugging code.  reiserfs has locked the
-page, so the buffers are safe.
+Well, the aic7xxx is part of SCSI, and SCSI has an active BK tree for
+accumulating patches and pushing them to Linus.  If you want to
+circumvent this, then patches will get lost sometimes.
+
+The way to avoid this is to send patches to linux-scsi@vger.kernel.org.
+
+> > This problem looks to be present in 2.5, so should I apply the patch?
+> 
+> It would be better to just upgrade the driver with bits I submitted to
+> Linus.  I have another update coming to correctly fix the del_timer_sync()
+> issue since the last, unsanctioned, change in this area has a large potential
+> to cause a deadlock.
+
+I'll see if I can pull them.
+
+James
 
 

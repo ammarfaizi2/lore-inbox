@@ -1,125 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264841AbTFCI4l (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 04:56:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264848AbTFCI4l
+	id S264848AbTFCI4y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 04:56:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264849AbTFCI4y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 04:56:41 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:25520 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S264841AbTFCI4i (ORCPT
+	Tue, 3 Jun 2003 04:56:54 -0400
+Received: from ns.suse.de ([213.95.15.193]:22794 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S264848AbTFCI4v (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 04:56:38 -0400
-Date: Tue, 3 Jun 2003 11:09:35 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Ulrich Drepper <drepper@redhat.com>, <linux-kernel@vger.kernel.org>
-Subject: [patch] new sys_tkill2() system call, 2.5.70
-Message-ID: <Pine.LNX.4.44.0306031100170.5663-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 3 Jun 2003 04:56:51 -0400
+Date: Tue, 3 Jun 2003 11:10:18 +0200
+From: Jens Axboe <axboe@suse.de>
+To: "Adam J. Richter" <adam@yggdrasil.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Counter-kludge for 2.5.x hanging when writing to block device
+Message-ID: <20030603091018.GI482@suse.de>
+References: <200306030848.h538mwE22282@freya.yggdrasil.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200306030848.h538mwE22282@freya.yggdrasil.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jun 03 2003, Adam J. Richter wrote:
+> 	For at least the past few months, the Linux 2.5 kernels have
+> hung when I try to write a large amount of data to a block device.
+> I most commonly notice this when trying to clear a disk with a command
+> like "dd if=/dev/zero of=/dev/discs/disc1/disc".  Sometimes doing
+> an mkfs on a big file system is enough to cause the hang.
+> I wrote a little program to repeatedly write a 4kB block of zeroes
+> to the kernel so I could track how far it got before hanging, and it
+> would write 210-215MB of zeroes to the disk on a computer that had
+> 512MB of RAM before hanging.  When these hangs occur, other processes
+> continue to run fine, and I can do syncs, which return, but the
+> hung process never resumes.  In the past, I've verified with a
+> printk that it is looping in balance_dirty_pages, repeatedly
+> calling blk_congestion_wait, and never leaving the loop.
+> 
+> 	Here is a counter-kludge that seems to stop the problem.
+> This is certainly not the "right" fix.  It just illustrates a way
+> to stop the problem.
+> 
+> 	By the way, I say "counter-kludge", because I get the impression
+> that blk_congestion_wait is itself a kludge, since it calls
+> blk_run_queues and waits a fixed amount of time, 100ms in this case,
+> potentially a big waste of time, rather than awaiting some more
+> accurate criterion.
 
-the attached patch, against 2.5.70, adds a new system-call called
-sys_tkill2():
+Does something like this work? Andrew, what's the point of doing the
+wait if the queue isn't congested?! I haven't even checked if this gets
+the job done, I think it would be cleaner to pass in the backing dev
+info to blk_congestion_wait so we can make the decision in there.
 
-	asmlinkage long sys_tkill2(int tgid, int pid, int sig);
-
-this new syscall solves the problem of PID-reuse. The pthread_kill()  
-interface itself cannot guarantee via current kernel mechanisms that a
-thread wont go away (call pthread_exit()) before the signal is delivered -
-due to threads being detached. If some other application creates threads
-fast enough and makes the PID space overwrap, then it might happen that
-the wrong application gets the signal.
-
-the tgid never changes during the lifetime of the application, so
-specifying tgid guarantees that pthread_kill() will only send signals to
-threads within this application.
-
-(i also added the rule of tgid == 0 meaning 'no tgid check' - this made it
-possible to merge the previous sys_tkill() API into the new sys_tkill2()
-API. The sys_tkill API is of course preserved.)
-
-Ulrich says that this interface is OK and desired for glibc. The patch was
-sanity-compiled & booted on x86 SMP.
-
-	Ingo
-
---- linux/include/asm-i386/unistd.h.orig	
-+++ linux/include/asm-i386/unistd.h	
-@@ -273,6 +273,7 @@
- #define __NR_clock_gettime	(__NR_timer_create+6)
- #define __NR_clock_getres	(__NR_timer_create+7)
- #define __NR_clock_nanosleep	(__NR_timer_create+8)
-+#define __NR_tkill2		268
+===== mm/page-writeback.c 1.66 vs edited =====
+--- 1.66/mm/page-writeback.c	Sun Jun  1 23:12:47 2003
++++ edited/mm/page-writeback.c	Tue Jun  3 11:09:13 2003
+@@ -152,6 +152,7 @@
+ 			.sync_mode	= WB_SYNC_NONE,
+ 			.older_than_this = NULL,
+ 			.nr_to_write	= write_chunk,
++			.encountered_congestion = 0,
+ 		};
  
- #define NR_syscalls 268
+ 		get_dirty_limits(&ps, &background_thresh, &dirty_thresh);
+@@ -178,7 +179,8 @@
+ 			if (pages_written >= write_chunk)
+ 				break;		/* We've done our duty */
+ 		}
+-		blk_congestion_wait(WRITE, HZ/10);
++		if (wbc.encountered_congestion)
++			blk_congestion_wait(WRITE, HZ/10);
+ 	}
  
---- linux/arch/i386/kernel/entry.S.orig	
-+++ linux/arch/i386/kernel/entry.S	
-@@ -874,6 +874,7 @@ ENTRY(sys_call_table)
-  	.long sys_clock_gettime		/* 265 */
-  	.long sys_clock_getres
-  	.long sys_clock_nanosleep
-+	.long sys_tkill2
-  
-  
- nr_syscalls=(.-sys_call_table)/4
---- linux/kernel/signal.c.orig	
-+++ linux/kernel/signal.c	
-@@ -570,7 +570,7 @@ static int rm_from_queue(unsigned long m
- /*
-  * Bad permissions for sending the signal
-  */
--static inline int check_kill_permission(int sig, struct siginfo *info,
-+static int check_kill_permission(int sig, struct siginfo *info,
- 					struct task_struct *t)
- {
- 	int error = -EINVAL;
-@@ -1930,11 +1930,17 @@ sys_kill(int pid, int sig)
- 	return kill_something_info(sig, &info, pid);
- }
- 
--/*
-- *  Send a signal to only one task, even if it's a CLONE_THREAD task.
-+/**
-+ *  sys_tkill2 - send signal to one specific thread
-+ *  @tgid: the thread group ID of the thread - if 0 then no check is done.
-+ *  @pid: the PID of the thread
-+ *  @sig: signal to be sent
-+ *
-+ *  This syscall also checks the tgid and returns -ESRCH even if the PID
-+ *  exists but it's not belonging to the target process anymore. This
-+ *  method solves the problem of threads exiting and PIDs getting reused.
-  */
--asmlinkage long
--sys_tkill(int pid, int sig)
-+asmlinkage long sys_tkill2(int tgid, int pid, int sig)
- {
- 	struct siginfo info;
- 	int error;
-@@ -1953,7 +1959,7 @@ sys_tkill(int pid, int sig)
- 	read_lock(&tasklist_lock);
- 	p = find_task_by_pid(pid);
- 	error = -ESRCH;
--	if (p) {
-+	if (p && (!tgid || (p->tgid == tgid))) {
- 		error = check_kill_permission(sig, &info, p);
- 		/*
- 		 * The null signal is a permissions and process existence
-@@ -1970,6 +1976,12 @@ sys_tkill(int pid, int sig)
- 	return error;
- }
- 
-+asmlinkage long sys_tkill(int pid, int sig)
-+{
-+	return sys_tkill2(0, pid, sig);
-+}
-+
-+
- asmlinkage long
- sys_rt_sigqueueinfo(int pid, int sig, siginfo_t __user *uinfo)
- {
+ 	if (nr_reclaimable + ps.nr_writeback <= dirty_thresh)
+
+-- 
+Jens Axboe
 

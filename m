@@ -1,43 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267563AbUHJQyL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267546AbUHJQyJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267563AbUHJQyL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 12:54:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267586AbUHJQvb
+	id S267546AbUHJQyJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 12:54:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267589AbUHJQvv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 12:51:31 -0400
-Received: from anchor-post-31.mail.demon.net ([194.217.242.89]:56588 "EHLO
-	anchor-post-31.mail.demon.net") by vger.kernel.org with ESMTP
-	id S267563AbUHJQtb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 12:49:31 -0400
-Message-ID: <4118FC9A.8060705@superbug.demon.co.uk>
-Date: Tue, 10 Aug 2004 17:49:30 +0100
-From: James Courtier-Dutton <James@superbug.demon.co.uk>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040805)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-CC: wiggly@wiggly.org, linux-kernel@vger.kernel.org
-Subject: Re: [OT] Re: PATCH: cdrecord: avoiding scsi device numbering for
- ide devices
-References: <200408101607.i7AG7WPv014480@burner.fokus.fraunhofer.de>
-In-Reply-To: <200408101607.i7AG7WPv014480@burner.fokus.fraunhofer.de>
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 10 Aug 2004 12:51:51 -0400
+Received: from mail3.ithnet.com ([217.64.64.7]:29082 "HELO ithnet.com")
+	by vger.kernel.org with SMTP id S267546AbUHJQr3 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 12:47:29 -0400
+X-Sender-Authentication: net64
+Date: Tue, 10 Aug 2004 18:47:18 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+Cc: schilling@fokus.fraunhofer.de, alan@lxorguk.ukuu.org.uk, axboe@suse.de,
+       diablod3@gmail.com, dwmw2@infradead.org, eric@lammerts.org,
+       james.bottomley@steeleye.com, linux-kernel@vger.kernel.org
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+Message-Id: <20040810184718.769c046f.skraw@ithnet.com>
+In-Reply-To: <20040810161056.GB1127@lug-owl.de>
+References: <200408101427.i7AERDld014134@burner.fokus.fraunhofer.de>
+	<20040810164947.7f363529.skraw@ithnet.com>
+	<20040810152458.GA1127@lug-owl.de>
+	<20040810174814.414c8fdd.skraw@ithnet.com>
+	<20040810161056.GB1127@lug-owl.de>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joerg Schilling wrote:
->>From wiggly@wiggly.org  Tue Aug 10 18:03:46 2004
-> 
-> 
->>Just a quick, hopefully unpartisan, reminder that people who are 
->>interested in getting things done rather than feeding trolls would 
-> 
-> 
-> Nice word to the end!
-> 
-> I propose that I'll stop feeding trolls.
+On Tue, 10 Aug 2004 18:10:57 +0200
+Jan-Benedict Glaw <jbglaw@lug-owl.de> wrote:
 
-I propose that I stop eating... ;-)
+> Actually, I use Debian since, um, long ago:)  But accept that Jörg
+> doesn't really like to care about f*cked up patched versions of
+> cdrecord.
+
+He does not need to. Nobody told him to do.
+Besides I doubt that only the patched versions are actually "f*cked up".
+My personal experience with cdrecord is that neither version works well on my
+system.
+I tried several including "gods' own". Needless to mention it didn't work
+either. Needless to mention he told me to upgrade the firmware, needless to
+mention that did not help, but got worse instead (not even dvd worked
+afterwards).
+End of the story was that I gave away the old device (which works in a w*ndows
+system flawlessly ever since for both CD and DVD), and bought a new one which
+works well with DVD again (growisofs) but still not with cdrecord.
+My personal opinion is that both product and author get more attention than
+they deserve.
+
+Regards,
+Stephan

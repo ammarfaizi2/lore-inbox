@@ -1,81 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263037AbTDVJy3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 05:54:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263038AbTDVJy3
+	id S263038AbTDVJ7L (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 05:59:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263040AbTDVJ7K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 05:54:29 -0400
-Received: from pgramoul.net2.nerim.net ([80.65.227.234]:51560 "EHLO
-	philou.aspic.com") by vger.kernel.org with ESMTP id S263037AbTDVJy1 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 05:54:27 -0400
-Date: Tue, 22 Apr 2003 12:06:30 +0200
-From: Philippe =?ISO-8859-15?Q?Gramoull=E9?= 
-	<philippe.gramoulle@mmania.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.67-mm4 & IRQ balancing
-Message-Id: <20030422120630.4048a8b1.philippe.gramoulle@mmania.com>
-In-Reply-To: <20030419133837.0118907b.akpm@digeo.com>
-References: <20030419015836.6acbaeb6.philippe.gramoulle@mmania.com>
-	<20030418175116.75c8aa7b.akpm@digeo.com>
-	<20030419153923.6d63e22b.philippe.gramoulle@mmania.com>
-	<20030419133837.0118907b.akpm@digeo.com>
-Organization: Lycos Europe
-X-Mailer: Sylpheed version 0.8.11claws87 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 22 Apr 2003 05:59:10 -0400
+Received: from NeverAgain.DE ([217.69.76.1]:56776 "EHLO hobbit.neveragain.de")
+	by vger.kernel.org with ESMTP id S263038AbTDVJ7J (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Apr 2003 05:59:09 -0400
+Date: Tue, 22 Apr 2003 12:10:09 +0200
+From: Martin Loschwitz <madkiss@madkiss.org>
+To: linux-kernel@vger.kernel.org
+Subject: [BUG 2.4.21-rc1 and prior] Kernel Panic with vga=791 as bootparam and 1G of ram
+Message-ID: <20030422101009.GA1085@minerva.local.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="qMm9M+Fa2AknHoGS"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hello,
+--qMm9M+Fa2AknHoGS
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Sat, 19 Apr 2003 13:38:37 -0700
-Andrew Morton <akpm@digeo.com> wrote:
+Hello all,
 
-  | Philippe Gramoullé <philippe.gramoulle@mmania.com> wrote:
-  | >
-  | > [ SMP IRQ distribution ]
-  | >
-  | > Is this what you are looking for ? and are the values changes meaningful ?
-  | 
-  | Looks good to me.  But it didn't affect your machine at all, did it?
+after putting another 512mb ram-stick into this machine (It has got 1G of r=
+am
+in total now), the VESA framebuffer of 2.4.21-pre7 and 2.4.21-pre7 has stop=
+ped
+to work. I am not sure whether this problem exists also in prior versions s=
+ince
+i did not test it. However, "has stopped to work" means that as soon as I g=
+ive
+"vga=3D791" as boot-param, nearly immediately after pressing the enter-key =
+at
+grub-prompt, when the kernel should switch into FB-mode, the LEDs on my
+keyboard start to blink and it looks as if the machine hangs completely.
 
-Well, no, i didn't really felt a clear change.
-  | 
-  | This stuff only counts when the machine is doing a lot of work.  The current
-  | IRQ balancer works well under high interrupt frequencies, but does quite the
-  | wrong thing if you're doing a lot of softirq work at low interrupt
-  | frequencies (gige routing with NAPI).
+With only 512 megabytes of ram, this problem never appeared.
 
-This box is used as a desktop box, so quite a lots of open applications, but no
-real high load/IO except few kernel compiles and BK consistency checks.
+--=20
+  .''`.   Martin Loschwitz           Debian GNU/Linux developer
+ : :'  :  madkiss@madkiss.org        madkiss@debian.org
+ `. `'`   http://www.madkiss.org/    people.debian.org/~madkiss/
+   `-     Use Debian GNU/Linux 3.0!  See http://www.debian.org/
 
-Thanks,
+--qMm9M+Fa2AknHoGS
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Philippe
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
+iD8DBQE+pRUBHPo+jNcUXjARAk7sAKCuw54kBwN2PxqU4FLLoGEIUZK5+gCfeiI+
+2hba2XjMrbteedZtcN0mwo0=
+=25WQ
+-----END PGP SIGNATURE-----
 
-Booted with "noirqbalance" & started irqbalance:
-
-$ cat /proc/interrupts
-           CPU0       CPU1       
-  0:      73897  247288143    IO-APIC-edge  timer
-  1:      38421         56    IO-APIC-edge  i8042
-  2:          0          0          XT-PIC  cascade
-  3:        177          0    IO-APIC-edge  serial
-  8:     107607          0    IO-APIC-edge  rtc
- 12:          3          0    IO-APIC-edge  i8042, i8042, i8042, i8042
- 15:         32        118    IO-APIC-edge  ide1
- 18:      12602       1159   IO-APIC-level  EMU10K1
- 19:     454172      15987   IO-APIC-level  uhci-hcd
- 20:     494005          0   IO-APIC-level  eth0
- 22:     717483      38681   IO-APIC-level  aic7xxx
- 23:          0          0   IO-APIC-level  uhci-hcd
-NMI:          0          0 
-LOC:  247366287  247364170 
-ERR:          0
-MIS:          0
-
+--qMm9M+Fa2AknHoGS--

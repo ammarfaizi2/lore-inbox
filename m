@@ -1,46 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130702AbRBLRj3>; Mon, 12 Feb 2001 12:39:29 -0500
+	id <S129364AbRBLRtM>; Mon, 12 Feb 2001 12:49:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130692AbRBLRjT>; Mon, 12 Feb 2001 12:39:19 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:64520 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S130671AbRBLRjJ>; Mon, 12 Feb 2001 12:39:09 -0500
-Message-ID: <3A881FA7.2C5C8CBE@transmeta.com>
-Date: Mon, 12 Feb 2001 09:38:47 -0800
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
-X-Accept-Language: en, sv, no, da, es, fr, ja
+	id <S129215AbRBLRtC>; Mon, 12 Feb 2001 12:49:02 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:29946 "HELO
+	burns.conectiva") by vger.kernel.org with SMTP id <S129364AbRBLRsy>;
+	Mon, 12 Feb 2001 12:48:54 -0500
+Date: Mon, 12 Feb 2001 15:51:45 -0200 (EST)
+From: Fernando Fuganti <fuganti@conectiva.com.br>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: Christian Ullrich <chris@chrullrich.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.1: Abnormal interrupt from RTL8139
+In-Reply-To: <3A874CB4.717C101C@mandrakesoft.com>
+Message-ID: <Pine.LNX.4.21.0102121508390.814-100000@ze.distro.conectiva>
 MIME-Version: 1.0
-To: Olaf Hering <olh@suse.de>
-CC: Trond Myklebust <trond.myklebust@fys.uio.no>, autofs@linux.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: race in autofs / nfs
-In-Reply-To: <20010211211701.A7592@suse.de> <3A86F6AA.1416F479@transmeta.com> <shsbss8i8iq.fsf@charged.uio.no> <20010212111448.A28932@suse.de> <20010212125115.B30552@suse.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Olaf Hering wrote:
-> 
-> The autofs4.o is the culprit, it works perfect with autofs.o.
-> 
-> What would happen if I stick with autofs.o now?
-> The docu recommends autofs4 in modules.conf.
-> 
 
-I don't know who came up with that idea.  You should use the module that
-matches your daemon, and not try to hack around so that there is a
-module/daemon mismatch.
+I've had some problems with this card, as Aristeu Rozanski have asked you
+(Jeff) for some news about driver development...
 
-	-hpa
+we have some machines that did some random reboot or card lockups:
+- rtl8139.c, card lockup
+- (2.2.17) 8139too.c, machine reboot
+- (2.2.18) 8139too.c (0.9.12-2.2 - PIO mode), machine reboot
 
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+we are testing new version with MMIO mode to find out what is wrong
+(until now, it seems to be stable)
+
+If you want, I could get more info or testing something else, ok ?
+
+
+Fernando Fuganti
+
+
+On Sun, 11 Feb 2001, Jeff Garzik wrote:
+
+> Christian Ullrich wrote:
+> > I'm getting some of these messages in syslog:
+> > Feb  6 07:38:35 christian kernel: eth0: Abnormal interrupt, status 00000010.
+> > Feb  6 07:38:35 christian kernel: eth0: Abnormal interrupt, status 00000010.
+> > Feb  6 07:38:35 christian kernel: eth0: Abnormal interrupt, status 00000020.
+> > Feb  7 17:32:53 christian kernel: eth0: Abnormal interrupt, status 00000041.
+> [...]
+> > I have not observed any effects related to these messages.
+> 
+> Those messages are logged at the debugging level... if they bother you,
+> don't log kern.debug...
+> 
+> 	Jeff
+
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

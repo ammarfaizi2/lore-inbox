@@ -1,44 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262965AbVAKXqr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262952AbVAKXna@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262965AbVAKXqr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 18:46:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262949AbVAKXol
+	id S262952AbVAKXna (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 18:43:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262941AbVAKXmh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 18:44:41 -0500
-Received: from one.firstfloor.org ([213.235.205.2]:40641 "EHLO
-	one.firstfloor.org") by vger.kernel.org with ESMTP id S262965AbVAKXm7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 18:42:59 -0500
-To: Chris Wright <chrisw@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: node_online_map patch kills x86_64
-References: <20050111151656.A24171@build.pdx.osdl.net>
-From: Andi Kleen <ak@muc.de>
-Date: Wed, 12 Jan 2005 00:42:57 +0100
-In-Reply-To: <20050111151656.A24171@build.pdx.osdl.net> (Chris Wright's
- message of "Tue, 11 Jan 2005 15:16:56 -0800")
-Message-ID: <m1d5wb4jni.fsf@muc.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 11 Jan 2005 18:42:37 -0500
+Received: from coderock.org ([193.77.147.115]:11974 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S262952AbVAKXf2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 18:35:28 -0500
+Subject: [patch 10/11] gus_wave.c - vfree() checking cleanups
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, domen@coderock.org, jlamanna@gmail.com
+From: domen@coderock.org
+Date: Wed, 12 Jan 2005 00:35:20 +0100
+Message-Id: <20050111233521.1D35A1F226@trashy.coderock.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wright <chrisw@osdl.org> writes:
 
-> Backing out the x86_64 specific bits of the numnodes -> node_online_map
-> patch and the generic bits from wli, kills my machine at boot.
 
-And with it it included it works? Why do you back it out then? 
->
-> It hits the early_idt_handler and dies straight away.  What would help
-> to debug this thing?
+gus_wave.c vfree() checking cleanups.
 
-First a bit of information, like what kind of machine, logs etc.
-(kernel bug reporting 101, it's not that difficult, isn't it?) 
+Signed-off by: James Lamanna <jlamanna@gmail.com>
 
-If you have a dual Opteron system and enabled CONFIG_ACPI_NUMA
-then numa=noacpi may work. There is a known problem with some
-Tyan BIOS. Fix for that is upcomming.
 
--Andi
+Signed-off-by: Domen Puncer <domen@coderock.org>
+---
+
+
+ kj-domen/sound/oss/gus_wave.c |    3 +--
+ 1 files changed, 1 insertion(+), 2 deletions(-)
+
+diff -puN sound/oss/gus_wave.c~vfree-sound_oss_gus_wave sound/oss/gus_wave.c
+--- kj/sound/oss/gus_wave.c~vfree-sound_oss_gus_wave	2005-01-10 18:01:07.000000000 +0100
++++ kj-domen/sound/oss/gus_wave.c	2005-01-10 18:01:07.000000000 +0100
+@@ -3126,8 +3126,7 @@ void __exit gus_wave_unload(struct addre
+ 	if (hw_config->slots[5] != -1)
+ 		sound_unload_mixerdev(hw_config->slots[5]);
+ 	
+-	if(samples)
+-		vfree(samples);
++	vfree(samples);
+ 	samples=NULL;
+ }
+ /* called in interrupt context */
+_

@@ -1,59 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286309AbRL0OVP>; Thu, 27 Dec 2001 09:21:15 -0500
+	id <S281854AbRL0OVF>; Thu, 27 Dec 2001 09:21:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281895AbRL0OVH>; Thu, 27 Dec 2001 09:21:07 -0500
-Received: from mailout06.sul.t-online.com ([194.25.134.19]:13520 "EHLO
+	id <S286302AbRL0OU4>; Thu, 27 Dec 2001 09:20:56 -0500
+Received: from mailout06.sul.t-online.com ([194.25.134.19]:9168 "EHLO
 	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S286300AbRL0OUy>; Thu, 27 Dec 2001 09:20:54 -0500
-Date: 27 Dec 2001 14:10:00 +0200
+	id <S286294AbRL0OUo>; Thu, 27 Dec 2001 09:20:44 -0500
+Date: 27 Dec 2001 13:35:00 +0200
 From: kaih@khms.westfalen.de (Kai Henningsen)
 To: linux-kernel@vger.kernel.org
-Message-ID: <8FeKjMmXw-B@khms.westfalen.de>
-In-Reply-To: <1008883684.4704.0.camel@localhost.localdomain>
+Message-ID: <8FeKi601w-B@khms.westfalen.de>
+In-Reply-To: <20011223174227.NCJM25224.femail12.sdc1.sfba.home.com@there>
 Subject: Re: Configure.help editorial policy
 X-Mailer: CrossPoint v3.12d.kh8 R/C435
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Organization: Organisation? Me?! Are you kidding?
-In-Reply-To: <Pine.LNX.4.33.0112201605310.9934-100000@coffee.psychology.mcmaster.ca> <Pine.LNX.4.33.0112201605310.9934-100000@coffee.psychology.mcmaster.ca> <1008883684.4704.0.camel@localhost.localdomain>
+In-Reply-To: <20011222045805.A24575@thyrsus.com> <20011220143247.A19377@thyrsus.com> <20011222081345.ETGO12125.femail34.sdc1.sfba.home.com@there> <20011222045805.A24575@thyrsus.com> <20011223174227.NCJM25224.femail12.sdc1.sfba.home.com@there>
 X-No-Junk-Mail: I do not want to get *any* junk mail.
 Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
 X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-reid.hekman@ndsu.nodak.edu (Reid Hekman)  wrote on 20.12.01 in <1008883684.4704.0.camel@localhost.localdomain>:
+landley@trommello.org (Rob Landley)  wrote on 23.12.01 in <20011223174227.NCJM25224.femail12.sdc1.sfba.home.com@there>:
 
-> On Thu, 2001-12-20 at 15:07, Mark Hahn wrote:
+> But the binary or decimal nature of the measurement has always been
+> application specific up until now, and I'm curious why that's suddenly not
+> good enough anymore.
 
-> > > 1024 decimal kilobyte disk
-> > > 8.4 decimal gigabyte disks
+Would you want to live in a world where 1 litre milk was either more or  
+less than 1 litre water?
 
-> > though as your example showed, there's very little, if any,
-> > ambiguity: disk is always decimal, memory is always binary, etc.
+Why, then, do you think it was *ever* "good enough"?
 
-Ah, but the problem with this is that it's *wrong*.
+I certainly never thought that 1 GB disk being a different number of  
+usable bits than 1 GB RAM was ever "good enough". *I* considered that to  
+be plain old fraud.
 
-Disk is not always decimal. Nor is it always binary. Most disk sizes are  
-an unholy mixture of the two that deserves a stake through the heart,  
-where 1 GB = 1,024,000,000 bytes.
+> The switch appears to be based on the assumption that conformance to a
+> standard issued by a bureaucratic body is arbitrarily better than
+> established practice.  And yet that's not what it does, because it refuses
+> to use the long form...
 
-If even people here do not understand how this works, then can it possibly  
-be the right way of doing things?!
+"Established practice" is that these prefixes are decimal. It has been  
+established practice before the first electronic computer was even built.
 
-> More importantly, less educated users than yourself might not strike up
-> the distinction between disk and memory units. The common example being,
-> "why does my 9.1GB hard drive show up as 8.9GB?" Rather than explain
+> The patch is a can of worms, and abandoning the current domain-based
+> defaults (ram is binary, network is decimal, disk needs to pick one) is not
+> something I see as an improvement.  But you're the maintainer...
 
-A current "9.1GB" hard disk would, if dc didn't lie to me, be either 9.3  
-GB (decimal) or 8.7 GiB (binary).
-
-> For me, my reasons for full names are consistency and aesthetics --
-> allowing us to sidestep the abortion that the IEC has created of SI
-> units.
-
-So you'll be saying "9.3 milliards of bytes" - or is it "billions" where  
-you live?
+I see it as an unequivocal improvement, even though I don't like the  
+actual choice of prefix. But then, I never liked "Exa" or "Peta" either  
+...
 
 MfG Kai

@@ -1,39 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261192AbTEKMID (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 May 2003 08:08:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261196AbTEKMID
+	id S261159AbTEKMMX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 May 2003 08:12:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261196AbTEKMMX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 May 2003 08:08:03 -0400
-Received: from modemcable204.207-203-24.mtl.mc.videotron.ca ([24.203.207.204]:28033
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id S261192AbTEKMIC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 May 2003 08:08:02 -0400
-Date: Sun, 11 May 2003 08:11:20 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-cc: Grzesiek Wilk <toulouse@put.mielec.pl>, "" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] SiS648 support for agpgart, kernel 2.4.21-rc2-ac1
-In-Reply-To: <Pine.SOL.4.30.0305111409470.1501-100000@mion.elka.pw.edu.pl>
-Message-ID: <Pine.LNX.4.50.0305110810340.15337-100000@montezuma.mastecende.com>
-References: <Pine.SOL.4.30.0305111409470.1501-100000@mion.elka.pw.edu.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 11 May 2003 08:12:23 -0400
+Received: from ulima.unil.ch ([130.223.144.143]:2737 "EHLO ulima.unil.ch")
+	by vger.kernel.org with ESMTP id S261159AbTEKMMW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 May 2003 08:12:22 -0400
+Date: Sun, 11 May 2003 14:25:03 +0200
+From: Gregoire Favre <greg@ulima.unil.ch>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.69 and ide-floppy errors
+Message-ID: <20030511122503.GA10013@ulima.unil.ch>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 11 May 2003, Bartlomiej Zolnierkiewicz wrote:
+Hello,
 
-> On Sun, 11 May 2003, Grzesiek Wilk wrote:
-> 
-> > This patch just adds sis648 chipset support as a generic sis chipset into
-> > agpgart. You need it if you want to get a 3d acceleration to work.
-> >
-> > So far it works fine on my Radeon 9000
-> > (glxgears 1200fps instead of 300, glTron works excellent).
+I got those in syslog:
 
-Wow that's horrendous.
+May 11 14:19:18 localhost kernel: ide_tcq_intr_timeout: timeout waiting for completion interrupt
+May 11 14:19:18 localhost kernel: hda: invalidating tag queue (0 commands)
+May 11 14:19:18 localhost kernel: hda: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
+May 11 14:19:18 localhost kernel: hda: drive_cmd: error=0x04 { DriveStatusError }
+May 11 14:19:18 localhost kernel: hdb: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+May 11 14:19:18 localhost kernel: hdb: drive not ready for command
+May 11 14:20:37 localhost kernel: ide_tcq_intr_timeout: timeout waiting for completion interrupt
+May 11 14:20:37 localhost kernel: hda: invalidating tag queue (0 commands)
+May 11 14:20:37 localhost kernel: hda: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
+May 11 14:20:37 localhost kernel: hda: drive_cmd: error=0x04 { DriveStatusError }
+May 11 14:20:37 localhost kernel: hdb: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+May 11 14:20:37 localhost kernel: hdb: drive not ready for command
+May 11 14:22:05 localhost kernel: ide_tcq_intr_timeout: timeout waiting for completion interrupt
+May 11 14:22:05 localhost kernel: hda: invalidating tag queue (0 commands)
+May 11 14:22:05 localhost kernel: hda: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
+May 11 14:22:05 localhost kernel: hda: drive_cmd: error=0x04 { DriveStatusError }
+May 11 14:22:05 localhost kernel: hdb: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+May 11 14:22:05 localhost kernel: hdb: drive not ready for command
 
--- 
-function.linuxpower.ca
+???
+That with my ZIP 250 on a MSI Max2-BLR mother board...
+Otherwise, it seems to works pretty good ;-)
+
+	Grégoire
+________________________________________________________________
+http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch

@@ -1,57 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264098AbUHaQln@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261711AbUHaQpg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264098AbUHaQln (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 12:41:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263893AbUHaQlm
+	id S261711AbUHaQpg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 12:45:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263893AbUHaQpg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 12:41:42 -0400
-Received: from canuck.infradead.org ([205.233.218.70]:59400 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S264299AbUHaQlW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 12:41:22 -0400
-Subject: Re: [DOC] Linux kernel patch submission format
-From: David Woodhouse <dwmw2@infradead.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Jeremy Higdon <jeremy@sgi.com>
-In-Reply-To: <413431F5.9000704@pobox.com>
-References: <413431F5.9000704@pobox.com>
-Content-Type: text/plain
-Date: Tue, 31 Aug 2004 17:37:41 +0100
-Message-Id: <1093970261.6200.45.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 1.5.93 (1.5.93-2) 
+	Tue, 31 Aug 2004 12:45:36 -0400
+Received: from yacht.ocn.ne.jp ([222.146.40.168]:41957 "EHLO
+	smtp.yacht.ocn.ne.jp") by vger.kernel.org with ESMTP
+	id S261711AbUHaQpd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 12:45:33 -0400
+From: mita akinobu <amgta@yacht.ocn.ne.jp>
+To: William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: [util-linux] readprofile ignores the last element in /proc/profile
+Date: Wed, 1 Sep 2004 01:45:51 +0900
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org, Andries Brouwer <aeb@cwi.nl>,
+       Alessandro Rubini <rubini@ipvvis.unipv.it>
+References: <200408250022.09878.amgta@yacht.ocn.ne.jp> <20040829162252.GG5492@holomorphy.com>
+In-Reply-To: <20040829162252.GG5492@holomorphy.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Disposition: inline
+Message-Id: <200409010145.51224.amgta@yacht.ocn.ne.jp>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-08-31 at 04:08 -0400, Jeff Garzik wrote:
-> I tried to keep it as short as possible:  here is a page describing the 
-> most optimal format for sending patches to Linux kernel developers.
-> 
-> 	http://linux.yyz.us/patch-format.html
+On Monday 30 August 2004 01:22, William Lee Irwin III wrote:
+> Well, since I couldn't stop vomiting for hours after I looked at the
+> code for readprofile(1), here's a reimplementation, with various
+> misfeatures removed, included as a MIME attachment.
 
---- patch-format.html.orig
-+++ patch-format.html
-@@ -83,6 +83,15 @@
- for the 5th time, resist the urge to attach 20 patches to a single
- email.
- 
-+</li><li><h2>One thread per set of patches</h2>
-+
-+The corollary to the above rule: when sending more than one patch in
-+separate emails, make sure they stay together. Send the second and
-+subsequent mails as <em>replies</em> to the first mail, rather than
-+having each one start its own thread. (You should also ensure that
-+your mail client obeys RFC2822 by including correct
-+<TT>References:</TT> headers in replies.)
-+
- </li><li><h2>Sign your work</h2>
- 
- The sign-off is a simple line at the end of the explanation for the
+The rewritten readprofile still ignores the last element on my machine.
 
--- 
-dwmw2
+Boot option:
+	profile=2
+
+System.map:
+	c0100264 t ignore_int
+	c0100298 T _stext
+	c0100298 T calibrate_delay
+	[...]
+	c03acbf1 T __spinlock_text_end
+	c03ae0af A _etext
+	c03ae0b0 A __start___ex_table
+
+This is quick fix.
+
+
+--- readprofile.c.orig	2004-08-31 23:01:23.000000000 +0900
++++ readprofile.c	2004-09-01 01:39:00.316750264 +0900
+@@ -25,6 +25,7 @@ struct profile_state {
+ 	int fd, shift;
+ 	uint32_t *buf;
+ 	size_t bufsz;
++	size_t bufcnt;
+ 	struct sym syms[2], *last, *this;
+ 	unsigned long long stext, vaddr;
+ 	unsigned long total;
+@@ -101,8 +102,8 @@ static int state_transition(struct profi
+ 			exit(EXIT_FAILURE);
+ 		}
+ 	}
+-	if (read(state->fd, state->buf, end - start) == end - start) {
+-		for (off = 0; off < (end - start)/sizeof(uint32_t); ++off)
++	if ((state->bufcnt = read(state->fd, state->buf, end - start)) >= 0) {
++		for (off = 0; off < (state->bufcnt)/sizeof(uint32_t); ++off)
+ 			state->last->hits += state->buf[off];
+ 	} else {
+ 		ret = 1;
 

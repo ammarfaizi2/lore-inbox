@@ -1,43 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264937AbTF3PCL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jun 2003 11:02:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264943AbTF3PCK
+	id S264898AbTF3PKC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jun 2003 11:10:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264943AbTF3PKC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jun 2003 11:02:10 -0400
-Received: from thumper2.emsphone.com ([199.67.51.102]:4253 "EHLO
-	thumper2.emsphone.com") by vger.kernel.org with ESMTP
-	id S264937AbTF3PCG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jun 2003 11:02:06 -0400
-Date: Mon, 30 Jun 2003 10:16:21 -0500
-From: Andrew Ryan <genanr@emsphone.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: bkbits.net is down
-Message-ID: <20030630151621.GA7783@thumper2.emsphone.com>
-References: <20030628001625.GC18676@work.bitmover.com> <20030627205140.F29149@newbox.localdomain> <20030628031920.GF18676@work.bitmover.com> <1056827655.6295.22.camel@dhcp22.swansea.linux.org.uk> <20030628191847.GB8158@work.bitmover.com> <20030628193857.GH841@gallifrey> <1056832290.6289.44.camel@dhcp22.swansea.linux.org.uk> <1056867876.11843.1.camel@sonja> <Pine.LNX.4.56.0306290619560.24286@filesrv1.baby-dragons.com> <1056892464.12323.27.camel@sonja>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1056892464.12323.27.camel@sonja>
-User-Agent: Mutt/1.5.4i
+	Mon, 30 Jun 2003 11:10:02 -0400
+Received: from dm5-224.slc.aros.net ([66.219.220.224]:32129 "EHLO cyprus")
+	by vger.kernel.org with ESMTP id S264898AbTF3PKA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jun 2003 11:10:00 -0400
+Message-ID: <3F005621.1060708@aros.net>
+Date: Mon, 30 Jun 2003 09:24:17 -0600
+From: Lou Langholtz <ldl@aros.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Michael Frank <mflt1@micrologica.com.hk>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@digeo.com>
+Subject: Re: 2.5.73-mm1 nbd: boot hang in add_disk at first call from nbd_init
+References: <200306271943.13297.mflt1@micrologica.com.hk>
+In-Reply-To: <200306271943.13297.mflt1@micrologica.com.hk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 29, 2003 at 03:14:25PM +0200, Daniel Egger wrote:
-> 
-> > 	5MB/Sec is faster than MOST tapes drivs ?  Or ???
-> > 	If you are talking older scsi-2 or 1 drives yes .
-> > 	But on a properly tuned system any of the newer tape drives s/b
-> > 	able beat that hands down .
-> 
-> To cite a popular manufacturer directly from the homepage:
-> "... and a data transfer rate of up to 5 megabytes per second"
-> 
-> Please note the "up to" and that this drive is an affordable latest
-> generation ADR streamer.
-> 
-While a little expensive, LTO drives can do 15MB/sec native.   Even if
-bkbits does have 2 or 3 backup sites, it is still a good idea to have a tape
-backup of the data.
+Michael Frank wrote:
 
-Andy
+>Changes were recently made to the nbd.c in 2.5.73-mm1
+>
+>When using nbd.c ex 2.5.73 boot OK. 
+>acpi=off no effect
+>
+>----------------------------
+>dmesg using nbd.c ex 2.5.73:
+>
+>loop: loaded (max 8 devices)
+>anticipatory scheduling elevator
+>
+>(Using nbd.c ex 2.5.73-mm1
+> nbd: registered device at major 43
+>  hang) . . .
+>
+Thank you for reporting this. A few others have also found this same 
+problem and a patch that fixes this has been submitted to Andrew. I 
+haven't had the chance yet to figure out what release of mm this fix may 
+have made it into. The reason for this problem in the first place was 
+that the patch which caused the problem was tested against 2.5.73 then 
+applied into Andrew's 2.5.73-mm1 release. Some other changes that made 
+it into 2.5.73-mm1 (in a non-nbd system that also hadn't been in 2.5.73 
+yet) interacted with the nbd change in the un-expected way you've seen. 
+If there are still problems you can track back to nbd please let me know.
+

@@ -1,46 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280029AbRLBQAp>; Sun, 2 Dec 2001 11:00:45 -0500
+	id <S280126AbRLBQOa>; Sun, 2 Dec 2001 11:14:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280114AbRLBQAe>; Sun, 2 Dec 2001 11:00:34 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:65294 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S280101AbRLBQAX>;
-	Sun, 2 Dec 2001 11:00:23 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: kbuild-devel@lists.sourceforge.net
+	id <S280132AbRLBQOS>; Sun, 2 Dec 2001 11:14:18 -0500
+Received: from hog.ctrl-c.liu.se ([130.236.252.129]:65042 "HELO
+	hog.ctrl-c.liu.se") by vger.kernel.org with SMTP id <S280126AbRLBQOG>;
+	Sun, 2 Dec 2001 11:14:06 -0500
+To: jgarzik@mandrakesoft.com
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Announce: Kernel Build for 2.5, Release 1.10 is available 
-In-Reply-To: Your message of "Sun, 02 Dec 2001 23:48:29 +1100."
-             <26392.1007297309@ocs3.intra.ocs.com.au> 
-Date: Mon, 03 Dec 2001 03:00:10 +1100
-Message-ID: <27607.1007308810@ocs3.intra.ocs.com.au>
+Subject: Re: PATCH 2.4.17.2: make ext2 smaller
+Newsgroups: linux.kernel
+In-Reply-To: <3C0A1105.18B76D64@mandrakesoft.com>
+Message-Id: <20011202161401.2B57936DD7@hog.ctrl-c.liu.se>
+Date: Sun,  2 Dec 2001 17:14:01 +0100 (CET)
+From: wingel@hog.ctrl-c.liu.se (Christer Weinigel)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-Content-Type: text/plain; charset=us-ascii
-
-On Sun, 02 Dec 2001 23:48:29 +1100, 
-Keith Owens <kaos@ocs.com.au> wrote:
->Release 1.10 of kernel build for kernel 2.5 (kbuild 2.5) has been
->released.  http://sourceforge.net/projects/kbuild/, Package kbuild-2.5,
->download release 1.10.
+Jeff Garzik wrote:
+>This patch applies an obvious technique to the kernel:  increase the
+>amount of code compiled in a single compilation unit, to increase the
+>overall knowledge the compiler has of the code, to allow for better
+>optimization and dead code removal.  KDE does this, with definite
+>success, though they definitely are not the first to do this.
 >
->kbuild 2.5 currently supports i386 (2.4.16), ia64 (2.4.16-011128),
->sparc32 (2.4.16), sparc64 (2.4.16).
+>Results from 2.4.17-pre2 plus the attached patch:  1135 bytes saved in
+>vmlinux, simply from making all the functions static.
+>(*.orig is prior to my patch.  kernel is P2 SMP-based)
+>> [jgarzik@rum linux-e2all]$ ls -l vmlinux* arch/i386/boot/bzImage*
+>> -rw-r--r--    1 jgarzik  jgarzik   1030259 Dec  2 06:18 arch/i386/boot/bzImage
+>> -rw-r--r--    1 jgarzik  jgarzik   1030263 Dec  2 06:04 arch/i386/boot/bzImage.orig
+>> -rwxr-xr-x    1 jgarzik  jgarzik   2814631 Dec  2 06:18 vmlinux*
+>> -rwxr-xr-x    1 jgarzik  jgarzik   2815766 Dec  2 06:04 vmlinux.orig*
 
-At no extra cost, kbuild 2.5 now supports kernel 2.5.1-pre5.  See patch
-kbuild-2.5-2.5.1-pre5-1.
+I think that you've only saved some symbols in the vmlinux file, symbols
+that will get stripped off anyway when building the bzImage.  If you
+want to see the real difference, remove the second "remove $$$tmppiggy"
+from arch/i386/boot/compressed/Makefile and look at the _tmp_NNNNNpiggy
+file left there.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: Exmh version 2.1.1 10/15/1999
-
-iD8DBQE8ClAIi4UHNye0ZOoRAifzAKDvmShuNuhYQHvXcZm6wQhePhv2TACgu2pi
-zExlLuM9zAvvDK7KE5tiilE=
-=873e
------END PGP SIGNATURE-----
-
+   /Christer
+-- 
+"Just how much can I get away with and still go to heaven?"

@@ -1,71 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265531AbTIJTCr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 15:02:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265530AbTIJTCK
+	id S265554AbTIJTEU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 15:04:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265533AbTIJTDJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 15:02:10 -0400
-Received: from fmr09.intel.com ([192.52.57.35]:6909 "EHLO hermes.hd.intel.com")
-	by vger.kernel.org with ESMTP id S265525AbTIJTBX convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 15:01:23 -0400
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Subject: ACPI patch flow
-Date: Wed, 10 Sep 2003 15:01:06 -0400
-Message-ID: <BF1FE1855350A0479097B3A0D2A80EE009FD58@hdsmsx402.hd.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: ACPI patch flow
-Thread-Index: AcN3xa5dNltVssXfTKqZ0S4GwpQqxAAAXpYw
-From: "Brown, Len" <len.brown@intel.com>
-To: <acpi-devel@lists.sourceforge.net>,
-       "Grover, Andrew" <andrew.grover@intel.com>
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 10 Sep 2003 19:01:09.0525 (UTC) FILETIME=[E548A450:01C377CD]
+	Wed, 10 Sep 2003 15:03:09 -0400
+Received: from gprs145-173.eurotel.cz ([160.218.145.173]:59010 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S265526AbTIJTCQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Sep 2003 15:02:16 -0400
+Date: Wed, 10 Sep 2003 21:02:02 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: Jamie Lokier <jamie@shareable.org>, Dave Jones <davej@redhat.com>,
+       Mitchell Blank Jr <mitch@sfgoth.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] oops_in_progress is unlikely()
+Message-ID: <20030910190202.GG2834@elf.ucw.cz>
+References: <20030907064204.GA31968@sfgoth.com> <20030907221323.GC28927@redhat.com> <20030910142031.GB2589@elf.ucw.cz> <20030910142308.GL932@redhat.com> <20030910152902.GA2764@elf.ucw.cz> <Pine.LNX.4.53.0309101147040.14762@chaos> <20030910183138.GA23783@mail.jlokier.co.uk> <Pine.LNX.4.53.0309101439390.18459@chaos>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.53.0309101439390.18459@chaos>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've re-named the linux-acpi* tree to be linux-acpi-release*; and made
-the staging area for the release tree visible -- calling it
-linux-acpi-test*
+Hi!
 
-So a 2 stage release is now visible on the net:
+> > Your guess is incorrect.
+> >
+> > > You are always going to take an extra jump in one execution
+> > > path after the function, and you will take a conditional jump
+> > > before the function call in the other execution path. So, you
+> > > always have the "extra" jumps, no matter.
+> >
+> > That is not true.  The "likely" path has no taken jumps.
+> >
+> 
+> Absolutely, positively, irrefutably wrong! Any logical operation
+> with any real processor can only result in a jump upon condition. The
+> path not taken will always require a jump around the code that
+> handled the jump upon condition unless the code exists at
+> the end of a procedure where a 'return' will suffice. Period.
 
-1. linux-acpi-test-*
-Staging area for linux-acpi-release-*  This is where to go to try out
-the latest integrated patch that is being tested in preparation for push
-into the release tree.  In the past this was not visible, and so it
-limited the ability of others to test the integrated patch w/o
-integrating it all themselves, and led to surprises when changes came
-out in the release that people may not have seen on the list.  Exporting
-this will also allow me to give contributors quicker feedback when their
-changes have entered the release pipeline.
+No.
 
-2. linux-acpi-release-*
-Same release trees as before, with same usage -- just added "release" to
-the name.  As before, whenever we update these and release to 2.4 and
-2.6 we'll also post post the plain patch to
-http://sourceforge.net/projects/acpi
+	jz	not_likely
+	likely_code
+go_back:
+	more_likely_core
+	retn	
 
-As before, the BK trees live here:  http://linux-acpi.bkbits.com  If
-there is demand for plain patches of the _test_ tree we can probably
-also export those on http://sourceforge.net/projects/acpi too, but as
-the test tree will change more often, those updates would have to be
-on-demand or on significant events.
-
-Thanks,
--Len
-
-Ps. The release tree has always been sync'd with the latest baseline for
-each release; and this will still be the case.  But this makes it more
-difficult for people to apply the latest patch to older trees.  So now
-there is a 2.4.22 tree that is the (frozen) 2.4.22 plus only the ACPI
-updates.  I'll apply 2.4 patches there and then push them forward into
-the 2.4.23 tree.  We'll do the same with 2.6 when stable 2.6 baselines
-emerge.
-
+not_likely:
+	do_whatever_you_need
+	jmp go_back
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266310AbTBTR0s>; Thu, 20 Feb 2003 12:26:48 -0500
+	id <S266609AbTBTRvo>; Thu, 20 Feb 2003 12:51:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266308AbTBTR0s>; Thu, 20 Feb 2003 12:26:48 -0500
-Received: from griffon.mipsys.com ([217.167.51.129]:219 "EHLO zion.wanadoo.fr")
-	by vger.kernel.org with ESMTP id <S266320AbTBTR0q>;
-	Thu, 20 Feb 2003 12:26:46 -0500
-Subject: Re: SMP-Linux
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: James Buchanan <jamesbuch@iprimus.com.au>
-Cc: "John W. M. Stevens" <john@betelgeuse.us>, linux-kernel@vger.kernel.org
-In-Reply-To: <005601c2d11f$bfe5e060$59951ad3@windows>
-References: <001501c2d11a$3ad9c3a0$59951ad3@windows>
-	 <20030210160848.GB30804@morningstar.nowhere.lie>
-	 <005601c2d11f$bfe5e060$59951ad3@windows>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1045762740.12534.110.camel@zion.wanadoo.fr>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 20 Feb 2003 18:39:01 +0100
+	id <S266330AbTBTRvo>; Thu, 20 Feb 2003 12:51:44 -0500
+Received: from dialup-192.130.220.203.acc01-faul-arm.comindico.com.au ([203.220.130.192]:37249
+	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S266609AbTBTRvn> convert rfc822-to-8bit; Thu, 20 Feb 2003 12:51:43 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: James Buchanan <jamesbuch@iprimus.com.au>
+Reply-To: jamesbuch@iprimus.com.au
+To: Rik van Riel <riel@imladris.surriel.com>
+Subject: Re: Linux kernel rant
+Date: Fri, 21 Feb 2003 17:01:23 +1100
+User-Agent: KMail/1.4.3
+Cc: Tomas Szepe <szepe@pinerecords.com>, "" <linux-kernel@vger.kernel.org>
+References: <200302211551.28222.jamesbuch@iprimus.com.au> <200302211642.31669.jamesbuch@iprimus.com.au> <Pine.LNX.4.50L.0302201453500.2329-100000@imladris.surriel.com>
+In-Reply-To: <Pine.LNX.4.50L.0302201453500.2329-100000@imladris.surriel.com>
+X-Memberships: Professional Member, ACM (jamesb.au@acm.org)
+X-Hypothetical: Humans are incapable of original thought. Everything is the result of observation, experimentation, or building on/modifying what already exists.
+X-Location: Australia, NSW
+X-Religion: Athiest, Secular
+X-Operating-System: RedHat Linux/GNU
+X-Message: The Truth Is Out There
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200302211701.23632.jamesbuch@iprimus.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-02-10 at 17:16, James Buchanan wrote:
+On Fri, 21 Feb 2003 04:54 am, Rik van Riel wrote:
+> > I'm not - Theo De Raadt refuses to sign them.
+>
+> And as a consequence he doesn't have the same hardware support.
 
-> Yes, a HAL, very much, but not really a VM, only a very thin layer of
-> architecture-nuturalness.  Very thin.  The trickery I have learnt from
-> the NetBSD project is that it has some very clever glue code below
-> this HAL.  I suppose to maintain acceptable performance levels.  Then
-> again the goals of NetBSD and Linux are different in some respects,
-> Linux likes raw speed and was originally only for the x86 and NetBSD
-> likes portability above that.
-> 
-> So I suppose my experiment will never really take off, but could have
-> some interesting results!
+I don't use a Sparc.  I have a stock x86, all works well for me.
 
-Well... how do you think linux actually works ? Did you bother
-_reading_ the code before proposing to do something that is
-basically already there ? :)
+> Of course, you're free to run openbsd on any machine that
+> supports it.  I'm sure you'll be able to put one together
+> from various supported pieces of hardware.
 
-Ben (happily running SMP on PowerPC architecture).
+I already have, an old cheap IBM PC/300PL, works nicely.  Need to 
+learn more about how to use it as well as I use my GNU/Linux system 
+though before I can replace Linux altogether on this machine.
 
-Ben.
+

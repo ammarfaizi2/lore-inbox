@@ -1,39 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267524AbTAHGP4>; Wed, 8 Jan 2003 01:15:56 -0500
+	id <S267684AbTAHGM4>; Wed, 8 Jan 2003 01:12:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267560AbTAHGP4>; Wed, 8 Jan 2003 01:15:56 -0500
-Received: from rth.ninka.net ([216.101.162.244]:40360 "EHLO rth.ninka.net")
-	by vger.kernel.org with ESMTP id <S267524AbTAHGPz>;
-	Wed, 8 Jan 2003 01:15:55 -0500
-Subject: Re: Broadcom Gigabit 5703 and Bridging
-From: "David S. Miller" <davem@redhat.com>
-To: sbolderoff@foursticks.com
-Cc: Paul Schulz <pschulz@foursticks.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20030108044155.GA1473@fuzzy.foursticks.com.au>
-References: <E18W7jh-0001Co-00@mars> 
-	<20030108044155.GA1473@fuzzy.foursticks.com.au>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 07 Jan 2003 22:58:35 -0800
-Message-Id: <1042009115.17193.3.camel@rth.ninka.net>
-Mime-Version: 1.0
+	id <S267685AbTAHGM4>; Wed, 8 Jan 2003 01:12:56 -0500
+Received: from inpbox.inp.nsk.su ([193.124.167.24]:43976 "EHLO
+	inpbox.inp.nsk.su") by vger.kernel.org with ESMTP
+	id <S267684AbTAHGMz>; Wed, 8 Jan 2003 01:12:55 -0500
+Date: Wed, 8 Jan 2003 12:17:43 +0600
+From: "Dmitry A. Fedorov" <D.A.Fedorov@inp.nsk.su>
+Reply-To: D.A.Fedorov@inp.nsk.su
+To: Pete Zaitcev <zaitcev@redhat.com>
+cc: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
+Subject: Re: User mode drivers (Honest does not pay here ...)
+In-Reply-To: <200301080419.h084JMT10615@devserv.devel.redhat.com>
+Message-ID: <Pine.SGI.4.10.10301081203420.172134-100000@Sky.inp.nsk.su>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-01-07 at 20:41, sbolderoff@foursticks.com wrote:
-> On Wed, Jan 08, 2003 at 02:52:37PM +1030, Paul Schulz wrote:
-> The BCM95703A30 rev 1002 has issues with the hardware checksumming.
+On Tue, 7 Jan 2003, Pete Zaitcev wrote:
 
-Really?
+> > I may be showing my ignorance here (won't be the first time) but this makes
+> > me wonder if Linux could provide a way to do "user level drivers".
+> 
+> It is a question often asked in comp.os.linux.development.system.
+> If performance penalties and security problems are no obstacle,
 
-Can you demonstrate the problem with the 5703 without bridging?
-Can you demonstrate the problem with bridging and another checksum
-capable card?
+Perfomance is slightly higher since there are no extra switching to
+kernel and back to user space and parameters passing.
 
-Unless you can answer both those questions, I think faulting this
-5703 variant is premature.  It smells more like a briding bug to
-me, perhaps it's corrupting the hw checksumming state of an SKB
-as it passes through the bridging layer.
+> a lot of hardware can be serviced with a user mode driver, except
+> one that requires interrupts to operate. There is no way to deliver
+> an interrupt safely to the user mode, because a device specific
+> deactivation or ack-ing must be performed before interrupts are
+
+Some devices (ISA based, at least) does not requires immediate interrupt
+acknowledge, they are can be serviced from the user space with 
+interrupts and they do.
 

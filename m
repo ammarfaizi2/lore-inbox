@@ -1,42 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262244AbUDPFIC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 01:08:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262285AbUDPFIC
+	id S262356AbUDPFQq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 01:16:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262425AbUDPFQq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 01:08:02 -0400
-Received: from magic.adaptec.com ([216.52.22.17]:15247 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S262244AbUDPFIA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 01:08:00 -0400
-Date: Fri, 16 Apr 2004 10:41:35 +0530 (IST)
-From: Nagendra Singh Tomar <nagendra_tomar@adaptec.com>
-X-X-Sender: tomar@localhost.localdomain
-Reply-To: "Tomar, Nagendra" <nagendra_tomar@adaptec.com>
-To: linux-kernel@vger.kernel.org
-cc: "Tomar, Nagendra" <nagendra_tomar@adaptec.com>
-Subject: How does ioremap() get non-cached mappings
-Message-ID: <Pine.LNX.4.44.0404161037130.17679-100000@localhost.localdomain>
-Organization: Adaptec
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 16 Apr 2004 05:07:57.0344 (UTC) FILETIME=[C8167200:01C42370]
+	Fri, 16 Apr 2004 01:16:46 -0400
+Received: from zeus.city.tvnet.hu ([195.38.100.182]:10880 "EHLO
+	zeus.city.tvnet.hu") by vger.kernel.org with ESMTP id S262356AbUDPFQh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Apr 2004 01:16:37 -0400
+Subject: Re: off:latest binary nvidia driver won't compile with 2.6.6-rc1
+From: Sipos Ferenc <sferi@mail.tvnet.hu>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040415212923.GA2656@mars.ravnborg.org>
+References: <1082061685.5837.2.camel@zeus.city.tvnet.hu>
+	 <20040415212923.GA2656@mars.ravnborg.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1082092808.2027.3.camel@zeus.city.tvnet.hu>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.5.3 (1.5.3-1) 
+Date: Fri, 16 Apr 2004 07:20:08 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ioremap() function in x86 arch code does not seem to be setting _PAGE_PCD 
-bit in the PTE. How then does it give non-cached mapping to MMIO mappings 
-for memory on some interface card. I have gone thru some old threads on 
-this, which have concluded that it does give non-cached mappings, and 
-moerover ioremap seems to work fine whenever I have used to map any PCI 
-card memory,
-Is it guaranteed thru the means of MTRR ?
+Hi!
 
+Something is wrong with your solution, because I'm building a monolithic
+kernel, so nvidia would be my only module. I have done make modules as
+you've said (I think a simple make does that also, so it wouldn't be
+required), and the Modules.synvers file doesn't exist. 2.6.5 works
+normally, only using nvidia as a module. Note that module support is
+compiled in the kernel.
 
-Thanx,
-tomar
+Paco
 
-
--- You have moved the mouse. Windows must be restarted for the 
-   changes to take effect.
-
+On cs, 2004-04-15 at 23:29 +0200, Sam Ravnborg wrote:
+> On Thu, Apr 15, 2004 at 10:41:25PM +0200, Sipos Ferenc wrote:
+> > Hi!
+> > 
+> > The outer module patch for .temp creation didn't solve the problem,
+> > compilation stops with can't fine Modules.synver in /usr/src/linux-
+> > 2.6.6-rc1.
+> 
+> You need to do a ' make modules' first, otherwise the Modules.symvers file
+> will not be created.
+> 
+> 	Sam

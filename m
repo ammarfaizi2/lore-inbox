@@ -1,119 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263159AbUFBPVO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263167AbUFBP2M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263159AbUFBPVO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 11:21:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263167AbUFBPVN
+	id S263167AbUFBP2M (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 11:28:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263173AbUFBP2M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 11:21:13 -0400
-Received: from [213.239.201.226] ([213.239.201.226]:42194 "EHLO
-	mail.shadowconnect.com") by vger.kernel.org with ESMTP
-	id S263159AbUFBPVG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 11:21:06 -0400
-Message-ID: <40BDF1AC.7070209@shadowconnect.com>
-Date: Wed, 02 Jun 2004 17:26:36 +0200
-From: Markus Lidel <Markus.Lidel@shadowconnect.com>
-User-Agent: Mozilla Thunderbird 0.6 (Windows/20040502)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: root@chaos.analogic.com
-CC: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
-Subject: Re: Problem with ioremap which returns NULL in 2.6 kernel
-References: <40BC788A.3020103@shadowconnect.com> <20040601142122.GA7537@havoc.gtf.org> <40BC9EF7.4060502@shadowconnect.com> <40BD1211.9030302@pobox.com> <40BD95EB.40506@shadowconnect.com> <40BDD4C9.5070602@pobox.com> <40BDDAD9.5070809@shadowconnect.com> <20040602134603.GA8589@havoc.gtf.org> <40BDE1BB.3030605@shadowconnect.com> <Pine.LNX.4.53.0406021024400.3280@chaos>
-In-Reply-To: <Pine.LNX.4.53.0406021024400.3280@chaos>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 2 Jun 2004 11:28:12 -0400
+Received: from mail.fh-wedel.de ([213.39.232.194]:6030 "EHLO mail.fh-wedel.de")
+	by vger.kernel.org with ESMTP id S263167AbUFBP2J (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jun 2004 11:28:09 -0400
+Date: Wed, 2 Jun 2004 17:27:42 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>, Pavel Machek <pavel@suse.cz>,
+       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@redhat.com>,
+       Ingo Molnar <mingo@elte.hu>, Andrea Arcangeli <andrea@suse.de>,
+       Rik van Riel <riel@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC PATCH] explicitly mark recursion count
+Message-ID: <20040602152741.GC26474@wohnheim.fh-wedel.de>
+References: <200406011929.i51JTjGO006174@eeyore.valparaiso.cl> <Pine.LNX.4.58.0406011255070.14095@ppc970.osdl.org> <20040602131623.GA23017@wohnheim.fh-wedel.de> <Pine.LNX.4.58.0406020712180.3403@ppc970.osdl.org> <20040602142748.GA25939@wohnheim.fh-wedel.de> <Pine.LNX.4.58.0406020743260.3403@ppc970.osdl.org> <20040602150440.GA26474@wohnheim.fh-wedel.de> <Pine.LNX.4.58.0406020807270.3403@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.58.0406020807270.3403@ppc970.osdl.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Wed, 2 June 2004 08:12:00 -0700, Linus Torvalds wrote:
+> On Wed, 2 Jun 2004, Jörn Engel wrote:
+> > 
+> > Can I read this as:
+> > Linus himself will use strong words to enforce all recursions in the
+> > kernel to be either removed or properly documented.
+> 
+> If we have a good detector that is reliable and easy to run, why not?
 
-Richard B. Johnson wrote:
->>>>>>>My preferred approach would be:  consider that the hardware does not
->>>>>>>need the entire 0x8000000-byte area mapped.  Plain and simple.
->>>>>>>This is a "don't do that" situation, and that renders the other
->>>>>>>questions moot :)  You should only be mapping what you need to map.
->>>>>>Okay, i'll let try it out with only 64MB.
->>>>>Why do you need 64MB, even?  :)
->>>>I don't know how much space i need :-D But why does the device set the
->>>>size to 128MB then?
->>>Devices often export things you don't care about, such as direct access
->>>to internal chip RAM.
->>>Look through the driver that figure out the maximum value that the
->>>driver actually _uses_.  There is no need to guess.
->>Okay, i've looked at it, but i don't think i could simply use less
->>space, because (if i understand the I2O spec right :-D) the controller
->>returns me a address inside this window, where i could write the I2O
->>message. So i ask the controller, where do you want my request, then he
->>tells me a address...
->>If i only ioremap 64MB, and the controller tells me write at 80MB, i'm
->>in deep trouble :-D
-> I2O, as seen from the PCI/Bus, is a bus! Right? You have a
-> PCI/Bus controller that provides for an interface into
-> I2O? Right? Can you do `cat /proc/pci` and show what device
+Great!  So the official format to document recursions is plain english
+for human readers?
 
-Hope a lspci -v would also help :-D
+> It will take some time, but I think the problem so far has been that the
+> recursion can be hard to see. Some "core" cases are well-known (memory
+> allocations during memory allocation, and filename lookup), and they 
+> should be trivial to annotate. Knock wood. Others might be worse.
 
-If not i must ask for the output again...
+For sure.  There are some functions with multiple recursions around
+them, real fun! :)
 
-First controller:
+> > In that case, you have 273 recursions to deal with.  They are all in
+> > the data I attached a few posts back.  Recursions would basically be
+> > in the same league as huge stack hogs, sounds good.
+> 
+> Yes. And with huge stack hogs, we've not exactly "fixed them all in a 
+> weekend", have we? But having a few people run the checking tools and 
+> nagging every once in a while ends up eventually fixing things. At least 
+> the most common ones.
 
-0000:00:09.0 I2O: Distributed Processing Technology SmartRAID V 
-Controller (rev 02) (prog-if 01)
-	Subsystem: Distributed Processing Technology 2400A UDMA Four Channel
-	Flags: bus master, medium devsel, latency 64, IRQ 17
-	BIST result: 00
-	Memory at d0000000 (32-bit, prefetchable)
-	Capabilities: [80] Power Management version 2
+s/a few people/Jörn/
 
-0000:00:09.1 PCI bridge: Distributed Processing Technology PCI Bridge 
-(rev 02) (prog-if 00 [Normal decode])
-	Flags: bus master, medium devsel, latency 64
-	Bus: primary=00, secondary=02, subordinate=02, sec-latency=64
-	Expansion ROM at 0000a000 [disabled] [size=4K]
-	Capabilities: [68] Power Management version 2
+Legal reasons.  I'll try to do this from time to time.
 
+Jörn
 
-Second controller:
-
-0000:00:0c.0 I2O: Distributed Processing Technology SmartRAID V 
-Controller (rev 02) (prog-if 01)
-	Subsystem: Distributed Processing Technology 2400A UDMA Four Channel
-	Flags: bus master, medium devsel, latency 64, IRQ 19
-	BIST result: 00
-	Memory at d8000000 (32-bit, prefetchable)
-	Capabilities: [80] Power Management version 2
-
-0000:00:0c.1 PCI bridge: Distributed Processing Technology PCI Bridge 
-(rev 02) (prog-if 00 [Normal decode])
-	Flags: bus master, medium devsel, latency 64
-	Bus: primary=00, secondary=03, subordinate=03, sec-latency=64
-	I/O behind bridge: 0000b000-0000bfff
-	Expansion ROM at 0000b000 [disabled] [size=4K]
-	Capabilities: [68] Power Management version 2
-
-> you think it is?  I think you are attempting to access a bridge
-> or something. I2O is supposed to be intelligent and to grab
-> 64 megabytes of host address space is the anthesis of this.
-
-I don't know the hardware part very vell :-( But because i'm not the 
-author of the driver i don't think there is something wrong :-)
-
-
-Best regards,
-
-
-
-Markus Lidel
-------------------------------------------
-Markus Lidel (Senior IT Consultant)
-
-Shadow Connect GmbH
-Carl-Reisch-Weg 12
-D-86381 Krumbach
-Germany
-
-Phone:  +49 82 82/99 51-0
-Fax:    +49 82 82/99 51-11
-
-E-Mail: Markus.Lidel@shadowconnect.com
-URL:    http://www.shadowconnect.com
+-- 
+To recognize individual spam features you have to try to get into the
+mind of the spammer, and frankly I want to spend as little time inside
+the minds of spammers as possible.
+-- Paul Graham

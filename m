@@ -1,126 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263135AbSK0QED>; Wed, 27 Nov 2002 11:04:03 -0500
+	id <S262924AbSK0QCM>; Wed, 27 Nov 2002 11:02:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263279AbSK0QED>; Wed, 27 Nov 2002 11:04:03 -0500
-Received: from meg.hrz.tu-chemnitz.de ([134.109.132.57]:36808 "EHLO
-	meg.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S263135AbSK0QEB>; Wed, 27 Nov 2002 11:04:01 -0500
-Date: Wed, 27 Nov 2002 17:10:17 +0100
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] page walker bugfix (was: 2.5.49-mm2)
-Message-ID: <20021127171017.H5263@nightmaster.csn.tu-chemnitz.de>
-References: <3DE48C4A.98979F0C@digeo.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="WBsA/oQW3eTA3LlM"
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <3DE48C4A.98979F0C@digeo.com>; from akpm@digeo.com on Wed, Nov 27, 2002 at 01:11:38AM -0800
-X-Spam-Score: -3.9 (---)
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *18H4mV-0006jN-00*TTIRUt684hk*
+	id <S263039AbSK0QCM>; Wed, 27 Nov 2002 11:02:12 -0500
+Received: from e-gate.pl ([212.244.191.5]:51362 "EHLO bukszpryt.e-gate.pl")
+	by vger.kernel.org with ESMTP id <S262924AbSK0QCL>;
+	Wed, 27 Nov 2002 11:02:11 -0500
+Date: Wed, 27 Nov 2002 17:09:22 +0100 (CET)
+From: Leszek Matok <Lam@Lam.pl>
+X-X-Sender: lam@bukszpryt.e-gate.pl
+To: linux-kernel@vger.kernel.org
+Subject: Oops with 2.4.20-rc4-ac1
+Message-ID: <Pine.LNX.4.44.0211271645460.5983-100000@bukszpryt.e-gate.pl>
+Organization: LAC Entertainment
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
---WBsA/oQW3eTA3LlM
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Hello,
 
-Hi Andrew,
-hi list readers,
+I have a machine with few hard discs connected via 3 different IDE 
+controllers. I've decided to use recent -ac kernel to test its functionality 
+with this hardware and it seems to be working to some point... I'm testing 
+stability of the configuration running multiple copies of badblocks -w for all 
+my hdds, and after 2 hours of testing it said:
+kernel BUG at buffer.c:510!
+invalid operand: 0000
+CPU:    0
+EIP:    0010:[<c013acae>]    Not tainted
+EFLAGS: 00010286
+eax: db000000   ebx: 00000002   ecx: dbdef9c0   edx: c02ccc8c
+esi: dbdef9c0   edi: 00000001   ebp: dbdefec0   esp: d5827ee4
+ds: 0018   es: 0018   ss: 0018
+Process badblocks (pid: 242, stackpage=d5827000)
+Stack: 00000002 c013b5fb dbdef9c0 00000002 dbdef9c0 00000800 c013c172 dbdef9c0 
+       00000400 00000000 00000000 00000400 00000800 00000400 c013c7f9 dfe02340 
+       c115818c 00000400 00000800 c012bebb c115818c 00000400 00000800 00000800 
+Call Trace:    [<c013b5fb>] [<c013c172>] [<c013c7f9>] [<c012bebb>] [<c0139593>]
+  [<c0107277>]
 
-On Wed, Nov 27, 2002 at 01:11:38AM -0800, Andrew Morton wrote:
-> .. Some code from Ingo Oeser to start using the expanded and cleaned up
->   user pagetable walker code.  This affects the st and sg drivers; I'm
->   not sure of the testing status of this?
+Code: 0f 0b fe 01 92 e5 23 c0 8b 02 85 c0 75 07 89 0a 89 49 24 8b 
 
-The testing status is: None, but it compiles.
+Because it's "kernel BUG", I've decided to report this to you. One of 
+badblocks processes segfaulted - it was checking /dev/hdj, which is connected 
+through on-board VIA controller, and the badblocks checking /dev/hdi on the 
+same cable at the same time didn't produce any errors, so it looks rather as a 
+kernel problem, not a hardware-related one. I'm including ksymoops output:
 
-The sg-driver maintainer has already said he does some testing
-and the author of the previous code in st.c was positive about
-using these features. That's why I've choosen these as my "victims".
+>>EIP; c013acae <file_fsync+23e/320>   <=====
 
-I also found a locking bug in walk_user_pages() in case of OOM or
-SIGBUS. Fixed by the attached patch.
+>>eax; db000000 <___strtok+1ad0bd2c/20563d2c>
+>>ecx; dbdef9c0 <___strtok+1bafb6ec/20563d2c>
+>>edx; c02ccc8c <zone_table+f64/1c50>
+>>esi; dbdef9c0 <___strtok+1bafb6ec/20563d2c>
+>>ebp; dbdefec0 <___strtok+1bafbbec/20563d2c>
+>>esp; d5827ee4 <___strtok+15533c10/20563d2c>
 
-The attached patch also exports some functions to enable modular
-builds for testing.
+Trace; c013b5fb <set_buffer_flushtime+7b/a0>
+Trace; c013c172 <create_empty_buffers+662/680>
+Trace; c013c7f9 <block_prepare_write+79/80>
+Trace; c012bebb <generic_file_write+46b/28a0>
+Trace; c0139593 <default_llseek+3d3/ca0>
+Trace; c0107277 <__up_wakeup+1287/1660>
 
-And it also deletes the redundant check of the pfn_valid(), which
-is done in follow_page() already.
+Code;  c013acae <file_fsync+23e/320>
+00000000 <_EIP>:
+Code;  c013acae <file_fsync+23e/320>   <=====
+   0:   0f 0b                     ud2a      <=====
+Code;  c013acb0 <file_fsync+240/320>
+   2:   fe 01                     incb   (%ecx)
+Code;  c013acb2 <file_fsync+242/320>
+   4:   92                        xchg   %eax,%edx
+Code;  c013acb3 <file_fsync+243/320>
+   5:   e5 23                     in     $0x23,%eax
+Code;  c013acb5 <file_fsync+245/320>
+   7:   c0 8b 02 85 c0 75 07      rorb   $0x7,0x75c08502(%ebx)
+Code;  c013acbc <file_fsync+24c/320>
+   e:   89 0a                     mov    %ecx,(%edx)
+Code;  c013acbe <file_fsync+24e/320>
+  10:   89 49 24                  mov    %ecx,0x24(%ecx)
+Code;  c013acc1 <file_fsync+251/320>
+  13:   8b 00                     mov    (%eax),%eax
 
-Regards
+I hope someone on the list knows what's happening and finds this information 
+useful. I'm not subscribed, but I'll check in the archives if someone is 
+answering without Cc: to me :)
 
-Ingo Oeser
--- 
-Science is what we can tell a computer. Art is everything else. --- D.E.Knuth
+Lam
+P.S. I'm not using taskfile IO. Maybe I should?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.0 (GNU/Linux)
 
---WBsA/oQW3eTA3LlM
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="page-walk-api-2.5.49-mm2-bugfix.patch"
+iD8DBQE95O40GU+CzS/wSzYRAhQzAJ4iOIFfAhLTjW234EV01dPvCc48GACfRoLi
+R93DO6ahuzeFErlMYMpWWrk=
+=FLUd
+-----END PGP SIGNATURE-----
 
-diff -Naur linux-2.5.49-mm2/mm/page_walk.c linux-2.5.49-mm2-ioe/mm/page_walk.c
---- linux-2.5.49-mm2/mm/page_walk.c	Wed Nov 27 14:48:33 2002
-+++ linux-2.5.49-mm2-ioe/mm/page_walk.c	Wed Nov 27 17:05:35 2002
-@@ -116,6 +116,7 @@
- 	struct vm_area_struct *vma = pw->vma;
- 	int write = pw->vm_flags & (VM_MAYWRITE|VM_WRITE);
- 
-+	/* follow_page also does all the checking of ptes for us. */
- 	while (!(page= follow_page(vma->vm_mm, pw->virt, write))) {
- 		int fault;
- 
-@@ -138,16 +139,7 @@
- 		}
- 		spin_lock(&vma->vm_mm->page_table_lock);
- 	}
--	/* 
--	 * Given a physical address, is there a useful struct page pointing to
--	 * it?  This may become more complex in the future if we start dealing
--	 * with IO-aperture pages for direct-IO.
--	 */
--	if (pfn_valid(page_to_pfn(page)))
--		return page;
--
--	spin_unlock(&vma->vm_mm->page_table_lock);
--	return ERR_PTR(-EFAULT);
-+	return page;
- }
- 
- /* Setup page walking for the simple and common case. 
-@@ -291,7 +283,7 @@
-  			pw->page = single_page_walk(pw);
- 			if (IS_ERR(pw->page)) {
- 				ret = PTR_ERR(pw->page);
--				break;
-+				goto out_unlocked;
- 			}
- 			ret = pw->walker(pw->data);
- 			
-@@ -304,7 +296,8 @@
-  		} while (pw->virt < vma->vm_end);
- 		spin_unlock(&pw->mm->page_table_lock);
- 	} while (ret == 0);
--
-+	
-+out_unlocked:
- 	/* cleanup after errors */
- 	if (ret < 0 && pw->cleaner)
- 		pw->cleaner(pw->data);
-@@ -393,3 +386,12 @@
- EXPORT_SYMBOL(get_user_pages);
- EXPORT_SYMBOL(get_one_user_page);
- EXPORT_SYMBOL_GPL(walk_user_pages);
-+EXPORT_SYMBOL_GPL(setup_simple_page_walk);
-+EXPORT_SYMBOL_GPL(setup_sgl_page_walk);
-+EXPORT_SYMBOL_GPL(fixup_sgl_walk);
-+EXPORT_SYMBOL_GPL(gup_add_pages);
-+EXPORT_SYMBOL_GPL(gup_cleanup_pages);
-+EXPORT_SYMBOL_GPL(gup_cleanup_pages_kfree);
-+EXPORT_SYMBOL_GPL(gup_add_sgls);
-+EXPORT_SYMBOL_GPL(gup_cleanup_sgls);
-+EXPORT_SYMBOL_GPL(gup_cleanup_sgls_kfree);
-
---WBsA/oQW3eTA3LlM--

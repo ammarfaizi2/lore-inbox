@@ -1,113 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130470AbRCWKdA>; Fri, 23 Mar 2001 05:33:00 -0500
+	id <S130471AbRCWK0K>; Fri, 23 Mar 2001 05:26:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130493AbRCWKcl>; Fri, 23 Mar 2001 05:32:41 -0500
-Received: from freya.yggdrasil.com ([209.249.10.20]:18596 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S130470AbRCWKca>; Fri, 23 Mar 2001 05:32:30 -0500
-Date: Fri, 23 Mar 2001 02:31:49 -0800
-From: "Adam J. Richter" <adam@yggdrasil.com>
-To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Patch(?): linux-2.4.3-pre6/mm/vmalloc.c could return with init_mm.page_table_lock held
-Message-ID: <20010323023149.A250@baldur.yggdrasil.com>
+	id <S130487AbRCWK0B>; Fri, 23 Mar 2001 05:26:01 -0500
+Received: from smtp013.mail.yahoo.com ([216.136.173.57]:11534 "HELO
+	smtp013.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S130470AbRCWKZm>; Fri, 23 Mar 2001 05:25:42 -0500
+X-Apparently-From: <quintaq@yahoo.co.uk>
+Date: Fri, 23 Mar 2001 10:27:13 +0000
+From: quintaq@yahoo.co.uk
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: UDMA 100 / PIIX4 question
+In-Reply-To: <Pine.LNX.4.10.10103211000370.29537-100000@master.linux-ide.org>
+In-Reply-To: <20010321095533Z131410-407+1932@vger.kernel.org>
+	<Pine.LNX.4.10.10103211000370.29537-100000@master.linux-ide.org>
+Reply-To: <linux-kernel@vger.kernel.org>
+X-Mailer: Sylpheed version 0.4.62 (GTK+ 1.2.8; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="jI8keyz6grp/JLjh"
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Message-Id: <20010323102552Z130470-407+2890@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 21 Mar 2001 11:29:00 -0800 (PST)
+Andre Hedrick <andre@linux-ide.org> wrote:
 
---jI8keyz6grp/JLjh
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> 
+> First you have the faster portion of the drive using a lame OS, so do
+> not
+> expect Linux to perform if you put it on the slowest portions of the
+> device.
+> 
+Hi Andre,
 
-	[Sorry for posting three messages to linux-kernel about this.
-Each time I was pretty sure I was done for the night.  Anyhow, I
-hope this proposed patch makes up for it.]
+Thanks for responding.  The days of the lame OS are, I hope, numbered.  That is why I am here.  Since assembling this box and getting serious about changing to linux I have got myself 95% M$-free.  I do, however, earn a good deal of my living from stuff I produce on computer, and there are some very specialised apps I need that have not been ported and which won't run under Wine.
 
-	In linux-2.4.3-pre6, a call to vmalloc can result in a call to
-pte_alloc without the appropriate page_table_lock being held.  Here is
-the call graph, from my post of about half an hour ago:
+> > On the other hand, am I correct in interpreting the bonnie output for
+> > the block read (included in my earlier post), of 20937 KB/sec as
+> > reasonably healthy for my DTLA (ie consistent with hdparm's 30
+> MB/sec),
+> > when performing more realistic tasks on the linux filesystem ?
+> 
+> Yes if you adjust for ZONES.
+  
+I knew a little about that before, and a lot more now.  Even so, I would not have thought that there would be so close a relationship between a specific zone and "/" as to account for the significantly better performance I see when running bonnie from that directory.
 
-        vmalloc
-        __vmalloc
-        vmalloc_area_pages
-        alloc_area_pmd
-        pte_alloc ...which assumes (here incorrectly) that
-                mm->page_table_lock is held, and sometimes releases
-                and reacquires mm->page_table_lock.
+Can I just end with a thanks and a plea ?
 
-	Not only does pte_alloc expect mm->page_table_lock 
-to be held when it is called, but it also sometimes releases and
-reacquires it.  vmalloc did not release this lock either, of course.
-So, the next attempt to acquire the same mm->page_table_lock spin lock
-hangs.
+The thanks is for all those on the list who have responded, on list and by private email, to my questions.  I am conscious that questions of that kind are not really what this list is for, and I came here only as a last resort.  No-one flamed me.
 
-	The symptom that I had noticed was the agpgart.o module hanging
-at module initialization, but it is a much more general problem, and
-could explain all sorts of hangs in 2.4.3-pre6.
+The plea is that you (or someone), might revise ide.txt to go into a little more detail about UDMA 100 issues, especially with regard to : specific drives and controllers - the use of CONFIG_BLK_DEV_IDE_MODES and append=idex=ataxx.  I know from private emails from people following this thread, and from other lists and newsgroups, that this would be very welcome.
 
-	Anyhow, with this patch, agpgart.o loads just fine and the
-kernel seems to have suffered no negative side effects.  I am
-not confident in exactly where I chose to put the spin_lock and
-spin_unlock calls, so I would recommend a careful examination of
-this patch before integrating.
+Regards,
 
--- 
-Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
-adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
-+1 408 261-6630         | g g d r a s i l   United States of America
-fax +1 408 261-6631      "Free Software For The Rest Of Us."
+Geoff
 
---jI8keyz6grp/JLjh
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="vmalloc.patch"
+_________________________________________________________
+Do You Yahoo!?
+Get your free @yahoo.com address at http://mail.yahoo.com
 
---- linux-2.4.3-pre6/mm/vmalloc.c	Fri Mar 23 02:16:41 2001
-+++ linux/mm/vmalloc.c	Fri Mar 23 02:09:58 2001
-@@ -136,39 +136,41 @@
- 
- inline int vmalloc_area_pages (unsigned long address, unsigned long size,
-                                int gfp_mask, pgprot_t prot)
- {
- 	pgd_t * dir;
- 	unsigned long end = address + size;
- 	int ret;
- 
- 	dir = pgd_offset_k(address);
- 	flush_cache_all();
-+	spin_lock(&init_mm.page_table_lock);
- 	lock_kernel();
- 	do {
- 		pmd_t *pmd;
- 		
- 		pmd = pmd_alloc(&init_mm, dir, address);
- 		ret = -ENOMEM;
- 		if (!pmd)
- 			break;
- 
- 		ret = -ENOMEM;
- 		if (alloc_area_pmd(pmd, address, end - address, gfp_mask, prot))
- 			break;
- 
- 		address = (address + PGDIR_SIZE) & PGDIR_MASK;
- 		dir++;
- 
- 		ret = 0;
- 	} while (address && (address < end));
- 	unlock_kernel();
-+	spin_unlock(&init_mm.page_table_lock);
- 	flush_tlb_all();
- 	return ret;
- }
- 
- struct vm_struct * get_vm_area(unsigned long size, unsigned long flags)
- {
- 	unsigned long addr;
- 	struct vm_struct **p, *tmp, *area;
- 
- 	area = (struct vm_struct *) kmalloc(sizeof(*area), GFP_KERNEL);
-
---jI8keyz6grp/JLjh--

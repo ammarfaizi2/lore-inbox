@@ -1,39 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265276AbTBGOOl>; Fri, 7 Feb 2003 09:14:41 -0500
+	id <S265285AbTBGOvX>; Fri, 7 Feb 2003 09:51:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265305AbTBGOOl>; Fri, 7 Feb 2003 09:14:41 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:6307
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S265276AbTBGOOk>; Fri, 7 Feb 2003 09:14:40 -0500
+	id <S265305AbTBGOvX>; Fri, 7 Feb 2003 09:51:23 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:25536 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S265285AbTBGOvV>;
+	Fri, 7 Feb 2003 09:51:21 -0500
+Date: Fri, 7 Feb 2003 14:57:07 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: P@draigBrady.com
+Cc: c1cc10 <c1cc10@autistici.org>, linux-kernel@vger.kernel.org
 Subject: Re: Cyrix III processor and kernel boot problem
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: c1cc10@autistici.org
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3E43C79A.2010506@autistici.org>
-References: <3E43C79A.2010506@autistici.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1044631346.14350.17.camel@irongate.swansea.linux.org.uk>
+Message-ID: <20030207145707.GA23008@codemonkey.org.uk>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>, P@draigBrady.com,
+	c1cc10 <c1cc10@autistici.org>, linux-kernel@vger.kernel.org
+References: <3E43C79A.2010506@autistici.org> <20030207141052.GA22687@codemonkey.org.uk> <3E43C003.7090602@draigBrady.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
-Date: 07 Feb 2003 15:22:26 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3E43C003.7090602@draigBrady.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-02-07 at 14:50, c1cc10 wrote:
-> I've found out that the Cyrix III has no CMOV instruction and that this 
-> could be the problem.
+On Fri, Feb 07, 2003 at 02:17:39PM +0000, P@draigBrady.com wrote:
 
-It is
+ > >as a sidenote, the new C3s (Nehemiah) now have CMOV.
+ > but no 3dnow so older C3 specific kernels don't work!
 
-gcc told to build for i686 assumes that cmov is present. Much of the 
-code advantage for i686 comes from cmov so it makes sense to do that
-I guess.
+Yep. Dropped in favour of SSE.  I have a patch to add an extra
+config option for the C3-2. It's going to Linus/Marcelo later
+this afternoon.
 
-The optimal kernel for the CyrixIII/VIA-C3 is the the Cyrix III/VIA-C3
-option in current kernel menus, or i486
+		Dave
 
-Alan
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

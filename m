@@ -1,73 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130167AbQLUDvo>; Wed, 20 Dec 2000 22:51:44 -0500
+	id <S130164AbQLUDyY>; Wed, 20 Dec 2000 22:54:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130205AbQLUDve>; Wed, 20 Dec 2000 22:51:34 -0500
-Received: from lazy.accessus.net ([209.145.148.14]:18 "EHLO lazy.accessus.net")
-	by vger.kernel.org with ESMTP id <S130167AbQLUDv1>;
-	Wed, 20 Dec 2000 22:51:27 -0500
-Date: Wed, 20 Dec 2000 21:20:39 -0600 (CST)
-From: Jay Weber <jay@lazy.accessus.net>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-cc: nfs@lists.sourceforge.net, nfs-devel@linux.kernel.org,
+	id <S130205AbQLUDyO>; Wed, 20 Dec 2000 22:54:14 -0500
+Received: from linuxcare.com.au ([203.29.91.49]:11012 "EHLO
+	front.linuxcare.com.au") by vger.kernel.org with ESMTP
+	id <S130164AbQLUDx4>; Wed, 20 Dec 2000 22:53:56 -0500
+From: Anton Blanchard <anton@linuxcare.com.au>
+Date: Thu, 21 Dec 2000 14:21:35 +1100
+To: Heiko.Carstens@de.ibm.com
+Cc: Pavel Machek <pavel@suse.cz>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
         linux-kernel@vger.kernel.org
-Subject: Re: [NFS] kNFSd maintenance in 2.2.19pre
-In-Reply-To: <14913.22373.943123.320678@notabene.cse.unsw.edu.au>
-Message-ID: <Pine.OSF.4.21.0012202115060.23835-100000@lazy.accessus.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: CPU attachent and detachment in a running Linux system
+Message-ID: <20001221142135.G6183@linuxcare.com>
+In-Reply-To: <C12569B9.002C03CF.00@d12mta01.de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <C12569B9.002C03CF.00@d12mta01.de.ibm.com>; from Heiko.Carstens@de.ibm.com on Mon, Dec 18, 2000 at 09:00:43AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Neil,
+ 
+> That's a good point and it would probably work for attachment of cpus, but
+> it won't work for detachment because there are some data structures that
+> need to be updated if a cpu gets detached. For example it would be nice
+> to flush the per-cpu cache of the detached cpu in the slabcache. Then one
+> has to think of pending tasklets for the detached cpu which should be
+> moved to another cpu and then there are a lot of per-cpu data structures
+> in the networking part of the kernel.. most of them seem to be for
+> statistics only but I think these structures should be updated in any
+> case.
+> So at least for detaching it would make sense to register functions which
+> will be called whenever a cpu gets detached.
 
-This sounds good.  Any plans on implementing a backport of the nfs
-filesystem layer for handling inodes that you put together for
-2.4.  Ie.. the code that reiserfs uses in 2.4 to properly work with knfsd
-and inode issues.
+I remember someone from SGI had a patch to merge all the per cpu structures
+together which would make this easier. It would also save bytes especially
+on machines like the e10k where we must have NR_CPUS = 64.
 
-
-On Thu, 21 Dec 2000, Neil Brown wrote:
-
-> 
-> Greeting all.
-> 
->  Now that 2.2.18 is out with all the nfs (client and server) patches
->  that we were waiting for for so long, it is time to look at on-going
->  maintenance for knfsd.
-> 
->  There are already a couple of issues that have come up and it is
->  quite possible that more will arise as the user-base grows.
->  Also, there are quite a few changes that have gone into 2.4 that
->  could usefully go into 2.2.
-> 
->  I have discussed the issue of maintenance with Dave Higgen - the
->  maintainer of the knfsd patchset that finally went into 2.2.18, and
->  he is happy to leave knfsd for a while and let me run with it.
-> 
->  So, I have started putting some patches together and they can be
->  found at
->     http://www.cse.unsw.edu.au/~neilb/patches/knfsd-2.2/
-> 
->  They are mostly back ports of bits from 2.4 with a couple of real bug
->  fixes, one thanks to Chip Salzenberg and one which allows Solaris
->  clients to access /dev/null over NFSv3 properly.
-> 
->  I hope to feed these patches to Alan for inclusion in 2.2.19-preX
->  early in the new year after I (and you?) have done a bit of testing.
-> 
->  Note: the patches aren't all quite as independant as they should be
->  just at the moment (e.g. I made a patch, started on another and then
->  found a bug in the first, so the fix for the first ended up in the
->  second).  This will get sorted out next time I generate a patch set.
-> 
-> NeilBrown
-> 
-> _______________________________________________
-> NFS maillist  -  NFS@lists.sourceforge.net
-> http://lists.sourceforge.net/mailman/listinfo/nfs
-> 
-
+Anton
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

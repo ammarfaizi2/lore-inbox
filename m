@@ -1,58 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129921AbQK1Vqz>; Tue, 28 Nov 2000 16:46:55 -0500
+        id <S129410AbQK1Vte>; Tue, 28 Nov 2000 16:49:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129925AbQK1Vqp>; Tue, 28 Nov 2000 16:46:45 -0500
-Received: from unthought.net ([212.97.129.24]:40595 "HELO mail.unthought.net")
-        by vger.kernel.org with SMTP id <S129921AbQK1Vq1>;
-        Tue, 28 Nov 2000 16:46:27 -0500
-Date: Tue, 28 Nov 2000 22:16:25 +0100
-From: Jakob Østergaard <jakob@unthought.net>
-To: Ben Ford <bford@talontech.com>
-Cc: Kevin Krieser <kkrieser@delphi.com>, linux-kernel@vger.kernel.org
-Subject: Re: out of swap
-Message-ID: <20001128221625.A24392@unthought.net>
-Mail-Followup-To: Jakob Østergaard <jakob@unthought.net>,
-        Ben Ford <bford@talontech.com>, Kevin Krieser <kkrieser@delphi.com>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <3A22EC94.2A434703@mindspring.com> <000b01c058ec$6791abe0$0701a8c0@thinkpad> <20001128164721.I21902@unthought.net> <3A241EDC.7646C388@talontech.com>
+        id <S129925AbQK1VtY>; Tue, 28 Nov 2000 16:49:24 -0500
+Received: from sith.mimuw.edu.pl ([193.0.97.1]:23815 "HELO sith.mimuw.edu.pl")
+        by vger.kernel.org with SMTP id <S129410AbQK1VtL>;
+        Tue, 28 Nov 2000 16:49:11 -0500
+Date: Tue, 28 Nov 2000 22:20:40 +0100
+From: Jan Rekorajski <baggins@sith.mimuw.edu.pl>
+To: Andreas Schwab <schwab@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] no RLIMIT_NPROC for root, please
+Message-ID: <20001128222040.H2680@sith.mimuw.edu.pl>
+Mail-Followup-To: Jan Rekorajski <baggins@sith.mimuw.edu.pl>,
+        Andreas Schwab <schwab@suse.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <20001128214309.F2680@sith.mimuw.edu.pl> <200011282111.eASLB6k05926@hawking.suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=iso-8859-2
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2i
-In-Reply-To: <3A241EDC.7646C388@talontech.com>; from bford@talontech.com on Tue, Nov 28, 2000 at 01:08:44PM -0800
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200011282111.eASLB6k05926@hawking.suse.de>; from schwab@suse.de on Tue, Nov 28, 2000 at 10:11:07PM +0100
+X-Operating-System: Linux 2.4.0-test11-pre6 i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 28, 2000 at 01:08:44PM -0800, Ben Ford wrote:
-> Jakob Østergaard wrote:
+On Tue, 28 Nov 2000, Andreas Schwab wrote:
+
+> Jan Rekorajski <baggins@sith.mimuw.edu.pl> writes:
 > 
-> <snip>
+> |> Why is RLIMIT_NPROC apllied to root(uid 0) processes? It's not kernel job to
+> |> prevent admin from shooting him/her self in the foot.
+> |> 
+> |> root should be able to do fork() regardless of any limits,
+> |> and IMHO the following patch is the right thing.
 > 
-> > comments, Riel or Andrea ?).  I don't know of any good solution to this problem
-> > other than just having enough swap space - after all, seriously, with today's
-> > disks, who can't spare an extra few hundred megs (which would usually be more
-> > than enough).
-> 
-> An embedded system for one . . . .
+> AFAICS, _all_ resource limits are equally applied to root processes.  Why
+> should NPROC be different?
 
-If you need to browse heavily illustrated web pages on an embedded system (one
-small enough to not have a disk), then use a decent browser...
+Because you want to be able to `kill <pid>`?
+And if you are over-limits you can't?
 
-/me runs...  ;)
-
-Usually ulimits can help and tons of swap is uncalled for - but this case where
-Netscape makes X consume memory on Netscape's behalf is so rare (I guess), that
-I don't think this is a problem worthy of the embedded-systems-VM-discussion.
-
+Jan
 -- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:
+Jan Rêkorajski            |  ALL SUSPECTS ARE GUILTY. PERIOD!
+baggins<at>mimuw.edu.pl   |  OTHERWISE THEY WOULDN'T BE SUSPECTS, WOULD THEY?
+BOFH, type MANIAC         |                   -- TROOPS by Kevin Rubio
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

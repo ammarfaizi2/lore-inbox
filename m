@@ -1,76 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264325AbTEGXhV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 19:37:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264186AbTEGXC2
+	id S264408AbTEGX5m (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 19:57:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264419AbTEGX5m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 19:02:28 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:42478 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264185AbTEGXCA convert rfc822-to-8bit
+	Wed, 7 May 2003 19:57:42 -0400
+Received: from hypatia.llnl.gov ([134.9.11.73]:17792 "EHLO hypatia.llnl.gov")
+	by vger.kernel.org with ESMTP id S264408AbTEGX5h convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 19:02:00 -0400
+	Wed, 7 May 2003 19:57:37 -0400
 Content-Type: text/plain; charset=US-ASCII
-Message-Id: <10523493873768@kroah.com>
-Subject: Re: [PATCH] TTY changes for 2.5.69
-In-Reply-To: <10523493873374@kroah.com>
-From: Greg KH <greg@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Wed, 7 May 2003 16:16:27 -0700
+From: Dave Peterson <dsp@llnl.gov>
+Organization: Lawrence Livermore National Laboratory
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Subject: Re: [PATCH] fixes for linked list bugs in block I/O code
+Date: Wed, 7 May 2003 17:09:57 -0700
+User-Agent: KMail/1.4.1
+Cc: linux-kernel@vger.kernel.org, axboe@suse.de, davej@suse.de
+References: <Pine.SOL.4.30.0305080133020.5113-100000@mion.elka.pw.edu.pl>
+In-Reply-To: <Pine.SOL.4.30.0305080133020.5113-100000@mion.elka.pw.edu.pl>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
+Message-Id: <200305071709.57757.dsp@llnl.gov>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1105, 2003/05/07 15:00:42-07:00, hannal@us.ibm.com
+On Wednesday 07 May 2003 04:42 pm, Bartlomiej Zolnierkiewicz wrote:
+> > ========== START OF 2.5.69 PATCH FOR drivers/block/ll_rw_blk.c
+> > =========== --- ll_rw_blk.c.old     Wed May  7 15:55:18 2003
+> > +++ ll_rw_blk.c.new     Wed May  7 16:01:56 2003
+> > @@ -1721,6 +1721,7 @@
+> >                                 break;
+> >                         }
+> >
+> > +                       bio->bi_next = req->biotail->bi_next;
+>
+> This is simply wrong, look at the line below.
+>
+> >                         req->biotail->bi_next = bio;
+>
+> req->bio - first bio
+> req->bio->bi_next - next bio
+> ...
+> req->biotail - last bio
+>
+> so req->biotail->bi_next should be NULL
 
-[PATCH] ip2main tty_driver add .owner field remove MOD_INC/DEC_USE_COUNT
+I believe it is correct.  Assuming that the list is initially in a
+sane state, req->biotail->bi_next will be NULL immediately before
+executing the statement that I added.  Therefore, my fix will set
+bio->bi_next to NULL, which is what we want because bio becomes the
+new end of the list.
 
+> >                         req->biotail = bio;
+> >                         req->nr_sectors = req->hard_nr_sectors +=
+> > nr_sectors; @@ -1811,6 +1812,7 @@
+> >         req->buffer = bio_data(bio);    /* see ->buffer comment above */
+> >         req->waiting = NULL;
+> >         req->bio = req->biotail = bio;
+> > +       bio->bi_next = NULL;
+>
+> No need for that, look at bio_init() in fs/bio.c.
 
- drivers/char/ip2main.c |    5 +----
- 1 files changed, 1 insertion(+), 4 deletions(-)
+Yes, it looks like bio_init has been added in the 2.5 kernels, solving
+the problem.  However, this is still a bug in 2.4.20.
 
-
-diff -Nru a/drivers/char/ip2main.c b/drivers/char/ip2main.c
---- a/drivers/char/ip2main.c	Wed May  7 16:00:47 2003
-+++ b/drivers/char/ip2main.c	Wed May  7 16:00:47 2003
-@@ -793,6 +793,7 @@
- 
- 	/* Initialise the relevant fields. */
- 	ip2_tty_driver.magic                = TTY_DRIVER_MAGIC;
-+	ip2_tty_driver.owner		    = THIS_MODULE;
- 	ip2_tty_driver.name                 = pcTty;
- #if LINUX_VERSION_CODE > KERNEL_VERSION(2,1,0)
- 	ip2_tty_driver.driver_name          = pcDriver_name;
-@@ -1577,7 +1578,6 @@
- 	/* Setup pointer links in device and tty structures */
- 	pCh->pTTY = tty;
- 	tty->driver_data = pCh;
--	MOD_INC_USE_COUNT;
- 
- #ifdef IP2DEBUG_OPEN
- 	printk(KERN_DEBUG \
-@@ -1777,14 +1777,12 @@
- #endif
- 
- 	if ( tty_hung_up_p ( pFile ) ) {
--		MOD_DEC_USE_COUNT;
- 
- 		ip2trace (CHANN, ITRC_CLOSE, 2, 1, 2 );
- 
- 		return;
- 	}
- 	if ( tty->count > 1 ) { /* not the last close */
--		MOD_DEC_USE_COUNT;
- 
- 		ip2trace (CHANN, ITRC_CLOSE, 2, 1, 3 );
- 
-@@ -1852,7 +1850,6 @@
- 	DBG_CNT("ip2_close: after wakeups--");
- #endif
- 
--	MOD_DEC_USE_COUNT;
- 
- 	ip2trace (CHANN, ITRC_CLOSE, ITRC_RETURN, 1, 1 );
- 
-
+-Dave

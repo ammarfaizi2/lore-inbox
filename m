@@ -1,48 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267366AbTAHQkC>; Wed, 8 Jan 2003 11:40:02 -0500
+	id <S267519AbTAHQfQ>; Wed, 8 Jan 2003 11:35:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267374AbTAHQkC>; Wed, 8 Jan 2003 11:40:02 -0500
-Received: from twilight.ucw.cz ([195.39.74.230]:47249 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S267366AbTAHQkB>;
-	Wed, 8 Jan 2003 11:40:01 -0500
-Date: Wed, 8 Jan 2003 17:48:27 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Andre Hedrick <andre@pyxtechnologies.com>
-Cc: Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
-Subject: Re: Linux iSCSI Initiator, OpenSource (fwd) (Re: Gauntlet Set NOW!)
-Message-ID: <20030108174827.A28042@ucw.cz>
-References: <3E1B3A49.42F6370E@linux-m68k.org> <Pine.LNX.4.10.10301071439190.421-100000@master.linux-ide.org>
+	id <S267606AbTAHQfQ>; Wed, 8 Jan 2003 11:35:16 -0500
+Received: from home.wiggy.net ([213.84.101.140]:4329 "EHLO mx1.wiggy.net")
+	by vger.kernel.org with ESMTP id <S267519AbTAHQfP>;
+	Wed, 8 Jan 2003 11:35:15 -0500
+Date: Wed, 8 Jan 2003 17:43:47 +0100
+From: Wichert Akkerman <wichert@wiggy.net>
+To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
+Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: ipv6 stack seems to forget to send ACKs
+Message-ID: <20030108164347.GK22951@wiggy.net>
+Mail-Followup-To: Maciej Soltysiak <solt@dns.toxicfilms.tv>,
+	netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+References: <20030108150201.GA30490@wiggy.net> <Pine.LNX.4.44.0301081718340.4542-100000@dns.toxicfilms.tv>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.10.10301071439190.421-100000@master.linux-ide.org>; from andre@pyxtechnologies.com on Tue, Jan 07, 2003 at 02:45:51PM -0800
+In-Reply-To: <Pine.LNX.4.44.0301081718340.4542-100000@dns.toxicfilms.tv>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 07, 2003 at 02:45:51PM -0800, Andre Hedrick wrote:
+Previously Maciej Soltysiak wrote:
+> I do not know how many tunnels are in my path, i know that hop distance to
+> my tunnel is exactly 1 hop (ipv6 broker and ipv4 provider are the same)
 
-> > Andre Hedrick wrote:
-> > 
-> > > Please continue to think of TCP checksums as valid for a data transport,
-> > > you data will be gone soon enough.
-> > > 
-> > > Initiator == Controller
-> > > Target == Disk
-> > > iSCSI == cable or ribbon
-> > > 
-> > > Please turn off the CRC on your disk drive and see if you still have data.
-> > 
-> > This maybe works as PR, but otherwise it's crap.
-> 
-> So, please turn off the CRC's in your onboard storage today and see how
-> long it lasts.
+My tunnel provider is 5 hops away. To my knowledge non of the ipv4 or
+ipv6 hops in the path are congested and no traffic shaping is done.
 
-1) Bad comparison.
+> If there is immense traffic at one of the routers (total traffic on an
+> interface) stream packets can be simply dropped if there are no queuing
+> disciplines that would take eg. flow control into account.
 
-2) It'd last very very long, because I never get a CRC error anyway.
+I'll ask the ISPs involved to check if this might be happening, but I
+highly doubt it.
+
+> btw. what the hell is JunOs ?
+
+Juniper OS, running on Juniper routers.
+
+Wichert.
 
 -- 
-Vojtech Pavlik
-SuSE Labs
+Wichert Akkerman <wichert@wiggy.net>           http://www.wiggy.net/
+A random hacker

@@ -1,49 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262177AbTFIV7R (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 17:59:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262179AbTFIV7R
+	id S262179AbTFIWIO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 18:08:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262185AbTFIWIO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 17:59:17 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:56265 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S262177AbTFIV7Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 17:59:16 -0400
-Date: Mon, 9 Jun 2003 15:09:05 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: rwhron@earthlink.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BENCHMARK] 12% improvement in fork load from mm3 to mm4
-Message-Id: <20030609150905.7e37bc1f.akpm@digeo.com>
-In-Reply-To: <20030609220255.GA8524@rushmore>
-References: <20030609220255.GA8524@rushmore>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 9 Jun 2003 18:08:14 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:47594 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S262179AbTFIWII (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jun 2003 18:08:08 -0400
+Date: Tue, 10 Jun 2003 00:21:41 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: David Schwartz <davids@webmaster.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linksys WRT54G and the GPL
+Message-ID: <20030609222141.GS16164@fs.tum.de>
+References: <20030609213321.GP16164@fs.tum.de> <MDEHLPKNGKAHNMBLJOLKCEMCDIAA.davids@webmaster.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 09 Jun 2003 22:12:56.0127 (UTC) FILETIME=[475604F0:01C32ED4]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKCEMCDIAA.davids@webmaster.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-rwhron@earthlink.net wrote:
->
-> > autoconf build test creates about 1.2 million processes in
-> > 35 minutes.  On quad xeon, there was an improvement of
-> > ~ 12% between 2.5.70-mm3 and 2.5.70-mm4.
-> > 
-> >               Avg of 3 runs
-> > 2.5.70-mm3    829.0
-> > 2.5.70-mm4    737.9
+On Mon, Jun 09, 2003 at 02:50:11PM -0700, David Schwartz wrote:
 > 
-> profile shows the biggest change is in do_page_fault.
+> > If he chooses 3b ("written offer, valid for at least three years, to
+> > give any third party, for a charge no more than your cost of physically
+> > performing source distribution, a complete machine-readable copy of the
+> > corresponding source code") he has to give it to everyone.
+> 
+> 	As I read 3b, it only applies if the person requesting the source code
+> actually has physical possession of the written offer. (Though the offer
+> could be transferred to anyone.)
 
-Well that's amusing.  In mm4 I replaced the patch which runs
-remap_file_pages() against all prot_exec mappings with a patch which just
-prefaults those mappings into pagecache.
+"to give any third party" in 3b is pretty non-ambiguous.
 
-The difference _should_ be that in mm3, all pte's are set up at mmap time.
-So -mm4 should have more pagefaults, not less.
+> > > In Linksys case dumping the required source on the end of the CD of
+> > > goodies that comes with the kit and including a notice would be
+> > > sufficient.
+> 
+> > Yup.
+> 
+> 	No, it would not be. They also distribute the software from their web page,
+> and that distribution must also be accompanied by source code or a written
+> offer.
 
-Something fishy is going on there.  Makes one wonder if remap_file_pages()
-is successfully avoiding the minor fault.
+I missed the fact they make it available at their web page.
+
+> 	DS
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

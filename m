@@ -1,76 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262072AbTJFNaM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 09:30:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262092AbTJFNaM
+	id S262062AbTJFNZu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 09:25:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262064AbTJFNZu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 09:30:12 -0400
-Received: from rcum.uni-mb.si ([164.8.2.10]:41195 "EHLO rcum.uni-mb.si")
-	by vger.kernel.org with ESMTP id S262072AbTJFNaG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 09:30:06 -0400
-Date: Mon, 06 Oct 2003 15:29:56 +0200
-From: Domen Puncer <domen@coderock.org>
-Subject: 3c59x on 2.6.0-test3->test6 slow
-To: linux-kernel@vger.kernel.org
-Message-id: <200310061529.56959.domen@coderock.org>
-MIME-version: 1.0
-Content-type: text/plain; charset=iso-8859-2
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-User-Agent: KMail/1.5.4
+	Mon, 6 Oct 2003 09:25:50 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:46722 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262062AbTJFNZs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Oct 2003 09:25:48 -0400
+Date: Mon, 6 Oct 2003 09:27:39 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Otavio Salvador <otavio@debian.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Normal Flopply should depend of ISA?
+In-Reply-To: <87he2n2gzq.fsf@retteb.casa>
+Message-ID: <Pine.LNX.4.53.0310060923510.8753@chaos>
+References: <87he2n2gzq.fsf@retteb.casa>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Mon, 6 Oct 2003, Otavio Salvador wrote:
 
-[cc me in reply]
+> Hello folks,
+>
+> I'm current have problem to use normal floppy disk in 2.6.0-test6-bk7
+> and looking at last patchset I found one possible cause.
+>
+> --- a/drivers/block/Kconfig Thu Sep 25 11:33:27 2003
+> +++ b/drivers/block/Kconfig Thu Oct 2 00:12:22 2003
+> @@ -6,7 +6,7 @@
+> config BLK_DEV_FD
+> tristate "Normal floppy disk support"
+> - depends on !X86_PC9800 && !ARCH_S390
+> + depends on ISA || M68 || SPARC64
+> ---help---
+> If you want to use the floppy disk drive(s) of your PC under Linux,
+> say Y. Information about this driver, especially important for IBM
+>
+> Is right normal floppy depends of ISA? I'll include this by the moment
+> but I doesn't have any ISA hardware in my system.
+>
+> Thanks in Advance,
+> Otavio
 
-Works slow (~35kB/s) on kernels 2.6.0-test3 and newer. I can trace this to wol
-removal patch. (reloading doesn't help, like in test2 case, see below)
+Yes. "ISA" has become to mean more than that old 70's era socket
+on the motherboard. Basically, it's a catch-all for any I/O that
+doesn't use PCI or AGP. It should probably be renamed to GPIO or
+OTHER!
 
-But there's another problem:
-On 2.6.0-test2 it works normal, but only when i reload (rmmod/modprobe) the
-driver.
-After this reloading i can't get it back into "slow" mode even if i use test3 or
-newer driver.
-One thing to note: when it works ok, i get this in dmesg:
-eth0: Setting full-duplex based on MII #24 link partner capability of 0141.
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
-erikm suggested running mii-tool -r eth0, output i get:
-# mii-tool -r eth0
-SIOCGMIIPHY on 'eth0' failed: Operation not supported
-# mii-tool
-SIOCGMIIPHY on 'eth0' failed: Operation not supported
-no MII interfaces found
-
-# lspci -v
-00:0a.0 Ethernet controller: 3Com Corporation 3c905B 100BaseTX [Cyclone] (rev 34)
-        Subsystem: 3Com Corporation 3C905B Fast Etherlink XL 10/100
-        Flags: bus master, medium devsel, latency 32, IRQ 10
-        I/O ports at d000 [size=128]
-        Memory at db000000 (32-bit, non-prefetchable) [size=128]
-        Expansion ROM at <unassigned> [disabled] [size=128K]
-        Capabilities: [dc] Power Management version 1
-
-# lspci -vv
-00:0a.0 Ethernet controller: 3Com Corporation 3c905B 100BaseTX [Cyclone] (rev 34)
-        Subsystem: 3Com Corporation 3C905B Fast Etherlink XL 10/100
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Latency: 32 (2500ns min, 2500ns max), cache line size 08
-        Interrupt: pin A routed to IRQ 10
-        Region 0: I/O ports at d000 [size=128]
-        Region 1: Memory at db000000 (32-bit, non-prefetchable) [size=128]
-        Expansion ROM at <unassigned> [disabled] [size=128K]
-        Capabilities: [dc] Power Management version 1
-                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0-,D1+,D2+,D3hot+,D3cold-)
-                Status: D0 PME-Enable+ DSel=0 DScale=0 PME-
-
-
-
-If there's any more testing/trying patches i can do, i'll be glad to.
-
-
-	Domen
 

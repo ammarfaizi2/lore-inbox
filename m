@@ -1,27 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265124AbUGCOPu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265127AbUGCOmd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265124AbUGCOPu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jul 2004 10:15:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265125AbUGCOPu
+	id S265127AbUGCOmd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jul 2004 10:42:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265133AbUGCOmd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jul 2004 10:15:50 -0400
-Received: from mail-ext.curl.com ([66.228.88.132]:45828 "HELO
-	mail-ext.curl.com") by vger.kernel.org with SMTP id S265124AbUGCOPs
+	Sat, 3 Jul 2004 10:42:33 -0400
+Received: from mail-ext.curl.com ([66.228.88.132]:50948 "HELO
+	mail-ext.curl.com") by vger.kernel.org with SMTP id S265127AbUGCOm3
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jul 2004 10:15:48 -0400
+	Sat, 3 Jul 2004 10:42:29 -0400
 To: Andrew Clausen <clausen@gnu.org>
 Cc: Szakacsits Szabolcs <szaka@sienet.hu>,
        Andries Brouwer <Andries.Brouwer@cwi.nl>,
        Steffen Winterfeldt <snwint@suse.de>, linux-kernel@vger.kernel.org,
        Thomas Fehr <fehr@suse.de>, bug-parted@gnu.org
 Subject: Re: [RFC] Restoring HDIO_GETGEO semantics (was: Re: workaround for BIOS / CHS stuff)
-References: <s5gwu1mwpus.fsf@patl=users.sf.net>
-	<Pine.LNX.4.21.0407021528150.21499-100000@mlf.linux.rulez.org>
-	<20040703013552.GA630@gnu.org>
+References: <Pine.LNX.4.21.0407021936550.30622-100000@mlf.linux.rulez.org>
+	<s5gzn6iz2or.fsf@patl=users.sf.net> <20040703025457.GC630@gnu.org>
 From: "Patrick J. LoPresti" <patl@users.sourceforge.net>
-Message-ID: <s5g8ye1qjg9.fsf@patl=users.sf.net>
-Date: 03 Jul 2004 10:15:47 -0400
-In-Reply-To: <20040703013552.GA630@gnu.org>
+Message-ID: <s5g3c49qiqr.fsf@patl=users.sf.net>
+Date: 03 Jul 2004 10:42:28 -0400
+In-Reply-To: <20040703025457.GC630@gnu.org>
 User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -30,52 +29,90 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Andrew Clausen <clausen@gnu.org> writes:
 
-> > > Parted needs a mechanism to let me FORCE the geometry it uses.
-> > > Every other partitioning tool has this, usually via command-line
-> > > switch.
+> On Fri, Jul 02, 2004 at 02:45:50PM -0400, Patrick J. LoPresti wrote:
+>
+> > Using EDD to deduce the geometry is the "right" answer.  But this
+> > is sufficiently complex and special-purpose that it has no place
+> > in the kernel.
 > 
-> Would this solve any problems?  The people who get hit aren't going
-> to use the switch, right?
+> You think it should be in user-space?  I don't think talking to the
+> BIOS should ever be in user-space.
 
-You are thinking of Parted as an end-user tool.  But there are 1000
-times as many people using Parted without even knowing it, every time
-they install Linux.
+The kernel already makes the relevant BIOS calls at startup and
+stashes the results away (see arch/i386/boot/edd.S).  The edd.o module
+exposes these values to userspace under /sys/firmware/edd.
 
-Parted is primarily a component of larger systems; namely, the
-RedHat/Suse/etc. installers.  Those larger systems can figure out the
-correct geometry (using whatever logic/heuristics/knowledge they have)
-and pass it to the tools which need it, of which Parted is just one.
+But again, none of this should be Parted's concern.
 
-In my case, my software *knows* the geometry because it got it from
-/sys/firware/edd.  Right now, I use a hack (/proc/ide/hda/settings) to
-override the values returned by HDIO_GETGEO.  I run Parted once to
-blow away the partition table, then run it again.  With no partition
-table to help it "guess", Parted falls back on the HDIO_GETGEO values,
-thus using the geometry I specify.
-
-It works, but I would rather just pass the geometry to Parted when I
-run it.
-
-I am suggesting that you cater to the 99.9% case.  This means
-providing some way, any way, to override Parted's notion of the
-geometry.  In my opinion, you should simply gut the logic for guessing
-the geometry, because it really does not belong in Parted.  But I do
-not really care as long as I have a way to bypass it.
-
-(Note that this would also provide a way for end users to fix their
-partition tables if/when they broke.  Right now, the stock solution
-for disks which Parted "broke" is "sfdisk -d | sfdisk -C# -H# -S#".
-Wouldn't it be nice if people could use Parted instead?)
-
-> > 1) and 2) need a way to get a "sane" geometry from the BIOS or kernel.
+> > Why does this stupid idea keep coming up?  Inferring the geometry from
+> > the existing partition table is just plain wrong.  It is even more
+> > wrong than the old 2.4 behavior, because it is still a guess, just a
+> > worse guess.
 > 
-> Shouldn't we just use LBA?  (i.e. x/255/63)
+> Didn't the old 2.4 behaviour include BIOS queries?
 
-IBM Thinkpads use x/240/63.  In theory, other BIOSes could use
-anything.
+Or it parsed the CMOS tables directly; I am not sure.  It was a
+"guess" in the sense that mapping from BIOS devices to Linux devices
+is tricky.
 
-But x/255/63 is usually a better guess than HDIO_GETGEO.  Except in my
-application, which I could fix if Parted had command-line options to
-specify the geometry.
+But I still maintain it was a better guess than the current suggestion
+of relying on the existing partition table.
+
+> In any case, I don't have any evidence that anything is wrong.  On
+> my computer, I can tell the BIOS to use CHS geometry, (as opposed to
+> "Auto", "LBA" or "Large") modify the partition table to set the CHS
+> start/end of the Windows partition to 0, 1024, or anything I like,
+> and Windows STILL works.  I can't get anything to break!
+> 
+> So, can anyone break Windows?
+
+I believe there are several things going on here, which is why this is
+so confusing.
+
+When I first encountered this problem, it was when I used Parted to
+create a partition table on a blank disk and then ran the Windows
+installer under dosemu.  After the first reboot, I got "NTLDR is
+missing".
+
+I believe this was an instance of
+<http://support.microsoft.com/?id=314057>, which afflicts FAT
+filesystems.  (Installing Windows from DOS starts with a FAT
+filesystem which is later converted to NTFS.)
+
+When I forced Parted's notion of the geometry to be the "legacy BIOS"
+values and re-created the partition table, the problem went away.
+This is what my code does now, and it works fine...  But it relies on
+/proc/ide/hdX/settings and HDIO_GETGEO, because Parted has no proper
+interface for forcing the geometry.
+
+The Fedora/Suse/Mandrake installer problem is a little different.  It
+affects people using NTFS.  But it does not affect everybody.  Here is
+my current theory.
+
+We now know that some BIOSes examine the partition table at boot and
+*adapt* their notion of the geometry to match.  Yes, really.  You can
+partition the drive using some geometry, reboot, query the (legacy)
+BIOS interface, and get values which match the partition table.  If
+you repeat with a different partition table, you will get a different
+legacy geometry from the BIOS.
+
+Not all BIOSes do this.  In fact, most do not.  The report I saw was
+from someone using a modern Asus motherboard.
+
+So, when this user installed Fedora Core 2, Parted scrambled the
+partition table geometry and the BIOS adapted at the next reboot.  But
+the Windows BPB still had the original geometry encoded in it.  Since
+it no longer matched the BIOS geometry, the boot loader failed.
+
+In other words, I believe the BPB must match the BIOS geometry, not
+necessarily the partition table geometry.  But on some machines, the
+BIOS *adapts* to match the partition table, allowing you to break
+Windows booting by messing with the partition table.
+
+If you want to get into direct contact with someone actually
+experiencing this problem, track down Sean Estabrooks.  He was
+collecting reports from Fedora Core 2 users, and he was the one who
+noticed that the "legacy" geometry could actually change between
+reboots based on the contents of the partition table.
 
  - Pat

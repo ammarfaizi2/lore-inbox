@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316499AbSIIFbw>; Mon, 9 Sep 2002 01:31:52 -0400
+	id <S316491AbSIIFbI>; Mon, 9 Sep 2002 01:31:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316500AbSIIFbw>; Mon, 9 Sep 2002 01:31:52 -0400
-Received: from dsl-213-023-043-054.arcor-ip.net ([213.23.43.54]:60348 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S316499AbSIIFbv>;
-	Mon, 9 Sep 2002 01:31:51 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Andrew Morton <akpm@digeo.com>, Axel Siebenwirth <axel@hh59.org>
-Subject: Re: 2.5.33-mm5
-Date: Mon, 9 Sep 2002 07:39:18 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: lkml <linux-kernel@vger.kernel.org>,
-       "linux-mm@kvack.org" <linux-mm@kvack.org>
-References: <3D7AF270.BE4AFBEB@digeo.com> <20020908151159.GA5260@prester.freenet.de> <3D7B7EC6.EFD38352@digeo.com>
-In-Reply-To: <3D7B7EC6.EFD38352@digeo.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17oHGY-0006mh-00@starship>
+	id <S316499AbSIIFbI>; Mon, 9 Sep 2002 01:31:08 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:56475 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S316491AbSIIFbI>;
+	Mon, 9 Sep 2002 01:31:08 -0400
+Date: Sun, 08 Sep 2002 22:28:10 -0700 (PDT)
+Message-Id: <20020908.222810.60190726.davem@redhat.com>
+To: phillips@arcor.de
+Cc: imran.badr@cavium.com, linux-kernel@vger.kernel.org
+Subject: Re: Calculating kernel logical address ..
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <E17oGvT-0006mX-00@starship>
+References: <E17oGD2-0006lP-00@starship>
+	<20020908.220008.79156946.davem@redhat.com>
+	<E17oGvT-0006mX-00@starship>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 08 September 2002 18:45, Andrew Morton wrote:
-> Axel Siebenwirth wrote:
-> > 
-> > Hi Andrew!
-> > 
-> > On Sat, 07 Sep 2002, Andrew Morton wrote:
-> > 
-> > > I'd appreciate it if people could grab this one, be nasty to it
-> > > and send a report.
-> > 
-> > What are your favorite tests to run? I'd like to send you some useful test
-> > results. But which do you like to see?
-> 
-> I've already run my favourite tests ;)
+   From: Daniel Phillips <phillips@arcor.de>
+   Date: Mon, 9 Sep 2002 07:17:30 +0200
 
-How about some swap-intensive comparisons to 2.4.19?
+   On Monday 09 September 2002 07:00, David S. Miller wrote:
+   > Actually, KSEG0 the most Linux friendly design in the world
+   > particularly in 64-bit mode.
+   
+   That's easy to say until you try and work with it (I assume you have,
+   and forgot).  Just try to do a 3G/1G split on it, for example.
 
--- 
-Daniel
+Maybe you missed the "64-bit mode" part of what I said. :-)
+
+In 64-bit mode there is no need to do any kind of split.
+You just use the KSEG mapping with full cache coherency for
+all of physical memory as the PAGE_OFFSET area.
+
+I forget if it was KSEG0 or some other number, but I know it
+works.
+
+   

@@ -1,41 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275278AbRJ2NnC>; Mon, 29 Oct 2001 08:43:02 -0500
+	id <S275178AbRJ2NqM>; Mon, 29 Oct 2001 08:46:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275178AbRJ2Nmw>; Mon, 29 Oct 2001 08:42:52 -0500
-Received: from AGrenoble-101-1-3-57.abo.wanadoo.fr ([193.253.251.57]:55711
-	"EHLO lyon.ram.loc") by vger.kernel.org with ESMTP
-	id <S275110AbRJ2Nmo>; Mon, 29 Oct 2001 08:42:44 -0500
+	id <S275398AbRJ2NqD>; Mon, 29 Oct 2001 08:46:03 -0500
+Received: from blue.net4u.hr ([195.29.126.3]:23820 "HELO blue.net4u.hr")
+	by vger.kernel.org with SMTP id <S275294AbRJ2Npv>;
+	Mon, 29 Oct 2001 08:45:51 -0500
+Date: Mon, 29 Oct 2001 14:45:08 +0100
 To: linux-kernel@vger.kernel.org
-From: Raphael_Manfredi@pobox.com (Raphael Manfredi)
-Subject: Re: 8139too on ABIT BP6 causes "eth0: transmit timed out"
-Date: 29 Oct 2001 13:43:12 GMT
-Organization: Home, Grenoble, France
-Message-ID: <9rjmdg$i2$1@lyon.ram.loc>
-In-Reply-To: <16095.1004308212@nice.ram.loc> <039901c1600b$b33fe3a0$0201a8c0@HOMER>
-X-Newsreader: trn 4.0-test74 (May 26, 2000)
-In-Reply-To: <039901c1600b$b33fe3a0$0201a8c0@HOMER>
-X-Mailer: newsgate 1.0 at lyon.ram.loc
+Subject: 2.4.13-ac4 compile problem
+Message-ID: <20011029144508.A19409@debilian>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+User-Agent: Mutt/1.3.23i
+X-Operating-System: Debian GNU/Linux unstable (Linux 2.4.10-ac10)
+X-Uptime: 14:35:10 up 3 days, 18:15,  8 users,  load average: 0.40, 0.41, 0.30
+X-Edited-With-Muttmode: muttmail.sl - 2001-06-06
+From: Marko Rebrina <mrebrina@jagor.srce.hr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Martin Eriksson <nitrax@giron.wox.org> from ml.linux.kernel:
-:What Bios are you running? You should be running the modified RU1.25 Bios,
-:and have enabled MPS 1.4. Also disable "Spread Spectrum" and do *not*
-:overclock.
+Hi,
+I got this error:
 
-I have the RU BIOS, I enabled MPS 1.4.
-What is "Spread Spectrum?".
-I don't overclock.  I never do.
+gcc -D__KERNEL__ -I/usr/src/linux-ac/include -Wall -Wstrict-prototypes
+-Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing
+-fno-common -pipe -mpreferred-stack-boundary=2 -march=i686
+-malign-functions=4     -c -o quirks.o quirks.c
+quirks.c:467: redefinition of quirk_amd_ioapic'
+quirks.c:379: quirk_amd_ioapic' previously defined here
+{standard input}: Assembler messages:
+{standard input}:613: Error: symbol quirk_amd_ioapic' is already defined
+make[3]: *** [quirks.o] Error 1
+make[3]: Leaving directory /usr/src/linux-ac/drivers/pci'
+make[2]: *** [first_rule] Error 2
+make[2]: Leaving directory /usr/src/linux-ac/drivers/pci'
+make[1]: *** [_subdir_pci] Error 2
+make[1]: Leaving directory /usr/src/linux-ac/drivers'
+make: *** [_dir_drivers] Error 2
 
-I remember seeing messages about network lockups on the ABIT BP6, and
-there was a patch submitted to the list.  It had to do with a Sysreq patch
-that would "do something to the APIC" and re-enable network interrupts.
-
-However, I don't remember who this was, and where the patch is.
-
-Is the older Becker driver for the RTL8139 more robust?  I know it's no longer
-maintained, but if I want to try it, how do I proceed?  I don't remember
-seeing it offered in the configuration menu.
-
-Raphael
+-- 
+  -o)      // Marko Rebrina, http://jagor.srce.hr/~mrebrina, ICQ:20358351 \\
+  /\\  
+ _\_v      		http://www.microsoft.com/windowsxp/

@@ -1,49 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261414AbTEFUIP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 16:08:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261438AbTEFUIO
+	id S261747AbTEFUO7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 16:14:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261783AbTEFUO7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 16:08:14 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:48092 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id S261414AbTEFUIN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 16:08:13 -0400
-Date: Tue, 6 May 2003 13:20:42 -0700
-Message-Id: <200305062020.h46KKg219477@magilla.sf.frob.com>
-From: Roland McGrath <roland@frob.com>
+	Tue, 6 May 2003 16:14:59 -0400
+Received: from smtp.net2000.ch ([80.83.47.133]:17289 "EHLO smtp.net2000.ch")
+	by vger.kernel.org with ESMTP id S261747AbTEFUO6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 16:14:58 -0400
+Message-ID: <3EB80CF2.9F56BA90@bluewin.ch>
+Date: Tue, 06 May 2003 21:28:50 +0200
+From: Jean-Marc Lienher <oksid@bluewin.ch>
+Organization: O'ksi'D
+X-Mailer: Mozilla 4.78 [fr] (X11; U; Linux 2.4.10-4GB i586)
+X-Accept-Language: fr-CH, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-X-Fcc: ~/Mail/linus
-Subject: [PATCH] core dump psinfo.pr_sname letter fix
-X-Shopping-List: (1) Evangelical yies
-   (2) Arctic Pigs
-   (3) Frilly breath vagrants
-   (4) Mix 'n' Match Yies
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Using GPL'd Linux drivers with non-GPL, binary-only kernel
+References: <20030506164252.GA5125@mail.jlokier.co.uk> <1052242508.1201.43.camel@dhcp22.swansea.linux.org.uk> <20030506185433.GA6023@mail.jlokier.co.uk>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I noticed this a long time ago and forgot that it was still broken in 2.5.
-This patch makes the state letter in the pr_sname field in core dumps
-correct for stopped and zombie threads.  The order needed to be changed when
-the TASK_* values changed.  This matches the letters used in sched.c:show_task.
+Jamie Lokier a écrit :
 
+> Then, you can (a) rewrite everything, using the knowledge you gained
+> from reading the various open source drivers, or (b) just use those
+> drivers, and save a lot of effort.
 
-Thanks,
-Roland
+Where is the problem ?
+In the (b) option, the GPL drivers must still be distributed under 
+the GPL.
 
+(If you like legal issues and if you want to laugh, I have a funny 
+web page about the GPL. http://www.oksid.ch/license/faq.html )
 
---- linux-2.5.69/fs/binfmt_elf.c.~1~	Sun May  4 16:53:14 2003
-+++ linux-2.5.69/fs/binfmt_elf.c	Tue May  6 13:16:37 2003
-@@ -1105,7 +1105,7 @@ static void fill_psinfo(struct elf_prpsi
- 
- 	i = p->state ? ffz(~p->state) + 1 : 0;
- 	psinfo->pr_state = i;
--	psinfo->pr_sname = (i < 0 || i > 5) ? '.' : "RSDZTD"[i];
-+	psinfo->pr_sname = (i < 0 || i > 5) ? '.' : "RSDTZW"[i];
- 	psinfo->pr_zomb = psinfo->pr_sname == 'Z';
- 	psinfo->pr_nice = task_nice(p);
- 	psinfo->pr_flag = p->flags;
+-- 
+http://www.oksid.ch

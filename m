@@ -1,87 +1,60 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316131AbSEQMoc>; Fri, 17 May 2002 08:44:32 -0400
+	id <S316088AbSEQMuG>; Fri, 17 May 2002 08:50:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315441AbSEQMob>; Fri, 17 May 2002 08:44:31 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:51977 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S316131AbSEQMnk>; Fri, 17 May 2002 08:43:40 -0400
-Message-ID: <3CE4EC29.3090205@evision-ventures.com>
-Date: Fri, 17 May 2002 13:40:25 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
-X-Accept-Language: en-us, pl
+	id <S316209AbSEQMuF>; Fri, 17 May 2002 08:50:05 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:63872 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S316088AbSEQMuE>; Fri, 17 May 2002 08:50:04 -0400
+Date: Fri, 17 May 2002 08:51:14 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: "'Roger Luethi'" <rl@hellgate.ch>
+cc: Shing Chuang <ShingChuang@via.com.tw>,
+        Urban Widmark <urban@teststation.com>,
+        "Ivan G." <ivangurdiev@linuxfreemail.com>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org,
+        AJ Jiang <AJJiang@via.com.tw>
+Subject: Re: [PATCH] #2 VIA Rhine stalls: TxAbort handling
+In-Reply-To: <20020517001534.GA3632@k3.hellgate.ch>
+Message-ID: <Pine.LNX.3.95.1020517084216.4475A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-To: benh@kernel.crashing.org
-CC: Jens Axboe <axboe@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.15 IDE 62
-In-Reply-To: <3CDFE1EE.3050800@evision-ventures.com> <20020513191308.10469@mailhost.mipsys.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Uz.ytkownik benh@kernel.crashing.org napisa?:
->>Just to clarify it... From the host view it's not the chipset
->>it's a channel we have to deal with. And there are typically two
->>channels on a host. For the serialized parts, we have to
->>possiblities:
->>
->>1. Preserve the current behaviour of using additionally a global
->>lock.
->>
->>2. "Cheat" and reuse the lock from the primary channel during
->>the initialization of the secondary channel.
->>
->>Hmmm.... Thinking a bit about it I'm now conviced that 2. is more
->>elegant then 1. And finally this will
->>just allow us to make the hwgroup_t go entierly away.
-> 
-> 
-> I would do things differently. From the common point of view,
-> what we deal with is
-> 
->    controller
->     /        \
->  channel x, channel y, ....
-> 
-> That is an _arbitrary_ number of channels. So the host driver
-> should just register individual "channels" to the IDE layer, 
-> each one has it's queue lock, period.
-> 
-> Now, if for any reason, the host specific code has to synchronize
-> between several of it's channels when dealing with things like
-> chipset configuration, it's up to that host driver to know about
-> it and deal with it; which make perfect sense to be done with a
-> third lock specific to protecting those specific registers that
-> are shared and that is completely internal to the host chipset
-> driver.
-> 
-> The only case I see where the host may have to additionally go
-> and grab the other channel's locks (the queue lock or whatever
-> you call it) is if the actual setting change on one channel 
-> has side effect on a currently transferring other channel.
-> 
-> But that is completely internal to the host, and yes, I agree
-> that reusing the other channel's lock is probably the best solution.
-> 
-> But in cases where you just have 2 bitfields in the same register
-> that need serialized access from both channels, a simple lock
-> protecting only that register seems to be plenty enough.
-> 
-> What did I miss ?
+On Fri, 17 May 2002, 'Roger Luethi' wrote:
 
-1. The fact that there are some cases where the initialization code
-doesn't necessarily go down to the host chip drivers right now.
+> > I think one has to <somehow> find that the chip has halted besides
+> > the current way (noticing that it can't transmit anymore). I don't
+> 
+> There seems to be a misunderstanding. We already get an interrupt and a
+> status to indicate what kind of problem occured. Thanks to Shing's recent
+> posting we even have confirmed information about what events stop the Tx
+> engine. _Plus_ there is a bit flag TXON in a chip status register which
+> indicates whether the Tx engine is active.
+>
+[SNIPPED...]
+> 
+> > In the chip-halted work-around that everybody seems to use now,
+> > reprogram it from scratch. The last program operation being to remove
+> > loop-back. I don't even know if this chip can be set to loop-back,
+> > though, so the whole idea may be moot.
+> 
+> It can be set to loopback, but I'm not keen on having my chip reprogrammed
+> by every traffic burst (excessive collisions -> abort). Is that really the
+> fashion of the year now?
 
-2. Most of the current code...
+Well, maybe the fashion of the day. Do `grep karound *.c` in
+../linux/drivers/net and see all the 'workarounds' that exist for
+chip problems. Some of the problems are induced by the coding and
+most are real hardware problems.
 
-BTW> The code will be much cleaner in the upcomming ide 65, since
-the allocation of the structures shared between two channels will be
-simple pushed down to the corresponding host chip drivers instead of
-the "match search" done after the channles have been initialized.
 
-Since most of the host chip drivers are not reentrant anyway we will
-be able to save quite a lot of allocation code as well.
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+
+                 Windows-2000/Professional isn't.
 

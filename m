@@ -1,51 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315199AbSEFVME>; Mon, 6 May 2002 17:12:04 -0400
+	id <S315201AbSEFV1p>; Mon, 6 May 2002 17:27:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315201AbSEFVMD>; Mon, 6 May 2002 17:12:03 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:41231 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315199AbSEFVMC>;
-	Mon, 6 May 2002 17:12:02 -0400
-Message-ID: <3CD6F166.3853AF05@zip.com.au>
-Date: Mon, 06 May 2002 14:11:02 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
+	id <S315202AbSEFV1o>; Mon, 6 May 2002 17:27:44 -0400
+Received: from p50887E99.dip.t-dialin.net ([80.136.126.153]:13696 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S315201AbSEFV1n>; Mon, 6 May 2002 17:27:43 -0400
+Date: Mon, 6 May 2002 15:27:40 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Dan Kegel <dank@kegel.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: khttpd patch [was: gzip vs. bzip2 (mainly de-)compression
+ "benchmark"]
+In-Reply-To: <3CD6E787.CA5AD55B@kegel.com>
+Message-ID: <Pine.LNX.4.44.0205061524050.4189-100000@hawkeye.luckynet.adm>
 MIME-Version: 1.0
-To: "Udo A. Steinberg" <reality@delusion.de>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Ext3 errors with 2.4.18
-In-Reply-To: <3CD6AE7A.FBEB5726@delusion.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Udo A. Steinberg" wrote:
-> 
-> Hi,
-> 
-> With Linux 2.4.18, I'm getting multiple of the following error:
-> 
-> EXT3-fs error (device ide0(3,2)): ext3_readdir: bad entry in directory #1966094:
-> rec_len % 4 != 0 - offset=0, inode=3180611420, rec_len=53134, name_len=138
-> 
-> Can someone decipher this?
-> 
+Hi,
 
-That's random junk.  Heaven knows.  It could have come
-from anywhere in the kernel.  Including ext3, of course.
+On Mon, 6 May 2002, Dan Kegel wrote:
+> Does the khttpd patch I posted fix your khttpd crash?
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=102068445316516&w=2
 
-When you see this sort of thing you should immediately
-take the machine down, because the corruption could be
-only in-memory. The longer the machine stays up, the
-better the chance that the corruption will go to disk.
+I was working on Mandrake 8.0 Linux 2.4.8, which was precompiled, sorry. I 
+don't even have the sources for their kernel. I try replacing it all with 
+the latest kernel, then I'll see...
+It was just about the compression, I can't help with this kernel. I'll try 
+out the latest khttpd when I got so far.
 
-And with ext3, the best way to take the machine down
-is to pull the power plug.  Normal shutdown tools will
-sync the disks, which you don't want to happen.
+Regards,
+Thunder
+-- 
+if (errno == ENOTAVAIL)
+    fprintf(stderr, "Error: Talking to Microsoft server!\n");
 
-Then reboot with `init=/bin/sh' and force a fsck against
-all filesystems.
-
--

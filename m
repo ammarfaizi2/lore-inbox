@@ -1,47 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130075AbQLMKPf>; Wed, 13 Dec 2000 05:15:35 -0500
+	id <S130461AbQLMKU2>; Wed, 13 Dec 2000 05:20:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130461AbQLMKP0>; Wed, 13 Dec 2000 05:15:26 -0500
-Received: from dhcp07.ncipher.com ([195.224.55.237]:4604 "EHLO passion.cygnus")
-	by vger.kernel.org with ESMTP id <S130075AbQLMKPK>;
-	Wed, 13 Dec 2000 05:15:10 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <Pine.LNX.4.21.0012121719180.20891-100000@www.nondot.org> 
-In-Reply-To: <Pine.LNX.4.21.0012121719180.20891-100000@www.nondot.org> 
-To: Chris Lattner <sabre@nondot.org>
-Cc: "Mohammad A. Haque" <mhaque@haque.net>, Ben Ford <ben@kalifornia.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: ANNOUNCE: Linux Kernel ORB: kORBit 
-Mime-Version: 1.0
+	id <S130653AbQLMKUR>; Wed, 13 Dec 2000 05:20:17 -0500
+Received: from ulima.unil.ch ([130.223.144.143]:55050 "EHLO ulima.unil.ch")
+	by vger.kernel.org with ESMTP id <S130461AbQLMKUG>;
+	Wed, 13 Dec 2000 05:20:06 -0500
+Message-ID: <3A374622.7167CA22@ulima.unil.ch>
+Date: Wed, 13 Dec 2000 10:49:22 +0100
+From: Gregoire Favre <greg@ulima.unil.ch>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17-12mdk i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: DVD on Linux
 Content-Type: text/plain; charset=us-ascii
-Date: Wed, 13 Dec 2000 09:42:07 +0000
-Message-ID: <10532.976700527@redhat.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+zink wrote:
 
-sabre@nondot.org said:
-> 1. Boot kernel
-> 2. Install corbafs module for example
+>  The final 2.2.18 is out - I didn't see UDF option under filesystems, altough it should
+> have been there - maybe we'll wait (for ages) untilfinal 2.4 is out.
 
-You misspelled 'codafs' :)
+I haven't used 2.2 for ages, but as far as I remember, you could just use iso9660 for DVD...
+(Well since 2.2.n with n great enough...).
 
-> 3. Start test filesystem in user space
-> 4. mount test user space filesystem
-> 5. test it, oh crap, it segfaulted.
-> 6. CorbaFS gets exceptions trying to communicate to server, which it
-> relays to the kernel as -errno conditions.
-> 7. You safely unmount corbafs
-> 8. fix your bug
-> 9. goto step #2.
-
---
-dwmw2
-
-
+	Greg
+________________________________________________________________
+http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,65 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266985AbUAXS0e (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jan 2004 13:26:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266987AbUAXS0e
+	id S266993AbUAXScx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jan 2004 13:32:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266994AbUAXScx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jan 2004 13:26:34 -0500
-Received: from node-d-1fcf.a2000.nl ([62.195.31.207]:16516 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP id S266985AbUAXS0b
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jan 2004 13:26:31 -0500
-Subject: Re: Request: I/O request recording
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Felix von Leitner <felix-kernel@fefe.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20040124181026.GA22100@codeblau.de>
-References: <20040124181026.GA22100@codeblau.de>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-6wy1vJSrLmYZb8FOxHGY"
-Organization: Red Hat, Inc.
-Message-Id: <1074968776.4442.4.camel@laptop.fenrus.com>
+	Sat, 24 Jan 2004 13:32:53 -0500
+Received: from h80ad2738.async.vt.edu ([128.173.39.56]:50307 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S266993AbUAXScv (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jan 2004 13:32:51 -0500
+Message-Id: <200401241832.i0OIWYl1030218@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Andrew Morton <akpm@osdl.org>
+Cc: Serge Belyshev <33554432@mtu-net.ru>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] arch/i386/Makefile,scripts/gcc-version.sh,Makefile small fixes 
+In-Reply-To: Your message of "Sat, 24 Jan 2004 10:17:04 PST."
+             <20040124101704.3bf3ada2.akpm@osdl.org> 
+From: Valdis.Kletnieks@vt.edu
+References: <87oestsard.fsf@mtu-net.ru>
+            <20040124101704.3bf3ada2.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Sat, 24 Jan 2004 19:26:17 +0100
+Content-Type: multipart/signed; boundary="==_Exmh_-1896796858P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Sat, 24 Jan 2004 13:32:34 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--==_Exmh_-1896796858P
+Content-Type: text/plain; charset="us-ascii"
+Content-Id: <30207.1074969154.1@turing-police.cc.vt.edu>
 
---=-6wy1vJSrLmYZb8FOxHGY
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+On Sat, 24 Jan 2004 10:17:04 PST, Andrew Morton said:
 
-On Sat, 2004-01-24 at 19:10, Felix von Leitner wrote:
-> I would like to have a user space program that I could run while I cold
-> start KDE.  The program would then record which I/O pages were read in
-> which order.  The output of that program could then be used to pre-cache
-> all those pages, but in an order that reduces disk head movement.
-> Demand Loading unfortunately produces lots of random page I/O scattered
-> all over the disk.
+> > Makefile: 
+> > *  There is no point in adding -funit-at-a-time option because it is
+> >    enabled by default at levels -Os, -O2 and -O3.
+> 
+> hm.  Didn't Andi say that adding -fno-unit-at-a-time caused code shrinkage?
 
-I recently did something like this (and it scared me, it seems a typical
-Fedora boot into gnome opens like 11.000 files ;) but via a printk in
-the kernel....
+Also, at least for the Fedora gcc-ssa compiler, -funit-at-a-time is *not* a
+default option (provably so - building with gcc-ssa makes a kernel that hangs
+*very* early on (right after 'decompressing the kernel' - I haven't dug into
+this yet) - but commenting out this:
 
-I experimented with readahead'ing all that stuff while the initscripts
-ran in the hope it would save time... but it doesn't somehow.
+# Enable unit-at-a-time mode when possible. It shrinks the
+# kernel considerably.
+CFLAGS += $(call check_gcc,-funit-at-a-time,)
 
-Some other things kinda help; if you feel adventurous you could play
-with the kernel-utils RPM in rawhide which does a readahead of the files
-the desktop opens while GDM login window is displayed; if the user isn't
-typing his name really fast that decreases the desktop startup time...
+results in a working kernel.  This is with:
 
---=-6wy1vJSrLmYZb8FOxHGY
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+%  gcc-ssa --version
+gcc-ssa (GCC) 3.5-tree-ssa 20040115 (Fedora Core Rawhide 3.5ssa-108)
+
+
+--==_Exmh_-1896796858P
+Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-iD8DBQBAErjIxULwo51rQBIRAj/3AJ9ccZ+hT4DpVgYNFQF8gEigjxMesgCeOITe
-VS9fnix6gEAxL+G6zPdQJRc=
-=1nhp
+iD8DBQFAErpCcC3lWbTT17ARArxQAKCuGPv9Gprz2TCEq6sKTtB+t/V6pgCgpUp9
+usnEma5rJS17zYW3S1Nw0z8=
+=JqXI
 -----END PGP SIGNATURE-----
 
---=-6wy1vJSrLmYZb8FOxHGY--
+--==_Exmh_-1896796858P--

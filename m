@@ -1,38 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129239AbRBEHAv>; Mon, 5 Feb 2001 02:00:51 -0500
+	id <S129814AbRBEHBu>; Mon, 5 Feb 2001 02:01:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129814AbRBEHAb>; Mon, 5 Feb 2001 02:00:31 -0500
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:9969 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S129239AbRBEHA2>; Mon, 5 Feb 2001 02:00:28 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: [patch] make tmpfs_statfs more user friendly
-In-Reply-To: <m31ytemq7u.fsf@linux.local>
-From: Christoph Rohland <cr@sap.com>
-In-Reply-To: <m31ytemq7u.fsf@linux.local>
-Message-ID: <m3ae82l3mv.fsf@linux.local>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Bryce Canyon)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: 05 Feb 2001 08:05:54 +0100
+	id <S131268AbRBEHBk>; Mon, 5 Feb 2001 02:01:40 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:48278 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S129814AbRBEHBd>; Mon, 5 Feb 2001 02:01:33 -0500
+Date: Mon, 5 Feb 2001 00:01:29 -0700
+Message-Id: <200102050701.f1571TH04804@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: drepper@cygnus.com (Ulrich Drepper)
+Cc: Pierre Rousselet <pierre.rousselet@wanadoo.fr>,
+        David Ford <david@linux.com>, devfs@oss.sgi.com,
+        LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] devfsd, compiling on glibc22x
+In-Reply-To: <m3lmrl62rm.fsf@otr.mynet.cygnus.com>
+In-Reply-To: <3A7383B2.19DDD006@linux.com>
+	<3A73C1D8.578AEEE@wanadoo.fr>
+	<m3wvbgnnk3.fsf@otr.mynet.cygnus.com>
+	<200102050631.f156Vje04234@vindaloo.ras.ucalgary.ca>
+	<m3lmrl62rm.fsf@otr.mynet.cygnus.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Rohland <cr@sap.com> writes:
-
-> The following patch make shmem_statfs report some sensible size
-> estimates in the case that the user does not give a size limit.
+Ulrich Drepper writes:
+> Richard Gooch <rgooch@ras.ucalgary.ca> writes:
 > 
-> This should make it more error prone when used as /tmp
-                      ^^^^
-Oh well, Lars pointed out that I was apparently in outer space
-when typing this mail ;-)
+> > So why do old binaries (compiled with glibc 2.1.3) segfault when they
+> > call dlsym() with RTLD_NEXT?  Even newly compiled binaries (with glibc
+> > 2.2) still segfault.
+> 
+> What do you ask me?  You wrote the code.
 
-So: s/more/less/
+But you wrote dlsym(), right I have a debug trace from someone which
+shows that the call to dlsym() segfaults. It's being called thusly:
+	dlsym (RTLD_NEXT, "symlink");
 
-        Christoph
+This doesn't fail with libc 5 nor with glibc 2.1.3. But it does with
+glibc 2.2.
 
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,71 +1,97 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290500AbSBLRWu>; Tue, 12 Feb 2002 12:22:50 -0500
+	id <S290779AbSBLRVU>; Tue, 12 Feb 2002 12:21:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290503AbSBLRWo>; Tue, 12 Feb 2002 12:22:44 -0500
-Received: from dsl-213-023-043-038.arcor-ip.net ([213.23.43.38]:60032 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S290500AbSBLRVk>;
-	Tue, 12 Feb 2002 12:21:40 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Bill Davidsen <davidsen@tmr.com>
-Subject: Re: How to check the kernel compile options ?
-Date: Tue, 12 Feb 2002 18:23:16 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.3.96.1020212113237.5657B-100000@gatekeeper.tmr.com>
-In-Reply-To: <Pine.LNX.3.96.1020212113237.5657B-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16ageE-0001Te-00@starship.berlin>
+	id <S290946AbSBLRVK>; Tue, 12 Feb 2002 12:21:10 -0500
+Received: from 1Cust118.tnt15.sfo3.da.uu.net ([67.218.75.118]:31498 "EHLO
+	morrowfield.home") by vger.kernel.org with ESMTP id <S290767AbSBLRVG>;
+	Tue, 12 Feb 2002 12:21:06 -0500
+Date: Tue, 12 Feb 2002 12:28:54 -0800 (PST)
+Message-Id: <200202122028.MAA24835@morrowfield.home>
+From: Tom Lord <lord@regexps.com>
+To: tytso@mit.edu
+CC: lm@bitmover.com, jmacd@CS.Berkeley.EDU, jaharkes@cs.cmu.edu,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20020211225935.B5514@thunk.org> (message from Theodore Tso on
+	Mon, 11 Feb 2002 22:59:35 -0500)
+Subject: Re: linux-2.5.4-pre1 - bitkeeper testing
+In-Reply-To: <Pine.LNX.4.44.0202052328470.32146-100000@ash.penguinppc.org> <20020207165035.GA28384@ravel.coda.cs.cmu.edu> <200202072306.PAA08272@morrowfield.home> <20020207132558.D27932@work.bitmover.com> <20020211002057.A17539@helen.CS.Berkeley.EDU> <20020211070009.S28640@work.bitmover.com> <20020211141404.A21336@work.bitmover.com> <200202120517.VAA21821@morrowfield.home> <20020211225935.B5514@thunk.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On February 12, 2002 05:38 pm, Bill Davidsen wrote:
-> On Tue, 12 Feb 2002, Daniel Phillips wrote:
-> 
-> > On February 11, 2002 08:05 pm, Bill Davidsen wrote:
-> 
-> > > Did I miss discussion of an option to put it somewhere other than as part
-> > > of the kernel? Sorry, I missed that.
-> > 
-> > It's a trick question?  The config option would let you specify that no 
-> > kernel config information at all would be stored with or in the kernel.  No 
-> > cost, no memory footprint.  And I would get to have the extra warm n fuzzy 
-> > usability I tend to go on at such lengths about.  So we're both happy, right? 
-> > 
-> > I'd even remain happy if the option were set *off* by default.
-> 
-> No trick other than to read what I said in either of the previous posts...
-> the question was not how to avoid having the useful feature, but how to
-> put it somewhere to avoid increasing the kernel size. I suggested in the
-> modules directory, either as a text file or as a module.
 
-We are in violent agreement, I'm not sure where the misunderstanding came from.
-Yes, the leading idea is to put it in a module.  In fact a patch exists, though
-it may have issues, it's been a while since I looked at it.
 
-Besides that, it's been suggested to stick it only the end of bzImage in a way
-that some utility can find it, so that it never gets loaded into memory or does
-and is immediately discarded.  Bootfs might be another way to go, or maybe
-that's just a way of making the module solution more elegant.  Personally, I
-think that making it a module is obviously the right way to go.  The exact
-details of how the module would work haven't been hashed out yet, at least,
-not recently.  I presume the module should be compressed.  Perhaps it should
-only work in conjunction with some user space utility, allowing the config
-info to be expressed even more compactly than otherwise possible.  There is a
-lot of room for creative compression here - I roughed out a design at one point
-that would be able to represent the config information in something like a
-couple hundred bytes, when the compile is from a standard tree.  This is cute,
-but it's probably more cute than necessary.
+I think arch can help you manage the limited space on a laptop disk
+quite well, too.  You'll have trouble if that's the _only_ disk you
+have, but otherwise:
 
-> Disabling the feature is not the same as making it work optimally.
-> I like making it a module because it's obvious that modules_install is
-> needed. I see zero added utility from having it part of the kernel or
-> nothing, it's useful even to people booting from ROM, small /boot
-> partitions, etc.
+	1. Make a nice big expansive development environment
+ 	   on a larger machine, with lots of revisions cached in the
+ 	   revision library, mirrors of your favorite archives, etc.
 
-OK, my apologies for misinterpreting your position.
+	2. On your laptop, store only the repository you'll need for
+           day to day work, plus a very sparsely populated revision
+           library -- it might even be empty depending on the kind of
+           work you're doing.  The repository needs only a single
+           baseline (a compressed tar file) and compressed deltas for
+           each revision it contains.  It doesn't even have to be your
+           main repository -- it can be an otherwise empty repository
+           containing only a branch from your main repository plus
+           those revisions you create from your laptop.
 
--- 
-Daniel
+	3. Make a simple shell script, "prepare-detached", that
+           updates the contents of your laptop in anticipation of work
+           on particular branches or with particular historic
+           revisions, copying bits and pieces from your nice big
+           environment.  Make a shell script "return-home" that moves
+           a branch from your laptop to your stationary archive.
+
+Having a huge revision library is a win if what you're doing is
+fielding patches from many contributors, against many baselines,
+wanting to try out various combinations of baseline and patch, and
+wanting to do lots of archeology to trace the history of various
+changes.  If, on the other hand, what you're doing is going off
+somewhere to work on coding a particular change, you don't need a big
+revision library.
+
+
+-t
+
+
+
+
+   Date: Mon, 11 Feb 2002 22:59:35 -0500
+   From: Theodore Tso <tytso@mit.edu>
+   Cc: lm@bitmover.com, jmacd@CS.Berkeley.EDU, jaharkes@cs.cmu.edu,
+	   linux-kernel@vger.kernel.org
+   Mail-Followup-To: Theodore Tso <tytso@mit.edu>, Tom Lord <lord@regexps.com>,
+	   lm@bitmover.com, jmacd@CS.Berkeley.EDU, jaharkes@cs.cmu.edu,
+	   linux-kernel@vger.kernel.org
+   Content-Type: text/plain; charset=us-ascii
+   Content-Disposition: inline
+   User-Agent: Mutt/1.3.15i
+   X-UIDL: 7c6ac808cf42f277fa20d221ae51da13
+
+   On Mon, Feb 11, 2002 at 09:17:43PM -0800, Tom Lord wrote:
+   > 
+   > It may be theoretically interesting to minimize the space taken up by
+   > revisions, but I think it is more economically sensible to screw that
+   > and and instead, maximize convenience and interactive speed with
+   > features like revision libraries (as in arch).  This ain't the early
+   > 90's any more.
+
+   For What It's Worth, on a laptop environment (where I work quite a
+   bit) and for something the size of the Linux kernel, and where things
+   change at the speed of the Linux kernel, in fact space efficiency
+   matters a lot.
+
+   In fact, the one thing for which I was quite unhappy with BK until
+   Larry implemented bk lclone (aka bk clone -l) was the amount of space
+   having multiple copies of the same repository took up, since BK really
+   requires multiple sandboxes for parallel development.  It's not a big
+   deal with something the size of e2fsprogs, but for something the size
+   of the BK linux tree, Size Really Matters.
+
+						   - Ted
+
+

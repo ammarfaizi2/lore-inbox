@@ -1,134 +1,124 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266907AbTBQHId>; Mon, 17 Feb 2003 02:08:33 -0500
+	id <S266908AbTBQHjX>; Mon, 17 Feb 2003 02:39:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266908AbTBQHId>; Mon, 17 Feb 2003 02:08:33 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:32331 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S266907AbTBQHIb>; Mon, 17 Feb 2003 02:08:31 -0500
-To: Corey Minyard <minyard@acm.org>
-Cc: Corey Minyard <cminyard@mvista.com>,
-       Werner Almesberger <wa@almesberger.net>,
-       Zwane Mwaikambo <zwane@holomorphy.com>, suparna@in.ibm.com,
-       Kenneth Sumrall <ken@mvista.com>, linux-kernel@vger.kernel.org,
-       lkcd-devel@lists.sourceforge.net
-Subject: Re: Kexec, DMA, and SMP
-References: <3E4914CA.6070408@mvista.com> <m1of5ixgun.fsf@frodo.biederman.org>
-	<3E4A578C.7000302@mvista.com> <m13cmty2kq.fsf@frodo.biederman.org>
-	<3E4A70EA.4020504@mvista.com> <20030214001310.B2791@almesberger.net>
-	<3E4CFB11.1080209@mvista.com> <20030214151001.F2092@almesberger.net>
-	<3E4D3419.1070207@mvista.com>
-	<Pine.LNX.4.50.0302141420220.3518-100000@montezuma.mastecende.com>
-	<20030214164436.H2092@almesberger.net> <3E4D4ADF.3070109@mvista.com>
-	<m17kc26pxs.fsf@frodo.biederman.org> <3E4FBAD0.4040808@acm.org>
-	<m1y94f6gnp.fsf@frodo.biederman.org> <3E506460.3010400@acm.org>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 17 Feb 2003 00:18:21 -0700
-In-Reply-To: <3E506460.3010400@acm.org>
-Message-ID: <m1wujz2x4y.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S266917AbTBQHjX>; Mon, 17 Feb 2003 02:39:23 -0500
+Received: from dp.samba.org ([66.70.73.150]:22664 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S266908AbTBQHjV>;
+	Mon, 17 Feb 2003 02:39:21 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: torvalds@transmeta.com
+Cc: tridge@samba.org, linux-kernel@vger.kernel.org, cyeoh@samba.org,
+       sfr@canb.auug.org.au
+Subject: [PATCH] Prevent setting 32 uids/gids in the error range
+Date: Mon, 17 Feb 2003 18:41:59 +1100
+Message-Id: <20030217074920.E76822C003@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Corey Minyard <minyard@acm.org> writes:
+Tridge noticed that getegid() was returning EPERM.
 
-> An orderly shutdown will:
-> 
-> ~    * claim locks and block as necessary
-> ~    * free memory associated with the device
-> ~    * flush device queues
-> ~    * Fully shut down the device
+I used -1000 since that's what PTR_ERR uses, but i386 _syscall macros
+use -125: I don't suppose it really matters.
 
-Most of this is in required before a module is removed, but quite
-a bit of this does not belong in the shutdown method.  As user space,
-and higher level code can down interfaces and remount hardware read
-only.  
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
 
-So by the time it gets to the device driver for the final shutdown you
-get:
+Name: User and Group ID range check patch
+Author: Rusty Russell
+Status: Tested on 2.5.61-bk1
 
-- Locks are irrelevant because there are no other users (by
-  definition).
+D: sys_getuid etc return long, which means that setting your gid to -1
+D: on 32-bit platforms causes sys_getuid to return "EPERM", for example.
 
-- Queues are irrelevant as the device driver is not responsible for
-  those.  Someone needs to call sync, down the network interface,
-  or the equivalent to push the last of the data through the device.
-
-- Freeing memory is only needed if the kernel will persist, on a
-  reboot or a halt that is not the case.
+diff -urNp --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5.61-bk1/include/linux/types.h working-2.5.61-bk1-valid_ids/include/linux/types.h
+--- linux-2.5.61-bk1/include/linux/types.h	2003-02-11 14:26:19.000000000 +1100
++++ working-2.5.61-bk1-valid_ids/include/linux/types.h	2003-02-17 17:26:38.000000000 +1100
+@@ -34,6 +34,10 @@ typedef __kernel_gid32_t	gid_t;
+ typedef __kernel_uid16_t        uid16_t;
+ typedef __kernel_gid16_t        gid16_t;
  
-> An orderly shutdown should make sure the system remains sane after it
-> finishes and the data on the device is correct.
-
-But there are multiple layers to how that should be accomplished.
++/* If we allowed these to be set, getuid etc. would break (they return long) */
++#define is_valid_gid(gid) ((unsigned long)(gid) < -1000UL)
++#define is_valid_uid(uid) ((unsigned long)(uid) < -1000UL)
++
+ #ifdef CONFIG_UID16
+ /* This is defined by include/asm-{arch}/posix_types.h */
+ typedef __kernel_old_uid_t	old_uid_t;
+diff -urNp --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5.61-bk1/kernel/sys.c working-2.5.61-bk1-valid_ids/kernel/sys.c
+--- linux-2.5.61-bk1/kernel/sys.c	2003-02-17 11:37:55.000000000 +1100
++++ working-2.5.61-bk1-valid_ids/kernel/sys.c	2003-02-17 18:11:01.000000000 +1100
+@@ -658,6 +658,9 @@ asmlinkage long sys_setuid(uid_t uid)
+ 	if (retval)
+ 		return retval;
  
-> A panic shutdown should only disable DMA with as little code as possible
-> without locking, blocking, etc.  No effort should be taken to keep the
-> system sane (beyond clobbering memory), since it's not sane to begin with :-).
-> 
-> You may want to say that this shutdown will be the panic shutdown and not be
-> an orderly shutdown.  That's fine, although I would suggest a name change.
-> I couldn't find any documentation on what the shutdown call was supposed to do.
-
-Currently the shutdown method is supposed to do the minimal amount needed to
-place a device in a quiescent state before a reboot or a halt.  And it
-should optionally place the device in a state from which it can be
-reinitialized by the driver later.
-
-Essentially that is turning off DMA.  And setting a few registers 
-so that the device can be restarted later.  It explicitly does
-not included freeing resources.   
-
-There may be some blocking waiting for the device, but I do not see
-blocking waiting for other users of the device as correct.  By
-definition all other users are gone, so any locks in that code protect
-nothing.
-
-So I do not see how that differs, in any significant way from what you
-figure the panic handler should do.  Though I do admit I have
-questions if the code would be reliable in a panic situation.
-
-> |Because the kernel to handle the panic only initializes those devices
-> |it can reliably initialize from any state.   And it is living in an
-> |area of memory the old kernel did not allow DMA to.
-> |
-
-> Are you sure this will be ok?  I'm not sure either way.  How much memory does
-> a kernel take to boot up and operate for this?  If it's a few meg, it's probably
-> 
-> livable.
-> If it's a lot of memory, it's probably not going to be acceptable.
-
-Somewhere from 2-8Meg I would guess is sufficient on x86.  It
-primarily depends on the size of the dump kernel, and the user space.
-8Meg used to be enough to run X. 
-
-> Plus, perhaps you would want to protect the output of the kernel dump somehow.
-> That's going to be a lot more memory than you can reserve.  And if you can shut
-> off DMA, none of this should matter anyway.
-
-Protect it?  It does not need to be generated until after the new
-kernel takes over.  So the dump never needs to live in ram.
-
-As for turning off DMA on a panic.  It has already been shown that DMA
-can not be reliably turned off in device independent way.  Something
-is definitely broken, and the odds are it is a driver.  If there is
-special panic code in a driver it likely to be the least tested code
-path, if it exists at all.  And with so many random devices out there
-I do not see how it can be shown that they all have correct panic code.
-
-I do not see shutting down all DMA as feasible, which is why I am
-attempting to avoid the issue.   With a reserved area of memory,
-the only thing I am left to worry about is the unlikely case some
-device doing DMA to an incorrect location that just happens to be
-where the recovery kernel sits. 
-
-> The rest of what you said, about the panic kernel only taking the core dump and
-> then rebooting, makes sense to me.
-
-Good.
-
-Eric
-
++	if (!is_valid_uid(uid))
++		return -EINVAL;
++
+ 	old_ruid = new_ruid = current->uid;
+ 	old_suid = current->suid;
+ 	new_suid = old_suid;
+@@ -700,6 +705,11 @@ asmlinkage long sys_setresuid(uid_t ruid
+ 	if (retval)
+ 		return retval;
+ 
++	if ((!is_valid_uid(ruid) && ruid != (uid_t)-1)
++	    || (!is_valid_uid(euid) && euid != (uid_t)-1)
++	    || (!is_valid_uid(suid) && suid != (uid_t)-1))
++		return -EINVAL;
++
+ 	if (!capable(CAP_SETUID)) {
+ 		if ((ruid != (uid_t) -1) && (ruid != current->uid) &&
+ 		    (ruid != current->euid) && (ruid != current->suid))
+@@ -752,6 +762,11 @@ asmlinkage long sys_setresgid(gid_t rgid
+ 	if (retval)
+ 		return retval;
+ 
++	if ((!is_valid_gid(rgid) && rgid != (gid_t)-1)
++	    || (!is_valid_gid(egid) && egid != (gid_t)-1)
++	    || (!is_valid_gid(sgid) && sgid != (gid_t)-1))
++		return -EINVAL;
++
+ 	if (!capable(CAP_SETGID)) {
+ 		if ((rgid != (gid_t) -1) && (rgid != current->gid) &&
+ 		    (rgid != current->egid) && (rgid != current->sgid))
+@@ -806,6 +821,9 @@ asmlinkage long sys_setfsuid(uid_t uid)
+ 	if (retval)
+ 		return retval;
+ 
++	if (!is_valid_uid(uid))
++		return -EINVAL;
++
+ 	old_fsuid = current->fsuid;
+ 	if (uid == current->uid || uid == current->euid ||
+ 	    uid == current->suid || uid == current->fsuid || 
+@@ -838,6 +856,9 @@ asmlinkage long sys_setfsgid(gid_t gid)
+ 	if (retval)
+ 		return retval;
+ 
++	if (!is_valid_gid(gid))
++		return -EINVAL;
++
+ 	old_fsgid = current->fsgid;
+ 	if (gid == current->gid || gid == current->egid ||
+ 	    gid == current->sgid || gid == current->fsgid || 
+@@ -1059,7 +1080,7 @@ asmlinkage long sys_getgroups(int gidset
+ asmlinkage long sys_setgroups(int gidsetsize, gid_t *grouplist)
+ {
+ 	gid_t groups[NGROUPS];
+-	int retval;
++	int retval, i;
+ 
+ 	if (!capable(CAP_SETGID))
+ 		return -EPERM;
+@@ -1067,6 +1088,9 @@ asmlinkage long sys_setgroups(int gidset
+ 		return -EINVAL;
+ 	if(copy_from_user(groups, grouplist, gidsetsize * sizeof(gid_t)))
+ 		return -EFAULT;
++	for (i = 0; i < gidsetsize; i++)
++		if (!is_valid_gid(groups[i]))
++			return -EINVAL;
+ 	retval = security_task_setgroups(gidsetsize, groups);
+ 	if (retval)
+ 		return retval;

@@ -1,31 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267186AbTGZSkg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jul 2003 14:40:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267317AbTGZSkf
+	id S267471AbTGZSzW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jul 2003 14:55:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267491AbTGZSzV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jul 2003 14:40:35 -0400
-Received: from clt57-148-234.carolina.rr.com ([66.57.148.234]:49140 "EHLO
-	carolina.rr.com") by vger.kernel.org with ESMTP id S267186AbTGZSkf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jul 2003 14:40:35 -0400
-To: linux-kernel@vger.kernel.org
-Subject: multiple readers for stack-processed net traffic
-Message-Id: <20030726185155.749E63006@carolina.rr.com>
-Date: Sat, 26 Jul 2003 14:51:55 -0400 (EDT)
-From: vax@carolina.rr.com (VaX#n8)
+	Sat, 26 Jul 2003 14:55:21 -0400
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:34504 "EHLO
+	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
+	id S267471AbTGZSzU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jul 2003 14:55:20 -0400
+Date: Sat, 26 Jul 2003 15:10:28 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Larry McVoy <lm@bitmover.com>
+cc: Leandro Guimar?es Faria Corsetti Dutra <lgcdutra@terra.com.br>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Switching to the OSL License, in a dual way.
+In-Reply-To: <20030724215744.GA7777@work.bitmover.com>
+Message-ID: <Pine.LNX.4.44.0307261508400.10872-100000@chimarrao.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, I'd like to be able to create a second "tap" for application data that
-presents data exactly as the application sees it, and in such a way that
-guarantees that both applications read the data before it is freed or
-acknowledged.  I have skimmed the Coriolis book on the 2.0 IP stacks (yes,
-I know it's old), and it seems like the most direct way to do this is to
-alter tcp_recvmsg and udp_rcv, probably using an LKM.  I have not given
-much thought yet about how this second application will indicate that it
-wants to snoop on given sockets, though.  I was wondering if any of you
-kernel gurus have any suggestions on how to accomplish the above goals.
+On Thu, 24 Jul 2003, Larry McVoy wrote:
 
-Thanks,
-VaX#n8
+> A clone is illegal because you'd have to reverse engineer to do the
+> clone and reverse engineering is allowed for the purpose of
+> interoperability, not for the purpose of making a clone.
+
+This is a good point to remember, especially since you
+contradict it later on in your own mail.
+
+Making a program to extract data from a bitkeeper
+repository is fine. It is covered by this interoperability
+clause.
+
+What is arguably (not) fine is making a program that does
+everything bitkeeper does and does it in the same way, ie.
+creating a bitkeeper clone.
+
+However, that has nothing to do with a program that can
+extract data from a bitkeeper repository but quite clearly
+isn't a bitkeeper clone...
+
+-- 
+Great minds drink alike.
+

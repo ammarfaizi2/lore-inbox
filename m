@@ -1,43 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264936AbTARQsA>; Sat, 18 Jan 2003 11:48:00 -0500
+	id <S264931AbTARQry>; Sat, 18 Jan 2003 11:47:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264938AbTARQsA>; Sat, 18 Jan 2003 11:48:00 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:18180 "EHLO
+	id <S264936AbTARQry>; Sat, 18 Jan 2003 11:47:54 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:17412 "EHLO
 	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S264936AbTARQr6>; Sat, 18 Jan 2003 11:47:58 -0500
+	id <S264931AbTARQry>; Sat, 18 Jan 2003 11:47:54 -0500
 To: LKML <linux-kernel@vger.kernel.org>
+CC: Vojtech Pavlik <vojtech@suse.cz>
 From: Russell King <rmk@arm.linux.org.uk>
-Subject: [PATCH] 2.5.59: show_task() oops
-Message-Id: <E18ZwHB-0007kw-00@flint.arm.linux.org.uk>
-Date: Sat, 18 Jan 2003 16:56:57 +0000
+Subject: 2.5.59: Input subsystem initialised really late
+Message-Id: <E18ZwH5-0007ks-00@flint.arm.linux.org.uk>
+Date: Sat, 18 Jan 2003 16:56:51 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-show_task() attempts to calculate the amount of free space which hasn't
-been written to on the kernel stack by reading from the base of the
-kernel stack upwards.
+It appears to be impossible to get a SysRQ-T dump out of a kernel which
+has hung during (eg) the SCSI initialisation with 2.5.
 
-However, it mistakenly uses the task_struct pointer as the base of the
-stack, which it isn't, and this can cause an oops.
+Unlike previous 2.4 kernels, the keyboard is no longer initialised until
+fairly late - after many of the other drivers have initialised.
+Unfortunately, this means that it is quite difficult to debug these hangs
+(we'll leave discussion about in-kernel debuggers for another time!)
 
-Here is a patch which uses the task thread pointer instead, which should
-be located at the bottom of the kernel stack.  It appears this was missed
-when the thread structure was introduced.
-
---- orig/kernel/sched.c	Fri Jan 17 10:39:25 2003
-+++ linux/kernel/sched.c	Sat Jan 18 14:01:39 2003
-@@ -2057,7 +2057,7 @@
- 		printk(" %016lx ", thread_saved_pc(p));
- #endif
- 	{
--		unsigned long * n = (unsigned long *) (p+1);
-+		unsigned long * n = (unsigned long *) (p->thread_info+1);
- 		while (!*n)
- 			n++;
- 		free = (unsigned long) n - (unsigned long)(p+1);
+Can we initialise the input subsystem earlier (eg, after pci bus
+initialisation, before disks etc) so that we do have the ability to use
+the SysRQ features?
 
 --
 Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
              http://www.arm.linux.org.uk/personal/aboutme.html
-

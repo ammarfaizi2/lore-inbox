@@ -1,51 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281361AbRKEVph>; Mon, 5 Nov 2001 16:45:37 -0500
+	id <S281365AbRKEVpR>; Mon, 5 Nov 2001 16:45:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281362AbRKEVp2>; Mon, 5 Nov 2001 16:45:28 -0500
-Received: from taltos.codesourcery.com ([66.92.14.85]:7300 "EHLO
-	taltos.codesourcery.com") by vger.kernel.org with ESMTP
-	id <S281361AbRKEVpM>; Mon, 5 Nov 2001 16:45:12 -0500
-Date: Mon, 5 Nov 2001 13:45:08 -0800
-From: Zack Weinberg <zack@codesourcery.com>
-To: Stefan Smietanowski <stesmi@stesmi.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: linux-2.2.20a and gcc 3.0 ?
-Message-ID: <20011105134508.O267@codesourcery.com>
-In-Reply-To: <20011104192024.H267@codesourcery.com> <3BE68F75.3010300@stesmi.com> <20011105120143.M267@codesourcery.com> <3BE6FE99.8020400@stesmi.com>
-Mime-Version: 1.0
+	id <S281362AbRKEVo5>; Mon, 5 Nov 2001 16:44:57 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:27662 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S281361AbRKEVox>; Mon, 5 Nov 2001 16:44:53 -0500
+Message-ID: <3BE70717.54F3084A@zip.com.au>
+Date: Mon, 05 Nov 2001 13:39:35 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: m@mo.optusnet.com.au
+CC: Andreas Dilger <adilger@turbolabs.com>,
+        "Albert D. Cahalan" <acahalan@cs.uml.edu>,
+        Mike Fedyk <mfedyk@matchmail.com>, lkml <linux-kernel@vger.kernel.org>,
+        ext2-devel@lists.sourceforge.net
+Subject: Re: [Ext2-devel] disk throughput
+In-Reply-To: <20011104193232.A16679@mikef-linux.matchmail.com> <200111050554.fA55swt273156@saturn.cs.uml.edu> <3BE647F4.AD576FF2@zip.com.au> <20011105131636.C3957@lynx.no>,
+		Andreas Dilger's message of "Mon, 5 Nov 2001 13:16:37 -0700" <m1wv15ufn1.fsf@mo.optusnet.com.au>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3BE6FE99.8020400@stesmi.com>
-User-Agent: Mutt/1.3.23i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 05, 2001 at 10:03:21PM +0100, Stefan Smietanowski wrote:
-> Hi!
+m@mo.optusnet.com.au wrote:
 > 
-> 
-> >>I know how it's done, it's just that in my eyes a stable release is the 
-> >>one where you know there's only 1 .... A 2.95.4 package built on 
-> >>different days (from CVS) will differ. A 2.95.4 package built on 
-> >>different ways from a .tar.gz marked as 'release' will not differ.
-> >>
-> >>For instance chasing a kernel bug is difficult when 1 person might use 1 
-> >>version of a compiler and another uses a different version when both 
-> >>says 2.95.4, no matter how miniscule the difference.
-> >>
+> Andreas Dilger <adilger@turbolabs.com> writes:
+> > On Nov 05, 2001  00:04 -0800, Andrew Morton wrote:
+> [..]
+> > > With the ialloc.c change, plus the other changes I mentioned
+> > > the time to create all these directories and files and then run
+> > > /bin/sync fell from 1:53 to 0:28.  Fourfold.
 > >
-> >Since patches are being applied to the 2.95 branch at a rate of about
-> >one a month, I think the date stamp in the version number should be
-> >quite sufficient to avoid any problems along these lines.
+> > In the end, though, while the old heuristic has a good theory, it _may_
+> > be that in practise, you are _always_ seeking to get data from different
+> > groups, rather than _theoretically_ seeking because of fragmented files.
+> > I don't know what the answer is - probably depends on finding "valid"
+> > benchmarks (cough).
 > 
-> If it's tested and rock stable, why isn't it released?
+> Another heuristic to try make be to only use a different blockgroup
+> for when the mkdir()s are seperate in time. i.e. rather than
+> doing
+>         if ( 0 && ..
+> use something like
+>         if ((last_time + 100) < jiffes && ...
+>                 last_time = jiffies;
+> which would in theory use the old behaviour for sparodic mkdirs
+> and the new behaviour for things like 'untar' et al.
+> 
 
-It would be silly to generate a new 2.95.x point release every time we
-fix a bug - most of them are minor, affect very few people, and the
-fixes will get picked up by the distros anyway.
+I agree - that's a pretty sane heuristic.
 
-There probably will be a 2.95.4 official release at some point,
-but again I'm not aware of any current plans.
-
-zw
+It would allow us to preserve the existing semantics for the
+slowly-accreting case.  If they're still valid.

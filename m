@@ -1,58 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267448AbTBDVjK>; Tue, 4 Feb 2003 16:39:10 -0500
+	id <S267411AbTBDViV>; Tue, 4 Feb 2003 16:38:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267454AbTBDVjK>; Tue, 4 Feb 2003 16:39:10 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:19075 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S267448AbTBDVjI>; Tue, 4 Feb 2003 16:39:08 -0500
-Subject: Re: gcc 2.95 vs 3.21 performance
-From: "Timothy D. Witham" <wookie@osdl.org>
-To: Herman Oosthuysen <Herman@wirelessnetworksinc.com>
-Cc: John Bradford <john@grabjohn.com>, Dave Jones <davej@codemonkey.org.uk>,
-       vda@port.imtp.ilyichevsk.odessa.ua, root@chaos.analogic.com,
-       mbligh@aracnet.com, linux-kernel@vger.kernel.org,
-       lse-tech@lists.sourceforge.net
-In-Reply-To: <3E40264C.5050302@WirelessNetworksInc.com>
-References: <200302042011.h14KBuG6002791@darkstar.example.net>
-	 <3E40264C.5050302@WirelessNetworksInc.com>
+	id <S267412AbTBDViV>; Tue, 4 Feb 2003 16:38:21 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:10903
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267411AbTBDViR>; Tue, 4 Feb 2003 16:38:17 -0500
+Subject: Re: natsemi.c: Oversized(?) ethernet frame message w/ card hang
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: James E Lucas <jelucas@utdallas.edu>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <4280608.1044393822565.JavaMail.jelucas@utdallas.edu>
+References: <4280608.1044393822565.JavaMail.jelucas@utdallas.edu>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Organization: Open Source Development Lab, Inc.
-Message-Id: <1044395087.1864.72.camel@localhost.localdomain>
+Organization: 
+Message-Id: <1044398683.29825.2.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 04 Feb 2003 13:44:48 -0800
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
+Date: 04 Feb 2003 22:44:43 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2003-02-04 at 21:23, James E Lucas wrote:
+> 
+> And, my kernel ring buffer (dmesg) is showing messages like this:
+> 
+> eth0: Oversized(?) Ethernet frame spanned multiple buffers, entry 
+> 0x00ba8b status 0xe0000bd5.
 
-On Tue, 2003-02-04 at 12:45, Herman Oosthuysen wrote:
-> Hi there,
-> 
->  From my experience, the speed issue is caused by misalligned memory 
-> accesses, causing inefficient SDRAM to Cache movement of data and 
-> instructions.
-> 
-> I don't think that you necessarily need a modification to the compiler. 
->   What you can do is carefully place the ALLIGN switch in a few critical 
-> places in the kernel code, to ensure that the code and data will be 
-> properly alligned for whatever processor it is compiled for, be that a 
-> Pentium, an ARM, a MIPS or whatever.
-> 
- 
-  I guess I would like the compiler to do that without having to go
-in and futz the code.  
+By strange co-incidence I saw this with natsemi on one of my boxes
+today. 
 
-> It would be nice if GCC can be suitably improved to do this correcly for 
-> all architectures, but a little bit of human help can do wonders, 
-> without having to fork the GCC project.
-> 
-> Cheers,
--- 
-Timothy D. Witham - Lab Director - wookie@osdlab.org
-Open Source Development Lab Inc - A non-profit corporation
-15275 SW Koll Parkway - Suite H - Beaverton OR, 97006
-(503)-626-2455 x11 (office)    (503)-702-2871     (cell)
-(503)-626-2436     (fax)
+> numbers of large UDP packets at the card to reproduce the breakage.  If 
+> anyone's interested in it I could post it up somewhere, though it's not 
+> very pretty ;)
+
+I'd love a copy
+
+> from National Semiconductor *seems* to indicate to me that this message 
+> results from a packet spanning multiple descriptors in the hardware.  
+> This *is* legal for the chip according to National's docs, but I can't 
+> find anything in the driver that seems to acknowledge this beyond the 
+> warning message.  My current working theory is that this doesn't happen
+
+Our drivers post buffers larger than an ethernet packet to the card so
+it means the card thinks it received a frame larger than anything it
+should have accepted.
+
+> very often, but when it does, the driver's not handling it properly.  
+> What I'm not so sure on is why that hangs the card.  Perhaps it's 
+> throwing the driver into an infinite loop or something.  Not really 
+
+If it got stuck in a loop the box would hang. It appears to stop the
+chip and it never restarts.
+
+My card that did this is also an FA-311. I've only ever seen this once
+however so I guess my network isnt loaded enough 8)
+
+
 

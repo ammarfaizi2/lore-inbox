@@ -1,45 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266225AbUA2QUs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jan 2004 11:20:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266232AbUA2QUs
+	id S265258AbUA2QmU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jan 2004 11:42:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266235AbUA2QmU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jan 2004 11:20:48 -0500
-Received: from cerberus.ucs.mun.ca ([134.153.232.162]:59144 "EHLO smtp.mun.ca")
-	by vger.kernel.org with ESMTP id S266225AbUA2QSy (ORCPT
+	Thu, 29 Jan 2004 11:42:20 -0500
+Received: from hq.pm.waw.pl ([195.116.170.10]:31399 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id S265258AbUA2Ql7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jan 2004 11:18:54 -0500
-From: Stephen Anthony <stephena@cs.mun.ca>
-To: Jeremy Jackson <jerj@coplanar.net>
-Subject: Re: Status of UDF write on DVD-R(W) and CD-R(W) disks?
-Date: Thu, 29 Jan 2004 12:48:42 -0330
-User-Agent: KMail/1.5.3
-Cc: linux-kernel@vger.kernel.org
-References: <200401280950.01174.stephena@cs.mun.ca> <40192B9F.8030102@coplanar.net>
-In-Reply-To: <40192B9F.8030102@coplanar.net>
+	Thu, 29 Jan 2004 11:41:59 -0500
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [TRIVIAL PATCH] 2.4.25pre7 warning fix
+References: <m3u12hcc9f.fsf@defiant.pm.waw.pl>
+	<Pine.LNX.4.58L.0401280939400.1311@logos.cnet>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Thu, 29 Jan 2004 17:38:49 +0100
+In-Reply-To: <Pine.LNX.4.58L.0401280939400.1311@logos.cnet> (Marcelo
+ Tosatti's message of "Wed, 28 Jan 2004 09:42:30 -0200 (BRST)")
+Message-ID: <m3wu7azp46.fsf@defiant.pm.waw.pl>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200401291248.42261.stephena@cs.mun.ca>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On January 29, 2004 12:19 pm, Jeremy Jackson wrote:
+Marcelo Tosatti <marcelo.tosatti@cyclades.com> writes:
 
-> Google for packet-patch.  I've had this for about 9 months, although I
-> don't use it much, and it doesn't work well with Adaptec/Roxio
-> direct-CD.
+> Btw, why do we need cyclone_setup() for !CONFIG_X86_SUMMIT ?
 >
-> Cheers,
->
-> Jeremy
+> /* No-cyclone stubs */
+> #ifndef CONFIG_X86_SUMMIT
+> int __init cyclone_setup(char *str)
+> {
+>         printk(KERN_ERR "cyclone: Kernel not compiled with
+> CONFIG_X86_SUMMIT, cannot use the cyclone-timer.\n");
+>         return 1;
+> }
 
-Thanks for the info.  But I believe that solution is for kernel 2.4.  I'd 
-like to use it with the latest 2.6 kernel (I probably should have 
-mentioned that previously).
+After having a closer look at it I think we should:
 
-Thanks,
-Steve
+1. if CONFIG_X86_TSC is set:
+   - make calibrate_tsc() failure a fatal error
+   - assume use_tsc = 1 and x86_udelay_tsc = 1 and optimize them out
+     with preprocessor
 
+2. if CONFIG_X86_SUMMIT is _not_ set:
+   - assume use_cyclone = 0 and optimize it out as well.
+   - cyclone_setup() etc should go out.
+
+3. I would rename CONFIG_X86_TSC to something like CONFIG_X86_TSC_FORCE
+   - the current name is misleading. It wouldn't affect .config.
+
+This is all 2.4-only, as 2.6 is a little different here.
+
+Comments?
+-- 
+Krzysztof Halasa, B*FH

@@ -1,53 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264997AbTFLUpy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 16:45:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264993AbTFLUpy
+	id S264991AbTFLUu1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 16:50:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264993AbTFLUu0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 16:45:54 -0400
-Received: from aneto.able.es ([212.97.163.22]:44690 "EHLO aneto.able.es")
-	by vger.kernel.org with ESMTP id S265000AbTFLUpw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 16:45:52 -0400
-Date: Thu, 12 Jun 2003 22:59:31 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Scott Robert Ladd <coyote@coyotegulch.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: SMP question
-Message-ID: <20030612205931.GA3796@werewolf.able.es>
-References: <MDEHLPKNGKAHNMBLJOLKMEJLDJAA.davids@webmaster.com> <200306112313.30903.artemio@artemio.net> <20030611225401.GE2712@werewolf.able.es> <3EE887FA.90008@coyotegulch.com>
+	Thu, 12 Jun 2003 16:50:26 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:23989 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S264991AbTFLUu0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jun 2003 16:50:26 -0400
+Date: Thu, 12 Jun 2003 14:00:14 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: dmccr@us.ibm.com, linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix vmtruncate race and distributed filesystem race
+Message-Id: <20030612140014.32b7244d.akpm@digeo.com>
+In-Reply-To: <20030612134946.450e0f77.akpm@digeo.com>
+References: <133430000.1055448961@baldur.austin.ibm.com>
+	<20030612134946.450e0f77.akpm@digeo.com>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <3EE887FA.90008@coyotegulch.com>; from coyote@coyotegulch.com on Thu, Jun 12, 2003 at 16:02:34 +0200
-X-Mailer: Balsa 2.0.11
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 12 Jun 2003 21:04:11.0749 (UTC) FILETIME=[2C412150:01C33126]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 06.12, Scott Robert Ladd wrote:
-> J.A. Magallon wrote:
-> > In short, for FP intensive tasks, hyperthreading is a big lie...
-> > You can't run 2 computations in parallel.
+Andrew Morton <akpm@digeo.com> wrote:
+>
+> do_no_page()
+> {
+> 	int sequence = 0;
+> 	...
 > 
-> Yes and no; the benefit of HT depends on the application in question. 
-> I've seen everything from a 5% LOSS in performance to a 30% INCREASE in 
-> performance, for intensive floating-point code. This is with programs 
-> parallelized with OpenMP and Intel's C and Fortran compilers. I'm still 
-> analyzing the exact nature of the benefits, but they *do* exist.
-> 
-> While I much prefer multiple physical CPUs to "virtual" CPUs, HT *does* 
-> provide performance improvements for certain applications. To call HT a 
-> "big lie" is both provacative and inaccurate.
-> 
+> retry:
+> 	new_page = vma->vm_ops->nopage(vma, address & PAGE_MASK, &sequence);
+> 	....
+> 	if (vma->vm_ops->revalidate && vma->vm_opa->revalidate(vma, sequence))
+> 		goto retry;
+> }
 
-I told that because non-techical people just think they are buying _two_
-processors, but they really pay too much for 1.25 processors, and that
-if you fine-tune your code...
-
--- 
-J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
-werewolf.able.es                         \           It's better when it's free
-Mandrake Linux release 9.2 (Cooker) for i586
-Linux 2.4.21-rc8-jam1 (gcc 3.3 (Mandrake Linux 9.2 3.3-1mdk))
+And this does require that ->nopage be entered with page_table_lock held,
+and that it drop it.

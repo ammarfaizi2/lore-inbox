@@ -1,29 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129793AbRBMVWs>; Tue, 13 Feb 2001 16:22:48 -0500
+	id <S130487AbRBMVWr>; Tue, 13 Feb 2001 16:22:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130635AbRBMVWh>; Tue, 13 Feb 2001 16:22:37 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:55563 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130488AbRBMVWV>; Tue, 13 Feb 2001 16:22:21 -0500
-Subject: Re: 2.2.19pre10 locks up hard on unloading the isdn module 'hisax.o' - 2.2.19pre11 does too!
-To: thunder7@xs4all.nl
-Date: Tue, 13 Feb 2001 21:22:31 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk, keil@isdn4linux.de
-In-Reply-To: <20010213221759.A718@middle.of.nowhere> from "thunder7@xs4all.nl" at Feb 13, 2001 10:17:59 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S129793AbRBMVWi>; Tue, 13 Feb 2001 16:22:38 -0500
+Received: from green.csi.cam.ac.uk ([131.111.8.57]:30862 "EHLO
+	green.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S130487AbRBMVW2>; Tue, 13 Feb 2001 16:22:28 -0500
+Date: Tue, 13 Feb 2001 21:22:26 +0000 (GMT)
+From: James Sutherland <jas88@cam.ac.uk>
+To: Jeremy Jackson <jeremy.jackson@sympatico.ca>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Is this the ultimate stack-smash fix?
+In-Reply-To: <3A899FEB.D54ABBC7@sympatico.ca>
+Message-ID: <Pine.SOL.4.21.0102132119530.1900-100000@green.csi.cam.ac.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14SmuA-0002vY-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It's Linux, after all, so 2 minutes after creating this email
-> 2.2.19pre11's announcement was here. I just tested it, and it has the
-> same problem.
+On Tue, 13 Feb 2001, Jeremy Jackson wrote:
 
-Yep. Right now Im still working through the merges with Kai and I suspect
-the merge when completed may not fix your bug, but that it'll get squashed
-shortly after.
+(Long description of how to create a non-executable stack on x86)
+
+I'm afraid you just reinvented the wheel. The idea has been around for a
+long time, and it was OK as a quick hack to stop existing exploits
+working, but it's possible to modify a buffer overflow exploit to work
+around this.
+
+It does sound look like a good idea, but it doesn't really gain you
+anything in the long run: the exploits just change a bit.
+
+ISTR there is a patch which does this for Linux, though??
+
+
+James.
+

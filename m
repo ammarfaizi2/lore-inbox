@@ -1,50 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269010AbUHaT4P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269073AbUHaT4R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269010AbUHaT4P (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 15:56:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269070AbUHaTwJ
+	id S269073AbUHaT4R (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 15:56:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269064AbUHaTve
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 15:52:09 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:33748 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S269072AbUHaTrT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 15:47:19 -0400
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q5
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Daniel Schmitt <pnambic@unu.nu>, "K.R. Foley" <kr@cybsft.com>,
-       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Mark_H_Johnson@raytheon.com
-In-Reply-To: <20040831193734.GA29852@elte.hu>
-References: <1093727453.8611.71.camel@krustophenia.net>
-	 <20040828211334.GA32009@elte.hu> <1093727817.860.1.camel@krustophenia.net>
-	 <1093737080.1385.2.camel@krustophenia.net>
-	 <1093746912.1312.4.camel@krustophenia.net> <20040829054339.GA16673@elte.hu>
-	 <20040830090608.GA25443@elte.hu> <1093934448.5403.4.camel@krustophenia.net>
-	 <20040831070658.GA31117@elte.hu> <1093980065.1603.5.camel@krustophenia.net>
-	 <20040831193734.GA29852@elte.hu>
-Content-Type: text/plain
-Message-Id: <1093981634.1633.2.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 31 Aug 2004 15:47:15 -0400
+	Tue, 31 Aug 2004 15:51:34 -0400
+Received: from mx-out.forthnet.gr ([193.92.150.6]:24693 "EHLO
+	mx-out-01.forthnet.gr") by vger.kernel.org with ESMTP
+	id S269074AbUHaTta (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 15:49:30 -0400
+From: V13 <v13@priest.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: PATCH: Root reservations for strict overcommit
+Date: Tue, 31 Aug 2004 22:49:35 +0300
+User-Agent: KMail/1.7
+Cc: Bill Davidsen <davidsen@tmr.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20040831143449.GA26680@devserv.devel.redhat.com> <ch2b68$985$1@gatekeeper.tmr.com> <1093970232.611.16.camel@localhost.localdomain>
+In-Reply-To: <1093970232.611.16.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200408312249.36218.v13@priest.com>
+X-Spam-Flag: NO
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-08-31 at 15:37, Ingo Molnar wrote:
-> i believe that the invalidations are excessive. It is quite likely that
-> no invalidation has to be done at all. Does your box still start up X
-> fine if you uncomment all those wbinvd() calls?
-> 
+On Tuesday 31 August 2004 19:37, Alan Cox wrote:
+> On Maw, 2004-08-31 at 18:13, Bill Davidsen wrote:
+> > Would it be a problem to put a lower bound on how much to leave for
+> > root? If it's really too small to be useful, perhaps one of (a) reserve
+> > enough to be useful or (b) don't bother to reserve at all, should be
+>
+> Possibly. I'm currently following what someone appears to have decided
+> is correct behaviour. It probably should be tunable
 
-Commented out all calls to wbinvd(), seems to work fine.  I even tried
-repeatedly killing the X server before it could finish starting, no
-problems at all.
+I believe it makes more sense to describe it as KB instead of %. Noone should 
+have to reserve 120MB for root on a 4G box. Even if it is tunable, memory 
+size seems better than percent since you'll not have to change it when you 
+add/remove memory from your box.
 
-I guess the worst that could happen here would be display corruption,
-which would get fixed on the next refresh?
-
-Lee
-
+<<V13>>

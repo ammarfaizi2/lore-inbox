@@ -1,83 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262203AbTIGD2E (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Sep 2003 23:28:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262260AbTIGD2E
+	id S261670AbTIGDiM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Sep 2003 23:38:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261486AbTIGDiM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Sep 2003 23:28:04 -0400
-Received: from h80ad253e.async.vt.edu ([128.173.37.62]:17547 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S262203AbTIGD2A (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Sep 2003 23:28:00 -0400
-Message-Id: <200309070327.h873RsJe003211@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Nick's scheduler policy v12 
-In-Reply-To: Your message of "Sat, 06 Sep 2003 19:34:58 PDT."
-             <146640000.1062902095@[10.10.2.4]> 
-From: Valdis.Kletnieks@vt.edu
-References: <3F58CE6D.2040000@cyberone.com.au> <195560000.1062788044@flay> <20030905202232.GD19041@matchmail.com> <207340000.1062793164@flay> <3F5935EB.4000005@cyberone.com.au> <6470000.1062819391@[10.10.2.4]> <3F5980CD.2040600@cyberone.com.au> <139550000.1062861227@[10.10.2.4]> <3F59C956.5050200@wmich.edu>
-            <146640000.1062902095@[10.10.2.4]>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1293883590P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Sat, 6 Sep 2003 23:38:12 -0400
+Received: from play.smurf.noris.de ([192.109.102.42]:7062 "EHLO
+	play.smurf.noris.de") by vger.kernel.org with ESMTP id S262043AbTIGDiI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Sep 2003 23:38:08 -0400
+From: Matthias Urlichs <smurf@smurf.noris.de>
+Organization: {M:U}
+To: linux-kernel@vger.kernel.org
+Subject: 2.6: Crash when calling "blockdev --rereadpt" on USB insert
+Date: Sun, 7 Sep 2003 05:29:55 +0200
+User-Agent: KMail/1.5.3
+X-Face: xyzzy
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Date: Sat, 06 Sep 2003 23:27:54 -0400
+Content-Disposition: inline
+Message-Id: <200309070529.55502@smurf.noris.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1293883590P
-Content-Type: text/plain; charset=us-ascii
+I have this snippet in my /etc/hotplug/usb script to mount my USB disk
+when I insert it:
 
-On Sat, 06 Sep 2003 19:34:58 PDT, "Martin J. Bligh" said:
+    if [ "$PRODUCT" = "58f/9380/100" ]; then
+       find /dev/scsi -name disc | while read a ; do
+           /sbin/blockdev --rereadpt $a
+       done
+       if sudo -u smurf mount /mnt/key ; then
+               echo "#!/bin/sh" > $REMOVER
+               echo "umount -f /mnt/key" >> $REMOVER
+               chmod +x $REMOVER
+       fi
+    fi
 
-> Some people have observed that ALSA drivers seem worse than the older
-> ones ... I haven't done enough comparisons to be sure that's true, but
-> maybe they have less buffering or something. More buffering in the kernel
-> side might get rid of the sound skips.
+This works splendidly with 2.4, but 2.6.0.test4 (where it's arguably
+unnecessary...) dies with this message:
 
-At the expense of additional latency.  It really weirds you out when the volume,
-tone, and mute buttons have a full second lag ;)
+Sep  7 05:18:38 linux kernel: Oops: kernel access of bad area, sig: 11 [#1]
+Sep  7 05:18:38 linux kernel: NIP: C001407C LR: C0072830 SP: DD749DA0 REGS: dd749cf0 TRAP: 0301    Not tainted
+Sep  7 05:18:38 linux kernel: MSR: 00009032 EE: 1 PR: 0 FP: 0 ME: 1 IR/DR: 11
+Sep  7 05:18:38 linux kernel: DAR: FFFFFFEF, DSISR: 40000000
+Sep  7 05:18:38 linux kernel: TASK = caf46940[4768] 'blockdev' Last syscall: 54
+Sep  7 05:18:38 linux kernel: GPR00: C0072830 DD749DA0 CAF46940 FFFFFFEF C0293B30 C00930F0 D56A4EFF DD748000
+Sep  7 05:18:38 linux kernel: GPR08: C0940000 00000000 00000002 DD748000 82000228
+Sep  7 05:18:38 linux kernel: Call trace:
+Sep  7 05:18:38 linux kernel:  [c0072830] dput+0x2c/0x300
+Sep  7 05:18:38 linux kernel:  [c00931f4] create_dir+0xd4/0xe8
+Sep  7 05:18:38 linux kernel:  [c0093254] sysfs_create_dir+0x40/0xa4
+Sep  7 05:18:38 linux kernel:  [c00c0480] create_dir+0x28/0x6c
+Sep  7 05:18:38 linux kernel:  [c00c09f4] kobject_add+0xdc/0x194
+Sep  7 05:18:38 linux kernel:  [c00c0ad8] kobject_register+0x2c/0x6c
+Sep  7 05:18:38 linux kernel:  [c00907d8] add_partition+0xb8/0xdc
+Sep  7 05:18:38 linux kernel:  [c0090aa8] rescan_partitions+0xf0/0x128
+Sep  7 05:18:38 linux kernel:  [c00f0ca8] blkdev_reread_part+0x94/0xc4
+Sep  7 05:18:38 linux kernel:  [c00f0f14] blkdev_ioctl+0x160/0x450
+Sep  7 05:18:38 linux kernel:  [c006d548] sys_ioctl+0x144/0x364
+Sep  7 05:18:38 linux kernel:  [c0007b8c] ret_from_syscall+0x0/0x4c
 
-> People should gague performance by how well we do on the apps they want
-> to run. If people want to run xmms, they'll be interested in how well
-> it works. My main objection to benchmarking like this is (and window
-> wiggle tests) are that they're pretty much subjective, and hard to 
-> measure.
+This doesn't look like it's PPC specific. I can probably reproduce on
+i386 if that would be helpful to anybody.
 
-I have to admit on my laptop, I've failed to see much subjective improvement
-since O7 or so, as  VM and IO issues have predominated since then. The
-scheduler is basically powerless and the VM manager only slightly more so when
-the *proper* fix is probably stick another 256M in. ;)
+-- 
+Matthias Urlichs   |   {M:U} IT Design @ m-u-it.de   |  smurf@smurf.noris.de
+Disclaimer: The quote was selected randomly. Really. | http://smurf.noris.de
+ - -
+It is better to decide between our enemies than our friends; for one of our
+friends will most likely become our enemy; but on the other hand, one of your
+enemies will probably become your friend.
+					-- Bias
 
-Either that, or put the XFree86 4.3.0 server on a severe diet - 'ps aux' is reporting
-that as I type, mine has VSZ=384852 and RSS=64724.  Thrown in a mozilla
-with VSZ=122900 and RSS=47316, and you're just waiting for things to
-degrade into thrashing.
-
-At least for my laptop, any future performance wins are going to come from
-elsewhere than the CPU scheduler - I'll pick reiser4, VM manager, and I/O
-manager as top contenders, with "being able to recompile the CPU hogs with xlc"
-as a long-shot.. ;)
-
-> Personally, I just use xmms because I've found nothing better, but the 
-> the UI does suck. Mostly that's because I'm too idle to look hard (or
-> I have better things to do) and it's good enough.
-
-Amen to that.  I point xmms at a bunch of .ogg's, it plays them, and it does so
-well enough that I've not gotten peeved enough to go find a replacement.
-
---==_Exmh_1293883590P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE/WqW6cC3lWbTT17ARAonqAJ0QelGqTA31hRImZmWGhItfJdbTRwCfamOo
-86zant1guDnbADPupGTjlzk=
-=gp5S
------END PGP SIGNATURE-----
-
---==_Exmh_1293883590P--

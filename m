@@ -1,129 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267623AbUG3H2Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267651AbUG3Hl7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267623AbUG3H2Z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jul 2004 03:28:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267649AbUG3H2Z
+	id S267651AbUG3Hl7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jul 2004 03:41:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267647AbUG3Hl6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jul 2004 03:28:25 -0400
-Received: from omx3-ext.SGI.COM ([192.48.171.20]:35819 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S267644AbUG3H2U (ORCPT
+	Fri, 30 Jul 2004 03:41:58 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:62674 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S267651AbUG3Hlz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jul 2004 03:28:20 -0400
-Date: Fri, 30 Jul 2004 00:27:06 -0700
-From: Paul Jackson <pj@sgi.com>
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Cc: akpm@osdl.org, aebr@win.tue.nl, vojtech@suse.cz, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix NR_KEYS off-by-one error
-Message-Id: <20040730002706.2330974d.pj@sgi.com>
-In-Reply-To: <87pt6e2sm3.fsf@devron.myhome.or.jp>
-References: <87llhjlxjk.fsf@devron.myhome.or.jp>
-	<20040716164435.GA8078@ucw.cz>
-	<20040716201523.GC5518@pclin040.win.tue.nl>
-	<871xjbkv8g.fsf@devron.myhome.or.jp>
-	<20040728115130.GA4008@pclin040.win.tue.nl>
-	<87fz7c9j0y.fsf@devron.myhome.or.jp>
-	<20040728134202.5938b275.pj@sgi.com>
-	<87llh3ihcn.fsf@ibmpc.myhome.or.jp>
-	<20040728231548.4edebd5b.pj@sgi.com>
-	<87oelzjhcx.fsf@ibmpc.myhome.or.jp>
-	<20040729024931.4b4e78e6.pj@sgi.com>
-	<20040729162423.7452e8f5.akpm@osdl.org>
-	<20040729165152.492faced.pj@sgi.com>
-	<87pt6e2sm3.fsf@devron.myhome.or.jp>
-Organization: SGI
-X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Fri, 30 Jul 2004 03:41:55 -0400
+Date: Fri, 30 Jul 2004 08:44:31 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Scott Wood <scott@timesys.com>
+Subject: Re: [patch] voluntary-preempt-2.6.8-rc2-M5
+Message-ID: <20040730064431.GA17777@elte.hu>
+References: <1090732537.738.2.camel@mindpipe> <1090795742.719.4.camel@mindpipe> <20040726082330.GA22764@elte.hu> <1090830574.6936.96.camel@mindpipe> <20040726083537.GA24948@elte.hu> <1090832436.6936.105.camel@mindpipe> <20040726124059.GA14005@elte.hu> <20040726204720.GA26561@elte.hu> <20040729222657.GA10449@elte.hu> <1091141622.30033.3.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1091141622.30033.3.camel@mindpipe>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew writes:
-> Hate to be a bore, but I'm still waiting for a definitive patch ;)
 
-OGAWA Hirofumi writes:
-> Could you please post your lastest patch? It seems that my patch does
-> not satisfy peoples.
+* Lee Revell <rlrevell@joe-job.com> wrote:
 
-Hmmm ...
+> After running jackd with L2 all night, the only repeated XRUN was this
+> one:
+> 
+> ALSA /home/rlrevell/cvs/alsa/alsa-driver/alsa-kernel/core/pcm_lib.c:139: XRUN: pcmC0D2c
+>  [<c01066a7>] dump_stack+0x17/0x20
+>  [<de93d54b>] snd_pcm_period_elapsed+0x27b/0x3e0 [snd_pcm]
+>  [<de979211>] snd_emu10k1_interrupt+0xd1/0x3c0 [snd_emu10k1]
+>  [<c01078d7>] handle_IRQ_event+0x47/0x90
+>  [<c0107e93>] do_IRQ+0xe3/0x1b0
+>  [<c0106268>] common_interrupt+0x18/0x20
+>  [<c0146771>] add_to_swap+0x21/0xc0
+>  [<c0139446>] shrink_list+0x156/0x4b0
+>  [<c01398ed>] shrink_cache+0x14d/0x370
+>  [<c013a118>] shrink_zone+0xa8/0xf0
+>  [<c013a4ee>] balance_pgdat+0x1be/0x220
+>  [<c013a5f9>] kswapd+0xa9/0xb0
+>  [<c0104395>] kernel_thread_helper+0x5/0x10
+> 
+> This produced a few ~2ms XRUNs.  The shrink_zone -> shrink_cache ->
+> shrink_list is a recurring motif.
+> 
+> Is this addressed in M2?
 
-As is often the case, Andrew knows more than he lets on.
+not yet. I havent seen this latency yet, nor are there any immediately
+clear clues in the xrun logs you sent. (it would still be nice to check
+out -M2, to see whether with all those configurability changes it
+matches the latencies of L2+your-irq.c-hack.)
 
+shrink_list() itself is preemptable once every iteration so that
+function alone shouldnt be able to generate a 2msec latency.
 
-OGAWA,
+a strong suspect is add_to_swap(), it could be looping. Could you do a
+'echo m > /proc/sysrq-trigger' and send me the results? In particular
+are there any significant 'race' counts in the 'Swap cache:' stats?
 
-I cannot post a latest patch.  I do not know enough to do so.
+the other possible suspect is get_swap_page() - it's called from
+add_to_swap() and has the potential to introduce latencies (it does
+bitmap scans, etc.) - but it never shows up in your xrun logs, which is
+a bit weird.
 
-I attempted some code readability comments, but probably I should not
-have, since I don't have the knowledge of this code that I should have
-in order to test it, nor to know by reading it what works.
+(could you perhaps also try wli's latency printing patch? That prints
+out latencies closer to where they really happen.)
 
-You replied, a couple of messages ago, with entirely sensible comments
-to my posting.  Since then, I have been doing my best to remove myself
-from this thread.
+plus it seems the latency is related to certain VM activities - you
+still cannot name any particular reproducer workload - it just happens
+occasionally, right?
 
-Unless you have something else you wish to propose, please tell Andrew
-to go with your patch, which (just to avoid confusion) I copy again
-below.
-
-Your patch satisfies me just fine now.
-
-Please let Andrew know if he should take it.
-
-My apologies for making a confusion of this.
-
-Thank-you for your good work and your patience.
-
-
-[PATCH] Fix NR_KEYS off-by-one error
-
-KDGKBENT ioctl can use 256 entries (0-255), but it was defined as
-key_map[NR_KEYS] (NR_KEYS == 255). The code seems also thinking it's 256.
-
-	key_map[0] = U(K_ALLOCATED);
-	for (j = 1; j < NR_KEYS; j++)
-		key_map[j] = U(K_HOLE);
-
-Signed-off-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
----
-
- drivers/char/vt_ioctl.c  |    6 ++++++
- include/linux/keyboard.h |    2 +-
- 2 files changed, 7 insertions(+), 1 deletion(-)
-
-diff -puN include/linux/keyboard.h~nr_keys-off-by-one include/linux/keyboard.h
---- linux-2.6.8-rc2/include/linux/keyboard.h~nr_keys-off-by-one	2004-07-28 03:37:12.000000000 +0900
-+++ linux-2.6.8-rc2-hirofumi/include/linux/keyboard.h	2004-07-28 03:37:12.000000000 +0900
-@@ -16,7 +16,7 @@
- 
- #define NR_SHIFT	9
- 
--#define NR_KEYS		255
-+#define NR_KEYS		256
- #define MAX_NR_KEYMAPS	256
- /* This means 128Kb if all keymaps are allocated. Only the superuser
- 	may increase the number of keymaps beyond MAX_NR_OF_USER_KEYMAPS. */
-diff -puN drivers/char/vt_ioctl.c~nr_keys-off-by-one drivers/char/vt_ioctl.c
---- linux-2.6.8-rc2/drivers/char/vt_ioctl.c~nr_keys-off-by-one	2004-07-29 01:31:12.000000000 +0900
-+++ linux-2.6.8-rc2-hirofumi/drivers/char/vt_ioctl.c	2004-07-29 01:35:23.000000000 +0900
-@@ -83,6 +83,12 @@ do_kdsk_ioctl(int cmd, struct kbentry __
- 	if (copy_from_user(&tmp, user_kbe, sizeof(struct kbentry)))
- 		return -EFAULT;
- 
-+#if NR_KEYS != 256 || MAX_NR_KEYMAPS != 256
-+#error "you should check this too"
-+	if (i >= NR_KEYS || s >= MAX_NR_KEYMAPS)
-+		return -EINVAL;
-+#endif
-+
- 	switch (cmd) {
- 	case KDGKBENT:
- 		key_map = key_maps[s];
-_
--
-
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+	Ingo

@@ -1,51 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316695AbSGQUjv>; Wed, 17 Jul 2002 16:39:51 -0400
+	id <S316715AbSGQUmu>; Wed, 17 Jul 2002 16:42:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316705AbSGQUjv>; Wed, 17 Jul 2002 16:39:51 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:24051 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S316695AbSGQUju>; Wed, 17 Jul 2002 16:39:50 -0400
-Subject: Re: [patch 1/13] minimal rmap
-From: Robert Love <rml@tech9.net>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Daniel Phillips <phillips@arcor.de>, Andrew Morton <akpm@zip.com.au>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44L.0207171734390.12241-100000@imladris.surriel.com>
-References: <Pine.LNX.4.44L.0207171734390.12241-100000@imladris.surriel.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 17 Jul 2002 13:42:41 -0700
-Message-Id: <1026938562.1085.59.camel@sinai>
-Mime-Version: 1.0
+	id <S316723AbSGQUmu>; Wed, 17 Jul 2002 16:42:50 -0400
+Received: from [217.9.63.109] ([217.9.63.109]:58106 "EHLO
+	NCC-1701.B.Shuttle.de") by vger.kernel.org with ESMTP
+	id <S316715AbSGQUms>; Wed, 17 Jul 2002 16:42:48 -0400
+Date: Wed, 17 Jul 2002 22:44:38 +0200 (CEST)
+From: Manfred Wassmann <debian-devel@NCC-1701.B.Shuttle.de>
+Reply-To: debian-devel@lists.debian.org
+To: Debian Development <debian-devel@lists.debian.org>
+cc: Linux-Kernel Mailinglist <linux-kernel@vger.kernel.org>,
+       miquels@cistron.nl, Michael Meskes <Michael.Meskes@credativ.de>
+Subject: Re: Minor bug (?) in mountpoint handling in 2.4.18
+In-Reply-To: <20020717134018.GA18869@feivel.credativ.de>
+Message-ID: <Pine.LNX.4.21.0207172238540.4268-100000@figaro.localnet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-07-17 at 13:37, Rik van Riel wrote:
+On Wed, 17 Jul 2002, Michael Meskes wrote:
 
-> I don't agree with this, for a very simple reason.
+> fs/namespace::do_add_mount() says:
 > 
-> The current rmap patch was created in order to change the
-> VM behaviour as little as possible and ONLY provide an
-> infrastructure.  Benchmarking a completely untuned thing
-> that was built to not change anything is bound to give
-> meaningless results.
-> 
-> I say we _use_ the infrastructure that akpm is trying to
-> get merged now in order to implement something useful.
+> ...
+> /* Refuse the same filesystem on the same mount point */
+> ...
 
-I do agree with Rik here.  Once the basic rmap infrastructure is merged
-we need to work on implementing stuff on top of it or else there is no
-point.
+[...]
 
-If we cannot show the infrastructure is useful, then Linus will surely
-rip rmap out of the kernel in time.
+> I'm not sure if this really is a bug as technically it does not create a
+> problem, but I know a lot of users who are pretty confused.
 
-Summary: once it is in and seems correct we need to start providing (in
-_pieces_) parts from Rik's full rmap patch and other VM-related code for
-2.5 to see where rmap can take us...
+In fact it does create problems.  If you have an entry for a nfs mount in
+/etc/fstab allowing it to be mounted by ordinary users using th user
+mount option, it is no longer possible for such an user to unmount the
+corresponding file system once it is mounted multiple times.  Instead the
+following error message is returned:
+  umount: it seems /var/www/VTX is mounted multiple times
 
-	Robert Love
+> P.S.: Please CC me on replies.
+
+ACK 
+
+
 

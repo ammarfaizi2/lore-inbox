@@ -1,120 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269148AbUJESPF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269149AbUJESRw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269148AbUJESPF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 14:15:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269135AbUJESPE
+	id S269149AbUJESRw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 14:17:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269106AbUJESRw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 14:15:04 -0400
-Received: from lists.us.dell.com ([143.166.224.162]:58475 "EHLO
-	lists.us.dell.com") by vger.kernel.org with ESMTP id S269148AbUJESOO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 14:14:14 -0400
-Date: Tue, 5 Oct 2004 13:13:39 -0500
-From: Matt Domsch <Matt_Domsch@dell.com>
-To: Paul Bristow <paul@paulbristow.net>, B.Zolnierkiewicz@elka.pw.edu.pl,
-       alan@redhat.com
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] idefloppy suppress media not present errors
-Message-ID: <20041005181339.GA9479@lists.us.dell.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Tue, 5 Oct 2004 14:17:52 -0400
+Received: from locomotive.csh.rit.edu ([129.21.60.149]:34123 "EHLO
+	locomotive.unixthugs.org") by vger.kernel.org with ESMTP
+	id S269152AbUJESR1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 14:17:27 -0400
+Message-ID: <4162E61F.5000103@novell.com>
+Date: Tue, 05 Oct 2004 14:21:19 -0400
+From: Jeff Mahoney <jeffm@novell.com>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040803)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Hans Reiser <reiser@namesys.com>
+Cc: Alex Zarochentsev <zam@namesys.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 0/4] I/O Error Handling for ReiserFS v3
+References: <20041005150819.GA30046@locomotive.unixthugs.org> <4162C156.3030108@namesys.com> <20041005172233.GE28617@backtop.namesys.com> <4162DCAA.50902@namesys.com>
+In-Reply-To: <4162DCAA.50902@namesys.com>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Bogosity: No, tests=bogofilter, spamicity=0.000000, version=0.92.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul, Bartlomiej, Alan:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Below is a patch to suppress printing uninformative errors from
-ide-floppy.c in response to commands to floppy drives in which no
-media is present.
+Hans Reiser wrote:
+| Alex Zarochentsev wrote:
+|
+|> On Tue, Oct 05, 2004 at 08:44:22AM -0700, Hans Reiser wrote:
+|>
+|>
+|>> These have received design approval from zam (and thus me), but zam,
+|>> did they receive stress testing by Elena under your guidance?
+|>>
+|>
+|>
+|> No. We have a long queue of test tasks.  There are fsck.reiser4 testing,
+|> reiser4/dmapper crashes and the benchmarks in the queue.
+|>
+| Well, we cannot let our process be a barrier to good patches getting in,
+| so let me ask, Jeff, did you test each of these conditions you
+| improved?  How?  Did anyone else test them?
 
-Without this patch, commands sent to ide-floppy devices without media
-inserted cause error messages on the console (KERN_ERR level) such as:
+The "testing" version of the code had a another conditional added to
+each of the !buffer_update tests that allowed me to trigger an I/O error
+handling at each error point. The I/O error path is obviously more
+difficult to test in real-world conditions as I/O errors could be caused
+by any number of failures.
 
-ide-floppy: ide: I/O error, pc = 0 key = 2, asc = 3a asq = 0
-ide-floppy: ide: I/O error, pc = 1b key = 2, asc = 3a asq = 0
-ide-floppy: ide: I/O error, pc = 23 key = 2, asc = 3a asq = 0
-ide-floppy: ide: I/O error, pc = 1e key = 2, asc = 3a asq = 0
-ide-floppy: ide: I/O error, pc = 1e key = 2, asc = 3a asq = 0
+The testing was done using fsx-linux, the LTP fsstress program, and
+stress.sh, sometimes all at once.
 
-Dell's Virtual Floppy (system management presents to the local system
-an IDE floppy device, which is actually a floppy device in a remote
-system connected over an IP link) exhibits this also, when connecting
-to a remote floppy drive with no media present.
+This code has also been active in the SUSE Linux Enterprise Server 9
+kernel for some time and has seen real-world testing to show that the
+normal path is still working as expected.
 
-Please review and apply.
+The end result for the i/o error path is that the write operations still
+happen, but the commit block is never written. This means that the end
+result is essentially the same as a power outage at the point of
+failure. The filesystem is then read-only until the user decides to
+umount and correct the problem that caused the I/O error in the first place.
 
-Thanks,
-Matt
+- -Jeff
 
--- 
-Matt Domsch
-Sr. Software Engineer, Lead Engineer
-Dell Linux Solutions linux.dell.com & www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
+- --
+Jeff Mahoney
+SuSE Labs
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-
-===== ide-floppy.c 1.40 vs edited =====
---- 1.40/drivers/ide/ide-floppy.c	2004-08-12 19:03:53 -05:00
-+++ edited/ide-floppy.c	2004-10-05 11:13:59 -05:00
-@@ -989,6 +989,20 @@
- 	return ide_started;
- }
- 
-+/**
-+ * idefloppy_should_report_error()
-+ *
-+ * Supresses error messages resulting from Medium not present
-+ */
-+static inline int idefloppy_should_report_error(idefloppy_floppy_t *floppy)
-+{
-+	if (floppy->sense_key == 0x02 &&
-+	    floppy->asc       == 0x3a &&
-+	    floppy->ascq      == 0x00)
-+		return 0;
-+	return 1;
-+}
-+
- /*
-  *	Issue a packet command
-  */
-@@ -1021,12 +1035,13 @@
- 		 */
- 		if (!test_bit(PC_ABORT, &pc->flags)) {
- 			if (!test_bit(PC_SUPPRESS_ERROR, &pc->flags)) {
--				printk(KERN_ERR "ide-floppy: %s: I/O error, "
--						"pc = %2x, key = %2x, "
--						"asc = %2x, ascq = %2x\n",
--						drive->name, pc->c[0],
--						floppy->sense_key,
--						floppy->asc, floppy->ascq);
-+				if (idefloppy_should_report_error(floppy))
-+					printk(KERN_ERR "ide-floppy: %s: I/O error, "
-+					       "pc = %2x, key = %2x, "
-+					       "asc = %2x, ascq = %2x\n",
-+					       drive->name, pc->c[0],
-+					       floppy->sense_key,
-+					       floppy->asc, floppy->ascq);
- 			}
- 			/* Giving up */
- 			pc->error = IDEFLOPPY_ERROR_GENERAL;
-@@ -1242,11 +1257,13 @@
- 			rq->nr_sectors, rq->current_nr_sectors);
- 
- 	if (rq->errors >= ERROR_MAX) {
--		if (floppy->failed_pc != NULL)
--			printk(KERN_ERR "ide-floppy: %s: I/O error, pc = %2x,"
--					" key = %2x, asc = %2x, ascq = %2x\n",
--				drive->name, floppy->failed_pc->c[0],
--				floppy->sense_key, floppy->asc, floppy->ascq);
-+		if (floppy->failed_pc != NULL) {
-+			if (idefloppy_should_report_error(floppy))
-+				printk(KERN_ERR "ide-floppy: %s: I/O error, pc = %2x,"
-+				       " key = %2x, asc = %2x, ascq = %2x\n",
-+				       drive->name, floppy->failed_pc->c[0],
-+				       floppy->sense_key, floppy->asc, floppy->ascq);
-+		}
- 		else
- 			printk(KERN_ERR "ide-floppy: %s: I/O error\n",
- 				drive->name);
+iD8DBQFBYuYfLPWxlyuTD7IRAt1OAJ9RgkYWrCKikftGephpWWGlS+acSQCgjDwm
+cxcXvSVyldRsJZdagvatw0Y=
+=DuY9
+-----END PGP SIGNATURE-----

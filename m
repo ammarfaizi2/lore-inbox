@@ -1,39 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132130AbRCVSI5>; Thu, 22 Mar 2001 13:08:57 -0500
+	id <S132127AbRCVSIR>; Thu, 22 Mar 2001 13:08:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132128AbRCVSIr>; Thu, 22 Mar 2001 13:08:47 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:30472 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S132130AbRCVSIf>; Thu, 22 Mar 2001 13:08:35 -0500
-Subject: Re: Thinko in kswapd?
-To: mikeg@wen-online.de (Mike Galbraith)
-Date: Thu, 22 Mar 2001 18:09:59 +0000 (GMT)
-Cc: sct@redhat.com (Stephen C. Tweedie), linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk (Alan Cox),
-        arjanv@redhat.com, torvalds@transmeta.com (Linus Torvalds)
-In-Reply-To: <Pine.LNX.4.33.0103221837360.665-100000@mikeg.weiden.de> from "Mike Galbraith" at Mar 22, 2001 06:53:18 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S132130AbRCVSH7>; Thu, 22 Mar 2001 13:07:59 -0500
+Received: from raven.toyota.com ([63.87.74.200]:46351 "EHLO raven.toyota.com")
+	by vger.kernel.org with ESMTP id <S132127AbRCVSHp>;
+	Thu, 22 Mar 2001 13:07:45 -0500
+Message-ID: <3ABA3F46.ECFF3569@toyota.com>
+Date: Thu, 22 Mar 2001 10:07:02 -0800
+From: J Sloan <jjs@toyota.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre6 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: "Brent D. Norris" <brent@biglinux.tccw.wku.edu>
+CC: Kernel-mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Sound issues with m805lr motheboard
+In-Reply-To: <Pine.LNX.4.30.0103220730450.4739-100000@biglinux.tccw.wku.edu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14g9X7-00030H-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> pull it all right back in again.  It continues through the entire
-> build with the cost seen in the time numbers.  (the ac20.virgin run
-> was worse by 30 secs than average, but that doesn't matter much)
+"Brent D. Norris" wrote:
 
-Using my reference interactive test (An application which renders 3D graphics 
-and generates fairly measurable VM traffic with AGP texture mapping)[1] the
-graphical flow is noticably stalling where it didn't before.
+> > That seems strange. What is realserver failing with ?
+>
+> It isn't so much failing as it hangs.
 
-Throughput seems to be up but interactivity is bad.
+It might be interesting to strace the realserver startup
+both under 2.2 and 2.4 -
 
-Alan
+cu
 
-[1] Tux racer
-
+Jup
 

@@ -1,53 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264041AbTE3WTq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 May 2003 18:19:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264090AbTE3WTq
+	id S261244AbTE3WXu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 May 2003 18:23:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264008AbTE3WXt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 May 2003 18:19:46 -0400
-Received: from main.gmane.org ([80.91.224.249]:16082 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S264092AbTE3WTp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 May 2003 18:19:45 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: "Brian J. Murrell" <brian@interlinx.bc.ca>
-Subject: Re: local apic timer ints not working with vmware: nolocalapic
-Date: Fri, 30 May 2003 18:14:37 -0400
-Message-ID: <pan.2003.05.30.22.14.35.511205@interlinx.bc.ca>
-References: <2C8EEAE5E5C@vcnet.vc.cvut.cz> <20030528173432.GA21379@linux.interlinx.bc.ca> <Pine.LNX.4.50.0305281341160.1982-100000@montezuma.mastecende.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Complaints-To: usenet@main.gmane.org
-User-Agent: Pan/0.14.0 (I'm Being Nibbled to Death by Cats!)
+	Fri, 30 May 2003 18:23:49 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:14241 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261244AbTE3WXt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 May 2003 18:23:49 -0400
+Message-ID: <3ED7DCF6.20206@us.ibm.com>
+Date: Fri, 30 May 2003 15:36:38 -0700
+From: Mingming Cao <cmm@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@digeo.com>
+CC: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.5.70-mm2
+References: <20030529012914.2c315dad.akpm@digeo.com>	<20030529042333.3dd62255.akpm@digeo.com>	<16087.47491.603116.892709@gargle.gargle.HOWL> <20030530133015.4f305808.akpm@digeo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 28 May 2003 13:42:13 -0400, Zwane Mwaikambo wrote:
+Andrew Morton wrote:
+>>
+>>Any hint on when -mm3 will be out,
 > 
-> I submitted a patch for nolapic before...
-
-Did you get any response as to whether it was going to be accepted into
-the kernel or not?
-
-The unfortunate thing is that even this sort of fix will not help my
-situation.  The reason being (which I only discovered by accident when I
-set "dont_enable_local_apic = 1" rather than "dont_use_local_apic_timer"
-and it didn't correct the booting problem) is that it seems that even if
-the local apic is set disabled by setting dont_enable_local_apic = 1 in
-arch/i386/kernel/apic.c, setup_APIC_clocks() is still called.
-
-So the jist is that using the local apic timer feature is not dependent on
-using the local apic, as per the dont_enable_local_apic and
-dont_use_local_apic_timer flags in arch/i386/kernel/apic.c.  Maybe this is
-wrong, I dunno unfortunately.
-
-I don't know anything about this APIC stuff so I don't know if that is
-correct or not, but it is what happens.
-
-Thanx for the input though, much appreciated,
-
-b.
+> 
+> About ten hours hence, probably.
+> 
+> Welll ext3 has been a bit bumpy of course.  It's getting better, but I
+> haven't yet been able to give it a 12-hour bash on the 4-way.  Last time I
+> tried a circuit breaker conked; it lasted three hours but even ext3 needs
+> electricity.  But three hours is very positive - it was hard testing.
+> 
+I run many fsx tests on mm2 on 8 way yesterday for a overnight run, 
+before I saw your previous post.  Of course the tests failed with lots 
+of error messages, but the good news is the system did not hang. Looking 
+forward to mm3 out.
 
 

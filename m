@@ -1,43 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266378AbUHODPh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266380AbUHODSf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266378AbUHODPh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Aug 2004 23:15:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266380AbUHODPh
+	id S266380AbUHODSf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Aug 2004 23:18:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266389AbUHODSf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Aug 2004 23:15:37 -0400
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:32764 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S266378AbUHODPg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Aug 2004 23:15:36 -0400
-Date: Sat, 14 Aug 2004 23:19:33 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       Rusty Russell <rusty@rustcorp.com.au>, lhcs-devel@lists.sourceforge.net
-Subject: Re: [lhcs-devel] Re: [PATCH][2.6-mm] i386 Hotplug CPU
-In-Reply-To: <Pine.LNX.4.58.0408112043100.2544@montezuma.fsmlabs.com>
-Message-ID: <Pine.LNX.4.58.0408142313450.22078@montezuma.fsmlabs.com>
-References: <1090870667.22306.40.camel@pants.austin.ibm.com>
- <20040726170157.7f4b414c.akpm@osdl.org> <Pine.LNX.4.58.0407270137510.25781@montezuma.fsmlabs.com>
- <Pine.LNX.4.58.0407270440200.23985@montezuma.fsmlabs.com>
- <20040811135019.GC1120@openzaurus.ucw.cz> <Pine.LNX.4.58.0408112043100.2544@montezuma.fsmlabs.com>
+	Sat, 14 Aug 2004 23:18:35 -0400
+Received: from out014pub.verizon.net ([206.46.170.46]:59827 "EHLO
+	out014.verizon.net") by vger.kernel.org with ESMTP id S266380AbUHODSc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Aug 2004 23:18:32 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: Re: New versioning scheme ? ( 2.6.8.1 )
+Date: Sat, 14 Aug 2004 23:18:30 -0400
+User-Agent: KMail/1.6.82
+Cc: "xerces8" <xerces8@butn.net>
+References: <WorldClient-F200408150404.AA04094351@butn.net>
+In-Reply-To: <WorldClient-F200408150404.AA04094351@butn.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200408142318.30694.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out014.verizon.net from [151.205.53.77] at Sat, 14 Aug 2004 22:18:31 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 11 Aug 2004, Zwane Mwaikambo wrote:
+On Saturday 14 August 2004 22:04, xerces8 wrote:
+>Hi!
+>
+>Can someone tell me why the ages old, established versioning scheme
+> of x.y.z was "abolished" and x.y.z.w was introduced ?
+>
+>Regards,
+>David Balazic
+>
+It wasn't abolished, there was a showstopper problem discovered before 
+the ink was dry on the original announcment of 2.6.8.  Thats (the .1) 
+the fixed release.
 
-> Yeah i recall you mentioning this earlier, i'll look into adding the
-> necessary bits so that you have enough state to resume from. Your
-> mentioning this was one of the reasons i wanted this in.
+Stuff happens.  To me, thats a very minor concern.  My 11 year old 
+Shelty friend and pet took sick and died a horrible death all in 
+about 4 hours today while we were unable to locate a vet who was 
+available on a Saturday.  So an instant fix .1 release is very minor 
+to me.
 
-Pavel, considering that the processor is in a quiescent state when it's in
-the idle thread, can't we simply restart them all when we do the final
-sleep? So on the resume, we steer the APs straight into the offline cpu
-spin and manually bring them up again when the BSP has resumed? I reckon
-we don't have to save any state at all. I probably don't have the full
-picture yet so feel free to set me straight.
-
-Thanks,
-	Zwane
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.24% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

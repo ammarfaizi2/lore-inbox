@@ -1,46 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261990AbVCEPrA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262625AbVCEPy5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261990AbVCEPrA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Mar 2005 10:47:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261973AbVCEPhf
+	id S262625AbVCEPy5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Mar 2005 10:54:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262111AbVCEPrq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Mar 2005 10:37:35 -0500
-Received: from coderock.org ([193.77.147.115]:40867 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S262002AbVCEPfh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Mar 2005 10:35:37 -0500
-Subject: [patch 05/12] gus_wave.c - vfree() checking cleanups
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, domen@coderock.org, jlamanna@gmail.com
-From: domen@coderock.org
-Date: Sat, 05 Mar 2005 16:35:22 +0100
-Message-Id: <20050305153522.C55381F1F0@trashy.coderock.org>
+	Sat, 5 Mar 2005 10:47:46 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:24069 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261900AbVCEPgn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Mar 2005 10:36:43 -0500
+Date: Sat, 5 Mar 2005 16:36:38 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Kai Germaschewski <kai.germaschewski@unh.edu>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, Andrew Morton <akpm@osdl.org>,
+       Sam Ravnborg <sam@ravnborg.org>,
+       Vincent Vanackere <vincent.vanackere@gmail.com>, keenanpepper@gmail.com,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Undefined symbols in 2.6.11-rc5-mm1
+Message-ID: <20050305153638.GD6373@stusta.de>
+References: <20050305130416.GA6373@stusta.de> <Pine.LNX.4.44.0503051012530.20560-100000@chaos.sr.unh.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0503051012530.20560-100000@chaos.sr.unh.edu>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Mar 05, 2005 at 10:19:23AM -0500, Kai Germaschewski wrote:
+> On Sat, 5 Mar 2005, Adrian Bunk wrote:
+> 
+> > And this can break as soon as the "unused" object files contains 
+> > EXPORT_SYMBOL's.
+> > 
+> > Is it really worth it doing it in this non-intuitive way?
+> 
+> I don't think it non-intuitive, it's how libraries work. However, as you 
+> say, it is broken for files containing EXPORT_SYMBOL.
+> 
+> The obvious fix for this case is the one that akpm mentioned way earlier 
+> in this thread, move parser.o into $(obj-y).
+> 
+> It should be rather easy to have the kernel build system warn you when you 
+> compile library objects exporting symbols.
 
+This warning sounds like a good plan (but it won't let many objects stay 
+inside lib-y).
 
-gus_wave.c vfree() checking cleanups.
+> --Kai
 
-Signed-off by: James Lamanna <jlamanna@gmail.com>
-Signed-off-by: Domen Puncer <domen@coderock.org>
----
+cu
+Adrian
 
+-- 
 
- kj-domen/sound/oss/gus_wave.c |    3 +--
- 1 files changed, 1 insertion(+), 2 deletions(-)
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-diff -puN sound/oss/gus_wave.c~vfree-sound_oss_gus_wave sound/oss/gus_wave.c
---- kj/sound/oss/gus_wave.c~vfree-sound_oss_gus_wave	2005-03-05 16:10:41.000000000 +0100
-+++ kj-domen/sound/oss/gus_wave.c	2005-03-05 16:10:41.000000000 +0100
-@@ -3126,8 +3126,7 @@ void __exit gus_wave_unload(struct addre
- 	if (hw_config->slots[5] != -1)
- 		sound_unload_mixerdev(hw_config->slots[5]);
- 	
--	if(samples)
--		vfree(samples);
-+	vfree(samples);
- 	samples=NULL;
- }
- /* called in interrupt context */
-_

@@ -1,39 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263761AbTFGVa4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jun 2003 17:30:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263777AbTFGVa4
+	id S263777AbTFGVhl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jun 2003 17:37:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263833AbTFGVhl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jun 2003 17:30:56 -0400
-Received: from smtp-out1.iol.cz ([194.228.2.86]:64163 "EHLO smtp-out1.iol.cz")
-	by vger.kernel.org with ESMTP id S263761AbTFGVaz (ORCPT
+	Sat, 7 Jun 2003 17:37:41 -0400
+Received: from holomorphy.com ([66.224.33.161]:54216 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S263777AbTFGVhk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jun 2003 17:30:55 -0400
-Date: Sat, 7 Jun 2003 23:43:57 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: dan carpenter <error27@email.com>
-Cc: chris@memtest86.com, linux-kernel@vger.kernel.org
-Subject: Re: memtest86 on the opteron
-Message-ID: <20030607214356.GF667@elf.ucw.cz>
-References: <20030607202725.22992.qmail@email.com>
+	Sat, 7 Jun 2003 17:37:40 -0400
+Date: Sat, 7 Jun 2003 14:49:50 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Maximum swap space?
+Message-ID: <20030607214950.GI8978@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	"H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+References: <ltptlqb72n.fsf@colina.demon.co.uk> <33435.4.64.196.31.1055008200.squirrel@www.osdl.org> <bbtmaq$r03$1@cesium.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030607202725.22992.qmail@email.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+In-Reply-To: <bbtmaq$r03$1@cesium.transmeta.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Followup to:  <33435.4.64.196.31.1055008200.squirrel@www.osdl.org>
+By author:    "Randy.Dunlap" <rddunlap@osdl.org>
+In newsgroup: linux.dev.kernel
+>> Linux 2.4.10 and later, and Linux 2.5 support any combination of swap
+>> files or swap devices to a maximum number of 32 of them.  Prior to Linux
+>> 2.4.10, the limit was any combination of 8 swap files or swap devices.  On
+>> x86 architecture systems, each of these swap areas has a limit of 2 GiB.
 
-> Is there anyone working on Memtest86 for the AMD Opteron?
+On Sat, Jun 07, 2003 at 02:43:54PM -0700, H. Peter Anvin wrote:
+> 2 GiB is getting a bit tight, especially with tmpfs, ust like the
+> previous limits of 16 MiB and 128 MiB were getting tight at various
+> points, and it's annoying to have to make multiple partitions.
+> tmpfs is a good thing -- in my experience even if it is stored
+> primarily on disk it is much faster for temp files than any other
+> filesystem, simply because it never has to worry about consistency.
+> This means it's entirely reasonable to have a "farm" machine with a
+> 40 GiB tmpfs used for everything except the OS itself.
 
-Well, as opteron is i386-compatible, you should be able to simply use
-i386 memtest... Should be easy for <2GB memory. You can teach memtest
-PAE, that will be usefull to 32GB pentium boxes, too ;-).
+The 2GB limit is 100% userspace; distros are already shipping the
+mkswap(8) fixes (both RH & UL anyway).
 
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+
+-- wli

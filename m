@@ -1,56 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263195AbREWSMo>; Wed, 23 May 2001 14:12:44 -0400
+	id <S263201AbREWSY5>; Wed, 23 May 2001 14:24:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263198AbREWSMe>; Wed, 23 May 2001 14:12:34 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:44040 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S263195AbREWSMT>; Wed, 23 May 2001 14:12:19 -0400
-Date: Wed, 23 May 2001 11:12:00 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: DVD blockdevice buffers
-In-Reply-To: <20010523183419.I27177@redhat.com>
-Message-ID: <Pine.LNX.4.21.0105231104200.6320-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263203AbREWSYr>; Wed, 23 May 2001 14:24:47 -0400
+Received: from ns.suse.de ([213.95.15.193]:51464 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S263201AbREWSYg>;
+	Wed, 23 May 2001 14:24:36 -0400
+Date: Wed, 23 May 2001 20:23:32 +0200
+From: Andi Kleen <ak@suse.de>
+To: Ben Mansell <linux-kernel@slimyhorror.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Selectively refusing TCP connections
+Message-ID: <20010523202332.A31402@gruyere.muc.suse.de>
+In-Reply-To: <Pine.LNX.4.33.0105231841230.1163-100000@baphomet.bogo.bogus>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0105231841230.1163-100000@baphomet.bogo.bogus>; from linux-kernel@slimyhorror.com on Wed, May 23, 2001 at 06:59:02PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Wed, 23 May 2001, Stephen C. Tweedie wrote:
+On Wed, May 23, 2001 at 06:59:02PM +0100, Ben Mansell wrote:
+> Hi all,
 > 
-> Right.  I'd like to see buffered IO able to work well --- apart from
-> the VM issues, it's the easiest way to allow the application to take
-> advantage of readahead.  However, there's one sticking point we
-> encountered, which is applications which write to block devices in
-> units smaller than a page.  Small block writes get magically
-> transformed into read/modify/write cycles if you shift the block
-> devices into the page cache.
+> Is there any mechanism in Linux for refusing incoming TCP connections?
+> I'd like to be able to fetch the next incoming connection on a listen
+> queue, and selectively accept or reject it based on the IP address of the
+> client. I know this could be done via firewall rules, but for this case,
+> I'd like an application to have the final say on whether the connection
+> will be accepted.
 
-No, you can actually do all the "prepare_write()"/"commit_write()" stuff
-that the filesystems already do. And you can do it a lot _better_ than the
-current buffer-cache-based approach. Done right, you can actually do all
-IO in page-sized chunks, BUT fall down on sector-sized things for the
-cases where you want to. 
 
-This is exactly the same issue that filesystems had with writers of less
-than a page - and the page cache interfaces allow for byte-granular writes
-(as actually shown by things like NFS, which do exactly that. For a block
-device, the granularity obviously tends to be at least 512 bytes).
+You can push a BPF (LPF) filter expression onto a LISTEN socket that checks
+every incoming packet using SO_ATTACH_FILTER.
 
-> Of course, we could just say "then don't do that" and be done with it
-> --- after all, we already have this behaviour when writing to regular
-> files.
+The only way to do it fully in an application is probably to set up netfilter
+NAT to forward the connection to some local process; or alternative push
+the packets using a netfilter queue target to a user process and forward/
+disable firewall rules dynamically.
 
-No, we really don't. When you write an aligned 1kB block to a 1kB ext2
-filesystem, it will _not_ do a page-sized read-modify-write. It will just
-create the proper 1kB buffers, and mark one of the dirty.
 
-Now, admittedly it is _easier_ to just always consider things 4kB in
-size. And faster too, for the common cases. So it might not be worth it to
-do the extra work unless somebody can show a good reason for it.
-
-		Linus
+-Andi
 

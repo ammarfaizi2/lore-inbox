@@ -1,44 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263412AbTHVQOx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Aug 2003 12:14:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263413AbTHVQOx
+	id S263649AbTHVQHu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Aug 2003 12:07:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263820AbTHVQHu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Aug 2003 12:14:53 -0400
-Received: from evrtwa1-ar2-4-33-045-084.evrtwa1.dsl-verizon.net ([4.33.45.84]:54218
-	"EHLO grok.yi.org") by vger.kernel.org with ESMTP id S263412AbTHVQOv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Aug 2003 12:14:51 -0400
-Message-ID: <3F464177.1020709@candelatech.com>
-Date: Fri, 22 Aug 2003 09:14:47 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030529
-X-Accept-Language: en-us, en
+	Fri, 22 Aug 2003 12:07:50 -0400
+Received: from 207.188.34.4.solutionary.com ([207.188.34.4]:34100 "EHLO
+	omu-eweb1.solutionary.com") by vger.kernel.org with ESMTP
+	id S263799AbTHVQHt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Aug 2003 12:07:49 -0400
+thread-index: AcNox4VT2TQuQke+S/yov8wYsSuJTg==
+Thread-Topic: Symantec AVF detected a message with an unscannable attachment in your mailbox
+From: <Administrator@solutionary.com>
+To: <torvalds@osdl.org>, <linux-kernel@vger.kernel.org>,
+       <matthias.andree@gmx.de>, <samel@mail.cz>
+Subject: Symantec AVF detected a message with an unscannable attachment in your mailbox
+Date: Fri, 22 Aug 2003 11:07:44 -0500
+Message-ID: <029d01c368c7$855337f0$2024bccf@solutionary.com>
 MIME-Version: 1.0
-To: Patrick Sodre Carlos <klist@i-a-i.com>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Reinjecting IP Packets
-References: <1061563295.824.4.camel@iai68>
-In-Reply-To: <1061563295.824.4.camel@iai68>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="utf-8"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft CDO for Exchange 2000
+Content-Class: urn:content-classes:message
+Importance: normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+X-OriginalArrivalTime: 22 Aug 2003 16:07:44.0143 (UTC) FILETIME=[855819F0:01C368C7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick Sodre Carlos wrote:
-> Hi Guys,
->    I'm trying to figure out what is the best way to reinject IP packets
-> into the stack. Does anyone have good/right/left ideas on this?
+Location of the message:  Jeffrey Guilfoyle/lk
+Sender of the message: Matthias Andree
+Subject of the message:  BK-kernel-tools/shortlog update
+The attachment bkpatch17944 was Quarantined.
 
-Maybe netif_rx() in net/core/dev.c ?
-
-Ben
-
-
-
--- 
-Ben Greear <greearb@candelatech.com>
-Candela Technologies Inc  http://www.candelatech.com
 
 

@@ -1,109 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293605AbSBRDFq>; Sun, 17 Feb 2002 22:05:46 -0500
+	id <S310897AbSBRRPj>; Mon, 18 Feb 2002 12:15:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293607AbSBRDFh>; Sun, 17 Feb 2002 22:05:37 -0500
-Received: from duracef.shout.net ([204.253.184.12]:4101 "EHLO
-	duracef.shout.net") by vger.kernel.org with ESMTP
-	id <S293605AbSBRDFc>; Sun, 17 Feb 2002 22:05:32 -0500
-Date: Sun, 17 Feb 2002 21:05:18 -0600
-From: Michael Elizabeth Chastain <mec@shout.net>
-Message-Id: <200202180305.g1I35IS04421@duracef.shout.net>
-To: jgarzik@mandrakesoft.com
-Subject: Re: [kbuild-devel] Re: Disgusted with kbuild developers
-Cc: kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+	id <S310904AbSBRRPT>; Mon, 18 Feb 2002 12:15:19 -0500
+Received: from [217.89.50.104] ([217.89.50.104]:61454 "EHLO
+	NOTES.INTERCOPE.COM") by vger.kernel.org with ESMTP
+	id <S310897AbSBRRPL>; Mon, 18 Feb 2002 12:15:11 -0500
+Subject: Re: scsi abort 0x2002 and eth0: too much work on a dual amd 760mpx system
+To: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.6a  January 17, 2001
+Message-ID: <OF23B5BA7B.127AB1D9-ONC1256B64.005D4BCF@INTERCOPE.COM>
+From: "Michael Kwasigroch" <mkwasigr@intercope.com>
+Date: Mon, 18 Feb 2002 18:12:06 +0100
+X-MIMETrack: Serialize by Router on ICHH1G02/INTERCOPE/DE(Release 5.0.3 (Intl)|21 March
+ 2000) at 18.02.2002 18:14:24
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik replies to me:
-mec> I believe that CML1 is rococo and I welcome a replacement.  I think that
-mec> leapfrog development is a good strategy here, just as it was for ALSA.
-jg> I think this is a key mistake.  See Al's message "Of Bundling, Dao,
-jg> ...".
+At 2002-02-13 20:26:46 "kelley eicher <carde@astro.umn.edu>" wrote:
 
-I am reading lkml from an archive and I saw only the Friday night messages.
-I have caught up now.
+> rik-
+>
+> i have done extensive cpu load + i/o testing on the 760mp machine. it
+handles
+> perfectly under very high cpu activity. one thing i should mention though
+is
+> that neither of these chipsets, amd 760mp and amd760mpx, work with multi-
+> processor specification 1.4 under linux. i had several problems using
+m.p.s.
+> 1.4 on the 760mp in dual processor mode and the 760mpx wouldn't even boot
+> with m.p.s. 1.4 enabled.
+>
+> as an fyi to anyone listening, the 760mpx crashed while loading any smp
+linux
+> kernel during apic timer calibration.
+>
+> so my suggestion rik, if you haven't done this already, is to change the
+> multi- processor specification in your bios from 1.4 to 1.1.
+>
+> -kelley
 
-I agree with Al's strategy in "Of Bundling, Dao, and Cowardice".
+I've got the Tyan Tiger MPX (S2466N) running SMP flawlessly with both
+2.2.19 (io_apic.c patched) and 2.4.17 (w/ide-patch) ... and Windows 2000
+Pro SP2 (;-).
 
-Let me talk about the list-based makefiles.  Long before I submitted the
-first list-based makefile to the kernel tree (drivers/sound/makefile),
-I had a whole rewrite of every makefile.  These were the "Dancing Makefiles"
-and several ideas came out of them: CONFIG_SMP and list-based makefiles
-in particular.
+In the BIOS I've left the setting to ACPI (which is the default).
 
-I never thought I'd be able to get the Dancing Makefiles adopted.  I spent
-a whole year just getting CONFIG_SMP merged!  So I came to view it as
-a useful laboratory project to show what kinds of things were viable or not.
+- Why should one want to change that to MPS 1.1/1.4?
+- What 760mpx board do you use?
 
-Then 2.1.XX developed a real problem with drivers/sound/Makefile.  The
-"if-statement" based approach was not working.  The "if-statements"
-changed on every patch level and new bugs came in for every patch level.
+I'm using an old Adaptec 2940 PCI SCSI adaptor for my DAT streamer and it
+also works flawlessly (although I feel there is a little bit of improvement
+possible by tweaking the PCI latency).
 
-I said to myself "aha, list-based makefiles will solve this problem".
-I wrote a new drivers/sound/Makefile.  Here is the important point:
-I did not touch Rules.make *at all*.  I put some translation lines
-into drivers/sound/Makefile so that it would just work.
+You might want to check http://www.2cpu.com for tips & tricks getting a
+dual athlon system running. I'm not connected to this site but it gave me
+all the help I needed while choosing the components for my nice new system.
+It is #1 for duallies!!!
 
-Between 2.2 and 2.4, several people -- including Jeff Garzik -- converted
-a lot more makefiles incremenetally to the new style.  This process got
-about 80% done incrementally.
 
-Eventually one of the old-style Makefiles developed a similar problem
-with new tweaks in every patch level leading to a new batch of bug
-reports.  Linus said something like "to hell with this" and summarily
-removed support for the old-style.
+P.S.: Please cc me directly on any replies since I'm not subscribed to
+linux-kernel. TIA.
 
-So ... I leapfrogged in my own work area, but I put out incremental
-patches that solved problems that other people wanted solved.
 
-It was also a very painful process for me.  My patches got black-holed
-numerous times.
+Mit freundlichen Gruessen / best regards
 
-jg> It's impossible to prove that Eric's CML2 rulebase reflects a current
-jg> CML1 rulebase, primarily for this reason.
 
-That's an important property and I haven't given enough weight to it.  :-(
+"The sooner you fall behind, the more time you'll have to catch up."
 
-It would be nice if:
+Michael Kwasigroch
+FaxPlus/Open Development
+________________________________________
 
-  The new tool reads both CML1 and CML2.
-  Deploy the new tool.
-  People could convert directories to CML2 one at a time.
+e-mail:        mkwasigr@intercope.com
 
-jg> Those are meta-properties.
+INTERCOPE
+International Communication Products Engineering GmbH
 
-Indeed, all my criteria are meta-properties.
+www.intercope.com
 
-jg> CML2's syntax is not reflective of the direction of being able to plop
-jg> down "driver.c" and "driver.conf" and having the config/make system
-jg> magically notice it.
 
-This "driver.conf" idea did not exist when CML2 was invented.
-
-So it looks like there is a market opportunity here: a tool that
-reads CML1 files and also reads some kind of new driver.conf files,
-which can be written in a fresh new language.
-
-jg> Would you support the replacement of in-kernel
-jg> configure/Menuconfig/xconfig with in-kernel mconfig?
-
-I believe that mconfig is best distributed as a semi-independent package,
-distributed in the way that modutils is distributed today.  I think that's
-better than in-kernel.  Between the choice of in-kernel
-configure/menuconfig/xconfig and in-kernel mconfig, I would go for
-in-kernel mconfig.
-
-jg> If we want to migrate to a point where all kernel configuration is
-jg> maintained solely outside the kernel, I actually support that.  But as a
-jg> SEPARATE migration step.  I do not want to drop all config tools from
-jg> the kernel and tell people "use mconfig" in the same breath.
-
-My vision of the migration path was that mconfig would be distributed
-separately and co-exist with configure/menuconfig/xconfig.  When the
-market share of mconfig becomes high enough( (say, 80% to 90%),
-then drop support for configure/menuconfig/xconfig.
-
-Michael Elizabeth Chastain
-<mailto:mec@shout.net>
-"love without fear"

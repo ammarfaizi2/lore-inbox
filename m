@@ -1,50 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317454AbSF1PKL>; Fri, 28 Jun 2002 11:10:11 -0400
+	id <S317455AbSF1PWW>; Fri, 28 Jun 2002 11:22:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317463AbSF1PKK>; Fri, 28 Jun 2002 11:10:10 -0400
-Received: from [62.70.58.70] ([62.70.58.70]:5765 "EHLO mail.pronto.tv")
-	by vger.kernel.org with ESMTP id <S317454AbSF1PKJ> convert rfc822-to-8bit;
-	Fri, 28 Jun 2002 11:10:09 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Organization: ProntoTV AS
-To: Pete Zaitcev <zaitcev@redhat.com>
-Subject: Re: USB doesn't work
-Date: Fri, 28 Jun 2002 17:12:34 +0200
-User-Agent: KMail/1.4.1
-Cc: linux-kernel@vger.kernel.org
-References: <mailman.1025183101.8745.linux-kernel2news@redhat.com> <200206281504.g5SF4rA19032@devserv.devel.redhat.com>
-In-Reply-To: <200206281504.g5SF4rA19032@devserv.devel.redhat.com>
+	id <S317456AbSF1PWV>; Fri, 28 Jun 2002 11:22:21 -0400
+Received: from insgate.stack.nl ([131.155.140.2]:16655 "EHLO skynet.stack.nl")
+	by vger.kernel.org with ESMTP id <S317455AbSF1PWU>;
+	Fri, 28 Jun 2002 11:22:20 -0400
+Date: Fri, 28 Jun 2002 17:24:41 +0200 (CEST)
+From: Serge van den Boom <svdb@stack.nl>
+To: linux-kernel@vger.kernel.org
+Cc: Jeff Dike <jdike@karaya.com>
+Subject: Re: On the forgotten ptrace EIP bug (patch included) 
+In-Reply-To: <200206241418.g5OEITq04146@karaya.com>
+Message-ID: <20020628144639.I51309-100000@toad.stack.nl>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200206281712.34860.roy@karlsbakk.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 28 June 2002 17:04, Pete Zaitcev wrote:
-> > Running 2.4.19-rc1 or 2.4.18, the following chipset won't work with a
-> > USB= =20
-> > keyboard attached:
-> >
-> > usb-ohci.c: USB OHCI at membase 0xc4802000, IRQ 10
-> > usb-ohci.c: usb-00:13.0, Compaq Computer Corporation ZFMicro Chipset USB
-> > usb-ohci.c: USB HC TakeOver failed!
->
-> This is a BIOS screwage. What was the last kernel that worked?
+On Mon, 24 Jun 2002, Jeff Dike wrote:
+> svdb@stack.nl said:
+> > The patch below should fix these issues. I have tested it on my
+> > machine, where it appears to work.
+> Make sure UML still runs with your patch.  That was one of the things (and
+> maybe the only thing) that showed the orginal patch was broken.
+I know of two other programs that broke with the original patch,
+ups and ltrace. Both work with the new one.
+As for UML, I don't even see anything go wrong when the original patch is
+applied. I can immagine something in UML changed in the meantime that
+prevents it from triggering the bug, or I might just be looking in the
+wrong place. At any rate, I have successfully booted a UML kernel,
+with either patch applied to the host system kernel.
 
-It's never worked. I've actually given up - it was during some testing of some 
-Samsung early prototype set-top-computers ... They hang if I try to disable 
-USB legacy support in BIOS. They hang if I try to reboot, and they hang if I 
-use red post-it notes on them
+Serge
 
-thanks anyway
 
-roy
-
--- 
-Roy Sigurd Karlsbakk, Datavaktmester
-
-Computers are like air conditioners.
-They stop working when you open Windows.
 

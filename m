@@ -1,74 +1,91 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314769AbSESSOE>; Sun, 19 May 2002 14:14:04 -0400
+	id <S314758AbSESSSz>; Sun, 19 May 2002 14:18:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314783AbSESSOD>; Sun, 19 May 2002 14:14:03 -0400
-Received: from APuteaux-101-2-1-180.abo.wanadoo.fr ([193.251.40.180]:61705
-	"EHLO inet6.dyn.dhs.org") by vger.kernel.org with ESMTP
-	id <S314769AbSESSOC>; Sun, 19 May 2002 14:14:02 -0400
-Date: Sun, 19 May 2002 20:13:59 +0200
-From: Lionel Bouton <Lionel.Bouton@inet6.fr>
-To: ULISSES FURQUIM FREIRE DA SILVA <ra993482@ic.unicamp.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Hardware, IDE or ext3 problem?
-Message-ID: <20020519201359.A17179@bouton.inet6-interne.fr>
-Mail-Followup-To: ULISSES FURQUIM FREIRE DA SILVA <ra993482@ic.unicamp.br>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.4.10.10205182031540.14231-100000@tigre.dcc.unicamp.br>
+	id <S314783AbSESSSy>; Sun, 19 May 2002 14:18:54 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:58282 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S314758AbSESSSw>;
+	Sun, 19 May 2002 14:18:52 -0400
+Date: Sun, 19 May 2002 20:18:45 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: "Robert T. Johnson" <rtjohnso@cs.berkeley.edu>
+Cc: linux-kernel@vger.kernel.org,
+        Sailesh Krishnamurthy <sailesh@EECS.Berkeley.EDU>
+Subject: Re: Bug in 2.4.19-pre8 drivers/input/joydev.c
+Message-ID: <20020519201845.Q1976@ucw.cz>
+In-Reply-To: <1021487163.12915.37.camel@dooby.cs.berkeley.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 18, 2002 at 09:08:10PM -0300, ULISSES FURQUIM FREIRE DA SILVA wrote:
+On Wed, May 15, 2002 at 11:26:02AM -0700, Robert T. Johnson wrote:
+
+> Sailesh Krishmurthy and I have found what we believe is an exploitable
+> bug in drivers/input/joydev.c:joydev_ioctl().  It looks like the
+> JSIOCSAXMAP and JSIOCSBTNMAP cases accidentally reverse the arguments to
+> copy_from_user().  A user program could call these ioctls with a
+> maliciously chosen arg to crash the system or gain root access.  A patch
+> is attached to this message (though my mailer will probably mangle it --
+> sorry).  We apologize if we have misunderstood the behavior of this
+> function.
+
+Thanks for this report, this was found and fixed already.
+
 > 
-> Hi,
+> We found this bug using the static analysis tool cqual,
+> http://www.cs.berkeley.edu/~jfoster/cqual/, developed at UC Berkeley by
+> Jeff Foster, John Kodumal, and many others.
 > 
-> 	I installed Red Hat 7.3 and the 2.4.18-3 kernel shows some IDE
-> errors on boot like:
+> Please CC us in any replies.
 > 
-> VFS: Mounted root (ext2 filesystem).
-> Journalled Block Device driver loaded
-> hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-> hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
-> hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-> hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
-> hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-> hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
-> hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-> hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
-> ide0: reset: success
-> kjournald starting.  Commit interval 5 seconds
-> EXT3-fs: mounted filesystem with ordered data mode.
+> Thanks for all your great work on the kernel.
 > 
-> 	I also tried the 2.4.18-4 kernel, but the errors continue. It's
-> weird cause this happen only on boot and in spite of it the system runs
-> fine.
-> 	I have a SiS 5513 chipset with a QUANTUM FIREBALLlct15 20 IDE
-> drive.
-> 	I'm not sure if I have a true hardware problem or if there is a
-> bug in the kernel. Any ideas?
-> 	(please CC the answers to me)
+> Best,
+> Rob Johnson (rtjohnso@cs.berkeley.edu)
+> Sailesh Krishnamurthy (sailesh@cs.berkeley.edu)
 > 
-> Thanks,
 > 
-> -- Ulisses
+> 
+> --- joydev.c    Wed May 15 10:25:26 2002
+> +++ joydev_fixed.c      Wed May 15 10:37:36 2002
+> @@ -363,7 +363,7 @@
+>                         return copy_to_user((struct js_corr *) arg,
+> joydev->corr,
+>                                                 sizeof(struct js_corr) *
+> joydev->nabs) ? -EFAULT : 0;
+>                 case JSIOCSAXMAP:
+> -                       if (copy_from_user((__u8 *) arg, joydev->abspam,
+> sizeof(__u8) *
+> ABS_MAX))
+> +                       if (copy_from_user(joydev->abspam, (__u8 *) arg,
+> sizeof(__u8) *
+> ABS_MAX))
+>                                 return -EFAULT;
+>                         for (i = 0; i < ABS_MAX; i++) {
+>                                 if (joydev->abspam[i] > ABS_MAX) return
+> -EINVAL;
+> @@ -374,7 +374,7 @@
+>                         return copy_to_user((__u8 *) arg,
+> joydev->abspam,
+>                                                 sizeof(__u8) * ABS_MAX)
+> ? -EFAULT : 0;
+>                 case JSIOCSBTNMAP:
+> -                       if (copy_from_user((__u16 *) arg,
+> joydev->absmap, sizeof(__u16) *
+> (KEY_MAX - BTN_MISC)))
+> +                       if (copy_from_user(joydev->absmap, (__u16 *)
+> arg, sizeof(__u16) *
+> (KEY_MAX - BTN_MISC)))
+>                                 return -EFAULT;
+>                         for (i = 0; i < KEY_MAX - BTN_MISC; i++); {
+>                                 if (joydev->keypam[i] > KEY_MAX ||
+> joydev->keypam[i] < BTN_MISC)
+> return -EINVAL;
 > 
 
-What's your exact chipset ?
-
-`lspci | grep "00:00.0"` should show it.
-
-SiS5513 is the IDE interface device shown on the PCI bus but there are a
-hell lot of revisions.
-
-BadCRC can be due to flaky hardware but I guess incorrect timings could be
-another source of the problem. The only case of incorrect timings I'm aware
-of is for ATA133: SiS645DX (just began working on it).
-
-The IDE code should lower the DMA mode by itself when it sees BadCRC, what's
-the output of `hdparm -i /dev/hda` after these errors show up ?
-
-LB.
+-- 
+Vojtech Pavlik
+SuSE Labs

@@ -1,83 +1,116 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264702AbSLVCKm>; Sat, 21 Dec 2002 21:10:42 -0500
+	id <S264705AbSLVCnO>; Sat, 21 Dec 2002 21:43:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264705AbSLVCKm>; Sat, 21 Dec 2002 21:10:42 -0500
-Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:1153 "EHLO
-	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S264702AbSLVCKl>;
-	Sat, 21 Dec 2002 21:10:41 -0500
-Date: Sun, 22 Dec 2002 02:18:24 +0000
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Ulrich Drepper <drepper@redhat.com>, bart@etpmod.phys.tue.nl,
-       davej@codemonkey.org.uk, hpa@transmeta.com, terje.eggestad@scali.com,
-       matti.aarnio@zmailer.org, hugh@veritas.com, mingo@elte.hu,
-       linux-kernel@vger.kernel.org
-Subject: Re: Intel P6 vs P7 system call performance
-Message-ID: <20021222021824.GA24485@bjl1.asuk.net>
-References: <20021221171808.GA23577@bjl1.asuk.net> <Pine.LNX.4.44.0212211127240.2168-100000@home.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0212211127240.2168-100000@home.transmeta.com>
-User-Agent: Mutt/1.4i
+	id <S264706AbSLVCnO>; Sat, 21 Dec 2002 21:43:14 -0500
+Received: from smtp-outbound.cwctv.net ([213.104.18.10]:31067 "EHLO
+	smtp.cwctv.net") by vger.kernel.org with ESMTP id <S264705AbSLVCnN>;
+	Sat, 21 Dec 2002 21:43:13 -0500
+From: <Hell.Surfers@cwctv.net>
+To: john@grabjohn.com, linux-kernel@vger.kernel.org
+Date: Sun, 22 Dec 2002 02:50:47 +0000
+Subject: Re: Dedicated kernel bug database
+MIME-Version: 1.0
+X-Mailer: Liberate TVMail 2.6
+Content-Type: multipart/mixed;
+ boundary="1040525447999"
+Message-ID: <0725500480216c2DTVMAIL7@smtp.cwctv.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
->  - eflags (kernel has no sane way to restore things like TF in it
->    atomically with a sysexit)
 
-It is better to use iret with TF.  The penalty of forcing _every_
-system call to pushfl and popfl in user space is quite a lot: I
-measured 30 cycles for "pushfl;popfl" on my 366MHz Celeron.
+--1040525447999
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-("sysenter, setup segments, call a function in kernel space, restore
-segments, sysexit" takes 82 cycles on the same Celeron, so 30 cycles
-is quite a significant proportion to add to that.  Btw, _82_, not 200
-or so).
+What are your ideas???
 
->  - ebp (kernel has to reload it with arg-6)
->  - ecx/edx (kernel _cannot_ restore them).
+Regards, Dean.
 
-These are only needed when delivering a signal.
+On 	Fri, 20 Dec 2002 09:48:53 +0000 (GMT) 	John Bradford <john@grabjohn.com> wrote:
 
-> Your games with looking at %eip are fragile as hell.
+--1040525447999
+Content-Type: message/rfc822
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Like we don't play %eip games anywhere else... (the page fault fixup
-table comes to mind).
+Received: from vger.kernel.org ([209.116.70.75]) by smtp.cwctv.net  with Microsoft SMTPSVC(5.5.1877.447.44);
+	 Fri, 20 Dec 2002 09:38:35 +0000
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+	id <S267758AbSLTJ3G>; Fri, 20 Dec 2002 04:29:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org
+	id <S267759AbSLTJ3G>; Fri, 20 Dec 2002 04:29:06 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:2564 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S267758AbSLTJ3F>;
+	Fri, 20 Dec 2002 04:29:05 -0500
+Received: from darkstar.example.net (localhost [127.0.0.1])
+	by darkstar.example.net (8.12.4/8.12.4) with ESMTP id gBK9mrGE000327;
+	Fri, 20 Dec 2002 09:48:53 GMT
+Received: (from root@localhost)
+	by darkstar.example.net (8.12.4/8.12.4/Submit) id gBK9mrXh000326;
+	Fri, 20 Dec 2002 09:48:53 GMT
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200212200948.gBK9mrXh000326@darkstar.example.net>
+Subject: Re: Dedicated kernel bug database
+To: mbligh@aracnet.com (Martin J. Bligh)
+Date: Fri, 20 Dec 2002 09:48:53 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <79780000.1040355621@titus> from "Martin J. Bligh" at Dec 19, 2002 07:40:22 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Sender: linux-kernel-owner@vger.kernel.org
+Precedence: bulk
+X-Mailing-List: linux-kernel@vger.kernel.org
+Return-Path: linux-kernel-owner+Hell.Surfers=40cwctv.net@vger.kernel.org
 
-> because you have a political agenda that you want to support, that
-> is not really supportable.
+[CC list trimmed]
 
-And there was me thinking I was performance-tuning some code.
-Politics, it gets everywhere, like curry gets onto anything white.
+> > I've got loads of ideas about how we could build a better bug database
+> 
+> Go ahead, knock yourself out. Come back when you're done.
 
-> Saving and restoring the two registers
-> means that they get easier and more efficient to use from inline asms for
-> example, and means that the code is simpler.
+Not sure what you mean.  I do intend to start coding a new bug
+database system today, and I'll announce it on the list when it's
+ready.  If nobody likes it, I wasted my time.
 
-They are not more efficient from inline asms, though marginally
-simpler to write (shorter clobber list).  You just moved the cost from
-the asm itself, where it is usually optimised away, to the trampoline
-where it is always present (and cast in stone).
+> > - for example, we have categories at the moment in Bugzilla.  Why?  We
+> > already have a MAINTAINERS file, so say somebody looks up the relevant
+> > maintainer in that list, finds them, then goes to enter a bug in
+> > Bugzilla.  Now they have to assign it to a category, and different
+> > people may well assign the same bug to different categories -
+> > immediately making duplicate detection more difficult.
+> 
+> Have you actually looked at the maintainers file?
 
-> Your suggestion has _zero_ advantages. Doing two register pop's takes a
-> cycle, and means that the calling sequence is simple and has no special
-> cases.
+Yes.
 
-(Plus another cycle for the two pushes...)
+> It's a twisted mess of outdated information,
 
-> Th eexample code you posted is fragile as hell. Looking at "eip" means
-> that the different system call entry points now have to be extra careful
-> not to have the same return points, which is just _bad_ programming.
+Then it should be updated, that is nothing to do with Bugzilla.
 
-We are talking about a _very_ small trampoline, which is simplicity
-itself compared with entry.S in general.  You're right about the extra
-care (so write a comment!), although it does just work for _all_ entry
-points.  Is this really worse than your own "wonderful hack"?
+> in no well formated order.
 
-<shrug> You're the executive decision maker.  I just know how to
-write fast code.  Thanks for listening.
+Looks easy enough to parse with regular expressions to me.
 
--- Jamie
+> The category list in Bugzilla was an attempt to bring some sanity to
+> the structure,
+
+By adding an extra layer of abstraction.  I don't agree that that
+helps.
+
+> though I won't claim it's perfect. We really need a 3-level tree,
+> but that's a fair amount of work to code.
+
+I disagree, (that we need a 3-level tree).
+
+John.
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+--1040525447999--
+
+

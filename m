@@ -1,66 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264542AbUFLChj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264543AbUFLCjZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264542AbUFLChj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jun 2004 22:37:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264543AbUFLChj
+	id S264543AbUFLCjZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jun 2004 22:39:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264550AbUFLCjZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jun 2004 22:37:39 -0400
-Received: from lakermmtao05.cox.net ([68.230.240.34]:30933 "EHLO
-	lakermmtao05.cox.net") by vger.kernel.org with ESMTP
-	id S264542AbUFLChh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jun 2004 22:37:37 -0400
-Mime-Version: 1.0 (Apple Message framework v618)
+	Fri, 11 Jun 2004 22:39:25 -0400
+Received: from webmail-outgoing.us4.outblaze.com ([205.158.62.67]:29357 "EHLO
+	webmail-outgoing.us4.outblaze.com") by vger.kernel.org with ESMTP
+	id S264543AbUFLCjT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jun 2004 22:39:19 -0400
+X-OB-Received: from unknown (205.158.62.133)
+  by wfilter.us4.outblaze.com; 12 Jun 2004 02:38:33 -0000
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
 Content-Transfer-Encoding: 7bit
-Message-Id: <772741DF-BC19-11D8-888F-000393ACC76E@mac.com>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Pokey the Penguin" <pokey@linuxmail.org>
 To: linux-kernel@vger.kernel.org
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: In-kernel Authentication Tokens (PAGs)
-Date: Fri, 11 Jun 2004 22:37:36 -0400
-X-Mailer: Apple Mail (2.618)
+Cc: "Andrew Rodland" <arodland@entermail.net>
+Date: Sat, 12 Jun 2004 10:39:28 +0800
+Subject: Re: [ANNOUNCE] -ar patchset
+X-Originating-Ip: 82.35.17.124
+X-Originating-Server: ws5-3.us4.outblaze.com
+Message-Id: <20040612023928.A103F23C03@ws5-3.us4.outblaze.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am working on a generic PAG subsystem for the kernel, something that
-handles BLOB PAG data and could be used for OpenAFS, Coda, NFSv4, etc.
-I have a patch, but it is not well tested yet.  Here is an overview of 
-the
-architecture:
+> find the initial version of the patch, with staircase, 
+> autoregulate-swappiness, supermount-ng, ext3 and reiser improvements, and a 
 
-Each process has a PAG, and each PAG has a parent PAG.  Users are
-allowed to make new PAGs associated with their UID and modify ones that
-are already associated with their UID.  Each PAG consists of a set of 
-tokens,
-each uniquely identified by an integral "type" and a string "realm."  
-The
-search for a token by any subsystem is done starting at the immediate 
-parent
-and proceeds upward.  Tokens are in kernel memory and so are not ever
-swapped out.
+I gather that supermount-ng is now quite dated and no longer maintained. Is 
+submount (http://submount.sourceforge.net/) not the current favourite to 
+provide such functionality?
 
-Each PAG is represented in user-space as an integer.  Here are the 
-sys-calls
-that I propose:
+Looking at the two, submount definitely seems more ready for inclusion based 
+on its non-invasive approach.
+-- 
+______________________________________________
+Check out the latest SMS services @ http://www.linuxmail.org 
+This allows you to send and receive SMS through your mailbox.
 
-sys_get_pag
-sys_set_pag
-	These manipulate the PAG associated with a given PID.
 
-sys_get_pag_parent
-sys_set_pag_parent
-	These manipulate the parent PAG of a given PAG
-
-sys_get_pag_uid
-sys_set_pag_uid
-	These manipulate the UID which "owns" a PAG
-
-sys_get_pag_token
-sys_set_pag_token
-	These manipulate tokens within a specific PAG
-
-sys_search_pag_token
-	This executes the search process as described above
-
-Cheers,
-Kyle Moffett
-
+Powered by Outblaze

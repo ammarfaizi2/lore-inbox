@@ -1,71 +1,64 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316935AbSEWQMW>; Thu, 23 May 2002 12:12:22 -0400
+	id <S316937AbSEWQN3>; Thu, 23 May 2002 12:13:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316936AbSEWQMV>; Thu, 23 May 2002 12:12:21 -0400
-Received: from relay2.zonnet.nl ([62.58.50.38]:53491 "EHLO relay2.zonnet.nl")
-	by vger.kernel.org with ESMTP id <S316935AbSEWQMR>;
-	Thu, 23 May 2002 12:12:17 -0400
-Subject: Re: kernel 2.4.19-pre8 reboots instead of halt and 3com messages
-From: Hilbert Barelds <hilbert@hjb-design.com>
-To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0205231345400.23578-100000@netfinity.realnet.co.sz>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 23 May 2002 18:10:54 +0200
-Message-Id: <1022170254.1806.0.camel@calvin.hjblocal.nl>
-Mime-Version: 1.0
+	id <S316938AbSEWQN2>; Thu, 23 May 2002 12:13:28 -0400
+Received: from scfdns02.sc.intel.com ([143.183.152.26]:37096 "EHLO
+	crotus.sc.intel.com") by vger.kernel.org with ESMTP
+	id <S316937AbSEWQNZ>; Thu, 23 May 2002 12:13:25 -0400
+Message-Id: <200205231612.g4NGCTw28127@unix-os.sc.intel.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Mark Gross <mgross@unix-os.sc.intel.com>
+Reply-To: mgross@unix-os.sc.intel.com
+Organization: SSG Intel
+To: Daniel Jacobowitz <dmj+@andrew.cmu.edu>
+Subject: Re: PATCH Multithreaded core dumps for the 2.5.17 kernel  was ....RE: PATCH Multithreaded core dump support for the 2.5.14 (and 15) kernel.
+Date: Thu, 23 May 2002 09:12:05 -0400
+X-Mailer: KMail [version 1.3.1]
+Cc: "Gross, Mark" <mark.gross@intel.com>, "'Erich Focht'" <efocht@ess.nec.de>,
+        "'linux-kernel'" <linux-kernel@vger.kernel.org>,
+        "'Robert Love'" <rml@tech9.net>,
+        "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>,
+        "Luck, Tony" <tony.luck@intel.com>
+In-Reply-To: <59885C5E3098D511AD690002A5072D3C057B489B@orsmsx111.jf.intel.com> <200205230009.g4N09Ow08254@unix-os.sc.intel.com> <20020522201218.B16554@crack.them.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-05-23 at 13:48, Zwane Mwaikambo wrote:
-> On Thu, 23 May 2002 hilbert@hjb-design.com wrote:
-> 
-> > PS The 3com card complains about a "transpoder" x times.
-> 
-> Can you get the exact error message? Is the driver modular?
+On Wednesday 22 May 2002 09:12 pm, Daniel Jacobowitz wrote:
+> > For Ia64 those down_writes are just a pain.  If a user application is
+> > crashing because someone is being rude with GDB corrupting its user pages
+> > then I don't think its worth the hassle of protecting the core dumped
+> > user page mm data from being messed up by a GDB user.
+> > 
+> > I would like to leave the down_write out of elf_core_dump, but it could
+> > be put back if its felt that its needed.
+> > 
+> > Opinions? Comments?
+>
+> I'm not worried about the application crashing.  I'm worried about
+> oopsing if someone is poking at the mmap_sem while we are pretending to
+> have it.  If that is not a valid concern, there should at least be a
+> big red flag saying so.
 
-The exact error message is:
-PCI: Found IRQ 12 for device 00:0a.0
-3c59x: Donald Becker and others. www.scyld.com/network/vortex.html
-00:0a.0: 3Com PCI 3c900 Boomerang 10Mbps Combo at 0xdc00. Vers LK1.1.17
-phy=0, phyx=24, mii_status=0xffff
-phy=1, phyx=0, mii_status=0xffff
-phy=2, phyx=1, mii_status=0xffff
-phy=3, phyx=2, mii_status=0xffff
-phy=4, phyx=3, mii_status=0xffff
-phy=5, phyx=4, mii_status=0xffff
-phy=6, phyx=5, mii_status=0xffff
-phy=7, phyx=6, mii_status=0xffff
-phy=8, phyx=7, mii_status=0xffff
-phy=9, phyx=8, mii_status=0xffff
-phy=10, phyx=9, mii_status=0xffff
-phy=11, phyx=10, mii_status=0xffff
-phy=12, phyx=11, mii_status=0xffff
-phy=13, phyx=12, mii_status=0xffff
-phy=14, phyx=13, mii_status=0xffff
-phy=15, phyx=14, mii_status=0xffff
-phy=16, phyx=15, mii_status=0xffff
-phy=17, phyx=16, mii_status=0xffff
-phy=18, phyx=17, mii_status=0xffff
-phy=19, phyx=18, mii_status=0xffff
-phy=20, phyx=19, mii_status=0xffff
-phy=21, phyx=20, mii_status=0xffff
-phy=22, phyx=21, mii_status=0xffff
-phy=23, phyx=22, mii_status=0xffff
-phy=24, phyx=23, mii_status=0xffff
-phy=25, phyx=25, mii_status=0xffff
-phy=26, phyx=26, mii_status=0xffff
-phy=27, phyx=27, mii_status=0xffff
-phy=28, phyx=28, mii_status=0xffff
-phy=29, phyx=29, mii_status=0xffff
-phy=30, phyx=30, mii_status=0xffff
-phy=31, phyx=31, mii_status=0xffff
-  ***WARNING*** No MII transceivers found!
+We are worried about the same thing :)  
+I can add a nice comment to binfmt_elf.c explaining why the current->mmap_sem 
+isn't taken in elf_core_dump.  
 
-Reguards,
+( I find comments for code that's not there a bit more confusing than 
+comments for code that is there.   I'll try to come up with something 
+meaningful as a comment to the lack of locking policy in elf_core_dump for my 
+next posting.)
 
-Hilbert
+The only risk I can see of oopsing is if some of the user pages get taken 
+away while the core dump is progressing.  With the other processes in the 
+thread group suspended, not holding the  mmap_sem, I truly believe we are 
+good.
 
+I'd like to avoid over locking where no clear need exists.  I understand that 
+this may be the more risky position to take, but I believe its the right 
+thing to do.  Especially on a development kernel.
+
+--mgross

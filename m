@@ -1,50 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281961AbRKZTgl>; Mon, 26 Nov 2001 14:36:41 -0500
+	id <S282002AbRKZTlB>; Mon, 26 Nov 2001 14:41:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282002AbRKZTge>; Mon, 26 Nov 2001 14:36:34 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:21121 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S282000AbRKZTgN>;
-	Mon, 26 Nov 2001 14:36:13 -0500
-Date: Mon, 26 Nov 2001 11:35:55 -0800 (PST)
-Message-Id: <20011126.113555.102784070.davem@redhat.com>
-To: akpm@zip.com.au
-Cc: mingo@elte.hu, bcrl@redhat.com, velco@fadata.bg,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Scalable page cache
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <3C02980E.8EDED15D@zip.com.au>
-In-Reply-To: <Pine.LNX.4.33.0111262115261.17043-100000@localhost.localdomain>
-	<20011126.103327.18298379.davem@redhat.com>
-	<3C02980E.8EDED15D@zip.com.au>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+	id <S282434AbRKZTjp>; Mon, 26 Nov 2001 14:39:45 -0500
+Received: from khan.acc.umu.se ([130.239.18.139]:64964 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id <S282021AbRKZTgz>;
+	Mon, 26 Nov 2001 14:36:55 -0500
+Date: Mon, 26 Nov 2001 20:36:27 +0100
+From: David Weinehall <tao@acc.umu.se>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: Release Policy [was: Linux 2.4.16  ]
+Message-ID: <20011126203627.N5770@khan.acc.umu.se>
+In-Reply-To: <3C028A8D.8040503@zytor.com> <Pine.LNX.4.21.0111261524560.13976-100000@freak.distro.conectiva>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <Pine.LNX.4.21.0111261524560.13976-100000@freak.distro.conectiva>; from marcelo@conectiva.com.br on Mon, Nov 26, 2001 at 03:25:24PM -0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Andrew Morton <akpm@zip.com.au>
-   Date: Mon, 26 Nov 2001 11:29:19 -0800
+On Mon, Nov 26, 2001 at 03:25:24PM -0200, Marcelo Tosatti wrote:
+> 
+> 
+> On Mon, 26 Nov 2001, H. Peter Anvin wrote:
+> 
+> > David Weinehall wrote:
+> > 
+> > >>
+> > >>Oh, and yes, if you settle on a naming scheme, *please* let me know
+> > >>ahead of time so I can update the scripts to track it, rather than
+> > >>finding out by having hundreds of complaints in my mailbox...
+> > >>
+> > > 
+> > > I for one used the -pre and -pre-final naming for the v2.0.39-series,
+> > > and I'll probably use the same naming for the final pre-patch of
+> > > v2.0.40, _unless_ there's some sort of agreement on another naming 
+> > > scheme. I'd be perfectly content with using the -rc naming for the
+> > > final instead. The important thing is not the naming itself, but
+> > > consistency between the different kernel-trees.
+> > > 
+> > 
+> > 
+> > Consistency is a Very Good Thing[TM] (says the one who tries to teach
+> > scripts to understand the naming.)  The advantage with the -rc naming is
+> > that it avoids the -pre5, -pre6, -pre-final, -pre-final-really,
+> > -pre-final-really-i-mean-it-this-time phenomenon when the release
+> > candidate wasn't quite worthy, you just go -rc1, -rc2, -rc3.  There is no
+> > shame in needing more than one release candidate.
+> 
+> Agreed. I stick with the -rc naming convention for 2.4+... 
 
-   "David S. Miller" wrote:
-   > Maybe you should give it a test to find out for sure :)
-   
-   umm..  I've never seen any numbers from you, David.
-   
-I'll work on something for you this week then :-)
-Not a problem.
+Ok, then I'll do likewise.
 
-   ergo, there is no point in futzing with the pagecache_lock *at all*
-   until either TUX is merged, or we decide to support large-scale
-   NUMA hardware well
-   
-Or your "1a", "other sendfile applications", right?
+Linus, Alan?
 
-I really still feel (and will try to show with numbers) that the copy
-being present is not so important.  Like I have stated on other
-occaisions, several platforms do not harm L2 cache state during
-copies, new lines are never brought in.
 
-I expect x86 systems to move more in this direction if they aren't
-somewhat there already.
+Regards: David Weinehall
+  _                                                                 _
+ // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
+//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
+\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </

@@ -1,49 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281420AbRKEXSW>; Mon, 5 Nov 2001 18:18:22 -0500
+	id <S281424AbRKEXbd>; Mon, 5 Nov 2001 18:31:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281424AbRKEXSC>; Mon, 5 Nov 2001 18:18:02 -0500
-Received: from babel.spoiled.org ([217.13.197.48]:33699 "HELO a.mx.spoiled.org")
-	by vger.kernel.org with SMTP id <S281420AbRKEXSA>;
-	Mon, 5 Nov 2001 18:18:00 -0500
-From: Juri Haberland <juri@koschikode.com>
-To: jgarzik@mandrakesoft.com (Jeff Garzik)
-Cc: linux-kernel@vger.kernel.org, dz@debian.org, stephane@tuxfinder.org
-Subject: Re: [PATCH] SMM BIOS on Dell i8100
-X-Newsgroups: spoiled.linux.kernel
-In-Reply-To: <3BE6B869.D79E93B1@mandrakesoft.com>
-User-Agent: tin/1.4.5-20010409 ("One More Nightmare") (UNIX) (OpenBSD/2.9 (i386))
-Message-Id: <20011105231759.02B541195E@a.mx.spoiled.org>
-Date: Tue,  6 Nov 2001 00:17:59 +0100 (CET)
+	id <S281428AbRKEXbX>; Mon, 5 Nov 2001 18:31:23 -0500
+Received: from mailout01.sul.t-online.com ([194.25.134.80]:57526 "EHLO
+	mailout01.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S281424AbRKEXbH>; Mon, 5 Nov 2001 18:31:07 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Thomas Koeller <tkoeller@gmx.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Scheduling of low-priority background processes
+Date: Tue, 6 Nov 2001 00:30:08 +0100
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <Pine.LNX.4.10.10111051722590.13543-100000@coffee.psychology.mcmaster.ca>
+In-Reply-To: <Pine.LNX.4.10.10111051722590.13543-100000@coffee.psychology.mcmaster.ca>
+MIME-Version: 1.0
+Message-Id: <01110523561405.00641@sarkovy.koeller.org>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3BE6B869.D79E93B1@mandrakesoft.com> you wrote:
-> Stephane Jourdois wrote:
->> 
->> Hello,
->> 
->> First, a very big thanx to Massimo for this great piece of code :-)
->> I've been trying to catch those events with no sucess for weeks.
->> 
->> I've got a Dell Inspiron 8100, which seems to differ slightly from
->> i8000. Here is a patch that fixes that. Please do not hesitate to ask me
->> to test some new code or anything on my laptop.
->> 
->> You should also replace your printk("string") with printk(KERN_INFO "string")
-> 
-> Has this been tested in I8000?  You are changing a lot of magic numbers
-> in the code, and noone but you/Massimo know whether that is ok or not...
+On Monday,  5. November 2001 23:24, Mark Hahn wrote:
+>
+> please read the scheduler; it's not that bad, especially if you
+> ignore the SMP case.  normal procs are only considered if there
+> are no runnable RT procs.
 
-Actually, I just tried plain 2.4.14-pre8 and the i8k-module *didn't*
-work with my i8000, but with the patch from Stephane it *does* ;)
+I know the scheduler works this way. But does it have to? What I meant to do 
+was suggesting an improvement.
 
-Happy happy, joy joy...
+Thomas
 
-Juri
-
-PS: BIOS verion A17 if that matters
 
 -- 
-Juri Haberland  <juri@koschikode.com> 
-
+Thomas Koeller
+tkoeller@gmx.net

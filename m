@@ -1,56 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291582AbSBAHX7>; Fri, 1 Feb 2002 02:23:59 -0500
+	id <S291593AbSBAHkk>; Fri, 1 Feb 2002 02:40:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291585AbSBAHXu>; Fri, 1 Feb 2002 02:23:50 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:8202 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S291582AbSBAHXh>;
-	Fri, 1 Feb 2002 02:23:37 -0500
-Date: Thu, 31 Jan 2002 23:22:02 -0800
-From: Greg KH <greg@kroah.com>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-        Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Werner Almesberger <wa@almesberger.net>,
-        "Erik A. Hendriks" <hendriks@lanl.gov>
-Subject: Re: [RFC] x86 ELF bootable kernels/Linux booting Linux/LinuxBIOS
-Message-ID: <20020201072201.GA5666@kroah.com>
-In-Reply-To: <m1zo2vb5rt.fsf@frodo.biederman.org> <8200.1012446189@kao2.melbourne.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <8200.1012446189@kao2.melbourne.sgi.com>
-User-Agent: Mutt/1.3.26i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Fri, 04 Jan 2002 05:11:17 -0800
+	id <S291591AbSBAHka>; Fri, 1 Feb 2002 02:40:30 -0500
+Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:6539 "EHLO
+	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S291590AbSBAHkU>; Fri, 1 Feb 2002 02:40:20 -0500
+Message-Id: <200201312205.g0VM54cS001547@tigger.cs.uni-dortmund.de>
+To: Stuart Young <sgy@amc.com.au>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Wanted: Volunteer to code a Patchbot 
+In-Reply-To: Message from Stuart Young <sgy@amc.com.au> 
+   of "Thu, 31 Jan 2002 11:49:50 +1100." <5.1.0.14.0.20020131114402.02653b10@mail.amc.localnet> 
+Date: Thu, 31 Jan 2002 23:05:04 +0100
+From: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 31, 2002 at 02:03:09PM +1100, Keith Owens wrote:
-> On 30 Jan 2002 19:42:14 -0700, 
-> ebiederm@xmission.com (Eric W. Biederman) wrote:
-> >I like the other suggestion of extending the Hot-plug infrastructure.
-> >In that case I just need to figure out how to logically Hot-unplug all
-> >the devices in the system.  That may be better than a
-> >do_exitcalls()...  As it automatically gets the discrimination right. 
-> 
-> In an ideal world, it should be enough to call the module_exit()
-> functions in reverse order to the module_init(), LIFO.  But check with
-> the hotplug list, they have done most of the work on this problem.
+Stuart Young <sgy@amc.com.au> said:
 
-Actually, no we haven't :)
+[...]
 
-We punt on the "do we remove the driver when the device disappears"
-issue, and instead ignore the hotplug REMOVE events right now.
+> Possibly, but then it'll reply to the spammer and you'll get bounces left 
+> and right. Perhaps it's a simple case that the patcher submitting will have 
+> to have registered the email address before submitting their patch. Only 
+> needs to be done once (not every time a patch is submitted, that's mad!), 
+> and weeds out the noise.
 
-So far, no one's complained.
-
-But to unplug all of the devices in the system in the proper order,
-you're probably going to have to use the driverfs tree that is slowly
-taking shape.  That's the only representation of all physical devices in
-the system that shows the topology correctly.
-
-Hope this helps,
-
-greg k-h
+And then lkml will be swamped with questions as to why the automated patch
+system doesn't work, or it will just not be used at all because it is more
+work than just firing off a patch at lkml.
+-- 
+Horst von Brand			     http://counter.li.org # 22616

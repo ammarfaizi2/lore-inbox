@@ -1,60 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266490AbUFQNRM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266485AbUFQNTs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266490AbUFQNRM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 09:17:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266498AbUFQNRL
+	id S266485AbUFQNTs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 09:19:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266482AbUFQNRh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 09:17:11 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:51338 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S266490AbUFQNOR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 09:14:17 -0400
-Date: Thu, 17 Jun 2004 15:15:30 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Takao Indoh <indou.takao@soft.fujitsu.com>
-Cc: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Andi Kleen <ak@muc.de>
-Subject: Re: [3/4] [PATCH]Diskdump - yet another crash dump function
-Message-ID: <20040617131530.GA26155@elte.hu>
-References: <20040617121356.GA24338@elte.hu> <CBC4546BAB9F1Aindou.takao@soft.fujitsu.com> <20040617131016.GA25920@elte.hu> <20040617131140.GA26107@elte.hu>
+	Thu, 17 Jun 2004 09:17:37 -0400
+Received: from [213.13.117.218] ([213.13.117.218]:9698 "EHLO
+	mail.paradigma.co.pt") by vger.kernel.org with ESMTP
+	id S266487AbUFQNNu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jun 2004 09:13:50 -0400
+Date: Thu, 17 Jun 2004 14:13:44 +0100
+From: Nuno Monteiro <nuno@itsari.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: rwsem-spinlock error
+Message-ID: <20040617131344.GA2916@hobbes.itsari.int>
+References: <20040616183343.GA9940@logos.cnet> <Pine.GSO.4.58.0406171206470.22919@waterleaf.sonytel.be> <40D173F8.4060701@yahoo.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Disposition: inline
-In-Reply-To: <20040617131140.GA26107@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <40D173F8.4060701@yahoo.com.au> (from nickpiggin@yahoo.com.au on Thu, Jun 17, 2004 at 11:35:36 +0100)
+X-Mailer: Balsa 2.0.15
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Ingo Molnar <mingo@elte.hu> wrote:
-
-> > yes it can be done safely - just INIT_LIST_HEAD() all the timer list
-> > heads - like init_timers_cpu() does.
+On 2004.06.17 11:35, Nick Piggin wrote:
+> Geert Uytterhoeven wrote:
+>> On Wed, 16 Jun 2004, Marcelo Tosatti wrote:
+>> 
+>>> <nickpiggin:yahoo.com.au>:
+>>>  o rwsem race fixes backported from 2.6
+>> 
+>> 
+>>> Nuno Monteiro:
+>>>  o Fix rwsem-fix typo
+>>>  o Complete rwsem typo fix
+>> 
+>> 
+>> | rwsem-spinlock.c: In function `__rwsem_wake_one_writer':
+>> | rwsem-spinlock.c:111: `tsk' undeclared (first use in this function)
+>> | rwsem-spinlock.c:111: (Each undeclared identifier is reported only 
+>> once
+>> | rwsem-spinlock.c:111: for each function it appears in.)
+>> 
+>> How can this ever compile on any architecture?
+>> 
 > 
-> obviously this only involves the dumping CPU - no other CPU will run
-> any kernel code. On SMP you should also clear the timer spinlock of
-> the dumping CPU's timer base, if the crash happened within the timer
-> code.
+> Dangit. rwsem-spinlock.c isn't compiled for many architectures.
+> 
+> It should just require a
+> 
+> 	struct task_struct *tsk;
+> 
 
-put another way: you can consider 'safe dumping' to involve a simplified
-bootup and initialization of the kernel's data structures that you need
-during the dump, to create a barrier for any (possibly corrupted) kernel
-data state prior the crash.
 
-you need to 'boot up' your dumping data structures, the driver (and
-hardware) you are going to use for dumping, and the timer code as well.
+Yeah, m68k being one of those that need it, hence why Geert noticed 
+immediately. I only tested on x86, ppc32 and alpha, none of which
+needs it. This should do the trick, then.
 
-(total separation is not possible because e.g. the dumping code's
-pagetable entries are a data structure too that could get corrupted - on
-the other hand complete separation is not necessary because crash
-statistics show that this is not a likely event - it is much more likely
-to get failure due to hw errors.)
 
-	Ingo
+
+--- linux-2.4/lib/rwsem-spinlock.c~fix-rwsem-race-fix-3	2004-06-16 21:50:49.000000000 +0100
++++ linux-2.4/lib/rwsem-spinlock.c	2004-06-17 13:58:19.833211128 +0100
+@@ -101,6 +101,7 @@ static inline struct rw_semaphore *__rws
+ static inline struct rw_semaphore *__rwsem_wake_one_writer(struct rw_semaphore *sem)
+ {
+ 	struct rwsem_waiter *waiter;
++	struct task_struct *tsk;
+ 
+ 	sem->activity = -1;
+ 
+
+

@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269204AbTGZTmT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jul 2003 15:42:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269226AbTGZTmT
+	id S268822AbTGZTkw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jul 2003 15:40:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268736AbTGZTkw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jul 2003 15:42:19 -0400
-Received: from louise.pinerecords.com ([213.168.176.16]:1993 "EHLO
+	Sat, 26 Jul 2003 15:40:52 -0400
+Received: from louise.pinerecords.com ([213.168.176.16]:969 "EHLO
 	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id S269204AbTGZTmN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jul 2003 15:42:13 -0400
-Date: Sat, 26 Jul 2003 21:57:22 +0200
+	id S269226AbTGZTkk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jul 2003 15:40:40 -0400
+Date: Sat, 26 Jul 2003 21:55:44 +0200
 From: Tomas Szepe <szepe@pinerecords.com>
 To: Linus Torvalds <torvalds@osdl.org>
 Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: [TRIVIAL] use ext2/ext3 consistently in Kconfig
-Message-ID: <20030726195722.GB16160@louise.pinerecords.com>
+Subject: [TRIVIAL] kill annoying submenus in fs/Kconfig
+Message-ID: <20030726195544.GA16160@louise.pinerecords.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,7 +22,6 @@ User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-$subj + also clarify what fs versions the current reiser module supports.
 Patch against -bk3.
 
 -- 
@@ -30,32 +29,92 @@ Tomas Szepe <szepe@pinerecords.com>
 
 
 diff -urN a/fs/Kconfig b/fs/Kconfig
---- a/fs/Kconfig	2003-07-26 20:50:55.000000000 +0200
-+++ b/fs/Kconfig	2003-07-26 20:51:48.000000000 +0200
-@@ -5,7 +5,7 @@
- menu "File systems"
+--- a/fs/Kconfig	2003-06-14 23:07:12.000000000 +0200
++++ b/fs/Kconfig	2003-07-26 20:48:56.000000000 +0200
+@@ -481,7 +481,11 @@
+ 	  local network, you probably do not need an automounter, and can say
+ 	  N here.
  
- config EXT2_FS
--	tristate "Second extended fs support"
-+	tristate "Ext2 fs support"
- 	help
- 	  This is the de facto standard Linux file system (method to organize
- 	  files on a storage device) for hard disks.
-@@ -89,7 +89,7 @@
- 	tristate "Ext3 journalling file system support"
- 	help
- 	  This is the journaling version of the Second extended file system
--	  (often called ext3), the de facto standard Linux file system
-+	  (often called ext2), the de facto standard Linux file system
- 	  (method to organize files on a storage device) for hard disks.
+-menu "CD-ROM/DVD Filesystems"
++config CD_FS
++	bool "CD-ROM/DVD Filesystems"
++	default y
++
++if CD_FS
  
- 	  The journaling code included in this driver means you do not have
-@@ -200,7 +200,7 @@
- 	default m if EXT2_FS=m || EXT3_FS=m
+ config ISO9660_FS
+ 	tristate "ISO 9660 CDROM file system support"
+@@ -545,9 +549,13 @@
  
- config REISERFS_FS
--	tristate "Reiserfs support"
-+	tristate "Reiserfs support (for v3.5 & v3.6 filesystems)"
- 	help
- 	  Stores not just filenames but the files themselves in a balanced
- 	  tree.  Uses journaling.
+ 	  If unsure, say N.
+ 
+-endmenu
++endif
++
++config MS_FS
++	bool "DOS/FAT/NT Filesystems"
++	default y
+ 
+-menu "DOS/FAT/NT Filesystems"
++if MS_FS
+ 
+ config FAT_FS
+ 	tristate "DOS FAT fs support"
+@@ -728,9 +736,13 @@
+ 
+ 	  It is strongly recommended and perfectly safe to say N here.
+ 
+-endmenu
++endif
++
++config PSEUDO_FS
++	bool "Pseudo filesystems"
++	default y
+ 
+-menu "Pseudo filesystems"
++if PSEUDO_FS
+ 
+ config PROC_FS
+ 	bool "/proc file system support"
+@@ -881,9 +893,13 @@
+ 	  say M here and read <file:Documentation/modules.txt>.  The module
+ 	  will be called ramfs.
+ 
+-endmenu
++endif
++
++config MISC_FS
++	bool "Miscellaneous filesystems"
++	default y
+ 
+-menu "Miscellaneous filesystems"
++if MISC_FS
+ 
+ config ADFS_FS
+ 	tristate "ADFS file system support (EXPERIMENTAL)"
+@@ -1261,10 +1277,14 @@
+ 	  Say Y here if you want to try writing to UFS partitions. This is
+ 	  experimental, so you should back up your UFS partitions beforehand.
+ 
+-endmenu
++endif
+ 
+-menu "Network File Systems"
++config NET_FS
++	bool "Network File Systems"
+ 	depends on NET
++	default y
++
++if NET_FS
+ 
+ config NFS_FS
+ 	tristate "NFS file system support"
+@@ -1591,7 +1611,7 @@
+ 	default m if AFS_FS=m
+ 	default y if AFS_FS=y
+ 
+-endmenu
++endif
+ 
+ menu "Partition Types"
+ 

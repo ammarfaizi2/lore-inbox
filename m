@@ -1,36 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129170AbRBVAUo>; Wed, 21 Feb 2001 19:20:44 -0500
+	id <S129785AbRBVAWE>; Wed, 21 Feb 2001 19:22:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129785AbRBVAUZ>; Wed, 21 Feb 2001 19:20:25 -0500
-Received: from jalon.able.es ([212.97.163.2]:63144 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S129170AbRBVAUW>;
-	Wed, 21 Feb 2001 19:20:22 -0500
-Date: Thu, 22 Feb 2001 01:20:12 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: afpfs or fs template
-Message-ID: <20010222012012.C4670@werewolf.able.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.1.1
+	id <S130162AbRBVAVz>; Wed, 21 Feb 2001 19:21:55 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:25870 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129785AbRBVAVo>; Wed, 21 Feb 2001 19:21:44 -0500
+Subject: Re: Linux stifles innovation...
+To: chromi@cyberspace.org (Jonathan Morton)
+Date: Thu, 22 Feb 2001 00:21:47 +0000 (GMT)
+Cc: kernel@blackhole.compendium-tech.com (Dr. Kelsey Hudson),
+        vido@ldh.org (Augustin Vidovic), dennis@etinc.com (Dennis),
+        jesse@cats-chateau.net, A.J.Scott@casdn.neu.edu,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <l0313035fb6ba002f9000@[192.168.239.101]> from "Jonathan Morton" at Feb 22, 2001 12:09:01 AM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14VjW2-000369-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> - Some architectures' ports of the Linux kernel, at least in their current
+> state (has anyone actually tried to *compile* the PPC kernel since
+> 2.4.<whatever> besides me?)
 
-Anybody knows if there is a port of afpfs (AppleShare networkin) to 2.4
-kernels ?
-
-If not, which file system module would you choose as a template to port
-an existent fs module (afpfs worked for 2.2.6) ?
-
-TIA
-
--- 
-J.A. Magallon                                                      $> cd pub
-mailto:jamagallon@able.es                                          $> more beer
-
-Linux werewolf 2.4.1-ac20 #3 SMP Wed Feb 21 01:49:47 CET 2001 i686
-
+Yes it compiles beautifully. Just remember to get it from the ppc tree
+because its not merged yet

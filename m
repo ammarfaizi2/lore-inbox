@@ -1,51 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265148AbRFZXdS>; Tue, 26 Jun 2001 19:33:18 -0400
+	id <S265156AbRFZXrC>; Tue, 26 Jun 2001 19:47:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265149AbRFZXdI>; Tue, 26 Jun 2001 19:33:08 -0400
-Received: from MailAndNews.com ([199.29.68.123]:6162 "EHLO MailAndNews.com")
-	by vger.kernel.org with ESMTP id <S265148AbRFZXdD>;
-	Tue, 26 Jun 2001 19:33:03 -0400
-X-WM-Posted-At: MailAndNews.com; Tue, 26 Jun 01 19:32:55 -0400
-Message-ID: <019701c0fe98$382c8620$c405a33e@Brekoo>
-Reply-To: "Marc Brekoo" <maddog@linux.nl>
-From: "Marc Brekoo" <m_brekoo@mailandnews.com>
-To: "Robert Love" <rml@tech9.net>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33L.0106261602380.23373-100000@duckman.distro.conectiva> <993588379.763.0.camel@phantasy>
-Subject: Re: Maintainers master list?
-Date: Wed, 27 Jun 2001 01:10:59 +0200
+	id <S265157AbRFZXqn>; Tue, 26 Jun 2001 19:46:43 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:20494 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S265156AbRFZXqa>; Tue, 26 Jun 2001 19:46:30 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH] User chroot
+Date: 26 Jun 2001 16:46:02 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9hb6rq$49j$1@cesium.transmeta.com>
+In-Reply-To: <20010627014534.B2654@ondska>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 26 Jun 2001, Robert Love wrote:
-> me.  I took issue with the MAINTAINERS file when Eric brought it up
-> originally.  However, I don't think drastic measures need to be taken.
-> I have seen a lot of ideas, including Meta-data in the kernel source.
->
-> What I think we need is the simple solution: find a maintainer for the
-> file, cleanup the current cruft and misinformation, and then actively
-> work to keep the file current.  I am willing to be this maintainer.
->
-> I am not a major "maintainer" in the kernel, but I have and do
-> contribute.  Thus I think this is a good task for me.  I am willing and
-> wanting to do this.  Comments?
+Followup to:  <20010627014534.B2654@ondska>
+By author:    Jorgen Cederlof <jc@lysator.liu.se>
+In newsgroup: linux.dev.kernel
+> 
+> Have you ever wondered why normal users are not allowed to chroot?
+> 
+> I have. The reasons I can figure out are:
+> 
+> * Changing root makes it trivial to trick suid/sgid binaries to do
+>   nasty things.
+> 
+> * If root calls chroot and changes uid, he expects that the process
+>   can not escape to the old root by calling chroot again.
+> 
+> If we only allow user chroots for processes that have never been
+> chrooted before, and if the suid/sgid bits won't have any effect under
+> the new root, it should be perfectly safe to allow any user to chroot.
+> 
 
-I've been waiting for an opportunity like this to join in, so I'd be very
-happy to help you with this.
+Safe, perhaps, but also completely useless: there is no way the user
+can set up a functional environment inside the chroot.  In other
+words, it's all pain, no gain.
 
-(This would be my first contribution to linux, please be gentle :-)
-
-Regards,
-
-Marc Brekoo
-
-
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt

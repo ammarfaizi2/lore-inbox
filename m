@@ -1,47 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261167AbVCQVxX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261182AbVCQVx6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261167AbVCQVxX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Mar 2005 16:53:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261228AbVCQVxV
+	id S261182AbVCQVx6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Mar 2005 16:53:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261228AbVCQVxu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Mar 2005 16:53:21 -0500
-Received: from hermine.aitel.hist.no ([158.38.50.15]:55314 "HELO
-	hermine.aitel.hist.no") by vger.kernel.org with SMTP
-	id S261167AbVCQVwy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Mar 2005 16:52:54 -0500
-Date: Thu, 17 Mar 2005 22:56:14 +0100
-To: regatta <regatta@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 32Bit vs 64Bit
-Message-ID: <20050317215614.GA30388@hh.idb.hist.no>
-References: <5a3ed5650503160744730b7db4@mail.gmail.com>
+	Thu, 17 Mar 2005 16:53:50 -0500
+Received: from fire.osdl.org ([65.172.181.4]:55959 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261229AbVCQVvl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Mar 2005 16:51:41 -0500
+Date: Thu, 17 Mar 2005 13:51:38 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: cel@citi.umich.edu (Chuck Lever)
+Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       nfs@lists.sourceforge.net
+Subject: Re: [PATCH 2/2] NFS: add I/O performance counters
+Message-Id: <20050317135138.3d6c2e61.akpm@osdl.org>
+In-Reply-To: <20050317162615.815EA1BB95@citi.umich.edu>
+References: <20050317162615.815EA1BB95@citi.umich.edu>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5a3ed5650503160744730b7db4@mail.gmail.com>
-User-Agent: Mutt/1.5.6+20040907i
-From: Helge Hafting <helgehaf@aitel.hist.no>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 16, 2005 at 06:44:51PM +0300, regatta wrote:
-> Hi everyone,
-> 
-> I have a question about the 64Bit mode in AMD 64bit
-> 
-> My question is if I run a 32Bit application in Optreon AMD 64Bit with
-> Linux 64Bit does this give my any benefit ? I mean running 32Bit
-> application in 64Bit machine with 64 Linux is it better that running
-> it in 32Bit or doesn't make any different at all ?
-> 
-There are quite a few indirect benefits:
+cel@citi.umich.edu (Chuck Lever) wrote:
+>
+> +static inline void nfs_inc_stats(struct inode *inode, unsigned int stat)
+> +{
+> +	struct nfs_iostats *iostats = NFS_SERVER(inode)->io_stats;
+> +	iostats[smp_processor_id()].counts[stat]++;
+> +}
 
-The kernel itself might be faster because it takes advantage
-of extra registers and so on.  So the app might wait less on
-its syscalls.
+The use of smp_processor_id() outside locks should spit a runtime warning. 
+And it is racy: if you switch CPUs between the read and the write (via
+preemption), the stats will be corrupted.
 
-Also, this app may be 32-bit but surely a lot of other programs
-will be available as 64-bit software and will be faster.  That
-leaves more time for running your 32-bit app.
+A preempt_disable()/enable() will fix those things up.
 
-Helge Hafting
+> +static inline struct nfs_iostats *nfs_alloc_iostats(void)
+> +{
+> +	struct nfs_iostats *new;
+> +	new = kmalloc(sizeof(struct nfs_iostats) * NR_CPUS, GFP_KERNEL);
+> +	if (new)
+> +		memset(new, 0, sizeof(struct nfs_iostats) * NR_CPUS);
+> +	return new;
+> +}
+> +
+
+You'd be better off using alloc_percpu() here, so each CPU's counter goes
+into its node-local memory.
+
+Or simply use <linux/percpu_counter.h>.  AFACIT the warning at the top of
+that file isn't true any more.  A 4-byte counter on a 32-way should consume
+just a little over 256 bytes.

@@ -1,68 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266250AbUIHM5Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267563AbUIHM5P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266250AbUIHM5Q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 08:57:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267454AbUIHM47
+	id S267563AbUIHM5P (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 08:57:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266250AbUIHM4d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 08:56:59 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:62215 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S267514AbUIHMtJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 08:49:09 -0400
-Date: Wed, 8 Sep 2004 13:49:03 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Scott Wood <scott@timesys.com>
-Subject: Re: [patch] generic-hardirqs.patch, 2.6.9-rc1-bk14
-Message-ID: <20040908134903.A31498@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org, Scott Wood <scott@timesys.com>
-References: <20040908120613.GA16916@elte.hu> <20040908133445.A31267@infradead.org> <20040908124547.GA19231@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 8 Sep 2004 08:56:33 -0400
+Received: from grendel.digitalservice.pl ([217.67.200.140]:9126 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S267566AbUIHMva (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Sep 2004 08:51:30 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Fw: 2.6.9-rc1-mm4: swsusp + AMD64 = LOCKUP on CPU0
+Date: Wed, 8 Sep 2004 14:51:55 +0200
+User-Agent: KMail/1.6.2
+Cc: Andi Kleen <ak@suse.de>, Pavel Machek <pavel@ucw.cz>
+References: <20040908021637.57525d43.akpm@osdl.org.suse.lists.linux.kernel> <20040908102652.GA2921@atrey.karlin.mff.cuni.cz.suse.lists.linux.kernel> <p73acw1hsvv.fsf@brahms.suse.de>
+In-Reply-To: <p73acw1hsvv.fsf@brahms.suse.de>
+MIME-Version: 1.0
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040908124547.GA19231@elte.hu>; from mingo@elte.hu on Wed, Sep 08, 2004 at 02:45:47PM +0200
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200409081451.55531.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 08, 2004 at 02:45:47PM +0200, Ingo Molnar wrote:
-> some of the architectures dont want to (and cannot) use the generic
-> functions for one reason or another. So the proper approach i believe is
-> to provide these generic functions the architectures can plug in. I can
-> do an asm-generic/hardirq.h that adds all the definitions, for
-> architectures that dont need any special IRQ logic.
-
-Some architectures definitly can't use it.  That's why the prototypes for
-them arch in arch-headers.  No need to introduce totally useless wrappers.
-The asm-generic one sounds like a good idea, but I'd wait with that one
-until the consolidation is mostly finished, aka all architectures that
-currently use more or less a copy of the i386 irq.c are migrated over so
-we can see it's scope.
-
-> > >  obj-y     = sched.o fork.o exec_domain.o panic.o printk.o profile.o \
-> > > -	    exit.o itimer.o time.o softirq.o resource.o \
-> > > +	    exit.o itimer.o time.o softirq.o hardirq.o resource.o \
-> > 
-> > And make hardirq.o dependent on some symbols the architectures set.
-> > Else arches that don't use it carry tons of useless baggage around
-> > (and in fact I'm pretty sure it wouldn't even compie for many)
+On Wednesday 08 of September 2004 14:01, Andi Kleen wrote:
+> Pavel Machek <pavel@ucw.cz> writes:
 > 
-> it compiles fine on x86, x64, ppc and ppc64. Why do you think it wont
-> compile on others?
+> > Hi!
+> > 
+> > > One for you guys on lkml ;)
+> > 
+> > It simply takes long to count pages (O(n^2) algorithm), so watchdog
+> > triggers. I have better algorithm locally, but would like merge to
+> > linus first. (I posted it to lkml some days ago, I can attach the
+> > bigdiff).
+> > 
+> > Just disable the watchdog. Suspend *is* going to take time with
+> > disabled interrupts.
+> 
+> 
+> As a short term workaround you could also add touch_nmi_watchdog()s
+> in that loop.
 
-linux/irq.h is despite it's name _not_ a public header but a misnamed
-asm-generic/hw_irq.h.  There's quite a few architectures with a completely
-different interrupt architecture and for tose it won't compile.
+You mean like that:
 
-> wrt. unused generic functions - why dont we drop them link-time?
+--- swsusp.c.orig	2004-09-08 14:30:29.049656984 +0200
++++ swsusp.c	2004-09-08 14:41:42.133332712 +0200
+@@ -38,6 +38,7 @@
+ 
+ #include <linux/module.h>
+ #include <linux/mm.h>
++#include <linux/nmi.h>
+ #include <linux/suspend.h>
+ #include <linux/smp_lock.h>
+ #include <linux/file.h>
+@@ -561,6 +562,7 @@
+ 
+ 	for_each_zone(zone) {
+ 		if (!is_highmem(zone)) {
++			touch_nmi_watchdog();
+ 			for (zone_pfn = 0; zone_pfn < zone->spanned_pages; ++zone_pfn)
+ 				nr_copy_pages += saveable(zone, &zone_pfn);
+ 		}
+@@ -576,6 +578,7 @@
+ 	
+ 	for_each_zone(zone) {
+ 		if (!is_highmem(zone))
++			touch_nmi_watchdog();
+ 			for (zone_pfn = 0; zone_pfn < zone->spanned_pages; ++zone_pfn) {
+ 				if (saveable(zone, &zone_pfn)) {
+ 					struct page * page;
+---
 
-make explicit what you can do easily instead of relying on the compiler.
-It allows to get rid of your horrible generic_ hacks, cuts down compile
-time and makes explicit to anyone looking at the code and Kconfig which
-architectures use this.
+Just guessing. :-)
 
+Greets,
+RJW
+
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

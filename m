@@ -1,45 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262520AbVCIWvz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262472AbVCIW5G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262520AbVCIWvz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 17:51:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262519AbVCIWtc
+	id S262472AbVCIW5G (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 17:57:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262080AbVCIW4e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 17:49:32 -0500
-Received: from fmr21.intel.com ([143.183.121.13]:1999 "EHLO
-	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
-	id S262187AbVCIWSV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 17:18:21 -0500
-Message-Id: <200503092218.j29MICg26503@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Andrew Morton'" <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>, <axboe@suse.de>
-Subject: RE: Direct io on block device has performance regression on 2.6.x kernel
-Date: Wed, 9 Mar 2005 14:18:12 -0800
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcUk41c0T8r0hQONT7+Vrd+cGQzRygADEiRgAAE9mMA=
-In-Reply-To: 
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+	Wed, 9 Mar 2005 17:56:34 -0500
+Received: from nessie.weebeastie.net ([220.233.7.36]:43411 "EHLO
+	theirongiant.lochness.weebeastie.net") by vger.kernel.org with ESMTP
+	id S262472AbVCIWX4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 17:23:56 -0500
+Date: Thu, 10 Mar 2005 09:22:32 +1100
+From: CaT <cat@zip.com.au>
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.11-ac1
+Message-ID: <20050309222232.GH1811@zip.com.au>
+References: <1110231261.3116.90.camel@localhost.localdomain> <20050309072646.GG1811@zip.com.au> <58cb370e05030908267f0fadbe@mail.gmail.com> <1110386321.3116.196.camel@localhost.localdomain> <58cb370e050309084374f93a71@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <58cb370e050309084374f93a71@mail.gmail.com>
+Organisation: Furball Inc.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chen, Kenneth W wrote on Wednesday, March 09, 2005 1:59 PM
-> > Did you generate a kernel profile?
->
-> Top 40 kernel hot functions, percentage is normalized to kernel utilization.
->
-> _spin_unlock_irqrestore		23.54%
-> _spin_unlock_irq			19.27%
-> ....
->
-> Profile with spin lock inlined, so that it is easier to see functions
-> that has the lock contention, again top 40 hot functions:
+On Wed, Mar 09, 2005 at 05:43:02PM +0100, Bartlomiej Zolnierkiewicz wrote:
+> On Wed, 09 Mar 2005 16:38:43 +0000, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> > On Mer, 2005-03-09 at 16:26, Bartlomiej Zolnierkiewicz wrote:
+> > > It can be merged if somebody fix it to always force controller into
+> > > non-RAID mode and remove RAID mode support (which currently
+> > > does nothing more besides complicating the driver and making special
+> > > commands unusable).
+> > 
+> > Incorrect
+> 
+> Very helpful
 
-Just to clarify here, these data need to be taken at grain of salt. A
-high count in _spin_unlock_* functions do not automatically points to
-lock contention.  It's one of the blind spot syndrome with timer based
-profile on ia64.  There are some lock contentions in 2.6 kernel that
-we are staring at.  Please do not misinterpret the number here.
+Argh! Ok. I guess I shouldn't've just bought the card based on this
+driver then so that I could better debug my problems with my promise
+cards. 8(
 
-- Ken
-
-
+-- 
+    Red herrings strewn hither and yon.

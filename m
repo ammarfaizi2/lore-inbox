@@ -1,72 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287219AbRL2WzH>; Sat, 29 Dec 2001 17:55:07 -0500
+	id <S287229AbRL2XBi>; Sat, 29 Dec 2001 18:01:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287218AbRL2WzA>; Sat, 29 Dec 2001 17:55:00 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:4620 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S287202AbRL2Wya>; Sat, 29 Dec 2001 17:54:30 -0500
-Message-ID: <3C2E4875.9D0F4BC6@zip.com.au>
-Date: Sat, 29 Dec 2001 14:49:25 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Davide Libenzi <davidel@xmailserver.org>
-CC: Dieter =?iso-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
-        Robert Love <rml@tech9.net>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Balanced Multi Queue Scheduler ...
-In-Reply-To: <20011229051712Z287139-18284+8656@vger.kernel.org> <Pine.LNX.4.40.0112291424560.1580-100000@blue1.dev.mcafeelabs.com>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S287223AbRL2XB3>; Sat, 29 Dec 2001 18:01:29 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:29670
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S287239AbRL2XBI>; Sat, 29 Dec 2001 18:01:08 -0500
+Date: Sat, 29 Dec 2001 17:43:54 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Legacy Fishtank <garzik@havoc.gtf.org>, Dave Jones <davej@suse.de>,
+        "Eric S. Raymond" <esr@snark.thyrsus.com>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+Subject: Re: [kbuild-devel] Re: State of the new config & build system
+Message-ID: <20011229174354.B8526@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Tom Rini <trini@kernel.crashing.org>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Legacy Fishtank <garzik@havoc.gtf.org>, Dave Jones <davej@suse.de>,
+	"Eric S. Raymond" <esr@snark.thyrsus.com>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>,
+	linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+In-Reply-To: <20011228141211.B15338@thyrsus.com> <Pine.LNX.4.33.0112281408170.23445-100000@penguin.transmeta.com> <20011228173151.B20254@thyrsus.com> <20011229212455.GB21928@cpe-24-221-152-185.az.sprintbbd.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011229212455.GB21928@cpe-24-221-152-185.az.sprintbbd.net>; from trini@kernel.crashing.org on Sat, Dec 29, 2001 at 02:24:55PM -0700
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Davide Libenzi wrote:
+Tom Rini <trini@kernel.crashing.org>:
+> > unless (ISA or PCI) suppress dependent IDE
 > 
-> On Sat, 29 Dec 2001, Dieter [iso-8859-15] Nützel wrote:
+> Just a minor point, but what about non-PCI/ISA ide?
+
+The CML1 rules seem to imply that this set is empty.
+
+> > unless (X86 and PCI and EXPERIMENTAL) or PPC or ARM or SPARC suppress dependent IEEE1394
 > 
-> > Davide worte:
-> > > There's a bug fix and the use of the Time Slice Split Scheduler inside the
-> > > local CPUs schedulers. Versions from 0.46 to 0.52 are broken by the fixed
-> > > bug so testers should use this version :
-> > >
-> > > http://www.xmailserver.org/linux-patches/mss-2.html#patches
-> >
-> > Sorry, if someone asks this before but do you think that you get some stuff
-> > out of it for 2.4.xx?
-> >
-> > Your numbers for the 8 SMP system are great.
-> > Can't wait to do some tests on my poor single 1 GHz Athlon II and soon dual
-> > Athlon MP/XP 1600+ on an MS 6501 (AMD 760MPX).
-> >
-> > Maybe my MP3/Ogg-Vorbis hiccup during dbench 32+ are solved?
-> > Currently running latest 2.4.17+preempt (do think that can be mixed with your
-> > new scheduler?).
+> Wouldn't the experimental be global?  And maybe the PCI too?
+
+I don't understand what change you are suggesting.
+
+> > It seems to me *extremely* unlikely that a typical patch from a PPC
+> > maintainer would mess with any of these!  They're rules that are likely to
+> > be written once at the time a new port is added to the tree and seldom or
+> > ever changed afterwards.
 > 
-> The new patch need ver >= 2.5.2-pre3 because Linus merged the Time Slice
-> Split Scheduler and making it to apply to 2.4.x could be a pain in the b*tt.
-> Yes, as i expected numbers on big SMP are very good but still i don't
-> think that this can help you with your problem.
+> But they will be modified for new arch X, or when constraint X (like
+> PCI) is removed.
 
-I would expect the audio dropouts to be due to disk read latencies
-and insufficiently large buffers in the audio app, and/or failure
-of that audio app to mlock itself down.
+Yes.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-If it's scheduling latency, which I doubt, I yesterday put out
-a 2.4.17 low-latency patch which has a worst-case latency which is
-two orders of magnitude less that the preemptive kernel's.  The
-lock-break patch will improve the preempt patch's worst case.
-http://www.zip.com.au/~akpm/linux/2.4.17-low-latency.patch.gz
-
-> It'd be nice to have inside local_irq_disable()/enable() a cycle counter
-> sampler to see what is the worst case path with disabled irqs.
-> 
-
-http://www.zip.com.au/~akpm/linux/#intlat
-
-This tool needs a bit of maintenance work, but it can measure and identify
-the source of worst-case interrupt latencies quite successfully.
-
--
+"Experience should teach us to be most on our guard to protect liberty when the
+government's purposes are beneficient...The greatest dangers to liberty lurk in
+insidious encroachment by men of zeal, well meaning but without understanding."
+	-- Supreme Court Justice Louis Brandeis

@@ -1,43 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261296AbVCPSTa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262726AbVCPSWM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261296AbVCPSTa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 13:19:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262724AbVCPSTa
+	id S262726AbVCPSWM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 13:22:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262727AbVCPSWM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 13:19:30 -0500
-Received: from mail.kroah.org ([69.55.234.183]:21972 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261296AbVCPST1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 13:19:27 -0500
-Date: Wed, 16 Mar 2005 10:16:44 -0800
-From: Greg KH <greg@kroah.com>
-To: Krzysztof Halasa <khc@pm.waw.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.11.4
-Message-ID: <20050316181644.GG20576@kroah.com>
-References: <20050316002222.GA30602@kroah.com> <m3u0nbybu8.fsf@defiant.localdomain>
+	Wed, 16 Mar 2005 13:22:12 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:37787 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S262726AbVCPSV7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Mar 2005 13:21:59 -0500
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.11-rc3-V0.7.38-01
+From: Lee Revell <rlrevell@joe-job.com>
+To: rostedt@goodmis.org
+Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.58.0503160237410.11824@localhost.localdomain>
+References: <Pine.LNX.4.58.0503111440190.22043@localhost.localdomain>
+	 <1110574019.19093.23.camel@mindpipe> <1110578809.19661.2.camel@mindpipe>
+	 <Pine.LNX.4.58.0503140214360.697@localhost.localdomain>
+	 <Pine.LNX.4.58.0503140427560.697@localhost.localdomain>
+	 <Pine.LNX.4.58.0503140509170.697@localhost.localdomain>
+	 <Pine.LNX.4.58.0503141024530.697@localhost.localdomain>
+	 <Pine.LNX.4.58.0503150641030.6456@localhost.localdomain>
+	 <20050315120053.GA4686@elte.hu>
+	 <Pine.LNX.4.58.0503150746110.6456@localhost.localdomain>
+	 <20050315133540.GB4686@elte.hu>
+	 <Pine.LNX.4.58.0503151150170.6456@localhost.localdomain>
+	 <1110913778.17931.2.camel@mindpipe>
+	 <Pine.LNX.4.58.0503160237410.11824@localhost.localdomain>
+Content-Type: text/plain
+Date: Wed, 16 Mar 2005 13:21:58 -0500
+Message-Id: <1110997318.21212.8.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m3u0nbybu8.fsf@defiant.localdomain>
-User-Agent: Mutt/1.5.8i
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 16, 2005 at 02:11:43PM +0100, Krzysztof Halasa wrote:
-> Greg KH <greg@kroah.com> writes:
+On Wed, 2005-03-16 at 02:50 -0500, Steven Rostedt wrote:
 > 
-> > I've release 2.6.11.4 with two security fixes in it.  It can be found at
-> > the normal kernel.org places.
+> On Tue, 15 Mar 2005, Lee Revell wrote:
 > 
-> How about the N2/C101/PCI200SYN WAN driver fix (kernel panic on receive)?
+> > On Tue, 2005-03-15 at 13:05 -0500, Steven Rostedt wrote:
+> > > Damn! The answer was right there in front of my eyes! Here's the cleanest
+> > > solution. I forgot about wait_on_bit_lock.  I've converted all the locks
+> > > to use this instead.  We probably need to get priority inheritence working
+> > > on this too someday, but for now it's better than wasting memory or
+> > > getting into deadlocks.
+> > >
+> >
+> > I am still not clear on why this did not hit with earlier kernels +
+> > PREEMPT_DESKTOP.  Were the bitlocks introduced recently?  Or was another
+> > lock-break patch dropped?
+> >
 > 
-> Signed-off-by: Krzysztof Halasa <khc@pm.waw.pl>
+> When did you start seeing this? This code has been there as far back as
+> 2.6.7 (the earliest 2.6 kernel I still have laying around) and as far
+> back as Ingo's realtime-preempt-2.6.9-mm1-U10. Maybe the tracing didn't
+> start picking this up till later, or that you were just lucky that no
+> contention was happening on that lock.
 
-It's queued up for the "normal" review process (will probably start
-tomorrow, or later today.)  This release was due to the ppp issue being
-public.
+Sometime after the RT preempt patches were rebased to mainline.
 
-thanks,
+I don't see how there could be contention as I am on a UP.
 
-greg k-h
+Lee
+
+

@@ -1,91 +1,204 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261860AbUCDMTY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Mar 2004 07:19:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261863AbUCDMTY
+	id S261858AbUCDM2c (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Mar 2004 07:28:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261863AbUCDM2c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Mar 2004 07:19:24 -0500
-Received: from www.mymail.ro ([193.231.233.154]:9424 "HELO mail.mymail.ro")
-	by vger.kernel.org with SMTP id S261860AbUCDMTV (ORCPT
+	Thu, 4 Mar 2004 07:28:32 -0500
+Received: from supreme.pcug.org.au ([203.10.76.34]:2205 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id S261858AbUCDM20 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Mar 2004 07:19:21 -0500
-Message-ID: <40471EA9.6000701@mymail.ro>
-Date: Thu, 04 Mar 2004 14:18:49 +0200
-From: DragonK <dragonk@mymail.ro>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Kernel 2.6.3 Oops
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-BannersAdded2: 2
+	Thu, 4 Mar 2004 07:28:26 -0500
+Date: Thu, 4 Mar 2004 23:28:04 +1100
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Linus <torvalds@osdl.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, akpm@osdl.org
+Subject: [PATCH] PPC64 iSeries_vio_dev cleanup
+Message-Id: <20040304232804.1adfb224.sfr@canb.auug.org.au>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1";
+ boundary="Signature=_Thu__4_Mar_2004_23_28_04_+1100_9sUEwlCIdT2JU7ak"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--Signature=_Thu__4_Mar_2004_23_28_04_+1100_9sUEwlCIdT2JU7ak
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
-Hello, I've done a brief search on the list's archive and I haven't 
-found anything
-that looks like this, sorry if it has been posted before:
+Hi Linus,
 
-While running Linux Test Project (ltp-20040206) on a 2.6.3 kernel (with 
-Suse 9.0)
-(Linux frozen 2.6.3 #4 Thu Feb 26 15:02:20 EET 2004 i686 athlon i386 
-GNU/Linux),
-I got the following OOPS message, without leading to system crash:
+This patch declares iSeries_vio_dev in an include file and includes it
+where necessary.  It also fixes arch/ppc64/kernel/mf.c to use the
+generic dma API with iSeries_vio_dev.
 
-Mar  4 14:02:55 frozen kernel: Unable to handle kernel paging request at 
-virtual address fffffff2
-Mar  4 14:02:55 frozen kernel:  printing eip:
-Mar  4 14:02:55 frozen kernel: c01edbd2
-Mar  4 14:02:55 frozen kernel: *pde = 00002067
-Mar  4 14:02:55 frozen kernel: *pte = 00000000
-Mar  4 14:02:55 frozen kernel: Oops: 0002 [#1]
-Mar  4 14:02:55 frozen kernel: CPU:    0
-Mar  4 14:02:55 frozen kernel: EIP:    
-0060:[strncpy_from_user+66/112]    Tainted: P  
-Mar  4 14:02:55 frozen kernel: EIP:    0060:[<c01edbd2>]    Tainted: P  
-Mar  4 14:02:55 frozen kernel: EFLAGS: 00010206
-Mar  4 14:02:55 frozen kernel: EIP is at strncpy_from_user+0x42/0x70
-Mar  4 14:02:55 frozen kernel: eax: d175a000   ebx: fffffff2   ecx: 
-00001000   edx: 00001000
-Mar  4 14:02:55 frozen kernel: esi: 41e20a66   edi: fffffff2   ebp: 
-00000000   esp: d175bedc
-Mar  4 14:02:55 frozen kernel: ds: 007b   es: 007b   ss: 0068
-Mar  4 14:02:55 frozen kernel: Process crash02 (pid: 29476, 
-threadinfo=d175a000 task=ddaba100)
-Mar  4 14:02:55 frozen kernel: Stack: d175bf7c 00001000 fffffff2 
-41e20a65 c0168321 fffffff2 41e20a65 00001000
-Mar  4 14:02:55 frozen kernel:        d175bf7c d175bf38 f7a17e18 
-00000000 c01698ef 41e20a65 c01698ef d175bf7c
-Mar  4 14:02:55 frozen kernel:        d175bf38 f7a17e18 d175a000 
-c01643ac d175a000 c01581ed 00000008 00000000
-Mar  4 14:02:55 frozen kernel: Call Trace:
-Mar  4 14:02:55 frozen kernel:  [getname+145/208] getname+0x91/0xd0
-Mar  4 14:02:55 frozen kernel:  [<c0168321>] getname+0x91/0xd0
-Mar  4 14:02:55 frozen kernel:  [__user_walk+31/128] __user_walk+0x1f/0x80
-Mar  4 14:02:55 frozen kernel:  [<c01698ef>] __user_walk+0x1f/0x80
-Mar  4 14:02:55 frozen kernel:  [__user_walk+31/128] __user_walk+0x1f/0x80
-Mar  4 14:02:55 frozen kernel:  [<c01698ef>] __user_walk+0x1f/0x80
-Mar  4 14:02:55 frozen kernel:  [vfs_lstat+28/112] vfs_lstat+0x1c/0x70
-Mar  4 14:02:55 frozen kernel:  [<c01643ac>] vfs_lstat+0x1c/0x70
-Mar  4 14:02:55 frozen kernel:  [sys_statfs+61/240] sys_statfs+0x3d/0xf0
-Mar  4 14:02:55 frozen kernel:  [<c01581ed>] sys_statfs+0x3d/0xf0
-Mar  4 14:02:55 frozen kernel:  [do_page_fault+0/1411] 
-do_page_fault+0x0/0x583
-Mar  4 14:02:55 frozen kernel:  [<c011eac0>] do_page_fault+0x0/0x583
-Mar  4 14:02:55 frozen kernel:  [sys_lstat+24/64] sys_lstat+0x18/0x40
-Mar  4 14:02:55 frozen kernel:  [<c0164658>] sys_lstat+0x18/0x40
-Mar  4 14:02:55 frozen kernel:  [sys_alarm+63/96] sys_alarm+0x3f/0x60
-Mar  4 14:02:55 frozen kernel:  [<c012ccbf>] sys_alarm+0x3f/0x60
-Mar  4 14:02:55 frozen kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
-Mar  4 14:02:55 frozen kernel:  [<c010b49b>] syscall_call+0x7/0xb
-Mar  4 14:02:55 frozen kernel:
-Mar  4 14:02:55 frozen kernel: Code: aa 84 c0 74 03 49 75 f7 29 ca 89 d3 
-89 d8 8b 74 24 04 8b 7c
+Please apply.
+-- 
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
 
+diff -ruN 2.6.4-rc2/arch/ppc64/kernel/iSeries_iommu.c 2.6.4-rc2.mf/arch/ppc64/kernel/iSeries_iommu.c
+--- 2.6.4-rc2/arch/ppc64/kernel/iSeries_iommu.c	2004-03-04 18:24:45.000000000 +1100
++++ 2.6.4-rc2.mf/arch/ppc64/kernel/iSeries_iommu.c	2004-03-04 23:22:34.000000000 +1100
+@@ -43,6 +43,7 @@
+ #include <asm/iommu.h>
+ #include <asm/pci-bridge.h>
+ #include <asm/iSeries/iSeries_pci.h>
++#include <asm/iSeries/vio.h>
+ 
+ #include <asm/machdep.h>
+ 
+@@ -58,11 +59,6 @@
+ static struct pci_dev _veth_dev = { .sysdata = &veth_dev_node };
+ static struct pci_dev _vio_dev  = { .sysdata = &vio_dev_node, .dev.bus = &pci_bus_type  };
+ 
+-/*
+- * I wonder what the deal is with these.  Nobody uses them.  Why do they
+- * exist? Why do we export them to modules? Why is this comment here, and
+- * why didn't I just delete them?
+- */
+ struct pci_dev *iSeries_veth_dev = &_veth_dev;
+ struct device *iSeries_vio_dev = &_vio_dev.dev;
+ 
+diff -ruN 2.6.4-rc2/arch/ppc64/kernel/mf.c 2.6.4-rc2.mf/arch/ppc64/kernel/mf.c
+--- 2.6.4-rc2/arch/ppc64/kernel/mf.c	2004-02-04 17:24:34.000000000 +1100
++++ 2.6.4-rc2.mf/arch/ppc64/kernel/mf.c	2004-03-04 23:22:34.000000000 +1100
+@@ -38,10 +38,9 @@
+ #include <asm/iSeries/ItSpCommArea.h>
+ #include <asm/iSeries/iSeries_proc.h>
+ #include <asm/uaccess.h>
+-#include <linux/pci.h>
++#include <linux/dma-mapping.h>
+ #include <linux/bcd.h>
+-
+-extern struct pci_dev *iSeries_vio_dev;
++#include <asm/iSeries/vio.h>
+ 
+ /*
+  * This is the structure layout for the Machine Facilites LPAR event
+@@ -791,7 +790,8 @@
+ {
+ 	struct VspCmdData myVspCmd;
+ 	dma_addr_t dma_addr = 0;
+-	char *page = pci_alloc_consistent(iSeries_vio_dev, size, &dma_addr);
++	char *page = dma_alloc_coherent(iSeries_vio_dev, size, &dma_addr,
++			GFP_ATOMIC);
+ 
+ 	if (page == NULL) {
+ 		printk(KERN_ERR "mf.c: couldn't allocate memory to set command line\n");
+@@ -809,7 +809,7 @@
+ 	mb();
+ 	(void)signal_vsp_instruction(&myVspCmd);
+ 
+-	pci_free_consistent(iSeries_vio_dev, size, page, dma_addr);
++	dma_free_coherent(iSeries_vio_dev, size, page, dma_addr);
+ }
+ 
+ int mf_getCmdLine(char *cmdline, int *size, u64 side)
+@@ -819,8 +819,8 @@
+ 	int len = *size;
+ 	dma_addr_t dma_addr;
+ 
+-	dma_addr = pci_map_single(iSeries_vio_dev, cmdline, len,
+-			PCI_DMA_FROMDEVICE);
++	dma_addr = dma_map_single(iSeries_vio_dev, cmdline, len,
++			DMA_FROM_DEVICE);
+ 	memset(cmdline, 0, len);
+ 	memset(&myVspCmd, 0, sizeof(myVspCmd));
+ 	myVspCmd.cmd = 33;
+@@ -840,7 +840,7 @@
+ #endif
+ 	}
+ 
+-	pci_unmap_single(iSeries_vio_dev, dma_addr, *size, PCI_DMA_FROMDEVICE);
++	dma_unmap_single(iSeries_vio_dev, dma_addr, *size, DMA_FROM_DEVICE);
+ 
+ 	return len;
+ }
+@@ -851,7 +851,8 @@
+ 	struct VspCmdData myVspCmd;
+ 	int rc;
+ 	dma_addr_t dma_addr = 0;
+-	char *page = pci_alloc_consistent(iSeries_vio_dev, size, &dma_addr);
++	char *page = dma_alloc_coherent(iSeries_vio_dev, size, &dma_addr,
++			GFP_ATOMIC);
+ 
+ 	if (page == NULL) {
+ 		printk(KERN_ERR "mf.c: couldn't allocate memory to set vmlinux chunk\n");
+@@ -876,7 +877,7 @@
+ 			rc = -ENOMEM;
+ 	}
+ 
+-	pci_free_consistent(iSeries_vio_dev, size, page, dma_addr);
++	dma_free_coherent(iSeries_vio_dev, size, page, dma_addr);
+ 
+ 	return rc;
+ }
+@@ -888,8 +889,8 @@
+ 	int len = *size;
+ 	dma_addr_t dma_addr;
+ 
+-	dma_addr = pci_map_single(iSeries_vio_dev, buffer, len,
+-			PCI_DMA_FROMDEVICE);
++	dma_addr = dma_map_single(iSeries_vio_dev, buffer, len,
++			DMA_FROM_DEVICE);
+ 	memset(buffer, 0, len);
+ 	memset(&myVspCmd, 0, sizeof(myVspCmd));
+ 	myVspCmd.cmd = 32;
+@@ -907,7 +908,7 @@
+ 			rc = -ENOMEM;
+ 	}
+ 
+-	pci_unmap_single(iSeries_vio_dev, dma_addr, len, PCI_DMA_FROMDEVICE);
++	dma_unmap_single(iSeries_vio_dev, dma_addr, len, DMA_FROM_DEVICE);
+ 
+ 	return rc;
+ }
+diff -ruN 2.6.4-rc2/arch/ppc64/kernel/viopath.c 2.6.4-rc2.mf/arch/ppc64/kernel/viopath.c
+--- 2.6.4-rc2/arch/ppc64/kernel/viopath.c	2004-03-04 18:24:46.000000000 +1100
++++ 2.6.4-rc2.mf/arch/ppc64/kernel/viopath.c	2004-03-04 23:22:34.000000000 +1100
+@@ -35,7 +35,6 @@
+ #include <linux/vmalloc.h>
+ #include <linux/string.h>
+ #include <linux/proc_fs.h>
+-#include <linux/device.h>
+ #include <linux/dma-mapping.h>
+ #include <linux/wait.h>
+ 
+@@ -49,8 +48,6 @@
+ #include <asm/iSeries/iSeries_proc.h>
+ #include <asm/iSeries/vio.h>
+ 
+-extern struct device *iSeries_vio_dev;
+-
+ /* Status of the path to each other partition in the system.
+  * This is overkill, since we will only ever establish connections
+  * to our hosting partition and the primary partition on the system.
+diff -ruN 2.6.4-rc2/include/asm-ppc64/iSeries/vio.h 2.6.4-rc2.mf/include/asm-ppc64/iSeries/vio.h
+--- 2.6.4-rc2/include/asm-ppc64/iSeries/vio.h	2004-03-04 18:25:15.000000000 +1100
++++ 2.6.4-rc2.mf/include/asm-ppc64/iSeries/vio.h	2004-03-04 23:22:34.000000000 +1100
+@@ -127,4 +127,8 @@
+ 	viorc_openRejected = 0x0301
+ };
+ 
++struct device;
++
++extern struct device *iSeries_vio_dev;
++
+ #endif /* _ISERIES_VIO_H */
 
+--Signature=_Thu__4_Mar_2004_23_28_04_+1100_9sUEwlCIdT2JU7ak
+Content-Type: application/pgp-signature
 
----------------------------------------------------------------
-Martisoare virtuale prin http://felicitari.acasa.ro
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
+iD8DBQFARyDUFG47PeJeR58RAlKFAJwJ2jrv5YCDw6DrLJg6r37x9Mkh5gCgpZh8
+sv0hwr/jD4Bm4y5IK3Fp/io=
+=O0+C
+-----END PGP SIGNATURE-----
+
+--Signature=_Thu__4_Mar_2004_23_28_04_+1100_9sUEwlCIdT2JU7ak--

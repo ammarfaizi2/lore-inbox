@@ -1,40 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130604AbQKORSd>; Wed, 15 Nov 2000 12:18:33 -0500
+	id <S130507AbQKOR1d>; Wed, 15 Nov 2000 12:27:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130607AbQKORSX>; Wed, 15 Nov 2000 12:18:23 -0500
-Received: from zikova.cvut.cz ([147.32.235.100]:1043 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S130604AbQKORSP>;
-	Wed, 15 Nov 2000 12:18:15 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Tigran Aivazian <tigran@veritas.com>
-Date: Wed, 15 Nov 2000 17:47:28 MET-1
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: test11-pre5 breaks vmware
-CC: linux-kernel@vger.kernel.org
-X-mailer: Pegasus Mail v3.40
-Message-ID: <CF021B54DF0@vcnet.vc.cvut.cz>
+	id <S130364AbQKOR1X>; Wed, 15 Nov 2000 12:27:23 -0500
+Received: from mx3.port.ru ([194.67.23.37]:25609 "EHLO mx3.port.ru")
+	by vger.kernel.org with ESMTP id <S129547AbQKOR1S>;
+	Wed, 15 Nov 2000 12:27:18 -0500
+From: "Samium Gromoff" <_deepfire@mail.ru>
+To: linux-kernel@vger.kernel.org
+Subject: testXX and PPPD 2.4.0-release
+Mime-Version: 1.0
+X-Mailer: mPOP Web-Mail 2.19
+X-Originating-IP: [195.34.30.71]
+Reply-To: "Samium Gromoff" <_deepfire@mail.ru>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E13w5s0-0001WY-00@f11.mail.ru>
+Date: Wed, 15 Nov 2000 19:57:14 +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 15 Nov 00 at 1:59, Tigran Aivazian wrote:
+         DESCRIPTION:
+     Happen on 2.4.0-testXX, doesnt on 2.2.X
+     pppd 2.4.0-b2,b4,release, ppp async in kernel
+     Sportster 14400 Vi (if that hell does matter)
+      AND! UART 16450!
+     I`ve described such a problem to PPP maintainers
+   about half-year ago, but got nothing.
 
-> You probably noticed this already but I just wanted to bring it to your
-> attention that /usr/bin/vmware-config.pl script needs updating since the
-> flags in /proc/cpuinfo is now called "features" so it otherwise fails
-> complaining that my 2xP6 has no tsc. Trivial change but still worthy of
-> propagating into your latest .tar.gz file for 2.4.x
+     Now it looks like that this problem is /tolerable/
+  in 2.4.0-testn; n>7, even when in older tests i was     just a small hell.
+    
+         PROBLEM ITSELF:
+    ~12.5% of small file transfers stalls at beginning,
+    when modem lights still flashes and ppp0 interface
+    error count significantly grow. it looks like
+    data is there, but ppp refuses to take it.
+  
+    it may look ok, just like some random factor, BUT!
+    *this*happens*on*same*files*or*byte*sequences!
+    e.g. every one of posted on lkml by Dag Brattli
+    irda-posts/mails only downloads by 2.5k, e.g. 
+    2 packets... =(
+    for another example approx 3 of 25 posts on lkml
+    are undownloadable...
+    another detail: tcp_ecn=0
 
-Oh. I did not compiled 11-test5, as G450 finally arrived ;-) OK,
-I'll release patch for vmware, as I cannot stop kernel developers
-from changing field names :-)
-                                       Thanks for reporting,
-                                                    Petr Vandrovec
-                                                    vandrove@vc.cvut.cz
-                                                    
+    whats the hell?
+    
+     
+     
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

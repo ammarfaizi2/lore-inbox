@@ -1,104 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261984AbUENSGe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261992AbUENSIE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261984AbUENSGe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 May 2004 14:06:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261988AbUENSGd
+	id S261992AbUENSIE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 May 2004 14:08:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261988AbUENSIE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 May 2004 14:06:33 -0400
-Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:41401 "EHLO
-	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S261984AbUENSGa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 May 2004 14:06:30 -0400
+	Fri, 14 May 2004 14:08:04 -0400
+Received: from fw.osdl.org ([65.172.181.6]:17356 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262020AbUENSH7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 May 2004 14:07:59 -0400
+Date: Fri, 14 May 2004 11:07:52 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Andy Lutomirski <luto@stanford.edu>
+Cc: Stephen Smalley <sds@epoch.ncsc.mil>, Andy Lutomirski <luto@myrealbox.com>,
+       Albert Cahalan <albert@users.sourceforge.net>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       Chris Wright <chrisw@osdl.org>, olaf+list.linux-kernel@olafdietsche.de,
+       Valdis.Kletnieks@vt.edu
 Subject: Re: [PATCH] capabilites, take 2
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Albert Cahalan <albert@users.sourceforge.net>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       luto@myrealbox.com, Chris Wright <chrisw@osdl.org>,
-       olaf+list.linux-kernel@olafdietsche.de, Valdis.Kletnieks@vt.edu
-In-Reply-To: <1084547976.952.644.camel@cube>
-References: <1084536213.951.615.camel@cube>
-	 <1084548061.17741.119.camel@moss-spartans.epoch.ncsc.mil>
-	 <1084547976.952.644.camel@cube>
-Content-Type: text/plain
-Organization: National Security Agency
-Message-Id: <1084557969.18592.21.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <20040514110752.U21045@build.pdx.osdl.net>
+References: <fa.dt4cg55.jnqvr5@ifi.uio.no> <fa.mu5rj3d.24gtbp@ifi.uio.no> <40A4EC72.2020209@myrealbox.com> <1084550518.17741.134.camel@moss-spartans.epoch.ncsc.mil> <40A4F163.6090802@stanford.edu>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Fri, 14 May 2004 14:06:09 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <40A4F163.6090802@stanford.edu>; from luto@stanford.edu on Fri, May 14, 2004 at 09:18:43AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-05-14 at 11:19, Albert Cahalan wrote:
-> I just read that. It's a very unfair marketing document.
-> Among other things, it suggests that a capability system
-> is stuck with about 40 bits while their own version of
-> capabilities (a duck is a duck...) has 80 bits. Lovely,
-> but not exactly groundbreaking.
+* Andy Lutomirski (luto@stanford.edu) wrote:
+> Stephen Smalley wrote:
+> > On Fri, 2004-05-14 at 11:57, Andy Lutomirski wrote:
+> > > Thanks -- turning brain back on, SELinux is obviously better than any
+> > > fine-grained capability scheme I can imagine.
+> > > 
+> > > So unless anyone convinces me you're wrong, I'll stick with just
+> > > fixing up capabilities to work without making them finer-grained.
+> > 
+> > Great, thanks.  Fixing capabilities to work is definitely useful and
+> > desirable.  Significantly expanding them in any manner is a poor use of
+> > limited resources, IMHO; I'd much rather see people work on applying
+> > SELinux to the problem and solving it more effectively for the future.
+> 
+> Does this mean I should trash my 'maximum' mask?
+> 
+> (I like 'cap -c = sftp-server' so it can't try to run setuid/fP apps.)
+> OTOH, since SELinux accomplishes this better, it may not be worth the
+> effort.
 
-You missed the point.  Capability scheme maps far too many operations to
-a single capability; CAP_SYS_ADMIN in Linux is a good example.  TE model
-defers organization of operations into equivalence classes to the policy
-writer.
+Let's just get back to the simplest task.  Allow execve() to do smth.
+reasonable with capabilities.
 
->  There is the bit about
-> a 3-argument security call, but a careful reading will
-> reveal that one argument is unused (NULL?) when dealing
-> with abilities like "can set the clock".
-
-But very useful when dealing with CAP_DAC_OVERRIDE and friends.
-
-> About the only thing of interest is that capability
-> transitions can be arbitrary. You're not limited to
-> an obscure set of equations that nobody can agree on.
-
-Because there is no one-size-fits-all equation for all transitions.
-
-> The cost: complicated site-specific config files and
-> the inability to support capability-aware apps that
-> set+clear their own bits.
-
-Complexity pushed to userspace, where it can be analyzed appropriately
-via tools and tailored for the transition in question.  Central
-management of the capabilities based on equivalence classes (types), as
-opposed to having to manage a distributed nightmare of capability bits
-on your filesystems.  Applications that can transition to other domains,
-but only if so authorized by the policy.
-
-> Eh, why? That's mostly a search-and-replace on the name,
-> since capable() makes a perfectly fine LSM hook.
-
-It doesn't offer sufficient granularity, either for operation (which you
-_could_ address by introducing new capabilities, but the hooks are more
-easily extensible) or for object.
-
-> So what about the old-Oracle problem? You have a
-> server that needs the ability to hog and lock memory.
-> Is there an almost-empty SELinux policy that would
-> provide this while leaving the rest of the system
-> acting as UNIX-like systems have always acted?
-> If so, we have a winner.
-
-See "relaxed policy" or "targeted policy" in recent discussions on the
-Fedora mailing lists; coming soon to a rawhide near you.  Not exactly
-the same thing (it is a policy where most processes run essentially
-unconfined except for a targeted set that you define like apache, bind,
-etc), but you could certainly tweak it to this end (i.e. you put oracle
-into a domain that gives it the one capability you desire).
-
-> One still does need to provide apps with a way to
-> answer "can I do FOO, BAR, and BAZ?" and "am I
-> running with elevated privileges?". Some way to
-> dispose of unneeded privileges would be good too.
-> Hopefully extra libraries wouldn't be needed.
-
-SELinux provides a policy API already, and a userspace library for
-accessing it (and caching decisions from it).  It also provides (via the
-AT_SECURE auxv entry) notification that a domain transition has
-occurred, and this is already used by glibc secure mode.  Privileges are
-dropped via domain transitions.
-
+thanks,
+-chris
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
-
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

@@ -1,44 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264857AbTARPPl>; Sat, 18 Jan 2003 10:15:41 -0500
+	id <S264853AbTARPbn>; Sat, 18 Jan 2003 10:31:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264856AbTARPPl>; Sat, 18 Jan 2003 10:15:41 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:6832 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S264857AbTARPPl>;
-	Sat, 18 Jan 2003 10:15:41 -0500
-Date: Sat, 18 Jan 2003 15:21:40 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Alexander Hoogerhuis <alexh@ihatent.com>
-Cc: "Mark F." <daracerz@hotmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.59 - Compaq 900z - No Go..
-Message-ID: <20030118152140.GB25365@codemonkey.org.uk>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Alexander Hoogerhuis <alexh@ihatent.com>,
-	"Mark F." <daracerz@hotmail.com>, linux-kernel@vger.kernel.org
-References: <BAY2-DAV69nJkxWwBvt0000440f@hotmail.com> <20030118132807.GC21489@codemonkey.org.uk> <87lm1iiiwm.fsf@lapper.ihatent.com>
-Mime-Version: 1.0
+	id <S264856AbTARPbn>; Sat, 18 Jan 2003 10:31:43 -0500
+Received: from mail.cs.umn.edu ([128.101.32.202]:13484 "EHLO mail.cs.umn.edu")
+	by vger.kernel.org with ESMTP id <S264853AbTARPbm>;
+	Sat, 18 Jan 2003 10:31:42 -0500
+To: Petr Vandrovec <vandrove@vc.cvut.cz>
+Cc: "Adam J. Richter" <adam@yggdrasil.com>, alsa-devel@alsa-project.org,
+       perex@suse.cz, linux-kernel@vger.kernel.org
+Subject: Re: Patch?: linux-2.5.59/sound/soundcore.c referenced non-existant
+ errno variable
+From: Raja R Harinath <harinath@cs.umn.edu>
+Date: Sat, 18 Jan 2003 09:40:36 -0600
+In-Reply-To: <20030118031319.GA19982@vana.vc.cvut.cz> (Petr Vandrovec's
+ message of "Sat, 18 Jan 2003 04:13:19 +0100")
+Message-ID: <d9bs2e8o0b.fsf@bose.cs.umn.edu>
+User-Agent: Gnus/5.090013 (Oort Gnus v0.13) Emacs/21.3.50
+ (i686-pc-linux-gnu)
+References: <20030117155717.A6250@baldur.yggdrasil.com>
+	<d9n0lz18an.fsf@bose.cs.umn.edu>
+	<20030118031319.GA19982@vana.vc.cvut.cz>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87lm1iiiwm.fsf@lapper.ihatent.com>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 18, 2003 at 04:20:41PM +0100, Alexander Hoogerhuis wrote:
+Hi,
 
- > > My Compaq Evo 1015v did the same thing. I think it was disabling the PNP
- > > stuff that made it work for me iirc.
- > Comapq Evo800c here, boots somewhat fine. 2.5.58 hung at
- > "Uncompressing, booting...", 2.5.59 did almost the same, but then I
- > noticed the disk actually doing stuff, and by waiting, up popped the
- > "login:" promt after a while, but nothing was printed to the console
- > during boot.
+Petr Vandrovec <vandrove@vc.cvut.cz> writes:
 
-My Vaio does that, not sure whats going on there. But the Evo is dead.
-doorstop. I've left it booting whilst I took a bath, and it was still
-dead when I got out 8-)
+> On Fri, Jan 17, 2003 at 08:49:36PM -0600, Raja R Harinath wrote:
+>> Hi,
+>> 
+>> "Adam J. Richter" <adam@yggdrasil.com> writes:
+>> 
+>> > 	linux-2.5.59/sound/sound_firmware.c attempts to use the
+>> > user level system call interface from the kernel, which I understand
+>> > works on i386 and perhaps all architectures, but requires a variable
+>> > named "errno." 
+>> 
+>> Which is provided in-kernel (not for modules) by 'lib/errno.c'.
+>
+> Not safe. We should either remove errno from kernel syscall wrappers 
+> completely when building __KERNEL__ (just return -1 and nothing more
+> specific), or even disallow use of unistd.h wrappers from kernel 
+> completely (which is best solution IMHO). 
 
-		Dave
+__KERNEL_SYSCALLS__ appears to be defined in several files.  Don't
+know if they actually use any of them.
 
+> BTW, static int errno is by far best solution if you do not agree with
+> patch below: due to toolchain behavior soundcore will use its own
+> errno for syscall wrappers it uses, and it is nearest to the behavior
+> we wanted...
+[snip]
+>  static int do_mod_firmware_load(const char *fn, char **fp)
+>  {
+> -	int fd;
+> +	struct file* filp;
+>  	long l;
+>  	char *dp;
+> +	loff_t pos;
+>
+> -	fd = open(fn, 0, 0);
+> -	if (fd == -1)
+> +	filp = filp_open(fn, 0, 0);
+> +	if (IS_ERR(filp))
+>  	{
+>  		printk(KERN_INFO "Unable to load '%s'.\n", fn);
+>  		return 0;
+>  	}
+[snip]
+
+I noticed that do_mod_firmware_load is wrapped by a
+set_fs(get_gs())/set_fs(fs) pair in mod_firmware_load, presumably
+because it performs an 'int 0x80' kernel syscall in there.  The
+cleanup to use the VFS directly should probably kill the wrapper too.
+
+- Hari
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
+Raja R Harinath ------------------------------ harinath@cs.umn.edu

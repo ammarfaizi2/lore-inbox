@@ -1,66 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262764AbSJCHBT>; Thu, 3 Oct 2002 03:01:19 -0400
+	id <S262763AbSJCG7K>; Thu, 3 Oct 2002 02:59:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262765AbSJCHBT>; Thu, 3 Oct 2002 03:01:19 -0400
-Received: from users.linvision.com ([62.58.92.114]:2965 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S262764AbSJCHBS>; Thu, 3 Oct 2002 03:01:18 -0400
-Date: Thu, 3 Oct 2002 09:06:45 +0200
-From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-To: Linus Torvalds <torvalds@transmeta.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Fwd: [PATCH_] Should fix __FUNCTION__ glomming issues with some GCCs
-Message-ID: <20021003090645.A15874@bitwizard.nl>
+	id <S262764AbSJCG7K>; Thu, 3 Oct 2002 02:59:10 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:58106 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S262763AbSJCG7J>; Thu, 3 Oct 2002 02:59:09 -0400
+Date: Thu, 3 Oct 2002 12:40:17 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Anton Blanchard <anton@au1.ibm.com>
+Subject: Re: [patch] smptimers, old BH removal, tq-cleanup, 2.5.39
+Message-ID: <20021003124017.B15070@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <3D98C60B.9C1EA90B@mvista.com> <Pine.LNX.4.44.0210010542240.2564-100000@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
-Organization: BitWizard.nl
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0210010542240.2564-100000@localhost.localdomain>; from mingo@elte.hu on Tue, Oct 01, 2002 at 05:51:45AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Oct 01, 2002 at 05:51:45AM +0200, Ingo Molnar wrote:
+> 
+> the smp_processor_id()/(HZ*num_cpus) 'interleaving' of every APIC clock
+> was an SMP scalability issue, and it was done as part of the smptimers
+> patch. It just got into the kernel much earlier.
+> 
+> but these days, with the removal of BHs, it might be less of a factor,
+> mainly because timers have no global synchronization anymore, so we can
+> again try to not interleave the APIC clocks. Only testing will tell,
+> because there might be some interaction between timer-generated code
+> still.
+> 
+> Dipankar, wli, would it be possible to try the attached simple patch with
+> some of the more complex networking loads? The patch gets rid of the APIC
+> timer interleaving.
+> 
 
-Hi Linus,
+Ingo,
 
-Approved by author.... 
+Removal of interleaving of apic timers doesn't seem to have any adverse affect.
+Here are some numbers from a 16-CPU NUMA-Q with tbench (32 clients) averaged 
+over 5 runs -
 
-		Roger. 
+2.5.40-vanilla - 44.16 MB/Sec
+2.5.40-no-clock-interleave - 44.17 MB/Sec 
 
------ Forwarded message from John R R Leavitt <jrrl@tiki.livetide.com> -----
-
-From: John R R Leavitt <jrrl@tiki.livetide.com>
-To: R.E.Wolff@BitWizard.nl
-Date: Wed, 2 Oct 2002 22:35:30 -0400
-Subject: [PATCH_] Should fix __FUNCTION__ glomming issues with some GCCs
-
-Just wandered the driver tree and fixed these where I could.  Here's yours.
-
--John.
-
-John Leavitt - jrrl@steampunk.com - Linux Consulting
-
-
-diff -ruN linux-2.5.40-original/drivers/atm/firestream.c linux-2.5.40/drivers/atm/firestream.c
---- linux-2.5.40-original/drivers/atm/firestream.c	Tue Oct  1 03:06:18 2002
-+++ linux-2.5.40/drivers/atm/firestream.c	Wed Oct  2 19:20:13 2002
-@@ -330,8 +330,8 @@
- #define FS_DEBUG_QSIZE   0x00001000
- 
- 
--#define func_enter() fs_dprintk (FS_DEBUG_FLOW, "fs: enter " __FUNCTION__ "\n")
--#define func_exit()  fs_dprintk (FS_DEBUG_FLOW, "fs: exit  " __FUNCTION__ "\n")
-+#define func_enter() fs_dprintk (FS_DEBUG_FLOW, "fs: enter %s\n", __FUNCTION__)
-+#define func_exit()  fs_dprintk (FS_DEBUG_FLOW, "fs: exit  %s\n", __FUNCTION__)
- 
- 
- struct fs_dev *fs_boards = NULL;
-
------ End forwarded message -----
-
+Thanks
 -- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* The Worlds Ecosystem is a stable system. Stable systems may experience *
-* excursions from the stable situation. We are currenly in such an       * 
-* excursion: The stable situation does not include humans. ***************
+Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
+Linux Technology Center, IBM Software Lab, Bangalore, India.

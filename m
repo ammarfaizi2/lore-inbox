@@ -1,113 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261576AbULITUN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261586AbULITXT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261576AbULITUN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Dec 2004 14:20:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261585AbULITUN
+	id S261586AbULITXT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Dec 2004 14:23:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261585AbULITXS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Dec 2004 14:20:13 -0500
-Received: from bgm-24-94-57-164.stny.rr.com ([24.94.57.164]:900 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261576AbULITUB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Dec 2004 14:20:01 -0500
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.32-12
-From: Steven Rostedt <rostedt@goodmis.org>
+	Thu, 9 Dec 2004 14:23:18 -0500
+Received: from dfw-gate1.raytheon.com ([199.46.199.230]:39330 "EHLO
+	dfw-gate1.raytheon.com") by vger.kernel.org with ESMTP
+	id S261586AbULITXN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Dec 2004 14:23:13 -0500
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.32-6
 To: Ingo Molnar <mingo@elte.hu>
-Cc: Rui Nuno Capela <rncbc@rncbc.org>, LKML <linux-kernel@vger.kernel.org>,
-       Lee Revell <rlrevell@joe-job.com>,
-       Mark Johnson <Mark_H_Johnson@RAYTHEON.COM>,
-       "K.R. Foley" <kr@cybsft.com>, Florian Schmidt <mista.tapas@gmx.net>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>, emann@mrv.com,
-       Peter Zijlstra <a.p.zijlstra@chello.nl>
-In-Reply-To: <1102602829.25841.393.camel@localhost.localdomain>
-References: <20041124101626.GA31788@elte.hu>
-	 <20041203205807.GA25578@elte.hu> <20041207132927.GA4846@elte.hu>
-	 <20041207141123.GA12025@elte.hu>
-	 <1102526018.25841.308.camel@localhost.localdomain>
-	 <32950.192.168.1.5.1102529664.squirrel@192.168.1.5>
-	 <1102532625.25841.327.camel@localhost.localdomain>
-	 <32788.192.168.1.5.1102541960.squirrel@192.168.1.5>
-	 <1102543904.25841.356.camel@localhost.localdomain>
-	 <20041209093211.GC14516@elte.hu>  <20041209131317.GA31573@elte.hu>
-	 <1102602829.25841.393.camel@localhost.localdomain>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: Kihon Technologies
-Date: Thu, 09 Dec 2004 14:19:52 -0500
-Message-Id: <1102619992.3882.9.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+Cc: Amit Shah <amit.shah@codito.com>,
+       Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, emann@mrv.com,
+       Gunther Persoons <gunther_persoons@spymac.com>,
+       "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Shane Shrybman <shrybman@aei.ca>, Esben Nielsen <simlo@phys.au.dk>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
+Message-ID: <OF737A0ECF.4ECB9A35-ON86256F65.006249D6@raytheon.com>
+From: Mark_H_Johnson@raytheon.com
+Date: Thu, 9 Dec 2004 12:10:32 -0600
+X-MIMETrack: Serialize by Router on RTSHOU-DS01/RTS/Raytheon/US(Release 6.5.2|June 01, 2004) at
+ 12/09/2004 12:10:33 PM
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+X-SPAM: 0.00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-12-09 at 09:33 -0500, Steven Rostedt wrote:
-> On Thu, 2004-12-09 at 14:13 +0100, Ingo Molnar wrote:
-> > * Ingo Molnar <mingo@elte.hu> wrote:
-> > 
-> > here's the full patch against a recent tree, or download the -32-12
-> > patch from the usual place:
-> > 
-> >     http://redhat.com/~mingo/realtime-preempt/
-> 
-> Ingo,
-> 
-> I just tried out your changes with both my sillycaches test as well as
-> my real modules that had the original problems. They both work fine.
-> 
-> I'll ever reboot my main machine now (SMP) and run your kernel there
-> too, and see how it works.
+>* Mark_H_Johnson@raytheon.com <Mark_H_Johnson@raytheon.com> wrote:
+>
+>> >But you do have set your reference irq (soundcard) to the highest prio
+>> >in the PREEMPT_RT case? I just ask to make sure.
+>>
+>> Yes, but then I have ALL the IRQ's at the highest priority (plus a
+couple
+>> other /0 and /1 tasks). [...]
+>
+>that is the fundamental problem i believe: your 'CPU loop' gets delayed
+>by them.
 
-Hi Ingo,
+They should not get delayed by them any more than in the PREEMPT_DESKTOP
+configuration (other than the threading overhead which we've separately
+said should be modest). They should be delayed by them less since we CAN
+migrate the RT task away from the IRQ task (at least until I get the case
+where multiple concurrent IRQ or /# threads keep both CPU's busy).
 
-I just tried it on my main machine (SMP Dual Athlon MP, with a Gig of
-RAM), and I just got the following dump on boot-up.  It never made it to
-a prompt.
+>> [...] Please note, I only use latencytest (an audio application) to
+>> get an idea of RT performance on a desktop machine before I consider
+>> using the kernel for my real application.
+>
+>but you never want your real application be delayed by things like IDE
+>processing or networking workloads, correct?
+For the most part, that I/O workload IS because I have the RT application
+running. That was one of my points. I cannot reliably starve any of
+those activities. The disk reads in my real application simulate a disk
+read from a real world device. That data is needed for RT processing
+in the simulated system. Some of the network traffic is also RT since
+we generate a data stream that is interpreted in real time by other
+systems.
 
-Freeing unused kernel memory: 216k freed
-BUG: sleeping function called from invalid context IRQ 14(814) at
-arch/i386/mm/highmem.c:5
-in_atomic():0 [00000000], irqs_disabled():1
- [<c011c064>] __might_sleep+0xd4/0xf0 (8)
- [<c011749f>] kmap+0x1f/0x50 (36)
- [<c014ffb8>] bounce_copy_vec+0x28/0x70 (16)
- [<c01500bc>] copy_to_high_bio_irq+0x5c/0x70 (32)
- [<c0150221>] __bounce_end_io_read+0x41/0x50 (28)
- [<c0150258>] bounce_end_io_read+0x28/0x30 (20)
- [<c01686b9>] bio_endio+0x59/0x80 (12)
- [<c025a2bc>] ide_end_request+0x2c/0xc0 (16)
- [<c024bc02>] __end_that_request_first+0x1c2/0x230 (12)
- [<c01386cf>] up_mutex+0xaf/0x100 (16)
- [<c025a197>] __ide_end_request+0x77/0x170 (36)
- [<c025a2f5>] ide_end_request+0x65/0xc0 (36)
- [<c0260810>] task_end_request+0x40/0x80 (36)
- [<c0260941>] task_in_intr+0xf1/0x110 (24)
- [<c0260850>] task_in_intr+0x0/0x110 (20)
- [<c025bda1>] ide_intr+0xe1/0x170 (12)
- [<c0140e3b>] handle_IRQ_event+0x5b/0xd0 (32)
- [<c0141683>] do_hardirq+0xa3/0x100 (48)
- [<c01417f6>] do_irqd+0x116/0x1e0 (36)
- [<c01416e0>] do_irqd+0x0/0x1e0 (44)
- [<c0135e37>] kthread+0xb7/0xc0 (4)
- [<c0135d80>] kthread+0x0/0xc0 (28)
- [<c01012e5>] kernel_thread_helper+0x5/0x10 (16)
----------------------------
-| preempt count: 00000001 ]
-| 1-level deep critical section nesting:
-----------------------------------------
-.. [<c01398e7>] .... print_traces+0x17/0x50
-.....[<00000000>] ..   ( <= 0x0)
+>The only thing that should
+>have higher priority than your application is the event thread that
+>handles the hardware from which you get events. I.e. the soundcard IRQ
+>in your case (plus the timer IRQ thread, because your task is also
+>timing out).
+For the test at my desktop I CAN do that but CHOOSE to not do that
+since the real application has to handle the additional overhead.
+Again, the set up I have is more of an apples to apples comparison.
 
+>i'm not sure what the primary event source for your application is, but
+>i bet it's not the IDE irq thread, nor the network IRQ thread.
+I said previously the primary time source is from the shared memory
+interface on the PCI bus for the specific application I described.
+I could make that higher priority than the rest.
 
-This looks like it was triggered by bounce_copy_vec calling kmap_atomic
-which is now just kmap with irqs disabled.  Does this need to change to
-__kmap_atomic?  Is this also used to make things more preemptible, and
-start removing the local_irq_saves?  I'd like to know so that you don't
-need to make the patches yourself and I can handle things like this, but
-I need to know what the general ideas are.  Also, am I the only one that
-has highmem support enabled, because this looks like this bug would have
-been triggered by anyone.
+Actually we do use network messages to synchronize with a system that
+is not in the cluster. At 20 Hz, we send a network message that
+basically means "start execution" to that other system. It cannot
+be delayed much either.
 
-Thanks,
+>so you are seeing the _inverse_ of advances in the -RT kernel: it's
+>getting better and better at preempting your prio 30 CPU loop with the
+>higher-prio RT tasks. I.e. the lower-prio CPU loop gets worse and worse
+>latencies.
+As I stated before (and I think you agree) the overhead of the setup
+I have now for PREEMPT_RT should be comparable to that for PREEMPT_DESKTOP.
+Neither should have a great advantage / disadvantage over the other.
+The overhead for threading is certainly present in _RT but should
+be offset to some extent by the improved migration opportunities.
+The measurements however, do not seem to confirm that assessment.
+Either the measurements are broke or the system is and in either case
+should be fixed.
 
--- Steve
+--Mark H Johnson
+  <mailto:Mark_H_Johnson@raytheon.com>
 

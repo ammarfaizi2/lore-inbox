@@ -1,44 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263079AbUFFIoa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263134AbUFFJBf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263079AbUFFIoa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jun 2004 04:44:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263126AbUFFIoa
+	id S263134AbUFFJBf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jun 2004 05:01:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263147AbUFFJBc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jun 2004 04:44:30 -0400
-Received: from imap.gmx.net ([213.165.64.20]:36748 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263079AbUFFIo2 (ORCPT
+	Sun, 6 Jun 2004 05:01:32 -0400
+Received: from atlas.informatik.uni-freiburg.de ([132.230.150.3]:15034 "EHLO
+	atlas.informatik.uni-freiburg.de") by vger.kernel.org with ESMTP
+	id S263154AbUFFJB3 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jun 2004 04:44:28 -0400
-X-Authenticated: #4512188
-Message-ID: <40C2D969.4010509@gmx.de>
-Date: Sun, 06 Jun 2004 10:44:25 +0200
-From: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040604)
-X-Accept-Language: en-us, en
+	Sun, 6 Jun 2004 05:01:29 -0400
+To: Pavel Machek <pavel@suse.cz>
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>, Vojtech Pavlik <vojtech@suse.cz>,
+       Giuseppe Bilotta <bilotta78@hotpop.com>, linux-kernel@vger.kernel.org,
+       Tuukka Toivonen <tuukkat@ee.oulu.fi>
+Subject: Re: keyboard problem with 2.6.6
+References: <20040604135816.GD11950@elf.ucw.cz>
+	<200406041817.i54IHFgZ004530@eeyore.valparaiso.cl>
+	<20040604183944.GK700@elf.ucw.cz>
+	<xb78yf317r0.fsf@savona.informatik.uni-freiburg.de>
+	<20040604190947.GM700@elf.ucw.cz>
+From: Sau Dan Lee <danlee@informatik.uni-freiburg.de>
+In-Reply-To: <20040604190947.GM700@elf.ucw.cz>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+Date: 06 Jun 2004 11:01:23 +0200
+Message-ID: <xb71xkt12n0.fsf@savona.informatik.uni-freiburg.de>
 MIME-Version: 1.0
-To: Miles Lane <miles.lane@comcast.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.7-rc2-bk6 -- mtrr: 0xd0000000,0x8000000 overlaps existing
- 0xd0000000,0x200000
-References: <40C28573.6070704@comcast.net>
-In-Reply-To: <40C28573.6070704@comcast.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=big5
+Content-Transfer-Encoding: 8BIT
+Organization: Universitaet Freiburg, Institut fuer Informatik
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miles Lane wrote:
-> I am getting an error using the nv open-source driver
-> for the GeForce FX 5600 board.
-> 
-> vesafb: framebuffer at 0xd0000000, mapped to 0xf8808000, size 3072k
-> vesafb: mode is 1024x768x16, linelength=2048, pages=1
-> vesafb: protected mode interface info at c000:f530
-> vesafb: scrolling: redraw
-> vesafb: directcolor: size=0:5:6:5, shift=0:11:5:0
-> fb0: VESA VGA frame buffer device
-> mtrr: 0xd0000000,0x8000000 overlaps existing 0xd0000000,0x200000
+>>>>> "Pavel" == Pavel Machek <pavel@suse.cz> writes:
 
-Well, don'T use framebuffer console and everthing will be fine.
+    >> If you can arrange bash to be run, then why is it that
+    >> difficult to arrange "modprobe atkbd; modprobe i8042" to be
+    >> executed?
 
-Prakash
+    Pavel> It would not be "modprobe atkbd" but "my-keyboard-daemon
+    Pavel> &". 
+
+What's the  difference?  Both  are commands.  Commands  can be  put in
+shell scripts, which can be put in shell scripts, ...  Eventually, you
+only need one root script to spawn all the offsprings.
+
+
+
+    Pavel> And AFAIK you can't add that to "init=" commandline.
+
+That's  getting  funny.   You  can't   start  6  copies  of  getty  on
+/dev/tty[1-6] on "init=", can you?
+
+
+-- 
+Sau Dan LEE                     §õ¦u´°(Big5)                    ~{@nJX6X~}(HZ) 
+
+E-mail: danlee@informatik.uni-freiburg.de
+Home page: http://www.informatik.uni-freiburg.de/~danlee
+

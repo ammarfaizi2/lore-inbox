@@ -1,70 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261959AbVAaHlF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261984AbVAaIBE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261959AbVAaHlF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 02:41:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261957AbVAaHjh
+	id S261984AbVAaIBE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 03:01:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261976AbVAaH54
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 02:39:37 -0500
-Received: from waste.org ([216.27.176.166]:61164 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261959AbVAaHfD (ORCPT
+	Mon, 31 Jan 2005 02:57:56 -0500
+Received: from ns1.lanforge.com ([66.165.47.210]:23520 "EHLO www.lanforge.com")
+	by vger.kernel.org with ESMTP id S261968AbVAaH4I (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 02:35:03 -0500
-Date: Mon, 31 Jan 2005 01:35:01 -0600
-From: Matt Mackall <mpm@selenic.com>
-To: Andrew Morton <akpm@osdl.com>
-X-PatchBomber: http://selenic.com/scripts/mailpatches
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <8.416337461@selenic.com>
-Message-Id: <9.416337461@selenic.com>
-Subject: [PATCH 8/8] lib/sort: Use generic sort on x86_64
+	Mon, 31 Jan 2005 02:56:08 -0500
+Message-ID: <41FDE497.6040308@candelatech.com>
+Date: Sun, 30 Jan 2005 23:56:07 -0800
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.3) Gecko/20041020
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: close-exec flag not working in 2.6.9?
+Content-Type: multipart/mixed;
+ boundary="------------030804020201040303080000"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-x86_64 wasn't doing anything special in its sort_extable. Use the
-generic lib/extable sort.
+This is a multi-part message in MIME format.
+--------------030804020201040303080000
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Signed-off-by: Matt Mackall <mpm@selenic.com>
+As far as I can tell, close-exec is not working correctly in 2.6.9
+or 2.6.10-1.741_FC3smp.
 
-Index: tq/arch/x86_64/mm/extable.c
-===================================================================
---- tq.orig/arch/x86_64/mm/extable.c	2004-04-03 19:38:16.000000000 -0800
-+++ tq/arch/x86_64/mm/extable.c	2005-01-30 14:01:16.000000000 -0800
-@@ -33,26 +33,3 @@
-         }
-         return NULL;
- }
--
--/* When an exception handler is in an non standard section (like __init)
--   the fixup table can end up unordered. Fix that here. */
--void sort_extable(struct exception_table_entry *start,
--		  struct exception_table_entry *finish)
--{
--	struct exception_table_entry *e;
--	int change;
--
--	/* The input is near completely presorted, which makes bubble sort the
--	   best (and simplest) sort algorithm. */
--	do {
--		change = 0;
--		for (e = start+1; e < finish; e++) {
--			if (e->insn < e[-1].insn) {
--				struct exception_table_entry tmp = e[-1];
--				e[-1] = e[0];
--				e[0] = tmp;
--				change = 1;
--			}
--		}
--	} while (change != 0);
--}
-Index: tq/include/asm-x86_64/uaccess.h
-===================================================================
---- tq.orig/include/asm-x86_64/uaccess.h	2005-01-25 09:30:00.000000000 -0800
-+++ tq/include/asm-x86_64/uaccess.h	2005-01-30 14:02:17.000000000 -0800
-@@ -73,6 +73,7 @@
- 	unsigned long insn, fixup;
- };
- 
-+#define ARCH_HAS_SEARCH_EXTABLE
- 
- /*
-  * These are the main single-value transfer routines.  They automatically
+The attached program generates a file /tmp/cl_foo.output
+which has this data:
+
+
+[greear@grok ~]$ more /tmp/cl_foo.output
+total 5
+lrwx------  1 greear greear 64 Jan 30 23:49 0 -> /dev/pts/3
+l-wx------  1 greear greear 64 Jan 30 23:49 1 -> /tmp/cl_foo.output
+l-wx------  1 greear greear 64 Jan 30 23:49 2 -> /tmp/cl_foo.output
+lr-x------  1 greear greear 64 Jan 30 23:49 3 -> /etc/passwd
+lr-x------  1 greear greear 64 Jan 30 23:49 4 -> /proc/7020/fd
+
+
+I would not expect to see the /etc/passwd entry since I marked
+it close-exec in the parent process before forking and running
+the system() command.
+
+Am I confused about things, or is this a real bug?
+
+Thanks,
+Ben
+
+-- 
+Ben Greear <greearb@candelatech.com>
+Candela Technologies Inc  http://www.candelatech.com
+
+
+--------------030804020201040303080000
+Content-Type: text/plain;
+ name="close_exec.cc"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="close_exec.cc"
+
+
+
+#include <unistd.h>
+#include <fcntl.h>
+#include <stdio.h>
+#include <fstream>
+#include <iostream>
+#include <stdlib.h>
+#include <errno.h>
+
+using namespace std;
+
+void close_exec(int s) {
+   int  flags;
+
+   flags = fcntl(s, F_GETFL);
+   flags |= (FD_CLOEXEC);
+   if (fcntl(s, F_SETFL, flags) < 0) {
+      cerr << "ERROR:  fcntl, executing close_exec:  " << strerror(errno)
+           << endl;
+   }
+}//close_exec
+
+int main() {
+   ofstream script("/tmp/cl_foo.bash");
+   script << "#!/bin/bash\nls -l /proc/self/fd > /tmp/cl_foo.output 2>&1\n";
+   script.close();
+   
+   if (chmod("/tmp/cl_foo.bash",
+             S_IRUSR|S_IWUSR|S_IXUSR|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH) < 0) {
+      cerr << "ERROR:  Failed to chmod /tmp/cl_foo.bash, error: "
+           << strerror(errno) << endl;
+      exit(7);
+   }
+
+   int fd = open("/etc/passwd", O_RDONLY);
+   if (fd < 0) {
+      cerr << "ERROR:  Failed to open /etc/passwd: " << strerror(errno) << endl;
+   }
+   else {
+      close_exec(fd);
+   }
+
+   int rv = fork();
+   if (rv < 0) {
+      cerr << "ERROR from fork: " << strerror(errno) << endl;
+   }
+   else if (rv == 0) {
+      // Child
+      system("/tmp/cl_foo.bash");
+      exit(7);
+   }
+   else {
+      // parent, done
+      sleep(5);
+   }
+   return 0;
+}//main
+
+--------------030804020201040303080000--

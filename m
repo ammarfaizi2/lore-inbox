@@ -1,132 +1,125 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262052AbTJYNSj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Oct 2003 09:18:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262198AbTJYNSj
+	id S262560AbTJYNnl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Oct 2003 09:43:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262564AbTJYNnl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Oct 2003 09:18:39 -0400
-Received: from 213-187-186-100.dd.nextgentel.com ([213.187.186.100]:34444 "HELO
-	tellus.sxdesign.com") by vger.kernel.org with SMTP id S262052AbTJYNSg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Oct 2003 09:18:36 -0400
-Subject: netfilter: port restricted NAT
-From: "Alfred E. Heggestad" <alfredh@sxdesign.com>
-To: linux kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: SX Design
-Message-Id: <1067087914.10240.321.camel@tellus>
+	Sat, 25 Oct 2003 09:43:41 -0400
+Received: from gprs193-18.eurotel.cz ([160.218.193.18]:42368 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262560AbTJYNni (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Oct 2003 09:43:38 -0400
+Date: Sat, 25 Oct 2003 15:43:24 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: John Mock <kd6pag@qsl.net>, Patrick Mochel <mochel@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kill unneccessary debug printk [PATCH]
+Message-ID: <20031025134324.GC330@elf.ucw.cz>
+References: <E1ADIWJ-00012u-00@penngrove.fdns.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Sat, 25 Oct 2003 15:18:34 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1ADIWJ-00012u-00@penngrove.fdns.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+Hi!
 
-[this question was sent to netfilter mailing list but dropped]
-
-I have a question about restricted NAT vs. port restricted NAT
-in the implentation of netfilter in 2.4.18 kernel. We are
-developing Voice-over-IP products using SIP for signalling,
-where the packets normally go over UDP port 5060.
-
-For VoIP devices located behind NATs we use a protocol called
-"STUN - Simple Traversal of UDP Through NATs" (RFC3489) to probe
-for public interface ip/ports, and refresh connection tracking
-in netfilter for outgoing/incoming RTP streams. The SIP proxies
-and/or devices are located on the public network.
-
-This works quite well with most SIP proxies but we have seen some
-cases where the response is "lost" in the gateway (linux 2.4.18)
-This is the case where the source port of the response is not the
-same as destination port of the request. I have looked around in
-these files:
-
-  net/ipv4/netfilter/ip_conntrack_proto_udp.c
-  net/ipv4/netfilter/ip_nat_proto_udp.c
-
-and it looks like the connection tracker requires the response to
-come from the same port as the ougoing request was sent to.
-
-Typical scenario:
+>     > Better yet, let's take this opportunity to do this more cleanly.  How 
+>     > about having something like /sys/power/vmode (or /proc/...) contain that 
+>     > inforemation instead?  With luck, it might even be few kernel bytes than
+>     > the original printk (or at least not much more).  (I know nothing about
+>     > either /proc or /sys, so it would take me awhile to suggest a patch).
+> 
+>     Well, you probably know about as much as I do. I'm afraid I'm just
+>     going to take the easy way out.
+> 								    Pavel
+> 
+> OK, then, here's a quick fix (perhaps someone else can refine it) which 
+> reads back saved video mode via '/sys/power/gmode'.  Maybe someone else
+> who understand mechanism better than i do can come up with some cleaner
+> code to do the same thing (or at least find a better place to put this).
+> Hopefully, i've at least picked the right CONFIG variable...
 
 
--------------------------------------------
-[           DEVICE 10.47.11.109           ]
--------------------------------------------
-    |
-    |
-   \/
-src: 10.47.11.109:5060
-dst: 80.80.80.80.5060
-    |
-    |
--------------------------------------------
-[       GATEWAY 213.187.186.10            ]
--------------------------------------------
-    |                                 /\
-    |                                  |
-   \/                                  |
-src: 213.187.186.100:5060     src:80.80.80.80.12345
-dst: 80.80.80.80:5060         dst:213.187.186.100:5060
-    |                                 /\
-    |                                  |
-   \/                                  |
--------------------------------------------
-[        SIP PROXY 80.80.80.80            ]
--------------------------------------------
+> Attachment: Patch to 2.6.0-test8-bk2
+> -------------------------------------------------------------------------------
+> --- ./kernel/power/disk.c.orig	2003-10-17 14:42:53.000000000 -0700
+> +++ ./kernel/power/disk.c	2003-10-25 00:02:10.000000000 -0700
+> @@ -326,10 +326,55 @@
+>  	.attrs = g,
+>  };
+>  
+> -
+>  static int __init pm_disk_init(void)
+>  {
+>  	return sysfs_create_group(&power_subsys.kset.kobj,&attr_group);
+>  }
+>  
+>  core_initcall(pm_disk_init);
+> +
+> +#ifdef CONFIG_VIDEO_SELECT
+> +/*
+> + *	gmode - report graphics mode
+> + *
+> + * In order for software suspend to succeed, the video mode must match that
+> + * supplied via the console or from the kernel command line.  This provides
+> + * an orderly means of retrieving that information (rather than grep'ing
+> + * 'dmesg' at an appropriate time, as was the previous means of obtaining
+> + * this datum).
+
+What about /proc/cmdline? ... ... hmm, that does not work with
+vga=ask, right?
+
+> + *
+> + * TO DO:  Make sure framebuffer code updates 'saved_videomode' if it is
+> + *	   capable of changing the video mode ('vesafb' apparently cannot).
 
 
-The packet is lost in the gateway.
+That TODO is meaningless... This only works with vesafb, and vesafb
+can not change video modes by design. And with vgacon; but if you
+change mode using SVGATextMode there's no way to find out if same mode
+is available using vga=....
 
->From RFC3489:
+> + */
+> +extern unsigned long saved_videomode;
+> +
+> +static ssize_t gmode_show(struct subsystem * subsys, char * buf)
+> +{
+> +	return sprintf(buf,"0x%lx\n",saved_videomode);
+> +}
+> +
+> +static ssize_t gmode_store(struct subsystem * s, const char * buf, size_t n) {
+> +	return -EINVAL;
+> +}
+> +
+> +/* Probably should use some macro which makes 'gmode' read-only, since the
+> +   above code didn't report an error when storing into /sys/prog/gmode */
+> +power_attr(gmode);
+> +
+> +static struct attribute * g2[] = {
+> +	&gmode_attr.attr,
+> +	NULL,
+> +};
+> +
+> +static struct attribute_group attr_group2 = {
+> +	.attrs = g2,
+> +};
+> +
+> +static int __init pm_gmode_init(void)
+> +{
+> +	return sysfs_create_group(&power_subsys.kset.kobj,&attr_group2);
+> +}
+> +
+> +core_initcall(pm_gmode_init);
+> +
+> +#endif /* CONFIG_VIDEO_SELECT */
 
-   Restricted Cone: A restricted cone NAT is one where all requests
-      from the same internal IP address and port are mapped to the same
-      external IP address and port.  Unlike a full cone NAT, an external
-      host (with IP address X) can send a packet to the internal host
-      only if the internal host had previously sent a packet to IP
-      address X.
-
-   Port Restricted Cone: A port restricted cone NAT is like a
-      restricted cone NAT, but the restriction includes port numbers.  
-      Specifically, an external host can send a packet, with source IP 
-      address X and source port P, to the internal host only if the    
-      internal host had previously sent a packet to IP address X and   
-      port P.
-
-
-This behaviour I suspect would be close to the "Port Restricted Cone"
-definition. My main question is: With netfilter, is it possible at all
-to have only "Restricted Cone" with no source port checking and if yes
-how is this possible to configure?
-
-I have read through iptables man page and searched www but could not
-find any reference to my problem.
-
-
-For reference, here is the iptables NAT table on my gateway:
-
-root@uranus:~# iptables -t nat -vL
-Chain PREROUTING (policy ACCEPT 1762K packets, 285M bytes)
- pkts bytes target     prot opt in     out     source              
-destination         
-
-Chain POSTROUTING (policy ACCEPT 833K packets, 209M bytes)
- pkts bytes target     prot opt in     out     source              
-destination         
- 177K   11M MASQUERADE  all  --  any    eth0    10.47.10.0/24       
-anywhere           
- 107K   13M SNAT       all  --  any    eth0    anywhere            
-anywhere           to:213.187.186.100 
-
-Chain OUTPUT (policy ACCEPT 227K packets, 26M bytes)
- pkts bytes target     prot opt in     out     source              
-destination  
-
-
-
-Hopefully you are able to understand my question, thanks for any help.
-
-/alfred
+Otherwise it looks good. Can you try pushing it through Patrick
+Mochel? [Cc-ed].
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

@@ -1,57 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261541AbVACSJW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261551AbVACSNg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261541AbVACSJW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 13:09:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261523AbVACSFS
+	id S261551AbVACSNg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 13:13:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261525AbVACSJj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 13:05:18 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:31762 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261649AbVACSEf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 13:04:35 -0500
-Date: Mon, 3 Jan 2005 19:04:30 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Diego Calleja <diegocg@teleline.es>, Willy Tarreau <willy@w.ods.org>,
-       wli@holomorphy.com, aebr@win.tue.nl, solt2@dns.toxicfilms.tv,
-       linux-kernel@vger.kernel.org
+	Mon, 3 Jan 2005 13:09:39 -0500
+Received: from animx.eu.org ([216.98.75.249]:7567 "EHLO animx.eu.org")
+	by vger.kernel.org with ESMTP id S261731AbVACSJP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jan 2005 13:09:15 -0500
+Date: Mon, 3 Jan 2005 13:18:21 -0500
+From: Wakko Warner <wakko@animx.eu.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: starting with 2.7
-Message-ID: <20050103180430.GM2980@stusta.de>
-References: <20050103134727.GA2980@stusta.de> <Pine.LNX.3.96.1050103115639.27655A-100000@gatekeeper.tmr.com>
+Message-ID: <20050103181821.GC31911@animx.eu.org>
+Mail-Followup-To: Adrian Bunk <bunk@stusta.de>,
+	linux-kernel@vger.kernel.org
+References: <1697129508.20050102210332@dns.toxicfilms.tv> <20050102203615.GL29332@holomorphy.com> <20050102212427.GG2818@pclin040.win.tue.nl> <20050102214211.GM29332@holomorphy.com> <20050102221534.GG4183@stusta.de> <Pine.LNX.4.61.0501031019110.25392@chimarrao.boston.redhat.com> <20050103152953.GE2980@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.3.96.1050103115639.27655A-100000@gatekeeper.tmr.com>
+In-Reply-To: <20050103152953.GE2980@stusta.de>
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 03, 2005 at 12:18:36PM -0500, Bill Davidsen wrote:
->...
-> The "few minor exceptions:"
+Adrian Bunk wrote:
 > 
-> SCSI command filtering - while I totally support the idea (and always
-> have), I miss running cdrecord as a normal user. Multisession doesn't work
-> as a normal user (at least if you follow the man page) because only root
-> can use -msinfo. There's also some raw mode which got a permission denied,
-> don't remember as I was trying something not doing production stuff.
+> My personal impression was that even the 2.6.0-test kernels were much 
+> better than the 2.4.0-test kernels.
 > 
-> APM vs. ACPI - shutdown doesn't reliably power down about half of the
-> machines I use, and all five laptops have working suspend and non-working
-> resume. APM seems to be pretty unsupported beyond "use ACPI for that."
->...
+> But 2.6.20 will most likely still have the stability of the early 
+> 2.6 kernels instead of a greatly increased stability as observed in 
+> 2.2.20 and 2.4.20 .
 
-More serious were other problems like e.g. the problems XFS has (had?) 
-with the 4kB stacks option on i386 that was introduced in 2.6
-after 2.6.0 . 
+In my experiences, 2.6.8 and above have been quite unstable for me.  I was
+able to crash 2.6.8.1 as a normal user over nfs (I thought that was fixed?)
 
-cu
-Adrian
+2.6.9 gave me problems with USB and random lockups.  2.6.7 has been fairly
+stable for me, but I honestly do not see 2.6 as a stable kernel.  From my
+past experiences, 2.4.x (low numbered) was just as stable as 2.6 has been or
+more so.
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+ Lab tests show that use of micro$oft causes cancer in lab animals

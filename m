@@ -1,47 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261832AbVCHGwx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261547AbVCHHB0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261832AbVCHGwx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 01:52:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261825AbVCHGv7
+	id S261547AbVCHHB0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 02:01:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261872AbVCHG7v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 01:51:59 -0500
-Received: from fire.osdl.org ([65.172.181.4]:16272 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261832AbVCHGtd (ORCPT
+	Tue, 8 Mar 2005 01:59:51 -0500
+Received: from mail.kroah.org ([69.55.234.183]:65184 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261865AbVCHGzl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 01:49:33 -0500
-Date: Mon, 7 Mar 2005 22:49:26 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: Clemens Schwaighofer <cs@tequila.co.jp>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.11-ac1
-Message-ID: <20050308064926.GV28536@shell0.pdx.osdl.net>
-References: <1110231261.3116.90.camel@localhost.localdomain> <B0B9168A9B666B9CF980CB7C@[192.168.12.2]>
+	Tue, 8 Mar 2005 01:55:41 -0500
+Date: Mon, 7 Mar 2005 22:42:11 -0800
+From: Greg KH <greg@kroah.com>
+To: Wen Xiong <wendyx@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [ patch 6/7] drivers/serial/jsm: new serial device driver
+Message-ID: <20050308064211.GE17022@kroah.com>
+References: <42225A64.6070904@us.ltcfwd.linux.ibm.com> <20050228065534.GC23595@kroah.com> <4228CE5C.9010207@us.ltcfwd.linux.ibm.com> <20050305064445.GA8447@kroah.com> <422CDA58.5000506@us.ltcfwd.linux.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <B0B9168A9B666B9CF980CB7C@[192.168.12.2]>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <422CDA58.5000506@us.ltcfwd.linux.ibm.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Clemens Schwaighofer (cs@tequila.co.jp) wrote:
-> --On Monday, March 07, 2005 09:34:22 PM +0000 Alan Cox 
-> <alan@lxorguk.ukuu.org.uk> wrote:
-> 
-> >For a couple of reasons I've not yet merged Greg's 2.6.11.1 yet but this
-> >diff should actually apply to either right now.
-> >
-> >2.6.11-ac1
-> >o	Fix jbd race in ext3				(Stephen Tweedie)
-> 
-> will that patch actually appear in 2.6.11.2? At least it looks like a 
-> candidate for me ...
+On Mon, Mar 07, 2005 at 05:48:56PM -0500, Wen Xiong wrote:
+> Since some tools in Digi company need these new ioctls to access device 
+> driver. I still keep these new ioctls.
 
-Yes, we are intending to pick up bits from -ac (you might have missed
-that in another thread).
+What tools?  What are they used for?  Why do they need them?  Why can't
+they just use the sysfs files?  
+
+As the driver isn't in the kernel tree, there should not be any users
+expecting these ioctls to be around, right?
 
 thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+
+greg k-h

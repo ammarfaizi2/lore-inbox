@@ -1,182 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262753AbSI1JIS>; Sat, 28 Sep 2002 05:08:18 -0400
+	id <S262755AbSI1JKI>; Sat, 28 Sep 2002 05:10:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262754AbSI1JIS>; Sat, 28 Sep 2002 05:08:18 -0400
-Received: from cs180154.pp.htv.fi ([213.243.180.154]:14730 "EHLO
-	devil.pp.htv.fi") by vger.kernel.org with ESMTP id <S262753AbSI1JIQ>;
-	Sat, 28 Sep 2002 05:08:16 -0400
-Subject: Re: Linux v2.5.39
-From: Mika Liljeberg <Mika.Liljeberg@welho.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0209271459210.1807-100000@penguin.transmeta.com>
-References: <Pine.LNX.4.33.0209271459210.1807-100000@penguin.transmeta.com>
-Content-Type: multipart/mixed; boundary="=-wSiClNCboN9BL2qlUC1g"
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 28 Sep 2002 12:13:12 +0300
-Message-Id: <1033204392.616.10.camel@devil>
-Mime-Version: 1.0
+	id <S262756AbSI1JKI>; Sat, 28 Sep 2002 05:10:08 -0400
+Received: from pop.gmx.de ([213.165.64.20]:36726 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S262755AbSI1JKG>;
+	Sat, 28 Sep 2002 05:10:06 -0400
+From: Felix Seeger <felix.seeger@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: System very unstable
+Date: Sat, 28 Sep 2002 11:15:16 +0200
+User-Agent: KMail/1.4.7
+MIME-Version: 1.0
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200209281115.19968.felix.seeger@gmx.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
---=-wSiClNCboN9BL2qlUC1g
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Hi
 
-On Sat, 2002-09-28 at 01:02, Linus Torvalds wrote:
-> 
-> Changes all over the map.
+Since some days my system is very unstable. I get many crashes with kernel 
+panics.
 
-Looks like the attached patch didn't work its way in there. Please
-apply. The patch is good for 2.5.39 as well.
+First one app is killed because of a segfault, than it doesn't take a long 
+time and the computer is down. What is the problem, is it a memory error ?
 
-The current code in sound/oss/audio.c tries to access spinlocks through
-a garbage pointer in many places. This causes bad things to happen on
-SMP machines.
-
-Regards,
-
-	MikaL
+thanks
+have fun
+Felix
 
 
---=-wSiClNCboN9BL2qlUC1g
-Content-Disposition: attachment; filename=oss.udiff
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; name=oss.udiff; charset=ISO-8859-1
+P.S. Here is one of this crashes:
 
---- linux-2.5.38/sound/oss/audio.c.org	2002-09-23 20:57:10.000000000 +0300
-+++ linux-2.5.38/sound/oss/audio.c	2002-09-23 22:34:45.000000000 +0300
-@@ -826,37 +826,48 @@
- 			if (!(audio_devs[dev]->flags & DMA_DUPLEX) && (bits & PCM_ENABLE_INPUT)=
- &&
- 				(bits & PCM_ENABLE_OUTPUT))
- 				return -EINVAL;
--			spin_lock_irqsave(&dmap->lock,flags);
--			changed =3D audio_devs[dev]->enable_bits ^ bits;
--			if ((changed & bits) & PCM_ENABLE_INPUT && audio_devs[dev]->go)=20
-+
-+			if (bits & PCM_ENABLE_INPUT)
- 			{
--				reorganize_buffers(dev, dmap_in, 1);
--				if ((err =3D audio_devs[dev]->d->prepare_for_input(dev,
--					     dmap_in->fragment_size, dmap_in->nbufs)) < 0) {
--					spin_unlock_irqrestore(&dmap->lock,flags);
--					return -err;
--				}
--				dmap_in->dma_mode =3D DMODE_INPUT;
--				audio_devs[dev]->enable_bits =3D bits;
--				DMAbuf_activate_recording(dev, dmap_in);
-+				spin_lock_irqsave(&dmap_in->lock,flags);
-+				changed =3D (audio_devs[dev]->enable_bits ^ bits) & PCM_ENABLE_INPUT;
-+				if (changed && audio_devs[dev]->go)=20
-+				{
-+					reorganize_buffers(dev, dmap_in, 1);
-+					if ((err =3D audio_devs[dev]->d->prepare_for_input(dev,
-+						     dmap_in->fragment_size, dmap_in->nbufs)) < 0) {
-+						spin_unlock_irqrestore(&dmap_in->lock,flags);
-+						return -err;
-+					}
-+					dmap_in->dma_mode =3D DMODE_INPUT;
-+					audio_devs[dev]->enable_bits |=3D PCM_ENABLE_INPUT;
-+					DMAbuf_activate_recording(dev, dmap_in);
-+				} else
-+					audio_devs[dev]->enable_bits &=3D ~PCM_ENABLE_INPUT;
-+				spin_unlock_irqrestore(&dmap_in->lock,flags);
- 			}
--			if ((changed & bits) & PCM_ENABLE_OUTPUT &&
--			    (dmap_out->mapping_flags & DMA_MAP_MAPPED || dmap_out->qlen > 0) &&
--			    audio_devs[dev]->go)=20
-+			if (bits & PCM_ENABLE_OUTPUT)
- 			{
--				if (!(dmap_out->flags & DMA_ALLOC_DONE))
--					reorganize_buffers(dev, dmap_out, 0);
--				dmap_out->dma_mode =3D DMODE_OUTPUT;
--				audio_devs[dev]->enable_bits =3D bits;
--				dmap_out->counts[dmap_out->qhead] =3D dmap_out->fragment_size;
--				DMAbuf_launch_output(dev, dmap_out);
-+				spin_lock_irqsave(&dmap_out->lock,flags);
-+				changed =3D (audio_devs[dev]->enable_bits ^ bits) & PCM_ENABLE_OUTPUT;
-+				if (changed &&
-+				    (dmap_out->mapping_flags & DMA_MAP_MAPPED || dmap_out->qlen > 0) &=
-&
-+				    audio_devs[dev]->go)=20
-+				{
-+					if (!(dmap_out->flags & DMA_ALLOC_DONE))
-+						reorganize_buffers(dev, dmap_out, 0);
-+					dmap_out->dma_mode =3D DMODE_OUTPUT;
-+					audio_devs[dev]->enable_bits |=3D PCM_ENABLE_OUTPUT;
-+					dmap_out->counts[dmap_out->qhead] =3D dmap_out->fragment_size;
-+					DMAbuf_launch_output(dev, dmap_out);
-+				} else
-+					audio_devs[dev]->enable_bits &=3D ~PCM_ENABLE_OUTPUT;
-+				spin_unlock_irqrestore(&dmap_out->lock,flags);
- 			}
--			audio_devs[dev]->enable_bits =3D bits;
- #if 0
- 			if (changed && audio_devs[dev]->d->trigger)
- 				audio_devs[dev]->d->trigger(dev, bits * audio_devs[dev]->go);
- #endif			=09
--			spin_unlock_irqrestore(&dmap->lock,flags);
- 			/* Falls through... */
-=20
- 		case SNDCTL_DSP_GETTRIGGER:
-@@ -873,7 +884,7 @@
- 		case SNDCTL_DSP_GETIPTR:
- 			if (!(audio_devs[dev]->open_mode & OPEN_READ))
- 				return -EINVAL;
--			spin_lock_irqsave(&dmap->lock,flags);
-+			spin_lock_irqsave(&dmap_in->lock,flags);
- 			cinfo.bytes =3D dmap_in->byte_counter;
- 			cinfo.ptr =3D DMAbuf_get_buffer_pointer(dev, dmap_in, DMODE_INPUT) & ~3=
-;
- 			if (cinfo.ptr < dmap_in->fragment_size && dmap_in->qtail !=3D 0)
-@@ -882,7 +893,7 @@
- 			cinfo.bytes +=3D cinfo.ptr;
- 			if (dmap_in->mapping_flags & DMA_MAP_MAPPED)
- 				dmap_in->qlen =3D 0;	/* Reset interrupt counter */
--			spin_unlock_irqrestore(&dmap->lock,flags);
-+			spin_unlock_irqrestore(&dmap_in->lock,flags);
- 			if (copy_to_user(arg, &cinfo, sizeof(cinfo)))
- 				return -EFAULT;
- 			return 0;
-@@ -891,7 +902,7 @@
- 			if (!(audio_devs[dev]->open_mode & OPEN_WRITE))
- 				return -EINVAL;
-=20
--			spin_lock_irqsave(&dmap->lock,flags);
-+			spin_lock_irqsave(&dmap_out->lock,flags);
- 			cinfo.bytes =3D dmap_out->byte_counter;
- 			cinfo.ptr =3D DMAbuf_get_buffer_pointer(dev, dmap_out, DMODE_OUTPUT) & =
-~3;
- 			if (cinfo.ptr < dmap_out->fragment_size && dmap_out->qhead !=3D 0)
-@@ -900,7 +911,7 @@
- 			cinfo.bytes +=3D cinfo.ptr;
- 			if (dmap_out->mapping_flags & DMA_MAP_MAPPED)
- 				dmap_out->qlen =3D 0;	/* Reset interrupt counter */
--			spin_unlock_irqrestore(&dmap->lock,flags);
-+			spin_unlock_irqrestore(&dmap_out->lock,flags);
- 			if (copy_to_user(arg, &cinfo, sizeof(cinfo)))
- 				return -EFAULT;
- 			return 0;
-@@ -913,7 +924,7 @@
- 				ret=3D0;
- 				break;
- 			}
--			spin_lock_irqsave(&dmap->lock,flags);
-+			spin_lock_irqsave(&dmap_out->lock,flags);
- 			/* Compute number of bytes that have been played */
- 			count =3D DMAbuf_get_buffer_pointer (dev, dmap_out, DMODE_OUTPUT);
- 			if (count < dmap_out->fragment_size && dmap_out->qhead !=3D 0)
-@@ -923,7 +934,7 @@
- 			count =3D dmap_out->user_counter - count;
- 			if (count < 0)
- 				count =3D 0;
--			spin_unlock_irqrestore(&dmap->lock,flags);
-+			spin_unlock_irqrestore(&dmap_out->lock,flags);
- 			ret =3D count;
- 			break;
-=20
+hal@hal:~$ ksymoops -m /boot/System.map error.txt
+ksymoops 2.4.6 on i686 2.4.19.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.19/ (default)
+     -m /boot/System.map (specified)
 
---=-wSiClNCboN9BL2qlUC1g--
+ <1>Unable to handle kernel paging request at virtual address f1ec9808
+c01468de
+Oops: 0002
+CPU:    0
+EIP:    0010:[get_new_inode+94/368]    Tainted: P
+EFLAGS: 00010206
+eax: f1ec9808   ebx: 00000000   ecx: c1376130 edx: c3761dc8
+esi: f1ec9800   edi: d3f92b90   ebp: d3e82a00 esp: c7ddfe98
+ds: 0018   es: 0018   ss: 0018
+Process exim (pid: 25555, stackpage=c7ddf000)
+Stack: 00000000 d3f92b90 00027e26 d3e82a00 c0146b76 d3e82a00 00027e26 d3f92b90
+       00000000 00000000 ccf07840 d3e67ac0 ccf07840 c137a940 c01556c3 d3e82a00
+       00027e26 00000000 00000000 fffffff4 d3e67ac0 c013cd93 d3e67ac0 ccf07840
+Call Trace:    [iget4+182/208] [ext2_lookup+67/112] [real_lookup+83/192] 
+[link_path_walk+1495/2144] [path_walk+26
+Code: 89 56 08 c7 40 04 a4 c4 2a c0 a3 a4 c4 2a c0 8b 07 89 70 04
+Using defaults from ksymoops -t elf32-i386 -a i386
+
+
+>>ecx; c1376130 <_end+103e580/194d94b0>
+>>edx; c3761dc8 <_end+342a218/194d94b0>
+>>edi; d3f92b90 <_end+13c5afe0/194d94b0>
+>>ebp; d3e82a00 <_end+13b4ae50/194d94b0>
+>>esp; c7ddfe98 <_end+7aa82e8/194d94b0>
+
+Code;  00000000 Before first symbol
+00000000 <_EIP>:
+Code;  00000000 Before first symbol
+   0:   89 56 08                  mov    %edx,0x8(%esi)
+Code;  00000003 Before first symbol
+   3:   c7 40 04 a4 c4 2a c0      movl   $0xc02ac4a4,0x4(%eax)
+Code;  0000000a Before first symbol
+   a:   a3 a4 c4 2a c0            mov    %eax,0xc02ac4a4
+Code;  0000000f Before first symbol
+   f:   8b 07                     mov    (%edi),%eax
+Code;  00000011 Before first symbol
+  11:   89 70 04                  mov    %esi,0x4(%eax)
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE9lXMnS0DOrvdnsewRAlhiAJ9bsKSjsQFfYB8I3GinK2+V3PSMGQCZAQR5
+bgETND+WX7jzxoWMnMOe1/8=
+=Kgow
+-----END PGP SIGNATURE-----
+

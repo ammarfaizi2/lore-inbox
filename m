@@ -1,41 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261793AbUKHLxE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261588AbUKHMAn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261793AbUKHLxE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 06:53:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261807AbUKHLxE
+	id S261588AbUKHMAn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 07:00:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261807AbUKHMAn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 06:53:04 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:15232 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261793AbUKHLxB
+	Mon, 8 Nov 2004 07:00:43 -0500
+Received: from hirsch.in-berlin.de ([192.109.42.6]:15327 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S261588AbUKHMAh
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 06:53:01 -0500
-Date: Mon, 8 Nov 2004 06:34:45 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 
-Message-ID: <20041108083445.GB765@logos.cnet>
-References: <20041108073954.GA537@logos.cnet> <4d8e3fd304110803084dce89c8@mail.gmail.com>
+	Mon, 8 Nov 2004 07:00:37 -0500
+X-Envelope-From: kraxel@bytesex.org
+Date: Mon, 8 Nov 2004 12:40:08 +0100
+From: Gerd Knorr <kraxel@bytesex.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: video4linux-list@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: RFC: [2.6 patch] drivers/media/video/ cleanups
+Message-ID: <20041108114008.GB20607@bytesex>
+References: <20041107175017.GP14308@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4d8e3fd304110803084dce89c8@mail.gmail.com>
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <20041107175017.GP14308@stusta.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 08, 2004 at 12:08:24PM +0100, Paolo Ciarrocchi wrote:
-> On Mon, 8 Nov 2004 05:39:54 -0200, Marcelo Tosatti
-> <marcelo.tosatti@cyclades.com> wrote:
-> > 
-> > unsubscribe linux-kernel
-> 
-> Marcelo,
-> what are you doing ? ;-)
+On Sun, Nov 07, 2004 at 06:50:17PM +0100, Adrian Bunk wrote:
+> the patch below contains several cleanups for drivers/media/video/, most 
+> of them are:
+> - needlessly global code made static
+> - currenly unused code removed
 
-Jesus, what a shame. 
+No, not this way in one big blob please.  It would be very nice if you
+can split that into smaller pieces:
 
-I'm subscribe twice, so I tried to remove one of the 
-subscriptions.
+  (1) The ObviouslyCorrect stuff, i.e. make stuff static which isn't
+      declared in any header file.
+  (2) The stuff which needs some more careful review (drop functions,
+      drop stuff from header files, ...).
 
-/me digs a hole...
+Especially the later please splitted by driver, so the driver
+maintainers can have a look (which is kida problematic for some v4l
+drivers as there is no active maintainer currently, but I'd prefeare
+to have that separately in my inbox neverless).
+
+I don't like your attitude to just drop stuff as "cleanup".  If
+functions are declared in a header file they are usually for a reason,
+thus that kind of stuff needs some careful checking whenever these
+reasons still exist or not.  Not every function which isn't used at the
+moment automatically is useless.  cx88_risc_disasm() for example is
+useful for debugging the driver.  And that there is no in-kernel user
+for exported functions doesn't mean that nobody uses it.  The stuff
+exported by bttv-if is used by lirc for example.
+
+  Gerd
+

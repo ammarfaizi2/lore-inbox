@@ -1,49 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132120AbRBBAKo>; Thu, 1 Feb 2001 19:10:44 -0500
+	id <S131544AbRBBAJz>; Thu, 1 Feb 2001 19:09:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132199AbRBBAKh>; Thu, 1 Feb 2001 19:10:37 -0500
-Received: from theirongiant.zip.net.au ([61.8.0.198]:2309 "EHLO
-	theirongiant.weebeastie.net") by vger.kernel.org with ESMTP
-	id <S132120AbRBBAKU>; Thu, 1 Feb 2001 19:10:20 -0500
-Date: Fri, 2 Feb 2001 11:09:07 +1100
-From: CaT <cat@zip.com.au>
-To: Jagan_Pochimireddy@3com.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel ver 2.4.1 VFS problem
-Message-ID: <20010202110907.A365@zip.com.au>
-In-Reply-To: <882569E6.0083B746.00@hqoutbound.ops.3com.com>
+	id <S132120AbRBBAJo>; Thu, 1 Feb 2001 19:09:44 -0500
+Received: from smtp8.xs4all.nl ([194.109.127.134]:31943 "EHLO smtp8.xs4all.nl")
+	by vger.kernel.org with ESMTP id <S131544AbRBBAJY>;
+	Thu, 1 Feb 2001 19:09:24 -0500
+Date: Thu, 1 Feb 2001 23:18:06 +0000
+From: "Roeland Th. Jansen" <roel@grobbebol.xs4all.nl>
+To: Mark Orr <markorr@intersurf.com>
+Cc: miquels@cistron.nl, arobinso@nyx.net, linux-kernel@vger.kernel.org
+Subject: Re: esp causing crashes..
+Message-ID: <20010201231806.B2684@grobbebol.xs4all.nl>
+In-Reply-To: <20010129175752.A657@grobbebol.xs4all.nl> <XFMail.20010201153828.markorr@intersurf.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <882569E6.0083B746.00@hqoutbound.ops.3com.com>; from Jagan_Pochimireddy@3com.com on Thu, Feb 01, 2001 at 03:58:58PM -0800
-Organisation: Furball Inc.
+In-Reply-To: <XFMail.20010201153828.markorr@intersurf.com>; from markorr@intersurf.com on Thu, Feb 01, 2001 at 03:38:28PM -0600
+X-OS: Linux grobbebol 2.4.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 01, 2001 at 03:58:58PM -0800, Jagan_Pochimireddy@3com.com wrote:
-> I wamt to use the latest kernel version 2.4.1 . I taken defualt configuration
-> and built bzImage. When I try to boot with this image it's giving message like
-> this.
-> 
-> " VFS:Unable to mount root device 805 or 8:05"
-> kernel panic "VFS:please append correct "root=\"
-> "VFS:Unable to open root device"
-> 
-> Can any body help me where could be the problem
+On Thu, Feb 01, 2001 at 03:38:28PM -0600, Mark Orr wrote:
+> I dont like to be the sort of person who, when people report problems,
+> fires back "it works fine here!"...but...just as a point of reference,
+> I have a Hayes ESP too -- it's connected to a 56k modem.  I havent
+> had any crashes or hangs related to it, but I dont use mgetty.  (I use
+> rungetty, a variant of mingetty,  for VC's).    Seeing this, I will
+> compile up mgetty here to see if I can replicate it.
 
-Do you have the correct SCSI driver compiled into your kernel? A friend
-of mine had a similar problem and that was the solution (he thought the 
-card was one thing but it was another).
+
+even without mgetty it fails. the fact hat esp.o is loaded is cause for
+trouble. minicom using the card, exit - crash.
+
+I do not use the DMA channel of the card as it conflicts with the SB16 I
+have on board.
 
 -- 
-CaT (cat@zip.com.au)		*** Jenna has joined the channel.
-				<cat> speaking of mental giants..
-				<Jenna> me, a giant, bullshit
-				<Jenna> And i'm not mental
-					- An IRC session, 20/12/2000
-
+Grobbebol's Home                   |  Don't give in to spammers.   -o)
+http://www.xs4all.nl/~bengel       | Use your real e-mail address   /\
+Linux 2.2.16 SMP 2x466MHz / 256 MB |        on Usenet.             _\_v  
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

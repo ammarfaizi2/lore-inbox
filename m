@@ -1,70 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277826AbRJIQup>; Tue, 9 Oct 2001 12:50:45 -0400
+	id <S277828AbRJIQup>; Tue, 9 Oct 2001 12:50:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277823AbRJIQuj>; Tue, 9 Oct 2001 12:50:39 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:15333 "EHLO
-	e31.bld.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S277822AbRJIQuV>; Tue, 9 Oct 2001 12:50:21 -0400
+	id <S277826AbRJIQug>; Tue, 9 Oct 2001 12:50:36 -0400
+Received: from colorfullife.com ([216.156.138.34]:65297 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S277823AbRJIQuV>;
+	Tue, 9 Oct 2001 12:50:21 -0400
+Message-ID: <000901c150e2$97765470$010411ac@local>
+From: "Manfred Spraul" <manfred@colorfullife.com>
+To: "Richard Henderson" <rth@twiddle.net>
+Cc: <linux-kernel@vger.kernel.org>,
+        "\"Paul E. McKenney\"" <pmckenne@us.ibm.com>
 Subject: Re: RFC: patch to allow lock-free traversal of lists with insertion
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
-        rth@redhat.com
-X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
-Message-ID: <OFB7BD4A8C.67D9CA0D-ON88256AE0.00549718@boulder.ibm.com>
-From: "Paul McKenney" <Paul.McKenney@us.ibm.com>
-Date: Tue, 9 Oct 2001 08:24:17 -0700
-X-MIMETrack: Serialize by Router on D03NM045/03/M/IBM(Release 5.0.8 |June 18, 2001) at
- 10/09/2001 10:50:44 AM
+Date: Tue, 9 Oct 2001 18:51:00 +0200
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
->    From: "Paul McKenney" <Paul.McKenney@us.ibm.com>
->    Date: Mon, 8 Oct 2001 22:27:44 -0700
 >
->    All other CPUs must observe the preceding stores before the following
->    stores.
->  ...
->    Does this do the trick?
+> On Tue, Oct 09, 2001 at 07:03:37PM +1000, Rusty Russell wrote:
+> > I don't *like* making Alpha's wmb() stronger, but it is the
+> > only solution which doesn't touch common code.
 >
->               membar #StoreStore
->
-> Yes.
+> It's not a "solution" at all.  It's so heavy weight you'd be
+> much better off with locks.  Just use the damned rmb_me_harder.
 
-Cool!  Thank you!!!
+rmb_me_harder? smp_mb__{before,after}_{atomic_dec,clear_bit} are already ugly enough.
 
->    The IPIs and related junk are I believe needed only on Alpha, which
-has
->    no single memory-barrier instruction that can do wmbdd()'s job.  Given
->    that Alpha seems to be on its way out, this did not seem to me to be
->    too horrible.
->
-> I somehow doubt that you need an IPI to implement the equivalent of
-> "membar #StoreStore" on Alpha.  Richard?
+What about hiding all these details in the list access macros? list_insert, list_get_next, etc. With a default implementation based
+on a spinlock, and the capable SMP architectures could define an optimized version.
 
-If "membar #StoreStore" is sufficient, then there is no equivalent of
-it on Alpha.  Neither the "mb" nor the "wmb" instructions wait for
-outstanding invalidations to complete, and therefore do -not- guarantee
-that reading CPUs will see writes occuring in the order that the writes
-occurred on the writing CPU, even if data dependencies force the order
-of the reads (as the pointer-dereference example I gave does).
+Then Alpha could do whatever flushing is required. But please do not scatter memory barrier instructions all around the kernel.
 
-On Alpha, there -must- be an "mb" on the reading CPU if the reading CPU
-is to observe the stores in order.  The IPIs are just a way of causing
-those "mb"s to happen without having code like this:
-
-     d = p->a->b;
-
-from having to be written as follows:
-
-     q = p->a;
-     rmb();
-     d = q->b;
-
-More thoughts?
-
-                         Thanx, Paul
+--
+    Manfred
 

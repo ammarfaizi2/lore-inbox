@@ -1,49 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289767AbSBNLBx>; Thu, 14 Feb 2002 06:01:53 -0500
+	id <S291451AbSBNLDd>; Thu, 14 Feb 2002 06:03:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291423AbSBNLBo>; Thu, 14 Feb 2002 06:01:44 -0500
-Received: from mail49-s.fg.online.no ([148.122.161.49]:59596 "EHLO
-	mail49.fg.online.no") by vger.kernel.org with ESMTP
-	id <S289767AbSBNLB0>; Thu, 14 Feb 2002 06:01:26 -0500
-To: Rob Landley <landley@trommello.org>
-Cc: Aaron Lehmann <aaronl@vitelus.com>, Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>, linux-kernel@vger.kernel.org
-Subject: Re: ssh primer (was Re: pull vs push (was Re: [bk patch] Make
- cardbus compile in -pre4))
-In-Reply-To: <E16ZhzF-0000ST-00@gondolin.me.apana.org.au>
-	<3C65CBDE.A9B60BBD@mandrakesoft.com>
-	<20020213171306.GA15924@vitelus.com>
-	<20020214002205.VBHJ21911.femail34.sdc1.sfba.home.com@there>
-From: Harald Arnesen <gurre@start.no>
-Date: Thu, 14 Feb 2002 12:00:03 +0100
-In-Reply-To: <20020214002205.VBHJ21911.femail34.sdc1.sfba.home.com@there> (Rob
- Landley's message of "Wed, 13 Feb 2002 19:22:57 -0500")
-Message-ID: <871yfogwgc.fsf@basilikum.skogtun.org>
-User-Agent: Gnus/5.090005 (Oort Gnus v0.05) Emacs/21.1
- (i386-debian-linux-gnu)
+	id <S291452AbSBNLDQ>; Thu, 14 Feb 2002 06:03:16 -0500
+Received: from 213-97-45-174.uc.nombres.ttd.es ([213.97.45.174]:5139 "EHLO
+	pau.intranet.ct") by vger.kernel.org with ESMTP id <S291423AbSBNLC4>;
+	Thu, 14 Feb 2002 06:02:56 -0500
+Date: Thu, 14 Feb 2002 12:02:48 +0100 (CET)
+From: Pau Aliagas <linuxnow@wanadoo.es>
+X-X-Sender: pau@pau.intranet.ct
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: more compiling errors in 2.5.5-pre1
+Message-ID: <Pine.LNX.4.44.0202141202240.1622-100000@pau.intranet.ct>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rob Landley <landley@trommello.org> writes:
+make -C block modules
+make[3]: Entering directory 
+`/home/pau/LnxZip/RPM/BUILD/kernel-2.5.5pre1/drivers/block'
+gcc -D__KERNEL__ -I/home/pau/LnxZip/RPM/BUILD/kernel-2.5.5pre1/include 
+-Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer 
+-fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 
+-march=i686 -DMODULE -DMODVERSIONS -include 
+/home/pau/LnxZip/RPM/BUILD/kernel-2.5.5pre1/include/linux/modversions.h  
+-DKBUILD_BASENAME=floppy  -c -o floppy.o floppy.c
+gcc -D__KERNEL__ -I/home/pau/LnxZip/RPM/BUILD/kernel-2.5.5pre1/include 
+-Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer 
+-fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 
+-march=i686 -DMODULE -DMODVERSIONS -include 
+/home/pau/LnxZip/RPM/BUILD/kernel-2.5.5pre1/include/linux/modversions.h  
+-DKBUILD_BASENAME=rd  -c -o rd.o rd.c
+rd.c: In function `rd_make_request':
+rd.c:271: too many arguments to function
+make[3]: *** [rd.o] Error 1
+make[3]: Leaving directory 
+`/home/pau/LnxZip/RPM/BUILD/kernel-2.5.5pre1/drivers/block'
+make[2]: *** [_modsubdir_block] Error 2
+make[2]: Leaving directory 
+`/home/pau/LnxZip/RPM/BUILD/kernel-2.5.5pre1/drivers'
+make[1]: *** [_mod_drivers] Error 2
+make[1]: Leaving directory `/home/pau/LnxZip/RPM/BUILD/kernel-2.5.5pre1'
+error: Bad exit status from /home/pau/LnxZip/tmp/rpm-tmp.8387 (%build)
 
-> Not that it's worth it. Keys get exponentially more difficult to
-> brute force as the key length increases. I read part of a book a
-> long time ago (might have been called "applied cryptography") that
-> figured out that if you could build a perfectly efficient computer
-> that could do 1 bit's worth of calculation with the the amount of
-> energy in the minimal electron state transition in a hydrogen atom,
-> and you built a dyson sphere around the sun to capture its entire
-> energy output for the however many billion years its expected to
-> last, you wouldn't even brute-force exhaust a relatively small
-> keyspace (128 bits? 256 bits? Something like that).
->
-> Somebody else here is likely to recognize the above anecdote and give a more 
-> accurate reference.  Book title and page number would be good...
 
-Bruce Schneier's "Applied Cryptography" (second edition, may be in the
-first edition as well), pages 157-158 ("Thermodynamic Limitations").
 -- 
-Hilsen Harald.
+
+Pau
+

@@ -1,83 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272288AbTHDXSy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 19:18:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272289AbTHDXSx
+	id S272289AbTHDXea (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 19:34:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272299AbTHDXea
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 19:18:53 -0400
-Received: from adsl-67-121-153-186.dsl.pltn13.pacbell.net ([67.121.153.186]:53205
-	"EHLO triplehelix.org") by vger.kernel.org with ESMTP
-	id S272288AbTHDXSw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 19:18:52 -0400
-Date: Mon, 4 Aug 2003 16:18:50 -0700
-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: interesting oops - 2.6.0-test2-mm2
-Message-ID: <20030804231850.GA7816@firesong>
+	Mon, 4 Aug 2003 19:34:30 -0400
+Received: from mail3.ithnet.com ([217.64.64.7]:37077 "HELO
+	heather-ng.ithnet.com") by vger.kernel.org with SMTP
+	id S272289AbTHDXe2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Aug 2003 19:34:28 -0400
+X-Sender-Authentification: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
+Date: Tue, 5 Aug 2003 01:34:25 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Jesse Pollard <jesse@cats-chateau.net>
+Cc: aia21@cam.ac.uk, aebr@win.tue.nl, linux-kernel@vger.kernel.org
+Subject: Re: FS: hardlinks on directories
+Message-Id: <20030805013425.03fb9871.skraw@ithnet.com>
+In-Reply-To: <03080416163901.04444@tabby>
+References: <20030804141548.5060b9db.skraw@ithnet.com>
+	<Pine.SOL.4.56.0308041458500.22102@orange.csi.cam.ac.uk>
+	<20030804165002.791aae3d.skraw@ithnet.com>
+	<03080416163901.04444@tabby>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="mP3DRpeJDSE+ciuQ"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
-From: Joshua Kwan <joshk@triplehelix.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 4 Aug 2003 16:16:39 -0500
+Jesse Pollard <jesse@cats-chateau.net> wrote:
 
---mP3DRpeJDSE+ciuQ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> > > You ask for examples of applications?  There are millions!  Anything that
+> > > walks the directory tree for a start, e.g. ls -R, find, locatedb, medusa,
+> > > du, any type of search and/or indexing engine, chown -R, cp -R, scp
+> > > -R, chmod -R, etc...
+> >
+> > There is a flaw in this argument. If I am told that mount --bind does just
+> > about what I want to have as a feature then these applictions must have the
+> > same problems already (if I mount braindead). So an implementation in fs
+> > cannot do any _additional_ damage to these applications, or not?
+> 
+> Mount -bind only modifies the transient memory storage of a directory. It 
+> doesn't change the filesystem. Each bind occupies memory, and on a reboot, 
+> the bind is gone.
 
-This was the interesting result of 'less -f /dev/kmem' on 2.6.0-test2-mm2:
+What kind of an argument is this? What difference can you see between a
+transient loop and a permanent loop for the applications? Exactly zero I guess.
+In my environments nil boots ought to happen. 
+This is the reason why I would in fact be satisfied with mount -bind if only I
+could export it via nfs...
 
-<1>Unable to handle kernel NULL pointer dereference at virtual address 0000=
-0020
- printing eip:
-c01b9d4a
-*pde =3D 00000000
-Oops: 0000 [#3]
-PREEMPT
-CPU:    0
-EIP:    0060:[<c01b9d4a>]    Not tainted VLI
-EFLAGS: 00010296
-EIP is at __copy_user_intel+0x16/0xac
-eax: 00000004   ebx: 00000000   ecx: 00002000   edx: 0806546c
-esi: 00000000   edi: 0806346c   ebp: 00000000   esp: c6401f18
-ds: 007b   es: 007b   ss: 0068
-Process less (pid: 7815, threadinfo=3Dc6400000 task=3Dc400b900)
-Stack: 00000000 0806346c c01b9ef4 0806346c 00000000 00002000 0806346c 00002=
-000
-       c01e48b6 0806346c 00000000 00002000 ce0fcbd4 0000000a 0000000a 08060=
-42a
-       c01ebd1f 00000000 00002000 00000000 c8134480 c81344a0 00002000 c0150=
-344
-Call Trace:
- [<c01b9ef4>] __copy_to_user_ll+0x68/0x6c
- [<c01e48b6>] read_kmem+0x158/0x15f
- [<c01ebd1f>] write_chan+0x0/0x255
- [<c0150344>] vfs_read+0xb0/0x119
- [<c01505eb>] sys_read+0x42/0x63
- [<c0109167>] syscall_call+0x7/0xb
+> > My saying is not "I want to have hardlinks for creating a big mess of loops
+> > inside my filesystems". Your view simply drops the fact that there are more
+> > possibilities to create and use hardlinks without any loops...
+> 
+> been there done that, is is a "big mess of loops".
+> 
+> And you can't prevent the loops either, without scanning the entire graph, or
+> keeping a graph location reference embeded with the file.
 
-Code: 29 ca 01 d0 8b 7c 24 08 21 f0 8b 1c 24 8b 74 24 04 83 c4 0c c3 83 ec =
-08 89 34 24 89 7c 24 04 8b 4c 24 14 8b 7c 24=20
-0c 8b 74 24 10 <8b> 46 20 83 f9 43 76 04 8b 46 40 90 8b 46 00 8b 56 04 89 4=
-7 00
+Or marking the links as type links somehow.
 
-I'm not worried, I was explicitly trying to find ways to oops my kernel :)
+> Which then breaks "mv" for renaming directories... It would then have to
+> scan the entire graph again to locate a possble creation of a loop, and 
+> regenerate the graph location for every file.
 
--Josh
+There should be no difference if only a hardlink is simply marked as such by
+any kind of marker you possibly can think of.
 
---mP3DRpeJDSE+ciuQ
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/LunaT2bz5yevw+4RAuoPAJ4su0B48uziyPd0VUNe9btplk/WEACeLjfD
-oLvCivTHx/p7orfHZPloIEU=
-=f5uD
------END PGP SIGNATURE-----
-
---mP3DRpeJDSE+ciuQ--
+Regards,
+Stephan

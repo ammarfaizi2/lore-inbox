@@ -1,36 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267210AbSKUXuM>; Thu, 21 Nov 2002 18:50:12 -0500
+	id <S267219AbSKUXrR>; Thu, 21 Nov 2002 18:47:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267213AbSKUXuM>; Thu, 21 Nov 2002 18:50:12 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:12427 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267210AbSKUXuL>; Thu, 21 Nov 2002 18:50:11 -0500
-Subject: Re: Setting MAC address in ewrk3 driver
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Adam Kropelin <akropel1@rochester.rr.com>
-Cc: Neil Cafferkey <caffer@cs.ucc.ie>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021121233950.GB4654@www.kroptech.com>
-References: <20021121195417.A18859@cuc.ucc.ie>
-	<1037914095.9122.0.camel@irongate.swansea.linux.org.uk> 
-	<20021121233950.GB4654@www.kroptech.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 22 Nov 2002 00:26:16 +0000
-Message-Id: <1037924776.9122.7.camel@irongate.swansea.linux.org.uk>
+	id <S267220AbSKUXrR>; Thu, 21 Nov 2002 18:47:17 -0500
+Received: from holomorphy.com ([66.224.33.161]:33923 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S267219AbSKUXrQ>;
+	Thu, 21 Nov 2002 18:47:16 -0500
+Date: Thu, 21 Nov 2002 15:51:27 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Rohit Seth <rseth@unix-os.sc.intel.com>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, akpm@digeo.com,
+       torvalds@transmeta.com, rohit.seth@intel.com
+Subject: Re: hugetlb page patch for 2.5.48-bug fixes
+Message-ID: <20021121235127.GS23425@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Rohit Seth <rseth@unix-os.sc.intel.com>, linux-mm@kvack.org,
+	linux-kernel@vger.kernel.org, akpm@digeo.com,
+	torvalds@transmeta.com, rohit.seth@intel.com
+References: <3DDD58C1.9020503@unix-os.sc.intel.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3DDD58C1.9020503@unix-os.sc.intel.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-11-21 at 23:39, Adam Kropelin wrote:
-> Alan, could you clarify for me? I'm the last guy to diddle with ewrk3 so
-> I'll track this down if there is indeed something to track down. ewrk3
-> has a private ioctl for setting the mac address. By the "up" method do
-> you mean the etherdev open method? Should there be a standard ioctl
-> implemented for setting the mac address?
+On Thu, Nov 21, 2002 at 02:05:53PM -0800, Rohit Seth wrote:
+> Linus, Andrew,
+> Attached is the hugetlbpage patch for 2.5.48 containing following main 
+> changes:
+> 1) Bug fixes (mainly in the unsuccessful attempts of hugepages).
+> 2) Removal of Radix Tree field in key structure (as it is not needed).
+> 3) Include the IPC_LOCK for permission to use hugepages.
+> 4) Increment the key_counts during forks.
 
-dev->set_mac_address()
+Okay, first off why are you using a list linked through page->private?
+page->list is fully available for such tasks.
 
+Second, the if (key == NULL) check in hugetlb_release_key() is bogus;
+someone is forgetting to check for NULL, probably in
+alloc_shared_hugetlb_pages().
 
+Third, the hugetlb_release_key() in unmap_hugepage_range() is the one
+that should be removed [along with its corresponding mark_key_busy()],
+not the one in sys_free_hugepages(). unmap_hugepage_range() is doing
+neither setup nor teardown of the key itself, only the pages and PTE's.
+I would say key-level refcounting belongs to sys_free_hugepages().
+
+Bill

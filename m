@@ -1,57 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265224AbSJWUiX>; Wed, 23 Oct 2002 16:38:23 -0400
+	id <S265189AbSJWUta>; Wed, 23 Oct 2002 16:49:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265225AbSJWUiW>; Wed, 23 Oct 2002 16:38:22 -0400
-Received: from packet.digeo.com ([12.110.80.53]:3053 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S265224AbSJWUiV>;
-	Wed, 23 Oct 2002 16:38:21 -0400
-Message-ID: <3DB70A2A.A09270A9@digeo.com>
-Date: Wed, 23 Oct 2002 13:44:26 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Steven Cole <elenstev@mesatop.com>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: 2.5.44-[mm3, ac2] time to tar zxf kernel tarball comparedforvarious  
- fs.
-References: <3DB6FF24.9B50A7C0@digeo.com> <1035405140.13083.268.camel@spc9.esa.lanl.gov>
+	id <S265194AbSJWUta>; Wed, 23 Oct 2002 16:49:30 -0400
+Received: from [202.88.156.6] ([202.88.156.6]:65196 "EHLO
+	saraswati.hathway.com") by vger.kernel.org with ESMTP
+	id <S265189AbSJWUt3>; Wed, 23 Oct 2002 16:49:29 -0400
+Date: Thu, 24 Oct 2002 02:20:26 +0530
+From: Dipankar Sarma <dipankar@gamebox.net>
+To: Corey Minyard <cminyard@mvista.com>
+Cc: linux-kernel@vger.kernel.org, John Levon <levon@movementarian.org>
+Subject: Re: [PATCH] NMI request/release, version 4
+Message-ID: <20021024022026.D27739@dikhow>
+Reply-To: dipankar@gamebox.net
+References: <20021022232345.A25716@dikhow> <3DB59385.6050003@mvista.com> <20021022233853.B25716@dikhow> <3DB59923.9050002@mvista.com> <20021022190818.GA84745@compsoc.man.ac.uk> <3DB5C4F3.5030102@mvista.com> <20021023230327.A27020@dikhow> <3DB6E45F.5010402@mvista.com> <20021024002741.A27739@dikhow> <3DB7033C.1090807@mvista.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 23 Oct 2002 20:44:26.0458 (UTC) FILETIME=[F9EE13A0:01C27AD4]
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3DB7033C.1090807@mvista.com>; from cminyard@mvista.com on Wed, Oct 23, 2002 at 03:14:52PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven Cole wrote:
-> 
-> ...
-> OK, here is the ext2 data.  This was done on my /tmp partition.
-> 
-> For ext2, the variation between runs was as much as between
-> mm3 and ac2.  This data is from the first of 4 runs as before.
-> 
-> Steven
-> 
-> ext2
-> tar zxf linux-2.5.44.tar.gz     2.5.44-mm3      2.5.44-ac2
-> user                            4.17            4.16
-> system                          2.76            2.7
-> elapsed                         00:08.39        00:08.05
-> % CPU                           82              85
-> 
+Well, I haven't looked at the whole patch yet, but some quick
+responses -
 
-OK, so I assume what's happening here is that the entire uncompressed
-kernel fits into 40% of your memory.
+On Wed, Oct 23, 2002 at 03:14:52PM -0500, Corey Minyard wrote:
+> I have noticed that the rcu callback can be delayed a long time, 
+> sometimes up to 3 seconds.  That seems odd.  I have verified that the 
+> delay happens there.
 
-So we see 4 seconds user time from doing the gzip decompression
-and three seconds system time; a little from reading the
-tarball and most of it is creating a ton of dirty pagecache.
+That kind of latency is really bad. Could you please check the latency 
+with this change in kernel/rcupdate.c -
 
-But most of the real cost has not been measured: getting that
-dirty pagecache onto disk.  It has to happen sometime...
+ void rcu_check_callbacks(int cpu, int user)
+ {
+        if (user ||
+-           (idle_cpu(cpu) && !in_softirq() && hardirq_count() <= 1))
++           (idle_cpu(cpu) && !in_softirq() &&
++                               hardirq_count() <= (1 << HARDIRQ_SHIFT)))
+                RCU_qsctr(cpu)++;
+        tasklet_schedule(&RCU_tasklet(cpu));
 
-If you include a "sync" in the timing then you'll see the
-benefit from the Orlov allocator.  You'll get that kernel
-tree onto disk in half the time.
+After local_irq_count() went away, the idle CPU check was broken
+and that meant that if you had an idle CPU, it could hold up RCU
+grace period completion.
+
+
+> +void release_nmi(struct nmi_handler *handler)
+> +{
+> +	wait_queue_t  q_ent;
+> +	unsigned long flags;
+> +
+> +	spin_lock_irqsave(&nmi_handler_lock, flags);
+> +	list_del_rcu(&(handler->link));
+> +
+> +	/* Wait for handler to finish being freed.  This can't be
+> +           interrupted, we must wait until it finished. */
+> +	init_waitqueue_head(&(handler->wait));
+> +	init_waitqueue_entry(&q_ent, current);
+> +	add_wait_queue(&(handler->wait), &q_ent);
+> +	call_rcu(&(handler->rcu), free_nmi_handler, handler);
+> +	for (;;) {
+> +		set_current_state(TASK_UNINTERRUPTIBLE);
+> +		if (list_empty(&(handler->link)))
+> +			break;
+> +		spin_unlock_irqrestore(&nmi_handler_lock, flags);
+> +		schedule();
+> +		spin_lock_irqsave(&nmi_handler_lock, flags);
+> +	}
+> +	remove_wait_queue(&(handler->wait), &q_ent);
+> +	spin_unlock_irqrestore(&nmi_handler_lock, flags);
+> +}
+
+It might just be simpler to use completions instead -
+
+	call_rcu(&(handler->rcu), free_nmi_handler, handler);
+	init_completion(&handler->completion);
+	spin_unlock_irqrestore(&nmi_handler_lock, flags);
+	wait_for_completion(&handler->completion);
+
+and do
+
+	complete(&handler->completion);
+
+in the  the RCU callback.
+
+Also, now I think your original idea of "Don't do this!" :) was right.
+Waiting until an nmi handler is seen unlinked could make a task
+block for a long time if another task re-installs it. You should
+probably just fail installation of a busy handler (checked under
+lock).
+
+
+Thanks
+Dipankar

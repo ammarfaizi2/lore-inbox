@@ -1,66 +1,124 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310431AbSCBTxF>; Sat, 2 Mar 2002 14:53:05 -0500
+	id <S310432AbSCBT7P>; Sat, 2 Mar 2002 14:59:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310430AbSCBTw4>; Sat, 2 Mar 2002 14:52:56 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:13610 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S310431AbSCBTwl>; Sat, 2 Mar 2002 14:52:41 -0500
-Date: Sat, 2 Mar 2002 20:52:08 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Robert Love <rml@tech9.net>
-Cc: Chris Rankin <cj.rankin@ntlworld.com>, rgooch@vindaloo.ras.ucalgary.ca,
-        linux-kernel@vger.kernel.org
-Subject: Re: NOW have 'D-state' processes in 2.4.17 !!!
-Message-ID: <20020302205208.A20606@dualathlon.random>
-In-Reply-To: <200203021818.g22IIo27021932@twopit.underworld> <1015093468.14000.1.camel@phantasy>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1015093468.14000.1.camel@phantasy>
-User-Agent: Mutt/1.3.22.1i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S310433AbSCBT7G>; Sat, 2 Mar 2002 14:59:06 -0500
+Received: from trillium-hollow.org ([209.180.166.89]:38077 "EHLO
+	trillium-hollow.org") by vger.kernel.org with ESMTP
+	id <S310432AbSCBT7A>; Sat, 2 Mar 2002 14:59:00 -0500
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: ja@ssi.bg (Julian Anastasov), szekeres@lhsystems.hu (Szekeres Bela),
+        dang@fprintf.net (Daniel Gryniewicz),
+        linux-kernel@vger.kernel.org (linux-kernel)
+Subject: Re: Network Security hole (was -> Re: arp bug ) 
+In-Reply-To: Your message of "Sat, 02 Mar 2002 19:14:55 GMT."
+             <E16hEy7-000875-00@the-village.bc.nu> 
+Date: Sat, 02 Mar 2002 11:58:43 -0800
+From: erich@uruk.org
+Message-Id: <E16hFeV-0000Nj-00@trillium-hollow.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 02, 2002 at 01:24:27PM -0500, Robert Love wrote:
-> On Sat, 2002-03-02 at 13:18, Chris Rankin wrote:
+
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+
+> > Let's say you have a firewall running Linux.  Oops, I can spoof the
+> > external interface to accept traffic as if it's the internal one.
 > 
-> > [Linux 2.4.17, SMP, devfs, 1.2 GB memory, compiled with gcc-2.95.3,
-> > root partition using EXT3]
-> > 
-> > I upgraded to 2.4.18 a few days ago, but immediately downgraded
-> > because I suddenly had lots of 'D-state' processes. Well I have now
-> > produced a suspiciously-similar-looking D-state process using 2.4.17,
-> > and I strongly suspect that either EXT3 or ALSA is somehow involved
-> > because mounting my root partition as EXT3 and adding the latest CVS
-> > ALSA modules are the only changes that I have made from my previous
-> > reliable 2.4.17 setup.
-> > 
-> > The trace of the misbehaving process looks almost exactly like the
-> > last trace from 2.4.18, except this time I have run it through
-> > ksymoops:
+> ARP is irrelevant to security. You don't need the ARP layer to do any
+> attacks or routing at all. There are a million ways to get the mac
+> address of a box.
+
+Oh, agreed.
+
+The security hole is in the complicity of the other layers in this, in
+my mind.  The ARP issue is mainly a bug that causes unexpected behavior
+given this hole.
+
+For example, in the testing situation that led me to looking into this
+more, I was running 2 NICs, one 100Mbit and one Gigabit, in
+each of 2 machines.  The 100Mbit NICs were on normal DHCP for my
+subnet, and the Gigabit NICs were on the same physical network switch,
+and I didn't set up a VLAN because it didn't seem to matter and was
+a bit of a pain.  The traffic in one direction of my tests ended up
+going into the 100Mbit inteface on the destination machine and being
+throttled down to 100Mbit.
+
+More below.
+
+
+> > I.e. the machine still may be accepting traffic destined for one
+> > interface on another, even though it won't *advertise* that fact
+> > any more.
 > 
-> Pretty clear from these traces it is ALSA - the tasks are going to sleep
-> on some ALSA method and are not waking up.  Bug the ALSA people.
+> Its supposed to accept any packet for that system.  Thats correct
+> behaviour for the system.
 > 
-> A good test would be to not use ALSA and see if it goes away.
+> Thats why you can have firewall rules. You'll find the standard Red
+> Hat firewall config tool sets up interface based rule sets. In fact,
+> in general rules should be interface not address based.
 
-Indeed.
+I would argue that this is a work-around to a problem, serves no
+useful purpose, and in general this is violating the "principle of
+least surprise".
 
-Also please, don't call that 2.4.18 and 2.4.17 (like in subject and in a
-earlier message you said 2.4.18 isn't going to be a keeper, you never
-run 2.4.18 so you cannot say that). 2.4.18 is only this one:
+To put it clearly, I am arguing that the two "features":
 
-	ftp://ftp.kernel.org/pub/linux/kernel/linux-2.4.18.tar.gz
+  --  ARP responding on other interfaces.
+  --  IP stack accepting packets destined for one interface on another.
 
-As soon as you apply a patch to it, it's not longer 2.4.18, it's
-2.4.18+patch.
+...should at least be disabled by default because:
 
-It is very important to get accurate feedback. Linux isn't a microkernel
-architecture, anything you change in any kernel subsystem can lead to
-destabilize the rest of the kernel completly and so we need to know
-exactly what change you made to the kernel before we can debug it.
+  1)  It's a security hole as configured by default.  Yet another
+      thing that confuses end-users using Linux who wouldn't expect
+      this behavior.
 
-Andrea
+  2)  In my example above (and in fact any case of very asymmetric
+      bandwidth) it ends up causing weird and highly suboptimal
+      misbehavior.
+
+  3)  I tested the idea of it being a "failover" kind of thing, as
+      suggested by someone else in the earlier thread, and it
+      didn't work because, at least for TCP, the TCP acks and
+      such had to go out of the original interface.  I.e. it ends
+      up doing asymmetric routing.  The outbound packets go from
+      one interface, and the inbound packets come into the other.
+      Removing the connection to the "correct" card killed the
+      connection.  UDP would still work given no response was
+      necessary, admittedly.  But a lot of UDP protocols use at
+      least some kind of response, so you're dead there too.
+
+  4)  Given the people who want this consider it a "feature" know
+      about it or seek it out because they want something like it,
+      why not burden *them* with turning it on rather than burdening
+      those who don't know or care with the hill to climb of having
+      to discover it's existence and disabling it because it causes
+      strange effects/holes?
+
+
+Can you give me an argument for why these should be present?  (like
+some kind of use for it?)
+
+Is this a UNIX semantics legacy thing I'm not familiar with??  but
+I'm pretty sure FreeBSD for example doesn't do this...  at least not
+the arp thing, because I saw warning messages from my FreeBSD boxen
+about these weird arps.
+
+I would think that making the IP stack, for each MAC/interface path
+on reception, just check against the exact expected input address,
+would actually be a performance improvement on machines with multiple
+NICs.
+
+As to the failover concept, Linux already has channel bonding, which
+is the right way to do this and actually works when you take one
+of them offline/unplug one.  There are a few unusual kind of hacks
+you can't do with channel bonding, say like having a card pretend it's
+another one in some ways but still think it's part of another IP
+interface...  but that doesn't really happen in the current situation
+anyway, so I again don't see any kind of argument that this is
+actually useful in any way.
+
+
+--
+    Erich Stefan Boleyn     <erich@uruk.org>     http://www.uruk.org/
+"Reality is truly stranger than fiction; Probably why fiction is so popular"

@@ -1,38 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263970AbUCZIUQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Mar 2004 03:20:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263967AbUCZIUP
+	id S263967AbUCZId5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Mar 2004 03:33:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263968AbUCZId5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Mar 2004 03:20:15 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:43428
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S263970AbUCZIUI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Mar 2004 03:20:08 -0500
-Date: Fri, 26 Mar 2004 09:21:00 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.5-rc2-aa4
-Message-ID: <20040326082100.GB9604@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+	Fri, 26 Mar 2004 03:33:57 -0500
+Received: from pop.gmx.de ([213.165.64.20]:5255 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263967AbUCZId4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Mar 2004 03:33:56 -0500
+X-Authenticated: #4512188
+Message-ID: <4063EAF7.8090405@gmx.de>
+Date: Fri, 26 Mar 2004 09:33:59 +0100
+From: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040322)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Nick Piggin <piggin@cyberone.com.au>
+CC: linux-kernel <linux-kernel@vger.kernel.org>, Jason Cox <jpcox@iastate.edu>,
+       Autar022@planet.nl
+Subject: Re: nicksched v30
+References: <4048204E.8000807@cyberone.com.au>
+In-Reply-To: <4048204E.8000807@cyberone.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fixup an hugetlbfs prio-tree truncate bug.
+Hi Nick,
 
-	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.6/2.6.5-rc2-aa4.gz
-	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.6/2.6.5-rc2-aa4/
+could do be so nice and do a rediff against current mm kernel? As this 
+kernel finally seems to solve the higher idle temp issue I was having, I 
+would like to try your scheduler once again.
 
-Files 2.6.5-rc2-aa3/extraversion and 2.6.5-rc2-aa4/extraversion differ
+bye,
 
-	Rediffed.
-
-Files 2.6.5-rc2-aa3/prio-tree.gz and 2.6.5-rc2-aa4/prio-tree.gz differ
-
-	Avoid missing vmas starting at pg_off > truncate offset in
-	hugetlbfs truncate. From Rajesh Venkatasubramanian.
+Prakash

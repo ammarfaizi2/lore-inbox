@@ -1,67 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262092AbTJaWzV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Oct 2003 17:55:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263669AbTJaWzV
+	id S263653AbTJaWpm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Oct 2003 17:45:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263669AbTJaWpm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Oct 2003 17:55:21 -0500
-Received: from griffin-can-au.getin2net.com ([203.43.225.34]:27144 "EHLO
-	griffin-can-au.getin2net.com") by vger.kernel.org with ESMTP
-	id S262092AbTJaWzQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Oct 2003 17:55:16 -0500
-Subject: Re: RadeonFB [Re: 2.4.23pre8 - ACPI Kernel Panic on boot]
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Reply-To: benh@kernel.crashing.org
-To: "Kristofer T. Karas" <ktk@enterprise.bidmc.harvard.edu>
-Cc: Kronos <kronos@kronoz.cjb.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Javier Villavicencio <jvillavicencio@arnet.com.ar>
-In-Reply-To: <3FA2B4F4.8040404@enterprise.bidmc.harvard.edu>
-References: <20031029210321.GA11437@dreamland.darkstar.lan>
-	 <1067491238.1735.4.camel@ktkhome> <1067587196.715.1.camel@gaston>
-	 <3FA2B4F4.8040404@enterprise.bidmc.harvard.edu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1067640904.1700.14.camel@gaston>
+	Fri, 31 Oct 2003 17:45:42 -0500
+Received: from h80ad273a.async.vt.edu ([128.173.39.58]:45478 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S263653AbTJaWpk (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Oct 2003 17:45:40 -0500
+Message-Id: <200310312245.h9VMjZr5029965@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Omen Wild <Omen.Wild@Dartmouth.EDU>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Remote memory access through FireWire? 
+In-Reply-To: Your message of "Fri, 31 Oct 2003 17:36:28 EST."
+             <20031031223628.GB11607@descolada.dartmouth.edu> 
+From: Valdis.Kletnieks@vt.edu
+References: <20031031223628.GB11607@descolada.dartmouth.edu>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sat, 01 Nov 2003 09:55:05 +1100
+Content-Type: multipart/signed; boundary="==_Exmh_-528249359P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Fri, 31 Oct 2003 17:45:35 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-11-01 at 06:16, Kristofer T. Karas wrote:
-> Benjamin Herrenschmidt wrote:
-> 
-> >Ok, first thing: XFree "radeon" _is_ accelerated, though it doesn't
-> >do 3D on recent cards
-> >
-> Hi Ben - Right, sorry, I mean to apply "accelerated" to the 3D effects; 
-> the private ATI driver is much faster on glxgears than the version that 
-> bundles with XFree.
-> 
-> >Then, the problem you are having is well known
-> >
-> I'm having two, actually.  The first is that YPAN is getting quite 
-> confused.  If I switch VCs, then switch back, the text has been 
-> re-arranged, the cursor is often invisible, and sometimes a page or two 
-> of new text must be written before anything starts to show up on the 
-> screen again.  Experimenting shows that setting VYRES = YRES works 
-> around this problem.
+--==_Exmh_-528249359P
+Content-Type: text/plain; charset=us-ascii
 
-I'll have to look at this in more details. I don't see why ypan would
-cause such screen re-arrangement though...
+On Fri, 31 Oct 2003 17:36:28 EST, Omen Wild <Omen.Wild@Dartmouth.EDU>  said:
 
-> The second problem is of course the register contents issue when 
-> returning from certain graphics programs (e.g. X+fglr) to text mode..  I 
-> rather like your idea of doing a re-init when switching from KD_GRAPHICS 
-> to KD_TEXT, as the monitor blank during resolution switch will likely 
-> overshadow the re-init process.
-> 
-> >Can you verify that running fbset -accel 0 then back 1 cures the
-> >problem for you ?
-> >  
-> >
-> 
-> At work now, will try when I return home later...
-> 
-> Kris
+> "As you know, IEEE1394 is a bus and OHCI supports physical access to
+> the host memory. 
+
+Supporting something as part of the hardware/protocol design is one thing.
+
+Writing the device driver to support it is another (I'm sure that *before* you crash,
+you have to set bits in the appropriate OHCI structures).
+
+Actually allowing it to be enabled is a third thing.
+
+Having said that, it *would* make for an interesting kgdb enhancement. :)
+
+--==_Exmh_-528249359P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE/ouYPcC3lWbTT17ARAkAZAKDk6Z6cI2MgRZ25eYIKWhxGI+UQQACg3hMm
+pbNBj/4thmtyBN6tGFBpYhw=
+=eie0
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-528249359P--

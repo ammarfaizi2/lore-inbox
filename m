@@ -1,75 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264479AbRFTREP>; Wed, 20 Jun 2001 13:04:15 -0400
+	id <S264492AbRFTRJf>; Wed, 20 Jun 2001 13:09:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264480AbRFTREF>; Wed, 20 Jun 2001 13:04:05 -0400
-Received: from tmhoyle.gotadsl.co.uk ([195.149.46.162]:46098 "HELO
-	mail.cvsnt.org") by vger.kernel.org with SMTP id <S264479AbRFTRDx>;
-	Wed, 20 Jun 2001 13:03:53 -0400
-Message-ID: <3B30D776.5090902@magenta-netlogic.com>
-Date: Wed, 20 Jun 2001 18:03:50 +0100
-From: Tony Hoyle <tmh@magenta-netlogic.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.5-ac13 i686; en-US; rv:0.9.1) Gecko/20010618
-X-Accept-Language: en-us
+	id <S264495AbRFTRJ0>; Wed, 20 Jun 2001 13:09:26 -0400
+Received: from [142.176.139.106] ([142.176.139.106]:5637 "EHLO ve1drg.com")
+	by vger.kernel.org with ESMTP id <S264492AbRFTRJL>;
+	Wed, 20 Jun 2001 13:09:11 -0400
+Date: Wed, 20 Jun 2001 14:09:08 -0300 (ADT)
+From: Ted Gervais <ve1drg@ve1drg.com>
+To: Luigi Genoni <kernel@Expansa.sns.it>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: ip_tables/ipchains
+In-Reply-To: <Pine.LNX.4.33.0106201518140.9682-100000@Expansa.sns.it>
+Message-ID: <Pine.LNX.4.21.0106201408460.3517-100000@ve1drg.com>
 MIME-Version: 1.0
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: Russell Leighton <russell.leighton@247media.com>,
-        linux-kernel@vger.kernel.org, Ben Greear <greearb@candelatech.com>
-Subject: Re: [OT] Threads, inelegance, and Java
-In-Reply-To: <XFMail.20010620093214.davidel@xmailserver.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Davide Libenzi wrote:
+On Wed, 20 Jun 2001, Luigi Genoni wrote:
+
+> Have you also compiled modules for ipchains and ipfwadm support??
 
 
-> 1) HW is cheaper than software engineers time
+Yes.  Is this a mistake??
 
+> 
+> 
+> On Wed, 20 Jun 2001, Ted Gervais wrote:
+> 
+> > Wondering something..
+> > I ran insmod to bring up ip_tables.o and I received the following error:
+> >
+> > /lib/modules/2.4.5/kernel/net/ipv4/netfilter/ip_tables.o: unresolved
+> > symbol nf_unregister_sockopt
+> > /lib/modules/2.4.5/kernel/net/ipv4/netfilter/ip_tables.o: unresolved
+> > symbol nf_register_sockopt
+> >
+> > This is with kernel 2.4.5 and Slackware 7.1 is the distribution.
+> > Does anyone know what these unresolved symbols are about??
+> >
+> > ---
+> > Doubt is not a pleasant condition, but certainty is absurd.
+> >                 -- Voltaire
+> >
+> > Ted Gervais <ve1drg@ve1drg.com>
+> > 44.135.34.201 linux.ve1drg.ampr.org
+> >
+> >
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> >
+> 
 
-Compared to E1000s???  You must be talking about some *really* expensive 
-engineers!
+---
+Doubt is not a pleasant condition, but certainty is absurd.
+                -- Voltaire
+                
+Ted Gervais <ve1drg@ve1drg.com>
+44.135.34.201 linux.ve1drg.ampr.org
 
-
-> 2) to find Java developers is easier than to find C developers
-
-
-Depends on where you are in the world.  It's certainly not true here 
-(everyone knows C/C++...  Haven't had a java developer apply for a job 
-in months).
-
- 
-> 3) the ETA of the same project developed in Java is shorter than the same
->         project done in C
-
-
-Depends on the developers.  Good developers can churn out the same 
-project to roughly the same timescale in any language (except possibly 
-assembly).
-
-Java is useful if you need the cross platform bit & the target users 
-aren't technically savvy enough to recompile.  For an in-house app where 
-you control the hardware you'd be better off using a C/C++/RAD & doing 
-it native.
-
-Tony
-
-
-(Just came back from a .NET conference...  MS are currently rewriting 
-all their apps in bytecode... whoopee...  They're even porting *games* 
-to run on it.  I can see it now 'MS Flight Simulator .NET' (Requires 
-quad Pentium 4 1.6Ghz minimum) :-o )
-
-Tony
-
--- 
-"Two weeks before due date, the programmers work 22 hour days
-  cobbling an application from... (apparently) one programmer
-  bashing his face into the keyboard." -- Dilbert
-
-tony@hoyle.geek 
-	http://www.tony.hoyle.geek
-tmh@nothing-on.tv 
-http://www.nothing-on.tv
 

@@ -1,64 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287748AbSBKKLN>; Mon, 11 Feb 2002 05:11:13 -0500
+	id <S287793AbSBKKPn>; Mon, 11 Feb 2002 05:15:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287764AbSBKKLD>; Mon, 11 Feb 2002 05:11:03 -0500
-Received: from patan.Sun.COM ([192.18.98.43]:39333 "EHLO patan.sun.com")
-	by vger.kernel.org with ESMTP id <S287748AbSBKKKz>;
-	Mon, 11 Feb 2002 05:10:55 -0500
-Date: Mon, 11 Feb 2002 04:10:20 -0600
-From: Spencer Shepler <shepler@eng.sun.com>
-To: Pavel Machek <pavel@suse.cz>
-Cc: "Kendrick M. Smith" <kmsmith@umich.edu>, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, nfs@lists.sourceforge.net,
-        nfsv4-wg@sunroof.eng.sun.com
-Subject: Re: [NFS] Re: NFS version 4 at the University of Michigan
-Message-ID: <20020211041020.E100576@shepler.eng.sun.com>
-Reply-To: shepler@eng.sun.com
-Mail-Followup-To: Spencer Shepler <shepler@eng.sun.com>,
-	Pavel Machek <pavel@suse.cz>,
-	"Kendrick M. Smith" <kmsmith@umich.edu>,
-	linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-	nfs@lists.sourceforge.net, nfsv4-wg@sunroof.eng.sun.com
-In-Reply-To: <Pine.SOL.4.33.0202080036010.1689-100000@rygar.gpcc.itd.umich.edu> <20020209175851.GA113@elf.ucw.cz>
+	id <S287770AbSBKKPd>; Mon, 11 Feb 2002 05:15:33 -0500
+Received: from hirsch.in-berlin.de ([192.109.42.6]:30980 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP
+	id <S287793AbSBKKPN>; Mon, 11 Feb 2002 05:15:13 -0500
+X-Envelope-From: kraxel@bytesex.org
+Date: Mon, 11 Feb 2002 10:55:34 +0100
+From: Gerd Knorr <kraxel@bytesex.org>
+To: Mark McClelland <mark@alpha.dyndns.org>
+Cc: video4linux-list@redhat.com, Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [V4L] [PATCH/RFC] videodev.[ch] redesign
+Message-ID: <20020211105534.A4745@bytesex.org>
+In-Reply-To: <20020209194602.A23061@bytesex.org> <3C65EFF4.2000906@alpha.dyndns.org> <20020210101130.A28225@bytesex.org> <3C666D98.70600@alpha.dyndns.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020209175851.GA113@elf.ucw.cz>
-User-Agent: Mutt/1.3.19i
+In-Reply-To: <3C666D98.70600@alpha.dyndns.org>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Pavel Machek wrote:
-> Hi!
+On Sun, Feb 10, 2002 at 04:54:48AM -0800, Mark McClelland wrote:
+> OK, agreed on all points. Thanks for the clarification.
 > 
-> > This is an announcement of the first public release of NFS version 4
-> > for Linux, by the University of Michigan.  Up to this point, all of
-> > our work has been done privately, but we are now hoping to involve
-> > the open-source community at large.  Eventually, we hope to integrate
-> > our NFS version 4 implementation into the Linux kernel proper, and
-> > find a long-term maintainter for NFS version 4 (possibly one of the
-> > current NFS maintainers, possibly one of us working in their spare
-> > time).
-> 
-> Could you sumarise advantages of NFSv4 over v3? Is there usermode
-> server for NFSv4? What servers for v4 are known working?
+> BTW, is there any chance for vmalloc() and pals to be moved to 
+> videodev.c, or something higher-up?
 
-The highlights are:
-- NFSv4 allows *nix and windows clients to play well with each other
-  (NFSv4/CIFS clients can interact appropriately).
-- Strong security (authentication/integrity/privacy) is required of
-  implementations.
-- A single protocol instead of a collection of protocols (e.g. file
-  locking, ACL support are in the protocol)
-- Delegation (similar to CIFS oplock support) allows for more
-  aggressive caching at the client
+What do you mean exactly?  bttv's memory management code, which has
+been copied to various places, and which is now broken in 2.5.x due
+to virt_to_bus() being gone finally?
 
-The University of Michigan/CITI work is the first to "release" but the
-other implementations are not far behind.  We will be meeting at
-Connectathon in a couple of weeks to do interoperability testing.
-Should be a good event.
+Some of this is work-in-progress.  I'm talking to Dave to put some
+helper functions to handle DMA to vmalloced memory blocks to some
+sensible place within the kernel.  If someone wants to have a look
+(not final yet): http://bytesex.org/patches/15_pci-2.4.18-pre8.diff
+
+  Gerd
 
 -- 
-Spencer
-
+#define	ENOCLUE 125 /* userland programmer induced race condition */

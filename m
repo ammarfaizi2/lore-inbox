@@ -1,93 +1,146 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261464AbVCYHOL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261477AbVCYHPB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261464AbVCYHOL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 02:14:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261475AbVCYHOL
+	id S261477AbVCYHPB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 02:15:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261481AbVCYHPB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 02:14:11 -0500
-Received: from dea.vocord.ru ([217.67.177.50]:129 "EHLO vocord.com")
-	by vger.kernel.org with ESMTP id S261464AbVCYHOA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 02:14:00 -0500
-Subject: Re: [PATCH] API for true Random Number Generators to add entropy
-	(2.6.11)
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Reply-To: johnpol@2ka.mipt.ru
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Jeff Garzik <jgarzik@pobox.com>, David McCullough <davidm@snapgear.com>,
-       cryptoapi@lists.logix.cz, linux-kernel@vger.kernel.org,
-       linux-crypto@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       James Morris <jmorris@redhat.com>
-In-Reply-To: <20050325065622.GA31127@gondor.apana.org.au>
-References: <42432972.5020906@pobox.com> <1111725282.23532.130.camel@uganda>
-	 <42439839.7060702@pobox.com> <1111728804.23532.137.camel@uganda>
-	 <4243A86D.6000408@pobox.com> <1111731361.20797.5.camel@uganda>
-	 <20050325061311.GA22959@gondor.apana.org.au>
-	 <1111732459.20797.16.camel@uganda>
-	 <20050325063333.GA27939@gondor.apana.org.au>
-	 <1111733958.20797.30.camel@uganda>
-	 <20050325065622.GA31127@gondor.apana.org.au>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-RiP/IKZFL+8Gwvpu3e3E"
-Organization: MIPT
-Date: Fri, 25 Mar 2005 10:19:55 +0300
-Message-Id: <1111735195.20797.42.camel@uganda>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-1) 
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.4 (vocord.com [192.168.0.1]); Fri, 25 Mar 2005 10:13:28 +0300 (MSK)
+	Fri, 25 Mar 2005 02:15:01 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:19112 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261475AbVCYHOf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Mar 2005 02:14:35 -0500
+Message-ID: <4243BA4A.4050307@pobox.com>
+Date: Fri, 25 Mar 2005 02:14:18 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
+CC: Tejun Heo <tj@home-tj.org>, Andrew Morton <akpm@osdl.org>
+Subject: [RFT, PATCH] sata_sil corruption / lockup fix
+Content-Type: multipart/mixed;
+ boundary="------------040105080808040309020307"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------040105080808040309020307
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
---=-RiP/IKZFL+8Gwvpu3e3E
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
 
-On Fri, 2005-03-25 at 17:56 +1100, Herbert Xu wrote:
-> On Fri, Mar 25, 2005 at 09:59:18AM +0300, Evgeniy Polyakov wrote:
-> >=20
-> > It is not only about userspace/kernelspace system calls and data
-> > copying,
-> > but about whole revalidation process, which can and is quite expensive,
-> > due to system calls, copying and validating itself,
->=20
-> What I meant is if you don't need the revalidation then don't do it.
-> That's the advantage of having it in user-space, *you* get to decide,
-> not us.
+Silicon Image contributed a patch which should help some of the 
+situations that users were seeing.  If you are having problems with 
+sata_sil, please do try out this patch.
 
-One can not add entropy data directly to the pool from kernelspace now.
-But now noone may do it, since all presented data is not validated.
-So when there will be validated HW RNG they still need to pass
-it's data through userspace validation daemon
-(which btw makes tens to hundreds operations per bit according to FIPS).
+I'm concerned that the sata_sil blacklist has been growing beyond the 
+older Seagate drives which definitely had buggy firmware; concerned that 
+the Mod15Write fix was simply "fixing" the problem addressed by this 
+patch, simply by hiding the problem behind slow performance.  [note: the 
+only way to really know for sure is with ATA bus traces]
 
-> > And what about initial bootup? When system needs to create randoom
-> > IP/dhcp/any ids? What about small router?
->=20
-> Let's not reinvent the wheel, this is exactly what initramfs is for.
+On platforms where the SiI BIOS isn't executed (non-x86), this patch is 
+probably more critical.  On x86, it is purported to only be needed on a 
+single motherboard.
 
-It is not panacea and even not always working solution.
+Test results (to linux-ide@vger.kernel.org) would be appreciated, 
+particularly from users with newer Seagate drives.
 
-If user turn that feature on - he is on his own.
-Noone will complain on Linux if NIC is broken and produces wrong
-checksum
-and HW checksum offloading is enabled using ethtools.
+Finally, there are also a few reports of problems of "screaming 
+interrupts" on configurations with SiI 311x + Seagate NCQ drives.  This 
+is a separate problem, and I haven't looked into it yet.
 
---=20
-        Evgeniy Polyakov
+	Jeff
 
-Crash is better than data corruption -- Arthur Grabowski
 
---=-RiP/IKZFL+8Gwvpu3e3E
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
 
-iD8DBQBCQ7ubIKTPhE+8wY0RAr49AJ92Xyas+eA5epxqK0zicxZRhUWmEQCeNPnn
-9VaiCRY1JPG4JoKpmPUiPuQ=
-=8s5J
------END PGP SIGNATURE-----
+--------------040105080808040309020307
+Content-Type: text/plain;
+ name="patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch"
 
---=-RiP/IKZFL+8Gwvpu3e3E--
+#
+# ChangeSet
+#   2005/03/24 23:32:42-05:00 Carlos.Pardo@siliconimage.com 
+#   [PATCH] sata_sil: Fix FIFO PCI Bus Arbitration
+#   
+#   This patch set default values for the FIFO PCI Bus Arbitration to avoid
+#   data corruption. The root cause is due to our PCI bus master handling
+#   mismatch with the chipset PCI bridge during DMA xfer (write data to the
+#   device). The patch is to setup the DMA fifo threshold so that there is
+#   no chance for the DMA engine to change protocol. We have seen this
+#   problem only on one motherboard.
+#   
+#   Signed-off-by: Silicon Image Corporation <cpardo@siliconimage.com>
+#   Signed-off-by: Jeff Garzik <jgarzik@pobox.com>
+# 
+diff -Nru a/drivers/scsi/sata_sil.c b/drivers/scsi/sata_sil.c
+--- a/drivers/scsi/sata_sil.c	2005-03-25 02:06:38 -05:00
++++ b/drivers/scsi/sata_sil.c	2005-03-25 02:06:38 -05:00
+@@ -38,12 +38,21 @@
+ #include <linux/libata.h>
+ 
+ #define DRV_NAME	"sata_sil"
+-#define DRV_VERSION	"0.8"
++#define DRV_VERSION	"0.9"
+ 
+ enum {
+ 	sil_3112		= 0,
+ 	sil_3114		= 1,
+ 
++	SIL_FIFO_R0		= 0x40,
++	SIL_FIFO_W0		= 0x41,
++	SIL_FIFO_R1		= 0x44,
++	SIL_FIFO_W1		= 0x45,
++	SIL_FIFO_R2		= 0x240,
++	SIL_FIFO_W2		= 0x241,
++	SIL_FIFO_R3		= 0x244,
++	SIL_FIFO_W3		= 0x245,
++
+ 	SIL_SYSCFG		= 0x48,
+ 	SIL_MASK_IDE0_INT	= (1 << 22),
+ 	SIL_MASK_IDE1_INT	= (1 << 23),
+@@ -199,6 +208,13 @@
+ MODULE_DEVICE_TABLE(pci, sil_pci_tbl);
+ MODULE_VERSION(DRV_VERSION);
+ 
++static unsigned char sil_get_device_cache_line(struct pci_dev *pdev)
++{
++	u8 cache_line = 0;
++	pci_read_config_byte(pdev, PCI_CACHE_LINE_SIZE, &cache_line);
++	return cache_line;
++}
++
+ static void sil_post_set_mode (struct ata_port *ap)
+ {
+ 	struct ata_host_set *host_set = ap->host_set;
+@@ -341,6 +357,7 @@
+ 	unsigned int i;
+ 	int pci_dev_busy = 0;
+ 	u32 tmp, irq_mask;
++	u8 cls;
+ 
+ 	if (!printed_version++)
+ 		printk(KERN_DEBUG DRV_NAME " version " DRV_VERSION "\n");
+@@ -404,6 +421,15 @@
+ 		probe_ent->port[i].scr_addr = base + sil_port[i].scr;
+ 		ata_std_ports(&probe_ent->port[i]);
+ 	}
++
++	/* Initialize FIFO PCI bus arbitration */
++	cls = sil_get_device_cache_line(pdev);
++	cls >>= 3;
++	cls++;  /* cls = (line_size/8)+1 */
++	writeb(cls, mmio_base + SIL_FIFO_R0);
++	writeb(cls, mmio_base + SIL_FIFO_W0);
++	writeb(cls, mmio_base + SIL_FIFO_R1);
++	writeb(cls, mmio_base + SIL_FIFO_W2);
+ 
+ 	if (ent->driver_data == sil_3114) {
+ 		irq_mask = SIL_MASK_4PORT;
 
+--------------040105080808040309020307--

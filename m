@@ -1,84 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263055AbTJEKMO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Oct 2003 06:12:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263056AbTJEKMO
+	id S263057AbTJEKZP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Oct 2003 06:25:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263060AbTJEKZO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Oct 2003 06:12:14 -0400
-Received: from dbl.q-ag.de ([80.146.160.66]:29846 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S263055AbTJEKMM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Oct 2003 06:12:12 -0400
-Message-ID: <3F7FEE6F.9050601@colorfullife.com>
-Date: Sun, 05 Oct 2003 12:11:59 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Krzysztof Benedyczak <golbi@mat.uni.torun.pl>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       pwaechtler@mac.com, Michal Wronski <wrona@mat.uni.torun.pl>
-Subject: Re: POSIX message queues
-References: <Pine.GSO.4.58.0310051047560.12323@ultra60>
-In-Reply-To: <Pine.GSO.4.58.0310051047560.12323@ultra60>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 5 Oct 2003 06:25:14 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:4749 "EHLO
+	imladris.demon.co.uk") by vger.kernel.org with ESMTP
+	id S263057AbTJEKZL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Oct 2003 06:25:11 -0400
+From: David Woodhouse <dwmw2@infradead.org>
+To: Larry McVoy <lm@bitmover.com>
+Cc: viro@parcelfarce.linux.theplanet.co.uk, Rob Landley <rob@landley.net>,
+       andersen@codepoet.org, "Henning P. Schmiedehausen" <hps@intermeta.de>,
+       Andre Hedrick <andre@linux-ide.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20031005034533.GA29679@work.bitmover.com>
+References: <20030914064144.GA20689@codepoet.org>
+	 <bk30f1$ftu$2@tangens.hometree.net> <20030915055721.GA6556@codepoet.org>
+	 <200310041952.09186.rob@landley.net>
+	 <20031005010521.GA21138@work.bitmover.com>
+	 <20031005023428.GI7665@parcelfarce.linux.theplanet.co.uk>
+	 <20031005034533.GA29679@work.bitmover.com>
+Message-Id: <1065349476.3157.10.camel@imladris.demon.co.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-2.dwmw2.3) 
+Date: Sun, 05 Oct 2003 11:24:36 +0100
+X-SA-Exim-Mail-From: dwmw2@infradead.org
+Subject: Re: freed_symbols [Re: People, not GPL [was: Re: Driver Model]]
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-SA-Exim-Version: 3.0+cvs (built Mon Aug 18 15:53:30 BST 2003)
+X-SA-Exim-Scanned: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Krzysztof Benedyczak wrote:
+On Sat, 2003-10-04 at 20:45 -0700, Larry McVoy wrote:
+> People get all worked up over this but when they do then they should
+> also claim that system calls are not a boundary either.
 
->Hello
->
->For quite a long time there are two implementations of posix mqueues
->around. I think it is time to decide at least if both of them have
->chances of beeing applied to official kernel. So I would
->like to know if Peter Waechtler's implementations is considered superior
->or there is possible some discussion and further work on our
->implementation is worthwhile.
->  
->
-Could you try to merge your work? Or at least: look at each others work. 
-For example Krzysiek/Michal's implementation has wake-one semantics, 
-which is IMHO a requirement.
+The first paragraph of the COPYING file makes it entirely clear that
+system calls were not considered to be such a boundary.
 
-Krzysiek: What is MQ_IOC_CLOSE? It looks like a stale ioctl. Please 
-remove such code from the patch.
+-- 
+dwmw2
 
-The last time I looked at your patch I noticed a race between creation and setting queue attributes. Did you fix that?
-
-
->There are a lot of differencies but if the most important one is use of
->ioctl vs syscalls it can be changed (in fact our implementation loong time
->ago used syscalls).
->  
->
-I personally prefer syscalls, but that's just my personal preference. 
-For example the notification info is a structure, and printing it to a 
-text stream and then parsing it back again is just odd. And I don't see 
-how you can fix the O_CREAT+unusual mq_maxmsg races.
-Why do you check against MQ_MAXMSG in user space? That's wrong. The 
-kernel will reject too large limits, probably depending on 
-/proc/sys/kern/ configuration. Checking in user space doesn't gain 
-anything, except that you loose the ability for runtime changes.
-Please reuse the load_msg/store_msg functions instead of a 
-kmalloc(arg.msg_len, GFP_KERNEL) + copy_from_user. kmalloc(16384) is not 
-reliable - it needs a continuous block of 16 kB, and after a long 
-runtime, the memory is so fragmented that such memory may not exist. 
-This is a known problem for x86_64: They would prefer to have 16 kB 
-blocks for the stack, but this results in errors during stress testing.
-proc_write_max_queues: off-by-one error. tmp[16] ='\0' overwrites the stack.
-Is is necessary that the filesystem is visible to user space? What about 
-chroot environments, or environments with per-user mount points. I don't 
-like the dependence on /proc/mounts.
-
->In another words: is our implementation in the position
->of NGPT or better? ;-)
->  
->
-Do you know if Ulrich Drepper has looked at your user space libraries? 
-Your code must end up in glibc, and he's the maintainer.
-
---
-    Manfred
 

@@ -1,81 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267585AbRGZMCr>; Thu, 26 Jul 2001 08:02:47 -0400
+	id <S267825AbRGZML1>; Thu, 26 Jul 2001 08:11:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267678AbRGZMCh>; Thu, 26 Jul 2001 08:02:37 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:61960 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S267585AbRGZMC2>; Thu, 26 Jul 2001 08:02:28 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: ebiederm@xmission.com (Eric W. Biederman),
-        Rik van Riel <riel@conectiva.com.br>
-Subject: Re: [RFC] Optimization for use-once pages
-Date: Thu, 26 Jul 2001 14:06:29 +0200
-X-Mailer: KMail [version 1.2]
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Andrew Morton <akpm@zip.com.au>, <linux-kernel@vger.kernel.org>,
-        Ben LaHaise <bcrl@redhat.com>, Mike Galbraith <mikeg@wen-online.de>
-In-Reply-To: <Pine.LNX.4.33L.0107251340550.20326-100000@duckman.distro.conectiva> <m1ae1sf5od.fsf@frodo.biederman.org>
-In-Reply-To: <m1ae1sf5od.fsf@frodo.biederman.org>
-MIME-Version: 1.0
-Message-Id: <0107261406290L.00907@starship>
-Content-Transfer-Encoding: 7BIT
+	id <S267784AbRGZMLR>; Thu, 26 Jul 2001 08:11:17 -0400
+Received: from aragorn.ics.muni.cz ([147.251.4.33]:12984 "EHLO
+	aragorn.ics.muni.cz") by vger.kernel.org with ESMTP
+	id <S267859AbRGZMK5>; Thu, 26 Jul 2001 08:10:57 -0400
+Newsgroups: cz.muni.redir.linux-kernel
+Path: news
+From: Zdenek Kabelac <kabi@i.am>
+Subject: Re: IDE "lost interrupt" on SMP
+Message-ID: <3B6008D1.8AA2B98F@i.am>
+Date: Thu, 26 Jul 2001 12:10:57 GMT
+To: Paul Flinders <paul@dawa.demon.co.uk>
+X-Nntp-Posting-Host: dual.fi.muni.cz
+Content-Transfer-Encoding: 7bit
+X-Accept-Language: cs, en
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <3B5F4FCA.EF860FF@dawa.demon.co.uk>
+Mime-Version: 1.0
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7-pre6-RTL3.0 i686)
+Organization: unknown
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Thursday 26 July 2001 10:36, Eric W. Biederman wrote:
-> Rik van Riel <riel@conectiva.com.br> writes:
-> > On Wed, 25 Jul 2001, Daniel Phillips wrote:
-> > > On Wednesday 25 July 2001 08:33, Marcelo Tosatti wrote:
-> > > > Now I'm not sure why directly adding swapcache pages to the
-> > > > inactive dirty lits with 0 zero age improves things.
-> > >
-> > > Because it moves the page rapidly down the inactive queue towards
-> > > the ->writepage instead of leaving it floating around on the
-> > > active ring waiting to be noticed.  We already know we want to
-> > > evict that page,
-> >
-> > We don't.
->
-> Agreed.  The kinds of ``aging'' don't match up so we can't tell if
-> it meets our usual criteria for aging.
+Paul Flinders wrote:
+> However I can't boot any SMP configured kernel. It gets as far as
+> the partition check and then starts printing "hd<x>: lost interrupt"
+> after than it proceeds _very_ slowly to print the partitions and
+> then grinds to a halt as it tries to mount the root fs (I suspect that
+> it hasn't actually crashed but that disk I/O is proceeding extremely
+> slowly).
+> 
+> Configuring the kernel for single processor works and boots OK
+> - this is true for all the kernels (2.2.x and 2.4.x including 2.4.7)
+> that I've tried.
 
-Well, in the absence of of benchmark evidence its hard to tell how 
-valuable the usual criteria really are.  That's another topic though, 
-because the question here is not how the aging matches up, but how the 
-inactive queue handling matches up, see below.
+I've been reporting this problem for years 
+(since day I've bought SMP board with two Celeron)
 
-> > The page gets unmapped and added to the swap cache the first
-> > time it wasn't referenced by the process.
-> >
-> > This is before any page aging is done.
->
-> Actually there has been aging done.  Unless you completely disable
-> testing for pte_young.  It is a different kind of aging but it is
-> aging.
+However noone seems to care - so you simply can't use SMP kernel
+for monoprocessor system - unless Andre Hedric will consider this
+is serious problem  (simple test - boot SMP kernel on SMP
+computer with cpu=1 or nosmp parameter)
 
-In the case of a process page and in the case of a file IO page the 
-situation is the same: we have decided to put the page on trial.  Once 
-we have arrived at that decision its previous history doesn't matter,
-so it makes sense to set its age to a known state.  In this case it's 
-0, meaning "on trial".
+bye
 
-Consider that the process page will only ever be down-aged after being 
-unmapped.  So if we put it on the active queue, it just acts like a 
-big, slow, inefficient timer.  Why not put it on a fifo queue instead?  
-It's the same thing, just more efficient.  But we already have a fifo 
-queue, the inactive_dirty_queue, which we are using for everything 
-else, so why not use it for this too, then at least we know its fair.
+kabi
 
-In other words, there is no obvious need to treat a process page 
-differently from a file IO page once decide to put it on trial.
-
-There does seem to be a dangling thread here though - when a process 
-page is unmapped and added to swap cache in try_to_swap_out then later 
-faulted back in, I don't see where we "rescue" the page from the 
-inactive queue.  Maybe I'm just not looking hard enough.
-
---
-Daniel

@@ -1,218 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263758AbTLKGIp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Dec 2003 01:08:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264354AbTLKGIp
+	id S264364AbTLKGMP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Dec 2003 01:12:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264366AbTLKGMP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Dec 2003 01:08:45 -0500
-Received: from relais.videotron.ca ([24.201.245.36]:60119 "EHLO
-	VL-MO-MR004.ip.videotron.ca") by vger.kernel.org with ESMTP
-	id S263758AbTLKGIj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Dec 2003 01:08:39 -0500
-Date: Thu, 11 Dec 2003 01:05:42 -0500
-From: Jean-Marc Valin <Jean-Marc.Valin@USherbrooke.ca>
-Subject: Increasing HZ (patch for HZ > 1000)
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Message-id: <1071122742.5149.12.camel@idefix.homelinux.org>
-Organization: =?ISO-8859-1?Q?Universit=C3=A9_de?= Sherbrooke
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7)
-Content-type: multipart/signed; boundary="=-zDgFD/j9ZhhmEcXpWRFm";
- protocol="application/pgp-signature"; micalg=pgp-sha1
+	Thu, 11 Dec 2003 01:12:15 -0500
+Received: from mail-04.iinet.net.au ([203.59.3.36]:7853 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S264364AbTLKGMM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Dec 2003 01:12:12 -0500
+Message-ID: <3FD80AB7.3010909@cyberone.com.au>
+Date: Thu, 11 Dec 2003 17:12:07 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Raul Miller <moth@magenta.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: Linux 2.6.0-test11 only lets me use 1GB out of 2GB ram.
+References: <C033B4C3E96AF74A89582654DEC664DB0672F1@aruba.maner.org> <3FD7FCF5.7030109@cyberone.com.au> <3FD801B3.7080604@wmich.edu> <20031211054111.GX8039@holomorphy.com> <C033B4C3E96AF74A89582654DEC664DB0672F1@aruba.maner.org> <3FD7FCF5.7030109@cyberone.com.au> <3FD801B3.7080604@wmich.edu> <C033B4C3E96AF74A89582654DEC664DB0672F1@aruba.maner.org> <3FD7FCF5.7030109@cyberone.com.au> <C033B4C3E96AF74A89582654DEC664DB0672F1@aruba.maner.org> <20031211010132.F28449@links.magenta.com>
+In-Reply-To: <20031211010132.F28449@links.magenta.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-zDgFD/j9ZhhmEcXpWRFm
-Content-Type: multipart/mixed; boundary="=-eoRE5NVvHThRUM8riHgH"
 
+Raul Miller wrote:
 
---=-eoRE5NVvHThRUM8riHgH
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+>On Wed, Dec 10, 2003 at 11:06:46PM -0600, Donald Maner wrote:
+>
+>>The kernel you're using WAS compiled with CONFIG_HIGHMEM4G=y, correct?
+>>
+>
+>No.
+>
+>
+>On Thu, Dec 11, 2003 at 04:13:25PM +1100, Nick Piggin wrote:
+>
+>>Or ARCH=x86_64 ?
+>>
+>
+>Yes.  Well, no... I don't see that option in my .config.  I
+>did specify the amd64 bit archictecture, but I don't know
+>what that means in .config terms.  Here's what's set under
+>"# Processor type and features":
+>
 
-Hi,
+This optimises the kernel for your chip when its in 32-bit mode.
+make 'ARCH=x64_64' to make a 64-bit kernel, however you would
+need a cross compiler.
 
-I think this may be of interest to some people. I've attached a patch
-that makes it possible to increase HZ up to 10000. The patch adds some
-HZ-related defines (e.g. SHIFT_HZ) for higher HZ values. It also removes
-some shift by negative number and divide by zero (e.g. in bogomips
-computation) and prevents some overflows. I'm not sure I fixed
-everything, but right now it seems to work with HZ=3D10000. The only thing
-I'm seeing are messages such as: "orinoco_lock() called with
-hw_unavailable (dev=3Df75c8000)" and "eth1: IRQ handler is looping too
-much! Resetting.".
+>
+>On Thu, Dec 11, 2003 at 04:48:51PM +1100, Nick Piggin wrote:
+>
+>>At any rate, Raul, highmem shouldn't hurt your performance significantly
+>>with the 2.6 kernel. If it does then send a note to the list.
+>>
+>
+>Ok, I guess I'll try that (tomorrow, unless I hear any better suggestions
+>before then).
+>
+>[I thought highmem was something completely different -- that it declared
+>a watermark and memory above that watermark was treated differently.
+>However, I guess I understand that this might have the side effect of
+>bumping things around such that I get access to the memory.]
+>
 
-I know it's (much) too late for 2.6 but I'm sending the patch anyway so
-it (hopefully) doesn't get lost.=20
+No you're right, but the kernel tries not to use highmem for data it
+accesses a lot. cache and anonymous memory for example.
 
-	Jean-Marc
-
---=20
-Jean-Marc Valin, M.Sc.A., ing. jr.
-LABORIUS (http://www.gel.usherb.ca/laborius)
-Universit=E9 de Sherbrooke, Qu=E9bec, Canada
-
---=-eoRE5NVvHThRUM8riHgH
-Content-Disposition: attachment; filename=hz.patch
-Content-Type: text/x-patch; name=hz.patch; charset=ISO-8859-1
-Content-Transfer-Encoding: base64
-
-LS0tIGxpbnV4LTIuNi4wLXRlc3QxMS9pbmNsdWRlL2xpbnV4L3RpbWV4LmgJMjAwMy0xMS0yNiAx
-NTo0Mjo1NC4wMDAwMDAwMDAgLTA1MDANCisrKyBsaW51eC0yLjYuMC10ZXN0MTEtaHovaW5jbHVk
-ZS9saW51eC90aW1leC5oCTIwMDMtMTItMDkgMTQ6MzM6NTEuMDAwMDAwMDAwIC0wNTAwDQpAQCAt
-NzcsNiArNzcsMTIgQEANCiAjIGRlZmluZSBTSElGVF9IWgk5DQogI2VsaWYgSFogPj0gNzY4ICYm
-IEhaIDwgMTUzNg0KICMgZGVmaW5lIFNISUZUX0haCTEwDQorI2VsaWYgSFogPj0gMTUzNiAmJiBI
-WiA8IDMwNzINCisjIGRlZmluZSBTSElGVF9IWgkxMQ0KKyNlbGlmIEhaID49IDMwNzIgJiYgSFog
-PCA2MTQ0DQorIyBkZWZpbmUgU0hJRlRfSFoJMTINCisjZWxpZiBIWiA+PSA2MTQ0ICYmIEhaIDwg
-MTIyODgNCisjIGRlZmluZSBTSElGVF9IWgkxMw0KICNlbHNlDQogIyBlcnJvciBZb3UgbG9zZS4N
-CiAjZW5kaWYNCi0tLSBsaW51eC0yLjYuMC10ZXN0MTEvaW5pdC9tYWluLmMJMjAwMy0xMS0yNiAx
-NTo0MzowOS4wMDAwMDAwMDAgLTA1MDANCisrKyBsaW51eC0yLjYuMC10ZXN0MTEtaHovaW5pdC9t
-YWluLmMJMjAwMy0xMi0wOSAxNDo1MjoyNC4wMDAwMDAwMDAgLTA1MDANCkBAIC0yMTIsOCArMjEy
-LDggQEANCiANCiAvKiBSb3VuZCB0aGUgdmFsdWUgYW5kIHByaW50IGl0ICovCQ0KIAlwcmludGso
-IiVsdS4lMDJsdSBCb2dvTUlQU1xuIiwNCi0JCWxvb3BzX3Blcl9qaWZmeS8oNTAwMDAwL0haKSwN
-Ci0JCShsb29wc19wZXJfamlmZnkvKDUwMDAvSFopKSAlIDEwMCk7DQorCQlIWioobG9vcHNfcGVy
-X2ppZmZ5Pj4zKS82MjUwMCwNCisJCShIWioobG9vcHNfcGVyX2ppZmZ5Pj4zKS82MjUpJTEwMCk7
-DQogfQ0KIA0KIHN0YXRpYyBpbnQgX19pbml0IGRlYnVnX2tlcm5lbChjaGFyICpzdHIpDQotLS0g
-bGludXgtMi42LjAtdGVzdDExL2FyY2gvaTM4Ni9rZXJuZWwvY3B1L3Byb2MuYwkyMDAzLTExLTI2
-IDE1OjQ1OjMwLjAwMDAwMDAwMCAtMDUwMA0KKysrIGxpbnV4LTIuNi4wLXRlc3QxMS1oei9hcmNo
-L2kzODYva2VybmVsL2NwdS9wcm9jLmMJMjAwMy0xMi0wOSAxNDo1NDoyMC4wMDAwMDAwMDAgLTA1
-MDANCkBAIC0xMjEsOCArMTIxLDggQEANCiAJCQlzZXFfcHJpbnRmKG0sICIgJXMiLCB4ODZfY2Fw
-X2ZsYWdzW2ldKTsNCiANCiAJc2VxX3ByaW50ZihtLCAiXG5ib2dvbWlwc1x0OiAlbHUuJTAybHVc
-blxuIiwNCi0JCSAgICAgYy0+bG9vcHNfcGVyX2ppZmZ5Lyg1MDAwMDAvSFopLA0KLQkJICAgICAo
-Yy0+bG9vcHNfcGVyX2ppZmZ5Lyg1MDAwL0haKSkgJSAxMDApOw0KKyAgICAgICAgICAgICAgICAg
-ICAgIEhaKihjLT5sb29wc19wZXJfamlmZnk+PjMpLzYyNTAwLA0KKyAgICAgICAgICAgICAgICAg
-ICAgIChIWiooYy0+bG9vcHNfcGVyX2ppZmZ5Pj4zKS82MjUpJTEwMCk7DQogCXJldHVybiAwOw0K
-IH0NCiANCi0tLSBsaW51eC0yLjYuMC10ZXN0MTEva2VybmVsL3RpbWVyLmMJMjAwMy0xMS0yNiAx
-NTo0NToyNS4wMDAwMDAwMDAgLTA1MDANCisrKyBsaW51eC0yLjYuMC10ZXN0MTEtaHova2VybmVs
-L3RpbWVyLmMJMjAwMy0xMi0wOSAxNDo1Nzo1MS4wMDAwMDAwMDAgLTA1MDANCkBAIC01NjEsNyAr
-NTYxLDExIEBADQogCWlmIChsdGVtcCA+IChNQVhQSEFTRSAvIE1JTlNFQykgPDwgU0hJRlRfVVBE
-QVRFKQ0KIAkgICAgbHRlbXAgPSAoTUFYUEhBU0UgLyBNSU5TRUMpIDw8IFNISUZUX1VQREFURTsN
-CiAJdGltZV9vZmZzZXQgKz0gbHRlbXA7DQotCXRpbWVfYWRqID0gLWx0ZW1wIDw8IChTSElGVF9T
-Q0FMRSAtIFNISUZUX0haIC0gU0hJRlRfVVBEQVRFKTsNCisjaWYgU0hJRlRfU0NBTEUgLSBTSElG
-VF9IWiAtIFNISUZUX1VQREFURSA+IDANCisJICAgIHRpbWVfYWRqID0gLWx0ZW1wIDw8IChTSElG
-VF9TQ0FMRSAtIFNISUZUX0haIC0gU0hJRlRfVVBEQVRFKTsNCisjZWxzZQ0KKwkgICAgdGltZV9h
-ZGogPSAtbHRlbXAgPj4gKFNISUZUX0haICsgU0hJRlRfVVBEQVRFIC0gU0hJRlRfU0NBTEUpOw0K
-KyNlbmRpZg0KICAgICB9IGVsc2Ugew0KIAlsdGVtcCA9IHRpbWVfb2Zmc2V0Ow0KIAlpZiAoISh0
-aW1lX3N0YXR1cyAmIFNUQV9GTEwpKQ0KQEAgLTU2OSw3ICs1NzMsMTEgQEANCiAJaWYgKGx0ZW1w
-ID4gKE1BWFBIQVNFIC8gTUlOU0VDKSA8PCBTSElGVF9VUERBVEUpDQogCSAgICBsdGVtcCA9IChN
-QVhQSEFTRSAvIE1JTlNFQykgPDwgU0hJRlRfVVBEQVRFOw0KIAl0aW1lX29mZnNldCAtPSBsdGVt
-cDsNCi0JdGltZV9hZGogPSBsdGVtcCA8PCAoU0hJRlRfU0NBTEUgLSBTSElGVF9IWiAtIFNISUZU
-X1VQREFURSk7DQorI2lmIFNISUZUX1NDQUxFIC0gU0hJRlRfSFogLSBTSElGVF9VUERBVEUgPiAw
-DQorCSAgICB0aW1lX2FkaiA9IGx0ZW1wIDw8IChTSElGVF9TQ0FMRSAtIFNISUZUX0haIC0gU0hJ
-RlRfVVBEQVRFKTsNCisjZWxzZQ0KKwkgICAgdGltZV9hZGogPSBsdGVtcCA+PiAoU0hJRlRfSFog
-KyBTSElGVF9VUERBVEUgLSBTSElGVF9TQ0FMRSk7DQorI2VuZGlmDQogICAgIH0NCiANCiAgICAg
-LyoNCi0tLSBsaW51eC0yLjYuMC10ZXN0MTEvaW5jbHVkZS9uZXQvdGNwLmgJMjAwMy0xMS0yNiAx
-NTo0MzowNS4wMDAwMDAwMDAgLTA1MDANCisrKyBsaW51eC0yLjYuMC10ZXN0MTEtaHovaW5jbHVk
-ZS9uZXQvdGNwLmgJMjAwMy0xMi0wOSAxNTowMzo1MC4wMDAwMDAwMDAgLTA1MDANCkBAIC00ODYs
-OCArNDg2LDggQEANCiAgICBzbyB0aGF0IHdlIHNlbGVjdCB0aWNrIHRvIGdldCByYW5nZSBhYm91
-dCA0IHNlY29uZHMuDQogICovDQogDQotI2lmIEhaIDw9IDE2IHx8IEhaID4gNDA5Ng0KLSMgZXJy
-b3IgVW5zdXBwb3J0ZWQ6IEhaIDw9IDE2IG9yIEhaID4gNDA5Ng0KKyNpZiBIWiA8PSAxNiB8fCBI
-WiA+IDE2Mzg0DQorIyBlcnJvciBVbnN1cHBvcnRlZDogSFogPD0gMTYgb3IgSFogPiAxNjM4NA0K
-ICNlbGlmIEhaIDw9IDMyDQogIyBkZWZpbmUgVENQX1RXX1JFQ1lDTEVfVElDSyAoNSsyLVRDUF9U
-V19SRUNZQ0xFX1NMT1RTX0xPRykNCiAjZWxpZiBIWiA8PSA2NA0KQEAgLTUwMiw4ICs1MDIsMTIg
-QEANCiAjIGRlZmluZSBUQ1BfVFdfUkVDWUNMRV9USUNLICgxMCsyLVRDUF9UV19SRUNZQ0xFX1NM
-T1RTX0xPRykNCiAjZWxpZiBIWiA8PSAyMDQ4DQogIyBkZWZpbmUgVENQX1RXX1JFQ1lDTEVfVElD
-SyAoMTErMi1UQ1BfVFdfUkVDWUNMRV9TTE9UU19MT0cpDQotI2Vsc2UNCisjZWxpZiBIWiA8PSA0
-MDk2DQogIyBkZWZpbmUgVENQX1RXX1JFQ1lDTEVfVElDSyAoMTIrMi1UQ1BfVFdfUkVDWUNMRV9T
-TE9UU19MT0cpDQorI2VsaWYgSFogPD0gODE5Mg0KKyMgZGVmaW5lIFRDUF9UV19SRUNZQ0xFX1RJ
-Q0sgKDEzKzItVENQX1RXX1JFQ1lDTEVfU0xPVFNfTE9HKQ0KKyNlbHNlDQorIyBkZWZpbmUgVENQ
-X1RXX1JFQ1lDTEVfVElDSyAoMTQrMi1UQ1BfVFdfUkVDWUNMRV9TTE9UU19MT0cpDQogI2VuZGlm
-DQogDQogLyoNCi0tLSBsaW51eC0yLjYuMC10ZXN0MTEvZHJpdmVycy9jaGFyL2R0bGsuYwkyMDAz
-LTExLTI2IDE1OjQzOjQwLjAwMDAwMDAwMCAtMDUwMA0KKysrIGxpbnV4LTIuNi4wLXRlc3QxMS1o
-ei9kcml2ZXJzL2NoYXIvZHRsay5jCTIwMDMtMTItMDkgMTU6MjU6MTIuMDAwMDAwMDAwIC0wNTAw
-DQpAQCAtMjA3LDcgKzIwNyw3IEBADQogCQkJCSAgIHVwIHRvIDI1MCB1c2VjIGZvciB0aGUgUkRZ
-IGJpdCB0bw0KIAkJCQkgICBnbyBub256ZXJvLiAqLw0KIAkJCQlmb3IgKHJldHJpZXMgPSAwOw0K
-LQkJCQkgICAgIHJldHJpZXMgPCBsb29wc19wZXJfamlmZnkgLyAoNDAwMC9IWik7DQorCQkJCSAg
-ICAgcmV0cmllcyA8IEhaKihsb29wc19wZXJfamlmZnk+PjUpLzEyNTsNCiAJCQkJICAgICByZXRy
-aWVzKyspDQogCQkJCQlpZiAoaW5iX3AoZHRsa19wb3J0X3R0cykgJg0KIAkJCQkJICAgIFRUU19X
-UklUQUJMRSkNCi0tLSBsaW51eC0yLjYuMC10ZXN0MTEvaW5jbHVkZS9saW51eC9pc2ljb20uaAky
-MDAzLTExLTI2IDE1OjQzOjM2LjAwMDAwMDAwMCAtMDUwMA0KKysrIGxpbnV4LTIuNi4wLXRlc3Qx
-MS1oei9pbmNsdWRlL2xpbnV4L2lzaWNvbS5oCTIwMDMtMTItMDkgMTU6MzA6MzkuMDAwMDAwMDAw
-IC0wNTAwDQpAQCAtMTQ3LDcgKzE0Nyw3IEBADQogCWludAkJCWNsb3NlX2RlbGF5Ow0KIAl1bnNp
-Z25lZCBzaG9ydAkJY2hhbm5lbDsNCiAJdW5zaWduZWQgc2hvcnQJCXN0YXR1czsNCi0JdW5zaWdu
-ZWQgc2hvcnQJCWNsb3Npbmdfd2FpdDsNCisJdW5zaWduZWQgaW50CQljbG9zaW5nX3dhaXQ7DQog
-CXN0cnVjdCBpc2lfYm9hcmQJKiBjYXJkOw0KIAlzdHJ1Y3QgdHR5X3N0cnVjdCAJKiB0dHk7DQog
-CXdhaXRfcXVldWVfaGVhZF90CWNsb3NlX3dhaXQ7DQotLS0gbGludXgtMi42LjAtdGVzdDExL2lu
-Y2x1ZGUvbGludXgvaGF5ZXNlc3AuaAkyMDAzLTExLTI2IDE1OjQ1OjA4LjAwMDAwMDAwMCAtMDUw
-MA0KKysrIGxpbnV4LTIuNi4wLXRlc3QxMS1oei9pbmNsdWRlL2xpbnV4L2hheWVzZXNwLmgJMjAw
-My0xMi0wOSAxNTozMDo1MC4wMDAwMDAwMDAgLTA1MDANCkBAIC04Nyw4ICs4Nyw4IEBADQogCWlu
-dAkJCXN0YXRfZmxhZ3M7DQogCWludAkJCWN1c3RvbV9kaXZpc29yOw0KIAlpbnQJCQljbG9zZV9k
-ZWxheTsNCi0JdW5zaWduZWQgc2hvcnQJCWNsb3Npbmdfd2FpdDsNCi0JdW5zaWduZWQgc2hvcnQJ
-CWNsb3Npbmdfd2FpdDI7DQorCXVuc2lnbmVkIGludAkJY2xvc2luZ193YWl0Ow0KKwl1bnNpZ25l
-ZCBpbnQJCWNsb3Npbmdfd2FpdDI7DQogCWludAkJCUlFUjsgCS8qIEludGVycnVwdCBFbmFibGUg
-UmVnaXN0ZXIgKi8NCiAJaW50CQkJTUNSOyAJLyogTW9kZW0gY29udHJvbCByZWdpc3RlciAqLw0K
-IAl1bnNpZ25lZCBsb25nCQlldmVudDsNCi0tLSBsaW51eC0yLjYuMC10ZXN0MTEvaW5jbHVkZS9s
-aW51eC9nZW5lcmljX3NlcmlhbC5oCTIwMDMtMTEtMjYgMTU6NDU6MjYuMDAwMDAwMDAwIC0wNTAw
-DQorKysgbGludXgtMi42LjAtdGVzdDExLWh6L2luY2x1ZGUvbGludXgvZ2VuZXJpY19zZXJpYWwu
-aAkyMDAzLTEyLTA5IDE1OjMxOjA2LjAwMDAwMDAwMCAtMDUwMA0KQEAgLTQyLDcgKzQyLDcgQEAN
-CiAgIGludCAgICAgICAgICAgICAgICAgICAgIGJsb2NrZWRfb3BlbjsNCiAgIHN0cnVjdCB0dHlf
-c3RydWN0ICAgICAgICp0dHk7DQogICB1bnNpZ25lZCBsb25nICAgICAgICAgICBldmVudDsNCi0g
-IHVuc2lnbmVkIHNob3J0ICAgICAgICAgIGNsb3Npbmdfd2FpdDsNCisgIHVuc2lnbmVkIGludCAg
-ICAgICAgICBjbG9zaW5nX3dhaXQ7DQogICBpbnQgICAgICAgICAgICAgICAgICAgICBjbG9zZV9k
-ZWxheTsNCiAgIHN0cnVjdCByZWFsX2RyaXZlciAgICAgICpyZDsNCiAgIGludCAgICAgICAgICAg
-ICAgICAgICAgIHdha2V1cF9jaGFyczsNCi0tLSBsaW51eC0yLjYuMC10ZXN0MTEvaW5jbHVkZS9s
-aW51eC9jeWNsYWRlcy5oCTIwMDMtMTEtMjYgMTU6NDY6MDYuMDAwMDAwMDAwIC0wNTAwDQorKysg
-bGludXgtMi42LjAtdGVzdDExLWh6L2luY2x1ZGUvbGludXgvY3ljbGFkZXMuaAkyMDAzLTEyLTA5
-IDE1OjMxOjE5LjAwMDAwMDAwMCAtMDUwMA0KQEAgLTU4MSw3ICs1ODEsNyBAQA0KIAlpbnQJCQlj
-dXN0b21fZGl2aXNvcjsNCiAJaW50ICAgICAgICAgICAgICAgICAgICAgeF9jaGFyOyAvKiB0byBi
-ZSBwdXNoZWQgb3V0IEFTQVAgKi8NCiAJaW50CQkJY2xvc2VfZGVsYXk7DQotCXVuc2lnbmVkIHNo
-b3J0CQljbG9zaW5nX3dhaXQ7DQorCXVuc2lnbmVkIGludAkJY2xvc2luZ193YWl0Ow0KIAl1bnNp
-Z25lZCBsb25nCQlldmVudDsNCiAJdW5zaWduZWQgbG9uZwkJbGFzdF9hY3RpdmU7DQogCWludAkJ
-CWNvdW50OwkvKiAjIG9mIGZkIG9uIGRldmljZSAqLw0KLS0tIGxpbnV4LTIuNi4wLXRlc3QxMS9p
-bmNsdWRlL2xpbnV4L3NlcmlhbFAuaAkyMDAzLTExLTI2IDE1OjQyOjU3LjAwMDAwMDAwMCAtMDUw
-MA0KKysrIGxpbnV4LTIuNi4wLXRlc3QxMS1oei9pbmNsdWRlL2xpbnV4L3NlcmlhbFAuaAkyMDAz
-LTEyLTA5IDE1OjI5OjEyLjAwMDAwMDAwMCAtMDUwMA0KQEAgLTQ3LDggKzQ3LDggQEANCiAJaW50
-CWNvdW50Ow0KIAl1OAkqaW9tZW1fYmFzZTsNCiAJdTE2CWlvbWVtX3JlZ19zaGlmdDsNCi0JdW5z
-aWduZWQgc2hvcnQJY2xvc2VfZGVsYXk7DQotCXVuc2lnbmVkIHNob3J0CWNsb3Npbmdfd2FpdDsg
-LyogdGltZSB0byB3YWl0IGJlZm9yZSBjbG9zaW5nICovDQorCXVuc2lnbmVkIGludAljbG9zZV9k
-ZWxheTsNCisJdW5zaWduZWQgaW50CWNsb3Npbmdfd2FpdDsgLyogdGltZSB0byB3YWl0IGJlZm9y
-ZSBjbG9zaW5nICovDQogCXN0cnVjdCBhc3luY19pY291bnQJaWNvdW50OwkNCiAJaW50CWlvX3R5
-cGU7DQogCXN0cnVjdCBhc3luY19zdHJ1Y3QgKmluZm87DQpAQCAtNjksOCArNjksOCBAQA0KIAlp
-bnQJCQlxdW90Ow0KIAlpbnQJCQl4X2NoYXI7CS8qIHhvbi94b2ZmIGNoYXJhY3RlciAqLw0KIAlp
-bnQJCQljbG9zZV9kZWxheTsNCi0JdW5zaWduZWQgc2hvcnQJCWNsb3Npbmdfd2FpdDsNCi0JdW5z
-aWduZWQgc2hvcnQJCWNsb3Npbmdfd2FpdDI7IC8qIG9ic29sZXRlICovDQorCXVuc2lnbmVkIGlu
-dAkJY2xvc2luZ193YWl0Ow0KKwl1bnNpZ25lZCBpbnQJCWNsb3Npbmdfd2FpdDI7IC8qIG9ic29s
-ZXRlICovDQogCWludAkJCUlFUjsgCS8qIEludGVycnVwdCBFbmFibGUgUmVnaXN0ZXIgKi8NCiAJ
-aW50CQkJTUNSOyAJLyogTW9kZW0gY29udHJvbCByZWdpc3RlciAqLw0KIAlpbnQJCQlMQ1I7IAkv
-KiBMaW5lIGNvbnRyb2wgcmVnaXN0ZXIgKi8NCi0tLSBsaW51eC0yLjYuMC10ZXN0MTEvaW5jbHVk
-ZS9uZXQvaXJkYS9pcmNvbW1fdHR5LmgJMjAwMy0xMS0yNiAxNTo0MzozNy4wMDAwMDAwMDAgLTA1
-MDANCisrKyBsaW51eC0yLjYuMC10ZXN0MTEtaHovaW5jbHVkZS9uZXQvaXJkYS9pcmNvbW1fdHR5
-LmgJMjAwMy0xMi0wOSAxNToyODoxNy4wMDAwMDAwMDAgLTA1MDANCkBAIC05Nyw4ICs5Nyw4IEBA
-DQogCXN0cnVjdCB0aW1lcl9saXN0IHdhdGNoZG9nX3RpbWVyOw0KIAlzdHJ1Y3Qgd29ya19zdHJ1
-Y3QgIHRxdWV1ZTsNCiANCi0gICAgICAgIHVuc2lnbmVkIHNob3J0ICAgIGNsb3NlX2RlbGF5Ow0K
-LSAgICAgICAgdW5zaWduZWQgc2hvcnQgICAgY2xvc2luZ193YWl0OyAvKiB0aW1lIHRvIHdhaXQg
-YmVmb3JlIGNsb3NpbmcgKi8NCisgICAgICAgIHVuc2lnbmVkIGludCAgICBjbG9zZV9kZWxheTsN
-CisgICAgICAgIHVuc2lnbmVkIGludCAgICBjbG9zaW5nX3dhaXQ7IC8qIHRpbWUgdG8gd2FpdCBi
-ZWZvcmUgY2xvc2luZyAqLw0KIA0KIAlpbnQgIG9wZW5fY291bnQ7DQogCWludCAgYmxvY2tlZF9v
-cGVuOwkvKiAjIG9mIGJsb2NrZWQgb3BlbnMgKi8NCi0tLSBsaW51eC0yLjYuMC10ZXN0MTEvaW5j
-bHVkZS9saW51eC9zZXJpYWwuaAkyMDAzLTExLTI2IDE1OjQzOjI0LjAwMDAwMDAwMCAtMDUwMA0K
-KysrIGxpbnV4LTIuNi4wLXRlc3QxMS1oei9pbmNsdWRlL2xpbnV4L3NlcmlhbC5oCTIwMDMtMTIt
-MDkgMTU6Mjc6MDkuMDAwMDAwMDAwIC0wNTAwDQpAQCAtMzksMTIgKzM5LDEyIEBADQogCWludAl4
-bWl0X2ZpZm9fc2l6ZTsNCiAJaW50CWN1c3RvbV9kaXZpc29yOw0KIAlpbnQJYmF1ZF9iYXNlOw0K
-LQl1bnNpZ25lZCBzaG9ydAljbG9zZV9kZWxheTsNCisJdW5zaWduZWQgaW50CWNsb3NlX2RlbGF5
-Ow0KIAljaGFyCWlvX3R5cGU7DQogCWNoYXIJcmVzZXJ2ZWRfY2hhclsxXTsNCiAJaW50CWh1YjY7
-DQotCXVuc2lnbmVkIHNob3J0CWNsb3Npbmdfd2FpdDsgLyogdGltZSB0byB3YWl0IGJlZm9yZSBj
-bG9zaW5nICovDQotCXVuc2lnbmVkIHNob3J0CWNsb3Npbmdfd2FpdDI7IC8qIG5vIGxvbmdlciB1
-c2VkLi4uICovDQorCXVuc2lnbmVkIGludAljbG9zaW5nX3dhaXQ7IC8qIHRpbWUgdG8gd2FpdCBi
-ZWZvcmUgY2xvc2luZyAqLw0KKwl1bnNpZ25lZCBpbnQJY2xvc2luZ193YWl0MjsgLyogbm8gbG9u
-Z2VyIHVzZWQuLi4gKi8NCiAJdW5zaWduZWQgY2hhcgkqaW9tZW1fYmFzZTsNCiAJdW5zaWduZWQg
-c2hvcnQJaW9tZW1fcmVnX3NoaWZ0Ow0KIAl1bnNpZ25lZCBpbnQJcG9ydF9oaWdoOw0K
-
---=-eoRE5NVvHThRUM8riHgH--
-
---=-zDgFD/j9ZhhmEcXpWRFm
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Ceci est une partie de message
-	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e=2E?=
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/2Ak1dXwABdFiRMQRAjz2AJwOLxM1LTXY7JGf/OdNpUVfMKXt/wCgtrcD
-I1zzMOEOQjAVNIrxvhWIoTU=
-=dqBk
------END PGP SIGNATURE-----
-
---=-zDgFD/j9ZhhmEcXpWRFm--
 

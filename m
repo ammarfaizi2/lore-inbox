@@ -1,39 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285720AbRLTAvt>; Wed, 19 Dec 2001 19:51:49 -0500
+	id <S285745AbRLTA4T>; Wed, 19 Dec 2001 19:56:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285724AbRLTAvj>; Wed, 19 Dec 2001 19:51:39 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:63243 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S285720AbRLTAv3>; Wed, 19 Dec 2001 19:51:29 -0500
-Message-ID: <3C2135D3.C5AE16A7@zip.com.au>
-Date: Wed, 19 Dec 2001 16:50:27 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre8 i686)
-X-Accept-Language: en
+	id <S285738AbRLTA4J>; Wed, 19 Dec 2001 19:56:09 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:7431 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S285730AbRLTAzy>; Wed, 19 Dec 2001 19:55:54 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: aio
+Date: 19 Dec 2001 16:55:19 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9vrctn$bek$1@cesium.transmeta.com>
+In-Reply-To: <E16Gjuw-0000UT-00@starship.berlin> <-0800> <20011219192136.F2034@redhat.com> <3C213270.966DABFE@zip.com.au>
 MIME-Version: 1.0
-To: paulus@samba.org
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.17-rc2 BUG at slab.c:1110
-In-Reply-To: <15393.11001.446919.939724@argo.ozlabs.ibm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Mackerras wrote:
+Followup to:  <3C213270.966DABFE@zip.com.au>
+By author:    Andrew Morton <akpm@zip.com.au>
+In newsgroup: linux.dev.kernel
 > 
-> So, is this devfs's fault for not allowing devfs_unregister to be
-> called from interrupt context, or is it ide-cs's fault for calling
-> ide_unregister from interrupt context?
+> The aio_* functions are part of POSIX and SUS, so merely reserving
+> system call numbers for them does not seems a completely dumb
+> thing to do, IMO.
 > 
 
-ide-cs, I'd say.
+Yes, it is, unless you already have a design for how to map the aio_*
+library functions onto system calls.
 
-The way hotplug generally avoids this problem is via schedule_task() - that
-was why it was written in the first place, I think.
+	-hpa
 
-And given that we need to bump the event up to process context, we may
-as well do it at the earliest stage.  Looks like the fix it to kill
-off the timer altogether, replace it with a tqueue and ask keventd
-to run ide_release.
+
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

@@ -1,45 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130004AbRBOU7x>; Thu, 15 Feb 2001 15:59:53 -0500
+	id <S130031AbRBOVCd>; Thu, 15 Feb 2001 16:02:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130194AbRBOU7n>; Thu, 15 Feb 2001 15:59:43 -0500
-Received: from datafoundation.com ([209.150.125.194]:35332 "EHLO
-	datafoundation.com") by vger.kernel.org with ESMTP
-	id <S130004AbRBOU73>; Thu, 15 Feb 2001 15:59:29 -0500
-Date: Thu, 15 Feb 2001 15:59:13 -0500 (EST)
-From: John Jasen <jjasen@datafoundation.com>
-To: Michal Jaegermann <michal@ellpspace.math.ualberta.ca>
-cc: Andre Hedrick <andre@linux-ide.org>, <linux-kernel@vger.kernel.org>,
-        <axp-list@redhat.com>
-Subject: Re: 2.4.x/alpha/ALI chipset/IDE problems summary Re: 2.4.1 not fully
- sane on Alpha - file systems
-In-Reply-To: <20010215134747.A13942@ellpspace.math.ualberta.ca>
-Message-ID: <Pine.LNX.4.30.0102151557240.4654-100000@flash.datafoundation.com>
+	id <S130177AbRBOVCX>; Thu, 15 Feb 2001 16:02:23 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:8970 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S130159AbRBOVCN>; Thu, 15 Feb 2001 16:02:13 -0500
+Subject: Re: MTU and 2.4.x kernel
+To: kuznet@ms2.inr.ac.ru
+Date: Thu, 15 Feb 2001 21:01:21 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), roger@kea.GRace.CRi.NZ,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <200102152041.XAA21220@ms2.inr.ac.ru> from "kuznet@ms2.inr.ac.ru" at Feb 15, 2001 11:41:17 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14TVWn-0000vQ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 15 Feb 2001, Michal Jaegermann wrote:
+> > I ran DNS reliably over AX.25 networks. They have an MTU of 216. They work.
+> 
+> 512 is maximal message size, which is transmitted without troubles,
+> hardwired to almost all the datagram protocols.
 
-> Like I wrote - I did not get to locks on fsck but then stuff was weird
-> and if I would press sufficiently long maybe I would.  I still had some
-> use for my file systems so I did not try hard enough.  Maybe we need
-> black hens on the top of the magic quoted above?
+Message size != MTU. DNS doesnt use DF. In fact DNS can even fall back to
+TCP.
 
-You bring the black hens, I've got the goats, red silk ribbon, and candles
-...
+> > > B. Accoutning, classification, resource reervation does not work on
+> > >    fragmented packets.
+> > Thats a bug in accounting classification and resource reservation.
+> Sorry? It is bug in client mtu selection. Functions above are impossible
+> on fragmented packet even in theory. And because of A, if client uses mtu
+> 296, it cannot use 100% of emerging and existing IP functions.
 
-> > I don't care about X on this system, all that much, honestly.
->
-> "Technicolor" thingy seems to be side effect of your particular
-> graphics card, no?
+Tragic. You are required to accept existing realities and degrade nicely.
 
-I gotta think that something Very Bad (tm) is happening at kernel level,
-like something getting overrun in the IDE subsystem, and overwriting into
-other areas of memory.
+> > Over a 9600 mobile phone link mtu 296 makes measurable differences to the
+> > latency when mixing a mail fetch with typing.
+> 
+> It is myth. Changing mtu until ~4K does not affect latency, it stays on 4K/bw.
 
-*shrug*
+Please tell that to my phone.
 
--- John
+> >						 Over a radio link where 
+> > error rate causes exponential increases in probability of packet loss as
+> 
+> Another myth. All they do error correction and have so high latency,
+> that _increasing_ mtu only helps. And helps a lot.
+
+No. There is large amounts of real world hardware that this is not true for. 
+You cannot do good FEC on a narrow band link. 
+
+Alan
 

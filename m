@@ -1,61 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262115AbTE2KWR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 May 2003 06:22:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262116AbTE2KWQ
+	id S262116AbTE2KXq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 May 2003 06:23:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262123AbTE2KXq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 May 2003 06:22:16 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:9745 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262115AbTE2KWL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 May 2003 06:22:11 -0400
-Date: Thu, 29 May 2003 11:35:19 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Maneesh Soni <maneesh@in.ibm.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, axobe@in.ibm.com,
-       Rusty <rusty@rustcorp.com.au>
-Subject: Re: rd.o module refcount problem
-Message-ID: <20030529113519.B18348@flint.arm.linux.org.uk>
-Mail-Followup-To: Maneesh Soni <maneesh@in.ibm.com>,
-	LKML <linux-kernel@vger.kernel.org>, axobe@in.ibm.com,
-	Rusty <rusty@rustcorp.com.au>
-References: <20030529102510.GA1251@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030529102510.GA1251@in.ibm.com>; from maneesh@in.ibm.com on Thu, May 29, 2003 at 03:55:10PM +0530
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+	Thu, 29 May 2003 06:23:46 -0400
+Received: from dbl.q-ag.de ([80.146.160.66]:63907 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S262116AbTE2KXe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 May 2003 06:23:34 -0400
+Message-ID: <3ED5E29F.3010900@colorfullife.com>
+Date: Thu, 29 May 2003 12:36:15 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030313
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Arvind Kandhare <arvind.kan@wipro.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>,
+       "indou.takao" <indou.takao@jp.fujitsu.com>, rml <rml@tech9.net>,
+       Dave Jones <davej@suse.de>, roystgnr@owlnet.rice.edu,
+       garagan@borg.cs.dal.ca
+Subject: Re: Changing SEMVMX to a tunable parameter
+References: <3ED4C6B6.7050806@wipro.com> <3ED4E0BB.2080603@colorfullife.com> <3ED5DE49.5CA79049@wipro.com>
+In-Reply-To: <3ED5DE49.5CA79049@wipro.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 29, 2003 at 03:55:10PM +0530, Maneesh Soni wrote:
-> The module ref count for rd.o module is not adjusted and remains 1 while
-> doing the following things. 
-> 
-> [root@llm01 mod]# insmod /sdb/linux-2.5.70/drivers/block/rd.o
-> [root@llm01 mod]# lsmod
-> Module                  Size  Used by
-> rd                      5568  0 - Live 0xf88b5000
-> [root@llm01 mod]# mkfs -t ext2 /dev/ram0
-> .
-> .
-> [root@llm01 mod]# lsmod
-> Module                  Size  Used by
-> rd                      5568  1 - Live 0xf88b5000
-> 
-> mount/umount of /dev/ram0 does not change the rd.o module ref count. 
-> 
-> So, who is supposed to release the rd.o module gracefully? 
-> Also mount /dev/ram0 should hold a ref and umount should release the same.
-> 
-> Same test on 2.4.20 looks correct and mount increments the ref count and
-> umount decrements the ref count.
+Arvind Kandhare wrote:
 
-I think you'll find you have to tell the ramdisk to invalidate its contents
-before the module count drops.
+>1. Most of the IPC parameters (e.g. msgmni, msgmax, 
+>msgmnb , shmmni, shmmax) are tunables. 
+>
+>(Please refer : 
+>http://web.gnu.walfield.org/mail-archive/linux-kernel-digest/1999-November/0020.html)
+>
+>Was there any specific reason why semvmx was not made a tunable with the 
+>above set??  
+>  
+>
+Because I didn't see the need for making it tunable.
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+>2. By having semvmx as tunable, administrator gets more flexibility 
+>in controlling the resource usage on the system:
+>        a. By increasing this, it is possible to allow more     
+>        processes to use the system resources controlled by a
+>        semaphore concurrently.
+>  
+>
+Changing semvmx has no effect on the resource usage: An integer occupies 
+4 bytes, a short 2 bytes, independant of it's value.
+
+>Because of problems with dynamic tuning (ref first mail on the subject), 
+>static tuning (boot time) is proposed.
+>
+>Please let us know your comments.
+>  
+>
+Review everything for signed/unsigned problems, then post your findings 
+and a patch that increases the limit to 64k. The whole patch will be 
+shorter than the "confidential" disclaimer at the end of your mails.
+
+--
+    Manfred
 

@@ -1,40 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263513AbTLSN2R (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Dec 2003 08:28:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263518AbTLSN2R
+	id S263497AbTLSN10 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Dec 2003 08:27:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263510AbTLSN10
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Dec 2003 08:28:17 -0500
-Received: from holomorphy.com ([199.26.172.102]:3991 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S263513AbTLSN2P (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Dec 2003 08:28:15 -0500
-Date: Fri, 19 Dec 2003 05:28:06 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "Brian J. Murrell" <brian@interlinx.bc.ca>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: oops with 2.6.0 on IBM 600X
-Message-ID: <20031219132806.GO31393@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	"Brian J. Murrell" <brian@interlinx.bc.ca>,
-	linux-kernel@vger.kernel.org
-References: <pan.2003.12.19.13.22.08.801900@interlinx.bc.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <pan.2003.12.19.13.22.08.801900@interlinx.bc.ca>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Fri, 19 Dec 2003 08:27:26 -0500
+Received: from iron-c-1.tiscali.it ([212.123.84.81]:16267 "EHLO
+	mailr-1.tiscali.it") by vger.kernel.org with ESMTP id S263497AbTLSN1Y
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Dec 2003 08:27:24 -0500
+X-BrightmailFiltered: true
+Message-ID: <3FE2FC52.3000600@tiscali.it>
+Date: Fri, 19 Dec 2003 14:25:38 +0100
+From: Michele RECCANELLO <michele.reccanello@tiscali.it>
+User-Agent: Mozilla/5.0 (X11; U; Linux i586; it-IT; rv:1.2.1) Gecko/20030225
+X-Accept-Language: it, en, en-us
+MIME-Version: 1.0
+To: "Chandler, Neville" <chandler@ibiquity.com>,
+       "'Samuel Flory'" <sflory@rackable.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Makefile problem
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 19, 2003 at 08:22:09AM -0500, Brian J. Murrell wrote:
-> Trying to boot 2.6.0 on an IBM 600X (I have seen a report of the same with
-> a 600E as well) I get the following 100% reproducable error and stack trace:
-> devfs_remove: ide/host0/bus0/target0/lun0 not found, cannot remove
+Linux dedalus 2.4.20-8custom #2 lun dic 15 11:17:11 CET 2003 i586 i586
+i386 GNU/Linux
+ 
+Gnu C                  3.2.2
+Gnu make               3.79.1
+util-linux             2.11y
+mount                  2.11y
+modutils               2.4.22
+e2fsprogs              1.32
+jfsutils               1.0.17
+reiserfsprogs          3.6.4
+pcmcia-cs              3.1.31
+PPP                    2.4.1
+isdn4k-utils           3.1pre4
+Linux C Library        2.3.2
+Dynamic linker (ldd)   2.3.2
+Procps                 2.0.11
+Net-tools              1.60
+Kbd                    1.08
+Sh-utils               4.5.3
+Modules Loaded         mga agpgart 8139too mii ext3 jbd keybdev mousedev
+input hid usb-ohci usbcore
 
-devfs is not really in a state to be used (maybe it should be removed);
-could you try without?
+I 've got RedHat 9 on K6 550 with 192MB, 40GB Hard disk.
+Command "make menuconfig" not set correct link in include directory and
+show this messagge:
+
+"/bin/sh: line 1: cd: include: No such file or directory."
+
+I modify Makefile at line 278
+before: (cd include; ln -sf asm-$(ARCH) asm)
+after: (cd ./include; ln -sf asm-$(ARCH) asm)
+
+It work! There is a problem when make run a cd command, but I don't know why
+Thera is similar problem in redhat 8, slackware 9.1 end Mandrake 9.2 and 
+when I compiling source code and make exec a cd command.
 
 
--- wli
+Ciao e grazie per ogni suggerimento. Merry Xmas.
+
+

@@ -1,77 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263638AbTFLLYU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 07:24:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264620AbTFLLYO
+	id S264722AbTFLLa2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 07:30:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264753AbTFLLa2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 07:24:14 -0400
-Received: from postfix4-2.free.fr ([213.228.0.176]:30427 "EHLO
-	postfix4-2.free.fr") by vger.kernel.org with ESMTP id S263638AbTFLLYK
+	Thu, 12 Jun 2003 07:30:28 -0400
+Received: from smtp2.clear.net.nz ([203.97.37.27]:3067 "EHLO
+	smtp2.clear.net.nz") by vger.kernel.org with ESMTP id S264722AbTFLLa1
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 07:24:10 -0400
-Message-ID: <3EE86864.5070207@free.fr>
-Date: Thu, 12 Jun 2003 13:47:48 +0200
-From: Eric Valette <eric.valette@free.fr>
-Reply-To: eric.valette@free.fr
-Organization: HOME
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030529
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.22 timeline was RE: 2.4.21-rc7 ACPI broken
-References: <3EE66C86.8090708@free.fr> <20030611211506.GD16164@fs.tum.de>
-In-Reply-To: <20030611211506.GD16164@fs.tum.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 12 Jun 2003 07:30:27 -0400
+Date: Thu, 12 Jun 2003 23:47:16 +1200
+From: Nigel Cunningham <ncunningham@clear.net.nz>
+Subject: Re: implicid declaration of function task_suspended - Was:	[PATCHSET]
+ 2.4.21-rc6-dis3 released
+In-reply-to: <1055410660.3ee849e439b96@support.tuxbox.dk>
+To: Martin List-Petersen <martin@list-petersen.dk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       kernel@gotontheinter.net
+Message-id: <1055418435.17838.8.camel@laptop-linux>
+Organization: 
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.2.2
+Content-type: text/plain
+Content-transfer-encoding: 7bit
+References: <1055410660.3ee849e439b96@support.tuxbox.dk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
-> On Wed, Jun 11, 2003 at 01:40:54AM +0200, Eric Valette wrote:
+TASK_SUSPENDED is a swsusp macro. What version of swsusp do you have
+included in your kernel? (There were some compile problems fixed a while
+ago - you probably have a version pre then).
+
+Regards,
+
+Nigel
+
+On Thu, 2003-06-12 at 21:37, Martin List-Petersen wrote:
+> I tried to compile this (both on rc6 and rc7) and the compile fails with:
 > 
->>...
->>I would personnally suggest that you classify the things using the 
->>following filter :
->>	a) Server (SMP, SCSI, RAID, journaling filesystems, ...),
->>	b) laptop (ACPI, CPUFREQ, Software suspend, IDE power save,...),
->>	c) desktop (File system efficiency, new hardware support,...),
->>	d) all systems
->>...
+> kernel/kernel.o(.text+0x2d8): In function 'schedule':
+> : undefined reference to 'TASK_SUSPENDED'
+> kernel/kernel.o(.text+0x392): In function 'schedule':
+> : undefined reference to 'TASK_SUSPENDED'
 > 
+> The compile allready stated in the beginning:
+> sched.c: In function 'schedule':
+> sched.c:611: implicit declaration of function 'TASK_SUSPENDED'
 > 
-> Why are journaling filesystems only for servers?
-> Is file system efficiency not relevant on servers?
-
-I was just making suggestions after a 30s thinking. Side comments, 
-readding this mailling list, I had the impression that journaling and 
-filesystem performance do not seem to mix well. Also on server, you have 
-probably extra backup hardware and means (e.g RAID, DAT, DLT, ...)
-
-
-
-> The important sections are more likely (ordered by priority):
-> - bug fixes (e.g. aic7xxx)
-> - support for additional hardware (e.g. ACPI update)
-> - new features (e.g. XFS)
-
-Personnaly, I dislike this approach as it as resulted in 2.4 being non 
-usable for servers (SMP deadlocks, IO stalls, unresponsiveness for 
-several seconds, ...) and laptop (ACPI)...
-
-> The important thing is that this is inside a stable kernel series and an 
-> update that makes things better for 100 people but makes things worse 
-> for one person is IMHO bad since it's a regression for one person.
-
-If 2.4 kernel is not usable without patching, It is far worse for me...
-
-
+> Any idea's what i can leave out to avoid these failures ?
+> 
+> Regards,
+> Martin List-Petersen
+> martin at list-petersen dot dk
+> --
+> Q:	What do you get when you cross the Godfather with an attorney?
+> A:	An offer you can't understand.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 -- 
-    __
-   /  `                   	Eric Valette
-  /--   __  o _.          	6 rue Paul Le Flem
-(___, / (_(_(__         	35740 Pace
+Nigel Cunningham
+495 St Georges Road South, Hastings 4201, New Zealand
 
-Tel: +33 (0)2 99 85 26 76	Fax: +33 (0)2 99 85 26 76
-E-mail: eric.valette@free.fr
+You see, at just the right time, when we were still powerless,
+Christ died for the ungodly.
+	-- Romans 5:6, NIV.
 

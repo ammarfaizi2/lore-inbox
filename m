@@ -1,66 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132038AbRDTTyS>; Fri, 20 Apr 2001 15:54:18 -0400
+	id <S135984AbRDTUAh>; Fri, 20 Apr 2001 16:00:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132027AbRDTTyK>; Fri, 20 Apr 2001 15:54:10 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:19439 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S132038AbRDTTxw>;
-	Fri, 20 Apr 2001 15:53:52 -0400
-Date: Fri, 20 Apr 2001 15:53:45 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Jeremy Fitzhardinge <jeremy@goop.org>,
-        Linux Kernel <linux-kernel@vger.kernel.org>, autofs@linux.kernel.org
-Subject: Re: Fix for SMP deadlock in autofs4
-In-Reply-To: <Pine.LNX.4.31.0104201158290.5632-100000@penguin.transmeta.com>
-Message-ID: <Pine.GSO.4.21.0104201516480.21455-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135985AbRDTUA2>; Fri, 20 Apr 2001 16:00:28 -0400
+Received: from atlrel1.hp.com ([156.153.255.210]:44792 "HELO atlrel1.hp.com")
+	by vger.kernel.org with SMTP id <S135984AbRDTUAS>;
+	Fri, 20 Apr 2001 16:00:18 -0400
+Date: Fri, 20 Apr 2001 14:00:03 -0600
+To: "Eric S. Raymond" <esr@thyrsus.com>, Matthew Wilcox <willy@ldl.fc.hp.com>,
+        linux-kernel@vger.kernel.org, parisc-linux@parisc-linux.org
+Subject: Re: OK, let's try cleaning up another nit. Is anyone paying attention?
+Message-ID: <20010420140003.M4217@zumpano.fc.hp.com>
+In-Reply-To: <20010419203639.H4217@zumpano.fc.hp.com> <20010419230009.A32500@thyrsus.com> <20010419211749.I4217@zumpano.fc.hp.com> <20010420154743.A19618@thyrsus.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010420154743.A19618@thyrsus.com>; from esr@thyrsus.com on Fri, Apr 20, 2001 at 03:47:43PM -0400
+From: willy@ldl.fc.hp.com (Matthew Wilcox)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Fri, 20 Apr 2001, Linus Torvalds wrote:
-
-> Why are we doing the mntget/dget at all? We hold the spinlock, so we know
-> they are not going away. Not doing the mntget/dget means that we (a) run
-> faster and (b) don't have the bug, because we don't need to put the damn
-> things.
+On Fri, Apr 20, 2001 at 03:47:43PM -0400, Eric S. Raymond wrote:
+> CONFIG_BINFMT_SOM: arch/parisc/config.in arch/parisc/defconfig
 > 
-> Comments?
+> Not used in code anywhere.  Can you get rid of this one?
 
-It looks like you are right, but I wonder how the hell did that code
-happen at all. Looks like somewhere around 2.4.0-test10-pre* dcache_lock
-was moved out of is_tree_busy() and covered dget/dput. Hmm... Might be
-my fault - I don't remember doing that, but...
- 
-Anyway, it looks like in that case we can forget about games with
-->d_count/->mnt_count. Other cases when we do "safe" dput() under
-spinlocks are done under _different_ spinlocks, so they are not
-a problem.
- 
-Removing that will require an obvious change in is_tree_busy() (shift
-count by 1). However, the real question is WTF are we trying to 
-get in autofs4_expire() - it returns dentry without grabbing a
-reference to it. The only thing that saves us is that we have a
-ramfs-style situation (dentries are pinned until we rmdir) and
-everything up to the point where we silently forget about dentry
-is covered by BKL. Since ->rmdir() is under BKL too it's enough,
-but... Eww... 
+Code not merged yet.
 
-Jeremy, what are you really trying to do there? is_tree_busy()
-seems to be written in assumption that mnt/dentry is not a
-mountpoint but root of a subtree with something mounted on its
-leaves. And autofs4_expire() traverses the list of root's
-subdirectories, picks one that has nothing busy mounted in
-_its_ subdirectories and essentially pass the name to caller.
-Which sends that name (of first-level subdirectory) to
-userland.
+> CONFIG_DMB_TRAP: arch/parisc/kernel/sba_iommu.c
+> CONFIG_FUNC_SIZE: arch/parisc/kernel/sba_iommu.c
+> 
+> Would you please take these out of the CONFIG_ namespace?  Changing the 
+> prefix to CONFIGURE would do nicely.
 
-Is that what you really want there? It looks very odd - why don't we pass
-the names of actual mountpoints? What's wrong with the case when foo/bar
-is busy, but foo/baz is not?
-								Al
+Grant?  This is your code.
 
+> CONFIG_GENRTC: arch/parisc/defconfig
+> 
+> This is a typo for GEN_RTC.  Please fix it or get rid of it.
 
+in our tree it's in drivers/char/Makefile:
+
+obj-$(CONFIG_GENRTC) += genrtc.o
+
+this code was written by Sam Creasey as part of the sun3 port, and he
+schlepped it into our tree too.  we have no GEN_RTC in our tree.
+
+> CONFIG_HIL: arch/parisc/defconfig
+> 
+> Looks like an orphan.  Can you get rid of it?
+
+code not yet merged.
+
+> CONFIG_SERIAL_GSC: drivers/char/serial.c arch/parisc/defconfig
+> 
+> That reference pattern looks kind of weird.  Is this a bug?
+
+it's old and needs to die properly.  i haven't had time to fix that yet.

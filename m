@@ -1,50 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265012AbSKKNSs>; Mon, 11 Nov 2002 08:18:48 -0500
+	id <S265019AbSKKN0g>; Mon, 11 Nov 2002 08:26:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265020AbSKKNSs>; Mon, 11 Nov 2002 08:18:48 -0500
-Received: from fe6.rdc-kc.rr.com ([24.94.163.53]:48914 "EHLO mail6.kc.rr.com")
-	by vger.kernel.org with ESMTP id <S265012AbSKKNSs>;
-	Mon, 11 Nov 2002 08:18:48 -0500
-Date: Mon, 11 Nov 2002 07:26:06 -0600 (CST)
-From: Ognen Duzlevski <ognen@kc.rr.com>
-X-X-Sender: ognen@gemelli.dyndns.org
-To: Grzegorz Jaskiewicz <gj@pointblue.com.pl>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.47 ipv4 netfilter compile time error
-In-Reply-To: <1036990568.24251.4.camel@flat41>
-Message-ID: <Pine.LNX.4.44.0211110725360.707-100000@gemelli.dyndns.org>
+	id <S265021AbSKKN0g>; Mon, 11 Nov 2002 08:26:36 -0500
+Received: from rakis.net ([207.8.143.12]:61314 "EHLO egg.rakis.net")
+	by vger.kernel.org with ESMTP id <S265019AbSKKN0g>;
+	Mon, 11 Nov 2002 08:26:36 -0500
+Date: Mon, 11 Nov 2002 08:33:13 -0500 (EST)
+From: Greg Boyce <gboyce@rakis.net>
+X-X-Sender: gboyce@egg
+To: Thomas Molina <tmolina@cox.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5 Problem Report Status for 10 Nov
+In-Reply-To: <Pine.LNX.4.44.0211100834110.16968-100000@dad.molina>
+Message-ID: <Pine.LNX.4.42.0211110829150.26970-100000@egg>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There was a patch for this for 2.5.45 and 2.5.46, one would think it would
-get fixed eventually...
+On Sun, 10 Nov 2002, Thomas Molina wrote:
 
-Ognen
+> I apologize for not being able to get a report out last week; I'm in the
+> middle of a career change (anyone need a system administrator?).  I've
+> (mostly) kept up with traffic, but there are a lot of older items I've not
+> been able to close out.
 
-On 11 Nov 2002, Grzegorz Jaskiewicz wrote:
+> ------------------------------------------------------------------------
+>    open   08 Nov 2002 piix driver oops
+>   99. http://marc.theaimsgroup.com/?l=linux-kernel&m=103677362411873&w=2
 
-> Hello !
->
->
-> i've discovered this error during compilation:
->
-> net/ipv4/netfilter/ipt_TCPMSS.c: In function `ipt_tcpmss_target':
-> net/ipv4/netfilter/ipt_TCPMSS.c:95: structure has no member named `pmtu'
-> make[3]: *** [net/ipv4/netfilter/ipt_TCPMSS.o] Error 1
-> make[2]: *** [net/ipv4/netfilter] Error 2
-> make[1]: *** [net/ipv4] Error 2
-> make: *** [net] Error 2
->
-> on demand i'll include .config
->
-> now i will switch off this one, and try to compile it without netfilter.
-> It is still impossilble to make saa7146 module too...
->
-> anyway, keep doing this good job folks.
->
-> --
-> Greg Iaskievitch
+There was apparently a patch to fix this that didn't get included with
+2.5.47.  I'm not sure if it's a correct fix or not, but it did stop the
+crashes for my machine.
+
+Here it is.
+
+http://www.cs.helsinki.fi/linux/linux-kernel/2002-44/1684.html
+
+--- linux-2.5.46/drivers/ide/ide-dma.c.~1~	2002-11-08 09:29:10.000000000 +0100
++++ linux-2.5.46/drivers/ide/ide-dma.c	2002-11-08 10:05:12.000000000 +0100
+@@ -926,7 +926,7 @@
+ 		request_region(base+16, hwif->cds->extra, hwif->cds->name);
+ 		hwif->dma_extra = hwif->cds->extra;
+ 	}
+-	hwif->dma_master = (hwif->channel) ? hwif->mate->dma_base : base;
++	hwif->dma_master = (hwif->channel && hwif->mate) ? hwif->mate->dma_base : base;
+ 	if (hwif->dma_base2) {
+ 		if (!request_region(hwif->dma_base2, ports, hwif->name))
+ 		{
+
+Gregory Boyce
 

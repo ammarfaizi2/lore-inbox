@@ -1,33 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288830AbSAFNH1>; Sun, 6 Jan 2002 08:07:27 -0500
+	id <S287865AbSAFNJi>; Sun, 6 Jan 2002 08:09:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287866AbSAFNHW>; Sun, 6 Jan 2002 08:07:22 -0500
-Received: from NILE.GNAT.COM ([205.232.38.5]:51629 "HELO nile.gnat.com")
-	by vger.kernel.org with SMTP id <S287865AbSAFNHC>;
-	Sun, 6 Jan 2002 08:07:02 -0500
-From: dewar@gnat.com
-To: dewar@gnat.com, paulus@samba.org
-Subject: Re: [PATCH] C undefined behavior fix
-Cc: gcc@gcc.gnu.org, linux-kernel@vger.kernel.org, trini@kernel.crashing.org,
-        velco@fadata.bg
-Message-Id: <20020106130701.BE3F4F2FA1@nile.gnat.com>
-Date: Sun,  6 Jan 2002 08:07:01 -0500 (EST)
+	id <S288982AbSAFNJ2>; Sun, 6 Jan 2002 08:09:28 -0500
+Received: from mail2.home.nl ([213.51.129.226]:24763 "EHLO mail2.home.nl")
+	by vger.kernel.org with ESMTP id <S288983AbSAFNJE>;
+	Sun, 6 Jan 2002 08:09:04 -0500
+Message-ID: <3C384CB2.2040601@home.nl>
+Date: Sun, 06 Jan 2002 14:10:10 +0100
+From: Gertjan van Wingerde <gwingerde@home.nl>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20020101
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Gertjan van Wingerde <gwingerde@home.nl>
+CC: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: drivers/md compile fixes.
+In-Reply-To: <3C384A97.8090909@home.nl>
+Content-Type: multipart/mixed;
+ boundary="------------030401060101050502080503"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-<<* Given an address as an int (of the appropriate size), I need a way
-  to construct a pointer, which when dereferenced, will result in the
-  CPU presenting that address to the MMU.
+This is a multi-part message in MIME format.
+--------------030401060101050502080503
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-* I need a way to tell the compiler not to make any assumptions about
-  what objects that such a pointer might or might not point to, so
-  that the effect of dereferencing the pointer is simply to access the
-  memory at the address I gave, and is not considered "undefined"
-  regardless of how I might have constructed the address.
->>
+Okay,
 
-So that seems reasonable as a statement of need (i.e. a high level
-requirement), so what is needed now is to craft a well defined way
-in GNU C, preferably other than ASM inserts, to achieve this very
-reasonable goal.
+It seems that I f**ked up the patch creation. Actually only the first 
+chunk of the patch is correct. New version of the patch attached.
+
+
+         Best regards/MvG,
+
+                 Gertjan.
+
+Gertjan van Wingerde wrote:
+
+> Hi,
+> 
+> The attached patch to 2.5.2-pre9 is necessary to get it to compile and
+> to clean up some NODEV vs. mk_kdev(0, 0) usages.
+> 
+> 
+
+
+-- 
+	MvG,
+
+		Gertjan
+
+----------
+
+Gertjan van Wingerde
+Geessinkweg 177
+7544 TX Enschede
+The Netherlands
+E-mail: gwingerde@home.nl
+
+--------------030401060101050502080503
+Content-Type: text/plain;
+ name="linux-md.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="linux-md.diff"
+
+diff -u --recursive linux-2.5.2-pre8/drivers/md/md.c linux-2.5.x/drivers/md/md.c
+--- linux-2.5.2-pre8/drivers/md/md.c	Sun Jan  6 11:28:53 2002
++++ linux-2.5.x/drivers/md/md.c	Sun Jan  6 11:30:03 2002
+@@ -641,7 +641,7 @@
+ 	int err = 0;
+ 	struct block_device *bdev;
+ 
+-	bdev = bdget(rdev->dev);
++	bdev = bdget(kdev_t_to_nr(rdev->dev));
+ 	if (!bdev)
+ 		return -ENOMEM;
+ 	err = blkdev_get(bdev, FMODE_READ|FMODE_WRITE, 0, BDEV_RAW);
+
+--------------030401060101050502080503--
+

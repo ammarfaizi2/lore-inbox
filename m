@@ -1,40 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267469AbUJBS05@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267478AbUJBS1g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267469AbUJBS05 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Oct 2004 14:26:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267478AbUJBS05
+	id S267478AbUJBS1g (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Oct 2004 14:27:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267487AbUJBS1g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Oct 2004 14:26:57 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:48533 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S267469AbUJBS0z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Oct 2004 14:26:55 -0400
-Subject: Re: 2.6.9-rc3 compile erros
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <415E6B74.5050100@eyal.emu.id.au>
-References: <415E6B74.5050100@eyal.emu.id.au>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1096737859.25312.5.camel@localhost.localdomain>
+	Sat, 2 Oct 2004 14:27:36 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:56221 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S267478AbUJBS1e (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Oct 2004 14:27:34 -0400
+Date: Sat, 2 Oct 2004 11:04:45 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Hubertus Franke <frankeh@watson.ibm.com>
+Cc: dipankar@in.ibm.com, akpm@osdl.org, ckrm-tech@lists.sourceforge.net,
+       efocht@hpce.nec.com, mbligh@aracnet.com, lse-tech@lists.sourceforge.net,
+       hch@infradead.org, steiner@sgi.com, jbarnes@sgi.com,
+       sylvain.jeaugey@bull.net, djh@sgi.com, linux-kernel@vger.kernel.org,
+       colpatch@us.ibm.com, Simon.Derr@bull.net, ak@suse.de, sivanich@sgi.com
+Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
+Message-Id: <20041002110445.26b7bafb.pj@sgi.com>
+In-Reply-To: <415ED3E3.6050008@watson.ibm.com>
+References: <20040805100901.3740.99823.84118@sam.engr.sgi.com>
+	<20040805190500.3c8fb361.pj@sgi.com>
+	<247790000.1091762644@[10.10.2.4]>
+	<200408061730.06175.efocht@hpce.nec.com>
+	<20040806231013.2b6c44df.pj@sgi.com>
+	<411685D6.5040405@watson.ibm.com>
+	<20041001164118.45b75e17.akpm@osdl.org>
+	<20041001230644.39b551af.pj@sgi.com>
+	<20041002145521.GA8868@in.ibm.com>
+	<415ED3E3.6050008@watson.ibm.com>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sat, 02 Oct 2004 18:24:20 +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sad, 2004-10-02 at 09:48, Eyal Lebedinsky wrote:
-> I need DVB so I finaly made the move to 2.6[.9-rc3]. I get compile failures in two modules:
->      drivers/isdn/i4l/isdn_tty.c
->      drivers/net/wan/pc300_tty.c
-> 
-> Both look like careless typos - is 2,6 really stable by now?
+> I see cpumem sets to be orthogonal to CKRM cpu share allocations.
 
-Both already fixed and pushed upstream. The tty patch contained a couple
-of typos in pieces I couldn't compile/test. (or in the case of ISDN
-forgot to).
+I agree.  Thank-you for stating that, Hubertus.
 
-Should all be rippled out by rc4, and given the fact every serial driver
-had to change I don't think it was too bad
-
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

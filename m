@@ -1,63 +1,130 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261774AbVCRTBQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261813AbVCRTGN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261774AbVCRTBQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Mar 2005 14:01:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261781AbVCRTBP
+	id S261813AbVCRTGN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Mar 2005 14:06:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261826AbVCRTGN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Mar 2005 14:01:15 -0500
-Received: from smtp102.rog.mail.re2.yahoo.com ([206.190.36.80]:31164 "HELO
-	smtp102.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S261774AbVCRTBN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Mar 2005 14:01:13 -0500
-Subject: Re: 2.6.11 breaks modules gratuitously
-From: John Kacur <jkacur@rogers.com>
-Reply-To: jkacur@rogers.com
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Greg Stark <gsstark@mit.edu>, Jean Delvare <khali@linux-fr.org>,
-       bunk@stusta.de
-In-Reply-To: <20050318194915.580c3511.khali@linux-fr.org>
-References: <3JrTO-1C4-41@gated-at.bofh.it>
-	 <20050318194915.580c3511.khali@linux-fr.org>
-Content-Type: text/plain
-Message-Id: <1111172461.5993.10.camel@linux.site>
+	Fri, 18 Mar 2005 14:06:13 -0500
+Received: from bay20-f28.bay20.hotmail.com ([64.4.54.117]:44000 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S261813AbVCRTGH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Mar 2005 14:06:07 -0500
+Message-ID: <BAY20-F284EE2A7DE004B2A2FECC7E54A0@phx.gbl>
+X-Originating-IP: [66.146.138.130]
+X-Originating-Email: [le_wen@hotmail.com]
+In-Reply-To: <Pine.LNX.4.61.0503181337240.27860@chaos.analogic.com>
+From: "Le Wen" <le_wen@hotmail.com>
+To: linux-os@analogic.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Questions about request_irq and reading PCI_INTERRUPT_LINE
+Date: Fri, 18 Mar 2005 14:06:05 -0500
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 18 Mar 2005 14:01:02 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; format=flowed
+X-OriginalArrivalTime: 18 Mar 2005 19:06:06.0218 (UTC) FILETIME=[8963A6A0:01C52BED]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-03-18 at 13:49, Jean Delvare wrote:
-> Hi Greg,
-> 
-> > When you guys go on these "make needlessly global code static" kicks
-> > you should maybe consider that even functions that aren't currently
-> > used by any other area of the tree might be useful for module writers.
-> > 
-> > Instead of just checking which functions are currently used by other
-> > parts of the kernel perhaps you should think about what makes a
-> > logical API and stick to that, even if not all of the functions are
-> > currently used.
-> 
-> I'd second that. Cleanups are good and I do not deny that Adrian Bunk
-> has been doing a terrific work. However, unexporting or removing
-> functions just because they have no current user in the kernel tree is
-> not always a clever thing to do. Keeping things square and logical
-> should be taken into consideration, as should the possibility that some
-> function might be used outside of the kernel tree. I do *not* mean
-> entire interfaces only used outside of the kernel tree, because these
-> are highly questionable, but functions that are part of a larger set of
-> functions representing an interface, most of which are used inside the
-> kernel. In this specific case, dropping exports or removing functions
-> make very little sense to me and is sometimes calling for trouble, as
-> Greg just underlined. In some cases, the functions are likely to be
-> reintroduced/reexported a few months later and we certainly could use
-> our time in a more useful way than undoing and redoing things.
-> 
-> Thanks,
+On Fri, 18 Mar 2005, Le Wen wrote:
 
-So perhaps we can introduce a new term to linux kernel development,
-reexporting a symbol can now be known as debunking?
+>Hi, there,
+>
+>I have problem to grab video from my ati all-in-wonder card. The card is in 
+>a PII Celeron machine with an on board video card (ATI Technologies Inc 3D 
+>Rage IIC AGP). there is no monitor connected with the on board video card. 
+>I only hook my AIW card with a monitor.
+>
+>I use km-0.6 from gatos project. I load this km_drv module, but kernel 
+>always complains:
+>
+>km: IRQ 0 busy
+>
+>I checked code:
+>       km_probe(struct pci_dev *dev, const struct pci_device_id *pci_id)
+>
+>here dev->irq with a value 0.
+>
+>When km_probe gets called, it try to request an IRQ0 returns a -EBUSY:
+>       kms_irq=dev.irq;
+>       result=request_irq(kms->irq, handler, SA_SHIRQ, tag, (void *)kms);
+>
+>       if(result==-EBUSY){
+>               printk(KERN_ERR "km: IRQ %ld busy\n", kms->irq);
+>               goto fail;
+>       }
+>
+>
+>So I tried to get right IRQ number using:
+>       u8 myirq;
+>       int rtn=pci_read_config_byte(dev,PCI_INTERRUPT_LINE, &myirq);
+>       dev->irq=myirq;
+>       kms->irq=dev_irq;
+>       result=request_irq(kms->irq, handler, SA_SHIRQ, tag, (void *)kms);
+>
+>       if(result==-EBUSY){
+>               printk(KERN_ERR "km: IRQ %ld busy\n", kms->irq);
+>               goto fail;
+>       }
+>       if(result<0){
+>               printk(KERN_ERR "km: could not install irq handler: 
+>result=%d\n",result);
+>               goto fail;
+>       }
+>But this time I got:
+>
+>km: kms->irq=24
+>km: could not install irq handler: result=-38
+>
+>
+>My questions are:
+>1. I don't know why dev->irq has value of 0?
+>
 
-(sorry, sorry, I couldn't resist)
+The PCI interface now needs to be enabled first. The IRQ value
+returned is BAD until after one calls pci_enable_device(). This
+is a BUG, now considered a FEATURE so it's unlikely to be fixed!
+There are lots of people who have encountered this problem
+with modules that are not in the "distribution".
+
+>2. Is an IRQ number of 24 valid for a Intel PII Celeron?
+>
+
+Could be, but it;s probably invalid considering the way you
+got it.
+
+>3. What does this result=-38 mean?
+>
+
+Probably errno 38, i.e., ENOSYS
+
+>
+>Wen, Le
+>
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.
+
+Thank you Dick!
+
+But pci_enable_device(dev) was called sucussful before read 
+pci_read_config_byte():
+
+static int __devinit km_probe(struct pci_dev *dev, const struct 
+pci_device_id *pci_id)
+{
+...
+if (pci_enable_device(dev))
+                return -EIO;
+        printk(KERN_DEBUG "pci_read_config_byte(dev,PCI_INTERRUPT_LINE, 
+&testirq)\n");
+        u8 myirq;//=0;
+        int rtn=pci_read_config_byte(dev,PCI_INTERRUPT_LINE, &myirq);
+        kms->dev=dev;
+        dev->irq=myirq;
+        kms->irq=dev->irq;
+and then call
+       result=request_irq(kms->irq, handler, SA_SHIRQ, tag, (void *)kms);
+
 

@@ -1,92 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129749AbRCAQnb>; Thu, 1 Mar 2001 11:43:31 -0500
+	id <S129712AbRCAQue>; Thu, 1 Mar 2001 11:50:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129741AbRCAQnV>; Thu, 1 Mar 2001 11:43:21 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:58240 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S129712AbRCAQnF>; Thu, 1 Mar 2001 11:43:05 -0500
-Date: Thu, 1 Mar 2001 11:42:14 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Matthew Jacob <mjacob@feral.com>
-cc: kernel@kvack.org, Ofer Fryman <ofer@shunra.co.il>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: Intel-e1000 for Linux 2.0.36-pre14
-In-Reply-To: <Pine.BSF.4.21.0103010812200.11811-100000@beppo.feral.com>
-Message-ID: <Pine.LNX.3.95.1010301113407.13933A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129723AbRCAQuY>; Thu, 1 Mar 2001 11:50:24 -0500
+Received: from mehl.gfz-potsdam.de ([139.17.1.100]:13013 "EHLO
+	mehl.gfz-potsdam.de") by vger.kernel.org with ESMTP
+	id <S129712AbRCAQuT> convert rfc822-to-8bit; Thu, 1 Mar 2001 11:50:19 -0500
+Date: Thu, 1 Mar 2001 17:50:04 +0100
+From: Steffen Grunewald <steffen@gfz-potsdam.de>
+To: linux-kernel@vger.kernel.org
+Cc: Tim Walberg <tewalberg@mediaone.net>
+Subject: Re: smartmedia adapter support??
+Message-ID: <20010301175002.H7883@dss19>
+Mail-Followup-To: Steffen Grunewald <steffen>, linux-kernel@vger.kernel.org,
+	Tim Walberg <tewalberg@mediaone.net>
+In-Reply-To: <20010301100041.A22824@mediaone.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010301100041.A22824@mediaone.net>; from tewalberg@mediaone.net on Thu, Mar 01, 2001 at 10:00:41AM -0600
+X-Disclaimer: I don't speak for no one else. And vice versa
+X-Operating-System: SunOS
+Content-Transfer-Encoding: 8BIT
+X-MIME-Autoconverted: from 8bit to quoted-printable by dss19.gfz-potsdam.de id RAA14680
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 1 Mar 2001, Matthew Jacob wrote:
+On Thu 2001-03-01 (10:00), Tim Walberg wrote:
+> Just wondering whether anyone has successfully gotten
+> either a PCMCIA SmartMedia Adapter (specifically the
+> Viking Components one) or a FlashPath floppy SmartMedia
+> adapter working under 2.4.x. I've got both, and haven't
+> gotten either working under either 2.2.x or 2.4.x, but
+> I haven't had the time to work real hard at it either,
+> so I'm hoping someone can give me some pointers...
 
-> 
-> 
-> On Thu, 1 Mar 2001, Richard B. Johnson wrote:
-> 
-> > On Thu, 1 Mar 2001 kernel@kvack.org wrote:
-> > 
-> > > On Thu, 1 Mar 2001, Ofer Fryman wrote:
-> > > 
-> > > > I managed to compiled e1000 for Linux 2.0.36-pre14, I can also load it
-> > > > successfully. 
-> > > > With the E1000_IMS_RXSEQ bit set in IMS_ENABLE_MASK I get endless interrupts
-> > > > and the computer freezes, without this bit set it works but I cannot receive
-> > > > or send anything.
-> > > 
-> > > Intel refuses to provide complete documentation for any of their ethernet
-> > > cards.  I recommend purchasing alternative products from vendors like 3com
-> > > and National Semiconduct who are cooperative in providing data needed by
-> > > the development community.
-> > > 
-> > 
-> > Well Intel has been a continual contributor to Linux and BSD. Somebody
-> > is not getting to the right person. There are lazy people at all
-> > companies. 
-> 
-> Sorry, I don't believe that that this is correct in this case. I spoke on the
-> telephone with the "Manager for Open Source Systems", and the concept of
-> releasing documents to that a driver could be written whose source would be
-> available was a concept too far. He kept on asking about NDAs- I kept on
-> saying, yes, I'll sign an NDA (presumably so knowledge of advanced features,
-> such as VLAN taggging, e.g., would not be released if they did not want it to
-> be)- but the basic driver source would have to be OPEN! (this was for *BSD,
-> but that's the same as linux in this case- we *all* want the damned source
-> open). No meeting of minds. I have been trying this on and off for two years
-> so that I can properly support the Wiseman && Livengood chipsets in *BSD. No
-> luck, ergo, reverse engineering of what little they release with the Linux
-> driver is the order of the day still. The Linux driver, btw, is pretty clearly
-> a port of an NT driver- which is quite amusing.
-> 
-> FWIW.....I just think that the overall company policy within Intel, much like
-> that of NetApp and others, is, "Open Source? Well, maybe, err,umm.. "...  It's
-> just not that important to them (as a company, they think). That said- if you
-> can get access to said documentation (which I understand comes in a certain
-> notebook that indicates releasing outside of Intel is a firing offense)- more
-> power to you!
-> 
-> -matt
+http://www.smartdisk.com has a driver (which includes a binary-
+only library) for FlashPath that you can compile for your kernel
 
-The way I've gotten so-called proprietary information in the past is
-to let the world know that "boneserver.analogic.com" 204.178.40.210 is
-an open ftp site in which I don't even log what's uploaded and downloaded.
+Works fine here (2.2.16)
 
-I check it once or twice a week to see if somebody has sent me anything
-of interest. Sometimes, persons unknown to me, have deposited information
-that I need. 
+Don't know about PCMCIA though
 
-Now I seem to need some programming information on the Intel e-1000.
-I'll keep you informed if anything turns up.
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
-
+Steffen
+-- 
+Steffen Grunewald | GFZ | PB 2.2 | Telegrafenberg E3 | D-14473 Potsdam
+» email: steffen(at)gfz-potsdam.de | fax/fon: +49-331-288-1266/-1245 «
+Software is like sex - it's better when it's free. --- Linus Torvalds

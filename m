@@ -1,65 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261864AbUBWOS2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 09:18:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261865AbUBWOS2
+	id S261871AbUBWOWb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 09:22:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261876AbUBWOWb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 09:18:28 -0500
-Received: from smtp1.wanadoo.fr ([193.252.22.30]:19162 "EHLO
-	mwinf0101.wanadoo.fr") by vger.kernel.org with ESMTP
-	id S261864AbUBWOS0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 09:18:26 -0500
-Date: Mon, 23 Feb 2004 15:18:15 +0000
-From: Philippe Elie <phil.el@wanadoo.fr>
-To: Coywolf Qi Hunt <coywolf@greatcn.org>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: Does Flushing the Queue after PG REALLY a Necessity?
-Message-ID: <20040223151815.GA403@zaniah>
-References: <c16rdh$gtk$1@terminus.zytor.com> <4039D599.7060001@greatcn.org>
+	Mon, 23 Feb 2004 09:22:31 -0500
+Received: from mail.shareable.org ([81.29.64.88]:23426 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S261871AbUBWOWV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Feb 2004 09:22:21 -0500
+Date: Mon, 23 Feb 2004 14:22:15 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: Paul Jackson <pj@sgi.com>
+Cc: hjlipp@web.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Linux 2.6: shebang handling in fs/binfmt_script.c
+Message-ID: <20040223142215.GB30321@mail.shareable.org>
+References: <20040216133418.GA4399@hobbes> <20040222020911.2c8ea5c6.pj@sgi.com> <20040222155410.GA3051@hobbes> <20040222125312.11749dfd.pj@sgi.com> <20040222225750.GA27402@mail.shareable.org> <20040222214457.6f8d2224.pj@sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4039D599.7060001@greatcn.org>
-User-Agent: Mutt/1.4i
+In-Reply-To: <20040222214457.6f8d2224.pj@sgi.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 23 Feb 2004 at 18:27 +0000, Coywolf Qi Hunt wrote:
-
-> H. Peter Anvin wrote:
+Paul Jackson wrote:
+> > I believe the question was "which shell expects the name in argv[2]
 > 
-> >Anyone happen to know of any legitimate reason not to reload %cs in
-> >head.S?  I think the following would be a lot cleaner, as well as a
-> >lot safer (the jump and indirect branch aren't guaranteed to have the
-> >proper effects, although technically neither should be required due to
-> >the %cr0 write):
+> The question is more like: examine each shell's argument parsing code to
+> determine which ones will or will not be affected by this.  For a change
+> like this, someone needs to actually look at the code for each major
+> shell, and verify their reading of the code with a little experimentation.
 
-jump is sufficent when setting PG and required with cpu where cr0 write
-does not serialize.
+Eh?  We do know what the major shells do: They either look at the
+first non-option argument for the script name, or they do not accept
+options at all.
 
-> Anyone happen to know of any legitimate reason to flush the prefetch
-> queue after enabling paging?
-> 
-> I've read the intel manual volume 3 thoroughly. It only says that after
-> entering protected mode, flushing is required, but never says
-> specifically about whether to do flushing after enabling paging.
-> 
-> Furthermore the intel example code enables protected mode and paging at
-> the same time. So does FreeBSD. There's really no more references to check.
-> 
->  From the cpu's internal view, flushing for PE is to flush the prefetch
-> queue as well as re-load the %cs, since the protected mode is just about
-> to begin. But no reason to flushing for PG, since linux maps the
-> addresses *identically*.
-> 
-> If no any reason, please remove the after paging flushing queue code,
-> two near jump.
+Anyway that's irrelevant: the splitting change only affects shell
+_scripts_ which already have multiple options on the #! line, and
+which depend on a space not splitting the argument.  If a script
+doesn't have that, the shell's behaviour isn't affected by this
+change.
 
-See IA32 vol 3  7.4 and 18.27.3
+Such scripts are non-portable because that behaviour isn't universal
+(although I have a feeling the current Linux behaviour was done to
+mimick some existing system - as it was never hard to implement
+argument splitting of the original author had wanted to.)
 
-Anyway this code is known to work on dozen of intel/non intel processor,
-how can you know if changing this code will not break an obscure clone ?
+In other words, what's relevant is which shell _scripts_ would be
+affected, not which shells.
 
-regards,
-Phil
+To find those scripts, do:
 
+    find /bin /sbin /usr/bin /usr/sbin /usr/X11R6/bin /usr/local/bin \
+         /etc /usr/lib -type f \
+    | xargs perl -ne 'print "$ARGV\n" if /^#! ?.+ .+ /; close ARGV'
+
+(Or choose your own directories).
+
+I didn't find any on my system.
+
+-- Jamie

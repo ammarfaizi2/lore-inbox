@@ -1,42 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264540AbUFNX5K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264629AbUFOABp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264540AbUFNX5K (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jun 2004 19:57:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264641AbUFNX5K
+	id S264629AbUFOABp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jun 2004 20:01:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264643AbUFOABo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jun 2004 19:57:10 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:8835 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264540AbUFNX5I
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jun 2004 19:57:08 -0400
-Message-ID: <40CE3B41.90407@pobox.com>
-Date: Mon, 14 Jun 2004 19:56:49 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Sam Ravnborg <sam@ravnborg.org>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH 0/5] kbuild
-References: <20040614204029.GA15243@mars.ravnborg.org>
-In-Reply-To: <20040614204029.GA15243@mars.ravnborg.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 14 Jun 2004 20:01:44 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:2997 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264629AbUFOABb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jun 2004 20:01:31 -0400
+Date: Mon, 14 Jun 2004 17:01:20 -0700
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: "Bryan W. Headley" <bwheadley@earthlink.net>,
+       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       zaitcev@redhat.com
+Subject: Re: drivers/usb/aiptek.c -- forgot minor patch to usbmouse.c
+Message-Id: <20040614170120.530f0730@lembas.zaitcev.lan>
+In-Reply-To: <40B0A544.7040404@earthlink.net>
+References: <40AF85F9.9020500@earthlink.net>
+	<20040522101508.34588e0e.zaitcev@redhat.com>
+	<40B0A544.7040404@earthlink.net>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 0.9.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Ravnborg wrote:
-> default kernel image:		Specify default target at config
-> 				time rather then hardcode it.
-> 				Only enabled for i386 for now.
+On Sun, 23 May 2004 08:21:08 -0500
+"Bryan W. Headley" <bwheadley@earthlink.net> wrote:
 
+> So: purpose of patch: "release of the 1.5 version of the aiptek tablet 
+> driver."
 
-> external module build doc:	Add documentation for building external modules
+Bryan, I continue to sit on this, waiting for 2.6 to pick this up.
+Are you doing anything to make it happen?
 
+Meanwhile, a couple of small nits...
 
-I like these two especially.  Thanks much,
+The stupidJavaCasingForVariables is something that will be over your
+head forever. Why did you have to butcher a perfectly good open_count?
 
-	Jeff
+Now, about that  programmableDelay thingie. Why is it needed?
+This one is a very transparent workaround for something.
+It has to be justified.
 
-
+-- Pete

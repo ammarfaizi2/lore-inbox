@@ -1,144 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270096AbTGNLyh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 07:54:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270400AbTGNLyg
+	id S270576AbTGNL6d (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 07:58:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270577AbTGNL6d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 07:54:36 -0400
-Received: from mail.cpt.sahara.co.za ([196.41.29.142]:43513 "EHLO
-	workshop.saharact.lan") by vger.kernel.org with ESMTP
-	id S270096AbTGNLyd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 07:54:33 -0400
-Subject: Re: 2.5.74-mm2 + nvidia (and others)
-From: Martin Schlemmer <azarah@gentoo.org>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Thomas Schlichter <schlicht@uni-mannheim.de>, smiler@lanil.mine.nu,
-       KML <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
-In-Reply-To: <20030712012130.GB15452@holomorphy.com>
-References: <1057590519.12447.6.camel@sm-wks1.lan.irkk.nu>
-	 <200307071734.01575.schlicht@uni-mannheim.de>
-	 <20030707123012.47238055.akpm@osdl.org>
-	 <1057647818.5489.385.camel@workshop.saharacpt.lan>
-	 <20030712012130.GB15452@holomorphy.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1058184576.799.341.camel@workshop.saharacpt.lan>
+	Mon, 14 Jul 2003 07:58:33 -0400
+Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:62449 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP id S270576AbTGNL6a
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 07:58:30 -0400
+Subject: Re: 2.5 'what to expect'
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Dave Jones <davej@codemonkey.org.uk>
+Cc: Romano Giannetti <romano@dea.icai.upco.es>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030714114144.GB5187@suse.de>
+References: <20030711140219.GB16433@suse.de>
+	 <20030714083058.GC3706@pern.dea.icai.upco.es>
+	 <20030714114144.GB5187@suse.de>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Ps1ncx4Li7ZZboEFSSdl"
+Organization: Red Hat, Inc.
+Message-Id: <1058184785.5981.0.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3- 
-Date: 14 Jul 2003 14:09:37 +0200
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.4.0 (1.4.0-2) 
+Date: 14 Jul 2003 14:13:05 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-07-12 at 03:21, William Lee Irwin III wrote:
-> On Tue, Jul 08, 2003 at 09:03:39AM +0200, Martin Schlemmer wrote:
-> > +#if defined(NV_PMD_OFFSET_UNMAP)
-> > +    pmd_unmap(pg_mid_dir);
-> > +#endif
-> 
-> You could try defining an NV_PMD_OFFSET_UNMAP() which is a nop for
-> mainline and DTRT for -mm.
-> 
 
-Ok, I basically got the latest minion.de (2003/07/13) to look as
-follow:
+--=-Ps1ncx4Li7ZZboEFSSdl
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-----------------------------------
-diff -urpN NVIDIA_kernel-1.0-4363/nv-linux.h
-NVIDIA_kernel-1.0-4363.highpmd-fixup/nv-linux.h
---- NVIDIA_kernel-1.0-4363/nv-linux.h   2003-07-14 12:42:00.000000000
-+0200
-+++ NVIDIA_kernel-1.0-4363.highpmd-fixup/nv-linux.h     2003-07-14
-13:38:02.000000000 +0200
-@@ -228,14 +228,14 @@
+On Mon, 2003-07-14 at 13:41, Dave Jones wrote:
 
- #if defined(pmd_offset_map)
- #define NV_PMD_OFFSET(address, pgd, pmd) \
--    { \
--        pmd_t *pmd__ = pmd_offset_map(pgd, address); \
--        pmd = *pmd__; \
--        pmd_unmap(pgd__); \
--    }
-+    pmd = pmd_offset_map(pgd, address)
-+#define NV_PMD_UNMAP(pmd) \
-+    pmd_unmap(pmd)
- #else
- #define NV_PMD_OFFSET(address, pgd, pmd) \
--    pmd = *pmd_offset(pgd, address)
-+    pmd = pmd_offset(pgd, address)
-+#define NV_PMD_UNMAP(pmd) \
-+    nop()
- #endif 
+> I've no objection to taking "heres links to packages for xxx distro"
+> texts if people want to write them, but I don't have the time, nor
+> knowledge to add these for every distro out there.
 
- #define NV_PAGE_ALIGN(addr)             ( ((addr) + PAGE_SIZE - 1) /
-PAGE_SIZE)
-diff -urpN NVIDIA_kernel-1.0-4363/nv.c
-NVIDIA_kernel-1.0-4363.highpmd-fixup/nv.c
---- NVIDIA_kernel-1.0-4363/nv.c 2003-07-14 12:42:00.000000000 +0200
-+++ NVIDIA_kernel-1.0-4363.highpmd-fixup/nv.c   2003-07-14
-13:38:43.000000000 +0200
-@@ -2087,7 +2087,7 @@ unsigned long
- nv_get_phys_address(unsigned long address)
- {
-     pgd_t *pgd;
--    pmd_t pmd;
-+    pmd_t *pmd;
-     pte_t pte;
- 
- #if defined(NVCPU_IA64)
-@@ -2110,10 +2110,14 @@ nv_get_phys_address(unsigned long addres
+RHL9 rpms are at
 
-     NV_PMD_OFFSET(address, pgd, pmd);
- 
--    if (pmd_none(pmd))
-+    if (pmd_none(*pmd)) {
-+        NV_PMD_UNMAP(pmd);
-         goto failed;
-+    }
-+
-+    NV_PTE_OFFSET(address, pmd, pte);
- 
--    NV_PTE_OFFSET(address, &pmd, pte);
-+    NV_PMD_UNMAP(pmd);
-
-     if (!pte_present(pte))
-         goto failed;
-----------------------------------
-
-so that it will not use a copy of 'pmd' that was already
-unmapped.
-
-Question now - what about:
-
---------------------- nv-linux.h ----------------------
-#if defined(pte_offset_atomic)
-#define NV_PTE_OFFSET(addres, pmd, pte) \
-    { \
-        pte_t *pte__ = pte_offset_atomic(pmd, address); \
-        pte = *pte__; \
-        pte_kunmap(pte__); \
-    } 
-#elif defined(pte_offset)
-#define NV_PTE_OFFSET(addres, pmd, pte) \
-    pte = *pte_offset(pmd, address)
-#else
-#define NV_PTE_OFFSET(addres, pmd, pte) \
-    { \
-        pte_t *pte__ = pte_offset_map(pmd, address); \
-        pte = *pte__; \
-        pte_unmap(pte__); \
-    }
-#endif
--------------------------------------------------------
-
-I cannot think that it is safe as well to use an copy
-of an unmapped pte ??  Should this be fixed as well ?
+http://people.redhat.com/arjanv/2.5/
 
 
-Thanks,
+--=-Ps1ncx4Li7ZZboEFSSdl
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
--- 
-Martin Schlemmer
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
+iD8DBQA/Ep5QxULwo51rQBIRApGxAJwLXg7BVMWBrvYWvGMypfezK2fWmQCfUiCn
+EfAkUvqRPMSPhqp8EPs53Oc=
+=ies5
+-----END PGP SIGNATURE-----
 
+--=-Ps1ncx4Li7ZZboEFSSdl--

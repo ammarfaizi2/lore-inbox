@@ -1,54 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264537AbTEaTqn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 May 2003 15:46:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264420AbTEaTqn
+	id S264447AbTEaTnL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 May 2003 15:43:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264459AbTEaTnL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 May 2003 15:46:43 -0400
-Received: from BELLINI.MIT.EDU ([18.62.3.197]:24068 "EHLO bellini.mit.edu")
-	by vger.kernel.org with ESMTP id S264537AbTEaTqk (ORCPT
+	Sat, 31 May 2003 15:43:11 -0400
+Received: from fed1mtao02.cox.net ([68.6.19.243]:7617 "EHLO fed1mtao02.cox.net")
+	by vger.kernel.org with ESMTP id S264447AbTEaTnK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 May 2003 15:46:40 -0400
-Date: Sat, 31 May 2003 16:00:20 -0400 (EDT)
-From: ghugh Song <ghugh@bellini.mit.edu>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Something wrong with recent 2.4.21-rc* kernels?
-Message-ID: <Pine.LNX.4.53.0305311553350.2945@bellini.mit.edu>
+	Sat, 31 May 2003 15:43:10 -0400
+Message-ID: <3ED908F0.40901@cox.net>
+Date: Sat, 31 May 2003 12:56:32 -0700
+From: "Kevin P. Fleming" <kpfleming@cox.net>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4a) Gecko/20030401
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Christoph Hellwig <hch@infradead.org>
+CC: LKML <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH] include/linux/sysctl.h needs linux/compiler.h
+References: <3ED8D5E4.6030107@cox.net> <20030531203242.B4202@infradead.org>
+In-Reply-To: <20030531203242.B4202@infradead.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Christoph Hellwig wrote:
+> On Sat, May 31, 2003 at 09:18:44AM -0700, Kevin P. Fleming wrote:
+> 
+>>Adding patch below solves the problem (yes, I know, userspace is not 
+>>supposed to use kernel headers...)
+> 
+> 
+> So why do you try it anyway?
+> 
 
-> I am comparing
->
-> 2.4.21-pre3-ac4
-> 2.4.21-rc5-ac1
-> 2.4.21-rc6-ac1
->
-> In the last two kernels, something is definitely not right.
-> LaTeXing a big file takes about twice the time compared to
-> the same job under 2.4.21-pre3-ac4.
-> However, I am not totally satisfied with the 2.4.21-pre3-ac4, either.
-> In the beginning just after a reboot, the condition is really nice.
-> However, after a while, "time"ing a job reveals that something bad is
-> happening in the first column of "real" time, which means the wall-clock
-> timing. One might say that it is still better with 2.4.21-pre3-ac4
-> than the situation with 2.4.21-rc5-ac1 or with 2.4.21-rc6-ac1, because
-> it still does not contaminate "user" time in the middle column.
-
-I am pleased to report that the problem has been solved by
-Rick's RMap15j.  So, I am now running
-2.4.21-rc6-rmap15j.
-
-Relevant information can be found at
-http://www.ussg.iu.edu/hypermail/linux/kernel/0305.3/1850.html
-
-If anyone is having the same problem, please take a note.
-
-Regards,
-
-
-G. Hugh Song
-
+Until someone addresses this issue with a permanent fix, is there 
+another choice? How can any userspace library that needs to issue 
+syscalls compile against the existing sysctl.h without this change? I'm 
+open to suggestions, obviously this was a quick and dirty fix (copied 
+from other existing headers in .../linux already, which is certainly no 
+excuse).
 

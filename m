@@ -1,38 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288277AbSAQHjx>; Thu, 17 Jan 2002 02:39:53 -0500
+	id <S288259AbSAQHpN>; Thu, 17 Jan 2002 02:45:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288255AbSAQHjk>; Thu, 17 Jan 2002 02:39:40 -0500
-Received: from dsl-64-130-65-177.telocity.com ([64.130.65.177]:7161 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S288262AbSAQHid>; Thu, 17 Jan 2002 02:38:33 -0500
-Subject: Re: how many cpus can linux support for SMP?
-From: Thomas Duffy <Thomas.Duffy.99@alumni.brown.edu>
-To: Barry Wu <wqb123@yahoo.com>
-Cc: Linux Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020117065841Z288225-13996+7386@vger.kernel.org>
-In-Reply-To: <20020117065841Z288225-13996+7386@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.1 
-Date: 16 Jan 2002 23:36:19 -0800
-Message-Id: <1011252982.5188.5.camel@localhost.localdomain>
-Mime-Version: 1.0
+	id <S288007AbSAQHpD>; Thu, 17 Jan 2002 02:45:03 -0500
+Received: from [212.171.6.109] ([212.171.6.109]:3456 "EHLO DarkStar.sns.it")
+	by vger.kernel.org with ESMTP id <S288280AbSAQHot>;
+	Thu, 17 Jan 2002 02:44:49 -0500
+Date: Thu, 17 Jan 2002 08:44:28 +0100 (CET)
+From: Luigi Genoni <venom@DarkStar.sns.it>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: rgooch@ras.ucalgary.ca, <linux-kernel@vger.kernel.org>
+Subject: Re: Rik spreading bullshit about VM
+In-Reply-To: <Pine.LNX.4.33L.0201162230550.32617-100000@imladris.surriel.com>
+Message-ID: <Pine.LNX.4.44.0201170841110.456-100000@DarkStar.sns.it>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-01-16 at 22:59, Barry Wu wrote:
-> Hi, all,
-> 
-> I am new to this mail list. I do not know how many CPUs linux can
-> support well using SMP. If some one knows, please give me
-> a reply. Thanks.
+Excuse me, I write as a journalist on a magazine too,
+and so I have a little esperience about those things.
+Before the interview was published, did you read it for final
+permission to publish it?
 
-there is a 32bit cpu mask, meaning 32 is the absolute max, although Ralf
-Baechle has extended it to 64 in order to support SGI origin 2000's, but
-realistically, linux can only do about 8 before falling on the ground...
+It is quite logical that some pieces of a speech
+are cutted out in an interview if they are considered
+not interesting (theer are also space limits, you know;) ), and
+that is why the guy who has been interviewed should
+do a finial vidimation to be sure that what is written is
+espressing exaclty his tought.
 
-depends on your workload really...you should be ok with 4 cpus.
+Luigi
 
--tduffy
+
+On Wed, 16 Jan 2002, Rik van Riel wrote:
+
+> Date: Wed, 16 Jan 2002 22:31:26 -0200 (BRST)
+> From: Rik van Riel <riel@conectiva.com.br>
+> To: V-man <venom@DarkStar.sns.it>
+> Cc: rgooch@ras.ucalgary.ca, linux-kernel@vger.kernel.org
+> Subject: Re: Rik spreading bullshit about VM
+>
+> On Thu, 17 Jan 2002, V-man wrote:
+>
+> > So basically Ri's assertion is far from truth on many aspects.
+>
+> That assumes it is my assertion, it appears the journalist in
+> question is missing a few lines from his IRC log though...
+>
+> Rik
+> --
+> "Linux holds advantages over the single-vendor commercial OS"
+>     -- Microsoft's "Competing with Linux" document
+>
+> http://www.surriel.com/		http://distro.conectiva.com/
+>
 

@@ -1,49 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262653AbUCJPTy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 10:19:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262655AbUCJPTy
+	id S262259AbUCJP1w (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 10:27:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262650AbUCJP1w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 10:19:54 -0500
-Received: from [217.157.19.70] ([217.157.19.70]:13321 "EHLO jehova.dsm.dk")
-	by vger.kernel.org with ESMTP id S262653AbUCJPTw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 10:19:52 -0500
-Date: Wed, 10 Mar 2004 15:19:50 +0000 (GMT)
-From: Thomas Horsten <thomas@horsten.com>
-X-X-Sender: thomas@jehova.dsm.dk
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-cc: andre@linux-ide.org, <arjanv@redhat.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.4.x Linux Medley RAID Version 7
-In-Reply-To: <200403101539.28258.bzolnier@elka.pw.edu.pl>
-Message-ID: <Pine.LNX.4.40.0403101515410.1120-100000@jehova.dsm.dk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 10 Mar 2004 10:27:52 -0500
+Received: from fed1mtao06.cox.net ([68.6.19.125]:43975 "EHLO
+	fed1mtao06.cox.net") by vger.kernel.org with ESMTP id S262259AbUCJP1v
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Mar 2004 10:27:51 -0500
+Date: Wed, 10 Mar 2004 08:27:50 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Andi Kleen <ak@muc.de>
+Cc: "Amit S. Kale" <amitkale@emsyssoft.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, george@mvista.com, pavel@ucw.cz
+Subject: Re: kgdb for mainline kernel: core-lite [patch 1/3]
+Message-ID: <20040310152750.GE5169@smtp.west.cox.net>
+References: <1xpyM-2Op-21@gated-at.bofh.it> <1xuS8-83Q-11@gated-at.bofh.it> <m3hdwz9szt.fsf@averell.firstfloor.org> <200403091006.00822.amitkale@emsyssoft.com> <20040310123605.GA62228@colin2.muc.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040310123605.GA62228@colin2.muc.de>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Mar 2004, Bartlomiej Zolnierkiewicz wrote:
+On Wed, Mar 10, 2004 at 01:36:05PM +0100, Andi Kleen wrote:
+> > Yes. But as things stand, gdb 6.0 doesn't show stack traces correctly with esp 
+> > and eip got from switch_to and gas 2.14 can't handle i386 dwarf2 CFI. Do we 
+> > want to enforce getting a CVS version of gdb _and_ gas to build kgdb? 
+> > Certainly not.
+> 
+> binutils 2.15 should be released soon anyways AFAIK. And for x86-64 this all
+> works just fine (as demonstrated by Jim's/George's stub), so please get
+> rid of it at least for x86-64. I really don't want user_schedule there,
+> because it's completely unnecessary.
 
-> I don't like the idea of having 2 drivers doing basically the same thing.
-> Please explain why we can't have one Medley software RAID driver?
-> [ Yes, I read http://www.ussg.iu.edu/hypermail/linux/kernel/0308.0/0156.html ]
+I think more importantly, it's probably going to be one of those ugly
+things that will make it so much harder to get it into Linus' tree.  So
+lets just say it'll require gdb 6.1 / binutils 2.15 for KGDB to work
+best.
 
-The existing one does not work correctly:
-
-- It detects the array in the wrong way and so only catches a fraction of
-valid Medley sets (and possibly mistakes non-Medley sets or deleted sets
-for correct ones).
-
-- It's using the wrong algorithm for dealing with striped arrays where the
-drives are of different sizes.
-
-The reason my patch leaves it in place is that it works for some users,
-and some people pointed out last year that the usual preferred path for
-this kind of change is to leave the existing driver in place if it works
-for some people. I would personally prefer to remove it.
-
-Andre has previously stated that he had no objections to this patch (an
-earlier version).
-
-// Thomas
-
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

@@ -1,67 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261407AbVCHPVf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261330AbVCHPsG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261407AbVCHPVf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 10:21:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261406AbVCHPVf
+	id S261330AbVCHPsG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 10:48:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261327AbVCHPsG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 10:21:35 -0500
-Received: from ns1.g-housing.de ([62.75.136.201]:44725 "EHLO mail.g-house.de")
-	by vger.kernel.org with ESMTP id S261407AbVCHPVX (ORCPT
+	Tue, 8 Mar 2005 10:48:06 -0500
+Received: from god.demon.nl ([83.160.164.11]:23429 "EHLO god.dyndns.org")
+	by vger.kernel.org with ESMTP id S261331AbVCHPrs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 10:21:23 -0500
-Message-ID: <422DC2F1.7020802@g-house.de>
-Date: Tue, 08 Mar 2005 16:21:21 +0100
-From: Christian Kujau <evil@g-house.de>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050212)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: oom with 2.6.11
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
+	Tue, 8 Mar 2005 10:47:48 -0500
+Date: Tue, 8 Mar 2005 16:47:47 +0100
+From: Henk Vergonet <rememberme@god.dyndns.org>
+To: linux-kernel@vger.kernel.org
+Cc: dtor_core@ameritech.net
+Subject: Re: RFC: Harmonised parameter passing
+Message-ID: <20050308154747.GA10071@god.dyndns.org>
+References: <20050308145923.GA9914@god.dyndns.org> <d120d5000503080714ba3843d@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d120d5000503080714ba3843d@mail.gmail.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hallo list,
+On Tue, Mar 08, 2005 at 10:14:32AM -0500, Dmitry Torokhov wrote:
+> On Tue, 8 Mar 2005 15:59:23 +0100, Henk Vergonet
+> > Could we extend this method where we use the same methodology for inbound drivers? (Currently a lot of drivers use their own parameter parsing code when it comes to passing values at kernel boot time.)
+> > 
+> > so we could do the regular:
+> > 
+> >        insmod mcd io=0x340
+> > 
+> > for modules, or with kernel boot parameters:
+> > 
+> >        mcd.io=0x340
+> > 
+> > for in-kernel drivers.
+> > 
+> 
+> Umm.. This is already done. For parameters defined with module_param()
+> you use <paramname>=<value> for modules and
+> <modulename>.<paramname>=<value> for built-in case.
 
-today my machine went out out memory and noticing it several hours after
-the first OOM message in the log, i wonder
-   1) why this happened at all and
-   2) why almost every service was killed despite the clever algorithms
-      documented in mm/oom_kill.c.
+I did not know, but thats good news! My research was only based on the LKM module howto.
 
-the first oom message went to the syslog at 01:27, i was away and no heavy
-tasks were scheduled:
+> > My proposal would be to introduce something like:
+> > 
+> > DRIVER_PARM_DESC(variable, description);
+> > DRIVER_PARM(variable, type, scope);
+> > 
+> >    where scope can be:
+> >        PARM_SCOPE_MODULE       => This parameter is used in module context.
+> >        PARM_SCOPE_KERNEL       => This parameter is used in kernel context.
+> >        PARM_SCOPE_MODULE | PARM_SCOPE_KERNEL
+> >                                => This parameter is used in both kernel and module context, which should be the default if scope is omitted.
+> > 
+> 
+> Why would you want parameters that only work for modules? I'd consider
+> it a bug, not a feature, when parameter works only when code is
+> modularized.
+> 
+I totally agree! (But I was preparing for the discussion were people
+argue that they need a different set of parameters at boot time.)
 
-http://nerdbynature.de/bits/sheep/2.6.11/oom/oom_2.6.11.txt
+One question remains though, how do you handle the initialization of
+multiple instances of an inbound driver?
 
-mysqld got killed by the oom killer, so i have to suspect mysql for being
-the reason for oom here, even that i know that mysqld is running all day
-long. several other tasks got killed, but "Free swap" stays at 0kB and the
-oom killer kills almost every other tasks, with no success in freeing ram.
+mcd0.io=0x340 mcd1.io=0x350 
 
-the log stops at 03:21, perhaps syslog-ng got killed.
-at around 07:31 i noticed the mess, did SYSRQ-E and now i was able to
-login again. i pressed SYSRQ-M/T/P too, they are all in the log. at this
-time loadavg was at 249 ;)
-
-i went to runlevel 2, then up again to 3 and all services are up and
-running again.
-
-some 2.6.11-rc3 BK snapshot was running pretty stable (no OOM) for ~30
-days before i switched to 2.6.11 (vanilla) a few days ago. i have to (not)
-reproduce the problem the next night, i wonder if it will happen again.
-
-do you vm-gurus have any idea to the points asked above?
-
-more infos about the box here: http://nerdbynature.de/bits/sheep/2.6.11/oom/
-
-
-thank you for your comments,
-Christian.
--- 
-BOFH excuse #281:
-
-The co-locator cannot verify the frame-relay gateway to the ISDN server.
+Thnx,
+Henk

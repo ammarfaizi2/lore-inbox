@@ -1,56 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267338AbUJBHpA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267335AbUJBHo4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267338AbUJBHpA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Oct 2004 03:45:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267326AbUJBHpA
+	id S267335AbUJBHo4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Oct 2004 03:44:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267326AbUJBHo4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Oct 2004 03:45:00 -0400
-Received: from fw.osdl.org ([65.172.181.6]:39908 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267338AbUJBHoi (ORCPT
+	Sat, 2 Oct 2004 03:44:56 -0400
+Received: from gyre.weather.fi ([193.94.59.26]:13730 "EHLO gyre.weather.fi")
+	by vger.kernel.org with ESMTP id S267335AbUJBHob (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Oct 2004 03:44:38 -0400
-Date: Sat, 2 Oct 2004 00:42:21 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jean Delvare <khali@linux-fr.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: mmap() on cdrom files fails in 2.6.9-rc2-mmX
-Message-Id: <20041002004221.33510f46.akpm@osdl.org>
-In-Reply-To: <20040928214246.41b80d30.khali@linux-fr.org>
-References: <20040928214246.41b80d30.khali@linux-fr.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 2 Oct 2004 03:44:31 -0400
+Date: Sat, 2 Oct 2004 10:44:15 +0300 (EEST)
+From: =?ISO-8859-1?Q?Jaakko_Hyv=E4tti?= <jaakko@hyvatti.iki.fi>
+X-X-Sender: jaakko@gyre.weather.fi
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc2-mm2
+In-Reply-To: <20040922131210.6c08b94c.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0410021038060.25679@gyre.weather.fi>
+References: <20040922131210.6c08b94c.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jean Delvare <khali@linux-fr.org> wrote:
->
-> I think I found a bug in 2.6.9-rc2-mm4. It doesn't seem to be able to
-> mmap() files located on cdroms. Same problem with -mm3 and -mm1.
-> 2.6.9-rc2 works fine. I reproduced it on two completely different
-> systems, so I guess it isn't device dependant.
-> 
+On Wed, 22 Sep 2004, Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc2/2.6.9-rc2-mm2/
+...
+> - Found (and fixed) the bug which was causing those
+>   ext3-goes-readonly-under-load problems.  It was in the new wait/wakeup code.
 
-So I tried your .config
+Forgive me for asking a question that probably enough research would
+answer, but which exact patch of those listed does fix this problem?  I
+cannot find the right one myself, and I would like to just address this
+problem that has haunted me at least since 2.6.6, I guess.  Or is the fix
+too interdependent with other changes?
 
-> ...
-> # CONFIG_BLK_DEV_IDECD is not set
-
-hm.  You're not using an IDE CDROM?
-
-> CONFIG_BLK_DEV_SR=m
-
-but you are using a SCSI CDROM, correct?
-
-I tried your test app on both IDE CD with my .config and on SCSI CD with
-your .config.  Works fine.
-
-
-vmm:/mnt/cdrom> ~/test-mmap REGSVR32.EXE 
-mmap size=42 flags=1: OK
-mmap size=42 flags=2: OK
-mmap size=4096 flags=1: OK
-mmap size=4096 flags=2: OK
-
-
+-- 
+Jaakko.Hyvatti@iki.fi         http://www.iki.fi/hyvatti/        +358 40 5011222
+echo 'movl $36,%eax;int $128;movl $0,%ebx;movl $1,%eax;int $128'|as -o/bin/sync

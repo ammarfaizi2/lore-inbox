@@ -1,53 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263424AbUC3SAm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 13:00:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263785AbUC3SAl
+	id S263785AbUC3SBs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 13:01:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263788AbUC3SBs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 13:00:41 -0500
-Received: from kinesis.swishmail.com ([209.10.110.86]:51973 "EHLO
-	kinesis.swishmail.com") by vger.kernel.org with ESMTP
-	id S263424AbUC3SAj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 13:00:39 -0500
-Message-ID: <4069BA3B.5050004@techsource.com>
-Date: Tue, 30 Mar 2004 13:19:39 -0500
-From: Timothy Miller <miller@techsource.com>
+	Tue, 30 Mar 2004 13:01:48 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:33097 "EHLO
+	MTVMIME02.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S263785AbUC3SBp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Mar 2004 13:01:45 -0500
+Date: Tue, 30 Mar 2004 19:01:44 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Andrew Morton <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: mapped pages being truncated [was Re: 2.6.5-rc2-aa5]
+In-Reply-To: <20040330161056.GZ3808@dualathlon.random>
+Message-ID: <Pine.LNX.4.44.0403301845160.23502-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: Jens Axboe <axboe@suse.de>, Andrea Arcangeli <andrea@suse.de>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, linux-ide@vger.kernel.org,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] speed up SATA
-References: <4066021A.20308@pobox.com> <200403282030.11743.bzolnier@elka.pw.edu.pl> <20040328183010.GQ24370@suse.de> <200403282045.07246.bzolnier@elka.pw.edu.pl> <406720A7.1050501@pobox.com> <20040329005502.GG3039@dualathlon.random> <40679FE3.3080007@pobox.com> <20040329130410.GH3039@dualathlon.random> <40687CF0.3040206@pobox.com> <20040330110928.GR24370@suse.de> <4069B6F8.1020506@techsource.com> <4069B376.9010104@pobox.com>
-In-Reply-To: <4069B376.9010104@pobox.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Jeff Garzik wrote:
+On Tue, 30 Mar 2004, Andrea Arcangeli wrote:
 > 
->
+> the funny thing is that it seems to be the same truncate doing
+> truncate_inode_pages first, and zap_page_range later. It would be better
+> if WARN_ON would show the pid of the task too, if they were two
+> different tasks that would be more realistic. Maybe an xfs screwup of
+> some sort? I could ask the tester to try again with ext2, but then if it
+> doesn't trigger anymore we still have to wonder about timings.
 > 
-> If you are taking your samples over time, that shouldn't matter...  if 
-> the system workload is such that you are hitting the drive cache the 
-> majority of the time, you're not being "fooled" by cache hits, the patch 
-> would be taking those cache hits into account.
-> 
-> If the system isn't hitting the drive cache the majority of the time, 
-> statistical sampling will automatically notice that too...
-> 
+> Anyways now the kernel is solid, it just bugs out those warnings so we
+> don't forget. I don't think it's a bug in my tree.
 
+I do think it's something to worry about, it does seem peculiar.
 
-I completely agree, although Jens' patch seems to try to learn the 
-drive's maximum speed and go based on that.  Maybe I misread the code. 
-Anyhow, it's certainly excellent for a starting point... it's this sort 
-of proof-of-concept that gets the ball rolling.  Plus, it's already 
-better than Jens says it is.  :)
+Dunno why, but I never received the first mail in this thread,
+neither directly nor via the list, but have now got it from MARC.
 
+I doubt this is the cause of the problem (would not, I think,
+cause all of the associated symptoms you describe), but I think it
+is a bug in your code which could cause the WARN_ON(!page->mapping):
+
+Imagine if the filesystem (or driver) nopage gave you the empty zero
+page for a private writable mapping (it better not give it you for a
+shared writable mapping!), perhaps to represent a hole in the file.
+
+I think it will pass the various tests in your do_no_page, and if
+it's a write_access, that will correctly copy the page and set_pte
+for this private copy: but it doesn't update pageable (from 0 to 1)
+for it, so skips the page_add_rmap; and eventually page_remove_rmap
+will be passed this page with neither PageAnon nor page->mapping.
+
+As I say, I doubt it's your case, but worth fixing:
+force pageable on where you set anon in do_no_page.
+
+Hugh
 

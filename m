@@ -1,68 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272157AbRHXQEE>; Fri, 24 Aug 2001 12:04:04 -0400
+	id <S272202AbRHXQKX>; Fri, 24 Aug 2001 12:10:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272202AbRHXQDx>; Fri, 24 Aug 2001 12:03:53 -0400
-Received: from smtp3.cern.ch ([137.138.131.164]:41937 "EHLO smtp3.cern.ch")
-	by vger.kernel.org with ESMTP id <S272157AbRHXQDh>;
-	Fri, 24 Aug 2001 12:03:37 -0400
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Will 2.6 require Python for any configuration ? (CML2)
-In-Reply-To: <E15a1rW-000MM9-00@f10.mail.ru> <20010823143443.F14302@cpe-24-221-152-185.az.sprintbbd.net> <d3ofp5wr46.fsf@lxplus035.cern.ch> <20010824083728.J14302@cpe-24-221-152-185.az.sprintbbd.net> <d31ym1wjk8.fsf@lxplus035.cern.ch> <20010824085052.K14302@cpe-24-221-152-185.az.sprintbbd.net>
-From: Jes Sorensen <jes@sunsite.dk>
-Date: 24 Aug 2001 18:03:44 +0200
-In-Reply-To: Tom Rini's message of "Fri, 24 Aug 2001 08:50:52 -0700"
-Message-ID: <d3wv3tv40v.fsf@lxplus035.cern.ch>
-User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
+	id <S272210AbRHXQKN>; Fri, 24 Aug 2001 12:10:13 -0400
+Received: from node-cffb924a.powerinter.net ([207.251.146.74]:9035 "HELO
+	switchmanagement.com") by vger.kernel.org with SMTP
+	id <S272202AbRHXQKH>; Fri, 24 Aug 2001 12:10:07 -0400
+Message-ID: <3B867C6A.4000700@switchmanagement.com>
+Date: Fri, 24 Aug 2001 09:10:18 -0700
+From: Brian Strand <bstrand@switchmanagement.com>
+Organization: Switch Management
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010801
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: David Ford <david@blue-labs.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 3ware: no cards found in 2.2.19, cards found in 2.4.x
+In-Reply-To: <3B85E7E2.7000602@switchmanagement.com> <3B85FBC6.3080305@blue-labs.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Tom" == Tom Rini <trini@kernel.crashing.org> writes:
+Do either of these kernels fix the "2.4.x VM suckage" problems?  I don't 
+want to use a 2.4.x kernel because Oracle runs almost 2x slower (with 
+identical hardware config) on 2.4.4 and 2.4.6 versus 2.2.16 (and I have 
+4G of swap for 2G of physical mem, so that is not the problem), not to 
+mention that one of these 2.4.x kernels caused Oracle corruption.  I 
+don't feel so comfortable testing new kernels with several hundred GBs 
+of customer data anymore :) .
 
-Tom> On Fri, Aug 24, 2001 at 05:42:47PM +0200, Jes Sorensen wrote:
->> The real problems with Perl is that it exercises almost all of your
->> libc, uses floating point math, dlopen() and a lot of other
->> funnies. Successfully running Perl's test suite is a very good
->> indicator for the completeness of your libc. On the other hand gcc
->> and the development toolchain are remarkably easy to accomodate on
->> that front.
+David Ford wrote:
 
-Tom> We're getting someplace now.  If you question the ability of the
-Tom> platform to make reliable tools such as perl, why do you think
-Tom> you'll have good binutils and gcc on the platform?
+> I first suggest that you try kernel 2.4.9 or the latest of 2.4.8-acN.
+>
+> David
+>
+> Brian Strand wrote:
+>
+>> I have a quad xeon 2GB system running Oracle which I am reverting to 
+>> 2.2.x because of 2.4.x's less than desirable VM performance (causing 
+>> a 2x Oracle slowdown, reported about a month ago on linux-kernel).  I 
+>> foolishly put a 3ware card in at the same time as I "upgraded" the 
+>> box to 2.4.4, so now I am in the undesirable position of needing to 
+>> go back to 2.2.19, but that kernel cannot find the card.  I get the 
+>> following message during boot:
+>>
+>> 3w-xxxx: tw_find_cards(): No cards found
+>> /lib/moduless/2.2.19-2GB-SMP/scsi/3w-xxxx.o: init_module: Device or 
+>> resource busy
+>>
+>> I have tried compiling the 3ware driver version 1.02.00.{004,006,007} 
+>> all with the same result.  Has anyone managed to use a Suse 2.2.19 
+>> kernel with 3ware cards with any success?  The 1.02.00.004 driver is 
+>> from the stock 2.2.19 kernel, the .006 driver is from 3ware's 
+>> website, and the .007 driver is from 2.2.20pre9.
+>
 
-Maybe because I have ''been there done that''! This is exactly how
-things were when we brought up the ia64 port.
-
-Tom> If your
-Tom> platform doesn't have dlopen() working then yes, python2 will
-Tom> probably be pissed off.  I conceeded this last time too I think.
-Tom> If you're trying to bring up a platform compiling a kernel is a
-Tom> good test of having lots of things working.  With 2.6 it'll mean
-Tom> one more thing is at least somewhat working, dlopen().
-
-Do you have any idea how dlopen() actually works? It requires you to
-have dynamic loading working, that means shared libraries ... please
-do us a favor and go read the code in glibc in elf/*.c and
-sysdep/<some-arch>/dl-machine.h (plus a couple of other
-files). Implementing shared library support is ''very interesting''
-but it's by far the first thing you do on a new system.
-
-That aside, I am not aware whether Python2 actually requires dlopen to
-work well enough to run CML2.
-
-Tom> Or you
-Tom> can go and make a CML2 interp in C.  Or sh.  I'm quite happy
-Tom> cross compiling stuff until things get a bit farther along on a
-Tom> brand spanking new platform.
-
-Well I can tell you that most people would like to compile their
-kernels on the host even BEFORE they get shared libraries going.
-
-Ok, I think I have spent enough time on this discussion now, back to
-hacking.
-
-Jes

@@ -1,34 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265362AbUAAKMv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jan 2004 05:12:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265366AbUAAKMu
+	id S265368AbUAAKSU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jan 2004 05:18:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265370AbUAAKSU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jan 2004 05:12:50 -0500
-Received: from fw.osdl.org ([65.172.181.6]:39660 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265362AbUAAKMu (ORCPT
+	Thu, 1 Jan 2004 05:18:20 -0500
+Received: from dp.samba.org ([66.70.73.150]:34480 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S265368AbUAAKSM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jan 2004 05:12:50 -0500
-Date: Thu, 1 Jan 2004 02:12:41 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Neale Banks <neale@lowendale.com.au>
-Cc: paul@clubi.ie, linux-kernel@vger.kernel.org
-Subject: Re: chmod of active swap file blocks
-Message-Id: <20040101021241.31830e30.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.05.10401011905310.31562-100000@marina.lowendale.com.au>
-References: <Pine.LNX.4.56.0312291719160.16956@fogarty.jakma.org>
-	<Pine.LNX.4.05.10401011905310.31562-100000@marina.lowendale.com.au>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Thu, 1 Jan 2004 05:18:12 -0500
+Date: Thu, 1 Jan 2004 21:15:41 +1100
+From: Anton Blanchard <anton@samba.org>
+To: Joonas Kortesalmi <joneskoo@derbian.org>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: swapper: page allocation failure. order:3, mode:0x20
+Message-ID: <20040101101541.GJ28023@krispykreme>
+References: <20040101093553.GA24788@derbian.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040101093553.GA24788@derbian.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neale Banks <neale@lowendale.com.au> wrote:
->
-> How much of the original problem goes away if swapon(8) were to refuse to
->  activate a file/device which has ownership/mode which it doesn't like?
 
-I think swapon(8) should at least warn when the swapfile has inappropriate
-permissions.  It's an obvious and outright security hole.
+Hi,
+
+> After running 2.6.0 on a server for a few days, I met an interesting and
+> annoying problem. I was playing with NFS over gigabit ethernet (e1000) and
+> it was a bit slow. I tried to find out why by running top and I saw syslog-ng
+> eating almost 10% of the 1,3GHz Duron. Looked at the log and there was a huge
+> flood of these messages:
+> 
+> swapper: page allocation failure. order:3, mode:0x20
+> irssi: page allocation failure. order:3, mode:0x20
+> swapper: page allocation failure. order:3, mode:0x20
+> vim: page allocation failure. order:3, mode:0x20
+> swapper: page allocation failure. order:3, mode:0x20
+
+Its sounds like you are using either a large MTU (9k?) or TSO. TSO
+causes the networking stack to think it has a massive MTU and the e1000
+card busts it up into proper MTU sized packets. The problem is that
+it places much more stress on the allocator by asking for these large
+chunks of memory in interrupt context.
+
+Now e1000 uses TSO (and can regularly ask for 32kB+ kmallocs in
+interrupt context) perhaps we should look moving the rx buffer refill code
+into a context that can sleep. Then again its not like we can tolerate
+much latency in this code path, your rx ring will run out quite quickly :)
+
+BTW We have found increasing /proc/sys/vm/min_free_kbytes can help the
+situation a bit. Bumping the slab limits for the larger kmallocs (via
+echo X Y Z > /proc/slab) might be useful too.
+
+We should probably rate limit that printk. Andrew: I was thinking of
+stealing net_ratelimit and calling it core_ratelimit or whatever. Then
+wrap these non critical things with it. Overkill?
+
+Anton

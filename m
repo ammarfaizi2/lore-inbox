@@ -1,81 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266859AbTAZRew>; Sun, 26 Jan 2003 12:34:52 -0500
+	id <S266865AbTAZRmO>; Sun, 26 Jan 2003 12:42:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266865AbTAZRew>; Sun, 26 Jan 2003 12:34:52 -0500
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:5576 "EHLO
+	id <S266917AbTAZRmO>; Sun, 26 Jan 2003 12:42:14 -0500
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:49352 "EHLO
 	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S266859AbTAZRev>; Sun, 26 Jan 2003 12:34:51 -0500
-Date: Sun, 26 Jan 2003 11:43:44 -0600 (CST)
+	id <S266865AbTAZRmN>; Sun, 26 Jan 2003 12:42:13 -0500
+Date: Sun, 26 Jan 2003 11:51:22 -0600 (CST)
 From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
 X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Mark Fasheh <mark.fasheh@oracle.com>
-cc: Thomas Schlichter <schlicht@uni-mannheim.de>,
+To: Christian Zander <zander@minion.de>
+cc: Mark Fasheh <mark.fasheh@oracle.com>,
+       Thomas Schlichter <schlicht@uni-mannheim.de>,
        "Randy.Dunlap" <rddunlap@osdl.org>, Sam Ravnborg <sam@ravnborg.org>,
        LKML <linux-kernel@vger.kernel.org>,
        Rusty Russell <rusty@rustcorp.com.au>
 Subject: Re: no version magic, tainting kernel.
-In-Reply-To: <20030123193540.GD13137@ca-server1.us.oracle.com>
-Message-ID: <Pine.LNX.4.44.0301261054250.15538-100000@chaos.physics.uiowa.edu>
+In-Reply-To: <20030126132923.GB396@kugai>
+Message-ID: <Pine.LNX.4.44.0301261144430.15538-100000@chaos.physics.uiowa.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 23 Jan 2003, Mark Fasheh wrote:
+On Sun, 26 Jan 2003, Christian Zander wrote:
 
-> Can't the stuff in init/vermagic.c be moved into a header file? Maybe
-> vermagic.h? Most of the code can be cut 'n pasted right out of vermagic.c
-> and the bit that defines "const char vermagic[]..." could be placed inside a
-> macro which modules would then stick in the bottom of one of their c files.
-> This is what I'm getting at (warning I haven't checked this code or even
-> tried to clean it up):
+> Of course, this only holds true for external projects using kbuild to
+> build the modules; other build systems would not only require that a
+> complete, configured kernel source tree be installed, they would also
+> rely on that source tree to be uncleaned since they have no knowledge
+> of how init/vermagic.o is to be built (and shouldn't make assumptions,
+> not considering possible legal/licensing implications). This I really
+> do consider an unnecessary, burdensome prerequisite.
 
-Your suggestion is sensible, yet it is just an indication that you're 
-using the wrong way to build your external module.
+Well, what I'm trying to say is that external build system will always 
+break one way or other. Since they're external, they're naturally out of 
+reach for me to influence, so there's really nothing I can do it but 
+telling people to using the internal system instead.
 
-The thing is, open source projects like the linux kernel tend to move 
-fast, and they don't care about changing the interfaces are the way to 
-build things much, since you get the source and can recompile yourself. 
-Due to that fact, all solutions which try to build modules externally are 
-bound to fail sooner or later. IMO the only sensible way to overcome this 
-is to accept help from the kernel build system instead of adding one 
-kludge after the other to your home-made Makefile.
+> Somebody downloaded Linux 2.5.59, configured it and built it using a
+> pre-3.0 version of gcc, e.g. gcc 2.95. The user had plenty of disk
+> space and decided, based on past experiences, that leaving the source
+> tree uncleaned is least likely to cause problems, should he/she ever
+> be intersted in building third-party modules. For some time, the user
+> placed no interest in external modules and used his/her system quite
+> happily; with the release of a new, improved version of a driver, the
+> user decided that he wants to give it a try, however, and built the
+> driver module, which picked up init/vermagic.o; our imaginary user is
+> using a distribution that provides frequent updates and he/she makes
+> regular use of this service - it just so happens that one of these
+> updates installed gcc 3.0 as the new default compiler. The new module
+> is thus built using gcc 3.0, but init/vermagic.o still indicates gcc
+> 2.95; the module loader will erroneously believe everything is fine.
 
-The kernel build provides this facility today, use the
+Again, when you're using your own external build system, it's up to you to 
+mess it up in all possible ways, the above being one of them.
 
-	make -C $KERNELSRC SUBDIRS=$PWD approach 
-
-that Sam Ravnborg pointed out. It's true that it has not been clearly 
-separated how much of the kernel source tree is needed to do that, (it's 
-at least include/*, .config, scripts, init/, ...) so the rule is: You need 
-the entire configured kernel tree.
-
-Now, is that so bad? When you're building kernels yourself, you obviously 
-have enough room for a full tree anyway. When you're using a distribution, 
-you have to install the kernel source rpm anyway, to get the headers. For 
-all I know, these days the headers are not distributed separately from the 
-rest of the kernel source anymore..
-
-You might say that this is a regression w.r.t 2.4. But actually, even in 
-2.4, you need e.g. Makefile and arch/i386/Makefile to figure out the 
-correct flags and things for your compile, and those are not headers, 
-either.
-
-> in my_external_module.c, and init/vermagic.c I'd just do:
-> #include <linux/vermagic.h>
-> KERNEL_VERSIONMAGIC();
-
-This is a good solution to this specific problem. But it does not solve 
-the rest, e.g. your Makefile doesn't set -fomit-frame-pointer depending on 
-CONFIG_FRAME_POINTER. It doesn't set the proper march=x86 flags. IA-64 
-even needs a special flag just for modules. And it'll get even worse with 
-the reintroduction of module symbol versioning.
-
-So the above would work around this specific problem, leaving the other
-more subtle ones unsolved. And if you're using modules which have been
-built in such a fragile way with subtle differences, I think it's
-justified to have your kernel tainted.
+When you're using the kernel build, the above cannot happen, since the 
+kernel build system knows about this dependency and builds a new 
+init/vermagic.o with the correct information before it gets linked into 
+the external module.
 
 --Kai
 

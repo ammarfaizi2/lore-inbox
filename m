@@ -1,37 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264500AbUE0NuM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264546AbUE0NuF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264500AbUE0NuM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 May 2004 09:50:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264554AbUE0NuM
+	id S264546AbUE0NuF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 May 2004 09:50:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264554AbUE0NuE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 May 2004 09:50:12 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:18402
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S264500AbUE0Ntz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 May 2004 09:50:04 -0400
+Received: from [213.146.154.40] ([213.146.154.40]:60071 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S264550AbUE0Ntz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 27 May 2004 09:49:55 -0400
-Date: Thu, 27 May 2004 15:49:50 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: Andi Kleen <ak@muc.de>, "David S. Miller" <davem@redhat.com>,
-       mingo@elte.hu, riel@redhat.com, torvalds@osdl.org, arjanv@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: 4k stacks in 2.6
-Message-ID: <20040527134950.GB3889@dualathlon.random>
-References: <1ZQpn-1Rx-1@gated-at.bofh.it> <1ZQz8-1Yh-15@gated-at.bofh.it> <1ZRFf-2Vt-3@gated-at.bofh.it> <203Zu-4aT-15@gated-at.bofh.it> <206b3-5WN-33@gated-at.bofh.it> <20baw-1Lz-15@gated-at.bofh.it> <m38yff7zn3.fsf@averell.firstfloor.org> <20040527112705.GA21190@wohnheim.fh-wedel.de>
+Date: Thu, 27 May 2004 14:49:51 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Andi Kleen <ak@muc.de>
+Cc: Takao Indoh <indou.takao@soft.fujitsu.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]Diskdump - yet another crash dump function
+Message-ID: <20040527134951.GB15356@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andi Kleen <ak@muc.de>, Takao Indoh <indou.takao@soft.fujitsu.com>,
+	linux-kernel@vger.kernel.org
+References: <20pwP-55v-5@gated-at.bofh.it> <m3k6yyuhvz.fsf@averell.firstfloor.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040527112705.GA21190@wohnheim.fh-wedel.de>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <m3k6yyuhvz.fsf@averell.firstfloor.org>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 27, 2004 at 01:27:05PM +0200, Jörn Engel wrote:
-> Cool!  If that is included, I don't have any objections against 4k
-> stacks anymore.
+On Thu, May 27, 2004 at 03:19:44PM +0200, Andi Kleen wrote:
+> Takao Indoh <indou.takao@soft.fujitsu.com> writes:
+> >
+> > Diskdump can be downloaded from here.
+> >    http://sourceforge.net/projects/lkdump
+> > Please see readme.txt which can be downloaded from this site.
+> >
+> > Any comments?
+> 
+> I like the concept - it's basically netconsole for SCSI drivers
+> and the driver changes are surprisingly simple and clean.
+> 
+> But it would be better if it coexisted with LKCD so that netdump
+> would also work. Can't you make it a low level driver for LKCD? 
 
-note that it will introduce an huge slowdown, there's no way to enable
-that in production. But for testing it's fine.
+LKCD is horribly bloated.  IMHO it would be better to get a lean
+variant of netdump + possible this diskdump in instead of integrating
+it into the monster LKCD patch.
+

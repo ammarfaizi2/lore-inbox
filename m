@@ -1,82 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129061AbRBBRI0>; Fri, 2 Feb 2001 12:08:26 -0500
+	id <S129258AbRBBRRT>; Fri, 2 Feb 2001 12:17:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129169AbRBBRIQ>; Fri, 2 Feb 2001 12:08:16 -0500
-Received: from deliverator.sgi.com ([204.94.214.10]:53795 "EHLO
-	deliverator.sgi.com") by vger.kernel.org with ESMTP
-	id <S129061AbRBBRIC>; Fri, 2 Feb 2001 12:08:02 -0500
-Message-Id: <200102021708.f12H8QC11396@jen.americas.sgi.com>
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-To: Arun Rao <rao@pixar.com>
-cc: sct@redhat.com (Stephen C. Tweedie), linux-kernel@vger.kernel.org
-Subject: Re: Direct (unbuffered) I/O status ... 
-In-Reply-To: Message from Arun Rao <rao@pixar.com> 
-   of "Thu, 01 Feb 2001 15:35:44 PST." <3A79F2D0.8AA9F02D@pixar.com> 
-Date: Fri, 02 Feb 2001 11:08:26 -0600
-From: Steve Lord <lord@sgi.com>
+	id <S129367AbRBBRRK>; Fri, 2 Feb 2001 12:17:10 -0500
+Received: from pcow025o.blueyonder.co.uk ([195.188.53.125]:19717 "EHLO
+	blueyonder.co.uk") by vger.kernel.org with ESMTP id <S129258AbRBBRQ5>;
+	Fri, 2 Feb 2001 12:16:57 -0500
+Date: Fri, 2 Feb 2001 17:16:10 +0000
+From: Michael Pacey <michael@wd21.co.uk>
+To: Tom Sightler <ttsig@tuxyturvy.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 3Com 3c523 in IBM PS/2 9585: Can't load module in kernel 2.4.1
+Message-ID: <20010202171610.B344@kermit.wd21.co.uk>
+In-Reply-To: <20010201193250.B340@kermit.wd21.co.uk> <E14ORB4-000571-00@the-village.bc.nu> <20010201220624.E340@kermit.wd21.co.uk> <001a01c08bf0$74c47d60$02c8a8c0@zeusinc.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <001a01c08bf0$74c47d60$02c8a8c0@zeusinc.com>; from ttsig@tuxyturvy.com on Thu, Feb 01, 2001 at 01:44:01 +0000
+X-Mailer: Balsa 1.0.pre5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> We're trying to port some code that currently runs on SGI using the IRIX
-> direct I/O facility.  From searching the web, it appears that a similar
-> feature either already is or will soon be available under Linux.  Could
-> anyone fill me in on what the status is?
+
+On Thu, 01 Feb 2001 01:44:01 Tom Sightler wrote:
+
+> My patches also include changes that should improve this, but I doubt it
+> will eliminate the problem.  The basic thing here is that it's a horrid
+> card
+> in regards to performance and most of them only have 8K of buffer, it's
+> just
+> too easy to overrun the buffer, especially since the default is to
+> allocate
+> 4 transmit and 1 receive buffer (or 6 receive buffers it your lucky
+> enough
+> to have a 16K card).  Because of this the card drops packets like crazy,
+> which is bad for NFS, especially over UDP.  My patches basically change
+> the
+> buffer allocation to only a single transmit buffer and whatever is left
+> to
+> receive buffers, this puts the card in a different mode of operation
+> which
+> seems to allow it to almost keep up.  For me, this made the card usable,
+> I
+> still get drops, but their now much lower.
 > 
-> (I know about mapping block devices to raw devices, but that alone will
-> not work for the application we're contemplating: we'd like conventional
-> file-system support as well as unbuffered I/O capability).
+> I'm not sure this is your problem, but I bet if you look at you ifconfig
+> stats when your having the problem you'll see lots of dropped packets.
 > 
-> Thanks in advance!
-> 
-> -Arun
->
+> Even if you don't use the card, it's be nice to have another user test it
+> out before I submit the patch.
 
-I was going to let Stephen Tweedie respond to this one, but since he has
-not got to it yet...
+Yes, lot's of dropped packets during NFS dropout.
 
-Yes there has been talk of implementing filesystem I/O direct between user
-memory and the disk device. Stephen's approach was to use similar techniques to
-the raw I/O path to lock down the user pages, these would then be placed
-in the address space of the inode, and the filesystem would do its usual
-thing in terms of read or write. There are lots of end cases to this
-which make it more complex than it sounds, what happens if there is already
-data in the cache, what happens if someone memory maps the file in the
-middle of the I/O and lots of other goodies.
+This is great, even though I probably won't use the card; My friend has
+another 9585 and needs an ethernet card for that, and I'll be happy to test
+it on his behalf.
 
-I suspect implementing this is quite a ways off yet, and almost certainly
-a 2.5 feature for quite a while before it could possibly get into a 2.4
-kernel.
+My machine's working perfectly now... IBM PS/2 9585, 3Com 32529, Adaptec
+AHA1640, Linux 2.4.1, a 9GB RAID0 array care of the md driver, and ReiserFS
+running on top of that... filled with MP3's! (just testing...)
 
-Stephen is the one to give a real explaination of how he sees this working
-and when it might be done.
+Look forward to your patches.
 
-However, given the open source work SGI is doing with XFS, we are pretty much
-committed to supporting O_DIRECT on Linux XFS before this. There is
-a very basic implementation of O_DIRECT read in the current Linux XFS,
-it has not been tested in quite some time (i.e. it may be broken), and it is
-not coherent with the buffer cache. I hope we can have this cleaned up and
-write implemented in the next month or so.
+--
+Michael Pacey
+michael@wd21.co.uk
+ICQ: 105498469
 
-This would have the added advantage that even if you are moving stuff from
-Irix to Linux, you could at least take your existing filesystems with you.
-
-Steve
-
- 
-> 
-> --
-> Arun Rao
-> Pixar Animation Studios
-> 1200 Park Ave
-> Emeryville, CA 94608
-> (510) 752-3526
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
-> 
-
+wd21 ltd - world domination in the 21st century
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

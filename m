@@ -1,58 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269037AbUIXWzA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269034AbUIXW6H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269037AbUIXWzA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 18:55:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269032AbUIXWzA
+	id S269034AbUIXW6H (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 18:58:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269038AbUIXW6H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 18:55:00 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:10895 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S269031AbUIXWyf (ORCPT
+	Fri, 24 Sep 2004 18:58:07 -0400
+Received: from fw.osdl.org ([65.172.181.6]:56978 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269034AbUIXW56 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 18:54:35 -0400
-Message-ID: <4154A655.9040302@austin.ibm.com>
-Date: Fri, 24 Sep 2004 17:57:25 -0500
-From: Steven Pratt <slpratt@austin.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Peter Chubb <peterc@gelato.unsw.edu.au>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+	Fri, 24 Sep 2004 18:57:58 -0400
+Date: Fri, 24 Sep 2004 16:01:47 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Steven Pratt <slpratt@austin.ibm.com>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: [PATCH/RFC] Simplified Readahead
-References: <16723.43493.796084.90914@wombat.chubb.wattle.id.au>
-In-Reply-To: <16723.43493.796084.90914@wombat.chubb.wattle.id.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Message-Id: <20040924160147.27dbc589.akpm@osdl.org>
+In-Reply-To: <4154A2F7.1050909@austin.ibm.com>
+References: <4152F46D.1060200@austin.ibm.com>
+	<20040923194216.1f2b7b05.akpm@osdl.org>
+	<41543FE2.5040807@austin.ibm.com>
+	<20040924150523.4853465b.akpm@osdl.org>
+	<4154A2F7.1050909@austin.ibm.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Chubb wrote:
+Steven Pratt <slpratt@austin.ibm.com> wrote:
+>
+> >It's an application-specified readahead hint.  It should ideally be
+> >asynchronous so the application can get some I/O underway while it's
+> >crunching on something else.  If the queue is contested then the
+> >application will accidentally block when launching the readahead, which
+> >kinda defeats the purpose.
+> >  
+> >
+> Well if the app really does this asynchronously, does it matter that we 
+> block?
 
->>>>>>"Andrew" == Andrew Morton <akpm@osdl.org> writes:
->>>>>>            
->>>>>>
->
->Andrew> Steven Pratt <slpratt@austin.ibm.com> wrote:
->  
->
->>> The readahead code has undergone many changes in the 2.6 kernel
->>>and the current implementation is in my opinion obtuse and hard to
->>>maintain.
->>>      
->>>
->
->Andrew> It did get a bit ugly - it was intially designed to handle
->Andrew> pagefault readaround and perhaps could be further simplified
->Andrew> as we're now doing that independently.
->
->If you're coding up new readahead schemes, it may be worth taking into
->account Papathanasiou and Scott, `Energy Efficient Prefetching and
->Caching'
->( http://www.usenix.org/events/usenix04/tech/general/papathanasiou/papathanasiou_html/index.html
->)
->  
->
-Have not had time to look into this yet, but I will.  
+??  Not sure what you mean.
 
-Thanks, Steve
+posix_fadvise(POSIX_FADV_WILLNEED) is used by applications to tell the
+kernel that the application will need that part of the file in the future. 
+Presumably, the application has something else to be going on with
+meanwhile.  Hence the application doesn't want to block.
+
+> >Yes, the application will block when it does the subsequent read() anyway,
+> >but applications expect to block in read().  Seems saner this way.
+> >
+> Just to be sure I have this correct, the readahead code will be invoked 
+> once on the POSIX_FADV_WILLNEED request, but this looks mostly like a 
+> regular read, and then again for the same pages on a real read?
 
 
+yup.  POSIX_FADV_WILLNEED should just populate pagecache and should launch
+asynchronous I/O.

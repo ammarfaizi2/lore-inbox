@@ -1,65 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287919AbSA3BhO>; Tue, 29 Jan 2002 20:37:14 -0500
+	id <S287896AbSA3Bge>; Tue, 29 Jan 2002 20:36:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287933AbSA3BhG>; Tue, 29 Jan 2002 20:37:06 -0500
-Received: from dsl-213-023-043-145.arcor-ip.net ([213.23.43.145]:16010 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S287880AbSA3Bgy>;
-	Tue, 29 Jan 2002 20:36:54 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Jeff Garzik <garzik@havoc.gtf.org>, Stuart Young <sgy@amc.com.au>
+	id <S287919AbSA3BgS>; Tue, 29 Jan 2002 20:36:18 -0500
+Received: from mail1.amc.com.au ([203.15.175.2]:3077 "HELO mail1.amc.com.au")
+	by vger.kernel.org with SMTP id <S287880AbSA3Bf4>;
+	Tue, 29 Jan 2002 20:35:56 -0500
+Message-Id: <5.1.0.14.0.20020130123300.02325d10@mail.amc.localnet>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Wed, 30 Jan 2002 12:35:52 +1100
+To: <linux-kernel@vger.kernel.org>
+From: Stuart Young <sgy@amc.com.au>
 Subject: Re: A modest proposal -- We need a patch penguin
-Date: Wed, 30 Jan 2002 02:41:11 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org,
-        Olaf Dietsche <olaf.dietsche--list.linux-kernel@exmail.de>,
-        John Weber <weber@nyc.rr.com>
-In-Reply-To: <3C5600A6.3080605@nyc.rr.com> <5.1.0.14.0.20020130113958.00a04390@mail.amc.localnet> <20020129201806.B12201@havoc.gtf.org>
-In-Reply-To: <20020129201806.B12201@havoc.gtf.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16VjkO-0000BM-00@starship.berlin>
+Cc: Andi Kleen <ak@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
+        Nathan Scott <nathans@sgi.com>, Andreas Gruenbacher <ag@bestbits.at>
+In-Reply-To: <Pine.LNX.4.33.0201291552170.1747-100000@penguin.transmeta.
+ com>
+In-Reply-To: <20020130104004.C81308@wobbly.melbourne.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On January 30, 2002 02:18 am, Jeff Garzik wrote:
-> On Wed, Jan 30, 2002 at 12:00:11PM +1100, Stuart Young wrote:
-> > Perhaps it's time we set up a specific lkml-patch mailing list, and leave 
-> 
-> I like the suggestion (most recently, of Daniel?  pardon if I
-> miscredit) of having patches-2.[45]@vger.kernel.org type addresses,
-> which would archive patches, and have a high noise-to-signal ratio.
-> Maybe even filter out all non-patches.
-> 
-> The big issue I cannot decide upon is whether standard e-mails should be
-> 	To: torvalds@
-> 	CC: patches-2.4@
-> or just
-> 	To: patches-2.4@
-> 
-> (I'm guessing Linus would prefer the first, but who knows)
+At 03:59 PM 29/01/02 -0800, Linus Torvalds wrote:
+>Basically, you should always consider email to me to be a unreliable
+>medium, with no explicit congestion control. So think of an email like a
+>TCP packet, with exponential backoff - except the times are different (in
+>TCP, the initial timeout is three seconds, and the max timeout is 2
+>minutes. In "Linus-lossy-network" it makes sense to use different
+>default and maximum values ;)
 
-I'd say: cc Linus specifically if you think it's something he'd find 
-personally interesting.  Leave out the cc if it's a minor bugfix or 
-maintainance.
+Actually it's more like UDP. *grin* Least with TCP we get an ACK that the 
+connection is accepted, and some sort of status is kept. Not so sure we 
+have that with you all the time.
 
-Oh, as somebody suggested in this thread, there is a difference in priority 
-between bugfixes and other kinds of patches.  Should buxfixes go to 
-patches-xxx@kernel.org with [BUGFIX] in the subject, or would 
-bugs-xxx@kernel.org be a better idea?
+But hey, lots of things run over UDP, just a matter of making sure everyone 
+realizes it's not a guaranteed medium really, isn't it?
 
-> Also, something noone has mentioned is out-of-band patches.  Security fixes
-> and other patches which for various reasons go straight to Linus.
 
-Out-of-band patches are not going to stop.  The difference is, they will be 
-duly noticed after the fact because they should be relatively few in 
-comparison to in-band patches.
+Stuart Young - sgy@amc.com.au
+(aka Cefiar) - cefiar1@optushome.com.au
 
-Another kind of out-of-band patch is where Linus takes the basic idea from 
-somebody's patch and completely rewrites it, or does some hacking on his own, 
-which he's been known to do.  Somehow I wouldn't expect he'd bother emailing 
-the results to himself.
+[All opinions expressed in the above message are my]
+[own and not necessarily the views of my employer..]
 
--- 
-Daniel

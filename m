@@ -1,106 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268957AbUIXRLt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268968AbUIXRQH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268957AbUIXRLt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 13:11:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268950AbUIXRI3
+	id S268968AbUIXRQH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 13:16:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268933AbUIXQfh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 13:08:29 -0400
-Received: from smtp08.web.de ([217.72.192.226]:36498 "EHLO smtp08.web.de")
-	by vger.kernel.org with ESMTP id S268957AbUIXRHY (ORCPT
+	Fri, 24 Sep 2004 12:35:37 -0400
+Received: from atlrel8.hp.com ([156.153.255.206]:34179 "EHLO atlrel8.hp.com")
+	by vger.kernel.org with ESMTP id S268911AbUIXQRL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 13:07:24 -0400
-Message-ID: <41545421.5080408@web.de>
-Date: Fri, 24 Sep 2004 19:06:41 +0200
-From: Michael Hunold <hunold-ml@web.de>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
-X-Accept-Language: en-us, en
+	Fri, 24 Sep 2004 12:17:11 -0400
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: "Rui Nuno Capela" <rncbc@rncbc.org>
+Subject: Re: OHCI_QUIRK_INITRESET (was: 2.6.9-rc2-mm2 ohci_hcd doesn't work)
+Date: Fri, 24 Sep 2004 10:16:46 -0600
+User-Agent: KMail/1.7
+Cc: "Ingo Molnar" <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       "David Brownell" <david-b@pacbell.net>,
+       "Karsten Wiese" <annabellesgarden@yahoo.de>,
+       "David Brownell" <dbrownell@users.sourceforge.net>,
+       "Roman Weissgaerber" <weissg@vienna.at>,
+       linux-usb-devel@lists.sourceforge.net, "K.R. Foley" <kr@cybsft.com>
+References: <414F8CFB.3030901@cybsft.com> <20040924125500.GB9369@elte.hu> <25766.195.245.190.94.1096034422.squirrel@195.245.190.94>
+In-Reply-To: <25766.195.245.190.94.1096034422.squirrel@195.245.190.94>
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Michael Hunold <hunold@linuxtv.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       sensors@stimpy.netroedge.com
-Subject: Re: [PATCH][2.6] Add command function to struct i2c_adapter
-References: <414F111C.9030809@linuxtv.org> <20040921154111.GA13028@kroah.com>
-In-Reply-To: <20040921154111.GA13028@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_uhEVBMvDJ6U8xrf"
+Message-Id: <200409241016.46201.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+--Boundary-00=_uhEVBMvDJ6U8xrf
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-On 21.09.2004 17:41, Greg KH wrote:
-> On Mon, Sep 20, 2004 at 07:19:24PM +0200, Michael Hunold wrote:
-> 
->> 
->>+	/* a ioctl like command that can be used to perform specific functions
->>+	 * with the adapter.
->>+	 */
->>+	int (*command)(struct i2c_adapter *adapter, unsigned int cmd, void *arg);
-> 
-> 
-> Ick ick ick.  We don't like ioctls for the very reason they aren't type
-> safe, and you can pretty much stick anything in there you want.  So
-> let's not try to add the same type of interface to another subsystem.
+My box has:
 
-Ok, Gerd Knorr and I have been discussing this and we have come up with 
-the following idea.
+0000:00:0f.2 USB Controller: ServerWorks OSB4/CSB5 OHCI USB Controller (rev 05) (prog-if 10 [OHCI])
+        Subsystem: ServerWorks OSB4/CSB5 OHCI USB Controller
+        Flags: bus master, medium devsel, latency 64, IRQ 10
+        Memory at f5e70000 (32-bit, non-prefetchable)
 
-We like to have an completly isolated i2c adapter, where the device 
-driver can invite i2c drivers to connect an i2c client to. When the 
-connection is made, an "interface" pointer with client-specific data or 
-function pointers can be provided.
+0000:00:0f.2 Class 0c03: 1166:0220 (rev 05)
 
-- i2c adapter and i2c clients register themselves as usual
+The attached patch (which applies on top of Rui's patch for
+ALI M5237) fixes the problem for my DL360.  Here's the relevant
+output:
 
-- add a new NO_PROBE flag to struct i2c_adapter, so a particular adapter 
-is never probed by anyone
+ohci_hcd 0000:00:0f.2: ServerWorks OSB4/CSB5 OHCI USB Controller
+ohci_hcd 0000:00:0f.2: irq 10, pci mem 0xf5e70000
+ohci_hcd 0000:00:0f.2: new USB bus registered, assigned bus number 1
+ohci_hcd 0000:00:0f.2: Serverworks OSB4/CSB5 init quirk
+hub 1-0:1.0: USB hub found
+hub 1-0:1.0: 4 ports detected
+USB Universal Host Controller Interface driver v2.2
 
-- add these two functions to struct i2c_driver:
-int (*connect)(struct i2c_adapter *adapter, void *interface, struct 
-i2c_client **client);
-int (*disconnect)(struct i2c_client *client);
+Thanks for chasing this down!
 
-- add new generic i2c functions:
-struct i2c_driver* i2c_driver_get(char *name);
-void i2c_driver_put(struct i2c_driver *drv);
+--Boundary-00=_uhEVBMvDJ6U8xrf
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="ohci_pci-serverworks-quirk-initreset.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="ohci_pci-serverworks-quirk-initreset.patch"
 
-- the dvb-ttpci driver now can do the following:
+diff -u -ur 2.6.9-rc2-mm2-orig/drivers/usb/host/ohci-pci.c 2.6.9-rc2-mm2/drivers/usb/host/ohci-pci.c
+--- 2.6.9-rc2-mm2-orig/drivers/usb/host/ohci-pci.c	2004-09-24 09:52:43.000000000 -0600
++++ 2.6.9-rc2-mm2/drivers/usb/host/ohci-pci.c	2004-09-24 09:50:44.000000000 -0600
+@@ -102,6 +102,13 @@
+ 			ohci_info (ohci, "ALI M5237 init quirk\n");
+ 		}
+ 
++		/* Serverworks OSB4/CSB5 also acts wierd during init */
++		else if (pdev->vendor == PCI_VENDOR_ID_SERVERWORKS
++				&& pdev->device == PCI_DEVICE_ID_SERVERWORKS_OSB4USB) {
++			ohci->flags = OHCI_QUIRK_INITRESET;
++			ohci_info (ohci, "Serverworks OSB4/CSB5 init quirk\n");
++		}
++
+ 	}
+ 
+ 	/* NOTE: there may have already been a first reset, to
 
-struct stv0299_interface {
-	struct dvb_adapter *dvb_adap;
-	int tuner_addr;
-};
-
-struct stv0299_interface s_if;
-struct i2c_driver *drv;
-struct i2c_client *clt;
-
-request_module("stv0299");
-drv = i2c_driver_get("stv0299");
-// fill s_if here
-drv->connect(adap, &s_if, &clt);
-
-Now inside the "connect" function of the stv0299 demodulator i2c driver 
-the device is probed, registered to the adapter and the pointer to the 
-interface with the h/w dependend information is stored.
-
-> thanks,
-> greg k-h
-
-The crucial point is probably the void * interface pointer, isn't it? Is 
-this a no-no in this situation?
-
-The dvb-ttpci driver is inviting a very specific driver, no probing 
-involved. The driver interface is well-defined and will only be hidden 
-behind the void * pointer to avoid a functional reference to the 
-demodulator driver.
-
-We have discussed simply adding a type-safe stv0299-specific connect 
-function as well, but that would introduce a functional dependency. The 
-dvb-ttpci driver can be used with about 8 different frontend drivers, so 
-loading the driver would cause unnecessary frontend drivers to be loaded 
-as well.
-
-CU
-Michael.
+--Boundary-00=_uhEVBMvDJ6U8xrf--

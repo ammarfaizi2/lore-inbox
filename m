@@ -1,54 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261370AbUCKPLb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 10:11:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261395AbUCKPLb
+	id S261388AbUCKPTa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 10:19:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261407AbUCKPTa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 10:11:31 -0500
-Received: from furon.ujf-grenoble.fr ([152.77.2.202]:16558 "EHLO
-	furon.ujf-grenoble.fr") by vger.kernel.org with ESMTP
-	id S261370AbUCKPLG convert rfc822-to-8bit (ORCPT
+	Thu, 11 Mar 2004 10:19:30 -0500
+Received: from relay-6v.club-internet.fr ([194.158.96.111]:1181 "EHLO
+	relay-6v.club-internet.fr") by vger.kernel.org with ESMTP
+	id S261388AbUCKPTW convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 10:11:06 -0500
-From: Mickael Marchand <marchand@kde.org>
-To: Andi Kleen <ak@muc.de>
-Subject: Re: 2.6.4-mm1
-Date: Thu, 11 Mar 2004 16:10:02 +0100
-User-Agent: KMail/1.6.1
-Cc: linux-kernel@vger.kernel.org, dm@uk.sistina.com
-References: <1ysXv-wm-11@gated-at.bofh.it> <200403111445.35075.marchand@kde.org> <20040311144829.GA22284@colin2.muc.de>
-In-Reply-To: <20040311144829.GA22284@colin2.muc.de>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200403111610.02128.marchand@kde.org>
+	Thu, 11 Mar 2004 10:19:22 -0500
+From: pinotj@club-internet.fr
+To: linux-kernel@vger.kernel.org
+Subject: [i386] 2.6.4 + cdrtools-2.01a27 REPORT
+Date: Thu, 11 Mar 2004 16:19:21 CET
+Mime-Version: 1.0
+X-Mailer: Medianet/v2.0
+Message-Id: <mnet5.1079018361.4673.pinotj@club-internet.fr>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-just the ioctl cmd failed I reported in my first mail.
-then dmsetup just stops...
+Hi,
 
-Cheers,
-Mik
+I just wanted to report that cdrtools-2.01a27 seems to works well
+with the new 2.6.4 kernel via ide-cd but there is a tricky thing
+to know in order to compile the package, I had to use:
 
-Le jeudi 11 Mars 2004 15:48, Andi Kleen a écrit :
-> > hmm right now, dm/lvm absolutely does not work on amd64/32 bits. all
-> > ioctls calls are failling...
->
-> With no messages in the log?
->
-> Maybe they have broken data structures again, most likely
-> because of different long long alignment. A lot of people
-> who attempt to design data structures that don't need translation
-> get that wrong unfortunately.
->
-> Emulating that stuff would be hard unfortunately because it has an rather
-> over complicated ioctl structure that would be hard to write sane
-> emulation code for.
->
-> Complain to the DM maintainers.
-already did.
+make COPTX='-Du8=UInt8_t -D__attribute_const__=__const__'
 
+..to succeed compiling the libscg and so the binaries.
+The first macro apply to linux/include/scsi/scsi.h and the
+second to linux/include/asm-i386/byteorder.h
+
+The burning process was OK for me but I would like to know if
+ there is possibly some bad side effects and why __const__ was changed for __attribute_const__ (yeah, I don't know the difference and I'm curious ;-)
+
+I post this because I think it will maybe help some people that want to switch to a 2.6 and burn some CD quickly.
+
+Regards,
+
+Jerome Pinot
 

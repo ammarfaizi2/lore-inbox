@@ -1,53 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270464AbRIYTVk>; Tue, 25 Sep 2001 15:21:40 -0400
+	id <S272588AbRIYTYb>; Tue, 25 Sep 2001 15:24:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272588AbRIYTVb>; Tue, 25 Sep 2001 15:21:31 -0400
-Received: from scispor.dolphinics.no ([193.71.152.117]:48900 "EHLO
-	scispor.dolphinics.no") by vger.kernel.org with ESMTP
-	id <S270464AbRIYTVU> convert rfc822-to-8bit; Tue, 25 Sep 2001 15:21:20 -0400
-Message-ID: <200109252125050609.3061D3F9@scispor.dolphinics.no>
-X-Mailer: Calypso Version 3.00.03.02 (1)
-Date: Tue, 25 Sep 2001 21:25:05 +0200
-From: "Simen Thoresen" <simentt@dolphinics.no>
-To: "alan" <alan@lxorguk.ukuu.org.uk>, andre@aslab.com
-Cc: linux-kernel@vger.kernel.org
-Subject: repeatable hard hang with 2.2.19+ide.2.2.19.05042001
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	id <S272668AbRIYTYV>; Tue, 25 Sep 2001 15:24:21 -0400
+Received: from [209.202.108.240] ([209.202.108.240]:27659 "EHLO
+	terbidium.openservices.net") by vger.kernel.org with ESMTP
+	id <S272588AbRIYTYI>; Tue, 25 Sep 2001 15:24:08 -0400
+Date: Tue, 25 Sep 2001 15:24:18 -0400 (EDT)
+From: Ignacio Vazquez-Abrams <ignacio@openservices.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: Binary only module overview
+In-Reply-To: <20010925200947.B7174@itsolve.co.uk>
+Message-ID: <Pine.LNX.4.33.0109251522050.21994-100000@terbidium.openservices.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-scanner: scanned by Inflex 1.0.7 - (http://pldaniels.com/inflex/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Box is a dual P3 866 on a ViA Apollo Pro 133A card (Epox D3VA).
-The ide patch is neccesary for the HPT370 controllers (one onboard + one on addon card).
-Kernel is compiled using the same config as working 2.2.17+ide.2.2.17.all.20000904, with the addition of CONFIG_BLK_DEV_VIA82CXXX. 
-No other patches are applied.
+On Tue, 25 Sep 2001, Mark Zealey wrote:
 
-Hang occurs during boot after listing ide devices on controllers;
+> On Tue, Sep 25, 2001 at 08:44:39AM -0700, Greg KH wrote:
+>
+> > On Mon, Sep 24, 2001 at 12:40:44PM -0400, Arjan van de Ven wrote:
+> > >
+> > > I'm composing a list of all existing binary only modules,
+> >
+> > Argus System's PitBull for Linux modifies the kernel.  No source or
+> > patches for these modifications can be found on the web, so I'm guessing
+> > that it's closed source:
+> > 	http://www.argus-systems.com/
+>
+> Umm, is it me or is that totally against the GPL? Have you bitched at them about
+> this?
 
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
-ide2 at 0x9800-0x9807,0x9c02 on irq 16
-ide3 at 0xa000-0xa007,0xa402 on irq 16
-ide4 at 0xac00-0xac07,0xb002 on irq 16
-ide5 at 0xb400-0xb407,0xb802 on irq 16
-<hang>
+IIRC, the GPL only talks about _modifications_of_ GPLed code, not
+_modifications_made_to_. Argus is treading a line, but it may not be doing
+anything illegal.
 
-On the working kernel, the next entry here is
-hda: IBM-DTLA-305020, 19623MB w/380kB Cache, CHS=39870/16/63, UDMA(33)
-(the table above seems identical on the working 2.2.17 and 2.2.19 kernels)
-
-After the listing above, the system hangs without any other output. Scrollback is not working.
-
-As I'm currently using the 2.2.17 kernel and things are perfectly stable there, this is non-critical for me, but it might be of interest for others. The system is non-critical, so I can perform further tests on request.
-
-Yours,
--S
---
-Simen Thoresen, Beowulf-cleaner and random artist - close and personal.
-
-Er det ikke rart?
-The gnu RART-project on http://valinor.dolphinics.no:1080/~simentt/rart
-
+-- 
+Ignacio Vazquez-Abrams  <ignacio@openservices.net>
 

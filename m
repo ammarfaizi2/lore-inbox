@@ -1,85 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262574AbUILVal@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262279AbUILVgf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262574AbUILVal (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Sep 2004 17:30:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262605AbUILVal
+	id S262279AbUILVgf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Sep 2004 17:36:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262605AbUILVgf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Sep 2004 17:30:41 -0400
-Received: from MAIL.13thfloor.at ([212.16.62.51]:7080 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S262574AbUILVaf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Sep 2004 17:30:35 -0400
-Date: Sun, 12 Sep 2004 23:30:34 +0200
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
-Subject: Re: displaying kbuild dependancies ...
-Message-ID: <20040912213034.GD24240@MAIL.13thfloor.at>
-Mail-Followup-To: Sam Ravnborg <sam@ravnborg.org>,
-	linux-kernel@vger.kernel.org
-References: <20040911202548.GA31680@MAIL.13thfloor.at> <20040911213931.GA22403@mars.ravnborg.org>
+	Sun, 12 Sep 2004 17:36:35 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:60549 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S262279AbUILVgd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Sep 2004 17:36:33 -0400
+Subject: Re: [PATCH 1/3] Separate IRQ-stacks from 4K-stacks option
+From: Lee Revell <rlrevell@joe-job.com>
+To: Andrea Arcangeli <andrea@novell.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Chris Wedgwood <cw@f00f.org>,
+       Arjan van de Ven <arjanv@redhat.com>, Hugh Dickins <hugh@veritas.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Christoph Hellwig <hch@infradead.org>
+In-Reply-To: <20040912203308.GA3049@dualathlon.random>
+References: <593560000.1094826651@[10.10.2.4]>
+	 <Pine.LNX.4.44.0409101555510.16784-100000@localhost.localdomain>
+	 <20040910151538.GA24434@devserv.devel.redhat.com>
+	 <20040910152852.GC15643@x30.random>
+	 <20040910153421.GD24434@devserv.devel.redhat.com>
+	 <1095016687.1306.667.camel@krustophenia.net>
+	 <20040912192515.GA8165@taniwha.stupidest.org>
+	 <20040912193542.GB28791@elte.hu>  <20040912203308.GA3049@dualathlon.random>
+Content-Type: text/plain
+Message-Id: <1095025000.22893.52.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040911213931.GA22403@mars.ravnborg.org>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sun, 12 Sep 2004 17:36:41 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 11, 2004 at 11:39:31PM +0200, Sam Ravnborg wrote:
-> On Sat, Sep 11, 2004 at 10:25:48PM +0200, Herbert Poetzl wrote:
-> > 
-> > Hi Sam!
-> > 
-> > first, thanks for the kbuild stuff and all the 
-> > time spent on that ... I really love it
-> > 
-> > 
-> > from time to time I encounter some issue which
-> > usually keeps me busy for a while, and I think
-> > there probably is a simpler solution to that ...
-> > 
-> > the procedure:
-> > 
-> > I'm configuring a 2.6.X-rcY-bkZ kernel for testing
-> > with QEMU, which in my setup basically requires
-> > some QEMU specific settings, I usually turn on/off
-> > by just editing the .config file by hand, and then
-> > invoking 'make oldconfig' ...
-> > 
-> > to keep the possibility for error low, I usually
-> > just remove the entries in question, and oldconfig
-> > will ask me the relevant question, leading to a
-> > nice config adapted to my purposes ...
-> > 
-> > the issue:
-> > 
-> > sometimes a dependancy doesn't allow me to remove
-> > a config option, I absolutely have to remove for
-> > my setup, like the VGA_CONSOLE, and then the hunt
-> > for the option 'requiring' that one unconditinally
-> > beginns ...
-> > 
-> > usually I start with grep and end with trial and
-> > error, until I find the malicious dependancy ...
+On Sun, 2004-09-12 at 16:33, Andrea Arcangeli wrote:
+> On Sun, Sep 12, 2004 at 09:35:42PM +0200, Ingo Molnar wrote:
+> > no. A 2 msec nonpreemptable delay is a 2 msec delay, irqs on or off
+> > alike.
 > 
-> The only option today is to turn on the debug option
-> in 'make xconfig'.
+> irq-latency is an order of magnitude higher prio, than the scheduler
+> latency. above you only talk about scheduler latency.
+> 
 
-hmm, so no luck for the typical console user  :(
+But in this case the hardirq handler can run for 2ms, which caused a
+scheduler latency problem, because nothing could run but other IRQs. 
+The IRQ threading in Ingo's patches solves the problem, and seems to me
+to be the correct solution.
 
-> I have been looking inot something better for menuconfig
-> but frankly kconfig is not where I feel most comfortable.
+> hence I don't think not allowing nested irqs at all is a good idea and
+> it's a nice feature to support them.
 
-it would be sufficient to be able to turn on some
-debug output, which says 'foo selected from bla'
-or 'foo disabled, requires bla and whatnot' ...
+Agreed.  I was just pointing out that in addition to being a bad idea it
+wouldn't work unless the IDE i/o completion issue is addressed.
 
-anyway, thanks for the feedback,
-Herbert
+The issue IIRC was the potential for stack overflow with 4K stacks if we
+get deeply nested IRQs.  I believe the VP patches allow you to see the
+IRQ nesting in the logs, you could probably grep the logs for these
+incidents.
 
-> 	Sam
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Seems like you could test the stack overflow theory by setting up a
+stream of interrupts from the sound card and RTC to coincide with the
+timer interrupt, then stressing the disks and network.
+
+Lee
+
+
+

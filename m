@@ -1,46 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262518AbREUW12>; Mon, 21 May 2001 18:27:28 -0400
+	id <S262522AbREUW2s>; Mon, 21 May 2001 18:28:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262520AbREUW1S>; Mon, 21 May 2001 18:27:18 -0400
-Received: from [216.247.238.190] ([216.247.238.190]:24325 "HELO
-	bisma.solotech.com") by vger.kernel.org with SMTP
-	id <S262518AbREUW1J>; Mon, 21 May 2001 18:27:09 -0400
-From: tryggveh@pakistanmail.com
-Reply-to: tryggveh@pakistanmail.com
-To: linux-kernel@vger.kernel.org
-Date: Mon, 21 May 2001 18:28:28 -0400
-Subject: 2.4.4-ac11 initrd image load from floppy hang keyboard
-Message-id: <3b09404b.48f1.0@pakistanmail.com>
-X-User-Info: 212.33.131.67
+	id <S262521AbREUW2i>; Mon, 21 May 2001 18:28:38 -0400
+Received: from chia.umiacs.umd.edu ([128.8.120.111]:43228 "EHLO
+	chia.umiacs.umd.edu") by vger.kernel.org with ESMTP
+	id <S262520AbREUW2c>; Mon, 21 May 2001 18:28:32 -0400
+Date: Mon, 21 May 2001 18:28:30 -0400 (EDT)
+From: Adam <adam@cfar.umd.edu>
+X-X-Sender: <adam@chia.umiacs.umd.edu>
+To: <linux-kernel@vger.kernel.org>
+Subject: debugging xterm. 
+Message-ID: <Pine.GSO.4.33.0105211827350.18075-100000@chia.umiacs.umd.edu>
+X-WEB: http://www.eax.com
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
 
-I tried 2.4.4-ac11, plain kernel for booting custom installer, and loading an
+I'm trying to debug xterm and it seems like it is just not my day (I
+suppose the "Abandon All Hope, Ye Who Enter Here" in the README for xterm
+is for a reason there after all :P )
 
-initrd image from a secondary floppydisk, using syslinux 1.62 to boot the kernel.
+I running gdb on xterm. I'm running it as root, the current execution is
+at main.c:main() and gdb seems to get lost when calling getuid), any idea?
+Is there something special about getuid() I'm missing?
+
+(gdb) next
+1612                uid_t ruid = getuid();
+2: screen->respond = 1448543468
+1: screen = (TScreen *) 0x4000ae60
+(gdb) next
+1613                gid_t rgid = getgid();
+2: screen->respond = Cannot access memory at address 0x4
+Disabling display 2 to avoid infinite recursion.
+(gdb)
+
+it does not know where screen data structure is anymore..
 
 
-These parameters were used:
-ramdisk_start=0 load_ramdisk=1 prompt_ramdisk=1 ramdisk_size=12288 root=/dev/fd/0
+
+-- 
+Adam
+http://www.eax.com	The Supreme Headquarters of the 32 bit registers
 
 
-This resulted in hanged keyboard, no response. But screenblanking obviously
 
-worked as the screen blacked out after some time.
-
-But the keyboard no response, not even Ctrl + Alt + Del worked.
-
-The same kernel configuration on vanilla 2.4.4 worked fine.
-
-So... something is terribly wrong here.
-
---
-Tryggve
-_______________________________________________________________________
-Get your free @pakistanmail.com email address   http://pakistanmail.com

@@ -1,112 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261541AbUCBCMH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Mar 2004 21:12:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261544AbUCBCMH
+	id S261542AbUCBCc1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Mar 2004 21:32:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261550AbUCBCc1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Mar 2004 21:12:07 -0500
-Received: from bay14-dav4.bay14.hotmail.com ([64.4.48.108]:14610 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S261541AbUCBCMB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Mar 2004 21:12:01 -0500
-X-Originating-IP: [152.3.119.245]
-X-Originating-Email: [filamoon2@hotmail.com]
-From: "Charlie \(Zhanglei\) Wang" <filamoon2@hotmail.com>
-To: "Denis Vlasenko" <vda@port.imtp.ilyichevsk.odessa.ua>,
-       <linux-kernel@vger.kernel.org>
-References: <BAY14-F68kiyPoHZgzD000006ad@hotmail.com> <200402282255.18609.vda@port.imtp.ilyichevsk.odessa.ua>
-Subject: Re: udp packet loss even with large socket buffer
-Date: Mon, 1 Mar 2004 21:12:04 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="koi8-r"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-Message-ID: <BAY14-DAV4PA2sRlnbM000155ac@hotmail.com>
-X-OriginalArrivalTime: 02 Mar 2004 02:12:00.0456 (UTC) FILETIME=[BF1A6C80:01C3FFFB]
+	Mon, 1 Mar 2004 21:32:27 -0500
+Received: from cryptobackpack.org ([68.164.243.10]:1694 "EHLO
+	mail.cryptobackpack.org") by vger.kernel.org with ESMTP
+	id S261542AbUCBCcY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Mar 2004 21:32:24 -0500
+Date: Mon, 1 Mar 2004 18:30:08 -0800
+From: David Bryson <david@tsumego.com>
+To: linux-kernel@vger.kernel.org
+Subject: circular pivot_root, is this possible ?
+Message-ID: <20040302023008.GA8037@heliosphan.futuretel.com>
+Reply-To: David Bryson <david@tsumego.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="vtzGhvizbBRQ85DL"
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
 
-Thanks for your reply. If you want to exactly reproduce my problem, please
-use the following
-commands to download my codes from cvs:
+--vtzGhvizbBRQ85DL
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-cvs -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/gaim-vv login
-cvs -z3 -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/gaim-vv co
-linphone
+Greetings!
+I'm working on some embedded applications and I am wondering if
+something like the following is possible.  I have implemented most of
+this but the last few steps are a bit of a mystery to me... and after
+reading many threads in the lkml archives I don't believe it's
+possible, but I thought I'd ask anyway.
 
-Simply hit enter when prompted for passwd.
-(1) Please download and install libosip before compiling.
-(2) Before ./configure, please run command 'rm -Rf ffmpeg; ln -s
-ffmpeg-0.4.8 ffmpeg'.
-(3) After 'make' and 'make install', use 'linphonec' to run the program.
-(4) Under linphonec, use the following commands to communicate with windows
-messenger:
-   r www-db.research.bell-labs.com
-   c <sip:username_of_windows_messenger@www-db.research.bell-labs.com>
+flash media contains two filesystem images, an initrd.gz, a
+sys.img(cramfs), and a kernel
 
-www-db.research.bell-labs.com is a public sip server.
+1) kernel boots with initrd.gz as root, loading into ram0
+2) initrd mounts the flash filesystem, and loads sys.img via loopback
+3) a tmpfs is created, contents of sys.img are copied into the tmpfs
+4) system does a pivot_root on the tmpfs, passing the initrd as
+well(somewhere on the tmpfs filesytem)
+5) system begins normal operation
 
-Under Windows Messenger (which runs only under WinXP), use SIP login
-method. Sign-in name should be
-username_of_windows_messenger@www-db.research.bell-labs.com
+This works find and is fairly easy.  The next part is what I am having
+trouble with.
 
-Please note that Windows Messenger is different from MSN Messenger.
+Say the system needs an upgrade.... I want to
 
-I know it's kind of complicated... :( Thank you in advance!
-PS: My Linux box and Windows XP box run in the same LAN.
+1) pivot_root _back out_ of the tmpfs, onto the initrd again
+2) obtain via network a new sys.img, write it to the flash
+3) wipe tmpfs, and recopy the contents of the new sys.img into memory
+4) pivot_root back into the tmpfs and start the higher level system
+again
 
-Johnny
+pivot_root circles around root filesystems as various tasks are
+completed.
 
------ Original Message ----- 
-From: "Denis Vlasenko" <vda@port.imtp.ilyichevsk.odessa.ua>
-To: "johnny zhao" <filamoon2@hotmail.com>; <linux-kernel@vger.kernel.org>
-Sent: Saturday, February 28, 2004 4:22 PM
-Subject: Re: udp packet loss even with large socket buffer
+Somehow init isn't behaving properly with me on this.  My first
+attempts included an init on both initrd.gz and sys.img.  Having two
+init's running at normal system startup.  This did not work well but
+got the job done, as init(PID:1 on the initrd) was running as well as
+init(some other PID on sys.img)
 
+Eventually I tried only running a script on the initrd.gz to get the
+system pivot_root'd to tmpfs.  But if I attempted to start the
+circular pivot_root behavior(back to the inird) I still ended up with
+init(PID:1) on the tmpfs, while my rootfs was in the initrd again.
+Additionally I couldn't unmount devfs because I am assuming the old
+processes running under init are still using it.
 
-> On Saturday 28 February 2004 03:09, johnny zhao wrote:
-> > Hi,
-> >
-> > I have a problem when trying to receive udp packets containing video
-data
-> > sent by Microsoft Windows Messenger. Here is a detailed description:
-> >
-> > Linux box:
-> >     Linux-2.4.21-0.13mdksmp, P4 2.6G HT
-> > socket mode:
-> >     blocked mode
-> > code used:
-> >     while ( recvfrom(...) )
-> > socket buffer size:
-> >     8388608, set by using sysctl -w net.core.rmem_default and rmem_max
-> >
-> > I used ethereal(using libpcap) to monitor the network traffic. All the
-> > packets were transferred and captured by libpcap. But my program
-constantly
-> > suffers from packet loss. According to ethereal, the average time
-interval
-> > between 2 packets  is 70-80ms, and the minimum interval can go down to
-> > ~1ms. Each packet is smaller than 1500 bytes (ethernet MTU).
-> >
-> > Can anybody help me? I googled and found a similar case that had been
-> > solved by increasing the socket buffer size. But it doesn't work for me.
-I
-> > think 8M is a crazily large size :(
->
-> Post a small program demonstrating your problem.
-> (I'd test udp receive with netcat too)
-> --
-> vda
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+I also tried killing init with various singals, to see if it would
+'reload' the config on the current rootfs(kill -1 1, kill -HUP 1) but
+no success there.
+
+So the question remains, is it possible to have circular pivot_roots ?
+thanks
+Dave
+
+--vtzGhvizbBRQ85DL
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAQ/GwLfsM4nS2FiARAlEeAJsG3T/cTWacqP0lznv6niRw10TFSgCbBtuV
+lMdSJEN1hvUwXXfvdeZv2zE=
+=JbP6
+-----END PGP SIGNATURE-----
+
+--vtzGhvizbBRQ85DL--

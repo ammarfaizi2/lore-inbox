@@ -1,55 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272069AbRHVSJH>; Wed, 22 Aug 2001 14:09:07 -0400
+	id <S272071AbRHVSM1>; Wed, 22 Aug 2001 14:12:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272071AbRHVSI4>; Wed, 22 Aug 2001 14:08:56 -0400
-Received: from mailout05.sul.t-online.com ([194.25.134.82]:38925 "EHLO
-	mailout05.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S272069AbRHVSIo>; Wed, 22 Aug 2001 14:08:44 -0400
-Message-ID: <3B83F577.EAE07A6B@t-online.de>
-Date: Wed, 22 Aug 2001 20:09:59 +0200
-From: Gunther.Mayer@t-online.de (Gunther Mayer)
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.6-ac5 i686)
-X-Accept-Language: en
+	id <S272072AbRHVSMR>; Wed, 22 Aug 2001 14:12:17 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:35599 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S272071AbRHVSMB>; Wed, 22 Aug 2001 14:12:01 -0400
+Subject: Re: [Acpi] AGP support locks X  kernel v2.4.9
+To: nick@coelacanth.com (Nick Papadonis)
+Date: Wed, 22 Aug 2001 19:14:22 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org, acpi@phobos.fachschaften.tu-muenchen.de
+In-Reply-To: <m3pu9oovc6.fsf@coelacanth.com> from "Nick Papadonis" at Aug 22, 2001 01:31:05 PM
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
-To: Andries.Brouwer@cwi.nl
-CC: bcrl@redhat.com, linux-kernel@vger.kernel.org, satch@fluent-access.com
-Subject: Re: FYI  PS/2 Mouse problems -- userland issue
-In-Reply-To: <200108212235.WAA197891@vlet.cwi.nl>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E15ZcWE-0001yP-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries.Brouwer@cwi.nl wrote:
+> I tried compiling agp support and the i810 DRI as modules for kernel v2.4.9.
+> X exits out with:
 > 
-> > Armed with docs I was able to see just why our code
-> > is completely wrong for handling things like the ps/2
-> > mouse being removed at runtime.
+> (II) I810(0): Buffer map : bfb000
+> (II) I810(0): [drm] added 256 4096 byte DMA buffers
+> I810 Dma Initialization Failed
 > 
-> Yes, or being added, to be more precise. But it will not be
-> easy to do it right. So many different ps2-like types of mouse.
-> There are heuristics, like the AA 00 that I gave last week or so.
-> (But not every ps2-mouse emits this sequence.)
 
-Not every mouse controller lets this sequence thru ?
-(e.g. laptops with simultaneous stick +ps2 mouse)
-
-A mouse not emitting this sequence would be broken.
-However you could easily recover by polling the mouse
-status every second. A newly-plugged mouse will have
-characteristic bit pattern.
-
-> And one can keep track of the timing. But the fact that the length
-> of a packet is unknown (3, 4, 5, 8 bytes), and that in some modes
-> and relative positions arbitrary data is legal, makes it more or less
-> impossible to write code that is provably correct.
-
-See above for a perfect solution.
-
-> Also state machines have difficulties. Many types of mouse react
-> to special sequences of ordinary commands, and enter a non-ps2 mode.
-
-See http://home.t-online.de/home/gunther.mayer/gm_psauxprint-0.01.c
-for a _dirty_ hack collecting info from various sources. This is the first
-linux tool to implement the PS2-PNP protocol (for identifying MS mice).
+Thats not ACPI. Linus chose to break DRI back compatibility so you can
+either update your entire X11 setup, patch your kernel up by hand, or run
+the -ac tree and pick the DRM 4.0 option

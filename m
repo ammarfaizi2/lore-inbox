@@ -1,46 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273261AbRIUKk4>; Fri, 21 Sep 2001 06:40:56 -0400
+	id <S273303AbRIUKnq>; Fri, 21 Sep 2001 06:43:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273302AbRIUKkq>; Fri, 21 Sep 2001 06:40:46 -0400
-Received: from ns.suse.de ([213.95.15.193]:51717 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S273261AbRIUKke> convert rfc822-to-8bit;
-	Fri, 21 Sep 2001 06:40:34 -0400
-To: Dirk =?iso-8859-1?q?F=F6rsterling?= <dirk.foersterling@eorga.com>
+	id <S273294AbRIUKng>; Fri, 21 Sep 2001 06:43:36 -0400
+Received: from ns.ithnet.com ([217.64.64.10]:6672 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S273269AbRIUKn3>;
+	Fri, 21 Sep 2001 06:43:29 -0400
+Date: Fri, 21 Sep 2001 12:43:38 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Bill Davidsen <davidsen@tmr.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: stdin/pipe problem with kernel 2.4.9
-In-Reply-To: <3BA9D8F8.5000801@eorga.com>
-X-Yow: Yow!  Is my fallout shelter termite proof?
-From: Andreas Schwab <schwab@suse.de>
-Date: 21 Sep 2001 12:40:56 +0200
-In-Reply-To: <3BA9D8F8.5000801@eorga.com> (Dirk
-  =?iso-8859-1?q?F=F6rsterling's?= message of "Thu, 20 Sep 2001 13:54:32
-  +0200")
-Message-ID: <jebsk4j07b.fsf@sykes.suse.de>
-User-Agent: Gnus/5.090003 (Oort Gnus v0.03) Emacs/21.0.106
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8BIT
+Subject: Re: broken VM in 2.4.10-pre9
+Message-Id: <20010921124338.4e31a635.skraw@ithnet.com>
+In-Reply-To: <Pine.LNX.3.96.1010920231251.26679B-100000@gatekeeper.tmr.com>
+In-Reply-To: <20010916204528.6fd48f5b.skraw@ithnet.com>
+	<Pine.LNX.3.96.1010920231251.26679B-100000@gatekeeper.tmr.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.6.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dirk Försterling <dirk.foersterling@eorga.com> writes:
+On Thu, 20 Sep 2001 23:16:55 -0400 (EDT) Bill Davidsen <davidsen@tmr.com>
+wrote:
 
-|> I repost this because you may have been distracted by the date contained
-|> in the old subject line. So far there was no response at all. No hint,
-|> no trick, no RTFM (pointers?) or whatever. So far I wasn't able to find
-|> anything related using google, the kernel docs and the linux-kernel archive.
-|> The SuSE support won't help me with 2.4 and the support database doesn't contain
-|> any (findable) article related to my problem. So I decided to repost my question.
+> On Sun, 16 Sep 2001, Stephan von Krawczynski wrote:
+> 
+> 
+> > Thinking again about it, I guess I would prefer a FIFO-list of allocated
+pages.
+> > This would allow to "know" the age simply by its position in the list. You
+> > wouldn't need a timestamp then, and even better it works equally well for
+> > systems with high vm load and low, because you do not deal with absolute
+time
+> > comparisons, but relative.
+> > That sounds pretty good for me. 
+> 
+> The problem is that when many things effect the optimal ratio of text,
+> data, buffer and free space a solution which doesn't measure all the
+> important factors will produce sub-optimal results. Your proposal is
+> simple and elegant, but I think it's too simple to produce good results.
+> See my reply to Linus' comments.
 
-This has nothing to do with the kernel, it's a problem with some versions
-of cron (which closes stdin/out/err at startup instead of redirecting them
-to /dev/null and subsequently gets confused when spawning the jobs).
+Sorry to followup to the same post again, but I just read across another thread
+where people discuss heavily about aging up by 3 and down by 1 or vice versa is
+considered to be better or worse. The real problem behind this is that they are
+trying to bring some order in the pages by the age. Unfortunately this cannot
+really work out well, because you will _always_ end up with few or a lot of
+pages with the same age, which does not help you all that much in a situation
+where you need to know who is the _best one_ that is to be dropped next. In
+this drawing situation you have nothing to rely on but the age and some rough
+guesses (or even worse: performance issues, _not_ to walk the whole tree to
+find the best fitting page). This _solely_ comes from the fact that you have no
+steady rising order in page->age ordering (is this correct english for this
+mathematical term?). You _cannot_ know from the current function. So it must be
+considered _bad_. On the other hand a list is always ordered and therefore does
+not have this problem.
+Shit, if I only were able to implement that. Can anybody help me to proove my
+point?
 
-Andreas.
+Regards,
+Stephan
 
--- 
-Andreas Schwab                                  "And now for something
-Andreas.Schwab@suse.de				completely different."
-SuSE Labs, SuSE GmbH, Schanzäckerstr. 10, D-90443 Nürnberg
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5

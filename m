@@ -1,57 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272799AbTHPHPe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Aug 2003 03:15:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271373AbTHPHPe
+	id S271373AbTHPHa0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Aug 2003 03:30:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272804AbTHPHa0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Aug 2003 03:15:34 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:34059 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S270928AbTHPHPc (ORCPT
+	Sat, 16 Aug 2003 03:30:26 -0400
+Received: from imsm072.netvigator.com ([218.102.48.126]:27370 "EHLO
+	imsm072dat.netvigator.com") by vger.kernel.org with ESMTP
+	id S271373AbTHPHaZ convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Aug 2003 03:15:32 -0400
-Date: Sat, 16 Aug 2003 09:15:29 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Douglas Gilbert <dougg@torque.net>
-Cc: John Cherry <cherry@osdl.org>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       linux-scsi@vger.kernel.org
-Subject: Re: [PATCH] fix parallel builds for aic7xxx
-Message-ID: <20030816071529.GA946@mars.ravnborg.org>
-Mail-Followup-To: Douglas Gilbert <dougg@torque.net>,
-	John Cherry <cherry@osdl.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	linux-scsi@vger.kernel.org
-References: <1060906080.4753.92.camel@cherrytest.pdx.osdl.net> <3F3DD0FD.9060705@torque.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F3DD0FD.9060705@torque.net>
-User-Agent: Mutt/1.4.1i
+	Sat, 16 Aug 2003 03:30:25 -0400
+X-Mailer: Openwave WebEngine, version 2.8.10.1 (webedge20-101-191-105-20030415)
+From: Sum <ellenyip@netvigator.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Problem after installing 2.6.0-test3
+Date: Sat, 16 Aug 2003 15:30:22 +0800
+MIME-Version: 1.0
+Content-Type: text/plain; charset=Big5
+Content-Transfer-Encoding: 8BIT
+Message-Id: <20030816073022.OXNS15634.imsm072dat.netvigator.com@imailmta.netvigator.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 16, 2003 at 04:36:45PM +1000, Douglas Gilbert wrote:
-> While on the subject of aic7xxx Makefiles, they add the
-> "-Werror" flag to CFLAGS in both lk 2.4.22-rc2 and
-> lk 2.6.0-test3 .
-> 
-> This flag can be annoying if there is some messiness in
-> include files somewhere. In my case some mis-applied patches
-> in the ide headers cause otherwise harmless compiler warning.
-> That is until my kernel build tries to build the aic7xxx driver.
+I just install the kernel 2.6.0-test3, but I can't make the modules. After I type "make modules", the error displayed as following: 
 
-The incentive for the aic7xx maintainer is that he do detect if a 
-warning happens before actually shipping a patch.
-Same goes for alpha and sparc64, I recall both David and Richard
-wanted to achieve the same goal.
+make[1]: `arch/i386/kernel/asm-offsets.s' is up to date.
+  CC [M]  drivers/block/paride/pd.o
+drivers/block/paride/pd.c: In function `pd_init':
+drivers/block/paride/pd.c:896: warning: passing arg 1 of `blk_init_queue' from incompatible pointer type
+drivers/block/paride/pd.c:896: warning: passing arg 2 of `blk_init_queue' from incompatible pointer type
+drivers/block/paride/pd.c:896: too many arguments to function `blk_init_queue'
+make[2]: *** [drivers/block/paride/pd.o] Error 1
+make[1]: *** [drivers/block/paride] Error 2
+make: *** [drivers] Error 2
 
-[Wondering if kbuild could do something smart here...]
+When I type "make modules_install", there is also error occurred
+  INSTALL drivers/atm/ambassador.ko
+cp: cannot stat ¡¥drivers/atm/ambassador.ko¡¦: no such directory
+make[1]: *** [drivers/atm/ambassador.ko] Error 1
+make: *** [_modinst_] Error 2
 
-During the 2.4 series Linus added -Werror to CFLAGS in the top-level
-makefile, simply to put more focus on warnings. If was only momentarily
-but a lot af patches showed up removing the source of the errors.
-The dense output from kbuild these days makes warnings much more
-visible, and if you follow John Cherry nice statistics you can see that
-the number of warnings generally decrease for each new kernel release.
+And so, there is only two folder in the directory /lib/modules/2.6.0-test3 which are "build" and "kernel". I can't use the modprobe command, because the /lib/modules/2.6.0-test3/modules.dep does not exist. In the kernel folder there is only the drivers/atm existed and the atm folder is empty.
 
-	Sam
+I feel very confused now. Would u please help me with it. Thanks very much.
+

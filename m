@@ -1,47 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271451AbRHOVJh>; Wed, 15 Aug 2001 17:09:37 -0400
+	id <S271447AbRHOVNr>; Wed, 15 Aug 2001 17:13:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271448AbRHOVJ1>; Wed, 15 Aug 2001 17:09:27 -0400
-Received: from t2.redhat.com ([199.183.24.243]:31728 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S271446AbRHOVJM>; Wed, 15 Aug 2001 17:09:12 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <997905442.2135.6.camel@keller> 
-In-Reply-To: <997905442.2135.6.camel@keller>  <997901702.2129.16.camel@keller> 
-To: Georg Nikodym <georgn@somanetworks.com>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Dell I8000, 2.4.8-ac5 and APM 
+	id <S271449AbRHOVNi>; Wed, 15 Aug 2001 17:13:38 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:16944 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S271446AbRHOVNc>; Wed, 15 Aug 2001 17:13:32 -0400
+Date: Wed, 15 Aug 2001 23:13:30 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Andreas Dilger <adilger@turbolinux.com>
+Cc: mauelshagen@sistina.com, Kurt Garloff <garloff@suse.de>,
+        linux-lvm@sistina.com, lvm-devel@sistina.com,
+        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        sistina@sistina.com, mge@sistina.com
+Subject: Re: *** ANNOUNCEMENT *** LVM 1.0 available at www.sistina.com
+Message-ID: <20010815231330.B27003@athlon.random>
+In-Reply-To: <20010815185005.A32239@sistina.com> <200108151755.f7FHtmTH013535@webber.adilger.int>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Wed, 15 Aug 2001 22:09:17 +0100
-Message-ID: <29219.997909757@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <200108151755.f7FHtmTH013535@webber.adilger.int>; from adilger@turbolinux.com on Wed, Aug 15, 2001 at 11:55:48AM -0600
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Aug 15, 2001 at 11:55:48AM -0600, Andreas Dilger wrote:
+> Saying you "need" the old versions of the installed tools to read the
+> on disk data is bogus, IMNSHO.  You could easily have a flag which says
+> "calculate the PE offsets using the old algorithm or the new algorithm".
 
-georgn@somanetworks.com said:
-> On my Dell I8000, when running 2.48-ac5 pulling the AC plug out (or
-> plugging it back) causes the box to hang for a while prior to shutting
-> itself off.
+Definitely. This is what I was asking for. That would be optimal.
 
-> Disabling APIC solves my immediate problem, so personally I'm happy. 
+> Also, since this bug exists only for a limited number of users (only a
+> subset of users who created volumes with beta 5 and beta 6), it causes
+> grief for anyone who is NOT affected by the bug.
 
-I've been chasing down APM problems on an I8000 today too - the Red Hat 7.2
-beta kernel (which is based on some 2.4-ac) dies on resume, while a clean
-2.4.9-pre4 survives. I'd noticed that the Red Hat kernel was using the local
-APIC just before giving up on it for the day - turning that off will be the
-first thing I try in the morning.
+Agreed. I understand that here I am biased but I don't care much about
+that possible misalignment too because we never shipped a beta[56].
 
-Apart from the hang on applying or removing power, were you also having 
-this problem with APM suspend?
+> Well, that is the future, and should not impact users of 2.4.x kernels.
+> Just like we found an acceptable workaround to the (incompatible) IOP 11
+> change (which was later reverted), it is possible to find an acceptable
+> workaround for the new incompatible change.  Sadly, it is no longer my
 
-Strangely, APM suspend was working after a suspend-to-disk. It only failed 
-after a clean boot.
+Agreed.
 
---
-dwmw2
-
-
+Andrea

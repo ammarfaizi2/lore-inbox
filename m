@@ -1,47 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264833AbUHMMIZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264912AbUHMMLh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264833AbUHMMIZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Aug 2004 08:08:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264912AbUHMMIY
+	id S264912AbUHMMLh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Aug 2004 08:11:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264929AbUHMMLh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Aug 2004 08:08:24 -0400
-Received: from zero.aec.at ([193.170.194.10]:29445 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S264833AbUHMMIX (ORCPT
+	Fri, 13 Aug 2004 08:11:37 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:5822 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S264912AbUHMMLg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Aug 2004 08:08:23 -0400
-To: Ingo Molnar <mingo@elte.hu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] Latency Tracer, voluntary-preempt-2.6.8-rc4-O6
-References: <2m9bF-kH-13@gated-at.bofh.it> <2m9EG-Js-5@gated-at.bofh.it>
-	<2md5B-36u-11@gated-at.bofh.it> <2mkTt-BZ-11@gated-at.bofh.it>
-	<2nrJd-7Dx-19@gated-at.bofh.it> <2ouFe-2vz-63@gated-at.bofh.it>
-	<2rfT9-5wi-17@gated-at.bofh.it> <2rF1c-6Iy-7@gated-at.bofh.it>
-	<2sxEs-46P-1@gated-at.bofh.it> <2sCkH-7i5-15@gated-at.bofh.it>
-	<2sHu9-2EW-31@gated-at.bofh.it>
-From: Andi Kleen <ak@muc.de>
-Date: Fri, 13 Aug 2004 14:08:17 +0200
-In-Reply-To: <2sHu9-2EW-31@gated-at.bofh.it> (Ingo Molnar's message of "Fri,
- 13 Aug 2004 12:30:17 +0200")
-Message-ID: <m31xibtf4e.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
+	Fri, 13 Aug 2004 08:11:36 -0400
+Date: Fri, 13 Aug 2004 14:11:28 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Adrian Bunk <bunk@fs.tum.de>
+cc: Evgeniy Polyakov <johnpol@2ka.mipt.ru>, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] let W1 select NET
+In-Reply-To: <20040813110137.GY13377@fs.tum.de>
+Message-ID: <Pine.LNX.4.58.0408131312390.20634@scrub.home>
+References: <20040813101717.GS13377@fs.tum.de> <Pine.LNX.4.58.0408131231480.20635@scrub.home>
+ <1092394019.12729.441.camel@uganda> <Pine.LNX.4.58.0408131253000.20634@scrub.home>
+ <20040813110137.GY13377@fs.tum.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar <mingo@elte.hu> writes:
+Hi,
 
-> * Lee Revell <rlrevell@joe-job.com> wrote:
->
->> Interesting results.  One of the problems is kallsyms_lookup,
->> triggered by the printks:
->
-> yeah - kallsyms_lookup does a linear search over thousands of symbols. 
-> Especially since /proc/latency_trace uses it too it would be worthwile
-> to implement some sort of binary searching.
+On Fri, 13 Aug 2004, Adrian Bunk wrote:
 
-Or just stick some cond_sched()s in there. It was designed to be slow,
-but there are no locking issues.
+> But the similar case of USB_STORAGE selecting SCSI is an example where 
+> select is a big user-visible improvement over depends.
 
--Andi
+comment "USB storage requires SCSI"
+	depends on SCSI=n
 
+That's also user visible and doesn't confuse the user later, why he can't 
+deselect SCSI.
+
+Abusing select is really the wrong answer. What is needed is an improved 
+user interface, which allows to search through the kconfig information or 
+even can match hardware information to a driver and aids the user in 
+selecting the required dependencies.
+Keeping the kconfig database clean and making kernel configuration easier 
+are really two separate problems and we shouldn't sacrifice the former for 
+the latter.
+
+bye, Roman

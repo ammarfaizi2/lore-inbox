@@ -1,60 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266344AbUJEXQ0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266319AbUJEXQ7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266344AbUJEXQ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 19:16:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266275AbUJEXQZ
+	id S266319AbUJEXQ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 19:16:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266357AbUJEXQj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 19:16:25 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:3456 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S266357AbUJEXJr
+	Tue, 5 Oct 2004 19:16:39 -0400
+Received: from peabody.ximian.com ([130.57.169.10]:11233 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S266319AbUJEXNI
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 19:09:47 -0400
-Date: Tue, 5 Oct 2004 19:09:29 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Jan Dittmer <jdittmer@ppp0.net>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.6.5-1.358 SMP
-In-Reply-To: <416328AB.1060909@ppp0.net>
-Message-ID: <Pine.LNX.4.53.0410051908400.1059@chaos.analogic.com>
-References: <Pine.LNX.4.53.0410051852250.351@chaos.analogic.com>
- <416328AB.1060909@ppp0.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 5 Oct 2004 19:13:08 -0400
+Subject: RE: /dev/misc/inotify 0.11 [adr]
+From: Robert Love <rml@novell.com>
+To: David Busby <busby@edoceo.com>
+Cc: linux-kernel@vger.kernel.org, ttb@tentacle.dhs.org
+In-Reply-To: <82C88232E64C7340BF749593380762021166FA@seattleexchange.SMC.LOCAL>
+References: <82C88232E64C7340BF749593380762021166FA@seattleexchange.SMC.LOCAL>
+Content-Type: text/plain
+Date: Tue, 05 Oct 2004 19:11:33 -0400
+Message-Id: <1097017893.4143.10.camel@betsy.boston.ximian.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Oct 2004, Jan Dittmer wrote:
+On Tue, 2004-10-05 at 16:10 -0700, David Busby wrote:
 
-> Richard B. Johnson wrote:
-> > Hello,
-> >
-> > I almost have everything converted over from 2.4.26 to
-> > 2.6.whatever.
-> >
-> > I need to make some modules that have lots of assembly code.
-> > This assembly uses the UNIX calling convention and can't be
-> > re-written (it would take many months). The new kernel
-> > is compiled with "-mregparam=2". I can't find where that's
-> > defined. I need to remove it because I cannot pass parameters
-> > to the assembly stuff in registers.
-> >
-> > Where is it defined??? I grepped through all the scripts and
-> > the hidden files, but I can't discover where it's defined.
->
-> You don't mean CONFIG_REGPARM=n:
->
-> arch/i386/Makefile:cflags-$(CONFIG_REGPARM)     += $(shell if [
-> $(GCC_VERSION) -ge 0300 ] ; then echo "-mregparm=3"; fi ;)
->
-> ?
+> Here's another issue, when reading from PERL sometimes the filename part
+> of the struct inotify_event is wayyyy off.  I'm reading 268 bytes at a
+> time, first 12 are the wd,mask and cookie (what is cookie anyways?) then
+> 256 for the file name. Isn't that correct?  I'll try to get the
+> inotify_test.c program to reproduce.
 
-Okay. Thanks. I wouldn't have guessed what to look for.
+The cookie is going to be used to connection two related events, such as
+MOVED_TO and MOVED_FROM.  Right now it is unused.
 
+We've never seen this problem in inotify_test or Gamin or Beagle ... so
+I would suspect this is related to your specific Perl example, but
+please let me know if you find anything.
 
+Best,
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
-            Note 96.31% of all statistics are fiction.
+	Robert Love
 

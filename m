@@ -1,38 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293035AbSBVW5v>; Fri, 22 Feb 2002 17:57:51 -0500
+	id <S293039AbSBVXEB>; Fri, 22 Feb 2002 18:04:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293036AbSBVW5m>; Fri, 22 Feb 2002 17:57:42 -0500
-Received: from amdext.amd.com ([139.95.251.1]:7115 "EHLO amdext.amd.com")
-	by vger.kernel.org with ESMTP id <S293035AbSBVW5b>;
-	Fri, 22 Feb 2002 17:57:31 -0500
-From: harish.vasudeva@amd.com
-X-Server-Uuid: 02753650-11b0-11d5-bbc5-00508bf987eb
-Message-ID: <CB35231B9D59D311B18600508B0EDF2F04F280E6@caexmta9.amd.com>
-To: linux-kernel@vger.kernel.org
-Subject: Need some help with IP/TCP Checksum Offload
-Date: Fri, 22 Feb 2002 14:57:22 -0800
+	id <S293037AbSBVXDv>; Fri, 22 Feb 2002 18:03:51 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:271 "EHLO mail.stock-world.de")
+	by vger.kernel.org with ESMTP id <S293036AbSBVXDh>;
+	Fri, 22 Feb 2002 18:03:37 -0500
+Message-ID: <3C76CE17.7010001@evision-ventures.com>
+Date: Sat, 23 Feb 2002 00:02:47 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-X-WSS-ID: 1068135E4865599-01-01
-Content-Type: text/plain; 
- charset=iso-8859-1
+To: Andre Hedrick <andre@linuxdiskcert.org>
+CC: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        =?ISO-8859-1?Q?G=E9rard?= Roudier <groudier@free.fr>,
+        Vojtech Pavlik <vojtech@suse.cz>, Arjan van de Ven <arjanv@redhat.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.5-pre1 IDE cleanup 9
+In-Reply-To: <Pine.LNX.4.10.10202221210430.2519-100000@master.linux-ide.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+Andre Hedrick wrote:
 
- I am trying to offload checksum calculation to my hardware. What i am doing in my driver (kernel 2.4.6) is :
+> 
+> Okay we are getting some place now, cause what I was reading and seeing in
+> the changes registers a DRIVE to the PCI API and not a HOST.
 
- dev->features = NETIF_F_IP_CHECKSUM;
+The changes add a only a drive and driver,
+becouse a pci_dev was already there and is used.
+This is by the way corresposnding to the HOST host.
 
- Then, in my start_xmit( ) routine, i am parsing for the right headers & when i get the IP/TCP header, i print out the checksum & it is already the right checksum. When does the OS/Protocol offload this task? Am i missing something here?
-
-thanx for your help
-HARISH V
-Enterprise Connectivity Solutions, AMD
-(408) 749-3324 (Work) 
-* Knowledge becomes wisdom only after it has been put to practical use.  *
+Can't be that you don't understand the code you claim to care
+that much about?
 
 

@@ -1,85 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262076AbVCVVmx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262056AbVCVVsa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262076AbVCVVmx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 16:42:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262054AbVCVVmx
+	id S262056AbVCVVsa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 16:48:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262054AbVCVVs3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 16:42:53 -0500
-Received: from alog0193.analogic.com ([208.224.220.208]:9122 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262062AbVCVVmH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 16:42:07 -0500
-Date: Tue, 22 Mar 2005 16:39:32 -0500 (EST)
-From: linux-os <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: lseek on /proc/kmsg
-In-Reply-To: <Pine.LNX.4.61.0503222215310.19826@yvahk01.tjqt.qr>
-Message-ID: <Pine.LNX.4.61.0503221633230.7421@chaos.analogic.com>
-References: <Pine.LNX.4.61.0503221320090.5551@chaos.analogic.com>
- <Pine.LNX.4.61.0503222020470.32461@yvahk01.tjqt.qr>
- <Pine.LNX.4.61.0503221423560.6369@chaos.analogic.com>
- <Pine.LNX.4.61.0503222215310.19826@yvahk01.tjqt.qr>
+	Tue, 22 Mar 2005 16:48:29 -0500
+Received: from mail.dif.dk ([193.138.115.101]:52411 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S262052AbVCVVsU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 16:48:20 -0500
+Date: Tue, 22 Mar 2005 22:50:08 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Steve French <smfrench@austin.rr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][0/6] cifs: readdir.c cleanup
+In-Reply-To: <42408FCD.1080303@austin.rr.com>
+Message-ID: <Pine.LNX.4.62.0503222244380.2683@dragon.hyggekrogen.localhost>
+References: <Pine.LNX.4.62.0503222055150.2683@dragon.hyggekrogen.localhost>
+ <42408FCD.1080303@austin.rr.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 Mar 2005, Jan Engelhardt wrote:
+On Tue, 22 Mar 2005, Steve French wrote:
 
->> Gawd, you are a hacker. I already have to suck on pipes
->> because I can't seek them. Now, I can't even seek a
->> file-system???!!
->
-> Here goodie goodie...
->
-> diff -pdru linux-2.6.11.4/fs/proc/kmsg.c linux-2.6.11-AS9/fs/proc/kmsg.c
-> --- linux-2.6.11.4/fs/proc/kmsg.c       2005-03-21 20:14:58.000000000 +0100
-> +++ linux-2.6.11-AS9/fs/proc/kmsg.c     2005-03-22 21:28:40.000000000 +0100
-> @@ -46,10 +46,15 @@ static unsigned int kmsg_poll(struct fil
->        return 0;
-> }
->
-> +static loff_t kmsg_seek(struct file *filp, loff_t offset, int origin) {
-> +    if(origin != 2 /* SEEK_END */ || offset < 0) { return -ESPIPE; }
-> +    return do_syslog(5, NULL, 0);
-> +}
->
-> struct file_operations proc_kmsg_operations = {
->        .read           = kmsg_read,
->        .poll           = kmsg_poll,
->        .open           = kmsg_open,
->        .release        = kmsg_release,
-> +        .llseek         = kmsg_seek,
-> };
->
->
-> Works so far that do_syslog is called with the correct parameters --
-> however, that does not work. (Did I discover a bug?)
->
-> # rcsyslog stop;  # so that kmsg is not slurped by someone else
-> # perl -le 'open X,"</proc/kmsg";seek X,0,2;print read X,$b,3'
->
-> the perl command should block, because with the seek(), we've just emptied the
-> syslog ring buffer. Obviously, it does not, and read() succeeds - prints 3.
-> Any hints on what's wrong here?
->
+> Jesper Juhl wrote:
+> 
+> > Hi Steve,
+> > 
+> > Here's one more cleanup for a file in fs/cifs - readdir.c (i'm going to
+> > follow the order you told me you'd prefer first, then do the remaining files
+> > in arbitrary order).
+> > I'm going to send the patches inline to make it easy for others to comment
+> > if they so choose, but since you had problems with inline patches from me
+> > last time I've also placed them online for you :
+> > 
+[snip]
+> >  
+> The first looks fine.  I am part way through reviewing the second, and so far
+> only found one change (see following) that I question.  I prefer to keep the
+> local variables together without a blank line between them.  Is there a global
+> Linux style compliance issue here?  By the way, it is not common to use
+> typedefs but you will see a few in this function since the network protocol
+> specification describes the format of the wire protocol using them and it
+> makes the structure names match the standard.
+> 
+> static char *nxt_dir_entry(char *old_entry, char *end_of_smb)
+> {
+> -	char * new_entry;
+> -	FILE_DIRECTORY_INFO * pDirInfo = (FILE_DIRECTORY_INFO *)old_entry;
+> +	char *new_entry;
+> +
+> +	FILE_DIRECTORY_INFO *pDirInfo = (FILE_DIRECTORY_INFO *)old_entry;
+> 
+Actually, this is me goofing up. I did intend for all local variables to 
+be grouped without a single blank line between them - just one blank line 
+*after* the variable block - don't know how this bit snuck in. Thank you 
+for catching that.
 
-Sure, read() needs to be modified to respect the file-position
-set by kmsg_seek(). I don't think you can get away with the
-call back into do_syslog.
 
-In other words we shouldn't move a user-mode hack into the
-kernel.
+> I will apply at least a few of them, but I am busy doing a high priority fix
+> to handle split transact2 responses (which could cause an oops in ls to some
+> servers so is high priority - although it only occurs on large directories,
+> and if the server decides to send two transact responses for one request
+> (which is not that common) and a search entry is split in certain ways across
+> two SMB responses).
+> 
+I'm fully aware that these patches are low-priority. I don't expect them 
+to get anything but "at my convenience" treatment from you.
+And should you miss some of them (I'll be sending you quite a few over the 
+next few days I expect) I'll just queue them locally and resend at some 
+later date (post next Linus release or so), so don't feel pressured to 
+look at these if you don't have the time.
 
->
-> Jan Engelhardt
-> -- 
->
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
+-- 
+Jesper
+
+

@@ -1,37 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266565AbUGUTsr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266605AbUGUTuB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266565AbUGUTsr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jul 2004 15:48:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266605AbUGUTsq
+	id S266605AbUGUTuB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jul 2004 15:50:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266609AbUGUTuB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jul 2004 15:48:46 -0400
-Received: from [138.15.108.3] ([138.15.108.3]:51310 "EHLO mailer.nec-labs.com")
-	by vger.kernel.org with ESMTP id S266565AbUGUTsq convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jul 2004 15:48:46 -0400
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: Jffs2 file system
-Date: Wed, 21 Jul 2004 15:48:35 -0400
-Message-ID: <951A499AA688EF47A898B45F25BD8EE80126D4D3@mailer.nec-labs.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Jffs2 file system
-Thread-Index: AcRvW7XcYWmHdBynQZ2o/X05IKlzTQ==
-From: "Lei Yang" <leiyang@nec-labs.com>
-To: "Linux-Kernel (E-mail)" <linux-kernel@vger.kernel.org>,
-       "Kernelnewbies (E-mail)" <kernelnewbies@nl.linux.org>
+	Wed, 21 Jul 2004 15:50:01 -0400
+Received: from sccrmhc11.comcast.net ([204.127.202.55]:61314 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S266605AbUGUTty (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jul 2004 15:49:54 -0400
+Date: Wed, 21 Jul 2004 12:49:49 -0700
+From: "H. J. Lu" <hjl@lucon.org>
+To: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Update Marvell Yukon Gigabit NIC driver?
+Message-ID: <20040721194949.GA25030@lucon.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+The current Marvell Yukon Gigabit NIC driver version 7.04 is at:
 
-Can I use jffs2 on a ramdisk? Is jffs2 only designed to be used on flash memory devices rather than RAM devices?
-What about cramfs?
+http://www.syskonnect.com/syskonnect/support/driver/d0102_driver.html
 
-TIA.
+and
 
-Lei
+http://www.marvell.com/drivers/search.do
+
+Are there any plans to integrate it into 2.4 and 2.6 kernel? I can
+generate patches against 2.4 and 2.6 if needed.
+
+
+
+H.J.

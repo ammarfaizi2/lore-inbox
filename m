@@ -1,63 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263098AbVCKCE0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263275AbVCKCKA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263098AbVCKCE0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 21:04:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263090AbVCKCE0
+	id S263275AbVCKCKA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 21:10:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263104AbVCKCHc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 21:04:26 -0500
-Received: from vms040pub.verizon.net ([206.46.252.40]:42146 "EHLO
-	vms040pub.verizon.net") by vger.kernel.org with ESMTP
-	id S263257AbVCKCCp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 21:02:45 -0500
-Date: Thu, 10 Mar 2005 21:02:44 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: 2.6.11 low latency audio test results
-In-reply-to: <1110491577.14297.19.camel@mindpipe>
-To: linux-kernel@vger.kernel.org
-Reply-to: gene.heskett@verizon.net
-Message-id: <200503102102.44479.gene.heskett@verizon.net>
-Organization: None, usuallly detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <1110324852.6510.11.camel@mindpipe> <422F07C2.7080900@cybsft.com>
- <1110491577.14297.19.camel@mindpipe>
-User-Agent: KMail/1.7
+	Thu, 10 Mar 2005 21:07:32 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:17792 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S263108AbVCKCGC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 21:06:02 -0500
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Paul Mackerras <paulus@samba.org>, werner@sgi.com
+Subject: Re: AGP bogosities
+Date: Thu, 10 Mar 2005 18:04:04 -0800
+User-Agent: KMail/1.7.2
+Cc: torvalds@osdl.org, davej@redhat.com, benh@kernel.crashing.org,
+       linux-kernel@vger.kernel.org
+References: <16944.62310.967444.786526@cargo.ozlabs.ibm.com>
+In-Reply-To: <16944.62310.967444.786526@cargo.ozlabs.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200503101804.04371.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 10 March 2005 16:52, Lee Revell wrote:
->On Wed, 2005-03-09 at 08:27 -0600, K.R. Foley wrote:
->> Lee Revell wrote:
->> > Of course all of the above settings provide flawless xrun-free
->> > performance with 2.6.11-rc4 + PREEMPT_RT.
->>
->> The above mentioned patch will apply (and build and run) just fine
->> to 2.6.11 if you fix the EXTRAVERSION portion of the patch to not
->> expect -rc4.
->
->Right, it sure does.  No rejects except the Makefile.
->
->Looks like the release candidate process is getting tighter.
->
->Lee
->
-Maybe Lee, maybe.  It kills tvtime, I built that into 2.6.11.2 
-yesterday to test.  So I'm back in 2.6.11.2 with only the 
-bk-ieee1394.patch applied over the .1 and .2 patches.
->-
->To unsubscribe from this list: send the line "unsubscribe
-> linux-kernel" in the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
+On Thursday, March 10, 2005 5:24 pm, Paul Mackerras wrote:
+> The patch below fixes these problems.  It will work in the 99.99% of
+> cases where we have one AGP bridge and one AGP video card.  We should
+> eventually cope with multiple AGP bridges, but doing the matching of
+> bridges to video cards is a hard problem because the video card is not
+> necessarily a child or sibling of the PCI device that we use for
+> controlling the AGP bridge.  I think we need to see an actual example
+> of a system with multiple AGP bridges first.
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.34% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
+We have real systems with multiple AGP bridges out there already, so we'd like 
+to see this fixed properly.  I think this is Mike's code, Mike?
+
+> Oh, and by the way, I have 3D working relatively well on my G5 with a
+> 64-bit kernel (and 32-bit X server and clients), which is why I care
+> about AGP 3.0 support. :)
+
+I have a system in my office with several gfx pipes on different AGP busses, 
+and I'd like that to work well too! :)
+
+Jesse

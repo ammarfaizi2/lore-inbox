@@ -1,38 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264815AbSKUTw5>; Thu, 21 Nov 2002 14:52:57 -0500
+	id <S264679AbSKUTx1>; Thu, 21 Nov 2002 14:53:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264697AbSKUTw4>; Thu, 21 Nov 2002 14:52:56 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:9352 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S264815AbSKUTwb>; Thu, 21 Nov 2002 14:52:31 -0500
-Subject: Re: Where is ext2/3 secure delete ("s") attribute?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Kent Borg <kentborg@borg.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021121140510.N16336@borg.org>
-References: <20021121125240.K16336@borg.org> <3DDD24E7.4040603@pobox.com>
-	<20021121133922.M16336@borg.org>
-	<1037906458.7660.74.camel@irongate.swansea.linux.org.uk> 
-	<20021121140510.N16336@borg.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 21 Nov 2002 20:28:34 +0000
-Message-Id: <1037910514.7687.80.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S264697AbSKUTxA>; Thu, 21 Nov 2002 14:53:00 -0500
+Received: from sccrmhc01.attbi.com ([204.127.202.61]:4003 "EHLO
+	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP
+	id <S264724AbSKUTwL> convert rfc822-to-8bit; Thu, 21 Nov 2002 14:52:11 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Matt Young <wz6b@arrl.net>
+Reply-To: wz6b@arrl.net
+To: linux-kernel@vger.kernel.org
+Subject: Operations inside a module
+Date: Thu, 21 Nov 2002 11:59:03 -0800
+User-Agent: KMail/1.4.3
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200211211159.03552.wz6b@arrl.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-11-21 at 19:05, Kent Borg wrote:
-> Another example of why this needs to be done in the file system.  (And
-> that help is sometimes needed from the "disk" particularly in cases
-> like flash IDE rives.)
+Within the open routine of  my module I need to open another device; and the 
+write routine needs to write to the other device.
 
-The file system can't do it
-The flash device won't give you the info to do it
-The ide disk wont give you the info to do it
+User space system calls seem to be unavailable to module code.
+I know about swapping the DS and ES to fake out other modules; then using 
+sys_write etc. 
 
-Its possibly a polite hint from the universe to use encryption 8)
+Can my code just include the standard  syscall lib and use them from kernel 
+space?
 
+My module code would also like to use user space malloc, is this a problem?
+
+Matt
+
+  

@@ -1,60 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261438AbVCMTfv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261440AbVCMTqO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261438AbVCMTfv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Mar 2005 14:35:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261440AbVCMTfi
+	id S261440AbVCMTqO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Mar 2005 14:46:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261441AbVCMTqO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Mar 2005 14:35:38 -0500
-Received: from fire.osdl.org ([65.172.181.4]:53387 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261438AbVCMTf2 (ORCPT
+	Sun, 13 Mar 2005 14:46:14 -0500
+Received: from mail.aknet.ru ([217.67.122.194]:50958 "EHLO mail.aknet.ru")
+	by vger.kernel.org with ESMTP id S261440AbVCMTqM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Mar 2005 14:35:28 -0500
-Date: Sun, 13 Mar 2005 11:35:00 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Johannes Stezenbach <js@linuxtv.org>
-Cc: cherry@osdl.org, linux-kernel@vger.kernel.org, kraxel@bytesex.org
-Subject: Re: IA32 (2.6.11 - 2005-03-12.16.00) - 56 New warnings
-Message-Id: <20050313113500.59e57a87.akpm@osdl.org>
-In-Reply-To: <20050313124333.GA26569@linuxtv.org>
-References: <200503130508.j2D58jTQ014587@ibm-f.pdx.osdl.net>
-	<20050313124333.GA26569@linuxtv.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 13 Mar 2005 14:46:12 -0500
+Message-ID: <42349891.70407@aknet.ru>
+Date: Sun, 13 Mar 2005 22:46:25 +0300
+From: Stas Sergeev <stsp@aknet.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041020
+X-Accept-Language: ru, en-us, en
+MIME-Version: 1.0
+To: Ondrej Zary <linux@rainbow-software.org>
+Cc: Grzegorz Kulewski <kangur@polcom.net>,
+       Linux kernel <linux-kernel@vger.kernel.org>,
+       Petr Vandrovec <vandrove@vc.cvut.cz>
+Subject: Re: [patch] x86: fix ESP corruption CPU bug
+References: <42348474.7040808@aknet.ru> <Pine.LNX.4.62.0503131950190.23588@alpha.polcom.net> <42349068.4030405@aknet.ru> <4234965C.1010502@rainbow-software.org>
+In-Reply-To: <4234965C.1010502@rainbow-software.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Johannes Stezenbach <js@linuxtv.org> wrote:
->
->  On Sat, Mar 12, 2005 at 09:08:45PM -0800, John Cherry wrote:
->  > drivers/media/dvb/frontends/dvb-pll.c:104: warning: (near initialization for `dvb_pll_unknown_1.entries')
->  > drivers/media/dvb/frontends/dvb-pll.c:104: warning: excess elements in array initializer
->  > drivers/media/dvb/frontends/dvb-pll.c:105: warning: (near initialization for `dvb_pll_unknown_1.entries')
->  > drivers/media/dvb/frontends/dvb-pll.c:105: warning: excess elements in array initializer
->  [snip]
-> 
->  Gerd's original patch had
-> 
->  	struct dvb_pll_desc {
->  		char *name;
->  		u32  min;
->  		u32  max;
->  		void (*setbw)(u8 *buf, int bandwidth);
->  		int  count;
->  		struct {
->  			u32 limit;
->  			u32 offset;
->  			u32 stepsize;
->  			u8  cb1;
->  			u8  cb2;
->  		} entries[];
->  	};
-> 
->  while 2.6.11-mm3 changed it into entries[0].
+Hello.
 
-The original code failed to compile with gcc-2.95.4, so I stuck the [0] in
-there, then was vaguely surprised when no warnings came out.  Seems that
-later compilers _do_ warn.
+Ondrej Zary wrote:
+> I've just ran that on my Cyrix MII PR300 and the bug is present:<>
+> UMC U5SX/33 in my router - also present:
+Thanks, now I know for sure that it exist
+everywhere.
+Now you can apply the patch and make sure
+the bug goes away:)
 
-I guess we could put a 9 in there.

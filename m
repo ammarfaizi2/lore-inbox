@@ -1,44 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316705AbSG3WI5>; Tue, 30 Jul 2002 18:08:57 -0400
+	id <S316889AbSG3WBw>; Tue, 30 Jul 2002 18:01:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317083AbSG3WI5>; Tue, 30 Jul 2002 18:08:57 -0400
-Received: from mail.costarica.net ([196.40.25.178]:14560 "EHLO
-	mail.costarica.net") by vger.kernel.org with ESMTP
-	id <S316753AbSG3WIz>; Tue, 30 Jul 2002 18:08:55 -0400
-Date: Tue, 30 Jul 2002 16:15:10 -0600 (CST)
-From: Miguel A Bolanos <mike@costarica.net>
-To: Shanti Katta <katta@csee.wvu.edu>
-cc: <sparclinux@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: what version of gcc can be used to build kernels on Linux/sparc64?
-In-Reply-To: <1028059341.17176.3.camel@indus>
-Message-ID: <Pine.LNX.4.33.0207301613370.20597-100000@mail.costarica.net>
+	id <S316928AbSG3WBv>; Tue, 30 Jul 2002 18:01:51 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:6 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S316889AbSG3WBh>; Tue, 30 Jul 2002 18:01:37 -0400
+Date: Tue, 30 Jul 2002 15:04:45 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Brad Hards <bhards@bigpond.net.au>
+cc: Alexander Viro <viro@math.psu.edu>, Greg KH <greg@kroah.com>,
+       Vojtech Pavlik <vojtech@suse.cz>, <linux-kernel@vger.kernel.org>,
+       <linuxconsole-dev@lists.sourceforge.net>
+Subject: Re: [patch] Input cleanups for 2.5.29 [2/2]
+In-Reply-To: <200207310747.35605.bhards@bigpond.net.au>
+Message-ID: <Pine.LNX.4.33.0207301459530.2051-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just use egc64 if its only for the kernel, or if you want to for the
-kernel and some packages  use gcc3
-yours
 
---
-Miguel A. Bolanos
-Servers Administrator
-Informatica International
---
+On Wed, 31 Jul 2002, Brad Hards wrote:
+>
+> Here is an extract from <linux/types.h>
+> typedef         __u8            uint8_t;
+> typedef         __u16           uint16_t;
 
-On 30 Jul 2002, Shanti Katta wrote:
+Yes, and the thing you snipped from it was that it's inside a #ifdef.
 
-> I would like to know what version of gcc is currently available to build
-> linux kernels on Linux/Sparc64. I would like the builds to generate
-> 64-bit executables.
->
-> -Shanti
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe sparclinux" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
+Now, that #ifdef will be on for the __KERNEL__, but somebody else might
+have compiled with some -traditional switch or other that disabled
+"uint8_t" or just screwed it up some other way.
+
+> > ICBW, but wasn't uint<n>_t only promised to be at least <n> bits?
+> I am not sure I understand the point you are trying to make.
+
+I think the point Viro is making is that uint8_t actually exists on things 
+like old cray's too, even if end sup being a 64-bit entity.
+
+I don't think that is correct, though. I think that comes from another
+(proposed but not implemented) C language extension that would have
+allowed something like that, namely the
+
+	int X:17;
+
+syntax, where X would be guaranteed to be "17 bits or more". I don't 
+remember.
+
+		Linus
 

@@ -1,75 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264540AbUGMEBM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264251AbUGMEAu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264540AbUGMEBM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 00:01:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263865AbUGMEBC
+	id S264251AbUGMEAu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 00:00:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263865AbUGMEAt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 00:01:02 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:4232 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S263847AbUGMEAq (ORCPT
+	Tue, 13 Jul 2004 00:00:49 -0400
+Received: from fw.osdl.org ([65.172.181.6]:58503 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264595AbUGMEAj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 00:00:46 -0400
-Date: Mon, 12 Jul 2004 23:58:06 -0400 (EDT)
-From: Ingo Molnar <mingo@redhat.com>
-X-X-Sender: mingo@devserv.devel.redhat.com
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Jakub Jelinek <jakub@redhat.com>, davidm@hpl.hp.com,
-       suresh.b.siddha@intel.com, jun.nakajima@intel.com,
-       Andrew Morton <akpm@osdl.org>, linux-ia64@vger.kernel.org,
+	Tue, 13 Jul 2004 00:00:39 -0400
+Date: Mon, 12 Jul 2004 20:59:17 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: linux-audio-dev@music.columbia.edu, mingo@elte.hu, arjanv@redhat.com,
        linux-kernel@vger.kernel.org
-Subject: Re: serious performance regression due to NX patch
-In-Reply-To: <Pine.LNX.4.58.0407121315170.1764@ppc970.osdl.org>
-Message-ID: <Pine.LNX.4.58.0407122354280.13111@devserv.devel.redhat.com>
-References: <200407100528.i6A5SF8h020094@napali.hpl.hp.com>
- <Pine.LNX.4.58.0407110437310.26065@devserv.devel.redhat.com>
- <Pine.LNX.4.58.0407110536130.2248@devserv.devel.redhat.com>
- <Pine.LNX.4.58.0407110550340.4229@devserv.devel.redhat.com>
- <20040711123803.GD21264@devserv.devel.redhat.com>
- <Pine.LNX.4.58.0407121402160.2451@devserv.devel.redhat.com>
- <Pine.LNX.4.58.0407121315170.1764@ppc970.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: [linux-audio-dev] Re: [announce] [patch] Voluntary Kernel
+ Preemption Patch
+Message-Id: <20040712205917.47d1d58b.akpm@osdl.org>
+In-Reply-To: <1089687168.10777.126.camel@mindpipe>
+References: <20040709182638.GA11310@elte.hu>
+	<20040710222510.0593f4a4.akpm@osdl.org>
+	<1089673014.10777.42.camel@mindpipe>
+	<20040712163141.31ef1ad6.akpm@osdl.org>
+	<1089677823.10777.64.camel@mindpipe>
+	<20040712174639.38c7cf48.akpm@osdl.org>
+	<1089687168.10777.126.camel@mindpipe>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Mon, 12 Jul 2004, Linus Torvalds wrote:
-
-> > so ... this should be #ifndef ia64?
+Lee Revell <rlrevell@joe-job.com> wrote:
+>
+> Here are a few more:
 > 
-> No. Make it a CONFIG_DEFAULT_NOEXEC and make the relevant architectures do
-> a
-> 
-> 	define_bool DEFAULT_NOEXEC y
-> 
-> in their Kconfig files.
-> 
-> In general, we should _never_ use an architecture-define. They just
-> always end up becoming more and more hairy, and less and less obvious
-> what they are all about.
-> 
-> So instead, make a readable and explicit config define, and let each
-> architecture just set it (or not) as they wish.
+>  Jul 12 22:20:41 mindpipe kernel: ALSA /usr/src/alsa-cvs-1.0.5/alsa-driver/alsa-kernel/core/pcm_lib.c:169: XRUN: pcmC0D0p
+>  Jul 12 22:20:41 mindpipe kernel:  [__crc_totalram_pages+1387264/5353478] snd_pcm_period_elapsed+0x2ca/0x410 [snd_pcm]
+>  Jul 12 22:20:41 mindpipe kernel:  [__crc_totalram_pages+1455070/5353478] snd_emu10k1_interrupt+0x3c8/0x480 [snd_emu10k1]
+>  Jul 12 22:20:41 mindpipe kernel:  [handle_IRQ_event+49/96] handle_IRQ_event+0x31/0x60
+>  Jul 12 22:20:41 mindpipe kernel:  [do_IRQ+155/352] do_IRQ+0x9b/0x160
+>  Jul 12 22:20:41 mindpipe kernel:  [common_interrupt+24/32] common_interrupt+0x18/0x20
+>  Jul 12 22:20:41 mindpipe kernel:  [unix_stream_recvmsg+135/1088] unix_stream_recvmsg+0x87/0x440
+>  Jul 12 22:20:41 mindpipe kernel:  [avc_has_perm+72/96] avc_has_perm+0x48/0x60
+>  Jul 12 22:20:41 mindpipe kernel:  [sock_aio_read+155/176] sock_aio_read+0x9b/0xb0
+>  Jul 12 22:20:41 mindpipe kernel:  [do_sync_read+125/192] do_sync_read+0x7d/0xc0
+>  Jul 12 22:20:41 mindpipe kernel:  [do_select+435/752] do_select+0x1b3/0x2f0
+>  Jul 12 22:20:41 mindpipe kernel:  [vfs_read+223/256] vfs_read+0xdf/0x100
+>  Jul 12 22:20:42 mindpipe kernel:  [sys_read+45/80] sys_read+0x2d/0x50
+>  Jul 12 22:20:42 mindpipe kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
+>  Jul 12 22:20:42 mindpipe kernel:
+>  Jul 12 22:20:44 mindpipe kernel: ALSA /usr/src/alsa-cvs-1.0.5/alsa-driver/alsa-kernel/core/pcm_lib.c:169: XRUN: pcmC0D0p
+>  Jul 12 22:20:44 mindpipe kernel:  [__crc_totalram_pages+1387264/5353478] snd_pcm_period_elapsed+0x2ca/0x410 [snd_pcm]
+>  Jul 12 22:20:44 mindpipe kernel:  [__crc_totalram_pages+1455070/5353478] snd_emu10k1_interrupt+0x3c8/0x480 [snd_emu10k1]
+>  Jul 12 22:20:44 mindpipe kernel:  [handle_IRQ_event+49/96] handle_IRQ_event+0x31/0x60
+>  Jul 12 22:20:44 mindpipe kernel:  [do_IRQ+155/352] do_IRQ+0x9b/0x160
+>  Jul 12 22:20:44 mindpipe kernel:  [common_interrupt+24/32] common_interrupt+0x18/0x20
 
-ok - patch below. ia64 can now define it - the default is that legacy
-binaries have executability expectations.
+Oh dear, these don't make much sense.
 
-	Ingo
+You'll have the best chance of getting decent traces with
+CONFIG_FRAME_POINTER=y and CONFIG_4KSTACKS=n, but I'm not sure that this
+will help a lot.  Are you sure that CONFIG_PREEMPT is enabled on that
+kernel?
 
---- linux/fs/binfmt_elf.c.orig
-+++ linux/fs/binfmt_elf.c
-@@ -627,8 +627,14 @@ static int load_elf_binary(struct linux_
- 				executable_stack = EXSTACK_DISABLE_X;
- 			break;
- 		}
-+#ifndef CONFIG_DEFAULT_NOEXEC
-+	/*
-+	 * Legacy binaries (unless the arch defaults to noexec) have an
-+	 * expectation of executability - turn it on:
-+	 */
- 	if (i == elf_ex.e_phnum)
- 		def_flags |= VM_EXEC | VM_MAYEXEC;
-+#endif
- 
- 	/* Some simple consistency checks for the interpreter */
- 	if (elf_interpreter) {

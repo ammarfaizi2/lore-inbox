@@ -1,75 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261489AbTEAR0v (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 May 2003 13:26:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261500AbTEAR0v
+	id S261506AbTEAR1z (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 May 2003 13:27:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261515AbTEAR1z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 May 2003 13:26:51 -0400
-Received: from smtp.inet.fi ([192.89.123.192]:38342 "EHLO smtp.inet.fi")
-	by vger.kernel.org with ESMTP id S261489AbTEAR0u (ORCPT
+	Thu, 1 May 2003 13:27:55 -0400
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:32016 "EHLO dvmwest.gt.owl.de")
+	by vger.kernel.org with ESMTP id S261506AbTEAR1v (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 May 2003 13:26:50 -0400
-From: Kimmo Sundqvist <rabbit80@mbnet.fi>
-Organization: Unorganized
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.68-mm3 and a simple mistake
-Date: Thu, 1 May 2003 20:38:45 +0300
-User-Agent: KMail/1.5.1
-References: <200305011826.31389.rabbit80@mbnet.fi.suse.lists.linux.kernel> <p734r4e3ca6.fsf@oldwotan.suse.de>
-In-Reply-To: <p734r4e3ca6.fsf@oldwotan.suse.de>
-MIME-Version: 1.0
+	Thu, 1 May 2003 13:27:51 -0400
+Date: Thu, 1 May 2003 19:40:13 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Why DRM exists [was Re: Flame Linus to a crisp!]
+Message-ID: <20030501174013.GA27494@lug-owl.de>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <170EBA504C3AD511A3FE00508BB89A9202032941@exnanycmbx4.ipc.com> <20030430152041.GA22038@work.bitmover.com> <16048.20899.694659.419853@nanango.paulus.ozlabs.org> <20030501010317.GB8676@work.bitmover.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="VbJkn9YxBvnuCH5J"
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200305012038.45157.rabbit80@mbnet.fi>
+In-Reply-To: <20030501010317.GB8676@work.bitmover.com>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux mail 2.4.18 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 01 May 2003 18:41, Andi Kleen wrote:
 
-> Kimmo Sundqvist <rabbit80@mbnet.fi> writes:
+--VbJkn9YxBvnuCH5J
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> > /usr/bin/make -f scripts/Makefile.clean obj=arch/i386/mach-default
-> > /usr/bin/make -f scripts/Makefile.clean obj=arch/i386/mach-generic
-> > scripts/Makefile.clean:10: arch/i386/mach-generic/Makefile: No such file
-> > or directory
-> > make[2]: *** No rule to make target `arch/i386/mach-generic/Makefile'. 
-> > Stop. make[1]: *** [_clean_arch/i386/mach-generic] Error 2
-> > make[1]: Leaving directory `/usr/src/linux-2.5.68'
-> > make: *** [stamp-kernel-configure] Error 2
+On Wed, 2003-04-30 18:03:17 -0700, Larry McVoy <lm@bitmover.com>
+wrote in message <20030501010317.GB8676@work.bitmover.com>:
+> On Thu, May 01, 2003 at 08:43:47AM +1000, Paul Mackerras wrote:
+> > Larry McVoy writes:
+> And as much as I dislike Microsoft, I'd argue that the middleware layer
+> that they provide which makes all the windows apps work together is=20
+> maybe even a bigger deal than the web.  Unix has been trying to build
+> something like that for decades and never has.  Neither Gnome nor KDE=20
+> matches what they have, not a chance.  And the reason is that that=20
 
-> Most likely you need to apply this patch. 
+Now, after using Linux (and some other Un*xes as well:) I wouldn't
+compare Windows to Gnome or KDE. I'd better compare Windows to sh, awk,
+sed, ... The best thing ever seems to be '|', '&&' and '||' :-)
 
-This is funny.  Patching with "patch -p0 < 2.5.68-mm3" caused all the patched 
-files to appear in /usr/src/25  They also disappeared from 
-/usr/src/linux-2.5.68
+> layer is the computing version of ditch digging, it's not sexy, it's
+> not math, it's just a pile of grunt work, a huge pile.  And Microsoft
 
-I did "cp -a /usr/src/25/* /usr/src/linux-2.5.68/" and there was no error at 
-first, but the compile failed with:
+Nothing sexy there, but some simple sh scripts are damn neat to that:)
 
-gcc -Wp,-MD,net/core/.netfilter.o.d -D__KERNEL__ -Iinclude -Wall 
--Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe 
--mpreferred-stack-boundary=2 -march=i686 -Iinclude/asm-i386/mach-default 
--fomit-frame-pointer -nostdinc -iwithprefix include    
--DKBUILD_BASENAME=netfilter -DKBUILD_MODNAME=netfilter -c -o 
-net/core/netfilter.o net/core/netfilter.c
-net/core/netfilter.c: In function `nf_reinject':
-net/core/netfilter.c:559: `i' undeclared (first use in this function)
-net/core/netfilter.c:559: (Each undeclared identifier is reported only once
-net/core/netfilter.c:559: for each function it appears in.)
-net/core/netfilter.c:559: warning: left-hand operand of comma expression has 
-no effect
-net/core/netfilter.c:559: warning: left-hand operand of comma expression has 
-no effect
-make[3]: *** [net/core/netfilter.o] Error 1
-make[2]: *** [net/core] Error 2
-make[1]: *** [net] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.5.68'
-make: *** [stamp-build] Error 2
+MfG, JBG
 
-Still I can't understand what is the intended way of doing this.  I will try 
-n+1 ways and stop to think now and then, but if someone has an easy way to do 
-this, I haven't seen it.
+--=20
+   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
+   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
+    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
+k!
+      ret =3D do_actions((curr | FREE_SPEECH) & ~(IRAQ_WAR_2 | DRM | TCPA));
 
--Kimmo S.
+--VbJkn9YxBvnuCH5J
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+sVv8Hb1edYOZ4bsRAmMGAKCMYjJwaxClu+WAjNxvFAVGQO7oJwCfU3cI
+3DLG+RNjqixXbLZ1lDUjwuw=
+=klCE
+-----END PGP SIGNATURE-----
+
+--VbJkn9YxBvnuCH5J--

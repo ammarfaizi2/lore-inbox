@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262634AbUE1MLQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262476AbUE1MG5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262634AbUE1MLQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 May 2004 08:11:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262605AbUE1MJs
+	id S262476AbUE1MG5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 May 2004 08:06:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262328AbUE1MEO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 May 2004 08:09:48 -0400
-Received: from mail.donpac.ru ([80.254.111.2]:64436 "EHLO donpac.ru")
-	by vger.kernel.org with ESMTP id S262538AbUE1L4M (ORCPT
+	Fri, 28 May 2004 08:04:14 -0400
+Received: from mail.donpac.ru ([80.254.111.2]:45748 "EHLO donpac.ru")
+	by vger.kernel.org with ESMTP id S262450AbUE1Lzp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 May 2004 07:56:12 -0400
-Subject: [PATCH 12/13] 2.6.7-rc1-mm1, Port ACPI sleep quirk to new DMI probing
-In-Reply-To: <10857453621318@donpac.ru>
+	Fri, 28 May 2004 07:55:45 -0400
+Subject: [PATCH 5/13] 2.6.7-rc1-mm1, Port HP Pavilion irq routing quirk to new DMI probing
+In-Reply-To: <10857453372934@donpac.ru>
 X-Mailer: gregkh_patchbomb_levon_offspring
-Date: Fri, 28 May 2004 15:56:05 +0400
-Message-Id: <10857453654057@donpac.ru>
+Date: Fri, 28 May 2004 15:55:41 +0400
+Message-Id: <10857453413454@donpac.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
@@ -23,106 +23,112 @@ X-Spam-Score: -27
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
+make pci irq routing code use
+dmi_check_system() function
+and make broken_hp_bios_irq9 variable static.
 
 diff -urpN -X /usr/share/dontdiff linux-2.6.7-rc1-mm1.vanilla/arch/i386/kernel/dmi_scan.c linux-2.6.7-rc1-mm1/arch/i386/kernel/dmi_scan.c
---- linux-2.6.7-rc1-mm1.vanilla/arch/i386/kernel/dmi_scan.c	Thu Apr 29 00:15:56 2004
-+++ linux-2.6.7-rc1-mm1/arch/i386/kernel/dmi_scan.c	Thu Apr 29 00:16:13 2004
-@@ -193,17 +193,6 @@ static __init int broken_toshiba_keyboar
- 	return 0;
+--- linux-2.6.7-rc1-mm1.vanilla/arch/i386/kernel/dmi_scan.c	Wed Apr 28 23:52:39 2004
++++ linux-2.6.7-rc1-mm1/arch/i386/kernel/dmi_scan.c	Wed Apr 28 23:53:48 2004
+@@ -235,23 +235,6 @@ static __init int disable_smbus(struct d
  }
  
--/*
-- * Toshiba fails to preserve interrupts over S1
+ /*
+- * Work around broken HP Pavilion Notebooks which assign USB to
+- * IRQ 9 even though it is actually wired to IRQ 11
 - */
--
--static __init int init_ints_after_s1(struct dmi_system_id *d)
+-static __init int fix_broken_hp_bios_irq9(struct dmi_system_id *d)
 -{
--	printk(KERN_WARNING "Toshiba with broken S1 detected.\n");
--	dmi_broken |= BROKEN_INIT_AFTER_S1;
+-#ifdef CONFIG_PCI
+-	extern int broken_hp_bios_irq9;
+-	if (broken_hp_bios_irq9 == 0)
+-	{
+-		broken_hp_bios_irq9 = 1;
+-		printk(KERN_INFO "%s detected - fixing broken IRQ routing\n", d->ident);
+-	}
+-#endif
 -	return 0;
 -}
 -
- #ifdef CONFIG_ACPI_SLEEP
- static __init int reset_videomode_after_s3(struct dmi_system_id *d)
- {
-@@ -248,9 +237,6 @@ static __initdata struct dmi_system_id d
- 			} },
- 
- 	{ broken_toshiba_keyboard, "Toshiba Satellite 4030cdt", { /* Keyboard generates spurious repeats */
--			DMI_MATCH(DMI_PRODUCT_NAME, "S4030CDT/4.3"),
--			} },
--	{ init_ints_after_s1, "Toshiba Satellite 4030cdt", { /* Reinitialization of 8259 is needed after S1 resume */
+-/*
+  * HP Proliant 8500 systems can't use i8042 in mux mode,
+  * or they instantly reboot.
+  */
+@@ -466,14 +449,6 @@ static __initdata struct dmi_system_id d
  			DMI_MATCH(DMI_PRODUCT_NAME, "S4030CDT/4.3"),
  			} },
- #ifdef CONFIG_ACPI_SLEEP
-diff -urpN -X /usr/share/dontdiff linux-2.6.7-rc1-mm1.vanilla/drivers/acpi/sleep/main.c linux-2.6.7-rc1-mm1/drivers/acpi/sleep/main.c
---- linux-2.6.7-rc1-mm1.vanilla/drivers/acpi/sleep/main.c	Wed Apr 28 22:55:43 2004
-+++ linux-2.6.7-rc1-mm1/drivers/acpi/sleep/main.c	Thu Apr 29 00:16:13 2004
-@@ -10,6 +10,7 @@
+ #endif
+-	{ fix_broken_hp_bios_irq9, "HP Pavilion N5400 Series Laptop", {
+-			DMI_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
+-			DMI_MATCH(DMI_BIOS_VERSION, "GE.M1.03"),
+-			DMI_MATCH(DMI_PRODUCT_VERSION, "HP Pavilion Notebook Model GE"),
+-			DMI_MATCH(DMI_BOARD_VERSION, "OmniBook N32N-736")
+-			} },
+- 
+-
  
- #include <linux/delay.h>
+ 	/*
+ 	 *	SMBus / sensors settings
+diff -urpN -X /usr/share/dontdiff linux-2.6.7-rc1-mm1.vanilla/arch/i386/pci/irq.c linux-2.6.7-rc1-mm1/arch/i386/pci/irq.c
+--- linux-2.6.7-rc1-mm1.vanilla/arch/i386/pci/irq.c	Wed Apr 28 22:56:09 2004
++++ linux-2.6.7-rc1-mm1/arch/i386/pci/irq.c	Wed Apr 28 23:53:01 2004
+@@ -12,6 +12,7 @@
+ #include <linux/slab.h>
+ #include <linux/interrupt.h>
  #include <linux/irq.h>
 +#include <linux/dmi.h>
- #include <linux/device.h>
- #include <linux/suspend.h>
- #include <acpi/acpi_bus.h>
-@@ -30,6 +31,8 @@ static u32 acpi_suspend_states[] = {
- 	[PM_SUSPEND_DISK]	= ACPI_STATE_S4,
- };
+ #include <asm/io.h>
+ #include <asm/smp.h>
+ #include <asm/io_apic.h>
+@@ -22,7 +23,7 @@
+ #define PIRQ_SIGNATURE	(('$' << 0) + ('P' << 8) + ('I' << 16) + ('R' << 24))
+ #define PIRQ_VERSION 0x0100
  
-+static int init_8259A_after_S1;
-+
- /**
-  *	acpi_pm_prepare - Do preliminary suspend work.
-  *	@state:		suspend state we're entering.
-@@ -138,7 +141,7 @@ static int acpi_pm_finish(u32 state)
- 	/* reset firmware waking vector */
- 	acpi_set_firmware_waking_vector((acpi_physical_address) 0);
+-int broken_hp_bios_irq9;
++static int broken_hp_bios_irq9;
  
--	if (dmi_broken & BROKEN_INIT_AFTER_S1) {
-+	if (init_8259A_after_S1) {
- 		printk("Broken toshiba laptop -> kicking interrupts\n");
- 		init_8259A(0);
+ static struct irq_routing_table *pirq_table;
+ 
+@@ -893,12 +894,41 @@ static void __init pcibios_fixup_irqs(vo
  	}
-@@ -159,16 +162,38 @@ int acpi_suspend(u32 acpi_state)
- 	return -EINVAL;
  }
  
--
- static struct pm_ops acpi_pm_ops = {
- 	.prepare	= acpi_pm_prepare,
- 	.enter		= acpi_pm_enter,
- 	.finish		= acpi_pm_finish,
- };
- 
-+
 +/*
-+ * Toshiba fails to preserve interrupts over S1, reinitialization 
-+ * of 8259 is needed after S1 resume.
++ * Work around broken HP Pavilion Notebooks which assign USB to
++ * IRQ 9 even though it is actually wired to IRQ 11
 + */
-+static int __init init_ints_after_s1(struct dmi_system_id *d)
++static int __init fix_broken_hp_bios_irq9(struct dmi_system_id *d)
 +{
-+	printk(KERN_WARNING "%s with broken S1 detected.\n", d->ident);
-+	init_8259A_after_S1 = 1;
++	if (!broken_hp_bios_irq9) {
++		broken_hp_bios_irq9 = 1;
++		printk(KERN_INFO "%s detected - fixing broken IRQ routing\n", d->ident);
++	}
 +	return 0;
 +}
 +
-+static struct dmi_system_id __initdata acpisleep_dmi_table[] = {
-+	{	
-+		.callback = init_ints_after_s1,
-+		.ident = "Toshiba Satellite 4030cdt",
-+		.matches = { DMI_MATCH(DMI_PRODUCT_NAME, "S4030CDT/4.3"), },
++static struct dmi_system_id __initdata pciirq_dmi_table[] = {
++	{
++		.callback = fix_broken_hp_bios_irq9,
++		.ident = "HP Pavilion N5400 Series Laptop",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
++			DMI_MATCH(DMI_BIOS_VERSION, "GE.M1.03"),
++			DMI_MATCH(DMI_PRODUCT_VERSION, "HP Pavilion Notebook Model GE"),
++			DMI_MATCH(DMI_BOARD_VERSION, "OmniBook N32N-736"),
++		},
 +	},
-+	{ },
++	{ }
 +};
 +
- static int __init acpi_sleep_init(void)
+ static int __init pcibios_irq_init(void)
  {
- 	int			i = 0;
-+
-+	dmi_check_system(acpisleep_dmi_table);
+ 	DBG("PCI: IRQ init\n");
  
- 	if (acpi_disabled)
+ 	if (pcibios_enable_irq || raw_pci_ops == NULL)
  		return 0;
++
++	dmi_check_system(pciirq_dmi_table);
+ 
+ 	pirq_table = pirq_find_routing_table();
+ 
 

@@ -1,78 +1,124 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261973AbUAOGYF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jan 2004 01:24:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262038AbUAOGYF
+	id S262041AbUAOGjf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jan 2004 01:39:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262458AbUAOGjf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jan 2004 01:24:05 -0500
-Received: from rth.ninka.net ([216.101.162.244]:4480 "EHLO rth.ninka.net")
-	by vger.kernel.org with ESMTP id S261973AbUAOGYC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jan 2004 01:24:02 -0500
-Date: Wed, 14 Jan 2004 22:23:16 -0800
-From: "David S. Miller" <davem@redhat.com>
-To: Jun Sun <jsun@mvista.com>
-Cc: akpm@osdl.org, linux-mips@linux-mips.org, linux-kernel@vger.kernel.org,
-       rmk@arm.linux.org.uk, jsun@mvista.com
-Subject: Re: [BUG] 2.6.1/MIPS - missing cache flushing when user program
- returns pages to kernel
-Message-Id: <20040114222316.25276f12.davem@redhat.com>
-In-Reply-To: <20040114174012.H13471@mvista.com>
-References: <20040114163920.E13471@mvista.com>
-	<20040114171252.4d873c51.akpm@osdl.org>
-	<20040114172946.03e54706.akpm@osdl.org>
-	<20040114174012.H13471@mvista.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 15 Jan 2004 01:39:35 -0500
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:37254 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S262041AbUAOGjc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jan 2004 01:39:32 -0500
+Message-ID: <40063583.3000000@labs.fujitsu.com>
+Date: Thu, 15 Jan 2004 15:38:59 +0900
+From: Tsuchiya Yoshihiro <tsuchiya@labs.fujitsu.com>
+Reply-To: tsuchiya@labs.fujitsu.com
+Organization: Fujitsu Labs
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Stephen C. Tweedie" <sct@redhat.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>, dlion2004@sina.com.cn,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Subject: Re: filesystem bug?
+References: <3FDD7DFD.7020306@labs.fujitsu.com>	 <1071582242.5462.1.camel@sisko.scot.redhat.com> <3FDF7BE0.205@jpl.nasa.gov>		 <3FDF95EB.2080903@labs.fujitsu.com> <3FE0E5C6.5040008@labs.fujitsu.com>	 <1071782986.3666.323.camel@sisko.scot.redhat.com>	 <3FE62999.90309@labs.fujitsu.com>  <3FE67362.2070704@labs.fujitsu.com> <1072094621.1967.6.camel@sisko.scot.redhat.com> <3FE8F079.7010906@labs.fujitsu.com> <3FEA1C91.2010302@labs.fujitsu.com>
+In-Reply-To: <3FEA1C91.2010302@labs.fujitsu.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 14 Jan 2004 17:40:12 -0800
-Jun Sun <jsun@mvista.com> wrote:
 
-> Looking at my tree (which is from linux-mips.org), it appears
-> arm, sparc, sparc64, and sh have tlb_start_vma() defined to call
-> cache flushing.
+Hi,
+I tried ramdisk again with more running process, and the script failed very
+early just like Mr Dlion reported previously. It is about 20 minutes on 
+my machines.
 
-Correct, in fact every platform where cache flushing matters
-at all (ie. where flush_cache_*() routines actually need to
-flush a cpu cache), they should have tlb_start_vma() do such
-a flush.
+1. The script use nvi-1.79 tar ball
+2. Prepare 64MB ramdisk, and mkfs on it.
+3. edit the first three lines and run the script below(its name is xc-1.2)
+4. wait half an hour and see the result will be in /tmp/xcresult
 
-> What exactly does tlb_start_vma()/tlb_end_vma() mean?  There is
-> only one invocation instance, which is significant enough to infer
-> the meaning.  :)
+Thanks,
+Yoshi
+--------------------------------
+#!/bin/bash
 
-When the kernel unmaps a mmap region of a process (either for the
-sake of munmap() or tearing down all mapping during exit()) tlb_start_vma()
-is called, the page table mappings in the region are torn down one by
-one, then a tlb_end_vma() call is made.
+TARGETPREFIX=/mnt/foo   # filesystem that will be tested
+#MOZSRC=/home/tsuchiya/src/mozilla-source-1.3.tar.gz    # tgz used for test
+MOZSRC=/home/tsuchiya/src/nvi-1.79.tar.gz       # tgz used for test
+RDIR="/tmp/xcresult"    # result directory
+#SOURCE=mozilla
+SOURCE=nvi-1.79
 
-At the top level, ie. whoever invokes unmap_page_range(), there will
-be a tlb_gather_mmu() call.
+ERRORF=$RDIR/ERROR
+INOFILE=$RDIR/INOF
 
-In order to properly optimize the cache flushes, most platforms do the
-following:
+touch $ERRORF
 
-1) The tlb->fullmm boolean keeps trap of whether this is just a munmap()
-   unmapping operation (if zero) or a full address space teardown
-   (if non-zero).
+function _xtract+compare {
+        echo "extracting directory to be compared against for $1"
+        TARGETDIR=$TARGETPREFIX/$1
+        mkdir -p $TARGETDIR
+        cd $TARGETDIR
+        tar zxf $MOZSRC
+        echo "$1 done .... now the job is started."
+# new
+#       touch $INOFILE
+        pwd >> $INOFILE-$1
+        ls -lid $SOURCE >> $INOFILE-$1
 
-2) In the full address space teardown case, and thus tlb->fullmm is
-   non-zero, the top level will do the explict flush_cache_mm()
-   (see mm/mmap.c:exit_mmap()), therefore the tlb_start_vma()
-   implementation need not do the flush, otherwise it does.
+        RESULTS=$RDIR/$1
+        echo "test result will be stored under $RESULTS"
+        mkdir -p $RESULTS;
+#       echo "test dir is $TARGETDIR";
+        mkdir -p $TARGETDIR;
 
-   This is why sparc64 and friends implement it like this:
+        for ((i=0; i < 100000; i++))    # ext2/3 limit 32000
+        do
 
-#define tlb_start_vma(tlb, vma) \
-do {    if (!(tlb)->fullmm)     \
-                flush_cache_range(vma, vma->vm_start, vma->vm_end); \
-} while (0)
+                cd $TARGETDIR
+                mkdir $TARGETDIR/dirXC$i
+                cd $TARGETDIR/dirXC$i > $RDIR/CD-ERR-$1 2>&1
 
-Hope this clears things up.
+                if [ -s $RDIR/CD-ERR-$1 ]
+                then
+                        echo "something wrong happened at $1:$i-th trial "
+                        df > $RDIR/DF-$1
+                        exit;
+                fi
 
-Someone should probably take what I just wrote, expand and organize it,
-then add such content to Documentation/cachetlb.txt
+                tar zxf $MOZSRC >> $ERRORF
+
+#                echo "test dir for $TARGETDIR" >> $INOFILE-$1
+                ls -lid $SOURCE >> $INOFILE-$1
+
+                diff -rq $TARGETDIR/$SOURCE $TARGETDIR/dirXC$i/$SOURCE > 
+$RESULT
+S/dirXC$i.result 2>&1
+                DIFFSIZE=`ls -l $RESULTS/dirXC$i.result | awk '{print $5}'`
+                if [ $DIFFSIZE != 0 ];
+                then
+                        echo "something wrong happened at $1:$i-th trial "
+                        df > $RDIR/DF-$1
+                        exit;
+                else
+                        rm $RESULTS/dirXC$i.result
+                        echo "test $1:$i-th passed"
+                fi
+
+                cd ..
+                rm -rf $TARGETDIR/dirXC$i &
+        done
+}
+
+for target in aa ab ac ad ae af #ag ah ai aj ak al am an
+do
+        _xtract+compare $target $RDIR &
+done
+
+--
+Yoshihiro Tsuchiya
+
+
+

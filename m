@@ -1,17 +1,18 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262397AbTCIEVk>; Sat, 8 Mar 2003 23:21:40 -0500
+	id <S262096AbTCIENS>; Sat, 8 Mar 2003 23:13:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262417AbTCIEVk>; Sat, 8 Mar 2003 23:21:40 -0500
-Received: from yuzuki.cinet.co.jp ([61.197.228.219]:48000 "EHLO
+	id <S262103AbTCIENR>; Sat, 8 Mar 2003 23:13:17 -0500
+Received: from chii.cinet.co.jp ([61.197.228.217]:43136 "EHLO
 	yuzuki.cinet.co.jp") by vger.kernel.org with ESMTP
-	id <S262397AbTCIEVY>; Sat, 8 Mar 2003 23:21:24 -0500
-Date: Sun, 9 Mar 2003 13:31:30 +0900
+	id <S262096AbTCIEMg>; Sat, 8 Mar 2003 23:12:36 -0500
+Date: Sun, 9 Mar 2003 13:22:31 +0900
 From: Osamu Tomita <tomita@cinet.co.jp>
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCH] PC-9800 subarch. support for 2.5.64-ac3 (15/20) RTC
-Message-ID: <20030309043130.GP1231@yuzuki.cinet.co.jp>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       James simmons <jsimmons@infradead.org>
+Subject: [PATCH] PC-9800 subarch. support for 2.5.64-ac3 (9/20) kanji
+Message-ID: <20030309042231.GJ1231@yuzuki.cinet.co.jp>
 References: <20030309035245.GA1231@yuzuki.cinet.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -22,416 +23,636 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is the patch to support NEC PC-9800 subarchitecture
-against 2.5.64-ac3. (15/20)
+against 2.5.64-ac3. (9/20)
 
-Support RTC for PC98, using mach-* scheme.
-Replace set_rtc_mmss() and get_cmos_time().
+Add japanese kanji character support to PC98 console.
 
 Regards,
 Osamu Tomita
 
-
-diff -Nru linux-2.5.63/arch/i386/kernel/time.c linux98-2.5.63/arch/i386/kernel/time.c
---- linux-2.5.63/arch/i386/kernel/time.c	2003-02-25 04:05:32.000000000 +0900
-+++ linux98-2.5.63/arch/i386/kernel/time.c	2003-03-04 20:51:39.000000000 +0900
-@@ -55,12 +55,15 @@
- #include <asm/processor.h>
- #include <asm/timer.h>
+diff -Nru linux/drivers/char/console_macros.h linux98/drivers/char/console_macros.h
+--- linux/drivers/char/console_macros.h	Sat Oct 19 13:01:17 2002
++++ linux98/drivers/char/console_macros.h	Mon Oct 28 16:53:39 2002
+@@ -64,6 +64,16 @@
+ #define complement_mask (vc_cons[currcons].d->vc_complement_mask)
+ #define s_complement_mask (vc_cons[currcons].d->vc_s_complement_mask)
+ #define hi_font_mask	(vc_cons[currcons].d->vc_hi_font_mask)
++#define kanji_mode     (vc_cons[currcons].d->vc_kanji_mode)
++#define s_kanji_mode   (vc_cons[currcons].d->vc_s_kanji_mode)
++#define kanji_char1    (vc_cons[currcons].d->vc_kanji_char1)
++#define translate_ex   (vc_cons[currcons].d->vc_translate_ex)
++#define G0_charset_ex  (vc_cons[currcons].d->vc_G0_charset_ex)
++#define G1_charset_ex  (vc_cons[currcons].d->vc_G1_charset_ex)
++#define saved_G0_ex    (vc_cons[currcons].d->vc_saved_G0_ex)
++#define saved_G1_ex    (vc_cons[currcons].d->vc_saved_G1_ex)
++#define kanji_jis_mode (vc_cons[currcons].d->vc_kanji_jis_mode)
++#define s_kanji_jis_mode (vc_cons[currcons].d->vc_s_kanji_jis_mode)
  
--#include <linux/mc146818rtc.h>
-+#include "mach_time.h"
-+
- #include <linux/timex.h>
- #include <linux/config.h>
+ #define vcmode		(vt_cons[currcons]->vc_mode)
  
- #include <asm/arch_hooks.h>
- 
-+#include "io_ports.h"
-+
- extern spinlock_t i8259A_lock;
- int pit_latch_buggy;              /* extern */
- 
-@@ -138,69 +141,13 @@
- 	clock_was_set();
+diff -Nru linux/drivers/char/vt.c linux98/drivers/char/vt.c
+--- linux/drivers/char/vt.c	2002-12-16 11:08:16.000000000 +0900
++++ linux98/drivers/char/vt.c	2002-12-20 14:52:06.000000000 +0900
+@@ -151,6 +151,10 @@
+ static void blank_screen(unsigned long dummy);
+ static void gotoxy(int currcons, int new_x, int new_y);
+ static void save_cur(int currcons);
++#ifdef CONFIG_KANJI
++static void save_cur_kanji(int currcons);
++static void restore_cur_kanji(int currcons);
++#endif
+ static void reset_terminal(int currcons, int do_clear);
+ static void con_flush_chars(struct tty_struct *tty);
+ static void set_vesa_blanking(unsigned long arg);
+@@ -433,6 +437,25 @@
+ 		do_update_region(currcons, (unsigned long) p, count);
  }
  
--/*
-- * In order to set the CMOS clock precisely, set_rtc_mmss has to be
-- * called 500 ms after the second nowtime has started, because when
-- * nowtime is written into the registers of the CMOS clock, it will
-- * jump to the next second precisely 500 ms later. Check the Motorola
-- * MC146818A or Dallas DS12887 data sheet for details.
-- *
-- * BUG: This routine does not handle hour overflow properly; it just
-- *      sets the minutes. Usually you'll only notice that after reboot!
-- */
- static int set_rtc_mmss(unsigned long nowtime)
++#ifdef CONFIG_KANJI
++/* can called form keyboard.c */
++void do_change_kanji_mode(int currcons, unsigned long mode)
++{
++	switch (mode) {
++	case 0:
++		kanji_mode = EUC_CODE;
++		break;
++	case 1:
++		kanji_mode = JIS_CODE;
++		break;
++	case 2:
++		kanji_mode = SJIS_CODE;
++		break;
++	}
++	kanji_char1 = 0;
++}
++#endif /* CONFIG_KANJI */
++
+ /* used by selection: complement pointer position */
+ void complement_pos(int currcons, int offset)
  {
--	int retval = 0;
--	int real_seconds, real_minutes, cmos_minutes;
--	unsigned char save_control, save_freq_select;
-+	int retval;
+@@ -1085,6 +1108,9 @@
+ 				translate = set_translate(charset == 0
+ 						? G0_charset
+ 						: G1_charset,currcons);
++#ifdef CONFIG_KANJI
++				translate_ex = (charset == 0 ? G0_charset_ex : G1_charset_ex);
++#endif
+ 				disp_ctrl = 0;
+ 				toggle_meta = 0;
+ 				break;
+@@ -1093,6 +1119,9 @@
+ 				  * chars < 32 be displayed as ROM chars.
+ 				  */
+ 				translate = set_translate(IBMPC_MAP,currcons);
++#ifdef CONFIG_KANJI
++				translate_ex = 0;
++#endif
+ 				disp_ctrl = 1;
+ 				toggle_meta = 0;
+ 				break;
+@@ -1101,6 +1130,9 @@
+ 				  * high bit before displaying as ROM char.
+ 				  */
+ 				translate = set_translate(IBMPC_MAP,currcons);
++#ifdef CONFIG_KANJI
++				translate_ex = 0;
++#endif
+ 				disp_ctrl = 1;
+ 				toggle_meta = 1;
+ 				break;
+@@ -1310,6 +1342,22 @@
+ 		case 14: /* set vesa powerdown interval */
+ 			vesa_off_interval = ((par[1] < 60) ? par[1] : 60) * 60 * HZ;
+ 			break;
++#ifdef CONFIG_KANJI
++		case 98:
++			if (par[1] < 10) /* change kanji mode */
++				do_change_kanji_mode(currcons, par[1]); /* 0208 */
++			else if (par[1] == 10) { /* save restore kanji mode */
++				switch (par[2]) {
++				case 1:
++					save_cur_kanji(currcons);
++					break;
++				case 2:
++					restore_cur_kanji(currcons);
++					break;
++				}
++			}
++			break;
++#endif /* CONFIG_KANJI */
+ 	}
+ }
  
- 	/* gets recalled with irq locally disabled */
- 	spin_lock(&rtc_lock);
--	save_control = CMOS_READ(RTC_CONTROL); /* tell the clock it's being set */
--	CMOS_WRITE((save_control|RTC_SET), RTC_CONTROL);
--
--	save_freq_select = CMOS_READ(RTC_FREQ_SELECT); /* stop and reset prescaler */
--	CMOS_WRITE((save_freq_select|RTC_DIV_RESET2), RTC_FREQ_SELECT);
--
--	cmos_minutes = CMOS_READ(RTC_MINUTES);
--	if (!(save_control & RTC_DM_BINARY) || RTC_ALWAYS_BCD)
--		BCD_TO_BIN(cmos_minutes);
--
--	/*
--	 * since we're only adjusting minutes and seconds,
--	 * don't interfere with hour overflow. This avoids
--	 * messing with unknown time zones but requires your
--	 * RTC not to be off by more than 15 minutes
--	 */
--	real_seconds = nowtime % 60;
--	real_minutes = nowtime / 60;
--	if (((abs(real_minutes - cmos_minutes) + 15)/30) & 1)
--		real_minutes += 30;		/* correct for half hour time zone */
--	real_minutes %= 60;
--
--	if (abs(real_minutes - cmos_minutes) < 30) {
--		if (!(save_control & RTC_DM_BINARY) || RTC_ALWAYS_BCD) {
--			BIN_TO_BCD(real_seconds);
--			BIN_TO_BCD(real_minutes);
--		}
--		CMOS_WRITE(real_seconds,RTC_SECONDS);
--		CMOS_WRITE(real_minutes,RTC_MINUTES);
--	} else {
--		printk(KERN_WARNING
--		       "set_rtc_mmss: can't update from %d to %d\n",
--		       cmos_minutes, real_minutes);
--		retval = -1;
--	}
--
--	/* The following flags have to be released exactly in this order,
--	 * otherwise the DS12887 (popular MC146818A clone with integrated
--	 * battery and quartz) will not reset the oscillator and will not
--	 * update precisely 500 ms later. You won't find this mentioned in
--	 * the Dallas Semiconductor data sheets, but who believes data
--	 * sheets anyway ...                           -- Markus Kuhn
--	 */
--	CMOS_WRITE(save_control, RTC_CONTROL);
--	CMOS_WRITE(save_freq_select, RTC_FREQ_SELECT);
-+	retval = mach_set_rtc_mmss(nowtime);
- 	spin_unlock(&rtc_lock);
+@@ -1387,8 +1435,26 @@
+ 	need_wrap = 0;
+ }
  
- 	return retval;
-@@ -226,9 +173,9 @@
- 		 * on an 82489DX-based system.
- 		 */
- 		spin_lock(&i8259A_lock);
--		outb(0x0c, 0x20);
-+		outb(0x0c, PIC_MASTER_OCW3);
- 		/* Ack the IRQ; AEOI will end it automatically. */
--		inb(0x20);
-+		inb(PIC_MASTER_POLL);
- 		spin_unlock(&i8259A_lock);
++#ifdef CONFIG_KANJI
++static void save_cur_kanji(int currcons)
++{
++        s_kanji_mode = kanji_mode;
++        s_kanji_jis_mode = kanji_jis_mode;
++}
++
++static void restore_cur_kanji(int currcons)
++{
++        kanji_mode = s_kanji_mode;
++        kanji_jis_mode = s_kanji_jis_mode;
++        kanji_char1 = 0;
++}
++#endif
++
+ enum { ESnormal, ESesc, ESsquare, ESgetpars, ESgotpars, ESfunckey,
+ 	EShash, ESsetG0, ESsetG1, ESpercent, ESignore, ESnonstd,
++#ifdef CONFIG_KANJI
++	ESsetJIS, ESsetJIS2,
++#endif
+ 	ESpalette };
+ 
+ /* console_sem is held (except via vc_init()) */
+@@ -1398,9 +1464,18 @@
+ 	bottom		= video_num_lines;
+ 	vc_state	= ESnormal;
+ 	ques		= 0;
++#ifdef CONFIG_KANJI
++	translate	= set_translate(JP_MAP, currcons);
++	translate_ex    = 0;
++	G0_charset      = JP_MAP;
++	G0_charset_ex   = 0;
++	G1_charset      = GRAF_MAP;
++	G1_charset_ex   = 0;
++#else
+ 	translate	= set_translate(LAT1_MAP,currcons);
+ 	G0_charset	= LAT1_MAP;
+ 	G1_charset	= GRAF_MAP;
++#endif
+ 	charset		= 0;
+ 	need_wrap	= 0;
+ 	report_mouse	= 0;
+@@ -1442,6 +1517,12 @@
+ 	bell_pitch = DEFAULT_BELL_PITCH;
+ 	bell_duration = DEFAULT_BELL_DURATION;
+ 
++#ifdef CONFIG_KANJI
++	kanji_mode = EUC_CODE;
++	kanji_char1 = 0;
++	kanji_jis_mode = JIS_CODE_ASCII;
++#endif
++
+ 	gotoxy(currcons,0,0);
+ 	save_cur(currcons);
+ 	if (do_clear)
+@@ -1484,11 +1565,17 @@
+ 	case 14:
+ 		charset = 1;
+ 		translate = set_translate(G1_charset,currcons);
++#ifdef CONFIG_KANJI
++		translate_ex = G1_charset_ex;
++#endif
+ 		disp_ctrl = 1;
+ 		return;
+ 	case 15:
+ 		charset = 0;
+ 		translate = set_translate(G0_charset,currcons);
++#ifdef CONFIG_KANJI
++		translate_ex = G0_charset_ex;
++#endif
+ 		disp_ctrl = 0;
+ 		return;
+ 	case 24: case 26:
+@@ -1545,6 +1632,11 @@
+ 		case ')':
+ 			vc_state = ESsetG1;
+ 			return;
++#ifdef CONFIG_KANJI
++		case '$':
++			vc_state = ESsetJIS;
++			return;
++#endif
+ 		case '#':
+ 			vc_state = EShash;
+ 			return;
+@@ -1794,8 +1886,25 @@
+ 			G0_charset = IBMPC_MAP;
+ 		else if (c == 'K')
+ 			G0_charset = USER_MAP;
+-		if (charset == 0)
++#ifdef CONFIG_KANJI
++		G0_charset_ex = 0;
++		if (c == 'J')
++			G0_charset = JP_MAP;
++		else if (c == 'I'){
++			G0_charset = JP_MAP;
++			G0_charset_ex = 1;
++		}
++#endif /* CONFIG_KANJI */
++		if (charset == 0) {
+ 			translate = set_translate(G0_charset,currcons);
++#ifdef CONFIG_KANJI
++			translate_ex = G0_charset_ex;
++#endif
++		}
++#ifdef CONFIG_KANJI
++		kanji_jis_mode = JIS_CODE_ASCII;
++		kanji_char1 = 0;
++#endif
+ 		vc_state = ESnormal;
+ 		return;
+ 	case ESsetG1:
+@@ -1807,10 +1916,51 @@
+ 			G1_charset = IBMPC_MAP;
+ 		else if (c == 'K')
+ 			G1_charset = USER_MAP;
+-		if (charset == 1)
++#ifdef CONFIG_KANJI
++		G1_charset_ex = 0;
++		if (c == 'J')
++			G1_charset = JP_MAP;
++		else if (c == 'I') {
++			G1_charset = JP_MAP;
++			G1_charset_ex = 1;
++		}
++#endif /* CONFIG_KANJI */
++		if (charset == 1) {
+ 			translate = set_translate(G1_charset,currcons);
++#ifdef CONFIG_KANJI
++			translate_ex = G1_charset_ex;
++#endif
++		}
++#ifdef CONFIG_KANJI
++		kanji_jis_mode = JIS_CODE_ASCII;
++		kanji_char1 = 0;
++#endif
++		vc_state = ESnormal;
++		return;
++#ifdef CONFIG_KANJI
++	case ESsetJIS:
++		if (c == '@')
++			kanji_jis_mode = JIS_CODE_78;
++		else if (c == 'B')
++			kanji_jis_mode = JIS_CODE_83;
++		else if (c == '('){
++			vc_state = ESsetJIS2;
++			return;
++		} else {
++		vc_state = ESnormal;
++		return;
++		}
+ 		vc_state = ESnormal;
++		kanji_char1 = 0;
+ 		return;
++	case ESsetJIS2:
++		if (c == 'D'){
++			kanji_jis_mode = JIS_CODE_90;
++			kanji_char1 = 0;
++		}
++		vc_state = ESnormal;
++		return;
++#endif /* CONIFG_KANJI */
+ 	default:
+ 		vc_state = ESnormal;
+ 	}
+@@ -1842,7 +1992,7 @@
  	}
  #endif
-@@ -242,14 +189,16 @@
- 	 */
- 	if ((time_status & STA_UNSYNC) == 0 &&
- 	    xtime.tv_sec > last_rtc_update + 660 &&
--	    (xtime.tv_nsec / 1000) >= 500000 - ((unsigned) TICK_SIZE) / 2 &&
--	    (xtime.tv_nsec / 1000) <= 500000 + ((unsigned) TICK_SIZE) / 2) {
-+	    (xtime.tv_nsec / 1000)
-+			>= USEC_AFTER - ((unsigned) TICK_SIZE) / 2 &&
-+	    (xtime.tv_nsec / 1000)
-+			<= USEC_BEFORE + ((unsigned) TICK_SIZE) / 2) {
- 		if (set_rtc_mmss(xtime.tv_sec) == 0)
- 			last_rtc_update = xtime.tv_sec;
- 		else
- 			last_rtc_update = xtime.tv_sec - 600; /* do it again in 60 s */
- 	}
--	    
-+
- #ifdef CONFIG_MCA
- 	if( MCA_bus ) {
- 		/* The PS/2 uses level-triggered interrupts.  You can't
-@@ -330,43 +279,15 @@
- /* not static: needed by APM */
- unsigned long get_cmos_time(void)
- {
--	unsigned int year, mon, day, hour, min, sec;
--	int i;
-+	unsigned long retval;
  
- 	spin_lock(&rtc_lock);
--	/* The Linux interpretation of the CMOS clock register contents:
--	 * When the Update-In-Progress (UIP) flag goes from 1 to 0, the
--	 * RTC registers show the second which has precisely just started.
--	 * Let's hope other operating systems interpret the RTC the same way.
--	 */
--	/* read RTC exactly on falling edge of update flag */
--	for (i = 0 ; i < 1000000 ; i++)	/* may take up to 1 second... */
--		if (CMOS_READ(RTC_FREQ_SELECT) & RTC_UIP)
--			break;
--	for (i = 0 ; i < 1000000 ; i++)	/* must try at least 2.228 ms */
--		if (!(CMOS_READ(RTC_FREQ_SELECT) & RTC_UIP))
--			break;
--	do { /* Isn't this overkill ? UIP above should guarantee consistency */
--		sec = CMOS_READ(RTC_SECONDS);
--		min = CMOS_READ(RTC_MINUTES);
--		hour = CMOS_READ(RTC_HOURS);
--		day = CMOS_READ(RTC_DAY_OF_MONTH);
--		mon = CMOS_READ(RTC_MONTH);
--		year = CMOS_READ(RTC_YEAR);
--	} while (sec != CMOS_READ(RTC_SECONDS));
--	if (!(CMOS_READ(RTC_CONTROL) & RTC_DM_BINARY) || RTC_ALWAYS_BCD)
--	  {
--	    BCD_TO_BIN(sec);
--	    BCD_TO_BIN(min);
--	    BCD_TO_BIN(hour);
--	    BCD_TO_BIN(day);
--	    BCD_TO_BIN(mon);
--	    BCD_TO_BIN(year);
--	  }
-+
-+	retval = mach_get_cmos_time();
-+
- 	spin_unlock(&rtc_lock);
--	if ((year += 1900) < 1970)
--		year += 100;
--	return mktime(year, mon, day, hour, min, sec);
-+
-+	return retval;
- }
+-	int c, tc, ok, n = 0, draw_x = -1;
++	int c, tc = 0, ok, n = 0, draw_x = -1;
+ 	unsigned int currcons;
+ 	unsigned long draw_from = 0, draw_to = 0;
+ 	struct vt_struct *vt = (struct vt_struct *)tty->driver_data;
+@@ -1899,48 +2049,151 @@
+ 		hide_cursor(currcons);
  
- /* XXX this driverfs stuff should probably go elsewhere later -john */
-diff -Nru linux/include/asm-i386/mach-default/mach_time.h linux98/include/asm-i386/mach-default/mach_time.h
---- linux/include/asm-i386/mach-default/mach_time.h	1970-01-01 09:00:00.000000000 +0900
-+++ linux98/include/asm-i386/mach-default/mach_time.h	2003-03-04 20:52:21.000000000 +0900
-@@ -0,0 +1,122 @@
-+/*
-+ *  include/asm-i386/mach-default/mach_time.h
-+ *
-+ *  Machine specific set RTC function for generic.
-+ *  Split out from time.c by Osamu Tomita <tomita@cinet.co.jp>
-+ */
-+#ifndef _MACH_TIME_H
-+#define _MACH_TIME_H
+ 	while (!tty->stopped && count) {
++		int realkanji = 0;
++		int kanjioverrun = 0;
+ 		c = *buf;
+ 		buf++;
+ 		n++;
+ 		count--;
+ 
+-		if (utf) {
+-		    /* Combine UTF-8 into Unicode */
+-		    /* Incomplete characters silently ignored */
+-		    if(c > 0x7f) {
+-			if (utf_count > 0 && (c & 0xc0) == 0x80) {
+-				utf_char = (utf_char << 6) | (c & 0x3f);
+-				utf_count--;
+-				if (utf_count == 0)
+-				    tc = c = utf_char;
+-				else continue;
+-			} else {
+-				if ((c & 0xe0) == 0xc0) {
+-				    utf_count = 1;
+-				    utf_char = (c & 0x1f);
+-				} else if ((c & 0xf0) == 0xe0) {
+-				    utf_count = 2;
+-				    utf_char = (c & 0x0f);
+-				} else if ((c & 0xf8) == 0xf0) {
+-				    utf_count = 3;
+-				    utf_char = (c & 0x07);
+-				} else if ((c & 0xfc) == 0xf8) {
+-				    utf_count = 4;
+-				    utf_char = (c & 0x03);
+-				} else if ((c & 0xfe) == 0xfc) {
+-				    utf_count = 5;
+-				    utf_char = (c & 0x01);
+-				} else
+-				    utf_count = 0;
+-				continue;
+-			      }
+-		    } else {
+-		      tc = c;
+-		      utf_count = 0;
+-		    }
+-		} else {	/* no utf */
+-		  tc = translate[toggle_meta ? (c|0x80) : c];
+-		}
++#ifdef CONFIG_KANJI
++		if (vc_state == ESnormal && !disp_ctrl) {
++			switch (kanji_jis_mode) {
++			case JIS_CODE_78:
++			case JIS_CODE_83:
++			case JIS_CODE_90:
++				if (utf)
++					break;
++				if (c >= 127 || c <= 0x20) {
++					kanji_char1 = 0;
++					break;
++				}
++				if (kanji_char1) {
++					tc = (((unsigned int)kanji_char1) << 8) |
++                        (((unsigned int)c) & 0x007f);
++					kanji_char1 = 0;
++					realkanji = 1;
++				} else {
++					kanji_char1 = ((unsigned int)c) & 0x007f;
++					continue;
++				} 
++				break;
++			case JIS_CODE_ASCII:
++			default:
++				switch (kanji_mode) {
++				case SJIS_CODE:
++					if (kanji_char1) {
++                        if ((0x40 <= c && c <= 0x7E) ||
++                            (0x80 <= c && c <= 0xFC)) {
++							realkanji = 1;
++							/* SJIS to JIS */
++							kanji_char1 <<= 1; /* 81H-9FH --> 22H-3EH */
++							/* EOH-EFH --> C0H-DEH */
++							c -= 0x1f;         /* 40H-7EH --> 21H-5FH */
++							/* 80H-9EH --> 61H-7FH */
++							/* 9FH-FCH --> 80H-DDH */
++							if (!(c & 0x80)) {
++								if (c < 0x61)
++									c++;
++								c += 0xde;
++							}
++							c &= 0xff;
++							c += 0xa1;
++							kanji_char1 += 0x1f;
++							tc = (kanji_char1 << 8) + c;
++							tc &= 0x7f7f;
++							kanji_char1 = 0;
++                        }
++					} else {
++                        if ((0x81 <= c && c <= 0x9f) ||
++                            (0xE0 <= c && c <= 0xEF)) {
++							realkanji = 1;
++							kanji_char1 = c;
++							continue;
++                        } else if (0xA1 <= c && c <= 0xDF) {
++							tc = (unsigned int)translations[JP_MAP][c];
++							goto hankana_skip;
++                        }
++					}
++					break;
++				case EUC_CODE:
++					if (utf)
++                        break;
++					if (c <= 0x7f) {
++                        kanji_char1 = 0;
++                        break;
++					}
++					if (kanji_char1) {
++                        if (kanji_char1 == 0x8e) {  /* SS2 */
++							/* realkanji ha tatenai */
++							tc = (unsigned int)translations[JP_MAP][c];
++							kanji_char1 = 0;
++							goto hankana_skip;
++                        } else {
++							tc = (((unsigned int)kanji_char1) << 8) |
++								(((unsigned int)c) & 0x007f);
++							kanji_char1 = 0;
++							realkanji = 1;
++                        }
++					} else {
++                        kanji_char1 = (unsigned int)c;
++                        continue;
++					}
++					break;
++				case JIS_CODE:
++					/* to be supported */
++					break;
++				} /* switch (kanji_mode) */
++			} /* switch (kanji_jis_mode) */
++		} /* if (vc_state == ESnormal) */
 +
-+#include <linux/mc146818rtc.h>
++#endif /* CONFIG_KANJI */
++		if (!realkanji) {
++			if (utf) {
++			    /* Combine UTF-8 into Unicode */
++			    /* Incomplete characters silently ignored */
++			    if(c > 0x7f) {
++				if (utf_count > 0 && (c & 0xc0) == 0x80) {
++					utf_char = (utf_char << 6) | (c & 0x3f);
++					utf_count--;
++					if (utf_count == 0)
++					    tc = c = utf_char;
++					else continue;
++				} else {
++					if ((c & 0xe0) == 0xc0) {
++					    utf_count = 1;
++					    utf_char = (c & 0x1f);
++					} else if ((c & 0xf0) == 0xe0) {
++					    utf_count = 2;
++					    utf_char = (c & 0x0f);
++					} else if ((c & 0xf8) == 0xf0) {
++					    utf_count = 3;
++					    utf_char = (c & 0x07);
++					} else if ((c & 0xfc) == 0xf8) {
++					    utf_count = 4;
++					    utf_char = (c & 0x03);
++					} else if ((c & 0xfe) == 0xfc) {
++					    utf_count = 5;
++					    utf_char = (c & 0x01);
++					} else
++					    utf_count = 0;
++					continue;
++				      }
++			    } else {
++			      tc = c;
++			      utf_count = 0;
++			    }
++			} else {	/* no utf */
++#ifdef CONFIG_KANJI
++			  tc = translate[(toggle_meta || translate_ex) ? (c | 0x80) : c];
++#else
++			  tc = translate[toggle_meta ? (c|0x80) : c];
++#endif
++			}
++		} /* if (!realkanji) */
++#ifdef CONFIG_KANJI
++	hankana_skip:
++#endif
+ 
+                 /* If the original code was a control character we
+                  * only allow a glyph to be displayed if the code is
+@@ -1957,43 +2210,71 @@
+                                          : CTRL_ACTION) >> c) & 1)))
+                         && (c != 127 || disp_ctrl)
+ 			&& (c != 128+27);
++                ok |= realkanji;
+ 
+ 		if (vc_state == ESnormal && ok) {
+-			/* Now try to find out how to display it */
+-			tc = conv_uni_to_pc(vc_cons[currcons].d, tc);
+-			if ( tc == -4 ) {
++			if (!realkanji) {
++				/* Now try to find out how to display it */
++				tc = conv_uni_to_pc(vc_cons[currcons].d, tc);
++				if ( tc == -4 ) {
+                                 /* If we got -4 (not found) then see if we have
+                                    defined a replacement character (U+FFFD) */
+-                                tc = conv_uni_to_pc(vc_cons[currcons].d, 0xfffd);
++       	                         tc = conv_uni_to_pc(vc_cons[currcons].d, 0xfffd);
+ 
+ 				/* One reason for the -4 can be that we just
+ 				   did a clear_unimap();
+ 				   try at least to show something. */
+-				if (tc == -4)
+-				     tc = c;
+-                        } else if ( tc == -3 ) {
++					if (tc == -4)
++					     tc = c;
++				} else if ( tc == -3 ) {
+                                 /* Bad hash table -- hope for the best */
+-                                tc = c;
+-                        }
+-			if (tc & ~charmask)
+-                                continue; /* Conversion failed */
++					tc = c;
++				}
++				if (tc & ~charmask)
++					continue; /* Conversion failed */
++			} /* !realkanji */
+ 
+ 			if (need_wrap || decim)
+ 				FLUSH
+ 			if (need_wrap) {
+ 				cr(currcons);
+ 				lf(currcons);
++				if (kanjioverrun) {
++					x++;
++					pos += 2;
++					kanjioverrun = 0;
++				}
+ 			}
+ 			if (decim)
+ 				insert_char(currcons, 1);
++#ifndef CONFIG_KANJI
+ 			scr_writew(himask ?
+ 				     ((attr << 8) & ~himask) + ((tc & 0x100) ? himask : 0) + (tc & 0xff) :
+ 				     (attr << 8) + tc,
+ 				   (u16 *) pos);
++#else /* CONFIG_KANJI */
++			if (realkanji) {
++				tc = ((tc >> 8) & 0xff) | ((tc << 8) & 0xff00); 
++				*((u16 *)pos) = (tc - 0x20) & 0xff7f;
++				*(pc9800_attr_offset((u16 *)pos)) = attr;
++				x ++;
++				pos += 2;
++				*((u16 *)pos) = (tc - 0x20) | 0x80;
++				*(pc9800_attr_offset((u16 *)pos)) = attr;
++			} else {
++				*((u16 *)pos) = tc & 0x00ff;
++				*(pc9800_attr_offset((u16 *)pos)) = attr;
++			}
++#endif /* !CONFIG_KANJI */
+ 			if (DO_UPDATE && draw_x < 0) {
+ 				draw_x = x;
+ 				draw_from = pos;
++				if (realkanji) {
++					draw_x --;
++					draw_from -= 2;
++				}
+ 			}
++#ifndef CONFIG_KANJI
+ 			if (x == video_num_columns - 1) {
+ 				need_wrap = decawm;
+ 				draw_to = pos+2;
+@@ -2001,6 +2282,16 @@
+ 				x++;
+ 				draw_to = (pos+=2);
+ 			}
++#else /* CONFIG_KANJI */
++			if (x >= video_num_columns - 1) {
++				need_wrap = decawm;
++				kanjioverrun = x - video_num_columns + 1;
++				draw_to = pos + 2;
++			} else {
++				x++;
++				draw_to = (pos += 2);
++			}
++#endif /* !CONFIG_KANJI */
+ 			continue;
+ 		}
+ 		FLUSH
+diff -Nru linux-2.5.61/drivers/video/console/Kconfig linux98-2.5.61/drivers/video/console/Kconfig
+--- linux-2.5.61/drivers/video/console/Kconfig	2003-02-15 08:51:21.000000000 +0900
++++ linux98-2.5.61/drivers/video/console/Kconfig	2003-02-16 14:48:08.000000000 +0900
+@@ -221,5 +221,9 @@
+ 	bool "Mini 4x6 font"
+ 	depends on !SPARC32 && !SPARC64 && FONTS
+ 
++config KANJI
++	bool "Japanese Kanji support"
++	depends on X86_PC9800
 +
-+/* for check timing call set_rtc_mmss() 500ms     */
-+/* used in arch/i386/time.c::do_timer_interrupt() */
-+#define USEC_AFTER	500000
-+#define USEC_BEFORE	500000
-+
-+/*
-+ * In order to set the CMOS clock precisely, set_rtc_mmss has to be
-+ * called 500 ms after the second nowtime has started, because when
-+ * nowtime is written into the registers of the CMOS clock, it will
-+ * jump to the next second precisely 500 ms later. Check the Motorola
-+ * MC146818A or Dallas DS12887 data sheet for details.
-+ *
-+ * BUG: This routine does not handle hour overflow properly; it just
-+ *      sets the minutes. Usually you'll only notice that after reboot!
-+ */
-+static inline int mach_set_rtc_mmss(unsigned long nowtime)
-+{
-+	int retval = 0;
-+	int real_seconds, real_minutes, cmos_minutes;
-+	unsigned char save_control, save_freq_select;
-+
-+	save_control = CMOS_READ(RTC_CONTROL); /* tell the clock it's being set */
-+	CMOS_WRITE((save_control|RTC_SET), RTC_CONTROL);
-+
-+	save_freq_select = CMOS_READ(RTC_FREQ_SELECT); /* stop and reset prescaler */
-+	CMOS_WRITE((save_freq_select|RTC_DIV_RESET2), RTC_FREQ_SELECT);
-+
-+	cmos_minutes = CMOS_READ(RTC_MINUTES);
-+	if (!(save_control & RTC_DM_BINARY) || RTC_ALWAYS_BCD)
-+		BCD_TO_BIN(cmos_minutes);
-+
-+	/*
-+	 * since we're only adjusting minutes and seconds,
-+	 * don't interfere with hour overflow. This avoids
-+	 * messing with unknown time zones but requires your
-+	 * RTC not to be off by more than 15 minutes
-+	 */
-+	real_seconds = nowtime % 60;
-+	real_minutes = nowtime / 60;
-+	if (((abs(real_minutes - cmos_minutes) + 15)/30) & 1)
-+		real_minutes += 30;		/* correct for half hour time zone */
-+	real_minutes %= 60;
-+
-+	if (abs(real_minutes - cmos_minutes) < 30) {
-+		if (!(save_control & RTC_DM_BINARY) || RTC_ALWAYS_BCD) {
-+			BIN_TO_BCD(real_seconds);
-+			BIN_TO_BCD(real_minutes);
-+		}
-+		CMOS_WRITE(real_seconds,RTC_SECONDS);
-+		CMOS_WRITE(real_minutes,RTC_MINUTES);
-+	} else {
-+		printk(KERN_WARNING
-+		       "set_rtc_mmss: can't update from %d to %d\n",
-+		       cmos_minutes, real_minutes);
-+		retval = -1;
-+	}
-+
-+	/* The following flags have to be released exactly in this order,
-+	 * otherwise the DS12887 (popular MC146818A clone with integrated
-+	 * battery and quartz) will not reset the oscillator and will not
-+	 * update precisely 500 ms later. You won't find this mentioned in
-+	 * the Dallas Semiconductor data sheets, but who believes data
-+	 * sheets anyway ...                           -- Markus Kuhn
-+	 */
-+	CMOS_WRITE(save_control, RTC_CONTROL);
-+	CMOS_WRITE(save_freq_select, RTC_FREQ_SELECT);
-+
-+	return retval;
-+}
-+
-+static inline unsigned long mach_get_cmos_time(void)
-+{
-+	unsigned int year, mon, day, hour, min, sec;
-+	int i;
-+
-+	/* The Linux interpretation of the CMOS clock register contents:
-+	 * When the Update-In-Progress (UIP) flag goes from 1 to 0, the
-+	 * RTC registers show the second which has precisely just started.
-+	 * Let's hope other operating systems interpret the RTC the same way.
-+	 */
-+	/* read RTC exactly on falling edge of update flag */
-+	for (i = 0 ; i < 1000000 ; i++)	/* may take up to 1 second... */
-+		if (CMOS_READ(RTC_FREQ_SELECT) & RTC_UIP)
-+			break;
-+	for (i = 0 ; i < 1000000 ; i++)	/* must try at least 2.228 ms */
-+		if (!(CMOS_READ(RTC_FREQ_SELECT) & RTC_UIP))
-+			break;
-+	do { /* Isn't this overkill ? UIP above should guarantee consistency */
-+		sec = CMOS_READ(RTC_SECONDS);
-+		min = CMOS_READ(RTC_MINUTES);
-+		hour = CMOS_READ(RTC_HOURS);
-+		day = CMOS_READ(RTC_DAY_OF_MONTH);
-+		mon = CMOS_READ(RTC_MONTH);
-+		year = CMOS_READ(RTC_YEAR);
-+	} while (sec != CMOS_READ(RTC_SECONDS));
-+	if (!(CMOS_READ(RTC_CONTROL) & RTC_DM_BINARY) || RTC_ALWAYS_BCD)
-+	  {
-+	    BCD_TO_BIN(sec);
-+	    BCD_TO_BIN(min);
-+	    BCD_TO_BIN(hour);
-+	    BCD_TO_BIN(day);
-+	    BCD_TO_BIN(mon);
-+	    BCD_TO_BIN(year);
-+	  }
-+	if ((year += 1900) < 1970)
-+		year += 100;
-+
-+	return mktime(year, mon, day, hour, min, sec);
-+}
-+
-+#endif /* !_MACH_TIME_H */
-diff -Nru linux/include/asm-i386/mach-pc9800/mach_time.h linux98/include/asm-i386/mach-pc9800/mach_time.h
---- linux/include/asm-i386/mach-pc9800/mach_time.h	1970-01-01 09:00:00.000000000 +0900
-+++ linux98/include/asm-i386/mach-pc9800/mach_time.h	2003-03-04 20:52:02.000000000 +0900
-@@ -0,0 +1,100 @@
-+/*
-+ *  include/asm-i386/mach-pc9800/mach_time.h
-+ *
-+ *  Machine specific set RTC function for PC-9800.
-+ *  Written by Osamu Tomita <tomita@cinet.co.jp>
-+ */
-+#ifndef _MACH_TIME_H
-+#define _MACH_TIME_H
-+
-+#include <linux/bcd.h>
-+#include <linux/upd4990a.h>
-+
-+/* for check timing call set_rtc_mmss() */
-+/* used in arch/i386/time.c::do_timer_interrupt() */
-+/*
-+ * Because PC-9800's RTC (NEC uPD4990A) does not allow setting
-+ * time partially, we always have to read-modify-write the
-+ * entire time (including year) so that set_rtc_mmss() will
-+ * take quite much time to execute.  You may want to relax
-+ * RTC resetting interval (currently ~11 minuts)...
-+ */
-+#define USEC_AFTER	1000000
-+#define USEC_BEFORE	0
-+
-+static inline int mach_set_rtc_mmss(unsigned long nowtime)
-+{
-+	int retval = 0;
-+	int real_seconds, real_minutes, cmos_minutes;
-+	struct upd4990a_raw_data data;
-+
-+	upd4990a_get_time(&data, 1);
-+	cmos_minutes = BCD2BIN(data.min);
-+
-+	/*
-+	 * since we're only adjusting minutes and seconds,
-+	 * don't interfere with hour overflow. This avoids
-+	 * messing with unknown time zones but requires your
-+	 * RTC not to be off by more than 15 minutes
-+	 */
-+	real_seconds = nowtime % 60;
-+	real_minutes = nowtime / 60;
-+	if (((abs(real_minutes - cmos_minutes) + 15) / 30) & 1)
-+		real_minutes += 30;	/* correct for half hour time zone */
-+	real_minutes %= 60;
-+
-+	if (abs(real_minutes - cmos_minutes) < 30) {
-+		u8 temp_seconds = (real_seconds / 10) * 16 + real_seconds % 10;
-+		u8 temp_minutes = (real_minutes / 10) * 16 + real_minutes % 10;
-+
-+		if (data.sec != temp_seconds || data.min != temp_minutes) {
-+			data.sec = temp_seconds;
-+			data.min = temp_minutes;
-+			upd4990a_set_time(&data, 1);
-+		}
-+	} else {
-+		printk(KERN_WARNING
-+		       "set_rtc_mmss: can't update from %d to %d\n",
-+		       cmos_minutes, real_minutes);
-+		retval = -1;
-+	}
-+
-+	/* uPD4990A users' manual says we should issue Register Hold
-+	 * command after reading time, or future Time Read command
-+	 * may not work.  When we have set the time, this also starts
-+	 * the clock.
-+	 */
-+	upd4990a_serial_command(UPD4990A_REGISTER_HOLD);
-+
-+	return retval;
-+}
-+
-+static inline unsigned long mach_get_cmos_time(void)
-+{
-+	int i;
-+	u8 prev, cur;
-+	unsigned int year;
-+	struct upd4990a_raw_data data;
-+
-+	/* Connect uPD4990A's DATA OUT pin to its 1Hz reference clock. */
-+	upd4990a_serial_command(UPD4990A_REGISTER_HOLD);
-+
-+	/* Catch rising edge of reference clock.  */
-+	prev = ~UPD4990A_READ_DATA();
-+	for (i = 0; i < 1800000; i++) { /* may take up to 1 second... */
-+		__asm__ ("outb %%al,%0" : : "N" (0x5f)); /* 0.6usec delay */
-+		cur = UPD4990A_READ_DATA();
-+		if (!(prev & cur & 1))
-+			break;
-+		prev = ~cur;
-+	}
-+
-+	upd4990a_get_time(&data, 0);
-+
-+	if ((year = BCD2BIN(data.year) + 1900) < 1995)
-+		year += 100;
-+	return mktime(year, data.mon, BCD2BIN(data.mday), BCD2BIN(data.hour),
-+			BCD2BIN(data.min), BCD2BIN(data.sec));
-+}
-+
-+#endif /* !_MACH_TIME_H */
+ endmenu
+ 
+diff -Nru linux/include/linux/console_struct.h linux98/include/linux/console_struct.h
+--- linux/include/linux/console_struct.h	2002-12-10 11:45:40.000000000 +0900
++++ linux98/include/linux/console_struct.h	2002-12-16 13:25:55.000000000 +0900
+@@ -83,6 +83,18 @@
+ 	struct vc_data **vc_display_fg;		/* [!] Ptr to var holding fg console for this display */
+ 	unsigned long	vc_uni_pagedir;
+ 	unsigned long	*vc_uni_pagedir_loc;  /* [!] Location of uni_pagedir variable for this console */
++#ifdef CONFIG_KANJI
++	unsigned char   vc_kanji_char1;
++	unsigned char   vc_kanji_mode;
++	unsigned char   vc_kanji_jis_mode;
++	unsigned char   vc_s_kanji_mode;
++	unsigned char   vc_s_kanji_jis_mode;
++	unsigned int    vc_translate_ex;
++	unsigned char   vc_G0_charset_ex;
++	unsigned char   vc_G1_charset_ex;
++	unsigned char   vc_saved_G0_ex;
++	unsigned char   vc_saved_G1_ex;
++#endif /* CONFIG_KANJI */
+ 	/* additional information is in vt_kern.h */
+ };
+ 
+diff -Nru linux/include/linux/consolemap.h linux98/include/linux/consolemap.h
+--- linux/include/linux/consolemap.h	Sat Oct 19 13:02:34 2002
++++ linux98/include/linux/consolemap.h	Mon Oct 21 14:19:31 2002
+@@ -7,6 +7,7 @@
+ #define GRAF_MAP 1
+ #define IBMPC_MAP 2
+ #define USER_MAP 3
++#define JP_MAP 4
+ 
+ struct vc_data;
+ 

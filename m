@@ -1,189 +1,110 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284370AbRLHTYS>; Sat, 8 Dec 2001 14:24:18 -0500
+	id <S284415AbRLHT1i>; Sat, 8 Dec 2001 14:27:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284405AbRLHTYJ>; Sat, 8 Dec 2001 14:24:09 -0500
-Received: from shell.cyberus.ca ([216.191.240.114]:5371 "EHLO shell.cyberus.ca")
-	by vger.kernel.org with ESMTP id <S284370AbRLHTYF>;
-	Sat, 8 Dec 2001 14:24:05 -0500
-Date: Sat, 8 Dec 2001 14:20:20 -0500 (EST)
-From: jamal <hadi@cyberus.ca>
-To: bert hubert <ahu@ds9a.nl>
-cc: <lartc@mailman.ds9a.nl>, <linux-kernel@vger.kernel.org>,
-        <kuznet@ms2.inr.ac.ru>, <netdev@oss.sgi.com>
-Subject: Re: CBQ and all other qdiscs now REALLY completely documented
- (almost!)
-In-Reply-To: <20011203030002.A20601@outpost.ds9a.nl>
-Message-ID: <Pine.GSO.4.30.0112030831520.20924-100000@shell.cyberus.ca>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S284421AbRLHT12>; Sat, 8 Dec 2001 14:27:28 -0500
+Received: from mailhost.nmt.edu ([129.138.4.52]:23818 "EHLO mailhost.nmt.edu")
+	by vger.kernel.org with ESMTP id <S284415AbRLHT1V>;
+	Sat, 8 Dec 2001 14:27:21 -0500
+Subject: Re: File copy system call proposal
+From: Quinn Harris <quinn@nmt.edu>
+To: Thomas Cataldo <thomas.cataldo@laposte.net>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <1007833194.17577.0.camel@buffy>
+In-Reply-To: <1007782956.355.2.camel@quinn.rcn.nmt.edu> 
+	<1007833194.17577.0.camel@buffy>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 08 Dec 2001 12:23:50 -0700
+Message-Id: <1007839431.371.0.camel@quinn.rcn.nmt.edu>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 2001-12-08 at 10:39, Thomas Cataldo wrote:
+> On Sat, 2001-12-08 at 04:42, Quinn Harris wrote:
+> > I would like to propose implementing a file copy system call.
+> > I expect the initial reaction to such a proposal would be "feature
+> > bloat" but I believe some substantial benefits can be seen possibly
+> > making it worthwhile, primarily the following:
+> 
+> I think  
+> 
+> ssize_t  sendfile(int  out_fd,  int  in_fd, off_t *offset, size_t count)
+> 
+> is what you are looking for, isn't it ?
+> 
+> > 
+> > Copy on write:
+> > >From my experience most files that are copied on the same partition are
+> > copied from a source code directory (eg /usr/src/{src dir}) to somewhere
+> > else in /usr.  These copied files are seldomly modified but usually
+> > truncated (when copied over again).
+> > Instead of actually copying the file in these circumstances something
+> > similar to a hard link could be created.  But unlike a hard link, when
+> > data is written to the file a real duplicate of the file (or possibly
+> > part of the file) will be created.  This is basically identical to the
+> > way a processes memory space is duplicated on a fork.  To create an
+> > illusion of an actual copied file the file system will need to
+> > explicitly support this feature.  This can also eliminate duplication in
+> > the buffer cache when a file is copied.
+> > 
+> > This feature would drastically reduce the time taken to install a
+> > program from a compiled source tarball.  I also expect on my system this
+> > feature would save about 1/6 of my hard drive space.  Of course this
+> > wouldn't affect performance if the source and destination files are on
+> > different partitions.
+> > 
+> > All kernel copy:
+> > Commands like cp and install open the source and destination file using
+> > the open sys call.  The data from the source is copied to the
+> > destination by repeatedly calling the read then write sys calls.  This
+> > process involves copying the data in the file from kernel memory space
+> > to the user memory space and back again.  Note that all this copying is
+> > done by the kernel upon calling read or write.  I would expect if this
+> > can be moved completely into the kernel no memory copy operations would
+> > be performed by the processor by using hardware DMA.
+> > 
+> > On my system a copy takes about 1s of the CPU time per 20MB copied (PII
+> > 300Mhz) much of which I expect is spent just copying memory.  This
+> > figure seems a bit high to copy memory so someone please correct me if I
+> > am wrong.
+> > 
+> > 
+> > Implementing these features especially the copy on write I expect will
+> > not be trivial.  In addition code that copies files like cp must be
+> > modified to take advantage of these features.
+> > 
+> > Will many other users benefit from these features?  Will implementing
+> > them (especially copy on write) cause an excessive addition to the code
+> > of the kernel?
+> > 
+> > Quinn Harris (quinn@nmt.edu)
+> > 
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
+
+I wasn't aware of the sendfile system call.  But it apears that just
+like the mmap, write method suggested by H. Peter Anvin a memory copy is
+still performed when copying files from discs to duplicate the data for
+the buffer cache.  This would undoubtedly be faster than repeatedly
+calling read and write as it avoids one mem copy.  Yet GNU
+fileutils-4.1, that cp and install are part of, uses the read/write
+method.  I expect this is primarily because of portability issues but I
+wouldn't think the use of mmap would cause portability issues.
+
+Infact a patch for file utils that does this is availible at
+http://mail.gnu.org/pipermail/bug-fileutils/2001-May/001700.html and by
+using time on cp, a mmap copy apears to require nearly half the CPU time
+of normal.  This would suggest to me that eliminating the memcopy on the
+call to write would allow even the largest file copies to be performed
+with very nominal support from the processor.
 
 
-On Mon, 3 Dec 2001, bert hubert wrote:
-
-> On Sat, Dec 01, 2001 at 01:33:41AM +0100, bert hubert wrote:
->
-> > One thing - does *anybody* understand how hash tables work in tc filter, and
-> > what they do? Furthermore, I could use some help with the tc filter police
-> > things.
->
-> Thanks to Andreas Steinmetz and David Sauer, tc hash tables are now
-> documented as well, thanks!
->
-> See:
->
->   http://ds9a.nl/2.4Routing/HOWTO//cvs/2.4routing/output/2.4routing-12.html
->
-> And then 'Hashing filters for very fast massive filtering'.
->
-> I also finished documenting all parameters for TBF, CBQ, SFQ, PRIO,
-> bfifo, pfifo and pfifo_fast. All queues in the Linux kernel are now
-> described in the Linux Advanced Routing & Shaping HOWTO, which can be found on
->
->                           http://ds9a.nl/2.4Routing
->
-> I want to send this off to the LDP and Freshmeat somewhere next week, I
-> *would really* like people who are knowledgeable about this subject (this
-> means you, ANK & Jamal 8) ) to read through this.
->
-> This HOWTO is rapidly becoming the perceived authoritative source for
-> traffic control in linux (google on 'Linux Routing' finds it), it might as
-> well be right! So if you have any time at all, check the parts you know
-> about. I expect mistakes.
->
-> The parts of the table of contents that document stuff in the kernel not
-> documented elsewhere:
-
-"not documented elsewhere" comes out rude. Werner and I (and even
-Alexey when he was in the mood -- and i have seen some good documentation
-by other people as well) have spent numerous hours documenting, presenting
-and answering questions on mailing lists at times
-
-Sample docs that i was personally involved in:
-ftp://icaftp.epfl.ch/pub/linux/diffserv/misc/dsid-01.txt.gz
-You need to introduce the big picture to the user.
-and what is wrong with the definitions used in
-http://www.davin.ottawa.on.ca/ols/img10.htm that forced you to introduce
-your own?
-Actually, the big picture is:
-http://www.davin.ottawa.on.ca/ols/img9.htm
-Also
-http://www.linuxjournal.com/article.php?sid=3369
-(was written in 98 but got published in 99)
-
-Now despite all the bitching above, i think your efforts are noble.
-
-[My complaints about your style is you often are trying to present facts
-by using opinions. For example despite a lot of effort in the past to
-explain ingress qdisc to you in the past and, pointing you to very good
-documentation from CISCO you still ended using your opinions on what you
-thought it should be;->
-My scanning of the document shows opinions still posing as miscontrued
-facts. It is improving compared to what i saw last when we discussed ingress.
-Let me clarify one thing in this email; i'll read what you have later.
-
-Lets start by your description of TC_PRIO and TOS mappings etc:
-Your descriptions of these values is insufficient. Consider this a
-tutorial and reword it as you wish but please avoid opinions.
-Ok here's clarification, this applies to both prio, default fifo 3 band
-queueing and CBQ defaultmap classification; applies to both packets being
-forwarded as well as locally generated:
-
-First Step:
-===========
-
-Define TOS: This is a 4 bit value used as defined in RFC 1349.
-
-               0     1     2     3     4     5     6     7
-             +-----+-----+-----+-----+-----+-----+-----+-----+
-             |                 |                       |     |
-             |   PRECEDENCE    |          TOS          | MBZ |
-             |                 |                       |     |
-             +-----+-----+-----+-----+-----+-----+-----+-----+
-
-Then define the values possible as:
-
-
-
-                    1000   --   minimize delay
-                    0100   --   maximize throughput
-                    0010   --   maximize reliability
-                    0001   --   minimize monetary cost
-                    0000   --   normal service
-
-Look at RFC 1349 for typical values used by different applications
-Then of course note that RFC 1349 is obsoleted by RFC 2474 (yes, you can
-weep);
-
-Having said all that:
-
-Linux remaps packets incoming with different values to some internal
-value; the colum "mapped to" shows the internal mapping
-
-8value(hex)   TOS(dec) mapped to(dec)
-----------------------------------
-0x0              0      0
-                 1      7
-                 2      0
-                 3      0
-                 4      2
-                 5      2
-                 6      2
-                 7      2
-0x10             8      6
-                 9      6
-                10      6
-                11      6
-                12      2
-                13      2
-                14      2
-                15      2
-
-Fill in the  "8value(hex)" column gaps using the bitmap from RFC1349 for
-the 8 bits; These are the values ou would see with tcpdump -vvv
-I filled the two easiest ones i could compute in my head.
-
-Second step:
-
-Take the default priority map:
- 1, 2, 2, 2, 1, 2, 0, 0 , 1, 1, 1, 1, 1, 1, 1, 1
-This applies for both default prio and the 3-band FIFO queue.
-Note the queue map fitted on the last column
-
-8 but value     TOS     mapped to   queue map
----------------------------------------------
-0x0              0      0              1
-                 1      7              2
-                 2      0              2
-                 3      0              2
-                 4      2              1
-                 5      2              2
-                 6      2              0
-                 7      2              0
-0x10             8      6              1
-                 9      6              1
-                10      6              1
-                11      6              1
-                12      2              1
-                13      2              1
-                14      2              1
-                15      2              1
-
-Queue 0 gets processed first then queue 1 then queue 2. In the strict
-priority processing such as in prio or default 3 band sched, queue 0 is
-processed until no more packets are left, then queue1 etc. This could
-result in starvation. You could avoid starvation by inserting a TBF
-in a prio; limit the size of the fifo in a class or use CBQ configured
-as WRR.
-I hope the above explains why you have to recreate the priomap everytime
-you change the number of bands. You used the word "probably" which is
-wrong. The proper word is "MUST".
-What i think would be useful for you to do is describe some of the vlaues
-used by some applications (RFC 1349 cut-n-paste job would help).
-
-cheers,
-jamal
 

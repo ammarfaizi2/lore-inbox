@@ -1,40 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130443AbRCIH24>; Fri, 9 Mar 2001 02:28:56 -0500
+	id <S130441AbRCIHYf>; Fri, 9 Mar 2001 02:24:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130446AbRCIH2q>; Fri, 9 Mar 2001 02:28:46 -0500
-Received: from kerberos.suse.cz ([195.47.106.10]:13061 "EHLO kerberos.suse.cz")
-	by vger.kernel.org with ESMTP id <S130443AbRCIH2c>;
-	Fri, 9 Mar 2001 02:28:32 -0500
-Date: Thu, 8 Mar 2001 21:54:48 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: linux-kernel@vger.kernel.org
+	id <S130443AbRCIHYY>; Fri, 9 Mar 2001 02:24:24 -0500
+Received: from [213.95.12.190] ([213.95.12.190]:38660 "HELO mail.medav.de")
+	by vger.kernel.org with SMTP id <S130441AbRCIHYP> convert rfc822-to-8bit;
+	Fri, 9 Mar 2001 02:24:15 -0500
+From: "Daniela Engert" <dani@ngrt.de>
+To: "Vojtech Pavlik" <vojtech@suse.cz>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Date: Fri, 09 Mar 2001 08:25:43 +0100 (CET)
+Reply-To: "Daniela Engert" <dani@ngrt.de>
+X-Mailer: PMMail 2.00.1500 for OS/2 Warp 4.00
+In-Reply-To: <20010308195107.A8509@suse.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Subject: Re: Linux 2.4.2ac12 (vt82c686 info)
-Message-ID: <20010308215448.A391@suse.cz>
-In-Reply-To: <20010307201437.A5030@suse.cz> <Pine.LNX.3.95.1010307131509.31180A-100000@scsoftware.sc-software.com> <20010308091706.B799@suse.cz> <20010308113542.B745@ogah.cgma1.ab.wave.home.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010308113542.B745@ogah.cgma1.ab.wave.home.com>; from ogah@home.com on Thu, Mar 08, 2001 at 11:35:42AM -0700
+Message-Id: <20010309072110.DB1C73E75@mail.medav.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 08, 2001 at 11:35:42AM -0700, Harold Oga wrote:
+On Thu, 8 Mar 2001 19:51:07 +0100, Vojtech Pavlik wrote:
 
-> On Thu, Mar 08, 2001 at 09:17:06AM +0100, Vojtech Pavlik wrote:
-> >On Wed, Mar 07, 2001 at 01:23:49PM +0000, John Heil wrote:
-> >Make sure you use the latest 2.4.2-acxx drivers. Most other versions of
-> >my drivers have little bugs in the 686b support. Harmless but somewhat
-> >annoying.
-> Hi,
->    Hmm, last I checked, Alan had only included v3.21 of your VIA ide
-> driver in the 2.4.2-acxx series, which still had some minor problems with
-> the 686B.  These didn't clear up until v4.3 of the driver.
+>They're about the same - only Alan didn't like the PCI speed measurement
+>code that's new in the 4.x series, so I added all the other changes to
+>the 3.20 driver, and 3.21 was born.
 
-3.21 has these fixes in it. It's series 3 because it doesn't include the
-PCI speed measurement feature.
+I do understand Alan's objections against this speed measurement code
+very well. I have similar code built into other (non-Linux) drivers,
+and according to the many user reports that I got the measurement
+results should be taken with a grain of salt. It is working perfectly
+in most cases, but it may fail from time to time. There is a hidden
+assumption in this type of measurement which the device that you run
+the test against has to fulfill. If it doesn't (and it is not required
+to do to be conforming to the ATA spec), the measurement results (PCI
+bus clock) are bogus (typically way too high).
 
--- 
-Vojtech Pavlik
-SuSE Labs
+Ciao,
+  Dani
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Daniela Engert, systems engineer at MEDAV GmbH
+Gräfenberger Str. 34, 91080 Uttenreuth, Germany
+Phone ++49-9131-583-348, Fax ++49-9131-583-11
+
+

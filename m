@@ -1,157 +1,108 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267746AbSLTIYn>; Fri, 20 Dec 2002 03:24:43 -0500
+	id <S267748AbSLTIf3>; Fri, 20 Dec 2002 03:35:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267747AbSLTIYn>; Fri, 20 Dec 2002 03:24:43 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:47258 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S267746AbSLTIYl>; Fri, 20 Dec 2002 03:24:41 -0500
-Date: Fri, 20 Dec 2002 00:32:41 -0800
-Message-Id: <200212200832.gBK8Wfg29816@magilla.sf.frob.com>
-From: Roland McGrath <roland@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: Ingo Molnar <mingo@redhat.com>
-Subject: PTRACE_GET_THREAD_AREA
-X-Zippy-Says: Maybe we could paint GOLDIE HAWN a rich PRUSSIAN BLUE--
+	id <S267749AbSLTIf3>; Fri, 20 Dec 2002 03:35:29 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:5627 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S267748AbSLTIf1>;
+	Fri, 20 Dec 2002 03:35:27 -0500
+Message-ID: <3E02D81F.13A5A59D@mvista.com>
+Date: Fri, 20 Dec 2002 00:43:11 -0800
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: [PATCH]Timer list init is done AFTER use
+Content-Type: multipart/mixed;
+ boundary="------------551DA302186A31CC7FFCFC07"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch vs 2.5.51 (should apply fine to 2.5.52) adds two new ptrace
-requests for i386, PTRACE_GET_THREAD_AREA and PTRACE_SET_THREAD_AREA.
-These let another process using ptrace do the equivalent of performing
-get_thread_area and set_thread_area system calls for another thread.
 
-We are working on gdb support for the new threading code in the kernel
-using the new NPTL library, and use PTRACE_GET_THREAD_AREA for that.
-This patch has been working fine for that.
+This is a multi-part message in MIME format.
+--------------551DA302186A31CC7FFCFC07
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-I added PTRACE_SET_THREAD_AREA just for completeness, so that you can
-change all the state via ptrace that you can read via ptrace as has
-previously been the case.  It doesn't have an equivalent of set_thread_area
-with .entry_number = -1, but is otherwise the same.
+On SMP systems the timer list init is done by way of a
+cpu_notifier call.  This has two problems:
 
-Both requests use the ptrace `addr' argument for the entry number rather
-than the entry_number field in the struct.  The `data' parameter gives the
-address of a struct user_desc as used by the set/get_thread_area syscalls.
+1.) Timers are started WAY before the cpu_notifier call
+chain is executed.  In particular the console blanking timer
+is deleted and inserted every time printk() is called.  That
+this does not fail is only because the kernel has yet to
+protect location zero.
 
-The code is quite simple, and doesn't need any special synchronization
-because in the ptrace context the thread must be stopped already.
+2.) This notifier is called when a cpu comes up.  I suspect
+that initializing the timer list when a hot swap of a cpu is
+done is NOT the right thing to do.  In any case, if this is
+a desired action, the list still needs to be initialized
+prior to its use.
 
-I chose the new request numbers arbitrarily from ones not used on i386.
-I have no opinion on what values should be used.
+The attached patch initializes all the timer lists at
+init_timers time and does not put code in the notify list.
+--
+George Anzinger   george@mvista.com
+High-res-timers: 
+http://sourceforge.net/projects/high-res-timers/
+Preemption patch:
+http://www.kernel.org/pub/linux/kernel/people/rml
+--------------551DA302186A31CC7FFCFC07
+Content-Type: text/plain; charset=us-ascii;
+ name="timer-init-fix.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="timer-init-fix.patch"
 
-People I talked to preferred adding this interface over putting an array of
-struct user_desc in struct user as accessed by PTRACE_PEEKUSR/POKEUSR
-(which would be a bit unnatural since those calls access one word at a time).
-
-
-Thanks,
-Roland
-
-
-
---- linux-2.5.51/include/asm-i386/ptrace.h.orig	Mon Dec  9 18:45:43 2002
-+++ linux-2.5.51/include/asm-i386/ptrace.h	Thu Dec 12 04:42:06 2002
-@@ -51,6 +51,10 @@ struct pt_regs {
+--- linux-2.5.52-bk4-org/kernel/timer.c~	Thu Dec 19 12:13:18 2002
++++ linux/kernel/timer.c	Fri Dec 20 00:38:15 2002
+@@ -1150,7 +1150,7 @@
+ 	return 0;
+ }
  
- #define PTRACE_OLDSETOPTIONS         21
+-static void __devinit init_timers_cpu(int cpu)
++static void __init init_timers_cpu(int cpu)
+ {
+ 	int j;
+ 	tvec_base_t *base;
+@@ -1167,29 +1167,12 @@
+ 		INIT_LIST_HEAD(base->tv1.vec + j);
+ }
+ 	
+-static int __devinit timer_cpu_notify(struct notifier_block *self, 
+-				unsigned long action, void *hcpu)
+-{
+-	long cpu = (long)hcpu;
+-	switch(action) {
+-	case CPU_UP_PREPARE:
+-		init_timers_cpu(cpu);
+-		break;
+-	default:
+-		break;
+-	}
+-	return NOTIFY_OK;
+-}
+-
+-static struct notifier_block __devinitdata timers_nb = {
+-	.notifier_call	= timer_cpu_notify,
+-};
+-
  
-+#define PTRACE_GET_THREAD_AREA    25
-+#define PTRACE_SET_THREAD_AREA    26
-+
-+
- #ifdef __KERNEL__
- #define user_mode(regs) ((VM_MASK & (regs)->eflags) || (3 & (regs)->xcs))
- #define instruction_pointer(regs) ((regs)->eip)
---- linux-2.5.51/arch/i386/kernel/ptrace.c.orig	Mon Dec  9 18:45:52 2002
-+++ linux-2.5.51/arch/i386/kernel/ptrace.c	Thu Dec 12 04:42:12 2002
-@@ -21,6 +21,8 @@
- #include <asm/processor.h>
- #include <asm/i387.h>
- #include <asm/debugreg.h>
-+#include <asm/ldt.h>
-+#include <asm/desc.h>
- 
- /*
-  * does not yet catch signals sent when the child dies.
-@@ -416,6 +418,80 @@ asmlinkage int sys_ptrace(long request, 
- 		break;
- 	}
- 
-+	case PTRACE_GET_THREAD_AREA: {
-+		int idx = addr;
-+		struct user_desc info;
-+		struct desc_struct *desc;
-+
-+/*
-+ * Get the current Thread-Local Storage area:
-+ */
-+
-+#define GET_BASE(desc) ( \
-+	(((desc)->a >> 16) & 0x0000ffff) | \
-+	(((desc)->b << 16) & 0x00ff0000) | \
-+	( (desc)->b        & 0xff000000)   )
-+
-+#define GET_LIMIT(desc) ( \
-+	((desc)->a & 0x0ffff) | \
-+	 ((desc)->b & 0xf0000) )
-+
-+#define GET_32BIT(desc)		(((desc)->b >> 23) & 1)
-+#define GET_CONTENTS(desc)	(((desc)->b >> 10) & 3)
-+#define GET_WRITABLE(desc)	(((desc)->b >>  9) & 1)
-+#define GET_LIMIT_PAGES(desc)	(((desc)->b >> 23) & 1)
-+#define GET_PRESENT(desc)	(((desc)->b >> 15) & 1)
-+#define GET_USEABLE(desc)	(((desc)->b >> 20) & 1)
-+
-+		if (idx < GDT_ENTRY_TLS_MIN || idx > GDT_ENTRY_TLS_MAX) {
-+			ret = -EINVAL;
-+			break;
-+		}
-+
-+		desc = child->thread.tls_array + idx - GDT_ENTRY_TLS_MIN;
-+
-+		info.entry_number = idx;
-+		info.base_addr = GET_BASE(desc);
-+		info.limit = GET_LIMIT(desc);
-+		info.seg_32bit = GET_32BIT(desc);
-+		info.contents = GET_CONTENTS(desc);
-+		info.read_exec_only = !GET_WRITABLE(desc);
-+		info.limit_in_pages = GET_LIMIT_PAGES(desc);
-+		info.seg_not_present = !GET_PRESENT(desc);
-+		info.useable = GET_USEABLE(desc);
-+
-+		if (copy_to_user((struct user_desc *) data,
-+				 &info, sizeof(info)))
-+			ret = -EFAULT;
-+		break;
+ void __init init_timers(void)
+ {
+-	timer_cpu_notify(&timers_nb, (unsigned long)CPU_UP_PREPARE,
+-				(void *)(long)smp_processor_id());
+-	register_cpu_notifier(&timers_nb);
++	int cpu;
++	for (cpu = 0; cpu < NR_CPUS; cpu++){
++		init_timers_cpu(cpu);
 +	}
-+
-+	case PTRACE_SET_THREAD_AREA: {
-+		int idx = addr;
-+		struct user_desc info;
-+		struct desc_struct *desc;
-+
-+		if (copy_from_user(&info,
-+				   (struct user_desc *) data, sizeof(info))) {
-+			ret = -EFAULT;
-+			break;
-+		}
-+		if (idx < GDT_ENTRY_TLS_MIN || idx > GDT_ENTRY_TLS_MAX) {
-+			ret = -EINVAL;
-+			break;
-+		}
-+		desc = current->thread.tls_array + idx - GDT_ENTRY_TLS_MIN;
-+		if (LDT_empty(&info)) {
-+			desc->a = 0;
-+			desc->b = 0;
-+		} else {
-+			desc->a = LDT_entry_a(&info);
-+			desc->b = LDT_entry_b(&info);
-+		}
-+		ret = 0;
-+		break;
-+	}
-+
- 	default:
- 		ret = ptrace_request(child, request, addr, data);
- 		break;
+ 	open_softirq(TIMER_SOFTIRQ, run_timer_softirq, NULL);
+ }
+
+
+--------------551DA302186A31CC7FFCFC07--
+

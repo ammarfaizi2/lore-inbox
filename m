@@ -1,63 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262643AbVAEUZB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262631AbVAEU10@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262643AbVAEUZB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 15:25:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262631AbVAEUZA
+	id S262631AbVAEU10 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 15:27:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262647AbVAEU10
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 15:25:00 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:28379 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262643AbVAEUYw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 15:24:52 -0500
-Date: Wed, 5 Jan 2005 15:49:35 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Rik van Riel <riel@redhat.com>
-Cc: Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@osdl.org>,
+	Wed, 5 Jan 2005 15:27:26 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:35523 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S262631AbVAEU1O (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jan 2005 15:27:14 -0500
+Date: Wed, 5 Jan 2005 15:26:26 -0500
+To: Raphael Jacquot <raphael.jacquot@imag.fr>
+Cc: "Luis R. Rodriguez" <mcgrof@studorgs.rutgers.edu>,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][5/?] count writeback pages in nr_scanned
-Message-ID: <20050105174934.GC15739@logos.cnet>
-References: <Pine.LNX.4.61.0501031224400.25392@chimarrao.boston.redhat.com> <20050105020859.3192a298.akpm@osdl.org> <20050105180651.GD4597@dualathlon.random> <Pine.LNX.4.61.0501051350150.22969@chimarrao.boston.redhat.com>
+Subject: Re: Open hardware wireless cards
+Message-ID: <20050105202626.GN5159@ruslug.rutgers.edu>
+References: <20050105200526.GL5159@ruslug.rutgers.edu> <41DC4B43.7090109@imag.fr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0501051350150.22969@chimarrao.boston.redhat.com>
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <41DC4B43.7090109@imag.fr>
+User-Agent: Mutt/1.3.28i
+X-Operating-System: 2.4.18-1-686
+Organization: Rutgers University Student Linux Users Group
+From: mcgrof@studorgs.rutgers.edu (Luis R. Rodriguez)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 05, 2005 at 01:50:51PM -0500, Rik van Riel wrote:
-> On Wed, 5 Jan 2005, Andrea Arcangeli wrote:
+On Wed, Jan 05, 2005 at 09:17:07PM +0100, Raphael Jacquot wrote:
+> Luis R. Rodriguez wrote:
 > 
-> >Another unrelated problem I have in this same area and that can explain
-> >VM troubles at least theoretically, is that blk_congestion_wait is
-> >broken by design. First we cannot wait on random I/O not related to
-> >write back. Second blk_congestion_wait gets trivially fooled by
-> >direct-io for example. Plus the timeout may cause it to return too early
-> >with slow blkdev.
+> >What I think we probably will have to do is just work torwards seeing if
+> >we can come up with our own open wireless hardware. I know there was
+> >a recent thread on lkml about an open video card -- anyone know where
+> >that ended up?
 > 
-> Or the IO that just finished, finished for pages in
-> another memory zone, or pages we won't scan again in
-> our current go-around through the VM...
-
-Thing is there is no distinction between pages which have been written out 
-for what purpose at the block level. 
-
-One can conjecture the following: per-zone waitqueue to be awakened from 
-end_page_writeback() (for PG_reclaim pages only of course), and a function
-to wait on the perzone waitqueue:
-
- wait_vm_writeback (zone, timeout);
-
-Instead of the current blk_congestion_wait() on try_to_free_pages/balance_pgdat.
-
-It will probably slow the reclaiming procedure in general, though, and has
-other side effects, but its the only way of strictly following VM writeback
-progress from VM reclaiming routines.
-
-Does it make any sense?
-
-> >blk_congestion_wait is a fundamental piece to get oom detection right
-> >during writeback and unfortunately it's fundamentally fragile in 2.6
-> >(this as usual wasn't the case in 2.4).
+> It's going. the company that the dude works at gave him the go ahead to 
+> work full time on the project.
 > 
-> Indeed ;(
+> http://lists.duskglow.com/mailman/listinfo/open-graphics
+
+Excellent we should start one for a wireless card. If we cannot come up
+with enough expertise perhaps we can look into buying out a company (?)
+
+	Luis
+
+-- 
+GnuPG Key fingerprint = 113F B290 C6D2 0251 4D84  A34A 6ADD 4937 E20A 525E

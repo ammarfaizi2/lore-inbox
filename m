@@ -1,58 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262808AbSLQAce>; Mon, 16 Dec 2002 19:32:34 -0500
+	id <S262813AbSLQAeI>; Mon, 16 Dec 2002 19:34:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262812AbSLQAce>; Mon, 16 Dec 2002 19:32:34 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:28607 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S262808AbSLQAce>;
-	Mon, 16 Dec 2002 19:32:34 -0500
-Subject: Re: [PATCH] kexec for 2.5.52 [OSDL PLM]
-From: Andy Pfiffer <andyp@osdl.org>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <m1of7lahkn.fsf@frodo.biederman.org>
-References: <m1smwxapdp.fsf@frodo.biederman.org>
-	<1040066196.2183.2.camel@andyp>  <m1of7lahkn.fsf@frodo.biederman.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 16 Dec 2002 16:40:52 -0800
-Message-Id: <1040085652.2263.80.camel@andyp>
-Mime-Version: 1.0
+	id <S262838AbSLQAeI>; Mon, 16 Dec 2002 19:34:08 -0500
+Received: from atlrel7.hp.com ([156.153.255.213]:15817 "HELO atlrel7.hp.com")
+	by vger.kernel.org with SMTP id <S262813AbSLQAeH>;
+	Mon, 16 Dec 2002 19:34:07 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Bjorn Helgaas <bjorn_helgaas@hp.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: [PATCH] PCI: disable decoding while sizing BARs
+Date: Mon, 16 Dec 2002 17:41:53 -0700
+User-Agent: KMail/1.4.3
+Cc: mj@ucw.cz, linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <200212161741.53287.bjorn_helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-12-16 at 11:29, Eric W. Biederman wrote:
+While sizing BARs, devices are temporarily assigned ranges
+that may conflict with other things in the system, like IOSAPICs.
+Here's a detailed description of a hang that results from leaving
+device decoding enabled while sizing the BARs:
 
-> > Is there a new kexec-tools package for this, or should the 1.8 rev
-> > located here:
-> > http://www.xmission.com/~ebiederm/files/kexec/
-> > work okay?
-> 
-> 1.8 should work.
+    https://lists.linuxia64.org/archives//linux-ia64/2002-April/003302.html
 
-Okay.  Thanks.
+This patch applies to current 2.4 BitKeeper.
 
-> The old hwfixes should work as well.  If the .48 version does not
-> patch cleanly holler.
-
-The hwfixes for .48 applied cleanly for me, so I tossed the patches into
-OSDL's PLM hopper:
-http://www.osdl.org/cgi-bin/plm?module=patch_info&patch_id=1043
-http://www.osdl.org/cgi-bin/plm?module=patch_info&patch_id=1042
-http://www.osdl.org/cgi-bin/plm?module=patch_info&patch_id=1041
-http://www.osdl.org/cgi-bin/plm?module=patch_info&patch_id=1038
-
-Legend for those that don't want to click on the URLs:
-a) PLM ID #1043: changes CONFIG_KEXEC to y by default (a quirk of the
-PLM infrastructure).
-b) PLM ID #1042: .48 hwfixes for kexec
-c) PLM ID #1041: base kexec for 2.5.52
-d) PLM ID #1038: base 2.5.52 kernel
-e) OSDL PLM: http://www.osdl.org/cgi-bin/plm/
-
-Andy
-
-
-
+--- linux-2.4/drivers/pci/pci.c	2002-12-16 10:44:21.000000000 -0700
++++ testing/drivers/pci/pci.c	2002-12-16 17:22:26.000000000 -0700
+@@ -1058,8 +1058,14 @@
+ {
+ 	unsigned int pos, reg, next;
+ 	u32 l, sz;
++	u16 cmd;
+ 	struct resource *res;
+ 
++	/* Disable I/O & memory decoding while we size the BARs. */
++	pci_read_config_word(dev, PCI_COMMAND, &cmd);
++	pci_write_config_word(dev, PCI_COMMAND,
++		cmd & ~(PCI_COMMAND_IO | PCI_COMMAND_MEMORY));
++
+ 	for(pos=0; pos<howmany; pos = next) {
+ 		next = pos+1;
+ 		res = &dev->resource[pos];
+@@ -1131,6 +1137,8 @@
+ 			res->end = res->start + (unsigned long) sz;
+ 		}
+ 	}
++
++	pci_write_config_word(dev, PCI_COMMAND, cmd);
+ }
+ 
+ void __devinit pci_read_bridge_bases(struct pci_bus *child)
 

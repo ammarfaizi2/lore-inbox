@@ -1,87 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264164AbUDBTnm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Apr 2004 14:43:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264168AbUDBTnm
+	id S264062AbUDBT4N (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Apr 2004 14:56:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264088AbUDBT4N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Apr 2004 14:43:42 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:64423 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S264164AbUDBTnj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Apr 2004 14:43:39 -0500
-To: root@chaos.analogic.com
-Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       Ben Greear <greearb@candelatech.com>,
-       Chris Friesen <cfriesen@nortelnetworks.com>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: sched_yield() version 2.4.24
-References: <Pine.LNX.4.53.0403301138260.6967@chaos>
-	<4069AED1.4020102@nortelnetworks.com>
-	<4069B3CC.1040904@candelatech.com>
-	<200403302140.05820.vda@port.imtp.ilyichevsk.odessa.ua>
-	<Pine.LNX.4.53.0403301526100.7833@chaos>
-	<Pine.LNX.4.53.0403310846290.10546@chaos>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 31 Mar 2004 17:05:24 -0700
-In-Reply-To: <Pine.LNX.4.53.0403310846290.10546@chaos>
-Message-ID: <m1ekr836m3.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 2 Apr 2004 14:56:13 -0500
+Received: from fw.osdl.org ([65.172.181.6]:10159 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264062AbUDBT4I (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Apr 2004 14:56:08 -0500
+Date: Fri, 2 Apr 2004 11:56:01 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: markw@osdl.org
+Cc: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>
+Subject: Re: 2.6.5-rc3-mm4
+Message-Id: <20040402115601.24912093.akpm@osdl.org>
+In-Reply-To: <200404021904.i32J4M215682@mail.osdl.org>
+References: <20040401020512.0db54102.akpm@osdl.org>
+	<200404021904.i32J4M215682@mail.osdl.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Richard B. Johnson" <root@chaos.analogic.com> writes:
+markw@osdl.org wrote:
+>
+> I reran DBT-2 to with ext2 and ext3 (in case you were still interested)
+>  on my 4-way Xeon system with 60+ drives:
+>  	http://developer.osdl.org/markw/fs/dbt2_project_results.html
+> 
+>  Aside from the from the drop you're already aware of since 2.6.3, it
+>  looks like DBT-2 takes another smaller hit after 2.6.5-rc3-mm2.  Here's
+>  a brief summary from the link above:
 
-> On Tue, 30 Mar 2004, Richard B. Johnson wrote:
-> 
-> > On Tue, 30 Mar 2004, Denis Vlasenko wrote:
-> >
-> > > On Tuesday 30 March 2004 19:52, Ben Greear wrote:
-> > > > Chris Friesen wrote:
-> > > > > The cpu util accounting code in kernel/timer.c hasn't changed in 2.4
-> > > > > since 2002.  Must be somewhere else.
-> > > > >
-> > > > > Anyone else have any ideas?
-> > > >
-> > > > As another sample point, I have fired up about 100 processes with
-> > > > each process having 10+ threads.  On my dual-xeon, I see maybe 15
-> > > > processes shown as 99% CPU in 'top'.  System load was near 25
-> > > > when I was looking, but the machine was still quite responsive.
-> > >
-> > > There was a top bug with exactly this symptom. Fixed.
-> > > I use procps-2.0.18.
-> > >
-> > Wonderful!  Now, where do I find the sources now that RedHat has
-> > gone "commercial" and is keeping everything secret?
-> >
-> > I followed the http://sources.redhat.com/procps/  instructions
-> > __exactly__ and get this:
-> >
-> > Script started on Tue Mar 30 15:27:02 2004
-> > quark:/home/johnson/foo[1] cvs -d :pserver:anoncvs@sources.redhat.com:/procps
-> login anoncvs
-> 
-> > Logging in to :pserver:anoncvs@sources.redhat.com:2401/procps
-> > CVS password:
-> > /procps: no such repository
-> > quark:/home/johnson/foo[2] exit
-> > Script done on Tue Mar 30 15:28:32 2004
-> >
-> 
-> The RedHat server was apparently broken yesterday. There were many
-> persons who tried to get the source. Eventually Burton Windle
-> sent me a copy of the source, that he had previously acquired,
-> after he tried to access it also.
-> 
-> I compiled the source and the problem persists. Any task that
-> executes sched_yield() will get "charged" for the time that it
-> has given away. This is not correct. Maybe it is not correctable,
-> but it is still not correct. In addition to it being "unfair",
-> it messes up the totals because tasks that are using the CPU time
-> given up, also get charged.
+The profile is interesting:
 
-Could it be that there are no other process with equal or greater
-priority so that the process calling sched_yield gets called again?
+3671973 poll_idle                                63309.8793
+ 77750 __copy_from_user_ll                      637.2951
+ 64788 generic_unplug_device                    487.1278
+ 62968 DAC960_LP_InterruptHandler               336.7273
+ 53908 finish_task_switch                       361.7987
+ 52947 __copy_to_user_ll                        441.2250
+ 29419 dm_table_unplug_all                      439.0896
+ 25947 __make_request                            17.9938
+ 18564 dm_table_any_congested                   199.6129
+ 13785 update_queue                             104.4318
+ 13498 try_to_wake_up                            20.3590
+ 12736 __wake_up                                114.7387
+ 12560 kmem_cache_alloc                         163.1169
+ 12221 .text.lock.sched                          40.7367
 
-Eric
+- There's a ton of idle time there.
+
+- The CPU scheduler is hurting.  Nick and Ingo are patching up a storm to
+  fix a similar problem which Jeremy Higdon is observing at 200,000
+  IOs/sec.  This will get better.
+
+- That 60-disk LVM array is costing us in the new unplug and congestion
+  code.  Jens, didn't you have a tune-up for that in the works?
+
+- I'm surprised that you didn't see big gains from ext3-fsync-speedup,
+  even though it appears that the test uses fdatasync().
+

@@ -1,57 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265538AbUBJDrX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Feb 2004 22:47:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265540AbUBJDrX
+	id S265600AbUBJE0u (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Feb 2004 23:26:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265603AbUBJE0u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Feb 2004 22:47:23 -0500
-Received: from gate.crashing.org ([63.228.1.57]:59023 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S265538AbUBJDrV (ORCPT
+	Mon, 9 Feb 2004 23:26:50 -0500
+Received: from mtaw4.prodigy.net ([64.164.98.52]:6863 "EHLO mtaw4.prodigy.net")
+	by vger.kernel.org with ESMTP id S265600AbUBJE0t (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Feb 2004 22:47:21 -0500
-Subject: [BUG] get_unmapped_area() change -> non booting machine
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andi Kleen <ak@suse.de>, Linux Kernel list <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Content-Type: text/plain
-Message-Id: <1076384799.893.5.camel@gaston>
+	Mon, 9 Feb 2004 23:26:49 -0500
+Date: Mon, 9 Feb 2004 20:26:24 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Stefan Voelkel <Stefan.Voelkel@millenux.com>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, Linus Torvalds <torvalds@osdl.org>,
+       Tim Hockin <thockin@sun.com>,
+       Linux Kernel mailing list <linux-kernel@vger.kernel.org>,
+       akpm@osld.org.sun.com, Daniel Riek <riek@redhat.com>
+Subject: Re: PATCH - NGROUPS 2.6.2rc2 + fixups
+Message-ID: <20040210042624.GE18674@srv-lnx2600.matchmail.com>
+Mail-Followup-To: Stefan Voelkel <Stefan.Voelkel@millenux.com>,
+	Rusty Russell <rusty@rustcorp.com.au>,
+	Linus Torvalds <torvalds@osdl.org>, Tim Hockin <thockin@sun.com>,
+	Linux Kernel mailing list <linux-kernel@vger.kernel.org>,
+	akpm@osld.org.sun.com, Daniel Riek <riek@redhat.com>
+References: <20040130021802.AA5BC2C0BF@lists.samba.org> <1076326687.15404.72.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 10 Feb 2004 14:47:09 +1100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1076326687.15404.72.camel@localhost>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
+On Mon, Feb 09, 2004 at 12:38:07PM +0100, Stefan Voelkel wrote:
+> Hi,
+> 
+> anything new about this patch?
+> 
+> I'd like to see this problem solved too, also because of a samba, mad
+> integration with the need of > 256 groups per user.
 
-I've finally found what is causing my box not to boot any more
-with recent 2.6.3-rc* bk's.
-
-Andi change to get_unmapped_area() is triggering that interesting
-scenario:
-
- - bash tries to load
- - ld.so tries to map libc somewhere below the executable at a
-location provided by the prelink informations. However, probably due to
-outdated prelink informations (I didn't re-run prelink since I updated
-glibc), it won't fit.
- - Andi change cause do_mmap() to actually do a search of a free
-space from the address... when ends up beeing right after the brk point
-of the just loaded bash
- - something (glibc) is now mapped right after brk point of bash,
-preventing it from malloc'ing, so it dies.
-
-Just reverting the patch fixes it. Though, the patch do make sense in
-some cases, paulus suggested to modify the code so that for a non
-MAP_FIXED map, it still search from the passed-in address, but avoids
-the spare between the current mm->brk and TASK_UNMAPPED_BASE, thus the
-algorithm would still work for things outside of these areas.
-
-Commment ?
-
-(Sorry, no patch at this point, still recovering the box and deep
-into another bug...)
-
-Ben.
-
-
+Has anyone else seen a limit of 16 groups with nss-ldap?

@@ -1,51 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269512AbTHJNzT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Aug 2003 09:55:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269514AbTHJNzT
+	id S265922AbTHJNuS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Aug 2003 09:50:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267186AbTHJNuS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Aug 2003 09:55:19 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:54536 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S269512AbTHJNzP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Aug 2003 09:55:15 -0400
-Date: Sun, 10 Aug 2003 14:55:11 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Christoph Hellwig <hch@infradead.org>,
-       "YOSHIFUJI Hideaki / ?$B5HF#1QL@?(B" <yoshfuji@linux-ipv6.org>,
-       davem@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 7/9] convert drivers/scsi to virt_to_pageoff()
-Message-ID: <20030810145511.B32508@flint.arm.linux.org.uk>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	"YOSHIFUJI Hideaki / ?$B5HF#1QL@?(B" <yoshfuji@linux-ipv6.org>,
-	davem@redhat.com, linux-kernel@vger.kernel.org
-References: <20030810013041.679ddc4c.davem@redhat.com> <20030810090556.GY31810@waste.org> <20030810020444.48cb740b.davem@redhat.com> <20030810.201009.77128484.yoshfuji@linux-ipv6.org> <20030810123148.A10435@infradead.org>
+	Sun, 10 Aug 2003 09:50:18 -0400
+Received: from [203.145.184.221] ([203.145.184.221]:6674 "EHLO naturesoft.net")
+	by vger.kernel.org with ESMTP id S265922AbTHJNuO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Aug 2003 09:50:14 -0400
+Subject: [PATCH 2.6.0-test3][OSS] ac97_plugin_ad1980.c: warning fix
+From: Vinay K Nallamothu <vinay-rc@naturesoft.net>
+To: trivial@rustcorp.com.au
+Cc: LKML <linux-kernel@vger.kernel.org>, linux-sound@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-11) 
+Date: 10 Aug 2003 19:40:19 +0530
+Message-Id: <1060524619.1354.55.camel@lima.royalchallenge.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030810123148.A10435@infradead.org>; from hch@infradead.org on Sun, Aug 10, 2003 at 12:31:48PM +0100
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 10, 2003 at 12:31:48PM +0100, Christoph Hellwig wrote:
-> > --- linux-2.6/drivers/scsi/arm/scsi.h	19 May 2003 17:48:30 -0000	1.2
-> > +++ linux-2.6/drivers/scsi/arm/scsi.h	10 Aug 2003 09:30:33 -0000
-> > @@ -23,7 +23,7 @@
-> >  	BUG_ON(bufs + 1 > max);
-> >  
-> >  	sg->page   = virt_to_page(SCp->ptr);
-> > -	sg->offset = ((unsigned int)SCp->ptr) & ~PAGE_MASK;
-> > +	sg->offset = virt_to_pageoff(SCp->ptr);
-> >  	sg->length = SCp->this_residual;
-> 
-> Dito.
+sound/oss/ac97_plugin_ad1980.c:
+fix ad1980_remove to have correct number of arguments
 
-Actually, I'd rather see Scsi_Pointer gain page + offset (or even better
-a single sg element) and get rid of these conversions.
+without the patch the following compilation warning is thrown:
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+sound/oss/ac97_plugin_ad1980.c:90: warning: initialization from
+incompatible pointer type
+
+
+
+--- linux-2.6.0-test3/sound/oss/ac97_plugin_ad1980.c	2003-07-28 10:44:11.000000000 +0530
++++ linux-2.6.0-test3-nvk/sound/oss/ac97_plugin_ad1980.c	2003-08-10 19:36:14.000000000 +0530
+@@ -28,6 +28,7 @@
+ 
+ */
+ 
++#include <linux/config.h>
+ #include <linux/module.h>
+ #include <linux/init.h>
+ #include <linux/kernel.h>
+@@ -45,7 +46,7 @@
+  *	use of the codec after the probe function.
+  */
+  
+-static void ad1980_remove(struct ac97_codec *codec)
++static void __devexit ad1980_remove(struct ac97_codec *codec, struct ac97_driver *driver)
+ {
+ 	/* Nothing to do in the simple example */
+ }
 

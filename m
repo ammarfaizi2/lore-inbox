@@ -1,67 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261706AbUKAANh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261707AbUKAAe3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261706AbUKAANh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Oct 2004 19:13:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261707AbUKAANh
+	id S261707AbUKAAe3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Oct 2004 19:34:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261708AbUKAAe3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Oct 2004 19:13:37 -0500
-Received: from fw.osdl.org ([65.172.181.6]:12012 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261706AbUKAANf (ORCPT
+	Sun, 31 Oct 2004 19:34:29 -0500
+Received: from mail1.kontent.de ([81.88.34.36]:12523 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S261707AbUKAAe1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Oct 2004 19:13:35 -0500
-Date: Sun, 31 Oct 2004 16:13:29 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 504] m68k: smp_lock.h: Avoid recursive include
-In-Reply-To: <200410311003.i9VA3d14009637@anakin.of.borg>
-Message-ID: <Pine.LNX.4.58.0410311612140.17101@ppc970.osdl.org>
-References: <200410311003.i9VA3d14009637@anakin.of.borg>
+	Sun, 31 Oct 2004 19:34:27 -0500
+From: Oliver Neukum <oliver@neukum.org>
+To: Shawn Starr <shawn.starr@rogers.com>
+Subject: Re: [2.6.10-rc1-mm2] Firmware loader gone bogus?
+Date: Mon, 1 Nov 2004 01:34:19 +0100
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org, ipw2100-devel@lists.sourceforge.net,
+       smiler@lanil.mine.nu
+References: <200410311627.02116.shawn.starr@rogers.com>
+In-Reply-To: <200410311627.02116.shawn.starr@rogers.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200411010134.19922.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Am Sonntag, 31. Oktober 2004 22:27 schrieb Shawn Starr:
+> Yeah I noticed my ipw2200 firmware broke in 2.6.10-rc1-bk5
+> 
+> Does 2.6.10-rc1 non-bk snapshots work for you? 
 
-This one is _totally_ broken. 
+Which script do you use to load the firmware?
 
-Not only is that include not recursive, but it immediately breaks any SMP 
-compile because that header file _needs_ the definition of "task_struct".
-
-I applied it without realizing it, but I'll undo it and I hope you fix 
-your broken tree so that I don't ever have to see this broken patch 
-again..
-
-		Linus
-
-On Sun, 31 Oct 2004, Geert Uytterhoeven wrote:
->
-> smp_lock.h: Avoid recursive include
-> 
-> Signed-off-by: Roman Zippel <zippel@linux-m68k.org>
-> Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
-> Signed-off-by: Linus Torvalds <torvalds@osdl.org>
-> 
-> --- linux-2.6.10-rc1/include/linux/smp_lock.h	2004-04-28 15:47:31.000000000 +0200
-> +++ linux-m68k-2.6.10-rc1/include/linux/smp_lock.h	2004-10-20 22:24:05.000000000 +0200
-> @@ -2,7 +2,6 @@
->  #define __LINUX_SMPLOCK_H
->  
->  #include <linux/config.h>
-> -#include <linux/sched.h>
->  #include <linux/spinlock.h>
->  
->  #if defined(CONFIG_SMP) || defined(CONFIG_PREEMPT)
-> 
-> Gr{oetje,eeting}s,
-> 
-> 						Geert
-> 
-> --
-> Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-> 
-> In personal conversations with technical people, I call myself a hacker. But
-> when I'm talking to journalists I just say "programmer" or something like that.
-> 							    -- Linus Torvalds
-> 
+	Regards
+		Oliver

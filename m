@@ -1,72 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262140AbSIZCZL>; Wed, 25 Sep 2002 22:25:11 -0400
+	id <S262144AbSIZCeu>; Wed, 25 Sep 2002 22:34:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262142AbSIZCZL>; Wed, 25 Sep 2002 22:25:11 -0400
-Received: from mta7.pltn13.pbi.net ([64.164.98.8]:34744 "EHLO
-	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP
-	id <S262140AbSIZCZK>; Wed, 25 Sep 2002 22:25:10 -0400
-Date: Wed, 25 Sep 2002 19:30:41 -0700
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: [linux-usb-devel] [RFC] consolidate /sbin/hotplug call for pci and
-  usb
-To: Andi Kleen <ak@suse.de>
-Cc: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
-       linux-kernel@vger.kernel.org, greg@kroah.com, mochel@osdl.org,
-       linux-usb-devel@lists.sourceforge.net
-Message-id: <3D927151.7000709@pacbell.net>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en, fr
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
-References: <20020925212955.GA32487@kroah.com.suse.lists.linux.kernel>
- <3D9250CD.7090409@pacbell.net.suse.lists.linux.kernel>
- <p73k7l9si6p.fsf@oldwotan.suse.de> <20020925174612.A13467@one-eyed-alien.net>
+	id <S262145AbSIZCeu>; Wed, 25 Sep 2002 22:34:50 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:43981 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S262144AbSIZCet>;
+	Wed, 25 Sep 2002 22:34:49 -0400
+Date: Wed, 25 Sep 2002 19:39:50 -0700
+To: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, rmk@arm.linux.org.uk,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.4.20-pre8] irtty MODEM_BITS additional fix
+Message-ID: <20020926023950.GA17708@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>+	envp[i++] = scratch;
->>>>+	scratch += sprintf (scratch, "PCI_ID=%04X:%04X",
->>>>+			    pdev->vendor, pdev->device) + 1;
->>>
->>>And so forth.  Use "snprintf" and prevent overrunning those buffers...
->>
->>Hmm? An %04X format is perfectly bounded.
+	Hi Marcelo,
 
-Which was my thought when I originally wrote the code which has been
-widely cut'n'pasted.  Safe enough at that moment, but it's now become
-dangerous to leave that around as a copy/paste coding example.
+	Alan did fix the compile of the irtty driver for i386 in
+pre8. Unfortunately, there is still many platforms which doesn't
+compile, including some that I know where IrDA is heavily used (PPC,
+ARM).
+	This patch make sure the code works on all platforms. It's
+2.4.X, so I guess the code *must* work.
 
-Those code fragments are now being used in contexts that aren't
-as controlled as the original:  the code _using_ the buffer is no
-longer in charge of allocating it.  There's no longer any way to
-guarantee that adding the next parameter to the environment isn't
-going to overrun the available space.
+	Regards,
 
-Except by using "snprintf" and tracking how much space is left.
+	Jean
 
-Easy enough to do, and that's a habit that IMO _everyone_ should
-be getting into whenever they program in languages that permit
-such buffer overflows.
+P.S. : Russel : this is an opportunity to fix the ARM platform
+difference in the proper way. I guess irtty is still used on some ARM
+platforms (especially with serial dongles).
 
+-----------------------------------------------
 
-> Technically, it isn't bounded.  The field will expand if the value exceeds
-> 4 digits.  
-> 
-> However, these values can't do that.  At least not now.
-> 
-> But, as a good programming practice, snprintf should be used.  Heck, PCI
-> 3.0 might use 32-bit vendor and device values, instead of 8 bit.  So, if
-> nothing else, do it as insurance for the future.
-
-And to help ensure that as people continue to copy/paste code from the
-core hotpluggable systems, they won't break things when they add the
-parameters needed to set up their new subsystem or class, using the
-/sbin/hotplug mechanism.
-
-- Dave
-
-
-
-
+--- linux/drivers/net/irda/irtty.a0.c	Wed Sep 25 19:10:25 2002
++++ linux/drivers/net/irda/irtty.c	Wed Sep 25 19:18:14 2002
+@@ -46,6 +46,19 @@ static struct tty_ldisc irda_ldisc;
+ 
+ static int qos_mtt_bits = 0x03;      /* 5 ms or more */
+ 
++/* To workaround some of the difference in the serial driver over various
++ * arch, some people have introduced TIOCM_MODEM_BITS.
++ * Unfortunately, this is not yet defined on all architectures, so
++ * we make sure the code is still usable. - Jean II */
++#ifndef TIOCM_MODEM_BITS
++#warning "Please define TIOCM_MODEM_BITS in termios.h !"
++#ifdef TIOCM_OUT2
++#define TIOCM_MODEM_BITS	TIOCM_OUT2	/* Most architectures */
++#else
++#define TIOCM_MODEM_BITS	0		/* Not defined for ARM */
++#endif
++#endif
++
+ /* Network device fuction prototypes */
+ static int  irtty_hard_xmit(struct sk_buff *skb, struct net_device *dev);
+ static int  irtty_net_init(struct net_device *dev);

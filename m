@@ -1,36 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281373AbRKQLid>; Sat, 17 Nov 2001 06:38:33 -0500
+	id <S281446AbRKQLkx>; Sat, 17 Nov 2001 06:40:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281339AbRKQLiX>; Sat, 17 Nov 2001 06:38:23 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:63760 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S281373AbRKQLiM>;
-	Sat, 17 Nov 2001 06:38:12 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: "Pinyowattayakorn, Naris" <np151003@exchange.SanDiegoCA.NCR.COM>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Driver callback routine when panic() is called 
-In-Reply-To: Your message of "Fri, 16 Nov 2001 20:30:23 CDT."
-             <61A60D883863D411A36600D0B785B50C06D5FEA4@susdayte51.daytonoh.ncr.com> 
+	id <S281443AbRKQLkn>; Sat, 17 Nov 2001 06:40:43 -0500
+Received: from smtp017.mail.yahoo.com ([216.136.174.114]:16139 "HELO
+	smtp017.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S281339AbRKQLkc>; Sat, 17 Nov 2001 06:40:32 -0500
+Date: Sat, 17 Nov 2001 19:37:50 +0800
+From: zhongyu <xxx_pku@yahoo.com>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: ARP bug and a patch
+X-mailer: FoxMail 3.11 Release [cn]
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sat, 17 Nov 2001 22:38:00 +1100
-Message-ID: <17427.1005997080@ocs3.intra.ocs.com.au>
+Content-Type: text/plain; charset="GB2312"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20011117114042Z281339-17408+15401@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 16 Nov 2001 20:30:23 -0500, 
-"Pinyowattayakorn, Naris" <np151003@exchange.SanDiegoCA.NCR.COM> wrote:
->Is there any call that can be used for a driver to register system crash
->callback routines. Thus, If panic( ) is called, such a callback can save
->device-state information to be written into the system crash dump file. 
+	Bug's description :
+	A computer has two ethernet cards connected to the same hub, each ethernet card was in a
+different logical sub net and turn on the ip_forward on each ethernet card. Dozens of ARP request
+packet will cause a "neibour table overflow"
+error then the netcard can not work .
+	reason:
+	The arp_rcv fuction would call the ip_route_input function to build the dst entry of the skb.
+When the ip_forward is on , the code will run direct into the rt_intern_hash fuction which add the
+target ip to the neighbour buffer . 
+	patch:
 
-notifier_chain_register(&panic_notifier_list, ...)
+diff -Naur linux-2.4.9/net/ipv4/route.c linux-2.4.9n/net/ipv4/route.c
+--- linux-2.4.9/net/ipv4/route.c        Fri Nov 16 17:19:06 2001
++++ linux-2.4.9n/net/ipv4/route.c       Fri Nov 16 17:17:59 2001
+@@ -1501,6 +1501,12 @@
+        }
+ #endif
 
-See the kdb patch[1] for example code.  Remember that all but one cpus
-are dead by the time you are called, I hope all your IRQs go to the
-single live cpu.
++       if (skb->protocol == __constant_htons(ETH_P_ARP)){      
++               skb->dst = rth;
++               err = 0;
++               goto done;
++       }
++       
+ intern:
+        err = rt_intern_hash(hash, rth, (struct rtable**)&skb->dst);
+ done:
 
-[1] ftp://oss.sgi.com/projects/kdb/download/ix86
+          zhongyu
+            xxx_pku@yahoo.com
+
+
+_________________________________________________________
+Do You Yahoo!?
+Get your free @yahoo.com address at http://mail.yahoo.com
 

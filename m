@@ -1,77 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263895AbSIQIfp>; Tue, 17 Sep 2002 04:35:45 -0400
+	id <S263893AbSIQIci>; Tue, 17 Sep 2002 04:32:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263910AbSIQIfp>; Tue, 17 Sep 2002 04:35:45 -0400
-Received: from users.linvision.com ([62.58.92.114]:39067 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S263895AbSIQIfo>; Tue, 17 Sep 2002 04:35:44 -0400
-Date: Tue, 17 Sep 2002 10:40:10 +0200
-From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-To: Xavier Bestel <xavier.bestel@free.fr>
-Cc: venom@sns.it, louie miranda <louie@chikka.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Hi is this critical??
-Message-ID: <20020917104010.A6175@bitwizard.nl>
-References: <Pine.LNX.4.43.0209161537200.5180-100000@cibs9.sns.it> <1032184041.7199.14.camel@bip>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1032184041.7199.14.camel@bip>
-User-Agent: Mutt/1.3.22.1i
-Organization: BitWizard.nl
+	id <S263895AbSIQIci>; Tue, 17 Sep 2002 04:32:38 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:15344 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S263893AbSIQIch>; Tue, 17 Sep 2002 04:32:37 -0400
+Date: Tue, 17 Sep 2002 10:37:30 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Mitchell Blank Jr <mitch@sfgoth.com>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.35 atm driver compile fix
+In-Reply-To: <20020916212331.B70462@sfgoth.com>
+Message-ID: <Pine.NEB.4.44.0209171033460.26796-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 16, 2002 at 03:47:20PM +0200, Xavier Bestel wrote:
-> Le lun 16/09/2002 à 15:37, venom@sns.it a écrit :
-> > 
-> > yes, this is critical.
-> > It means that your HD is going to break soon.
-> > 
-> 
-> Maybe these error messages should be a bit less cryptic for the
-> uninitiated. Or is there a userspace utility to convert theses to
-> luser-understandable messages ?
+On Mon, 16 Sep 2002, Mitchell Blank Jr wrote:
 
-The problem is that you're going to leave out details to do this. 
-This means that even the experts don't know what happened. 
+> Adrian Bunk wrote:
+> > This change results in a compile error in the ATM drivers:
+>
+> Yes, this was a bug in the ATM drivers... they really should have been using
+> do_gettimeofday() instead of touching xtime anyway.
+>
+> Here's a patch that should fix up all these ATM compile errors.  Linus,
+> please apply
 
->From the reported message I was able to pinpoint the exact spot on
-his hdb2 partition where his drive has a bad spot, and I can calculate
-the size of his hdb1 partition (In this case probably unneccesary
-information, but still...). 
+Thanks for this patch, the next compile error is that compilation of
+firestream.c fails at all occurences of func_enter:
 
-If the error message says something like: 
+<--  snip  -->
 
-	"your harddrive hdb seems to be failing. Replace it NOW!"
+...
+  gcc -Wp,-MD,./.firestream.o.d -D__KERNEL__
+-I/home/bunk/linux/kernel-2.5/linux-2.5.35/include -Wall
+-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
+-fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
+-march=k6 -nostdinc -iwithprefix include  -g  -DKBUILD_BASENAME=firestream
+-c -o firestream.o firestream.c
+firestream.c: In function `fs_open':
+firestream.c:870: called object is not a function
+firestream.c:870: parse error before string constant
+...
+make[2]: *** [firestream.o] Error 1
+make[2]: Leaving directory `/home/bunk/linux/kernel-2.5/linux-2.5.35/drivers/atm'
 
-then I can't make a valid decision about this. I have had a WD 31600
-drive which had the trouble that the last 400M would go "bad": Lots of
-bad blocks. In that situation I had to monitor the drive to just have
-bad blocks in the last 400M or so, while I used only the first 1000M.
-(Yes, only for "tmp" stuff.)
+<--  snip  -->
 
-I also have a drive that has exactly ONE bad block. Run it through
-"badblocks", and you can use the disk just fine. A read-ahead
-might hit on the bad block, leading to funny error messages. However
-I DO need to know which block.
 
-MAC and Windows both try to give "simple" error messages. As a 
-knowledgeable person I then am confronted with:
+> -Mitch  (deadbeat ATM maintainer)
 
-	"Something went wrong. Contact your sysadmin if you can't
-	fix it yourself". 
+I didn't Cc you because you are only listed as PPP OVER ATM (RFC 2364)
+maintainer in MAINTAINERS. Do you now maintain the complete ATM subsystem?
+If yes, could you send a patch for MAINTAINERS?
 
-Well, I -=AM=- the sysadmin, and would like to know what went wrong. 
-Otherwise I can't fix it. This is NOT the way to go. 
-
-			Roger. 
+cu
+Adrian
 
 -- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* The Worlds Ecosystem is a stable system. Stable systems may experience *
-* excursions from the stable situation. We are currenly in such an       * 
-* excursion: The stable situation does not include humans. ***************
+
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
+
+

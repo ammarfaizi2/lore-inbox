@@ -1,59 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265277AbRGOABr>; Sat, 14 Jul 2001 20:01:47 -0400
+	id <S265377AbRGOAwF>; Sat, 14 Jul 2001 20:52:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265199AbRGOABh>; Sat, 14 Jul 2001 20:01:37 -0400
-Received: from c207-202-243-179.sea1.cablespeed.com ([207.202.243.179]:29276
-	"EHLO darklands.localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S265277AbRGOABX>; Sat, 14 Jul 2001 20:01:23 -0400
-Date: Sat, 14 Jul 2001 17:01:13 -0700
-From: Thomas Zimmerman <thomas@zimres.net>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Stability of ReiserFS onj Kernel 2.4.x (sp. 2.4.[56]{-ac*}
-Message-ID: <20010714170113.A12617@darklands.zimres.net>
-Reply-To: Thomas <thomas@zimres.net>
-Mail-Followup-To: lkml <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="HcAYCG3uE/tztfnV"
-Content-Disposition: inline
-In-Reply-To: <3B50DBAE.7030406@lycosmail.com>
-User-Agent: Mutt/1.3.18i
-X-Operating-System: Linux darklands 2.4.7-pre6
+	id <S265385AbRGOAvp>; Sat, 14 Jul 2001 20:51:45 -0400
+Received: from Expansa.sns.it ([192.167.206.189]:32787 "EHLO Expansa.sns.it")
+	by vger.kernel.org with ESMTP id <S265377AbRGOAvl>;
+	Sat, 14 Jul 2001 20:51:41 -0400
+Date: Sun, 15 Jul 2001 02:51:27 +0200 (CEST)
+From: Luigi Genoni <kernel@Expansa.sns.it>
+To: Gabriel Friedmann <gfriedmann@mediaone.net>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Again: Linux 2.4.x and AMD Athlon
+In-Reply-To: <200107141954.f6EJsUS09999@demai05.mw.mediaone.net>
+Message-ID: <Pine.LNX.4.33.0107150243430.16333-100000@Expansa.sns.it>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---HcAYCG3uE/tztfnV
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On 14-Jul 07:54, Adam Schrotenboer wrote:
-> Sorry if this is a repost.
->=20
-> I am upgrading to a new 36GB HD, and intend to split it into 3 pieces:=20
-> one 7GB vfat, one ~28GB linux data (reiser or ext2), and 1GB swap.
->=20
-> I need to know if I can trust ReiserFS, as I do believe that I do want=20
-> ReiserFS.
+On Sat, 14 Jul 2001, Gabriel Friedmann wrote:
 
-I have never lost data on ReiserFS. Infact, /usr shrunk by ~20megs changing
-from ext2 to reiserfs.
+>
+> This bums me out.  AS i am using ABIT kt7a-raid with the kt133a chipset, and
+> 3dnow kernel optimizations and i oops right as i boot (sometimes before i
+> complete any init-scripts).
+>
+> Anyways...  I am confirming a problem with my via chipset and 3dnow
+> optimizations.  VIA82CXXX in kernel support not affecting outcome.
+>
+mmm, i have also one Athlon (my workstation) with the same MB and
+everything works with AThlon optimizzations and 3dnow enabled...
 
-Thomas
+When i got an oops it was because i configured the bios to erogate just
+1.7 volt to the processor instead of default 1.75 volts (too hot here,
+with 31 degrees it is difficoult to keep cold a processor like this).
 
---HcAYCG3uE/tztfnV
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+I think that FSB speed is the key, at less for some of the VIA chipset. I
+have there an Athlon 1300
+Mhz with 13x100 setting and FSB of 200 Mhz.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+Are you using a processor with 266 Mhz FSB?
 
-iD8DBQE7UN1JUHPW3p9PurIRAkyXAJ41EbtX1C1kEAK0+3nzGdsa0/usbwCfWcTQ
-aMCLG/J3rPbL3UfiuIKVG4k=
-=uFRc
------END PGP SIGNATURE-----
+(All 266 Mhz FSB Athlon I administer are running on AMD chipset).
 
---HcAYCG3uE/tztfnV--
+bests
+Luigi Genoni
+
+

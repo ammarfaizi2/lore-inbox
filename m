@@ -1,60 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311739AbSDTTd6>; Sat, 20 Apr 2002 15:33:58 -0400
+	id <S312887AbSDTTiC>; Sat, 20 Apr 2002 15:38:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312255AbSDTTd5>; Sat, 20 Apr 2002 15:33:57 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:4869 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S311739AbSDTTd4>; Sat, 20 Apr 2002 15:33:56 -0400
-Date: Sat, 20 Apr 2002 12:33:26 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andi Kleen <ak@suse.de>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Remove BK docs ... + x86-64 2.5.8 sync
-In-Reply-To: <p73u1q68cfu.fsf_-_@oldwotan.suse.de>
-Message-ID: <Pine.LNX.4.33.0204201230140.11732-100000@penguin.transmeta.com>
+	id <S312899AbSDTTiB>; Sat, 20 Apr 2002 15:38:01 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:1550 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S312887AbSDTTh7>;
+	Sat, 20 Apr 2002 15:37:59 -0400
+Message-ID: <3CC1C38F.37D1F8C2@zip.com.au>
+Date: Sat, 20 Apr 2002 12:37:51 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrea Arcangeli <andrea@suse.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19pre7aa1
+In-Reply-To: <20020420194213.K1291@dualathlon.random>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 20 Apr 2002, Andi Kleen wrote:
-> > I don't buy that - I'm not getting changes from any new magical BK "men in
-> > black". The patches are the same kind they always were, the last few
-> > entries in my changelog are now the x86-64 merge (which was half a meg,
-> > and yes it wasn't posted on linux-kernel, but no, it never was before BK
-> > either), and before that the extensively discussed SSE register content
-> > leak patch.
+Andrea Arcangeli wrote:
 > 
-> I didn't post the huge patch on l-k because the last time I sent large
-> patches to l-k I got flamed badly by people who still seem to use 9600
-> baud modems[1] to read mail.
+> ...
+> Only in 2.4.19pre6aa1: 00_prepare-write-fixes-2
+> Only in 2.4.19pre7aa1: 00_prepare-write-fixes-3
+> 
+>         Add a missing flush_dcache_page() to the prepare write corruption
+>         fixes. Noticed by Andrew Morton.
+> 
 
-Note: I did in no way try to blame Andi on this: quite the reverse. I'm 
-saying that this was how it worked back before BK too - the bulk of the 
-patches literally come to me as "private" patches, and they aren't cc'd to 
-linux-kernel.
+Why do we perform those "flushes"[1] at all?  The memsets should
+never occur when the page is mapped into any process tables.
 
-(Side note: that doesn't mean that they haven't had comments on the 
-mailing lists, or that earlier versions or at least parts of them haven't 
-been sent on the kernel list).
+I seem to be missing something here.
 
-> I don't want to use BitKeeper because I don't like open logging. I hope
-> I can continue to maintain the x86-64 port even without being part
-> of the inner bitkeeper circle.
 
-Absolutely - as you noticed I accepted the patch, even though there was a 
-clash (with a released kernel) in there.
+[1] Can we please not that term?  A "flush" is something which you
+    do to a "dunny" after taking a "crap". [2]
 
->	 It would be good if you did e.g.
-> a pre patch for every change that could require action from architecture
-> or other maintainers as sync point (i guess that could be made easy with
-> the appropiate script)
+    Caches are either "written back" or are "invalidated".  Nothing
+    else.
 
-This is why I think it might be a good reason to just have a daily script: 
-not just to create the patches, but also to kind of keep a running 
-commentary on the kernel list on what I've merged..
+    This is not just semantics.  This stuff is hard.  90% of kernel
+    developers are on x86, and 90% of those do not understand the
+    nuances of all this.  The careful choice and use of terminology
+    will aid other platforms.
 
-		Linus
+[2] And a "sync" is something which you wash your hands in after the
+    "flush".
 
+    Dirty disk data is either "written out" or is "waited upon".  The
+    kernel has real performance bugs due to this confusion.
+
+-

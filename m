@@ -1,54 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131363AbRCSGWY>; Mon, 19 Mar 2001 01:22:24 -0500
+	id <S129292AbRCSGvo>; Mon, 19 Mar 2001 01:51:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131365AbRCSGWO>; Mon, 19 Mar 2001 01:22:14 -0500
-Received: from mpdr0.chicago.il.ameritech.net ([206.141.239.142]:57739 "EHLO
-	mailhost.chi.ameritech.net") by vger.kernel.org with ESMTP
-	id <S131363AbRCSGWD>; Mon, 19 Mar 2001 01:22:03 -0500
-Message-ID: <3AB5A53F.F8B0373B@ameritech.net>
-Date: Mon, 19 Mar 2001 00:20:47 -0600
-From: watermodem <aquamodem@ameritech.net>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: en
+	id <S129506AbRCSGve>; Mon, 19 Mar 2001 01:51:34 -0500
+Received: from saturn.cs.uml.edu ([129.63.8.2]:37906 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S129292AbRCSGvZ>;
+	Mon, 19 Mar 2001 01:51:25 -0500
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200103190650.f2J6o1S240830@saturn.cs.uml.edu>
+Subject: Re: [PATCH] Improved version reporting
+To: rhw@MemAlpha.CX (Riley Williams)
+Date: Mon, 19 Mar 2001 01:50:01 -0500 (EST)
+Cc: acahalan@cs.uml.edu (Albert D. Cahalan), Andries.Brouwer@cwi.nl,
+        viro@math.psu.edu, linux-kernel@vger.kernel.org (Linux Kernel),
+        seberino@spawar.navy.mil
+In-Reply-To: <Pine.LNX.4.30.0103171718530.22673-100000@infradead.org> from "Riley Williams" at Mar 17, 2001 05:51:28 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Jiffy question and sound.
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-With the 2.4.0 kernel the loops_per_sec field was replaced (for i386)
-with current_cpu_data.loops_per_jiffy.
+Riley Williams writes:
 
-So... since I am using the ALSA drivers that Mandrake supplied, for the
-2.4.x series of kernels I replaced the equated #define with
+>> The rule should be like this:
+>>
+>>	List the lowest version number required to get
+>>	2.2.xx-level features while running a 2.4.xx kernel.
+>
+> That's a meaningless definition, and can only be taken as such. What
+> use would such a list be to somebody wishing (like I recently was) to
+> upgrade a system running the 2.0.12 kernel so it runs the 2.4.2
+> kernel instead?
+...
+>> Basically I ask: would existing scripts for a 2.2.xx kernel
+>> break? If the old mount can still do what it used to do, then
+>> "mount" need not be listed at all.
+>
+> Replace that "a 2.2.xx" with "my current" and remove all restrictions
+> on what the current kernel is, and that becomes an important question.
 
+No, not "my current" but "the previous stable". I say "2.2.xx" because
+that is the previous stable kernel.
 
-#define LOOPS_PER_SEC current_cpu_data.loops_per_jiffy * 100
+If you upgrade from 2.0.xx, you should read the 2.2.xx changes file.
 
-This seems to build modules that work for 2.4.0.   However, if you play
-many songs then do some heavy disk I/0 after awhile the songs start
-sounding like a hellicoptor is hovering right next to the speakers.   
-This wasn't too bad as it usually took about 30 to 40 mins to go
-south.   
-
-Now compiling the same  ALSA modules with 2.4.2 this problem happens
-much quicker and you don't need any other activity.  In fact it is hard
-to play more than half a song.  (MP3)
-It doesn't matter if what set of music players or tools I use the
-problem is quite visible.
-
-When I boot back to the original 2.2.x kernel everything is perfect.   
-
-So I guess I have a few questions here.
- 1)   Is a jiffy 100th of a second or is it smaller  (so my loop count
-is starving things.) (10ms) ?
- 2)   Why is it so much worse in 2.4.2 than 2.4.0?
- 3)   Any other "gotch's" that are important to watch for when moving
-2.2.x drivers to 2.4.x?
-
-Thanks....
-
-Watermodem
+The important thing is to avoid version number inflation. I don't
+even bother reading the changes file, because I know it is bogus.
+Nearly all of my old software works great with a 2.4.xx kernel.

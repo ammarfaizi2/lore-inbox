@@ -1,69 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263344AbRFTAEP>; Tue, 19 Jun 2001 20:04:15 -0400
+	id <S264835AbRFSXu4>; Tue, 19 Jun 2001 19:50:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264447AbRFTAEG>; Tue, 19 Jun 2001 20:04:06 -0400
-Received: from kaboom.dsl.xmission.com ([166.70.14.108]:52815 "HELO
-	mail.oobleck.net") by vger.kernel.org with SMTP id <S263344AbRFTAEC>;
-	Tue, 19 Jun 2001 20:04:02 -0400
-Date: Tue, 19 Jun 2001 18:04:21 -0600 (MDT)
-From: Chris Ricker <kaboom@gatech.edu>
-Reply-To: Chris Ricker <kaboom@gatech.edu>
-To: "David S. Miller" <davem@redhat.com>
-Cc: Jonathan Lundell <jlundell@pobox.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Alan Cox quote? (was: Re: accounting for threads)
-In-Reply-To: <15151.48287.782428.953466@pizda.ninka.net>
-Message-ID: <Pine.LNX.4.33.0106191801240.7174-100000@verdande.oobleck.net>
+	id <S264836AbRFSXup>; Tue, 19 Jun 2001 19:50:45 -0400
+Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:9925 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S264835AbRFSXu3>;
+	Tue, 19 Jun 2001 19:50:29 -0400
+Message-ID: <3B2FE544.A0DEB568@candelatech.com>
+Date: Tue, 19 Jun 2001 16:50:28 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: net.agent and ifconfig (RH 7.1)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Jun 2001, David S. Miller wrote:
+I was running my VLAN test, which creates 4000 VLAN interfaces,
+sets their IP/mask, and then later tears them down...
 
-> <axe_grind>
->
-> Don't believe me that Solaris sucks here?  Run this experiment under
-> Solaris-latest and Linux on a sparc64 system (using lmbench):
->
-> Under Solaris: ./lat_proc fork
-> Under Linux: strace -f ./lat_proc fork
->
-> I bet the Linux case does better than the Solaris run by some orders
-> of magnitude.  That's how poor their fork/exit/switch code is.
->
-> </axe_grind>
+However, my box is seeing 300 processes running and a load
+of around 47.00.  Most of these processes are 'ifconfig'
+and net.agent.  I am not running ifconfig in my script, so
+I assume net.agent is.  Needless to say, my test is running
+real slow...
 
-It's a very impressive difference:
+I am wondering if this is a RH only thing, or if it is found
+across all 2.4 distributions...
 
-Script started on Tue Jun 19 17:49:30 2001
-[kaboom@thing2 linux]$ ./lat_proc fork
-Process fork+exit: 563.7778 microseconds
-[kaboom@thing2 linux]$ ./lat_proc fork
-Process fork+exit: 565.5556 microseconds
-[kaboom@thing2 linux]$ ./lat_proc fork
-Process fork+exit: 568.0000 microseconds
-[kaboom@thing2 linux]$ exit
-Script done on Tue Jun 19 17:49:46 2001
-
-Script started on Tue 19 Jun 2001 05:51:38 PM MDT
-[kaboom@thing1 solaris]$ ./lat_proc fork
-Process fork+exit: 4249.5000 microseconds
-[kaboom@thing1 solaris]$ ./lat_proc fork
-Process fork+exit: 4212.5000 microseconds
-[kaboom@thing1 solaris]$ ./lat_proc fork
-Process fork+exit: 4241.0000 microseconds
-[kaboom@thing1 solaris]$ exit
-script done on Tue 19 Jun 2001 05:52:19 PM MDT
-
-thing1 and thing2 are identical Sun Blade 100s.  thing1 is running Solaris 8
-(04/01 release), while thing2 is running 2.4.4 (Debian/unstable).
-
-later,
-chris
+Thanks,
+Ben
 
 -- 
-Chris Ricker                                               kaboom@gatech.edu
-                                                          chris@gurulabs.com
-
-
+Ben Greear <greearb@candelatech.com>          <Ben_Greear@excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear

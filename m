@@ -1,40 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268296AbTBMUeD>; Thu, 13 Feb 2003 15:34:03 -0500
+	id <S268284AbTBMUlt>; Thu, 13 Feb 2003 15:41:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268297AbTBMUeD>; Thu, 13 Feb 2003 15:34:03 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:13006 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S268296AbTBMUeC>; Thu, 13 Feb 2003 15:34:02 -0500
-From: Alan Cox <alan@redhat.com>
-Message-Id: <200302132043.h1DKhsH17327@devserv.devel.redhat.com>
-Subject: Linux 2.2.24-rc3
-To: linux-kernel@vger.kernel.org
-Date: Thu, 13 Feb 2003 15:43:54 -0500 (EST)
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S268285AbTBMUlt>; Thu, 13 Feb 2003 15:41:49 -0500
+Received: from pdbn-d9bb87b5.pool.mediaWays.net ([217.187.135.181]:7439 "EHLO
+	citd.de") by vger.kernel.org with ESMTP id <S268284AbTBMUls>;
+	Thu, 13 Feb 2003 15:41:48 -0500
+Date: Thu, 13 Feb 2003 21:51:27 +0100
+From: Matthias Schniedermeyer <ms@citd.de>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: =?unknown-8bit?Q?M=E5ns_Rullg=E5rd?= <mru@users.sourceforge.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Promise SATA chips
+Message-ID: <20030213205127.GA11546@citd.de>
+References: <yw1x8ywkms3a.fsf@manganonaujakasit.e.kth.se> <Pine.LNX.4.10.10302130159520.31904-100000@master.linux-ide.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=unknown-8bit
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.10.10302130159520.31904-100000@master.linux-ide.org>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux 2.2.24-rc3
-o	Backport the ethernet padding fixes		(me)
-	| All done except 8139too, rtl8139]
+On Thu, Feb 13, 2003 at 02:04:50AM -0800, Andre Hedrick wrote:
+> On 13 Feb 2003, Måns Rullgård wrote:
+> 
+> > > Use Silicon Image products.
+> > 
+> > I can't get them.
+> 
+> Hogwash, they dominate the market space and are on all the Intel
+> Mainboards that are 845e and above.
 
-Linux 2.2.24-rc2
+Btw. I've looked and the "HighPoint RocketRAID 1540" (4 Channel
+Serial-ATA) looks "nice".
 
-o	Apply AMD fix correctly				(Bruce Robson)
-o	Fix possible memory scribble in starfire	(Ion Badulescu)
+Is/Should this controller be supported by the "siimage"-driver?
 
-Linux 2.2.24-rc1
 
-o	Fix a typo in the maintainers			(James Morris)
-o	Dave Niemi has moved				(Dave Niemi)
-o	Fix incorrect blocking on nonblock pipe		(Pete Benie)
-o	Fix misidentification of some AMD processors	(Bruce Robson)
-o	Fix a very obscure skb_realloc_headroom bug	(James Morris)
-o	Fix warning in lance driver			(Thomas Cort)
-o	Fix sign handling bug in pms driver		(Silvio Cesare)
-o	Drop mmap on /proc/<pid>/mem as 2.4/2.5 did	(Michal Zalewski)
-	(also fixes some bugs)
+
+
+Bis denn
+
+-- 
+Real Programmers consider "what you see is what you get" to be just as 
+bad a concept in Text Editors as it is in women. No, the Real Programmer
+wants a "you asked for it, you got it" text editor -- complicated, 
+cryptic, powerful, unforgiving, dangerous.
+

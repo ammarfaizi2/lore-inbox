@@ -1,45 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261917AbTIJKnj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 06:43:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261921AbTIJKnj
+	id S261903AbTIJKl7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 06:41:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261917AbTIJKl7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 06:43:39 -0400
-Received: from imap.gmx.net ([213.165.64.20]:51659 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261917AbTIJKnh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 06:43:37 -0400
-Message-Id: <6.0.0.22.0.20030910124128.01c40cc0@pop.gmx.net>
-X-Mailer: QUALCOMM Windows Eudora Version 6.0.0.22
-Date: Wed, 10 Sep 2003 12:47:39 +0200
-To: Nick Piggin <piggin@cyberone.com.au>
-From: Mike Galbraith <efault@gmx.de>
-Subject: Re: Priority Inversion in Scheduling
-Cc: Mike Fedyk <mfedyk@matchmail.com>, John Yau <jyau_kernel_dev@hotmail.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <3F5EEEDA.7070406@cyberone.com.au>
-References: <LAW10-OE63Zc1WPsAVe0000ab93@hotmail.com>
- <3F5E6F15.6040507@cyberone.com.au>
- <6.0.0.22.0.20030910062610.01cfacd8@pop.gmx.net>
- <20030910053549.GE28279@matchmail.com>
- <6.0.0.22.0.20030910074121.01c8a220@pop.gmx.net>
- <3F5EEEDA.7070406@cyberone.com.au>
+	Wed, 10 Sep 2003 06:41:59 -0400
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:28564 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S261903AbTIJKl6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Sep 2003 06:41:58 -0400
+Date: Wed, 10 Sep 2003 12:41:51 +0200
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Arjan van de Ven <arjanv@redhat.com>,
+       Luca Veraldi <luca.veraldi@katamail.com>, alexander.riesen@synopsys.COM,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Efficient IPC mechanism on Linux
+Message-ID: <20030910124151.C9878@devserv.devel.redhat.com>
+References: <00f201c376f8$231d5e00$beae7450@wssupremo> <20030909175821.GL16080@Synopsys.COM> <001d01c37703$8edc10e0$36af7450@wssupremo> <20030910064508.GA25795@Synopsys.COM> <015601c3777c$8c63b2e0$5aaf7450@wssupremo> <1063185795.5021.4.camel@laptop.fenrus.com> <20030910095255.GA21313@mail.jlokier.co.uk> <20030910120729.C14352@devserv.devel.redhat.com> <20030910103752.GC21313@mail.jlokier.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030910103752.GC21313@mail.jlokier.co.uk>; from jamie@shareable.org on Wed, Sep 10, 2003 at 11:37:52AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 11:28 AM 9/10/2003, Nick Piggin wrote:
+On Wed, Sep 10, 2003 at 11:37:52AM +0100, Jamie Lokier wrote:
+> I thought that later generation CPUs were supposed to have lower
+> memory bandwidth relative to the CPU core
 
->Sounds interesting. I my scheduler doesn't have any inversion or
->starvation issues that I know of without backboost though. I'd like to
->know if you find any.
-
-I haven't been able to stimulate inversion, or found any terminal 
-starvation with your mods.  The only things I can see is array switch 
-latency making X choppy under load, and the cpu distribution differences 
-shown by contest (and both may have changed considerably since last version 
-tested).
-
-         -Mike 
-
+this is far more true for "random/access" latency than for streaming bandwidth.
+Memory is sort of starting to be like disk IO in this regard. 

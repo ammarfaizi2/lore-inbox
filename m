@@ -1,41 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318139AbSFTHNe>; Thu, 20 Jun 2002 03:13:34 -0400
+	id <S318140AbSFTHPA>; Thu, 20 Jun 2002 03:15:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318137AbSFTHNd>; Thu, 20 Jun 2002 03:13:33 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:49633 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S318136AbSFTHNc>;
-	Thu, 20 Jun 2002 03:13:32 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	id <S318137AbSFTHO7>; Thu, 20 Jun 2002 03:14:59 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:13263 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S318136AbSFTHO4>; Thu, 20 Jun 2002 03:14:56 -0400
+Date: Thu, 20 Jun 2002 09:14:55 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: kai.germaschewski@gmx.de
+cc: linux-kernel@vger.kernel.org
+Subject: [2.5 patch] tqueue.h fixes for ISDN
+Message-ID: <Pine.NEB.4.44.0206200911520.10290-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15633.32924.291406.335371@napali.hpl.hp.com>
-Date: Thu, 20 Jun 2002 00:13:32 -0700
-To: Manik Raina <manik@cisco.com>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-       trivial@rustcorp.com.au
-Subject: Re: [Trivial Patch] : (2.5 latest) More __builtin_expect() cleanup in favour 
- of likely/unlikely
-In-Reply-To: <3D117C53.2B4F7C53@cisco.com>
-References: <3D117C53.2B4F7C53@cisco.com>
-X-Mailer: VM 7.03 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Wed, 19 Jun 2002 23:55:15 -0700, Manik Raina <manik@cisco.com> said:
+Hi Kai,
 
-  Manik> Copying Rusty as well.
+the following two tqueue.h fixes are needed to fix compile errors in the
+ISDN subsystem (the error messages follow below):
 
-In the future, please cc linux-ia64@linuxia64.org for ia64-specific patches.
 
-  Manik> Changed files in the include/asm-ia64 directory to get rid of
-  Manik> __builtin_expect() in favour of likely/unlikely.
+--- drivers/isdn/pcbit/drv.c.old	Thu Jun 20 08:55:22 2002
++++ drivers/isdn/pcbit/drv.c	Thu Jun 20 08:56:17 2002
+@@ -30,6 +30,7 @@
+ #include <linux/mm.h>
+ #include <linux/interrupt.h>
+ #include <linux/string.h>
++#include <linux/tqueue.h>
+ #include <linux/skbuff.h>
 
-The patch looks fine to me.
+ #include <linux/isdnif.h>
+--- drivers/isdn/tpam/tpam.h.old	Thu Jun 20 09:04:05 2002
++++ drivers/isdn/tpam/tpam.h	Thu Jun 20 09:04:31 2002
+@@ -16,6 +16,7 @@
 
-Thanks,
+ #include <linux/isdnif.h>
+ #include <linux/init.h>
++#include <linux/tqueue.h>
 
-	--david
+ /* Maximum number of channels for this board */
+ #define TPAM_NBCHANNEL		30
+
+
+cu
+Adrian
+
+
+<--  snip  -->
+
+...
+  gcc -Wp,-MD,./.drv.o.d -D__KERNEL__
+-I/home/bunk/linux/kernel-2.5/linux-2.5.23
+/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
+-fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=k6
+-nostdinc -iwithprefix include    -DKBUILD_BASENAME=drv   -c -o drv.o drv.c
+In file included from drv.c:40:
+pcbit.h:75: field `qdelivery' has incomplete type
+make[3]: *** [drv.o] Error 1
+make[3]: Leaving directory
+`/home/bunk/linux/kernel-2.5/linux-2.5.23/drivers/isd
+
+<--  snip  -->
+
+...
+  gcc -Wp,-MD,./.tpam_memory.o.d -D__KERNEL__
+-I/home/bunk/linux/kernel-2.5/linux-2.5.23/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2
+-fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
+-march=k6
+ -nostdinc -iwithprefix include    -DKBUILD_BASENAME=tpam_memory   -c -o
+tpam_memory.o tpam_memory.c
+In file included from tpam_memory.c:17:
+tpam.h:88: field `send_tq' has incomplete type
+tpam.h:89: field `recv_tq' has incomplete type
+make[3]: *** [tpam_memory.o] Error 1
+make[3]: Leaving directory
+`/home/bunk/linux/kernel-2.5/linux-2.5.23/drivers/isdn/tpam'
+
+<--  snip  -->
+

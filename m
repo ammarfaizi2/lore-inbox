@@ -1,53 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261839AbULGPyT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261847AbULGQBG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261839AbULGPyT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Dec 2004 10:54:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261841AbULGPyT
+	id S261847AbULGQBG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Dec 2004 11:01:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261848AbULGQBG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Dec 2004 10:54:19 -0500
-Received: from fire.osdl.org ([65.172.181.4]:40098 "EHLO fire-1.osdl.org")
-	by vger.kernel.org with ESMTP id S261839AbULGPyQ (ORCPT
+	Tue, 7 Dec 2004 11:01:06 -0500
+Received: from pg-fw.paradigmgeo.com ([192.117.235.33]:28024 "EHLO
+	exil1.paradigmgeo.net") by vger.kernel.org with ESMTP
+	id S261847AbULGQBF convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Dec 2004 10:54:16 -0500
-Message-ID: <41B5C96A.5060909@osdl.org>
-Date: Tue, 07 Dec 2004 07:16:58 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-Organization: OSDL
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
+	Tue, 7 Dec 2004 11:01:05 -0500
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-CC: Andy <genanr@emsphone.com>, linux-kernel@vger.kernel.org
-Subject: Re: Rereading disk geometry without reboot
-References: <20041206202356.GA5866@thumper2> <Pine.LNX.4.53.0412071240300.18630@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.53.0412071240300.18630@yvahk01.tjqt.qr>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: Correctly determine amount of "free memory"
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Date: Tue, 7 Dec 2004 17:58:01 +0200
+Message-ID: <06EF4EE36118C94BB3331391E2CDAAD9D49AD3@exil1.paradigmgeo.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Correctly determine amount of "free memory"
+Thread-Index: AcTbwYo5j+S6lmIiSNepe8j1ElzJ2gAALSyAACyXxKA=
+From: "Gregory Giguashvili" <Gregoryg@ParadigmGeo.com>
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt wrote:
->>I am using linux kernel 2.6.9 on a san.  I have file systems on
-> 
-> 
-> (What's a SAN?)
-> 
-> 
->>non-partitioned disks.  I can resize the disk on the SAN, reboot and grow
->>the XFS file system those disks.  What I would like to avoid rebooting or
->>even unmounting the filesystem if possible.
->>
->>Is there any way to get the kernel to re-read the disk geometry and change
->>the information it holds without rebooting or reloading the module (which is
->>as bad as a reboot in my case)?
-> 
-> 
-> The `fdisk` tool will spit out an ioctl() to make the kernel reread the
-> partition table (on normal computers, don't know about or what SAN). No need to
-> reboot there at least.
+Experimenting with my simple memory allocation program for little more
+time, I found that Free=MemTotal-Active gives kind of rough
+approximation to the "free" memory amount. Can I make it somehow better?
 
-There's 'blockdev --rereadpt' also, but neither of these work
-on a mounted filesystem afaik.
+What about SwapCached or Inact_target? Are there any pointers to the
+information I might find useful on this subject other than
+http://www.redhat.com/advice/tips/meminfo.html?
 
--- 
-~Randy
+Thanks 
+Giga
+P.S. I need this to work with 2.4.19+ and 2.6 kernels...

@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289540AbSAVXQY>; Tue, 22 Jan 2002 18:16:24 -0500
+	id <S289547AbSAVXUe>; Tue, 22 Jan 2002 18:20:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289541AbSAVXQO>; Tue, 22 Jan 2002 18:16:14 -0500
-Received: from hermes.cicese.mx ([158.97.1.34]:27875 "EHLO hermes.cicese.mx")
-	by vger.kernel.org with ESMTP id <S289540AbSAVXQE>;
-	Tue, 22 Jan 2002 18:16:04 -0500
-Message-ID: <3C4DF2AD.66BC3F6C@cicese.mx>
-Date: Tue, 22 Jan 2002 15:15:57 -0800
-From: Serguei Miridonov <mirsev@cicese.mx>
-Organization: CICESE Research Center, Ensenada, B.C., Mexico
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.8 i686)
-X-Accept-Language: ru, en
-MIME-Version: 1.0
+	id <S289545AbSAVXUY>; Tue, 22 Jan 2002 18:20:24 -0500
+Received: from NODE1.HOSTING-NETWORK.COM ([66.186.193.1]:7941 "HELO
+	hosting-network.com") by vger.kernel.org with SMTP
+	id <S289544AbSAVXUS>; Tue, 22 Jan 2002 18:20:18 -0500
+Subject: Intermezzo compile error in linux-2.5.2-dj4
+From: Torrey Hoffman <thoffman@arnor.net>
 To: linux-kernel@vger.kernel.org
-Subject: Console output for debugging
-Content-Type: text/plain; charset=koi8-r
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 22 Jan 2002 15:23:28 -0800
+Message-Id: <1011741810.25320.0.camel@shire.arnor.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Q: Is there any function in the kernel which I can call
-safely from a module to print debug message on the console
-screen?
+Haven't seen this reported yet.
 
-I don't want to use printk for some reasons. One of them is
-that I want messages to appear on the screen immediately,
-even from interrupt processing routines. Another is to be
-able to see messages until the system freezes completely in
-case of software or hardware bug.
+gcc -D__KERNEL__ -I/home/archive/Kernels/linux-2.5.2-dj4/include -Wall
+-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
+-fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
+-march=i686 -DMODULE -DMODVERSIONS -include
+/home/archive/Kernels/linux-2.5.2-dj4/include/linux/modversions.h 
+-DKBUILD_BASENAME=vfs  -c -o vfs.o vfs.c
+vfs.c: In function `presto_do_mknod':
+vfs.c:1452: request for member `value' in something not a structure or
+union
+vfs.c:1452: request for member `value' in something not a structure or
+union
+make[2]: *** [vfs.o] Error 1
+make[2]: Leaving directory
+`/home/archive/Kernels/linux-2.5.2-dj4/fs/intermezzo'
 
-Thank you.
-
-
---
-Serguei Miridonov                CICESE, Research Center,
-CICESE, Optics Dept.             Ensenada B.C., Mexico
-PO Box 434944                    E-mail: mirsev@cicese.mx
-San Diego, CA 92143-4944         FAX: +52 (646) 1750553
-U.S.A.
-
-
+Torrey
 

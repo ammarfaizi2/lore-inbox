@@ -1,79 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131474AbRAOVAB>; Mon, 15 Jan 2001 16:00:01 -0500
+	id <S131308AbRAOVCB>; Mon, 15 Jan 2001 16:02:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131483AbRAOU7w>; Mon, 15 Jan 2001 15:59:52 -0500
-Received: from heffalump.fnal.gov ([131.225.9.20]:27384 "EHLO fnal.gov")
-	by vger.kernel.org with ESMTP id <S131474AbRAOU7f>;
-	Mon, 15 Jan 2001 15:59:35 -0500
-Date: Mon, 15 Jan 2001 14:59:27 -0600
-From: Paul Hubbard <phubbard@fnal.gov>
-Subject: 4G SGI quad Xeon - memory-related slowdowns
+	id <S131422AbRAOVBv>; Mon, 15 Jan 2001 16:01:51 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:28689 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S131308AbRAOVBm>; Mon, 15 Jan 2001 16:01:42 -0500
 To: linux-kernel@vger.kernel.org
-Cc: "Richard E. Jetton" <rjetton@fnal.gov>
-Message-id: <3A6364AF.AC4D4081@fnal.gov>
-Organization: Fermilab
-MIME-version: 1.0
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18 i686)
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-X-Accept-Language: en
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: Is sendfile all that sexy?
+Date: 15 Jan 2001 13:00:41 -0800
+Organization: Transmeta Corporation
+Message-ID: <93vodp$bvf$1@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.30.0101152035090.5713-100000@elte.hu> <200101152033.f0FKXpv250839@saturn.cs.uml.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <200101152033.f0FKXpv250839@saturn.cs.uml.edu>,
+Albert D. Cahalan <acahalan@cs.uml.edu> wrote:
+>Ingo Molnar writes:
+>> On Mon, 15 Jan 2001, Jonathan Thackray wrote:
+>
+>>> It's a very useful system call and makes file serving much more
+>>> scalable, and I'm glad that most Un*xes now have support for it
+>>> (Linux, FreeBSD, HP-UX, AIX, Tru64). The next cool feature to add to
+>>> Linux is sendpath(), which does the open() before the sendfile() all
+>>> combined into one system call.
+>
+>Ingo Molnar's data in a nice table:
+>
+>open/close  7.5756 microseconds
+>stat        5.4864 microseconds
+>write       0.9614 microseconds
+>read        1.1420 microseconds
+>syscall     0.6349 microseconds
+>
+>Rather than combining open() with sendfile(), it could be combined
+>with stat().
 
-We're having some problems with the 2.4.0 kernel on our SGI 1450, and
-were hoping for some help.
- The box is a quad Xeon 700/2MB, with 4GB of memory, ServerSet III HE
-chipset, RH6.1 (slightly modified for local configuration) distribution.
+Note that "fstat()" is fairly low-overhead (unlike "stat()" it obviously
+doesn't have to parse the name again), so "open+fstat" is quite fine
+as-is. 
 
-a) If we compile the kernel with no high memory support, /proc/meminfo
-shows 1G of memory and everything works fine.
-
-b) If we compile for 4G of memory, /proc/meminfo shows about 3G, and
-overriding the amount at the lilo prompt causes kernel panics at bootup.
-However, other than missing a quarter of the memory, it works just fine.
-
-c) If we compile the kernel for 64G high memory (PAE mode), we see all
-of the memory but have other problems:
-  i) mkefs -m0 on a 72GB Seagate SCSI disk runs very slowly (about
-5MB/sec instead of 22-25) and the machine hangs after the format
-completes. To be exact, the command prompt returns, but
-     ls or any other command will never return, and you have to reset
-the box. This is a 
-     showstopper for us!
-
-  ii) If I override the amount of memory via lilo, we still get the
-hang, but performance 
-     actually improves! At 1G, it's slow for a few seconds, and then
-runs fine. At 2G, it's 
-     slow, and when I tried to boot 3G I got an odd startup crash that
-I've not had time to
-     replicate.
-
-Other notes: 
-
-1) SCSI is onboard Adaptec 39160 (aic7xxx driver, dual-channel) and
-we've tried different drives, cables, terminators, etc. 
-
-2) Other block I/O output (eg dd if=/dev/zero of=/dev/sdi bs=4M) also
-run very slowly
-3) We are using vmstat 1 to monitor data rates
-4) I tried the format with 2.4 prerelease, and the mkfs was very slow,
-and I got a SCSI reset at the end of the format. Perhaps this is
-related?
-5) If necessary, we can easily load a different distribution on the
-machine if that might be part of the problem.
-
-If necessary, we can setup a login on the machine, or run whatever test
-code is necessary. Other than this, it's a pretty nice box to work on.
-
-Please reply to rjetton and phubbard at fnal.gov, thanks.
-
--Paul
-
--- 
-Paul Hubbard  phubbard@fnal.gov
+		Linus
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

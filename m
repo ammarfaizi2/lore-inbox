@@ -1,66 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262441AbULCWeD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262442AbULCWh2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262441AbULCWeD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Dec 2004 17:34:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262435AbULCWeD
+	id S262442AbULCWh2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Dec 2004 17:37:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262435AbULCWh2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Dec 2004 17:34:03 -0500
-Received: from dfw-gate1.raytheon.com ([199.46.199.230]:47087 "EHLO
-	dfw-gate1.raytheon.com") by vger.kernel.org with ESMTP
-	id S262441AbULCWdr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Dec 2004 17:33:47 -0500
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.32-0
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Amit Shah <amit.shah@codito.com>,
-       Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, emann@mrv.com,
-       Gunther Persoons <gunther_persoons@spymac.com>,
-       "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Shane Shrybman <shrybman@aei.ca>, Esben Nielsen <simlo@phys.au.dk>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
-Message-ID: <OFAD4DDF01.33613E58-ON86256F5F.007AE759@raytheon.com>
-From: Mark_H_Johnson@raytheon.com
-Date: Fri, 3 Dec 2004 16:33:20 -0600
-X-MIMETrack: Serialize by Router on RTSHOU-DS01/RTS/Raytheon/US(Release 6.5.2|June 01, 2004) at
- 12/03/2004 04:33:23 PM
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-X-SPAM: 0.00
+	Fri, 3 Dec 2004 17:37:28 -0500
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:42624
+	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
+	id S262442AbULCWhT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Dec 2004 17:37:19 -0500
+Subject: Re: [PATCH] oom killer (Core)
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, marcelo.tosatti@cyclades.com,
+       LKML <linux-kernel@vger.kernel.org>, nickpiggin@yahoo.com.au
+In-Reply-To: <20041203022854.GL32635@dualathlon.random>
+References: <20041201211638.GB4530@dualathlon.random>
+	 <1101938767.13353.62.camel@tglx.tec.linutronix.de>
+	 <20041202033619.GA32635@dualathlon.random>
+	 <1101985759.13353.102.camel@tglx.tec.linutronix.de>
+	 <1101995280.13353.124.camel@tglx.tec.linutronix.de>
+	 <20041202164725.GB32635@dualathlon.random>
+	 <20041202085518.58e0e8eb.akpm@osdl.org>
+	 <20041202180823.GD32635@dualathlon.random>
+	 <1102013716.13353.226.camel@tglx.tec.linutronix.de>
+	 <20041202233459.GF32635@dualathlon.random>
+	 <20041203022854.GL32635@dualathlon.random>
+Content-Type: text/plain
+Date: Fri, 03 Dec 2004 23:37:17 +0100
+Message-Id: <1102113437.13353.290.camel@tglx.tec.linutronix.de>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Comparison of .32-0 and .31-15 results
+On Fri, 2004-12-03 at 03:28 +0100, Andrea Arcangeli wrote:
+> On Fri, Dec 03, 2004 at 12:34:59AM +0100, Andrea Arcangeli wrote:
+> > I'll add to my last patch the removal of the PF_MEMDIE check in oom_kill
+> > plus I'll fix the remaining race with PF_EXITING/DEAD, and I'll add a
+> > cond_resched. Then you can try again with my simple way (w/ and w/o
+> > PREEMPT ;).
+> 
+> Ok, I expect this patch to fix the problem completely. 
+> <SNIP>
+> With this thing, I doubt any wrong task will ever be killed again...
 
+You're right. oom-kill() did not do anything wrong. See log below
 
-      within 100 usec
-       CPU loop (%)   Elapsed Time (sec)    2.4
-Test   32-0  31-15     32-0   31-15  |   CPU  Elapsed
-X     94.58  99.22      67      68   |  97.20   70
-top   95.29  97.96      39      34   |  97.48   29
-neto  94.24  99.98     360     360   |  96.23   36
-neti  94.83  98.31     360     350   |  95.86   41
-diskw 90.77  99.57     360     360 * |  77.64   29
-diskc 93.47  97.49     360     360   |  84.12   77
-diskr 93.49  98.35     320     180   |  90.66   86
-total                 1866    1712   |         368
-* wide variation in audio duration
+This is w/o PREEMPT. Is it neccecary to verify w/ PREEMPT too ?
 
-Grr. This appears that .32-0 is MUCH WORSE than 31.15 at
-keeping the relatively small (100 usec) latencies down.
-Probably due to the CPU task switch that prevents the
-longer ones from occurring. The MAX CPU latencies are down
-in most cases (over 4 msec down to about 3 msec) which
-is a good result.
+If it would have booted it still would have killed sshd instead of the
+application which was forking a lot of childs.
 
-The long elapsed times appear to indicate that we are
-starving the "stress test" application (and likely
-running the niced, non RT cpu_burn instead).
+tglx
 
---Mark H Johnson
-  <mailto:Mark_H_Johnson@raytheon.com>
+Dentry cache hash table entries: 32768 (order: 5, 131072 bytes)
+Inode-cache hash table entries: 16384 (order: 4, 65536 bytes)
+Memory: 126476k/131060k available (1690k kernel code, 4044k reserved,
+732k data)Checking if this processor honours the WP bit even in
+supervisor mode... Ok.
+Mount-cache hash table entries: 512 (order: 0, 4096 bytes)
+CPU: L1 I cache: 16K, L1 D cache: 16K
+CPU: L2 cache: 128K
+Intel machine check architecture supported.
+Intel machine check reporting enabled on CPU#0.
+CPU: Intel Celeron (Mendocino) stepping 00
+Enabling fast FPU save and restore... done.
+Checking 'hlt' instruction... OK.
+
+END OF LOG
+
 

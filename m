@@ -1,82 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269989AbUIDAMl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269994AbUIDANq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269989AbUIDAMl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 20:12:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269994AbUIDAMl
+	id S269994AbUIDANq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 20:13:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269995AbUIDANq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 20:12:41 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:13722 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S269989AbUIDAMS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 20:12:18 -0400
-Date: Sat, 4 Sep 2004 01:12:16 +0100 (IST)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet
-To: dri-devel@lists.sf.net
-Cc: linux-kernel@vger.kernel.org
-Subject: New proposed DRM interface design
-Message-ID: <Pine.LNX.4.58.0409040107190.18417@skynet>
+	Fri, 3 Sep 2004 20:13:46 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:58535 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S269994AbUIDANi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 20:13:38 -0400
+Date: Fri, 3 Sep 2004 17:11:37 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: john stultz <johnstul@us.ibm.com>
+cc: lkml <linux-kernel@vger.kernel.org>, tim@physik3.uni-rostock.de,
+       george anzinger <george@mvista.com>, albert@users.sourceforge.net,
+       Ulrich.Windl@rz.uni-regensburg.de, Len Brown <len.brown@intel.com>,
+       linux@dominikbrodowski.de, David Mosberger <davidm@hpl.hp.com>,
+       Andi Kleen <ak@suse.de>, paulus@samba.org, schwidefsky@de.ibm.com,
+       jimix@us.ibm.com, keith maanthey <kmannth@us.ibm.com>,
+       greg kh <greg@kroah.com>, Patricia Gaughen <gone@us.ibm.com>,
+       Chris McDermott <lcm@us.ibm.com>
+Subject: Re: [RFC][PATCH] new timeofday core subsystem (v.A0)
+In-Reply-To: <1094252402.29408.35.camel@cog.beaverton.ibm.com>
+Message-ID: <Pine.LNX.4.58.0409031701260.14714@schroedinger.engr.sgi.com>
+References: <1094159238.14662.318.camel@cog.beaverton.ibm.com> 
+ <1094159379.14662.322.camel@cog.beaverton.ibm.com> 
+ <Pine.LNX.4.58.0409021512360.28532@schroedinger.engr.sgi.com> 
+ <1094164096.14662.345.camel@cog.beaverton.ibm.com> 
+ <Pine.LNX.4.58.0409021536450.28532@schroedinger.engr.sgi.com> 
+ <1094166858.14662.367.camel@cog.beaverton.ibm.com> 
+ <B6E8046E1E28D34EB815A11AC8CA312902CF6059@mtv-atc-605e--n.corp.sgi.com> 
+ <1094170054.14662.391.camel@cog.beaverton.ibm.com> 
+ <Pine.LNX.4.58.0409021737310.6412@schroedinger.engr.sgi.com> 
+ <1094175004.14662.440.camel@cog.beaverton.ibm.com> 
+ <Pine.LNX.4.58.0409030854480.10947@schroedinger.engr.sgi.com> 
+ <1094245233.14662.602.camel@cog.beaverton.ibm.com> 
+ <Pine.LNX.4.58.0409031444580.13729@schroedinger.engr.sgi.com>
+ <1094252402.29408.35.camel@cog.beaverton.ibm.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 3 Sep 2004, john stultz wrote:
 
-Okay I've had some thoughts about the DRM interfaces and did some code
-hacking (drmlib-0-0-1 branch on DRM CVS , very incomplete)
+> > True it is the applications problem if it breaks but we have applications
+> > for SGI systems that demand access to a time source with the least
+> > operating system interference possible.
+>
+> Yep, totally fine with that. If application developers will take the
+> risk that's fine. Personally, I'd like the kernel's timeofday function
+> to be fast enough that developers don't feel the need to attempt these
+> special case hacks, but there will always be folks who need to live on
+> the edge.
 
-Below is my proposal for an interface that does introduce a major new
-binary interface (the biggest issue with a straight core/personality split
-for DRI developers, we have enough binary interfaces in our lives)...
+Yeah. I tuned the gettimeofday function on IA64 to be faster than the
+glibc's use of the ITC but there are still some voices that demand a memory mapped
+timer.
 
-Any comments are appreciated, the document is also available at:
-http://dri.sourceforge.net/cgi-bin/moin.cgi/DRMRedesign
+> > Are there any examples where the flexibility is needed?
+>
+> I'm a fan of Barbie's law: "Math is hard, let's go shopping!", so
+> forgive my inability to immediately see through the details. In dealing
+> with both high and low res timesources (some with microsecond
+> frequencies, some run in picosecond frequencies), the math can be tuned
+> for each case. Low res time sources are mainly a multiply, and possibly
+> a divide only if it has a non-integer nanosecond per cycle value. For
+> high-res timesources, we have to divide, so we would want to aproximate
+> the frequency and use the multiply and shift as you suggested earlier.
 
-Dave.
+A division can always be avoided. This is the equation
 
+nanoseconds = x / y * timer_value
 
-This documents a proposed new design for the DRM internal kernel interfaces.
+where x/y = scaling factor
 
-The current DRM suffers from a number of issues with multiple drivers in
-the same kernel (the mess that is the drm_stub.h and parts of drm_drv.h)
-along with the DRM() macros show this up. This design tries to address
-this issue without introducing any major new binary interface.
+and one can always set Y = 2^py to substitute a shift instead of
+doing division. Just scale  x also appropriately by 2^px. This works to an
+arbitrary accuracy if one has a long enough integer type. That is why I
+suggested at least the intermediate use of 128bit. 64bit is fine for the
+current cases but I would expect a need for 128bit to arise in the
+future.
 
-I propose a 3 way code split-
-	DRM core
-	DRM library
-	DRM driver
+Math is sometimes simple and may simplify a lot of things.
 
-This is slightly along the lines of the fb where the core is fbmem + co,
-the library is the cfb* object and the driver is the graphics chipset
-specific.
+> Maybe this is completely able to be generalized and I'm just not sharp
+> enough to see it just yet, but it seems to me that having a timesource
+> specific cyc2ns allows for further optimization then without.
 
-What I would like to do for the DRM is not as extreme as the fb approach.
-I propose the following type split:
+I have not encountered a case that could not be handled by the above
+mentioned transformation. Mathematically I would think I could say it is
+impossible to find such a case.
 
-	DRM core - just the stub registration procedure and handling any
-shared resources like the device major number, and perhaps parts of sysfs
-and class code. This interface gets set in stone as quickly as possible
-and is as minimal as can be, (Jon Smirls dyn-minor patch will help a fair
-bit also). All the core does is allow DRMs to register and de-register in
-a nice easy fashion and not interfere with each other. This drmcore.o can
-either be linked into the kernel (ala the fb core) or a module, but in
-theory it should only really be shipped with the kernel - (for compat
-reasons the DRM tree will ship it for older systems).
+> > Are you sure about that readability argument? A single
+> > statement to calculate the delta is much more readable and verifyable
+> > to be correct than a gazillion of small functions that (one  hopes and
+> > prays) all do the same correctly.
+>
+> Your point is valid, and in moving the arch specific code into arch
+> independent code, I'm largely trying to reduce the tangle of functions.
+> Having 3 hardware specific functions isn't all that crazy.
 
-	DRM library - this contains all the non-card specific code, AGP
-interface, buffers interface, memory allocation, context handling etc.
-This is mostly stuff that is in templated header files now moved into C
-files along the lines of what I've done in the drmlib-0-0-1-branch. This
-file gets linked into each drm module, if you build two drivers into the
-kernel it gets shared automatically as far as I can see, if you build as
-modules they both end up with the code, for the DRM the single card is the
-primary case so I don't mind losing some resources for having different
-cards in a machine.
+I would rather have only one (the read timer function) and that function
+would be optional for non-well-behaved timer sources.
 
-	DRM driver - the current driver files converted to the new
-interfaces, I don't mind retaining some of the templating work, I like the
-fact that we don't have 20 implementations of the drm probe or PCI tables
-or anything like that, so I think some small uses of DRM() may still be
-acceptable from a maintenance point of view.
+> Worse case if we cannot come to some agreement on this, there's nothing
+> stopping architectures from keeping their own timeofday subsystem. I'm
+> just tired of implementing the same feature or fixing the same bug over
+> and over and over for each arch.
 
+These are all good reasons for centralizing the functionality instead of
+dispersing it in many functions.

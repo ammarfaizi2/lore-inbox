@@ -1,55 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262782AbUA0IUn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 03:20:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262765AbUA0IUn
+	id S262913AbUA0Idh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 03:33:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262960AbUA0Idh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 03:20:43 -0500
-Received: from jaguar.mkp.net ([192.139.46.146]:12500 "EHLO jaguar.mkp.net")
-	by vger.kernel.org with ESMTP id S262745AbUA0IUl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 03:20:41 -0500
-To: davidm@hpl.hp.com
-Cc: Paul Mackerras <paulus@samba.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: Re: [patch] 2.6.1-mm5 compile do not use shared extable code for ia64
-References: <E1Aiuv7-0001cS-00@jaguar.mkp.net>
-	<20040120090004.48995f2a.akpm@osdl.org>
-	<16401.57298.175645.749468@napali.hpl.hp.com>
-	<16402.19894.686335.695215@cargo.ozlabs.ibm.com>
-	<16405.41953.344071.456754@napali.hpl.hp.com>
-From: Jes Sorensen <jes@wildopensource.com>
-Date: 27 Jan 2004 03:11:03 -0500
-In-Reply-To: <16405.41953.344071.456754@napali.hpl.hp.com>
-Message-ID: <yq0y8rtreug.fsf@wildopensource.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
+	Tue, 27 Jan 2004 03:33:37 -0500
+Received: from gprs178-245.eurotel.cz ([160.218.178.245]:5248 "EHLO
+	midnight.ucw.cz") by vger.kernel.org with ESMTP id S262913AbUA0Idf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jan 2004 03:33:35 -0500
+Date: Tue, 27 Jan 2004 09:33:38 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Voluspa <lista3@comhem.se>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: atkbd.c: Unknown key released
+Message-ID: <20040127083338.GA490@ucw.cz>
+References: <200401270716.i0R7Gxw21819@d1o408.telia.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200401270716.i0R7Gxw21819@d1o408.telia.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "David" == David Mosberger <davidm@napali.hpl.hp.com> writes:
+On Tue, Jan 27, 2004 at 08:16:59AM +0100, Voluspa wrote:
 
-David,
+> > > I keep getting the following in my syslog whenever I startx:
+> 
+> In fact, it is preemptively written even _before_ I start X :-)
+> I'm using an ancient IBM PS2 swedish keyboard, and this 0x7a crap began
+> showing somewhere at 2.6.1 (then without blaming X). Now it is - and the
+> blame on X came with 2.6.2-rc2:
+> 
+> Booting:
+> 
+> Jan 26 16:29:10 loke kernel: atkbd.c: Unknown key released (translated
+> set 2, code 0x7a on isa0060/serio0).
+> Jan 26 16:29:10 loke kernel: atkbd.c: This is an XFree86 bug. It
+> shouldn't access hardware directly.
+> Jan 26 16:29:11 loke kernel: atkbd.c: Unknown key released (translated
+> set 2, code 0x7a on isa0060/serio0).
+> Jan 26 16:29:11 loke kernel: atkbd.c: This is an XFree86 bug. It
+> shouldn't access hardware directly.
 
-I am just nitpicking here, but wouldn't it be better to stick to the
-convention of all upper case defines for the #ifdef check?
+Do you use 'kbdrate' in your bootup scripts? That's another one touching
+the keyboard controller directly, when there are ioctls for that.
 
-Maybe use something like?
-#define ARCH_EXTABLE_COMPARE_ENTRIES ia64_extable_compare_entries
+I guess I should modify to make the message not point not directly to X,
+but 'some application'.
 
-Cheers,
-Jes
+> Starting X:
+> 
+> Jan 26 16:33:50 loke kernel: atkbd.c: Unknown key released (translated
+> set 2, code 0x7a on isa0060/serio0).
+> Jan 26 16:33:50 loke kernel: atkbd.c: This is an XFree86 bug. It
+> shouldn't access hardware directly.
+> Jan 26 16:33:50 loke kernel: atkbd.c: Unknown key released (translated
+> set 2, code 0x7a on isa0060/serio0).
+> Jan 26 16:33:50 loke kernel: atkbd.c: This is an XFree86 bug. It
+> shouldn't access hardware directly.
 
 
-@@ -18,7 +18,25 @@
- extern struct exception_table_entry __start___ex_table[];
- extern struct exception_table_entry __stop___ex_table[];
- 
--#ifndef ARCH_HAS_SORT_EXTABLE
-+#ifndef extable_compare_entries
-+
-+/*
-+ * Compare exception-table entries L and R and return <0 if L is smaller, 0 if L and R are
-+ * equal and >0 if L is bigger.
-+ */
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

@@ -1,61 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267773AbUHaKs0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267759AbUHaKua@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267773AbUHaKs0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 06:48:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267791AbUHaKs0
+	id S267759AbUHaKua (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 06:50:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267791AbUHaKua
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 06:48:26 -0400
-Received: from mail36.messagelabs.com ([193.109.254.211]:14504 "HELO
-	mail36.messagelabs.com") by vger.kernel.org with SMTP
-	id S267773AbUHaKsY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 06:48:24 -0400
-X-VirusChecked: Checked
-X-Env-Sender: okiddle@yahoo.co.uk
-X-Msg-Ref: server-8.tower-36.messagelabs.com!1093949302!8945052
-X-StarScan-Version: 5.2.10; banners=-,-,-
-X-Originating-IP: [158.234.9.163]
-X-VirusChecked: Checked
-X-StarScan-Version: 5.1.13; banners=.,-,-
-From: Oliver Kiddle <okiddle@yahoo.co.uk>
+	Tue, 31 Aug 2004 06:50:30 -0400
+Received: from mail.gmx.de ([213.165.64.20]:2703 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S267759AbUHaKuN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 06:50:13 -0400
+Date: Tue, 31 Aug 2004 12:50:12 +0200 (MEST)
+From: "Alexander Stohr" <Alexander.Stohr@gmx.de>
 To: linux-kernel@vger.kernel.org
-Subject: kernel panic (probably XFS related)
-Date: Tue, 31 Aug 2004 12:48:01 +0200
-Message-ID: <17776.1093949281@trentino.logica.co.uk>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="========GMXBoundary198131093949412"
+Subject: [patch] uts-semaphore fix for sparc64 solaris emu for kernel-2.6.9-rc1-bk6
+X-Priority: 3 (Normal)
+X-Authenticated: #15156664
+Message-ID: <19813.1093949412@www4.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm still having problems with the machine where I previously posted
-about page allocation failures. I recently tried upgrading to 2.6.8.1
-and it has now crashed twice. When running 2.6.3 the machine is stable:
-just the error messages I previously posted about.
+This is a MIME encapsulated multipart message -
+please use a MIME-compliant e-mail program to open it.
 
-Firstly, with 2.6.8.1, I get a number of these messages but they don't
-seem to be fatal:
-  pagebuf_get: failed to lookup pages
+Dies ist eine mehrteilige Nachricht im MIME-Format -
+bitte verwenden Sie zum Lesen ein MIME-konformes Mailprogramm.
 
-I was around when the second kernel panic occurred so I wrote down some
-of the contents of the console.
-  Process ypserv  (is mentioned along with pid, threadinfo details)
-then:
-  Call Trace:
-    memmove+0x4d/0x4f
-    cache_flusharray+0x4a/0xb6
-    kmem_cache_free+0x48/0x4c
-    d_callback+0x29/0x3b
-    rcu_do_batch+0x14/0x1f
-    tasklet_action+0x40/0x61
-    __do_softirq+0x7e/0x80
-    do_softirq+0x26/0x28
-    do_IRQ+0xc4/0xdf
-    common_interrupt+0x18/0x20
-I may have made mistakes in copying that out. I also wrote down the
-register values if they are of any use.
+--========GMXBoundary198131093949412
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 
-On both occasions, the machine was up for a couple of days before
-crashing. Previously problems were triggered by xfsdump but this time
-that wasn't running; it was doing it's usual job of handling NIS/NFS for
-about 25 clients.
+Hello,
 
-Oliver
+when copy-to-user and alikes does fail 
+for the solaris personality on sparc64
+did fail then it is possible that the
+current function gets left with an error
+without prior releasing the uts-semphore.
 
-PS. Thanks to all the people who helped me out previously.
+the attached diff provides a patch that
+is supposed to fixe that behaviour.
+i was not able to test test this in the wild
+due to lack of the respective hardware, so 
+any reports from machine owners would be nice.
+
+-Alex.
+
+PS: please CC me on replys, i am not subscribed to this list.
+
+-- 
+NEU: Bis zu 10 GB Speicher für e-mails & Dateien!
+1 GB bereits bei GMX FreeMail http://www.gmx.net/de/go/mail
+--========GMXBoundary198131093949412
+Content-Type: application/octet-stream; name="linux-2.6.9-rc1-bk6-sparcsolarisutsfield.diff"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="linux-2.6.9-rc1-bk6-sparcsolarisutsfield.diff"
+
+ZGlmZiAtTnVyIGxpbnV4LTIuNi45LXJjMS1iazYub3JpZy9hcmNoL3NwYXJjNjQvc29sYXJpcy9t
+aXNjLmMgbGludXgtMi42LjktcmMxLWJrNi9hcmNoL3NwYXJjNjQvc29sYXJpcy9taXNjLmMKLS0t
+IGxpbnV4LTIuNi45LXJjMS1iazYub3JpZy9hcmNoL3NwYXJjNjQvc29sYXJpcy9taXNjLmMJMjAw
+NC0wOC0yNSAwNzozODo0Mi4wMDAwMDAwMDAgKzAyMDAKKysrIGxpbnV4LTIuNi45LXJjMS1iazYv
+YXJjaC9zcGFyYzY0L3NvbGFyaXMvbWlzYy5jCTIwMDQtMDgtMzEgMTI6MzA6MjkuMDAwMDAwMDAw
+ICswMjAwCkBAIC0xMzcsMjAgKzEzNywyMiBAQAogCXJldHVybiBzdW5vc19icmsoYnJrKTsKIH0K
+IAotI2RlZmluZSBzZXRfdXRzZmllbGQodG8sIGZyb20sIGRvdGNob3AsIGNvdW50ZnJvbSkgewkJ
+CVwKLQljaGFyICpwOyAJCQkJCQkJXAotCWludCBpLCBsZW4gPSAoY291bnRmcm9tKSA/IAkJCQkJ
+XAotCQkoKHNpemVvZih0bykgPiBzaXplb2YoZnJvbSkgPyAJCQkJXAotCQkJc2l6ZW9mKGZyb20p
+IDogc2l6ZW9mKHRvKSkpIDogc2l6ZW9mKHRvKTsgCVwKLQlpZiAoY29weV90b191c2VyKHRvLCBm
+cm9tLCBsZW4pKQkJCQlcCi0JCXJldHVybiAtRUZBVUxUOwkJCQkJCVwKLQlpZiAoZG90Y2hvcCkg
+CQkJCQkJCVwKLQkJZm9yIChwPWZyb20saT0wOyAqcCAmJiAqcCAhPSAnLicgJiYgLS1sZW47IHAr
+KyxpKyspOyAJXAotCWVsc2UgCQkJCQkJCQlcCi0JCWkgPSBsZW4gLSAxOyAJCQkJCQlcCi0JaWYg
+KF9fcHV0X3VzZXIoJ1wwJywgKGNoYXIgX191c2VyICopKCh0bykraSkpKQkJCVwKLQkJcmV0dXJu
+IC1FRkFVTFQ7CQkJCQkJXAotfQorI2RlZmluZSBzZXRfdXRzZmllbGQodG8sIGZyb20sIGRvdGNo
+b3AsIGNvdW50ZnJvbSwgcGVycm9yKSBkbyB7CQkJXAorCWNoYXIgKnA7IAkJCQkJCQkJXAorCWlu
+dCBpLCBsZW4gPSAoY291bnRmcm9tKSA/IAkJCQkJCVwKKwkJKChzaXplb2YodG8pID4gc2l6ZW9m
+KGZyb20pID8gCQkJCQlcCisJCQlzaXplb2YoZnJvbSkgOiBzaXplb2YodG8pKSkgOiBzaXplb2Yo
+dG8pOyAJCVwKKwlpZiAoY29weV90b191c2VyKHRvLCBmcm9tLCBsZW4pKQkJCQkJXAorCQkqcGVy
+cm9yID0gLUVGQVVMVDsJCQkJCQlcCisJZWxzZSB7CQkJCQkJCQkJXAorCQlpZiAoZG90Y2hvcCkg
+CQkJCQkJCVwKKwkJCWZvciAocD1mcm9tLGk9MDsgKnAgJiYgKnAgIT0gJy4nICYmIC0tbGVuOyBw
+KyssaSsrKTsgCVwKKwkJZWxzZSAJCQkJCQkJCVwKKwkJCWkgPSBsZW4gLSAxOyAJCQkJCQlcCisJ
+CWlmIChfX3B1dF91c2VyKCdcMCcsIChjaGFyIF9fdXNlciAqKSgodG8pK2kpKSkJCQlcCisJCQkq
+cGVycm9yID0gLUVGQVVMVDsJCQkJCVwKKwl9CQkJCQkJCQkJXAorfSB3aGlsZSAoMCkKIAogc3Ry
+dWN0IHNvbF91bmFtZSB7CiAJY2hhciBzeXNuYW1lWzldOwpAQCAtMjIxLDE1ICsyMjMsMTcgQEAK
+IAlzdHJ1Y3Qgc29sX3VuYW1lIF9fdXNlciAqdiA9IEEoYnVmKTsKIAlzd2l0Y2ggKHdoaWNoKSB7
+CiAJY2FzZSAwOgkvKiBvbGQgdW5hbWUgKi8KLQkJLyogTGV0J3MgY2hlYXQgKi8KLQkJc2V0X3V0
+c2ZpZWxkKHYtPnN5c25hbWUsICJTdW5PUyIsIDEsIDApOwotCQlkb3duX3JlYWQoJnV0c19zZW0p
+OwotCQlzZXRfdXRzZmllbGQodi0+bm9kZW5hbWUsIHN5c3RlbV91dHNuYW1lLm5vZGVuYW1lLCAx
+LCAxKTsKLQkJdXBfcmVhZCgmdXRzX3NlbSk7Ci0JCXNldF91dHNmaWVsZCh2LT5yZWxlYXNlLCAi
+Mi42IiwgMCwgMCk7Ci0JCXNldF91dHNmaWVsZCh2LT52ZXJzaW9uLCAiR2VuZXJpYyIsIDAsIDAp
+OwotCQlzZXRfdXRzZmllbGQodi0+bWFjaGluZSwgbWFjaGluZSgpLCAwLCAwKTsKLQkJcmV0dXJu
+IDA7CisJCXsJaW50IGVycm9yID0gMDsKKwkJCS8qIExldCdzIGNoZWF0ICovCisJCQlzZXRfdXRz
+ZmllbGQodi0+c3lzbmFtZSwgIlN1bk9TIiwgMSwgMCwgJmVycm9yKTsKKwkJCWRvd25fcmVhZCgm
+dXRzX3NlbSk7CisJCQlzZXRfdXRzZmllbGQodi0+bm9kZW5hbWUsIHN5c3RlbV91dHNuYW1lLm5v
+ZGVuYW1lLCAxLCAxLCAmZXJyb3IpOworCQkJdXBfcmVhZCgmdXRzX3NlbSk7CisJCQlzZXRfdXRz
+ZmllbGQodi0+cmVsZWFzZSwgIjIuNiIsIDAsIDAsICZlcnJvcik7CisJCQlzZXRfdXRzZmllbGQo
+di0+dmVyc2lvbiwgIkdlbmVyaWMiLCAwLCAwLCAmZXJyb3IpOworCQkJc2V0X3V0c2ZpZWxkKHYt
+Pm1hY2hpbmUsIG1hY2hpbmUoKSwgMCwgMCwgJmVycm9yKTsKKwkJCXJldHVybiBlcnJvcjsKKwkJ
+fQogCWNhc2UgMjogLyogdXN0YXQgKi8KIAkJcmV0dXJuIC1FTk9TWVM7CiAJY2FzZSAzOiAvKiBm
+dXNlcnMgKi8KQEAgLTI0MSwxNiArMjQ1LDE3IEBACiAKIGFzbWxpbmthZ2UgaW50IHNvbGFyaXNf
+dXRzbmFtZSh1MzIgYnVmKQogeworCWludCBlcnJvciA9IDA7CiAJc3RydWN0IHNvbF91dHNuYW1l
+IF9fdXNlciAqdiA9IEEoYnVmKTsKIAkvKiBXaHkgc2hvdWxkIHdlIG5vdCBsaWUgYSBiaXQ/ICov
+CiAJZG93bl9yZWFkKCZ1dHNfc2VtKTsKLQlzZXRfdXRzZmllbGQodi0+c3lzbmFtZSwgIlN1bk9T
+IiwgMCwgMCk7Ci0Jc2V0X3V0c2ZpZWxkKHYtPm5vZGVuYW1lLCBzeXN0ZW1fdXRzbmFtZS5ub2Rl
+bmFtZSwgMSwgMSk7Ci0Jc2V0X3V0c2ZpZWxkKHYtPnJlbGVhc2UsICI1LjYiLCAwLCAwKTsKLQlz
+ZXRfdXRzZmllbGQodi0+dmVyc2lvbiwgIkdlbmVyaWMiLCAwLCAwKTsKLQlzZXRfdXRzZmllbGQo
+di0+bWFjaGluZSwgbWFjaGluZSgpLCAwLCAwKTsKKwlzZXRfdXRzZmllbGQodi0+c3lzbmFtZSwg
+IlN1bk9TIiwgMCwgMCwgJmVycm9yKTsKKwlzZXRfdXRzZmllbGQodi0+bm9kZW5hbWUsIHN5c3Rl
+bV91dHNuYW1lLm5vZGVuYW1lLCAxLCAxLCAmZXJyb3IpOworCXNldF91dHNmaWVsZCh2LT5yZWxl
+YXNlLCAiNS42IiwgMCwgMCwgJmVycm9yKTsKKwlzZXRfdXRzZmllbGQodi0+dmVyc2lvbiwgIkdl
+bmVyaWMiLCAwLCAwLCAmZXJyb3IpOworCXNldF91dHNmaWVsZCh2LT5tYWNoaW5lLCBtYWNoaW5l
+KCksIDAsIDAsICZlcnJvcik7CiAJdXBfcmVhZCgmdXRzX3NlbSk7Ci0JcmV0dXJuIDA7CisJcmV0
+dXJuIGVycm9yOwogfQogCiAjZGVmaW5lIFNJX1NZU05BTUUJCTEgICAgICAgLyogcmV0dXJuIG5h
+bWUgb2Ygb3BlcmF0aW5nIHN5c3RlbSAqLwo=
+
+--========GMXBoundary198131093949412--
+

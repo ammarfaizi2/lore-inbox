@@ -1,41 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318015AbSFSVVY>; Wed, 19 Jun 2002 17:21:24 -0400
+	id <S318016AbSFSV1G>; Wed, 19 Jun 2002 17:27:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318016AbSFSVVY>; Wed, 19 Jun 2002 17:21:24 -0400
-Received: from ns.suse.de ([213.95.15.193]:15620 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S318015AbSFSVVW>;
-	Wed, 19 Jun 2002 17:21:22 -0400
-Date: Wed, 19 Jun 2002 23:21:23 +0200
-From: Dave Jones <davej@suse.de>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.23-dj2
-Message-ID: <20020619232123.N29373@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Adrian Bunk <bunk@fs.tum.de>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20020619205136.GA18903@suse.de> <Pine.NEB.4.44.0206192311500.10290-100000@mimas.fachschaften.tu-muenchen.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.NEB.4.44.0206192311500.10290-100000@mimas.fachschaften.tu-muenchen.de>; from bunk@fs.tum.de on Wed, Jun 19, 2002 at 11:16:09PM +0200
+	id <S318017AbSFSV1F>; Wed, 19 Jun 2002 17:27:05 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:42196 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S318016AbSFSV1E>; Wed, 19 Jun 2002 17:27:04 -0400
+Date: Wed, 19 Jun 2002 23:26:59 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Greg KH <greg@kroah.com>
+cc: Matthew Harrell 
+	<mharrell-dated-1024798178.8a2594@bittwiddlers.com>,
+       Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.22 fix for pci_hotplug
+In-Reply-To: <20020619173622.GB26136@kroah.com>
+Message-ID: <Pine.NEB.4.44.0206192326000.10290-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 19, 2002 at 11:16:09PM +0200, Adrian Bunk wrote:
+On Wed, 19 Jun 2002, Greg KH wrote:
 
- > Another obviously wrong bit seems to be the patch below that is still in
- > -dj2:
- > --- linux-2.5.23/drivers/isdn/hardware/avm/b1.c	Wed Jun 19 03:11:52 2002
- > +++ linux-2.5/drivers/isdn/hardware/avm/b1.c	Sat Jun  1 00:34:35 2002
+> > He tries to fix the following compile error that is caused by Martin
+> > Dalecki's "[PATCH] 2.5.21 kill warnings 4/19" that is included in 2.5.22:
+>
+> Yeah, it looks like Martin got it wrong :)
+>
+> Can you try this patch instead and let me know if it fixes it or not?
 
-Yep. ISDN bits Kai has got covered anyway (he took pickings from
-2.5.23-dj1, so these can all be dropped next time round..)
 
-        Dave
+Yes, this patch fixes it. A similar patch is needed for
+pci_hotplug_util.c...
+
+
+> thanks,
+>
+> greg k-h
+>
+> diff -Nru a/drivers/hotplug/pci_hotplug_core.c b/drivers/hotplug/pci_hotplug_core.c
+> --- a/drivers/hotplug/pci_hotplug_core.c	Wed Jun 19 10:36:21 2002
+> +++ b/drivers/hotplug/pci_hotplug_core.c	Wed Jun 19 10:36:21 2002
+> @@ -48,7 +48,7 @@
+>  	#define MY_NAME	THIS_MODULE->name
+>  #endif
+>
+> -#define dbg(fmt, arg...) do { if (debug) printk(KERN_DEBUG "%s: %s: " fmt, MY_NAME, __FUNCTION__, ## arg); } while (0)
+> +#define dbg(fmt, arg...) do { if (debug) printk(KERN_DEBUG "%s: %s: " fmt , MY_NAME , __FUNCTION__ , ## arg); } while (0)
+>  #define err(format, arg...) printk(KERN_ERR "%s: " format , MY_NAME , ## arg)
+>  #define info(format, arg...) printk(KERN_INFO "%s: " format , MY_NAME , ## arg)
+>  #define warn(format, arg...) printk(KERN_WARNING "%s: " format , MY_NAME , ## arg)
+
+
+cu
+Adrian
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
+

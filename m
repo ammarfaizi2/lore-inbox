@@ -1,50 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262530AbTFIKbr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 06:31:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262528AbTFIKbq
+	id S262528AbTFIKk4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 06:40:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262547AbTFIKk4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 06:31:46 -0400
-Received: from jurassic.park.msu.ru ([195.208.223.243]:30217 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id S261845AbTFIK3j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 06:29:39 -0400
-Date: Mon, 9 Jun 2003 14:42:42 +0400
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: "David S. Miller" <davem@redhat.com>
-Cc: Matthew Wilcox <willy@debian.org>, linux-kernel@vger.kernel.org,
-       David Mosberger <davidm@hpl.hp.com>
-Subject: Re: [PATCH] [3/3] PCI segment support
-Message-ID: <20030609144242.A15283@jurassic.park.msu.ru>
-References: <20030407234411.GT23430@parcelfarce.linux.theplanet.co.uk> <20030408203824.A27019@jurassic.park.msu.ru> <20030608164351.GI28581@parcelfarce.linux.theplanet.co.uk> <20030609140749.A15138@jurassic.park.msu.ru> <1055154054.9884.2.camel@rth.ninka.net>
+	Mon, 9 Jun 2003 06:40:56 -0400
+Received: from slimnet.xs4all.nl ([194.109.194.192]:58309 "EHLO
+	gatekeeper.slim") by vger.kernel.org with ESMTP id S262528AbTFIKkz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jun 2003 06:40:55 -0400
+Subject: Completely disable AT/PS2 keyboard support in 2.4?
+From: Jurgen Kramer <gtm.kramer@inter.nl.net>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: 
+Message-Id: <1055156075.3824.7.camel@paragon.slim>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1055154054.9884.2.camel@rth.ninka.net>; from davem@redhat.com on Mon, Jun 09, 2003 at 03:20:56AM -0700
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 09 Jun 2003 12:54:36 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 09, 2003 at 03:20:56AM -0700, David S. Miller wrote:
-> On Mon, 2003-06-09 at 03:07, Ivan Kokshaysky wrote:
-> > Looks good, but shouldn't we pass 'struct pci_bus *' instead
-> > of pci_dev to pci_domain_nr()?
-> 
-> I don't think it matters, but someone may find a useful
-> use of having the exact device available, who knows...
+Hi,
 
-Hmm. Actually the patch *does* use pci_bus. What got me confused is
-definition in include/linux/pci.h:
+Is it possible to completely disable AT/PS2 keyboard support
+in 2.4 or is this still needed when I only use a USB keyboard?
 
-+#ifndef CONFIG_PCI_DOMAINS
-+#define pci_domain_nr(pdev)    0
-		       ~~~~
-+#endif
+I am currently getting dozens of keyboard messages:
 
-I think it should be changed to 'pbus' to avoid confusion.
+keyboard.c: can't emulate rawmode for keycode 272
+keyboard.c: can't emulate rawmode for keycode 272
+keyboard.c: can't emulate rawmode for keycode 272
+keyboard.c: can't emulate rawmode for keycode 272
+keyboard.c: can't emulate rawmode for keycode 272
+keyboard.c: can't emulate rawmode for keycode 272
+keyboard.c: can't emulate rawmode for keycode 272
+keyboard.c: can't emulate rawmode for keycode 272
 
-> We could just pass the bus self device in this case.
+I am not sure if the comes from the USB keyboard or from
+the non-connected PS2 port.
 
-Root buses often do not have the self device, e.g. on alpha.
+Thanks,
 
-Ivan.
+Jurgen
+

@@ -1,54 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313130AbSDSXdx>; Fri, 19 Apr 2002 19:33:53 -0400
+	id <S312076AbSDSXmV>; Fri, 19 Apr 2002 19:42:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313131AbSDSXdx>; Fri, 19 Apr 2002 19:33:53 -0400
-Received: from ip68-3-107-226.ph.ph.cox.net ([68.3.107.226]:28604 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S313130AbSDSXdv>;
-	Fri, 19 Apr 2002 19:33:51 -0400
-Message-ID: <3CC0A95A.2070000@candelatech.com>
-Date: Fri, 19 Apr 2002 16:33:46 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
-X-Accept-Language: en-us
+	id <S313102AbSDSXmU>; Fri, 19 Apr 2002 19:42:20 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:32786 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S312076AbSDSXmT>; Fri, 19 Apr 2002 19:42:19 -0400
+Date: Fri, 19 Apr 2002 16:41:39 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Brian Gerst <bgerst@didntduck.org>
+cc: "H. Peter Anvin" <hpa@zytor.com>, <andrea@suse.de>, <ak@suse.de>,
+        <linux-kernel@vger.kernel.org>, <jh@suse.cz>
+Subject: Re: [PATCH] Re: SSE related security hole
+In-Reply-To: <3CC0A447.8020906@didntduck.org>
+Message-ID: <Pine.LNX.4.44.0204191637570.20973-100000@home.transmeta.com>
 MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: rddunlap@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: unresolved symbol: __udivdi3
-In-Reply-To: <Pine.LNX.4.33L2.0204191408450.15597-100000@dragon.pdx.osdl.net>	<3CC092F2.8090009@candelatech.com> <20020419.145651.82832824.davem@redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Also, for what it's worth, do_div on x86 seems to corrupt arguments
-given to it, and may do other screwy things.  I'm just going to
-go back to casting and let user-space do any precise division.
-
-David S. Miller wrote:
-
->    From: Ben Greear <greearb@candelatech.com>
->    Date: Fri, 19 Apr 2002 14:58:10 -0700
-> 
->    then I get another unresolved symbol:
->    __umodi3
->    
-> Someone needs to add this routine under arch/sparc/lib/
-> 
->    I'm guessing that there is some optimization the compiler is doing that
->    is using the mod operator somehow, but I am unsure about how to work around
->    this.
-> 
-> "guessing"?  Have a look the definition of do_div in asm-sparc/div64.h
-> it explicitly does a mod operation :-)
-> 
-> 
 
 
--- 
-Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+On Fri, 19 Apr 2002, Brian Gerst wrote:
+>
+> Here's a patch to do just that.  It initializes the saved state in the
+> task struct and falls through to restore_fpu().
 
+One issue is whether we _can_ restore a "generated" image like this: it's
+entirely possible that Intel might save away internal CPU shadow data in
+the save-state structure, and future CPU's might be unhappy about loading
+data that doesn't conform to what the CPU would save.
+
+That said, the same issue is certainly true for just doing "xorps", since
+that will not clear any potential future CPU state.
+
+I get this feeling that Intel screwed up on specifying how to initialize
+this whole state.
+
+		Linus
 

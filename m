@@ -1,51 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280030AbRJaCvR>; Tue, 30 Oct 2001 21:51:17 -0500
+	id <S280038AbRJaCvr>; Tue, 30 Oct 2001 21:51:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280038AbRJaCvH>; Tue, 30 Oct 2001 21:51:07 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:44295 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S280030AbRJaCu5>; Tue, 30 Oct 2001 21:50:57 -0500
-Date: Tue, 30 Oct 2001 18:49:23 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: "Udo A. Steinberg" <reality@delusion.de>, <airlied@csn.ul.ie>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: oops on 2.4.13-pre5 in prune_dcache
-In-Reply-To: <20011031034332.L1340@athlon.random>
-Message-ID: <Pine.LNX.4.33.0110301844001.31500-100000@penguin.transmeta.com>
+	id <S280039AbRJaCv2>; Tue, 30 Oct 2001 21:51:28 -0500
+Received: from oe36.law11.hotmail.com ([64.4.16.93]:5640 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S280038AbRJaCvX>;
+	Tue, 30 Oct 2001 21:51:23 -0500
+X-Originating-IP: [64.180.168.53]
+From: "David Grant" <davidgrant79@hotmail.com>
+To: <bos@serpentine.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: VIA KT133 data corruption update
+Date: Sun, 28 Oct 2001 18:50:35 -0800
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+Message-ID: <OE362uJCzcihwZnH34u00018722@hotmail.com>
+X-OriginalArrivalTime: 31 Oct 2001 02:51:55.0363 (UTC) FILETIME=[00377B30:01C161B7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Bryan,
 
-On Wed, 31 Oct 2001, Andrea Arcangeli wrote:
+I have an A7V-133 motherboard, and the VIA IDE just started to work finally,
+after upgrading my BIOS to 1007, the latest one, which came out on the same
+day as your 1009.  I never experienced "data corruption" as you described,
+just irq timeouts which crashed fatally.  It seems like everything is normal
+now, in other words, I could install Mandrake 8.1 with no problems whereas
+it failed dozens of times before.  There was one other I did different this
+time, and that was that I created the partitions in Partition Magic 7.0 for
+Windows instead of using DiskDrake.  I can't see this would have any bearing
+on things, so I can only attribute the recent successful install to ASUS's
+new BIOS.
+
+David Grant
+
+On Saturday October 27, Bryan O'Sullivan said:
 >
-> Dunno why, but usually all bitflips triggers during heavy list walking,
-> so it's not too much surprisingly. I recall the most frequent bitflips
-> were happening walking the buffer header lists in 2.2, but I recall
-> dcache walks also oopsing due bitflips in 2.2.
-
-I suspect it's just that the list walking is (a) the operation that
-touches the most uncached memory and (b) also is inherently the one that,
-through pointer following, ends up showing the effects of flipped bits the
-most as oopses.
-
-For example, most of the actual _memory_ is obviously in the data caches
-or user space pages, but if those are corrupt you'd never see an oops.
-You'd see filesystem corruption (and see the reports of changing md5sums
-about how this does happen), or you'd see strange SIGSEGV's in user space.
-
-In contrast, a kernel oops is almost always accompanied by pointer
-dereferencing, and the thing that dereferences the most pointers is
-obviously pointer chasing - ie list walking.
-
-So I don't think that this has anything to do with "certain lists are more
-likely to get into trouble", but more of a "certain lists have long chains
-of pointers, and as such they are more likely to show up in oopses".
-
-Self-selection, in short - the bane of all statistics gathering.
-
-		Linus
-
+>After several months of begrudgingly putting up with my ASUS A7V
+>motherboard corrupting roughly 1 byte per 100 million read during
+>moderate to heavy PCI bus activity, I flashed VIA's 1009 BIOS this
+>evening.
+>
+>I have not been able to reproduce any corruption since then (it was
+>ridiculously easy before the new BIOS), and my machine seems otherwise
+>as stable as I would hope. This marks the first time since 2.4.6 that
+>I've been able to run a Linus kernel without cowering.
+>

@@ -1,60 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279407AbRKRNKj>; Sun, 18 Nov 2001 08:10:39 -0500
+	id <S279505AbRKRN0w>; Sun, 18 Nov 2001 08:26:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279483AbRKRNKa>; Sun, 18 Nov 2001 08:10:30 -0500
-Received: from ns.snowman.net ([63.80.4.34]:21512 "EHLO ns.snowman.net")
-	by vger.kernel.org with ESMTP id <S279407AbRKRNKT>;
-	Sun, 18 Nov 2001 08:10:19 -0500
-Date: Sun, 18 Nov 2001 08:10:13 -0500
-From: Stephen Frost <sfrost@snowman.net>
-To: Linux-Kernel Development Mailinglist 
-	<linux-kernel@vger.kernel.org>
-Subject: Re: /sbin/mount and /proc/mounts difference
-Message-ID: <20011118081013.Q481@ns>
-Mail-Followup-To: Linux-Kernel Development Mailinglist <linux-kernel@vger.kernel.org>
-In-Reply-To: <20011118135007.A787@Zenith.starcenter>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="sL7C0a98p/u5aVah"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011118135007.A787@Zenith.starcenter>; from sven.vermeulen@rug.ac.be on Sun, Nov 18, 2001 at 01:50:07PM +0100
-X-Editor: Vim http://www.vim.org/
-X-Info: http://www.snowman.net
-X-Operating-System: Linux/2.2.16 (i686)
-X-Uptime: 8:09am  up 11 days, 10:32, 12 users,  load average: 1.00, 1.00, 1.00
+	id <S279509AbRKRN0l>; Sun, 18 Nov 2001 08:26:41 -0500
+Received: from 59dyn119.com21.casema.net ([213.17.63.119]:36235 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S279505AbRKRN0a>; Sun, 18 Nov 2001 08:26:30 -0500
+Message-Id: <200111181326.OAA28770@cave.bitwizard.nl>
+Subject: DD-ing from device to device. 
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Date: Sun, 18 Nov 2001 14:26:19 +0100 (MET)
+From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---sL7C0a98p/u5aVah
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Hi,
 
-* Sven Vermeulen (sven.vermeulen@rug.ac.be) wrote:
->=20
-> As you can see the notail-option of reiserfs isn't listed on /proc/mounts,
-> but it is on "mount".
->=20
-> Does this have any particular reason?
+I should NOT get a "file too large" error when copying from a device
+to a device, right?
 
-	Sure, mount reads /etc/mtab.
+I should NOT get a "file too large" if the files are openeed using
+the "O_LARGEFILE" option, right?
 
-		Stephen
+Well: 
 
---sL7C0a98p/u5aVah
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+execve("/bin/dd", ["dd", "if=/dev/hda", "of=/dev/hdc", "bs=1024k", "count=10"], [/* 46 vars */]) = 0
+[... libs and stuff ... ]
+open("/dev/hda", O_RDONLY|O_LARGEFILE)  = 4
+open("/dev/hdc", O_RDWR|O_CREAT|O_TRUNC|O_LARGEFILE, 0666) = 5
+[....signals and stuff. ]
+read(4, ""..., 1048576) = 1048576
+write(5, ""..., 1048576) = 1048576
+read(4, ""..., 1048576) = 1048576
+write(5, ""..., 1048576) = 1048576
+read(4, ""..., 1048576) = 1048576
+write(5, ""..., 1048576) = 1048576
+read(4, ""..., 1048576) = 1048576
+write(5, ""..., 1048576) = 1048576
+read(4, ""..., 1048576) = 1048576
+write(5, ""..., 1048576) = 1048576
+read(4, ""..., 1048576) = 1048576
+write(5, ""..., 1048576) = 1048576
+read(4, ""..., 1048576) = 1048576
+write(5, ""..., 1048576) = 1048576
+read(4, ""..., 1048576) = 1048576
+write(5, ""..., 1048576) = 1048576
+read(4, ""..., 1048576) = 1048576
+write(5, ""..., 1048576) = 1048576
+read(4, ""..., 1048576) = 1048576
+write(5, ""..., 1048576) = 1048576
+munmap(0x400fb000, 1052672)             = 0
+write(2, "10+0 records in\n", 16)       = 16
+write(2, "10+0 records out\n", 17)      = 17
+close(4)                                = 0
+close(5)                                = 0
+_exit(0)                                = ?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
 
-iD8DBQE797M1rzgMPqB3kigRAu/JAJ9cGQpXL6hYT8rIscPZpMnERwp7hQCeMDiH
-pyw2wmk/ub+NeoBqNPXOVOI=
-=SWDq
------END PGP SIGNATURE-----
+But without the "count=10" I get: 
 
---sL7C0a98p/u5aVah--
+read(4, ""..., 1048576) = 1048576
+write(5, ""..., 1048576) = 1048576
+read(4, ""..., 1048576) = 1048576
+write(5, ""..., 1048576) = 1048575
+write(5, ".", 1)                     = -1 EFBIG (File too large)
+
+
+
+This is on 2.2.14. I Could swear we made a working copy of a disk 30
+minutes earlier....
+
+	Roger. 
+
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+* There are old pilots, and there are bold pilots. 
+* There are also old, bald pilots. 

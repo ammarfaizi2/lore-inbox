@@ -1,117 +1,134 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262298AbTCHXNR>; Sat, 8 Mar 2003 18:13:17 -0500
+	id <S262273AbTCHWxO>; Sat, 8 Mar 2003 17:53:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262303AbTCHXNR>; Sat, 8 Mar 2003 18:13:17 -0500
-Received: from mailhost.tue.nl ([131.155.2.4]:23051 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id <S262298AbTCHXNP>;
-	Sat, 8 Mar 2003 18:13:15 -0500
-Date: Sun, 9 Mar 2003 00:23:51 +0100
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Harald.Schaefer@gls-germany.com, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Thomas.Mieslinger@gls-germany.com, linux-kernel@vger.kernel.org,
-       aeb@cwi.nl
-Subject: Re: ide-problem still with 2.4.21-pre5-ac1
-Message-ID: <20030308232351.GA3462@win.tue.nl>
-References: <OFA9D69D12.A2BE6A15-ONC1256CE1.00344A6F-C1256CE1.0039609A@LocalDomain> <Pine.LNX.3.96.1030308172559.4525D-100000@gatekeeper.tmr.com>
-Mime-Version: 1.0
+	id <S262276AbTCHWxN>; Sat, 8 Mar 2003 17:53:13 -0500
+Received: from faui11.informatik.uni-erlangen.de ([131.188.31.2]:2275 "EHLO
+	faui11.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id <S262273AbTCHWxJ>; Sat, 8 Mar 2003 17:53:09 -0500
+From: Ulrich Weigand <weigand@immd1.informatik.uni-erlangen.de>
+Message-Id: <200303082303.AAA22598@faui11.informatik.uni-erlangen.de>
+Subject: [NFS] Race in rpc_delete_timer causes crash
+To: linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net
+Date: Sun, 9 Mar 2003 00:03:45 +0100 (MET)
+Cc: uweigand@de.ibm.com, schwidefsky@de.ibm.com, bk@suse.de
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.3.96.1030308172559.4525D-100000@gatekeeper.tmr.com>
-User-Agent: Mutt/1.3.25i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 08, 2003 at 05:28:10PM -0500, Bill Davidsen wrote:
-> On Thu, 6 Mar 2003 Harald.Schaefer@gls-germany.com wrote:
-> 
-> >  *    1. CHS value set by user       (whatever user sets will be trusted)
-> >  *    2. LBA value from target drive (require new ATA feature)
-> >  *    3. LBA value from system BIOS  (new one is OK, old one may break)
-> >  *    4. CHS value from system BIOS  (traditional style)
-> > 
-> > I think that the priority of LBA from BIOS has to be raised to 2 and the
-> > priority of LBA from drive should be lowered to 3.
-> > The mapping-problem only appreared with very new drives in some
-> > brand-computers using a 240-head mapping from the bios.
-> 
-> I think the chances of a drive knowing its own correct LBA info is far
-> better than the BIOS getting it right. Many BIOS versions don't understand
-> large drives.
+Hello,
 
-Maybe time for some preaching again.
+we're seeing a rare and hard to trigger crash on s390 where rpc_run_timer 
+calls via an invalid callback pointer.
 
-The above sounds like nonsense,
-"its own correct LBA info" does not refer to anything.
+What appears to happen is that rpc_call_sync allocates a struct rpc_task 
+(with its embedded tk_timer) on the stack, and the timer gets set up 
+sometime during rpc_execute.  However, the timer actually triggers at
+a point in time where the original call to rpc_call_sync has already 
+returned, and the stack space overwritten by other data.  That data is 
+now interpreted as an rpc_task struct holding a tk_timeout_fn pointer by
+rpc_run_timer, which causes the Oops (actually, Aieee).
 
-A disk that is less than twelve years old does not have a geometry.
-All disks that can handle LBA (that is, all disks less than
-twelve years old) use LBA under Linux.
-Thus, the disk has nothing to tell use except for its total capacity.
+Now this is not supposed to happen because rpc_execute cleans up any 
+potentially active timer before returning, by calling rpc_delete_timer.
+However, this function is implemented as
 
-Some silly legacy stuff is interested in a geometry.
-It does not exist, but everybody can invent something,
-Why would one do such a silly thing? Well, the DOS-type partition
-table has fields that are expressed in terms of cyl/heads/secs,
-and these are used by DOS. If one really uses DOS on the same
-disk, then one needs the BIOS values, since DOS uses the BIOS.
+  if (timer_pending(&task->tk_timer))
+    del_timer_sync(&task->tk_timer)
 
-On a Linux-only system there is never any problem, provided
-one can boot. Don't panic if some ancient fdisk version
-mumbles about unexpected things. 
+and it is called without any locks held.  This would appear to open a 
+race, because timer_pending returns false in a small window where the 
+timer interrupt processing has already removed the timer from its queues, 
+but not yet called the timer callback.
 
-Usually people that complain only think they have a problem,
-while in fact all is well. Or they have a problem: the BIOS
-cannot handle the disk and does not boot, but that is not a
-Linux problem.
+The flow of control the shows the race goes like this:
 
-Now what about Harald.Schaefer's problem? I asked Google
-for his complaint and find
+CPU A                                       CPU B
 
-"We create fdisk partitions with linux and run later DOS
-from one of these partitions. DOS gets confused about the
-linux mapping of the partition that is different from the
-BIOS supplied values."
-
-Now guessing what the BIOS will do is a black art,
-and if "kernel 2.2.22 was running fine" it was lucky.
-I see that 2.4.21-pre5 overrides in many cases what
-the BIOS said, so it will be lucky less often.
-But one can always specify an explicit geometry to fdisk.
-(And find out what to say by inspecting the BIOS setup
-screen under "autodetecting hard disks".)
-
-Finally, on the shown hdparm output:
-
----------------------------------------------------------------------------
-and a bad disk, which is recognized with "bit shift"-mapping from the BIOS:
-
-hdparm -i /dev/hda
- Model=Maxtor 6E040L0, FwRev=NAR61590, SerialNo=E11G00EE
- RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=57
- CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=78165360
-
-hdparm -I /dev/hda
- CurCHS=65535/1/63, CurSects=4128705, LBA=yes, LBAsects=78165360
-
-another disk that doesn't work
-
-hdparm -i /dev/hda
- Model=FUJITSU MHR2030AT, FwRev=53BB, SerialNo=NJ36T2813MYW
- RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=4
- CurCHS=17475/15/63, CurSects=16513875, LBA=yes, LBAsects=58605120
-
-hdparm -I /dev/hda
- Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
- RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=4
- CurCHS=65535/1/63, CurSects=4128705, LBA=yes, LBAsects=58605120
----------------------------------------------------------------------------
-
-Really strange values, as if someone wanted to force a H=255.
-Must read current 2.4 source some time. What does hdparm say
-under 2.2.22?
-
-Andries
+system call
+ ...
+  rpc_call_sync
+   allocate task on stack
+    rpc_execute (task)
+     ...
+      rpc_add_timer
+       mod_timer (&task->tk_timer, ...)
+        timer is now running,
+        timer->data points to task
+     ...
+     rpc_release_task (task)
+      rpc_disable_timer (task)
+       sets tk_timeout_fn to NULL
+      rpc_delete_timer (task)
+                                             timer interrupt
+                                              ...
+                                               run_timer_list
+                                                unchain timer from list
+       timer_pending
+        timer not in list -> false
+       does not call del_timer_sync
+     ...
+   task goes out of scope
+...
+system call
+ ...
+  call chain overwrites stack space
+  formerly occupied by task
+  tk_timeout_fn now non-NULL
+                                                call timer callback
+                                                 rpc_run_timer
+                                                  retrieve tk_timeout_fn
+                                                  (gets random value)
+                                                   -> Aieee.
 
 
+This is a bit unlikely on most platforms, because CPU A has to execute a 
+large number of instructions in the same time CPU B executes a comparatively 
+small number of instructions.  However, on a virtualized platform like S/390
+VM or LPAR, where the 'CPU' is actually scheduled in time slices by the 
+hypervisor, this pattern is certainly possible (if rare).
+
+In any case, I have post-mortem system dumps that are compatible with this 
+scenario; I haven't found anything else that could explain the crash ...
+
+The kernel where I've debugged the problem is quite old (2.4.7), but from 
+reading more recent kernel sources, the very same race appears to be still 
+present in current 2.4 and 2.5 kernels.
+
+As fix I'd suggest to just go ahead and call del_timer_sync all the time; 
+I don't quite see the point in checking for timer_pending in the first place.
+The following patch implements this.
+
+
+Index: net/sunrpc/sched.c
+===================================================================
+RCS file: /home/cvs/linux-2.3/net/sunrpc/sched.c,v
+retrieving revision 1.13
+diff -u -p -r1.13 sched.c
+--- net/sunrpc/sched.c	3 May 2001 16:18:18 -0000	1.13
++++ net/sunrpc/sched.c	8 Mar 2003 22:46:11 -0000
+@@ -168,10 +168,8 @@ void rpc_add_timer(struct rpc_task *task
+ static inline void
+ rpc_delete_timer(struct rpc_task *task)
+ {
+-	if (timer_pending(&task->tk_timer)) {
++	if (del_timer_sync(&task->tk_timer))
+ 		dprintk("RPC: %4d deleting timer\n", task->tk_pid);
+-		del_timer_sync(&task->tk_timer);
+-	}
+ }
+ 
+ /*
+
+
+Is is reasonable or am I overlooking something here?
+
+Bye,
+Ulrich
+
+-- 
+  Dr. Ulrich Weigand
+  weigand@informatik.uni-erlangen.de

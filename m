@@ -1,51 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266550AbUHSPgh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266548AbUHSPqg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266550AbUHSPgh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 11:36:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266560AbUHSPgE
+	id S266548AbUHSPqg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 11:46:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266553AbUHSPqg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 11:36:04 -0400
-Received: from smtp.terra.es ([213.4.129.129]:17552 "EHLO tsmtp3.ldap.isp")
-	by vger.kernel.org with ESMTP id S266498AbUHSPaE convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 11:30:04 -0400
-Date: Thu, 19 Aug 2004 14:06:59 +0200
-From: Diego Calleja <diegocg@teleline.es>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: diablod3@gmail.com, kernel@wildsau.enemy.org, linux-kernel@vger.kernel.org,
-       schilling@fokus.fraunhofer.de
+	Thu, 19 Aug 2004 11:46:36 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:1412 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S266560AbUHSPqB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 11:46:01 -0400
 Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-Message-Id: <20040819140659.6f61edcd.diegocg@teleline.es>
-In-Reply-To: <1092915160.830.9.camel@krustophenia.net>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>
+Cc: Joerg Schilling <schilling@fokus.fraunhofer.de>, kernel@wildsau.enemy.org,
+       diablod3@gmail.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <4124BA10.6060602@bio.ifi.lmu.de>
 References: <200408041233.i74CX93f009939@wildsau.enemy.org>
-	<d577e5690408190004368536e9@mail.gmail.com>
-	<1092915160.830.9.camel@krustophenia.net>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	 <d577e5690408190004368536e9@mail.gmail.com> <4124A024.nail7X62HZNBB@burner>
+	 <4124BA10.6060602@bio.ifi.lmu.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1092925942.28353.5.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 19 Aug 2004 15:32:22 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Thu, 19 Aug 2004 07:32:40 -0400 Lee Revell <rlrevell@joe-job.com> escribió:
-
-> On Thu, 2004-08-19 at 03:04, Patrick McFarland wrote:
-> > If no one has noticed yet, thanks to the additional license
-> > restrictions Joerg Schilling has added to cdrecord (due to this
-> > thread), it may be now moved to non-free in Debian in the near future.
+On Iau, 2004-08-19 at 15:32, Frank Steiner wrote:
+> What a stupid claim. When I call cdrecord on SuSE 9.1, I can burn CDs and
+> DVDs as normal user, without root permissions, without suid, without ide-scsi,
+> using /dev/hdc as device.
 > 
-> What restrictions?  Do you have a link?
+> And this just works fine. So where's the problem?
 
-See http://weblogs.mozillazine.org/gerv/archives/006193.html (which may not
-be the best interpretation of the changes)
+You can also erase the drive firmware as a user etc. That's the problem.
+When you fix that cdrecord gets broken by the security fix if you are
+using the SG_IO interface. Patches are kicking around to try and sort
+things out so cd burning is safe as non-root. cdrecord works as root.
 
-Basically it was added a "linuxcheck" function which you're not allowed to
-modify or delete. The function has a "warning", which results in something
-like:
-cdrecord: Warning: Running on Linux-2.6.8
-cdrecord: There are unsettled issues with Linux-2.5 and newer.
-cdrecord: If you have unexpected problems, please try Linux-2.4 or Solaris.
+As a security fix it was sufficiently important that it had to be done.
 
-(Dunno what it prints out when you're running suse but I don't think linux
-vendors are going to distribute software which says that their own software
-has issues.)
+Alan
+

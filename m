@@ -1,46 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261232AbVDDNrN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261237AbVDDN6b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261232AbVDDNrN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 09:47:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261239AbVDDNrN
+	id S261237AbVDDN6b (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 09:58:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261240AbVDDN6b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 09:47:13 -0400
-Received: from mail.upce.cz ([195.113.124.33]:28561 "EHLO mail.upce.cz")
-	by vger.kernel.org with ESMTP id S261232AbVDDNrK (ORCPT
+	Mon, 4 Apr 2005 09:58:31 -0400
+Received: from users.ccur.com ([208.248.32.211]:23057 "EHLO gamx.iccur.com")
+	by vger.kernel.org with ESMTP id S261237AbVDDN62 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 09:47:10 -0400
-Message-ID: <42514555.1070205@seznam.cz>
-Date: Mon, 04 Apr 2005 15:47:01 +0200
-From: "kern.petr@seznam.cz" <kern.petr@seznam.cz>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: cs, en-us, en
-MIME-Version: 1.0
-To: Christophe Lucas <clucas@rotomalug.org>, linux-kernel@vger.kernel.org
-Subject: Re: ChangeLog-2.4.30
-References: <20050404074823.GC28840@rhum.iomeda.fr>
-In-Reply-To: <20050404074823.GC28840@rhum.iomeda.fr>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Mon, 4 Apr 2005 09:58:28 -0400
+Date: Mon, 4 Apr 2005 09:58:16 -0400
+From: Joe Korty <joe.korty@ccur.com>
+To: P@draigBrady.com
+Cc: Jonathan Lundell <linux@lundell-bros.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: x86 TSC time warp puzzle
+Message-ID: <20050404135816.GA2876@tsunami.ccur.com>
+Reply-To: joe.korty@ccur.com
+References: <p06230505be73a5c345c7@[10.2.3.6]> <425101EA.7080001@draigBrady.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <425101EA.7080001@draigBrady.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-These files missing too:
-http://www.kernel.org/pub/linux/kernel/v2.4/patch-2.4.30.bz2
-http://www.kernel.org/pub/linux/kernel/v2.4/linux-2.4.30.tar.bz2
+On Mon, Apr 04, 2005 at 09:59:22AM +0100, P@draigBrady.com wrote:
+> Jonathan Lundell wrote:
+> >Well, not actually a time warp, though it feels like one.
+> >
+> >I'm doing some real-time bit-twiddling in a driver, using the TSC to 
+> >measure out delays on the order of hundreds of nanoseconds. Because I 
+> >want an upper limit on the delay, I disable interrupts around it.
+> >
+> >The logic is something like:
+> >
+> >    local_irq_save
+> >    out(set a bit)
+> >    t0 = TSC
+> >    wait while (t = (TSC - t0)) < delay_time
+> >    out(clear the bit)
+> >    local_irq_restore
+> >
+> > From time to time, when I exit the delay, t is *much* bigger than 
+> >delay_time. If delay_time is, say, 300ns, t is usually no more than 
+> >325ns. But every so often, t can be 2000, or 10000, or even much higher.
+> >
+> >The value of t seems to depend on the CPU involved, The worst case is 
+> >with an Intel 915GV chipset, where t approaches 500 microseconds (!).
 
-Petr Novák,
-kern.petr@seznam.cz
 
-Christophe Lucas napsal(a):
-
->Is this normal ;-) ChangeLog-2.4.30 is not found on www.kernel.org ?
->http://www.kernel.org/pub/linux/kernel/v2.4/ChangeLog-2.4.30
->
->Have a nice day,
-> 
->	~Christophe
->
->PS: Please CC me :)
->
-
-
+Add nmi_watchdog=0 to your boot command line.

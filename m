@@ -1,65 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262093AbVCWWaF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262081AbVCWWbB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262093AbVCWWaF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 17:30:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262081AbVCWWaF
+	id S262081AbVCWWbB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 17:31:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262088AbVCWWbB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 17:30:05 -0500
-Received: from grendel.digitalservice.pl ([217.67.200.140]:49604 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S262405AbVCWW3r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 17:29:47 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: 2.6.12-rc1-mm1: resume regression [update] (was: Re: 2.6.12-rc1-mm1: Kernel BUG at pci:389)
-Date: Wed, 23 Mar 2005 23:29:49 +0100
-User-Agent: KMail/1.7.1
-Cc: Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
-       Len Brown <len.brown@intel.com>, LKML <linux-kernel@vger.kernel.org>,
-       Shaohua Li <shaohua.li@intel.com>
-References: <20050322013535.GA1421@elf.ucw.cz> <20050322110126.GB1780@elf.ucw.cz> <200503222249.54091.rjw@sisk.pl>
-In-Reply-To: <200503222249.54091.rjw@sisk.pl>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
+	Wed, 23 Mar 2005 17:31:01 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:55966 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S262081AbVCWWau (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 17:30:50 -0500
+Subject: Re: ALSA bugs in list [was Re: 2.6.12-rc1-mm1]
+From: Lee Revell <rlrevell@joe-job.com>
+To: indrek.kruusa@tuleriit.ee
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <424074EB.9020904@tuleriit.ee>
+References: <424074EB.9020904@tuleriit.ee>
+Content-Type: text/plain
+Date: Wed, 23 Mar 2005 17:30:48 -0500
+Message-Id: <1111617048.3377.8.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200503232329.50461.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Tuesday, 22 of March 2005 22:49, Rafael J. Wysocki wrote:
-> Hi,
+On Tue, 2005-03-22 at 21:41 +0200, Indrek Kruusa wrote:
+> Lee Revell <rlrevell@xxxxxxxxxxx> wrote:
+>  >
+>  >/ On Mon, 2005-03-21 at 12:41 -0800, Andrew Morton wrote:/
+>  >/ > From: bugme-daemon@xxxxxxxx/
+>  >/ > Subject: [Bug 4282] ALSA driver in Linux 2.6.11 causes a kernel 
+> panic when loading the EMU10K1 driver/
+>  >/ > /
+>  >/ /
+>  >/ This one is a real mystery. No one can reproduce it./
 > 
-> On Tuesday, 22 of March 2005 12:01, Pavel Machek wrote:
-> > Hi!
-> > 
-> > > Will this do it for the moment?
-> > 
-> > Its certainly better.
+> Not quite true. This bug was current till today in Mandrake's kernel, 
+> but with  2.6.11-5mdk they managed to get rid of it.
+> The problem is not with loading the driver but when alsactl tries to 
+> store/restore mixer settings.
 > 
-> With the Len's patch applied I have to unload the modules:
-> 
-> ohci_hcd
-> ehci_hcd
-> yenta_socket
-> 
-> before suspend as each of them hangs the box solid during either
-> suspend or resume.  Moreover, when I tried to load the ehci_hcd
-> module back after resume, it hanged the box solid too.
 
-This behavior is apparently caused by the call to pci_write_config_word() with
-pmcsr = 0 in drivers/pci/pci.c:pci_set_power_state().
+Please, make sure to use "reply to all" when replying to LKML mail.  I
+easily could have missed this.
 
-Well, I don't think I can do anything more about it myself. :-)
+Do you have a link to the Mandrake bug report?  If other people have
+been hitting this, they have not been updating the bug report:
 
-Greets,
-Rafael
+http://bugme.osdl.org/show_bug.cgi?id=4282
 
+> I have tried again with 2.6.12-rc1-mm1 and it is still there (for 
+> example the Gnome won't start due to this).
+> Below the oops part from messages.
 
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+Does it work if you just blow away the old mixer settings rather than
+trying to restore them?
+
+Anyway, this might be fixed in ALSA CVS.
+
+Lee
+

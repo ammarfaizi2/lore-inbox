@@ -1,40 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263747AbTDITb6 (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 15:31:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263754AbTDITb5 (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 15:31:57 -0400
-Received: from natsmtp01.webmailer.de ([192.67.198.81]:51932 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP id S263747AbTDITb5 (for <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Apr 2003 15:31:57 -0400
-Date: Wed, 9 Apr 2003 21:48:54 +0200
-From: Dominik Brodowski <linux@brodo.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org, rmk@arm.linux.org.uk
-Subject: Re: [PATCHES 2.5.67] PCMCIA hotplugging, in-kernel-matching and depmod support
-Message-ID: <20030409194854.GA4449@brodo.de>
-References: <20030408205623.GA5253@brodo.de> <20030408212059.GA5358@gtf.org> <20030408213403.GA5250@brodo.de> <3E9354D3.8090805@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3E9354D3.8090805@pobox.com>
-User-Agent: Mutt/1.4i
+	id S263712AbTDITmm (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 15:42:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263724AbTDITmm (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 15:42:42 -0400
+Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:31249 "EHLO
+	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
+	id S263712AbTDITmh (for <rfc822;linux-kernel@vger.kernel.org>); Wed, 9 Apr 2003 15:42:37 -0400
+Date: Wed, 9 Apr 2003 21:54:12 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: "Robert P. J. Day" <rpjday@mindspring.com>
+cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: what means duplicate "config" entries in Kconfig file?
+In-Reply-To: <Pine.LNX.4.44.0304091237490.28112-100000@dell>
+Message-ID: <Pine.LNX.4.44.0304092115160.5042-100000@serv>
+References: <Pine.LNX.4.44.0304091237490.28112-100000@dell>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 08, 2003 at 07:01:39PM -0400, Jeff Garzik wrote:
-> >As strings can't be passed to userspace in file2alias.c, I've chosen the
-> >crc32 value of the string as the matching identifier for the userspace
-> >hotplug script.
+Hi,
+
+On Wed, 9 Apr 2003, Robert P. J. Day wrote:
+
+>   the two options X86_VISWS and X86_VOYAGER are simple "bool"s
+> representing the (radio-box) subarchitecture type.
 > 
-> This sounds like a problem to be solved, not worked around...  the 
-> source should have the strings presented directly, and I'm sure a 
-> creative and smart person such as yourself can conceive of at least 
-> one... ;-)
+>   the first seems to represent a dependency of *neither* of those
+> two listed options, while the second config *depends* on one of 
+> them.  
+> 
+>   how exactly do you reconcile what looks like contradictory
+> dependencies for the same config entry?
 
-OK, there might be a way to do this (and yes, I can think of one...).
-However, I doubt it makes sense: using strings in depmod.c and in the
-hotplug utilities is even worse than in file2alias.c. For example, 
-whitespace is used as delimitier for the values being parsed in hotplug
-scripts. So I think the better (as simpler and thus more difficult to break)
-approach is using crc32.
+With config entries you mainly define menu prompts and defaults. 
+Dependencies are now properties of these prompts and defaults. With "if" 
+you can define dependencies which are only attached to these prompts or 
+defaults. Dependencies defined with "depends on" are attached to all of 
+them defined within this menu entry.
+Internally this becomes a simple list:
 
-	Dominik
+config MCA
+  +- prompt "MCA support"
+  |    +- depends on !(X86_VISWS || X86_VOYAGER)
+  +- default y
+       +- depends on X86_VOYAGER
+
+If you enable the debug option of xconfig, this list is displayed with the 
+help text.
+
+bye, Roman
+

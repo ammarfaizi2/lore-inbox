@@ -1,61 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131382AbRCNO2Z>; Wed, 14 Mar 2001 09:28:25 -0500
+	id <S131376AbRCNO0F>; Wed, 14 Mar 2001 09:26:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131387AbRCNO2P>; Wed, 14 Mar 2001 09:28:15 -0500
-Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:1028 "EHLO
-	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
-	id <S131382AbRCNO2C>; Wed, 14 Mar 2001 09:28:02 -0500
-Date: Wed, 14 Mar 2001 08:26:03 -0600
-From: Philipp Rumpf <prumpf@mandrakesoft.com>
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-Cc: Rik van Riel <riel@conectiva.com.br>,
-        Boris Dragovic <lynx@falcon.etf.bg.ac.yu>,
-        Oswald Buddenhagen <ob6@inf.tu-dresden.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: static scheduling - SCHED_IDLE?
-Message-ID: <20010314082603.A29144@mandrakesoft.mandrakesoft.com>
-In-Reply-To: <20010309204243.E13320@pcep-jamie.cern.ch> <Pine.LNX.4.33.0103100001200.2283-100000@duckman.distro.conectiva> <20010309210913.F13320@pcep-jamie.cern.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.4us
-In-Reply-To: <20010309210913.F13320@pcep-jamie.cern.ch>; from Jamie Lokier on Fri, Mar 09, 2001 at 09:09:13PM +0100
+	id <S131382AbRCNOZ4>; Wed, 14 Mar 2001 09:25:56 -0500
+Received: from ns.caldera.de ([212.34.180.1]:13842 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S131371AbRCNOZp>;
+	Wed, 14 Mar 2001 09:25:45 -0500
+Date: Wed, 14 Mar 2001 15:24:43 +0100
+Message-Id: <200103141424.PAA12648@ns.caldera.de>
+From: Christoph Hellwig <hch@caldera.de>
+To: mshiju@in.ibm.com
+Cc: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: ISAPNP :driver not recognized when compiled in kernel
+X-Newsgroups: caldera.lists.linux.kernel
+In-Reply-To: <CA256A0F.004A726A.00@d73mta05.au.ibm.com>
+User-Agent: tin/1.4.1-19991201 ("Polish") (UNIX) (Linux/2.2.14 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 09, 2001 at 09:09:13PM +0100, Jamie Lokier wrote:
-> Rik van Riel wrote:
-> > > Just raise the priority whenever the task's in kernel mode.  Problem
-> > > solved.
-> > 
-> > Remember that a task schedules itself out at the timer interrupt,
-> > in kernel/sched.c::schedule() ... which is kernel mode ;)
-> 
-> Even nicer.  On x86 change this:
-> 
-> reschedule:
-> 	call SYMBOL_NAME(schedule)    # test
-> 	jmp ret_from_sys_call
-> 
-> to this:
-> 
-> reschedule:
-> 	orl $PF_HONOUR_LOW_PRIORITY,flags(%ebx)	
-> 	call SYMBOL_NAME(schedule)    # test
-> 	andl $~PF_HONOUR_LOW_PRIORITY,flags(%ebx)
-> 	jmp ret_from_sys_call
-> 
-> (You get the idea; this isn't the best implementation).
+In article <CA256A0F.004A726A.00@d73mta05.au.ibm.com> you wrote:
+> Hello,
+>            I have a basic question. Can we build a PnP ISA driver in kernel
+> with ISAPNP kernel option enabled so that kernel PnP does the job of
+> allocating the resources for the driver.
 
-A few months ago, I implemented preemptible kernel threads (locally;  I
-tend to think the other patches are superior).  Part of the changes was
-to separate schedule into __schedule() (common part), schedule_user()
-(automatic schedule from entry.S) and schedule() (manual schedule in
-kernel space);  besides making what Jamie proposed easier, we can also
-save a few cycles in the (common) schedule_user case:
+Yes you can.  Look at drivers/sound/ad1816.c or drivers/sound/sb_card.c for
+examples.
 
- - we never release the kernel lock
- - we can pass current to schedule_user
- - we just handled softirqs
+> The problem being that the
+> /etc/isapnp.conf should be executed before the device driver. I tried this
+> and was unsuccessful but worked fine when the driver was compiled as a
+> module. 
 
-this is 2.5 material though ...
+The Linux 2.4 isapnp code does _not_ use isapnp.conf.
+Did you write your driver using the isapnp_ kernel APIs (Documented in
+Documentation/isapnp.txt)?  Or is it a plain isa driver that needs help
+from the isapnp tools to work?
+
+> I read somewhere that ISAPNP drivers with ISAPNP enabled in kernel
+> should only be build as modules so that we can keep the order of execution
+> . Is this true.? Have any one of you tried this .
+
+This was true for Linux 2.2 and earlier as those did not actually support
+isapnp and needed the help of the uselevel isapnp tools.  Because they can
+only be used after the system is up isapnp drivers for theses kernel have to
+be modules.
+
+	Christoph
+
+-- 
+Of course it doesn't work. We've performed a software upgrade.

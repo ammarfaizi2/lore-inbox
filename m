@@ -1,50 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129311AbRA3I0g>; Tue, 30 Jan 2001 03:26:36 -0500
+	id <S129172AbRA3IcS>; Tue, 30 Jan 2001 03:32:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129818AbRA3I0G>; Tue, 30 Jan 2001 03:26:06 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:52964 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S129299AbRA3IZy>;
-	Tue, 30 Jan 2001 03:25:54 -0500
-Date: Tue, 30 Jan 2001 03:27:23 -0500 (EST)
-From: "Michael B. Trausch" <fd0man@crosswinds.net>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: *massive* slowdowns on 2.4.1-pre1[1|2]
-In-Reply-To: <955pr6$afk$1@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.21.0101300325340.2225-100000@fd0man.accesstoledo.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129441AbRA3IcI>; Tue, 30 Jan 2001 03:32:08 -0500
+Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:35185
+	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
+	id <S129172AbRA3IcG>; Tue, 30 Jan 2001 03:32:06 -0500
+Date: Tue, 30 Jan 2001 09:31:59 +0100
+From: Rasmus Andersen <rasmus@jaquet.dk>
+To: David Howells <dhowells@cambridge.redhat.com>
+Cc: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org
+Subject: Re: [PATCH] guard mm->rss with page_table_lock (241p11)
+Message-ID: <20010130093159.A3298@jaquet.dk>
+In-Reply-To: <rasmus@jaquet.dk> <13240.980842736@warthog.cambridge.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <13240.980842736@warthog.cambridge.redhat.com>; from dhowells@cambridge.redhat.com on Tue, Jan 30, 2001 at 08:18:56AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 29 Jan 2001, Linus Torvalds wrote:
+On Tue, Jan 30, 2001 at 08:18:56AM +0000, David Howells wrote:
+> >...
+> > +	spin_lock(&mm->page_table_lock);
+> >  	mm->rss++;
+> > +	spin_unlock(&mm->page_table_lock);
+> >...
 > 
-> You have to realize that stability takes precedence over EVERYTHING. 
-> 
-> 		Linus
-> 
+> Would it not be better to use some sort of atomic add/subtract/clear operation
+> rather than a spinlock? (Which would also give you fewer atomic memory access
+> cycles).
 
-At least with Linux, if something is *slow*, it generally works *perfect*
-or damn near close to it.  I'll take that; over Microsoft's being slow AND
-buggy AND just fucks me up.
+This will unfortunately not do for all platforms. Please read
+http://marc.theaimsgroup.com/?t=97630768100003&w=2&r=1 for the
+last discussion of this.
 
-I've lost soo much data on my disks - but ONLY on my MS partitions and
-running an MS operating system.  Granted, I don't use Linux to access
-ANYTHING that is FAT based (unless I use mtools).
-
-I'm running with a VIA board, and I'll be happy to have something slow and
-reliable, than really fast and really able to fuck my data up.  ;p
-
-	- Mike
-
-===========================================================================
-Michael B. Trausch                                    fd0man@crosswinds.net
-Avid Linux User since April, '96!                           AIM:  ML100Smkr
-
-              Contactable via IRC (DALNet) or AIM as ML100Smkr
-===========================================================================
-
+Regards,
+  Rasmus
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

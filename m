@@ -1,46 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273502AbRIUNBU>; Fri, 21 Sep 2001 09:01:20 -0400
+	id <S273505AbRIUNDa>; Fri, 21 Sep 2001 09:03:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273505AbRIUNBK>; Fri, 21 Sep 2001 09:01:10 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:38663 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S273502AbRIUNA6>;
-	Fri, 21 Sep 2001 09:00:58 -0400
-Date: Fri, 21 Sep 2001 10:01:08 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: <davidsen@tmr.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: broken VM in 2.4.10-pre9
-In-Reply-To: <20010921145556.1f0af431.skraw@ithnet.com>
-Message-ID: <Pine.LNX.4.33L.0109210959580.19147-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S273507AbRIUNDU>; Fri, 21 Sep 2001 09:03:20 -0400
+Received: from CPE-61-9-150-236.vic.bigpond.net.au ([61.9.150.236]:50163 "EHLO
+	e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
+	id <S273505AbRIUNDL>; Fri, 21 Sep 2001 09:03:11 -0400
+Message-ID: <3BAB3810.59C6F706@eyal.emu.id.au>
+Date: Fri, 21 Sep 2001 22:52:32 +1000
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.10-pre10 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "list, linux-kernel" <linux-kernel@vger.kernel.org>
+Subject: [patch] 2.4.10-pre13: put_gendisk compile error
+Content-Type: multipart/mixed;
+ boundary="------------4987CA0C123D81AA453EB0E0"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 21 Sep 2001, Stephan von Krawczynski wrote:
+This is a multi-part message in MIME format.
+--------------4987CA0C123D81AA453EB0E0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-> The really beautiful thing about it is that you can divide it
-> completely in two parts:
+It should be removed from the offending programs. Same as pre12.
 
-> Your opinion?
+--
+Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.anu.edu.au/eyal/>
+--------------4987CA0C123D81AA453EB0E0
+Content-Type: text/plain; charset=us-ascii;
+ name="2.4.10-pre13-ideraid.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="2.4.10-pre13-ideraid.patch"
 
-I'll believe it when I see it, your idea is still very
-abstract and I haven't seen you even start to talk about
-even the data structures used in the implementation.
+--- linux/drivers/ide/hptraid.c	Wed Sep 19 22:01:42 2001
++++ linux-2.4-ac/drivers/ide/hptraid.c	Wed Sep 19 08:24:40 2001
+@@ -314,7 +314,6 @@
+ 		if (gd!=NULL) {
+ 			for (j=1+(minor<<gd->minor_shift);j<((minor+1)<<gd->minor_shift);j++) 
+ 				gd->part[j].nr_sects=0;					
+-			put_gendisk(gd);
+ 		}
+         }
+ 	raid[device].disk[i].device = MKDEV(major,minor);
+--- linux/drivers/ide/pdcraid.c	Wed Sep 19 22:01:42 2001
++++ linux-2.4-ac/drivers/ide/pdcraid.c	Wed Sep 19 08:24:40 2001
+@@ -321,7 +321,6 @@
+ 				if (gd!=NULL) {
+ 					for (j=1+(minor<<gd->minor_shift);j<((minor+1)<<gd->minor_shift);j++) 
+ 						gd->part[j].nr_sects=0;					
+-					put_gendisk(gd);
+ 				}
+ 			}
+ 			raid[device].disk[i].device = MKDEV(major,minor);
 
-(except for "list" showing up at random places in the text)
-
-regards,
-
-Rik
--- 
-IA64: a worthy successor to i860.
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+--------------4987CA0C123D81AA453EB0E0--
 

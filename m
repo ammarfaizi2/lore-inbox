@@ -1,57 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274520AbRJYQiy>; Thu, 25 Oct 2001 12:38:54 -0400
+	id <S274653AbRJYQrO>; Thu, 25 Oct 2001 12:47:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275278AbRJYQip>; Thu, 25 Oct 2001 12:38:45 -0400
-Received: from marine.sonic.net ([208.201.224.37]:36118 "HELO marine.sonic.net")
-	by vger.kernel.org with SMTP id <S274520AbRJYQie>;
-	Thu, 25 Oct 2001 12:38:34 -0400
-X-envelope-info: <dalgoda@ix.netcom.com>
-Date: Thu, 25 Oct 2001 09:39:05 -0700
-From: Mike Castle <dalgoda@ix.netcom.com>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: modprobe problem with block-major-11
-Message-ID: <20011025093904.C24125@thune.mrc-home.com>
-Reply-To: Mike Castle <dalgoda@ix.netcom.com>
-Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
+	id <S275424AbRJYQrF>; Thu, 25 Oct 2001 12:47:05 -0400
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:59425 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S274653AbRJYQq7>; Thu, 25 Oct 2001 12:46:59 -0400
+Date: Thu, 25 Oct 2001 12:47:32 -0400
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, John Hawkes <hawkes@oss.sgi.com>,
+        linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: [PATCH] gcc 3.0.1 warnings about multi-line literals
+Message-ID: <20011025124732.A23000@redhat.com>
+In-Reply-To: <20011022161527.K23213@redhat.com> <E15vlx2-0003HO-00@the-village.bc.nu> <20011022165157.M23213@redhat.com> <20011025001150.A8776@twiddle.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <27036.1004015036@ocs3.intra.ocs.com.au>
-User-Agent: Mutt/1.3.18i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011025001150.A8776@twiddle.net>; from rth@twiddle.net on Thu, Oct 25, 2001 at 12:11:50AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 25, 2001 at 11:03:56PM +1000, Keith Owens wrote:
-> The problem is caused by a bash "feature", it was added in bash 2.01.
-
-Gotcha.  I take it you've seen this before then?  :->
-
-I didn't see any mention of this the docs.  Would it be worth while to add
-what you just wrote to a PROBLEMS file?
-
-> Workaround: Replace 
->   pre-install foo modprobe bar
-> with
->   before foo bar
-
-Will do.
-
-> That does all the work internally without using the system() function
-> and falling foul of the bash feature.  It is also faster and it lets
-> modprobe maintain the chain of modules for unload.
+On Thu, Oct 25, 2001 at 12:11:50AM -0700, Richard Henderson wrote:
+> On Mon, Oct 22, 2001 at 04:51:57PM -0400, Benjamin LaHaise wrote:
+> > Which of the following is more readable:
+> [...]
 > 
-> BTW, users can never run rmmod, only root can do that.
+> Or (4):
+> 
+> 	"btsl $0, %0		\n\
 
-Right.  But it IS with root that rmmod -a is failing.
+Is this a long term supported format?  It's certainly much better than 
+the string per line, and if it's going to say around, then I'm willing 
+to switch.
 
-Maybe I'll get lucky and it will magically start working when I switch to
-the above?
-
-Appreciate your help!
-mrc
--- 
-     Mike Castle      dalgoda@ix.netcom.com      www.netcom.com/~dalgoda/
-    We are all of us living in the shadow of Manhattan.  -- Watchmen
-fatal ("You are in a maze of twisty compiler features, all different"); -- gcc
+		-ben

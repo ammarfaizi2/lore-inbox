@@ -1,51 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264933AbTFQV75 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jun 2003 17:59:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264934AbTFQV75
+	id S264938AbTFQWCU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jun 2003 18:02:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264948AbTFQWCT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jun 2003 17:59:57 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:15791 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264933AbTFQV7z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jun 2003 17:59:55 -0400
-Subject: borked sysfs system devices in 2.5.72
-From: Dave Hansen <haveblue@us.ibm.com>
-To: mochel@osdl.org
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1055887929.24118.6.camel@nighthawk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 17 Jun 2003 15:12:09 -0700
+	Tue, 17 Jun 2003 18:02:19 -0400
+Received: from netmail02.services.quay.plus.net ([212.159.14.221]:37094 "HELO
+	netmail02.services.quay.plus.net") by vger.kernel.org with SMTP
+	id S264938AbTFQWCL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jun 2003 18:02:11 -0400
+From: "Riley Williams" <Riley@Williams.Name>
+To: "Sam Ravnborg" <sam@ravnborg.org>,
+       "Linus Torvalds" <torvalds@transmeta.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH] kbuild: Document lib-y
+Date: Tue, 17 Jun 2003 23:16:15 +0100
+Message-ID: <BKEGKPICNAKILKJKMHCAEEOBEFAA.Riley@Williams.Name>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <20030608180113.GA3987@mars.ravnborg.org>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The per-node numa meminfo files in 2.5.72 are broken, the only display
-node0's information.  The devices are being properly registered:
-Registering sys device 'node0':c0423844 id:0 kobj:c042384c
-Registering sys device 'node1':c0423888 id:1 kobj:c0423890
-Registering sys device 'node2':c04238cc id:2 kobj:c04238d4
-Registering sys device 'node3':c0423910 id:3 kobj:c0423918
+Hi Sam.
 
-When I look at the 4 nodes files with:
-"cat /sys/devices/system/node/*/meminfo", I printed out some
-information:
-subsys_attr_show(kobj: c042384c, attr: c033ea30, page: e76ba000)
-subsys_attr_show(kobj: c0423890, attr: c033ea30, page: e76ba000)
-subsys_attr_show(kobj: c04238d4, attr: c033ea30, page: e76ba000)
-subsys_attr_show(kobj: c0423918, attr: c033ea30, page: e76ba000)
+ > Hi Linus, documentation for the newly added lib-y.
 
-As you can see, the kobj is the one which belongs to the sys device, yet
-you do a to_subsys() on it.  Why?
-struct subsystem * s = to_subsys(kobj);
+Minor grammatical tweaks to the same...
 
-I'm getting a 0 as the node ID out of pure dumb luck.  Is the NUMA code
-broken or is sysfs?
+ > ===== Documentation/kbuild/makefiles.txt 1.8 vs edited =====
+ > --- 1.8/Documentation/kbuild/makefiles.txt	Sun Mar 16 06:52:28 2003
+ > +++ edited/Documentation/kbuild/makefiles.txt	Sun Jun  8 
+ > @@ -214,20 +214,33 @@
+ >  	modules exporting symbols.
+ >  	See also Documentation/modules.txt.
+ >  
+ > ---- 3.5 Library file goals - L_TARGET
+ > +--- 3.5 Library file goals - lib-y
+ >  
+ > -	Instead of building a built-in.o file, you may also
+ > -	build an archive which again contains objects listed in $(obj-y).
+ > -	This is normally not necessary and only used in lib/ and 
+ > -	arch/$(ARCH)/lib directories.
+ > -	Only the name lib.a is allowed.
+ > +	Objects listed with obj-* is used for modules or
+                                ^^
+That should be "are" ?
 
--- 
-Dave Hansen
-haveblue@us.ibm.com
+ > +	are combined in a built-in.o for that specific directory.
+      ^^^
+That shouldn't be there.
+
+Best wishes from Riley.
+---
+ * Nothing as pretty as a smile, nothing as ugly as a frown.
+
+---
+Outgoing mail is certified Virus Free.
+Checked by AVG anti-virus system (http://www.grisoft.com).
+Version: 6.0.490 / Virus Database: 289 - Release Date: 16-Jun-2003
 

@@ -1,57 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261799AbVBTKpd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261810AbVBTKtK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261799AbVBTKpd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Feb 2005 05:45:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261796AbVBTKpd
+	id S261810AbVBTKtK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Feb 2005 05:49:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261811AbVBTKtK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Feb 2005 05:45:33 -0500
-Received: from arnor.apana.org.au ([203.14.152.115]:23051 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261799AbVBTKpX
+	Sun, 20 Feb 2005 05:49:10 -0500
+Received: from smtp.persistent.co.in ([202.54.11.65]:33957 "EHLO
+	smtp.pspl.co.in") by vger.kernel.org with ESMTP id S261810AbVBTKsG
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Feb 2005 05:45:23 -0500
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: arjan@infradead.org (Arjan van de Ven)
-Subject: Re: [2.6 patch] drivers/net/smc-mca.c: cleanups
-Cc: willy@w.ods.org, jgarzik@pobox.com, bunk@stusta.de,
-       linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
-Organization: Core
-In-Reply-To: <1108827830.6304.120.camel@laptopd505.fenrus.org>
-X-Newsgroups: apana.lists.os.linux.kernel,apana.lists.os.linux.net
-User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.27-hx-1-686-smp (i686))
-Message-Id: <E1D2oSy-0006aR-00@gondolin.me.apana.org.au>
-Date: Sun, 20 Feb 2005 21:37:32 +1100
+	Sun, 20 Feb 2005 05:48:06 -0500
+Message-ID: <34373.203.199.147.2.1108897097.squirrel@webmail.persistent.co.in>
+Date: Sun, 20 Feb 2005 16:28:17 +0530 (IST)
+Subject: Needed faster implementation of do_gettimeofday()
+From: puneet_kaushik@persistent.co.in
+To: linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.1-2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+Importance: Normal
+X-Brightmail-Tracker: AAAAAQAAAAQ=
+X-White-List-Member: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven <arjan@infradead.org> wrote:
->
->>  I've used this technique in a few very
->> small programs to reduce their size (I could strip off both their bss and
->> data sections to save space). Also, I believe that the compiler is able
->> to optimize code using consts, but this is pure speculation, I've not
->> verified it.
-> 
-> Afaik that's the main difference between C and C++; in C you can still
-> change "const" variables... in C++ thats illegal (at least that's what I
-> remember and google seems to support somewhat ;)
+Hello all,
 
-The compiler does use the const modifier on a static object to optimise
-code.  Try compiling this program:
+I am running oprofile on some program. Following is the oprofile output.
 
-const int x;
+-----------------------------------------------------------------------
 
-int bar(int);
+Counted GLOBAL_POWER_EVENTS events (time during which processor is not
+stopped) with a unit mask of 0x01 (mandatory) count 100000
+samples  %        app name                 symbol name
+985913    8.6083  vmlinux                  mark_offset_tsc
+584473    5.1032  libc-2.3.2.so            getc
+295901    2.5836  vmlinux                  ide_outb
+270823    2.3646  vmlinux                  _spin_lock
+249791    2.1810  vmlinux                  _spin_unlock
+236140    2.0618  vmlinux                  timer_interrupt
+175249    1.5302  ld-2.3.2.so              do_lookup_versioned
+140429    1.2261  sendmail                 putc
+138739    1.2114  sendmail                 stabhash
+134145    1.1713  sendmail                 getc
 
-int foo(void)
-{
-	bar(x);
-	return bar(x);
-}
+-----------------------------------------------------------------------
 
-With the const gcc (3.3.4) will only load x once while it'll reload
-it after calling bar if you remove the const modifier.
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+
+>From this output what I can analyse is that mark_offset_tsc(which is
+called from do_gettimeofday), and some other timer functions, are taking
+most of the CPU.
+
+Is there any faster implementation of do_gettimeofday. I am using kernel
+2.6.10. with dual P4.
+
+What I found from google search is: http://lwn.net/Articles/9266/ , which
+is only for kernel 2.4
+
+Thanks for help.
+
+
+-Puneet
+
+
+

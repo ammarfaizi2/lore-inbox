@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129555AbQK3SpE>; Thu, 30 Nov 2000 13:45:04 -0500
+        id <S129423AbQK3SpE>; Thu, 30 Nov 2000 13:45:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129595AbQK3Soy>; Thu, 30 Nov 2000 13:44:54 -0500
-Received: from Cantor.suse.de ([194.112.123.193]:55826 "HELO Cantor.suse.de")
-        by vger.kernel.org with SMTP id <S129226AbQK3Soq>;
-        Thu, 30 Nov 2000 13:44:46 -0500
-Date: Thu, 30 Nov 2000 19:14:14 +0100
-From: Andi Kleen <ak@suse.de>
-To: Ben Mansell <ben@zeus.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: TCP push missing with writev()
-Message-ID: <20001130191414.A13814@gruyere.muc.suse.de>
-In-Reply-To: <Pine.LNX.4.30.0011301710020.8071-100000@artemis.cam.zeus.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.30.0011301710020.8071-100000@artemis.cam.zeus.com>; from ben@zeus.com on Thu, Nov 30, 2000 at 05:35:41PM +0000
+        id <S129555AbQK3Soy>; Thu, 30 Nov 2000 13:44:54 -0500
+Received: from h24-65-192-120.cg.shawcable.net ([24.65.192.120]:46321 "EHLO
+        webber.adilger.net") by vger.kernel.org with ESMTP
+        id <S130085AbQK3SeH>; Thu, 30 Nov 2000 13:34:07 -0500
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200011301803.eAUI3Pu16137@webber.adilger.net>
+Subject: Re: Pls add this driver to the kernel tree !!
+In-Reply-To: <E141XZl-0005z9-00@roos.tartu-labor> "from Meelis Roos at Nov 30,
+ 2000 07:32:53 pm"
+To: Meelis Roos <mroos@linux.ee>
+Date: Thu, 30 Nov 2000 11:03:25 -0700 (MST)
+CC: jbj_ss@mail.tele.dk, linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL73 (25)]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 30, 2000 at 05:35:41PM +0000, Ben Mansell wrote:
-> (possibly treading on ground covered before:
->  http://www.uwsg.iu.edu/hypermail/linux/kernel/9904.1/0304.html )
+Meelis Roos writes:
+> JBJ> #ifdef INLINE_PCISCAN
+> JBJ> #include "k_compat.h"
+> JBJ> #else
+> JBJ> #include "pci-scan.h"
+> JBJ> #include "kern_compat.h"
+> JBJ> #endif
 > 
-> To be brief and to the point: Should there be any difference between the
-> following two ways of writing data to a TCP socket?
-> 
-> 1) write( fd, buffer, length )
-> 2) writev( fd, {buffer, length}, {NULL,0} )
+> I quess you need to convert it to kernel PCI API first and probably also to
+> optimize away the LINUX_VERSION_CODE checks (we know it's 2.4).
 
-No.
+Actually, there is some benefit in leaving the LINUX_VERSION_CODE checks
+there...  If someone wants to back-port the driver to 2.2, this makes it
+much easier.  Also, some people like to maintain a single driver for all
+of the kernel versions, so they don't have to bugfix each driver version.
 
-> 
-> The problem is that if data happens to be written via method (2), then
-> the PUSH flag is never set on any packets generated. This is a bug,
-> surely?
-
-I just tried it on 2.2.17 and 2.4.0test11 and it sets PUSH for writev()
-for both cases just fine. Maybe you could supply a test program and tcpdump
-logs for what you think is wrong ? 
-
--Andi
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

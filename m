@@ -1,63 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267052AbTAPNAP>; Thu, 16 Jan 2003 08:00:15 -0500
+	id <S267059AbTAPNJP>; Thu, 16 Jan 2003 08:09:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267059AbTAPNAP>; Thu, 16 Jan 2003 08:00:15 -0500
-Received: from [212.59.36.210] ([212.59.36.210]:896 "HELO schottelius.net")
-	by vger.kernel.org with SMTP id <S267052AbTAPNAO>;
-	Thu, 16 Jan 2003 08:00:14 -0500
-Date: Thu, 16 Jan 2003 09:37:16 +0100
-From: Nico Schottelius <schottelius@wdt.de>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] 2.4.21pre2 trident / ali5451
-Message-ID: <20030116083716.GA859@schottelius.org>
-References: <20021228021630.GA324@schottelius.org> <20030114231141.GF15211@fs.tum.de> <20030115133217.GA814@schottelius.org> <20030115222433.GR15211@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="5vNYLRcllDrimb99"
-Content-Disposition: inline
-In-Reply-To: <20030115222433.GR15211@fs.tum.de>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux flapp 2.4.21-pre3
+	id <S267065AbTAPNJP>; Thu, 16 Jan 2003 08:09:15 -0500
+Received: from mons.uio.no ([129.240.130.14]:2235 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S267059AbTAPNJP>;
+	Thu, 16 Jan 2003 08:09:15 -0500
+To: Tim Connors <tconnors@astro.swin.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [NFS] Re: broken umount -f
+References: <20030114160031$24bb@gated-at.bofh.it>
+	<200301160955.h0G9ttZ27704@hexane.ssi.swin.edu.au>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 16 Jan 2003 14:17:50 +0100
+In-Reply-To: <200301160955.h0G9ttZ27704@hexane.ssi.swin.edu.au>
+Message-ID: <shsd6mxp729.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> " " == Tim Connors <tconnors@astro.swin.edu.au> writes:
 
---5vNYLRcllDrimb99
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+     > What I have never understood, is that if you are reading a
+     > file, or even just in a directory, and the server goes down,
+     > and won't come back up (say, you have taken your laptop into
+     > work, and forgot to turn off autofs first, after killing all
+     > shells that had cd'd to the nfs directory), then you still are
+     > destined to have to reboot. You could sever all connections to
+     > the nfs server safely, because nothing is being written there
+     > (except maybe atime information - but not in the case of a
+     > shell being cd'd to an nfs path). But linux won't give up on
+     > the connection. Come on, what harm could possibly come to an
+     > application that has only readonly files open, or cwd in an NFS
+     > path?  No data loss would occur in this situation, so just drop
+     > the connection, and return -EIO to anything that then later
+     > wants to read a file.
 
-Adrian Bunk [Wed, Jan 15, 2003 at 11:24:34PM +0100]:
-> On Wed, Jan 15, 2003 at 02:32:17PM +0100, Nico Schottelius wrote:
-> >...
-> > can you send me plain modified 2.4.20 trident.c, so I can simlpt insert=
- it
-> > into 2.4.21pre3 ?
->=20
-> Attached.
+Care to contribute the code?
 
-Actually this patch works pretty good in 2.4.21pre3!
-
-I tried to port it to 2.5.58, but I don't know what changes where made
-to the underlying sound architecture. (Means I failed to get it running in
-2.5.58)
-
-Greetings,
-
-Nico
-
---5vNYLRcllDrimb99
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE+Jm88tnlUggLJsX0RAsv8AJ0QY2U8DINz6cWZoFllfCAXlu7HwQCghFUI
-oJ55MTgg1RuLL+bnEJ9StFY=
-=RCm0
------END PGP SIGNATURE-----
-
---5vNYLRcllDrimb99--
+Cheers,
+  Trond

@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261900AbUDHOu6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Apr 2004 10:50:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261885AbUDHOu6
+	id S261804AbUDHOyF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Apr 2004 10:54:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261794AbUDHOyF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Apr 2004 10:50:58 -0400
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:7086 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S261900AbUDHObw
+	Thu, 8 Apr 2004 10:54:05 -0400
+Received: from mtagate5.de.ibm.com ([195.212.29.154]:37548 "EHLO
+	mtagate5.de.ibm.com") by vger.kernel.org with ESMTP id S261867AbUDHOah
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Apr 2004 10:31:52 -0400
-Date: Thu, 8 Apr 2004 16:31:36 +0200
+	Thu, 8 Apr 2004 10:30:37 -0400
+Date: Thu, 8 Apr 2004 16:30:20 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] s390 (10/12): crypto device driver part 1.
-Message-ID: <20040408143136.GK1793@mschwid3.boeblingen.de.ibm.com>
+To: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: [PATCH] s390 (7/12): zfcp fixes (without kfree hack).
+Message-ID: <20040408143020.GH1793@mschwid3.boeblingen.de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,2628 +21,2401 @@ User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The crypto device driver for PCICA & PCICC cards, part 1.
+zfcp host adapter fixes:
+ - Reuse freed scsi_ids and scsi_luns for mappings.
+ - Order list of ports/units by assigned scsi_id/scsi_lun.
+ - Don't update max_id/max_lun in scsi_host anymore.
+ - Get rid of all magics.
+ - Add owner field to ccw_driver structure.
+ - Avoid deadlock on bus->subsys.rwsem.
+ - Use a macro for all scsi device sysfs attributes.
+ - Change proc_name from "dummy" to "zfcp".
+ - Don't wait for scsi_add_device to complete while holding a semaphore.
+ - Cleanup include files in zfcp_aux.c & zfcp_def.h.
+ - Get rid of zfcp_erp_fsf_req_handler.
+ - Proper link up/down handling.
+ - Avoid possible NULL pointer dereference in zfcp_erp_schedule_work.
+ - Remove module_exit function. Without an external release function for
+   the zfcp_port/zfcp_unit objects module unloading is racy.
 
 diffstat:
- arch/s390/defconfig               |    5 
- drivers/s390/Kconfig              |   13 
- drivers/s390/Makefile             |    3 
- drivers/s390/crypto/Makefile      |    6 
- drivers/s390/crypto/z90common.h   |  129 ++
- drivers/s390/crypto/z90crypt.h    |  231 ++++
- drivers/s390/crypto/z90hardware.c | 2184 ++++++++++++++++++++++++++++++++++++++
- 7 files changed, 2570 insertions(+), 1 deletion(-)
+ drivers/s390/scsi/zfcp_aux.c           |  435 ++++++++++-----------------------
+ drivers/s390/scsi/zfcp_ccw.c           |   22 -
+ drivers/s390/scsi/zfcp_def.h           |   53 +---
+ drivers/s390/scsi/zfcp_erp.c           |   32 --
+ drivers/s390/scsi/zfcp_ext.h           |    6 
+ drivers/s390/scsi/zfcp_fsf.c           |  421 ++++++++++++++++---------------
+ drivers/s390/scsi/zfcp_fsf.h           |   16 -
+ drivers/s390/scsi/zfcp_qdio.c          |   19 -
+ drivers/s390/scsi/zfcp_scsi.c          |  121 +++------
+ drivers/s390/scsi/zfcp_sysfs_adapter.c |   31 --
+ drivers/s390/scsi/zfcp_sysfs_port.c    |   12 
+ drivers/s390/scsi/zfcp_sysfs_unit.c    |    8 
+ 12 files changed, 459 insertions(+), 717 deletions(-)
 
-diff -urN linux-2.6/arch/s390/defconfig linux-2.6-s390/arch/s390/defconfig
---- linux-2.6/arch/s390/defconfig	Sun Apr  4 05:38:04 2004
-+++ linux-2.6-s390/arch/s390/defconfig	Thu Apr  8 15:21:30 2004
-@@ -196,6 +196,11 @@
- CONFIG_S390_TAPE_34XX=m
+diff -urN linux-2.6/drivers/s390/scsi/zfcp_aux.c linux-2.6-s390/drivers/s390/scsi/zfcp_aux.c
+--- linux-2.6/drivers/s390/scsi/zfcp_aux.c	Sun Apr  4 05:38:26 2004
++++ linux-2.6-s390/drivers/s390/scsi/zfcp_aux.c	Thu Apr  8 15:21:27 2004
+@@ -29,43 +29,10 @@
+  */
  
- #
-+# Cryptographic devices
-+#
-+CONFIG_Z90CRYPT=m
-+
-+#
- # Networking support
- #
- CONFIG_NET=y
-diff -urN linux-2.6/drivers/s390/Kconfig linux-2.6-s390/drivers/s390/Kconfig
---- linux-2.6/drivers/s390/Kconfig	Sun Apr  4 05:38:12 2004
-+++ linux-2.6-s390/drivers/s390/Kconfig	Thu Apr  8 15:21:30 2004
-@@ -164,3 +164,16 @@
- 	  It is safe to say "Y" here.
+ /* this drivers version (do not edit !!! generated and updated by cvs) */
+-#define ZFCP_AUX_REVISION "$Revision: 1.98 $"
+-
+-/********************** INCLUDES *********************************************/
+-
+-#include <linux/init.h>
+-#include <linux/config.h>
+-#include <linux/kernel.h>
+-#include <linux/string.h>
+-#include <linux/errno.h>
+-#include <linux/ctype.h>
+-#include <linux/mm.h>
+-#include <linux/timer.h>
+-#include <linux/delay.h>
+-#include <linux/slab.h>
+-#include <linux/version.h>
+-#include <linux/list.h>
+-#include <linux/interrupt.h>
+-#include <linux/init.h>
+-#include <linux/proc_fs.h>
+-#include <linux/time.h>
+-#include <linux/module.h>
+-#include <linux/moduleparam.h>
+-#include <linux/workqueue.h>
+-#include <linux/syscalls.h>
++#define ZFCP_AUX_REVISION "$Revision: 1.105 $"
  
- endmenu
-+
-+menu "Cryptographic devices"
-+
-+config Z90CRYPT
-+	tristate "Support for PCI-attached cryptographic adapters"
-+        default "m"
-+        help
-+	  Select this option if you want to use a PCI-attached cryptographic
-+	  adapter like the PCI Cryptographic Accelerator (PCICA) or the PCI 
-+	  Cryptographic Coprocessor (PCICC).  This option is also available
-+	  as a module called z90crypt.ko.
-+
-+endmenu
-diff -urN linux-2.6/drivers/s390/Makefile linux-2.6-s390/drivers/s390/Makefile
---- linux-2.6/drivers/s390/Makefile	Sun Apr  4 05:37:06 2004
-+++ linux-2.6-s390/drivers/s390/Makefile	Thu Apr  8 15:21:30 2004
-@@ -3,6 +3,7 @@
- #
+ #include "zfcp_ext.h"
  
- obj-y += s390mach.o sysinfo.o
--obj-y += cio/ block/ char/ net/ scsi/
-+obj-y += cio/ block/ char/ crypto/ net/ scsi/
+-#include <asm/semaphore.h>
+-#include <asm/io.h>
+-#include <asm/irq.h>
+-#include <asm/ebcdic.h>
+-#include <asm/cpcmd.h>		/* Debugging only */
+-#include <asm/processor.h>	/* Debugging only */
+-
+-#include <linux/miscdevice.h>
+-#include <linux/major.h>
+-
+ /* accumulated log level (module parameter) */
+ static u32 loglevel = ZFCP_LOG_LEVEL_DEFAULTS;
+ static char *device;
+@@ -73,7 +40,6 @@
  
- drivers-y += drivers/s390/built-in.o
-+
-diff -urN linux-2.6/drivers/s390/crypto/Makefile linux-2.6-s390/drivers/s390/crypto/Makefile
---- linux-2.6/drivers/s390/crypto/Makefile	Thu Jan  1 01:00:00 1970
-+++ linux-2.6-s390/drivers/s390/crypto/Makefile	Thu Apr  8 15:21:30 2004
-@@ -0,0 +1,6 @@
-+#
-+# S/390 miscellaneous devices
-+#
-+
-+z90crypt-objs := z90main.o z90hardware.o
-+obj-$(CONFIG_Z90CRYPT) += z90crypt.o
-diff -urN linux-2.6/drivers/s390/crypto/z90common.h linux-2.6-s390/drivers/s390/crypto/z90common.h
---- linux-2.6/drivers/s390/crypto/z90common.h	Thu Jan  1 01:00:00 1970
-+++ linux-2.6-s390/drivers/s390/crypto/z90common.h	Thu Apr  8 15:21:30 2004
-@@ -0,0 +1,129 @@
-+/*
-+ *  linux/drivers/s390/misc/z90common.h
-+ *
-+ *  z90crypt 1.3.1
-+ *
-+ *  Copyright (C)  2001, 2004 IBM Corporation
-+ *  Author(s): Robert Burroughs (burrough@us.ibm.com)
-+ *	       Eric Rossman (edrossma@us.ibm.com)
-+ *
-+ *  Hotplug & misc device support: Jochen Roehrig (roehrig@de.ibm.com)
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2, or (at your option)
-+ * any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ /* written against the module interface */
+ static int __init  zfcp_module_init(void);
+-static void __exit zfcp_module_exit(void);
+ 
+ int zfcp_reboot_handler(struct notifier_block *, unsigned long, void *);
+ 
+@@ -120,7 +86,6 @@
+ 
+ /* declare driver module init/cleanup functions */
+ module_init(zfcp_module_init);
+-module_exit(zfcp_module_exit);
+ 
+ MODULE_AUTHOR("Heiko Carstens <heiko.carstens@de.ibm.com>, "
+ 	      "Martin Peschke <mpeschke@de.ibm.com>, "
+@@ -272,7 +237,6 @@
+ zfcp_cmd_dbf_event_fsf(const char *text, struct zfcp_fsf_req *fsf_req,
+ 		       void *add_data, int add_length)
+ {
+-#ifdef ZFCP_DEBUG_COMMANDS
+ 	struct zfcp_adapter *adapter = fsf_req->adapter;
+ 	struct scsi_cmnd *scsi_cmnd;
+ 	int level = 3;
+@@ -299,7 +263,6 @@
+ 				    min(ZFCP_CMD_DBF_LENGTH, add_length - i));
+ 	}
+ 	write_unlock_irqrestore(&adapter->cmd_dbf_lock, flags);
+-#endif
+ }
+ 
+ /* XXX additionally log unit if available */
+@@ -307,7 +270,6 @@
+ void
+ zfcp_cmd_dbf_event_scsi(const char *text, struct scsi_cmnd *scsi_cmnd)
+ {
+-#ifdef ZFCP_DEBUG_COMMANDS
+ 	struct zfcp_adapter *adapter;
+ 	union zfcp_req_data *req_data;
+ 	struct zfcp_fsf_req *fsf_req;
+@@ -335,14 +297,12 @@
+ 		debug_text_event(adapter->cmd_dbf, level, "");
+ 	}
+ 	write_unlock_irqrestore(&adapter->cmd_dbf_lock, flags);
+-#endif
+ }
+ 
+ void
+ zfcp_in_els_dbf_event(struct zfcp_adapter *adapter, const char *text,
+ 		      struct fsf_status_read_buffer *status_buffer, int length)
+ {
+-#ifdef ZFCP_DEBUG_INCOMING_ELS
+ 	int level = 1;
+ 	int i;
+ 
+@@ -353,7 +313,6 @@
+ 			    level,
+ 			    (char *) status_buffer->payload + i,
+ 			    min(ZFCP_IN_ELS_DBF_LENGTH, length - i));
+-#endif
+ }
+ 
+ /**
+@@ -421,8 +380,8 @@
+ 		goto out_unit;
+ 	up(&zfcp_data.config_sema);
+ 	ccw_device_set_online(adapter->ccw_device);
+-	down(&zfcp_data.config_sema);
+ 	wait_event(unit->scsi_add_wq, atomic_read(&unit->scsi_add_work) == 0);
++	down(&zfcp_data.config_sema);
+ 	zfcp_unit_put(unit);
+  out_unit:
+ 	zfcp_port_put(port);
+@@ -518,21 +477,6 @@
+ 	return retval;
+ }
+ 
+-static void __exit
+-zfcp_module_exit(void)
+-{
+-	unregister_reboot_notifier(&zfcp_data.reboot_notifier);
+-	zfcp_ccw_unregister();
+-	misc_deregister(&zfcp_cfdc_misc);
+-#ifdef CONFIG_S390_SUPPORT
+-	unregister_ioctl32_conversion(zfcp_ioctl_trans.cmd);
+-#endif
+-#ifdef ZFCP_STAT_REQSIZES
+-	zfcp_statistics_clear_all();
+-#endif
+-	ZFCP_LOG_DEBUG("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
+-}
+-
+ /*
+  * This function is called automatically by the kernel whenever a reboot or a 
+  * shut-down is initiated and zfcp is still loaded
+@@ -784,7 +728,7 @@
+ zfcp_sg_list_alloc(struct zfcp_sg_list *sg_list, size_t size)
+ {
+ 	struct scatterlist *sg;
+-	int i;
++	unsigned int i;
+ 	int retval = 0;
+ 
+ 	sg_list->count = size >> PAGE_SHIFT;
+@@ -826,7 +770,7 @@
+ zfcp_sg_list_free(struct zfcp_sg_list *sg_list)
+ {
+ 	struct scatterlist *sg;
+-	int i;
++	unsigned int i;
+ 	int retval = 0;
+ 
+ 	BUG_ON((sg_list->sg == NULL) || (sg_list == NULL));
+@@ -978,7 +922,9 @@
+ struct zfcp_unit *
+ zfcp_unit_enqueue(struct zfcp_port *port, fcp_lun_t fcp_lun)
+ {
+-	struct zfcp_unit *unit;
++	struct zfcp_unit *unit, *tmp_unit;
++	scsi_lun_t scsi_lun;
++	int found;
+ 
+ 	/*
+ 	 * check that there is no unit with this FCP_LUN already in list
+@@ -1002,13 +948,7 @@
+ 	init_waitqueue_head(&unit->remove_wq);
+ 
+ 	unit->port = port;
+-	/*
+-	 * FIXME: reuse of scsi_luns!
+-	 */
+-	unit->scsi_lun = port->max_scsi_lun + 1;
+ 	unit->fcp_lun = fcp_lun;
+-	unit->common_magic = ZFCP_MAGIC;
+-	unit->specific_magic = ZFCP_MAGIC_UNIT;
+ 
+ 	/* setup for sysfs registration */
+ 	snprintf(unit->sysfs_device.bus_id, BUS_ID_SIZE, "0x%016llx", fcp_lun);
+@@ -1025,43 +965,29 @@
+ 	}
+ 
+ 	if (zfcp_sysfs_unit_create_files(&unit->sysfs_device)) {
+-		/*
+-		 * failed to create all sysfs attributes, therefore the unit
+-		 * must be put on the unit_remove listhead of the port where
+-		 * the release function expects it.
+-		 */
+-		write_lock_irq(&zfcp_data.config_lock);
+-		list_add_tail(&unit->list, &port->unit_remove_lh);
+-		write_unlock_irq(&zfcp_data.config_lock);
+ 		device_unregister(&unit->sysfs_device);
+ 		return NULL;
+ 	}
+ 
+-	/*
+-	 * update max SCSI LUN of logical units attached to parent remote port
+-	 */
+-	port->max_scsi_lun++;
+-
+-	/*
+-	 * update max SCSI LUN of logical units attached to parent adapter
+-	 */
+-	if (port->adapter->max_scsi_lun < port->max_scsi_lun)
+-		port->adapter->max_scsi_lun = port->max_scsi_lun;
+-
+-	/*
+-	 * update max SCSI LUN of logical units attached to host (SCSI stack)
+-	 */
+-	if (port->adapter->scsi_host &&
+-	    (port->adapter->scsi_host->max_lun < port->max_scsi_lun))
+-		port->adapter->scsi_host->max_lun = port->max_scsi_lun + 1;
+-
+ 	zfcp_unit_get(unit);
+ 
+-	/* unit is new and needs to be added to list */
++	scsi_lun = 0;
++	found = 0;
+ 	write_lock_irq(&zfcp_data.config_lock);
++	list_for_each_entry(tmp_unit, &port->unit_list_head, list) {
++		if (tmp_unit->scsi_lun != scsi_lun) {
++			found = 1;
++			break;
++		}
++		scsi_lun++;
++	}
++	unit->scsi_lun = scsi_lun;
++	if (found)
++		list_add_tail(&unit->list, &tmp_unit->list);
++	else
++		list_add_tail(&unit->list, &port->unit_list_head);
+ 	atomic_clear_mask(ZFCP_STATUS_COMMON_REMOVE, &unit->status);
+ 	atomic_set_mask(ZFCP_STATUS_COMMON_RUNNING, &unit->status);
+-	list_add_tail(&unit->list, &port->unit_list_head);
+ 	write_unlock_irq(&zfcp_data.config_lock);
+ 
+ 	port->units++;
+@@ -1070,21 +996,17 @@
+ 	return unit;
+ }
+ 
+-/* locks:  config_sema must be held */
+ void
+ zfcp_unit_dequeue(struct zfcp_unit *unit)
+ {
+-	/* remove specified unit data structure from list */
++	zfcp_unit_wait(unit);
+ 	write_lock_irq(&zfcp_data.config_lock);
+ 	list_del(&unit->list);
+ 	write_unlock_irq(&zfcp_data.config_lock);
+-
+ 	unit->port->units--;
+ 	zfcp_port_put(unit->port);
+-
+-	kfree(unit);
+-
+-	return;
++	zfcp_sysfs_unit_remove_files(&unit->sysfs_device);
++	device_unregister(&unit->sysfs_device);
+ }
+ 
+ static void *
+@@ -1154,7 +1076,7 @@
+ 
+ 	adapter->pool.data_status_read =
+ 		mempool_create(ZFCP_POOL_STATUS_READ_NR,
+-			       zfcp_mempool_alloc, zfcp_mempool_free,
++			       zfcp_mempool_alloc, zfcp_mempool_free, 
+ 			       (void *) sizeof(struct fsf_status_read_buffer));
+ 
+ 	if (NULL == adapter->pool.data_status_read) {
+@@ -1198,6 +1120,91 @@
+ 		mempool_destroy(adapter->pool.data_gid_pn);
+ }
+ 
++/**
++ * zfcp_adapter_debug_register - registers debug feature for an adapter
++ * @adapter: pointer to adapter for which debug features should be registered
++ * return: -ENOMEM on error, 0 otherwise
 + */
++int
++zfcp_adapter_debug_register(struct zfcp_adapter *adapter)
++{
++	char dbf_name[20];
 +
-+#ifndef _Z90COMMON_
-+#define _Z90COMMON_
++	/* debug feature area which records fsf request sequence numbers */
++	sprintf(dbf_name, ZFCP_REQ_DBF_NAME "%s",
++		zfcp_get_busid_by_adapter(adapter));
++	adapter->req_dbf = debug_register(dbf_name,
++					  ZFCP_REQ_DBF_INDEX,
++					  ZFCP_REQ_DBF_AREAS,
++					  ZFCP_REQ_DBF_LENGTH);
++	debug_register_view(adapter->req_dbf, &debug_hex_ascii_view);
++	debug_set_level(adapter->req_dbf, ZFCP_REQ_DBF_LEVEL);
++	debug_text_event(adapter->req_dbf, 1, "zzz");
 +
-+#define VERSION_Z90COMMON_H "$Revision: 1.8 $"
++	/* debug feature area which records SCSI command failures (hostbyte) */
++	rwlock_init(&adapter->cmd_dbf_lock);
++	sprintf(dbf_name, ZFCP_CMD_DBF_NAME "%s",
++		zfcp_get_busid_by_adapter(adapter));
++	adapter->cmd_dbf = debug_register(dbf_name,
++					  ZFCP_CMD_DBF_INDEX,
++					  ZFCP_CMD_DBF_AREAS,
++					  ZFCP_CMD_DBF_LENGTH);
++	debug_register_view(adapter->cmd_dbf, &debug_hex_ascii_view);
++	debug_set_level(adapter->cmd_dbf, ZFCP_CMD_DBF_LEVEL);
 +
++	/* debug feature area which records SCSI command aborts */
++	sprintf(dbf_name, ZFCP_ABORT_DBF_NAME "%s",
++		zfcp_get_busid_by_adapter(adapter));
++	adapter->abort_dbf = debug_register(dbf_name,
++					    ZFCP_ABORT_DBF_INDEX,
++					    ZFCP_ABORT_DBF_AREAS,
++					    ZFCP_ABORT_DBF_LENGTH);
++	debug_register_view(adapter->abort_dbf, &debug_hex_ascii_view);
++	debug_set_level(adapter->abort_dbf, ZFCP_ABORT_DBF_LEVEL);
 +
-+#define RESPBUFFSIZE 256
-+#define PCI_FUNC_KEY_DECRYPT 0x5044
-+#define PCI_FUNC_KEY_ENCRYPT 0x504B
-+
-+enum devstat {
-+	DEV_GONE,		
-+	DEV_ONLINE,		
-+	DEV_QUEUE_FULL,		
-+	DEV_EMPTY,		
-+	DEV_NO_WORK,		
-+	DEV_BAD_MESSAGE,	
-+	DEV_TSQ_EXCEPTION,	
-+	DEV_RSQ_EXCEPTION,	
-+	DEV_SEN_EXCEPTION,	
-+	DEV_REC_EXCEPTION	
-+};
-+
-+enum hdstat {
-+	HD_NOT_THERE,		
-+	HD_BUSY,		
-+	HD_DECONFIGURED,	
-+	HD_CHECKSTOPPED,	
-+	HD_ONLINE,		
-+	HD_TSQ_EXCEPTION	
-+};
-+
-+#define Z90C_AMBIGUOUS_DOMAIN	2
-+#define Z90C_INCORRECT_DOMAIN	3
-+#define ENOTINIT		4
-+
-+#define SEN_BUSY	 7	
-+#define SEN_USER_ERROR	 8	
-+#define SEN_QUEUE_FULL	11	
-+#define SEN_NOT_AVAIL	16	
-+#define SEN_PAD_ERROR	17	
-+#define SEN_RETRY	18	
-+#define SEN_RELEASED	24	
-+
-+#define REC_EMPTY	 4	
-+#define REC_BUSY	 6	
-+#define REC_OPERAND_INV	 8	
-+#define REC_OPERAND_SIZE 9	
-+#define REC_EVEN_MOD	10	
-+#define REC_NO_WORK	11	
-+#define REC_HARDWAR_ERR 12	
-+#define REC_NO_RESPONSE 13	
-+#define REC_RETRY_DEV	14	
-+#define REC_USER_GONE	15	
-+#define REC_BAD_MESSAGE 16	
-+#define REC_INVALID_PAD 17	
-+#define REC_RELEASED	28	
-+
-+#define WRONG_DEVICE_TYPE 20	
-+
-+#define REC_FATAL_ERROR 32	
-+#define SEN_FATAL_ERROR 33	
-+#define TSQ_FATAL_ERROR 34
-+#define RSQ_FATAL_ERROR 35
-+
-+#define PCICA	0
-+#define PCICC	1
-+#define PCIXCC	2
-+#define NILDEV	-1
-+#define ANYDEV	-1
-+
-+enum hdevice_type {
-+	PCICC_HW  = 3,
-+	PCICA_HW  = 4,
-+	PCIXCC_HW = 5,
-+	OTHER_HW  = 6,	
-+	OTHER2_HW = 7	
-+};
-+
-+#ifndef DEV_NAME
-+#define DEV_NAME	"z90crypt"
-+#endif
-+#define PRINTK(fmt, args...) \
-+	printk(KERN_DEBUG DEV_NAME ": %s -> " fmt, __FUNCTION__ , ## args)
-+#define PRINTKN(fmt, args...) \
-+	printk(KERN_DEBUG DEV_NAME ": " fmt, ## args)
-+#define PRINTKW(fmt, args...) \
-+	printk(KERN_WARNING DEV_NAME ": %s -> " fmt, __FUNCTION__ , ## args)
-+#define PRINTKC(fmt, args...) \
-+	printk(KERN_CRIT DEV_NAME ": %s -> " fmt, __FUNCTION__ , ## args)
-+
-+#ifdef Z90CRYPT_DEBUG
-+#define PDEBUG(fmt, args...) \
-+	printk(KERN_DEBUG DEV_NAME ": %s -> " fmt, __FUNCTION__ , ## args)
-+#else
-+#define PDEBUG(fmt, args...) do {} while (0)
-+#endif
-+
-+#define UMIN(a,b) ((a) < (b) ? (a) : (b))
-+#define IS_EVEN(x) ((x) == (2 * ((x) / 2)))
++	/* debug feature area which records SCSI command aborts */
++	sprintf(dbf_name, ZFCP_IN_ELS_DBF_NAME "%s",
++		zfcp_get_busid_by_adapter(adapter));
++	adapter->in_els_dbf = debug_register(dbf_name,
++					     ZFCP_IN_ELS_DBF_INDEX,
++					     ZFCP_IN_ELS_DBF_AREAS,
++					     ZFCP_IN_ELS_DBF_LENGTH);
++	debug_register_view(adapter->in_els_dbf, &debug_hex_ascii_view);
++	debug_set_level(adapter->in_els_dbf, ZFCP_IN_ELS_DBF_LEVEL);
 +
 +
-+#endif
-diff -urN linux-2.6/drivers/s390/crypto/z90crypt.h linux-2.6-s390/drivers/s390/crypto/z90crypt.h
---- linux-2.6/drivers/s390/crypto/z90crypt.h	Thu Jan  1 01:00:00 1970
-+++ linux-2.6-s390/drivers/s390/crypto/z90crypt.h	Thu Apr  8 15:21:30 2004
-@@ -0,0 +1,231 @@
-+/*
-+ *  linux/drivers/s390/misc/z90crypt.h
-+ *
-+ *  z90crypt 1.3.1
-+ *
-+ *  Copyright (C)  2001, 2004 IBM Corporation
-+ *  Author(s): Robert Burroughs (burrough@us.ibm.com)
-+ *	       Eric Rossman (edrossma@us.ibm.com)
-+ *
-+ *  Hotplug & misc device support: Jochen Roehrig (roehrig@de.ibm.com)
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2, or (at your option)
-+ * any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+ */
++	/* debug feature area which records erp events */
++	sprintf(dbf_name, ZFCP_ERP_DBF_NAME "%s",
++		zfcp_get_busid_by_adapter(adapter));
++	adapter->erp_dbf = debug_register(dbf_name,
++					  ZFCP_ERP_DBF_INDEX,
++					  ZFCP_ERP_DBF_AREAS,
++					  ZFCP_ERP_DBF_LENGTH);
++	debug_register_view(adapter->erp_dbf, &debug_hex_ascii_view);
++	debug_set_level(adapter->erp_dbf, ZFCP_ERP_DBF_LEVEL);
 +
-+#ifndef _LINUX_Z90CRYPT_H_
-+#define _LINUX_Z90CRYPT_H_
++	if (adapter->req_dbf && adapter->cmd_dbf && adapter->abort_dbf &&
++	    adapter->in_els_dbf && adapter->erp_dbf)
++		return 0;
 +
-+#include <linux/ioctl.h>
-+
-+#define VERSION_Z90CRYPT_H "$Revision: 1.2 $"
-+
-+#define z90crypt_VERSION 1
-+#define z90crypt_RELEASE 3	// 2 = PCIXCC, 3 = rewrite for coding standards
-+#define z90crypt_VARIANT 1
++	zfcp_adapter_debug_unregister(adapter);
++	return -ENOMEM;
++}
 +
 +/**
-+ * struct ica_rsa_modexpo
-+ *
-+ * Requirements:
-+ * - outputdatalength is at least as large as inputdatalength.
-+ * - All key parts are right justified in their fields, padded on
-+ *   the left with zeroes.
-+ * - length(b_key) = inputdatalength
-+ * - length(n_modulus) = inputdatalength
++ * zfcp_adapter_debug_unregister - unregisters debug feature for an adapter
++ * @adapter: pointer to adapter for which debug features should be unregistered
 + */
-+struct ica_rsa_modexpo {
-+	char *		inputdata;
-+	unsigned int	inputdatalength;
-+	char *		outputdata;
-+	unsigned int	outputdatalength;
-+	char *		b_key;
-+	char *		n_modulus;
-+};
++void
++zfcp_adapter_debug_unregister(struct zfcp_adapter *adapter)
++{
++	debug_unregister(adapter->erp_dbf);
++	debug_unregister(adapter->req_dbf);
++	debug_unregister(adapter->cmd_dbf);
++	debug_unregister(adapter->abort_dbf);
++	debug_unregister(adapter->in_els_dbf);
++}
 +
-+/**
-+ * struct ica_rsa_modexpo_crt
-+ *
-+ * Requirements:
-+ * - inputdatalength is even.
-+ * - outputdatalength is at least as large as inputdatalength.
-+ * - All key parts are right justified in their fields, padded on
-+ *   the left with zeroes.
-+ * - length(bp_key)	= inputdatalength/2 + 8
-+ * - length(bq_key)	= inputdatalength/2
-+ * - length(np_key)	= inputdatalength/2 + 8
-+ * - length(nq_key)	= inputdatalength/2
-+ * - length(u_mult_inv) = inputdatalength/2 + 8
-+ */
-+struct ica_rsa_modexpo_crt {
-+	char *		inputdata;
-+	unsigned int	inputdatalength;
-+	char *		outputdata;
-+	unsigned int	outputdatalength;
-+	char *		bp_key;
-+	char *		bq_key;
-+	char *		np_prime;
-+	char *		nq_prime;
-+	char *		u_mult_inv;
-+};
-+
-+#define Z90_IOCTL_MAGIC 'z'  // NOTE:  Need to allocate from linux folks
-+
-+/**
-+ * Interface notes:
-+ *
-+ * The ioctl()s which are implemented (along with relevant details)
-+ * are:
-+ *
-+ *   ICARSAMODEXPO
-+ *     Perform an RSA operation using a Modulus-Exponent pair
-+ *     This takes an ica_rsa_modexpo struct as its arg.
-+ *
-+ *     NOTE: please refer to the comments preceding this structure
-+ *	     for the implementation details for the contents of the
-+ *	     block
-+ *
-+ *   ICARSACRT
-+ *     Perform an RSA operation using a Chinese-Remainder Theorem key
-+ *     This takes an ica_rsa_modexpo_crt struct as its arg.
-+ *
-+ *     NOTE: please refer to the comments preceding this structure
-+ *	     for the implementation details for the contents of the
-+ *	     block
-+ *
-+ *   Z90STAT_TOTALCOUNT
-+ *     Return an integer count of all device types together.
-+ *
-+ *   Z90STAT_PCICACOUNT
-+ *     Return an integer count of all PCICAs.
-+ *
-+ *   Z90STAT_PCICCCOUNT
-+ *     Return an integer count of all PCICCs.
-+ *
-+ *   Z90STAT_PCIXCCCOUNT
-+ *     Return an integer count of all PCIXCCs.
-+ *
-+ *   Z90STAT_REQUESTQ_COUNT
-+ *     Return an integer count of the number of entries waiting to be
-+ *     sent to a device.
-+ *
-+ *   Z90STAT_PENDINGQ_COUNT
-+ *     Return an integer count of the number of entries sent to a
-+ *     device awaiting the reply.
-+ *
-+ *   Z90STAT_TOTALOPEN_COUNT
-+ *     Return an integer count of the number of open file handles.
-+ *
-+ *   Z90STAT_DOMAIN_INDEX
-+ *     Return the integer value of the Cryptographic Domain.
-+ *
-+ *   Z90STAT_STATUS_MASK
-+ *     Return an 64 element array of unsigned chars for the status of
-+ *     all devices.
-+ *	 0x01: PCICA
-+ *	 0x02: PCICC
-+ *	 0x03: PCIXCC
-+ *	 0x0d: device is disabled via the proc filesystem
-+ *
-+ *   Z90STAT_QDEPTH_MASK
-+ *     Return an 64 element array of unsigned chars for the queue
-+ *     depth of all devices.
-+ *
-+ *   Z90STAT_PERDEV_REQCNT
-+ *     Return an 64 element array of unsigned integers for the number
-+ *     of successfully completed requests per device since the device
-+ *     was detected and made available.
-+ *
-+ *   ICAZ90STATUS (deprecated)
-+ *     Return some device driver status in a ica_z90_status struct
-+ *     This takes an ica_z90_status struct as its arg.
-+ *
-+ *     NOTE: this ioctl() is deprecated, and has been replaced with
-+ *	     single ioctl()s for each type of status being requested
-+ *
-+ *   Z90QUIESCE (not recommended)
-+ *     Quiesce the driver.  This is intended to stop all new
-+ *     requests from being processed.  Its use is not recommended,
-+ *     except in circumstances where there is no other way to stop
-+ *     callers from accessing the driver.  Its original use was to
-+ *     allow the driver to be "drained" of work in preparation for
-+ *     a system shutdown.
-+ *
-+ *     NOTE: once issued, this ban on new work cannot be undone
-+ *	     except by unloading and reloading the driver.
-+ */
-+
-+/**
-+ * Supported ioctl calls
-+ */
-+#define ICARSAMODEXPO	_IOC(_IOC_READ|_IOC_WRITE, Z90_IOCTL_MAGIC, 0x05, 0)
-+#define ICARSACRT	_IOC(_IOC_READ|_IOC_WRITE, Z90_IOCTL_MAGIC, 0x06, 0)
-+
-+/* DEPRECATED status call (bound for removal SOON) */
-+#define ICAZ90STATUS	_IOR(Z90_IOCTL_MAGIC, 0x10, struct ica_z90_status)
-+
-+/* unrelated to ICA callers */
-+#define Z90QUIESCE	_IO(Z90_IOCTL_MAGIC, 0x11)
-+
-+/* New status calls */
-+#define Z90STAT_TOTALCOUNT	_IOR(Z90_IOCTL_MAGIC, 0x40, int)
-+#define Z90STAT_PCICACOUNT	_IOR(Z90_IOCTL_MAGIC, 0x41, int)
-+#define Z90STAT_PCICCCOUNT	_IOR(Z90_IOCTL_MAGIC, 0x42, int)
-+#define Z90STAT_PCIXCCCOUNT	_IOR(Z90_IOCTL_MAGIC, 0x43, int)
-+#define Z90STAT_REQUESTQ_COUNT	_IOR(Z90_IOCTL_MAGIC, 0x44, int)
-+#define Z90STAT_PENDINGQ_COUNT	_IOR(Z90_IOCTL_MAGIC, 0x45, int)
-+#define Z90STAT_TOTALOPEN_COUNT _IOR(Z90_IOCTL_MAGIC, 0x46, int)
-+#define Z90STAT_DOMAIN_INDEX	_IOR(Z90_IOCTL_MAGIC, 0x47, int)
-+#define Z90STAT_STATUS_MASK	_IOR(Z90_IOCTL_MAGIC, 0x48, char[64])
-+#define Z90STAT_QDEPTH_MASK	_IOR(Z90_IOCTL_MAGIC, 0x49, char[64])
-+#define Z90STAT_PERDEV_REQCNT	_IOR(Z90_IOCTL_MAGIC, 0x4a, int[64])
-+
-+/**
-+ * local errno definitions
-+ */
-+#define ENOBUFF	  129	// filp->private_data->...>work_elem_p->buffer is NULL
-+#define EWORKPEND 130	// user issues ioctl while another pending
-+#define ERELEASED 131	// user released while ioctl pending
-+#define EQUIESCE  132	// z90crypt quiescing (no more work allowed)
-+#define ETIMEOUT  133	// request timed out
-+#define EUNKNOWN  134	// some unrecognized error occured
-+#define EGETBUFF  135	// Error getting buffer
-+
-+/**
-+ * DEPRECATED STRUCTURES
-+ */
-+
-+/**
-+ * This structure is DEPRECATED and the corresponding ioctl() has been
-+ * replaced with individual ioctl()s for each piece of data!
-+ * This structure will NOT survive past version 1.3.1, so switch to the
-+ * new ioctl()s.
-+ */
-+#define MASK_LENGTH 64 // mask length
-+struct ica_z90_status {
-+	int totalcount;
-+	int leedslitecount; // PCICA
-+	int leeds2count;    // PCICC
-+	// int PCIXCCCount; is not in struct for backward compatibility
-+	int requestqWaitCount;
-+	int pendingqWaitCount;
-+	int totalOpenCount;
-+	int cryptoDomain;
-+	// status: 0=not there. 1=PCICA. 2=PCICC. 3=PCIXCC
-+	unsigned char status[MASK_LENGTH];
-+	// qdepth: # work elements waiting for each device
-+	unsigned char qdepth[MASK_LENGTH];
-+};
-+
-+#endif /* _LINUX_Z90CRYPT_H_ */
-diff -urN linux-2.6/drivers/s390/crypto/z90hardware.c linux-2.6-s390/drivers/s390/crypto/z90hardware.c
---- linux-2.6/drivers/s390/crypto/z90hardware.c	Thu Jan  1 01:00:00 1970
-+++ linux-2.6-s390/drivers/s390/crypto/z90hardware.c	Thu Apr  8 15:21:30 2004
-@@ -0,0 +1,2184 @@
-+/*
-+ *  linux/drivers/s390/misc/z90hardware.c
-+ *
-+ *  z90crypt 1.3.1
-+ *
-+ *  Copyright (C)  2001, 2004 IBM Corporation
-+ *  Author(s): Robert Burroughs (burrough@us.ibm.com)
-+ *	       Eric Rossman (edrossma@us.ibm.com)
-+ *
-+ *  Hotplug & misc device support: Jochen Roehrig (roehrig@de.ibm.com)
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2, or (at your option)
-+ * any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+ */
-+
-+#include <asm/uaccess.h>	
-+#include <linux/compiler.h>
-+#include <linux/delay.h>	
+ /*
+  * Enqueues an adapter at the end of the adapter list in the driver data.
+  * All adapter internal structures are set up.
+@@ -1213,7 +1220,6 @@
+ {
+ 	int retval = 0;
+ 	struct zfcp_adapter *adapter;
+-	char dbf_name[20];
+ 
+ 	/*
+ 	 * Note: It is safe to release the list_lock, as any list changes 
+@@ -1246,10 +1252,6 @@
+ 	if (retval)
+ 		goto failed_low_mem_buffers;
+ 
+-	/* set magics */
+-	adapter->common_magic = ZFCP_MAGIC;
+-	adapter->specific_magic = ZFCP_MAGIC_ADAPTER;
+-
+ 	/* initialise reference count stuff */
+ 	atomic_set(&adapter->refcount, 0);
+ 	init_waitqueue_head(&adapter->remove_wq);
+@@ -1292,103 +1294,6 @@
+ 	if (zfcp_sysfs_adapter_create_files(&ccw_device->dev))
+ 		goto sysfs_failed;
+ 
+-#ifdef ZFCP_DEBUG_REQUESTS
+-	/* debug feature area which records fsf request sequence numbers */
+-	sprintf(dbf_name, ZFCP_REQ_DBF_NAME "%s",
+-		zfcp_get_busid_by_adapter(adapter));
+-	adapter->req_dbf = debug_register(dbf_name,
+-					  ZFCP_REQ_DBF_INDEX,
+-					  ZFCP_REQ_DBF_AREAS,
+-					  ZFCP_REQ_DBF_LENGTH);
+-	if (!adapter->req_dbf) {
+-		ZFCP_LOG_INFO
+-		    ("error: Out of resources. Request debug feature for "
+-		     "adapter %s could not be generated.\n",
+-		     zfcp_get_busid_by_adapter(adapter));
+-		retval = -ENOMEM;
+-		goto failed_req_dbf;
+-	}
+-	debug_register_view(adapter->req_dbf, &debug_hex_ascii_view);
+-	debug_set_level(adapter->req_dbf, ZFCP_REQ_DBF_LEVEL);
+-	debug_text_event(adapter->req_dbf, 1, "zzz");
+-#endif				/* ZFCP_DEBUG_REQUESTS */
+-
+-#ifdef ZFCP_DEBUG_COMMANDS
+-	/* debug feature area which records SCSI command failures (hostbyte) */
+-	rwlock_init(&adapter->cmd_dbf_lock);
+-	sprintf(dbf_name, ZFCP_CMD_DBF_NAME "%s",
+-		zfcp_get_busid_by_adapter(adapter));
+-	adapter->cmd_dbf = debug_register(dbf_name,
+-					  ZFCP_CMD_DBF_INDEX,
+-					  ZFCP_CMD_DBF_AREAS,
+-					  ZFCP_CMD_DBF_LENGTH);
+-	if (!adapter->cmd_dbf) {
+-		ZFCP_LOG_INFO
+-		    ("error: Out of resources. Command debug feature for "
+-		     "adapter %s could not be generated.\n",
+-		     zfcp_get_busid_by_adapter(adapter));
+-		retval = -ENOMEM;
+-		goto failed_cmd_dbf;
+-	}
+-	debug_register_view(adapter->cmd_dbf, &debug_hex_ascii_view);
+-	debug_set_level(adapter->cmd_dbf, ZFCP_CMD_DBF_LEVEL);
+-#endif				/* ZFCP_DEBUG_COMMANDS */
+-
+-#ifdef ZFCP_DEBUG_ABORTS
+-	/* debug feature area which records SCSI command aborts */
+-	sprintf(dbf_name, ZFCP_ABORT_DBF_NAME "%s",
+-		zfcp_get_busid_by_adapter(adapter));
+-	adapter->abort_dbf = debug_register(dbf_name,
+-					    ZFCP_ABORT_DBF_INDEX,
+-					    ZFCP_ABORT_DBF_AREAS,
+-					    ZFCP_ABORT_DBF_LENGTH);
+-	if (!adapter->abort_dbf) {
+-		ZFCP_LOG_INFO
+-		    ("error: Out of resources. Abort debug feature for "
+-		     "adapter %s could not be generated.\n",
+-		     zfcp_get_busid_by_adapter(adapter));
+-		retval = -ENOMEM;
+-		goto failed_abort_dbf;
+-	}
+-	debug_register_view(adapter->abort_dbf, &debug_hex_ascii_view);
+-	debug_set_level(adapter->abort_dbf, ZFCP_ABORT_DBF_LEVEL);
+-#endif				/* ZFCP_DEBUG_ABORTS */
+-
+-#ifdef ZFCP_DEBUG_INCOMING_ELS
+-	/* debug feature area which records SCSI command aborts */
+-	sprintf(dbf_name, ZFCP_IN_ELS_DBF_NAME "%s",
+-		zfcp_get_busid_by_adapter(adapter));
+-	adapter->in_els_dbf = debug_register(dbf_name,
+-					     ZFCP_IN_ELS_DBF_INDEX,
+-					     ZFCP_IN_ELS_DBF_AREAS,
+-					     ZFCP_IN_ELS_DBF_LENGTH);
+-	if (!adapter->in_els_dbf) {
+-		ZFCP_LOG_INFO("error: Out of resources. ELS debug feature for "
+-			      "adapter %s could not be generated.\n",
+-			      zfcp_get_busid_by_adapter(adapter));
+-		retval = -ENOMEM;
+-		goto failed_in_els_dbf;
+-	}
+-	debug_register_view(adapter->in_els_dbf, &debug_hex_ascii_view);
+-	debug_set_level(adapter->in_els_dbf, ZFCP_IN_ELS_DBF_LEVEL);
+-#endif				/* ZFCP_DEBUG_INCOMING_ELS */
+-
+-	sprintf(dbf_name, ZFCP_ERP_DBF_NAME "%s",
+-		zfcp_get_busid_by_adapter(adapter));
+-	adapter->erp_dbf = debug_register(dbf_name,
+-					  ZFCP_ERP_DBF_INDEX,
+-					  ZFCP_ERP_DBF_AREAS,
+-					  ZFCP_ERP_DBF_LENGTH);
+-	if (!adapter->erp_dbf) {
+-		ZFCP_LOG_INFO("error: Out of resources. ERP debug feature for "
+-			      "adapter %s could not be generated.\n",
+-			      zfcp_get_busid_by_adapter(adapter));
+-		retval = -ENOMEM;
+-		goto failed_erp_dbf;
+-	}
+-	debug_register_view(adapter->erp_dbf, &debug_hex_ascii_view);
+-	debug_set_level(adapter->erp_dbf, ZFCP_ERP_DBF_LEVEL);
+-
+ 	/* put allocated adapter at list tail */
+ 	write_lock_irq(&zfcp_data.config_lock);
+ 	atomic_clear_mask(ZFCP_STATUS_COMMON_REMOVE, &adapter->status);
+@@ -1399,27 +1304,6 @@
+ 
+ 	goto out;
+ 
+- failed_erp_dbf:
+-#ifdef ZFCP_DEBUG_INCOMING_ELS
+-	debug_unregister(adapter->in_els_dbf);
+- failed_in_els_dbf:
+-#endif
+-
+-#ifdef ZFCP_DEBUG_ABORTS
+-	debug_unregister(adapter->abort_dbf);
+- failed_abort_dbf:
+-#endif
+-
+-#ifdef ZFCP_DEBUG_COMMANDS
+-	debug_unregister(adapter->cmd_dbf);
+- failed_cmd_dbf:
+-#endif
+-
+-#ifdef ZFCP_DEBUG_REQUESTS
+-	debug_unregister(adapter->req_dbf);
+- failed_req_dbf:
+-#endif
+-	zfcp_sysfs_adapter_remove_files(&ccw_device->dev);
+  sysfs_failed:
+ 	dev_set_drvdata(&ccw_device->dev, NULL);
+  failed_low_mem_buffers:
+@@ -1488,23 +1372,6 @@
+ 		     "mechanism for adapter %s\n",
+ 		     zfcp_get_busid_by_adapter(adapter));
+ 
+-	debug_unregister(adapter->erp_dbf);
+-
+-#ifdef ZFCP_DEBUG_REQUESTS
+-	debug_unregister(adapter->req_dbf);
+-#endif
+-
+-#ifdef ZFCP_DEBUG_COMMANDS
+-	debug_unregister(adapter->cmd_dbf);
+-#endif
+-#ifdef ZFCP_DEBUG_ABORTS
+-	debug_unregister(adapter->abort_dbf);
+-#endif
+-
+-#ifdef ZFCP_DEBUG_INCOMING_ELS
+-	debug_unregister(adapter->in_els_dbf);
+-#endif
+-
+ 	zfcp_free_low_mem_buffers(adapter);
+ 	/* free memory of adapter data structure and queues */
+ 	zfcp_qdio_free_queues(adapter);
+@@ -1515,25 +1382,20 @@
+ }
+ 
+ /*
+- * Enqueues a remote port at the end of the port list.
+- * All port internal structures are set-up and the proc-fs entry is also 
+- * allocated. Some SCSI-stack structures are modified for the port.
++ * Enqueues a remote port to the port list. All port internal structures
++ * are set up and the sysfs entry is also generated.
+  *
+- * returns:	0            if a new port was successfully enqueued
+- *              ZFCP_KNOWN   if a port with the requested wwpn already exists
+- *              -ENOMEM      if allocation failed
+- *              -EINVAL      if at least one of the specified parameters was wrong
++ * returns:     pointer to port or NULL
+  * locks:       config_sema must be held to serialise changes to the port list
+- *              within this function (must not be held on entry)
+  */
+ struct zfcp_port *
+ zfcp_port_enqueue(struct zfcp_adapter *adapter, wwn_t wwpn, u32 status)
+ {
+-	struct zfcp_port *port;
+-	int check_scsi_id;
++	struct zfcp_port *port, *tmp_port;
+ 	int check_wwpn;
++	scsi_id_t scsi_id;
++	int found;
+ 
+-	check_scsi_id = !(status & ZFCP_STATUS_PORT_NO_SCSI_ID);
+ 	check_wwpn = !(status & ZFCP_STATUS_PORT_NO_WWPN);
+ 
+ 	/*
+@@ -1561,17 +1423,11 @@
+ 
+ 	port->adapter = adapter;
+ 
+-	if (check_scsi_id)
+-		port->scsi_id = adapter->max_scsi_id + 1;
+-
+ 	if (check_wwpn)
+ 		port->wwpn = wwpn;
+ 
+ 	atomic_set_mask(status, &port->status);
+ 
+-	port->common_magic = ZFCP_MAGIC;
+-	port->specific_magic = ZFCP_MAGIC_PORT;
+-
+ 	/* setup for sysfs registration */
+ 	if (status & ZFCP_STATUS_PORT_NAMESERVER)
+ 		snprintf(port->sysfs_device.bus_id, BUS_ID_SIZE, "nameserver");
+@@ -1591,41 +1447,32 @@
+ 	}
+ 
+ 	if (zfcp_sysfs_port_create_files(&port->sysfs_device, status)) {
+-		/*
+-		 * failed to create all sysfs attributes, therefore the port
+-		 * must be put on the port_remove listhead of the adapter
+-		 * where the release function expects it.
+-		 */
+-		write_lock_irq(&zfcp_data.config_lock);
+-		list_add_tail(&port->list, &adapter->port_remove_lh);
+-		write_unlock_irq(&zfcp_data.config_lock);
+ 		device_unregister(&port->sysfs_device);
+ 		return NULL;
+ 	}
+ 
+-	if (check_scsi_id) {
+-		/*
+-		 * update max. SCSI ID of remote ports attached to
+-		 * "parent" adapter if necessary
+-		 * (do not care about the adapters own SCSI ID)
+-		 */
+-		adapter->max_scsi_id++;
+-
+-		/*
+-		 * update max. SCSI ID of remote ports attached to
+-		 * "parent" host (SCSI stack) if necessary
+-		 */
+-		if (adapter->scsi_host &&
+-		    (adapter->scsi_host->max_id < adapter->max_scsi_id + 1))
+-			adapter->scsi_host->max_id = adapter->max_scsi_id + 1;
+-	}
+-
+ 	zfcp_port_get(port);
+ 
++	scsi_id = 1;
++	found = 0;
+ 	write_lock_irq(&zfcp_data.config_lock);
++	list_for_each_entry(tmp_port, &adapter->port_list_head, list) {
++		if (atomic_test_mask(ZFCP_STATUS_PORT_NO_SCSI_ID,
++				     &tmp_port->status))
++			continue;
++		if (tmp_port->scsi_id != scsi_id) {
++			found = 1;
++			break;
++		}
++		scsi_id++;
++	}
++	port->scsi_id = scsi_id;
++	if (found)
++		list_add_tail(&port->list, &tmp_port->list);
++	else
++		list_add_tail(&port->list, &adapter->port_list_head);
+ 	atomic_clear_mask(ZFCP_STATUS_COMMON_REMOVE, &port->status);
+ 	atomic_set_mask(ZFCP_STATUS_COMMON_RUNNING, &port->status);
+-	list_add_tail(&port->list, &adapter->port_list_head);
+ 	write_unlock_irq(&zfcp_data.config_lock);
+ 
+ 	adapter->ports++;
+@@ -1634,26 +1481,18 @@
+ 	return port;
+ }
+ 
+-/*
+- * returns:	0 - struct zfcp_port data structure successfully removed
+- *		!0 - struct zfcp_port data structure could not be removed
+- *			(e.g. still used)
+- * locks :	port list write lock is assumed to be held by caller
+- */
+ void
+ zfcp_port_dequeue(struct zfcp_port *port)
+ {
+-	/* remove specified port from list */
++	zfcp_port_wait(port);
+ 	write_lock_irq(&zfcp_data.config_lock);
+ 	list_del(&port->list);
+ 	write_unlock_irq(&zfcp_data.config_lock);
+-
+ 	port->adapter->ports--;
+ 	zfcp_adapter_put(port->adapter);
+-
+-	kfree(port);
+-
+-	return;
++	zfcp_sysfs_port_remove_files(&port->sysfs_device,
++				     atomic_read(&port->status));
++	device_unregister(&port->sysfs_device);
+ }
+ 
+ /* Enqueues a nameserver port */
+diff -urN linux-2.6/drivers/s390/scsi/zfcp_ccw.c linux-2.6-s390/drivers/s390/scsi/zfcp_ccw.c
+--- linux-2.6/drivers/s390/scsi/zfcp_ccw.c	Sun Apr  4 05:36:52 2004
++++ linux-2.6-s390/drivers/s390/scsi/zfcp_ccw.c	Thu Apr  8 15:21:27 2004
+@@ -26,7 +26,7 @@
+  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+  */
+ 
+-#define ZFCP_CCW_C_REVISION "$Revision: 1.48 $"
++#define ZFCP_CCW_C_REVISION "$Revision: 1.52 $"
+ 
+ #include <linux/init.h>
+ #include <linux/module.h>
+@@ -55,6 +55,7 @@
+ };
+ 
+ static struct ccw_driver zfcp_ccw_driver = {
++	.owner       = THIS_MODULE,
+ 	.name        = ZFCP_NAME,
+ 	.ids         = zfcp_ccw_device_id,
+ 	.probe       = zfcp_ccw_probe,
+@@ -130,14 +131,9 @@
+ 
+ 	list_for_each_entry_safe(port, p, &adapter->port_remove_lh, list) {
+ 		list_for_each_entry_safe(unit, u, &port->unit_remove_lh, list) {
+-			zfcp_unit_wait(unit);
+-			zfcp_sysfs_unit_remove_files(&unit->sysfs_device);
+-			device_unregister(&unit->sysfs_device);
++			zfcp_unit_dequeue(unit);
+ 		}
+-		zfcp_port_wait(port);
+-		zfcp_sysfs_port_remove_files(&port->sysfs_device,
+-					     atomic_read(&port->status));
+-		device_unregister(&port->sysfs_device);
++		zfcp_port_dequeue(port);
+ 	}
+ 	zfcp_adapter_wait(adapter);
+ 	zfcp_adapter_dequeue(adapter);
+@@ -163,13 +159,16 @@
+ 	down(&zfcp_data.config_sema);
+ 	adapter = dev_get_drvdata(&ccw_device->dev);
+ 
+-	retval = zfcp_erp_thread_setup(adapter);
++	retval = zfcp_adapter_debug_register(adapter);
++	if (retval)
++		goto out;
++	retval = zfcp_erp_thread_setup(adapter); 
+ 	if (retval) {
+ 		ZFCP_LOG_INFO("error: out of resources. "
+ 			      "error recovery thread for adapter %s "
+ 			      "could not be started\n",
+ 			      zfcp_get_busid_by_adapter(adapter));
+-		goto out;
++		goto out_erp_thread;
+ 	}
+ 
+ 	retval = zfcp_adapter_scsi_register(adapter);
+@@ -183,6 +182,8 @@
+ 
+  out_scsi_register:
+ 	zfcp_erp_thread_kill(adapter);
++ out_erp_thread:
++	zfcp_adapter_debug_unregister(adapter);
+  out:
+ 	up(&zfcp_data.config_sema);
+ 	return retval;
+@@ -208,6 +209,7 @@
+ 	zfcp_erp_wait(adapter);
+ 	zfcp_adapter_scsi_unregister(adapter);
+ 	zfcp_erp_thread_kill(adapter);
++	zfcp_adapter_debug_unregister(adapter);
+ 	up(&zfcp_data.config_sema);
+ 	return 0;
+ }
+diff -urN linux-2.6/drivers/s390/scsi/zfcp_def.h linux-2.6-s390/drivers/s390/scsi/zfcp_def.h
+--- linux-2.6/drivers/s390/scsi/zfcp_def.h	Sun Apr  4 05:37:23 2004
++++ linux-2.6-s390/drivers/s390/scsi/zfcp_def.h	Thu Apr  8 15:21:27 2004
+@@ -33,25 +33,29 @@
+ #define ZFCP_DEF_H
+ 
+ /* this drivers version (do not edit !!! generated and updated by cvs) */
+-#define ZFCP_DEF_REVISION "$Revision: 1.62 $"
++#define ZFCP_DEF_REVISION "$Revision: 1.71 $"
+ 
+ /*************************** INCLUDES *****************************************/
+ 
 +#include <linux/init.h>
-+#include <linux/module.h>
-+#include "z90crypt.h"
-+#include "z90common.h"
-+
-+#define VERSION_Z90HARDWARE_C "$Revision: 1.19 $"
-+
-+char z90chardware_version[] __initdata =
-+	"z90hardware.o (" VERSION_Z90HARDWARE_C "/"
-+	                  VERSION_Z90COMMON_H "/" VERSION_Z90CRYPT_H ")";
-+
-+struct cca_token_hdr {
-+	unsigned char  token_identifier;
-+	unsigned char  version;
-+	unsigned short token_length;
-+	unsigned char  reserved[4];
-+};
-+
-+#define CCA_TKN_HDR_ID_EXT 0x1E
-+
-+struct cca_private_ext_ME_sec {
-+	unsigned char  section_identifier;
-+	unsigned char  version;
-+	unsigned short section_length;
-+	unsigned char  private_key_hash[20];
-+	unsigned char  reserved1[4];
-+	unsigned char  key_format;
-+	unsigned char  reserved2;
-+	unsigned char  key_name_hash[20];
-+	unsigned char  key_use_flags[4];
-+	unsigned char  reserved3[6];
-+	unsigned char  reserved4[24];
-+	unsigned char  confounder[24];
-+	unsigned char  exponent[128];
-+	unsigned char  modulus[128];
-+};
-+
-+#define CCA_PVT_USAGE_ALL 0x80
-+
-+struct cca_public_sec {
-+	unsigned char  section_identifier;
-+	unsigned char  version;
-+	unsigned short section_length;
-+	unsigned char  reserved[2];
-+	unsigned short exponent_len;
-+	unsigned short modulus_bit_len;
-+	unsigned short modulus_byte_len;    
-+	unsigned char  exponent[3];
-+};
-+
-+struct cca_private_ext_ME {
-+	struct cca_token_hdr	      pvtMEHdr;
-+	struct cca_private_ext_ME_sec pvtMESec;
-+	struct cca_public_sec	      pubMESec;
-+};
-+
-+struct cca_public_key {
-+	struct cca_token_hdr  pubHdr;
-+	struct cca_public_sec pubSec;
-+};
-+
-+struct cca_pvt_ext_CRT_sec {
-+	unsigned char  section_identifier;
-+	unsigned char  version;
-+	unsigned short section_length;
-+	unsigned char  private_key_hash[20];
-+	unsigned char  reserved1[4];
-+	unsigned char  key_format;
-+	unsigned char  reserved2;
-+	unsigned char  key_name_hash[20];
-+	unsigned char  key_use_flags[4];
-+	unsigned short p_len;
-+	unsigned short q_len;
-+	unsigned short dp_len;
-+	unsigned short dq_len;
-+	unsigned short u_len;
-+	unsigned short mod_len;
-+	unsigned char  reserved3[4];
-+	unsigned short pad_len;
-+	unsigned char  reserved4[52];
-+	unsigned char  confounder[8];
-+};
-+
-+#define CCA_PVT_EXT_CRT_SEC_ID_PVT 0x08
-+#define CCA_PVT_EXT_CRT_SEC_FMT_CL 0x40
-+
-+struct cca_private_ext_CRT {
-+	struct cca_token_hdr	   pvtCrtHdr;
-+	struct cca_pvt_ext_CRT_sec pvtCrtSec;
-+	struct cca_public_sec	   pubCrtSec;
-+};
-+
-+struct ap_status_word {
-+	unsigned char q_stat_flags;
-+	unsigned char response_code;
-+	unsigned char reserved[2];
-+};
-+
-+#define AP_Q_STATUS_EMPTY		0x80
-+#define AP_Q_STATUS_REPLIES_WAITING	0x40
-+#define AP_Q_STATUS_ARRAY_FULL		0x20
-+
-+#define AP_RESPONSE_NORMAL		0x00
-+#define AP_RESPONSE_Q_NOT_AVAIL		0x01
-+#define AP_RESPONSE_RESET_IN_PROGRESS	0x02
-+#define AP_RESPONSE_DECONFIGURED	0x03
-+#define AP_RESPONSE_CHECKSTOPPED	0x04
-+#define AP_RESPONSE_BUSY		0x05
-+#define AP_RESPONSE_Q_FULL		0x10
-+#define AP_RESPONSE_NO_PENDING_REPLY	0x10   
-+#define AP_RESPONSE_INDEX_TOO_BIG	0x11
-+#define AP_RESPONSE_NO_FIRST_PART	0x13
-+#define AP_RESPONSE_MESSAGE_TOO_BIG	0x15
-+
-+#define AP_MAX_CDX_BITL		4
-+#define AP_RQID_RESERVED_BITL	4
-+#define SKIP_BITL		(AP_MAX_CDX_BITL + AP_RQID_RESERVED_BITL)
-+
-+struct type4_hdr {
-+	unsigned char  reserved1;
-+	unsigned char  msg_type_code;	
-+	unsigned short msg_len;
-+	unsigned char  request_code;	
-+	unsigned char  msg_fmt;
-+	unsigned short reserved2;
-+};
-+
-+#define TYPE4_TYPE_CODE 0x04
-+#define TYPE4_REQU_CODE 0x40
-+
-+#define TYPE4_SME_LEN 0x0188
-+#define TYPE4_LME_LEN 0x0308
-+#define TYPE4_SCR_LEN 0x01E0
-+#define TYPE4_LCR_LEN 0x03A0
-+
-+#define TYPE4_SME_FMT 0x00
-+#define TYPE4_LME_FMT 0x10
-+#define TYPE4_SCR_FMT 0x40
-+#define TYPE4_LCR_FMT 0x50
-+
-+struct type4_sme {
-+	struct type4_hdr header;
-+	unsigned char	 message[128];
-+	unsigned char	 exponent[128];
-+	unsigned char	 modulus[128];
-+};
-+
-+struct type4_lme {
-+	struct type4_hdr header;
-+	unsigned char	 message[256];
-+	unsigned char	 exponent[256];
-+	unsigned char	 modulus[256];
-+};
-+
-+struct type4_scr {
-+	struct type4_hdr header;
-+	unsigned char	 message[128];
-+	unsigned char	 dp[72];
-+	unsigned char	 dq[64];
-+	unsigned char	 p[72];
-+	unsigned char	 q[64];
-+	unsigned char	 u[72];
-+};
-+
-+struct type4_lcr {
-+	struct type4_hdr header;
-+	unsigned char	 message[256];
-+	unsigned char	 dp[136];
-+	unsigned char	 dq[128];
-+	unsigned char	 p[136];
-+	unsigned char	 q[128];
-+	unsigned char	 u[136];
-+};
-+
-+union type4_msg {
-+	struct type4_sme sme;
-+	struct type4_lme lme;
-+	struct type4_scr scr;
-+	struct type4_lcr lcr;
-+};
-+
-+struct type84_hdr {
-+	unsigned char  reserved1;
-+	unsigned char  code;
-+	unsigned short len;
-+	unsigned char  reserved2[4];
-+};
-+
-+#define TYPE84_RSP_CODE 0x84
-+
-+struct type6_hdr {
-+	unsigned char reserved1;	
-+	unsigned char type;		
-+	unsigned char reserved2[2];	
-+	unsigned char right[4];		
-+	unsigned char reserved3[2];	
-+	unsigned char reserved4[2];	
-+	unsigned char pfs[4];		
-+	unsigned int  offset1;		
-+	unsigned int  offset2;		
-+	unsigned int  offset3;		
-+	unsigned int  offset4;		
-+	unsigned char agent_id[16];	
-+	unsigned char rqid[2];		
-+	unsigned char reserved5[2];	
-+	unsigned char function_code[2];	
-+	unsigned char reserved6[2];	
-+	unsigned int  ToCardLen1;	
-+	unsigned int  ToCardLen2;	
-+	unsigned int  ToCardLen3;	
-+	unsigned int  ToCardLen4;	
-+	unsigned int  FromCardLen1;	
-+	unsigned int  FromCardLen2;	
-+	unsigned int  FromCardLen3;	
-+	unsigned int  FromCardLen4;	
-+};
-+
-+struct CPRB {
-+	unsigned char cprb_len[2];	
-+	unsigned char cprb_ver_id;	
-+	unsigned char pad_000;		
-+	unsigned char srpi_rtcode[4];	
-+	unsigned char srpi_verb;	
-+	unsigned char flags;		
-+	unsigned char func_id[2];	
-+	unsigned char checkpoint_flag;	
-+	unsigned char resv2;		
-+	unsigned char req_parml[2];	
-+	unsigned char req_parmp[4];	
-+	unsigned char req_datal[4];	
-+	unsigned char req_datap[4];	
-+	unsigned char rpl_parml[2];	
-+	unsigned char pad_001[2];	
-+	unsigned char rpl_parmp[4];	
-+	unsigned char rpl_datal[4];	
-+	unsigned char rpl_datap[4];	
-+	unsigned char ccp_rscode[2];	
-+	unsigned char ccp_rtcode[2];	
-+	unsigned char repd_parml[2];	
-+	unsigned char mac_data_len[2];	
-+	unsigned char repd_datal[4];	
-+	unsigned char req_pc[2];	
-+	unsigned char res_origin[8];	
-+	unsigned char mac_value[8];	
-+	unsigned char logon_id[8];	
-+	unsigned char usage_domain[2];	
-+	unsigned char resv3[18];	
-+	unsigned char svr_namel[2];	
-+	unsigned char svr_name[8];	
-+};
-+
-+struct CPRBX {
-+	unsigned short cprb_len;	
-+	unsigned char  cprb_ver_id;	
-+	unsigned char  pad_000[3];	
-+	unsigned char  func_id[2];	
-+	unsigned char  cprb_flags[4];	
-+	unsigned int   req_parml;	
-+	unsigned int   req_datal;	
-+	unsigned int   rpl_msgbl;	
-+	unsigned int   rpld_parml;	
-+	unsigned int   rpl_datal;	
-+	unsigned int   rpld_datal;	
-+	unsigned int   req_extbl;	
-+	unsigned char  pad_001[4];	
-+	unsigned int   rpld_extbl;	
-+	unsigned char  req_parmb[16];	
-+	unsigned char  req_datab[16];	
-+	unsigned char  rpl_parmb[16];	
-+	unsigned char  rpl_datab[16];	
-+	unsigned char  req_extb[16];	
-+	unsigned char  rpl_extb[16];	
-+	unsigned short ccp_rtcode;	
-+	unsigned short ccp_rscode;	
-+	unsigned int   mac_data_len;	
-+	unsigned char  logon_id[8];	
-+	unsigned char  mac_value[8];	
-+	unsigned char  mac_content_flgs;
-+	unsigned char  pad_002;		
-+	unsigned short domain;		
-+	unsigned char  pad_003[12];	
-+	unsigned char  pad_004[36];	
-+};
-+
-+struct type6_msg {
-+	struct type6_hdr header;
-+	struct CPRB	 CPRB;
-+};
-+
-+union request_msg {
-+	union  type4_msg t4msg;
-+	struct type6_msg t6msg;
-+};
-+
-+struct request_msg_ext {
-+	int		  q_nr;
-+	unsigned char	  *psmid;
-+	union request_msg reqMsg;
-+};
-+
-+struct type82_hdr {
-+	unsigned char reserved1;	
-+	unsigned char type;		
-+	unsigned char reserved2[2];	
-+	unsigned char reply_code;	
-+	unsigned char reserved3[3];	
-+};
-+
-+#define TYPE82_RSP_CODE 0x82
-+
-+#define REPLY_ERROR_MACHINE_FAILURE  0x10
-+#define REPLY_ERROR_PREEMPT_FAILURE  0x12
-+#define REPLY_ERROR_CHECKPT_FAILURE  0x14
-+#define REPLY_ERROR_MESSAGE_TYPE     0x20
-+#define REPLY_ERROR_INVALID_COMM_CD  0x21  
-+#define REPLY_ERROR_INVALID_MSG_LEN  0x23
-+#define REPLY_ERROR_RESERVD_FIELD    0x24  
-+#define REPLY_ERROR_FORMAT_FIELD     0x29
-+#define REPLY_ERROR_INVALID_COMMAND  0x30  
-+#define REPLY_ERROR_MALFORMED_MSG    0x40
-+#define REPLY_ERROR_RESERVED_FIELD   0x50  
-+#define REPLY_ERROR_WORD_ALIGNMENT   0x60
-+#define REPLY_ERROR_MESSAGE_LENGTH   0x80
-+#define REPLY_ERROR_OPERAND_INVALID  0x82
-+#define REPLY_ERROR_OPERAND_SIZE     0x84
-+#define REPLY_ERROR_EVEN_MOD_IN_OPND 0x85
-+#define REPLY_ERROR_TRANSPORT_FAIL   0x90
-+#define REPLY_ERROR_PACKET_TRUNCATED 0xA0
-+#define REPLY_ERROR_ZERO_BUFFER_LEN  0xB0
-+
-+struct type86_hdr {
-+	unsigned char reserved1;	
-+	unsigned char type;		
-+	unsigned char format;		
-+	unsigned char reserved2;	
-+	unsigned char reply_code;	
-+	unsigned char reserved3[3];	
-+};
-+
-+#define TYPE86_RSP_CODE 0x86
-+#define TYPE86_FMT2	0x02
-+
-+struct type86_fmt2_msg {
-+	struct type86_hdr hdr;
-+	unsigned char	  reserved[4];	
-+	unsigned char	  apfs[4];	
-+	unsigned int	  count1;	
-+	unsigned int	  offset1;	
-+	unsigned int	  count2;	
-+	unsigned int	  offset2;	
-+	unsigned int	  count3;	
-+	unsigned int	  offset3;	
-+	unsigned int	  ount4;	
-+	unsigned int	  offset4;	
-+};
-+
-+static struct type6_hdr static_type6_hdr = {
-+	0x00,
-+	0x06,
-+	{0x00,0x00},
-+	{0x00,0x00,0x00,0x00},
-+	{0x00,0x00},
-+	{0x00,0x00},
-+	{0x00,0x00,0x00,0x00},
-+	0x00000058,
-+	0x00000000,
-+	0x00000000,
-+	0x00000000,
-+	{0x01,0x00,0x43,0x43,0x41,0x2D,0x41,0x50,
-+	 0x50,0x4C,0x20,0x20,0x20,0x01,0x01,0x01},
-+	{0x00,0x00},
-+	{0x00,0x00},
-+	{0x50,0x44},
-+	{0x00,0x00},
-+	0x00000000,	
-+	0x00000000,
-+	0x00000000,
-+	0x00000000,
-+	0x00000000,	
-+	0x00000000,
-+	0x00000000,
-+	0x00000000
-+};
-+
-+static struct type6_hdr static_type6_hdrX = {
-+	0x00,
-+	0x06,
-+	{0x00,0x00},
-+	{0x00,0x00,0x00,0x00},
-+	{0x00,0x00},
-+	{0x00,0x00},
-+	{0x00,0x00,0x00,0x00},
-+	0x00000058,
-+	0x00000000,
-+	0x00000000,
-+	0x00000000,
-+	{0x43,0x41,0x00,0x00,0x00,0x00,0x00,0x00,
-+	 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00},
-+	{0x00,0x00},
-+	{0x00,0x00},
-+	{0x50,0x44},
-+	{0x00,0x00},
-+	0x00000000,	
-+	0x00000000,
-+	0x00000000,
-+	0x00000000,
-+	0x00000000,	
-+	0x00000000,
-+	0x00000000,
-+	0x00000000
-+};
-+
-+static struct CPRB static_cprb = {
-+	{0x70,0x00},
-+	0x41,
-+	0x00,
-+	{0x00,0x00,0x00,0x00},
-+	0x00,
-+	0x00,
-+	{0x54,0x32},
-+	0x01,
-+	0x00,
-+	{0x00,0x00},	
-+	{0x00,0x00,0x00,0x00},
-+	{0x00,0x00,0x00,0x00},
-+	{0x00,0x00,0x00,0x00},
-+	{0x00,0x00},	
-+	{0x00,0x00},
-+	{0x00,0x00,0x00,0x00},
-+	{0x00,0x00,0x00,0x00},
-+	{0x00,0x00,0x00,0x00},
-+	{0x00,0x00},
-+	{0x00,0x00},
-+	{0x00,0x00},
-+	{0x00,0x00},
-+	{0x00,0x00,0x00,0x00},
-+	{0x00,0x00},
-+	{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00},
-+	{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00},
-+	{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00},
-+	{0x00,0x00},	
-+	{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-+	 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-+	 0x00,0x00},
-+	{0x08,0x00},
-+	{0x49,0x43,0x53,0x46,0x20,0x20,0x20,0x20}
-+};
-+
-+struct function_and_rules_block {
-+	unsigned char function_code[2];
-+	unsigned char ulen[2];
-+	unsigned char only_rule[8];
-+};
-+
-+static struct function_and_rules_block static_pkd_function_and_rules = {
-+	{0x50,0x44},			   
-+	{0x0A,0x00},			   
-+	{'P','K','C','S','-','1','.','2'}
-+};
-+
-+static struct function_and_rules_block static_pke_function_and_rules = {
-+	{0x50,0x4B},			   
-+	{0x0A,0x00},			   
-+	{'P','K','C','S','-','1','.','2'}
-+};
-+
-+struct T6_keyBlock_hdr {
-+	unsigned char blen[2];
-+	unsigned char ulen[2];
-+	unsigned char flags[2];
-+};
-+
-+static struct T6_keyBlock_hdr static_T6_keyBlock_hdr = {
-+	{0x89,0x01},	   
-+	{0x87,0x01},	   
-+	{0x00}
-+};
-+
-+static struct CPRBX static_cprbx = {
-+	0x00DC,
-+	0x02,
-+	{0x00,0x00,0x00},
-+	{0x54,0x32},
-+	{0x00,0x00,0x00,0x00},
-+	0x00000000,
-+	0x00000000,
-+	0x00000000,
-+	0x00000000,
-+	0x00000000,
-+	0x00000000,
-+	0x00000000,
-+	{0x00,0x00,0x00,0x00},
-+	0x00000000,
-+	{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-+	 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00},
-+	{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-+	 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00},
-+	{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-+	 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00},
-+	{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-+	 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00},
-+	{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-+	 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00},
-+	{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-+	 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00},
-+	0x0000,
-+	0x0000,
-+	0x00000000,
-+	{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00},
-+	{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00},
-+	0x00,
-+	0x00,
-+	0x0000,
-+	{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00},
-+	{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-+	 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-+	 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00}
-+};
-+
-+static struct function_and_rules_block static_pkd_function_and_rulesX = {
-+	{0x50,0x44},	
-+	{0x00,0x0A},	
-+	{'P','K','C','S','-','1','.','2'}
-+};
-+
-+static struct function_and_rules_block static_pke_function_and_rulesX = {
-+	{0x50,0x4B},	
-+	{0x00,0x0A},	
-+	{'Z','E','R','O','-','P','A','D'}
-+};
-+
-+struct T6_keyBlock_hdrX {
-+	unsigned short blen;
-+	unsigned short ulen;
-+	unsigned char flags[2];
-+};
-+
-+static unsigned char static_pad[256] = {
-+0x1B,0x7B,0x5D,0xB5,0x75,0x01,0x3D,0xFD,0x8D,0xD1,0xC7,0x03,0x2D,0x09,0x23,0x57,
-+0x89,0x49,0xB9,0x3F,0xBB,0x99,0x41,0x5B,0x75,0x21,0x7B,0x9D,0x3B,0x6B,0x51,0x39,
-+0xBB,0x0D,0x35,0xB9,0x89,0x0F,0x93,0xA5,0x0B,0x47,0xF1,0xD3,0xBB,0xCB,0xF1,0x9D,
-+0x23,0x73,0x71,0xFF,0xF3,0xF5,0x45,0xFB,0x61,0x29,0x23,0xFD,0xF1,0x29,0x3F,0x7F,
-+0x17,0xB7,0x1B,0xA9,0x19,0xBD,0x57,0xA9,0xD7,0x95,0xA3,0xCB,0xED,0x1D,0xDB,0x45,
-+0x7D,0x11,0xD1,0x51,0x1B,0xED,0x71,0xE9,0xB1,0xD1,0xAB,0xAB,0x21,0x2B,0x1B,0x9F,
-+0x3B,0x9F,0xF7,0xF7,0xBD,0x63,0xEB,0xAD,0xDF,0xB3,0x6F,0x5B,0xDB,0x8D,0xA9,0x5D,
-+0xE3,0x7D,0x77,0x49,0x47,0xF5,0xA7,0xFD,0xAB,0x2F,0x27,0x35,0x77,0xD3,0x49,0xC9,
-+0x09,0xEB,0xB1,0xF9,0xBF,0x4B,0xCB,0x2B,0xEB,0xEB,0x05,0xFF,0x7D,0xC7,0x91,0x8B,
-+0x09,0x83,0xB9,0xB9,0x69,0x33,0x39,0x6B,0x79,0x75,0x19,0xBF,0xBB,0x07,0x1D,0xBD,
-+0x29,0xBF,0x39,0x95,0x93,0x1D,0x35,0xC7,0xC9,0x4D,0xE5,0x97,0x0B,0x43,0x9B,0xF1,
-+0x16,0x93,0x03,0x1F,0xA5,0xFB,0xDB,0xF3,0x27,0x4F,0x27,0x61,0x05,0x1F,0xB9,0x23,
-+0x2F,0xC3,0x81,0xA9,0x23,0x71,0x55,0x55,0xEB,0xED,0x41,0xE5,0xF3,0x11,0xF1,0x43,
-+0x69,0x03,0xBD,0x0B,0x37,0x0F,0x51,0x8F,0x0B,0xB5,0x89,0x5B,0x67,0xA9,0xD9,0x4F,
-+0x01,0xF9,0x21,0x77,0x37,0x73,0x79,0xC5,0x7F,0x51,0xC1,0xCF,0x97,0xA1,0x75,0xAD,
-+0x35,0x9D,0xD3,0xD3,0xA7,0x9D,0x5D,0x41,0x6F,0x65,0x1B,0xCF,0xA9,0x87,0x91,0x09
-+};
-+
-+static struct cca_private_ext_ME static_pvt_me_key = {
-+	{
-+		0x1E,
-+		0x00,
-+		0x0183,
-+		{0x00,0x00,0x00,0x00}
-+	},
-+
-+	{
-+		0x02,
-+		0x00,
-+		0x016C,
-+		{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-+		 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-+		 0x00,0x00,0x00,0x00},
-+		{0x00,0x00,0x00,0x00},
-+		0x00,
-+		0x00,
-+		{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-+		 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-+		 0x00,0x00,0x00,0x00},
-+		{0x80,0x00,0x00,0x00},
-+		{0x00,0x00,0x00,0x00,0x00,0x00},
-+		{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-+		 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-+		 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00},
-+		{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-+		 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-+		 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00},
-+		{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-+		 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-+		 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-+		 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-+		 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-+		 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-+		 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-+		 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-+		 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-+		 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-+		 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-+		 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-+		 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-+		 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-+		 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-+		 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00},
-+		{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-+		 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-+		 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-+		 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-+		 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-+		 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-+		 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-+		 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-+		 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-+		 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-+		 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-+		 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-+		 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-+		 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-+		 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-+		 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00}
-+	},
-+
-+	{
-+		0x04,
-+		0x00,
-+		0x000F,
-+		{0x00,0x00},
-+		0x0003,
-+		0x0000,
-+		0x0000,
-+		{0x01,0x00,0x01}
-+	}
-+};
-+
-+static struct cca_public_key static_public_key = {
-+	{
-+		0x1E,
-+		0x00,
-+		0x0000,			
-+		{0x00,0x00,0x00,0x00}
-+	},
-+
-+	{
-+		0x04,
-+		0x00,
-+		0x0000,			
-+		{0x00,0x00},
-+		0x0000,			
-+		0x0000,			
-+		0x0000,			
-+		{0x01,0x00,0x01}
-+	}
-+};
-+
-+#define FIXED_TYPE6_ME_LEN 0x0000025F
-+
-+#define FIXED_TYPE6_ME_EN_LEN 0x000000F0
-+
-+#define FIXED_TYPE6_ME_LENX 0x000002CB
-+
-+#define FIXED_TYPE6_ME_EN_LENX 0x0000015C
-+
-+static struct cca_public_sec static_cca_pub_sec = {
-+	0x04,
-+	0x00,
-+	0x000f,
-+	{0x00,0x00},
-+	0x0003,
-+	0x0000,	      
-+	0x0000,
-+	{0x01,0x00,0x01}
-+};
-+
-+#define FIXED_TYPE6_CR_LEN 0x00000177
-+
-+#define FIXED_TYPE6_CR_LENX 0x000001E3
-+
-+#ifndef MAX_RESPONSE_SIZE
-+#define MAX_RESPONSE_SIZE 0x00000710
-+
-+#define MAX_RESPONSEX_SIZE 0x0000077C
-+#endif
-+
-+#define RESPONSE_CPRB_SIZE  0x000006B8 
-+#define RESPONSE_CPRBX_SIZE 0x00000724 
-+
-+#define CALLER_HEADER 12	
-+
-+static unsigned char static_PKE_function_code[2] = {0x50, 0x4B};
-+
-+static inline int
-+testq(int q_nr, int *q_depth, int *dev_type, struct ap_status_word *stat)
-+{
-+	int ccode;
-+
-+	asm volatile
-+#ifdef __s390x__
-+	("	llgfr	0,%4		\n"	
-+	 "	slgr	1,1		\n"	
-+	 "	lgr	2,1		\n"	
-+	 "0:	.long	0xb2af0000	\n"	
-+	 "1:	ipm	%0		\n"	
-+	 "	srl	%0,28		\n"	
-+	 "	iihh	%0,0		\n"	
-+	 "	iihl	%0,0		\n"	
-+	 "	lgr	%1,1		\n"	
-+	 "	lgr	%3,2		\n"
-+	 "	srl	%3,24		\n"	
-+	 "	sll	2,24		\n"
-+	 "	srl	2,24		\n"
-+	 "	lgr	%2,2		\n"	
-+	 "2:				\n"	
-+	 ".section .fixup,\"ax\"	\n"
-+	 "3:				\n"	
-+	 "	lhi	%0,%h5		\n"
-+	 "	jg	2b		\n"
-+	 ".previous			\n"
-+	 ".section __ex_table,\"a\"	\n"
-+	 "	.align	8		\n"
-+	 "	.quad	0b,3b		\n"
-+	 "	.quad	1b,3b		\n"
-+	 ".previous"
-+	 :"=d" (ccode),"=d" (*stat),"=d" (*q_depth), "=d" (*dev_type)
-+	 :"d" (q_nr), "K" (DEV_TSQ_EXCEPTION)
-+	 :"cc","0","1","2","memory");
-+#else
-+	("	lr	0,%4		\n"	
-+	 "	slr	1,1		\n"	
-+	 "	lr	2,1		\n"	
-+	 "0:	.long	0xb2af0000	\n"	
-+	 "1:	ipm	%0		\n"	
-+	 "	srl	%0,28		\n"	
-+	 "	lr	%1,1		\n"	
-+	 "	lr	%3,2		\n"
-+	 "	srl	%3,24		\n"	
-+	 "	sll	2,24		\n"
-+	 "	srl	2,24		\n"
-+	 "	lr	%2,2		\n"	
-+	 "2:				\n"	
-+	 ".section .fixup,\"ax\"	\n"
-+	 "3:				\n"	
-+	 "	lhi	%0,%h5		\n"
-+	 "	bras	1,4f		\n"
-+	 "	.long	2b		\n"
-+	 "4:				\n"
-+	 "	l	1,0(1)		\n"
-+	 "	br	1		\n"
-+	 ".previous			\n"
-+	 ".section __ex_table,\"a\"	\n"
-+	 "	.align	4		\n"
-+	 "	.long	0b,3b		\n"
-+	 "	.long	1b,3b		\n"
-+	 ".previous"
-+	 :"=d" (ccode),"=d" (*stat),"=d" (*q_depth), "=d" (*dev_type)
-+	 :"d" (q_nr), "K" (DEV_TSQ_EXCEPTION)
-+	 :"cc","0","1","2","memory");
-+#endif
-+	return ccode;
-+}
-+
-+static inline int
-+resetq(int q_nr, struct ap_status_word *stat_p)
-+{
-+	int ccode;
-+
-+	asm volatile
-+#ifdef __s390x__
-+	("	llgfr	0,%2		\n"	
-+	 "	lghi	1,1		\n"	
-+	 "	sll	1,24		\n"	
-+	 "	or	0,1		\n"	
-+	 "	slgr	1,1		\n"	
-+	 "	lgr	2,1		\n"	
-+	 "0:	.long	0xb2af0000	\n"	
-+	 "1:	ipm	%0		\n"	
-+	 "	srl	%0,28		\n"	
-+	 "	iihh	%0,0		\n"	
-+	 "	iihl	%0,0		\n"	
-+	 "	lgr	%1,1		\n"	
-+	 "2:				\n"	
-+	 ".section .fixup,\"ax\"	\n"
-+	 "3:				\n"	
-+	 "	lhi	%0,%h3		\n"
-+	 "	jg	2b		\n"
-+	 ".previous			\n"
-+	 ".section __ex_table,\"a\"	\n"
-+	 "	.align	8		\n"
-+	 "	.quad	0b,3b		\n"
-+	 "	.quad	1b,3b		\n"
-+	 ".previous"
-+	 :"=d" (ccode),"=d" (*stat_p)
-+	 :"d" (q_nr), "K" (DEV_RSQ_EXCEPTION)
-+	 :"cc","0","1","2","memory");
-+#else
-+	("	lr	0,%2		\n"	
-+	 "	lhi	1,1		\n"	
-+	 "	sll	1,24		\n"	
-+	 "	or	0,1		\n"	
-+	 "	slr	1,1		\n"	
-+	 "	lr	2,1		\n"	
-+	 "0:	.long	0xb2af0000	\n"	
-+	 "1:	ipm	%0		\n"	
-+	 "	srl	%0,28		\n"	
-+	 "	lr	%1,1		\n"	
-+	 "2:				\n"	
-+	 ".section .fixup,\"ax\"	\n"
-+	 "3:				\n"	
-+	 "	lhi	%0,%h3		\n"
-+	 "	bras	1,4f		\n"
-+	 "	.long	2b		\n"
-+	 "4:				\n"
-+	 "	l	1,0(1)		\n"
-+	 "	br	1		\n"
-+	 ".previous			\n"
-+	 ".section __ex_table,\"a\"	\n"
-+	 "	.align	4		\n"
-+	 "	.long	0b,3b		\n"
-+	 "	.long	1b,3b		\n"
-+	 ".previous"
-+	 :"=d" (ccode),"=d" (*stat_p)
-+	 :"d" (q_nr), "K" (DEV_RSQ_EXCEPTION)
-+	 :"cc","0","1","2","memory");
-+#endif
-+	return ccode;
-+}
-+
-+static inline int
-+sen(int msg_len, unsigned char *msg_ext, struct ap_status_word *stat)
-+{
-+	int ccode;
-+
-+	asm volatile
-+#ifdef __s390x__
-+	("	lgr	6,%3		\n"	
-+	 "	llgfr	7,%2		\n"	
-+	 "	llgt	0,0(6)		\n"	
-+	 "	lghi	1,64		\n"	
-+	 "	sll	1,24		\n"	
-+	 "	or	0,1		\n"	
-+	 "	la	6,4(6)		\n"	
-+	 "	llgt	2,0(6)		\n"	
-+	 "	llgt	3,4(6)		\n"	
-+	 "	la	6,8(6)		\n"	
-+	 "	slr	1,1		\n"	
-+	 "0:	.long	0xb2ad0026	\n"	
-+	 "1:	brc	2,0b		\n"	
-+	 "	ipm	%0		\n"	
-+	 "	srl	%0,28		\n"	
-+	 "	iihh	%0,0		\n"	
-+	 "	iihl	%0,0		\n"	
-+	 "	lgr	%1,1		\n"	
-+	 "2:				\n"	
-+	 ".section .fixup,\"ax\"	\n"
-+	 "3:				\n"	
-+	 "	lhi	%0,%h4		\n"
-+	 "	jg	2b		\n"
-+	 ".previous			\n"
-+	 ".section __ex_table,\"a\"	\n"
-+	 "	.align	8		\n"
-+	 "	.quad	0b,3b		\n"
-+	 "	.quad	1b,3b		\n"
-+	 ".previous"
-+	 :"=d" (ccode),"=d" (*stat)
-+	 :"d" (msg_len),"a" (msg_ext), "K" (DEV_SEN_EXCEPTION)
-+	 :"cc","0","1","2","3","6","7","memory");
-+#else
-+	("	lr	6,%3		\n"	
-+	 "	lr	7,%2		\n"	
-+	 "	l	0,0(6)		\n"	
-+	 "	lhi	1,64		\n"	
-+	 "	sll	1,24		\n"	
-+	 "	or	0,1		\n"	
-+	 "	la	6,4(6)		\n"	
-+	 "	l	2,0(6)		\n"	
-+	 "	l	3,4(6)		\n"	
-+	 "	la	6,8(6)		\n"	
-+	 "	slr	1,1		\n"	
-+	 "0:	.long	0xb2ad0026	\n"	
-+	 "1:	brc	2,0b		\n"	
-+	 "	ipm	%0		\n"	
-+	 "	srl	%0,28		\n"	
-+	 "	lr	%1,1		\n"	
-+	 "2:				\n"	
-+	 ".section .fixup,\"ax\"	\n"
-+	 "3:				\n"	
-+	 "	lhi	%0,%h4		\n"
-+	 "	bras	1,4f		\n"
-+	 "	.long	2b		\n"
-+	 "4:				\n"
-+	 "	l	1,0(1)		\n"
-+	 "	br	1		\n"
-+	 ".previous			\n"
-+	 ".section __ex_table,\"a\"	\n"
-+	 "	.align	4		\n"
-+	 "	.long	0b,3b		\n"
-+	 "	.long	1b,3b		\n"
-+	 ".previous"
-+	 :"=d" (ccode),"=d" (*stat)
-+	 :"d" (msg_len),"a" (msg_ext), "K" (DEV_SEN_EXCEPTION)
-+	 :"cc","0","1","2","3","6","7","memory");
-+#endif
-+	return ccode;
-+}
-+
-+static inline int
-+rec(int q_nr, int buff_l, unsigned char *rsp, unsigned char *id,
-+    struct ap_status_word *st)
-+{
-+	int ccode;
-+
-+	asm volatile
-+#ifdef __s390x__
-+	("	llgfr	0,%2		\n"	
-+	 "	lgr	3,%4		\n"	
-+	 "	lgr	6,%3		\n"	
-+	 "	llgfr	7,%5		\n"	
-+	 "	lghi	1,128		\n"	
-+	 "	sll	1,24		\n"	
-+	 "	or	0,1		\n"	
-+	 "	slgr	1,1		\n"	
-+	 "	lgr	2,1		\n"	
-+	 "	lgr	4,1		\n"	
-+	 "	lgr	5,1		\n"	
-+	 "0:	.long	0xb2ae0046	\n"	
-+	 "1:	brc	2,0b		\n"	
-+	 "	brc	4,0b		\n"	
-+	 "	ipm	%0		\n"	
-+	 "	srl	%0,28		\n"	
-+	 "	iihh	%0,0		\n"	
-+	 "	iihl	%0,0		\n"	
-+	 "	lgr	%1,1		\n"	
-+	 "	st	4,0(3)		\n"	
-+	 "	st	5,4(3)		\n"	
-+	 "2:				\n"	
-+	 ".section .fixup,\"ax\"	\n"
-+	 "3:				\n"	
-+	 "	lhi   %0,%h6		\n"
-+	 "	jg    2b		\n"
-+	 ".previous			\n"
-+	 ".section __ex_table,\"a\"	\n"
-+	 "   .align	8		\n"
-+	 "   .quad	0b,3b		\n"
-+	 "   .quad	1b,3b		\n"
-+	 ".previous"
-+	 :"=d"(ccode),"=d"(*st)
-+	 :"d" (q_nr), "d" (rsp), "d" (id), "d" (buff_l), "K" (DEV_REC_EXCEPTION)
-+	 :"cc","0","1","2","3","4","5","6","7","memory");
-+#else
-+	("	lr	0,%2		\n"	
-+	 "	lr	3,%4		\n"	
-+	 "	lr	6,%3		\n"	
-+	 "	lr	7,%5		\n"	
-+	 "	lhi	1,128		\n"	
-+	 "	sll	1,24		\n"	
-+	 "	or	0,1		\n"	
-+	 "	slr	1,1		\n"	
-+	 "	lr	2,1		\n"	
-+	 "	lr	4,1		\n"	
-+	 "	lr	5,1		\n"	
-+	 "0:	.long	0xb2ae0046	\n"	
-+	 "1:	brc	2,0b		\n"	
-+	 "	brc	4,0b		\n"	
-+	 "	ipm	%0		\n"	
-+	 "	srl	%0,28		\n"	
-+	 "	lr	%1,1		\n"	
-+	 "	st	4,0(3)		\n"	
-+	 "	st	5,4(3)		\n"	
-+	 "2:				\n"	
-+	 ".section .fixup,\"ax\"	\n"
-+	 "3:				\n"	
-+	 "	lhi   %0,%h6		\n"
-+	 "	bras  1,4f		\n"
-+	 "	.long 2b		\n"
-+	 "4:				\n"
-+	 "	l     1,0(1)		\n"
-+	 "	br    1			\n"
-+	 ".previous			\n"
-+	 ".section __ex_table,\"a\"	\n"
-+	 "   .align	4		\n"
-+	 "   .long	0b,3b		\n"
-+	 "   .long	1b,3b		\n"
-+	 ".previous"
-+	 :"=d"(ccode),"=d"(*st)
-+	 :"d" (q_nr), "d" (rsp), "d" (id), "d" (buff_l), "K" (DEV_REC_EXCEPTION)
-+	 :"cc","0","1","2","3","4","5","6","7","memory");
-+#endif
-+	return ccode;
-+}
-+
-+static inline void
-+itoLe2(int *i_p, unsigned char *lechars)
-+{
-+	*lechars       = *((unsigned char *) i_p + sizeof(int) - 1);
-+	*(lechars + 1) = *((unsigned char *) i_p + sizeof(int) - 2);
-+}
-+
-+static inline void
-+le2toI(unsigned char *lechars, int *i_p)
-+{
-+	unsigned char *ic_p;
-+	*i_p = 0;
-+	ic_p = (unsigned char *) i_p;
-+	*(ic_p + 2) = *(lechars + 1);
-+	*(ic_p + 3) = *(lechars);
-+}
-+
-+static inline int
-+is_empty(unsigned char *ptr, int len)
-+{
-+	return !memcmp(ptr, (unsigned char *) &static_pvt_me_key+60, len);
-+}
-+
-+enum hdstat
-+query_online(int deviceNr, int cdx, int resetNr, int *q_depth, int *dev_type)
-+{
-+	int q_nr, i, t_depth, t_dev_type;
-+	enum devstat ccode;
-+	struct ap_status_word stat_word;
-+	enum hdstat stat;
-+	int break_out;
-+
-+	q_nr = (deviceNr << SKIP_BITL) + cdx;
-+	stat = HD_BUSY;
-+	ccode = testq(q_nr, &t_depth, &t_dev_type, &stat_word);
-+	PDEBUG("ccode %d response_code %02X\n", ccode, stat_word.response_code);
-+	break_out = 0;
-+	for (i = 0; i < resetNr; i++) {
-+		if (ccode > 3) {
-+			PRINTKC("Exception testing device %d\n", i);
-+			return HD_TSQ_EXCEPTION;
-+		}
-+		switch (ccode) {
-+		case 0:
-+			PDEBUG("t_dev_type %d\n", t_dev_type);
-+			break_out = 1;
-+			stat = HD_ONLINE;
-+			*q_depth = t_depth + 1;
-+			switch (t_dev_type) {
-+			case OTHER_HW:
-+			case OTHER2_HW:
-+				stat = HD_NOT_THERE;
-+				*dev_type = NILDEV;
-+				break;
-+			case PCICA_HW:
-+				*dev_type = PCICA;
-+				break;
-+			case PCICC_HW:
-+				*dev_type = PCICC;
-+				break;
-+			case PCIXCC_HW:
-+				*dev_type = PCIXCC;
-+				break;
-+			default:
-+				*dev_type = NILDEV;
-+				break;
-+			}
-+			PDEBUG("available device %d: Q depth = %d, dev "
-+			       "type = %d, stat = %02X%02X%02X%02X\n",
-+			       deviceNr, *q_depth, *dev_type,
-+			       stat_word.q_stat_flags,
-+			       stat_word.response_code,
-+			       stat_word.reserved[0],
-+			       stat_word.reserved[1]);
-+			break;
-+		case 3:
-+			switch (stat_word.response_code) {
-+			case AP_RESPONSE_NORMAL:
-+				stat = HD_ONLINE;
-+				break_out = 1;
-+				*q_depth = t_depth + 1;
-+				*dev_type = t_dev_type;
-+				PDEBUG("cc3, available device "
-+				       "%d: Q depth = %d, dev "
-+				       "type = %d, stat = "
-+				       "%02X%02X%02X%02X\n",
-+				       deviceNr, *q_depth,
-+				       *dev_type,
-+				       stat_word.q_stat_flags,
-+				       stat_word.response_code,
-+				       stat_word.reserved[0],
-+				       stat_word.reserved[1]);
-+				break;
-+			case AP_RESPONSE_Q_NOT_AVAIL:
-+				stat = HD_NOT_THERE;
-+				break_out = 1;
-+				break;
-+			case AP_RESPONSE_RESET_IN_PROGRESS:
-+				PDEBUG("device %d in reset\n",
-+				       deviceNr);
-+				break;
-+			case AP_RESPONSE_DECONFIGURED:
-+				stat = HD_DECONFIGURED;
-+				break_out = 1;
-+				break;
-+			case AP_RESPONSE_CHECKSTOPPED:
-+				stat = HD_CHECKSTOPPED;
-+				break_out = 1;
-+				break;
-+			case AP_RESPONSE_BUSY:
-+				PDEBUG("device %d busy\n",
-+				       deviceNr);
-+				break;
-+			default:
-+				break;
-+			}
-+			break;
-+		default:
-+			stat = HD_NOT_THERE;
-+			break_out = 1;
-+		}
-+		if (break_out)
-+			break;
-+
-+		udelay(5);
-+
-+		ccode = testq(q_nr, &t_depth, &t_dev_type, &stat_word);
-+	}
-+	return stat;
-+}
-+
-+enum devstat
-+reset_device(int deviceNr, int cdx, int resetNr)
-+{
-+	int q_nr, ccode = 0, dummy_qdepth, dummy_devType, i;
-+	struct ap_status_word stat_word;
-+	enum devstat stat;
-+	int break_out;
-+
-+	q_nr = (deviceNr << SKIP_BITL) + cdx;
-+	stat = DEV_GONE;
-+	ccode = resetq(q_nr, &stat_word);
-+	if (ccode > 3)
-+		return DEV_RSQ_EXCEPTION;
-+
-+	break_out = 0;
-+	for (i = 0; i < resetNr; i++) {
-+		switch (ccode) {
-+		case 0:
-+			stat = DEV_ONLINE;
-+			if (stat_word.q_stat_flags & AP_Q_STATUS_EMPTY)
-+				break_out = 1;
-+			break;
-+		case 3:
-+			switch (stat_word.response_code) {
-+			case AP_RESPONSE_NORMAL:
-+				stat = DEV_ONLINE;
-+				if (stat_word.q_stat_flags &
-+				    AP_Q_STATUS_EMPTY)
-+					break_out = 1;
-+				break;
-+			case AP_RESPONSE_Q_NOT_AVAIL:
-+				stat = DEV_GONE;
-+				break_out = 1;
-+				break;
-+			case AP_RESPONSE_DECONFIGURED:
-+				stat = DEV_GONE;
-+				break_out = 1;
-+				break;
-+			case AP_RESPONSE_CHECKSTOPPED:
-+				stat = DEV_GONE;
-+				break_out = 1;
-+				break;
-+			case AP_RESPONSE_RESET_IN_PROGRESS:
-+			case AP_RESPONSE_BUSY:
-+			default:
-+				break;
-+			}
-+			break;
-+		default:
-+			stat = DEV_GONE;
-+			break_out = 1;
-+		}
-+		if (break_out == 1)
-+			break;
-+		udelay(5);
-+
-+		ccode = testq(q_nr, &dummy_qdepth, &dummy_devType, &stat_word);
-+		if (ccode > 3) {
-+			stat = DEV_TSQ_EXCEPTION;
-+			break;
-+		}
-+	}
-+	PDEBUG("Number of testq's needed for reset: %d\n", i);
-+
-+	if (i >= resetNr) {
-+	  stat = DEV_GONE;
-+	}
-+
-+	return stat;
-+}
-+
-+#ifdef DEBUG_HYDRA_MSGS
-+static inline void
-+print_buffer(unsigned char *buffer, int bufflen)
-+{
-+	int i;
-+	for (i = 0; i < bufflen; i += 16) {
-+		PRINTK("%04X: %02X%02X%02X%02X %02X%02X%02X%02X "
-+		       "%02X%02X%02X%02X %02X%02X%02X%02X\n", i,
-+		       buffer[i+0], buffer[i+1], buffer[i+2], buffer[i+3],
-+		       buffer[i+4], buffer[i+5], buffer[i+6], buffer[i+7],
-+		       buffer[i+8], buffer[i+9], buffer[i+10], buffer[i+11],
-+		       buffer[i+12], buffer[i+13], buffer[i+14], buffer[i+15]);
-+	}
-+}
-+#endif
-+
-+enum devstat
-+send_to_AP(int dev_nr, int cdx, int msg_len, unsigned char *msg_ext)
-+{
-+	struct ap_status_word stat_word;
-+	enum devstat stat;
-+	int ccode;
-+
-+	((struct request_msg_ext *) msg_ext)->q_nr =
-+		(dev_nr << SKIP_BITL) + cdx;
-+	PDEBUG("msg_len passed to sen: %d\n", msg_len);
-+	PDEBUG("q number passed to sen: %02x%02x%02x%02x\n",
-+	       msg_ext[0], msg_ext[1], msg_ext[2], msg_ext[3]);
-+	stat = DEV_GONE;
-+
-+#ifdef DEBUG_HYDRA_MSGS
-+	PRINTK("Request header: %02X%02X%02X%02X %02X%02X%02X%02X "
-+	       "%02X%02X%02X%02X\n",
-+	       msg_ext[0], msg_ext[1], msg_ext[2], msg_ext[3],
-+	       msg_ext[4], msg_ext[5], msg_ext[6], msg_ext[7],
-+	       msg_ext[8], msg_ext[9], msg_ext[10], msg_ext[11]);
-+	print_buffer(msg_ext+12, msg_len);
-+#endif
-+
-+	ccode = sen(msg_len, msg_ext, &stat_word);
-+	if (ccode > 3)
-+		return DEV_SEN_EXCEPTION;
-+
-+	PDEBUG("nq cc: %u, st: %02x%02x%02x%02x\n",
-+	       ccode, stat_word.q_stat_flags, stat_word.response_code,
-+	       stat_word.reserved[0], stat_word.reserved[1]);
-+	switch (ccode) {
-+	case 0:
-+		stat = DEV_ONLINE;
-+		break;
-+	case 1:
-+		stat = DEV_GONE;
-+		break;
-+	case 3:
-+		switch (stat_word.response_code) {
-+		case AP_RESPONSE_NORMAL:
-+			stat = DEV_ONLINE;
-+			break;
-+		case AP_RESPONSE_Q_FULL:
-+			stat = DEV_QUEUE_FULL;
-+			break;
-+		default:
-+			stat = DEV_GONE;
-+			break;
-+		}
-+		break;
-+	default:
-+		stat = DEV_GONE;
-+	}
-+
-+	return stat;
-+}
-+
-+enum devstat
-+receive_from_AP(int dev_nr, int cdx, int resplen,
-+		unsigned char *resp, unsigned char *psmid)
-+{
-+	int ccode;
-+	struct ap_status_word stat_word;
-+	enum devstat stat;
-+
-+	memset(resp, 0x00, 8);
-+
-+	ccode = rec((dev_nr << SKIP_BITL) + cdx, resplen, resp, psmid,
-+		    &stat_word);
-+	if (ccode > 3)
-+		return DEV_REC_EXCEPTION;
-+
-+	PDEBUG("dq cc: %u, st: %02x%02x%02x%02x\n",
-+	       ccode, stat_word.q_stat_flags, stat_word.response_code,
-+	       stat_word.reserved[0], stat_word.reserved[1]);
-+
-+	stat = DEV_GONE;
-+	switch (ccode) {
-+	case 0:
-+		stat = DEV_ONLINE;
-+#ifdef DEBUG_HYDRA_MSGS
-+		print_buffer(resp, resplen);
-+#endif
-+		break;
-+	case 3:
-+		switch (stat_word.response_code) {
-+		case AP_RESPONSE_NORMAL:
-+			stat = DEV_ONLINE;
-+			break;
-+		case AP_RESPONSE_NO_PENDING_REPLY:
-+			if (stat_word.q_stat_flags & AP_Q_STATUS_EMPTY)
-+				stat = DEV_EMPTY;
-+			else
-+				stat = DEV_NO_WORK;
-+			break;
-+		case AP_RESPONSE_INDEX_TOO_BIG:
-+		case AP_RESPONSE_NO_FIRST_PART:
-+		case AP_RESPONSE_MESSAGE_TOO_BIG:
-+			stat = DEV_BAD_MESSAGE;
-+			break;
-+		default:
-+			break;
-+		}
-+		break;
-+	default:
-+		break;
-+	}
-+
-+	return stat;
-+}
-+
-+static inline int
-+pad_msg(unsigned char *buffer, int  totalLength, int msgLength)
-+{
-+	int pad_len;
-+
-+	for (pad_len = 0; pad_len < (totalLength - msgLength); pad_len++)
-+		if (buffer[pad_len] != 0x00)
-+			break;
-+	pad_len -= 3; 
-+	if (pad_len < 8)
-+		return SEN_PAD_ERROR;
-+
-+	buffer[0] = 0x00;
-+	buffer[1] = 0x02;
-+
-+	memcpy(buffer+2, static_pad, pad_len);
-+
-+	buffer[pad_len + 2] = 0x00;
-+
-+	return 0;
-+}
-+
-+static inline int
-+is_common_public_key(unsigned char *key, int len)
-+{
-+	int i;
-+
-+	for (i = 0; i < len; i++)
-+		if (key[i])
-+			break;
-+	key += i;
-+	len -= i;
-+	if (((len == 1) && (key[0] == 3)) ||
-+	    ((len == 3) && (key[0] == 1) && (key[1] == 0) && (key[2] == 1)))
-+		return 1;
-+
-+	return 0;
-+}
-+
-+static int
-+ICAMEX_msg_to_type4MEX_msg(struct ica_rsa_modexpo *icaMex_p, int *z90cMsg_l_p,
-+			   union type4_msg *z90cMsg_p)
-+{
-+	int mod_len, msg_size, mod_tgt_len, exp_tgt_len, inp_tgt_len;
-+	unsigned char *mod_tgt, *exp_tgt, *inp_tgt;
-+	union type4_msg *tmp_type4_msg;
-+
-+	mod_len = icaMex_p->inputdatalength;
-+
-+	msg_size = ((mod_len <= 128) ? TYPE4_SME_LEN : TYPE4_LME_LEN) +
-+		    CALLER_HEADER;
-+
-+	memset(z90cMsg_p, 0, msg_size);
-+
-+	tmp_type4_msg = (union type4_msg *)
-+		((unsigned char *) z90cMsg_p + CALLER_HEADER);
-+
-+	tmp_type4_msg->sme.header.msg_type_code = TYPE4_TYPE_CODE;
-+	tmp_type4_msg->sme.header.request_code = TYPE4_REQU_CODE;
-+
-+	if (mod_len <= 128) {
-+		tmp_type4_msg->sme.header.msg_fmt = TYPE4_SME_FMT;
-+		tmp_type4_msg->sme.header.msg_len = TYPE4_SME_LEN;
-+		mod_tgt = tmp_type4_msg->sme.modulus;
-+		mod_tgt_len = sizeof(tmp_type4_msg->sme.modulus);
-+		exp_tgt = tmp_type4_msg->sme.exponent;
-+		exp_tgt_len = sizeof(tmp_type4_msg->sme.exponent);
-+		inp_tgt = tmp_type4_msg->sme.message;
-+		inp_tgt_len = sizeof(tmp_type4_msg->sme.message);
-+	} else {
-+		tmp_type4_msg->lme.header.msg_fmt = TYPE4_LME_FMT;
-+		tmp_type4_msg->lme.header.msg_len = TYPE4_LME_LEN;
-+		mod_tgt = tmp_type4_msg->lme.modulus;
-+		mod_tgt_len = sizeof(tmp_type4_msg->lme.modulus);
-+		exp_tgt = tmp_type4_msg->lme.exponent;
-+		exp_tgt_len = sizeof(tmp_type4_msg->lme.exponent);
-+		inp_tgt = tmp_type4_msg->lme.message;
-+		inp_tgt_len = sizeof(tmp_type4_msg->lme.message);
-+	}
-+
-+	mod_tgt += (mod_tgt_len - mod_len);
-+	if (copy_from_user(mod_tgt, icaMex_p->n_modulus, mod_len))
-+		return SEN_RELEASED;
-+	if (is_empty(mod_tgt, mod_len))
-+		return SEN_USER_ERROR;
-+	exp_tgt += (exp_tgt_len - mod_len);
-+	if (copy_from_user(exp_tgt, icaMex_p->b_key, mod_len))
-+		return SEN_RELEASED;
-+	if (is_empty(exp_tgt, mod_len))
-+		return SEN_USER_ERROR;
-+	inp_tgt += (inp_tgt_len - mod_len);
-+	if (copy_from_user(inp_tgt, icaMex_p->inputdata, mod_len))
-+		return SEN_RELEASED;
-+	if (is_empty(inp_tgt, mod_len))
-+		return SEN_USER_ERROR;
-+
-+	*z90cMsg_l_p = msg_size - CALLER_HEADER;
-+
-+	return 0;
-+}
-+
-+static int
-+ICACRT_msg_to_type4CRT_msg(struct ica_rsa_modexpo_crt *icaMsg_p,
-+			   int *z90cMsg_l_p, union type4_msg *z90cMsg_p)
-+{
-+	int mod_len, short_len, long_len, tmp_size, p_tgt_len, q_tgt_len,
-+	    dp_tgt_len, dq_tgt_len, u_tgt_len, inp_tgt_len;
-+	unsigned char *p_tgt, *q_tgt, *dp_tgt, *dq_tgt, *u_tgt, *inp_tgt;
-+	union type4_msg *tmp_type4_msg;
-+
-+	mod_len = icaMsg_p->inputdatalength;
-+	short_len = mod_len / 2;
-+	long_len = mod_len / 2 + 8;
-+
-+	tmp_size = ((mod_len <= 128) ? TYPE4_SCR_LEN : TYPE4_LCR_LEN) +
-+		    CALLER_HEADER;
-+
-+	memset(z90cMsg_p, 0, tmp_size);
-+
-+	tmp_type4_msg = (union type4_msg *)
-+		((unsigned char *) z90cMsg_p + CALLER_HEADER);
-+
-+	tmp_type4_msg->scr.header.msg_type_code = TYPE4_TYPE_CODE;
-+	tmp_type4_msg->scr.header.request_code = TYPE4_REQU_CODE;
-+	if (mod_len <= 128) {
-+		tmp_type4_msg->scr.header.msg_fmt = TYPE4_SCR_FMT;
-+		tmp_type4_msg->scr.header.msg_len = TYPE4_SCR_LEN;
-+		p_tgt = tmp_type4_msg->scr.p;
-+		p_tgt_len = sizeof(tmp_type4_msg->scr.p);
-+		q_tgt = tmp_type4_msg->scr.q;
-+		q_tgt_len = sizeof(tmp_type4_msg->scr.q);
-+		dp_tgt = tmp_type4_msg->scr.dp;
-+		dp_tgt_len = sizeof(tmp_type4_msg->scr.dp);
-+		dq_tgt = tmp_type4_msg->scr.dq;
-+		dq_tgt_len = sizeof(tmp_type4_msg->scr.dq);
-+		u_tgt = tmp_type4_msg->scr.u;
-+		u_tgt_len = sizeof(tmp_type4_msg->scr.u);
-+		inp_tgt = tmp_type4_msg->scr.message;
-+		inp_tgt_len = sizeof(tmp_type4_msg->scr.message);
-+	} else {
-+		tmp_type4_msg->lcr.header.msg_fmt = TYPE4_LCR_FMT;
-+		tmp_type4_msg->lcr.header.msg_len = TYPE4_LCR_LEN;
-+		p_tgt = tmp_type4_msg->lcr.p;
-+		p_tgt_len = sizeof(tmp_type4_msg->lcr.p);
-+		q_tgt = tmp_type4_msg->lcr.q;
-+		q_tgt_len = sizeof(tmp_type4_msg->lcr.q);
-+		dp_tgt = tmp_type4_msg->lcr.dp;
-+		dp_tgt_len = sizeof(tmp_type4_msg->lcr.dp);
-+		dq_tgt = tmp_type4_msg->lcr.dq;
-+		dq_tgt_len = sizeof(tmp_type4_msg->lcr.dq);
-+		u_tgt = tmp_type4_msg->lcr.u;
-+		u_tgt_len = sizeof(tmp_type4_msg->lcr.u);
-+		inp_tgt = tmp_type4_msg->lcr.message;
-+		inp_tgt_len = sizeof(tmp_type4_msg->lcr.message);
-+	}
-+
-+	p_tgt += (p_tgt_len - long_len);
-+	if (copy_from_user(p_tgt, icaMsg_p->np_prime, long_len))
-+		return SEN_RELEASED;
-+	if (is_empty(p_tgt, long_len))
-+		return SEN_USER_ERROR;
-+	q_tgt += (q_tgt_len - short_len);
-+	if (copy_from_user(q_tgt, icaMsg_p->nq_prime, short_len))
-+		return SEN_RELEASED;
-+	if (is_empty(q_tgt, short_len))
-+		return SEN_USER_ERROR;
-+	dp_tgt += (dp_tgt_len - long_len);
-+	if (copy_from_user(dp_tgt, icaMsg_p->bp_key, long_len))
-+		return SEN_RELEASED;
-+	if (is_empty(dp_tgt, long_len))
-+		return SEN_USER_ERROR;
-+	dq_tgt += (dq_tgt_len - short_len);
-+	if (copy_from_user(dq_tgt, icaMsg_p->bq_key, short_len))
-+		return SEN_RELEASED;
-+	if (is_empty(dq_tgt, short_len))
-+		return SEN_USER_ERROR;
-+	u_tgt += (u_tgt_len - long_len);
-+	if (copy_from_user(u_tgt, icaMsg_p->u_mult_inv, long_len))
-+		return SEN_RELEASED;
-+	if (is_empty(u_tgt, long_len))
-+		return SEN_USER_ERROR;
-+	inp_tgt += (inp_tgt_len - mod_len);
-+	if (copy_from_user(inp_tgt, icaMsg_p->inputdata, mod_len))
-+		return SEN_RELEASED;
-+	if (is_empty(inp_tgt, mod_len))
-+		return SEN_USER_ERROR;
-+
-+	*z90cMsg_l_p = tmp_size - CALLER_HEADER;
-+
-+	return 0;
-+}
-+
-+static int
-+ICAMEX_msg_to_type6MEX_de_msg(struct ica_rsa_modexpo *icaMsg_p, int cdx,
-+			      int *z90cMsg_l_p, struct type6_msg *z90cMsg_p)
-+{
-+	int mod_len, vud_len, tmp_size, total_CPRB_len, parmBlock_l;
-+	unsigned char *temp;
-+	struct type6_hdr *tp6Hdr_p;
-+	struct CPRB *cprb_p;
-+	struct cca_private_ext_ME *key_p;
-+
-+	mod_len = icaMsg_p->inputdatalength;
-+	tmp_size = FIXED_TYPE6_ME_LEN + mod_len;
-+	total_CPRB_len = tmp_size - sizeof(struct type6_hdr);
-+	parmBlock_l = total_CPRB_len - sizeof(struct CPRB);
-+	tmp_size = 4*((tmp_size + 3)/4) + CALLER_HEADER;
-+
-+	memset(z90cMsg_p, 0, tmp_size);
-+
-+	temp = (unsigned char *)z90cMsg_p + CALLER_HEADER;
-+	memcpy(temp, &static_type6_hdr, sizeof(struct type6_hdr));
-+	tp6Hdr_p = (struct type6_hdr *)temp;
-+	tp6Hdr_p->ToCardLen1 = 4*((total_CPRB_len+3)/4);
-+	tp6Hdr_p->FromCardLen1 = RESPONSE_CPRB_SIZE;
-+
-+	temp += sizeof(struct type6_hdr);
-+	memcpy(temp, &static_cprb, sizeof(struct CPRB));
-+	cprb_p = (struct CPRB *) temp;
-+	cprb_p->usage_domain[0]= (unsigned char)cdx;
-+	itoLe2(&parmBlock_l, cprb_p->req_parml);
-+	itoLe2((int *)&(tp6Hdr_p->FromCardLen1), cprb_p->rpl_parml);
-+
-+	temp += sizeof(struct CPRB);
-+	memcpy(temp, &static_pkd_function_and_rules,
-+	       sizeof(struct function_and_rules_block));
-+
-+	temp += sizeof(struct function_and_rules_block);
-+	vud_len = 2 + icaMsg_p->inputdatalength;
-+	itoLe2(&vud_len, temp); 
-+
-+	temp += 2;
-+	if (copy_from_user(temp, icaMsg_p->inputdata, mod_len))
-+		return SEN_RELEASED;
-+	if (is_empty(temp, mod_len))
-+		return SEN_USER_ERROR;
-+
-+	temp += mod_len;
-+	memcpy(temp, &static_T6_keyBlock_hdr, sizeof(struct T6_keyBlock_hdr));
-+
-+	temp += sizeof(struct T6_keyBlock_hdr);
-+	memcpy(temp, &static_pvt_me_key, sizeof(struct cca_private_ext_ME));
-+	key_p = (struct cca_private_ext_ME *)temp;
-+	temp = key_p->pvtMESec.exponent + sizeof(key_p->pvtMESec.exponent)
-+	       - mod_len;
-+	if (copy_from_user(temp, icaMsg_p->b_key, mod_len))
-+		return SEN_RELEASED;
-+	if (is_empty(temp, mod_len))
-+		return SEN_USER_ERROR;
-+
-+	if (is_common_public_key(temp, mod_len)) {
-+		PRINTK("Common public key used for modex decrypt\n");
-+		return SEN_NOT_AVAIL;
-+	}
-+
-+	temp = key_p->pvtMESec.modulus + sizeof(key_p->pvtMESec.modulus)
-+	       - mod_len;
-+	if (copy_from_user(temp, icaMsg_p->n_modulus, mod_len) != 0)
-+		return SEN_RELEASED;
-+	if (is_empty(temp, mod_len))
-+		return SEN_USER_ERROR;
-+
-+	key_p->pubMESec.modulus_bit_len = 8 * mod_len;
-+
-+	*z90cMsg_l_p = tmp_size - CALLER_HEADER;
-+
-+	return 0;
-+}
-+
-+static int
-+ICAMEX_msg_to_type6MEX_en_msg(struct ica_rsa_modexpo *icaMsg_p, int cdx,
-+			      int *z90cMsg_l_p, struct type6_msg *z90cMsg_p)
-+{
-+	int mod_len, vud_len, exp_len, key_len;
-+	int pad_len, tmp_size, total_CPRB_len, parmBlock_l, i;
-+	unsigned char temp_exp[256], *exp_p, *temp;
-+	struct type6_hdr *tp6Hdr_p;
-+	struct CPRB *cprb_p;
-+	struct cca_public_key *key_p;
-+	struct T6_keyBlock_hdr *keyb_p;
-+
-+	mod_len = icaMsg_p->inputdatalength;
-+	if (copy_from_user(temp_exp, icaMsg_p->b_key, mod_len))
-+		return SEN_RELEASED;
-+	if (is_empty(temp_exp, mod_len))
-+		return SEN_USER_ERROR;
-+
-+	exp_p = temp_exp;
-+	for (i = 0; i < mod_len; i++)
-+		if (exp_p[i])
-+			break;
-+	if (i >= mod_len)
-+		return SEN_USER_ERROR;
-+
-+	exp_len = mod_len - i;
-+	exp_p += i;
-+
-+	PDEBUG("exp_len after computation: %08x\n", exp_len);
-+	tmp_size = FIXED_TYPE6_ME_EN_LEN + 2 * mod_len + exp_len;
-+	total_CPRB_len = tmp_size - sizeof(struct type6_hdr);
-+	parmBlock_l = total_CPRB_len - sizeof(struct CPRB);
-+	tmp_size = 4*((tmp_size + 3)/4) + CALLER_HEADER;
-+
-+	vud_len = 2 + mod_len;
-+	memset(z90cMsg_p, 0, tmp_size);
-+
-+	temp = (unsigned char *)z90cMsg_p + CALLER_HEADER;
-+	memcpy(temp, &static_type6_hdr, sizeof(struct type6_hdr));
-+	tp6Hdr_p = (struct type6_hdr *)temp;
-+	tp6Hdr_p->ToCardLen1 = 4*((total_CPRB_len+3)/4);
-+	tp6Hdr_p->FromCardLen1 = RESPONSE_CPRB_SIZE;
-+	memcpy(tp6Hdr_p->function_code, static_PKE_function_code,
-+	       sizeof(static_PKE_function_code));
-+	temp += sizeof(struct type6_hdr);
-+	memcpy(temp, &static_cprb, sizeof(struct CPRB));
-+	cprb_p = (struct CPRB *) temp;
-+	cprb_p->usage_domain[0]= (unsigned char)cdx;
-+	itoLe2((int *)&(tp6Hdr_p->FromCardLen1), cprb_p->rpl_parml);
-+	temp += sizeof(struct CPRB);
-+	memcpy(temp, &static_pke_function_and_rules,
-+		 sizeof(struct function_and_rules_block));
-+	temp += sizeof(struct function_and_rules_block);
-+	temp += 2;
-+	if (copy_from_user(temp, icaMsg_p->inputdata, mod_len))
-+		return SEN_RELEASED;
-+	if (is_empty(temp, mod_len))
-+		return SEN_USER_ERROR;
-+	if (temp[0] != 0x00 || temp[1] != 0x02)
-+		return SEN_NOT_AVAIL;
-+	for (i = 2; i < mod_len; i++)
-+		if (temp[i] == 0x00)
-+			break;
-+	if ((i < 9) || (i > (mod_len - 2)))
-+		return SEN_NOT_AVAIL;
-+	pad_len = i + 1;
-+	vud_len = mod_len - pad_len;
-+	memmove(temp, temp+pad_len, vud_len);
-+	temp -= 2;
-+	vud_len += 2;
-+	itoLe2(&vud_len, temp);
-+	temp += (vud_len);
-+	keyb_p = (struct T6_keyBlock_hdr *)temp;
-+	temp += sizeof(struct T6_keyBlock_hdr);
-+	memcpy(temp, &static_public_key, sizeof(static_public_key));
-+	key_p = (struct cca_public_key *)temp;
-+	temp = key_p->pubSec.exponent;
-+	memcpy(temp, exp_p, exp_len);
-+	temp += exp_len;
-+	if (copy_from_user(temp, icaMsg_p->n_modulus, mod_len))
-+		return SEN_RELEASED;
-+	if (is_empty(temp, mod_len))
-+		return SEN_USER_ERROR;
-+	key_p->pubSec.modulus_bit_len = 8 * mod_len;
-+	key_p->pubSec.modulus_byte_len = mod_len;
-+	key_p->pubSec.exponent_len = exp_len;
-+	key_p->pubSec.section_length = 12 + mod_len + exp_len;
-+	key_len = key_p->pubSec.section_length + sizeof(struct cca_token_hdr);
-+	key_p->pubHdr.token_length = key_len;
-+	key_len += 4;
-+	itoLe2(&key_len, keyb_p->ulen);
-+	key_len += 2;
-+	itoLe2(&key_len, keyb_p->blen);
-+	parmBlock_l -= pad_len;
-+	itoLe2(&parmBlock_l, cprb_p->req_parml);
-+	*z90cMsg_l_p = tmp_size - CALLER_HEADER;
-+
-+	return 0;
-+}
-+
-+static int
-+ICACRT_msg_to_type6CRT_msg(struct ica_rsa_modexpo_crt *icaMsg_p, int cdx,
-+			   int *z90cMsg_l_p, struct type6_msg *z90cMsg_p)
-+{
-+	int mod_len, vud_len, tmp_size, total_CPRB_len, parmBlock_l, short_len;
-+	int long_len, pad_len, keyPartsLen, tmp_l;
-+	unsigned char *tgt_p, *temp;
-+	struct type6_hdr *tp6Hdr_p;
-+	struct CPRB *cprb_p;
-+	struct cca_token_hdr *keyHdr_p;
-+	struct cca_pvt_ext_CRT_sec *pvtSec_p;
-+	struct cca_public_sec *pubSec_p;
-+
-+	mod_len = icaMsg_p->inputdatalength;
-+	short_len = mod_len / 2;
-+	long_len = 8 + short_len;
-+	keyPartsLen = 3 * long_len + 2 * short_len;
-+	pad_len = (8 - (keyPartsLen % 8)) % 8;
-+	keyPartsLen += pad_len + mod_len;
-+	tmp_size = FIXED_TYPE6_CR_LEN + keyPartsLen + mod_len;
-+	total_CPRB_len = tmp_size -  sizeof(struct type6_hdr);
-+	parmBlock_l = total_CPRB_len - sizeof(struct CPRB);
-+	vud_len = 2 + mod_len;	   
-+	tmp_size = 4*((tmp_size + 3)/4) + CALLER_HEADER;
-+
-+	memset(z90cMsg_p, 0, tmp_size);
-+	tgt_p = (unsigned char *)z90cMsg_p + CALLER_HEADER;
-+	memcpy(tgt_p, &static_type6_hdr, sizeof(struct type6_hdr));
-+	tp6Hdr_p = (struct type6_hdr *)tgt_p;
-+	tp6Hdr_p->ToCardLen1 = 4*((total_CPRB_len+3)/4);
-+	tp6Hdr_p->FromCardLen1 = RESPONSE_CPRB_SIZE;
-+	tgt_p += sizeof(struct type6_hdr);
-+	cprb_p = (struct CPRB *) tgt_p;
-+	memcpy(tgt_p, &static_cprb, sizeof(struct CPRB));
-+	cprb_p->usage_domain[0]= *((unsigned char *)(&(cdx))+3);
-+	itoLe2(&parmBlock_l, cprb_p->req_parml);
-+	memcpy(cprb_p->rpl_parml, cprb_p->req_parml,
-+	       sizeof(cprb_p->req_parml));
-+	tgt_p += sizeof(struct CPRB);
-+	memcpy(tgt_p, &static_pkd_function_and_rules,
-+	       sizeof(struct function_and_rules_block));
-+	tgt_p += sizeof(struct function_and_rules_block);
-+	itoLe2(&vud_len, tgt_p);
-+	tgt_p += 2;
-+	if (copy_from_user(tgt_p, icaMsg_p->inputdata, mod_len))
-+		return SEN_RELEASED;
-+	if (is_empty(tgt_p, mod_len))
-+		return SEN_USER_ERROR;
-+	tgt_p += mod_len;
-+	tmp_l = sizeof(struct T6_keyBlock_hdr) + sizeof(struct cca_token_hdr) +
-+		sizeof(struct cca_pvt_ext_CRT_sec) + 0x0F + keyPartsLen;
-+	itoLe2(&tmp_l, tgt_p);
-+	temp = tgt_p + 2;
-+	tmp_l -= 2;
-+	itoLe2(&tmp_l, temp);
-+	tgt_p += sizeof(struct T6_keyBlock_hdr);
-+	keyHdr_p = (struct cca_token_hdr *)tgt_p;
-+	keyHdr_p->token_identifier = CCA_TKN_HDR_ID_EXT;
-+	tmp_l -= 4;
-+	keyHdr_p->token_length = tmp_l;
-+	tgt_p += sizeof(struct cca_token_hdr);
-+	pvtSec_p = (struct cca_pvt_ext_CRT_sec *)tgt_p;
-+	pvtSec_p->section_identifier = CCA_PVT_EXT_CRT_SEC_ID_PVT;
-+	pvtSec_p->section_length =
-+		sizeof(struct cca_pvt_ext_CRT_sec) + keyPartsLen;
-+	pvtSec_p->key_format = CCA_PVT_EXT_CRT_SEC_FMT_CL;
-+	pvtSec_p->key_use_flags[0] = CCA_PVT_USAGE_ALL;
-+	pvtSec_p->p_len = long_len;
-+	pvtSec_p->q_len = short_len;
-+	pvtSec_p->dp_len = long_len;
-+	pvtSec_p->dq_len = short_len;
-+	pvtSec_p->u_len = long_len;
-+	pvtSec_p->mod_len = mod_len;
-+	pvtSec_p->pad_len = pad_len;
-+	tgt_p += sizeof(struct cca_pvt_ext_CRT_sec);
-+	if (copy_from_user(tgt_p, icaMsg_p->np_prime, long_len))
-+		return SEN_RELEASED;
-+	if (is_empty(tgt_p, long_len))
-+		return SEN_USER_ERROR;
-+	tgt_p += long_len;
-+	if (copy_from_user(tgt_p, icaMsg_p->nq_prime, short_len))
-+		return SEN_RELEASED;
-+	if (is_empty(tgt_p, short_len))
-+		return SEN_USER_ERROR;
-+	tgt_p += short_len;
-+	if (copy_from_user(tgt_p, icaMsg_p->bp_key, long_len))
-+		return SEN_RELEASED;
-+	if (is_empty(tgt_p, long_len))
-+		return SEN_USER_ERROR;
-+	tgt_p += long_len;
-+	if (copy_from_user(tgt_p, icaMsg_p->bq_key, short_len))
-+		return SEN_RELEASED;
-+	if (is_empty(tgt_p, short_len))
-+		return SEN_USER_ERROR;
-+	tgt_p += short_len;
-+	if (copy_from_user(tgt_p, icaMsg_p->u_mult_inv, long_len))
-+		return SEN_RELEASED;
-+	if (is_empty(tgt_p, long_len))
-+		return SEN_USER_ERROR;
-+	tgt_p += long_len;
-+	tgt_p += pad_len;
-+	memset(tgt_p, 0xFF, mod_len);
-+	tgt_p += mod_len;
-+	memcpy(tgt_p, &static_cca_pub_sec, sizeof(struct cca_public_sec));
-+	pubSec_p = (struct cca_public_sec *) tgt_p;
-+	pubSec_p->modulus_bit_len = 8 * mod_len;
-+	*z90cMsg_l_p = tmp_size - CALLER_HEADER;
-+
-+	return 0;
-+}
-+
-+static int
-+ICAMEX_msg_to_type6MEX_msgX(struct ica_rsa_modexpo *icaMsg_p, int cdx,
-+			    int *z90cMsg_l_p, struct type6_msg *z90cMsg_p)
-+{
-+	int mod_len, exp_len, vud_len, tmp_size, total_CPRB_len, parmBlock_l;
-+	int key_len, i;
-+	unsigned char temp_exp[256], *tgt_p, *temp, *exp_p;
-+	struct type6_hdr *tp6Hdr_p;
-+	struct CPRBX *cprbx_p;
-+	struct cca_public_key *key_p;
-+	struct T6_keyBlock_hdrX *keyb_p;
-+
-+	mod_len = icaMsg_p->inputdatalength;
-+	if (copy_from_user(temp_exp, icaMsg_p->b_key, mod_len))
-+		return SEN_RELEASED;
-+	if (is_empty(temp_exp, mod_len))
-+		return SEN_USER_ERROR;
-+	exp_p = temp_exp;
-+	for (i = 0; i < mod_len; i++)
-+		if (exp_p[i])
-+			break;
-+	if (i >= mod_len)
-+		return SEN_USER_ERROR;
-+	exp_len = mod_len - i;
-+	exp_p += i;
-+	PDEBUG("exp_len after computation: %08x\n", exp_len);
-+	tmp_size = FIXED_TYPE6_ME_EN_LENX + 2 * mod_len + exp_len;
-+	total_CPRB_len = tmp_size - sizeof(struct type6_hdr);
-+	parmBlock_l = total_CPRB_len - sizeof(struct CPRBX);
-+	tmp_size = tmp_size + CALLER_HEADER;
-+	vud_len = 2 + mod_len;
-+	memset(z90cMsg_p, 0, tmp_size);
-+	tgt_p = (unsigned char *)z90cMsg_p + CALLER_HEADER;
-+	memcpy(tgt_p, &static_type6_hdrX, sizeof(struct type6_hdr));
-+	tp6Hdr_p = (struct type6_hdr *)tgt_p;
-+	tp6Hdr_p->ToCardLen1 = total_CPRB_len;
-+	tp6Hdr_p->FromCardLen1 = RESPONSE_CPRBX_SIZE;
-+	memcpy(tp6Hdr_p->function_code, static_PKE_function_code,
-+	       sizeof(static_PKE_function_code));
-+	tgt_p += sizeof(struct type6_hdr);
-+	memcpy(tgt_p, &static_cprbx, sizeof(struct CPRBX));
-+	cprbx_p = (struct CPRBX *) tgt_p;
-+	cprbx_p->domain = (unsigned short)cdx;
-+	cprbx_p->rpl_msgbl = RESPONSE_CPRBX_SIZE;
-+	tgt_p += sizeof(struct CPRBX);
-+	memcpy(tgt_p, &static_pke_function_and_rulesX,
-+	       sizeof(struct function_and_rules_block));
-+	tgt_p += sizeof(struct function_and_rules_block);
-+
-+	tgt_p += 2;
-+	if (copy_from_user(tgt_p, icaMsg_p->inputdata, mod_len))
-+	      return SEN_RELEASED;
-+	if (is_empty(tgt_p, mod_len))
-+	      return SEN_USER_ERROR;
-+	tgt_p -= 2;
-+	*((short *)tgt_p) = (short) vud_len;
-+	tgt_p += vud_len;
-+	keyb_p = (struct T6_keyBlock_hdrX *)tgt_p;
-+	tgt_p += sizeof(struct T6_keyBlock_hdrX);
-+	memcpy(tgt_p, &static_public_key, sizeof(static_public_key));
-+	key_p = (struct cca_public_key *)tgt_p;
-+	temp = key_p->pubSec.exponent;
-+	memcpy(temp, exp_p, exp_len);
-+	temp += exp_len;
-+	if (copy_from_user(temp, icaMsg_p->n_modulus, mod_len))
-+	      return SEN_RELEASED;
-+	if (is_empty(temp, mod_len))
-+	      return SEN_USER_ERROR;
-+	key_p->pubSec.modulus_bit_len = 8 * mod_len;
-+	key_p->pubSec.modulus_byte_len = mod_len;
-+	key_p->pubSec.exponent_len = exp_len;
-+	key_p->pubSec.section_length = 12 + mod_len + exp_len;
-+	key_len = key_p->pubSec.section_length + sizeof(struct cca_token_hdr);
-+	key_p->pubHdr.token_length = key_len;
-+	key_len += 4;
-+	keyb_p->ulen = (unsigned short)key_len;
-+	key_len += 2;
-+	keyb_p->blen = (unsigned short)key_len;
-+	cprbx_p->req_parml = parmBlock_l;
-+	*z90cMsg_l_p = tmp_size - CALLER_HEADER;
-+
-+	return 0;
-+}
-+
-+static int
-+ICACRT_msg_to_type6CRT_msgX(struct ica_rsa_modexpo_crt *icaMsg_p, int cdx,
-+			    int *z90cMsg_l_p, struct type6_msg *z90cMsg_p)
-+{
-+	int mod_len, vud_len, tmp_size, total_CPRB_len, parmBlock_l, short_len;
-+	int long_len, pad_len, keyPartsLen, tmp_l;
-+	unsigned char *tgt_p, *temp;
-+	struct type6_hdr *tp6Hdr_p;
-+	struct CPRBX *cprbx_p;
-+	struct cca_token_hdr *keyHdr_p;
-+	struct cca_pvt_ext_CRT_sec *pvtSec_p;
-+	struct cca_public_sec *pubSec_p;
-+
-+	mod_len = icaMsg_p->inputdatalength;
-+	short_len = mod_len / 2;
-+	long_len = 8 + short_len;
-+	keyPartsLen = 3 * long_len + 2 * short_len;
-+	pad_len = (8 - (keyPartsLen % 8)) % 8;
-+	keyPartsLen += pad_len + mod_len;
-+	tmp_size = FIXED_TYPE6_CR_LENX + keyPartsLen + mod_len;
-+	total_CPRB_len = tmp_size -  sizeof(struct type6_hdr);
-+	parmBlock_l = total_CPRB_len - sizeof(struct CPRBX);
-+	vud_len = 2 + mod_len;
-+	tmp_size = tmp_size + CALLER_HEADER;
-+	memset(z90cMsg_p, 0, tmp_size);
-+	tgt_p = (unsigned char *)z90cMsg_p + CALLER_HEADER;
-+	memcpy(tgt_p, &static_type6_hdrX, sizeof(struct type6_hdr));
-+	tp6Hdr_p = (struct type6_hdr *)tgt_p;
-+	tp6Hdr_p->ToCardLen1 = total_CPRB_len;
-+	tp6Hdr_p->FromCardLen1 = RESPONSE_CPRBX_SIZE;
-+	tgt_p += sizeof(struct type6_hdr);
-+	cprbx_p = (struct CPRBX *) tgt_p;
-+	memcpy(tgt_p, &static_cprbx, sizeof(struct CPRBX));
-+	cprbx_p->domain = (unsigned short)cdx;
-+	cprbx_p->req_parml = parmBlock_l;
-+	cprbx_p->rpl_msgbl = parmBlock_l;
-+	tgt_p += sizeof(struct CPRBX);
-+	memcpy(tgt_p, &static_pkd_function_and_rulesX,
-+	       sizeof(struct function_and_rules_block));
-+	tgt_p += sizeof(struct function_and_rules_block);
-+	*((short *)tgt_p) = (short) vud_len;
-+	tgt_p += 2;
-+	if (copy_from_user(tgt_p, icaMsg_p->inputdata, mod_len))
-+		return SEN_RELEASED;
-+	if (is_empty(tgt_p, mod_len))
-+		return SEN_USER_ERROR;
-+	tgt_p += mod_len;
-+	tmp_l = sizeof(struct T6_keyBlock_hdr) + sizeof(struct cca_token_hdr) +
-+		sizeof(struct cca_pvt_ext_CRT_sec) + 0x0F + keyPartsLen;
-+	*((short *)tgt_p) = (short) tmp_l;
-+	temp = tgt_p + 2;
-+	tmp_l -= 2;
-+	*((short *)temp) = (short) tmp_l;
-+	tgt_p += sizeof(struct T6_keyBlock_hdr);
-+	keyHdr_p = (struct cca_token_hdr *)tgt_p;
-+	keyHdr_p->token_identifier = CCA_TKN_HDR_ID_EXT;
-+	tmp_l -= 4;
-+	keyHdr_p->token_length = tmp_l;
-+	tgt_p += sizeof(struct cca_token_hdr);
-+	pvtSec_p = (struct cca_pvt_ext_CRT_sec *)tgt_p;
-+	pvtSec_p->section_identifier = CCA_PVT_EXT_CRT_SEC_ID_PVT;
-+	pvtSec_p->section_length =
-+		sizeof(struct cca_pvt_ext_CRT_sec) + keyPartsLen;
-+	pvtSec_p->key_format = CCA_PVT_EXT_CRT_SEC_FMT_CL;
-+	pvtSec_p->key_use_flags[0] = CCA_PVT_USAGE_ALL;
-+	pvtSec_p->p_len = long_len;
-+	pvtSec_p->q_len = short_len;
-+	pvtSec_p->dp_len = long_len;
-+	pvtSec_p->dq_len = short_len;
-+	pvtSec_p->u_len = long_len;
-+	pvtSec_p->mod_len = mod_len;
-+	pvtSec_p->pad_len = pad_len;
-+	tgt_p += sizeof(struct cca_pvt_ext_CRT_sec);
-+	if (copy_from_user(tgt_p, icaMsg_p->np_prime, long_len))
-+		return SEN_RELEASED;
-+	if (is_empty(tgt_p, long_len))
-+		return SEN_USER_ERROR;
-+	tgt_p += long_len;
-+	if (copy_from_user(tgt_p, icaMsg_p->nq_prime, short_len))
-+		return SEN_RELEASED;
-+	if (is_empty(tgt_p, short_len))
-+		return SEN_USER_ERROR;
-+	tgt_p += short_len;
-+	if (copy_from_user(tgt_p, icaMsg_p->bp_key, long_len))
-+		return SEN_RELEASED;
-+	if (is_empty(tgt_p, long_len))
-+		return SEN_USER_ERROR;
-+	tgt_p += long_len;
-+	if (copy_from_user(tgt_p, icaMsg_p->bq_key, short_len))
-+		return SEN_RELEASED;
-+	if (is_empty(tgt_p, short_len))
-+		return SEN_USER_ERROR;
-+	tgt_p += short_len;
-+	if (copy_from_user(tgt_p, icaMsg_p->u_mult_inv, long_len))
-+		return SEN_RELEASED;
-+	if (is_empty(tgt_p, long_len))
-+		return SEN_USER_ERROR;
-+	tgt_p += long_len;
-+	tgt_p += pad_len;
-+	memset(tgt_p, 0xFF, mod_len);
-+	tgt_p += mod_len;
-+	memcpy(tgt_p, &static_cca_pub_sec, sizeof(struct cca_public_sec));
-+	pubSec_p = (struct cca_public_sec *) tgt_p;
-+	pubSec_p->modulus_bit_len = 8 * mod_len;
-+	*z90cMsg_l_p = tmp_size - CALLER_HEADER;
-+
-+	return 0;
-+}
-+
++#include <linux/moduleparam.h>
++#include <linux/miscdevice.h>
++#include <linux/major.h>
+ #include <linux/blkdev.h>
+ #include <scsi/scsi.h>
+ #include <scsi/scsi_tcq.h>
+ #include <scsi/scsi_cmnd.h>
+ #include <scsi/scsi_device.h>
+ #include <scsi/scsi_host.h>
+-#include "../../scsi/scsi.h"
+ #include "../../fc4/fc.h"
+-#include "zfcp_fsf.h"			/* FSF SW Interface */
++#include "zfcp_fsf.h"
+ #include <asm/ccwdev.h>
+ #include <asm/qdio.h>
+ #include <asm/debug.h>
+ #include <asm/ebcdic.h>
+ #include <linux/reboot.h>
+ #include <linux/mempool.h>
++#include <linux/syscalls.h>
+ #include <linux/ioctl.h>
+ #ifdef CONFIG_S390_SUPPORT
+ #include <linux/ioctl32.h>
+@@ -60,10 +64,6 @@
+ /************************ DEBUG FLAGS *****************************************/
+ 
+ #define	ZFCP_PRINT_FLAGS
+-#define	ZFCP_DEBUG_REQUESTS     /* fsf_req tracing */
+-#define ZFCP_DEBUG_COMMANDS     /* host_byte tracing */
+-#define ZFCP_DEBUG_ABORTS       /* scsi_cmnd abort tracing */
+-#define ZFCP_DEBUG_INCOMING_ELS /* incoming ELS tracing */
+ #define	ZFCP_STAT_REQSIZES
+ #define	ZFCP_STAT_QUEUES
+ 
+@@ -723,11 +723,6 @@
+ 
+ #define ZFCP_CFDC_MAX_CONTROL_FILE_SIZE		127 * 1024
+ 
+-static const char zfcp_act_subtable_type[5][8] = {
+-	{"unknown"}, {"OS"}, {"WWPN"}, {"DID"}, {"LUN"}
+-};
+-
+-
+ /************************* STRUCTURE DEFINITIONS *****************************/
+ 
+ struct zfcp_fsf_req;
+@@ -937,8 +932,6 @@
+ 
+ 
+ struct zfcp_adapter {
+-	u32			common_magic;	   /* driver common magic */
+-	u32			specific_magic;	   /* struct specific magic */
+ 	struct list_head	list;              /* list of adapters */
+ 	atomic_t                refcount;          /* reference count */
+ 	wait_queue_head_t	remove_wq;         /* can be used to wait for
+@@ -956,14 +949,12 @@
+         u32			hardware_version;  /* of FCP channel */
+         u8			serial_number[32]; /* of hardware */
+ 	struct Scsi_Host	*scsi_host;	   /* Pointer to mid-layer */
+-
++	unsigned short          scsi_host_no;      /* Assigned host number */
+ 	unsigned char		name[9];
+ 	struct list_head	port_list_head;	   /* remote port list */
+ 	struct list_head        port_remove_lh;    /* head of ports to be
+ 						      removed */
+ 	u32			ports;	           /* number of remote ports */
+-	scsi_id_t		max_scsi_id;	   /* largest SCSI ID */
+-	scsi_lun_t		max_scsi_lun;	   /* largest SCSI LUN */
+         struct timer_list       scsi_er_timer;     /* SCSI err recovery watch */
+ 	struct list_head	fsf_req_list_head; /* head of FSF req list */
+ 	rwlock_t		fsf_req_list_lock; /* lock for ops on list of
+@@ -1003,9 +994,13 @@
+ 	struct qdio_initialize  qdio_init_data;    /* for qdio_establish */
+ };
+ 
++/*
++ * the struct device sysfs_device must be at the beginning of this structure.
++ * pointer to struct device is used to free port structure in release function
++ * of the device. don't change!
++ */
+ struct zfcp_port {
+-	u32		       common_magic;   /* driver wide common magic */
+-	u32		       specific_magic; /* structure specific magic */
++	struct device          sysfs_device;   /* sysfs device */
+ 	struct list_head       list;	       /* list of remote ports */
+ 	atomic_t               refcount;       /* reference count */
+ 	wait_queue_head_t      remove_wq;      /* can be used to wait for
+@@ -1020,37 +1015,36 @@
+ 	wwn_t		       wwnn;	       /* WWNN if known */
+ 	wwn_t		       wwpn;	       /* WWPN */
+ 	fc_id_t		       d_id;	       /* D_ID */
+-	scsi_lun_t	       max_scsi_lun;   /* largest SCSI LUN */
+ 	u32		       handle;	       /* handle assigned by FSF */
+ 	struct zfcp_erp_action erp_action;     /* pending error recovery */
+         atomic_t               erp_counter;
+-	struct device          sysfs_device;   /* sysfs device */
+ };
+ 
++/* the struct device sysfs_device must be at the beginning of this structure.
++ * pointer to struct device is used to free unit structure in release function
++ * of the device. don't change!
++ */
+ struct zfcp_unit {
+-	u32		       common_magic;   /* driver wide common magic */
+-	u32		       specific_magic; /* structure specific magic */
++	struct device          sysfs_device;   /* sysfs device */
+ 	struct list_head       list;	       /* list of logical units */
+ 	atomic_t               refcount;       /* reference count */
+ 	wait_queue_head_t      remove_wq;      /* can be used to wait for
+ 						  refcount drop to zero */
+ 	struct zfcp_port       *port;	       /* remote port of unit */
+ 	atomic_t	       status;	       /* status of this logical unit */
++	u32		       lun_access;     /* access flags for this unit */
+ 	scsi_lun_t	       scsi_lun;       /* own SCSI LUN */
+ 	fcp_lun_t	       fcp_lun;	       /* own FCP_LUN */
+ 	u32		       handle;	       /* handle assigned by FSF */
+         struct scsi_device     *device;        /* scsi device struct pointer */
+ 	struct zfcp_erp_action erp_action;     /* pending error recovery */
+         atomic_t               erp_counter;
+-	struct device          sysfs_device;   /* sysfs device */
+ 	atomic_t               scsi_add_work;  /* used to synchronize */
+ 	wait_queue_head_t      scsi_add_wq;    /* wait for scsi_add_device */
+ };
+ 
+ /* FSF request */
+ struct zfcp_fsf_req {
+-	u32		       common_magic;   /* driver wide common magic */
+-	u32		       specific_magic; /* structure specific magic */
+ 	struct list_head       list;	       /* list of FSF requests */
+ 	struct zfcp_adapter    *adapter;       /* adapter request belongs to */
+ 	u8		       sbal_number;    /* nr of SBALs free for use */
+@@ -1158,13 +1152,6 @@
+ #define ZFCP_INTERRUPTIBLE	1
+ #define ZFCP_UNINTERRUPTIBLE	0
+ 
+-/* some magics which may be used to authenticate data structures */
+-#define ZFCP_MAGIC		0xFCFCFCFC
+-#define ZFCP_MAGIC_ADAPTER	0xAAAAAAAA
+-#define ZFCP_MAGIC_PORT		0xBBBBBBBB
+-#define ZFCP_MAGIC_UNIT		0xCCCCCCCC
+-#define ZFCP_MAGIC_FSFREQ	0xEEEEEEEE
+-
+ #ifndef atomic_test_mask
+ #define atomic_test_mask(mask, target) \
+            ((atomic_read(target) & mask) == mask)
+diff -urN linux-2.6/drivers/s390/scsi/zfcp_erp.c linux-2.6-s390/drivers/s390/scsi/zfcp_erp.c
+--- linux-2.6/drivers/s390/scsi/zfcp_erp.c	Sun Apr  4 05:36:26 2004
++++ linux-2.6-s390/drivers/s390/scsi/zfcp_erp.c	Thu Apr  8 15:21:27 2004
+@@ -31,7 +31,7 @@
+ #define ZFCP_LOG_AREA			ZFCP_LOG_AREA_ERP
+ 
+ /* this drivers version (do not edit !!! generated and updated by cvs) */
+-#define ZFCP_ERP_REVISION "$Revision: 1.44 $"
++#define ZFCP_ERP_REVISION "$Revision: 1.49 $"
+ 
+ #include "zfcp_ext.h"
+ 
+@@ -1202,7 +1202,7 @@
+  * returns:	0 - there was an action to handle
+  *		!0 - otherwise
+  */
+-static int
 +int
-+convert_request(unsigned char *buffer, int func, unsigned short function,
-+		int cdx, int dev_type, int *msg_l_p, unsigned char *msg_p)
+ zfcp_erp_async_handler(struct zfcp_erp_action *erp_action,
+ 		       unsigned long set_mask)
+ {
+@@ -1218,28 +1218,6 @@
+ }
+ 
+ /*
+- * purpose:	is called for finished FSF requests related to erp,
+- *		moves concerned erp action to 'ready' queue and
+- *		signals erp thread to process it,
+- *		besides it cancels a timeout
+- */
+-void
+-zfcp_erp_fsf_req_handler(struct zfcp_fsf_req *fsf_req)
+-{
+-	struct zfcp_erp_action *erp_action = fsf_req->erp_action;
+-	struct zfcp_adapter *adapter = fsf_req->adapter;
+-
+-	debug_text_event(adapter->erp_dbf, 3, "a_frh");
+-	debug_event(adapter->erp_dbf, 3, &erp_action->action, sizeof (int));
+-
+-	if (erp_action) {
+-		debug_event(adapter->erp_dbf, 3, &erp_action->action,
+-			    sizeof (int));
+-		zfcp_erp_async_handler(erp_action, 0);
+-	}
+-}
+-
+-/*
+  * purpose:	is called for erp_action which was slept waiting for
+  *		memory becoming avaliable,
+  *		will trigger that this action will be continued
+@@ -1892,7 +1870,7 @@
+ 			      unit->fcp_lun,
+ 			      unit->port->wwpn,
+ 			      zfcp_get_busid_by_unit(unit));
+-		atomic_set(&p->unit->scsi_add_work, 0);
++		atomic_set(&unit->scsi_add_work, 0);
+ 		return -ENOMEM;
+ 	}
+ 
+@@ -2500,10 +2478,8 @@
+ 		    ("bug: Could not clean QDIO (data transfer mechanism) "
+ 		     "queues. (debug info %i).\n", retval_cleanup);
+ 	}
+-#ifdef ZFCP_DEBUG_REQUESTS
+ 	else
+ 		debug_text_event(adapter->req_dbf, 1, "q_clean");
+-#endif				/* ZFCP_DEBUG_REQUESTS */
+ 
+  failed_qdio_establish:
+ 	atomic_clear_mask(ZFCP_STATUS_ADAPTER_QDIOUP, &adapter->status);
+@@ -2577,9 +2553,7 @@
+ 		     zfcp_get_busid_by_adapter(adapter));
+ 	} else {
+ 		ZFCP_LOG_DEBUG("queues cleaned up\n");
+-#ifdef ZFCP_DEBUG_REQUESTS
+ 		debug_text_event(adapter->req_dbf, 1, "q_clean");
+-#endif				/* ZFCP_DEBUG_REQUESTS */
+ 	}
+ 
+ 	/*
+diff -urN linux-2.6/drivers/s390/scsi/zfcp_ext.h linux-2.6-s390/drivers/s390/scsi/zfcp_ext.h
+--- linux-2.6/drivers/s390/scsi/zfcp_ext.h	Sun Apr  4 05:36:45 2004
++++ linux-2.6-s390/drivers/s390/scsi/zfcp_ext.h	Thu Apr  8 15:21:27 2004
+@@ -31,7 +31,7 @@
+ #ifndef ZFCP_EXT_H
+ #define ZFCP_EXT_H
+ /* this drivers version (do not edit !!! generated and updated by cvs) */
+-#define ZFCP_EXT_REVISION "$Revision: 1.45 $"
++#define ZFCP_EXT_REVISION "$Revision: 1.49 $"
+ 
+ #include "zfcp_def.h"
+ 
+@@ -55,7 +55,9 @@
+ extern struct zfcp_port *zfcp_get_port_by_wwpn(struct zfcp_adapter *,
+ 					       wwn_t wwpn);
+ extern struct zfcp_adapter *zfcp_adapter_enqueue(struct ccw_device *);
++extern int    zfcp_adapter_debug_register(struct zfcp_adapter *);
+ extern void   zfcp_adapter_dequeue(struct zfcp_adapter *);
++extern void   zfcp_adapter_debug_unregister(struct zfcp_adapter *);
+ extern struct zfcp_port *zfcp_port_enqueue(struct zfcp_adapter *, wwn_t, u32);
+ extern void   zfcp_port_dequeue(struct zfcp_port *);
+ extern struct zfcp_unit *zfcp_unit_enqueue(struct zfcp_port *, fcp_lun_t);
+@@ -158,7 +160,7 @@
+ extern int  zfcp_erp_thread_setup(struct zfcp_adapter *);
+ extern int  zfcp_erp_thread_kill(struct zfcp_adapter *);
+ extern int  zfcp_erp_wait(struct zfcp_adapter *);
+-extern void zfcp_erp_fsf_req_handler(struct zfcp_fsf_req *);
++extern int  zfcp_erp_async_handler(struct zfcp_erp_action *, unsigned long);
+ 
+ extern int  zfcp_test_link(struct zfcp_port *);
+ 
+diff -urN linux-2.6/drivers/s390/scsi/zfcp_fsf.c linux-2.6-s390/drivers/s390/scsi/zfcp_fsf.c
+--- linux-2.6/drivers/s390/scsi/zfcp_fsf.c	Sun Apr  4 05:37:37 2004
++++ linux-2.6-s390/drivers/s390/scsi/zfcp_fsf.c	Thu Apr  8 15:21:27 2004
+@@ -29,7 +29,7 @@
+  */
+ 
+ /* this drivers version (do not edit !!! generated and updated by cvs) */
+-#define ZFCP_FSF_C_REVISION "$Revision: 1.29 $"
++#define ZFCP_FSF_C_REVISION "$Revision: 1.43 $"
+ 
+ #include "zfcp_ext.h"
+ 
+@@ -78,6 +78,11 @@
+ 	[FSF_QTCB_UPLOAD_CONTROL_FILE] =  FSF_SUPPORT_COMMAND
+ };
+ 
++static const char zfcp_act_subtable_type[5][8] = {
++	{"unknown"}, {"OS"}, {"WWPN"}, {"DID"}, {"LUN"}
++};
++
++
+ /****************************************************************/
+ /*************** FSF related Functions  *************************/
+ /****************************************************************/
+@@ -320,7 +325,7 @@
+ 			     sizeof(struct fsf_qtcb));
+ 			goto forget_log;
+ 		}
+-		if ((fsf_req->qtcb->header.log_start +
++		if ((size_t) (fsf_req->qtcb->header.log_start +
+ 		     fsf_req->qtcb->header.log_length)
+ 		    > sizeof(struct fsf_qtcb)) {
+ 			ZFCP_LOG_NORMAL("bug: ULP (FSF logging) log data ends "
+@@ -388,7 +393,6 @@
+ 				zfcp_get_busid_by_adapter(adapter),
+ 				fsf_req->qtcb->prefix.prot_status_qual.
+ 				sequence_error.exp_req_seq_no);
+-#ifdef ZFCP_DEBUG_REQUESTS
+ 		debug_text_event(adapter->req_dbf, 1, "exp_seq!");
+ 		debug_event(adapter->req_dbf, 1,
+ 			    &fsf_req->qtcb->prefix.prot_status_qual.
+@@ -396,7 +400,6 @@
+ 		debug_text_event(adapter->req_dbf, 1, "qtcb_seq!");
+ 		debug_exception(adapter->req_dbf, 1,
+ 				&fsf_req->qtcb->prefix.req_seq_no, 4);
+-#endif				/* ZFCP_DEBUG_REQUESTS */
+ 		debug_text_exception(adapter->erp_dbf, 0, "prot_seq_err");
+ 		/* restart operation on this adapter */
+ 		zfcp_erp_adapter_reopen(adapter, 0);
+@@ -771,6 +774,8 @@
+ static int
+ zfcp_fsf_req_dispatch(struct zfcp_fsf_req *fsf_req)
+ {
++	struct zfcp_erp_action *erp_action = fsf_req->erp_action;
++	struct zfcp_adapter *adapter = fsf_req->adapter;
+ 	int retval = 0;
+ 
+ 	if (unlikely(fsf_req->status & ZFCP_STATUS_FSFREQ_ERROR)) {
+@@ -861,7 +866,13 @@
+ 			     fsf_req->qtcb->header.fsf_command);
+ 	}
+ 
+-        zfcp_erp_fsf_req_handler(fsf_req);
++	if (!erp_action)
++		return retval;
++
++	debug_text_event(adapter->erp_dbf, 3, "a_frh");
++	debug_event(adapter->erp_dbf, 3, &erp_action->action, sizeof (int));
++	zfcp_erp_async_handler(erp_action, 0);
++
+ 	return retval;
+ }
+ 
+@@ -924,9 +935,7 @@
+ 	ZFCP_LOG_TRACE("Status Read request initiated "
+ 		       "(adapter busid=%s)\n",
+ 		       zfcp_get_busid_by_adapter(adapter));
+-#ifdef ZFCP_DEBUG_REQUESTS
+ 	debug_text_event(adapter->req_dbf, 1, "unso");
+-#endif
+ 	goto out;
+ 
+  failed_req_send:
+@@ -1044,8 +1053,12 @@
+ 
+ 	case FSF_STATUS_READ_LINK_DOWN:
+ 		ZFCP_LOG_FLAGS(1, "FSF_STATUS_READ_LINK_DOWN\n");
+-
+-		/* Unneccessary, ignoring.... */
++		debug_text_event(adapter->erp_dbf, 0, "unsol_link_down:");
++		ZFCP_LOG_INFO("Local link to adapter %s is down\n",
++			      zfcp_get_busid_by_adapter(adapter));
++		atomic_set_mask(ZFCP_STATUS_ADAPTER_LINK_UNPLUGGED,
++				&adapter->status);
++		zfcp_erp_adapter_failed(adapter);
+ 		break;
+ 
+ 	case FSF_STATUS_READ_LINK_UP:
+@@ -1065,27 +1078,6 @@
+ 
+ 		break;
+ 
+-	case FSF_STATUS_READ_NOTIFICATION_LOST:
+-		ZFCP_LOG_FLAGS(1, "FSF_STATUS_READ_NOTIFICATION_LOST\n");
+-		debug_text_event(adapter->erp_dbf, 2, "unsol_not_lost:");
+-		switch (status_buffer->status_subtype) {
+-		case FSF_STATUS_READ_SUB_LOST_CFDC_UPDATED:
+-			ZFCP_LOG_NORMAL(
+-				"The unsolicited status information about "
+-				"CFDC update on the adapter %s is lost "
+-				"due to the lack of internal resources\n",
+-				zfcp_get_busid_by_adapter(adapter));
+-			break;
+-		case FSF_STATUS_READ_SUB_LOST_CFDC_HARDENED:
+-			ZFCP_LOG_NORMAL(
+-				"The unsolicited status information about "
+-				"CFDC harden on the adapter %s is lost "
+-				"due to the lack of internal resources\n",
+-				zfcp_get_busid_by_adapter(adapter));
+-			break;
+-		}
+-		break;
+-
+ 	case FSF_STATUS_READ_CFDC_UPDATED:
+ 		ZFCP_LOG_FLAGS(1, "FSF_STATUS_READ_CFDC_UPDATED\n");
+ 		debug_text_event(adapter->erp_dbf, 2, "unsol_cfdc_update:");
+@@ -1344,16 +1336,10 @@
+ 	case FSF_FCP_COMMAND_DOES_NOT_EXIST:
+ 		ZFCP_LOG_FLAGS(2, "FSF_FCP_COMMAND_DOES_NOT_EXIST\n");
+ 		retval = 0;
+-#ifdef ZFCP_DEBUG_REQUESTS
+-		/*
+-		 * debug feature area which records
+-		 * fsf request sequence numbers
+-		 */
+ 		debug_text_event(new_fsf_req->adapter->req_dbf, 3, "no_exist");
+ 		debug_event(new_fsf_req->adapter->req_dbf, 3,
+ 			    &new_fsf_req->qtcb->bottom.support.req_handle,
+ 			    sizeof (unsigned long));
+-#endif				/* ZFCP_DEBUG_REQUESTS */
+ 		debug_text_event(new_fsf_req->adapter->erp_dbf, 3,
+ 				 "fsf_s_no_exist");
+ 		new_fsf_req->status |= ZFCP_STATUS_FSFREQ_ABORTNOTNEEDED;
+@@ -1670,20 +1656,19 @@
+ 				"to a port with WWPN 0x%Lx connected "
+ 				"to the adapter %s\n", port->wwpn,
+ 				zfcp_get_busid_by_port(port));
+-		counter = 0;
+-		do {
+-			subtable = header->fsf_status_qual.halfword[counter++];
+-			rule = header->fsf_status_qual.halfword[counter++];
++		for (counter = 0; counter < 2; counter++) {
++			subtable = header->fsf_status_qual.halfword[counter * 2];
++			rule = header->fsf_status_qual.halfword[counter * 2 + 1];
+ 			switch (subtable) {
+ 			case FSF_SQ_CFDC_SUBTABLE_OS:
+ 			case FSF_SQ_CFDC_SUBTABLE_PORT_WWPN:
+ 			case FSF_SQ_CFDC_SUBTABLE_PORT_DID:
+ 			case FSF_SQ_CFDC_SUBTABLE_LUN:
+-       				ZFCP_LOG_NORMAL("Access denied (%s rule %d)\n",
++       				ZFCP_LOG_INFO("Access denied (%s rule %d)\n",
+ 					zfcp_act_subtable_type[subtable], rule);
+ 				break;
+ 			}
+-		} while (counter < 4);
++		}
+ 		debug_text_event(fsf_req->adapter->erp_dbf, 1, "fsf_s_access");
+ 		fsf_req->status |= ZFCP_STATUS_FSFREQ_ERROR;
+ 		break;
+@@ -2036,20 +2021,19 @@
+ 		ZFCP_LOG_NORMAL("Access denied, cannot send ELS "
+ 				"(adapter: %s, wwpn=0x%016Lx)\n",
+ 				zfcp_get_busid_by_port(port), port->wwpn);
+-		counter = 0;
+-		do {
+-			subtable = header->fsf_status_qual.halfword[counter++];
+-			rule = header->fsf_status_qual.halfword[counter++];
++		for (counter = 0; counter < 2; counter++) {
++			subtable = header->fsf_status_qual.halfword[counter * 2];
++			rule = header->fsf_status_qual.halfword[counter * 2 + 1];
+ 			switch (subtable) {
+ 			case FSF_SQ_CFDC_SUBTABLE_OS:
+ 			case FSF_SQ_CFDC_SUBTABLE_PORT_WWPN:
+ 			case FSF_SQ_CFDC_SUBTABLE_PORT_DID:
+ 			case FSF_SQ_CFDC_SUBTABLE_LUN:
+-				ZFCP_LOG_NORMAL("Access denied (%s rule %d)\n",
++				ZFCP_LOG_INFO("Access denied (%s rule %d)\n",
+ 					zfcp_act_subtable_type[subtable], rule);
+ 				break;
+ 			}
+-		} while (counter < 4);
++		}
+ 		debug_text_event(adapter->erp_dbf, 1, "fsf_s_access");
+ 		fsf_req->status |= ZFCP_STATUS_FSFREQ_ERROR;
+ 		break;
+@@ -2114,7 +2098,8 @@
+ 
+ 	erp_action->fsf_req->erp_action = erp_action;
+ 	erp_action->fsf_req->qtcb->bottom.config.feature_selection =
+-		FSF_FEATURE_CFDC;
++		FSF_FEATURE_CFDC |
++		FSF_FEATURE_LOST_SAN_NOTIFICATION;
+ 
+ 	/* start QDIO request for this FSF request */
+ 	retval = zfcp_fsf_req_send(erp_action->fsf_req, &erp_action->timer);
+@@ -2138,6 +2123,84 @@
+ 	return retval;
+ }
+ 
++/**
++ * zfcp_fsf_exchange_config_evaluate
++ * @fsf_req: fsf_req which belongs to xchg config data request
++ * @xchg_ok: specifies if xchg config data was incomplete or complete (0/1)
++ *
++ * returns: -EIO on error, 0 otherwise
++ */
++static int
++zfcp_fsf_exchange_config_evaluate(struct zfcp_fsf_req *fsf_req, int xchg_ok)
 +{
-+	if (dev_type == PCICA) {
-+		if (func == ICARSACRT)
-+			return ICACRT_msg_to_type4CRT_msg(
-+				(struct ica_rsa_modexpo_crt *) buffer,
-+				msg_l_p, (union type4_msg *) msg_p);
-+		else
-+			return ICAMEX_msg_to_type4MEX_msg(
-+				(struct ica_rsa_modexpo *) buffer,
-+				msg_l_p, (union type4_msg *) msg_p);
-+	}
-+	if (dev_type == PCICC) {
-+		if (func == ICARSACRT)
-+			return ICACRT_msg_to_type6CRT_msg(
-+				(struct ica_rsa_modexpo_crt *) buffer,
-+				cdx, msg_l_p, (struct type6_msg *)msg_p);
-+		if (function == PCI_FUNC_KEY_ENCRYPT)
-+			return ICAMEX_msg_to_type6MEX_en_msg(
-+				(struct ica_rsa_modexpo *) buffer,
-+				cdx, msg_l_p, (struct type6_msg *) msg_p);
-+		else
-+			return ICAMEX_msg_to_type6MEX_de_msg(
-+				(struct ica_rsa_modexpo *) buffer,
-+				cdx, msg_l_p, (struct type6_msg *) msg_p);
-+	}
-+	if (dev_type == PCIXCC) {
-+		if (func == ICARSACRT)
-+			return ICACRT_msg_to_type6CRT_msgX(
-+				(struct ica_rsa_modexpo_crt *) buffer,
-+				cdx, msg_l_p, (struct type6_msg *) msg_p);
-+		else
-+			return ICAMEX_msg_to_type6MEX_msgX(
-+				(struct ica_rsa_modexpo *) buffer,
-+				cdx, msg_l_p, (struct type6_msg *) msg_p);
++	struct fsf_qtcb_bottom_config *bottom;
++	struct zfcp_adapter *adapter = fsf_req->adapter;
++
++	bottom = &fsf_req->qtcb->bottom.config;
++	ZFCP_LOG_DEBUG("low/high QTCB version 0x%x/0x%x of FSF\n",
++		       bottom->low_qtcb_version, bottom->high_qtcb_version);
++	adapter->fsf_lic_version = bottom->lic_version;
++	adapter->supported_features = bottom->supported_features;
++
++	if (xchg_ok) {
++		adapter->wwnn = bottom->nport_serv_param.wwnn;
++		adapter->wwpn = bottom->nport_serv_param.wwpn;
++		adapter->s_id = bottom->s_id & ZFCP_DID_MASK;
++		adapter->fc_topology = bottom->fc_topology;
++		adapter->fc_link_speed = bottom->fc_link_speed;
++		adapter->hydra_version = bottom->adapter_type;
++	} else {
++		adapter->wwnn = 0;
++		adapter->wwpn = 0;
++		adapter->s_id = 0;
++		adapter->fc_topology = 0;
++		adapter->fc_link_speed = 0;
++		adapter->hydra_version = 0;
 +	}
 +
++	if(adapter->supported_features & FSF_FEATURE_HBAAPI_MANAGEMENT){
++		adapter->hardware_version = bottom->hardware_version;
++		memcpy(adapter->serial_number, bottom->serial_number, 17);
++		EBCASC(adapter->serial_number, sizeof(adapter->serial_number));
++	}
++
++	ZFCP_LOG_INFO("The adapter %s reported the following characteristics:\n"
++		      "WWNN 0x%016Lx, "
++		      "WWPN 0x%016Lx, "
++		      "S_ID 0x%08x,\n"
++		      "adapter version 0x%x, "
++		      "LIC version 0x%x, "
++		      "FC link speed %d Gb/s\n",
++		      zfcp_get_busid_by_adapter(adapter),
++		      adapter->wwnn,
++		      adapter->wwpn,
++		      (unsigned int) adapter->s_id,
++		      adapter->hydra_version,
++		      adapter->fsf_lic_version,
++		      adapter->fc_link_speed);
++	if (ZFCP_QTCB_VERSION < bottom->low_qtcb_version) {
++		ZFCP_LOG_NORMAL("error: the adapter %s "
++				"only supports newer control block "
++				"versions in comparison to this device "
++				"driver (try updated device driver)\n",
++				zfcp_get_busid_by_adapter(adapter));
++		debug_text_event(adapter->erp_dbf, 0, "low_qtcb_ver");
++		zfcp_erp_adapter_shutdown(adapter, 0);
++		return -EIO;
++	}
++	if (ZFCP_QTCB_VERSION > bottom->high_qtcb_version) {
++		ZFCP_LOG_NORMAL("error: the adapter %s "
++				"only supports older control block "
++				"versions than this device driver uses"
++				"(consider a microcode upgrade)\n",
++				zfcp_get_busid_by_adapter(adapter));
++		debug_text_event(adapter->erp_dbf, 0, "high_qtcb_ver");
++		zfcp_erp_adapter_shutdown(adapter, 0);
++		return -EIO;
++	}
 +	return 0;
 +}
 +
-+int
-+convert_response(unsigned char *response, unsigned char *buffer,
-+		 int *respbufflen_p, unsigned char *resp_buff)
-+{
-+	struct ica_rsa_modexpo *icaMsg_p = (struct ica_rsa_modexpo *) buffer;
-+	struct type82_hdr *t82h_p = (struct type82_hdr *) response;
-+	struct type84_hdr *t84h_p = (struct type84_hdr *) response;
-+	struct type86_hdr *t86h_p = (struct type86_hdr *) response;
-+	int rv, reply_code, service_rc, service_rs, src_l;
-+	unsigned char *src_p, *tgt_p;
-+	struct CPRB *cprb_p;
-+	struct CPRBX *cprbx_p;
+ /*
+  * function:    zfcp_fsf_exchange_config_data_handler
+  *
+@@ -2148,81 +2211,20 @@
+ static int
+ zfcp_fsf_exchange_config_data_handler(struct zfcp_fsf_req *fsf_req)
+ {
+-	int retval = -EIO;
+ 	struct fsf_qtcb_bottom_config *bottom;
+ 	struct zfcp_adapter *adapter = fsf_req->adapter;
+ 
+-	if (fsf_req->status & ZFCP_STATUS_FSFREQ_ERROR) {
+-		/* don't set any value, stay with the old (unitialized) ones */
+-		goto skip_fsfstatus;
+-	}
++	if (fsf_req->status & ZFCP_STATUS_FSFREQ_ERROR)
++		return -EIO;
+ 
+-	/* evaluate FSF status in QTCB */
+ 	switch (fsf_req->qtcb->header.fsf_status) {
+ 
+ 	case FSF_GOOD:
+ 		ZFCP_LOG_FLAGS(2, "FSF_GOOD\n");
+-		bottom = &fsf_req->qtcb->bottom.config;
+-		/* only log QTCB versions for now */
+-		ZFCP_LOG_DEBUG("low QTCB version 0x%x of FSF, "
+-			       "high QTCB version 0x%x of FSF, \n",
+-			       bottom->low_qtcb_version,
+-			       bottom->high_qtcb_version);
+-		adapter->wwnn = bottom->nport_serv_param.wwnn;
+-		adapter->wwpn = bottom->nport_serv_param.wwpn;
+-		adapter->s_id = bottom->s_id & ZFCP_DID_MASK;
+-		adapter->hydra_version = bottom->adapter_type;
+-		adapter->fsf_lic_version = bottom->lic_version;
+-		adapter->fc_topology = bottom->fc_topology;
+-		adapter->fc_link_speed = bottom->fc_link_speed;
+-                adapter->supported_features = bottom->supported_features;
+ 
+-		if(adapter->supported_features & FSF_FEATURE_HBAAPI_MANAGEMENT){
+-			adapter->hardware_version = bottom->hardware_version;
+-                        /* copy just first 17 bytes */
+-                        memcpy(adapter->serial_number,
+-                               bottom->serial_number, 17);
+-                        EBCASC(adapter->serial_number,
+-                               sizeof(adapter->serial_number));
+-		}
++		if (zfcp_fsf_exchange_config_evaluate(fsf_req, 1))
++			return -EIO;
+ 
+-		ZFCP_LOG_INFO("The adapter %s reported "
+-			      "the following characteristics:\n"
+-			      "WWNN 0x%16.16Lx, "
+-			      "WWPN 0x%16.16Lx, "
+-			      "S_ID 0x%6.6x,\n"
+-			      "adapter version 0x%x, "
+-			      "LIC version 0x%x, "
+-			      "FC link speed %d Gb/s\n",
+-			      zfcp_get_busid_by_adapter(adapter),
+-			      adapter->wwnn,
+-			      adapter->wwpn,
+-			      (unsigned int) adapter->s_id,
+-			      adapter->hydra_version,
+-			      adapter->fsf_lic_version,
+-			      adapter->fc_link_speed);
+-		if (ZFCP_QTCB_VERSION < bottom->low_qtcb_version) {
+-			ZFCP_LOG_NORMAL("error: the adapter %s "
+-					"only supports newer control block "
+-					"versions in comparison to this device "
+-					"driver (try updated device driver)\n",
+-					zfcp_get_busid_by_adapter(adapter));
+-			debug_text_event(fsf_req->adapter->erp_dbf, 0,
+-					 "low_qtcb_ver");
+-			zfcp_erp_adapter_shutdown(adapter, 0);
+-			goto skip_fsfstatus;
+-		}
+-		if (ZFCP_QTCB_VERSION > bottom->high_qtcb_version) {
+-			ZFCP_LOG_NORMAL("error: the adapter %s "
+-					"only supports older control block "
+-					"versions than this device driver uses"
+-					"(consider a microcode upgrade)\n",
+-					zfcp_get_busid_by_adapter(adapter));
+-			debug_text_event(fsf_req->adapter->erp_dbf, 0,
+-					 "high_qtcb_ver");
+-			zfcp_erp_adapter_shutdown(adapter, 0);
+-			goto skip_fsfstatus;
+-		}
+ 		switch (adapter->fc_topology) {
+ 		case FSF_TOPO_P2P:
+ 			ZFCP_LOG_FLAGS(1, "FSF_TOPO_P2P\n");
+@@ -2234,7 +2236,7 @@
+ 			debug_text_event(fsf_req->adapter->erp_dbf, 0,
+ 					 "top-p-to-p");
+ 			zfcp_erp_adapter_shutdown(adapter, 0);
+-			goto skip_fsfstatus;
++			return -EIO;
+ 		case FSF_TOPO_AL:
+ 			ZFCP_LOG_FLAGS(1, "FSF_TOPO_AL\n");
+ 			ZFCP_LOG_NORMAL("error: Arbitrated loop fibre-channel "
+@@ -2245,7 +2247,7 @@
+ 			debug_text_event(fsf_req->adapter->erp_dbf, 0,
+ 					 "top-al");
+ 			zfcp_erp_adapter_shutdown(adapter, 0);
+-			goto skip_fsfstatus;
++			return -EIO;
+ 		case FSF_TOPO_FABRIC:
+ 			ZFCP_LOG_FLAGS(1, "FSF_TOPO_FABRIC\n");
+ 			ZFCP_LOG_INFO("Switched fabric fibre-channel "
+@@ -2264,8 +2266,9 @@
+ 			debug_text_exception(fsf_req->adapter->erp_dbf, 0,
+ 					     "unknown-topo");
+ 			zfcp_erp_adapter_shutdown(adapter, 0);
+-			goto skip_fsfstatus;
++			return -EIO;
+ 		}
++		bottom = &fsf_req->qtcb->bottom.config;
+ 		if (bottom->max_qtcb_size < sizeof(struct fsf_qtcb)) {
+ 			ZFCP_LOG_NORMAL("bug: Maximum QTCB size (%d bytes) "
+ 					"allowed by the adapter %s "
+@@ -2279,22 +2282,32 @@
+ 			debug_event(fsf_req->adapter->erp_dbf, 0,
+ 				    &bottom->max_qtcb_size, sizeof (u32));
+ 			zfcp_erp_adapter_shutdown(adapter, 0);
+-			goto skip_fsfstatus;
++			return -EIO;
+ 		}
+ 		atomic_set_mask(ZFCP_STATUS_ADAPTER_XCONFIG_OK,
+ 				&adapter->status);
+-		retval = 0;
+-
+ 		break;
++	case FSF_EXCHANGE_CONFIG_DATA_INCOMPLETE:
++		debug_text_event(adapter->erp_dbf, 0, "xchg-inco");
 +
-+	src_p = 0;
-+	reply_code = 0;
-+	service_rc = 0;
-+	service_rs = 0;
-+	src_l = 0;
-+	rv = 0;
-+	switch (t82h_p->type) {
-+	case TYPE82_RSP_CODE:
-+		reply_code = t82h_p->reply_code;
-+		rv = 4; 
-+		src_p = (unsigned char *)t82h_p;
-+		PRINTK("Hardware error: Type 82 Message Header: "
-+		       "%02x%02x%02x%02x%02x%02x%02x%02x\n",
-+		       src_p[0], src_p[1], src_p[2], src_p[3],
-+		       src_p[4], src_p[5], src_p[6], src_p[7]);
++		if (zfcp_fsf_exchange_config_evaluate(fsf_req, 0))
++			return -EIO;
+ 
++		ZFCP_LOG_INFO("Local link to adapter %s is down\n",
++			      zfcp_get_busid_by_adapter(adapter));
++		atomic_set_mask(ZFCP_STATUS_ADAPTER_XCONFIG_OK |
++				ZFCP_STATUS_ADAPTER_LINK_UNPLUGGED,
++				&adapter->status);
++		zfcp_erp_adapter_failed(adapter);
 +		break;
-+	case TYPE84_RSP_CODE:
-+		src_l = icaMsg_p->outputdatalength;
-+		src_p = response + (int)t84h_p->len - src_l;
-+		break;
-+	case TYPE86_RSP_CODE:
-+		reply_code = t86h_p->reply_code;
-+		if (t86h_p->format != TYPE86_FMT2) {
-+			rv = 4;
-+			break;
+ 	default:
+-		/* retval is -EIO by default */
+ 		debug_text_event(fsf_req->adapter->erp_dbf, 0, "fsf-stat-ng");
+ 		debug_event(fsf_req->adapter->erp_dbf, 0,
+ 			    &fsf_req->qtcb->header.fsf_status, sizeof (u32));
++		zfcp_erp_adapter_shutdown(adapter, 0);
++		return -EIO;
+ 	}
+- skip_fsfstatus:
+-	return retval;
++	return 0;
+ }
+ 
+ /*
+@@ -2408,20 +2421,19 @@
+ 		ZFCP_LOG_NORMAL("Access denied, cannot open port "
+ 			"with WWPN 0x%Lx connected to the adapter %s\n",
+ 			port->wwpn, zfcp_get_busid_by_port(port));
+-		counter = 0;
+-		do {
+-			subtable = header->fsf_status_qual.halfword[counter++];
+-			rule = header->fsf_status_qual.halfword[counter++];
++		for (counter = 0; counter < 2; counter++) {
++			subtable = header->fsf_status_qual.halfword[counter * 2];
++			rule = header->fsf_status_qual.halfword[counter * 2 + 1];
+ 			switch (subtable) {
+ 			case FSF_SQ_CFDC_SUBTABLE_OS:
+ 			case FSF_SQ_CFDC_SUBTABLE_PORT_WWPN:
+ 			case FSF_SQ_CFDC_SUBTABLE_PORT_DID:
+ 			case FSF_SQ_CFDC_SUBTABLE_LUN:
+-				ZFCP_LOG_NORMAL("Access denied (%s rule %d)\n",
++				ZFCP_LOG_INFO("Access denied (%s rule %d)\n",
+ 					zfcp_act_subtable_type[subtable], rule);
+ 				break;
+ 			}
+-		} while (counter < 4);
 +		}
-+		if (reply_code != 0) {
-+			rv = 4;
-+			break;
+ 		debug_text_event(fsf_req->adapter->erp_dbf, 1, "fsf_s_access");
+ 		zfcp_erp_port_failed(port);
+ 		fsf_req->status |= ZFCP_STATUS_FSFREQ_ERROR;
+@@ -2814,20 +2826,19 @@
+ 				"physical port with WWPN 0x%Lx connected to "
+ 				"the adapter %s\n", port->wwpn,
+ 				zfcp_get_busid_by_port(port));
+-		counter = 0;
+-		do {
+-			subtable = header->fsf_status_qual.halfword[counter++];
+-			rule = header->fsf_status_qual.halfword[counter++];
++		for (counter = 0; counter < 2; counter++) {
++			subtable = header->fsf_status_qual.halfword[counter * 2];
++			rule = header->fsf_status_qual.halfword[counter * 2 + 1];
+ 			switch (subtable) {
+ 			case FSF_SQ_CFDC_SUBTABLE_OS:
+ 			case FSF_SQ_CFDC_SUBTABLE_PORT_WWPN:
+ 			case FSF_SQ_CFDC_SUBTABLE_PORT_DID:
+ 			case FSF_SQ_CFDC_SUBTABLE_LUN:
+-	       			ZFCP_LOG_NORMAL("Access denied (%s rule %d)\n",
++	       			ZFCP_LOG_INFO("Access denied (%s rule %d)\n",
+ 					zfcp_act_subtable_type[subtable], rule);
+ 				break;
+ 			}
+-		} while (counter < 4);
 +		}
-+		cprb_p = (struct CPRB *)
-+			(response + sizeof(struct type86_fmt2_msg));
-+		cprbx_p = (struct CPRBX *) cprb_p;
-+		if (cprb_p->cprb_ver_id != 0x02) {
-+			le2toI(cprb_p->ccp_rtcode, &service_rc);
-+			if (service_rc != 0) {
-+				le2toI(cprb_p->ccp_rscode, &service_rs);
-+				if ((service_rc == 8) && (service_rs == 66))
-+					PDEBUG("8/66 on PCICC\n");
-+				else
-+					PRINTK("service rc/rs: %d/%d\n",
-+					       service_rc, service_rs);
-+				rv = 8;
-+			}
-+			src_p = (unsigned char *)cprb_p + sizeof(struct CPRB);
-+			src_p += 4; 
-+			le2toI(src_p, &src_l);
-+			src_l -= 2;	
-+			src_p += 2;	
+ 		debug_text_event(fsf_req->adapter->erp_dbf, 1, "fsf_s_access");
+ 		fsf_req->status |= ZFCP_STATUS_FSFREQ_ERROR;
+ 		break;
+@@ -2956,8 +2967,8 @@
+ 	atomic_set_mask(ZFCP_STATUS_COMMON_OPENING, &erp_action->unit->status);
+ 	erp_action->fsf_req->data.open_unit.unit = erp_action->unit;
+ 	erp_action->fsf_req->erp_action = erp_action;
+-	erp_action->fsf_req->qtcb->bottom.support.option =
+-		FSF_OPEN_LUN_SUPPRESS_BOXING;
++//	erp_action->fsf_req->qtcb->bottom.support.option =
++//		FSF_OPEN_LUN_UNSOLICITED_SENSE_DATA;
+ 
+ 	/* start QDIO request for this FSF request */
+ 	retval = zfcp_fsf_req_send(erp_action->fsf_req, &erp_action->timer);
+@@ -2994,12 +3005,16 @@
+ zfcp_fsf_open_unit_handler(struct zfcp_fsf_req *fsf_req)
+ {
+ 	int retval = -EINVAL;
++	struct zfcp_adapter *adapter;
+ 	struct zfcp_unit *unit;
+ 	struct fsf_qtcb_header *header;
++	struct fsf_qtcb_bottom_support *bottom;
+ 	u16 subtable, rule, counter;
+ 
++	adapter = fsf_req->adapter;
+ 	unit = fsf_req->data.open_unit.unit;
+ 	header = &fsf_req->qtcb->header;
++	bottom = &fsf_req->qtcb->bottom.support;
+ 
+ 	if (fsf_req->status & ZFCP_STATUS_FSFREQ_ERROR) {
+ 		/* don't change unit status in our bookkeeping */
+@@ -3021,7 +3036,7 @@
+ 		ZFCP_HEX_DUMP(ZFCP_LOG_LEVEL_DEBUG,
+ 			      (char *) &header->fsf_status_qual,
+ 			      sizeof (union fsf_status_qual));
+-		debug_text_event(fsf_req->adapter->erp_dbf, 1, "fsf_s_ph_nv");
++		debug_text_event(adapter->erp_dbf, 1, "fsf_s_ph_nv");
+ 		zfcp_erp_adapter_reopen(unit->port->adapter, 0);
+ 		fsf_req->status |= ZFCP_STATUS_FSFREQ_ERROR;
+ 		break;
+@@ -3034,7 +3049,7 @@
+ 				"to the adapter %s twice.\n",
+ 				unit->fcp_lun,
+ 				unit->port->wwpn, zfcp_get_busid_by_unit(unit));
+-		debug_text_exception(fsf_req->adapter->erp_dbf, 0,
++		debug_text_exception(adapter->erp_dbf, 0,
+ 				     "fsf_s_uopen");
+ 		fsf_req->status |= ZFCP_STATUS_FSFREQ_ERROR;
+ 		break;
+@@ -3046,21 +3061,20 @@
+ 				"WWPN 0x%Lx connected to the adapter %s\n",
+ 			unit->fcp_lun, unit->port->wwpn,
+ 			zfcp_get_busid_by_unit(unit));
+-		counter = 0;
+-		do {
+-			subtable = header->fsf_status_qual.halfword[counter++];
+-			rule = header->fsf_status_qual.halfword[counter++];
++		for (counter = 0; counter < 2; counter++) {
++			subtable = header->fsf_status_qual.halfword[counter * 2];
++			rule = header->fsf_status_qual.halfword[counter * 2 + 1];
+ 			switch (subtable) {
+ 			case FSF_SQ_CFDC_SUBTABLE_OS:
+ 			case FSF_SQ_CFDC_SUBTABLE_PORT_WWPN:
+ 			case FSF_SQ_CFDC_SUBTABLE_PORT_DID:
+ 			case FSF_SQ_CFDC_SUBTABLE_LUN:
+-				ZFCP_LOG_NORMAL("Access denied (%s rule %d)\n",
++				ZFCP_LOG_INFO("Access denied (%s rule %d)\n",
+ 					zfcp_act_subtable_type[subtable], rule);
+ 				break;
+ 			}
+-		} while (counter < 4);
+-		debug_text_event(fsf_req->adapter->erp_dbf, 1, "fsf_s_access");
++		}
++		debug_text_event(adapter->erp_dbf, 1, "fsf_s_access");
+ 		zfcp_erp_unit_failed(unit);
+ 		fsf_req->status |= ZFCP_STATUS_FSFREQ_ERROR;
+ 		break;
+@@ -3071,7 +3085,7 @@
+ 			       "with WWPN 0x%Lx on the adapter %s "
+ 			       "needs to be reopened\n",
+ 			       unit->port->wwpn, zfcp_get_busid_by_unit(unit));
+-		debug_text_event(fsf_req->adapter->erp_dbf, 2, "fsf_s_pboxed");
++		debug_text_event(adapter->erp_dbf, 2, "fsf_s_pboxed");
+ 		zfcp_erp_port_reopen(unit->port, 0);
+ 		fsf_req->status |= ZFCP_STATUS_FSFREQ_ERROR |
+ 			ZFCP_STATUS_FSFREQ_RETRY;
+@@ -3079,30 +3093,38 @@
+ 
+ 	case FSF_LUN_SHARING_VIOLATION :
+ 		ZFCP_LOG_FLAGS(2, "FSF_LUN_SHARING_VIOLATION\n");
+-		ZFCP_LOG_NORMAL("error: FCP-LUN 0x%Lx at "
+-				"the remote port with WWPN 0x%Lx connected "
+-				"to the adapter %s "
+-				"is already owned by another operating system "
+-				"instance (LPAR or VM guest)\n",
+-				unit->fcp_lun,
+-				unit->port->wwpn,
+-				zfcp_get_busid_by_unit(unit));
+ 		subtable = header->fsf_status_qual.halfword[4];
+ 		rule = header->fsf_status_qual.halfword[5];
+-		switch (subtable) {
+-		case FSF_SQ_CFDC_SUBTABLE_OS:
+-		case FSF_SQ_CFDC_SUBTABLE_PORT_WWPN:
+-		case FSF_SQ_CFDC_SUBTABLE_PORT_DID:
+-		case FSF_SQ_CFDC_SUBTABLE_LUN:
+-			ZFCP_LOG_NORMAL("Access denied (%s rule %d)\n",
+-				zfcp_act_subtable_type[subtable], rule);
+-			break;
++		if (rule == 0xFFFF) {
++			ZFCP_LOG_NORMAL("FCP-LUN 0x%Lx at the remote port "
++					"with WWPN 0x%Lx connected to the "
++					"adapter %s is already in use\n",
++					unit->fcp_lun,
++					unit->port->wwpn,
++					zfcp_get_busid_by_unit(unit));
 +		} else {
-+			service_rc = (int)cprbx_p->ccp_rtcode;
-+			if (service_rc != 0) {
-+				service_rs = (int) cprbx_p->ccp_rscode;
-+				if ((service_rc == 8) && (service_rs == 66))
-+					PDEBUG("8/66 on PCIXCC\n");
-+				else
-+					PRINTK("service rc/rs: %d/%d\n",
-+					       service_rc, service_rs);
-+				rv = 8;
++			switch (subtable) {
++			case FSF_SQ_CFDC_SUBTABLE_OS:
++			case FSF_SQ_CFDC_SUBTABLE_PORT_WWPN:
++			case FSF_SQ_CFDC_SUBTABLE_PORT_DID:
++			case FSF_SQ_CFDC_SUBTABLE_LUN:
++				ZFCP_LOG_NORMAL("Access to FCP-LUN 0x%Lx at the "
++						"remote port with WWPN 0x%Lx "
++						"connected to the adapter %s "
++						"is denied (%s rule %d)\n",
++						unit->fcp_lun,
++						unit->port->wwpn,
++						zfcp_get_busid_by_unit(unit),
++						zfcp_act_subtable_type[subtable],
++						rule);
++				break;
 +			}
-+			src_p = (unsigned char *)
-+				cprbx_p + sizeof(struct CPRBX);
-+			src_p += 4; 
-+			src_l = (int)(*((short *) src_p));
-+			src_l -= 2;	
-+			src_p += 2;	
-+		}
+ 		}
+-		ZFCP_LOG_NORMAL("Additional sense data is presented:\n");
+-		ZFCP_HEX_DUMP(ZFCP_LOG_LEVEL_NORMAL,
++		ZFCP_LOG_DEBUG("status qualifier:\n");
++		ZFCP_HEX_DUMP(ZFCP_LOG_LEVEL_DEBUG,
+ 			      (char *) &header->fsf_status_qual,
+ 			      sizeof (union fsf_status_qual));
+-		debug_text_event(fsf_req->adapter->erp_dbf, 2,
++		debug_text_event(adapter->erp_dbf, 2,
+ 				 "fsf_s_l_sh_vio");
+ 		zfcp_erp_unit_failed(unit);
+ 		fsf_req->status |= ZFCP_STATUS_FSFREQ_ERROR;
+@@ -3118,7 +3140,7 @@
+ 			      unit->fcp_lun,
+ 			      unit->port->wwpn,
+ 			      zfcp_get_busid_by_unit(unit));
+-		debug_text_event(fsf_req->adapter->erp_dbf, 1,
++		debug_text_event(adapter->erp_dbf, 1,
+ 				 "fsf_s_max_units");
+ 		zfcp_erp_unit_failed(unit);
+ 		fsf_req->status |= ZFCP_STATUS_FSFREQ_ERROR;
+@@ -3131,7 +3153,7 @@
+ 			ZFCP_LOG_FLAGS(2,
+ 				       "FSF_SQ_INVOKE_LINK_TEST_PROCEDURE\n");
+ 			/* Re-establish link to port */
+-			debug_text_event(fsf_req->adapter->erp_dbf, 1,
++			debug_text_event(adapter->erp_dbf, 1,
+ 					 "fsf_sq_ltest");
+ 			zfcp_erp_port_reopen(unit->port, 0);
+ 			fsf_req->status |= ZFCP_STATUS_FSFREQ_ERROR;
+@@ -3140,7 +3162,7 @@
+ 			ZFCP_LOG_FLAGS(2,
+ 				       "FSF_SQ_ULP_DEPENDENT_ERP_REQUIRED\n");
+ 			/* ERP strategy will escalate */
+-			debug_text_event(fsf_req->adapter->erp_dbf, 1,
++			debug_text_event(adapter->erp_dbf, 1,
+ 					 "fsf_sq_ulp");
+ 			fsf_req->status |= ZFCP_STATUS_FSFREQ_ERROR;
+ 			break;
+@@ -3148,27 +3170,41 @@
+ 			ZFCP_LOG_NORMAL
+ 			    ("bug: Wrong status qualifier 0x%x arrived.\n",
+ 			     header->fsf_status_qual.word[0]);
+-			debug_text_event(fsf_req->adapter->erp_dbf, 0,
++			debug_text_event(adapter->erp_dbf, 0,
+ 					 "fsf_sq_inval:");
+-			debug_exception(fsf_req->adapter->erp_dbf, 0,
++			debug_exception(adapter->erp_dbf, 0,
+ 					&header->fsf_status_qual.word[0],
+ 				sizeof (u32));
+ 		}
+ 		break;
+ 
++	case FSF_INVALID_COMMAND_OPTION:
++		ZFCP_LOG_FLAGS(2, "FSF_INVALID_COMMAND_OPTION\n");
++		ZFCP_LOG_NORMAL(
++			"Invalid option 0x%x has been specified "
++			"in QTCB bottom sent to the adapter %s\n",
++			bottom->option,
++			zfcp_get_busid_by_adapter(adapter));
++		fsf_req->status |= ZFCP_STATUS_FSFREQ_ERROR;
++		retval = -EINVAL;
 +		break;
-+	default:
-+		break;
-+	}
 +
-+	if (rv == 8)
-+		return 8;
-+	if (rv == 4)
-+		switch (reply_code) {
-+		case REPLY_ERROR_OPERAND_INVALID:
-+			return REC_OPERAND_INV;
-+		case REPLY_ERROR_OPERAND_SIZE:
-+			return REC_OPERAND_SIZE;
-+		case REPLY_ERROR_EVEN_MOD_IN_OPND:
-+			return REC_EVEN_MOD;
-+		case REPLY_ERROR_MESSAGE_TYPE:
-+			return WRONG_DEVICE_TYPE;
-+		default:
-+			return 12;
+ 	case FSF_GOOD:
+ 		ZFCP_LOG_FLAGS(3, "FSF_GOOD\n");
+ 		/* save LUN handle assigned by FSF */
+ 		unit->handle = header->lun_handle;
+ 		ZFCP_LOG_TRACE("unit (FCP_LUN=0x%Lx) of remote port "
+ 			       "(WWPN=0x%Lx) via adapter (busid=%s) opened, "
+-			       "port handle 0x%x \n",
++			       "port handle 0x%x, access flag 0x%02x\n",
+ 			       unit->fcp_lun,
+ 			       unit->port->wwpn,
+ 			       zfcp_get_busid_by_unit(unit),
+-			       unit->handle);
++			       unit->handle,
++			       bottom->lun_access);
+ 		/* mark unit as open */
+ 		atomic_set_mask(ZFCP_STATUS_COMMON_OPEN, &unit->status);
++		if (adapter->supported_features & FSF_FEATURE_CFDC)
++			unit->lun_access = bottom->lun_access;
+ 		retval = 0;
+ 		break;
+ 
+@@ -3176,8 +3212,8 @@
+ 		ZFCP_LOG_NORMAL("bug: An unknown FSF Status was presented "
+ 				"(debug info 0x%x)\n",
+ 				header->fsf_status);
+-		debug_text_event(fsf_req->adapter->erp_dbf, 0, "fsf_s_inval:");
+-		debug_exception(fsf_req->adapter->erp_dbf, 0,
++		debug_text_event(adapter->erp_dbf, 0, "fsf_s_inval:");
++		debug_exception(adapter->erp_dbf, 0,
+ 				&header->fsf_status, sizeof (u32));
+ 		break;
+ 	}
+@@ -3454,15 +3490,11 @@
+ 	 * (need this for look up on normal command completion)
+ 	 */
+ 	fsf_req->data.send_fcp_command_task.scsi_cmnd = scsi_cmnd;
+-#ifdef ZFCP_DEBUG_REQUESTS
+ 	debug_text_event(adapter->req_dbf, 3, "fsf/sc");
+ 	debug_event(adapter->req_dbf, 3, &fsf_req, sizeof (unsigned long));
+ 	debug_event(adapter->req_dbf, 3, &scsi_cmnd, sizeof (unsigned long));
+-#endif				/* ZFCP_DEBUG_REQUESTS */
+-#ifdef ZFCP_DEBUG_ABORTS
+-	fsf_req->data.send_fcp_command_task.start_jiffies = jiffies;
+-#endif
+ 
++	fsf_req->data.send_fcp_command_task.start_jiffies = jiffies;
+ 	fsf_req->data.send_fcp_command_task.unit = unit;
+ 	ZFCP_LOG_DEBUG("unit=0x%lx, unit_fcp_lun=0x%Lx\n",
+ 		       (unsigned long) unit, unit->fcp_lun);
+@@ -3605,10 +3637,8 @@
+  no_fit:
+  failed_scsi_cmnd:
+ 	/* dequeue new FSF request previously enqueued */
+-#ifdef ZFCP_DEBUG_REQUESTS
+ 	debug_text_event(adapter->req_dbf, 3, "fail_sc");
+ 	debug_event(adapter->req_dbf, 3, &scsi_cmnd, sizeof (unsigned long));
+-#endif				/* ZFCP_DEBUG_REQUESTS */
+ 
+ 	zfcp_fsf_req_free(fsf_req);
+ 	fsf_req = NULL;
+@@ -3863,20 +3893,19 @@
+ 				"remote port with WWPN 0x%Lx connected to the "
+ 				"adapter %s\n",	unit->fcp_lun, unit->port->wwpn,
+ 			zfcp_get_busid_by_unit(unit));
+-		counter = 0;
+-		do {
+-			subtable = header->fsf_status_qual.halfword[counter++];
+-			rule = header->fsf_status_qual.halfword[counter++];
++		for (counter = 0; counter < 2; counter++) {
++			subtable = header->fsf_status_qual.halfword[counter * 2];
++			rule = header->fsf_status_qual.halfword[counter * 2 + 1];
+ 			switch (subtable) {
+ 			case FSF_SQ_CFDC_SUBTABLE_OS:
+ 			case FSF_SQ_CFDC_SUBTABLE_PORT_WWPN:
+ 			case FSF_SQ_CFDC_SUBTABLE_PORT_DID:
+ 			case FSF_SQ_CFDC_SUBTABLE_LUN:
+-				ZFCP_LOG_NORMAL("Access denied (%s rule %d)\n",
++				ZFCP_LOG_INFO("Access denied (%s rule %d)\n",
+ 					zfcp_act_subtable_type[subtable], rule);
+ 				break;
+ 			}
+-		} while (counter < 4);
 +		}
+ 		debug_text_event(fsf_req->adapter->erp_dbf, 1, "fsf_s_access");
+ 		fsf_req->status |= ZFCP_STATUS_FSFREQ_ERROR;
+ 		break;
+@@ -4384,7 +4413,6 @@
+ 	 * the new eh
+ 	 */
+ 	/* always call back */
+-#ifdef ZFCP_DEBUG_REQUESTS
+ 	debug_text_event(fsf_req->adapter->req_dbf, 2, "ok_done:");
+ 	debug_event(fsf_req->adapter->req_dbf, 2, &scpnt,
+ 		    sizeof (unsigned long));
+@@ -4392,7 +4420,6 @@
+ 		    sizeof (unsigned long));
+ 	debug_event(fsf_req->adapter->req_dbf, 2, &fsf_req,
+ 		    sizeof (unsigned long));
+-#endif /* ZFCP_DEBUG_REQUESTS */
+ 	(scpnt->scsi_done) (scpnt);
+ 	/*
+ 	 * We must hold this lock until scsi_done has been called.
+@@ -4505,15 +4532,13 @@
+ 	int direction;
+ 	int retval = 0;
+ 
+-#if 0
+-	if (!(adapter->features & FSF_FEATURE_CFDC)) {
++	if (!(adapter->supported_features & FSF_FEATURE_CFDC)) {
+ 		ZFCP_LOG_INFO(
+ 			"Adapter %s does not support control file\n",
+ 			zfcp_get_busid_by_adapter(adapter));
+ 		retval = -EOPNOTSUPP;
+-		goto no_act_support;
++		goto no_cfdc_support;
+ 	}
+-#endif
+ 
+ 	switch (fsf_command) {
+ 
+@@ -4595,6 +4620,7 @@
+ 	write_unlock_irqrestore(&adapter->request_queue.queue_lock, lock_flags);
+ 
+ invalid_command:
++no_cfdc_support:
+ 	return retval;
+ }
+ 
+@@ -4932,11 +4958,6 @@
+                 goto failed_sbals;
+ 	}
+ 
+-
+-	/* set magics */
+-	fsf_req->common_magic = ZFCP_MAGIC;
+-	fsf_req->specific_magic = ZFCP_MAGIC_FSFREQ;
+-
+ 	fsf_req->adapter = adapter;	/* pointer to "parent" adapter */
+ 	fsf_req->fsf_command = fsf_cmd;
+ 	fsf_req->sbal_number = 1;
+@@ -5085,7 +5106,6 @@
+ 			 "to request queue.\n");
+ 	} else {
+ 		req_queue->distance_from_int = new_distance_from_int;
+-#ifdef ZFCP_DEBUG_REQUESTS
+ 		debug_text_event(adapter->req_dbf, 1, "o:a/seq");
+ 		debug_event(adapter->req_dbf, 1, &fsf_req,
+ 			    sizeof (unsigned long));
+@@ -5095,7 +5115,6 @@
+ 		} else {
+ 			debug_text_event(adapter->req_dbf, 1, "nocb");
+ 		}
+-#endif				/* ZFCP_DEBUG_REQUESTS */
+ 		/*
+ 		 * increase FSF sequence counter -
+ 		 * this must only be done for request successfully enqueued to
+diff -urN linux-2.6/drivers/s390/scsi/zfcp_fsf.h linux-2.6-s390/drivers/s390/scsi/zfcp_fsf.h
+--- linux-2.6/drivers/s390/scsi/zfcp_fsf.h	Sun Apr  4 05:38:00 2004
++++ linux-2.6-s390/drivers/s390/scsi/zfcp_fsf.h	Thu Apr  8 15:21:27 2004
+@@ -108,6 +108,7 @@
+ #define FSF_CONFLICTS_OVERRULED			0x00000058
+ #define FSF_PORT_BOXED				0x00000059
+ #define FSF_LUN_BOXED				0x0000005A
++#define FSF_EXCHANGE_CONFIG_DATA_INCOMPLETE	0x0000005B
+ #define FSF_PAYLOAD_SIZE_MISMATCH		0x00000060
+ #define FSF_REQUEST_SIZE_TOO_LARGE		0x00000061
+ #define FSF_RESPONSE_SIZE_TOO_LARGE		0x00000062
+@@ -156,7 +157,6 @@
+ #define FSF_STATUS_READ_BIT_ERROR_THRESHOLD	0x00000004
+ #define FSF_STATUS_READ_LINK_DOWN		0x00000005 /* FIXME: really? */
+ #define FSF_STATUS_READ_LINK_UP          	0x00000006
+-#define FSF_STATUS_READ_NOTIFICATION_LOST	0x00000009
+ #define FSF_STATUS_READ_CFDC_UPDATED		0x0000000A
+ #define FSF_STATUS_READ_CFDC_HARDENED		0x0000000B
+ 
+@@ -165,8 +165,6 @@
+ #define FSF_STATUS_READ_SUB_ERROR_PORT		0x00000002
+ 
+ /* status subtypes for CFDC */
+-#define FSF_STATUS_READ_SUB_LOST_CFDC_UPDATED	0x00000020
+-#define FSF_STATUS_READ_SUB_LOST_CFDC_HARDENED	0x00000040
+ #define FSF_STATUS_READ_SUB_CFDC_HARDENED_ON_SE	0x00000002
+ #define FSF_STATUS_READ_SUB_CFDC_HARDENED_ON_SE2 0x0000000F
+ 
+@@ -198,18 +196,23 @@
+ /* channel features */
+ #define FSF_FEATURE_QTCB_SUPPRESSION            0x00000001
+ #define FSF_FEATURE_CFDC			0x00000002
+-#define FSF_FEATURE_SENSEDATA_REPLICATION       0x00000004
+ #define FSF_FEATURE_LOST_SAN_NOTIFICATION       0x00000008
+ #define FSF_FEATURE_HBAAPI_MANAGEMENT           0x00000010
+ #define FSF_FEATURE_ELS_CT_CHAINED_SBALS        0x00000020
+ 
+ /* option */
+ #define FSF_OPEN_LUN_SUPPRESS_BOXING		0x00000001
++#define FSF_OPEN_LUN_UNSOLICITED_SENSE_DATA	0x00000002
+ 
+ /* adapter types */
+ #define FSF_ADAPTER_TYPE_FICON                  0x00000001
+ #define FSF_ADAPTER_TYPE_FICON_EXPRESS          0x00000002
+ 
++/* flags */
++#define FSF_CFDC_OPEN_LUN_ALLOWED		0x01
++#define FSF_CFDC_EXCLUSIVE_ACCESS		0x02
++#define FSF_CFDC_OUTBOUND_TRANSFER_ALLOWED	0x10
 +
-+	if (service_rc != 0)
-+		return REC_OPERAND_INV;
+ /* port types */
+ #define FSF_HBA_PORTTYPE_UNKNOWN		0x00000001
+ #define FSF_HBA_PORTTYPE_NOTPRESENT		0x00000003
+@@ -394,9 +397,10 @@
+ 	u64 res2;
+ 	u64 req_handle;
+ 	u32 service_class;
+-	u8 res3[3];
++	u8  res3[3];
+ 	u8  timeout;
+-	u8 res4[184];
++	u32 lun_access;
++	u8  res4[180];
+ 	u32 els1_length;
+ 	u32 els2_length;
+ 	u32 req_buf_length;
+diff -urN linux-2.6/drivers/s390/scsi/zfcp_qdio.c linux-2.6-s390/drivers/s390/scsi/zfcp_qdio.c
+--- linux-2.6/drivers/s390/scsi/zfcp_qdio.c	Sun Apr  4 05:36:18 2004
++++ linux-2.6-s390/drivers/s390/scsi/zfcp_qdio.c	Thu Apr  8 15:21:27 2004
+@@ -28,7 +28,7 @@
+  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+  */
+ 
+-#define ZFCP_QDIO_C_REVISION "$Revision: 1.13 $"
++#define ZFCP_QDIO_C_REVISION "$Revision: 1.16 $"
+ 
+ #include "zfcp_ext.h"
+ 
+@@ -485,11 +485,9 @@
+ 	struct zfcp_fsf_req *fsf_req;
+ 	int retval = 0;
+ 
+-#ifdef ZFCP_DEBUG_REQUESTS
+ 	/* Note: seq is entered later */
+ 	debug_text_event(adapter->req_dbf, 1, "i:a/seq");
+ 	debug_event(adapter->req_dbf, 1, &sbale_addr, sizeof (unsigned long));
+-#endif				/* ZFCP_DEBUG_REQUESTS */
+ 
+ 	/* invalid (per convention used in this driver) */
+ 	if (unlikely(!sbale_addr)) {
+@@ -502,17 +500,6 @@
+ 	/* valid request id and thus (hopefully :) valid fsf_req address */
+ 	fsf_req = (struct zfcp_fsf_req *) sbale_addr;
+ 
+-	if (unlikely((fsf_req->common_magic != ZFCP_MAGIC) ||
+-	             (fsf_req->specific_magic != ZFCP_MAGIC_FSFREQ))) {
+-		ZFCP_LOG_NORMAL("bug: An inbound FSF acknowledgement was "
+-				"faulty (debug info 0x%x, 0x%x, 0x%lx)\n",
+-				fsf_req->common_magic,
+-				fsf_req->specific_magic,
+-				(unsigned long) fsf_req);
+-		retval = -EINVAL;
+-		goto out;
+-	}
+-
+ 	if (unlikely(adapter != fsf_req->adapter)) {
+ 		ZFCP_LOG_NORMAL("bug: An inbound FSF acknowledgement was not "
+ 				"correct (debug info 0x%lx, 0x%lx, 0%lx) \n",
+@@ -522,13 +509,11 @@
+ 		retval = -EINVAL;
+ 		goto out;
+ 	}
+-#ifdef ZFCP_DEBUG_REQUESTS
+ 	/* debug feature stuff (test for QTCB: remember new unsol. status!) */
+ 	if (likely(fsf_req->qtcb)) {
+ 		debug_event(adapter->req_dbf, 1,
+ 			    &fsf_req->qtcb->prefix.req_seq_no, sizeof (u32));
+ 	}
+-#endif				/* ZFCP_DEBUG_REQUESTS */
+ 
+ 	ZFCP_LOG_TRACE("fsf_req at 0x%lx, QTCB at 0x%lx\n",
+ 		       (unsigned long) fsf_req, (unsigned long) fsf_req->qtcb);
+@@ -665,7 +650,7 @@
+ 
+ /**
+  * zfcp_qdio_sbals_zero - initialize SBALs between first and last in queue
+- *	with zero from
++ *	with zero from 
+  */
+ static inline int
+ zfcp_qdio_sbals_zero(struct zfcp_qdio_queue *queue, int first, int last)
+diff -urN linux-2.6/drivers/s390/scsi/zfcp_scsi.c linux-2.6-s390/drivers/s390/scsi/zfcp_scsi.c
+--- linux-2.6/drivers/s390/scsi/zfcp_scsi.c	Sun Apr  4 05:36:57 2004
++++ linux-2.6-s390/drivers/s390/scsi/zfcp_scsi.c	Thu Apr  8 15:21:27 2004
+@@ -31,7 +31,7 @@
+ #define ZFCP_LOG_AREA			ZFCP_LOG_AREA_SCSI
+ 
+ /* this drivers version (do not edit !!! generated and updated by cvs) */
+-#define ZFCP_SCSI_REVISION "$Revision: 1.52 $"
++#define ZFCP_SCSI_REVISION "$Revision: 1.59 $"
+ 
+ #include <linux/blkdev.h>
+ 
+@@ -48,14 +48,15 @@
+ static int zfcp_scsi_eh_host_reset_handler(struct scsi_cmnd *);
+ static int zfcp_task_management_function(struct zfcp_unit *, u8);
+ 
+-static struct zfcp_unit *zfcp_unit_lookup(struct zfcp_adapter *, int, int, int);
++static struct zfcp_unit *zfcp_unit_lookup(struct zfcp_adapter *, int, scsi_id_t,
++					  scsi_lun_t);
+ 
+ static struct device_attribute *zfcp_sysfs_sdev_attrs[];
+ 
+ struct zfcp_data zfcp_data = {
+ 	.scsi_host_template = {
+ 	      name:	               ZFCP_NAME,
+-	      proc_name:               "dummy",
++	      proc_name:               "zfcp",
+ 	      proc_info:               NULL,
+ 	      detect:	               NULL,
+ 	      slave_alloc:             zfcp_scsi_slave_alloc,
+@@ -299,12 +300,9 @@
+ 		ZFCP_LOG_DEBUG("error: Could not send a Send FCP Command\n");
+ 		retval = SCSI_MLQUEUE_HOST_BUSY;
+ 	} else {
+-
+-#ifdef ZFCP_DEBUG_REQUESTS
+ 		debug_text_event(adapter->req_dbf, 3, "q_scpnt");
+ 		debug_event(adapter->req_dbf, 3, &scpnt,
+ 			    sizeof (unsigned long));
+-#endif				/* ZFCP_DEBUG_REQUESTS */
+ 	}
+ 
+ out:
+@@ -376,7 +374,8 @@
+  * context:	
+  */
+ static struct zfcp_unit *
+-zfcp_unit_lookup(struct zfcp_adapter *adapter, int channel, int id, int lun)
++zfcp_unit_lookup(struct zfcp_adapter *adapter, int channel, scsi_id_t id,
++		 scsi_lun_t lun)
+ {
+ 	struct zfcp_port *port;
+ 	struct zfcp_unit *unit, *retval = NULL;
+@@ -426,8 +425,6 @@
+ 	unsigned long flags;
+ 	u32 status = 0;
+ 
+-
+-#ifdef ZFCP_DEBUG_ABORTS
+ 	/* the components of a abort_dbf record (fixed size record) */
+ 	u64 dbf_scsi_cmnd = (unsigned long) scpnt;
+ 	char dbf_opcode[ZFCP_ABORT_DBF_LENGTH];
+@@ -445,7 +442,6 @@
+ 	memcpy(dbf_opcode,
+ 	       scpnt->cmnd,
+ 	       min(scpnt->cmd_len, (unsigned char) ZFCP_ABORT_DBF_LENGTH));
+-#endif
+ 
+ 	 /*TRACE*/
+ 	    ZFCP_LOG_INFO
+@@ -488,11 +484,11 @@
+ 
+ 	/* Figure out which fsf_req needs to be aborted. */
+ 	old_fsf_req = req_data->send_fcp_command_task.fsf_req;
+-#ifdef ZFCP_DEBUG_ABORTS
 +
-+	if ((src_l > icaMsg_p->outputdatalength) ||
-+	    (src_l > RESPBUFFSIZE) ||
-+	    (src_l <= 0))
-+		return REC_OPERAND_SIZE;
+ 	dbf_fsf_req = (unsigned long) old_fsf_req;
+ 	dbf_timeout =
+ 	    (jiffies - req_data->send_fcp_command_task.start_jiffies) / HZ;
+-#endif
 +
-+	PDEBUG("Length returned = %d\n", src_l);
-+	tgt_p = resp_buff + icaMsg_p->outputdatalength - src_l;
-+	memcpy(tgt_p, src_p, src_l);
-+	if ((t82h_p->type == TYPE86_RSP_CODE) && (resp_buff < tgt_p)) {
-+		memset(resp_buff, 0, icaMsg_p->outputdatalength - src_l);
-+		rv = pad_msg(resp_buff, icaMsg_p->outputdatalength, src_l);
-+		if (rv != 0)
-+			return rv;
-+	}
-+	*respbufflen_p = icaMsg_p->outputdatalength;
-+	if (*respbufflen_p == 0)
-+		PRINTK("Zero *respbufflen_p\n");
+ 	/* DEBUG */
+ 	ZFCP_LOG_DEBUG("old_fsf_req=0x%lx\n", (unsigned long) old_fsf_req);
+ 	if (!old_fsf_req) {
+@@ -548,7 +544,7 @@
+ 
+ 	/* wait for completion of abort */
+ 	ZFCP_LOG_DEBUG("Waiting for cleanup....\n");
+-#ifdef ZFCP_DEBUG_ABORTS
++#ifdef 1
+ 	/*
+ 	 * FIXME:
+ 	 * copying zfcp_fsf_req_wait_and_cleanup code is not really nice
+@@ -584,8 +580,7 @@
+ 		strncpy(dbf_result, "##fail", ZFCP_ABORT_DBF_LENGTH);
+ 	}
+ 
+-      out:
+-#ifdef ZFCP_DEBUG_ABORTS
++ out:
+ 	debug_event(adapter->abort_dbf, 1, &dbf_scsi_cmnd, sizeof (u64));
+ 	debug_event(adapter->abort_dbf, 1, &dbf_opcode, ZFCP_ABORT_DBF_LENGTH);
+ 	debug_event(adapter->abort_dbf, 1, &dbf_wwn, sizeof (wwn_t));
+@@ -598,7 +593,7 @@
+ 	debug_event(adapter->abort_dbf, 1, &dbf_fsf_qual[0], sizeof (u64));
+ 	debug_event(adapter->abort_dbf, 1, &dbf_fsf_qual[1], sizeof (u64));
+ 	debug_text_event(adapter->abort_dbf, 1, dbf_result);
+-#endif
 +
-+	return rv;
-+}
+ 	spin_lock_irq(scsi_host->host_lock);
+ 	return retval;
+ }
+@@ -796,12 +791,17 @@
+ 		       (unsigned long) adapter->scsi_host);
+ 
+ 	/* tell the SCSI stack some characteristics of this adapter */
+-	adapter->scsi_host->max_id = adapter->max_scsi_id + 1;
+-	adapter->scsi_host->max_lun = adapter->max_scsi_lun + 1;
++	adapter->scsi_host->max_id = 1;
++	adapter->scsi_host->max_lun = 1;
+ 	adapter->scsi_host->max_channel = 0;
+ 	adapter->scsi_host->unique_id = unique_id++;	/* FIXME */
+ 	adapter->scsi_host->max_cmd_len = ZFCP_MAX_SCSI_CMND_LENGTH;
+ 	/*
++	 * Reverse mapping of the host number to avoid race condition
++	 */
++	adapter->scsi_host_no = adapter->scsi_host->host_no;
 +
++	/*
+ 	 * save a pointer to our own adapter data structure within
+ 	 * hostdata field of SCSI host data structure
+ 	 */
+@@ -835,6 +835,7 @@
+ 	scsi_remove_host(shost);
+ 	scsi_host_put(shost);
+ 	adapter->scsi_host = NULL;
++	adapter->scsi_host_no = 0;
+ 	atomic_clear_mask(ZFCP_STATUS_ADAPTER_REGISTERED, &adapter->status);
+ 
+ 	return;
+@@ -850,68 +851,32 @@
+ 	add_timer(&adapter->scsi_er_timer);
+ }
+ 
+-/**
+- * zfcp_sysfs_hba_id_show - display hba_id of scsi device
+- * @dev: pointer to belonging device
+- * @buf: pointer to input buffer
+- *
+- * "hba_id" attribute of a scsi device. Displays hba_id (bus_id)
+- * of the adapter belonging to a scsi device.
+- */
+-static ssize_t
+-zfcp_sysfs_hba_id_show(struct device *dev, char *buf)
+-{
+-	struct scsi_device *sdev;
+-	struct zfcp_unit *unit;
+-
+-	sdev = to_scsi_device(dev);
+-	unit = (struct zfcp_unit *) sdev->hostdata;
+-	return sprintf(buf, "%s\n", zfcp_get_busid_by_unit(unit));
+-}
+-
+-static DEVICE_ATTR(hba_id, S_IRUGO, zfcp_sysfs_hba_id_show, NULL);
+-
+-/**
+- * zfcp_sysfs_wwpn_show - display wwpn of scsi device
+- * @dev: pointer to belonging device
+- * @buf: pointer to input buffer
+- *
+- * "wwpn" attribute of a scsi device. Displays wwpn of the port
+- * belonging to a scsi device.
+- */
+-static ssize_t
+-zfcp_sysfs_wwpn_show(struct device *dev, char *buf)
+-{
+-	struct scsi_device *sdev;
+-	struct zfcp_unit *unit;
+-
+-	sdev = to_scsi_device(dev);
+-	unit = (struct zfcp_unit *) sdev->hostdata;
+-	return sprintf(buf, "0x%016llx\n", unit->port->wwpn);
+-}
+-
+-static DEVICE_ATTR(wwpn, S_IRUGO, zfcp_sysfs_wwpn_show, NULL);
+ 
+ /**
+- * zfcp_sysfs_fcp_lun_show - display fcp lun of scsi device
+- * @dev: pointer to belonging device
+- * @buf: pointer to input buffer
+- *
+- * "fcp_lun" attribute of a scsi device. Displays fcp_lun of the unit
+- * belonging to a scsi device.
+- */
+-static ssize_t
+-zfcp_sysfs_fcp_lun_show(struct device *dev, char *buf)
+-{
+-	struct scsi_device *sdev;
+-	struct zfcp_unit *unit;
+-
+-	sdev = to_scsi_device(dev);
+-	unit = (struct zfcp_unit *) sdev->hostdata;
+-	return sprintf(buf, "0x%016llx\n", unit->fcp_lun);
+-}
+-
+-static DEVICE_ATTR(fcp_lun, S_IRUGO, zfcp_sysfs_fcp_lun_show, NULL);
++ * ZFCP_DEFINE_SCSI_ATTR
++ * @_name:   name of show attribute
++ * @_format: format string
++ * @_value:  value to print
++ *
++ * Generates attribute for a unit.
++ */
++#define ZFCP_DEFINE_SCSI_ATTR(_name, _format, _value)                    \
++static ssize_t zfcp_sysfs_scsi_##_name##_show(struct device *dev,        \
++                                              char *buf)                 \
++{                                                                        \
++        struct scsi_device *sdev;                                        \
++        struct zfcp_unit *unit;                                          \
++                                                                         \
++        sdev = to_scsi_device(dev);                                      \
++        unit = sdev->hostdata;                                           \
++        return sprintf(buf, _format, _value);                            \
++}                                                                        \
++                                                                         \
++static DEVICE_ATTR(_name, S_IRUGO, zfcp_sysfs_scsi_##_name##_show, NULL);
++
++ZFCP_DEFINE_SCSI_ATTR(hba_id, "%s\n", zfcp_get_busid_by_unit(unit));
++ZFCP_DEFINE_SCSI_ATTR(wwpn, "0x%016llx\n", unit->port->wwpn);
++ZFCP_DEFINE_SCSI_ATTR(fcp_lun, "0x%016llx\n", unit->fcp_lun);
+ 
+ static struct device_attribute *zfcp_sysfs_sdev_attrs[] = {
+ 	&dev_attr_fcp_lun,
+diff -urN linux-2.6/drivers/s390/scsi/zfcp_sysfs_adapter.c linux-2.6-s390/drivers/s390/scsi/zfcp_sysfs_adapter.c
+--- linux-2.6/drivers/s390/scsi/zfcp_sysfs_adapter.c	Sun Apr  4 05:36:14 2004
++++ linux-2.6-s390/drivers/s390/scsi/zfcp_sysfs_adapter.c	Thu Apr  8 15:21:27 2004
+@@ -26,7 +26,7 @@
+  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+  */
+ 
+-#define ZFCP_SYSFS_ADAPTER_C_REVISION "$Revision: 1.30 $"
++#define ZFCP_SYSFS_ADAPTER_C_REVISION "$Revision: 1.32 $"
+ 
+ #include <asm/ccwdev.h>
+ #include "zfcp_ext.h"
+@@ -75,6 +75,7 @@
+ ZFCP_DEFINE_ADAPTER_ATTR(hardware_version, "0x%08x\n",
+ 			 adapter->hardware_version);
+ ZFCP_DEFINE_ADAPTER_ATTR(serial_number, "%17s\n", adapter->serial_number);
++ZFCP_DEFINE_ADAPTER_ATTR(scsi_host_no, "0x%x\n", adapter->scsi_host_no);
+ 
+ /**
+  * zfcp_sysfs_adapter_in_recovery_show - recovery state of adapter
+@@ -100,30 +101,6 @@
+ 		   zfcp_sysfs_adapter_in_recovery_show, NULL);
+ 
+ /**
+- * zfcp_sysfs_adapter_scsi_host_no_show - display scsi_host_no of adapter
+- * @dev: pointer to belonging device
+- * @buf: pointer to input buffer
+- *
+- * "scsi_host_no" attribute of adapter. Displays the SCSI host number.
+- */
+-static ssize_t
+-zfcp_sysfs_adapter_scsi_host_no_show(struct device *dev, char *buf)
+-{
+-	struct zfcp_adapter *adapter;
+-	unsigned short host_no = 0;
+-
+-	down(&zfcp_data.config_sema);
+-	adapter = dev_get_drvdata(dev);
+-	if (adapter->scsi_host)
+-		host_no = adapter->scsi_host->host_no;
+-	up(&zfcp_data.config_sema);
+-	return sprintf(buf, "0x%x\n", host_no);
+-}
+-
+-static DEVICE_ATTR(scsi_host_no, S_IRUGO, zfcp_sysfs_adapter_scsi_host_no_show,
+-		   NULL);
+-
+-/**
+  * zfcp_sysfs_port_add_store - add a port to sysfs tree
+  * @dev: pointer to belonging device
+  * @buf: pointer to input buffer
+@@ -219,9 +196,7 @@
+ 	zfcp_erp_port_shutdown(port, 0);
+ 	zfcp_erp_wait(adapter);
+ 	zfcp_port_put(port);
+-	zfcp_sysfs_port_remove_files(&port->sysfs_device,
+-				     atomic_read(&port->status));
+-	device_unregister(&port->sysfs_device);
++	zfcp_port_dequeue(port);
+  out:
+ 	up(&zfcp_data.config_sema);
+ 	return retval ? retval : count;
+diff -urN linux-2.6/drivers/s390/scsi/zfcp_sysfs_port.c linux-2.6-s390/drivers/s390/scsi/zfcp_sysfs_port.c
+--- linux-2.6/drivers/s390/scsi/zfcp_sysfs_port.c	Sun Apr  4 05:38:18 2004
++++ linux-2.6-s390/drivers/s390/scsi/zfcp_sysfs_port.c	Thu Apr  8 15:21:27 2004
+@@ -26,7 +26,7 @@
+  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+  */
+ 
+-#define ZFCP_SYSFS_PORT_C_REVISION "$Revision: 1.37 $"
++#define ZFCP_SYSFS_PORT_C_REVISION "$Revision: 1.39 $"
+ 
+ #include <linux/init.h>
+ #include <linux/module.h>
+@@ -43,11 +43,7 @@
+ void
+ zfcp_sysfs_port_release(struct device *dev)
+ {
+-	struct zfcp_port *port;
+-
+-	port = dev_get_drvdata(dev);
+-	zfcp_port_dequeue(port);
+-	return;
++	kfree(dev);
+ }
+ 
+ /**
+@@ -112,7 +108,6 @@
+ 
+ 	zfcp_erp_unit_reopen(unit, 0);
+ 	zfcp_erp_wait(unit->port->adapter);
+-	wait_event(unit->scsi_add_wq, atomic_read(&unit->scsi_add_work) == 0);
+ 	zfcp_unit_put(unit);
+  out:
+ 	up(&zfcp_data.config_sema);
+@@ -168,8 +163,7 @@
+ 	zfcp_erp_unit_shutdown(unit, 0);
+ 	zfcp_erp_wait(unit->port->adapter);
+ 	zfcp_unit_put(unit);
+-	zfcp_sysfs_unit_remove_files(&unit->sysfs_device);
+-	device_unregister(&unit->sysfs_device);
++	zfcp_unit_dequeue(unit);
+  out:
+ 	up(&zfcp_data.config_sema);
+ 	return retval ? retval : count;
+diff -urN linux-2.6/drivers/s390/scsi/zfcp_sysfs_unit.c linux-2.6-s390/drivers/s390/scsi/zfcp_sysfs_unit.c
+--- linux-2.6/drivers/s390/scsi/zfcp_sysfs_unit.c	Sun Apr  4 05:38:28 2004
++++ linux-2.6-s390/drivers/s390/scsi/zfcp_sysfs_unit.c	Thu Apr  8 15:21:27 2004
+@@ -26,7 +26,7 @@
+  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+  */
+ 
+-#define ZFCP_SYSFS_UNIT_C_REVISION "$Revision: 1.23 $"
++#define ZFCP_SYSFS_UNIT_C_REVISION "$Revision: 1.24 $"
+ 
+ #include <linux/init.h>
+ #include <linux/module.h>
+@@ -43,11 +43,7 @@
+ void
+ zfcp_sysfs_unit_release(struct device *dev)
+ {
+-	struct zfcp_unit *unit;
+-
+-	unit = dev_get_drvdata(dev);
+-	zfcp_unit_dequeue(unit);
+-	return;
++	kfree(dev);
+ }
+ 
+ /**

@@ -1,59 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261325AbUKWPvx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261320AbUKWPy0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261325AbUKWPvx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 10:51:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261284AbUKWPuF
+	id S261320AbUKWPy0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 10:54:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261296AbUKWPwt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 10:50:05 -0500
-Received: from mail.kroah.org ([69.55.234.183]:19648 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261306AbUKWPa7 (ORCPT
+	Tue, 23 Nov 2004 10:52:49 -0500
+Received: from iris.icglink.com ([216.183.105.244]:8158 "HELO iris.icglink.com")
+	by vger.kernel.org with SMTP id S261309AbUKWPhr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 10:30:59 -0500
-Date: Tue, 23 Nov 2004 07:29:36 -0800
-From: Greg KH <greg@kroah.com>
-To: Guillaume Thouvenin <Guillaume.Thouvenin@Bull.net>
-Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       linux-security-module@wirex.com
-Subject: Re: [PATCH 2.6.9] fork: move security_task_alloc() after p->parent initialization
-Message-ID: <20041123152936.GB29107@kroah.com>
-References: <1101220731.6210.142.camel@frecb000711.frec.bull.fr>
+	Tue, 23 Nov 2004 10:37:47 -0500
+Date: Tue, 23 Nov 2004 09:37:44 -0600
+From: Phil Dier <phil@dier.us>
+To: linux-kernel@vger.kernel.org
+Cc: Scott Holdren <scott@icglink.com>, ziggy <ziggy@icglink.com>,
+       Jack Massari <webmaster@icglink.com>
+Subject: Re: oops with dual xeon 2.8ghz  4gb ram +smp, software raid, lvm,
+ and xfs
+Message-Id: <20041123093744.25c09245.phil@dier.us>
+In-Reply-To: <20041122161725.21adb932.akpm@osdl.org>
+References: <20041122130622.27edf3e6.phil@dier.us>
+	<20041122161725.21adb932.akpm@osdl.org>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1101220731.6210.142.camel@frecb000711.frec.bull.fr>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 23, 2004 at 03:38:51PM +0100, Guillaume Thouvenin wrote:
-> If we register a LSM hook and if we use the parameter passed to
-> security_task_alloc(struct task_struct *p), the value of p->parent is
-> wrong. This patch move the call to security_task_alloc() after the
-> initialization of the field p->parent. 
+On Mon, 22 Nov 2004 16:17:25 -0800
+Andrew Morton <akpm@osdl.org> wrote:
 
-No, that's way too late for this hook.
+> yow. The dread combination of XFS, LVM, software RAID and bloaty scsi
+> drivers. Looks like a stack overrun.
+>
+> Can you rebuild the kernel with CONFIG_4KSTACKS=n?
+>
 
-> --- kernel/fork.c.orig	2004-10-19 08:41:53.000000000 +0200
-> +++ kernel/fork.c	2004-11-23 15:29:25.799903744 +0100
-> @@ -1006,8 +1006,6 @@ static task_t *copy_process(unsigned lon
->   	}
->  #endif
->  
-> -	if ((retval = security_task_alloc(p)))
-> -		goto bad_fork_cleanup_policy;
->  	if ((retval = audit_alloc(p)))
->  		goto bad_fork_cleanup_security;
->  	/* copy all the process information */
-> @@ -1092,6 +1090,9 @@ static task_t *copy_process(unsigned lon
->  		p->real_parent = current;
->  	p->parent = p->real_parent;
->  
-> +	if ((retval = security_task_alloc(p)))
-> +		goto bad_fork_cleanup_policy;
-> +
+Thanks for the suggestion.. I'm doing a burn-in right now with 8k
+stacks, and so far, so good.
 
-And the error path is wrong :)
+I'm building this system with stability and flexibility foremost in
+mind. Am I foolish in using all of these technologies with a new-ish
+version of 2.6? Is there a particular version that would be better
+suited for my application? Any other suggestions you (or anyone else
+on the list) could give regarding stability would be greatly appreciated.
 
-thanks,
+Thanks,
 
-greg k-h
+--
+
+Phil Dier (ICGLink.com -- 615 370-1530 x733)
+
+/* vim:set noai nocindent ts=8 sw=8: */

@@ -1,54 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288128AbSAMUm0>; Sun, 13 Jan 2002 15:42:26 -0500
+	id <S288127AbSAMUm0>; Sun, 13 Jan 2002 15:42:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288144AbSAMUmQ>; Sun, 13 Jan 2002 15:42:16 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:27142 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S288141AbSAMUmM>; Sun, 13 Jan 2002 15:42:12 -0500
-Message-ID: <3C41EF9E.8D05D8F7@zip.com.au>
-Date: Sun, 13 Jan 2002 12:35:42 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18pre1 i686)
-X-Accept-Language: en
+	id <S288141AbSAMUmR>; Sun, 13 Jan 2002 15:42:17 -0500
+Received: from mail.actcom.co.il ([192.114.47.13]:16034 "EHLO
+	lmail.actcom.co.il") by vger.kernel.org with ESMTP
+	id <S288127AbSAMUmG>; Sun, 13 Jan 2002 15:42:06 -0500
+Message-Id: <200201132041.g0DKfeg30866@lmail.actcom.co.il>
+Content-Type: text/plain; charset=US-ASCII
+From: Itai Nahshon <nahshon@actcom.co.il>
+Reply-To: nahshon@actcom.co.il
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+Subject: Re: SCSI host numbers?
+Date: Sun, 13 Jan 2002 22:41:35 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <E16LjdE-0003m4-00@the-village.bc.nu> <200201022335.g02NZaj10253@lmail.actcom.co.il> <200201060144.g061i9E09115@vindaloo.ras.ucalgary.ca>
+In-Reply-To: <200201060144.g061i9E09115@vindaloo.ras.ucalgary.ca>
 MIME-Version: 1.0
-To: Marius Gedminas <mgedmin@centras.lt>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Hard lock when mounting loopback file
-In-Reply-To: <3C3F3267.7050103@actarg.com> <3C413BF0.24576AEC@zip.com.au>,
-		<3C413BF0.24576AEC@zip.com.au> <20020113115230.GB1955@gintaras>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marius Gedminas wrote:
-> 
-> On Sat, Jan 12, 2002 at 11:49:04PM -0800, Andrew Morton wrote:
-> > I don't know a thing about fat layout, but it appears that it uses a
-> > linked list of blocks, and if that list ends up pointing back onto
-> > itself, the kernel goes into an infinite loop in several places chasing
-> > its way to the end of the list.
-> >
-> > The below patch fixed it for me, and I was able to mount and read
-> > your filesystem image.
-> >
-> > Unless someone has a smarter fix, I'll send this to the kernel
-> > maintainers in a week or two.
-> 
-> It seems to me that this patch will find only those infinite loops where
-> the last link of the chain points to itself.  But there could be loops
-> where the last link points to the middle of the chain.
+On Sunday 06 January 2002 03:44 am, Richard Gooch wrote:
+> Where exactly is the host_id for an unregistered host being
+> remembered?
 
-Agree.
+Sorry for the late reply. I was away from Email for the whole week.
 
-> Additional check on the number of followed links could be useful there.
-> No chain should be longer than the number of clusters on the fs.
-> Although on large FAT32 filesystems the number of clusters can be high,
-> a very long loop is still better than an infinite one.  (In cases where
-> we know the file size, this limit can be reduced to
-> file_size/cluster_size + 1 links).
+Scsi host numbers (for both regstered and unregistered hosts)
+are preserved in scsi_host_no_list.
 
-hmm..  OK, I'll take a look at that approach.
+The list is used in the function scsi_register (in drivers/scsi/hosts.c).
+Same function also adds new hosts to the list.
 
--
+The list can be initialized (from boot parameters ?) by 
+the function scsi_host_no_init (drivers/scsi/scsi.c).
+
+-- Itai

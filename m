@@ -1,81 +1,155 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317836AbSIEQzA>; Thu, 5 Sep 2002 12:55:00 -0400
+	id <S317855AbSIERDU>; Thu, 5 Sep 2002 13:03:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317855AbSIEQzA>; Thu, 5 Sep 2002 12:55:00 -0400
-Received: from [192.216.249.93] ([192.216.249.93]:26118 "EHLO willie.n0ano.com")
-	by vger.kernel.org with ESMTP id <S317836AbSIEQy7>;
-	Thu, 5 Sep 2002 12:54:59 -0400
-From: Don Dugger <n0ano@n0ano.com>
-Date: Thu, 5 Sep 2002 10:43:12 -0600
-To: davidm@hpl.hp.com
-Cc: R Sreelatha <rsreelat@in.ibm.com>, linux-ia64@linuxia64.org,
-       davem@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [Linux-ia64] Re: patch for IA64: fix do_sys32_msgrcv bad address error.
-Message-ID: <20020905104312.A30920@willie.n0ano.com>
-References: <OFFB350C4A.BB78D4E6-ON65256C2B.004CF605@in.ibm.com> <15735.35748.328193.108301@napali.hpl.hp.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <15735.35748.328193.108301@napali.hpl.hp.com>; from davidm@napali.hpl.hp.com on Thu, Sep 05, 2002 at 09:51:48AM -0700
+	id <S317865AbSIERDU>; Thu, 5 Sep 2002 13:03:20 -0400
+Received: from warden3-p.diginsite.com ([208.147.64.186]:12492 "HELO
+	warden3.diginsite.com") by vger.kernel.org with SMTP
+	id <S317855AbSIERDS>; Thu, 5 Sep 2002 13:03:18 -0400
+Date: Thu, 5 Sep 2002 09:59:51 -0700 (PDT)
+From: David Lang <dlang@diginsite.com>
+To: "Peter T. Breuer" <ptb@it.uc3m.es>
+cc: Helge Hafting <helgehaf@aitel.hist.no>, <linux-kernel@vger.kernel.org>
+Subject: Re: (fwd) Re: [RFC] mount flag "direct"
+In-Reply-To: <200209051424.g85EOx105274@oboe.it.uc3m.es>
+Message-ID: <Pine.LNX.4.44.0209050940370.3871-100000@dlang.diginsite.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes, but Dave Millier claims that this patch is still broken, he says the
-fix needs to be in `ipc_kludge'.  I don't have access to my source tree
-until this evening, have you looked at this?
+On Thu, 5 Sep 2002, Peter T. Breuer wrote:
 
-On Thu, Sep 05, 2002 at 09:51:48AM -0700, David Mosberger wrote:
-> >>>>> On Thu, 5 Sep 2002 19:46:40 +0530, "R Sreelatha" <rsreelat@in.ibm.com> said:
-> 
->   R> In sys_ia32.c file, in the do_sys32_msgrcv() function call, the
->   R> value of ipck.msgp is interpreted as a 64 bit address, whereas it
->   R> is a 32 bit address.  Hence, do_sys32_msgrcv() finally returns
->   R> EFAULT(bad address) error.  The patch below takes care of this by
->   R> type casting ipck.msgp to type u32.  The patch is created for
->   R> 2.5.32 version of the kernel.
-> 
-> Yes, this was obviously broken.  I committed the attached patch to my 2.5
-> tree.
-> 
-> 	--david
-> 
-> # This is a BitKeeper generated patch for the following project:
-> # Project Name: Linux kernel tree
-> # This patch format is intended for GNU patch command version 2.5 or higher.
-> # This patch includes the following deltas:
-> #	           ChangeSet	1.532   -> 1.533  
-> #	arch/ia64/ia32/sys_ia32.c	1.18    -> 1.19   
-> #
-> # The following is the BitKeeper ChangeSet Log
-> # --------------------------------------------
-> # 02/09/05	davidm@tiger.hpl.hp.com	1.533
-> # ia64: Fix x86 struct ipc_kludge (reported by R Sreelatha, fix proposed by
-> # 	Dave Miller).
-> # --------------------------------------------
-> #
-> diff -Nru a/arch/ia64/ia32/sys_ia32.c b/arch/ia64/ia32/sys_ia32.c
-> --- a/arch/ia64/ia32/sys_ia32.c	Thu Sep  5 09:51:05 2002
-> +++ b/arch/ia64/ia32/sys_ia32.c	Thu Sep  5 09:51:05 2002
-> @@ -2111,8 +2111,8 @@
->  };
->  
->  struct ipc_kludge {
-> -	struct msgbuf *msgp;
-> -	long msgtyp;
-> +	u32 msgp;
-> +	s32 msgtyp;
->  };
->  
->  #define SEMOP		 1
-> 
-> _______________________________________________
-> Linux-IA64 mailing list
-> Linux-IA64@linuxia64.org
-> http://lists.linuxia64.org/lists/listinfo/linux-ia64
+> HI .. I'm currently in an internet cafe in nice, france, watching the
+> rain come down, so forgive me if I don't do you justice. I find this
+> reply to be excelent for my purposes. Thank you.
 
--- 
-Don Dugger
-"Censeo Toto nos in Kansa esse decisse." - D. Gale
-n0ano@n0ano.com
+enjoy yourself
+
+> "Helge Hafting wrote:"
+> > "Peter T. Breuer" wrote:
+> > 2.
+> > The fs however is using a smaller blocksize, such as 4k.  So your
+> > big request is broken down into a bunch of requests for the
+> > first 4k block, the second 4k block and so on up to the
+> > 2560th 4k block.  So far, everything happens fast no matter
+> > what kind of fs, or even your no-cache scheme.
+>
+> Fine, but where is the log/phys translation done? I presume that the
+> actual inode contains sufficient info to do the translation, because
+> the inode has a physical location on disk, and it is also associated
+> with a file, and what we do is generally start from the inode and trace
+> down to where the inode says the logical block shoul dbe, and then look
+> it up. During this time the inode location on disk must be locked
+> (with a read lock). I can do that. If you let me have "tag
+> requests" in the block layers and let me generate them in the VFS
+> layers. Yes, I agree, I have to know where the inode is on disk
+> in order to generate the block request, but the FS will know,
+> and I just want it to tell VFS .. well, too much detail.
+>
+
+ahh, but the problem is that you have to lookup where the inode is, so you
+have to start from the layer above that, etc eventually getting to the
+large number of accesses required that were documented in an earlier post.
+remember that the low levels don't know the difference between data and an
+Inode, only the filesystem code knows which is which.
+
+> > about where the blocks are is called "metadata".
+> > So we need to look at metadata for every little 4k block.
+>
+> No .. I don't see that. Not every block has some unique metadata
+> associated, with it, surely? I thought that normally inodes
+> were "direct", that is, pointing at contiguous lumps? Sure,
+> sometimes some other lookups might be required. but often? No.
+
+but if you cache the inode contents then you have consistancy problems
+between multiple machines, if you don't cache the inodes then you have to
+find them and read their contents each time.
+
+> Especially if you imagine that 99.99% of the ops on the file system will
+> be rewriting or rereading files. Just a "metadata updated" flag on the
+> FS might be useful to avoid looking everything up again avery time,
+> but I realy would like to see how much overhead there IS first.
+
+but now this is filesystem specific, not a generic mechanism.
+
+> > That isn't a problem usually, because the metadata is
+> > small and is normally cached entirely, even for a large
+> > file.  So we can look up "wher block 1 is on disk, where block 2
+> > is on disk..." by looking at a little table in memory.
+>
+> Well, or on disk :-)
+
+take a look at disk seek times, newer disks have increased the transfer
+rate and capacity significantly, but seek times are hovering in the mid
+single digit ms range, you have to seek to the place on disk that holds
+your metadata (potentially several seeks) and then seek back to the data,
+if the data happened to be the next block on disk you have now bounced the
+ehad all over the disk in between, eliminating the elevator algorithm and
+any chance of merging the requests.
+
+> May have, but probably won't. To have messed with it it must
+> have messed with the inode, and we can ask the driver if anyone
+> but us has written to that spot (the inode), and if not, not
+> reread it. That's just an idea, but really, I would prefer to reread
+> it. Data reads and writes will generally be in lumps the order of
+> 0.25M. An extra 4K on that is latency, not appreciable extra data.
+
+but at the low levels the data is all 4K reads, these reads can be merged
+if the metadata tells you that they are adjacent, but if you have to
+lookup the metadata between each block (since you can't look it up in
+memory...)
+
+> > So we have to read metadata *again* for each little
+> > block before we are able to read it, for you don't let
+>
+> No, not each little block. I disagree totally. Remember that
+> we get the lock on the inode area at the start of the opn. Nobody
+> can mess with it while we do the sequence of small reads or writes
+> (which will be merged into large reads or writes). That was the
+> whole point of my request for extra "tag requests" in the block
+> layer. I want to be able to request a region lock, by whatever
+> mechanism.
+
+This locking is the coordination between multiple machines that the
+specialized distributed filesystems implement. if you are going to
+implement this on every filesystem then you are going to turn every one of
+them into a cooperative DFS.
+
+> Well, you forget that we had to seek there anyway, and that the
+> _server_ kernel has cached the result (I am only saying that the
+> _client_ kernels need O_*DIRECT) , and that therefore there is
+> no ondisk seek on the real device, just a "memory seek" in the
+> guardian of the real device.
+>
+> > And where on disk is the metadata for this file?
+> > That information is cached too, but you
+> > disallow caching.  Rmemeber, the cache isn't just for
+>
+> You are confusing yourself with syntax instead of semantics, I think ..
+> I can't relate this account to anything that really happens right now.
+> The words "no caching" only apply to the kernel for which the
+> real device is remote. On the kernel for which it is local, of course
+> there is block-level caching (though not FS level caching, I hope!).
+
+Ok, here is one place where the disconnect is happening.
+
+you are thinking of lots of disks attached to servers that the servers
+then reexport out to the network. this is NFS with an added layer on top
+of it. sharing this is simple, but putting another filesystem on top of it
+is of questionable use.
+
+what the rest of us are thinking of is the Storage Area Network (SAN
+topology where you have large arrays of disks with fibre channel on each
+disk (or each shelf of disks) and fibre channel into each server. every
+server can access every disk directly. there is not 'local' server to do
+any caching.
+
+anyplace that is running multi TB of disks to multiple servers is almost
+certinly going to be doing something like this, otherwise you waste
+bandwidth on your 'local' server when a remote machine wants to access the
+drives, and that bandwidth is frequently the bottleneck of performance for
+those local boxes (even 66MHz 64 bit PCI is easily swamped when you start
+talking about multiple Gb NICs plus disk IO)
+
+ David Lang

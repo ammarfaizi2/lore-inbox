@@ -1,39 +1,99 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130332AbQJ0UzX>; Fri, 27 Oct 2000 16:55:23 -0400
+	id <S130472AbQJ0U4W>; Fri, 27 Oct 2000 16:56:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130442AbQJ0UzM>; Fri, 27 Oct 2000 16:55:12 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:11124 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130332AbQJ0UzG>; Fri, 27 Oct 2000 16:55:06 -0400
-Subject: Re: Somewhat different GPL Question
-To: riel@conectiva.com.br (Rik van Riel)
-Date: Fri, 27 Oct 2000 21:49:44 +0100 (BST)
-Cc: cfriesen@nortelnetworks.com (Christopher Friesen),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0010271604360.25174-100000@duckman.distro.conectiva> from "Rik van Riel" at Oct 27, 2000 04:06:23 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S130417AbQJ0U4M>; Fri, 27 Oct 2000 16:56:12 -0400
+Received: from libra.cus.cam.ac.uk ([131.111.8.19]:42704 "EHLO
+	libra.cus.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S130472AbQJ0Uz7>; Fri, 27 Oct 2000 16:55:59 -0400
+Date: Fri, 27 Oct 2000 21:55:56 +0100 (BST)
+From: Anton Altaparmakov <aia21@cus.cam.ac.uk>
+To: Remi Turk <remi@a2zis.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Not reproducable crc error at boot :-(
+In-Reply-To: <39F9E6C7.1C51B730@a2zis.com>
+Message-ID: <Pine.SOL.3.96.1001027215120.18154C-100000@libra.cus.cam.ac.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E13pGRe-0004pR-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> If you're making interprocess calls to call the GPL code,
-> I suspect you won't have to make your code GPL.
+Hi,
+
+I would suggest to increase the 8bit waitstates in the BIOS by +1 (or
+more). - you might have to increase the 16bit waitstates as well (or
+instead of the 8bit ones).
+
+It cured such a problem for me: - A Intel Pentium PC that had run Netware
+3.12 perfectly happily for years didn't boot up with a CRC error after
+installing RedHat 7.0 on it. - Increasing the 8bit waitstates from 1 to 2
+cured the problem completely and the PC is rocksolid now. - The PC also
+ran Windows quite happily (I installed it after the trouble with Linux
+just to see if it would work - I was worried about the hardware having
+gone dodgy.)
+
+Hope this helps.
+
+Regards,
+
+	Anton
+
+On Fri, 27 Oct 2000, Remi Turk wrote:
+
+> Hi folks,
+> when booting pre5 I got a crc-error while uncompressing
+> the kernel this morning. (/usr/src/linux/lib/inflate.c:1166 AFAICS)
+> Rebooting didn't trigger it again and it's the first time I ever saw it.
 > 
-> OTOH, if you /link/ against a GPL shared library, you will
-> have to GPL the source of your program (that is, you'll have
-> to give it to the people who receive the binary from you).
+> I've never had any SIG11 problems while compiling kernels so I wouldn't
+> expect bad RAM. (Normal people probably run Seti@home,
+> I run "while make bzImage; do date >> /tmp/kcompile; make clean; done"
+> ;-)
+> 
+> OTOH, it's not reproducable which seems an indicator for hardware
+> trouble :-(
+> 
+> Does anybody have any ideas?
+> 
+> Linux version 2.4.0-test10-pre5 (src@localhost.localdomain)
+> (gcc version egcs-2.91.66 19990314/Linux (egcs-1.1.2 release))
+> #1 Tue Oct 24 17:14:24 CEST 2000
+> 
+> processor	: 0
+> vendor_id	: AuthenticAMD
+> cpu family	: 5
+> model		: 8
+> model name	: AMD-K6(tm) 3D processor
+> stepping	: 0
+> cpu MHz		: 350.000809
+> cache size	: 64 KB
+> fdiv_bug	: no
+> hlt_bug		: no
+> sep_bug		: no
+> f00f_bug	: no
+> coma_bug	: no
+> fpu		: yes
+> fpu_exception	: yes
+> cpuid level	: 1
+> wp		: yes
+> flags		: fpu vme de pse tsc msr mce cx8 sep mmx 3dnow
+> bogomips	: 699.60
+> 
+> -- 
+> Linux 2.4.0-test10-pre5 #1 Tue Oct 24 17:14:24 CEST 2000
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
+> 
 
-The out of court settlements don't actually bear up to this interpretation
-and have been more about 'depending on' as a definition for linking and what
-is and is not an entire application.
 
-Its one reason Im glad Linus had the sense to put an explicit statement about
-syscalls in the kernel COPYING file.
+-- 
+
+Anton Altaparmakov       Phone: +44-(0)1223-333541 (lab)
+Christ's College         eMail: AntonA@bigfoot.com
+Cambridge CB2 3BU          WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+United Kingdom             ICQ: 8561279
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

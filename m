@@ -1,38 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263444AbTEMJpX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 05:45:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263452AbTEMJpX
+	id S263436AbTEMJoZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 05:44:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263444AbTEMJoZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 05:45:23 -0400
-Received: from siaab1aa.compuserve.com ([149.174.40.1]:25835 "EHLO
-	siaab1aa.compuserve.com") by vger.kernel.org with ESMTP
-	id S263444AbTEMJpW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 05:45:22 -0400
-Date: Tue, 13 May 2003 05:52:17 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: The disappearing sys_call_table export.
-To: Yoav Weiss <ml-lkml@unpatched.org>
-Cc: linux-kernel@vger.kernel.org
-Message-ID: <200305130556_MC3-1-389D-DEBF@compuserve.com>
+	Tue, 13 May 2003 05:44:25 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:17847 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S263436AbTEMJoY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 05:44:24 -0400
+Date: Tue, 13 May 2003 11:57:02 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: cosmos <cosmos@wired-net.gr>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: Documentation/linu-logo-HOWTO.txt
+In-Reply-To: <000d01c31932$1e534a20$362205d5@carlos>
+Message-ID: <Pine.GSO.4.21.0305131156420.20323-100000@vervain.sonytel.be>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> cat >/sbin/swapoff
-> #!/bin/sh
-> /sbin/swapoff.real
-> /sbin/wipeswap
-> ^D
-> chmod +x /sbin/swapoff
+On Tue, 13 May 2003, cosmos wrote:
+> i have written a doc for the hack of the bootup linux logo.The document
+> contains the main program that produces the linux-logo.h header file and the
+> aquired measurements for the WIDTH & HEIGHT for the fbcon.c file.
+> Can this doc be included in the Documentation of the kernel.
 
-  OK...
+I guess this is for 2.4.x?
 
- # rpm --freshen mount-2.11n-12.rpm
+Where are the patches?
 
+Gr{oetje,eeting}s,
 
-   swapoff get silently replaced AFAICT.
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+

@@ -1,102 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262942AbTCSHlI>; Wed, 19 Mar 2003 02:41:08 -0500
+	id <S262940AbTCSIBu>; Wed, 19 Mar 2003 03:01:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262940AbTCSHlI>; Wed, 19 Mar 2003 02:41:08 -0500
-Received: from gans.physik3.uni-rostock.de ([139.30.44.2]:38553 "EHLO
-	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id <S262942AbTCSHlH>; Wed, 19 Mar 2003 02:41:07 -0500
-Date: Wed, 19 Mar 2003 08:51:57 +0100 (CET)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: george anzinger <george@mvista.com>
-cc: Andrew Morton <akpm@digeo.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] fix nanosleep() granularity bumps
-In-Reply-To: <20030318203125.054b2704.akpm@digeo.com>
-Message-ID: <Pine.LNX.4.33.0303190832430.32325-100000@gans.physik3.uni-rostock.de>
+	id <S262943AbTCSIBu>; Wed, 19 Mar 2003 03:01:50 -0500
+Received: from landfill.ihatent.com ([217.13.24.22]:59778 "EHLO
+	mail.ihatent.com") by vger.kernel.org with ESMTP id <S262940AbTCSIBt>;
+	Wed, 19 Mar 2003 03:01:49 -0500
+To: Andrew Morton <akpm@digeo.com>
+Cc: rmk@arm.linux.org.uk, linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.5.65-mm1
+References: <20030318031104.13fb34cc.akpm@digeo.com>
+	<87adfs4sqk.fsf@lapper.ihatent.com>
+	<87bs08vfkg.fsf@lapper.ihatent.com>
+	<20030318160902.C21945@flint.arm.linux.org.uk>
+	<873clkw6ui.fsf@lapper.ihatent.com>
+	<20030318162601.78f11739.akpm@digeo.com>
+From: Alexander Hoogerhuis <alexh@ihatent.com>
+Date: 19 Mar 2003 09:12:48 +0100
+In-Reply-To: <20030318162601.78f11739.akpm@digeo.com>
+Message-ID: <87fzpjepvj.fsf@lapper.ihatent.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton <akpm@digeo.com> writes:
 
-On Tue, 18 Mar 2003, Andrew Morton wrote:
+> Alexander Hoogerhuis <alexh@ihatent.com> wrote:
+> >
+> > I'm not suspecting the PCI in particular for the PCIC-bits, only
+> > making X and the Radeon work again. But here you are:
+> 
+> Something bad has happened to the Radeon driver in recent kernels.  I've seen
+> various reports with various syptoms and some suspicion has been directed at
+> the AGP changes.
+> 
+> But as far as I know nobody has actually got down and done the binary search
+> to find out exactly when it started happening.
 
-> george anzinger <george@mvista.com> wrote:
-> > Here is a fix for the problem that eliminates the index from the
-> > structure.
-[...]
-> Seems to be a nice change.  I think it would be better to get Tim's fix into
-> Linus's tree and let your rationalisation bake for a while in -mm.
+Just got my machine out and booted up, this time I did enable my
+chipset into 4x AGP, instead of 1x as last night:
 
-I'm all for this way. Push my quick'n ugly patch to mainline soon to get
-thinks working again. Have at least one mainline release before changing
-again to start off from something working. Then add George's patch when
-it has matured.
+alexh@lapper ~ $ dmesg | grep -i agp
+Linux agpgart interface v0.100 (c) Dave Jones
+agpgart: Detected Intel i845 chipset
+agpgart: Maximum main memory to use for agp memory: 690M
+agpgart: AGP aperture is 256M @ 0xa0000000
+agpgart: Putting AGP V2 device at 00:00.0 into 4x mode
+agpgart: Putting AGP V2 device at 01:00.0 into 4x mode
+alexh@lapper ~ $
 
-> There is currently a mysterious timer lockup happening on power4 machines.
-> I'd like to keep these changes well-separated in time so we can get an
-> understanding of what code changes correlate with changed behaviour.
-
-Can this problem be reproduced with INITIAL_JIFFIES=0? Just to make sure I
-didn't break something more.
-
-
-On Tue, 18 Mar 2003, George Anzinger wrote:
-
-> Here is a fix for the problem that eliminates the index from the
-> structure.  The index ALWAYS depends on the current value of
-> base->timer_jiffies in a rather simple way which is I exploit.  Either
-> patch works, but this seems much simpler...
-[...]
-> @@ -384,22 +382,26 @@
->   * This function cascades all vectors and executes all expired timer
->   * vectors.
->   */
-> +#define INDEX(N) (base->timer_jiffies >> (TVR_BITS + N * TVN_BITS)) &
-TVN_MASK
-
-No, with the current implementation we need
- #define INDEX(N) (base->timer_jiffies >> (TVR_BITS + N * TVN_BITS) +1) &
- TVN_MASK
-although I'd like to see that cleaned up.
-
-> +
-> static inline void __run_timers(tvec_base_t *base)
->  {
-> +	int index = base->timer_jiffies & TVR_MASK;
->  	spin_lock_irq(&base->lock);
-> +	if(jiffies - base->timer_jiffies > 0)
->  	while ((long)(jiffies - base->timer_jiffies) >= 0) {
->  		struct list_head *head, *curr;
->
-
-Are the doubled 'if' and 'while' really what you meant?
-
-> @@ -1181,12 +1182,7 @@
->  	for (j = 0; j < TVR_SIZE; j++)
->  		INIT_LIST_HEAD(base->tv1.vec + j);
->
-> -	base->timer_jiffies = INITIAL_JIFFIES;
-> -	base->tv1.index = INITIAL_JIFFIES & TVR_MASK;
-> -	base->tv2.index = (INITIAL_JIFFIES >> TVR_BITS) & TVN_MASK;
-> -	base->tv3.index = (INITIAL_JIFFIES >> (TVR_BITS+TVN_BITS)) &
-TVN_MASK;
-> -	base->tv4.index = (INITIAL_JIFFIES >> (TVR_BITS+2*TVN_BITS)) &
-TVN_MASK;
-> -	base->tv5.index = (INITIAL_JIFFIES >> (TVR_BITS+3*TVN_BITS)) &
-TVN_MASK;
-> +	base->timer_jiffies = jiffies -1;
->  }
->
->  static int __devinit timer_cpu_notify(struct notifier_block *self,
-
-Why 'jiffies -1'? This will just be made up for in the first
-timer interrupt, where timer_jiffies will get incremented twice.
-
-
-Did you bother to test the patch? It doesn't even boot for me, and I don't
-see how it is supposed to.
-I'll look into it more closely in the evening. Have to go to work now.
-
-Tim
-
+mvh,
+A
+-- 
+Alexander Hoogerhuis                               | alexh@ihatent.com
+CCNP - CCDP - MCNE - CCSE                          | +47 908 21 485
+"You have zero privacy anyway. Get over it."  --Scott McNealy

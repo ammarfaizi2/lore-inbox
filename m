@@ -1,50 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271364AbTGQIci (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 04:32:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271365AbTGQIci
+	id S271373AbTGQIhj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 04:37:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271374AbTGQIhj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 04:32:38 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:3086 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S271364AbTGQIch (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 04:32:37 -0400
-Date: Thu, 17 Jul 2003 10:47:08 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Joel Becker <Joel.Becker@oracle.com>
-cc: Andrew Morton <akpm@osdl.org>, Andries Brouwer <aebr@win.tue.nl>,
-       <greg@kroah.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] print_dev_t for 2.6.0-test1-mm
-In-Reply-To: <20030717082716.GA19891@ca-server1.us.oracle.com>
-Message-ID: <Pine.LNX.4.44.0307171037070.717-100000@serv>
-References: <20030716184609.GA1913@kroah.com> <20030716130915.035a13ca.akpm@osdl.org>
- <20030716210253.GD2279@kroah.com> <20030716141320.5bd2a8b3.akpm@osdl.org>
- <20030716213451.GA1964@win.tue.nl> <20030716143902.4b26be70.akpm@osdl.org>
- <20030716222015.GB1964@win.tue.nl> <20030716152143.6ab7d7d3.akpm@osdl.org>
- <20030717014410.A2026@pclin040.win.tue.nl> <20030716164917.2a7a46f4.akpm@osdl.org>
- <20030717082716.GA19891@ca-server1.us.oracle.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 17 Jul 2003 04:37:39 -0400
+Received: from cm61.gamma179.maxonline.com.sg ([202.156.179.61]:27008 "EHLO
+	hera.eugeneteo.net") by vger.kernel.org with ESMTP id S271373AbTGQIhi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 04:37:38 -0400
+Date: Thu, 17 Jul 2003 16:52:28 +0800
+From: Eugene Teo <eugene.teo@eugeneteo.net>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: Danek Duvall <duvall@emufarm.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] O6.1int
+Message-ID: <20030717085228.GB913@eugeneteo.net>
+Reply-To: Eugene Teo <eugene.teo@eugeneteo.net>
+References: <200307171213.02643.kernel@kolivas.org> <200307171635.25730.kernel@kolivas.org> <20030717080436.GA16509@lorien.emufarm.org> <200307171821.41886.kernel@kolivas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200307171821.41886.kernel@kolivas.org>
+X-Operating-System: Linux 2.6.0-test1-mm1+o6int
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Thu, 17 Jul 2003, Joel Becker wrote:
-
-> On Wed, Jul 16, 2003 at 04:49:17PM -0700, Andrew Morton wrote:
-> > Please describe a scenario in which a filesystem which works on current
-> > kernels will, in a 64-bit-dev_t kernel, call init_special_inode() with a
-> > 16:16 encoded device number.
+<quote sender="Con Kolivas">
+> On Thu, 17 Jul 2003 18:04, Danek Duvall wrote:
+> > In 2.6.0-test1, the cc1 processes hover around 30 (early on they're
 > 
-> 	Perhaps he's thinking of NFSv2.  If you want to make a device
-> bigger than 8:8...  Personally, I'm happy to ignore NFSv2 for this.
+<snipped>
 
-It's not just NFS2, with NFS3 and later it also depends on how many and 
-which bits the server keeps. They usually use the standard major/minor/ 
-makedev macros, so you only get back what the platform supports.
-Splitting dev_t in major/minor numbers can be lots of fun...
+Conman,
 
-bye, Roman
+Was running O6int, and after running my laptop for 1/2 day, I
+experienced obvious slowdown, and not just xmms is jittering, 
+licq is not functioning smoothly, etc. Was running licq, xmms, 
+couple of aterm, ssh. Prior to these, was running lmbench.
 
+Now running O6.1int, no problem at the moment, but noticable 
+improvement especially when hiding/unhiding aterm (using wmaker).
+Will keep you updated.
+
+Specs:
+CPU: Intel(R) Pentium(R) 4 Mobile CPU 1.60GHz stepping 04
+Memory: 514732k/523776k available
+Linux philyra 2.6.0-test1-mm1+o6int #1 Thu Jul 17 11:11:55 SGT 2003 i686
+
+/amnesia

@@ -1,80 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261889AbVCZAVC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261887AbVCZA1E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261889AbVCZAVC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 19:21:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261895AbVCZAVC
+	id S261887AbVCZA1E (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 19:27:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261890AbVCZA1E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 19:21:02 -0500
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:22177 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S261889AbVCZAUq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 19:20:46 -0500
-Date: Sat, 26 Mar 2005 03:47:33 +0300
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Kim Phillips <kim.phillips@freescale.com>,
-       Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>,
-       linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
-       cryptoapi@lists.logix.cz, David McCullough <davidm@snapgear.com>
-Subject: Re: [PATCH] API for true Random Number Generators to add entropy
- (2.6.11)
-Message-ID: <20050326034733.3c532f20@zanzibar.2ka.mipt.ru>
-In-Reply-To: <20050325234745.GA22661@gondor.apana.org.au>
-References: <1111737496.20797.59.camel@uganda>
-	<424495A8.40804@freescale.com>
-	<20050325234348.GA17411@havoc.gtf.org>
-	<20050325234745.GA22661@gondor.apana.org.au>
-Reply-To: johnpol@2ka.mipt.ru
-Organization: MIPT
-X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Fri, 25 Mar 2005 19:27:04 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:35315 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261887AbVCZA1A
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Mar 2005 19:27:00 -0500
+Subject: Re: [Ext2-devel] Re: OOM problems on 2.6.12-rc1 with many fsx tests
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: Dave Jones <davej@redhat.com>
+Cc: Mingming Cao <cmm@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       Andrea Arcangeli <andrea@suse.de>, mjbligh@us.ibm.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ext2-devel <ext2-devel@lists.sourceforge.net>
+In-Reply-To: <20050326001702.GA22347@redhat.com>
+References: <20050315204413.GF20253@csail.mit.edu>
+	 <20050316003134.GY7699@opteron.random>
+	 <20050316040435.39533675.akpm@osdl.org>
+	 <20050316183701.GB21597@opteron.random>
+	 <1111607584.5786.55.camel@localhost.localdomain>
+	 <20050326001702.GA22347@redhat.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1111796400.21169.69.camel@dyn318077bld.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 25 Mar 2005 16:20:01 -0800
 Content-Transfer-Encoding: 7bit
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [194.85.82.65]); Sat, 26 Mar 2005 03:19:56 +0300 (MSK)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 26 Mar 2005 10:47:45 +1100
-Herbert Xu <herbert@gondor.apana.org.au> wrote:
-
-> On Fri, Mar 25, 2005 at 06:43:49PM -0500, Jeff Garzik wrote:
-> > 
-> > In any case, it is the wrong solution to simply "turn on the tap" and
-> > let the RNG spew data.  There needs to be a limiting factor... typically
-> > rngd should figure out when /dev/random needs more entropy, or simply
-> > delay a little bit between entropy collection/stuffing runs.
+On Fri, 2005-03-25 at 16:17, Dave Jones wrote:
+> On Wed, Mar 23, 2005 at 11:53:04AM -0800, Mingming Cao wrote:
 > 
-> Completely agreed.  Having it in rngd also allows the scheduler to
-> do its job.
+>  > The fsx command is:
+>  > 
+>  > ./fsx -c 10 -n -r 4096 -w 4096 /mnt/test/foo1 &
+>  > 
+>  > I also see fsx tests start to generating report about read bad data
+>  > about the tests have run for about 9 hours(one hour before of the OOM
+>  > happen). 
+> 
+> Is writing to the same testfile from multiple fsx's supposed to work?
+> It sounds like a surefire way to break the consistency checking that it does.
+> I'm surprised it lasts 9hrs before it breaks.
+> 
+> In the past I've done tests like..
+> 
+> for i in `seq 1 100`
+> do
+>   fsx foo$i &
+> done
+> 
+> to make each process use a different test file.
+> 
 
-It looks like we all misunderstand each other - 
-why do you think that if there will be kernel <-> kernel
-RNG dataflow, then system will continuously spent all
-it's time to produce that data?
-_Ability_ existence does not mean that only it must be used.
-Userspace daemon should be able to turn it on or off, 
-but it is too expensive to allow it to be not only dataflow
-controller, but the only random numbers dataflow initiator.
+No. We are doing on different files - Mingming cut and pasted
+only a single line from the script.
 
-I can create following patch on top of rngd - 
-it will read from /dev/random, if read succeds too fast
-(or even better just to check pool counts), then rngd
-will turn HW RNG assist off and examine received data
-to check if it is valid.
-Later it can be turned on again.
+Thanks,
+Badari
 
-> When applications need entropy from /dev/random and they can't get it,
-> they'll simply block which allows rngd to run to refill the tank.
-
-Such a blocking will be definitely a sign to turn 
-HW RNG assist on.
-
-> -- 
-> Visit Openswan at http://www.openswan.org/
-> Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-> Home Page: http://gondor.apana.org.au/~herbert/
-> PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
-
-	Evgeniy Polyakov
-
-Only failure makes us experts. -- Theo de Raadt

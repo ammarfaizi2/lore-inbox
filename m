@@ -1,51 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272274AbTGYTiz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 15:38:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272282AbTGYTiz
+	id S272275AbTGYTm5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 15:42:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272276AbTGYTm5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 15:38:55 -0400
-Received: from smtp803.mail.sc5.yahoo.com ([66.163.168.182]:4220 "HELO
-	smtp803.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S272274AbTGYTiy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 15:38:54 -0400
-Subject: Re: forkpty with streams
-From: Andrew Barton <andrevv@users.sourceforge.net>
-To: Matti Aarnio <matti.aarnio@zmailer.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030725184635.GC6898@mea-ext.zmailer.org>
-References: <1059089316.8596.14.camel@localhost>
-	 <20030725152751.GA606@win.tue.nl> <1059130744.13184.11.camel@localhost>
-	 <20030725184635.GC6898@mea-ext.zmailer.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1059137598.13910.17.camel@localhost>
+	Fri, 25 Jul 2003 15:42:57 -0400
+Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:25606 "EHLO
+	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
+	id S272275AbTGYTmz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jul 2003 15:42:55 -0400
+Date: Fri, 25 Jul 2003 21:57:52 +0200
+From: Jurriaan <thunder7@xs4all.nl>
+To: linux-kernel@vger.kernel.org
+Subject: cutting down on boot messages
+Message-ID: <20030725195752.GA8107@middle.of.nowhere>
+Reply-To: thunder7@xs4all.nl
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2-3mdk 
-Date: 25 Jul 2003 12:53:18 +0000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Message-Flag: Still using Outlook? Please Upgrade to real software!
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-07-25 at 18:46, Matti Aarnio wrote:
+If I boot my system, there are copious messages. 
 
-> dup() helps you to have two fd:s,  fdopen() for both, one with "w",
-> other "r".   Things should not need that dup() actually.
-> Also fcntl() the fd's to be non-blocking.
-> 
-> Actually I am always nervous with stdio streams in places
-> where I want to use non-blocking file handles, and carefull
-> read()ing and write()ng along with select()s to handle
-> non-stagnation of this type of communications.
-> 
+For example:
 
-In my program, the standard input is filtered through a lex scanner
-whose output file is the pty. So it does indeed need to be a stream.
-Since I'm using flex, I won't have much control over the writing
-process. When will it be necessary to read from the pty, to prevent a
-deadlock? After each character the user types?
+md: Autodetecting RAID arrays.
+md: autorun ...
+md: considering hdc6 ...
+md:  adding hdc6 ...
+md: hdc5 has different UUID to hdc6
+md: hdc3 has different UUID to hdc6
+md: hdc1 has different UUID to hdc6
+md:  adding hda6 ...
+md: hda5 has different UUID to hdc6
+md: hda3 has different UUID to hdc6
+md: hda1 has different UUID to hdc6
+md: hdi2 has different UUID to hdc6
+md: hdi1 has different UUID to hdc6
+md: hde2 has different UUID to hdc6
+md: hde1 has different UUID to hdc6
+md: created md5
+md: bind<hda6>
+md: bind<hdc6>
+md: running: <hdc6><hda6>
+md5: setting max_sectors to 128, segment boundary to 32767
+raid1: raid set md5 active with 2 out of 2 mirrors
 
-I might use SIGIO to read from the pty, but I have the 2.4 kernel that
-doesn't support SIGIO on pipes and FIFOs. I assume ptys have the same
-problem.
+Now these messages are often uninteresting - but sometimes they are.
+So just deleting them, or requiring a recompile or reboot is not good
+enough.
+Also, I noted that these messages were almost always grouped together.
 
+Suppose these messages were removed from the normal output, but instead
+stored in a buffer in the kernel.
+
+Then, you could do
+
+dmesg.raid
+
+to get at the raid-messages,
+
+and 
+
+dmesg.raid --clear 
+
+to clear the buffer.
+
+The same goes for other groups of messages, like the whole APIC/IRQ
+routing block, ide messages, usb messages etc.
+
+Would this keep the interesting information, but cut down on the amount
+of messages? I'm now at 22k of dmesg, including raid, usb, apic etc, for
+a single CPU system.
+
+I'd be interested in everyone's opinion on this!
+
+Jurriaan
+-- 
+REAL LIFE MANAGEMENT 'DILBERT QUOTATIONS':
+11: One day my Boss asked me to submit a status report to him concerning a
+    project I was working on. I asked him if tomorrow would be soon
+    enough. He said "If I wanted it tomorrow, I would have waited until
+    tomorrow to ask for it!" (New business manager, Hallmark Greeting
+    Cards.)
+Debian (Unstable) GNU/Linux 2.6.0-test1-ac2 4112 bogomips load av: 1.00 1.00 1.00

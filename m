@@ -1,72 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264280AbTICSg6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 14:36:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264292AbTICSgc
+	id S264196AbTICS1A (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 14:27:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264241AbTICSZo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 14:36:32 -0400
-Received: from 24-193-66-245.nyc.rr.com ([24.193.66.245]:55425 "EHLO
-	siri.morinfr.org") by vger.kernel.org with ESMTP id S264280AbTICSeA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 14:34:00 -0400
-Date: Wed, 3 Sep 2003 14:35:07 -0400
-From: Guillaume Morin <guillaume@morinfr.org>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: James Clark <jimwclark@ntlworld.com>, linux-kernel@vger.kernel.org
-Subject: Re: Driver Model 2 Proposal - Linux Kernel Performance v Usability
-Message-ID: <20030903183507.GI905@siri.morinfr.org>
-Mail-Followup-To: Andre Hedrick <andre@linux-ide.org>,
-	James Clark <jimwclark@ntlworld.com>, linux-kernel@vger.kernel.org
-References: <200309031850.14925.jimwclark@ntlworld.com> <Pine.LNX.4.10.10309031043410.13722-100000@master.linux-ide.org>
+	Wed, 3 Sep 2003 14:25:44 -0400
+Received: from holomorphy.com ([66.224.33.161]:43913 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S264196AbTICSYR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 14:24:17 -0400
+Date: Wed, 3 Sep 2003 11:25:24 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Larry McVoy <lm@work.bitmover.com>, "Brown, Len" <len.brown@intel.com>,
+       Larry McVoy <lm@bitmover.com>, Giuliano Pochini <pochini@shiny.it>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Scaling noise
+Message-ID: <20030903182524.GS4306@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Larry McVoy <lm@work.bitmover.com>,
+	"Brown, Len" <len.brown@intel.com>, Larry McVoy <lm@bitmover.com>,
+	Giuliano Pochini <pochini@shiny.it>, linux-kernel@vger.kernel.org
+References: <BF1FE1855350A0479097B3A0D2A80EE009FCEF@hdsmsx402.hd.intel.com> <20030903173213.GC5769@work.bitmover.com> <20030903180702.GQ4306@holomorphy.com> <20030903180755.GE5769@work.bitmover.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.10.10309031043410.13722-100000@master.linux-ide.org>
+In-Reply-To: <20030903180755.GE5769@work.bitmover.com>
+Organization: The Domain of Holomorphy
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dans un message du 03 Sep à 10:49, Andre Hedrick écrivait :
-> The only solution is to created a GPL pre-loading module with all the
-> GPL_ONLY needed extentions re-exported or externed as to bypass the
-> horse sh*t.
+On Wed, Sep 03, 2003 at 11:07:02AM -0700, William Lee Irwin III wrote:
+>> You're thinking single-application again. Systems run more than one
+>> thing at once.
 
-Which would be a violation of the GPL :
+On Wed, Sep 03, 2003 at 11:07:55AM -0700, Larry McVoy wrote:
+> Then explain why hyperthreading is turned off by default in Windows.
 
-What is the difference between "mere aggregation" and "combining two
-modules into one program"?  
+I don't follow M$ stuff and am not interested in much about it. cc:
+someone@microsoft.com and have them tell the others.
 
-   Mere aggregation of two programs means putting them side by side on
-the same CD-ROM or hard disk. We use this term in the case where they
-are separate programs, not parts of a single program. In this case, if
-one of the programs is covered by the GPL, it has no effect on the other
-program.
 
-    Combining two modules means connecting them together so that they form a
-single larger program. If either part is covered by the GPL, the whole
-combination must also be released under the GPL--if you can't, or won't, do
-that, you may not combine them.
+On Wed, Sep 03, 2003 at 11:07:02AM -0700, William Lee Irwin III wrote:
+>> That's neither sufficient information about those two companies nor a
+>> sufficient number of companies to make a proper empirical statement
+>> about this. I really don't care for a stock market update, but I'm just
+>> not going to believe anything this sketchy (from either source, actually).
 
-    What constitutes combining two parts into one program? This is a legal
-question, which ultimately judges will decide. We believe that a proper
-criterion depends both on the mechanism of communication (exec, pipes, rpc,
-function calls within a shared address space, etc.) and the semantics of the
-communication (what kinds of information are interchanged).
+On Wed, Sep 03, 2003 at 11:07:55AM -0700, Larry McVoy wrote:
+> Translation: "I don't like your data so I'm ignoring it".
+> How you can look at those two companies and not see what is obvious is
+> beyond me but everyone is entitled to their opinion.  It's nice when your
+> opinion is based on data, not religion.
 
-    If the modules are included in the same executable file, they are
-definitely combined in one program. If modules are designed to run linked
-together in a shared address space, that almost surely means combining them
-into one program.
+Restating the above in slow motion:
 
-    By contrast, pipes, sockets and command-line arguments are communication
-mechanisms normally used between two separate programs. So when they are used
-for communication, the modules normally are separate programs. But if the
-semantics of the communication are intimate enough, exchanging complex internal
-data structures, that too could be a basis to consider the two parts as
-combined into a larger program.
+(a) economic arguments make me want to puke in the face of the presenter
+(b) I don't believe either of you jokers giving someone else's bottom line
+(c) Sun's in the toilet anyway, try comparing Dell to a healthy vendor
 
--- 
-Guillaume Morin <guillaume@morinfr.org>
 
-     Tu veux que les gens réagissent ? Alors commence par réagir (Lofofora)
+-- wli

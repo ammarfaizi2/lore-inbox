@@ -1,35 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265998AbTBCEY5>; Sun, 2 Feb 2003 23:24:57 -0500
+	id <S265960AbTBCEX4>; Sun, 2 Feb 2003 23:23:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266006AbTBCEY5>; Sun, 2 Feb 2003 23:24:57 -0500
-Received: from smtp2.uklinux.net ([80.84.64.30]:25553 "EHLO s2.uklinux.net")
-	by vger.kernel.org with ESMTP id <S265998AbTBCEY4>;
-	Sun, 2 Feb 2003 23:24:56 -0500
-Envelope-To: <linux-kernel@vger.kernel.org>
-From: "James Williams" <fido@tcob1.net>
-To: linux-kernel@vger.kernel.org
-Subject: 3Comm 3CR990-TX-97 NIC
-Message-ID: <MSGID_1=3a11=2f203_3e3d708a@fidonet.org>
-Date: Sunday, 02 Feb 2003 19:18:34 -0600
-X-Mailer: Internet Rex gateway (2.29)
-X-Fido-From: James Williams, 1:11/203
-X-Fido-To: All
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S265982AbTBCEX4>; Sun, 2 Feb 2003 23:23:56 -0500
+Received: from rth.ninka.net ([216.101.162.244]:63435 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id <S265960AbTBCEXz>;
+	Sun, 2 Feb 2003 23:23:55 -0500
+Subject: Re: problems achieving decent throughput with latency.
+From: "David S. Miller" <davem@redhat.com>
+To: bert hubert <ahu@ds9a.nl>
+Cc: Ben Greear <greearb@candelatech.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030202114838.GA16831@outpost.ds9a.nl>
+References: <3E3CCADA.6080308@candelatech.com> 
+	<20030202114838.GA16831@outpost.ds9a.nl>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 02 Feb 2003 21:14:53 -0800
+Message-Id: <1044249293.19078.1.camel@rth.ninka.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Originally to: All
-
-Hello,
-
-Has anyone ever got 3com's 3cr990 Nic card to work in Linux. If, so how? What 
-driver did you use, and where to find it. BTW, this is the card with '3 DES 168 
-bit encryption' and it has onboard the 3xp processor. Any help will be 
-appreciated.
-
-
-thx, James
-
+TCP can only send into a pipe as fast as it can see the
+ACKs coming back.  That is how TCP clocks its sending rate,
+and latency thus affects that.
 

@@ -1,72 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261890AbTKYQgu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Nov 2003 11:36:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261719AbTKYQgt
+	id S262817AbTKYQsK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Nov 2003 11:48:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262838AbTKYQsK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Nov 2003 11:36:49 -0500
-Received: from smithers.nildram.co.uk ([195.112.4.54]:48657 "EHLO
-	smithers.nildram.co.uk") by vger.kernel.org with ESMTP
-	id S262491AbTKYQei (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Nov 2003 11:34:38 -0500
-Date: Tue, 25 Nov 2003 16:35:37 +0000
-From: Joe Thornber <thornber@sistina.com>
+	Tue, 25 Nov 2003 11:48:10 -0500
+Received: from wsip-68-14-236-254.ph.ph.cox.net ([68.14.236.254]:20645 "EHLO
+	office.labsysgrp.com") by vger.kernel.org with ESMTP
+	id S262817AbTKYQsI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Nov 2003 11:48:08 -0500
+Message-ID: <3FC387A0.8010600@backtobasicsmgmt.com>
+Date: Tue, 25 Nov 2003 09:47:28 -0700
+From: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
+Organization: Back to Basics Network Management
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20030925
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: Joe Thornber <thornber@sistina.com>
-Cc: Linux Mailing List <linux-kernel@vger.kernel.org>,
+CC: Linux Mailing List <linux-kernel@vger.kernel.org>,
        Andrew Morton <akpm@zip.com.au>, Linus Torvalds <torvalds@osdl.org>
-Subject: [Patch 5/5] dm: dm_table_event() sleep on spinlock bug
-Message-ID: <20031125163537.GF524@reti>
-References: <20031125162451.GA524@reti>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031125162451.GA524@reti>
-User-Agent: Mutt/1.5.4i
+Subject: Re: [Patch 3/5] dm: make v4 of the ioctl interface the default
+References: <20031125162451.GA524@reti> <20031125163313.GD524@reti>
+In-Reply-To: <20031125163313.GD524@reti>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You can no longer call dm_table_event() from interrupt context.
---- diff/drivers/md/dm-table.c	2003-11-25 15:47:59.000000000 +0000
-+++ source/drivers/md/dm-table.c	2003-11-25 15:52:15.000000000 +0000
-@@ -12,6 +12,7 @@
- #include <linux/namei.h>
- #include <linux/ctype.h>
- #include <linux/slab.h>
-+#include <linux/interrupt.h>
- #include <asm/atomic.h>
- 
- #define MAX_DEPTH 16
-@@ -746,22 +747,28 @@
- 	return r;
- }
- 
--static spinlock_t _event_lock = SPIN_LOCK_UNLOCKED;
-+static DECLARE_MUTEX(_event_lock);
- void dm_table_event_callback(struct dm_table *t,
- 			     void (*fn)(void *), void *context)
- {
--	spin_lock_irq(&_event_lock);
-+	down(&_event_lock);
- 	t->event_fn = fn;
- 	t->event_context = context;
--	spin_unlock_irq(&_event_lock);
-+	up(&_event_lock);
- }
- 
- void dm_table_event(struct dm_table *t)
- {
--	spin_lock(&_event_lock);
-+	/*
-+	 * You can no longer call dm_table_event() from interrupt
-+	 * context, use a bottom half instead.
-+	 */
-+	BUG_ON(in_interrupt());
-+
-+	down(&_event_lock);
- 	if (t->event_fn)
- 		t->event_fn(t->event_context);
--	spin_unlock(&_event_lock);
-+	up(&_event_lock);
- }
- 
- sector_t dm_table_get_size(struct dm_table *t)
+Joe Thornber wrote:
+
+> Make the version-4 ioctl interface the default kernel configuration option.
+> If you have out of date tools you will need to use the v1 interface.
+
+Actually, isn't the proper way to say this "if your tools are older than 
+X and/or were _not_ built against recent 2.6 headers you need to use the 
+v1 interface"?
+
+Also, if you're going to change the default you should change the help 
+text correspondingly.
+

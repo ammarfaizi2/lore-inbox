@@ -1,40 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287886AbSBMRVa>; Wed, 13 Feb 2002 12:21:30 -0500
+	id <S287895AbSBMRUw>; Wed, 13 Feb 2002 12:20:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287908AbSBMRVN>; Wed, 13 Feb 2002 12:21:13 -0500
-Received: from nat-pool-meridian.redhat.com ([12.107.208.200]:62855 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S287886AbSBMRVJ>; Wed, 13 Feb 2002 12:21:09 -0500
-Date: Wed, 13 Feb 2002 12:21:06 -0500
-From: Pete Zaitcev <zaitcev@redhat.com>
-Message-Id: <200202131721.g1DHL6w15916@devserv.devel.redhat.com>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.4 sound module problem
-In-Reply-To: <mailman.1013591941.29105.linux-kernel2news@redhat.com>
-In-Reply-To: <mailman.1013591941.29105.linux-kernel2news@redhat.com>
+	id <S287886AbSBMRUl>; Wed, 13 Feb 2002 12:20:41 -0500
+Received: from tstac.esa.lanl.gov ([128.165.46.3]:29374 "EHLO
+	tstac.esa.lanl.gov") by vger.kernel.org with ESMTP
+	id <S287882AbSBMRU1>; Wed, 13 Feb 2002 12:20:27 -0500
+Message-Id: <200202131632.JAA02806@tstac.esa.lanl.gov>
+Content-Type: text/plain; charset=US-ASCII
+From: Steven Cole <elenstev@mesatop.com>
+Reply-To: elenstev@mesatop.com
+To: Dag Brattli <dag@brattli.net>
+Subject: [PATCH] Add help texts to drivers/net/irda/Config.help
+Date: Wed, 13 Feb 2002 10:19:11 -0700
+X-Mailer: KMail [version 1.3.1]
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> There are PCI drivers using the old sound code. Whether it matters is a 
-> more complicated question as these devices use ISA DMA emulation or their
-> own pseudo DMA functionality.
-> 
-> Alan
+In drivers/net/irda/Config.in, there are two options which currently do
+not have help texts in drivers/net/irda/Config.help.  Here are snippets
+from the Config.in for these options:
 
-Sometimes it's only a configuration mistake. Not that it mattered,
-since "The ALSA is coming! The ALSA is coming!" can be heard from
-our forrestals.
+if [ "$CONFIG_ARCH_EP7211" = "y" ]; then
+    dep_tristate '  EP7211 I/R support' CONFIG_EP7211_IR $CONFIG_IRDA
+fi
 
---- linux-2.5.4/drivers/sound/Config.in	Sun Feb 10 17:50:10 2002
-+++ linux-2.5.4-p3/drivers/sound/Config.in	Mon Feb 11 10:12:51 2002
-@@ -164,7 +164,7 @@
-    dep_tristate '    Yamaha FM synthesizer (YM3812/OPL-3) support' CONFIG_SOUND_YM3812 $CONFIG_SOUND_OSS
-    dep_tristate '    Yamaha OPL3-SA1 audio controller' CONFIG_SOUND_OPL3SA1 $CONFIG_SOUND_OSS
-    dep_tristate '    Yamaha OPL3-SA2 and SA3 based PnP cards' CONFIG_SOUND_OPL3SA2 $CONFIG_SOUND_OSS
--   dep_tristate '    Yamaha YMF7xx PCI audio (native mode)' CONFIG_SOUND_YMFPCI $CONFIG_SOUND_OSS $CONFIG_PCI
-+   dep_tristate '    Yamaha YMF7xx PCI audio (native mode)' CONFIG_SOUND_YMFPCI $CONFIG_PCI
-    dep_mbool '      Yamaha PCI legacy ports support' CONFIG_SOUND_YMFPCI_LEGACY $CONFIG_SOUND_YMFPCI
-    dep_tristate '    6850 UART support' CONFIG_SOUND_UART6850 $CONFIG_SOUND_OSS   
+if [ "$CONFIG_ARCH_SA1100" = "y" ]; then
+   dep_tristate 'SA1100 Internal IR' CONFIG_SA1100_FIR $CONFIG_IRDA
+fi
 
+Here is a patch to drivers/net/irda/Config.help to add these help texts.
+
+Steven
+
+--- linux-2.5.4/drivers/net/irda/Config.help.orig       Wed Feb 13 09:29:49 2002
++++ linux-2.5.4/drivers/net/irda/Config.help    Wed Feb 13 09:38:40 2002
+@@ -88,6 +88,18 @@
+   If you want to compile it as a module, say M here and read
+   <file:Documentation/modules.txt>. The module will be called vlsi_ir.o.
+
++CONFIG_EP7211_IR
++  Say Y here if you wish to use the infrared port on the EP7211. Note
++  that you can't use the first UART and the infrared port at the same
++  time, and that the EP7211 only supports SIR mode, at speeds up to
++  115.2 kbps. To use the I/R port, you will need to get the source to
++  irda-utils and apply the patch at
++  <http://lists.arm.linux.org.uk/pipermail/linux-arm-kernel/2001-June/003510.html>.
++
++CONFIG_SA1100_FIR
++  Say Y here to enable the on-board IRDA device on a Intel(R)
++  StrongARM(R) SA-1110 based microporocessor.
++
+ CONFIG_DONGLE
+   Say Y here if you have an infrared device that connects to your
+   computer's serial port. These devices are called dongles. Then say Y

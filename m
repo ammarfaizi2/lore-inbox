@@ -1,51 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135675AbRDXPTJ>; Tue, 24 Apr 2001 11:19:09 -0400
+	id <S135679AbRDXPip>; Tue, 24 Apr 2001 11:38:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135680AbRDXPS7>; Tue, 24 Apr 2001 11:18:59 -0400
-Received: from algernon.satimex.tvnet.hu ([195.38.110.113]:50706 "EHLO
-	zeus.suselinux.hu") by vger.kernel.org with ESMTP
-	id <S135675AbRDXPSq>; Tue, 24 Apr 2001 11:18:46 -0400
-Date: Tue, 24 Apr 2001 17:17:08 +0200 (CEST)
-From: Pjotr Kourzanoff <pjotr@suselinux.hu>
-To: CaT <cat@zip.com.au>
-cc: =?iso-8859-1?Q?G=E1bor_L=E9n=E1rt?= <lgb@lgb.hu>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [OFFTOPIC] Re: [PATCH] Single user linux
-In-Reply-To: <20010425005933.G1245@zip.com.au>
-Message-ID: <Pine.LNX.4.31.0104241711410.17653-100000@zeus.suselinux.hu>
+	id <S135680AbRDXPie>; Tue, 24 Apr 2001 11:38:34 -0400
+Received: from [209.10.149.20] ([209.10.149.20]:3078 "EHLO mail.real.net")
+	by vger.kernel.org with ESMTP id <S135679AbRDXPi1>;
+	Tue, 24 Apr 2001 11:38:27 -0400
+Message-ID: <3AE59DCD.2090608@nyc.rr.com>
+Date: Tue, 24 Apr 2001 11:37:49 -0400
+From: John Weber <weber@nyc.rr.com>
+Organization: My House
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.4-pre6 i686; en-US; 0.8) Gecko/20010217
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: thomas.ford@balliol.ox.ac.uk
+CC: linux-kernel@vger.kernel.org
+Subject: Re: PIO disk writes using 100% system time and performing poorly with VIA vt82c686b on kernels 2.2 & 2.4
+In-Reply-To: <fa.hn82icv.1i1uioa@ifi.uio.no>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 25 Apr 2001, CaT wrote:
+Thomas Ford wrote:
 
-> On Tue, Apr 24, 2001 at 04:49:57PM +0200, Pjotr Kourzanoff wrote:
-> > > use port 2525 as SMTP port in your MTA. I've succeed to setup such a
-> > > configuration.
-> >
-> >   This requires you to ensure that your MTA is started first on that
-> >   port...Might be difficult to achieve reliably in an automatic way
-> >   without root privileges :-(
-> >
-> >   mailuser@foo% /etc/rc.d/init.d/sendmail stop
-> >   badguy@foo% ./suck 2525
-> >   mailuser@foo% /etc/rc.d/init.d/sendmail start
->
-> Not necessarily. While I have no yet used the feature, iptables
-> permits firewalling on userid. I presume this includes wether or
+> Heavy disc writes (eg. unzipping linux kernel source) cause the system
+> processor usage (as reported by top/xosview) to jump to 100%, making
+> the X mouse/audio freeze etc.
+> 
+> Such problems occur with the drives connected to VIA vt82c686b south
+> bridge: the same drives on a mvp3 show no such problems.
+> 
+> The behaviour is the same on kernels 2.2.17 & 2.4.3 (both hand
+> compiled & RedHat's 2.4.2-2 & 2.2.17-14 in case I was doing something
+> wrong).
+> 
+> The problem is easily demonstrated by hdparm -t. The CPU use jumps to
+> system 100% as above and all my drives report ~1.9 MB/sec in PIO mode
+> which is far lower than PIO on the mvp3 (~10MB/s).
+> 
+> DMA mode appears to work fine but I am not using it due to publicised
+> potential problems.
+> 
+> Regards,
+> 
+> Tom Ford
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-  man iptables.
+Can you share a link to the "publicised potential problems" for DMA mode?
 
-> not a program can listen on a port, right? (and all the other
-> fun things).
->
-> If so then all you'd have to do is deny external access to port 2525
-> and only permit mailuser to listen etc on it and you're set.
+I'm running VIA686A using DMA mode and haven't had any problems.
+However, the disk isn't operating as efficiently as I thought it would
+(hdparm -t reports 16.3 MB/sec even though I'm using an 80w cable
+with an ATA100 drive).  I believe that this is due in part to
+corrective measures taken by RedHat to fix potential problems with
+the VIA chipset; I saw it reported somewhere that the same configuration
+will work 20+ MB/sec on distros like Debian).
 
-  For this to work, you need to hack up iptables on the mail server
-  itself as -m owner only works for locally generated packets. And
-  even then ./suck will receive on 2525 but will not be able to reply.
-
+-- 
+  -o) j o h n  e   w e b e r
+  / \ aspiring computer scientist & lover of pengiuns
+_\_v
 

@@ -1,31 +1,112 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264702AbTAEM0D>; Sun, 5 Jan 2003 07:26:03 -0500
+	id <S264688AbTAEMY4>; Sun, 5 Jan 2003 07:24:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264705AbTAEM0D>; Sun, 5 Jan 2003 07:26:03 -0500
-Received: from h-64-105-35-112.SNVACAID.covad.net ([64.105.35.112]:34695 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S264702AbTAEMZ7>; Sun, 5 Jan 2003 07:25:59 -0500
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Sun, 5 Jan 2003 04:34:23 -0800
-Message-Id: <200301051234.EAA09133@adam.yggdrasil.com>
-To: paul@clubi.ie
-Subject: Re: Honest does not pay here ...
-Cc: andre@linux-ide.org, andrew@indranet.co.nz, linux-kernel@vger.kernel.org
+	id <S264697AbTAEMYz>; Sun, 5 Jan 2003 07:24:55 -0500
+Received: from f94.sea2.hotmail.com ([207.68.165.94]:46857 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S264688AbTAEMYw>;
+	Sun, 5 Jan 2003 07:24:52 -0500
+X-Originating-IP: [218.75.193.47]
+From: "fretre lewis" <fretre3618@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: why need  outb (0x01, 0xCFB); ?
+Date: Sun, 05 Jan 2003 12:33:18 +0000
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F94pK7udlu4Ftt9NNp800012d0a@hotmail.com>
+X-OriginalArrivalTime: 05 Jan 2003 12:33:18.0755 (UTC) FILETIME=[A060EF30:01C2B4B6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I wrote:
->        Alan Cox (lots of stuff), Andre Hedrik (IDE), Rik van Riel
->(VM) and William Lee Irwin (NUMA) are substantial contributors.  I'm [...]
 
-	Just to clarify, I didn't mean to imply that Andre, Rik and
-William were opposed to the idea of allowing proprietary modules at
-least if they call through a set of defined interfaces.  Andre and Rik
-seem to be in favor of it.  I don't think I've seen a statement from
-wli about it.
+  thank Alan Cox and John Bradford , very nice.
 
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
+  however, I am afraid I haven't make my idea quite clear because of my pool
+english, permit me saying again:
+
+  I am learning code about pci, and I can't understand some lines in
+pci_check_direct(), at arch/i386/kernel/pci-pc.c
+
+the PCI spec v2.0 say: ( page32)
+
+"Anytime a host bridge sees a full DWORD I/O write from the host to
+CONFIG_ADDRESS, the bridge must latch the data into its CONFIG_ADDRESS
+register. On full DWORD I/O reads to CONFIG_ADDRESS,the bridge must return
+the
+data in CONFIG_ADDRESS. Any other types of accesses to this
+address(non-DWORD)
+have no effect on CONFIG_ADDRESS and are excuted as normal I/O transaction
+on PCI bus......"
+
+CONFIG_ADDRESS = 0xcf8
+CONFIG_DATA = 0xcfc
+
+so I think "outb (0x01, 0xCFB);" just is a normal write to a device at port
+address 0xCFB (maybe wrong, fix me), then my questions are:
+
+1. which device is at port address 0xCFB?
+
+2. what is meaning of the writing operation "outb (0x01, 0xCFB);" for THIS
+device?, it'seem that PCI spec v2.0 not say anything about it?
+
+3. why need "outb (0x01, 0xCFB);" before configuration operation "outl
+(0x80000000, 0xCF8);" if check configuration type 1? and why need "outb
+(0x00, 0xCFB);" before "outb (0x00, 0xCF8);" if check configuration type 2?
+
+please help me, thanks a lot.
+
+406 static struct pci_ops * __devinit pci_check_direct(void)
+407 {
+408         unsigned int tmp;
+409         unsigned long flags;
+410
+411         __save_flags(flags); __cli();
+412
+413         /*
+414          * Check if configuration type 1 works.
+415          */
+416         if (pci_probe & PCI_PROBE_CONF1) {
+417                 outb (0x01, 0xCFB);  <<<=========
+418                 tmp = inl (0xCF8);
+419                 outl (0x80000000, 0xCF8);
+420                 if (inl (0xCF8) == 0x80000000 &&
+421                     pci_sanity_check(&pci_direct_conf1)) {
+422                         outl (tmp, 0xCF8);
+423                         __restore_flags(flags);
+424                         printk(KERN_INFO "PCI: Using configuration type
+1\n");
+425                         request_region(0xCF8, 8, "PCI conf1");
+426                         return &pci_direct_conf1;
+427                 }
+428                 outl (tmp, 0xCF8);
+429         }
+430
+431         /*
+432          * Check if configuration type 2 works.
+433          */
+434         if (pci_probe & PCI_PROBE_CONF2) {
+435                 outb (0x00, 0xCFB);   <<<=========
+436                 outb (0x00, 0xCF8);
+437                 outb (0x00, 0xCFA);
+438                 if (inb (0xCF8) == 0x00 && inb (0xCFA) == 0x00 &&
+439                     pci_sanity_check(&pci_direct_conf2)) {
+440                         __restore_flags(flags);
+441                         printk(KERN_INFO "PCI: Using configuration type
+2\n");
+442                         request_region(0xCF8, 4, "PCI conf2");
+443                         return &pci_direct_conf2;
+444                 }
+445         }
+446
+447         __restore_flags(flags);
+448         return NULL;
+449 }
+450
+451 #endif
+
+
+
+_________________________________________________________________
+Protect your PC - get McAfee.com VirusScan Online 
+http://clinic.mcafee.com/clinic/ibuy/campaign.asp?cid=3963
+

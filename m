@@ -1,41 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264104AbTFVI5U (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jun 2003 04:57:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264144AbTFVI5U
+	id S264144AbTFVI7p (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jun 2003 04:59:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264201AbTFVI7p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jun 2003 04:57:20 -0400
-Received: from us01smtp2.synopsys.com ([198.182.44.80]:13290 "EHLO
-	kiruna.synopsys.com") by vger.kernel.org with ESMTP id S264104AbTFVI5T
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jun 2003 04:57:19 -0400
-Message-ID: <3EF572B5.9000002@Synopsys.COM>
-Date: Sun, 22 Jun 2003 11:11:17 +0200
-From: Harald Dunkel <harri@synopsys.COM>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030617
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Harald Dunkel <harri@synopsys.COM>
-Subject: Re: 2.4.21: USB Mass Storage data integrity not assured?
-References: <3EF556D0.5060900@Synopsys.COM>
-In-Reply-To: <3EF556D0.5060900@Synopsys.COM>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 22 Jun 2003 04:59:45 -0400
+Received: from mail.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:32006 "EHLO
+	krusty.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S264144AbTFVI7o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Jun 2003 04:59:44 -0400
+Date: Sun, 22 Jun 2003 11:13:47 +0200
+From: Matthias Andree <matthias.andree@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: AIC7(censored) card gone wild?
+Message-ID: <20030622091347.GA3150@merlin.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <A20D5638D741DD4DBAAB80A95012C0AE03E6A0@orsmsx409.jf.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <A20D5638D741DD4DBAAB80A95012C0AE03E6A0@orsmsx409.jf.intel.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Harald Dunkel wrote:
-> 
-> Well, I need a mass storage whose integrity _is_ assured. Is there
-> any hope that ehci and usb-storage get improved for a 2.4.x kernel?
-> Any patches I could try?
-> 
+[Yamaha Firmware winds up CD-writer]
+> Yummy ... wonder if it happens the same with their motorbikes.
 
-I found Greg's patches. Much better now.
+Haven't heard of similar troubles with their motor bikes or stereo
+equipment (except they claim higher electrical power output for their
+active speakers than the input of the respective power supply is rated.
+I wonder how they do _that_.)
 
+> The panics don't go away, so I am afraid I have something getting
+> to warm in there, on top of the CD burner being burned. God I 
+> hate this things happening ...
 
-Regards
+The Yamaha writers I had - AFAIR - were rated to a max. of 40°C (104°F;
+313 K) and didn't last very long.
 
-Harri
-
+-- 
+Matthias Andree

@@ -1,57 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261874AbTD3KcK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 06:32:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261944AbTD3KcK
+	id S262013AbTD3K6C (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 06:58:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262023AbTD3K6C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 06:32:10 -0400
-Received: from 205-158-62-158.outblaze.com ([205.158.62.158]:53909 "HELO
-	spf1.us.outblaze.com") by vger.kernel.org with SMTP id S261874AbTD3KcJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 06:32:09 -0400
-Message-ID: <20030430104412.11792.qmail@linuxmail.org>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
+	Wed, 30 Apr 2003 06:58:02 -0400
+Received: from 205-158-62-136.outblaze.com ([205.158.62.136]:52355 "HELO
+	fs5-4.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S262013AbTD3K6B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Apr 2003 06:58:01 -0400
+Subject: Re: [CFT] Fix PCMCIA deadlock (rev. 2)
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030429151750.B13439@flint.arm.linux.org.uk>
+References: <20030429151750.B13439@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Message-Id: <1051701006.597.1.camel@teapot.felipe-alfaro.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.3.2.99 (Preview Release)
+Date: 30 Apr 2003 13:10:06 +0200
 Content-Transfer-Encoding: 7bit
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Dean McEwan" <dean_mcewan@linuxmail.org>
-To: linux-kernel@vger.kernel.org
-Date: Wed, 30 Apr 2003 10:44:12 +0000
-Subject: Re: Flame Linus to a crisp! AKA DRM
-X-Originating-Ip: 195.195.129.3
-X-Originating-Server: ws5-8.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 28 Apr 2003, Zack Gilburd wrote:
-> On Mon, 28 Apr 2003 03:35:10 -0700 (PDT)
-> Andre Hedrick <andre@linux-ide.org> wrote:
+On Tue, 2003-04-29 at 16:17, Russell King wrote:
+> Ok, I think everyone ignored my last email about the updated pcmcia
+> deadlock patch.  I've done a little more work on it since then, so
+> here it is again.  Feedback welcome.
 
-Oooh suprise.
-
-
-> 
-> > There is one fundamental problem, and nobody has addressed.
-> > 
-> > Who will enforce the GPL over DRM violations?
-
-The copyright author if they so choose to do so.
-
-> > Since it is a blanket over the entire kernel, and you have formally
-> > (for the most part) have authorized DRM, thus one assumes you are the only
-> > one who can pursue in a court of law.
-> 
-> Unless I am missing something, I was hoping for more of a sparse DRM \
-> implementation; not a blanket. 
-> I was hoping to be able to `modprobe drm` for when I needed to use DRM and likewise \
-> `rmmod drm` for when I didn't want it.  Maybe I am a little late in this \
-> disucssion, but that's just my hopes and whishes.
-
-
+I did not ignore your mail ;-)
+I'm now testing 2.5.68-mm3 which includes your latest PCMCIA fix. It's
+working pretty well for me, as did previous versions.
 -- 
-______________________________________________
-http://www.linuxmail.org/
-Now with e-mail forwarding for only US$5.95/yr
+Please AVOID sending me WORD, EXCEL or POWERPOINT attachments.
+See http://www.fsf.org/philosophy/no-word-attachments.html
+Linux Registered User #287198
 
-Powered by Outblaze

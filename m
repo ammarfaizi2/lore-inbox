@@ -1,41 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278976AbRJ2EIt>; Sun, 28 Oct 2001 23:08:49 -0500
+	id <S278967AbRJ2ETn>; Sun, 28 Oct 2001 23:19:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278977AbRJ2EIj>; Sun, 28 Oct 2001 23:08:39 -0500
-Received: from cs6625129-123.austin.rr.com ([66.25.129.123]:57348 "HELO
-	dragon.taral.net") by vger.kernel.org with SMTP id <S278976AbRJ2EI1>;
-	Sun, 28 Oct 2001 23:08:27 -0500
-Date: Sun, 28 Oct 2001 22:08:54 -0600
-From: Taral <taral@taral.net>
-To: linux-kernel@vger.kernel.org
-Subject: /proc/net/ip_conntrack problems
-Message-ID: <20011028220854.A17685@taral.net>
+	id <S278979AbRJ2ETc>; Sun, 28 Oct 2001 23:19:32 -0500
+Received: from codepoet.org ([166.70.14.212]:21838 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id <S278967AbRJ2ET0>;
+	Sun, 28 Oct 2001 23:19:26 -0500
+Date: Sun, 28 Oct 2001 21:20:06 -0700
+From: Erik Andersen <andersen@codepoet.org>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: r128 + agpgart + APM suspend = death
+Message-ID: <20011028212006.A9278@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	linux-kernel <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.23i
+User-Agent: Mutt/1.3.22i
+X-Operating-System: 2.4.12-ac3-rmk2, Rebel NetWinder (Intel StrongARM-110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-% dd if=/proc/net/ip_conntrack bs=128 | wc -l
-0+0 records in
-0+0 records out
-      0
-% dd if=/proc/net/ip_conntrack bs=256 | wc -l
-0+3 records in
-0+3 records out
-      3
-% dd if=/proc/net/ip_conntrack bs=512 | wc -l
-0+2 records in
-0+2 records out
-      5
+I have a Dell Latitude C800 laptop.  It works just great and
+I can use agpgart + r128 + XFree86 4.0.1 to get nice full 
+screen 3D.  tuxracer looks nice.
 
-Can anyone explain this? (2.4.13-ac3) It's wreaking havoc with my
-program.
+But if I suspend my laptop when the agpgart module is loaded
+is seems to suspend just fine, but will not resume....  Just
+a black screen (of death).   If I ensure that the agpgart and
+r128 modules are not loaded (by commenting out the 'Load "dri"'
+line in /etc/X11/XF86Config-4, then killing X and unloading 
+the modules) then I can suspend.
 
--- 
-Taral <taral@taral.net>
-This message is digitally signed. Please PGP encrypt mail to me.
-"Any technology, no matter how primitive, is magic to those who don't
-understand it." -- Florence Ambrose
+Anyone else seeing similar problems with APM + agpgart?
+The problem has has been the same with all the 2.4.x kernels
+I've tried it on, though I am running 2.4.12-ac6 at the moment.
+
+ -Erik
+
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

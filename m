@@ -1,38 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264936AbUALTbz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 14:31:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264981AbUALTbz
+	id S266227AbUALTxG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 14:53:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266234AbUALTxG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 14:31:55 -0500
-Received: from kluizenaar.xs4all.nl ([213.84.184.247]:51020 "EHLO samwel.tk")
-	by vger.kernel.org with ESMTP id S264936AbUALTby (ORCPT
+	Mon, 12 Jan 2004 14:53:06 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:234 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S266227AbUALTwp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 14:31:54 -0500
-Message-ID: <4002F627.8000508@samwel.tk>
-Date: Mon, 12 Jan 2004 20:31:51 +0100
-From: Bart Samwel <bart@samwel.tk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031221 Thunderbird/0.4
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Kai Krueger <kai.a.krueger@web.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Laptop-mode v7 for linux 2.6.1
-References: <200401121707.i0CH7iQ11796@mailgate5.cinetic.de>
-In-Reply-To: <200401121707.i0CH7iQ11796@mailgate5.cinetic.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 12 Jan 2004 14:52:45 -0500
+Subject: Re: Laptops & CPU frequency
+From: john stultz <johnstul@us.ibm.com>
+To: Xavier Bestel <xavier.bestel@free.fr>
+Cc: Robert Love <rml@ximian.com>, jlnance@unity.ncsu.edu,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1073817226.6189.189.camel@nomade>
+References: <20040111025623.GA19890@ncsu.edu>
+	 <1073791061.1663.77.camel@localhost>  <1073816858.6189.186.camel@nomade>
+	 <1073817226.6189.189.camel@nomade>
+Content-Type: text/plain; charset=iso-8859-1
+Message-Id: <1073937159.28098.46.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Mon, 12 Jan 2004 11:52:40 -0800
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kai Krueger wrote:
-> I'm currently trying kernel 2.6.1-mm1 with laptop-mode on a reiserfs partition.
-> If I kill all daemons running on the system and do nothing with it, I can achieve the 10 minutes spin down time I had expected from laptop-mode. However as soon as I start up X with KDE I get regular spin ups every 30 seconds. Looking at the output of "echo 1 > /proc/sys/vm/block_dump", I see an entry every 30 seconds of "kdeinit(15145): WRITE block 65680 on hda1" followed by a whole load of "reiserfs/0(12): dirtied page" and "reisers/0(12): WRITE block XXXXX on hda1".
+On Sun, 2004-01-11 at 02:33, Xavier Bestel wrote:
+> Le dim 11/01/2004 à 11:27, Xavier Bestel a écrit :
 > 
-> Due to the regular 30 second interval writes of kdeinit: kded to block 65680, laptop-mode is not particularly usable on this system.
-> Is this a problem with reiserfs or with kde and is there any fix available?
+> > > The MHz value in /proc/cpuinfo should be updated as the CPU speed
+> > > changes - that is, it is not calculated just at boot, but it is updated
+> > > as the speed actually changes.
+> > 
+> > 2.6.0 doesn't do that on my laptop. Moreover, if I ever boot on battery,
+> > when switching to AC power, lots of things fail (mouse is jerky, pcmcia
+> > doesn't work ...)
+> 
+> I forgot one particularly annoying too: time is going twice too fast.
 
-Can you take a look at the message that Dumitru Ciobarcianu just sent to 
-the list (about syslog), and check if it's that?
+More info please. What type of hardware is this?  Could you send me your
+dmesg for booting both with and without AC power? 
 
--- Bart
+thanks
+-john
+

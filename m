@@ -1,144 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262001AbVADALH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261993AbVADAPR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262001AbVADALH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 19:11:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261972AbVADAHK
+	id S261993AbVADAPR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 19:15:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261972AbVADAMm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 19:07:10 -0500
-Received: from cantor.suse.de ([195.135.220.2]:51860 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262001AbVADAFJ (ORCPT
+	Mon, 3 Jan 2005 19:12:42 -0500
+Received: from mail.tmr.com ([216.238.38.203]:6925 "EHLO gatekeeper.tmr.com")
+	by vger.kernel.org with ESMTP id S261995AbVADAF7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 19:05:09 -0500
-Date: Tue, 4 Jan 2005 01:04:57 +0100
-From: Olaf Hering <olh@suse.de>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: pin files in memory after read
-Message-ID: <20050104000457.GA23361@suse.de>
-References: <20050103180718.GA22138@suse.de> <1104776680.4192.20.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <1104776680.4192.20.camel@laptopd505.fenrus.org>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+	Mon, 3 Jan 2005 19:05:59 -0500
+Date: Mon, 3 Jan 2005 18:42:24 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+cc: Adrian Bunk <bunk@stusta.de>, Diego Calleja <diegocg@teleline.es>,
+       Willy Tarreau <willy@w.ods.org>, wli@holomorphy.com, aebr@win.tue.nl,
+       solt2@dns.toxicfilms.tv, linux-kernel@vger.kernel.org
+Subject: Re: starting with 2.7 
+In-Reply-To: <200501032103.j03L33eb004694@laptop11.inf.utfsm.cl>
+Message-ID: <Pine.LNX.3.96.1050103183503.30038C-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Mon, Jan 03, Arjan van de Ven wrote:
+On Mon, 3 Jan 2005, Horst von Brand wrote:
 
-> you could write a small userspace daemon that mmaps the file and mlock's
-> it....
+> Bill Davidsen <davidsen@tmr.com> said:
+> 
+> [...]
+> 
+> > I have to say that with a few minor exceptions the introduction of new
+> > features hasn't created long term (more than a few days) of problems. And
+> > we have had that in previous stable versions as well. New features
+> > themselves may not be totally stable, but in most cases they don't break
+> > existing features, or are fixed in bk1 or bk2. What worries me is removing
+> > features deliberately, and I won't beat that dead horse again, I've said
+> > my piece.
+> > 
+> > The "few minor exceptions:"
+> > 
+> > SCSI command filtering - while I totally support the idea (and always
+> > have), I miss running cdrecord as a normal user. Multisession doesn't work
+> > as a normal user (at least if you follow the man page) because only root
+> > can use -msinfo. There's also some raw mode which got a permission denied,
+> > don't remember as I was trying something not doing production stuff.
+> 
+> It had very nasty security problems. After a short discussion here, it was
+> deemed much more important to have a secure system than a (very minor)
+> convenience. AFAIU, the patch was backported to 2.4 (or should be ASAP).
 
-Thanks.
-It seems to work ok with this thing. I used this patch to find the files
-with an absolute path. Any idea how to get to the relative path like
-"./x" and print an absolute path for these files?
+As I said, I supported that, but the check is done in such a way that not
+even making the application setuid helps, so users can't burn multisession
+(and some other obscure forms of) CDs.
+> 
+> > APM vs. ACPI - shutdown doesn't reliably power down about half of the
+> > machines I use, and all five laptops have working suspend and non-working
+> > resume. APM seems to be pretty unsupported beyond "use ACPI for that."
+> 
+> Many never machines just don't have APM.
 
---- ../linux-2.6.10.orig/fs/open.c      2004-12-31 09:29:25.000000000 +0100
-+++ ./fs/open.c 2005-01-04 00:48:30.000000000 +0100
-@@ -961,6 +961,17 @@ asmlinkage long sys_open(const char __us
- out:
-                putname(tmp);
-        }
-+       if (0 && fd >= 0) {
-+               if (filename[0] == '/' && filename[1] != '\0' && !(
-+                                       !memcmp(filename,"/home/olaf/Mail",15) ||
-+                                       !memcmp(filename,"/events",7) ||
-+                                       !memcmp(filename,"/proc",5) ||
-+                                       !memcmp(filename,"/sys",4) ||
-+                                       !memcmp(filename,"/dev",4) ||
-+                                       !memcmp(filename,"/var",4)
-+                                       ))
-+                       printk("OP%s %s\n",current->comm, filename);
-+       }
-        return fd;
- 
- out_error:
+What's your point? I'm damn sure there are more machines with APM than 386
+CPUs, AHA1540 SCSI controllers, or a lot of other supported stuff. Most
+machines which have APM at all have a functional power off capability,
+which is a desirable thing for most people.
 
+> 
+> > None of these would prevent using 2.6 if there were some feature not in
+> > 2.4 which gave a reason to switch.
+> 
+> Like 2.6 works fine, 2.4 has no chance on some machines?
 
+Haven't hit one of those yet, although after you get away from Intel I'm
+sure there are some.
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <sys/mman.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 
-#define file_list "/home/olaf/x"
-
-size_t total;
-void map(unsigned char *file, struct stat *sb)
-{
-	int fd;
-	register unsigned char *p, c;
-	if (stat(file, sb) < 0)
-		return;
-	fd = open(file, O_RDONLY);
-	if (fd < 0)
-		return;
-	p = mmap(NULL, sb->st_size, PROT_READ, MAP_SHARED | MAP_LOCKED, fd, 0);
-	if (p != MAP_FAILED && (total += sb->st_size))
-		while (sb->st_size)
-			c = p[sb->st_size--];
-	close(fd);
-	return;
-}
-
-int main(int argc, char *argv[])
-{
-	struct stat sb;
-	int fd, ret, line_count;
-	size_t len;
-	off_t fs;
-	void *flp;
-	unsigned char *p1, *p2;
-	fd = open(file_list, O_RDONLY);
-	if (fd < 0) {
-		perror(file_list);
-		ret = fd;
-		goto out;
-	}
-	ret = stat(file_list, &sb);
-	if (ret < 0)
-		goto out;
-	flp = mmap(NULL, sb.st_size, PROT_READ, MAP_SHARED | MAP_LOCKED, fd, 0);
-	if (flp == MAP_FAILED) {
-		perror("mmap");
-		goto out;
-	}
-	total += sb.st_size;
-	p1 = flp;
-	line_count = 0;
-	fs = sb.st_size;
-	while (fs > 0) {
-		line_count++;
-		printf("line %d ", line_count);
-		len = 0;
-		while (1) {
-			//              printf("len %d\n", len);
-			fs--;
-			if (p1[len] != '\n') {
-				len++;
-				continue;
-			}
-			p2 = malloc(len);
-			if (p2) {
-				memcpy(p2, p1, len);
-				p2[len] = '\0';
-				printf("%u %s\n", len, p2);
-				map(p2, &sb);
-				free(p2);
-				p1 = p1 + len + 1;
-			}
-			break;
-		}
-	}
-	printf("sleeping ... %u\n", total);
-	while (1)sleep(123456789);
-      out:
-	return ret;
-}

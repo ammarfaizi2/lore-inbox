@@ -1,62 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268637AbUILKpc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268650AbUILKrb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268637AbUILKpc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Sep 2004 06:45:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268650AbUILKpc
+	id S268650AbUILKrb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Sep 2004 06:47:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268658AbUILKra
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Sep 2004 06:45:32 -0400
-Received: from holomorphy.com ([207.189.100.168]:47236 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S268637AbUILKp2 (ORCPT
+	Sun, 12 Sep 2004 06:47:30 -0400
+Received: from ozlabs.org ([203.10.76.45]:9612 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S268652AbUILKqo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Sep 2004 06:45:28 -0400
-Date: Sun, 12 Sep 2004 03:45:24 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Anton Blanchard <anton@samba.org>, linux-kernel@vger.kernel.org,
-       viro@parcelfarce.linux.theplanet.co.uk
-Subject: Re: /proc/sys/kernel/pid_max issues
-Message-ID: <20040912104524.GO2660@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Ingo Molnar <mingo@elte.hu>, Anton Blanchard <anton@samba.org>,
-	linux-kernel@vger.kernel.org,
-	viro@parcelfarce.linux.theplanet.co.uk
-References: <20040912085609.GK32755@krispykreme> <20040912093605.GJ2660@holomorphy.com> <20040912095805.GL2660@holomorphy.com> <20040912101350.GA13164@elte.hu> <20040912104314.GN2660@holomorphy.com>
+	Sun, 12 Sep 2004 06:46:44 -0400
+Date: Sun, 12 Sep 2004 20:43:06 +1000
+From: Anton Blanchard <anton@samba.org>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Zwane Mwaikambo <zwane@fsmlabs.com>, Linus Torvalds <torvalds@osdl.org>,
+       Paul Mackerras <paulus@samba.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, "Nakajima, Jun" <jun.nakajima@intel.com>,
+       Andi Kleen <ak@suse.de>, Ingo Molnar <mingo@elte.hu>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: [PATCH] Yielding processor resources during lock contention
+Message-ID: <20040912104306.GA25741@krispykreme>
+References: <Pine.LNX.4.58.0409021231570.4481@montezuma.fsmlabs.com> <Pine.LNX.4.53.0409091107450.15087@montezuma.fsmlabs.com> <Pine.LNX.4.53.0409120009510.2297@montezuma.fsmlabs.com> <200409121210.32259.arnd@arndb.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040912104314.GN2660@holomorphy.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+In-Reply-To: <200409121210.32259.arnd@arndb.de>
+User-Agent: Mutt/1.5.6+20040818i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 12, 2004 at 03:43:14AM -0700, William Lee Irwin III wrote:
-> I like the update. But I see other issues. For instance (also untested):
-> pid wrapping doesn't honor RESERVED_PIDS.
+ 
+Hi,
 
-Also:
+> For s390, this was solved by simply defining cpu_relax() to the hypervisor
+> yield operation, because we found that cpu_relax() is used only in busy-wait
+> situations where it makes sense to continue on another virtual CPU.
+> 
+> What is the benefit of not always doing a full hypervisor yield when
+> you hit cpu_relax()?
 
-last_pid is not honored because next_free_map(map - 1, ...) may return
-the same map and so restart with a lesser offset.
+cpu_relax doesnt tell us why we are busy looping. In this particular
+case we want to pass to the hypervisor which virtual cpu we are waiting
+on so the hypervisor make better scheduling decisions.
 
-Index: mm4-2.6.9-rc1/kernel/pid.c
-===================================================================
---- mm4-2.6.9-rc1.orig/kernel/pid.c	2004-09-12 03:26:50.063164288 -0700
-+++ mm4-2.6.9-rc1/kernel/pid.c	2004-09-12 03:32:11.501298264 -0700
-@@ -120,10 +120,12 @@
- 		last_pid = pid;
- 		return pid;
- 	}
--	
--	if (!offset || !atomic_read(&map->nr_free)) {
--		if (!offset)
--			map--;
-+	if (!offset) {
-+		if (!atomic_read(&map->nr_free))
-+			goto next_map;
-+		else
-+			goto scan_more;
-+	} else if (!atomic_read(&map->nr_free)) {
- next_map:
- 		map = next_free_map(map, &max_steps);
- 		if (!map)
+Did you manage to see any improvement by yielding to the hypervisor
+in cpu_relax?
+
+Anton

@@ -1,89 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288029AbSABXve>; Wed, 2 Jan 2002 18:51:34 -0500
+	id <S287972AbSABXzY>; Wed, 2 Jan 2002 18:55:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287972AbSABXu3>; Wed, 2 Jan 2002 18:50:29 -0500
-Received: from freeside.toyota.com ([63.87.74.7]:60684 "EHLO
-	freeside.toyota.com") by vger.kernel.org with ESMTP
-	id <S288014AbSABXt7>; Wed, 2 Jan 2002 18:49:59 -0500
-Message-ID: <3C339C98.8080207@lexus.com>
-Date: Wed, 02 Jan 2002 15:49:44 -0800
-From: J Sloan <jjs@lexus.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011221
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Dieter =?ISO-8859-15?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        Robert Love <rml@tech9.net>
-Subject: Re: Linux 2.4.17 vs 2.2.19 vs rml new VM
-In-Reply-To: <20020102231431Z287173-13997+212@vger.kernel.org>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 8bit
+	id <S287169AbSABXzI>; Wed, 2 Jan 2002 18:55:08 -0500
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:24452
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S288001AbSABXex>; Wed, 2 Jan 2002 18:34:53 -0500
+Date: Wed, 2 Jan 2002 16:34:52 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Momchil Velikov <velco@fadata.bg>
+Cc: paulus@samba.org, linux-kernel@vger.kernel.org, gcc@gcc.gnu.org,
+        linuxppc-dev@lists.linuxppc.org,
+        Franz Sirl <Franz.Sirl-kernel@lauterbach.com>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Corey Minyard <minyard@acm.org>
+Subject: Re: [PATCH] C undefined behavior fix
+Message-ID: <20020102233452.GQ1803@cpe-24-221-152-185.az.sprintbbd.net>
+In-Reply-To: <87g05py8qq.fsf@fadata.bg> <20020102190910.GG1803@cpe-24-221-152-185.az.sprintbbd.net> <15411.37817.753683.914033@argo.ozlabs.ibm.com> <877kr0uyc5.fsf@fadata.bg>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <877kr0uyc5.fsf@fadata.bg>
+User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well it is possible that with the several patches
-you mention that I might see results similar to
-what I now see with the low-latency patch.
+On Thu, Jan 03, 2002 at 01:28:42AM +0200, Momchil Velikov wrote:
+> >>>>> "Paul" == Paul Mackerras <paulus@samba.org> writes:
+> 
+> Paul> Tom Rini writes:
+> 
+> >> Okay, here's a summary of all of the options we have:
+> >> 1) Change this particular strcpy to a memcpy
+> >> 2) Add -ffreestanding to the CFLAGS of arch/ppc/kernel/prom.o (If this
+> >> optimization comes back on with this flag later on, it would be a
+> >> compiler bug, yes?)
+> >> 3) Modify the RELOC() marco in such a way that GCC won't attempt to
+> >> optimize anything which touches it [1]. (Franz, again by Jakub)
+> >> 4) Introduce a function to do the calculations [2]. (Corey Minyard)
+> >> 5) 'Properly' set things up so that we don't need the RELOC() macros
+> >> (-mrelocatable or so?), and forget this mess altogether.
+> 
+> Paul> I would add:
+> 
+> Paul> 6) change strcpy to string_copy so gcc doesn't think it knows what the
+> Paul>    function does
+> 
+> GCC thinks exactly what the function does.
 
-However -
+And then optimizes it to something that fails to work in this particular
+case.
 
-The preempt patch does NOT play well with the
-tux webserver, which I am using. So, preempt is
-not an option for me until and unless it is cleaned
-up to allow cooperation with tux.
-
-tux and low-latency get along just fine.
-
-cu
-
-jjs
-
-Dieter Nützel wrote:
-
->On Tuesday, 2. January 2002 20:50, Alan cox wrote:
->
->>>I find the low latency patch makes a noticeable
->>>difference in e.g. q3a and rtcw - OTOH I have
->>>not been able to discern any tangible difference
->>>from the stock kernel when using -preempt.
->>>
->>The measurements I've seen put lowlatency ahead of pre-empt in quality
->>of results. Since low latency fixes some of the locked latencies it might
->>be interesting for someone with time to benchmark
->>
->>       vanilla
->>       low latency
->>       pre-empt
->>       both together
->>
->
->Don't forget that you have to use preempt-kernel-rml + lock-break-rml to 
->achieve the same (more) than the latency patch.
->
->Taken from Robert's page and running it for some weeks, now.
->
->[-]
->Lock breaking for the Preemptible Kernel
->lock-break-rml-2.4.15-1
->lock-break-rml-2.4.16-3
->lock-break-rml-2.4.17-2
->lock-break-rml-2.4.18-pre1-1
->README
->ChangeLog
->With the preemptible kernel, the need for explicit scheduling points, like in 
->the low-latency patches, are no more. However, since we can not preempt while 
->locks are held, we can take a similar model as low-latency and "break" (drop 
->and immediately reacquire) locks to improve system response. The trick is 
->finding when and where we can safely break the locks (periods of quiescence) 
->and how to safely recover. The majority of the lock breaking is in the VM and 
->VFS code. This patch is for users with strong system response requirements 
->affected by the worst-case latencies caused by long-held locks.
->[-]
->
->Regards,
->	Dieter
->
-
-
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

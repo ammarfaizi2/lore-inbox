@@ -1,40 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262209AbVAYW7z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262207AbVAYW7y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262209AbVAYW7z (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 17:59:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262221AbVAYW62
+	id S262207AbVAYW7y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 17:59:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262223AbVAYW6l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 17:58:28 -0500
-Received: from mailfe06.swip.net ([212.247.154.161]:34487 "EHLO
-	mailfe06.swip.net") by vger.kernel.org with ESMTP id S262233AbVAYW4c
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 17:56:32 -0500
-X-T2-Posting-ID: 2Ngqim/wGkXHuU4sHkFYGQ==
-Subject: Re: PANIC in check_process_timers() running 2.6.11-rc2-mm1
-From: Alexander Nyberg <alexn@dsv.su.se>
-To: Roland McGrath <roland@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <200501252209.j0PM95MX000477@magilla.sf.frob.com>
-References: <200501252209.j0PM95MX000477@magilla.sf.frob.com>
+	Tue, 25 Jan 2005 17:58:41 -0500
+Received: from baythorne.infradead.org ([81.187.226.107]:22706 "EHLO
+	baythorne.infradead.org") by vger.kernel.org with ESMTP
+	id S262207AbVAYW4O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 17:56:14 -0500
+Subject: Re: [Fwd: TASK_SIZE is variable.]
+From: David Woodhouse <dwmw2@infradead.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050125224654.GA30150@infradead.org>
+References: <20050125224654.GA30150@infradead.org>
 Content-Type: text/plain
-Date: Tue, 25 Jan 2005 23:56:13 +0100
-Message-Id: <1106693773.705.56.camel@boxen>
+Date: Tue, 25 Jan 2005 22:55:59 +0000
+Message-Id: <1106693759.783.89.camel@baythorne.infradead.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+X-Mailer: Evolution 2.0.2 (2.0.2-3.dwmw2.1) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by baythorne.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Thanks for tracking that down.  It was intended that such things would not
-> be possible because getting into that code in the first place should be
-> ruled out while exiting.  That removes the requirement for any special case
-> check in the common path.  But, it was done too late since it hadn't
-> occurred to me that ->live going zero itself created a problem.
+On Tue, 2005-01-25 at 22:46 +0000, Christoph Hellwig wrote:
+> > Bad things can happen if a 32-bit process is the last user of a 64-bit
+> > mm. TASK_SIZE isn't a constant, and we can end up clearing page tables
+> > only up to the 32-bit TASK_SIZE instead of all the way. We should
+> > probably double-check every instance of TASK_SIZE or USER_PTRS_PER_PGD
+> > for this kind of problem.
 > 
-> Please try this patch instead of the one you posted.  This patch goes on
-> top of all the patches I posted, and so should apply to -mm1 fine.  But
-> because the context nearby changes a lot in the various patches, this one
-> won't apply after just the cputimers patch without the succeeding three.
+> Or better get rid of TASK_SIZE completely.  Having something that looks
+> like a constant change depending on the user process is a bad idea.
 
-Yep, appears to be working fine here and cleaner :-)
+Yeah, that's possibly a sane plan.
+
+-- 
+dwmw2
+
 

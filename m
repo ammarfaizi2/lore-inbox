@@ -1,90 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272355AbTHKGiD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 02:38:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272381AbTHKGiD
+	id S272368AbTHKGcH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 02:32:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272379AbTHKGcH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 02:38:03 -0400
-Received: from [66.212.224.118] ([66.212.224.118]:16655 "EHLO
-	hemi.commfireservices.com") by vger.kernel.org with ESMTP
-	id S272355AbTHKGh7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 02:37:59 -0400
-Date: Mon, 11 Aug 2003 02:12:42 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Robert Love <rml@tech9.net>
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>, cmrivera@ufl.edu,
-       linux-kernel@vger.kernel.org
-Subject: Re: /proc/stat's intr field looks odd, although /proc/interrupts
- seems correct
-In-Reply-To: <Pine.LNX.4.53.0308110148080.19193@montezuma.mastecende.com>
-Message-ID: <Pine.LNX.4.53.0308110208480.19193@montezuma.mastecende.com>
-References: <1060572792.1113.10.camel@boobies.awol.org> 
- <34161.4.4.25.4.1060573727.squirrel@www.osdl.org>  <1060574873.684.41.camel@localhost>
-  <34253.4.4.25.4.1060576385.squirrel@www.osdl.org>  <1060576517.684.47.camel@localhost>
-  <34268.4.4.25.4.1060576870.squirrel@www.osdl.org> <1060577118.684.52.camel@localhost>
- <Pine.LNX.4.53.0308110121090.19193@montezuma.mastecende.com>
- <Pine.LNX.4.53.0308110148080.19193@montezuma.mastecende.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 11 Aug 2003 02:32:07 -0400
+Received: from pan.togami.com ([66.139.75.105]:28359 "EHLO pan.mplug.org")
+	by vger.kernel.org with ESMTP id S272368AbTHKGcD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 02:32:03 -0400
+Subject: Re: 2.6-test3 compusa USB optical mouse
+From: Warren Togami <warren@togami.com>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
+In-Reply-To: <20030810215205.1028d3de.akpm@osdl.org>
+References: <1060565776.2888.3.camel@laptop>
+	 <20030810215205.1028d3de.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1060583513.2888.22.camel@laptop>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-3) 
+Date: Sun, 10 Aug 2003 20:32:01 -1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Now that it's booted;
+On Sun, 2003-08-10 at 18:52, Andrew Morton wrote:
+> Warren Togami <warren@togami.com> wrote:
+> >
+> > I normally use Logitech optical USB mice in Linux.  I bought a "CompUSA
+> > Optical USB Notebook Mouse" for $14 and the following happens in dmesg
+> > in kernel-2.6.0-test3.
+> > 
+> > Known bug?  Should I Bugzilla this?
+> > 
+> > hub 1-1:0: debounce: port 2: delay 100ms stable 4 status 0x301
+> > hub 1-1:0: new USB device on port 2, assigned address 8
+> > drivers/usb/core/message.c: selecting invalid configuration 0
+> > usb 1-1.2: failed to set device 8 default configuration (error=-22)
+> > hub 1-1:0: new USB device on port 2, assigned address 9
+> > drivers/usb/core/message.c: selecting invalid configuration 0
+> > usb 1-1.2: failed to set device 9 default configuration (error=-22)
+> 
+> You don't state whether the mouse actually works.
+> 
+> Assuming it doesn't, yes, please bugzilla it, or bug the folks at
+> linux-usb-devel@lists.sourceforge.net
 
-This box has 20 irq lines and NR_IRQS = 224
-Linux har-01.mastecende.com 2.6.0-test3 #12 SMP Mon Aug 11 01:56:51 EDT 2003 i686 i686 i386 GNU/Linux
-root@har-01 ~ {0, 0} cat /proc/interrupts
-           CPU0
-  0:     386488    IO-APIC-edge  timer
-  1:         98    IO-APIC-edge  i8042
-  2:          0          XT-PIC  cascade
-  8:          1    IO-APIC-edge  rtc
-  9:          0   IO-APIC-level  acpi
- 12:         57    IO-APIC-edge  i8042
- 14:         10    IO-APIC-edge  ide0
- 17:       2343   IO-APIC-level  BusLogic BT-958
- 18:        190   IO-APIC-level  PCnet/PCI II 79C970A
- 19:          0   IO-APIC-level  uhci-hcd
-NMI:          0
-LOC:     383054
-ERR:          0
-MIS:          0
-root@har-01 ~ {0, 0} cat /proc/stat
-cpu  13420 48 19886 4865 384
-cpu0 13420 48 19887 4865 384
-intr 391995 389245 98 0 0 0 0 3 0 1 0 0 0 57 0 10 0 0 2345 237 0
-ctxt 20591
-btime 1058859909
-processes 1097
-procs_running 1
-procs_blocked 0
+http://bugzilla.kernel.org/show_bug.cgi?id=1077
+Filed Bugzilla.  Indeed the mouse does not work.
 
-And this one has 16 irq lines and NR_IRQS = 224
-Linux mondecino.mastecende.com 2.6.0-test3 #11 SMP Mon Aug 11 01:50:37 EDT 
-2003 i686 i686 i386 GNU/Linux
-root@mondecino ~ {0, 0} cat /proc/interrupts
-           CPU0
-  0:    1071356          XT-PIC  timer
-  1:         12          XT-PIC  i8042
-  2:          0          XT-PIC  cascade
-  4:        830          XT-PIC  serial
-  5:       1281          XT-PIC  uhci-hcd, uhci-hcd, eth0
-  8:          1          XT-PIC  rtc
-  9:          0          XT-PIC  acpi
- 12:         60          XT-PIC  i8042
- 14:       1490          XT-PIC  ide0
- 15:         42          XT-PIC  ide1
-NMI:          0
-LOC:    1070561
-ERR:          0
-MIS:          0
-root@mondecino ~ {0, 0} cat /proc/stat
-cpu  27374 0 1642 77426 1230
-cpu0 27374 0 1642 77426 1230
-intr 1080473 1076701 12 0 0 830 1334 0 1 1 0 0 0 60 0 1492 42
-ctxt 16348
-btime 1060581831
-processes 1218
-procs_running 2
-procs_blocked 0
+Thanks,
+Warren Togami
+warren@togami.com
+

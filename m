@@ -1,44 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289405AbSAJVZX>; Thu, 10 Jan 2002 16:25:23 -0500
+	id <S289687AbSAJV1n>; Thu, 10 Jan 2002 16:27:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289687AbSAJVZO>; Thu, 10 Jan 2002 16:25:14 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:4813 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S289405AbSAJVY5>;
-	Thu, 10 Jan 2002 16:24:57 -0500
-Date: Fri, 11 Jan 2002 00:22:18 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: <linux-kernel@vger.kernel.org>, Mike Kravetz <kravetz@us.ibm.com>,
-        Anton Blanchard <anton@samba.org>, george anzinger <george@mvista.com>,
-        Davide Libenzi <davidel@xmailserver.org>,
-        Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [patch] O(1) scheduler, -G1, 2.5.2-pre10, 2.4.17 (fwd)
-In-Reply-To: <Pine.LNX.4.33.0201101017380.2723-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.33.0201110021080.10305-100000@localhost.localdomain>
+	id <S289688AbSAJV1d>; Thu, 10 Jan 2002 16:27:33 -0500
+Received: from web14906.mail.yahoo.com ([216.136.225.58]:37388 "HELO
+	web14906.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S289687AbSAJV1U>; Thu, 10 Jan 2002 16:27:20 -0500
+Message-ID: <20020110212718.41819.qmail@web14906.mail.yahoo.com>
+Date: Thu, 10 Jan 2002 16:27:18 -0500 (EST)
+From: Michael Zhu <mylinuxk@yahoo.ca>
+Subject: About block device request function.
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi, I have a question of the block device request
+function. I use the following sentences to change the
+request function of a block device.
 
-On Thu, 10 Jan 2002, Linus Torvalds wrote:
+spin_lock_irq(&io_request_lock);
 
-> > First it cleans up the load balancer's interaction with the timer tick.
-> > There are now two functions called from the timer tick: busy_cpu_tick()
-> > and idle_cpu_tick(). It's completely up to the scheduler to use them
-> > appropriately.
->
-> This is _wrong_. The timer doesn't even know whether something is an idle
-> task or not.
+original_make_request_fn =
+blk_dev[i].request_queue.make_request_fn;
 
-yes - thought of this after writing the mail.
+blk_dev[i].request_queue.make_request_fn =
+kti_make_request_fn;
 
-> Proof: kapmd (right now the scheduler doesn't know this either, but at
-> least we could teach it to know).
+spin_unlock_irq(&io_request_lock);
 
-yes - pid == 0 is not the right information. I've fixed this in my tree.
+"i" is the major number of a block device.
 
-	Ingo
+You know blk_dev[] is the global block device array.
+When I use those sentences to change the floppy block
+device's request function, it works. The major number
+of the floppy disk is 2. But when I use the same one
+to change the hard disk's request function, it doesn't
+work. I found that the
+blk_dev[3].request_queue.make_request_fn is NULL. Does
+that mean that the make_request_fn() of the hard disk
+is NULL. I can't believe it. Can anyone give me an
+answer?
 
+Michael
+
+
+______________________________________________________________________ 
+Web-hosting solutions for home and business! http://website.yahoo.ca

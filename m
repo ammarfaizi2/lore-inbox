@@ -1,44 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265752AbRF1Nee>; Thu, 28 Jun 2001 09:34:34 -0400
+	id <S265732AbRF1NdO>; Thu, 28 Jun 2001 09:33:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265744AbRF1NeY>; Thu, 28 Jun 2001 09:34:24 -0400
-Received: from as2-1-8.va.g.bonet.se ([194.236.117.122]:4100 "EHLO
-	boris.prodako.se") by vger.kernel.org with ESMTP id <S265752AbRF1NeN>;
-	Thu, 28 Jun 2001 09:34:13 -0400
-Date: Thu, 28 Jun 2001 15:33:57 +0200 (CEST)
-From: Tobias Ringstrom <tori@unhappy.mine.nu>
-X-X-Sender: <tori@boris.prodako.se>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: <mike_phillips@urscorp.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: VM Requirement Document - v0.0
-In-Reply-To: <E15FawW-0006qI-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0106281523390.1258-100000@boris.prodako.se>
+	id <S265744AbRF1NdF>; Thu, 28 Jun 2001 09:33:05 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:29196 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S265732AbRF1Nc4>; Thu, 28 Jun 2001 09:32:56 -0400
+Subject: Re: [RFC] I/O Access Abstractions
+To: dhowells@redhat.com (David Howells)
+Date: Thu, 28 Jun 2001 14:32:42 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org, dwmw2@redhat.com, arjanv@redhat.com,
+        alan@redhat.com
+In-Reply-To: <30906.993734004@warthog.cambridge.redhat.com> from "David Howells" at Jun 28, 2001 02:13:24 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15FbuU-0006wH-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Jun 2001, Alan Cox wrote:
+>    Also on an i386, the actual I/O instruction itself is going to take a
+>    comparatively long time anyway, given the speed differential between CPU
+>    and external buses.
 
-> > This would be extremely useful. My laptop has 256mb of ram, but every day
-> > it runs the updatedb for locate. This fills the memory with the file
-> > cache. Interactivity is then terrible, and swap is unnecessarily used. On
-> > the laptop all this hard drive thrashing is bad news for battery life
->
-> That isnt really down to labelling pages, what you are talking qbout is what
-> you get for free when page aging works right (eg 2.0.39) but don't get in
-> 2.2 - and don't yet (although its coming) quite get right in 2.4.6pre.
+PCI memory (and sometimes I/O) writes are posted, Since x86 memory writes are
+also parallelisable instructions and since the CPU merely has to retire the
+writes in order your stall basically doesnt exist.
 
-Correct, but all pages are not equal.
-
-The problem with updatedb is that it pushes all applications to the swap,
-and when you get back in the morning, everything has to be paged back from
-swap just because the (stupid) OS is prepared for yet another updatedb
-run.
-
-Other bad activities include copying lots of files, tar/untar:ing and CD
-writing.  They all cause unwanted paging, at least for the desktop user.
-
-/Tobias
+High end devices tend to have you writing them to them and they DMA into your
+RAM so its a concern
 

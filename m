@@ -1,63 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264608AbRFYO6j>; Mon, 25 Jun 2001 10:58:39 -0400
+	id <S264610AbRFYPH3>; Mon, 25 Jun 2001 11:07:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264594AbRFYO63>; Mon, 25 Jun 2001 10:58:29 -0400
-Received: from smtp9.xs4all.nl ([194.109.127.135]:2266 "EHLO smtp9.xs4all.nl")
-	by vger.kernel.org with ESMTP id <S264608AbRFYO6R>;
-	Mon, 25 Jun 2001 10:58:17 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Dirk Bonenkamp <dirk@bean-it.nl>
-Organization: Bean IT
-To: linux-kernel@vger.kernel.org
-Subject: Kernel 2.4.5 crash
-Date: Mon, 25 Jun 2001 16:58:16 +0200
-X-Mailer: KMail [version 1.2]
-Cc: rene@nf.tv
+	id <S264613AbRFYPHT>; Mon, 25 Jun 2001 11:07:19 -0400
+Received: from ns.suse.de ([213.95.15.193]:43015 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S264610AbRFYPHL>;
+	Mon, 25 Jun 2001 11:07:11 -0400
+To: Alan Shutko <ats@acm.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: sizeof problem in kernel modules
+In-Reply-To: <Pine.LNX.3.95.1010625072259.5434A-100000@chaos.analogic.com>
+	<87ofrcbryf.fsf@wesley.springies.com>
+	<87g0cobrgz.fsf@wesley.springies.com>
+X-Yow: I brought my BOWLING BALL - and some DRUGS!!
+From: Andreas Schwab <schwab@suse.de>
+Date: 25 Jun 2001 17:07:09 +0200
+In-Reply-To: <87g0cobrgz.fsf@wesley.springies.com> (Alan Shutko's message of "Mon, 25 Jun 2001 09:59:32 -0400")
+Message-ID: <jeofrc38f6.fsf@sykes.suse.de>
+User-Agent: Gnus/5.090003 (Oort Gnus v0.03) Emacs/21.0.103
 MIME-Version: 1.0
-Message-Id: <0106251658160L.00965@dirk.intern.bean-it.nl>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Alan Shutko <ats@acm.org> writes:
 
-Haven't been on this list for a while, and don't really know if this is the 
-right place for this message... If not, pls let me know.
+|> Alan Shutko <ats@acm.org> writes:
+|> 
+|> > You can look at other things too... you can memcpy structures, pass
+|> > them into functions, call sizeof, put them in arrays... it _is_ a
+|> > physical representation.
+|> 
+|> One more tidbit: ISO/IEC 9899:1990 3.14
+|> 
+|>   3.14 object: A region of data storage in the execution environment,
+|>     the contents of which can represent values.  Except for
+|>     bit-fields, objects are composed of contiguous sequences of one or
+|>     more bytes, the number, order and encoding of which are either
+|>     explicitely specified or implementation-defined.
+|> 
+|> This would specifically prohibit separating any part of a structure
+|> from the rest.
 
-The thing is that I had some crashes with kernel 2.4.5. I'm pretty sure that 
-the hardware is OK. These are the messages in the syslog / console when 
-locking up:
+But only under the as-if rule, that is, if you never take the address of a
+structure object the compiler can actually put the parts of it anywhere it
+likes, because you couldn't notice the difference.
 
-Jun 25 14:51:00 bizon kernel: kernel BUG at page_alloc.c:73!
-Jun 25 14:51:00 bizon kernel: invalid operand: 0000
-Jun 25 14:51:00 bizon kernel: CPU:    1
-Jun 25 14:51:00 bizon kernel: EIP:    0010:[<c012ba83>]
-Jun 25 14:51:00 bizon kernel: EFLAGS: 00010282
-Jun 25 14:51:00 bizon kernel: eax: 0000001f   ebx: c121cd54   ecx: 00000086   
-edx: 01000000
-Jun 25 14:51:00 bizon kernel: esi: c121cd54   edi: 00000000   ebp: c127a420   
-esp: c36bdea8
-Jun 25 14:51:00 bizon kernel: ds: 0018   es: 0018   ss: 0018
-Jun 25 14:51:00 bizon kernel: Process sa1 (pid: 15977, stackpage=c36bd000)
-Jun 25 14:51:00 bizon kernel: Stack: c02131ac c0213260 00000049 c119bb4c 
-c1044010 c0254004 00000207 fffffffe
-Jun 25 14:51:00 bizon kernel:        c121cd54 00000002 00000000 c71ce050 
-c01201e8 00000013 00000000 00016000
-Jun 25 14:51:00 bizon kernel:        c60d2400 00000000 40016000 c60d2400 
-c0144d4c c7f902c0 c0254df8 bffffd78
-Jun 25 14:51:00 bizon kernel: Call Trace: [<c01201e8>] [<c0144d4c>] 
-[<c01100bc>] [<c0122bc9>] [<c0124572>] [<c01121e7>] [<c0116605>]
-Jun 25 14:51:00 bizon kernel:        [<c0131bb2>] [<c0106e0b>]
-Jun 25 14:51:00 bizon kernel:
-Jun 25 14:51:00 bizon kernel: Code: 0f 0b 83 c4 0c 8b 5e 08 85 db 74 16 6a 4b 
-68 60 32 21 c0 68
+Andreas.
 
-It's an intel based 2 cpu machine, used as an apache webserver. The load is 
-low.
-
-Hope you guys can do something with this message!
-
-Tia,
-
-Dirk
+-- 
+Andreas Schwab                                  "And now for something
+SuSE Labs                                        completely different."
+Andreas.Schwab@suse.de
+SuSE GmbH, Schanzäckerstr. 10, D-90443 Nürnberg
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5

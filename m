@@ -1,42 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129307AbRB0APx>; Mon, 26 Feb 2001 19:15:53 -0500
+	id <S129300AbRB0AUX>; Mon, 26 Feb 2001 19:20:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129300AbRB0APk>; Mon, 26 Feb 2001 19:15:40 -0500
-Received: from kanga.kvack.org ([216.129.200.3]:59409 "EHLO kanga.kvack.org")
-	by vger.kernel.org with ESMTP id <S129307AbRB0APP>;
-	Mon, 26 Feb 2001 19:15:15 -0500
-Date: Mon, 26 Feb 2001 19:11:20 -0500 (EST)
-From: "Benjamin C.R. LaHaise" <blah@kvack.org>
-To: "David S. Miller" <davem@redhat.com>
-cc: michael@linuxmagic.com, Jan Rekorajski <baggins@sith.mimuw.edu.pl>,
-        Chris Wedgwood <cw@f00f.org>, linux-kernel@vger.kernel.org,
-        netdev@oss.sgi.com, waltje@uWalt.NL.Mugnet.ORG
-Subject: Re: [UPDATE] zerocopy.. While working on ip.h stuff
-In-Reply-To: <15002.61250.224811.987948@pizda.ninka.net>
-Message-ID: <Pine.LNX.3.96.1010226190859.12521B-100000@kanga.kvack.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129310AbRB0AUP>; Mon, 26 Feb 2001 19:20:15 -0500
+Received: from [216.161.55.93] ([216.161.55.93]:1265 "EHLO blue.int.wirex.com")
+	by vger.kernel.org with ESMTP id <S129300AbRB0AUG>;
+	Mon, 26 Feb 2001 19:20:06 -0500
+Date: Mon, 26 Feb 2001 16:23:54 -0800
+From: Greg KH <greg@wirex.com>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Pifko Krisztian <pifko@kirowski.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] philips rush usb support
+Message-ID: <20010226162354.F5492@wirex.com>
+Mail-Followup-To: Greg KH <greg@wirex.com>, Pavel Machek <pavel@suse.cz>,
+	Pifko Krisztian <pifko@kirowski.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.30.0102241730370.19866-100000@pifko.kirowski.com> <20010224121312.S16341@sventech.com> <20010225192454.A1697@bug.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010225192454.A1697@bug.ucw.cz>; from pavel@suse.cz on Sun, Feb 25, 2001 at 07:24:54PM +0100
+X-Operating-System: Linux 2.4.2-immunix (i686)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 26 Feb 2001, David S. Miller wrote:
+On Sun, Feb 25, 2001 at 07:24:54PM +0100, Pavel Machek wrote:
+> > > Userspace stuff should be found at http://openrush.sourceforge.net
+> > > if you have a rush. It works for me on ia32 with the model sa125.
+> > 
+> > Why can't the entire driver be in userspace? It appears it uses a
+> > completely proprietary protocol and you've created a completely
+> > proprietary interface to the kernel.
+> 
+> Would not making it "usb-serial" device do the trick?
 
-> At gigapacket rates, it becomes an issue.  This guy is talking about
-> tinkering with new IP _options_, not just the header.  So even if the
-> IP header itself fits totally in a cache line, the options afterwardsd
-> likely will not and thus require another cache miss.
+That would work if you don't want to use a new minor number for the
+device.  But all of the current usb-serial drivers are there because
+userspace tools expect the device to act just like a serial port.  Since
+the userspace tools for this device is closely tied to the driver, that
+restriction isn't really there.
 
-Hmmm, one way around this is to have the packet queue store things in
-in a linear array of pointers to data areas, then process things in
-bursts, ie:
+I also agree with Johannes, this would probably be better off as a
+userspace program.
 
-	- find packet data areas for queued packets
-	- walk list doing prefetches of ip header and options
-	- then actually do the packet processing (save output for later)
+greg k-h
 
-That will require a number of new hooks for pipelining operations, though.
-Just a thought.
-
-		-ben
-
+-- 
+greg@(kroah|wirex).com
+http://immunix.org/~greg

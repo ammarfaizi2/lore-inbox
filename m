@@ -1,99 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262593AbREOBCo>; Mon, 14 May 2001 21:02:44 -0400
+	id <S262591AbREOA6O>; Mon, 14 May 2001 20:58:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262594AbREOBCe>; Mon, 14 May 2001 21:02:34 -0400
-Received: from odin.sinectis.com.ar ([216.244.192.158]:30993 "EHLO
-	mail.sinectis.com.ar") by vger.kernel.org with ESMTP
-	id <S262593AbREOBC0>; Mon, 14 May 2001 21:02:26 -0400
-Date: Mon, 14 May 2001 14:07:53 -0300
-From: John R Lenton <john@grulic.org.ar>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        arjanv@redhat.com, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Axel Thimm <Axel.Thimm@physik.fu-berlin.de>,
-        "Manuel A. McLure" <mmt@unify.com>,
-        Rasmus =?iso-8859-1?B?Qvhn?= Hansen <moffe@amagerkollegiet.dk>,
-        ARND BERGMANN <std7652@et.fh-osnabrueck.de>,
-        "Dunlap, Randy" <randy.dunlap@intel.com>,
-        Martin Diehl <mdiehlcs@compuserve.de>,
-        Adrian Cox <adrian@humboldt.co.uk>, Capricelli Thomas <orzel@kde.org>,
-        Ian Bicking <ianb@colorstudy.com>
-Subject: Re: PATCH 2.4.5.1: Fix Via interrupt routing issues
-Message-ID: <20010514140752.B19662@grulic.org.ar>
-Mail-Followup-To: Jeff Garzik <jgarzik@mandrakesoft.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	arjanv@redhat.com, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Axel Thimm <Axel.Thimm@physik.fu-berlin.de>,
-	"Manuel A. McLure" <mmt@unify.com>,
-	 Rasmus =?iso-8859-1?B?Qvhn?= Hansen <moffe@amagerkollegiet.dk>,
-	ARND BERGMANN <std7652@et.FH-Osnabrueck.DE>,
-	"Dunlap, Randy" <randy.dunlap@intel.com>,
-	Martin Diehl <mdiehlcs@compuserve.de>,
-	Adrian Cox <adrian@humboldt.co.uk>,
-	Capricelli Thomas <orzel@kde.org>,
-	Ian Bicking <ianb@colorstudy.com>
-In-Reply-To: <3AFEC426.50B00B78@mandrakesoft.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="eHhjakXzOLJAF9wJ"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <3AFEC426.50B00B78@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Sun, May 13, 2001 at 01:28:06PM -0400
+	id <S262592AbREOA6E>; Mon, 14 May 2001 20:58:04 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:34063 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S262591AbREOA5v>; Mon, 14 May 2001 20:57:51 -0400
+Date: Mon, 14 May 2001 21:57:16 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] vmscan.c fixes
+In-Reply-To: <Pine.LNX.4.21.0105141922490.32493-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.33.0105142155520.18102-100000@duckman.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 14 May 2001, Marcelo Tosatti wrote:
+> On Mon, 14 May 2001, Rik van Riel wrote:
+>
+> > +	/* XXX: dynamic free target is complicated and may be wrong... */
+> >  	int freetarget = freepages.high + inactive_target / 3;
+>
+> I think its better if we just remove " + inactive_target / 3" here ---
+> callers already account for the inactive_target when trying to
+> calculate the free target anyway.
 
---eHhjakXzOLJAF9wJ
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Right, there's really only one thing this "+ inactive_target / 3"
+achieves ... more agressive flushing of dirty pages, by trying to
+keep a larger free target.
 
-On Sun, May 13, 2001 at 01:28:06PM -0400, Jeff Garzik wrote:
-> For those of you with Via interrupting routing issues (or
-> interrupt-not-being-delivered issues, etc), please try out this patch
-> and let me know if it fixes things.  It originates from a tip from
-> Adrian Cox... thanks Adrian!
+Whether this is good or not I really don't know; this basically
+boils down to the old "pre-flushing vs. delaying IO" thing.
 
-Just to add a little noise: My box (msi 694d pro AI motherboard,
-revI, i.e. vt82c686a) been a *lot* stabler since I removed the
-Live! and dropped back to the onboard soundcard.
+regards,
 
-The only time it has frozen has been when checking to see if this
-also fixed the X-freezes-on-reentry thing (which I know was
-silly, since CVS X has had that fixed for some time and the fix
-is on the slow path to 4.1).
+Rik
+--
+Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
 
-I used to get a freeze (that is a lock-up where I have to reset
-the box, unable to even alt-sysrq my way out) between one and
-five times per day, nearly always in X, nearly always with sound,
-nearly always using up a lot of (memtested) memory.
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
 
-'nearly always' means 'at least once not' -- scientific as hell.
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
 
-
-If I could put in words the difference between the Live! and the
-via, I would. Alas, I can't, so you're stuck with this inane
-rant:
-
-    please please please fix it.
-
---=20
-John Lenton (john@grulic.org.ar) -- Random fortune:
-Las palabras, cera; las obras acero.
-        -- Luis de Argote y G=F3ngora. (1561-1627) Poeta espa=F1ol.=20
-
---eHhjakXzOLJAF9wJ
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.5 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE7ABDogPqu395ykGsRAuKYAKC39RM2K0f+n6qjL2Tr1cCcVcoKZQCeMGPe
-y5sWiTP2UODfP4bbTMX4gqI=
-=dZBZ
------END PGP SIGNATURE-----
-
---eHhjakXzOLJAF9wJ--

@@ -1,44 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262506AbVCBWOf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262463AbVCBWSd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262506AbVCBWOf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 17:14:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262499AbVCBWOa
+	id S262463AbVCBWSd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 17:18:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262503AbVCBWP5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 17:14:30 -0500
-Received: from rproxy.gmail.com ([64.233.170.205]:33573 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262504AbVCBWNP (ORCPT
+	Wed, 2 Mar 2005 17:15:57 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:10897 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262500AbVCBWMF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 17:13:15 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=Upw83fl7OVgmJDP6sw4597F+7fV/Lh77qbqJT5o4LIqyFpg9G4ivIYY+0LrkNb7hvyY/JTSjdcTzSmC4z5lpRrbH14kWbOaXWYOp292Cdx2o8bn6DjsC8yDozeWUDdPzfYzG3a/HFUjsCDXJ7kn6W3dM56fuNMoz9lRrY1q6VxM=
-Message-ID: <d120d500050302141379f0cb9@mail.gmail.com>
-Date: Wed, 2 Mar 2005 17:13:14 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Ralph Corderoy <ralph@inputplus.co.uk>
-Subject: Re: Documentation for krefs
-Cc: Corey Minyard <cminyard@mvista.com>, Greg KH <greg@kroah.com>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <200503022130.j22LU6H02463@blake.inputplus.co.uk>
+	Wed, 2 Mar 2005 17:12:05 -0500
+Date: Wed, 2 Mar 2005 23:11:50 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Todd Poynor <tpoynor@mvista.com>
+Cc: linux-kernel@vger.kernel.org, linux-pm@osdl.org
+Subject: Re: [linux-pm] [PATCH] Custom power states for non-ACPI systems
+Message-ID: <20050302221150.GE1616@elf.ucw.cz>
+References: <20050302020306.GA5724@slurryseal.ddns.mvista.com> <20050302085619.GA1364@elf.ucw.cz> <42263719.7030004@mvista.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <422617F1.2080404@mvista.com>
-	 <200503022130.j22LU6H02463@blake.inputplus.co.uk>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42263719.7030004@mvista.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 02 Mar 2005 21:30:06 +0000, Ralph Corderoy
-<ralph@inputplus.co.uk> wrote:
-> > +This way, it doesn't matter what order the two threads handle the
-> > +data, the put handles knowing when the data is free and releasing it.
+Hi!
+
+> >If OMAP has "big sleep" and "deep sleep", why not simply map them to
+> >"standby" and "suspend-to-ram"?
 > 
-> s/put/kref_put()/
->
+> In fact that's more or less what happens (or will happen once drivers 
+> like USB stop looking for PM_SUSPEND_MEM, etc.).  There are other 
+> platforms with more than 2 sleep states (say, XScale PXA27x), so this 
+> will start to get a bit problematic.  And it seens so easy to truly 
+> handle the platform's states instead of pretending ACPI S1/S3/S4 are the 
+> only methods to suspend any system.
+> 
+> If it's preferable, how about replacing the /sys/power/state "standby" 
+> and "mem" values  to "sleep", and have a /sys/power/sleep attribute that 
+> tells the methods of sleep available for the platform, much like 
+> suspend-to-disk methods are handled today?  So the sleep attribute would 
+> handle "standby" and "mem" for ACPI systems, and other values for 
+> non-ACPI systems.  Thanks,
 
-What about s/is free/is not referenced anymore/
+This is userland API. It should not change in random way during stable
+series...
 
+...but adding new /sys/power/state might be okay. We should not have
+introduced "standby" in the first place [but I guess it is not worth
+removing now]. If something has more than 2 states (does user really
+want to enter different states in different usage?), I guess we can
+add something like "deepmem" or whatever. Is there something with more
+than 3 states?
+								Pavel
 -- 
-Dmitry
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

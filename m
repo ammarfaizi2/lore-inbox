@@ -1,44 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261542AbSJAIoB>; Tue, 1 Oct 2002 04:44:01 -0400
+	id <S261541AbSJAIlW>; Tue, 1 Oct 2002 04:41:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261538AbSJAIoA>; Tue, 1 Oct 2002 04:44:00 -0400
-Received: from ulima.unil.ch ([130.223.144.143]:16351 "HELO ulima.unil.ch")
-	by vger.kernel.org with SMTP id <S261542AbSJAIoA>;
-	Tue, 1 Oct 2002 04:44:00 -0400
-Date: Tue, 1 Oct 2002 10:49:26 +0200
-From: Gregoire Favre <greg@ulima.unil.ch>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux v2.5.40 - and a feature freeze reminder
-Message-ID: <20021001084926.GD7428@ulima.unil.ch>
-References: <Pine.LNX.4.33.0210010021400.25527-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.33.0210010021400.25527-100000@penguin.transmeta.com>
-User-Agent: Mutt/1.4i
+	id <S261545AbSJAIlV>; Tue, 1 Oct 2002 04:41:21 -0400
+Received: from [203.122.29.75] ([203.122.29.75]:5907 "EHLO
+	smtp.ggn.aithent.com") by vger.kernel.org with ESMTP
+	id <S261541AbSJAIlU>; Tue, 1 Oct 2002 04:41:20 -0400
+Message-ID: <034f01c26928$00fe2860$af0310ac@abansal>
+From: "Ankit Bansal" <abansal@ggn.aithent.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: kernel installation problem...
+Date: Tue, 1 Oct 2002 14:23:25 +0530
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+X-OriginalArrivalTime: 01 Oct 2002 08:46:35.0703 (UTC) FILETIME=[0CABEC70:01C26927]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 01, 2002 at 12:32:47AM -0700, Linus Torvalds wrote:
+auth 5c4e01f2
+>
+> > hi...,
+> >
+> >                I have a problem as :
+> >
+> >                         - I have to install kernel 2.4.4 to install
+> rtlinux
+> > 3.1...,
+> >                         - at this moment the version installed on my
+> machine
+> > is 2.2.12
+> >                         - I unzipped the downloaded kernel and got the
+> > directory named as linux
+> >                         - I followed all the steps documented at
+> kernel.org
+> >
+> > problem: After executing make bzImage also I didnot get vmlinuz file to
+be
+> > specified in lilo.conf
+> >
+> >     need your help in this regard...
+> >
+> > thanks in advance,
+> > anket
+> >
+>
 
-> And if it wasn't clear to the non-2.5-development people out there, yes
-> you _should_ also test this code out even before the freeze.
-
-I haven't tested 40, but 39 works pretty well at home, just two minor
-more or less related problems:
-
-where could I learn how to adapt Makefile for the post (more or less)
-2.5.21 kernels?
-
-And is xawtv or other TV programm supposed to work (I have a DVB-s and
-didn't manage using TV prog with it...)?
-
-As soon as I found a 40 anywhere, I'll give a try ;-)
-
-Have a great day,
-
-	Grégoire
-________________________________________________________________
-http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch

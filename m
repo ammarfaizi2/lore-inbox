@@ -1,58 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264471AbUAFPA4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jan 2004 10:00:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264490AbUAFPAz
+	id S264420AbUAFOz1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jan 2004 09:55:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264469AbUAFOz1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jan 2004 10:00:55 -0500
-Received: from smtp.ncy.finance-net.fr ([62.161.220.65]:54280 "EHLO
-	smtp.ncy.finance-net.fr") by vger.kernel.org with ESMTP
-	id S264471AbUAFPAy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jan 2004 10:00:54 -0500
-Date: Tue, 06 Jan 2004 15:57:04 +0100
-From: newbiz <newbiz@free.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20031015 Debian/1.4-0jds2
-X-Accept-Language: fr
+	Tue, 6 Jan 2004 09:55:27 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:29600 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S264420AbUAFOz0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jan 2004 09:55:26 -0500
+Message-ID: <3FFACC5C.7050900@namesys.com>
+Date: Tue, 06 Jan 2004 17:55:24 +0300
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: =?ISO-8859-1?Q?Karel_Kulhav=FD?= <clock@twibright.com>
-Subject: Re: won't work: 2.6.0 && SiI 3112 SATA
-References: <20040106135634.A5825@beton.cybernet.src>
-In-Reply-To: <20040106135634.A5825@beton.cybernet.src>
+To: venom@sns.it
+CC: "Randy.Dunlap" <rddunlap@osdl.org>, sglines@is-cs.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: file system technical comparisons
+References: <Pine.LNX.4.43.0401061300550.13594-100000@cibs9.sns.it>
+In-Reply-To: <Pine.LNX.4.43.0401061300550.13594-100000@cibs9.sns.it>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-Message-Id: <S264471AbUAFPAy/20040106150054Z+23529@vger.kernel.org>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Karel Kulhavý a écrit le 06.01.2004 13:56:
+venom@sns.it wrote:
 
-> I try to make Adaptec SATA RAID AAR-1210SA (in fact, SiI 3112 ACT 144 chip)
-> work under 2.6.0
-> 
-> When booting, get "hde: lost interrupt" and DMA errors. Tried to switch
-> on/off local and I/O APIC (singleproc board) and the errors stay the same.
-> 
-> Are these errors experienced on all SiI3112 boards? Are they experienced
-> also in 2.4 kernel? Shall I try some "newer" kernel than 2.6.0?
+>What would be interesting is a new comparison between reiserFS reiser4 and
+>latest XFS. To be onest I think ext3, with or withou HTree, obsolete, but it is
+>abvious if you consider its origins, while I do not speack about JFS, since
+>technically is interesting, but then the bench I did, more than an year ago,
+>were not untisiasmant, and it was buggy when in a DIR there were too many
+>"small" files.
+>
+>Luigi
+>
+>  
+>
+Actually I agree with you that JFS is architecturally much more 
+interesting than ext3 (though Andrew Morton's readahead code for ext* is 
+beautiful stuff).  I haven't really looked at why JFS is slow, though 
+usually being slow at <100k sized files in a journaling filesystem is 
+due to the journaling code.  The thing about performance is that the 
+mistakes count for 4x what the things done right count for.  Chris Mason 
+did a lot for V3's performance compared to the competition by writing 
+nice journaling code for us.
 
-I have NF7-S too (and Seagate sata 120), and it works for me with :
+htree has performance problems that are due to its architecture --- I 
+think this is why they don't make it on by default --- it actually slows 
+ext3 down substantially for average directory sizes.....  you can see 
+that on our benchmarks page, or just by copying around some copies of 
+the linux kernel yourself with it on and off.
 
-- 2.4.23 and libata 
-(ftp://ftp.kernel.org/pub/linux/kernel/people/jgarzik/libata/2.4.23-libata2.patch.bz2)
-- 2.6.0 and libata (CONFIG_SCSI_SATA=m and CONFIG_SCSI_SATA_SIL=m)
-
-But it doesn't work with the siimage driver (CONFIG_BLK_DEV_SIIMAGE=m) 
-under 2.4.23 (didn't try it under 2.6, since it worked with libata...)
-
-Question (for Jeff ?) :
-
-Why is my drive (with 2.4.23 and libata2) on /dev/sda ? Why isn't it on 
-/dev/hde, like (afaik) everybody else ? I'd like to run hdparm to 
-improve performance (hdparm -tT gives ~ 20 Mb/s)
-
-Thanks
-
---
+-- 
+Hans
 
 

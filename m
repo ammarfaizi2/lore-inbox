@@ -1,62 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264090AbUECVdZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264042AbUECVek@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264090AbUECVdZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 May 2004 17:33:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264102AbUECVdZ
+	id S264042AbUECVek (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 May 2004 17:34:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264040AbUECVek
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 May 2004 17:33:25 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:46584 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S264090AbUECVdG
+	Mon, 3 May 2004 17:34:40 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:58278 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264103AbUECVeU
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 May 2004 17:33:06 -0400
-Message-ID: <4096BA8E.4040601@mvista.com>
-Date: Mon, 03 May 2004 14:33:02 -0700
-From: Todd Poynor <tpoynor@mvista.com>
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040502)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: linux-hotplug-devel@lists.sourceforge.net,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Hotplug for device power state changes
-References: <20040429202654.GA9971@dhcp193.mvista.com> <20040429224243.L16407@flint.arm.linux.org.uk> <40918375.2090806@mvista.com> <1083286226.20473.159.camel@gaston> <20040430093012.A30928@flint.arm.linux.org.uk> <4092B02C.5090205@mvista.com> <20040430215621.GA14015@kroah.com> <4092FA66.20704@mvista.com> <20040501014827.GA16006@kroah.com>
-In-Reply-To: <20040501014827.GA16006@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 3 May 2004 17:34:20 -0400
+Date: Mon, 3 May 2004 22:34:19 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Rene Herman <rene.herman@keyaccess.nl>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] removal of legacy cdrom drivers (Re: [PATCH] mcdx.c insanity removal)
+Message-ID: <20040503213419.GH17014@parcelfarce.linux.theplanet.co.uk>
+References: <20040502024637.GV17014@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0405011953140.18014@ppc970.osdl.org> <20040503011629.GY17014@parcelfarce.linux.theplanet.co.uk> <4095BAA3.3050000@keyaccess.nl> <20040503055934.GA17014@parcelfarce.linux.theplanet.co.uk> <40968A9F.6070608@keyaccess.nl> <20040503194558.GF17014@parcelfarce.linux.theplanet.co.uk> <4096B810.5060907@keyaccess.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4096B810.5060907@keyaccess.nl>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-
-> I don't have an objection to add such a new paramater (or even a new
-> function call like you suggested), just don't go messing with the main
-> kobject hotplug call without thinking everything through :)
-
-OK, will do.
-
->>This is something that was requested of me by others who build Linux 
->>into consumer electronics devices.  Perhaps some of the interested 
->>parties may speak up here to add more insight.
+On Mon, May 03, 2004 at 11:22:24PM +0200, Rene Herman wrote:
+> viro@parcelfarce.linux.theplanet.co.uk wrote:
 > 
+> >>However, any "cp" from cd-rom oopses the box.
+> >
+> >oopses in driver, oopses by triggering BUG() or oopses in fs/*?  The last
+> >two would be more interesting - isofs _MUST_ be able to survive any IO
+> >errors, simply because CDs get scratched, etc. and that shouldn't crash
+> >the box.
 > 
-> Please encourage them to speak up.  I hear _nothing_ from any embedded
-> developers, and I am really interested in how the driver model and
-> hotplug works (or doesn't) for them.  Without that feedback, we are in
-> the dark as to what their needs/hates are.
+> Doesn't actually look all driver. The CD is good; works fine in this 
+> same drive with its own 2.0 kernel (and on other drives). Please note, 
+> this is a 386. Memory is good. dmesg and .config attached.
+> 
+> Very long crash, but in case it's helpful. Happens when copying anything 
+> from the sbpcd CD-ROM. In between the "do_exit, do_divide_error, 
+> do_page_fault, do_page_fault" oopses it seems to be attempting to give 
+> me back a prompt (it's not succeeding).
 
-Thanks, I have passed the call to get involved on to a group of Linux 
-consumer electronics developers (the Consumer Electronics Linux Forum; 
-Tim Bird will hold a BoF at OLS introducing this group).  I am involved 
-at an infrastructure level and have helped steer various general 
-requirements toward use of LDM (which we've been using even in 2.4 for 
-some time) and hotplug (which is new to us for these purposes and they 
-might not yet have much experience with this), and can also serve as a 
-conduit for feedback.  I appreciate your interest in the needs of 
-embedded developers and hope that we can contribute some useful 
-suggestions and features.
-
-
--- 
-Todd Poynor
-MontaVista Software
-
+Almost certainly a driver-induced memory corruption.

@@ -1,41 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129998AbRCERdS>; Mon, 5 Mar 2001 12:33:18 -0500
+	id <S130065AbRCERjs>; Mon, 5 Mar 2001 12:39:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130079AbRCERdI>; Mon, 5 Mar 2001 12:33:08 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:640 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S129998AbRCERdA>; Mon, 5 Mar 2001 12:33:00 -0500
-Date: Mon, 5 Mar 2001 12:32:44 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Loop stuck in -D state
-Message-ID: <Pine.LNX.3.95.1010305122756.1098A-100000@chaos.analogic.com>
+	id <S130090AbRCERjj>; Mon, 5 Mar 2001 12:39:39 -0500
+Received: from sgi.SGI.COM ([192.48.153.1]:6940 "EHLO sgi.com")
+	by vger.kernel.org with ESMTP id <S130065AbRCERj3>;
+	Mon, 5 Mar 2001 12:39:29 -0500
+Message-ID: <3AA3CEE8.1ABDB27D@sgi.com>
+Date: Mon, 05 Mar 2001 09:37:44 -0800
+From: LA Walsh <law@sgi.com>
+Organization: Trust Technology, SGI
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
+X-Accept-Language: en, fr
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Re: Annoying CD-rom driver error messages
+In-Reply-To: <3AA3CC99.5549C6B2@sgi.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I tried Linux 2.4.2
-Now I'm in a load of trouble. I can't make a boot-disk to get back
-to 2.4.1 because I use initrd for my hard disk modules and the loop
-device is broken.
+Slightly less annoying -- when no CD is in the drive, I'm getting:
 
-   100     0  1055  1040   9   0    780   780 wait_on_buf D   1  0:00
-mount -o loop -t ext2 /tmp/ram /tmp/Ramdisk 
+Mar  5 09:30:42 xena kernel: VFS: Disk change detected on device ide1(22,0)
+Mar  5 09:31:17 xena last message repeated 7 times
+Mar  5 09:32:18 xena last message repeated 12 times
+Mar  5 09:33:23 xena last message repeated 13 times
+Mar  5 09:34:24 xena last message repeated 12 times
 
-This is gonna be fun. I'll have to make a boot floppy on another machine
-that doesn't have a broken loop device.
+(22,0 = /dev/hdc,cdrom)
 
-Cheers,
-Dick Johnson
+Perturbing.
 
-Penguin : Linux version 2.4.2 on an i686 machine (799.53 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
-
+-l

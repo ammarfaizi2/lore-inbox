@@ -1,38 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276856AbRJCEVz>; Wed, 3 Oct 2001 00:21:55 -0400
+	id <S276855AbRJCEVE>; Wed, 3 Oct 2001 00:21:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276857AbRJCEVo>; Wed, 3 Oct 2001 00:21:44 -0400
-Received: from anime.net ([63.172.78.150]:33801 "EHLO anime.net")
-	by vger.kernel.org with ESMTP id <S276856AbRJCEVc>;
-	Wed, 3 Oct 2001 00:21:32 -0400
-Date: Tue, 2 Oct 2001 21:21:58 -0700 (PDT)
-From: Dan Hollis <goemon@anime.net>
-To: "D. Stimits" <stimits@idcomm.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Best gigabit card for linux
-In-Reply-To: <3BBA8D9E.74ECDE98@idcomm.com>
-Message-ID: <Pine.LNX.4.30.0110022119140.7938-100000@anime.net>
+	id <S276856AbRJCEUx>; Wed, 3 Oct 2001 00:20:53 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:58320 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S276855AbRJCEUu>;
+	Wed, 3 Oct 2001 00:20:50 -0400
+Date: Wed, 3 Oct 2001 00:21:15 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.11-pre2 fs/buffer.c: invalidate: busy buffer
+In-Reply-To: <9pe345$8ic$1@penguin.transmeta.com>
+Message-ID: <Pine.GSO.4.21.0110030014270.21861-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2 Oct 2001, D. Stimits wrote:
-> Are those available in 64 bit pci slot format?
 
-Yep
 
-http://www.dlink.com/products/gigabit/dge550t/
+On Wed, 3 Oct 2001, Linus Torvalds wrote:
 
-> I assume for that price they run in 32 bit slots (which is no doubt a
-> bottleneck on a real gigabit).
+> It's harmless, although I hope that the LVM people will become a bit
+> less invalidation-happy as a result of the warning (it's always happened
+> before, it just hasn't warned about it in earlier kernels).
 
-$85 for 64bit pci gigglebit ethernet nic isnt bad...
+AFAICS, md.c also doesn't play nice with buffe cache.
 
-http://www.goroyalpc.com/no_config_product.asp?m_cat=s_network&cat=networkcard&action=show&id=140_networkcard
+        fsync_dev(dev);
+        set_blocksize(dev, MD_SB_BYTES);
+        bh = getblk(dev, sb_offset / MD_SB_BLOCKS, MD_SB_BYTES);
+        if (!bh) {
+                printk(GETBLK_FAILED, partition_name(dev));
+                return 1;
+        }
+        memset(bh->b_data,0,bh->b_size);
+        sb = (mdp_super_t *) bh->b_data;
+        memcpy(sb, rdev->sb, MD_SB_BYTES);
 
--Dan
--- 
-[-] Omae no subete no kichi wa ore no mono da. [-]
+        mark_buffer_uptodate(bh, 1);
+        mark_buffer_dirty(bh);
+        ll_rw_block(WRITE, 1, &bh);
+        wait_on_buffer(bh);
+        brelse(bh);
+        fsync_dev(dev);
+
+is not a good thing to do (write_disk_sb()).  Not to mention the fact that
+set_blocksize() looks bogus, the code is obviously racy.  Think what will
+happen if somebody is reading from device at that moment.
 

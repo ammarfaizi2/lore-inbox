@@ -1,38 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132359AbRDJWDa>; Tue, 10 Apr 2001 18:03:30 -0400
+	id <S132372AbRDJWGU>; Tue, 10 Apr 2001 18:06:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132370AbRDJWDU>; Tue, 10 Apr 2001 18:03:20 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:61192 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S132359AbRDJWDE>; Tue, 10 Apr 2001 18:03:04 -0400
-Subject: Re: kswapd, kupdated, and bdflush at 99% under intense IO
-To: phil@theoesters.com (Phil Oester)
-Date: Tue, 10 Apr 2001 23:05:05 +0100 (BST)
-Cc: Jeff.Lessem@Colorado.EDU (Jeff Lessem), linux-kernel@vger.kernel.org
-In-Reply-To: <LAEOJKHJGOLOPJFMBEFEKEOBDDAA.phil@theoesters.com> from "Phil Oester" at Apr 10, 2001 01:25:06 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S132373AbRDJWGL>; Tue, 10 Apr 2001 18:06:11 -0400
+Received: from fencepost.gnu.org ([199.232.76.164]:51207 "EHLO
+	fencepost.gnu.org") by vger.kernel.org with ESMTP
+	id <S132370AbRDJWGF>; Tue, 10 Apr 2001 18:06:05 -0400
+Date: Tue, 10 Apr 2001 18:06:58 -0400 (EDT)
+From: Pavel Roskin <proski@gnu.org>
+X-X-Sender: <proski@fonzie.nine.com>
+To: <linux-kernel@vger.kernel.org>
+cc: <linux-fsdevel@vger.kernel.org>
+Subject: Cannot unmount ramfs after chmod
+Message-ID: <Pine.LNX.4.33.0104101802080.1795-100000@fonzie.nine.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14n6G4-0005JO-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Any time I start injecting lots of mail into the qmail queue, *one* of the
-> two processors gets pegged at 99%, and it takes forever for anything typed
-> at the console to actually appear (just as you describe).  But I don't see
+Hello!
 
-Yes I've seen this case. Its partially still a mystery
+This happens on RedHat Linux 7.0, i686 with Linux-2.4.3-ac3.
+Chmod on the top-level inode of ramfs make it impossible to unmount the
+filesystem.
 
-> Upon powercycling, the qmail partition is loaded with thousands of errors -
-> which could be caused by the power cycling, or by something kernel related.
+Chmod on other files has no effect.
 
-Under heavy I/O loads the cerberus test suite has been showing real disk
-corruption on all current trees until Ingo's patch today to fix the ext2
-and minix problems combined with the earlier fixes for other races
+[root@fonzie /root]# umount t1
+[root@fonzie /root]# mount -t ramfs none t1
+[root@fonzie /root]# touch t1/foo
+[root@fonzie /root]# umount t1
+[root@fonzie /root]# mount -t ramfs none t1
+[root@fonzie /root]# touch t1/foo
+[root@fonzie /root]# chmod 600 t1/foo
+[root@fonzie /root]# umount t1
+[root@fonzie /root]# mount -t ramfs none t1
+[root@fonzie /root]# chmod 600 t1
+[root@fonzie /root]# umount t1
+umount: /root/t1: device is busy
 
-In your case I suspect its the qmail thousands of files being created/deleted
-not the corruption but its hard to be sure
+-- 
+Regards,
+Pavel Roskin
 

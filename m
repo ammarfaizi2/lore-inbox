@@ -1,68 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262813AbTE2VhY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 May 2003 17:37:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262856AbTE2VhY
+	id S262861AbTE2Vvk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 May 2003 17:51:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262874AbTE2Vvk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 May 2003 17:37:24 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:65487 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262813AbTE2VhV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 May 2003 17:37:21 -0400
-Subject: Re: Nightly regression runs against current bk tree
-From: Craig Thomas <craiger@osdl.org>
+	Thu, 29 May 2003 17:51:40 -0400
+Received: from 12-203-29-198.client.attbi.com ([12.203.29.198]:50870 "EHLO
+	mystic.osdl.org") by vger.kernel.org with ESMTP id S262861AbTE2Vv0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 May 2003 17:51:26 -0400
+From: Nathan <smurf@osdl.org>
+Date: Thu, 29 May 2003 15:03:43 -0700
 To: Andi Kleen <ak@suse.de>
-Cc: "David S. Miller" <davem@redhat.com>, peloquin@austin.ibm.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20030529212929.GA11309@wotan.suse.de>
-References: <3ED66C83.8070608@austin.ibm.com.suse.lists.linux.kernel>
-	 <p73smqx791m.fsf@oldwotan.suse.de>
-	 <20030529.142515.08325314.davem@redhat.com>
-	 <20030529212929.GA11309@wotan.suse.de>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1054245025.1957.113.camel@bullpen.pdx.osdl.net>
+Cc: Mark Peloquin <peloquin@austin.ibm.com>, linux-kernel@vger.kernel.org,
+       davem@redhat.com
+Subject: Re: Nightly regression runs against current bk tree
+Message-ID: <20030529220343.GL25252@osdl.org>
+References: <3ED66C83.8070608@austin.ibm.com.suse.lists.linux.kernel> <p73smqx791m.fsf@oldwotan.suse.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 29 May 2003 14:50:25 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <p73smqx791m.fsf@oldwotan.suse.de>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-05-29 at 14:29, Andi Kleen wrote:
-> On Thu, May 29, 2003 at 02:25:15PM -0700, David S. Miller wrote:
-> >    From: Andi Kleen <ak@suse.de>
-> >    Date: 29 May 2003 23:11:17 +0200
-> >    
-> >    David, what do you think?
-> >    
-> > Would it have a single poster?
-> 
-> OSDL, Mark's IBM team and possible LTP ?
-> 
-> I assume there will be more once the list exists; automated regression 
-> tests seem to be currently in fashion.
-> 
-> -Andi
-> -
+On Thu, May 29, 2003 at 11:11:17PM +0200, Andi Kleen wrote:
+> It would be nice if we had a new linux-testresults list where such
+> updates could be posted regularly. I don't think it belong on l-k
+> because it would be too noisy. Perhaps such a list could be added to 
+> vger. David, what do you think?
 
-OSDL has a linux stabilization web page where several tests are run
-automatically when a new kernel is built.  It currently runs Linus'
-kernel as well as the -mm series.  We do run LTP, I/O tests, memory
-tests, reaim, and database tests as part of an automated regression 
-run. Some of you are familiar with the web page, but for those who are
-not, it is located here: http://www.osdl.org/projects/linstab/  
+The OSDL has a serious amount of automated testing we could point the
+results of to a separate list if it is created.
 
-In addition, there are links to other sites, most notably IBM's LTC
-test results.
+Right now we avoid pointing that sort of thing to l-k because it would
+drive people nuts.  On average we complete 40+ tests a day.
 
-We have just completed a physical move to a new office and we believe
-we have all of our systems working again, so test results for the
-latest kernels are a bit behind.  We hope to have completed runs for
-all tests by the weekend.  Note, we are experiencing some test failures
-but we suspect it is due to the move and not the kernels at the moment.
+With all the testing efforts going on, a central list to post and
+analyze results would be good.  People interested in helping out could
+easily work with testers to look for trends and help with root cause
+analysis.
 
--- 
-Craig Thomas
-craiger@osdl.org
+When results are found to contain significant data, we can always notify l-k.
 
+-Nathan Dabney

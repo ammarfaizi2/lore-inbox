@@ -1,42 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261501AbUBVPXa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Feb 2004 10:23:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261566AbUBVPXa
+	id S261515AbUBVPWg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Feb 2004 10:22:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261501AbUBVPWg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Feb 2004 10:23:30 -0500
-Received: from [213.227.239.137] ([213.227.239.137]:30945 "EHLO
-	berloga.shadowland") by vger.kernel.org with ESMTP id S261501AbUBVPXZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Feb 2004 10:23:25 -0500
-Subject: buffer overflow in ip_options_echo
-From: Alex Lyahkov <shadow@psoft.net>
-To: "'lkml'" <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1077463393.5404.6.camel@berloga.shadowland>
+	Sun, 22 Feb 2004 10:22:36 -0500
+Received: from MAIL.13thfloor.at ([212.16.62.51]:2946 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S261515AbUBVPWe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Feb 2004 10:22:34 -0500
+Date: Sun, 22 Feb 2004 16:22:33 +0100
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel Cross Compiling [update]
+Message-ID: <20040222152232.GB23051@MAIL.13thfloor.at>
+Mail-Followup-To: "Dr. David Alan Gilbert" <gilbertd@treblig.org>,
+	linux-kernel@vger.kernel.org
+References: <20040222035350.GB31813@MAIL.13thfloor.at> <20040222124541.GA1064@gallifrey>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-1) 
-Date: Sun, 22 Feb 2004 17:23:13 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040222124541.GA1064@gallifrey>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello All
+On Sun, Feb 22, 2004 at 12:45:41PM +0000, Dr. David Alan Gilbert wrote:
+> * Herbert Poetzl (herbert@13thfloor.at) wrote:
+> > 
+> > Hi Folks!
+> > 
+> > Here is an update to the Kernel Cross Compiling thread 
+> > I started ten days ago ...
+> 
+> Hi,
+>    Quite a while ago I tried going through a similar
+> process.   I found at the time the debian toolchain-source
+> package helped in this process.
+> 
+> There is however one thing you seem to have missed - you
+> tend to need subtely different versions of gcc and binutils
+> for each combination.
 
-When i trued to do stress testing my project i found strange bug in high
-network activity. 
-In test started four ab each with 1000 connections in same time.
-after 25-60 minutes testing i found panic in network subsystem.
-I patch my kernel with kgdb 1.6 and found that
-Program received signal SIGSEGV, Segmentation fault.
-0xc0255ad3 in ip_send_reply (sk=0x6e755320, skb=0x3232202c,
-arg=0x62654620, len=808464928)
-    at ip_output.c:982
-982     ip_output.c: No such file or directory.
-        in ip_output.c
-(gdb) p replyopts.opt.optlen
-$8 = 60 '<'
-but functions reserved 40 byte for options and it do overflow.
+not missed, but ignored on purpose ;)
 
--- 
-Alex Lyahkov <shadow@psoft.net>
+> It certainly used to be the case that every architectures
+> kernel used to have different known issues in both gcc
+> and binutils; and there was a fair amount of 'oh don't
+> use that version, it produces broken kernels' with
+> different answers for each architecture.
+
+hmm, that sounds too familiar, and I already prepared
+to have different binutils, different gcc and some special
+conditions for each build ... but I'm trying to minimize
+the differences where possible ...
+
+> At one time I tried to make a summary page showing where
+> the kernel source and tools are for each architecture;
+> but I never kept it upto date.
+> (http://www.treblig.org/Linux_kernel_source_finder.html)
+
+this looks quite useful, maybe you have some 'updated'
+info, which could be of value to this efford, if so,
+please let me know ...
+
+anyway, thanks for the url, I was planning to do something
+similar when I have all the details ...
+
+best,
+Herbert
+
+> Dave
+> 
+>  -----Open up your eyes, open up your mind, open up your code -------   
+> / Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
+> \ gro.gilbert @ treblig.org | MIPS,x86,ARM,SPARC,PPC & HPPA | In Hex /
+>  \ _________________________|_____ http://www.treblig.org   |_______/
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

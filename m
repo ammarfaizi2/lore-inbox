@@ -1,40 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283340AbSAEUwu>; Sat, 5 Jan 2002 15:52:50 -0500
+	id <S283783AbSAEVAX>; Sat, 5 Jan 2002 16:00:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283594AbSAEUwc>; Sat, 5 Jan 2002 15:52:32 -0500
-Received: from mail.s.netic.de ([212.9.160.11]:63249 "EHLO mail.netic.de")
-	by vger.kernel.org with ESMTP id <S283340AbSAEUwK>;
-	Sat, 5 Jan 2002 15:52:10 -0500
-To: jkl@miacid.net
-Cc: "Joseph S. Myers" <jsm28@cam.ac.uk>, dewar@gnat.com,
-        Dautrevaux@microprocess.com, paulus@samba.org,
-        Franz.Sirl-kernel@lauterbach.com, benh@kernel.crashing.org,
-        gcc@gcc.gnu.org, jtv@xs4all.nl, linux-kernel@vger.kernel.org,
-        linuxppc-dev@lists.linuxppc.org, minyard@acm.org, rth@redhat.com,
-        trini@kernel.crashing.org, velco@fadata.bg
-Subject: Re: [PATCH] C undefined behavior fix
-In-Reply-To: <Pine.BSI.4.10.10201051208250.8542-100000@hevanet.com>
-From: Florian Weimer <fw@deneb.enyo.de>
-Date: Sat, 05 Jan 2002 21:51:43 +0100
-In-Reply-To: <Pine.BSI.4.10.10201051208250.8542-100000@hevanet.com>
- (jkl@miacid.net's message of "Sat, 5 Jan 2002 12:17:24 -0800 (PST)")
-Message-ID: <87ell48qsg.fsf@deneb.enyo.de>
-User-Agent: Gnus/5.090004 (Oort Gnus v0.04) Emacs/21.1 (i686-pc-linux-gnu)
+	id <S283786AbSAEVAN>; Sat, 5 Jan 2002 16:00:13 -0500
+Received: from mail.vr-web.de ([195.243.197.42]:45840 "HELO mail.VR-Web.de")
+	by vger.kernel.org with SMTP id <S283783AbSAEVAB>;
+	Sat, 5 Jan 2002 16:00:01 -0500
+Date: Sat, 5 Jan 2002 21:53:03 +0100 (CET)
+From: Matthias Hanisch <mjh@vr-web.de>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+cc: davidel@xmailserver.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.2-pre performance degradation on an old 486 (it's the
+ scheduler)
+In-Reply-To: <200201051516.QAA20961@harpo.it.uu.se>
+Message-ID: <Pine.LNX.4.10.10201052140290.280-100000@pingu.franken.de>
+Organization: Matze at his stone-old Linux Box
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jkl@miacid.net writes:
+On Sat, 5 Jan 2002, Mikael Pettersson wrote:
 
-> Forgive me if I haven't been reading the manual carefully enough.  Now can
-> we please get a straight answer to the question:  Does GCC provide the
-> ability to turn an arbitrary address into a pointer, and if so how do you
-> do it?
+> BINGO! Running 2.5.2-pre8 with the scheduler changes backed out made
+> all the difference! Interactive responsiveness is much improved and
+> performance in the above two tests I ran is back to 2.4.18pre1 levels.
+> 
+> With 2.5.2-pre8 vanilla the 486 is getting large variation in Test 2
+> above (157s, 237s, 292s), but is never even close to 2.2/2.4 levels.
 
-If you want to do more than what is permitted according to the
-documentation (quoted in the message by Joseph S. Myers you replied
-to), you have to use machine code insertions in order to get
-deterministic effects.  At least this seems to be the consensus so
-far.
+This means, it's the same problem.
+
+I also tried the elevator fixes from Peter Osterlund posted in LKML
+yesterday, which did not change anything for me. So it really seems, that
+the culprit is the scheduler.
+
+I'm not an expert in that area, so I am a little bit stuck right now. If
+anybody has an suggestion, what we can investigate next (like backing out
+only parts of the scheduler patch or place some strategic printf's), I am
+willing to try this on my machine.
+
+By the way, I also tried Ingo's scheduler yesterday, which at least didn't
+show up with these problems. It even survived some hours of stress
+testing.
+
+Regards,
+	Matze
+
+
+

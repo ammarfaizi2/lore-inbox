@@ -1,62 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261612AbUL3LSt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261619AbUL3LcP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261612AbUL3LSt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Dec 2004 06:18:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261614AbUL3LSt
+	id S261619AbUL3LcP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Dec 2004 06:32:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261622AbUL3LcP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Dec 2004 06:18:49 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:54539 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S261612AbUL3LSr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Dec 2004 06:18:47 -0500
-Subject: Re: Bug : Out of range ptr error in module indicates bug in slab.c
-From: Arjan van de Ven <arjan@infradead.org>
-To: selvakumar nagendran <kernelselva@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20041230105452.26574.qmail@web60605.mail.yahoo.com>
-References: <20041230105452.26574.qmail@web60605.mail.yahoo.com>
+	Thu, 30 Dec 2004 06:32:15 -0500
+Received: from pat.uio.no ([129.240.130.16]:58350 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S261619AbUL3LcM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Dec 2004 06:32:12 -0500
+Subject: Re: POSIX ACL's with NFS
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Andre Tomt <andre@tomt.net>
+Cc: =?ISO-8859-1?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>,
+       Bill Davidsen <davidsen@tmr.com>, Diego <foxdemon@gmail.com>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <41D3DBA1.3020800@tomt.net>
+References: <d5a95e6d04122712148459507@mail.gmail.com>
+	 <41D368F7.8090502@tmr.com> <20041230041013.GB9288@ime.usp.br>
+	 <41D3DBA1.3020800@tomt.net>
 Content-Type: text/plain
-Date: Thu, 30 Dec 2004 12:18:40 +0100
-Message-Id: <1104405521.4170.10.camel@laptopd505.fenrus.org>
+Date: Thu, 30 Dec 2004 12:30:28 +0100
+Message-Id: <1104406228.12919.11.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 4.1 (++++)
-X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
-	Content analysis details:   (4.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
+X-UiO-MailScanner: No virus found
+X-UiO-Spam-info: not spam, SpamAssassin (score=0, required 12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-12-30 at 02:54 -0800, selvakumar nagendran wrote:
-> 		else	{
-> 			new -> pipe_read_end = fdes[0];
-> 			new -> pipe_write_end = fdes[1];
+to den 30.12.2004 Klokka 11:42 (+0100) skreiv Andre Tomt:
 
-this is a bug; fdes is a USERSPACE pointer, you cannot directly access
-that from kernel space, you need to use copy_from_user() for that.
+> It got submitted for inclusion on LKML some time ago, and got a few 
+> kinks ironed out in that process. Not sure why it hasn't been included yet..
 
-And note, what you are doing is unreliable, since the user is capable of
-changing that information before you log it in your structure, so if you
-want to use the data you log for anything security related or for
-something that has to be accurate, it's broken...
+Those patches will remain unmergeable as long as they contain no support
+whatsoever for client side caching of ACLs.
 
-> 	while(temp != NULL)
-> 	{
-> 		kfree(temp);
-> 		temp = temp -> next;
-> 	}
+Cheers,
+  Trond
 
-that is of course wrong; you free temp and THEN you access it!!
-
+-- 
+Trond Myklebust <trond.myklebust@fys.uio.no>
 

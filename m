@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289809AbSA2SjC>; Tue, 29 Jan 2002 13:39:02 -0500
+	id <S289821AbSA2SqD>; Tue, 29 Jan 2002 13:46:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289812AbSA2Sis>; Tue, 29 Jan 2002 13:38:48 -0500
-Received: from ns.suse.de ([213.95.15.193]:4615 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S289809AbSA2Shi>;
-	Tue, 29 Jan 2002 13:37:38 -0500
-Date: Tue, 29 Jan 2002 19:37:37 +0100 (CET)
-From: Dave Jones <davej@suse.de>
-To: Pete Wyckoff <pw@osc.edu>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [patch] typo in i386 machine check code
-In-Reply-To: <20020129132532.B10960@osc.edu>
-Message-ID: <Pine.LNX.4.33.0201291935370.14218-100000@Appserv.suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S289820AbSA2Spw>; Tue, 29 Jan 2002 13:45:52 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:5278 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S289813AbSA2Spl>; Tue, 29 Jan 2002 13:45:41 -0500
+Date: Tue, 29 Jan 2002 11:44:55 -0700
+Message-Id: <200201291844.g0TIitD24816@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: linux-kernel@vger.kernel.org, devfs-announce-list@vindaloo.ras.ucalgary.ca
+Subject: [PATCH] devfs v199.9 available
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 29 Jan 2002, Pete Wyckoff wrote:
+  Hi, all. Version 199.9 of my devfs patch is now available from:
+http://www.atnf.csiro.au/~rgooch/linux/kernel-patches.html
+The devfs FAQ is also available here.
 
->     kernel: CPU 3: Machine Check Exception: 0000000000000007
->     kernel: Bank 0: b678600022000800 at 3678600022000800
->
-> The part after the "at" is supposed to be the memory address which
-> was being accessed when the fault was detected.  Instead the code
-> prints out the status field again (with the high bit removed for
-> no apparent reason).
-> Patch is against 2.5.2.
+Patch directly available from:
+ftp://ftp.??.kernel.org/pub/linux/kernel/people/rgooch/v2.4/devfs-patch-current.gz
 
-Patch is correct. I pushed the same fix to Marcelo & Linus
-about a month back.  Alan, 2.2 also needs this. (Can't remember if
-I told you, or you told me 8-)
+AND:
+ftp://ftp.atnf.csiro.au/pub/people/rgooch/linux/kernel-patches/v2.4/devfs-patch-current.gz
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+This is against 2.4.18-pre7. Highlights of this release:
 
+- Added KERN_* to remaining messages
+
+- Cleaned up declaration of <stat_read>
+
+- Updated README from master HTML file
+
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

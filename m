@@ -1,48 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267711AbUIBHIY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267602AbUIBHOE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267711AbUIBHIY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 03:08:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267721AbUIBHIX
+	id S267602AbUIBHOE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 03:14:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267607AbUIBHOE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 03:08:23 -0400
-Received: from acheron.informatik.uni-muenchen.de ([129.187.214.135]:34222
-	"EHLO acheron.informatik.uni-muenchen.de") by vger.kernel.org
-	with ESMTP id S267711AbUIBHIT (ORCPT
+	Thu, 2 Sep 2004 03:14:04 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:5012 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S267602AbUIBHOA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 03:08:19 -0400
-Message-ID: <4136C6E1.4090404@bio.ifi.lmu.de>
-Date: Thu, 02 Sep 2004 09:08:17 +0200
-From: Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040503)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Identify security-related patches
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 2 Sep 2004 03:14:00 -0400
+Date: Thu, 2 Sep 2004 09:15:25 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Mark_H_Johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
+       Daniel Schmitt <pnambic@unu.nu>,
+       alsa-devel <alsa-devel@lists.sourceforge.net>
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q8
+Message-ID: <20040902071525.GA19925@elte.hu>
+References: <OF04883085.9C3535D2-ON86256F00.0065652B@raytheon.com> <20040902063335.GA17657@elte.hu> <20040902065549.GA18860@elte.hu> <1094108653.11364.26.camel@krustophenia.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1094108653.11364.26.camel@krustophenia.net>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-is there an easy way to identify all security-related patches out of the
-mass of patches floating around  on linux.bkbits.net or the kernel bugzilla?
+* Lee Revell <rlrevell@joe-job.com> wrote:
 
-I'm running 2.6.8.1 and would like to keep it as stable as possible, thus,
-only apply security patches. Currently I'm searching for "security" and
-alike on bitkeeper, but there seems to be no consistent marking.
+> Here are traces of a 145, 190, and 217 usec latencies in
+> netif_receive_skb:
+> 
+> http://krustophenia.net/testresults.php?dataset=2.6.9-rc1-Q6#/var/www/2.6.9-rc1-Q6/trace2.txt
+> http://krustophenia.net/testresults.php?dataset=2.6.9-rc1-Q6#/var/www/2.6.9-rc1-Q6/trace3.txt
+> http://krustophenia.net/testresults.php?dataset=2.6.9-rc1-Q6#/var/www/2.6.9-rc1-Q6/trace4.txt
 
-For instance, it would be nice if all security fixes contained a consistent
-marker like "[SECURITY]" in the changeset comments (like the reiserfs xattr/acl
-patch does), so that it would be easy to identify them. Or setting some kind
-of flag to such patches (I've no idea what bitkeeper allows one to do...).
+these all seem to be single-packet processing latencies - it would be
+quite hard to make those codepaths preemptible.
 
-cu,
-Frank
+i'd suggest to turn off things like netfilter and ip_conntrack (and
+other optional networking features that show up in the trace), they can
+only increase latency:
 
--- 
-Dipl.-Inform. Frank Steiner   Web:  http://www.bio.ifi.lmu.de/~steiner/
-Lehrstuhl f. Bioinformatik    Mail: http://www.bio.ifi.lmu.de/~steiner/m/
-LMU, Amalienstr. 17           Phone: +49 89 2180-4049
-80333 Muenchen, Germany       Fax:   +49 89 2180-99-4049
+ 00000001 0.016ms (+0.000ms): ip_rcv (netif_receive_skb)
+ 00000001 0.019ms (+0.002ms): nf_hook_slow (ip_rcv)
+ 00000002 0.019ms (+0.000ms): nf_iterate (nf_hook_slow)
+ 00000002 0.021ms (+0.001ms): ip_conntrack_defrag (nf_iterate)
+ 00000002 0.022ms (+0.000ms): ip_conntrack_in (nf_iterate)
+ 00000002 0.022ms (+0.000ms): ip_ct_find_proto (ip_conntrack_in)
+ 00000103 0.023ms (+0.000ms): __ip_ct_find_proto (ip_ct_find_proto)
+ 00000102 0.024ms (+0.000ms): local_bh_enable (ip_ct_find_proto)
+ 00000002 0.025ms (+0.001ms): tcp_error (ip_conntrack_in)
 
+	Ingo

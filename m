@@ -1,84 +1,142 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261325AbVCTWvy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261323AbVCTXFA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261325AbVCTWvy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Mar 2005 17:51:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261326AbVCTWvx
+	id S261323AbVCTXFA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Mar 2005 18:05:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261326AbVCTXFA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Mar 2005 17:51:53 -0500
-Received: from smtp004.bizmail.sc5.yahoo.com ([66.163.175.81]:19886 "HELO
-	smtp004.bizmail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261325AbVCTWvl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Mar 2005 17:51:41 -0500
-Message-ID: <423DFE7C.7040406@embeddedalley.com>
-Date: Sun, 20 Mar 2005 14:51:40 -0800
-From: Pete Popov <ppopov@embeddedalley.com>
-Reply-To: ppopov@embeddedalley.com
-Organization: Embedded Alley Solutions, Inc
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041020
-X-Accept-Language: en-us, en
+	Sun, 20 Mar 2005 18:05:00 -0500
+Received: from smtp-out.hotpop.com ([38.113.3.61]:11491 "EHLO
+	smtp-out.hotpop.com") by vger.kernel.org with ESMTP id S261323AbVCTXEy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Mar 2005 18:04:54 -0500
+From: "Antonino A. Daplas" <adaplas@hotpop.com>
+Reply-To: adaplas@pol.net
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Subject: Re: [new patch] Re: [PATCH] remove redundant NULL checks before kfree() in drivers/video/w100fb.c and add if()+comment back in drivers/video/console/bitblit.c
+Date: Mon, 21 Mar 2005 07:04:50 +0800
+User-Agent: KMail/1.5.4
+Cc: Antonino Daplas <adaplas@pol.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-fbdev-devel@lists.sourceforge.net, Alex Kern <alex.kern@gmx.de>,
+       "Ben. Herrenschmidt" <benh@kernel.crashing.org>,
+       Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+       Helge Deller <deller@gmx.de>, Philipp Rumpf <prumpf@tux.org>,
+       James Simmons <jsimmons@users.sf.net>,
+       Geert Uytterhoeven <geert@linux-m68k.org>,
+       "Eddie C. Dost" <ecd@skynet.be>, Nicolas Pitre <nico@cam.org>,
+       linux-arm-kernel@lists.arm.linux.org.uk, Andrew Morton <akpm@osdl.org>,
+       Richard Purdie <rpurdie@rpsys.net>
+References: <Pine.LNX.4.62.0503192339190.5507@dragon.hyggekrogen.localhost> <Pine.LNX.4.62.0503202325360.2508@dragon.hyggekrogen.localhost> <Pine.LNX.4.62.0503202332140.2508@dragon.hyggekrogen.localhost>
+In-Reply-To: <Pine.LNX.4.62.0503202332140.2508@dragon.hyggekrogen.localhost>
 MIME-Version: 1.0
-To: Ralf Baechle <ralf@linux-mips.org>
-CC: Andrew Morton <akpm@osdl.org>, Russell King <rmk+lkml@arm.linux.org.uk>,
-       linux-kernel@vger.kernel.org, linux-mips@linux-mips.org
-Subject: Re: Bitrotting serial drivers
-References: <20050319172101.C23907@flint.arm.linux.org.uk> <20050319141351.74f6b2a5.akpm@osdl.org> <20050320224028.GB6727@linux-mips.org>
-In-Reply-To: <20050320224028.GB6727@linux-mips.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200503210704.50357.adaplas@hotpop.com>
+X-HotPOP: -----------------------------------------------
+                   Sent By HotPOP.com FREE Email
+             Get your FREE POP email at www.HotPOP.com
+          -----------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ralf Baechle wrote:
-> On Sat, Mar 19, 2005 at 02:13:51PM -0800, Andrew Morton wrote:
-> 
-> 
->>>au1x00_uart
->>>-----------
->>>
->>>Maintainer: unknown (akpm - any ideas?)
->>
->>Ralf.
-> 
-> 
-> Actually Pete Popov (ppopov@embeddedalley.com) who I put on the cc.
+On Monday 21 March 2005 06:45, Jesper Juhl wrote:
+> On Sun, 20 Mar 2005, Jesper Juhl wrote:
+> > On Mon, 21 Mar 2005, Antonino A. Daplas wrote:
+> > > On Monday 21 March 2005 06:02, Jesper Juhl wrote:
+> > > > On Mon, 21 Mar 2005, Antonino A. Daplas wrote:
+> > > > > On Sunday 20 March 2005 06:59, Jesper Juhl wrote:
+> > > > > > Checking a pointer for NULL before calling kfree() on it is
+> > > > > > redundant, kfree() deals with NULL pointers just fine.
+> > > > > > This patch removes such checks from files in drivers/video/
+> > > > >
+> > > > > [snip]
+> > > > >
+> > > > > > ---
+> > > > > > linux-2.6.11-mm4-orig/drivers/video/console/bitblit.c	2005-03-16
+> > > > > > 15:45:26.000000000 +0100 +++
+> > > > > > linux-2.6.11-mm4/drivers/video/console/bitblit.c	2005-03-19
+> > > > > > 22:27:39.000000000 +0100 @@ -199,8 +199,7 @@ static void
+> > > > > > bit_putcs(struct vc_data *vc
+> > > > > >  		count -= cnt;
+> > > > > >  	}
+> > > > > >
+> > > > > > -	if (buf)
+> > > > > > -		kfree(buf);
+> > > > > > +	kfree(buf);
+> > > > > >  }
+> > > > >
+> > > > > This is performance critical, so I would like the check to remain.
+> > > > > A comment may be added in this section.
+> > > >
+> > > > Ok, I believe Andrew already merged the patch into -mm, if you really
+> > > > want that check back then I'll send him a patch to put it back and
+> > > > add a comment once he puts out the next -mm.
+> > > > But, at the risk of exposing my ignorance, I have to ask if it
+> > > > wouldn't actually perform better /without/ the if(buf) bit?  The
+> > > > reason I say that is that the generated code shrinks quite a bit when
+> > > > it's removed, and also kfree() itself does the same NULL check as the
+> > > > very first thing, so it comes down to the bennefit of shorter
+> > > > generated code, one less branch, against the overhead of a function
+> > > > call - and how often will 'buf' be NULL? if buff is != NULL the
+> > > > majority of the time, then it should be a gain to remove the if().
+> > >
+> > > You said it, buf is almost always NULL, except when the driver is in
+> > > monochrome mode.  So a kfree is rarely done.
+> >
+> > I see, then my change in this exact spot woul probably be a loss in the
+> > general case. Thank you for explaining.
+> >
+> > > Anyway, if the patch is already in the tree, let's leave it at that.  I
+> > > would surmise that the performance loss is negligible.
+> >
+> > Well, I just spotted two cases I missed in drivers/video/ , so when I
+> > send that patch I might as well include a hunk that puts this one check
+> > back including a comment as to why it should stay.
+>
+> One case turned out not to be one when I took a closer look, so I actually
+> only missed one. Here's a patch to fix that last one and also put the
+> check in bitblit.c back.
+> (Andrew: this should apply on top of what you already merged)
+>
+>
+> Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+>
+> --- linux-2.6.11-mm4/drivers/video/console/bitblit.c~	2005-03-20
+> 23:40:58.000000000 +0100 +++
+> linux-2.6.11-mm4/drivers/video/console/bitblit.c	2005-03-20
+> 23:40:58.000000000 +0100 @@ -199,7 +199,11 @@ static void bit_putcs(struct
+> vc_data *vc
+>  		count -= cnt;
+>  	}
+>
+> -	kfree(buf);
+> +	/* buf is always NULL except when in monochrome mode, so in this case
+> +	   it's a gain to check buf against NULL even though kfree() handles
+> +	   NULL pointers just fine */
+> +	if (buf)
+> +		kfree(buf);
+>  }
+>
 
-Thanks :)
+As Joe Perch suggested, an if (unlikely(buf)) is better.
 
->>>This is a complete clone of 8250.c, which includes all the 8250-specific
->>>structure names.
->>>
->>>Specifically, I'd like to see the following addressed:
->>>
->>>- Please clean this up to use au1x00-specific names.
->>>- this driver is lagging behind with fixes that the other drivers are
->>>  getting.  Is au1x00_uart actually maintained?
-> 
-> 
-> Sort of; much of the Alchemy development effort is still going into 2.4.
+Tony
 
-It works and no one has complained about any bugs. But you're right, fixes going 
-into other drivers have not made it into this one.
+--- linux-2.6.11-mm4/drivers/video/console/bitblit.c~   2005-03-20 23:40:58.000000000 +0100
++++ linux-2.6.11-mm4/drivers/video/console/bitblit.c    2005-03-20 23:40:58.000000000 +0100
+@@ -199,7 +199,11 @@ static void bit_putcs(struct vc_data *vc
+                count -= cnt;
+        }
+ 
+-       kfree(buf);
++       /* buf is always NULL except when in monochrome mode, so in this case
++          it's a gain to check buf against NULL even though kfree() handles
++          NULL pointers just fine */
++       if (unlikely(buf))        
++               kfree(buf);
+ }
+ 
 
->>>- the usage of UPIO_HUB6
->>>  (this driver doesn't support hub6 cards)
->>>- __register_serial, register_serial, unregister_serial
->>>  (this driver doesn't support PCMCIA cards, all of which are based on
->>>   8250-compatible devices.)
->>>- early_serial_setup
->>>  (should we really have the function name duplicated across different
->>>   hardware drivers?)
-> 
-> 
-> No argument here.  Pete says the AMD Alchemy UART is just different enough
-> to be hard to handle in the 8250 and so the driver is just an ugly
-> chainsawed version of the 8250.c
-> 
-> 
->>>The main reason is I wish to kill off uart_register_port and
->>>uart_unregister_port, but these drivers are using it.
 
-I tried a couple of times to cleanly add support to the 8250 for the Au1x 
-serial. The uart is just different enough to make that hard, though I admit I 
-never spent too much time on it. Sounds like it's time to revisit it again.
-
-Pete

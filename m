@@ -1,87 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135347AbRASQfx>; Fri, 19 Jan 2001 11:35:53 -0500
+	id <S132118AbRASQjn>; Fri, 19 Jan 2001 11:39:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135541AbRASQfn>; Fri, 19 Jan 2001 11:35:43 -0500
-Received: from dns-229.dhcp-248.nai.com ([161.69.248.229]:60372 "HELO
-	localdomain") by vger.kernel.org with SMTP id <S135347AbRASQfI>;
-	Fri, 19 Jan 2001 11:35:08 -0500
-From: Davide Libenzi <davidel@xmail.virusscreen.com>
-Organization: myCIO.com
-Date: Fri, 19 Jan 2001 08:35:55 -0800
-X-Mailer: KMail [version 1.1.95.5]
-Content-Type: text/plain;
-  charset="us-ascii"
-Cc: Andrea Arcangeli <andrea@suse.de>, Mike Kravetz <mkravetz@sequent.com>,
-        lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
-To: "Bill Hartner" <bhartner@us.ibm.com>
-In-Reply-To: <OF6A979B75.1B1BFB9F-ON852569D9.004851F0@raleigh.ibm.com>
-In-Reply-To: <OF6A979B75.1B1BFB9F-ON852569D9.004851F0@raleigh.ibm.com>
-Subject: Re: sched_test_yield benchmark
+	id <S132435AbRASQje>; Fri, 19 Jan 2001 11:39:34 -0500
+Received: from w146-179.echostar.com ([205.172.146.179]:17938 "EHLO
+	linux0.echostar.com") by vger.kernel.org with ESMTP
+	id <S132118AbRASQjS>; Fri, 19 Jan 2001 11:39:18 -0500
+Message-ID: <3A686DB1.8096DA0D@echostar.com>
+Date: Fri, 19 Jan 2001 09:39:13 -0700
+From: "Ian S. Nelson" <ian.nelson@echostar.com>
+Reply-To: ian.nelson@echostar.com
+Organization: Echostar
+X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.4.0 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Message-Id: <01011908355500.01005@ewok.dev.mycio.com>
-Content-Transfer-Encoding: 8bit
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: How come top and /proc/meminfo on 2.4.0 says 0K shared?
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 19 January 2001 07:59, Bill Hartner wrote:
-> Just a couple of notes on the sched_test_yield benchmark.
-> I posted it to the mailing list in Dec.  I have a todo to get
-> a home for it.  There are some issues though.  See below.
->
-> (1) Beware of the changes in sys_sched_yield() for 2.4.0.  Depending
->     on how many processors on the test system and how many threads
->     created, schedule() may or may not be called when calling
->     sched_yield().
+is this a bug?
 
-In Your test You're using at least 16 tasks with an 8 way SMP, so schedule() 
-should be always called ( if You're using my test suite tasks are always 
-running ).
+We have a number of machines running 2.4.0 and /proc/meminfo says we're
+sharing no memory.  top says that also, probably because it just reads
+/proc/meminfo, or at least I assume that's how it works.    All the
+individual procs show the memory they are sharing though.
 
 
-
->
-> (3) For the i386 arch :
->
->     My observations were made on an 8-way 550 Mhz PIII Xeon 2MB L2 cache.
-
-Hey, this should be the machine I've lost two days ago :^)
+thanks,
+Ian
 
 
->
->     The task structures are page aligned.  So when running the benchmark
->     you may see what I *suspect* are L1/L2 cache effects.  The set of
->     yielding threads will read the same page offsets in the task struct
->     and will dirty the same page offsets on it's kernel stack.  So
->     depending on the number of threads and the locations of their task
->     structs in physical memory and the associatively of the caches, you
->     may see (for example) results like :
->
->                 **       **             **
->     50 50 50 50 75 50 50 35 50 50 50 50 75
->
->     Also, the number of threads, the order of the task structs on the
->     run_queue, thread migration from cpu to cpu, and how many times
->     recalculate is done may vary the results from run to run.
+Here is /proc/meminfo:
 
-Yep, this is the issue.
-Why not move scheduling fields in a separate structure with a different 
-alignment :
-
-struct s_sched_fields {
- ...
-} sched_fields[];
-
-inline struct s_sched_fields * get_sched_fields_ptr(task_struct * ) {
-
-}
-
-This will reduce the probability that scheduling fields will fall onto the 
-same cache line.
+        total:    used:    free:  shared: buffers:  cached:
+Mem:  261734400 251297792 10436608        0 12423168 124805120
+Swap: 279650304 24297472 255352832
+MemTotal:       255600 kB
+MemFree:         10192 kB
+MemShared:           0 kB
+Buffers:         12132 kB
+Cached:         121880 kB
+Active:          91308 kB
+Inact_dirty:     38136 kB
+Inact_clean:      4568 kB
+Inact_target:     1436 kB
+HighTotal:           0 kB
+HighFree:            0 kB
+LowTotal:       255600 kB
+LowFree:         10192 kB
+SwapTotal:      273096 kB
+SwapFree:       249368 kB
 
 
-
-- Davide
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

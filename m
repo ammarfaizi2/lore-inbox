@@ -1,256 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268890AbRG0RLU>; Fri, 27 Jul 2001 13:11:20 -0400
+	id <S267943AbRG0RR3>; Fri, 27 Jul 2001 13:17:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268889AbRG0RLL>; Fri, 27 Jul 2001 13:11:11 -0400
-Received: from e24.nc.us.ibm.com ([32.97.136.230]:14275 "EHLO
-	e24.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S267984AbRG0RLC>; Fri, 27 Jul 2001 13:11:02 -0400
-Date: Fri, 27 Jul 2001 10:10:22 -0700 (PDT)
-From: Sridhar Samudrala <samudrala@us.ibm.com>
-To: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
-        lartc@mailman.ds9a.nl, diffserv-general@lists.sourceforge.net,
-        kuznet@ms2.inr.ac.ru, rusty@rustcorp.com.au
-cc: samudrala@us.ibm.com
-Subject: [PATCH] Inbound Connection Control mechanism: Prioritized Accept
- Queue
-Message-ID: <Pine.LNX.4.21.0107270946420.14246-100000@w-sridhar2.des.sequent.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268885AbRG0RRK>; Fri, 27 Jul 2001 13:17:10 -0400
+Received: from ntt-connection.daiwausa.com ([210.175.188.3]:56621 "EHLO
+	ead42.ead.dsa.com") by vger.kernel.org with ESMTP
+	id <S267943AbRG0RQv>; Fri, 27 Jul 2001 13:16:51 -0400
+Date: Fri, 27 Jul 2001 13:16:46 -0400
+From: "Bill Rugolsky Jr." <rugolsky@ead.dsa.com>
+To: Lawrence Greenfield <leg+@andrew.cmu.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ext3-2.4-0.9.4
+Message-ID: <20010727131646.A16145@ead45>
+In-Reply-To: <20010726174844.W17244@emma1.emma.line.org> <E15PnTJ-0003z0-00@the-village.bc.nu> <9jpftj$356$1@penguin.transmeta.com> <20010726095452.L27780@work.bitmover.com>, <20010726095452.L27780@work.bitmover.com> <996167751.209473.2263.nullmailer@bozar.algorithm.com.au> <3B60EDD3.2CE54732@zip.com.au> <200107271624.f6RGOu8U010566@acap-dev.nas.cmu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <200107271624.f6RGOu8U010566@acap-dev.nas.cmu.edu>; from leg+@andrew.cmu.edu on Fri, Jul 27, 2001 at 12:24:56PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-The following patch provides a mechanism called Prioritized Accept Queues(PAQ)
-to prioritize incoming connection requests on a socket based on the source/dest
-ip addreses and ports.
+On Fri, Jul 27, 2001 at 12:24:56PM -0400, Lawrence Greenfield wrote:
+> I love it when I see things like:  "No, Linus is right and the MTA
+> guys are just wrong."
+> 
+> This sort of attitude is just ridiculous.  Unix had a defined set of
+> semantics.  This might have been stupid semantics, but it had them.
+> Then journalling filesystems, softupdates, and Linux async updates
+> came along and destroyed those semantics, preventing those of us who
+> want to write reliable applications using the filesystem from doing
+> so.  At least Oracle doesn't change the definition of COMMIT.
 
-For example, this feature can be used to guarantee low delay and high throughput
-to preferred clients on a web server by assigning higher priority to connection
-requests whose source ip address matches the ip address of the preferred clients.
-It can also be used on a server hosting multiple websites each identified by its
-own ip address. In this case the prioritization can be done based on the 
-destination ip address of the connection requests.
+First off, would you care to quote chapter and verse of these
+"defined semantics" ?   Do you mean the BSD source?
 
-The documentation on HOWTO use this patch and the test results which show an
-improvement in connection rate for higher priority classes can be found at our
-project website.
-        http://oss.software.ibm.com/qos
+Traditional FFS/UFS achieves "safety" at a terrible cost to
+performance.  I can barely stand the wait to untar XFree86 on Solaris8
+on a PII-333, even with UFS logging -- I'd rather use my Pentium 166
+laptop running Linux!  ext2 solved this performance issue many years
+ago by recognizing that the FFS metadata scheme was not really safe
+either; instead the intelligence was put into e2fsck, and where
+necessary, the applications.  (Do I hear faint echoes of the
+"lint" v. "cc" design criterion ... ?)
 
-We would appreciate any comments or suggestions.
+The infrastructure is now in place to solve these problems in ext3,
+without imposing a least-common-denominator approach that degrades
+overall system performance.  In these instances "Linus is right" when
+he notes that (1) the proposed immediate solution does not really solve
+the problem, and (2) once in there, developers will rely on its precise
+semantics, making them difficult to get right later on, and providing
+no incentive to do so.  In many such instances "undefined" behavior is
+the best intermediate solution.
 
-Thanks
-Sridhar
+As one can see from the "gkernel-commit" traffic, Andrew Morton has
+not only taken away useful information from this thread, he's already
+halfway to a solution, in just a day, because  Matthias Andree took
+the time to describe the functional requirements instead of just
+whining that "it's not like BSD."
+ 
+> Thus why all reasonably paranoid MTAs and other mail programs say "use
+> chattr +S on ext2"---we need ordered metadata writes.
 
----------------------------
-Sridhar Samudrala
-IBM Linux Technology Centre
-samudrala@us.ibm.com
+And that's precisely the type of thing we want -- unused features should
+not impact the rest of the system.
+ 
+Regards,
 
-+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-diff -urN -X dontdiff linux-2.4.6/Documentation/Configure.help linux-2.4.6-paq/Documentation/Configure.help
---- linux-2.4.6/Documentation/Configure.help	Mon Jul  2 14:07:55 2001
-+++ linux-2.4.6-paq/Documentation/Configure.help	Thu Jul  5 16:34:05 2001
-@@ -1955,6 +1955,14 @@
-   If you want to compile it as a module, say M here and read
-   Documentation/modules.txt.  If unsure, say `N'.
- 
-+Prioritized Accept Queue (EXPERIMENTAL)
-+CONFIG_PRIO_ACCEPTQ
-+  When enabled, this option allows you to set priorities to incoming
-+  connection requests using the rules created by the iptables MARK target
-+  option. The nfmark field set by the rules is used as a priority value
-+  when the connection is added to accept queue. The priority value can 
-+  range between 0-7 with 0 being the highest priority and 7 the lowest. 
-+  
- Packet filtering
- CONFIG_IP_NF_FILTER
-   Packet filtering defines a table `filter', which has a series of
-diff -urN -X dontdiff linux-2.4.6/include/net/sock.h linux-2.4.6-paq/include/net/sock.h
---- linux-2.4.6/include/net/sock.h	Tue Jul  3 15:44:12 2001
-+++ linux-2.4.6-paq/include/net/sock.h	Thu Jul  5 16:45:31 2001
-@@ -239,6 +239,11 @@
- #define pppoe_relay	proto.pppoe.relay
- #endif
- 
-+#ifdef CONFIG_PRIO_ACCEPTQ
-+/* Priorities range from 0-7 */
-+#define MAX_ACCEPTQ_PRIO        7
-+#endif
-+
- /* This defines a selective acknowledgement block. */
- struct tcp_sack_block {
- 	__u32	start_seq;
-@@ -409,7 +414,11 @@
- 
- 	/* FIFO of established children */
- 	struct open_request	*accept_queue;
-+#ifdef CONFIG_PRIO_ACCEPTQ
-+	struct open_request     *accept_queue_tail[MAX_ACCEPTQ_PRIO];
-+#else
- 	struct open_request	*accept_queue_tail;
-+#endif
- 
- 	int			write_pending;	/* A write to socket waits to start. */
- 
-diff -urN -X dontdiff linux-2.4.6/include/net/tcp.h linux-2.4.6-paq/include/net/tcp.h
---- linux-2.4.6/include/net/tcp.h	Tue Jul  3 15:44:20 2001
-+++ linux-2.4.6-paq/include/net/tcp.h	Thu Jul  5 16:49:18 2001
-@@ -519,6 +519,9 @@
- 		struct tcp_v6_open_req v6_req;
- #endif
- 	} af;
-+#ifdef CONFIG_PRIO_ACCEPTQ
-+	int acceptq_prio;
-+#endif
- };
- 
- /* SLAB cache for open requests. */
-@@ -1566,10 +1569,33 @@
- 					 struct sock *child)
- {
- 	struct tcp_opt *tp = &sk->tp_pinfo.af_tcp;
-+#ifdef CONFIG_PRIO_ACCEPTQ
-+	int prio = req->acceptq_prio;
-+	int prev_prio;
-+#endif
- 
- 	req->sk = child;
- 	tcp_acceptq_added(sk);
- 
-+#ifdef CONFIG_PRIO_ACCEPTQ
-+	if (!tp->accept_queue_tail[prio]) {
-+		for (prev_prio = prio - 1; prev_prio >= 0; prev_prio--)
-+			if (tp->accept_queue_tail[prev_prio])
-+				break;
-+		tp->accept_queue_tail[prio] = req;
-+		if (prev_prio >= 0) {
-+			req->dl_next = tp->accept_queue_tail[prev_prio]->dl_next;
-+			tp->accept_queue_tail[prev_prio]->dl_next = req; 
-+		} else {
-+			req->dl_next = tp->accept_queue;
-+			tp->accept_queue = req;
-+		}
-+	} else {
-+		req->dl_next = tp->accept_queue_tail[prio]->dl_next;
-+		tp->accept_queue_tail[prio]->dl_next = req;
-+		tp->accept_queue_tail[prio] = req;
-+	}
-+#else
- 	if (!tp->accept_queue_tail) {
- 		tp->accept_queue = req;
- 	} else {
-@@ -1577,6 +1603,7 @@
- 	}
- 	tp->accept_queue_tail = req;
- 	req->dl_next = NULL;
-+#endif
- }
- 
- struct tcp_listen_opt
-@@ -1643,6 +1670,10 @@
- 					struct tcp_opt *tp,
- 					struct sk_buff *skb)
- {
-+#ifdef CONFIG_PRIO_ACCEPTQ
-+	int nfmark = (int)skb->nfmark;
-+#endif
-+
- 	req->rcv_wnd = 0;		/* So that tcp_send_synack() knows! */
- 	req->rcv_isn = TCP_SKB_CB(skb)->seq;
- 	req->mss = tp->mss_clamp;
-@@ -1654,6 +1685,9 @@
- 	req->acked = 0;
- 	req->ecn_ok = 0;
- 	req->rmt_port = skb->h.th->source;
-+#ifdef CONFIG_PRIO_ACCEPTQ
-+	req->acceptq_prio = (nfmark < 0) ? 0 : ((nfmark > MAX_ACCEPTQ_PRIO) ? MAX_ACCEPTQ_PRIO : nfmark);
-+#endif
- }
- 
- #define TCP_MEM_QUANTUM	((int)PAGE_SIZE)
-diff -urN -X dontdiff linux-2.4.6/net/ipv4/netfilter/Config.in linux-2.4.6-paq/net/ipv4/netfilter/Config.in
---- linux-2.4.6/net/ipv4/netfilter/Config.in	Tue Mar  6 22:44:16 2001
-+++ linux-2.4.6-paq/net/ipv4/netfilter/Config.in	Thu Jul  5 16:34:05 2001
-@@ -27,6 +27,7 @@
-   if [ "$CONFIG_EXPERIMENTAL" = "y" ]; then
-     dep_tristate '  Unclean match support (EXPERIMENTAL)' CONFIG_IP_NF_MATCH_UNCLEAN $CONFIG_IP_NF_IPTABLES
-     dep_tristate '  Owner match support (EXPERIMENTAL)' CONFIG_IP_NF_MATCH_OWNER $CONFIG_IP_NF_IPTABLES
-+    bool '  Prioritized Accept Queues (EXPERIMENTAL)' CONFIG_PRIO_ACCEPTQ
-   fi
- # The targets
-   dep_tristate '  Packet filtering' CONFIG_IP_NF_FILTER $CONFIG_IP_NF_IPTABLES 
-diff -urN -X dontdiff linux-2.4.6/net/ipv4/tcp.c linux-2.4.6-paq/net/ipv4/tcp.c
---- linux-2.4.6/net/ipv4/tcp.c	Wed May 16 10:31:27 2001
-+++ linux-2.4.6-paq/net/ipv4/tcp.c	Thu Jul  5 16:34:05 2001
-@@ -529,7 +529,12 @@
- 
- 	sk->max_ack_backlog = 0;
- 	sk->ack_backlog = 0;
-+#ifdef CONFIG_PRIO_ACCEPTQ
-+	tp->accept_queue = NULL;
-+	memset(tp->accept_queue_tail, 0, (sizeof(struct open_request *) * (MAX_ACCEPTQ_PRIO + 1)));
-+#else
- 	tp->accept_queue = tp->accept_queue_tail = NULL;
-+#endif
- 	tp->syn_wait_lock = RW_LOCK_UNLOCKED;
- 	tcp_delack_init(tp);
- 
-@@ -588,7 +593,12 @@
- 	write_lock_bh(&tp->syn_wait_lock);
- 	tp->listen_opt =NULL;
- 	write_unlock_bh(&tp->syn_wait_lock);
-+#ifdef CONFIG_PRIO_ACCEPTQ
-+	tp->accept_queue = NULL;
-+	memset(tp->accept_queue_tail, 0, (sizeof(struct open_request *) * (MAX_ACCEPTQ_PRIO + 1)));
-+#else
- 	tp->accept_queue = tp->accept_queue_tail = NULL;
-+#endif
- 
- 	if (lopt->qlen) {
- 		for (i=0; i<TCP_SYNQ_HSIZE; i++) {
-@@ -2109,6 +2119,9 @@
- 	struct open_request *req;
- 	struct sock *newsk;
- 	int error;
-+#ifdef CONFIG_PRIO_ACCEPTQ
-+	int prio;
-+#endif
- 
- 	lock_sock(sk); 
- 
-@@ -2134,8 +2147,17 @@
- 	}
- 
- 	req = tp->accept_queue;
-+#ifdef CONFIG_PRIO_ACCEPTQ
-+	tp->accept_queue = req->dl_next;
-+	for (prio = 0; prio <= MAX_ACCEPTQ_PRIO; prio++)
-+		if (req == tp->accept_queue_tail[prio]) {
-+			tp->accept_queue_tail[prio] = NULL;
-+			break;
-+		}
-+#else
- 	if ((tp->accept_queue = req->dl_next) == NULL)
- 		tp->accept_queue_tail = NULL;
-+#endif
- 
-  	newsk = req->sk;
- 	tcp_acceptq_removed(sk);
-diff -urN -X dontdiff linux-2.4.6/net/ipv4/tcp_minisocks.c linux-2.4.6-paq/net/ipv4/tcp_minisocks.c
---- linux-2.4.6/net/ipv4/tcp_minisocks.c	Thu Apr 12 12:11:39 2001
-+++ linux-2.4.6-paq/net/ipv4/tcp_minisocks.c	Thu Jul  5 16:34:05 2001
-@@ -733,7 +733,12 @@
- 		newtp->num_sacks = 0;
- 		newtp->urg_data = 0;
- 		newtp->listen_opt = NULL;
-+#ifdef CONFIG_PRIO_ACCEPTQ
-+		newtp->accept_queue = NULL;
-+		memset(newtp->accept_queue_tail, 0, (sizeof(struct open_request *) * (MAX_ACCEPTQ_PRIO + 1)));
-+#else
- 		newtp->accept_queue = newtp->accept_queue_tail = NULL;
-+#endif
- 		/* Deinitialize syn_wait_lock to trap illegal accesses. */
- 		memset(&newtp->syn_wait_lock, 0, sizeof(newtp->syn_wait_lock));
-+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+   Bill Rugolsky
 

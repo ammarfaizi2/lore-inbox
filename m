@@ -1,44 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281609AbRLUMvk>; Fri, 21 Dec 2001 07:51:40 -0500
+	id <S281463AbRLUNGE>; Fri, 21 Dec 2001 08:06:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281663AbRLUMvU>; Fri, 21 Dec 2001 07:51:20 -0500
-Received: from moutvdom01.kundenserver.de ([195.20.224.200]:31260 "EHLO
-	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S281609AbRLUMvM>; Fri, 21 Dec 2001 07:51:12 -0500
-User-Agent: Microsoft-Outlook-Express-Macintosh-Edition/5.02.2106
-Date: Fri, 21 Dec 2001 13:50:47 +0100
-Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in
-	Configure.help.
-From: Rene Engelhard <mail@rene-engelhard.de>
-To: <linux-kernel@vger.kernel.org>
-Message-ID: <B848EEB6.406C%mail@rene-engelhard.de>
-In-Reply-To: <87pu58ol0a.fsf@panther.aladdin.de>
-Mime-version: 1.0
-Content-type: text/plain; charset="US-ASCII"
-Content-transfer-encoding: 7bit
+	id <S281663AbRLUNF4>; Fri, 21 Dec 2001 08:05:56 -0500
+Received: from svr3.applink.net ([206.50.88.3]:56842 "EHLO svr3.applink.net")
+	by vger.kernel.org with ESMTP id <S281463AbRLUNFo>;
+	Fri, 21 Dec 2001 08:05:44 -0500
+Message-Id: <200112211305.fBLD5WSr019374@svr3.applink.net>
+Content-Type: text/plain; charset=US-ASCII
+From: Timothy Covell <timothy.covell@ashavan.org>
+Reply-To: timothy.covell@ashavan.org
+To: esr@thyrsus.com, David Garfield <garfield@irving.iisd.sra.com>
+Subject: Re: Configure.help editorial policy (H20 and K2B)
+Date: Fri, 21 Dec 2001 07:01:45 -0600
+X-Mailer: KMail [version 1.3.2]
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20011220143247.A19377@thyrsus.com> <15394.29882.361540.200600@irving.iisd.sra.com> <20011220185226.A25080@thyrsus.com>
+In-Reply-To: <20011220185226.A25080@thyrsus.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- Christian Groessler wrote:
+On Thursday 20 December 2001 17:52, Eric S. Raymond wrote:
+> David Garfield <garfield@irving.iisd.sra.com>:
+> > Another option: maybe the choice of KB vs KiB vs KKB should be a
+> > configuration choice.
+>
 
-> On 12/21/2001 10:58:30 AM GMT Mike Jagdis wrote:
->> 
->> Mike Eldridge wrote:
->> 
->>> i was going to comment about simply using lowercase equivalents, but
->>> then milli already has 'm', although the concept of a millibyte (or even
->>> millibit) is absurd.
->> 
->> Why? For instance a millibyte/s might be a hearbeat across a LAN every
->> hour or so or it might be a control traffic requirement for a deep space
->> probe. You might not have an immediate use for the term but it has a
->> specific meaning - and certainly isn't "absurd" (see definition on
->> http://www.dict.org).
-> 
-> So, is it 1/1024 or 1/1000 bytes ?  :-)
+Um, you know, all due repect to Knuth, the God, I think that
+someof his ideas are downright silly.   Now, my suggestion
+is different, namely, inserting a 2 in the unit such as "K2B"
+meaning Kilo (base2) Byte.    It's not like we don't have a
+precendent from the chemistry and physics fields. 
 
-1/1024. Because we are talking about byte.
-
-Rene
-
+-- 
+timothy.covell@ashavan.org.

@@ -1,65 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263531AbUKAOGV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264024AbUKAOL5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263531AbUKAOGV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Nov 2004 09:06:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263065AbUKAOGS
+	id S264024AbUKAOL5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Nov 2004 09:11:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263374AbUKAOLz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Nov 2004 09:06:18 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:43144 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S265189AbUKAOF1 (ORCPT
+	Mon, 1 Nov 2004 09:11:55 -0500
+Received: from fsmlabs.com ([168.103.115.128]:38786 "EHLO musoma.fsmlabs.com")
+	by vger.kernel.org with ESMTP id S264148AbUKAOHJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 09:05:27 -0500
-Date: Mon, 1 Nov 2004 15:06:30 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Florian Schmidt <mista.tapas@gmx.net>
-Cc: Lee Revell <rlrevell@joe-job.com>, Paul Davis <paul@linuxaudiosystems.com>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       LKML <linux-kernel@vger.kernel.org>, mark_h_johnson@raytheon.com,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       jackit-devel <jackit-devel@lists.sourceforge.net>,
-       Rui Nuno Capela <rncbc@rncbc.org>, "K.R. Foley" <kr@cybsft.com>
-Subject: Re: [Fwd: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4]
-Message-ID: <20041101140630.GA20448@elte.hu>
-References: <20041031120721.GA19450@elte.hu> <20041031124828.GA22008@elte.hu> <1099227269.1459.45.camel@krustophenia.net> <20041031131318.GA23437@elte.hu> <20041031134016.GA24645@elte.hu> <20041031162059.1a3dd9eb@mango.fruits.de> <20041031165913.2d0ad21e@mango.fruits.de> <20041031200621.212ee044@mango.fruits.de> <20041101134235.GA18009@elte.hu> <20041101135358.GA19718@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041101135358.GA19718@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Mon, 1 Nov 2004 09:07:09 -0500
+Date: Mon, 1 Nov 2004 07:04:20 -0700 (MST)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: carlos@tarkus.se
+cc: linux-kernel@vger.kernel.org
+Subject: Re: spinlock_t typedef visibility and uninitialized spinlock
+In-Reply-To: <cb62342b04110103057dc7dff0@mail.gmail.com>
+Message-ID: <Pine.LNX.4.61.0411010702370.19123@musoma.fsmlabs.com>
+References: <cb62342b04110103057dc7dff0@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 1 Nov 2004, Carlos Vidal wrote:
 
-* Ingo Molnar <mingo@elte.hu> wrote:
-
-> > removing the poll() lines doesnt seem to impact the quality of the
-> > data, but i still see roughly 50 usecs added to the 'real' latency
-> > that i see in traces.
+> I'm porting CIPE 1.6.0 kernel module to Kernel 2.6.8 and had problems
+> with "spin_is_locked on uninitialized spinlock".
 > 
-> this i think is related to what Thomas observed, that there's a new
-> irqs-off critical section somewhere. (it's in the new priority
-> handling code i think.)
+> After tracing the problem I found that the spinlock_t structure is not
+> visible to the module code. A 'gcc -E' yields:
+>      typedef struct { } spinlock_t;
+> 
+> In spinlock.h, this declaration is inside a #ifdef
+> CONFIG_DEBUG_SPINLOCK block, so it becomes visible only
+> CONFIG_DEBUG_SPINLOCK is 'y'.
+> 
+> If I turn CONFIG_DEBUG_SPINLOCK on, the module loads nicely. Otherwise
+> I get a nasty error in syslog and sometimes a system crash, as if in
+> CIPE the struct was not allocated (what is the case if the compiler
+> uses the typedef as it is above).
+> 
+> The question is: is this a bug or a feature? ;-)
+> 
+> Should the declaration be out of the #ifdef CONFIG_DEBUG_SPINLOCK? Or
+> should I use a special compiler flag?
 
-ah, found it. Only RT tasks were supposed to get special priority
-handling, while in fact all tasks got it - so when Thomas ran hackbench
-(Thomas, you did, right?) it created an O(nr_hackbench) overhead within
-the mutex code ... I've uploaded -V0.6.5 to the usual place:
+Try including <linux/config.h> at the top of the compilation unit and run 
+through the preprocessor again. By the way, spinlock code got shuffled 
+around in 2.6.9...
 
-  http://redhat.com/~mingo/realtime-preempt/
+	Zwane
 
-Thomas, can you confirm that this kernel fixes the irqs-off latencies? 
-(the priority loop indeed was done with irqs turned off.)
-
-i'm not sure this fix is related to the deadlocks reported though.
-
-	Ingo

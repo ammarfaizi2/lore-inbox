@@ -1,165 +1,219 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263001AbVCQGud@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263006AbVCQGzB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263001AbVCQGud (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Mar 2005 01:50:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263006AbVCQGuc
+	id S263006AbVCQGzB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Mar 2005 01:55:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263007AbVCQGzB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Mar 2005 01:50:32 -0500
-Received: from v-1635.easyco.net ([69.26.169.185]:20740 "EHLO
-	mail.intworks.biz") by vger.kernel.org with ESMTP id S263001AbVCQGuJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Mar 2005 01:50:09 -0500
-Date: Wed, 16 Mar 2005 22:50:07 -0800
-From: jayalk@intworks.biz
-Message-Id: <200503170650.j2H6o7EP024703@intworks.biz>
-To: gregkh@suse.de
-Subject: [PATCH 2.6.11.2 1/1] PCI Allow OutOfRange PIRQ table address
-Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+	Thu, 17 Mar 2005 01:55:01 -0500
+Received: from fmr24.intel.com ([143.183.121.16]:26819 "EHLO
+	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
+	id S263006AbVCQGyu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Mar 2005 01:54:50 -0500
+Subject: Re: [PATCH 2.6] fix POSIX timers expire before their scheduled time
+From: Hong Liu <hong.liu@intel.com>
+To: george@mvista.com
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <423923D9.4050801@mvista.com>
+References: <1111026022.2994.54.camel@devlinux-hong>
+	 <423923D9.4050801@mvista.com>
+Content-Type: multipart/mixed; boundary="=-Chr4alsonl9Lazt+iu2Z"
+Message-Id: <1111042088.2994.66.camel@devlinux-hong>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 17 Mar 2005 14:48:08 +0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg, PCI folk,
 
-Sorry, just also did the simple_strtol to strtoul. Let me know if it's okay. 
-Thanks. 
+--=-Chr4alsonl9Lazt+iu2Z
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
----
-I updated this to remove unnecessary variable initialization, make 
-check_routing be inline only and not __init, and formatting fixes as per
-Randy Dunlap's recommendations. 
+On Thu, 2005-03-17 at 14:29, George Anzinger wrote:
+> Liu, Hong wrote:
+> > POSIX says: POSIX timers should not expire before their scheduled time.
+> > 
+> > Due to the timer started between jiffies, there are cases that the timer
+> > will expire before its scheduled time.
+> > This patch ensures timers will not expire early.
+> > 
+> > --- a/kernel/posix-timers.c     2005-03-10 15:46:27.329333664 +0800
+> > +++ b/kernel/posix-timers.c     2005-03-10 15:50:11.884196136 +0800
+> > @@ -957,7 +957,8 @@
+> >                             &expire_64, &(timr->wall_to_prev))) {
+> >                 return -EINVAL;
+> >         }
+> > -       timr->it_timer.expires = (unsigned long)expire_64;
+> > +       timr->it_timer.expires = (unsigned long)expire_64 + 1;
+> >         tstojiffie(&new_setting->it_interval, clock->res, &expire_64);
+> >         timr->it_incr = (unsigned long)expire_64;
+> > 
+> Has this happened??  The following code (in adjust_abs_time()) is supposed to 
+> prevent this sort of thing:
+> 
+> 	if (oc.tv_sec | oc.tv_nsec) {
+> 		oc.tv_nsec += clock->res;
+> 		timespec_norm(&oc);
+> 	}
+> 
+> Also, we run rather extensive tests for this sort of thing.
+> 
+The attached case from PosixTestSuite(http://posixtest.sourceforge.net)
+failed on IA64 platform.
+And if I changed the time interval to N*clock_res in this case, it will
+also fail on IA32 platform.
 
-I updated this to change pirq_table_addr to a long, and to add a warning
-msg if the PIRQ table wasn't found at the specified address, as per thread
-with Matthew Wilcox. 
 
-In our hardware situation, the BIOS is unable to store or generate it's PIRQ
-table in the F0000h-100000h standard range. This patch adds a pci kernel
-parameter, pirqaddr to allow the bootloader (or BIOS based loader) to inform
-the kernel where the PIRQ table got stored. A beneficial side-effect is that,
-if one's BIOS uses a static address each time for it's PIRQ table, then
-pirqaddr can be used to avoid the $pirq search through that address block each
-time at boot for normal PIRQ BIOSes.
+BTW, I can't find the code piece you mentioned in 2.6.11 kernel.
 
----
+--=-Chr4alsonl9Lazt+iu2Z
+Content-Disposition: attachment; filename=9-1.c
+Content-Type: text/x-csrc; name=9-1.c; charset=utf-8
+Content-Transfer-Encoding: 7bit
 
-Signed-off-by:	Jaya Kumar	<jayalk@intworks.biz>
+/*   
+ * Copyright (c) 2002, Intel Corporation. All rights reserved.
+ * Created by:  julie.n.fleischer REMOVE-THIS AT intel DOT com
+ * This file is licensed under the GPL license.  For the full content
+ * of this license, see the COPYING file at the top level of this 
+ * source tree.
+ *
+ * Test that timers are not allowed to expire before their scheduled
+ * time.
+ *
+ * Test for a variety of timer values on relative timers.
+ *
+ * For this test, signal SIGTOTEST will be used, clock CLOCK_REALTIME
+ * will be used.
+ */
 
-diff -uprN -X dontdiff linux-2.6.11.2-vanilla/arch/i386/pci/common.c linux-2.6.11.2/arch/i386/pci/common.c
---- linux-2.6.11.2-vanilla/arch/i386/pci/common.c	2005-03-10 16:31:25.000000000 +0800
-+++ linux-2.6.11.2/arch/i386/pci/common.c	2005-03-17 14:25:54.111123816 +0800
-@@ -25,7 +25,8 @@ unsigned int pci_probe = PCI_PROBE_BIOS 
- 
- int pci_routeirq;
- int pcibios_last_bus = -1;
--struct pci_bus *pci_root_bus = NULL;
-+unsigned long pirq_table_addr;
-+struct pci_bus *pci_root_bus;
- struct pci_raw_ops *raw_pci_ops;
- 
- static int pci_read(struct pci_bus *bus, unsigned int devfn, int where, int size, u32 *value)
-@@ -188,6 +189,9 @@ char * __devinit  pcibios_setup(char *st
- 	} else if (!strcmp(str, "biosirq")) {
- 		pci_probe |= PCI_BIOS_IRQ_SCAN;
- 		return NULL;
-+	} else if (!strncmp(str, "pirqaddr=", 9)) {
-+		pirq_table_addr = simple_strtoul(str+9, NULL, 0);
-+		return NULL;
- 	}
- #endif
- #ifdef CONFIG_PCI_DIRECT
-diff -uprN -X dontdiff linux-2.6.11.2-vanilla/arch/i386/pci/irq.c linux-2.6.11.2/arch/i386/pci/irq.c
---- linux-2.6.11.2-vanilla/arch/i386/pci/irq.c	2005-03-10 16:31:25.000000000 +0800
-+++ linux-2.6.11.2/arch/i386/pci/irq.c	2005-03-17 14:04:22.000000000 +0800
-@@ -58,6 +58,35 @@ struct irq_router_handler {
- int (*pcibios_enable_irq)(struct pci_dev *dev) = NULL;
- 
- /*
-+ *  Check passed address for the PCI IRQ Routing Table signature 
-+ *  and perform checksum verification.
-+ */
-+
-+static inline struct irq_routing_table * pirq_check_routing_table(u8 *addr)
-+{
-+	struct irq_routing_table *rt;
-+	int i;
-+	u8 sum;
-+
-+	rt = (struct irq_routing_table *) addr;
-+	if (rt->signature != PIRQ_SIGNATURE ||
-+	    rt->version != PIRQ_VERSION ||
-+	    rt->size % 16 ||
-+	    rt->size < sizeof(struct irq_routing_table))
-+		return NULL;
-+	sum = 0;
-+	for (i=0; i < rt->size; i++)
-+		sum += addr[i];
-+	if (!sum) {
-+		DBG("PCI: Interrupt Routing Table found at 0x%p\n", rt);
-+		return rt;
-+	}
-+	return NULL;
-+}
-+
-+
-+
-+/*
-  *  Search 0xf0000 -- 0xfffff for the PCI IRQ Routing Table.
-  */
- 
-@@ -65,23 +94,17 @@ static struct irq_routing_table * __init
- {
- 	u8 *addr;
- 	struct irq_routing_table *rt;
--	int i;
--	u8 sum;
- 
-+	if (pirq_table_addr) {
-+		rt = pirq_check_routing_table((u8 *) __va(pirq_table_addr));
-+		if (rt)
-+			return rt;
-+		printk(KERN_WARNING "PCI: PIRQ table NOT found at pirqaddr\n"); 
-+	}
- 	for(addr = (u8 *) __va(0xf0000); addr < (u8 *) __va(0x100000); addr += 16) {
--		rt = (struct irq_routing_table *) addr;
--		if (rt->signature != PIRQ_SIGNATURE ||
--		    rt->version != PIRQ_VERSION ||
--		    rt->size % 16 ||
--		    rt->size < sizeof(struct irq_routing_table))
--			continue;
--		sum = 0;
--		for(i=0; i<rt->size; i++)
--			sum += addr[i];
--		if (!sum) {
--			DBG("PCI: Interrupt Routing Table found at 0x%p\n", rt);
-+		rt = pirq_check_routing_table(addr);
-+		if (rt) 
- 			return rt;
--		}
- 	}
- 	return NULL;
- }
-diff -uprN -X dontdiff linux-2.6.11.2-vanilla/arch/i386/pci/pci.h linux-2.6.11.2/arch/i386/pci/pci.h
---- linux-2.6.11.2-vanilla/arch/i386/pci/pci.h	2005-03-10 16:31:25.000000000 +0800
-+++ linux-2.6.11.2/arch/i386/pci/pci.h	2005-03-17 08:54:36.000000000 +0800
-@@ -27,6 +27,7 @@
- #define PCI_ASSIGN_ALL_BUSSES	0x4000
- 
- extern unsigned int pci_probe;
-+extern unsigned long pirq_table_addr;
- 
- /* pci-i386.c */
- 
-diff -uprN -X dontdiff linux-2.6.11.2-vanilla/Documentation/kernel-parameters.txt linux-2.6.11.2/Documentation/kernel-parameters.txt
---- linux-2.6.11.2-vanilla/Documentation/kernel-parameters.txt	2005-03-10 16:31:44.000000000 +0800
-+++ linux-2.6.11.2/Documentation/kernel-parameters.txt	2005-03-17 13:01:20.000000000 +0800
-@@ -967,6 +967,10 @@ running once the system is up.
- 		irqmask=0xMMMM		[IA-32] Set a bit mask of IRQs allowed to be assigned
- 					automatically to PCI devices. You can make the kernel
- 					exclude IRQs of your ISA cards this way.
-+		pirqaddr=0xAAAAA	[IA-32] Specify the physical address
-+					of the PIRQ table (normally generated
-+					by the BIOS) if it is outside the
-+					F0000h-100000h range.
- 		lastbus=N		[IA-32] Scan all buses till bus #N. Can be useful
- 					if the kernel is unable to find your secondary buses
- 					and you want to tell it explicitly which ones they are.
+#include <time.h>
+#include <signal.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <stdlib.h>
+
+#define PTS_PASS        0
+#define PTS_FAIL        1
+#define PTS_UNRESOLVED  2
+#define PTS_UNSUPPORTED 4
+#define PTS_UNTESTED    5
+
+#define SIGTOTEST SIGALRM
+#define TIMERVALUESEC 2
+#define TIMERINTERVALSEC 5
+#define INCREMENT 1
+#define ACCEPTABLEDELTA 1
+
+#define NUMTESTS 6
+
+static int timeroffsets[NUMTESTS][2] = { {0, 30000000}, {1, 0}, 
+					{1, 30000000}, {2, 0},
+					{1, 5000}, {1, 5} };
+
+int main(int argc, char *argv[])
+{
+	struct sigevent ev;
+	timer_t tid;
+	struct itimerspec its;
+	struct timespec tsbefore, tsafter;
+	sigset_t set;
+	int sig;
+	int i;
+	int failure = 0;
+	unsigned long totalnsecs, testnsecs; // so long was we are < 2.1 seconds, we should be safe
+
+	/*
+	 * set up signal set containing SIGTOTEST that will be used
+	 * in call to sigwait immediately after timer is set
+	 */
+
+	if (sigemptyset(&set) == -1 ) {
+		perror("sigemptyset() failed\n");
+		return PTS_UNRESOLVED;
+	}
+
+	if (sigaddset(&set, SIGTOTEST) == -1) {
+		perror("sigaddset() failed\n");
+		return PTS_UNRESOLVED;
+	}
+
+        if (sigprocmask (SIG_BLOCK, &set, NULL) == -1) {
+                perror("sigprocmask() failed\n");
+                return PTS_UNRESOLVED;
+        }
+
+	/*
+	 * set up timer to perform action SIGTOTEST on expiration
+	 */
+	ev.sigev_notify = SIGEV_SIGNAL;
+	ev.sigev_signo = SIGTOTEST;
+
+	if (timer_create(CLOCK_REALTIME, &ev, &tid) != 0) {
+		perror("timer_create() did not return success\n");
+		return PTS_UNRESOLVED;
+	}
+
+	for (i = 0; i < NUMTESTS; i++) {
+		its.it_interval.tv_sec = 0; its.it_interval.tv_nsec = 0;
+		its.it_value.tv_sec = timeroffsets[i][0];
+		its.it_value.tv_nsec = timeroffsets[i][1];
+
+		printf("Test for value %d sec %d nsec\n", 
+				(int) its.it_value.tv_sec,
+				(int) its.it_value.tv_nsec);
+
+		if (clock_gettime(CLOCK_REALTIME, &tsbefore) != 0) {
+			perror("clock_gettime() did not return success\n");
+			return PTS_UNRESOLVED;
+		}
+		
+		if (timer_settime(tid, 0, &its, NULL) != 0) {
+			perror("timer_settime() did not return success\n");
+			return PTS_UNRESOLVED;
+		}
+	
+		if (sigwait(&set, &sig) == -1) {
+			perror("sigwait() failed\n");
+			return PTS_UNRESOLVED;
+		}
+	
+		if (clock_gettime(CLOCK_REALTIME, &tsafter) != 0) {
+			perror("clock_gettime() did not return success\n");
+			return PTS_UNRESOLVED;
+		}
+	
+		
+		printf("tsbefore: sec--%lu, nsec--%lu\n", tsbefore.tv_sec,
+							tsbefore.tv_nsec);
+		printf("tsafter:  sec--%lu, nsec--%lu\n", tsafter.tv_sec,
+							tsafter.tv_nsec);
+		totalnsecs = (unsigned long) (tsafter.tv_sec-tsbefore.tv_sec)*
+					1000000000 +
+					(tsafter.tv_nsec-tsbefore.tv_nsec);
+		testnsecs = (unsigned long) its.it_value.tv_sec*1000000000 + 
+					its.it_value.tv_nsec;
+		printf("total %lu test %lu\n", totalnsecs, testnsecs);
+		if (totalnsecs < testnsecs) {
+			printf("FAIL:  Expired %ld < %ld\n", totalnsecs,
+							testnsecs);
+			failure = 1;
+		}
+	}
+
+	if (timer_delete(tid) != 0) {
+		perror("timer_delete() did not return success\n");
+		return PTS_UNRESOLVED;
+	}
+
+	if (failure) {
+		printf("timer_settime() failed on at least one value\n");
+		return PTS_FAIL;
+	} else {
+		printf("Test PASSED\n");
+		return PTS_PASS;
+	}
+}
+
+--=-Chr4alsonl9Lazt+iu2Z--
+

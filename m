@@ -1,50 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261525AbVBRVxB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261528AbVBRWAb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261525AbVBRVxB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Feb 2005 16:53:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261528AbVBRVxA
+	id S261528AbVBRWAb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Feb 2005 17:00:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261532AbVBRWAb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Feb 2005 16:53:00 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:28586 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261525AbVBRVws (ORCPT
+	Fri, 18 Feb 2005 17:00:31 -0500
+Received: from mail1.kontent.de ([81.88.34.36]:48019 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S261528AbVBRWAY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Feb 2005 16:52:48 -0500
-Date: Fri, 18 Feb 2005 16:52:25 -0500 (EST)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Dave Hansen <haveblue@us.ibm.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       lhms <lhms-devel@lists.sourceforge.net>, linux-mm <linux-mm@kvack.org>,
-       Andy Whitcroft <apw@shadowen.org>
-Subject: Re: [RFC][PATCH] Memory Hotplug
-In-Reply-To: <1108685111.6482.40.camel@localhost>
-Message-ID: <Pine.LNX.4.61.0502181650381.4052@chimarrao.boston.redhat.com>
-References: <1108685033.6482.38.camel@localhost> <1108685111.6482.40.camel@localhost>
+	Fri, 18 Feb 2005 17:00:24 -0500
+From: Oliver Neukum <oliver@neukum.org>
+To: Pavel Machek <pavel@suse.cz>
+Subject: Re: 2.6: drivers/input/power.c is never built
+Date: Fri, 18 Feb 2005 23:00:21 +0100
+User-Agent: KMail/1.7.1
+Cc: Vojtech Pavlik <vojtech@suse.cz>, dtor_core@ameritech.net,
+       Richard Purdie <rpurdie@rpsys.net>,
+       James Simmons <jsimmons@pentafluge.infradead.org>,
+       Adrian Bunk <bunk@stusta.de>,
+       Linux Input Devices <linux-input@atrey.karlin.mff.cuni.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <047401c515bb$437b5130$0f01a8c0@max> <200502182223.19896.oliver@neukum.org> <20050218213428.GD1403@elf.ucw.cz>
+In-Reply-To: <20050218213428.GD1403@elf.ucw.cz>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; format=flowed
-Content-ID: <Pine.LNX.4.61.0502181650383.4052@chimarrao.boston.redhat.com>
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200502182300.21420.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 Feb 2005, Dave Hansen wrote:
+Am Freitag, 18. Februar 2005 22:34 schrieb Pavel Machek:
 
-> The attached patch is a prototype implementation of memory hot-add.  It
-> allows you to boot your system, and add memory to it later.  Why would
-> you want to do this?
+> Well, if you have power button on usb keyboard -- why should it be
+> handled differently from built-in button?
 
-I want it so I can grow Xen guests after they have been booted
-up.  Being able to hot-add memory is essential for dynamically
-resizing the memory of various guest OSes, to readjust them for
-the workload.
+I see no reason. But that tells you that one subsystem should handle
+that, not which subsystem.
+ 
+> > > I think that's all you need to trigger actions. You don't need the exact
+> > > percentage of the battery, and you don't need the exact AC voltage at
+> > > input. 
+> > 
+> > That is very debateable. I might want a quiet mode and would be
+> > interested in notifications about thermal data and fan status. 
+> 
+> Hmm, yes, some thermal notifications are needed. OTOH I'm not sure if
+> all the hardware does sent interrupts for temperature changes (you
+> definitely do not get interrupts for "small" changes that do not cross
 
-Memory hot-remove isn't really needed with Xen, the balloon
-driver takes care of that.
+I suspect that this is really done in SMI.
 
-> I can post individual patches if anyone would like to comment on them.
+> trip points), and I do not see how you can do interrupts for fan
+> status. Either fans are under Linux control (and kernel could tell you
+> when it turns fan on/off, but...), or they do not exist from Linux's
+> point of few.
 
-I'm interested.  I want to get this stuff working with Xen ;)
+They still can have a readable rate, even if not under os control.
+Nevertheless I don't think you can reasonably define what might
+interest user space or not and in which detail.
 
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+	Regards
+		Oliver

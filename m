@@ -1,50 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267443AbUGNQMf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267441AbUGNQOR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267443AbUGNQMf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jul 2004 12:12:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267441AbUGNQMf
+	id S267441AbUGNQOR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jul 2004 12:14:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267442AbUGNQOR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jul 2004 12:12:35 -0400
-Received: from mout0.freenet.de ([194.97.50.131]:48318 "EHLO mout0.freenet.de")
-	by vger.kernel.org with ESMTP id S267443AbUGNQMX convert rfc822-to-8bit
+	Wed, 14 Jul 2004 12:14:17 -0400
+Received: from out003pub.verizon.net ([206.46.170.103]:51127 "EHLO
+	out003.verizon.net") by vger.kernel.org with ESMTP id S267441AbUGNQNI
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jul 2004 12:12:23 -0400
-From: Michael Buesch <mbuesch@freenet.de>
-To: Arjan van de Ven <arjanv@redhat.com>
-Subject: Re: [Q] don't allow tmpfs to page out
-Date: Wed, 14 Jul 2004 18:11:57 +0200
-User-Agent: KMail/1.6.2
-References: <200407141654.31817.mbuesch@freenet.de> <200407141807.11086.mbuesch@freenet.de> <20040714160825.GA23155@devserv.devel.redhat.com>
-In-Reply-To: <20040714160825.GA23155@devserv.devel.redhat.com>
-Cc: William Stearns <wstearns@pobox.com>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
+	Wed, 14 Jul 2004 12:13:08 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Organization: Organization: undetectable
+To: linux-kernel@vger.kernel.org
+Subject: Re: Strange Network behaviour
+Date: Wed, 14 Jul 2004 12:13:07 -0400
+User-Agent: KMail/1.6
+References: <20040702153028.GD15170@ostc.de> <20040714090208.GA2274@k3.hellgate.ch> <20040714102849.GD11727@ostc.de>
+In-Reply-To: <20040714102849.GD11727@ostc.de>
 MIME-Version: 1.0
 Content-Disposition: inline
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200407141812.00642.mbuesch@freenet.de>
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200407141213.07191.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out003.verizon.net from [141.153.91.175] at Wed, 14 Jul 2004 11:13:07 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Wednesday 14 July 2004 06:28, Hermann Gottschalk wrote:
+[...]
+>> If you set debug in via-rhine to 3, you'll get a more interesting
+>> log. Does booting with noacpi help at all?
+>
+>I will try noapic.
+>
+Thats a different option, he wrote 'noacpi'
 
-Quoting Arjan van de Ven <arjanv@redhat.com>:
-> yes you are;
-> 
-> just do 
-> mount -t ramfs none /mnt/point
-
-Oho, didn't know that. thanks. 8-}
-
-- -- 
-Regards Michael Buesch  [ http://www.tuxsoft.de.vu ]
-
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFA9VtOFGK1OIvVOP4RAkUVAJ9r+jZNnOrqvgQbUJM0hfPg310aiwCfaayJ
-E9kxdYqT+06O4Vbn1xF19SA=
-=yABs
------END PGP SIGNATURE-----
+-- 
+Cheers, Gene
+There are 4 boxes to be used in defense of liberty. 
+Soap, ballot, jury, and ammo.
+Please use in that order, starting now.  -Ed Howdershelt, Author
+Additions to this message made by Gene Heskett are Copyright 2004, 
+Maurice E. Heskett, all rights reserved.

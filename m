@@ -1,57 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261694AbTH3NtU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Aug 2003 09:49:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261761AbTH3NtU
+	id S261761AbTH3Nuv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Aug 2003 09:50:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261772AbTH3Nuu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Aug 2003 09:49:20 -0400
-Received: from anchor-post-39.mail.demon.net ([194.217.242.80]:1788 "EHLO
-	anchor-post-39.mail.demon.net") by vger.kernel.org with ESMTP
-	id S261694AbTH3NtS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Aug 2003 09:49:18 -0400
-From: Matt Gibson <gothick@gothick.org.uk>
-Organization: The Wardrobe Happy Cow Emporium
-To: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test4 and hardware reports a non fatal incident
-Date: Sat, 30 Aug 2003 14:48:30 +0100
-User-Agent: KMail/1.5.3
-References: <200308281548.44803.tomasz_czaus@go2.pl> <200308301344.56545.gothick@gothick.org.uk> <20030830133509.GA686@redhat.com>
-In-Reply-To: <20030830133509.GA686@redhat.com>
-X-Pointless-MIME-Header: yes
-X-Archive: encrypt
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sat, 30 Aug 2003 09:50:50 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:27573 "EHLO
+	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261761AbTH3Nut (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Aug 2003 09:50:49 -0400
+Subject: Re: [parisc-linux] Security Hole in binfmt_som.c ?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Matthew Wilcox <willy@debian.org>
+Cc: Ruediger Scholz <rscholz@hrzpub.tu-darmstadt.de>,
+       parisc-linux@lists.parisc-linux.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030830131541.GI13467@parcelfarce.linux.theplanet.co.uk>
+References: <3F509BBD.2040007@hrzpub.tu-darmstadt.de>
+	 <20030830131541.GI13467@parcelfarce.linux.theplanet.co.uk>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200308301448.30810.gothick@gothick.org.uk>
+Message-Id: <1062251389.31150.4.camel@dhcp23.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-4) 
+Date: Sat, 30 Aug 2003 14:49:50 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 30 Aug 2003 14:35, you wrote:
-> When it was i=0 people were seeing false positives. Starting from 1
-> reduces that.
+On Sad, 2003-08-30 at 14:15, Matthew Wilcox wrote:
+> On Sat, Aug 30, 2003 at 02:42:37PM +0200, Ruediger Scholz wrote:
+> > binfmt_som.c:216:2: #error "Fix security hole before enabling me"
+> > What's this message about?
+> 
+> I don't know.  I wish someone would tell me.  You'd think they'd have the
+> decency to contact the person listed as the author at the top of the file.
 
-Cool.  Can you point me towards any background-reading on MCE?  This's got me 
-interested.
+Actually explanations were posted in the previous discussion on this on
+parisc-list.
 
-Rather ironically, since I changed my kernel back to starting from 0, I 
-haven't seen any errors.  Having said that, I was only getting a couple each 
-day anyway, so I'll leave it a few days and see what develops.  I think it's 
-happening only once on boot, every now and again, but I've not had time to 
-analyse the logs properly yet.  Maybe there's a problem when my machine's 
-cold...
+Someone has to do the equivalent of the 2.4.22 binfmt_elf changes if
+neccessary so that another thread can't change the file handles or 
+steal the exec fd being passed to the loader.
 
-> in the past, Alan and myself took care of i386, Andi Kleen did AMD64.
-
-Thanks for responding; it was fairly clear to me that I was out of my depth, 
-and it's nice to know that there's someone out there that isn't *grin*
-
-Cheers,
-
-Matt
-
--- 
-"It's the small gaps between the rain that count,
- and learning how to live amongst them."
-	      -- Jeff Noon

@@ -1,53 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263870AbTLOPS0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 10:18:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263885AbTLOPS0
+	id S263810AbTLOPUL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 10:20:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263886AbTLOPUL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 10:18:26 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:33692 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263870AbTLOPSY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 10:18:24 -0500
-Message-ID: <3FDDD0B0.60807@pobox.com>
-Date: Mon, 15 Dec 2003 10:18:08 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
+	Mon, 15 Dec 2003 10:20:11 -0500
+Received: from fw.osdl.org ([65.172.181.6]:52902 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263810AbTLOPUH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Dec 2003 10:20:07 -0500
+Date: Mon, 15 Dec 2003 07:20:03 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Toad <toad@amphibian.dyndns.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 'bad: scheduling while atomic!', preempt kernel, 2.6.1-test11,
+ reading an apparently duff DVD-R
+In-Reply-To: <20031215135802.GA4332@amphibian.dyndns.org>
+Message-ID: <Pine.LNX.4.58.0312150715410.1488@home.osdl.org>
+References: <20031215135802.GA4332@amphibian.dyndns.org>
 MIME-Version: 1.0
-To: Witold Krecicki <adasi@kernel.pl>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Suspend not working with SATA:
-References: <200312151600.53372.adasi@kernel.pl>
-In-Reply-To: <200312151600.53372.adasi@kernel.pl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Witold Krecicki wrote:
-> Stopping tasks: 
-> ==================================================================
->  stopping tasks failed (2 tasks remaining)
-> Restarting tasks...<6> Strange, katad-1 not stopped
->  Strange, katad-2 not stopped
->  done
 
 
-Both Pavel Machek and I posted test patches to address this... 
-basically, because of the design of swsusp, you must copy-n-paste the 
-following code into every single kernel thread:
+On Mon, 15 Dec 2003, Toad wrote:
+>
+> I got the following when trying to mount a particular DVD-R on Linux
+> 2.6.0-test11, using an IDE DVD-RW drive, using SCSI emulation, with the
+> preempt kernel option enabled, and taskfile I/O:
+> (the middle bit was repeated several times):
 
-                         if (current->flags & PF_FREEZE)
-                                 refrigerator(PF_IOTHREAD);
+ide-scsi does
 
-But I consider suspend untested at best... for reboot and suspend the 
-driver should issue flush-cache and other things beyond simply freezing 
-the kernel thread.  Further, suspending will suck if the kernel thread 
-itself is the one doing I/O on behalf of the driver.  This occurs if the 
-transfer mode is PIO rather than DMA.
+        spin_lock_irqsave(&ide_lock, flags);
+        while (HWGROUP(drive)->handler) {
+                HWGROUP(drive)->handler = NULL;
+                schedule_timeout(1);
+        }
 
-	Jeff
+which is obvious crap. Scheduling while holding a spinlock is not a good
+idea.
 
+You could try dropping the lock over the schedule and re-aquire it
+afterwards, but the comment tries to say that it is required for avoiding
+new requests.
 
+This is why ide-scsi needs a maintainer, btw - somebody who cares about
+it, and actually tries to resolve the current mess.
 
+		Linus

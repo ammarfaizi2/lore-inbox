@@ -1,77 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267423AbUHJEPZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267409AbUHJEhO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267423AbUHJEPZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 00:15:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267422AbUHJEPQ
+	id S267409AbUHJEhO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 00:37:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267422AbUHJEhO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 00:15:16 -0400
-Received: from ms-smtp-03-qfe0.socal.rr.com ([66.75.162.135]:53423 "EHLO
-	ms-smtp-03-eri0.socal.rr.com") by vger.kernel.org with ESMTP
-	id S267417AbUHJEPC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 00:15:02 -0400
-Date: Mon, 9 Aug 2004 13:58:39 -0700
-From: Andrew Vasquez <praka@pobox.com>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: 2.6.8-rc3-mm2:  Debug: sleeping function called from invalid context at mm/mempool.c:197
-Message-ID: <20040809205839.GA1439@praka.san.rr.com>
-Mail-Followup-To: Andrew Vasquez <praka@pobox.com>,
-	James Bottomley <James.Bottomley@SteelEye.com>,
-	linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-References: <B179AE41C1147041AA1121F44614F0B0DD03A6@AVEXCH02.qlogic.org> <411813F0.9020602@us.ibm.com>
+	Tue, 10 Aug 2004 00:37:14 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:52389 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S267409AbUHJEhM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 00:37:12 -0400
+Date: Mon, 9 Aug 2004 21:37:10 -0700
+From: Deepak Saxena <dsaxena@plexity.net>
+To: dwmw2@infradead.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 2.6] Remove spaces from MTD pci_driver.name field
+Message-ID: <20040810043710.GA11719@plexity.net>
+Reply-To: dsaxena@plexity.net
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="tThc/1wpZn/ma/RB"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <411813F0.9020602@us.ibm.com>
-User-Agent: Mutt/1.4.1i
-X-Operating-System: Linux 2.4.21-202-athlon
+Organization: Plexity Networks
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---tThc/1wpZn/ma/RB
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+David,
 
-On Mon, 09 Aug 2004, Janet Morgan wrote:
+Spaces in driver names show up as spaces in the sysfs tree.
+While there is no documented requirement that spaces not
+exist in sysfs paths, my understanding is that they are not 
+desired.
 
-> Andrew Vasquez wrote:
-> 
-> >
-> >This allocation should be done with GFP_ATOMIC flags.  The attached 
-> >patch should apply cleanly to any recent kernel
-> >
-> > 
-> >
-> 
-> and seems to work fine.
-> 
+Please apply,
+~Deepak
 
-James,
+Signed-off-by: Deepak Saxena <dsaxena@plexity.net>
 
 
-I hope this patch can make it before 2.6.8, please apply.
-
-
-
-Thanks,
-Andrew Vasquez
-
---tThc/1wpZn/ma/RB
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="mpool_alloc.diff"
-
-===== drivers/scsi/qla2xxx/qla_os.c 1.39 vs edited =====
---- 1.39/drivers/scsi/qla2xxx/qla_os.c	2004-07-12 09:54:49 -07:00
-+++ edited/drivers/scsi/qla2xxx/qla_os.c	2004-08-09 16:48:29 -07:00
-@@ -3590,7 +3590,7 @@
- {
- 	srb_t *sp;
+===== drivers/mtd/maps/pci.c 1.6 vs edited =====
+--- 1.6/drivers/mtd/maps/pci.c	Thu Jul 15 10:31:48 2004
++++ edited/drivers/mtd/maps/pci.c	Mon Aug  9 18:06:34 2004
+@@ -362,7 +362,7 @@
+ }
  
--	sp = mempool_alloc(ha->srb_mempool, GFP_KERNEL);
-+	sp = mempool_alloc(ha->srb_mempool, GFP_ATOMIC);
- 	if (sp)
- 		atomic_set(&sp->ref_count, 1);
- 	return (sp);
+ static struct pci_driver mtd_pci_driver = {
+-	.name =		"MTD PCI",
++	.name =		"MTD_PCI",
+ 	.probe =	mtd_pci_probe,
+ 	.remove =	__devexit_p(mtd_pci_remove),
+ 	.id_table =	mtd_pci_ids,
+===== drivers/mtd/maps/scb2_flash.c 1.4 vs edited =====
+--- 1.4/drivers/mtd/maps/scb2_flash.c	Thu Jul 15 10:31:48 2004
++++ edited/drivers/mtd/maps/scb2_flash.c	Mon Aug  9 18:06:53 2004
+@@ -229,7 +229,7 @@
+ };
+ 
+ static struct pci_driver scb2_flash_driver = {
+-	.name =     "Intel SCB2 BIOS Flash",
++	.name =     "Intel_SCB2_BIOS",
+ 	.id_table = scb2_flash_pci_ids,
+ 	.probe =    scb2_flash_probe,
+ 	.remove =   __devexit_p(scb2_flash_remove),
 
---tThc/1wpZn/ma/RB--
+-- 
+Deepak Saxena - dsaxena at plexity dot net - http://www.plexity.net/
+
+"Unlike me, many of you have accepted the situation of your imprisonment and
+ will die here like rotten cabbages." - Number 6

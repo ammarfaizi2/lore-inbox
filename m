@@ -1,66 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261964AbUL0UAz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261963AbUL0UFM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261964AbUL0UAz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Dec 2004 15:00:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261963AbUL0T7u
+	id S261963AbUL0UFM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Dec 2004 15:05:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261961AbUL0UFM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Dec 2004 14:59:50 -0500
-Received: from dhcp93115068.columbus.rr.com ([24.93.115.68]:4105 "EHLO
-	nineveh.rivenstone.net") by vger.kernel.org with ESMTP
-	id S261973AbUL0T6w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Dec 2004 14:58:52 -0500
-Date: Mon, 27 Dec 2004 14:58:39 -0500
-To: Marko Dimiskovski <marko.dimiskovski@gmail.com>
-Cc: mingo@elte.hu, linux-kernel@vger.kernel.org
-Subject: Re: reltime preemption: kernel oops in dri module i810
-Message-ID: <20041227195839.GA4369@zion.rivenstone.net>
-Mail-Followup-To: Marko Dimiskovski <marko.dimiskovski@gmail.com>,
-	mingo@elte.hu, linux-kernel@vger.kernel.org
-References: <80d5517604122615207069056f@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="KsGdsel6WgEHnImy"
-Content-Disposition: inline
-In-Reply-To: <80d5517604122615207069056f@mail.gmail.com>
-User-Agent: Mutt/1.5.6+20040907i
-From: jhf@rivenstone.net (Joseph Fannin)
+	Mon, 27 Dec 2004 15:05:12 -0500
+Received: from salazar.rnl.ist.utl.pt ([193.136.164.251]:13783 "EHLO
+	admin.rnl.ist.utl.pt") by vger.kernel.org with ESMTP
+	id S261963AbUL0UEo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Dec 2004 15:04:44 -0500
+Message-ID: <41D06AD7.6010706@rnl.ist.utl.pt>
+Date: Mon, 27 Dec 2004 20:04:39 +0000
+From: "Pedro Venda (SYSADM)" <pjvenda@rnl.ist.utl.pt>
+User-Agent: Mozilla Thunderbird 0.9 (Windows/20041103)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] pid randomness
+References: <41D064D5.1030900@rnl.ist.utl.pt> <Pine.LNX.4.61.0412272047110.9354@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0412272047110.9354@yvahk01.tjqt.qr>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jan Engelhardt wrote:
+>>I don't know if this has been discussed before... but I'd like to ask why isn't
+>>the pids randomized by default?
+>>What are the pros and cons of this? What are your oppinions on this subjet?
+> 
+> 
+> Why would _you_ need it?
 
---KsGdsel6WgEHnImy
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+It's a simple security measure that I think is easy to implement.
 
-On Sun, Dec 26, 2004 at 06:20:45PM -0500, Marko Dimiskovski wrote:
-> got some errors with the i810 and the realtime-preemption patch :-\
-> the kernel version is 2.6.10-rc3-mm1-V0.7.33-04 as you can see from
-> the attached config file and the message file has the oops in it.=20
-> hope this helps.
+I'd agree that it's not there because of the golden rule: "keep it 
+simple", but I'd also like to know if that's really the reason it's not 
+there.
 
-    This is not a problem with the realtime-preemption patch but a bug
-in the i810 drm module in the -mm kernels.  I've been getting this
-too, and have reported it to the dri developers on the dri-devel list.
+and yes, I know there are some patch sets that already implement this.
 
---=20
-Joseph Fannin
-jhf@rivenstone.net
+regards,
+pedro venda.
+-- 
+Pedro João Lopes Venda
+email: pjvenda@rnl.ist.utl.pt
+http://maxwell.rnl.ist.utl.pt
 
-"Bull in pure form is rare; there is usually some contamination by data."
-    -- William Graves Perry Jr.
-
---KsGdsel6WgEHnImy
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFB0GlvWv4KsgKfSVgRAnMhAKCOWZWtd6VFSVauhu8IhWHS8TeeIQCfeyB+
-nXEpf6fz4izA0c+GE3IlLY8=
-=pO7c
------END PGP SIGNATURE-----
-
---KsGdsel6WgEHnImy--
+Equipa de Administração de Sistemas
+Rede das Novas Licenciaturas (RNL)
+Instituto Superior Técnico
+http://www.rnl.ist.utl.pt
+http://mega.ist.utl.pt

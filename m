@@ -1,128 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261162AbUD3UvH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261206AbUD3UvH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261162AbUD3UvH (ORCPT <rfc822;willy@w.ods.org>);
+	id S261206AbUD3UvH (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 30 Apr 2004 16:51:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263302AbUD3UpM
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265255AbUD3Uow
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Apr 2004 16:45:12 -0400
-Received: from postfix4-2.free.fr ([213.228.0.176]:22977 "EHLO
-	postfix4-2.free.fr") by vger.kernel.org with ESMTP id S265171AbUD3Uin
+	Fri, 30 Apr 2004 16:44:52 -0400
+Received: from wirefire.bureaudepost.com ([66.38.187.209]:55463 "EHLO
+	oasis.linuxant.com") by vger.kernel.org with ESMTP id S263302AbUD3UjE
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Apr 2004 16:38:43 -0400
-From: Duncan Sands <baldrick@free.fr>
-To: "R. J. Wysocki" <rjwysocki@sisk.pl>, linux-kernel@vger.kernel.org
-Subject: Re: usbcore.ko linkage problem on x86_64
-Date: Fri, 30 Apr 2004 22:38:40 +0200
-User-Agent: KMail/1.5.4
-References: <200404301812.10676.rjwysocki@sisk.pl>
-In-Reply-To: <200404301812.10676.rjwysocki@sisk.pl>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
+	Fri, 30 Apr 2004 16:39:04 -0400
+In-Reply-To: <Pine.LNX.4.58.0404301319020.18014@ppc970.osdl.org>
+References: <009701c42edf$25e47390$ca41cb3f@amer.cisco.com> <Pine.LNX.4.58.0404301212070.18014@ppc970.osdl.org> <90DD8A88-9AE2-11D8-B83D-000A95BCAC26@linuxant.com> <Pine.LNX.4.58.0404301319020.18014@ppc970.osdl.org>
+Mime-Version: 1.0 (Apple Message framework v613)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <69A8B470-9AE6-11D8-B83D-000A95BCAC26@linuxant.com>
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200404302238.40347.baldrick@free.fr>
+Cc: "'Sean Estabrooks'" <seanlkml@rogers.com>,
+       "'Paul Wagland'" <paul@wagland.net>, "'Rik van Riel'" <riel@redhat.com>,
+       "'Bartlomiej Zolnierkiewicz'" <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       "'Peter Williams'" <peterw@aurema.com>, Hua Zhong <hzhong@cisco.com>,
+       "'Timothy Miller'" <miller@techsource.com>,
+       "'lkml - Kernel Mailing List'" <linux-kernel@vger.kernel.org>,
+       koke@sindominio.net, "'Rusty Russell'" <rusty@rustcorp.com.au>,
+       "'David Gibson'" <david@gibson.dropbear.id.au>
+From: Marc Boucher <marc@linuxant.com>
+Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
+Date: Fri, 30 Apr 2004 16:39:01 -0400
+To: Linus Torvalds <torvalds@osdl.org>
+X-Mailer: Apple Mail (2.613)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> There seems to be a linkage problem with the usbcore.ko module in the
-> 2.6.6-rc2-mm2 and 2.6.6-rc3-mm1 kernels.  Namely, I get this message:
+
+On Apr 30, 2004, at 4:26 PM, Linus Torvalds wrote:
 >
-> if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.6.6-rc3-mm1;
-> fi WARNING: /lib/modules/2.6.6-rc3-mm1/kernel/drivers/usb/core/usbcore.ko
-> needs unknown symbol destroy_all_async
+> On Fri, 30 Apr 2004, Marc Boucher wrote:
+>>
+>>> In contrast, wine was _written_ to do this emulation, so by 
+>>> definition
+>>> any
+>>> "bugs" are in wine itself (although I suspect that wine people
+>>> sometimes
+>>> would prefer it if Office came with sources ;).
+>>
+>> The same can be said about DriverLoader.
 >
-> after "make modules_install".  AFAICS, it does not occur for the 2.6.6-rc2
-> kernel.
+> .. but not abotu the kernel that it depends on.
+>
+> In other words, if driverloader was a stand-alone project, you could do
+> whatever the hell you wanted with it.
 
-Hi RJW, does this help?  (I also got rid of the unused ld2 while I
-was there).
+To clarify this important point, driverloader is a standalone project, 
+and structured similarly to the HSF driver (all os-specific code is 
+open-source allowing it to be used with any kernel or even 
+theoretically any other x86 operating system).
 
-All the best,
+Because only one logical module is loaded, and a single set of tainted 
+messages bearable, the \0 MODULE_LICENSE() workaround is unnecessary 
+and not used in driverloader.
 
-Duncan.
+Marc
 
- devio.c |   35 +++++------------------------------
- 1 files changed, 5 insertions(+), 30 deletions(-)
-
-
-diff -Nru a/drivers/usb/core/devio.c b/drivers/usb/core/devio.c
---- a/drivers/usb/core/devio.c	Fri Apr 30 23:36:25 2004
-+++ b/drivers/usb/core/devio.c	Fri Apr 30 23:36:25 2004
-@@ -165,31 +165,6 @@
- 	return ret;
- }
- 
--extern inline unsigned int ld2(unsigned int x)
--{
--        unsigned int r = 0;
--        
--        if (x >= 0x10000) {
--                x >>= 16;
--                r += 16;
--        }
--        if (x >= 0x100) {
--                x >>= 8;
--                r += 8;
--        }
--        if (x >= 0x10) {
--                x >>= 4;
--                r += 4;
--        }
--        if (x >= 4) {
--                x >>= 2;
--                r += 2;
--        }
--        if (x >= 2)
--                r++;
--        return r;
--}
--
- /*
-  * async list handling
-  */
-@@ -219,7 +194,7 @@
-         kfree(as);
- }
- 
--extern __inline__ void async_newpending(struct async *as)
-+static inline void async_newpending(struct async *as)
- {
-         struct dev_state *ps = as->ps;
-         unsigned long flags;
-@@ -229,7 +204,7 @@
-         spin_unlock_irqrestore(&ps->lock, flags);
- }
- 
--extern __inline__ void async_removepending(struct async *as)
-+static inline void async_removepending(struct async *as)
- {
-         struct dev_state *ps = as->ps;
-         unsigned long flags;
-@@ -239,7 +214,7 @@
-         spin_unlock_irqrestore(&ps->lock, flags);
- }
- 
--extern __inline__ struct async *async_getcompleted(struct dev_state *ps)
-+static inline struct async *async_getcompleted(struct dev_state *ps)
- {
-         unsigned long flags;
-         struct async *as = NULL;
-@@ -253,7 +228,7 @@
-         return as;
- }
- 
--extern __inline__ struct async *async_getpending(struct dev_state *ps, void __user *userurb)
-+static inline struct async *async_getpending(struct dev_state *ps, void __user *userurb)
- {
-         unsigned long flags;
-         struct async *as;
-@@ -321,7 +296,7 @@
- 	destroy_async(ps, &hitlist);
- }
- 
--extern __inline__ void destroy_all_async(struct dev_state *ps)
-+static inline void destroy_all_async(struct dev_state *ps)
- {
- 	        destroy_async(ps, &ps->async_pending);
- }

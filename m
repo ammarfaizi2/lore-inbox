@@ -1,70 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265225AbUD3TFe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264993AbUD3TEP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265225AbUD3TFe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Apr 2004 15:05:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265226AbUD3TFe
+	id S264993AbUD3TEP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Apr 2004 15:04:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265223AbUD3TEO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Apr 2004 15:05:34 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:55190 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S265225AbUD3TEs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Apr 2004 15:04:48 -0400
-Subject: Re: [CHECKER] A derefence of null pointer errorin JFS (jfs2.4,
-	kernel 2.4.19)
-From: Dave Kleikamp <shaggy@austin.ibm.com>
-To: Junfeng Yang <yjf@stanford.edu>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       JFS Discussion <jfs-discussion@www-124.southbury.usf.ibm.com>,
-       mc@cs.Stanford.EDU, Madanlal S Musuvathi <madan@stanford.edu>,
-       "David L. Dill" <dill@cs.Stanford.EDU>
-In-Reply-To: <Pine.GSO.4.44.0404262355040.7369-100000@elaine24.Stanford.EDU>
-References: <Pine.GSO.4.44.0404262355040.7369-100000@elaine24.Stanford.EDU>
-Content-Type: text/plain
-Message-Id: <1083351872.14136.38.camel@shaggy.austin.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 30 Apr 2004 14:04:32 -0500
-Content-Transfer-Encoding: 7bit
+	Fri, 30 Apr 2004 15:04:14 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:13224 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264993AbUD3TEL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Apr 2004 15:04:11 -0400
+Date: Fri, 30 Apr 2004 15:03:59 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Christoph Hellwig <hch@infradead.org>
+cc: Shailabh Nagar <nagar@watson.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       ckrm-tech <ckrm-tech@lists.sourceforge.net>
+Subject: Re: [ckrm-tech] Re: [RFC] Revised CKRM release
+In-Reply-To: <20040430174117.A13372@infradead.org>
+Message-ID: <Pine.LNX.4.44.0404301502550.6976-100000@chimarrao.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-04-27 at 01:56, Junfeng Yang wrote:
-> file fs/jfs/jfs_dtree.c
-> -----------------------------------------------------------
-> [BUG] get_metapage can return null when grab_cache_page or read_cache_page
-> fails in function __get_metapage.
+On Fri, 30 Apr 2004, Christoph Hellwig wrote:
 
-Thanks.  This patch should fix it.  I'll submit the fix to Linus &
-Marcelo.
+> I'd hate to see this in the kernel unless there's a very strong need
+> for it and no way to solve it at a nicer layer of abstraction, e.g.
+> userland virtual machines ala uml/umlinux.
 
-Shaggy
+User Mode Linux could definitely be an option for implementing
+resource management, provided that the overhead can be kept
+low enough.
 
-===== fs/jfs/jfs_dtree.c 1.27 vs edited =====
---- 1.27/fs/jfs/jfs_dtree.c	Wed Mar 24 14:11:46 2004
-+++ edited/fs/jfs/jfs_dtree.c	Fri Apr 30 13:47:31 2004
-@@ -982,7 +982,9 @@
- 		split->pxdlist = &pxdlist;
- 		rc = dtSplitRoot(tid, ip, split, &rmp);
- 
--		DT_PUTPAGE(rmp);
-+		if (!rc)
-+			DT_PUTPAGE(rmp);
-+
- 		DT_PUTPAGE(smp);
- 
- 		goto freeKeyName;
-@@ -1876,6 +1878,9 @@
- 	xlen = lengthPXD(pxd);
- 	xsize = xlen << JFS_SBI(sb)->l2bsize;
- 	rmp = get_metapage(ip, rbn, xsize, 1);
-+	if (!rmp)
-+		return -EIO;
-+
- 	rp = rmp->data;
- 
- 	BT_MARK_DIRTY(rmp, ip);
+For these purposes, "low enough" could be as much as 30%
+overhead, since that would still allow people to grow the
+utilisation of their server from a typical 10-20% to as
+much as 40-50%.
 
 -- 
-David Kleikamp
-IBM Linux Technology Center
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
 

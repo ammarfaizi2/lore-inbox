@@ -1,41 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262168AbTHTTJy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 15:09:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262165AbTHTTJx
+	id S262148AbTHTTDw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 15:03:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262150AbTHTTDw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 15:09:53 -0400
-Received: from pat.uio.no ([129.240.130.16]:47318 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S262146AbTHTTJw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 15:09:52 -0400
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Steve Dickson <SteveD@redhat.com>, nfs@lists.sourceforge.net,
-       linux-kernel <linux-kernel@vger.kernel.org>, acl-devel@bestbits.at
-Subject: Re: [NFS] [PATCH] Stop call_decode() from ignorning RPC header errrors
-References: <3F43B13C.5010403@RedHat.com>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 20 Aug 2003 12:09:17 -0700
-In-Reply-To: <3F43B13C.5010403@RedHat.com>
-Message-ID: <shsekzgxi1u.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
+	Wed, 20 Aug 2003 15:03:52 -0400
+Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:58857
+	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
+	id S262148AbTHTTDu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Aug 2003 15:03:50 -0400
+Message-ID: <3F43C5D4.9010704@redhat.com>
+Date: Wed, 20 Aug 2003 12:02:44 -0700
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030731 Thunderbird/0.2a
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
+To: trond.myklebust@fys.uio.no
+CC: Andries Brouwer <aebr@win.tue.nl>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: NFS regression in 2.6
+References: <3F4268C1.9040608@redhat.com>	<shszni499e9.fsf@charged.uio.no>	<20030820192409.A2868@pclin040.win.tue.nl> <16195.49464.935754.526386@charged.uio.no>
+In-Reply-To: <16195.49464.935754.526386@charged.uio.no>
+X-Enigmail-Version: 0.81.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
-X-UiO-MailScanner: No virus found
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Steve Dickson <SteveD@redhat.com> writes:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-     > This patch stop call_decode() from ignoring errors that are
-     > found while parsing the RPC header. I turns out the nfs acls
-     > routines need these error codes to do the right thing...
+Trond Myklebust wrote:
 
-Duh... Yeah... That is broken in 2.4.22-rc2, and it's not only the NFS
-ACLs that will break.
+> In short the scenario should be that
+> 
+>   - mkstemp() does an open(O_EXCL) -> nfs_lookup() creates hashed
+>     negative dentry -> nfs_create() then does an O_EXCL call to the
+>     server and instantiates the dentry.
+> 
+>   - unlink() walks the pathname -> finds the existing dentry using
+>     cached_lookup() and only calls down to nfs_lookup_revalidate().
 
-Marcelo, could you please apply?
+Sounds reasonable especially since the dup() call in my original example
+isn't necessary.  So, the shortened test case is this:
 
-Cheers,
-  Trond
+#include <errno.h>
+#include <error.h>
+#include <stdlib.h>
+#include <unistd.h>
+int
+main (void)
+{
+  char tmp[] = "estale-test.XXXXXX";
+  int fd = mkstemp (tmp);
+  if (fd == -1)
+    error (EXIT_FAILURE, errno, "mkstemp failed");
+  if (unlink (tmp) != 0)
+    error (EXIT_FAILURE, errno, "unlink '%s' failed", tmp);
+  if (ftruncate (fd, 0) != 0)
+    error (EXIT_FAILURE, errno, "ftruncate failed");
+  return 0;
+}
+
+- -- 
+- --------------.                        ,-.            444 Castro Street
+Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
+Red Hat         `--' drepper at redhat.com `---------------------------
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD4DBQE/Q8XU2ijCOnn/RHQRAtMYAJ9CgabR0FdQFG8Sobkrfv9aKloDmQCWN28G
+QUj8oMiKWM7v61yupENQ+Q==
+=fzKm
+-----END PGP SIGNATURE-----
+

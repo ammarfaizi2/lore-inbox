@@ -1,65 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272435AbTGaITp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 04:19:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272437AbTGaITp
+	id S272437AbTGaIbn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 04:31:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272438AbTGaIbn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 04:19:45 -0400
-Received: from ip-86-245.evc.net ([212.95.86.245]:15764 "EHLO hal9003.1g6.biz")
-	by vger.kernel.org with ESMTP id S272435AbTGaITo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 04:19:44 -0400
-From: "Nicolas P." <linux@1g6.biz>
+	Thu, 31 Jul 2003 04:31:43 -0400
+Received: from vladimir.pegasys.ws ([64.220.160.58]:58629 "EHLO
+	vladimir.pegasys.ws") by vger.kernel.org with ESMTP id S272437AbTGaIbm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Jul 2003 04:31:42 -0400
+Date: Thu, 31 Jul 2003 01:31:39 -0700
+From: jw schultz <jw@pegasys.ws>
 To: linux-kernel@vger.kernel.org
-Subject: wireless MA401 RequestIRQ: Resource in use
-Date: Thu, 31 Jul 2003 10:21:34 +0200
-User-Agent: KMail/1.5
-Organization: 1G6
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Subject: Re: PATCH : LEDs - possibly the most pointless kernel subsystem ever
+Message-ID: <20030731083139.GN14240@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	linux-kernel@vger.kernel.org
+References: <200307301608.h6UG8YQJ000339@81-2-122-30.bradfords.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200307311021.35169.linux@1g6.biz>
+In-Reply-To: <200307301608.h6UG8YQJ000339@81-2-122-30.bradfords.org.uk>
+User-Agent: Mutt/1.3.27i
+X-Message-Flag: This message is may contain confidential information.  Unauthorised disclosure will be prosecuted to the fullest extent of the law.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jul 30, 2003 at 05:08:34PM +0100, John Bradford wrote:
+> I'll buy some LEDs and build a parallel port connected LED panel
+> tomorrow...  Do you think the overhead of driving the LEDs would have
+> too much of a negative effect on system performance?  If so, or if we
+> want more flexibility, maybe we could work out a design for a PCI
+> card, which could include more than 12 LEDs - 7-segment numeric
+> displays of pid, etc.
 
+If you are going to talk special hardware i'd suggest making
+it a USB device instead of a PCI card.
 
-Hi,
+Most systems manufactured in the last five years or so ago
+have USB but laptops don't and many servers don't have a
+spare PCI slot.  There is enough power specified by the
+standard to make it a passive device in most cases.  If you
+want you could use a cable long enough to mount the display
+on the wall outside the wiring closet or server room.
 
-I have bought an MA401 netgear 802.11b network adapter,
-it works well with 2.4.x kernel,
-but there seems to be a problem with 2.6 kernels,
-I tested 2 differents drivers with same result : "RequestIRQ: Resource in use"
-With acpi on toshiba tecra 8100.
+Sounds fun so have some.
 
-Regards.
+-- 
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
 
-Nicolas.
-
-First standard kernel driver :
-
-orinoco.c 0.13e (David Gibson <hermes@gibson.dropbear.id.au> and others)
-orinoco_cs.c 0.13e (David Gibson <hermes@gibson.dropbear.id.au> and others)
-orinoco_cs: RequestIRQ: Resource in use
-
-Second hostap driver :
-
-hostap_crypt: registered algorithm 'NULL'
-hostap_cs: no version for "CardServices" found: kernel tainted.
-hostap_cs: 0.0.4 - 2003-07-27 (Jouni Malinen <jkmaline@cc.hut.fi>)
-hostap_cs: setting Vcc=33 (constant)
-hostap_cs: CS_EVENT_CARD_INSERTION
-prism2_config()
-hostap_cs: setting Vcc=50 (from config)
-Checking CFTABLE_ENTRY 0x01 (default 0x01)
-IO window settings: cfg->io.nwin=1 dflt.io.nwin=1
-io->flags = 0x0046, io.base=0x0000, len=64
-hostap_cs: RequestIRQ: Resource in use
-prism2_release
-: card already removed or not configured during shutdown
-release - done
-prism2_detach
-hostap_free_data: ap has not yet been initialized - skip resource freeing
-
+		Remember Cernan and Schmitt

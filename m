@@ -1,66 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278690AbRLQNYS>; Mon, 17 Dec 2001 08:24:18 -0500
+	id <S283677AbRLRBzx>; Mon, 17 Dec 2001 20:55:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278932AbRLQNYJ>; Mon, 17 Dec 2001 08:24:09 -0500
-Received: from point41.gts.donpac.ru ([213.59.116.41]:50952 "EHLO orbita1.ru")
-	by vger.kernel.org with ESMTP id <S278690AbRLQNXv>;
-	Mon, 17 Dec 2001 08:23:51 -0500
-Date: Tue, 18 Dec 2001 16:27:15 +0300
-From: Andrey Panin <pazke@orbita1.ru>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] move SIIG combo cards support to parport_serial.c
-Message-ID: <20011218162715.A1015@pazke.ipt>
-In-Reply-To: <20011215165739.A201@pazke.ipt> <20011214135749.S14588@redhat.com> <20011214162253.A15589@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="+HP7ph2BbKc20aGI"
-User-Agent: Mutt/1.0.1i
-In-Reply-To: <20011214162253.A15589@flint.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Fri, Dec 14, 2001 at 04:22:53PM +0000
-X-Uname: Linux pazke 2.5.1-pre11 
+	id <S283667AbRLRBzq>; Mon, 17 Dec 2001 20:55:46 -0500
+Received: from mailout06.sul.t-online.com ([194.25.134.19]:55169 "EHLO
+	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S283621AbRLRBz2>; Mon, 17 Dec 2001 20:55:28 -0500
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: "ChristianK."@t-online.de (Christian Koenig)
+To: linux-kernel@vger.kernel.org
+Subject: Making Linux multiboot capable and grub loading kernel modules at boot time.
+Date: Tue, 18 Dec 2001 03:54:46 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: richardt@vzavenue.net.maciek@mzn.dyndns.org.andrew.grover@intel.com.dcinege@psychosis.com.rusty@rustcorp.com.au
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-ID: <16G9TS-0RVzQ8C@fwd02.sul.t-online.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---+HP7ph2BbKc20aGI
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: quoted-printable
+I send this to every one who seems to be interested in it as cc.
+(If you don't want this simple let me know).
 
-On Fri, Dec 14, 2001 at 04:22:53PM +0000, Russell King wrote:
-> On Fri, Dec 14, 2001 at 01:57:49PM +0000, Tim Waugh wrote:
-> > On Sat, Dec 15, 2001 at 04:57:39PM +0300, Andrey Panin wrote:
-> >=20
-> > > Untested, but compiles and should work :))
-> > >=20
-> > > These patches were sended to LKML some months ago, but seems like the=
-y=20
-> > > was lost somewhere and I can't remember any answer.
-> >=20
-> > I'm waiting for someone to tell me that it still works. :-)
->=20
-> I'm still waiting for people to test out the new serial layer and
-> report all the bugs that are bound to be in there. 8)
->=20
-> One you're happy with the changes, I'll put them into my serial cvs.
+This is the next release off my Kernel Patch letting grub loads 
+Kernel-Modules at boot time.
 
-Can I download it not using cvs, to test it with my PCI serial card and=20
-ISAPNP modem on SMP motherboard ?
+This patch is against Kernel 2.5.1 and grub 0.90 and consider off 3 Parts:
 
---=20
-Andrey Panin            | Embedded systems software engineer
-pazke@orbita1.ru        | PGP key: http://www.orbita1.ru/~pazke/AndreyPanin=
-.asc
---+HP7ph2BbKc20aGI
-Content-Type: application/pgp-signature
+1. mboot.diff: Makes vmlinux multiboot compliant.
+   
+   Changes made since last Version:
+	1.  added 2 new build targets to the Kernel Makefiles "mImage"
+	     and "mImage.gz" creating clean Multiboot Kernel-Images in
+	     arch/i386/boot.
+	2.  setup.c now evaluates the multiboot apm table correctly.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.1 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+2. bootmodules.diff: Adds a new elf-object file loader, evaluating and 
+   inserting the modules grub have loaded into the Kernel.
 
-iD8DBQE8H0QzBm4rlNOo3YgRAkTCAJ0ftXeya4ZfSYd0CgxNiX97gftYVgCfVf0W
-FCtaYphzhps0tTcoTI/7QdQ=
-=M7ht
------END PGP SIGNATURE-----
+   Changes made since last Version:
+	1.  Module Parameters are evaluated correctly now.
+	2.  Fixed some memory leaks and 1 byte miss bug in boot_modules.c.
+	3.  Fixed a ugly bug that made modules exporting much kernel symbols oops at 
+	     boott up.
 
---+HP7ph2BbKc20aGI--
+3. grub.diff: This is a new patch adding a command to grub who loads all
+ 	     modules in a specified file with correct module-dependecies.
+	     Now you could do something like:
+
+	     root (hd0,1)
+	     kernel /boot/vmlinux-2.5.1prex root=/dev/hda1 ro
+	     modulesfromfile /etc/modules /lib/modules/2.5.1/modules.dep
+
+	     inside your grub menu.lst and every thing specified in /etc/module
+	     gets loaded before the Kernel is booted.
+
+You can download these patches at
+
+http://home.t-online.de/home/ChristianK./patches/mboot.diff
+http://home.t-online.de/home/ChristianK./patches/bootmodules.diff
+http://home.t-online.de/home/ChristianK./patches/grub.diff
+
+Please tell me what you think about it / how it works.
+
+MfG, Christian König. (Sorry for my poor English)

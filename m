@@ -1,54 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266968AbTAPDdW>; Wed, 15 Jan 2003 22:33:22 -0500
+	id <S267102AbTAPDmg>; Wed, 15 Jan 2003 22:42:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266970AbTAPDdW>; Wed, 15 Jan 2003 22:33:22 -0500
-Received: from main.gmane.org ([80.91.224.249]:17380 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id <S266968AbTAPDdU>;
-	Wed, 15 Jan 2003 22:33:20 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Kevin Puetz <puetzk@iastate.edu>
-Subject: Re: any chance of 2.6.0-test*?
-Date: Sun, 12 Jan 2003 14:46:07 -0600
-Message-ID: <avsk45$vub$1@main.gmane.org>
-References: <Pine.LNX.4.44.0301121134340.14031-100000@home.transmeta.com> <1042401596.1209.51.camel@RobsPC.RobertWilkens.com> <200301122018.h0CKIcWN004203@turing-police.cc.vt.edu>
+	id <S267103AbTAPDme>; Wed, 15 Jan 2003 22:42:34 -0500
+Received: from supreme.pcug.org.au ([203.10.76.34]:2521 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id <S267102AbTAPDlo>;
+	Wed, 15 Jan 2003 22:41:44 -0500
+Date: Thu, 16 Jan 2003 14:50:31 +1100
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: ralf@gnu.org
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: [PATCH][COMPAT] compat_sys_sigpending and compat_sys_sigprocmask
+ mips64
+Message-Id: <20030116145031.0e194a0f.sfr@canb.auug.org.au>
+In-Reply-To: <20030116144129.2251138d.sfr@canb.auug.org.au>
+References: <20030116144129.2251138d.sfr@canb.auug.org.au>
+X-Mailer: Sylpheed version 0.8.8 (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Complaints-To: usenet@main.gmane.org
-User-Agent: KNode/0.7.2
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Valdis.Kletnieks@vt.edu wrote:
+Hi Ralf,
 
-> On Sun, 12 Jan 2003 14:59:57 EST, Rob Wilkens said:
-> 
->> In general, if you can structure your code properly, you should never
->> need a goto, and if you don't need a goto you shouldn't use it.  It's
->> just "common sense" as I've always been taught.  Unless you're
->> intentionally trying to write code that's harder for others to read.
-> 
-> Now, it's provable you never *NEED* a goto.  On the other hand,
-> *judicious* use of goto can prevent code that is so cluttered with stuff
-> of the form:
-> 
->         if(...) {
-> ...
-> die_flag = 1;
-> if (!die _flag) {...
-> 
-> Pretty soon, you have die_1_flag, die_2_flag, die_3_flag and so on,
-> rather than 3 or 4 "goto bail_now;".
-> 
-> The real problem is that C doesn't have a good multi-level "break"
-> construct. On the other hand, I don't know of any language that has a good
-> one - some allow "break 3;" to break 3 levels- but that's still bad
-> because you get screwed if somebody adds an 'if' clause....
+Here is the mips64 part.
+-- 
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
 
-perl has a pretty nice one... you can label each construct to which break is
-applicable (ie, loop or whatever) then say "break foo" to escape that
-struture (and any others you happen to be inside.
-
+diff -ruN 2.5.58-32bit.5/arch/mips64/kernel/scall_o32.S 2.5.58-32bit.6/arch/mips64/kernel/scall_o32.S
+--- 2.5.58-32bit.5/arch/mips64/kernel/scall_o32.S	2003-01-13 11:07:06.000000000 +1100
++++ 2.5.58-32bit.6/arch/mips64/kernel/scall_o32.S	2003-01-16 01:40:09.000000000 +1100
+@@ -306,7 +306,7 @@
+ 	sys	sys_setreuid	2			/* 4070 */
+ 	sys	sys_setregid	2
+ 	sys	sys32_sigsuspend	0
+-	sys	sys32_sigpending	1
++	sys	compat_sys_sigpending	1
+ 	sys	sys_sethostname	2
+ 	sys	sys32_setrlimit	2			/* 4075 */
+ 	sys	sys32_getrlimit	2
+@@ -359,7 +359,7 @@
+ 	sys	sys_ni_syscall	0	/* sys_modify_ldt */
+ 	sys	sys32_adjtimex	1
+ 	sys	sys_mprotect	3			/* 4125 */
+-	sys	sys32_sigprocmask	3
++	sys	compat_sys_sigprocmask	3
+ 	sys	sys_create_module 2
+ 	sys	sys_init_module	5
+ 	sys	sys_delete_module 1
+diff -ruN 2.5.58-32bit.5/arch/mips64/kernel/signal32.c 2.5.58-32bit.6/arch/mips64/kernel/signal32.c
+--- 2.5.58-32bit.5/arch/mips64/kernel/signal32.c	2003-01-15 16:12:21.000000000 +1100
++++ 2.5.58-32bit.6/arch/mips64/kernel/signal32.c	2003-01-16 01:40:36.000000000 +1100
+@@ -694,44 +694,6 @@
+ 	return 0;
+ }
+ 
+-extern asmlinkage int sys_sigprocmask(int how, old_sigset_t *set,
+-						old_sigset_t *oset);
+-
+-asmlinkage int sys32_sigprocmask(int how, compat_old_sigset_t *set, 
+-				 compat_old_sigset_t *oset)
+-{
+-	old_sigset_t s;
+-	int ret;
+-	mm_segment_t old_fs = get_fs();
+-
+-	if (set && get_user (s, set))
+-		return -EFAULT;
+-	set_fs (KERNEL_DS);
+-	ret = sys_sigprocmask(how, set ? &s : NULL, oset ? &s : NULL);
+-	set_fs (old_fs);
+-	if (!ret && oset && put_user (s, oset))
+-		return -EFAULT;
+-	return ret;
+-}
+-
+-asmlinkage long sys_sigpending(old_sigset_t *set);
+-
+-asmlinkage int sys32_sigpending(compat_old_sigset_t *set)
+-{
+-	old_sigset_t pending;
+-	int ret;
+-	mm_segment_t old_fs = get_fs();
+-
+-	set_fs (KERNEL_DS);
+-	ret = sys_sigpending(&pending);
+-	set_fs (old_fs);
+-
+-	if (put_user(pending, set))
+-		return -EFAULT;
+-
+-	return ret;
+-}
+-
+ asmlinkage int sys32_rt_sigaction(int sig, const struct sigaction32 *act,
+ 				  struct sigaction32 *oact,
+ 				  unsigned int sigsetsize)

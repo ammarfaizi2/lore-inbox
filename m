@@ -1,41 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317230AbSFGIlM>; Fri, 7 Jun 2002 04:41:12 -0400
+	id <S316789AbSFGItp>; Fri, 7 Jun 2002 04:49:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317240AbSFGIlL>; Fri, 7 Jun 2002 04:41:11 -0400
-Received: from nick.dcs.qmul.ac.uk ([138.37.88.61]:415 "EHLO
-	nick.dcs.qmul.ac.uk") by vger.kernel.org with ESMTP
-	id <S317230AbSFGIlL>; Fri, 7 Jun 2002 04:41:11 -0400
-Date: Fri, 7 Jun 2002 09:43:53 +0100 (BST)
-From: Matt Bernstein <matt@theBachChoir.org.uk>
-X-X-Sender: mb@jester.mews
-To: dean gaudet <dean-list-linux-kernel@arctic.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.19-pre10-ac2
-In-Reply-To: <Pine.LNX.4.44.0206061041440.28577-100000@twinlark.arctic.org>
-Message-ID: <Pine.LNX.4.44.0206070941130.21914-100000@jester.mews>
-X-URL: http://www.theBachChoir.org.uk/
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-uvscan-result: clean
+	id <S317256AbSFGItp>; Fri, 7 Jun 2002 04:49:45 -0400
+Received: from rj.SGI.COM ([192.82.208.96]:6033 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S316789AbSFGIto>;
+	Fri, 7 Jun 2002 04:49:44 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: kbuild-devel@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Announce: Kernel Build for 2.5, release 3.0 is available 
+In-Reply-To: Your message of "Wed, 05 Jun 2002 23:53:43 +1000."
+             <26430.1023285223@ocs3.intra.ocs.com.au> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 07 Jun 2002 18:49:19 +1000
+Message-ID: <13225.1023439759@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jun 6 dean gaudet wrote:
+On Wed, 05 Jun 2002 23:53:43 +1000, 
+Keith Owens <kaos@ocs.com.au> wrote:
+>Release 3.0 of kernel build for kernel 2.5 (kbuild 2.5) is available.
+>http://sourceforge.net/projects/kbuild/, package kbuild-2.5, download
+>release 3.0.
 
->On Thu, 6 Jun 2002, Matt Bernstein wrote:
->
->> Since when was it OK to do a parallel make dep?
->
->wow such a useful response.  can you point me where this is documented?
+New files:
 
-No--I read it a few times on lkml, admittedly a year or three ago. 
-Googling reveals others must've seen it too, eg:
-http://www.ecst.csuchico.edu/~dranch/LINUX/TrinityOS/cHTML/TrinityOS-c-14.html
+kbuild-2.5-core-18
+  Change from core-17.
 
->i've never seen "make -j3" cause *source files* to be deleted.  there's a
->bug here somewhere.
+    Add a missing case for dependency standardization.
 
-OK so my response was rather tangential! What unlink()s does strace 
-show? What is your fs?
+kbuild-2.5-common-2.4.18-8
+kbuild-2.5-i386-2.4.18-3
+
+    Synchronize link order method with 2.5.20, so both 2.4 and 2.5
+    versions of kbuild 2.5 use the same process.
+
+kbuild-2.5-common-2.4.19-pre10-1
+kbuild-2.5-i386-2.4.19-pre10-1
+
+    Upgrade to 2.4.19-pre10.  Also has new link order method.
 

@@ -1,49 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272627AbRIGMg1>; Fri, 7 Sep 2001 08:36:27 -0400
+	id <S272632AbRIGMxM>; Fri, 7 Sep 2001 08:53:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272628AbRIGMgR>; Fri, 7 Sep 2001 08:36:17 -0400
-Received: from mons.uio.no ([129.240.130.14]:27102 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S272627AbRIGMgK>;
-	Fri, 7 Sep 2001 08:36:10 -0400
+	id <S272633AbRIGMxD>; Fri, 7 Sep 2001 08:53:03 -0400
+Received: from prfdec.natur.cuni.cz ([195.113.56.1]:60420 "EHLO
+	prfdec.natur.cuni.cz") by vger.kernel.org with ESMTP
+	id <S272632AbRIGMwv>; Fri, 7 Sep 2001 08:52:51 -0400
+X-Envelope-From: mmokrejs
+Posted-Date: Fri, 7 Sep 2001 14:53:07 +0200 (MET DST)
+Date: Fri, 7 Sep 2001 14:53:07 +0200 (MET DST)
+From: =?iso-8859-2?Q?Martin_MOKREJ=A9?= <mmokrejs@natur.cuni.cz>
+To: Daniel Phillips <phillips@bonn-fries.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: __alloc_pages: 0-order allocation failed.
+In-Reply-To: <20010904160546Z16284-32383+3441@humbolt.nl.linux.org>
+Message-ID: <Pine.OSF.4.21.0109071451120.11540-100000@prfdec.natur.cuni.cz>
 MIME-Version: 1.0
-Message-ID: <15256.48964.101213.439253@charged.uio.no>
-Date: Fri, 7 Sep 2001 14:36:20 +0200
-To: ptb@it.uc3m.es
-Cc: Mike Black <mblack@csihq.com>, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.8 NFS Problems
-In-Reply-To: <200109071206.OAA24577@nbd.it.uc3m.es>
-In-Reply-To: <shsae07md9d.fsf@charged.uio.no>
-	<200109071206.OAA24577@nbd.it.uc3m.es>
-X-Mailer: VM 6.89 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-User-Agent: SEMI/1.13.7 (Awazu) CLIME/1.13.6 (=?ISO-2022-JP?B?GyRCQ2YbKEI=?=
- =?ISO-2022-JP?B?GyRCJU4+MRsoQg==?=) MULE XEmacs/21.1 (patch 14) (Cuyahoga
- Valley) (i386-redhat-linux)
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Peter T Breuer <ptb@it.uc3m.es> writes:
+On Tue, 4 Sep 2001, Daniel Phillips wrote:
 
-    >> Soft mount timeouts are not only due to network problems, but
-    >> can equally well be due to internal congestion. The rate at
-    >> which the network can transmit requests is usually (unless you
-    >> are using Gigabit) way below the rate at which your machine can
-    >> generate them.
+Hi,
 
-     > But soft mounts at least break nicely and automatically.  And
-     > since failures are inevitable, I prefer them.
+> On September 4, 2001 03:11 pm, Martin MOKREJ? wrote:
+> > Hi,
+> >   I'm getting the above error on 2.4.9 kernel with kernel HIGHMEM option
+> > enabled to 2GB, 2x Intel PentiumIII. The machine has 1GB RAM
+> > physically. Althougj I've found many report to linux-kernel list during
+> > past months, not a real solution. Maybe only:
+> > http://www.alsa-project.org/archive/alsa-devel/msg08629.html
+> 
+> Try 2.4.10-pre4.
 
-The problem is that they need careful tuning if they are to work at
-all. They assume a perfect setup.
+Hmm, so after a day of run we got it again:
+__alloc_pages: 0-order allocation failed (gfp=0x70/1).
 
-For instance most servers will drop UDP requests if they don't have a
-free thread to serve them. They assume that you will automatically
-retry. soft mounts do retry, but give up eventually. IOW even on an
-otherwise working setup you will, every once in a blue moon, get an
-EIO due to a soft timeout and you will lose data.
+> > so I think it's another problem in 2.4.9, right?
+> 
+> Yep.  Most probably bounce buffers, patch by Marcelo already in Linus's
+> tree.
 
-Cheers,
-  Trond
+So it did not fix it? But the output now has extra "(gfp=0x70/1)" string
+appended.
+
+Any ideas?
+-- 
+Martin Mokrejs - PGP5.0i key is at http://www.natur.cuni.cz/~mmokrejs
+MIPS / Institute for Bioinformatics <http://mips.gsf.de>
+GSF - National Research Center for Environment and Health
+Ingolstaedter Landstrasse 1, D-85764 Neuherberg, Germany
+

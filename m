@@ -1,64 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264271AbUFCUmc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264278AbUFCUrR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264271AbUFCUmc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 16:42:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264275AbUFCUmc
+	id S264278AbUFCUrR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 16:47:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264276AbUFCUrQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 16:42:32 -0400
-Received: from anor.ics.muni.cz ([147.251.4.35]:46008 "EHLO anor.ics.muni.cz")
-	by vger.kernel.org with ESMTP id S264271AbUFCUma (ORCPT
+	Thu, 3 Jun 2004 16:47:16 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:22498 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264283AbUFCUqr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 16:42:30 -0400
-Date: Thu, 3 Jun 2004 22:41:47 +0200
-From: Jan Kasprzak <kas@informatics.muni.cz>
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Cc: Nathan Straz <nstraz@sgi.com>, Paul Jackson <pj@sgi.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Stock IA64 kernel on SGI Altix 350
-Message-ID: <20040603204147.GB27701@fi.muni.cz>
-References: <20040603170147.GK10708@fi.muni.cz> <200406031030.36181.jbarnes@engr.sgi.com> <20040603200905.GA27701@fi.muni.cz> <200406031319.06466.jbarnes@engr.sgi.com>
-Mime-Version: 1.0
+	Thu, 3 Jun 2004 16:46:47 -0400
+Date: Thu, 03 Jun 2004 13:42:58 -0700
+From: Hanna Linder <hannal@us.ibm.com>
+To: Greg KH <greg@kroah.com>, "H. Peter Anvin" <hpa@zytor.com>
+cc: Hanna Linder <hannal@us.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.6-rc2 RFT] Add's class support to cpuid.c
+Message-ID: <106640000.1086295378@dyn318071bld.beaverton.ibm.com>
+In-Reply-To: <20040603193256.GD23564@kroah.com>
+References: <98460000.1086215543@dyn318071bld.beaverton.ibm.com> <40BE6CA9.9030403@zytor.com> <20040603193256.GD23564@kroah.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200406031319.06466.jbarnes@engr.sgi.com>
-User-Agent: Mutt/1.4.2i
-X-Muni-Spam-TestIP: 147.251.48.3
-X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesse Barnes wrote:
-: Cool, but keep in mind that this is totally unsupported.  If this kernel 
-: breaks, you get to keep both pieces
 
-	Yes, of course.
+--On Thursday, June 03, 2004 12:32:56 PM -0700 Greg KH <greg@kroah.com> wrote:
 
-: (though I'll try to help glue it back 
-: together!) :)
-: 
-	Thanks.
+>> As it is, it also mishandles the hotswap CPU scenario.
+> 
+> I agree, but that can be easily added with a second patch on top of this
+> one, right Hanna?  :)
+> 
+> I'll go add this to the driver-2.6 bk tree to show up in the next -mm.
 
-: I think 'make help' documents most of it.
+Thanks. Im working on it now.
 
-	OK.
-: 
-: These messages are consistent with having a PROM that's too old; you need at 
-: least 3.32.  You'll have to dig around the support site some more or talk to 
-: your support person for that though.
-: 
-	3.25 is the latest released (or at least the latest I can find).
-I will ask local support.
+Hanna
 
-:  Booting with 'nohalt' should work 
-: around this particular issue though.
-
-	Yes. It works now, I have 2.6.7-rc2-mm2 up and running. Thanks again.
-
--Yenya
-
--- 
-| Jan "Yenya" Kasprzak  <kas at {fi.muni.cz - work | yenya.net - private}> |
-| GPG: ID 1024/D3498839      Fingerprint 0D99A7FB206605D7 8B35FCDE05B18A5E |
-| http://www.fi.muni.cz/~kas/   Czech Linux Homepage: http://www.linux.cz/ |
-++> I consider none of the code I contributed to glibc (which is quite a <++
-++> lot) to be as part of the GNU project.             -- Ulrich Drepper <++

@@ -1,57 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265852AbUAKMA6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jan 2004 07:00:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265860AbUAKMA6
+	id S265855AbUAKLzV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jan 2004 06:55:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265850AbUAKLxl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jan 2004 07:00:58 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:10508 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S265852AbUAKMA4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jan 2004 07:00:56 -0500
-Date: Sun, 11 Jan 2004 12:00:53 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: martin f krafft <madduck@madduck.net>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: kernel 2.6: can't get 3c575/PCMCIA working - other PCMCIA card work
-Message-ID: <20040111120053.C1931@flint.arm.linux.org.uk>
-Mail-Followup-To: martin f krafft <madduck@madduck.net>,
-	linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <20040106111939.GA2046@piper.madduck.net>
+	Sun, 11 Jan 2004 06:53:41 -0500
+Received: from node-d-1fcf.a2000.nl ([62.195.31.207]:29569 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP id S265851AbUAKLxA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jan 2004 06:53:00 -0500
+Subject: Re: [PATCH 2.6.0] Cirrus PD6729 PCI-to-PCMCIA Bridge support for
+	2.6.x kernel
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Komuro <komujun@nifty.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1073819401.2329.7.camel@localhost.localdomain>
+References: <1073819401.2329.7.camel@localhost.localdomain>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-71rzqozVN3VDeXTQ46ln"
+Organization: Red Hat, Inc.
+Message-Id: <1073821972.4431.12.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040106111939.GA2046@piper.madduck.net>; from madduck@madduck.net on Tue, Jan 06, 2004 at 12:19:39PM +0100
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Sun, 11 Jan 2004 12:52:52 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 06, 2004 at 12:19:39PM +0100, martin f krafft wrote:
-> I have an ancient laptop with a yenta_socket PCMCIA bridge and three
-> cards, each with Hinds' pcmcia-cs driver indicated:
-> 
->   Orinico Wireless LAN (wvlan_cs)
->   3COM 3c575 (3c575_cs)
->   Psion Gold Card Modem (serial_cs)
 
-What is 3c575_cs ?  I think you actually mean 3c574_cs.  Or maybe you
-mean you have a 3com 3ccfe575 Cardbus card?  The above is rather too
-ambiguous.
+--=-71rzqozVN3VDeXTQ46ln
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> However, the 3c575 card won't be recognised. All
-> I get from the hotplug system is:
-> 
->   pci.agent: ... no modules for PCI slot 0000:06:00.0
+On Sun, 2004-01-11 at 12:16, Komuro wrote:
+> Dear all
+>=20
+> I made a Cirrus PD6729 PCI-to-PCMCIA Bridge for 2.6.x kernel.
+> Please see the following patch. ( sorry for big patch)
 
-This indicates that the card you inserted is a Cardbus card.  In which
-case, the PCMCIA driver "3c574_cs" is definitely not what you want.
-You want to use the 3c59x driver, though the hotplug subsystem should
-automatically pick that up from the PCI ids.
+one question though; is it worth trying to share some code with the=20
+i82092 driver ? (I don't have the specs with me but it looks like the
+Cirrus is not THAT different in most respects so maybe some code can be
+shared)
 
-Could you insert the card, and then provide the output of lspci -vx ?
+--=-71rzqozVN3VDeXTQ46ln
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQBAATkUxULwo51rQBIRAjiPAKCAovLS2bbVCqohzPiwXj4MwknsJACeJdUu
+Y6mS4v08svAaSwiaRH65ylA=
+=ozL/
+-----END PGP SIGNATURE-----
+
+--=-71rzqozVN3VDeXTQ46ln--

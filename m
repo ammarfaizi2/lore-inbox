@@ -1,76 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264889AbUAOBCS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jan 2004 20:02:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264893AbUAOBCS
+	id S264855AbUAOBB4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jan 2004 20:01:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264889AbUAOBB4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jan 2004 20:02:18 -0500
-Received: from amsfep18-int.chello.nl ([213.46.243.14]:15639 "EHLO
-	amsfep18-int.chello.nl") by vger.kernel.org with ESMTP
-	id S264889AbUAOBCM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jan 2004 20:02:12 -0500
-Date: Thu, 15 Jan 2004 02:02:10 +0100
-From: Haakon Riiser <haakon.riiser@fys.uio.no>
-To: linux-kernel@vger.kernel.org
-Subject: NTFS disk usage on Linux 2.6
-Message-ID: <20040115010210.GA570@s.chello.no>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	Wed, 14 Jan 2004 20:01:56 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:4763 "EHLO e32.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264855AbUAOBBz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jan 2004 20:01:55 -0500
+Subject: Re: [PATCH] Same keyboard.c as in 2.6.0
+From: Omkhar Arasaratnam <iamroot@ca.ibm.com>
+To: Markus =?ISO-8859-1?Q?H=E4stbacka?= <midian@ihme.org>
+Cc: Kernel Mailinglist <linux-kernel@vger.kernel.org>
+In-Reply-To: <1074124061.1278.5.camel@midux>
+References: <1074124061.1278.5.camel@midux>
+Content-Type: text/plain
+Message-Id: <1074127819.16754.5.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 14 Jan 2004 19:50:19 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Has anyone else noticed that the reported disk space usage on
-NTFS is completely unreliable on Linux 2.6?  Just issued the
-command "du -sh" on my main Windows XP partition, and on 2.6.1,
-the reported disk usage is bigger than the partition size.
+Markus, 
 
-Here's the output from "du -sh *" in Windows' root directory
-under Linux 2.6.1:
+I think you just need this (posted earlier in the list) its just the
+character maps that need fixing:
 
-  0       AUTOEXEC.BAT
-  0       CONFIG.SYS
-  43M     Documents and Settings
-  0       IO.SYS
-  0       MSDOS.SYS
-  48K     NTDETECT.COM
-  366M    Program Files
-  0       RECYCLER
-  20K     System Volume Information
-  12G     WINDOWS
-  0       boot.ini
-  232K    ntldr
-  768M    pagefile.sys
+diff -Nru a/drivers/char/keyboard.c b/drivers/char/keyboard.c
+--- a/drivers/char/keyboard.c Sun Jan 11 19:42:55 2004
++++ b/drivers/char/keyboard.c Sun Jan 11 19:42:55 2004
+@@ -941,8 +941,8 @@
+       32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47,
+       48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63,
+       64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79,
+-      80, 81, 82, 83, 84, 93, 86, 87, 88, 94, 95, 85,259,375,260, 90,
+-     284,285,309,311,312, 91,327,328,329,331,333,335,336,337,338,339,
++      80, 81, 82, 83, 43, 93, 86, 87, 88, 94, 95, 85,259,375,260, 90,
++     284,285,309,298,312, 91,327,328,329,331,333,335,336,337,338,339,
+      367,288,302,304,350, 89,334,326,116,377,109,111,126,347,348,349,
+      360,261,262,263,298,376,100,101,321,316,373,286,289,102,351,355,
+      103,104,105,275,287,279,306,106,274,107,294,364,358,363,362,361,
 
-Same command on 2.4.24:
-
-  0       AUTOEXEC.BAT
-  0       CONFIG.SYS
-  41M     Documents and Settings
-  0       IO.SYS
-  0       MSDOS.SYS
-  48K     NTDETECT.COM
-  366M    Program Files
-  2.0K    RECYCLER
-  21K     System Volume Information
-  1.4G    WINDOWS
-  1.0K    boot.ini
-  230K    ntldr
-  770M    pagefile.sys
-
-(The contents of the filesystem was, of course, identical in both
-cases -- I did not run Windows in between these tests.)
-
-Compare the disk space used by the WINDOWS directory in the
-two listings.  On 2.4.24, it correctly reports 1.4G, while
-2.6.1 reports 12G, which is 2G more than the total space on
-the filesystem.
-
-I also compared this to the listings produced by "ls -lR"
-(summing the numbers on the "total ..." lines).  The result
-was the same as with du -sh.
 
 -- 
- Haakon
+Omkhar
+

@@ -1,53 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264371AbTEPIJ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 May 2003 04:09:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264372AbTEPIJ7
+	id S264370AbTEPIIk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 May 2003 04:08:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264371AbTEPIIk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 May 2003 04:09:59 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:27012 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S264371AbTEPIJ5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 May 2003 04:09:57 -0400
-Date: Fri, 16 May 2003 10:22:09 +0200
-From: Jens Axboe <axboe@suse.de>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Mount Rainier and kernel 2.6
-Message-ID: <20030516082209.GW812@suse.de>
-References: <20030514063216.2018C6EE92@rekin4.o2.pl> <20030514074626.GA17033@suse.de> <b9uar6$18l$1@cesium.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <b9uar6$18l$1@cesium.transmeta.com>
+	Fri, 16 May 2003 04:08:40 -0400
+Received: from host132.googgun.cust.cyberus.ca ([209.195.125.132]:64708 "EHLO
+	marauder.googgun.com") by vger.kernel.org with ESMTP
+	id S264370AbTEPIIi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 May 2003 04:08:38 -0400
+Date: Fri, 16 May 2003 04:19:12 -0400 (EDT)
+From: Ahmed Masud <masud@googgun.com>
+To: Yoav Weiss <ml-lkml@unpatched.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: encrypted swap [was: The disappearing sys_call_table export.]
+ (fwd)
+In-Reply-To: <Pine.LNX.4.44.0305160157010.32563-100000@marcellos.corky.net>
+Message-ID: <Pine.LNX.4.33.0305160354500.23288-100000@marauder.googgun.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 14 2003, H. Peter Anvin wrote:
-> Followup to:  <20030514074626.GA17033@suse.de>
-> By author:    Jens Axboe <axboe@suse.de>
-> In newsgroup: linux.dev.kernel
-> >
-> > On Wed, May 14 2003, fab@tlen.pl wrote:
-> > > I would like to ask if support for Mount Rainier is inluded in 2.6 
-> > > kernel (as it was written in artice info on page 
-> > > http://kt.zork.net/kernel-traffic/kt20021021_189.html#3)
-> > 
-> > No it isn't, at least not yet. As it just happens, my mt rainier drive
-> > is mounted in the 2.5 testbox though. If I get the time, I don't see any
-> > reason it can't make it into 2.6. It's a pretty simple addition now,
-> > ide-cd has write support etc.
-> > 
-> 
-> Are there any patches anywhere, or is it a case of SMP (Simple Matter
-> of Programming)?
 
-The last published patch (at least from me, I'm not aware of any others)
-is on kernel.org in people/axboe/patches/v2.4/2.4.19-pre4
 
-So more a case of testing and adapting (that includes fixing bugs
-probably, the code isn't that well tested. it worked...) to 2.5.x
+On Fri, 16 May 2003, Yoav Weiss wrote:
 
--- 
-Jens Axboe
+> Hi,
+>
+> I got the below from some guy, off the list.
+> He may has a point, at least when writable pages are shared between
+> processes.
+>
+> What do you think ?
+>
+> 	Yoav
+>
+>  My apologies; I was unclear.
+>
+>  I think that you need to associate swap encryption keys with memory
+> spaces, not with processes, precisely because you need to be able to
+> swap out and swap in from any process using that memory space. And
+> correspondingly the key can't die on a per-process basis, it has to
+> die if and only if the associated memory space is torn down (which
+> may be long after the PID that originally creates it goes away).
+
+Hi Yoav,
+
+After sort of thinking about it at this early friday hour (well late
+thursday for me), it occurs to me that we may want to maintain keys
+either in the vm_area_struct (vma) or for a vma group.
+
+We want to decrypt mostlikely after a page-fault, which triggers a vma
+nopage (code here?), has loaded the page so vma key, and swapping out of
+course is still in vma domain.
+
+Since we can always go from process to vma to page and back again i think
+it is not going to cause any tracking issues.
+
+Further, we have different vma's for shared and other interesting pages
+so various optimizations are also doable on a case to case basis.
+
+Does this make any sense? or am I off the cuckoo train at this hour :)
+
+Please comment.
+
+Cheers,
+
+Ahmed.
 

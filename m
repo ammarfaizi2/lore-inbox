@@ -1,37 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130451AbRCGJES>; Wed, 7 Mar 2001 04:04:18 -0500
+	id <S130448AbRCGJK2>; Wed, 7 Mar 2001 04:10:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130488AbRCGJEI>; Wed, 7 Mar 2001 04:04:08 -0500
-Received: from hermine.idb.hist.no ([158.38.50.15]:5126 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S130453AbRCGJDv>; Wed, 7 Mar 2001 04:03:51 -0500
-Message-ID: <3AA5F8E1.AC570516@idb.hist.no>
-Date: Wed, 07 Mar 2001 10:01:21 +0100
-From: Helge Hafting <helgehaf@idb.hist.no>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: no, da, en
+	id <S130457AbRCGJKT>; Wed, 7 Mar 2001 04:10:19 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:31969 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S130448AbRCGJKL>;
+	Wed, 7 Mar 2001 04:10:11 -0500
+Date: Wed, 7 Mar 2001 04:09:31 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Jeremy Elson <jelson@circlemud.org>
+cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: Re: Mapping a piece of one process' addrspace to another? 
+In-Reply-To: <200103070854.f278sBw06566@servo.isi.edu>
+Message-ID: <Pine.GSO.4.21.0103070402160.2127-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-To: Gregory Maxwell <greg@linuxpower.cx>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Process vs. Threads
-In-Reply-To: <20010306172843.D1283@hpspss3g.spain.hp.com> <20010306115822.A2244@xi.linuxpower.cx>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gregory Maxwell wrote:
 
+
+On Wed, 7 Mar 2001, Jeremy Elson wrote:
+
+> Well, because it's a character device :-).  i.e,. the framework allows
+> you to write a userspace program that services callbacks for character
+> devices.  Inside the kernel, all open()/release()/ioctl()/etc calls
+> for the device are proxied out to userspace where a library calls a
+> userspace callback, and the result goes back to the kernel where it is
+> then returned to the calling process.
+
+Double ugh. Why bother with ioctl() when you can just have a second
+channel and do read()/write() on it?
+
+> The problem is just that to return data (instead of just a retval), as
+> is needed for read and some ioctls, it leads to 3 copies as I
+> described earlier. 
 > 
-> There are no threads in Linux.
-> All tasks are processes.
-> Processes can share any or none of a vast set of resources.
-> 
-Is there a way a user program can find out what resources 
-are shared among which processes? 
+> BTW, where are the zerocopy patches for pipes?  Maybe I'm missing
+> something but it seems that pipes inside the kernel are still
+> implememented by copying into the kernel and then copying out.
+> Whatever method the zerocopy pipes use is probably what I'm looking
+> for though.
 
-That would allow enhancing ps, top, etc to
-report memory usage correctly.
+Ask DaveM or look through l-k archives for URL of recent variant...
+							Cheers,
+								Al
 
-Helge Hafting

@@ -1,73 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267475AbRGZBN7>; Wed, 25 Jul 2001 21:13:59 -0400
+	id <S267494AbRGZBqE>; Wed, 25 Jul 2001 21:46:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267484AbRGZBNu>; Wed, 25 Jul 2001 21:13:50 -0400
-Received: from csl.Stanford.EDU ([171.64.66.149]:13795 "EHLO csl.Stanford.EDU")
-	by vger.kernel.org with ESMTP id <S267475AbRGZBNe>;
-	Wed, 25 Jul 2001 21:13:34 -0400
-From: Dawson Engler <engler@csl.Stanford.EDU>
-Message-Id: <200107260113.SAA11847@csl.Stanford.EDU>
-Subject: Re: [CHECKER] repetitive/contradictory comparison bugs for 2.4.7
-To: alan@lxorguk.ukuu.org.uk (Alan Cox)
-Date: Wed, 25 Jul 2001 18:13:34 -0700 (PDT)
-Cc: nave@stanford.edu (Evan Parker), linux-kernel@vger.kernel.org,
-        mc@CS.Stanford.EDU
-In-Reply-To: <E15POo8-00020x-00@the-village.bc.nu> from "Alan Cox" at Jul 25, 2001 02:34:36 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S267500AbRGZBpy>; Wed, 25 Jul 2001 21:45:54 -0400
+Received: from zok.SGI.COM ([204.94.215.101]:1203 "EHLO zok.corp.sgi.com")
+	by vger.kernel.org with ESMTP id <S267494AbRGZBpj>;
+	Wed, 25 Jul 2001 21:45:39 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Leif Sawyer <lsawyer@gci.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Sparc-64 kernel build fails on version.h during 'make oldconfig' 
+In-Reply-To: Your message of "Wed, 25 Jul 2001 09:39:46 PST."
+             <BF9651D8732ED311A61D00105A9CA315053E1265@berkeley.gci.com> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Thu, 26 Jul 2001 11:45:38 +1000
+Message-ID: <15723.996111938@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-bunch of quoting for context:
+On Wed, 25 Jul 2001 09:39:46 -0800, 
+Leif Sawyer <lsawyer@gci.com> wrote:
+>When 'bootstrapping' a new kernel:
+>
+>cp ../oldlinux/.config .
+>make oldconfig
+>make dep
+>...
+>/usr/src/linux/include/linux/udf_fs_sb.h:22: linux/version.h: No such file
+>or directory
 
-> > other 10 are questionable.  Those 10 are all simple variations on the
-> > following code:
-> > 
-> > Start --->
-> > 	if (!tmp_buf) {
-> > 		page = get_free_page(GFP_KERNEL);
-> > 
-> > Error --->
-> > 		if (tmp_buf)
-> > 			free_page(page);
-> > 		else
-> > 			tmp_buf = (unsigned char *) page;
-> > 	}
-> 
-> That one is not a bug. The serial drivers do this to handle a race. Really
-> it should be
-> 
-> 		page = get_free_page(GFP_KERNEL)
-> 
-> 		rmb();
-> 		if (tmp_buf)
-> 			..
-> 
-> but this will go away as and when someone switches the tty layer to new 
-> style locking. The precise code flow (under lock_kernel in both cases) is
-> 
-> 	
-> 	if (!tmp_buf)
-> 	{
-> 		/* tmp_buf was 0
-> 		page = get_free_page (...)
-> 		[SLEEPS, TASK SWITCH]
-> 
+Ignore it, the kernel build design is wrong.  make dep is supposed to
+pick up all dependencies on included files but, at the time make dep is
+run, generated files have not been created yet.  make dep issues lots
+of spurious warning and error messages.  The 2.5 makefile rewrite fixes
+the design.  This is not a failure condition, make dep keeps going.
 
-Does this mean that the 'cli' in the following code is redundant?
+I have no idea why udf_fs_sb.h includes versions.h, it does not use it.
+I will follow up with the UDF group.
 
-	/* 2.4.7/drivers/char/generic_serial.c:953:gs_init_port: */
-        if (!tmp_buf) {
-                page = get_free_page(GFP_KERNEL);
-
-                cli (); /* Don't expect this to make a difference. */
-                if (tmp_buf)
-                        free_page(page);
-                else
-                        tmp_buf = (unsigned char *) page;
-
-Dawson

@@ -1,56 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262179AbULMATO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262180AbULMA1u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262179AbULMATO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Dec 2004 19:19:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262180AbULMATN
+	id S262180AbULMA1u (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Dec 2004 19:27:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262181AbULMA1u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Dec 2004 19:19:13 -0500
-Received: from smtp1.Stanford.EDU ([171.67.16.123]:13279 "EHLO
-	smtp1.Stanford.EDU") by vger.kernel.org with ESMTP id S262179AbULMAS6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Dec 2004 19:18:58 -0500
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.32-15
-From: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-To: ngo Molnar <mingo@elte.hu>, Mark_H_Johnson@raytheon.com
-Cc: Amit Shah <amit.shah@codito.com>,
-       Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, emann@mrv.com,
-       Gunther Persoons <gunther_persoons@spymac.com>,
-       "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Shane Shrybman <shrybman@aei.ca>, Esben Nielsen <simlo@phys.au.dk>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-In-Reply-To: <OF8AB2B6D9.572374AA-ON86256F66.0061EFA8-86256F66.0061F00A@raytheon.com>
-References: <OF8AB2B6D9.572374AA-ON86256F66.0061EFA8-86256F66.0061F00A@raytheon.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1102897004.31218.8.camel@cmn37.stanford.edu>
+	Sun, 12 Dec 2004 19:27:50 -0500
+Received: from mail-relay-3.tiscali.it ([213.205.33.43]:14241 "EHLO
+	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
+	id S262180AbULMA1t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Dec 2004 19:27:49 -0500
+Date: Mon, 13 Dec 2004 01:27:51 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org
+Subject: Re: dynamic-hz
+Message-ID: <20041213002751.GP16322@dualathlon.random>
+References: <20041211142317.GF16322@dualathlon.random> <20041212163547.GB6286@elf.ucw.cz> <20041212222312.GN16322@dualathlon.random> <41BCD5F3.80401@kolivas.org> <20041212234331.GO16322@dualathlon.random> <cone.1102897095.171542.10669.502@pc.kolivas.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 12 Dec 2004 16:16:47 -0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <cone.1102897095.171542.10669.502@pc.kolivas.org>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-logOn Fri, 2004-12-10 at 09:49, Mark_H_Johnson@raytheon.com wrote:
-> >The -32-15 kernel can be downloaded from the
-> >usual place:
-> >
-> > http://redhat.com/~mingo/realtime-preempt/
-> 
-> By the time I started today, the directory had -18 so that is what I built
-> with. Here are some initial results from running cpu_delay (the simple
-> RT test / user tracing) on a -18 PREEMPT_RT kernel. Have not started
-> any of the stress tests yet.
+On Mon, Dec 13, 2004 at 11:18:15AM +1100, Con Kolivas wrote:
+> Thanks. I have to admit that the real reason I wrote this email was for 
+> this discussion to go on record so that desktop users would not get 
+> inappropriately excited by this change.
 
-Something that just happened to me: running 0.7.32-14 (PREEMPT_DESKTOP)
-and trying to install 0.7.32-19 from a custom built rpm package
-completely hangs the machine (p4 laptop - I tried twice). No clues left
-behind. If I boot into 0.7.32-9 I can install 0.7.32-19 with no
-problems. 
+Sure, desktop doesn't need this, the reason somebody is asking for it,
+is that the desktop stuff hurted some other non-desktop usages. Infact
+my 2.4 tree was setting by default HZ=1000 if 'desktop' paramter was
+passed to the kernel (so that I could lower the timeslice accordingly
+too, without losing the effect of the nicelevels between nice 0 and
++19).
 
--- Fernando
+The other new case where I'm asked for this feature is again not the
+desktop but the high end laptop with cpu throttling down to 80mhz, and
+what Pavel mentioned about the lower consumption. Perhaps we could do
+variable HZ there, though I doubt it has a pit that can be reprogrammed
+with sane performance.
 
-
+Very few people are going to get real benefit from HZ=1000, but
+I certainly agree it worth to keep HZ=1000 on desktops since on a idle
+machine the downside of the more frequent irq sure isn't measurable,
+while having shorter timeslices may be visible with many tasks, and
+shorter timeslices requires faster HZ to preserve the nicelevels.

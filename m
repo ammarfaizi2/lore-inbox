@@ -1,51 +1,117 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129161AbRBNJwe>; Wed, 14 Feb 2001 04:52:34 -0500
+	id <S129106AbRBNKNw>; Wed, 14 Feb 2001 05:13:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129104AbRBNJwY>; Wed, 14 Feb 2001 04:52:24 -0500
-Received: from CPE-61-9-150-70.vic.bigpond.net.au ([61.9.150.70]:47621 "EHLO
-	halfway") by vger.kernel.org with ESMTP id <S129161AbRBNJwL>;
-	Wed, 14 Feb 2001 04:52:11 -0500
-From: Rusty Russell <rusty@linuxcare.com.au>
-To: court@oz.agile.tv
-Cc: alan@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: On "Unreliable Locking Guide" bug ? 
-In-Reply-To: Your message of "Wed, 14 Feb 2001 10:00:39 +1000."
-             <3A89CAA7.5090400@oz.agile.tv> 
-Date: Wed, 14 Feb 2001 15:35:23 +1100
-Message-Id: <E14Stf2-0001th-00@halfway>
+	id <S129161AbRBNKNl>; Wed, 14 Feb 2001 05:13:41 -0500
+Received: from smtp016.mail.yahoo.com ([216.136.174.113]:60177 "HELO
+	smtp016.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S129106AbRBNKNg>; Wed, 14 Feb 2001 05:13:36 -0500
+X-Apparently-From: <p?gortmaker@yahoo.com>
+Message-ID: <3A8A59BF.5DD01B01@yahoo.com>
+Date: Wed, 14 Feb 2001 05:11:11 -0500
+From: Paul Gortmaker <p_gortmaker@yahoo.com>
+X-Mailer: Mozilla 3.04 (X11; I; Linux 2.2.18 i486)
+MIME-Version: 1.0
+To: Jan Niehusmann <jan@gondor.com>
+CC: Guest section DW <dwguest@win.tue.nl>, linux-kernel@vger.kernel.org
+Subject: Re: /dev/rtc not working on ASUS A7V133
+In-Reply-To: <20010212012755.A656@gondor.com> <20010212021532.A28317@win.tue.nl> <20010212100307.A491@gondor.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <3A89CAA7.5090400@oz.agile.tv> you write:
-> Hi Paul,
-> 
-> I am reviewing your "Unreliable Locking Guide" from linux 2.4 and just 
-> wonder about the
-> section on "Avoiding Locks: Read and Write".  The two lines of code
-> 
-> new->next = i-> next;
-> i->next = new;
+Jan Niehusmann wrote:
 
-Hi John,
+> But I have a correction: The problem does not only occurr if the system
+> was started automatically by the bios, a manual 'soft off/soft on' sequence
+> shows the same effect. Only 'hard off/hard on' (using the switch directly
+> on the power supply) seems to work every time.
 
-	Yes, there is of course a lock against other list
-manipulations.  I've attached a patch to make this clear..
+Can you run the following program when things are working and then when
+they are not - i.e. 
 
-Thanks!
-Rusty.
+cmosdump > b4
+# soft off / on
+cmosdump > after
+diff -u b4 after
 
---- linux-2.4.0-official/Documentation/DocBook/kernel-locking.tmpl.~1~	Sat Dec 30 09:07:19 2000
-+++ linux-2.4.0-official/Documentation/DocBook/kernel-locking.tmpl	Wed Feb 14 15:33:36 2001
-@@ -720,7 +720,8 @@
-       halves without a lock.  Depending on their exact timing, they
-       would either see the new element in the list with a valid 
-       <structfield>next</structfield> pointer, or it would not be in the 
--      list yet.
-+      list yet.  A lock is still required against other CPUs inserting
-+      or deleting from the list, of course.
-     </para>
+The low registers (0, & 2 IIRC) are for sec and min, so expect changes
+there - but of interest will be any changes in reg 0x0a and 0x0b.
+
+Paul.
+
+/*
+ *
+ *	A quick hack to dump the CMOS RAM values from 0x0 to 0x7f. Note that
+ *	some CMOS are only 0x40 in size, so edit accordingly. Released to
+ *	the public under the terms and conditions of the Gnu General Public
+ *	License (GPL) included herein by reference.
+ *
+ *	Compile with:
+ *		 gcc -s -N -Wall -O cmosdump.c -o cmosdump
+ *
+ *					Paul Gortmaker		07/95
+ */
+
+#define CMOS_SIZE 0x80
+
+#include <stdio.h>
+#include <asm/io.h>
+#include <unistd.h>
+#include <errno.h>
+
+/*
+ * <linux/rtc.h>  was <linux/mc146818rtc.h> on kernels prior to 2.2.19, so
+ * just define CMOS_READ/WRITE here independently and avoid the hassle.
+ */
+
+#define RTC_PORT(x)     (0x70 + (x))
+#define CMOS_READ(addr) ({ \
+outb_p((addr),RTC_PORT(0)); \
+inb_p(RTC_PORT(1)); \
+})
+#define CMOS_WRITE(val, addr) ({ \
+outb_p((addr),RTC_PORT(0)); \
+outb_p((val),RTC_PORT(1)); \
+})
  
-     <para>
---
-Premature optmztion is rt of all evl. --DK
+
+void binprint (unsigned short value);
+
+void main(void) {
+
+unsigned short addr, val;
+
+val= iopl(3);
+if (val) {
+	perror("iopl");
+	exit(errno);
+}
+
+printf("Addr:\tHex\tDec.\tBinary\n");
+
+for (addr = 0; addr < CMOS_SIZE; addr++) {
+	val = CMOS_READ(addr);
+	printf("0x%X:\t0x%X\t%d\t",addr, val, val);
+	binprint(val);
+	printf("\n");
+}
+
+iopl(0);
+
+} /*end*/
+
+void binprint(unsigned short value) {
+
+int bit;
+
+for (bit=128;bit>0;bit/=2) 
+	printf("%s", (value & bit) ? "1" : "0");
+
+} /* end binprint */
+
+
+
+_________________________________________________________
+Do You Yahoo!?
+Get your free @yahoo.com address at http://mail.yahoo.com
+

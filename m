@@ -1,46 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263348AbUD2GUf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263188AbUD2GUI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263348AbUD2GUf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 02:20:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263555AbUD2GUf
+	id S263188AbUD2GUI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 02:20:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263348AbUD2GUI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 02:20:35 -0400
-Received: from gate.crashing.org ([63.228.1.57]:19074 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S263348AbUD2GUd (ORCPT
+	Thu, 29 Apr 2004 02:20:08 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:2263 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S263188AbUD2GUF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 02:20:33 -0400
-Subject: Re: ~500 megs cached yet 2.6.5 goes into swap hell
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Paul Mackerras <paulus@samba.org>
-Cc: Andrew Morton <akpm@osdl.org>, brettspamacct@fastclick.com,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <16528.28485.996662.598051@cargo.ozlabs.ibm.com>
-References: <409021D3.4060305@fastclick.com>
-	 <20040428170106.122fd94e.akpm@osdl.org> <409047E6.5000505@pobox.com>
-	 <40905127.3000001@fastclick.com> <20040428180038.73a38683.akpm@osdl.org>
-	 <16528.23219.17557.608276@cargo.ozlabs.ibm.com>
-	 <20040428185342.0f61ed48.akpm@osdl.org>
-	 <20040428194039.4b1f5d40.akpm@osdl.org>
-	 <16528.28485.996662.598051@cargo.ozlabs.ibm.com>
-Content-Type: text/plain
-Message-Id: <1083219158.20089.128.camel@gaston>
+	Thu, 29 Apr 2004 02:20:05 -0400
+Date: Thu, 29 Apr 2004 08:19:58 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: Kenneth Johansson <ken@kenjo.org>,
+       Moritz Muehlenhoff <jmm@informatik.uni-bremen.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [BUG] DVD writing in 2.6.6-rc2
+Message-ID: <20040429061956.GA3558@suse.de>
+References: <1083088772.2679.11.camel@tiger> <20040427183607.GA3011@suse.de> <8n23m1-g22.ln1@legolas.mmuehlenhoff.de> <20040428113056.GA2150@suse.de> <1083176956.2679.19.camel@tiger> <20040428200953.GA3470@suse.de> <20040428221334.GA22404@taniwha.stupidest.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 29 Apr 2004 16:12:38 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040428221334.GA22404@taniwha.stupidest.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Apr 28 2004, Chris Wedgwood wrote:
+> On Wed, Apr 28, 2004 at 10:09:54PM +0200, Jens Axboe wrote:
+> 
+> > So it just helped me unearth a different problem :-). There
+> > certainly is a bug here, it looks like it's hardware though (see the
+> > above description). ide-cd just needs to have it's SYNC_CACHE
+> > retries limited, then the kernel should at least recover.
+> 
+> I see cache flushes also go mute and hang forwever.  I think ideally
+> we need to hack the IDE layer to have sane timeouts or something
+> perhaps?
 
-> The really strange thing is that the behaviour seems to get worse the
-> more RAM you have.  I haven't noticed any problem at all on my laptop
-> with 768MB, only on the G5, which has 2.5GB.  (The laptop is still on
-> 2.6.2-rc3 though, so I will try a newer kernel on it.)
+Yeah, with 'retries' I mean waiting retries. The command does expire and
+ide-cd notices it just doesn't put an upper bound on how long it waits.
+A minute or so should suffice, unless the caller specifies otherwise.
 
-Your G5 also has a 2Gb IO hole in the middle of zone DMA, it's possible
-that the accounting doesn't work properly.
-
-Ben.
-
+-- 
+Jens Axboe
 

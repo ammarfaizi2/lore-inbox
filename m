@@ -1,74 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265324AbTLHDwB (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Dec 2003 22:52:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265325AbTLHDwA
+	id S265328AbTLHEWd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Dec 2003 23:22:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265329AbTLHEWd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Dec 2003 22:52:00 -0500
-Received: from mail.webmaster.com ([216.152.64.131]:5847 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP id S265324AbTLHDv6
+	Sun, 7 Dec 2003 23:22:33 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:48900 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S265328AbTLHEWc
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Dec 2003 22:51:58 -0500
-From: "David Schwartz" <davids@webmaster.com>
-To: "Jeremy Maitin-Shepard" <jbms@attbi.com>, <linux-kernel@vger.kernel.org>
-Subject: RE: Additional clauses to GPL in network drivers
-Date: Sun, 7 Dec 2003 19:51:54 -0800
-Message-ID: <MDEHLPKNGKAHNMBLJOLKAEMBIIAA.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <87r7zg0zrg.fsf@jay.local.invalid>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Importance: Normal
+	Sun, 7 Dec 2003 23:22:32 -0500
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: Hyperthreading Patch Results
+Date: 8 Dec 2003 04:11:15 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <br0tl3$cas$1@gatekeeper.tmr.com>
+References: <119145131687.20031206041918@webspires.com>
+X-Trace: gatekeeper.tmr.com 1070856675 12636 192.168.12.62 (8 Dec 2003 04:11:15 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <119145131687.20031206041918@webspires.com>,
+Russell \"Elik\" Rademacher <elik@webspires.com> wrote:
+| Hello linux-kernel,
+| 
+|   Okay folks.  I have installed it on 28 production servers with that patch contributed by William Lee Irwin III including Dell Servers and 2 Compaq servers among other types of hardware with 3ware, MPT SCSI, straight IDE, MylexRaid in the mix.  I have reported no problems with them and they all correctly reported the HyperThreading CPUs.  Previous versions since 2.4.21 have problems reporting the Hyperthreaded Dual Xeons and report it as 2 CPUs instead of 4.
+| 
+|   So..I recommend this patch being pushed to 2.4.x tree for inclusion.
 
-> "David Schwartz" <davids@webmaster.com> writes:
+Marcello has announced a freeze on any new features in 2.4, so unless
+this is considered a bug fix it may not get in.
 
-> > 	It occurs to me that it might not be a bad idea to have a
-> > short blurb that
-> > could be included in individual files that clarifies that the
-> > file is part
-> > of a GPL'd distribution but that's clear that it doesn't impose any
-> > additional restrictions. Here's a stab at such a notice just
-> > off the top of
-> > my head:
-
-> [snip]
->
-> I don't understand the desire for a notice that is clearly redundant.
-> Due to the nature of the GPL (version 1 or 2), licensing an entire work
-> under it is exactly equivalent to licensing all of the component parts
-> individually under it.
-
-	It is definitely redundant. The idea is that if a portion of the
-distribution ever winds up somewhere, the terms are still clear. For
-example, one often finds modified header files or implementation files
-available that don't contain a copy of the GPL or, for that matter, any
-indication that the files included are covered by the GPL.
-
-	For this reason, I think it makes sense for files to carry some indication
-that they are covered by the GPL. Look, for example, at
-ftp://ftp.scyld.com/pub/network/tulip.c
-
-	If this file is to be made available for download by itself, it must
-contain some notice that it is covered by the GPL. The current notice,
-however, is broken:
-
-	This software may be used and distributed according to the terms of
-	the GNU General Public License (GPL), incorporated herein by reference.
-	Drivers based on or derived from this code fall under the GPL and must
-	retain the authorship, copyright and license notice.  This file is not
-	a complete program and may only be used when the entire operating
-	system is licensed under the GPL.
-
-	So I'm suggesting a fixed notice that could replace the broken notice.
-
-	DS
-
-
+More to the point, unless Ingo's new HT scheduler changes are accepted
+at the same time, I'm not sure this is going to help most people. I will
+let people discuss that or not as they please, based on reports of HT
+performance, there may actually be regression. I have not tries this
+with 2.4 yyet, so I can't say.
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

@@ -1,64 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265920AbUHPV1i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266341AbUHPVhp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265920AbUHPV1i (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 17:27:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266341AbUHPV1i
+	id S266341AbUHPVhp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 17:37:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267963AbUHPVhp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 17:27:38 -0400
-Received: from fw.osdl.org ([65.172.181.6]:41413 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265920AbUHPV1d (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 17:27:33 -0400
-Date: Mon, 16 Aug 2004 14:26:37 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: opacki@acn.waw.pl
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: LKM, problem with simple char from string.
-Message-Id: <20040816142637.69105e2c.rddunlap@osdl.org>
-In-Reply-To: <200408161231.51998.opacki@acn.waw.pl>
-References: <200408161231.51998.opacki@acn.waw.pl>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 16 Aug 2004 17:37:45 -0400
+Received: from warden-p.diginsite.com ([208.29.163.248]:35312 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP id S266341AbUHPVho
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 17:37:44 -0400
+From: David Lang <david.lang@digitalinsight.com>
+To: Wakko Warner <wakko@animx.eu.org>
+Cc: Kevin Fox <Kevin.Fox@pnl.gov>, Alan Jenkins <sourcejedi@phonecoop.coop>,
+       linux-kernel@vger.kernel.org
+Date: Mon, 16 Aug 2004 14:37:10 -0700 (PDT)
+X-X-Sender: dlang@dlang.diginsite.com
+Subject: Re: cd burning: kernel / userspace?
+In-Reply-To: <20040813001302.GA22879@animx.eu.org>
+Message-ID: <Pine.LNX.4.60.0408161356110.14170@dlang.diginsite.com>
+References: <41189AA2.3010908@phonecoop.coop> <20040810220528.GA17537@animx.eu.org>
+ <1092352000.2408.35.camel@localhost.localdomain> <20040813001302.GA22879@animx.eu.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Aug 2004 12:31:51 +0200 authn wrote:
+On Thu, 12 Aug 2004, Wakko Warner wrote:
 
-| Hello,
-| I am coding a linux kernel module and have problem with some string from user 
-| space (from execve system call). There is no problem with useing this string 
-| as a one, for example printk(KERN_ALERT "%s", string) works fine. 
-| Problem appears when i want to printk or compare single char, in first case it 
-| is printked with some extra '<1>' and in second case, when i compare it with 
-| other one, it doesnt fit to real char (it is "connected" with '<1>' in some 
-| way ?). I tried to copy it to kmalloced buffer:
-| 
-| if ((k_space=(char *)kmalloc(len, GFP_KERNEL))==NULL)
-|                         return -1;
-| memcpy_fromfs((void *)k_space, (void *)argv[argc], len); 
-| 
-| but then playing with k_space[i] was the same. 
-| Short code from module:
-|                 if ((k_space=(char *)kmalloc(len, GFP_KERNEL))==NULL)
-|                         return -1;
-|                 memset(k_space, '\0', sizeof(k_space));
+> Date: Thu, 12 Aug 2004 20:13:02 -0400
+> From: Wakko Warner <wakko@animx.eu.org>
+> To: Kevin Fox <Kevin.Fox@pnl.gov>
+> Cc: Alan Jenkins <sourcejedi@phonecoop.coop>, linux-kernel@vger.kernel.org
+> Subject: Re: cd burning: kernel / userspace?
+> 
+>> Why not use an interface similar to tapes? Have different devices for
+>> different modes of operation?
+>
+> IIRC, tapes use 2 devices.  A rewind on close and a norewind on close.  How
+> many devices would there be for the various cd burning?
 
-I don't think that this is the main problem, but sizeof(k_space) here
-is just the sizeof a pointer (I guess, can't see entire source code),
-like 4 or 8.
+insert track gap on close (track-at-a-time)
+fixate disk on close (disk-at-a-time or final track)
 
-|                 memcpy_fromfs((char *)k_space, (char *)argv[argc], len);
-|                 printk(KERN_ALERT"%s\n", k_space);
-|                 printk(KERN_ALERT "%c\n",k_space[i]);
-| And then i ll have in log file string (from first printk call) and char with 
-| <1> (from second printk call). It doesnt let me to compare chars.
-| What it happens ?
+I don't know if it's worth trying for a 'do nothing on close' since that 
+by definition leaves garbage at the close point so what other modes are 
+needed?
 
+David Lang
 
---
-~Randy
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan

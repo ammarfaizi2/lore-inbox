@@ -1,46 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265270AbTFMIpG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 04:45:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265276AbTFMIpG
+	id S265266AbTFMIvv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 04:51:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265281AbTFMIvu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 04:45:06 -0400
-Received: from imf.math.ku.dk ([130.225.103.32]:19930 "EHLO imf.math.ku.dk")
-	by vger.kernel.org with ESMTP id S265270AbTFMIpC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 04:45:02 -0400
-Date: Fri, 13 Jun 2003 10:58:47 +0200 (CEST)
-From: Peter Berg Larsen <pebl@math.ku.dk>
-To: Vojtech Pavlik <vojtech@ucw.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Synaptics TouchPad driver for 2.5.70
-In-Reply-To: <20030613094435.B29859@ucw.cz>
-Message-ID: <Pine.LNX.4.40.0306131047540.20231-100000@shannon.math.ku.dk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 13 Jun 2003 04:51:50 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:8368
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S265266AbTFMIvs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jun 2003 04:51:48 -0400
+Subject: Re: 3ware and two drive hardware raid1
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Mike Dresser <mdresser_l@windsormachine.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0306121148340.22835-100000@router.windsormachine.com>
+References: <Pine.LNX.4.33.0306121148340.22835-100000@router.windsormachine.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1055494998.5162.26.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 13 Jun 2003 10:03:18 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Iau, 2003-06-12 at 16:56, Mike Dresser wrote:
+> If i have a hardware raid1 array of two 120 gig Maxtor DiamondMax 9 drives
+> on a 3ware 7000-2.  Failure of one disk should not go all the way up to
+> the OS and cause the OS to report hard errors, and remount the drive as
+> read-only, right?
 
-On Fri, 13 Jun 2003, Vojtech Pavlik wrote:
+Yes, but that won't help you if you lost both drives, which does happen
+now and again - overheating, bad PSU, using two drives from the same
+batch together and so on.
 
-> > > > hmm, that is clever. But I am afraid it will not work: the master (the
+The trace looks like you may have lost both drives.
 
-> > If the synaptic driver can deduce the protocol by listning to the probing
-> > communication, it might as well just sent it itself.
->
-> Not the protocol. Just the number of bytes per packet. That's quite a
-> different amount of understanding of the data passed through.
-
-Ahh, that would not work either. The description of master/guest was
-probably not the best: The protocolbytes from the guest do not even
-reach the KBC because the master (touchpad) is ignoring them. So as soon
-the guest accepts an protocol more advanced than ps/2 the master must be
-told how many bytes is used in the protocol.
-
-
-Peter
-
-
-
+Alan
 

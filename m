@@ -1,49 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282425AbRKZTPE>; Mon, 26 Nov 2001 14:15:04 -0500
+	id <S282262AbRKZTQc>; Mon, 26 Nov 2001 14:16:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282050AbRKZTNa>; Mon, 26 Nov 2001 14:13:30 -0500
-Received: from demokritos.cytanet.com.cy ([195.14.133.252]:39941 "EHLO
-	demokritos.cytanet.com.cy") by vger.kernel.org with ESMTP
-	id <S282280AbRKZTND>; Mon, 26 Nov 2001 14:13:03 -0500
-From: Sinisa Milivojevic <sinisa@mysql.com>
+	id <S282040AbRKZTPP>; Mon, 26 Nov 2001 14:15:15 -0500
+Received: from mauve.demon.co.uk ([158.152.209.66]:53671 "EHLO
+	mauve.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S282411AbRKZTNJ>; Mon, 26 Nov 2001 14:13:09 -0500
+From: Ian Stirling <root@mauve.demon.co.uk>
+Message-Id: <200111261911.TAA16676@mauve.demon.co.uk>
+Subject: Re: Kernel Releases
+To: riel@conectiva.com.br (Rik van Riel)
+Date: Mon, 26 Nov 2001 19:11:55 +0000 (GMT)
+Cc: root@mauve.demon.co.uk (Ian Stirling), linux@sneulv.dk (Allan Sandfeld),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33L.0111261301390.1491-100000@duckman.distro.conectiva> from "Rik van Riel" at Nov 26, 2001 01:02:07 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15362.38250.28569.234338@sinisa.nasamreza.org>
-Date: Mon, 26 Nov 2001 21:18:02 +0200
-To: axboe@suse.de
-Cc: god@yinyang.hjsoft.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.15 and GNU 3.0.2
-In-Reply-To: <20011126193256.U5129@suse.de>
-X-Mailer: VM 6.96 under 21.4 (patch 4) "Artificial Intelligence" XEmacs Lucid
-Reply-To: sinisa@mysql.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe writes:
-> On Mon, Nov 26 2001, Sinisa Milivojevic wrote:
 > 
-> YMMV, I've used it quite successfully for testing. Again, the tool set
-> necessary to build kernels is quite adequately documented in Changes.
+> On Mon, 26 Nov 2001, Ian Stirling wrote:
 > 
-> -- 
-> Jens Axboe
+> > However, I for one never run a -pre kernel.
 > 
+> > I don't run -pre, because rightly or wrongly, I've got the impression
+> > that these get even less testing than releases.
+> 
+> I think the opening sentence of your email states
+> the reason for that pretty well.
 
-it could be due to 8139... sources !!
-
-May be you do not have an Ethernet or have not configured kernel for
-it ??
-
-I can  try with 2.4.16 and report the exact kernel panic if you want
-me to ...
-
--- 
-Regards,
-   __  ___     ___ ____  __
-  /  |/  /_ __/ __/ __ \/ /    Mr. Sinisa Milivojevic <sinisa@mysql.com>
- / /|_/ / // /\ \/ /_/ / /__   MySQL AB, Fulltime Developer
-/_/  /_/\_, /___/\___\_\___/   Larnaca, Cyprus
-       <___/   www.mysql.com
-
+Ok, I should have stated that more accurately.
+...and also there is no way to tell how stable it's expected to be.
+If there was a way to say that this was a kernel that seemed stable 
+for the testers, and might be a candidate for a new version. so some
+more testers would be nice, this might be good.

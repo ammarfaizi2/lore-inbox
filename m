@@ -1,63 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264463AbUBRLQ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 06:16:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264473AbUBRLQ1
+	id S264365AbUBRLFU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 06:05:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264372AbUBRLFT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 06:16:27 -0500
-Received: from shockwave.systems.pipex.net ([62.241.160.9]:36330 "EHLO
-	shockwave.systems.pipex.net") by vger.kernel.org with ESMTP
-	id S264463AbUBRLOo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 06:14:44 -0500
-Message-ID: <4033491C.40407@emergence.uk.net>
-Date: Wed, 18 Feb 2004 11:14:36 +0000
-From: Jonathan Brown <jbrown@emergence.uk.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20040205 Thunderbird/0.4
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.3-mm1
-References: <20040217232130.61667965.akpm@osdl.org>
-In-Reply-To: <20040217232130.61667965.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 18 Feb 2004 06:05:19 -0500
+Received: from gate.crashing.org ([63.228.1.57]:12965 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S264365AbUBRLFM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 06:05:12 -0500
+Subject: Re: Radeonfb problem
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Damian Kolkowski <damian@kolkowski.no-ip.org>
+Cc: Kronos <kronos@kronoz.cjb.net>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Sergio Vergata <vergata@stud.fbi.fh-darmstadt.de>
+In-Reply-To: <20040218102613.ALLYOURBASEAREBELONGTOUS.A2246@kolkowski.no-ip.org>
+References: <200402172008.39887.vergata@stud.fbi.fh-darmstadt.de>
+	 <20040217203604.GA19110@dreamland.darkstar.lan>
+	 <20040217211120.ALLYOURBASEAREBELONGTOUS.A8392@kolkowski.no-ip.org>
+	 <20040217213441.GA22103@dreamland.darkstar.lan>
+	 <20040217215738.ALLYOURBASEAREBELONGTOUS.B9706@kolkowski.no-ip.org>
+	 <1077056532.1076.27.camel@gaston>
+	 <20040218102613.ALLYOURBASEAREBELONGTOUS.A2246@kolkowski.no-ip.org>
+Content-Type: text/plain
+Message-Id: <1077102104.20787.3.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 18 Feb 2004 22:01:45 +1100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When I try to startx with this kernel I get this error:
 
-(EE) RADEON(0): shmat() call retruned errno 1013
+> if I use fbset like this:
+> 
+> 	fbset -fb /dev/fb0 -a -depth 32 1024x768-100
+> 
+> my CRT monitor MAG 786FD looks like ths:
+> 
+> |------------|
+> |     |      |
+> |  a  |      |
+> |     |      |
+> |-----|      |
+> |       b    |
+> |            |
+> |------------|
+> 
+> Where "a" is the visual screan after using fbset and "b" is my monitor.
 
-No problem with similar .config on 2.6.3. Can post .config if necessary.
+Ok, I see what you mean. This is not a radeonfb problem at this point.
 
-Jonathan Brown
-http://emergence.uk.net/
+The problem is in the fbcon layer in 2.6 which doesn't adapt to
+resolution changes. I have done some work to fix this but it's
+not completely right yet. I'll submit something to Andrew & Linus
+once I'm happy with it.
 
+The append= you need is radeonfb=, not radeon=
 
-Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.3/2.6.3-mm1/
-> 
-> - Added the dm-crypt driver: a crypto layer for device-mapper.
-> 
->   People need to test and use this please.  There is documentation at
->   http://www.saout.de/misc/dm-crypt/.
-> 
->   We should get this tested and merged up.  We can then remove the nasty
->   bio remapping code from the loop driver.  This will remove the current
->   ordering guarantees which the loop driver provides for journalled
->   filesystems.  ie: ext3 on cryptoloop will no longer be crash-proof.
-> 
->   After that we should remove cryptoloop altogether.
-> 
->   It's a bit late but cyptoloop hasn't been there for long anyway and it
->   doesn't even work right with highmem systems (that part is fixed in -mm).
-> 
-> - Added the fbdev cursor API patch.  Not sure what this does apart from
->   preventing the rivafb driver from linking.  I'll let others decide if this
->   is progress.
-> 
-> - There's a patch here to consolidate the 32->64 compat code for the IPC
->   syscalls.  Needs testing on various 64-bit machines.
-> 
-> - Various random fixes to things.
+I don't think the cursor issue is related at all. And I don't know
+what's up with the firegl binary drivers.
+
+Ben.
+

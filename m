@@ -1,158 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261881AbVBOU5Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261880AbVBOU76@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261881AbVBOU5Q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 15:57:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261888AbVBOU5P
+	id S261880AbVBOU76 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 15:59:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261888AbVBOU5p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 15:57:15 -0500
-Received: from soundwarez.org ([217.160.171.123]:27037 "EHLO soundwarez.org")
-	by vger.kernel.org with ESMTP id S261881AbVBOUxw (ORCPT
+	Tue, 15 Feb 2005 15:57:45 -0500
+Received: from fire.osdl.org ([65.172.181.4]:41630 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261892AbVBOU45 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 15:53:52 -0500
-Date: Tue, 15 Feb 2005 21:53:44 +0100
-From: Kay Sievers <kay.sievers@vrfy.org>
-To: linux-kernel@vger.kernel.org
-Cc: Greg KH <greg@kroah.com>
-Subject: [PATCH ] add "bus" symlink to class/block devices
-Message-ID: <20050215205344.GA1207@vrfy.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+	Tue, 15 Feb 2005 15:56:57 -0500
+Date: Tue, 15 Feb 2005 12:56:52 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andreas Schwab <schwab@suse.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Pty is losing bytes
+In-Reply-To: <je1xbhy3ap.fsf@sykes.suse.de>
+Message-ID: <Pine.LNX.4.58.0502151239160.2330@ppc970.osdl.org>
+References: <jebramy75q.fsf@sykes.suse.de> <Pine.LNX.4.58.0502151053060.5570@ppc970.osdl.org>
+ <je1xbhy3ap.fsf@sykes.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add a "bus" symlink to the class and block devices, just like the "driver"
-and "device" links. This may be a huge speed gain for e.g. udev to determine
-the bus value of a device, as we currently need to do a brute-force scan in
-/sys/bus/* to find this value.
 
-/sys
-|-- block
-|   |-- fd0
-|   |   |-- bus -> ../../bus/platform
-|   |   |-- dev
-|   |   |-- device -> ../../devices/platform/floppy0
-|   |   |-- queue
-|   |   |   |-- iosched
 
-|-- class
-|   |-- net
-|   |   |-- eth0
-|   |   |   |-- addr_len
-|   |   |   |-- address
-|   |   |   |-- broadcast
-|   |   |   |-- bus -> ../../../bus/pci
-|   |   |   |-- carrier
-...
-|   |   |-- ttyS0
-|   |   |   |-- bus -> ../../../bus/pnp
-|   |   |   |-- dev
-|   |   |   |-- device -> ../../../devices/pnp0/00:09
-|   |   |   `-- driver -> ../../../bus/pnp/drivers/serial
-...
-|   |-- sound
-|   |   |-- controlC0
-|   |   |   |-- bus -> ../../../bus/pci
-|   |   |   |-- dev
-|   |   |   |-- device -> ../../../devices/pci0000:00/0000:00:1f.5
-|   |   |   `-- driver -> ../../../bus/pci/drivers/Intel ICH
+On Tue, 15 Feb 2005, Andreas Schwab wrote:
+>
+> Linus Torvalds <torvalds@osdl.org> writes:
+> 
+> > I think it may be a n_tty line discipline bug, brought on by the fact that
+> > the PTY buffering is now 4kB rather than 2kB. 4kB is also the
+> > N_TTY_BUF_SIZE, and if n_tty has some off-by-one error, that would explain 
+> > it.
+> 
+> I've also seen more than one byte missing.  For example when sending a big
+> chunk of bytes down the pty via an Emacs *shell* buffer up to 16 bytes are
+> missing somewhere in the middle.
 
-Signed-off-by: Kay Sievers <kay.sievers@vrfy.org>
+If it's NTTY (and I'm pretty certain it is - the generic tty code looks 
+fine, the pty code itself is too simple for words), then I'd actually have 
+expected more variability than a simple off-by-one. 
 
-===== drivers/base/class.c 1.58 vs edited =====
---- 1.58/drivers/base/class.c	2005-02-05 19:35:12 +01:00
-+++ edited/drivers/base/class.c	2005-02-15 21:31:06 +01:00
-@@ -196,33 +196,33 @@ void class_device_remove_bin_file(struct
- 		sysfs_remove_bin_file(&class_dev->kobj, attr);
- }
- 
--static int class_device_dev_link(struct class_device * class_dev)
-+static void class_device_add_dev_symlinks(struct class_device *class_dev)
- {
--	if (class_dev->dev)
--		return sysfs_create_link(&class_dev->kobj,
--					 &class_dev->dev->kobj, "device");
--	return 0;
--}
-+	if (!class_dev->dev)
-+		return 0;
- 
--static void class_device_dev_unlink(struct class_device * class_dev)
--{
--	sysfs_remove_link(&class_dev->kobj, "device");
--}
-+	sysfs_create_link(&class_dev->kobj, &class_dev->dev->kobj, "device");
- 
--static int class_device_driver_link(struct class_device * class_dev)
--{
--	if ((class_dev->dev) && (class_dev->dev->driver))
--		return sysfs_create_link(&class_dev->kobj,
--					 &class_dev->dev->driver->kobj, "driver");
--	return 0;
-+	if (class_dev->dev->driver)
-+		sysfs_create_link(&class_dev->kobj,
-+				  &class_dev->dev->driver->kobj, "driver");
-+
-+	if (class_dev->dev->bus)
-+		sysfs_create_link(&class_dev->kobj,
-+				  &class_dev->dev->bus->subsys.kset.kobj,
-+				  "bus");
- }
- 
--static void class_device_driver_unlink(struct class_device * class_dev)
-+static void class_device_remove_dev_symlinks(struct class_device *class_dev)
- {
-+	if (!class_dev->dev)
-+		return 0;
-+
-+	sysfs_remove_link(&class_dev->kobj, "device");
- 	sysfs_remove_link(&class_dev->kobj, "driver");
-+	sysfs_remove_link(&class_dev->kobj, "bus");
- }
- 
--
- static ssize_t
- class_device_attr_show(struct kobject * kobj, struct attribute * attr,
- 		       char * buf)
-@@ -452,8 +452,7 @@ int class_device_add(struct class_device
- 		class_device_create_file(class_dev, &class_device_attr_dev);
- 
- 	class_device_add_attrs(class_dev);
--	class_device_dev_link(class_dev);
--	class_device_driver_link(class_dev);
-+	class_device_add_dev_symlinks(class_dev);
- 
-  register_done:
- 	if (error && parent)
-@@ -482,8 +481,7 @@ void class_device_del(struct class_devic
- 		up_write(&parent->subsys.rwsem);
- 	}
- 
--	class_device_dev_unlink(class_dev);
--	class_device_driver_unlink(class_dev);
-+	class_device_remove_dev_symlinks(class_dev);
- 	class_device_remove_attrs(class_dev);
- 
- 	kobject_del(&class_dev->kobj);
-===== fs/partitions/check.c 1.129 vs edited =====
---- 1.129/fs/partitions/check.c	2005-01-31 07:33:40 +01:00
-+++ edited/fs/partitions/check.c	2005-02-15 21:14:43 +01:00
-@@ -318,6 +318,8 @@ static void disk_sysfs_symlinks(struct g
- 	struct device *target = get_device(disk->driverfs_dev);
- 	if (target) {
- 		sysfs_create_link(&disk->kobj,&target->kobj,"device");
-+		if (target->bus)
-+			sysfs_create_link(&disk->kobj,&target->bus->subsys.kset.kobj,"bus");
- 		sysfs_create_link(&target->kobj,&disk->kobj,"block");
- 	}
- }
-@@ -438,6 +440,7 @@ void del_gendisk(struct gendisk *disk)
- 
- 	if (disk->driverfs_dev) {
- 		sysfs_remove_link(&disk->kobj, "device");
-+		sysfs_remove_link(&disk->kobj, "bus");
- 		sysfs_remove_link(&disk->driverfs_dev->kobj, "block");
- 		put_device(disk->driverfs_dev);
- 	}
+I'd have expected the problems to be due to character expansion, ie the
+CR->LF thing etc, and that would have resulted in off-by-N, where N is the
+number of expanded characters in a 4096 byte block. With XTAB, you could
+even have each \t be expanded to 8 space characters on ECHO, and you could
+lose a whole lot more than just one byte at the end.
 
+That's clearly not the case, and I haven't looked into exactly what
+termios settings "forkpty()" uses, so I suspect that it's something else
+than pure expansion on write. There's a lot of things going on in a tty
+driver: the character flow itself, the "backflow" in the form of ECHO, etc
+etc.
+
+Also, there's the interaction with "flushing" the buffer: we do a 
+"flush_chars()" at regular intervals, and that will flush it to the next 
+buffer, which may actually cause things to fit a lot better than they
+would otherwise have fit. In fact, I'd not be at all surprised if this
+thing was timing-dependent too, ie depended on how quickly the reader 
+emptied the other side buffer.
+
+The tty layer is pretty ugly, but in its defense, it has to be said that
+tty handling _is_ one of the more complex parts of traditional UNIX, so 
+the ugliness is at least partly due to the problem space, not just the 
+fact that the code is old.
+
+		Linus

@@ -1,55 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266111AbTLaEeX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Dec 2003 23:34:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266112AbTLaEeX
+	id S266110AbTLaEdd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Dec 2003 23:33:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266111AbTLaEdd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Dec 2003 23:34:23 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:36801 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S266111AbTLaEeN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Dec 2003 23:34:13 -0500
-Message-ID: <3FF251B1.4070404@pobox.com>
-Date: Tue, 30 Dec 2003 23:33:53 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Rusty Russell <rusty@rustcorp.com.au>
-CC: torvalds@osdl.org, akpm@osdl.org, mingo@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] kthread_create
-References: <20031231042016.958DC2C04B@lists.samba.org>
-In-Reply-To: <20031231042016.958DC2C04B@lists.samba.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 30 Dec 2003 23:33:33 -0500
+Received: from pentafluge.infradead.org ([213.86.99.235]:59052 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S266110AbTLaEdc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Dec 2003 23:33:32 -0500
+Subject: Re: 2.6.0: atyfb broken
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: claas@rootdir.de, Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20031230200653.7bc8a8cf.akpm@osdl.org>
+References: <20031230212609.GA4267@rootdir.de>
+	 <20031230200653.7bc8a8cf.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1072845181.716.9.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 31 Dec 2003 15:33:01 +1100
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell wrote:
-> Hi all,
-> 
-> 	Ingo read through this before and liked it: this is the basis
-> of the Hotplug CPU patch, and as such has been stressed fairly well.
-> Tested stand-alone, and included here for wider review.
 
+> Ben, if you could shoot me over a copy of the current linux-fbdev tree that
+> might help things along a bit.
 
-Hey, this is pretty cool.
+linux-fbdev is at bk://fbdev.bkbits.net/fbdev-2.5
 
-Recalling threads from LKML past, there are two mechanisms I (and some 
-others) felt were missing from the equally nifty workqueue stuff:
-1) one-shot threads
-2) keventd overflow
+Some things in there are too crappy though, like the whole gfx-client
+stuff, I suggest you don't merge as-is. I will start sending you
+patches tomorrow hopefully.
 
-For #1, your patch seems to cover that nicely.
-
-For #2, that's to be used for situations where (a) you need a thread 
-context _and_ (b) you simply cannot wait for keventd to become available 
-(since there are no time guarantees).
-
-Anyway, thanks for doing this, it fills a need, I believe.
-
-	Jeff
-
+Ben.
 
 

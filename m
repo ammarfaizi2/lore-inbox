@@ -1,68 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129558AbRBMQuW>; Tue, 13 Feb 2001 11:50:22 -0500
+	id <S129198AbRBMQ6x>; Tue, 13 Feb 2001 11:58:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129937AbRBMQuM>; Tue, 13 Feb 2001 11:50:12 -0500
-Received: from thalia.fm.intel.com ([132.233.247.11]:11788 "EHLO
-	thalia.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S129558AbRBMQt4>; Tue, 13 Feb 2001 11:49:56 -0500
-Message-ID: <D5E932F578EBD111AC3F00A0C96B1E6F07DBE043@orsmsx31.jf.intel.com>
-From: "Dunlap, Randy" <randy.dunlap@intel.com>
-To: "'Elmer Joandi'" <elmer@linking.ee>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: USB mouse jumping
-Date: Tue, 13 Feb 2001 08:49:29 -0800
+	id <S129132AbRBMQ6o>; Tue, 13 Feb 2001 11:58:44 -0500
+Received: from mailhost.mipsys.com ([62.161.177.33]:41928 "EHLO
+	mailhost.mipsys.com") by vger.kernel.org with ESMTP
+	id <S129129AbRBMQ6c>; Tue, 13 Feb 2001 11:58:32 -0500
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Michèl Alexandre Salim 
+	<salimma1@yahoo.co.uk>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: PCI GART (?)
+Date: Tue, 13 Feb 2001 17:58:02 +0100
+Message-Id: <19350108102946.2444@mailhost.mipsys.com>
+In-Reply-To: <E14Sf6W-0001iU-00@the-village.bc.nu>
+In-Reply-To: <E14Sf6W-0001iU-00@the-village.bc.nu>
+X-Mailer: CTM PowerMail 3.0.6 <http://www.ctmdev.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>> I have RTFM but on the matter of enabling DRI for the
+>> ATI Mobility video chipset, which on that notebook is
+>> a PCI model, there is practically nil information. The
+>> DRI website mentions using PCI GART, but there is no
+>> option for that in the kernel. How do I enable this?
+>
+>You need to get XFree86 CVS and really the right place to ask
+>is the XFree86 folks. The standard kernel doesnt include pcigart
 
-> From: Elmer Joandi [mailto:elmer@linking.ee]
-> 
-> On Tue, 13 Feb 2001, Dunlap, Randy wrote:
-> 
-> > If USB mice had serial numbers (like some USB storage devices
-> > do), then we could tell that it's the same mouse on the
-> > same connector and not change from mouse0 to mouse1.
-> > Currently it looks like a new device attachment.
-> > 
-> > One possible solution is for you to use /dev/usb/mice,
-> > which is all USB mice merged into one input stream.
-> 
-> 
-> Please, if it is possible, make it simple and sensible.
-> 
-> if to have true multihead, with 5 keyboards and mice, I would 
-> really wish
-> that the device numbers are connected to physical holes for plugs,
-> otherwise anyone (of schoolchildren for example) can do simple nasty
-> stupid things.
+Michel, FYI, PCI GART is a feature of the video chipset, not the host
+bridge, and so is not directly related to the kernel (there's no generic
+PCI GART driver like there is an AGP GART driver). AFAIK, the only PCI
+GART implementation so far is for rage 128 (or derived, like the M3), and
+is available in the "ati-pcigart-0-0-1-branch" DRI CVS branch. You need
+to compile the DRM inside this X server version, not the kernel one.
 
-It's currently not designed for multihead usage.
-I haven't looked at it much, but I believe that the
-linux-console project is working on that.  (?)
-(http://sourceforge.net/projects/linuxconsole/)
+Ben.
 
-I agree; your suggestion (same physical device on same connector =>
-same logical device) makes sense to me, at least for some
-devices, like mice and keyboards.  For some devices it could
-lead to misuse of the device.
 
-> And also it is the dream for true dumbuser with one mouse, 
-> because it then just works out of box.
-
-Use /dev/input/mice for this case, not /dev/input/mouse0 .
-
-(Ah, I said /dev/usb/mice earlier; should be /dev/input/mice .)
-
-> Or you tell that with USB internal design you can not know physical
-> connector unique number ?
-
-Yes, we can/do know what physical connector a device is attached
-on.
-
-~Randy
 

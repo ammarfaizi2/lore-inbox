@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281006AbRKTJwd>; Tue, 20 Nov 2001 04:52:33 -0500
+	id <S281005AbRKTJzy>; Tue, 20 Nov 2001 04:55:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281005AbRKTJwY>; Tue, 20 Nov 2001 04:52:24 -0500
-Received: from khan.acc.umu.se ([130.239.18.139]:48360 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id <S281004AbRKTJwM>;
-	Tue, 20 Nov 2001 04:52:12 -0500
-Date: Tue, 20 Nov 2001 10:52:10 +0100
-From: David Weinehall <tao@acc.umu.se>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] reformat mtrr.c to conform to CodingStyle
-Message-ID: <20011120105210.A6116@khan.acc.umu.se>
-In-Reply-To: <20011112232539.A14409@redhat.com> <20011113121022.L1778@lynx.no> <20011114085714.V17761@khan.acc.umu.se> <20011120214703.A26799@mail.wave.co.nz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <20011120214703.A26799@mail.wave.co.nz>; from markv@wave.co.nz on Tue, Nov 20, 2001 at 09:47:04PM +1300
+	id <S281010AbRKTJzo>; Tue, 20 Nov 2001 04:55:44 -0500
+Received: from swazi.realnet.co.sz ([196.28.7.2]:7840 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S281005AbRKTJze>; Tue, 20 Nov 2001 04:55:34 -0500
+Date: Tue, 20 Nov 2001 12:01:42 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: <zwane@netfinity.realnet.co.sz>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] one liner to adhere to MP1.4 specifications
+Message-ID: <Pine.LNX.4.33.0111201151550.28443-100000@netfinity.realnet.co.sz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 20, 2001 at 09:47:04PM +1300, Mark van Walraven wrote:
-> On Wed, Nov 14, 2001 at 08:57:14AM +0100, David Weinehall wrote:
-> > 	switch (option) {
-> > 	case 1: 
-> > 		/* blaha */
-> > 
-> > 
-> > That feels kind of odd compared to the rest of the codingstyle.
-> > 
-> > Comments?!
-> 
-> A case statement is a label, therefore "outdented" on level.
+Diffed against 2.4.15-pre6, changes the MP flointing pointer
+struct scanning from the whole 4k of the EBDA to only the first k as
+specified in the MP1.4 spec sheets.
 
-Makes sense, I guess.
+Regards,
+	Zwane Mwaikambo
 
 
-/David
-  _                                                                 _
- // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
-//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
+diff -urb linux-2.4.15-pre6-orig/arch/i386/kernel/mpparse.c linux-2.4.15-pre6-zm/arch/i386/kernel/mpparse.c
+--- linux-2.4.15-pre6-orig/arch/i386/kernel/mpparse.c	Sun Nov 18 15:18:05 2001
++++ linux-2.4.15-pre6-zm/arch/i386/kernel/mpparse.c	Tue Nov 20 11:46:20 2001
+@@ -803,7 +803,7 @@
+
+ 	address = *(unsigned short *)phys_to_virt(0x40E);
+ 	address <<= 4;
+-	smp_scan_config(address, 0x1000);
++	smp_scan_config(address, 0x400);
+ 	if (smp_found_config)
+ 		printk(KERN_WARNING "WARNING: MP table in the EBDA can be UNSAFE, contact linux-smp@vger.kernel.org if you experience SMP problems!\n");
+ }
+

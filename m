@@ -1,110 +1,65 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316723AbSEVUHo>; Wed, 22 May 2002 16:07:44 -0400
+	id <S316724AbSEVUPx>; Wed, 22 May 2002 16:15:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316724AbSEVUHn>; Wed, 22 May 2002 16:07:43 -0400
-Received: from nat9.steeleye.com ([65.114.3.137]:31236 "EHLO
-	fenric.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id <S316723AbSEVUHl>; Wed, 22 May 2002 16:07:41 -0400
-Date: Wed, 22 May 2002 16:06:59 -0400 (EDT)
-From: Paul Clements <kernel@steeleye.com>
-Reply-To: Paul.Clements@steeleye.com
-To: Kirk <kirk@scriptdoggie.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: ipfwadm problems
-In-Reply-To: <017201c201ca$13054810$320e10ac@irvine.hnc.com>
-Message-ID: <Pine.LNX.4.10.10205221601440.31335-100000@clements.sc.steeleye.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316726AbSEVUPw>; Wed, 22 May 2002 16:15:52 -0400
+Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:41221 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S316724AbSEVUPv>;
+	Wed, 22 May 2002 16:15:51 -0400
+Date: Wed, 22 May 2002 13:15:46 -0700
+From: Greg KH <greg@kroah.com>
+To: Andre Bonin <kernel@bonin.ca>
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+        Linux-usb-users@lists.sourceforge.net
+Subject: Re: What to do with all of the USB UHCI drivers in the kernel?
+Message-ID: <20020522201546.GB5168@kroah.com>
+In-Reply-To: <20020520223132.GC25541@kroah.com> <008b01c2012d$69db21c0$0601a8c0@CHERLYN> <20020522192101.GG4802@kroah.com> <3CEBF314.3090209@bonin.ca>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.21 (i586)
+Reply-By: Wed, 24 Apr 2002 18:36:30 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There should still be ipchains support in 2.4.18, maybe not by default, but
-I've got it in my 2.4.18 kernel. You may need to "insmod ipchains", which may
-also require "rmmod iptables" first, depending upon how the kernel is being
-setup at boot time. At any rate, iptables certainly has all the capabilities
-of ipchains plus a lot more (that's why it's so complicated, and why I don't
-use it... :). I don't know if "ipfwadm" will still work (that's old 2.0 kernel
-stuff), but the ipchains command definitely works on 2.4.18:
-
-titan:/usr/src/linux-2.4.18.PRISTINE# ls -l net/ipv4/netfilter/ipchains_core.c 
--rw-r--r--    1 root     root        50368 Apr 29 10:44 net/ipv4/netfilter/ipchains_core.c
-
-titan:/usr/src/linux-2.4.18.PRISTINE# ipchains -L -n
-Chain input (policy ACCEPT):
-target     prot opt     source                destination           ports
-ACCEPT     udp  ------  172.17.4.1           0.0.0.0/0             53 ->   1025:65535
-ACCEPT     udp  ------  172.17.4.7           0.0.0.0/0             53 ->   1025:65535
-icmp       icmp ------  0.0.0.0/0            0.0.0.0/0             * ->   *
-Chain forward (policy ACCEPT):
-Chain output (policy ACCEPT):
-Chain icmp (1 references):
-target     prot opt     source                destination           ports
-ACCEPT     all  ------  0.0.0.0/0            0.0.0.0/0             n/a
-
-titan:/usr/src/linux-2.4.18.PRISTINE# uname -r
-2.4.18
-
-
-Hope that helps.
-
--- 
-Paul Clements
-SteelEye Technology
-Paul.Clements@SteelEye.com
-
-
-
-On Wed, 22 May 2002, Kirk wrote:
-
-> Does iptables have or allow IP Masqurading?  This is really what I'm trying
-> to do as I have a network behind my linux server (acting as a router) and
-> need to forward packets from 192.168.0.x to my WAN port on the same Linux
-> server.  I had this working with ipchains until the upgrade to 2.4.18.
+On Wed, May 22, 2002 at 03:35:48PM -0400, Andre Bonin wrote:
+> >This is probably because you have an OHCI hardware device, not a UHCI
+> >device.  What does 'lspci -v' say for your machine?
 > 
-> Thanks,
-> Kirk
+> Sorry, i'me not too familiar with the USB architecture.  Anyway here is 
+> the relevant lspci entries (note: I did this under my working 2.4.18)
 > 
+> 02:08.0 USB Controller: NEC Corporation USB (rev 41) (prog-if 10 [OHCI])
+>         Subsystem: Unknown device 807d:0035
+>         Flags: bus master, medium devsel, latency 32, IRQ 19
+>         Memory at cd000000 (32-bit, non-prefetchable) [size=4K]
+>         Capabilities: [40] Power Management version 2
 > 
-> ----- Original Message -----
-> From: "Ambrish Verma" <averma@marantinetworks.com>
-> To: <kirk@scriptdoggie.com>
-> Sent: Wednesday, May 22, 2002 12:15 PM
-> Subject: Re: ipfwadm problems
+> 02:08.1 USB Controller: NEC Corporation USB (rev 41) (prog-if 10 [OHCI])
+>         Subsystem: Unknown device 807d:0035
+>         Flags: bus master, medium devsel, latency 32, IRQ 16
+>         Memory at cc800000 (32-bit, non-prefetchable) [size=4K]
+>         Capabilities: [40] Power Management version 2
 > 
-> 
-> In the new kernels ipchains is not included by default (probably if you put
-> some effort you can include it.).
-> There is an alternate for ipchains is available called iptables, with which
-> you should be able to do most of the things you expect from ipchains.
-> 
-> --
-> Ambrish
-> 
-> 
-> "Kirk" <kirk@scriptdoggie.com> wrote in message
-> news:011101c201bd$91ccccc0$320e10ac@irvine.hnc.com...
-> > I'm trying to issue an "ipfwadm" to create ipchains and am getting:
-> >
-> > > Generic IP Firewall Chains not in this kernel
-> >
-> > Looking for help with re-compiling the 2.4.18-2 (latest from CD's 7.3
-> > install).  Can someone point me in the right direction?
-> >
-> > Thanks
-> >
-> >
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> 02:08.2 USB Controller: NEC Corporation USB 2.0 (rev 02) (prog-if 20 [EHCI])
+>         Subsystem: Unknown device 807d:1043
+>         Flags: bus master, medium devsel, latency 32, IRQ 17
+>         Memory at cc000000 (32-bit, non-prefetchable) [size=256]
+>         Capabilities: [40] Power Management version 2
 
+You only have EHCI and OHCI hardware.  No wonder the UHCI drivers do not
+work :)
+
+> >And how does 2.5.17 work for you?
+> 
+> Not too good beacuse I don't have the option of enabling OHCI :)  Are we 
+> still keeping it?
+
+Yes, use the ohci-hcd driver.  Also you can use the ehci-hcd driver if
+you have any USB 2.0 devices, as it looks like you have a USB 2.0
+controller.
+
+thanks,
+
+greg k-h

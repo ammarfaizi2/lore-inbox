@@ -1,41 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311273AbSCSO3Z>; Tue, 19 Mar 2002 09:29:25 -0500
+	id <S311277AbSCSOdZ>; Tue, 19 Mar 2002 09:33:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311277AbSCSO3P>; Tue, 19 Mar 2002 09:29:15 -0500
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:47303 "EHLO
-	zcars04e.ca.nortel.com") by vger.kernel.org with ESMTP
-	id <S311273AbSCSO2y>; Tue, 19 Mar 2002 09:28:54 -0500
-Message-ID: <3C974CF4.BCB3A475@nortelnetworks.com>
-Date: Tue, 19 Mar 2002 09:36:36 -0500
-X-Sybari-Space: 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18 i686)
-X-Accept-Language: en
+	id <S311278AbSCSOdP>; Tue, 19 Mar 2002 09:33:15 -0500
+Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:37542 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S311277AbSCSOdG>; Tue, 19 Mar 2002 09:33:06 -0500
+Date: Tue, 19 Mar 2002 15:32:22 +0100 (MET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+Reply-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Martin Wilck <Martin.Wilck@fujitsu-siemens.com>
+cc: Ingo Molnar <mingo@elte.hu>,
+        Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Severe IRQ problems on Foster (P4 Xeon) system
+In-Reply-To: <Pine.LNX.4.33.0203131912140.1477-100000@biker.pdb.fsc.net>
+Message-ID: <Pine.GSO.3.96.1020319145208.12399I-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
 MIME-Version: 1.0
-To: Pete Cervasio <cervasio@charter.net>
-Cc: Mike Dresser <mdresser_l@windsormachine.com>, linux-kernel@vger.kernel.org
-Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB inConfigure.help
-In-Reply-To: <Pine.LNX.4.44L.0203181535090.2181-100000@imladris.surriel.com> <3.0.3.32.20020319082013.00e41d30@pop.charter.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pete Cervasio wrote:
-> 
-> At 02:00 PM 3/18/2002 -0500, Mike Dresser wrote:
+On Wed, 13 Mar 2002, Martin Wilck wrote:
 
-> >Dunno about that, the S/N ratio on slashdot seems to get into the kB's
-> >somedays.
-> >
-> 
-> Your threshold is set too high.  Read at -1 for megabels.  ;)
+> Where the <== arrow is, the analyzer clearly shows the outb (0x0c, 0x20)
+> operation. After that, we see strange cycles for ~70us (probably special
+> cycles for arbitration, definitely no valid data transfers). The very next bus
+> operation is a read on port 0x21 that reveals the junk value 0x07! The
 
-I think you really mean microbels.....  :)
+ The value is correct as after issuing the poll i8259 command the next
+read cycle to the PIC returns an IRQ level (0x07 = no IRQ active; it
+shouldn't happen here -- 0x80 is expected for active IRQ 0). 
+
+> inb(0x20) call is not captured in our protocol, it must occur long after
+> the error. (We saw normal execution of the above code fragment where
+> there is ~1us between the outb and inb, where it is >120us here).
+
+ Any chance your system uses the ExtINTA mode for the timer IRQ?  This
+would be very weird -- it's the fourth, last attempt to set up the timer
+IRQ, meant not to happen really anytime (and it also means the i8259A
+implementation is buggy, incomplete or is wired incorrectly).  What does
+your bootstrap log contain?
+
+ If that's really the case then the following patch should help -- there
+is a subtle bug in the code indeed, sigh. 
 
 -- 
-Chris Friesen                    | MailStop: 043/33/F10  
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+
+patch-2.4.18-timer_ack-0
+diff -up --recursive --new-file linux-2.4.18.macro/arch/i386/kernel/io_apic.c linux-2.4.18/arch/i386/kernel/io_apic.c
+--- linux-2.4.18.macro/arch/i386/kernel/io_apic.c	Fri Nov 23 15:32:04 2001
++++ linux-2.4.18/arch/i386/kernel/io_apic.c	Tue Mar 19 14:21:35 2002
+@@ -1567,6 +1567,7 @@ static inline void check_timer(void)
+ 
+ 	printk(KERN_INFO "...trying to set up timer as ExtINT IRQ...");
+ 
++	timer_ack = 0;
+ 	init_8259A(0);
+ 	make_8259A_irq(0);
+ 	apic_write_around(APIC_LVT0, APIC_DM_EXTINT);
+

@@ -1,54 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261957AbUBJVc5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 16:32:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262078AbUBJVc5
+	id S261606AbUBJVwW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 16:52:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261731AbUBJVwW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 16:32:57 -0500
-Received: from topaz.cx ([66.220.6.227]:38820 "EHLO mail.topaz.cx")
-	by vger.kernel.org with ESMTP id S261957AbUBJVcv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 16:32:51 -0500
-Date: Tue, 10 Feb 2004 16:32:46 -0500
-From: Chip Salzenberg <chip@pobox.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: 2.6.3-rc2: ACPI's Revenge vs. the Thinkpad A30
-Message-ID: <20040210213246.GA12795@perlsupport.com>
+	Tue, 10 Feb 2004 16:52:22 -0500
+Received: from multivac.one-eyed-alien.net ([64.169.228.101]:2450 "EHLO
+	multivac.one-eyed-alien.net") by vger.kernel.org with ESMTP
+	id S261606AbUBJVwQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Feb 2004 16:52:16 -0500
+Date: Tue, 10 Feb 2004 13:52:13 -0800
+From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+To: Gidon <gidon@warpcore.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel GPL Violations and How to Research
+Message-ID: <20040210215213.GA8092@one-eyed-alien.net>
+Mail-Followup-To: Gidon <gidon@warpcore.org>, linux-kernel@vger.kernel.org
+References: <1076388828.9259.32.camel@CPE-65-26-89-23.kc.rr.com> <20040210192007.GA6987@one-eyed-alien.net> <1076449796.6373.3.camel@CPE-65-26-89-23.kc.rr.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="cNdxnHkX5QqsyA0e"
 Content-Disposition: inline
-X-Message-Flag: OUTLOOK ERROR: Message text violates P.A.T.R.I.O.T. act
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <1076449796.6373.3.camel@CPE-65-26-89-23.kc.rr.com>
+User-Agent: Mutt/1.4.1i
+Organization: One Eyed Alien Networks
+X-Copyright: (C) 2004 Matthew Dharm, all rights reserved.
+X-Message-Flag: Get a real e-mail client.  http://www.mutt.org/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On my very first 2.6 kernel boot, many things worked well.  However, ACPI
-is complaining a fair bit.  Is this (1) a surprise, (2) very bad, (3) already
-fixed in CVS, and/or (4) where?  adTHANKSvance
 
-ACPI-1120: *** Error: Method execution failed [\_SB_.PCI0.LPC_.EC__._INI] (Node e7ea9ce0), AE_NOT_EXIST
-ACPI-1120: *** Error: Method execution failed [\_SB_.PCI0.LPC_.EC__.BAT0._STA] (Node e7ea8500), AE_NOT_EXIST
-ACPI-0098: *** Error: Method execution failed [\_SB_.PCI0.LPC_.EC__.BAT0._STA] (Node e7ea8500), AE_NOT_EXIST
-ACPI-1120: *** Error: Method execution failed [\_SB_.PCI0.LPC_.EC__.BAT1._STA] (Node e7ea8380), AE_NOT_EXIST
-ACPI-0098: *** Error: Method execution failed [\_SB_.PCI0.LPC_.EC__.BAT1._STA] (Node e7ea8380), AE_NOT_EXIST
-ACPI-1120: *** Error: Method execution failed [\_SB_.PCI0.LPC_.EC__.BLID] (Node e7ea1320), AE_NOT_EXIST
-ACPI-1120: *** Error: Method execution failed [\_SB_.PCI0.LPC_.EC__.BLII] (Node e7ea1340), AE_NOT_EXIST
-ACPI-1120: *** Error: Method execution failed [\_SB_.PCI0.LPC_.EC__.BLPC] (Node e7ea1380), AE_NOT_EXIST
-ACPI-1120: *** Error: Method execution failed [\_SB_.PCI0.IDE0.PRIM.SLAV._STA] (Node e7ea1d20), AE_NOT_EXIST
-ACPI-0098: *** Error: Method execution failed [\_SB_.PCI0.IDE0.PRIM.SLAV._STA] (Node e7ea1d20), AE_NOT_EXIST
-ACPI-1120: *** Error: Method execution failed [\_SB_.PCI0.LPC_.EC__.BRID] (Node e7ea1f00), AE_NOT_EXIST
-ACPI-1120: *** Error: Method execution failed [\_SB_.PCI0.LPC_.EC__.BRII] (Node e7ea1f20), AE_NOT_EXIST
-ACPI-1120: *** Error: Method execution failed [\_SB_.PCI0.LPC_.EC__.BRPC] (Node e7ea1f60), AE_NOT_EXIST
-ACPI-1120: *** Error: Method execution failed [\_SB_.PCI0.IDE0.SCND.MSTR._STA] (Node e7ea1ce0), AE_NOT_EXIST
-ACPI-0098: *** Error: Method execution failed [\_SB_.PCI0.IDE0.SCND.MSTR._STA] (Node e7ea1ce0), AE_NOT_EXIST
-ACPI-1120: *** Error: Method execution failed [\_SB_.PCI0.LPC_.EC__.BLID] (Node e7ea1320), AE_NOT_EXIST
-ACPI-1120: *** Error: Method execution failed [\_SB_.PCI0.LPC_.EC__.BLII] (Node e7ea1340), AE_NOT_EXIST
-ACPI-1120: *** Error: Method execution failed [\_SB_.PCI0.LPC_.EC__.BLPC] (Node e7ea1380), AE_NOT_EXIST
-ACPI-1120: *** Error: Method execution failed [\_SB_.PCI0.LPC_.EC__.BSTA] (Node e7ea1580), AE_NOT_EXIST
-ACPI-1120: *** Error: Method execution failed [\_SB_.PCI0.USB0.URTH.UNST._STA] (Node e7ea18c0), AE_NOT_EXIST
-ACPI-0098: *** Error: Method execution failed [\_SB_.PCI0.USB0.URTH.UNST._STA] (Node e7ea18c0), AE_NOT_EXIST
+--cNdxnHkX5QqsyA0e
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
--- 
-Chip Salzenberg               - a.k.a. -               <chip@pobox.com>
-"I wanted to play hopscotch with the impenetrable mystery of existence,
-    but he stepped in a wormhole and had to go in early."  // MST3K
+On Tue, Feb 10, 2004 at 03:49:56PM -0600, Gidon wrote:
+> On Tue, 2004-02-10 at 13:20, Matthew Dharm wrote:
+> > As a final level of analysis, you can always look at the compiled binary
+> > code -- if you think they are using a _reasonably_ compatible compiler,=
+ you
+> > might actually be able to find long sections of identical or near-ident=
+ical
+> > assembly (modulo loop unrolling, etc. which you should be able to ident=
+ify
+> > by hand.)
+>=20
+> Your advice is appreciated. I will do some further research using
+> objdump. I believe they use gcc.
+>=20
+> One thing I am unsure of is how to approach them and ensure at the same
+> time that the problem is taken care of. Another words, if I show them
+> what's wrong, they may simply obfuscate it (although at this time I hope
+> not) and then I have no way to easily prove anything anymore...
+
+Obfuscation can obscure the names of functions, but generally not string
+constants or the structure of functions calling other functions.
+
+Tho, if it comes to that point, you need a lawyer.
+
+Matt
+
+--=20
+Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
+net=20
+Maintainer, Linux USB Mass Storage Driver
+
+What, are you one of those Microsoft-bashing Linux freaks?
+					-- Customer to Greg
+User Friendly, 2/10/1999
+
+--cNdxnHkX5QqsyA0e
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQFAKVKNIjReC7bSPZARAl5NAKCgn5QWUj5nK1oQa9tf9542NvyJ7gCeNX0a
+CEO8iwMmtmfya3CrjQxOd6k=
+=W3Qk
+-----END PGP SIGNATURE-----
+
+--cNdxnHkX5QqsyA0e--

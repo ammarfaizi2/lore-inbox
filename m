@@ -1,103 +1,573 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267363AbUHDRlo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267367AbUHDR4D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267363AbUHDRlo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 13:41:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267364AbUHDRlo
+	id S267367AbUHDR4D (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 13:56:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267366AbUHDRzz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 13:41:44 -0400
-Received: from web81307.mail.yahoo.com ([206.190.37.82]:54351 "HELO
-	web81307.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S267363AbUHDRll (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 13:41:41 -0400
-Message-ID: <20040804174140.81473.qmail@web81307.mail.yahoo.com>
-Date: Wed, 4 Aug 2004 10:41:40 -0700 (PDT)
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-Subject: Re: KVM & mouse wheel
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Marko Macek <Marko.Macek@gmx.net>, Jesper Juhl <juhl-lkml@dif.dk>,
-       Eric Wong <eric@yhbt.net>, LKML <linux-kernel@vger.kernel.org>
+	Wed, 4 Aug 2004 13:55:55 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:51626 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267365AbUHDRza (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Aug 2004 13:55:30 -0400
+Date: Wed, 4 Aug 2004 13:55:19 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@dhcp83-102.boston.redhat.com
+To: Andrew Morton <akpm@osdl.org>
+cc: Arjan Van de Ven <arjanv@redhat.com>, <linux-kernel@vger.kernel.org>,
+       Chris Wright <chrisw@osdl.org>
+Subject: [PATCH] mlock-as-user for 2.6.8-rc2-mm2
+Message-ID: <Pine.LNX.4.44.0408041328240.9630-100000@dhcp83-102.boston.redhat.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="0-1833033864-1091641300=:80988"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---0-1833033864-1091641300=:80988
-Content-Type: text/plain; charset=us-ascii
-Content-Id: 
-Content-Disposition: inline
+Hi Andrew,
 
-Vojtech Pavlik wrote:
-> On Wed, Aug 04, 2004 at 07:38:55AM -0500, Dmitry Torokhov wrote:
-> > On Wednesday 04 August 2004 02:18 am, Vojtech Pavlik wrote:
-> > > On Wed, Aug 04, 2004 at 12:25:19AM -0500, Dmitry Torokhov wrote:
-> > >
-> > > > On Tuesday 03 August 2004 11:29 pm, Marko Macek wrote:
-> > > > > Jesper Juhl wrote:
-> > > > >
-> > > > > > <>I also had problems with my KVM switch and mouse when I
-> initially
-> > > > > > moved to
-> > > > > > 2.6, but adding this kernel boot parameter fixed it, meybe it
-> will help
-> > > > > > you as well : psmouse.proto=imps
-> > > > >
-> > > > > This doesn't help. Only the patch I sent helps me. The problem is
-> that the
-> > > > > even with psmouse.proto=imps or exps, the driver still probes for
-> > > > > synaptics which I
-> > > > > consider a bug.
-> > > > >
-> > > >
-> > > > No it is not - Synaptics with a track-point on a passthrough port
-> will have
-> > > > track-point disabled if it is not reset after probing for imps/exps.
-> > >
-> > > Hmm, does the imps/exps probe succeed in this case?
-> >
-> > No, it does not, at least not mine. It either does bare PS/2 or native,
-> but
-> > there are other Synaptics touchpads that can also do imps.
-> 
-> Ok, so how about issuing a reset when the imps probe fails? That'd take
-> care of all the cases, and I suppose a Synaptics pad that can do imps
-> will not be confused by it.
-> 
+here is the last agreed-on patch that lets normal users mlock
+pages up to their rlimit.  This patch addresses all the issues
+brought up by Chris and Andrea.
 
-Synaptics requires full reset, reset-disable alone is not enough.
-Plus, when synaptics is detected but left in emulation mode, the
-driver does synaptics-specific reset which initializes stuff that
-survives reset-disable (for example it enables gestures so tapping
-is guaranteed to work).
+Please apply this patch for your next release.
 
-Additionally I think it's a good idea to detect hardware regardless
-of the protocol it is using so user can see what he has. 
+thanks,
 
-Anyway, I think that explicitely calling reset-disable after each
-failed probe is a good idea... or maybe not after each probe but just
-once, before probing for generic protocols (imps/exps), like in the
-attached patch.
+Rik
 
---
-Dmitry
+Signed-off-by: Rik van Riel <riel@redhat.com>
 
 
+--- linux-2.6.8-rc2/include/asm-ppc64/resource.h.mlock	2004-07-18 00:58:57.000000000 -0400
++++ linux-2.6.8-rc2/include/asm-ppc64/resource.h	2004-08-04 13:25:33.000000000 -0400
+@@ -45,7 +45,7 @@
+ 	{ RLIM_INFINITY, RLIM_INFINITY },		\
+ 	{             0,             0 },		\
+ 	{      INR_OPEN,     INR_OPEN  },		\
+-	{ RLIM_INFINITY, RLIM_INFINITY },		\
++	{ PAGE_SIZE,     PAGE_SIZE     },		\
+ 	{ RLIM_INFINITY, RLIM_INFINITY },		\
+ 	{ RLIM_INFINITY, RLIM_INFINITY },		\
+ 	{ MAX_SIGPENDING, MAX_SIGPENDING },		\
+--- linux-2.6.8-rc2/include/asm-m68k/resource.h.mlock	2004-07-18 00:57:38.000000000 -0400
++++ linux-2.6.8-rc2/include/asm-m68k/resource.h	2004-08-04 13:25:33.000000000 -0400
+@@ -39,7 +39,7 @@
+ 	{ RLIM_INFINITY, RLIM_INFINITY },		\
+ 	{             0,             0 },		\
+ 	{      INR_OPEN,     INR_OPEN  },		\
+-	{ RLIM_INFINITY, RLIM_INFINITY },		\
++	{ PAGE_SIZE,     PAGE_SIZE     },		\
+ 	{ RLIM_INFINITY, RLIM_INFINITY },		\
+ 	{ RLIM_INFINITY, RLIM_INFINITY },		\
+ 	{ MAX_SIGPENDING, MAX_SIGPENDING },		\
+--- linux-2.6.8-rc2/include/asm-parisc/resource.h.mlock	2004-07-18 00:58:57.000000000 -0400
++++ linux-2.6.8-rc2/include/asm-parisc/resource.h	2004-08-04 13:25:33.000000000 -0400
+@@ -39,7 +39,7 @@
+ 	{ RLIM_INFINITY, RLIM_INFINITY },		\
+ 	{             0,             0 },		\
+ 	{      INR_OPEN,     INR_OPEN  },		\
+-	{ RLIM_INFINITY, RLIM_INFINITY },		\
++	{ PAGE_SIZE,     PAGE_SIZE     },		\
+ 	{ RLIM_INFINITY, RLIM_INFINITY },		\
+ 	{ RLIM_INFINITY, RLIM_INFINITY },		\
+ 	{ MAX_SIGPENDING, MAX_SIGPENDING },		\
+--- linux-2.6.8-rc2/include/asm-ppc/resource.h.mlock	2004-07-18 00:58:21.000000000 -0400
++++ linux-2.6.8-rc2/include/asm-ppc/resource.h	2004-08-04 13:25:33.000000000 -0400
+@@ -36,7 +36,7 @@
+ 	{ RLIM_INFINITY, RLIM_INFINITY },		\
+ 	{             0,             0 },		\
+ 	{      INR_OPEN,     INR_OPEN  },		\
+-	{ RLIM_INFINITY, RLIM_INFINITY },		\
++	{ PAGE_SIZE,     PAGE_SIZE     },		\
+ 	{ RLIM_INFINITY, RLIM_INFINITY },		\
+ 	{ RLIM_INFINITY, RLIM_INFINITY },		\
+ 	{ MAX_SIGPENDING, MAX_SIGPENDING },		\
+--- linux-2.6.8-rc2/include/asm-x86_64/resource.h.mlock	2004-07-18 00:58:57.000000000 -0400
++++ linux-2.6.8-rc2/include/asm-x86_64/resource.h	2004-08-04 13:25:33.000000000 -0400
+@@ -39,7 +39,7 @@
+ 	{ RLIM_INFINITY, RLIM_INFINITY },		\
+ 	{             0,             0 },		\
+ 	{      INR_OPEN,     INR_OPEN  },		\
+-	{ RLIM_INFINITY, RLIM_INFINITY },		\
++	{ PAGE_SIZE , PAGE_SIZE  },		\
+ 	{ RLIM_INFINITY, RLIM_INFINITY },		\
+ 	{ RLIM_INFINITY, RLIM_INFINITY },		\
+ 	{ MAX_SIGPENDING, MAX_SIGPENDING },		\
+--- linux-2.6.8-rc2/include/asm-ia64/resource.h.mlock	2004-07-18 00:59:03.000000000 -0400
++++ linux-2.6.8-rc2/include/asm-ia64/resource.h	2004-08-04 13:25:33.000000000 -0400
+@@ -46,7 +46,7 @@
+ 	{ RLIM_INFINITY, RLIM_INFINITY },		\
+ 	{             0,             0 },		\
+ 	{      INR_OPEN,     INR_OPEN  },		\
+-	{ RLIM_INFINITY, RLIM_INFINITY },		\
++	{ PAGE_SIZE,     PAGE_SIZE     },		\
+ 	{ RLIM_INFINITY, RLIM_INFINITY },		\
+ 	{ RLIM_INFINITY, RLIM_INFINITY },		\
+ 	{ MAX_SIGPENDING, MAX_SIGPENDING },		\
+--- linux-2.6.8-rc2/include/linux/mm.h.mlock	2004-08-04 13:23:15.000000000 -0400
++++ linux-2.6.8-rc2/include/linux/mm.h	2004-08-04 13:25:33.000000000 -0400
+@@ -498,9 +498,20 @@ int shmem_set_policy(struct vm_area_stru
+ struct mempolicy *shmem_get_policy(struct vm_area_struct *vma,
+ 					unsigned long addr);
+ struct file *shmem_file_setup(char * name, loff_t size, unsigned long flags);
+-void shmem_lock(struct file * file, int lock);
++int shmem_lock(struct file * file, int lock, struct user_struct *);
+ int shmem_zero_setup(struct vm_area_struct *);
+ 
++static inline int can_do_mlock(void)
++{
++	if (capable(CAP_IPC_LOCK))
++		return 1;
++	if (current->rlim[RLIMIT_MEMLOCK].rlim_cur != 0)
++		return 1;
++	return 0;
++}
++extern int user_can_mlock(size_t, struct user_struct *);
++extern void user_subtract_mlock(size_t, struct user_struct *);
++
+ /*
+  * Parameter block passed down to zap_pte_range in exceptional cases.
+  */
+--- linux-2.6.8-rc2/include/linux/shm.h.mlock	2004-07-18 00:59:02.000000000 -0400
++++ linux-2.6.8-rc2/include/linux/shm.h	2004-08-04 13:25:33.000000000 -0400
+@@ -84,6 +84,7 @@ struct shmid_kernel /* private to the ke
+ 	time_t			shm_ctim;
+ 	pid_t			shm_cprid;
+ 	pid_t			shm_lprid;
++	struct user_struct *	mlock_user;
+ };
+ 
+ /* shm_mode upper byte flags */
+--- linux-2.6.8-rc2/include/linux/sched.h.mlock	2004-08-04 13:23:17.000000000 -0400
++++ linux-2.6.8-rc2/include/linux/sched.h	2004-08-04 13:25:33.000000000 -0400
+@@ -333,6 +333,7 @@ struct user_struct {
+ 	atomic_t sigpending;	/* How many pending signals does this user have? */
+ 	/* protected by mq_lock	*/
+ 	unsigned long mq_bytes;	/* How many bytes can be allocated to mqueue? */
++	unsigned long locked_shm; /* How many pages of mlocked shm ? */
+ 
+ 	/* Hash table maintenance information */
+ 	struct list_head uidhash_list;
+--- linux-2.6.8-rc2/include/asm-arm/resource.h.mlock	2004-07-18 00:59:06.000000000 -0400
++++ linux-2.6.8-rc2/include/asm-arm/resource.h	2004-08-04 13:25:33.000000000 -0400
+@@ -39,7 +39,7 @@
+ 	{ RLIM_INFINITY, RLIM_INFINITY },	\
+ 	{ 0,             0             },	\
+ 	{ INR_OPEN,      INR_OPEN      },	\
+-	{ RLIM_INFINITY, RLIM_INFINITY },	\
++	{ PAGE_SIZE,      PAGE_SIZE    },	\
+ 	{ RLIM_INFINITY, RLIM_INFINITY },	\
+ 	{ RLIM_INFINITY, RLIM_INFINITY },	\
+ 	{ MAX_SIGPENDING, MAX_SIGPENDING},	\
+--- linux-2.6.8-rc2/include/asm-v850/resource.h.mlock	2004-07-18 00:57:40.000000000 -0400
++++ linux-2.6.8-rc2/include/asm-v850/resource.h	2004-08-04 13:25:33.000000000 -0400
+@@ -39,7 +39,7 @@
+ 	{ RLIM_INFINITY, RLIM_INFINITY },		\
+ 	{             0,             0 },		\
+ 	{      INR_OPEN,     INR_OPEN  },		\
+-	{ RLIM_INFINITY, RLIM_INFINITY },		\
++	{ PAGE_SIZE, PAGE_SIZE  },		\
+ 	{ RLIM_INFINITY, RLIM_INFINITY },		\
+ 	{ RLIM_INFINITY, RLIM_INFINITY },		\
+ 	{ MAX_SIGPENDING, MAX_SIGPENDING },		\
+--- linux-2.6.8-rc2/include/asm-sparc/resource.h.mlock	2004-07-18 00:57:42.000000000 -0400
++++ linux-2.6.8-rc2/include/asm-sparc/resource.h	2004-08-04 13:25:33.000000000 -0400
+@@ -44,7 +44,7 @@
+     {       0, RLIM_INFINITY},		\
+     {RLIM_INFINITY, RLIM_INFINITY},	\
+     {INR_OPEN, INR_OPEN}, {0, 0},	\
+-    {RLIM_INFINITY, RLIM_INFINITY},	\
++    {PAGE_SIZE, PAGE_SIZE},	\
+     {RLIM_INFINITY, RLIM_INFINITY},	\
+     {RLIM_INFINITY, RLIM_INFINITY},	\
+     {MAX_SIGPENDING, MAX_SIGPENDING},	\
+--- linux-2.6.8-rc2/include/asm-alpha/resource.h.mlock	2004-07-18 00:57:41.000000000 -0400
++++ linux-2.6.8-rc2/include/asm-alpha/resource.h	2004-08-04 13:25:33.000000000 -0400
+@@ -41,7 +41,7 @@
+     {INR_OPEN, INR_OPEN},			/* RLIMIT_NOFILE */	\
+     {LONG_MAX, LONG_MAX},			/* RLIMIT_AS */		\
+     {LONG_MAX, LONG_MAX},			/* RLIMIT_NPROC */	\
+-    {LONG_MAX, LONG_MAX},			/* RLIMIT_MEMLOCK */	\
++    {PAGE_SIZE, PAGE_SIZE},			/* RLIMIT_MEMLOCK */	\
+     {LONG_MAX, LONG_MAX},			/* RLIMIT_LOCKS */	\
+     {MAX_SIGPENDING, MAX_SIGPENDING},		/* RLIMIT_SIGPENDING */ \
+     {MQ_BYTES_MAX, MQ_BYTES_MAX},		/* RLIMIT_MSGQUEUE */	\
+--- linux-2.6.8-rc2/include/asm-i386/resource.h.mlock	2004-07-18 00:59:32.000000000 -0400
++++ linux-2.6.8-rc2/include/asm-i386/resource.h	2004-08-04 13:25:33.000000000 -0400
+@@ -40,7 +40,7 @@
+ 	{ RLIM_INFINITY, RLIM_INFINITY },		\
+ 	{             0,             0 },		\
+ 	{      INR_OPEN,     INR_OPEN  },		\
+-	{ RLIM_INFINITY, RLIM_INFINITY },		\
++	{ PAGE_SIZE,     PAGE_SIZE     },		\
+ 	{ RLIM_INFINITY, RLIM_INFINITY },		\
+ 	{ RLIM_INFINITY, RLIM_INFINITY },		\
+ 	{ MAX_SIGPENDING, MAX_SIGPENDING },		\
+--- linux-2.6.8-rc2/include/asm-h8300/resource.h.mlock	2004-07-18 00:57:40.000000000 -0400
++++ linux-2.6.8-rc2/include/asm-h8300/resource.h	2004-08-04 13:25:33.000000000 -0400
+@@ -39,7 +39,7 @@
+ 	{ RLIM_INFINITY, RLIM_INFINITY },		\
+ 	{             0,             0 },		\
+ 	{      INR_OPEN,     INR_OPEN  },		\
+-	{ RLIM_INFINITY, RLIM_INFINITY },		\
++	{ PAGE_SIZE,     PAGE_SIZE     },		\
+ 	{ RLIM_INFINITY, RLIM_INFINITY },		\
+ 	{ RLIM_INFINITY, RLIM_INFINITY },		\
+ 	{ MAX_SIGPENDING, MAX_SIGPENDING },		\
+--- linux-2.6.8-rc2/include/asm-s390/resource.h.mlock	2004-07-18 00:58:13.000000000 -0400
++++ linux-2.6.8-rc2/include/asm-s390/resource.h	2004-08-04 13:25:33.000000000 -0400
+@@ -47,7 +47,7 @@
+ 	{ RLIM_INFINITY, RLIM_INFINITY },		\
+ 	{             0,             0 },		\
+ 	{ INR_OPEN, INR_OPEN },                         \
+-	{ RLIM_INFINITY, RLIM_INFINITY },		\
++	{ PAGE_SIZE,     PAGE_SIZE     },		\
+ 	{ RLIM_INFINITY, RLIM_INFINITY },		\
+ 	{ RLIM_INFINITY, RLIM_INFINITY },		\
+ 	{ MAX_SIGPENDING, MAX_SIGPENDING },		\
+--- linux-2.6.8-rc2/include/asm-cris/resource.h.mlock	2004-07-18 00:58:54.000000000 -0400
++++ linux-2.6.8-rc2/include/asm-cris/resource.h	2004-08-04 13:25:33.000000000 -0400
+@@ -39,7 +39,7 @@
+ 	{ RLIM_INFINITY, RLIM_INFINITY },		\
+ 	{             0,             0 },		\
+ 	{      INR_OPEN,     INR_OPEN  },		\
+-	{ RLIM_INFINITY, RLIM_INFINITY },               \
++	{     PAGE_SIZE,    PAGE_SIZE  },               \
+ 	{ RLIM_INFINITY, RLIM_INFINITY },		\
+ 	{ RLIM_INFINITY, RLIM_INFINITY },		\
+ 	{ MAX_SIGPENDING, MAX_SIGPENDING },		\
+--- linux-2.6.8-rc2/include/asm-sparc64/resource.h.mlock	2004-07-18 00:57:38.000000000 -0400
++++ linux-2.6.8-rc2/include/asm-sparc64/resource.h	2004-08-04 13:25:33.000000000 -0400
+@@ -43,7 +43,7 @@
+     {       0, RLIM_INFINITY},		\
+     {RLIM_INFINITY, RLIM_INFINITY},	\
+     {INR_OPEN, INR_OPEN}, {0, 0},	\
+-    {RLIM_INFINITY, RLIM_INFINITY},	\
++    {PAGE_SIZE,     PAGE_SIZE    },	\
+     {RLIM_INFINITY, RLIM_INFINITY},	\
+     {RLIM_INFINITY, RLIM_INFINITY},	\
+     {MAX_SIGPENDING, MAX_SIGPENDING},	\
+--- linux-2.6.8-rc2/include/asm-arm26/resource.h.mlock	2004-07-18 00:57:38.000000000 -0400
++++ linux-2.6.8-rc2/include/asm-arm26/resource.h	2004-08-04 13:25:33.000000000 -0400
+@@ -39,7 +39,7 @@
+ 	{ RLIM_INFINITY, RLIM_INFINITY },	\
+ 	{ 0,             0             },	\
+ 	{ INR_OPEN,      INR_OPEN      },	\
+-	{ RLIM_INFINITY, RLIM_INFINITY },	\
++	{ PAGE_SIZE,     PAGE_SIZE     },	\
+ 	{ RLIM_INFINITY, RLIM_INFINITY },	\
+ 	{ RLIM_INFINITY, RLIM_INFINITY },	\
+ 	{ MAX_SIGPENDING, MAX_SIGPENDING},	\
+--- linux-2.6.8-rc2/include/asm-sh/resource.h.mlock	2004-07-18 00:58:54.000000000 -0400
++++ linux-2.6.8-rc2/include/asm-sh/resource.h	2004-08-04 13:25:33.000000000 -0400
+@@ -39,7 +39,7 @@
+ 	{ RLIM_INFINITY, RLIM_INFINITY },		\
+ 	{             0,             0 },		\
+ 	{      INR_OPEN,     INR_OPEN  },		\
+-	{ RLIM_INFINITY, RLIM_INFINITY },		\
++	{ PAGE_SIZE,     PAGE_SIZE     },		\
+ 	{ RLIM_INFINITY, RLIM_INFINITY },		\
+ 	{ RLIM_INFINITY, RLIM_INFINITY },		\
+ 	{ MAX_SIGPENDING, MAX_SIGPENDING },		\
+--- linux-2.6.8-rc2/fs/hugetlbfs/inode.c.mlock	2004-08-04 13:23:11.000000000 -0400
++++ linux-2.6.8-rc2/fs/hugetlbfs/inode.c	2004-08-04 13:27:11.000000000 -0400
+@@ -742,7 +742,7 @@ static int can_do_hugetlb_shm(void)
+ 
+ struct file *hugetlb_zero_setup(size_t size)
+ {
+-	int error;
++	int error = -ENOMEM;
+ 	struct file *file;
+ 	struct inode *inode;
+ 	struct dentry *dentry, *root;
+@@ -755,6 +755,9 @@ struct file *hugetlb_zero_setup(size_t s
+ 	if (!is_hugepage_mem_enough(size))
+ 		return ERR_PTR(-ENOMEM);
+ 
++	if (!user_can_mlock(size, current->user))
++		return ERR_PTR(-ENOMEM);
++
+ 	root = hugetlbfs_vfsmount->mnt_root;
+ 	snprintf(buf, 16, "%lu", hugetlbfs_counter());
+ 	quick_string.name = buf;
+@@ -762,7 +765,7 @@ struct file *hugetlb_zero_setup(size_t s
+ 	quick_string.hash = 0;
+ 	dentry = d_alloc(root, &quick_string);
+ 	if (!dentry)
+-		return ERR_PTR(-ENOMEM);
++		goto out_subtract_mlock;
+ 
+ 	error = -ENFILE;
+ 	file = get_empty_filp();
+@@ -789,6 +792,8 @@ out_file:
+ 	put_filp(file);
+ out_dentry:
+ 	dput(dentry);
++out_subtract_mlock:
++	user_subtract_mlock(size, current->user);
+ 	return ERR_PTR(error);
+ }
+ 
+--- linux-2.6.8-rc2/kernel/user.c.mlock	2004-07-18 00:58:20.000000000 -0400
++++ linux-2.6.8-rc2/kernel/user.c	2004-08-04 13:25:33.000000000 -0400
+@@ -32,7 +32,8 @@ struct user_struct root_user = {
+ 	.processes	= ATOMIC_INIT(1),
+ 	.files		= ATOMIC_INIT(0),
+ 	.sigpending	= ATOMIC_INIT(0),
+-	.mq_bytes	= 0
++	.mq_bytes	= 0,
++	.locked_shm     = 0
+ };
+ 
+ /*
+@@ -113,6 +114,7 @@ struct user_struct * alloc_uid(uid_t uid
+ 		atomic_set(&new->sigpending, 0);
+ 
+ 		new->mq_bytes = 0;
++		new->locked_shm = 0;
+ 
+ 		/*
+ 		 * Before adding this, check whether we raced
+--- linux-2.6.8-rc2/ipc/shm.c.mlock	2004-08-04 13:23:18.000000000 -0400
++++ linux-2.6.8-rc2/ipc/shm.c	2004-08-04 13:25:33.000000000 -0400
+@@ -114,7 +114,10 @@ static void shm_destroy (struct shmid_ke
+ 	shm_rmid (shp->id);
+ 	shm_unlock(shp);
+ 	if (!is_file_hugepages(shp->shm_file))
+-		shmem_lock(shp->shm_file, 0);
++		shmem_lock(shp->shm_file, 0, shp->mlock_user);
++	else
++		user_subtract_mlock(shp->shm_file->f_dentry->d_inode->i_size,
++						shp->mlock_user);
+ 	fput (shp->shm_file);
+ 	security_shm_free(shp);
+ 	ipc_rcu_putref(shp);
+@@ -190,6 +193,7 @@ static int newseg (key_t key, int shmflg
+ 
+ 	shp->shm_perm.key = key;
+ 	shp->shm_flags = (shmflg & S_IRWXUGO);
++	shp->mlock_user = NULL;
+ 
+ 	shp->shm_perm.security = NULL;
+ 	error = security_shm_alloc(shp);
+@@ -198,9 +202,11 @@ static int newseg (key_t key, int shmflg
+ 		return error;
+ 	}
+ 
+-	if (shmflg & SHM_HUGETLB)
++	if (shmflg & SHM_HUGETLB) {
++		/* hugetlb_zero_setup takes care of mlock user accounting */
+ 		file = hugetlb_zero_setup(size);
+-	else {
++		shp->mlock_user = current->user;
++	} else {
+ 		sprintf (name, "SYSV%08x", key);
+ 		file = shmem_file_setup(name, size, VM_ACCOUNT);
+ 	}
+@@ -504,14 +510,11 @@ asmlinkage long sys_shmctl (int shmid, i
+ 	case SHM_LOCK:
+ 	case SHM_UNLOCK:
+ 	{
+-/* Allow superuser to lock segment in memory */
+-/* Should the pages be faulted in here or leave it to user? */
+-/* need to determine interaction with current->swappable */
+-		if (!capable(CAP_IPC_LOCK)) {
++		/* Allow superuser to lock segment in memory */
++		if (!can_do_mlock() && cmd == SHM_LOCK) {
+ 			err = -EPERM;
+ 			goto out;
+ 		}
+-
+ 		shp = shm_lock(shmid);
+ 		if(shp==NULL) {
+ 			err = -EINVAL;
+@@ -526,13 +529,18 @@ asmlinkage long sys_shmctl (int shmid, i
+ 			goto out_unlock;
+ 		
+ 		if(cmd==SHM_LOCK) {
+-			if (!is_file_hugepages(shp->shm_file))
+-				shmem_lock(shp->shm_file, 1);
+-			shp->shm_flags |= SHM_LOCKED;
+-		} else {
+-			if (!is_file_hugepages(shp->shm_file))
+-				shmem_lock(shp->shm_file, 0);
++			struct user_struct * user = current->user;
++			if (!is_file_hugepages(shp->shm_file)) {
++				err = shmem_lock(shp->shm_file, 1, current->user);
++				if (!err) {
++					shp->shm_flags |= SHM_LOCKED;
++					shp->mlock_user = user;
++				}
++			}
++		} else if (!is_file_hugepages(shp->shm_file)) {
++			shmem_lock(shp->shm_file, 0, shp->mlock_user);
+ 			shp->shm_flags &= ~SHM_LOCKED;
++			shp->mlock_user = NULL;
+ 		}
+ 		shm_unlock(shp);
+ 		goto out;
+--- linux-2.6.8-rc2/mm/mlock.c.mlock	2004-07-18 00:57:40.000000000 -0400
++++ linux-2.6.8-rc2/mm/mlock.c	2004-08-04 13:25:33.000000000 -0400
+@@ -60,7 +60,7 @@ static int do_mlock(unsigned long start,
+ 	struct vm_area_struct * vma, * next;
+ 	int error;
+ 
+-	if (on && !capable(CAP_IPC_LOCK))
++	if (on && !can_do_mlock())
+ 		return -EPERM;
+ 	len = PAGE_ALIGN(len);
+ 	end = start + len;
+@@ -118,7 +118,7 @@ asmlinkage long sys_mlock(unsigned long 
+ 	lock_limit >>= PAGE_SHIFT;
+ 
+ 	/* check against resource limits */
+-	if (locked <= lock_limit)
++	if ( (locked <= lock_limit) || capable(CAP_IPC_LOCK))
+ 		error = do_mlock(start, len, 1);
+ 	up_write(&current->mm->mmap_sem);
+ 	return error;
+@@ -142,7 +142,7 @@ static int do_mlockall(int flags)
+ 	unsigned int def_flags;
+ 	struct vm_area_struct * vma;
+ 
+-	if (!capable(CAP_IPC_LOCK))
++	if (!can_do_mlock())
+ 		return -EPERM;
+ 
+ 	def_flags = 0;
+@@ -177,7 +177,7 @@ asmlinkage long sys_mlockall(int flags)
+ 	lock_limit >>= PAGE_SHIFT;
+ 
+ 	ret = -ENOMEM;
+-	if (current->mm->total_vm <= lock_limit)
++	if ((current->mm->total_vm <= lock_limit) || capable(CAP_IPC_LOCK))
+ 		ret = do_mlockall(flags);
+ out:
+ 	up_write(&current->mm->mmap_sem);
+@@ -193,3 +193,36 @@ asmlinkage long sys_munlockall(void)
+ 	up_write(&current->mm->mmap_sem);
+ 	return ret;
+ }
++
++/*
++ * Objects with different lifetime than processes (mlocked shm segments
++ * and hugetlb files) get accounted against the user_struct instead. 
++ */
++static spinlock_t mlock_user_lock = SPIN_LOCK_UNLOCKED;
++
++int user_can_mlock(size_t size, struct user_struct * user)
++{
++	unsigned long lock_limit, locked;
++	int allowed = 0;
++
++	spin_lock(&mlock_user_lock);
++	locked = size >> PAGE_SHIFT;
++	lock_limit = current->rlim[RLIMIT_MEMLOCK].rlim_cur;
++	lock_limit >>= PAGE_SHIFT;
++	if (locked + user->locked_shm > lock_limit)
++		goto out;
++	get_uid(user);
++	user->locked_shm += locked;
++	allowed = 1;
++out:
++	spin_unlock(&mlock_user_lock);
++	return allowed;
++}
++
++void user_subtract_mlock(size_t size, struct user_struct * user)
++{
++	spin_lock(&mlock_user_lock);
++	user->locked_shm -= (size >> PAGE_SHIFT);
++	spin_unlock(&mlock_user_lock);
++	free_uid(user);
++}
+--- linux-2.6.8-rc2/mm/mmap.c.mlock	2004-08-04 13:23:18.000000000 -0400
++++ linux-2.6.8-rc2/mm/mmap.c	2004-08-04 13:25:33.000000000 -0400
+@@ -796,15 +796,17 @@ unsigned long do_mmap_pgoff(struct file 
+ 			mm->def_flags | VM_MAYREAD | VM_MAYWRITE | VM_MAYEXEC;
+ 
+ 	if (flags & MAP_LOCKED) {
+-		if (!capable(CAP_IPC_LOCK))
++		if (!can_do_mlock())
+ 			return -EPERM;
+ 		vm_flags |= VM_LOCKED;
+ 	}
+ 	/* mlock MCL_FUTURE? */
+ 	if (vm_flags & VM_LOCKED) {
+-		unsigned long locked = mm->locked_vm << PAGE_SHIFT;
++		unsigned long locked, lock_limit;
++		locked = mm->locked_vm << PAGE_SHIFT;
++		lock_limit = current->rlim[RLIMIT_MEMLOCK].rlim_cur;
+ 		locked += len;
+-		if (locked > current->rlim[RLIMIT_MEMLOCK].rlim_cur)
++		if (locked > lock_limit && !capable(CAP_IPC_LOCK))
+ 			return -EAGAIN;
+ 	}
+ 
+@@ -1723,9 +1725,11 @@ unsigned long do_brk(unsigned long addr,
+ 	 * mlock MCL_FUTURE?
+ 	 */
+ 	if (mm->def_flags & VM_LOCKED) {
+-		unsigned long locked = mm->locked_vm << PAGE_SHIFT;
++		unsigned long locked, lock_limit;
++		locked = mm->locked_vm << PAGE_SHIFT;
++		lock_limit = current->rlim[RLIMIT_MEMLOCK].rlim_cur;
+ 		locked += len;
+-		if (locked > current->rlim[RLIMIT_MEMLOCK].rlim_cur)
++		if (locked > lock_limit && !capable(CAP_IPC_LOCK))
+ 			return -EAGAIN;
+ 	}
+ 
+--- linux-2.6.8-rc2/mm/mremap.c.mlock	2004-07-18 00:58:37.000000000 -0400
++++ linux-2.6.8-rc2/mm/mremap.c	2004-08-04 13:25:33.000000000 -0400
+@@ -324,10 +324,12 @@ unsigned long do_mremap(unsigned long ad
+ 			goto out;
+ 	}
+ 	if (vma->vm_flags & VM_LOCKED) {
+-		unsigned long locked = current->mm->locked_vm << PAGE_SHIFT;
++		unsigned long locked, lock_limit;
++		locked = current->mm->locked_vm << PAGE_SHIFT;
++		lock_limit = current->rlim[RLIMIT_MEMLOCK].rlim_cur;
+ 		locked += new_len - old_len;
+ 		ret = -EAGAIN;
+-		if (locked > current->rlim[RLIMIT_MEMLOCK].rlim_cur)
++		if (locked > lock_limit && !capable(CAP_IPC_LOCK))
+ 			goto out;
+ 	}
+ 	ret = -ENOMEM;
+--- linux-2.6.8-rc2/mm/shmem.c.mlock	2004-08-04 13:23:18.000000000 -0400
++++ linux-2.6.8-rc2/mm/shmem.c	2004-08-04 13:25:33.000000000 -0400
+@@ -1151,17 +1151,29 @@ shmem_get_policy(struct vm_area_struct *
+ }
+ #endif
+ 
+-void shmem_lock(struct file *file, int lock)
++int shmem_lock(struct file *file, int lock, struct user_struct * user)
+ {
+ 	struct inode *inode = file->f_dentry->d_inode;
+ 	struct shmem_inode_info *info = SHMEM_I(inode);
++	int retval = -ENOMEM;
++
++	if (lock && !can_do_mlock())
++		return -EPERM;
+ 
+ 	spin_lock(&info->lock);
+-	if (lock)
++	if (lock && !(info->flags & VM_LOCKED)) {
++		if (!user_can_mlock(inode->i_size, user) && !capable(CAP_IPC_LOCK))
++			goto out_nomem;
+ 		info->flags |= VM_LOCKED;
+-	else
++	}
++	if (!lock && (info->flags & VM_LOCKED) && user) {
++		user_subtract_mlock(inode->i_size, user);
+ 		info->flags &= ~VM_LOCKED;
++	}
++	retval = 0;
++out_nomem:
+ 	spin_unlock(&info->lock);
++	return retval;
+ }
+ 
+ static int shmem_mmap(struct file *file, struct vm_area_struct *vma)
 
---0-1833033864-1091641300=:80988
-Content-Type: application/octet-stream; name="psmouse-probe.patch"
-Content-Transfer-Encoding: base64
-Content-Description: psmouse-probe.patch
-Content-Disposition: attachment; filename="psmouse-probe.patch"
 
-LS0tIGxpbnV4LTIuNi43L2RyaXZlcnMvaW5wdXQvbW91c2UvcHNtb3VzZS1i
-YXNlLmMub3JpZwkyMDA0LTA4LTA0IDEyOjMwOjU1Ljk4NTgwNjQwMCAtMDUw
-MAorKysgbGludXgtMi42LjcvZHJpdmVycy9pbnB1dC9tb3VzZS9wc21vdXNl
-LWJhc2UuYwkyMDA0LTA4LTA0IDEyOjM0OjE1LjM5MjUzOTIwMCAtMDUwMApA
-QCAtNDYxLDYgKzQ2MSwxMiBAQAogCQkJcmV0dXJuIHR5cGU7CiAJfQogCisv
-KgorICogUmVzZXQgdG8gZGVmYXVsdHMgaW4gY2FzZSB0aGUgZGV2aWNlIGdv
-dCBjb25mdXNlZCBieSBleHRlbmRlZAorICogcHJvdG9jb2wgcHJvYmVzLgor
-ICovCisJcHNtb3VzZV9jb21tYW5kKHBzbW91c2UsIE5VTEwsIFBTTU9VU0Vf
-Q01EX1JFU0VUX0RJUyk7CisKIAlpZiAobWF4X3Byb3RvID49IFBTTU9VU0Vf
-SU1FWCAmJiBpbV9leHBsb3Jlcl9kZXRlY3QocHNtb3VzZSkpIHsKIAogCQlp
-ZiAoc2V0X3Byb3BlcnRpZXMpIHsK
-
---0-1833033864-1091641300=:80988--

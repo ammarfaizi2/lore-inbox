@@ -1,65 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265118AbUELQU3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265121AbUELQ1a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265118AbUELQU3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 12:20:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265119AbUELQU3
+	id S265121AbUELQ1a (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 12:27:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265124AbUELQ1a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 12:20:29 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:7149 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S265118AbUELQU2 (ORCPT
+	Wed, 12 May 2004 12:27:30 -0400
+Received: from mail.kroah.org ([65.200.24.183]:49860 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265121AbUELQ13 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 12:20:28 -0400
-Subject: Re: 2.6.6-rc3-mm2 (4KSTACK)
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.3.96.1040512115750.23213A-100000@gatekeeper.tmr.com>
-References: <Pine.LNX.3.96.1040512115750.23213A-100000@gatekeeper.tmr.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-/77voU8SX4pn3etKT7GN"
-Organization: Red Hat UK
-Message-Id: <1084378819.10949.0.camel@laptop.fenrus.com>
+	Wed, 12 May 2004 12:27:29 -0400
+Date: Wed, 12 May 2004 09:26:48 -0700
+From: Greg KH <greg@kroah.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.6 breaks my Logitech USB mouse
+Message-ID: <20040512162648.GB12270@kroah.com>
+References: <20040512131306.GA241@fefe.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 12 May 2004 18:20:19 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040512131306.GA241@fefe.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, May 12, 2004 at 03:13:06PM +0200, Felix von Leitner wrote:
+> 
+> 2.6.6 never reaches the "input: " line.  What gives?
 
---=-/77voU8SX4pn3etKT7GN
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Don't know, can you enable CONFIG_USB_DEBUG and send the kernel log to
+the linux-usb-devel mailing list?
 
+thanks,
 
-> > "4KSTACKS" already is present in the module version string.
-> >=20
-> > And Fedora is shipping now with 4k stacks, so presumably any disasters
-> > are relatively uncommon...
->=20
-> Fedora and kernel.org have a lot of unshared bugs and features,
-> unfortunately. I take that information as an encouraging proof of concept=
-,
-> not a waranty that the kernel.org code will behave in a similar way.
-
-Hey! That's slander of title! :-)
-Seriously the difference between the Fedora Core 2 kernel and the
-matching kernel.org kernel aren't THAT big. The 4g/4g split patch being
-the biggest delta.
-
-
---=-/77voU8SX4pn3etKT7GN
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBAok7CxULwo51rQBIRAl+bAKCOVn0OhXv6N+HatZ43os69HFx+YACgiI6a
-LKcwRKUIdJBPVbEGBlmsTg8=
-=V1tm
------END PGP SIGNATURE-----
-
---=-/77voU8SX4pn3etKT7GN--
-
+greg k-h

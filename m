@@ -1,66 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266999AbSKSQ6f>; Tue, 19 Nov 2002 11:58:35 -0500
+	id <S267013AbSKSRAE>; Tue, 19 Nov 2002 12:00:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267010AbSKSQ6f>; Tue, 19 Nov 2002 11:58:35 -0500
-Received: from rwcrmhc52.attbi.com ([216.148.227.88]:15314 "EHLO
-	rwcrmhc52.attbi.com") by vger.kernel.org with ESMTP
-	id <S266999AbSKSQ6T>; Tue, 19 Nov 2002 11:58:19 -0500
-Message-ID: <3DDA74D2.6080802@kegel.com>
-Date: Tue, 19 Nov 2002 09:28:50 -0800
-From: Dan Kegel <dank@kegel.com>
-User-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows 98)
-X-Accept-Language: de-de, en
-MIME-Version: 1.0
-To: Grant Taylor <gtaylor+lkml_ihdeh111902@picante.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [rfc] epoll interface change and glibc bits ...
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S267010AbSKSRAE>; Tue, 19 Nov 2002 12:00:04 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:8428 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S267013AbSKSRAC>; Tue, 19 Nov 2002 12:00:02 -0500
+Date: Tue, 19 Nov 2002 18:07:00 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Alan Cox <alan@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.20-rc2-ac1
+Message-ID: <20021119170659.GS11952@fs.tum.de>
+References: <200211191619.gAJGJAc08042@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200211191619.gAJGJAc08042@devserv.devel.redhat.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Grant Taylor wrote:
-> Meanwhile, in the more important caveat department (Dan, this will
-> appeal to you), I found a while back that signals cause pain with
-> epoll.
-> 
-> For example, sometimes TCP reads return EAGAIN when in fact they have
-> data.  This seems to stem from the case where the signal is found
-> before the first segment copy (from tcp.c circa 1425, there's even a
-> handy FIXME note there).  If you use epoll and get an EAGAIN, you have
-> no idea if it was a signal or a real empty socket unless you are also
-> very careful to notice when you got a signal during the read.
- > ...
-> 		/* We need to check signals first, to get correct SIGURG
-> 		 * handling. FIXME: Need to check this doesnt impact 1003.1g
-> 		 * and move it down to the bottom of the loop
-> 		 */
-> 		if (signal_pending(current)) {
-> 			if (copied)
-> 				break;
-> 			copied = timeo ? sock_intr_errno(timeo) : -EAGAIN;
-> 			break;
-> 		}
+FYI:
 
-eek!  Thanks for noticing that!
+hd.c still doesn't compile:
 
-Jamie wrote:
+<--  snip  -->
 
-> Mark's right, it should be EINTR.  EAGAIN shouldn't break any
-> single-thread user state machines using poll/select, as a non-blocking
-> read is always allowed to return EAGAIN for any transient reason.
-> 
-> I'm not sure if EAGAIN can cause a poll() wakeup event to be missed.
-> If so, that would be a TCP bug that breaks epoll, and it would also
-> break some user state machines using poll/select, when there are
-> multiple processes waiting on a socket.
+...
+gcc -D__KERNEL__ -I/home/bunk/linux/kernel-2.4/linux-2.4.19-full/include
+-Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing
+-fno-common -pipe -mpreferred-stack-boundary=2 -march=k6  -I../
+-nostdinc -iwithprefix include -DKBUILD_BASENAME=hd  -c -o hd.o hd.c
+hd.c:78: conflicting types for `recal_intr'
+/home/bunk/linux/kernel-2.4/linux-2.4.19-full/include/linux/ide.h:1487:
+previous declaration of `recal_intr'
+hd.c: In function `dump_status':
+hd.c:171: `QUEUE_EMPTY' undeclared (first use in this function)
+hd.c:171: (Each undeclared identifier is reported only once
+hd.c:171: for each function it appears in.)
+hd.c:171: `CURRENT' undeclared (first use in this function)
+hd.c:169: warning: `devc' might be used uninitialized in this function
+...
+make[4]: *** [hd.o] Error 1
+make[4]: Leaving directory
+`/home/bunk/linux/kernel-2.4/linux-2.4.19-full/drivers/ide/legacy'
 
-I guess we should scour the sources looking for ways read() and write()
-can return EAGAIN, and make sure that there is no chance this causes
-a hang in user state machines that rely on epoll.  (Sure would be nice
-if the Stanford Checker was up to this kind of thing.)
-- Dan
+<--  snip  -->
 
+cu
+Adrian
 
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

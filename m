@@ -1,64 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262660AbREOGtt>; Tue, 15 May 2001 02:49:49 -0400
+	id <S262657AbREOGss>; Tue, 15 May 2001 02:48:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262659AbREOGtc>; Tue, 15 May 2001 02:49:32 -0400
-Received: from smtp2.Stanford.EDU ([171.64.14.116]:19842 "EHLO
-	smtp2.Stanford.EDU") by vger.kernel.org with ESMTP
-	id <S262660AbREOGtT>; Tue, 15 May 2001 02:49:19 -0400
-From: "Victor Wong" <victor.wong@stanford.edu>
-To: <torvalds@transmeta.com>, <alan@lxorguk.ukuu.org.uk>,
-        <linux-kernel@vger.kernel.org>
-Subject: [PATCH] arch/i386/kernel/irq.c
-Date: Mon, 14 May 2001 23:49:02 -0700
-Message-ID: <NDBBLHPAGLNBKNHFNOOGMEHECKAA.victor.wong@stanford.edu>
+	id <S262659AbREOGsi>; Tue, 15 May 2001 02:48:38 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:26387 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262657AbREOGsX>; Tue, 15 May 2001 02:48:23 -0400
+Date: Mon, 14 May 2001 23:48:07 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Daniel Phillips <phillips@bonn-fries.net>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] filemap.c fixes
+In-Reply-To: <Pine.LNX.4.21.0105141111100.4671-100000@imladris.rielhome.conectiva>
+Message-ID: <Pine.LNX.4.21.0105142342040.23955-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-The following patches to irq.c were made to deal with potential errors in
-creating /proc entries for irqs on bootup. The code add checks to ensure
-that the entries were created succesfully. In case of error, it attempts to
-cleanup after itself. The patch was made against v2.4.4 of the kernel and
-result from some errors found during checker runs against the kernel source.
+On Mon, 14 May 2001, Rik van Riel wrote:
 
-Victor Wong
-victor.wong@stanford.edu
+> On Mon, 14 May 2001, Daniel Phillips wrote:
+> > 
+> > How about:
+> > 
+> > > +	if (PageActive(page))
+> > > +		SetPageReferenced(page);
+> > > +	else
+> > > +		activate_page(page);
+> 
+> Fine with me ...
 
---- arch/i386/kernel/irq.c.orig	Sun May  6 23:45:09 2001
-+++ arch/i386/kernel/irq.c	Sun May  6 23:48:26 2001
-@@ -1137,6 +1137,11 @@
- 	/* create /proc/irq/1234/smp_affinity */
- 	entry = create_proc_entry("smp_affinity", 0600, irq_dir[irq]);
+Now, please explain to me why it's not just a simple
 
-+	if (!entry) {
-+	    remove_proc_entry(name, root_irq_dir);
-+	    return;
-+	}
-+
- 	entry->nlink = 1;
- 	entry->data = (void *)(long)irq;
- 	entry->read_proc = irq_affinity_read_proc;
-@@ -1157,6 +1162,11 @@
+	SetPageReferenced(page);
 
- 	/* create /proc/irq/prof_cpu_mask */
- 	entry = create_proc_entry("prof_cpu_mask", 0600, root_irq_dir);
-+
-+	if (!entry) {
-+	    remove_proc_entry("irq", 0);
-+	    return;
-+	}
+and then just moving it lazily from one queue to another..
 
- 	entry->nlink = 1;
- 	entry->data = (void *)&prof_cpu_mask;
+Advantage: fast and robust. Very simple. 
+
+Disadvantage: lazy queue movement. But we're already doing that for other
+things (ie page_launder() already has the logic to move pages with counts
+and references to the active list). So this is nothing new.
+
+The advantage of doing the work lazily is not just simplicity: it's
+actually much _faster_ to delay the work until later, because in many
+cases the work never needs to be done at all (ie we might not be low on
+memory, or the page ends up being moved for other reasons anyway).
+
+Comments?
+
+		Linus
 

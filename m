@@ -1,56 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265281AbSKEE1N>; Mon, 4 Nov 2002 23:27:13 -0500
+	id <S266220AbSKEEUc>; Mon, 4 Nov 2002 23:20:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265285AbSKEE1N>; Mon, 4 Nov 2002 23:27:13 -0500
-Received: from pop016pub.verizon.net ([206.46.170.173]:15083 "EHLO
-	pop016.verizon.net") by vger.kernel.org with ESMTP
-	id <S265281AbSKEE1M>; Mon, 4 Nov 2002 23:27:12 -0500
-Message-ID: <3DC74A26.7050401@bellatlantic.net>
-Date: Mon, 04 Nov 2002 23:33:42 -0500
-From: David Shepard <daveman@bellatlantic.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0+) Gecko/20020518
-X-Accept-Language: en-us, en
+	id <S265279AbSKEEUc>; Mon, 4 Nov 2002 23:20:32 -0500
+Received: from modemcable074.85-202-24.mtl.mc.videotron.ca ([24.202.85.74]:35848
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S266220AbSKEEU0>; Mon, 4 Nov 2002 23:20:26 -0500
+Date: Mon, 4 Nov 2002 23:27:28 -0500 (EST)
+From: Zwane Mwaikambo <zwane@holomorphy.com>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+cc: Russell King <rmk@arm.linux.org.uk>
+Subject: 2.5.45 odd deref in serial_in 
+Message-ID: <Pine.LNX.4.44.0211042323410.27141-100000@montezuma.mastecende.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: kernel BUG at inode.c:1034!
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at pop016.verizon.net from [151.201.18.210] at Mon, 4 Nov 2002 22:33:42 -0600
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am running kernel 2.4.19 plain and have been doing so successfully for 
-quite some time. In the past few days, I am seeing a repeatable BUG on 
-reboot/shutdown. Please let me know if there is any more information I 
-can provide.
+The only modifications to this code are a slightly hacked up nmi watchdog 
+timer.
 
-
---David Shepard
-
-
-* Unmounting filesystems...
-* Remounting remaining filesystems readonly...
-kernel BUG at inode.c:1034!
-invalid operand: 0000
-CPU:    0
-EIP:    0010:[<c0156d33>]    Not tainted
-EFLAGS: 00010246
-eax: c56db150   ebx: c56db040   ecx: c56db150   edx: c56db040
-esi: 00000000   edi: c7f42e00   ebp: c910a620   esp: c47f3f00
-ds: 0018   es: 0018   ss:0018
-Process umount (pid: 7961, stackpage=c47f3000
-Stack: c11660c0 c56db040 00000296 c47f3f48 00000296 c11660c0 c56d6740 
-c56d6740
-Stack: c0157ea4 c11660c0 c56d6740 00000001 c7f42e60 00000001 c01573ad 
-c7f42e00
-Stack: c7f42ec4 c7f42e34 c910a620 c910468d c56db040 c7f42e00 c7f42e40 
-c0143207
-Call Trace:    [<c0157ea4>] [<c01573ad>] [<c910a620>] [<c910468d>] 
-[<c0143207>]
-  [<c015ad05>] [<c015add1>] [<c015ae67>] [<c01074a3>]
+Unable to handle kernel paging request at virtual address 81acc58
+ printing eip:
+c023b42f
+*pde = 00000000
+Oops: 0000
  
-Code: 0f 0b 0a 04 9d bb 27 c0 e9 48 fa ff ff 55 57 56 53 83 ec 14
-/sbin/rc: line 110:   7961 Segmentation fault      umount -a -r -n -t 
-nodevfs,noproc,notmpfs >&/dev/null
+CPU:    0
+EIP:    0060:[<c023b42f>]    Not tainted
+EFLAGS: 00010293
+EIP is at serial_in+0x1f/0x60
+eax: 00000000   ebx: 81acc5f0   ecx: 00000000   edx: 00000005
+esi: 000026e9   edi: c065a6e0   ebp: c06242ae   esp: c1471ebc
+ds: 0068   es: 0068   ss: 0068
+Process swapper (pid: 1, threadinfo=c1470000 task=c7f9e040)
+Stack: 00000020 c023d9d8 c065a6e0 00000005 00000008 00000000 0000001d c05c0 
+       0000001d c06242a6 00000b23 c0121459 c05c0880 c06242a6 0000001d 00000 
+       00000b43 00000296 c0121541 00000b26 00000b43 00000006 00000b43 c1470 
+Call Trace:
+ [<c023d9d8>] serial8250_console_write+0x68/0x1f0
+ [<c0121459>] __call_console_drivers+0x49/0x50
+ [<c0121541>] call_console_drivers+0x71/0x100
+ [<c012196d>] release_console_sem+0xbd/0x170
+ [<c01217cc>] printk+0x18c/0x220
+ [<c01170d5>] nmi_add_task+0xc5/0xe0
+ [<c01177e0>] nmi_watchdog_tick+0x0/0x120
+ [<c01050a1>] init+0x71/0x1a0
+ [<c0105030>] init+0x0/0x1a0
+ [<c0105030>] init+0x0/0x1a0
+ [<c0105030>] init+0x0/0x1a0
+ [<c01072b5>] kernel_thread_helper+0x5/0x10
+
+Code: 8b 43 08 01 c2 ec 25 ff 00 00 00 5b c3 8d 74 26 00 68 ad 00 
+ <0>Kernel panic: Attempted to kill init!
+
+(gdb) list *serial_in+0x1f
+0xc023b42f is in serial_in (include/asm/io.h:371).
+366     } \
+367     static inline void ins##bwl(int port, void *addr, unsigned long count) { \
+368             __asm__ __volatile__("rep; ins" #bwl : "+D"(addr), "+c"(count) : "d"(port)); \
+369     }
+370
+371     BUILDIO(b,b,char)
+372     BUILDIO(w,w,short)
+373     BUILDIO(l,,int)
+374
+375     #endif
+
+0xc023b428 <serial_in+24>:      je     0xc023b461 <serial_in+81>
+0xc023b42a <serial_in+26>:      cmp    $0x2,%eax
+0xc023b42d <serial_in+29>:      je     0xc023b440 <serial_in+48>
+0xc023b42f <serial_in+31>:      mov    0x8(%ebx),%eax
+0xc023b432 <serial_in+34>:      add    %eax,%edx
+0xc023b434 <serial_in+36>:      in     (%dx),%al
+
+eax: 00000000   ebx: 81acc5f0   ecx: 00000000   edx: 00000005
+
+...
+	default:
+		return inb(up->port.iobase + offset); <--
+	}
+}
+
+-- 
+function.linuxpower.ca
 

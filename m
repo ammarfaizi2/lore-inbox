@@ -1,38 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264044AbTJ1Q6Q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Oct 2003 11:58:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264047AbTJ1Q6Q
+	id S264041AbTJ1RHI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Oct 2003 12:07:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264046AbTJ1RHH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Oct 2003 11:58:16 -0500
-Received: from adsl-63-194-133-30.dsl.snfc21.pacbell.net ([63.194.133.30]:64640
-	"EHLO penngrove.fdns.net") by vger.kernel.org with ESMTP
-	id S264044AbTJ1Q6P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Oct 2003 11:58:15 -0500
-From: John Mock <kd6pag@qsl.net>
-To: Kovacs@vger.kernel.org, Richard@vger.kernel.org (krichard@elte.hu)
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: re: ACPI suspend doe snot work when X is running
-Message-Id: <E1AEXB3-00029O-00@penngrove.fdns.net>
-Date: Tue, 28 Oct 2003 08:58:41 -0800
+	Tue, 28 Oct 2003 12:07:07 -0500
+Received: from gaia.cela.pl ([213.134.162.11]:63246 "EHLO gaia.cela.pl")
+	by vger.kernel.org with ESMTP id S264041AbTJ1RHG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Oct 2003 12:07:06 -0500
+Date: Tue, 28 Oct 2003 18:06:45 +0100 (CET)
+From: Maciej Zenczykowski <maze@cela.pl>
+To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
+cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: CPU-Test similar to Memtest?
+In-Reply-To: <20031028160550.GA855@rdlg.net>
+Message-ID: <Pine.LNX.4.44.0310281803460.7378-100000@gaia.cela.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-That's right, X running in native mode with a i830 double-faults (or
-auto-reboots) upon resume with software suspend under 2.5 and 2.6.0 
-not sure about 2.4 yet).  
+> On the heels of my system going nuts when I enabled Highmem I've played
+> with the ram and starting to wonder if it might all be good and I might
+> have a CPU just panic'ing for the fun of it.
+> 
+> I'm going to run MEMTEST today when I get home and get a chance to make
+> a bootable CD but I'm wondering if there might be a "CPUTEST" or such
+> utility anyone knows of that'll poke and prod a dual athalon real well
+> and make sure I don't have a flaky cpu.
 
-Try a kernel with 'vesafb' [CONFIG_FB_VESA=y] and/or use an XF86Config-4
-with 'Section "Device"... Driver "vesa"' (or maybe 'Driver "fbdev"').  
-Alas, that only works at 256 colors at 1024x768 for me, as i only have 
-832K available for direct frame buffer access in VESA mode.  But it 
-looks like you have 8060K available, so you should be able to do full 
-color at 1600x1200.  Yeah, acceleration would be nice...  
+Try running mprime235 torture test.  Available from GIMPS
+(google://mersenne) it's very computationally intensive and a real good
+CPU, cache & memory burner (so good that even many so-called 'rock-stable'
+systems fail).  However it does require a running linux (try an older 2.4
+kernel).
 
-You may need to 'rmmod uhci-hcd' before hibernating, which may not be 
-compatible with some USB devices (like those involving SCSI emulation,
-like flash memory and digital cameras).  Your CD/RW is IDE rather than 
-firewire, so that looks good as well.  It seems like software suspend
-may have a decent chance of work adequately for you.  I wish i were as
-lucky...  Good luck!
-				   -- JM
+Cheers,
+MaZe.
+

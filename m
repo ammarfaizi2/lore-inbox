@@ -1,55 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262750AbTJDQwa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Oct 2003 12:52:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262753AbTJDQw3
+	id S262678AbTJDQyE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Oct 2003 12:54:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262621AbTJDQx7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Oct 2003 12:52:29 -0400
-Received: from cpc3-hitc2-5-0-cust152.lutn.cable.ntl.com ([81.99.82.152]:38800
-	"EHLO zog.reactivated.net") by vger.kernel.org with ESMTP
-	id S262750AbTJDQw2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Oct 2003 12:52:28 -0400
-Message-ID: <3F7EFB14.7050909@reactivated.net>
-Date: Sat, 04 Oct 2003 17:53:40 +0100
-From: Daniel Drake <dan@reactivated.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030905 Thunderbird/0.2
+	Sat, 4 Oct 2003 12:53:59 -0400
+Received: from mail1.dac.neu.edu ([129.10.1.75]:15121 "EHLO mail1.dac.neu.edu")
+	by vger.kernel.org with ESMTP id S262656AbTJDQx6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Oct 2003 12:53:58 -0400
+Message-ID: <3F7EFB02.1000409@ccs.neu.edu>
+Date: Sat, 04 Oct 2003 12:53:22 -0400
+From: Stan Bubrouski <stan@ccs.neu.edu>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.5b) Gecko/20030917
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] (2.6.0-test6-bk) DocBook: Kernel-api build fix
-Content-Type: multipart/mixed;
- boundary="------------070008010904050502010408"
+To: Pavel Machek <pavel@ucw.cz>
+CC: Patrick Mochel <mochel@osdl.org>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [pm] fix oops after saving image
+References: <20031002203906.GB7407@elf.ucw.cz> <Pine.LNX.4.44.0310031433530.28816-100000@cherise> <20031003223352.GB344@elf.ucw.cz> <3F7E57E9.8070904@ccs.neu.edu> <20031004080239.GA213@elf.ucw.cz> <3F7EF4A0.7060504@ccs.neu.edu> <20031004163927.GA450@elf.ucw.cz>
+In-Reply-To: <20031004163927.GA450@elf.ucw.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070008010904050502010408
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Pavel Machek wrote:
 
-In the latest -bk tree for 2.6.0-test6, net/netsyms.c has been removed.
-The kernel-api DocBook docs still refer to this file, and because this file is gone, "make htmldocs" and similar fails.
-Here's a patch to remove the reference and fix this docbook problem.
+> 
+> :-))))))))))))))))))))))
+> 
+> No, my mail client is okay. I actually wrote ^ and H, and that should
+> be a joke.
+> 								Pavel
 
-Daniel.
+lol my b you da man :)
 
---------------070008010904050502010408
-Content-Type: text/plain;
- name="docbook-kernel-api-fix.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="docbook-kernel-api-fix.patch"
+-sb
 
---- linux-2.6.0-test6/Documentation/DocBook/kernel-api.tmpl	2003-09-28 11:34:13.000000000 +0100
-+++ linux/Documentation/DocBook/kernel-api.tmpl	2003-10-04 17:43:27.345686600 +0100
-@@ -318,6 +318,5 @@
- <!-- Needs ksyms to list additional exported symbols, but no specific doc.
-      docproc do not care about sgml commants.
- !Dkernel/ksyms.c
--!Dnet/netsyms.c
- -->
- </book>
-
---------------070008010904050502010408--
 

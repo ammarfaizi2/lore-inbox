@@ -1,74 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261389AbVC3AHo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261683AbVC3ALe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261389AbVC3AHo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 19:07:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261671AbVC3AHo
+	id S261683AbVC3ALe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 19:11:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261671AbVC3ALe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 19:07:44 -0500
-Received: from smtp203.mail.sc5.yahoo.com ([216.136.129.93]:29832 "HELO
-	smtp203.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261389AbVC3AHg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 19:07:36 -0500
-Message-ID: <4249EDC3.2080102@yahoo.com.au>
-Date: Wed, 30 Mar 2005 10:07:31 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
-X-Accept-Language: en
+	Tue, 29 Mar 2005 19:11:34 -0500
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:46582 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S261683AbVC3ALW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 19:11:22 -0500
+From: Ron Gage <ron@rongage.org>
+To: linux-kernel@vger.kernel.org, daniel.ritz@gmx.ch, jonas.oreland@mysql.com
+Subject: Continuing woes - Yenta PCMCIA and USB 2.0 Cardbus Card
+Date: Tue, 29 Mar 2005 19:06:19 -0500
+User-Agent: KMail/1.6.1
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: "Chen, Kenneth W" <kenneth.w.chen@intel.com>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] use cheaper elv_queue_empty when unplug a device
-References: <200503290253.j2T2rqg25691@unix-os.sc.intel.com> <20050329080646.GE16636@suse.de> <42491DBE.6020303@yahoo.com.au> <20050329131549.GV16636@suse.de>
-In-Reply-To: <20050329131549.GV16636@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200503291906.19890.ron@rongage.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-> On Tue, Mar 29 2005, Nick Piggin wrote:
-> 
->>@@ -2577,19 +2577,18 @@ static int __make_request(request_queue_
->> 	spin_lock_prefetch(q->queue_lock);
->> 
->> 	barrier = bio_barrier(bio);
->>-	if (barrier && (q->ordered == QUEUE_ORDERED_NONE)) {
->>+	if (unlikely(barrier) && (q->ordered == QUEUE_ORDERED_NONE)) {
->> 		err = -EOPNOTSUPP;
->> 		goto end_io;
->> 	}
->> 
->>-again:
->> 	spin_lock_irq(q->queue_lock);
->> 
->> 	if (elv_queue_empty(q)) {
->> 		blk_plug_device(q);
->> 		goto get_rq;
->> 	}
-> 
-> 
-> This should just goto get_rq, the plug should happen only at the end
-> where you did add it:
-> 
+Greetings:
 
-Yes I see. I'll fix that up.
+I am trying to get a generic cardbus based USB 2.0 card working with an 
+external USB hard drive.  Even though I have received some good help to date, 
+things are still not going well.
 
-> 
->>@@ -2693,10 +2675,11 @@ get_rq:
->> 	req->rq_disk = bio->bi_bdev->bd_disk;
->> 	req->start_time = jiffies;
->> 
->>+	spin_lock_irq(q->queue_lock);
->>+	if (elv_queue_empty(q))
->>+		blk_plug_device(q);
->> 	add_request(q, req);
->> out:
->>-	if (freereq)
->>-		__blk_put_request(q, freereq);
->> 	if (bio_sync(bio))
->> 		__generic_unplug_device(q);
->> 
-> 
-> 
+The original problem was that inserting the cardbus card into my laptop would 
+cause the entire PCMCIA system to die instantly.  This problem is fixed - 
+inserting the card no longer kills the PCMCIA system.
+
+What appears to be happening now is that there are codepath problems in the 
+EHCI/UHCI/OHCI code as they relate to the SCSI Disk driver.  All this is 
+tested against 2.6.11.6 on a Slackware 9.1 based laptop.
+
+The USB drive works perfectly (albiet very slowly) when plugged directly into 
+the laptop's USB 1.1 port.
+
+When the USB drive is plugged into the USB 2.0 cardbus card, the drive is ID'd 
+correctly (make/model), but the driver can not read the partition table.  
+Attempting to mount the drive doesn't work.  Unplugging the USB drive causes 
+the lockup to unlock.
+
+Plugging a USB keydrive into the USB 2.0 card causes no problems.  Drive is 
+ID'd, make/model read, partition table read, can read/write/mount the key 
+drive without issue.  Same when plugging the keydrive into the laptop's 
+USB1.1 port.
+
+Laptop is an HP Pavilion N5150, Intel USB chipset (UHCI).  Cardbus card is 
+generic ALI based USB chipset (EHCI/OHCI).  USB drive is a Sony VAIO external 
+case for a 2.5" drive.  The chip in the usb drive has no manufacturer 
+markings on it, just the following character sequences: CS881BAG, 0451B0C104, 
+107
+
+HELP!!!!
 
 
+-- 
+Ron Gage - Pontiac, Michigan
+(MCP, LPIC1, A+, Net+)

@@ -1,48 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261279AbTIKN3v (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 09:29:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261281AbTIKN3v
+	id S261281AbTIKNjh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 09:39:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261282AbTIKNjh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 09:29:51 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:63301 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S261279AbTIKN3u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 09:29:50 -0400
-To: "David Schwartz" <davids@webmaster.com>
-Cc: "Pascal Schmidt" <der.eremit@email.de>, <linux-kernel@vger.kernel.org>
-Subject: Re: People, not GPL  [was: Re: Driver Model]
-References: <MDEHLPKNGKAHNMBLJOLKAEIKGHAA.davids@webmaster.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 11 Sep 2003 07:30:10 -0600
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKAEIKGHAA.davids@webmaster.com>
-Message-ID: <m14qzjmp0d.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	Thu, 11 Sep 2003 09:39:37 -0400
+Received: from bilbo.math.uni-mannheim.de ([134.155.88.153]:33958 "EHLO
+	bilbo.math.uni-mannheim.de") by vger.kernel.org with ESMTP
+	id S261281AbTIKNjc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Sep 2003 09:39:32 -0400
+From: Rolf Eike Beer <eike-kernel@sf-tec.de>
+To: linux-kernel@vger.kernel.org
+Subject: [RFC][PATCH] kmalloc + memset(foo, 0, bar) = kmalloc0
+Date: Thu, 11 Sep 2003 15:40:58 +0200
+User-Agent: KMail/1.5.3
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200309111540.58729@bilbo.math.uni-mannheim.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David Schwartz" <davids@webmaster.com> writes:
+Hi,
 
-> 	The GPL_ONLY stuff is an attempt to restrict use. There is nothing
-> inherently wrong with attempts to restrict use. One could argue that the
-> root permission check on 'umount' is a restriction on use. Surely the GPL
-> doesn't mean you can't have any usage restrictions at all.
+a (very) simple grep in drivers/ showed more than 300 matches of code like
+this:
 
-No the GPL_ONLY stuff is an attempt to document that there is no conceivable
-way that using a given symbol does not create a derived work.  
+foo = kmalloc(bar, baz);
+if (! foo)
+	return -ENOMEM;
+memset(foo, 0, sizeof(foo));
 
-If you use an unmodified kernel it is only a one liner to ensure it does
-not complain about your code.  So this only shows up as a real
-impediment when code that uses the symbol is distributed.
+Why not add a small inlined function doing the memset for us
+and reducing the code to
 
-Beyond which copying code into the kernel is when this is checked so this is
-a valid place to check things.  There is a strong tying between using
-programs and copying them into memory.  And that copying is the
-justification for most usage restrictions even in commercial software.
+foo = kmalloc0(bar, baz);
+if (! foo)
+	return -ENOMEM;
 
-The code is also quite a small nit that really should not affect
-anything.
+Eike
 
-Eric
+--- linux-2.6.0-test5-bk1/include/linux/slab.h	2003-09-11 15:19:40.000000000 +0200
++++ linux-2.6.0-test5-bk1-caliban/include/linux/slab.h	2003-09-11 15:22:56.000000000 +0200
+@@ -14,6 +14,7 @@
+ #include	<linux/config.h>	/* kmalloc_sizes.h needs CONFIG_ options */
+ #include	<linux/gfp.h>
+ #include	<linux/types.h>
++#include	<linux/string.h>	/* for memset */
+ #include	<asm/page.h>		/* kmalloc_sizes.h needs PAGE_SIZE */
+ #include	<asm/cache.h>		/* kmalloc_sizes.h needs L1_CACHE_BYTES */
+ 
+@@ -97,6 +98,16 @@
+ 	return __kmalloc(size, flags);
+ }
+ 
++static inline void *kmalloc0(size_t size, int flags)
++{
++	void *res = kmalloc(size, flags);
++
++	if (res != NULL)
++		memset(res, 0, size);
++
++	return res;
++}
++
+ extern void kfree(const void *);
+ extern unsigned int ksize(const void *);
+ 

@@ -1,68 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261847AbUKJCiW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262004AbUKJCsP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261847AbUKJCiW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 21:38:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262001AbUKJCiW
+	id S262004AbUKJCsP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 21:48:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262003AbUKJCsP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 21:38:22 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:37137 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261847AbUKJCdS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 21:33:18 -0500
-Date: Wed, 10 Nov 2004 03:32:47 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Gerd Knorr <kraxel@bytesex.org>
-Cc: video4linux-list@redhat.com, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] #if 0 cx88_risc_disasm
-Message-ID: <20041110023246.GG4089@stusta.de>
-References: <20041107175017.GP14308@stusta.de> <20041108114008.GB20607@bytesex> <20041109004341.GO15077@stusta.de> <20041109094648.GB5587@bytesex>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041109094648.GB5587@bytesex>
-User-Agent: Mutt/1.5.6+20040907i
+	Tue, 9 Nov 2004 21:48:15 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:18669 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S262004AbUKJCmG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Nov 2004 21:42:06 -0500
+Date: Tue, 9 Nov 2004 20:41:38 -0600
+From: Brent Casavant <bcasavan@sgi.com>
+Reply-To: Brent Casavant <bcasavan@sgi.com>
+To: Hugh Dickins <hugh@veritas.com>
+cc: "Martin J. Bligh" <mbligh@aracnet.com>, Andi Kleen <ak@suse.de>,
+       "Adam J. Richter" <adam@yggdrasil.com>, colpatch@us.ibm.com,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH] Use MPOL_INTERLEAVE for tmpfs files
+In-Reply-To: <Pine.LNX.4.44.0411091824070.5130-100000@localhost.localdomain>
+Message-ID: <Pine.SGI.4.58.0411092020550.101942@kzerza.americas.sgi.com>
+References: <Pine.LNX.4.44.0411091824070.5130-100000@localhost.localdomain>
+Organization: "Silicon Graphics, Inc."
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 09, 2004 at 10:46:48AM +0100, Gerd Knorr wrote:
->...
-> > > moment automatically is useless.  cx88_risc_disasm() for example is
-> > > useful for debugging the driver.  And that there is no in-kernel user
-> > 
-> > But couldn't this be #if 0'ed?
-> 
-> Yes, it could.
->...
+Argh.  I fatfingered my mail client and deleted my response rather
+than send it this morning.  Sorry for the delay.
 
+On Tue, 9 Nov 2004, Hugh Dickins wrote:
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> Doesn't quite play right with what was my "NULL sbinfo" convention.
 
---- linux-2.6.10-rc1-mm4-full/drivers/media/video/cx88/cx88-core.c.old	2004-11-10 02:46:36.000000000 +0100
-+++ linux-2.6.10-rc1-mm4-full/drivers/media/video/cx88/cx88-core.c	2004-11-10 02:47:15.000000000 +0100
-@@ -462,6 +462,7 @@
- 	return incr[risc >> 28] ? incr[risc >> 28] : 1;
- }
- 
-+#if 0
- void cx88_risc_disasm(struct cx88_core *core,
- 		      struct btcx_riscmem *risc)
- {
-@@ -479,6 +480,8 @@
- 			break;
- 	}
- }
-+EXPORT_SYMBOL(cx88_risc_disasm);
-+#endif
- 
- void cx88_sram_channel_dump(struct cx88_core *core,
- 			    struct sram_channel *ch)
-@@ -1197,8 +1200,6 @@
- EXPORT_SYMBOL(cx88_risc_stopper);
- EXPORT_SYMBOL(cx88_free_buffer);
- 
--EXPORT_SYMBOL(cx88_risc_disasm);
--
- EXPORT_SYMBOL(cx88_sram_channels);
- EXPORT_SYMBOL(cx88_sram_channel_setup);
- EXPORT_SYMBOL(cx88_sram_channel_dump);
+Howso?  I thought it played quite nicely with it.  We've been using
+NULL sbinfo as an indicator that an inode is from tmpfs rather than
+from SysV or /dev/zero.  Or at least that's the way my brain was
+wrapped around it.
 
+> Given this mpol patch of yours, and Adam's devfs patch, it's becoming
+> clear that my "NULL sbinfo" was unhelpful, making life harder for both
+> of you to add things into the tmpfs superblock - unchanged since 2.4.0,
+> as soon as I mess with it, people come up with valid new uses for it.
+
+I haven't seen that other patch, but in this case I didn't see a problem.
+The NULL sbinfo scheme worked perfectly for me, with very little hassle.
+
+> Not to say that your patch or Adam's will go further (I've no objection
+> to the way Adam is using tmpfs, but no opinion on the future of devfs),
+> but they're two hints that I should rework that to get out of people's
+> way.  I'll do a patch for that, then another something like yours on
+> top, for you to go back and check.
+
+Is this something imminent, or on the "someday" queue?  Just asking
+because I'd like to avoid doing additional work that might get thrown
+away soon.
+
+> I think the option should be "mpol=interleave" rather than just
+> "interleave", who knows what baroque mpols we might want to support
+> there in future?
+
+Makes sense to me.  I'll be happy to do it, pending your answer to
+my preceding question.
+
+> I'm irritated to realize that we can't change the default for SysV
+> shared memory or /dev/zero this way, because that mount is internal.
+
+Well, the only thing preventing this is that I stuck the flag into
+sbinfo, since it's an filesystem-wide setting.  I don't see any reason
+we couldn't add a new flag in the inode info flag field instead.  I
+think there would also be some work to set pvma.vm_end more precisely
+(in mpol_shared_policy_init()) in the SysV case.
+
+> At one time (August) you were worried about MPOL_INTERLEAVE
+> overloading node 0 on small files - is that still a worry?
+> Perhaps you skirt that issue in recommending this option
+> for use with giant files.
+
+Yeah, there's still a bit of concern about that, but it's dwarfed
+in comparison.  Taking care of that would be relatively easy,
+adding something like the inode number (or other inode-constant
+"randomness") in as a offset to pvma.vm_pgoff in shmem_alloc_page()
+(or maybe a bit higher up the call-chain, I'd have to look closer).
+
+> There are quite a lot of mpol patches flying around, aren't there?
+
+Yep.  SGI solved some of these problems for our own 2.4.x kernel
+distributions, but now we want to get things settled out in the
+mainline kernel.  So far I think we're hitting distinct chunks
+of code.
+
+> >From Ray Bryant and from Steve Longerbeam.  Would this tmpfs patch
+> make (adaptable) sense if we went either or both of those ways - or
+> have they been knocked on the head?  I don't mean in the details
+> (I think one of them does away with the pseudo-vma stuff - great!),
+> but in basic design - would your mount option mesh together well
+> with them, or would it be adding a further layer of confusion?
+
+I see what you mean.  I believe Ray's work is addressing the buffer
+cache in general.  I'll try to touch base with him again soon (I
+admit to losing track of what he's been doing).
+
+Brent
+
+-- 
+Brent Casavant                          If you had nothing to fear,
+bcasavan@sgi.com                        how then could you be brave?
+Silicon Graphics, Inc.                    -- Queen Dama, Source Wars

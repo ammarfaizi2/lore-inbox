@@ -1,53 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130110AbRAJQBV>; Wed, 10 Jan 2001 11:01:21 -0500
+	id <S131001AbRAJQDL>; Wed, 10 Jan 2001 11:03:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131001AbRAJQBB>; Wed, 10 Jan 2001 11:01:01 -0500
-Received: from ns.sysgo.de ([213.68.67.98]:53998 "EHLO dagobert.svc.sysgo.de")
-	by vger.kernel.org with ESMTP id <S130110AbRAJQAy>;
-	Wed, 10 Jan 2001 11:00:54 -0500
-Date: Wed, 10 Jan 2001 17:00:20 +0100 (MET)
+	id <S131522AbRAJQCv>; Wed, 10 Jan 2001 11:02:51 -0500
+Received: from ns.sysgo.de ([213.68.67.98]:55278 "EHLO dagobert.svc.sysgo.de")
+	by vger.kernel.org with ESMTP id <S131001AbRAJQCo>;
+	Wed, 10 Jan 2001 11:02:44 -0500
+Date: Wed, 10 Jan 2001 17:02:19 +0100 (MET)
 From: Robert Kaiser <rob@sysgo.de>
-To: Ingo Molnar <mingo@elte.hu>
-cc: linux-kernel@vger.kernel.org
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: richardj_moore@uk.ibm.com, Tom Leete <tleete@mountain.net>,
+        linux-kernel@vger.kernel.org
 Subject: Re: Anybody got 2.4.0 running on a 386 ?
-In-Reply-To: <Pine.LNX.4.30.0101100109270.11542-100000@e2>
-Message-ID: <Pine.LNX.4.21.0101101640460.20028-100000@dagobert.svc.sysgo.de>
+In-Reply-To: <E14GNVJ-0000Sz-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.21.0101101701050.20654-100000@dagobert.svc.sysgo.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Jan 2001, Ingo Molnar wrote:
 
-> math-FPU emulation takes up quite some space in the kernel image, so this
-> could indeed be the case. Could you disable any non-boot-essential
-> subsystem (networking, or the serial driver, or anything else), to
-> significantly reduce the image size?
+
+On Wed, 10 Jan 2001, Alan Cox wrote:
+
+> > > So called 'sigma sigma' 386 and higher. Ie we dont support the 386 with the
+> > > 32bit mul bugs.
+> > 
+> > Is this a new thing in 2.4.0 ? Could it possibly cause a crash as
+> > early as pagetable_init() ?
+> 
+> We've never supported pre sigmasigma cpus although someone posted a patch to
+> Linux 1.2 once. You won't find many of the cpus before that. At the time 386
+> was priced like a Xeon is now and most were recalled/pulled when the mul bug
+> came out. 
 > 
 
-I tried this: apparently no effect. However, there may be hardware
-issues involved (see below).
+Ok, in that case it can't be related to the problem I am seeing.
 
-> not really. Could you write a small function that just reads the kernel
-> image from the first symbol to the last one, and see whether it crashes?
-> (read it into a volatile variable to make sure GCC reads it.)
-
-I tried this: Reading the entire image never caused any crashes.
-
-However, I did have some (rare) instances of the kernel booting
-successfully. Then it would fail again, booting the very same image
-that had worked before.
-
-I am beginning to suspect that I may be dealing with flaky hardware.
-(I'm working from home today and I only have access to one of my 386
-specimen here).
-
-I guess I'll better shut up until I can double check on
-some other 386 boards tomorrow....
-
-In the meantime, it would be helpful if anyone who has successfully
-booted a 2.4.0 kernel on a 386 could report this to the list.
+Thanks for the info.
 
 ----------------------------------------------------------------
 Robert Kaiser                          email: rkaiser@sysgo.de

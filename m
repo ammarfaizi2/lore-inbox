@@ -1,52 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261796AbSJQFDC>; Thu, 17 Oct 2002 01:03:02 -0400
+	id <S261799AbSJQFEN>; Thu, 17 Oct 2002 01:04:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261798AbSJQFDB>; Thu, 17 Oct 2002 01:03:01 -0400
-Received: from citi.umich.edu ([141.211.92.141]:17763 "HELO citi.umich.edu")
-	by vger.kernel.org with SMTP id <S261796AbSJQFDB>;
-	Thu, 17 Oct 2002 01:03:01 -0400
-Date: Thu, 17 Oct 2002 01:08:53 -0400
-From: Niels Provos <provos@citi.umich.edu>
-To: Eric Buddington <eric@ma-northadams1b-3.bur.adelphia.net>
-Cc: marius@umich.edu, linux-kernel@vger.kernel.org
-Subject: Re: can chroot be made safe for non-root?
-Message-ID: <20021017050853.GE1704@citi.citi.umich.edu>
-Mime-Version: 1.0
+	id <S261800AbSJQFEN>; Thu, 17 Oct 2002 01:04:13 -0400
+Received: from TYO201.gate.nec.co.jp ([210.143.35.51]:41397 "EHLO
+	TYO201.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id <S261799AbSJQFEM>; Thu, 17 Oct 2002 01:04:12 -0400
+From: SL Baur <steve@kbuxd.necst.nec.co.jp>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+Content-Transfer-Encoding: 7bit
+Message-ID: <15790.18139.620830.185192@sofia.bsd2.kbnes.nec.co.jp>
+Date: Thu, 17 Oct 2002 14:12:59 +0900
+To: linux-kernel@vger.kernel.org
+Cc: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH] Trivial ext2-as-a-module fix vs 2.5.43
+X-Mailer: VM 7.03 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->I am eager to be able to sandbox my processes on a system without the
->help of suid-root programs (as I prefer to have none of these on my
->system).
+Rusty Russell (rusty@rustcorp.com.au) writes:
 
->Would it be reasonable to allow non-root processes to chroot(), if the
->chroot syscall also changed the cwd for non-root processes?
-You might want to look into systrace, see
+> Needs these two symbols exported, as I think, does ext3. 
 
-  http://www.citi.umich.edu/u/provos/systrace/
+They're needed for NFS as a module too.  Please apply the patch.
 
-Sandboxing your own applications does not require special privileges.
-Policy generation is intuitive and interactive.  Thats means you can
-generate your policies on the fly without complete knowledge of the
-exact code paths an application takes.  (I run all my 3rd-party
-software and most system daemons under systrace)
+depmod: *** Unresolved symbols in /var/tmp/kernel-2.5.43-root/lib/modules/2.5.43-1sb/kernel/fs/nfs/nfs.o
+depmod:         generic_file_aio_read
+depmod:         generic_file_aio_write
 
-Policy violations are reported and can be resolved directly in
-interactive mode.
-
-To avoid setuid-root programs, systrace supports Privilege Elevation.
-
-This is a novel feature that allows you to run an application without
-special privileges.  The policy can momentarily elevate the privileges
-of the application, for example to bind a reserved port or to create a
-raw socket.  Basically, it allows as fine grained capabilities as
-possible.
-
-The Linux port is basically finished and should appear on the web page
-in the next couple days.
-
-Niels.

@@ -1,76 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264807AbRFSWES>; Tue, 19 Jun 2001 18:04:18 -0400
+	id <S264810AbRFSWLt>; Tue, 19 Jun 2001 18:11:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264810AbRFSWEJ>; Tue, 19 Jun 2001 18:04:09 -0400
-Received: from pc2-camb6-0-cust223.cam.cable.ntl.com ([213.107.107.223]:53637
-	"EHLO kings-cross.london.uk.eu.org") by vger.kernel.org with ESMTP
-	id <S264807AbRFSWEB>; Tue, 19 Jun 2001 18:04:01 -0400
-X-Mailer: exmh version 2.3.1 01/18/2001 (debian 2.3.1-1) with nmh-1.0.4+dev
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Tomasz =?iso-8859-1?Q?K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>,
-        Alan Cox <laughing@shared-source.org>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.2.20-pre4 
-In-Reply-To: Message from Jeff Garzik <jgarzik@mandrakesoft.com> 
-   of "Tue, 19 Jun 2001 17:48:09 EDT." <3B2FC899.3F0105F1@mandrakesoft.com> 
-In-Reply-To: <E15CS0l-0006co-00@the-village.bc.nu>  <3B2FC899.3F0105F1@mandrakesoft.com> 
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-570891986P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	id <S264812AbRFSWLj>; Tue, 19 Jun 2001 18:11:39 -0400
+Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:17860 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S264810AbRFSWL2>;
+	Tue, 19 Jun 2001 18:11:28 -0400
+Message-ID: <3B2FCE0C.67715139@candelatech.com>
+Date: Tue, 19 Jun 2001 15:11:25 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: Holger Kiehl <Holger.Kiehl@dwd.de>, "David S. Miller" <davem@redhat.com>,
+        VLAN Mailing List <vlan@Scry.WANfear.com>,
+        "vlan-devel (other)" <vlan-devel@lists.sourceforge.net>,
+        Lennert <buytenh@gnu.org>, Gleb Natapov <gleb@nbase.co.il>
+Subject: Should VLANs be devices or something else?
+In-Reply-To: <Pine.LNX.4.30.0106191016200.27487-100000@talentix.dwd.de>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Date: Tue, 19 Jun 2001 23:03:18 +0100
-From: Philip Blundell <philb@gnu.org>
-Message-Id: <E15CTag-0000Eb-00@kings-cross.london.uk.eu.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-570891986P
-Content-Type: text/plain; charset=us-ascii
+I have had a good discussion with Dave Miller today, and there
+is one outstanding issue to clear up before my 802.1Q VLAN patch may
+be considered for acceptance into the kernel:
 
->> It wont build with gcc 3.0 yet. To start with gcc 3.0 will assume it can
->> insert calls to 'memcpy'
->
->IMHO omitting -fno-builtin when compiling the kernel was always a risky
->proposition...  Since we provide our own copies of many of the builtins
->[which are used in the kernel] anyway... why not always -fno-builtin,
->and then call __builtin_foo when we really want the compiler's version..
->
->gcc 3.0 without -fno-builtin is perfectly allowed to assume it can
->insert calls to memcpy..
+Should VLANs be devices or some other thing?
 
-I don't think -fno-builtin has any bearing on whether gcc will emit calls to 
-memcpy; instead it prevents gcc from open-coding them when it thinks it 
-understands what's going on.
+I strongly feel that they should be devices for many reasons.
 
-Try this with gcc -O2 -S, and again with -fno-builtin:
+1)  It makes integration with user-space tools (ip, ifconfig, arp...) a non-issue.
 
-struct s { int a[200]; };
+2)  It is logically correct, a VLAN is a (net_)device and in all ways acts like one.
 
-f(struct s *a, struct s *b)
-{
-  *b = *a;
-}
+3)  It introduces no fast-path performance degradation that I know of.  The one
+    slow path involves the linear lookup of a device by name (or id??).  This can
+    be fixed by hashing the list, if needed.
 
-g(int *a, int *b)
-{
-  memcpy(b, a, 4);
-}
+4)  Both VLAN patches have used VLANs-as-devices from the beginning, and have
+    seen no ill affects to this approach that would be mitigated by some other
+    architecture.
 
-p.
+However, we need the community as a whole to agree more-or-less that my
+(and others who share them) arguments are sound.  So please, bring your
+complaints fowards now...or forever patch by hand!
 
+Also, any other complaints or suggestions for the VLAN code should be
+mentioned too, of course!
 
+If you wish to view the patch, get the 1.0.1 release from my vlan page:
+http://scry.wanfear.com/~greear/vlan.html
+I will release a new one shortly with the fast-dev-lookup code
+(which is already #ifdef'd out) completely removed, as per Dave's
+wish.
 
---==_Exmh_-570891986P
-Content-Type: application/pgp-signature
+Thanks,
+Ben
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.5 (GNU/Linux)
-Comment: Exmh version 2.1.1 10/15/1999 (debian)
-
-iD8DBQE7L8wmVTLPJe9CT30RAkb5AKCrO6FDwipVFYYwf4FCux+sg4VDawCgqtC2
-xsOGUEGne2An1dTav25rcqs=
-=XtaQ
------END PGP SIGNATURE-----
-
---==_Exmh_-570891986P--
+-- 
+Ben Greear <greearb@candelatech.com>          <Ben_Greear@excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear

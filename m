@@ -1,33 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266443AbTBPMSu>; Sun, 16 Feb 2003 07:18:50 -0500
+	id <S266627AbTBPM3I>; Sun, 16 Feb 2003 07:29:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266473AbTBPMSu>; Sun, 16 Feb 2003 07:18:50 -0500
-Received: from packet.digeo.com ([12.110.80.53]:62413 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S266443AbTBPMSt>;
-	Sun, 16 Feb 2003 07:18:49 -0500
-Date: Sun, 16 Feb 2003 04:29:26 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: anton@samba.org, torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [patch] elv_former_request reversion
-Message-Id: <20030216042926.627210db.akpm@digeo.com>
-In-Reply-To: <20030216115908.GY26738@suse.de>
-References: <20030215161236.67ce3f24.akpm@digeo.com>
-	<20030216093244.GP26738@suse.de>
-	<20030216115908.GY26738@suse.de>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S266638AbTBPM3I>; Sun, 16 Feb 2003 07:29:08 -0500
+Received: from tux.rsn.bth.se ([194.47.143.135]:59011 "EHLO tux.rsn.bth.se")
+	by vger.kernel.org with ESMTP id <S266627AbTBPM3I>;
+	Sun, 16 Feb 2003 07:29:08 -0500
+Subject: Re: ALSA broken in 2.5.61
+From: Martin Josefsson <gandalf@wlug.westbo.se>
+To: Jaroslav Kysela <perex@suse.cz>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0302161336150.1060-100000@pnote.perex-int.cz>
+References: <Pine.LNX.4.44.0302161336150.1060-100000@pnote.perex-int.cz>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 16 Feb 2003 12:28:40.0119 (UTC) FILETIME=[EFA5F470:01C2D5B6]
+Organization: 
+Message-Id: <1045399142.681.21.camel@tux.rsn.bth.se>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 16 Feb 2003 13:39:02 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe <axboe@suse.de> wrote:
->
-> Andrew, does this work for you?
+On Sun, 2003-02-16 at 13:36, Jaroslav Kysela wrote:
 
-Yes.  I threw a bunch of nastiness at that on IDE and SCSI, 2-way and 4-way. 
-No problems.  Thanks.
+> We know about this problem and it will be fixed in next ALSA update.
 
+Great, thanks.
+
+-- 
+/Martin
+
+Never argue with an idiot. They drag you down to their level, then beat you with experience.

@@ -1,51 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316592AbSHBQuT>; Fri, 2 Aug 2002 12:50:19 -0400
+	id <S315946AbSHBQ6i>; Fri, 2 Aug 2002 12:58:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316591AbSHBQuT>; Fri, 2 Aug 2002 12:50:19 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:28378 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S316592AbSHBQuS>;
-	Fri, 2 Aug 2002 12:50:18 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	id <S315919AbSHBQ6c>; Fri, 2 Aug 2002 12:58:32 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:22788 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S315413AbSHBQ6a>; Fri, 2 Aug 2002 12:58:30 -0400
+Message-ID: <3D4ABAE7.6000709@namesys.com>
+Date: Fri, 02 Aug 2002 21:01:27 +0400
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+CC: Steve Lord <lord@sgi.com>, Jan Harkes <jaharkes@cs.cmu.edu>,
+       Alexander Viro <viro@math.psu.edu>,
+       "Peter J. Braam" <braam@clusterfs.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: BIG files & file systems
+References: <20020731210739.GA15492@ravel.coda.cs.cmu.edu>	<Pine.GSO.4.21.0207311711540.8505-100000@weyl.math.psu.edu>	<20020801035119.GA21769@ravel.coda.cs.cmu.edu>	<1028246981.11223.56.camel@snafu>	<20020802135620.GA29534@ravel.coda.cs.cmu.edu>	<1028297194.30192.25.camel@jen.americas.sgi.com>	<3D4AA0E6.9000904@namesys.com> <shslm7pclrx.fsf@charged.uio.no>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <15690.47386.247705.533190@napali.hpl.hp.com>
-Date: Fri, 2 Aug 2002 09:53:46 -0700
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: davidm@hpl.hp.com, Linus Torvalds <torvalds@transmeta.com>,
-       linux-kernel@vger.kernel.org, davidm@napali.hpl.hp.com
-Subject: Re: adjust prefetch in free_one_pgd()
-In-Reply-To: <1028311133.18317.96.camel@irongate.swansea.linux.org.uk>
-References: <Pine.LNX.4.44.0208020844000.18265-100000@home.transmeta.com>
-	<1028310567.18635.87.camel@irongate.swansea.linux.org.uk>
-	<15690.46452.806917.37660@napali.hpl.hp.com>
-	<1028311133.18317.96.camel@irongate.swansea.linux.org.uk>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On 02 Aug 2002 18:58:53 +0100, Alan Cox <alan@lxorguk.ukuu.org.uk> said:
+Trond Myklebust wrote:
 
-  >>  Cacheable and side-effects don't go together.  Even without
-  >> explicit software prefetches, most modern CPUs will happily and
-  >> aggressively prefetch stuff from cacheable translations.
+>     > 4 billion files is not enough to store the government's XML
+>     > databases in.
+>
+>That's more of a glibc-specific bug. Most other libc implementations
+>appear to be quite capable of providing a userspace 'readdir()' which
+>doesn't ever use the lseek() syscall.
+>
+Interesting.  Thanks for the info.
 
-  Alan> Yes we got burned on that with the latest AMD processors. They
-  Alan> prefetch into an area we accidentally have marked with
-  Alan> differing cachabilities between kernel and user space when
-  Alan> using the nv binary driver stuff (but its our bug not
-  Alan> theirs). There's a horrid hack in 2.4.19rc to deal with it
-  Alan> pending merging the proper patches
+-- 
+Hans
 
-Yes, I'm well aware of this issue as ia64 has basically the same setup
-in this regard.  For ia64, it seems to be acceptable to require
-that AGP DMA operates in coherent mode, so that all the memory can be
-mapped cacheable.  With old chipsets, coherent AGP DMA is slow, but
-with more recent chipsets (including hp's zx1), there won't be a
-performance penalty.  I realize that this isn't a solution for x86 as
-there is too much of an installed base.
 
-	--david
+

@@ -1,61 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261321AbTIYPeL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 11:34:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261325AbTIYPeK
+	id S261314AbTIYPgg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 11:36:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261325AbTIYPgg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 11:34:10 -0400
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:33929 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S261321AbTIYPeI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 11:34:08 -0400
-Subject: Mapping PCI video memory with remap_page_range
-From: JDeas <jdeas@jadsystems.com>
+	Thu, 25 Sep 2003 11:36:36 -0400
+Received: from CPE000102d0fe24-CM0f1119830776.cpe.net.cable.rogers.com ([65.49.144.24]:35089
+	"EHLO thorin.norang.ca") by vger.kernel.org with ESMTP
+	id S261314AbTIYPgf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Sep 2003 11:36:35 -0400
+Date: Thu, 25 Sep 2003 11:36:33 -0400
+From: Bernt Hansen <bernt@norang.ca>
 To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: 
-Message-Id: <1064504256.2328.10.camel@HD1>
+Subject: Toshiba Tecra S1 Battery Status
+Message-ID: <20030925153633.GA481@norang.ca>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.53.0309231408260.28457@quark.analogic.com> <20030923183648.GE1269@velociraptor.random> <Pine.LNX.4.53.0309241006500.30216@quark.analogic.com> <3F72A59D.4000407@aitel.hist.no> <200309251459.h8PExJ6q027275@turing-police.cc.vt.edu>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 25 Sep 2003 08:37:36 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200309251459.h8PExJ6q027275@turing-police.cc.vt.edu>
+Organization: Norang Consulting Inc
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am having problems using the remap_page_range on
-a PCI card. I am using a driver that claims to have
-worked on RH7.2 but nothing else.
+Hi,
 
-I have setup a RH9.0 (2.4.20-6smp kernel) and made
-the changes needed to compile the driver. I have
-managed ioctl access and am able to talk and configure
-the card with the exception of the mmaped areas
-(video buffer and alternate mapped registers).
+Are there any patches available to read the battery status of a Toshiba
+Tecra S1 laptop (module PT831C-11UDL)?
 
-The only change I made related to this in the old driver
-was to change the remap_page_range(). The old version did not supply the
-vma struct like needed by the new kernel so I
-added it along with a VM_IO flag.(side note: should the VM_IO flag be
-used for iomem?)
+I currently have no way to read the battery time left - and when it runs
+out the system comes crashing down -- ext3 to the rescue!  
 
-I inserted printk commands and found the following remap
-was being executed.
+The last kernel I tried was 2.6.0-test5.
 
-remap_page_range(421330000,f0000000,4000000,0x27)
-I also found the vma->Flag = 840fb
+Any help would be appreciated.
 
-
-End results were this. Running a program to keep the
-driver open, I was able to get the following info
-(/proc/[pid]/maps)
-42133000-46133000 rw-s 00000000
-
-This seems wrong. The size is right but the mapped address shows 0
-Should I not see f0000000? The /proc files (iomem and pci) both show the
-card and its resources where requested. 
-
-What else should I check?
-
-Regards,
-JD
-
+TIA
+Bernt
+-- 
+Bernt Hansen     Norang Consulting Inc.

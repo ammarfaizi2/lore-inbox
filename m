@@ -1,69 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264252AbRFYWMj>; Mon, 25 Jun 2001 18:12:39 -0400
+	id <S264232AbRFYWLJ>; Mon, 25 Jun 2001 18:11:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264340AbRFYWM3>; Mon, 25 Jun 2001 18:12:29 -0400
-Received: from mail-smtp.socket.net ([216.106.1.32]:1798 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S264252AbRFYWMV>; Mon, 25 Jun 2001 18:12:21 -0400
-Date: Mon, 25 Jun 2001 17:12:01 -0500
-From: "Gregory T. Norris" <haphazard@socket.net>
-To: rio500-devel <rio500-devel@lists.sourceforge.net>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] rio500 devfs support
-Message-ID: <20010625171201.A13305@glitch.snoozer.net>
-Mail-Followup-To: rio500-devel <rio500-devel@lists.sourceforge.net>,
-	linux-kernel <linux-kernel@vger.redhat.com>
-In-Reply-To: <20010619175224.A1137@glitch.snoozer.net> <20010625103521.A17036@kroah.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="AqsLC8rIMeq19msA"
-Content-Disposition: inline
-In-Reply-To: <20010625103521.A17036@kroah.com>
-User-Agent: Mutt/1.3.18i
-X-Operating-System: Linux glitch 2.4.5 #1 Sun Jun 24 16:53:30 CDT 2001 i686 unknown
+	id <S264252AbRFYWKu>; Mon, 25 Jun 2001 18:10:50 -0400
+Received: from Expansa.sns.it ([192.167.206.189]:22538 "EHLO Expansa.sns.it")
+	by vger.kernel.org with ESMTP id <S264232AbRFYWKh>;
+	Mon, 25 Jun 2001 18:10:37 -0400
+Date: Tue, 26 Jun 2001 00:10:30 +0200 (CEST)
+From: Luigi Genoni <kernel@Expansa.sns.it>
+To: Shawn Starr <spstarr@sh0n.net>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: EXT2 Filesystem permissions (bug)?
+In-Reply-To: <Pine.LNX.4.30.0106251729450.18996-100000@coredump.sh0n.net>
+Message-ID: <Pine.LNX.4.33.0106260007220.7455-100000@Expansa.sns.it>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Those are normal unix permissions, and you can use them on every kind of
+Unix FS, (at less i saw them on jfs, hfs, vxfs, xfs, reiserfs, ext2, ufs).
 
---AqsLC8rIMeq19msA
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-I was thinking of doing some similar updates this evening after work.=20
-Darn it... now I have to find something else to do!  :-)
+S is suid and sgid without execution bit.
+T is stiky bit without any execution bit.
 
-Going by this morning's comments from Richard Gooch, it sounds like the
+(I hope my english is correct)
 
-	if (rio->devfs =3D=3D NULL)
-		dbg("probe_rio: device node registration failed");
+Luigi
 
-part should probably be removed... it looks good to me otherwise, tho.=20
-I'll try it out tonight and post the results.
+On Mon, 25 Jun 2001, Shawn Starr wrote:
 
-Cheers!
+>
+> Is this a bug or something thats undocumented somewhere?
+>
+> d--------T
+> and
+> drwSrwSrwT
+>
+> are these special bits? I'm not aware of +S and +T
+>
+> Shawn.
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-On Mon, Jun 25, 2001 at 10:35:21AM -0700, Greg KH wrote:
-> Here's a small change that makes the node a child of the usb devfs
-> entry.  It also enables the node to only be present when the device is
-> actually present.  The patch is against 2.4.6-pre5.
->=20
-> thanks,
->=20
-> greg k-h
-
---AqsLC8rIMeq19msA
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE7N7cxgrEMyr8Cx2YRAihIAJ0TrL5c9gYAT71KNuegwaexR3lhagCgyaB7
-fBuPH9ojcoO42S5aOCQqg0g=
-=/5Eq
------END PGP SIGNATURE-----
-
---AqsLC8rIMeq19msA--

@@ -1,77 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265075AbUFAOxJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261913AbUFAO6e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265075AbUFAOxJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jun 2004 10:53:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265080AbUFAOxJ
+	id S261913AbUFAO6e (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jun 2004 10:58:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262100AbUFAO6e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jun 2004 10:53:09 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:56459 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S265075AbUFAOxD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jun 2004 10:53:03 -0400
+	Tue, 1 Jun 2004 10:58:34 -0400
+Received: from mailout11.sul.t-online.com ([194.25.134.85]:43431 "EHLO
+	mailout11.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S261913AbUFAO61 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jun 2004 10:58:27 -0400
+Message-ID: <40BC997B.2070505@dsc-shop.de>
+Date: Tue, 01 Jun 2004 16:58:03 +0200
+From: Thomas Babut <tb@dsc-shop.de>
+User-Agent: Mozilla Thunderbird 0.6 (Windows/20040502)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: NFS: Problem with user and group IDs
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <16572.38987.239160.819836@alkaid.it.uu.se>
-Date: Tue, 1 Jun 2004 16:52:59 +0200
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: hpa@zytor.com (H. Peter Anvin)
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][2.6.6-rc3] gcc-3.4.0 fixes
-In-Reply-To: <c892nk$5pf$1@terminus.zytor.com>
-References: <200404292146.i3TLkfI0019612@harpo.it.uu.se>
-	<c892nk$5pf$1@terminus.zytor.com>
-X-Mailer: VM 7.17 under Emacs 20.7.1
+X-Seen: false
+X-ID: JO7BwOZUrecLZtXNhJnzO1qokZ+t9Ojx02ksbK9dY7Z3xYgzwT1J69@t-dialin.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. Peter Anvin writes:
- > Followup to:  <200404292146.i3TLkfI0019612@harpo.it.uu.se>
- > By author:    Mikael Pettersson <mikpe@csd.uu.se>
- > In newsgroup: linux.dev.kernel
- > > 
- > > 'ptr' _is_ a char pointer, and the code (visible in the part of
- > > the patch you didn't include) already performed pointer arithmetic
- > > on it relying on it being a char pointer. The old code had no
- > > sane reason at all for updating 'ptr' via a cast-as-lvalue.
- > > 
- > > cast-as-lvalue is not proper C, has dodgey semantics, and can
- > > always be replaced by proper C.
- > > 
- > 
- > I don't see how it has dodgey semantics for cast of pointers or
- > [u]intptr_t to pointers.
+Hi,
 
-You're assuming pointers have uniform representation.
-C makes no such guarantees, and machines _have_ had
-different types of representations in the past.
-Some not-so-obsolete 64-bit machines in effect use fat
-representations for pointers to functions (descriptors),
-but they usually cheat and use pointers to the descriptors
-instead. However, a C implementation could legally
-represent a function pointer as a 128-bit value, while
-data pointers remain 64 bits.
+I've got a problem with 'squashing' user and group IDs under NFS.
 
-A cast fundamentally involves an assignment conversion,
-a copy to a temporary, and it yields an rvalue.
-Even if we allow its use as an lvalue, the semantics
-would still be to assign the copy not the original.
-So cast-as-lvalue as gcc implemented it changed two
-major aspects of the semantics. Call me conservative
-if you like, but that's simply not C any more.
+On the NFS Server there is the directory /data/test with owner ID 1011 
+and group ID 100.
 
-Other gcc extensions, such as __inline__, __attribute__,
-and __asm__, do provide useful and sensible features.
-The issue with cast-as-lvalue is that it is neither
-necessary nor does it promote maintainable and portable code.
+Here is the /etc/exports file on the NFS server:
+/data/test 
+172.16.10.1(ro,root_squash,all_squash,anon_uid=65534,anongid=65534)
 
-Remember "the world's not a VAX" and "the world's not
-a 68K with 24-bit addresses" lessons of the 80s,
+On the client side I mount it with the command:
+mount -t nfs 172.16.10.2:/data/test /mnt/test
 
- > IMNSHO the fact that it breaks C++ isn't a good reason to outlaw a
- > long-documented extension for C.
+After it has been successfully mounted, the directory on the client 
+system has the owner ID 1011 and group ID 100, like on the server.
 
-I couldn't care less about C++. There are ample reasons
-why it's a bad idea in C itself.
+But the expected result for me is, that on the client system the 
+directory has owner ID 65534 and group ID 65534 like it has been set in 
+the /etc/exports file on the server.
+I tried less options in the exports file as well. The result is always 
+the same. With squash and without squash options.
 
-/Mikael
+Client and Server are Debian woody. I tried this on a Debian sid 
+(unstable) system as well, same results. Switching from 
+nfs-kernel-server to nfs-user-server didn't change anything, too.
+
+My question is now: Is this a bug, or I am doing something wrong?
+
+Thanks for any answer.
+
+Regards,
+Thomas Babut
+

@@ -1,73 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131481AbREHMmf>; Tue, 8 May 2001 08:42:35 -0400
+	id <S132471AbREHMpF>; Tue, 8 May 2001 08:45:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132482AbREHMmZ>; Tue, 8 May 2001 08:42:25 -0400
-Received: from ausmtp02.au.ibm.COM ([202.135.136.105]:39435 "EHLO
-	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP
-	id <S131481AbREHMmJ>; Tue, 8 May 2001 08:42:09 -0400
-From: r1vamsi@in.ibm.com
-X-Lotus-FromDomain: IBMIN@IBMAU
-To: kdb@oss.sgi.com
-cc: linux-kernel@vger.kernel.org, richardj_moore@uk.ibm.com,
-        hanrahat@us.ibm.com
-Message-ID: <CA256A46.0045B034.00@d73mta03.au.ibm.com>
-Date: Tue, 8 May 2001 18:10:53 +0530
-Subject: Re: kdb wishlist
-Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S132416AbREHMom>; Tue, 8 May 2001 08:44:42 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:18950 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S132425AbREHMnW>; Tue, 8 May 2001 08:43:22 -0400
+Message-ID: <3AF7E9D0.E3097FA1@idb.hist.no>
+Date: Tue, 08 May 2001 14:42:56 +0200
+From: Helge Hafting <helgehaf@idb.hist.no>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.4-pre7 i686)
+X-Accept-Language: no, en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+        esr@thyrsus.com
+Subject: Re: CML2 design philosophy heads-up
+In-Reply-To: <E14wt0Q-00048P-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith,
+Alan Cox wrote:
 
-I have worked on the making md/mm take the width option using BYTESPERWORD.
-I will be happy to work on this.
+> > But Alan's point is a good one.  There are _lots_ of cases you can't get away
+> > with things like this, unless you get very fine grained.  In fact, it would
+> > be much eaiser to do this seperately from the kernel.  Ie another,
+> 
+> There are also a lot of config options that are implied by your setup in
+> an embedded enviromment but which you dont actually want because you didnt
+> wire them
+> 
+> Second guessing is not ideal. As a 'make the default config nice' trick - great
 
-Regards.. Vamsi.
+This is easy without changing CML2.  Make another config option
+for auto-enabling hardware you "probably have"
 
-Vamsi Krishna S.
-Linux Technology Center,
-IBM Software Lab, Bangalore.
-Ph: +91 80 5262355 Extn: 3959
-Internet: r1vamsi@in.ibm.com
+Rules of the form "X86 and PARPORT implies PARPORT_PC" can then
+be transformed to "X86 and PARPORT and PROBABLE_HARDWARE implies
+PARPORT_PC"
 
+Those who want a nice & easy config may then turn PROBABLE_HARDWARE on.
+Those who want tricks like using only nonstandard (hi-performance?)
+serial
+ports on their pc and save memory on skipping drivers for the built-in
+stuff can do so by turning the probable setting off.
 
-Keith Owens <kaos@melbourne.sgi.com> on 05/08/2001 05:39:42 PM
-
-Please respond to Keith Owens <kaos@melbourne.sgi.com>
-
-To:   kdb@oss.sgi.com, linux-kernel@vger.kernel.org
-cc:    (bcc: S Vamsikrishna/India/IBM)
-Subject:  kdb wishlist
-
-
-
-
-This is part of my kdb wishlist, does anybody fancy writing the code to
-add any of these features?  It would be a nice project for anybody
-wanting to start on the kernel.  Replies to kdb@oss.sgi.com please.
-Current patches at http://oss.sgi.com/projects/kdb/download/
-
-* Change kdb invocation key from ^A to ^X^X^X within 3 seconds.  ^A is
-  used by emacs, bash, minicom etc.
-
-* Command history.  Handle up/down/left/right/delete keys.  Each
-  kdba_io routine is responsible for recognising the arch specific
-  keys, with a common history and editting routine.
-
-* Clean up repeating commands.  Pressing enter at the kdb prompt
-  repeats the previous command, no matter what the previous command
-  was.  Some commands it makes no sense to repeat (bp in particular),
-  for other commands you want to repeat the command but without the
-  parameter (md in particular).
-
-* Embed width and count options in md and mm commands.  Some hardware
-  requires that accesses be a specific width, this can be achieved by
-  setting BYTESPERWORD but it is awkward.  We want md1 to read one
-  byte, md2, md4, md8 commands.  All can have a count field, e.g.
-  md1c8 reads 8 bytes one at a time.  mm1, mm2, mm4, mm8 to set memory
-  no count field.
-
-
+Helge Hafting

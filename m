@@ -1,53 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261298AbVBWP2t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261350AbVBWPeX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261298AbVBWP2t (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Feb 2005 10:28:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261287AbVBWP2t
+	id S261350AbVBWPeX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Feb 2005 10:34:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261374AbVBWPeX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Feb 2005 10:28:49 -0500
-Received: from rproxy.gmail.com ([64.233.170.192]:40975 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261298AbVBWP2m (ORCPT
+	Wed, 23 Feb 2005 10:34:23 -0500
+Received: from elided.info ([24.173.235.14]:57985 "EHLO elided.info")
+	by vger.kernel.org with ESMTP id S261350AbVBWPeR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Feb 2005 10:28:42 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=Zvpms9y7oOFyb/JhUMHtgZk0gCygDTdEOyDh3SkH0bwsQVhv/9pUxQCCLFm2usfpKWfeWi7ySpe0//JVfHI41Qm5wqaTKMtHO6XxHGqmhrBpaSJEJ69u30w/oU09pK1qRHmRP6ktZf4ARfGrAmgaqVtl2bhBrp7MVQ8M5eYQnbc=
-Message-ID: <4d8e3fd30502230728283f7ec9@mail.gmail.com>
-Date: Wed, 23 Feb 2005 16:28:32 +0100
-From: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
-Reply-To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
-To: Andres Salomon <dilinger@voxel.net>
-Subject: Re: 2.6.10-as5
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1109131720.9362.28.camel@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <1109131720.9362.28.camel@localhost>
+	Wed, 23 Feb 2005 10:34:17 -0500
+Date: Wed, 23 Feb 2005 15:35:34 +0000 (UTC)
+From: Rob Levin <04wdxti1@somegeek.org>
+To: linux-kernel@vger.kernel.org
+Subject: Freenode, Tor, Linux channels (Was: Slightly OT: We should move
+ linux...)
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Message-Id: <E1D3yY2-0002EZ-2b@elided.info>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andreas
+Patrick,
 
-On Tue, 22 Feb 2005 23:08:40 -0500, Andres Salomon <dilinger@voxel.net> wrote:
-> Hi,
-> 
-> Here's 2.6.10-as5.  2.6.10-as4 was never officially announced; it had
-> issues (note to self; test, *then* tag).  Distributors should note that
-> there is an ABI/API change in this release, due to
-> 114-netfilter_private_queues.patch changing ipv4 related function args.
-> Modules that use these will most likely need to be rebuilt.
-> 
-> Lots of security fixes in here; it's probably a good idea to upgrade.
-> If I'm missing any security related stuff, please let me know.  I have
-[...]
+> Today lilo (the FreeNode network owner) has decided to make one step away
+> in a direction opposite of freedom, and banned all Tor users from the
+> FreeNode network.
 
-Are you in contact with OSDL ?
-I don't recall who (too lazy for searching in the archive) but someone
-was willing to manintain a 2.6.x.y kernel including only security
-fixes.
-It could be a good idea to share with him your work.
+The actual PDPC policy on access to Freenode via the Electronic Frontier
+Foundation's Tor project is here:
 
--- 
-Paolo
+   http://freenode.net/policy.shtml#tor
+
+To summarize, freenode supports the Tor project and works closely with its
+developers.  Any anonymizing service can be abused, and we have to deal on a
+daily basis with the results of such abuse.  Freenode provides Tor users
+with randomly-generated, per-session, easily-identifiable hostname cloaks
+and thus gives each channel the option of either allowing access to Tor
+users or denying it.
+
+We do occasionally block access from Tor exit nodes or remove Tor users from
+the network, in the course of trying to deal with attacks on channels. 
+We're trying to cut down. ;) For example, this morning we repeatedly killed
+out a small clonebot net that was causing problems on unattended channels. 
+We added the capability of specifically turning off new Tor connections
+during periods when there's no other way to prevent abuse. In the process of
+resolving bugs in that new network feature, we killed out several legitimate
+Tor users by mistake. Nevertheless, we're committed to keeping freenode
+available to Tor users as continuously as it is possible to do so.
+
+Patrick, I'm sorry you felt the need to spam multiple community mailing
+lists with this distorted interpretation of freenode policy.  I'm willing to
+assume that you are simply ignorant of network policy, rather than advancing
+some malicious agenda.
+
+I'm posting this single reply in LKML only, to try to avoid adding to
+off-topic discussion in the mailing lists Patrick has posted his comments
+in; anyone who feels the need can quote this email in some other forum.
+
+Regards,
+
+
+Robert Levin
+Head of Staff, freenode
+Executive Director, PDPC
+----
+Peer-Directed Projects Center
+10100 Main Street #31 /Houston, Texas 77025-5237 USA
+Ph. +1.832.4768694
+
+PDPC is a Texas nonprofit corporation and an IRS 501(c)(03) charitable and
+educational organization, chartered in 2002 to provide resources to
+peer-directed projects, including those of the Free and Open Source Software
+communities.  PDPC runs the freenode interactive network.
+

@@ -1,112 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267678AbUIXBF6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267648AbUIXBGt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267678AbUIXBF6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 21:05:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267662AbUIXBBD
+	id S267648AbUIXBGt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 21:06:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267749AbUIXBGq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 21:01:03 -0400
-Received: from science.horizon.com ([192.35.100.1]:48959 "HELO
-	science.horizon.com") by vger.kernel.org with SMTP id S267678AbUIXA7l
+	Thu, 23 Sep 2004 21:06:46 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:62646 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S267648AbUIXBFH
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 20:59:41 -0400
-Date: 24 Sep 2004 00:59:38 -0000
-Message-ID: <20040924005938.19732.qmail@science.horizon.com>
-From: linux@horizon.com
-To: jlcooke@certainkey.com
-Subject: [PROPOSAL/PATCH] Fortuna PRNG in /dev/random
-Cc: linux-kernel@vger.kernel.org
+	Thu, 23 Sep 2004 21:05:07 -0400
+Subject: ldisc writes during tty release_dev() causing problems.
+From: Ryan Arnold <rsa@us.ibm.com>
+To: "Theodore Ts'o" <tytso@mit.edu>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       alan@lxorguk.ukuu.org.uk
+In-Reply-To: <20040915204107.GA26776@thunk.org>
+References: <1095273835.3294.278.camel@localhost>
+	 <20040915204107.GA26776@thunk.org>
+Content-Type: text/plain
+Organization: IBM Linux Technology Center
+Message-Id: <1095988521.3372.240.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 23 Sep 2004 20:15:40 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fortuna is an attempt to avoid the need for entropy estimation.
-It doesn't do a perfect job.  And I don't think it's received enough
-review to be "regarded as the state of the art".
+On Wed, 2004-09-15 at 15:41, Theodore Ts'o wrote:
 
-Entropy estimation is very difficult, but not doing it leads to problems.
+> The current (I can't speak to what Alan Cox is going to change) rules
+> with tty drivers is that tty drivers are supposed to close the line
+> discpline in their close routines.  That's the much safer and cleaner
+> way of fixing this problem, and it is in line with what most of the
+> other tty drivers are doing.
+> 					- Ted
 
-Bruce Schneier's "catastrophic reseeding" ideas have some merit.  If,
-for some reason, the state of your RNG pool has been captured, then
-adding one bit of seed material doesn't hurt an attacker who can look
-at the output and brute-force that bit.
+Ted,
 
-Thus, once you've lost security, you never regain it.  If you save up,
-say, 128 bits of seed material and add it all at once, your attacker
-can't brute-force it.
+I greped through the drivers directory and it appears that the only tty
+drivers that actually invoke ldisc.close() are those drivers that don't
+use the N_TTY line discipline (serial drivers).
 
-/dev/random tries to solve this my never letting anyone see more output
-than there is seed material input.  So regardless of the initial state
-of the pool, an attacker can never get enough output to compute a unique
-solution to the seed material question.  (See "unicity distance".)
+Many of the drivers actually call ldisc.flush_buffers() which
+effectively does the same as a ldisc.close(), cleaning up the
+tty->read_buf and tasks waiting on tty->read_wait.
 
-However, this requires knowing the entropy content of the input, which is
-a hard thing to measure.
+The story is different with writes.  The tty layer dipatches a write via
+the line discpline's write_chan() function.  The line discipline is then
+responsible for delivering this data to the driver's write() function.
 
-The while issue of catastrophic reseeding applies to output-larger-than-key
-generators like  something like /dev/urandom (that uses cryptographic
+If driver->write() returns 0 [device is blocking] (which it can do often
+in the case of hvc_console) the ldisc write_chan() function will
+schedule() and get put on the tty->write_wait queue with the expectation
+that it will be awoken by the driver when the device is available for
+further writes.
 
+If tty release_dev() is called when write_chan() is blocked awaiting I/O
+with the driver and tty->count == 1 the final call to driver->close()
+will clean up the driver without the ldisc knowing that the driver has
+closed the device.
 
-Here's an example of how Fortuna's design fails.
+Following this release_dev() actually awakens the tty->write_wait, which
+basically tells the ldisc to continue trying to send data to the driver
+for the device it has just told the driver to close!
 
-Suppose we have a source which produces 32-bit samples, which are
-guaranteed to contain 1 bit of new entropy per sample.  We should be
-able to feed that into Fortuna and have a good RNG, right?  Wrong.
+Ideally I would want hvc_close() to be able to tell the ldisc to wake up
+the thread blocking on tty->write_wait and discard any unsent data. 
+Unless I'm mistaken there is currrently no way to do this.
 
-Suppose that each time you sample the source, it adds one bit to a 32-bit
-shift register, and gives you the result.  So sample[0] shares 31 bits
-with sample[1], 30 bits with sample[2], etc.
+I suppose I could make hvc_write() return -EIO if hvc_struct->count ==
+0.  I can't think of any races with this but it doesn't seem correct.
 
-Now, suppose that we add samples to 32 buckets in round-robin order,
-and dump bucket[i] into the pool every round 2^i rounds.  Further,
-assume that our attacker can query the pool's output and brute-force 32
-bits of seed material.  In the following, "+=" is some cryptographic
-mixing primitive, not literal addition.
+Additionally, there doesn't seem to be anything to prevent hangup being
+called on a tty during the final close operation (this actually happened
+in hvc_console).
 
-Pool: Initial state known to attacker (e.g. empty)
-Buckets: Initial state known to attacker (e.g. empty)
-bucket[0] += sample[0]; pool += bucket[0]
-	-> attacker can query the pool and brute-force compute sample[0].
-bucket[1] += sample[1] (= sample[0] << 1 | sample[32] >> 31)
-bucket[2] += sample[2] (= sample[0] << 2 | sample[32] >> 30)
-...
-bucket[31] += sample[31] (= sample[0] << 31 | sample[32] >> 1)
-bucket[0] += sample[32]; pool += bucket[0]
-	-> attacker can query the pool and brute-force compute sample[32].
-	-> Attacker now knows sample[1] through sample[31]
-	-> Attacker now knows bucket[1] through bucket[31.
+Do you have any wisdom or advice?  Am I missing something obvious?
 
-Note that the attacker now knows the value of sample[1] through sample[31] and
-thus the state of all the buckets, and can continue tracking the pool's
-state indefinitely:
-
-bucket[1] += sample[33]; pool += bucket[1]
-	-> attacker can query the pool and brute-force compute sample[33].
-etc.
-
-This shift register behaviour should be obvious, but suppose that sample[i]
-is put through an encryption (known to the attacker) before being presented.
-You can't tell that you're being fed cooked data, but the attack works just the
-same.
+Ryan S. Arnold
+IBM Linux Technology Center
 
 
-Now, this is, admittedly, a highly contrived example, but it shows that
-Fortuna does not completely achieve its stated design goal of achieving
-catastrophic reseeding after having received some contant times the
-necessary entropy as seed material.  Its round-robin structure makes it
-vulnerable to serial correlations in the input seed material.  If they're
-bad enough, its security can be completely destroyed.  What *are* the
-requirements for it to be secure?  I don't know.
-
-All I know is that it hasn't been analyzed well enough to be a panacea.
-
-(The other thing I don't care for is the limited size of the
-entropy pools.  I like the "big pool" approach.  Yes, 256 bits is
-enough if everything works okay, but why take chances?  But that's a
-philosophical/style/gut feel argument more than a really technical one.)
 
 
-I confess I haven't dug into the /dev/{,u}random code lately.  The various
-problems with low-latency random numbers needed by the IP stack suggest
-that perhaps a faster PRNG would be useful in-kernel.  If so, there may
-be a justification for an in-kernel PRNG fast enough to use for disk
-overwriting or the like.  (As people persist in using /dev/urandom for,
-even though it's explicitly not designed for that.)

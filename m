@@ -1,69 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261999AbVBKBqT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261165AbVBKByf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261999AbVBKBqT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Feb 2005 20:46:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262000AbVBKBqS
+	id S261165AbVBKByf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Feb 2005 20:54:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261348AbVBKByf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Feb 2005 20:46:18 -0500
-Received: from pop.gmx.net ([213.165.64.20]:42130 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261999AbVBKBqQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Feb 2005 20:46:16 -0500
-X-Authenticated: #26200865
-Message-ID: <420C0EAF.4000606@gmx.net>
-Date: Fri, 11 Feb 2005 02:47:27 +0100
-From: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.7.2) Gecko/20040906
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: Li-Ta Lo <ollie@lanl.gov>
-CC: Pavel Machek <pavel@ucw.cz>, Paulo Marques <pmarques@grupopie.com>,
-       Adam Sulmicki <adam@cfar.umd.edu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Jon Smirl <jonsmirl@gmail.com>, ncunningham@linuxmail.org,
-       ACPI List <acpi-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Kendall Bennett <kendallb@scitechsoft.com>
-Subject: Re: [ACPI] Re: [RFC] Reliable video POSTing on resume
-References: <4202DF7B.2000506@gmx.net>	 <1107485504.5727.35.camel@desktop.cunninghams>	 <9e4733910502032318460f2c0c@mail.gmail.com>	 <20050204074454.GB1086@elf.ucw.cz>	 <9e473391050204093837bc50d3@mail.gmail.com>	 <20050205093550.GC1158@elf.ucw.cz>	 <1107695583.14847.167.camel@localhost.localdomain>	 <Pine.BSF.4.62.0502062107000.26868@www.missl.cs.umd.edu>	 <42077AC4.5030103@grupopie.com> <42077CFD.7030607@gmx.net>	 <20050207160105.GF8040@elf.ucw.cz> <1107793204.2930.18.camel@logarithm.lanl.gov>
-In-Reply-To: <1107793204.2930.18.camel@logarithm.lanl.gov>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+	Thu, 10 Feb 2005 20:54:35 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:4526 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261165AbVBKBy2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Feb 2005 20:54:28 -0500
+Date: Thu, 10 Feb 2005 20:05:10 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Todd Shetter <tshetter-lkml@earthlink.net>, jgarzik@pobox.com
+Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com
+Subject: Re: 2.4.x kernel BUG at filemap.c:81
+Message-ID: <20050210220510.GB21012@logos.cnet>
+References: <42099C57.9030306@earthlink.net> <20050209121011.GA13614@logos.cnet> <420A3A8D.9030705@earthlink.net> <20050209130319.GA13986@logos.cnet> <420A76E0.2030604@earthlink.net> <20050209174232.GC15888@logos.cnet> <420AE1CE.2070306@earthlink.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+Content-Disposition: inline
+In-Reply-To: <420AE1CE.2070306@earthlink.net>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Li-Ta Lo schrieb:
-> On Mon, 2005-02-07 at 09:01, Pavel Machek wrote:
+On Wed, Feb 09, 2005 at 11:23:42PM -0500, Todd Shetter wrote:
+> Marcelo Tosatti wrote:
 > 
->>>>3 - it's always there and can be executed at *any* time: booting,
->>>>returning from suspend, etc. Also it would allow the VESA framebuffer
->>>>driver to change graphics mode at any time (for instance).
->>>
->>>OK, and what would force you to do the above in the kernel? If the code
->>>lives in initramfs, it can be called very early, too.
->>
->>It will be easier to debug in kernel than in initramfs, for
->>one. Kernel code is bad enough, but initramfs running while kernel is
->>not even initialized is going to be even more "fun".
+> >On Wed, Feb 09, 2005 at 03:47:28PM -0500, Todd Shetter wrote:
+> > 
+> >>>>>>Running slackware 10 and 10.1, with kernels 2.4.26, 2.4.27, 2.4.28, 
+> >>>>>>2.4.29 with highmem 4GB, and highmem i/o support enabled, I get a 
+> >>>>>>system lockup. This happens in both X and console. Happens with and 
+> >>>>>>without my Nvidia drivers loaded. I cannot determine what makes this 
+> >>>>>>bug present it self besides highmem and high i/o support enabled. Im 
+> >>>>>>guessing the system is fine until highmem is actually used to some 
+> >>>>>>point and then it borks, but I really have no idea and so im just 
+> >>>>>>making a random guess. I ran memtest86 for a few hours a while ago 
+> >>>>>>thinking that it may be bad memory, but that did not seem to be the 
+> >>>>>>problem.
+> >>>>>>
+> >>>>>>If you need anymore information, or have questions, or wish me to 
+> >>>>>>test anything, PLEASE feel free to contact me, I would really like to 
+> >>>>>>see this bug resolved. =)
+> >>>>>>
+> >>>>>>Todd Shetter
+> >>>>>>
+> >>>>>>Feb  8 19:49:31 quark kernel: kernel BUG at filemap.c:81!
+> >>>>>>Feb  8 19:49:31 quark kernel: invalid operand: 0000
+> >>>>>>Feb  8 19:49:31 quark kernel: CPU:    0
+> >>>>>>Feb  8 19:49:31 quark kernel: EIP:    0010:[<c01280d1>]    Tainted: P
+> >>>>>>           
+> >>>>>Hi Todd, 
+> >>>>>
+> >>>>>Why is your kernel tainted ?
+> >>>>>
+> >>>>I had the nvidia 1.0-6629 driver loaded when I got that error. I 
+> >>>>compiled the kernel using the slackware 10.1 config, enabled highmem 
+> >>>>4GB support, highmem i/o, and then some kernel hacking options 
+> >>>>including debugging for highmen related things.
+> >>>>
+> >>>>I booted, loaded X with KDE, opened firefox a few times, and then 
+> >>>>started running hdparm because some newer 2.4.x kernels dont play nice 
+> >>>>with my SATA, ICH5, and DMA. hdparm segfaulted while running the drive 
+> >>>>read access portion of its tests, and things locked up from there in 
+> >>>>about 30secs.
+> >>>>
+> >>>>I've gotten the same error with the nvidia driver not loaded, so I dont 
+> >>>>think that is part of the problem.
+> >>>>
+> >>>>As I said, if you want me to test or try anything feel free to ask.  =)
+> >>>>
+> >>>Todd,
+> >>>
+> >>>Would be interesting to have the oops output without the kernel nvidia 
+> >>>module. 
+> >>>Do you have that saved?
+> >>>
+> >>Sorry, it took me FOREVER to get this bug to appear again, and this time 
+> >>its a little different.
+> >>   
+> >>
+> >
+> >Hum, both BUGs are due to a page with alive ->buffers mapping.
+> >
+> >Did it crashed right after hdparm now too? 
+> >
+> >Can you boot your box without SATA drivers, configuring the interface to 
+> >IDE mode ?
+> >
+> >Which problems are you facing with newer v2.4.x kernels and SATA? 
+> > 
+> >
 > 
-> One good thing about the emulator is it is very portable. There is
-> virtually no stdlib dependency. We can freely move it between user
-> and kernel space. When integrating the emulator into LinuxBIOS,
-> we first tried to use it as an user space program and then "port" it
-> into "kernel" space. The porting was done in a few days and the most
-> of the time was spent fixing LinuxBIOS itself than doing any "porting".
-> Actually, the same emulator source were used in both user and kernel
-> space as a kind of regression test.
+> Im waiting for the system to crash, so I figured I might as well get on 
+> with the SATA problems....
+> 
+> Running 2.4.29 neither the CONFIG_BLK_DEV_IDE_SATA nor the 
+> CONFIG_SCSI_SATA are set currently and DMA is not enabled on either of 
+> my drives,  hda: ST380013AS,  hdb: WDC WD2500SD-01KCB0,  hdc: Maxtor 
+> 94610U6. Setting DMA manually on the hard drives yields a HDIO_SET_DMA 
+> failed: Operation not permitted error.
+>
+> Using 2.4.26, DMA worked fine on the drives. Under 2.4.27, 2.4.28, and 
+> 2.4.29 using CONFIG_SCSI_SATA does not allow setting of DMA on the 
+> drives, yielding a HDIO_SET_DMA failed: Operation not permitted error, 
+> and the transfer speeds reported by hdparm are at about 3MB/s.
 
-Do you have a kernel patch against a recent kernel? I'd like to try
-the in-kernel emulator. A userspace variant would also be fine, provided
-it solves the "VGA BIOS calls normal BIOS" type of problem I'm seeing
-on my machine (Samsung P35 laptop with ATI Radeon Mobility 9700).
+I think thats expected. Jeff?
 
+> Under 2.4.29 using CONFIG_BLK_DEV_IDE_SATA the DMA is set fine upon 
+> boot, and I get good transfers, hdparm reports 58MB/s on my Western 
+> Digital drive. I have not tested using CONFIG_BLK_DEV_IDE_SATA on any 
+> previous kernel versions.
+> 
+> Well, still no crash yet....Again, anything else you want me to try or 
+> do just let me know.
 
-Regards,
-Carl-Daniel
--- 
-http://www.hailfinger.org/
+Lets wait - this nature of bug can be triggered by flaky hardware. 
+
+If you can't get it to crash without SATA, re-enable it, and get another
+couple of oopses please.

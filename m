@@ -1,54 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262188AbVCEQWR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263128AbVCEQaE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262188AbVCEQWR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Mar 2005 11:22:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261911AbVCEQNv
+	id S263128AbVCEQaE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Mar 2005 11:30:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262979AbVCEQ0F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Mar 2005 11:13:51 -0500
-Received: from mx2.mail.ru ([194.67.23.122]:36131 "EHLO mx2.mail.ru")
-	by vger.kernel.org with ESMTP id S262111AbVCEQGL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Mar 2005 11:06:11 -0500
-From: Alexey Dobriyan <adobriyan@mail.ru>
-To: "Panagiotis Issaris" <panagiotis.issaris@mech.kuleuven.ac.be>
-Subject: Re: [PATCH] EFI missing failure handling
-Date: Sat, 5 Mar 2005 19:06:29 +0200
-User-Agent: KMail/1.6.2
-Cc: Matt_Domsch@dell.com, linux-kernel@vger.kernel.org
-References: <20050305153841.GA7808@mech.kuleuven.ac.be>
-In-Reply-To: <20050305153841.GA7808@mech.kuleuven.ac.be>
-MIME-Version: 1.0
+	Sat, 5 Mar 2005 11:26:05 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:40204 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262008AbVCEQS3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Mar 2005 11:18:29 -0500
+Date: Sat, 5 Mar 2005 16:18:24 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Gene Heskett <gene.heskett@verizon.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: diff command line?
+Message-ID: <20050305161822.H3282@flint.arm.linux.org.uk>
+Mail-Followup-To: Gene Heskett <gene.heskett@verizon.net>,
+	linux-kernel@vger.kernel.org
+References: <200503051048.00682.gene.heskett@verizon.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200503051906.31518.adobriyan@mail.ru>
-X-Spam: Not detected
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200503051048.00682.gene.heskett@verizon.net>; from gene.heskett@verizon.net on Sat, Mar 05, 2005 at 10:48:00AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 05 March 2005 17:38, Panagiotis Issaris wrote:
+On Sat, Mar 05, 2005 at 10:48:00AM -0500, Gene Heskett wrote:
+> What are the options normally used to generate a diff for public 
+> consumption on this list?  
 
-> The EFI driver allocates memory and writes into it without checking the
-> success of the allocation:
-> 
-> 668     efi_char16_t *variable_name = kmalloc(1024, GFP_KERNEL);
-> ...
-> 696     memset(variable_name, 0, 1024);
+diff -urpN orig new
 
-> --- linux-2.6.11-orig/drivers/firmware/efivars.c
-> +++ linux-2.6.11-pi/drivers/firmware/efivars.c
-> @@ -670,6 +670,9 @@ efivars_init(void)
+where "orig" and "new" both contain the top level "linux" directory,
+so the resulting patch can be applied with patch -p1.
 
-> +	if (!variable_name)
-> +		return -ENOMEM;
-> +
->  	if (!efi_enabled)
->  		return -ENODEV; 
-
-I'd better move kmalloc() and checking for success down right before
-memset(). Otherwise you leak if efi_enabled == 0.
-
-Oh, and efivars_init() wants to return "error", not unconditionally 0.
-
-	Alexey
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

@@ -1,84 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268083AbUJLXdK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268080AbUJLXdm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268083AbUJLXdK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 19:33:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268080AbUJLXdK
+	id S268080AbUJLXdm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 19:33:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268086AbUJLXdm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 19:33:10 -0400
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:54688
-	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
-	id S268083AbUJLXdE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 19:33:04 -0400
-Subject: Re: [Ext-rt-dev] Re: [ANNOUNCE] Linux 2.6 Real Time Kernel
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Bill Huey <bhuey@lnxw.com>
-Cc: Sven Dietrich <sdietrich@mvista.com>, dwalker@mvista.com,
+	Tue, 12 Oct 2004 19:33:42 -0400
+Received: from smtp.Lynuxworks.com ([207.21.185.24]:15366 "EHLO
+	smtp.lynuxworks.com") by vger.kernel.org with ESMTP id S268080AbUJLXdh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Oct 2004 19:33:37 -0400
+Date: Tue, 12 Oct 2004 16:33:08 -0700
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Bill Huey <bhuey@lnxw.com>, dwalker@mvista.com,
        Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
        amakarov@ru.mvista.com, ext-rt-dev@mvista.com,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041012225706.GC30966@nietzsche.lynx.com>
-References: <20041012211201.GA28590@nietzsche.lynx.com>
-	 <EOEGJOIIAIGENMKBPIAEGEJGDKAA.sdietrich@mvista.com>
-	 <20041012225706.GC30966@nietzsche.lynx.com>
-Content-Type: text/plain
-Organization: linutronix
-Message-Id: <1097623513.19549.245.camel@thomas>
+       LKML <linux-kernel@vger.kernel.org>, Doug Niehaus <niehaus@ittc.ku.edu>
+Subject: Re: [Ext-rt-dev] Re: [ANNOUNCE] Linux 2.6 Real Time Kernel
+Message-ID: <20041012233308.GA31150@nietzsche.lynx.com>
+References: <20041010142000.667ec673.akpm@osdl.org> <20041010215906.GA19497@elte.hu> <1097517191.28173.1.camel@dhcp153.mvista.com> <20041011204959.GB16366@elte.hu> <1097607049.9548.108.camel@dhcp153.mvista.com> <1097610393.19549.69.camel@thomas> <20041012211201.GA28590@nietzsche.lynx.com> <1097618415.19549.190.camel@thomas> <20041012223642.GB30966@nietzsche.lynx.com> <1097622634.19549.235.camel@thomas>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 13 Oct 2004 01:25:14 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1097622634.19549.235.camel@thomas>
+User-Agent: Mutt/1.5.6+20040907i
+From: Bill Huey (hui) <bhuey@lnxw.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-10-13 at 00:57, Bill Huey wrote:
-> But since this is in a commerical context we have to save
-> face by at least putting our cards on the table and establishing
-> a sort of role in this community. 
-
-Yeah, a pretty good way to establish a role by keeping your mouth shut
-and let others do redundant work. 
-
-> That commericial development
-> attitude the reason why I haven't been permitted to talk about
-> this stuff openly, only sort of on the side in various
-> preemption discussions.
-
-Discuss this with your company.
-
-> Yeah, for me a bit of freak out Saturday that is still
-> kind of happening since this has been a personal project
-> of mine for a long time. :) I interpreted it as a visibility
-> move on your company's part, which I hate to say is a bit
-> unnerving to know that another group was doing the same
-> work. TimeSys's Scott Wood and friends are doing something
-> like this as well. I'm only being fair by mentioning them. :)
-
-There are other people around who worked on similar things openly.
-
-> Well, uh, at least you're single kernel image folks like
-> us and not flaming us/me yet for corrupting the sancity
-> of Linux. Oh man, I feel a flame war coming. This is such
-> touchy material.
-
-The flame war might come, ...
-
-> What's Monta Vista's attitude toward preemption development ?
-> open or closed ? I know this is a charged question, but
-> this has to be asked. :)
+On Wed, Oct 13, 2004 at 01:10:34AM +0200, Thomas Gleixner wrote:
+> > This has been articulate a couple of times by both me and Ingo (recent email).
+> > The MV's system is highly unstable, not because of priority inheritance,
+> > but because of basic lock violation in the lock graph itself. It's another kind
+> > of SMP granularity problem. The hard problem was just what Ingo was saying and
+> > it's higher, but higher in the graph.
 > 
-> This commerical thing is going to be weird. I wish I was
-> an angry hippie instead of having a job at certain moments. :)
-> 
-> But the bay area is pretty damn cool, so... that makes up
-> for it. :)
+> Can you point me a bit more clear on what you are talking about ?
 
-... but not about realtime improvements. 
+It's just a lock graph dependency problem. Things up top in the graph
+force things below it to be non-preemptable. The things up top need
+to be changed, so that things below it can also be preemptable. Sleeping
+within an atomic critical section, local_irq* or preempt_count() > 0,
+is a deadlock waiting to happen.
 
-It might be about: " hey we putting this up to play a role attitude of
-comapnies".
+> So the natural consequence is to convert _all_ concurrency control
+> mechanisms into a single identifiable one. That's a purely semantical
+> conversion, in terms of macro replacement, where no functional change
+> takes place.
+... 
+> The bad thing of hidden gcc magic is that you will not be able to
+> analyse nested concurrency controls in one go. You have to figure out
+> what the heck spin_lock vs. _spin_lock vs. semaphore vs. _semaphore vs.
+> mutex vs. _mutex means.
 
-tglx
+Yeah, I thought of it initially as a great idea, but ultimately this
+is going to impose on the overall Linux development methodology if
+these patches go into the mainstream.
 
+I know what you're saying, but I ask you to be patient. All of this
+stuff is going to get clean up when I get some critical parts in place.
+And, yes, I do agree that this is unspeakably horrid. The static
+type determination thing probably will have to be removed at some point,
+but it's useful for rapid changing in the kernel at this time so that
+Ingo can make changes to keep up with MontaVista.
 
+All I can ask is for folks to be patient as all groups get synced up
+to each other and then we'll be able to talk about it more meaningfully.
+A bunch of things will fall into place once we all parties are mentally
+synced up.
+
+bill
 

@@ -1,36 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132576AbRDEIYi>; Thu, 5 Apr 2001 04:24:38 -0400
+	id <S132579AbRDEJDZ>; Thu, 5 Apr 2001 05:03:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132577AbRDEIY3>; Thu, 5 Apr 2001 04:24:29 -0400
-Received: from [202.54.26.202] ([202.54.26.202]:62088 "EHLO hindon.hss.co.in")
-	by vger.kernel.org with ESMTP id <S132576AbRDEIYP>;
-	Thu, 5 Apr 2001 04:24:15 -0400
-X-Lotus-FromDomain: HSS
-From: alad@hss.hns.com
-To: linux-kernel@vger.kernel.org
-Message-ID: <65256A25.002CC590.00@sandesh.hss.hns.com>
-Date: Thu, 5 Apr 2001 13:46:10 +0530
-Subject: Release naming conventions
-Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S132580AbRDEJDG>; Thu, 5 Apr 2001 05:03:06 -0400
+Received: from samar.sasken.com ([164.164.56.2]:63140 "EHLO samar.sasi.com")
+	by vger.kernel.org with ESMTP id <S132579AbRDEJDD>;
+	Thu, 5 Apr 2001 05:03:03 -0400
+Date: Thu, 5 Apr 2001 19:39:14 +0530 (IST)
+From: Manoj Sontakke <manojs@sasken.com>
+To: Alexander Viro <viro@math.psu.edu>
+cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: which gcc version?
+In-Reply-To: <Pine.GSO.4.21.0104050147290.23164-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.21.0104051930580.2687-100000@pcc65.sasi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+hi
 
+On Thu, 5 Apr 2001, Alexander Viro wrote:
+> On Thu, 5 Apr 2001, Manoj Sontakke wrote:
+> 
+> > Hi
+> > 	I am getting linker error "undefined reference to __divdi3".
+> > This is because c = a/b; where a,b,c are of type "long long"
+> > I understand this is gcc problem.
+> > 	I am doing this on a pentium with gcc -v = egcs-2.91.66
+> 
+> Don't do it in the kernel. It has nothing to gcc version.
 
-well..don't fire me for asking such a stupid question... I am new to linux
-kernel world...
+Addition and subtraction works fine. The problem is with multiplication
+and division. I am doing this to avoid floating point calculation and
+doing fixed point calculation. The rage is large enough to need "long
+long" Any other way to achieve this?
 
-I want to know the release naming conventions in linux..
-
-I know the following...
-2.1.xx --> means developmet release
-2.2.xx --> means stable release...
-
-Now what 2.2.xx-pre6 or 2.2.xx-ac3 means ??
-
-Amol
-
+thanks
+manoj
 

@@ -1,72 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293681AbSCAUNi>; Fri, 1 Mar 2002 15:13:38 -0500
+	id <S293705AbSCAUQs>; Fri, 1 Mar 2002 15:16:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293705AbSCAUN2>; Fri, 1 Mar 2002 15:13:28 -0500
-Received: from ol1-24.217.42.23.charter-stl.com ([24.217.42.23]:35005 "EHLO
-	thepeel.org") by vger.kernel.org with ESMTP id <S293681AbSCAUNT>;
-	Fri, 1 Mar 2002 15:13:19 -0500
-Date: Fri, 1 Mar 2002 14:13:08 -0600 (CST)
-From: John Peel <jrp@thepeel.org>
-To: "Thang T. Mai" <thang@unixcircle.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: make menuconfig fails
-In-Reply-To: <Pine.LNX.4.44.0203011032520.3325-100000@mail.unixcircle.com>
-Message-ID: <Pine.LNX.4.33.0203011412240.5256-100000@thepeel.org>
+	id <S293709AbSCAUQi>; Fri, 1 Mar 2002 15:16:38 -0500
+Received: from 216-42-72-159.ppp.netsville.net ([216.42.72.159]:8068 "EHLO
+	roc-24-169-102-121.rochester.rr.com") by vger.kernel.org with ESMTP
+	id <S293705AbSCAUQZ>; Fri, 1 Mar 2002 15:16:25 -0500
+Date: Fri, 01 Mar 2002 15:15:59 -0500
+From: Chris Mason <mason@suse.com>
+To: "Stephen C. Tweedie" <sct@redhat.com>,
+        Wayne Whitney <whitney@math.berkeley.edu>
+cc: LKML <linux-kernel@vger.kernel.org>, ext2-devel@lists.sourceforge.net
+Subject: Re: [OOPS 2.5.5-dj2] ext3 BUG in do_get_write_access()
+Message-ID: <259120000.1015013734@tiny>
+In-Reply-To: <20020301194155.H2682@redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0202281703130.4893-100000@mf1.private> <20020301194155.H2682@redhat.com>
+X-Mailer: Mulberry/2.1.0 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 1 Mar 2002, Thang T. Mai wrote:
 
-> 
-> Do you have perl installed?
-> Cheers!
 
-[root@localhost root]# which perl
-/usr/bin/perl
+On Friday, March 01, 2002 07:41:55 PM +0000 "Stephen C. Tweedie" <sct@redhat.com> wrote:
 
+> In this particular case, I think I'll just have to relax the assertion
+> and cause it to printk instead of BUG()ing, because I don't want to
+> lose the protection of this test entirely.  
 > 
-> On Fri, 1 Mar 2002, John Peel wrote:
-> 
-> > I just setup a new box running RH7.2 and I am trying to compile kernel 
-> > 2.4.18. I did a minimal install on this box as it is only going to function as a router. When I 
-> > initially did a 'make menuconfig' it gave me an error regarding ncurses 
-> > being missing. I installed ncurses, ncurses4, and ncurses-devel. Now when 
-> > I do a 'make menuconfig' I get the following output:
-> > 
-> > [root@localhost linux]# make menuconfig
-> > rm -f include/asm
-> > ( cd include ; ln -sf asm-i386 asm)
-> > make -C scripts/lxdialog all
-> > make[1]: Entering directory `/usr/src/linux/scripts/lxdialog'
-> > gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -DLOCALE  
-> > -I/usr/include/ncurses -DCURSES_LOC="<ncurses.h>" -c -o checklist.o 
-> > checklist.c
-> > checklist.c: In function `dialog_checklist':
-> > checklist.c:154: `TRUE' undeclared (first use in this function)
-> > checklist.c:154: (Each undeclared identifier is reported only once
-> > checklist.c:154: for each function it appears in.)
-> > checklist.c:241: `FALSE' undeclared (first use in this function)
-> > make[1]: *** [checklist.o] Error 1
-> > make[1]: Leaving directory `/usr/src/linux/scripts/lxdialog'
-> > make: *** [menuconfig] Error 2
-> > [root@localhost linux]#
-> > 
-> > Can anyone shed some light on what's going on. I could just use 'make 
-> > config' but it's so time consuming and on most of my boxes I upgrade 
-> > kernels quite often. Thanks in advance and i apologize if I'm looking in 
-> > the wrong place for solutions. -peel
-> > 
-> > john peel
-> > jrp@thepeel.org
-> > 
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> > 
-> 
+> I'd really like to be able to detect such direct buffered-io
+> "interference" from user-space, though, so that I could preserve the
+> BUG() in cases where ext3 is getting this wrong internally.  I'll look
+> at that --- I may be able to achieve it through ext3's existing
+> metadata flags.
+
+Do I misunderstand the assertion?  It seems to be saying:
+
+'this buffer has been written out of order.  If we were to crash 
+now, it will result in FS corruption'.
+BUG()
+
+If so, a printk alone might be better, since it would give the FS
+the chance to put the correct data there anyway.
+
+-chris
+
+
 

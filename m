@@ -1,272 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129952AbRBFX3l>; Tue, 6 Feb 2001 18:29:41 -0500
+	id <S129106AbRBFX1l>; Tue, 6 Feb 2001 18:27:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129956AbRBFX3b>; Tue, 6 Feb 2001 18:29:31 -0500
-Received: from [194.190.163.124] ([194.190.163.124]:21890 "EHLO
-	gamspc7.ihep.su") by vger.kernel.org with ESMTP id <S129952AbRBFX3X>;
-	Tue, 6 Feb 2001 18:29:23 -0500
-Date: Wed, 7 Feb 2001 02:27:57 +0000 (/etc/localtime)
-From: Alexander Zvyagin <zvyagin@gamspc7.ihep.su>
-To: linux-kernel@vger.kernel.org
-Subject: Problems with Linux 2.4.1
-Message-ID: <Pine.LNX.4.20.0102070207300.1226-500000@gamspc7.ihep.su>
+	id <S129800AbRBFX1b>; Tue, 6 Feb 2001 18:27:31 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:51217 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129106AbRBFX1S>; Tue, 6 Feb 2001 18:27:18 -0500
+Date: Tue, 6 Feb 2001 15:26:44 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: Jens Axboe <axboe@suse.de>, Manfred Spraul <manfred@colorfullife.com>,
+        Ben LaHaise <bcrl@redhat.com>, Ingo Molnar <mingo@elte.hu>,
+        "Stephen C. Tweedie" <sct@redhat.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Steve Lord <lord@sgi.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        kiobuf-io-devel@lists.sourceforge.net, Ingo Molnar <mingo@redhat.com>
+Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
+In-Reply-To: <Pine.LNX.4.21.0102061900060.23574-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.10.10102061516570.1972-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1094550365-31101932-981512877=:1226"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
 
----1094550365-31101932-981512877=:1226
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-Hello,
+On Tue, 6 Feb 2001, Marcelo Tosatti wrote:
+> 
+> Its arguing against making a smart application block on the disk while its
+> able to use the CPU for other work.
 
-I have several problems with my computer (running RedHat 6.2) under Linux
-2.4.1 kernel. (See attached files for more information).
+There are currently no other alternatives in user space. You'd have to
+create whole new interfaces for aio_read/write, and ways for the kernel to
+inform user space that "now you can re-try submitting your IO".
 
-Here is a short summary:
+Could be done. But that's a big thing.
 
-1) Audio card (based on SiS chipset) does not work due to incorrect
-   initialization of PCI resources. It seems that this is not a problem of
-   audio driver, but may be I am wrong.
-   The kernel prints this message:
+> An application which sets non blocking behavior and busy waits for a
+> request (which seems to be your argument) is just stupid, of course.
 
-PCI: Cannot allocate resource region 0 of device 00:01.4
-  got res[1000:10ff] for resource 0 of Silicon Integrated Systems [SiS]
-SiS PCI Audio Accelerator
+Tell me what else it could do at some point? You need something like
+select() to wait on it. There are no such interfaces right now...
 
-2) Frame-buffer mode does not work with my video card SiS630.
-   But ok, frame-buffer mode is EXPERIMENTAL in linux.
-   Computer boots, but screen is blank. All messages are fine. 
+(besides, latency would suck. I bet you're better off waiting for the
+requests if they are all used up. It takes too long to get deep into the
+kernel from user space, and you cannot use the exclusive waiters with its
+anti-herd behaviour etc).
 
-3) Kernel prints (working with DVD-ROM)
-   hdc: packet command error: status=0x51 { DriveReady SeekComplete Error}
-   I tried CONFIG_IDEDISK_MULTI_MODE to set NO and YES
-   but nothing helped. Well, this is a minor problem, because the device
-   works regardless of that message.
+Simple rule: if you want to optimize concurrency and avoid waiting - use
+several processes or threads instead. At which point you can get real work
+done on multiple CPU's, instead of worrying about what happens when you
+have to wait on the disk.
 
-4) Sometimes computer hangs up. It does not happen too often
-   (it happend 2 times), but I am curious why? There is no OOPS, and log
-   files do not have any error messages... And I can not reproduce this
-   bug.
+		Linus
 
-I spend already several days in attempts to configure all my hardware
-(mainly audio card) under linux properly. Any help is greatly appreciated.
-
-P.S. Please CC your answer to me because I am not member of your mail
-list.
-
-Thank you,
-Alexander.
-
----1094550365-31101932-981512877=:1226
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="dmessg.txt"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.20.0102070227570.1226@gamspc7.ihep.su>
-Content-Description: 
-Content-Disposition: attachment; filename="dmessg.txt"
-
-TGludXggdmVyc2lvbiAyLjQuMSAocm9vdEBhei5wcml2YXRlKSAoZ2NjIHZl
-cnNpb24gZWdjcy0yLjkxLjY2IDE5OTkwMzE0L0xpbnV4IChlZ2NzLTEuMS4y
-IHJlbGVhc2UpKSAjMSBTYXQgRmViIDMgMTU6NDI6NDAgTVNLIDIwMDENCkJJ
-T1MtcHJvdmlkZWQgcGh5c2ljYWwgUkFNIG1hcDoNCiBCSU9TLWU4MjA6IDAw
-MDAwMDAwMDAwOWZjMDAgQCAwMDAwMDAwMDAwMDAwMDAwICh1c2FibGUpDQog
-QklPUy1lODIwOiAwMDAwMDAwMDAwMDAwNDAwIEAgMDAwMDAwMDAwMDA5ZmMw
-MCAocmVzZXJ2ZWQpDQogQklPUy1lODIwOiAwMDAwMDAwMDAwMDIwMDAwIEAg
-MDAwMDAwMDAwMDBlMDAwMCAocmVzZXJ2ZWQpDQogQklPUy1lODIwOiAwMDAw
-MDAwMDAzNmYwMDAwIEAgMDAwMDAwMDAwMDEwMDAwMCAodXNhYmxlKQ0KIEJJ
-T1MtZTgyMDogMDAwMDAwMDAwMDAwZmZjMCBAIDAwMDAwMDAwMDM3ZjAwMDAg
-KEFDUEkgZGF0YSkNCiBCSU9TLWU4MjA6IDAwMDAwMDAwMDAwMDAwNDAgQCAw
-MDAwMDAwMDAzN2ZmZmMwIChBQ1BJIE5WUykNCiBCSU9TLWU4MjA6IDAwMDAw
-MDAwMDAwNDAwMDAgQCAwMDAwMDAwMGZmZmMwMDAwIChyZXNlcnZlZCkNClNj
-YW4gU01QIGZyb20gYzAwMDAwMDAgZm9yIDEwMjQgYnl0ZXMuDQpTY2FuIFNN
-UCBmcm9tIGMwMDlmYzAwIGZvciAxMDI0IGJ5dGVzLg0KU2NhbiBTTVAgZnJv
-bSBjMDBmMDAwMCBmb3IgNjU1MzYgYnl0ZXMuDQpTY2FuIFNNUCBmcm9tIGMw
-MDlmYzAwIGZvciA0MDk2IGJ5dGVzLg0KT24gbm9kZSAwIHRvdGFscGFnZXM6
-IDE0MzIwDQp6b25lKDApOiA0MDk2IHBhZ2VzLg0Kem9uZSgxKTogMTAyMjQg
-cGFnZXMuDQp6b25lKDIpOiAwIHBhZ2VzLg0KbWFwcGVkIEFQSUMgdG8gZmZm
-ZmUwMDAgKDAxMGVmMDAwKQ0KS2VybmVsIGNvbW1hbmQgbGluZTogQk9PVF9J
-TUFHRT1sIHJvIHJvb3Q9MzAzIHBjaT1iaW9zaXJxDQpJbml0aWFsaXppbmcg
-Q1BVIzANCkRldGVjdGVkIDc5Ny40NjcgTUh6IHByb2Nlc3Nvci4NCkNvbnNv
-bGU6IGNvbG91ciBWR0ErIDgweDUwDQpDYWxpYnJhdGluZyBkZWxheSBsb29w
-Li4uIDE1OTIuNTIgQm9nb01JUFMNCk1lbW9yeTogNTQwNjhrLzU3MjgwayBh
-dmFpbGFibGUgKDEwNTZrIGtlcm5lbCBjb2RlLCAyODI0ayByZXNlcnZlZCwg
-Mzc3ayBkYXRhLCAyMDRrIGluaXQsIDBrIGhpZ2htZW0pDQpEZW50cnktY2Fj
-aGUgaGFzaCB0YWJsZSBlbnRyaWVzOiA4MTkyIChvcmRlcjogNCwgNjU1MzYg
-Ynl0ZXMpDQpCdWZmZXItY2FjaGUgaGFzaCB0YWJsZSBlbnRyaWVzOiAxMDI0
-IChvcmRlcjogMCwgNDA5NiBieXRlcykNClBhZ2UtY2FjaGUgaGFzaCB0YWJs
-ZSBlbnRyaWVzOiAxNjM4NCAob3JkZXI6IDQsIDY1NTM2IGJ5dGVzKQ0KSW5v
-ZGUtY2FjaGUgaGFzaCB0YWJsZSBlbnRyaWVzOiA0MDk2IChvcmRlcjogMywg
-MzI3NjggYnl0ZXMpDQpDUFU6IEJlZm9yZSB2ZW5kb3IgaW5pdCwgY2Fwczog
-MDM4M2Y5ZmYgMDAwMDAwMDAgMDAwMDAwMDAsIHZlbmRvciA9IDANCkNQVTog
-TDEgSSBjYWNoZTogMTZLLCBMMSBEIGNhY2hlOiAxNksNCkNQVTogTDIgY2Fj
-aGU6IDI1NksNCkludGVsIG1hY2hpbmUgY2hlY2sgYXJjaGl0ZWN0dXJlIHN1
-cHBvcnRlZC4NCkludGVsIG1hY2hpbmUgY2hlY2sgcmVwb3J0aW5nIGVuYWJs
-ZWQgb24gQ1BVIzAuDQpDUFU6IEFmdGVyIHZlbmRvciBpbml0LCBjYXBzOiAw
-MzgzZjlmZiAwMDAwMDAwMCAwMDAwMDAwMCAwMDAwMDAwMA0KQ1BVOiBBZnRl
-ciBnZW5lcmljLCBjYXBzOiAwMzgzZjlmZiAwMDAwMDAwMCAwMDAwMDAwMCAw
-MDAwMDAwMA0KQ1BVOiBDb21tb24gY2FwczogMDM4M2Y5ZmYgMDAwMDAwMDAg
-MDAwMDAwMDAgMDAwMDAwMDANCkNQVTogSW50ZWwgUGVudGl1bSBJSUkgKENv
-cHBlcm1pbmUpIHN0ZXBwaW5nIDA2DQpFbmFibGluZyBmYXN0IEZQVSBzYXZl
-IGFuZCByZXN0b3JlLi4uIGRvbmUuDQpFbmFibGluZyB1bm1hc2tlZCBTSU1E
-IEZQVSBleGNlcHRpb24gc3VwcG9ydC4uLiBkb25lLg0KQ2hlY2tpbmcgJ2hs
-dCcgaW5zdHJ1Y3Rpb24uLi4gT0suDQpQT1NJWCBjb25mb3JtYW5jZSB0ZXN0
-aW5nIGJ5IFVOSUZJWA0KbXRycjogdjEuMzcgKDIwMDAxMTA5KSBSaWNoYXJk
-IEdvb2NoIChyZ29vY2hAYXRuZi5jc2lyby5hdSkNCm10cnI6IGRldGVjdGVk
-IG10cnIgdHlwZTogSW50ZWwNClBDSTogUENJIEJJT1MgcmV2aXNpb24gMi4x
-MCBlbnRyeSBhdCAweGViNDQwLCBsYXN0IGJ1cz0xDQpQQ0k6IFVzaW5nIGNv
-bmZpZ3VyYXRpb24gdHlwZSAxDQpQQ0k6IFByb2JpbmcgUENJIGhhcmR3YXJl
-DQpQQ0k6IFVzaW5nIElSUSByb3V0ZXIgU0lTIFsxMDM5LzAwMDhdIGF0IDAw
-OjAxLjANClBDSTogQ2Fubm90IGFsbG9jYXRlIHJlc291cmNlIHJlZ2lvbiAw
-IG9mIGRldmljZSAwMDowMS40DQogIGdvdCByZXNbMTAwMDoxMGZmXSBmb3Ig
-cmVzb3VyY2UgMCBvZiBTaWxpY29uIEludGVncmF0ZWQgU3lzdGVtcyBbU2lT
-XSBTaVMgUENJIEF1ZGlvIEFjY2VsZXJhdG9yDQogIGdvdCByZXNbMTAwMDAw
-MDA6MTAwMDBmZmZdIGZvciByZXNvdXJjZSAwIG9mIFRleGFzIEluc3RydW1l
-bnRzIFBDSTE0MjANCiAgZ290IHJlc1sxMDAwMTAwMDoxMDAwMWZmZl0gZm9y
-IHJlc291cmNlIDAgb2YgVGV4YXMgSW5zdHJ1bWVudHMgUENJMTQyMCAoIzIp
-DQppc2FwbnA6IFNjYW5uaW5nIGZvciBQbnAgY2FyZHMuLi4NCmlzYXBucDog
-Tm8gUGx1ZyAmIFBsYXkgZGV2aWNlIGZvdW5kDQpMaW51eCBORVQ0LjAgZm9y
-IExpbnV4IDIuNA0KQmFzZWQgdXBvbiBTd2Fuc2VhIFVuaXZlcnNpdHkgQ29t
-cHV0ZXIgU29jaWV0eSBORVQzLjAzOQ0KRE1JIDIuMyBwcmVzZW50Lg0KNDYg
-c3RydWN0dXJlcyBvY2N1cHlpbmcgMTUwOCBieXRlcy4NCkRNSSB0YWJsZSBh
-dCAweDAwMEVEOTMyLg0KQklPUyBWZW5kb3I6IEluc3lkZXN3DQpCSU9TIFZl
-cnNpb246IFZlcnNpb24gNS4wOA0KQklPUyBSZWxlYXNlOiAxMC8yOC8yMDAw
-DQpTeXN0ZW0gVmVuZG9yOiBDTEVWTyBDby4gICAgICAgLg0KUHJvZHVjdCBO
-YW1lOiBMUDIwMC4NClZlcnNpb24gICAgICAuDQpTZXJpYWwgTnVtYmVyICAg
-ICAgIC4NCkJvYXJkIFZlbmRvcjogQ0xFVk8gQ28uICAgICAgIC4NCkJvYXJk
-IE5hbWU6IExQMjAwLg0KQm9hcmQgVmVyc2lvbjogICAgICAuDQphcG06IEJJ
-T1MgdmVyc2lvbiAxLjIgRmxhZ3MgMHgwMyAoRHJpdmVyIHZlcnNpb24gMS4x
-NCkNClN0YXJ0aW5nIGtzd2FwZCB2MS44DQpwYXJwb3J0MDogUEMtc3R5bGUg
-YXQgMHgzNzggW1BDU1BQKCwuLi4pXQ0KcHR5OiAyNTYgVW5peDk4IHB0eXMg
-Y29uZmlndXJlZA0KbHAwOiB1c2luZyBwYXJwb3J0MCAocG9sbGluZykuDQpi
-bG9jazogcXVldWVkIHNlY3RvcnMgbWF4L2xvdyAzNTgzMmtCLzExOTQ0a0Is
-IDEyOCBzbG90cyBwZXIgcXVldWUNClVuaWZvcm0gTXVsdGktUGxhdGZvcm0g
-RS1JREUgZHJpdmVyIFJldmlzaW9uOiA2LjMxDQppZGU6IEFzc3VtaW5nIDMz
-TUh6IHN5c3RlbSBidXMgc3BlZWQgZm9yIFBJTyBtb2Rlczsgb3ZlcnJpZGUg
-d2l0aCBpZGVidXM9eHgNClNJUzU1MTM6IElERSBjb250cm9sbGVyIG9uIFBD
-SSBidXMgMDAgZGV2IDAxDQpQQ0k6IE5vIElSUSBrbm93biBmb3IgaW50ZXJy
-dXB0IHBpbiBBIG9mIGRldmljZSAwMDowMC4xLg0KU0lTNTUxMzogY2hpcHNl
-dCByZXZpc2lvbiAyMDgNClNJUzU1MTM6IG5vdCAxMDAlIG5hdGl2ZSBtb2Rl
-OiB3aWxsIHByb2JlIGlycXMgbGF0ZXINClNpUzYzMA0KICAgIGlkZTA6IEJN
-LURNQSBhdCAweDExMDAtMHgxMTA3LCBCSU9TIHNldHRpbmdzOiBoZGE6RE1B
-LCBoZGI6cGlvDQogICAgaWRlMTogQk0tRE1BIGF0IDB4MTEwOC0weDExMGYs
-IEJJT1Mgc2V0dGluZ3M6IGhkYzpETUEsIGhkZDpwaW8NCmhkYTogUVVBTlRV
-TSBGSVJFQkFMTGxjdDE1IDIwLCBBVEEgRElTSyBkcml2ZQ0KaGRjOiBUT1Jp
-U0FOIERWRC1ST00gRFJELVU4MjQsIEFUQVBJIENEL0RWRC1ST00gZHJpdmUN
-CmlkZTAgYXQgMHgxZjAtMHgxZjcsMHgzZjYgb24gaXJxIDE0DQppZGUxIGF0
-IDB4MTcwLTB4MTc3LDB4Mzc2IG9uIGlycSAxNQ0KaGRhOiAzOTg3NjQ4MCBz
-ZWN0b3JzICgyMDQxNyBNQikgdy80MThLaUIgQ2FjaGUsIENIUz0yNDgyLzI1
-NS82MywgVURNQSg2NikNCmhkYzogQVRBUEkgRFZELVJPTSBkcml2ZSwgMjU2
-a0IgQ2FjaGUsIFVETUEoMzMpDQpVbmlmb3JtIENELVJPTSBkcml2ZXIgUmV2
-aXNpb246IDMuMTINClBhcnRpdGlvbiBjaGVjazoNCiBoZGE6IGhkYTEgaGRh
-MiBoZGEzIGhkYTQNCkZsb3BweSBkcml2ZShzKTogZmQwIGlzIDEuNDRNDQpG
-REMgMCBpcyBhIHBvc3QtMTk5MSA4MjA3Nw0KdWRmOiByZWdpc3RlcmluZyBm
-aWxlc3lzdGVtDQpTZXJpYWwgZHJpdmVyIHZlcnNpb24gNS4wMiAoMjAwMC0w
-OC0wOSkgd2l0aCBNQU5ZX1BPUlRTIFNIQVJFX0lSUSBTRVJJQUxfUENJIElT
-QVBOUCBlbmFibGVkDQp0dHlTMDAgYXQgMHgwM2Y4IChpcnEgPSA0KSBpcyBh
-IDE2NTUwQQ0KdHR5UzAxIGF0IDB4MDJmOCAoaXJxID0gMykgaXMgYSAxNjU1
-MEENCnNpczkwMC5jOiB2MS4wNy4wNyAgMTEvMjkvMjAwMA0KUENJOiBGb3Vu
-ZCBJUlEgMTEgZm9yIGRldmljZSAwMDowMS4xDQpQQ0k6IFRoZSBzYW1lIElS
-USB1c2VkIGZvciBkZXZpY2UgMDA6MGQuMA0KZXRoMDogU2lTIDkwMCBQQ0kg
-RmFzdCBFdGhlcm5ldCBhdCAweDMwMDAsIElSUSAxMSwgMDA6OTA6ZjU6MDA6
-NDc6ODYuDQpldGgwOiBTaVMgOTAwIEludGVybmFsIE1JSSBQSFkgdHJhbnNj
-ZWl2ZXIgZm91bmQgYXQgYWRkcmVzcyAxLg0KZXRoMDogVXNpbmcgU2lTIDkw
-MCBJbnRlcm5hbCBNSUkgUEhZIGFzIGRlZmF1bHQNClRyaWRlbnQgNERXYXZl
-L1NpUyA3MDE4L0FMaSA1NDUxIFBDSSBBdWRpbywgdmVyc2lvbiAwLjE0LjYs
-IDE1OjQ0OjA0IEZlYiAgMyAyMDAxDQpQQ0k6IEZvdW5kIElSUSA1IGZvciBk
-ZXZpY2UgMDA6MDEuNA0KUENJOiBUaGUgc2FtZSBJUlEgdXNlZCBmb3IgZGV2
-aWNlIDAwOjAxLjYNClBDSTogVGhlIHNhbWUgSVJRIHVzZWQgZm9yIGRldmlj
-ZSAwMDowYy4xDQp0cmlkZW50OiBTaVMgNzAxOCBQQ0kgQXVkaW8gZm91bmQg
-YXQgSU8gMHgxMDAwLCBJUlEgNQ0KYWM5N19jb2RlYzogQUM5NyAgY29kZWMs
-IGlkOiAweDAwMDA6MHgwMDAwIChVbmtub3duKQ0KYWM5N19jb2RlYzogQUM5
-NyAgY29kZWMsIGlkOiAweDAwMDA6MHgwMDAwIChVbmtub3duKQ0KTkVUNDog
-TGludXggVENQL0lQIDEuMCBmb3IgTkVUNC4wDQpJUCBQcm90b2NvbHM6IElD
-TVAsIFVEUCwgVENQDQpJUDogcm91dGluZyBjYWNoZSBoYXNoIHRhYmxlIG9m
-IDUxMiBidWNrZXRzLCA0S2J5dGVzDQpUQ1A6IEhhc2ggdGFibGVzIGNvbmZp
-Z3VyZWQgKGVzdGFibGlzaGVkIDQwOTYgYmluZCA0MDk2KQ0KTkVUNDogVW5p
-eCBkb21haW4gc29ja2V0cyAxLjAvU01QIGZvciBMaW51eCBORVQ0LjAuDQpB
-Q1BJOiBBUE0gaXMgYWxyZWFkeSBhY3RpdmUsIGV4aXRpbmcNClZGUzogTW91
-bnRlZCByb290IChleHQyIGZpbGVzeXN0ZW0pIHJlYWRvbmx5Lg0KRnJlZWlu
-ZyB1bnVzZWQga2VybmVsIG1lbW9yeTogMjA0ayBmcmVlZA0KQWRkaW5nIFN3
-YXA6IDIwMDgwNGsgc3dhcC1zcGFjZSAocHJpb3JpdHkgLTEpDQo=
----1094550365-31101932-981512877=:1226
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="lspci.txt"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.20.0102070227571.1226@gamspc7.ihep.su>
-Content-Description: 
-Content-Disposition: attachment; filename="lspci.txt"
-
-MDA6MDAuMCBIb3N0IGJyaWRnZTogU2lsaWNvbiBJbnRlZ3JhdGVkIFN5c3Rl
-bXMgW1NpU10gNjMwIEhvc3QgKHJldiAxMSkNCjAwOjAwLjEgSURFIGludGVy
-ZmFjZTogU2lsaWNvbiBJbnRlZ3JhdGVkIFN5c3RlbXMgW1NpU10gNTUxMyBb
-SURFXSAocmV2IGQwKQ0KMDA6MDEuMCBJU0EgYnJpZGdlOiBTaWxpY29uIElu
-dGVncmF0ZWQgU3lzdGVtcyBbU2lTXSA4NUM1MDMvNTUxMw0KMDA6MDEuMSBF
-dGhlcm5ldCBjb250cm9sbGVyOiBTaWxpY29uIEludGVncmF0ZWQgU3lzdGVt
-cyBbU2lTXSBTaVM5MDAgMTAvMTAwIEV0aGVybmV0IChyZXYgODApDQowMDow
-MS4yIFVTQiBDb250cm9sbGVyOiBTaWxpY29uIEludGVncmF0ZWQgU3lzdGVt
-cyBbU2lTXSA3MDAxIChyZXYgMDcpDQowMDowMS4zIFVTQiBDb250cm9sbGVy
-OiBTaWxpY29uIEludGVncmF0ZWQgU3lzdGVtcyBbU2lTXSA3MDAxIChyZXYg
-MDcpDQowMDowMS40IE11bHRpbWVkaWEgYXVkaW8gY29udHJvbGxlcjogU2ls
-aWNvbiBJbnRlZ3JhdGVkIFN5c3RlbXMgW1NpU106IFVua25vd24gZGV2aWNl
-IDcwMTggKHJldiAwMSkNCjAwOjAxLjYgTW9kZW06IFNpbGljb24gSW50ZWdy
-YXRlZCBTeXN0ZW1zIFtTaVNdOiBVbmtub3duIGRldmljZSA3MDEzIChyZXYg
-YTApDQowMDowMi4wIFBDSSBicmlkZ2U6IFNpbGljb24gSW50ZWdyYXRlZCBT
-eXN0ZW1zIFtTaVNdIDU1OTEvNTU5MiBBR1ANCjAwOjBjLjAgQ2FyZEJ1cyBi
-cmlkZ2U6IFRleGFzIEluc3RydW1lbnRzOiBVbmtub3duIGRldmljZSBhYzUx
-DQowMDowYy4xIENhcmRCdXMgYnJpZGdlOiBUZXhhcyBJbnN0cnVtZW50czog
-VW5rbm93biBkZXZpY2UgYWM1MQ0KMDA6MGQuMCBGaXJlV2lyZSAoSUVFRSAx
-Mzk0KTogVGV4YXMgSW5zdHJ1bWVudHM6IFVua25vd24gZGV2aWNlIDgwMjAN
-CjAxOjAwLjAgVkdBIGNvbXBhdGlibGUgY29udHJvbGxlcjogU2lsaWNvbiBJ
-bnRlZ3JhdGVkIFN5c3RlbXMgW1NpU106IFVua25vd24gZGV2aWNlIDYzMDAg
-KHJldiAxMSkNCg==
----1094550365-31101932-981512877=:1226
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="interrupts.txt"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.20.0102070227572.1226@gamspc7.ihep.su>
-Content-Description: 
-Content-Disposition: attachment; filename="interrupts.txt"
-
-ICAgICAgICAgICBDUFUwICAgICAgIA0KICAwOiAgICAgMjIxMTU3ICAgICAg
-ICAgIFhULVBJQyAgdGltZXINCiAgMTogICAgICAgNzgwOSAgICAgICAgICBY
-VC1QSUMgIGtleWJvYXJkDQogIDI6ICAgICAgICAgIDAgICAgICAgICAgWFQt
-UElDICBjYXNjYWRlDQogIDU6ICAgICAgICAgIDAgICAgICAgICAgWFQtUElD
-ICBTaVMgNzAxOCBQQ0kgQXVkaW8NCiAxMjogICAgICAgNTcyMCAgICAgICAg
-ICBYVC1QSUMgIFBTLzIgTW91c2UNCiAxNDogICAgICA1NDQ1MCAgICAgICAg
-ICBYVC1QSUMgIGlkZTANCiAxNTogICAgICAgICAgMyAgICAgICAgICBYVC1Q
-SUMgIGlkZTENCk5NSTogICAgICAgICAgMCANCkVSUjogICAgICAgICAgMA0K
-
----1094550365-31101932-981512877=:1226
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="ioports.txt"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.20.0102070227573.1226@gamspc7.ihep.su>
-Content-Description: ioports
-Content-Disposition: attachment; filename="ioports.txt"
-
-MDAwMC0wMDFmIDogZG1hMQ0KMDAyMC0wMDNmIDogcGljMQ0KMDA0MC0wMDVm
-IDogdGltZXINCjAwNjAtMDA2ZiA6IGtleWJvYXJkDQowMDgwLTAwOGYgOiBk
-bWEgcGFnZSByZWcNCjAwYTAtMDBiZiA6IHBpYzINCjAwYzAtMDBkZiA6IGRt
-YTINCjAwZjAtMDBmZiA6IGZwdQ0KMDE3MC0wMTc3IDogaWRlMQ0KMDFmMC0w
-MWY3IDogaWRlMA0KMDJmOC0wMmZmIDogc2VyaWFsKGF1dG8pDQowMzc2LTAz
-NzYgOiBpZGUxDQowMzc4LTAzN2EgOiBwYXJwb3J0MA0KMDNjMC0wM2RmIDog
-dmdhKw0KMDNmNi0wM2Y2IDogaWRlMA0KMDNmOC0wM2ZmIDogc2VyaWFsKGF1
-dG8pDQowY2Y4LTBjZmYgOiBQQ0kgY29uZjENCjEwMDAtMTBmZiA6IFNpbGlj
-b24gSW50ZWdyYXRlZCBTeXN0ZW1zIFtTaVNdIFNpUyBQQ0kgQXVkaW8gQWNj
-ZWxlcmF0b3INCiAgMTAwMC0xMGZmIDogU2lTIDcwMTggUENJIEF1ZGlvDQox
-MTAwLTExMGYgOiBTaWxpY29uIEludGVncmF0ZWQgU3lzdGVtcyBbU2lTXSA1
-NTEzIFtJREVdDQogIDExMDAtMTEwNyA6IGlkZTANCiAgMTEwOC0xMTBmIDog
-aWRlMQ0KMzAwMC0zMGZmIDogU2lsaWNvbiBJbnRlZ3JhdGVkIFN5c3RlbXMg
-W1NpU10gU2lTOTAwIDEwLzEwMCBFdGhlcm5ldA0KICAzMDAwLTMwZmYgOiBl
-dGgwDQozMjAwLTMyZmYgOiBQQ0kgZGV2aWNlIDEwMzk6NzAxMyAoU2lsaWNv
-biBJbnRlZ3JhdGVkIFN5c3RlbXMgW1NpU10pDQozMzAwLTMzN2YgOiBQQ0kg
-ZGV2aWNlIDEwMzk6NzAxMyAoU2lsaWNvbiBJbnRlZ3JhdGVkIFN5c3RlbXMg
-W1NpU10pDQphMDAwLWFmZmYgOiBQQ0kgQnVzICMwMQ0KICBhMDAwLWEwN2Yg
-OiBTaWxpY29uIEludGVncmF0ZWQgU3lzdGVtcyBbU2lTXSBTaVM2MzAgR1VJ
-IEFjY2VsZXJhdG9yKzNEDQo=
----1094550365-31101932-981512877=:1226--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

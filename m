@@ -1,51 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268049AbUIUUJL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268054AbUIUUOh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268049AbUIUUJL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Sep 2004 16:09:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268048AbUIUUJI
+	id S268054AbUIUUOh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Sep 2004 16:14:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268052AbUIUUOh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Sep 2004 16:09:08 -0400
-Received: from mta01.mail.tds.net ([216.170.230.81]:33928 "EHLO
-	mta01.mail.tds.net") by vger.kernel.org with ESMTP id S268043AbUIUUI7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Sep 2004 16:08:59 -0400
-Date: Tue, 21 Sep 2004 15:09:29 -0500 (CDT)
-From: David Lloyd <dmlloyd@tds.net>
-To: David Woodhouse <dwmw2@infradead.org>
-cc: SashaK <sashak@smlink.com>, Mikael Pettersson <mikpe@csd.uu.se>,
-       linux-kernel@vger.kernel.org
-Subject: Re: GPL source code for Smart USB 56 modem (includes ALSA AC97  
- patch)
-In-Reply-To: <1095785705.17821.760.camel@hades.cambridge.redhat.com>
-Message-ID: <Pine.LNX.4.60.0409211504440.7029@tomservo.workpc.tds.net>
-References: <200409111850.i8BIowaq013662@harpo.it.uu.se> 
- <20040912011128.031f804a@localhost> <1095785705.17821.760.camel@hades.cambridge.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Tue, 21 Sep 2004 16:14:37 -0400
+Received: from cantor.suse.de ([195.135.220.2]:6301 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S268048AbUIUUOf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Sep 2004 16:14:35 -0400
+Date: Tue, 21 Sep 2004 22:14:25 +0200
+From: Andi Kleen <ak@suse.de>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: Andi Kleen <ak@suse.de>, Christoph Lameter <clameter@sgi.com>,
+       akpm@osdl.org, "David S. Miller" <davem@davemloft.net>,
+       benh@kernel.crashing.org, wli@holomorphy.com, davem@redhat.com,
+       raybry@sgi.com, ak@muc.de, manfred@colorfullife.com,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
+       vrajesh@umich.edu, hugh@veritas.com
+Subject: Re: page fault scalability patch V8: [4/7] universally available cmpxchg on i386
+Message-ID: <20040921201425.GH18938@wotan.suse.de>
+References: <Pine.LNX.4.58.0408150630560.324@schroedinger.engr.sgi.com> <200409211841.25507.vda@port.imtp.ilyichevsk.odessa.ua> <20040921154542.GB12132@wotan.suse.de> <200409212306.38800.vda@port.imtp.ilyichevsk.odessa.ua>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200409212306.38800.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Sep 2004, David Woodhouse wrote:
+> Looks like indirect jump is only slightly slower (on this CPU).
 
-> On Sun, 2004-09-12 at 01:11 +0300, SashaK wrote:
->> This is exactly that was discussed - 'slamr' is going to be replaced by
->> ALSA drivers. I don't know which modem you have, but recent ALSA
->> driver (CVS version) already supports ICH, SiS, NForce (snd-intel8x0m),
->> ATI IXP (snd-atiixp-modem) and VIA (snd-via82xx-modem) AC97 modems.
->
-> What chance of making it work with the ISDN drivers? Should we make an 
-> ALSA driver for ISDN?
+K7/K8 can predict indirect jumps. But most P3 and P4s can't (except for
+the new Prescotts and Centrinos). And in all cases their jump predictor works 
+worse.
 
-That's an interesting idea.  Some thoughts I'd have off the bat:
-
-- I don't think there's a software modem implementation (free or
-   otherwise) for linux that can support the server side of a digital
-   (v.90, v.92) connection, but that would be excellent to have
-
-- Americans might have an FCC concern due to power output restrictions on
-   digital modem protocols, and also other voice applications
-
-- Presumably it would only make sense to do this with voice connections
-
-- Could this idea be extended to analog telephony devices?
-
+-Andi

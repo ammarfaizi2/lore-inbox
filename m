@@ -1,37 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281783AbRKQRao>; Sat, 17 Nov 2001 12:30:44 -0500
+	id <S281784AbRKQRbp>; Sat, 17 Nov 2001 12:31:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281784AbRKQRae>; Sat, 17 Nov 2001 12:30:34 -0500
-Received: from as4-1-7.has.s.bonet.se ([217.215.31.238]:1694 "EHLO
-	k-7.stesmi.com") by vger.kernel.org with ESMTP id <S281783AbRKQRaR>;
-	Sat, 17 Nov 2001 12:30:17 -0500
-Message-ID: <3BF69ECF.7000905@stesmi.com>
-Date: Sat, 17 Nov 2001 18:30:55 +0100
-From: Stefan Smietanowski <stesmi@stesmi.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.4) Gecko/20010913
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: "Michael N. Lipp" <MNL@MNL.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: kernel 2.4.14 breaks NVIDIA-1.0-1541 console switching
-In-Reply-To: <200111171745.fAHHjnZ02112@mnlpc.dtro.e-technik.tu-darmstadt.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S281785AbRKQRbg>; Sat, 17 Nov 2001 12:31:36 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:56968
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S281784AbRKQRbY>; Sat, 17 Nov 2001 12:31:24 -0500
+Date: Sat, 17 Nov 2001 12:29:19 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+Subject: CML2 1.8.7 is available
+Message-ID: <20011117122919.A22900@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+The latest version is always available at http://www.tuxedo.org/~esr/cml2/
 
-> when I upgraded to 2.4.14, I found that console-switching doesn't work
-> anymore with the latest NVIDIA driver installed. When I try to return
-> to the console from X11 the system simply hangs (this includes
-> shutdown, which makes it a real problem). Reverting to 2.4.13 fixed
-> things. Sorry I can't report more hints.
+Release 1.8.7: Sat Nov 17 12:23:43 EST 2001
+	* Sync with 2.4.15-pre5 (except for SH port).
+	* Better CML1 type harvesting in kxref.py.
+	* Minor USB rulebase corrections.
+	* Force symbols with a y value to be written out even if the
+	  parent menu is not visible.
+	* It is now possible to derive string constants.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-Report the error to NVidia, it's their module and they don't distribute 
-the source. It's difficult to help since the bug might be in their code.
-
-// Stefan
-
-
+The United States is in no way founded upon the Christian religion
+	-- George Washington & John Adams, in a diplomatic message to Malta.

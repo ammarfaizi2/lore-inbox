@@ -1,53 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315375AbSGYQ1a>; Thu, 25 Jul 2002 12:27:30 -0400
+	id <S315214AbSGYQhe>; Thu, 25 Jul 2002 12:37:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315388AbSGYQ1a>; Thu, 25 Jul 2002 12:27:30 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:14346 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S315375AbSGYQ10>; Thu, 25 Jul 2002 12:27:26 -0400
-Message-ID: <3D40279D.6030206@zytor.com>
-Date: Thu, 25 Jul 2002 09:30:21 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020703
-X-Accept-Language: en-us, en, sv
+	id <S315218AbSGYQhe>; Thu, 25 Jul 2002 12:37:34 -0400
+Received: from www.transvirtual.com ([206.14.214.140]:12042 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S315214AbSGYQhe>; Thu, 25 Jul 2002 12:37:34 -0400
+Date: Thu, 25 Jul 2002 09:40:39 -0700 (PDT)
+From: James Simmons <jsimmons@transvirtual.com>
+To: Alan Cox <alan@irongate.swansea.linux.org.uk>
+cc: torvalds@transmeta.com, <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: 2.5.28 (resend #1) Q40 keyboard
+In-Reply-To: <200207251445.g6PEjs17010417@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0207250940010.10162-100000@www.transvirtual.com>
 MIME-Version: 1.0
-To: Andreas Dilger <adilger@clusterfs.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Header files and the kernel ABI
-References: <aho5ql$9ja$1@cesium.transmeta.com> <20020725065109.GO574@clusterfs.com> <3D3FA3B2.9090200@zytor.com> <20020725073221.GP574@clusterfs.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Dilger wrote:
-> 
-> That brings up the question - how do you tie a particular
-> <linux/abi/*.h> to a particular kernel?  Should there be a bunch of
-> directories <linux/abi-2.4/*.h> and/or <linux/abi-2.4.12/*.h> and/or
-> <linux/abi-`uname -r`/*.h> or what?  While there are efforts to keep
-> the ABI constant for major stable releases, this is not always true,
-> so abi-2.4 will certainly not be enough.  Maybe linux/abi is a symlink
-> to the abi directory of currently running kernel?
-> 
-
-Well... I guess that depends on what kind of changes we make.  In 
-general, I belive linux/abi should be cumulative, i.e. it should 
-describe "sys_stat" as well as "sys_oldstat" or whatever it is called. 
-ABI changes are hard to deal with regardless; you never really know what 
-you're breaking, and you probably have to deal with it on a case-by-case 
-basis.  People should at least understand that they're breaking the ABI, 
-which I'm not sure they currently are.
-
-In general I believe linux/abi should come from the current kernel, but 
-for obvious reasons that doesn't mean it's the kernel that's running 
-when the application is actually being executed.  This sort of things 
-apply to all ABI changes, inherently, which is why 
-non-backwards-compatible ABI changes must be avoided.  Ultimately, 
-though, it's up to the person who changes it to do the appropriate thing.
-
-	-hpa
 
 
+Strange. I placed that patch in the input BK. I guess it didn't sync up
+yet.
+
+   . ---
+   |o_o |
+   |:_/ |   Give Micro$oft the Bird!!!!
+  //   \ \  Use Linux!!!!
+ (|     | )
+ /'\_   _/`\
+ \___)=(___/
+
+On Thu, 25 Jul 2002, Alan Cox wrote:
+
+> The Q40 keyboard is only found on a Q40..
+>
+> diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.28/drivers/input/serio/Config.in linux-2.5.28-ac1/drivers/input/serio/Config.in
+> --- linux-2.5.28/drivers/input/serio/Config.in	Thu Jul 25 10:49:21 2002
+> +++ linux-2.5.28-ac1/drivers/input/serio/Config.in	Sun Jul 21 15:38:48 2002
+> @@ -12,7 +12,9 @@
+>  fi
+>  dep_tristate '  Serial port line discipline' CONFIG_SERIO_SERPORT $CONFIG_SERIO
+>  dep_tristate '  ct82c710 Aux port controller' CONFIG_SERIO_CT82C710 $CONFIG_SERIO
+> -dep_tristate '  Q40 keyboard controller' CONFIG_SERIO_Q40KBD $CONFIG_SERIO
+> +if [ "$CONFIG_Q40" = "y" ]; then
+> +   dep_tristate '  Q40 keyboard controller' CONFIG_SERIO_Q40KBD $CONFIG_SERIO
+> +fi
+>  dep_tristate '  Parallel port keyboard adapter' CONFIG_SERIO_PARKBD $CONFIG_SERIO $CONFIG_PARPORT
+>
+>  if [ "$CONFIG_ARCH_ACORN" = "y" ]; then
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

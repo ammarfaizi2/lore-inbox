@@ -1,37 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131568AbRAXS3p>; Wed, 24 Jan 2001 13:29:45 -0500
+	id <S130902AbRAXS3F>; Wed, 24 Jan 2001 13:29:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132566AbRAXS3c>; Wed, 24 Jan 2001 13:29:32 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:23047 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S132783AbRAXS3P>;
-	Wed, 24 Jan 2001 13:29:15 -0500
-Date: Wed, 24 Jan 2001 19:27:49 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Heitzso <xxh1@cdc.gov>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.1pre10 sr.c compile warning
-Message-ID: <20010124192749.A25680@suse.de>
-In-Reply-To: <B7F9A3E3FDDDD11185510000F8BDBBF2049E804C@mcdc-atl-5.cdc.gov>
-Mime-Version: 1.0
+	id <S131568AbRAXS24>; Wed, 24 Jan 2001 13:28:56 -0500
+Received: from d1c4544d.dfw14.dsl.airmail.net ([209.196.84.77]:10252 "EHLO
+	slowpoke.i-vic.net") by vger.kernel.org with ESMTP
+	id <S130902AbRAXS2d>; Wed, 24 Jan 2001 13:28:33 -0500
+From: Brad Felmey <bradf@i-vic.net>
+To: Arkadiusz Miskiewicz <misiek@pld.ORG.PL>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: vfat <-> vfat copying of ~700MB file, so slow!
+Date: Wed, 24 Jan 2001 12:23:03 -0600
+Organization: i-VIC Corp.
+Message-ID: <997u6tsn18dp9u1h97q4j5jc9a2amn1nsp@i-vic.net>
+In-Reply-To: <20010124131431.A19957@ikar.t17.ds.pwr.wroc.pl>
+In-Reply-To: <20010124131431.A19957@ikar.t17.ds.pwr.wroc.pl>
+X-Mailer: Forte Agent 1.8/32.548
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <B7F9A3E3FDDDD11185510000F8BDBBF2049E804C@mcdc-atl-5.cdc.gov>; from xxh1@cdc.gov on Wed, Jan 24, 2001 at 01:18:57PM -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 24 2001, Heitzso wrote:
-> fyi
-> 
-> while compiling 2.4.1pre10 sr.c compile
-> reports error in get_capabilities()
-> "too few arguments for format"
+On Wed, 24 Jan 2001 13:14:31 +0100, you, Arkadiusz Miskiewicz
+<misiek@pld.ORG.PL>, wrote:
 
-yeah, just add an 'i' as the argument.
+> I/O support  =  0 (default 16-bit)
 
--- 
-* Jens Axboe <axboe@suse.de>
-* SuSE Labs
+hdparm -c1 /dev/hda, or are you running in 16-bit mode on purpose?
+--
+Brad Felmey
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

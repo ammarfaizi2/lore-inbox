@@ -1,97 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312560AbSHBMiR>; Fri, 2 Aug 2002 08:38:17 -0400
+	id <S313711AbSHBMnD>; Fri, 2 Aug 2002 08:43:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313087AbSHBMiR>; Fri, 2 Aug 2002 08:38:17 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:51852 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S312560AbSHBMiP>;
-	Fri, 2 Aug 2002 08:38:15 -0400
-Date: Fri, 2 Aug 2002 14:41:39 +0200
-From: Jens Axboe <axboe@suse.de>
-To: martin@dalecki.de
-Cc: Stephen Lord <lord@sgi.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: A new ide warning message
-Message-ID: <20020802124139.GR3010@suse.de>
-References: <1028288066.1123.5.camel@laptop.americas.sgi.com> <20020802114713.GD1055@suse.de> <3D4A7178.7050307@evision.ag> <1028289940.1123.19.camel@laptop.americas.sgi.com> <3D4A771A.9020308@evision.ag> <20020802123055.GQ3010@suse.de> <3D4A7BBE.90104@evision.ag>
+	id <S314078AbSHBMnD>; Fri, 2 Aug 2002 08:43:03 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:59364 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S313711AbSHBMm7>; Fri, 2 Aug 2002 08:42:59 -0400
+Date: Fri, 2 Aug 2002 18:16:28 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org, axboe@kernel.org
+Subject: Re: [PATCH] Bio Traversal Changes (Patch 2/4: biotr8-blkusers.diff)
+Message-ID: <20020802181628.B1859@in.ibm.com>
+Reply-To: suparna@in.ibm.com
+References: <20020802180513.A1802@in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3D4A7BBE.90104@evision.ag>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020802180513.A1802@in.ibm.com>; from suparna@in.ibm.com on Fri, Aug 02, 2002 at 06:05:13PM +0530
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 02 2002, Marcin Dalecki wrote:
-> Uz.ytkownik Jens Axboe napisa?:
-> 
-> >>*/
-> >>+	ch->max_segment_size = (1<<16) - 512;
-> >>
-> >>
-> >>I would in esp. like to see the result of setting  ch->max_segment_size 
-> >>= (1 << 15).
-> >
-> >
-> >This might not be such a good idea, since the limit-bio-size etc stuff
-> >isn't in yet, depending on _exactly_ how big the bio's xfs are building
-> >are. If they are max 8 pages (I seem to recall so), then yeah the above
-> >test would be nice to see. If they are bigger than 8 pages, then the
-> >above would be a meaningless test.
-> 
-> Sure. I'm aware of this. And I haven't looked at the XFS code
-> yet, so I can only guess about it.
-> 
-> What I can do myself is just pushing this limit even lower just to
-> see at which point my own system (ext3) starts to turn tits up ...
-> 
-> >I'll hack up a rq_dump() function to slap in pcidma.c as well.
-> 
-> Yes that would be a "nice to have too".
-> But it is a request for actual data as far as I can see.
+Corresponding modifications needed in code above block layer
+to account for bio traversal changes, mainly ensuring correct 
+bi_voffset initialization when setting up bios.
 
-Yeah it's a request for data, what else could it be? That's the only
-place where we call blk_rq_map_sg().
 
-Stephen, please provoke with this patch applied. I hope it works, it's
-untested :-)
-
---- drivers/ide/pcidma.c~	2002-08-02 14:32:14.000000000 +0200
-+++ drivers/ide/pcidma.c	2002-08-02 14:39:21.000000000 +0200
-@@ -58,6 +58,24 @@
- 	return ata_error(drive, rq, __FUNCTION__);
- }
+diff -ur linux-2.5.30-pure/fs/direct-io.c linux-2.5.30-bio/fs/direct-io.c
+--- linux-2.5.30-pure/fs/direct-io.c	Fri Aug  2 10:08:29 2002
++++ linux-2.5.30-bio/fs/direct-io.c	Fri Aug  2 10:42:13 2002
+@@ -193,6 +193,9 @@
  
-+static void rq_dump(struct request *rq, int build_segments)
-+{
-+	struct bio_vec *bvec;
-+	struct bio *bio;
-+	int i = 0, ibio = 0;
-+
-+	printk("pcidma: build %d segments, supplied %d/%d, sectors %ld/%d\n", build_segments, rq->nr_phys_segments, rq->nr_hw_segments, rq->nr_sectors, rq->current_nr_sectors);
-+
-+	rq_for_each_bio(bio, rq) {
-+		bio->bi_flags &= ~(1 << BIO_SEG_VALID);
-+		printk("bio %d: phys %d, hw %d\n", ibio, bio_phys_segments(rq->q, bio), bio_hw_segments(rq->q, bio));
-+		bio_for_each_segment(bvec, bio, i) {
-+			printk("segment %d: phys %lu, size %u\n", i, bvec_to_phys(bvec), bvec->bv_len);
-+		}
-+		ibio++;
-+	}
-+}
-+
- /*
-  * FIXME: taskfiles should be a map of pages, not a long virt address... /jens
-  * FIXME: I agree with Jens --mdcki!
-@@ -107,7 +125,7 @@
- 		nents = blk_rq_map_sg(&drive->queue, rq, ch->sg_table);
+ 	bio->bi_vcnt = bio->bi_idx;
+ 	bio->bi_idx = 0;
++	bio->bi_voffset = __BVEC_START(bio)->bv_offset;
++	bio->bi_endvoffset = __BVEC_END(bio)->bv_offset +
++		__BVEC_END(bio)->bv_len;
+ 	bio->bi_private = dio;
+ 	atomic_inc(&dio->bio_count);
+ 	submit_bio(dio->rw, bio);
+diff -ur linux-2.5.30-pure/fs/jfs/jfs_logmgr.c linux-2.5.30-bio/fs/jfs/jfs_logmgr.c
+--- linux-2.5.30-pure/fs/jfs/jfs_logmgr.c	Sat Jul 27 08:28:38 2002
++++ linux-2.5.30-bio/fs/jfs/jfs_logmgr.c	Fri Aug  2 10:42:13 2002
+@@ -1817,6 +1817,9 @@
+ 	bio->bi_vcnt = 1;
+ 	bio->bi_idx = 0;
+ 	bio->bi_size = LOGPSIZE;
++	bio->bi_voffset = __BVEC_START(bio)->bv_offset;
++	bio->bi_endvoffset = __BVEC_END(bio)->bv_offset +
++		__BVEC_END(bio)->bv_len;
  
- 		if (rq->q && nents > rq->nr_phys_segments)
--			printk("ide-dma: received %d phys segments, build %d\n", rq->nr_phys_segments, nents);
-+			rq_dump(rq, nents);
+ 	bio->bi_end_io = lbmIODone;
+ 	bio->bi_private = bp;
+@@ -1959,6 +1962,9 @@
+ 	bio->bi_vcnt = 1;
+ 	bio->bi_idx = 0;
+ 	bio->bi_size = LOGPSIZE;
++	bio->bi_voffset = __BVEC_START(bio)->bv_offset;
++	bio->bi_endvoffset = __BVEC_END(bio)->bv_offset +
++		__BVEC_END(bio)->bv_len;
  
- 		if (rq_data_dir(rq) == READ)
- 			ch->sg_dma_direction = PCI_DMA_FROMDEVICE;
-
--- 
-Jens Axboe
-
+ 	bio->bi_end_io = lbmIODone;
+ 	bio->bi_private = bp;
+diff -ur linux-2.5.30-pure/fs/mpage.c linux-2.5.30-bio/fs/mpage.c
+--- linux-2.5.30-pure/fs/mpage.c	Sat Jul 27 08:28:32 2002
++++ linux-2.5.30-bio/fs/mpage.c	Fri Aug  2 10:42:13 2002
+@@ -82,6 +82,9 @@
+ {
+ 	bio->bi_vcnt = bio->bi_idx;
+ 	bio->bi_idx = 0;
++	bio->bi_voffset = __BVEC_START(bio)->bv_offset;
++	bio->bi_endvoffset = __BVEC_END(bio)->bv_offset +
++		__BVEC_END(bio)->bv_len;
+ 	bio->bi_end_io = mpage_end_io_read;
+ 	if (rw == WRITE)
+ 		bio->bi_end_io = mpage_end_io_write;
+diff -ur linux-2.5.30-pure/mm/page_io.c linux-2.5.30-bio/mm/page_io.c
+--- linux-2.5.30-pure/mm/page_io.c	Fri Aug  2 10:08:31 2002
++++ linux-2.5.30-bio/mm/page_io.c	Fri Aug  2 10:42:13 2002
+@@ -42,6 +42,9 @@
+ 		bio->bi_vcnt = 1;
+ 		bio->bi_idx = 0;
+ 		bio->bi_size = PAGE_SIZE;
++		bio->bi_voffset = __BVEC_START(bio)->bv_offset;
++		bio->bi_endvoffset = __BVEC_END(bio)->bv_offset +
++		__BVEC_END(bio)->bv_len;
+ 		bio->bi_end_io = end_io;
+ 	}
+ 	return bio;

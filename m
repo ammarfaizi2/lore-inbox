@@ -1,30 +1,41 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S154140AbPGUUyJ>; Wed, 21 Jul 1999 16:54:09 -0400
-Received: by vger.rutgers.edu id <S154285AbPGUUvE>; Wed, 21 Jul 1999 16:51:04 -0400
-Received: from TSX-PRIME.MIT.EDU ([18.86.0.76]:36094 "HELO tsx-prime.MIT.EDU") by vger.rutgers.edu with SMTP id <S154302AbPGUUlQ>; Wed, 21 Jul 1999 16:41:16 -0400
-Date: Wed, 21 Jul 1999 16:41:08 -0400
-Message-Id: <199907212041.QAA10609@tsx-prime.MIT.EDU>
-From: "Theodore Y. Ts'o" <tytso@mit.edu>
-To: Lars Kellogg-Stedman <lars@bu.edu>
-CC: Nomad the Wanderer <nomad@orci.com>, linux-kernel <linux-kernel@vger.rutgers.edu>
-In-reply-to: Lars Kellogg-Stedman's message of Wed, 21 Jul 1999 15:26:33 -0400 (EDT), <Pine.GSO.4.03.9907211520330.12022-100000@csa.bu.edu>
+Received: by vger.rutgers.edu via listexpand id <S154116AbPGVCTA>; Wed, 21 Jul 1999 22:19:00 -0400
+Received: by vger.rutgers.edu id <S154035AbPGVCSj>; Wed, 21 Jul 1999 22:18:39 -0400
+Received: from gw.simegen.com ([203.2.135.4]:4450 "EHLO gw.simegen.com") by vger.rutgers.edu with ESMTP id <S153976AbPGVCSb>; Wed, 21 Jul 1999 22:18:31 -0400
+Message-ID: <37967F3F.5F3CC5A1@zeor.simegen.com>
+Date: Thu, 22 Jul 1999 12:17:35 +1000
+From: Dancer <dancer@zeor.simegen.com>
+X-Mailer: Mozilla 4.6 [en] (Win98; I)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Theodore Y. Ts'o" <tytso@mit.edu>
+CC: Lars Kellogg-Stedman <lars@bu.edu>, Nomad the Wanderer <nomad@orci.com>, linux-kernel <linux-kernel@vger.rutgers.edu>
 Subject: Re: Device naming???
-Address: 1 Amherst St., Cambridge, MA 02139
-Phone: (617) 253-8091
+References: <199907212041.QAA10609@tsx-prime.MIT.EDU>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-The other solution for avoiding problems if a specific SCSI drive fails
-to spin up is to use entries in /etc/fstab of the following form:
+"Theodore Y. Ts'o" wrote:
+> 
+> The other solution for avoiding problems if a specific SCSI drive fails
+> to spin up is to use entries in /etc/fstab of the following form:
+> 
+> LABEL=tmp              /tmp                     ext2    defaults 1 2
+> UUID=3a30d6b4-08a5-11d3-91c3-e1fc5550af17  /usr ext2    defaults 1 2
+> 
+> The latest mount supports this, as does the very latest e2fsprogs
+> release (1.15, just released this week; see the e2fsprogs page at
+> http://web.mit.edu/tytso/www/linux/e2fsprogs.html).
 
-LABEL=tmp              /tmp                     ext2    defaults 1 2
-UUID=3a30d6b4-08a5-11d3-91c3-e1fc5550af17  /usr ext2    defaults 1 2
+Where's the UUID stored? On the drive? Wouldn't this cause problems with
+systems involving hot-swap drives? (Ie: If a scratch drive fails (as
+many have), and I go 'eek!', swap it and reboot, the drive UUID would be
+different and I'd also have to edit the fstab, right?)
 
-The latest mount supports this, as does the very latest e2fsprogs
-release (1.15, just released this week; see the e2fsprogs page at
-http://web.mit.edu/tytso/www/linux/e2fsprogs.html).
+Just checking...for my own information.
 
-						- Ted
-
+D
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

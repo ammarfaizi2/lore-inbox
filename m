@@ -1,43 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136826AbREJQBb>; Thu, 10 May 2001 12:01:31 -0400
+	id <S136838AbREJQ0G>; Thu, 10 May 2001 12:26:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136828AbREJQBW>; Thu, 10 May 2001 12:01:22 -0400
-Received: from www.linux.org.uk ([195.92.249.252]:27664 "EHLO www.linux.org.uk")
-	by vger.kernel.org with ESMTP id <S136826AbREJQBJ>;
-	Thu, 10 May 2001 12:01:09 -0400
-Date: Thu, 10 May 2001 17:00:39 +0100
-From: Chris Dukes <pakrat@www.uk.linux.org>
-To: Ed Tomlinson <tomlins@cam.org>
-Cc: reiserfs-list@namesys.com, linux-kernel@vger.kernel.org
-Subject: Re: [reiserfs-list] IDE DMA timeouts and reiserfs stability
-Message-ID: <20010510170039.C1112@parcelfarce.linux.theplanet.co.uk>
-Mail-Followup-To: Ed Tomlinson <tomlins@cam.org>, reiserfs-list@namesys.com,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <01050923423500.00777@oscar>
-Mime-Version: 1.0
+	id <S136839AbREJQZ5>; Thu, 10 May 2001 12:25:57 -0400
+Received: from anchor-post-31.mail.demon.net ([194.217.242.89]:50450 "EHLO
+	anchor-post-31.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S136838AbREJQZj>; Thu, 10 May 2001 12:25:39 -0400
+From: rjd@xyzzy.clara.co.uk
+Message-Id: <200105101625.f4AGPTh02433@xyzzy.clara.co.uk>
+Subject: Detecting Red Hat builds ?
+To: linux-kernel@vger.kernel.org
+Date: Thu, 10 May 2001 17:25:29 +0100 (BST)
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <01050923423500.00777@oscar>; from tomlins@cam.org on Wed, May 09, 2001 at 11:42:35PM -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 09, 2001 at 11:42:35PM -0400, Ed Tomlinson wrote:
-> Hi,
-> 
-> I am using 2.4.5-pre1.  Over the course of the last two weeks I have had
-> DMA timeouts occur twice.  Both times corrupted my fs.  While this is not
-> ideal, its not unexpected as things stand now.  I have seen at least three 
-> other reports on lkml about errors of this type - suspect that 2.4's ide 
-> is a little fragile in some corner cases...
+Hi,
 
-Out of curiousity, can you reproduce the problem in a 2.4 kernel with 
-Andre Hedrick's IDE patch for 2.4 applied? 
-It works for me, but that's just me.
-(ftp://ftp.kernel.org/pub/linux/kernel/people/hedrick/)
+How can I determine if the build my device driver is being compiled under is
+a standard kernel.org one or a Red Hat one ?
+
+The problem is I have a driver that includes syncppp.h which in the releases
+from kernel.org is in linux/drivers/net/wan/ up to and including 2.4.2 after
+which it moves to linux/include/net/. Can cope with this easily enough with
+a "#if LINUX_VERSION_CODE > KERNEL_VERSION(2,4,2)" but unfortunatly the
+kernel source supplied with Red Hat 7.1 reports itself as 2.4.2 but already
+has the syncppp changes from 2.4.3.
+
+I was shown a trick to solve a similar problem under 2.2.x but the symbol
+defined as a side effect of including one of the standard system headers
+is no longer present :-(
+
 
 -- 
-Chris Dukes
-The more I administer Solaris the more I believe it deserves the reputation
-HPUX has and vice versa. -- me.
+        Bob Dunlop                      FarSite Communications
+        rjd@xyzzy.clara.co.uk           bob.dunlop@farsite.co.uk
+        www.xyzzy.clara.co.uk           www.farsite.co.uk

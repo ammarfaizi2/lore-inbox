@@ -1,42 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267449AbTGHQeo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jul 2003 12:34:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267478AbTGHQeo
+	id S264985AbTGHQej (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jul 2003 12:34:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267478AbTGHQej
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jul 2003 12:34:44 -0400
-Received: from adicia.telenet-ops.be ([195.130.132.56]:49892 "EHLO
-	adicia.telenet-ops.be") by vger.kernel.org with ESMTP
-	id S267449AbTGHQei (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jul 2003 12:34:38 -0400
-Date: Tue, 8 Jul 2003 18:51:25 +0200
-From: Vincent Touquet <vincent.touquet@pandora.be>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Vincent Touquet <vincent.touquet@pandora.be>, linux-kernel@vger.kernel.org,
-       andre@linux-ide.org
-Subject: Re: [Bug report] System lockups on Tyan S2469 and lots of io [smp boot time problems too :(]
-Message-ID: <20030708165125.GL14044@ns.mine.dnsalias.org>
-Reply-To: vincent.touquet@pandora.be
-References: <20030706210243.GA25645@lea.ulyssis.org> <20030708161406.GJ14044@ns.mine.dnsalias.org> <20030708184132.A25510@ucw.cz>
+	Tue, 8 Jul 2003 12:34:39 -0400
+Received: from carisma.slowglass.com ([195.224.96.167]:23048 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S264985AbTGHQeb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jul 2003 12:34:31 -0400
+Date: Tue, 8 Jul 2003 17:49:07 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] AES for CryptoAPI - i586-optimized
+Message-ID: <20030708174907.A18997@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	linux-kernel@vger.kernel.org
+References: <20030708152755.GA24331@ghanima.endorphin.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030708184132.A25510@ucw.cz>
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030708152755.GA24331@ghanima.endorphin.org>; from clemens@endorphin.org on Tue, Jul 08, 2003 at 05:27:55PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 08, 2003 at 06:41:32PM +0200, Vojtech Pavlik wrote:
->Most likely caused by the slave devices confusing the BIOS cable
->detection. The amd74xx driver can only use what the BIOS tells it. You
->can use 'ide0=ata66' to override the cable detection.
+On Tue, Jul 08, 2003 at 05:27:55PM +0200, Fruhwirth Clemens wrote:
+> 
+> Due to the recent discussion about the asm-optimized version of AES which is
+> included in loop-AES, I'd like to point out that I've ported this
+> implementation - Dr. Brian Gladman's btw. - to CryptoAPI a long time ago.
 
-Thanks, that should solve it.
+Cool, that means we just need to hash out the framework for optimized
+implementations now..
 
-Any idea on what could cause the lockups of my system ?
-Some output of vmstat near the hangs, and also stack traces can be found
-in this thread: http://marc.theaimsgroup.com/?t=105752570500001&r=1&w=2
+A few more comments:
 
-best regards,
+> diff -r --new-file -u crypto/Kconfig ../linux-2.5.58/crypto/Kconfig
+> --- crypto/Kconfig	Thu Feb  6 13:53:47 2003
+> +++ ../linux-2.5.58/crypto/Kconfig	Tue Feb  4 00:54:18 2003
+> @@ -119,6 +119,26 @@
+>  
+>  	  See http://csrc.nist.gov/encryption/aes/ for more information.
+>  
+> +config CRYPTO_AES_586
+> +	tristate "AES cipher algorithms (586)"
+> +	depends on CRYPTO
 
-Vincent
+Should also depend on CONFIG_X86 && !CONFIG_X86_64
+
+> +$(obj)/aes-i586.o: $(obj)/aes-i586-asm.o crypto/aes-i586-glue.o
+> +	$(LD) -r $(obj)/aes-i586-asm.o $(obj)/aes-i586-glue.o -o $(obj)/aes-i586.o
+
+That's not how kernel makesfile work.  It should be something like
+
+aes-i586-y		:= aes-i586-asm.o aes-i586-glue.o
+
+> +// THE CIPHER INTERFACE
+
+Please use C-style comments.
+
+> +	if(key_length != 16 && key_length != 24 && key_length != 32)
+> +	{
+
+Should be
+
+	if (key_length != 16 && key_length != 24 && key_length != 32) {
+
+> +MODULE_DESCRIPTION("Rijndael (AES) Cipher Algorithm");
+> +MODULE_LICENSE("Dual BSD/GPL");
+
+MODULE_AUTHOR is missing.  Also the description should mention that
+this is an optimized assembly version.

@@ -1,98 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271916AbRIDJKX>; Tue, 4 Sep 2001 05:10:23 -0400
+	id <S271918AbRIDJXT>; Tue, 4 Sep 2001 05:23:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271917AbRIDJKN>; Tue, 4 Sep 2001 05:10:13 -0400
-Received: from [195.66.192.167] ([195.66.192.167]:54279 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S271916AbRIDJKA>; Tue, 4 Sep 2001 05:10:00 -0400
-Date: Tue, 4 Sep 2001 12:09:34 +0300
-From: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
-X-Mailer: The Bat! (v1.44)
-Reply-To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
-Organization: IMTP
-X-Priority: 3 (Normal)
-Message-ID: <6412704327.20010904120934@port.imtp.ilyichevsk.odessa.ua>
+	id <S271919AbRIDJXK>; Tue, 4 Sep 2001 05:23:10 -0400
+Received: from urc1.cc.kuleuven.ac.be ([134.58.10.3]:16257 "EHLO
+	urc1.cc.kuleuven.ac.be") by vger.kernel.org with ESMTP
+	id <S271918AbRIDJW5>; Tue, 4 Sep 2001 05:22:57 -0400
+Message-ID: <3B9498A6.5B216ABE@pandora.be>
+Date: Tue, 04 Sep 2001 11:02:30 +0200
+From: Bart Vandewoestyne <Bart.Vandewoestyne@pandora.be>
+Organization: MyHome
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9 i686)
+X-Accept-Language: nl-BE, nl, en, de
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
-Mime-Version: 1.0
+Subject: Dos2Linux
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A test program.
-min2 performs a very strict checking.
-min3 gives you full control, but checks for too small target type.
-Do anybody see any flaws? Any improvements?
-For compiler folks: Why GCC compiles ...f(1);f(1);f(1)... to
+How do I translate the following piece of DOS-code to linux?
+
+static union {
+  unsigned int *a;      // One 32 bits address
+  unsigned long  l;     // One 32 bits long
+  unsigned int w[2];    // Two 16 bits words
+  unsigned char  b[4];  // Four 8 bits bytes
+} DMAaddr;
+
+static union {
+  signed int w;         // One 16 bits words
+  signed char  b[2];    // Two 8 bits bytes
+} DMAcntr;
+
 ...
-        pushl $1
-        call f
-        addl $32,%esp  <-- My grandma optimizes better
-        addl $-12,%esp <-- ?
-        pushl $1
-        call f
-        addl $16,%esp  <-- ?
-        addl $-12,%esp <-- ?
-...
---------------------------------------------------------------------
-#include <stdio.h>
 
-#define min2(a,b) ({ \
-    typeof(a) __a = (a); \
-    typeof(b) __b = (b); \
-    if( sizeof(a) != sizeof(b) ) BUG(); \
-    if( ~(typeof(a))0 > 0 && ~(typeof(b))0 < 0) BUG(); \
-    if( ~(typeof(a))0 < 0 && ~(typeof(b))0 > 0) BUG(); \
-    (__a < __b) ? __a : __b; \
-    })
+static void setadr( unsigned int far *buff, unsigned int length )
+{
+  unsigned int lw;
 
-#define min3(type,a,b) ({ \
-    type __a = (a); \
-    type __b = (b); \
-    if( sizeof(a) > sizeof(type) ) BUG(); \
-    if( sizeof(b) > sizeof(type) ) BUG(); \
-    (__a < __b) ? __a : __b; \
-    })
-
-#define BUG() printf("BUG at %i\n",__LINE__)
-#define llong long long
-
-// Uncomment {} for compile, comment for gcc -S -O2 optimizer test
-void f(int v);
-// void f(int v) {}
-
-int main() {
-    signed char  sc=1; unsigned char  uc=1;
-    signed short ss=1; unsigned short us=1;
-    signed int   si=1; unsigned int   ui=1;
-    signed long  sl=1; unsigned long  ul=1;
-    signed llong su=1; unsigned llong uu=1;
-
-    f(min2(sc,sc)); // not a BUG
-    f(min2(sc,uc)); // not a BUG: (typeof(x))0 first expanded to signed int
-    f(1); // optimizer test: all the mins must be optimized to 
-    f(1); // f(1) so do gcc -S -O2 and inspect .s file
-    f(min2(ss,ss)); // not a BUG
-    f(min2(ss,us)); // not a BUG: (typeof(x))0 first expanded to signed int
-    f(min2(si,si)); // not a BUG
-    f(min2(si,ui)); // BUG: signedness mismatch
-    f(min2(sl,sl)); // not a BUG
-    f(min2(sl,ul)); // BUG: signedness mismatch
-    f(min2(su,su)); // not a BUG
-    f(min2(su,uu)); // BUG: signedness mismatch
-    f(min2(sc,ss)); // BUG: size mismatch
-    f(min3(unsigned char, sc,uc)); // not a BUG
-    f(min3(int,           sc,ss)); // not a BUG
-    f(min3(unsigned llong,ss,uu)); // not a BUG
-    f(min3(unsigned long, ss,uu)); // BUG: target type is too small
-    
-    return 0;
+  lw = FP_SEG( buff );                // Segment address of buffer
+  DMAaddr.w[1] = ( lw >> 12 ) & 0xf;    // Makes real 32bit address
+  DMAaddr.w[0] = ( lw << 4 ) & 0xfff0;
+  DMAaddr.l += ( unsigned long )FP_OFF( buff );
+  DMAcntr.w = length;
 }
--------------------------------------------------------------
-Best regards, VDA
-mailto:VDA@port.imtp.ilyichevsk.odessa.ua
-http://port.imtp.ilyichevsk.odessa.ua/vda/
 
 
+Thanks,
+mc303
+
+-- 
+Ing. Bart Vandewoestyne			 Bart.Vandewoestyne@pandora.be
+Hugo Verrieststraat 48			       GSM: +32 (0)478 397 697
+B-8550 Zwevegem			 http://users.pandora.be/vandewoestyne
+----------------------------------------------------------------------
+"Any fool can know, the point is to understand." - Albert Einstein

@@ -1,84 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264339AbUAYOer (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jan 2004 09:34:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264342AbUAYOer
+	id S264353AbUAYOaq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jan 2004 09:30:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264361AbUAYOaq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jan 2004 09:34:47 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:53442 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S264339AbUAYOep (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jan 2004 09:34:45 -0500
-Date: Sun, 25 Jan 2004 15:34:38 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Fabio Coatti <cova@ferrara.linux.it>
-Cc: Eric <eric@cisu.net>, linux-kernel@vger.kernel.org
-Subject: Re: Kernels > 2.6.1-mm3 do not boot.
-Message-ID: <20040125143438.GI513@fs.tum.de>
-References: <200401232253.08552.eric@cisu.net> <200401241639.23479.eric@cisu.net> <20040125010228.GH6441@fs.tum.de> <200401251452.58318.cova@ferrara.linux.it>
+	Sun, 25 Jan 2004 09:30:46 -0500
+Received: from ihme.org ([212.226.113.138]:5530 "EHLO ihme.org")
+	by vger.kernel.org with ESMTP id S264353AbUAYOap (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jan 2004 09:30:45 -0500
+Date: Sun, 25 Jan 2004 16:30:42 +0200
+To: linux-kernel@vger.kernel.org
+Subject: i/o wait eating all of CPU on 2.6.1
+Message-ID: <20040125143042.GA20274@ihme.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200401251452.58318.cova@ferrara.linux.it>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.5.4i
+From: Jaakko Helminen <haukkari@ihme.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 25, 2004 at 02:52:58PM +0100, Fabio Coatti wrote:
-> Alle Sunday 25 January 2004 02:02, Adrian Bunk ha scritto:
-> 
-> >
-> > Please check exactly between which two kernel versions the problem
-> > first appeared.
-> >
-> > Please send the .config of the last kernel that worked for you.
-> 
-> Confirmed here also... 
-> the latest working kernel is 2.6.1-mm3; the first non working is 2.6.1-mm4
-> The symptom is that the booting sequence stops right after "Uncompressing..".
-> I've cofnigured -mm4 using .config and "make oldconfig", answering when 
-> needed.
-> The only relevant changed config options are related to CPU, but I haven't 
-> looked in configure files.
-> I've attached both .config (working-mm3/not working 2.6.2-rc1-mm3).
-> I'm now trying to compile 2.6.2-rc1-mm3, but the problem is here from 
-> 2.6.1-mm4 (not rc).
-> I've also tried several choices for CPU (386->P4), without any change.
-> The system is a P4/HT, chipset i875p, 1Gb ram
-> If more information/test are needed, just let me know.
 
-I sent the following to Eric:
+I have two servers, both of which have more than 300 gigabytes of hard drive
+space and those files are made available to the network with samba, nfs and
+http and it worked fine with 2.6.0 but when I upgraded to 2.6.1 I noticed
+that everything was VERY slow, from a machine that is connected to the other
+server with a 100M link, 57kB/s tops. i/o wait eats up all of the cpu.
+On the other hand, Apache (and everything else) works very fast when I only
+send /dev/zero to a client, since that doesn't need disk operations.
 
-<--  snip  -->
+I don't notice anything suspicious in dmesg but since this happens on two
+machines and has only happened when upgraded to 2.6.1, it's most likely
+because of 2.6.1. I'm downgrading to 2.6.0 (with mremap-patch) today if I
+don't figure out what is wrong. Any ideas?
 
-After diffing two of your .config's, I don't see how the CPU selection 
-options might have caused this.
+And since I'm not subscribed to Linux Kernel Mailing List, please forward
+any replies to me.
 
-I'm sorry that I don't have a real idea where to search for the 
-problems, only a few thoughts how to get nearer to finding it:
 
-Please try 2.6.2-rc1 (without any -mm patch).
-
-If this kernel works, please try -mm4 with disabled SMP support and
-support for the Athlon (and no other CPUs).
-If you compile with
-  make V=1
-the kernel build is more verbose. If this kernel doesn't boot, please 
-send the complete gcc call for the compilation of a file (it doesn't 
-matter which file, e.g. one under fs/).
-
-<--  snip  -->
-
-The same is true for your .config's, so i you have some spare time these 
-tests would be interesting.
-
-TIA
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+-Jaakko Helminen
 

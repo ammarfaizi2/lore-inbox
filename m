@@ -1,31 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318263AbSGRQhk>; Thu, 18 Jul 2002 12:37:40 -0400
+	id <S318269AbSGRQpg>; Thu, 18 Jul 2002 12:45:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318269AbSGRQhj>; Thu, 18 Jul 2002 12:37:39 -0400
-Received: from copper.ftech.net ([212.32.16.118]:9156 "EHLO relay5.ftech.net")
-	by vger.kernel.org with ESMTP id <S318263AbSGRQhj>;
-	Thu, 18 Jul 2002 12:37:39 -0400
-Message-ID: <7C078C66B7752B438B88E11E5E20E72E0EF451@GENERAL.farsite.co.uk>
-From: Kevin Curtis <kevin.curtis@farsite.co.uk>
-To: linux-kernel@vger.kernel.org
-Subject: Closing a socket
-Date: Thu, 18 Jul 2002 17:36:43 +0100
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S318270AbSGRQpg>; Thu, 18 Jul 2002 12:45:36 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:64210 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S318269AbSGRQpf>;
+	Thu, 18 Jul 2002 12:45:35 -0400
+Date: Thu, 18 Jul 2002 09:47:33 -0700
+From: Anton Blanchard <anton@samba.org>
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Cc: Guillaume Boissiere <boissiere@adiglobal.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6] Most likely to be merged by Halloween... THE LIST
+Message-ID: <20020718164733.GA18988@krispykreme>
+References: <3D361091.13618.16DC46FB@localhost> <41821596.1026977488@[10.10.2.3]>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41821596.1026977488@[10.10.2.3]>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-	I have implemented a new socket address family and have noted that
-from a multi-threaded application, if a thread calls close(fd) while a
-second thread has a blocking read outstanding, the sockets release() is not
-called.  Is this correct?  How can one unblock the read in order to do the
-close.
+ 
+> shared pagetables
+> large page support
 
+Im not sure the complexity of shared pagetables is worth it. On ppc64
+it will be a real pain to support since we rely on a 1:1 mapping between
+linux and ppc64 ptes.
 
-Thanks
+Unless its a large gain over using large pages (I doubt that will be the
+case on sane chips with large TLBs) or conditional per architecture then
+I think we should avoid it.
 
-Kevin
+I do think we should get large page support in ASAP.
+
+Anton

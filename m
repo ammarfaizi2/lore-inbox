@@ -1,53 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261948AbVAYOSr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261956AbVAYOYd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261948AbVAYOSr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 09:18:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261950AbVAYOSr
+	id S261956AbVAYOYd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 09:24:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261957AbVAYOYc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 09:18:47 -0500
-Received: from relay01.roc.ny.frontiernet.net ([66.133.131.34]:65461 "EHLO
-	relay01.roc.ny.frontiernet.net") by vger.kernel.org with ESMTP
-	id S261948AbVAYOSh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 09:18:37 -0500
-Message-ID: <41F65514.3040707@xfs.org>
-Date: Tue, 25 Jan 2005 08:17:56 -0600
-From: Steve Lord <lord@xfs.org>
-User-Agent: Mozilla Thunderbird 1.0RC1 (X11/20041201)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Mukker, Atul" <Atulm@lsil.com>
-Cc: "'Andi Kleen'" <ak@muc.de>,
-       "'Marcelo Tosatti'" <marcelo.tosatti@cyclades.com>,
-       "'Mel Gorman'" <mel@csn.ul.ie>,
-       "'William Lee Irwin III'" <wli@holomorphy.com>,
-       "'Linux Memory Management List'" <linux-mm@kvack.org>,
-       "'Linux Kernel'" <linux-kernel@vger.kernel.org>,
-       "'Grant Grundler'" <grundler@parisc-linux.org>
-Subject: Re: [PATCH] Avoiding fragmentation through different allocator
-References: <0E3FA95632D6D047BA649F95DAB60E5705A70E61@exa-atlanta>
-In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E5705A70E61@exa-atlanta>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 25 Jan 2005 09:24:32 -0500
+Received: from ozlabs.org ([203.10.76.45]:26605 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261956AbVAYOYV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 09:24:21 -0500
+Date: Wed, 26 Jan 2005 01:22:10 +1100
+From: Anton Blanchard <anton@samba.org>
+To: akpm@osdl.org, nickpiggin@yahoo.com.au
+Cc: linux-kernel@vger.kernel.org, spyro@f2s.com
+Subject: [PATCH] Use MM_VM_SIZE in exit_mmap
+Message-ID: <20050125142210.GI5920@krispykreme.ozlabs.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mukker, Atul wrote:
 
-> 
-> LSI would leave no stone unturned to make the performance better for
-> megaraid controllers under Linux. If you have some hard data in relation to
-> comparison of performance for adapters from other vendors, please share with
-> us. We would definitely strive to better it.
-> 
-> The megaraid driver is open source, do you see anything that driver can do
-> to improve performance. We would greatly appreciate any feedback in this
-> regard and definitely incorporate in the driver. The FW under Linux and
-> windows is same, so I do not see how the megaraid stack should perform
-> differently under Linux and windows?
+Hi,
 
-It is not the driver per se, but the way the memory which is the I/O
-source/target is presented to the driver. In linux there is a good
-chance it will have to use more scatter gather elements to represent
-the same amount of data.
+The 4 level pagetable code changed the exit_mmap code to rely on
+TASK_SIZE. On some architectures (eg ppc64 and ia64), this is a per task
+property and bad things can happen in certain circumstances when using
+it.
 
-Steve
+It is possible for one task to end up "owning" an mm from another - we
+have seen this with the procfs code when process 1 accesses
+/proc/pid/cmdline of process 2 while it is exiting.  Process 2 exits
+but does not tear its mm down. Later on process 1 finishes with the proc
+file and the mm gets torn down at this point.
+
+Now if process 1 was 32bit and process 2 was 64bit then we end up using
+a bad value for TASK_SIZE in exit_mmap. We only tear down part of the
+address space and leave half initialised pagetables and entries in the
+MMU etc.
+
+MM_VM_SIZE() was created for this purpose (and is used in the next line
+for tlb_finish_mmu), so use it. I moved the PGD round up of TASK_SIZE
+into the default MM_VM_SIZE.
+
+As an aside, all architectures except one define FIRST_USER_PGD_NR as 0:
+
+include/asm-arm26/pgtable.h:#define FIRST_USER_PGD_NR       1
+
+It would be nice to get rid of one more magic constant and just clear
+from 0 ... MM_VM_SIZE(). That would make it consistent with the
+tlb_flush_mmu call below it too.
+
+Signed-off-by: Anton Blanchard <anton@samba.org>
+
+===== include/linux/mm.h 1.212 vs edited =====
+--- 1.212/include/linux/mm.h	2005-01-16 07:21:13 +11:00
++++ edited/include/linux/mm.h	2005-01-26 01:20:12 +11:00
+@@ -38,7 +38,7 @@
+ #include <asm/atomic.h>
+ 
+ #ifndef MM_VM_SIZE
+-#define MM_VM_SIZE(mm)	TASK_SIZE
++#define MM_VM_SIZE(mm)	((TASK_SIZE + PGDIR_SIZE - 1) & PGDIR_MASK)
+ #endif
+ 
+ #define nth_page(page,n) pfn_to_page(page_to_pfn((page)) + (n))
+===== mm/mmap.c 1.161 vs edited =====
+--- 1.161/mm/mmap.c	2005-01-13 03:26:28 +11:00
++++ edited/mm/mmap.c	2005-01-26 01:18:51 +11:00
+@@ -1995,8 +1995,7 @@
+ 					~0UL, &nr_accounted, NULL);
+ 	vm_unacct_memory(nr_accounted);
+ 	BUG_ON(mm->map_count);	/* This is just debugging */
+-	clear_page_range(tlb, FIRST_USER_PGD_NR * PGDIR_SIZE,
+-			(TASK_SIZE + PGDIR_SIZE - 1) & PGDIR_MASK);
++	clear_page_range(tlb, FIRST_USER_PGD_NR * PGDIR_SIZE, MM_VM_SIZE(mm));
+ 	
+ 	tlb_finish_mmu(tlb, 0, MM_VM_SIZE(mm));
+ 

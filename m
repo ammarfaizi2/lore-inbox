@@ -1,72 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315445AbSHIThK>; Fri, 9 Aug 2002 15:37:10 -0400
+	id <S313060AbSHITeb>; Fri, 9 Aug 2002 15:34:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315456AbSHIThJ>; Fri, 9 Aug 2002 15:37:09 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:48076 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S315445AbSHIThF>; Fri, 9 Aug 2002 15:37:05 -0400
-Subject: Re: [PATCH] Linux-2.5 fix/improve get_pid()
-From: Paul Larson <plars@austin.ibm.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Hubertus Franke <frankeh@us.ibm.com>, Rik van Riel <riel@conectiva.com.br>,
-       Andries Brouwer <aebr@win.tue.nl>, Andrew Morton <akpm@zip.com.au>,
-       andrea@suse.de, Dave Jones <davej@suse.de>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0208081500550.9114-100000@home.transmeta.com>
-References: <Pine.LNX.4.44.0208081500550.9114-100000@home.transmeta.com>
-Content-Type: text/plain
+	id <S315178AbSHITeb>; Fri, 9 Aug 2002 15:34:31 -0400
+Received: from 62-190-216-72.pdu.pipex.net ([62.190.216.72]:49924 "EHLO
+	darkstar.example.net") by vger.kernel.org with ESMTP
+	id <S313060AbSHITea>; Fri, 9 Aug 2002 15:34:30 -0400
+From: jbradford@dial.pipex.com
+Message-Id: <200208091944.g79JiTNL000542@darkstar.example.net>
+Subject: Re: No reset of IDE disk
+To: diegocg@teleline.es (Arador)
+Date: Fri, 9 Aug 2002 20:44:29 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020809201020.37c81b75.diegocg@teleline.es> from "Arador" at Aug 09, 2002 08:10:20 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 09 Aug 2002 14:34:17 -0500
-Message-Id: <1028921658.19434.365.camel@plars.austin.ibm.com>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I suspect that it would actually require more than just this.  I tried
-this with the same test I've been using and had several failed attepmts
-at low numbers by getting wierd unexpected signals (like 28), and then
-one that ran for a much longer time and produced an oops with random
-garbage to the console (trying to extract this now).
+> I posted the same message as you some weeks ago.
 
--Paul Larson
+Sorry for the wasted bandwidth then - I am usually subscribed to the list, but temporarily de-subscribed for the last week.
 
-On Thu, 2002-08-08 at 17:02, Linus Torvalds wrote:
-> ----
-> --- 1.2/include/linux/threads.h	Tue Feb  5 07:23:04 2002
-> +++ edited/include/linux/threads.h	Thu Aug  8 14:58:28 2002
-> @@ -19,6 +19,7 @@
->  /*
->   * This controls the maximum pid allocated to a process
->   */
-> -#define PID_MAX 0x8000
-> +#define PID_MASK 0x3fffffff
-> +#define PID_MAX (PID_MASK+1)
->  
->  #endif
-> ===== kernel/fork.c 1.57 vs edited =====
-> --- 1.57/kernel/fork.c	Tue Jul 30 15:49:20 2002
-> +++ edited/kernel/fork.c	Thu Aug  8 15:00:16 2002
-> @@ -142,7 +142,7 @@
->  		return 0;
->  
->  	spin_lock(&lastpid_lock);
-> -	if((++last_pid) & 0xffff8000) {
-> +	if((++last_pid) & ~PID_MASK) {
->  		last_pid = 300;		/* Skip daemons etc. */
->  		goto inside;
->  	}
-> @@ -157,7 +157,7 @@
->  			   p->tgid == last_pid	||
->  			   p->session == last_pid) {
->  				if(++last_pid >= next_safe) {
-> -					if(last_pid & 0xffff8000)
-> +					if(last_pid & ~PID_MASK)
->  						last_pid = 300;
->  					next_safe = PID_MAX;
->  				}
-> 
-> 
+> People said me that
+> after a -Y you must always do a -w. Yes, the manpage can say that the
+> kernel should do a -w of needed...but perhaps the man page is out of
+> date...people here should know more...
 
+Hmmm, the man page may well be out of date.
 
+However, I would have thought that anything that stalls the IDE queue was to be considered a bug.  I've E-Mailed Mark Lord, (the hdparm maintainer), to get some more input on this.
+
+The interesting thing is that it does automatically recover from a -Y on the laptop running 2.4.19, (as it did with 2.2.13).
+
+> the -w is the hard soft reset i think ;)
+
+Yeah, it's a device reset.
+
+> I was told to use -y. And it works well. I dont know the differences
+> between -y and -Y (apparently, it should do the same ;)
+
+Well, as far as I know, -y is intended to be a fast recovery, whereas -Y is more or less a full shut down, somewhat analogous to the various levels of power saving implemented in DPMS-compliant "green" monitors.
+
+Somewhat related to all this, I am interested in having a variable delay in the write-back caching, (yeah, I know, keeping data cached in RAM on a battery powered laptop is asking for it to get lost, but I'd like the option), that way I could spin the HD down and enjoy a much extended battery life.

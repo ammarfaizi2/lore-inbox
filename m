@@ -1,65 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129517AbRB0OkK>; Tue, 27 Feb 2001 09:40:10 -0500
+	id <S129245AbRB0OqD>; Tue, 27 Feb 2001 09:46:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129564AbRB0Oju>; Tue, 27 Feb 2001 09:39:50 -0500
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:48681 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S129563AbRB0Ojt>; Tue, 27 Feb 2001 09:39:49 -0500
-Date: Tue, 27 Feb 2001 14:39:42 +0000
-From: Tim Waugh <twaugh@redhat.com>
-To: Andrew Morton <andrewm@uow.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: timing out on a semaphore
-Message-ID: <20010227143942.C13721@redhat.com>
-In-Reply-To: <20010225224039.W13721@redhat.com> <3A9990EF.8D4ECF49@uow.edu.au>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="rVbcdceMkFY6fDyG"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3A9990EF.8D4ECF49@uow.edu.au>; from andrewm@uow.edu.au on Sun, Feb 25, 2001 at 11:10:39PM +0000
+	id <S129469AbRB0Opo>; Tue, 27 Feb 2001 09:45:44 -0500
+Received: from [138.6.98.137] ([138.6.98.137]:40967 "EHLO
+	caspian.prebus.uppsala.se") by vger.kernel.org with ESMTP
+	id <S129245AbRB0Opg>; Tue, 27 Feb 2001 09:45:36 -0500
+Message-ID: <E44E649C7AA1D311B16D0008C73304460933B0@caspian.prebus.uppsala.se>
+From: Per Erik Stendahl <PerErik@onedial.se>
+To: "'root@chaos.analogic.com'" <root@chaos.analogic.com>
+Cc: "'Linux Kernel'" <linux-kernel@vger.kernel.org>
+Subject: RE: Bug in cdrom_ioctl?
+Date: Tue, 27 Feb 2001 15:42:05 +0100
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2448.0)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---rVbcdceMkFY6fDyG
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> > In linux-2.4.2/drivers/cdrom/cdrom.c:cdrom_ioctl() branches
+> > CDROM_SET_OPTIONS and CDROM_CLEAR_OPTIONS both return like this:
+> > 
+> >     return cdi->options;
+> > 
+> > If cdi->options is non-zero, the ioctl() calls returns non-zero.
+> > My ioctl(2) manpage says that a successful ioctl() should return
+> > zero. Now I dont know which is at fault here - the cdrom.c code or
+> > the manpage. :-) Could somebody enlighten me?
+> > 
+> > /Per Erik Stendahl
+> > -
+> 
+> Specifically, (at the API) upon an error -1 (nothing else) is to be
+> returned and 'errno' set appropriately. The results of a 
+> successful ioctl()
+> operation is supposed to have been returned in the parameter list (via
+> pointer). So, you have found a design bug. I wonder how much stuff
+> gets broken if this gets fixed?
 
-On Sun, Feb 25, 2001 at 11:10:39PM +0000, Andrew Morton wrote:
+I looked around a bit more in cdrom_ioctl(). There are more cases
+where data gets passed back in the return code. If the official
+ioctl() policy is to only pass success/fail status in the return
+code then it would require some work to fix cdrom_ioctl (breaking
+a number of apps in the process :-).
 
-> I think there might be a bogon in __down_interruptible's
-> handling of the semaphore state in this case.  I remember
-> spotting something a few months back but I can't immediately
-> remember what it was :(
->=20
-> I'd suggest you slot a
->=20
-> 	sema_init(&port->physport->ieee1284.irq, 1);
->=20
-> into parport_wait_event() prior to adding the timer.  If that
-> fixes it I'll go back through my patchpile, see if I can
-> resurrect that grey cell.
+> I suggest you just fix it and see what breaks. Maybe sombody's
+> CD writer will break, but a patch will quickly be made by the
+> maintainer(s).
 
-I haven't been able to confirm that it works around it (can't repeat
-the problem here), but what would you say if I said it did? ;-)
+For now I did the quickest thing and check ioctl() for -1 instead
+of 0.
 
-Tim.
-*/
+Is there any good documentation on ioctl calls somewhere?
 
---rVbcdceMkFY6fDyG
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE6m7wtONXnILZ4yVIRAmlTAJ9DtkvvtSqbqTBjX13xJ2BXV9cynQCeLUYI
-BAKfhIMbqucDaigKWm4Ax88=
-=+lLK
------END PGP SIGNATURE-----
-
---rVbcdceMkFY6fDyG--
+/Per Erik Stendahl

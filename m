@@ -1,70 +1,125 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264257AbUDSDeX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Apr 2004 23:34:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264273AbUDSDeX
+	id S264273AbUDSDgt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Apr 2004 23:36:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264299AbUDSDgs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Apr 2004 23:34:23 -0400
-Received: from smtp107.mail.sc5.yahoo.com ([66.163.169.227]:25497 "HELO
-	smtp107.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S264257AbUDSDeV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Apr 2004 23:34:21 -0400
-Message-ID: <408348B6.7020606@yahoo.com.au>
-Date: Mon, 19 Apr 2004 13:34:14 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: vatsa@in.ibm.com
-CC: rusty@au1.ibm.com, Ingo Molnar <mingo@elte.hu>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, lhcs-devel@lists.sourceforge.net
-Subject: Re: CPU Hotplug broken -mm5 onwards
-References: <20040418170613.GA21769@in.ibm.com>
-In-Reply-To: <20040418170613.GA21769@in.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sun, 18 Apr 2004 23:36:48 -0400
+Received: from ausmtp02.au.ibm.com ([202.81.18.187]:64985 "EHLO
+	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP id S264273AbUDSDg3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Apr 2004 23:36:29 -0400
+Subject: [PATCH] Use workqueue for call_usermodehelper
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Srivatsa Vaddagiri <vatsa@in.ibm.com>
+Content-Type: text/plain
+Message-Id: <1082345766.30154.13.camel@bach>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 19 Apr 2004 13:36:06 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Srivatsa Vaddagiri wrote:
-> Hi,
-> 	I found that I can't boot with CONFIG_HOTPLUG_CPU defined in both
-> mm5 and mm6. Debugging this revealed it to be because exec path can now require 
-> cpu hotplug sem (sched_migrate_task) and this has lead to a deadlock between 
-> flush_workqueue and __call_usermodehelper. 
-> 
-> flush_workqueue takes cpu hotplug sem and blocks until workqueue is flushed.
-> __call_usermodehelper, one of the queued work function, blocks because it
-> also needs cpu hotplug sem during exec.  As of result of this, exec does not 
-> progress and system does not boot.
-> 
-> I feel we can fix this by converting cpucontrol to a reader-writer semaphore or 
-> big-reader-lock(?). One problem with reader-writer semaphore is there does not
-> seem to be any down_write_interruptible, which is needed by cpu_down/up.
-> 
-> Comments?
-> 
+[ Vatsa, this should solve your NUMA+HOTPLUG_CPU deadlock too, I think ]
 
-You are right, but it wasn't introduced in -mm or sched-domains
-patches. However, one of Ingo's recent patches does balance on
-exec for SMP, not just NUMA so it will make this more common.
+This uses the create_singlethread_workqueue() function presented in the
+last patch, although it could just as easily use create_workqueue().
 
-So, Rusty has to fix it ;)
+Name: call_usermodehelper To Use Own Workqueue
+Status: Tested on 2.6.6-rc1-bk3
+Depends: Misc/workqueue-singlethread.patch.gz
 
-I think a rwsem might be a good idea anyway, because
-sched_migrate_task can end up being called pretty often with
-balance on exec and balance on clone. The semaphore could easily
-place undue serialisation on that path.
+call_usermodehelper uses keventd to create a thread, guaranteeing a
+nice, clean kernel thread.  Unfortunately, there is a case where
+call_usermodehelper is called with &bus->subsys.rwsem held (via
+bus_add_driver()), but keventd could be running bus_add_device(),
+which is blocked on the same lock.  The result is deadlock, and it
+comes from using keventd for both.
 
-> BTW, I think a cpu_is_offline check is needed in sched_migrate_task, since
-> dest_cpu could have been downed by the time it has acquired the semaphore. 
-> In which case, we could end up adding the task to dead cpu's runqueue?
-> An alternate solution would be to put the same check in __migrate_task.
-> 
+In this case, it can be fixed by using a completely independent thread
+for call_usermodehelper, or an independent workqueue.  Workqueues have
+the infrastructure we need, so we use one.
 
-Yes you are correct.
+Move EXPORT_SYMBOL while we're there, too.
 
-Can we arrange some of these checks to disappear when HOTPLUG_CPU
-is not set? For example, make cpu_is_offline only valid to call for
-CPUs that have been online sometime, and can evaluate to 0 if
-HOTPLUG_CPU is not set?
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .23049-linux-2.6.6-rc1-bk2/kernel/kmod.c .23049-linux-2.6.6-rc1-bk2.updated/kernel/kmod.c
+--- .23049-linux-2.6.6-rc1-bk2/kernel/kmod.c	2004-04-15 16:06:55.000000000 +1000
++++ .23049-linux-2.6.6-rc1-bk2.updated/kernel/kmod.c	2004-04-18 14:34:18.000000000 +1000
+@@ -35,11 +35,13 @@
+ #include <linux/security.h>
+ #include <linux/mount.h>
+ #include <linux/kernel.h>
++#include <linux/init.h>
+ #include <asm/uaccess.h>
+ 
+ extern int max_threads;
+ 
+ #ifdef CONFIG_KMOD
++static struct workqueue_struct *khelper_wq;
+ 
+ /*
+ 	modprobe_path is set via /proc/sys.
+@@ -109,6 +111,7 @@ int request_module(const char *fmt, ...)
+ 	atomic_dec(&kmod_concurrent);
+ 	return ret;
+ }
++EXPORT_SYMBOL(request_module);
+ #endif /* CONFIG_KMOD */
+ 
+ #ifdef CONFIG_HOTPLUG
+@@ -197,9 +200,7 @@ static int wait_for_helper(void *data)
+ 	return 0;
+ }
+ 
+-/*
+- * This is run by keventd.
+- */
++/* This is run by khelper thread  */
+ static void __call_usermodehelper(void *data)
+ {
+ 	struct subprocess_info *sub_info = data;
+@@ -249,26 +250,22 @@ int call_usermodehelper(char *path, char
+ 	};
+ 	DECLARE_WORK(work, __call_usermodehelper, &sub_info);
+ 
+-	if (system_state != SYSTEM_RUNNING)
++	if (!khelper_wq)
+ 		return -EBUSY;
+ 
+ 	if (path[0] == '\0')
+-		goto out;
++		return 0;
+ 
+-	if (current_is_keventd()) {
+-		/* We can't wait on keventd! */
+-		__call_usermodehelper(&sub_info);
+-	} else {
+-		schedule_work(&work);
+-		wait_for_completion(&done);
+-	}
+-out:
++	queue_work(khelper_wq, &work);
++	wait_for_completion(&done);
+ 	return sub_info.retval;
+ }
+-
+ EXPORT_SYMBOL(call_usermodehelper);
+ 
+-#ifdef CONFIG_KMOD
+-EXPORT_SYMBOL(request_module);
+-#endif
+-
++static __init int usermodehelper_init(void)
++{
++	khelper_wq = create_singlethread_workqueue("khelper");
++	BUG_ON(!khelper_wq);
++	return 0;
++}
++__initcall(usermodehelper_init);
+
+-- 
+Anyone who quotes me in their signature is an idiot -- Rusty Russell
+

@@ -1,49 +1,33 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316300AbSE3EgG>; Thu, 30 May 2002 00:36:06 -0400
+	id <S314491AbSE3ExQ>; Thu, 30 May 2002 00:53:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316309AbSE3EgF>; Thu, 30 May 2002 00:36:05 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27146 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316300AbSE3EgF>;
-	Thu, 30 May 2002 00:36:05 -0400
-Message-ID: <3CF5ABBF.2070109@mandrakesoft.com>
-Date: Thu, 30 May 2002 00:34:07 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc2) Gecko/00200205
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-CC: Dave Jones <davej@suse.de>, "J.A. Magallon" <jamagallon@able.es>,
-        Lista Linux-Kernel <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] intel-x86 model config cleanup
-In-Reply-To: <200205300243.g4U2hIZ369399@saturn.cs.uml.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S316309AbSE3ExP>; Thu, 30 May 2002 00:53:15 -0400
+Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:65285 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S314491AbSE3ExO>;
+	Thu, 30 May 2002 00:53:14 -0400
+Date: Wed, 29 May 2002 21:51:46 -0700
+From: Greg KH <greg@kroah.com>
+To: David Weinehall <tao@acc.umu.se>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: business models [was patent stuff]
+Message-ID: <20020530045146.GA25213@kroah.com>
+In-Reply-To: <200205281713.KAA22774@freya.yggdrasil.com> <1022610136.4124.131.camel@irongate.swansea.linux.org.uk> <20020529234445.O9911@khan.acc.umu.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.2.21 (i586)
+Reply-By: Thu, 02 May 2002 03:39:18 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Albert D. Cahalan wrote:
+On Wed, May 29, 2002 at 11:44:45PM +0200, David Weinehall wrote:
+> 
+> An interesting question is whether the licensing terms used for this
+> patent would pass the DFSG (Debian Free Software Guidelines)?!
 
->  
->
->I want one kernel. I have a Pentium-MMX and a Pentium Pro.
->I don't need support for a 386, 486, Athlon, or Xeon.
->  
->
+According to the folks on debian-legal, there's already other portions
+of the kernel that do not pass those guidelines :)
 
-
-It depends on how much work the patch author wants to do.  This is a 
-perfectly reasonable request, but increases the complexity of the 
-overall problem somewhat.
-
-Your current solution, whatever it is, should map directly onto one of 
-the 'generic kernel' selections, hopefully.  So, what you are really 
-asking for is an RFE to add on to this RFE currently being discussed :)
-
-    Jeff
-
-
-
-
+greg k-h

@@ -1,33 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261536AbSI2RWV>; Sun, 29 Sep 2002 13:22:21 -0400
+	id <S261357AbSI2Rah>; Sun, 29 Sep 2002 13:30:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261543AbSI2RWU>; Sun, 29 Sep 2002 13:22:20 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:29714 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261536AbSI2RVr>; Sun, 29 Sep 2002 13:21:47 -0400
-Date: Sun, 29 Sep 2002 18:27:07 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Matthew Wilcox <willy@debian.org>
-Cc: Hu Gang <gang_hu@soul.com.cn>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] Serial 2/2
-Message-ID: <20020929182706.B15924@flint.arm.linux.org.uk>
-References: <20020929171104.G18377@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020929171104.G18377@parcelfarce.linux.theplanet.co.uk>; from willy@debian.org on Sun, Sep 29, 2002 at 05:11:04PM +0100
+	id <S261362AbSI2Rah>; Sun, 29 Sep 2002 13:30:37 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:30728 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261357AbSI2Rag>;
+	Sun, 29 Sep 2002 13:30:36 -0400
+Message-ID: <3D9739DF.8080704@pobox.com>
+Date: Sun, 29 Sep 2002 13:35:27 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: MandrakeSoft
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jochen Friedrich <jochen@scram.de>
+CC: Andi Kleen <ak@muc.de>, jbradford@dial.pipex.com,
+       linux-kernel@vger.kernel.org, debian-ipv6@debian.org
+Subject: Re: v2.6 vs v3.0
+References: <Pine.LNX.4.44.0209291914220.18326-100000@alpha.bocc.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 29, 2002 at 05:11:04PM +0100, Matthew Wilcox wrote:
-> i'm not sure about the rest of your changes, but this one is definitely
-> wrong.
+Jochen Friedrich wrote:
+> So IPv6 is returned by the resolver even though IPv6 isn't available in
+> the kernel. The default of the resolver options should be dependent
+> on the presence or absence of IPv6 in the currently running kernel IMHO.
 
-I've sent Hu my proposed solution and I'm waiting to hear back.
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+That sounds like glibc's problem...
+
+glibc also has really stupid and annoying /etc/hosts behavior which 
+needs fixing, and IIRC it is related to IPv6...
+
+	Jeff
+
+
 

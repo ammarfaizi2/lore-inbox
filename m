@@ -1,48 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261701AbSLZBmc>; Wed, 25 Dec 2002 20:42:32 -0500
+	id <S261732AbSLZBpA>; Wed, 25 Dec 2002 20:45:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261724AbSLZBmc>; Wed, 25 Dec 2002 20:42:32 -0500
-Received: from [66.21.109.1] ([66.21.109.1]:45831 "EHLO
-	mail.dynastytechnologies.net") by vger.kernel.org with ESMTP
-	id <S261701AbSLZBmc> convert rfc822-to-8bit; Wed, 25 Dec 2002 20:42:32 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Ro0tSiEgE <lkml@ro0tsiege.org>
+	id <S261733AbSLZBpA>; Wed, 25 Dec 2002 20:45:00 -0500
+Received: from mail.econolodgetulsa.com ([198.78.66.163]:60941 "EHLO
+	mail.econolodgetulsa.com") by vger.kernel.org with ESMTP
+	id <S261732AbSLZBo7>; Wed, 25 Dec 2002 20:44:59 -0500
+Date: Wed, 25 Dec 2002 17:53:15 -0800 (PST)
+From: Josh Brooks <user@mail.econolodgetulsa.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] 2.4 series: IDE driver
-Date: Wed, 25 Dec 2002 19:53:49 -0600
-User-Agent: KMail/1.4.3
-References: <200212251134.gBPBYxJ29966@oboe.it.uc3m.es> <200212251931.50379.lkml@ro0tsiege.org> <20021226014457.GA4263@gtf.org>
-In-Reply-To: <20021226014457.GA4263@gtf.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>
+Subject: CPU failures ... or something else ?
+Message-ID: <20021225175232.O6873-100000@mail.econolodgetulsa.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200212251953.49344.lkml@ro0tsiege.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry, the kernel is 2.4.21-pre2. At first I had ACPI enabled, and it would 
-not boot at all. The last kernel message was showing the ACPI info (release 
-version, etc) and it just froze right there, no oops or anything. Now I have 
-no power management whatsoever compiled in and I'm getting the hard drive 
-errors. I can't boot it long enough to d/l hdparm to turn off DMA. I turned 
-"32-bit I/O" off in the BIOS, now it locks within seconds of completely 
-booting up. Any help is appreciated.
 
-On Wednesday 25 December 2002 19:44, you wrote:
-> On Wed, Dec 25, 2002 at 07:31:50PM -0600, Ro0tSiEgE wrote:
-> > I own an HP Pavilion ze4145 notebook, and the ALi5x3 chipset bombs after
-> > about 30-40mins of use with "hda: lost interrupt" commands, and this
-> > continues until I cut the power, though sometimes after about an hour it
-> > will reset and go on, but it is very iffy. I noticed that "32-bit I/O"
-> > was disabled by default in the BIOS, however I have enabled it. Is this a
-> > problem in the kernels ALi drivers or what? The XP install that came with
-> > it works fine. What suggestions to fixing this? Thanks
->
-> What kernel version?  I'm sorry if I missed it.
->
-> Do you have ACPI enabled?
->
-> Try booting with "acpi=off", or with "noapic".
->
-> 	Jeff
+Hello,
+
+I have a dual p3 866 running 2.4 kernel that is crashing once every few
+days leaving this on the console:
+
+
+Message from syslogd@localhost at Tue Dec 24 11:30:31 2002 ...
+localhost kernel: CPU 1: Machine Check Exception: 0000000000000004
+
+Message from syslogd@localhost at Tue Dec 24 11:30:32 2002 ...
+localhost kernel: Bank 4: b200000000040151
+
+Message from syslogd@localhost at Tue Dec 24 11:30:32 2002 ...
+localhost kernel: Kernel panic: CPU context corrupt
+
+
+
+Word on the street is that this indicates hardware failure of some kind
+(cpu, bus, or memory).  My main question is, is that very surely the
+culprit, or is it also possible that all of the hardware is perfect and
+that a bug in the kernel code or some outside influence (remote exploit)
+is causing this crash ?
+
+Basically, I am ordering all new hardware to swap out, and I just want to
+know if there is some remote possibility that my hardware is actually just
+fine and this is some kind of software error ?
+
+ALSO, I have not been physically at the console when this has happened,
+and have not tried this yet, but whatever that thing is where you press
+ctrl-alt-printscreen and get to enter those post-crash commands - do you
+think that would work in this situation, or does the above error hard lock
+the system so you can't do those emergency measures ?
+
+thanks!
+
+

@@ -1,94 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263497AbTLOKjR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 05:39:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263496AbTLOKjR
+	id S263468AbTLOK53 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 05:57:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263475AbTLOK53
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 05:39:17 -0500
-Received: from ltgp.iram.es ([150.214.224.138]:20352 "EHLO ltgp.iram.es")
-	by vger.kernel.org with ESMTP id S263497AbTLOKjO (ORCPT
+	Mon, 15 Dec 2003 05:57:29 -0500
+Received: from mail2.neceur.com ([193.116.254.4]:16089 "EHLO mail2.neceur.com")
+	by vger.kernel.org with ESMTP id S263468AbTLOK52 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 05:39:14 -0500
-From: Gabriel Paubert <paubert@iram.es>
-Date: Mon, 15 Dec 2003 11:31:43 +0100
-To: Vladimir Kondratiev <vladimir.kondratiev@intel.com>
-Cc: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>,
-       Alan Cox <alan@redhat.com>, Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Martin Mares <mj@ucw.cz>, zaitcev@redhat.com, hch@infradead.org
-Subject: Re: PCI Express support for 2.4 kernel
-Message-ID: <20031215103142.GA8735@iram.es>
-References: <3FDCC171.9070902@intel.com> <3FDCCC12.20808@pobox.com> <3FDD8691.80206@intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3FDD8691.80206@intel.com>
-User-Agent: Mutt/1.5.4i
+	Mon, 15 Dec 2003 05:57:28 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: Fixes for nforce2 hard lockup, apic, io-apic, udma133 covered
+MIME-Version: 1.0
+X-Mailer: Lotus Notes Build V65_M1_04032003NP April 03, 2003
+Message-ID: <OFAC3015E2.784FA52E-ON80256DFD.003A2DB1-80256DFD.003C2F2D@uk.neceur.com>
+From: ross.alexander@uk.neceur.com
+Date: Mon, 15 Dec 2003 10:57:16 +0000
+X-MIMETrack: Serialize by Router on LDN-THOTH/E/NEC(Release 5.0.10 |March 22, 2002) at
+ 12/15/2003 10:57:17 AM,
+	Serialize complete at 12/15/2003 10:57:17 AM,
+	Itemize by SMTP Server on ldn-hermes/E/NEC(Release 5.0.10 |March 22, 2002) at
+ 15/12/2003 10:52:52,
+	Serialize by Router on ldn-hermes/E/NEC(Release 5.0.10 |March 22, 2002) at
+ 15/12/2003 10:52:54,
+	Serialize complete at 15/12/2003 10:52:54
+Content-Type: text/plain; charset="US-ASCII"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hi, 
-	
-On Mon, Dec 15, 2003 at 12:01:53PM +0200, Vladimir Kondratiev wrote:
-> >>+/**
-> >>+ * Initializes PCI Express method for config space access.
-> >>+ * + * There is no standard method to recognize presence of PCI 
-> >>Express,
-> >>+ * thus we will assume it is PCI-E, and rely on sanity check to
-> >>+ * deassert PCI-E presense. If PCI-E not present,
-> >>+ * there is no physical RAM on RRBAR address, and we should read
-> >>+ * something like 0xff.
-> >>+ * + * Creates mapping for whole 256M area.
-> >>+ * + * @return 1 if OK, 0 if error
-> >>+ */
-> >>+static int pci_express_init(void)
-> >>+{
-> >>+  /* TODO: check PCI-Ex presense */
-> >
-> >
-> >Um, this sounds critical.  We should not merge this patch until this 
-> >'TODO' is complete, in my opinion.
-> 
-> As I explained in comment to function, it is not really critical. The 
-> problem is, there is no generic way (or I don't know it) to recognize 
-> PCI-E. One suggest to go over all devices and see whether PCI-E 
-> capability present for at least one of them. I don't think it is good 
-> way to do. Sanity check do pretty good job here. If it is not PCI-E 
-> platform, this address in physical memory will not be connected to 
-> anything real. You will get 0xff's.
+Hi all,
 
-Or a machine check on some architectures which make you know that 
-they don't like a bus cycle which terminates on a master abort.
+Just a quick note saying I've been running my nforce2 for nearly four
+days with considerable I/O and no trouble.
 
-> Agree. Fixed, except 1-st "+", since virtual addres may be not aligned 
-> on 256M boundary
+Processor: AMD Athlon XP 2700+
+MB: ASUS A7N8X Deluxe
+APCI: Turned off in kernel config
+Boot params: acpi=off noapic
+Kernel: 2.6.0-test11-bk7 + disconnect quirk patch
 
-The major problem I see is that using up 256 Mb of kernel virtual address 
-space for accessing PCI config space is gross. Besides that it won't
-work for 32 bit machines with 768 Mb of RAM or more.
+I still have a considerable number of spurious IRQs (but < 1%
+compared to IRQ0 / LINT).  I'm not running the timer patch
+at all.
 
-I believe that it would be better to use kmap/kunmap like tricks, especially 
-for something which is relatively infrequent. You could even reserve
-a fixmap entry for this and keep somewhere a pointer to the PTE, which 
-would be modified on every config space access (config space access was
-already properly serialized last time I looked, I believe that all you need 
-is a TLB flush after the PTE is updated).
+I will try with latest bk kernel + disconnect  + acpi compiled in.
 
-I have no strong opinion on how to handle 64 bit archs.
+Questions.
 
-> 
-> >Further, PCI posting:  a writeb() / writew() / writel() will not be 
-> >flushed immediately to the processor.  The CPU and/or PCI bridge may 
-> >post (delay/combine) such writes.  I do not think this is a desireable 
-> >effect, for PCI config register accesses.
-> >
-> Good point. Fixed.
+1) Does anybody know the state of play ala 2.6.0 release and which
+patches we can get in?
 
-Here I'm somehwat lost. Writes to uncacheable RAM will be in program 
-order and never combined. The bridge itself should not post writes to 
-config space. So it's a matter of pushing the write to the processor
-bus, a PCI read looks very heavy for this. Isn't there a more
-lightweight solution ?
+2) If the local apic is running is it necessary to use the 8254 as a 
+timer?
 
-	Regards,
-	Gabriel
+3) Does anybody, anywhere, have any nvidia documentation and
+is it worth trying to bully them into releasing some?
 
+Cheers,
+
+Ross
+
+---------------------------------------------------------------------------------
+Ross Alexander                           "We demand clearly defined
+MIS - NEC Europe Limited            boundaries of uncertainty and
+Work ph: +44 20 8752 3394         doubt."

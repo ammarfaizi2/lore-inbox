@@ -1,31 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284969AbRLUSy7>; Fri, 21 Dec 2001 13:54:59 -0500
+	id <S284987AbRLUTFL>; Fri, 21 Dec 2001 14:05:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284972AbRLUSyz>; Fri, 21 Dec 2001 13:54:55 -0500
-Received: from [129.27.43.9] ([129.27.43.9]:10250 "EHLO xarch.tu-graz.ac.at")
-	by vger.kernel.org with ESMTP id <S284969AbRLUSyl>;
-	Fri, 21 Dec 2001 13:54:41 -0500
-Date: Fri, 21 Dec 2001 19:54:37 +0100 (CET)
-From: Alex <mail_ker@xarch.tu-graz.ac.at>
-To: Dana Lacoste <dana.lacoste@peregrine.com>
-cc: linux-kernel@vger.kernel.org,
-        "Linux-Net (E-mail)" <linux-net@vger.kernel.org>
-Subject: RE: conclusion: arp.c *must* be (still) defective
-In-Reply-To: <B51F07F0080AD511AC4A0002A52CAB445B2A2F@ottonexc1.ottawa.loran.com>
-Message-ID: <Pine.LNX.4.10.10112211953560.6988-100000@xarch.tu-graz.ac.at>
+	id <S284989AbRLUTFA>; Fri, 21 Dec 2001 14:05:00 -0500
+Received: from pop.gmx.net ([213.165.64.20]:49105 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S284987AbRLUTEr>;
+	Fri, 21 Dec 2001 14:04:47 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Hans-Christian Armingeon <linux.johnny@gmx.net>
+To: linux-kernel@vger.kernel.org
+Subject: hunk patching net/Makefile in 2.4.17
+Date: Fri, 21 Dec 2001 21:03:08 +0100
+X-Mailer: KMail [version 1.3.2]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011221190451Z284987-18284+5767@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi folks,
+anybody got the same error? I belive that my kernel tree is a vanilla tree.
+
+patching file net/Makefile
+Hunk #1 succeeded at 14 with fuzz 1.
+Hunk #2 succeeded at 28 (offset 1 line).
+patching file net/README
 
 
-On Fri, 21 Dec 2001, Dana Lacoste wrote:
-
-> Moving to linux-net because it's more appropriate there, don't you think?
-
-Dana : That depends! I think it might be a "thingie" between
-isa-plugandplay and arp.c/netcode .... its a isa-plugandplaycard....
-
+Thanks Johnny
 

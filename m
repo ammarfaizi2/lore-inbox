@@ -1,72 +1,199 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261468AbVDEANa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261474AbVDEAgK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261468AbVDEANa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 20:13:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261455AbVDDWzY
+	id S261474AbVDEAgK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 20:36:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261477AbVDEAgK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 18:55:24 -0400
-Received: from nwkea-mail-2.sun.com ([192.18.42.14]:36246 "EHLO
-	nwkea-mail-2.sun.com") by vger.kernel.org with ESMTP
-	id S261458AbVDDWtn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 18:49:43 -0400
-Subject: Re: [openib-general] [PATCH][RFC][3/4] IB: userspace verbs mthca
-	changes
-From: Tom Duffy <tduffy@sun.com>
-To: Roland Dreier <roland@topspin.com>
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-In-Reply-To: <200544159.AzH1nqpM3uTQZaKG@topspin.com>
-References: <200544159.AzH1nqpM3uTQZaKG@topspin.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-i06RB/mQ+GW4MBCVQhIL"
-Date: Mon, 04 Apr 2005 15:49:35 -0700
-Message-Id: <1112654975.22537.12.camel@duffman>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 (2.2.1.1-2) 
+	Mon, 4 Apr 2005 20:36:10 -0400
+Received: from ctb-mesg7.saix.net ([196.25.240.79]:51966 "EHLO
+	ctb-mesg7.saix.net") by vger.kernel.org with ESMTP id S261474AbVDEAfo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Apr 2005 20:35:44 -0400
+Message-ID: <4251DD5A.2020801@kroon.co.za>
+Date: Tue, 05 Apr 2005 02:35:38 +0200
+From: Jaco Kroon <jaco@kroon.co.za>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.6) Gecko/20050328
+X-Accept-Language: en, af, en-gb, en-us
+MIME-Version: 1.0
+To: dtor_core@ameritech.net
+Cc: linux-kernel@vger.kernel.org, Sebastian Piechocki <sebekpi@poczta.onet.pl>
+Subject: Re: i8042 controller on Toshiba Satellite P10 notebook - patch
+References: <425166F9.1040800@kroon.co.za>	 <d120d5000504040954354fb3fa@mail.gmail.com>	 <42517442.20602@kroon.co.za>	 <d120d500050404110374fe9deb@mail.gmail.com>	 <4251A515.8040802@kroon.co.za>	 <d120d500050404140253a77ab8@mail.gmail.com>	 <4251B6E2.3010506@kroon.co.za>	 <d120d50005040415506cd87287@mail.gmail.com>	 <4251D3CB.4010501@kroon.co.za> <d120d50005040417151987558d@mail.gmail.com>
+In-Reply-To: <d120d50005040417151987558d@mail.gmail.com>
+X-Enigmail-Version: 0.90.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg=sha1; boundary="------------ms070308000408070706070200"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a cryptographically signed message in MIME format.
 
---=-i06RB/mQ+GW4MBCVQhIL
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+--------------ms070308000408070706070200
+Content-Type: multipart/mixed;
+ boundary="------------050203080004020307000703"
 
-On Mon, 2005-04-04 at 15:09 -0700, Roland Dreier wrote:
-> --- linux-export.orig/drivers/infiniband/hw/mthca/mthca_dev.h	2005-04-04 =
-14:57:12.254750421 -0700
-> +++ linux-export/drivers/infiniband/hw/mthca/mthca_dev.h	2005-04-04 14:58=
-:12.411669307 -0700
-> @@ -49,14 +49,6 @@
->  #define DRV_VERSION	"0.06-pre"
->  #define DRV_RELDATE	"November 8, 2004"
-> =20
-> -/* XXX remove once SINAI defines make it into kernel.org */
-> -#ifndef PCI_DEVICE_ID_MELLANOX_SINAI_OLD
-> -#define PCI_DEVICE_ID_MELLANOX_SINAI_OLD 0x5e8c
-> -#endif
-> -#ifndef PCI_DEVICE_ID_MELLANOX_SINAI
-> -#define PCI_DEVICE_ID_MELLANOX_SINAI 0x6274
-> -#endif
-> -
->  enum {
->  	MTHCA_FLAG_DDR_HIDDEN =3D 1 << 1,
->  	MTHCA_FLAG_SRQ        =3D 1 << 2,
+This is a multi-part message in MIME format.
+--------------050203080004020307000703
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-Now, you are really gonna hate me for asking you to put this in as you
-probably did not want to include this in the patch to lkml.
+Dmitry Torokhov wrote:
 
-So, maybe Grant was right ;-)
+> A-haa.. Well, in that case we'll cheat ;) and just disable MUX mode
+> for your Toshiba via a DMI quirk, like we do for certain Fujitsus. If
+> there is no external port there is no reason to have the controller in
+> MUX mode.
+> 
+> Could you please send me output of 'dmidecode' utility?
 
--tduffy
+Ah yes.  Your lucky it's only a 37KB download.  Some nice tools...
 
---=-i06RB/mQ+GW4MBCVQhIL
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+It's a _lot_ of output so I'm again rather attaching it (gzipped).
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+Would this quirk also imply usb-handoff?
 
-iD8DBQBCUcR+dY502zjzwbwRAs7nAJ9oH/kLR0hwx4TtDmUuSuQVx/6YnACeLtL/
-tprvo+97FIbSRC8rSKsyTrg=
-=j7ia
------END PGP SIGNATURE-----
+One (hopefully) last query, lspci reports the following device (which I
+assume is the SD card reader):
 
---=-i06RB/mQ+GW4MBCVQhIL--
+0000:02:04.2 Class 0805: ENE Technology Inc: Unknown device 0550
+
+How can one confirm what this is?
+
+Jaco
+-- 
+There are only 10 kinds of people in this world,
+  those that understand binary and those that don't.
+http://www.kroon.co.za/
+
+--------------050203080004020307000703
+Content-Type: application/gzip;
+ name="dmidecode.gz"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="dmidecode.gz"
+
+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
+--------------050203080004020307000703--
+
+--------------ms070308000408070706070200
+Content-Type: application/x-pkcs7-signature; name="smime.p7s"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Description: S/MIME Cryptographic Signature
+
+MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIII5TCC
+As0wggI2oAMCAQICAw3p1jANBgkqhkiG9w0BAQQFADBiMQswCQYDVQQGEwJaQTElMCMGA1UE
+ChMcVGhhd3RlIENvbnN1bHRpbmcgKFB0eSkgTHRkLjEsMCoGA1UEAxMjVGhhd3RlIFBlcnNv
+bmFsIEZyZWVtYWlsIElzc3VpbmcgQ0EwHhcNMDUwMTI4MjExMjIzWhcNMDYwMTI4MjExMjIz
+WjBCMR8wHQYDVQQDExZUaGF3dGUgRnJlZW1haWwgTWVtYmVyMR8wHQYJKoZIhvcNAQkBFhBq
+YWNvQGtyb29uLmNvLnphMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA4CsLuOWD
+wimwAv4QLdlT99frJCwzUBVQNL7c7x4ufEquAH6RamWfQyQHzykEJM8NeMIrfb+k3fZEi+ZU
+g5sq2uIqzOuCJsIj0x3LnoydXTikbv1AFWQDEuqITlroA8bGJE/mMlbPrKyDACPo5cQAzUQz
+LAg7LQQQVkKNWH4eeXUwZ5lOZEWWno0P5DXHdSLQxCshgWVPRrbtKe25WGObqJMa//1T5qX8
+0mKIdAbHlz90BwgX/MjLp0BpXTii2653ScOujCLTC3cPdDUDK68qG7RqatVw5+HE/npJIWa1
+0TxJUp5Ii8nPbGPzpEWQmZ8TjkjMs26w80PPPKh2Vh2siQIDAQABoy0wKzAbBgNVHREEFDAS
+gRBqYWNvQGtyb29uLmNvLnphMAwGA1UdEwEB/wQCMAAwDQYJKoZIhvcNAQEEBQADgYEAqXNX
+QEMTVQoj3JoEwK9vlfqSVz5ZEUklpgEhwFJsD+PKa/LgUGVHk3Gw8wws4+wZxmpOsJ7vdiWL
+y8zlX7HfPWMcbibTi6C7nT6WahqdeAo3kVjhnMqJ3Sf6sX0JGl9bWfIhgmIVy/ZdM2ztrXwd
+rbWiT7un5lM05D4YPCNH9fcwggLNMIICNqADAgECAgMN6dYwDQYJKoZIhvcNAQEEBQAwYjEL
+MAkGA1UEBhMCWkExJTAjBgNVBAoTHFRoYXd0ZSBDb25zdWx0aW5nIChQdHkpIEx0ZC4xLDAq
+BgNVBAMTI1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBJc3N1aW5nIENBMB4XDTA1MDEyODIx
+MTIyM1oXDTA2MDEyODIxMTIyM1owQjEfMB0GA1UEAxMWVGhhd3RlIEZyZWVtYWlsIE1lbWJl
+cjEfMB0GCSqGSIb3DQEJARYQamFjb0Brcm9vbi5jby56YTCCASIwDQYJKoZIhvcNAQEBBQAD
+ggEPADCCAQoCggEBAOArC7jlg8IpsAL+EC3ZU/fX6yQsM1AVUDS+3O8eLnxKrgB+kWpln0Mk
+B88pBCTPDXjCK32/pN32RIvmVIObKtriKszrgibCI9Mdy56MnV04pG79QBVkAxLqiE5a6APG
+xiRP5jJWz6ysgwAj6OXEAM1EMywIOy0EEFZCjVh+Hnl1MGeZTmRFlp6ND+Q1x3Ui0MQrIYFl
+T0a27SntuVhjm6iTGv/9U+al/NJiiHQGx5c/dAcIF/zIy6dAaV04otuud0nDrowi0wt3D3Q1
+AyuvKhu0amrVcOfhxP56SSFmtdE8SVKeSIvJz2xj86RFkJmfE45IzLNusPNDzzyodlYdrIkC
+AwEAAaMtMCswGwYDVR0RBBQwEoEQamFjb0Brcm9vbi5jby56YTAMBgNVHRMBAf8EAjAAMA0G
+CSqGSIb3DQEBBAUAA4GBAKlzV0BDE1UKI9yaBMCvb5X6klc+WRFJJaYBIcBSbA/jymvy4FBl
+R5NxsPMMLOPsGcZqTrCe73Yli8vM5V+x3z1jHG4m04ugu50+lmoanXgKN5FY4ZzKid0n+rF9
+CRpfW1nyIYJiFcv2XTNs7a18Ha21ok+7p+ZTNOQ+GDwjR/X3MIIDPzCCAqigAwIBAgIBDTAN
+BgkqhkiG9w0BAQUFADCB0TELMAkGA1UEBhMCWkExFTATBgNVBAgTDFdlc3Rlcm4gQ2FwZTES
+MBAGA1UEBxMJQ2FwZSBUb3duMRowGAYDVQQKExFUaGF3dGUgQ29uc3VsdGluZzEoMCYGA1UE
+CxMfQ2VydGlmaWNhdGlvbiBTZXJ2aWNlcyBEaXZpc2lvbjEkMCIGA1UEAxMbVGhhd3RlIFBl
+cnNvbmFsIEZyZWVtYWlsIENBMSswKQYJKoZIhvcNAQkBFhxwZXJzb25hbC1mcmVlbWFpbEB0
+aGF3dGUuY29tMB4XDTAzMDcxNzAwMDAwMFoXDTEzMDcxNjIzNTk1OVowYjELMAkGA1UEBhMC
+WkExJTAjBgNVBAoTHFRoYXd0ZSBDb25zdWx0aW5nIChQdHkpIEx0ZC4xLDAqBgNVBAMTI1Ro
+YXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBJc3N1aW5nIENBMIGfMA0GCSqGSIb3DQEBAQUAA4GN
+ADCBiQKBgQDEpjxVc1X7TrnKmVoeaMB1BHCd3+n/ox7svc31W/Iadr1/DDph8r9RzgHU5VAK
+MNcCY1osiRVwjt3J8CuFWqo/cVbLrzwLB+fxH5E2JCoTzyvV84J3PQO+K/67GD4Hv0CAAmTX
+p6a7n2XRxSpUhQ9IBH+nttE8YQRAHmQZcmC3+wIDAQABo4GUMIGRMBIGA1UdEwEB/wQIMAYB
+Af8CAQAwQwYDVR0fBDwwOjA4oDagNIYyaHR0cDovL2NybC50aGF3dGUuY29tL1RoYXd0ZVBl
+cnNvbmFsRnJlZW1haWxDQS5jcmwwCwYDVR0PBAQDAgEGMCkGA1UdEQQiMCCkHjAcMRowGAYD
+VQQDExFQcml2YXRlTGFiZWwyLTEzODANBgkqhkiG9w0BAQUFAAOBgQBIjNFQg+oLLswNo2as
+Zw9/r6y+whehQ5aUnX9MIbj4Nh+qLZ82L8D0HFAgk3A8/a3hYWLD2ToZfoSxmRsAxRoLgnSe
+JVCUYsfbJ3FXJY3dqZw5jowgT2Vfldr394fWxghOrvbqNOUQGls1TXfjViF4gtwhGTXeJLHT
+HUb/XV9lTzGCAzswggM3AgEBMGkwYjELMAkGA1UEBhMCWkExJTAjBgNVBAoTHFRoYXd0ZSBD
+b25zdWx0aW5nIChQdHkpIEx0ZC4xLDAqBgNVBAMTI1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFp
+bCBJc3N1aW5nIENBAgMN6dYwCQYFKw4DAhoFAKCCAacwGAYJKoZIhvcNAQkDMQsGCSqGSIb3
+DQEHATAcBgkqhkiG9w0BCQUxDxcNMDUwNDA1MDAzNTM4WjAjBgkqhkiG9w0BCQQxFgQUyXqa
+/eIEr0N6X/Y/5IcanuHmiC0wUgYJKoZIhvcNAQkPMUUwQzAKBggqhkiG9w0DBzAOBggqhkiG
+9w0DAgICAIAwDQYIKoZIhvcNAwICAUAwBwYFKw4DAgcwDQYIKoZIhvcNAwICASgweAYJKwYB
+BAGCNxAEMWswaTBiMQswCQYDVQQGEwJaQTElMCMGA1UEChMcVGhhd3RlIENvbnN1bHRpbmcg
+KFB0eSkgTHRkLjEsMCoGA1UEAxMjVGhhd3RlIFBlcnNvbmFsIEZyZWVtYWlsIElzc3Vpbmcg
+Q0ECAw3p1jB6BgsqhkiG9w0BCRACCzFroGkwYjELMAkGA1UEBhMCWkExJTAjBgNVBAoTHFRo
+YXd0ZSBDb25zdWx0aW5nIChQdHkpIEx0ZC4xLDAqBgNVBAMTI1RoYXd0ZSBQZXJzb25hbCBG
+cmVlbWFpbCBJc3N1aW5nIENBAgMN6dYwDQYJKoZIhvcNAQEBBQAEggEAtcNUFhjoqVqIRHnl
+Xw05mng47Opds3S3izksDkL+6LZ4NXv0z0UVAaYlp1AyvNiXzLjoGGhBzlmou1Ok5G6lAUzX
+JYjBoGxbN4XdCfl/8agjy0zpYQKv5n6etuS9eNDkLWGPnDZ5J4+bHAnNtU413aTA4vOuX5HK
+zZVgAXuUVt0rzVt6tGfiQKcxi/jzrpIMULrGj3j8H0aby/CWvRHhsUagIVmiIuO9kN2IkDvY
+cBsEJEJ94hqMMyFQhGbtsuntsWBVacal8T0d54HenTHCck9fbNy5VkfpJheelc32WEajpOCR
+DnmmBMXlB3q+u8uL5sIzhHxxTBKpevewSYTH8wAAAAAAAA==
+--------------ms070308000408070706070200--

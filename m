@@ -1,217 +1,30 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267471AbUGWBlC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267482AbUGWCGS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267471AbUGWBlC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jul 2004 21:41:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267473AbUGWBlC
+	id S267482AbUGWCGS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jul 2004 22:06:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267483AbUGWCGS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jul 2004 21:41:02 -0400
-Received: from web12826.mail.yahoo.com ([216.136.174.207]:21121 "HELO
-	web12826.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S267471AbUGWBkx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jul 2004 21:40:53 -0400
-Message-ID: <20040723014052.69937.qmail@web12826.mail.yahoo.com>
-Date: Thu, 22 Jul 2004 18:40:52 -0700 (PDT)
-From: Shantanu Goel <sgoel01@yahoo.com>
-Subject: [VM PATCH 2.6.8-rc1] Prevent excessive scanning of lower zone
-To: akpm@osdl.org
-Cc: Kernel <linux-kernel@vger.kernel.org>
+	Thu, 22 Jul 2004 22:06:18 -0400
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:39155 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S267482AbUGWCGR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jul 2004 22:06:17 -0400
+Date: Thu, 22 Jul 2004 22:09:36 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: Len Brown <len.brown@intel.com>, shaohua.li@intel.com, yi.zhu@intel.com,
+       Andrew Morton <akpm@osdl.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Subject: Re: [PATCH][2.4/2.6] Quiesce after changing ACPI idle thread
+In-Reply-To: <Pine.LNX.4.58.0407221123480.19190@montezuma.fsmlabs.com>
+Message-ID: <Pine.LNX.4.58.0407222208000.22029@montezuma.fsmlabs.com>
+References: <Pine.LNX.4.58.0407221055391.19190@montezuma.fsmlabs.com>
+ <Pine.LNX.4.58.0407221123480.19190@montezuma.fsmlabs.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="0-1692732433-1090546852=:67565"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---0-1692732433-1090546852=:67565
-Content-Type: text/plain; charset=us-ascii
-Content-Id: 
-Content-Disposition: inline
+Marcelo, i'm full of shit obviously synchronize_kernel() won't work on
+2.4 hmmm, i'll see what to do about that.
 
-Hi Andrew,
-
-I emailed this a few weeks back to the list but it
-seems to have gotten lost...
-
-The default page scanner limits # pages reclaimed to
-SWAP_CLUSTER_MAX in shrink_zone() which causes greater
-stress on the lower zones (DMA in my case) since
-kswapd() is unable to keep up with allocations and
-more memory is allocated from the lower zone.  I
-noticed while running my normal workstation load, the
-kernel was paging more than I expected since amount of
-mapped memory was only about 30% (swappiness = 60).
-
-To demonstrate this, I have attached the difference in
-/proc/vmstat when running kernbench in optimal mode
-(-j16) between stock 2.6.8-rc1 and with the patch
-applied.  The patch modifies kswapd() to keep scanning
-until free_pages is greater than pages_high.  In both
-cases swappiness is 60.  The machine has 2x2.0Ghz
-Xeons with HT enabled and memory manually limited to
-256MB.  Notice that the DMA zone is scanned more than
-4 times more often in the stock kernel and there about
-80000 more pgsteal's from the DMA zone compared to the
-modified kernel.
-
-Also, in try_to_free_pages() I changed it to test
-total_reclaimed instead of sc.nr_reclaimed.  Not sure
-if that's an oversight or something else was intended
-that I've failed to grasp...
-
-
-Thanks,
-Shantanu
-
-
-
-		
-__________________________________
-Do you Yahoo!?
-Take Yahoo! Mail with you! Get it on your mobile phone.
-http://mobile.yahoo.com/maildemo 
---0-1692732433-1090546852=:67565
-Content-Type: application/octet-stream; name="kb-2.6.8-rc1"
-Content-Transfer-Encoding: base64
-Content-Description: kb-2.6.8-rc1
-Content-Disposition: attachment; filename="kb-2.6.8-rc1"
-
-NCBjcHVzIGZvdW5kCkNsZWFuaW5nIHNvdXJjZSB0cmVlLi4uCk1ha2luZyBk
-ZWZjb25maWcuLi4KTWFraW5nIGRlcCBpZiBuZWVkZWQuLi4KQ2FjaGluZyBr
-ZXJuZWwgc291cmNlIGluIHJhbS4uLgpIYWxmIGxvYWQgaXMgMiBqb2JzLCBj
-aGFuZ2luZyB0byAzIGFzIGEga2VybmVsIGNvbXBpbGUgd29uJ3QgZ3VhcmFu
-dGVlIDIgam9icwoKUGVyZm9ybWluZyA1IHJ1bnMgb2YKbWFrZSAtaiAxNgoK
-V2FybXVwIG9wdGltYWwgbG9hZCBydW4uLi4KT3B0aW1hbCBsb2FkIC1qMTYg
-cnVuIG51bWJlciAxLi4uCk9wdGltYWwgbG9hZCAtajE2IHJ1biBudW1iZXIg
-Mi4uLgpPcHRpbWFsIGxvYWQgLWoxNiBydW4gbnVtYmVyIDMuLi4KT3B0aW1h
-bCBsb2FkIC1qMTYgcnVuIG51bWJlciA0Li4uCk9wdGltYWwgbG9hZCAtajE2
-IHJ1biBudW1iZXIgNS4uLgoKQXZlcmFnZSBPcHRpbWFsIC1qIDE2IExvYWQg
-UnVuOgpFbGFwc2VkIFRpbWUgMjE2LjgzOApVc2VyIFRpbWUgNjg3LjIyNApT
-eXN0ZW0gVGltZSA2NS4wMjgKUGVyY2VudCBDUFUgMzQ2LjgKQ29udGV4dCBT
-d2l0Y2hlcyA1OTQzNC40ClNsZWVwcyA0OTE0OAoKLS0tLQpwZ2ZhdWx0ICAg
-ICAgICAgICAgICAgICAgICAgICAzMjMxOTQ2OApwZ2ZyZWUgICAgICAgICAg
-ICAgICAgICAgICAgICAyMDYwMjUxNApwZ2FsbG9jX25vcm1hbCAgICAgICAg
-ICAgICAgICAxOTk3ODQxNApwZ3JlZmlsbF9ub3JtYWwgICAgICAgICAgICAg
-ICA1NzIxMjU2CnBncGdvdXQgICAgICAgICAgICAgICAgICAgICAgIDI1Mjc5
-MjgKcGdwZ2luICAgICAgICAgICAgICAgICAgICAgICAgMTc5MzcyOApwZ2Rl
-YWN0aXZhdGUgICAgICAgICAgICAgICAgICAxMzAzMzExCnBncmVmaWxsX2Rt
-YSAgICAgICAgICAgICAgICAgIDc2MjMyOApwZ2FsbG9jX2RtYSAgICAgICAg
-ICAgICAgICAgICA2MjUyNDQKcGdzY2FuX2tzd2FwZF9ub3JtYWwgICAgICAg
-ICAgNTk5NTExCnBnc3RlYWxfbm9ybWFsICAgICAgICAgICAgICAgIDUxMzIx
-OQpwc3dwb3V0ICAgICAgICAgICAgICAgICAgICAgICA1MDkwNDMKcGdyb3Rh
-dGVkICAgICAgICAgICAgICAgICAgICAgNTA1NjczCnBnc2Nhbl9kaXJlY3Rf
-bm9ybWFsICAgICAgICAgIDQ2NDg3MQpwZ2FjdGl2YXRlICAgICAgICAgICAg
-ICAgICAgICA0MTQ5MTcKcGdzY2FuX2tzd2FwZF9kbWEgICAgICAgICAgICAg
-MzczNTYzCmtzd2FwZF9zdGVhbCAgICAgICAgICAgICAgICAgIDM0MjM1Mwpz
-bGFic19zY2FubmVkICAgICAgICAgICAgICAgICAyNjc0MjkKcHN3cGluICAg
-ICAgICAgICAgICAgICAgICAgICAgMjIxOTY3CnBnc2Nhbl9kaXJlY3RfZG1h
-ICAgICAgICAgICAgIDE3MzgwNgpwZ3N0ZWFsX2RtYSAgICAgICAgICAgICAg
-ICAgICAxMjY4MjgKcGdtYWpmYXVsdCAgICAgICAgICAgICAgICAgICAgOTEy
-MDEKYWxsb2NzdGFsbCAgICAgICAgICAgICAgICAgICAgNjQwMgpucl9kaXJ0
-eSAgICAgICAgICAgICAgICAgICAgICA2MzQzCnBhZ2VvdXRydW4gICAgICAg
-ICAgICAgICAgICAgIDIyNjQKa3N3YXBkX2lub2Rlc3RlYWwgICAgICAgICAg
-ICAgMTUxNwpucl9zbGFiICAgICAgICAgICAgICAgICAgICAgICA5MjAKcGdp
-bm9kZXN0ZWFsICAgICAgICAgICAgICAgICAgODQ5Cm5yX3BhZ2VfdGFibGVf
-cGFnZXMgICAgICAgICAgIDMKcGdzdGVhbF9oaWdoICAgICAgICAgICAgICAg
-ICAgMApwZ2FsbG9jX2hpZ2ggICAgICAgICAgICAgICAgICAwCnBnc2Nhbl9r
-c3dhcGRfaGlnaCAgICAgICAgICAgIDAKcGdzY2FuX2RpcmVjdF9oaWdoICAg
-ICAgICAgICAgMApwZ3JlZmlsbF9oaWdoICAgICAgICAgICAgICAgICAwCm5y
-X3Vuc3RhYmxlICAgICAgICAgICAgICAgICAgIDAKbnJfd3JpdGViYWNrICAg
-ICAgICAgICAgICAgICAgMApucl9tYXBwZWQgICAgICAgICAgICAgICAgICAg
-ICAtNTkwMAo=
-
---0-1692732433-1090546852=:67565
-Content-Type: application/octet-stream; name="kb-2.6.8-rc1-vmfix"
-Content-Transfer-Encoding: base64
-Content-Description: kb-2.6.8-rc1-vmfix
-Content-Disposition: attachment; filename="kb-2.6.8-rc1-vmfix"
-
-NCBjcHVzIGZvdW5kCkNsZWFuaW5nIHNvdXJjZSB0cmVlLi4uCk1ha2luZyBk
-ZWZjb25maWcuLi4KTWFraW5nIGRlcCBpZiBuZWVkZWQuLi4KQ2FjaGluZyBr
-ZXJuZWwgc291cmNlIGluIHJhbS4uLgpIYWxmIGxvYWQgaXMgMiBqb2JzLCBj
-aGFuZ2luZyB0byAzIGFzIGEga2VybmVsIGNvbXBpbGUgd29uJ3QgZ3VhcmFu
-dGVlIDIgam9icwoKUGVyZm9ybWluZyA1IHJ1bnMgb2YKbWFrZSAtaiAxNgoK
-V2FybXVwIG9wdGltYWwgbG9hZCBydW4uLi4KT3B0aW1hbCBsb2FkIC1qMTYg
-cnVuIG51bWJlciAxLi4uCk9wdGltYWwgbG9hZCAtajE2IHJ1biBudW1iZXIg
-Mi4uLgpPcHRpbWFsIGxvYWQgLWoxNiBydW4gbnVtYmVyIDMuLi4KT3B0aW1h
-bCBsb2FkIC1qMTYgcnVuIG51bWJlciA0Li4uCk9wdGltYWwgbG9hZCAtajE2
-IHJ1biBudW1iZXIgNS4uLgoKQXZlcmFnZSBPcHRpbWFsIC1qIDE2IExvYWQg
-UnVuOgpFbGFwc2VkIFRpbWUgMjEyLjU2NgpVc2VyIFRpbWUgNjg2LjI4OApT
-eXN0ZW0gVGltZSA2NS4xNDIKUGVyY2VudCBDUFUgMzUzLjIKQ29udGV4dCBT
-d2l0Y2hlcyA2MDg3NgpTbGVlcHMgNDY5MDQuNAoKLS0tLQpwZ2ZhdWx0ICAg
-ICAgICAgICAgICAgICAgICAgICAzMjI2OTc2OQpwZ2ZyZWUgICAgICAgICAg
-ICAgICAgICAgICAgICAyMDU5MDQ2MApwZ2FsbG9jX25vcm1hbCAgICAgICAg
-ICAgICAgICAyMDA1NDEwNQpwZ3JlZmlsbF9ub3JtYWwgICAgICAgICAgICAg
-ICA2MDE5OTk3CnBncGdvdXQgICAgICAgICAgICAgICAgICAgICAgIDIyMzE3
-MjAKcGdwZ2luICAgICAgICAgICAgICAgICAgICAgICAgMTc2NzkwNApwZ2Rl
-YWN0aXZhdGUgICAgICAgICAgICAgICAgICAxMjg2MjU5CnBnc2Nhbl9rc3dh
-cGRfbm9ybWFsICAgICAgICAgIDYzNTg3NwpwZ3NjYW5fZGlyZWN0X25vcm1h
-bCAgICAgICAgICA1OTY0MDkKcGdzdGVhbF9ub3JtYWwgICAgICAgICAgICAg
-ICAgNTkyMTY3CnBnYWxsb2NfZG1hICAgICAgICAgICAgICAgICAgIDUzODEx
-NgpwZ3JlZmlsbF9kbWEgICAgICAgICAgICAgICAgICA1MDI4NjMKcHN3cG91
-dCAgICAgICAgICAgICAgICAgICAgICAgNDM3NDAwCnBncm90YXRlZCAgICAg
-ICAgICAgICAgICAgICAgIDQzNTMyNQpwZ2FjdGl2YXRlICAgICAgICAgICAg
-ICAgICAgICA0MDk0MTcKa3N3YXBkX3N0ZWFsICAgICAgICAgICAgICAgICAg
-MzA2ODYwCnNsYWJzX3NjYW5uZWQgICAgICAgICAgICAgICAgIDI1ODcxMgpw
-c3dwaW4gICAgICAgICAgICAgICAgICAgICAgICAyMjYzOTYKcGdzY2FuX2Rp
-cmVjdF9kbWEgICAgICAgICAgICAgODEzNTEKcGdtYWpmYXVsdCAgICAgICAg
-ICAgICAgICAgICAgNzcyNTkKcGdzdGVhbF9kbWEgICAgICAgICAgICAgICAg
-ICAgNDQyMTcKcGdzY2FuX2tzd2FwZF9kbWEgICAgICAgICAgICAgNDIzNDMK
-YWxsb2NzdGFsbCAgICAgICAgICAgICAgICAgICAgNzU4OQpucl9kaXJ0eSAg
-ICAgICAgICAgICAgICAgICAgICA1Nzc3CnBhZ2VvdXRydW4gICAgICAgICAg
-ICAgICAgICAgIDI2OTIKbnJfc2xhYiAgICAgICAgICAgICAgICAgICAgICAg
-MTA2MAprc3dhcGRfaW5vZGVzdGVhbCAgICAgICAgICAgICAxMDA1CnBnaW5v
-ZGVzdGVhbCAgICAgICAgICAgICAgICAgIDUyMgpucl9wYWdlX3RhYmxlX3Bh
-Z2VzICAgICAgICAgICAzCnBnc3RlYWxfaGlnaCAgICAgICAgICAgICAgICAg
-IDAKcGdhbGxvY19oaWdoICAgICAgICAgICAgICAgICAgMApwZ3NjYW5fa3N3
-YXBkX2hpZ2ggICAgICAgICAgICAwCnBnc2Nhbl9kaXJlY3RfaGlnaCAgICAg
-ICAgICAgIDAKcGdyZWZpbGxfaGlnaCAgICAgICAgICAgICAgICAgMApucl91
-bnN0YWJsZSAgICAgICAgICAgICAgICAgICAwCm5yX3dyaXRlYmFjayAgICAg
-ICAgICAgICAgICAgIDAKbnJfbWFwcGVkICAgICAgICAgICAgICAgICAgICAg
-LTYwNDMK
-
---0-1692732433-1090546852=:67565
-Content-Type: application/octet-stream; name="vm.patch"
-Content-Transfer-Encoding: base64
-Content-Description: vm.patch
-Content-Disposition: attachment; filename="vm.patch"
-
-LS0tIC5vcmlnL21tL3Ztc2Nhbi5jCTIwMDQtMDctMjIgMjA6MzI6MDEuNjU4
-Njc2NzQ1IC0wNDAwCisrKyAyLjYuOC1yYzEtdm1maXgvbW0vdm1zY2FuLmMJ
-MjAwNC0wNy0xOSAwMDo1MjowMi4wMDAwMDAwMDAgLTA0MDAKQEAgLTc5OCw2
-ICs3OTgsNyBAQAogc3RhdGljIHZvaWQKIHNocmlua196b25lKHN0cnVjdCB6
-b25lICp6b25lLCBzdHJ1Y3Qgc2Nhbl9jb250cm9sICpzYykKIHsKKwlpbnQg
-bnJfcGFnZXM7CiAJdW5zaWduZWQgbG9uZyBucl9hY3RpdmU7CiAJdW5zaWdu
-ZWQgbG9uZyBucl9pbmFjdGl2ZTsKIApAQCAtODE5LDcgKzgyMCw3IEBACiAJ
-ZWxzZQogCQlucl9pbmFjdGl2ZSA9IDA7CiAKLQlzYy0+bnJfdG9fcmVjbGFp
-bSA9IFNXQVBfQ0xVU1RFUl9NQVg7CisJbnJfcGFnZXMgPSBzYy0+bnJfdG9f
-cmVjbGFpbTsKIAogCXdoaWxlIChucl9hY3RpdmUgfHwgbnJfaW5hY3RpdmUp
-IHsKIAkJaWYgKG5yX2FjdGl2ZSkgewpAQCAtODM0LDcgKzgzNSw5IEBACiAJ
-CQkJCSh1bnNpZ25lZCBsb25nKVNXQVBfQ0xVU1RFUl9NQVgpOwogCQkJbnJf
-aW5hY3RpdmUgLT0gc2MtPm5yX3RvX3NjYW47CiAJCQlzaHJpbmtfY2FjaGUo
-em9uZSwgc2MpOwotCQkJaWYgKHNjLT5ucl90b19yZWNsYWltIDw9IDApCisJ
-CQlpZiAobnJfcGFnZXMgPT0gMCAmJiB6b25lLT5mcmVlX3BhZ2VzID4gem9u
-ZS0+cGFnZXNfaGlnaCkKKwkJCQlicmVhazsKKwkJCWlmIChucl9wYWdlcyAm
-JiBzYy0+bnJfdG9fcmVjbGFpbSA8PSAwKQogCQkJCWJyZWFrOwogCQl9CiAJ
-fQpAQCAtODcxLDYgKzg3NCw3IEBACiAJCWlmICh6b25lLT5hbGxfdW5yZWNs
-YWltYWJsZSAmJiBzYy0+cHJpb3JpdHkgIT0gREVGX1BSSU9SSVRZKQogCQkJ
-Y29udGludWU7CS8qIExldCBrc3dhcGQgcG9sbCBpdCAqLwogCisJCXNjLT5u
-cl90b19yZWNsYWltID0gU1dBUF9DTFVTVEVSX01BWDsKIAkJc2hyaW5rX3pv
-bmUoem9uZSwgc2MpOwogCX0KIH0KQEAgLTkxNywxMiArOTIxLDEyIEBACiAJ
-CQlzYy5ucl9yZWNsYWltZWQgKz0gcmVjbGFpbV9zdGF0ZS0+cmVjbGFpbWVk
-X3NsYWI7CiAJCQlyZWNsYWltX3N0YXRlLT5yZWNsYWltZWRfc2xhYiA9IDA7
-CiAJCX0KLQkJaWYgKHNjLm5yX3JlY2xhaW1lZCA+PSBTV0FQX0NMVVNURVJf
-TUFYKSB7CisJCXRvdGFsX3NjYW5uZWQgKz0gc2MubnJfc2Nhbm5lZDsKKwkJ
-dG90YWxfcmVjbGFpbWVkICs9IHNjLm5yX3JlY2xhaW1lZDsKKwkJaWYgKHRv
-dGFsX3JlY2xhaW1lZCA+PSBTV0FQX0NMVVNURVJfTUFYKSB7CiAJCQlyZXQg
-PSAxOwogCQkJZ290byBvdXQ7CiAJCX0KLQkJdG90YWxfc2Nhbm5lZCArPSBz
-Yy5ucl9zY2FubmVkOwotCQl0b3RhbF9yZWNsYWltZWQgKz0gc2MubnJfcmVj
-bGFpbWVkOwogCiAJCS8qCiAJCSAqIFRyeSB0byB3cml0ZSBiYWNrIGFzIG1h
-bnkgcGFnZXMgYXMgd2UganVzdCBzY2FubmVkLiAgVGhpcwpAQCAtMTAzOSw3
-ICsxMDQzLDkgQEAKIAkJCWlmIChucl9wYWdlcyA9PSAwKSB7CS8qIE5vdCBz
-b2Z0d2FyZSBzdXNwZW5kICovCiAJCQkJaWYgKHpvbmUtPmZyZWVfcGFnZXMg
-PD0gem9uZS0+cGFnZXNfaGlnaCkKIAkJCQkJYWxsX3pvbmVzX29rID0gMDsK
-LQkJCX0KKwkJCQlzYy5ucl90b19yZWNsYWltID0gMDsKKwkJCX0gZWxzZQor
-CQkJCXNjLm5yX3RvX3JlY2xhaW0gPSB0b19mcmVlIC0gdG90YWxfcmVjbGFp
-bWVkOwogCQkJem9uZS0+dGVtcF9wcmlvcml0eSA9IHByaW9yaXR5OwogCQkJ
-aWYgKHpvbmUtPnByZXZfcHJpb3JpdHkgPiBwcmlvcml0eSkKIAkJCQl6b25l
-LT5wcmV2X3ByaW9yaXR5ID0gcHJpb3JpdHk7Cg==
-
---0-1692732433-1090546852=:67565--

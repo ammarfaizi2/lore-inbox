@@ -1,66 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261234AbVBVUlc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261244AbVBVUno@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261234AbVBVUlc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Feb 2005 15:41:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261235AbVBVUlc
+	id S261244AbVBVUno (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Feb 2005 15:43:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261236AbVBVUnn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Feb 2005 15:41:32 -0500
-Received: from ida.rowland.org ([192.131.102.52]:23300 "HELO ida.rowland.org")
-	by vger.kernel.org with SMTP id S261234AbVBVUl2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Feb 2005 15:41:28 -0500
-Date: Tue, 22 Feb 2005 15:41:25 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@ida.rowland.org
-To: Parag Warudkar <kernel-stuff@comcast.net>
-cc: USB development list <linux-usb-devel@lists.sourceforge.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-usb-devel] 2.6: USB Storage hangs machine on bootup for
- ~2 minutes
-In-Reply-To: <200502221344.58420.kernel-stuff@comcast.net>
-Message-ID: <Pine.LNX.4.44L0.0502221525200.6861-100000@ida.rowland.org>
+	Tue, 22 Feb 2005 15:43:43 -0500
+Received: from smtp005.mail.ukl.yahoo.com ([217.12.11.36]:32901 "HELO
+	smtp005.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S261240AbVBVUnV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Feb 2005 15:43:21 -0500
+From: Blaisorblade <blaisorblade@yahoo.it>
+To: user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [uml-devel] [BUG: UML 2.6.11-rc4-bk-latest] sleeping function called from invalid context and segmentation fault
+Date: Tue, 22 Feb 2005 21:41:54 +0100
+User-Agent: KMail/1.7.2
+Cc: Anton Altaparmakov <aia21@cam.ac.uk>, Jeff Dike <jdike@addtoit.com>,
+       lkml <linux-kernel@vger.kernel.org>
+References: <1108381733.10703.5.camel@imp.csi.cam.ac.uk> <200502161935.43820.blaisorblade@yahoo.it> <1108740823.6713.28.camel@imp.csi.cam.ac.uk>
+In-Reply-To: <1108740823.6713.28.camel@imp.csi.cam.ac.uk>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200502222141.54891.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 Feb 2005, Parag Warudkar wrote:
+On Friday 18 February 2005 16:33, Anton Altaparmakov wrote:
+> On Wed, 2005-02-16 at 19:35 +0100, Blaisorblade wrote:
+> > On Monday 14 February 2005 12:48, Anton Altaparmakov wrote:
+> > > Hi,
+> > >
+> > > I get a few Debug messages of the form from UML:
+> > >
+> > > Debug: sleeping function called from invalid context at
+> > > include/asm/arch/semaphore.h:107
+> > > in_atomic():0, irqs_disabled():1
+> > > Call Trace:
+> > > 087d77b0:  [<0809aaa5>] __might_sleep+0x135/0x180
+> > > 087d77d8:  [<084d377f>] mcount+0xf/0x20
+> > > 087d77e0:  [<0807cc13>] uml_console_write+0x33/0x80
+> > >
+> > > Most are coming via uml_console_write.
+> >
+> > The problem is that the UML tty drivers use a semaphore instead of a
+> > spinlock for the locking, which also causes some other problems.
+> >
+> > The attached patch should fix this, but I've not yet made sure it is not
+> > deadlock-prone (I didn't hit any during some very limited testing).
+> >
+> > So it's not yet ready for 2.6.11.
+>
+> Trying with the above patch in now only get two "sleeping function
+> called from invalid context" warnings during boot and none during
+> running.
+I'll look at whether I can produce them... if it's no problem, post their 
+traces anyway, please.
+> However I get a lot of those errors: 
+>
+> arch/um/drivers/line.c:262: spin_lock(arch/um/drivers/line.c:085b5900)
+> already locked by arch/um/drivers/line.c/262
+Ok, I'll be looking into them ASAP (which infortunately means not very soon, 
+sorry).
 
-> > You said that the system hangs during bootup.  Where in the log does that
-> > hang occur?  The log itself looks perfectly normal.  The Maxtor drive is
-> > scanned, the partitions detected, and then apparently one or two
-> > partitions are mounted.  There's no indication of any problem.
-> 
-> I have tracked down the reason for this hang  - it seems that kudzu gets stuck 
-> in D state on usb_device_read - Below SysRQ+T from 2.6.11-rc4 - always 
-> reproducible.
-> 
-> kudzu         D 00000000ffffffff     0  4424   4472                     
-> (NOTLB)
-> ffff81002bebfd98 0000000000000086 ffff81002c538150 ffff81002f21d00e
->        000000078847ce40 ffff81002b5977c0 000000000000fd38 ffffffff803defc0
->        ffff81002bebfd88 ffffffff80219b32
-> Call Trace:
-> <ffffffff80219b32>{_atomic_dec_and_lock+290} <ffffffff80383835>{__down+421}
->        <ffffffff80133e30>{default_wake_function+0} 
-> <ffffffff803868ae>{__down_failed+53}
->        <ffffffff802db9f1>{.text.lock.usb+5} 
-> <ffffffff802edb35>{usb_device_read+229}
->        <ffffffff801998d1>{vfs_read+225} <ffffffff80199bd0>{sys_read+80}
->        <ffffffff8010ed1e>{system_call+126}
-> 
-> Thereafter, if I try to mount the USB drive, even mount gets stuck.
+At a quick look, I see that line 262 is a "spin_lock" called by 
+line_write_interrupt. I used spin_lock_irqsave everywhere else... but 
+actually the interrupt must explicitly disable interrupts (I forgot) so, the 
+simple answer seems to be using spin_lock_irqsave() would fix it. I cannot 
+make a patch now.
+> Also both before and after the patch I see a lot of messages like:
+>
+> kernel: line_write_room: tty2: no room left in buffer
+I've never seen them... which is your test case?
+Anyway, I'm not sure this is a needed warning: 
 
-usb_device_read acquires a couple of locks, one for the USB bus list and 
-one for the root hub of the bus it's looking at.  I don't know which one 
-occurs at offset 229 on your system -- maybe you can tell.  Oddly enough, 
-neither of those locks is for a USB device like the Maxtor drive.  So it's 
-not at all clear why plugging in the drive should mess up kudzu.  Or why 
-the blockage should clear up after a couple of minutes.
+in include/linux/tty_driver.h, the .write_room member must tell the available 
+space... it's reasonable that the TTY layer will call a flush_buffers 
+function. However, looking at stdio_console, I'm seeing that, in fact, there 
+is no flush_chars function(!!). I'll provide one ASAP.
 
-Perhaps we can find out by looking at other entries in the stack trace.  
-Of particular interest are the khubd, usb-storage, and scsi_eh processes.
+-- 
+Paolo Giarrusso, aka Blaisorblade
+Linux registered user n. 292729
+http://www.user-mode-linux.org/~blaisorblade
 
-Alan Stern
 

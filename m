@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318696AbSICJqH>; Tue, 3 Sep 2002 05:46:07 -0400
+	id <S318743AbSICKCt>; Tue, 3 Sep 2002 06:02:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318733AbSICJqH>; Tue, 3 Sep 2002 05:46:07 -0400
-Received: from relay02.rabobank.nl ([145.72.69.21]:62222 "HELO
-	relay02.rabobank.nl") by vger.kernel.org with SMTP
-	id <S318696AbSICJqH>; Tue, 3 Sep 2002 05:46:07 -0400
-X-Server-Uuid: d32dbd14-b86d-11d3-8c8e-0008c7bba343
-X-Server-Uuid: 91077152-1bde-4e67-8480-731f07dac000
-From: "Heusden van, FJJ (Folkert)" <F.J.J.Heusden@rn.rabobank.nl>
-To: "Linux Kernel Development" <linux-kernel@vger.kernel.org>
-Subject: entropy
-Date: Tue, 3 Sep 2002 11:50:31 +0200
-MIME-Version: 1.0
-X-WSS-ID: 116ABF1A1147785-1159-02
-Content-Type: text/plain; 
- charset=iso-8859-1
+	id <S318739AbSICKCt>; Tue, 3 Sep 2002 06:02:49 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:17875 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S318733AbSICKCr>;
+	Tue, 3 Sep 2002 06:02:47 -0400
+Date: Tue, 03 Sep 2002 03:00:25 -0700 (PDT)
+Message-Id: <20020903.030025.07037175.davem@redhat.com>
+To: ak@suse.de
+Cc: kuznet@ms2.inr.ac.ru, scott.feldman@intel.com,
+       linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
+       haveblue@us.ibm.com, Manand@us.ibm.com, christopher.leech@intel.com
+Subject: Re: TCP Segmentation Offloading (TSO)
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <p73y9ajqw85.fsf@oldwotan.suse.de>
+References: <20020903.164243.21934772.taka@valinux.co.jp.suse.lists.linux.kernel>
+	<20020903.005119.50342945.davem@redhat.com.suse.lists.linux.kernel>
+	<p73y9ajqw85.fsf@oldwotan.suse.de>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <116ABF1A1147785-1159@_rabobank.nl_>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There has been a lot of discussion on entropy-data.
-People are concerned that some platforms might not get enough
-entropy-data in the RNG-buffers.
-There might be a solution: audio-entropyd
-I do not have the url of the main-page, but it's mirrored on my site
-on which also the url of it's page is noted:
-http://www.vanheusden.com/mirrors/
+   From: Andi Kleen <ak@suse.de>
+   Date: 03 Sep 2002 11:05:30 +0200
 
+   x86-64 handles it (also in csum-copy). I think at least Alpha does it 
+   too (that is where I stole the C csum-partial base from) But it's ugly.
+   See the odd hack. 
 
-================================================
-De informatie opgenomen in dit bericht kan vertrouwelijk zijn en 
-is uitsluitend bestemd voor de geadresseerde. Indien u dit bericht 
-onterecht ontvangt, wordt u verzocht de inhoud niet te gebruiken en 
-de afzender direct te informeren door het bericht te retourneren. 
-================================================
-The information contained in this message may be confidential 
-and is intended to be exclusively for the addressee. Should you 
-receive this message unintentionally, please do not use the contents 
-herein and notify the sender immediately by return e-mail.
+Ok I think we really need to fix this then in the arches
+where broken.  Let's do an audit. :-)
 
+I question if x86 is broken at all.  It checks odd lengths
+and x86 handles odd memory accesses transparently.  Please,
+some x86 guru make some comments here :-)
 
+It looks like sparc64 is the only platform where oddly aligned buffer
+can truly cause problems and I can fix that easily enough.

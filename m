@@ -1,46 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262805AbSJRCud>; Thu, 17 Oct 2002 22:50:33 -0400
+	id <S262838AbSJRCyZ>; Thu, 17 Oct 2002 22:54:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262815AbSJRCud>; Thu, 17 Oct 2002 22:50:33 -0400
-Received: from dp.samba.org ([66.70.73.150]:41606 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S262805AbSJRCuc>;
-	Thu, 17 Oct 2002 22:50:32 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Module loader preparation 
-In-reply-to: Your message of "Thu, 17 Oct 2002 11:02:14 EST."
-             <Pine.LNX.4.44.0210171057210.6301-100000@chaos.physics.uiowa.edu> 
-Date: Fri, 18 Oct 2002 12:55:36 +1000
-Message-Id: <20021018025632.009BE2C0BB@lists.samba.org>
+	id <S262850AbSJRCyZ>; Thu, 17 Oct 2002 22:54:25 -0400
+Received: from mail.powweb.com ([63.251.213.34]:52703 "EHLO mail.powweb.com")
+	by vger.kernel.org with ESMTP id <S262838AbSJRCyY> convert rfc822-to-8bit;
+	Thu, 17 Oct 2002 22:54:24 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Mark Gross <markgross@thegnar.org>
+Organization: thegnar
+To: Andi Kleen <ak@muc.de>
+Subject: Re: [patch] thread-aware coredumps, 2.5.43-C3
+Date: Thu, 17 Oct 2002 19:58:23 -0700
+User-Agent: KMail/1.4.3
+Cc: Andi Kleen <ak@muc.de>, Ingo Molnar <mingo@elte.hu>,
+       Alexander Viro <viro@math.psu.edu>,
+       S Vamsikrishna <vamsi_krishna@in.ibm.com>,
+       Ulrich Drepper <drepper@redhat.com>, linux-kernel@vger.kernel.org,
+       NPT library mailing list <phil-list@redhat.com>
+References: <200210081627.g98GRZP18285@unix-os.sc.intel.com> <200210171835.21647.markgross@thegnar.org> <20021018021242.GA15853@averell>
+In-Reply-To: <20021018021242.GA15853@averell>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200210171958.23198.markgross@thegnar.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <Pine.LNX.4.44.0210171057210.6301-100000@chaos.physics.uiowa.edu> yo
-u write:
-> Converting things to module_init() is certainly a good thing, but having 
-> to provide fake init functions for modules which don't need them doesn't 
-> look so nice.
+On Thursday 17 October 2002 07:12 pm, Andi Kleen wrote:
+> I want the x86 CPU error code, which often has interesting clues on the
+> problem. trapno would be useful too. I suspect other CPUs have similar
+> extended state for exceptions.
+>
+> I usually hack my kernel to printk() it, but having it in the coredump
+> would be more general and you can look at it later.
+>
+> Eventually (in a future kernel) I would love to have the exception
+> handler save the last branch debugging registers of the CPU and the let the
+> core dumper put that into the dump too.  Then you could easily
+> figure out what the program did shortly before the crash.
+>
+> -Andi
 
-Since there are only a couple, I didn't get exotic.
+Having the last branch before a crash would be cool.  Its easy to add note 
+sections to core files.  If it turns out to be useful I'm sure the GDB folks 
+would support it. 
 
-> Did you consider just generating the info you need unconditionally in 
-> include/linux/module.h and then removing duplicates for multi-part modules 
-> using ld's link-once (I didn't try that yet, but it seems doable and would 
-> also remove duplicated .modinfo.kernel_version strings and the like)
-
-Didn't think of it, to be honest, and I can't find any reference to
-link-once glancing through the ld info page.
-
-You'll still have problems with objects linked into two modules
-(ip_conntrack_core being the typical one), but we could ban these and
-just #include the .c file rather than linking.
-
-Really, the number of modules which do this is so small, the code to
-add init function to them is less than the change in the build system
-to get tricky.
-
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+--mgross

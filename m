@@ -1,27 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315923AbSENRnp>; Tue, 14 May 2002 13:43:45 -0400
+	id <S315928AbSENRrg>; Tue, 14 May 2002 13:47:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315924AbSENRno>; Tue, 14 May 2002 13:43:44 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:64007 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S315923AbSENRnm>; Tue, 14 May 2002 13:43:42 -0400
-Subject: Re: Kernel deadlock using nbd over acenic driver.
-To: chen_xiangping@emc.com (chen, xiangping)
-Date: Tue, 14 May 2002 19:02:48 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk ('Alan Cox'), jes@wildopensource.com,
-        Steve@ChyGwyn.com, linux-kernel@vger.kernel.org
-In-Reply-To: <FA2F59D0E55B4B4892EA076FF8704F553D1A54@srgraham.eng.emc.com> from "chen, xiangping" at May 14, 2002 01:36:49 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S315927AbSENRrf>; Tue, 14 May 2002 13:47:35 -0400
+Received: from fungus.teststation.com ([212.32.186.211]:33810 "EHLO
+	fungus.teststation.com") by vger.kernel.org with ESMTP
+	id <S315926AbSENRrd>; Tue, 14 May 2002 13:47:33 -0400
+Date: Tue, 14 May 2002 19:47:02 +0200 (CEST)
+From: Urban Widmark <urban@teststation.com>
+X-X-Sender: <puw@cola.enlightnet.local>
+To: Roger Luethi <rl@hellgate.ch>
+cc: "Ivan G." <ivangurdiev@linuxfreemail.com>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] VIA Rhine stalls: TxAbort handling
+In-Reply-To: <20020514035318.GA20088@k3.hellgate.ch>
+Message-ID: <Pine.LNX.4.33.0205141928410.20379-100000@cola.enlightnet.local>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E177gdM-0008Sw-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> But ... It seems that there is no direct way to adjust the tcp max 
-> window size in Linux kernel.
+On Tue, 14 May 2002, Roger Luethi wrote:
 
-setsockopt SO_SNDBUF and SO_RCVBUF - same as all Unix and unixlike boxes
+> The simple reason: The AMD backoff algorithm always triggered TxAborts,
+> the others didn't.
+> 
+> However, once I had the driver recover from TxAbort without waiting for the
+> time out reset, the AMD solution provided over 20% higher throughput than
+> the DEC algorithm. YMMV, depending on the specific setup. I'd vote for a
+> module parameter. For now, I hardcoded AMD: it's what the eeprom picks when
+> reloaded. Also, every other algorithm masked the TxAbort problem (by not
+> triggering any).
+
+The backoff algorithm bits have different names (and possibly different
+meaning) for the vt86c100a. My vt86c100a eeprom sets all backoff bits to
+0000, but my vt6102 sets it to 0010. Since the eeprom is reloaded when the
+driver opens, why force it to "amd"?
+
+A module parameter would be nice for testing.
+
+Ivan, have you tried playing with these bits?
+
+Donalds suggestion is that the TxAborts is simply too much collisions.
+Perhaps the eeprom selection of backoff algorithm isn't working well in
+your environment.
+
+/Urban
+

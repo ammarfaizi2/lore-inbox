@@ -1,82 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262375AbVAKEfd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262356AbVAKEfd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262375AbVAKEfd (ORCPT <rfc822;willy@w.ods.org>);
+	id S262356AbVAKEfd (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 10 Jan 2005 23:35:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262384AbVAKEes
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262398AbVAKEfN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 23:34:48 -0500
-Received: from pacific.moreton.com.au ([203.143.235.130]:23824 "EHLO
-	bne.snapgear.com") by vger.kernel.org with ESMTP id S262391AbVAKEd0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 23:33:26 -0500
-Message-ID: <41E35706.3040700@snapgear.com>
-Date: Tue, 11 Jan 2005 14:33:10 +1000
-From: Greg Ungerer <gerg@snapgear.com>
-Organization: SnapGear
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       uClinux list <uclinux-dev@uclinux.org>
-Subject: Re: [PATCH] m68knommu: cache init code for ColdFire CPU's
-References: <200501101711.j0AHB8H5005532@hera.kernel.org> <Pine.GSO.4.61.0501102244070.1908@waterleaf.sonytel.be>
-In-Reply-To: <Pine.GSO.4.61.0501102244070.1908@waterleaf.sonytel.be>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 10 Jan 2005 23:35:13 -0500
+Received: from kweetal.tue.nl ([131.155.3.6]:38924 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S262416AbVAKEc1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jan 2005 23:32:27 -0500
+Date: Tue, 11 Jan 2005 05:32:20 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Do PS/2 ESDI users exist?
+Message-ID: <20050111043220.GB2760@pclin040.win.tue.nl>
+References: <20050108214036.GW14108@stusta.de> <20050108234337.GE6052@pclin040.win.tue.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050108234337.GE6052@pclin040.win.tue.nl>
+User-Agent: Mutt/1.4.2i
+X-Spam-DCC: dmv.com: kweetal.tue.nl 1181; Body=1 Fuz1=1 Fuz2=1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Geert,
+Yesterday I mentioned that patch 2.3.13 killed the setup,
+so that tp720_setup and ed_setup would not be called anymore.
+Hand-specifying the geometry failed from then on.
 
-Thanks :-)
-I submit these corrections :-)
+Since nobody noticed, maybe nobody with compiled-in ps2esdi
+needed to specify the geometry.
 
-Regards
-Greg
+In 2.1.128 (Nov 1998) the driver was modularised, but that patch
+contained a few typos so that the driver would not build as a module.
+Several people - all without ps2 hardware - submitted a patch,
+and the correction finally went into patch-2.6.0-test6 (Sep 2003).
 
+All that time, no actual (potential) users complained.
+So, maybe nobody tried to use it as a module.
 
+Google shows that lots of people have CONFIG_BLK_DEV_PS2=m.
+Why didn't they notice? Because that setting results (e.g. under 2.4) in
+#undef  CONFIG_BLK_DEV_PS2
+#define CONFIG_BLK_DEV_PS2_MODULE 1
+in <linux/autoconf.h>, and ps2esdi.c is inside #ifdef CONFIG_BLK_DEV_PS2.
 
+Have there ever existed ESDI users? Yes, using out-of-tree patches before
+2.1.15, and in the 2.1 - 2.2 time frame. I seem to be unable to find traces
+of later users - just a few people who try and fail.
 
-Geert Uytterhoeven wrote:
-> On Mon, 10 Jan 2005, Linux Kernel Mailing List wrote:
->>diff -Nru a/include/asm-m68knommu/mcfcache.h b/include/asm-m68knommu/mcfcache.h
->>--- /dev/null	Wed Dec 31 16:00:00 196900
->>+++ b/include/asm-m68knommu/mcfcache.h	2005-01-10 09:11:23 -08:00
-> 
-> 
->>+ *	Everything from a small linstruction only cache, to configurable
-> 
->                                 ^^^^^^^^^^^^
-> 				instruction
-> 
-> 
->>+ *	Simple verion 2 core cache. These have instruction cache only,
-> 
->                ^^^^^^
-> 	       version
-> 
-> 
->>+ *	Version 4 cores have a true hardvard style separate instruction
-> 
->                                     ^^^^^^^^
-> 				    harvard
-> 
-> Gr{oetje,eeting}s,
-> 
-> 						Geert
-> 
-> --
-> Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-> 
-> In personal conversations with technical people, I call myself a hacker. But
-> when I'm talking to journalists I just say "programmer" or something like that.
-> 							    -- Linus Torvalds
-> 
+I wonder whether ps2esdi should be removed.
+Does the present driver work for someone?
+Have there been users in this millennium? With 2.3 or later?
 
--- 
-------------------------------------------------------------------------
-Greg Ungerer  --  Chief Software Dude       EMAIL:     gerg@snapgear.com
-SnapGear -- a CyberGuard Company            PHONE:       +61 7 3435 2888
-825 Stanley St,                             FAX:         +61 7 3891 3630
-Woolloongabba, QLD, 4102, Australia         WEB: http://www.SnapGear.com
+Andries

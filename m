@@ -1,49 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269156AbTGJKPn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 06:15:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269158AbTGJKPm
+	id S269171AbTGJKOf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 06:14:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269174AbTGJKOf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 06:15:42 -0400
-Received: from ns.suse.de ([213.95.15.193]:64273 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S269156AbTGJKPg (ORCPT
+	Thu, 10 Jul 2003 06:14:35 -0400
+Received: from holomorphy.com ([66.224.33.161]:62896 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S269171AbTGJKOd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 06:15:36 -0400
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: memset (was: Redundant memset in AIO read_events)
-References: <20030710100417.83333.qmail@web11801.mail.yahoo.com.suse.lists.linux.kernel>
-	<1057832361.5817.2.camel@laptop.fenrus.com.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 10 Jul 2003 12:29:10 +0200
-In-Reply-To: <1057832361.5817.2.camel@laptop.fenrus.com.suse.lists.linux.kernel>
-Message-ID: <p73smpepte1.fsf@oldwotan.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
+	Thu, 10 Jul 2003 06:14:33 -0400
+Date: Thu, 10 Jul 2003 03:30:22 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Thomas Schlichter <schlicht@uni-mannheim.de>
+Cc: Piet Delaney <piet@www.piet.net>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.5.74-mm3 - apm_save_cpus() Macro still bombs out
+Message-ID: <20030710103022.GV15452@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Thomas Schlichter <schlicht@uni-mannheim.de>,
+	Piet Delaney <piet@www.piet.net>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org, linux-mm@kvack.org
+References: <20030708223548.791247f5.akpm@osdl.org> <200307101142.37137.schlicht@uni-mannheim.de> <20030710094841.GU15452@holomorphy.com> <200307101159.51175.schlicht@uni-mannheim.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200307101159.51175.schlicht@uni-mannheim.de>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven <arjanv@redhat.com> writes:
+On Thursday 10 July 2003 11:48, William Lee Irwin III wrote:
+> It's not the 64B...
+> I care about the unneeded but executed code!
+> But I'm a hopeless perfectionist caring about such nits...
 
-> On Thu, 2003-07-10 at 12:04, Etienne Lorrain wrote:
-> >  Note that using memset() is better reserved to initialise variable-size
-> >  structures or buffers. Even if memset() is extremely optimised,
-> >  it is still not as fast as not doing anything.
-> 
-> this is not always true....
-> memset can be used as an optimized cache-warmup, which can avoid the
-> write-allocate behavior of normal writes, which means that if you memset
-> a structure first and then fill it, it can be halve the memory bandwidth
-> and thus half as fast. This assumes an optimized memset which we
-> *currently* don't have I think... but well, we can fix that ;)
+On Thu, Jul 10, 2003 at 11:59:49AM +0200, Thomas Schlichter wrote:
+> And I don't know why everybody hates my patches... ;-(
 
-You don't want to use such an memset unlike you're clearing areas
-which are significantly bigger than all your cache (>several MB)
-The problem is that the instruction that avoid write-allocate usually also force 
-the result out of cache. And for small data sets that is typically a loss
-if you want to use the data later, because the later use eats full cache misses.
-In the kernel such big buffers occur only very rarely, most operations are on
-4K and less. For those only in cache operation is interesting.
+It's not that anyone hates them, it's that
+pass 1: the semantics (0 == empty cpu set) needed preserving
+pass 2: remove code instead of changing redundant stuff
 
--Andi
+NFI YTF gcc doesn't optimize out the whole shebang.
+
+At any rate, if we're pounding APM BIOS calls or apm_power_off()
+like wild monkeys there's something far more disturbing going wrong
+than 64B of code gcc couldn't optimize (it's probably due to some
+jump target being aligned to death or some such nonsense).
+
+
+-- wli

@@ -1,58 +1,103 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129805AbRAMOH2>; Sat, 13 Jan 2001 09:07:28 -0500
+	id <S130164AbRAMOFq>; Sat, 13 Jan 2001 09:05:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130202AbRAMOFq>; Sat, 13 Jan 2001 09:05:46 -0500
-Received: from styx.suse.cz ([195.70.145.226]:48885 "EHLO kerberos.suse.cz")
-	by vger.kernel.org with ESMTP id <S130149AbRAMOFb>;
-	Sat, 13 Jan 2001 09:05:31 -0500
-Date: Sat, 13 Jan 2001 14:35:56 +0100
+	id <S130157AbRAMOFf>; Sat, 13 Jan 2001 09:05:35 -0500
+Received: from styx.suse.cz ([195.70.145.226]:47349 "EHLO kerberos.suse.cz")
+	by vger.kernel.org with ESMTP id <S129983AbRAMOF2>;
+	Sat, 13 Jan 2001 09:05:28 -0500
+Date: Sat, 13 Jan 2001 15:00:46 +0100
 From: Vojtech Pavlik <vojtech@suse.cz>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: ide.2.4.1-p3.01112001.patch
-Message-ID: <20010113143556.A1155@suse.cz>
-In-Reply-To: <20010112204626.A2740@suse.cz> <E14HDqv-0005Fm-00@the-village.bc.nu>
+Message-ID: <20010113150046.E1155@suse.cz>
+In-Reply-To: <20010112212427.A2829@suse.cz> <Pine.LNX.4.10.10101121604080.8097-100000@penguin.transmeta.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="mP3DRpeJDSE+ciuQ"
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <E14HDqv-0005Fm-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Jan 12, 2001 at 11:43:23PM +0000
+In-Reply-To: <Pine.LNX.4.10.10101121604080.8097-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Fri, Jan 12, 2001 at 04:09:22PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 12, 2001 at 11:43:23PM +0000, Alan Cox wrote:
-> > I'd like to hear about such reports so that I can start debugging (and
-> > perhaps get me one of those failing boards, they must be quite cheap
-> > these days).
+
+--mP3DRpeJDSE+ciuQ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On Fri, Jan 12, 2001 at 04:09:22PM -0800, Linus Torvalds wrote:
+
+> On Fri, 12 Jan 2001, Vojtech Pavlik wrote:
+> > 
+> > However - Alan's IDE patch for 2.2 kills autodma on ALL VIA chipsets.
+> > That's because all VIA chipsets starting from vt82c586 to vt82c686b
+> > (UDMA100), share the same PCI ID.
+> > 
+> > Would you prefer to filter just vt82c586 and vt82c586a as the comment in
+> > Alan's code says or simply unconditionally kill autodma on all of VIA
+> > chipsets, as Alan's code does?
 > 
-> This is one of the most precise reports I have
+> Right now, for 2.4.1, I'd rather have the patch to just do the same as
+> 2.2.x. We can figure it out better when we get a better idea of exactly
+> what the bug is, and whether there is some other work-around, and whether
+> it is 100% certain that it is just those two controllers (maybe the other
+> ones are buggy too, but the 2.2.x tests basically cured their symptoms too
+> and peopl ehaven't reported them because they are "fixed").
 > 
-> |The system is an AMD K6-3 on a FIC PA-2013 mobo with 3 IDE disks.  The
-> |size of hda is 4.3 GB, the size of hdb is 854 MB and the size of hdc is
-> |1.2 GB.  Hdd is an IDE CDROM drive
-> 
-> I think its significant that two reports I have are FIC PA-2013 but not all.
-> What combination of chips is on the 2013 ?
+> 		Linus
 
-As far as I know the same as on FIC VA-503+, that is vt82c598 north and
-vt82c586b south - the MVP3 chipset. I've got the VA-503+ here and it
-works really well. the 503+ and the 2013 differ only in form factor, one
-is Baby AT (503+) and the other is ATX.
+Ok, here goes the patch.
 
-It's vt82c586b, and most probably 3041 silicon - the most bugless VIA
-southbridge I know of ...
+Note that with this patch, all VIA users will get IDE transferrates
+about 3 MB/sec as opposed to about 20 MB/sec without it (and with
+UDMA66). 
 
-Weird. Could the person who reported it test the 2.4.0 kernel? I think
-the 2.2 drivers had some MVP3 (and 3041 silicon)  related bugs. 3041 has
-some registers layed out differently from all other chips.
+This patch disables automatic DMA on all VIA chipsets, including the
+ancient 82c561 for 486's, and up to the 686a UDMA66 chipset.
 
-Btw, this is not the 586 nor 586a, so changing the test to test for just
-these two probably won't be the right thing to do ...
+Also note that enabling the DMA later with hdparm -X66 -d1 or similar
+command is not safe, and usually works by pure luck on VIA chipsets.
+This however, would need some non-minor changes to the generic code to
+fix.
+
+But perhaps it's still worth ...
 
 -- 
 Vojtech Pavlik
 SuSE Labs
+
+--mP3DRpeJDSE+ciuQ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="via-no-autodma.diff"
+
+diff -urN linux-old/drivers/ide/ide-pci.c linux/drivers/ide/ide-pci.c
+--- linux-old/drivers/ide/ide-pci.c	Wed Jan  3 01:58:45 2001
++++ linux/drivers/ide/ide-pci.c	Sat Jan 13 14:54:53 2001
+@@ -663,7 +663,9 @@
+ 		if (IDE_PCI_DEVID_EQ(d->devid, DEVID_SIS5513) ||
+ 		    IDE_PCI_DEVID_EQ(d->devid, DEVID_AEC6260) ||
+ 		    IDE_PCI_DEVID_EQ(d->devid, DEVID_PIIX4NX) ||
+-		    IDE_PCI_DEVID_EQ(d->devid, DEVID_HPT34X))
++		    IDE_PCI_DEVID_EQ(d->devid, DEVID_HPT34X)  ||
++		    IDE_PCI_DEVID_EQ(d->devid, DEVID_VIA_IDE) ||
++		    IDE_PCI_DEVID_EQ(d->devid, DEVID_VP_IDE))
+ 			autodma = 0;
+ 		if (autodma)
+ 			hwif->autodma = 1;
+diff -urN linux-old/drivers/ide/via82cxxx.c linux/drivers/ide/via82cxxx.c
+--- linux-old/drivers/ide/via82cxxx.c	Tue Nov  7 20:02:24 2000
++++ linux/drivers/ide/via82cxxx.c	Sat Jan 13 14:52:26 2001
+@@ -602,7 +602,6 @@
+ #ifdef CONFIG_BLK_DEV_IDEDMA
+ 	if (hwif->dma_base) {
+ 		hwif->dmaproc = &via82cxxx_dmaproc;
+-		hwif->autodma = 1;
+ 	}
+ #endif /* CONFIG_BLK_DEV_IDEDMA */
+ }
+
+--mP3DRpeJDSE+ciuQ--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

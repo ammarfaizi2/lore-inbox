@@ -1,44 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132170AbRCVTvr>; Thu, 22 Mar 2001 14:51:47 -0500
+	id <S132174AbRCVUFR>; Thu, 22 Mar 2001 15:05:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132169AbRCVTvi>; Thu, 22 Mar 2001 14:51:38 -0500
-Received: from ztxmail03.ztx.compaq.com ([161.114.1.207]:24327 "HELO
-	ztxmail03.ztx.compaq.com") by vger.kernel.org with SMTP
-	id <S132166AbRCVTvX>; Thu, 22 Mar 2001 14:51:23 -0500
-Reply-To: <frey@cxau.zko.dec.com>
-From: "Martin Frey" <frey@scs.ch>
-To: "'Benjamin Herrenschmidt'" <benh@kernel.crashing.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: kernel_thread vs. zombie
-Date: Thu, 22 Mar 2001 11:50:34 -0800
-Message-ID: <007801c0b309$5bca3530$90600410@SCHLEPPDOWN>
+	id <S132175AbRCVUE5>; Thu, 22 Mar 2001 15:04:57 -0500
+Received: from netel-gw.online.no ([193.215.46.129]:4621 "EHLO
+	InterJet.networkgroup.no") by vger.kernel.org with ESMTP
+	id <S132174AbRCVUE4>; Thu, 22 Mar 2001 15:04:56 -0500
+Message-ID: <3ABA5A9A.7B85B5B9@powertech.no>
+Date: Thu, 22 Mar 2001 21:03:38 +0100
+From: Geir Thomassen <geirt@powertech.no>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.19pre5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
+To: Trent Jarvi <trentjarvi@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: Serial port latency
+In-Reply-To: <Pine.LNX.4.20.0103221219410.3343-100000@linuxtaj.korpivaara.org>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <20010322184740.17781@mailhost.mipsys.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>The stuff done in daemonize() and the exit_files could need
->>the kernel lock. At least on some 2.2.x version it does,
->>I did not check whether it is still needed on 2.4.
->
->Well, I don't really plan to backport this to 2.2.x. I'll
->try to see if my problem is related to the lack of kernel
->lock, or maybe I have just something else wrong.
->
-daemonize() makes calls that are all protected with the
-big kernel lock in do_exit(). All usages of daemonize have
-the big kernel lock held. So I guess it just needs it.
+Trent Jarvi wrote:
+> 
+> Hi,
+> 
+> I'm not on the kernel list.  I just ran across your email while looking at the
+> weekly archive.
+> 
+> I think you want to enable software flow control.
+> 
+>         tcgetattr( fd, &ttyset );
+>         ttyset.c_iflag |= IXOFF;
+>         tcsetattr( fd, TCSANOW, &ttyset );
+> 
 
-Please let me know whether you have success if it makes
-a difference with having it held.
+Just tested it, it didn't change anything. The response from the controller
+can contain ^S/^Q, so it would be a bad idea anyway ....
 
-Martin
+> Someone reported that the Java CommAPI driver at http://www.rxtx.org got
+> 150-200ms latency with (9600,N,8,1,XON/XOFF).  Beyond that you may have to
+> look at something like the realtime support.  I guess 2 ms is normal on
+> win98.
+
+Win98 is the problem I am trying to solve with my program ...
+
+> Since you have the scope hooked up you may look at hardware flow control too.
+> 
+>         tcgetattr( fd, &ttyset );
+>         ttyset.c_cflag |= HARDWARE_FLOW_CONTROL;
+>         tcsetattr( fd, TCSANOW, &ttyset );
+
+Do you mean CRTSCTS ? HARDWARE_FLOW_CONTROL is not defined in my header files.
+I use CLOCAL, which should make the driver ignore modem control lines.
+
+> Let me know if you find anything out.  I'm the maintainer of rxtx and would
+> be interested in documenting this for others.
+
+sure ...
+
+> --
+> Trent Jarvi
+> TrentJarvi@yahoo.com
+
+Thanks anyway
+
+Geir

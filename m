@@ -1,43 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289294AbSAVM7H>; Tue, 22 Jan 2002 07:59:07 -0500
+	id <S289297AbSAVNIi>; Tue, 22 Jan 2002 08:08:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289296AbSAVM66>; Tue, 22 Jan 2002 07:58:58 -0500
-Received: from ns.suse.de ([213.95.15.193]:6162 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S289294AbSAVM6p>;
-	Tue, 22 Jan 2002 07:58:45 -0500
-Date: Tue, 22 Jan 2002 13:58:43 +0100
-From: Dave Jones <davej@suse.de>
-To: Shaya Potter <spotter@opus.cs.columbia.edu>
-Cc: Steve Brueggeman <brewgyman@mediaone.net>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Athlon PSE/AGP Bug
-Message-ID: <20020122135843.B16444@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Shaya Potter <spotter@opus.cs.columbia.edu>,
-	Steve Brueggeman <brewgyman@mediaone.net>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1011610422.13864.24.camel@zeus> <20020121.053724.124970557.davem@redhat.com>, <20020121.053724.124970557.davem@redhat.com>; <20020121175410.G8292@athlon.random> <3C4C5B26.3A8512EF@zip.com.au> <o7cp4ukpr9ehftpos1hg807a9hfor7s55e@4ax.com> <1011678359.904.4.camel@zaphod>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1011678359.904.4.camel@zaphod>; from spotter@opus.cs.columbia.edu on Tue, Jan 22, 2002 at 12:45:59AM -0500
+	id <S289296AbSAVNI2>; Tue, 22 Jan 2002 08:08:28 -0500
+Received: from mailhost.uni-koblenz.de ([141.26.64.1]:45710 "EHLO
+	mailhost.uni-koblenz.de") by vger.kernel.org with ESMTP
+	id <S289297AbSAVNIY>; Tue, 22 Jan 2002 08:08:24 -0500
+Message-Id: <200201221308.g0MD8EY16176@bliss.uni-koblenz.de>
+Content-Type: text/plain;
+  charset="iso-8859-15"
+From: Rainer Krienke <krienke@uni-koblenz.de>
+Organization: Uni Koblenz
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Subject: Re: 2.4.17:Increase number of anonymous filesystems beyond 256?
+Date: Tue, 22 Jan 2002 14:08:14 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org,
+        nfs@lists.sourceforge.net
+In-Reply-To: <mailman.1011275640.16596.linux-kernel2news@redhat.com> <200201221025.g0MAP8Y14023@bliss.uni-koblenz.de> <shszo36pt1h.fsf@charged.uio.no>
+In-Reply-To: <shszo36pt1h.fsf@charged.uio.no>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 22, 2002 at 12:45:59AM -0500, Shaya Potter wrote:
- > athlon XP 1800 is a cpuid 622 (aka an A5)
- > at least my 2 XP 1800+s are 622, so I assume all are (could be wrong)
+On Tuesday, 22. January 2002 11:40, Trond Myklebust wrote:
+> >>>>> " " == Rainer Krienke <krienke@uni-koblenz.de> writes:
+>      > portmap: connect from 127.0.0.1 to set(nfs): request from
+>      > unprivileged port rpc.nfsd: nfssvc: error Permission denied
+>      >
+>      > A strace of nfsd shows the problem: ...  nfsservctl(0,
+>      > 0xbfffeed8, 0) = -1 EACCES (Permission denied) ...
+>
+> 'man 5 exports'
+>
+>        secure This option requires that requests originate on  an
+>               internet  port  less  than  IPPORT_RESERVED (1024).
+>               This option is on by default. To turn it off, spec­
+>               ify insecure.
 
- Unless you have /proc/cpuinfo output that says otherwise, this is
- wrong. 622 is the olde Athlon (0.18um) Rev A2.
+This is not the problem. The exported filesystem is marked insecure. The 
+problem is that on the machine running Petes patch you cannot even start the 
+kernel nfsd, no matter what /etc/export contains. I f you try to start 
+/usr/sbin/rpc.nfsd (the kernel nfsd version) it tries to register with 
+portmap and to my interpretation the kernel denies this request with the 
+message from above. Since no nfsd can be started I cannot mount any 
+filesystem from this host.
 
- XP is 662 with cachesize >=256 with bit 19 of capflags==0
+So I still think that the reason for this is a check in the kernel, that 
+prevents connections from ports > 1024. But where exactly is this done?
 
- (Determining new Duron/Athlon XP/Athlon MP is quite messy,
-  see x86info source for gory details)
- 
+Thanks Rainer
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+---------------------------------------------------------------------
+Rainer Krienke                     krienke@uni-koblenz.de
+Universitaet Koblenz, 		   http://www.uni-koblenz.de/~krienke
+Rechenzentrum,                     Voice: +49 261 287 - 1312
+Rheinau 1, 56075 Koblenz, Germany  Fax:   +49 261 287 - 1001312
+---------------------------------------------------------------------

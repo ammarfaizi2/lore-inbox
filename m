@@ -1,87 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262699AbUBZGMO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 01:12:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262695AbUBZGMN
+	id S262695AbUBZGT3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 01:19:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262702AbUBZGT2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 01:12:13 -0500
-Received: from [65.248.111.151] ([65.248.111.151]:63239 "EHLO
-	ns1.brianandsara.net") by vger.kernel.org with ESMTP
-	id S262699AbUBZGLx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 01:11:53 -0500
-From: Brian Jackson <brian@brianandsara.net>
-Organization: brianandsara.net
-To: linux-kernel@vger.kernel.org
-Subject: Re: only ieee1394 from 2.4.20 works for me
-Date: Thu, 26 Feb 2004 00:12:25 -0600
-User-Agent: KMail/1.6.50
-Cc: kai.engert@gmx.de
-References: <4038BDC3.9030304@kuix.de> <Pine.LNX.4.58L.0402251153550.21511@logos.cnet>
-In-Reply-To: <Pine.LNX.4.58L.0402251153550.21511@logos.cnet>
+	Thu, 26 Feb 2004 01:19:28 -0500
+Received: from alt.aurema.com ([203.217.18.57]:29618 "EHLO smtp.sw.oz.au")
+	by vger.kernel.org with ESMTP id S262695AbUBZGT0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 01:19:26 -0500
+Message-ID: <403D8FE6.2010905@aurema.com>
+Date: Thu, 26 Feb 2004 17:19:18 +1100
+From: Peter Williams <peterw@aurema.com>
+Organization: Aurema Pty Ltd
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Albert Cahalan <albert@users.sf.net>
+CC: linux-kernel mailing list <linux-kernel@vger.kernel.org>, johnl@aurema.com
+Subject: Re: [RFC][PATCH] O(1) Entitlement Based Scheduler
+References: <1077766232.10393.992.camel@cube>
+In-Reply-To: <1077766232.10393.992.camel@cube>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200402260012.25098.brian@brianandsara.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 25 February 2004 08:57, Marcelo Tosatti wrote:
-> On Sun, 22 Feb 2004, Kai Engert wrote:
-> > In the last year I have been playing with a variety of combinations of
-> > ieee1394 controllers, machines, external mass storage devices and linux
-> > kernel versions. So have some friends of mine.
-> >
-> > The only version that works for us is the ieee1394 code that was
-> > included with kernel version 2.4.20.
+Albert Cahalan wrote:
+> John Lee writes:
+> 
+> 
+>>The usage rates for each task are estimated using Kalman
+>>filter techniques, the  estimates being similar to those
+>>obtained by taking a running average over twice the filter
+>>_response half life_ (see below). However, Kalman filter
+>>values are cheaper to compute and don't require the
+>>maintenance of historical usage data.
+> 
+> 
+> Linux dearly needs this. Please separate out this part
+> of the patch and send it in.
 
-Oddly enough I've been having trouble with ieee1394 too for quite some time (I 
-was beginning to think my drive boxes were dead for some reason), and much to 
-my pleasure your little trick works.
+This information can be determined from the SleepAVG: field in the 
+/proc/<pid>/status and /proc/<tgid>/task/<pid>/status files by 
+subtracting the value there from 100.  Without our patch this value is a 
+directly calculated estimated of the task's sleep rate which is 
+available because it used by the O(1) scheduler's heuristics.  With our 
+patches, it is calculated from our estimate of the task's usage because 
+we dispensed with the sleep average calculations as they are no longer 
+needed.  We decided to still report sleep average in the status file 
+because we were reluctant to alter the contents of such files in case we 
+broke user space programs.
 
-> >
-> > (I removed drivers/ieee1394 completely, and replaced it with
-> > drivers/ieee1394 from 2.4.20)
-> >
-> > Using that snapshot, we are able to transfer data to disks and video
-> > from a camcorder just fine, in all combinations we have tested.
-> >
-> > Every other kernel version, both older or newer than 2.4.20, is broken.
-> > We either see random errors, or writing data to disks stalls
-> > immediately, or daisy chained devices don't work.
+> 
+> Right now, Linux does not report the recent CPU usage
+> of a process. The UNIX standard requires that "ps"
+> report this; right now ps substitutes CPU usage over
+> the whole lifetime of a process.
+> 
+> Both per-task and per-process (tid and tgid) numbers
+> are needed. Both percent and permill (1/1000) units
+> get reported, so don't convert to integer percent.
 
-I however don't have the same problems you describe. Newer versions just 
-simply fail to see anything attached to the ieee1394 bus. I'm using a via 
-epia M10000. I saw a report similar to mine on the 1394 list, but it went 
-unanswered.
+I think a modification to fs/proc/array.c to make this field a per 
+million rather than a percent value would satisfy your needs.  It would 
+be a very small change but there would be concerns about breaking 
+programs that rely on it being a percentage.
 
-> >
-> > I'm currently using the official Fedora core 1 series kernels, patched
-> > that way, and it works like a charm.
-> >
-> > Please consider to use the 2.4.20 ieee1394 snapshot in future 2.4.x
-> > releases.
-
-I'll be the first one to agree with ben that this is a bad idea.
-
->
-> Hi Kai,
->
-> As Ben already said, he needs a detailed report of your the problems.
->
-> I'm sure he will work to fix them as soon as he has the reports.
->
-> Get backtraces with Alt+SysRQ+T and Alt+SysRQ+P when the kernel hangs.
-
-Unfortunately, I don't have any crashes, errors, or anything else helpful. 
-I've tried different settings for debugging, none showed anything more 
-revealing.
-
-If there is anything that I can do (extra debugging patches, etc.) these boxes 
-were bought for testing, and that's what they shall do.
-
---Brian Jackson
-
+Peter
 -- 
-http://www.brianandsara.net
+Dr Peter Williams, Chief Scientist                peterw@aurema.com
+Aurema Pty Limited                                Tel:+61 2 9698 2322
+PO Box 305, Strawberry Hills NSW 2012, Australia  Fax:+61 2 9699 9174
+79 Myrtle Street, Chippendale NSW 2008, Australia http://www.aurema.com
+

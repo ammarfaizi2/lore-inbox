@@ -1,67 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129048AbRBAVrY>; Thu, 1 Feb 2001 16:47:24 -0500
+	id <S129116AbRBAVwe>; Thu, 1 Feb 2001 16:52:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129116AbRBAVrO>; Thu, 1 Feb 2001 16:47:14 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:30401 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S129048AbRBAVrF>;
-	Thu, 1 Feb 2001 16:47:05 -0500
-Date: Thu, 1 Feb 2001 21:44:47 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Christoph Hellwig <hch@caldera.de>
-Cc: "Stephen C. Tweedie" <sct@redhat.com>, Steve Lord <lord@sgi.com>,
-        linux-kernel@vger.kernel.org, kiobuf-io-devel@lists.sourceforge.net,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait /notify + callback chains
-Message-ID: <20010201214447.J11607@redhat.com>
-In-Reply-To: <20010201174946.B11607@redhat.com> <200102012033.VAA15590@ns.caldera.de>
-Mime-Version: 1.0
+	id <S129130AbRBAVwO>; Thu, 1 Feb 2001 16:52:14 -0500
+Received: from mail09.voicenet.com ([207.103.0.35]:38026 "HELO
+	mail09.voicenet.com") by vger.kernel.org with SMTP
+	id <S129116AbRBAVwK>; Thu, 1 Feb 2001 16:52:10 -0500
+Message-ID: <3A79DA7F.4B8AA239@voicenet.com>
+Date: Thu, 01 Feb 2001 16:51:59 -0500
+From: safemode <safemode@voicenet.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.19pre7 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Vojtech Pavlik <vojtech@suse.cz>
+CC: Byron Stanoszek <gandalf@winds.org>, linux-kernel@vger.kernel.org
+Subject: Re: VT82C686A corruption with 2.4.x
+In-Reply-To: <20010201190653.H2341@suse.cz> <Pine.LNX.4.21.0102011316210.27273-100000@winds.org> <20010201215116.A3239@suse.cz>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <200102012033.VAA15590@ns.caldera.de>; from hch@caldera.de on Thu, Feb 01, 2001 at 09:33:27PM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Vojtech Pavlik wrote:
 
-On Thu, Feb 01, 2001 at 09:33:27PM +0100, Christoph Hellwig wrote:
-> 
-> > On Thu, Feb 01, 2001 at 05:34:49PM +0000, Alan Cox wrote:
-> > In the disk IO case, you basically don't get that (the only thing
-> > which comes close is raid5 parity blocks).  The data which the user
-> > started with is the data sent out on the wire.  You do get some
-> > interesting cases such as soft raid and LVM, or even in the scsi stack
-> > if you run out of mailbox space, where you need to send only a
-> > sub-chunk of the input buffer. 
-> 
-> Though your describption is right, I don't think the case is very common:
-> Sometimes in LVM on a pv boundary and maybe sometimes in the scsi code.
+> On Thu, Feb 01, 2001 at 01:20:00PM -0500, Byron Stanoszek wrote:
+>
+> > > On Thu, Feb 01, 2001 at 11:46:08AM -0500, Byron Stanoszek wrote:
+> > >
+> > > > Yeah, by bios does the same thing too on the Abit KT7(a).
+> > >
+> > > Ok, I'll remember this. This is most likely the cause of the problems
+> > > many people had with the KT7 in the past.
+> >
+> > What cause are you referring to? As far as I know, there are two options to
+> > increasing the FSB clock.. one increases both FSB+PCICLK, the other just
+> > increases FSB. If you increase the FSB only, it should keep PCICLK at a solid
+> > 33. (But I could be wrong, I've never tested that. I can tomorrow though.)
+>
+> I mean that people can alter the PCI clock on these boards and that 33
+> doesn't to be always exactly 33 due to rounding errors if used with a
+> FSB other than 66 or 100 or 133.
+>
+> Could it be that the PCI bus is not asynchronous, but only
+> pseudo-synchronous, allowing for divisors of 5, 4.5, 4, 3.5, 3, 2.5, 2?
+>
+> > > The U33 chips do UDMA timing in PCICLK (T = 30ns @ 33MHz) increments, U66 in
+> > > PCICLK*2 (T = 15ns @ 33 MHz) increments, and for U100 it's assumed that
+> > > there is an external 100MHz clock fed to the chip, so that the UDMA timing is
+> > > in T = 10ns increments independent of the PCICLK. I'm not 100% sure about
+> > > the last, it might be just PCICLK*3 (T = 10ns @ 33 MHz). An experiment needs
+> > > to be carried out to verify this.
+> >
+> > I don't have a KT7A personally, I only have a KT7. Can anyone else with a KT7A
+> > verify this? By verify, I take it you mean to use idebus=33 and overclock
+> > PCICLK? :) At least that would determine if UDMA100 is based on PCI or an
+> > external 100MHz source.
+>
+> Actually he should use the correct idebus= so that the Active/Recover
+> timings are correct. If KT7A doesn't work with UDMA at high PCI clocks
+> *even when* idebus= is correct would mean that the UDMA timing is in
+> 1/(PCICLK*3) units instead of units of 10ns.
+>
+> Anyone help us?
+>
+> --
+> Vojtech Pavlik
+> SuSE Labs
 
-On raid0 stripes, it's common to have stripes of between 16k and 64k,
-so it's rather more common there than you'd like.  In any case, you
-need the code to handle it, and I don't want to make the code paths
-any more complex than necessary.
+I for one dont use the KT7 motherboards    but i know from experience that
+increasing the FSB only effects ram speed ( at least negatively anyway)  i have
+100Mhz ram and 133Mhz ram so once i'm at 114Mhz the 100Mhz ram cant handle too much
+more ..   so 114Mhz is what i stay at.   My PCI clock is not changed at all and so
+far (for the last couple days) the hdd's on my idebus have not had any problems what
+so ever.   Sorry but i've only got UDMA66 drives and idebus is whatever the 2.2.x
+kernel defaults to.    I'm guessing any sort of corruption caused by 2.4.x had
+something to do with that dirty page writes mail that was sent to the list a while
+ago and was probably fixed but never made it to the changelog.     I'll stick to 2.2
+until 2.5 though just in case.    What would be interesting is figuring out why the
+kernel can't recover somehow from infinite ide irq reset loops which are usually
+brought on by dma timeouts.   That would at least somewhat usefull for when they
+actually happen (I saw them numerous times in 2.4.x but not since going back to
+2.2.x).
 
-> In raid1 you need some kind of clone iobuf, which should work with both
-> cases.  In raid0 you need a complete new pagelist anyway
 
-No you don't.  You take the existing one, specify which region of it
-is going to the current stripe, and send it off.  Nothing more.
-
-> > In that case, having offset/len as the kiobuf limit markers is ideal:
-> > you can clone a kiobuf header using the same page vector as the
-> > parent, narrow down the start/end points, and continue down the stack
-> > without having to copy any part of the page list.  If you had the
-> > offset/len data encoded implicitly into each entry in the sglist, you
-> > would not be able to do that.
-> 
-> Sure you could: you embedd that information in a higher-level structure.
-
-What's the point in a common data container structure if you need
-higher-level information to make any sense out of it?
-
---Stephen
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

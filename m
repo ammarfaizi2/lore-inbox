@@ -1,103 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267415AbUH1QZV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267416AbUH1Qak@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267415AbUH1QZV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 12:25:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267363AbUH1QV1
+	id S267416AbUH1Qak (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 12:30:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267413AbUH1QZp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 12:21:27 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:22150 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S267413AbUH1QPQ
+	Sat, 28 Aug 2004 12:25:45 -0400
+Received: from dsl092-149-163.wdc2.dsl.speakeasy.net ([66.92.149.163]:61450
+	"EHLO localhost") by vger.kernel.org with ESMTP id S267389AbUH1QXP
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 12:15:16 -0400
-Date: Sat, 28 Aug 2004 17:15:10 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Jon Smirl <jonsmirl@yahoo.com>
-Cc: Matthew Wilcox <willy@debian.org>, Greg KH <greg@kroah.com>,
-       Jesse Barnes <jbarnes@engr.sgi.com>, Martin Mares <mj@ucw.cz>,
-       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-       linux-pci@atrey.karlin.mff.cuni.cz, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Petr Vandrovec <VANDROVE@vc.cvut.cz>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [PATCH] add PCI ROMs to sysfs
-Message-ID: <20040828161510.GC16196@parcelfarce.linux.theplanet.co.uk>
-References: <20040826155803.GN16196@parcelfarce.linux.theplanet.co.uk> <20040826195459.70018.qmail@web14925.mail.yahoo.com>
+	Sat, 28 Aug 2004 12:23:15 -0400
+Subject: Re: kernel 2.6.8 pwc patches and counterpatches
+From: Brian Beattie <beattie@beattie-home.net>
+To: Xavier Bestel <xavier.bestel@free.fr>
+Cc: Kenneth Lavrsen <kenneth@lavrsen.dk>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <1093628062.15313.11.camel@gonzales>
+References: <6.1.2.0.2.20040827171755.01c1f328@inet.uni2.dk>
+	 <1093628062.15313.11.camel@gonzales>
+Content-Type: text/plain; charset=ISO-8859-1
+Message-Id: <1093629262.2812.2.camel@kokopelli>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040826195459.70018.qmail@web14925.mail.yahoo.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 28 Aug 2004 12:22:51 -0400
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 26, 2004 at 12:54:59PM -0700, Jon Smirl wrote:
-> New version that uses the PCI data structure to get the size. It's
-> against 2.6.9-rc1-mm1, but that kernel is DOA on my machine.
+On Fri, 2004-08-27 at 13:34, Xavier Bestel wrote:
+> Le ven 27/08/2004 à 18:26, Kenneth Lavrsen a écrit :
 > 
-> I was confused about the type 0 versus other types and see that this
-> code doesn't need to know the ROM type.
+> > My name is Kenneth Lavrsen. I maintain the open source project Motion.
+> > Probably half of the users of Motion - and there are 1000s of them will 
+> > soon realise that next time they download a Kernel their camera will no 
+> > longer work.
+> [...]
+> > I personally have 8 such cameras worth a fortune in working action and as a 
+> > Linux user I am so disappointed and angry with the way that the maintainers 
+> > (or is it in reality a single individual with too much power?) are 
+> > threating me and the many other Linux users.
+> 
+> If you value a working binary driver more than anything else, have you
+> considered switching over to a proprietary OS including said driver ?
+> 
 
-A few more bugfixes:
+One can also point out, that his current kernel will continue to work
+and support those cameras.
 
- - I was confused, it was hex 18, not decimal 16
- - Its/it's again ;-)
- - Only return the bits of the ROM that are in PCI format
- - Remove the actual resource, not some strange static one
- - Delete the static one that wasn't really used.
-
-BTW, what do you think to moving all the ROM code from pci-sysfs.c to a
-new file rom.c?  There's not much sense to the ROM accessing code being
-mixed in with the sysfs code like this.  After all, we might choose to
-expose the ROM in some other way in the future.
-
-diff -u edited/drivers/pci/pci-sysfs.c vpd-2.6/drivers/pci/pci-sysfs.c
---- edited/drivers/pci/pci-sysfs.c	Thu Aug 26 15:21:02 2004
-+++ vpd-2.6/drivers/pci/pci-sysfs.c	27 Aug 2004 19:33:37 -0000
-@@ -262,8 +262,8 @@
- 			break;
- 		if (readb(image + 1) != 0xAA)
- 			break;
--		/* get the PCI data structure and check it's signature */
--		pds = image + readw(image + 16);
-+		/* get the PCI data structure and check its signature */
-+		pds = image + readw(image + 24);
- 		if (readb(pds) != 'P')
- 			break;
- 		if (readb(pds + 1) != 'C')
-@@ -277,8 +277,7 @@
- 		image += readw(pds + 16) * 512;
- 	} while (!last_image);
- 
--	if (image != rom)
--		*size = min((size_t)(image - rom), *size); /* make sure we didn't include an adjacent ROM */
-+	*size = image - rom;
- 
- 	return rom;
- }
-@@ -340,8 +342,6 @@
- 		pci_disable_rom(pdev);
- }
- 
--static struct bin_attribute rom_attr;
--
- /**
-  * pci_remove_rom - disable the ROM and remove its sysfs attribute
-  * @dev: pointer to pci device struct
-@@ -353,7 +353,7 @@
- 	struct resource *res = &pdev->resource[PCI_ROM_RESOURCE];
- 	
- 	if (pci_resource_len(pdev, PCI_ROM_RESOURCE))
--		sysfs_remove_bin_file(&pdev->dev.kobj, &rom_attr);
-+		sysfs_remove_bin_file(&pdev->dev.kobj, pdev->rom_attr);
- 	if (!(res->flags & (IORESOURCE_ROM_ENABLE | IORESOURCE_ROM_SHADOW | IORESOURCE_ROM_COPY)))
- 		pci_disable_rom(pdev);
- }
-
-
+> Bitching won't get you very far, obviously.
+> 
+> 	Xav
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 -- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain
+Brian Beattie   LFS12947 | "Honor isn't about making the right choices.
+beattie@beattie-home.net | It's about dealing with the consequences."
+www.beattie-home.net     | -- Midori Koto
+
+

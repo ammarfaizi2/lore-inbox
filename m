@@ -1,44 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129051AbRBHPV5>; Thu, 8 Feb 2001 10:21:57 -0500
+	id <S129031AbRBHPV1>; Thu, 8 Feb 2001 10:21:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130533AbRBHPVr>; Thu, 8 Feb 2001 10:21:47 -0500
-Received: from se1.cogenit.fr ([195.68.53.173]:25354 "EHLO se1.cogenit.fr")
-	by vger.kernel.org with ESMTP id <S129290AbRBHPVh>;
-	Thu, 8 Feb 2001 10:21:37 -0500
-Date: Thu, 8 Feb 2001 16:20:30 +0100
-From: Francois Romieu <romieu@cogenit.fr>
-To: ARND BERGMANN <std7652@et.FH-Osnabrueck.DE>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: epic100 in current -ac kernels
-Message-ID: <20010208162030.A9703@se1.cogenit.fr>
-In-Reply-To: <Pine.GSO.4.21.0102081111160.10104-100000@gamma10>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Mailer: Mutt 1.0pre3us
-In-Reply-To: <Pine.GSO.4.21.0102081111160.10104-100000@gamma10>
-X-Organisation: Marie's fan club
+	id <S129290AbRBHPVQ>; Thu, 8 Feb 2001 10:21:16 -0500
+Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:32774 "EHLO
+	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id <S129031AbRBHPVC>; Thu, 8 Feb 2001 10:21:02 -0500
+Message-ID: <3A82B947.BA4368DE@Hell.WH8.TU-Dresden.De>
+Date: Thu, 08 Feb 2001 16:20:39 +0100
+From: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>
+Organization: Dept. Of Computer Science, Dresden University Of Technology
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-ac5 i686)
+X-Accept-Language: en, de-DE
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: PS/2 Mouse/Keyboard conflict and lockup
+In-Reply-To: <E14Qm1u-0002nf-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ARND BERGMANN <std7652@et.FH-Osnabrueck.DE> écrit :
-> There seems to be some movement in the driver and the latest one
-> is not working for me (again), so I'm giving a subjective status report
-> for the versions I have tried lately:
+Alan Cox wrote:
 > 
-> Working epic100 drivers:
->  - 2.4.0
->  - 2.4.0-ac9
+> > I'm not sure whether this is related to the ominous ps/2 mouse bug
+> > you have been chasing, but this problem is 100% reproducible and
+> > very annoying.
+> 
+> It isnt but it might be related to which 2.2.19pre you are running (if any)
 
-Could you give a look at ac12 (fine here) ?
+No, at that time I was running 2.4.1-ac5.
 
+> Does downgrading the bios fix it. If so then I suspect you need to talk to
+> the BIOS vendor.  You might find that turning off USB legacy keyboard/mouse
+> emulation helps too
 
--- 
-Ueimor <romieu@cogenit.fr>
-Cogenit                                  Tél : +33 (0) 1 40 20 08 43
-53 rue Sainte Anne                       Fax : +33 (0) 1 40 20 08 45
-75002 Paris                              <URL:http://www.cogenit.fr>
+Downgrading the Bios does fix it, but that just shadows the ACPI bugs that
+cause the problem. With 1003 + ACPI, mouse and keyboard both work,
+but I've seen spurious scancode problems and keyboard weirdness that I
+reported to lkml a week or two ago. 1005D + ACPI completely mess up PS/2
+mouse and keyboard and lock them up after a while.
+
+The solution is not to use ACPI until that is fixed. It appears that without
+ACPI everything is working perfectly.
+
+-Udo.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

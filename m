@@ -1,43 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263128AbSJGU3J>; Mon, 7 Oct 2002 16:29:09 -0400
+	id <S262706AbSJGUA1>; Mon, 7 Oct 2002 16:00:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262775AbSJGU22>; Mon, 7 Oct 2002 16:28:28 -0400
-Received: from ulima.unil.ch ([130.223.144.143]:65199 "HELO ulima.unil.ch")
-	by vger.kernel.org with SMTP id <S262774AbSJGU1O>;
-	Mon, 7 Oct 2002 16:27:14 -0400
-Date: Mon, 7 Oct 2002 22:32:53 +0200
-From: Gregoire Favre <greg@ulima.unil.ch>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux v2.5.41 -> don't compil
-Message-ID: <20021007203253.GA25490@ulima.unil.ch>
-References: <Pine.LNX.4.33.0210071157270.1917-100000@penguin.transmeta.com>
+	id <S262693AbSJGT7x>; Mon, 7 Oct 2002 15:59:53 -0400
+Received: from pc1-cwma1-5-cust51.swa.cable.ntl.com ([80.5.120.51]:13044 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262699AbSJGT7r>; Mon, 7 Oct 2002 15:59:47 -0400
+Subject: Re: The reason to call it 3.0 is the desktop (was Re: [OT] 2.6 not
+	3.0 -  (NUMA))
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Andrew Morton <akpm@digeo.com>, Daniel Phillips <phillips@arcor.de>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       Oliver Neukum <oliver@neukum.name>, Rob Landley <landley@trommello.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0210071145120.1356-100000@penguin.transmeta.com>
+References: <Pine.LNX.4.33.0210071145120.1356-100000@penguin.transmeta.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 07 Oct 2002 21:14:29 +0100
+Message-Id: <1034021669.26502.19.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.33.0210071157270.1917-100000@penguin.transmeta.com>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Mon, 2002-10-07 at 19:51, Linus Torvalds wrote:
+> In the meantime, it might just be possible to take a look at the uid, and 
+> if the uid matches use find_group_other, but for non-matching uids use 
+> find_group_dir. That gives a "compact for same users, distribute for 
+> different users" heuristic, which might be acceptable for normal use (and 
+> the theoretical cleanup tool could fix it up).
 
-don't compil:
+Factoring the uid/gid/pid in actually may help in other ways. If we are
+doing it by pid or by uid we will reduce the interleave of multiple
+files thing you sometimes get
 
-make -f drivers/message/i2o/Makefile 
-  gcc -Wp,-MD,drivers/message/i2o/.i2o_pci.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -Iarch/i386/mach-generic -nostdinc -iwithprefix include -DMODULE   -DKBUILD_BASENAME=i2o_pci   -c -o drivers/message/i2o/i2o_pci.o drivers/message/i2o/i2o_pci.c
-drivers/message/i2o/i2o_pci.c: In function `i2o_pci_core_attach':
-drivers/message/i2o/i2o_pci.c:371: warning: implicit declaration of function `i2o_sys_init'
-  gcc -Wp,-MD,drivers/message/i2o/.i2o_core.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -Iarch/i386/mach-generic -nostdinc -iwithprefix include -DMODULE   -DKBUILD_BASENAME=i2o_core -DEXPORT_SYMTAB  -c -o drivers/message/i2o/i2o_core.o drivers/message/i2o/i2o_core.c
-drivers/message/i2o/i2o_core.c:45:26: linux/tqueue.h: No such file or directory
-In file included from drivers/message/i2o/i2o_core.c:54:
-drivers/message/i2o/i2o_lan.h:139: field `i2o_batch_send_task' has incomplete type
-make[3]: *** [drivers/message/i2o/i2o_core.o] Error 1
-make[2]: *** [drivers/message/i2o] Error 2
-make[1]: *** [drivers/message] Error 2
-make: *** [drivers] Error 2
-
-	Grégoire
-________________________________________________________________
-http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch

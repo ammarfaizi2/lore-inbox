@@ -1,106 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262495AbSJJAMN>; Wed, 9 Oct 2002 20:12:13 -0400
+	id <S262780AbSJJARh>; Wed, 9 Oct 2002 20:17:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262617AbSJJAMN>; Wed, 9 Oct 2002 20:12:13 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:58342 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S262495AbSJJAMK>; Wed, 9 Oct 2002 20:12:10 -0400
-Subject: [PATCH] linux-2.5.41_timer-changes_A4 (1/3 - infrastructure)
-From: john stultz <johnstul@us.ibm.com>
-To: Linus Torvalds <torvalds@transmeta.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Dave Jones <davej@suse.de>, george anzinger <george@mvista.com>,
-       lkml <linux-kernel@vger.kernel.org>, greg kh <greg@kroah.com>,
-       Patrick Mochel <mochel@osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 09 Oct 2002 17:11:35 -0700
-Message-Id: <1034208695.21965.1356.camel@cog>
+	id <S262782AbSJJARh>; Wed, 9 Oct 2002 20:17:37 -0400
+Received: from cerebus.wirex.com ([65.102.14.138]:41725 "EHLO
+	figure1.int.wirex.com") by vger.kernel.org with ESMTP
+	id <S262780AbSJJARf>; Wed, 9 Oct 2002 20:17:35 -0400
+Date: Wed, 9 Oct 2002 17:15:00 -0700
+From: Chris Wright <chris@wirex.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.5.41 capget fix
+Message-ID: <20021009171500.B25393@figure1.int.wirex.com>
+Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, All,
+Linus,
 
-        The i386 time.c code is turning into a mess. We've got multiple
-functions that do the same thing, only with different hardware, all
-surrounded #ifdefs and even more difficult to follow #ifndefs. George
-Anzinger is introducing a new ACPIpm time source, I'm going to attempt
-to add the cyclone counter as a time source, and in the future there
-will be HPET to deal with. These will not go in cleanly together as
-things are now.
-        
-        Inspired by suggestions from Alan, this collection of patches
-tries to clean up time.c by breaking out the PIT and TSC specific parts
-into their own files. Additionally the patch creates an abstract
-interface to use these existing time soruces, as well as make it easier
-to add future time sources. 
-        
-        It introduces "struct timer_ops" which gives the time code a
-clear interface to use these different time sources. It also allows for
-clearer conditional compilation of these various time sources. 
+Daniel Jacobowitz noticed that sys_capget is not behaving properly when
+called with pid of 0.  It is supposed to return current capabilities,
+not those of swapper.  Also cleaned up some duplicate code from a merge
+error.  Patch is tested, please apply.
 
-        This first patch (part 1 of 3) provides the infrastructure
-needed via the timer_ops structure, as well as the select_timer()
-function for choosing the best available timer. 
+thanks,
+-chris
 
-New in this version (A4):
-* nitpick changes -GregKH
-* move new files into their own directory -Pat Mochel
-        
-Please apply.
-
-thanks
--john
-
-diff -Nru a/arch/i386/kernel/timers/timer.c b/arch/i386/kernel/timers/timer.c
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/arch/i386/kernel/timers/timer.c	Wed Oct  9 17:06:09 2002
-@@ -0,0 +1,26 @@
-+#include <linux/kernel.h>
-+#include <asm/timer.h>
-+
-+/* list of externed timers */
-+/* eg: extern struct timer_opts timer_XXX*/;
-+
-+/* list of timers, ordered by preference */
-+struct timer_opts* timers[] = {
-+	/* eg: &timer_XXX */
-+};
-+
-+#define NR_TIMERS (sizeof(timers)/sizeof(timers[0]))
-+
-+/* iterates through the list of timers, returning the first 
-+ * one that initializes successfully.
-+ */
-+struct timer_opts* select_timer(void)
-+{
-+	int i;
-+	/* find most preferred working timer */
-+	for(i=0; i < NR_TIMERS; i++)
-+		if(timers[i]->init())
-+			return timers[i];
-+	panic("select_timer: Cannot find a suitable timer\n");
-+	return 0;
-+}
-diff -Nru a/include/asm-i386/timer.h b/include/asm-i386/timer.h
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/include/asm-i386/timer.h	Wed Oct  9 17:06:09 2002
-@@ -0,0 +1,14 @@
-+#ifndef _ASMi386_TIMER_H
-+#define _ASMi386_TIMER_H
-+
-+struct timer_opts{
-+	/* probes and initializes timer. returns 1 on sucess, 0 on failure */
-+	int (*init)(void);
-+	/* called by the timer interrupt */
-+	void (*mark_offset)(void);
-+	/* called by gettimeofday. returns # ms since the last timer interrupt */
-+	unsigned long (*get_offset)(void);
-+};
-+
-+struct timer_opts* select_timer(void);
-+#endif
-
+--- 2.5.41/kernel/capability.c	Sun Sep 15 12:19:29 2002
++++ 2.5.41-capget/kernel/capability.c	Wed Oct  9 16:31:10 2002
+@@ -33,7 +33,7 @@
+      int ret = 0;
+      pid_t pid;
+      __u32 version;
+-     task_t *target;
++     task_t *target = current;
+      struct __user_cap_data_struct data;
+ 
+      if (get_user(version, &header->version))
+@@ -52,21 +52,20 @@
+              return -EINVAL;
+ 
+      spin_lock(&task_capability_lock);
+-     read_lock(&tasklist_lock); 
+ 
+-     target = find_task_by_pid(pid);
+-     if (!target) {
+-          ret = -ESRCH;
+-          goto out;
++     if (pid && pid != current->pid) {
++	     read_lock(&tasklist_lock); 
++	     target = find_task_by_pid(pid);
++	     read_unlock(&tasklist_lock); 
++	     if (!target) {
++	          ret = -ESRCH;
++	          goto out;
++	     }
+      }
+ 
+-     data.permitted = cap_t(target->cap_permitted);
+-     data.inheritable = cap_t(target->cap_inheritable); 
+-     data.effective = cap_t(target->cap_effective);
+      ret = security_ops->capget(target, &data.effective, &data.inheritable, &data.permitted);
+ 
+ out:
+-     read_unlock(&tasklist_lock); 
+      spin_unlock(&task_capability_lock);
+ 
+      if (!ret && copy_to_user(dataptr, &data, sizeof data))
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

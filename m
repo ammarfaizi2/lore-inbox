@@ -1,37 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261538AbVBAIu6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261867AbVBAIvD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261538AbVBAIu6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 03:50:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261868AbVBAIu5
+	id S261867AbVBAIvD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 03:51:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261871AbVBAIvC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 03:50:57 -0500
-Received: from mail.kroah.org ([69.55.234.183]:5561 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261538AbVBAIuy (ORCPT
+	Tue, 1 Feb 2005 03:51:02 -0500
+Received: from mail.kroah.org ([69.55.234.183]:7609 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261867AbVBAIu4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 03:50:54 -0500
-Date: Tue, 1 Feb 2005 00:38:00 -0800
+	Tue, 1 Feb 2005 03:50:56 -0500
+Date: Tue, 1 Feb 2005 00:28:53 -0800
 From: Greg KH <greg@kroah.com>
-To: Mitch Williams <mitch.a.williams@intel.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 3/3] change sematics of read flag
-Message-ID: <20050201083800.GB22162@kroah.com>
-References: <Pine.CYG.4.58.0501211452420.3364@mawilli1-desk2.amr.corp.intel.com>
+To: Kylene Hall <kjhall@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, emilyr@us.ibm.com, toml@us.ibm.com,
+       tpmdd-devel@lists.sourceforge.net
+Subject: Re: [PATCH 1/1] tpm: fix cause of SMP stack traces -- updated version
+Message-ID: <20050201082853.GC22068@kroah.com>
+References: <Pine.LNX.4.58.0412081546470.24510@jo.austin.ibm.com> <Pine.LNX.4.58.0412161632200.4219@jo.austin.ibm.com> <Pine.LNX.4.58.0412171642570.9229@jo.austin.ibm.com> <Pine.LNX.4.58.0412201146060.10943@jo.austin.ibm.com> <29495f1d041221085144b08901@mail.gmail.com> <Pine.LNX.4.58.0412211209410.14092@jo.austin.ibm.com> <Pine.LNX.4.58.0501121236180.2453@jo.austin.ibm.com> <Pine.LNX.4.58.0501181621200.2473@jo.austin.ibm.com> <Pine.LNX.4.58.0501181735110.13908@jo.austin.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.CYG.4.58.0501211452420.3364@mawilli1-desk2.amr.corp.intel.com>
+In-Reply-To: <Pine.LNX.4.58.0501181735110.13908@jo.austin.ibm.com>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 21, 2005 at 02:55:09PM -0800, Mitch Williams wrote:
-> This patch reverses the semantics of the read fill flag, getting rid of an
-> extra assignment at allocation time.
+On Tue, Jan 18, 2005 at 05:39:53PM -0600, Kylene Hall wrote:
+> There were misplaced spinlock acquires and releases in the probe, close and release 
+> paths which were causing might_sleep and schedule while atomic error messages accompanied 
+> by stack traces when the kernel was compiled with SMP support. Bug reported by Reben Jenster 
+> <ruben@hotheads.de>
 > 
-> Generated from 2.6.11-rc1.
-> 
-> Signed-off-by:  Mitch Williams <mitch.a.williams@intel.com>
+> Thanks,
+> Kylie
+>  
+> Signed-off-by: Kylene Hall <kjhall@us.ibm.com>
 
 Applied, thanks.
 
 greg k-h
+

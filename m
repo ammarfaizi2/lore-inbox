@@ -1,56 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261797AbUCaHiQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Mar 2004 02:38:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261798AbUCaHiQ
+	id S261815AbUCaHnC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Mar 2004 02:43:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261817AbUCaHnB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Mar 2004 02:38:16 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:48073 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261797AbUCaHiO
+	Wed, 31 Mar 2004 02:43:01 -0500
+Received: from 200-158-126-221.dsl.telesp.net.br ([200.158.126.221]:37126 "HELO
+	200.158.126.221") by vger.kernel.org with SMTP id S261815AbUCaHm7
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Mar 2004 02:38:14 -0500
-Date: Wed, 31 Mar 2004 13:06:30 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Robert Olsson <Robert.Olsson@data.slu.se>
-Cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com, "Paul E. McKenney" <paulmck@us.ibm.com>,
-       Dave Miller <davem@redhat.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: route cache DoS testing and softirqs
-Message-ID: <20040331073630.GA3681@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20040329184550.GA4540@in.ibm.com> <20040329222926.GF3808@dualathlon.random> <20040330144324.GA3778@in.ibm.com> <20040330195315.GB3773@in.ibm.com> <20040330204731.GG3808@dualathlon.random> <16489.59080.303710.986410@robur.slu.se>
+	Wed, 31 Mar 2004 02:42:59 -0500
+From: Telephone Wind-up <ddbb0000@mindspring.com>
+To: along@yahoo.com
+Subject: Fwd: Joke Line
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16489.59080.303710.986410@robur.slu.se>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset="iso-8859-1"
+Date: Wed, 31 Mar 2004 08:39:13 +0100
+X-Mailer: Microsoft Outlook Express 5.00.2615.200
+Message-Id: <S261815AbUCaHm7/20040331074259Z+442@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 30, 2004 at 11:29:44PM +0200, Robert Olsson wrote:
-> Andrea Arcangeli writes:
->  > I see what's going on now, yes my patch cannot help. the workload is
->  > simply generating too much hardirq load, and it's like if we don't use
->  > softirq at all but that we process the packet inside the hardirq for
->  > this matter. As far as RCU is concerned it's like if there a no softirq
->  > at all but that we process everything in the hardirq.
->  > 
->  > so what you're looking after is a new feature then:
->  > 
->  > 1) rate limit the hardirqs
->  > 2) rate limit only part of the irq load (i.e. the softirq, that's handy
->  >    since it's already splitted out) to scheduler-aware context (not
->  >    inside irq context anymore)
->  > 3) stop processing packets in irqs in the first place (NAPI or similar)
-> 
->  No Andrea it pure softirq workload. Interfaces runs with irq disabled 
->  at this load w. NAPI. Softirq's are run from spin_unlock_bh etc when 
->  doing route lookup and GC. And the more fine-grained locking we do the 
->  the more do_softirq's are run.
+=====APRIL FOOL FUNNY PRANK CALLS=====
 
-Not lookup, we don't take the lock in lookup. Probably route 
-insertions which will happen very frequently in this case.
 
-Thanks
-Dipankar
+How to use this service:
+ 
+1. Choose a Prank from the list below 
+2. Dial 0906 407 0041.
+3. Key in your victim`s telephone number.
+4. Listen in as the computer dials out to your target!
+
+
+The Pranks:
+
+1. Mr Fury
+2. Irate Delivery Driver
+3. Invite to no. 10
+4. Tax Inspector from Hell
+5. Mr Stammer
+6. The Detective **Recommended**
+7. My Daughter`s Pregnant
+
+
+
+Calls to 0906 no`s cost one pound and fifty pence per minute.The average  prank
+lasts three minutes.Service provider:C Fry Unit 608 28 Old Brompton Road London SW7 3SS.
+You have subscribed the following email address linux-8086@vger.kernel.org to receive this
+promotion once per year.To unsubscribe from future promotions please call 08702250136.
+Your subscription code is  yssiov . 

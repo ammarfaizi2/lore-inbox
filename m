@@ -1,73 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265184AbUFBIKh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265276AbUFBIS3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265184AbUFBIKh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 04:10:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265206AbUFBIKh
+	id S265276AbUFBIS3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 04:18:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265344AbUFBIS3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 04:10:37 -0400
-Received: from imap.gmx.net ([213.165.64.20]:21416 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S265184AbUFBIKe (ORCPT
+	Wed, 2 Jun 2004 04:18:29 -0400
+Received: from ozlabs.org ([203.10.76.45]:64202 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S265276AbUFBIS0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 04:10:34 -0400
-X-Authenticated: #4512188
-Message-ID: <40BD8B7A.2010901@gmx.de>
-Date: Wed, 02 Jun 2004 10:10:34 +0200
-From: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040525)
-X-Accept-Language: en-us, en
+	Wed, 2 Jun 2004 04:18:26 -0400
+From: Jeremy Kerr <jeremy@redfishsoftware.com.au>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] Fix signal race during process exit
+Date: Wed, 2 Jun 2004 18:13:26 +1000
+User-Agent: KMail/1.6.2
+Cc: rusty@rustcorp.com.au, linux-kernel@vger.kernel.org, torvalds@osdl.org
+References: <200406021213.58305.jeremy@redfishsoftware.com.au> <20040602000812.541ee72a.akpm@osdl.org> <20040602001653.738887b2.akpm@osdl.org>
+In-Reply-To: <20040602001653.738887b2.akpm@osdl.org>
 MIME-Version: 1.0
-CC: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.7-rc1-mm1: libata flooding my log
-References: <40B8E8D4.1010905@gmx.de> <40B8EB07.6000700@pobox.com> <40B8F601.2000600@gmx.de>
-In-Reply-To: <40B8F601.2000600@gmx.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)
+Message-Id: <200406021813.26216.jeremy@redfishsoftware.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Prakash K. Cheemplavam wrote:
-> Jeff Garzik wrote:
-> 
->> Prakash K. Cheemplavam wrote:
->>
-> [snip]
-> 
->>> FAILED
->>>   status = 1, message = 00, host = 0, driver = 08
->>>   Current sd: sense = 70  5
->>> ASC=20 ASCQ= 0
->>> Raw sense data:0x70 0x00 0x05 0x00 0x00 0x00 0x00 0x06 0x00 0x00 0x00 
->>> 0x00 0x20 0x00
->>> FAILED
->>>   status = 1, message = 00, host = 0, driver = 08
->>>   Current sd: sense = 70  5
->>> ASC=20 ASCQ= 0
->>> Raw sense data:0x70 0x00 0x05 0x00 0x00 0x00 0x00 0x06 0x00 0x00 0x00 
->>> 0x00 0x20 0x00
->>> FAILED
->>>   status = 1, message = 00, host = 0, driver = 08
->>>   Current sd: sense = 70  5
->>> ASC=20 ASCQ= 0
->>> Raw sense data:0x70 0x00 0x05 0x00 0x00 0x00 0x00 0x06 0x00 0x00 0x00 
->>> 0x00 0x20 0x00
->>>
->>>
->>
+> Andrew Morton <akpm@osdl.org> wrote:
+> > yes?
+>
+> no.  It needs tasklist_lock as well, to keep the other CPU (which is doing
+> wait4) at bay.
 
-> 
-> 
->>
->> I wonder if you have a bad SATA cable, initially, though.
-> 
-> 
-> I don't think so, because previous mm kernels didn't show anything like 
-> this.
-> 
+almost:
 
-I tried again a 2.6.6 based mm kernel and all is OK. Furthermore I am 
-not the only one getting these messages with the 2.6.7-rcX mm kernels. 
-Any idea? I tried to copy the older libata to the new kernel, but didn't 
-work as I got a compilation failure...
+> +	tsk->it_virt_incr = 0;
+> +	tsk->it_prof_value = 0;
 
-Prakash
+If we're using this approach, we also need to deal with the send_sig() calls 
+in do_process_times():
+
+	if (psecs / HZ > p->rlim[RLIMIT_CPU].rlim_cur) {
+		/* Send SIGXCPU every second.. */
+		if (!(psecs % HZ))
+			send_sig(SIGXCPU, p, 1);
+		/* and SIGKILL when we go over max.. */
+		if (psecs / HZ > p->rlim[RLIMIT_CPU].rlim_max)
+			send_sig(SIGKILL, p, 1);
+	}
+
+by setting rlim_cur to RLIM_INFINITY.
+
+
+
+Fix a race identified by Jeremy Kerr <jeremy@redfishsoftware.com.au>: if
+update_process_times() decides to deliver a signal due to process timer
+expiry, it can race with __exit_sighand()'s freeing of task->sighand.
+
+Fix that by clearing the per-process timer state in exit_notify(), while under
+local_irq_disable() and under tasklist_lock.  tasklist_lock provides exclusion
+wrt release_task()'s freeing of task->sighand and local_irq_disable() provides
+exclusion wrt update_process_times()'s inspection of the per-process timer
+state.
+
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+Signed-off-by: Jeremy Kerr <jk@ozlabs.org>
+
+
+diff -urN --exclude '.*.sw[op]' linux-2.6.7-rc2-bk2.orig/kernel/exit.c 
+linux-2.6.7-rc2-bk2/kernel/exit.c
+--- linux-2.6.7-rc2-bk2.orig/kernel/exit.c	2004-06-02 11:29:13.000000000 +1000
++++ linux-2.6.7-rc2-bk2/kernel/exit.c	2004-06-02 18:02:05.000000000 +1000
+@@ -736,6 +736,14 @@
+ 	tsk->state = state;
+ 	tsk->flags |= PF_DEAD;
+ 
++	/*
++	 * Clear these here so that update_process_times() won't try to deliver
++	 * itimer, profile or rlimit signals to this task while it is in late exit.
++	 */
++	tsk->it_virt_incr = 0;
++	tsk->it_prof_value = 0;
++	tsk->rlim[RLIMIT_CPU].rlim_cur = RLIM_INFINITY;
++
+ 	/*
+ 	 * In the preemption case it must be impossible for the task
+ 	 * to get runnable again, so use "_raw_" unlock to keep
+
+
+
+Jeremy
+
+
+
+
+
+
+

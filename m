@@ -1,43 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265060AbUGGPzQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265110AbUGGP5u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265060AbUGGPzQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jul 2004 11:55:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265125AbUGGPzQ
+	id S265110AbUGGP5u (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jul 2004 11:57:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265210AbUGGP5t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jul 2004 11:55:16 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:20694 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265060AbUGGPzJ
+	Wed, 7 Jul 2004 11:57:49 -0400
+Received: from sb0-cf9a48a7.dsl.impulse.net ([207.154.72.167]:51408 "EHLO
+	madrabbit.org") by vger.kernel.org with ESMTP id S265110AbUGGP5j
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jul 2004 11:55:09 -0400
-Date: Wed, 7 Jul 2004 12:21:06 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Creation of driver-specific sysfs attributes
-Message-ID: <20040707152106.GB2168@logos.cnet>
+	Wed, 7 Jul 2004 11:57:39 -0400
+Subject: Re: Prohibited attachment type (was 0xdeadbeef)
+From: Ray Lee <ray-lk@madrabbit.org>
+To: tomstdenis@yahoo.com
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: http://madrabbit.org/
+Message-Id: <1089215855.4373.194.camel@orca.madrabbit.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 07 Jul 2004 08:57:36 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg, others,
+On Wed, Jul 07, 2004 at 04:48:36AM -0700, tom st denis wrote:
+> It will warn that 0xDEADBEEF is unsigned (which it isn't).
 
-Hope this is not a FAQ.
+It is. Either read the standard, or read any of my email messages where
+I quote the thing at you.
 
-I want to export some read-only attributes (statistics) from cyclades.c char 
-driver to userspace via sysfs. 
+> Either there is an obscure clause in the C standard
 
-I can't figure out the right place to do it - I could create a class under
-/sys/class/cyclades for example, but that doesnt sound right since this 
-is not a "class" of device, but a device itself.
+Duuuude. The ANSI C standard is about 40 pages in the back of the K&R
+second edition. You could read through it in a few hours. If you're
+writing C code for more than just a pastime, you should do yourself a 
+favor and read it. It's really not all that obscure or hard to
+understand.
 
-Hooking the statistics into /sys/class/tty/ttyC$/ sounds reasonable, but
-its not possible it seems because "tty" is a class_simple class, which only implements 
-the "dev" attribute.
+> [I personally don't have a copy of C99 nor do I plan on reading it
+> for this]
 
-What is the appropriate place for such driver-specific attributes?
+Then how about you listen to people who have it, read it, and understand
+it? Or how about at least believing that gcc is telling you the truth
+when it warns that 0xdeadbeef is an unsigned constant?
 
-TIA
+Ray
 

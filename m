@@ -1,119 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263605AbTLEHBv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 02:01:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263902AbTLEHBv
+	id S263891AbTLEG6X (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 01:58:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263766AbTLEG6X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 02:01:51 -0500
-Received: from legolas.restena.lu ([158.64.1.34]:52170 "EHLO smtp.restena.lu")
-	by vger.kernel.org with ESMTP id S263605AbTLEHBr (ORCPT
+	Fri, 5 Dec 2003 01:58:23 -0500
+Received: from fw.osdl.org ([65.172.181.6]:29863 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263891AbTLEG6U (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 02:01:47 -0500
-Subject: Re: NForce2 pseudoscience stability testing (2.6.0-test11) - IRQ
-	flood related ?
-From: Craig Bradney <cbradney@zip.com.au>
-To: Bob <recbo@nishanet.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <3FD01BE0.5030807@nishanet.com>
-References: <3FCF25F2.6060008@netzentry.com>
-	 <1070551149.4063.8.camel@athlonxp.bradney.info>
-	 <20031204163243.GA10471@forming>
-	 <frodoid.frodo.87vfow33zm.fsf@usenet.frodoid.org>
-	 <20031204175548.GB10471@forming> <20031204200208.GA4167@localnet>
-	 <20031204230528.GA189@tesore.local>  <3FCFBFC3.5070403@gmx.de>
-	 <1070580108.4100.8.camel@athlonxp.bradney.info>
-	 <3FD01BE0.5030807@nishanet.com>
-Content-Type: text/plain
-Message-Id: <1070607704.4100.11.camel@athlonxp.bradney.info>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 05 Dec 2003 08:01:44 +0100
-Content-Transfer-Encoding: 7bit
+	Fri, 5 Dec 2003 01:58:20 -0500
+Date: Thu, 4 Dec 2003 22:58:09 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: David Schwartz <davids@webmaster.com>
+cc: Valdis.Kletnieks@vt.edu, Peter Chubb <peter@chubb.wattle.id.au>,
+       linux-kernel@vger.kernel.org
+Subject: RE: Linux GPL and binary module exception clause? 
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKMEIDIHAA.davids@webmaster.com>
+Message-ID: <Pine.LNX.4.58.0312042245350.9125@home.osdl.org>
+References: <MDEHLPKNGKAHNMBLJOLKMEIDIHAA.davids@webmaster.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-nforce net is off. 3com is on. (in bios)
 
-Craig
 
-On Fri, 2003-12-05 at 06:47, Bob wrote:
-> Do you have onboard ethernet enabled with nforce2
-> mboard? I am fine with pre-emptive kernel but have
-> to disable onboard ethernet in cmos setup or I see
-> "Disabling IRQ7" and problems develop.
-> 
-> -Bob
-> 
-> Craig Bradney wrote:
-> 
-> >Prakash,
-> >
-> >try it without preempt.. just to see. As soon as I removed it today the
-> >crashes went away (for 5 hours).. PC is now up for 2.5 hours and I'm
-> >waiting to see if it will be 5 hrs or 5 days this time around :)
-> >
-> >Craig
-> >
-> >On Fri, 2003-12-05 at 00:14, Prakash K. Cheemplavam wrote:
-> >  
-> >
-> >>Jesse Allen wrote:
-> >>    
-> >>
-> >>>On Thu, Dec 04, 2003 at 09:02:08PM +0100, cheuche+lkml@free.fr wrote:
-> >>>
-> >>>      
-> >>>
-> >>>>Hello,
-> >>>>
-> >>>>Along with the lockups already described here, I've noticed an
-> >>>>unidentified source of interrupts on IRQ7.
-> >>>>        
-> >>>>
-> >>>...
-> >>>
-> >>>      
-> >>>
-> >>>>I wonder if people experiencing lockup problems also have these
-> >>>>noise interrupts,
-> >>>>        
-> >>>>
-> >>>I just took a look at this, by setting up parport_pc, and yes I get noise.
-> >>>
-> >>>This was my first sample with a kernel with APIC:
-> >>>  7:      29230    IO-APIC-edge  parport0
-> >>>      
-> >>>
-> >>I just did an experminent with a very light kernel, nearly nothing 
-> >>compiled inside, except apic acpi, preempt and needed stuff plus 
-> >>scsi+libata and no ide. IRQ 7 was not present and every device had its 
-> >>own irq. Nevertheless system locked up at second hdparm run...
-> >>
-> >>Prakash
-> >>
-> >>-
-> >>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> >>the body of a message to majordomo@vger.kernel.org
-> >>More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> >>Please read the FAQ at  http://www.tux.org/lkml/
-> >>
-> >>    
-> >>
-> >
-> >-
-> >To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> >the body of a message to majordomo@vger.kernel.org
-> >More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> >Please read the FAQ at  http://www.tux.org/lkml/
-> >
-> >  
-> >
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+On Thu, 4 Dec 2003, David Schwartz wrote:
+>
+> The GPL gives you the unrestricted right to *use* the original work.
+> This implicitly includes the right to peform any step necessary to use
+> the work.
 
+No it doesn't.
+
+Your logic is fundamentally flawed, and/or your reading skills are
+deficient.
+
+The GPL expressly states that the license does not restrict the act of
+"running the Program" in any way, and yes, in that sense you may "use" the
+program in whatever way you want.
+
+But that "use" is clearly limited to running the resultant program. It
+very much does NOT say that you can "use the header files in any way you
+want, including building non-GPL'd programs with them".
+
+In fact, it very much says the reverse. If you use the source code to
+build a new program, the GPL _explicitly_ says that that new program has
+to be GPL'd too.
+
+> Please tell me how you use a kernel header file, other than by including
+> it in a code file, compiling that code file, and executing the result.
+
+You are a weasel, and you are trying to make the world look the way you
+want it to, rather than the way it _is_.
+
+You use the word "use" in a sense that is not compatible with the GPL. You
+claim that the GPL says that you can "use the program any way you want",
+but that is simply not accurate or even _close_ to accurate. Go back and
+read the GPL again. It says:
+
+	"The act of running the Program is not restricted"
+
+and it very much does NOT say
+
+	"The act of using parts of the source code of the Program is not
+	 restricted"
+
+In short: you do _NOT_ have the right to use a kernel header file (or any
+other part of the kernel sources), unless that use results in a GPL'd
+program.
+
+What you _do_ have the right is to _run_ the kernel any way you please
+(this is the part you would like to redefine as "use the source code",
+but that definition simply isn't allowed by the license, however much you
+protest to the contrary).
+
+So you can run the kernel and create non-GPL'd programs while running it
+to your hearts content. You can use it to control a nuclear submarine, and
+that's totally outside the scope of the license (but if you do, please
+note that the license does not imply any kind of warranty or similar).
+
+BUT YOU CAN NOT USE THE KERNEL HEADER FILES TO CREATE NON-GPL'D BINARIES.
+
+Comprende?
+
+		Linus

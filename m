@@ -1,62 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267166AbSKSSe3>; Tue, 19 Nov 2002 13:34:29 -0500
+	id <S267130AbSKSSaQ>; Tue, 19 Nov 2002 13:30:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267169AbSKSSe3>; Tue, 19 Nov 2002 13:34:29 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:51115 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S267166AbSKSSe1>;
-	Tue, 19 Nov 2002 13:34:27 -0500
-Date: Tue, 19 Nov 2002 10:40:04 -0800
-From: Patrick Mansfield <patmans@us.ibm.com>
-To: Douglas Gilbert <dougg@torque.net>,
-       Andre Hedrick <andre@pyxtechnologies.com>
-Cc: "J. E. J. Bottomley" <James.Bottomley@SteelEye.com>,
-       Linus Torvalds <torvalds@transmeta.com>, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: linux-2.4.18-modified-scsi-h.patch
-Message-ID: <20021119104004.A21438@eng2.beaverton.ibm.com>
-References: <Pine.LNX.4.10.10211182138310.2779-200000@master.linux-ide.org> <3DDA0E63.9050307@torque.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <3DDA0E63.9050307@torque.net>; from dougg@torque.net on Tue, Nov 19, 2002 at 09:11:47PM +1100
+	id <S267129AbSKSSaP>; Tue, 19 Nov 2002 13:30:15 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27908 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S267130AbSKSSaO>;
+	Tue, 19 Nov 2002 13:30:14 -0500
+Message-ID: <3DDA84D2.5050009@pobox.com>
+Date: Tue, 19 Nov 2002 13:37:06 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021018
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Matt Reppert <arashi@arashi.yi.org>
+CC: linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
+Subject: Re: [PATCH] mii module broken under new scheme
+References: <20021119115041.11ece7dc.arashi@arashi.yi.org>	<3DDA7A30.4010403@pobox.com> <20021119121521.3789388a.arashi@arashi.yi.org>
+In-Reply-To: <20021119115041.11ece7dc.arashi@arashi.yi.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 19, 2002 at 09:11:47PM +1100, Douglas Gilbert wrote:
-> Andre Hedrick wrote:
-> > Greetings Doug et al.
-> > 
-> > Please consider the addition of this simple void ptr to the scsi_request
-> > struct.  The addition of this simple void pointer allows one to map any
-> > and all request execution caller the facility to search for a specific
-> > operation without having to run in circles.  Hunting for these details
-> > over the global device list of all HBA's is silly and one of the key
-> > reasons why there error recovery path is so painful.
-> > 
-> > 
-> > Scsi_Request    *req = sc_cmd->sc_request;
-> > blah_blah_t     *trace = NULL;
-> > 
-> > trace = (blah_blah_t *)req->trace_ptr;
-> > 
-> > 
-> > Therefore the specific transport invoking operations via the midlayer will
-> > have the ablity to track and trace any operation.
-> 
-> Andre,
-> No need to convince me: I have already put a similar pointer
-> in that structure in lk 2.5 (for either sd, st, sr or sg to use).
-> In sg case's it saved some ugly looping in (what was formerly
-> called) the bottom half handler. Sounds like your motivation is
-> similar.
-> 
-> Doug Gilbert
+Matt Reppert wrote:
 
-So we should name it the same in 2.4 as in 2.5: upper_private_data, not
-trace_ptr (thought it should really have been sr_upper_private_data,
-like all the other fields in scsi_request).
+> On Tue, 19 Nov 2002 12:51:44 -0500
+> Jeff Garzik  wrote:
+>
+>
+> >Matt Reppert wrote:
+> >
+> >
+> >>drivers/net/mii.c doesn't export module init/cleanup functions. That
+> >>means it
 
-I don't see why we need the #define, or is that another patch?
 
--- Patrick Mansfield
+> >ahhh!   I was wondering what was up, but since I was busy with other
+> >things I just compiled it into the kernel and continued on my way.
+> >
+> >That's a bug in the new module loader.
+>
+>
+> Not so sure I agree ... recompiled the kernel with debugging output in
+> module.c and when I try to insert mii.o without above patch it complains
+> "Module has no name!" and returns -ENOEXEC from the syscall. I think
+> naming mii.o would be a good idea. This may not be the best way to do
+> it, but it works. (Granted, I'm not terribly familiar with all the
+> modules code changes yet, but ... ) Having anonymous output in lsmod
+> would be somewhat confusing :) ("Well, whatever it is, 8139too needs
+> it, don't touch it!")
+
+
+
+Your patch is fine to get people going... I'm glad you posted it on lkml 
+for others to benefit.
+
+However, for inclusion in the kernel, it is not needed.  Quite simply, 
+mii.c is essentially a library, and it needs absolutely no 
+initialization nor cleanup at all.  Thus, it is a bug in the module 
+loader that any code changes at all are required.
+
+There exists a no_module_init tag, which is in theory the proper fix for 
+this problem under rusty's system, but that is itself a bug:  it's 
+redundant just like the silly EXPORT_NO_SYMBOLS tag -- it's stating the 
+obvious.  The module loader needs to notice a lack of init_module and 
+exit_module and handle it accordingly.
+
+	Jeff
+
+
+

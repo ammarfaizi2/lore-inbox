@@ -1,239 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261498AbVBWQiX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261497AbVBWQk7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261498AbVBWQiX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Feb 2005 11:38:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261497AbVBWQiX
+	id S261497AbVBWQk7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Feb 2005 11:40:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261499AbVBWQk7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Feb 2005 11:38:23 -0500
-Received: from mailwasher.lanl.gov ([192.65.95.54]:61984 "EHLO
-	mailwasher-b.lanl.gov") by vger.kernel.org with ESMTP
-	id S261498AbVBWQh7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Feb 2005 11:37:59 -0500
-Message-ID: <421CB161.7060900@mesatop.com>
-Date: Wed, 23 Feb 2005 09:37:53 -0700
-From: Steven Cole <elenstev@mesatop.com>
-User-Agent: Mozilla Thunderbird 1.0 (Macintosh/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-rc4-mm1 (VFS: Cannot open root device "301")
-References: <20050223014233.6710fd73.akpm@osdl.org>
-In-Reply-To: <20050223014233.6710fd73.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 23 Feb 2005 11:40:59 -0500
+Received: from rproxy.gmail.com ([64.233.170.194]:12913 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261497AbVBWQk4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Feb 2005 11:40:56 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=ZKUuX4ENccsAIpnWPp06VWPOIrgw8YdN16u/8ku7ssBH5f34100a3ZvTV0LTa6aQzIgpwetLSsjuN/bjMaeDD2kGCHiPBVyXjSUS3ND0TepFhrmWW27gaWXFPSPcy2Cyd2t+ccvN52IdFarAk4O4/2P/j+F4zmwzmPbgldY0rEA=
+Message-ID: <29495f1d05022308346e622d5e@mail.gmail.com>
+Date: Wed, 23 Feb 2005 08:34:02 -0800
+From: Nish Aravamudan <nish.aravamudan@gmail.com>
+Reply-To: Nish Aravamudan <nish.aravamudan@gmail.com>
+To: Olaf Titz <olaf@bigred.inka.de>
+Subject: Re: uninterruptible sleep lockups
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E1D3hcW-0002h0-00@bigred.inka.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-PMX-Version: 4.7.0.111621
+References: <421A3414.2020508@nodivisions.com>
+	 <E1D3hcW-0002h0-00@bigred.inka.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11-rc4/2.6.11-rc4-mm1/
+On Tue, 22 Feb 2005 22:31:03 +0100, Olaf Titz <olaf@bigred.inka.de> wrote:
+> In article <421A3414.2020508@nodivisions.com> you write:
+> > The most recent one was yesterday: I had run lsusb in the morning and had no
+> > problems, but at the end of the day I ran it again, and after outputting 3
+> > lines of data, it hung, stuck in D-state.  So now I have this:
+> >
+> > [/home/user]$ ps aux|grep D
+> > USER       PID %CPU %MEM   VSZ  RSS TTY      STAT START   TIME COMMAND
+> > root        92  0.0  0.0     0    0 ?        D    Feb19   0:00 [khubd]
+> > root       845  0.0  0.0     0    0 ?        D    Feb19   0:00 [knodemgrd_0]
+> > root     29016  0.0  0.1  1512  592 ?        D    00:28   0:00 lsusb
 > 
-> 
-> - Various fixes and updates all over the place.  Things seem to have slowed
->   down a bit.
-> 
+> I'm getting fairly repeatable deadlocks of this kind involving khubd
+> with a USB storage device. Perhaps there's just a faulty locking issue
+> in khubd.
 
-I am having trouble getting recent -mm kernels to boot on my test box.
-For 2.6.11-rc3-mm2 and 2.6.11-rc4-mm1 I get the following:
+Would you be willing to file a bugzilla (bugzilla.kernel.org) bug, if
+it's still happening with 2.6.11-rc4? Or, if you have filed one,
+please refer to it?
 
-VFS: Cannot open root device "301" or unknown-block(3,1)
-Please append a correct "root=" boot option
-Kernel panic - not syncing: VFS: Unable to mount root fs on unknown-block(3,1)
-
-2.6.11-rc2-mm1 boots fine, and so do plain -rc3 and -rc4.
-
-I copied a working .config from an earlier kernel(-rc3), and ran make oldconfig,
-answering most of the new questions 'n'.
-
-I did try appending root=0301 (which worked last year after similar symptoms,
-but that didn't help this time).
-
-The root fs is ext3, which is compiled in.
-Any help appreciated.
-
-Steven
-
-Output of grep ^CONFIG .config:
-
-CONFIG_X86=y
-CONFIG_MMU=y
-CONFIG_UID16=y
-CONFIG_GENERIC_ISA_DMA=y
-CONFIG_GENERIC_IOMAP=y
-CONFIG_EXPERIMENTAL=y
-CONFIG_CLEAN_COMPILE=y
-CONFIG_BROKEN_ON_SMP=y
-CONFIG_LOCALVERSION="-GX110"
-CONFIG_SWAP=y
-CONFIG_SYSVIPC=y
-CONFIG_BSD_PROCESS_ACCT=y
-CONFIG_SYSCTL=y
-CONFIG_EMBEDDED=y
-CONFIG_BASE_SMALL=1
-CONFIG_FUTEX=y
-CONFIG_EPOLL=y
-CONFIG_SHMEM=y
-CONFIG_CC_ALIGN_FUNCTIONS=0
-CONFIG_CC_ALIGN_LABELS=0
-CONFIG_CC_ALIGN_LOOPS=0
-CONFIG_CC_ALIGN_JUMPS=0
-CONFIG_X86_PC=y
-CONFIG_MPENTIUMIII=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_L1_CACHE_SHIFT=5
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_GENERIC_CALIBRATE_DELAY=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_INTEL_USERCOPY=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_HPET_TIMER=y
-CONFIG_X86_UP_APIC=y
-CONFIG_X86_UP_IOAPIC=y
-CONFIG_X86_LOCAL_APIC=y
-CONFIG_X86_IO_APIC=y
-CONFIG_X86_TSC=y
-CONFIG_X86_MCE=y
-CONFIG_X86_MCE_P4THERMAL=y
-CONFIG_MICROCODE=y
-CONFIG_X86_MSR=y
-CONFIG_X86_CPUID=y
-CONFIG_EDD=y
-CONFIG_NOHIGHMEM=y
-CONFIG_MTRR=y
-CONFIG_PHYSICAL_START=0x100000
-CONFIG_PCI=y
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_LEGACY_PROC=y
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_MISC=y
-CONFIG_PREVENT_FIRMWARE_BUILD=y
-CONFIG_BLK_DEV_FD=y
-CONFIG_BLK_DEV_LOOP=y
-CONFIG_BLK_DEV_RAM=y
-CONFIG_BLK_DEV_RAM_COUNT=16
-CONFIG_BLK_DEV_RAM_SIZE=32000
-CONFIG_BLK_DEV_INITRD=y
-CONFIG_INITRAMFS_SOURCE=""
-CONFIG_IOSCHED_NOOP=y
-CONFIG_IOSCHED_AS=y
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-CONFIG_BLK_DEV_IDECD=y
-CONFIG_IDE_GENERIC=y
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_BLK_DEV_PIIX=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_IDEDMA_AUTO=y
-CONFIG_NET=y
-CONFIG_PACKET=y
-CONFIG_PACKET_MMAP=y
-CONFIG_UNIX=y
-CONFIG_NET_KEY=y
-CONFIG_INET=y
-CONFIG_XFRM=y
-CONFIG_NETDEVICES=y
-CONFIG_NET_ETHERNET=y
-CONFIG_MII=y
-CONFIG_NET_VENDOR_3COM=y
-CONFIG_VORTEX=y
-CONFIG_INPUT=y
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_PSAUX=y
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_KEYBOARD_ATKBD=y
-CONFIG_INPUT_MOUSE=y
-CONFIG_MOUSE_PS2=y
-CONFIG_SERIO=y
-CONFIG_SERIO_I8042=y
-CONFIG_SERIO_SERPORT=y
-CONFIG_SERIO_LIBPS2=y
-CONFIG_SOUND_GAMEPORT=y
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_HW_CONSOLE=y
-CONFIG_SERIAL_8250=y
-CONFIG_SERIAL_8250_CONSOLE=y
-CONFIG_SERIAL_8250_NR_UARTS=4
-CONFIG_SERIAL_8250_EXTENDED=y
-CONFIG_SERIAL_8250_SHARE_IRQ=y
-CONFIG_SERIAL_CORE=y
-CONFIG_SERIAL_CORE_CONSOLE=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_FTAPE=y
-CONFIG_ZFTAPE=y
-CONFIG_ZFT_DFLT_BLK_SZ=10240
-CONFIG_ZFT_COMPRESSOR=y
-CONFIG_FT_NR_BUFFERS=3
-CONFIG_FT_PROC_FS=y
-CONFIG_FT_NORMAL_DEBUG=y
-CONFIG_FT_STD_FDC=y
-CONFIG_FT_FDC_THR=8
-CONFIG_FT_FDC_MAX_RATE=2000
-CONFIG_FT_ALPHA_CLOCK=0
-CONFIG_AGP=y
-CONFIG_AGP_INTEL=y
-CONFIG_VIDEO_DEV=y
-CONFIG_VIDEO_SELECT=y
-CONFIG_VGA_CONSOLE=y
-CONFIG_DUMMY_CONSOLE=y
-CONFIG_USB_ARCH_HAS_HCD=y
-CONFIG_USB_ARCH_HAS_OHCI=y
-CONFIG_EXT2_FS=y
-CONFIG_EXT2_FS_XATTR=y
-CONFIG_EXT3_FS=y
-CONFIG_JBD=y
-CONFIG_FS_MBCACHE=y
-CONFIG_REISER4_FS=y
-CONFIG_REISERFS_FS=y
-CONFIG_ISO9660_FS=y
-CONFIG_FAT_FS=y
-CONFIG_VFAT_FS=y
-CONFIG_FAT_DEFAULT_CODEPAGE=437
-CONFIG_FAT_DEFAULT_IOCHARSET="iso8859-1"
-CONFIG_NTFS_FS=y
-CONFIG_NTFS_RW=y
-CONFIG_PROC_FS=y
-CONFIG_PROC_KCORE=y
-CONFIG_SYSFS=y
-CONFIG_DEVFS_FS=y
-CONFIG_TMPFS=y
-CONFIG_RAMFS=y
-CONFIG_PARTITION_ADVANCED=y
-CONFIG_MSDOS_PARTITION=y
-CONFIG_NLS=y
-CONFIG_NLS_DEFAULT="iso8859-1"
-CONFIG_NLS_CODEPAGE_437=y
-CONFIG_NLS_CODEPAGE_850=y
-CONFIG_NLS_ASCII=y
-CONFIG_NLS_ISO8859_1=y
-CONFIG_NLS_UTF8=y
-CONFIG_DEBUG_KERNEL=y
-CONFIG_MAGIC_SYSRQ=y
-CONFIG_LOG_BUF_SHIFT=14
-CONFIG_FRAME_POINTER=y
-CONFIG_X86_FIND_SMP_CONFIG=y
-CONFIG_X86_MPPARSE=y
-CONFIG_SECURITY=y
-CONFIG_SECURITY_NETWORK=y
-CONFIG_SECURITY_CAPABILITIES=y
-CONFIG_CRC_CCITT=y
-CONFIG_CRC32=y
-CONFIG_LIBCRC32C=y
-CONFIG_GENERIC_HARDIRQS=y
-CONFIG_GENERIC_IRQ_PROBE=y
-CONFIG_X86_BIOS_REBOOT=y
+Thanks,
+Nish

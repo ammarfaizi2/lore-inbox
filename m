@@ -1,74 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131246AbRDHWqw>; Sun, 8 Apr 2001 18:46:52 -0400
+	id <S131275AbRDHXBg>; Sun, 8 Apr 2001 19:01:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131275AbRDHWqb>; Sun, 8 Apr 2001 18:46:31 -0400
-Received: from [195.224.53.219] ([195.224.53.219]:14720 "HELO shed.alex.org.uk")
-	by vger.kernel.org with SMTP id <S131246AbRDHWq3>;
-	Sun, 8 Apr 2001 18:46:29 -0400
-Date: Sun, 08 Apr 2001 23:46:21 +0100
-From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-To: linux-kernel@vger.kernel.org
-Cc: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Subject: Sources of entropy - /dev/random problem for network servers
-Message-ID: <1457842476.986773581@[195.224.237.69]>
-X-Mailer: Mulberry/2.1.0a4 (Win32)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S131276AbRDHXB0>; Sun, 8 Apr 2001 19:01:26 -0400
+Received: from smtp1.cern.ch ([137.138.128.38]:57616 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S131275AbRDHXBL>;
+	Sun, 8 Apr 2001 19:01:11 -0400
+Date: Mon, 9 Apr 2001 01:01:03 +0200
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Miquel van Smoorenburg <miquels@cistron-office.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: build -->/usr/src/linux
+Message-ID: <20010409010103.A16562@pcep-jamie.cern.ch>
+In-Reply-To: <3AD079EA.50DA97F3@rcn.com> <20010408161620.A21660@flint.arm.linux.org.uk> <3AD0A029.C17C3EFC@rcn.com> <9aqmci$gn2$1@ncc1701.cistron.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <9aqmci$gn2$1@ncc1701.cistron.net>; from miquels@cistron-office.nl on Sun, Apr 08, 2001 at 09:49:06PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In debugging why my (unloaded) IMAP server takes many seconds
-to open folders, I discovered what looks like a problem
-in 2.4's feeding of entropy into /dev/random. When there
-is insufficient entropy in the random number generator,
-reading from /dev/random blocks for several seconds. /dev/random
-is used (correctly) for crytographic key verification.
+Miquel van Smoorenburg wrote:
+> .. but there should be a cleaner way to get at the CFLAGS used
+> to compile the kernel.
 
-Entropy comes from 4 sources it seems: Keyboard, Mouse, Disk I/O
-and IRQs.
+There is a way though I'd not call it clean.  Here is an extract from
+the Makefile I am using for separately-distributed modules.  It should
+work with kernels 2.0 to 2.4, all supported architectures.
 
-The machine in question is locked in a data center (can't be
-the only one) and thus sees none of the former two. IDE Entropy
-comes from executed IDE commands. The disk is physically largely
-inactive due to caching. But there's plenty of network traffic
-which should generate IRQs.
+include $(KERNEL_SOURCE)/.config
 
-However, only 3 drivers in drivers/net actually set
-SA_SAMPLE_RANDOM when calling request_irq(). I believe
-all of them should. And indeed this fixed the problem for
-me using an eepro100().
+CPPFLAGS := -DMODULE -D__KERNEL__ -nostdinc -I$(KERNEL_SOURCE)/include
+CPPFLAGS += -I$(shell gcc -print-file-name=include)
+CFLAGS	 := $(CPPFLAGS) -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer
+AFLAGS	 := -D__ASSEMBLY__ $(CPPFLAGS)
 
-The following patch fixes eepro100.c - others can be
-patched similarly.
+# For older kernels.
+ifneq (,$(strip $(shell grep '^[ 	]*SMP[ 	]*:\?=[ 	]*[^ 	]' $(KERNEL_SOURCE)/Makefile)))
+CONFIG_SMP=y
+endif
+ifdef CONFIG_SMP
+CFLAGS += -D__SMP__
+AFLAGS += -D__SMP__
+endif
 
---
-Alex Bligh
+include $(KERNEL_SOURCE)/arch/$(ARCH)/Makefile
 
-/usr/src/linux# diff -C3 drivers/net/eepro100.c{.keep,}
-*** drivers/net/eepro100.c.keep Tue Feb 13 21:15:05 2001
---- drivers/net/eepro100.c      Sun Apr  8 22:17:00 2001
-***************
-*** 923,929 ****
-        sp->in_interrupt = 0;
-
-        /* .. we can safely take handler calls during init. */
-!       retval = request_irq(dev->irq, &speedo_interrupt, SA_SHIRQ, 
-dev->name, dev);
-        if (retval) {
-                MOD_DEC_USE_COUNT;
-                return retval;
---- 923,929 ----
-        sp->in_interrupt = 0;
-
-        /* .. we can safely take handler calls during init. */
-!       retval = request_irq(dev->irq, &speedo_interrupt, SA_SHIRQ | 
-SA_SAMPLE_RANDOM, dev->name, dev);
-        if (retval) {
-                MOD_DEC_USE_COUNT;
-                return retval;
-
-[ENDS]
+CFLAGS += $(shell if $(CC) -fno-strict-aliasing -S -o /dev/null -xc /dev/null >/dev/null 2>&1; then echo "-fno-strict-aliasing"; fi)

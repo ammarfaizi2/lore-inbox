@@ -1,66 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266718AbUBQW7s (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 17:59:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266757AbUBQW5b
+	id S266818AbUBQXNu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 18:13:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266826AbUBQXNu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 17:57:31 -0500
-Received: from s200-189-165-100.ipb.diveo.net.br ([200.189.165.100]:19471 "EHLO
-	webtb2311") by vger.kernel.org with ESMTP id S266718AbUBQW4T (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 17:56:19 -0500
-From: MRBATESALAN@netscape.net
-To: linux-kernel@vger.kernel.org
-Subject: REPLY SOON
-X-Priority: 3
-Message-ID: <WEBTB2311xQEfQm5UpS00003102@webtb2311>
-X-OriginalArrivalTime: 17 Feb 2004 22:56:16.0330 (UTC) FILETIME=[3FB042A0:01C3F5A9]
-Date: 17 Feb 2004 19:56:16 -0300
+	Tue, 17 Feb 2004 18:13:50 -0500
+Received: from fed1mtao06.cox.net ([68.6.19.125]:21995 "EHLO
+	fed1mtao06.cox.net") by vger.kernel.org with ESMTP id S266818AbUBQXNq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 18:13:46 -0500
+Date: Tue, 17 Feb 2004 16:13:44 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][6/6] A different KGDB stub
+Message-ID: <20040217231344.GK16881@smtp.west.cox.net>
+References: <20040217220456.GG16881@smtp.west.cox.net> <20040217223040.GA1560@elf.ucw.cz> <20040217223817.GJ16881@smtp.west.cox.net> <20040217230855.GB1560@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040217230855.GB1560@elf.ucw.cz>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Friend,
+On Wed, Feb 18, 2004 at 12:08:55AM +0100, Pavel Machek wrote:
+> Hi!
+> 
+> > > > The following is the x86_64-specific bits to this KGDB stub (Pavel, can
+> > > > you give this a try please?  Thanks).
+> > > 
+> > > I can only see [0/6],[1/6] and [6/6] on l-k. Could you perhaps mail me
+> > > complete diff against 2.6.2 to try? [Or against some other version I
+> > > can get from kernel.org...)
+> > 
+> > I'll blame the slow mailserver and hope they all get through
+> > eventually.
+> 
+> Yes, now only #2 is missing :-))).
+> 
+> > The following is the patch before I split it up.  Against 2.6.3-rc4 +
+> > bk-netdev from 2.6.3-rc3-mm1 (otherwise kgdboe won't work at all):
+> 
+> I'll try without kgdboe, first.
+> 
+> I'm getting some compile errors, stay tuned.
 
-As you read this, I don't want you to feel sorry for 
-me, because, I believe everyone will die someday. 
-My name is BATES ALAN a merchant in Dubai, in the 
-U.A.E.I have been diagnosed with Esophageal cancer.
-It has defiled all forms of medical treatment, and right now 
-I have only about a few months to live, according to medical experts. 
-I have not particularly lived my life so well, as I 
-never really cared for anyone(not even myself)but my 
-business. Though I am very rich, I was never 
-generous, I was always hostile to people and only 
-focused on my business as that was the only thing I 
-cared for. But now I regret all this as I now know 
-that there is more to life than just wanting to have 
-or make all the money in the world. 
-I believe when God gives me a second chance to come 
-to this world I would live my life a different way 
-from how I have lived it. Now that God has called 
-me, I have willed and given most of my property 
-and assets to my immediate and extended family 
-members as well as a few close friends. 
-I want God to be merciful to me and accept my soul 
-so, I have decided to give alms to charity 
-organizations, as I want this to be one of the last 
-good deeds I do on earth. So far, I have distributed 
-money to some charity organizations in the U.A.E, 
-Algeria and Malaysia. Now that my health has 
-deteriorated so badly, I cannot do this myself 
-anymore. I once asked members of my family to close one 
-of my accounts and distribute the money which I have 
-there to charity organization in Bulgaria and 
-Pakistan, they refused and kept the money to 
-themselves. Hence, I do not trust them anymore, as 
-they seem not to be contended with what I have left 
-for them. 
-The last of my money which no one knows of is the 
-huge cash deposit of eighteen million dollars 
-$18,000,000,00 that I have with a finance/Security Company 
-abroad. I will want you to help me collect this deposit 
-and dispatched it to charity organizations.
-I have set aside 10% for you and for your time.
-God be with you. 
-BATES ALAN
+I'm not surprised, sadly.
 
+> Meanwhile: [and taking this public]
+> 
+> arch/x86_64/kernel/x86_64-stub.c: this is really horrible name for a
+> file. Can we have arch/x86_64/kernel/kgdb.c? or kgdb-stub.c at worst..
+> 
+> also kernel/kgdb.c sounds better than kernel/kgdbstub.c.
+
+Don't look at me for naming, when in doubt I call stuff 'simple' (see
+arch/ppc/boot/simple, or CONFIG_PPC_SIMPLE_SERIAL, and I'm sure I'll do
+it again).  If people like kernel/kgdb.c (and arch/$(ARCH)/kernel/kgdb.c
+or kgdb-stub.c) that's fine with me, so long as they're all consistent.
+
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

@@ -1,51 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265076AbTIDOdm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 10:33:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265059AbTIDOc1
+	id S265022AbTIDO2C (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 10:28:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265034AbTIDO2C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 10:32:27 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:61312 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S265043AbTIDOb6
+	Thu, 4 Sep 2003 10:28:02 -0400
+Received: from mail3-126.ewetel.de ([212.6.122.126]:58338 "EHLO
+	mail3.ewetel.de") by vger.kernel.org with ESMTP id S265022AbTIDO1E
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 10:31:58 -0400
-Date: Thu, 4 Sep 2003 10:33:56 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Sean Neakums <sneakums@zork.net>
+	Thu, 4 Sep 2003 10:27:04 -0400
+Date: Thu, 4 Sep 2003 16:27:01 +0200 (CEST)
+From: Pascal Schmidt <der.eremit@email.de>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
 cc: linux-kernel@vger.kernel.org
-Subject: Re: nasm over gas?
-In-Reply-To: <6uiso8r5wl.fsf@zork.zork.net>
-Message-ID: <Pine.LNX.4.53.0309041030000.3497@chaos>
-References: <20030904104245.GA1823@leto2.endorphin.org> <3F5741BD.5000401@mbda.fr>
- <Pine.LNX.4.53.0309041001090.3367@chaos> <6uiso8r5wl.fsf@zork.zork.net>
+Subject: Re: [NFS] attempt to use V1 mount protocol on V3 server
+In-Reply-To: <16214.49538.216630.336724@charged.uio.no>
+Message-ID: <Pine.LNX.4.44.0309041621180.989-100000@neptune.local>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-CheckCompat: OK
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Sep 2003, Sean Neakums wrote:
+On Thu, 4 Sep 2003, Trond Myklebust wrote:
 
-> "Richard B. Johnson" <root@chaos.analogic.com> writes:
->
-> > If you decide to use gcc as a preprocessor, you can't use comments,
-> > NotGood(tm) because the "#" and some stuff after it gets "interpreted"
-> > by cpp.
->
-> Although one could use C-style comments in this scenario, yes?
->
+> Most are not. An NFSv3 filehandle has a variable size (as opposed to
+> NFSv2 which are fixed size), and so most NFS servers use the same
+> filehandle for NFSv2 and NFSv3.
 
-Sure. Then it's not assembly. It's some polymorphic conglomeration
-of crap ......... don't get me started.  If you write in assembler,
-please learn to use the assembler. Assembly is not 'C'.
+Well, my filehandles are all 64 bytes at the moment. Doesn't matter
+anyway since my nfsd does not handle NFSv2.
 
-Use the right tool for the right thing. Both are tools, the fact
-that you can shovel with an axe does not make the axe a shovel.
+> Note: The fact that we are now stuck with a schizophrenic NFSv3 client
+> is one of the many reasons why I am now *very* wary of trying to work
+> around server bugs by making fixes to the client code.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.22 on an i686 machine (794.73 BogoMips).
-            Note 96.31% of all statistics are fiction.
+Fine with me if a buggy server results in a failure to mount. However,
+I was seeing crashes.
 
+-- 
+Ciao,
+Pascal
 

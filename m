@@ -1,50 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273893AbRI0UeZ>; Thu, 27 Sep 2001 16:34:25 -0400
+	id <S273881AbRI0Ubq>; Thu, 27 Sep 2001 16:31:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273895AbRI0UeP>; Thu, 27 Sep 2001 16:34:15 -0400
-Received: from adsl-66-121-5-226.dsl.snfc21.pacbell.net ([66.121.5.226]:12348
-	"HELO switchmanagement.com") by vger.kernel.org with SMTP
-	id <S273883AbRI0UeC>; Thu, 27 Sep 2001 16:34:02 -0400
-Message-ID: <3BB38D4E.5000100@switchmanagement.com>
-Date: Thu, 27 Sep 2001 13:34:22 -0700
-From: Brian Strand <bstrand@switchmanagement.com>
-Organization: Switch Management
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010913
-X-Accept-Language: en-us
+	id <S273883AbRI0UbZ>; Thu, 27 Sep 2001 16:31:25 -0400
+Received: from ns.suse.de ([213.95.15.193]:8709 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S273881AbRI0UbT>;
+	Thu, 27 Sep 2001 16:31:19 -0400
+To: John Kingman <kingman@VIEO.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: get_current()
+In-Reply-To: <Pine.LNX.4.21.0109271518350.12110-100000@Worf.VIEO.com.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 27 Sep 2001 22:31:41 +0200
+In-Reply-To: John Kingman's message of "27 Sep 2001 22:22:33 +0200"
+Message-ID: <oupvgi49xzm.fsf@pigdrop.muc.suse.de>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
 MIME-Version: 1.0
-To: Wayne Cuddy <wcuddy@crb-web.com>
-CC: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Synchronization Techniques in 2.2 Kernel
-In-Reply-To: <20010927141238.E5125@crb-web.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wayne Cuddy wrote:
+John Kingman <kingman@VIEO.com> writes:
 
->If I understand wait_queues correctly the process has to be sleeping before a
->wake_up call will have any effect (I.E. they are not queued).  Can this be
->worked around with semaphores or some other method?  I am open to ideas here.
->
->Any and all help is appreciated.
->
->Wayne
->
-I apologize in advance if this is not quite right, having only done 
-"hello world" kernel modules thus far (plus a good deal of kernel source 
-browsing).  I think you need to "unfold" the interruptible_sleep_on call 
-and do it yourself by adding current to the wait queue before checking 
-any cards, setting current->state = TASK_INTERRUPTIBLE, then checking 
-all cards and if none has data, calling schedule.  When you get back 
-from schedule (i.e. your ISR has received data and done a wake_up) or 
-any card has data, remove yourself from the wait queue and set your 
-state to runnable.  This hopefully gives you the "atomic check condition 
-and sleep if not satisfied" behavior.
+> I'm trying to write portable driver code.
+> 
+> What is the status of get_current()?  I see that it is defined in
 
-Regards,
-Brian Strand
+You should always just use "current" from <linux/sched.h>.
+get_current() is an internal implementation detail of the architecture.
+Don't include <asm/current.h> directly. 
 
 
-
+-Andi

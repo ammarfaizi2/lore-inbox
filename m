@@ -1,29 +1,49 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu id <153872-8316>; Thu, 10 Sep 1998 01:18:14 -0400
-Received: from post-12.mail.demon.net ([194.217.242.41]:49869 "EHLO post.mail.demon.net" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with ESMTP id <154163-8316>; Thu, 10 Sep 1998 00:56:33 -0400
-Message-ID: <19980910073422.A13283@tantalophile.demon.co.uk>
-Date: Thu, 10 Sep 1998 07:34:22 +0100
-From: Jamie Lokier <lkd@tantalophile.demon.co.uk>
-To: linux-kernel@vger.rutgers.edu
+Received: by vger.rutgers.edu id <153928-8316>; Thu, 10 Sep 1998 02:34:35 -0400
+Received: from 3dyn66.delft.casema.net ([195.96.104.66]:12929 "EHLO rosie.BitWizard.nl" ident: "root") by vger.rutgers.edu with ESMTP id <154389-8316>; Thu, 10 Sep 1998 01:59:12 -0400
+Message-Id: <199809100836.KAA00899@cave.BitWizard.nl>
 Subject: Re: GPS Leap Second Scheduled!
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.91.1
-In-Reply-To: <no.id>; from David Lang on Wed, Sep 09, 1998 at 09:35:59AM -0700
+In-Reply-To: <19980910114515.A20254@caffeine.ix.net.nz> from Chris Wedgwood at "Sep 10, 98 11:45:15 am"
+To: chris@cybernet.co.nz (Chris Wedgwood)
+Date: Thu, 10 Sep 1998 10:36:12 +0200 (MEST)
+Cc: colin@nyx.net, tytso@MIT.EDU, andrejp@luz.fe.uni-lj.si, linux-kernel@vger.rutgers.edu
+From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
+X-Mailer: ELM [version 2.4ME+ PL37 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-On Wed, Sep 09, 1998 at 09:35:59AM -0700, David Lang wrote:
-> I am probably missing something, but can't you just ignore the leap second
-> until you discover that the time is 1 sec off and then use the normal NTP
-> procedure to get back to the exact time
+Chris Wedgwood wrote:
+> On Wed, Sep 09, 1998 at 02:13:42PM -0600, Colin Plumb wrote:
+> 
+> > - gettimeofday() never returns the same value twice (documented BSD
+> >   behaviour)
+> 
+> Ouch... gettimeofday(2) only presently has usec resolution. I suspect
+> we can make this report the same value twice on really high end boxes
+> (667MHz Alpha maybe, 400Mhz Sparcs?), if not now, in a year or so.
+> Even a P.ii 600 or so can probably manage it.
 
-Until the NTP procedure discovers and corrects this (a few minutes, plus
-correction time), anything that expects synchronised time between
-machines can go wrong.
+This is defined behaviour. On processors where gettimeofday can be
+called more than once in a microsecond (SMP systems, and fast
+systems), the kernel is required to keep a last-time-returned, and
+increment it and return that if the value calculated is below the
+stored value.
 
-Admittedly synchronisation isn't perfect anyway.
+If you have the results from two gettimeofday calls, you can always
+subtract them and divide by the result without checking for zero.
+That's what the spec says.
 
--- Jamie
+A kernel will get into trouble if you keep on calling gettimeofday
+more than a million times a second..... 
+
+					Roger. 
+
+-- 
+| The secret of success is sincerity. Once you can |R.E.Wolff@BitWizard.nl 
+| fake that, you've got it made. -- Jean Giraudoux | phone: +31-15-2137555 
+We write Linux device drivers for any device you may have! fax: ..-2138217
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

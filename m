@@ -1,39 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129166AbRDQMOE>; Tue, 17 Apr 2001 08:14:04 -0400
+	id <S132326AbRDQMNo>; Tue, 17 Apr 2001 08:13:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132359AbRDQMNp>; Tue, 17 Apr 2001 08:13:45 -0400
-Received: from as2-4-3.an.g.bonet.se ([194.236.34.191]:523 "EHLO zigo.dhs.org")
-	by vger.kernel.org with ESMTP id <S129166AbRDQMNg>;
-	Tue, 17 Apr 2001 08:13:36 -0400
-Date: Tue, 17 Apr 2001 14:13:09 +0200 (CEST)
-From: Dennis Bjorklund <db@zigo.dhs.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: "Bobby D. Bryant" <bdbryant@mail.utexas.edu>,
-        <linux-kernel@vger.kernel.org>, <mj@suse.cz>
-Subject: Re: PROBLEM: Slowdown for ATA/100 drive on PCI card, after 2.4.3
- upgrade.
-In-Reply-To: <E14pTjP-0002AT-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.30.0104171408050.20942-100000@zigo.dhs.org>
+	id <S132359AbRDQMNe>; Tue, 17 Apr 2001 08:13:34 -0400
+Received: from dfmail.f-secure.com ([194.252.6.39]:32014 "HELO
+	dfmail.f-secure.com") by vger.kernel.org with SMTP
+	id <S129166AbRDQMNY>; Tue, 17 Apr 2001 08:13:24 -0400
+Date: Tue, 17 Apr 2001 15:22:54 +0200 (MET DST)
+From: Szabolcs Szakacsits <szaka@f-secure.com>
+To: "Mike A. Harris" <mharris@opensourceadvocate.org>
+cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: OOM killer *WORKS* for a change!
+In-Reply-To: <Pine.LNX.4.33.0104131932260.1502-100000@asdf.capslock.lan>
+Message-ID: <Pine.LNX.4.30.0104171500050.20939-100000@fs131-224.f-secure.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 17 Apr 2001, Alan Cox wrote:
 
-> try and avoid a hardware problem. VIA have finally released an 'official'
-> fix which seems to be a lot less damaging to performance on the whole. That
-> I hope will be in 2.4.4
+On Fri, 13 Apr 2001, Mike A. Harris wrote:
 
-What is this official fix? I've only seen unofficial ones (like the one in
-your ac7, or was it ac6). What are the implications of the fix
-(compabilitywise and speedwise)?
+> I just ran netscape which for some reason or another went totally
+> whacky and gobbled RAM.  It has done this before and made the box
+> totally unuseable in 2.2.17-2.2.19 befor the kernel killed 90% of
+> my running apps before getting the right one.
 
-I looked on via's homepage but could not find anything about this fix.
-I've very interested since I have a new mobo unopened in a box that I can
-still return and choose something with another chipset.
+I ported the 2.4 OOM killer about half year ago to 2.2, available for
+2.2.19 kernel at
+	http://mlf.linux.rulez.org/mlf/ezaz/reserved_root_memory.html
 
---
-/Dennis
+Note, since it's activated in page fault handler that is architecture
+dependent, the current patch works only on x86 (the only one I could
+test). If one is interested in other archs, let me know.
+
+   Szaka
 

@@ -1,46 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130636AbRCFNPY>; Tue, 6 Mar 2001 08:15:24 -0500
+	id <S130647AbRCFNPz>; Tue, 6 Mar 2001 08:15:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130647AbRCFNPO>; Tue, 6 Mar 2001 08:15:14 -0500
-Received: from twinlark.arctic.org ([204.107.140.52]:44293 "HELO
-	twinlark.arctic.org") by vger.kernel.org with SMTP
-	id <S130636AbRCFNPI>; Tue, 6 Mar 2001 08:15:08 -0500
-Date: Tue, 6 Mar 2001 05:15:07 -0800 (PST)
-From: dean gaudet <dean-list-linux-kernel@arctic.org>
+	id <S130651AbRCFNPq>; Tue, 6 Mar 2001 08:15:46 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:19965 "EHLO
+	imladris.rielhome.conectiva") by vger.kernel.org with ESMTP
+	id <S130647AbRCFNPd>; Tue, 6 Mar 2001 08:15:33 -0500
+Date: Tue, 6 Mar 2001 09:22:02 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
 To: Jonathan Morton <chromi@cyberspace.org>
 cc: Andre Hedrick <andre@linux-ide.org>,
         Linus Torvalds <torvalds@transmeta.com>,
-        Douglas Gilbert <dougg@torque.net>,
-        Jeremy Hansen <jeremy@xxedgexx.com>, <linux-kernel@vger.kernel.org>
+        Jeremy Hansen <jeremy@xxedgexx.com>, linux-kernel@vger.kernel.org
 Subject: Re: scsi vs ide performance on fsync's
-In-Reply-To: <Pine.LNX.4.33.0103060449230.15874-100000@twinlark.arctic.org>
-Message-ID: <Pine.LNX.4.33.0103060513160.15874-100000@twinlark.arctic.org>
-X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
+In-Reply-To: <l0313030ab6ca4912a397@[192.168.239.101]>
+Message-ID: <Pine.LNX.4.21.0103060920320.5591-100000@imladris.rielhome.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 Mar 2001, dean gaudet wrote:
+On Tue, 6 Mar 2001, Jonathan Morton wrote:
 
-> i assume you meant to time the xlog.c program?  (or did i miss another
-> program on the thread?)
->
-> i've an IBM-DJSA-210 (travelstar 10GB, 5411rpm) which appears to do
-> *something* with the write cache flag -- it gets 0.10s elapsed real time
-> in default config; and gets 2.91s if i do "hdparm -W 0".
->
-> ditto for an IBM-DTLA-307015 (deskstar 15GB 7200rpm) -- varies from .15s
-> with write-cache to 1.8s without.
->
-> and an IBM-DTLA-307075 (deskstar 75GB 7200rpm) varies from .03s to 1.67s.
->
-> of course 1.8s is nowhere near enough time for 200 writes to complete.
+> Pathological shutdown pattern:  assuming scatter-gather is not allowed (for
+> IDE), and a 20ms full-stroke seek, write sectors at alternately opposite
+> ends of the disk, working inwards until the buffer is full.  512-byte
+> sectors, 2MB of them, is 4000 writes * 20ms = around 80 seconds (not
+> including rotational delay, either).  Last time I checked, you'd need a
+> capacitor array the size of the entire computer case to store enough power
+> to allow the drive to do this after system shutdown, and I don't remember
+> seeing LiIon batteries strapped to the bottom of my HDs.  Admittedly, any
+> sane OS doesn't actually use that kind of write pattern on shutdown, but
+> the drive can't assume that.
 
-hi, not enough sleep, can't do math.  1.67s is exactly the ballpark you'd
-expect for 200 writes to a correctly functioning 7200rpm disk.  and the
-travelstar appears to be doing the right thing as well.
+But since the drive has everything in cache, it can just write
+out both bunches of sectors in an order which minimises disk
+seek time ...
 
--dean
+(yes, the drives don't guarantee write ordering either, but that
+shouldn't come as a big surprise when they don't guarantee that
+data makes it to disk ;))
+
+regards,
+
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
 

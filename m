@@ -1,45 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262285AbUBXPqb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 10:46:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262286AbUBXPqb
+	id S262281AbUBXPph (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 10:45:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262285AbUBXPph
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 10:46:31 -0500
-Received: from main.gmane.org ([80.91.224.249]:54731 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S262285AbUBXPq3 (ORCPT
+	Tue, 24 Feb 2004 10:45:37 -0500
+Received: from ee.oulu.fi ([130.231.61.23]:30462 "EHLO ee.oulu.fi")
+	by vger.kernel.org with ESMTP id S262281AbUBXPpg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 10:46:29 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: Why are 2.6 modules so huge?
-Date: Tue, 24 Feb 2004 16:46:19 +0100
-Message-ID: <yw1x1xokcwfo.fsf@kth.se>
-References: <9cfptc4lckg.fsf@rogue.ncsl.nist.gov>
+	Tue, 24 Feb 2004 10:45:36 -0500
+Date: Tue, 24 Feb 2004 17:44:47 +0200
+From: Pekka Pietikainen <pp@ee.oulu.fi>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Andrew Walrond <andrew@walrond.org>, linux-kernel@vger.kernel.org
+Subject: Re: Promise SATA driver
+Message-ID: <20040224154446.GA28720@ee.oulu.fi>
+References: <200402241110.07526.andrew@walrond.org> <403B6BF3.8070301@pobox.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 217.28.33.247
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-Cancel-Lock: sha1:ndEQHvHjEBkCCKmhejSAd2V5hFU=
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+In-Reply-To: <403B6BF3.8070301@pobox.com>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ian Soboroff <ian.soboroff@nist.gov> writes:
-
-> Can anyone help me understand why 2.6-series kernel modules are so
-> huge?
->
-> 2.6.3/kernel/fs/vfat:
-> total 288
-> -rw-r--r--    1 root     root       289086 Feb 24 10:09 vfat.ko
-
-My 2.6.3 vfat.ko is 15365 bytes.  Maybe you enabled kernel debugging
-symbols.
-
--- 
-Måns Rullgård
-mru@kth.se
-
+On Tue, Feb 24, 2004 at 10:21:23AM -0500, Jeff Garzik wrote:
+> Andrew Walrond wrote:
+> >I've got a 378 s150 tx chipset with their fasttrak raid bios. How should I 
+> >configure the drives to use with the 2.6.3 kernel promise SATA driver? Can 
+> >I configure them as a raid array?
+> 
+> The 2.6.3 sata_promise driver ignores any RAID configuration you set up, 
+> and directly talks to the drives.
+To boot off one you might have to setup a RAID configuration in the
+card BIOS though (Which is why I have a single drive configured as a raid0 :-) )

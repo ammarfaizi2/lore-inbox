@@ -1,56 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265097AbRFYGSf>; Mon, 25 Jun 2001 02:18:35 -0400
+	id <S264680AbRFYGRP>; Mon, 25 Jun 2001 02:17:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265340AbRFYGSZ>; Mon, 25 Jun 2001 02:18:25 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:19078 "EHLO
+	id <S265097AbRFYGRF>; Mon, 25 Jun 2001 02:17:05 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:18310 "EHLO
 	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S265097AbRFYGSL>; Mon, 25 Jun 2001 02:18:11 -0400
-Date: Mon, 25 Jun 2001 00:18:04 -0600
-Message-Id: <200106250618.f5P6I4t10073@vindaloo.ras.ucalgary.ca>
+	id <S264680AbRFYGQx>; Mon, 25 Jun 2001 02:16:53 -0400
+Date: Mon, 25 Jun 2001 00:16:51 -0600
+Message-Id: <200106250616.f5P6Gp710044@vindaloo.ras.ucalgary.ca>
 From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Marty Leisner <leisner@rochester.rr.com>, linux-kernel@vger.kernel.org
-Subject: Re: mounting a fs in two places at once?
-In-Reply-To: <Pine.GSO.4.21.0106242226150.11019-100000@weyl.math.psu.edu>
-In-Reply-To: <200106250212.WAA05336@soyata.home>
-	<Pine.GSO.4.21.0106242226150.11019-100000@weyl.math.psu.edu>
+To: "Gregory T. Norris" <haphazard@socket.net>
+Cc: rio500-devel <rio500-devel@lists.sourceforge.net>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] rio500 devfs support
+In-Reply-To: <20010624173711.A1764@glitch.snoozer.net>
+In-Reply-To: <20010619175224.A1137@glitch.snoozer.net>
+	<20010624173711.A1764@glitch.snoozer.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro writes:
+Gregory T. Norris writes:
 > 
-> 
-> On Sun, 24 Jun 2001, Marty Leisner wrote:
-> 
-> > I just installed redhat 7.1 on a system.
-> > 
-> > Cleaning up, a made a fs for home...(mounted on /mnt
-> > to write the stuff to it)
-> > 
-> > Then I accidently mounted it on /home.
-> > 
-> > So it was mounted on /home and /mnt at the same time.
-> > (I didn't bother going in to see what was there).
-> 
-> Same tree, obviously.
-> 
-> > Shouldn't this NOT happen?
-> 
-> Sigh... Guys, who maintains l-k FAQ?
+> --qlTNgmc+xy1dBmNv
+> Content-Type: multipart/mixed; boundary="0F1p//8PRICkK4MW"
+> Content-Disposition: inline
 
-You mean the LK mailing list FAQ? That would be me.
+Yuk! MIME!
 
-> Q: I've mounted filesystem in two different places and it worked. Why?
-> A: Because you've asked to do that. Yes, it works. No, it's not a bug.
-> 
-> Q: what should I do to unmount it?
-> A: umount <mountpoint>
-> 
-> Q: but that took care only of one of them. How can I deal with another?
-> A: umount <another_mountpoint>
+> --0F1p//8PRICkK4MW
+> Content-Type: text/plain; charset=us-ascii
+> Content-Disposition: inline
+> Content-Transfer-Encoding: quoted-printable
 
-Patches to the LKML FAQ accepted :-)
+Horrors! Quoted-printables!
+
+> Here's an updated version of the patch - the only real difference is
+> that rio500.c will printk an error message if devfs_register() fails.=20
+> I left that out originally because devfs logs the error, but it's
+> probably a good idea to indicate which driver made the request.
+
+No, it's a bad idea to test the error from devfs_register() unless you
+*really* have a good reason. Most people who think they have a good
+reason actually don't, they're just confused :-)
+
+The reason you don't want to test the return value is that way the
+driver works fine with CONFIG_DEVFS=n. Otherwise, you have a driver
+that doesn't work with devfs, or you have to put ugly #ifdef's in the
+code.
 
 				Regards,
 

@@ -1,27 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315020AbSD2Kcu>; Mon, 29 Apr 2002 06:32:50 -0400
+	id <S315038AbSD2Ki1>; Mon, 29 Apr 2002 06:38:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315024AbSD2Kct>; Mon, 29 Apr 2002 06:32:49 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:12051 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S315020AbSD2Kcs>; Mon, 29 Apr 2002 06:32:48 -0400
-Subject: Re: getting a programs ENV via ptrace ?
-To: sonnenburg@informatik.hu-berlin.de (Soeren Sonnenburg)
-Date: Mon, 29 Apr 2002 11:18:09 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1020068756.5050.7.camel@sun> from "Soeren Sonnenburg" at Apr 29, 2002 10:25:55 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E1728ET-0005mb-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S315030AbSD2Ki1>; Mon, 29 Apr 2002 06:38:27 -0400
+Received: from mail.webmaster.com ([216.152.64.131]:56203 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S315028AbSD2Ki0> convert rfc822-to-8bit; Mon, 29 Apr 2002 06:38:26 -0400
+From: David Schwartz <davids@webmaster.com>
+To: <terje.eggestad@scali.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+X-Mailer: PocoMail 2.61 (1025) - Licensed Version
+Date: Mon, 29 Apr 2002 03:38:22 -0700
+In-Reply-To: <1020074594.22026.38.camel@pc-16.office.scali.no>
+Subject: Re: Possible bug with UDP and SO_REUSEADDR.
+Mime-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+Message-ID: <20020429103823.AAA26425@shell.webmaster.com@whenever>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I am looking for a way of getting the environment variables of a running
-> process.
-> Is this possible by using the ptrace interface somehow ?
 
-Take a look at the code to ps
+>However, I still can't see any *practical* use of having one program
+>(me) bind the port, deliberately share it, and another program (you)
+>coming along and want to share it, and then all unicast datagrams are
+>passed to you. Not If I haven't subscribed to any multicast addresses,
+>and no one is sending bcasts, there is no point of me being alive.
+>
+>Can you come up with a real life situation where this make sense?
+
+	Absolutely. This is actually used in cases where you have a 'default' 
+handler for a protocol that is built into a larger program but want to keep 
+the option to 'override' it with a program with more sophisticated behavior 
+from time to time. In this case, the last socket should get all the data 
+until it goes away.
+
+	DS
+
+
+
+

@@ -1,47 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262915AbRFYJXv>; Mon, 25 Jun 2001 05:23:51 -0400
+	id <S263070AbRFYJdv>; Mon, 25 Jun 2001 05:33:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263034AbRFYJXl>; Mon, 25 Jun 2001 05:23:41 -0400
-Received: from james.kalifornia.com ([208.179.59.2]:10805 "EHLO
-	james.kalifornia.com") by vger.kernel.org with ESMTP
-	id <S262915AbRFYJX0>; Mon, 25 Jun 2001 05:23:26 -0400
-Message-ID: <3B370250.1050305@kalifornia.com>
-Date: Mon, 25 Jun 2001 02:20:16 -0700
-From: Ben Ford <ben@kalifornia.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.1+) Gecko/20010623
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Marty Leisner <leisner@rochester.rr.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: mounting a fs in two places at once?
-In-Reply-To: <200106250212.WAA05336@soyata.home>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S263167AbRFYJdm>; Mon, 25 Jun 2001 05:33:42 -0400
+Received: from nef.ens.fr ([129.199.96.32]:43789 "EHLO nef.ens.fr")
+	by vger.kernel.org with ESMTP id <S263070AbRFYJd2>;
+	Mon, 25 Jun 2001 05:33:28 -0400
+Date: Mon, 25 Jun 2001 11:33:25 +0200
+From: Thomas Pornin <Thomas.Pornin@ens.fr>
+To: linux-kernel@vger.kernel.org
+Subject: Re: GCC3.0 Produce REALLY slower code!
+Message-ID: <20010625113325.A3995@bolet.ens.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <Pine.LNX.4.33.0106250142070.1314-100000@Expansa.sns.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marty Leisner wrote:
+In article <Pine.LNX.4.33.0106250142070.1314-100000@Expansa.sns.it> you write:
+> All bench i did, it's slower about 3/5% depending on the kind of code.
 
->
->/dev/hda10 on /mnt type ext2 (rw)
->/dev/hda10 on /home type ext2 (rw)
->
->
->Is this a feature or a bug?
->
+On Alpha machines (ev4 and ev56), it seems actually to be the opposite
+on integer calculation: gcc-3.0 produces code up to 5% faster than
+gcc-2.95.2. The result is still 25% behind the Compaq C compiler,
+though.
 
-Feature.  It actually makes it quite nice when you want to allow 
-chrooted user(s) access to a common directory, you just mount a 
-partition in all the users home dirs.
-
--b
-
--- 
-:    __o
-:   -\<,
-:   0/ 0
------------
+By the way, the installation procedure is mostly buggy on old Alpha
+systems (RedHat 5.1 -> binutils 2.9, glibc 2.0.7). I do not mind gcc
+having some requirements about versions of such other tools, but it
+could be made a bit more explicit, and the configuration script should
+also emit some warnings (it detects the versions installed, it just does
+not bother reporting the potential problem).
 
 
-
+	--Thomas Pornin

@@ -1,58 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262562AbTESRwr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 13:52:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262589AbTESRwr
+	id S262591AbTESRyI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 13:54:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262593AbTESRyI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 13:52:47 -0400
-Received: from 60.54.252.64.snet.net ([64.252.54.60]:64906 "EHLO
-	jaymale.blue-labs.org") by vger.kernel.org with ESMTP
-	id S262562AbTESRwq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 13:52:46 -0400
-Message-ID: <3EC91CF2.7020602@blue-labs.org>
-Date: Mon, 19 May 2003 14:05:38 -0400
-From: David Ford <david+cert@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030518
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: Martin Schlemmer <azarah@gentoo.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       LKML <linux-kernel@vger.kernel.org>
+	Mon, 19 May 2003 13:54:08 -0400
+Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:26870 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP id S262591AbTESRyG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 May 2003 13:54:06 -0400
 Subject: Re: Recent changes to sysctl.h breaks glibc
-References: <1053289316.10127.41.camel@nosferatu.lan> <20030518204956.GB8978@holomorphy.com> <1053292339.10127.45.camel@nosferatu.lan> <20030519063813.A30004@infradead.org> <1053341023.9152.64.camel@workshop.saharact.lan> <20030519124539.B8868@infradead.org> <1053348984.9142.98.camel@workshop.saharact.lan> <20030519140617.A15587@infradead.org>
-In-Reply-To: <20030519140617.A15587@infradead.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: David Ford <david+cert@blue-labs.org>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Martin Schlemmer <azarah@gentoo.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <3EC91B6D.9070308@blue-labs.org>
+References: <1053289316.10127.41.camel@nosferatu.lan>
+	 <20030518204956.GB8978@holomorphy.com>
+	 <1053292339.10127.45.camel@nosferatu.lan>
+	 <20030519063813.A30004@infradead.org>
+	 <1053341023.9152.64.camel@workshop.saharact.lan>
+	 <20030519124539.B8868@infradead.org>  <3EC91B6D.9070308@blue-labs.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-oiZzkaBikqCc4Hr0yO/T"
+Organization: Red Hat, Inc.
+Message-Id: <1053367592.1424.8.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 (1.2.4-2) 
+Date: 19 May 2003 20:06:32 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-How about not passing the buck off to "the vendor" and helping "this 
-vendor" make sanitized headers.
 
-Not everybody copies RH and changes the text files from "RH" to "my 
-distribution name".
+--=-oiZzkaBikqCc4Hr0yO/T
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Gentoo is my very strongly preferred distribution and I have a lot of 
-respect and admiration for Martin for stepping in this bull*shit pool 
-and trying to get something accomplished.
+On Mon, 2003-05-19 at 19:59, David Ford wrote:
 
-David
+> Someone please step up to the plate and explain how to convert kernel=20
+> headers into sanitized headers for /usr/include.
 
-Christoph Hellwig wrote:
+It seems you totally miseed the entire point.
+It shouldn't be an automatic conversion. It should be a well thought
+subset cleaned from kernel private stuff.
 
->On Mon, May 19, 2003 at 02:56:25PM +0200, Martin Schlemmer wrote:
->  
->
->>Point is just that people like you keep on bitching about not
->>using sanitized kernel headers, but do nothing about it, or
->>until today have said nothing about 'sanitized headers'.
->>    
->>
->
->Why don't you just get the glibc-kernheaders package from rawhide
->(or the equivalent from your prefered distribution) and stop
->complaining? 
->
+I maintain such a subset for my employer and it's free for all to use
+(it's GPL after all).=20
 
+--=-oiZzkaBikqCc4Hr0yO/T
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA+yR0oxULwo51rQBIRAk2xAJsGdT98NDOXxiykwHFuB9d5ReJGNgCeINLd
+A6jVPbyPZeqkBN+N2C/txqc=
+=k1k2
+-----END PGP SIGNATURE-----
+
+--=-oiZzkaBikqCc4Hr0yO/T--

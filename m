@@ -1,57 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129786AbRAaGu2>; Wed, 31 Jan 2001 01:50:28 -0500
+	id <S130359AbRAaGxh>; Wed, 31 Jan 2001 01:53:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130359AbRAaGuR>; Wed, 31 Jan 2001 01:50:17 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:24592
+	id <S130420AbRAaGx1>; Wed, 31 Jan 2001 01:53:27 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:25360
 	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S129786AbRAaGuB>; Wed, 31 Jan 2001 01:50:01 -0500
-Date: Tue, 30 Jan 2001 22:49:26 -0800 (PST)
+	id <S130359AbRAaGxS> convert rfc822-to-8bit; Wed, 31 Jan 2001 01:53:18 -0500
+Date: Tue, 30 Jan 2001 22:52:51 -0800 (PST)
 From: Andre Hedrick <andre@linux-ide.org>
-To: "David D.W. Downey" <pgpkeys@hislinuxbox.com>
-cc: linux-kernel@vger.kernel.org
+To: Frédéric L. W. Meunier <0@pervalidus.net>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
 Subject: Re: VIA VT82C686X
-In-Reply-To: <Pine.LNX.4.21.0101301847530.3488-100000@ns-01.hislinuxbox.com>
-Message-ID: <Pine.LNX.4.10.10101302247530.4244-100000@master.linux-ide.org>
+In-Reply-To: <20010131011914.D160@pervalidus>
+Message-ID: <Pine.LNX.4.10.10101302250160.4244-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=X-UNKNOWN
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 Jan 2001, David D.W. Downey wrote:
 
-> 
-> Woohoo! Just found out that ATA66 on the VIA aint too great.
-> 
-> I set the kernel boot options idebus=66 ide0=ata66 enabling ATA66
+You system did something funny or the new VIA code did it.
+But because you observed this pattern the new feature that on Linux has
+kicked in and hopefull recovered the system for you.
 
-Sorry but you are not right in this world .......
+On Wed, 31 Jan 2001, [iso-8859-1] Frédéric L. W. Meunier wrote:
 
-Where in you manual does is "QUOTE" you can drive the ATA/IDE bus at 66MHz?
+> Me too. But I couldn't get UDMA 66 after changing my BIOS
+> settings and booting. With 33 it's very stable (what I used
+> with 2.4.0). A diff:
+> 
+> -hda: 30015216 sectors (15368 MB) w/2048KiB Cache, CHS=1868/255/63, UDMA(33)
+> +hda: 30015216 sectors (15368 MB) w/2048KiB Cache, CHS=1868/255/63, UDMA(66)
+> ...
+> +hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+> +hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
+> VFS: Mounted root (ext2 filesystem) readonly.
+> -Freeing unused kernel memory: 200k freed
+> +Freeing unused kernel memory: 204k freed
+> +hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+> +hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
+> +hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+> +hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
+> +hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+> +hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
+> +hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+> +hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
+> +ide0: reset: success
 
+Because you did not see DMA_DISABLED
 
-> according to dmesg. The HDD is a WDC UDMA100 30.5GB drive. I retried the
+The auto_dma_crc downgrade feature turned down the transfer rate of the
+drive/host pair until the iCRC issue stablized.
+
+Cheers,
+
+> I know this is a known issue, but I thought testing would be
+> OK. ASUS K7V with the shipped cable.
 > 
-> dd if=/dev/hda7 of=/tmp/testing2.img bs=1024k count=2000 
-> 
-> on one VT, ran renice -20 on the dd process then ran procinfo on another
-> and top on a 3rd. I logged into a fourth and ran sync;sync;sync;sync;sync.
-> 
-> After @30 seconds the machine became totally unresponsive, locking up all
-> but the current VT.
-> 
-> I let it sit there and waited until the dd finished in case the renice was
-> what killed the control. When dd finished I tried running any type of
-> command but the tty was completely frozen. All other VTs were non
-> responsive as well.
-> 
-> 
-> This is gonna be fun when I test the Promise controller. hehe
-> 
-> 
-> David D.W. Downey
-> 
-> 
+> -- 
+> 0@pervalidus.{net, {dyndns.}org} Tel: 55-21-717-2399 (Niterói-RJ BR)
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org

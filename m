@@ -1,73 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265826AbUBBWP5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 17:15:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265830AbUBBWP5
+	id S265869AbUBBWQs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 17:16:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265866AbUBBWQn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 17:15:57 -0500
-Received: from fw.osdl.org ([65.172.181.6]:37353 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265826AbUBBWPz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 17:15:55 -0500
-Date: Mon, 2 Feb 2004 14:17:18 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: IWAMOTO Toshihiro <iwamoto@valinux.co.jp>
+	Mon, 2 Feb 2004 17:16:43 -0500
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:16010 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S265830AbUBBWQj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Feb 2004 17:16:39 -0500
+Date: Mon, 2 Feb 2004 23:15:42 +0100
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Max Asbock <masbock@us.ibm.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix memory leak while coredumping
-Message-Id: <20040202141718.48f32dc4.akpm@osdl.org>
-In-Reply-To: <20040202105335.DFE88700A2@sv1.valinux.co.jp>
-References: <20040202105335.DFE88700A2@sv1.valinux.co.jp>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Subject: Re: [PATCH] Driver for IBM RSA service processor (2/2)
+Message-ID: <20040202231542.B18524@electric-eye.fr.zoreil.com>
+References: <200402021129.56837.masbock@us.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200402021129.56837.masbock@us.ibm.com>; from masbock@us.ibm.com on Mon, Feb 02, 2004 at 11:29:56AM -0800
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-IWAMOTO Toshihiro <iwamoto@valinux.co.jp> wrote:
->
-> Hi,
-> 
-> with some help of coworker, I found a bug in binfmt_elf.c.
-> The bug exists in linux-2.6.1 and linux-2.6.2-rc2-mm2.
-> 
-> This patch fixes a memory leak that happens when a core file hits the
-> process's resource limit.
-> I've tested the DUMP_WRITE case only a little, and the DUMP_SEEK case
-> is only compile tested.
-> 
-> --- old/fs/binfmt_elf.c	Fri Jan 16 12:12:24 2004
-> +++ new/fs/binfmt_elf.c	Mon Feb  2 19:31:42 2004
-> @@ -1441,12 +1441,22 @@
->  				DUMP_SEEK (file->f_pos + PAGE_SIZE);
->  			} else {
->  				if (page == ZERO_PAGE(addr)) {
-> -					DUMP_SEEK (file->f_pos + PAGE_SIZE);
-> +					if (!dump_seek(file,
-> +					    file->f_pos + PAGE_SIZE)) {
-> +						page_cache_release(page);
-> +						goto end_coredump;
-> +					}
+Max Asbock <masbock@us.ibm.com> :
+[...]
+> diff -urN linux-2.6.1/drivers/misc/ibmasm/ibmasmfs.c linux-2.6.1-ibmasm/drivers/misc/ibmasm/ibmasmfs.c
+> --- linux-2.6.1/drivers/misc/ibmasm/ibmasmfs.c	1969-12-31 16:00:00.000000000 -0800
+> +++ linux-2.6.1-ibmasm/drivers/misc/ibmasm/ibmasmfs.c	2004-01-23 15:39:00.000000000 -0800
+[...]
+> +static int command_file_ioctl(struct inode *inode, struct file *file, unsigned int ioctl_cmd, unsigned long arg)
+> +{
+> +	struct ibmasmfs_command_data *command_data = file->private_data;
+> +	struct command *cmd;
+> +	unsigned long flags;
+> +
+> +	if (ioctl_cmd != IBMASM_IO_CANCEL)
+> +		return -ENOTTY;
+> +
+> +	spin_lock_irqsave(&command_data->sp->lock, flags);
+        ^^^^^^^^^^^^^^^^^
+> +	cmd = command_data->command;
+> +	if (cmd == NULL) {
+> +		spin_unlock_irqrestore(&command_data->sp->lock, flags);
+> +		return 0;
+> +	}
+> +	wake_up_interruptible(&cmd->wait);
+> +	spin_lock_irqsave(&command_data->sp->lock, flags);
+        ^^^^^^^^^^^^^^^^^
+> +	return 0;
 
-There's no point in doing page_cache_release() of the zero page.
+-> Typo ? What about:
+   [...]
+	spin_lock_irqsave(&command_data->sp->lock, flags);
+	cmd = command_data->command;
+	if (cmd == NULL)
+		goto out_unlock;
+	wake_up_interruptible(&cmd->wait);
+out_unlock:
+	spin_unlock_irqrestore(&command_data->sp->lock, flags);
+	return 0;
+}
 
->  				} else {
->  					void *kaddr;
->  					flush_cache_page(vma, addr);
->  					kaddr = kmap(page);
-> -					DUMP_WRITE(kaddr, PAGE_SIZE);
-> +					if ((size += PAGE_SIZE) > limit ||
-> +					    !dump_write(file, kaddr,
-> +					    PAGE_SIZE)) {
-> +						kunmap(page);
-> +						page_cache_release(page);
-> +						goto end_coredump;
-> +					}
->  					kunmap(page);
->  				}
->  				page_cache_release(page);
-
-This chunk is good, thanks.
-
-Those macros are foul.
-
+--
+Ueimor

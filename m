@@ -1,54 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273796AbRIYVUq>; Tue, 25 Sep 2001 17:20:46 -0400
+	id <S274095AbRIYVWz>; Tue, 25 Sep 2001 17:22:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273502AbRIYVUg>; Tue, 25 Sep 2001 17:20:36 -0400
-Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:8459 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S273796AbRIYVU3>;
-	Tue, 25 Sep 2001 17:20:29 -0400
-Date: Tue, 25 Sep 2001 14:16:23 -0700
-From: Greg KH <greg@kroah.com>
-To: Roberto Nibali <ratz@drugphish.ch>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Binary only module overview
-Message-ID: <20010925141623.A14962@kroah.com>
-In-Reply-To: <20010924124044.B17377@devserv.devel.redhat.com> <20010925084439.B6396@us.ibm.com> <20010925200947.B7174@itsolve.co.uk> <20010925134232.A14715@kroah.com> <3BB0F297.D4A9E986@drugphish.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3BB0F297.D4A9E986@drugphish.ch>
-User-Agent: Mutt/1.3.21i
-X-Operating-System: Linux 2.2.19 (i586)
+	id <S273995AbRIYVWf>; Tue, 25 Sep 2001 17:22:35 -0400
+Received: from atlrel6.hp.com ([192.151.27.8]:41490 "HELO atlrel6.hp.com")
+	by vger.kernel.org with SMTP id <S273990AbRIYVWY>;
+	Tue, 25 Sep 2001 17:22:24 -0400
+Message-ID: <C5C45572D968D411A1B500D0B74FF4A80418D549@xfc01.fc.hp.com>
+From: "DICKENS,CARY (HP-Loveland,ex2)" <cary_dickens2@hp.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Cc: "HABBINGA,ERIK (HP-Loveland,ex1)" <erik_habbinga@hp.com>
+Subject: 2.4.10 still slow compared to 2.4.5pre1
+Date: Tue, 25 Sep 2001 17:22:41 -0400
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 25, 2001 at 11:09:43PM +0200, Roberto Nibali wrote:
-> 
-> If you're dealing with argus, ask straight for developers or technical
-> people not resellers.
+We have run 2.4.10 under a heavy nfs load and kswapd now appears to be under
+control ( never went above 88.5%cpu and then only for a short time), but the
+nfs performance is about 45% of what it had been for the 2.4.5pre1 kernel.
+The response time grows steadily throughout the test until the test goes
+invalid.
 
-I did just directly email them.  Thanks for letting me know.
+Hardware:
+4 processors, 4GB ram
+45 fibre channel drives, set up in hardware RAID 0/1
+2 direct Gigabit Ethernet connections between SPEC SFS prime client and
+system under test
+reiserfs
+all NFS filesystems exported with sync,no_wdelay to insure O_SYNC writes to
+storage
+NFS v3 UDP
 
-> The second problem is that they ceased making their
-> Pitbull LX product available for download on the web for some reasons.
-> Since I work with argus-system products sometime I got the chance of
-> still having a copy of this huge tarball and I made a diff or their
-> actual changes to the 2.2.19 kernel for you. Unfortunately I had to
-> put it onto a non- argus related development site and I will leave it
-> there for the next 12 hours. Grab it, analyse it and convince yourself
-> that they actually go quite into the direction of the LSM framework
-> approach. Actually I talked to one of the argus technical guys about a
-> possible port to the LSM frame- work and he said that they are going
-> to look into it. Of course the lkm with the real security
-> functionality is binary only. Decide yourself ...
+I can provide top logs if anyone would like to see what is happening at any
+particular time.  Also, if you would like to see some results from a
+particular test, please let me know what test it would be.
 
-Thank you for putting this up.  It looks like they are placing hooks all
-through the kernel, much like the LSM patch does.
+We tried the 00_vmtweaks patch from Andrea and it failed to boot.  There was
+an issue starting kswapd and the kernel would oops.
 
-And since they are patching the kernel to provide hooks for their
-security module, they should also release that security module source
-code to remain legal.
+Cary Dickens
+Hewlett-Packard
 
-Thanks again.
-
-greg k-h

@@ -1,64 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272382AbTHSP4f (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 11:56:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272064AbTHSPzv
+	id S271032AbTHSQDH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 12:03:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270995AbTHSQDG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 11:55:51 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:64226 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S272340AbTHSPyt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 11:54:49 -0400
-X-Sender-Authentication: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
-Date: Tue, 19 Aug 2003 16:18:32 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: mfedyk@matchmail.com, andrea@suse.de, green@namesys.com,
-       marcelo@conectiva.com.br, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       mason@suse.com
-Subject: Re: 2.4.22-pre lockups (now decoded oops for pre10)
-Message-Id: <20030819161832.2a0bae58.skraw@ithnet.com>
-In-Reply-To: <1061298621.30565.31.camel@dhcp23.swansea.linux.org.uk>
-References: <20030813125509.360c58fb.skraw@ithnet.com>
-	<Pine.LNX.4.44.0308131143570.4279-100000@localhost.localdomain>
-	<20030813145940.GC26998@namesys.com>
-	<20030813171224.2a13b97f.skraw@ithnet.com>
-	<20030813153009.GA27209@namesys.com>
-	<20030819011208.GK10320@matchmail.com>
-	<20030819091243.007acac0.skraw@ithnet.com>
-	<1061298621.30565.31.camel@dhcp23.swansea.linux.org.uk>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 19 Aug 2003 12:03:06 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:62480 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S270810AbTHSQC7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 12:02:59 -0400
+Date: Tue, 19 Aug 2003 11:53:29 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Willy Tarreau <willy@w.ods.org>
+cc: Richard Underwood <richard@aspectgroup.co.uk>,
+       "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>,
+       "'David S. Miller'" <davem@redhat.com>,
+       Stephan von Krawczynski <skraw@ithnet.com>, carlosev@newipnet.com,
+       lamont@scriptkiddie.org, bloemsaa@xs4all.nl,
+       Marcelo Tosatti <marcelo@conectiva.com.br>, netdev@oss.sgi.com,
+       linux-net@vger.kernel.org, layes@loran.com, torvalds@osdl.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [2.4 PATCH] bugfix: ARP respond on all devices
+In-Reply-To: <20030819145403.GA3407@alpha.home.local>
+Message-ID: <Pine.LNX.3.96.1030819114722.6826F-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 19 Aug 2003 14:10:22 +0100
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+On Tue, 19 Aug 2003, Willy Tarreau wrote:
 
-> On Maw, 2003-08-19 at 08:12, Stephan von Krawczynski wrote:
-> > > Are you saying that one CPU can't saturate the memory bus?  Or maybe
-> > > we're hitting something on the CPU bus, or just that SMP will change the
-> > > timings and stress things differently?  Or that if memtest doesn't test
-> > > from the second CPU then it could be a faulty cpu/L2?
-> > 
-> > Well, if memtest does not use a second available CPU then probably we
-> > should ask the author about this...
+> Hello,
 > 
-> I'm sure he'd give you a quote for adding SMP support if you asked.
+> On Tue, Aug 19, 2003 at 03:34:43PM +0100, Richard Underwood wrote:
 
-Well, actually I don't want to burn down his time as long as I don't see a need
-for it. Since I am pretty confident to make the box work in SMP under 2.4.20 a
-memtest will most certainly not give any additional information, be it running
-UP or SMP.
-Instead I will invest another day and convert the whole system back to
-reiserfs, because the ext3 fs cannot be used under 2.4.20 - I don't know why.
-Additionally reiserfs is better for testing possible patches because it crashes
-in much shorter time than ext3 setup.
-2.4.20 setup gives me a simple testcase to prove people right or wrong that are
-talking about a hardware issue.
+> > 	Now, since 172.24.0.80 is a Linux box, it's happily adding
+> > 172.20.240.2 into its ARP table and reply to it, hence the reply.
+> > 
+> > 	But if I was to do this in the other direction (arp -d 172.20.240.1;
+> > ping -I 172.24.0.1 172.20.240.1) then I'd lose connectivity over my default
+> > route because 172.20.240.1 won't accept ARP packets from IP numbers not on
+> > the connected subnet. The <incomplete> ARP entry will block any further ARP
+> > requests from valid IP numbers.
+> 
+> This is exactly the case I calmly discussed privately with David then Alexey.
+> Both explained me that in fact, the remote host shouldn't be filtering the ARP
+> requests based on the source IP they provide, but agreed that it seems to be a
+> general trend today. Alexey proposed a slight change which can at least solve
+> this very common case by preventing the system from using the local address as
+> a source IP if it is not on the interface through which the request is sent.
+> 
+> Obviously it will not solve all very special cases, which people can work
+> around with arptables, but it will solve this common one.
 
-Regards,
-Stephan
+I wonder if a change to add a flag preventing *any* packet from being sent
+on a NIC which doesn't have the proper source address would be politically
+acceptable. I did that type of patch for 2.4.16 to prevent killing
+routers by having the MAC change for an IP. It will hurt performance on at
+least some routers, and the patch eliminated the problem.
+
+I later changed to using source routing, since the number of IPs was
+modest and didn't change, but I am still fighting the issue in a test
+environment, where the number of IPs is high and I can't just grab a range
+in some cases.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

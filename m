@@ -1,39 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266044AbRGOKf5>; Sun, 15 Jul 2001 06:35:57 -0400
+	id <S266013AbRGOKaS>; Sun, 15 Jul 2001 06:30:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266047AbRGOKfs>; Sun, 15 Jul 2001 06:35:48 -0400
-Received: from 24-25-197-107.san.rr.com ([24.25.197.107]:34813 "HELO
-	sink.san.rr.com") by vger.kernel.org with SMTP id <S266044AbRGOKfj>;
-	Sun, 15 Jul 2001 06:35:39 -0400
-Date: Sun, 15 Jul 2001 03:35:41 -0700
-From: acmay@acmay.homeip.net
-To: "David S. Miller" <davem@redhat.com>
-Cc: George Bonser <george@gator.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Linux default IP ttl
-Message-ID: <20010715033541.B5369@sink.san.rr.com>
-In-Reply-To: <CHEKKPICCNOGICGMDODJIEEIDKAA.george@gator.com> <15185.27251.356109.500135@pizda.ninka.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <15185.27251.356109.500135@pizda.ninka.net>; from davem@redhat.com on Sun, Jul 15, 2001 at 03:03:31AM -0700
+	id <S266044AbRGOKaH>; Sun, 15 Jul 2001 06:30:07 -0400
+Received: from beasley.gator.com ([63.197.87.202]:1036 "EHLO beasley.gator.com")
+	by vger.kernel.org with ESMTP id <S266013AbRGOKaA>;
+	Sun, 15 Jul 2001 06:30:00 -0400
+From: "George Bonser" <george@gator.com>
+To: "Mikael Abrahamsson" <swmike@swm.pp.se>, <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH] Linux default IP ttl
+Date: Sun, 15 Jul 2001 03:34:28 -0700
+Message-ID: <CHEKKPICCNOGICGMDODJIEELDKAA.george@gator.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+Importance: Normal
+In-Reply-To: <Pine.LNX.4.33.0107151209290.2352-100000@uplift.swm.pp.se>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 15, 2001 at 03:03:31AM -0700, David S. Miller wrote:
-> 
-> George Bonser writes:
->  > This has reduced considerably the number of ICMP messages where a packet has
->  > expired
->  > in transit from my server farms. Looks like there are a lot of clients out
->  > there running
->  > (apparently) modern Microsoft OS versions with networks having a lot of hops
->  > (more than 64).
-> 
-> Why are there 64 friggin hops between machine in your server farm?
-> That is what I want to know.  It makes no sense, even over today's
-> internet, to have more than 64 hops between two sites.
+> What problems could occur from raising it to 128? I'd imagine routing
+> loops might mean a bit more traffic, but if other major OSes are at TTL
+> 128 and someone is actually having trouble with 64, then why not raise it?
 
-I seem to recall seeing an NT box setup as a router and it decided to
-decrement the TTL by 128 every time instead of 1. 
+I just did a traceroute to one of the IP addresses that fails with a TTL of
+64 ... it is in India but the traceroute ends with a different IP address in
+less than 16 hops ... proxy arp ???
+
+Anyway ... with the  address in question is able to access my server farm
+with a TTL of 128 but not with 64.  I have NO IDEA what those people are
+doing inside their net ... and really do not care. The bottom line as far as
+I am concerned is that if they can reach me, I should be able to reach them
+... and with a TTL of 128, it appears that I can.
+

@@ -1,39 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130308AbQKXIKi>; Fri, 24 Nov 2000 03:10:38 -0500
+        id <S132247AbQKXI2m>; Fri, 24 Nov 2000 03:28:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130880AbQKXIK2>; Fri, 24 Nov 2000 03:10:28 -0500
-Received: from edtn006530.hs.telusplanet.net ([161.184.137.180]:4876 "EHLO
-        mail.harddata.com") by vger.kernel.org with ESMTP
-        id <S130308AbQKXIKR>; Fri, 24 Nov 2000 03:10:17 -0500
-Date: Fri, 24 Nov 2000 00:40:13 -0700
-From: Michal Jaegermann <michal@harddata.com>
-To: linux-kernel@vger.kernel.org
-Subject: vm in 2.2.18pre23 - behaving worse
-Message-ID: <20001124004013.A8944@mail.harddata.com>
-Mime-Version: 1.0
+        id <S132249AbQKXI2c>; Fri, 24 Nov 2000 03:28:32 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:64526
+        "EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+        id <S132247AbQKXI20>; Fri, 24 Nov 2000 03:28:26 -0500
+Date: Thu, 23 Nov 2000 23:58:02 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Alexander Viro <viro@math.psu.edu>
+cc: Ion Badulescu <ionut@moisil.cs.columbia.edu>,
+        Guest section DW <dwguest@win.tue.nl>, linux-kernel@vger.kernel.org
+Subject: Re: ext2 filesystem corruptions back from dead? 2.4.0-test11
+In-Reply-To: <Pine.GSO.4.21.0011240148410.12702-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.10.10011232321560.4479-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.5us
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was busy with other things and did not track 2.2.18pre kernels very
-carefuly, but now I tried 2.2.18pre23 on Alpha and got an impression
-that a situation with a virtual memory handling is worse than it was,
-say, in 2.2.18pre15.  I can now see in /var/log/messages entries like
-"VM: killing process sh" or "VM: killing process emacs" because I was
-compiling a kernel.  This does not happen consistently, predictably, or
-very often but it does happen and I should not be oom.  Nothing else
-crashes, or leaves any traces in log files, and a machine continues
-apparently not disturbed, but a process is gone.
+On Fri, 24 Nov 2000, Alexander Viro wrote:
 
-Applying patches from Andrea and the one from Rik, posted some week
-ago under "blindingly stupid 2.2 VM bug" subject, does not seem
-to help very much.  Sigh!
+> <shrug> I don't see any attempts to tag you (or ATA subsystem, for that matter)
+> in that thread. And thread is hardly bogus... I agree that changes in
 
-Am I isolated in this experience?
+We agree that the "thread" is valid, trust that point.
+There was a quick pointed question that present, "Is it an IDE disk?" to
+paraphase the statement.
 
-  Michal
+> drivers/ide/* are very unlikely to be the source of that, but information
+> of that kind can help to weed out some of the changes in ll_rw_blk.c.
+
+What may be even more helpful is when I get arround to making an option, 
+for some outstanding patches for 2.5, that would allow for user-space
+pattern pushing through the driver that gets properly inserted in to the
+list/buffer-head to make it pass through the block layer.  This kind of
+testing will allow for nibble level tracing through everything, I hope.
+
+Cheers,
+
+Andre Hedrick
+CTO Timpanogas Research Group
+EVP Linux Development, TRG
+Linux ATA Development
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

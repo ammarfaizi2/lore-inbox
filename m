@@ -1,54 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284395AbRLDBpw>; Mon, 3 Dec 2001 20:45:52 -0500
+	id <S282133AbRLDBpv>; Mon, 3 Dec 2001 20:45:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284606AbRLDANx>; Mon, 3 Dec 2001 19:13:53 -0500
-Received: from ns.conwaycorp.net ([24.144.1.3]:44239 "HELO mail.conwaycorp.net")
-	by vger.kernel.org with SMTP id <S284693AbRLCPhZ>;
-	Mon, 3 Dec 2001 10:37:25 -0500
-Date: Mon, 3 Dec 2001 09:37:19 -0600
-From: Nathan Poznick <poznick@conwaycorp.net>
-To: Andrey Savochkin <saw@saw.sw.com.sg>
+	id <S284614AbRLDAOK>; Mon, 3 Dec 2001 19:14:10 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:1292 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S285135AbRLCUwX>;
+	Mon, 3 Dec 2001 15:52:23 -0500
+Date: Mon, 3 Dec 2001 21:52:02 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.16 freezed up with eepro100 module
-Message-ID: <20011203153719.GA10261@conwaycorp.net>
-In-Reply-To: <15366.21354.879039.718967@abasin.nj.nec.com> <20011129095107.A17457@conwaycorp.net> <3C070FEC.3602CB49@pobox.com> <20011130114506.A4789@bee.lk> <15367.44557.930845.66428@abasin.nj.nec.com> <20011130163131.A12298@conwaycorp.net> <20011130161717.G504@mikef-linux.matchmail.com> <20011201131759.B11856@castle.nmd.msu.ru>
+Subject: Re: 2.5.1-pre5 not easy to boot with devfs
+Message-ID: <20011203215202.G5176@suse.de>
+In-Reply-To: <Pine.GSO.4.21.0112021150310.12801-100000@binet.math.psu.edu> <E16AaCR-0003wy-00@the-village.bc.nu> <200112021802.fB2I2iE10476@vindaloo.ras.ucalgary.ca> <20011203135842.A5176@suse.de> <200112031906.fB3J6X323874@vindaloo.ras.ucalgary.ca>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20011201131759.B11856@castle.nmd.msu.ru>
-User-Agent: Mutt/1.3.24i
+In-Reply-To: <200112031906.fB3J6X323874@vindaloo.ras.ucalgary.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thus spake Andrey Savochkin:
+On Mon, Dec 03 2001, Richard Gooch wrote:
+> Jens Axboe writes:
+> > On Sun, Dec 02 2001, Richard Gooch wrote:
+> > > And 2.5 isn't going to get a lot of testing until the breakage caused
+> > > by the bio changes is fixed. At the moment, I can't even test it
+> > > myself.
+> > 
+> > I'll just go read your bug rapport and fix it right up.
+> 
+> It wasn't meant as a criticism of the changes. I'm glad to see someone
+> working on fixing the bio layer. It's just not ready for widespread
+> testing yet (crude measurement: if it breaks for me, it's not ready
+> for the masses ;-). Once I surface from this round of devfs cleanups,
+> I'll pause for breath and try again with 2.5. If I still have
+> problems, I'll let you know.
 
-> Do you see "can't fill rx buffer" messages?
-> If so, then your load is too big, and memory management is incapable of
-> freeing memory in time.
-> Right now the kernel doesn't allow to increase atomic allocation
-> reservation (which is a serious misfeature), so you need to hack and
-> change the reservation in the kernel.
+No seriously, I want to know if something is broken so it can get fixed.
+bio core is indeed stable, if something breaks it's drivers. And they
+need fixing right away.
 
-Yes, I saw a combination of the "can't fill rx buffer" messages and
-"card reports no resources" messages, and after a while it went to
-just a whole bunch (few hundred) of the "card reports no resources"
-messages, which continued to scroll across the console at the rate of
-one every second or so until I took down networking and removed the
-eepro100 module.
-
-> If the network doesn't come alive when you remove the load, it's a second
-> problem, a bug in the driver.  I've seen such reports, but they aren't
-> frequent.  On my computer, the driver resumes operations well.
-> Why the driver can't do it for some people needs deep investigations.
-
-After I removed the load, I gave it about 10 minutes or so to see if
-it would pick back up, but it didn't.
+At least until I break every single block driver out there again in a
+few days. And no, I'm not kidding.
 
 -- 
-Nathan Poznick <poznick@conwaycorp.net>
-PGP Key: http://drunkmonkey.org/pgpkey.txt
+Jens Axboe
 
-"I think everyone ought to come in and have a hot cup of cocoa and
-come inside and be nice and snuggly."
--Crow (as Dr. Herly). #201

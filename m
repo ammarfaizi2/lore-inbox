@@ -1,62 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268253AbUGXDOg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264658AbUGXDO6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268253AbUGXDOg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jul 2004 23:14:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264658AbUGXDOg
+	id S264658AbUGXDO6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jul 2004 23:14:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268254AbUGXDO5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jul 2004 23:14:36 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:5014 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S268253AbUGXDOe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jul 2004 23:14:34 -0400
-Subject: Re: [patch] kernel events layer
-From: Robert Love <rml@ximian.com>
-To: Michael Clark <michael@metaparadigm.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <4101D14D.6090007@metaparadigm.com>
-References: <1090604517.13415.0.camel@lucy>
-	 <4101D14D.6090007@metaparadigm.com>
-Content-Type: text/plain
-Date: Fri, 23 Jul 2004 23:14:41 -0400
-Message-Id: <1090638881.2296.14.camel@localhost>
+	Fri, 23 Jul 2004 23:14:57 -0400
+Received: from waste.org ([209.173.204.2]:32210 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S264658AbUGXDOz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jul 2004 23:14:55 -0400
+Date: Fri, 23 Jul 2004 22:14:53 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] ketchup 0.8
+Message-ID: <20040724031453.GQ18675@waste.org>
+References: <20040723185504.GJ18675@waste.org> <1090632808.1471.20.camel@mindpipe> <20040724020644.GN18675@waste.org> <1090638263.1471.24.camel@mindpipe>
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.90 (1.5.90-5) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1090638263.1471.24.camel@mindpipe>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-07-24 at 11:02 +0800, Michael Clark wrote:
+On Fri, Jul 23, 2004 at 11:04:24PM -0400, Lee Revell wrote:
+> On Fri, 2004-07-23 at 22:06, Matt Mackall wrote:
+> > Oops. Should be fixed by:
+> > 
+> > http://selenic.com/ketchup/ketchup-0.8.1
+> 
+> Now it seems to work, but I get:
+> 
+> ...downloads some stuff...
+> patching file sound/pci/intel8x0.c
+> patching file sound/pci/nm256/nm256.c
+> patching file sound/ppc/pmac.c
+> ketchup: patch /home/rlrevell/.ketchup/patch-2.6.8-rc1.bz2 failed: 256
+> 
+> Not checking the return value from patch correctly?
 
-> Should there be some sharing with the device naming of sysfs or are
-> will we introduce a new one? ie sysfs uses:
->
-> devices/system/cpu/cpu0/<blah>
->
-> Would it be a better way to have a version that takes struct kobject
-> to enforce consistency in the device naming scheme. This also means
-> userspace would automatically know where to look in /sys if futher
-> info was needed.
+That return code suggests some hunks failed. Can you check for .rej
+files?
 
-No, we want to give an interface that matches the sort of provider URI
-used by object systems such as CORBA, D-BUS, and DCOP.  We also do _not_
-want to put policy in the kernel.
-
-The easiest way to avoid that is simply to use a name similar to the
-path name.
-
-Passing the sysfs name would probably be a good potential argument to
-the signal, though.  The temperature signal in the patch is just an
-example.
-
-> Question is does it make sense to use this infrastructure without sysfs
-> as hald, etc require it. ie depends CONFIG_SYSFS
-
-That sounds like policy to me.
-
-Especially if drivers start using this for error logging, there are no
-ties to sysfs.  Configuration dependencies tend to be hard build-time
-deps anyhow.
-
-	Robert Love
-
-
+-- 
+Mathematics is the supreme nostalgia of our time.

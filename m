@@ -1,43 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279630AbRKIHVu>; Fri, 9 Nov 2001 02:21:50 -0500
+	id <S279617AbRKIHYK>; Fri, 9 Nov 2001 02:24:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279617AbRKIHVk>; Fri, 9 Nov 2001 02:21:40 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:5386 "EHLO
+	id <S279627AbRKIHYA>; Fri, 9 Nov 2001 02:24:00 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:29450 "EHLO
 	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S279598AbRKIHV3>; Fri, 9 Nov 2001 02:21:29 -0500
-Message-ID: <3BEB82B8.541558CA@zip.com.au>
-Date: Thu, 08 Nov 2001 23:16:08 -0800
+	id <S279617AbRKIHXs>; Fri, 9 Nov 2001 02:23:48 -0500
+Message-ID: <3BEB8341.2671AEDD@zip.com.au>
+Date: Thu, 08 Nov 2001 23:18:25 -0800
 From: Andrew Morton <akpm@zip.com.au>
 X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14-pre8 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: ak@suse.de, anton@samba.org, mingo@elte.hu, linux-kernel@vger.kernel.org
-Subject: Re: speed difference between using hard-linked and modular drives?
-In-Reply-To: <3BEB7DA6.BC8793B1@zip.com.au>,
-		<20011108.220444.95062095.davem@redhat.com>
-		<20011109073946.A19373@wotan.suse.de>
-		<3BEB7DA6.BC8793B1@zip.com.au> <20011108.231717.85686073.davem@redhat.com>
+To: Alexander Viro <viro@math.psu.edu>
+CC: Andreas Dilger <adilger@turbolabs.com>, ext2-devel@lists.sourceforge.net,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [Ext2-devel] ext2/ialloc.c cleanup
+In-Reply-To: <20011108235632.D907@lynx.no> <Pine.GSO.4.21.0111090210060.9938-100000@weyl.math.psu.edu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" wrote:
+Alexander Viro wrote:
 > 
->    From: Andrew Morton <akpm@zip.com.au>
->    Date: Thu, 08 Nov 2001 22:54:30 -0800
+> On Thu, 8 Nov 2001, Andreas Dilger wrote:
 > 
->    I played with that earlier in the year.  Shrinking the hash table
->    by a factor of eight made no measurable difference to anything on
->    a Pentium II.  The hash distribution was all over the place though.
->    Lots of buckets with 1-2 pages, lots with 12-13.
+> > It may be possible to hack the test data into ext2 by creating a filesystem
+> > with the same number of block groups as the test FFS filesystem with the
+> > Smith workload.  It may also not be valid for our needs, as we are playing
+> > with the actual group selection algorithm, so real pathnames may give us
+> > a different layout.
 > 
-> What is the distribution when you don't shrink the hash
-> table?
-> 
+> Umm...  What was the block and fragment sizes in their tests?
 
-Well on my setup, there are more hash buckets than there are
-pages in the system.  So - basically empty.  If memory serves
-me, never more than two pages in a bucket.
+Size: 			502M
+Fragment size:		1k
+Block size:		8k
+Max cluster size:	56k
+
+I haven't been trying to recreate the Smith tests, BTW.  Just using
+it as a representative workload and something which is worth
+optimising for.

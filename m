@@ -1,57 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266525AbUGPLUb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266524AbUGPLUY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266525AbUGPLUb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jul 2004 07:20:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266528AbUGPLUb
+	id S266524AbUGPLUY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jul 2004 07:20:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266525AbUGPLUY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jul 2004 07:20:31 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:56710 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S266525AbUGPLU2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jul 2004 07:20:28 -0400
-Date: Fri, 16 Jul 2004 07:19:42 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Stuart Young <cef-lkml@optusnet.com.au>
-cc: linux-kernel@vger.kernel.org,
-       Markus Lidel <Markus.Lidel@shadowconnect.com>,
-       Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: Problem with ioremap which returns NULL in 2.6 kernel
-In-Reply-To: <200406031241.27669.cef-lkml@optusnet.com.au>
-Message-ID: <Pine.LNX.4.53.0407160715210.21606@chaos>
-References: <40BC788A.3020103@shadowconnect.com> <40BDF1AC.7070209@shadowconnect.com>
- <Pine.LNX.4.53.0406021144280.559@chaos> <200406031241.27669.cef-lkml@optusnet.com.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 16 Jul 2004 07:20:24 -0400
+Received: from pimout2-ext.prodigy.net ([207.115.63.101]:52625 "EHLO
+	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S266524AbUGPLUW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jul 2004 07:20:22 -0400
+Date: Fri, 16 Jul 2004 04:20:07 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Gene Heskett <gene.heskett@verizon.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: New mobo question
+Message-ID: <20040716112007.GA14641@taniwha.stupidest.org>
+References: <200407160552.27074.gene.heskett@verizon.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200407160552.27074.gene.heskett@verizon.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 3 Jun 2004, Stuart Young wrote:
+On Fri, Jul 16, 2004 at 05:52:27AM -0400, Gene Heskett wrote:
 
-> On Thu, 3 Jun 2004 01:45, Richard B. Johnson wrote:
-> > I asked for the output of `cat /proc/pci` . Unless I get that
-> > information, I can't find the length of the allocation.
->
-> Is there no way to to get this information out of lspci (eg: lspci -vv)? This
-> is particularly annoying since /proc/pci is depreciated. I know a number of
-> people who simply don't bother turning it on anymore. If there is information
-> in /proc/pci that isn't available through lspci somehow, then I'd call that a
-> nasty regression, which needs to be fixed.
->
-> Are you sure on this Richard? (No disrespect intended, just want to confirm
-> things).
->
+> I've ordered a new mobo as I'm having what appears to be data bus
+> problems with this one after a rather spectacular failure of a
+> gforce2 video card, memtest86 says I have a lot of errors where
+> 00000020 was written, but 00000000 came back, at semi-random
+> locations scattered thoughout half a gig of dimms running at half
+> their rated DDR266 speed.  The last nibble of the address is always
+> zero, and the next nibble is always even.
 
-I didn't say what I was 're-quoted'. That's from somebody else.
-If they are taking away /proc/pci (sniff), you need to use
-`lspci -v` to get the length . If they are taking that way,
-you need to make your own!
+Get the board replaced.
+
+> Is there a way to prebuild a kernel that will run on both boards?,
+> this older board is a VIA82686/VIA8233 based board, a Biostar M7VIB.
+
+If I read you correctly you're getting random corruptions all over the
+place so there isn't much you an do.
 
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
-
+  --cw

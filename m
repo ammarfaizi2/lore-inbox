@@ -1,57 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278239AbRKAHxe>; Thu, 1 Nov 2001 02:53:34 -0500
+	id <S278225AbRKAH4f>; Thu, 1 Nov 2001 02:56:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278225AbRKAHxY>; Thu, 1 Nov 2001 02:53:24 -0500
-Received: from smtp3.libero.it ([193.70.192.53]:25590 "EHLO smtp3.libero.it")
-	by vger.kernel.org with ESMTP id <S278216AbRKAHxQ>;
-	Thu, 1 Nov 2001 02:53:16 -0500
-Message-ID: <3BE0FF4E.4A9D06AF@alsa-project.org>
-Date: Thu, 01 Nov 2001 08:52:46 +0100
-From: Abramo Bagnara <abramo@alsa-project.org>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.13 i586)
-X-Accept-Language: en, it
-MIME-Version: 1.0
-To: Doug McNaught <doug@wireboard.com>
-Cc: Riley Williams <rhw@MemAlpha.cx>, Ville Herva <vherva@niksula.hut.fi>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Need blocking /dev/null
-In-Reply-To: <Pine.LNX.4.21.0110312256030.28028-100000@Consulate.UFP.CX> <m31yjjz6ws.fsf@belphigor.mcnaught.org>
+	id <S278261AbRKAH4Y>; Thu, 1 Nov 2001 02:56:24 -0500
+Received: from due.stud.ntnu.no ([129.241.56.71]:56846 "HELO due.stud.ntnu.no")
+	by vger.kernel.org with SMTP id <S278225AbRKAH4N>;
+	Thu, 1 Nov 2001 02:56:13 -0500
+Date: Thu, 1 Nov 2001 08:55:23 +0100
+From: =?iso-8859-1?Q?Thomas_Lang=E5s?= <tlan@stud.ntnu.no>
+To: Andrey Savochkin <saw@saw.sw.com.sg>
+Cc: linux-kernel@vger.kernel.org, J Sloan <jjs@pobox.com>
+Subject: Re: Intel EEPro 100 with kernel drivers
+Message-ID: <20011101085523.D2102@stud.ntnu.no>
+Reply-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20011029021339.B23985@stud.ntnu.no> <3BDCD06E.8AF8FF69@pobox.com> <20011031090125.B10751@stud.ntnu.no> <20011031182212.A21776@castle.nmd.msu.ru>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011031182212.A21776@castle.nmd.msu.ru>; from saw@saw.sw.com.sg on Wed, Oct 31, 2001 at 06:22:13PM +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Doug McNaught wrote:
-> 
-> Riley Williams <rhw@MemAlpha.cx> writes:
-> 
-> > Are you sure?
-> >
-> > > find / -name "wanted-but-lost-download" | eat
-> >
-> > Doesn't work - you're piping the stdin there, not stderr as per my
-> > example above. AFAIK, there's no way to pipe stderr without also piping
-> > stdout, hence this sort of solution just doesn't work.
-> 
-> The Bourne shell is more perverse than you realize:
-> 
-> $ exec 3>&1; find / -name "wanted-but-lost-download" 2>&1 1>&3 3>&- | eat
-> 
-> [stolen from "Csh Programming Considered Harmful" by Tom Christiansen]
-> 
-> Horrible, but does work.  ;)
- 
-$ find / -name "wanted-but-lost-download" 2>&1 1>&0 | eat
+Andrey Savochkin:
+> Well, with eepro100 the start may be the following:
+> 1. When the card stalls, start ping from that host.
+> This way you ensure that you have something in transmit ring.
+> If it's transmitting that stalls, you'll get a message from netdev watchdog.
 
-is simpler although dependent on stdin being a tty
+>From the server, or the client?  I've already tried pinging from the server
+when I get the error-message in dmesg, but it's unresponsive to anything.
+And, I mean anything, network-wise. There seems to be a timeout somewhere,
+because after some time, everything resumes back to normal again.
+
+> 4. In any case, running eepro100-diag from scyld.com at the moment of the
+> stall may give some useful information.
+
+OK, I'll do the test again, and run the eepro100-diag. Any special options
+you want me to specify?
+
+> 5. In any case, searching eepro100 mailing list archive on scyld.com is a
+> good idea, you may learn what other people observe/do.
+
+OK, I'll search... :)
 
 -- 
-Abramo Bagnara                       mailto:abramo@alsa-project.org
-
-Opera Unica                          Phone: +39.546.656023
-Via Emilia Interna, 140
-48014 Castel Bolognese (RA) - Italy
-
-ALSA project               http://www.alsa-project.org
-It sounds good!
+Thomas

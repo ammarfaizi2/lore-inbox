@@ -1,57 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262012AbVCIQAn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261869AbVCIQEw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262012AbVCIQAn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 11:00:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261639AbVCIQAP
+	id S261869AbVCIQEw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 11:04:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262060AbVCIQEP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 11:00:15 -0500
-Received: from grendel.digitalservice.pl ([217.67.200.140]:10734 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S261652AbVCIP53 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 10:57:29 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH][3/3] swsusp: use non-contiguous memory
-Date: Wed, 9 Mar 2005 17:00:01 +0100
-User-Agent: KMail/1.7.1
-Cc: hugang@soulinfo.com, linux-kernel@vger.kernel.org
-References: <200503042051.54176.rjw@sisk.pl> <200503081247.51797.rjw@sisk.pl> <200503081300.08594.rjw@sisk.pl>
-In-Reply-To: <200503081300.08594.rjw@sisk.pl>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
+	Wed, 9 Mar 2005 11:04:15 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:65261 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261951AbVCIQCT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 11:02:19 -0500
+Subject: Re: badness in interruptible_sleep_on_timeout FC-3 (source code
+	and Makefile attached)
+From: Arjan van de Ven <arjan@infradead.org>
+To: "Srinivas G." <srinivasg@esntechnologies.co.in>
+Cc: linux-kernel-Mailing-list <linux-kernel@vger.kernel.org>
+In-Reply-To: <4EE0CBA31942E547B99B3D4BFAB348113A48C2@mail.esn.co.in>
+References: <4EE0CBA31942E547B99B3D4BFAB348113A48C2@mail.esn.co.in>
+Content-Type: text/plain
+Date: Wed, 09 Mar 2005 17:02:14 +0100
+Message-Id: <1110384134.6280.127.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200503091700.02389.rjw@sisk.pl>
+X-Spam-Score: 4.1 (++++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (4.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Tuesday, 8 of March 2005 13:00, Rafael J. Wysocki wrote:
-]-- snip --[ 
-> > > Now, akpm sent all (?) swsusp updates to Linus, so it should appear in
-> > > bk tree later today. If you could regenerate the patches (1/3 will no
-> > > longer be needed) and send them to me & l-k. I'll then forward them to
-> > > akpm. [He seems to prefer patches to come from my email address :-)]
-> > 
-> > OK
-> > 
-> > Here's the 2/3 one (ie the main resume part).  Do you need the summary?
+On Wed, 2005-03-09 at 20:12 +0530, Srinivas G. wrote:
 > 
-> Here's the 3/3 one (ie the ppc support from hugang).
 > 
-> The patches are against 2.6.11 + 1/3 (ie suspend part), but they should
-> apply cleanly to the -bk w/ the suspend part as well.
+> I have developed a small module in Fedora Core 3 with 2.6.9-1.667
+> kernel
+> version. This module uses the interruptible_sleep_on_timeout call and
 
-FYI, 2.6.11-kb5 is out and it contains the "suspend" patch.  The patches that
-I have sent you apply to it cleanly.
+don't use interruptible_sleep_on_timeout() !!!!
+really. 
 
-Greets,
-Rafael
+(and if you want to use the sleep_on() family of apis even when you
+shouldn't, you HAVE to hold the big kernel lock for them!)
 
-
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"

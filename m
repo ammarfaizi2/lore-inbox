@@ -1,116 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265350AbUATI6M (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 03:58:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265354AbUATI6L
+	id S265357AbUATI7J (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 03:59:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265363AbUATI7J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 03:58:11 -0500
-Received: from 81-5-136-19.dsl.eclipse.net.uk ([81.5.136.19]:24971 "EHLO
-	vlad.carfax.org.uk") by vger.kernel.org with ESMTP id S265350AbUATI6F
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 03:58:05 -0500
-Date: Tue, 20 Jan 2004 08:58:00 +0000
-From: Hugo Mills <hugo-lkml@carfax.org.uk>
-To: manu <hislen@mindspring.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: SiI2112 + Seagate + nFroce2: no DMA!
-Message-ID: <20040120085800.GB31330@carfax.org.uk>
-Mail-Followup-To: Hugo Mills <hugo-lkml@carfax.org.uk>,
-	manu <hislen@mindspring.com>, linux-kernel@vger.kernel.org
-References: <3E1282EF.30300@mindspring.com>
+	Tue, 20 Jan 2004 03:59:09 -0500
+Received: from vega.digitel2002.hu ([213.163.0.181]:47059 "HELO lgb.hu")
+	by vger.kernel.org with SMTP id S265357AbUATI65 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jan 2004 03:58:57 -0500
+Date: Tue, 20 Jan 2004 09:58:53 +0100
+From: =?iso-8859-2?B?R+Fib3IgTOlu4XJ0?= <lgb@lgb.hu>
+To: Travis Morgan <lkml@bigfiber.net>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: ALSA vs. OSS
+Message-ID: <20040120085853.GC11143@vega.digitel2002.hu>
+Reply-To: lgb@lgb.hu
+References: <1074532714.16759.4.camel@midux> <microsoft-free.87vfn7bzi1.fsf@eicq.dnsalias.org> <1074536486.5955.412.camel@castle.bigfiber.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="0eh6TmSyL6TZE2Uz"
+Content-Type: text/plain; charset=iso-8859-2
 Content-Disposition: inline
-In-Reply-To: <3E1282EF.30300@mindspring.com>
-X-GPG-Fingerprint: B997 A9F1 782D D1FD 9F87  5542 B2C2 7BC2 1C33 5860
-X-GPG-Key: 1C335860
-X-Parrot: It is no more. It has joined the choir invisible.
-X-IRC-Nicks: hugo darksatanic
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1074536486.5955.412.camel@castle.bigfiber.net>
+X-Operating-System: vega Linux 2.6.1 i686
 User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jan 19, 2004 at 11:21:26AM -0700, Travis Morgan wrote:
+> So far I sort of tend to agree with you on OSS being better.
 
---0eh6TmSyL6TZE2Uz
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Please. This is a minor point, the important part is hidden from an average
+user, that ALSA is modularized, supports SMP, multiple sound cards etc etc,
+so it is much better structured than OSS/Free. Of course some DRIVER is in
+better/worse in ALSA than in OSS/Free. But it's a minor point, the main
+advantage is the whole structure of the sound layer Linux has, which is much
+more better with ALSA than with OSS/Free. The base structure is the hard
+work, porting drivers from eg OSS/Free or enhance it in ALSA can be minor
+work. Also, user base of OSS/Free is MUCH larger than ALSA's just because
+ALSA _was_ a separated project till now, so maybe features provided towards
+users are not so clean than in the case of OSS/Free which was the part of
+kernel since ages. But I think this is exactly the reason OSS/Free and ALSA
+are available in paralell for a while, so developers have got time to
+do something.
 
-On Tue, Dec 31, 2002 at 09:55:59PM -0800, manu wrote:
+It's like when 'new operating system' is described after its GUI in the m$
+world, while it's not a major point when speaking about an OS ;-)
 
-   Incidentally, did you know that the date on your computer is very,
-very wrong?
-
-> I'm about to give up on my SATA drive as I can't get it to work properly.
-> So I thought I may try asking the experts before falling back to PATA.
-> 
-> I have seen many mails reporting the same issue, some of them 6-month old:
-> 
-> - SATA drive comes up in pio mode, not in dma
-> - trying to turn on dma with hdparm is a nightmare: I/O errors, crash 
-> with data corruption... I tried both:
-> 
->  hddarm -d1 /dev/hde
-> 
-> and:
-> 
->  hdparm -u1 -c3 -d1 -X66 /dev/hde
-> 
-> crash in both cases :-((
-> 
-> 
-> Here's my equipment:
-> 
-> 
-> ABIT AN7 motherboard (nForce2 chipset, SiI3112 SATA controller)
-> AMD Athlon XP 2600+ (+ 512 DDR / 400 MHz)
-> SATA HD Seagate Barracuda 160 Gb
-> 
-> The SATA HD is my only drive. The only thing connected to my IDE 
-> controllers is a DVD/CD combo.
-> 
-> Running Linux Redhat 9.0
-> kernel 2.4.20-28.9
-  ^^^^^^^^^^^^^^^^^^
-   This is your problem. There have been a number of bug-fixes to the
-SiI drivers since 2.4.20. Try it again with a newer kernel -- such as
-2.4.24.
-
-> I've been googling for days now and could not come accross a solution, 
-> on the contrary I came under the impression that the combination of 
-> SiI3112 +and Seagate was doomed.
-
-   Not so. I have a SiI3112 controller and a 120GiB Seagate drive, and
-they work very well together. I'm using 2.6.1, although 2.4.23 also
-worked well for me.
-
-[snip]
-> Isn't there a solution??
-> 
-> I am willing to try patches of experimental code. At this point I am 
-> looking at reinstalling everything on a PATA drive anyway, so  I have 
-> nothing to loose.
-
-   Try using 2.4.24 or 2.6.1.
-
-   Hugo.
-
--- 
-=== Hugo Mills: hugo@... carfax.org.uk | darksatanic.net | lug.org.uk ===
-  PGP key: 1C335860 from wwwkeys.eu.pgp.net or http://www.carfax.org.uk
-           --- All hope abandon,  Ye who press Enter here. ---           
-
---0eh6TmSyL6TZE2Uz
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFADO2YssJ7whwzWGARAiQCAKCaT/ksPx23udVjqxhiTkAWKA+4ewCgrx2M
-PiO6Mr8k/JK4QoB6mrnv0R4=
-=G+SO
------END PGP SIGNATURE-----
-
---0eh6TmSyL6TZE2Uz--
+- Gábor (larta'H)

@@ -1,39 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288953AbSAISHG>; Wed, 9 Jan 2002 13:07:06 -0500
+	id <S288946AbSAISK4>; Wed, 9 Jan 2002 13:10:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288946AbSAISG4>; Wed, 9 Jan 2002 13:06:56 -0500
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:36765
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S288951AbSAISGk>; Wed, 9 Jan 2002 13:06:40 -0500
-Date: Wed, 9 Jan 2002 11:06:18 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Torrey Hoffman <torrey.hoffman@myrio.com>
-Cc: andersen@codepoet.org, Greg KH <greg@kroah.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: initramfs programs (was [RFC] klibc requirements)
-Message-ID: <20020109180618.GO13931@cpe-24-221-152-185.az.sprintbbd.net>
-In-Reply-To: <D52B19A7284D32459CF20D579C4B0C0211CB21@mail0.myrio.com>
+	id <S288949AbSAISKq>; Wed, 9 Jan 2002 13:10:46 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:19208 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S288946AbSAISKf>;
+	Wed, 9 Jan 2002 13:10:35 -0500
+Date: Wed, 9 Jan 2002 19:10:22 +0100
+From: Jens Axboe <axboe@suse.de>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: bounce buffer usage
+Message-ID: <20020109191022.J19814@suse.de>
+In-Reply-To: <20020108084200.B19380@suse.de> <Pine.LNX.4.33L2.0201090844550.9139-100000@dragon.pdx.osdl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <D52B19A7284D32459CF20D579C4B0C0211CB21@mail0.myrio.com>
-User-Agent: Mutt/1.3.25i
+In-Reply-To: <Pine.LNX.4.33L2.0201090844550.9139-100000@dragon.pdx.osdl.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 09, 2002 at 09:54:28AM -0800, Torrey Hoffman wrote:
-
-> The interesting thing that I currently do with initrd support is a
-> custom network-booted Linux installer for an embedded system. 
+On Wed, Jan 09 2002, Randy.Dunlap wrote:
+> | The results look very promising, although I'm a bit surprised that 2.5
+> | is actually that much quicker :-)
 > 
-> I'd like to be able to do this with initramfs too.  It needs:
-[snip]
+> I was too.  When I have the bounce accounting straightened out,
+> I'll run each test multiple times.
 
-Er, for this particular application, why would you use klibc, if
-existant?  The initramfs stuff could work with glibc, if you didn't mind
-a big enough image, it sounds like.
+Good
+
+> | +++ mm/highmem.c
+> | @@ -409,7 +409,9 @@
+> |                         vfrom = kmap(from->bv_page) + from->bv_offset;
+> |                         memcpy(vto, vfrom, to->bv_len);
+> |                         kunmap(from->bv_page);
+> | -               }
+> | +                       bounced_write++;
+> | +               } else
+> | +                       bounced_read++;
+> |         }
+> |
+> | Of course those are all bounces, not just (or only) swap bounces. Also
+> | note that the above is not SMP safe.
+> 
+> Is this the only place that kstat (kernel_stat) counters
+> are not SMP safe...?
+
+Haven't looked at the other stats, the i/o stats are protected by the
+queue_lock though.
 
 -- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+Jens Axboe
+

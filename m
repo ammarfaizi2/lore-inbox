@@ -1,39 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265071AbSJWQc6>; Wed, 23 Oct 2002 12:32:58 -0400
+	id <S265065AbSJWQbd>; Wed, 23 Oct 2002 12:31:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265077AbSJWQc6>; Wed, 23 Oct 2002 12:32:58 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:62176 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S265071AbSJWQc5>; Wed, 23 Oct 2002 12:32:57 -0400
-Message-ID: <3DB6CF9E.327E165F@us.ibm.com>
-Date: Wed, 23 Oct 2002 09:34:38 -0700
-From: Nivedita Singhvi <niv@us.ibm.com>
-X-Mailer: Mozilla 4.72 [en] (Windows NT 5.0; U)
-X-Accept-Language: en
+	id <S265071AbSJWQbd>; Wed, 23 Oct 2002 12:31:33 -0400
+Received: from sccrmhc01.attbi.com ([204.127.202.61]:7669 "EHLO
+	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP
+	id <S265065AbSJWQbc>; Wed, 23 Oct 2002 12:31:32 -0400
+Message-ID: <3DB6D332.9000709@kegel.com>
+Date: Wed, 23 Oct 2002 09:49:54 -0700
+From: Dan Kegel <dank@kegel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
+X-Accept-Language: de-de, en
 MIME-Version: 1.0
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-CC: bert hubert <ahu@ds9a.nl>, netdev@oss.sgi.com,
-       Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: O_DIRECT sockets? (was [RESEND] tuning linux for high network 
- performance?)
-References: <200210231218.18733.roy@karlsbakk.net> <20021023130101.GA646@outpost.ds9a.nl> <3DB6B96F.A0DE47BF@us.ibm.com> <200210231726.21135.roy@karlsbakk.net>
-Content-Type: text/plain; charset=us-ascii
+To: Davide Libenzi <davidel@xmailserver.org>
+CC: "Charles 'Buck' Krasic" <krasic@acm.org>,
+       Mark Mielke <mark@mark.mielke.cc>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-aio <linux-aio@kvack.org>
+Subject: Re: epoll (was Re: [PATCH] async poll for 2.5)
+References: <Pine.LNX.4.44.0210221231330.1563-100000@blue1.dev.mcafeelabs.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roy Sigurd Karlsbakk wrote:
+Davide Libenzi <davidel@xmailserver.org> wrote:
+ > On 22 Oct 2002, Charles 'Buck' Krasic wrote:
+ >
+ >> So maybe epoll's moment of utility is only transient.  It should have
+ >> been in the kernel a long time ago.  Is it too late now that AIO is
+ >> imminent?
+ >
+ > This is not my call actually. But beside comparing actual performance
+ > between AIO and sys_epoll, one of the advantages that the patch had is
+ > ... it has a very little "intrusion" in the original code by plugging
+ > in the existing architecture.
 
-> I'm doing O_DIRECT read (from disk), so it needs to be user -> kernel, then.
-> 
-> any chance of using O_DIRECT to the socket?
+epoll has another benefit: it works with read() and write().  That
+makes it easier to use with existing libraries like OpenSSL
+without having to recode them to use aio_read() and aio_write().
 
-Hmm, I'm still not clear on why you cannot use sendfile()?
-I was not aware of any upper limit to the file size in order
-for sendfile() to be used?  From what little I know, this 
-is exactly the kind of situation that sendfile was intended
-to benefit. 
+Furthermore, epoll is nice because it delivers one-shot readiness change
+notification (I used to think that was a drawback, but coding
+nonblocking OpenSSL apps has convinced me otherwise).
+I may be confused, but I suspect the async poll being proposed by
+Ben only delivers absolute readiness, not changes in readiness.
 
-thanks,
-Nivedita
+I think epoll is worth having, even if Ben's AIO already handled
+networking properly.
+- Dan
+

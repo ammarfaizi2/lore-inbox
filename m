@@ -1,66 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261361AbVCICg7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261386AbVCICyd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261361AbVCICg7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 21:36:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261386AbVCICg7
+	id S261386AbVCICyd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 21:54:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261437AbVCICyc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 21:36:59 -0500
-Received: from minimail.digi.com ([66.77.174.15]:47499 "EHLO minimail.digi.com")
-	by vger.kernel.org with ESMTP id S261361AbVCICg4 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 21:36:56 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [ patch 4/7] drivers/serial/jsm: new serial device driver
-Date: Tue, 8 Mar 2005 20:36:57 -0600
-Message-ID: <71A17D6448EC0140B44BCEB8CD0DA36E0B3C89A2@minimail.digi.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [ patch 4/7] drivers/serial/jsm: new serial device driver
-Thread-Index: AcUkO0Hxze3b4c6iRoOrVBB//TY/SQAFG/8A
-From: "Kilau, Scott" <Scott_Kilau@digi.com>
-To: "Greg KH" <greg@kroah.com>
-Cc: <linux-kernel@vger.kernel.org>, "Wen Xiong" <wenxiong@us.ibm.com>
+	Tue, 8 Mar 2005 21:54:32 -0500
+Received: from fmr24.intel.com ([143.183.121.16]:14527 "EHLO
+	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
+	id S261386AbVCICyb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Mar 2005 21:54:31 -0500
+Message-Id: <200503090254.j292sGg16842@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Christoph Hellwig'" <hch@infradead.org>
+Cc: <linux-kernel@vger.kernel.org>, "'Andrew Morton'" <akpm@osdl.org>,
+       "'Jens Axboe'" <axboe@suse.de>
+Subject: RE: Direct io on block device has performance regression on 2.6.x kernel - fix sync I/O path
+Date: Tue, 8 Mar 2005 18:54:16 -0800
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+Thread-Index: AcUkToO9qXy2PmoWSr2edGci2glK8AABJVGQ
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+In-Reply-To: <20050309022002.GA23577@infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > 
-> > If you were to open up the port with an "stty -a" to get the current
+Christoph Hellwig wrote on Tuesday, March 08, 2005 6:20 PM
+> this is not the blockdevice, but the obsolete raw device driver.  Please
+> benchmark and if nessecary fix the blockdevice O_DIRECT codepath insted
+> as the raw driver is slowly going away.
 
-> > settings and signals, you would unintentionally raise RTS and DTR.
->
-> Why not fix the driver to not change the current line settings if it
-is
-> not being opened for the first time?  That seems like a much simpler
-way
-> to solve this, and probably the saner way, as you don't want any user
-to
-> be able to mess up your modem...
->
-> thanks,
-> 
-> greg k-h
+>From performance perspective, can raw device be resurrected? (just asking)
 
-Oh, when the port is already open, the driver correctly would not muck
-with DTR/RTS.
+- Ken
 
-I am talking about when the port is currently not open.
 
-On first port open, DTR (and usually RTS) will always be raised.
-The serial device would see this DTR raise, and under some
-circumstances,
-react to it...
-
-We have customers that use *really* *really* old serial devices on
-our products, (we are talking 110 baud and even 50 baud (!!!)),
-where an unintentional raise of DTR/RTS will freak the device out.
-
-At any rate, that's the reason I exported the values to sysfs in the
-original "dgnc" (outside-the-kernel-sources) driver.
-
-Thanks,
-Scott

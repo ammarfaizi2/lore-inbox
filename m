@@ -1,40 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266022AbUBJRGX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 12:06:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266029AbUBJRD5
+	id S266046AbUBJRDS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 12:03:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266030AbUBJRCp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 12:03:57 -0500
-Received: from smithers.nildram.co.uk ([195.112.4.54]:54287 "EHLO
-	smithers.nildram.co.uk") by vger.kernel.org with ESMTP
-	id S266025AbUBJRBU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 12:01:20 -0500
-Date: Tue, 10 Feb 2004 17:01:42 +0000
-From: Joe Thornber <thornber@redhat.com>
-To: Joe Thornber <thornber@redhat.com>
-Cc: Linux Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: [Patch 7/10] dm: Correct GFP flag in dm_table_create()
-Message-ID: <20040210170142.GM27507@reti>
-References: <20040210163548.GC27507@reti>
+	Tue, 10 Feb 2004 12:02:45 -0500
+Received: from mail.kroah.org ([65.200.24.183]:9696 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266037AbUBJRB5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Feb 2004 12:01:57 -0500
+Date: Tue, 10 Feb 2004 09:01:57 -0800
+From: Greg KH <greg@kroah.com>
+To: Mike Bell <kernel@mikebell.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: devfs vs udev, thoughts from a devfs user
+Message-ID: <20040210170157.GA27421@kroah.com>
+References: <20040210113417.GD4421@tinyvaio.nome.ca>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040210163548.GC27507@reti>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <20040210113417.GD4421@tinyvaio.nome.ca>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-For some reason dm_table_create() was allocating GFP_NOIO rather than
-GFP_KERNEL.
---- diff/drivers/md/dm-table.c	2004-02-10 16:11:17.000000000 +0000
-+++ source/drivers/md/dm-table.c	2004-02-10 16:11:58.000000000 +0000
-@@ -205,7 +205,7 @@
- 
- int dm_table_create(struct dm_table **result, int mode, unsigned num_targets)
- {
--	struct dm_table *t = kmalloc(sizeof(*t), GFP_NOIO);
-+	struct dm_table *t = kmalloc(sizeof(*t), GFP_KERNEL);
- 
- 	if (!t)
- 		return -ENOMEM;
+On Tue, Feb 10, 2004 at 03:34:18AM -0800, Mike Bell wrote:
+> I've been reading a lot lately about udev and how it's both very
+> different to and much better than devfs, and with _most_ of the reasons
+> given, I can't see how either is the case. I'd like to lay out why I
+> think that is.
+
+Did you read:
+	http://www.kernel.org/pub/linux/utils/kernel/hotplug/udev_vs_devfs
+
+> Basically, udev relies on sysfs exporting
+> device numbers. Well, imagine for a moment sysfs exported actual device
+> files instead of just the numbers you'd need to make a device file (a
+> pretty minor change, though not one I'm advocating).
+
+But that is not what sysfs does.  And sysfs will not do this.  So this
+point is moot.
+
+> Sorry if any of these points has already been discussed on
+> linux-kernel, I don't have time to read the list so I'm going based on
+> what's been reported in things like kernel-traffic.
+
+They pretty much all have been in the past.  Try reading the archives,
+that's what they are there for :)
+
+greg k-h

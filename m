@@ -1,94 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262561AbUKQVbO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262603AbUKQVdh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262561AbUKQVbO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 16:31:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262550AbUKQVbG
+	id S262603AbUKQVdh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 16:33:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262618AbUKQVdf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 16:31:06 -0500
-Received: from fw.osdl.org ([65.172.181.6]:34991 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262544AbUKQV3y (ORCPT
+	Wed, 17 Nov 2004 16:33:35 -0500
+Received: from pcp01413605pcs.phnixv01.pa.comcast.net ([68.81.53.157]:58637
+	"HELO <rnddg[2]>.<rnddg[2]>.<rnddg[2]>.<rnddg[2]>") by vger.kernel.org
+	with SMTP id S262603AbUKQVcD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 16:29:54 -0500
-Date: Wed, 17 Nov 2004 13:29:48 -0800
-From: Dave Olien <dmo@osdl.org>
-To: ccantwel@uci.edu
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: DAC960 and latest kernels
-Message-ID: <20041117212948.GA2154@osdl.org>
-References: <20041117192018.GA25403@zee.ps.uci.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041117192018.GA25403@zee.ps.uci.edu>
-User-Agent: Mutt/1.4i
+	Wed, 17 Nov 2004 16:32:03 -0500
+Date: Wed, 17 Nov 2004 21:31:56 +0000
+From: skunz@mail.chem.sunysb.edu
+Subject: DVD Full Length Downloadable AdduulltMovies
+To: Linux-kernel <linux-kernel@vger.kernel.org>
+References: <7J64BBL43A40BD5A@vger.kernel.org>
+In-Reply-To: <7J64BBL43A40BD5A@vger.kernel.org>
+Message-ID: <H3FA4E898CJC54IA@mail.chem.sunysb.edu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+it's here http://12.207.136.207:8180/dvp/
 
-I'll look into this.  I'll see if I can reproduce any of these
-problems locally and get back to you.
 
-Dave
+removelist http://12.207.136.207:8180/dvp/rm.php?rm=linux-kernel@vger.kernel.org
 
-On Wed, Nov 17, 2004 at 11:20:18AM -0800, ccantwel@uci.edu wrote:
-> It seems that I have found a very serious bug relating to the DAC960
-> driver, it is present in 2.4.27 and 2.6.8.1 but I haven't tried any
-> development kernels newer than that.  This message is meant to inform
-> the people who may be able to figure out what the problem is and
-> repair the bug.  If anyone wants to respond to me or has further
-> information on this problem, please cc me directly, as I am not a
-> member of this mailing list.
-> 
-> There is a bug in latest released kernels for both 2.4 and 2.6
-> trees that seems to relate to the DAC960 driver.  I have tried
-> 2.4.27 and 2.6.8.1 and both have the following problem.  After
-> replacing and testing every piece of hardware I've determined
-> the problem is in the kernel and not the machine.  Also, going
-> back to kernel 2.4.17 makes everything work perfectly.
-> 
-> When copying a large number of files over the network using nc
-> and tar and also stress testing on the receiving side with
-> frequent du commands where the data is being written to (not
-> required for the problem but it seems to make it more likely
-> to happen) the machine randomly hangs.  Sometimes it crashes
-> completely with an Unable to handle kernel paging request at
-> virtual address, with various processes, and sometimes it just
-> completely halts and responds to nothing even though it seems
-> to sort of be running (answers on sockets but transfers no data,
-> no more communication of any kind on other open sockets, entering
-> a login name and enter on the console also hangs before the
-> password prompt.
-> 
-> Upon rebooting the filesystem that was being written to is corrupt.
-> When this file system is XFS I can still inspect it.  If it is
-> reiser the machine will often hang trying to run fsck.reiserfs.
-> 
-> In addition, after enough network tar copying I can stop the process,
-> and even if it has not hung the machine often the filesystem has
-> become corrupt.  Since this happens with both xfs and reiser and
-> there are paging problems too I believe it has to relate to the
-> dac960 driver itself.
-> 
-> I've also tried swapping DAC960 cards, and that doesn't matter,
-> they both work perfectly in 2.4.17 and the problems occur in
-> both cases in 2.4.27 and 2.6.8.1.  I'm planning to try some
-> more kernels in between to narrow down when the problem was
-> introduced but I'm not a kernel developer and that is about the
-> most I will be able to do.
-> 
-> I think the DAC960 driver isn't used very often and also without this
-> specific type of stress testing it is hard to realize the problem is
-> occuring before the filesystem is irreperably corrupt weeks down the
-> road, which is why this problem may have not been found yet.  Without
-> stress testing using tar the machine can go for weeks and act like it
-> is fine.
-> 
-> Again, if anyone has any information, please cc me when you reply as
-> I am not a member of this list.
-> 
-> Thank you
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+

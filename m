@@ -1,40 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129675AbRALDqE>; Thu, 11 Jan 2001 22:46:04 -0500
+	id <S129742AbRALDrY>; Thu, 11 Jan 2001 22:47:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129742AbRALDpz>; Thu, 11 Jan 2001 22:45:55 -0500
-Received: from femail2.rdc1.on.home.com ([24.2.9.89]:52909 "EHLO
-	femail2.rdc1.on.home.com") by vger.kernel.org with ESMTP
-	id <S129675AbRALDps>; Thu, 11 Jan 2001 22:45:48 -0500
-Message-ID: <3A5E7DB2.A7126A68@Home.net>
-Date: Thu, 11 Jan 2001 22:44:50 -0500
-From: Shawn Starr <Shawn.Starr@Home.net>
-Organization: Visualnet
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PROBLEM] 2.4.1-pre2 - Undefined symbol `__buggy_fxsr_alignment'
-In-Reply-To: <3A5E4B1D.5EF1B0EB@Home.net>
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 7bit
+	id <S130204AbRALDrO>; Thu, 11 Jan 2001 22:47:14 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:11608 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S129742AbRALDrH>; Thu, 11 Jan 2001 22:47:07 -0500
+Date: Fri, 12 Jan 2001 04:45:54 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>,
+        Andi Kleen <ak@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.1-pre1 breaks XFree 4.0.2 and "w"
+Message-ID: <20010112044554.A809@athlon.random>
+In-Reply-To: <20010111184645.B828@athlon.random> <Pine.LNX.4.10.10101111803580.18517-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.10.10101111803580.18517-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Thu, Jan 11, 2001 at 06:08:21PM -0800
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-GCC 2.95.2 -> PGCC 2.95.2(3?) patched. 2.4.0 compiles fine
+On Thu, Jan 11, 2001 at 06:08:21PM -0800, Linus Torvalds wrote:
+> 
+> Could people with Athlons please verify that pre3 works for them?
 
-init/main.o: In function `check_fpu':
-init/main.o(.text.init+0x53): undefined reference to `__buggy_fxsr_alignment'
+It works fine.
 
-make: *** [vmlinux] Error 1
+> It also makes the fxsr disable act the same way the TSC disable does.
 
-On compiling (and recompiling) i get this fatal error. This function
-does not exist anymore?
+Note that there was a precise reason for not implementing it as the TSC disable
+(infact at first in 2.2.x I was clearing the bigflag in x86_capabilities too).
+The reason is that the way TSC gets disabled breaks /proc/cpuinfo.  Furthmore
+in english sense if "the cpu has fxsr or xmm" doesn't mean we can use them at
+runtime in the kernel. Such wrong assumption was the source of the 2.4.0 md bug
+in first place ;). So I'm not excited we're back in the old way. But of course
+those are minor issues and I'm not that concerned /proc/cpuinfo changes even if
+the CPU remains the same because nobody should need nofxsr and notsc anyways...
 
-Anyone else having this problem?
+This is a leftover btw:
 
-Shawn Starr.
+--- 2.4.1pre3/include/asm-i386/xor.h.~1~	Fri Jan 12 04:14:36 2001
++++ 2.4.1pre3/include/asm-i386/xor.h	Fri Jan 12 04:23:32 2001
+@@ -843,7 +843,7 @@
+ 	do {						\
+ 		xor_speed(&xor_block_8regs);		\
+ 		xor_speed(&xor_block_32regs);		\
+-	        if (HAVE_XMM)				\
++	        if (cpu_has_xmm)				\
+ 			xor_speed(&xor_block_pIII_sse);	\
+ 	        if (md_cpu_has_mmx()) {			\
+ 	                xor_speed(&xor_block_pII_mmx);	\
+@@ -855,4 +855,4 @@
+    We may also be able to load into the L1 only depending on how the cpu
+    deals with a load to a line that is being prefetched.  */
+ #define XOR_SELECT_TEMPLATE(FASTEST) \
+-	(HAVE_XMM ? &xor_block_pIII_sse : FASTEST)
++	(cpu_has_xmm ? &xor_block_pIII_sse : FASTEST)
 
+
+
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

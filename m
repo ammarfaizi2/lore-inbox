@@ -1,56 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263574AbRFAQS6>; Fri, 1 Jun 2001 12:18:58 -0400
+	id <S263598AbRFAQ0i>; Fri, 1 Jun 2001 12:26:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263597AbRFAQSs>; Fri, 1 Jun 2001 12:18:48 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:12556 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S263574AbRFAQS1>; Fri, 1 Jun 2001 12:18:27 -0400
-Date: Fri, 1 Jun 2001 11:42:11 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Marcin Kowalski <kowalski@datrix.co.za>
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.5 VM
-In-Reply-To: <Pine.LNX.4.10.10106011121460.6653-100000@webman.medikredit.co.za>
-Message-ID: <Pine.LNX.4.21.0106011141450.15837-100000@freak.distro.conectiva>
+	id <S263603AbRFAQ03>; Fri, 1 Jun 2001 12:26:29 -0400
+Received: from [216.151.155.121] ([216.151.155.121]:22277 "EHLO
+	belphigor.mcnaught.org") by vger.kernel.org with ESMTP
+	id <S263598AbRFAQ0K>; Fri, 1 Jun 2001 12:26:10 -0400
+To: Roland Kuhn <rkuhn@e18.physik.tu-muenchen.de>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [newbie] NFS broken in 2.4.4?
+In-Reply-To: <Pine.LNX.4.31.0106011808310.13429-100000@pc40.e18.physik.tu-muenchen.de>
+From: Doug McNaught <doug@wireboard.com>
+Date: 01 Jun 2001 12:25:03 -0400
+In-Reply-To: Roland Kuhn's message of "Fri, 1 Jun 2001 18:17:28 +0200 (CEST)"
+Message-ID: <m3wv6w417k.fsf@belphigor.mcnaught.org>
+User-Agent: Gnus/5.0806 (Gnus v5.8.6) XEmacs/21.1 (20 Minutes to Nikko)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Roland Kuhn <rkuhn@e18.physik.tu-muenchen.de> writes:
 
-
-On Fri, 1 Jun 2001, Marcin Kowalski wrote:
-
-> Relating to Huge Dcache and InodeCache Entries and < 2xMem Swap.
-> I have a server with > 1.1gig of RAM which I have limited to 1gig (due to
-> stability - BUG at HIGHMEM.c: 155 crashes)...
+> Hi folks!
 > 
-> The size of the Swap space is 620mb... my memory usage is below :
-> 
-> Mem:        900008     892748       7260          0      14796     171796
-> -/+ buffers/cache:     706156     193852
-> Swap:       641016       1792     639224
-> 
-> The extract out of slabinfo is:
-> inode_cache       903876 930840    480 116355 116355    1 :  124   62
-> bdev_cache          1160   1357     64   23   23    1 :  252  126
-> sigqueue             261    261    132    9    9    1 :  252  126
-> dentry_cache      775520 934560    128 31152 31152    1 :  252  126
-> 
-> As you can see the usage is crazy....bearing in mind a number of things.
-> The system is running hardware raid5, reiserfs and massive amount of files
-> > 500000 in >2000 directories..
-> 
-> It is a 2x933mhz PIII + 1.1gig of ram NEtservers
-> 
-> What I really want to know is DOES THIS REALLY Matter. IE If memory is
-> needed by and application are these entries simply purged then.. In which
-> case there is no problem????
+> When a process tries to lstat64 a file on nfs and the reply is not
+> received it gets blocked forever. Should it be that way?
 
-Could you check if they are purged heavily enough for you case when you
-start a big app? 
+If it's a hard nfs mount, yes.  Mount soft if you want timeouts.
 
-
-
-
+-Doug
+-- 
+The rain man gave me two cures; he said jump right in,
+The first was Texas medicine--the second was just railroad gin,
+And like a fool I mixed them, and it strangled up my mind,
+Now people just get uglier, and I got no sense of time...          --Dylan

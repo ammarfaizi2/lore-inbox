@@ -1,45 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261292AbSKMTSD>; Wed, 13 Nov 2002 14:18:03 -0500
+	id <S262604AbSKMTZ4>; Wed, 13 Nov 2002 14:25:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262250AbSKMTSD>; Wed, 13 Nov 2002 14:18:03 -0500
-Received: from [198.149.18.6] ([198.149.18.6]:44007 "EHLO tolkor.sgi.com")
-	by vger.kernel.org with ESMTP id <S261292AbSKMTSC>;
-	Wed, 13 Nov 2002 14:18:02 -0500
-Subject: Re: [2.5.47] Unable to load XFS module
-From: Stephen Lord <lord@sgi.com>
-To: kronos@kronoz.cjb.net
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021113184805.GA777@dreamland.darkstar.net>
-References: <20021113184805.GA777@dreamland.darkstar.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 13 Nov 2002 13:19:20 -0600
-Message-Id: <1037215162.1352.4.camel@laptop.americas.sgi.com>
-Mime-Version: 1.0
+	id <S262620AbSKMTZz>; Wed, 13 Nov 2002 14:25:55 -0500
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:18450 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP
+	id <S262604AbSKMTZw>; Wed, 13 Nov 2002 14:25:52 -0500
+Date: Wed, 13 Nov 2002 14:32:27 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+X-X-Sender: root@oddball.prodigy.com
+Reply-To: Bill Davidsen <davidsen@tmr.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: make distclean and make dep??
+Message-ID: <Pine.LNX.4.44.0211131417480.32544-100000@oddball.prodigy.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-11-13 at 12:48, Kronos wrote:
-> 
-> Hi,
-> I'm playing with kernel 2.5.47. XFS support is compiled as module and at
-> boot time, while mounting /home, I get this:
-> 
-> insmod /lib/modules/2.5.47/kernel/fs/xfs/xfs.o failed
-> 
-> Then, trying to modprobe xfs by hand:
-> 
-> /lib/modules/2.5.47/kernel/fs/xfs/xfs.o: unresolved symbol page_states__per_cpu
-> /lib/modules/2.5.47/kernel/fs/xfs/xfs.o: insmod /lib/modules/2.5.47/kernel/fs/xfs/xfs.o failed
-> /lib/modules/2.5.47/kernel/fs/xfs/xfs.o: insmod xfs failed
+When I do a "make distclean" in a tree, should not that roll it back to a 
+clean empty tree? I noticed that when I did that no work was done by "make 
+dep" in the rebuild.
 
-If you turn off modversions it works, this appears to be an issue
-with the per_cpu variables and how module versioning works with
-them.
+Distclean is supposed to be even cleaner than mrproper (to build a clean
+tree for distribution) and this behaviour is new.
 
-Steve
+Also noted, somewhere between 2.5.45 and 2.5.46 distclean vanished from 
+"make help." It's really useful to have distclean work to build patched 
+kernels for distribution, hopefully this is an oversight and not a new 
+policy.
 
+Obviously I can delete modversions.h by hand.
 
+--
+bill davidsen <davidsen@tmr.com>
 

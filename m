@@ -1,39 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271037AbTHCHPt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Aug 2003 03:15:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271038AbTHCHPt
+	id S271042AbTHCHWZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Aug 2003 03:22:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271055AbTHCHWZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Aug 2003 03:15:49 -0400
-Received: from baloney.puettmann.net ([194.97.54.34]:46802 "EHLO
-	baloney.puettmann.net") by vger.kernel.org with ESMTP
-	id S271037AbTHCHPs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Aug 2003 03:15:48 -0400
-To: linux-kernel <linux-kernel@vger.kernel.org>
-From: Ruben Puettmann <ruben@puettmann.net>
-Subject: Re: ACPI Error with 2.4.20-pre10 on ibm thinkpad
-In-Reply-To: <ggDE.76d.13@gated-at.bofh.it>
-References: <geVe.5Di.3@gated-at.bofh.it> <ggDE.76d.13@gated-at.bofh.it>
-Reply-To: ruben@puettmann.net
-Date: Sun, 3 Aug 2003 09:15:04 +0200
-Message-Id: <E19jD56-0004Qy-00@baloney.puettmann.net>
+	Sun, 3 Aug 2003 03:22:25 -0400
+Received: from sinma-gmbh.17.mind.de ([212.21.92.17]:48654 "EHLO gw.enyo.de")
+	by vger.kernel.org with ESMTP id S271042AbTHCHWY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Aug 2003 03:22:24 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Roland McGrath <roland@redhat.com>, Jeremy Fitzhardinge <jeremy@goop.org>,
+       Ulrich Drepper <drepper@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] bug in setpgid()? process groups and thread groups
+References: <200308021908.h72J82x10422@magilla.sf.frob.com>
+	<1059857483.20306.6.camel@dhcp22.swansea.linux.org.uk>
+From: Florian Weimer <fw@deneb.enyo.de>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Roland McGrath
+ <roland@redhat.com>,  Jeremy Fitzhardinge <jeremy@goop.org>, Ulrich
+ Drepper <drepper@redhat.com>, Linux Kernel Mailing List
+ <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Date: Sun, 03 Aug 2003 09:22:14 +0200
+In-Reply-To: <1059857483.20306.6.camel@dhcp22.swansea.linux.org.uk> (Alan
+ Cox's message of "02 Aug 2003 21:51:24 +0100")
+Message-ID: <8765lfxl21.fsf@deneb.enyo.de>
+User-Agent: Gnus/5.1003 (Gnus v5.10.3) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-you wrote on linux.kernel:
-> Ruben Puettmann on Sun  3/08 02:24 +0200:
->> I try to use acpi on my new IBM thinkpad r40 but it won't work:
-> 
-> upgrade your thinkpad BIOS.
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-The latest aviable Bios ( 1.10 ) and the latest emb. controller bios is
-installed.
+> #1 Lots of non posix afflicted intelligent programmers use the per
+> thread uid stuff in daemons. Its really really useful
 
-            Ruben
+It doesn't work reliably because the threading implementation might
+have to send signals which the current combination of credentials does
+not allow.
 
-
-
--- 
-Ruben Puettmann
-ruben@puettmann.net
-http://www.puettmann.net
+IMHO, POSIX is wrong to favor process attributes so strongly.  It
+wouldn't be a problem if there were other ways to pass these implicit
+parameters (such as thread-specific attributes, or, even better,
+syscall arguments).  But often there isn't.

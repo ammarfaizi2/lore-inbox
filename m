@@ -1,39 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277541AbRKNU5a>; Wed, 14 Nov 2001 15:57:30 -0500
+	id <S277568AbRKNU5k>; Wed, 14 Nov 2001 15:57:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277653AbRKNU5U>; Wed, 14 Nov 2001 15:57:20 -0500
-Received: from cerebus.wirex.com ([65.102.14.138]:11762 "EHLO
-	figure1.int.wirex.com") by vger.kernel.org with ESMTP
-	id <S277541AbRKNU5I>; Wed, 14 Nov 2001 15:57:08 -0500
-Date: Wed, 14 Nov 2001 12:50:48 -0800
-From: Chris Wright <chris@wirex.com>
-To: Terje Eggestad <terje.eggestad@scali.no>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: O_DIRECT broken in stock 2.4.13
-Message-ID: <20011114125048.A32600@figure1.int.wirex.com>
-Mail-Followup-To: Terje Eggestad <terje.eggestad@scali.no>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1005747508.1310.3.camel@pc-16.office.scali.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1005747508.1310.3.camel@pc-16.office.scali.no>; from terje.eggestad@scali.no on Wed, Nov 14, 2001 at 03:18:28PM +0100
+	id <S277653AbRKNU5a>; Wed, 14 Nov 2001 15:57:30 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:26279 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S277568AbRKNU5R>;
+	Wed, 14 Nov 2001 15:57:17 -0500
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: alastair.stevens@mrc-bsu.cam.ac.uk (Alastair Stevens),
+        linux-kernel@vger.kernel.org
+Subject: Re: Athlon SMP blues - kernels 2.4.[9 13 15-pre4]
+In-Reply-To: <Pine.GSO.4.33.0111141421230.14971-100000@gurney>
+X-Newsgroups: apana.lists.os.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.14-686-smp (i686))
+Message-Id: <E1646xi-00015T-00@gondolin.me.apana.org.au>
+Date: Thu, 15 Nov 2001 07:48:46 +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Terje Eggestad (terje.eggestad@scali.no) wrote:
-> Hi 
-> 
-> open( , O_DIRECT) succeds, fcntl set and unset of the O_DIRECT flag is
-> ok, but I get buffered writes anyway. 
-> 
-> This works in 2.4.10 
+Alastair Stevens <alastair.stevens@mrc-bsu.cam.ac.uk> wrote:
 
-iirc, this was disabled shortly after 2.4.10 (like 2.4.11-pre1 or 2).
-i believe the flag is still valid, however, i think the direct_io internals 
-were removed.
+> I installed Red Hat 7.2 and the machine boots fine, using SMP or UP
+> kernels (Red Hat 2.4.9-7), but totally HANGS at the login prompt. Can't
+> type, can't reboot, can't do anything. Single user mode _does_ let me
+> in, however, and this is the only progress so far.
 
-cheers,
--chris
+Try plugging in a mouse or stop running gpm.
+-- 
+Debian GNU/Linux 2.2 is out! ( http://www.debian.org/ )
+Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

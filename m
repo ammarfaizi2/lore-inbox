@@ -1,40 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317006AbSGXL6o>; Wed, 24 Jul 2002 07:58:44 -0400
+	id <S317024AbSGXMGS>; Wed, 24 Jul 2002 08:06:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317022AbSGXL6o>; Wed, 24 Jul 2002 07:58:44 -0400
-Received: from moutvdom.kundenserver.de ([195.20.224.130]:65000 "EHLO
-	moutvdomng0.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S317006AbSGXL6n>; Wed, 24 Jul 2002 07:58:43 -0400
-Date: Wed, 24 Jul 2002 06:01:48 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
+	id <S317081AbSGXMGS>; Wed, 24 Jul 2002 08:06:18 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:50623 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S317024AbSGXMGR>;
+	Wed, 24 Jul 2002 08:06:17 -0400
+Date: Wed, 24 Jul 2002 03:27:09 -0700
+From: Joshua Uziel <uzi@uzix.org>
 To: Nico Schottelius <nicos-mutt@pcsystems.de>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] 2.5.27 floppy driver
-In-Reply-To: <20020724135711.GB1226@schottelius.org>
-Message-ID: <Pine.LNX.4.44.0207240601160.3366-100000@hawkeye.luckynet.adm>
-X-Location: Dorndorf; Germany
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: cpu speed is 165mhz instead of real 650mhz
+Message-ID: <20020724102709.GA17905@uzix.org>
+References: <20020724110121.GA1925@schottelius.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020724110121.GA1925@schottelius.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+* Nico Schottelius <nicos-mutt@pcsystems.de> [020724 02:03]:
+> This periodicly appears in my system. The Kernel seems to misdetect the
+> right cpu speed and then it's running only at 165mhz.
+> I don't really understand why this happens, there's no acpi enabled, which
+> caused this failure the last time.
 
-On Wed, 24 Jul 2002, Nico Schottelius wrote:
-> is it impossible to use the one from .25 ?
-
-You do. But as mentioned, it's broken. It was these VFS updates...
-
-							Regards,
-							Thunder
--- 
-(Use http://www.ebb.org/ungeek if you can't decode)
-------BEGIN GEEK CODE BLOCK------
-Version: 3.12
-GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
-N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
-e++++ h* r--- y- 
-------END GEEK CODE BLOCK------
+Is this a notebook computer?  Is it that you're sometimes booting it up
+while the system is unplugged (ie. on battery)?
 

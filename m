@@ -1,35 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265335AbTGKTOH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 15:14:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264982AbTGKS60
+	id S264897AbTGKS7s (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 14:59:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265036AbTGKS6k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 14:58:26 -0400
-Received: from [62.81.235.113] ([62.81.235.113]:42152 "EHLO smtp13.eresmas.com")
-	by vger.kernel.org with ESMTP id S265287AbTGKShQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 14:37:16 -0400
-Message-ID: <3F0F0746.8060403@wanadoo.es>
-Date: Fri, 11 Jul 2003 20:51:50 +0200
-From: Xose Vazquez Perez <xose@wanadoo.es>
-Reply-To: linux-kernel <linux-kernel@vger.kernel.org>, xose@wanadoo.es
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: gl, es, en
+	Fri, 11 Jul 2003 14:58:40 -0400
+Received: from hueytecuilhuitl.mtu.ru ([195.34.32.123]:29963 "EHLO
+	hueymiccailhuitl.mtu.ru") by vger.kernel.org with ESMTP
+	id S264897AbTGKSdW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jul 2003 14:33:22 -0400
+From: Andrey Borzenkov <arvidjaar@mail.ru>
+To: devfs@oss.sgi.com
+Subject: devfsd hangs on restart - is_devfsd_or_child() problem
+Date: Fri, 11 Jul 2003 22:47:12 +0400
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org, Thierry Vignaud <tvignaud@mandrakesoft.com>
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-X-Enigmail-Version: 0.63.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Subject: is lvm stuck in 2.4 ?
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-SA-Exim-Scanned: Yes
+Content-Disposition: inline
+Message-Id: <200307112247.12646.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I cannot believe it is so fragile ...
 
-kernel has version 1.0.5+ (22/07/2002), but latest
-is 1.0.7(2003/03/03). Is there any problem with 1.0.7 and
-2.4 ?
+is_devfsd_or_child() simplemindedly checks for pgrp:
 
--thanks-
+static int is_devfsd_or_child (struct fs_info *fs_info)
+{
+    if (current == fs_info->devfsd_task) return (TRUE);
+    if (current->pgrp == fs_info->devfsd_pgrp) return (TRUE);
+    return (FALSE);
+}   /*  End Function is_devfsd_or_child  */
 
+unfortunately, bash (I do not know if it does it always or not) resets pgrp on 
+startup. I.e. if your action is using shell it is no more considered devfsd 
+descendant ... and it will attempt in turn start devfsd action while devfsd 
+is waiting for it ot finish.
+
+Thierry, i refer mostly to dynamics scripts currently. Every time I update 
+devfsd it hangs in one of them. And actually it is enough to do service 
+devfsd restart to trigger this. It may be 2.5 specific again in that it is 
+not as easily seen under 2.4.
+
+I have no idea what can be done. Is there any way in kernel to find out if one 
+task is descendant of other task? Even rewriting devfsd to use non-blocking 
+calls and request queue does not help as it apprently just results in endless 
+loop (action triggering action triggering action ...)
+
+-andrey

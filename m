@@ -1,36 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135288AbRASQOK>; Fri, 19 Jan 2001 11:14:10 -0500
+	id <S132225AbRASQZv>; Fri, 19 Jan 2001 11:25:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135341AbRASQNv>; Fri, 19 Jan 2001 11:13:51 -0500
-Received: from mail.rd.ilan.net ([216.27.80.130]:10756 "EHLO mail.rd.ilan.net")
-	by vger.kernel.org with ESMTP id <S135288AbRASQNp>;
-	Fri, 19 Jan 2001 11:13:45 -0500
-Message-ID: <3A6867B1.C4818A70@holly-springs.nc.us>
-Date: Fri, 19 Jan 2001 11:13:37 -0500
-From: Michael Rothwell <rothwell@holly-springs.nc.us>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Mo McKinlay <mmckinlay@gnu.org>
-CC: Peter Samuelson <peter@cadcamlab.org>, linux-kernel@vger.kernel.org
-Subject: Re: named streams, extended attributes, and posix
-In-Reply-To: <Pine.LNX.4.30.0101191606270.2331-100000@nvws005.nv.london>
+	id <S132169AbRASQZl>; Fri, 19 Jan 2001 11:25:41 -0500
+Received: from ns.caldera.de ([212.34.180.1]:51472 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S132103AbRASQZ3>;
+	Fri, 19 Jan 2001 11:25:29 -0500
+Date: Fri, 19 Jan 2001 17:25:03 +0100
+From: Christoph Hellwig <hch@ns.caldera.de>
+To: bsuparna@in.ibm.com
+Cc: linux-kernel@vger.kernel.org, kiobuf-io-devel@lists.sourceforge.net
+Subject: Re: [Kiobuf-io-devel] Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
+Message-ID: <20010119172503.A15768@caldera.de>
+Mail-Followup-To: bsuparna@in.ibm.com, linux-kernel@vger.kernel.org,
+	kiobuf-io-devel@lists.sourceforge.net
+In-Reply-To: <CA2569D9.000ED357.00@d73mta05.au.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 1.0i
+In-Reply-To: <CA2569D9.000ED357.00@d73mta05.au.ibm.com>; from bsuparna@in.ibm.com on Fri, Jan 19, 2001 at 08:05:41AM +0530
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mo McKinlay wrote:
+On Fri, Jan 19, 2001 at 08:05:41AM +0530, bsuparna@in.ibm.com wrote:
+> Shouldn't we have an error / status field too ?
 
-> Nono, that's not what I mean - each of the filesystems fails if it
-> doesn't support what you're trying to do, that's given - but having a
-> different delimeter registered by the filesystem (and hence the
-> possibility of every single filesystem using a different delimeter) brings
-> about a completely different kind of inconsistency.
+Might make sense.
 
-True. Which is why I'd prefer a standard delimiter. ":" seems to be the
-top candidate.
+	Christoph
+
+-- 
+Of course it doesn't work. We've performed a software upgrade.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,38 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263147AbRFGVEa>; Thu, 7 Jun 2001 17:04:30 -0400
+	id <S263165AbRFGVGu>; Thu, 7 Jun 2001 17:06:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263145AbRFGVEU>; Thu, 7 Jun 2001 17:04:20 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:1555 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S263141AbRFGVEM>;
-	Thu, 7 Jun 2001 17:04:12 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200106072102.f57L2gm377429@saturn.cs.uml.edu>
-Subject: Re: temperature standard - global config option?
-To: lk@Aniela.EU.ORG (L. K.)
-Date: Thu, 7 Jun 2001 17:02:42 -0400 (EDT)
-Cc: linux-kernel@vger.kernel.org (linux-kernel@vger.kernel.org),
-        unlisted-recipients:;;;@Aniela.EU.ORG; (no To-header on input)
-In-Reply-To: <Pine.LNX.4.21.0106071519120.3702-100000@ns1.Aniela.EU.ORG> from "L. K." at Jun 07, 2001 03:20:03 PM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S263160AbRFGVGa>; Thu, 7 Jun 2001 17:06:30 -0400
+Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:25072 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S263159AbRFGVGW>; Thu, 7 Jun 2001 17:06:22 -0400
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200106072105.f57L5HXp005687@webber.adilger.int>
+Subject: Re: Background scanning change on 2.4.6-pre1
+In-Reply-To: <Pine.LNX.4.21.0106071330060.6510-100000@penguin.transmeta.com>
+ "from Linus Torvalds at Jun 7, 2001 01:43:33 pm"
+To: Linus Torvalds <torvalds@transmeta.com>
+Date: Thu, 7 Jun 2001 15:05:16 -0600 (MDT)
+CC: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+X-Mailer: ELM [version 2.4ME+ PL87 (25)]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-L. K. writes:
+Linus writes:
+> On Thu, 7 Jun 2001, Marcelo Tosatti wrote:
+> > Who did this change to refill_inactive_scan() in 2.4.6-pre1 ? 
+> 
+> I think it was Andreas Dilger..
 
-> Why not make it in Celsius ? Is more easy to read it this way.
+Definitely NOT.  I don't touch MM stuff.  I do filesystems and LVM only.
 
-No, because then the software must handle negative numbers for
-cooled computers. CentiKelvin is fine. Do C=cK/100-273.15 if you
-really must... but you still have a number that is useless to
-a human. Humans need a seconds-to-destruction value or an alarm.
-
-Negative temperatures do not really exist.
-
-
-
-
-
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert

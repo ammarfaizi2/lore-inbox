@@ -1,67 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129257AbQLNXVX>; Thu, 14 Dec 2000 18:21:23 -0500
+	id <S129260AbQLNXXD>; Thu, 14 Dec 2000 18:23:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129773AbQLNXVN>; Thu, 14 Dec 2000 18:21:13 -0500
-Received: from smtp03.mrf.mail.rcn.net ([207.172.4.62]:20722 "EHLO
-	smtp03.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
-	id <S129257AbQLNXVI>; Thu, 14 Dec 2000 18:21:08 -0500
-Date: Thu, 14 Dec 2000 17:50:35 -0500 (EST)
-From: "Mohammad A. Haque" <mhaque@haque.net>
-To: "David S. Miller" <davem@redhat.com>
-cc: <ionut@cs.columbia.edu>, <linux-kernel@vger.kernel.org>
-Subject: Re: ip_defrag is broken (was: Re: test12 lockups -- need feedback)
-In-Reply-To: <Pine.LNX.4.30.0012141619330.1107-100000@viper.haque.net>
-Message-ID: <Pine.LNX.4.30.0012141746380.1220-100000@viper.haque.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135293AbQLNXWx>; Thu, 14 Dec 2000 18:22:53 -0500
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:56730 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S129773AbQLNXWt>; Thu, 14 Dec 2000 18:22:49 -0500
+Date: Thu, 14 Dec 2000 22:52:20 +0000
+From: Tim Waugh <twaugh@redhat.com>
+To: Peter Bornemann <eduard.epi@t-online.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: parport1 gone in 2.2.18
+Message-ID: <20001214225220.H1424@redhat.com>
+In-Reply-To: <20001213231332.P5918@redhat.com> <Pine.LNX.4.21.0012142026150.684-100000@eduard.t-online.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="imjhCm/Pyz7Rq5F2"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.21.0012142026150.684-100000@eduard.t-online.de>; from eduard.epi@t-online.de on Thu, Dec 14, 2000 at 08:43:18PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I do the following....
 
-sudo modprobe iptable_nat
+--imjhCm/Pyz7Rq5F2
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Module                  Size  Used by
-iptable_nat            17440   0 (unused)
-ip_conntrack           19808   1 [iptable_nat]
-ip_tables              12320   3 [iptable_nat]
+On Thu, Dec 14, 2000 at 08:43:18PM +0100, Peter Bornemann wrote:
 
+> Any hint is welcome, for I would prefer a really stable kernel for this
+> machine.
 
-Oops start flying by when I access via NFS.
+The problem isn't that the kernel is not stable, but that it doesn't
+support your parallel port card. ;-)
 
-If you need the actual Oops messages we're gonna have to get someone
-who can setup a serial console.
+I'll look at backporting the 2.4.x card table and keep you posted.
 
-On Thu, 14 Dec 2000, Mohammad A. Haque wrote:
+Tim.
+*/
 
-> Just quick feedback.
->
-> Test 1:
-> 	Netfilter compiled into kernel. Netfilter configuration options
-> 	as modules. Modules loaded. Using NFS, I got Oops (in fact I've
-> 	never seen an Oops output infinitely before. Maybe it would have
-> 	stopped if I waited.)
->
-> Test 2:
-> 	Netfilter compiled into kernel. Netfilter configuration options
-> 	as modules. Modules _NOT_ loaded. Can use NFS just fine. Did a
-> 	couple of 100 MB transfers w/o problems.
->
->
-> I'll continue narrowing it down.
+--imjhCm/Pyz7Rq5F2
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
--- 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/
-                                               mhaque@haque.net
+iD8DBQE6OU8kONXnILZ4yVIRAi/GAJ9jfE3PU8wa+2b8eNrcrV8N4M4EpgCfeqY5
+A923sFCiJfJMJH+lfpC1KjA=
+=RRvQ
+-----END PGP SIGNATURE-----
 
-  "Alcohol and calculus don't mix.             Project Lead
-   Don't drink and derive." --Unknown          http://wm.themes.org/
-                                               batmanppc@themes.org
-=====================================================================
-
+--imjhCm/Pyz7Rq5F2--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

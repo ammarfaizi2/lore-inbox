@@ -1,74 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263154AbUFTTlL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263815AbUFTTrm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263154AbUFTTlL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jun 2004 15:41:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263709AbUFTTlL
+	id S263815AbUFTTrm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jun 2004 15:47:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263770AbUFTTrm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jun 2004 15:41:11 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:24224 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263154AbUFTTlG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jun 2004 15:41:06 -0400
-Date: Sun, 20 Jun 2004 16:34:04 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.27-rc1
-Message-ID: <20040620193404.GA7102@logos.cnet>
-References: <20040620004520.GA4599@logos.cnet> <Pine.GSO.4.58.0406201910300.23356@waterleaf.sonytel.be>
+	Sun, 20 Jun 2004 15:47:42 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:17926 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S263815AbUFTTrj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jun 2004 15:47:39 -0400
+Date: Sun, 20 Jun 2004 20:47:23 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Krzysztof Halasa <khc@pm.waw.pl>
+Cc: James Bottomley <James.Bottomley@steeleye.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: Proposal for new generic device API: dma_get_required_mask()
+Message-ID: <20040620204723.B641@flint.arm.linux.org.uk>
+Mail-Followup-To: Krzysztof Halasa <khc@pm.waw.pl>,
+	James Bottomley <James.Bottomley@steeleye.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	SCSI Mailing List <linux-scsi@vger.kernel.org>
+References: <1087481331.2210.27.camel@mulgrave> <m33c4tsnex.fsf@defiant.pm.waw.pl> <20040618102120.A29213@flint.arm.linux.org.uk> <m3brjg7994.fsf@defiant.pm.waw.pl> <20040619212246.B8063@flint.arm.linux.org.uk> <m3zn6zf68l.fsf@defiant.pm.waw.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.58.0406201910300.23356@waterleaf.sonytel.be>
-User-Agent: Mutt/1.5.5.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <m3zn6zf68l.fsf@defiant.pm.waw.pl>; from khc@pm.waw.pl on Sun, Jun 20, 2004 at 02:00:42AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Wouldn't it be better to not touch the masks (which are device
+> capabilities rather than platform limitations) and let alloc/map
+> functions always use the correct half of RAM?
 
-Hi Geert! 
+They are device limitations - the SA1111 device (which is a bus master
+device in its own right) itself is the cause of the problem, so the
+devices integrated inside it need to know.
 
+Eg:
 
-On Sun, Jun 20, 2004 at 07:16:40PM +0200, Geert Uytterhoeven wrote:
-> On Sat, 19 Jun 2004, Marcelo Tosatti wrote:
-> > Marcelo Tosatti:
-> >   o journal_try_to_free_buffers(): Add debug print in case of bh list corruption
-> 
-> Which introduced 4 warnings. Here's a fix:
-> 
-> --- linux-2.4.27-rc1/fs/jbd/transaction.c.orig	2004-06-20 13:04:20.000000000 +0200
-> +++ linux-2.4.27-rc1/fs/jbd/transaction.c	2004-06-20 19:08:07.000000000 +0200
-> @@ -1700,11 +1700,11 @@ void debug_page(struct page *p)
-> 
->  	bh = p->buffers;
-> 
-> -	printk(KERN_ERR "%s: page index:%u count:%d flags:%x\n", __FUNCTION__,
-> +	printk(KERN_ERR "%s: page index:%lu count:%d flags:%lx\n", __FUNCTION__,
->  		 p->index, atomic_read(&p->count), p->flags);
-> 
->  	while (bh) {
-> -		printk(KERN_ERR "%s: bh b_next:%p blocknr:%u b_list:%u state:%x\n",
-> +		printk(KERN_ERR "%s: bh b_next:%p blocknr:%lu b_list:%u state:%lx\n",
->  			__FUNCTION__, bh->b_next, bh->b_blocknr, bh->b_list,
->  				bh->b_state);
->  		bh = bh->b_this_page;
++------------------------+           +---------------------------+
+|                        |           |                           |
+| SSP       CPU--bus i/f-|-----+-----|-bus i/f   OHCI  SSP  SAC  |
+|  |                |    |     |     |    |       |     |    |   |
+|  +----------------+    |     |     |    +-------+-----+----+   |
+|       SA11x0           | +-------+ |          SA1111           |
++------------------------+ | SDRAM | +---------------------------+
+                           +-------+
 
-Right.
+The SDRAM bus is shared between the SA11x0 and SA1111 devices, and
+there is an arbitration protocol to hand off the SDRAM bus between
+the two devices.
 
-> And now I just looked at the original patch:
-> 
-> | --- linux-2.4.26/fs/jbd/transaction.c	2004-02-18 13:36:31.000000000 +0000
-> | +++ linux-2.4.27-rc1/fs/jbd/transaction.c	2004-06-19 23:37:33.000000000 +0000
-> | @@ -1752,6 +1769,11 @@ int journal_try_to_free_buffers(journal_
-> |  	do {
-> |  		struct buffer_head *p = tmp;
-> |
-> | +		if (!unlikely(tmp)) {
->                     ^^^^^^^^^^^^^^
-> Shouldn't this be `unlikely(!tmp))'?
+The SSP and CPU itself inside the SA11x0 can access all SDRAM memory,
+but the OHCI, SSP and SAC devices within the SA1111 are affected by
+the problem.
 
-The original works, but thats cleaner as Willy also pointed out.
+So it's quite correct for this to be a device thing not a platform
+thing.  It _is_ the SA1111 device itself which has the problem.
 
-I'll fix those.
-
-Thanks!
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

@@ -1,52 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262408AbUKDTuF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262400AbUKDTxz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262408AbUKDTuF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 14:50:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262391AbUKDTkQ
+	id S262400AbUKDTxz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 14:53:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262387AbUKDTvM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 14:40:16 -0500
-Received: from mra03.ex.eclipse.net.uk ([212.104.129.88]:12171 "EHLO
-	mra03.ex.eclipse.net.uk") by vger.kernel.org with ESMTP
-	id S262405AbUKDTgi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 14:36:38 -0500
-From: Ian Hastie <ianh@iahastie.clara.net>
-To: Valdis.Kletnieks@vt.edu
-Subject: Re: support of older compilers
-Date: Thu, 4 Nov 2004 19:36:26 +0000
-User-Agent: KMail/1.7.1
-Cc: Adam Heath <doogie@debian.org>, Chris Wedgwood <cw@f00f.org>,
+	Thu, 4 Nov 2004 14:51:12 -0500
+Received: from phoenix.infradead.org ([81.187.226.98]:25096 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S262400AbUKDTt1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 14:49:27 -0500
+Date: Thu, 4 Nov 2004 19:48:24 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Adam Heath <doogie@debian.org>
+Cc: Valdis.Kletnieks@vt.edu, Chris Wedgwood <cw@f00f.org>,
        Christoph Hellwig <hch@infradead.org>,
        Timothy Miller <miller@techsource.com>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <41894779.10706@techsource.com> <Pine.LNX.4.58.0411041050040.1229@gradall.private.brainfood.com> <200411041704.iA4H4sdZ014948@turing-police.cc.vt.edu>
-In-Reply-To: <200411041704.iA4H4sdZ014948@turing-police.cc.vt.edu>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Subject: Re: support of older compilers
+Message-ID: <20041104194824.GA4574@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Adam Heath <doogie@debian.org>, Valdis.Kletnieks@vt.edu,
+	Chris Wedgwood <cw@f00f.org>,
+	Timothy Miller <miller@techsource.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <41894779.10706@techsource.com> <20041103211353.GA24084@infradead.org> <Pine.LNX.4.58.0411031706350.1229@gradall.private.brainfood.com> <20041103233029.GA16982@taniwha.stupidest.org> <Pine.LNX.4.58.0411041050040.1229@gradall.private.brainfood.com> <200411041704.iA4H4sdZ014948@turing-police.cc.vt.edu> <Pine.LNX.4.58.0411041214590.1229@gradall.private.brainfood.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200411041936.27100.ianh@iahastie.local.net>
+In-Reply-To: <Pine.LNX.4.58.0411041214590.1229@gradall.private.brainfood.com>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 04 Nov 2004 17:04, Valdis.Kletnieks@vt.edu wrote:
-> On Thu, 04 Nov 2004 10:50:38 CST, Adam Heath said:
-> > I didn't deny the speed difference of older and newer compilers.
-> >
-> > But why is this an issue when compiling a kernel?  How often do you
-> > compile your kernel?
->
-> If you're working on older hardware (note the number of people on this
-> list still using 500mz Pentium3 and similar), and a kernel developer, the
-> difference between 2 hours to build a kernel and 4 hours to build a
-> kernel matters quite a bit.
+On Thu, Nov 04, 2004 at 12:15:47PM -0600, Adam Heath wrote:
+> Use faster hardware to compile a kernel.  Cross-compiling is easy for kernels.
 
-How often is it necessary to do a full rebuild of the kernel?  If the 
-dependencies in the make system work properly then only the amended parts 
-should be recompiled.  That'd be a much bigger time saving than just using an 
-older compiler.
+I think I have pretty fast hardware (e.g. dual g5 18.GHZ and P4 4.2 GHz),
+and for me a kernel compile still takes far too long.
 
--- 
-Ian.
+But if you want to buy me a 512p Altix and the electricity bill so I can
+use gcc 3.3 all power  to you!
 
-EOM

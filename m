@@ -1,57 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262416AbSJ1M2B>; Mon, 28 Oct 2002 07:28:01 -0500
+	id <S262420AbSJ1MgN>; Mon, 28 Oct 2002 07:36:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262420AbSJ1M2B>; Mon, 28 Oct 2002 07:28:01 -0500
-Received: from gromit.trivadis.com ([193.73.126.130]:30351 "EHLO trivadis.com")
-	by vger.kernel.org with ESMTP id <S262416AbSJ1M2A>;
-	Mon, 28 Oct 2002 07:28:00 -0500
-Envelope-to: linux-kernel@vger.kernel.org
-Date: Mon, 28 Oct 2002 13:22:25 +0100
-From: Tim Tassonis <timtas@cubic.ch>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Swap doesn't work
-In-Reply-To: <1035753454.30373.33.camel@irongate.swansea.linux.org.uk>
-References: <E185tHb-0002mq-00@trivadis.com>
-	<1035753454.30373.33.camel@irongate.swansea.linux.org.uk>
-X-Mailer: Sylpheed version 0.8.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Message-Id: <E1868uX-0000Q8-00@trivadis.com>
+	id <S262434AbSJ1MgN>; Mon, 28 Oct 2002 07:36:13 -0500
+Received: from mail.cyberus.ca ([216.191.240.111]:16833 "EHLO cyberus.ca")
+	by vger.kernel.org with ESMTP id <S262420AbSJ1MgM>;
+	Mon, 28 Oct 2002 07:36:12 -0500
+Date: Mon, 28 Oct 2002 07:35:01 -0500 (EST)
+From: jamal <hadi@cyberus.ca>
+To: "Maksim (Max) Krasnyanskiy" <maxk@qualcomm.com>
+cc: Tim Hockin <thockin@hockin.org>, David Woodhouse <dwmw2@infradead.org>,
+       <linux-kernel@vger.kernel.org>, <netdev@oss.sgi.com>
+Subject: Re: rtnetlink interface state monitoring problems.
+In-Reply-To: <5.1.0.14.2.20021023124123.09b83e00@mail1.qualcomm.com>
+Message-ID: <Pine.GSO.4.30.0210280711490.9849-100000@shell.cyberus.ca>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 27 Oct 2002 21:17:34 +0000
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
 
-> On Sun, 2002-10-27 at 19:41, Tim Tassonis wrote:
-> > Not that I would know better or have an idea why this bug happens, but
-> > to say "Bugger off if you have an lfs system" is a bit lousy, I think.
-> > After all, lfs has not really an "unstrusted toolchain", as compared
-> > to RH/Suse's/Debian "trustworthy computing toolchains":
-> 
-> I get bugs that are clearly caused by miscompiled tool chains from Linux
-> from scratch people. I trust the RH, SuSE and Debian tool chains because
-> they have any neccessary patches applied for compiler bugs and they are
-> running against a properly built glibc and binutils.
-> 
-> If you simply grab the latest and greatest of everything from
-> ftp.gnu.org then quite often it won't work. 
 
-That's certainly true and before claiming a kernel bug, I would try
-against a Red Hat System personally. Still, lfs does have gcc patches
-included, it's not just cvs checkout from the relevant packages. It also
-seems to have a sane order of compiling everything.
+On Wed, 23 Oct 2002, Maksim (Max) Krasnyanskiy wrote:
 
-> If you'd like to me to spend hours debugging an LFS system where its
-> probably a tool error, then you can ask for current hourly rates.
+>
+> >netlink is a messaging system; so what i am thinking is creating
+> >a event notifier for other devices other than network devices.
+> >Something other non-network devices could use (eg bluetooth).
+>
+> What kind of events are we taking about ?
+>
 
-That wasn't actually my idea. And you are right, before claiming a kernel
-bug one should probably always try to reproduce it against a different
-system.
+Currently,  for net events, notifier_call_chain() calls from the same
+routines which also send netlink announcements. I am thinking actually
+having notifier_call_chain make the netlink advertisements.
+There are not that many subsystems that use notifier block calls (seems
+the network subsytem is their best customer ;->)
+i think it is the best async notification scheme in the kernel. Too bad
+someone had to invent hotplug the way it is right now.
+As i said earlier, the advantage with netlink is that you could easily
+add a distributed event notification scheme since it is already in packet
+format.
 
-Bye
-Tim
+cheers,
+jamal
 

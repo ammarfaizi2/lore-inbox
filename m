@@ -1,232 +1,118 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261538AbUBYXFp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 18:05:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261569AbUBYXDQ
+	id S261568AbUBYXJX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 18:09:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261556AbUBYXIH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 18:03:16 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:45820 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261556AbUBYXAA
+	Wed, 25 Feb 2004 18:08:07 -0500
+Received: from 217-162-59-239.dclient.hispeed.ch ([217.162.59.239]:22020 "EHLO
+	ritz.dnsalias.org") by vger.kernel.org with ESMTP id S261568AbUBYXCG
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 18:00:00 -0500
-Message-ID: <403D28E5.1060701@mvista.com>
-Date: Wed, 25 Feb 2004 14:59:49 -0800
-From: George Anzinger <george@mvista.com>
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
+	Wed, 25 Feb 2004 18:02:06 -0500
+From: Daniel Ritz <daniel.ritz@gmx.ch>
+Reply-To: daniel.ritz@gmx.ch
+To: Pavel Roskin <proski@gnu.org>
+Subject: Re: [PATCH] yenta: irq-routing for TI bridges - take 2
+Date: Thu, 26 Feb 2004 00:01:23 +0100
+User-Agent: KMail/1.5.2
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
+       linux-pcmcia <linux-pcmcia@lists.infradead.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+References: <200402240033.31042.daniel.ritz@gmx.ch> <200402252103.48739.daniel.ritz@gmx.ch> <Pine.LNX.4.58.0402251553410.20967@marabou.research.att.com>
+In-Reply-To: <Pine.LNX.4.58.0402251553410.20967@marabou.research.att.com>
 MIME-Version: 1.0
-To: Tom Rini <trini@kernel.crashing.org>
-CC: kernel list <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@suse.cz>,
-       "Amit S. Kale" <amitkale@emsyssoft.com>,
-       kgdb-bugreport@lists.sourceforge.net
-Subject: Re: [Kgdb-bugreport] [PATCH][2/3] Update CVS KGDB's have kgdb_{schedule,process}_breakpoint
-References: <20040225213626.GF1052@smtp.west.cox.net> <20040225214343.GG1052@smtp.west.cox.net>
-In-Reply-To: <20040225214343.GG1052@smtp.west.cox.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200402260001.23913.daniel.ritz@gmx.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If you are always inserting after irq_exit(), why not modify irq_exit()?  Makes 
-a cleaner patch.
-
--g
-
-Tom Rini wrote:
-> The following adds, and then makes use of kgdb_process_breakpoint /
-> kgdb_schedule_breakpoint.  Using it i kgdb_8250.c isn't strictly needed,
-> but it isn't wrong either.
+On Wednesday 25 February 2004 22:20, Pavel Roskin wrote:
+> On Wed, 25 Feb 2004, Daniel Ritz wrote:
 > 
-> # This is a BitKeeper generated patch for the following project:
-> # Project Name: Linux kernel tree
-> # This patch format is intended for GNU patch command version 2.5 or higher.
-> # This patch includes the following deltas:
-> #	           ChangeSet	1.1663  -> 1.1664 
-> #	arch/i386/kernel/irq.c	1.48    -> 1.49   
-> #	drivers/net/kgdb_eth.c	1.2     -> 1.3    
-> #	arch/x86_64/kernel/irq.c	1.21    -> 1.22   
-> #	drivers/serial/kgdb_8250.c	1.3     -> 1.4    
-> #	       kernel/kgdb.c	1.3     -> 1.4    
-> #	arch/ppc/kernel/irq.c	1.36    -> 1.37   
-> #	include/linux/kgdb.h	1.3     -> 1.4    
-> #
-> # The following is the BitKeeper ChangeSet Log
-> # --------------------------------------------
-> # 04/02/25	trini@kernel.crashing.org	1.1664
-> # process_breakpoint/schedule_breakpoint.
-> # --------------------------------------------
-> #
-> diff -Nru a/arch/i386/kernel/irq.c b/arch/i386/kernel/irq.c
-> --- a/arch/i386/kernel/irq.c	Wed Feb 25 14:21:32 2004
-> +++ b/arch/i386/kernel/irq.c	Wed Feb 25 14:21:32 2004
-> @@ -34,6 +34,7 @@
->  #include <linux/proc_fs.h>
->  #include <linux/seq_file.h>
->  #include <linux/kallsyms.h>
-> +#include <linux/kgdb.h>
->  
->  #include <asm/atomic.h>
->  #include <asm/io.h>
-> @@ -507,6 +508,8 @@
->  	spin_unlock(&desc->lock);
->  
->  	irq_exit();
-> +
-> +	kgdb_process_breakpoint();
->  
->  	return 1;
->  }
-> diff -Nru a/arch/ppc/kernel/irq.c b/arch/ppc/kernel/irq.c
-> --- a/arch/ppc/kernel/irq.c	Wed Feb 25 14:21:32 2004
-> +++ b/arch/ppc/kernel/irq.c	Wed Feb 25 14:21:32 2004
-> @@ -46,6 +46,7 @@
->  #include <linux/random.h>
->  #include <linux/seq_file.h>
->  #include <linux/cpumask.h>
-> +#include <linux/kgdb.h>
->  
->  #include <asm/uaccess.h>
->  #include <asm/bitops.h>
-> @@ -536,7 +537,9 @@
->  	if (irq != -2 && first)
->  		/* That's not SMP safe ... but who cares ? */
->  		ppc_spurious_interrupts++;
-> -        irq_exit();
-> +	irq_exit();
-> +
-> +	kgdb_process_breakpoint();
->  }
->  
->  unsigned long probe_irq_on (void)
-> diff -Nru a/arch/x86_64/kernel/irq.c b/arch/x86_64/kernel/irq.c
-> --- a/arch/x86_64/kernel/irq.c	Wed Feb 25 14:21:32 2004
-> +++ b/arch/x86_64/kernel/irq.c	Wed Feb 25 14:21:32 2004
-> @@ -405,6 +405,8 @@
->  	spin_unlock(&desc->lock);
->  
->  	irq_exit();
-> +
-> +	kgdb_process_breakpoint();
->  	return 1;
->  }
->  
-> diff -Nru a/drivers/net/kgdb_eth.c b/drivers/net/kgdb_eth.c
-> --- a/drivers/net/kgdb_eth.c	Wed Feb 25 14:21:32 2004
-> +++ b/drivers/net/kgdb_eth.c	Wed Feb 25 14:21:32 2004
-> @@ -60,7 +60,6 @@
->  static atomic_t in_count;
->  int kgdboe = 0;			/* Default to tty mode */
->  
-> -extern void breakpoint(void);
->  static void rx_hook(struct netpoll *np, int port, char *msg, int len);
->  
->  static struct netpoll np = {
-> @@ -106,14 +105,12 @@
->  
->  	np->remote_port = port;
->  
-> -	/* Is this gdb trying to attach? */
-> -	if (!netpoll_trap() && len == 8 && !strncmp(msg, "$Hc-1#09", 8))
-> -		breakpoint();
-> +	/* Is this gdb trying to attach (!kgdb_connected) or break in
-> +	 * (msg[0] == 3) ? */
-> +	if (!netpoll_trap() && (!kgdb_connected || msg[0] == 3))
-> +		 kgdb_schedule_breakpoint();
->  
->  	for (i = 0; i < len; i++) {
-> -		if (msg[i] == 3)
-> -			breakpoint();
-> -
->  		if (atomic_read(&in_count) >= IN_BUF_SIZE) {
->  			/* buffer overflow, clear it */
->  			in_head = in_tail = 0;
-> diff -Nru a/drivers/serial/kgdb_8250.c b/drivers/serial/kgdb_8250.c
-> --- a/drivers/serial/kgdb_8250.c	Wed Feb 25 14:21:32 2004
-> +++ b/drivers/serial/kgdb_8250.c	Wed Feb 25 14:21:32 2004
-> @@ -248,7 +248,7 @@
->  
->  	/* If we get an interrupt, then KGDB is trying to connect. */
->  	if (!kgdb_connected) {
-> -		breakpoint();
-> +		kgdb_schedule_breakpoint();
->  		return IRQ_HANDLED;
->  	}
->  
-> diff -Nru a/include/linux/kgdb.h b/include/linux/kgdb.h
-> --- a/include/linux/kgdb.h	Wed Feb 25 14:21:32 2004
-> +++ b/include/linux/kgdb.h	Wed Feb 25 14:21:32 2004
-> @@ -11,8 +11,22 @@
->  #include <asm/atomic.h>
->  #include <linux/debugger.h>
->  
-> +/*
-> + * This file should not include ANY others.  This makes it usable
-> + * most anywhere without the fear of include order or inclusion.
-> + * TODO: Make it so!
-> + *
-> + * This file may be included all the time.  It is only active if
-> + * CONFIG_KGDB is defined, otherwise it stubs out all the macros
-> + * and entry points.
-> + */
-> +
-> +#if defined(CONFIG_KGDB) && !defined(__ASSEMBLY__)
->  /* To enter the debugger explicitly. */
-> -void breakpoint(void);
-> +extern void breakpoint(void);
-> +extern void kgdb_schedule_breakpoint(void);
-> +extern void kgdb_process_breakpoint(void);
-> +extern volatile int kgdb_connected;
->  
->  #ifndef KGDB_MAX_NO_CPUS
->  #if CONFIG_NR_CPUS > 8
-> @@ -112,4 +126,7 @@
->  char *kgdb_hex2mem(char *buf, char *mem, int count);
->  int kgdb_get_mem(char *addr, unsigned char *buf, int count);
-Might consider moving most of this to an internal to kgdb header.  This header 
-should only define things that a user would want to access.  These would include 
-the breakpoint, possibly asserts and the time stamp stuff.
->  
-> +#else
-> +#define kgdb_process_breakpoint()      do {} while(0)
-> +#endif /* KGDB && !__ASSEMBLY__ */
->  #endif				/* _KGDB_H_ */
-> diff -Nru a/kernel/kgdb.c b/kernel/kgdb.c
-> --- a/kernel/kgdb.c	Wed Feb 25 14:21:32 2004
-> +++ b/kernel/kgdb.c	Wed Feb 25 14:21:32 2004
-> @@ -1169,6 +1169,29 @@
->  	printk("Connected.\n");
->  }
->  
-> +/*
-> + * Sometimes we need to schedule a breakpoint because we can't break
-> + * right where we are.
-> + */
-> +static int kgdb_need_breakpoint[NR_CPUS];
-> +
-> +void kgdb_schedule_breakpoint(void)
-> +{
-> +	kgdb_need_breakpoint[smp_processor_id()] = 1;
-> +}
-> +
-> +void kgdb_process_breakpoint(void)
-> +{
-> +	/*
-> +	 * Handle a breakpoint queued from inside network driver code
-> +	  * to avoid reentrancy issues
-> +	 */
-> +	if (kgdb_need_breakpoint[smp_processor_id()]) {
-> +		 kgdb_need_breakpoint[smp_processor_id()] = 0;
-> +		 breakpoint();
-> +	}
-> +}
-> +
->  #ifdef CONFIG_KGDB_CONSOLE
->  char kgdbconbuf[BUFMAX];
->  
+> > > Yenta: CardBus bridge found at 0000:00:08.0 [133f:1233]
+> > > Yenta: Enabling burst memory read transactions
+> > > Yenta: Using CSCINT to route CSC interrupts to PCI
+> > > Yenta: Routing CardBus interrupts to PCI
+> > > Yenta TI: mfunc 0cc07d92, devctl 60
+> >
+> > mfunc0 is inta, mfunc1 is irq9, mfunc2 is activity led, mfunc3 is irq7,
+> > mfunc4 GPI3, mfunc5 is the other led, mfunc6 is irq12...
+> >
+> > this would give you irq7,9,12 but device control says parallel PCI only..
+> 
+> That's not surprising.  The card is a PCI device, it's not connected to
+> the ISA bus.
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+that explains it...
+
+> 
+> [snip]
+> > that's just an uninitialized ti1410. so we're using PCI
+> >
+> >
+> > > Yenta TI: changing mfunc to 00001000
+> > > Yenta TI: falling back to PCI interrupts
+> 
+> By the way, I looked through your mails an I still don't quite understand
+> what the above is for.  I understand you are trying serial ISA interrupts
+> first.  What's the reason for that?  Do you know any device that needs
+> this?  I would prefer not to add any code unless it's known to be needed.
+> Any probe is potentially dangerous.  The known problems are with PCI
+> cards, which have PCI interrupts and don't need anything else.  I believe
+> laptops are engineered better and don't need any fixes.
+>
+
+it's looking at the device control register first. if it's configured for
+serial interutps then test it...my laptop for example uses serial interrupts
+(plus the parallel PCI)
+
+may be there are cards out there that need an exclusive interrupt. i don't
+know.
+
+the reason why i did it is the comment in the old code:
+
+        /*
+         * If ISA interrupts don't work, then fall back to routing card
+         * interrupts to the PCI interrupt of the socket.
+         *
+         * Tweaking this when we are using serial PCI IRQs causes hangs
+         *   --rmk
+         */
+
+the comment is there for a reason. so make sure DEVCTL is wrong, not MFUNC.
+if we do check for all serial and don't fall back to PCI, the code wouldn't fixup
+most of the non-working setups.
+ 
+> > > Yenta TI: changing mfunc to 00001002
+> > > Yenta: ISA IRQ mask 0x0000, PCI irq 12
+> 
+> Apparently you are enabling INTA.  Shouldn't you disable serial ISA
+> interrupts if they didn't work?
+
+it does so by masking out the routing bits in the device control register, it
+set it to PCI only...but read on
+
+> 
+> I also think you are using mfunc_old incorrectly.  Either it should be the
+> current value of irqmux, in which case you should change it when testing
+> serial ISA interrupts, or it's the initial value of irqmux, in which case
+> you shouldn't compare it to mfunc the second time.  You cannot have it
+> both ways.  Please create one more variable, e.g. mfunc_current.
+> 
+
+no, it's the way it should be. but it should really go back to the old value if 
+serial interrupts probing failed. then it would be correct.
+
+
+> -- 
+> Regards,
+> Pavel Roskin
+> 
+> 
+
+rgds,
+-daniel
 

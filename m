@@ -1,156 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263366AbSLZUBo>; Thu, 26 Dec 2002 15:01:44 -0500
+	id <S263794AbSLZUrD>; Thu, 26 Dec 2002 15:47:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263760AbSLZUBo>; Thu, 26 Dec 2002 15:01:44 -0500
-Received: from cpe-66-1-165-152.az.sprintbbd.net ([66.1.165.152]:37629 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S263366AbSLZUBm>; Thu, 26 Dec 2002 15:01:42 -0500
-Subject: Re: nforce2 and agpgart
-From: "Carl D. Blake" <carl@boeckeler.com>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <086101c2ad18$46fea8b0$6502a8c0@jeff>
-References: <1040669417.4563.24.camel@vulcan><1040678186.2237.4.camel@localhost.localdom
-	 ain><1040683214.4447.7.camel@vulcan> 
-	<037301c2aadf$4aea4050$6502a8c0@jeff> <1040928705.6372.27.camel@vulcan> 
-	<086101c2ad18$46fea8b0$6502a8c0@jeff>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 26 Dec 2002 13:09:53 -0700
-Message-Id: <1040933393.6369.38.camel@vulcan>
-Mime-Version: 1.0
+	id <S263837AbSLZUrD>; Thu, 26 Dec 2002 15:47:03 -0500
+Received: from harpo.it.uu.se ([130.238.12.34]:58308 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S263794AbSLZUrC>;
+	Thu, 26 Dec 2002 15:47:02 -0500
+Date: Thu, 26 Dec 2002 21:55:15 +0100 (MET)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200212262055.VAA28874@harpo.it.uu.se>
+To: manfred@colorfullife.com
+Subject: Re: [PATCH] 2.5 fast poll on ppc64
+Cc: anton@samba.org, linux-kernel@vger.kernel.org, torvalds@transmeta.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-12-26 at 12:52, Jeff Nguyen wrote:
-> That's strange because my Red Hat kernel did not enable DMA.
-> Did you have to run hdparam to change the IDE setting?
-> 
+On Thu, 26 Dec 2002 14:53:40 +0100, Manfred Spraul wrote:
+>Mikael Pettersson wrote:
+>
+>>Anton Blanchard writes:
+>> > I was unable to boot 2.5-BK on ppc64 and narrowed it down to the fast
+>> > poll patch.  I found:
+>> > 
+>> > offsetof(struct poll_list, entries) == 12 but
+>> > sizeof(struct poll_list) == 16
+...
+>>To me (I'm a compiler writer) it looks like your compiler did NOT
+>>mess up. Assuming struct pollfd has 32-bit alignment, the compiler
+>>is doing the right thing by starting entries[] at offset 12.
+>>The 16-byte size for struct poll_list is because the 'next' field
+>>has 64-bit alignment, which forces the compiler to pad struct
+>>poll_lists's size to a multiple of 8 bytes, i.e. 16 bytes in this
+>>case. So the compiler is not broken.
+>>  
+>>
+>I would agree, but there is a special restriction on offsetof() and 
+>sizeof() of structures with flexible array members: section 6.7.2.1, 
+>clause 16:
+>
+>First, the size of the structure shall be equal to the offset of the last element of an otherwise identical structure that replaces the flexible array member with an array of unspecified length.
+>
+>The simplest test case I've found is
+>
+>struct a1 { int a; char b; short c[];};
+>struct a2 { int a; char b; short c[1];};
+>
+>    sizeof(struct a{1,2}) is 8.
+>    offsetof(struct a{1,2}, c) is 6.
+>
+>--> sizeof(struct a1) != offsetof(struct a2, c)
 
-Yes, I had to run hdparm to setup the IDE hard drive for maximum
-performance.
+Oh dear. I checked my C9x draft copy and you seem to be right.
+The standard states that sizeof(struct a1) == offsetof(struct a1, c),
+but both gcc (2.95.3 and 3.2) and Intel's icc (7.0) get it wrong on x86:
+they make sizeof(struct a1) == 8 but offsetof(struct a1, c) == 6.
 
-> Jeff
-> 
-> ----- Original Message -----
-> From: "Carl D. Blake" <carl@boeckeler.com>
-> To: "Jeff Nguyen" <jeff@aslab.com>
-> Sent: Thursday, December 26, 2002 10:51 AM
-> Subject: Re: nforce2 and agpgart
-> 
-> 
-> > On Mon, 2002-12-23 at 16:59, Jeff Nguyen wrote:
-> > > Carl,
-> > >
-> > > Are you using the onboard IDE controller for your hard disk?
-> > > If so, please check to see if DMA is enabled or not.
-> > >
-> > > Jeff
-> > >
-> >
-> > I am using the onboard IDE controller and DMA is enabled.
-> >
-> > > ----- Original Message -----
-> > > From: "Carl D. Blake" <carl@boeckeler.com>
-> > > To: <linux-kernel@vger.kernel.org>
-> > > Sent: Monday, December 23, 2002 2:40 PM
-> > > Subject: Re: nforce2 and agpgart
-> > >
-> > >
-> > > > On Mon, 2002-12-23 at 14:16, Bongani Hlope wrote:
-> > > > > On Mon, 2002-12-23 at 20:50, Carl D. Blake wrote:
-> > > > > > I'm having trouble getting agpgart support to work with an nforce2
-> > > > > > chipset.  Is this supported on any kernels?  I'm running a Redhat
-> 7.1
-> > > > > > system with Redhat's 2.4.9-21 kernel.
-> > > > >
-> > > > > Try to use a newer kernel from Redhat, because that kernel was
-> around
-> > > > > looong before nforce was released. IIRC support for nforce2 was
-> added
-> > > > > around 2.4.19
-> > > > >
-> > > >
-> > > > I just upgraded to the 2.4.18 kernel provided by Redhat and it didn't
-> > > > make any difference.  The message I get in dmesg is:
-> > > >
-> > > > Linux agpgart interface v0.99 (c) Jeff Hartmann
-> > > > agpgart: Maximum main memory to use for agp memory: 439M
-> > > > agpgart: unsupported bridge
-> > > > agpgart: no supported devices found.
-> > > >
-> > > > You suggested trying 2.4.19, so I downloaded kernel 2.4.20 from
-> > > > kernel.org and compared its agp code (drivers/char/agp) with the code
-> in
-> > > > 2.4.18.  There are a few differences - such as supporting AMD 8151 -
-> but
-> > > > nothing that indicates improved support for agpgart on the nforce2
-> > > > chipset.  The changelog for 2.4.20 indicated some added support for
-> the
-> > > > nforce2 chipset, but that seems to be support for the audio and
-> network
-> > > > portions of the chipset, not agp.  I was able to incorporate the audio
-> > > > changes manually for kernel 2.4.18 by using Nvidia's patches, but I
-> > > > can't get agp to work.
-> > > >
-> > > > Any other suggestions?  Thanks for your help.
-> > > > > --
-> > > > > For future reference - don't anybody else try to send patches as vi
-> > > > > scripts, please. Yes, it's manly, but let's face it, so is
-> > > > > bungee-jumping with the cord tied to your testicles.
-> > > > >
-> > > > >                 -- Linus
-> > > > --
-> > > > Carl D. Blake
-> > > > Director of Engineering
-> > > > Boeckeler Instruments, Inc.
-> > > > 4650 S. Butterfield Dr.
-> > > > Tucson, AZ  85714
-> > > >
-> > > > Phone: 520-745-0001
-> > > > FAX: 520-745-0004
-> > > > email: carl@boeckeler.com
-> > > >
-> > > > .com
-> > > >
-> > > > -
-> > > > To unsubscribe from this list: send the line "unsubscribe
-> linux-kernel" in
-> > > > the body of a message to majordomo@vger.kernel.org
-> > > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > > > Please read the FAQ at  http://www.tux.org/lkml/
-> > > >
-> > >
-> > > -
-> > > To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-> in
-> > > the body of a message to majordomo@vger.kernel.org
-> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > > Please read the FAQ at  http://www.tux.org/lkml/
-> > --
-> > Carl D. Blake
-> > Director of Engineering
-> > Boeckeler Instruments, Inc.
-> > 4650 S. Butterfield Dr.
-> > Tucson, AZ  85714
-> >
-> > Phone: 520-745-0001
-> > FAX: 520-745-0004
-> > email: carl@boeckeler.com
-> >
-> > .com
-> >
--- 
-Carl D. Blake
-Director of Engineering
-Boeckeler Instruments, Inc.
-4650 S. Butterfield Dr.
-Tucson, AZ  85714
+Technically speaking, the kernel code which uses 'entries[0]' is
+non-compliant since the proper syntax is 'entries[]', but the empty
+array size syntax isn't implemented in gcc 2.95.3.
 
-Phone: 520-745-0001
-FAX: 520-745-0004
-email: carl@boeckeler.com
+>>But the old code which assumed pp+1 == pp->entries is so horribly
+>>broken I can't find words for it. s/pp+1/pp->entries/ is the correct fix.
 
-.com
+My mistake. The old code is Ok for C99, but broken for ANSI-C.
 
+>I agree. Should we fix the kmalloc allocations, too?
+>
+>-	pp = kmalloc(sizeof(struct poll_list)+
+>+	pp = kmalloc(offsetof(struct poll_list,entries)+
+>			sizeof(struct pollfd)*
+>			(i>POLLFD_PER_PAGE?POLLFD_PER_PAGE:i),
+>				GFP_KERNEL);
+
+Yes, this should be changed as you suggest. The old code only
+works in C99-compliant implementations, but we now know that both
+gcc and icc get this wrong, so it seems prudent to revert to
+the classical formulation, using the 'entries[0]' declaration
+syntax and offsetof() instead of sizeof().
+
+/Mikael

@@ -1,44 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266120AbTLaFEL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Dec 2003 00:04:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266121AbTLaFEK
+	id S266118AbTLaFGa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Dec 2003 00:06:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266121AbTLaFGa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Dec 2003 00:04:10 -0500
-Received: from pentafluge.infradead.org ([213.86.99.235]:64945 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S266120AbTLaFEI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Dec 2003 00:04:08 -0500
-Subject: Re: Bug in radeonfb (2.6.0)?
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Martin Bergeron <mberg24@hotmail.com>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <Law11-F36EhXTwpb1iT0000d4bf@hotmail.com>
-References: <Law11-F36EhXTwpb1iT0000d4bf@hotmail.com>
-Content-Type: text/plain
-Message-Id: <1072847016.730.11.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 31 Dec 2003 16:03:37 +1100
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+	Wed, 31 Dec 2003 00:06:30 -0500
+Received: from x35.xmailserver.org ([69.30.125.51]:31872 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S266118AbTLaFG1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Dec 2003 00:06:27 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Tue, 30 Dec 2003 21:06:18 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
+To: Rusty Russell <rusty@rustcorp.com.au>
+cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       <mingo@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/2] kthread_create
+In-Reply-To: <20031231042016.958DC2C04B@lists.samba.org>
+Message-ID: <Pine.LNX.4.44.0312302100550.1457-100000@bigblue.dev.mdolabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-12-31 at 15:09, Martin Bergeron wrote:
-> Hi,
-> 
-> I just upgraded from kernel 2.6.0-test10 to 2.6.0 without changing anything 
-> to my  existing configuration (make oldconfig, etc.).  After rebooting, the 
-> console was completely unreadable, with garbage all over the screen.  It was 
-> working correctly in 1024x768 before and X still worked correctly.
+On Wed, 31 Dec 2003, Rusty Russell wrote:
 
-Can you check if it works with the new radeonfb that is in
+> +struct kt_message
+> +{
+> +	struct task_struct *from, *to;
+> +	void *info;
+> +};
+> +
+> +static struct kt_message ktm;
+> +
+> +static void ktm_send(struct task_struct *to, void *info)
+> +{
+> +	spin_lock(&ktm_lock);
+> +	ktm.to = to;
+> +	ktm.from = current;
+> +	ktm.info = info;
+> +	if (ktm.to)
+> +		wake_up_process(ktm.to);
+> +	spin_unlock(&ktm_lock);
+> +}
+> +
+> +static struct kt_message ktm_receive(void)
+> +{
+> +	struct kt_message m;
+> +
+> +	for (;;) {
+> +		spin_lock(&ktm_lock);
+> +		if (ktm.to == current)
+> +			break;
+> +		current->state = TASK_INTERRUPTIBLE;
+> +		spin_unlock(&ktm_lock);
+> +		schedule();
+> +	}
+> +	m = ktm;
+> +	spin_unlock(&ktm_lock);
+> +	return m;
+> +}
 
-bk://ppc.bkbits.net/linuxppc-2.5-benh ?
+Wouldn't it be better to put a kt_message inside a tast_struct?
 
-(also available via rsync on source.mvista.com)
 
-Ben.
+
+- Davide
+
 
 

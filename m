@@ -1,44 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265553AbSKAAER>; Thu, 31 Oct 2002 19:04:17 -0500
+	id <S265465AbSKAARB>; Thu, 31 Oct 2002 19:17:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265574AbSKAAER>; Thu, 31 Oct 2002 19:04:17 -0500
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:65030
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S265553AbSKAAEQ>; Thu, 31 Oct 2002 19:04:16 -0500
-Subject: Re: [PATCH 2.5.45] NUMA Scheduler  (1/2)
-From: Robert Love <rml@tech9.net>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Michael Hohnbaum <hohnbaum@us.ibm.com>,
-       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-       mingo@elte.hu, Erich Focht <efocht@ess.nec.de>
-In-Reply-To: <1010470000.1036108344@flay>
-References: <1036107098.21647.104.camel@dyn9-47-17-164.beaverton.ibm.com> 
-	<1010470000.1036108344@flay>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 31 Oct 2002 19:10:42 -0500
-Message-Id: <1036109447.1067.27.camel@phantasy>
-Mime-Version: 1.0
+	id <S265471AbSKAARB>; Thu, 31 Oct 2002 19:17:01 -0500
+Received: from newmail.somanetworks.com ([216.126.67.42]:44676 "EHLO
+	mail.somanetworks.com") by vger.kernel.org with ESMTP
+	id <S265465AbSKAARA>; Thu, 31 Oct 2002 19:17:00 -0500
+Date: Thu, 31 Oct 2002 19:23:23 -0500 (EST)
+From: Scott Murray <scottm@somanetworks.com>
+X-X-Sender: <scottm@rancor.yyz.somanetworks.com>
+To: Greg KH <greg@kroah.com>
+cc: "Grover, Andrew" <andrew.grover@intel.com>,
+       "Lee, Jung-Ik" <jung-ik.lee@intel.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: bare pci configuration access functions ?
+In-Reply-To: <20021031234621.GE10689@kroah.com>
+Message-ID: <Pine.LNX.4.33.0210311917040.26260-100000@rancor.yyz.somanetworks.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-10-31 at 18:52, Martin J. Bligh wrote:
+On Thu, 31 Oct 2002, Greg KH wrote:
 
-> Just wanted to add that everyone that's been involved in this is
-> now in harmonious agreement about this combined solution. If you're
-> curious as to where the benefits come from, the differences in 
-> kernel profiles are included below from a 16-way NUMA-Q doing a
-> kernel compile.
+> On Thu, Oct 31, 2002 at 05:50:06PM -0500, Scott Murray wrote:
+> > On Thu, 31 Oct 2002, Greg KH wrote:
+> > [snip]
+> > > Anyway, this is a nice diversion from the real problem here, for 2.4,
+> > > should I just backport the pci_ops changes which will allow pci
+> > > hotplugging to work again on ia64, or do we want to do something else?
+> >
+> > It would be nice from a hotplug driver maintenance point of view if the
+> > 2.4 and 2.5 interfaces were the same IMO.
+>
+> Yes it would be, but it's not a necessary thing :)
 
-Linus, although these patches are fairly straightforward and
-non-impacting in the !CONFIG_NUMA case, would you prefer it if a
-non-NUMA person who knew the scheduler (say, me) went over these patches
-and merged them with you?
+Yeah, yeah, I can deal. ;)
 
-Ingo, do you have an opinion either way?  I think basic NUMA support,
-especially in the load balancer, should make it in before 2.6.
+> > How about submitting the change in 2.4.21-pre?
+>
+> It is a _very_ big change.  It hits every architecture.  It was the
+> right thing to do in 2.5, I'm just questioning if it's the right thing
+> to do in 2.4 because of the magnitude of it.
+>
+> So, if people say it's ok, I'll do it.  But I would like to hear from
+> the PPC64 group first, as I know I caused them a lot of grief and rework
+> because of it.
 
-	Robert Love
+I hadn't realized the magnitude of the changes from the previous
+discussion here on the list, my apologies.
+
+Scott
+
+
+-- 
+Scott Murray
+SOMA Networks, Inc.
+Toronto, Ontario
+e-mail: scottm@somanetworks.com
 

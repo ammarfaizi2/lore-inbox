@@ -1,32 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130516AbRBPQDx>; Fri, 16 Feb 2001 11:03:53 -0500
+	id <S130088AbRBPQDD>; Fri, 16 Feb 2001 11:03:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130543AbRBPQDd>; Fri, 16 Feb 2001 11:03:33 -0500
-Received: from tux17.cs.wisc.edu ([128.105.111.117]:50692 "EHLO
-	tux17.cs.wisc.edu") by vger.kernel.org with ESMTP
-	id <S130516AbRBPQDb>; Fri, 16 Feb 2001 11:03:31 -0500
-Date: Fri, 16 Feb 2001 10:03:31 -0600 (CST)
-From: Matthew McCormick <mattmcc@cs.wisc.edu>
-To: linux-kernel@vger.kernel.org
-Subject: write system call location
-Message-ID: <Pine.LNX.3.96L.1010216100247.2507G-100000@tux17.cs.wisc.edu>
+	id <S130516AbRBPQCx>; Fri, 16 Feb 2001 11:02:53 -0500
+Received: from smtp.circle.net ([209.95.64.26]:56581 "EHLO smtp.circle.net")
+	by vger.kernel.org with ESMTP id <S130088AbRBPQCm>;
+	Fri, 16 Feb 2001 11:02:42 -0500
+From: "Mark Haney" <mhaney@info4cars.com>
+To: "James Sutherland" <jas88@cam.ac.uk>,
+        "Rik van Riel" <riel@conectiva.com.br>
+Cc: "Alan Olsen" <alan@clueserver.org>,
+        "David D.W. Downey" <pgpkeys@hislinuxbox.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: RE: Linux stifles innovation...
+Date: Fri, 16 Feb 2001 11:02:30 -0500
+Message-ID: <ENEOLFJEOCOEGPDADHEHOENBCOAA.mhaney@info4cars.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <Pine.SOL.4.21.0102161510010.23382-100000@red.csi.cam.ac.uk>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have been trying to find the source code for the write system call.
-I've checked through all the source code for the kernel and looked around
-on the mailling list but can't seem to find it anywhere.  I was tracing
-the file system operations and reached the function sys_write (which calls
-write).  Any help would be greatly appreciated.  I don't belong to the
-mailing list so please CC me on the answer.  My e-mail is:
+Okay, so if we are going to get real stupid about the whole thing, I wonder
+if Microsloth is going to patent the patent?
 
-mattmcc@cs.wisc.edu
 
-Thank you for the help.
+-----Original Message-----
+From: James Sutherland [mailto:jas88@hermes.cam.ac.uk]On Behalf Of James
+Sutherland
+Sent: Friday, February 16, 2001 10:11 AM
+To: Rik van Riel
+Cc: Alan Olsen; David D.W. Downey; Mark Haney;
+linux-kernel@vger.kernel.org
+Subject: RE: Linux stifles innovation...
 
-Matt McCormick
+
+On Fri, 16 Feb 2001, Rik van Riel wrote:
+
+> On Thu, 15 Feb 2001, Alan Olsen wrote:
+>
+> > I expect the next thing that will happen is that they will get
+> > patents on key portions of their protocols and then start
+> > enforcing them.
+>
+> If Microsoft would start pissing off IBM and other major
+> companies which have big business interests in Linux by
+> invoking their patents, I can just imagine IBM coming down
+> on Microsoft with their own patents ...
+>
+> "Hey you!  Stop flipping those bits!  Hold it right there!
+>  ... Don't you flip any more bits, read this patent first..."
+>
+> (and I'm sure they must have patents on _setting_ bits as
+> well ;))
+
+Apparently they DO have a patent on the tab key - you thought Amazon's
+"one click shopping" patent was bad?!
+
+
+James.
 
 

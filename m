@@ -1,50 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267378AbUBSBlY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 20:41:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267410AbUBSBlY
+	id S267784AbUBSDVT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 22:21:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267806AbUBSDVT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 20:41:24 -0500
-Received: from mail-08.iinet.net.au ([203.59.3.40]:5032 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S267378AbUBSBlX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 20:41:23 -0500
-Message-ID: <40341438.7050706@cyberone.com.au>
-Date: Thu, 19 Feb 2004 12:41:12 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
-X-Accept-Language: en
+	Wed, 18 Feb 2004 22:21:19 -0500
+Received: from pacific.moreton.com.au ([203.143.235.130]:52998 "EHLO
+	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
+	id S267784AbUBSDVO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 22:21:14 -0500
+Message-ID: <40342BD5.9080105@snapgear.com>
+Date: Thu, 19 Feb 2004 13:21:57 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: =?UTF-8?B?TWFyaXVzeiBLb3rFgm93c2tp?= <madx@tlen.pl>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [REALLY STUPID] Re: Linux 2.6.3 (website)
-References: <Pine.LNX.4.58.0402172013320.2686@home.osdl.org> <1077132367.30936.16.camel@telecentrolivre> <005501c3f65b$027191c0$0e25fe96@pysiak> <200402190141.15211.madx@tlen.pl>
-In-Reply-To: <200402190141.15211.madx@tlen.pl>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH]: linux-2.6.3-uc0 (MMU-less fixups)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi All,
+
+An update of the uClinux (MMU-less) fixups against 2.6.3.
+Nothing much new, just redone against 2.6.3.
+
+http://www.uclinux.org/pub/uClinux/uClinux-2.6.x/linux-2.6.3-uc0.patch.gz
+
+Regards
+Greg
 
 
-Mariusz Kozłowski wrote:
 
->Dnia śro 18. lutego 2004 21:08, Maciej Soltysiak napisał:
->
->>I have prepared a list of so far proposed names with images (all) and
->>music (where found) + some short background info (where found).
->>
->>http://soltysiak.com/kernel-codenames.php
->>
->>This page is in english. The rest of the site is polish, sorry. No valuable
->>info there anyway...
->>
->
->Mis uszatek is way better than pankracy. He is a reall master of puppets :) 
->Thats just my opinion. Although I might be younger than you.
->
->
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Dude          EMAIL:  gerg@snapgear.com
+Snapgear Pty Ltd                               PHONE:    +61 7 3279 1822
+825 Stanley St,                                  FAX:    +61 7 3279 1820
+Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
 
-I think this should be a 2.7 thing. Let's stick with funny
-sounding animal names in 2.6 for backward compatibility.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

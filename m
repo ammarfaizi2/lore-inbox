@@ -1,65 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262982AbVCXCDZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262981AbVCXCCv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262982AbVCXCDZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 21:03:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262984AbVCXCDZ
+	id S262981AbVCXCCv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 21:02:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262983AbVCXCCv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 21:03:25 -0500
-Received: from smtp001.mail.ukl.yahoo.com ([217.12.11.32]:4702 "HELO
-	smtp001.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S262982AbVCXCDI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 21:03:08 -0500
-From: Blaisorblade <blaisorblade@yahoo.it>
-To: Christoph Hellwig <hch@infradead.org>
-Subject: Re: [patch 03/12] uml: export getgid for hostfs
-Date: Thu, 24 Mar 2005 03:02:28 +0100
-User-Agent: KMail/1.7.2
-Cc: akpm@osdl.org, jdike@addtoit.com, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net
-References: <20050322162123.890086BA6F@zion> <20050322181140.GA22149@infradead.org>
-In-Reply-To: <20050322181140.GA22149@infradead.org>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 23 Mar 2005 21:02:51 -0500
+Received: from fire.osdl.org ([65.172.181.4]:36766 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262981AbVCXCCj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 21:02:39 -0500
+Date: Wed, 23 Mar 2005 18:02:05 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Blaisorblade <blaisorblade@yahoo.it>
+Cc: user-mode-linux-devel@lists.sourceforge.net,
+       bstroesser@fujitsu-siemens.com, jdike@addtoit.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [uml-devel] [patch 02/12] uml: cpu_relax fix
+Message-Id: <20050323180205.1298eb85.akpm@osdl.org>
+In-Reply-To: <200503240250.38153.blaisorblade@yahoo.it>
+References: <20050322162121.4295D2125C@zion>
+	<4241A2C0.2050206@fujitsu-siemens.com>
+	<200503240250.38153.blaisorblade@yahoo.it>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200503240302.29153.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 22 March 2005 19:11, Christoph Hellwig wrote:
-> On Tue, Mar 22, 2005 at 05:21:23PM +0100, blaisorblade@yahoo.it wrote:
-> > Export this symbol which is not satisfied currently. The code using it
-> > has been merged, so please export this symbol.
+Blaisorblade <blaisorblade@yahoo.it> wrote:
+>
+> On Wednesday 23 March 2005 18:09, Bodo Stroesser wrote:
+>  > blaisorblade@yahoo.it wrote:
+>  > > Use rep_nop instead of barrier for cpu_relax, following $(SUBARCH)'s
+>  > > doing that (i.e. i386 and x86_64).
+>  >
+>  > IIRC, Jeff had the idea, to use sched_yield() for this (from a discussion
+>  > on #uml).
+>  Hmm, makes sense, but this is to benchmark well... I remember from early 
+>  discussions on 2.6 scheduler that using sched_yield might decrease 
+>  performance (IIRC starve the calling application).
 
-> and it's still bogus, and you haven't replied when I mentioned it last
-> time.
-In this moment I need to clean up the missing symbol. If anyone wants to 
-remove the code using this, then he might post a patch explictly removing it, 
-and getting it refused probably.
-
-Or at least CC uml-devel when discussing those problems. I'm not currently 
-able to find on marc.theaimsgroup.com the mail you talk about. Can you please 
-provide the URL to the discussion? (even on any other archive you like, 
-obviously).
-
-That said, there are people still using that code, so it should be kept in.
-
-Also, you blocked an important patch (the one adding ->release to 
-hw_interrupt_type) saying that *perhaps* UML should avoid having any hard 
-irq, a la S390. You forced so the merge of a very ugly patch manually calling 
-what should have been UML's release method (i.e. free_irq_by_irq_and_dev) in 
-every place calling free_irq() (and in fact one was missed at first). Might 
-you reconsider your position on that issue ? (URL of the discussion below)
-
-http://marc.theaimsgroup.com/?l=linux-kernel&w=2&r=3&s=uml+irq&q=b
-
-The patch adding the generic handling is this one:
-
-http://marc.theaimsgroup.com/?l=linux-kernel&m=109834481320519&w=2
-
--- 
-Paolo Giarrusso, aka Blaisorblade
-Linux registered user n. 292729
-http://www.user-mode-linux.org/~blaisorblade
+yup, sched_yield() is pretty uniformly bad, and can result in heaps of
+starvation if the machine is busy.  Best to avoid it unless you really want
+it, and have tested it thoroughly under many-tasks-busy workloads.
 

@@ -1,65 +1,156 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319256AbSH2RLg>; Thu, 29 Aug 2002 13:11:36 -0400
+	id <S319263AbSH2RNE>; Thu, 29 Aug 2002 13:13:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319257AbSH2RLf>; Thu, 29 Aug 2002 13:11:35 -0400
-Received: from tolkor.SGI.COM ([192.48.180.13]:24984 "EHLO tolkor.sgi.com")
-	by vger.kernel.org with ESMTP id <S319256AbSH2RLf>;
-	Thu, 29 Aug 2002 13:11:35 -0400
-From: Dean Nelson <dcn@sgi.com>
-Message-Id: <200208291715.MAA75017@cyan.americas.sgi.com>
-Subject: Re: atomic64_t proposal
-To: ak@suse.de (Andi Kleen)
-Date: Thu, 29 Aug 2002 12:15:47 -0500 (CDT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <p73sn102hvu.fsf@oldwotan.suse.de> from "Andi Kleen" at Aug 27, 2002 09:58:45 PM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S319266AbSH2RNE>; Thu, 29 Aug 2002 13:13:04 -0400
+Received: from pc-80-195-6-65-ed.blueyonder.co.uk ([80.195.6.65]:6019 "EHLO
+	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
+	id <S319263AbSH2RNB>; Thu, 29 Aug 2002 13:13:01 -0400
+Date: Thu, 29 Aug 2002 18:17:14 +0100
+Message-Id: <200208291717.g7THHEf20540@sisko.scot.redhat.com>
+From: Stephen Tweedie <sct@redhat.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
+Cc: Stephen Tweedie <sct@redhat.com>
+Subject: [Patch 1/1] 2.4.20-pre4/ext3: Fix O_SYNC for non-data-journaled modes.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen writes:
-> 
-> Dean Nelson <dcn@sgi.com> writes:
-> 
-> > I'm proposing the creation of an atomic64_t variable, which is a 64-bit
-> > version of atomic_t, and the usage of the __typeof__ keyword in macro versions
-> > of the atomic operations to enable them to operate on either type (atomic_t and
-> > atomic64_t).
-> > 
-> > I submitted the following patch to David Mosberger to be considered for
-> > inclusion in the IA-64 linux kernel. He suggested that I bring the topic up
-> > on this list so that the other 64-bit platform maintainers can commment.
-> 
-> Wouldn't it be much cleaner to just define atomic64_add/sub/read etc. ?
-> That would make the macros much nicer.
-> 
-> On x86-64 it would be fine this way.
-> 
-> Is it supposed to only work on 64bit or do you plan to supply it for 32
-> bit too? If no, I don't see how drivers etc. should ever use it. linux 
-> is supposed to have a common kernel api.
-> If yes, the implementation on 32bit could be a problem. e.g. some 
-> archs need space in there for spinlocks, so it would be needed to limit
-> the usable range.
+Patch now fixed up to avoid conflicting with hch's b_inode cleanup:
 
-Your point about a common kernel api (across all architectures) is valid
-and leads me to reconsider the use of common macros for the two atomic types.
-So I guess I would lean in the direction you suggested of separate macros
-(atomic64_add/sub/read etc.) for the atomic64_t type.
+ext3 has its own code which marks buffers dirty, in addition to the setting
+done by the core generic_commit_write code.  However, the core code does
 
-But I'm wondering if it would be acceptable to have the atomic64_t implemented
-(initially) on only one platform?
+                        if (!atomic_set_buffer_dirty(bh)) {
+                                __mark_dirty(bh);
+                                buffer_insert_inode_queue(bh, inode);
 
-My original intent was to get atomic64_t into the IA-64 linux kernel.
-Mosberger suggested that the other 64-bit architecture maintainers should
-weigh in on this issue and that I send the proposal to lkml.
+so if ext3 marks the buffer dirty itself, the core fails to put it on the
+per-inode list of dirty buffers.  Hence, fsync_inode_buffers() misses it.
 
-I have no plans on implementing this for anything but the IA-64 linux kernel.
-But its api should be discussed and approved (or disapproved) by this list.
-The implementations for the other platforms can come as other people feel
-so moved to do them.
+The fix is to let ext3 put the buffer on the inode queue manually when
+walking the page's buffer lists in its page write code.
 
-Dean
+--- linux-ext3-2.4merge/fs/ext3/inode.c.=K0004=.orig	Thu Aug 29 10:34:11 2002
++++ linux-ext3-2.4merge/fs/ext3/inode.c	Thu Aug 29 12:29:20 2002
+@@ -949,11 +949,13 @@
+ }
+ 
+ static int walk_page_buffers(	handle_t *handle,
++				struct inode *inode,
+ 				struct buffer_head *head,
+ 				unsigned from,
+ 				unsigned to,
+ 				int *partial,
+ 				int (*fn)(	handle_t *handle,
++						struct inode *inode,
+ 						struct buffer_head *bh))
+ {
+ 	struct buffer_head *bh;
+@@ -971,7 +973,7 @@
+ 				*partial = 1;
+ 			continue;
+ 		}
+-		err = (*fn)(handle, bh);
++		err = (*fn)(handle, inode, bh);
+ 		if (!ret)
+ 			ret = err;
+ 	}
+@@ -1004,7 +1006,7 @@
+  * write.  
+  */
+ 
+-static int do_journal_get_write_access(handle_t *handle, 
++static int do_journal_get_write_access(handle_t *handle, struct inode *inode,
+ 				       struct buffer_head *bh)
+ {
+ 	return ext3_journal_get_write_access(handle, bh);
+@@ -1030,7 +1032,7 @@
+ 		goto prepare_write_failed;
+ 
+ 	if (ext3_should_journal_data(inode)) {
+-		ret = walk_page_buffers(handle, page->buffers,
++		ret = walk_page_buffers(handle, inode, page->buffers,
+ 				from, to, NULL, do_journal_get_write_access);
+ 		if (ret) {
+ 			/*
+@@ -1051,24 +1053,30 @@
+ 	return ret;
+ }
+ 
+-static int journal_dirty_sync_data(handle_t *handle, struct buffer_head *bh)
++static int journal_dirty_sync_data(handle_t *handle, struct inode *inode,
++				   struct buffer_head *bh)
+ {
+-	return ext3_journal_dirty_data(handle, bh, 0);
++	int ret = ext3_journal_dirty_data(handle, bh, 0);
++	buffer_insert_inode_data_queue(bh, inode);
++	return ret;
+ }
+ 
+ /*
+  * For ext3_writepage().  We also brelse() the buffer to account for
+  * the bget() which ext3_writepage() performs.
+  */
+-static int journal_dirty_async_data(handle_t *handle, struct buffer_head *bh)
++static int journal_dirty_async_data(handle_t *handle, struct inode *inode, 
++				    struct buffer_head *bh)
+ {
+ 	int ret = ext3_journal_dirty_data(handle, bh, 1);
++	buffer_insert_inode_data_queue(bh, inode);
+ 	__brelse(bh);
+ 	return ret;
+ }
+ 
+ /* For commit_write() in data=journal mode */
+-static int commit_write_fn(handle_t *handle, struct buffer_head *bh)
++static int commit_write_fn(handle_t *handle, struct inode *inode, 
++			   struct buffer_head *bh)
+ {
+ 	set_bit(BH_Uptodate, &bh->b_state);
+ 	return ext3_journal_dirty_metadata(handle, bh);
+@@ -1103,7 +1111,7 @@
+ 		int partial = 0;
+ 		loff_t pos = ((loff_t)page->index << PAGE_CACHE_SHIFT) + to;
+ 
+-		ret = walk_page_buffers(handle, page->buffers,
++		ret = walk_page_buffers(handle, inode, page->buffers,
+ 			from, to, &partial, commit_write_fn);
+ 		if (!partial)
+ 			SetPageUptodate(page);
+@@ -1113,7 +1121,7 @@
+ 		EXT3_I(inode)->i_state |= EXT3_STATE_JDATA;
+ 	} else {
+ 		if (ext3_should_order_data(inode)) {
+-			ret = walk_page_buffers(handle, page->buffers,
++			ret = walk_page_buffers(handle, inode, page->buffers,
+ 				from, to, NULL, journal_dirty_sync_data);
+ 		}
+ 		/* Be careful here if generic_commit_write becomes a
+@@ -1195,7 +1203,8 @@
+ 	return generic_block_bmap(mapping,block,ext3_get_block);
+ }
+ 
+-static int bget_one(handle_t *handle, struct buffer_head *bh)
++static int bget_one(handle_t *handle, struct inode *inode, 
++		    struct buffer_head *bh)
+ {
+ 	atomic_inc(&bh->b_count);
+ 	return 0;
+@@ -1294,7 +1303,7 @@
+ 			create_empty_buffers(page,
+ 				inode->i_dev, inode->i_sb->s_blocksize);
+ 		page_buffers = page->buffers;
+-		walk_page_buffers(handle, page_buffers, 0,
++		walk_page_buffers(handle, inode, page_buffers, 0,
+ 				PAGE_CACHE_SIZE, NULL, bget_one);
+ 	}
+ 
+@@ -1312,7 +1321,7 @@
+ 
+ 	/* And attach them to the current transaction */
+ 	if (order_data) {
+-		err = walk_page_buffers(handle, page_buffers,
++		err = walk_page_buffers(handle, inode, page_buffers,
+ 			0, PAGE_CACHE_SIZE, NULL, journal_dirty_async_data);
+ 		if (!ret)
+ 			ret = err;

@@ -1,42 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263103AbVCXQCr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262798AbVCXQGF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263103AbVCXQCr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 11:02:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263104AbVCXQCr
+	id S262798AbVCXQGF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 11:06:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263099AbVCXQGE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 11:02:47 -0500
-Received: from mail.kroah.org ([69.55.234.183]:44773 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263103AbVCXQCf (ORCPT
+	Thu, 24 Mar 2005 11:06:04 -0500
+Received: from byterapers.com ([195.156.109.210]:31688 "EHLO byterapers.com")
+	by vger.kernel.org with ESMTP id S262798AbVCXQFj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 11:02:35 -0500
-Date: Thu, 24 Mar 2005 08:02:25 -0800
-From: Greg KH <gregkh@suse.de>
-To: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: USB problems 2.6.10
-Message-ID: <20050324160225.GA19355@kroah.com>
-References: <20050324130045.GA30623@animx.eu.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050324130045.GA30623@animx.eu.org>
-User-Agent: Mutt/1.5.8i
+	Thu, 24 Mar 2005 11:05:39 -0500
+Date: Thu, 24 Mar 2005 18:05:14 +0200 (EET)
+From: Jakemuksen spammiosote <jhroska@byterapers.com>
+To: linux-kernel@vger.kernel.org
+cc: dbrownell@users.sourceforge.net
+Subject: [PATCH] usbnet.c, buf.overrun crash-bugfix, Kernel 2.6.12-rc1
+Message-ID: <Pine.LNX.4.61.0503241722160.30661@byterapers.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 24, 2005 at 08:00:46AM -0500, Wakko Warner wrote:
-> Please keep me CCd.
-> 
-> I have a system that I just updated to 2.6 and USB fails to work after some
-> time (~6-8 hours) giving me the "irq 11:nobody cared" message.
-> 
-> This system is a supermicro p3tdde (via chipset)
-> I have ACPI and Preempt enabled (which I will disable and try again)
-> 
-> I notice this rather quickly as my keyboard/mouse are on this controller.  I
-> have an NEC chip USB2.0 card installed which is currently working.
+Atleast versions 2.6.5 - 2.6.12-rc1 crash if an USB device using usbnet 
+sends oversized packet. Such packets occur most likely with broken
+device. Here's a patch that throws away such packet, to keep the machine
+from crashing. Hopefully this doesn't leave memory unreleased. If it does, 
+it's still better than crashing as such oversized packets are really rare.
 
-Can you try 2.6.11 and see if that is better?
+Signed-off-by: Jarkko Hakala <jhroska@byterapers.com>
 
-thanks,
+diff -Nur linux-2.6.12-rc1-orig/drivers/usb/net/usbnet.c 
+linux-2.6.12-rc1/drivers/usb/net/usbnet.c
+--- linux-2.6.12-rc1-orig/drivers/usb/net/usbnet.c      2005-03-18 
+03:34:13.000000000 +0200
++++ linux-2.6.12-rc1/drivers/usb/net/usbnet.c   2005-03-24 
+16:46:08.000000000 +0200
+@@ -2795,9 +2795,20 @@
+         struct usbnet           *dev = entry->dev;
+         int                     urb_status = urb->status;
 
-greg k-h
+-       skb_put (skb, urb->actual_length);
+-       entry->state = rx_done;
+-       entry->urb = NULL;
++       if (unlikely((skb->tail + urb->actual_length) > skb->end)) {
++               entry->state = rx_cleanup;
++               dev->stats.rx_errors++;
++               dev->stats.rx_length_errors++;
++               entry->urb = NULL;
++               printk(KERN_ERR
++                      "USB RX packet too long, discarded. "
++                      "Your slave device most likely is broken\n");
++               /* lets hope upper level protocols will recover */
++       } else {
++               skb_put(skb, urb->actual_length);
++               entry->state = rx_done;
++               entry->urb = NULL;
++       }
+
+         switch (urb_status) {
+             // success
+

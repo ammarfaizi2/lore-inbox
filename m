@@ -1,60 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311505AbSCNFKo>; Thu, 14 Mar 2002 00:10:44 -0500
+	id <S311506AbSCNFKy>; Thu, 14 Mar 2002 00:10:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311507AbSCNFKe>; Thu, 14 Mar 2002 00:10:34 -0500
-Received: from mail.parknet.co.jp ([210.134.213.6]:10511 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP
-	id <S311505AbSCNFKY>; Thu, 14 Mar 2002 00:10:24 -0500
-To: Brian Gerst <bgerst@didntduck.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] struct super_block cleanup - msdos/vfat
-In-Reply-To: <3C8FE8E3.2040204@didntduck.org>
-	<87k7sfoi8c.fsf@devron.myhome.or.jp>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Thu, 14 Mar 2002 14:10:12 +0900
-In-Reply-To: <87k7sfoi8c.fsf@devron.myhome.or.jp>
-Message-ID: <87bsdrohu3.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S311507AbSCNFKo>; Thu, 14 Mar 2002 00:10:44 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:18191 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S311506AbSCNFK2>;
+	Thu, 14 Mar 2002 00:10:28 -0500
+Message-ID: <3C9030B8.1010300@mandrakesoft.com>
+Date: Thu, 14 Mar 2002 00:10:16 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020214
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: gone@us.ibm.com
+CC: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
+Subject: Re: [RFC] discontigmem support for ia32 NUMA box in 2.4.18
+In-Reply-To: <200203140427.g2E4RPq23092@w-gaughen.des.beaverton.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> writes:
+Patricia Gaughen wrote:
 
-> Hi,
-> 
-> Brian Gerst <bgerst@didntduck.org> writes:
-> 
-> > diff -urN linux-2.5.7-pre1/fs/msdos/namei.c linux/fs/msdos/namei.c
-> > --- linux-2.5.7-pre1/fs/msdos/namei.c	Thu Mar  7 21:18:32 2002
-> > +++ linux/fs/msdos/namei.c	Wed Mar 13 08:20:12 2002
-> > @@ -603,17 +603,14 @@
-> >  
-> >  int msdos_fill_super(struct super_block *sb,void *data, int silent)
-> >  {
-> > -	struct super_block *res;
-> > +	int res;
-> >  
-> > -	MSDOS_SB(sb)->options.isvfat = 0;
-> > -	res = fat_read_super(sb, data, silent, &msdos_dir_inode_operations);
-> > -	if (IS_ERR(res))
-> > -		return PTR_ERR(res);
-> > -	if (res == NULL) {
-> > +	res = fat_fill_super(sb, data, silent, &msdos_dir_inode_operations, 0);
-> > +	if (res) {
-> >  		if (!silent)
-> >  			printk(KERN_INFO "VFS: Can't find a valid"
-> >  			       " MSDOS filesystem on dev %s.\n", sb->s_id);
-> 
-> If the error is I/O error, I think we shouldn't output this message.
-  ^^^^^^^^^^^^^^^^^^^^^^^^^^
-If the error is except -EINVAL,
+>This patch depends on the patch I sent last week (Subject: [RFC]
+>modularization of i386 setup_arch and mem_init in 2.4.18 -
+>http://marc.theaimsgroup.com/?l=linux-kernel&m=101562204614563&w=2) to
+>lkml.  It is available for download at
+>http://lse.sf.net/numa/discontig/memalloc-setup-2.4.18
+>
 
-Sorry.
+Your "prep" patch for discontigmem seems pretty sane... but it's also a 
+[relatively] big patch involving a pretty key piece of code.
 
-> What do you think about this?
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+I wonder if you could split the memalloc-setup patch into multiple 
+steps, eventually arriving at your goal?
+
+IMO it would be better to split up the memalloc-setup patch, apply it to 
+2.5.x initially...
+
+(sorry, no comments on your actual discontigmem patch :))
+
+    Jeff
+
+
+
+

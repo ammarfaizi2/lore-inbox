@@ -1,42 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129716AbRBJFAW>; Sat, 10 Feb 2001 00:00:22 -0500
+	id <S129904AbRBJFNN>; Sat, 10 Feb 2001 00:13:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129904AbRBJFAM>; Sat, 10 Feb 2001 00:00:12 -0500
-Received: from kiln.isn.net ([198.167.161.1]:15418 "EHLO kiln.isn.net")
-	by vger.kernel.org with ESMTP id <S129716AbRBJE74>;
-	Fri, 9 Feb 2001 23:59:56 -0500
-Message-ID: <3A84CA90.B2DC6AC0@isn.net>
-Date: Sat, 10 Feb 2001 00:58:56 -0400
-From: "Garst R. Reese" <reese@isn.net>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.2-pre2 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Albert Cranford <ac9410@bellsouth.net>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: compiling 2.4.1 with binutils-2.10.1.0.7
-In-Reply-To: <3A844C76.59CBEE74@isn.net> <3A845610.1FB1317C@bellsouth.net>
+	id <S129946AbRBJFMy>; Sat, 10 Feb 2001 00:12:54 -0500
+Received: from f00f.stub.clear.net.nz ([203.167.224.51]:51461 "HELO
+	metastasis.f00f.org") by vger.kernel.org with SMTP
+	id <S129904AbRBJFMt>; Sat, 10 Feb 2001 00:12:49 -0500
+Date: Sat, 10 Feb 2001 18:12:46 +1300
+From: Chris Wedgwood <cw@f00f.org>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: bidirectional named pipe?
+Message-ID: <20010210181246.C8934@metastasis.f00f.org>
+In-Reply-To: <E14OxTz-0007yS-00@the-village.bc.nu> <3A81D5B4.9CBC9B0D@kasey.umkc.edu> <95v90g$ke6$1@cesium.transmeta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <95v90g$ke6$1@cesium.transmeta.com>; from hpa@zytor.com on Thu, Feb 08, 2001 at 03:10:08PM -0800
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Albert Cranford wrote:
-> 
- 
-> I got tired of the warnings myself, so I applied the attached
-> patch.  I've been testing newer binutils since last November with it.
-> Later,
-> Albert
-Thanks Albert, I'll test it an let you know if I have any problems.
-Have you sent it to Linus?
-Have you also tried to compile the kernel with gcc-2.97 (20010205)?
-Oops, the problem was that I did not read the release notes for the
-latest
-binutils
--oformat needs to get changed to --oformat in the Makefile for
-arch/i386/boot
-Garst
+On Thu, Feb 08, 2001 at 03:10:08PM -0800, H. Peter Anvin wrote:
+
+    I would really like it if open() on a socket would be the same
+    thing to connect to a socket as a client.  I don't think it's a
+    good idea to do that for the server side, though, since it would
+    have to know about accept() anyway.
+
+things like this (non-portable hacks) belong in libc surely?
+
+
+
+  --cw
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

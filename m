@@ -1,199 +1,224 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317721AbSFSBEE>; Tue, 18 Jun 2002 21:04:04 -0400
+	id <S317720AbSFSBDq>; Tue, 18 Jun 2002 21:03:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317722AbSFSBED>; Tue, 18 Jun 2002 21:04:03 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:1039 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S317721AbSFSBEA>; Tue, 18 Jun 2002 21:04:00 -0400
-Date: Tue, 18 Jun 2002 21:59:18 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: linux-kernel@vger.kernel.org
-cc: linux-mm@kvack.org
-Subject: [PATCH *] rmap VM 13b
-Message-ID: <Pine.LNX.4.44L.0206182157320.2598-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317721AbSFSBDp>; Tue, 18 Jun 2002 21:03:45 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:8581 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S317720AbSFSBDo>;
+	Tue, 18 Jun 2002 21:03:44 -0400
+Subject: [RFC] [PATCH] tsc-disable_A6
+From: john stultz <johnstul@us.ibm.com>
+To: marcelo <marcelo@conectiva.com.br>, lkml <linux-kernel@vger.kernel.org>
+Cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>, mikpe@csd.uu.se,
+       vojtech@suse.cz
+Content-Type: multipart/mixed; boundary="=-bsm4PCPsDfbLUmbi6MVK"
+X-Mailer: Ximian Evolution 1.0.7 
+Date: 18 Jun 2002 17:55:19 -0700
+Message-Id: <1024448124.3030.139.camel@cog>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I returned from holidays last thursday and am leaving again for
-kernel summit and OLS. Luckily the two bugs that showed up in
-rmap while I was away are both hard to trigger and fixed in 13b ;)
+
+--=-bsm4PCPsDfbLUmbi6MVK
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+
+Hey Marcelo, all,
+
+	Here is the next revision of my tsc-disable patch. Thanks to everyone
+for providing feedback. I will re-submit this for the 2.4.20pre series,
+but wanted to get this out for additional comments as well as warn folks
+who might be trying this or my previous patch. This version reverts to
+the earlier implementation, which only changes config.in. I feel that
+defining CONFIG_X86_HAS_TSC gives one the ability to discern between
+just having a TSC and having a usable TSC, and all the current code that
+uses CONFIG_X86_TSC assumes that it is usable. This way seems cleaner
+and has all the benefits of the last method. Additionally I added the
+previously forgotten Configure.help documentation, for which I should no
+doubt receive a ruler across the knuckles.
+
+	One semi-large (now documented in Configure.help :)caveat I found: on
+systems which have glibc compiled for i686, kernels built with my old
+patch would not boot. This is because disabling the tsc makes rdtsc a
+privileged operation. When the kernel tries to run init, it hits the
+rdtsc in glibc and dies. Therefore in this version you must enable the
+option, then pass "notsc" to the kernel at boot. That way, if you run
+into problems you can just remove the "notsc" option and get your system
+running. Installing a non i686 optimized glibc solves this problem. 
+
+	Next, at Benjamin and Kurt's suggestion, I'm going to start looking
+into per-cpu TSC management, but for now this patch gives an immediate
+fix for a known problem (at some cost to performance, but slow numbers
+are better then invalid ones). 
+
+	I know I'm going to get this comment, so I might as well deal with it
+now. "Why bother with this patch when you could just compile the kernel
+for 386 the net effect would be the same?" Good question, actually. I
+almost decided against sending this patch out, but the ability to use
+processor optimizations other then CONFIG_X86_TSC seems useful on these
+large systems. Additionally having this issue explicitly documented in
+the kernel might help those who are wondering why their shiny NUMA
+Pentium 4 system can't seem to read its watch properly (rather then
+having someone say "just compile for 386" and having them think "but its
+a Pentium 4!").
+
+comments and flames welcome.
+-john
 
 
-The second maintenance release of the 13th version of the reverse
-mapping based VM is now available.
-This is an attempt at making a more robust and flexible VM
-subsystem, while cleaning up a lot of code at the same time.
-The patch is available from:
 
-           http://surriel.com/patches/2.4/2.4.19p7-rmap-13b
-and        http://linuxvm.bkbits.net/
+--=-bsm4PCPsDfbLUmbi6MVK
+Content-Disposition: attachment; filename=linux-2.4.19-pre10_tsc-disable_A6.patch
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/x-patch; name=linux-2.4.19-pre10_tsc-disable_A6.patch;
+	charset=ISO-8859-1
 
+diff -Nru a/Documentation/Configure.help b/Documentation/Configure.help
+--- a/Documentation/Configure.help	Tue Jun 18 16:43:28 2002
++++ b/Documentation/Configure.help	Tue Jun 18 16:43:28 2002
+@@ -233,7 +233,24 @@
+   network and embedded applications.  For more information see the
+   Axis Communication site, <http://developer.axis.com/>.
+=20
+-Multiquad support for NUMA systems
++Multi-node support for NUMA systems
++CONFIG_X86_NUMA
++  This option is used for getting Linux to run on a NUMA multi-node box.=20
++  Because multi-node systems suffer from unsynced TSCs, as well as TSC=20
++  drift, which can cause gettimeofday to return non-monotonic values,=20
++  this option will turn off the CONFIG_X86_TSC optimization. This=20
++  allows you to then specify "notsc" as a boot option to force all nodes=20
++  to use the PIC for gettimeofday.=20
++ =20
++  WARNING!!! This option, along with specifying "notsc" at boot causes=20
++  the rdtsc instruction to be a privledged op. Your glibc may be=20
++  compiled for i686, in which case applications using that library will=20
++  crash. Most likely your system won't even start init. If you system=20
++  will not boot, remove the "notsc" option, then install a glibc that
++  does not depend on rdtsc before trying again.=20
++ =20
++
++Multiquad support for NUMAQ systems
+ CONFIG_MULTIQUAD
+   This option is used for getting Linux to run on a (IBM/Sequent) NUMA=20
+   multiquad box. This changes the way that processors are bootstrapped,
+diff -Nru a/arch/i386/config.in b/arch/i386/config.in
+--- a/arch/i386/config.in	Tue Jun 18 16:43:28 2002
++++ b/arch/i386/config.in	Tue Jun 18 16:43:28 2002
+@@ -80,20 +80,20 @@
+    define_int  CONFIG_X86_L1_CACHE_SHIFT 5
+    define_bool CONFIG_X86_USE_STRING_486 y
+    define_bool CONFIG_X86_ALIGNMENT_16 y
+-   define_bool CONFIG_X86_TSC y
++   define_bool CONFIG_X86_HAS_TSC y
+    define_bool CONFIG_X86_PPRO_FENCE y
+ fi
+ if [ "$CONFIG_M586MMX" =3D "y" ]; then
+    define_int  CONFIG_X86_L1_CACHE_SHIFT 5
+    define_bool CONFIG_X86_USE_STRING_486 y
+    define_bool CONFIG_X86_ALIGNMENT_16 y
+-   define_bool CONFIG_X86_TSC y
++   define_bool CONFIG_X86_HAS_TSC y
+    define_bool CONFIG_X86_GOOD_APIC y
+    define_bool CONFIG_X86_PPRO_FENCE y
+ fi
+ if [ "$CONFIG_M686" =3D "y" ]; then
+    define_int  CONFIG_X86_L1_CACHE_SHIFT 5
+-   define_bool CONFIG_X86_TSC y
++   define_bool CONFIG_X86_HAS_TSC y
+    define_bool CONFIG_X86_GOOD_APIC y
+    define_bool CONFIG_X86_PGE y
+    define_bool CONFIG_X86_USE_PPRO_CHECKSUM y
+@@ -101,14 +101,14 @@
+ fi
+ if [ "$CONFIG_MPENTIUMIII" =3D "y" ]; then
+    define_int  CONFIG_X86_L1_CACHE_SHIFT 5
+-   define_bool CONFIG_X86_TSC y
++   define_bool CONFIG_X86_HAS_TSC y
+    define_bool CONFIG_X86_GOOD_APIC y
+    define_bool CONFIG_X86_PGE y
+    define_bool CONFIG_X86_USE_PPRO_CHECKSUM y
+ fi
+ if [ "$CONFIG_MPENTIUM4" =3D "y" ]; then
+    define_int  CONFIG_X86_L1_CACHE_SHIFT 7
+-   define_bool CONFIG_X86_TSC y
++   define_bool CONFIG_X86_HAS_TSC y
+    define_bool CONFIG_X86_GOOD_APIC y
+    define_bool CONFIG_X86_PGE y
+    define_bool CONFIG_X86_USE_PPRO_CHECKSUM y
+@@ -116,12 +116,12 @@
+ if [ "$CONFIG_MK6" =3D "y" ]; then
+    define_int  CONFIG_X86_L1_CACHE_SHIFT 5
+    define_bool CONFIG_X86_ALIGNMENT_16 y
+-   define_bool CONFIG_X86_TSC y
++   define_bool CONFIG_X86_HAS_TSC y
+    define_bool CONFIG_X86_USE_PPRO_CHECKSUM y
+ fi
+ if [ "$CONFIG_MK7" =3D "y" ]; then
+    define_int  CONFIG_X86_L1_CACHE_SHIFT 6
+-   define_bool CONFIG_X86_TSC y
++   define_bool CONFIG_X86_HAS_TSC y
+    define_bool CONFIG_X86_GOOD_APIC y
+    define_bool CONFIG_X86_USE_3DNOW y
+    define_bool CONFIG_X86_PGE y
+@@ -134,14 +134,14 @@
+ fi
+ if [ "$CONFIG_MCYRIXIII" =3D "y" ]; then
+    define_int  CONFIG_X86_L1_CACHE_SHIFT 5
+-   define_bool CONFIG_X86_TSC y
++   define_bool CONFIG_X86_HAS_TSC y
+    define_bool CONFIG_X86_ALIGNMENT_16 y
+    define_bool CONFIG_X86_USE_3DNOW y
+    define_bool CONFIG_X86_USE_PPRO_CHECKSUM y
+ fi
+ if [ "$CONFIG_MCRUSOE" =3D "y" ]; then
+    define_int  CONFIG_X86_L1_CACHE_SHIFT 5
+-   define_bool CONFIG_X86_TSC y
++   define_bool CONFIG_X86_HAS_TSC y
+ fi
+ if [ "$CONFIG_MWINCHIPC6" =3D "y" ]; then
+    define_int  CONFIG_X86_L1_CACHE_SHIFT 5
+@@ -152,14 +152,14 @@
+ if [ "$CONFIG_MWINCHIP2" =3D "y" ]; then
+    define_int  CONFIG_X86_L1_CACHE_SHIFT 5
+    define_bool CONFIG_X86_ALIGNMENT_16 y
+-   define_bool CONFIG_X86_TSC y
++   define_bool CONFIG_X86_HAS_TSC y
+    define_bool CONFIG_X86_USE_PPRO_CHECKSUM y
+    define_bool CONFIG_X86_OOSTORE y
+ fi
+ if [ "$CONFIG_MWINCHIP3D" =3D "y" ]; then
+    define_int  CONFIG_X86_L1_CACHE_SHIFT 5
+    define_bool CONFIG_X86_ALIGNMENT_16 y
+-   define_bool CONFIG_X86_TSC y
++   define_bool CONFIG_X86_HAS_TSC y
+    define_bool CONFIG_X86_USE_PPRO_CHECKSUM y
+    define_bool CONFIG_X86_OOSTORE y
+ fi
+@@ -198,8 +198,20 @@
+       define_bool CONFIG_X86_IO_APIC y
+    fi
+ else
+-   bool 'Multiquad NUMA system' CONFIG_MULTIQUAD
++	bool 'Multi-node NUMA system support (Caution: Read help first)' CONFIG_X=
+86_NUMA
++	if [ "$CONFIG_X86_NUMA" =3D "y" ]; then
++		bool 'Multiquad (IBM/Sequent) NUMAQ support' CONFIG_MULTIQUAD
++	fi
+ fi
++
++if [ "$CONFIG_X86_HAS_TSC" =3D "y" ]; then
++	if [ "$CONFIG_X86_NUMA" =3D "y" ]; then
++		define_bool CONFIG_X86_TSC n
++	else
++		define_bool CONFIG_X86_TSC y
++	fi
++fi
++
+=20
+ if [ "$CONFIG_SMP" =3D "y" -a "$CONFIG_X86_CMPXCHG" =3D "y" ]; then
+    define_bool CONFIG_HAVE_DEC_LOCK y
 
-My big TODO items for a next release are:
-  - O(1) page launder - currently functional but slow, needs to be tuned
-  - pte-highmem
-
-rmap 13b:
-  - prevent PF_MEMALLOC recursion for higher order allocs (Arjan van de Ven, me)
-  - fix small SMP race, PG_lru                            (Hugh Dickins)
-rmap 13a:
-  - NUMA changes for page_address                         (Samuel Ortiz)
-  - replace vm.freepages with simpler kswapd_minfree      (Christoph Hellwig)
-rmap 13:
-  - rename touch_page to mark_page_accessed and uninline  (Christoph Hellwig)
-  - NUMA bugfix for __alloc_pages                         (William Irwin)
-  - kill __find_page                                      (Christoph Hellwig)
-  - make pte_chain_freelist per zone                      (William Irwin)
-  - protect pte_chains by per-page lock bit               (William Irwin)
-  - minor code cleanups                                   (me)
-rmap 12i:
-  - slab cleanup                                          (Christoph Hellwig)
-  - remove references to compiler.h from mm/*             (me)
-  - move rmap to marcelo's bk tree                        (me)
-  - minor cleanups                                        (me)
-rmap 12h:
-  - hopefully fix OOM detection algorithm                 (me)
-  - drop pte quicklist in anticipation of pte-highmem     (me)
-  - replace andrea's highmem emulation by ingo's one      (me)
-  - improve rss limit checking                            (Nick Piggin)
-rmap 12g:
-  - port to armv architecture                             (David Woodhouse)
-  - NUMA fix to zone_table initialisation                 (Samuel Ortiz)
-  - remove init_page_count                                (David Miller)
-rmap 12f:
-  - for_each_pgdat macro                                  (William Lee Irwin)
-  - put back EXPORT(__find_get_page) for modular rd       (me)
-  - make bdflush and kswapd actually start queued disk IO (me)
-rmap 12e
-  - RSS limit fix, the limit can be 0 for some reason     (me)
-  - clean up for_each_zone define to not need pgdata_t    (William Lee Irwin)
-  - fix i810_dma bug introduced with page->wait removal   (William Lee Irwin)
-rmap 12d:
-  - fix compiler warning in rmap.c                        (Roger Larsson)
-  - read latency improvement   (read-latency2)            (Andrew Morton)
-rmap 12c:
-  - fix small balancing bug in page_launder_zone          (Nick Piggin)
-  - wakeup_kswapd / wakeup_memwaiters code fix            (Arjan van de Ven)
-  - improve RSS limit enforcement                         (me)
-rmap 12b:
-  - highmem emulation (for debugging purposes)            (Andrea Arcangeli)
-  - ulimit RSS enforcement when memory gets tight         (me)
-  - sparc64 page->virtual quickfix                        (Greg Procunier)
-rmap 12a:
-  - fix the compile warning in buffer.c                   (me)
-  - fix divide-by-zero on highmem initialisation  DOH!    (me)
-  - remove the pgd quicklist (suspicious ...)             (DaveM, me)
-rmap 12:
-  - keep some extra free memory on large machines         (Arjan van de Ven, me)
-  - higher-order allocation bugfix                        (Adrian Drzewiecki)
-  - nr_free_buffer_pages() returns inactive + free mem    (me)
-  - pages from unused objects directly to inactive_clean  (me)
-  - use fast pte quicklists on non-pae machines           (Andrea Arcangeli)
-  - remove sleep_on from wakeup_kswapd                    (Arjan van de Ven)
-  - page waitqueue cleanup                                (Christoph Hellwig)
-rmap 11c:
-  - oom_kill race locking fix                             (Andres Salomon)
-  - elevator improvement                                  (Andrew Morton)
-  - dirty buffer writeout speedup (hopefully ;))          (me)
-  - small documentation updates                           (me)
-  - page_launder() never does synchronous IO, kswapd
-    and the processes calling it sleep on higher level    (me)
-  - deadlock fix in touch_page()                          (me)
-rmap 11b:
-  - added low latency reschedule points in vmscan.c       (me)
-  - make i810_dma.c include mm_inline.h too               (William Lee Irwin)
-  - wake up kswapd sleeper tasks on OOM kill so the
-    killed task can continue on its way out               (me)
-  - tune page allocation sleep point a little             (me)
-rmap 11a:
-  - don't let refill_inactive() progress count for OOM    (me)
-  - after an OOM kill, wait 5 seconds for the next kill   (me)
-  - agpgart_be fix for hashed waitqueues                  (William Lee Irwin)
-rmap 11:
-  - fix stupid logic inversion bug in wakeup_kswapd()     (Andrew Morton)
-  - fix it again in the morning                           (me)
-  - add #ifdef BROKEN_PPC_PTE_ALLOC_ONE to rmap.h, it
-    seems PPC calls pte_alloc() before mem_map[] init     (me)
-  - disable the debugging code in rmap.c ... the code
-    is working and people are running benchmarks          (me)
-  - let the slab cache shrink functions return a value
-    to help prevent early OOM killing                     (Ed Tomlinson)
-  - also, don't call the OOM code if we have enough
-    free pages                                            (me)
-  - move the call to lru_cache_del into __free_pages_ok   (Ben LaHaise)
-  - replace the per-page waitqueue with a hashed
-    waitqueue, reduces size of struct page from 64
-    bytes to 52 bytes (48 bytes on non-highmem machines)  (William Lee Irwin)
-rmap 10:
-  - fix the livelock for real (yeah right), turned out
-    to be a stupid bug in page_launder_zone()             (me)
-  - to make sure the VM subsystem doesn't monopolise
-    the CPU, let kswapd and some apps sleep a bit under
-    heavy stress situations                               (me)
-  - let __GFP_HIGH allocations dig a little bit deeper
-    into the free page pool, the SCSI layer seems fragile (me)
-rmap 9:
-  - improve comments all over the place                   (Michael Cohen)
-  - don't panic if page_remove_rmap() cannot find the
-    rmap in question, it's possible that the memory was
-    PG_reserved and belonging to a driver, but the driver
-    exited and cleared the PG_reserved bit                (me)
-  - fix the VM livelock by replacing > by >= in a few
-    critical places in the pageout code                   (me)
-  - treat the reclaiming of an inactive_clean page like
-    allocating a new page, calling try_to_free_pages()
-    and/or fixup_freespace() if required                  (me)
-  - when low on memory, don't make things worse by
-    doing swapin_readahead                                (me)
-rmap 8:
-  - add ANY_ZONE to the balancing functions to improve
-    kswapd's balancing a bit                              (me)
-  - regularize some of the maximum loop bounds in
-    vmscan.c for cosmetic purposes                        (William Lee Irwin)
-  - move page_address() to architecture-independent
-    code, now the removal of page->virtual is portable    (William Lee Irwin)
-  - speed up free_area_init_core() by doing a single
-    pass over the pages and not using atomic ops          (William Lee Irwin)
-  - documented the buddy allocator in page_alloc.c        (William Lee Irwin)
-rmap 7:
-  - clean up and document vmscan.c                        (me)
-  - reduce size of page struct, part one                  (William Lee Irwin)
-  - add rmap.h for other archs (untested, not for ARM)    (me)
-rmap 6:
-  - make the active and inactive_dirty list per zone,
-    this is finally possible because we can free pages
-    based on their physical address                       (William Lee Irwin)
-  - cleaned up William's code a bit                       (me)
-  - turn some defines into inlines and move those to
-    mm_inline.h (the includes are a mess ...)             (me)
-  - improve the VM balancing a bit                        (me)
-  - add back inactive_target to /proc/meminfo             (me)
-rmap 5:
-  - fixed recursive buglet, introduced by directly
-    editing the patch for making rmap 4 ;)))              (me)
-rmap 4:
-  - look at the referenced bits in page tables            (me)
-rmap 3:
-  - forgot one FASTCALL definition                        (me)
-rmap 2:
-  - teach try_to_unmap_one() about mremap()               (me)
-  - don't assign swap space to pages with buffers         (me)
-  - make the rmap.c functions FASTCALL / inline           (me)
-rmap 1:
-  - fix the swap leak in rmap 0                           (Dave McCracken)
-rmap 0:
-  - port of reverse mapping VM to 2.4.16                  (me)
-
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+--=-bsm4PCPsDfbLUmbi6MVK--
 

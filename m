@@ -1,79 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261725AbVCISSV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262158AbVCISUD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261725AbVCISSV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 13:18:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262045AbVCISSV
+	id S262158AbVCISUD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 13:20:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262160AbVCISUD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 13:18:21 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:29388 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261725AbVCISRy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 13:17:54 -0500
-Date: Wed, 9 Mar 2005 11:03:59 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, chrisw@osdl.org, torvalds@osdl.org,
-       akpm@osdl.org
-Subject: Re: Linux 2.6.11.2
-Message-ID: <20050309140359.GB15110@logos.cnet>
-References: <20050309083923.GA20461@kroah.com>
+	Wed, 9 Mar 2005 13:20:03 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:51586 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262045AbVCISTn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 13:19:43 -0500
+Subject: RE: [ANNOUNCE][PATCH 2.6.11 2/3] megaraid_sas: Announcing new mod
+	ule  for LSI Logic's SAS based MegaRAID controllers
+From: Arjan van de Ven <arjan@infradead.org>
+To: "Bagalkote, Sreenivas" <sreenib@lsil.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
+       "'James Bottomley'" <James.Bottomley@SteelEye.com>,
+       "'Matt_Domsch@Dell.com'" <Matt_Domsch@Dell.com>,
+       Andrew Morton <akpm@osdl.org>,
+       "'Christoph Hellwig'" <hch@infradead.org>
+In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E570230CC20@exa-atlanta>
+References: <0E3FA95632D6D047BA649F95DAB60E570230CC20@exa-atlanta>
+Content-Type: text/plain
+Date: Wed, 09 Mar 2005 19:19:35 +0100
+Message-Id: <1110392376.6280.139.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050309083923.GA20461@kroah.com>
-User-Agent: Mutt/1.5.5.1i
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 4.1 (++++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (4.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2005-03-09 at 12:44 -0500, Bagalkote, Sreenivas wrote:
+> >> >
+> >> >> . And since this is compile time
+> >> >> system-wide property, I kept it as driver global.
+> >> >
+> >> >that step I don't understand... why is it a global 
+> >*VARIABLE* if it's
+> >> >compile time system-wide property...
+> >> >
+> >> 
+> >> I see your point! Are you saying I should use 
+> >if(sizeof(dma_addr_t)==8)
+> >> instead of the shortcut if(is_dma64)? 
+> >yep
+> >well you can use a preprocessor define of something to make it slightly
+> >more readable (eg shortcut) if you want, but that's what I mean yeah..
+> >
+> >gcc will optimize the entire unused code away this way, including the
+> >actual conditional jump, so for performance and bloat-ness 
+> >point of view
+> >it's nice.... and of course generic design beauty ;)
+> >
+> 
+> Great. Thanks! I will change it. If I understand you correctly, I should
+> #define IS_DMA64 (sizeof(dma_addr_t)==8).
 
-Hi Greg,
+that's one way to do it yeah.
+> 
+> Is this better than declaring is_dma64 global variable const? (Excuse the
+> oxymoron).
 
-The st/ide-tape/osst llseek changes havent been applied for what reason? 
+in C yes; in C "const" doesn't quite mean what you want it to mean with
+this and as a result gcc I think can't optimize this the way it can with
+the define.
 
-And what about the rest of fixups which Andrew sent you? 
 
-I suppose they didnt pass the -stable criteria. Can you share your thoughts 
-with the rest of us?
-
-On Wed, Mar 09, 2005 at 12:39:23AM -0800, Greg KH wrote:
-> And to further test this whole -stable system, I've released 2.6.11.2.
-> It contains one patch, which is already in the -bk tree, and came from
-> the security team (hence the lack of the longer review cycle).
-> 
-> It's available now in the normal kernel.org places:
-> 	kernel.org/pub/linux/kernel/v2.6/patch-2.6.11.2.gz
-> which is a patch against the 2.6.11.1 release.  If consensus arrives
-> that this patch should be against the 2.6.11 tree, it will be done that
-> way in the future.
-> 
-> A detailed changelog can be found at:
->  	kernel.org/pub/linux/kernel/v2.6/ChangeLog-2.6.11.2
-> 
-> A bitkeeper tree for the 2.6.11.y releases can be found at:
-> 	bk://linux-release.bkbits.net/linux-2.6.11
-> 
-> The diffstat and short summary of the fixes are below.  
-> 
-> I'll also be replying to this message with a copy of the patch itself,
-> as it is small enough to do so.
-> 
-> thanks,
->  
-> greg k-h
-> 
-> -------
-> 
-> 
->  Makefile       |    2 +-
->  fs/eventpoll.c |    3 ++-
->  2 files changed, 3 insertions(+), 2 deletions(-)
-> 
-> 
-> Summary of changes from v2.6.11.1 to v2.6.11.2
-> ============================================
-> 
-> Greg Kroah-Hartman:
->   o Linux 2.6.11.2
-> 
-> Linus Torvalds:
->   o epoll: return proper error on overflow condition

@@ -1,55 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267465AbUHDWbj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267482AbUHDWgR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267465AbUHDWbj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 18:31:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267467AbUHDWbj
+	id S267482AbUHDWgR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 18:36:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267485AbUHDWgR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 18:31:39 -0400
-Received: from mail010.syd.optusnet.com.au ([211.29.132.56]:20196 "EHLO
-	mail010.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S267465AbUHDWbf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 18:31:35 -0400
-References: <1091655857.3088.10.camel@localhost.localdomain>
-Message-ID: <cone.1091658687.786019.9775.502@pc.kolivas.org>
-X-Mailer: http://www.courier-mta.org/cone/
-From: Con Kolivas <kernel@kolivas.org>
-To: Zan Lynx <zlynx@acm.org>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.8-rc2-mm2, staircase sched and ESD
-Date: Thu, 05 Aug 2004 08:31:27 +1000
+	Wed, 4 Aug 2004 18:36:17 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:10182 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S267482AbUHDWfQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Aug 2004 18:35:16 -0400
+Date: Wed, 4 Aug 2004 15:33:10 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Andi Kleen <ak@suse.de>
+Cc: lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] subset zonelists and big numa friendly mempolicy
+ MPOL_MBIND
+Message-Id: <20040804153310.618413cb.pj@sgi.com>
+In-Reply-To: <20040803020805.060620fa.ak@suse.de>
+References: <20040802233516.11477.10063.34205@sam.engr.sgi.com>
+	<20040803020805.060620fa.ak@suse.de>
+Organization: SGI
+X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; charset="US-ASCII"
-Content-Disposition: inline
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zan Lynx writes:
+A couple of days ago, Andi wrote:
+> My first reaction that if you really want to do that, just pass
+> the policy node bitmap to alloc_pages and try_to_free_pages
+> and use the normal per node zone list with the bitmap as filter. 
 
-> The 2.6.8-rc2-mm2 kernel has the staircase scheduler, right?  Well, I am
-> seeing an odd thing.  At least, I think it is odd.
-> 
-> I'm running Fedora Core 2 and playing music with Rhythmbox.  When I
-> watch top sorted by priority, I see esd slowly increase its priority
-> until it reaches 38, then it goes back to 20.  ESD is only using 1-2%
-> CPU.
-> 
-> This is causing a problem because doing just about anything in X, like
-> bring up a new window or drag a window causes the sound to just stop.
-> 
-> Why does ESD's priority keep climbing?
-> 
-> Oh yes, this does not happen if I change /proc/sys/fs/interactive to 0. 
-> When it is 0, X's priority climbs faster than ESDs and does not cause
-> the problem.
+I have coded your suggestion up, and indeed, it is much simpler
 
-Yes this is a known issue with esd. It basically wakes up far too frequently 
-for it's own good. esd should not be required with alsa drivers and 
-2.6 since alsa supports sharing of the sound card / mixing on it's own so 
-adding esd adds an unnecessary layer to the sound drivers. It ends 
-up doing this:
-esd->oss emulation->alsa.
+I added an optional (#ifdef CONFIG_CPUSET) "mems_allowed" field to the
+task_struct, and filter zones on this mask (if not in_interrupt()) in
+the page allocation and free'ing code.
 
-Cheers,
-Con
+Thank-you.  I think you're right, and it's the way to go.
 
+I will be posting a full cpuset patch that includes this change on
+lse-tech and lkml, hopefully in a few hours.  I will be most grateful
+for any further feedback.
+
+Providing support for dividing very large systems into subsets of
+nodes (cpu and memory), in order to obtain good memory locality and
+good isolation of big jobs from each other, is essential to the success
+of certain high end Linux users.
+
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

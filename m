@@ -1,27 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283636AbRK3MHJ>; Fri, 30 Nov 2001 07:07:09 -0500
+	id <S283613AbRK3MO7>; Fri, 30 Nov 2001 07:14:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283635AbRK3MHA>; Fri, 30 Nov 2001 07:07:00 -0500
-Received: from 24-163-106-43.he2.cox.rr.com ([24.163.106.43]:23230 "EHLO
-	asd.ppp0.com") by vger.kernel.org with ESMTP id <S283634AbRK3MGv>;
-	Fri, 30 Nov 2001 07:06:51 -0500
-Date: Fri, 30 Nov 2001 07:06:30 -0500
-Subject: Re: Too buggy even for Linux [Was Re: some questions about wedding]
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Mime-Version: 1.0 (Apple Message framework v475)
-Cc: Ahmed Masud <masud@marauder.googgun.com>, <linux-kernel@vger.kernel.org>
-To: John Jasen <jjasen1@umbc.edu>
-From: Anthony DeRobertis <asd@suespammers.org>
-In-Reply-To: <Pine.SGI.4.31L.02.0111300234480.13649373-100000@irix2.gl.umbc.edu>
-Message-Id: <B03298DF-E58A-11D5-A386-00039355CFA6@suespammers.org>
-Content-Transfer-Encoding: 7bit
-X-Mailer: Apple Mail (2.475)
+	id <S283634AbRK3MOu>; Fri, 30 Nov 2001 07:14:50 -0500
+Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:27827 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S283613AbRK3MOb>; Fri, 30 Nov 2001 07:14:31 -0500
+Date: Fri, 30 Nov 2001 13:11:15 +0100 (MET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Russell King <rmk@arm.linux.org.uk>
+cc: randall@uph.com, Balbir Singh <balbir_soni@yahoo.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Patch: Fix serial module use count (2.4.16 _and_ 2.5)
+In-Reply-To: <20011130105633.A18992@flint.arm.linux.org.uk>
+Message-ID: <Pine.GSO.3.96.1011130130031.15249E-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> We'll leave alone for the moment that husband and wife often seem to be
-> speaking completely different and unrelated protocols.
+On Fri, 30 Nov 2001, Russell King wrote:
 
-Nah, same protocol, in theory. Just one was implemented by Micro$oft.
+> Have you audited all the tty drivers in 2.4 to make sure that they clean
+> up safely?
+
+ No, of course not -- if I had got a response like "this looks mostly OK,
+but please check other drivers", then I would have certainly done.  I
+think drivers/tc/zs.c is OK, too, but this was more than a year ago, so I
+can't recall now, sorry. 
+
+> I don't believe the serial code will clean up safely as it stands for
+> starters if block_til_ready in serial.c fails, leaving an interrupt
+> in use.  Further attempts to open the serial device will probably fail.
+> 
+> Try this as any user with your patch applied:
+> 
+> $ stty -clocal -F /dev/ttyS0
+> $ cat /proc/interrupts
+> $ cat /dev/ttyS0
+> ^c
+> $ cat /proc/interrupts
+> 
+> I think you'll find your serial port interrupt is still claimed, despite
+> the module being marked as not in use.
+
+ Indeed -- maybe something was changed past 2.4.5, after all.  I'll check
+how things look like these days.  I nowhere use serial.c as a module
+anymore, as all systems I maintain are now configured for the serial
+console, so I might have missed something. 
+
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 

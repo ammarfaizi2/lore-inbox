@@ -1,52 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129624AbRBIVpK>; Fri, 9 Feb 2001 16:45:10 -0500
+	id <S129210AbRBIVwA>; Fri, 9 Feb 2001 16:52:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129448AbRBIVpA>; Fri, 9 Feb 2001 16:45:00 -0500
-Received: from smtp1.cern.ch ([137.138.128.38]:27920 "EHLO smtp1.cern.ch")
-	by vger.kernel.org with ESMTP id <S129712AbRBIVoo>;
-	Fri, 9 Feb 2001 16:44:44 -0500
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: Ion Badulescu <ionut@cs.columbia.edu>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>, Alan Cox <alan@redhat.com>,
-        linux-kernel@vger.kernel.org, Donald Becker <becker@scyld.com>
-Subject: Re: [PATCH] starfire reads irq before pci_enable_device.
-In-Reply-To: <Pine.LNX.4.30.0102081259090.31024-100000@age.cs.columbia.edu> <3A831313.A23EE2A1@colorfullife.com>
-From: Jes Sorensen <jes@linuxcare.com>
-Date: 09 Feb 2001 22:43:53 +0100
-In-Reply-To: Manfred Spraul's message of "Thu, 08 Feb 2001 22:43:47 +0100"
-Message-ID: <d38znfwmzq.fsf@lxplus015.cern.ch>
-User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
+	id <S129448AbRBIVvv>; Fri, 9 Feb 2001 16:51:51 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:15318 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S129210AbRBIVvh>;
+	Fri, 9 Feb 2001 16:51:37 -0500
+Date: Fri, 9 Feb 2001 16:50:37 -0500 (EST)
+From: Richard A Nelson <cowboy@vnet.ibm.com>
+X-X-Sender: <cowboy@badlands.lexington.ibm.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.2.19pre{3-9} and IPC problem
+Message-ID: <Pine.LNX.4.33.0102091645450.14044-100000@badlands.lexington.ibm.com>
+X-No-Markup: yes
+x-No-ProductLinks: yes
+x-No-Archive: yes
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Manfred" == Manfred Spraul <manfred@colorfullife.com> writes:
+In 2.2.19pre3, IPC_RMID had the following change:
+        case IPC_RMID:
+                if (current->euid == shp->u.shm_perm.uid ||
+                    current->euid == shp->u.shm_perm.cuid ||
+                    capable(CAP_SYS_ADMIN)) {
+                        shp->u.shm_perm.mode |= SHM_DEST;
+                        if (shp->u.shm_nattch <= 0)
+                                killseg (id);
++                       /* Do not find it any more */
++                       shp->u.shm_perm.key = IPC_PRIVATE;
+                        break;
+                }
+                err = -EPERM;
+                goto out;
 
-Manfred> Ion Badulescu wrote:
->>  > > +#if defined(__ia64__) || defined(__alpha__) > > +#define
->> PKT_SHOULD_COPY(pkt_len) 1 > > +#else > > +#define
->> PKT_SHOULD_COPY(pkt_len) (pkt_len < rx_copybreak) > > +#endif >
->> [snip]
->> 
->> It's not *required* per se, as far as I know both the Alpha and
->> IA64 have handlers for unaligned access traps. *However*, copying
->> each packet is definitely better than taking an exception for each
->> packet!
+I've two questions related to the change:
+  1) Should not the two new lines have been inserted before the
+     killseg() call?  It appears that killseg() will kfree() the
+     storage backing shp!?!  If so, the key setting portion could
+     be altering anything or faulting, no?
 
-Manfred> What about changing the default for rx_copybreak instead?
-Manfred> Set it to 1536 on ia64 and Alpha, 0 for the rest.  tulip and
-Manfred> eepro100 use that aproach.
+  2) on 2.2.19pre{7-9} I've seen occasion glitches wherein it appears
+     that shm_ctl(IPC_RMID) hasn't set the key to IPC_PRIVATE, because
+     an attempt to recreate the segment fails (but only sometimes).
+     Has anyone else seen this?  Is it possibly related to the above
+     issue?
+-- 
+Rick Nelson
+Life'll kill ya                         -- Warren Zevon
+Then you'll be dead                     -- Life'll kill ya
 
-Inefficient, my patch will make the unused code path disappear during
-compilation, what you suggest results in an extra branch and unused
-code.
-
-The eepro100 and tulip drivers really should be changed to use the
-same trick.
-
-Jes
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

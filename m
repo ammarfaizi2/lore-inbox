@@ -1,92 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262751AbRE3MYm>; Wed, 30 May 2001 08:24:42 -0400
+	id <S262726AbRE3MjW>; Wed, 30 May 2001 08:39:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262761AbRE3MYb>; Wed, 30 May 2001 08:24:31 -0400
-Received: from chiara.elte.hu ([157.181.150.200]:5131 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S262751AbRE3MYS>;
-	Wed, 30 May 2001 08:24:18 -0400
-Date: Wed, 30 May 2001 14:21:34 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Nico Schottelius <nicos@pcsystems.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [ PATCH ]: disable pcspeaker kernel: 2.4.2 - 2.4.5
-In-Reply-To: <3B14E340.F1B19CA6@pcsystems.de>
-Message-ID: <Pine.LNX.4.33.0105301414080.6313-200000@localhost.localdomain>
+	id <S262761AbRE3MjM>; Wed, 30 May 2001 08:39:12 -0400
+Received: from femail17.sdc1.sfba.home.com ([24.0.95.144]:52625 "EHLO
+	femail17.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S262726AbRE3MjH>; Wed, 30 May 2001 08:39:07 -0400
+Message-ID: <3B14E9DE.75A65F04@didntduck.org>
+Date: Wed, 30 May 2001 08:38:54 -0400
+From: Brian Gerst <bgerst@didntduck.org>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5-pre3 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-947463093-991225294=:6313"
+To: mdaljeet@in.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: pte_page
+In-Reply-To: <CA256A5C.002E4CF0.00@d73mta01.au.ibm.com> <3B14E70F.F7E7D4BA@didntduck.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+Brian Gerst wrote:
+> 
+> mdaljeet@in.ibm.com wrote:
+> >
+> > I use the 'pgt_offset', 'pmd_offset', 'pte_offset' and 'pte_page' inside a
+> > module to get the physical address of a user space virtual address. The
+> > physical address returned by 'pte_page' is not page aligned whereas the
+> > virtual address was page aligned. Can somebody tell me the reason?
+> >
+> > Also, can i use these functions to get the physical address of a kernel
+> > virtual address using init_mm?
+> 
+> pte_page() returns the struct page * for the page, not the page
+> address.  To get the physical address of a page use __pa(virtaddr), but
+> this works if and only if the page is not highmem and not vmalloced.
 
---8323328-947463093-991225294=:6313
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Oops, I forgot that you said user page...  __pa() only works for kernel
+addresses.  I don't see any other macros that can help you.  Maybe one
+of the VM gurus can add something here?
 
+-- 
 
-By making this (logical, and needed) feature unconditional, your patch's
-size and complexity is reduced by 80%. (see the attached
-pc_speaker.patch2)
-
-	Ingo
-
-
---8323328-947463093-991225294=:6313
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="pc_speaker.patch2"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.33.0105301421340.6313@localhost.localdomain>
-Content-Description: 
-Content-Disposition: attachment; filename="pc_speaker.patch2"
-
-ZGlmZiAtdSAtLXJlY3Vyc2l2ZSBsaW51eC0yLjQuNS9kcml2ZXJzL2NoYXIv
-dnQuYyBsaW51eC0yLjQuNS1uYy9kcml2ZXJzL2NoYXIvdnQuYw0KLS0tIGxp
-bnV4LTIuNC41L2RyaXZlcnMvY2hhci92dC5jCUZyaSBGZWIgIDkgMjA6MzA6
-MjIgMjAwMQ0KKysrIGxpbnV4LTIuNC41LW5jL2RyaXZlcnMvY2hhci92dC5j
-CVdlZCBNYXkgIDkgMjM6NDc6MzYgMjAwMQ0KQEAgLTQwLDYgKzQxLDcgQEAN
-CiAjaW5jbHVkZSA8YXNtL3ZjX2lvY3RsLmg+DQogI2VuZGlmIC8qIENPTkZJ
-R19GQl9DT01QQVRfWFBNQUMgKi8NCiANCitleHRlcm4gaW50IHBjc3BlYWtl
-cl9lbmFibGVkOw0KIGNoYXIgdnRfZG9udF9zd2l0Y2g7DQogZXh0ZXJuIHN0
-cnVjdCB0dHlfZHJpdmVyIGNvbnNvbGVfZHJpdmVyOw0KIA0KQEAgLTExMiw2
-ICsxMTcsOSBAQA0KIAl1bnNpZ25lZCBpbnQgY291bnQgPSAwOw0KIAl1bnNp
-Z25lZCBsb25nIGZsYWdzOw0KIA0KKwkvKiBpcyB0aGUgcGNzcGVha2VyIGVu
-YWJsZWQgb3IgZGlzYWJsZWQgPyAwPWRpc2FibGVkLDE9ZW5hYmxlZCAqLw0K
-KwlpZiAoIXBjc3BlYWtlcl9lbmFibGVkKQ0KKwkJcmV0dXJuOw0KIAlpZiAo
-aHogPiAyMCAmJiBoeiA8IDMyNzY3KQ0KIAkJY291bnQgPSAxMTkzMTgwIC8g
-aHo7DQogCQ0KZGlmZiAtdSAtLXJlY3Vyc2l2ZSBsaW51eC0yLjQuNS9pbmNs
-dWRlL2xpbnV4L3N5c2N0bC5oIGxpbnV4LTIuNC41LW5jL2luY2x1ZGUvbGlu
-dXgvc3lzY3RsLmgNCi0tLSBsaW51eC0yLjQuNS9pbmNsdWRlL2xpbnV4L3N5
-c2N0bC5oCVR1ZSBNYXkgMjkgMTc6NTY6MjkgMjAwMQ0KKysrIGxpbnV4LTIu
-NC41LW5jL2luY2x1ZGUvbGludXgvc3lzY3RsLmgJTW9uIE1heSAyOCAxOToy
-NDowOCAyMDAxDQpAQCAtMTE4LDcgKzExOCw4IEBADQogCUtFUk5fU0hNUEFU
-SD00OCwJLyogc3RyaW5nOiBwYXRoIHRvIHNobSBmcyAqLw0KIAlLRVJOX0hP
-VFBMVUc9NDksCS8qIHN0cmluZzogcGF0aCB0byBob3RwbHVnIHBvbGljeSBh
-Z2VudCAqLw0KIAlLRVJOX0lFRUVfRU1VTEFUSU9OX1dBUk5JTkdTPTUwLCAv
-KiBpbnQ6IHVuaW1wbGVtZW50ZWQgaWVlZSBpbnN0cnVjdGlvbnMgKi8NCi0J
-S0VSTl9TMzkwX1VTRVJfREVCVUdfTE9HR0lORz01MSAgLyogaW50OiBkdW1w
-cyBvZiB1c2VyIGZhdWx0cyAqLw0KKwlLRVJOX1MzOTBfVVNFUl9ERUJVR19M
-T0dHSU5HPTUxLCAgLyogaW50OiBkdW1wcyBvZiB1c2VyIGZhdWx0cyAqLw0K
-KwlLRVJOX0RJU0FCTEVfUENfU1BFQUtFUj01MiAvKiBpbnQ6IHNwZWFrZXIg
-b24gb3Igb2ZmICovDQogfTsNCiANCiANCmRpZmYgLXUgLS1yZWN1cnNpdmUg
-bGludXgtMi40LjUva2VybmVsL3N5c2N0bC5jIGxpbnV4LTIuNC41LW5jL2tl
-cm5lbC9zeXNjdGwuYw0KLS0tIGxpbnV4LTIuNC41L2tlcm5lbC9zeXNjdGwu
-YwlUdWUgTWF5IDI5IDE3OjU1OjU5IDIwMDENCisrKyBsaW51eC0yLjQuNS1u
-Yy9rZXJuZWwvc3lzY3RsLmMJV2VkIE1heSAgOSAyMzo0NDozMCAyMDAxDQpA
-QCAtNDgsNiArNDksNyBAQA0KIGV4dGVybiBpbnQgbnJfcXVldWVkX3NpZ25h
-bHMsIG1heF9xdWV1ZWRfc2lnbmFsczsNCiBleHRlcm4gaW50IHN5c3JxX2Vu
-YWJsZWQ7DQogDQoraW50IHBjc3BlYWtlcl9lbmFibGVkOw0KIC8qIHRoaXMg
-aXMgbmVlZGVkIGZvciB0aGUgcHJvY19kb2ludHZlY19taW5tYXggZm9yIFtm
-c19db3ZlcmZsb3cgVUlEIGFuZCBHSUQgKi8NCiBzdGF0aWMgaW50IG1heG9s
-ZHVpZCA9IDY1NTM1Ow0KIHN0YXRpYyBpbnQgbWlub2xkdWlkOw0KQEAgLTIx
-Miw2ICsyMTcsOCBAQA0KIAkgMDQ0NCwgTlVMTCwgJnByb2NfZG9pbnR2ZWN9
-LA0KIAl7S0VSTl9SVFNJR01BWCwgInJ0c2lnLW1heCIsICZtYXhfcXVldWVk
-X3NpZ25hbHMsIHNpemVvZihpbnQpLA0KIAkgMDY0NCwgTlVMTCwgJnByb2Nf
-ZG9pbnR2ZWN9LA0KKwl7S0VSTl9ESVNBQkxFX1BDX1NQRUFLRVIsICJwY3Nw
-ZWFrZXIiLCAmcGNzcGVha2VyX2VuYWJsZWQsIHNpemVvZihpbnQpLA0KKwkg
-MDY0NCwgTlVMTCwgJnByb2NfZG9pbnR2ZWN9LA0KICNpZmRlZiBDT05GSUdf
-U1lTVklQQw0KIAl7S0VSTl9TSE1NQVgsICJzaG1tYXgiLCAmc2htX2N0bG1h
-eCwgc2l6ZW9mIChzaXplX3QpLA0KIAkgMDY0NCwgTlVMTCwgJnByb2NfZG91
-bG9uZ3ZlY19taW5tYXh9LA0KDQo=
---8323328-947463093-991225294=:6313--
+						Brian Gerst

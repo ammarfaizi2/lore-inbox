@@ -1,46 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262225AbVDFPQK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262226AbVDFPUV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262225AbVDFPQK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 11:16:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262226AbVDFPQK
+	id S262226AbVDFPUV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 11:20:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262227AbVDFPUU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 11:16:10 -0400
-Received: from gwbw.xs4all.nl ([213.84.100.200]:5085 "EHLO laptop.blackstar.nl")
-	by vger.kernel.org with ESMTP id S262225AbVDFPQF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 11:16:05 -0400
-Subject: Re: NOMMU - How to reserve 1 MB in top of memory in a clean way
-From: Bas Vermeulen <bvermeul@blackstar.xs4all.nl>
-To: Catalin Marinas <catalin.marinas@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <tnxzmwc9gun.fsf@arm.com>
-References: <1112781027.2687.6.camel@laptop.blackstar.nl>
-	 <tnxzmwc9gun.fsf@arm.com>
+	Wed, 6 Apr 2005 11:20:20 -0400
+Received: from 201008146170.user.veloxzone.com.br ([201.8.146.170]:45808 "EHLO
+	resgate.org") by vger.kernel.org with ESMTP id S262226AbVDFPUO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Apr 2005 11:20:14 -0400
+Message-ID: <20050406121959.5596D3245A8C71F1@resgate.org>
+From: sac@resgate.org
+To: linux-kernel@vger.kernel.org
+Subject: =?ISO-8859-1?Q?=20PROGRAMA=C7AO?= DE CURSOS DE SOCORRISTA INTERNACIONAL - 40 HORAS - ABRIL / MAIO 2005
+Date: 06 Apr 2005 12:20:09 -0300
+MIME-Version: 1.0
+Expiry-Date: 31 May 2005 14:48:35 -0300
 Content-Type: text/plain
-Message-Id: <1112800564.2687.40.camel@laptop.blackstar.nl>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 06 Apr 2005 17:16:04 +0200
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-04-06 at 15:26, Catalin Marinas wrote:
-> Bas Vermeulen <bvermeul@blackstar.xs4all.nl> wrote:
-> > I am currently working on the bfinnommu linux port for the BlackFin 533.
-> > I need to grab the top 1 MB of memory so I can give it out to drivers
-> > that need non-cached memory for DMA operations.
-> 
-> I did this long time ago (on a 2.4 kernel), trying to avoid a hardware
-> problem. I re-ordered the zones so that ZONE_DMA came after
-> ZONE_NORMAL. Since the DMA memory was quite small (less than 1MB), I
-> also put a "break" before "case ZONE_DMA" in the
-> build_zonelists_node() functions to avoid the allocation fallback.
+--------------------------------------------------------------
+PROGRAMAÇÃO DE CURSOS - ABRIL / MAIO 2005
+--------------------------------------------------------------
+CURSO DE SOCORRISTA INTERNACIONAL - 40 HORAS
+( RCP BÁSICO + DESF. EXTERNA  AUTOMÁTICA + PS )
+--------------------------------------------------------------
+TURMA 01 - 09,10 e 16,17 de abril 2005 em Vila Velha - ES
+TURMA 02 - 14 a 17 de abril de 2005 em Vila Velha - ES
+TURMA 03 - 21 a 24 de abril de 2005 em São Mateus - ES
+TURMA 04 - 28,29,30/04 e 01/05 em Cachoeiro de Itapemirim - ES
+TURMA 05 - 02 a 05 de maio de 2005  em São Gabriel da Palha - ES
+TURMA 06 - 07,08 e 14,15 de maio de 2005 em Vitória - ES
+TURMA 07 - 07,08 e 14,15 de maio de 2005 em Guarapari - ES
+TURMA 08 - 21,22 e 28,29 de maio em Anchieta - ES
+TURMA 09 - 21,22 e 28,29 de maio em Teixeira de Freitas - BA
+--------------------------------------------------------------
+Valor: R$400,00 ( Quatrocentos Reais )
+Forma de Pagamento: 4x (Entrada + 30/60/90 dias )
+--------------------------------------------------------------
+Para confirmar sua matricula, favor efetuar o pagamento do curso no
+BANCO ABN REAL AMRO BANK e enviar fax ou email com cod. do pagamento.
+Agência 0442-1
+Conta Corrente: 1724317-5
+Favorecido: R E S G A T E   T R E I N A M E N T O S   L T D A
+C.N.P.J. 02.904.691/0001-83          I.Estadual: Isento
 
-This will put me in the zone of 'it ain't ever going to be integrated'.
-I'd preferrably find a solution without changing the zones. My ideal
-solution would be grabbing pages before they are assigned to a zone, or
-at least for the zone to recognize them as used.
-
-Bas Vermeulen
-
+Agência de Treinamentos Autorizada do  National Safety Council
+--------------------------------------------------------------
+Rua Dom Pedro II - 549 - Sala 107 - Ed. Center Glória Shopping
+Bairro: Glória - Vila Velha - Esp.Santo - Brasil Cep 29122-300
+E-Mail:atendimento@resgate.com.br    Visite WWW.RESGATE.COM.BR
+Telefax 27) 3289-1973 ICQ:118415003 Skype:www.resgate.com.br

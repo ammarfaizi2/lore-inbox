@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271411AbTGQLCm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 07:02:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271412AbTGQLCm
+	id S271412AbTGQLFH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 07:05:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271422AbTGQLFH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 07:02:42 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:11726
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S271411AbTGQLCl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 07:02:41 -0400
-Subject: Re: PS2 mouse going nuts during cdparanoia session.
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Dave Jones <davej@codemonkey.org.uk>, Jens Axboe <axboe@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030716234711.GA22010@ucw.cz>
-References: <20030716165701.GA21896@suse.de> <20030716170352.GJ833@suse.de>
-	 <1058375425.6600.42.camel@dhcp22.swansea.linux.org.uk>
-	 <20030716171607.GM833@suse.de> <20030716172331.GD21896@suse.de>
-	 <20030716190018.GE20241@ucw.cz> <20030716193002.GA2900@suse.de>
-	 <20030716205319.GA20760@ucw.cz> <20030716233124.GA16209@suse.de>
-	 <20030716234711.GA22010@ucw.cz>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1058440490.8620.18.camel@dhcp22.swansea.linux.org.uk>
+	Thu, 17 Jul 2003 07:05:07 -0400
+Received: from mailhost.tue.nl ([131.155.2.7]:29455 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id S271412AbTGQLFC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 07:05:02 -0400
+Date: Thu, 17 Jul 2003 13:19:55 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Miquel van Smoorenburg <miquels@cistron.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] print_dev_t for 2.6.0-test1-mm
+Message-ID: <20030717131955.D2302@pclin040.win.tue.nl>
+References: <20030716184609.GA1913@kroah.com> <20030717014410.A2026@pclin040.win.tue.nl> <20030716164917.2a7a46f4.akpm@osdl.org> <20030717122600.A2302@pclin040.win.tue.nl> <bf5uqb$3ei$1@news.cistron.nl>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 17 Jul 2003 12:15:04 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <bf5uqb$3ei$1@news.cistron.nl>; from miquels@cistron.nl on Thu, Jul 17, 2003 at 10:46:35AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave just a random pondering looking over the code - does it make any
-difference if you stick a udelay(50) at the top of wait_read and
-wait_write in i8042.c. Right now we don't always seem to honour the
-delays for certain specific patterns of I/O and interrupt.
+On Thu, Jul 17, 2003 at 10:46:35AM +0000, Miquel van Smoorenburg wrote:
 
-Ditto the read_status/read_data loop in the _interrupt code path.
+> The filesystem driver itself must convert from native rdev to linux 32:32.
+
+Look at the mknod utility.
+The user types major,minor.
+The system call uses dev_t.
+This means that user space needs to be able to combine
+major,minor into a dev_t.
+
+It is not a good idea to require of mknod that it knows
+about the filesystem the node is going to be created on.
+
+Andries
+
+
+[In other words: we invent something, and what we invent is
+encoded in <sys/sysmacros.h>. It cannot depend on fs type.]
+
 

@@ -1,100 +1,105 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261908AbRENMXO>; Mon, 14 May 2001 08:23:14 -0400
+	id <S261960AbRENMc6>; Mon, 14 May 2001 08:32:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261960AbRENMXE>; Mon, 14 May 2001 08:23:04 -0400
-Received: from orbita.don.sitek.net ([213.24.25.98]:40710 "EHLO orbita1.ru")
-	by vger.kernel.org with ESMTP id <S261908AbRENMWt>;
-	Mon, 14 May 2001 08:22:49 -0400
-Date: Mon, 14 May 2001 16:21:18 +0400
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] small addition to <linux/init.h>
-Message-ID: <20010514162118.C2912@orbita1.ru>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="qFgkTsE6LiHkLPZw"
-User-Agent: Mutt/1.0.1i
-X-Uptime: 1:51pm  up 16 days, 23:32,  3 users,  load average: 0.17, 0.20, 0.16
-From: <pazke@orbita1.ru>
+	id <S262051AbRENMcr>; Mon, 14 May 2001 08:32:47 -0400
+Received: from igw3.watson.ibm.com ([198.81.209.18]:58860 "EHLO
+	igw3.watson.ibm.com") by vger.kernel.org with ESMTP
+	id <S261960AbRENMch>; Mon, 14 May 2001 08:32:37 -0400
+From: Michal Ostrowski <mostrows@us.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15103.53345.869090.593925@slug.watson.ibm.com>
+Date: Mon, 14 May 2001 08:32:33 -0400
+To: Marcell GAL <cell@sch.bme.hu>, linux-kernel@vger.kernel.org,
+        paulus@samba.org, "David S. Miller" <davem@redhat.com>
+Subject: Scheduling in interrupt BUG. [Patch]
+In-Reply-To: <3AFFBF14.7D7BAB01@sch.bme.hu>
+In-Reply-To: <3AFFBF14.7D7BAB01@sch.bme.hu>
+X-Mailer: VM 6.92 under 21.4 (patch 1) "Copyleft" XEmacs Lucid
+Reply-To: mostrows@speakeasy.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---qFgkTsE6LiHkLPZw
-Content-Type: multipart/mixed; boundary="bajzpZikUji1w+G9"
+Marcell GAL writes:
+ > Hi Guys,
+ > 
+ > Once upon a time on my
+ > x86 UP box, UP kernel 2.4.4, (64M ram, 260M swap)
+ > http://home.sch.bme.hu/~cell/.config
+ > I hit a reproducable "Scheduling in interrupt" BUG.
+ > Also reproduced with 128M ram and low memory pressure
+ > (first I suspected it is related to swapping)
+ > Running lots of pppd version 2.4.0 (pppoe) sessions almost at the same
+ > time. 
+ > (before the crash the pppoe sessions work fine)
+ > It crashed after 89 sessions, 473 another time.. (depending
+ > on the phase of Jupiter moons I guess .. I still have to verify this),
+ > usually much before memory is exhausted (30k mem/pppd process).
+ > To do this you have to patch ppp_generic.c
+ > http://x-dsl.hu/~cell/ppp_generic_hash/, because
+ > otherwise we hit 'NULL ptr in all_ppp_units list'
+ > BUG much _more likely_ than this 'sched.c line 709 thingy'..
+ > 
+ > EIP: c010faa4 <schedule+388/394>   <===== sched.c schedule(), line 709:
+ > which is ~ printk("Scheduling in interrupt");BUG();
 
+>From what I've seen, you have a call chain consisting of:
 
---bajzpZikUji1w+G9
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: quoted-printable
+__release_sock -> pppoe_backlog_rcv -> __lock_sock
 
-Hi all,
+This is going to be bad, because when __release_sock calls
+sk->backlog_rcv, lock.users is still non-zero and thus the lock_sock
+operation will block (leading to deadlock).  This problem is fixed
+with the patch that I've added below.
 
-please take a quick look at attached patch (IMHO it can be usefull :)
+You're seeing the "Scheduling in interrupt" message because the
+combined effect of the various spin_lock/unlock calls in release_sock
+and __release_sock at the time of the call to sk->backlog_rcv is to
+increase the local bh count.
 
-The code below is a common code pattern in Linux kernel:=20
+Having looked at the code for locking sockets I am concerned that the
+locking procedures for tcp may be wrong.   __release_sock releases the
+socket spinlock before calling sk->backlog_rcv() (== tcp_v4_do_rcv),
+however the comments at the top of tcp_v4_do_rcv() assert that the
+socket's spinlock is held (which is definitely not the case).
 
-static int __init foo(void)
-{
-	. . .
-	printk("%s: blah blah blah\n", bar);
-	. . .
-}
+Anybody care to comment on this?
 
-this is bad because "blah blah blah\n" goes to .rodata section and plagues=
-=20
-the memory. With this small patch it's possibe to rewrite this fragment as:
+Michal Ostrowski
+mostrows@speakeasy.net
 
-static int __init foo(void)
-{
-	. . .
-	printk(__init_msg("%s: blah blah blah\n"), bar);
-	. . .
-}
+--- drivers/net/pppoe.c~	Tue Mar  6 22:44:35 2001
++++ drivers/net/pppoe.c	Mon May 14 08:24:06 2001
+@@ -5,7 +5,7 @@
+  * PPPoE --- PPP over Ethernet (RFC 2516)
+  *
+  *
+- * Version:    0.6.5
++ * Version:    0.6.6
+  *
+  * 030700 :     Fixed connect logic to allow for disconnect.
+  * 270700 :	Fixed potential SMP problems; we must protect against
+@@ -19,6 +19,7 @@
+  * 051000 :	Initialization cleanup.
+  * 111100 :	Fix recvmsg.
+  * 050101 :	Fix PADT procesing.
++ * 140501 :	pppoe_backlog_rcv must call bh_lock_sock, not lock_sock.
+  *
+  * Author:	Michal Ostrowski <mostrows@styx.uwaterloo.ca>
+  * Contributors:
+@@ -384,9 +385,9 @@
+  ***********************************************************************/
+ int pppoe_backlog_rcv(struct sock *sk, struct sk_buff *skb)
+ {
+-	lock_sock(sk);
++	bh_lock_sock(sk);
+ 	pppoe_rcv_core(sk, skb);
+-	release_sock(sk);
++	bh_unlock_sock(sk);
+ 	return 0;
+ }
+ 
 
-and thus "blah blah blah\n" goes to .data.init and then to bitbucket.
-IMHO it can save some extra memory for us.
-
-Best regadrs.
-
---=20
-Andrey Panin            | Embedded systems software engineer
-pazke@orbita1.ru        | PGP key: http://www.orbita1.ru/~pazke/AndreyPanin=
-.asc
-
---bajzpZikUji1w+G9
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=patch-__init_msg
-Content-Transfer-Encoding: quoted-printable
-
-diff -ur linux.vanilla/include/linux/init.h linux/include/linux/init.h
---- linux.vanilla/include/linux/init.h	Mon May 14 15:51:20 2001
-+++ linux/include/linux/init.h	Mon May 14 15:54:05 2001
-@@ -155,4 +155,9 @@
- #define __devexitdata __exitdata
- #endif
-=20
-+#define __init_msg(x) ({ static char msg[] __initdata =3D (x); msg; })
-+#define __exit_msg(x) ({ static char msg[] __exitdata =3D (x); msg; })
-+#define __devinit_msg(x) ({ static char msg[] __devinitdata =3D (x); msg; =
-})
-+#define __devexit_msg(x) ({ static char msg[] __devexitdata =3D (x); msg; =
-})
-+
- #endif /* _LINUX_INIT_H */
-
---bajzpZikUji1w+G9--
-
---qFgkTsE6LiHkLPZw
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE6/82+Bm4rlNOo3YgRAoFQAJ9eAqXlvGBXL2OVSJRwK9WMIdoZPQCggYXP
-cCJQIPnAGbcTlsW+MSfx5rU=
-=Lwxy
------END PGP SIGNATURE-----
-
---qFgkTsE6LiHkLPZw--

@@ -1,36 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130073AbQLVU7c>; Fri, 22 Dec 2000 15:59:32 -0500
+	id <S132261AbQLVVDC>; Fri, 22 Dec 2000 16:03:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130458AbQLVU7W>; Fri, 22 Dec 2000 15:59:22 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:50436 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130073AbQLVU7N>; Fri, 22 Dec 2000 15:59:13 -0500
-Subject: Re: NUMA and SCI [was Re: bigphysarea support in 2.2.19 and 2.4.0 kernels]
-To: jmerkey@vger.timpanogas.org (Jeff V. Merkey)
-Date: Fri, 22 Dec 2000 20:30:07 +0000 (GMT)
-Cc: middelin@polyware.nl (Pauline Middelink), linux-kernel@vger.kernel.org,
-        jmerkey@timpanogas.org
-In-Reply-To: <20001222133908.A1686@vger.timpanogas.org> from "Jeff V. Merkey" at Dec 22, 2000 01:39:08 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S132251AbQLVVCx>; Fri, 22 Dec 2000 16:02:53 -0500
+Received: from h24-65-192-120.cg.shawcable.net ([24.65.192.120]:22510 "EHLO
+	webber.adilger.net") by vger.kernel.org with ESMTP
+	id <S130458AbQLVVCl>; Fri, 22 Dec 2000 16:02:41 -0500
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200012222032.eBMKW0U13909@webber.adilger.net>
+Subject: Re: Fw: max number of ide controllers?
+In-Reply-To: <007c01c06c4d$aef446e0$2b6e60cf@pcscs.com> "from Charles Wilkins
+ at Dec 22, 2000 02:30:46 pm"
+To: Charles Wilkins <chas@pcscs.com>
+Date: Fri, 22 Dec 2000 13:32:00 -0700 (MST)
+CC: Linux Kernel mailing list <linux-kernel@vger.kernel.org>,
+        linux-raid@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL73 (25)]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E149YpM-0005A2-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I think we do need some bettr APIs.  Grab the source at my FTP server,
-> and I'd love any input you could provide.
+Charles Wilkins writes:
+> Andrzej M. Krzysztofowicz says,
+> 
+> >"Linux supports up to 10 IDE channels, however channel numbers of PCI
+> controllers seem to be assigned first."
+> 
+> Warren Young says,
+> >"Kernel 2.2 is limited to 4 IDE controllers."
+> 
+> ok, so which is it kernel guys, 4 or 10 IDE controllers for the 2.2.x
+> kernel?
 
-Pure message passing drivers for the Dolphinics cards already exist. Ron
-Minnich wrote some.
+It depends if you have Andre's IDE patches applied to your kernel sources
+or not.
 
-http://www.acl.lanl.gov/~rminnich/
+> well, i know this SB32 card can operating on at least 3 different io ports .
+> . .
 
-Alan
+It may be that there is some difficulty in the order the IDE cards are
+initialized.  From your previous dmesg output, it appears that ide3 and ide4
+(PCI cards) are initialized before ide2 (ISA card), so they may be stealing
+an ioport that the ISA card needs.  Try booting with just the SB32 card
+and checking /proc/ioports, and then with only the other card, and see
+if anything in /proc/ioports (or /proc/interrupts) is conflicting.
 
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,51 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268253AbUHXTmj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268239AbUHXTpR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268253AbUHXTmj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 15:42:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268248AbUHXTmi
+	id S268239AbUHXTpR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 15:45:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268254AbUHXTpR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 15:42:38 -0400
-Received: from prime.hereintown.net ([141.157.132.3]:42920 "EHLO
-	prime.hereintown.net") by vger.kernel.org with ESMTP
-	id S268253AbUHXTkn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 15:40:43 -0400
-Subject: Re: Linux 2.6.9-rc1
-From: Chris Meadors <clubneon@hereintown.net>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Matt Mackall <mpm@selenic.com>, Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0408241221390.17766@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0408240031560.17766@ppc970.osdl.org>
-	 <20040824184245.GE5414@waste.org>
-	 <Pine.LNX.4.58.0408241221390.17766@ppc970.osdl.org>
+	Tue, 24 Aug 2004 15:45:17 -0400
+Received: from cantor.suse.de ([195.135.220.2]:19078 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S268239AbUHXToz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Aug 2004 15:44:55 -0400
+Subject: Re: [PATCH][1/7] xattr consolidation - libfs
+From: Andreas Gruenbacher <agruen@suse.de>
+To: Christoph Hellwig <hch@infradead.org>, James Morris <jmorris@redhat.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040824110555.A27385@infradead.org>
+References: <20040823194936.A20008@infradead.org>
+	 <Xine.LNX.4.44.0408240026460.17851-100000@thoron.boston.redhat.com>
+	 <20040824110555.A27385@infradead.org>
 Content-Type: text/plain
-Message-Id: <1093376321.1151.15.camel@clubneon.priv.hereintown.net>
+Organization: SUSE Labs
+Message-Id: <1093376572.20259.115.camel@winden.suse.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.5.6.2 
-Date: Tue, 24 Aug 2004 15:38:41 -0400
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 24 Aug 2004 21:42:53 +0200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-08-24 at 12:23 -0700, Linus Torvalds wrote:
+On Tue, 2004-08-24 at 12:05, Christoph Hellwig wrote:
+> On Tue, Aug 24, 2004 at 12:32:13AM -0400, James Morris wrote:
+> > > limit on the number of xattrs.
+> > 
+> > Then you can't dynamically regsiter an xattr handler (e.g. as a module).  
+> > Is this really desirable?
 > 
-> Hmm.. I have no strong preferences. There _is_ obviously a well-defined 
-> ordering from x.y.z.1 -> x.y.z.2 (unlike the -rcX releases that don't have 
-> any ordering wrt the bugfixes), so either interdiffs or whole new full 
-> diffs are totally "logical". We just have to chose one way or the other, 
-> and I don't actually much care.
+> IMHO yes.  This is an integral part of the filesystem, and the handlers are
+> really small anyway.  And it makes the code really a lot simpler.
+
+Dynamically handler registration seemed a good idea to me when I wrote
+the original code, but there never was a real-world user for all I know,
+so I'm fine with removing the rwlock. (The rest of the code can stay the
+same.)
+
+> > > Also s/simple_// for most symbols as this stuff isn't simple, in fact it's
+> > > quite complex :)
+> > 
+> > Removing the prefix would imply that this was the 'proper' way to
+> > implement xattr support.  Really, these are just helper functions for the 
+> > simplest xattr implementations.  I think they should have some prefix, but 
+> > don't care too much what it actually is.  Suggestions?
 > 
-> Any reason for your preference? 
+> I'd call them generic_.  I've done some research and they should work very
+> well for any xattr implementation in the tree.
 
-I'm not the original poster, but after a little thought I agreed with
-his preference.  If the -rcs are going to be based on the non-bugfixed
-releases, it follows that the next full patch will also have to be off
-of the previous full release.
+I would just remove the simple_ to get xattr_register, xattr_unregister,
+xattr_resolve_name, xattr_handler.
 
-If each bugfix built on the last, instead of the full release, that
-would be a number of patch files that I'd have to keep around, and then
-undo when patching up to the next release.  If each bugfix included all
-the previous bugfixes, it would just be one patch I'd have to undo.
+simple_xattr_list makes no sense in the general case, so this seems to
+fit.
 
+If we decide to remove dynamic handler registration, simple_xattr_list
+should go as well, and the listxattr iops can enumerate all existing
+handlers explicitly.
+
+> [...]
+
+Cheers,
 -- 
-Chris
+Andreas Gruenbacher <agruen@suse.de>
+SUSE Labs, SUSE LINUX AG
+
 

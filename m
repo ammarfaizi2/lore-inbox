@@ -1,100 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261362AbVALV3m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261459AbVALVdO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261362AbVALV3m (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 16:29:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261276AbVALV3c
+	id S261459AbVALVdO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 16:33:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261276AbVALV3v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 16:29:32 -0500
-Received: from out003pub.verizon.net ([206.46.170.103]:43185 "EHLO
-	out003.verizon.net") by vger.kernel.org with ESMTP id S261468AbVALV17
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 16:27:59 -0500
-From: James Nelson <james4765@cwazy.co.uk>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, kraxel@bytesex.org, James Nelson <james4765@cwazy.co.uk>
-Message-Id: <20050112212818.12453.70029.28827@localhost.localdomain>
-Subject: [PATCH] vino: Remove cli()/sti() in drivers/media/video/vino.c
-X-Authentication-Info: Submitted using SMTP AUTH at out003.verizon.net from [209.158.220.243] at Wed, 12 Jan 2005 15:27:58 -0600
-Date: Wed, 12 Jan 2005 15:27:58 -0600
+	Wed, 12 Jan 2005 16:29:51 -0500
+Received: from mail.kroah.org ([69.55.234.183]:60615 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261459AbVALV1W (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jan 2005 16:27:22 -0500
+Date: Wed, 12 Jan 2005 13:27:16 -0800
+From: Greg KH <greg@kroah.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Chris Wright <chrisw@osdl.org>, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
+       marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org
+Subject: Re: thoughts on kernel security issues
+Message-ID: <20050112212716.GA13531@kroah.com>
+References: <20050112094807.K24171@build.pdx.osdl.net> <Pine.LNX.4.58.0501121002200.2310@ppc970.osdl.org> <20050112104407.N24171@build.pdx.osdl.net> <Pine.LNX.4.58.0501121051360.2310@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0501121051360.2310@ppc970.osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I know this driver isn't working, but cleanup is cleanup :)
+On Wed, Jan 12, 2005 at 10:57:25AM -0800, Linus Torvalds wrote:
+> On Wed, 12 Jan 2005, Chris Wright wrote:
+> > Opinions on where to set it up?  vger, osdl, ...?
+> 
+> I don't personally think it matters. Especially if we make it very clear 
+> that it's purely technical, and no vendor politics can enter into it. 
 
-Signed-off-by: James Nelson <james4765@gmail.com>
+I think vger fits that bill, if for no other reason than to keep the
+"osdl is taking over the kernel" rumors at bay :)
 
-diff -urN --exclude='*~' linux-2.6.10-mm2-original/drivers/media/video/vino.c linux-2.6.10-mm2/drivers/media/video/vino.c
---- linux-2.6.10-mm2-original/drivers/media/video/vino.c	2005-01-08 12:16:37.000000000 -0500
-+++ linux-2.6.10-mm2/drivers/media/video/vino.c	2005-01-12 16:14:54.940750449 -0500
-@@ -48,7 +48,7 @@
- 	unsigned long virt_addr = KSEG1ADDR(addr + VINO_BASE);
- 	unsigned long flags;
- 
--	save_and_cli(flags);
-+	local_irq_save(flags);
- 	__asm__ __volatile__(
- 		".set\tmips3\n\t"
- 		".set\tnoat\n\t"
-@@ -60,7 +60,7 @@
- 		:"r" (virt_addr),
- 		 "r" (&ret)
- 		:"$1");
--	restore_flags(flags);
-+	local_irq_restore(flags);
- 
- 	return ret;
- }
-@@ -74,7 +74,7 @@
- 	/* we might lose the upper parts of the registers which are not saved
- 	 * if there comes an interrupt in our way, play safe */
- 
--	save_and_cli(flags);
-+	local_irq_save(flags);
- 	__asm__ __volatile__(
- 		".set\tmips3\n\t"
- 		".set\tnoat\n\t"
-@@ -86,7 +86,7 @@
- 		:"r" (&value),
- 		 "r" (virt_addr)
- 		:"$1");
--	restore_flags(flags);
-+	local_irq_restore(flags);
- }
- 
- static __inline__ void vino_reg_and(unsigned long long value,
-@@ -95,7 +95,7 @@
- 	unsigned long virt_addr = KSEG1ADDR(addr + VINO_BASE);
- 	unsigned long flags;
- 
--	save_and_cli(flags);
-+	local_irq_save(flags);
- 	__asm__ __volatile__(
- 		".set\tmips3\n\t"
- 		".set\tnoat\n\t"
-@@ -109,7 +109,7 @@
- 		:"r" (virt_addr),
- 		 "r" (&value)
- 		:"$1","$2");
--	restore_flags(flags);
-+	local_irq_restore(flags);
- }
- 
- static __inline__ void vino_reg_or(unsigned long long value,
-@@ -118,7 +118,7 @@
- 	unsigned long virt_addr = KSEG1ADDR(addr + VINO_BASE);
- 	unsigned long flags;
- 
--	save_and_cli(flags);
-+	local_irq_save(flags);
- 	__asm__ __volatile__(
- 		".set\tmips3\n\t"
- 		".set\tnoat\n\t"
-@@ -132,7 +132,7 @@
- 		:"r" (virt_addr),
- 		 "r" (&value)
- 		:"$1","$2");
--	restore_flags(flags);
-+	local_irq_restore(flags);
- }
- 
- static int vino_dma_setup(void)
+That is, if the vger postmasters agree.
+
+thanks,
+
+greg k-h

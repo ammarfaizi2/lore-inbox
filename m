@@ -1,64 +1,124 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288809AbSAIFOW>; Wed, 9 Jan 2002 00:14:22 -0500
+	id <S288811AbSAIFVM>; Wed, 9 Jan 2002 00:21:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288810AbSAIFOM>; Wed, 9 Jan 2002 00:14:12 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:26641 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S288809AbSAIFN6>; Wed, 9 Jan 2002 00:13:58 -0500
-Message-ID: <3C3BD053.DED314A9@zip.com.au>
-Date: Tue, 08 Jan 2002 21:08:35 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18pre1 i686)
-X-Accept-Language: en
+	id <S288817AbSAIFVD>; Wed, 9 Jan 2002 00:21:03 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:52999 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S288811AbSAIFU4>; Wed, 9 Jan 2002 00:20:56 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: fs corruption recovery?
+Date: 8 Jan 2002 21:20:31 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <a1gjuv$eak$1@cesium.transmeta.com>
+In-Reply-To: <3C3BB082.8020204@fit.edu> <20020108200705.S769@lynx.adilger.int> <3C3BC0FC.30403@fit.edu>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-In-Reply-To: <20020108173254.B9318@asooo.flowerfire.com> from "Ken Brownfield" at Jan 08, 2002 05:32:54 PM <E16O6KE-00087x-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+Followup to:  <3C3BC0FC.30403@fit.edu>
+By author:    Kervin Pierre <kpierre@fit.edu>
+In newsgroup: linux.dev.kernel
 > 
-> Andrew's patches give you 1mS worst case latency for normal situations, that
-> is below human perception, and below scheduling granularity.
+> Thanks for the reply,
+> 
+>  >Try "e2fsck -B 4096 -b 32768 <device>" instead.
+>  >
+> 
+>   e2fsck -B 4096 -b 32768  /dev/hdc1
+> 
+> e2fsck 1.25 (20-Sep-2001)
+> e2fsck: Attempt to read block from filesystem resulted in short read
+> while trying to open /dev/hdc1
+> Could this be a zero-length partition?
+> 
+> Does ext keep a backup of that backup?  :)
+> 
+> Are there any other options?
+> 
 
-The full ll patch is pretty gruesome though.
+You have bad media.  You need to read the disk sector by sector, save
+it elsewhere, write it to another drive, and then try to fsck it --
+HOWEVER, DON'T FSCK THE ORIGINAL.  Fsck can actually cause serious
+damage if it guesses wrong.
 
-The high-end audio synth guys claim that two milliseconds is getting
-to be too much.  They are generating real-time audio and they do
-have more than one round-trip through the software.  It adds up.
+The following is a small C program that I just threw together to read
+sector by sector and dump the data on stdout.  No guarantees
+whatsoever:
 
-Linux is being used in so many different applications now.  You are,
-I think, one of the stronger recognisers of the fact that we do not
-only use Linux to squirt out html and to provide shell prompts to snotty
-students.  Good scheduling responsiveness is a valuable feature.
 
-I haven't seen any figures for embedded XP, but it is said that
-if you bend over backwards you can get 10 milliseconds out of NT4,
-and 4-5 out of the fabled BeOS.  This is one area where we can
-fairly easily be very much the best.  It's low-hanging fruit.
+#include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <errno.h>
 
-Internal preemptability is, in my opinion, the best way to deliver
-this.
+#define SECTORSIZE 512
 
-I accept your point about it making debugging harder - I would
-suggest that the preempt code be altered so that it can be disabled
-at runtime, rather than via a rebuild.  I suspect this can be
-done at zero cost by setting init_task's preempt count to 1000000
-via a kernel boot option.  And at almost-zero cost via a sysctl.
+int read_sector(int fd, void *buf)
+{
+  char *p = buf;
+  int bytes = SECTORSIZE;
+  int rv;
 
-I would further suggest that support be added to the kernel to
-allow general users to both detect and find the source of latency
-problems.  That's actually pretty easy - realfeel running at
-2 kHz only consumes 2-3% of the CPU.  It can just be left ticking
-over in the background.
+  while ( bytes ) {
+    if ( (rv = read(fd, p, bytes)) <= 0 ) {
+      if ( rv < 0 || errno == EINTR )
+	continue;		/* Happens... */
+      return 0;			/* Error */
+    }
+    p += rv;
+    bytes -= rv;
+  }
 
-With preemptability merged in 2.5 we can then work to fix the
-long-held locks.  Most of them are simple.  Some of them are
-very much not.  I'll gladly help with that.
+  return 1;			/* Success */
+}
 
--
+int main(int argc, char *argv[])
+{
+  unsigned long long count;
+  unsigned long long n;
+  int fd;
+  char buffer[SECTORSIZE];
+
+  if ( argc != 3 ) {
+    fprintf(stderr, "Usage: %s device sectors\n", argv[0]);
+    exit(1);
+  }
+
+  count = strtoull(argv[2], NULL, 0);
+  
+  fd = open(argv[1], O_RDONLY);
+  if ( fd < 0 ) {
+    perror(argv[1]);
+    exit(1);
+  }
+  
+  n = 0;
+  while ( count-- ) {
+    if ( !read_sector(fd, buffer) ) {
+      fprintf(stderr, "Sector %llu: %s\n", n, strerror(errno));
+      memset(buffer, 0, SECTORSIZE);
+    }
+    if ( fwrite(buffer, 1, SECTORSIZE, stdout) != SECTORSIZE ) {
+      fprintf(stderr, "Sector %llu: output error: %s\n", n, strerror(errno));
+      exit(1);
+    }
+    n++;
+  }
+
+  return 0;
+}
+
+
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

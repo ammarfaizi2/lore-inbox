@@ -1,42 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261426AbUHSHBW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261451AbUHSHEn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261426AbUHSHBW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 03:01:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261875AbUHSHBV
+	id S261451AbUHSHEn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 03:04:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261563AbUHSHEn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 03:01:21 -0400
-Received: from holomorphy.com ([207.189.100.168]:57277 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S261426AbUHSG7O (ORCPT
+	Thu, 19 Aug 2004 03:04:43 -0400
+Received: from rproxy.gmail.com ([64.233.170.198]:57866 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261451AbUHSHEm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 02:59:14 -0400
-Date: Wed, 18 Aug 2004 23:59:09 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: arjanv@redhat.com, alan@redhat.com, greg@kroah.com,
-       linux-kernel@vger.kernel.org, riel@redhat.com, sct@redhat.com
-Subject: Re: PF_MEMALLOC in 2.6
-Message-ID: <20040819065909.GH11200@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Pete Zaitcev <zaitcev@redhat.com>, arjanv@redhat.com,
-	alan@redhat.com, greg@kroah.com, linux-kernel@vger.kernel.org,
-	riel@redhat.com, sct@redhat.com
-References: <20040818235523.383737cd@lembas.zaitcev.lan>
+	Thu, 19 Aug 2004 03:04:42 -0400
+Message-ID: <d577e5690408190004368536e9@mail.gmail.com>
+Date: Thu, 19 Aug 2004 03:04:38 -0400
+From: Patrick McFarland <diablod3@gmail.com>
+Reply-To: Patrick McFarland <diablod3@gmail.com>
+To: "H.Rosmanith (Kernel Mailing List)" <kernel@wildsau.enemy.org>
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+Cc: linux-kernel@vger.kernel.org, schilling@fokus.fraunhofer.de
+In-Reply-To: <200408041233.i74CX93f009939@wildsau.enemy.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040818235523.383737cd@lembas.zaitcev.lan>
-User-Agent: Mutt/1.5.6+20040722i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <200408041233.i74CX93f009939@wildsau.enemy.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 18, 2004 at 11:55:23PM -0700, Pete Zaitcev wrote:
-> The PF_MEMALLOC is required on usb-storage threads in 2.4, because ext3
-> will deadlock and otherwise misbehave when it's trying to write out
-> dirty pages under memory pressure.
-> I received a bug report today from an FC3T1 user with same symptoms
-> as 2.4. But I'm entirely clueless in the way VM operates. Comments?
+On Wed, 4 Aug 2004 14:33:09 +0200 (MET DST), H.Rosmanith (Kernel
+Mailing List) <kernel@wildsau.enemy.org> wrote:
+> Some stuff that started a flamewar.
 
-I suspect this describes it adequately. If the shoe fits...
+If no one has noticed yet, thanks to the additional license
+restrictions Joerg Schilling has added to cdrecord (due to this
+thread), it may be now moved to non-free in Debian in the near future.
 
-
--- wli
+-- 
+Patrick "Diablo-D3" McFarland || diablod3@gmail.com
+"Computer games don't affect kids; I mean if Pac-Man affected us as kids, we'd 
+all be running around in darkened rooms, munching magic pills and listening to
+repetitive electronic music." -- Kristian Wilson, Nintendo, Inc, 1989

@@ -1,59 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262778AbVDAQOu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262788AbVDAQTG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262778AbVDAQOu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 11:14:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262810AbVDAQOu
+	id S262788AbVDAQTG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 11:19:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262810AbVDAQTF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 11:14:50 -0500
-Received: from main.gmane.org ([80.91.229.2]:10460 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S262778AbVDAQOk (ORCPT
+	Fri, 1 Apr 2005 11:19:05 -0500
+Received: from main.gmane.org ([80.91.229.2]:27614 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S262788AbVDAQSh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 11:14:40 -0500
+	Fri, 1 Apr 2005 11:18:37 -0500
 X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
-From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
-Subject: Re: [RFD] 'nice' attribute for executable files
-Date: Fri, 01 Apr 2005 18:12:21 +0200
-Message-ID: <yw1xy8c2pjbu.fsf@ford.inprovide.com>
-References: <200503311556.j2VFu9Hc007903@laptop11.inf.utfsm.cl> <424D6B54.2090200@poczta.onet.pl>
+From: Orion Poplawski <orion@cora.nwra.com>
+Subject: Re: NFS client latencies
+Date: Fri, 01 Apr 2005 09:16:35 -0700
+Message-ID: <d2js2h$v74$1@sea.gmane.org>
+References: <20050331065942.GA14952@elte.hu> <20050330231801.129b0715.akpm@osdl.org> <20050331073017.GA16577@elte.hu> <1112270304.10975.41.camel@lade.trondhjem.org> <1112272451.10975.72.camel@lade.trondhjem.org> <20050331135825.GA2214@elte.hu> <1112279522.20211.8.camel@lade.trondhjem.org> <20050331143930.GA4032@elte.hu> <20050331145015.GA4830@elte.hu> <1112322516.2509.28.camel@mindpipe> <20050401043022.GA22753@elte.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 76.80-203-227.nextgentel.com
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-Cancel-Lock: sha1:LmX7ziEqd/IIPWkCGhjdAlBoK/U=
+X-Gmane-NNTP-Posting-Host: inferno.cora.nwra.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050319
+X-Accept-Language: en-us, en
+In-Reply-To: <20050401043022.GA22753@elte.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wiktor <victorjan@poczta.onet.pl> writes:
+Ingo Molnar wrote:
+> * Lee Revell <rlrevell@joe-job.com> wrote:
+>>This fixes all the NFS related latency problems I was seeing.  Now the 
+>>longest latency from an NFS kernel compile with "make -j64" is 391 
+>>usecs in get_swap_page.
+> 
+> 
+> great! The latest patches (-42-08 and later) have the reworked 
+> nfs_scan_list() lock-breaker, which should perform similarly.
+> 
+> i bet these NFS patches also improve generic NFS performance on fast 
+> networks. I've attached the full patchset with all fixes and 
+> improvements included - might be worth a try in -mm?
+> 
 
-> Horst von Brand wrote:
->> Even better: Write a C wrapper for each affected program that just
->> renices
->> it as needed.
->
-> I suggest to implement scalable solution, so the final user wont't
-> have to write separate wrapper for *each* program. universal wrapper
-> is better solution, but (now i know, that implementing something that
-> can be dangerous if used incorrectly is so evil, that only the devil
-> could have proposed it) it forces use of database (that normally would
-> be kept in filesystem's file metadata)
+Just a question - would these changes be expected to improve NFS client 
+*read* access at all, or just write?
 
-A userspace solution could still use POSIX extended attributes.
-
-> and if some-malicious-person would have accessed it in write mode
-> (as result of wrong file permissions), the system performerance
-> would be in danger. in my solution, there is per-file attribute,
-> accessible only for root, and if hacker has root permissions,
-> existence of nice attribute is meaningless.
-
-You forgot something: this idea of yours needs to be implemented,
-tested, and debugged.  Those things take time, and effort, and are
-still of very little value.
-
--- 
-Måns Rullgård
-mru@inprovide.com
+Thanks!
 

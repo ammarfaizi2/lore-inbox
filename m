@@ -1,69 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264299AbUFKSGe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264279AbUFKSLS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264299AbUFKSGe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jun 2004 14:06:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264223AbUFKSGe
+	id S264279AbUFKSLS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jun 2004 14:11:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264304AbUFKSLR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jun 2004 14:06:34 -0400
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:21942 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S264295AbUFKSGY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jun 2004 14:06:24 -0400
-Message-ID: <40C9F4DF.3020200@namesys.com>
-Date: Fri, 11 Jun 2004 11:07:27 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Chris Mason <mason@suse.com>
-CC: =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>,
-       Dave Jones <davej@redhat.com>, reiserfs-dev@namesys.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [STACK] >3k call path in reiserfs
-References: <20040609122226.GE21168@wohnheim.fh-wedel.de>	 <1086784264.10973.236.camel@watt.suse.com>	 <1086800028.10973.258.camel@watt.suse.com> <40C74388.20301@namesys.com>	 <1086801345.10973.263.camel@watt.suse.com> <40C75141.7070408@namesys.com>	 <20040609182037.GA12771@redhat.com> <40C79FE2.4040802@namesys.com>	 <20040610223532.GB3340@wohnheim.fh-wedel.de> <40C91DA0.6060705@namesys.com>	 <20040611134621.GA3633@wohnheim.fh-wedel.de>  <40C9DE9F.90901@namesys.com> <1086976005.10973.364.camel@watt.suse.com>
-In-Reply-To: <1086976005.10973.364.camel@watt.suse.com>
-X-Enigmail-Version: 0.83.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 11 Jun 2004 14:11:17 -0400
+Received: from smtp.golden.net ([199.166.210.31]:1037 "EHLO smtp.golden.net")
+	by vger.kernel.org with ESMTP id S264277AbUFKSLO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jun 2004 14:11:14 -0400
+Date: Fri, 11 Jun 2004 14:11:06 -0400
+From: Paul Mundt <lethal@linux-sh.org>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Russell King <rmk@arm.linux.org.uk>
+Subject: Re: [PATCH] IDE update for 2.6.7-rc3 [4/12]
+Message-ID: <20040611181106.GB12953@linux-sh.org>
+Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>,
+	Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+	linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Russell King <rmk@arm.linux.org.uk>
+References: <200406111755.02325.bzolnier@elka.pw.edu.pl>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="neYutvxvOLaeuPCA"
+Content-Disposition: inline
+In-Reply-To: <200406111755.02325.bzolnier@elka.pw.edu.pl>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Mason wrote:
 
->On Fri, 2004-06-11 at 12:32, Hans Reiser wrote:
->
->  
->
->>Reiser4 is going to obsolete V3 in a few weeks.  V3 will be retained for 
->>compatibility reasons only, as V4 blows it away in performance.
->>
->>    
->>
->
->This would be the conservative release management you were talking about
->before, right?  It's going to take a considerable amount of time for v4
->to obsolete v3, because it will take a considerable amount of time for
->v4 to become stable under the wide range of conditions that filesystems
->get used.
->  
->
-A better statement would be:
+--neYutvxvOLaeuPCA
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-V3 will exist for those who don't want to use the latest fs on the 
-block, and for those who started to use V3 and don't care enough about 
-performance and features to engage in the work needed to change (99% of 
-existing users, unless someone funds convertfs).
+On Fri, Jun 11, 2004 at 05:55:02PM +0200, Bartlomiej Zolnierkiewicz wrote:
+> [PATCH] ide: kill hw_regs_t->dma
+>=20
+> hw_regs_t->dma is needed only by icside.c so make it local to this driver
+> (add unsigned int dma to struct icside_state) and kill it from hw_regs_t.
+> This allows us also to remove arm specific NO_DMA define from <linux/ide.=
+h>.
+>=20
+sh will be making use of this as well for multiple drivers. Obviously we
+can make this local to each driver though if that's going to be the
+preferred approach.
 
->Please don't misunderstand this as a statement against v4, I would love
->to see it be 1000x as fast as every other FS.  I'm only asking for some
->kind of realism in the expectations you give the users.
->
->-chris
->
->
->
->
->  
->
 
+--neYutvxvOLaeuPCA
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAyfW61K+teJFxZ9wRAqbyAJ9Oya/okUli57KndDDQTkmeAZjGiwCfbJKF
+h1PPl9ODjVaD9JaRw+RwEck=
+=3BmS
+-----END PGP SIGNATURE-----
+
+--neYutvxvOLaeuPCA--

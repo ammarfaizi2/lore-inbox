@@ -1,100 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262656AbTESSuU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 14:50:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262657AbTESSuU
+	id S262538AbTESS6A (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 14:58:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262718AbTESS57
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 14:50:20 -0400
-Received: from mx1.mail.ru ([194.67.23.21]:18193 "EHLO mx1.mail.ru")
-	by vger.kernel.org with ESMTP id S262656AbTESSuR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 14:50:17 -0400
-Date: Sun, 18 May 2003 22:46:26 +0200 (CEST)
-From: Guennadi Liakhovetski <lyakh@mail.ru>
-Reply-To: Guennadi Liakhovetski <guennadi.liakhovetski@epost.de>
-To: linux-kernel@vger.kernel.org
-Subject: USB-Oops 2.4.20 printer, strangely involving ppp
-Message-ID: <Pine.LNX.4.44.0305182226560.2438-100000@poirot.grange>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 19 May 2003 14:57:59 -0400
+Received: from h24-87-160-169.vn.shawcable.net ([24.87.160.169]:29330 "EHLO
+	oof.localnet") by vger.kernel.org with ESMTP id S262538AbTESS55
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 May 2003 14:57:57 -0400
+Date: Mon, 19 May 2003 12:10:51 -0700
+From: Simon Kirby <sim@netnation.com>
+To: Florian Weimer <fw@deneb.enyo.de>
+Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+Subject: Re: Route cache performance under stress
+Message-ID: <20030519191051.GA13087@netnation.com>
+References: <8765pshpd4.fsf@deneb.enyo.de> <20030516222436.GA6620@netnation.com> <8765oaxz2f.fsf@deneb.enyo.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <8765oaxz2f.fsf@deneb.enyo.de>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+[ Apologies all -- I had my address incorrectly set to sim@netnation.org
+  for some reason. ]
 
-Knowing it most probably would be of low value / interest I still decided
-to post this Oops, in case I am wrong. A short description - I generally
-have problems with my USB-printer (Lexmark Z25), whereby it corrupts
-images, a remedy seems to be to reload usb-modules, restart hotplug, lpd.
-So, when I tried to do this on this occasion I got the Oops below. The sad
-thing is it is not easily reproducible. I've had it a couple of times
-before, often (if not always) in relation with ppp... But when I tried to
-attack it, I couldn't get it anymore:-) So, here goes (extract from
-/var/log/messages):
+On Sat, May 17, 2003 at 01:16:08AM +0200, Florian Weimer wrote:
 
-usb.c: USB disconnect on device 00:07.2-0 address 1
-klogd 1.4.1, ---------- state change ----------
-Inspecting /boot/System.map-2.4.20
-Loaded 14930 symbols from /boot/System.map-2.4.20.
-Symbols match kernel version 2.4.20.
-Loaded 594 symbols from 38 modules.
-usb.c: USB bus 1 deregistered
-usb.c: USB disconnect on device 00:07.3-0 address 1
-usb.c: USB bus 2 deregistered
-usb.c: deregistering driver usbdevfs
-usb.c: deregistering driver hub
-usb.c: registered new driver usbdevfs
-usb.c: registered new driver hub
-usb-uhci.c: $Revision: 1.275 $ time 20:12:08 Dec 29 2002
-usb-uhci.c: High bandwidth mode enabled
-PCI: Found IRQ 3 for device 00:07.2
-PCI: Sharing IRQ 3 with 00:07.3
-usb-uhci.c: USB UHCI at I/O 0xd400, IRQ 3
-usb-uhci.c: Detected 2 ports
-usb.c: new USB bus registered, assigned bus number 1
-hub.c: USB hub found
-hub.c: 2 ports detected
-PCI: Found IRQ 3 for device 00:07.3
-PCI: Sharing IRQ 3 with 00:07.2
-usb-uhci.c: USB UHCI at I/O 0xd000, IRQ 3
-usb-uhci.c: Detected 2 ports
-usb.c: new USB bus registered, assigned bus number 2
-hub.c: USB hub found
-hub.c: 2 ports detected
-usb-uhci.c: v1.275:USB Universal Host Controller Interface driver
-hub.c: new USB device 00:07.2-2, assigned address 2
-modprobe: Can't locate module evdev
-modprobe: Can't locate module joydev
-usb.c: USB device 2 (vend/prod 0x43d/0x57) is not claimed by any active driver.
-usb.c: registered new driver usblp
-printer.c: usblp0: USB Bidirectional printer dev 2 if 0 alt 0 proto 2 vid 0x043D pid 0x0057
-printer.c: v0.11: USB Printer Device Class driver
-Using /lib/modules/2.4.20/kernel/drivers/usb/printer.o
-Symbol version prefix ''
-printer.c: usblp0: nonzero read/write bulk status received: -2
-Unable to handle kernel NULL pointer dereference at virtual address 00000020
- printing eip:
-d8b6b117
-*pde = 00000000
-Oops: 0002
-CPU:    0
-EIP:    0010:[ppp_deflate:__insmod_ppp_deflate_O/lib/modules/2.4.20/kernel/drivers/ne+-605929/96]    Not tainted
-EFLAGS: 00010286
-eax: d5d0fadc   ebx: 00000000   ecx: 00000001   edx: 00000001
-esi: d5d0fa20   edi: c8def140   ebp: d383ff00   esp: d383fefc
-ds: 0018   es: 0018   ss: 0018
-Process hwscan (pid: 5389, stackpage=d383f000)
-Stack: 00000000 d383ff18 d8b54ad6 00000000 d5d0fa00 d5d0fa20 d7258080 d383ff34
-       d8b54cc0 d7258080 d5d0fa20 d5d0fa00 d5d0fa08 d7ffa300 d383ff40 d8b6b258
-       d5d0fa20 d383ff50 d8be6305 d5d0fa20 d5d0fa00 d383ff64 d8be633b d5d0fa00
-Call Trace:    [ppp_deflate:__insmod_ppp_deflate_O/lib/modules/2.4.20/kernel/drivers/ne+-697642/96] [ppp_deflate:__insmod_ppp_deflate_O/lib/modules/2.4.20/kernel/drivers/ne+-697152/96] [ppp_deflate:__insmod_ppp_deflate_O/lib/modules/2.4.20/kernel/drivers/ne+-605608/96] [ppp_deflate:__insmod_ppp_deflate_O/lib/modules/2.4.20/kernel/drivers/ne+-101627/96] [ppp_deflate:__insmod_ppp_deflate_O/lib/modules/2.4.20/kernel/drivers/ne+-101573/96]
-  [fput+84/240] [filp_close+85/112] [sys_close+69/96] [system_call+51/56]
+> > Under normal operation, it looks like most load we are seeing is in fact
+> > normal route lookups.  We run BGP peering, and so there is a lot of
+> > routes in the table.
+> 
+> You should aggregate the routes before you load them into the kernel.
+> Hardly anybody seems to do this, but usually, you have much fewer
+> interfaces than prefixes 8-), so this could result in a huge win.
 
-Code: ff 4b 20 0f 94 c0 84 c0 74 27 8b 83 cc 00 00 00 8b 40 1c 53
-/etc/hotplug/usb.agent: line 435:  5389 Segmentation fault      /usr/sbin/hwscan --usb
+Hmm... Looking around, I wasn't able to find an option in Zebra to do
+this.  Do you know the command to do this?
 
-Guennadi
----
-Guennadi Liakhovetski
+> Anyway, using data structures tailored to the current Internet routing
+> table, it's certainly possible to do destination-only routing using
+> half a dozen memory lookups or so (or a few indirect calls, I'm not
+> sure which option is cheaper).
 
+Would this still route packets to destinations which would otherwise be
+unreachable, then?  While this isn't a big issue, it would be nice to
+stop unroutable traffic before it leaves our networks (mostly in the case
+where a customer machine is generating bad traffic).
 
+I did experiment with trying to increase the routing (normal, not cache)
+hash table another level, but it didn't seem to have much effect.  I
+believe I would have to change the algorithm somewhat to prefer falling
+into larger hash buckets sooner than how it does at the moment.  I seem
+to recall that it would let the hash buckets get rather large before
+expanding them.  I haven't had a chance to look at this very deeply, but
+the profile I linked to before does show that fn_hash_lookup() does
+indeed use more CPU than any other function, so it may be worth looking
+at more.  (Aggregating routes would definitely improve the situation in
+any case.)
+
+> The patch I posted won't help you as it increases the load
+> considerably unless most of your flows consist of one packet.  (And
+> there's no need for patching, you can go ahead and just change the
+> value via /proc.)
+
+Yes.  I have fiddled with this before, and making the changes you
+suggested actually doubled the load in normal operation.  I would assume
+this is putting even more pressure on fn_hash_lookup().
+
+Simon-

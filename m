@@ -1,42 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271066AbTGPSds (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 14:33:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271065AbTGPSd1
+	id S271070AbTGPSfb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 14:35:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271033AbTGPSbu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 14:33:27 -0400
-Received: from unsol-intbg.internet-bg.net ([212.124.67.226]:31496 "HELO
-	ns.unixsol.org") by vger.kernel.org with SMTP id S271060AbTGPScX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 14:32:23 -0400
-Message-ID: <3F159DB2.90604@unixsol.org>
-Date: Wed, 16 Jul 2003 21:47:14 +0300
-From: Georgi Chorbadzhiyski <gf@unixsol.org>
-Organization: Unix Solutions Ltd. (http://unixsol.org)
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030514
-X-Accept-Language: en, en-us, bg
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6-test1-mm1 success, tiny mouse and framebuffer problems
-References: <3F156566.4040206@unixsol.org> <20030716172716.GA8030@kroah.com>
-In-Reply-To: <20030716172716.GA8030@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 16 Jul 2003 14:31:50 -0400
+Received: from mail.kroah.org ([65.200.24.183]:48584 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S271044AbTGPSbT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 14:31:19 -0400
+Date: Wed, 16 Jul 2003 11:46:09 -0700
+From: Greg KH <greg@kroah.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] print_dev_t for 2.6.0-test1-mm
+Message-ID: <20030716184609.GA1913@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Wed, Jul 16, 2003 at 05:47:02PM +0300, Georgi Chorbadzhiyski wrote:
-> 
->>P.S. Every file in sysfs is 4096 bytes, is this normal?
-> 
-> And they _all_ aren't 4096 bytes, there are a few that report other
-> sizes...
+Hi,
 
-Probably equal to PAGE_SIZE ?
+Here's a patch against 2.6.0-test1-mm that fixes up the different places
+where we export a dev_t to userspace.  This fixes all of the compiler
+warnings that were previously reported with these files.
 
--
-Georgi Chorbadzhiyski
-http://georgi.unixsol.org/
+If I should put the print_dev_t() function in a different header file,
+please let me know.
 
+thanks,
+
+greg k-h
+
+
+diff -Naur -X /home/greg/linux/dontdiff linux-2.6.0-test1-mm/drivers/block/genhd.c linux-2.6.0-test1-mm-gregkh/drivers/block/genhd.c
+--- linux-2.6.0-test1-mm/drivers/block/genhd.c	2003-07-13 20:34:02.000000000 -0700
++++ linux-2.6.0-test1-mm-gregkh/drivers/block/genhd.c	2003-07-16 11:34:34.755238792 -0700
+@@ -336,7 +336,7 @@
+ static ssize_t disk_dev_read(struct gendisk * disk, char *page)
+ {
+ 	dev_t base = MKDEV(disk->major, disk->first_minor); 
+-	return sprintf(page, "%04x\n", (unsigned)base);
++	return print_dev_t(page, base);
+ }
+ static ssize_t disk_range_read(struct gendisk * disk, char *page)
+ {
+diff -Naur -X /home/greg/linux/dontdiff linux-2.6.0-test1-mm/drivers/char/tty_io.c linux-2.6.0-test1-mm-gregkh/drivers/char/tty_io.c
+--- linux-2.6.0-test1-mm/drivers/char/tty_io.c	2003-07-13 20:34:49.000000000 -0700
++++ linux-2.6.0-test1-mm-gregkh/drivers/char/tty_io.c	2003-07-16 11:35:40.205288872 -0700
+@@ -2106,7 +2106,7 @@
+ static ssize_t show_dev(struct class_device *class_dev, char *buf)
+ {
+ 	struct tty_dev *tty_dev = to_tty_dev(class_dev);
+-	return sprintf(buf, "%04lx\n", (unsigned long)tty_dev->dev);
++	return print_dev_t(buf, tty_dev->dev);
+ }
+ static CLASS_DEVICE_ATTR(dev, S_IRUGO, show_dev, NULL);
+ 
+diff -Naur -X /home/greg/linux/dontdiff linux-2.6.0-test1-mm/drivers/i2c/i2c-dev.c linux-2.6.0-test1-mm-gregkh/drivers/i2c/i2c-dev.c
+--- linux-2.6.0-test1-mm/drivers/i2c/i2c-dev.c	2003-07-13 20:36:48.000000000 -0700
++++ linux-2.6.0-test1-mm-gregkh/drivers/i2c/i2c-dev.c	2003-07-16 11:36:23.060773848 -0700
+@@ -118,7 +118,7 @@
+ static ssize_t show_dev(struct class_device *class_dev, char *buf)
+ {
+ 	struct i2c_dev *i2c_dev = to_i2c_dev(class_dev);
+-	return sprintf(buf, "%04x\n", MKDEV(I2C_MAJOR, i2c_dev->minor));
++	return print_dev_t(buf, MKDEV(I2C_MAJOR, i2c_dev->minor));
+ }
+ static CLASS_DEVICE_ATTR(dev, S_IRUGO, show_dev, NULL);
+ 
+diff -Naur -X /home/greg/linux/dontdiff linux-2.6.0-test1-mm/drivers/usb/core/file.c linux-2.6.0-test1-mm-gregkh/drivers/usb/core/file.c
+--- linux-2.6.0-test1-mm/drivers/usb/core/file.c	2003-07-16 11:25:05.269813736 -0700
++++ linux-2.6.0-test1-mm-gregkh/drivers/usb/core/file.c	2003-07-16 11:33:27.193509736 -0700
+@@ -93,7 +93,7 @@
+ {
+ 	struct usb_interface *intf = class_dev_to_usb_interface(class_dev);
+ 	dev_t dev = MKDEV(USB_MAJOR, intf->minor);
+-	return sprintf(buf, "%04lx\n", (unsigned long)dev);
++	return print_dev_t(buf, dev);
+ }
+ static CLASS_DEVICE_ATTR(dev, S_IRUGO, show_dev, NULL);
+ 
+diff -Naur -X /home/greg/linux/dontdiff linux-2.6.0-test1-mm/include/linux/kdev_t.h linux-2.6.0-test1-mm-gregkh/include/linux/kdev_t.h
+--- linux-2.6.0-test1-mm/include/linux/kdev_t.h	2003-07-16 11:25:05.868722688 -0700
++++ linux-2.6.0-test1-mm-gregkh/include/linux/kdev_t.h	2003-07-16 11:33:05.754768920 -0700
+@@ -103,6 +103,11 @@
+ 	return mk_kdev(ma, mi);
+ }
+ 
++static inline int print_dev_t(char *buffer, dev_t dev)
++{
++	return sprintf(buffer, "%04lx\n", (unsigned long)dev);
++}
++
+ #else /* __KERNEL__ */
+ 
+ /*

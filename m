@@ -1,53 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261605AbTD1INb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Apr 2003 04:13:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262284AbTD1INb
+	id S262284AbTD1Imp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Apr 2003 04:42:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262671AbTD1Imp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Apr 2003 04:13:31 -0400
-Received: from ns.suse.de ([213.95.15.193]:1808 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261605AbTD1INa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Apr 2003 04:13:30 -0400
-To: jlnance@unity.ncsu.edu
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ia32 kernel on amd64 box?
-References: <20030425214500.GA20221@ncsu.edu>
-From: Andreas Jaeger <aj@suse.de>
-In-Reply-To: <20030425214500.GA20221@ncsu.edu> (jlnance@unity.ncsu.edu's
- message of "Fri, 25 Apr 2003 17:45:00 -0400")
-Date: Mon, 28 Apr 2003 10:24:39 +0200
-Message-ID: <hoof2rghbs.fsf@byrd.suse.de>
-User-Agent: Gnus/5.09002 (Oort Gnus v0.20) XEmacs/21.4 (Portable Code,
- linux)
+	Mon, 28 Apr 2003 04:42:45 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:43316 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP id S262284AbTD1Imo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Apr 2003 04:42:44 -0400
+To: JXrn Engel <joern@wohnheim.fh-wedel.de>
+Cc: rmoser <mlmoser@comcast.net>, linux-kernel@vger.kernel.org
+Subject: Re: Swap Compression
+References: <200304251848410590.00DEC185@smtp.comcast.net>
+	<20030426091747.GD23757@wohnheim.fh-wedel.de>
+	<200304261148590300.00CE9372@smtp.comcast.net>
+	<20030426160920.GC21015@wohnheim.fh-wedel.de>
+	<200304262224040410.031419FD@smtp.comcast.net>
+	<20030427090418.GB6961@wohnheim.fh-wedel.de>
+	<200304271324370750.01655617@smtp.comcast.net>
+	<20030427175147.GA5174@wohnheim.fh-wedel.de>
+	<200304271431250990.01A281C7@smtp.comcast.net>
+	<20030427190444.GC5174@wohnheim.fh-wedel.de>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 28 Apr 2003 02:52:15 -0600
+In-Reply-To: <20030427190444.GC5174@wohnheim.fh-wedel.de>
+Message-ID: <m13ck3gg1s.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jlnance@unity.ncsu.edu writes:
+JXrn Engel <joern@wohnheim.fh-wedel.de> writes:
 
-> Hello All,
->     Does anyone know if an ia32 kernel (specifically the one that comes with
-> Red Hat 7.2) will work on an SMP AMD Opteron machine?
+> Yes, zlib eats up several 100k of memory. You really notice this when
+> you add it to a bootloader that was (once) supposed to be small. :)
 
-Any 32-bit x86 kernel should work on an AMD Opteron machine.  The only
-question is whether all drivers are supported.  Red Hat 7.2 might not
-have support for all the hardware that is in an AMD Opteron ystem.
+I only measured about 32k for decompression.  But that was using
+the variant from gzip via the kernel.
 
->     I know someone will want to know why I would want to, so here is the
-> explanation.  I want to evaluate the opteron port of Linux at work.  Buying
-> the Opteron machine is less risky if I can fall back to 32 bit Linux
-> if the 64 bit port does not work well.  This is particularly true since
-> the 64 bit servers do not seem to cost much more than similar Pentium
-> machines.
+The really small algorithm I know about (at least for decompression)
+is upx.  The compression is comparable with gzip with a decompressor
+that can fit in a page or two of assembly code.
 
-SuSE Linux 8.2/x86 works on AMD Opteron systems and I guess current
-Red Hat distributions do work also,
+Probably irrelevant at this juncture but...
 
-Andreas
--- 
- Andreas Jaeger
-  SuSE Labs aj@suse.de
-   private aj@arthur.inka.de
-    http://www.suse.de/~aj
+Eric
+

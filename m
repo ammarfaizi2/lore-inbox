@@ -1,63 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264853AbUGZEGH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264913AbUGZEk7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264853AbUGZEGH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jul 2004 00:06:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264913AbUGZEGH
+	id S264913AbUGZEk7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jul 2004 00:40:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264919AbUGZEk7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jul 2004 00:06:07 -0400
-Received: from smtp102.mail.sc5.yahoo.com ([216.136.174.140]:37255 "HELO
-	smtp102.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S264853AbUGZEGE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jul 2004 00:06:04 -0400
-Message-ID: <41048324.8070302@yahoo.com.au>
-Date: Mon, 26 Jul 2004 14:05:56 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Dimitri Sivanich <sivanich@sgi.com>
-CC: "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       Andrew Morton <akpm@osdl.org>, Anton Blanchard <anton@samba.org>,
-       Andi Kleen <ak@suse.de>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] consolidate sched domains
-References: <41008386.9060009@yahoo.com.au> <20040723153022.GA16563@sgi.com> <200407231450.47070.suresh.b.siddha@intel.com> <20040726022202.GA21602@sgi.com>
-In-Reply-To: <20040726022202.GA21602@sgi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 26 Jul 2004 00:40:59 -0400
+Received: from lakermmtao07.cox.net ([68.230.240.32]:14046 "EHLO
+	lakermmtao07.cox.net") by vger.kernel.org with ESMTP
+	id S264913AbUGZEk6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jul 2004 00:40:58 -0400
+In-Reply-To: <E1Bow3S-0001qO-00@calista.eckenfels.6bone.ka-ip.net>
+References: <E1Bow3S-0001qO-00@calista.eckenfels.6bone.ka-ip.net>
+Mime-Version: 1.0 (Apple Message framework v618)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <FC5D956C-DEBD-11D8-9EC8-000393ACC76E@mac.com>
 Content-Transfer-Encoding: 7bit
+Cc: lkml List <linux-kernel@vger.kernel.org>
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: Preliminary Linux Key Infrastructure 0.01-alpha1
+Date: Mon, 26 Jul 2004 00:40:57 -0400
+To: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>
+X-Mailer: Apple Mail (2.618)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dimitri Sivanich wrote:
+On Jul 25, 2004, at 23:21, Bernd Eckenfels wrote:
+> In article <65EFF013-DEAA-11D8-9612-000393ACC76E@mac.com> you wrote:
+>> Preliminary Linux Key Infrastructure 0.01-alpha1:
+>
+> What kind of keys you want to store and what are they used for?
 
->On Fri, Jul 23, 2004 at 02:50:46PM -0700, Siddha, Suresh B wrote:
->
->>On Friday 23 July 2004 08:30, Dimitri Sivanich wrote:
->>
->>>Do other architectures need to define their own cpu_sibling_maps, or am I
->>>missing something that would define that for IA64 and others?
->>>
->>Nick means, all the architectures which use CONFIG_SCHED_SMT needs to define 
->>cpu_sibling_map.
->>
->>Nick, aren't you missing the attached fix in your patch?
->>
->>thanks,
->>suresh
->>
->
->Ok, but cpu_to_phys_group() does a lookup in cpu_sibling map:
->__init static int cpu_to_phys_group(int cpu)
->{
->        return first_cpu(cpu_sibling_map[cpu]);
->}
->
->and is called from outside of a CONFIG_SCHED_SMT ifdef here:
->
+My code is in followup to the LKML discussion here:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=108700802812286&w=2
 
-Yes of course, thank you.
+The goal is simply to put encryption keys in the kernel so they can be
+used by a variety of systems, AFS, NFSv4, dm-crypt, CryptoAPI, etc.
 
-The fix is for cpu_to_phys_group() to just return cpu when 
-!CONFIG_SCHED_SMT.
+There was also a bit of a discussion on OpenAFS-devel about it too.
+
+Cheers,
+Kyle Moffett
+
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12
+GCM/CS/IT/U d- s++: a17 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
+L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
+PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
+!y?(-)
+------END GEEK CODE BLOCK------
 
 

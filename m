@@ -1,48 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262438AbSJDQ1I>; Fri, 4 Oct 2002 12:27:08 -0400
+	id <S262021AbSJDPPr>; Fri, 4 Oct 2002 11:15:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262428AbSJDQ1H>; Fri, 4 Oct 2002 12:27:07 -0400
-Received: from h68-147-110-38.cg.shawcable.net ([68.147.110.38]:19695 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S262432AbSJDQ0g>; Fri, 4 Oct 2002 12:26:36 -0400
-From: Andreas Dilger <adilger@clusterfs.com>
-Date: Fri, 4 Oct 2002 10:30:01 -0600
-To: David Howells <dhowells@cambridge.redhat.com>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Jan Harkes <jaharkes@cs.cmu.edu>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] AFS filesystem for Linux (2/2)
-Message-ID: <20021004163001.GV3000@clusterfs.com>
-Mail-Followup-To: David Howells <dhowells@cambridge.redhat.com>,
-	Trond Myklebust <trond.myklebust@fys.uio.no>,
-	Jan Harkes <jaharkes@cs.cmu.edu>, linux-kernel@vger.kernel.org
-References: <trond.myklebust@fys.uio.no> <shsheg2i7x2.fsf@charged.uio.no> <27308.1033745758@warthog.cambridge.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <27308.1033745758@warthog.cambridge.redhat.com>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	id <S262003AbSJDPOd>; Fri, 4 Oct 2002 11:14:33 -0400
+Received: from math.ut.ee ([193.40.5.125]:4262 "EHLO math.ut.ee")
+	by vger.kernel.org with ESMTP id <S262006AbSJDPOT>;
+	Fri, 4 Oct 2002 11:14:19 -0400
+Date: Fri, 4 Oct 2002 18:19:45 +0300 (EEST)
+From: Meelis Roos <mroos@linux.ee>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.20-pre9: floating point in tda7432 module
+Message-ID: <Pine.GSO.4.44.0210041817000.12474-100000@math.ut.ee>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Oct 04, 2002  16:35 +0100, David Howells wrote:
-> 
-> > NFSv4 does indeed require the full kerberos encryption stuff in the
-> > kernel. The RFC specifies that krb5 support is a minimum requirement, and we
-> > will expect to have that in 2.6 (or 3.0 or whatever it's called these
-> > days...)
-> 
-> Might this be something I can make use of for my AFS filesystem too?
+Most of the unresolved module symbols are now fixed on PPC but one
+brokenmodule remains (with my config):
 
-We will also need kerberos for Lustre when we start implementing
-security.  We will be using the GSSAPI for security, so basically
-the same as what AFS is using.
+depmod: *** Unresolved symbols in /lib/modules/2.4.20-pre9/kernel/drivers/media/video/tda7432.o
+depmod:         __fixdfsi
+depmod:         __floatsidf
+depmod:         __divdf3
+depmod:         __muldf3
+depmod:         __subdf3
 
-Cheers, Andreas
---
-Andreas Dilger
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-http://sourceforge.net/projects/ext2resize/
+Looks like the tda7432 module tries to use some floating point in the
+kernel... bad.
+
+-- 
+Meelis Roos (mroos@linux.ee)
 

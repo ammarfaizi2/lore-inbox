@@ -1,81 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130494AbRCDMXo>; Sun, 4 Mar 2001 07:23:44 -0500
+	id <S130496AbRCDMhR>; Sun, 4 Mar 2001 07:37:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130495AbRCDMXe>; Sun, 4 Mar 2001 07:23:34 -0500
-Received: from jurassic.park.msu.ru ([195.208.223.243]:53255 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id <S130494AbRCDMXP>; Sun, 4 Mar 2001 07:23:15 -0500
-Date: Sun, 4 Mar 2001 15:19:10 +0300
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Grant Grundler <grundler@cup.hp.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PATCH 2.4.0 parisc PCI support
-Message-ID: <20010304151910.A29393@jurassic.park.msu.ru>
-In-Reply-To: <200103021932.LAA29704@milano.cup.hp.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200103021932.LAA29704@milano.cup.hp.com>; from grundler@cup.hp.com on Fri, Mar 02, 2001 at 11:32:35AM -0800
+	id <S130497AbRCDMhI>; Sun, 4 Mar 2001 07:37:08 -0500
+Received: from smtp-rt-1.wanadoo.fr ([193.252.19.151]:26578 "EHLO
+	anagyris.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S130496AbRCDMg5>; Sun, 4 Mar 2001 07:36:57 -0500
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Question about IRQ_PENDING/IRQ_REPLAY
+Date: Sun, 4 Mar 2001 13:36:40 +0100
+Message-Id: <19350127060824.22815@smtp.wanadoo.fr>
+In-Reply-To: <Pine.LNX.4.10.10103030954060.17574-100000@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.10.10103030954060.17574-100000@penguin.transmeta.com>
+X-Mailer: CTM PowerMail 3.0.6 <http://www.ctmdev.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 02, 2001 at 11:32:35AM -0800, Grant Grundler wrote:
-> Code in parisc-linux CVS (based on 2.4.0) does boot on my OB800
-> (133Mhz Pentium), C3000, and A500 with PCI-PCI bridge support
-> working. I'm quite certain PCI-PCI bridge configuration (ie BIOS
-> didn't configure the bridge) support was broken.
+>In particular, if an edge-triggered interrupt comes in on an x86 IO-APIC
+>while that interrupt is disabled, enabling the interrupt will have caused
+>that irq to get dropped. And if it gets dropped, it will never ever happen
+>again: the interrupt line is now active, and there will never be another
+>edge again.
 
-I believe it isn't. ;-) It works on various alphas including
-configurations with chained PCI-PCI bridges.
-Some comments on the patch:
+Ok, I see. We have a different issue with the old Apple IRQ controller that
+can lose interrupts if they are active when re-enabled. We currently rely
+on a hack to work aroud this that may re-send interrupts, but that involves
+hacking into __sti() to check for lost interrupts, which is bad.
 
-> +** If I/O or MEM ranges are overlapping, that's a BIOS bug.
+Basically, even a level interrupt, if active while re-enabled, will not be
+sent by the pic to the CPU, and so further interrupts will be blocked too.
+We have some code in enable_irq() that can detect this case, but re-triggering
+the interrupt is not really simple and requires the __sti() hack for now. 
 
-No. As we reallocate everything, it is quite possible that we'll
-have temporary overlaps during setup with resources allocated
-by BIOS. I'm not sure if it is harmful though.
+I beleive we may have a way to re-trigger the interrupt without having to
+hack __sti() by using a fake timer interrupt. I'll look into this, but in
+that case, the code can be mostly self-contained in enable_irq, we will
+probably not need to play with IRQ_PENDING & IRQ_REPLAY flag at all.
 
-> +#ifdef __hppa__
-> +/* XXX FIXME
-> +** PCI_BRIDGE_CONTROL and PCI_COMMAND programming need to be revisited
-> +** to support FBB.  Make all this crud "configurable" by the arch specific
-> +** (ie "PCI BIOS") support and the ifdef __hppa__ crap can go away then.
-> +*/
+>> I'd be glad if you could take the time to enlighten me about this as I'm
+>> trying to make the PPC code as close as the i386, according to your
+>> comment stating that it would be generic in 2.5, and I don't like having
+>> code I don't fully understand ;)
+>
+>You likely don't have this problem at all. Most sane interrupt controllers
+>are level-triggered, and won't show the problem. And others (like the
+>i8259) will see a disabled->enabled transition as an edge if the interrupt
+>is active (ie they have the edge-detection logic _after_ the disable
+>logic), and again won't have this problem.
 
-Agreed. Something like pcibios_set_bridge_control().
+Well, Apple now uses OpenPICs, but all slightly older macs had a home-made
+Apple controller that had the above issue :( In fact, it can happpen with
+both and and level interrupts for us.
 
->  	for (ln=bus->children.next; ln != &bus->children; ln=ln->next) {
->  		struct pci_bus *b = pci_bus_b(ln);
->  
-> -		b->resource[0]->start = ranges->io_start = ranges->io_end;
-> -		b->resource[1]->start = ranges->mem_start = ranges->mem_end;
-> -
-> +		ranges->io_start = ranges->io_end;
-> +		ranges->mem_start = ranges->mem_end;
->  		pbus_assign_resources(b, ranges);
-> -
-> -		b->resource[0]->end = ranges->io_end - 1;
-> -		b->resource[1]->end = ranges->mem_end - 1;
-> -
->  		pci_setup_bridge(b);
->  	}
-
-This change totally breaks PCI allocation logic.
-Probably you assign PCI-PCI bridge windows in arch specific
-code - why?
-The only thing you need is to set up the root bus resources
-properly and generic code will do the rest.
-
-> +#ifndef __hppa__
->  		/* PCI-PCI bridges may have I/O ports or
->  		   memory on the primary bus */
->  		if (dev->class >> 8 == PCI_CLASS_BRIDGE_PCI &&
->  						i >= PCI_BRIDGE_RESOURCES)
->  			continue;
-> +#endif
-
-Same here.
-
-Ivan.
+Regards,
+Ben.

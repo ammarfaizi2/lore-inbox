@@ -1,43 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280781AbRKKDro>; Sat, 10 Nov 2001 22:47:44 -0500
+	id <S280727AbRKKEEi>; Sat, 10 Nov 2001 23:04:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280782AbRKKDrY>; Sat, 10 Nov 2001 22:47:24 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:2296
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S280781AbRKKDrS>; Sat, 10 Nov 2001 22:47:18 -0500
-Date: Sat, 10 Nov 2001 19:47:13 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
+	id <S280773AbRKKEES>; Sat, 10 Nov 2001 23:04:18 -0500
+Received: from d141-96-160.home.cgocable.net ([24.141.96.160]:2828 "EHLO
+	spqr.damncats.org") by vger.kernel.org with ESMTP
+	id <S280727AbRKKEEF>; Sat, 10 Nov 2001 23:04:05 -0500
+Message-ID: <3BEDF8A4.1070105@damncats.org>
+Date: Sat, 10 Nov 2001 23:03:48 -0500
+From: John Cavan <johnc@damncats.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
+X-Accept-Language: en-us
+MIME-Version: 1.0
 To: lobo@polbox.com
-Cc: linux-kernel@vger.kernel.org
+CC: linux-kernel@vger.kernel.org
 Subject: Re: Nazi kernels
-Message-ID: <20011110194713.A19916@mikef-linux.matchmail.com>
-Mail-Followup-To: lobo@polbox.com, linux-kernel@vger.kernel.org
 In-Reply-To: <20011111043442.A3454@chello062179017166.chello.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011111043442.A3454@chello062179017166.chello.pl>
-User-Agent: Mutt/1.3.23i
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 11, 2001 at 04:34:42AM +0100, lobo@polbox.com wrote:
-> because nazi kernel's don't allow me to load modules needed for my
-> graphic card. What will be next, maybe you disable to run non GPL
-> executables under linux ?
-> 
+lobo@polbox.com wrote:
 
-You must be thinking of nvidia's kernel module...
+ > Hi!
+ >
+ > Thank You guys for Your work. I'm say goodbye to linux community,
+ > because nazi kernel's don't allow me to load modules needed for my
+ > graphic card. What will be next, maybe you disable to run non GPL
+ > executables under linux ?
 
-With the new module licenes, they do not keep you from loading or even
-making the modules.  It just lets the community know that they don't need to
-support bug reports from these kernels.
 
-The *seperate* issue of gpl symbols will also not affect current symbols,
-only new symbols that people add in the future.
+I'd suggest that you get a clue about what you're talking about before 
+spouting off nonsense. The license code in the kernel doesn't prohibit 
+anything, it simply provides a means of determining if the kernel is 
+running closed code and thus out of the scope of the kernel maintainers.
 
-Mike
+Frankly, any comparison of SOFTWARE to the horrific evil of the Nazi 
+party is an abomination. For that alone, you really don't earn the price 
+of admission to anything involving a brain. I can't begin to fathom the 
+thought processes of an individual who would belittle the suffering, 
+pain, and sacrifices of those who experience that time period with such 
+a comparison.
 
-PS, I don't think our community needs people who jump to colclusions like
-this.  Have you even read LKML?!
+I'm sure you're proud.
+
+John
+

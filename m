@@ -1,49 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317472AbSHLHcN>; Mon, 12 Aug 2002 03:32:13 -0400
+	id <S317462AbSHLHb0>; Mon, 12 Aug 2002 03:31:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317470AbSHLHcN>; Mon, 12 Aug 2002 03:32:13 -0400
-Received: from mail.webmaster.com ([216.152.64.131]:61142 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S317469AbSHLHcK> convert rfc822-to-8bit; Mon, 12 Aug 2002 03:32:10 -0400
-From: David Schwartz <davids@webmaster.com>
-To: <jroland@roland.net>, <Hell.Surfers@cwctv.net>, <riel@conectiva.com.br>,
-       <linux-kernel@vger.kernel.org>
-X-Mailer: PocoMail 2.61 (1055) - Licensed Version
-Date: Mon, 12 Aug 2002 00:35:56 -0700
-In-Reply-To: <002701c241bf$54e64010$2102a8c0@gespl2k1>
-Subject: Re: RE:Re: The spam problem.
+	id <S317469AbSHLHbZ>; Mon, 12 Aug 2002 03:31:25 -0400
+Received: from supreme.pcug.org.au ([203.10.76.34]:20167 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id <S317462AbSHLHbZ>;
+	Mon, 12 Aug 2002 03:31:25 -0400
+Date: Mon, 12 Aug 2002 17:34:04 +1000
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org, julliard@winehq.com,
+       ldb@ldb.ods.org
+Subject: Re: [patch] tls-2.5.31-C3
+Message-Id: <20020812173404.39d3abab.sfr@canb.auug.org.au>
+In-Reply-To: <Pine.LNX.4.44.0208112326580.29560-200000@localhost.localdomain>
+References: <Pine.LNX.4.44.0208071115290.4961-100000@home.transmeta.com>
+	<Pine.LNX.4.44.0208112326580.29560-200000@localhost.localdomain>
+X-Mailer: Sylpheed version 0.8.1 (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-ID: <20020812073558.AAA17330@shell.webmaster.com@whenever>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Ingo,
 
+On Sun, 11 Aug 2002 23:46:01 +0200 (CEST) Ingo Molnar <mingo@elte.hu> wrote:
+>
+>  	/*
+>  	 * The APM segments have byte granularity and their bases
+>  	 * and limits are set at run time.
+>  	 */
+> -	.quad 0x0040920000000000	/* 0x40 APM set up for bad BIOS's */
+> -	.quad 0x00409a0000000000	/* 0x48 APM CS    code */
+> -	.quad 0x00009a0000000000	/* 0x50 APM CS 16 code (16 bit) */
+> -	.quad 0x0040920000000000	/* 0x58 APM DS    data */
+> +	.quad 0x0040920000000000	/* 0x80 APM set up for bad BIOS's */
+> +	.quad 0x00409a0000000000	/* 0x88 APM CS    code */
+> +	.quad 0x00009a0000000000	/* 0x90 APM CS 16 code (16 bit) */
+> +	.quad 0x0040920000000000	/* 0x98 APM DS    data */
 
-On Mon, 12 Aug 2002 00:15:53 -0500, Jim Roland wrote:
+I just lost 0x40 which needs to be exactly 0x40 if it is do its job (i.e.
+cope with brain dead BIOS writers using 0x40 as a segment offset in
+protected mode ...
 
->Now there's a good thought!  Post, Confirm, gets posted.  If member, no
->confirmation necessary.
+The idea is that segment 0x40 maps from physical address 0x400 to the end
+of the first physical page.  As a real mode program would (more or less)
+expect it to.
 
-	You could also put them in a manual hold queue. Give a large number of 
-people ability to approve posts from that queue so latency would be 
-reasonable.
-
-	The problem with confirmation is that a person might fire off a bug report 
-where they happen to be, via something like
-
-dmesg > foo
-joe foo
-cat foo + mail -s "Bug report blah blah" linux-kernel@vger.kernel.org
-
-	A confirmation sent to the source address of that might not be noticed until 
-the next time they happen to log into that account on that machine.
-
-	You could do both, I guess. A hold queue that can be manually processed with 
-confirmation posting the message and removing it from the hold queue.
-
-	DS
-
-
+The other three segments don't matter as longs as they are in that order
+and contiguous.
+-- 
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/

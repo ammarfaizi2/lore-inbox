@@ -1,38 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281800AbRKUMxI>; Wed, 21 Nov 2001 07:53:08 -0500
+	id <S281793AbRKUNLl>; Wed, 21 Nov 2001 08:11:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281793AbRKUMw6>; Wed, 21 Nov 2001 07:52:58 -0500
-Received: from hog.ctrl-c.liu.se ([130.236.252.129]:3080 "HELO
-	hog.ctrl-c.liu.se") by vger.kernel.org with SMTP id <S281775AbRKUMwt>;
-	Wed, 21 Nov 2001 07:52:49 -0500
-To: helgehaf@idb.hist.no
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: A return to PCI ordering problems...
-Newsgroups: linux.kernel
-In-Reply-To: <3BFB7381.A0BB2474@idb.hist.no>
-In-Reply-To: <20011120190316.H19738@vnl.com> <2048.1006291657@redhat.com> <20011120214705.D22590@vnl.com>
-Message-Id: <20011121125244.4E9D836DE3@hog.ctrl-c.liu.se>
-Date: Wed, 21 Nov 2001 13:52:44 +0100 (CET)
-From: wingel@hog.ctrl-c.liu.se (Christer Weinigel)
+	id <S281762AbRKUNLW>; Wed, 21 Nov 2001 08:11:22 -0500
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:32264 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S281760AbRKUNLB>; Wed, 21 Nov 2001 08:11:01 -0500
+Date: Wed, 21 Nov 2001 14:10:54 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: <roman@serv>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] devfs v196 available
+In-Reply-To: <200111201819.fAKIJpp10565@vindaloo.ras.ucalgary.ca>
+Message-ID: <Pine.LNX.4.33.0111211332070.7061-100000@serv>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Helge Hafting wrote:
->Dale Amon wrote:
->> There are a couple reasons. One that is specific to this
->> particular case is that the VeryExpensiveProprietaryPackage
->> someone bought checks the eth0 MAC address to be sure you
->> haven't moved it. It would not really be smart to license
->> it against a removable, swappable PCI card.
->> 
->Such a licencing scheme isn't very smart on a os where
->the kernel source is available anyway.
+Hi,
 
-It's not very smart even on a proprietary operating system such
-as Solaris.  There have been tools available to report a different
-hostid on Solaris for ages.
+On Tue, 20 Nov 2001, Richard Gooch wrote:
 
-  /Christer
--- 
-"Just how much can I get away with and still go to heaven?"
+> Delayed events are harmless, since devfs ensures correct ordering.
+
+It's not about ordering, timing is currently unpredictable, anything
+timing sensitive has to be very careful to touch anything in devfs.
+
+> After consideration, I've decided to dynamically grow the event buffer
+> as required, and free up space as it's not needed.
+
+You should use a slab cache and acknowledge events as soon as they are
+finished. Right now all processes are waiting until the devfsd is
+completely finished and restarted at the same time. This is currently
+limited by dropping events, with a dynamic event queue this can become a
+problem.
+
+> Since devfsd has to
+> wait for a module load to complete, it's not a good idea to block
+> waiting for free space in the event buffer (potential deadlock).
+
+What do you mean?
+
+bye, Roman
+

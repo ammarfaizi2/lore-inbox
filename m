@@ -1,64 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261825AbTIYXD5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 19:03:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261835AbTIYXD5
+	id S261586AbTIYXBd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 19:01:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261670AbTIYXBc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 19:03:57 -0400
-Received: from ziggy.one-eyed-alien.net ([64.169.228.100]:34063 "EHLO
-	ziggy.one-eyed-alien.net") by vger.kernel.org with ESMTP
-	id S261825AbTIYXDx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 19:03:53 -0400
-Date: Thu, 25 Sep 2003 16:03:51 -0700
-From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-To: Kernel Developer List <linux-kernel@vger.kernel.org>
-Subject: How do I access ioports from userspace?
-Message-ID: <20030925160351.E26493@one-eyed-alien.net>
-Mail-Followup-To: Kernel Developer List <linux-kernel@vger.kernel.org>
+	Thu, 25 Sep 2003 19:01:32 -0400
+Received: from mail.kroah.org ([65.200.24.183]:55213 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261586AbTIYXBb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Sep 2003 19:01:31 -0400
+Date: Thu, 25 Sep 2003 15:44:47 -0700
+From: Greg KH <greg@kroah.com>
+To: Philippe Troin <phil@fifi.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Oops in vanilla 2.4.22 serial-usb driver
+Message-ID: <20030925224447.GB30186@kroah.com>
+References: <87llsdy01v.fsf@ceramic.fifi.org> <20030925185039.GB29088@kroah.com> <87eky4hauq.fsf@ceramic.fifi.org> <20030925210104.GB29680@kroah.com> <87ad8sh54y.fsf@ceramic.fifi.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="ZRyEpB+iJ+qUx0kp"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organization: One Eyed Alien Networks
-X-Copyright: (C) 2003 Matthew Dharm, all rights reserved.
-X-Message-Flag: Get a real e-mail client.  http://www.mutt.org/
+In-Reply-To: <87ad8sh54y.fsf@ceramic.fifi.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Sep 25, 2003 at 03:31:25PM -0700, Philippe Troin wrote:
+> Greg KH <greg@kroah.com> writes:
+> 
+> > On Thu, Sep 25, 2003 at 01:27:57PM -0700, Philippe Troin wrote:
+> > > > > BTW, is there any way to restart khubd without rebooting?
+> > > > 
+> > > > Nope, sorry.
+> > > 
+> > > Are there any technical reasons behind that, or that just that it is
+> > > not implemented?
+> > 
+> > It's a bit hard to restart a kernel thread that is oopsed :)
+> 
+> Yes, but still, with a completely modular USB subsystem, removing all
+> the modules and reinsrting them (when possible) restarts khubd... So
+> if it is possible with modules, it ought to be possible with
+> monolithic USB...
 
---ZRyEpB+iJ+qUx0kp
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Usually when khubd oopses like this, a usb module is stuck with a
+incremented reference count which prevents the usbcore from being able
+to be unloaded.
 
-I'd like to be able to access some ioports to some custom hardware directly
-from userspace, without creating a specialized kernel-level driver.  Is
-there a way to do that?
+But hey, patches are always accepted :)
 
-Matt
+thanks,
 
---=20
-Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
-net=20
-Maintainer, Linux USB Mass Storage Driver
-
-M:  No, Windows doesn't have any nag screens.
-C:  Then what are those blue and white screens I get every day?
-					-- Mike and Cobb
-User Friendly, 1/4/1999
-
---ZRyEpB+iJ+qUx0kp
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE/c3RXIjReC7bSPZARArTPAKDUl1BzTLAAyB81U8rMoBfBRiRdfACfd4m4
-X4/VMALFWEwcCy0OptyprmY=
-=zUDd
------END PGP SIGNATURE-----
-
---ZRyEpB+iJ+qUx0kp--
+greg k-h

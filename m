@@ -1,240 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265146AbUELSEy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265155AbUELSHs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265146AbUELSEy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 14:04:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265144AbUELSEr
+	id S265155AbUELSHs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 14:07:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265156AbUELSHk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 14:04:47 -0400
-Received: from fmr05.intel.com ([134.134.136.6]:49080 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S265146AbUELSDN
+	Wed, 12 May 2004 14:07:40 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:50854 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S265155AbUELSGn
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 14:03:13 -0400
-Date: Wed, 12 May 2004 12:52:23 -0700
-From: jdgaston@snoqualmie.dp.intel.com
-Message-Id: <200405121952.i4CJqNSc009474@snoqualmie.dp.intel.com>
-To: greg@kroah.com
-Subject: [PATCH] ICH6/6300ESB i2c support
-Cc: linux-kernel@vger.kernel.org, jason.d.gaston@intel.com,
-       steven.carbonari@intel.com, dely.l.sy@intel.com,
-       david.h.patterson@intel.com
+	Wed, 12 May 2004 14:06:43 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: dobrev <dobrev666@prostak.org>, Craig Bradney <cbradney@zip.com.au>
+Subject: Re: Linux 2.6.6 "IDE cache-flush at shutdown fixes"
+Date: Wed, 12 May 2004 20:07:46 +0200
+User-Agent: KMail/1.5.3
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Arjan van de Ven <arjanv@redhat.com>
+References: <409F4944.4090501@keyaccess.nl> <1084280198.9420.5.camel@amilo.bradney.info> <40A0FB04.1000902@prostak.org>
+In-Reply-To: <40A0FB04.1000902@prostak.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200405122007.46784.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds DID support for ICH6 and 6300ESB to i2c-i801.c(SMBus).  In order to add this support I needed to patch pci_ids.h with the SMBus DID's.  To keep things orginized I renumbered the ICH6 and ESB entries in pci_ids.h.  I then patched the piix IDE and i810 audio drivers to reflect the updated #define's.  I also removed an error from irq.c; there was a reference to a 6300ESB DID that does not exist.  This patch is against the 2.6.6 kernel.
+On Tuesday 11 of May 2004 18:10, dobrev wrote:
+> Craig Bradney wrote:
+> >On Tue, 2004-05-11 at 13:24, Rene Herman wrote:
+> >>Bartlomiej Zolnierkiewicz wrote:
+> >>>Rene, can you send me copies of /proc/ide/hda/identify and
+> >>>/proc/ide/hdc/identify?
+> >>
+> >>Sure, attached. Quite sure you wanted hdc though? That's a DVD-ROM.
+> >>
+> >>>I still would like to know why these drives don't accept flush cache
+> >>>commands (or it is a driver's bug?).
+> >>
+> >>No idea I'm afraid. Seems at least new Maxtor drives are affected. Both
+> >>the "120P0" (120G, 8M cache) and "L0" (120G, 2M cache) were reported in
+> >>this thread.
+> >
+> >At a guess the 80P0 drives will also be affected (80G, 8mb cache), but
+> >as yet I havent tried 2.6.6 on the boxes with them. Tonight if theres
+> >time.
+> >
+> >Craig
+>
+> I have Maxtor 6Y060L0 and is also affected. Now I am with 2.6.5.
 
-The patch touches the following files:
+Please see http://bugme.osdl.org/show_bug.cgi?id=2672
 
-linux-2.6.6/include/linux/pci-ids.h
-linux-2.6.6/arch/i386/pci/irq.c
-linux-2.6.6/drivers/ide/pci/piix.h
-linux-2.6.6/drivers/ide/pci/piix.c
-linux-2.6.6/sound/oss/i810_audio.c
-linux-2.6.6/drivers/i2c/busses/i2c-i801.c
-linux-2.6.6/drivers/i2c/busses/Kconfig
+> SvrWks IDE controller also have problems with 2.6.6 because the drive
+> works in mdma2 mode.
+> When in 2.6.5 the transfer mode is udma2.
 
-Please let me know if there are any questions or if there are any changes needed.  Greg k-h, please apply patch if accaptable.
+UDMA2 on OSB4?  Weird.
 
-Thank you,
+from serverwoks.c:
 
-Jason Gaston
+	/* If we are about to put a disk into UDMA mode we screwed up.
+	   Our code assumes we never _ever_ do this on an OSB4 */
 
+	if(dev->device == PCI_DEVICE_ID_SERVERWORKS_OSB4 &&
+		drive->media == ide_disk && speed >= XFER_UDMA_0)
+			BUG();
 
---- linux-2.6.6/include/linux/pci_ids.h.orig	2004-05-10 11:55:43.000000000 -0700
-+++ linux-2.6.6/include/linux/pci_ids.h	2004-05-10 11:56:30.000000000 -0700
-@@ -2058,7 +2058,6 @@
- #define PCI_DEVICE_ID_INTEL_82801EB_7	0x24d7
- #define PCI_DEVICE_ID_INTEL_82801EB_11	0x24db
- #define PCI_DEVICE_ID_INTEL_82801EB_13	0x24dd
--#define PCI_DEVICE_ID_INTEL_ESB_0	0x25a0
- #define PCI_DEVICE_ID_INTEL_ESB_1	0x25a1
- #define PCI_DEVICE_ID_INTEL_ESB_2	0x25a2
- #define PCI_DEVICE_ID_INTEL_ESB_3	0x25a3
-@@ -2084,8 +2083,24 @@
- #define PCI_DEVICE_ID_INTEL_82875_IG	0x257b
- #define PCI_DEVICE_ID_INTEL_ICH6_0	0x2640
- #define PCI_DEVICE_ID_INTEL_ICH6_1	0x2641
--#define PCI_DEVICE_ID_INTEL_ICH6_2	0x266f
--#define PCI_DEVICE_ID_INTEL_ICH6_3	0x266e
-+#define PCI_DEVICE_ID_INTEL_ICH6_2	0x2642
-+#define PCI_DEVICE_ID_INTEL_ICH6_3	0x2651
-+#define PCI_DEVICE_ID_INTEL_ICH6_4	0x2652
-+#define PCI_DEVICE_ID_INTEL_ICH6_5	0x2653
-+#define PCI_DEVICE_ID_INTEL_ICH6_6	0x2658
-+#define PCI_DEVICE_ID_INTEL_ICH6_7	0x2659
-+#define PCI_DEVICE_ID_INTEL_ICH6_8	0x265a
-+#define PCI_DEVICE_ID_INTEL_ICH6_9	0x265b
-+#define PCI_DEVICE_ID_INTEL_ICH6_10	0x265c
-+#define PCI_DEVICE_ID_INTEL_ICH6_11	0x2660
-+#define PCI_DEVICE_ID_INTEL_ICH6_12	0x2662
-+#define PCI_DEVICE_ID_INTEL_ICH6_13	0x2664
-+#define PCI_DEVICE_ID_INTEL_ICH6_14	0x2666
-+#define PCI_DEVICE_ID_INTEL_ICH6_15	0x2668
-+#define PCI_DEVICE_ID_INTEL_ICH6_16	0x266a
-+#define PCI_DEVICE_ID_INTEL_ICH6_17	0x266d
-+#define PCI_DEVICE_ID_INTEL_ICH6_18	0x266e
-+#define PCI_DEVICE_ID_INTEL_ICH6_19	0x266f
- #define PCI_DEVICE_ID_INTEL_82855PM_HB	0x3340
- #define PCI_DEVICE_ID_INTEL_82830_HB	0x3575
- #define PCI_DEVICE_ID_INTEL_82830_CGC	0x3577
---- linux-2.6.6/arch/i386/pci/irq.c.orig	2004-05-09 19:33:21.000000000 -0700
-+++ linux-2.6.6/arch/i386/pci/irq.c	2004-05-10 11:56:30.000000000 -0700
-@@ -476,8 +476,9 @@
- 		case PCI_DEVICE_ID_INTEL_82801DB_0:
- 		case PCI_DEVICE_ID_INTEL_82801E_0:
- 		case PCI_DEVICE_ID_INTEL_82801EB_0:
--		case PCI_DEVICE_ID_INTEL_ESB_0:
-+		case PCI_DEVICE_ID_INTEL_ESB_1:
- 		case PCI_DEVICE_ID_INTEL_ICH6_0:
-+		case PCI_DEVICE_ID_INTEL_ICH6_1:
- 			r->name = "PIIX/ICH";
- 			r->get = pirq_piix_get;
- 			r->set = pirq_piix_set;
---- linux-2.6.6/drivers/ide/pci/piix.c.orig	2004-05-09 19:31:59.000000000 -0700
-+++ linux-2.6.6/drivers/ide/pci/piix.c	2004-05-11 17:30:46.382204320 -0700
-@@ -153,7 +153,7 @@
- 			case PCI_DEVICE_ID_INTEL_82801EB_11:
- 			case PCI_DEVICE_ID_INTEL_82801E_11:
- 			case PCI_DEVICE_ID_INTEL_ESB_2:
--			case PCI_DEVICE_ID_INTEL_ICH6_2:
-+			case PCI_DEVICE_ID_INTEL_ICH6_19:
- 				p += sprintf(p, "PIIX4 Ultra 100 ");
- 				break;
- 			case PCI_DEVICE_ID_INTEL_82372FB_1:
-@@ -292,7 +292,7 @@
- 		case PCI_DEVICE_ID_INTEL_82801DB_11:
- 		case PCI_DEVICE_ID_INTEL_82801EB_11:
- 		case PCI_DEVICE_ID_INTEL_ESB_2:
--		case PCI_DEVICE_ID_INTEL_ICH6_2:
-+		case PCI_DEVICE_ID_INTEL_ICH6_19:
- 			mode = 3;
- 			break;
- 		/* UDMA 66 capable */
-@@ -627,7 +627,7 @@
- 		case PCI_DEVICE_ID_INTEL_82801EB_11:
- 		case PCI_DEVICE_ID_INTEL_82801E_11:
- 		case PCI_DEVICE_ID_INTEL_ESB_2:
--		case PCI_DEVICE_ID_INTEL_ICH6_2:
-+		case PCI_DEVICE_ID_INTEL_ICH6_19:
- 		{
- 			unsigned int extra = 0;
- 			pci_read_config_dword(dev, 0x54, &extra);
-@@ -804,7 +804,7 @@
-  	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801EB_1, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 18},
- #endif /* !CONFIG_SCSI_SATA */
- 	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ESB_2, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 19},
--	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH6_2, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 20},
-+	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH6_19, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 20},
- 	{ 0, },
- };
- MODULE_DEVICE_TABLE(pci, piix_pci_tbl);
---- linux-2.6.6/drivers/ide/pci/piix.h.orig	2004-05-09 19:32:21.000000000 -0700
-+++ linux-2.6.6/drivers/ide/pci/piix.h	2004-05-11 17:34:01.997466280 -0700
-@@ -70,7 +70,7 @@
- 	/* 17 */ DECLARE_PIIX_DEV(PCI_DEVICE_ID_INTEL_82801DB_10, "ICH4"),
- 	/* 18 */ DECLARE_PIIX_DEV(PCI_DEVICE_ID_INTEL_82801EB_1,  "ICH5-SATA"),
- 	/* 19 */ DECLARE_PIIX_DEV(PCI_DEVICE_ID_INTEL_ESB_2,      "ICH5"),
--	/* 20 */ DECLARE_PIIX_DEV(PCI_DEVICE_ID_INTEL_ICH6_2,     "ICH6"),
-+	/* 20 */ DECLARE_PIIX_DEV(PCI_DEVICE_ID_INTEL_ICH6_19,     "ICH6"),
- 	{
- 		.vendor		= 0,
- 		.device		= 0,
---- linux-2.6.6/sound/oss/i810_audio.c.orig	2004-05-09 19:33:10.000000000 -0700
-+++ linux-2.6.6/sound/oss/i810_audio.c	2004-05-10 11:56:30.000000000 -0700
-@@ -120,8 +120,8 @@
- #ifndef PCI_DEVICE_ID_INTEL_ICH5
- #define PCI_DEVICE_ID_INTEL_ICH5	0x24d5
- #endif
--#ifndef PCI_DEVICE_ID_INTEL_ICH6_3
--#define PCI_DEVICE_ID_INTEL_ICH6_3	0x266e
-+#ifndef PCI_DEVICE_ID_INTEL_ICH6_18
-+#define PCI_DEVICE_ID_INTEL_ICH6_18	0x266e
- #endif
- #ifndef PCI_DEVICE_ID_INTEL_440MX
- #define PCI_DEVICE_ID_INTEL_440MX	0x7195
-@@ -351,7 +351,7 @@
- 	 PCI_ANY_ID, PCI_ANY_ID, 0, 0, AMD8111},
- 	{PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ESB_5,
- 	 PCI_ANY_ID, PCI_ANY_ID, 0, 0, INTELICH4},
--	{PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH6_3,
-+	{PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH6_18,
- 	 PCI_ANY_ID, PCI_ANY_ID, 0, 0, INTELICH4},
- 
- 	{0,}
-@@ -2797,7 +2797,7 @@
- 	/* see i810_ac97_init for the next 7 lines (jsaw) */
- 	inw(card->ac97base);
- 	if ((card->pci_id == PCI_DEVICE_ID_INTEL_ICH4 || card->pci_id == PCI_DEVICE_ID_INTEL_ICH5 ||
--	     card->pci_id == PCI_DEVICE_ID_INTEL_ESB_5 || card->pci_id == PCI_DEVICE_ID_INTEL_ICH6_3)
-+	     card->pci_id == PCI_DEVICE_ID_INTEL_ESB_5 || card->pci_id == PCI_DEVICE_ID_INTEL_ICH6_18)
- 	    && (card->use_mmio)) {
- 		primary_codec_id = (int) readl(card->iobase_mmio + SDM) & 0x3;
- 		printk(KERN_INFO "i810_audio: Primary codec has ID %d\n",
-@@ -2868,7 +2868,7 @@
- 		   last codec ID spoken to. 
- 		*/
- 		if ((card->pci_id == PCI_DEVICE_ID_INTEL_ICH4 || card->pci_id == PCI_DEVICE_ID_INTEL_ICH5 ||
--		     card->pci_id == PCI_DEVICE_ID_INTEL_ESB_5 || card->pci_id == PCI_DEVICE_ID_INTEL_ICH6_3)
-+		     card->pci_id == PCI_DEVICE_ID_INTEL_ESB_5 || card->pci_id == PCI_DEVICE_ID_INTEL_ICH6_18)
- 		    && (card->use_mmio)) {
- 			ac97_id = (int) readl(card->iobase_mmio + SDM) & 0x3;
- 			printk(KERN_INFO "i810_audio: Connection %d with codec id %d\n",
---- linux-2.6.6/drivers/i2c/busses/i2c-i801.c.orig	2004-05-09 19:32:37.000000000 -0700
-+++ linux-2.6.6/drivers/i2c/busses/i2c-i801.c	2004-05-10 11:56:30.000000000 -0700
-@@ -28,7 +28,8 @@
-     82801CA/CAM		2483           
-     82801DB		24C3   (HW PEC supported, 32 byte buffer not supported)
-     82801EB		24D3   (HW PEC supported, 32 byte buffer not supported)
--
-+    6300ESB		25A4
-+    ICH6		266A
-     This driver supports several versions of Intel's I/O Controller Hubs (ICH).
-     For SMBus support, they are similar to the PIIX4 and are part
-     of Intel's '810' and other chipsets.
-@@ -121,7 +122,8 @@
- 
- 	I801_dev = dev;
- 	if ((dev->device == PCI_DEVICE_ID_INTEL_82801DB_3) ||
--	    (dev->device == PCI_DEVICE_ID_INTEL_82801EB_3))
-+	    (dev->device == PCI_DEVICE_ID_INTEL_82801EB_3) ||
-+	    (dev->device == PCI_DEVICE_ID_INTEL_ESB_4))
- 		isich4 = 1;
- 	else
- 		isich4 = 0;
-@@ -576,10 +578,22 @@
- 		.subdevice =	PCI_ANY_ID,
- 	},
- 	{
--		.vendor =   PCI_VENDOR_ID_INTEL,
--		.device =   PCI_DEVICE_ID_INTEL_82801EB_3,
--		.subvendor =    PCI_ANY_ID,
--		.subdevice =    PCI_ANY_ID,
-+		.vendor =	PCI_VENDOR_ID_INTEL,
-+		.device =	PCI_DEVICE_ID_INTEL_82801EB_3,
-+		.subvendor =	PCI_ANY_ID,
-+		.subdevice =	PCI_ANY_ID,
-+	},
-+	{
-+		.vendor =	PCI_VENDOR_ID_INTEL,
-+		.device =	PCI_DEVICE_ID_INTEL_ESB_4,
-+		.subvendor =	PCI_ANY_ID,
-+		.subdevice = 	PCI_ANY_ID,
-+	},
-+	{
-+		.vendor =	PCI_VENDOR_ID_INTEL,
-+		.device =	PCI_DEVICE_ID_INTEL_ICH6_16,
-+		.subvendor =	PCI_ANY_ID,
-+		.subdevice =	PCI_ANY_ID,
- 	},
- 	{ 0, }
- };
---- linux-2.6.6/drivers/i2c/busses/Kconfig.orig	2004-05-09 19:33:13.000000000 -0700
-+++ linux-2.6.6/drivers/i2c/busses/Kconfig	2004-05-10 11:56:30.000000000 -0700
-@@ -95,6 +95,8 @@
- 	    82801CA/CAM
- 	    82801DB
- 	    82801EB
-+	    6300ESB
-+	    ICH6
- 
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called i2c-i801.
+I need more data: .config (2.6.5/2.6.6) and full dmesg output (2.6.5/2.6.6).
+
+> Probably because of this (from patch-2.6.6):
+> diff -Nru a/drivers/ide/pci/serverworks.c b/drivers/ide/pci/serverworks.c
+> --- a/drivers/ide/pci/serverworks.c     Sun May  9 19:33:36 2004
+> +++ b/drivers/ide/pci/serverworks.c     Sun May  9 19:33:36 2004
+> @@ -472,7 +472,9 @@
+>                                 int dma = config_chipset_for_dma(drive);
+>                                 if ((id->field_valid & 2) && !dma)
+>                                         goto try_dma_modes;
+> -                       }
+> +                       } else
+> +                               /* UDMA disabled by mask, try other DMA
+> modes */+                               goto try_dma_modes;
+>                 } else if (id->field_valid & 2) {
+>  try_dma_modes:
+>                         if ((id->dma_mword & hwif->mwdma_mask) ||
+>
+> Here is part of dmesg from 2.6.6:
+>
+>
+> ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+> SvrWks OSB4: IDE controller at PCI slot 0000:00:0f.1
+> SvrWks OSB4: chipset revision 0
+> SvrWks OSB4: not 100% native mode: will probe irqs later
+>     ide0: BM-DMA at 0xffa0-0xffa7, BIOS settings: hda:DMA, hdb:pio
+>     ide1: BM-DMA at 0xffa8-0xffaf, BIOS settings: hdc:pio, hdd:pio
+> hda: Maxtor 6Y060L0, ATA DISK drive
+> ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+> hda: max request size: 128KiB
+> hda: 120103200 sectors (61492 MB) w/2048KiB Cache, CHS=65535/16/63, (U)DMA
+>  hda: hda1 hda2 hda3 < hda5 hda6 hda7 >
+> hda: task_no_data_intr: status=0x51 { DriveReady SeekComplete Error }
+> hda: task_no_data_intr: error=0x04 { DriveStatusError }
+> hda: Write Cache FAILED Flushing!
+> mice: PS/2 mouse device common for all mice
+> input: PC Speaker
+> serio: i8042 AUX port at 0x60,0x64 irq 12
+> input: GenPS/2 Genius Wheel Mouse on isa0060/serio1
+> serio: i8042 KBD port at 0x60,0x64 irq 1
+> input: AT Translated Set 2 keyboard on isa0060/serio0
+> NET: Registered protocol family 2
+> IP: routing cache hash table of 2048 buckets, 16Kbytes
+> TCP: Hash tables configured (established 16384 bind 16384)
+> NET: Registered protocol family 1
+> NET: Registered protocol family 17
+> BIOS EDD facility v0.13 2004-Mar-09, 1 devices found
+> Please report your BIOS at http://linux.dell.com/edd/results.html
+> hda: task_no_data_intr: status=0x51 { DriveReady SeekComplete Error }
+> hda: task_no_data_intr: error=0x04 { DriveStatusError }
+> hda: Write Cache FAILED Flushing!
+> VFS: Mounted root (ext2 filesystem) readonly.
+> Freeing unused kernel memory: 368k freed
+> Adding 297192k swap on /dev/hda2.  Priority:-1 extents:1
+> Linux agpgart interface v0.100 (c) Dave Jones
+

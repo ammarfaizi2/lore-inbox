@@ -1,69 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265922AbUBCHyY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Feb 2004 02:54:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265927AbUBCHyX
+	id S265910AbUBCH6z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Feb 2004 02:58:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265907AbUBCH6z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Feb 2004 02:54:23 -0500
-Received: from TYO202.gate.nec.co.jp ([210.143.35.52]:7555 "EHLO
-	TYO202.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id S265922AbUBCHyT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Feb 2004 02:54:19 -0500
-Date: Tue, 03 Feb 2004 16:53:59 +0900 (JST)
-Message-Id: <20040203.165359.149824126.nomura@linux.bs1.fc.nec.co.jp>
-To: hugh@veritas.com, linux-kernel@vger.kernel.org
-Cc: j-nomura@ce.jp.nec.com
-Subject: Re: [2.4] heavy-load under swap space shortage
-From: j-nomura@ce.jp.nec.com
-In-Reply-To: <Pine.LNX.4.44.0402021326170.16097-100000@localhost.localdomain>
-References: <20040202.191242.278747628.nomura@linux.bs1.fc.nec.co.jp>
-	<Pine.LNX.4.44.0402021326170.16097-100000@localhost.localdomain>
-X-Mailer: Mew version 3.3 on XEmacs 21.4.14 (Reasonable Discussion)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Tue, 3 Feb 2004 02:58:55 -0500
+Received: from mail-06.iinet.net.au ([203.59.3.38]:34522 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S265910AbUBCH6C
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Feb 2004 02:58:02 -0500
+Message-ID: <401F5467.50702@cyberone.com.au>
+Date: Tue, 03 Feb 2004 18:57:27 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Samium Gromoff <deepfire@sic-elvis.zel.ru>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       philip@codematters.co.uk
+Subject: Re: 2.6.1 slower than 2.4, smp/scsi/sw-raid/reiserfs
+References: <87smhsy7n4.wl@canopus.ns.zel.ru>	<20040202230745.237dd5b6.akpm@osdl.org> <87r7xcy4zy.wl@canopus.ns.zel.ru>
+In-Reply-To: <87r7xcy4zy.wl@canopus.ns.zel.ru>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for for your comment.
 
-> Your patch just disables freeing mapped pages under memory pressure.
 
-Right.
+Samium Gromoff wrote:
 
-> You could try the untested patch below to swap_out_vma(), but I don't
-> really recommend it: it still skips freeing up a less common category
-> of clean pages, just when you'd most like to free them.
+>At Mon, 2 Feb 2004 23:07:45 -0800,
+>Andrew Morton wrote:
+>  
+>
+>>Samium Gromoff <deepfire@sic-elvis.zel.ru> wrote:
+>>    
+>>
+>>>      
+>>>
+>>>>>The machine is a dual P3 450MHz, 512MB, aic7xxx, 2 disk RAID-0 and                   
+>>>>> ReiserFS.  It's a few years old and has always run Linux, most                      
+>>>>> recently 2.4.24.  I decided to try 2.6.1 and the performance is                     
+>>>>> disappointing.                                                                      
+>>>>>          
+>>>>>
+>>>>                                                                                       
+>>>>2.6 has a few performance problems under heavy pageout at present.  Nick               
+>>>>Piggin has some patches which largely fix it up.                                       
+>>>>        
+>>>>
+>>>I`m sorry, but this is misguiding. 2.6 does not have a few performance
+>>>problems under heavy pageout.
+>>>
+>>>      
+>>>
+>>As you have frequently and somewhat redundantly reminded us.
+>>    
+>>
+>
+>Right. I`m rather emotional about this...
+>
+>Kind of hard seeing the all starry and shiny 2.6 going down the toilet on my
+>little server with 16M RAM.
+>
+>  
+>
+>>Perhaps you could test Nick's patches.   They are at
+>>
+>>	http://www.kerneltrap.org/~npiggin/vm/
+>>
+>>Against 2.6.2-rc2-mm2.  First revert vm-rss-limit-enforcement.patch, then
+>>apply those three.
+>>    
+>>
+>
+>Hmmm, i`d prefer plain 2.6, but i`ll try it anyway.
+>
+>  
+>
 
-Hmm, your patch to swap_out_vma didn't solve the problem.
+It should go against plain 2.6 with luck.
 
-The main cause of the heavy load seems hard contention on page_table_lock.
-The CPUs are virtually seriarized for swap_out_mm with each unfruitful
-scannings.
-
-The contention could be avoided by changing the spinlock to trylock.
-How about the patch below?
-With this change, the scannings become more efficient because they can be
-done in parallel.
-
-I'm not sure in this case whether the test for nr_swap_pages is necessary.
-
-Best regards.
---
-NOMURA, Jun'ichi <j-nomura@ce.jp.nec.com>
-
---- linux-2.4.24/mm/vmscan.c
-+++ linux/mm/vmscan.c
-@@ -292,7 +292,11 @@ static inline int swap_out_mm(struct mm_
- 	 * Find the proper vm-area after freezing the vma chain 
- 	 * and ptes.
- 	 */
--	spin_lock(&mm->page_table_lock);
-+	if (nr_swap_pages <= 0) {
-+		if (!spin_trylock(&mm->page_table_lock))
-+			return count; /* avoid contention */
-+	} else
-+		spin_lock(&mm->page_table_lock);
- 	address = mm->swap_address;
- 	if (address == TASK_SIZE || swap_mm != mm) {
- 		/* We raced: don't count this mm but try again */

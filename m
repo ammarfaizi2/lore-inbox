@@ -1,21 +1,21 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266182AbUBBU4f (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 15:56:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266174AbUBBUzJ
+	id S266046AbUBBUnr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 15:43:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265946AbUBBT72
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 15:55:09 -0500
-Received: from mailr-1.tiscali.it ([212.123.84.81]:56948 "EHLO
-	mailr-1.tiscali.it") by vger.kernel.org with ESMTP id S265881AbUBBT5f
+	Mon, 2 Feb 2004 14:59:28 -0500
+Received: from mailr-1.tiscali.it ([212.123.84.81]:14969 "EHLO
+	mailr-1.tiscali.it") by vger.kernel.org with ESMTP id S265919AbUBBT7F
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 14:57:35 -0500
+	Mon, 2 Feb 2004 14:59:05 -0500
 X-BrightmailFiltered: true
-Date: Mon, 2 Feb 2004 20:57:32 +0100
+Date: Mon, 2 Feb 2004 20:59:03 +0100
 From: Kronos <kronos@kronoz.cjb.net>
 To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: [Compile Regression in 2.4.25-pre8][PATCH 24/42]
-Message-ID: <20040202195732.GX6785@dreamland.darkstar.lan>
+Subject: [Compile Regression in 2.4.25-pre8][PATCH 30/42]
+Message-ID: <20040202195903.GD6785@dreamland.darkstar.lan>
 Reply-To: kronos@kronoz.cjb.net
 References: <20040130204956.GA21643@dreamland.darkstar.lan> <Pine.LNX.4.58L.0401301855410.3140@logos.cnet> <20040202180940.GA6367@dreamland.darkstar.lan>
 Mime-Version: 1.0
@@ -27,55 +27,56 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-irlmp.c:1244: warning: concatenation of string literals with __FUNCTION__ is deprecated
-irlmp.c:1258: warning: concatenation of string literals with __FUNCTION__ is deprecated
-irlmp.c:1277: warning: concatenation of string literals with __FUNCTION__ is deprecated
-irlmp.c:1284: warning: concatenation of string literals with __FUNCTION__ is deprecated
+meye.c:212: warning: passing arg 3 of `dma_alloc_coherent' from incompatible pointer type
 
-Fix IRDA_DEBUG: __FUNCTION__ shouldn't be concatenated with other
-literals.
+dma_addr_t is not u32!
 
-diff -Nru -X dontdiff linux-2.4-vanilla/net/irda/irlmp.c linux-2.4/net/irda/irlmp.c
---- linux-2.4-vanilla/net/irda/irlmp.c	Fri Jun 13 16:51:39 2003
-+++ linux-2.4/net/irda/irlmp.c	Sat Jan 31 18:11:40 2004
-@@ -1241,7 +1241,7 @@
- 	/* Get the number of lsap. That's the only safe way to know
- 	 * that we have looped around... - Jean II */
- 	lsap_todo = HASHBIN_GET_SIZE(self->lsaps);
--	IRDA_DEBUG(4, __FUNCTION__ "() : %d lsaps to scan\n", lsap_todo);
-+	IRDA_DEBUG(4, "%s() : %d lsaps to scan\n", __FUNCTION__, lsap_todo);
+diff -Nru -X dontdiff linux-2.4-vanilla/drivers/media/video/meye.c linux-2.4/drivers/media/video/meye.c
+--- linux-2.4-vanilla/drivers/media/video/meye.c	Tue Nov 11 17:51:38 2003
++++ linux-2.4/drivers/media/video/meye.c	Sat Jan 31 18:27:19 2004
+@@ -190,7 +190,7 @@
  
- 	/* Poll lsap in order until the queue is full or until we
- 	 * tried them all.
-@@ -1255,7 +1255,7 @@
- 			/* Note that if there is only one LSAP on the LAP
- 			 * (most common case), self->flow_next is always NULL,
- 			 * so we always avoid this loop. - Jean II */
--			IRDA_DEBUG(4, __FUNCTION__ "() : searching my LSAP\n");
-+			IRDA_DEBUG(4, "%s() : searching my LSAP\n", __FUNCTION__);
+ /* return a page table pointing to N pages of locked memory */
+ static int ptable_alloc(void) {
+-	u32 *pt;
++	dma_addr_t *pt;
+ 	int i;
  
- 			/* We look again in hashbins, because the lsap
- 			 * might have gone away... - Jean II */
-@@ -1274,14 +1274,14 @@
- 
- 		/* Next time, we will get the next one (or the first one) */
- 		self->flow_next = (struct lsap_cb *) hashbin_get_next(self->lsaps);
--		IRDA_DEBUG(4, __FUNCTION__ "() : curr is %p, next was %p and is now %p, still %d to go - queue len = %d\n", curr, next, self->flow_next, lsap_todo, IRLAP_GET_TX_QUEUE_LEN(self->irlap));
-+		IRDA_DEBUG(4, "() : curr is %p, next was %p and is now %p, still %d to go - queue len = %d\n", __FUNCTION__, curr, next, self->flow_next, lsap_todo, IRLAP_GET_TX_QUEUE_LEN(self->irlap));
- 
- 		/* Inform lsap user that it can send one more packet. */
- 		if (curr->notify.flow_indication != NULL)
- 			curr->notify.flow_indication(curr->notify.instance, 
- 						     curr, flow);
- 		else
--			IRDA_DEBUG(1, __FUNCTION__ "(), no handler\n");
-+			IRDA_DEBUG(1, "%s(), no handler\n", __FUNCTION__);
+ 	memset(meye.mchip_ptable, 0, sizeof(meye.mchip_ptable));
+@@ -204,7 +204,7 @@
+ 		return -1;
  	}
+ 
+-	pt = (u32 *)meye.mchip_ptable[MCHIP_NB_PAGES];
++	pt = (dma_addr_t *)meye.mchip_ptable[MCHIP_NB_PAGES];
+ 	for (i = 0; i < MCHIP_NB_PAGES; i++) {
+ 		meye.mchip_ptable[i] = dma_alloc_coherent(meye.mchip_dev, 
+ 							  PAGE_SIZE,
+@@ -212,7 +212,7 @@
+ 							  GFP_KERNEL);
+ 		if (!meye.mchip_ptable[i]) {
+ 			int j;
+-			pt = (u32 *)meye.mchip_ptable[MCHIP_NB_PAGES];
++			pt = (dma_addr_t *)meye.mchip_ptable[MCHIP_NB_PAGES];
+ 			for (j = 0; j < i; ++j) {
+ 				dma_free_coherent(meye.mchip_dev,
+ 						  PAGE_SIZE,
+@@ -228,10 +228,10 @@
  }
  
+ static void ptable_free(void) {
+-	u32 *pt;
++	dma_addr_t *pt;
+ 	int i;
+ 
+-	pt = (u32 *)meye.mchip_ptable[MCHIP_NB_PAGES];
++	pt = (dma_addr_t *)meye.mchip_ptable[MCHIP_NB_PAGES];
+ 	for (i = 0; i < MCHIP_NB_PAGES; i++) {
+ 		if (meye.mchip_ptable[i])
+ 			dma_free_coherent(meye.mchip_dev, 
 
 -- 
 Reply-To: kronos@kronoz.cjb.net
 Home: http://kronoz.cjb.net
-Tentare e` il primo passo verso il fallimento.
-Homer J. Simpson
+Il dottore mi ha detto di smettere di fare cene intime per quattro.
+A meno che non ci siamo altre tre persone.

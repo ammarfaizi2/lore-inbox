@@ -1,96 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261913AbULKCGq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261909AbULKCWz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261913AbULKCGq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Dec 2004 21:06:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261911AbULKCGq
+	id S261909AbULKCWz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Dec 2004 21:22:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261910AbULKCWy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Dec 2004 21:06:46 -0500
-Received: from av2.karneval.cz ([81.27.192.108]:33076 "EHLO av2.karneval.cz")
-	by vger.kernel.org with ESMTP id S261910AbULKCGf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Dec 2004 21:06:35 -0500
-From: Pavel Pisa <pisa@cmp.felk.cvut.cz>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: VM86 interrupt emulation breakage and FIXes for 2.6.x kernel series
-Date: Sat, 11 Dec 2004 03:07:45 +0100
-User-Agent: KMail/1.7.1
-Cc: Ingo Molnar <mingo@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200412091459.51583.pisa@cmp.felk.cvut.cz> <1102712732.3264.73.camel@localhost.localdomain> <Pine.LNX.4.58.0412101454510.31040@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0412101454510.31040@ppc970.osdl.org>
+	Fri, 10 Dec 2004 21:22:54 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:5873 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261909AbULKCWw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Dec 2004 21:22:52 -0500
+Message-ID: <41BA59F6.5010309@mvista.com>
+Date: Fri, 10 Dec 2004 18:22:46 -0800
+From: George Anzinger <george@mvista.com>
+Reply-To: george@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040308
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+CC: Lee Revell <rlrevell@joe-job.com>, dipankar@in.ibm.com,
+       ganzinger@mvista.com, Manfred Spraul <manfred@colorfullife.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: RCU question
+References: <41B8E6F1.4070007@mvista.com> <20041210043102.GC4161@in.ibm.com>  <41B9FC3F.50601@mvista.com>  <20041210204003.GC4073@in.ibm.com> <1102711532.29919.35.camel@krustophenia.net> <41BA0ECF.1060203@mvista.com> <Pine.LNX.4.61.0412101558240.24986@montezuma.fsmlabs.com>
+In-Reply-To: <Pine.LNX.4.61.0412101558240.24986@montezuma.fsmlabs.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200412110307.45547.pisa@cmp.felk.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 10 December 2004 23:55, Linus Torvalds wrote:
+Zwane Mwaikambo wrote:
+> On Fri, 10 Dec 2004, George Anzinger wrote:
 > 
-> On Fri, 10 Dec 2004, Alan Cox wrote:
-> > 
-> > You can't disable_irq and return to user space - the IRQ may be shared
-> > by a device needed to make user space progress. 
 > 
-> The vm86 interrupt does not allow sharing. And it really _has_ to be 
-> disabled until user mode has cleared the irq source, or you'll have a very 
-> dead machine.
+>>>Well, softirqs should really be preemptible if you care about RT task
+>>>latency.  Ingo's patches have had this for months.  Works great.  Maybe
+>>>it's time to push it upstream.
+>>
+>>Yes, I understand, and soft_irq() does turn on interrupts...
+>>I was thinking of something like:
+>>
+>>	while(softirq_pending()) {
+>>		local_irq_enable();
+>>		do_softirq();
+>>		local_irq_disable();
+>>	}
+>>		<proceed to idle hlt...>
+> 
+> 
+> But that's a deadlock and if you enable interrupts you race.
 
-I have thought about all these problems before change proposal.
-There is no other way to do interrupt propagation to user-space
-for user-space only serviced level activated interrupt.
-I would like very much ability to propagate some interrupts
-serviced by real driver into userspace as well.
-This is well doable, if real driver clears source and VM86
-shared handler would return IRQ_NONE and not disable IRQ in this case.
-There is no clean way, how to solve level activated IRQ sharing between
-two devices, one serviced by real driver and the second by userspace.
-Probably IRQ disable would partially work, if real driver would
-not be at core path (swapping) device or device blocking userspace
-"driver" thread.
+Again, I remind you we are in the idle task.  Nothing more important to do.  Or 
+do you mean that softirq_pending() will NEVER return false?
 
-There are some more IRQ related issues ad questions.
+The other question is: "Is useful work being done?"
 
-1) Actual VM86 IRQ solution works well for us, but I have
-   found even before patch sending one scenario asking for check.
-   IRQ appears in HW, disable_irq() is called by the handler.
-   Userspace task is deleted before get_and_reset_irq()
-   reenables IRQ. free_vm86_irq() is called.
-   Now some real kernel module asks for same IRQ
-   by request_irq() call. It succeeds, because IRQ is no longer
-   reserved for VM86. But what does happen with IRQ disable counter
-   in such case? 
-   ... OK, I have recheck that now, "if (!shared) {" in  setup_irq()
-   should correctly solve that case. It enables IRQ again and cleans counter.
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
 
-2) I think, that the VM86 IRQ handling is x86 specific only by its name.
-   It is shame, that it is allowed only for interrupts 3 to 15
-   and implemented only for x86 architecture. This is feature, which
-   in combination with some libraries, could be used for drivers
-   debugging in userspace even for ARM or other targets.
-   I have used this feature years ago for debugging of uLan driver
-   and pre-LinCAN incarnations of my CAN experiments.
-   Are there more people who think that this could be of some value?
-
-3) What is your opinion about sharing edge triggered interrupts
-   on x86 architecture?
-   It was unserviceable for all kernels before irqreturn_t introduction.
-   This seems to be broken up to 2.6.9 still.
-   Let there are two shared edge triggered sources A and B.
-   Device B asks for IRQ, ISR for A is called and returns,
-   request from device A arrives, but there is no edge, line is
-   held by B. B request proceeds, but no edge appears, line is held by A.
-   Handlers are not called any more => stuck IRQ condition.
-   It is necessary cycle calls to all handlers until one full round
-   of IRQ_NONE is received. Have I overlooked something, which solves
-   this situation in the current kernel? Is there willing to do something
-   with that. I can prepare and test some solution if there is interrest.
-   I know, that ISA is out of scope for desktop PCs now, but low count of
-   available IRQs is common problem on embedded PC-104 targets.
-   They would benefit from this enhancement.
-   
-Best wishes
-
-                Pavel Pisa

@@ -1,37 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291477AbSBMJmo>; Wed, 13 Feb 2002 04:42:44 -0500
+	id <S291480AbSBMJrY>; Wed, 13 Feb 2002 04:47:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291475AbSBMJmf>; Wed, 13 Feb 2002 04:42:35 -0500
-Received: from luke.han.telia.se ([131.116.44.29]:20721 "EHLO
-	tms3.han.telia.se") by vger.kernel.org with ESMTP
-	id <S291473AbSBMJmX>; Wed, 13 Feb 2002 04:42:23 -0500
-X-OpenMail-Hops: 1
-Date: Wed, 13 Feb 2002 10:42:21 +0100
-Message-Id: <H000297a0cbdc66d.1013593341.tms3.han.telia.se@MHS>
-Subject: Compiling error which nobody has been able to help me with yet.
-MIME-Version: 1.0
-From: Johan.J.Vikerskog@telia.se
-TO: linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-	;Creation-Date="Wed, 13 Feb 2002 10:42:21 +0100"
-Content-Transfer-Encoding: 7bit
+	id <S291484AbSBMJrO>; Wed, 13 Feb 2002 04:47:14 -0500
+Received: from sydney1.au.ibm.com ([202.135.142.193]:63506 "EHLO
+	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
+	id <S291480AbSBMJrA>; Wed, 13 Feb 2002 04:47:00 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Ravikiran G Thirumalai <kiran@in.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] per-cpu areas 
+In-Reply-To: Your message of "Tue, 12 Feb 2002 10:28:52 +0530."
+             <20020212102852.I32236@in.ibm.com> 
+Date: Wed, 13 Feb 2002 20:48:53 +1100
+Message-Id: <E16aw22-0005wa-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I try to compile 2.2.16 om a celeron 433 and i get the following error 
-message all the time even
-if i have SMP totally disabled.
+In message <20020212102852.I32236@in.ibm.com> you write:
+> > +static void __init setup_per_cpu_areas(void)
+> > +{
+> > +	unsigned long size, i;
+> > +	char *ptr;
+> > +	/* Created by linker magic */
+> > +	extern char __per_cpu_start[], __per_cpu_end[];
+> > +
+> > +	/* Copy section for each CPU (we discard the original) */
+> > +	size = ALIGN(__per_cpu_end - __per_cpu_start, SMP_CACHE_BYTES);
+> > +	ptr = alloc_bootmem(size * NR_CPUS);
+> 
+> Would it be possible to free up NR_CPUS - smp_num_cpus worth of memory 
+> after smp_init? .... 
 
-`smp_num_cpus` undeclared (first use in this function)
+Yes, but memory is cheap, and writing a special "partial free"
+function for this is icky.  Maybe in 2 years when the per-cpu area is
+100MB. 8)
 
-And some similial rows.
-Nothing yet has managed to help me with this.
+We're better off reducing NR_CPUs to the maxmimum possible value of
+smp_num_cpus() on that machine, IMHO.
 
-And please note that SMP is disabled. I DONT have several CPU's.
-
-Any help would be HIGHLY appreciated.
-
-//Johan
-
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

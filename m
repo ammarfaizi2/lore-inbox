@@ -1,72 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288256AbSAHTVb>; Tue, 8 Jan 2002 14:21:31 -0500
+	id <S288255AbSAHTXV>; Tue, 8 Jan 2002 14:23:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288255AbSAHTVW>; Tue, 8 Jan 2002 14:21:22 -0500
-Received: from lacrosse.corp.redhat.com ([12.107.208.154]:10784 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S288256AbSAHTVK>; Tue, 8 Jan 2002 14:21:10 -0500
-Message-ID: <3C3B46A4.3020408@redhat.com>
-Date: Tue, 08 Jan 2002 14:21:08 -0500
-From: Doug Ledford <dledford@redhat.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20020103
-X-Accept-Language: en-us
+	id <S288257AbSAHTXM>; Tue, 8 Jan 2002 14:23:12 -0500
+Received: from darkwing.uoregon.edu ([128.223.142.13]:40605 "EHLO
+	darkwing.uoregon.edu") by vger.kernel.org with ESMTP
+	id <S288255AbSAHTW7>; Tue, 8 Jan 2002 14:22:59 -0500
+Date: Tue, 8 Jan 2002 11:23:30 -0800 (PST)
+From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
+X-X-Sender: <joelja@twin.uoregon.edu>
+To: Sourav <jeebu19@yahoo.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: DLink DFE 538 TX (TealTek 8139) too slow
+In-Reply-To: <005c01c19876$30b51060$03015b0a@bulee>
+Message-ID: <Pine.LNX.4.33.0201081121510.8234-100000@twin.uoregon.edu>
 MIME-Version: 1.0
-To: Mario Mikocevic <mozgy@hinet.hr>
-CC: Thomas Gschwind <tom@infosys.tuwien.ac.at>,
-        Nathan Bryant <nbryant@allegientsystems.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: i810_audio
-In-Reply-To: <20020105031329.B6158@infosys.tuwien.ac.at> <3C3A2B5D.8070707@allegientsystems.com> <3C3A301A.2050501@redhat.com> <3C3AA6F9.5090407@redhat.com> <3C3AA9AD.6070203@redhat.com> <3C3AB5AB.2080102@redhat.com> <20020108161137.A6747@danielle.hinet.hr>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mario Mikocevic wrote:
+you can only negotiate half duplex on a hub... since you only have two 
+computers connecting them with a reversal cable with allow you configure 
+them both for 100Mb/s full-duplex.
 
-> Hi,
-> 
-> 
->>OK, various clean ups made, and enough of the SiS code included that I think 
->>it should work, plus one change to the i810 interrupt handler that will 
->>(hopefully) render the other change you made to get_dma_addr and drain_dac 
->>unnecessary.  If people could please download and test the new 0.14 version 
->>of the driver on my site, I would appreciate it.
->>
->>http://people.redhat.com/dledford/i810_audio.c.gz
->>
-> 
-> Hmmm, maybe way too much cleanups !? :)
-> 
-> -->
-> 
-> i810_audio.c: In function `i810_get_dma_addr':
-> i810_audio.c:658: warning: unused variable `c'
-> i810_audio.c: In function `__stop_dac':
-> i810_audio.c:747: `PI_OR' undeclared (first use in this function)
-> i810_audio.c:747: (Each undeclared identifier is reported only once
-> i810_audio.c:747: for each function it appears in.)
-> make[2]: *** [i810_audio.o] Error 1
-> make[1]: *** [_modsubdir_sound] Error 2
-> make: *** [_mod_drivers] Error 2
-> 
+joelja
 
+On Wed, 9 Jan 2002, Sourav wrote:
 
-Sorry.  Version that compiles is now on my web site.
-
-
-> ps
-> 	just got a note from a friend that .13 has tendency to lockup with
-> 	heavy network traffic in the same time, no oops, nothing, ..
+> Why is DLink DFE 538TX Realtek 8139 too slow over
+> 10Mbps HUB ( ~1Mbps) and apparantly too many
+> collisions on a 2 computer network??!!! It also
+> shows Half Duplex autonegotiated!!
+> 
+> Regards,
+> Sourav
 > 
 > 
-
-
+> _________________________________________________________
+> Do You Yahoo!?
+> Get your free @yahoo.com address at http://mail.yahoo.com
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
 -- 
+-------------------------------------------------------------------------- 
+Joel Jaeggli	      Academic User Services   joelja@darkwing.uoregon.edu    
+--    PGP Key Fingerprint: 1DE9 8FCA 51FB 4195 B42A 9C32 A30D 121E      --
+The accumulation of all powers, legislative, executive, and judiciary, in 
+the same hands, whether of one, a few, or many, and whether hereditary, 
+selfappointed, or elective, may justly be pronounced the very definition of
+tyranny. - James Madison, Federalist Papers 47 -  Feb 1, 1788
 
-  Doug Ledford <dledford@redhat.com>  http://people.redhat.com/dledford
-       Please check my web site for aic7xxx updates/answers before
-                       e-mailing me about problems
 

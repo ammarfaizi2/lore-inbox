@@ -1,58 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262249AbVAUDA0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262248AbVAUDUN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262249AbVAUDA0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 22:00:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262255AbVAUDA0
+	id S262248AbVAUDUN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 22:20:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262246AbVAUDUN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 22:00:26 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:16604 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262249AbVAUDAG (ORCPT
+	Thu, 20 Jan 2005 22:20:13 -0500
+Received: from fw.osdl.org ([65.172.181.6]:29837 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262248AbVAUDUK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 22:00:06 -0500
-Date: Thu, 20 Jan 2005 22:00:03 -0500
-From: Dave Jones <davej@redhat.com>
-To: Marco Cipullo <cipullo@libero.it>
-Cc: Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Typo in [AGPGART] i915GM support patch
-Message-ID: <20050121030003.GF32430@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Marco Cipullo <cipullo@libero.it>,
-	Kernel List <linux-kernel@vger.kernel.org>
-References: <41EFE05E.1050501@libero.it>
+	Thu, 20 Jan 2005 22:20:10 -0500
+Date: Thu, 20 Jan 2005 19:19:43 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Lennert Van Alboom <lennert.vanalboom@ugent.be>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: possible memleak in 2.6.11-rc1
+Message-Id: <20050120191943.0ac5bad5.akpm@osdl.org>
+In-Reply-To: <200501191956.48228.lennert.vanalboom@ugent.be>
+References: <200501191956.48228.lennert.vanalboom@ugent.be>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41EFE05E.1050501@libero.it>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 20, 2005 at 05:46:22PM +0100, Marco Cipullo wrote:
- > - if (agp_bridge->dev->device == PCI_DEVICE_ID_INTEL_82915G_HB)
- > + if (agp_bridge->dev->device == PCI_DEVICE_ID_INTEL_82915G_HB ||
- > +     agp_bridge->dev->device == PCI_DEVICE_ID_INTEL_82915G_HB)
- >  	gtt_entries = MB(48) - KB(size);
- >  else
- >  	gtt_entries = 0;
- >  break;
- > Peraphs is:
- > 
- > @@ -415,14 +415,16 @@
- >  			break;
- >  		case I915_GMCH_GMS_STOLEN_48M:
- >  			/* Check it's really I915G */
- > - if (agp_bridge->dev->device == PCI_DEVICE_ID_INTEL_82915G_HB)
- > + if (agp_bridge->dev->device == PCI_DEVICE_ID_INTEL_82915G_HB ||
- > +     agp_bridge->dev->device == PCI_DEVICE_ID_INTEL_82915GM_HB)
- >  	gtt_entries = MB(48) - KB(size);
- >  else
- >  	gtt_entries = 0;
- >  break;
- > 
- > The same applies few lines below....
+Lennert Van Alboom <lennert.vanalboom@ugent.be> wrote:
+>
+> Possible memleak in 2.6.11-rc1?
 
-Duh, yes. Thanks.
-Fix sent to Linus.
-
-		Dave
+Please wait for it to happen again and then send the contents of
+/proc/meminfo and /proc/slabinfo.
 

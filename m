@@ -1,85 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313045AbSC0Pmc>; Wed, 27 Mar 2002 10:42:32 -0500
+	id <S313042AbSC0PlM>; Wed, 27 Mar 2002 10:41:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313043AbSC0PmN>; Wed, 27 Mar 2002 10:42:13 -0500
-Received: from green.csi.cam.ac.uk ([131.111.8.57]:39309 "EHLO
-	green.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S313040AbSC0PmF>; Wed, 27 Mar 2002 10:42:05 -0500
-Message-Id: <5.1.0.14.2.20020327154219.05069c30@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Wed, 27 Mar 2002 15:46:44 +0000
-To: Andre Hedrick <andre@linux-ide.org>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: [PATCH] linux-2.5.7.fix2.patch
-Cc: linux-kernel@vger.kernel.org,
-        Martin Dalecki <dalecki@evision-ventures.com>
-In-Reply-To: <Pine.LNX.4.10.10203231441530.1053-200000@master.linux-ide.
- org>
+	id <S313040AbSC0PlC>; Wed, 27 Mar 2002 10:41:02 -0500
+Received: from air-2.osdl.org ([65.201.151.6]:59776 "EHLO doc.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S312714AbSC0Pks>;
+	Wed, 27 Mar 2002 10:40:48 -0500
+Date: Wed, 27 Mar 2002 07:40:43 -0800
+From: Bob Miller <rem@osdl.org>
+To: John Covici <covici@ccs.covici.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.7 process accounting bombs out
+Message-ID: <20020327074043.A2280@doc.pdx.osdl.net>
+In-Reply-To: <m3bsdamrlw.fsf@ccs.covici.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andre,
+On Wed, Mar 27, 2002 at 01:50:35AM -0500, John Covici wrote:
+> Whenever I try to start the init script for process accounting I get
+> the following error:
+> 
+> Mar 27 00:02:02 ccs kernel: kernel BUG at acct.c:169!
+> Mar 27 00:02:02 ccs kernel: invalid operand: 0000
+> Mar 27 00:02:02 ccs kernel: CPU:    0
+> Mar 27 00:02:02 ccs kernel: EIP:    0010:[acct_file_reopen+8/208]
+> Not tainted
+> Mar 27 00:02:02 ccs kernel: EFLAGS: 00010246
+> 
+> The system doesn't go down, but is there any way to fix this?
+> 
+> Thanks.
+> 
+> -- 
+>          John Covici
+>          covici@ccs.covici.com
 
-I tried this patch on my laptop to see if it would make my atapi cdrom data 
-underrun problems go away.
-
-Unfortunately booting 2.5.7 + your patch causes hda: lost interrupt 
-messages to appear. It still manages to progress through the boot scripts 
-ok for a while, albeit very, very slowly, but eventually after several lost 
-interrupt messages the kernel crashes.
-
-Vanilla 2.5.7 boots fine but the cdrom doesn't work due to the data/buffer 
-underruns...
-
-I am quite happy to help debug this, let me know what info you would like 
-to see... Can I enable debugging somewhere to get more interesting messages 
-or should I try anything?
-
-Cheers,
-
-Anton
-
-At 22:53 23/03/02, Andre Hedrick wrote:
-
->Martin et al.
->
->This is the next step in stablizing the transport layer.
->I have not booted but it will compile, and it is nearly identical to what
->I generated for 2.4 to be released soon.
->
->The comments are harsh on the interface but it functionally correct.
->If you get an device error in PIO, bad things can happen to the data.
->This is no different in the stock 2.4.0->2.4.18->19x.
->
->Of of all the transport data handlers.
->
->CLEAN and SAFE:
->         DMA read/write is safe and has always been.
->         Single sector PIO WRITING is clean and safe.
->
->DIRTY but operational (error events in the hardware will cause data problems)
->         Single sector PIO READING can corrupt a single sector if there
->                 is a device error.
->         Multi-Read/Write will corrupt and misreport data only on an error.
->
->What is still lacking in block is the much needed in proccess bio walker.
->Once I can finish coding this fix into BLOCK, then I can complete the
->transport layer and slap it on a bus analyzer and force articial errors on
->the buss to see if the driver behaves correctly.  If this passes, we are
->good to run like the wind.
->
->Regards,
->
->Andre Hedrick
->LAD Storage Consulting Group
+Apply the patch below.
 
 -- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+Bob Miller					Email: rem@osdl.org
+Open Source Development Lab			Phone: 503.626.2455 Ext. 17
 
+
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.537   -> 1.538  
+#	       kernel/acct.c	1.8     -> 1.9    
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 02/03/21	rem@doc.pdx.osdl.net	1.538
+# Fixed acct.c code by removing the BUG_ON code because it doesn't work
+# on UP systems.
+# --------------------------------------------
+#
+diff -Nru a/kernel/acct.c b/kernel/acct.c
+--- a/kernel/acct.c	Thu Mar 21 11:32:05 2002
++++ b/kernel/acct.c	Thu Mar 21 11:32:05 2002
+@@ -166,8 +166,6 @@
+ {
+ 	struct file *old_acct = NULL;
+ 
+-	BUG_ON(!spin_is_locked(&acct_globals.lock));
+-
+ 	if (acct_globals.file) {
+ 		old_acct = acct_globals.file;
+ 		del_timer(&acct_globals.timer);

@@ -1,59 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261343AbVCGPQe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261753AbVCGPWr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261343AbVCGPQe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 10:16:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261752AbVCGPQe
+	id S261753AbVCGPWr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 10:22:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261763AbVCGPWr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 10:16:34 -0500
-Received: from extgw-uk.mips.com ([62.254.210.129]:12560 "EHLO
-	mail.linux-mips.net") by vger.kernel.org with ESMTP id S261343AbVCGPQb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 10:16:31 -0500
-Date: Mon, 7 Mar 2005 14:19:57 +0000
-From: Ralf Baechle <ralf@linux-mips.org>
-To: jarmo <oh1mrr@nic.fi>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ax25 t1_timeout
-Message-ID: <20050307141957.GB8466@linux-mips.org>
-References: <200503061158.11446.oh1mrr@nic.fi>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200503061158.11446.oh1mrr@nic.fi>
-User-Agent: Mutt/1.4.1i
+	Mon, 7 Mar 2005 10:22:47 -0500
+Received: from adsl-346.mirage.euroweb.hu ([193.226.239.90]:13194 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S261753AbVCGPWq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Mar 2005 10:22:46 -0500
+To: dhowells@redhat.com
+CC: akpm@osdl.org, torvalds@osdl.org, davidm@snapgear.com,
+       linux-kernel@vger.kernel.org
+In-reply-to: <22447.1110204304@redhat.com> (message from David Howells on Mon,
+	07 Mar 2005 14:05:04 +0000)
+Subject: Re: [PATCH 1/2] BDI: Provide backing device capability information
+References: <20050307041047.59c24dec.akpm@osdl.org>  <20050307034747.4c6e7277.akpm@osdl.org> <20050307033734.5cc75183.akpm@osdl.org> <20050303123448.462c56cd.akpm@osdl.org> <20050302135146.2248c7e5.akpm@osdl.org> <20050302090734.5a9895a3.akpm@osdl.org> <9420.1109778627@redhat.com> <31789.1109799287@redhat.com> <13767.1109857095@redhat.com> <9268.1110194624@redhat.com> <9741.1110195784@redhat.com> <9947.1110196314@redhat.com> <22447.1110204304@redhat.com>
+Message-Id: <E1D8K3T-00056q-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Mon, 07 Mar 2005 16:21:59 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 06, 2005 at 11:58:11AM +0200, jarmo wrote:
+> The attached patch replaces backing_dev_info::memory_backed with
+> capabilitied bitmap. The capabilities available include:
 
-> Withs kernel 2.6.11 ax25 t1_timeout is working badly...
-> Expl. I have set t1_timeout to 10s (10000).Now testing..
-> Taking radio of,set connection to somewhere,first try then
-> 10s time second try...But then 20s and try next 30s and try...
-> So t1_timeout is increasing?In 2.6.10 timeout is 10 and
-> it does not increase...Possible bug?
+Wouldn't it be better to reverse the meaning of BDI_CAP_ACCOUNT_DIRTY
+and BDI_CAP_WRITEBACK_DIRTY (BDI_CAP_NO_ACCOUNT_DIRTY...)?  That way
+out of tree filesystems that implicitly zero bdi->memory_backed
+wouldn't _silently_ break.  E.g. fuse does this, though it would not
+actually break since it doesn't dirty any pages currently.  I have no
+idea whether there are other filesystems that are affected.
 
-No, pilot error ;-)
-
-Linux supports three different backoff types which can be configured via
-/proc or sysctl.  This is how to display the backoff type of interface
-sp0, for example:
-
-  [root@dl5rb] sysctl net.ax25.sp0.backoff_type
-  net.ax25.sp0.backoff_type = 1
-  [root@dl5rb]
-
-1 in this example stands for linear backoff which is the default and what
-you've been observing.  0 would be no backoff which generally in a shared
-RF environment is probably unfriendly and can mathematically be shown to
-cause network meltdowns.  Finally 2 would means exponential backoff,
-which would use t1, 2*t1, 4*t1, 8*t1 for the waiting time, but never goes
-worse than 8 * t1.
-
-You can change the value with sysctl also but generally linear backoff is
-quite reasonable.
-
-73 de DL5RB op Ralf
-
---
-Loc. JN47BS / CQ 14 / ITU 28 / DOK A21
+Miklos

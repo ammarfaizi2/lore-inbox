@@ -1,87 +1,111 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281484AbRKMFPZ>; Tue, 13 Nov 2001 00:15:25 -0500
+	id <S281487AbRKMFRD>; Tue, 13 Nov 2001 00:17:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281487AbRKMFPN>; Tue, 13 Nov 2001 00:15:13 -0500
-Received: from mail104.mail.bellsouth.net ([205.152.58.44]:18970 "EHLO
-	imf04bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S281484AbRKMFPH>; Tue, 13 Nov 2001 00:15:07 -0500
-Message-ID: <3BF0AC47.221B6CD6@mandrakesoft.com>
-Date: Tue, 13 Nov 2001 00:14:47 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: GPLONLY kernel symbols???
-In-Reply-To: <200111130324.fAD3OE916102@vindaloo.ras.ucalgary.ca>
-		<Pine.GSO.4.21.0111122249160.22925-100000@weyl.math.psu.edu>
-		<200111130358.fAD3wgb16617@vindaloo.ras.ucalgary.ca>
-		<3BF09E44.58D138A6@mandrakesoft.com>
-		<200111130437.fAD4b2j17329@vindaloo.ras.ucalgary.ca>
-		<3BF0A788.8CCBC91@mandrakesoft.com> <200111130500.fAD50Wi17879@vindaloo.ras.ucalgary.ca>
-Content-Type: text/plain; charset=us-ascii
+	id <S281488AbRKMFQy>; Tue, 13 Nov 2001 00:16:54 -0500
+Received: from rdu162-229-047.nc.rr.com ([24.162.229.47]:57253 "EHLO
+	gateway.house") by vger.kernel.org with ESMTP id <S281487AbRKMFQo>;
+	Tue, 13 Nov 2001 00:16:44 -0500
+Subject: Re: [OOPS] 2.4.14 in USB? Appletalk?
+From: Michael Rothwell <rothwell@holly-springs.nc.us>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1005626975.3296.2.camel@gromit.house>
+In-Reply-To: <1005626975.3296.2.camel@gromit.house>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.16 (Preview Release)
+Date: 13 Nov 2001 00:16:55 -0500
+Message-Id: <1005628615.1365.1.camel@gromit.house>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Gooch wrote:
+More info:
+
+using uhci.o rather than usb-uhci.o results in no oops, but loop.o has
+unresolved symbols and NFS does not work -- the boot process hangs on
+"mounting NFS filesystems."
+
+No 2.4.14 for me.
+
+-M
+
+
+On Mon, 2001-11-12 at 23:49, Michael Rothwell wrote:
+> This oops is from booting a RH 7.2 system after installing 2.4.14 +
+> ext3.
 > 
-> Jeff Garzik writes:
-> > Richard Gooch wrote:
-> > > > Among other reasons, because of long term maintenance.
-> > > >
-> > > > How do you expect others in the Linux kernel community to review
-> > > > your code, if it is widely considered difficult to read?  How do you
-> > > > expect people to maintain your code when are no longer around?  The
-> > > > Linux kernel will be around long after you and I and others leave
-> > > > kernel development.  Others need to read and maintain this code.
-> > >
-> > > If and when I step down as maintainer (if I do so, I'll publically
-> > > pass the baton to the new maintainer), the new maintainer can indent
-> > > to their preference. Until that time, *I'm* the maintainer, and *I*
-> > > need to be able to read the code efficiently. It's the part of the
-> > > kernel I spend the most time in, after all.
-> >
-> > You argue that others reviewing your code is worthless?
-> > That you are the only one reading your code?
+> [root@gromit rothwell]# kgcc -v
+> Reading specs from /usr/lib/gcc-lib/i386-redhat-linux/egcs-2.91.66/specs
+> gcc version egcs-2.91.66 19990314/Linux (egcs-1.1.2 release)
 > 
-> I didn't say that at all! But since I'm the one maintaining that code,
-> it makes sense that it's easiest for me to read, since I'm the most
-> frequent reader (and writer).
+> This is an Athlon system, but I compiled a 386 kernel, for use in
+> another device.
 > 
-> But that's beside the point. Linus has stated that he doesn't want to
-> force coding style upon others, unless it's something that he has to
-> maintain. Since he doesn't maintain devfs, that doesn't apply.
+> Nov 12 23:30:24 gromit kernel: Unable to handle kernel NULL pointer
+> dereference at virtual address 0000000c
+> Nov 12 23:30:24 gromit kernel: c0229ef5
+> Nov 12 23:30:24 gromit kernel: *pde = 00000000
+> Nov 12 23:30:24 gromit kernel: Oops: 0000
+> Nov 12 23:30:24 gromit kernel: CPU:    0
+> Nov 12 23:30:24 gromit kernel: EIP:    0010:[call_policy+345/476]    Not
+> taintedNov 12 23:30:24 gromit kernel: EIP:    0010:[<c0229ef5>]    Not
+> tainted
+> Using defaults from ksymoops -t elf32-i386 -a i386
+> Nov 12 23:30:24 gromit kernel: EFLAGS: 00010246
+> Nov 12 23:30:24 gromit kernel: eax: 00000000   ebx: cfc031b4   ecx:
+> 00000001   edx: c02b9b7c
+> Nov 12 23:30:24 gromit kernel: esi: cff33570   edi: cf3bb200   ebp:
+> cfc03170   esp: cf485f0c
+> Nov 12 23:30:24 gromit kernel: ds: 0018   es: 0018   ss: 0018
+> Nov 12 23:30:24 gromit kernel: Process modprobe (pid: 257,
+> stackpage=cf485000)
+> Nov 12 23:30:24 gromit kernel: Stack: cf3bb340 cfc156e0 c02eb3fc
+> 00000010 00000007 c02d4900 c02b9acc 00000000 
+> Nov 12 23:30:24 gromit kernel:        c022af98 c02b9fc7 cf3bb200
+> cfce6b04 cfc156e0 c02eb3fc 00000001 00000018 
+> Nov 12 23:30:24 gromit kernel:        cf3bb200 c022af7d cfce6b04
+> cff7be60 d089fba0 00000000 bfffeb68 00000018 
+> Nov 12 23:30:24 gromit kernel: Call Trace: [usb_disconnect+220/280]
+> [usb_disconnect+193/280]
+> [appletalk:__insmod_appletalk_O/lib/modules/2.4.14/kernel/net/appletal+-164960/96] [appletalk:__insmod_appletalk_O/lib/modules/2.4.14/kernel/net/appletal+-169319/96] [pci_unregister_driver+51/76] 
+> Nov 12 23:30:24 gromit kernel: Call Trace: [<c022af98>] [<c022af7d>]
+> [<d089fba0>] [<d089ea99>] [<c020ba5f>] 
+> Nov 12 23:30:24 gromit kernel:    [<d089efea>] [<d089fba0>] [<c0114c4b>]
+> [<c0113da7>] [<c0106beb>] 
+> Nov 12 23:30:24 gromit kernel: Code: 8b 40 0c 8b 50 04 89 5e 1c c7 44 24
+> 10 08 00 00 00 8b 8f d8 
 > 
-> If Linus makes the decision to change that policy, and *force* all
-> code into the one style, I'll have to put up with that, although I'll
-> grumble. And I'll scream blue murder if it's just *my* code that gets
-> changed; I note that not all of the kernel conforms to Linus'
-> preferred style. Right now I feel picked on.
+> >>EIP; c0229ef5 <call_policy+159/1dc>   <=====
+> Trace; c022af98 <usb_disconnect+dc/118>
+> Trace; c022af7d <usb_disconnect+c1/118>
+> Trace; d089fba0 <[usbcore]usbdev_read+70/1e0>
+> Trace; d089ea99 <[usbcore]usb_hub_configure+179/260>
+> Trace; c020ba5f <pci_unregister_driver+33/4c>
+> Trace; d089efea <[usbcore]usb_hub_port_wait_reset+ba/140>
+> Trace; d089fba0 <[usbcore]usbdev_read+70/1e0>
+> Trace; c0114c4b <free_module+1b/a0>
+> Trace; c0113da7 <sys_delete_module+f3/1b0>
+> Trace; c0106beb <system_call+33/38>
+> Code;  c0229ef5 <call_policy+159/1dc>
+> 00000000 <_EIP>:
+> Code;  c0229ef5 <call_policy+159/1dc>   <=====
+>    0:   8b 40 0c                  mov    0xc(%eax),%eax   <=====
+> Code;  c0229ef8 <call_policy+15c/1dc>
+>    3:   8b 50 04                  mov    0x4(%eax),%edx
+> Code;  c0229efb <call_policy+15f/1dc>
+>    6:   89 5e 1c                  mov    %ebx,0x1c(%esi)
+> Code;  c0229efe <call_policy+162/1dc>
+>    9:   c7 44 24 10 08 00 00      movl   $0x8,0x10(%esp,1)
+> Code;  c0229f05 <call_policy+169/1dc>
+>   10:   00 
+> Code;  c0229f06 <call_policy+16a/1dc>
+>   11:   8b 8f d8 00 00 00         mov    0xd8(%edi),%ecx
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-There's a difference between telling you what to think, and trying to
-point out why your methods are flawed.  I also would never presume to
-tell anyone what to think or do; I am trying to emphasize here that your
-choice makes it difficult to review the code, and affects the long-term
-maintainability of the codebase overall.  It wouldn't really be an issue
-if the code weren't so far from CodingStyle that everyone else is used
-to.
-
-Is a compromise possible?  Can you keep a local codebase in your own
-coding style, and then run Lindent before sending to Linus?
-
-Ideally in 2.5 devfs (or some form thereof) is gonna be the centerpiece
-of our new and wonderful dynamic device world.  It would be nice if that
-was what the majority consider readable code...
-
-	Jeff
-
-
--- 
-Jeff Garzik      | Only so many songs can be sung
-Building 1024    | with two lips, two lungs, and one tongue.
-MandrakeSoft     |         - nomeansno
 

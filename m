@@ -1,55 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268541AbUHYUXS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268646AbUHYUXt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268541AbUHYUXS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 16:23:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268637AbUHYUXS
+	id S268646AbUHYUXt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 16:23:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268637AbUHYUXh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 16:23:18 -0400
-Received: from verein.lst.de ([213.95.11.210]:47554 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S268541AbUHYUTf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 16:19:35 -0400
-Date: Wed, 25 Aug 2004 22:19:29 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: Christoph Hellwig <hch@lst.de>, Hans Reiser <reiser@namesys.com>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       Linus Torvalds <torvalds@osdl.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: silent semantic changes with reiser4
-Message-ID: <20040825201929.GA16855@lst.de>
-Mail-Followup-To: Christoph Hellwig <hch@lst.de>,
-	Hans Reiser <reiser@namesys.com>, linux-fsdevel@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Alexander Lyamin aka FLX <flx@namesys.com>,
-	Linus Torvalds <torvalds@osdl.org>,
-	ReiserFS List <reiserfs-list@namesys.com>
-References: <20040824202521.GA26705@lst.de> <412CEE38.1080707@namesys.com> <20040825200859.GA16345@lst.de>
-Mime-Version: 1.0
+	Wed, 25 Aug 2004 16:23:37 -0400
+Received: from mail1.speakeasy.net ([216.254.0.201]:39300 "EHLO
+	mail1.speakeasy.net") by vger.kernel.org with ESMTP id S268589AbUHYUUX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Aug 2004 16:20:23 -0400
+Date: Wed, 25 Aug 2004 13:20:19 -0700
+Message-Id: <200408252020.i7PKKJSU017557@magilla.sf.frob.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040825200859.GA16345@lst.de>
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
+Content-Transfer-Encoding: 7bit
+From: Roland McGrath <roland@redhat.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] notify_parent and ptrace cleanup
+In-Reply-To: Linus Torvalds's message of  Wednesday, 25 August 2004 12:54:11 -0700 <Pine.LNX.4.58.0408251252080.17766@ppc970.osdl.org>
+X-Fcc: ~/Mail/linus
+X-Windows: putting new limits on productivity.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Btw, I just got reminded you might take my saying as an "piss of you're
-idea stinks" or similar things.  So let me clarify again the actual
-technical and project managment issues another time before we start
-getting really personal :)
+> We should split TASK_STOPPED into two different cases: TASK_STOPPED and 
+> TASK_PTRACED.
 
-Over the last at least five years we've taken as much as possible
-semantics out of the filesystems and into the VFS layer, thus having
-a separation between the semantical layer (VFS) and the low level
-filesystem.  Your attributes are absoultely a VFS thing and as such
-should not happen at the filesystem layer, and no, that doesn't mean
-they're bad per se, I just think they are a rather bad fit for Linux.
+Ok.  I think this has exactly the same effect as my patches get by
+introducing checks and invariants relating to last_siginfo.  To me that was
+less ambitious than introducing a new value for the state field, because I
+am not entirely sure I grok how that is used everywhere.  If you think that
+adding a new TASK_TRACED state will not have lots of gotchas, I am happy to
+take a crack at it.
 
-So now go on and try to work together with the other peope doing VFS
-level work instead of hiding, or if you think you can't work together
-with us search a nice research OS where you can take over the VFS layer,
-if your ideas prove to be good I'm sure Linux will pick them up sooner
-or later.
 
-	Christoph
+Thanks,
+Roland
+
+

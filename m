@@ -1,56 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318365AbSHPNSn>; Fri, 16 Aug 2002 09:18:43 -0400
+	id <S318353AbSHPNZn>; Fri, 16 Aug 2002 09:25:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318367AbSHPNSn>; Fri, 16 Aug 2002 09:18:43 -0400
-Received: from freemail.agrinet.ch ([212.28.134.90]:12812 "EHLO
-	FREEMAIL.agrinet.ch") by vger.kernel.org with ESMTP
-	id <S318365AbSHPNSl>; Fri, 16 Aug 2002 09:18:41 -0400
-Date: Fri, 16 Aug 2002 15:23:15 +0200
-From: Andreas Tscharner <starfire@dplanet.ch>
-To: Jean Delvare <khali@linux-fr.org>
-Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel Bug in 2.4.19
-Message-Id: <20020816152315.19a44435.starfire@dplanet.ch>
-In-Reply-To: <20020816093847.4ae5544e.khali@linux-fr.org>
-References: <20020816093847.4ae5544e.khali@linux-fr.org>
-Organization: No Such Penguin
-X-Mailer: Sylpheed version 0.8.1claws38 (GTK+ 1.2.10; i386-debian-linux-gnu)
+	id <S318356AbSHPNZn>; Fri, 16 Aug 2002 09:25:43 -0400
+Received: from faui02.informatik.uni-erlangen.de ([131.188.30.102]:53482 "EHLO
+	faui02.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id <S318353AbSHPNZm>; Fri, 16 Aug 2002 09:25:42 -0400
+Date: Fri, 16 Aug 2002 13:01:33 +0200
+From: Richard Zidlicky <rz@linux-m68k.org>
+To: Matti Aarnio <matti.aarnio@zmailer.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Keyword help for that turkish spam ?
+Message-ID: <20020816130133.A1021@linux-m68k.org>
+References: <exodcnobsquk@vger.kernel.org> <20020816070711.GW32427@mea-ext.zmailer.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020816070711.GW32427@mea-ext.zmailer.org>; from matti.aarnio@zmailer.org on Fri, Aug 16, 2002 at 10:07:11AM +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 16 Aug 2002 09:38:47 +0200
-Jean Delvare <khali@linux-fr.org> wrote:
+On Fri, Aug 16, 2002 at 10:07:11AM +0300, Matti Aarnio wrote:
+>   Could somebody help by telling me which keywords out
+>   of this I could put into VGER's taboo expresions ?
 
-> > After compiling 2.4.19 (Debian kernel-source-2.4.19-1), I've had
-> > several kernel bugs. I've added the messages of two that I got in
-> > the log. The others are similar. I re-changed to 2.4.18 (Debian
-> > kernel-source-2.4.18-5) and everything works fine.
-> 
-> Are you able to reproduce the problem without loading the NVidia
-> drivers? If no, you know who to complain to.
+All, it is an english language list. If you are worried about
+Turkish headers or signatures perhaps a maximum threshold
+of turkish (as defined by that post ;) words would help? 
+I am using thresholds on accented and asian-looking characters 
+and it helps a lot.
 
-Hmm.
-I don't know; gonna test it...
-> 
-> Second question, are the Zip100-drive-related errors in dmesg
-> something unusual and thus probably related to the problem?
-> 
-> > I/O error: dev 08:00, sector 0
-> > unable to read partition table
+Richard
 
-No, they are "normal". The ppa driver complains about not having a disk
-in my ZIP drive
-
-Regards
-	Andreas
--- 
-Andreas Tscharner                                  starfire@dplanet.ch
-----------------------------------------------------------------------
-"Programming today is a race between software engineers striving to
-build bigger and better idiot-proof programs, and the Universe trying
-to produce bigger and better idiots. So far, the Universe is winning."
-                                                          -- Rich Cook 

@@ -1,66 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318158AbSIEVbT>; Thu, 5 Sep 2002 17:31:19 -0400
+	id <S318165AbSIEVgw>; Thu, 5 Sep 2002 17:36:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318152AbSIEVbT>; Thu, 5 Sep 2002 17:31:19 -0400
-Received: from adsl-63-201-183-186.dsl.lsan03.pacbell.net ([63.201.183.186]:53909
-	"HELO pobox.com") by vger.kernel.org with SMTP id <S318158AbSIEVbS>;
-	Thu, 5 Sep 2002 17:31:18 -0400
-Date: Thu, 5 Sep 2002 14:35:55 -0700
-From: "Ryan S. Upton" <rupton@pobox.com>
-To: Ben Greear <greearb@candelatech.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: DFE-580TX problems you posted on 05-24-02
-Message-ID: <20020905213555.GB31524@pobox.com>
-References: <20020723203037.GA29459@pobox.com> <3D3DCD2C.1050004@candelatech.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3D3DCD2C.1050004@candelatech.com>
-User-Agent: Mutt/1.3.28i
+	id <S318170AbSIEVgv>; Thu, 5 Sep 2002 17:36:51 -0400
+Received: from citi.umich.edu ([141.211.92.141]:1440 "HELO citi.umich.edu")
+	by vger.kernel.org with SMTP id <S318165AbSIEVgv>;
+	Thu, 5 Sep 2002 17:36:51 -0400
+Message-ID: <3D77CF83.1020606@citi.umich.edu>
+Date: Thu, 05 Sep 2002 17:41:23 -0400
+From: Chuck Lever <cel@citi.umich.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2.1) Gecko/20010901
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: invalidate_inode_pages in 2.5.32/3
+References: <3D77A22A.DC3F4D1@zip.com.au>		<Pine.BSO.4.33.0209051439540.12826-100000@citi.umich.edu>		<3D77ADC3.938C09F8@zip.com.au> <shsvg5k9pg3.fsf@charged.uio.no> <3D77BB7C.5F20939F@zip.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks, and hopefully this too will lighten your load. I was able to find a driver that does work for the DFE-580TX. It appears to be a derrivitive of DB's sundance 1.03a. It is being distributed from a dlink site and the license "MODULE_LICENSE" tag has been modified (removed) so this may taint GPL-Free-LGPL pristine machines, but the GPL still remains at the top... (?) IANAL. 
+Andrew Morton wrote:
 
-Thanks to whoever modified this to work with the DFE-580TX (MIND THE LICENSE THOUGH!) and to everyone who posted allowing me to find this. Here's the link. 
+> Trond Myklebust wrote:
+> 
+>>>>>>>" " == Andrew Morton <akpm@zip.com.au> writes:
+>>>>>>>
+>>     > You may have more success using the stronger
+>>     > invalidate_inode_pages2().
+>>
+>>Shouldn't make any difference. Chuck is seeing this on readdir() pages
+>>which, of course, don't suffer from problems of dirtiness etc on NFS.
+>>
+> 
+> Well the VM will take a ref on the page during reclaim even if it
+> is clean.
+> 
+> With what sort of frequency does this happen?  If it's easily reproducible
+> then dunno. If it's once-an-hour then it may be page reclaim, conceivably.
+> The PageLRU debug test in there will tell us.
 
-http://tsd.dlink.com.tw/info.nsf/80d023dbef05f90048256adf002a91be/6dbbd6ab52943b1348256bd6002a4b4e?OpenDocument
 
--R
-Ryan S. Upton
-ryanu@pobox.com
+this happens every time i run test6 on 2.5.32 or 2.5.33.  the pages
+are not on the LRU, and are not locked, when the NFS client calls
+invalidate_inode_pages.
 
-On Tue, Jul 23, 2002 at 02:39:56PM -0700, Ben Greear wrote:
-> Ryan S. Upton wrote:
-> >I apologise for this imposition. I'm sending you mail that only asks for 
-> >help. I was hoping you found a solution to the problems you were seeing 
-> >about the Dlink DEF-580tx. I say the message you sent into kernel.org. 
-> >http://www.uwsg.iu.edu/hypermail/linux/kernel/0205.3/0013.html
-> >
-> >I've been looking for three days for a solution to the same problems iyou 
-> >described. I am seeing these with a newly compiled 2.4.18 kernel. Have you 
-> >had any success since May? 
-> >Thanks,
-> >-R
-> >
-> 
-> I'm CC'ing LMKL in hopes that this gets in the search engines so that I
-> quit getting 5 of these mails a day :)
-> 
-> The fix for the DFE-580tx in Linux is to either download the driver
-> from dlink's site (I don't have the exact URL, but you can find it if
-> you look.), or perhaps use Becker's latest driver from www.scyld.com.
-> 
-> I hear the kernel will be updated with a working driver very soon (maybe
-> it has already??)
-> 
-> Thanks,
-> Ben
-> 
-> 
-> -- 
-> Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
-> President of Candela Technologies Inc      http://www.candelatech.com
-> ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
-> 
+how do these pages get into the page cache?  answer:
+
+nfs_readdir_filler is invoked by read_cache_page to fill a page.
+when nfs_readdir_filler is invoked in 2.5.31, the page count on the
+page to be filled is always 2.  when nfs_readdir_filler is invoked
+in 2.5.32+, the page count is very often 3, but occasionally it is 2.
+
+         - Chuck Lever
+
+-- 
+corporate: 
+<cel at netapp dot com>
+personal: 
+<chucklever at bigfoot dot com>
+

@@ -1,76 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261861AbVASTaI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261863AbVASTcN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261861AbVASTaI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 14:30:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261862AbVASTaI
+	id S261863AbVASTcN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 14:32:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261862AbVASTcN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 14:30:08 -0500
-Received: from mail-ex.suse.de ([195.135.220.2]:20959 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261861AbVAST35 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 14:29:57 -0500
-Date: Wed, 19 Jan 2005 20:29:56 +0100
-From: Andi Kleen <ak@suse.de>
-To: Steve Longerbeam <stevel@mvista.com>
-Cc: Andi Kleen <ak@suse.de>, Hugh Dickins <hugh@veritas.com>,
-       linux-mm <linux-mm@kvack.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, andrea@suse.de,
-       akpm@osdl.org
-Subject: Re: BUG in shared_policy_replace() ?
-Message-ID: <20050119192955.GC26170@wotan.suse.de>
-References: <Pine.LNX.4.44.0501191221400.4795-100000@localhost.localdomain> <41EE9991.6090606@mvista.com> <20050119174506.GH7445@wotan.suse.de> <41EEA575.9040007@mvista.com> <20050119183430.GK7445@wotan.suse.de> <41EEAE04.3050505@mvista.com> <20050119190927.GM7445@wotan.suse.de> <41EEB440.8010108@mvista.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41EEB440.8010108@mvista.com>
+	Wed, 19 Jan 2005 14:32:13 -0500
+Received: from smtp-out-02.utu.fi ([130.232.202.172]:13004 "EHLO
+	smtp-out-02.utu.fi") by vger.kernel.org with ESMTP id S261863AbVASTcG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jan 2005 14:32:06 -0500
+Date: Wed, 19 Jan 2005 21:31:58 +0200
+From: Jan Knutar <jk-lkml@sci.fi>
+Subject: Re: [RFC][PATCH] /proc/<pid>/rlimit
+In-reply-to: <20050118204457.GA7824@ti64.telemetry-investments.com>
+To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
+       linux-kernel@vger.kernel.org
+Message-id: <200501192131.59252.jk-lkml@sci.fi>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+User-Agent: KMail/1.6.2
+References: <20050118204457.GA7824@ti64.telemetry-investments.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 19, 2005 at 11:25:52AM -0800, Steve Longerbeam wrote:
-> 
-> 
-> Andi Kleen wrote:
-> 
-> >On Wed, Jan 19, 2005 at 10:59:16AM -0800, Steve Longerbeam wrote:
-> > 
-> >
-> >>Andi Kleen wrote:
-> >>
-> >>   
-> >>
-> >>>>yeah, 2.6.10 makes sense to me too. But I'm working in -mm2, and
-> >>>>the new2 = NULL line is missing, hence my initial confusion. Trivial
-> >>>>patch to -mm2 attached. Just want to make sure it has been, or will be,
-> >>>>put back in.
-> >>>> 
-> >>>>
-> >>>>       
-> >>>>
-> >>>That sounds weird. Can you figure out which patch in mm removes it?
-> >>>
-> >>>
-> >>>     
-> >>>
-> >>found it:
-> >>
-> >>http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10/2.6.10-mm1/broken-out/mempolicy-optimization.patch
-> >>   
-> >>
-> >
-> >Are you sure? I don't see it touching the new2 free at the end of the 
-> >function.
-> > 
-> >
-> 
-> it's not touching the new2 free, it's removing the new2 = NULL which is 
-> the problem.
-> 
-> -				new2 = NULL;
+On Tuesday 18 January 2005 22:44, Bill Rugolsky Jr. wrote:
+> This patch against 2.6.11-rc1-bk6 adds /proc/<pid>/rlimit to export
+> per-process resource limit settings.  It was written to help analyze
+> daemon core dump size settings, but may be more generally useful.
+> Tested on 2.6.10. Sample output:
 
-Ah, I agree. Yes, it looks like a merging error when merging
-with Hugh's changes. Thanks for catching this.
-
-The line should not be removed. Andrew should I submit a new patch or can 
-you just fix it up?
-
--Andi
+A "cool feature" would be if you could do
+echo nofile 8192 8192 >/proc/`pidof thatserverproess`/rlimit
+:-)

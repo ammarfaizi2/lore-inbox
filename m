@@ -1,52 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261569AbSKCBJv>; Sat, 2 Nov 2002 20:09:51 -0500
+	id <S261542AbSKCBNG>; Sat, 2 Nov 2002 20:13:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261570AbSKCBJv>; Sat, 2 Nov 2002 20:09:51 -0500
-Received: from [64.215.178.122] ([64.215.178.122]:62399 "HELO umaro.net")
-	by vger.kernel.org with SMTP id <S261569AbSKCBJu>;
-	Sat, 2 Nov 2002 20:09:50 -0500
-Date: Sat, 2 Nov 2002 18:15:11 -0700
-From: Rando Christensen <rando@babblica.net>
-To: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
-Cc: neroz@iinet.net.au, rlievin@free.fr, linux-kernel@vger.kernel.org
-Subject: Re: Kconfig (qt) -> Gconfig (gtk)
-Message-Id: <20021102181511.46583a34.rando@babblica.net>
-In-Reply-To: <20021102203608.GB731@gallifrey>
-References: <20020625222135.GA617@free.fr>
-	<3DC378D0.5080703@iinet.net.au>
-	<20021102203608.GB731@gallifrey>
-Organization: Babblica
-X-Mailer: Sylpheed version 0.8.5claws (GTK+ 1.2.10; )
-digiw00tX: v1.0
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S261554AbSKCBNG>; Sat, 2 Nov 2002 20:13:06 -0500
+Received: from w032.z064001165.sjc-ca.dsl.cnc.net ([64.1.165.32]:17735 "EHLO
+	nakedeye.aparity.com") by vger.kernel.org with ESMTP
+	id <S261542AbSKCBNF>; Sat, 2 Nov 2002 20:13:05 -0500
+Date: Sat, 2 Nov 2002 17:24:17 -0800 (PST)
+From: "Matt D. Robinson" <yakker@aparity.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Bill Davidsen <davidsen@tmr.com>, Steven King <sxking@qwest.net>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Joel Becker <Joel.Becker@oracle.com>,
+       Chris Friesen <cfriesen@nortelnetworks.com>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       <lkcd-general@lists.sourceforge.net>,
+       <lkcd-devel@lists.sourceforge.net>
+Subject: Re: [lkcd-general] Re: What's left over.
+In-Reply-To: <1036250967.16803.18.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0211021122530.28078-100000@nakedeye.aparity.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sat, 2 Nov 2002 20:36:08 +0000: Dr. David Alan Gilbert ("Dr. David Alan
-Gilbert" <gilbertd@treblig.org>):
+On 2 Nov 2002, Alan Cox wrote:
+|>On Sat, 2002-11-02 at 05:17, Bill Davidsen wrote:
+|>>   I was hoping Alan would push Redhat to put this in their Linux so we
+|>> could resolve some of the ongoing problems which don't write an oops to a
+|>> log, but I guess none of the developers has to actually support production
+|>> servers and find out why they crash.
+|>
+|>I think several Red Hat people would disagree very strongly. Red Hat
+|>shipped with the kernel symbol decoding oops reporter for a good reason,
+|>and also acquired netdump for a good reason. 
 
-> Oh please....
-> Wouldn't it be more helpful to iron the (few) small glitches out of
-> the qt based one than write a new one just because you don't happen to
-> like the library?
+It would be great if crash dumping were an option, at the very least
+to unify the netdump, oops reporter and disk dumping (for those that
+want it) into a single infrastructure.  Long term, that's probably
+where this is going anyway.  It takes away the religious "who is right"
+argument, which is fundamentally silly.
 
-Maybe; however, there's a big difference between gtk+ and qt- gtk 1.2
-take about 5 minutes to compile. The last time I compiled qt, it took
-about 3 hours on my duron 800.
+Maybe one day.  I think quite a few Red Hat customers would
+appreciate it.
 
-GTK is a lot smaller of a platform, and a lot of users prefer to use it
-instead. If someone is willing to write (and maintain) a GTK+
-(especially if it's ait gtk+-1.2.x. gtk-2.0 is getting a bit more
-bloaty) version of it, I know quite a few people who would gladly use it
-instead of the QT.
+--Matt
 
-If people are willing to support both a QT and a GTK version, then there
-should be no real problems.
+P.S.  IBM shouldn't have signed a contact with Red Hat without
+      requiring certain features in Red Hat's OS(es).  Pushing for
+      LKCD, kprobes, LTT, etc., wouldn't be on this list for a whole
+      variety of cases if that had been done in the first place.
 
--- 
-< There is a light that shines on the frontier >
-<   And maybe someday, We're gonna be there.   >
-<    Rando Christensen / rando@babblica.net    >
+P.S.  As an aside, too many engineers try and make product marketing
+      decisions at Red Hat.  I personally think that's really bad for
+      their business model as a whole (and I'm not referring to LKCD).
+

@@ -1,119 +1,118 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261183AbTENHji (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 03:39:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261247AbTENHje
+	id S261169AbTENHot (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 03:44:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261175AbTENHot
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 03:39:34 -0400
-Received: from 12-234-34-139.client.attbi.com ([12.234.34.139]:33268 "EHLO
-	heavens.murgatroid.com") by vger.kernel.org with ESMTP
-	id S262251AbTENHj3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 03:39:29 -0400
-Date: Wed, 14 May 2003 00:52:15 -0700
-From: Christopher Hoover <ch@murgatroid.com>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com, ch@murgatroid.com
-Subject: Re: [PATCH] 2.5.68 FUTEX support should be optional
-Message-ID: <20030514005213.A3325@heavens.murgatroid.com>
-References: <20030513213157.A1063@heavens.murgatroid.com> <20030514071446.A2647@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030514071446.A2647@infradead.org>; from hch@infradead.org on Wed, May 14, 2003 at 07:14:46AM +0100
+	Wed, 14 May 2003 03:44:49 -0400
+Received: from marstons.services.quay.plus.net ([212.159.14.223]:34029 "HELO
+	marstons.services.quay.plus.net") by vger.kernel.org with SMTP
+	id S261169AbTENHoq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 03:44:46 -0400
+From: "Riley Williams" <Riley@Williams.Name>
+To: "jw schultz" <jw@pegasys.ws>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: What exactly does "supports Linux" mean?
+Date: Wed, 14 May 2003 08:57:28 +0100
+Message-ID: <BKEGKPICNAKILKJKMHCAMEONCPAA.Riley@Williams.Name>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Importance: Normal
+In-Reply-To: <20030514021210.GD30766@pegasys.ws>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 14, 2003 at 07:14:46AM +0100, Christoph Hellwig wrote:
-> On Tue, May 13, 2003 at 09:32:07PM -0700, Christopher Hoover wrote:
-> > Not everyone needs futex support, so it should be optional.  This is
-> > needed for small platforms.
-> 
-> Looks good.  I think you want to disable it unconditionally for !CONFIG_MMU.
+Hi.
 
-Good point.  
+ > This is really a trademark related labelling issue. The trademark
+ > allows Linus or his assignee to specify in what way Linux (tm) may
+ > be used in labelling and advertising. Linux is just like other
+ > products with third-party parts and supplies. If Linus's assignee
+ > (Linux international?) where to specify explicit guidelines then
+ > people would know what to expect. Something like:
+ >
+ > Linux certified:
+ >     The mainline kernel has a driver and it has been certified
+ >     as functioning with this hardware by OSDL or some other
+ >     officially sanctioned lab.
+ >
+ > Linux supported:
+ >     The mainline kernel has a driver.
 
-Here it is again with the config change.  The previous version also had
-had a Makefile typo.  Plus a cond_syscall for compat_sys_futex to make
-it work for CONFIG_COMPAT (untested), as pointed out by akpm.
+Fine so far.
 
-diff --exclude=drivers --exclude=net --exclude=sound -X dontdiff.txt -Naurp linux-2.5.69.orig/include/linux/futex.h linux-2.5.69/include/linux/futex.h
---- linux-2.5.69.orig/include/linux/futex.h	2003-05-04 16:53:33.000000000 -0700
-+++ linux-2.5.69/include/linux/futex.h	2003-05-14 00:17:25.000000000 -0700
-@@ -8,4 +8,6 @@
- 
- extern asmlinkage long sys_futex(u32 *uaddr, int op, int val, struct timespec *utime);
- 
-+long do_futex(unsigned long, int, int, unsigned long);
-+
- #endif
-diff --exclude=drivers --exclude=net --exclude=sound -X dontdiff.txt -Naurp linux-2.5.69.orig/init/Kconfig linux-2.5.69/init/Kconfig
---- linux-2.5.69.orig/init/Kconfig	2003-05-04 16:53:37.000000000 -0700
-+++ linux-2.5.69/init/Kconfig	2003-05-14 00:03:05.000000000 -0700
-@@ -108,8 +108,15 @@ config LOG_BUF_SHIFT
- 		     13 =>  8 KB
- 		     12 =>  4 KB
- 
--endmenu
- 
-+config FUTEX
-+       bool "Futex support"
-+       depends on MMU
-+       default y
-+       ---help---
-+       Say Y if you want support for Fast Userspace Mutexes (Futexes).
-+
-+endmenu
- 
- menu "Loadable module support"
- 
-diff --exclude=drivers --exclude=net --exclude=sound -X dontdiff.txt -Naurp linux-2.5.69.orig/kernel/Makefile linux-2.5.69/kernel/Makefile
---- linux-2.5.69.orig/kernel/Makefile	2003-05-04 16:53:07.000000000 -0700
-+++ linux-2.5.69/kernel/Makefile	2003-05-14 00:02:30.000000000 -0700
-@@ -5,9 +5,10 @@
- obj-y     = sched.o fork.o exec_domain.o panic.o printk.o profile.o \
- 	    exit.o itimer.o time.o softirq.o resource.o \
- 	    sysctl.o capability.o ptrace.o timer.o user.o \
--	    signal.o sys.o kmod.o workqueue.o futex.o pid.o \
-+	    signal.o sys.o kmod.o workqueue.o pid.o \
- 	    rcupdate.o intermodule.o extable.o params.o posix-timers.o
- 
-+obj-$(CONFIG_FUTEX) += futex.o
- obj-$(CONFIG_GENERIC_ISA_DMA) += dma.o
- obj-$(CONFIG_SMP) += cpu.o
- obj-$(CONFIG_UID16) += uid16.o
-diff --exclude=drivers --exclude=net --exclude=sound -X dontdiff.txt -Naurp linux-2.5.69.orig/kernel/compat.c linux-2.5.69/kernel/compat.c
---- linux-2.5.69.orig/kernel/compat.c	2003-05-04 16:53:29.000000000 -0700
-+++ linux-2.5.69/kernel/compat.c	2003-05-14 00:17:32.000000000 -0700
-@@ -211,8 +211,7 @@ asmlinkage long compat_sys_sigprocmask(i
- 	return ret;
- }
- 
--extern long do_futex(unsigned long, int, int, unsigned long);
--
-+#ifdef CONFIG_FUTEX
- asmlinkage long compat_sys_futex(u32 *uaddr, int op, int val,
- 		struct compat_timespec *utime)
- {
-@@ -226,6 +225,7 @@ asmlinkage long compat_sys_futex(u32 *ua
- 	}
- 	return do_futex((unsigned long)uaddr, op, val, timeout);
- }
-+#endif
- 
- asmlinkage long sys_setrlimit(unsigned int resource, struct rlimit *rlim);
- 
-diff --exclude=drivers --exclude=net --exclude=sound -X dontdiff.txt -Naurp linux-2.5.69.orig/kernel/sys.c linux-2.5.69/kernel/sys.c
---- linux-2.5.69.orig/kernel/sys.c	2003-05-04 16:53:02.000000000 -0700
-+++ linux-2.5.69/kernel/sys.c	2003-05-14 00:12:07.000000000 -0700
-@@ -226,6 +226,8 @@ cond_syscall(sys_shutdown)
- cond_syscall(sys_sendmsg)
- cond_syscall(sys_recvmsg)
- cond_syscall(sys_socketcall)
-+cond_syscall(sys_futex)
-+cond_syscall(compat_sys_futex)
- 
- static int set_one_prio(struct task_struct *p, int niceval, int error)
- {
+ > Linux compatible:
+ >     Source code driver is available as a patch.
 
+In other words, if a patch is available for the 1.0.0 kernel, they
+can claim "Linux compatible" ??? That's meaningless...replace with
+something like...
+
+   Linux 2.2.2 compatible:
+       Source code driver is available as a patch for the stated
+       mainline kernel.
+
+...with the specific version to be made explicit. As a minimum, it
+needs to state the actual kernel series the patch is for.
+
+ > Runs on Linux:
+ >     A binary only driver is available that can be used with
+ >     mainline kernel.
+
+Similar comments apply. Again, require that the kernel that driver
+works with is made explicit.
+
+ > Supports Linux:
+ >     A portion of the purchase price will be donated to
+ >     Linux International.
+
+So a company provides a product for $5,000.00 and donates $0.01 of
+the purchase price to the specified organisation, thus entitling
+themselves to say "Supports Linux" by this rule. Can I suggest
+this alternative definition:
+
+   Supports Linux:
+       At least 1% of the purchase price will be donated to
+       Linux International.
+
+ > You will notice this all relates to mainline kernels (Linus and
+ > Marcello). If the product requires a vendor kernel they need to
+ > negotiate with the vendor to say so.
+
+Agreed.
+
+ > These are just suggestions.  Many other products (including MS
+ > windows) have similar labelling restrictions, often with logos.
+ > Use of the term "Linux" in packaging or advertising or products
+ > inconsistent with the official designations would be trademark
+ > infringement.
+
+Agreed.
+
+ > Different rules would apply to products that exist strictly in
+ > user-space.
+
+That's not necessary - just define:
+
+   Runs under Linux:
+       This product work on a system based on a mainline Linux
+       kernel without making any modification to the kernel
+       itself or loading any kernel modules.
+
+That is all that is required there.
+
+Best wishes from Riley.
+---
+ * Nothing as pretty as a smile, nothing as ugly as a frown.
+
+---
+Outgoing mail is certified Virus Free.
+Checked by AVG anti-virus system (http://www.grisoft.com).
+Version: 6.0.481 / Virus Database: 277 - Release Date: 13-May-2003
 

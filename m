@@ -1,56 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265681AbUBBQGu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 11:06:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265686AbUBBQGu
+	id S265728AbUBBQwn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 11:52:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265742AbUBBQwn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 11:06:50 -0500
-Received: from witte.sonytel.be ([80.88.33.193]:57264 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S265681AbUBBQGt (ORCPT
+	Mon, 2 Feb 2004 11:52:43 -0500
+Received: from LLMAIL.LL.MIT.EDU ([129.55.12.40]:50856 "EHLO ll.mit.edu")
+	by vger.kernel.org with ESMTP id S265728AbUBBQwm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 11:06:49 -0500
-Date: Mon, 2 Feb 2004 17:06:37 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       support@stallion.oz.au
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: [PATCH] istallion compile fix
-Message-ID: <Pine.GSO.4.58.0402021705230.19699@waterleaf.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 2 Feb 2004 11:52:42 -0500
+Date: Mon, 2 Feb 2004 11:52:24 -0500
+From: george young <gry@ll.mit.edu>
+To: linux-kernel@vger.kernel.org
+Subject: /proc/config.z disappeared in 2.4.24
+Message-Id: <20040202115224.64063795.gry@ll.mit.edu>
+Reply-To: gry@ll.mit.edu
+Organization: MIT Lincoln Laboratory
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+[SuSE x86 linux 8.2, 2.4.24 kernel building]
+ 
+I've been upgrading from 2.4.20 (SuSE) to a fresh generic kernel from
+ftp.kernel.org: 2.4.24.  In previous builds there
+was a very handy virtual file /proc/config.z that allowed me to find
+out exactly how the currently running kernel was configured. I could then do 
 
-Fix compilation if CONFIG_PCI is not set
+  cd /usr/src
+  tar xvfz /tmp/linux-2.4.24.tz
+  cd linux-2.4.24
+  zcat /proc/config.z >.config
+  make oldconfig  -- hit return a few dozen times
+  make menuconfig -- fix a few things
+  make dep && make bzImage && make modules && make modules_install
+ 
+The /proc/config.z file seems to have disappeared! Is there some
+config parameter that enables this? Or has it gone away between 2.4.20
+and 2.4.24?
 
---- linux-2.6.2-rc3/drivers/char/istallion.c.orig	2003-10-09 10:02:39.000000000 +0200
-+++ linux-2.6.2-rc3/drivers/char/istallion.c	2004-01-10 04:18:44.000000000 +0100
-@@ -417,7 +417,6 @@
- #ifndef PCI_DEVICE_ID_ECRA
- #define	PCI_DEVICE_ID_ECRA		0x0004
- #endif
--#endif
-
- static struct pci_device_id istallion_pci_tbl[] = {
- 	{ PCI_VENDOR_ID_STALLION, PCI_DEVICE_ID_ECRA, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },
-@@ -425,6 +424,8 @@
- };
- MODULE_DEVICE_TABLE(pci, istallion_pci_tbl);
-
-+#endif /* CONFIG_PCI */
-+
- /*****************************************************************************/
-
- /*
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+-- George Young
+[Please cc response to gry@ll.mit.edu, I do not subscribe.  I'll also 
+ watch the archives, of course]
+-- 
+"Are the gods not just?"  "Oh no, child.
+What would become of us if they were?" (CSL)

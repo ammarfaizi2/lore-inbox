@@ -1,70 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262335AbVBKUIO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262325AbVBKULa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262335AbVBKUIO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Feb 2005 15:08:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262334AbVBKUIN
+	id S262325AbVBKULa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Feb 2005 15:11:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262334AbVBKUL3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Feb 2005 15:08:13 -0500
-Received: from mailout05.sul.t-online.com ([194.25.134.82]:22950 "EHLO
-	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S262331AbVBKUHA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Feb 2005 15:07:00 -0500
-Message-ID: <420D1050.3080405@t-online.de>
-Date: Fri, 11 Feb 2005 21:06:40 +0100
-From: Harald Dunkel <harald.dunkel@t-online.de>
-User-Agent: Debian Thunderbird 1.0 (X11/20050119)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <gregkh@suse.de>
-CC: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] hotplug-ng 001 release
-References: <20050211004033.GA26624@suse.de>
-In-Reply-To: <20050211004033.GA26624@suse.de>
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigCFEF27ECF6D49C77F10AB6F4"
-X-ID: rfc8nrZEweIYdJbXfn3aHM-LiiwuFDVLg8aAwCOYfQauRpG7KIojgO
-X-TOI-MSGID: a252d58d-c817-4d3b-be6d-7b1c609a3e4f
+	Fri, 11 Feb 2005 15:11:29 -0500
+Received: from waste.org ([216.27.176.166]:58250 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S262325AbVBKUKi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Feb 2005 15:10:38 -0500
+Date: Fri, 11 Feb 2005 12:10:18 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Chris Wright <chrisw@osdl.org>, "Jack O'Quin" <jack.oquin@gmail.com>,
+       Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>,
+       linux-kernel@vger.kernel.org, Paul Davis <paul@linuxaudiosystems.com>,
+       Con Kolivas <kernel@kolivas.org>, rlrevell@joe-job.com
+Subject: Re: 2.6.11-rc3-mm2
+Message-ID: <20050211201018.GM15058@waste.org>
+References: <20050211000425.GC2474@waste.org> <20050210164727.M24171@build.pdx.osdl.net> <20050211020956.GC15058@waste.org> <20050211081422.GB2287@elte.hu> <20050211084107.GG15058@waste.org> <20050211085942.GB3980@elte.hu> <20050211094021.GJ15058@waste.org> <20050211095327.GB6229@elte.hu> <20050211173751.GK15058@waste.org> <20050211174905.GC17387@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050211174905.GC17387@elte.hu>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigCFEF27ECF6D49C77F10AB6F4
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Fri, Feb 11, 2005 at 06:49:05PM +0100, Ingo Molnar wrote:
+> 
+> * Matt Mackall <mpm@selenic.com> wrote:
+> 
+> > > > Yes. There's also the whole soft limit thing.
+> > > 
+> > > i'm curious, how does this 'per-app' rlimit thing work? If a user has
+> > > jackd installed and runs it from X unprivileged, how does it get the
+> > > elevated rlimit?
+> > 
+> > It needs a setuid launcher. It would be nice to be able to elevate the
+> > rlimits of running processes but the API doesn't exist yet.
+> 
+> With a setuid launcher you need _zero_ kernel help to get SCHED_FIFO: if
+> you have a launcher then already today it can just give SCHED_FIFO to
+> jackd and be done with it!
 
-Greg KH wrote:
-> I'd like to announce, yet-another-hotplug based userspace project:
-> linux-ng.  This collection of code replaces the existing linux-hotplug
-> package with very tiny, compiled executable programs, instead of the
-> existing bash scripts.
->
+I'm sure you know all this already but I'll spell it out so we're all
+clear:
 
-cpio is running to setup a test partition.
+a) rlimits are tracked per-process so they're fundamentally
+per-process
+b) there are hard and soft limits, with soft always <= hard
+c) only root can raise hard rlimits, but normal users can lower them
+d) if a user owns a process, he can gain the privileges of that process
+by various means, so in the strict sense per-process privileges are
+meaningless - all privileges are per-uid
+e) so we either need to segregate all privileged processes into
+separate uid domains
+f) or we're assuming non-malicious users and soft limits are
+sufficient.
 
-But one question: This is yet another package with its
-own private copy of klibc. Whats the reason behind this
-non-modular approach?
+Now I suspect we don't want to insist people do (e) (though I'd
+certainly encourage them to try).
 
+Don't forget that the rlimits approach allows us to reserve the
+highest priorities for root. I'm pretty sure an effective watchdog
+policy can thus be implemented in userspace, which RT-LSM can't really
+offer.
 
-Regards
-
-Harri
-
---------------enigCFEF27ECF6D49C77F10AB6F4
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFCDRBWUTlbRTxpHjcRAm9ZAJ9N7T+HA6gpTwTimWjEU3RFUu7PaACeLc4c
-BKp6uknosnjEuTFz1r0sElQ=
-=yOrN
------END PGP SIGNATURE-----
-
---------------enigCFEF27ECF6D49C77F10AB6F4--
+-- 
+Mathematics is the supreme nostalgia of our time.

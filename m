@@ -1,65 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263721AbTIHXKf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 19:10:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263728AbTIHXKf
+	id S263718AbTIHXIT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 19:08:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263721AbTIHXIT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 19:10:35 -0400
-Received: from mail.kroah.org ([65.200.24.183]:5068 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263721AbTIHXIg (ORCPT
+	Mon, 8 Sep 2003 19:08:19 -0400
+Received: from [80.190.232.4] ([80.190.232.4]:10937 "EHLO srv02.rooty.de")
+	by vger.kernel.org with ESMTP id S263718AbTIHXIJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 19:08:36 -0400
-Date: Mon, 8 Sep 2003 16:08:52 -0700
-From: Greg KH <greg@kroah.com>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][2.6][CFT] rmmod floppy kills box fixes + default_device_remove
-Message-ID: <20030908230852.GA3320@kroah.com>
-References: <Pine.LNX.4.53.0309072228470.14426@montezuma.fsmlabs.com> <20030908155048.GA10879@kroah.com> <Pine.LNX.4.53.0309081722270.14426@montezuma.fsmlabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53.0309081722270.14426@montezuma.fsmlabs.com>
-User-Agent: Mutt/1.4.1i
+	Mon, 8 Sep 2003 19:08:09 -0400
+Message-ID: <002f01c3765e$0f125950$0419a8c0@firestarter.shnet.org>
+From: "Dennis Freise" <Cataclysm@final-frontier.org>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: New ATI FireGL driver supports 2.6 kernel
+Date: Tue, 9 Sep 2003 01:07:57 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+X-Antivirus-Scanned: Clean
+X-Spam-Score: 0.0 (/)
+X-Spam-Report: 0.0/5.0
+	This mail is probably spam.  The original message has been attached
+	along with this report, so you can recognize or block similar unwanted
+	mail in future.  See http://spamassassin.org/tag/ for more details.
+	Content preview:  > > The ATI drivers are NOT binary-only! >
+	http://www.codemonkey.org.uk/projects/agp/binary.shtml Mhh, ATI
+	seriously sucks. Really. > Linking GPL code to binary .o files, and
+	then disabling the > MODULE_LICENSE("GPL") smells pretty fishy to me.
+	[...] 
+	Content analysis details:   (0.00 points, 5 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 08, 2003 at 05:27:10PM -0400, Zwane Mwaikambo wrote:
-> > What happens if someone grabs the struct device reference by opening a
-> > sysfs file and then you unload the module?  Yeah, not nice.  Please do
-> 
-> Doesn't this all get taken care of by the platform_device_unregister?
+>  > The ATI drivers are NOT binary-only!
+> http://www.codemonkey.org.uk/projects/agp/binary.shtml
 
-No it doesn't, sorry.
+Mhh, ATI seriously sucks. Really.
 
-> > _not_ create "empty" release() functions, unless you _really_ know what
-> > you are doing (and providing a "default" one like this is just ripe for
-> > abuse, that warning message in the kernel is there for a reason.)
-> 
-> I know it's begging for abuse, but i don't want to sprinkle empty 
-> release() functions everywhere, e.g. looking at the floppy driver, i'm 
-> not quite sure what i'm supposed to do with a release() function there, 
-> the struct platform_device_struct is statically allocated.
+> Linking GPL code to binary .o files, and then disabling the
+> MODULE_LICENSE("GPL") smells pretty fishy to me.
 
-You need to sleep until your release function gets called.  Take a look
-at the cpufreq code for an example of this (also the i2c core does
-this.)
+This whole situation stinks - ATI plays games with open source, using the
+free parts to complement their own components and on the other hand prevent
+implementation by kernel-developers... maybe there should be more talking
+going on between hardware-manufacturers and linux-developers, because my
+ATI-GraKa (9800 Pro) STILL does not work - not with 2.4.x, not with 2.6.x,
+even with all the newest versions (problem not based on ATI drivers, but on
+agpgart KT400 / AGP3 issues)
+Since all compoments do work on W*nd*ws, I seriously wonder how much M$ pays
+to ATI to prevent linux-driver development.
 
-> Basically i'd like a pointer as to what to do with these release()
-> functions..
+My apologies for being wrong about the bin-only-part...
 
-release() is called when the last reference to this device is dropped.
-When it is called it is then safe to do the following:
-	- free the memory of the device
-	- unload the module of the device
+Greetings,
+Dennis
 
-So an empty release() function is the wrong thing to do in 99.99% of the
-situations in the kernel (the one exception seems to be the mca release
-function that recently got added for use when the bus is doing probing
-logic.)
 
-Does this help out?
-
-thanks,
-
-greg k-h

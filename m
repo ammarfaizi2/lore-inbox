@@ -1,58 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263584AbUATE4K (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jan 2004 23:56:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264144AbUATE4K
+	id S264394AbUATFHP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 00:07:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264405AbUATFHP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jan 2004 23:56:10 -0500
-Received: from mail-06.iinet.net.au ([203.59.3.38]:50074 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S263584AbUATE4H
+	Tue, 20 Jan 2004 00:07:15 -0500
+Received: from gw.mgpenguin.net ([150.101.216.218]:16264 "EHLO
+	mail.mgpenguin.net") by vger.kernel.org with ESMTP id S264394AbUATFHO
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jan 2004 23:56:07 -0500
-Message-ID: <400CB4DC.7090807@cyberone.com.au>
-Date: Tue, 20 Jan 2004 15:55:56 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: markw@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: DBT-2 anticipatory scheduler and filesystem results with 2.6.1
-References: <200401200005.i0K05do05666@mail.osdl.org> <20040119203845.332cd5df.akpm@osdl.org>
-In-Reply-To: <20040119203845.332cd5df.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 20 Jan 2004 00:07:14 -0500
+Message-Id: <5.1.0.14.2.20040120160408.00b184f8@mail.mgpenguin.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Tue, 20 Jan 2004 16:07:12 +1100
+To: Greg KH <greg@kroah.com>
+From: Kieran Morrissey <linux@mgpenguin.net>
+Subject: Re: [PATCH] 2.6.1: Update PCI Name database, fix gen-devlist.c
+  for long device names.
+Cc: Martin Mares <mj@ucw.cz>, linux-kernel@vger.kernel.org
+In-Reply-To: <20040120013042.GG6309@kroah.com>
+References: <20040117103859.GA2185@ucw.cz>
+ <5.1.0.14.2.20040115140515.00af1318@mail.mgpenguin.net>
+ <20040117103859.GA2185@ucw.cz>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; x-avg-checked=avg-ok-5BE930BD; boundary="=======5C1D45DA======="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--=======5C1D45DA=======
+Content-Type: text/plain; x-avg-checked=avg-ok-5BE930BD; charset=us-ascii
+Content-Transfer-Encoding: 8bit
 
+At 05:30 PM 19/01/2004 -0800, you wrote:
 
-Andrew Morton wrote:
+>On Sat, Jan 17, 2004 at 11:39:00AM +0100, Martin Mares wrote:
+>> Hello!
+>> 
+>> > * Updates pci.ids with a snapshot from http://pciids.sourceforge.net/ as at 
+>> > 14 Jan 04.
+>> > * Fixes gen-devlist.c to truncate long device names rather than reject the 
+>> > whole database
+>> >   (previously the latest databases had some devices that were too long and 
+>> > caused a kernel with the latest db to fail to compile)
+>> 
+>> I think it would be better to increase the name length limit, the long entries
+>> really have useful information at the end :)
+>
+>That's probably a good idea.  Kieran, care to make up a patch to do
+>this?
+>
+>thanks,
+>
+>greg k-h
 
->markw@osdl.org wrote:
->
->> I ran some dbt-2 tests against 5 filesystems with 2.6.1-mm4 and 2.6.1. I
->> see a degradation from 0 to 7% in throughput. 
->>
->
->-mm4 also had readahead changes which will adversely impact database-style
->workloads.  I'd suggest that you revert
->
->ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.1/2.6.1-mm4/broken-out/readahead-revert-lazy-readahead.patch
->
->and retest.
->
->We reverted lazy readahead because it broke NFS linear reads and was doing
->the wrong thing anyway.  We need to come up with something else for
->database-style workloads.
->
->
+Done (see other message).. but does anyone know why the name size limit was introduced in 2.5? Saving memory? (all of 30-odd bytes per device, say 480 bytes in an average system? seems silly to reduce functionality that much to achieve such a tiny space saving; I mean it's understandable perhaps on an embedded system, but you wouldn't be compiling the database in then :)
 
-Oh good. I'd be a bit surprised if it were due to an as-iosched.c change 
-that
-caused the regression.
+Cheers
 
-But there are changes in how new processes are handled, so if you have a lot
-of io submitting processes being created, you might see a difference.
+        Kieran
 
+--=======5C1D45DA=======--
 

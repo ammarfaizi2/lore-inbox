@@ -1,55 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263513AbTKWWhP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Nov 2003 17:37:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263517AbTKWWhP
+	id S263522AbTKWWyf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Nov 2003 17:54:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263517AbTKWWyf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Nov 2003 17:37:15 -0500
-Received: from modemcable067.88-70-69.mc.videotron.ca ([69.70.88.67]:57986
-	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S263513AbTKWWhL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Nov 2003 17:37:11 -0500
-Date: Sun, 23 Nov 2003 17:35:52 -0500 (EST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Aubin LaBrosse <arl8778@rit.edu>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: DRI and AGP on 2.6.0-test9
-In-Reply-To: <1069613755.9574.68.camel@rain.rh.rit.edu>
-Message-ID: <Pine.LNX.4.53.0311231732300.2498@montezuma.fsmlabs.com>
-References: <1069571959.9574.46.camel@rain.rh.rit.edu> 
- <Pine.LNX.4.53.0311231313110.2498@montezuma.fsmlabs.com>
- <1069613755.9574.68.camel@rain.rh.rit.edu>
+	Sun, 23 Nov 2003 17:54:35 -0500
+Received: from dbl.q-ag.de ([80.146.160.66]:24965 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S263522AbTKWWye (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Nov 2003 17:54:34 -0500
+Message-ID: <3FC13AA0.9030204@colorfullife.com>
+Date: Sun, 23 Nov 2003 23:54:24 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031030
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+CC: Paul Mackerras <paulus@samba.org>, Pavel Machek <pavel@suse.cz>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Fix locking in input
+References: <3FC13382.3060701@colorfullife.com> <20031123223443.A560@flint.arm.linux.org.uk>
+In-Reply-To: <20031123223443.A560@flint.arm.linux.org.uk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 23 Nov 2003, Aubin LaBrosse wrote:
+Russell King wrote:
 
-> > > [drm] Initialized radeon 1.9.0 20020828 on minor 0
-> > > [drm:radeon_cp_init] *ERROR* radeon_cp_init called without lock held
-> > > [drm:radeon_unlock] *ERROR* Process 4113 using kernel context 0
-> > 
-> > For my curiosity, can you try compiling the Radeom/drm and AGP driver into 
-> > the kernel?
-> 
-> I have done it both ways with the same results, sorry, should have
-> mentioned that... 
+>On Sun, Nov 23, 2003 at 11:24:02PM +0100, Manfred Spraul wrote:
+>  
+>
+>>I think one platform (early ARM?) cannot access bytes directly, and 
+>>implement the access with read 16-bit, change 8-bit, write back 16 bit. 
+>>    
+>>
+>
+>Nope.
+>
+It seems it's Alpha:
 
-Ok let me double check things here, my radeon 9000 is also R200 so we 
-should be hitting the same code paths.
+On Thu, 28 Dec 2000, Linus wrote:
 
-> > I just tried test9-mm5 with a radeon 9000 on an smp machine with the 
-> > desired results.
-> 
-> I will give -mm5 a shot (this was with stock 2.6.0-test9, i haven't
-> gotten into applying the -bk patches as soon as they hit, yet) Though
-> I'm not sure -mm5 has any patches specific to DRI or agp, but it's
-> definitely worth a shot.  thanks Zwane.
+>FreeBSD doesn't try to be portable any more, but Linux does, and there are
+>architectures where 8- and 16-bit accesses aren't *atomic* but have to be
+>done with read-modify-write cycles.
+>
+>And even for fields like "age", where we don't care whether the age itself
+>is 100% accurate, we _do_ care that the fields close-by don't get strange
+>effects from updating "age". We used to have exactly this problem on alpha
+>back in the 2.1.x timeframe.
+>
 
-As far as i know it shouldn't make any difference, but being on the same 
-tree doesn't hurt for now.
 
-Good luck,
-	Zwane
+--
+    Manfred
 

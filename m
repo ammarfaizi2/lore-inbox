@@ -1,39 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317253AbSIEMjr>; Thu, 5 Sep 2002 08:39:47 -0400
+	id <S317463AbSIEMv2>; Thu, 5 Sep 2002 08:51:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317463AbSIEMjr>; Thu, 5 Sep 2002 08:39:47 -0400
-Received: from mx5.sac.fedex.com ([199.81.194.37]:47633 "EHLO
-	mx5.sac.fedex.com") by vger.kernel.org with ESMTP
-	id <S317253AbSIEMjq>; Thu, 5 Sep 2002 08:39:46 -0400
-Date: Thu, 5 Sep 2002 20:43:36 +0800 (SGT)
-From: Jeff Chua <jchua@fedex.com>
-X-X-Sender: jchua@silk.corp.fedex.com
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: remount reiserfs hangs under heavy load 2.4.20pre5
-Message-ID: <Pine.LNX.4.42.0209052038310.31505-100000@silk.corp.fedex.com>
-MIME-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 09/05/2002
- 08:44:20 PM,
-	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 09/05/2002
- 08:44:21 PM,
-	Serialize complete at 09/05/2002 08:44:21 PM
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317468AbSIEMv2>; Thu, 5 Sep 2002 08:51:28 -0400
+Received: from post.polcard.com.pl ([193.109.115.28]:6610 "HELO
+	post.polcard.com.pl") by vger.kernel.org with SMTP
+	id <S317463AbSIEMv1>; Thu, 5 Sep 2002 08:51:27 -0400
+Date: Thu, 5 Sep 2002 14:56:45 +0200
+From: =?iso-8859-2?Q?Jaros=B3aw?= Bekas <jaroslaw.bekas@polcard.com.pl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.20-pre5-ac2
+Message-ID: <20020905125645.GA22652@polcard.com.pl>
+Reply-To: =?iso-8859-2?Q?Jaros=B3aw?= Bekas 
+	  <jaroslaw.bekas@polcard.com.pl>
+References: <20020905090558.GA5199@polcard.com.pl> <200209051029.g85ATqS07183@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200209051029.g85ATqS07183@devserv.devel.redhat.com>
+User-Agent: Mutt/1.4i
+Organization: Polcard S.A.
+X-Kernel-Version: 2.4.20-pre4
+X-Machine: jaro - i686
+X-Operating-System: Linux
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+compile process was ok 
+but i have unsresolved symbol in ide modules: 
 
+find kernel -path '*/pcmcia/*' -name '*.o' | xargs -i -r ln -sf ../{} pcmcia
+if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.4.20-pre5-ac2; fi
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.20-pre5-ac2/kernel/drivers/ide/ide-disk.o
+depmod:         ide_remove_proc_entries_Rsmp_6c3866e6
+depmod:         proc_ide_read_geometry_Rsmp_50fed6f7
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.20-pre5-ac2/kernel/drivers/ide/ide-probe.o
+depmod:         do_ide_request
+depmod:         ide_add_generic_settings
+depmod:         create_proc_ide_interfaces_Rsmp_ab2c600e
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.20-pre5-ac2/kernel/drivers/ide/ide.o
+depmod:         ide_release_dma
+depmod:         destroy_proc_ide_drives_Rsmp_2ac4226e
+depmod:         proc_ide_create_Rsmp_a8e0f104
+depmod:         ide_remove_proc_entries_Rsmp_6c3866e6
+depmod:         ide_scan_pcibus
+depmod:         ide_add_proc_entries_Rsmp_52fb2e3b
+depmod:         create_proc_ide_interfaces_Rsmp_ab2c600e
+depmod:         proc_ide_read_capacity_Rsmp_46b2a30d
+depmod:         proc_ide_destroy_Rsmp_35e1351c
 
-Whenever "mount -o remount -n -w /dev/hdax" is issued under disk
-activities, the system would freezed, and had to be hard booted.
+there is no possible to have ide in module ?
 
-All disk on reiserfs, so don't know whether this only applies to reiserfs
-or ext2 as well.
-
-Linux 2.4.20-pre5, but hangs too on 2.4.1x
-
-
-Jeff.
-
-
-
+-- 
+Jaros³aw Bekas
+PolCard S.A.

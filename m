@@ -1,55 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282378AbRLEPdl>; Wed, 5 Dec 2001 10:33:41 -0500
+	id <S282290AbRLEPlL>; Wed, 5 Dec 2001 10:41:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282924AbRLEPdc>; Wed, 5 Dec 2001 10:33:32 -0500
-Received: from mail.sonytel.be ([193.74.243.200]:24801 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S282378AbRLEPdW>;
-	Wed, 5 Dec 2001 10:33:22 -0500
-Date: Wed, 5 Dec 2001 16:32:59 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: SCSI Tape corruption - update
-In-Reply-To: <20011102074532.C708-100000@gerard>
-Message-ID: <Pine.GSO.4.21.0112051628480.5865-100000@mullein.sonytel.be>
+	id <S282955AbRLEPlB>; Wed, 5 Dec 2001 10:41:01 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:10511 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S282290AbRLEPks>; Wed, 5 Dec 2001 10:40:48 -0500
+Message-ID: <3C0E3DA4.3AA56904@evision-ventures.com>
+Date: Wed, 05 Dec 2001 16:30:44 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+Reply-To: dalecki@evision.ag
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
+X-Accept-Language: en, de
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+To: Alexander Viro <viro@math.psu.edu>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Deep look into VFS
+In-Reply-To: <Pine.GSO.4.21.0112051009290.22944-100000@binet.math.psu.edu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2 Nov 2001, [ISO-8859-1] Gérard Roudier wrote:
-> On Thu, 1 Nov 2001, Geert Uytterhoeven wrote:
-> As driver sym-2 is planned to replace sym53c8xx in the future, it would be
-> interesting to give it a try on your hardware. There are some source
-> available from ftp.tux.org, but I can provide you with a flat patch
-> against the stock kernel version you want. You may let me know.
+Alexander Viro wrote:
+> 
+> On Wed, 5 Dec 2001, Martin Dalecki wrote:
+> 
+> > Unless I'm compleatly misguided the lock on the superblock
+> > should entierly prevent the race described inside the header comment
+> > and we should be able to delete clear_inode from this function.
+> 
+> Huh?  We drop that lock before the return from this function.  So if you
+> move clear_inode() after the return, you lose that protections.
+> 
+> What's more, you can't more that lock_super()/unlock_super() into iput()
+> itself - you need it _not_ taken in the beginning of ext2_delete_inode()
+> and you don't want it for quite a few filesystems.
+> 
+> Nothing VFS-specific here, just a bog-standard "you lose protection of
+> semaphore once you call up()"...
 
-I tried sym-2 (2.4.17-pre2) and it didn't show up the problem, which is good!
+Ummmmm... that is well trivially true... of course (I'm 
+slapping a hand on my forehead). 
 
-More news from the old driver:
-
-    1.5c            OK
-    1.5d            OK
-    1.5e            page fault in interrupt handler 0xa53c0c68
-    1.5f            lock up
-    1.5pre-g1       lock up
-    1.5pre-g2       lock up
-    1.5pre-g3       corruption
-    1.5g            corruption
-
-So it happened somewhere in between 1.5d and 1.5pre-g3. I'll see whether I can
-get any of the intermediates to run...
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
+Thank you for answering!

@@ -1,53 +1,66 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314065AbSEAVjo>; Wed, 1 May 2002 17:39:44 -0400
+	id <S314067AbSEAVoa>; Wed, 1 May 2002 17:44:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314069AbSEAVjn>; Wed, 1 May 2002 17:39:43 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:58126 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S314065AbSEAVjm>; Wed, 1 May 2002 17:39:42 -0400
-Date: Wed, 1 May 2002 14:38:24 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Roman Zippel <zippel@linux-m68k.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.12: remove VALID_PAGE
-In-Reply-To: <Pine.LNX.4.21.0205012136560.23113-100000@serv>
-Message-ID: <Pine.LNX.4.33.0205011433040.23138-100000@penguin.transmeta.com>
+	id <S314068AbSEAVo3>; Wed, 1 May 2002 17:44:29 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:53189 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S314067AbSEAVo2>;
+	Wed, 1 May 2002 17:44:28 -0400
+Date: Wed, 1 May 2002 17:44:27 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        "Stephen C. Tweedie" <sct@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] alternative API for raw devices
+In-Reply-To: <3CD057BE.2050603@mandrakesoft.com>
+Message-ID: <Pine.GSO.4.21.0205011724470.12640-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Wed, 1 May 2002, Roman Zippel wrote:
+
+On Wed, 1 May 2002, Jeff Garzik wrote:
+
+> Alexander Viro wrote:
 > 
-> This patch removes VALID_PAGE() and replaces it with pte_valid_page()/
-> virt_to_valid_page(). The VALID_PAGE() test is basically always too late
-> for configuration with discontinous memory. The real input value (the 
-> virtual or physical address) has to be checked. Nice side effect: the
-> kernel becomes 1KB smaller.
+> >Actual IO code is pretty much copied from old driver.  The main differences:
+> >	* device is originally created with ownership/permissions of the
+> >	  block device we'd used; you can chmod/chown it at any time,
+> >	  obviously.
+> >
+> 
+> Tangent a little bit to partitions.
+> 
+> Consider a filesystem which creates device nodes for N partitions on a 
+> spindle, "msdos_partition_fs".  In a discussion a while back on 
+> permissions, you suggested that inheriting permissions from the base 
+> block device was the wrong way to go, and that (for now)  'uid' and 
+> 'gid' mount options were the best route.
+ 
+> Is inheriting permissions coming back into style?  Or am I reading too 
+> much into the permissions scheme you describe above?
 
-Can you please do this differently, by splitting up the pte->page 
-conversion and explicitly using a physical PFN in between the two?
+Umm...  Let me put it that way: partitions are persistent objects.  We
+have very legitimate reasons to assign equally persistent ownership and
+permissions to them; moreover, different ownership and permissions.
 
-In other words, I'd much rather have
+For a raw device, bindings are not persistent.  Unlike partitions, there's
+simply no way to tell by device number what will it be associated with.
+So persistent ownership/permissions for these guys make no sense whatsoever;
+moreover, the data they give you access to is simply the contents of block
+device; there's no such thing as "permissions to access this part".
 
-	unsigned long pfn = pte_pfn(pte);
+So we simply set permissions/ownership in obviously safe way (i.e. such that
+it doesn't change access rights compared to what we had before binding -
+set ownership/permissions identical to these of block device) and leave
+it to whoever had created a binding to do explicit chown/chmod if he
+wants to do that.
 
-	if (pfn_valid(pfn)) {
-		struct page *page = pfn_to_page(pfn);
-		...
-	}
-
-and make the physical page address visible.
-
-The reason I'd rather do it that way is that sometimes we right now go to 
-"struct page" for no really good reason, other than the fact that we don't 
-have any other good "intermediate" representation.
-
-So using a pte_pfn()/pfn_to_page() interface would allow other places to
-take advantage of this too, instead of adding two new special-case
-functions that aren't useful for anything else.
-
-			Linus
+Moreover, when we lift the restrictions on mount (i.e. creator of namespace
+may mount on places he has sufficient access to, but filesystem needs to be
+convinced that he deserves to mount it in the first place) we might allow
+to create raw devices to everyone; in that case chmod/chown after mounting
+is obviously the only safe scheme.
 

@@ -1,66 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264535AbTFEIz1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jun 2003 04:55:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264533AbTFEIz1
+	id S264533AbTFEJA0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jun 2003 05:00:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264536AbTFEJA0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jun 2003 04:55:27 -0400
-Received: from ns0.eris.dera.gov.uk ([128.98.1.1]:38258 "HELO
-	ns0.eris.dera.gov.uk") by vger.kernel.org with SMTP id S264535AbTFEIzY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jun 2003 04:55:24 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Mark Watts <m.watts@eris.qinetiq.com>
-Organization: QinetiQ
-To: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.21-rc7-ac1
-Date: Thu, 5 Jun 2003 10:02:53 +0100
-User-Agent: KMail/1.4.3
-References: <200306042248.h54Mm7l16828@devserv.devel.redhat.com>
-In-Reply-To: <200306042248.h54Mm7l16828@devserv.devel.redhat.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200306051002.54089.m.watts@eris.qinetiq.com>
+	Thu, 5 Jun 2003 05:00:26 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:28168 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S264533AbTFEJAY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jun 2003 05:00:24 -0400
+Date: Thu, 5 Jun 2003 10:13:51 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Adrian Cox <adrian@humboldt.co.uk>
+Cc: Frank Cusack <fcusack@fcusack.com>, trond.myklebust@fys.uio.no,
+       linux-kernel@vger.kernel.org
+Subject: Re: nfs_refresh_inode: inode number mismatch
+Message-ID: <20030605101351.C960@flint.arm.linux.org.uk>
+Mail-Followup-To: Adrian Cox <adrian@humboldt.co.uk>,
+	Frank Cusack <fcusack@fcusack.com>, trond.myklebust@fys.uio.no,
+	linux-kernel@vger.kernel.org
+References: <20030603165438.A24791@google.com> <shswug2sz5x.fsf@charged.uio.no> <20030604142047.C24603@google.com> <20030605101120.2bea125a.adrian@humboldt.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030605101120.2bea125a.adrian@humboldt.co.uk>; from adrian@humboldt.co.uk on Thu, Jun 05, 2003 at 10:11:20AM +0100
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Thu, Jun 05, 2003 at 10:11:20AM +0100, Adrian Cox wrote:
+> There's a very common cause on embedded boards that don't have
+> real-time clocks. Without a clock the client uses the same XID on every
+> run, leading to lots of these messages. Is your clock broken?
 
+BTDT.
 
-Alan,
+If this is the case, you need to ensure that you don't reboot the client
+before the servers XID cache times out the XID numbers.  For Linux knfsd,
+that's around 2 minutes.
 
-I wonder if you could confirm whether the usb-ohci module should be loaded 
-automatically if I have the following line in modules.conf (this is with 
-2.4.21-rc6-ac2)
-
-probeall usb-interface usb-ohci
-
-I have a Dell 2650 server with a ServerWorks chipset and its not being loaded 
-automagically at boot as it does under my Mandrake kernels.
-
-00:0f.2 USB Controller: ServerWorks OSB4/CSB5 OHCI USB Controller (rev 05) 
-(prog-if 10 [OHCI])
-        Subsystem: ServerWorks OSB4/CSB5 OHCI USB Controller
-        Flags: bus master, medium devsel, latency 32, IRQ 5
-        Memory at fe100000 (32-bit, non-prefetchable) [size=4K]
-
-Cheers,
-
-Mark.
-
-- -- 
-Mark Watts
-Systems Engineer
-QinetiQ TIM
-St Andrews Road, Malvern
-GPG Public Key ID: 455420ED
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+3wc+Bn4EFUVUIO0RAm5KAKDJphtcqSaCIXmaMFQduISrOMKL7QCeLOwp
-4IB+rZ++9ppY7EDv4rMApQ4=
-=FVbL
------END PGP SIGNATURE-----
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

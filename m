@@ -1,51 +1,112 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267825AbRGZML1>; Thu, 26 Jul 2001 08:11:27 -0400
+	id <S267739AbRGZMHr>; Thu, 26 Jul 2001 08:07:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267784AbRGZMLR>; Thu, 26 Jul 2001 08:11:17 -0400
-Received: from aragorn.ics.muni.cz ([147.251.4.33]:12984 "EHLO
-	aragorn.ics.muni.cz") by vger.kernel.org with ESMTP
-	id <S267859AbRGZMK5>; Thu, 26 Jul 2001 08:10:57 -0400
-Newsgroups: cz.muni.redir.linux-kernel
-Path: news
-From: Zdenek Kabelac <kabi@i.am>
-Subject: Re: IDE "lost interrupt" on SMP
-Message-ID: <3B6008D1.8AA2B98F@i.am>
-Date: Thu, 26 Jul 2001 12:10:57 GMT
-To: Paul Flinders <paul@dawa.demon.co.uk>
-X-Nntp-Posting-Host: dual.fi.muni.cz
-Content-Transfer-Encoding: 7bit
-X-Accept-Language: cs, en
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <3B5F4FCA.EF860FF@dawa.demon.co.uk>
+	id <S267825AbRGZMHi>; Thu, 26 Jul 2001 08:07:38 -0400
+Received: from smtp2.koti.soon.fi ([212.63.10.50]:14982 "EHLO
+	smtp2.koti.soon.fi") by vger.kernel.org with ESMTP
+	id <S267739AbRGZMHS>; Thu, 26 Jul 2001 08:07:18 -0400
+From: "M. Tavasti" <tawz@nic.fi>
+To: root@chaos.analogic.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Select with device and stdin not working
+In-Reply-To: <Pine.LNX.3.95.1010725114322.520A-100000@chaos.analogic.com>
 Mime-Version: 1.0
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7-pre6-RTL3.0 i686)
-Organization: unknown
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
+Date: 26 Jul 2001 15:06:24 +0300
+In-Reply-To: "Richard B. Johnson"'s message of "Wed, 25 Jul 2001 11:45:19 -0400 (EDT)"
+Message-ID: <m2u1zznbcv.fsf@akvavitix.vuovasti.com>
+X-Mailer: Gnus v5.6.45/XEmacs 21.1 - "Capitol Reef"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Paul Flinders wrote:
-> However I can't boot any SMP configured kernel. It gets as far as
-> the partition check and then starts printing "hd<x>: lost interrupt"
-> after than it proceeds _very_ slowly to print the partitions and
-> then grinds to a halt as it tries to mount the root fs (I suspect that
-> it hasn't actually crashed but that disk I/O is proceeding extremely
-> slowly).
+"Richard B. Johnson" <root@chaos.analogic.com> writes:
+
+> > But now there is nothing coming from device, and typing + pressing
+> > enter won't make select() return like it should. 
 > 
-> Configuring the kernel for single processor works and boots OK
-> - this is true for all the kernels (2.2.x and 2.4.x including 2.4.7)
-> that I've tried.
+> It works here...........
 
-I've been reporting this problem for years 
-(since day I've bought SMP board with two Celeron)
+You're testing different thing. You're not reading anything, so at
+least I get endlessly 'Input is available from /dev/random', and
+whenever you type something, also in terminal there's data available. 
+If nobody reads data from /dev/random, of course there is data
+availble.
 
-However noone seems to care - so you simply can't use SMP kernel
-for monoprocessor system - unless Andre Hedric will consider this
-is serious problem  (simple test - boot SMP kernel on SMP
-computer with cpu=1 or nosmp parameter)
+I modified your program (see end), and results: on 2.2.19 and 2.2.16
+everything works ok, in 2.4.5 not, terminal input (with return)
+randomly makes select return. When looking from random.c, in 2.2.19
+poll_wait is called once, like this:
 
-bye
+	poll_wait(file, &random_poll_wait, wait);
 
-kabi
+And in 2.4.5:
 
+	poll_wait(file, &random_read_wait, wait);
+	poll_wait(file, &random_write_wait, wait);
+
+
+I think I got idea how to do it right, make one wait queue for poll,
+which is woken up when read OR write queue is woken up. 
+
+So, now everybody just check your driver how does it do poll. 
+
+
+----
+
+Here is modified test. Try this to get real results: 
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/poll.h>
+#include <errno.h>
+#include <string.h>
+
+static const char dev[]="/dev/random";
+
+int main(int args, char *argv[])
+{
+    int fd, retval;
+    fd_set rfds;
+    char buff[1024];
+
+    if((fd = open(dev, O_RDONLY)) < 0)
+    {
+        fprintf(stderr, "Can't open device, %s\n", dev);
+        exit(EXIT_FAILURE);
+    }
+    for(;;)
+    {
+        FD_ZERO(&rfds);
+        FD_SET(fd, &rfds);
+        FD_SET(STDIN_FILENO, &rfds);
+        retval = select(fd+1, &rfds, NULL, NULL, NULL); 
+        if(retval < 0)
+            fprintf(stderr, "Error was %s\n", strerror(errno));
+        printf("Return = %d\n", retval);
+        if(FD_ISSET(fd, &rfds)) {
+            printf("Input is available from %s\n", dev);
+            read(fd,buff,1024);
+        }
+        if(FD_ISSET(STDIN_FILENO, &rfds)) {         
+            printf("Input is available from %s\n", "terminal");
+            read(STDIN_FILENO,buff,1024);            
+        }
+            
+    }
+    if(close(fd) < 0)
+    {
+        fprintf(stderr, "Can't close device, %s\n", dev);
+        exit(EXIT_FAILURE);
+    }
+    return 0;
+}
+
+-- 
+M. Tavasti /  tavastixx@iki.fi  /   +358-40-5078254
+ Poista sähköpostiosoitteesta molemmat x-kirjaimet 
+     Remove x-letters from my e-mail address

@@ -1,40 +1,501 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290667AbSAYNSF>; Fri, 25 Jan 2002 08:18:05 -0500
+	id <S290627AbSAYNQz>; Fri, 25 Jan 2002 08:16:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290669AbSAYNRz>; Fri, 25 Jan 2002 08:17:55 -0500
-Received: from ns.suse.de ([213.95.15.193]:15121 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S290667AbSAYNRn>;
-	Fri, 25 Jan 2002 08:17:43 -0500
-Date: Fri, 25 Jan 2002 14:17:42 +0100
-From: Dave Jones <davej@suse.de>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Machine Check Exception ?
-Message-ID: <20020125141742.D28068@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Stephan von Krawczynski <skraw@ithnet.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020125114718.7af47375.skraw@ithnet.com>
+	id <S290667AbSAYNQu>; Fri, 25 Jan 2002 08:16:50 -0500
+Received: from duteinh.et.tudelft.nl ([130.161.42.1]:57101 "EHLO
+	duteinh.et.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S290627AbSAYNQm>; Fri, 25 Jan 2002 08:16:42 -0500
+Date: Fri, 25 Jan 2002 14:16:38 +0100
+From: Erik Mouw <J.A.K.Mouw@its.tudelft.nl>
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [BUG] Oops with USB CD writer (SCSI related?)
+Message-ID: <20020125131637.GA3219@arthur.ubicom.tudelft.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020125114718.7af47375.skraw@ithnet.com>; from skraw@ithnet.com on Fri, Jan 25, 2002 at 11:47:18AM +0100
+User-Agent: Mutt/1.3.25i
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 25, 2002 at 11:47:18AM +0100, Stephan von Krawczynski wrote:
- > Message from syslogd@diehard at Thu Jan 24 14:44:49 2002 ...
- > diehard kernel: CPU 0: Machine Check Exception: 0000000000000004
- > 
- > and the box is dead.
- > Can anybody please enlighten me what this means or what a possible
- > problem behind might be?
+Hi,
 
- Typically a hardware problem. Some older systems generate them
- spuriously though, which is why we have a "nomce" boot option.
+Just got a kernel Oops with with a HP 8220e/8230e USB cdwriter.
+The commands that triggered the Oops were:
+  cdrecord -scanbus
+  eject /dev/scd0
+
+I am running 2.4.17-rmap12a, but got the same kind of Oops with vanilla
+2.4.17 (forgot to save the details :( ).
+
+
+Erik
+
+Short hardware description: Asus M8300 laptop, Celeron(Coppermine) 500,
+128MB, Intel 440MX chipset.
+
+
+ksymoops 2.4.3 on i686 2.4.17-rmap12a.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.17-rmap12a/ (default)
+     -m /boot/System.map-2.4.17-rmap12a (default)
+
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
+
+WARNING: USB Mass Storage data integrity not assured
+WARNING: USB Mass Storage data integrity not assured
+Unable to handle kernel paging request at virtual address 00110011
+00110011
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<00110011>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010286
+eax: 00000000   ebx: c3933e5e   ecx: 00000000   edx: 00000000
+esi: c5373614   edi: 00000000   ebp: 00000000   esp: c3933e40
+ds: 0018   es: 0018   ss: 0018
+Process eject (pid: 4012, stackpage=c3933000)
+Stack: 00110011 00110011 00110011 00110011 00110011 00110011 00110011 00110011 
+       00110011 00110011 00110011 00110011 00110011 00110011 00110011 00110011 
+       00110011 00110011 00110011 00110011 11001100 00000043 00000000 0000400c 
+Call Trace: [<c89ca187>] [<c89e9be5>] [<c89cd680>] [<c89e9c45>] [<c0137f08>] 
+   [<c89ca8ff>] [<c89e9375>] [<c0138035>] [<c0138186>] [<c01322f9>] [<c013220e>] 
+   [<c013253c>] [<c0106b2b>] 
+Code:  Bad EIP value.
+
+>>EIP; 00110010 Before first symbol   <=====
+Trace; c89ca186 <[sr_mod]sr_media_change+96/cc>
+Trace; c89e9be4 <[cdrom]media_changed+3c/6c>
+Trace; c89cd680 <[sr_mod]sr_bdops+0/18>
+Trace; c89e9c44 <[cdrom]cdrom_media_changed+30/40>
+Trace; c0137f08 <check_disk_change+2c/7c>
+Trace; c89ca8fe <[sr_mod]sr_open+e/c4>
+Trace; c89e9374 <[cdrom]cdrom_open+7c/c8>
+Trace; c0138034 <do_open+94/14c>
+Trace; c0138186 <blkdev_open+22/28>
+Trace; c01322f8 <dentry_open+e0/184>
+Trace; c013220e <filp_open+52/5c>
+Trace; c013253c <sys_open+38/b4>
+Trace; c0106b2a <system_call+32/38>
+
+
+1 warning issued.  Results may not be reliable.
+
+
+Modules loaded:
+
+Module                  Size  Used by    Not tainted
+sr_mod                 14040   1 (autoclean)
+ide-cd                 26496   0 (autoclean)
+cdrom                  28576   0 (autoclean) [sr_mod ide-cd]
+sg                     28612   0 (autoclean)
+usb-storage            51040   0
+scsi_mod               91080   3 [sr_mod sg usb-storage]
+audio                  38080   0
+snd-pcm-oss            46176   0 (autoclean)
+hid                    19168   0 (unused)
+usbmouse                1984   0 (unused)
+af_packet               8680   0 (autoclean)
+orinoco_cs              4588   1
+orinoco                28032   0 [orinoco_cs]
+hermes                  3424   0 [orinoco_cs orinoco]
+snd-mixer-oss          11168   1 (autoclean) [snd-pcm-oss]
+snd-card-intel8x0       9024   1 (autoclean)
+snd-pcm                57184   0 (autoclean) [snd-pcm-oss snd-card-intel8x0]
+snd-timer              11168   0 (autoclean) [snd-pcm]
+snd-ac97-codec         23648   0 (autoclean) [snd-card-intel8x0]
+snd                    30952   0 [snd-pcm-oss snd-mixer-oss snd-card-intel8x0 snd-pcm snd-timer snd-ac97-codec]
+soundcore               3684   5 [audio snd]
+nsc-ircc               13880   1
+irda                  145356   1 [nsc-ircc]
+autofs                 10148   1 (autoclean)
+mousedev                4000   1
+input                   3264   0 [hid usbmouse mousedev]
+usb-uhci               21252   0 (unused)
+usbcore                52960   1 [usb-storage audio hid usbmouse usb-uhci]
+reiserfs              154592   1 (autoclean)
+unix                   14692 152 (autoclean)
+
+
+Kernel configuration:
+
+CONFIG_X86=y
+CONFIG_ISA=y
+CONFIG_UID16=y
+CONFIG_EXPERIMENTAL=y
+CONFIG_MODULES=y
+CONFIG_KMOD=y
+CONFIG_MPENTIUMIII=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_L1_CACHE_SHIFT=5
+CONFIG_X86_TSC=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_PGE=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_MICROCODE=m
+CONFIG_X86_MSR=m
+CONFIG_X86_CPUID=m
+CONFIG_NOHIGHMEM=y
+CONFIG_MTRR=y
+CONFIG_X86_UP_APIC=y
+CONFIG_X86_UP_IOAPIC=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_X86_IO_APIC=y
+CONFIG_NET=y
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_NAMES=y
+CONFIG_HOTPLUG=y
+CONFIG_PCMCIA=y
+CONFIG_CARDBUS=y
+CONFIG_SYSVIPC=y
+CONFIG_SYSCTL=y
+CONFIG_KCORE_ELF=y
+CONFIG_BINFMT_AOUT=m
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_MISC=m
+CONFIG_PM=y
+CONFIG_APM=y
+CONFIG_APM_CPU_IDLE=y
+CONFIG_APM_DISPLAY_BLANK=y
+CONFIG_APM_RTC_IS_GMT=y
+CONFIG_APM_ALLOW_INTS=y
+CONFIG_PARPORT=m
+CONFIG_PARPORT_PC=m
+CONFIG_PARPORT_PC_CML1=m
+CONFIG_PARPORT_PC_FIFO=y
+CONFIG_PARPORT_PC_SUPERIO=y
+CONFIG_PARPORT_PC_PCMCIA=m
+CONFIG_PARPORT_1284=y
+CONFIG_PNP=m
+CONFIG_ISAPNP=m
+CONFIG_BLK_DEV_FD=m
+CONFIG_PARIDE=m
+CONFIG_PARIDE_PARPORT=m
+CONFIG_PARIDE_PD=m
+CONFIG_PARIDE_PCD=m
+CONFIG_PARIDE_PF=m
+CONFIG_PARIDE_PT=m
+CONFIG_PARIDE_PG=m
+CONFIG_PARIDE_ATEN=m
+CONFIG_PARIDE_BPCK=m
+CONFIG_PARIDE_BPCK6=m
+CONFIG_PARIDE_COMM=m
+CONFIG_PARIDE_DSTR=m
+CONFIG_PARIDE_FIT2=m
+CONFIG_PARIDE_FIT3=m
+CONFIG_PARIDE_EPAT=m
+CONFIG_PARIDE_EPATC8=y
+CONFIG_PARIDE_EPIA=m
+CONFIG_PARIDE_FRIQ=m
+CONFIG_PARIDE_FRPW=m
+CONFIG_PARIDE_KBIC=m
+CONFIG_PARIDE_KTTI=m
+CONFIG_PARIDE_ON20=m
+CONFIG_PARIDE_ON26=m
+CONFIG_BLK_DEV_LOOP=m
+CONFIG_BLK_DEV_NBD=m
+CONFIG_BLK_DEV_RAM=m
+CONFIG_BLK_DEV_RAM_SIZE=4096
+CONFIG_PACKET=m
+CONFIG_FILTER=y
+CONFIG_UNIX=m
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+CONFIG_INET_ECN=y
+CONFIG_SYN_COOKIES=y
+CONFIG_IPV6=m
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_BLK_DEV_IDECS=m
+CONFIG_BLK_DEV_IDECD=m
+CONFIG_BLK_DEV_IDETAPE=m
+CONFIG_BLK_DEV_IDEFLOPPY=m
+CONFIG_BLK_DEV_IDESCSI=m
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_BLK_DEV_ADMA=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_BLK_DEV_PIIX=y
+CONFIG_PIIX_TUNING=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_BLK_DEV_IDE_MODES=y
+CONFIG_SCSI=m
+CONFIG_BLK_DEV_SD=m
+CONFIG_SD_EXTRA_DEVS=40
+CONFIG_CHR_DEV_ST=m
+CONFIG_CHR_DEV_OSST=m
+CONFIG_BLK_DEV_SR=m
+CONFIG_BLK_DEV_SR_VENDOR=y
+CONFIG_SR_EXTRA_DEVS=2
+CONFIG_CHR_DEV_SG=m
+CONFIG_SCSI_DEBUG_QUEUES=y
+CONFIG_SCSI_MULTI_LUN=y
+CONFIG_SCSI_CONSTANTS=y
+CONFIG_SCSI_LOGGING=y
+CONFIG_SCSI_PCMCIA=y
+CONFIG_PCMCIA_AHA152X=m
+CONFIG_PCMCIA_FDOMAIN=m
+CONFIG_PCMCIA_NINJA_SCSI=m
+CONFIG_PCMCIA_QLOGIC=m
+CONFIG_IEEE1394=m
+CONFIG_IEEE1394_PCILYNX=m
+CONFIG_IEEE1394_OHCI1394=m
+CONFIG_IEEE1394_VIDEO1394=m
+CONFIG_IEEE1394_SBP2=m
+CONFIG_IEEE1394_RAWIO=m
+CONFIG_NETDEVICES=y
+CONFIG_DUMMY=m
+CONFIG_NET_ETHERNET=y
+CONFIG_PLIP=m
+CONFIG_PPP=m
+CONFIG_PPP_ASYNC=m
+CONFIG_PPP_DEFLATE=m
+CONFIG_PPP_BSDCOMP=m
+CONFIG_SLIP=m
+CONFIG_SLIP_COMPRESSED=y
+CONFIG_NET_RADIO=y
+CONFIG_HERMES=m
+CONFIG_PCMCIA_HERMES=m
+CONFIG_AIRO_CS=m
+CONFIG_NET_WIRELESS=y
+CONFIG_TR=y
+CONFIG_NET_PCMCIA=y
+CONFIG_PCMCIA_3C589=m
+CONFIG_PCMCIA_3C574=m
+CONFIG_PCMCIA_FMVJ18X=m
+CONFIG_PCMCIA_PCNET=m
+CONFIG_PCMCIA_AXNET=m
+CONFIG_PCMCIA_NMCLAN=m
+CONFIG_PCMCIA_SMC91C92=m
+CONFIG_PCMCIA_XIRC2PS=m
+CONFIG_PCMCIA_IBMTR=m
+CONFIG_PCMCIA_XIRCOM=m
+CONFIG_PCMCIA_XIRTULIP=m
+CONFIG_NET_PCMCIA_RADIO=y
+CONFIG_PCMCIA_RAYCS=m
+CONFIG_PCMCIA_NETWAVE=m
+CONFIG_PCMCIA_WAVELAN=m
+CONFIG_IRDA=m
+CONFIG_IRLAN=m
+CONFIG_IRNET=m
+CONFIG_IRCOMM=m
+CONFIG_IRDA_ULTRA=y
+CONFIG_IRDA_OPTIONS=y
+CONFIG_IRDA_CACHE_LAST_LSAP=y
+CONFIG_IRDA_DEBUG=y
+CONFIG_IRTTY_SIR=m
+CONFIG_IRPORT_SIR=m
+CONFIG_USB_IRDA=m
+CONFIG_NSC_FIR=m
+CONFIG_WINBOND_FIR=m
+CONFIG_TOSHIBA_FIR=m
+CONFIG_SMC_IRCC_FIR=m
+CONFIG_ALI_FIR=m
+CONFIG_VLSI_FIR=m
+CONFIG_INPUT=m
+CONFIG_INPUT_KEYBDEV=m
+CONFIG_INPUT_MOUSEDEV=m
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+CONFIG_INPUT_JOYDEV=m
+CONFIG_INPUT_EVDEV=m
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_SERIAL=m
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX98_PTY_COUNT=256
+CONFIG_PRINTER=m
+CONFIG_PPDEV=m
+CONFIG_I2C=m
+CONFIG_I2C_CHARDEV=m
+CONFIG_I2C_PROC=m
+CONFIG_MOUSE=m
+CONFIG_PSMOUSE=y
+CONFIG_INPUT_SERIO=m
+CONFIG_INPUT_SERPORT=m
+CONFIG_INPUT_IFORCE_USB=m
+CONFIG_INPUT_IFORCE_232=m
+CONFIG_INPUT_WARRIOR=m
+CONFIG_INPUT_MAGELLAN=m
+CONFIG_INPUT_SPACEORB=m
+CONFIG_INPUT_SPACEBALL=m
+CONFIG_INPUT_STINGER=m
+CONFIG_INPUT_DB9=m
+CONFIG_INPUT_GAMECON=m
+CONFIG_INPUT_TURBOGRAFX=m
+CONFIG_NVRAM=m
+CONFIG_RTC=y
+CONFIG_PCMCIA_SERIAL_CS=m
+CONFIG_VIDEO_DEV=m
+CONFIG_VIDEO_PROC_FS=y
+CONFIG_AUTOFS_FS=m
+CONFIG_AUTOFS4_FS=m
+CONFIG_REISERFS_FS=m
+CONFIG_ADFS_FS=m
+CONFIG_ADFS_FS_RW=y
+CONFIG_AFFS_FS=m
+CONFIG_HFS_FS=m
+CONFIG_BFS_FS=m
+CONFIG_EXT3_FS=m
+CONFIG_JBD=m
+CONFIG_JBD_DEBUG=y
+CONFIG_FAT_FS=m
+CONFIG_MSDOS_FS=m
+CONFIG_UMSDOS_FS=m
+CONFIG_VFAT_FS=m
+CONFIG_EFS_FS=m
+CONFIG_CRAMFS=m
+CONFIG_TMPFS=y
+CONFIG_RAMFS=m
+CONFIG_ISO9660_FS=m
+CONFIG_JOLIET=y
+CONFIG_ZISOFS=y
+CONFIG_MINIX_FS=m
+CONFIG_VXFS_FS=m
+CONFIG_NTFS_FS=m
+CONFIG_NTFS_RW=y
+CONFIG_HPFS_FS=m
+CONFIG_PROC_FS=y
+CONFIG_DEVPTS_FS=y
+CONFIG_QNX4FS_FS=m
+CONFIG_QNX4FS_RW=y
+CONFIG_ROMFS_FS=m
+CONFIG_EXT2_FS=y
+CONFIG_SYSV_FS=m
+CONFIG_UDF_FS=m
+CONFIG_UDF_RW=y
+CONFIG_UFS_FS=m
+CONFIG_UFS_FS_WRITE=y
+CONFIG_INTERMEZZO_FS=m
+CONFIG_NFS_FS=m
+CONFIG_NFS_V3=y
+CONFIG_NFSD=m
+CONFIG_NFSD_V3=y
+CONFIG_SUNRPC=m
+CONFIG_LOCKD=m
+CONFIG_LOCKD_V4=y
+CONFIG_SMB_FS=m
+CONFIG_ZISOFS_FS=m
+CONFIG_ZLIB_FS_INFLATE=m
+CONFIG_MSDOS_PARTITION=y
+CONFIG_SMB_NLS=y
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="iso8859-1"
+CONFIG_NLS_CODEPAGE_437=m
+CONFIG_NLS_CODEPAGE_850=m
+CONFIG_NLS_ISO8859_1=m
+CONFIG_NLS_ISO8859_15=m
+CONFIG_NLS_UTF8=m
+CONFIG_VGA_CONSOLE=y
+CONFIG_SOUND=m
+CONFIG_SOUND_ICH=m
+CONFIG_SOUND_OSS=m
+CONFIG_SOUND_TRACEINIT=y
+CONFIG_SOUND_DMAP=y
+CONFIG_USB=m
+CONFIG_USB_DEBUG=y
+CONFIG_USB_DEVICEFS=y
+CONFIG_USB_UHCI=m
+CONFIG_USB_UHCI_ALT=m
+CONFIG_USB_OHCI=m
+CONFIG_USB_AUDIO=m
+CONFIG_USB_BLUETOOTH=m
+CONFIG_USB_STORAGE=m
+CONFIG_USB_STORAGE_DATAFAB=y
+CONFIG_USB_STORAGE_FREECOM=y
+CONFIG_USB_STORAGE_ISD200=y
+CONFIG_USB_STORAGE_DPCM=y
+CONFIG_USB_STORAGE_HP8200e=y
+CONFIG_USB_STORAGE_SDDR09=y
+CONFIG_USB_STORAGE_JUMPSHOT=y
+CONFIG_USB_ACM=m
+CONFIG_USB_PRINTER=m
+CONFIG_USB_HID=m
+CONFIG_USB_HIDDEV=y
+CONFIG_USB_KBD=m
+CONFIG_USB_MOUSE=m
+CONFIG_USB_WACOM=m
+CONFIG_USB_DC2XX=m
+CONFIG_USB_MDC800=m
+CONFIG_USB_SCANNER=m
+CONFIG_USB_MICROTEK=m
+CONFIG_USB_HPUSBSCSI=m
+CONFIG_USB_IBMCAM=m
+CONFIG_USB_OV511=m
+CONFIG_USB_PWC=m
+CONFIG_USB_SE401=m
+CONFIG_USB_DSBR=m
+CONFIG_USB_DABUSB=m
+CONFIG_USB_PEGASUS=m
+CONFIG_USB_KAWETH=m
+CONFIG_USB_CATC=m
+CONFIG_USB_CDCETHER=m
+CONFIG_USB_USBNET=m
+CONFIG_USB_USS720=m
+CONFIG_USB_SERIAL=m
+CONFIG_USB_SERIAL_GENERIC=y
+CONFIG_USB_SERIAL_BELKIN=m
+CONFIG_USB_SERIAL_WHITEHEAT=m
+CONFIG_USB_SERIAL_DIGI_ACCELEPORT=m
+CONFIG_USB_SERIAL_EMPEG=m
+CONFIG_USB_SERIAL_FTDI_SIO=m
+CONFIG_USB_SERIAL_VISOR=m
+CONFIG_USB_SERIAL_IR=m
+CONFIG_USB_SERIAL_EDGEPORT=m
+CONFIG_USB_SERIAL_KEYSPAN_PDA=m
+CONFIG_USB_SERIAL_KEYSPAN=m
+CONFIG_USB_SERIAL_KEYSPAN_USA28=y
+CONFIG_USB_SERIAL_KEYSPAN_USA28X=y
+CONFIG_USB_SERIAL_KEYSPAN_USA28XA=y
+CONFIG_USB_SERIAL_KEYSPAN_USA28XB=y
+CONFIG_USB_SERIAL_KEYSPAN_USA19=y
+CONFIG_USB_SERIAL_KEYSPAN_USA18X=y
+CONFIG_USB_SERIAL_KEYSPAN_USA19W=y
+CONFIG_USB_SERIAL_KEYSPAN_USA49W=y
+CONFIG_USB_SERIAL_MCT_U232=m
+CONFIG_USB_SERIAL_PL2303=m
+CONFIG_USB_SERIAL_CYBERJACK=m
+CONFIG_USB_SERIAL_XIRCOM=m
+CONFIG_USB_SERIAL_OMNINET=m
+CONFIG_USB_RIO500=m
+CONFIG_BLUEZ=m
+CONFIG_BLUEZ_L2CAP=m
+CONFIG_BLUEZ_HCIUSB=m
+CONFIG_BLUEZ_HCIUART=m
+CONFIG_BLUEZ_HCIVHCI=m
+CONFIG_DEBUG_KERNEL=y
+CONFIG_DEBUG_SLAB=y
+CONFIG_DEBUG_IOVIRT=y
+CONFIG_MAGIC_SYSRQ=y
+CONFIG_DEBUG_BUGVERBOSE=y
+
+
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Faculty
+of Information Technology and Systems, Delft University of Technology,
+PO BOX 5031, 2600 GA Delft, The Netherlands  Phone: +31-15-2783635
+Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/

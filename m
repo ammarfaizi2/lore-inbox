@@ -1,60 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268042AbUI1ReO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267928AbUI1Rkk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268042AbUI1ReO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Sep 2004 13:34:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268025AbUI1Rdq
+	id S267928AbUI1Rkk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Sep 2004 13:40:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268004AbUI1Rkk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Sep 2004 13:33:46 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:54958 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S268051AbUI1Rcw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Sep 2004 13:32:52 -0400
+	Tue, 28 Sep 2004 13:40:40 -0400
+Received: from nwkea-mail-2.sun.com ([192.18.42.14]:53171 "EHLO
+	nwkea-mail-2.sun.com") by vger.kernel.org with ESMTP
+	id S267928AbUI1RiW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Sep 2004 13:38:22 -0400
+Date: Tue, 28 Sep 2004 13:38:15 -0400
+From: Mike Waychison <Michael.Waychison@Sun.COM>
 Subject: Re: [RFC][PATCH] inotify 0.10.0
-From: Robert Love <rml@novell.com>
+In-reply-to: <1096250524.18505.2.camel@vertex>
 To: John McCutchan <ttb@tentacle.dhs.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       gamin-list@gnome.org, viro@parcelfarce.linux.theplanet.co.uk,
-       iggy@gentoo.org
-In-Reply-To: <1096343091.11477.5.camel@vertex>
+Cc: linux-kernel@vger.kernel.org, gamin-list@gnome.org, rml@ximian.com,
+       viro@parcelfarce.linux.theplanet.co.uk, akpm@osdl.org, iggy@gentoo.org
+Message-id: <4159A187.3060402@sun.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040918)
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 References: <1096250524.18505.2.camel@vertex>
-	 <20040926211758.5566d48a.akpm@osdl.org>
-	 <1096318369.30503.136.camel@betsy.boston.ximian.com>
-	 <20040927214141.688b2b2c.akpm@osdl.org>
-	 <1096337698.5103.145.camel@localhost>  <1096343091.11477.5.camel@vertex>
-Content-Type: text/plain
-Date: Tue, 28 Sep 2004 13:31:28 -0400
-Message-Id: <1096392688.4911.39.camel@betsy.boston.ximian.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-09-27 at 23:44 -0400, John McCutchan wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> We need a timer to wake up any processes blocking on a read() call. The
-> reason it has to be a timer is because the code paths that get run when
-> an event is queued are not safe places to wake up blocked processes (But
-> I a kernel amateur so I am probably wrong).
+John McCutchan wrote:
+|
+| --Why Not dnotify and Why inotify (By Robert Love)--
+|
 
-We probably don't need the timer.  wake_up_interruptible() does not
-sleep; we can call it from anywhere.  Heck, timers are more atomic than
-where we probably need to wake stuff up from anyhow.
+| * inotify has an event that says "the filesystem that the item you were
+|   watching is on was unmounted" (this is particularly cool).
 
-But it is not easy to tell where that place is, because it looks like
-the timer just runs every 250ms?  That is no good.
+| +++ linux/fs/super.c	2004-09-18 02:24:33.000000000 -0400
+| @@ -36,6 +36,7 @@
+|  #include <linux/writeback.h>		/* for the emergency remount stuff */
+|  #include <linux/idr.h>
+|  #include <asm/uaccess.h>
+| +#include <linux/inotify.h>
+|
+|
+|  void get_filesystem(struct file_system_type *fs);
+| @@ -204,6 +205,7 @@
+|
+|  	if (root) {
+|  		sb->s_root = NULL;
+| +		inotify_super_block_umount (sb);
+|  		shrink_dcache_parent(root);
+|  		shrink_dcache_anon(&sb->s_anon);
+|  		dput(root);
 
-I suspect that we can remove all of the timer stuff and just do
+This doesn't seem right.  generic_shutdown_super is only called when the
+last instance of a super is released.  If a system were to have a
+filesystem mounted in two locations (for instance, by creating a new
+namespace), then the umount and ignore would not get propagated when one
+is unmounted.
 
-	/* wake up!  you are going to miss the bus! */
-	wake_up_interruptible(&dev->wait);
+How about an approach that somehow referenced vfsmounts (without having
+a reference count proper)?  That way you could queue messages in
+umount_tree and do_umount..
 
-after
+- --
+Mike Waychison
+Sun Microsystems, Inc.
+1 (650) 352-5299 voice
+1 (416) 202-8336 voice
 
-	list_add_tail(&kevent->list, &dev->events);
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+NOTICE:  The opinions expressed in this email are held by me,
+and may not represent the views of Sun Microsystems, Inc.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-in inotify_dev_queue_event().
-
-	Robert Love
-
-
+iD8DBQFBWaGHdQs4kOxk3/MRAr22AJ0SHDUiIXKRKE/TBFmTYBL5J7KD9gCbBoso
+DYRg+SjnO8urCKLmDbehvkM=
+=5fMW
+-----END PGP SIGNATURE-----

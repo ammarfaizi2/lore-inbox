@@ -1,59 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266292AbUHROG0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266293AbUHROIa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266292AbUHROG0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Aug 2004 10:06:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266293AbUHROG0
+	id S266293AbUHROIa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Aug 2004 10:08:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266303AbUHROIa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Aug 2004 10:06:26 -0400
-Received: from holomorphy.com ([207.189.100.168]:63926 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S266292AbUHROFz (ORCPT
+	Wed, 18 Aug 2004 10:08:30 -0400
+Received: from acheron.informatik.uni-muenchen.de ([129.187.214.135]:55170
+	"EHLO acheron.informatik.uni-muenchen.de") by vger.kernel.org
+	with ESMTP id S266293AbUHROIY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Aug 2004 10:05:55 -0400
-Date: Wed, 18 Aug 2004 07:05:50 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Anders Saaby <as@cohaesio.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: oom-killer 2.6.8.1
-Message-ID: <20040818140550.GY11200@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Anders Saaby <as@cohaesio.com>, linux-kernel@vger.kernel.org
-References: <200408181455.42279.as@cohaesio.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200408181455.42279.as@cohaesio.com>
-User-Agent: Mutt/1.5.6+20040722i
+	Wed, 18 Aug 2004 10:08:24 -0400
+Message-ID: <412362D5.9020309@bio.ifi.lmu.de>
+Date: Wed, 18 Aug 2004 16:08:21 +0200
+From: Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040503)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>
+Cc: Andreas Messer <andreas.messer@gmx.de>, linux-kernel@vger.kernel.org,
+       Ballarin.Marc@gmx.de, christer@weinigel.se
+Subject: Re: [PATCH] 2.6.8.1 Mis-detect CRDW as CDROM
+References: <411FD919.9030702@comcast.net> <20040816231211.76360eaa.Ballarin.Marc@gmx.de> <4121A689.8030708@bio.ifi.lmu.de> <200408171311.06222.satura@proton> <20040817155927.GA19546@proton-satura-home> <41234500.5080500@bio.ifi.lmu.de>
+In-Reply-To: <41234500.5080500@bio.ifi.lmu.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 18, 2004 at 02:55:42PM +0200, Anders Saaby wrote:
-> This is a high-volume NFS server running almost no user-space
-> applications. It serves a handfull of web server NFS clients from a
-> ~700G XFS filesystem. The machine has about 2.5 GB of RAM and 4G of
-> swap (which is almost not in use - i may use 5-10 MB total tops).
-> CONFIG_HIGHMEM and CONFIG_HIGHMEM4G enabled, SMP enabled, preempt disabled.
-> Today the OOM killer kicked in - it seemed that swap was almost unused at the 
-> time (which is strange, as that should prevent the OOM killer from kicking 
-> in).
-> Relevant part of the syslog follows (syslogd was killed too eventually):
+Hi,
 
-This seems to have been meant to resolve laptop_mode issues, but looks
-like it didn't get applied. I'm not convinced it will help given that
-you appear to have a vanilla ZONE_NORMAL slab OOM (858MB slab), but you
-never know. Capturing /proc/slabinfo data may be more helpful.
+sorry, the problem was just caused by an empty line in front of a closing
+bracket... This somehow removed some (although not all) of the safe_for_read
+commands from the list.
 
+I thought I had missed some piece of information here, but it were just my
+bad editing skills :-)
 
-Index: oom-2.6.8-rc1/mm/vmscan.c
-===================================================================
---- oom-2.6.8-rc1.orig/mm/vmscan.c	2004-07-14 06:17:13.876343912 -0700
-+++ oom-2.6.8-rc1/mm/vmscan.c	2004-07-14 06:22:15.986416200 -0700
-@@ -417,7 +417,8 @@
- 				goto keep_locked;
- 			if (!may_enter_fs)
- 				goto keep_locked;
--			if (laptop_mode && !sc->may_writepage)
-+			if (laptop_mode && !sc->may_writepage &&
-+							!PageSwapCache(page))
- 				goto keep_locked;
- 
- 			/* Page is dirty, try to write it out here */
+Sorry for bothering! Everything works fine now that I added some commands.
+
+Thanks for all your help!
+cu,
+Frank
+
+-- 
+Dipl.-Inform. Frank Steiner   Web:  http://www.bio.ifi.lmu.de/~steiner/
+Lehrstuhl f. Bioinformatik    Mail: http://www.bio.ifi.lmu.de/~steiner/m/
+LMU, Amalienstr. 17           Phone: +49 89 2180-4049
+80333 Muenchen, Germany       Fax:   +49 89 2180-99-4049
+* Rekursion kann man erst verstehen, wenn man Rekursion verstanden hat. *

@@ -1,52 +1,51 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <160074-215>; Mon, 15 Mar 1999 06:00:49 -0500
-Received: by vger.rutgers.edu id <157389-215>; Mon, 15 Mar 1999 06:00:34 -0500
-Received: from chiara.csoma.elte.hu ([157.181.71.18]:31775 "EHLO chiara.csoma.elte.hu" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with ESMTP id <160007-215>; Mon, 15 Mar 1999 05:58:20 -0500
-Date: Mon, 15 Mar 1999 11:46:17 +0100 (CET)
-From: Ingo Molnar <mingo@chiara.csoma.elte.hu>
-Reply-To: Ingo Molnar <mingo@chiara.csoma.elte.hu>
-To: Andrea Arcangeli <andrea@e-mind.com>
-Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.rutgers.edu, Buddha Buck <bmbuck@acsu.buffalo.edu>, Colin McFadden <mcfadden@athenet.net>, Linus Torvalds <torvalds@transmeta.com>
+Received: by vger.rutgers.edu via listexpand id <160044-215>; Tue, 16 Mar 1999 20:58:02 -0500
+Received: by vger.rutgers.edu id <160001-215>; Tue, 16 Mar 1999 20:41:38 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:6994 "EHLO penguin.e-mind.com" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with ESMTP id <160681-212>; Tue, 16 Mar 1999 20:16:12 -0500
+Date: Wed, 17 Mar 1999 02:13:39 +0100 (CET)
+From: Andrea Arcangeli <andrea@e-mind.com>
+To: Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>
+Cc: linux-kernel@vger.rutgers.edu
 Subject: Re: [patch] recover losed timer interrupt using the TSC [Re: [patch] kstat change to see how much Linux SMP really scale well]
-In-Reply-To: <Pine.LNX.4.05.9903150016110.606-100000@laser.random>
-Message-ID: <Pine.LNX.3.96.990315112902.21551A-100000@chiara.csoma.elte.hu>
+In-Reply-To: <DB1CD925F4F@rkdvmks1.ngate.uni-regensburg.de>
+Message-ID: <Pine.LNX.4.05.9903170210000.10010-100000@laser.random>
+X-Public-Key-URL: http://e-mind.com/~andrea/aa.asc
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-linux-kernel@vger.rutgers.edu
 
+On Tue, 16 Mar 1999, Ulrich Windl wrote:
 
-On Mon, 15 Mar 1999, Andrea Arcangeli wrote:
+>[...]
+>
+>> +	register unsigned long delta_usec;
+>> +
+>> +	__asm__("mull %2"
+>> +		:"=a" (delta_cycles), "=d" (delta_usec)
+>> +		:"g" (fast_gettimeoffset_quotient), "0" (delta_cycles));
+>> +	delta_usec -= delay_usec;
+>> +	delta_usec /= 1000000/HZ;
+>
+>Your delta_usec is in fact a lost_ticks. The name is confusing when 
+>you add microseconds to jiffies. (IMHO)
 
-> I was in the hope of some kind of pipeline since the code in the middle in
-> my case was only moving a memory address to a register or to another
-> memory address. But as you said the I/O latency is so high that probably
-> would obfuscate any kind of clever optimization so I agree that it's
-> better to make the code cleaner.
+Ok, agreed. It was not a problem right now but removing the `_usec' could
+be a better choice. Thanks.
 
-no, even if latency was smaller, the CPU simply does not overlap inb/outb
-with preceding/succeeding instructions. even worse, it 'syncs' the
-pipeline basically, so by moving instructions _between_ IO instructions
-you increase latency. (because we lose the integration effect otherwise
-that instruction could get)
+>> -long tick = (1000000 + HZ/2) / HZ;	/* timer interrupt period */
+>> +long tick = 1000000 / HZ;	/* timer interrupt period */
+>
+>This way the system time will be more behind than before if
+>"(1000000 % HZ) >= HZ/2". IMHO the line is correct. After all we are 
+>not saying "(1000000 + HZ - 1) / HZ".
 
-> get back a KERN_NOTICE that will tell you how much ticks you lose. Since
-> we can do that with a minimal overhead, why not be robust?
+;). Agreed. I also needed such trick that to make the recover of the lost
+ticks completly relialable. I just removed such changes from my second
+patch. But thanks for commenting about that. I wanted to hear if I was
+missing something of more serious or it was only an attempt to decrease
+the error in integer divisions.
 
-this is not necessarily robust. Timekeeping so far was pretty much
-independent of the cycle counter. (micro-time is not, but generic
-timekeeping yes). Now with your patch if the cycle counter produces
-something funny, we'd not only get a message, but also broken time.
-
-i think Andrea you are losing the generic picture. 10 msecs is _alot_ of
-time, especially on systems that have a time stamp counter. We should
-_not_ block interrupts for more than 10 msecs. If we do then yes we've
-lost a few ticks (we've lost them in previous Linux versions too, so this
-is certainly nothing new), but now we also get a message so people can fix
-it. You've just increased complexity in an already complex and hard to
-maintain piece of code to 'fix' the symptom of a fundamentally broken and
-rare case, instead of just detecting and fixing the real reason. 
-
--- mingo
+Andrea Arcangeli
 
 
 -

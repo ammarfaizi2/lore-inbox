@@ -1,69 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261566AbVC0MW3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261628AbVC0MqD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261566AbVC0MW3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Mar 2005 07:22:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261613AbVC0MW3
+	id S261628AbVC0MqD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Mar 2005 07:46:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261630AbVC0MqC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Mar 2005 07:22:29 -0500
-Received: from mini002.webpack.hosteurope.de ([80.237.130.131]:33973 "EHLO
-	mini002.webpack.hosteurope.de") by vger.kernel.org with ESMTP
-	id S261566AbVC0MWX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Mar 2005 07:22:23 -0500
-Subject: Re: Call for help: list of machines with working S3
-From: Maximilian Engelhardt <maxi@daemonizer.de>
-Reply-To: maxi@daemonizer.de
-To: romano@dea.icai.upco.es
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050318145028.GA22887@pern.dea.icai.upco.es>
-References: <3xVNA-Qn-43@gated-at.bofh.it> <1111089912.9802.26.camel@mobile>
-	 <20050318145028.GA22887@pern.dea.icai.upco.es>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-xWU+EYTiWtbq81MBHJZV"
-Date: Sun, 27 Mar 2005 14:22:28 +0200
-Message-Id: <1111926148.10098.12.camel@mobile>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+	Sun, 27 Mar 2005 07:46:02 -0500
+Received: from simmts12.bellnexxia.net ([206.47.199.141]:52698 "EHLO
+	simmts12-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S261628AbVC0Mpp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Mar 2005 07:45:45 -0500
+Message-ID: <1824.10.10.10.24.1111927362.squirrel@linux1>
+In-Reply-To: <Pine.LNX.4.10.10503261710320.13484-100000@mtfhpc.demon.co.uk>
+References: <Pine.LNX.4.10.10503261710320.13484-100000@mtfhpc.demon.co.uk>
+Date: Sun, 27 Mar 2005 07:42:42 -0500 (EST)
+Subject: Re: Can't use SYSFS for "Proprietry" driver modules !!!.
+From: "Sean" <seanlkml@sympatico.ca>
+To: "Mark Fortescue" <mark@mtfhpc.demon.co.uk>
+Cc: linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.4-2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, March 26, 2005 12:52 pm, Mark Fortescue said:
+> Hi,
+>
+> I am writing a "Proprietry" driver module for a "Proprietry" PCI card and
+> I have found that I can't use SYSFS on Linux-2.6.10.
+>
+> Why ?.
 
---=-xWU+EYTiWtbq81MBHJZV
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Because the people that contributed the code you want to use said so.
 
-On Fri, 2005-03-18 at 15:50 +0100, Romano Giannetti wrote:
->=20
-> It happens exactly the same on my laptop, sony vaio whose configuration i=
-s=20
->=20
-> http://www.dea.icai.upco.es/romano/linux/vaio-conf/laptop-config.html
->=20
-> Next week is Easter holyday here, I will try to connect my Psion casio as
-> serial terminal and see if I can catch something.=20
->=20
->        Romano=20
+> I am not modifing the Kernel/SYSFS code so I should be able, to use all
+> the SYSFS/internal kernel function calls without hinderence.
 
-Sorry that I didn't answer earlier , but I didn't have much time the
-last week. Unfortunately my laptop has a serial port only via docking
-station that I don't have. So I tried logging via netconsole. This
-generally worked, but when I try to enter S3 the last thing I get is
-"PM: Entering state" but the laptop never enters S3, it just hangs there
-forever. So sadly I couldn't get more information.
+You're creating a derived work that could not exist without all the GPL
+code that came before.
 
-If anyone has any idea what else I could do to either fix this problem
-or get more information about it, please tell me and I'll try :)
+> In order to be able to use SYSFS to debug the driver during development
+> the way I would like to be able to do, I will have to temporally change
+> the module licence line to "GPL". When the development is finnished I
+> then need to remove all the code that accesses the SYSFS stuf in the
+> Kernel and change the module back to a "Proprietry" licence in order to
+> comply with other requirements. This will then hinder any debugging if
+> future issues arise.
 
-Maxi
+Likely this won't be enough to keep you or your company from being sued.
 
---=-xWU+EYTiWtbq81MBHJZV
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+> I believe that this sort of idiocy is what helps Microsoft hold on to its
+> manopoly and as shuch hinders hardware/software development in all areas
+> and should be chanaged in a way that promotes diversified software
+> development.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+So what?   The people that created the kernel GPL code weren't necessarily
+trying to topple microsoft.   In essense, all they said was they were
+willing to share their code with people who were also willing to share.  
+You're probably better off writing your proprietary driver on a
+proprietary operating system.
 
-iD8DBQBCRqWEOimwv528XGERAj1OAKCcVnGDfP56oUNEEKpLat8ij/v9eACfZNV9
-hvMKL0dK7cwmcq8NaScxi1s=
-=UlXF
------END PGP SIGNATURE-----
+Sean
 
---=-xWU+EYTiWtbq81MBHJZV--
+

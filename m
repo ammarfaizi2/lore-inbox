@@ -1,46 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129413AbRATTGA>; Sat, 20 Jan 2001 14:06:00 -0500
+	id <S129444AbRATTTE>; Sat, 20 Jan 2001 14:19:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129444AbRATTFv>; Sat, 20 Jan 2001 14:05:51 -0500
-Received: from ns.caldera.de ([212.34.180.1]:60166 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S129413AbRATTFj>;
-	Sat, 20 Jan 2001 14:05:39 -0500
-Date: Sat, 20 Jan 2001 20:05:15 +0100
-From: Christoph Hellwig <hch@caldera.de>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Rajagopal Ananthanarayanan <ananth@sgi.com>,
-        Rik van Riel <riel@conectiva.com.br>,
-        "Stephen C. Tweedie" <sct@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] generic IO write clustering
-Message-ID: <20010120200514.A26170@caldera.de>
-Mail-Followup-To: Marcelo Tosatti <marcelo@conectiva.com.br>,
-	Rajagopal Ananthanarayanan <ananth@sgi.com>,
-	Rik van Riel <riel@conectiva.com.br>,
-	"Stephen C. Tweedie" <sct@redhat.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20010120184506.A21943@caldera.de> <Pine.LNX.4.21.0101201358340.6593-100000@freak.distro.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0i
-In-Reply-To: <Pine.LNX.4.21.0101201358340.6593-100000@freak.distro.conectiva>; from marcelo@conectiva.com.br on Sat, Jan 20, 2001 at 02:00:24PM -0200
+	id <S129729AbRATTSy>; Sat, 20 Jan 2001 14:18:54 -0500
+Received: from minus.inr.ac.ru ([193.233.7.97]:48646 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S129444AbRATTSl>;
+	Sat, 20 Jan 2001 14:18:41 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200101201905.WAA05165@ms2.inr.ac.ru>
+Subject: Re: [Fwd: [Fwd: Is sendfile all that sexy? (fwd)]]
+To: andrea@suse.de (Andrea Arcangeli)
+Date: Sat, 20 Jan 2001 22:05:45 +0300 (MSK)
+Cc: mingo@elte.hu, torvalds@transmeta.com, raj@cup.hp.com,
+        linux-kernel@vger.kernel.org, davem@redhat.com
+In-Reply-To: <20010120192320.J8717@athlon.random> from "Andrea Arcangeli" at Jan 20, 1 07:23:20 pm
+X-Mailer: ELM [version 2.4 PL24]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 20, 2001 at 02:00:24PM -0200, Marcelo Tosatti wrote:
-> > True.  But you have to go through ext2_get_branch (under the big kernel
-> > lock) - if we can do only one logical->physical block translations,
-> > why doing it multiple times?
-> 
-> You dont. If the metadata is cached and uptodate there is no need to call
-> get_block().
+Hello!
 
-Ups.  You are right for the stock tree - I was only looking at my kio tree,
-where it can't be cached due to the lack of buffer-cache usage...
+> semantics of snd_sml), maybe it makes the difference but then I don't see how.
 
-	Christoph
+It makes. One small packet is allowed to fly, not depending on packets_out.
+This is idea of Minshall.
 
--- 
-Whip me.  Beat me.  Make me maintain AIX.
+"Classic" Nagle also does not prohibit this, but it is difficult
+to formulate it in terms of presegmented queue, used in linux,
+so that we preferred Minshall's approach.
+
+Third algo, used by linux-2.2: "queue as soon as packet is small
+and packets_out!=0" is _not_ Nagle's one, it is surely wrong.
+
+Alexey
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

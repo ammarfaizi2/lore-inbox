@@ -1,75 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262021AbTINW15 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Sep 2003 18:27:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262011AbTINW14
+	id S261663AbTINW1B (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Sep 2003 18:27:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262009AbTINW1B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Sep 2003 18:27:56 -0400
-Received: from 81-5-136-19.dsl.eclipse.net.uk ([81.5.136.19]:18659 "EHLO
-	vlad.carfax.org.uk") by vger.kernel.org with ESMTP id S262009AbTINW1r
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Sep 2003 18:27:47 -0400
-Date: Sun, 14 Sep 2003 23:27:36 +0100
-From: Hugo Mills <hugo-lkml@carfax.org.uk>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: "J.A. Magallon" <jamagallon@able.es>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: libata update posted
-Message-ID: <20030914222736.GA29560@carfax.org.uk>
-Mail-Followup-To: Hugo Mills <hugo-lkml@carfax.org.uk>,
-	Jeff Garzik <jgarzik@pobox.com>,
-	"J.A. Magallon" <jamagallon@able.es>,
-	SCSI Mailing List <linux-scsi@vger.kernel.org>,
-	LKML <linux-kernel@vger.kernel.org>
-References: <3F628DC7.3040308@pobox.com> <20030913211332.GC3478@werewolf.able.es> <20030913213828.GC21426@gtf.org>
+	Sun, 14 Sep 2003 18:27:01 -0400
+Received: from nikam.ms.mff.cuni.cz ([195.113.18.106]:22210 "EHLO
+	nikam.ms.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261663AbTINW1A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Sep 2003 18:27:00 -0400
+Date: Mon, 15 Sep 2003 00:27:03 +0200
+From: Jan Hubicka <jh@suse.cz>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org, jh@suse.cz
+Subject: Re: stack alignment in the kernel was Re: nasm over gas?
+Message-ID: <20030914222703.GB8208@kam.mff.cuni.cz>
+References: <rZQN.83u.21@gated-at.bofh.it> <uw6d.3hD.35@gated-at.bofh.it> <uxED.5Rz.9@gated-at.bofh.it> <uYbM.26o.3@gated-at.bofh.it> <uZUr.4QR.25@gated-at.bofh.it> <v4qU.3h1.27@gated-at.bofh.it> <vog2.7k4.23@gated-at.bofh.it> <m31xuk8cnu.fsf_-_@averell.firstfloor.org> <20030914135431.GB16525@mail.jlokier.co.uk>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="WIyZ46R2i8wDzkSu"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030913213828.GC21426@gtf.org>
-X-GPG-Fingerprint: B997 A9F1 782D D1FD 9F87  5542 B2C2 7BC2 1C33 5860
-X-GPG-Key: 1C335860
-X-Parrot: It is no more. It has joined the choir invisible.
-X-IRC-Nicks: hugo darksatanic
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20030914135431.GB16525@mail.jlokier.co.uk>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---WIyZ46R2i8wDzkSu
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Sat, Sep 13, 2003 at 05:38:28PM -0400, Jeff Garzik wrote:
-> No user documentation, but feel free to ask me questions.  Here's a
-> quick overview:
 > 
-> ata_piix, ata_via -- low-level driver modules
-> libata -- shared code module for the above
+> > A compiler option to turn it off would make sense to save .text space
+> > and eliminate these useless instructions. Especially since the kernel
+> > entry points make no attempt to align the stack to 16 byte anyways,
+> > so most likely the stack adjustments do not even work.
+> 
+> There is an option:
+> 
+> 	-mpreferred-stack-boundary=2
 
-   Do you have any plans to support SiI3112 in libata? The current
-SiI3112 drivers in the kernel just don't seem to work right on my
-hardware. :(
+Note that this won't work for x86-64 where ABI compliant varargs require
+it.
 
-   Hugo.
-
--- 
-=== Hugo Mills: hugo@... carfax.org.uk | darksatanic.net | lug.org.uk ===
-  PGP key: 1C335860 from wwwkeys.eu.pgp.net or http://www.carfax.org.uk
-  --- I am but mad north-north-west:  when the wind is southerly, I ---  
-                       know a hawk from a handsaw.                       
-
---WIyZ46R2i8wDzkSu
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQE/ZOtXssJ7whwzWGARAnOVAJ4nrsHCPi3fvTrFYZRerbAQWzUnBQCfcFn3
-aAGu2sPDAnoCU1guy150SJw=
-=gTMG
------END PGP SIGNATURE-----
-
---WIyZ46R2i8wDzkSu--
+Honza
+> 
+> -- Jamie

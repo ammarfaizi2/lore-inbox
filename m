@@ -1,48 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264583AbSIQWAK>; Tue, 17 Sep 2002 18:00:10 -0400
+	id <S264638AbSIQVxV>; Tue, 17 Sep 2002 17:53:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264625AbSIQWAJ>; Tue, 17 Sep 2002 18:00:09 -0400
-Received: from ns1.cypress.com ([157.95.67.4]:58796 "EHLO ns1.cypress.com")
-	by vger.kernel.org with ESMTP id <S264583AbSIQWAJ>;
-	Tue, 17 Sep 2002 18:00:09 -0400
-Message-ID: <3D87A6E3.5090407@cypress.com>
-Date: Tue, 17 Sep 2002 17:04:19 -0500
-From: Thomas Dodd <ted@cypress.com>
-User-Agent: Mozilla/5.0 (X11; U; SunOS sun4u; en-US; rv:1.1) Gecko/20020827
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Rogier Wolff <R.E.Wolff@bitwizard.nl>
-CC: linux-kernel@vger.kernel.org, linux-usb-users@lists.sourceforge.net
-Subject: Re: Problems accessing USB Mass Storage
-References: <1032261937.1170.13.camel@stimpy.angelnet.internal> <20020917151816.GB2144@kroah.com> <3D876861.9000601@cypress.com> <20020917174631.GD2569@kroah.com> <20020917234302.A26741@bitwizard.nl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S264640AbSIQVxV>; Tue, 17 Sep 2002 17:53:21 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:54403 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S264638AbSIQVxU>;
+	Tue, 17 Sep 2002 17:53:20 -0400
+Date: Tue, 17 Sep 2002 14:49:11 -0700 (PDT)
+Message-Id: <20020917.144911.43656989.davem@redhat.com>
+To: jgarzik@mandrakesoft.com
+Cc: akpm@digeo.com, manfred@colorfullife.com, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Info: NAPI performance at "low" loads
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <3D87A4A2.6050403@mandrakesoft.com>
+References: <3D87A264.8D5F3AD2@digeo.com>
+	<20020917.143947.07361352.davem@redhat.com>
+	<3D87A4A2.6050403@mandrakesoft.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: Jeff Garzik <jgarzik@mandrakesoft.com>
+   Date: Tue, 17 Sep 2002 17:54:42 -0400
 
+   David S. Miller wrote:
+   > Any driver should be able to get the NAPI overhead to max out at
+   > 2 PIOs per packet.
+   
+   Just to pick nits... my example went from 2 or 3 IOs [depending on the 
+   presence/absence of a work loop] to 6 IOs.
+   
+I mean "2 extra PIOs" not "2 total PIOs".
 
-Rogier Wolff wrote:
-> On Tue, Sep 17, 2002 at 10:46:31AM -0700, Greg KH wrote:
-> 
->>On Tue, Sep 17, 2002 at 12:37:37PM -0500, Thomas Dodd wrote:
->>
->>>I get the feeling it's not a true mass storage device.
->>
->>Sounds like it.
-> 
-> 
-> Nope. Sure does sound like it's a mass storage device. And it works
-> too. 
-> 
-> The kernel managed to read the partition table off it, and got
-> one valid partition: sda1. 
+I think it's doable for just about every driver, even tg3 with it's
+weird semaphore scheme takes 2 extra PIOs worst case with NAPI.
 
-Accept that you cannot read data from the device. At all.
-Even dd fails. And the windows drivers work (using XP
-in vmware it think it was) correctly on this same device.
-
-	-Thomas
-
+The semaphore I have to ACK anyways at hw IRQ time anyways, and since
+I keep a software copy of the IRQ masking register, mask and unmask
+are each one PIO.

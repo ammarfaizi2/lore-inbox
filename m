@@ -1,40 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314395AbSGUMeg>; Sun, 21 Jul 2002 08:34:36 -0400
+	id <S314381AbSGUMnp>; Sun, 21 Jul 2002 08:43:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314451AbSGUMeg>; Sun, 21 Jul 2002 08:34:36 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:35317 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S314395AbSGUMef>; Sun, 21 Jul 2002 08:34:35 -0400
-Subject: Re: [PATCH] generalized spin_lock_bit
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "David S. Miller" <davem@redhat.com>
-Cc: rml@tech9.net, Linus Torvalds <torvalds@transmeta.com>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org, riel@conectiva.com.br,
-       wli@holomorphy.com
-In-Reply-To: <20020720.183133.67807986.davem@redhat.com>
-References: <1027196511.1555.767.camel@sinai>
-	<20020720.152703.102669295.davem@redhat.com>
-	<1027211185.17234.48.camel@irongate.swansea.linux.org.uk> 
-	<20020720.183133.67807986.davem@redhat.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 21 Jul 2002 14:48:54 +0100
-Message-Id: <1027259334.16819.98.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S314451AbSGUMnp>; Sun, 21 Jul 2002 08:43:45 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:56815 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S314381AbSGUMno>; Sun, 21 Jul 2002 08:43:44 -0400
+Date: Sun, 21 Jul 2002 14:46:23 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Szakacsits Szabolcs <szaka@sienet.hu>, Robert Love <rml@tech9.net>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] strict VM overcommit
+In-Reply-To: <1027258349.17234.85.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.NEB.4.44.0207211438440.11656-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-07-21 at 02:31, David S. Miller wrote:
-> For an asm-generic/bitlock.h implementation it is more than
-> fine.  That way we get asm-i386/bitlock.h that does whatever
-> it wants to do and the rest of asm-*/bitlock.h includes
-> the generic version until the arch maintainer sees fit to
-> do otherwise.
+On 21 Jul 2002, Alan Cox wrote:
 
-For an asm-generic one yes. Although you do need to add a cpu_relax() in
-the inner loop
+> On Sun, 2002-07-21 at 10:10, Szakacsits Szabolcs wrote:
+> > On Fri, 19 Jul 2002, Alan Cox wrote:
+> > > Make swapoff -a return -ENOMEM
+> > >
+> > > I've not done this on the basis that this is root specific stupidity and
+> > > generally shouldnt be protected against
+> >
+> > Recommended reading: MIT's Magazin of Innovation Technology Review,
+> > August 2002 issue, cover story: Why Software Is So Bad?
+> >
+> > Next you might read: "... prominent, leading Linux kernel developer
+> > publically labels users stupid instead of handling a special case
+>
+> I would suggest you do something quite different. Go and read what K&R
+> had to say about the design of Unix. One of the design goals of Unix is
+> that the system does not think it knows better than the administrator.
+> That is one of the reasons unix works well and is so flexible.
 
-Alan
+The problem is that at the time K&R said this only real men (tm) were
+administrators of UNIX systems. Nowadays clueless people like me are
+administrators of their Linux system at home.  ;-)
+
+With enough stupidity root can always trash his system but if as Robert
+says the state of the system will be that "no allocations will succeed"
+which seems to be a synonymous for "the system is practically dead" it is
+IMHO a good idea to let "swapoff -a return -ENOMEM".
+
+> Alan
+
+cu
+Adrian
+
+-- 
+
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
+
+
+
 

@@ -1,134 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317567AbSGXUOp>; Wed, 24 Jul 2002 16:14:45 -0400
+	id <S317520AbSGXUMf>; Wed, 24 Jul 2002 16:12:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317560AbSGXUOo>; Wed, 24 Jul 2002 16:14:44 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:19708 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S317542AbSGXUMt>;
-	Wed, 24 Jul 2002 16:12:49 -0400
-Message-ID: <3D3F0AE0.1AE76E29@mvista.com>
-Date: Wed, 24 Jul 2002 13:15:28 -0700
+	id <S317539AbSGXUMf>; Wed, 24 Jul 2002 16:12:35 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:39675 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S317520AbSGXULM>;
+	Wed, 24 Jul 2002 16:11:12 -0400
+Message-ID: <3D3F0693.E8C97A3F@mvista.com>
+Date: Wed, 24 Jul 2002 12:57:07 -0700
 From: george anzinger <george@mvista.com>
 Organization: Monta Vista Software
 X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Burton Windle <bwindle@fint.org>
-CC: linux-kernel@vger.kernel.org, rml@tech9.net
-Subject: Re: 2.5.27: PREEMPT + DEBUG_SLAB = 100% reproducable oops
-References: <Pine.LNX.4.43.0207241554360.1846-100000@morpheus>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+To: Ingo Molnar <mingo@elte.hu>
+CC: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [patch] irqlock patch 2.5.27-H4
+References: <Pine.LNX.4.44.0207241407290.18205-100000@localhost.localdomain>
+Content-Type: multipart/mixed;
+ boundary="------------F95A86FF5F9C899FE94C1B08"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Burton Windle wrote:
-> 
-> With kernel 2.5.26/27, if I compile in PREEMPT=y and CONFIG_DEBUG_SLAB=y,
-> I can oops the machine at will by running a small shell script as a normal
-> user. If I undef either of those, the machine is fine. It always oops in
-> the same place.
 
-Try running Ingo's latest "irqlock patch".  Should fix this.
+This is a multi-part message in MIME format.
+--------------F95A86FF5F9C899FE94C1B08
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
--g
+Ingo Molnar wrote:
 > 
-> (gdb) list *0xc010e88f
-> 0xc010e88f is in schedule
-> (/biggie/kernel/linux-2.5.27/include/asm/bitops.h:39).
-> 34       * Note that @nr may be almost arbitrarily large; this function is not
-> 35       * restricted to acting on a single-word quantity.
-> 36       */
-> 37      static __inline__ void set_bit(int nr, volatile unsigned long * addr)
-> 38      {
-> 39              __asm__ __volatile__( LOCK_PREFIX
-> 40                      "btsl %1,%0"
-> 41                      :"=m" (ADDR)
-> 42                      :"Ir" (nr));
-> 43      }
+> On Wed, 24 Jul 2002, Christoph Hellwig wrote:
 > 
-> Unable to handle kernel paging request at virtual address 5a5a5ace
-> c010e88f
-> *pde = 00000000
-> Oops: 0002
-> CPU:    0
-> EIP:    0010:[<c010e88f>]    Not tainted
-> Using defaults from ksymoops -t elf32-i386 -a i386
-> EFLAGS: 00010813
-> eax: c11ce000   ebx: c4b55580   ecx: c11d0040   edx: 5a5a5a5a
-> esi: c4e51084   edi: c11d0040   ebp: c11cfed8   esp: c11cfec8
-> ds: 0018   es: 0018   ss: 0018
-> Stack: 7fffffff c4e560a4 c11cff60 c11d0040 c4e55000 c0119100 00000008 c4e560a4
->        00000000 00000246 c4e55980 c4e560a4 c01aefe4 c01af034 c4e55000 c4e560a4
->        c4e845e0 c4e560c4 c4e55bfc c4e55980 080df014 c4e55974 7fffffff 00000000
-> Call Trace: [<c0119100>] [<c01aefe4>] [<c01af034>] [<c010e9c4>] [<c010e9c4>]
->    [<c01aada4>] [<c0132d40>] [<c0132ef6>] [<c0106c9f>]
-> Code: 0f ba 6a 74 00 8b 42 0c 05 00 00 00 40 0f 22 d8 8b 8a 80 00
+> > >  - move the irqs-off check into preempt_schedule() and remove
+> > >    CONFIG_DEBUG_IRQ_SCHEDULE.
+> >
+> > the config.in entry is still present..
 > 
-> >>EIP; c010e88f <schedule+1b7/2b4>   <=====
-> 
-> >>eax; c11ce000 <END_OF_CODE+e8d604/????>
-> >>ebx; c4b55580 <END_OF_CODE+4814b84/????>
-> >>ecx; c11d0040 <END_OF_CODE+e8f644/????>
-> >>edx; 5a5a5a5a Before first symbol
-> >>esi; c4e51084 <END_OF_CODE+4b10688/????>
-> >>edi; c11d0040 <END_OF_CODE+e8f644/????>
-> >>ebp; c11cfed8 <END_OF_CODE+e8f4dc/????>
-> >>esp; c11cfec8 <END_OF_CODE+e8f4cc/????>
-> 
-> Trace; c0119100 <schedule_timeout+14/a4>
-> Trace; c01aefe4 <change_termios+90/180>
-> Trace; c01af034 <change_termios+e0/180>
-> Trace; c010e9c4 <default_wake_function+0/34>
-> Trace; c010e9c4 <default_wake_function+0/34>
-> Trace; c01aada4 <release_dev+16c/50c>
-> Trace; c0132d40 <register_chrdev+54/dc>
-> Trace; c0132ef6 <chrdev_open+7e/94>
-> Trace; c0106c9f <syscall_call+7/b>
-> 
-> Code;  c010e88f <schedule+1b7/2b4>
-> 00000000 <_EIP>:
-> Code;  c010e88f <schedule+1b7/2b4>   <=====
->    0:   0f ba 6a 74 00            btsl   $0x0,0x74(%edx)   <=====
-> Code;  c010e894 <schedule+1bc/2b4>
->    5:   8b 42 0c                  mov    0xc(%edx),%eax
-> Code;  c010e897 <schedule+1bf/2b4>
->    8:   05 00 00 00 40            add    $0x40000000,%eax
-> Code;  c010e89c <schedule+1c4/2b4>
->    d:   0f 22 d8                  mov    %eax,%cr3
-> Code;  c010e89f <schedule+1c7/2b4>
->   10:   8b 8a 80 00 00 00         mov    0x80(%edx),%ecx
-> 
-> Oddily enough, running this on the command prompt won't cause problems,
-> but running it at a shell script will causes an oops every single time.
-> 
-> #!/bin/sh
-> start-stop-daemon --start --quiet --pidfile /tmp/xfs.pid --exec /home/bwindle/xfs-bin -- -daemon
-> 
-> Gnu C                  2.95.4
-> Gnu make               3.79.1
-> util-linux             2.11n
-> mount                  2.11n
-> modutils               2.4.15
-> e2fsprogs              1.27
-> Linux C Library        2.2.5
-> Dynamic linker (ldd)   2.2.5
-> Procps                 2.0.7
-> Net-tools              1.60
-> Console-tools          0.2.3
-> Sh-utils               2.0.12
-> 
-> --
-> Burton Windle                           burton@fint.org
-> Linux: the "grim reaper of innocent orphaned children."
->           from /usr/src/linux-2.4.18/init/main.c:461
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> indeed. Fix is in -H5:
 
+We need to verify correct usage of the
+irq_enable/irq_restore() least we miss a preemption.  The
+attached patch allows one to enable a test on the these
+macros to verify that they are being correctly used.
+
+Ingo, I am not sure about the change in fork.c.  Don't we
+always want to check for preemption at the end of this
+irq_disable?
+
+Patch is against Ingo's H6.
 -- 
 George Anzinger   george@mvista.com
 High-res-timers: 
@@ -136,3 +57,124 @@ http://sourceforge.net/projects/high-res-timers/
 Real time sched:  http://sourceforge.net/projects/rtsched/
 Preemption patch:
 http://www.kernel.org/pub/linux/kernel/people/rml
+--------------F95A86FF5F9C899FE94C1B08
+Content-Type: text/plain; charset=us-ascii;
+ name="irq-test-2.5.27-ingo-H6.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="irq-test-2.5.27-ingo-H6.patch"
+
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.27-ingo-H6-org/arch/i386/config.in linux/arch/i386/config.in
+--- linux-2.5.27-ingo-H6-org/arch/i386/config.in	Mon Jul 22 14:19:20 2002
++++ linux/arch/i386/config.in	Wed Jul 24 12:13:56 2002
+@@ -412,6 +412,7 @@
+ 
+ bool 'Kernel debugging' CONFIG_DEBUG_KERNEL
+ if [ "$CONFIG_DEBUG_KERNEL" != "n" ]; then
++   bool '  Debug IRQ preempt interaction' CONFIG_DEBUG_IRQ
+    bool '  Debug memory allocations' CONFIG_DEBUG_SLAB
+    bool '  Memory mapped I/O debugging' CONFIG_DEBUG_IOVIRT
+    bool '  Magic SysRq key' CONFIG_MAGIC_SYSRQ
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.27-ingo-H6-org/include/asm-i386/system.h linux/include/asm-i386/system.h
+--- linux-2.5.27-ingo-H6-org/include/asm-i386/system.h	Wed Jul 24 12:50:03 2002
++++ linux/include/asm-i386/system.h	Wed Jul 24 12:36:08 2002
+@@ -312,9 +312,26 @@
+ 
+ /* interrupt control.. */
+ #define local_save_flags(x)	__asm__ __volatile__("pushfl ; popl %0":"=g" (x): /* no input */)
+-#define local_irq_restore(x) 	__asm__ __volatile__("pushl %0 ; popfl": /* no output */ :"g" (x):"memory", "cc")
++#define _local_irq_restore(x) 	__asm__ __volatile__("pushl %0 ; popfl": /* no output */ :"g" (x):"memory", "cc")
+ #define local_irq_disable() 	__asm__ __volatile__("cli": : :"memory")
+-#define local_irq_enable()	__asm__ __volatile__("sti": : :"memory")
++#define _local_irq_enable()	__asm__ __volatile__("sti": : :"memory")
++#ifdef CONFIG_DEBUG_IRQ
++#define test_preempt() if (unlikely(! current_thread_info()->preempt_count)){ \
++		printk("bad: irq_restore() with preemption_enabled!\n");\
++		show_stack(NULL); } 
++#else
++#define test_preempt()
++#endif
++#define local_irq_enable() \
++                do { _local_irq_enable(); test_preempt(); } while(0)
++#define local_irq_restore(x) \
++                do { _local_irq_restore(x); test_preempt(); } while(0)
++#define local_irq_enable_preempt()  \
++                do { _local_irq_enable(); preempt_check_resched() ; } while(0)
++#define local_irq_restore_preempt(x) \
++                do { _local_irq_restore(x);  preempt_check_resched(); } while(0)
++
++
+ /* used in the idle loop; sti takes one instruction cycle to complete */
+ #define safe_halt()		__asm__ __volatile__("sti; hlt": : :"memory")
+ 
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.27-ingo-H6-org/include/linux/spinlock.h linux/include/linux/spinlock.h
+--- linux-2.5.27-ingo-H6-org/include/linux/spinlock.h	Wed Jul 24 12:50:03 2002
++++ linux/include/linux/spinlock.h	Wed Jul 24 12:39:39 2002
+@@ -26,17 +26,17 @@
+ #define write_lock_irq(lock)			do { local_irq_disable();        write_lock(lock); } while (0)
+ #define write_lock_bh(lock)			do { local_bh_disable();         write_lock(lock); } while (0)
+ 
+-#define spin_unlock_irqrestore(lock, flags)	do { _raw_spin_unlock(lock);  local_irq_restore(flags); preempt_enable(); } while (0)
++#define spin_unlock_irqrestore(lock, flags)	do { _raw_spin_unlock(lock);  local_irq_restore_preempt(flags); } while (0)
+ #define _raw_spin_unlock_irqrestore(lock, flags) do { _raw_spin_unlock(lock);  local_irq_restore(flags); } while (0)
+-#define spin_unlock_irq(lock)			do { _raw_spin_unlock(lock);  local_irq_enable(); preempt_enable();       } while (0)
++#define spin_unlock_irq(lock)			do { _raw_spin_unlock(lock);  local_irq_enable_preempt();       } while (0)
+ #define spin_unlock_bh(lock)			do { spin_unlock(lock); local_bh_enable(); } while (0)
+ 
+-#define read_unlock_irqrestore(lock, flags)	do { _raw_read_unlock(lock);  local_irq_restore(flags); preempt_enable(); } while (0)
+-#define read_unlock_irq(lock)			do { _raw_read_unlock(lock);  local_irq_enable(); preempt_enable(); } while (0)
++#define read_unlock_irqrestore(lock, flags)	do { _raw_read_unlock(lock);  local_irq_restore_preempt(flags); } while (0)
++#define read_unlock_irq(lock)			do { _raw_read_unlock(lock);  local_irq_enable_preempt(); } while (0)
+ #define read_unlock_bh(lock)			do { read_unlock(lock);  local_bh_enable();        } while (0)
+ 
+-#define write_unlock_irqrestore(lock, flags)	do { _raw_write_unlock(lock); local_irq_restore(flags); preempt_enable(); } while (0)
+-#define write_unlock_irq(lock)			do { _raw_write_unlock(lock); local_irq_enable(); preempt_enable();       } while (0)
++#define write_unlock_irqrestore(lock, flags)	do { _raw_write_unlock(lock); local_irq_restore_preempt(flags); } while (0)
++#define write_unlock_irq(lock)			do { _raw_write_unlock(lock); local_irq_enable_preempt();       } while (0)
+ #define write_unlock_bh(lock)			do { write_unlock(lock); local_bh_enable();        } while (0)
+ #define spin_trylock_bh(lock)			({ int __r; local_bh_disable();\
+ 						__r = spin_trylock(lock);      \
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.27-ingo-H6-org/kernel/fork.c linux/kernel/fork.c
+--- linux-2.5.27-ingo-H6-org/kernel/fork.c	Wed Jul 24 12:50:03 2002
++++ linux/kernel/fork.c	Wed Jul 24 12:46:52 2002
+@@ -753,10 +753,8 @@
+ 		current->time_slice = 1;
+ 		preempt_disable();
+ 		scheduler_tick(0, 0);
+-		local_irq_restore(flags);
+-		preempt_enable();
+-	} else
+-		local_irq_restore(flags);
++	}
++        local_irq_restore_preempt(flags);
+ 
+ 	/*
+ 	 * Ok, add it to the run-queues and make it
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.27-ingo-H6-org/kernel/sched.c linux/kernel/sched.c
+--- linux-2.5.27-ingo-H6-org/kernel/sched.c	Wed Jul 24 12:50:03 2002
++++ linux/kernel/sched.c	Wed Jul 24 12:12:02 2002
+@@ -907,6 +907,7 @@
+ 		printk("bad: schedule() with irqs disabled!\n");
+ 		show_stack(NULL);
+ 		preempt_enable_no_resched();
++                return;
+ 	}
+ 
+ need_resched:
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.27-ingo-H6-org/mm/slab.c linux/mm/slab.c
+--- linux-2.5.27-ingo-H6-org/mm/slab.c	Wed Jul 24 12:50:03 2002
++++ linux/mm/slab.c	Wed Jul 24 12:38:27 2002
+@@ -1386,9 +1386,8 @@
+ 			} else {
+ 				STATS_INC_ALLOCMISS(cachep);
+ 				objp = kmem_cache_alloc_batch(cachep,flags);
+-				local_irq_restore(save_flags);
+ 				/* end of non-preemptible region */
+-				preempt_enable();
++				local_irq_restore_preempt(save_flags);
+ 				if (!objp)
+ 					goto alloc_new_slab_nolock;
+ 				return objp;
+
+--------------F95A86FF5F9C899FE94C1B08--
+

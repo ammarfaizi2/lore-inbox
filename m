@@ -1,46 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280932AbRKYQ65>; Sun, 25 Nov 2001 11:58:57 -0500
+	id <S280935AbRKYREH>; Sun, 25 Nov 2001 12:04:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280935AbRKYQ6r>; Sun, 25 Nov 2001 11:58:47 -0500
-Received: from as4-1-7.has.s.bonet.se ([217.215.31.238]:4481 "EHLO
-	k-7.stesmi.com") by vger.kernel.org with ESMTP id <S280932AbRKYQ6f>;
-	Sun, 25 Nov 2001 11:58:35 -0500
-Message-ID: <3C012372.709@stesmi.com>
-Date: Sun, 25 Nov 2001 17:59:30 +0100
-From: Stefan Smietanowski <stesmi@stesmi.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us
+	id <S280937AbRKYRD7>; Sun, 25 Nov 2001 12:03:59 -0500
+Received: from zero.aec.at ([193.170.194.10]:34313 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id <S280935AbRKYRDr>;
+	Sun, 25 Nov 2001 12:03:47 -0500
+To: ptb@it.uc3m.es
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Severe Linux 2.4 kernel memory leakage
+In-Reply-To: <1006699767.1178.0.camel@gandalf.chabotc.com> <200111251527.QAA05393@nbd.it.uc3m.es>
+From: Andi Kleen <ak@muc.de>
+Date: 25 Nov 2001 18:03:10 +0100
+In-Reply-To: "Peter T. Breuer"'s message of "Sun, 25 Nov 2001 16:30:13 +0100"
+Message-ID: <m3lmgug4vl.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.070095 (Pterodactyl Gnus v0.95) Emacs/20.7
 MIME-Version: 1.0
-To: James Davies <james_m_davies@yahoo.com>
-CC: arjan@fenrus.demon.nl, linux-kernel@vger.kernel.org
-Subject: Re: linux 2.4.13 Kernel and Ext3 vs Ext2
-In-Reply-To: <E167zTW-0002SK-00@fenrus.demon.nl> <20011125143354Z276249-17408+19773@vger.kernel.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Davies wrote:
+"Peter T. Breuer" <ptb@it.uc3m.es> writes:
 
-> On Sun, 25 Nov 2001 23:37, arjan@fenrus.demon.nl wrote:
+> "A month of sundays ago Chris Chabot wrote:"
+> > The box has ran Redhat 7.1 and 7.2, with plain vanilla linux kernels
+> > 2.4.9 upto 2.4.15, in all situations the same problem appeared.
+> > 
+> > The problem is that when the box boots up, it uses about 60Mb of memory.
+> > However after only 1 1/2 days, the memory usage is already around 430Mb
+> > (!!). (this is ofcource used - buffers - cache, as displayed by 'free').
 > 
->>In article <20011125132713Z280878-17408+19757@vger.kernel.org> you wrote:
->>
->>>You can also download a kernel RPM. the latest one released by redhat is
->>>2.4.13, and it is pretty much guaranteed to work with your current system
->>>and not break anything. It is also be patched with ext3 support.
->>>
->>Ehmmm..... The last released kernel by Red Hat is 2.4.9-13, not
->>2.4.13-something....
->>
-> 
-> ftp://rpmfind.net/linux/rawhide/1.0/i386/RedHat/RPMS/kernel-2.4.13-0.6.i386.rpm
+> I also have this problem. Unknown circumstances provoke it. Kernel
+> 2.4.9 to 2.4.13.  When it occurs I lose about 30MB a day.
 
-Rawhide. That's like -pre. Ie, run it at your own risk, if it breaks, 
-you get to keep the pieces.
+Compare snapshots of /proc/slabinfo before and after.
 
-// Stefan
+It may be completely harmless; e.g. a slab cache. free is unfortunately 
+quite misleading with newer kernels; it doesn't give information about
+many important caches (e.g. not about the slab caches) 
 
+-Andi
 
 

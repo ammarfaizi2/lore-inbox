@@ -1,40 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261971AbTIRRvd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Sep 2003 13:51:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262001AbTIRRvd
+	id S262006AbTIRSIq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Sep 2003 14:08:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262011AbTIRSIq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Sep 2003 13:51:33 -0400
-Received: from fw.osdl.org ([65.172.181.6]:21227 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261971AbTIRRvc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Sep 2003 13:51:32 -0400
-Date: Thu, 18 Sep 2003 10:50:56 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Matt Mackall <mpm@selenic.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: netpoll/netconsole minor tweaks
-Message-ID: <20030918105056.A16516@osdlab.pdx.osdl.net>
-References: <20030917112447.A24623@osdlab.pdx.osdl.net> <1063888205.15962.20.camel@dhcp23.swansea.linux.org.uk> <20030918094832.A16499@osdlab.pdx.osdl.net> <1063905237.2978.0.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1063905237.2978.0.camel@laptop.fenrus.com>; from arjanv@redhat.com on Thu, Sep 18, 2003 at 07:13:57PM +0200
+	Thu, 18 Sep 2003 14:08:46 -0400
+Received: from hqemgate00.nvidia.com ([216.228.112.144]:9990 "EHLO
+	hqemgate00.nvidia.com") by vger.kernel.org with ESMTP
+	id S262006AbTIRSIp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Sep 2003 14:08:45 -0400
+Message-ID: <8F12FC8F99F4404BA86AC90CD0BFB04F039F7138@mail-sc-6.nvidia.com>
+From: Allen Martin <AMartin@nvidia.com>
+To: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>
+Cc: "Andre Hedrick (andre@linux-ide.org)" <andre@linux-ide.org>,
+       "LKML (linux-kernel@vger.kernel.org)" <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH] 2.4.23-pre4 support for new nForce IDE controllers
+Date: Thu, 18 Sep 2003 11:08:25 -0700
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Arjan van de Ven (arjanv@redhat.com) wrote:
-> Less power consumption, and on HT/SMT CPU's it's a "yield" to the other
-> half/halves.
+> 
+> Thanks will look over these.
+> 
+> One first question - does the serial ata stuff need to
+> avoid cable detect too ?
 
-I see, thanks.
+Actually cable detect is a problem even with PATA.  The driver is reading a
+register at offset 0x52 in config space of the controller (AMD_CABLE_DETECT)
+to determine cable type, but this register doesn't exist on nForce chips.
+The cable detect signal is wired to a GPIO pin on the nForce southbridge,
+unfortunately some board makers have chosen different GPIO pins to wire this
+up to, so only the BIOS knows for sure where the cable detect signal is. 
 
-> >  Is it worth a patch to convert other things over?
-> yes
+Under Windows OS'es this isn't a problem because UDMA modes are set via an
+ACPI method, so the driver doesn't have to know anything about the registers
+or cable validation.
 
-OK, I'll spin one up, thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+I saw the driver tries to detect if this bit is not working and turn it on,
+but it only seems to happen on the primary channel.  As far as I can tell it
+doesn't prevent setting higher DMA modes though.  Even when the driver
+reports 40pin on the secondary channel I can still set dma modes >UDMA2.
+
+-Allen

@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267337AbTBFPX6>; Thu, 6 Feb 2003 10:23:58 -0500
+	id <S267328AbTBFPWs>; Thu, 6 Feb 2003 10:22:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267338AbTBFPX5>; Thu, 6 Feb 2003 10:23:57 -0500
-Received: from postal.sdsc.edu ([132.249.20.114]:62865 "EHLO postal.sdsc.edu")
-	by vger.kernel.org with ESMTP id <S267330AbTBFPXz>;
-	Thu, 6 Feb 2003 10:23:55 -0500
-Date: Thu, 6 Feb 2003 07:33:29 -0800 (PST)
-From: "Peter L. Ashford" <ashford@sdsc.edu>
-To: Stephan van Hienen <raid@a2000.nu>
-cc: <linux-raid@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: Promise FastTrak TX4 losing interrupts (with apic mode)
-In-Reply-To: <Pine.LNX.4.53.0302060313490.9702@ddx.a2000.nu>
-Message-ID: <Pine.GSO.4.30.0302060728320.15885-100000@multivac.sdsc.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267330AbTBFPWs>; Thu, 6 Feb 2003 10:22:48 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:58270
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267328AbTBFPWr>; Thu, 6 Feb 2003 10:22:47 -0500
+Subject: Re: [PATCH] 2.4.20 still can't detect my SCSI disk
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Cc: vda@port.imtp.ilyichevsk.odessa.ua,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1470960000.1044432921@aslan.scsiguy.com>
+References: <200302050738.h157c5s16708@Port.imtp.ilyichevsk.odessa.ua>
+	 <1470960000.1044432921@aslan.scsiguy.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1044548899.10374.16.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
+Date: 06 Feb 2003 16:28:20 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephan,
+On Wed, 2003-02-05 at 08:15, Justin T. Gibbs wrote:
+> I've tried to get Marcello to update the aic7xxx driver in the 2.4.X
+> tree to no avail.  The Olvetti support was added to my version of
+> the aic7xxx driver some time ago.  You can get my latest driver
+> versions from here:
+> 
+> http://people.FreeBSD.org/~gibbs/linux/SRC/
 
-> hde: lost interrupt
-> hde: lost interrupt
-> ide_dmaproc: chipset supported ide_dma_lostirq func only: 13
-> hde: lost interrupt
-> unknown partition table
-> hdg: lost interrupt
-> hdg: lost interrupt
-> ide_dmaproc: chipset supported ide_dma_lostirq func only: 13
-> hdg: lost interrupt
-> unknown partition table
-> hdi: lost interrupt
-> hdi: lost interrupt
-> ide_dmaproc: chipset supported ide_dma_lostirq func only: 13
-> hdi: lost interrupt
-> unknown partition table
+The files here prohibit redistribution in part. I assume this is an oversight ?
 
-I just saw, and fixed, a very similar problem last night (lost interrupts,
-but partition table was eventually read).  The system was a dual Xeon on a
-P4DP6.  The Promise card was an Ultra100TX2.  The OS was RedHat 7.3.
+(c) 2002 Adaptec, Inc. All Rights Reserved. No part of this
+publication may be reproduced, stored in a retrieval system, or
+transmitted in any form or by any means, electronic, mechanical,
+photocopying, recording or otherwise, without prior written consent
+of Adaptec, Inc., 691 South Milpitas Blvd., Milpitas, CA 95035.
 
-The fix was to increase the bus master time for the PCI slot in the BIOS.
-This was also tried under SuSE 8.1, where it did NOT work.
-
-YMMV.
-				Peter Ashford
+I've merged the rest into the -ac tree however.
 

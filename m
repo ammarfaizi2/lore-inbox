@@ -1,36 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319260AbSHWTua>; Fri, 23 Aug 2002 15:50:30 -0400
+	id <S319266AbSHWTuc>; Fri, 23 Aug 2002 15:50:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319258AbSHWTtm>; Fri, 23 Aug 2002 15:49:42 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:25472 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S319260AbSHWTtT>;
-	Fri, 23 Aug 2002 15:49:19 -0400
-Date: Fri, 2 Nov 2001 12:33:59 +0000
+	id <S319217AbSHWTtf>; Fri, 23 Aug 2002 15:49:35 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:24448 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S319242AbSHWTtR>;
+	Fri, 23 Aug 2002 15:49:17 -0400
+Date: Fri, 2 Nov 2001 10:05:25 +0000
 From: Pavel Machek <pavel@suse.cz>
-To: "Dmitry N. Hramtsov" <hdn@nsu.ru>
-Cc: linux-kernel@vger.kernel.org, Jan Kara <jack@suse.cz>
-Subject: Re: vfsv0 quota patch
-Message-ID: <20011102123359.A35@toy.ucw.cz>
-References: <Pine.LNX.4.44.0208191220390.28677-100000@aurora.nsu.ru>
+To: "Theodore Ts'o" <tytso@mit.edu>, Oliver Xymoron <oxymoron@waste.org>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] (0/4) Entropy accounting fixes
+Message-ID: <20011102100525.Y35@toy.ucw.cz>
+References: <20020818021522.GA21643@waste.org> <20020819054359.GB26519@think.thunk.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.4.44.0208191220390.28677-100000@aurora.nsu.ru>; from hdn@nsu.ru on Mon, Aug 19, 2002 at 12:26:31PM +0700
+In-Reply-To: <20020819054359.GB26519@think.thunk.org>; from tytso@mit.edu on Mon, Aug 19, 2002 at 01:43:59AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> Could you tell me where can I get vfsv0 quota patch for 2.4.19 or
-> 2.4.20-preX?  Unfortunately, link
+> >  What entropy can be measured from disk timings are very often leaked
+> >  by immediately relaying data to web, shell, or X clients.  Further,
+> >  patterns of drive head movement can be remotely controlled by clients
+> >  talking to file and web servers. Thus, while disk timing might be an
+> >  attractive source of entropy, it can't be used in a typical server
+> >  environment without great caution.
 > 
-> ftp://atrey.karlin.mff.cuni.cz/pub/local/jack/quota/v2.4/
-> 
-> does not work cause host atrey.karlin.mff.cuni.cz inaccessible.
+> This is something to be concerned about, to be sure.  But generally a
+> client won't have complete control of the drive head movement ---
+> there are other clients involved --- and the adversary generally won't
+> have complete knowledge of the block allocation of files, for example,
+> so he/she would not be able to characterize the disk drive timings to
+> the degree of accuracy required.
 
-Atrey has been recovered from flooded building, its back online but
-with changed IP address. Wait at most 24hours for DNS update.
+You seem  assume that adversary is on remote system. That's not neccessarily
+the case.
+
+Imagine you wanting to generate gpg key while I have normal user account
+on the machine. I can sample /proc/interrupts, measure disk speeds etc...
+Perhaps we are alone on [otherwise idle] machine. You still don't want me 
+to guess your key.
 
 								Pavel
 -- 

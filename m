@@ -1,34 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261623AbVAXVdR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261633AbVAXVmF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261623AbVAXVdR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 16:33:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261624AbVAXVbk
+	id S261633AbVAXVmF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 16:42:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261677AbVAXVjc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 16:31:40 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:65163 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261623AbVAXUeF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 15:34:05 -0500
-Date: Mon, 24 Jan 2005 20:33:53 +0000
-From: Christoph Hellwig <hch@infradead.org>
+	Mon, 24 Jan 2005 16:39:32 -0500
+Received: from mail.kroah.org ([69.55.234.183]:27332 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261633AbVAXVh1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 16:37:27 -0500
+Date: Mon, 24 Jan 2005 13:34:42 -0800
+From: Greg KH <greg@kroah.com>
 To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, Greg Kroah-Hartman <greg@kroah.com>,
-       Evgeniy Polyakov <johnpol@2ka.mipt.ru>, linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>, Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
+       linux-kernel@vger.kernel.org
 Subject: Re: 2.6.11-rc2-mm1: SuperIO scx200 breakage
-Message-ID: <20050124203353.GA5048@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-	Greg Kroah-Hartman <greg@kroah.com>,
-	Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-	linux-kernel@vger.kernel.org
+Message-ID: <20050124213442.GC18933@kroah.com>
 References: <20050124021516.5d1ee686.akpm@osdl.org> <20050124175449.GK3515@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 In-Reply-To: <20050124175449.GK3515@stusta.de>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -36,5 +29,15 @@ On Mon, Jan 24, 2005 at 06:54:49PM +0100, Adrian Bunk wrote:
 > It seems noone who reviewed the SuperIO patches noticed that there are 
 > now two modules "scx200" in the kernel...
 
-Did anyone review them?
+Sorry about this.  Andrew warning me about this bug, and I saw it myself
+with the depmod errors.  I'll take Evgeniy's patch for my tree and it
+should show up in the next -mm release.
 
+And as for the "these patches have never been reviewed" comments, that's
+why I put them in my tree, and have them show up in -mm.  It's getting
+them a wider exposure and finding out these kinds of issues.  So the
+process is working properly :)
+
+thanks,
+
+greg k-h

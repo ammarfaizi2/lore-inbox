@@ -1,57 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267029AbTBXMXE>; Mon, 24 Feb 2003 07:23:04 -0500
+	id <S263760AbTBXMTY>; Mon, 24 Feb 2003 07:19:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267030AbTBXMXD>; Mon, 24 Feb 2003 07:23:03 -0500
-Received: from cust.95.184.adsl.cistron.nl ([195.64.95.184]:33664 "EHLO ileva")
-	by vger.kernel.org with ESMTP id <S267029AbTBXMXC>;
-	Mon, 24 Feb 2003 07:23:02 -0500
-Date: Mon, 24 Feb 2003 13:33:05 +0100
-From: Floris Kraak <floris@snow.nl>
-To: Duncan Sands <baldrick@wanadoo.fr>
-Cc: Meino Christian Cramer <mccramer@s.netic.de>, wli@holomorphy.com,
-       efraim@clues.de, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.62 fails to boot, Uncompressing... and then nothing
-Message-ID: <20030224123305.GA4323@blackstar.nl>
-References: <20030219071932.GA3746@clues.de> <20030219073221.GR29983@holomorphy.com> <20030219.095905.92587466.mccramer@s.netic.de> <200302191052.47663.baldrick@wanadoo.fr>
-Mime-Version: 1.0
+	id <S264844AbTBXMTY>; Mon, 24 Feb 2003 07:19:24 -0500
+Received: from saturn.cs.uml.edu ([129.63.8.2]:4358 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S263760AbTBXMTW>;
+	Mon, 24 Feb 2003 07:19:22 -0500
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200302241229.h1OCTRF331287@saturn.cs.uml.edu>
+Subject: Re: [patch] procfs/procps threading performance speedup, 2.5.62
+To: mingo@elte.hu
+Date: Mon, 24 Feb 2003 07:29:26 -0500 (EST)
+Cc: acahalan@cs.uml.edu (Albert D. Cahalan), procps-list@redhat.com,
+       torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org,
+       alexl@redhat.com, viro@math.psu.edu
+In-Reply-To: <Pine.LNX.4.44.0302241214290.22804-100000@localhost.localdomain> from "Ingo Molnar" at Feb 24, 2003 12:26:19 PM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200302191052.47663.baldrick@wanadoo.fr>
-User-Agent: Mutt/1.5.3i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Albert, do you realize the simple fact that the procps
+> enhancements we did change absolutely nothing for the 'ps m'
+> case? All thread PIDs are still scanned and sorted.
 
+That is a contradiction. There is no sorting with "ps m".
+Any ordering is from the /proc directory itself.
 
-On Wed, Feb 19, 2003 at 10:52:47AM +0100, Duncan Sands wrote:
-> This is becoming a FAQ!  Did you enable the console in your .config?
-> 
-> CONFIG_VT=y
-> CONFIG_VT_CONSOLE=y
-> 
-[snip]
-> 
-> I hope this helps,
-> 
+Sorting is not default because of the memory requirements
+and because there have been many kernel bugs that cause
+ps to hang when it hits a particular process. Sorting may
+mean that ps hangs or is killed before producing anything.
 
-Hi, I'd like to pipe in with another report of 2.5.62 not booting.
-I _do_ have these lines in my .config and 2.4.19 boots easily while
-2.5.62 does not. In fact, neither does 2.5.61.
+> And mind you, thread-directories do not change much in
+> this area - the PIDs within the thread-directory will
+> still be largely unsorted, and it will not make the
+> reading & sorting of 20K threads any faster.
 
-2.5.59 (with a virtually identical .config) boots fine, but when I
-reboot 2.4.19 suddenly doesn't boot (just once, though). If I turn the
-machine off and back on that problem goes away. I am not sure if it
-is related.
+That's OK. I need in-kernel grouping, not in-kernel sorting.
+It's fine to mix up thread order, but bad to interleave the
+threads of unrelated processes.
 
-I am not using ACPI. I am using APM. The system is a Dell Inspiron
-8200 with a 1.4 Ghz Mobile P4. The bootloader is lilo. Any other
-information I'd be glad to give, but debugging is hard because the
-kernel doesn't even get to the stage where it prints out it's own
-version number.
+> so in fact _i_ came up with this whole issue 7 months ago. I just dont
+> share many of _your_ largely bogus arguments that seem to miss the point.  
+> Can we finally stop this storm in a teapot?
 
-Regards,
-Floris Kraak
--- 
- "If you continue using Windows your system may become unstable."
-	-- Windows 95 BSOD
+Glad to, assuming you understand the importance of grouping.
+I hope I have now done a better job of explaining it.

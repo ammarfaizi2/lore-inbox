@@ -1,46 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279470AbRJZXJa>; Fri, 26 Oct 2001 19:09:30 -0400
+	id <S279505AbRJZXbd>; Fri, 26 Oct 2001 19:31:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279476AbRJZXJV>; Fri, 26 Oct 2001 19:09:21 -0400
-Received: from fencepost.gnu.org ([199.232.76.164]:2311 "EHLO
-	fencepost.gnu.org") by vger.kernel.org with ESMTP
-	id <S279470AbRJZXJG>; Fri, 26 Oct 2001 19:09:06 -0400
-Date: Fri, 26 Oct 2001 19:09:40 -0400 (EDT)
-From: Pavel Roskin <proski@gnu.org>
-X-X-Sender: <proski@portland.hansa.lan>
-To: <linux-kernel@vger.kernel.org>
-cc: Sebastian Droege <sebastian.droege@gmx.de>
-Subject: [PATCH] pcibios_set_irq_routing undefined in 2.4.13-ac[12]
-Message-ID: <Pine.LNX.4.33.0110261905260.22934-100000@portland.hansa.lan>
+	id <S279514AbRJZXbO>; Fri, 26 Oct 2001 19:31:14 -0400
+Received: from nycsmtp2fb.rdc-nyc.rr.com ([24.29.99.78]:27920 "EHLO si.rr.com")
+	by vger.kernel.org with ESMTP id <S279505AbRJZXbJ>;
+	Fri, 26 Oct 2001 19:31:09 -0400
+Message-ID: <3BD9F2A7.5010501@si.rr.com>
+Date: Fri, 26 Oct 2001 19:32:55 -0400
+From: Frank Davis <fdavis@si.rr.com>
+Reply-To: fdavis@si.rr.com
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.2) Gecko/20010726 Netscape6/6.1
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: 2.4.13-ac2: i82092.c compile error
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
-
-Here's the trivial fix for undefined symbols pcibios_set_irq_routing and
-pcibios_get_irq_routing_table if PCI access is direct only on i386
-architecture.
-
-The patch is against 2.4.13-ac2
-
-----------------------------------
---- linux.orig/arch/i386/kernel/i386_ksyms.c
-+++ linux/arch/i386/kernel/i386_ksyms.c
-@@ -112,6 +112,9 @@ EXPORT_SYMBOL(pci_free_consistent);
- #ifdef CONFIG_PCI
- EXPORT_SYMBOL(pcibios_penalize_isa_irq);
- EXPORT_SYMBOL(pci_mem_start);
-+#endif
-+
-+#ifdef CONFIG_PCI_BIOS
- EXPORT_SYMBOL(pcibios_set_irq_routing);
- EXPORT_SYMBOL(pcibios_get_irq_routing_table);
- #endif
-----------------------------------
+Hello all,
+   I have seen the below posted yet for 13-ac2.
+     During 'make bzImage', I received the following error:
+In file included from i82092.c:25:
+i82092aa.h:14: warning: invalid character in macro parameter name
+i82092aa.h:14: badly punctuated parameter list in '#define'
+i82092.c:  In function 'i82092aa_pci_probe':
+i82092.c:137: warning: implicit declaration of function 'dprintk'
+make[3]: ***[i82092.o] Error 1
+make[3]: Leaving directory '/usr/src/linux/drivers/pcmcia'
 
 Regards,
-Pavel Roskin
+Frank
 

@@ -1,75 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265664AbUBFSvP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 13:51:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265693AbUBFStL
+	id S265661AbUBFSoI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 13:44:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265636AbUBFSlx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 13:49:11 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:55936 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S265664AbUBFSsM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 13:48:12 -0500
-Date: Fri, 6 Feb 2004 13:50:42 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Valdis.Kletnieks@vt.edu
-cc: Roland Dreier <roland@topspin.com>, "Hefty, Sean" <sean.hefty@intel.com>,
-       Troy Benjegerdes <hozer@hozed.org>,
-       infiniband-general@lists.sourceforge.net,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Infiniband-general] Getting an Infiniband access layer in
- theLinux kernel 
-In-Reply-To: <200402061822.i16IMdHJ013686@turing-police.cc.vt.edu>
-Message-ID: <Pine.LNX.4.53.0402061336120.4238@chaos>
-References: <C1B7430B33A4B14F80D29B5126C5E9470326258C@orsmsx401.jf.intel.com>
- <Pine.LNX.4.53.0402061150100.3862@chaos> <52smhounpn.fsf@topspin.com>     
-       <Pine.LNX.4.53.0402061258110.4045@chaos> <200402061822.i16IMdHJ013686@turing-police.cc.vt.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 6 Feb 2004 13:41:53 -0500
+Received: from bristol.phunnypharm.org ([65.207.35.130]:43498 "EHLO
+	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
+	id S265654AbUBFSk5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Feb 2004 13:40:57 -0500
+Date: Fri, 6 Feb 2004 13:39:14 -0500
+From: Ben Collins <bcollins@debian.org>
+To: Greg KH <greg@kroah.com>
+Cc: Robert Gadsdon <robert@gadsdon.giointernet.co.uk>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: 2.6.2-mm1 aka "Geriatric Wombat"
+Message-ID: <20040206183914.GM1042@phunnypharm.org>
+References: <fa.h1qu7q8.n6mopi@ifi.uio.no> <402240F9.3050607@gadsdon.giointernet.co.uk> <20040205182614.GG13075@kroah.com> <20040206144729.GJ1042@phunnypharm.org> <20040206182200.GE32116@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040206182200.GE32116@kroah.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 6 Feb 2004 Valdis.Kletnieks@vt.edu wrote:
+On Fri, Feb 06, 2004 at 10:22:00AM -0800, Greg KH wrote:
+> On Fri, Feb 06, 2004 at 09:47:30AM -0500, Ben Collins wrote:
+> > On Thu, Feb 05, 2004 at 10:26:14AM -0800, Greg KH wrote:
+> > > On Thu, Feb 05, 2004 at 01:11:21PM +0000, Robert Gadsdon wrote:
+> > > > 2.6.2-mm1 tombstone "Badness in kobject_get....." when booting:
+> > > 
+> > > Oooh, not nice.  That means a kobject is being used before it has been
+> > > initialized.  Glad to see that check finally helps out...
+> > 
+> > Doesn't sound like a bug in ieee1394. This bus for each is done on the
+> > ieee1394_bus_type, which is registered way ahead of time. Nothing is in
+> > that device list that didn't come from device_register(). Has something
+> > new changed to where I need to prep the device more before passing it to
+> > device_register()?
+> 
+> No, not at all.  You are initializing the structure to 0 before setting
+> any fields in it, right?  But that wouldn't be the symptom we are seeing
+> here...
 
-> On Fri, 06 Feb 2004 13:00:38 EST, "Richard B. Johnson" said:
->
-> > Yes you can. You just don't use an ';' if you are going
-> > to use 'else'.
->
-> You did realize we've changed things from macros to inline functions
-> (and vice versa) on occasion?
->
-> Yes, you *can* hack around the "problem".  Is there any actual
-> evidence that any real performance issues arise from the null
-> do/while?  Does said issue outweigh the increased fragility of
-> the code?
->
+Fact is, I can't reproduce this with stock 2.6.2. If this is only
+reproducible in 2.6.2-mm1, then it must be some change in there. What is
+occuring is a bus_for_each_dev() where the callback returns 1 so that
+the caller can stop and process one device (outside of the
+bus_for_each_dev() loop so as not to cause lockups). Then it starts
+bus_for_each_dev() again using the last device processed as the starting
+point.
 
-Well the 'problem' is a demonstration. The last time I answered
-a query about the "do {} while(0)", stuff (as an advocate), there
-were tons of 'experts' that jumped on me for helping to propagate
-this "atrocious" (as I recall) abuse of the 'C' language. I
-was severely tongue-lashed into believing that there was no
-actual reason for doing it that way.
-
-Now, after I have been properly "trained" that "do {} while (0)" is
-an abuse, we get the other 'experts' who say I'm wrong again!
-Can't win.
-
-In spite of the fact that the gcc compiler I'm using doesn't
-care, and generates the same code either way, there are others
-in the world who have looked at Linux code, in particular
-the headers, and turned various shades of grey just before
-running off to the head. I have spent a bunch of time looking
-at C/C++ headers for Sun and W$ and the only place I've
-ever seen the "do {} while(0)" stuff is in Linux. I think
-it started with Linux (was a Linux Invention!), as some
-kind of work-around, then it became a "Linux Signature".
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.24 on an i986 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
-
+-- 
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+WatchGuard - http://www.watchguard.com/

@@ -1,42 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280727AbRKBQi5>; Fri, 2 Nov 2001 11:38:57 -0500
+	id <S280729AbRKBQqR>; Fri, 2 Nov 2001 11:46:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280728AbRKBQir>; Fri, 2 Nov 2001 11:38:47 -0500
-Received: from adsl-209-76-109-63.dsl.snfc21.pacbell.net ([209.76.109.63]:20864
-	"EHLO adsl-209-76-109-63.dsl.snfc21.pacbell.net") by vger.kernel.org
-	with ESMTP id <S280727AbRKBQil>; Fri, 2 Nov 2001 11:38:41 -0500
-Date: Fri, 2 Nov 2001 08:38:21 -0800
-From: Wayne Whitney <whitney@math.berkeley.edu>
-Message-Id: <200111021638.fA2GcLs03275@adsl-209-76-109-63.dsl.snfc21.pacbell.net>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Alan Cox <laughing@shared-source.org>
-Subject: Re: Linux 2.4.13-ac6
-In-Reply-To: <20011102142512.A9558@lightning.swansea.linux.org.uk>
-In-Reply-To: <20011102142512.A9558@lightning.swansea.linux.org.uk>
-Reply-To: whitney@math.berkeley.edu
+	id <S280730AbRKBQqK>; Fri, 2 Nov 2001 11:46:10 -0500
+Received: from air-1.osdl.org ([65.201.151.5]:63750 "EHLO osdlab.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S280729AbRKBQqA>;
+	Fri, 2 Nov 2001 11:46:00 -0500
+Message-ID: <3BE2CC18.976C2A9B@osdl.org>
+Date: Fri, 02 Nov 2001 08:38:48 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+Organization: OSDL
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-20mdk i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Kirill Ratkin <kratkin@egartech.com>
+CC: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: PCMCIA->USB
+In-Reply-To: <3BE29AC3.DEB4B31A@egartech.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In mailing-lists.linux-kernel, Alan Cox wrote:
+Kirill Ratkin wrote:
+> 
+> Do somebody make driver for subject device now!?
 
-> 2.4.13-ac6
-> o	IDE driver updates				(Andre Hedrick
-> 							 Michael Cornwell)
-> 	| Taskfile framework
-> 	| Disk suspend cache flushing
-> 	| Driver updates
-> 	| UDMA133
+Do you have a web page reference for the subject device?
 
-This adds four config options without any Configure.help text:
+The usb-ohci driver has been known to work with PCMCIA/USB OHCI
+cards.
 
-CONFIG_IDEDISK_STROKE
-CONFIG_IDE_TASK_IOCTL
-CONFIG_IDEDMA_ONLYDISK
-CONFIG_BLK_DEV_IDEDMA_TIMEOUT
-
-Is there any documentation somewhere else for these?  In particular I
-get what most of them mean but don't understand what IDE Taskfile is.
-
-Cheers, Wayne
-
+~Randy

@@ -1,52 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262660AbUJ0Xmo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262679AbUJ0Xta@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262660AbUJ0Xmo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 19:42:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262661AbUJ0XiY
+	id S262679AbUJ0Xta (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 19:49:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262682AbUJ0Xsz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 19:38:24 -0400
-Received: from fw.osdl.org ([65.172.181.6]:64976 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262683AbUJ0ULb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 16:11:31 -0400
-Date: Wed, 27 Oct 2004 13:09:19 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: rlrevell@joe-job.com, kr@cybsft.com, linux-kernel@vger.kernel.org,
-       rncbc@rncbc.org, Mark_H_Johnson@Raytheon.com, bhuey@lnxw.com,
-       doogie@debian.org, mista.tapas@gmx.net, tglx@linutronix.de,
-       xschmi00@stud.feec.vutbr.cz, nando@ccrma.Stanford.EDU
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0
-Message-Id: <20041027130919.1a1175f5.akpm@osdl.org>
-In-Reply-To: <20041027151701.GA11736@elte.hu>
-References: <20041025104023.GA1960@elte.hu>
-	<417D4B5E.4010509@cybsft.com>
-	<20041025203807.GB27865@elte.hu>
-	<417E2CB7.4090608@cybsft.com>
-	<20041027002455.GC31852@elte.hu>
-	<417F16BB.3030300@cybsft.com>
-	<20041027132926.GA7171@elte.hu>
-	<417FB7F0.4070300@cybsft.com>
-	<20041027150548.GA11233@elte.hu>
-	<1098889994.1448.14.camel@krustophenia.net>
-	<20041027151701.GA11736@elte.hu>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 27 Oct 2004 19:48:55 -0400
+Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:1260 "EHLO
+	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP id S262679AbUJ0Xpg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 19:45:36 -0400
+From: David Brownell <david-b@pacbell.net>
+To: Colin Leroy <colin@colino.net>
+Subject: Re: [PATCH] usb: don't spit out too much errors with suspended devices
+Date: Wed, 27 Oct 2004 16:13:56 -0700
+User-Agent: KMail/1.6.2
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+References: <20041026172843.6ac07c1a.colin@colino.net> <200410260905.14869.david-b@pacbell.net> <20041027091925.56d31d91.colin@colino.net>
+In-Reply-To: <20041027091925.56d31d91.colin@colino.net>
+MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200410271613.56201.david-b@pacbell.net>
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_0uCgB1m8IJljnb8"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar <mingo@elte.hu> wrote:
->
-> > Here is a more up to date version of the rtc-debug patch:
->  > 
->  > http://lkml.org/lkml/2004/9/9/307
->  > 
->  > There is still a bit of 2.4 cruft in there but it works well.  Maybe
->  > this could be included in future patches.
-> 
->  the most natural point of inclusion would be Andrew's -mm tree i think
->  :-)
 
-It's 'orrid.  And iirc it breaks normal use of the RTC.
+--Boundary-00=_0uCgB1m8IJljnb8
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+On Wednesday 27 October 2004 00:19, Colin Leroy wrote:
+> On 26 Oct 2004 at 09h10, David Brownell wrote:
+> 
+> Hi, 
+> 
+> > What's wrong there is emitting voluminous diagnostics for
+> > something that's not an error ... the root hub is suspended,
+> > and as with any suspended device, you can't talk to it.
+> > The descriptor read logic can skip retries in that case, and
+> > usbfs should refuse up front to talk to suspended devices.
+> > (Silently!)
+> 
+> Here's a patch that does it. Hope it's fine.
+
+The "message.c" part is fine, but the usbfs/devio change
+only tests one of several paths for device access.  (My
+first whack at this only covered a different one!)  Can
+you verify this one instead?
+
+- Dave
+
+
+
+--Boundary-00=_0uCgB1m8IJljnb8
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="Diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="Diff"
+
+--- 1.67/drivers/usb/core/message.c	Tue Oct 26 09:42:33 2004
++++ edited/drivers/usb/core/message.c	Wed Oct 27 16:02:03 2004
+@@ -704,6 +704,8 @@
+ 	int err;
+ 	unsigned int u, idx;
+ 
++	if (dev->state == USB_STATE_SUSPENDED)
++		return -EHOSTUNREACH;
+ 	if (size <= 0 || !buf || !index)
+ 		return -EINVAL;
+ 	buf[0] = 0;
+--- 1.67/drivers/usb/core/devio.c	Wed Oct 20 11:45:30 2004
++++ edited/drivers/usb/core/devio.c	Wed Oct 27 16:07:40 2004
+@@ -411,6 +411,8 @@
+ 
+ static int checkintf(struct dev_state *ps, unsigned int ifnum)
+ {
++	if (ps->dev->state != USB_STATE_CONFIGURED)
++		return -EHOSTUNREACH;
+ 	if (ifnum >= 8*sizeof(ps->ifclaimed))
+ 		return -EINVAL;
+ 	if (test_bit(ifnum, &ps->ifclaimed))
+@@ -450,6 +452,8 @@
+ {
+ 	int ret = 0;
+ 
++	if (ps->dev->state != USB_STATE_CONFIGURED)
++		return -EHOSTUNREACH;
+ 	if (USB_TYPE_VENDOR == (USB_TYPE_MASK & requesttype))
+ 		return 0;
+ 
+@@ -1131,7 +1135,7 @@
+ 	}
+ 
+ 	if (ps->dev->state != USB_STATE_CONFIGURED)
+-		retval = -ENODEV;
++		retval = -EHOSTUNREACH;
+ 	else if (!(intf = usb_ifnum_to_if (ps->dev, ctrl.ifno)))
+                retval = -EINVAL;
+ 	else switch (ctrl.ioctl_code) {
+
+--Boundary-00=_0uCgB1m8IJljnb8--

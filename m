@@ -1,51 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262638AbTEMSow (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 14:44:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263234AbTEMSow
+	id S263315AbTEMSry (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 14:47:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263293AbTEMSrx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 14:44:52 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:29445 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262638AbTEMSos (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 14:44:48 -0400
-Date: Tue, 13 May 2003 19:55:13 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Simon Kelley <simon@thekelleys.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] eliminates irqN: nobody cared! and backtrace on inserting 16bit PCMCIA card.
-Message-ID: <20030513195513.E15172@flint.arm.linux.org.uk>
-Mail-Followup-To: Simon Kelley <simon@thekelleys.org.uk>,
-	linux-kernel@vger.kernel.org
-References: <3EC12A98.9040003@thekelleys.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3EC12A98.9040003@thekelleys.org.uk>; from simon@thekelleys.org.uk on Tue, May 13, 2003 at 06:25:44PM +0100
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+	Tue, 13 May 2003 14:47:53 -0400
+Received: from mrelay1.cc.umr.edu ([131.151.1.120]:44503 "EHLO smtp.umr.edu")
+	by vger.kernel.org with ESMTP id S263285AbTEMSrg convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 14:47:36 -0400
+x-mimeole: Produced By Microsoft Exchange V6.0.6249.0
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [OpenAFS-devel] Re: [PATCH] in-core AFS multiplexor and PAG support
+Date: Tue, 13 May 2003 14:00:14 -0500
+Message-ID: <B578DAA4FD40684793C953B491D4879174D3BA@umr-mail7.umr.edu>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [OpenAFS-devel] Re: [PATCH] in-core AFS multiplexor and PAG support
+Thread-Index: AcMZgRFxFY/CRjQBRoyEBiwqeZDfQAAAJOLA
+From: "Neulinger, Nathan" <nneul@umr.edu>
+To: "David Howells" <dhowells@warthog.cambridge.redhat.com>,
+       "Jan Harkes" <jaharkes@cs.cmu.edu>
+Cc: "David Howells" <dhowells@cambridge.redhat.com>,
+       "Linus Torvalds" <torvalds@transmeta.com>,
+       <linux-kernel@vger.kernel.org>, <linux-fsdevel@vger.kernel.org>,
+       <openafs-devel@openafs.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 13, 2003 at 06:25:44PM +0100, Simon Kelley wrote:
-> diff -urN linux-2.5.69.orig/drivers/pcmcia/rsrc_mgr.c  linux-2.5.69/drivers/pcmcia/rsrc_mgr.c
-> --- linux-2.5.69.orig/drivers/pcmcia/rsrc_mgr.c Mon May  5 00:53:32 2003
-> +++ linux-2.5.69/drivers/pcmcia/rsrc_mgr.c      Tue May 13 18:18:35 2003
-> @@ -601,7 +601,7 @@
+> > >  (2) gettok(const char *fs, const char *key, size_t size, 
+> void *buffer)
+> > > 
+> > >      Get a copy of an authentication token.
+> > 
+> > Not sure what the use of this is for userspace. I can see how your
+> > kernel module would use it.
 > 
->   #ifdef CONFIG_PCMCIA_PROBE
-> 
-> -static irqreturn_t fake_irq(int i, void *d, struct pt_regs *r) { return IRQ_NONE; }
-> +static irqreturn_t fake_irq(int i, void *d, struct pt_regs *r) { return IRQ_HANDLED; }
->   static inline int check_irq(int irq)
->   {
->       if (request_irq(irq, fake_irq, 0, "bogus", NULL) != 0)
-> 
+> OpenAFS has it, but I'm not sure what uses it.
 
-Oh damn, and I was hoping to kill fake_irq and make it use no_action()
-instead!
+Any afs user space tool that needs to talk to file servers - such as all
+the administration utilities - vos, bos, pts, etc. Eventually they could
+use kerberos cred caches directly, but not until they are converted to
+kerberos. Right now, they fetch the current auth data from the kernel
+and use it to authenticate to whatever non-kernel service they are
+talking to.
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+-- Nathan

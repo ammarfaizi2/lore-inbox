@@ -1,37 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272160AbTHIBJX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Aug 2003 21:09:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272156AbTHIBJH
+	id S272258AbTHIBMD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Aug 2003 21:12:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272216AbTHIBJu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Aug 2003 21:09:07 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:27152
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S272228AbTHIBFs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Aug 2003 21:05:48 -0400
-Date: Fri, 8 Aug 2003 18:05:44 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: Andrew Morton <akpm@osdl.org>, dan@debian.org,
-       linux-kernel@vger.kernel.org, ext3-users@redhat.com
-Subject: Re: ext3 badness in 2.6.0-test2
-Message-ID: <20030809010544.GC1027@matchmail.com>
-Mail-Followup-To: Neil Brown <neilb@cse.unsw.edu.au>,
-	Andrew Morton <akpm@osdl.org>, dan@debian.org,
-	linux-kernel@vger.kernel.org, ext3-users@redhat.com
-References: <20030804142245.GA1627@nevyn.them.org> <20030804132219.2e0c53b4.akpm@osdl.org> <16176.41431.279477.273718@gargle.gargle.HOWL> <20030805235735.4c180fa4.akpm@osdl.org> <16178.63046.43567.551323@gargle.gargle.HOWL> <20030807181631.2962dfca.akpm@osdl.org> <16180.17103.360112.493943@gargle.gargle.HOWL>
+	Fri, 8 Aug 2003 21:09:50 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:7932 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP id S272248AbTHIBIj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Aug 2003 21:08:39 -0400
+Subject: [patch] remove initramfs temp files
+From: Robert Love <rml@tech9.net>
+To: kai@tp1.ruhr-uni-bochum.de, torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1060391292.31499.52.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16180.17103.360112.493943@gargle.gargle.HOWL>
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-3) 
+Date: Fri, 08 Aug 2003 18:08:12 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 09, 2003 at 10:39:43AM +1000, Neil Brown wrote:
-> -		sh = get_active_stripe(conf, new_sector, pd_idx, (bi->bi_rw&RWA_MASK));
-> +		sh = get_active_stripe(conf, new_sector, pd_idx, 0/*(bi->bi_rw&RWA_MASK)*/);
+Hi, Kai.
 
-Wouldn't it be better to remove instead of just commenting out that part?
+'make distclean' and 'make mrproper' both fail to remove the file
+initramfs_data.S.tmp from the root of the kernel build tree.
 
-At first glance it looked like a device by zero error... :-/
+Attached patch adds it to the MRPROPER_FILES list.
+
+Patch is against 2.6.0-test2.
+
+	Robert Love
+
+
+ Makefile |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+
+diff -urN linux-2.6.0-test2/Makefile linux/Makefile
+--- linux-2.6.0-test2/Makefile	2003-07-27 10:04:49.000000000 -0700
++++ linux/Makefile	2003-08-08 18:01:40.721934933 -0700
+@@ -676,7 +676,7 @@
+ 	include/asm \
+ 	.hdepend include/linux/modversions.h \
+ 	tags TAGS cscope kernel.spec \
+-	.tmp*
++	initramfs_data.S.tmp .tmp*
+ 
+ # Directories removed with 'make mrproper'
+ MRPROPER_DIRS += \
+
+

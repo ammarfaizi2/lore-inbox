@@ -1,50 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267506AbTA3NpM>; Thu, 30 Jan 2003 08:45:12 -0500
+	id <S267505AbTA3Nox>; Thu, 30 Jan 2003 08:44:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267507AbTA3NpM>; Thu, 30 Jan 2003 08:45:12 -0500
-Received: from ns.suse.de ([213.95.15.193]:36108 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S267506AbTA3NpL>;
-	Thu, 30 Jan 2003 08:45:11 -0500
-Date: Thu, 30 Jan 2003 14:54:33 +0100
-From: Stefan Reinauer <stepan@suse.de>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Bootscreen
-Message-ID: <20030130135433.GA6066@suse.de>
-References: <200301290318.20817.b_adlakha@softhome.net> <200301291448.h0TEmAs18379@Port.imtp.ilyichevsk.odessa.ua>
+	id <S267506AbTA3Nox>; Thu, 30 Jan 2003 08:44:53 -0500
+Received: from dp.samba.org ([66.70.73.150]:28849 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S267505AbTA3Now>;
+	Thu, 30 Jan 2003 08:44:52 -0500
+Date: Fri, 31 Jan 2003 00:52:15 +1100
+From: Anton Blanchard <anton@samba.org>
+To: David Brownell <david-b@pacbell.net>
+Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
+Subject: Re: pci_set_mwi() ... why isn't it used more?
+Message-ID: <20030130135215.GF6028@krispykreme>
+References: <3E2C42DF.1010006@pacbell.net> <20030120190055.GA4940@gtf.org> <3E2C4FFA.1050603@pacbell.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200301291448.h0TEmAs18379@Port.imtp.ilyichevsk.odessa.ua>
-User-Agent: Mutt/1.4i
-X-Message-Flag: Life is too short to use a crappy OS.
+In-Reply-To: <3E2C4FFA.1050603@pacbell.net>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> [030129 15:46]:
-> Yeah, dude, let's dumb down our users... don't allow them
-> to become curious and start learning.
+ 
+> I suppose the potential for broken PCI devices is exactly why MWI
+> isn't automatically enabled when DMA mastering is enabled, though
+> I don't understand why the cacheline size doesn't get fixed then
+> (unless it's that same issue).  Devices can use the cacheline size
+> to get better Memory Read Line/Read Multiple" throughput; setting
+> it shouldn't be tied exclusively to enabling MWI.
 
-How would a graphical bootscreen keep them away from becoming curious?
-With my bootsplash patch you can either choose to hide the kernel
-messages completely, or have the boot messages scroll down on a
-graphical background. No information missing, it just looks a lot
-better. 
+There are a number of cases where we cant enable MWI either because
+the PCI card doesnt support the CPU cacheline size or we have to set the
+PCI card cacheline size to something smaller due to various bugs.
 
-> Grown up, mature people are scared when they see letters
-> and numbers on the screen? On what planet am I?
-The world is just not just technophile freaks, sorry if this
-is new to you ;-)
+eg I understand earlier versions of the e100 dont support a 128 byte
+cacheline (and the top bits are read only so setting it up for 128 bytes
+will result in it it being set to 0). Not good for read multiple/line
+and even worse if we decide to enable MWI :)
 
-> And if someone *is* scared and totally non-curious, well...
-> do you want to have such a user? /me not.
-
-Freedom for those who are more equal than others.
-
-Regards
-  Stefan
-
--- 
-The use of COBOL cripples the mind; its teaching should, therefore, be
-regarded as a criminal offense.                      -- E. W. Dijkstra
+Anton

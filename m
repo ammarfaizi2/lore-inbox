@@ -1,89 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261399AbVCNJOZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261401AbVCNJ1r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261399AbVCNJOZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 04:14:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262078AbVCNJOZ
+	id S261401AbVCNJ1r (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 04:27:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261415AbVCNJ1r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 04:14:25 -0500
-Received: from mail-mx1.hia.no ([158.36.80.150]:25797 "EHLO mail-mx1.hia.no")
-	by vger.kernel.org with ESMTP id S261399AbVCNJOR (ORCPT
+	Mon, 14 Mar 2005 04:27:47 -0500
+Received: from [151.97.230.9] ([151.97.230.9]:43529 "HELO ssc.unict.it")
+	by vger.kernel.org with SMTP id S261401AbVCNJ1p (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 04:14:17 -0500
-From: Vegard Lima <Vegard.Lima@hia.no>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Mon, 14 Mar 2005 10:14:17 +0100
-Message-Id: <1110791657.1807.11.camel@pingvin.krs.hia.no>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
-Subject: pam and nice-rt-prio-rlimits
+	Mon, 14 Mar 2005 04:27:45 -0500
+Subject: [patch 1/1] Fix kconfig docs typo: integer -> int
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, blaisorblade@yahoo.it
+From: blaisorblade@yahoo.it
+Date: Thu, 10 Mar 2005 16:38:58 +0100
+Message-Id: <20050310153900.B75A56475@zion>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-in the long thread on "[request for inclusion] Realtime LSM" there
-doesn't appear to be too many people who has actually tested the
-nice-and-rt-prio-rlimits.patch. Well, it works for me...
+Trivial correction: the type of numbers for Kconfig is not integer but int (I
+just verified because I followed the wrong docs and got a error, I looked
+elsewhere and they are using int, and int works for me). Please apply.
 
-However, the patch to pam_limits posted here:
-  http://lkml.org/lkml/2005/1/14/174
-is a little bit aggressive on the semi-colon side.
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+---
 
-Tested patch (and pam.src.rpm for fedora c3) can be found here
-  http://home.hia.no/~vegardl/rlimit/
-and below
+ linux-2.6.11-paolo/Documentation/kbuild/kconfig-language.txt |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
---- Linux-PAM-0.77/modules/pam_limits/pam_limits.c.rtprio	2005-03-13 16:15:07.000000000 +0100
-+++ Linux-PAM-0.77/modules/pam_limits/pam_limits.c	2005-03-13 16:27:54.000000000 +0100
-@@ -39,6 +39,11 @@
- #include <grp.h>
- #include <pwd.h>
+diff -puN Documentation/kbuild/kconfig-language.txt~doc-big-typo-fix Documentation/kbuild/kconfig-language.txt
+--- linux-2.6.11/Documentation/kbuild/kconfig-language.txt~doc-big-typo-fix	2005-03-10 16:35:38.000000000 +0100
++++ linux-2.6.11-paolo/Documentation/kbuild/kconfig-language.txt	2005-03-10 16:36:09.000000000 +0100
+@@ -48,7 +48,7 @@ Menu attributes
+ A menu entry can have a number of attributes. Not all of them are
+ applicable everywhere (see syntax).
  
-+/* Hack to test new rlimit values */
-+#define RLIMIT_NICE	13
-+#define RLIMIT_RTPRIO	14
-+#define RLIM_NLIMITS	15
-+
- /* Module defines */
- #define LINE_LENGTH 1024
+-- type definition: "bool"/"tristate"/"string"/"hex"/"integer"
++- type definition: "bool"/"tristate"/"string"/"hex"/"int"
+   Every config option must have a type. There are only two basic types:
+   tristate and string, the other types are based on these two. The type
+   definition optionally accepts an input prompt, so these two examples
+@@ -100,7 +100,7 @@ applicable everywhere (see syntax).
+   symbols.
  
-@@ -293,6 +298,10 @@
-     else if (strcmp(lim_item, "locks") == 0)
- 	limit_item = RLIMIT_LOCKS;
- #endif
-+    else if (strcmp(lim_item, "rt_priority") == 0)
-+	limit_item = RLIMIT_RTPRIO;
-+    else if (strcmp(lim_item, "nice") == 0)
-+	limit_item = RLIMIT_NICE;
-     else if (strcmp(lim_item, "maxlogins") == 0) {
- 	limit_item = LIMIT_LOGIN;
- 	pl->flag_numsyslogins = 0;
-@@ -360,6 +369,18 @@
-         case RLIMIT_AS:
-             limit_value *= 1024;
-             break;
-+        case RLIMIT_NICE:
-+            if (limit_value > 39)
-+		limit_value = 39;
-+	    if (limit_value < 0)
-+		limit_value = 0;
-+            break;
-+        case RLIMIT_RTPRIO:
-+            if (limit_value > 99)
-+		limit_value = 99;
-+	    if (limit_value < 0)
-+		limit_value = 0;
-+            break;
-     }
- 
-     if ( (limit_item != LIMIT_LOGIN)
-
-
-
-Thanks,
--- 
-Vegard Lima
-
-
+ - numerical ranges: "range" <symbol> <symbol> ["if" <expr>]
+-  This allows to limit the range of possible input values for integer
++  This allows to limit the range of possible input values for int
+   and hex symbols. The user can only input a value which is larger than
+   or equal to the first symbol and smaller than or equal to the second
+   symbol.
+_

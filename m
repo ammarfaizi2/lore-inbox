@@ -1,37 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314101AbSDQOzA>; Wed, 17 Apr 2002 10:55:00 -0400
+	id <S314095AbSDQPAm>; Wed, 17 Apr 2002 11:00:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314103AbSDQOy7>; Wed, 17 Apr 2002 10:54:59 -0400
-Received: from aslan.scsiguy.com ([63.229.232.106]:22795 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP
-	id <S314101AbSDQOy6>; Wed, 17 Apr 2002 10:54:58 -0400
-Message-Id: <200204171454.g3HEsB904317@aslan.scsiguy.com>
-To: Andrey Slepuhin <pooh@msu.ru>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: aic7xxx driver v6.2.5 freezes the kernel 
-In-Reply-To: Your message of "Wed, 17 Apr 2002 15:15:15 +0400."
-             <20020417111515.GE7342@glade.nmd.msu.ru> 
-Date: Wed, 17 Apr 2002 08:54:11 -0600
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+	id <S314103AbSDQPAl>; Wed, 17 Apr 2002 11:00:41 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:4873 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S314095AbSDQPAk>; Wed, 17 Apr 2002 11:00:40 -0400
+Date: Wed, 17 Apr 2002 10:57:59 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: bert hubert <ahu@ds9a.nl>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: please merge 64-bit jiffy patches.
+In-Reply-To: <20020417144231.A17983@outpost.ds9a.nl>
+Message-ID: <Pine.LNX.3.96.1020417105014.32318A-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->All other changes were successfully merged without any problems.
->BTW, version 6.2.6 of the driver from 2.4.19-pre7 freezes the system too.
+On Wed, 17 Apr 2002, bert hubert wrote:
 
-What motherboard is this again?  Perhaps your PCI bus is running just
-a hair bit faster than 66MHz?  A similar issue was discovered with the
-U320 controllers running at 133MHz PCI-X where some amount of delay is
-required prior to accessing chip registers again after setting
-CHIPRST.
+> On Wed, Apr 17, 2002 at 08:33:34AM -0400, Bill Davidsen wrote:
+> 
+> >   Other than a few things reporting wrong numbers, what costs do you
+> > anticipate? I have servers in six USA states (four timezones) and I
+> > haven't seen any real ill-effect on this.
+> 
+> I have been advised by Alan to treat the jiffy wraparound as a scheduled
+> maintenance event. I tend to trust bearded kernel hackers from Wales.
 
-The code was flipped so that the delay was acurate.  In PCI, you
-are only guaranteed that the write has been flushed all the way to the
-device by performing a read to that device.  I guess we'll just have to
-hope that our write transaction isn't stalled.
+  Alan has to be conservative, since he want to avoid giving potentially
+damaging advice to someone. However, since you can take a reboot at your
+convenience and schedule a year in advance, I still don't see the great
+cost. If you have an app which must be up 7x24 and don't have seamless
+backup you have other problems more serious than timer wrap.
 
-I'll make a 6.2.7 <sigh> drop later today.
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 
---
-Justin

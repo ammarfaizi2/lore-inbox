@@ -1,41 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269065AbUIXSjR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269029AbUIXSki@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269065AbUIXSjR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 14:39:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269072AbUIXSjR
+	id S269029AbUIXSki (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 14:40:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269079AbUIXSkh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 14:39:17 -0400
-Received: from web70211.mail.krs.yahoo.com ([202.165.108.70]:22705 "HELO
-	web70211.mail.krs.yahoo.com") by vger.kernel.org with SMTP
-	id S269065AbUIXSjO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 14:39:14 -0400
-Message-ID: <20040924183912.66557.qmail@web70211.mail.krs.yahoo.com>
-Date: Sat, 25 Sep 2004 03:39:12 +0900 (JST)
-From: Jeon <jmj119kr@yahoo.co.kr>
-Subject: gettimeofday() problem in kernel mode
-To: linux-kernel@vger.kernel.org
+	Fri, 24 Sep 2004 14:40:37 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:52968 "EHLO
+	MTVMIME02.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S269029AbUIXSkR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Sep 2004 14:40:17 -0400
+Date: Fri, 24 Sep 2004 19:40:02 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Mpourtounis Dimitris <db@wless.gr>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: strange behavior creating and deleting files
+In-Reply-To: <1096020827.4089.7.camel@WLESS>
+Message-ID: <Pine.LNX.4.44.0409241915420.3336-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=euc-kr
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Fri, 24 Sep 2004, Mpourtounis Dimitris wrote:
+> 
+> there seems to be a strange behaviour in the way my system creates and
+> deletes files, as long as memory allocation is concerned.
+> 
+> running a simple script that continuously creates and deletes files on
+> tmpfs filesystem, a got the following results:
+> 
+> files created		free memory on system 
+> -------------		---------------------
+> 0			48180
+> +6000			47936
+> +6000			47372
+> +6000			47372
+> +6000			47936
+> +6000			47936
+> +6000			47936
+> +6000			47936		(seems stable)
+> +9000			46976		(what on earth?)
+> +30000			45084
+> +80000			45084		(again stable)
+> +70000			39156		(not again...:( )
+> 
+> and sometime in the morning 25000 MB free RAM, and my system running too
+> slow
+> 
+> I am sure these are a lot a files and under normal conditions, there
+> will never be made and deleted so many.
+> 
+> It is that misbehavior of being stable for a long time and then again
+> allocating memory that concerns me.
 
-I tried to modify kernel2-4-18 for checkpointing and
-recovering(s.t. fault tolerance)
-When I measure duration time for checkpointing and
-recovering in kernel mode, I found there is some
-problem with measuring accurate duration time using
-gettimeofday().
-My watch said ten seconds is past, but kernel said
-only 1 second!!
-Is there other method or function for figuring out
-duration time in kernel mode?
+I'll admit that I don't _fully_ understand it either.  Another user
+noticed related behaviour a couple of months ago, below is the patch
+which I hope you find fixes yours too.  An equivalent fix (to fs/libfs.c)
+went into 2.6.9-rc1-bk1, I'd been waiting for it to get more 2.6 exposure
+(lest unwanted side-effects appeared) before sending Marcelo the 2.4 fix.
+If it works well for you, let me know and I'll send it in for 2.4.28...
 
+A tmpfs user reported increasingly slow directory reads when repeatedly
+creating and unlinking in a mkstemp-like way.  The negative dentries
+accumulate alarmingly (until memory pressure finally frees them), and
+are just a hindrance to any in-memory filesystem.  shmem_lookup set
+d_op to arrange for negative dentries to be deleted immediately.
 
+(But I failed to discover how it is that on-disk filesystems seem to
+keep their negative dentries within manageable bounds: this effect was
+gross with tmpfs or ramfs, but no problem at all with extN or reiser.)
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+Signed-off-by: Hugh Dickins <hugh@veritas.com>
+
+--- 2.4.26/mm/shmem.c	2003-11-28 18:26:21.000000000 +0000
++++ linux/mm/shmem.c	2004-07-30 12:48:31.324978800 +0100
+@@ -1161,13 +1161,27 @@ static int shmem_statfs(struct super_blo
+ }
+ 
+ /*
++ * Retaining negative dentries for an in-memory filesystem just wastes
++ * memory and lookup time: arrange for them to be deleted immediately.
++ */
++static int shmem_delete_dentry(struct dentry *dentry)
++{
++	return 1;
++}
++
++/*
+  * Lookup the data. This is trivial - if the dentry didn't already
+- * exist, we know it is negative.
++ * exist, we know it is negative.  Set d_op to delete negative dentries.
+  */
+ static struct dentry *shmem_lookup(struct inode *dir, struct dentry *dentry)
+ {
++	static struct dentry_operations shmem_dentry_operations = {
++		.d_delete = shmem_delete_dentry,
++	};
++
+ 	if (dentry->d_name.len > NAME_MAX)
+ 		return ERR_PTR(-ENAMETOOLONG);
++	dentry->d_op = &shmem_dentry_operations;
+ 	d_add(dentry, NULL);
+ 	return NULL;
+ }
+

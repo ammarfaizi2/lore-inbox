@@ -1,45 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281188AbRKTRwB>; Tue, 20 Nov 2001 12:52:01 -0500
+	id <S281183AbRKTR65>; Tue, 20 Nov 2001 12:58:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281183AbRKTRvs>; Tue, 20 Nov 2001 12:51:48 -0500
-Received: from jurassic.park.msu.ru ([195.208.223.243]:1808 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id <S281184AbRKTRvd>; Tue, 20 Nov 2001 12:51:33 -0500
-Date: Tue, 20 Nov 2001 20:51:05 +0300
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Richard Henderson <rth@redhat.com>
-Cc: Jay.Estabrook@compaq.com, linux-kernel@vger.kernel.org
-Subject: Re: [alpha] cleanup opDEC workaround
-Message-ID: <20011120205105.A15395@jurassic.park.msu.ru>
-In-Reply-To: <20011119232355.C16091@redhat.com> <20011120133150.A9033@jurassic.park.msu.ru> <20011120090818.A16366@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011120090818.A16366@redhat.com>; from rth@redhat.com on Tue, Nov 20, 2001 at 09:08:18AM -0800
+	id <S281192AbRKTR6s>; Tue, 20 Nov 2001 12:58:48 -0500
+Received: from [194.65.152.209] ([194.65.152.209]:37000 "EHLO
+	criticalsoftware.com") by vger.kernel.org with ESMTP
+	id <S281183AbRKTR6e>; Tue, 20 Nov 2001 12:58:34 -0500
+Message-Id: <200111201759.fAKHx9289954@criticalsoftware.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: =?iso-8859-1?q?Lu=EDs=20Henriques?= 
+	<lhenriques@criticalsoftware.com>
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: copy to suer space
+Date: Tue, 20 Nov 2001 17:53:24 +0000
+X-Mailer: KMail [version 1.3.1]
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <5.1.0.14.2.20011120165440.00a745b0@pop.cus.cam.ac.uk> <5.1.0.14.2.20011120173309.0262fd10@pop.cus.cam.ac.uk>
+In-Reply-To: <5.1.0.14.2.20011120173309.0262fd10@pop.cus.cam.ac.uk>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 20, 2001 at 09:08:18AM -0800, Richard Henderson wrote:
-> Oh, it depended on this one.
+> There is a time window in which it might get paged out in the mean time but
+> it's admittedly a very small window. But that is irrelevant as copy_to_user
+> would take care of the page out case by faulting the page back in (that is
+> at least my understanding of it).
+>
+> But that is not the problem I was talking about: Imagine you do
+> successfully modify the user space code and AFTER THAT the kernel pages out
+> the code and pages it back in later. Your change is then lost without
+> trace.
+>
+> That can easily crash your program depending on what modifications you do
+> to it...
+>
+> Anton
 
-Ok, but with opDEC_fix = 8 we actually skip to addt/stt, so that asm
-probably should be rearranged to
+I don't understand... this means that the paging does not save the a code 
+segment in memory? (sorry, this question is being done by a newbie...) When a 
+page is back to memory, what happens? Is read again from the binary file 
+(executable)?
 
-		"fmov $f31, $f0\n\t"
-		"cvttq/svm $f31, $f31\n\t"
-		"addt $f31, $f31, $f31\n\t"
-		"cmpteq $f31, $f31, $f0\n\t"
-		"stt $f0, %0"
+Well... I don't think this will have much impact in my module because what it 
+does is:
 
-Further, if fp emulation isn't compiled in, we'll have kernel mode
-instruction fault. A quick fix appears to be
+ - change the code in a process
+ - return to the process
+ - next time the process is scheduled, the code will be stored again in the CS
 
-			regs.pc += opDEC_fix;
-+			if (opDEC_fix == 8)
-+				return;
+So, I don't think that the paging will really became a problem as this shall 
+be quiet fast! The idea of changing the code is just to insert a delay in a 
+process, but leaving the process «burning» CPU time...
 
-Did I missed something?
+The point is: I'm not changing the code because of an obscure (to me...) 
+reason. You told me that the code segment may be protected and I'm 
+investigating on that but I would like to be sure that the kernel has no 
+acess to a user CS...
 
-Ivan.
+-- 
+Luís Henriques

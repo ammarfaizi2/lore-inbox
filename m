@@ -1,48 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267107AbSIRQCR>; Wed, 18 Sep 2002 12:02:17 -0400
+	id <S267257AbSIRQHU>; Wed, 18 Sep 2002 12:07:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267155AbSIRQCR>; Wed, 18 Sep 2002 12:02:17 -0400
-Received: from dmz.hesby.net ([81.29.32.2]:57267 "HELO firewall.hesbynett.no")
-	by vger.kernel.org with SMTP id <S267107AbSIRQCQ> convert rfc822-to-8bit;
-	Wed, 18 Sep 2002 12:02:16 -0400
-Subject: Re: Virtual to physical address mapping
-From: Ole =?ISO-8859-1?Q?Andr=E9?= Vadla =?ISO-8859-1?Q?Ravn=E5s?= 
-	<oleavr-lkml@jblinux.net>
-To: Brian Gerst <bgerst@quark.didntduck.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3D8867E7.4010107@quark.didntduck.org>
-References: <1032328456.5812.16.camel@zole.jblinux.net> 
-	<3D8867E7.4010107@quark.didntduck.org>
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 18 Sep 2002 18:10:54 +0200
-Message-Id: <1032365454.3485.20.camel@zole.jblinux.net>
-Mime-Version: 1.0
+	id <S267271AbSIRQHU>; Wed, 18 Sep 2002 12:07:20 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:5595 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S267257AbSIRQHT>;
+	Wed, 18 Sep 2002 12:07:19 -0400
+From: Hubertus Franke <frankeh@watson.ibm.com>
+Reply-To: frankeh@watson.ibm.com
+Organization: IBM Research
+To: Andrew Morton <akpm@digeo.com>
+Subject: [PATCH] recognize MAP_LOCKED in mmap() call
+Date: Wed, 18 Sep 2002 12:07:26 -0400
+User-Agent: KMail/1.4.1
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+References: <3D815C8C.4050000@us.ibm.com> <1031922352.9056.14.camel@irongate.swansea.linux.org.uk> <20020913213042.GD3530@holomorphy.com>
+In-Reply-To: <20020913213042.GD3530@holomorphy.com>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_E46NZG7A4M3X1RKLRVT1"
+Message-Id: <200209181207.26655.frankeh@watson.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-09-18 at 13:47, Brian Gerst wrote:
-> Ole André Vadla Ravnås wrote:
-> > Hi
-> > 
-> > I've noticed that ifconfig shows a base address and an interrupt
-> > number.. However, I can't get that base address to correspond to
-> > anything in /proc/iomem, which means that I can't determine which PCI
-> > device (in this case) it corresponds to (guess the base address is
-> > virtual). What I want is to find a way to get the PCI bus and device no
-> > for the network device, but is this at all possible without altering the
-> > kernel?
-> > 
-> > Ole André
-> 
-> It's in /proc/ioports
 
-Well, yes you're absolutely right, I got that all wrong in the first
-place. Fortunately things are clearing up now.. :-) Thanks
+--------------Boundary-00=_E46NZG7A4M3X1RKLRVT1
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 
-Best regards
-Ole André
 
+Andrew, at the current time an mmap() ignores a MAP_LOCKED passed to it.
+The only way we can get VM_LOCKED associated with the newly created VMA
+is to have previously called mlockall() on the process which sets the 
+mm->def_flags != VM_LOCKED or subsequently call mlock() on the
+newly created VMA.
+
+The attached patch checks for MAP_LOCKED being passed and if so checks
+the capabilities of the process. Limit checks were already in place.
+-- 
+-- Hubertus Franke  (frankeh@watson.ibm.com)
+
+--------------------------------< PATCH >------------------------------
+--- linux-2.5.35/mm/mmap.c	Wed Sep 18 11:12:13 2002
++++ linux-2.5.35-fix/mm/mmap.c	Wed Sep 18 11:44:32 2002
+@@ -461,6 +461,11 @@
+ 	 */
+ 	vm_flags = calc_vm_flags(prot,flags) | mm->def_flags | VM_MAYREAD | VM_MAYWRITE | VM_MAYEXEC;
+ 
++	if (flags & MAP_LOCKED) {
++		if (!capable(CAP_IPC_LOCK))
++			return -EPERM;
++		vm_flags |= VM_LOCKED;
++	}
+ 	/* mlock MCL_FUTURE? */
+ 	if (vm_flags & VM_LOCKED) {
+ 		unsigned long locked = mm->locked_vm << PAGE_SHIFT;
+
+
+
+
+--------------Boundary-00=_E46NZG7A4M3X1RKLRVT1
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="patch.2.5.35.mmap_locked"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="patch.2.5.35.mmap_locked"
+
+--- linux-2.5.35/mm/mmap.c	Wed Sep 18 11:12:13 2002
++++ linux-2.5.35-fix/mm/mmap.c	Wed Sep 18 11:44:32 2002
+@@ -461,6 +461,11 @@
+ 	 */
+ 	vm_flags = calc_vm_flags(prot,flags) | mm->def_flags | VM_MAYREAD | VM_MAYWRITE | VM_MAYEXEC;
+ 
++	if (flags & MAP_LOCKED) {
++		if (!capable(CAP_IPC_LOCK))
++			return -EPERM;
++		vm_flags |= VM_LOCKED;
++	}
+ 	/* mlock MCL_FUTURE? */
+ 	if (vm_flags & VM_LOCKED) {
+ 		unsigned long locked = mm->locked_vm << PAGE_SHIFT;
+
+--------------Boundary-00=_E46NZG7A4M3X1RKLRVT1--
 

@@ -1,51 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265680AbUF2M1S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265746AbUF2MjG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265680AbUF2M1S (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jun 2004 08:27:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265755AbUF2M1R
+	id S265746AbUF2MjG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jun 2004 08:39:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265747AbUF2MjG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jun 2004 08:27:17 -0400
-Received: from mk-smarthost-3.mail.uk.tiscali.com ([212.74.114.39]:56071 "EHLO
-	mk-smarthost-3.mail.uk.tiscali.com") by vger.kernel.org with ESMTP
-	id S265680AbUF2M1P convert rfc822-to-8bit (ORCPT
+	Tue, 29 Jun 2004 08:39:06 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:15848 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S265746AbUF2MjD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jun 2004 08:27:15 -0400
-Date: Tue, 29 Jun 2004 05:25:52 -0700
-Message-ID: <40D027270004B342@mk-cpfrontend-1.mail.uk.tiscali.com>
-From: mrwilliamsjohnsons@handbag.com
-Subject: GOOD DAY
+	Tue, 29 Jun 2004 08:39:03 -0400
+From: Jeff Moyer <jmoyer@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-To: unlisted-recipients:; (no To-header on input)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16609.25187.339622.762531@segfault.boston.redhat.com>
+Date: Tue, 29 Jun 2004 08:36:51 -0400
+To: Matt Mackall <mpm@selenic.com>, linux-kernel@vger.kernel.org
+Subject: Re: netconsole hangs w/ alt-sysrq-t
+In-Reply-To: <16608.20014.220537.339589@segfault.boston.redhat.com>
+References: <16519.58589.773562.492935@segfault.boston.redhat.com>
+	<20040425191543.GV28459@waste.org>
+	<16527.42815.447695.474344@segfault.boston.redhat.com>
+	<20040428140353.GC28459@waste.org>
+	<16527.47765.286783.249944@segfault.boston.redhat.com>
+	<20040428142753.GE28459@waste.org>
+	<16527.63123.869014.733258@segfault.boston.redhat.com>
+	<16604.18881.850162.785970@segfault.boston.redhat.com>
+	<20040625232711.GE25826@waste.org>
+	<16608.12233.39964.940020@segfault.boston.redhat.com>
+	<20040628151954.GH25826@waste.org>
+	<16608.20014.220537.339589@segfault.boston.redhat.com>
+X-Mailer: VM 7.14 under 21.4 (patch 13) "Rational FORTRAN" XEmacs Lucid
+Reply-To: jmoyer@redhat.com
+X-PGP-KeyID: 1F78E1B4
+X-PGP-CertKey: F6FE 280D 8293 F72C 65FD  5A58 1FF8 A7CA 1F78 E1B4
+X-PCLoadLetter: What the f**k does that mean?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Sir, 
 
-I am Mr Williams Johnson,iam  the account officer To Late Mr. Hanson Cox
-S.,a national of your country, On the 21st of April 2002, my client was
-involved in a car accident.Unfortunately he lost his life. 
-I have contacted you to assist in repatriating the money and property left
-behind by my client before they get confiscated or declared unserviceable
-by the Bank where this huge deposit was lodged. The bank where the deceased
-had an account valued at about $19.8 Million dollars Has issued me a notice
-to provide the next of kin or have the account Confiscated within the next
-twenty one official working days. 
-Since I have been unsuccessful in locating the relatives, I now seek your
-consent to present you as the next of kin Of the deceased since the deceased
-is a forgnier, so that the Proceeds of this account valued at $19.8 Million
-dollars can be paid to you,subsequently to be shared among us If you agree,
-we can discuss your percentage. I have all necessary Legal documents that
-can be used to back up any claim we may make. 
-All I require is your honest cooperation to enable us see this transaction
-through. 
-I guarantee that this will be executed under a legitimate arrangement that
-will protect you from any breach of the law. 
-Awaiting your response in  my private email address williamsjohnsons@yahoo.co.uk
- . 
+[snip]
 
-Best regards, 
-Williams Johnson (Esq.) 
+@@ -70,9 +73,12 @@
+ 	np->dev->poll_controller(np->dev);
+ 
+ 	/* If scheduling is stopped, tickle NAPI bits */
+-	if(trapped && np->dev->poll &&
+-	   test_bit(__LINK_STATE_RX_SCHED, &np->dev->state))
++	if (np->dev->poll && 
++	    test_bit(__LINK_STATE_RX_SCHED, &np->dev->state)) {
++		np->dev->netpoll_rx |= NETPOLL_RX_DROP;
+ 		np->dev->poll(np->dev, &budget);
++		np->dev->netpoll_rx &= ~NETPOLL_RX_DROP;
++	}
+ 	zap_completion_queue();
+ }
+ 
+Silly me.  This still needs to set trapped (and still needs more thinking
+about smp issues).
 
-
+-Jeff

@@ -1,47 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262050AbUBHD5r (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Feb 2004 22:57:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262128AbUBHD5r
+	id S262048AbUBHD5M (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Feb 2004 22:57:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262050AbUBHD5M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Feb 2004 22:57:47 -0500
-Received: from dp.samba.org ([66.70.73.150]:61875 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S262050AbUBHD5p (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Feb 2004 22:57:45 -0500
-Date: Sun, 8 Feb 2004 14:57:21 +1100
-From: Anton Blanchard <anton@samba.org>
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: Rick Lindsley <ricklind@us.ibm.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, dvhltc@us.ibm.com
-Subject: Re: [PATCH] Load balancing problem in 2.6.2-mm1
-Message-ID: <20040208035721.GY19011@krispykreme>
-References: <20040207095057.GS19011@krispykreme> <200402080040.i180eY811893@owlet.beaverton.ibm.com> <20040208011221.GV19011@krispykreme> <40258F21.30209@cyberone.com.au> <20040208014141.GX19011@krispykreme> <4025AB00.3030601@cyberone.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4025AB00.3030601@cyberone.com.au>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Sat, 7 Feb 2004 22:57:12 -0500
+Received: from rudy.mif.pg.gda.pl ([153.19.42.16]:16653 "EHLO
+	rudy.mif.pg.gda.pl") by vger.kernel.org with ESMTP id S262048AbUBHD5K
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Feb 2004 22:57:10 -0500
+Date: Sun, 8 Feb 2004 03:14:20 +0100 (CET)
+From: =?ISO-8859-2?Q?Tomasz_K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>
+To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: IPV4 as module?
+In-Reply-To: <20040205122921.GB28571@lug-owl.de>
+Message-ID: <Pine.LNX.4.58L.0402080257060.29247@rudy.mif.pg.gda.pl>
+References: <20040204200610.GB3802@localhost.localdomain>
+ <20040205122921.GB28571@lug-owl.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-2
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-Hi,
+On Thu, 5 Feb 2004, Jan-Benedict Glaw wrote:
 
-> Yeah its because you have a lot of cpus, so the average is still
-> small. You also need something like
+> On Wed, 2004-02-04 23:06:10 +0300, Andrey Borzenkov <arvidjaar@mail.ru>
+> wrote in message <20040204200610.GB3802@localhost.localdomain>:
+> > Any technical reaon IPV4 cannot be built as module? Current kernel
+> > barely fits on floopy (even with IDE as module); factoring out IPV4
+> > would allow to reduce size even more.
 > 
-> if (*imbalance == 0 && max_load - this_load > SCHED_LOAD_SCALE)
->    *imbalance = 1;
+> Some hard work need to be done to do that, but why shouldn't a kernel
+> fit onto a floppy? My vmlinuz'es are at about 600 to 900 KB for i386 and
+> a floppy can handle nearly about twice that size...
 
-OK I'll give that a try.
+Better will be ask why you must recompile kernel for add ipv4 abilities
+if you uses (olny) for example ipv6 stack ? :)
 
-> I don't have a >= 4 CPU box to test on, so I hate to be feeding
-> you lots of little unproven patches.
-
-I dont have a problem with that. Id be chasing this myself but Ive got
-to get a few other things done first. I can however reboot and test
-things at the same time :)
-
-Anton
+kloczek
+PS. Many modern PCs wave now only CD drive .. one CD can fit much 
+more than kernel image and all kernel modules. So step your quostion path 
+it will be "much more correct" ask why the hell kernel is (still ?) 
+modular (?) 8^>
+-- 
+-----------------------------------------------------------
+*Ludzie nie maj± problemów, tylko sobie sami je stwarzaj±*
+-----------------------------------------------------------
+Tomasz K³oczko, sys adm @zie.pg.gda.pl|*e-mail: kloczek@rudy.mif.pg.gda.pl*

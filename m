@@ -1,41 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279271AbRJ2RaM>; Mon, 29 Oct 2001 12:30:12 -0500
+	id <S279301AbRJ2R2m>; Mon, 29 Oct 2001 12:28:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274426AbRJ2RaC>; Mon, 29 Oct 2001 12:30:02 -0500
-Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:21921 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S279311AbRJ2R3w>; Mon, 29 Oct 2001 12:29:52 -0500
-Date: Mon, 29 Oct 2001 18:28:07 +0100 (MET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: hps@intermeta.de
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.13-ac4
-In-Reply-To: <9rk2qd$li0$1@forge.intermeta.de>
-Message-ID: <Pine.GSO.3.96.1011029182448.3407L-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
+	id <S279307AbRJ2R2c>; Mon, 29 Oct 2001 12:28:32 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:64429 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S279301AbRJ2R2W>;
+	Mon, 29 Oct 2001 12:28:22 -0500
+Date: Mon, 29 Oct 2001 09:13:22 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Juergen Doelle <jdoelle@de.ibm.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
+Subject: Re: Pls apply this spinlock patch to the kernel
+In-Reply-To: <3BDD8241.8002B946@de.ibm.com>
+Message-ID: <Pine.LNX.4.33.0110290907300.8729-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 29 Oct 2001, Henning P. Schmiedehausen wrote:
 
-> Hm. If this is like the 8253 (ugh, way way back in the good old 8085
-> days I really wired and programmed such a bugger on my CP/M system...), 
-> then the problem is, that the 16 bit counter is read in two 8 bit portions. 
-[...]
-> This will happen all the time, so printing out is neither a good idea
-> nor is the read problem described above an error. It is just a quirk
-> in using an 8 bit chip in an 16 bit environment without being able to
-> "latch" the count.
+On Mon, 29 Oct 2001, Juergen Doelle wrote:
+>
+> I had created a patch for improving the spinlock behavior on IA32 SMP
+> systems for file system work load created with dbench
+> (ftp://samba.org/pub/tridge/dbench). The work load is a mix of create,
+> delete, write, and read operations executed from a scalable number of
+> clients. It is mainly handled in buffer cache.
 
- The 8254 is indeed upwards compatible to the 8253.  Both provide a
-counter latch command and the 8254 has an additional "read back" command,
-which is also capable of latching counters.
+Fair enough. However, I wonder why you didn't just use the existing
+(unaligned) types, and then on a lock-by-lock basis just mark them
+aligned. That implies no code-changes.
 
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+Something like this should do it:
+
+	.. regular "spinlock_t" type
+
+	#define cachealign \
+	 __attribute__((section("aligned"),__aligned__(SMP_CACHELINE_SIZE)))
+
+(use a separate section so that subsequent data structures are also
+guaranteed to be aligned - otherwise you might get false sharing from
+non-aligned data structures that follow this one).
+
+Eh?
+
+Yes, we already try to do something like this, but due to the false
+sharing with other stuff it doesn't _guarantee_ an exclusive cacheline.
+Sometimes that is what you want (ie once you get the lock, it _can_ be
+advantageous to have the hottest data structure associated with the lock
+be in the same cacheline)
+
+		Linus
 

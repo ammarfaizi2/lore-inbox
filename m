@@ -1,96 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265241AbUFOTqZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265903AbUFOTrJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265241AbUFOTqZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 15:46:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265890AbUFOTqZ
+	id S265903AbUFOTrJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 15:47:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265891AbUFOTrJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 15:46:25 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:19205 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S265241AbUFOTqW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 15:46:22 -0400
-Date: Tue, 15 Jun 2004 20:46:16 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Tom Rini <trini@kernel.crashing.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       Wolfgang Denk <wd@denx.de>
-Subject: Re: [PATCH 0/5] kbuild
-Message-ID: <20040615204616.E7666@flint.arm.linux.org.uk>
-Mail-Followup-To: Tom Rini <trini@kernel.crashing.org>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	Linus Torvalds <torvalds@osdl.org>, Wolfgang Denk <wd@denx.de>
-References: <20040614204029.GA15243@mars.ravnborg.org> <20040615154136.GD11113@smtp.west.cox.net> <20040615174929.GB2310@mars.ravnborg.org> <20040615190951.C7666@flint.arm.linux.org.uk> <20040615191418.GD2310@mars.ravnborg.org>
+	Tue, 15 Jun 2004 15:47:09 -0400
+Received: from pfepc.post.tele.dk ([195.41.46.237]:27156 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S265890AbUFOTq3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jun 2004 15:46:29 -0400
+Date: Tue, 15 Jun 2004 21:55:42 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Jari Ruusu <jariruusu@users.sourceforge.net>
+Cc: Sam Ravnborg <sam@ravnborg.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH 5/5] kbuild: external module build doc
+Message-ID: <20040615195542.GE2310@mars.ravnborg.org>
+Mail-Followup-To: Jari Ruusu <jariruusu@users.sourceforge.net>,
+	Sam Ravnborg <sam@ravnborg.org>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
+References: <20040614204029.GA15243@mars.ravnborg.org> <20040614204809.GF15243@mars.ravnborg.org> <40CF4C48.5A317311@users.sourceforge.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040615191418.GD2310@mars.ravnborg.org>; from sam@ravnborg.org on Tue, Jun 15, 2004 at 09:14:18PM +0200
+In-Reply-To: <40CF4C48.5A317311@users.sourceforge.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 15, 2004 at 09:14:18PM +0200, Sam Ravnborg wrote:
-> On Tue, Jun 15, 2004 at 07:09:51PM +0100, Russell King wrote:
-> > > 
-> > > Compared to the original behaviour where the all: target picked the default
-> > > target for a given architecture, this patch adds the following:
-> > 
-> > This isn't the case on ARM.  I've always told people 'make zImage'
-> > or 'make Image'.  I've never told people to use just 'make' on its
-> > own - in fact, I've never used 'make' on its own with the kernel.
-> 
-> Why not?
+On Tue, Jun 15, 2004 at 10:21:44PM +0300, Jari Ruusu wrote:
+> Sam Ravnborg wrote:
+> > --- /dev/null   Wed Dec 31 16:00:00 196900
+> > +++ b/Documentation/kbuild/extmodules.txt       2004-06-14 22:25:21 +02:00
+> [snip]
+> > +A more advanced example
+> > +- - - - - - - - - - - -
+> > +This example shows a setup where a distribution has wisely decided
+> > +to separate kernel source and output files:
+> > +
+> > +Kernel src:
+> > +/usr/src/linux-<kernel-version>/
+> > +
+> > +Output from a kernel compile, including .config:
+> > +/lib/modules/linux-<kernel-version>/build/
+>                                        ^^^^^
+> Wrong! The 'build' symlink has always pointed to kernel source dir in
+> separate source and object directory case.
 
-It's something we've never done - we've always traditionally told people
-to use 'make zImage' or whatever, because then they know what they're
-getting.
+This document was written before Andreas posted his patch - I just never
+came around updating it.
+                                                            ^^^^^^
+> Sam, You don't seem to have any idea how much breakage you introduce if you
+> insist on redirecting the 'build' symlink from source tree to object tree.
 
-See: http://www.arm.linux.org.uk/docs/kerncomp.shtml
+No - and I still do not see it. Please explain how we can be backward
+compatible when vendors start utilising separate directories for src and output.
 
-This works for no matter what kernel version you're building, whether
-its pre or post new kbuild.
+Anyway, after I gave it some extra thoughs I concluded that
+/lib/modules/kernel-<version>/ was the wrong place to keep
+info about where to src for a given build is located.
+This information has to stay in the output directory.
 
-> Letting the build system select a default target is often a
-> better choice than some random choice by a developer.
+So what I will implement is that during the kernel build process
+(not the install part) a symlink named 'source' is placed
+in the root of the output directory - and links to the root of
+the kernel src used for building the kernel.
 
-No.  Only the developer knows what boot loader he's going to use on
-the board, he knows what modifications he's made, he knows how he's
-configured it.  Therefore he knows full well what he needs from the
-kernel.
+Then /lib/modules/kernel-<version>/build/source will be where
+the source is located.
+And /lib/modules/kernel-<version>/build will point to the output files.
 
-> Not discussing different platforms, only discussing kernel targets.
-> For arm I see the following:
-> zImage, Image bootpImage uImage
-> And some test targets: zImg, Img, bp, i, zi
+If the vendor does not utilise separate src and output directories
+they will point to the same directory.
+If the vendor utilises separate output and source directories
+then thay will point in two different places.
 
-For ARM, there are: zImage and Image.  bootpImage is an add-on extra
-which requires extra parameters to be passed in order to use - and
-is our fix for the day that NFS requires external programs (though
-it seems to have been superseded by initramfs now, so will probably
-go away soon.)
+Comments?
 
-I'm considering dropping the test targets - they were useful for me
-personally back in the days when I wasn't using a script-based kernel
-build system.  Now that all my kernel builds are scripted, those
-targets aren't used anymore and can go.
-
-That leaves uImage which I've discussed already in a previous mail,
-and various other targets which I've historically said I won't merge
-(as I detailed in a previous mail - srec, gzipped vmlinux, gzipped
-Image, etc.)
-
-> Maybe Wolgang can jump in here - I do not know why mkimage is needed.
-> But I do like to have it present for convinience.
-> It is btw called mkuboot.sh in scripts/ to better say what it does.
-
-I'll let you read mkuboot.sh - you'll find that it's just a wrapper
-script to moan if you use mkuboot.sh and you don't have mkimage
-installed.
-
-I've no idea what mkimage actually does, but from the scant comments
-in mkuboot.sh, it seems to package up into a "U-Boot image".
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+	Sam

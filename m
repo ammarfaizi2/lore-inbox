@@ -1,51 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262202AbTFONOT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jun 2003 09:14:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262223AbTFONOS
+	id S262252AbTFONQH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jun 2003 09:16:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262253AbTFONQH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jun 2003 09:14:18 -0400
-Received: from ihemail1.lucent.com ([192.11.222.161]:56194 "EHLO
-	ihemail1.firewall.lucent.com") by vger.kernel.org with ESMTP
-	id S262202AbTFONOS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jun 2003 09:14:18 -0400
-MIME-Version: 1.0
+	Sun, 15 Jun 2003 09:16:07 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:51720 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262252AbTFONQC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jun 2003 09:16:02 -0400
+Date: Sun, 15 Jun 2003 14:29:50 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Cc: David Woodhouse <dwmw2@infradead.org>
+Subject: bad: scheduling while atomic!
+Message-ID: <20030615142950.A32102@flint.arm.linux.org.uk>
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+	David Woodhouse <dwmw2@infradead.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16108.29715.977015.425380@gargle.gargle.HOWL>
-Date: Sun, 15 Jun 2003 09:26:43 -0400
-From: "John Stoffel" <stoffel@lucent.com>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: linux-kernel@vger.kernel.org, stoffel@lucent.com, gibbs@scsiguy.com,
-       willy@w.ods.org, marcelo@conectiva.com.br, green@namesys.com
-Subject: Re: Undo aic7xxx changes (now rc7+aic20030603)
-In-Reply-To: <20030615145602.089728b3.skraw@ithnet.com>
-References: <Pine.LNX.4.55L.0305071716050.17793@freak.distro.conectiva>
-	<2804790000.1052441142@aslan.scsiguy.com>
-	<20030509120648.1e0af0c8.skraw@ithnet.com>
-	<20030509120659.GA15754@alpha.home.local>
-	<20030509150207.3ff9cd64.skraw@ithnet.com>
-	<41560000.1055306361@caspian.scsiguy.com>
-	<20030611222346.0a26729e.skraw@ithnet.com>
-	<16103.39056.810025.975744@gargle.gargle.HOWL>
-	<20030613114531.2b7235e7.skraw@ithnet.com>
-	<20030615145602.089728b3.skraw@ithnet.com>
-X-Mailer: VM 7.14 under Emacs 20.6.1
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I'm seeing tonnes of this with UP preempt in 2.5.71.  The following is
+just one case which I've been able to track down:
 
-Stephan> this is the fourth day of stress-testing pure rc8/2.4.21 in
-Stephan> SMP, apic mode. Today another corruption happened.
- 
-Stephan> current standings:
- 
-Stephan> 4 days continuous test, 
-Stephan> one file data corruption on day 1
-Stephan> one file data corruption on day 4
+bad: scheduling while atomic! (00000250 0 8 mtdblockd)
+[<c02372d0>] (schedule+0x0/0x490) from [<c0335fd0>] (mtd_blktrans_thread+0x220/0x258)
+ r7 = 00000000  r6 = C0109FBC  r5 = C0108000  r4 = C0109FB8
+[<c0335db0>] (mtd_blktrans_thread+0x0/0x258) from [<c0224554>] (kernel_thread+0x40/0x48)
+bad: scheduling while atomic! (00000251 0 8 mtdblockd)
+[<c02372d0>] (schedule+0x0/0x490) from [<c0335fd0>] (mtd_blktrans_thread+0x220/0x258)
+ r7 = 00000000  r6 = C0109FBC  r5 = C0108000  r4 = C0109FB8
+[<c0335db0>] (mtd_blktrans_thread+0x0/0x258) from [<c0224554>] (kernel_thread+0x40/0x48)
+bad: scheduling while atomic! (00000252 0 8 mtdblockd)
+[<c02372d0>] (schedule+0x0/0x490) from [<c0335fd0>] (mtd_blktrans_thread+0x220/0x258)
+ r7 = 00000000  r6 = C0109FBC  r5 = C0108000  r4 = C0109FB8
+[<c0335db0>] (mtd_blktrans_thread+0x0/0x258) from [<c0224554>] (kernel_thread+0x40/0x48)
 
-Can you define corruption?  Can you tell us what commands you are
-using to generate the data which is written to tape?  
+(The extra numbers are: preempt_count, kernel_locked, pid and comm).
 
-John
+This instance seems to be caused by the following code in
+drivers/mtd/mtd_blkdevs.c:
+
+         while (!tr->blkcore_priv->exiting) {
+                 spin_lock_irq(rq->queue_lock);
+ ...
+                 spin_unlock_irq(rq->queue_lock);
+ ...
+                 spin_lock_irq(rq->queue_lock);
+ ...
+         }
+
+It would be useful if we could balance the spin_locks with the
+spin_unlocks. 8)
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

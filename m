@@ -1,63 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265367AbSKAT5q>; Fri, 1 Nov 2002 14:57:46 -0500
+	id <S265364AbSKAT4u>; Fri, 1 Nov 2002 14:56:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265717AbSKAT5q>; Fri, 1 Nov 2002 14:57:46 -0500
-Received: from user141.3eti.com ([65.220.88.141]:25612 "EHLO mail.aeptec.local")
-	by vger.kernel.org with ESMTP id <S265367AbSKAT44>;
-	Fri, 1 Nov 2002 14:56:56 -0500
-Message-ID: <EF5625F9F795C94BA28B150706A215480DF84C@MAIL>
-From: "Donepudi, Suneeta" <sdonepudi@3eti.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Cc: "Donepudi, Suneeta" <sdonepudi@3eti.com>
-Subject: Kernel Panic during memcpy_toio to PCI card
-Date: Fri, 1 Nov 2002 15:06:59 -0500 
+	id <S265367AbSKAT4u>; Fri, 1 Nov 2002 14:56:50 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:35575 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S265364AbSKAT4s>; Fri, 1 Nov 2002 14:56:48 -0500
+Date: Fri, 1 Nov 2002 21:03:10 +0100 (CET)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: lkml <linux-kernel@vger.kernel.org>, <Jack_Hammer@adaptec.com>
+Subject: Re: Linux 2.4.20-rc1
+In-Reply-To: <Pine.LNX.4.44L.0210291358010.16425-100000@freak.distro.conectiva>
+Message-ID: <Pine.NEB.4.44.0211012056180.8262-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, 29 Oct 2002, Marcelo Tosatti wrote:
 
-I would like help in diagnosing a kernel panic while accessing a PCI device.
 
-Everything runs fine for sometime and in about 1/2 hour I get a Kernel Panic
-message saying :
+> Hi,
 
-"Unable to handle kernel paging request at virtual address 0xc2821000"
+Hi Marcelo,
 
-Analysis with Ksymoops shows that it is happening during a memcpy_toio()
-with the PCI card. The PCI card uses three Base Address Registers with
-virtual addresses mapped as follows (after ioremap has been issued):
+> Finally, rc1.
+>...
+> Please stress test it.
+>...
 
-BAR0 = 0xc280f000
-BAR1 = 0xc2811000
-BAR2 = 0xc2822000
+the following patch is still needed to fix a .text.exit error:
 
-It seems like the kernel panic is complaining about an address which is a
-combination of BAR1 (lower bytes) and BAR2 (upper bytes). It should really
-be accessing the BAR1 address at the point the crash occurred.
+--- linux-2.4.19-full-nohotplug/drivers/scsi/ips.c.old	2002-10-04 18:49:10.000000000 +0200
++++ linux-2.4.19-full-nohotplug/drivers/scsi/ips.c	2002-10-04 18:50:02.000000000 +0200
+@@ -305,21 +305,21 @@
+        name:		ips_hot_plug_name,
+        id_table:	ips_pci_table,
+        probe:		ips_insert_device,
+-       remove:		ips_remove_device,
++       remove:		__devexit_p(ips_remove_device),
+    };
 
-I put the following if-statement just before the memcpy_toio():
------------------------------------------------------------
-if (((long int)pci_bar1) == 0xc2821000)
-{
-	printk (KERN_ERR "Illegal address for BAR1\n");
-	return -1;
-}
-memcpy_toio (pci_bar1, in_ptr, len);
-------------------------------------------------------------
+    struct pci_driver ips_pci_driver_5i = {
+        name:		ips_hot_plug_name,
+        id_table:	ips_pci_table_5i,
+        probe:		ips_insert_device,
+-       remove:		ips_remove_device,
++       remove:		__devexit_p(ips_remove_device),
+    };
 
-It still caused the crash in the same manner and at the same location.
-Could someone help me with pointers to where I should start looking ?
-Disabling interrupts around the memcpy_toio() did not make any
-difference. Is this a hardware problem with the PCI card ? We are using
-a Xilinx core with out FPGA build into it.
-Is there a book I could read to learn more about debugging this in the 
-Kernel ?
+    struct pci_driver ips_pci_driver_i960 = {
+        name:		ips_hot_plug_name,
+        id_table:	ips_pci_table_i960,
+        probe:		ips_insert_device,
+-       remove:		ips_remove_device,
++       remove:		__devexit_p(ips_remove_device),
+    };
 
-Thanks a bunch,
-Suneeta
+ #endif
+
+
+Please apply
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+
+
 

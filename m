@@ -1,46 +1,237 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314753AbSELP5L>; Sun, 12 May 2002 11:57:11 -0400
+	id <S314546AbSELQMb>; Sun, 12 May 2002 12:12:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314546AbSELP5L>; Sun, 12 May 2002 11:57:11 -0400
-Received: from ip68-6-164-6.sd.sd.cox.net ([68.6.164.6]:13252 "EHLO
-	rei.moonkingdom.net") by vger.kernel.org with ESMTP
-	id <S314753AbSELP5H>; Sun, 12 May 2002 11:57:07 -0400
-Date: Sun, 12 May 2002 08:57:03 -0700
-From: Marc Wilson <msw@cox.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: IRQ > 15 for Athlon SMP boards
-Message-ID: <20020512155703.GG3142@moonkingdom.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <3CDE48CC.9050003@nospam.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	id <S314609AbSELQMa>; Sun, 12 May 2002 12:12:30 -0400
+Received: from p50887981.dip.t-dialin.net ([80.136.121.129]:23000 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S314546AbSELQM2>; Sun, 12 May 2002 12:12:28 -0400
+Date: Sun, 12 May 2002 10:12:26 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Sparc64 can't boot w/linux 2.5 current
+Message-ID: <Pine.LNX.4.44.0205121000360.4369-100000@hawkeye.luckynet.adm>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 12, 2002 at 07:49:48PM +0900, Hugh wrote:
+Hi,
 
-<deleted>
+I just compiled myself the latest bk kernel for sparc64, and on boot:
 
-> The symptom as you can see is that IRQ > 15, which does not seem
-> normal.  I checked this with 2.4.18-pre6aa1 and 2.4.18-pre8ac1.
-> The results were the same.  The consequence is that X does not
-> start because of an error that reads like
-> 
-> =============================================================
-> (WW) MGA No matching device section for instance (BusID PCI:1:5:0) found
-> (EE) No devices detected
-> ==================================================================
+Sun Ultra 1 SBus (UltraSPARC 167 MHz), Keyboard Present
+OpenBoot 3.11, 128 MB memory installed, Serial #xxxxxxx.
+Ethernet address x:x:xx:xx:xx:xx, Host ID: xxxxxxxx.
 
-<shrug> Make sure that the Device section for the Matrox card specifies the
-correct BusID.  If it's set incorrectly it definately won't work... if you
-don't set it at all it may or may not work.  Better to be explicit.
+Booting with command: boot
+Boot device: disk  File and args:
+SILO boot:
+Uncompressing image...
+Loading initial ramdisk...
 
-Been there, done that with the mga driver.
+Remapping the kernel... done.
+Booting Linux...
+(which is the last message I see)
 
--- 
-Marc Wilson
-msw@cox.net
+The machine previously worked well on Linux 2.4.14, I can send you the old 
+.config if you want me to.
+
+My question now is: where would you search for a bug? Or does anyone have 
+some objections about my .config:
+
+CONFIG_EXPERIMENTAL=y
+CONFIG_NET=y
+CONFIG_SYSVIPC=y
+CONFIG_SYSCTL=y
+CONFIG_MODULES=y
+CONFIG_MODVERSIONS=y
+CONFIG_KMOD=y
+CONFIG_BBC_I2C=y
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_SMP=y
+CONFIG_PREEMPT=y
+CONFIG_SPARC64=y
+CONFIG_HOTPLUG=y
+CONFIG_HAVE_DEC_LOCK=y
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_SBUS=y
+CONFIG_SBUSCHAR=y
+CONFIG_BUSMOUSE=y
+CONFIG_SUN_MOUSE=y
+CONFIG_SERIAL=y
+CONFIG_SUN_SERIAL=y
+CONFIG_SERIAL_CONSOLE=y
+CONFIG_SUN_KEYBOARD=y
+CONFIG_SUN_CONSOLE=y
+CONFIG_SUN_AUXIO=y
+CONFIG_SUN_IO=y
+CONFIG_PCI=y
+CONFIG_RTC=y
+CONFIG_PCI_NAMES=y
+CONFIG_SUN_OPENPROMFS=m
+CONFIG_KCORE_ELF=y
+CONFIG_SPARC32_COMPAT=y
+CONFIG_BINFMT_ELF32=y
+CONFIG_BINFMT_AOUT32=y
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_MISC=m
+CONFIG_SUNOS_EMUL=y
+CONFIG_SOLARIS_EMUL=m
+CONFIG_PARPORT=m
+CONFIG_PARPORT_PC=m
+CONFIG_PARPORT_PC_CML1=m
+CONFIG_PARPORT_PC_FIFO=y
+CONFIG_PARPORT_1284=y
+CONFIG_PRINTER=m
+CONFIG_ENVCTRL=m
+CONFIG_DISPLAY7SEG=m
+CONFIG_WATCHDOG_CP1XXX=m
+CONFIG_WATCHDOG_RIO=m
+CONFIG_PROM_CONSOLE=y
+CONFIG_FB=y
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_FB_SBUS=y
+CONFIG_FB_CGSIX=y
+CONFIG_FBCON_FONTWIDTH8_ONLY=y
+CONFIG_FONT_SUN8x16=y
+CONFIG_SUN_OPENPROMIO=m
+CONFIG_SUN_MOSTEK_RTC=y
+CONFIG_SAB82532=m
+CONFIG_OBP_FLASH=m
+CONFIG_SUN_AURORA=m
+CONFIG_SPARCAUDIO=m
+CONFIG_SPARCAUDIO_CS4231=m
+CONFIG_BLK_DEV_FD=y
+CONFIG_BLK_DEV_LOOP=m
+CONFIG_BLK_DEV_NBD=m
+CONFIG_BLK_DEV_RAM=y
+CONFIG_BLK_DEV_RAM_SIZE=4096
+CONFIG_BLK_DEV_INITRD=y
+CONFIG_PACKET=y
+CONFIG_PACKET_MMAP=y
+CONFIG_UNIX=m
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+CONFIG_NET_IPIP=m
+CONFIG_ARPD=y
+CONFIG_INET_ECN=y
+CONFIG_SYN_COOKIES=y
+CONFIG_IPV6=m
+CONFIG_KHTTPD=m
+CONFIG_IPX=m
+CONFIG_NET_SCHED=y
+CONFIG_NET_SCH_CBQ=m
+CONFIG_NET_SCH_CSZ=m
+CONFIG_NET_SCH_PRIO=m
+CONFIG_NET_SCH_RED=m
+CONFIG_NET_SCH_SFQ=m
+CONFIG_NET_SCH_TEQL=m
+CONFIG_NET_SCH_TBF=m
+CONFIG_NET_SCH_GRED=m
+CONFIG_NET_SCH_DSMARK=m
+CONFIG_NET_QOS=y
+CONFIG_NET_ESTIMATOR=y
+CONFIG_NET_CLS=y
+CONFIG_NET_CLS_TCINDEX=m
+CONFIG_NET_CLS_ROUTE4=m
+CONFIG_NET_CLS_ROUTE=y
+CONFIG_NET_CLS_FW=m
+CONFIG_NET_CLS_U32=m
+CONFIG_NET_CLS_RSVP=m
+CONFIG_NET_CLS_RSVP6=m
+CONFIG_NET_CLS_POLICE=y
+CONFIG_SCSI=y
+CONFIG_BLK_DEV_SD=y
+CONFIG_SD_EXTRA_DEVS=40
+CONFIG_CHR_DEV_ST=m
+CONFIG_CHR_DEV_OSST=m
+CONFIG_BLK_DEV_SR=m
+CONFIG_BLK_DEV_SR_VENDOR=y
+CONFIG_SR_EXTRA_DEVS=2
+CONFIG_CHR_DEV_SG=m
+CONFIG_SCSI_MULTI_LUN=y
+CONFIG_SCSI_CONSTANTS=y
+CONFIG_SCSI_LOGGING=y
+CONFIG_SCSI_SUNESP=y
+CONFIG_FC4=m
+CONFIG_FC4_SOC=m
+CONFIG_FC4_SOCAL=m
+CONFIG_SCSI_PLUTO=m
+CONFIG_SCSI_FCAL=m
+CONFIG_NETDEVICES=y
+CONFIG_DUMMY=m
+CONFIG_BONDING=m
+CONFIG_EQUALIZER=m
+CONFIG_TUN=m
+CONFIG_NET_ETHERNET=y
+CONFIG_SUNLANCE=m
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX98_PTY_COUNT=256
+CONFIG_INPUT=y
+CONFIG_INPUT_KEYBDEV=y
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+CONFIG_SOUND_GAMEPORT=y
+CONFIG_SERIO=m
+CONFIG_SERIO_SERPORT=m
+CONFIG_QUOTA=y
+CONFIG_AUTOFS_FS=m
+CONFIG_AUTOFS4_FS=m
+CONFIG_EXT3_FS=y
+CONFIG_JBD=y
+CONFIG_JBD_DEBUG=y
+CONFIG_FAT_FS=m
+CONFIG_MSDOS_FS=m
+CONFIG_VFAT_FS=m
+CONFIG_CRAMFS=m
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+CONFIG_ISO9660_FS=m
+CONFIG_JOLIET=y
+CONFIG_ZISOFS=y
+CONFIG_MINIX_FS=m
+CONFIG_PROC_FS=y
+CONFIG_DEVFS_FS=y
+CONFIG_DEVFS_MOUNT=y
+CONFIG_DEVFS_DEBUG=y
+CONFIG_DEVPTS_FS=y
+CONFIG_ROMFS_FS=m
+CONFIG_EXT2_FS=y
+CONFIG_NFS_FS=m
+CONFIG_NFS_V3=y
+CONFIG_NFSD=m
+CONFIG_NFSD_V3=y
+CONFIG_NFSD_TCP=y
+CONFIG_SUNRPC=m
+CONFIG_LOCKD=m
+CONFIG_LOCKD_V4=y
+CONFIG_EXPORTFS=m
+CONFIG_SMB_FS=m
+CONFIG_SMB_NLS_DEFAULT=y
+CONFIG_SMB_NLS_REMOTE="utf8"
+CONFIG_ZISOFS_FS=m
+CONFIG_PARTITION_ADVANCED=y
+CONFIG_SUN_PARTITION=y
+CONFIG_SMB_NLS=y
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="utf8"
+CONFIG_NLS_CODEPAGE_437=m
+CONFIG_NLS_CODEPAGE_850=m
+CONFIG_NLS_ISO8859_1=m
+CONFIG_NLS_ISO8859_15=m
+CONFIG_NLS_UTF8=y
+CONFIG_DEBUG_KERNEL=y
+CONFIG_MAGIC_SYSRQ=y
+CONFIG_DEBUG_BUGVERBOSE=y
+CONFIG_CRC32=m
+CONFIG_ZLIB_INFLATE=m?
+--
+Was it a black who passed anong in the sand?
+Was it a white who left his footprints?
+Was it an african? An indian?
+Sand says, 'twas human.
 

@@ -1,66 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261521AbUJZTWm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261519AbUJZTZp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261521AbUJZTWm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 15:22:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261512AbUJZTWm
+	id S261519AbUJZTZp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 15:25:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261456AbUJZTZo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 15:22:42 -0400
-Received: from ipcop.bitmover.com ([192.132.92.15]:9868 "EHLO
-	work.bitmover.com") by vger.kernel.org with ESMTP id S261521AbUJZTW1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 15:22:27 -0400
-Date: Tue, 26 Oct 2004 12:22:14 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Chuck Ebbert <76306.1226@compuserve.com>, Larry McVoy <lm@bitmover.com>,
-       Jon Smirl <jonsmirl@gmail.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: BK kernel workflow
-Message-ID: <20041026192214.GA22390@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Chuck Ebbert <76306.1226@compuserve.com>,
-	Larry McVoy <lm@bitmover.com>, Jon Smirl <jonsmirl@gmail.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <200410260340_MC3-1-8D30-9CCE@compuserve.com> <20041026142321.GA4729@work.bitmover.com> <20041026181621.GJ10638@michonline.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041026181621.GJ10638@michonline.com>
-User-Agent: Mutt/1.4.1i
+	Tue, 26 Oct 2004 15:25:44 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:61832 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S261519AbUJZTY7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 15:24:59 -0400
+Message-ID: <417EA486.7070105@comcast.net>
+Date: Tue, 26 Oct 2004 15:24:54 -0400
+From: John Richard Moser <nigelenki@comcast.net>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20041022)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Josh Boyer <jdub@us.ibm.com>
+CC: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
+Subject: Re: PROPOSAL:  New NEW development model
+References: <417E8422.3020009@comcast.net>	 <20041026174730.GL17038@holomorphy.com>  <417E966D.8090208@comcast.net> <1098817715.9350.2.camel@weaponx.rchland.ibm.com>
+In-Reply-To: <1098817715.9350.2.camel@weaponx.rchland.ibm.com>
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 26, 2004 at 02:16:22PM -0400, Ryan Anderson wrote:
-> On Tue, Oct 26, 2004 at 07:23:21AM -0700, Larry McVoy wrote:
-> > That's because you didn't read the documentation which you appear to love 
-> > so much.
-> 
-> Well, Larry, to be perfectly honest - the documentation is ... terse, at
-> the moment.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Yes, we know.  On the other hand, we're probably pushing 60,000 users or
-so who have figured it out by tinkering with the tool.  There is no 
-question that there needs to be a BitKeeper book or at least a much more
-expanded and updated userguide.
 
-> Yes, I know, documentation isn't fun - it probably needs an editor to
-> go over it and say, "What assumptions should we make about the knowledge
-> a user has?" and then try really hard to keep that list *short* and
-> strictly adhered to in all the pages.
 
-Yup.  We have an open req for a docs person, if you know someone who
-wants a fulltime job in the Bay Area or an incredibly exceptional remote
-person we're very interested (and I'll shut up about that, I'm not trying
-to use the list for free job advertising, just don't want to create the
-impression that we don't recognize the issues).
+Josh Boyer wrote:
+| On Tue, 2004-10-26 at 13:24, John Richard Moser wrote:
+|
+|>| This is not useful to distinguish your "suggestion" from the status quo.
+|>|
+|>
+|>Help me out here, what's the status quo?
+|
+|
+| Pretty much exactly what you described already.  Instead of "Volatile"
+| being name 2.7, it's essentially 2.6.N-rcX.  (Or whatever Linus has
+| chosen as the new naming convention for as yet to be released stuff.)
+|
+| At least that's how your proposal reads to me.
+|
 
-> Oh, and I *do* play a paying customer at my day job.  Just some days I
-> wish the documentation was a little more helpful.  (Specifically, you
-> desperately need more examples of triggers.)
+That's the point.  I'd like the current model to split off the
+development into a separated branch, and do periodic stable releases.  I
+think this would allow a much cleaner operation than simply consistantly
+enhancing the Stable branch.  It's not that 2.6 is
+unstable/hackish/crashy/etc, it's that development away from mainline is
+more difficult which worries me.
 
-Well if you are paying your support includes that sort of help.  Call
-us up and ask for examples or send mail to support and ask for help.
-Even if you aren't paying you can always ask, if we can we help people
-out promptly.
--- 
----
-Larry McVoy                lm at bitmover.com           http://www.bitkeeper.com
+
+I'd like to make a quick note here that "bugfixes and security updates"
+should be trimmed to just "bugfixes," since usually "security updates"
+just means "bugfixes for security holes."  I'd like to avoid confusion
+with security updates such as new LSM hooks and SELinux extensions etc etc.
+
+It would still require Linus to make periodic intermediate releases on
+the Stable branch for bug fixes; and someone would have to backport such
+bugfixes from Volatile, where they'd probably be found.  So there's some
+upkeep, but minimal.
+
+The point of restricting this upkeep as much as possible-- to the point
+of allowing only bugfixes-- would be to keep pressure off the Stable
+line maintainers.  If release periods are approximately every 6 months,
+new drivers and features such as schedulers will be available every 6
+months.  No need to waste time and effort backporting what's soon to be
+stable anyway.
+
+As for heavier work such as full scheduler rewrites, they could chase
+Stable and go into Volatile; although it may be a good idea for such
+things to make themselves known so that Volatile (and subsiquent
+Stables) can avoid overlapping work, making it difficult for the side
+project to keep up.
+
+Still, a month or two to adapt to a new task scheduler out of 6 months
+leaves 4-5 months per stable release if the Volatile branch decides to
+hack up the scheduler.  This is still a better scenario then "VM and
+scheduler infrastructures may change on any given release."
+
+
+
+So OK, that's what's good here; so what's wrong with it?  We've already
+established that there will be a minimal level of added work for a
+maintainer to keep the Stable up.  Are there any other drawbacks?  If
+not, any objections to trying to sell this one to Linus and Andrew?  :)
+
+| josh
+|
+| -
+| To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+| the body of a message to majordomo@vger.kernel.org
+| More majordomo info at  http://vger.kernel.org/majordomo-info.html
+| Please read the FAQ at  http://www.tux.org/lkml/
+|
+
+- --
+All content of all messages exchanged herein are left in the
+Public Domain, unless otherwise explicitly stated.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFBfqSEhDd4aOud5P8RAt6QAKCBdRm+e5yHhL7xmTZuAbIYIhzXXwCaAhxF
+DsAfQhC3R4gy87LaB5DMXnM=
+=7KX/
+-----END PGP SIGNATURE-----

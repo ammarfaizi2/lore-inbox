@@ -1,53 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275353AbRJARmM>; Mon, 1 Oct 2001 13:42:12 -0400
+	id <S275199AbRJARvx>; Mon, 1 Oct 2001 13:51:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275354AbRJARlw>; Mon, 1 Oct 2001 13:41:52 -0400
-Received: from ps.ksky.ne.jp ([210.233.160.3]:34017 "EHLO ps.ksky.ne.jp")
-	by vger.kernel.org with ESMTP id <S275353AbRJARln>;
-	Mon, 1 Oct 2001 13:41:43 -0400
-To: Alan.Cox@linux.org, torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org, hng@ps.ksky.ne.jp
-Subject: Documentation/filesystems/fat_cvf.txt
-X-Mailer: Mew version 1.94.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
+	id <S275196AbRJARvn>; Mon, 1 Oct 2001 13:51:43 -0400
+Received: from pasky.ji.cz ([62.44.12.54]:48122 "HELO machine.sinus.cz")
+	by vger.kernel.org with SMTP id <S275193AbRJARvb>;
+	Mon, 1 Oct 2001 13:51:31 -0400
+Date: Mon, 1 Oct 2001 19:51:58 +0200
+From: Petr Baudis <pasky@pasky.ji.cz>
+To: Matti Aarnio <matti.aarnio@zmailer.org>
+Cc: Chris Howells <chris@chrishowells.co.uk>, linux-kernel@vger.kernel.org
+Subject: Re: linux-kernel-announce?
+Message-ID: <20011001195158.D1288@pasky.ji.cz>
+Mail-Followup-To: Matti Aarnio <matti.aarnio@zmailer.org>,
+	Chris Howells <chris@chrishowells.co.uk>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20011001164720Z275269-761+14414@vger.kernel.org> <20011001200045.F1144@mea-ext.zmailer.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <20011002024001A.hng@ps.ksky.ne.jp>
-Date: Tue, 02 Oct 2001 02:40:01 +0900
-From: Hirokazu Nomoto <hng@ps.ksky.ne.jp>
-X-Dispatcher: imput version 20000228(IM140)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011001200045.F1144@mea-ext.zmailer.org>; from matti.aarnio@zmailer.org on Mon, Oct 01, 2001 at 08:00:45PM +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
-I made a patch for Documentation/filesystems/fat_cvf.txt.
-Its 2.2 version is identical to its 2.4 version.
-I don't know this maintainer, so I send you.
+> 	So, announcements are thus requested to be posted ALSO
+> 	to    linux-kernel-announce at vger.kernel.org
+Well, i didn't notice any announcement of e.g. 2.4.11pre1 nor here or
+on linux-kernel-announce :-(. Sometimes :inus didn't announce these pre
+at all, or just append changelog to some other mail, which is rather
+messy and one can't track it easily. Obviously one can wrote a simple
+perl script which will periodically finger vger and notify you (i saw
+once one on freshmeat), but this is imho more convient and better way,
+and you can even figure what changed and if there's a need for upgrade.
+Vivat Alan (also) from this point of view ;-).
 
-Best regards,
-===
---- fat_cvf.txt	Mon Mar 26 01:31:56 2001
-+++ fat_cvf.txt.new	Tue Oct  2 01:50:21 2001
-@@ -112,7 +112,7 @@
-   int (*mount_cvf) (struct super_block*sb,char*options);
-   int (*unmount_cvf) (struct super_block*sb);
-   [...]
--  void (*cvf_zero_cluster) (struct inode*inode,int clusternr);
-+  void (*zero_out_cluster) (struct inode*, int clusternr);
- }
- 
- This structure defines the capabilities of a CVF module. It must be filled
-@@ -161,8 +161,8 @@
-       functions. NULL means use the original FAT driver functions instead.
-       If you really want "no action", write a function that does nothing and 
-       hang it in instead.
--  - cvf_zero_cluster:
--      The cvf_zero_cluster function is called when the fat driver wants to
-+  - zero_out_cluster:
-+      The zero_out_cluster function is called when the fat driver wants to
-       zero out a (new) cluster. This is important for directories (mkdir).
-       If it is NULL, the FAT driver defaults to overwriting the whole
-       cluster with zeros. Note that clusternr is absolute, not relative
-===
-Hirokazu Nomoto / JF Project
+-- 
+
+				Petr "Pasky" Baudis
+.                                                                       .
+        n = ((n >>  1) & 0x55555555) | ((n <<  1) & 0xaaaaaaaa);
+        n = ((n >>  2) & 0x33333333) | ((n <<  2) & 0xcccccccc);
+        n = ((n >>  4) & 0x0f0f0f0f) | ((n <<  4) & 0xf0f0f0f0);
+        n = ((n >>  8) & 0x00ff00ff) | ((n <<  8) & 0xff00ff00);
+        n = ((n >> 16) & 0x0000ffff) | ((n << 16) & 0xffff0000);
+                -- C code which reverses the bits in a word.
+.                                                                       .
+My public PGP key is on: http://pasky.ji.cz/~pasky/pubkey.txt
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12
+GCS d- s++:++ a--- C+++ UL++++$ P+ L+++ E--- W+ N !o K- w-- !O M-
+!V PS+ !PE Y+ PGP+>++ t+ 5 X(+) R++ tv- b+ DI(+) D+ G e-> h! r% y?
+------END GEEK CODE BLOCK------

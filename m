@@ -1,80 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130443AbRCCKj2>; Sat, 3 Mar 2001 05:39:28 -0500
+	id <S130444AbRCCKlS>; Sat, 3 Mar 2001 05:41:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130444AbRCCKjT>; Sat, 3 Mar 2001 05:39:19 -0500
-Received: from smtp014.mail.yahoo.com ([216.136.173.58]:265 "HELO
-	smtp014.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S130443AbRCCKjH>; Sat, 3 Mar 2001 05:39:07 -0500
-X-Apparently-From: <p?gortmaker@yahoo.com>
-Message-ID: <3AA0BB0E.2912AF23@yahoo.com>
-Date: Sat, 03 Mar 2001 04:36:14 -0500
-From: Paul Gortmaker <p_gortmaker@yahoo.com>
-X-Mailer: Mozilla 3.04 (X11; I; Linux 2.4.2 i486)
+	id <S130447AbRCCKlI>; Sat, 3 Mar 2001 05:41:08 -0500
+Received: from Huntington-Beach.Blue-Labs.org ([208.179.59.198]:26947 "EHLO
+	Huntington-Beach.Blue-Labs.org") by vger.kernel.org with ESMTP
+	id <S130444AbRCCKkw>; Sat, 3 Mar 2001 05:40:52 -0500
+Message-ID: <3AA0CA2E.70208@blue-labs.org>
+Date: Sat, 03 Mar 2001 02:40:46 -0800
+From: David <david@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.2-ac3 i686; en-US; 0.9) Gecko/20010302
+X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel list <linux-kernel@vger.kernel.org>
-Subject: [PATCH] nvram driver and extended HDD data
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: 2.4 VM question
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The NVRAM driver tries to print the user specified (non BIOS ROM table) hard
-disk geometry for type 47 (or higher) configurable hard disk entries.
+Is there a particular reason why 2.4 insists on stuffing as much as 
+possible into swap?
 
-Problem is that there is no standard as to how these values are encoded
-into the CMOS RAM, and so each BIOS manufacturer does it as they see fit.
-(read as 'does it differently').  So the output (via /proc) prints random 
-garbage for anything other than AMI BIOS at the moment.
+It's particularly frustrating to experience the slowdown and lag while 
+the disk grinds.  I have 256M in this machine.  Right now I have 180+ 
+megs free and I am 120 megs into swap.  Netscape and Mozilla are slow 
+enough as it is without having to pull pages off the disk.  Running GIMP 
+as well brings the system nearly to a crawl as I start opening up some 
+large pictures.
 
-Thus IMHO, interpretation of this data belongs in user space, and not in
-the kernel and so I killed the lines printing user specified hard disk
-geometry parameters from the driver.  Patch is against 2.4.2.
+Mind you however, I still have -plenty- of free memory in 
+buffers/cache.  The filesystem is also reiserfs.
 
-Paul.
+I would also like to point out that it's rather irritating to swapoff 
+and basically everything flat out stalls until all the pages are back in 
+memory.  It is also worthy of mention that it takes about 4 minutes to 
+swapoff the first 64M file.  This is on a pIII 350.  The second 64M file 
+took 5 minutes.
 
---- drivers/char/nvram.c~	Wed Feb 14 02:40:29 2001
-+++ drivers/char/nvram.c	Wed Feb 28 23:16:33 2001
-@@ -25,12 +25,18 @@
-  * the kernel and is not a module. Since the functions are used by some Atari
-  * drivers, this is the case on the Atari.
-  *
-+ * 02/2001: I've coded some user space hacks for PC that use the NVRAM driver
-+ * to set/show hard disk type(s), floppy disk type(s) and display type. These
-+ * can be found in bios-cmos-X.Y.tar.gz (X.Y = version #).	Paul G.
-+ *
-  *
-  * 	1.1	Cesar Barros: SMP locking fixes
-  * 		added changelog
-+ *	1.2	Paul Gortmaker: remove display of type 48/49 hard disk data
-+		from /proc as it is not standardized & depends on BIOS mfr.
-  */
- 
--#define NVRAM_VERSION		"1.1"
-+#define NVRAM_VERSION		"1.2"
- 
- #include <linux/module.h>
- #include <linux/config.h>
-@@ -532,17 +538,6 @@
- 		PRINT_PROC( "%02x\n", type == 0x0f ? nvram[12] : type );
- 	else
- 		PRINT_PROC( "none\n" );
--
--	PRINT_PROC( "HD type 48 data: %d/%d/%d C/H/S, precomp %d, lz %d\n",
--				nvram[18] | (nvram[19] << 8),
--				nvram[20], nvram[25],
--				nvram[21] | (nvram[22] << 8),
--				nvram[23] | (nvram[24] << 8) );
--	PRINT_PROC( "HD type 49 data: %d/%d/%d C/H/S, precomp %d, lz %d\n",
--				nvram[39] | (nvram[40] << 8),
--				nvram[41], nvram[46],
--				nvram[42] | (nvram[43] << 8),
--				nvram[44] | (nvram[45] << 8) );
- 
- 	PRINT_PROC( "DOS base memory: %d kB\n", nvram[7] | (nvram[8] << 8) );
- 	PRINT_PROC( "Extended memory: %d kB (configured), %d kB (tested)\n",
+# uname -r
+2.4.2-ac3
 
+# free
+            total       used       free     shared    buffers     cached
+Mem:        253876     250360       3516          0      36448      86484
+-/+ buffers/cache:     127428     126448
+Swap:        65532      65496         36
 
+# time swapoff /swapfile
 
-_________________________________________________________
-Do You Yahoo!?
-Get your free @yahoo.com address at http://mail.yahoo.com
+real    5m21.080s
+user    0m0.000s
+sys     2m59.370s
+
+Now that everything is forcibly paged back in, the system is once again 
+responsive and quick.
+
+Is there a particular VM quirk?  A bug?  As I see it there are two 
+issues, a) the insistence of the kernel to page everything out, and b) 
+the stall to page things back in, including the time frame.
+
+-d
 

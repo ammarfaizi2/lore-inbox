@@ -1,59 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272472AbRIFMdP>; Thu, 6 Sep 2001 08:33:15 -0400
+	id <S272473AbRIFMjf>; Thu, 6 Sep 2001 08:39:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272473AbRIFMcz>; Thu, 6 Sep 2001 08:32:55 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:21510 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S272472AbRIFMcr>;
-	Thu, 6 Sep 2001 08:32:47 -0400
-Date: Thu, 6 Sep 2001 09:32:42 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Jan Harkes <jaharkes@cs.cmu.edu>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: page_launder() on 2.4.9/10 issue
-In-Reply-To: <20010906122459Z16031-32383+3771@humbolt.nl.linux.org>
-Message-ID: <Pine.LNX.4.33L.0109060930580.31200-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S272475AbRIFMj0>; Thu, 6 Sep 2001 08:39:26 -0400
+Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:34400 "EHLO
+	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S272473AbRIFMjS>; Thu, 6 Sep 2001 08:39:18 -0400
+Date: Thu, 6 Sep 2001 07:39:37 -0500 (CDT)
+From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Message-Id: <200109061239.HAA60387@tomcat.admin.navo.hpc.mil>
+To: ecki@lina.inka.de, linux-kernel@vger.kernel.org
+Subject: Re: [OFFTOPIC] Secure network fileserving Linux <-> Linux
+In-Reply-To: <E15epyq-00080i-00@calista.inka.de>
+X-Mailer: [XMailTool v3.1.2b]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 6 Sep 2001, Daniel Phillips wrote:
-> On September 6, 2001 01:52 pm, Rik van Riel wrote:
-> > On Tue, 4 Sep 2001, Jan Harkes wrote:
-> >
-> > > To get back on the thread I jumped into, I totally agree with Linus
-> > > that writeout should be as soon as possible.
-> >
-> > Nice way to destroy read performance.
->
-> Blindly delaying all the writes in the name of better read performance
-> isn't the right idea either.  Perhaps we should have a good think
-> about some sensible mechanism for balancing reads against writes.
+Bernd Eckenfels <ecki@lina.inka.de>:
+> In article <Pine.SGI.4.31L.02.0109052116010.3586235-100000@irix2.gl.umbc.edu> you wrote:
+> > Did you consider AFS?
+> 
+> > Might be overkill for his environment, but it does do ACLs.
+> 
+> Does it do data encryption? I think you may need to run IPSec, which does
+> not fit too well into the required environemnt.
 
-Absolutely, delaying writes for too long is just as bad,
-we need something in-between.
+I thought of AFS, but was not sure clients existed for all systems that
+would likely be in a lab. I should have listed it as a possiblility though.
 
-> > Lets face it, spinning the washing machine is expensive
-> > and running less than a full load makes things inefficient ;)
->
-> That makes a good sound bite but doesn't stand up to scrutiny.
-> It's not a washing machine ;-)
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
 
-Two words:  "IO clustering".
-
-regards,
-
-Rik
--- 
-IA64: a worthy successor to i860.
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
-
+Any opinions expressed are solely my own.

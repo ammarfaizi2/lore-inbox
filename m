@@ -1,51 +1,71 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314553AbSEQMC0>; Fri, 17 May 2002 08:02:26 -0400
+	id <S314571AbSEQMFo>; Fri, 17 May 2002 08:05:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314571AbSEQMCZ>; Fri, 17 May 2002 08:02:25 -0400
-Received: from ns.suse.de ([213.95.15.193]:64017 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S314553AbSEQMCZ>;
-	Fri, 17 May 2002 08:02:25 -0400
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix BUG macro
-In-Reply-To: <Pine.LNX.4.21.0205171220480.986-100000@localhost.localdomain>
-X-Yow: A KAISER ROLL?!  What good is a Kaiser Roll without a little
- COLE SLAW on the SIDE?
-From: Andreas Schwab <schwab@suse.de>
-Date: Fri, 17 May 2002 14:02:20 +0200
-Message-ID: <je1ycbx9rn.fsf@sykes.suse.de>
-User-Agent: Gnus/5.090006 (Oort Gnus v0.06) Emacs/21.2.50 (ia64-suse-linux)
+	id <S314596AbSEQMFo>; Fri, 17 May 2002 08:05:44 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:65270 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S314571AbSEQMFn>; Fri, 17 May 2002 08:05:43 -0400
+Date: Fri, 17 May 2002 14:05:31 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Dave Jones <davej@suse.de>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.15-dj2
+In-Reply-To: <20020517015859.GA523@suse.de>
+Message-ID: <Pine.NEB.4.44.0205171402570.18435-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hugh Dickins <hugh@veritas.com> writes:
+Hi Dave,
 
-|> On Fri, 17 May 2002, Rusty Russell wrote:
-|> > In message <Pine.LNX.4.21.0205170839240.1369-100000@localhost.localdomain> you 
-|> > write:
-|> > > On Fri, 17 May 2002, Rusty Russell wrote:
-|> > > > 
-|> > > > Um, show me where sizeof(KBUILD_BASENAME) + sizeof(__FUNCTION__) >
-|> > > > sizeof(__FILENAME__).
-|> > > 
-|> > > If you're talking about kbuild2.5
-|> > 
-|> > No.  It's the include files, which makes up the majority of strings.
-|> 
-|> If they do make up the majority of strings, that's partly because
-|> you don't have Andrew's out_of_line_bug work in your tree, partly
-|> because your linker isn't combining strings (mine neither, does any?),
+I got the following during "make oldconfig":
 
-Recent gcc and ld do.
+<--  snip  -->
 
-Andreas.
+...
+*
+* PCMCIA/CardBus support
+*
+PCMCIA/CardBus support (CONFIG_PCMCIA) [M/n/y/?]
+  CardBus support (CONFIG_CARDBUS) [Y/n/?]
+  i82092 compatible bridge support (CONFIG_I82092) [M/n/?]
+  i82365 compatible bridge support (CONFIG_I82365) [M/n/?]
+  Databook TCIC host bridge support (CONFIG_TCIC) [M/n/?]
+scripts/Configure: [: : unary operator expected
+*
+* PCI Hotplug Support
+*
+Support for PCI Hotplug (EXPERIMENTAL) (CONFIG_HOTPLUG_PCI) [M/n/y/?]
+...
+
+<--  snip  -->
+
+
+The fix is simple:
+
+
+--- drivers/pcmcia/Config.in.old	Fri May 17 14:00:17 2002
++++ drivers/pcmcia/Config.in	Fri May 17 14:00:43 2002
+@@ -21,7 +21,7 @@
+    if [ "$CONFIG_ARM" = "y" ]; then
+      dep_tristate '  SA1100 support' CONFIG_PCMCIA_SA1100 $CONFIG_ARCH_SA1100 $CONFIG_PCMCIA
+    fi
+-   if [ "$CONFIG_8xx" ="y" ]; then
++   if [ "$CONFIG_8xx" = "y" ]; then
+      tristate ' M8xx support' CONFIG_PCMCIA_M8XX
+    fi
+ fi
+
+
+cu
+Adrian
 
 -- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE GmbH, Deutschherrnstr. 15-19, D-90429 Nürnberg
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
+

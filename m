@@ -1,40 +1,129 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291426AbSBNL6p>; Thu, 14 Feb 2002 06:58:45 -0500
+	id <S291460AbSBNMAF>; Thu, 14 Feb 2002 07:00:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291460AbSBNL6f>; Thu, 14 Feb 2002 06:58:35 -0500
-Received: from johnsl.lnk.telstra.net ([139.130.12.152]:23309 "HELO
-	ns.higherplane.net") by vger.kernel.org with SMTP
-	id <S291426AbSBNL60>; Thu, 14 Feb 2002 06:58:26 -0500
-Date: Thu, 14 Feb 2002 00:58:41 +1100
-From: john slee <indigoid@higherplane.net>
-To: J Sloan <joe@tmsusa.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: tux officially in kernel?
-Message-ID: <20020213135841.GB4826@higherplane.net>
-In-Reply-To: <Pine.LNX.4.30.0202111313100.28040-100000@mustard.heime.net> <3C67F327.8010404@tmsusa.com>
+	id <S291464AbSBNL75>; Thu, 14 Feb 2002 06:59:57 -0500
+Received: from khan.acc.umu.se ([130.239.18.139]:49383 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id <S291460AbSBNL7p>;
+	Thu, 14 Feb 2002 06:59:45 -0500
+Date: Thu, 14 Feb 2002 12:59:44 +0100
+From: David Weinehall <tao@acc.umu.se>
+To: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [Announcement] linux-2.0.40-rc3
+Message-ID: <20020214125944.K1735@khan.acc.umu.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <3C67F327.8010404@tmsusa.com>
-User-Agent: Mutt/1.3.25i
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 11, 2002 at 08:36:55AM -0800, J Sloan wrote:
-> If that's not part of the roadmap I'd be surprised,
-> since tux is so much more capable than the
-> khttpd which is currently part of the tree.
-> 
-> Tux has clearly demonstrated it's performance
-> and low resource consumption.
+Apparently, the fix below never got into 2.0.39, despite the claim
+in the changelog to the opposite; this because I applied this patch
+_after_ creating the final patch and tarball for 2.0.39; however,
+since I _did_ apply it to the 2.0.39-tree, it hasn't shown up in the
+2.0.40-patch either. Disturbing I say, disturbing. So, here's
+2.0.40-rc3. PLEASE test and complain if there's any problems.
 
-it has also been demonstrated that equal performance can be had in
-userland (search archives for "X15").  most of tux' improvements have
-been generalised and absorbed into the mainline kernel anyway.
 
-j.
+2.0.40-rc3
 
--- 
-R N G G   "Well, there it goes again... And we just sit 
- I G G G   here without opposable thumbs." -- gary larson
+o	Fix memory-leak in af_unix		(Jon Nelson,
+						 Alan Cox, me)
+
+
+2.0.40-rc2
+
+o	Fix ICMP bug				(David S. Miller)
+o	Add autodetection for wd1002s-wx2	(Paul, who appears to
+	in the xd-driver			 have no last name =])
+o	Fix path MTU discovery for		(Kirk Petersen)
+	transparent TCP sockets
+o	Revert array-size change in		(me, on advise from
+	include/linux/module.h			 Jari Ruusu)
+o	Remove workaround for gcc-2.4.5		(Adrian Bunk)
+	| This is basically a whitespace-
+	| change, since it removes code
+	| inside an #ifdef #endif clause
+
+
+2.0.40-rc1
+
+o	Fix possible vmalloc bug for		(Ralf Baechle)
+	architectures with virtually
+	indexed caches
+o	Micro-optimization in vmalloc		(Ralf Baechle)
+o	Fix group descriptor corruption		(Daniel Phillips,
+	in ext2fs				 Ville Herva,
+						 Samuli Kärkkäinen)
+o	Fix some missing includes		(me)
+o	Change array-size from 0 to 1 for	(me)
+	two arrays in the symbol-table
+	in include/linux/module.h
+o	Fix type of struct timeval xtime in	(me)
+	include/linux/sched.h
+o	Fix warnings in include/linux/skbuff.h	(me)
+o	Fix a few typos in Configure.help	(me)
+o	Various small whitespace changes	(me)
+	and fixes of strange indentation
+	| I know some of you won't like this
+	| and I don't give a damn ;-)
+
+
+2.0.40-pre3
+
+o	Fix typo in sched.c			(Tim Sutherland)
+	| this time for real; I applied this
+	| patch to the wrong kernel-tree last
+	| time, hence the reject
+o	IDE probe patch for some ATAPI drives	(Geert Van der Plas)
+
+
+2.0.40-pre2
+
+o	Make pci2000 compile			(Joseph Martin)
+o	Use KERNELRELEASE in module		(me)
+	installpath as well
+o	Removed unused variable in		(me)
+	ext2/super.c
+o	Fixed warning in ext2/dir.c		(me)
+o	Fix a blunder of my own in		(me)
+	arch/kernel/i386/traps.c
+o	Fix typo in sched.c			(Tim Sutherland)
+o	Fix bug in mkdep.c			(Tim Sutherland)
+o	Fix bug in autoirq.c			(Michael Deutschmann)
+o	Add allocation debugging code		(Michael Deutschmann)
+o	Fix bugs in the math-emu code		(Bill Metzenthen,
+						 Michael Deutschmann)
+
+
+2.0.40-pre1
+
+o	Fixed the ordering of			(Philipp Rumpf)
+	watchdog initialising, to make sure
+	hardware watchdogs takes precedence
+	over the softdog driver
+o	Fix the CREDITS-entry for		(Kai Petzke)
+	Kai Petzke
+o	Updated the MAINTAINERS-file a little	(me)
+o	Fix "dumpable"-race			(Solar Designer)
+o	Fix theoretical exploit in printk	(Solar Designer)
+o	Backported checkconfig.pl,		(me)
+	checkhelp.pl and checkincludes.pl
+	from v2.4
+o	Backported support for tags and		(me)
+	TAGS
+o	Added an extra-version entry to		(me)
+	the version#, to keep track of
+	the prepatches etc.
+o	Fix all occurences of			(me)
+	#endif BLABLA type; don't forget
+	that it should be /* BLABLA */ !!!
+
+
+/David
+  _                                                                 _
+ // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
+//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
+\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </

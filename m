@@ -1,50 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265029AbUGGPxn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265060AbUGGPzQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265029AbUGGPxn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jul 2004 11:53:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265060AbUGGPxn
+	id S265060AbUGGPzQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jul 2004 11:55:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265125AbUGGPzQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jul 2004 11:53:43 -0400
-Received: from mail.gmx.net ([213.165.64.20]:52104 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S265029AbUGGPxk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jul 2004 11:53:40 -0400
-X-Authenticated: #4512188
-Message-ID: <40EC1C85.9030008@gmx.de>
-Date: Wed, 07 Jul 2004 17:53:41 +0200
-From: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040630)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Con Kolivas <kernel@kolivas.org>
-CC: John Richard Moser <nigelenki@comcast.net>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       ck kernel mailing list <ck@vds.kolivas.org>
-Subject: Re: 2.6.7-ck5
-References: <40EC13C5.2000101@kolivas.org> <40EC1930.7010805@comcast.net> <40EC1B0A.8090802@kolivas.org>
-In-Reply-To: <40EC1B0A.8090802@kolivas.org>
-X-Enigmail-Version: 0.84.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 7 Jul 2004 11:55:16 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:20694 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265060AbUGGPzJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jul 2004 11:55:09 -0400
+Date: Wed, 7 Jul 2004 12:21:06 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Creation of driver-specific sysfs attributes
+Message-ID: <20040707152106.GB2168@logos.cnet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas wrote:
-> John Richard Moser wrote:
->> When do you think the staircase, batch, and isometric scheduling will
->> reach mainline-quality?  Do you think you'll be ready to ask Andrew to
->> merge it soon, or will it be a while before it's quite ready for that?
-> 
-> 
-> Well I think they're all ready for prime time now, I just dont think 
-> prime time is ready for it. This is too large a change for mainline 2.6 
-> which keeps -ck in business ;)
+Hi Greg, others,
 
-I don't know whether this was already discussed, but what about adding 
-framework so that (like io-schedulers) the cpu scheduler could be chosen 
-on boot time? This would make it easy to test different cpu schedulers.
+Hope this is not a FAQ.
 
-Cheers,
+I want to export some read-only attributes (statistics) from cyclades.c char 
+driver to userspace via sysfs. 
 
-Prakash
+I can't figure out the right place to do it - I could create a class under
+/sys/class/cyclades for example, but that doesnt sound right since this 
+is not a "class" of device, but a device itself.
+
+Hooking the statistics into /sys/class/tty/ttyC$/ sounds reasonable, but
+its not possible it seems because "tty" is a class_simple class, which only implements 
+the "dev" attribute.
+
+What is the appropriate place for such driver-specific attributes?
+
+TIA
+

@@ -1,50 +1,1325 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263501AbTI2PAo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 11:00:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263506AbTI2PAo
+	id S263497AbTI2O4d (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 10:56:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263499AbTI2O4d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 11:00:44 -0400
-Received: from wohnheim.fh-wedel.de ([213.39.233.138]:32417 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S263501AbTI2PAn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 11:00:43 -0400
-Date: Mon, 29 Sep 2003 17:00:05 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Sam Ravnborg <sam@ravnborg.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Russell King <rmk@arm.linux.org.uk>,
-       Jamie Lokier <jamie@shareable.org>
-Subject: Re: [PATCH] check headers for complete includes, etc.
-Message-ID: <20030929150005.GA24375@wohnheim.fh-wedel.de>
-References: <Pine.LNX.4.44.0309281213240.4929-100000@callisto> <Pine.LNX.4.44.0309281035370.6307-100000@home.osdl.org> <20030928184642.GA1681@mars.ravnborg.org> <20030928191622.GA16921@wohnheim.fh-wedel.de> <20030928193150.GA3074@mars.ravnborg.org> <20030928194431.GB16921@wohnheim.fh-wedel.de> <20030929133624.GA14611@wohnheim.fh-wedel.de> <20030929145057.GA1002@mars.ravnborg.org>
+	Mon, 29 Sep 2003 10:56:33 -0400
+Received: from odalix.ida.liu.se ([130.236.186.10]:1410 "EHLO
+	odalix.ida.liu.se") by vger.kernel.org with ESMTP id S263497AbTI2Ozk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 10:55:40 -0400
+Date: Mon, 29 Sep 2003 16:55:18 +0200
+From: Magnus Andersson <magan029@student.liu.se>
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>, Nick Piggin <piggin@cyberone.com.au>
+Subject: Re: 2.6.0-test4 parallel seek & read problem
+Message-ID: <20030929165518.A11589@student.liu.se>
+References: <20030826193241.B7561@student.liu.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: multipart/mixed; boundary="mP3DRpeJDSE+ciuQ"
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030929145057.GA1002@mars.ravnborg.org>
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20030826193241.B7561@student.liu.se>; from magan029@student.liu.se on Tue, Aug 26, 2003 at 07:32:41PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 29 September 2003 16:50:57 +0200, Sam Ravnborg wrote:
-> On Mon, Sep 29, 2003 at 03:36:24PM +0200, Jörn Engel wrote:
-> > First version of the script.  Seems to work, but it catches a lot,
-> > maybe too much.
+
+--mP3DRpeJDSE+ciuQ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+Hello again!
+
+I have some more information for you all regarding this issue.
+
+The problem with my server only able to handle 75 connections/sec was
+solved by the 'as-initial-io-noantic' patch from Nick Piggin,
+attached to this email if you want to try it out.
+Looks like 2.6.0-test6 contains a modified version of this patch,
+this modified version doesn't work well, the first patch was better.
+
+With the original patch applied to -test4 or -test5, my server is
+only able to handle half the amount of connections/sec as it should
+be able to handle.
+
+It doesn't matter which elevator I run. as-, deadline-, and noop-
+all have the same problem.
+
+The reason for this performance loss is that my read requests get
+splitted by the kernel into those 4096 bytes chunks. Later, these
+chunks are never merged by the kernel.  In other words: 1 seek&read
+issued by me, goes to the disk as 2 separate seek&read.  Between these
+2 seek&read are a lot of other seeks&reads issued by other threads.
+
+I put this printk() after the call to elv_next_request(),
+inside scsi_request_fn(), in scsi_lib.c, to see what is going on.
+
+if(req)                             // 2 lines added by me
+  printk("SEC %d\n", req->sector);
+
+The output from dmesg is attached to this email, in the file
+printk.output. There you can see that the requests were splitted and
+not merged.  The splitted chunks are not even sent following each
+other, there are a lot of other requests in between, resulting in a
+lot of extra head movements.
+
+I tried to disable readahead with 'blockdev --setra 0 /dev/sda',
+but still the same problem, and I tried to raise readahead, but
+no luck there too.
+
+If the file I read from is opened with the flag O_DIRECT, everything
+is good. All 3 elevators performs at a maximum rate.
+
+Attached to this email is also a test program, called thread_seek,
+for you all to try out.
+
+The test program keeps nthreads (64 default) running at the same time.
+The threads do 1 seek(), a READSIZE (4096 default) bytes read(), and
+exits.  The file it is operating on is "./bigfile"
+
+Important is the choise of filesystem, choose one with extends.  JFS
+and XFS is two I know about.
+
+I don't know if the raid system is part of the problem, but I don't
+think so. Feel free to try on a different kind of disk setup.
+
+Make sure the bigfile is much bigger than your memory to avoid cache hits.
+Do a umount & mount between tests to clear the memory cache if you
+feel that it is needed.
+
+compiling: gcc -o thread_seek thread_seek.c -lpthread
+running: ./thread_seek [nthreads]
+
+Here are the commands I use to see what is going on.
+
+2.4.22:
+'sar -c 1 0'
+'sar -b 1 0'
+
+2.6.0-test4:
+'sar -c 1 0'
+'iostat -x 1'           
+
+What you should see on 2.4 is that the output from the two sar should
+be quite equal. With kernel 2.4 for example, I see 500
+processes/second created, and 500 reads/second going to the disk.
+With 2.6 I see 260 processes/second created, and 500 reads/second
+going to the disk.  The values you will see depends on your setup. But
+the ratio between processes/second & reads/second should be 1.  On 2.4
+it is 1, and on 2.6 it is 0.52, wich is not good. Should be 1 here
+too.
+
+Setting READSIZE to 1 byte gives no performance loss. The server on 2.6
+is able to handle 500 proc/second & 500 reads/second.
+
+I hope someone is able to reproduce this behavior. Feel free
+to ask for more information if I forgot to say something
+you need to know.
+
+I also found strange stuff inside elevator_noop_add_request()
+list_add_tail(&rq->queuelist, &q->queue_head);
+should probably be changed to:
+list_add_tail(&rq->queuelist, insert);
+
+/Magnus
+
+On Tue, Aug 26, 2003 at 07:32:41PM +0200, Magnus Andersson wrote:
+> Hello everyone!
 > 
-> What about adding a negative list, so headerfiles that we decide
-> shall not be able to compile stand-alone are filtered away.
-> But new headers are added.
+> I have run into some strange behavior with kernel 2.6.0-test4.
+> 
+> I'm doing a lot of parallel random seeks and reads in a 128 Gigabyte
+> file. The file is located on a JFS partition on a 3ware Storage
+> Controller containing four IDE disks with an average seek time of
+> 8.5 ms. The 3ware controller is configured as RAID0 with stripe size 1MB.
+> 
+> The operating system is Debian GNU/Linux, version testing.
+> 
+> Running on this system is a program listening for connections.  When a
+> connection is accepted, a thread is created. This thread will get a
+> free file descriptor from a pool of already opened file desriptors.
+> The thread will do a random seek on the fd, and a small read, around 3 Kb.
+> This data is then sent to the client and the connection is closed.
+> 
+> My program is linked agains libpthread.a from the libc6-dev package,
+> version 2.3.1-16, in Debian.
+> 
+> If I'm running kernel 2.4.21 or 2.4.22, I can connect to the program
+> 500 times per second.  Using iostat-4.1.5 to monitor the system I see
+> 500 reads/second issued to the disk.  So far so fine.
+> 
+> If I change to 2.6.0-test4 I can only connect to the program around 75
+> times per second.  During this time iostat reports around 120
+> reads/second issued to the disk.
+> 
+> If I change the elevator to 'deadline' or 'noop' I can connect to the
+> program around 300 times/second.  Iostat reports around 520
+> reads/second issued to the disk.
+> 
+> I also have a modified version of my program using nonblocking network
+> code, and aio.  This time I'm using the same fd for all aio
+> requests. The file is opened with the flag O_DIRECT, bypassing the
+> buffer cache. This time I'm able to reach close to 500 requests/second.
+> 
+> 2.6.0-test1-ac3, and 2.6.0-test3-mm1 are behaving the same as 2.6.0-test4.
+> 
+> Someone have any idea what is going on?  Seems like something is not
+> what it should be.  My hope is to be able to reach the same amounts of
+> connections/second as with the 2.4 kernels.
+> 
+> I can't provide the source to the program, because it is owned by
+> someone else, but I hope someone can point me in the right direction
+> for further investigation of this problem.
+> 
+> Below are the output of dmesg and the kernel config file for 2.6.0-test4.
+> 
+> Best regards
+> 
+> /Magnus
 
-Would work.  But I'd prefer to have that information inside the header
-files, under some syntax.
+ LocalWords:  nthreads READSIZE
 
-/* attr: indirect header */
+--mP3DRpeJDSE+ciuQ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=as-initial-io-noantic
 
-Is this acceptable?
+--- linux-2.6/drivers/block/as-iosched.c.orig	2003-08-27 19:15:24.000000000 +1000
++++ linux-2.6/drivers/block/as-iosched.c	2003-08-27 19:18:13.000000000 +1000
+@@ -709,6 +709,14 @@ static int as_can_break_anticipation(str
+ 		return 1;
+ 	}
+ 
++	if (aic->seek_samples == 0 || aic->ttime_samples == 0) {
++		/* 
++		 * Process has just started IO so default to not anticipate.
++		 * Maybe should be smarter.
++		 */
++		return 1;
++	}
++
+ 	if (aic->ttime_mean > ad->antic_expire) {
+ 		/* the process thinks too much between requests */
+ 		return 1;
 
-Jörn
+--mP3DRpeJDSE+ciuQ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="printk.output"
 
--- 
-Happiness isn't having what you want, it's wanting what you have.
--- unknown
+SEC 172051559
+SEC 13813847
+SEC 51237615
+SEC 257744159
+SEC 53686847
+SEC 137177695
+SEC 257744167
+SEC 83426135
+SEC 205555351
+SEC 135267503
+SEC 23309303
+SEC 83426143
+SEC 169104455
+SEC 61499679
+SEC 148370231
+SEC 92443095
+SEC 131900239
+SEC 82034119
+SEC 272031151
+SEC 230777247
+SEC 100578959
+SEC 233801887
+SEC 82034127
+SEC 66901983
+SEC 256493039
+SEC 22051087
+SEC 272031159
+SEC 273658927
+SEC 105083095
+SEC 94483935
+SEC 263437351
+SEC 68318911
+SEC 144796511
+SEC 22051095
+SEC 222388159
+SEC 270802071
+SEC 103099303
+SEC 76072159
+SEC 263437359
+SEC 239927103
+SEC 246605751
+SEC 44445911
+SEC 147363839
+SEC 120025063
+SEC 94075375
+SEC 222388167
+SEC 20386855
+SEC 127551663
+SEC 270802079
+SEC 119170007
+SEC 135267511
+SEC 196171671
+SEC 13913719
+SEC 216117327
+SEC 66066511
+SEC 104923519
+SEC 240880119
+SEC 173821935
+SEC 41347055
+SEC 239927111
+SEC 207128775
+SEC 58956727
+SEC 60025927
+SEC 94075383
+SEC 119170015
+SEC 184290999
+SEC 230666983
+SEC 66066519
+SEC 138100855
+SEC 255878895
+SEC 234213607
+SEC 131900247
+SEC 58956735
+SEC 126403215
+SEC 15054079
+SEC 24817471
+SEC 204953343
+SEC 236541455
+SEC 43407967
+SEC 180961311
+SEC 54968479
+SEC 120829735
+SEC 43407975
+SEC 9785215
+SEC 254416295
+SEC 40044159
+SEC 232982767
+SEC 260532927
+SEC 246605759
+SEC 242248263
+SEC 14644367
+SEC 255878903
+SEC 95238295
+SEC 15054087
+SEC 270508199
+SEC 20386863
+SEC 247261103
+SEC 95238303
+SEC 161708527
+SEC 235662823
+SEC 41347063
+SEC 59500591
+SEC 161708535
+SEC 147308535
+SEC 9785223
+SEC 230391735
+SEC 54968487
+SEC 182184839
+SEC 147308543
+SEC 104923527
+SEC 183982231
+SEC 107056799
+SEC 13486631
+SEC 13913727
+SEC 230391743
+SEC 174778119
+SEC 44445919
+SEC 183982239
+SEC 97193383
+SEC 204899303
+SEC 126403223
+SEC 246319231
+SEC 24817479
+SEC 271034303
+SEC 60025935
+SEC 243920143
+SEC 61499687
+SEC 138100863
+SEC 66901991
+SEC 180961319
+SEC 91056623
+SEC 68318919
+SEC 40044167
+SEC 13327079
+SEC 15026039
+SEC 183837607
+SEC 209808183
+SEC 94483943
+SEC 13327087
+SEC 221087743
+SEC 137177703
+SEC 195626039
+SEC 72230487
+SEC 144796519
+SEC 164200583
+SEC 228672047
+SEC 147363847
+SEC 172051567
+SEC 170040023
+SEC 73980887
+SEC 191188727
+SEC 148370239
+SEC 8945447
+SEC 169104463
+SEC 84774735
+SEC 170040031
+SEC 240748527
+SEC 174479871
+SEC 207128783
+SEC 73980895
+SEC 204953351
+SEC 164200591
+SEC 8945455
+SEC 108952063
+SEC 189060039
+SEC 174778127
+SEC 144553111
+SEC 233801895
+SEC 174479879
+SEC 218810311
+SEC 107952551
+SEC 240880127
+SEC 100385047
+SEC 183837615
+SEC 108952071
+SEC 151077735
+SEC 54418487
+SEC 209965591
+SEC 107952559
+SEC 217406503
+SEC 195626047
+SEC 11099095
+SEC 260532935
+SEC 204899311
+SEC 202259247
+SEC 54418495
+SEC 126854047
+SEC 218810319
+SEC 48845551
+SEC 273658935
+SEC 217406511
+SEC 13486639
+SEC 247189359
+SEC 211302215
+SEC 15038279
+SEC 228672055
+SEC 11099103
+SEC 238555119
+SEC 38489039
+SEC 240748535
+SEC 59500599
+SEC 119050591
+SEC 119448951
+SEC 202259255
+SEC 188781391
+SEC 86228223
+SEC 239900503
+SEC 65671023
+SEC 169764335
+SEC 195576463
+SEC 145282799
+SEC 247261111
+SEC 86228231
+SEC 175043159
+SEC 93345735
+SEC 84774743
+SEC 210166407
+SEC 91056631
+SEC 108048151
+SEC 270508207
+SEC 97193391
+SEC 107056807
+SEC 271034311
+SEC 120829743
+SEC 144553119
+SEC 143163055
+SEC 242758527
+SEC 15026047
+SEC 60004495
+SEC 190250447
+SEC 143163063
+SEC 97230359
+SEC 189060047
+SEC 121631215
+SEC 60004503
+SEC 72230495
+SEC 182184847
+SEC 134023007
+SEC 209965599
+SEC 191188735
+SEC 190250455
+SEC 259782111
+SEC 100385055
+SEC 144318647
+SEC 138620911
+SEC 97230367
+SEC 49217207
+SEC 57249663
+SEC 192911959
+SEC 209808191
+SEC 49217215
+SEC 221087751
+SEC 119448959
+SEC 15038287
+SEC 126854055
+SEC 192911967
+SEC 166672791
+SEC 165928935
+SEC 217907079
+SEC 48845559
+SEC 151077743
+SEC 166672799
+SEC 235662831
+SEC 165928943
+SEC 93345743
+SEC 24636871
+SEC 76173815
+SEC 119050599
+SEC 217907087
+SEC 252238983
+SEC 126251575
+SEC 157247391
+SEC 243920151
+SEC 252238991
+SEC 53107823
+SEC 117011503
+SEC 169764343
+SEC 246319239
+SEC 121631223
+SEC 247189367
+SEC 93171375
+SEC 53107831
+SEC 271004903
+SEC 190849287
+SEC 222187279
+SEC 64662383
+SEC 145282807
+SEC 195576471
+SEC 105185631
+SEC 175043167
+SEC 139463215
+SEC 173512887
+SEC 188781399
+SEC 24636879
+SEC 165636287
+SEC 210166415
+SEC 173512895
+SEC 61488783
+SEC 71309455
+SEC 38489047
+SEC 110441303
+SEC 211302223
+SEC 269598351
+SEC 57249671
+SEC 61488791
+SEC 225573535
+SEC 161166039
+SEC 239900511
+SEC 64662391
+SEC 242758535
+SEC 71309463
+SEC 43103079
+SEC 65671031
+SEC 259782119
+SEC 124095087
+SEC 269598359
+SEC 262065111
+SEC 154509991
+SEC 271004911
+SEC 225573543
+SEC 269534607
+SEC 38520175
+SEC 35937271
+SEC 239653151
+SEC 93171383
+SEC 133366335
+SEC 109896895
+SEC 35937279
+SEC 67189407
+SEC 110789831
+SEC 67189415
+SEC 158897095
+SEC 39137751
+SEC 102212719
+SEC 243041263
+SEC 108048159
+SEC 40070927
+SEC 138620919
+SEC 43103087
+SEC 247942095
+SEC 139463223
+SEC 189677711
+SEC 120256959
+SEC 105185639
+SEC 133415759
+SEC 76173823
+SEC 120256967
+SEC 167801095
+SEC 109896903
+SEC 125278847
+SEC 110789839
+SEC 125278855
+SEC 81100167
+SEC 142417903
+SEC 59901551
+SEC 164916039
+SEC 222187287
+SEC 249394783
+SEC 81100175
+SEC 110441311
+SEC 117011511
+SEC 133366343
+SEC 142417911
+SEC 140703607
+SEC 220075063
+SEC 82654663
+SEC 176750447
+SEC 134023015
+SEC 176750455
+SEC 69511239
+SEC 213379951
+SEC 238555127
+SEC 156818855
+SEC 126251583
+SEC 144318655
+SEC 242775487
+SEC 12593943
+SEC 156818863
+SEC 248105967
+SEC 135122143
+SEC 158897103
+SEC 267063343
+SEC 154509999
+SEC 161166047
+SEC 167801103
+SEC 130798751
+SEC 157247399
+SEC 275665679
+SEC 269397391
+SEC 209151967
+SEC 65434487
+SEC 190849295
+SEC 40070935
+SEC 60524287
+SEC 217823271
+SEC 55138759
+SEC 255785615
+SEC 239653159
+SEC 75091975
+SEC 195973959
+SEC 235601903
+SEC 217823279
+SEC 269534615
+SEC 45535367
+SEC 69511247
+SEC 212791751
+SEC 60561175
+SEC 55138767
+SEC 38520183
+SEC 60404503
+SEC 128105607
+SEC 59901559
+SEC 124095095
+SEC 255785623
+SEC 60524295
+SEC 39137759
+SEC 135122151
+SEC 235601911
+SEC 267204439
+SEC 194999175
+SEC 219305271
+SEC 102212727
+SEC 231063359
+SEC 45535375
+SEC 188652527
+SEC 128105615
+SEC 20506983
+SEC 268983959
+SEC 114516943
+SEC 143827151
+SEC 188652535
+SEC 60404511
+SEC 251567439
+SEC 60561183
+SEC 164916047
+SEC 65434495
+SEC 231063367
+SEC 35044399
+SEC 165636295
+SEC 98201191
+SEC 133415767
+SEC 268983967
+SEC 67384351
+SEC 75091983
+SEC 48976863
+SEC 213379959
+SEC 138640623
+SEC 251567447
+SEC 82654671
+SEC 260765967
+SEC 176792423
+SEC 35044407
+SEC 129848655
+SEC 232184407
+SEC 101497207
+SEC 65834431
+SEC 138640631
+SEC 258446559
+SEC 186815119
+SEC 108658575
+SEC 260765975
+SEC 199440007
+SEC 27162639
+SEC 242758551
+SEC 247942103
+SEC 248105975
+SEC 130798759
+SEC 189677719
+SEC 101497215
+SEC 140703615
+SEC 262065119
+SEC 76138895
+SEC 271538815
+SEC 269397399
+SEC 209151975
+SEC 152811639
+SEC 232184415
+SEC 172743607
+SEC 243041271
+SEC 194999183
+SEC 12593951
+SEC 63671687
+SEC 195973967
+SEC 108658583
+SEC 108601319
+SEC 20506991
+SEC 212791759
+SEC 175397975
+SEC 144056399
+SEC 152811647
+SEC 172743615
+SEC 87102575
+SEC 256861831
+SEC 219305279
+SEC 251200503
+SEC 220075071
+SEC 65834439
+SEC 271538823
+SEC 48186863
+SEC 26160711
+SEC 49759319
+SEC 27162647
+SEC 75929615
+SEC 76138903
+SEC 239738239
+SEC 242775495
+SEC 108601327
+SEC 249394791
+SEC 114516951
+SEC 98201199
+SEC 49202247
+SEC 135146735
+SEC 242742111
+SEC 205215527
+SEC 175397983
+SEC 165023359
+SEC 267063351
+SEC 89558175
+SEC 143827159
+SEC 267204447
+SEC 75929623
+SEC 170588167
+SEC 202746255
+SEC 236218031
+SEC 144056407
+SEC 275665687
+SEC 115031175
+SEC 239738247
+SEC 81488087
+SEC 176951839
+SEC 190974631
+SEC 176792431
+SEC 115031183
+SEC 23128919
+SEC 121435983
+SEC 170588175
+SEC 194908175
+SEC 17597087
+SEC 234808871
+SEC 153930847
+SEC 82738591
+SEC 265632535
+SEC 253193887
+SEC 276456703
+SEC 48976871
+SEC 205702735
+SEC 82738599
+SEC 251200511
+SEC 93751279
+SEC 53040463
+SEC 272470279
+SEC 256861839
+SEC 140850623
+SEC 265632543
+SEC 58910407
+SEC 250529055
+SEC 211170719
+SEC 67384359
+SEC 17597095
+SEC 208947071
+SEC 48186871
+SEC 113554967
+SEC 95508247
+SEC 49202255
+SEC 200871647
+SEC 87102583
+SEC 49759327
+SEC 23128927
+SEC 58910415
+SEC 129848663
+SEC 26160719
+SEC 184452663
+SEC 93751287
+SEC 63671695
+SEC 216894655
+SEC 232399095
+SEC 71789735
+SEC 186815127
+SEC 58973287
+SEC 88509967
+SEC 202937135
+SEC 216745727
+SEC 84655239
+SEC 58973295
+SEC 81488095
+SEC 199440015
+SEC 89558183
+SEC 84655247
+SEC 101585639
+SEC 45626551
+SEC 106101439
+SEC 147925407
+SEC 205215535
+SEC 106101447
+SEC 210120855
+SEC 184452671
+SEC 271466231
+SEC 135146743
+SEC 205702743
+SEC 153930855
+SEC 201810199
+SEC 271466239
+SEC 120949551
+SEC 141212623
+SEC 208947079
+SEC 242742119
+SEC 165023367
+SEC 141212631
+SEC 241730447
+SEC 216745735
+SEC 242758559
+SEC 190974639
+SEC 121124703
+SEC 200871655
+SEC 232399103
+SEC 202746263
+SEC 234808879
+SEC 236505823
+SEC 258446567
+SEC 216894663
+SEC 236218039
+SEC 19118735
+SEC 253193895
+SEC 250529063
+SEC 90794815
+SEC 19118743
+SEC 104516335
+SEC 178977367
+SEC 104452679
+SEC 112676663
+SEC 45626559
+SEC 259307255
+SEC 178977375
+SEC 136701799
+SEC 93659759
+SEC 123873487
+SEC 276456711
+SEC 53040471
+SEC 71789743
+SEC 181178239
+SEC 56431959
+SEC 114157287
+SEC 51378815
+SEC 274711519
+SEC 95508255
+SEC 88509975
+SEC 51378823
+SEC 220852079
+SEC 52807527
+SEC 101585647
+SEC 119318751
+SEC 85109583
+SEC 113554975
+SEC 90794823
+SEC 225582591
+SEC 104516343
+SEC 121124711
+SEC 93659767
+SEC 121435991
+SEC 225582599
+SEC 112676671
+SEC 34691327
+SEC 106607655
+SEC 196873975
+SEC 119318759
+SEC 114157295
+SEC 34691335
+SEC 275217983
+SEC 120949559
+SEC 140850631
+SEC 123873495
+SEC 136701807
+SEC 236907215
+SEC 176951847
+SEC 110377903
+SEC 275217991
+SEC 77873071
+SEC 110377911
+SEC 256461911
+SEC 147925415
+SEC 201810207
+SEC 194908183
+SEC 77873079
+SEC 58790607
+SEC 203247767
+SEC 202126631
+SEC 229539327
+SEC 255926639
+SEC 196582031
+SEC 171528399
+SEC 229539335
+SEC 202937143
+SEC 46584079
+SEC 181178247
+SEC 196582039
+SEC 81709495
+SEC 16203895
+SEC 250269335
+SEC 167129847
+SEC 206498959
+SEC 157103487
+SEC 210120863
+SEC 33941655
+SEC 61832119
+SEC 211170727
+SEC 51080359
+SEC 20052727
+SEC 241730455
+SEC 61832127
+SEC 205165335
+SEC 214632423
+SEC 122824343
+SEC 20052735
+SEC 140191023
+SEC 72637647
+SEC 81807879
+SEC 220852087
+SEC 274711527
+SEC 72637655
+SEC 128485151
+SEC 272470287
+SEC 236505831
+SEC 26748951
+SEC 65279047
+SEC 117772527
+SEC 243127655
+SEC 33941663
+SEC 16203903
+SEC 46584087
+SEC 52807535
+SEC 51080367
+SEC 63747023
+SEC 9727031
+SEC 154125591
+SEC 56431967
+SEC 248621495
+SEC 81709503
+SEC 58790615
+SEC 122824351
+SEC 81807887
+SEC 85109591
+SEC 128485159
+SEC 28894271
+SEC 212288703
+SEC 244553023
+SEC 240170887
+SEC 104452687
+SEC 20195519
+SEC 140191031
+SEC 106607663
+SEC 87504743
+SEC 60974015
+SEC 154125599
+SEC 70560551
+SEC 106535679
+SEC 243848543
+SEC 183553015
+SEC 106535687
+SEC 84613951
+SEC 214632431
+SEC 20081295
+SEC 230841647
+SEC 84613959
+SEC 224588031
+SEC 214736271
+SEC 185091447
+SEC 157103495
+SEC 230841655
+SEC 86633039
+SEC 214736279
+SEC 165450671
+SEC 255926647
+SEC 62035695
+SEC 167129855
+SEC 155598055
+SEC 88750831
+SEC 171528407
+SEC 145660055
+SEC 155598063
+SEC 196873983
+SEC 80230447
+SEC 88750839
+SEC 157307751
+SEC 206498967
+SEC 70322287
+SEC 132340807
+SEC 28894279
+SEC 145660063
+SEC 108340719
+SEC 37795543
+SEC 188785751
+SEC 202126639
+SEC 148319719
+SEC 80230455
+SEC 31851487
+SEC 236907223
+SEC 203247775
+SEC 60974023
+SEC 205165343
+SEC 250269343
+SEC 132340815
+SEC 233859647
+SEC 270652639
+SEC 225418159
+SEC 35692287
+SEC 76047119
+SEC 256461919
+SEC 109379583
+SEC 59689919
+SEC 9727039
+SEC 225418167
+SEC 149748295
+SEC 259307263
+SEC 20081303
+SEC 103313047
+SEC 20195527
+SEC 82232647
+SEC 26748959
+SEC 35692295
+SEC 150942231
+SEC 185091455
+SEC 37795551
+SEC 254427015
+SEC 119379759
+SEC 188785759
+SEC 49133999
+SEC 149748303
+SEC 176409007
+SEC 212288711
+SEC 59689927
+SEC 108707647
+SEC 53238151
+SEC 70322295
+SEC 254427023
+SEC 70560559
+SEC 61420463
+SEC 41722847
+SEC 257685167
+SEC 62035703
+SEC 49134007
+SEC 270024007
+SEC 63747031
+SEC 11128215
+SEC 150493111
+SEC 53238159
+SEC 148918551
+SEC 86633047
+SEC 65279055
+SEC 31851495
+SEC 108707655
+SEC 79049759
+SEC 18028527
+SEC 197659967
+SEC 87504751
+SEC 148319727
+SEC 102963759
+SEC 231653911
+SEC 270024015
+SEC 178557551
+SEC 95239991
+SEC 76047127
+SEC 183553023
+SEC 61784455
+SEC 117772535
+SEC 102963767
+SEC 190999695
+SEC 82232655
+SEC 25147095
+SEC 95239999
+SEC 8835991
+SEC 22143575
+SEC 252103959
+SEC 233859655
+SEC 108340727
+SEC 157307759
+SEC 141336751
+SEC 109379591
+SEC 165450679
+SEC 248621503
+SEC 173172303
+SEC 176583135
+SEC 37392095
+SEC 162253743
+SEC 22143583
+SEC 251391223
+SEC 223742871
+SEC 193250671
+SEC 134560935
+SEC 209745527
+SEC 30787143
+SEC 41722855
+SEC 134560943
+SEC 108068639
+SEC 61784463
+SEC 11128223
+SEC 224588039
+SEC 108068647
+SEC 28391807
+SEC 200923263
+SEC 270504303
+SEC 71219791
+SEC 240170895
+SEC 185298527
+SEC 28391815
+SEC 209693343
+SEC 243127663
+SEC 200923271
+SEC 37392103
+SEC 243848551
+SEC 86238191
+SEC 267178911
+SEC 71219799
+SEC 157982879
+SEC 21306431
+SEC 245068151
+SEC 222179039
+SEC 244553031
+SEC 96866095
+SEC 83571471
+SEC 153955399
+SEC 49938543
+SEC 141336759
+SEC 21306439
+SEC 261117143
+SEC 103313055
+SEC 216100911
+SEC 270652647
+SEC 173172311
+SEC 111395999
+SEC 162253751
+SEC 193250679
+SEC 176409015
+SEC 8835999
+SEC 182721087
+SEC 112948215
+SEC 18028535
+SEC 185298535
+SEC 182721095
+SEC 92534743
+SEC 231653919
+SEC 25147103
+SEC 190999703
+SEC 237512511
+SEC 197659975
+SEC 45690991
+SEC 61420471
+SEC 195375095
+SEC 30787151
+SEC 209693351
+SEC 16479719
+SEC 223742879
+SEC 78461455
+SEC 59330903
+SEC 264401663
+SEC 91499119
+SEC 49938551
+SEC 79049767
+SEC 78461463
+SEC 18776463
+SEC 47245743
+SEC 83571479
+SEC 251391231
+SEC 86238199
+SEC 59756255
+SEC 252103967
+SEC 50773639
+SEC 213929823
+SEC 119379767
+SEC 157982887
+SEC 50773647
+SEC 170143759
+SEC 215533183
+SEC 148918559
+SEC 124077087
+SEC 216210495
+SEC 150493119
+SEC 18776471
+SEC 216210503
+SEC 87799663
+SEC 47245751
+SEC 150942239
+SEC 219983815
+SEC 59756263
+SEC 103870319
+
+--mP3DRpeJDSE+ciuQ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="thread_seek.c"
+
+#define _FILE_OFFSET_BITS 64
+#define _LARGEFILE_SOURCE
+#define _LARGEFILE64_SOURCE
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <stdint.h>
+#include <error.h>
+#include <errno.h>
+#include <assert.h>
+#include <pthread.h>
+#include <semaphore.h>
+
+#define ERR(args...) fprintf(stderr, args);
+
+#define READSIZE 4096
+#define FILENAME "./bigfile"
+
+int nthreads = 64;
+
+extern int errno;
+int fds[1024];
+pthread_mutex_t locks[1024];
+uint64_t filesize;
+sem_t sem;
+
+void * thread(void *arg)
+{
+  char buf[READSIZE];
+  off_t offset;
+  int index, fd, ret;
+
+  fd = 0;
+  do {
+    for(index = 0; index < nthreads; index++) {
+      if(pthread_mutex_trylock(&locks[index]) == 0) {
+	// Found a free file descriptor
+	fd = fds[index];
+	break;
+      }
+    }
+  } while(fd == 0);
+
+  offset = (((uint64_t)random() << 32) | random()) % (filesize - READSIZE);
+
+  assert(offset < filesize - READSIZE);
+
+  if(lseek(fd, offset, SEEK_SET) == -1) {
+    ERR("thread(): lseek(): %s\n", strerror(errno));
+    goto done;
+  }
+  
+  if((ret = read(fd, buf, READSIZE)) != READSIZE) {
+    if(ret == -1) {
+      ERR("thread(): read(): %s\n", strerror(errno));
+    } else if(ret == 0) {
+      ERR("thread(): read(): EOF\n");
+    } else {
+      ERR("thread(): read(): Only read %d of %d bytes\n", ret, READSIZE);
+    }
+  }
+  
+ done:
+  
+  pthread_mutex_unlock(&locks[index]);
+  
+  sem_post(&sem);
+}
+
+int main(int argc, char **argv)
+{
+  pthread_attr_t attr;
+  pthread_t child;
+  struct stat fstat;
+  int i;
+
+  if(argc == 2) {
+    nthreads = atoi(argv[1]);
+    assert(nthreads < 1024);
+  }
+
+  if(pthread_attr_init(&attr) != 0) {
+    ERR("main(): pthread_attr_init(): failed\n");
+    exit(1);
+  }
+
+  if(pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED) != 0) {
+    ERR("main(): pthread_attr_setdetachstate(): failed\n");
+    exit(1);
+  }
+
+  if(stat(FILENAME, &fstat) == -1) {
+    ERR("main(): stat(): %s\n", strerror(errno));
+    exit(1);
+  }
+
+  filesize = fstat.st_size;
+
+  for(i = 0; i < nthreads; i++) {
+    if((fds[i] = open(FILENAME, O_RDONLY | O_LARGEFILE)) == -1) {
+      ERR("main(): open(): %s\n", strerror(errno));
+      exit(1);
+    }
+    if(pthread_mutex_init(&locks[i], NULL) != 0) {
+      ERR("main(): pthread_mutex_init(): %s\n", strerror(errno));
+      exit(1);
+    }
+  }
+
+  if(sem_init(&sem, 0, nthreads) == -1) {
+    ERR("main(): sem_init(): %s\n", strerror(errno));
+    exit(1);
+  }
+
+  while(1) {
+    if(sem_wait(&sem) == 0) {
+      if(pthread_create(&child, &attr, thread, NULL) != 0) {
+	ERR("main(): pthread_create(): failed\n");
+	exit(1);
+      }
+    }
+  }
+}
+
+--mP3DRpeJDSE+ciuQ--

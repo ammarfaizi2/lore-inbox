@@ -1,35 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268676AbTCCRCj>; Mon, 3 Mar 2003 12:02:39 -0500
+	id <S268308AbTCCRNN>; Mon, 3 Mar 2003 12:13:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268617AbTCCRCi>; Mon, 3 Mar 2003 12:02:38 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:4779 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S268620AbTCCRCe>;
-	Mon, 3 Mar 2003 12:02:34 -0500
-Date: Mon, 03 Mar 2003 08:55:04 -0800 (PST)
-Message-Id: <20030303.085504.105424448.davem@redhat.com>
-To: cfriesen@nortelnetworks.com
-Cc: terje.eggestad@scali.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-       linux-net@vger.kernel.org
-Subject: Re: anyone ever done multicast AF_UNIX sockets?
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <3E638C51.2000904@nortelnetworks.com>
-References: <3E5E7081.6020704@nortelnetworks.com>
-	<1046695876.7731.78.camel@pc-16.office.scali.no>
-	<3E638C51.2000904@nortelnetworks.com>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S268566AbTCCRNN>; Mon, 3 Mar 2003 12:13:13 -0500
+Received: from DELFT.AURA.CS.CMU.EDU ([128.2.206.88]:62164 "EHLO
+	delft.aura.cs.cmu.edu") by vger.kernel.org with ESMTP
+	id <S268308AbTCCRNM>; Mon, 3 Mar 2003 12:13:12 -0500
+Date: Mon, 3 Mar 2003 12:23:40 -0500
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4 iget5_locked port attempt to 2.4
+Message-ID: <20030303172339.GE13151@delft.aura.cs.cmu.edu>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20030220175309.A23616@namesys.com> <20030220154924.7171cbd7.akpm@digeo.com> <20030221220341.A9325@namesys.com> <20030221200440.GA23699@delft.aura.cs.cmu.edu> <20030303170924.B3371@namesys.com> <1046708741.6509.5.camel@irongate.swansea.linux.org.uk> <20030303183838.B4513@namesys.com> <20030303165054.GC13151@delft.aura.cs.cmu.edu>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030303165054.GC13151@delft.aura.cs.cmu.edu>
+User-Agent: Mutt/1.5.3i
+From: Jan Harkes <jaharkes@cs.cmu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Chris Friesen <cfriesen@nortelnetworks.com>
-   Date: Mon, 03 Mar 2003 12:09:37 -0500
+On Mon, Mar 03, 2003 at 11:50:54AM -0500, Jan Harkes wrote:
+> Yeah, I actually hit that bug while working on Coda which prompted the
+> whole iget5_locked implementation.
 
-   Unless you poll for messages on the receiving side, how do you trigger 
-   the receiver to look for a message?
+Hmm, I seem to be misrepresenting my role with this statement.
 
-Send signals.  Use a FUTEX, be creative...
+Yes, I found the bug in Coda, but the actual iget5_locked implementation
+was largely based on the icreate patches from XFS that were sent to me
+by Steve Lord.
+
+There was a whole discussion on linux-fsdevel where Alexander Viro,
+Anton Altaparmakov, Steve Lord, Christoph Hellwig, Chris Mason, and
+probably others which I forgot all gave input and comments which I
+merged into the patches before they were submitted to Linus.
+
+Just to give credit where credit is due.
+
+Jan
 

@@ -1,69 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262593AbTIUWga (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Sep 2003 18:36:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262594AbTIUWga
+	id S262594AbTIUWr5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Sep 2003 18:47:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262596AbTIUWr5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Sep 2003 18:36:30 -0400
-Received: from [203.51.31.218] ([203.51.31.218]:48116 "EHLO e4.eyal.emu.id.au")
-	by vger.kernel.org with ESMTP id S262593AbTIUWg2 (ORCPT
+	Sun, 21 Sep 2003 18:47:57 -0400
+Received: from aneto.able.es ([212.97.163.22]:27389 "EHLO aneto.able.es")
+	by vger.kernel.org with ESMTP id S262594AbTIUWr4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Sep 2003 18:36:28 -0400
-Message-ID: <3F6E27D8.28FC0293@eyal.emu.id.au>
-Date: Mon, 22 Sep 2003 08:36:08 +1000
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.4.23-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>
-CC: list linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.23-pre5: airo.c does not build
-References: <Pine.LNX.4.44.0309211438440.17528-100000@logos.cnet>
-Content-Type: multipart/mixed;
- boundary="------------097D58853612FACA649360C3"
+	Sun, 21 Sep 2003 18:47:56 -0400
+Date: Mon, 22 Sep 2003 00:47:53 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Chad Talbott <ctalbott@google.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ide-io.c, kernel 2.4.22 Fix for IO stats in /proc/partitions, was Re: sard/iostat disk I/O statistics/accounting for 2.5.8-pre3
+Message-ID: <20030921224753.GA4548@werewolf.able.es>
+References: <vfxk789refm.fsf@sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <vfxk789refm.fsf@sgi.com>; from ctalbott@google.com on Mon, Sep 15, 2003 at 22:21:01 +0200
+X-Mailer: Balsa 2.0.14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------097D58853612FACA649360C3
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 
-gcc -D__KERNEL__ -I/data2/usr/local/src/linux-2.4-pre/include -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
--fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686
--malign-functions=4 -DMODULE -DMODVERSIONS -include
-/data2/usr/local/src/linux-2.4-pre/include/linux/modversions.h 
--nostdinc -iwithprefix include -DKBUILD_BASENAME=airo  -DEXPORT_SYMTAB
--c airo.c
-airo.c:207: redefinition of `PDE'
-/data2/usr/local/src/linux-2.4-pre/include/linux/proc_fs.h:213: `PDE'
-previously defined here
-make[3]: *** [airo.o] Error 1
-make[3]: Leaving directory
-`/data2/usr/local/src/linux-2.4-pre/drivers/net/wireless'
+On 09.15, Chad Talbott wrote:
+> I found the cause of ide disks' ios_in_flight going negative in
+> /proc/partitions.
+[...]
+> 
+> --- linux-2.4.18-old/drivers/ide/ide-io.c	15 Sep 2003 17:41:32 -0000
+> +++ linux-2.4.18-new/drivers/ide/ide-io.c	15 Sep 2003 20:11:12 -0000
+> @@ -148,6 +148,7 @@
+>  	ide_hwif_t *hwif = HWIF(drive);
+>  	unsigned long flags;
+>  	struct request *rq;
+> +	struct completion *waiting;
+>  
+>  	spin_lock_irqsave(&io_request_lock, flags);
+>  	rq = HWGROUP(drive)->rq;
+> @@ -221,7 +222,13 @@
+>  	spin_lock_irqsave(&io_request_lock, flags);
+>  	blkdev_dequeue_request(rq);
+>  	HWGROUP(drive)->rq = NULL;
+> -	end_that_request_last(rq);
+> +
+> +	waiting = req->waiting;
+> +	req_finished_io(req);
+> +	blkdev_release_request(req);
+> +	if (waiting)
+> +		complete(waiting);
+> +
+>  	spin_unlock_irqrestore(&io_request_lock, flags);
+>  }
+>  
 
---
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
---------------097D58853612FACA649360C3
-Content-Type: text/plain; charset=us-ascii;
- name="2.4.23-pre5-airo.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="2.4.23-pre5-airo.patch"
+Did you ever built this ? req -> rq ?
 
---- linux/drivers/net/wireless/airo.c.orig	Mon Sep 22 08:27:31 2003
-+++ linux/drivers/net/wireless/airo.c	Mon Sep 22 08:32:18 2003
-@@ -202,7 +202,7 @@
- #ifndef RUN_AT
- #define RUN_AT(x) (jiffies+(x))
- #endif
--#if LINUX_VERSION_CODE < 0x020500
-+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,4,23)
- static inline struct proc_dir_entry *PDE(const struct inode *inode)
- {
- 	return inode->u.generic_ip;
-
---------------097D58853612FACA649360C3--
-
+-- 
+J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
+werewolf.able.es                         \           It's better when it's free
+Mandrake Linux release 9.2 (Cooker) for i586
+Linux 2.4.23-pre4-jam1 (gcc 3.3.1 (Mandrake Linux 9.2 3.3.1-2mdk))

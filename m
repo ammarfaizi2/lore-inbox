@@ -1,56 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278701AbRKHXJE>; Thu, 8 Nov 2001 18:09:04 -0500
+	id <S278768AbRKHXNZ>; Thu, 8 Nov 2001 18:13:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278789AbRKHXIy>; Thu, 8 Nov 2001 18:08:54 -0500
-Received: from cmailg4.svr.pol.co.uk ([195.92.195.174]:26433 "EHLO
-	cmailg4.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S278755AbRKHXIq>; Thu, 8 Nov 2001 18:08:46 -0500
-Posted-Date: Thu, 8 Nov 2001 23:00:21 GMT
-Date: Thu, 8 Nov 2001 23:00:20 +0000 (GMT)
-From: Riley Williams <rhw@MemAlpha.cx>
-Reply-To: Riley Williams <rhw@MemAlpha.cx>
-To: Pavel Machek <pavel@suse.cz>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: PROBLEM: Linux updates RTC secretly when clock synchronizes
-In-Reply-To: <20011108132639.A14160@atrey.karlin.mff.cuni.cz>
-Message-ID: <Pine.LNX.4.21.0111082252500.14996-100000@Consulate.UFP.CX>
+	id <S278818AbRKHXNP>; Thu, 8 Nov 2001 18:13:15 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:28947 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S278768AbRKHXNB>; Thu, 8 Nov 2001 18:13:01 -0500
+Subject: Re: hang with 2.4.14 & vmware 3.0.x, anyone else seen this?
+To: VANDROVE@vc.cvut.cz (Petr Vandrovec)
+Date: Thu, 8 Nov 2001 23:19:36 +0000 (GMT)
+Cc: lkml-frank@unternet.org (Frank de Lange), linux-kernel@vger.kernel.org
+In-Reply-To: <89EA9194B5B@vcnet.vc.cvut.cz> from "Petr Vandrovec" at Nov 08, 2001 09:08:10 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E161ySO-00014Z-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Pavel.
+> and for which I can say that they works (== do not use VMware with
+> 2.4.13-ac8, vmmon will not restore correct %cr2 value under some
+> conditions, use -ac7 until it is clear whether non-standard %cr2 usage 
+> is going to stay or not).
 
->>>> least as KERN_DEBUG if not as KERN_NOTICE) whenever the RTC is
->>>> written to. It's too important a subsystem to be left hidden like
->>>> it currently is.
+%cr2 doesnt work out. Don't worry about it
 
->>> This can be as well done in userland, enforced by whoever does rtc
->>> writes, no?
-
->> If some idiot writes a hwclock replacement that doesn't do logging...
-
-> Then it is *his* problem. That's no excuse for putting it into kernel.
-
-So you believe viruses are a good thing to have? Sorry, I have to
-disagree with you.
-
-Take the position of a sysadmin who can't understand why the system
-clock on his computer keeps getting randomly changed under Linux, and
-has verified using another operating system that it isn't a hardware
-problem, then ask yourself what said sysadmin would expect from the
-kernel to help him/her track the problem down. Would said sysadmin
-prefer to be told...
-
- 1. "Look in the system log - you'll get a message every time any
-    program writes to the RTC."
-
- 2. "Sorry, you'll have to go through every piece of software on
-    your system and find the one that's updating the system clock
-    that shouldn't be."
-
-According to your comments, you prefer (2). I most definitely prefer (1).
-
-Best wishes from Riley.
-
+Alan

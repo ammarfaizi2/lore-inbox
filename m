@@ -1,33 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281255AbSAAPN4>; Tue, 1 Jan 2002 10:13:56 -0500
+	id <S281854AbSAAPQj>; Tue, 1 Jan 2002 10:16:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281762AbSAAPNq>; Tue, 1 Jan 2002 10:13:46 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:50180 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S281458AbSAAPNm>; Tue, 1 Jan 2002 10:13:42 -0500
-Subject: Re: Why would a valid DVD show zero files on Linux?
-To: bryce@obviously.com (Bryce Nesbitt)
-Date: Tue, 1 Jan 2002 15:24:14 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org,
-        Lionel.Bouton@free.fr (Lionel Bouton), Andries.Brouwer@cwi.nl
-In-Reply-To: <3C31C62F.FFF175A9@obviously.com> from "Bryce Nesbitt" at Jan 01, 2002 09:22:39 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S281458AbSAAPQ1>; Tue, 1 Jan 2002 10:16:27 -0500
+Received: from naxos.pdb.sbs.de ([192.109.3.5]:23219 "EHLO naxos.pdb.sbs.de")
+	by vger.kernel.org with ESMTP id <S281762AbSAAPQN>;
+	Tue, 1 Jan 2002 10:16:13 -0500
+Date: Tue, 1 Jan 2002 16:16:07 +0100
+From: Wolfgang Erig <Wolfgang.Erig@fujitsu-siemens.com>
+To: linux-kernel@vger.kernel.org
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: zImage not supported for 2.2.20?
+Message-ID: <20020101161607.A16282@upset.pdb.fsc.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	"H. Peter Anvin" <hpa@zytor.com>
+In-Reply-To: <4.3.2.7.2.20011228101818.00aaa2c0@192.168.124.1> <4.3.2.7.2.20011228124704.00abba70@192.168.124.1> <20011228163250.A31791@elektroni.ee.tut.fi> <20011228211348.A8720@upset.pdb.fsc.net> <a0j9fh$tjn$1@cesium.transmeta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16LQly-0000Yj-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <a0j9fh$tjn$1@cesium.transmeta.com>; from hpa@zytor.com on Fri, Dec 28, 2001 at 06:23:45PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Windows, somehow, detects the difference.  Whatever method used by Windows
-> will be the one tested by the makers of most DVD/CDROM's.
+On Fri, Dec 28, 2001 at 06:23:45PM -0800, H. Peter Anvin wrote:
+> > 
+> > Loading linux 2.2.20.......
+> > Uncompressing Linux...
+> > 
+> > Out of memory
+> > 
+> >  -- System halted
+> > 
+> > Siemens/Nixdorf Mobile 710
+> > Pentium MMX 166MHz, 128MB
+> > 
+> > Kernel 2.2.20 generated from perfectly running 2.2.19 with
+> > make oldconfig; make dep; make zImage; ...
+> > 
+> > 2.4.16 does not work too:
+> > Loading linux 2.4.16........
+> > 
+> > [ black screen and than back in BIOS-boot ]
+> > 
+> 
+> Chipset info?  BIOS info?
+> 
+00:00.0 Host bridge: Intel Corp. 430TX - 82439TX MTXC (rev 01)
+00:01.0 Bridge: Intel Corp. 82371AB PIIX4 ISA (rev 01)
+00:01.1 IDE interface: Intel Corp. 82371AB PIIX4 IDE (rev 01)
+00:01.2 USB Controller: Intel Corp. 82371AB PIIX4 USB (rev 01)
+00:01.3 Bridge: Intel Corp. 82371AB PIIX4 ACPI (rev 01)
+00:06.0 VGA compatible controller: Chips and Technologies F65554 (rev c2)
+00:14.0 CardBus bridge: Cirrus Logic PD 6832 (rev c1)
+00:14.1 CardBus bridge: Cirrus Logic PD 6832 (rev c1)
 
-Actually half of the copy protected CD thing relies on the fact windows does
-not get its decisions right.
+PhoenixBIOS 4.0 RELEASE 5.1
+BIOS REALEASE VERSION 3D24
+Build Time: 09/07/98 15:01:24
 
-> If the distinction is something that can be automated well, then what is
-> the argument against doing it?
+> Also, is there any connection between this box and the Toshiba Tecra
+> 710 (since they have similar type numbers?)
 
-Certainly relevant - but for the kde file manager and gnome nautilus lists
+Likely this box is not built by Siemens/Nixdorf (only packaging and label)
+so this is possible. I will try to find out,
+
+	Wolfgang

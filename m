@@ -1,60 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264900AbUGVOXg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265966AbUGVOnT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264900AbUGVOXg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jul 2004 10:23:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265966AbUGVOXd
+	id S265966AbUGVOnT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jul 2004 10:43:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265986AbUGVOnT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jul 2004 10:23:33 -0400
-Received: from [195.23.16.24] ([195.23.16.24]:50086 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S264900AbUGVOXc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jul 2004 10:23:32 -0400
-Subject: Re: Inode question
-From: Paulo Marques <pmarques@grupopie.com>
-Reply-To: pmarques@grupopie.com
-To: sankarshana rao <san_wipro@yahoo.com>
-Cc: root@chaos.analogic.com,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040721225752.90581.qmail@web50902.mail.yahoo.com>
-References: <20040721225752.90581.qmail@web50902.mail.yahoo.com>
-Content-Type: text/plain
-Organization: Grupo PIE
-Message-Id: <1090506209.8842.20.camel@pmarqueslinux>
+	Thu, 22 Jul 2004 10:43:19 -0400
+Received: from hera.kernel.org ([63.209.29.2]:3212 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S265966AbUGVOnR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jul 2004 10:43:17 -0400
+To: linux-kernel@vger.kernel.org
+From: hpa@zytor.com (H. Peter Anvin)
+Subject: Re: linux-kernel CVS gateway?
+Date: Thu, 22 Jul 2004 14:41:52 +0000 (UTC)
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <cdojng$it7$1@terminus.zytor.com>
+References: <20040717213703.GE5464@admingilde.org> <1090142336.15165.1.camel@localhost> <20040718201014.GA8291@admingilde.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Thu, 22 Jul 2004 15:23:30 +0100
-Content-Transfer-Encoding: 7bit
-X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.26.0.10; VDF: 6.26.0.39; host: bipbip)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: terminus.zytor.com 1090507312 19368 127.0.0.1 (22 Jul 2004 14:41:52 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Thu, 22 Jul 2004 14:41:52 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-07-21 at 23:57, sankarshana rao wrote:
-> Guys,
-> Thx for the inputs...I got it with path_lookup....
+Followup to:  <20040718201014.GA8291@admingilde.org>
+By author:    Martin Waitz <tali@admingilde.org>
+In newsgroup: linux.dev.kernel
 > 
-> Can I pass the inode pointer back to the user space???
+> hi :)
+> 
+> On Sun, Jul 18, 2004 at 11:18:56AM +0200, Kasper Sandberg wrote:
+> > they are using bitkeeper
+> 
+> sure, but Larry announced the CVS gateway some months ago...
+> now that I wanted to give it a try, it doesn't exist anymore :(
+> 
 
-To get an inode number from user space you can simply use the "stat" or
-"fstat" functions. You don't need to create your own module.
+Just rsync the CVS repository from:
 
-> I have a scenario in which I have to create multiple
-> folders on the harddisk. The number of folders can be
-> in hundreds. Instead of parsing the path name
-> everytime I need to create a folder (that's what
-> sys_mkdir does??? ), I was thinking if I have the
-> inode* of the parent folder, I can avoid this parsing
-> and directly create a subfolder under the parent
-> folder...
+rsync://rsync.kernel.org/pub/scm/linux/kernel/bkcvs/
 
-Is this really a problem? The dentry cache should make this quite fast,
-leaving the bottleneck to the actual write on disk of the result.
+The direct access to the repository was removed due to disuse and
+security problems.  The rsync is a lot nicer anyway.
 
-I tried a small program (if it can be called a program) to create a
-thousand directories and it takes less than 100 ms on my machine.
-
-Best regards,
-
--- 
-Paulo Marques - www.grupopie.com
-"In a world without walls and fences who needs windows and gates?"
-
+	-hpa

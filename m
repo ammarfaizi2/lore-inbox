@@ -1,70 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268838AbRHBH0L>; Thu, 2 Aug 2001 03:26:11 -0400
+	id <S268842AbRHBHeB>; Thu, 2 Aug 2001 03:34:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268841AbRHBH0B>; Thu, 2 Aug 2001 03:26:01 -0400
-Received: from imladris.infradead.org ([194.205.184.45]:46350 "EHLO
-	infradead.org") by vger.kernel.org with ESMTP id <S268838AbRHBHZx>;
-	Thu, 2 Aug 2001 03:25:53 -0400
-Date: Thu, 2 Aug 2001 08:24:45 +0100 (BST)
-From: Riley Williams <rhw@MemAlpha.CX>
-X-X-Sender: <rhw@infradead.org>
-To: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-cc: peter revill <arevill@bigpond.net.au>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: university studies?
-In-Reply-To: <20010801134647.D662@arthur.ubicom.tudelft.nl>
-Message-ID: <Pine.LNX.4.33.0108020819090.6003-100000@infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268841AbRHBHdv>; Thu, 2 Aug 2001 03:33:51 -0400
+Received: from rj.sgi.com ([204.94.215.100]:48771 "EHLO rj.corp.sgi.com")
+	by vger.kernel.org with ESMTP id <S268842AbRHBHdc>;
+	Thu, 2 Aug 2001 03:33:32 -0400
+Date: Thu, 2 Aug 2001 00:31:52 -0700 (PDT)
+From: jeremy@classic.engr.sgi.com (Jeremy Higdon)
+Message-Id: <10108020031.ZM229058@classic.engr.sgi.com>
+In-Reply-To: Andrea Arcangeli <andrea@suse.de>
+        "Re: changes to kiobuf support in 2.4.(?)4" (Aug  2,  8:43am)
+In-Reply-To: <10108012254.ZM192062@classic.engr.sgi.com> 
+	<20010802084259.H29065@athlon.random>
+X-Mailer: Z-Mail (3.2.3 08feb96 MediaMail)
+To: Andrea Arcangeli <andrea@suse.de>
+Subject: Re: changes to kiobuf support in 2.4.(?)4
+Cc: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Erik.
+On Aug 2,  8:43am, Andrea Arcangeli wrote:
+> 
+> OTOH I'm a little biased in the above reasoning since I use the kiobuf
+> only for doing direct I/O (I always end calling brw_kiovec somehow,
+> otherwise I wouldn't be using the kiobufs at all). If you are using the
+> kiobufs for framebuffers and other drivers that never ends calling
+> brw_kiovec I think you should be using the mmap callback and
 
- >> Personally, I did "B.Sc. Computer Studies", but I suspect the actual
- >> course title is irrelevant, and it's the modules you do in the course
- >> that matter. Here's what I would regard as important:
- >>
- >>  1. A thorough knowledge of programming in C. Knowledge of C++
- >>     will help.
- >>
- >>  2. Experience of programming hardware will definitely help.
- >>
- >>  3. The ability to think logically is a definite advantage, and
- >>     tends to result in 90%+ of your programs working first time.
- >>
- >> Additions, anybody?
+By "mmap callback", you're referring to the mmap entry in the file_operations
+structure?
 
- > A couple of good books also helps:
- >
- > - Brian Kernighan and Dennis Ritchie, "The C programming language"
- >   (ANSI edition)
- > - Brian Kernighan and Rob Pike, "The practice of programming"
- > - Jon Bentley, "Programming Pearls"
+> remap_page_range instead as most drivers correctly do to avoid the
+> overhead of the kiobufs. But ok if you really want to use the kiobuf for
+> non I/O things instead of remap_page_range (dunno why) we could split
+> off the bh-array allocation from the kiobuf to make it a bit lighter so
+> you could use it for non-IO operations without the overhead of the bhs,
+> but still we should adapt rawio to preallocate the bh at open/close time
+> (separately from the kiovec).
+> 
+> Andrea
 
-One thing I will add, from long experience: If you learned BASIC
-first, then learn Pascal BEFORE you try to learn C or C++ as you'll
-come out a much better programmer than trying to learn C or C++
-directly after BASIC.
+I am doing direct I/O.  I'm using the kiobuf to hold the page addresses
+of the user's data buffer, but I'm calling directly into my driver
+after doing the map_user_kiobuf() (I have a read/write request, a file
+offset, a byte count, and a set of pages to DMA into/out of, and that
+gets directly translated into a SCSI command).
 
- > And of course don't wait with kernel programming until after you
- > finish your studies. Do it right now. Subscribe to linux-kernel,
- > and follow the discussions. Test patches and improve them, get
- > your hands dirty.
+It turns out that the old kmem_cache_alloc was very lightweight, so I
+could get away with doing it once per I/O request, so I would indeed
+profit by going back to a light weight kiobuf, or at least an optional
+allocation of the bh and blocks arrays (perhaps turn them into pointers
+to arrays?).
 
-Also, and probably even more important, set up your own Linux based
-system and actively write software for it, not just in C but in things
-like bash shell script. Especially software that appears to be totally
-unsuited to the language - I wrote a floppy diskette formatter
-entirely in bash shell script as an exercise, and I still use the
-program that resulted, simply because it gives me much more data space
-on the floppies without sacrificing MS-DOS compatibility.
+thanks
 
- > Erik [who did "M.Sc. Electrical Engineering"]
-
-I understand there's somebody on here who did BA Spanish as their
-degree...
-
-Best wishes from Riley.
-
+jeremy

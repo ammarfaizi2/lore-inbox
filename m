@@ -1,58 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266688AbSKLRul>; Tue, 12 Nov 2002 12:50:41 -0500
+	id <S266750AbSKLR6h>; Tue, 12 Nov 2002 12:58:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266755AbSKLRuk>; Tue, 12 Nov 2002 12:50:40 -0500
-Received: from fmr05.intel.com ([134.134.136.6]:29171 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP
-	id <S266688AbSKLRui>; Tue, 12 Nov 2002 12:50:38 -0500
-Message-ID: <A46BBDB345A7D5118EC90002A5072C7806CAC923@orsmsx116.jf.intel.com>
-From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-To: "'Jamie Lokier'" <lk@tantalophile.demon.co.uk>
-Cc: Rusty Russell <rusty@rustcorp.com.au>,
-       "'mingo@redhat.com'" <mingo@redhat.com>,
-       "'Mark Mielke'" <mark@mark.mielke.cc>, linux-kernel@vger.kernel.org
-Subject: RE: Users locking memory using futexes
-Date: Tue, 12 Nov 2002 09:57:18 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S266754AbSKLR6h>; Tue, 12 Nov 2002 12:58:37 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:50614 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S266750AbSKLR6g>; Tue, 12 Nov 2002 12:58:36 -0500
+Subject: Re: [2.5 bk current] Compile error in module.c
+From: Paul Larson <plars@austin.ibm.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021112174741.75B162C2BC@lists.samba.org>
+References: <20021112174741.75B162C2BC@lists.samba.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-YdouvIMjyq6UiHalsTTX"
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 12 Nov 2002 12:02:11 -0600
+Message-Id: <1037124132.10626.13.camel@plars>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> > Good thing is - I just found out after reading twice - that 
-> FUTEX_FD does
-> > not lock the page in memory, so that is one case less to 
-> worry about. 
-> 
-> Oh yes it does - the page isn't unpinned until wakeup or close.
-> See where it says in futex_fd():
-> 
-> 	page = NULL;
-> out:
-> 	if (page)
-> 		unpin_page(page);
+--=-YdouvIMjyq6UiHalsTTX
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Bang, bang, bang ... assshoooole [hearing whispers in my ears]. Great point:
-Inaky 0, Jamie 1 - this will teach me to read _three_ times on Monday
-evenings. I am supposed to know all that code by heart ... oh well.
+On Tue, 2002-11-12 at 11:44, Rusty Russell wrote:
+> In message <1037116812.10626.6.camel@plars> you write:
+> >=20
+> > --=3D-zCH6+R6ao/F8Ph/vicXT
+> > Content-Type: text/plain
+> > Content-Transfer-Encoding: quoted-printable
+> >=20
+> > The ltp nightly run last night failed to compile with the following
+> > errors:
+>=20
+> Yep.  How does this go for you?
+>=20
+> Rusty.
+Oops, I sent that last note before my mail updated with the new one you
+sent me.  The one you sent me with more in it fixed it all up.
 
-> Rusty's got a good point about pipe() though.
+Thanks,
+Paul Larson
 
-He does; grumble, grumble ... let's see ... with pipe you have an implicit
-limit that controls you, the number of open files, that you also hit with
-futex_fd() (in ... get_unused_fd()) - so that is covered. OTOH, with just
-futex_wait(), if you are up to use one page per futex you lock on, you are
-also limited by RLIMIT_NPROC for every process you lock on [asides from
-wasting a lot of memory], so looks like there is another roadblock there to
-control it.
+--=-YdouvIMjyq6UiHalsTTX
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-Hum ... still I want to try Ingo's approach on the ptes; that is the part I
-was missing [knowing that struct page * is not invariant as the pte number
-... even being as obvious as it is].
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-Inaky Perez-Gonzalez -- Not speaking for Intel - opinions are my own [or my
-fault]
+iEYEABECAAYFAj3RQiMACgkQg9lkBG+YkH9XjACcD2CBTvqcmvmxHswjCvS7VKZC
+L58An0A4AsMJzVjOo24r+PNxsisOkTPa
+=CZp4
+-----END PGP SIGNATURE-----
+
+--=-YdouvIMjyq6UiHalsTTX--
 

@@ -1,63 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135645AbRD2LFG>; Sun, 29 Apr 2001 07:05:06 -0400
+	id <S135711AbRD2LOg>; Sun, 29 Apr 2001 07:14:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135696AbRD2LE4>; Sun, 29 Apr 2001 07:04:56 -0400
-Received: from obelix.hrz.tu-chemnitz.de ([134.109.132.55]:30156 "EHLO
-	obelix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S135645AbRD2LEl>; Sun, 29 Apr 2001 07:04:41 -0400
-Date: Sun, 29 Apr 2001 13:04:32 +0200
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: Michael F Gordon <Michael.Gordon@ee.ed.ac.uk>
-Cc: David Lang <david.lang@digitalinsight.com>,
-        Garett Spencley <gspen@home.com>, linux-kernel@vger.kernel.org,
-        Jeff Garzik <jgarzik@mandrakesoft.com>
-Subject: Re: 2.4.4 breaks dhcpcd with Realtek 8139
-Message-ID: <20010429130432.I679@nightmaster.csn.tu-chemnitz.de>
-In-Reply-To: <Pine.LNX.4.30.0104281142520.3423-100000@localhost.localdomain> <Pine.LNX.4.33.0104281126570.16046-100000@dlang.diginsite.com> <20010428231151.A11841@ee.ed.ac.uk>
-Mime-Version: 1.0
+	id <S135714AbRD2LO0>; Sun, 29 Apr 2001 07:14:26 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:28867 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S135711AbRD2LOT>;
+	Sun, 29 Apr 2001 07:14:19 -0400
+Message-ID: <3AEBF782.1911EDD2@mandrakesoft.com>
+Date: Sun, 29 Apr 2001 07:14:10 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: X15 alpha release: as fast as TUX but in user space (fwd)
+In-Reply-To: <Pine.LNX.4.33.0104281752290.10866-100000@localhost.localdomain> <20010428215301.A1052@gruyere.muc.suse.de> <200104282256.f3SMuRW15999@vindaloo.ras.ucalgary.ca> <9cg7t7$gbt$1@cesium.transmeta.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <20010428231151.A11841@ee.ed.ac.uk>; from Michael.Gordon@ee.ed.ac.uk on Sat, Apr 28, 2001 at 11:11:51PM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 28, 2001 at 11:11:51PM +0100, Michael F Gordon wrote:
-> On Sat, Apr 28, 2001 at 11:29:15AM -0700, David Lang wrote:
-> > what sort of switch are you plugged into? some Cisco switches have a
-> > 'feature' that ignores all traffic from a port for X seconds after a
-> > machine is plugged in / powered on on a port (they claim somehting about
-> > preventing loops) it may be that the new kernel now boots up faster then
-> > the old one so that the DHCP request is lost in the switch, a few seconds
-> > later when you do it by hand the swich has enabled your port and
-> > everything works.
+"H. Peter Anvin" wrote:
 > 
-> I'm plugged in to a cable modem, with the DHCP server at the ISP.  The
-> server requires the MAC address to be registered, so sending the DHCP
-> request with a different MAC address could cause the symptoms.  I doubt
-> it's a timing problem - replacing the 8139 driver with the 2.4.3 version
-> but otherwise using the distributed 2.4.4 makes DHCP work as expected.
+> Followup to:  <200104282256.f3SMuRW15999@vindaloo.ras.ucalgary.ca>
+> By author:    Richard Gooch <rgooch@ras.ucalgary.ca>
+> In newsgroup: linux.dev.kernel
+> > >
+> > > In x86-64 there are special vsyscalls btw to solve this problem that export
+> > > a lockless kernel gettimeofday()
+> >
+> > Whatever happened to that hack that was discussed a year or two ago?
+> > The one where (also on IA32) a magic page was set up by the kernel
+> > containing code for fast system calls, and the kernel would write
+> > calibation information to that magic page. The code written there
+> > would use the TSC in conjunction with that calibration data.
+> >
+> > There was much discussion about this idea, even Linus was keen on
+> > it. But IIRC, nothing ever happened.
+> >
+> 
+> We discussed this at the Summit, not a year or two ago.  x86-64 has
+> it, and it wouldn't be too bad to do in i386... just noone did.
 
-The Windows drivers distributed along with that Realtek cards
-have this problem[1] any many users of the CSN[2] run into the
-"secure mode" on our hubs/switches, causing their port to be
-disabled.
+It came up long before that.  I refer to the technique in a post dated
+Nov 17, even though I can't find the original. 
+http://www.mail-archive.com/linux-kernel@vger.kernel.org/msg13584.html
 
-So we have just ported a BUG from Windows to Linux, if you are
-right ;-)
+Initiated by a post from (iirc) Dean Gaudet, we found out that
+gettimeofday was one particular system call in the Apache fast path that
+couldn't be optimized well, or moved out of the fast path.  After a
+couple of suggestions for improving things, Linus chimed in with the
+magic page suggestion.
 
-BTW: CC'ed the maintainer. He might be interested, as maintainers
-   usally are on BUGs ;-)
-
-Regards
-
-Ingo Oeser
-
-[1] Sometimes forgetting their MAC and sending either random or
-   zero MAC out. This depends on whatever.
-
-[2] Chemnitz Students Network - large LAN with >1000 computers
 -- 
-10.+11.03.2001 - 3. Chemnitzer LinuxTag <http://www.tu-chemnitz.de/linux/tag>
-         <<<<<<<<<<<<     been there and had much fun   >>>>>>>>>>>>
+Jeff Garzik      | Game called on account of naked chick
+Building 1024    |
+MandrakeSoft     |

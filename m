@@ -1,76 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261269AbVAMTOU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261362AbVAMTUM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261269AbVAMTOU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 14:14:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261210AbVAMTL7
+	id S261362AbVAMTUM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 14:20:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261352AbVAMTT6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 14:11:59 -0500
-Received: from zero.voxel.net ([209.123.232.253]:52442 "EHLO zero.voxel.net")
-	by vger.kernel.org with ESMTP id S261362AbVAMTIw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 14:08:52 -0500
-Subject: Re: 2.6.10-as1
-From: Andres Salomon <dilinger@voxel.net>
-To: Daniel Drake <dsd@gentoo.org>
+	Thu, 13 Jan 2005 14:19:58 -0500
+Received: from smtp.sys.beep.pl ([195.245.198.13]:24842 "EHLO smtp.sys.beep.pl")
+	by vger.kernel.org with ESMTP id S261395AbVAMTQe convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 14:16:34 -0500
+From: Arkadiusz Miskiewicz <arekm@pld-linux.org>
+Organization: SelfOrganizing
+To: Greg KH <greg@kroah.com>
+Subject: [PATCH]: add Ever UPS vendor/product id to ftdi_sio driver
+Date: Thu, 13 Jan 2005 20:14:34 +0100
+User-Agent: KMail/1.7.2
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <41E6D5F8.2040901@gentoo.org>
-References: <1105605448.7316.13.camel@localhost>
-	 <41E6D5F8.2040901@gentoo.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-tK1WkF6cZrE3N7vjqdsX"
-Date: Thu, 13 Jan 2005 14:08:39 -0500
-Message-Id: <1105643319.5148.3.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200501132014.34558.arekm@pld-linux.org>
+X-Authenticated-Id: arekm 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---=-tK1WkF6cZrE3N7vjqdsX
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+This patch allows to use ftdi_sio driver with Ever ECO Pro CDS UPS.
+Patch was tested on pre-2.6.10 kernel.
 
-On Thu, 2005-01-13 at 20:11 +0000, Daniel Drake wrote:
-> Hi,
->=20
-> Andres Salomon wrote:
-> > I'm announcing a new kernel tree; -as.  The goal of this tree is to for=
-m
-> > a stable base for vendors/distributors to use for their kernels.  In
-> > order to do this, I intend to include only security fixes and obvious
-> > bugfixes, from various sources.  I do not intend to include driver
-> > updates, large subsystem fixes, cleanups, and so on.  Basically, this i=
-s
-> > what I'd want 2.6.10.1 to contain.
->=20
-> After all of the recent discussion it's nice to see someone step up and d=
-o this :)
-> Thanks a lot, I'm sure I will find it useful when producing gentoo's kern=
-el=20
-> packages..
->=20
-> Just one suggestion- maybe could you distinguish security patches from=20
-> bugfixes? I.e. prepend or append the security patches with "sec" or somet=
-hing?
->=20
+Signed-Off: Arkadiusz Miskiewicz <arekm@pld-linux.org>
 
-I could certainly do that.  Right now, I mark them w/ [SECURITY] in the
-changelog.
+--- drivers/usb/serial/ftdi_sio.h.org 2005-01-13 16:32:21.000000000 +0100
++++ drivers/usb/serial/ftdi_sio.h 2005-01-13 16:37:33.000000000 +0100
+@@ -240,6 +240,12 @@
+ #define FTDI_RM_VID  0x0403 /* Vendor  Id */
+ #define FTDI_RMCANVIEW_PID 0xfd60 /* Product Id */
+ 
++/*
++ * EVER Eco Pro UPS (http://www.ever.com.pl/)
++ */
++
++#define EVER_ECO_PRO_CDS 0xe520 /* RS-232 converter */
++
+ /* Commands */
+ #define FTDI_SIO_RESET   0 /* Reset the port */
+ #define FTDI_SIO_MODEM_CTRL  1 /* Set the modem control register */
+--- drivers/usb/serial/ftdi_sio.c.org 2005-01-13 16:32:26.000000000 +0100
++++ drivers/usb/serial/ftdi_sio.c 2005-01-13 17:04:12.000000000 +0100
+@@ -372,6 +372,7 @@
+  { USB_DEVICE_VER(BANDB_VID, BANDB_USOTL4_PID, 0, 0x3ff) },
+  { USB_DEVICE_VER(BANDB_VID, BANDB_USTL4_PID, 0, 0x3ff) },
+  { USB_DEVICE_VER(BANDB_VID, BANDB_USO9ML2_PID, 0, 0x3ff) },
++ { USB_DEVICE_VER(FTDI_VID, EVER_ECO_PRO_CDS, 0, 0x3ff) },
+  { }      /* Terminating entry */
+ };
+ 
+@@ -486,6 +487,7 @@
+  { USB_DEVICE_VER(BANDB_VID, BANDB_USOTL4_PID, 0x400, 0xffff) },
+  { USB_DEVICE_VER(BANDB_VID, BANDB_USTL4_PID, 0x400, 0xffff) },
+  { USB_DEVICE_VER(BANDB_VID, BANDB_USO9ML2_PID, 0x400, 0xffff) },
++ { USB_DEVICE_VER(FTDI_VID, EVER_ECO_PRO_CDS, 0x400, 0xffff) },
+  { }      /* Terminating entry */
+ };
+ 
+@@ -608,6 +610,7 @@
+  { USB_DEVICE(BANDB_VID, BANDB_USOTL4_PID) },
+  { USB_DEVICE(BANDB_VID, BANDB_USTL4_PID) },
+  { USB_DEVICE(BANDB_VID, BANDB_USO9ML2_PID) },
++ { USB_DEVICE(FTDI_VID, EVER_ECO_PRO_CDS) },
+  { }      /* Terminating entry */
+ };
+ 
 
-
---=20
-Andres Salomon <dilinger@voxel.net>
-
---=-tK1WkF6cZrE3N7vjqdsX
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQBB5sc378o9R9NraMQRAlLhAKCTDxlOQVmQ57Qyftbj46vAOAfExgCgmLwi
-vaO2L09DU33nVchUJUDpsEg=
-=MKk8
------END PGP SIGNATURE-----
-
---=-tK1WkF6cZrE3N7vjqdsX--
-
+-- 
+Arkadiusz Mi¶kiewicz                    PLD/Linux Team
+http://www.t17.ds.pwr.wroc.pl/~misiek/  http://ftp.pld-linux.org/

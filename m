@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312773AbSDBFBe>; Tue, 2 Apr 2002 00:01:34 -0500
+	id <S312772AbSDBExo>; Mon, 1 Apr 2002 23:53:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312783AbSDBFBZ>; Tue, 2 Apr 2002 00:01:25 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:40203 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S312773AbSDBFBK>; Tue, 2 Apr 2002 00:01:10 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Linux needs new leadership.
-Date: 1 Apr 2002 21:00:59 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <a8bdub$92r$1@cesium.transmeta.com>
-In-Reply-To: <Pine.LNX.4.01.2002ApR11F0015.31337-101723@transmeta.com> <16ryZS-0LkEnAC@fmrl07.sul.t-online.com> <20020331225641.GA1653@werewolf.able.es>
+	id <S312773AbSDBExe>; Mon, 1 Apr 2002 23:53:34 -0500
+Received: from mail.shorewall.net ([206.124.146.177]:15631 "EHLO
+	mail.shorewall.net") by vger.kernel.org with ESMTP
+	id <S312772AbSDBExb>; Mon, 1 Apr 2002 23:53:31 -0500
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Tom Eastep <teastep@shorewall.net>
+Organization: Shoreline Firewall
+To: Andre Pang <ozone@algorithm.com.au>, Steven Walter <srwalter@yahoo.com>,
+        Danijel Schiavuzzi <dschiavu@public.srce.hr>,
+        Tom Brehm <BrehmTomB@aol.com>, Bill Hammock <xcp@whisper.jaggnet.org>,
+        Berend De Schouwer <bds@jhb.ucs.co.za>,
+        Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+        Petr Vandrovec <VANDROVE@vc.cvut.cz>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] Summary of KL133/KM133 problems w/2.4.18 (screen corruption/MWQ)
+Date: Mon, 1 Apr 2002 20:52:50 -0800
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <1017644966.218140.3006.nullmailer@bozar.algorithm.com.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+Content-Transfer-Encoding: 8bit
+Message-Id: <20020402045327.4795D1B93C@mail.shorewall.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20020331225641.GA1653@werewolf.able.es>
-By author:    "J.A. Magallon" <jamagallon@able.es>
-In newsgroup: linux.dev.kernel
-> 
-> So think on all non-anglo-saxon people reading the list....
-> I took me some time to associate 2002.04.01 with jokes...
-> 
+Andre,
 
-April Fool's Day (1 april) is quite popular in Scandinavia, for
-example.  At least in Sweden, even the so-called "legitimate news
-media" get into it, usually with exactly one fake story per
-publication/news program.  The day after the newspapers usually let
-you know which one it was, and what other newspapers did :)
+On Sunday 31 March 2002 11:09 pm, Andre Pang wrote:
 
-	-hpa
+>
+> Please test the patch if you have a VIA chipset at all; you
+> should notice no change unless you have a K[LM]133, in which case
+> the screen should be readable again ;).  It's against 2.4.18.
+>
+> If all goes well, I'll submit it to Alan/Marcelo/Dave.
+>
 
+Your patch corrects the video problems that I was experiencing while running 
+2.4.18.
+
+-Tom
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+Tom Eastep    \ Shorewall - iptables made easy
+AIM: tmeastep  \ http://www.shorewall.net
+ICQ: #60745924  \ teastep@shorewall.net

@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317034AbSGXV7l>; Wed, 24 Jul 2002 17:59:41 -0400
+	id <S317059AbSGXWIh>; Wed, 24 Jul 2002 18:08:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317579AbSGXV7l>; Wed, 24 Jul 2002 17:59:41 -0400
-Received: from the-penguin.otak.com ([216.122.56.136]:45458 "EHLO
-	the-penguin.otak.com") by vger.kernel.org with ESMTP
-	id <S317034AbSGXV7k>; Wed, 24 Jul 2002 17:59:40 -0400
-Date: Wed, 24 Jul 2002 15:02:23 -0700
-From: Lawrence Walton <lawrence@the-penguin.otak.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: CMIPCI
-Message-ID: <20020724220223.GA761@the-penguin.otak.com>
+	id <S317579AbSGXWIh>; Wed, 24 Jul 2002 18:08:37 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:6640 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S317059AbSGXWIg>; Wed, 24 Jul 2002 18:08:36 -0400
+Subject: Re: Linux-2.5.28
+From: Robert Love <rml@tech9.net>
+To: Paul Larson <plars@austin.ibm.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1027547856.7700.70.camel@plars.austin.ibm.com>
+References: <Pine.LNX.4.33.0207241410040.3542-100000@penguin.transmeta.com>
+	<1027547187.7700.67.camel@plars.austin.ibm.com> 
+	<1027547856.7700.70.camel@plars.austin.ibm.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 24 Jul 2002 15:11:47 -0700
+Message-Id: <1027548707.927.1350.camel@sinai>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.5.24 on an i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Looks like CMIPCI does not compile right now.
+On Wed, 2002-07-24 at 14:57, Paul Larson wrote:
+> On Wed, 2002-07-24 at 16:46, Paul Larson wrote:
+> > Error building 2.5.28:
+> 
+> Forgot to mention this is an SMP box.  Without CONFIG_SMP it works fine.
 
-gcc -Wp,-MD,./.cmipci.o.d -D__KERNEL__ -I/usr/src/linux-2.5.28/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -g -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4  -nostdinc -iwithprefix include -DMODULE   -DKBUILD_BASENAME=cmipci   -c -o cmipci.o cmipci.c
-cmipci.c:2482: macro `synchronize_irq' used without args
-cmipci.c:2739: warning: `snd_cmipci_remove' defined but not used
-make[2]: *** [cmipci.o] Error 1
-make[2]: Leaving directory `/usr/src/linux-2.5.28/sound/pci'
-make[1]: *** [pci] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.5.28/sound'
-make: *** [sound] Error 2
+This is known... there is a handful of drivers still using the old
+global IRQ methods that need a spring cleaning.
 
--- 
-*--* Mail: lawrence@otak.com
-*--* Voice: 425.739.4247
-*--* Fax: 425.827.9577
-*--* HTTP://www.otak-k.com/~lawrence/
---------------------------------------
-- - - - - - O t a k  i n c . - - - - - 
+On UP, we "cheat" and define the global methods to the local ones and
+everything is happy.  On SMP you are out of luck until the code if
+fixed.
 
+	Robert Love
 

@@ -1,74 +1,159 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265116AbRFZTvN>; Tue, 26 Jun 2001 15:51:13 -0400
+	id <S264096AbRFZURZ>; Tue, 26 Jun 2001 16:17:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265115AbRFZTvC>; Tue, 26 Jun 2001 15:51:02 -0400
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:60461 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S265102AbRFZTu4>; Tue, 26 Jun 2001 15:50:56 -0400
-Date: Tue, 26 Jun 2001 20:50:54 +0100
-From: Tim Waugh <twaugh@redhat.com>
-To: Philip Blundell <philb@gnu.org>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: parport_pc tries to load parport_serial automatically
-Message-ID: <20010626205054.J7663@redhat.com>
-In-Reply-To: <Pine.LNX.4.21.0106260308100.1730-100000@freak.distro.conectiva> <20010626102303.K7663@redhat.com> <twaugh@redhat.com> <E15Ex7I-0008TV-00@kings-cross.london.uk.eu.org>
+	id <S263031AbRFZURQ>; Tue, 26 Jun 2001 16:17:16 -0400
+Received: from amadeus.resilience.com ([209.245.157.29]:13364 "HELO jmcmullan")
+	by vger.kernel.org with SMTP id <S264096AbRFZUOK>;
+	Tue, 26 Jun 2001 16:14:10 -0400
+Date: Tue, 26 Jun 2001 15:58:38 -0400
+From: Jason McMullan <jmcmullan@linuxcare.com>
+To: linux-kernel@vger.kernel.org
+Subject: VM Requirement Document - v0.0
+Message-ID: <20010626155838.A23098@jmcmullan.resilience.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="YyxSosoRaUW6PdRh"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E15Ex7I-0008TV-00@kings-cross.london.uk.eu.org>; from philb@gnu.org on Tue, Jun 26, 2001 at 06:59:11PM +0100
+User-Agent: Mutt/1.3.15i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---YyxSosoRaUW6PdRh
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+	Here's my first pass at a VM requirements document,
+for the embedded, desktop, and server cases. At the end is 
+a summary of general rules that should take care of all of 
+these cases.
 
-On Tue, Jun 26, 2001 at 06:59:11PM +0100, Philip Blundell wrote:
+Bandwidth Descriptions:
 
-> This would be a bit bad, because it would require people to guess
-> whether they might have a card that parport_serial can drive and/or
-> try loading the module to see what happens.
+	immediate: RAM, on-chip cache, etc. 
+	fast:	   Flash reads, ROMs, etc.
+	medium:    Hard drives, CD-ROMs, 100Mb ethernet, etc.
+	slow:	   Flash writes, floppy disks,  CD-WR burners
+	packeted:  Reads/write should be in as large a packet as possible
 
-Not necessarily.  The module has a PCI device table, so a user-space
-utility can figure it out and adjust /etc/modules.conf accordingly.
+Embedded Case
+-------------
 
-> I guess one option would be for parport_pc to somehow "know" what cards a=
-re=20
-> really multi-I/O ones, and only load parport_serial when it will be able =
-to=20
-> find something to do.  Doesn't seem all that appealing though.
+	Overview
+	--------
+	  In the embedded case, the primary VM motiviation is to
+	use as _little_ caching of the filesystem for reads as
+	possible because (a) reads are very fast and (b) we don't
+	have any swap. However, we want to cache _writes_ as hard
+	as possible, because Flash is slow, and prone to wear.
+	  
+	Machine Description
+	------------------
+		RAM:	4-64Mb	 (reads: immediate, writes: immediate)
+		Flash:	4-128Mb  (reads: fast, writes: slow, packeted)
+		CDROM:	640-800Mb (reads: medium)
+		Swap:	0Mb
 
-Replace parport_pc's "knowledge" with parport_serial's PCI device
-table and a user-space utility, and that's kind of what I had in
-mind.
+	Motiviations
+	------------
+		* Don't write to the (slow,packeted) devices until
+		  you need to free up memory for processes.
+		* Never cache reads from immediate/fast devices.
 
-> If you do that then the code will effectively be there all the time,
-> even when it's not needed.  You might as well just compile it in to
-> parport_pc.  To be honest, there isn't all that much of it so maybe
-> this wouldn't be such a bad idea.
+Desktop Case
+------------
 
-Perhaps.
+	Overview
+	--------
+	  On the desktop, interactivity is king. We don't want to eat
+	lots of I/O bandwidth paging in and out, however we also want
+	to cache as much of the FS as possible, to speed compiles and
+	multiple operations over the same sets of files. 
+	
+	  Balancing this is the notion of 'cache-hit-rates'. If our 
+	access patterns aren't hitting cache, but disk instead, don't 
+	swap out processes, just shrink the cache. Contrawise, if we
+	have good cache hit rates, swap out the idle tasks.
 
-Tim.
-*/
+	Machine Description
+	-------------------
+		RAM:	32Mb-1Gb  (reads: immediate, writes: immediate)
+		HD:	1Gb-100Gb (reads: medium, writes: medium)
+		CDROM:	640-800Mb (reads: medium)
+		DVD:	1Gb-8Gb   (reads: medium)
+		Swap:	RAM size  (HD speeds)
 
---YyxSosoRaUW6PdRh
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+	Motivations
+	-----------
+		* If we're getting low cache hit rates, don't flush 
+		  processes to swap.
+		* If we're getting good cache hit rates, flush old, idle
+		  processes to swap.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+Laptop Case
+-----------
 
-iD8DBQE7OOedONXnILZ4yVIRAlERAKCpgANy9pD4NL1VByhyik8GcAobtACfXM89
-gqsFdV8dBm7FWH5bBSeR4LQ=
-=uNjP
------END PGP SIGNATURE-----
+	Overview
+	--------
+	  Same as a desktop, except now you must treat the HDs as
+	packetized devices for power-saving.
 
---YyxSosoRaUW6PdRh--
+	Machine Description
+	-------------------
+		RAM:	32Mb-1Gb  (reads: immediate, writes: immediate)
+		HD:	1Gb-100Gb (reads: medium,packeted, writes: medium,packeted)
+		CDROM:	640-800Mb (reads: medium)
+		DVD:	1Gb-8Gb   (reads: medium)
+		Swap:	RAM size  (HD speeds)
+
+	Motivations
+	-----------
+		* Keep packetized devices as continuously-idle as possible.
+		  Small chunks of idleness don't count. You want to have
+		  maximal stetches of idleness for the device.
+
+Server Case
+-----------
+
+	Overview
+	--------
+	  Same as a desktop, except that interactivity be damned. You
+	want processes to _rarely_ have to wait for swap-ins, and 
+	you want as much read-ahead as possible. Idle tasks are pressed
+	firmly into cache to make room for running processes.
+
+	Machine Description
+	-------------------
+		RAM:	512Mb-64Gb (reads: immediate, writes: immediate)
+		HD:	10Gb-4Tb   (reads: medium, writes: medium)
+		Swap:	2*RAM size  (HD speeds)
+
+	Motivations
+	-----------
+		* Keep running processes as fully in memory as possible.
+
+----------------------------- SUMMARY ----------------------------------
+
+	If we take all the motivations from the above, and list them,
+we get:
+
+	* Don't write to the (slow,packeted) devices until
+	  you need to free up memory for processes.
+	* Never cache reads from immediate/fast devices.
+	* If we're getting low cache hit rates, don't flush 
+	  processes to swap.
+	* If we're getting good cache hit rates, flush old, idle
+	  processes to swap.
+	* Keep packetized devices as continuously-idle as possible.
+	  Small chunks of idleness don't count. You want to have
+	  maximal stetches of idleness for the device.
+	* Keep running processes as fully in memory as possible.
+
+
+	Oddly enough, they don't seem to conflict. I'll continue to
+work on these motivations, and try to determine testable methods
+of measuring the success of a VM versus these criteria.
+
+	Comments welcome.
+
+-- 
+Jason McMullan, Senior Linux Consultant
+Linuxcare, Inc. 412.432.6457 tel, 412.656.3519 cell
+jmcmullan@linuxcare.com, http://www.linuxcare.com/
+Linuxcare. Putting open source to work.

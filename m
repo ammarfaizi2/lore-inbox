@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131383AbRAPNLw>; Tue, 16 Jan 2001 08:11:52 -0500
+	id <S129401AbRAPNlN>; Tue, 16 Jan 2001 08:41:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130552AbRAPNLm>; Tue, 16 Jan 2001 08:11:42 -0500
-Received: from rcum.uni-mb.si ([164.8.2.10]:9741 "EHLO rcum.uni-mb.si")
-	by vger.kernel.org with ESMTP id <S131383AbRAPNLW>;
-	Tue, 16 Jan 2001 08:11:22 -0500
-Date: Tue, 16 Jan 2001 14:10:32 +0100
-From: David Balazic <david.balazic@uni-mb.si>
-Subject: devices.txt missing some info about OSS devices
-To: "H. Peter Anvin" <device@lanana.org>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <3A644848.A546FD3A@uni-mb.si>
-MIME-version: 1.0
-X-Mailer: Mozilla 4.75 [en] (WinNT; U)
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-X-Accept-Language: en
+	id <S129485AbRAPNlD>; Tue, 16 Jan 2001 08:41:03 -0500
+Received: from lca0042.lss.emc.com ([168.159.120.42]:37264 "EHLO
+	lca0042.lss.emc.com") by vger.kernel.org with ESMTP
+	id <S129401AbRAPNkx>; Tue, 16 Jan 2001 08:40:53 -0500
+To: linux-kernel@vger.kernel.org
+Subject: problem mounting root under 2.4.0
+From: Chris Jones <clj@emc.com>
+Date: 16 Jan 2001 08:40:41 -0500
+Message-ID: <hp4ryzk42u.fsf@lca2240.lss.emc.com>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Channel Islands)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+I'm unable to boot a 2.4.0 kernel on a system that's been running 2.2.18.  It
+fails early in boot with the following messages:
 
-The devices.txt file included in recent 2.4.x kernels
-and the one at
-http://www.lanana.org/docs/device-list/devices.txt
+request-module[block-major-8]: Root fs not mounted
+VFS: Cannot open root device "801" or 08:01
+Please append a correct "root=" boot option
+Kernel panic: VFS: Unable to mount root fs on 08:01
 
-lacks infos about /dev/dspX and /dev/audioX , where
-X is 2 or more.
+I suspect the problem is related to loading the aic7xxx.o module, but the
+relevant messages have scrolled off the top of the screen.  I tried setting the
+VGA mode to extended to give me 50 lines of output, but even though "lilo -q
+-v" shows "VGA mode: EXTENDED", I still have a 25 line screen.  CTRL-Alt-DEL
+doesn't work, so I have to power-cycle the machine, so I lose any messages that
+are saved in memory.  Is there a way I can get the equivalent of "more" breaks
+on boot so I have a chance to read the messages?
 
-I had to dig into the audio driver sources to figure
-out that the minor number is
-X * 16 + 3 for /dev/dspX and
-X * 16 + 4 for /dev/audioX
+I have upgraded to modutils 2.4.1 and mkinitrd 2.5.  Are there some gotchas I
+should be aware of?
 
--- 
-David Balazic
---------------
-"Be excellent to each other." - Bill & Ted
-- - - - - - - - - - - - - - - - - - - - - -
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,78 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129773AbQLNWWQ>; Thu, 14 Dec 2000 17:22:16 -0500
+	id <S131150AbQLNWmB>; Thu, 14 Dec 2000 17:42:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131150AbQLNWWH>; Thu, 14 Dec 2000 17:22:07 -0500
-Received: from gso88-218-036.triad.rr.com ([24.88.218.36]:33036 "HELO
-	smtp.mindspring.com") by vger.kernel.org with SMTP
-	id <S129773AbQLNWVw>; Thu, 14 Dec 2000 17:21:52 -0500
-Message-ID: <3A3940DA.4050001@mindspring.com>
-Date: Thu, 14 Dec 2000 16:51:22 -0500
-From: Jason Wohlgemuth <jwohlgem@mindspring.com>
-Organization: SELF
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0-test11 i686; en-US; m18) Gecko/20001107 Netscape6/6.0
-X-Accept-Language: en
+	id <S129666AbQLNWlw>; Thu, 14 Dec 2000 17:41:52 -0500
+Received: from fe3.rdc-kc.rr.com ([24.94.163.50]:59911 "EHLO mail3.kc.rr.com")
+	by vger.kernel.org with ESMTP id <S131150AbQLNWlj>;
+	Thu, 14 Dec 2000 17:41:39 -0500
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Chris Lattner <sabre@nondot.org>, linux-kernel@vger.kernel.org
+Subject: Re: [Korbit-cvs] Re: ANNOUNCE: Linux Kernel ORB: kORBit (and ioctl must die!)
+In-Reply-To: <Pine.GSO.4.21.0012141331460.8287-100000@weyl.math.psu.edu>
+From: Mike Coleman <mcoleman2@kc.rr.com>
+Date: 14 Dec 2000 16:10:46 -0600
+In-Reply-To: Alexander Viro's message of "Thu, 14 Dec 2000 14:11:32 -0500 (EST)"
+Message-ID: <87wvd2mz6h.fsf@subterfugue.org>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) Emacs/20.7
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: lock_kernel() / unlock_kernel inconsistency
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In an effort to stay consistent with the community, I migrated some code 
-to a driver to use the daemonize() routine in the function specified by 
-the kernel_thread() call.
+Alexander Viro <viro@math.psu.edu> writes:
+> ioctl() is avoidable. Proof: Plan 9. They don't _have_ that system call.
+> It doesn't mean that we should (or could) remove it. It _does_ mean that
+> new APIs do not need it.
 
-However, in looking at a few drivers in the system (drivers/usb/hub.c , 
-drivers/md/md.c, drivers/media/video/msp3400.c), I noticed some 
-inconsistencies.  Specifically with the use of lock_kernel() / 
-unlock_kernel().
+*I* sure wish we could.  From the standpoint of trying to trace system calls,
+it's a big stinking black hole.  All of the other syscalls (I think) have
+pretty well defined semantics in terms of what they do to a process' memory
+space, but the semantics of ioctl are "may read or write any memory
+whatsoever, and if you want to know what, well, it sucks to be you".
 
-drivers/md/md.c looks like:
-int md_thread(void * arg)
-{
-   md_lock_kernel();
+Even NT does this better, if I'm interpreting this correctly:
 
-   daemonize();
-   .
-   .
-   .
-   //md_unlock_kernel();
-}
+   http://msdn.microsoft.com/library/psdk/winbase/devio_9quk.htm
 
-this is similiar to drivers/usb/hub.c (which doesn't call unlock_kernel 
-following lock_kernel)
+--Mike
 
-however drivers/media/video/msp3400.c looks like:
-static int msp3400c_thread(void *data)
-{
-   .
-   .
-   .
-#ifdef CONFIG_SMP
-   lock_kernel();
-#endif
-   daemonize();
-   .
-   .
-   .
-#ifdef CONFIG_SMP
-   unlock_kernel();
-#endif
-}
 
-The latter example seems logically correct to me.  Does this imply that 
-after the CPU that is responsible for starting the thread in md.c or 
-hub.c claims the global lock it will never be released to any other CPU?
-
-If I am incorrect here please just point out my error, however, I 
-figured I would bring this to the mailing list's attention if in fact 
-this is truely in error.
-
-Thanks,
-Jason
-
+-- 
+[O]ne of the features of the Internet [...] is that small groups of people can
+greatly disturb large organizations.  --Charles C. Mann
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

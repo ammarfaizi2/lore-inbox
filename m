@@ -1,54 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262004AbTJJKOq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 06:14:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262006AbTJJKOq
+	id S261982AbTJJKZQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 06:25:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261996AbTJJKZQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 06:14:46 -0400
-Received: from gprs148-28.eurotel.cz ([160.218.148.28]:43648 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262004AbTJJKOp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 06:14:45 -0400
-Date: Fri, 10 Oct 2003 12:14:35 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: kernel list <linux-kernel@vger.kernel.org>,
-       Patrick Mochel <mochel@osdl.org>
-Subject: [pm] Better method of getting rid of signals
-Message-ID: <20031010101435.GA5536@elf.ucw.cz>
+	Fri, 10 Oct 2003 06:25:16 -0400
+Received: from postman1.arcor-online.net ([151.189.0.187]:9978 "EHLO
+	postman.arcor.de") by vger.kernel.org with ESMTP id S261982AbTJJKZO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Oct 2003 06:25:14 -0400
+Date: Fri, 10 Oct 2003 12:25:10 +0200
+From: Christian Fertig <fertig@informatik.uni-frankfurt.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Problem: 2.4.22[-ac4] Hangup with SB AWE32 (isa-pnp)
+Message-ID: <20031010102510.GA2559@fufnet.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <rqld51-js9.ln1@fertig-50273.user.cis.dfn.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
+In-Reply-To: <rqld51-js9.ln1@fertig-50273.user.cis.dfn.de>
+X-Operating-System: Linux titan 2.4.21 
+X-Fax: +49 1212 5 11393402
+X-URL: http://www.fufnet.de/
+X-PGP-Sig: http://www.fufnet.de/pubkey.asc
+X-MSMail-Priority: Urgent Virus Delivery
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi,
 
-recalc_sigpending() seems like better idea, since it does not have
-potential to kill some signal. Now with proper locking. Please apply,
+> I've got a reproducable kernel hangup (no oops, no sysrq-key etc.
+> anymore) with 2.4.22 and 2.4.22-ac4 on my NMC-7vax (Athlon, [Slot]).
+> The sb-Modules uses a wrong Interrupt (7 instead of 5). The problem
+> doesn't arise with earlier versions of the kernel. I'm using the kernel
+> oss module.
 
-								Pavel
+Reading the ChangeLog, I don't understand why, but with 2.4.23-pre6
+everything works fine.
 
---- tmp/linux/kernel/power/process.c	2003-08-27 12:00:53.000000000 +0200
-+++ linux/kernel/power/process.c	2003-10-09 11:21:14.000000000 +0200
-@@ -49,10 +49,11 @@
- 	pr_debug("%s entered refrigerator\n", current->comm);
- 	printk("=");
- 	current->flags &= ~PF_FREEZE;
--	if (flag)
--		flush_signals(current); /* We have signaled a kernel thread, which isn't normal behaviour
--					   and that may lead to 100%CPU sucking because those threads
--					   just don't manage signals. */
-+
-+	spin_lock_irq(&current->sighand->siglock);
-+	recalc_sigpending(); /* We sent fake signal, clean it up */
-+	spin_unlock_irq(&current->sighand->siglock);
-+
- 	current->flags |= PF_FROZEN;
- 	while (current->flags & PF_FROZEN)
- 		schedule();
-
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Christian

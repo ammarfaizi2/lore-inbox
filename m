@@ -1,58 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264936AbUBEFRN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 00:17:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264366AbUBEFRN
+	id S264359AbUBEFS5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 00:18:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264472AbUBEFS5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 00:17:13 -0500
-Received: from esperance.ozonline.com.au ([203.23.159.248]:42452 "EHLO
-	ozonline.com.au") by vger.kernel.org with ESMTP id S264359AbUBEFRL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 00:17:11 -0500
-Date: Thu, 5 Feb 2004 16:21:38 +1100
-From: Davin McCall <davmac@ozonline.com.au>
-To: Davin McCall <davmac@ozonline.com.au>
-Cc: B.Zolnierkiewicz@elka.pw.edu.pl, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org
-Subject: Re: [PATCH] various IDE patches/cleanups
-Message-Id: <20040205162138.124d0276.davmac@ozonline.com.au>
-In-Reply-To: <20040130143355.630346cc.davmac@ozonline.com.au>
-References: <20040103152802.6e27f5c5.davmac@ozonline.com.au>
-	<200401051516.03364.bzolnier@elka.pw.edu.pl>
-	<20040106135155.66535c13.davmac@ozonline.com.au>
-	<200401061213.39843.bzolnier@elka.pw.edu.pl>
-	<20040130142725.1a408f9e.davmac@ozonline.com.au>
-	<20040130143041.1eb70817.davmac@ozonline.com.au>
-	<20040130143355.630346cc.davmac@ozonline.com.au>
-X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 5 Feb 2004 00:18:57 -0500
+Received: from sitemail3.everyone.net ([216.200.145.37]:56993 "EHLO
+	omta06.mta.everyone.net") by vger.kernel.org with ESMTP
+	id S264359AbUBEFSz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 00:18:55 -0500
+Content-Type: text/plain
+Content-Disposition: inline
 Content-Transfer-Encoding: 7bit
+Mime-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+Date: Wed, 4 Feb 2004 21:17:36 -0800 (PST)
+From: john moser <bluefoxicy@linux.net>
+To: linux-kernel@vger.kernel.org
+Subject: US/KS performance question
+Reply-To: bluefoxicy@linux.net
+X-Originating-Ip: [68.33.187.247]
+Message-Id: <20040205051736.89307CF33@sitemail.everyone.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Damn, I found a problem with this. Needs to set hwgroup->expiry to NULL before releasing ide_lock; that prevents ide_timer_expiry() from running the expiry() handler and instead it will simulate an interrupt.
+CC me all replies.
 
-Otherwise, expiry() may return non-zero which will cause the timer to be reset. The interrupt would effectively be lost. In some cases (abuses?) this would lock the whole hwgroup forever as the expiry() function always returns > 0 (ide-cd.c, cdrom_timer_expiry() for example).
+I'm doing a little work on ACLs.  Instead of a LSM, I'm writing up a little bit
+of code and some hooks to allow a userspace daemon to do the decision making.
 
-Here's the revised patch.
+The plan is as follows:
 
+ - acld connects to kernel, sleeps.
+ - Kernel needs to ask something of acld, ques request in US
+ - Kernel wakes acld up
+ - Kernel puts the requesting thread to sleep
+ - acld processes requests
+ - Each request processed is followed by a syscall to the kernel with the result
+ - Kernel takes the result, finds the thread that wanted it, wakes thread up
+ - When there's no more requests, acld sleeps
 
-diff -urN linux-2.6.0-patch2/drivers/ide/ide-io.c linux-2.6.0/drivers/ide/ide-io.c
---- linux-2.6.0-patch2/drivers/ide/ide-io.c	Wed Jan 28 22:55:00 2004
-+++ linux-2.6.0/drivers/ide/ide-io.c	Wed Jan 28 23:49:17 2004
-@@ -1303,8 +1303,12 @@
- 		hwgroup->busy = 1;	/* paranoia */
- 		printk(KERN_ERR "%s: ide_intr: hwgroup->busy was 0 ??\n", drive->name);
- 	}
-+	if (!del_timer(&hwgroup->timer)) {
-+		/* timer has expired, ide_timer_expiry is waiting to get lock */
-+		hwgroup->expiry = NULL;
-+		spin_unlock(&ide_lock);
-+		return IRQ_HANDLED;
-+	}
- 	hwgroup->handler = NULL;
--	del_timer(&hwgroup->timer);
- 	spin_unlock(&ide_lock);
- 
- 	if (drive->unmask)
+Now, I have two major bottlenecks:
+ - Userspace acld MAC daemon has to make a syscall and pass data from US to KS
+ - Kernel has to sometimes wake up acld and always has to wake up the requesting
+   thread after getting the result back from acld
+
+Any ideas on how much overhead this could add?  If it takes only a few more
+microseconds to wake up acld, sleep the process, process the syscall, and finally
+wake the process; as opposed to calling a kernel function to make the decision,
+then it should be okay.  If it's going to be some 10 or 20 miliseconds per request,
+I might have problems.  If it's going to take more than 100 mS for this, I need
+a redesign.
+
+_____________________________________________________________
+Linux.Net -->Open Source to everyone
+Powered by Linare Corporation
+http://www.linare.com/

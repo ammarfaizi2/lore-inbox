@@ -1,118 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315891AbSEGQb1>; Tue, 7 May 2002 12:31:27 -0400
+	id <S315895AbSEGQuB>; Tue, 7 May 2002 12:50:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315895AbSEGQb0>; Tue, 7 May 2002 12:31:26 -0400
-Received: from eventhorizon.antefacto.net ([193.120.245.3]:36019 "EHLO
-	eventhorizon.antefacto.net") by vger.kernel.org with ESMTP
-	id <S315891AbSEGQbY>; Tue, 7 May 2002 12:31:24 -0400
-Message-ID: <3CD800FE.4050004@antefacto.com>
-Date: Tue, 07 May 2002 17:29:50 +0100
-From: Padraig Brady <padraig@antefacto.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc1) Gecko/20020417
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Anton Altaparmakov <aia21@cantab.net>,
-        Martin Dalecki <dalecki@evision-ventures.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S315900AbSEGQuA>; Tue, 7 May 2002 12:50:00 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:58130 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S315895AbSEGQuA>; Tue, 7 May 2002 12:50:00 -0400
 Subject: Re: [PATCH] 2.5.14 IDE 56
-In-Reply-To: <Pine.LNX.4.44.0205070827050.1343-100000@home.transmeta.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: padraig@antefacto.com (Padraig Brady)
+Date: Tue, 7 May 2002 18:08:06 +0100 (BST)
+Cc: torvalds@transmeta.com (Linus Torvalds),
+        aia21@cantab.net (Anton Altaparmakov),
+        dalecki@evision-ventures.com (Martin Dalecki),
+        linux-kernel@vger.kernel.org (Kernel Mailing List)
+In-Reply-To: <3CD800FE.4050004@antefacto.com> from "Padraig Brady" at May 07, 2002 05:29:50 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E1758Ra-00081f-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
->  [ First off: any IDE-only thing that doesn't work for SCSI or other disks
->    doesn't solve a generic problem, so the complaint that some generic
->    tools might use it is totally invalid. ]
-> 
-> On Tue, 7 May 2002, Anton Altaparmakov wrote:
-> 
->>Linux's power is exactly that it can be used on anything from a wristwatch
->>to a huge server and that it is flexible about everything. You are breaking
->>this flexibility for no apparent reason. (I don't accept "I can't cope with
->>this so I remove it." as a reason, sorry).
-> 
-> 
-> Run the 57 patch, and complain if something doesn't work.
-> 
-> Linux's power is that we FIX stuff. That we make it the best system
-> possible, and that we don't just whine and argue about things.
-> 
-> 
->>As the new IDE maintainer so far we have only seen you removing one
->>feature after the other in the name of cleanup, without adequate or even
->>any at all(!) replacements,
-> 
-> 
-> Who cares? Have you found _anything_ that Martin removed that was at all
-> worthwhile? I sure haven't.
-> 
-> Guys, you have to realize that the IDE layer has eight YEARS of absolute
-> crap in it. Seriously. It's _never_ been cleaned up before. It has stuff
-> so distasteful that t's scary.
-> 
-> Take it from me: it's a _lot_ easier to add cruft and crap on top of clean
-> code. You can do it yourself if you want to. You don't need a maintainer
-> to add barnacles.
-> 
-> All the information that /proc/ide gave you is basically available in
-> hdparm, and for your dear embedded system it apparently takes up less
-> space by being in user space. So what is the problem?
+> All the info I've ever needed is /proc/ide/hdx/capacity
+> which I could get from /proc/partitions with more a bit
+> more effort, so I vote for removing /proc/ide.
 
-Well my "dear" embedded system doesn't have libc :-(
-So 35664 saved in kernel (less on disk), requires 25212
-extra for hdparm + more for static linked uclibc (hope
-it works ;-)). As a side note if this happens hdparm would
-be a requirement for busybox IMHO, anyway getting back on topic...
+/proc/ide has useful information in it that you can't get easily by
+other means at the moment - which controller is driving the disks, what
+devices are present etc.
 
-All the info I've ever needed is /proc/ide/hdx/capacity
-which I could get from /proc/partitions with more a bit
-more effort, so I vote for removing /proc/ide.
+> For e.g. could the same arguments could be made for lspci only
+> interface to pci info rather than /proc/bus/pci? The following
+> references are made to /proc/bus/pci on my system:
 
-I think everyone realises Martin is doing great and much needed work
-on IDE (btw I'll have those flash support patches soon Martin ;-)),
-but I did think this change needed debate. In general I know it's a
-hard decision what to export in proc, especially if there are
-existing dependencies, a few already mentioned possibles in RH7.1:
-
-/sbin/mkinitrd
-/sbin/fdisk
-/sbin/sfdisk
-/sbin/sndconfig
-/usr/sbin/mouseconfig
-/usr/sbin/kudzu
-/usr/sbin/module_upgrade
-/usr/sbin/updfstab
-/usr/sbin/glidelink
-/usr/sbin/sndconfig
-/usr/lib/python1.5/site-packages/_kudzumodule.so
-/usr/bin/X11/Xconfigurator
-
-For e.g. could the same arguments could be made for lspci only
-interface to pci info rather than /proc/bus/pci? The following
-references are made to /proc/bus/pci on my system:
-
-/sbin/lspci
-/sbin/setpci
-/sbin/sndconfig
-/usr/sbin/mouseconfig
-/usr/sbin/kudzu
-/usr/sbin/module_upgrade
-/usr/sbin/updfstab
-/usr/sbin/glidelink
-/usr/sbin/sndconfig
-/usr/sbin/adsl-config
-/usr/sbin/internet-config
-/usr/sbin/isdn-config
-/usr/lib/python1.5/site-packages/_kudzumodule.so
-/usr/bin/X11/XFree86
-/usr/bin/X11/pcitweak
-/usr/bin/X11/scanpci
-/usr/bin/X11/Xconfigurator
-
-cheers,
-Padraig.
-
+lspci relies on /proc/bus/pci - its the only part of the universe that
+actually knows how to handle PCI and virtualised PCI devices. Unlike the
+older /proc/pci interface it keeps all the complex gunk out of the kernel

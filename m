@@ -1,45 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261548AbULIQlI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261556AbULIQni@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261548AbULIQlI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Dec 2004 11:41:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261547AbULIQlH
+	id S261556AbULIQni (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Dec 2004 11:43:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261553AbULIQnh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Dec 2004 11:41:07 -0500
-Received: from mail.portrix.net ([212.202.157.208]:56218 "EHLO
-	zoidberg.portrix.net") by vger.kernel.org with ESMTP
-	id S261548AbULIQlC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Dec 2004 11:41:02 -0500
-Message-ID: <41B88007.7060300@ppp0.net>
-Date: Thu, 09 Dec 2004 17:40:39 +0100
-From: Jan Dittmer <jdittmer@ppp0.net>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Glendon Gross <gross@clones.net>
-CC: linux-kernel@vger.kernel.org, glendon144@hotmail.com
-Subject: Re: Burning CD's and 2.6.9
-References: <Pine.NEB.4.44.0412090810570.27084-100000@bsd.clones.net>
-In-Reply-To: <Pine.NEB.4.44.0412090810570.27084-100000@bsd.clones.net>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Thu, 9 Dec 2004 11:43:37 -0500
+Received: from mail.kroah.org ([69.55.234.183]:53170 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261556AbULIQnH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Dec 2004 11:43:07 -0500
+Date: Thu, 9 Dec 2004 08:40:20 -0800
+From: Greg KH <greg@kroah.com>
+To: Ed L Cashin <ecashin@coraid.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ATA over Ethernet driver for 2.6.9
+Message-ID: <20041209164020.GC12257@kroah.com>
+References: <87acsrqval.fsf@coraid.com> <20041206215456.GB10499@kroah.com> <87k6rr5usu.fsf@coraid.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87k6rr5usu.fsf@coraid.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Glendon Gross wrote:
-> I just built 2.6.9 and have been playing with the config to try to enable
-> support for my EMPREX 8x DVD burner.  It works exceptionally well under
-> 2.4.26.   I can use cdrecord and also growisofs to make audio and data
-> DVD's.
+On Thu, Dec 09, 2004 at 10:57:05AM -0500, Ed L Cashin wrote:
+> Greg KH <greg@kroah.com> writes:
+> 
+> ...
+> >> +typedef struct Bufq Bufq;
+> >> +struct Bufq {
+> >> +	Buf *head, *tail;
+> >> +};
+> >
+> > What's wrong with the in-kernel list structures that you need to create
+> > your own?
+> 
+> The Buf structures are singly linked (one next pointer).  We could
+> convert it to use list.h, but that would mean having another pointer
+> per list element.
 
-> I've set up a lilo config menu to boot 2.6.9 or 2.4.26 because the device
-> is not recognized under 2.6.9.    When it is recognized, I get a warning
-> that ide-scsi is deprecated for cd recording.
+Is the extra overhead of another pointer worth the effort of ensuring
+that your list handling code is correct in all cases?  (hint, the answer
+is usually no...)
 
-You haven't stated what's wrong with 2.6.9. You know that you can
-just use cdrecord dev=/dev/<your ide device name> in 2.6? Without
-any SCSI mid-layer. Do you have a specific problem with that?
+The in-kernel list code is very well debugged, and does lots of extra
+cpu lookup goodness if it can, ensuring that it is as fast as it
+possibly can be.  It's also much better to rely on in-kernel
+datastructures as programmers can instantly recognize that you are using
+that, and not have to worry about exactly how you call your own custom
+list code, and if your list code is even correct in the first place.
 
-Jan
+So in short, unless this is a structure that is in dire need of a memory
+savings, I really suggest you use the in-kernel stuff.
 
+thanks,
+
+greg k-h

@@ -1,40 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264836AbUFLPBD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264731AbUFLPGs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264836AbUFLPBD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jun 2004 11:01:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264843AbUFLPBD
+	id S264731AbUFLPGs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jun 2004 11:06:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264843AbUFLPGs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jun 2004 11:01:03 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:32705 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264836AbUFLPBB (ORCPT
+	Sat, 12 Jun 2004 11:06:48 -0400
+Received: from cc15467-a.groni1.gr.home.nl ([217.120.147.78]:8794 "HELO
+	boetes.org") by vger.kernel.org with SMTP id S264731AbUFLPGr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jun 2004 11:01:01 -0400
-Date: Sat, 12 Jun 2004 08:00:53 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Andi Kleen <ak@muc.de>, Dave Hansen <haveblue@us.ibm.com>
-cc: torvalds@osdl.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andy Whitcroft <apw@shadowen.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] Permit inode & dentry hash tables to be allocated > MAX_ORDER size
-Message-ID: <113620000.1087052452@[10.10.2.4]>
-In-Reply-To: <20040612131149.GA28870@colin2.muc.de>
-References: <263jX-5RZ-19@gated-at.bofh.it> <262nZ-56Z-5@gated-at.bofh.it> <263jX-5RZ-17@gated-at.bofh.it> <m3d645fwxj.fsf@averell.firstfloor.org> <1087025760.18615.3.camel@nighthawk> <20040612131149.GA28870@colin2.muc.de>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	Sat, 12 Jun 2004 11:06:47 -0400
+Date: Sat, 12 Jun 2004 17:08:29 +0200
+From: Han Boetes <han@mijncomputer.nl>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: new kernel bug
+Message-ID: <20040612150851.GC5922@boetes.org>
+Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>
+References: <200406121159.28406.manuel@todo-linux.com> <40CAF817.3080103@ThinRope.net> <200406121442.48691.manuel@todo-linux.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <200406121442.48691.manuel@todo-linux.com>
+X-GPG-Key: http://www.xs4all.nl/~hanb/keys/Han_pubkey.gpg
+X-GPG-Fingerprint: EB66 D194 AB3F 4C57 49EF 6795 44AE E0D8 3F38 7301
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Since vmalloc() maps the pages with small pagetable entries (unlike most
->> of the rest of the kernel address space), do you think the interleaving
->> will outweigh any negative TLB effects?  
-> 
-> I think so, yes (assuming you run the benchmark on all CPUs)
+Manuel Arostegui Ramirez wrote:
+> I'm thinking about download patch-2.6.7-rc3, maybe it will fixed that
+> bug.
 
-On the other hand, there's no reason we can't hack up a version of vmalloc
-to use large pages, and interleave only based on that. 
+I just tried and 2.6.7-rc3 doesn't fix this bug. Ow well it's `just' a
+local crash. Annoying but not something big.
 
-M.
 
+
+# Han

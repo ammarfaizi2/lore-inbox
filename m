@@ -1,98 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261201AbREOSM1>; Tue, 15 May 2001 14:12:27 -0400
+	id <S261270AbREOS3J>; Tue, 15 May 2001 14:29:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261239AbREOSMR>; Tue, 15 May 2001 14:12:17 -0400
-Received: from boreas.isi.edu ([128.9.160.161]:4496 "EHLO boreas.isi.edu")
-	by vger.kernel.org with ESMTP id <S261230AbREOSC5>;
-	Tue, 15 May 2001 14:02:57 -0400
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Getting FS access events 
-In-Reply-To: Your message of "Tue, 15 May 2001 00:49:58 MDT."
-             <200105150649.f4F6nwD22946@vindaloo.ras.ucalgary.ca> 
-Date: Tue, 15 May 2001 11:02:52 -0700
-Message-ID: <1486.989949772@ISI.EDU>
-From: Craig Milo Rogers <rogers@ISI.EDU>
+	id <S261228AbREOS3A>; Tue, 15 May 2001 14:29:00 -0400
+Received: from [206.14.214.140] ([206.14.214.140]:8453 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S261261AbREOSXc>; Tue, 15 May 2001 14:23:32 -0400
+Date: Tue, 15 May 2001 11:19:17 -0700 (PDT)
+From: James Simmons <jsimmons@transvirtual.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Neil Brown <neilb@cse.unsw.edu.au>,
+        "H. Peter Anvin" <hpa@transmeta.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        viro@math.psu.edu
+Subject: Re: LANANA: To Pending Device Number Registrants
+In-Reply-To: <Pine.LNX.4.21.0105151031320.2112-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.10.10105151046240.22038-100000@www.transvirtual.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->And because your suspend/resume idea isn't really going to help me
->much. That's because my boot scripts have the notion of
->"personalities" (change the boot configuration by asking the user
->early on in the boot process). If I suspend after I've got XDM
->running, it's too late.
 
-	Preface: As has been mentioned on this discussion thread, some
-disk devices maintain a cache of their own, running on a small (by
-today's standards) CPU.  These caches are probably sector oriented,
-not block oriented, but are almost certainly not page oriented or
-filesystem oriented.  Well, OK, some might have DOS filesystem
-knowlege built-in, I suppose... yuck!
+> And my opinion is that the "hot-plugged" approach works for devices even
+> if they are soldered down - the "plugging" event just always happens
+> before the OS is booted, and people just don't unplug it. 
 
-	Anyway, although there may be slight differences, they are
-effectively block-orieted caches.  As long as they are write-through
-(and/or there are cache flushing commands, etc), there are reasonably
-coherent with the operating system's main cache, and they meet the
-expectations of database programs, etc. that want stable storage.
+I absolutely agree with you. This is the way I always think of devices.
 
-	In terms of efficiency, there are questions about read-aheead,
-write-behind, write-through with invalidation or write-through with
-cache update -- the usual stuff.  I leave it as an exercise for the
-reader to decide how to best tune their system, and merely assert that
-it can be done.
+> Now, if we just fundamentally try to think about any device as being
+> hot-pluggable, you realize that things like "which PCI slot is this device
+> in" are completely _worthless_ as device identification, because they
+> fundamentally take the wrong approach, and they don't fit the generic
+> approach at all.
+>
+> But this is also why I don't think static device numbers make any
+> sense. It's silly to have the same disk show up as different devices just
+> because it is connected to a different kind of controller. And it is
+> _really_ silly to statically pre-allocate device numbers based on the
+> "location" of a device. 
 
-	Imagine, as a mental exercise, that you move this
-block-oriented cache out of the disk drive, and into the main CPU and
-operating system, say roughly at the disk driver level.  We lose the
-efficiency of having the small CPU do the block lookups, but a hashed
-block lookup is rather cheap nowadays, wouldn't you say?  Ignoring
-issues of, "What if the disk drive fails independently of the main
-CPU, or vice versa?", the transplanted block cache should operate
-pretty much as it did in the disk drive.
-
-	In particular, it should continue to operate properly with the
-main CPU's main page cache.
-
-	Conclusion: a page cache can successfully run over a
-appropriately designed block cache.  QED.
-
-	What's the hitch?  It's the "appropriately designed"
-constraint.  It is quite possible that the Linux block cache is not
-designed (data strictures and code paths considered together) in a way
-that allows it to mimic a simple disk drive's block cache.  I assume
-that there's some impediment, or this discussion wouldn't have lasted
-so long -- the idea of using the Linux block cache to model a disk
-drive's block cache is pretty obvious, after all.
-
->So what I want is a solution that will keep the kernel clean (believe
->me, I really do want to keep it clean), but gives me a fast boot too.
->And I believe the solution is out there. We just haven't found it yet.
-
-	Well, if you want a fast boot *on a single type of disk
-drive*, and the existing Linux block cache doesn't work, you could
-extend the driver for that hardware with an optional block cache,
-independently of Linux' block cache, along with an appropriate
-interface to populate it with boot-time blocks, and to flush it when
-no longer needed.  That's not exactly clean, though, is it?
-
-	You could extend the md (or LVM) drivers, or create a new
-driver similar to one of them, that incorporates a simple block cache,
-with appropriate mechanisms for populating and flushing it.  Clean?
-er, no, rather muddy, in fact.
-
-	You might want to lock down the pages that you've
-prepopulated, rather than let them be discarded before they're needed.
-This could be designed into a new block cache, but you might need to
-play some accounting games to get it right with the existing block
-cache.
-
-	Finally, there's Linus' offer for a preread call, to
-prepopulate the page cache.  By virtue of your knowlege of the
-underlying implementation of the system, you could preload the file
-system index pages into the block cache, and load the datd pages into
-the page cache.  Clean!  Sewer-like!
-
-						Craig Milo Rogers
+   I agree. It gets worse when we consider multiple bus and NUMA machines.
+On a NUMA system you have to ask yourself how should a piece of hardware
+look from the node it is on and from another node. Should they look the
+same. Then their is the visiblity issue. Which node can see this piece of
+hardware? Some devices span several nodes, some only one node. Then on
+some NUMA systems you can setup "raid" like systems. If one peice of
+hardware fails on a node then another piece of hardware on some other node 
+that was caching the hardware state of the hardware that just falied takes
+over. Then we have the famous ISA devices in multiple PCI bus systems.
+NUMA systems with nodes that multiple buses would just compound the
+problem.
+ 
 

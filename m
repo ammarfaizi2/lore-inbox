@@ -1,41 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272210AbRHXQQX>; Fri, 24 Aug 2001 12:16:23 -0400
+	id <S272224AbRHXQb3>; Fri, 24 Aug 2001 12:31:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272224AbRHXQQN>; Fri, 24 Aug 2001 12:16:13 -0400
-Received: from A7b72.pppool.de ([213.6.123.114]:14604 "EHLO frodo.local")
-	by vger.kernel.org with ESMTP id <S272210AbRHXQQI>;
-	Fri, 24 Aug 2001 12:16:08 -0400
-Date: Fri, 24 Aug 2001 17:50:41 +0200
-From: Walter Hofmann <walterh@gmx.de>
-To: Fred <fred@arkansaswebs.com>
-Cc: Tony Hoyle <tmh@nothing-on.tv>, linux-kernel@vger.kernel.org
-Subject: Re: File System Limitations
-Message-ID: <20010824175041.G28587@frodo.uni-erlangen.de>
-In-Reply-To: <01082316383301.12104@bits.linuxball> <01082318132000.12319@bits.linuxball> <3B858F58.1000606@nothing-on.tv> <01082318405901.12319@bits.linuxball>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <01082318405901.12319@bits.linuxball>; from fred@arkansaswebs.com on Thu, Aug 23, 2001 at 06:40:59PM -0500
+	id <S272226AbRHXQbT>; Fri, 24 Aug 2001 12:31:19 -0400
+Received: from midway.uchicago.edu ([128.135.12.12]:25036 "EHLO
+	midway.uchicago.edu") by vger.kernel.org with ESMTP
+	id <S272224AbRHXQbG>; Fri, 24 Aug 2001 12:31:06 -0400
+Message-Id: <200108241631.f7OGVMi29183@midway.uchicago.edu>
+Content-Type: text/plain; charset=US-ASCII
+From: Donour Sizemore <donour@cs.uchicago.edu>
+To: linux-kernel@vger.kernel.org
+Subject: is there sound device limit?
+Date: Fri, 24 Aug 2001 11:31:20 -0500
+X-Mailer: KMail [version 1.3]
+In-Reply-To: <200108241508.f7OF89k14834@mail.swissonline.ch>
+In-Reply-To: <200108241508.f7OF89k14834@mail.swissonline.ch>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 23 Aug 2001, Fred wrote:
+Does sound system impose a limit on the number of sound devices that can be 
+connected?  I have a large number of usb audio devices loaded and only the 
+first 7 dsps respond.
 
-> glibc-2.2.2-10
-> 
-> dd if=/dev/zero of=./tgb count=4000 bs=1M
-> 
-> created file of 2147483647 bytes
-> 
-> [root@bits /a5]# dd if=/dev/zero of=./tgb count=4000 bs=1M
-> File size limit exceeded (core dumped)
+thanx,
 
-core dump???
-
-My old dd terminated with an error in this case.
-
-Do you have a file size limit set (ulimit -a)?
-
-Walter
+Donour 

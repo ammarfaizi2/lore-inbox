@@ -1,52 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263063AbVCQNly@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263070AbVCQN4T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263063AbVCQNly (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Mar 2005 08:41:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263066AbVCQNlx
+	id S263070AbVCQN4T (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Mar 2005 08:56:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263076AbVCQN4T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Mar 2005 08:41:53 -0500
-Received: from orb.pobox.com ([207.8.226.5]:36755 "EHLO orb.pobox.com")
-	by vger.kernel.org with ESMTP id S263063AbVCQNlv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Mar 2005 08:41:51 -0500
-Date: Thu, 17 Mar 2005 05:41:47 -0800
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: Borislav Petkov <petkov@uni-muenster.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-mm4
-Message-ID: <20050317134147.GA5410@ip68-4-98-123.oc.oc.cox.net>
-References: <20050316040654.62881834.akpm@osdl.org> <20050317011811.69062aa0.akpm@osdl.org> <200503171042.33558.petkov@uni-muenster.de> <200503171207.56147.petkov@uni-muenster.de>
+	Thu, 17 Mar 2005 08:56:19 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:15799 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S263070AbVCQN4Q
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Mar 2005 08:56:16 -0500
+Subject: Re: [PATCH] Xen/i386 cleanups - AGP bus/phys cleanups
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Paul Mackerras <paulus@samba.org>
+Cc: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>,
+       Jesse Barnes <jbarnes@engr.sgi.com>, akpm@osdl.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       riel@redhat.com, Ian.Pratt@cl.cam.ac.uk, kurt@garloff.de,
+       Christian.Limpach@cl.cam.ac.uk
+In-Reply-To: <16953.20279.77584.501222@cargo.ozlabs.ibm.com>
+References: <E1DBX0o-0000sV-00@mta1.cl.cam.ac.uk>
+	 <16952.41973.751326.592933@cargo.ozlabs.ibm.com>
+	 <200503161406.01788.jbarnes@engr.sgi.com>
+	 <29ab1884ee5724e9efcfe43f14d13376@cl.cam.ac.uk>
+	 <16953.20279.77584.501222@cargo.ozlabs.ibm.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1111067594.1213.27.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200503171207.56147.petkov@uni-muenster.de>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 17 Mar 2005 13:53:30 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 17, 2005 at 12:07:55PM +0100, Borislav Petkov wrote:
-> Hi again,
-> 
-> since I don't have a 9-pin serial port on my laptop I've been trying to 
-> connect it with the testing machine over a 25-pin cable (on a 25-pin port), 
-> which, according to the Serial-HOWTO is doable in theory but doesn't seem 
-> that easy to do in practice. Setserial reports that the ports are ok:
+On Iau, 2005-03-17 at 09:34, Paul Mackerras wrote:
+> This code needs real physical addresses, which are not the same things
+> as bus addresses.  
 
-On laptops, 25-pin ports tend to be parallel, rather than serial. At
-least, that's my experience.
+Not always. The code needs platform specific goodies. We've only never
+been burned so far because there isn't a box with an IOMMU and AGPGART
+where one maps through the other.
 
-[snip]
-> but minicom or other serial line communication utils do not send or receive 
-> any chars. Any ideas?
+It's probably simplest to have phys_to_agp/agp_to_phys therefore ?
 
-Hook a printer up to the 25-pin port (the other end of the cable will
-most likely have 36 pins), then use (I think, it's been a while)
-/dev/lp0 as your console device, rather than /dev/ttyS#. This assumes
-that your kernel has parallel console support compiled in, and that
-the parallel port support is compiled in (as opposed to being a module).
+Alan
 
-And if you do the above, make sure to have lots of paper handy. Also,
-this trick probably won't work with all printers, but it stands a good
-chance of working.
-
--Barry K. Nathan <barryn@pobox.com>

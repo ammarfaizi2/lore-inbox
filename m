@@ -1,38 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131936AbQLQCuH>; Sat, 16 Dec 2000 21:50:07 -0500
+	id <S132058AbQLQC6B>; Sat, 16 Dec 2000 21:58:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132058AbQLQCt6>; Sat, 16 Dec 2000 21:49:58 -0500
-Received: from pcep-jamie.cern.ch ([137.138.38.126]:529 "EHLO
-	pcep-jamie.cern.ch") by vger.kernel.org with ESMTP
-	id <S131971AbQLQCtc>; Sat, 16 Dec 2000 21:49:32 -0500
-Date: Sun, 17 Dec 2000 03:18:14 +0100
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Pavel Machek <pavel@suse.cz>
-Cc: stewart@neuron.com, Rik van Riel <riel@conectiva.com.br>,
-        linux-kernel@vger.kernel.org
-Subject: Re: kapm-idled : is this a bug?
-Message-ID: <20001217031814.A11954@pcep-jamie.cern.ch>
-In-Reply-To: <Pine.LNX.4.21.0012111315350.4808-100000@duckman.distro.conectiva> <Pine.LNX.4.10.10012111343570.2897-100000@localhost> <20001215234037.F9506@bug.ucw.cz>
+	id <S132088AbQLQC5u>; Sat, 16 Dec 2000 21:57:50 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:31758 "EHLO
+	wire.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S132086AbQLQC5n>; Sat, 16 Dec 2000 21:57:43 -0500
+Date: Sat, 16 Dec 2000 20:27:13 -0600
+To: David Relson <relson@osagesoftware.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: test13p1 - NFS module problem
+Message-ID: <20001216202713.Q3199@cadcamlab.org>
+In-Reply-To: <4.3.2.7.2.20001215162135.00b47ed0@mail.osagesoftware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001215234037.F9506@bug.ucw.cz>; from pavel@suse.cz on Fri, Dec 15, 2000 at 11:40:37PM +0100
+In-Reply-To: <4.3.2.7.2.20001215162135.00b47ed0@mail.osagesoftware.com>; from relson@osagesoftware.com on Fri, Dec 15, 2000 at 04:42:32PM -0500
+From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> I guess we should just put even normal idle thread to be visible in
-> ps. It is cleaner design, anyway.
 
-How about adding a flag to FLAGS, or a new letter in STATE in
-/proc/pid/stat, to mean "this is an idle task"?
+[David Relson]
+> I just built test13-pre1 and have some unresolved nfs symbols.
 
-ps & top could easily by taught to recognise the flag.
+Keith Owens posted a patch for this.  I think it was just removing the
+EXPORT_NO_SYMBOLS line from fs/lockd/svc.c.
 
--- Jamie
-
+Peter
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

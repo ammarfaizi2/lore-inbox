@@ -1,67 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291555AbSBMK6d>; Wed, 13 Feb 2002 05:58:33 -0500
+	id <S291551AbSBMLBn>; Wed, 13 Feb 2002 06:01:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291562AbSBMK6U>; Wed, 13 Feb 2002 05:58:20 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:10503 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S291555AbSBMK5D>; Wed, 13 Feb 2002 05:57:03 -0500
-Date: Wed, 13 Feb 2002 11:56:25 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Andre Hedrick <andre@linuxdiskcert.org>
-Cc: Martin Dalecki <dalecki@evision-ventures.com>,
-        Vojtech Pavlik <vojtech@suse.cz>, Pavel Machek <pavel@suse.cz>,
-        Jens Axboe <axboe@suse.de>, kernel list <linux-kernel@vger.kernel.org>
+	id <S291553AbSBMLBd>; Wed, 13 Feb 2002 06:01:33 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:28166 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S291551AbSBMLBY>; Wed, 13 Feb 2002 06:01:24 -0500
+Message-ID: <3C6A4770.2030709@evision-ventures.com>
+Date: Wed, 13 Feb 2002 12:01:04 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
+X-Accept-Language: en-us, pl
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+CC: Andre Hedrick <andre@linuxdiskcert.org>, Vojtech Pavlik <vojtech@suse.cz>,
+        Pavel Machek <pavel@suse.cz>,
+        kernel list <linux-kernel@vger.kernel.org>
 Subject: Re: another IDE cleanup: kill duplicated code
-Message-ID: <20020213105625.GI32687@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <3C6A418A.8040105@evision-ventures.com> <Pine.LNX.4.10.10202130228180.1479-100000@master.linux-ide.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.10.10202130228180.1479-100000@master.linux-ide.org>
-User-Agent: Mutt/1.3.24i
+In-Reply-To: <20020213074214.S1907@suse.de> <Pine.LNX.4.10.10202122327570.668-100000@master.linux-ide.org> <20020213084756.T1907@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Jens Axboe wrote:
 
-> > Well, after looking at yours code close engough I have one advice for 
-> > you as well: LEARN C.
-> 
-> I specialize in storage, and C is self taught.
+>The global read-ahead change is surely not what we want. The IDE
+>cleanups I've seen so far look good to me.
+>
 
-Okay, few things to keep in mind:
+Ask Alan Cox - even he saw finally that it's just removal of dead code...
 
-*) cut-copy-paste is bad. If you fix error in one copy, it is _very_
-easy not to fix it in other copies.
 
-*) void *'s and casts are bad. They hide real errors. If you have 
 
-struct foo {} bar;
 
-and want 
-
-bar * baz;
-
-later;
-
-You can write it as struct foo * baz. That will make type checks
-actually work and save you lot of casts. 
-
-*) hungarian notation is considered evil in kernel.
-
-struct bla_s {} bla_t;
-
-*is* evil -- why have two types when one is enough? In kernel land,
-right way is to do 
-
-struct bla {};
-
-and then use "struct bla" everywhere you'd use bla_t. It might be
-slightly longer, but it helps you with casts (above) and everyone can
-see what is going on.
-
-								Pavel
--- 
-Casualities in World Trade Center: ~3k dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.

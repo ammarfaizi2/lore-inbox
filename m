@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266016AbRGOKNf>; Sun, 15 Jul 2001 06:13:35 -0400
+	id <S266040AbRGOKPZ>; Sun, 15 Jul 2001 06:15:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266040AbRGOKN0>; Sun, 15 Jul 2001 06:13:26 -0400
-Received: from beasley.gator.com ([63.197.87.202]:55051 "EHLO
-	beasley.gator.com") by vger.kernel.org with ESMTP
-	id <S266016AbRGOKNJ>; Sun, 15 Jul 2001 06:13:09 -0400
-From: "George Bonser" <george@gator.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: [PATCH] Linux default IP ttl
-Date: Sun, 15 Jul 2001 03:17:37 -0700
-Message-ID: <CHEKKPICCNOGICGMDODJKEEKDKAA.george@gator.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-Importance: Normal
+	id <S266044AbRGOKPP>; Sun, 15 Jul 2001 06:15:15 -0400
+Received: from swm.pp.se ([195.54.133.5]:31243 "EHLO uplift.swm.pp.se")
+	by vger.kernel.org with ESMTP id <S266040AbRGOKPB>;
+	Sun, 15 Jul 2001 06:15:01 -0400
+Date: Sun, 15 Jul 2001 12:15:03 +0200 (CEST)
+From: Mikael Abrahamsson <swmike@swm.pp.se>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Linux default IP ttl
 In-Reply-To: <15185.27251.356109.500135@pizda.ninka.net>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Message-ID: <Pine.LNX.4.33.0107151209290.2352-100000@uplift.swm.pp.se>
+Organization: People's Front Against WWW
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 15 Jul 2001, David S. Miller wrote:
+
 > Why are there 64 friggin hops between machine in your server farm?
+
+I think he is referring to the amount of hops between him and clients
+accessing his servers.
+
 > That is what I want to know.  It makes no sense, even over today's
 > internet, to have more than 64 hops between two sites.
->
-> Later,
-> David S. Miller
-> davem@redhat.com
 
-I have NO idea and feel the same way. Some of the clients might be buried in
-some net inside India or China or the US some other place with some goofy
-internal net .. I dunno.  All I know is that MicroSquish set their default
-TTL to 128 and there APPEAR to be people reaching me that are more than 64
-hops away that are in fact reachable when I increase the TTL.
+I have seen sites that are 35 hops away. I'd say it's unlikely
+to have more than 64 hops between you and any machine on the internet, but
+if this guy is seeing ICMP Unreachables and it lessened when changing TTL,
+then I guess there actually ARE machine out there with a lot of IP hops.
+
+What problems could occur from raising it to 128? I'd imagine routing
+loops might mean a bit more traffic, but if other major OSes are at TTL
+128 and someone is actually having trouble with 64, then why not raise it?
+
+-- 
+Mikael Abrahamsson    email: swmike@swm.pp.se
 
 

@@ -1,65 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261349AbVBJTd5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261377AbVBJTex@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261349AbVBJTd5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Feb 2005 14:33:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261614AbVBJTd4
+	id S261377AbVBJTex (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Feb 2005 14:34:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261596AbVBJTew
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Feb 2005 14:33:56 -0500
-Received: from gprs214-161.eurotel.cz ([160.218.214.161]:58263 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S261349AbVBJTcx (ORCPT
+	Thu, 10 Feb 2005 14:34:52 -0500
+Received: from smtp105.mail.sc5.yahoo.com ([66.163.169.225]:4459 "HELO
+	smtp105.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261617AbVBJTei convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Feb 2005 14:32:53 -0500
-Date: Thu, 10 Feb 2005 20:31:23 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jon Smirl <jonsmirl@gmail.com>,
-       ncunningham@linuxmail.org,
-       Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>,
-       ACPI List <acpi-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] Reliable video POSTing on resume (was: Re: [ACPI]   Samsung P35, S3, black screen (radeon))
-Message-ID: <20050210193123.GC1391@elf.ucw.cz>
-References: <1107695583.14847.167.camel@localhost.localdomain> <420BB267.8060108@tmr.com>
+	Thu, 10 Feb 2005 14:34:38 -0500
+Date: Thu, 10 Feb 2005 20:34:37 +0100
+From: "d.c" <aradorlinux@yahoo.es>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: lm@bitmover.com, jonsmirl@gmail.com, tytso@mit.edu, stelian@popies.net,
+       romieu@fr.zoreil.com, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Linux Kernel Subversion Howto
+Message-Id: <20050210203437.5fe88be0.aradorlinux@yahoo.es>
+In-Reply-To: <Pine.LNX.4.61.0502091651400.30794@scrub.home>
+References: <20050208155845.GB14505@bitmover.com>
+	<Pine.LNX.4.61.0502081812090.6118@scrub.home>
+	<20050208181634.GA20261@bitmover.com>
+	<Pine.LNX.4.61.0502081942200.6118@scrub.home>
+	<20050209000733.GA6308@thunk.org>
+	<Pine.LNX.4.61.0502090208580.6118@scrub.home>
+	<9e47339105020818242fd9f6fa@mail.gmail.com>
+	<Pine.LNX.4.61.0502090328490.30794@scrub.home>
+	<20050209023928.GB4828@bitmover.com>
+	<Pine.LNX.4.61.0502090346470.30794@scrub.home>
+	<20050209034030.GC4828@bitmover.com>
+	<Pine.LNX.4.61.0502091651400.30794@scrub.home>
+X-Mailer: Sylpheed version 1.9.2 (GTK+ 2.6.1; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <420BB267.8060108@tmr.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+El Thu, 10 Feb 2005 00:22:39 +0100 (CET),
+Roman Zippel <zippel@linux-m68k.org> escribió:
 
-> >>Rumors say that notebooks no longer have video bios at C000h:0; rumors
-> >>say that video BIOS on notebooks is simply integrated into main system
-> >>BIOS. I personaly do not know if rumors are true, but PCs are ugly
-> >>machines....
-> >>							
-> >
-> >
-> >A small number of laptop systems are known to pull this trick. There are
-> >other problems too - the video bios boot may make other assumptions
-> >about access to PCI space, configuration, interrupts, timers etc.
-> >
-> >Some systems (intel notably) appear to expect you to use the bios
-> >save/restore video state not re-POST.
-> 
-> Isn't that what it's there for? In any context other than save/restore I 
-> wouldn't think using the BIOS was a good approach. But this is a special 
-> case, and if there's a BIOS function which does the right thing, it 
-> would seem to be easier to assume that the BIOS works than that the 
-> driver can do every operation for a clean restart.
-> 
-> The problem is that while POST leaves the video in a known state, it may 
-> not the known state you want, nor is it a given that you can get from 
-> there to where you were on suspend. PC hardware isn't always that 
-> dependable.
+> To remind you the main problem was and is still, that the kernel history 
+> is locked into bk. At this point I'm not really sure, whether all bk user 
+> realize this, as you constantly try to distract them with random 
 
-Eh? POST leaves video in 80x25 text mode, and we know how to handle
-that mode just fine... Historically that's what we ran our consoles
-at, so X can handle it etc.
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Yes, it's locked, so?
+
+Roman, You are losing lot of time discussing this. What you need to do is to talk
+with bk USERS. Larry has no influence in people's decisions, and people has
+chosen BK and they know very well what they were doing.
+
+If everyone at lkml agreed that it's neccesary to use a tool which exports 100% of
+the kernel history to develop the kernel, and BK users would tell larry "we need this
+feature or we will stop using BK" you'd get what you want in a jiffie. 
+
+

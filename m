@@ -1,38 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262184AbRENCyR>; Sun, 13 May 2001 22:54:17 -0400
+	id <S262190AbRENC55>; Sun, 13 May 2001 22:57:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262187AbRENCyG>; Sun, 13 May 2001 22:54:06 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:38576 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S262184AbRENCyD>;
-	Sun, 13 May 2001 22:54:03 -0400
+	id <S262189AbRENC5r>; Sun, 13 May 2001 22:57:47 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:41136 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S262187AbRENC5g>;
+	Sun, 13 May 2001 22:57:36 -0400
 From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15103.18624.98009.842915@pizda.ninka.net>
-Date: Sun, 13 May 2001 19:53:52 -0700 (PDT)
-To: Piotr Wysocki <wysek@tower.braxis.co.uk>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.5-pre1, iproute2 - IPv6
-In-Reply-To: <Pine.LNX.4.33.0105140040010.2829-100000@tower.braxis.co.uk>
-In-Reply-To: <Pine.LNX.4.33.0105140040010.2829-100000@tower.braxis.co.uk>
+Message-ID: <15103.18845.562418.245774@pizda.ninka.net>
+Date: Sun, 13 May 2001 19:57:33 -0700 (PDT)
+To: "H . J . Lu" <hjl@lucon.org>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, alan@lxorguk.ukuu.org.uk,
+        linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: Enable IP PNP for 2.4.4-ac8
+In-Reply-To: <20010513181006.A10057@lucon.org>
+In-Reply-To: <20010511162412.A11896@lucon.org>
+	<15100.30085.5209.499946@pizda.ninka.net>
+	<20010511165339.A12289@lucon.org>
+	<m13da9ky7s.fsf@frodo.biederman.org>
+	<20010513110707.A11055@lucon.org>
+	<m1y9s1jbml.fsf@frodo.biederman.org>
+	<20010513181006.A10057@lucon.org>
 X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Piotr Wysocki writes:
- > ll_proto.c:36: `ETH_P_ECHO' undeclared here (not in a function)
- > ll_proto.c:36: initializer element is not constant
- > ll_proto.c:36: (near initialization for `llproto_names[1].id')
+H . J . Lu writes:
+ > Have you tried ramdisk on diskless ... sparc  .. booting
+ > over network?
 
-Just simply remove references to these (bogus, that's why they were
-removed from the kernel headers) ETH_* constants in the iproute
-sources.
+I know that sparc works fine, what is your point though?
 
-Alexey should be making a new release sometime soon now that he
-is back.
+All platforms ought to work with ramdisks just fine, in fact.
 
 Later,
 David S. Miller

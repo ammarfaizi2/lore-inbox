@@ -1,80 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262049AbUDCXmy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Apr 2004 18:42:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262060AbUDCXmy
+	id S262060AbUDCXqY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Apr 2004 18:46:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262063AbUDCXqY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Apr 2004 18:42:54 -0500
-Received: from CS2075.cs.fsu.edu ([128.186.122.75]:26653 "EHLO mail.cs.fsu.edu")
-	by vger.kernel.org with ESMTP id S262049AbUDCXmw (ORCPT
+	Sat, 3 Apr 2004 18:46:24 -0500
+Received: from fw.osdl.org ([65.172.181.6]:44005 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262060AbUDCXqW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Apr 2004 18:42:52 -0500
-Message-ID: <005901c419d5$5ecd7c70$af7aa8c0@VALUED65BAD02C>
-From: "Amit" <khandelw@cs.fsu.edu>
-To: <karim@opersys.com>
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-References: <1080849830.91ac1e3f85274@system.cs.fsu.edu>	<406C79E4.1060700@opersys.com> <1081012426.5c22c66499b13@system.cs.fsu.edu>	<406F21CB.8070908@opersys.com> <1081026049.f64d5288b5aaa@system.cs.fsu.edu> <406F2851.6050304@opersys.com> <003b01c419d0$67e59e50$af7aa8c0@VALUED65BAD02C> <406F476D.8050002@opersys.com>
-Subject: Re: kernel 2.4.16
-Date: Sat, 3 Apr 2004 18:42:48 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Sat, 3 Apr 2004 18:46:22 -0500
+Date: Sat, 3 Apr 2004 15:46:08 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: hch@infradead.org, hugh@veritas.com, vrajesh@umich.edu,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [RFC][PATCH 1/3] radix priority search tree - objrmap
+ complexity fix
+Message-Id: <20040403154608.78e98877.akpm@osdl.org>
+In-Reply-To: <20040403232717.GO2307@dualathlon.random>
+References: <20040402001535.GG18585@dualathlon.random>
+	<Pine.LNX.4.44.0404020145490.2423-100000@localhost.localdomain>
+	<20040402011627.GK18585@dualathlon.random>
+	<20040401173649.22f734cd.akpm@osdl.org>
+	<20040402020022.GN18585@dualathlon.random>
+	<20040402104334.A871@infradead.org>
+	<20040402164634.GF21341@dualathlon.random>
+	<20040403174043.GK2307@dualathlon.random>
+	<20040403120227.398268aa.akpm@osdl.org>
+	<20040403232717.GO2307@dualathlon.random>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey Karim,
-   The installation has gone through smoothly and I have managed to get an
-linux-2.6.3 up and running with LTT.
-I checked the documentation and it says that I need to do an insmod on the
-tracer but I have compiled it as a part of the kernel. Now the documentation
-says that I should execute the createdev.sh to create the devices. When I
-execute that I get errors related to tracer. When I try to execute the
-tracedaemon I get that relayfs is not mounted. Can you please tell me how to
-go about doing the first part. After doing all this I want to run some test
-cases and see how does LTT generate traces. Later on I would also like to
-add rtai to this and see the traces from that too.
-
-Thanks!
--Amit Khandelwal
-
-PS. I would like to write down a small howto on this and pass it on to you
-so that newbies like me can have a good ref. Thanks for the help.
-
-
------ Original Message ----- 
-From: "Karim Yaghmour" <karim@opersys.com>
-To: "Amit" <khandelw@cs.fsu.edu>
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Sent: Saturday, April 03, 2004 6:23 PM
-Subject: Re: kernel 2.4.16
-
-
+Andrea Arcangeli <andrea@suse.de> wrote:
 >
-> Amit wrote:
-> >    The patches got installed smoothly however, like in linux-2.4.19 this
-> > time the "Kernel Tracing" option didn't come up when I did "make
-xconfig". I
-> > copied the CONFIG_TRACE=m from my .config of linux-2.4.19. I hope this
-is
-> > correct.
->
-> No, this isn't the right way.
->
-> You need to enable relayfs support in "File Systems"->"Pseudo
-filesystems",
-> then you will be able to select "General setup"->"Linux Trace Toolkit
-support".
->
-> Karim
-> -- 
-> Author, Speaker, Developer, Consultant
-> Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-> http://www.opersys.com || karim@opersys.com || 1-866-677-4546
->
+> On Sat, Apr 03, 2004 at 12:02:27PM -0800, Andrew Morton wrote:
+> > It might be better to switch over to address masking in get_user_pages()
+> > and just dump all the compound page logic.  I don't immediately see how the
+> 
+> I'm all for it, this is how the 2.4 get_user_pages deals with bigpages
+> too, I've never enjoyed the compound thing.
+> 
+> > get_user_pages() caller can subsequently do put_page() against the correct
+> > pageframe, but I assume you worked that out?
+> 
+> see this patch:
+> 
+> 	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.23aa2/9910_shm-largepage-18.gz
+> 
+> it's a two liner fix in follow_page:
+> 
+> @@ -439,6 +457,8 @@ static struct page * follow_page(struct
+>         pmd = pmd_offset(pgd, address);
+>         if (pmd_none(*pmd))
+>                 goto out;
+> +       if (pmd_bigpage(*pmd))
+> +               return __pmd_page(*pmd) + (address & BIGPAGE_MASK) / PAGE_SIZE;
+
+OK, that's an x86 solution.  But this addresses the easy part - the messy
+part happens where we want to unpin the pages at I/O completion in
+bio_release_pages() when the page may not even be in a vma any more..
 
 
